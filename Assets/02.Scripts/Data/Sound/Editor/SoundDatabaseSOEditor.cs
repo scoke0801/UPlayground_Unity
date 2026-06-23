@@ -67,7 +67,7 @@ namespace UPlayGround.Data.Sound.Editor
             DrawValidation();
         }
 
-        private void DrawHeader()
+        private new void DrawHeader()
         {
             var database = (SoundDatabaseSO)target;
             CountValidation(out int errorCount, out int warningCount);

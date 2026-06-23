@@ -97,8 +97,9 @@ namespace UPlayGround.Editor
 
             private static float   _damage, _poiseDamage, _breakDamage, _reactionDuration;
             private static float   _pullForce, _airborneForce, _knockBackForce, _knockBackDrag;
-            private static float   _attackRadius, _hitHeightRange, _grabDuration;
-            private static Vector3 _attackOffset;
+            private static float   _targetingRange, _grabDuration;
+            private static Vector3 _impactOffset;
+            private static string  _hitboxGroupId;
             private static int     _reactionType, _victimForcedAnimKey;
             private static bool    _forceReaction, _forceBreakExpose, _guaranteedReaction;
             private static string  _hitParticleName;
@@ -112,9 +113,9 @@ namespace UPlayGround.Editor
                 _reactionDuration    = phase.FindPropertyRelative("reactionDuration").floatValue;
                 _forceReaction       = phase.FindPropertyRelative("forceReaction").boolValue;
                 _forceBreakExpose    = phase.FindPropertyRelative("forceBreakExpose").boolValue;
-                _attackOffset        = phase.FindPropertyRelative("attackOffset").vector3Value;
-                _attackRadius        = phase.FindPropertyRelative("attackRadius").floatValue;
-                _hitHeightRange      = phase.FindPropertyRelative("hitHeightRange").floatValue;
+                _hitboxGroupId       = phase.FindPropertyRelative("hitboxGroupId").stringValue;
+                _impactOffset        = phase.FindPropertyRelative("impactOffset").vector3Value;
+                _targetingRange      = phase.FindPropertyRelative("targetingRange").floatValue;
                 _hitParticleName     = phase.FindPropertyRelative("hitParticleName").stringValue;
                 _pullForce           = phase.FindPropertyRelative("pullForce").floatValue;
                 _airborneForce       = phase.FindPropertyRelative("airborneForce").floatValue;
@@ -125,7 +126,7 @@ namespace UPlayGround.Editor
                 _guaranteedReaction  = phase.FindPropertyRelative("guaranteedReaction").boolValue;
 
                 HasData    = true;
-                DisplayStr = $"DMG {_damage:F0}  포이즈 {_poiseDamage:F0}  브레이크 {_breakDamage:F0}  반경 {_attackRadius:F1}";
+                DisplayStr = $"DMG {_damage:F0}  포이즈 {_poiseDamage:F0}  브레이크 {_breakDamage:F0}  그룹 {_hitboxGroupId}";
             }
 
             public static void Paste(SerializedProperty phase)
@@ -138,9 +139,9 @@ namespace UPlayGround.Editor
                 phase.FindPropertyRelative("reactionDuration").floatValue    = _reactionDuration;
                 phase.FindPropertyRelative("forceReaction").boolValue        = _forceReaction;
                 phase.FindPropertyRelative("forceBreakExpose").boolValue     = _forceBreakExpose;
-                phase.FindPropertyRelative("attackOffset").vector3Value      = _attackOffset;
-                phase.FindPropertyRelative("attackRadius").floatValue        = _attackRadius;
-                phase.FindPropertyRelative("hitHeightRange").floatValue      = _hitHeightRange;
+                phase.FindPropertyRelative("hitboxGroupId").stringValue      = _hitboxGroupId;
+                phase.FindPropertyRelative("impactOffset").vector3Value      = _impactOffset;
+                phase.FindPropertyRelative("targetingRange").floatValue      = _targetingRange;
                 phase.FindPropertyRelative("hitParticleName").stringValue    = _hitParticleName;
                 phase.FindPropertyRelative("pullForce").floatValue           = _pullForce;
                 phase.FindPropertyRelative("airborneForce").floatValue       = _airborneForce;
@@ -615,8 +616,6 @@ namespace UPlayGround.Editor
                 ne.FindPropertyRelative("skillGaugeIndex").intValue = -1;
                 ne.FindPropertyRelative("matchMode").enumValueIndex = 0;            // Suffix
                 ne.FindPropertyRelative("groundCondition").enumValueIndex = 0;      // Any
-                var hitAngle = ne.FindPropertyRelative("attackInfo")?.FindPropertyRelative("hitAngle");
-                if (hitAngle != null) hitAngle.floatValue = 60f;
             }
 
             EditorGUILayout.Space(6);
@@ -851,7 +850,7 @@ namespace UPlayGround.Editor
                 SerializedProperty ph     = phasesP.GetArrayElementAtIndex(i);
                 float  damage             = ph.FindPropertyRelative("damage").floatValue;
                 float  breakDamage        = ph.FindPropertyRelative("breakDamage").floatValue;
-                float  radius             = ph.FindPropertyRelative("attackRadius").floatValue;
+                float  radius             = ph.FindPropertyRelative("targetingRange").floatValue;
                 float  af                 = ph.FindPropertyRelative("airborneForce").floatValue;
                 float  kf                 = ph.FindPropertyRelative("knockBackForce").floatValue;
                 bool   forceBreakExpose   = ph.FindPropertyRelative("forceBreakExpose").boolValue;
@@ -1025,7 +1024,6 @@ namespace UPlayGround.Editor
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
             SerializedProperty interruptP = prop.FindPropertyRelative("interruptActions");
             SerializedProperty moveCancelDelayP = prop.FindPropertyRelative("moveCancelDelayAfterLastHit");
-            SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             // 총 대미지 (모든 Phase 합산)
             float totalDmg = 0f;
@@ -1042,7 +1040,7 @@ namespace UPlayGround.Editor
             EditorGUILayout.BeginVertical(_cardStyle);
 
             string animLabel = animKeyP.enumDisplayNames[animKeyP.enumValueIndex];
-            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   총DMG {totalDmg:F0}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.intValue != 0 ? "캔슬 O" : "캔슬 X")}";
+            string summary   = $"  [{index + 1}]  {animLabel}   |   Phase {phasesP.arraySize}   |   총DMG {totalDmg:F0}   |   {(interruptP.intValue != 0 ? "캔슬 O" : "캔슬 X")}";
 
             // 오류=붉은, 경고=노랑, 정상=accent 배경
             Color bgColor = validation.Errors.Count > 0
@@ -1079,7 +1077,6 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
                     EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
                     EditorGUILayout.PropertyField(moveCancelDelayP, new GUIContent("이동 캔슬 지연 (초)"));
-                    EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
                 }
 
                 EditorGUILayout.Space(4);
@@ -1187,12 +1184,10 @@ namespace UPlayGround.Editor
 
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
-                    EditorGUILayout.LabelField("히트박스", EditorStyles.miniBoldLabel);
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("attackOffset"),   new GUIContent("오프셋"));
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("attackRadius"),   new GUIContent("반경"));
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("hitHeightRange"), new GUIContent("높이 범위 (-1=무제한)"));
-                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.LabelField("부착형 HitBox", EditorStyles.miniBoldLabel);
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("hitboxGroupId"), new GUIContent("그룹 ID"));
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("targetingRange"), new GUIContent("타기팅 거리"));
+                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("impactOffset"), new GUIContent("텔레그래프/AOE 오프셋"));
                 }
 
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
@@ -1534,7 +1529,6 @@ namespace UPlayGround.Editor
             SerializedProperty phasesP    = baseInfo.FindPropertyRelative("hitPhases");
             SerializedProperty interruptP = prop.FindPropertyRelative("interruptActions");
             SerializedProperty moveCancelDelayP = prop.FindPropertyRelative("moveCancelDelayAfterLastHit");
-            SerializedProperty angleP     = prop.FindPropertyRelative("hitAngle");
 
             ValidationResult validation = ValidateAttack(prop);
 
@@ -1554,7 +1548,6 @@ namespace UPlayGround.Editor
                 EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
                 EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
                 EditorGUILayout.PropertyField(moveCancelDelayP, new GUIContent("이동 캔슬 지연 (초)"));
-                EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
             }
 
             EditorGUILayout.Space(4);
@@ -1693,7 +1686,6 @@ namespace UPlayGround.Editor
         {
             SerializedProperty phasesP    = stage.FindPropertyRelative("hitPhases");
             SerializedProperty interruptP = stage.FindPropertyRelative("interruptActions");
-            SerializedProperty angleP     = stage.FindPropertyRelative("hitAngle");
 
             ValidationResult validation = ValidateAttack(stage);
 
@@ -1703,7 +1695,7 @@ namespace UPlayGround.Editor
 
             EditorGUILayout.BeginVertical(_cardStyle);
 
-            string summary = $"  [{index + 1}단계]  Phase {phasesP.arraySize}   |   각도 {angleP.floatValue:F0}°   |   {(interruptP.intValue != 0 ? "캔슬 O" : "캔슬 X")}";
+            string summary = $"  [{index + 1}단계]  Phase {phasesP.arraySize}   |   {(interruptP.intValue != 0 ? "캔슬 O" : "캔슬 X")}";
             Color  bgColor = validation.Errors.Count > 0
                 ? new Color(0.80f, 0.15f, 0.15f, 0.25f)
                 : validation.Warnings.Count > 0
@@ -1729,7 +1721,6 @@ namespace UPlayGround.Editor
                 {
                     EditorGUILayout.LabelField("단계 설정", EditorStyles.miniBoldLabel);
                     EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
-                    EditorGUILayout.PropertyField(angleP,     new GUIContent("판정 각도 (°)"));
                 }
                 EditorGUILayout.Space(4);
                 DrawHitPhaseList(phasesP, "charge", index, accent);

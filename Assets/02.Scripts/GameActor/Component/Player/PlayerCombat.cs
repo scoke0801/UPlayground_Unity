@@ -83,6 +83,16 @@ namespace UPlayGround.Component
         [Tooltip("비락온 공격 시작 시 주변 적 방향으로 부드럽게 돌기 위한 탐색 각도")]
         [SerializeField] private float _freeAttackFacingSearchAngle = 180f;
 
+        [Space(4)]
+        [Tooltip("호밍/워프 '이미 닿는 적' 판정 및 워프 수락 콘의 기준 거리. 공격별 데이터가 아닌 캐릭터 공통값.\n실제 피격은 부착형 HitBox가 담당하므로 이 값은 타기팅 전용이다.")]
+        [SerializeField] private float _homingReachRange = 1.5f;
+        [Range(0f, 180f)]
+        [Tooltip("호밍/워프 수락 콘의 기준 각도(half-angle). 캐릭터 공통값.")]
+        [SerializeField] private float _homingReachAngle = 60f;
+
+        public float HomingReachRange => _homingReachRange;
+        public float HomingReachAngle => _homingReachAngle;
+
         [Header("Motion Warp Settings")]
         [Tooltip("워프 최소 거리. 이 거리 이내의 적에게는 워프 미적용 (씹힘 방지)")]
         [SerializeField] private float _warpMinDistance = 0.3f;
@@ -178,7 +188,9 @@ namespace UPlayGround.Component
         private PlayerActor       _playerActor;
         private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
-        private readonly Collider[] _hitOverlapBuffer = new Collider[128];
+        private CombatHitboxSet _hitboxSet;
+        private string _requestedHitboxGroupId;
+        private int _lastHitDetectionFrame = -1;
         private readonly List<CombatHit> _detectedHits = new List<CombatHit>(32);
         private PlayerCombatStateTracker _combatStateTracker;
         private CombatActionRunner _actionRunner;
@@ -318,7 +330,7 @@ namespace UPlayGround.Component
         };
 
         /// <summary>
-        /// resolver 호출용 컨텍스트. 현재 공격 데이터의 hitRange/hitAngle 을 사용한다.
+        /// resolver 호출용 컨텍스트. 캐릭터 공통 호밍 reach(_homingReachRange/_homingReachAngle)를 사용한다.
         /// CurrentAttackData 가 없으면 default(WarpResolverContext) 반환.
         /// </summary>
         public WarpResolverContext BuildWarpResolverContext()
@@ -327,9 +339,9 @@ namespace UPlayGround.Component
             return new WarpResolverContext
             {
                 origin       = transform,
-                hitRange     = _currentAttackData.hitRange,
-                searchRange  = Mathf.Max(_currentAttackData.hitRange, _warpMaxDistance),
-                hitAngle     = _currentAttackData.hitAngle,
+                targetingRange     = _homingReachRange,
+                searchRange  = Mathf.Max(_homingReachRange, _warpMaxDistance),
+                targetingAngle     = _homingReachAngle,
                 targetLayer  = _targetLayerMask,
                 targetFilter = WarpDamageableFilter,
             };
@@ -389,9 +401,12 @@ namespace UPlayGround.Component
                 canUseCombatData ? _currentSpecialBreakTarget : null,
                 canUseCombatData ? _currentSpecialBreakDamageByMaxHpRate : 0f,
                 canUseCombatData ? _currentSpecialBreakFixedDamage : 0f,
-                canUseCombatData ? _currentSpecialBreakMinReferenceHealth : 0f);
+                canUseCombatData ? _currentSpecialBreakMinReferenceHealth : 0f,
+                _homingReachRange,
+                _homingReachAngle,
+                Mathf.Max(_homingReachRange, _warpMaxDistance));
 
-            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={!canUseCombatData}, hitRange={_currentAttackData?.hitRange}, hitAngle={_currentAttackData?.hitAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
+            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={!canUseCombatData}, homingReach={_homingReachRange}/{_homingReachAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
             return true;
         }
 
@@ -446,6 +461,8 @@ namespace UPlayGround.Component
 
             _actionRunner = gameObject.GetOrAddComponent<CombatActionRunner>();
             _actionRunner.SetCollisionExecutor(this);
+            _hitboxSet = gameObject.GetOrAddComponent<CombatHitboxSet>();
+            _hitboxSet.Refresh();
             OnAttackStarted -= HandleAttackStartedForRunner;
             OnAttackStarted += HandleAttackStartedForRunner;
         }
@@ -458,6 +475,7 @@ namespace UPlayGround.Component
         {
             _equipment     = GetComponentInChildren<PlayerEquipment>();
             _actorAnimator = GetComponentInChildren<ActorAnimator>();
+            _hitboxSet?.Refresh();
         }
 
         private void OnEnable()
@@ -469,11 +487,17 @@ namespace UPlayGround.Component
         private void Update()
         {
             // 워프 타이머는 MotionWarpController.Update 가 처리.
-            if (IsPossibleCollide)
-                PerformHitDetection();
-
             _combatStateTracker?.Tick();
             UpdateBreakInteractionTarget();
+        }
+
+        private void LateUpdate()
+        {
+            // 히트 검출은 LateUpdate에서 수행한다. Animancer(PlayableGraph)는 MonoBehaviour.Update
+            // 이후에 포즈를 적용하므로 Update에서 본/무기 트랜스폼을 읽으면 직전 프레임 포즈(1프레임 지연)를
+            // 검출하게 된다. LateUpdate는 갓 적용된 포즈를 읽으면서 스윕 연속성도 유지한다.
+            if (IsPossibleCollide)
+                PerformHitDetection();
         }
 
         // ── Break Interaction 게이팅 ──────────────────────────────────
@@ -720,10 +744,6 @@ namespace UPlayGround.Component
                 forceBreakExpose = phase.forceBreakExpose,
                 interruptActions = stage.interruptActions,
                 reactionType     = phase.reactionType,
-                hitRange         = phase.attackRadius,
-                hitAngle         = stage.hitAngle,
-                hitHeightOffset  = phase.attackOffset.y,
-                hitHeightRange   = phase.hitHeightRange,
                 hitParticleName  = phase.hitParticleName,
                 pullForce        = phase.pullForce,
                 knockbackForce   = phase.knockBackForce,
@@ -1036,9 +1056,6 @@ namespace UPlayGround.Component
                 breakDamage      = 0f,
                 interruptActions = PlayerInterruptAction.None,
                 reactionType     = AttackReactionType.Knockdown,
-                hitRange         = 1.5f,
-                hitAngle         = 90f,
-                hitHeightOffset  = 1.0f,
                 hitParticleName  = "HeavyHit",
                 knockbackForce   = 0f,
                 attackKind       = AttackKind.FinishAttack,
@@ -1071,9 +1088,6 @@ namespace UPlayGround.Component
                 breakDamage = 0f,
                 interruptActions = PlayerInterruptAction.None,
                 reactionType = AttackReactionType.Heavy,
-                hitRange = 1.5f,
-                hitAngle = 90f,
-                hitHeightOffset = 1.0f,
                 hitParticleName = "HeavyHit",
                 attackKind = AttackKind.SkillAttack,
             };
@@ -1127,16 +1141,21 @@ namespace UPlayGround.Component
                 SetHitPhaseIndex(_actionRunner.CurrentPhaseIndex);
             }
 
-            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
-            var hitShape = new MeleeHitShape(
+            if (_hitboxSet == null || !_hitboxSet.IsActive)
+                return;
+
+            // 프레임당 1회만 검출한다. LateUpdate 폴링과 애니메이션 이벤트(OnAnimationEvent_HitCheck)가
+            // 같은 프레임에 함께 들어오면 스윕 기준 형상이 이중 커밋되어 스윕 구간을 잃기 때문이다.
+            if (_lastHitDetectionFrame == Time.frameCount)
+                return;
+            _lastHitDetectionFrame = Time.frameCount;
+
+            _hitboxSet.DetectActiveGroup(
                 transform,
-                origin,
-                transform.forward,
-                _currentAttackData.hitRange,
-                _currentAttackData.hitAngle,
-                _currentAttackData.hitHeightRange,
-                _targetLayerMask);
-            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedHits);
+                _targetLayerMask,
+                _hitTargets,
+                _detectedHits,
+                includeInvincibleTargets: false);
 
             // 첫 번째 히트 정보만 피드백(킬캠 등)에 사용
             bool    hitOccurred   = false;
@@ -1219,6 +1238,17 @@ namespace UPlayGround.Component
 
         public void SetEnableCollision(bool isCollisionEnable)
         {
+            if (isCollisionEnable)
+                BeginHitboxWindow();
+            else
+            {
+                _hitboxSet?.EndGroup();
+                // 윈도우 종료 시 그룹 요청을 비운다. 다음 윈도우가 runner를 우회해
+                // 직접 SetEnableCollision(true)로 들어오더라도(예: 얼티밋) 직전 공격의
+                // 그룹이 잔존하지 않고 phase 기본값으로 폴백되도록 한다.
+                _requestedHitboxGroupId = null;
+            }
+
             // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다(직접 호출자 PlayerChargeState 포함).
             _actionRunner?.HandleTimelineEvent(
                 isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
@@ -1227,6 +1257,13 @@ namespace UPlayGround.Component
 
         public void SetTargetLayerMask(LayerMask targetLayerMask) =>
             _targetLayerMask = targetLayerMask;
+
+        public void SetHitboxGroup(string hitboxGroupId)
+        {
+            _requestedHitboxGroupId = string.IsNullOrWhiteSpace(hitboxGroupId)
+                ? null
+                : hitboxGroupId.Trim();
+        }
 
         public void SetHitPhaseIndex(int index)
         {
@@ -1243,9 +1280,6 @@ namespace UPlayGround.Component
             _currentAttackData.forceReaction   = phase.forceReaction;
             _currentAttackData.forceBreakExpose = phase.forceBreakExpose;
             _currentAttackData.reactionType    = phase.reactionType;
-            _currentAttackData.hitRange        = phase.attackRadius;
-            _currentAttackData.hitHeightOffset = phase.attackOffset.y;
-            _currentAttackData.hitHeightRange  = phase.hitHeightRange;
             _currentAttackData.hitParticleName = phase.hitParticleName;
             _currentAttackData.pullForce       = phase.pullForce;
             _currentAttackData.airborneForce   = phase.airborneForce;
@@ -1253,6 +1287,29 @@ namespace UPlayGround.Component
             _currentAttackData.knockbackDrag   = phase.knockBackDrag;
             _currentAttackData.reactionData     = phase.reactionProfile?.Resolve();
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
+        }
+
+        private void BeginHitboxWindow()
+        {
+            HitPhaseData phase = ResolveCurrentHitPhase();
+            string groupId = !string.IsNullOrWhiteSpace(_requestedHitboxGroupId)
+                ? _requestedHitboxGroupId
+                : phase?.hitboxGroupId;
+            bool activated = _hitboxSet != null && _hitboxSet.BeginGroup(groupId);
+            if (!activated)
+            {
+                Debug.LogError(
+                    $"[PlayerCombat] 필수 HitBox 그룹 '{groupId ?? CombatHitbox.DefaultGroupId}'을 찾지 못해 공격 판정을 중단합니다.",
+                    this);
+            }
+        }
+
+        private HitPhaseData ResolveCurrentHitPhase()
+        {
+            int index = _currentAttackData?.hitPhaseIndex ?? 0;
+            return _currentAttackInfoBase != null
+                ? _currentAttackInfoBase.GetHitPhase(index)
+                : GetHitPhase(_currentResidualHitPhases, index);
         }
 
         private static bool IsResidualAttackState(string stateName)
@@ -1800,17 +1857,17 @@ namespace UPlayGround.Component
 
         #region Homing Target Search
 
-        public Transform FindAttackSnapTarget(float hitRange, float hitAngle, bool isLockedOn)
+        public Transform FindAttackSnapTarget(bool isLockedOn)
         {
             return FindAttackSnapTargetInternal(
-                hitRange,
-                hitAngle,
+                _homingReachRange,
+                _homingReachAngle,
                 GetSnapSearchRange(isLockedOn),
                 GetSnapSearchAngle(isLockedOn),
                 skipIfAlreadyCovered: true);
         }
 
-        public Transform FindMotionWarpTarget(float hitRange, float hitAngle, bool isLockedOn, float warpMaxDistance)
+        public Transform FindMotionWarpTarget(bool isLockedOn, float warpMaxDistance)
         {
             float searchRange = Mathf.Max(GetSnapSearchRange(isLockedOn), warpMaxDistance);
             float searchAngle = GetSnapSearchAngle(isLockedOn);
@@ -1818,33 +1875,33 @@ namespace UPlayGround.Component
                 searchAngle = Mathf.Max(searchAngle, _freeAttackFacingSearchAngle);
 
             return FindAttackSnapTargetInternal(
-                hitRange,
-                hitAngle,
+                _homingReachRange,
+                _homingReachAngle,
                 searchRange,
                 searchAngle,
                 skipIfAlreadyCovered: true);
         }
 
-        public Transform FindFreeAttackFacingTarget(float hitRange, float hitAngle)
+        public Transform FindFreeAttackFacingTarget()
         {
             float searchAngle = Mathf.Max(_freeSnapSearchAngle, _freeAttackFacingSearchAngle);
             return FindAttackSnapTargetInternal(
-                hitRange,
-                hitAngle,
+                _homingReachRange,
+                _homingReachAngle,
                 _freeSnapSearchRange,
                 searchAngle,
                 skipIfAlreadyCovered: false);
         }
 
         private Transform FindAttackSnapTargetInternal(
-            float hitRange,
-            float hitAngle,
+            float targetingRange,
+            float targetingAngle,
             float searchRange,
             float searchAngle,
             bool skipIfAlreadyCovered)
             => _targetingController?.FindAttackTarget(
-                hitRange,
-                hitAngle,
+                targetingRange,
+                targetingAngle,
                 searchRange,
                 searchAngle,
                 _targetLayerMask,
@@ -1862,22 +1919,35 @@ namespace UPlayGround.Component
         }
 
         /// <summary>
-        /// 현재 공격의 히트 범위·각도 기즈모.
+        /// 현재 활성 부착형 HitBox 기즈모.
         /// 에디트 모드의 OnDrawGizmosSelected 와 플레이 모드의 중앙 DrawGizmos 가 공유한다.
         /// 호출 전 _currentAttackData null 체크는 호출 측이 보장한다.
         /// </summary>
         private void DrawHitGizmos()
         {
-            Vector3 origin  = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
-            Vector3 forward = transform.forward;
+            if (_hitboxSet == null)
+                return;
 
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(origin, _currentAttackData.hitRange);
+            foreach (CombatHitbox hitbox in _hitboxSet.ActiveHitboxes)
+            {
+                if (hitbox == null || !hitbox.TryGetWorldShape(out CombatHitboxShape shape))
+                    continue;
 
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0f,  _currentAttackData.hitAngle, 0f) * forward * _currentAttackData.hitRange);
-            Gizmos.DrawLine(origin, origin + Quaternion.Euler(0f, -_currentAttackData.hitAngle, 0f) * forward * _currentAttackData.hitRange);
-            Gizmos.DrawLine(origin, origin + forward * _currentAttackData.hitRange);
+                if (shape.Type == CombatHitboxShapeType.Box)
+                {
+                    Matrix4x4 previous = Gizmos.matrix;
+                    Gizmos.matrix = Matrix4x4.TRS(shape.Center, shape.Rotation, Vector3.one);
+                    Gizmos.DrawWireCube(Vector3.zero, shape.HalfExtents * 2f);
+                    Gizmos.matrix = previous;
+                }
+                else
+                {
+                    Gizmos.DrawWireSphere(shape.Point0, shape.Radius);
+                    Gizmos.DrawWireSphere(shape.Point1, shape.Radius);
+                    Gizmos.DrawLine(shape.Point0, shape.Point1);
+                }
+            }
         }
 
         #region Debug Gizmo
@@ -1897,7 +1967,7 @@ namespace UPlayGround.Component
                 owner = this,
                 category = Category,
                 position = transform.position,
-                text = $"attack={_currentAttackData.animKey} range={_currentAttackData.hitRange:F2} angle={_currentAttackData.hitAngle:F0}",
+                text = $"attack={_currentAttackData.animKey} reach={_homingReachRange:F2} angle={_homingReachAngle:F0}",
             });
         }
 
@@ -1908,10 +1978,9 @@ namespace UPlayGround.Component
 
             DrawHitGizmos();
 
-            Vector3 origin = transform.position + Vector3.up * _currentAttackData.hitHeightOffset;
             context.DrawLabel(
-                origin + Vector3.up * 0.35f,
-                $"Combat: {_currentAttackData.animKey}\nrange={_currentAttackData.hitRange:F2} angle={_currentAttackData.hitAngle:F0} phase={_currentAttackData.hitPhaseIndex}");
+                transform.position + Vector3.up * 1.35f,
+                $"Combat: {_currentAttackData.animKey}\ngroup={_hitboxSet?.ActiveGroupId ?? "-"} phase={_currentAttackData.hitPhaseIndex}");
         }
 
         #endregion

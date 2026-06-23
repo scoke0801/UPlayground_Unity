@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
@@ -97,9 +97,12 @@ namespace UPlayGround.Component
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
         private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
-        private readonly Collider[] _hitOverlapBuffer = new Collider[128];
         private readonly List<CombatHit> _detectedMeleeHits = new List<CombatHit>(32);
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
+        private CombatHitboxSet _hitboxSet;
+        private string _requestedHitboxGroupId;
+        private int _lastMeleeHitCheckFrame = -1;
+        private int _meleeHitCheckRequestedFrame = -1;
         private float _lastTelegraphStartTime = -999f;
         private float _lastTelegraphDuration;
         private int _lastTelegraphHitPhaseIndex;
@@ -148,6 +151,8 @@ namespace UPlayGround.Component
                 _motionWarp = gameObject.AddComponent<MotionWarpController>();
             _actionRunner = gameObject.GetOrAddComponent<CombatActionRunner>();
             _actionRunner.SetCollisionExecutor(this);
+            _hitboxSet = gameObject.GetOrAddComponent<CombatHitboxSet>();
+            _hitboxSet.Refresh();
         }
 
         /// <summary> MonsterActor.SetDefinition() 등에서 공격 데이터를 주입할 때 사용. </summary>
@@ -173,6 +178,22 @@ namespace UPlayGround.Component
             UpdateCooldowns();
             // 워프 타이머는 MotionWarpController.Update 가 처리.
         }
+
+        private void LateUpdate()
+        {
+            // 히트 검출은 LateUpdate에서 수행한다(갓 적용된 애니메이션 포즈를 읽기 위함). 단, 공격 상태가
+            // 이번 프레임에 검출을 요청했을 때만 수행해 "상태 틱 게이트"를 보존한다. 이렇게 해야 공격이
+            // 중단되어 충돌 윈도우(IsPossibleCollide)가 닫히지 않은 채 누수돼도(예: 카운터 피격 중단)
+            // 상태가 멈추면 요청이 없어 유령 히트가 발생하지 않는다.
+            if (_meleeHitCheckRequestedFrame == Time.frameCount)
+                CheckMeleeAttackHit();
+        }
+
+        /// <summary>
+        /// 공격 상태(Update 단계)가 "이번 프레임 근접 히트 검출 필요"를 표시한다.
+        /// 실제 Overlap 질의는 LateUpdate에서 수행해 갓 적용된 포즈를 읽는다(1프레임 지연 제거).
+        /// </summary>
+        public void RequestMeleeHitCheck() => _meleeHitCheckRequestedFrame = Time.frameCount;
 
         private void UpdateCooldowns()
         {
@@ -418,23 +439,23 @@ namespace UPlayGround.Component
                 SetHitPhaseIndex(_actionRunner.CurrentPhaseIndex);
             }
 
-            var     phase          = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
-            Vector3 attackPosition = _attackOrigin.position
-                + _attackOrigin.forward * phase.attackOffset.z
-                + _attackOrigin.right   * phase.attackOffset.x
-                + _attackOrigin.up      * phase.attackOffset.y;
+            var phase = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
+            if (_hitboxSet == null || !_hitboxSet.IsActive)
+                return;
 
-            var hitShape = new MeleeHitShape(
+            // 프레임당 1회만 검출한다(스윕 기준 형상 이중 커밋 방지). LateUpdate 폴링과
+            // 상태/애니메이션 이벤트가 같은 프레임에 함께 들어와도 안전하게 한다.
+            if (_lastMeleeHitCheckFrame == Time.frameCount)
+                return;
+            _lastMeleeHitCheckFrame = Time.frameCount;
+
+            // 무적 플레이어도 전달해 방어 레이어가 퍼펙트 도지/대시 회피를 판정한다.
+            _hitboxSet.DetectActiveGroup(
                 transform,
-                attackPosition,
-                _attackOrigin.forward,
-                phase.attackRadius,
-                halfAngle: 0f,
-                phase.hitHeightRange,
-                _targetLayer);
-            // includeInvincibleTargets:true — 무적(대시/구르기 i-frame) 플레이어도 전달해
-            // TakeDamage의 방어 레이어가 무적/퍼펙트도지/대시회피를 판정하게 한다.
-            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedMeleeHits, includeInvincibleTargets: true);
+                _targetLayer,
+                _hitTargets,
+                _detectedMeleeHits,
+                includeInvincibleTargets: true);
 
             foreach (CombatHit hit in _detectedMeleeHits)
             {
@@ -457,7 +478,6 @@ namespace UPlayGround.Component
                     knockbackForce     = phase.knockBackForce,
                     knockbackDrag      = phase.knockBackDrag,
                     grabDuration          = phase.grabDuration,
-                    hitHeightRange        = phase.hitHeightRange,
                     attacker              = _ownerActor,
                     victimForcedAnimKey   = phase.victimForcedAnimKey,
                     guaranteedReaction    = phase.guaranteedReaction,
@@ -682,6 +702,15 @@ namespace UPlayGround.Component
 
         public void SetEnableCollision(bool isCollisionEnable)
         {
+            if (isCollisionEnable)
+                BeginHitboxWindow();
+            else
+            {
+                _hitboxSet?.EndGroup();
+                // 윈도우 종료 시 그룹 요청을 비워 다음 윈도우에 직전 공격의 그룹이 잔존하지 않게 한다.
+                _requestedHitboxGroupId = null;
+            }
+
             // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다.
             _actionRunner?.HandleTimelineEvent(
                 isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
@@ -710,10 +739,32 @@ namespace UPlayGround.Component
         // ICombatCollisionExecutor — runner가 SetTargetLayerMask로 호출하므로 SetTargetLayer로 위임한다.
         public void SetTargetLayerMask(LayerMask targetLayerMask) => SetTargetLayer(targetLayerMask);
 
+        public void SetHitboxGroup(string hitboxGroupId)
+        {
+            _requestedHitboxGroupId = string.IsNullOrWhiteSpace(hitboxGroupId)
+                ? null
+                : hitboxGroupId.Trim();
+        }
+
         public void SetHitPhaseIndex(int index)
         {
             _currentHitPhaseIndex = index;
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
+        }
+
+        private void BeginHitboxWindow()
+        {
+            HitPhaseData phase = _currentSkill?.baseInfo?.GetHitPhase(_currentHitPhaseIndex);
+            string groupId = !string.IsNullOrWhiteSpace(_requestedHitboxGroupId)
+                ? _requestedHitboxGroupId
+                : phase?.hitboxGroupId;
+            bool activated = _hitboxSet != null && _hitboxSet.BeginGroup(groupId);
+            if (!activated)
+            {
+                Debug.LogError(
+                    $"[EnemyCombat] 필수 HitBox 그룹 '{groupId ?? CombatHitbox.DefaultGroupId}'을 찾지 못해 공격 판정을 중단합니다.",
+                    this);
+            }
         }
 
         public Vector3 GetCurrentAttackPosition()
@@ -732,14 +783,14 @@ namespace UPlayGround.Component
 
             var phase = _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex);
             return _attackOrigin.position
-                + _attackOrigin.forward * phase.attackOffset.z
-                + _attackOrigin.right   * phase.attackOffset.x
-                + _attackOrigin.up      * phase.attackOffset.y;
+                + _attackOrigin.forward * phase.impactOffset.z
+                + _attackOrigin.right   * phase.impactOffset.x
+                + _attackOrigin.up      * phase.impactOffset.y;
         }
 
-        public float GetCurrentAttackRadius()
+        public float GetCurrentThreatRadius()
         {
-            return GetAttackRadius(_currentHitPhaseIndex);
+            return GetThreatRadius(_currentHitPhaseIndex);
         }
 
         public bool TryGetSwapEvadeThreat(
@@ -766,7 +817,7 @@ namespace UPlayGround.Component
                 ? _currentHitPhaseIndex
                 : (_lastTelegraphStartTime > 0f ? _lastTelegraphHitPhaseIndex : _currentHitPhaseIndex);
             Vector3 attackPosition = GetAttackPosition(hitPhaseIndex);
-            float radius = GetAttackRadius(hitPhaseIndex) + Mathf.Max(0f, radiusPadding);
+            float radius = GetThreatRadius(hitPhaseIndex) + Mathf.Max(0f, radiusPadding);
             if (radius <= 0f) return false;
 
             Vector3 delta = playerPosition - attackPosition;
@@ -804,10 +855,10 @@ namespace UPlayGround.Component
             return false;
         }
 
-        public float GetAttackRadius(int hitPhaseIndex)
+        public float GetThreatRadius(int hitPhaseIndex)
         {
             if (_currentSkill == null) return 0f;
-            return _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex).attackRadius;
+            return _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex).targetingRange;
         }
 
         private Vector3 GetTelegraphPosition(int hitPhaseIndex)
@@ -841,9 +892,9 @@ namespace UPlayGround.Component
 
             var phase = _currentSkill.baseInfo.GetHitPhase(hitPhaseIndex);
             return _attackOrigin.position
-                + _attackOrigin.forward * phase.attackOffset.z
-                + _attackOrigin.right   * phase.attackOffset.x
-                + _attackOrigin.up      * phase.attackOffset.y;
+                + _attackOrigin.forward * phase.impactOffset.z
+                + _attackOrigin.right   * phase.impactOffset.x
+                + _attackOrigin.up      * phase.impactOffset.y;
         }
 
         private Quaternion GetTelegraphRotation()
@@ -889,7 +940,7 @@ namespace UPlayGround.Component
         {
             if (instance == null || _currentSkill == null) return;
 
-            float scale = Mathf.Max(0.01f, GetAttackRadius(hitPhaseIndex) * _currentSkill.telegraphRadiusScale);
+            float scale = Mathf.Max(0.01f, GetThreatRadius(hitPhaseIndex) * _currentSkill.telegraphRadiusScale);
             instance.transform.localScale = Vector3.one * scale;
         }
     }

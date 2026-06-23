@@ -39,6 +39,7 @@ MonoBehaviour:
         endTime: 0.2524298
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 5792125030652444795
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -46,6 +47,7 @@ MonoBehaviour:
         endTime: 0.4900108
         globalStartTimeOffset: 0
         hitPhaseIndex: 1
+        hitboxGroupId: MainWeapon
     - rid: 5792125030652444796
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -53,6 +55,7 @@ MonoBehaviour:
         endTime: 0.9800216
         globalStartTimeOffset: 0
         hitPhaseIndex: 2
+        hitboxGroupId: MainWeapon
     - rid: 5792125030652444797
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -60,6 +63,7 @@ MonoBehaviour:
         endTime: 1.2086934
         globalStartTimeOffset: 0
         hitPhaseIndex: 3
+        hitboxGroupId: MainWeapon
     - rid: 5792125030652444798
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -67,6 +71,7 @@ MonoBehaviour:
         endTime: 1.4165767
         globalStartTimeOffset: 0
         hitPhaseIndex: 4
+        hitboxGroupId: MainWeapon
     - rid: 5792125030652444799
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -74,6 +79,7 @@ MonoBehaviour:
         endTime: 1.9150109
         globalStartTimeOffset: 0
         hitPhaseIndex: 5
+        hitboxGroupId: MainWeapon
     - rid: 7432452544598638793
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

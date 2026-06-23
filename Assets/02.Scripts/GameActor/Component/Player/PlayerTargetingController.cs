@@ -11,12 +11,12 @@ namespace UPlayGround.Component
 
         public PlayerTargetingController(Transform owner) => _owner = owner;
 
-        public Transform FindAttackTarget(float hitRange, float hitAngle, float searchRange,
+        public Transform FindAttackTarget(float targetingRange, float targetingAngle, float searchRange,
             float searchAngle, LayerMask targetLayer, bool skipIfCovered)
         {
             Vector3 origin = _owner.position;
             Vector3 forward = _owner.forward;
-            if (skipIfCovered && HasTarget(origin, forward, hitRange, hitAngle, targetLayer))
+            if (skipIfCovered && HasTarget(origin, forward, targetingRange, targetingAngle, targetLayer))
                 return null;
 
             float clampedAngle = Mathf.Clamp(searchAngle, 0f, 180f);

@@ -380,46 +380,48 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        // 현재 공격의 hitRange/hitAngle을 액터 forward 기준 콘으로 가시화.
-        // hitAngle은 ConeNearestResolver(`Vector3.Angle(forward, dir) > hitAngle`)와 동일 정의 — half-angle.
+        // 캐릭터 공통 호밍 reach(HomingReachRange/HomingReachAngle)를 액터 forward 기준 콘으로 가시화.
+        // reach 각도는 ConeNearestResolver(`Vector3.Angle(forward, dir) > targetingAngle`)와 동일 정의 — half-angle.
+        // 공격별 데이터가 아니라 캐릭터 공통값이므로, 공격이 활성(CurrentAttackData != null)일 때만 표시한다.
         void DrawAttackCone()
         {
             if (_cachedPlayerCombat == null) return;
-            AttackData data = _cachedPlayerCombat.CurrentAttackData;
-            if (data == null) return;
-            if (data.hitRange <= 0f || data.hitAngle <= 0f) return;
+            if (_cachedPlayerCombat.CurrentAttackData == null) return;
+            float reachRange = _cachedPlayerCombat.HomingReachRange;
+            float reachAngle = _cachedPlayerCombat.HomingReachAngle;
+            if (reachRange <= 0f || reachAngle <= 0f) return;
 
             Transform actorTf = _targetActor.transform;
             Vector3 origin = actorTf.position;
             Vector3 fwd = actorTf.forward;
-            Vector3 leftEdgeDir  = Quaternion.AngleAxis(-data.hitAngle, Vector3.up) * fwd;
-            Vector3 rightEdgeDir = Quaternion.AngleAxis( data.hitAngle, Vector3.up) * fwd;
+            Vector3 leftEdgeDir  = Quaternion.AngleAxis(-reachAngle, Vector3.up) * fwd;
+            Vector3 rightEdgeDir = Quaternion.AngleAxis( reachAngle, Vector3.up) * fwd;
 
-            bool inCone = IsTargetInAttackCone(data);
+            bool inCone = IsTargetInAttackCone(reachRange, reachAngle);
             Color coneColor = inCone
                 ? new Color(0.30f, 0.90f, 0.35f, 0.85f)
                 : new Color(0.55f, 0.55f, 0.55f, 0.70f);
 
             using (new Handles.DrawingScope(coneColor))
             {
-                Handles.DrawWireArc(origin, Vector3.up, leftEdgeDir, data.hitAngle * 2f, data.hitRange);
-                Handles.DrawLine(origin, origin + leftEdgeDir  * data.hitRange);
-                Handles.DrawLine(origin, origin + rightEdgeDir * data.hitRange);
+                Handles.DrawWireArc(origin, Vector3.up, leftEdgeDir, reachAngle * 2f, reachRange);
+                Handles.DrawLine(origin, origin + leftEdgeDir  * reachRange);
+                Handles.DrawLine(origin, origin + rightEdgeDir * reachRange);
             }
         }
 
-        bool IsTargetInAttackCone(AttackData data)
+        bool IsTargetInAttackCone(float reachRange, float reachAngle)
         {
             if (_warpTargetTf == null || _targetActor == null) return false;
             Transform actorTf = _targetActor.transform;
             Vector3 dir = _warpTargetTf.position - actorTf.position;
             dir.y = 0f;
-            if (dir.sqrMagnitude > data.hitRange * data.hitRange) return false;
+            if (dir.sqrMagnitude > reachRange * reachRange) return false;
             if (dir.sqrMagnitude < 1e-6f) return true;
             Vector3 fwdXZ = actorTf.forward;
             fwdXZ.y = 0f;
             if (fwdXZ.sqrMagnitude < 1e-6f) return false;
-            return Vector3.Angle(fwdXZ, dir) <= data.hitAngle;
+            return Vector3.Angle(fwdXZ, dir) <= reachAngle;
         }
 
         // 핸들로 옮긴 월드 좌표 → 액터 forward 기준 distance/angle/height 역계산.

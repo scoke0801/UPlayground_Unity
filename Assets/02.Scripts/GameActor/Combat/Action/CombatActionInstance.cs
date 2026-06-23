@@ -9,6 +9,7 @@ namespace UPlayGround.Combat
         public readonly float StartedTime;
         public int CurrentPhaseIndex { get; private set; }
         public bool IsCollisionActive { get; private set; }
+        public string ActiveHitboxGroupId { get; private set; }
 
         public CombatActionInstance(GameActor owner, CombatActionDefinition definition)
         {
@@ -24,6 +25,7 @@ namespace UPlayGround.Combat
                 case CombatTimelineEventType.ActionStarted:
                     CurrentPhaseIndex = timelineEvent.HitPhaseIndex;
                     IsCollisionActive = false;
+                    ActiveHitboxGroupId = null;
                     break;
                 case CombatTimelineEventType.BeginCollision:
                     IsCollisionActive = true;
@@ -31,11 +33,19 @@ namespace UPlayGround.Combat
                     break;
                 case CombatTimelineEventType.EndCollision:
                     IsCollisionActive = false;
+                    ActiveHitboxGroupId = null;
                     break;
                 case CombatTimelineEventType.HitPhaseChanged:
                     CurrentPhaseIndex = timelineEvent.HitPhaseIndex;
                     break;
             }
+        }
+
+        public void SetHitboxGroup(string hitboxGroupId)
+        {
+            ActiveHitboxGroupId = string.IsNullOrWhiteSpace(hitboxGroupId)
+                ? null
+                : hitboxGroupId.Trim();
         }
     }
 }

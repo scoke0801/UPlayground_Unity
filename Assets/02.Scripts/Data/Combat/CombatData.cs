@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UPlayGround.Combat;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -152,11 +152,16 @@ namespace UPlayGround.Data
         [Tooltip("true면 Break Gauge 잔량과 무관하게 즉시 노출(브레이크 공격 가능) 상태로 만든다.")]
         public bool forceBreakExpose = false;
 
-        [Header("Hitbox")]
-        public Vector3 attackOffset = new Vector3(0, 1, 1.5f);
-        public float attackRadius = 1.5f;
-        [Tooltip("-1이면 Y 범위 무제한. 0 초과면 attackOffset.y 기준 위아래 hitHeightRange로 클램프")]
-        public float hitHeightRange = 1.2f;
+        [Header("Attached HitBox")]
+        [Tooltip("BeginCollisionEvent에 그룹이 없을 때 사용할 CombatHitbox.groupId")]
+        public string hitboxGroupId = CombatHitbox.DefaultGroupId;
+
+        [Header("Telegraph (Generated — HitBox에서 베이크)")]
+        [Tooltip("적 텔레그래프/위협존 기준 위치. attackOrigin 상대 좌표. 직접 수정 금지 — 부착형 HitBox impact 포즈에서 베이크된다.")]
+        public Vector3 impactOffset = new Vector3(0, 1, 1.5f);
+        [Min(0f)]
+        [Tooltip("적 텔레그래프/위협존 반경. 직접 수정 금지 — 부착형 HitBox impact 포즈에서 베이크된다.")]
+        public float targetingRange = 1.5f;
 
         [Header("FX")]
         public string hitParticleName = "LiteHit";
@@ -206,8 +211,8 @@ namespace UPlayGround.Data
 
         public AttackReactionType reactionType => GetHitPhase(0).reactionType;
         public string hitParticleName          => GetHitPhase(0).hitParticleName;
-        public Vector3 attackOffset            => GetHitPhase(0).attackOffset;
-        public float attackRadius              => GetHitPhase(0).attackRadius;
+        public Vector3 impactOffset            => GetHitPhase(0).impactOffset;
+        public float targetingRange            => GetHitPhase(0).targetingRange;
         public float damage                    => GetHitPhase(0).damage;
         public float poiseDamage               => GetHitPhase(0).poiseDamage;
         public float breakDamage               => GetHitPhase(0).breakDamage;
@@ -312,9 +317,6 @@ namespace UPlayGround.Data
         [Tooltip("공격 중 캔슬 가능한 입력 액션 마스크 (None이면 캔슬 불가).\n허용 구간은 캔슬 윈도우(콜리전 비활성 구간)가 결정 — 액티브 히트 중엔 캔슬 불가.\n공격타입(Light/Heavy/Skill)은 '다른 타입'으로의 전환용. 같은 타입 연계는 ComboWindow 사용.")]
         public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
 
-        [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
-        public float hitAngle = 60f;
-
         public HitPhaseData GetHitPhase(int index)
         {
             if (hitPhases == null || hitPhases.Count == 0) return new HitPhaseData();
@@ -336,9 +338,6 @@ namespace UPlayGround.Data
         [Min(0f)]
         [Tooltip("마지막 히트 판정이 끝난 뒤 이동 후딜 캔슬을 허용하기까지의 지연 시간(초). 0이면 기존처럼 조건 충족 즉시 이동 캔슬.")]
         public float moveCancelDelayAfterLastHit = 0f;
-
-        [Tooltip("히트 판정 각도 (전방 기준, 양쪽 각도)")]
-        public float hitAngle = 60f;
     }
 
     // 런타임에 결정되는 공격 정보
@@ -357,12 +356,8 @@ namespace UPlayGround.Data
 
         public AttackReactionType reactionType = AttackReactionType.Hit;
 
-        // Hit Detection
+        // 공격자
         public GameActor attacker;
-        public float hitRange;
-        public float hitAngle;
-        public float hitHeightOffset;
-        public float hitHeightRange = -1f;
 
         public Vector3 hitPoint;
         public GameObject hitTarget;

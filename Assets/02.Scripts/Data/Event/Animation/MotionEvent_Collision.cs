@@ -16,9 +16,16 @@ namespace UPlayGround.Data.Event
         [Tooltip("AttackInfoBase.hitPhases의 인덱스. 멀티 히트 시 구간마다 다른 값을 설정한다.")]
         public int hitPhaseIndex = 0;
 
+        [Tooltip("CombatHitbox.groupId. 비어 있으면 HitPhaseData 또는 Default 그룹을 사용한다.")]
+        public string hitboxGroupId;
+
         public override string GetDisplayName() => "Collision";
 
-        public override string GetShortLabel() => $"Collision [{hitPhaseIndex}]";
+        public override string GetShortLabel()
+        {
+            string groupLabel = string.IsNullOrWhiteSpace(hitboxGroupId) ? "Phase Default" : hitboxGroupId;
+            return $"Collision [P{hitPhaseIndex} / {groupLabel}]";
+        }
 
         public override void Execute(GameObject target)
         {
@@ -48,7 +55,10 @@ namespace UPlayGround.Data.Event
             Debug.Log($"[ResidualAttack] MotionEvent Collision route. target={target.name}, enable={isCollisionEnable}, phase={hitPhaseIndex}, handler={combatTarget.GetType().Name}");
             combatTarget.ClearHitTargets();
             if (isCollisionEnable)
+            {
                 combatTarget.SetHitPhaseIndex(hitPhaseIndex);
+                combatTarget.SetHitboxGroup(hitboxGroupId);
+            }
             combatTarget.SetEnableCollision(isCollisionEnable);
             return true;
         }
@@ -71,7 +81,11 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            runner.HandleCollisionEvent(isCollisionEnable, hitPhaseIndex, actor.GetAttackTargetLayerMask());
+            runner.HandleCollisionEvent(
+                isCollisionEnable,
+                hitPhaseIndex,
+                hitboxGroupId,
+                actor.GetAttackTargetLayerMask());
         }
     }
 }

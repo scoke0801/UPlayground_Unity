@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Manager;
@@ -222,7 +222,7 @@ namespace UPlayGround.Data.Event
 
         private static float GetResolverSearchRange(in WarpResolverContext ctx, in MotionWarpWindowSettings settings)
         {
-            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.hitRange;
+            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.targetingRange;
             if (settings.overrideDistance)
                 searchRange = Mathf.Max(searchRange, settings.maxDistance);
 

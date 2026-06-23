@@ -18,15 +18,15 @@ namespace UPlayGround.MovementController
 
     /// <summary>
     /// resolver 호출 시 필요한 컨텍스트.
-    /// origin 은 공격자, hitRange/hitAngle 은 콘 판정 기준,
+    /// origin 은 공격자, targetingRange/targetingAngle 은 콘 판정 기준,
     /// targetLayer 는 OverlapSphere 마스크, targetFilter 는 추가 검증(옵션).
     /// </summary>
     public struct WarpResolverContext
     {
         public Transform origin;
-        public float hitRange;
+        public float targetingRange;
         public float searchRange;
-        public float hitAngle;
+        public float targetingAngle;
         public LayerMask targetLayer;
         public Func<Transform, bool> targetFilter;
     }
@@ -48,7 +48,7 @@ namespace UPlayGround.MovementController
     }
 
     /// <summary>
-    /// 콘(hitRange/hitAngle) 안 최근접 타겟. PlayerCombat.FindAttackSnapTarget 의 일반화.
+    /// 콘(targetingRange/targetingAngle) 안 최근접 타겟. PlayerCombat.FindAttackSnapTarget 의 일반화.
     /// </summary>
     public sealed class ConeNearestResolver : IWarpTargetResolver
     {
@@ -65,7 +65,7 @@ namespace UPlayGround.MovementController
             Vector3 originPos = ctx.origin.position;
             Vector3 forward   = ctx.origin.forward;
 
-            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.hitRange;
+            float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.targetingRange;
             int hitCount = Physics.OverlapSphereNonAlloc(originPos, searchRange, _hitsBuffer, ctx.targetLayer);
             Transform best   = null;
             float     bestSq = float.MaxValue;
@@ -78,7 +78,7 @@ namespace UPlayGround.MovementController
 
                 Vector3 dir = hit.transform.position - originPos;
                 dir.y = 0f;
-                if (Vector3.Angle(forward, dir) > ctx.hitAngle) continue;
+                if (Vector3.Angle(forward, dir) > ctx.targetingAngle) continue;
 
                 if (ctx.targetFilter != null && !ctx.targetFilter(hit.transform)) continue;
 
@@ -113,7 +113,7 @@ namespace UPlayGround.MovementController
     }
 
     /// <summary>
-    /// 락온 타겟이 콘(hitRange/hitAngle) 안에 있으면 락온 우선,
+    /// 락온 타겟이 콘(targetingRange/targetingAngle) 안에 있으면 락온 우선,
     /// 밖이면 ConeNearestResolver fallback. (1차 결정 정책)
     /// </summary>
     public sealed class HybridResolver : IWarpTargetResolver
@@ -130,9 +130,9 @@ namespace UPlayGround.MovementController
             {
                 Vector3 dir = lockOn.position - ctx.origin.position;
                 dir.y = 0f;
-                float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.hitRange;
+                float searchRange = ctx.searchRange > 0f ? ctx.searchRange : ctx.targetingRange;
                 bool inRange = dir.sqrMagnitude <= searchRange * searchRange;
-                bool inAngle = Vector3.Angle(ctx.origin.forward, dir) <= ctx.hitAngle;
+                bool inAngle = Vector3.Angle(ctx.origin.forward, dir) <= ctx.targetingAngle;
                 if (inRange && inAngle)
                 {
                     if (ctx.targetFilter == null || ctx.targetFilter(lockOn))

@@ -26,6 +26,7 @@ MonoBehaviour:
     - rid: 7399917010493636619
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
+        hitboxGroupId: Default
         startTime: 0.5671296
         endTime: 0.9201389
         targetLayers:

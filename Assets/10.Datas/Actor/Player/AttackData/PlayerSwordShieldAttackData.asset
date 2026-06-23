@@ -24,9 +24,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -81,7 +81,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 101
       attackType: 0
@@ -93,9 +92,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -150,7 +149,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 102
       attackType: 0
@@ -162,9 +160,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -219,7 +217,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 103
       attackType: 0
@@ -231,9 +228,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -288,7 +285,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 104
       attackType: 0
@@ -300,9 +296,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -357,7 +353,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 105
       attackType: 0
@@ -369,9 +364,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -426,7 +421,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 106
       attackType: 0
@@ -438,9 +432,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -495,7 +489,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 107
       attackType: 0
@@ -507,9 +500,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -569,9 +562,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -626,7 +619,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 108
       attackType: 0
@@ -638,9 +630,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -700,9 +692,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -757,7 +749,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 109
       attackType: 0
@@ -769,9 +760,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -826,7 +817,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 239
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   heavyComboAttackList:
   - baseInfo:
       animKey: 200
@@ -839,9 +829,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -901,9 +891,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -963,9 +953,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1020,7 +1010,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 201
       attackType: 0
@@ -1032,9 +1021,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1094,9 +1083,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1151,7 +1140,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 202
       attackType: 0
@@ -1163,9 +1151,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1220,7 +1208,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 203
       attackType: 0
@@ -1232,9 +1219,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1289,7 +1276,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 204
       attackType: 0
@@ -1301,9 +1287,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1363,9 +1349,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1420,7 +1406,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 205
       attackType: 0
@@ -1432,9 +1417,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1494,9 +1479,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1556,9 +1541,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1613,7 +1598,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 206
       attackType: 0
@@ -1625,9 +1609,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1682,7 +1666,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 207
       attackType: 0
@@ -1694,9 +1677,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1751,7 +1734,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 208
       attackType: 0
@@ -1763,9 +1745,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1820,7 +1802,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   jumpAttackList:
   - baseInfo:
       animKey: 400
@@ -1833,9 +1814,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1890,7 +1871,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
   - baseInfo:
       animKey: 401
       attackType: 0
@@ -1902,9 +1882,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -1959,7 +1939,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
   - baseInfo:
       animKey: 402
       attackType: 0
@@ -1971,9 +1950,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2033,9 +2012,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2090,7 +2069,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 90
   dashAttackList: []
   skillAttackList:
   - baseInfo:
@@ -2104,9 +2082,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2166,9 +2144,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2228,9 +2206,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2290,9 +2268,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2352,9 +2330,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2414,9 +2392,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2471,7 +2449,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 189
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 501
       attackType: 0
@@ -2483,9 +2460,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2545,9 +2522,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2607,9 +2584,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2669,9 +2646,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2731,9 +2708,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2788,7 +2765,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 189
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 502
       attackType: 0
@@ -2800,9 +2776,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2857,7 +2833,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 189
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   - baseInfo:
       animKey: 503
       attackType: 0
@@ -2869,9 +2844,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -2926,7 +2901,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 189
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   skillDefinitions:
   - slot: 0
     displayName: Ability
@@ -2947,9 +2921,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3009,9 +2983,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3071,9 +3045,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3133,9 +3107,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3195,9 +3169,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3257,9 +3231,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3314,7 +3288,6 @@ MonoBehaviour:
                 fakeImpactDuration: 0
         interruptActions: 61
         moveCancelDelayAfterLastHit: 0
-        hitAngle: 60
       condition:
         groundCondition: 0
         minSkillGauge: 0
@@ -3336,9 +3309,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3393,7 +3366,6 @@ MonoBehaviour:
                 fakeImpactDuration: 0
         interruptActions: 61
         moveCancelDelayAfterLastHit: 0
-        hitAngle: 60
       condition:
         groundCondition: 0
         minSkillGauge: 0
@@ -3415,9 +3387,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3472,7 +3444,6 @@ MonoBehaviour:
                 fakeImpactDuration: 0
         interruptActions: 61
         moveCancelDelayAfterLastHit: 0
-        hitAngle: 60
       condition:
         groundCondition: 0
         minSkillGauge: 0
@@ -3499,9 +3470,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3561,9 +3532,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3623,9 +3594,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3685,9 +3656,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3747,9 +3718,9 @@ MonoBehaviour:
             reactionDuration: 0
             forceReaction: 0
             forceBreakExpose: 0
-            attackOffset: {x: 0, y: 1, z: 1.5}
-            attackRadius: 1.5
-            hitHeightRange: 1.2
+            hitboxGroupId: MainWeapon
+            impactOffset: {x: 0, y: 1, z: 1.5}
+            targetingRange: 1.5
             hitParticleName: LiteHit
             pullForce: 10
             airborneForce: 8
@@ -3804,7 +3775,6 @@ MonoBehaviour:
                 fakeImpactDuration: 0
         interruptActions: 61
         moveCancelDelayAfterLastHit: 0
-        hitAngle: 60
       condition:
         groundCondition: 0
         minSkillGauge: 0
@@ -3826,9 +3796,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -3883,7 +3853,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   parryCounterAttack:
     baseInfo:
       animKey: 530
@@ -3896,9 +3865,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -3953,7 +3922,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   entryAttack:
     baseInfo:
       animKey: 100
@@ -3966,9 +3934,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4023,7 +3991,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   useEntryAttackVsGroggy: 1
   entryAttackVsGroggy:
     baseInfo:
@@ -4037,9 +4004,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4094,7 +4061,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   useEntryAttackVsAirborne: 1
   entryAttackVsAirborne:
     baseInfo:
@@ -4108,9 +4074,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4165,7 +4131,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   swapEvadeCounterAttack:
     baseInfo:
       animKey: 100
@@ -4178,9 +4143,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4235,7 +4200,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   swapSpecialAttack:
     baseInfo:
       animKey: 100
@@ -4248,9 +4212,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4310,9 +4274,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4372,9 +4336,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4434,9 +4398,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4496,9 +4460,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4558,9 +4522,9 @@ MonoBehaviour:
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
-        attackOffset: {x: 0, y: 1, z: 1.5}
-        attackRadius: 1.5
-        hitHeightRange: 1.2
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
         hitParticleName: LiteHit
         pullForce: 10
         airborneForce: 8
@@ -4615,7 +4579,6 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
-    hitAngle: 60
   chargeAnimKey: 0
   chargeStages: []
   chargeStageThresholds: []

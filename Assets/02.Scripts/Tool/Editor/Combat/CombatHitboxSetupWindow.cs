@@ -1,0 +1,380 @@
+#if UNITY_EDITOR
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
+using UPlayGround.Combat;
+
+namespace UPlayGround.Tool.Editor.Combat
+{
+    public sealed class CombatHitboxSetupWindow : EditorWindow
+    {
+        [SerializeField] private GameObject _target;
+        [SerializeField] private CombatHitboxSetupProfileSO _profile;
+        [SerializeField] private CombatHitboxSetupMode _mode = CombatHitboxSetupMode.WeaponAutoFit;
+        [SerializeField] private bool _useAutomaticMode = true;
+        [SerializeField] private bool _forceRefit;
+        [SerializeField] private bool _showAdvanced;
+        [SerializeField] private Vector2 _scroll;
+        [SerializeField] private bool _showHitboxList = true;
+
+        private readonly List<CombatHitboxSetupResult> _results = new();
+        private readonly List<GameObject> _resultHitboxes = new();
+
+        [MenuItem("UPlayGround/Combat/HitBox Setup")]
+        [MenuItem("UPlayGround/Generator Tool/Combat HitBox Setup")]
+        private static void Open()
+        {
+            GetWindow<CombatHitboxSetupWindow>("Combat HitBox Setup");
+        }
+
+        private void OnEnable()
+        {
+            Selection.selectionChanged += HandleSelectionChanged;
+            if (_target == null)
+                _target = Selection.activeGameObject;
+            CollectResultHitboxes();
+        }
+
+        private void OnDisable()
+        {
+            Selection.selectionChanged -= HandleSelectionChanged;
+        }
+
+        private void HandleSelectionChanged()
+        {
+            GameObject selected = Selection.activeGameObject;
+            // 결과 목록의 HitBox를 클릭해 선택한 경우엔 타깃을 바꾸지 않는다(목록이 무너지지 않도록).
+            if (selected != null && !_resultHitboxes.Contains(selected))
+            {
+                _target = selected;
+                CollectResultHitboxes();
+            }
+            Repaint();
+        }
+
+        private void OnGUI()
+        {
+            EditorGUILayout.LabelField("부착형 Combat HitBox 자동 설정", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Hierarchy 또는 Project에서 루트를 선택하면 하위 계층을 분석해 생성 방식을 자동 결정합니다.",
+                MessageType.Info);
+
+            EditorGUI.BeginChangeCheck();
+            _target = (GameObject)EditorGUILayout.ObjectField(
+                "대상 루트",
+                _target,
+                typeof(GameObject),
+                true);
+            if (EditorGUI.EndChangeCheck())
+            {
+                _results.Clear();
+                if (_target != null)
+                    Selection.activeGameObject = _target;
+                CollectResultHitboxes();
+            }
+
+            CombatHitboxTargetAnalysis analysis = CombatHitboxAutoFitter.Analyze(_target);
+            DrawAnalysis(analysis);
+
+            _profile = (CombatHitboxSetupProfileSO)EditorGUILayout.ObjectField(
+                "생성 프로필 (선택)",
+                _profile,
+                typeof(CombatHitboxSetupProfileSO),
+                false);
+
+            DrawProfileGuidance();
+
+            using (new EditorGUI.DisabledScope(_target == null))
+            {
+                GUI.backgroundColor = new Color(0.35f, 0.8f, 0.45f);
+                if (GUILayout.Button("하위 계층 분석 후 HitBox 자동 생성", GUILayout.Height(34f)))
+                    ExecuteSingle(_target, ResolveMode(analysis));
+                GUI.backgroundColor = Color.white;
+            }
+
+            EditorGUILayout.Space(4);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                using (new EditorGUI.DisabledScope(_target == null))
+                {
+                    if (GUILayout.Button("검증"))
+                        ExecuteSingle(_target, CombatHitboxSetupMode.ValidateOnly);
+                    if (GUILayout.Button("기존 항목 Refit"))
+                        ExecuteSingle(_target, CombatHitboxSetupMode.RefitExisting);
+                    if (GUILayout.Button("생성 항목 제거"))
+                        ExecuteSingle(_target, CombatHitboxSetupMode.RemoveGenerated);
+                }
+            }
+
+            EditorGUILayout.Space(4);
+            using (new EditorGUI.DisabledScope(_target == null))
+            {
+                if (GUILayout.Button("그룹 ID 동기화 (Attack Data / MotionSet 포함)"))
+                    CombatHitboxGroupSyncWindow.Open(_target, _profile);
+            }
+
+            _showAdvanced = EditorGUILayout.Foldout(_showAdvanced, "고급 설정 및 다중 선택", true);
+            if (_showAdvanced)
+                DrawAdvanced(analysis);
+
+            EditorGUILayout.Space(8);
+            _scroll = EditorGUILayout.BeginScrollView(_scroll);
+            foreach (CombatHitboxSetupResult result in _results)
+            {
+                EditorGUILayout.LabelField(
+                    $"{result.Target}  생성 {result.Created} / 갱신 {result.Updated} / 건너뜀 {result.Skipped}",
+                    EditorStyles.boldLabel);
+                foreach (string message in result.Messages)
+                    EditorGUILayout.LabelField($"  • {message}", EditorStyles.wordWrappedLabel);
+                EditorGUILayout.Space(4);
+            }
+            EditorGUILayout.EndScrollView();
+
+            DrawHitboxList();
+        }
+
+        private void DrawHitboxList()
+        {
+            if (_resultHitboxes.Count == 0)
+                return;
+
+            EditorGUILayout.Space(6);
+            _showHitboxList = EditorGUILayout.Foldout(
+                _showHitboxList, $"생성된/현재 HitBox ({_resultHitboxes.Count}) — 클릭하여 선택", true);
+            if (!_showHitboxList)
+                return;
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                if (GUILayout.Button("전체 선택"))
+                {
+                    Selection.objects = _resultHitboxes.Where(go => go != null).Cast<UnityEngine.Object>().ToArray();
+                    if (Selection.objects.Length > 0)
+                        EditorGUIUtility.PingObject(Selection.objects[0]);
+                }
+                if (GUILayout.Button("목록 새로고침"))
+                    CollectResultHitboxes();
+            }
+
+            foreach (GameObject go in _resultHitboxes)
+            {
+                if (go == null)
+                    continue;
+                CombatHitbox hitbox = go.GetComponent<CombatHitbox>();
+                bool noCollider = hitbox != null && hitbox.ShapeCollider == null;
+                string label = hitbox != null ? $"[{hitbox.GroupId}]  {go.name}" : go.name;
+                if (noCollider)
+                    label += "  ⚠ Collider 없음";
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button(label, EditorStyles.label))
+                    {
+                        Selection.activeObject = go;
+                        EditorGUIUtility.PingObject(go);
+                    }
+                }
+            }
+        }
+
+        // 생성/검증 후 대상 하위의 CombatHitbox를 다시 모아 선택 가능한 목록으로 노출한다.
+        // 프리팹 에셋은 영속 루트를 다시 로드해 참조가 유효하도록 한다(생성 중의 임시 콘텐츠와 구분).
+        private void CollectResultHitboxes()
+        {
+            _resultHitboxes.Clear();
+            if (_target == null)
+                return;
+
+            GameObject queryRoot = _target;
+            if (PrefabUtility.IsPartOfPrefabAsset(_target))
+            {
+                string path = AssetDatabase.GetAssetPath(_target);
+                if (!string.IsNullOrEmpty(path))
+                    queryRoot = AssetDatabase.LoadAssetAtPath<GameObject>(path) ?? _target;
+            }
+
+            foreach (CombatHitbox hitbox in queryRoot.GetComponentsInChildren<CombatHitbox>(true))
+                if (hitbox != null)
+                    _resultHitboxes.Add(hitbox.gameObject);
+        }
+
+        private void DrawProfileGuidance()
+        {
+            if (_profile != null)
+            {
+                EditorGUILayout.HelpBox(
+                    $"프로필 '{_profile.ProfileId}' 적용: 그룹 '{_profile.DefaultGroupId}', 형상 {_profile.PreferredShape}, "
+                    + $"최소 두께 {_profile.MinimumThickness:0.###}, 스윕 {(_profile.UseSweep ? "사용" : "미사용")}.",
+                    MessageType.None);
+                return;
+            }
+
+            EditorGUILayout.HelpBox(
+                "프로필은 선택 사항입니다. 비워두면 아래 기본값으로 생성됩니다:\n"
+                + "• 그룹 ID: 무기 'MainWeapon' / 본 규칙별 그룹\n"
+                + "• 형상: Auto (길쭉하면 Capsule, 아니면 Box)  · 최소 두께 0.04  · 패딩 0.02\n"
+                + "• 제외 키워드: Sheath, Scabbard, Effect, Trail, VFX, FX\n"
+                + "• 스윕: 사용 (step 0.15 / 최대 8단계)\n"
+                + "그룹 ID·형상·크기·본 규칙을 커스터마이즈해야 할 때만 프로필을 만들어 지정하세요.",
+                MessageType.Info);
+
+            if (GUILayout.Button("기본값 프로필 에셋 생성"))
+                CreateDefaultProfileAsset();
+        }
+
+        private void CreateDefaultProfileAsset()
+        {
+            string path = EditorUtility.SaveFilePanelInProject(
+                "Combat HitBox Setup Profile 생성",
+                "CombatHitboxSetupProfile",
+                "asset",
+                "커스터마이즈할 프로필 에셋을 저장할 위치를 선택하세요.");
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            var profile = ScriptableObject.CreateInstance<CombatHitboxSetupProfileSO>();
+            AssetDatabase.CreateAsset(profile, path);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.ImportAsset(path);
+            // 메모리 인스턴스 대신 디스크에서 다시 로드해 참조를 정규화한다(재임포트로 인스턴스/에셋 참조가 갈리는 것 방지).
+            _profile = AssetDatabase.LoadAssetAtPath<CombatHitboxSetupProfileSO>(path) ?? profile;
+            EditorGUIUtility.PingObject(_profile);
+        }
+
+        private void DrawAnalysis(CombatHitboxTargetAnalysis analysis)
+        {
+            MessageType type = _target == null
+                ? MessageType.Warning
+                : analysis.RendererCount == 0 && analysis.SuggestedMode == CombatHitboxSetupMode.WeaponAutoFit
+                    ? MessageType.Warning
+                    : MessageType.Info;
+            EditorGUILayout.HelpBox(
+                _target == null
+                    ? "Player/Model_Bokusei/Weapon/Katana처럼 HitBox를 붙일 루트를 선택하세요."
+                    : $"{analysis.Summary}\n자동 모드: {GetModeLabel(analysis.SuggestedMode)}",
+                type);
+        }
+
+        private void DrawAdvanced(CombatHitboxTargetAnalysis analysis)
+        {
+            EditorGUI.indentLevel++;
+            _useAutomaticMode = EditorGUILayout.ToggleLeft("계층 분석으로 모드 자동 선택", _useAutomaticMode);
+            using (new EditorGUI.DisabledScope(_useAutomaticMode))
+                _mode = (CombatHitboxSetupMode)EditorGUILayout.EnumPopup("수동 모드", _mode);
+            _forceRefit = EditorGUILayout.ToggleLeft("수동 수정 마커도 강제 Refit", _forceRefit);
+
+            GameObject[] selectedTargets = GetSelectedTargets();
+            EditorGUILayout.LabelField($"현재 다중 선택 대상: {selectedTargets.Length}개");
+            using (new EditorGUI.DisabledScope(selectedTargets.Length == 0))
+            {
+                if (GUILayout.Button("선택 대상 전체 자동 생성"))
+                    Execute(selectedTargets, automaticMode: true);
+            }
+            EditorGUI.indentLevel--;
+        }
+
+        private CombatHitboxSetupMode ResolveMode(CombatHitboxTargetAnalysis analysis)
+            => _useAutomaticMode ? analysis.SuggestedMode : _mode;
+
+        private void ExecuteSingle(GameObject target, CombatHitboxSetupMode mode)
+        {
+            _results.Clear();
+            ExecuteTarget(target, mode);
+            FinishExecution();
+        }
+
+        private void Execute(GameObject[] targets, bool automaticMode)
+        {
+            _results.Clear();
+            foreach (GameObject target in targets)
+            {
+                CombatHitboxSetupMode mode = automaticMode
+                    ? CombatHitboxAutoFitter.Analyze(target).SuggestedMode
+                    : _mode;
+                ExecuteTarget(target, mode);
+            }
+            FinishExecution();
+        }
+
+        private void FinishExecution()
+        {
+            AssetDatabase.SaveAssets();
+            SceneView.RepaintAll();
+            CollectResultHitboxes();
+        }
+
+        private void ExecuteTarget(GameObject target, CombatHitboxSetupMode mode)
+        {
+            if (target == null)
+                return;
+
+            string path = AssetDatabase.GetAssetPath(target);
+            if (IsModelAsset(path))
+            {
+                _results.Add(new CombatHitboxSetupResult(
+                    target.name, 0, 0, 1, new[] { "FBX 원본 수정 차단: Prefab Variant 또는 별도 Prefab에서 실행하세요." }));
+                return;
+            }
+
+            if (PrefabUtility.IsPartOfPrefabAsset(target))
+                ApplyToPrefab(path, mode);
+            else
+                _results.Add(CombatHitboxAutoFitter.Apply(target, mode, _profile, _forceRefit));
+        }
+
+        private void ApplyToPrefab(string path, CombatHitboxSetupMode mode)
+        {
+            GameObject contents = PrefabUtility.LoadPrefabContents(path);
+            try
+            {
+                CombatHitboxSetupResult result =
+                    CombatHitboxAutoFitter.Apply(contents, mode, _profile, _forceRefit);
+                _results.Add(result);
+                if (mode != CombatHitboxSetupMode.ValidateOnly)
+                    PrefabUtility.SaveAsPrefabAsset(contents, path);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(contents);
+            }
+        }
+
+        private static GameObject[] GetSelectedTargets()
+        {
+            var targets = new List<GameObject>();
+            foreach (UnityEngine.Object selected in Selection.objects)
+            {
+                if (selected is GameObject gameObject)
+                {
+                    targets.Add(gameObject);
+                    continue;
+                }
+
+                string path = AssetDatabase.GetAssetPath(selected);
+                if (!AssetDatabase.IsValidFolder(path))
+                    continue;
+                targets.AddRange(AssetDatabase.FindAssets("t:Prefab", new[] { path })
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
+                    .Where(prefab => prefab != null));
+            }
+            return targets.Distinct().ToArray();
+        }
+
+        private static bool IsModelAsset(string path)
+            => !string.IsNullOrWhiteSpace(path)
+               && string.Equals(Path.GetExtension(path), ".fbx", System.StringComparison.OrdinalIgnoreCase);
+
+        private static string GetModeLabel(CombatHitboxSetupMode mode)
+            => mode switch
+            {
+                CombatHitboxSetupMode.WeaponAutoFit => "무기 Renderer Bounds",
+                CombatHitboxSetupMode.HumanoidBodySetup => "Humanoid 본",
+                CombatHitboxSetupMode.GenericBodySetup => "Generic 본 이름",
+                _ => mode.ToString(),
+            };
+    }
+}
+#endif

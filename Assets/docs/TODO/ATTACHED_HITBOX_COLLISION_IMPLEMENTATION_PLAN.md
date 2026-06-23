@@ -1,7 +1,7 @@
 # 부착형 HitBox 충돌 판정 구현 계획
 
 > 작성일: 2026-06-20  
-> 상태: 구현 예정  
+> 상태: Legacy 판정 제거 및 공격/MotionSet 데이터 마이그레이션 완료, Prefab 자동 부착 실행 대기
 > 대상 버전: Unity 6 (6000.0.60f1), Animancer Pro V8  
 > 범위: 근접 공격 `BeginCollisionEvent` 판정을 무기·신체 부착형 HitBox로 전환
 
@@ -9,7 +9,7 @@
 
 ## 개요
 
-현재 근접 공격은 `BeginCollisionEvent`가 판정 구간을 열면 `PlayerCombat` 또는 `EnemyCombat`이 `HitPhaseData.attackRadius`, `hitAngle`, `hitHeightRange`를 읽고 액터 전방의 구형 범위에서 대상을 검색한다.
+기존 근접 공격은 액터 전방의 구형 범위와 각도로 대상을 검색했으나, 해당 Legacy 판정은 제거했다.
 
 이 구조를 다음 원칙으로 교체한다.
 
@@ -21,6 +21,34 @@
 - 최종 피해 처리는 기존 `HitRequest → IDamageable.ReceiveHit → CombatResolutionPipeline` 경로를 유지한다.
 - 플레이어, 지상 몬스터, 비행 몬스터, 스왑 잔류 공격이 같은 HitBox 실행 경로를 사용한다.
 - HitBox 수동 배치 비용을 줄이기 위해 무기·신체 자동 부착 에디터를 함께 구현한다.
+
+---
+
+## 구현 현황
+
+2026-06-20 기준 다음 항목을 구현했다.
+
+- `CombatHitbox`, `CombatHitboxSet`, Box/Capsule 월드 형상과 Sweep 보간 판정
+- 기존 대상 Collider에서 `IDamageable`/부모 `IDamageable` 조회
+- Collision Window 내 동일 대상 중복 제거
+- `BeginCollisionEvent.hitboxGroupId`와 `HitPhaseData.hitboxGroupId`
+- Player, Enemy, 스왑 잔류 공격의 공통 부착형 HitBox 경로
+- 동적 무기 장착 후 `CombatHitboxSet.Refresh()`
+- 그룹 누락 시 공격 판정 중단과 설정 오류 출력
+- 무기 Renderer Bounds Auto Fit
+- Humanoid 손·발·머리·몸통 기본 프리셋
+- Generic 본 이름 규칙 자동 생성
+- Profile SO, Validate, Refit, Remove Generated, FBX 원본 수정 차단
+- 자동 생성 마커 기반 중복 방지와 수동 수정 항목 보존
+- MotionSet Scene View의 활성 그룹 Box/Capsule 표시와 기본 Collider 핸들 편집
+- 런타임/에디터 어셈블리 컴파일 검증
+
+35개 공격 데이터와 365개 Collision 포함 MotionSet의 직렬화 마이그레이션을 완료했다.
+남은 작업은 Unity Editor에서 `UPlayGround/Combat/Migration/Migrate All Attached HitBoxes`
+메뉴를 실행해 Weapon/Actor Prefab에 Collider를 저장하고 Play Mode에서 형상을 보정하는 것이다.
+
+아래의 “예정”, “단계” 설명은 설계 이력이다. 최종 구현에서는 Legacy Sphere 폴백과
+`HitDetectionMode`를 제거했으며 모든 근접 Collision Event가 부착형 HitBox 그룹을 요구한다.
 
 ---
 
@@ -828,4 +856,3 @@ Hurtbox를 두지 않으므로 대상 프리팹의 기존 Collider가 지나치�
 - 무기 및 신체 HitBox 자동 부착 에디터가 Preview, Undo, 재실행 안전성을 제공한다.
 - MotionSet Editor에서 실제 HitBox 형상과 활성 그룹을 확인·편집할 수 있다.
 - Combat Validator가 MotionEvent, 공격 데이터, 프리팹 HitBox 그룹의 정합성을 검증한다.
-

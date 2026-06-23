@@ -275,8 +275,9 @@ namespace UPlayGround.Editor
             sb.AppendLine(I(7) + $"\"reactionType\": {(int)phase.reactionType},");
             sb.AppendLine(I(7) + $"\"damage\": {phase.damage},");
             sb.AppendLine(I(7) + $"\"poiseDamage\": {phase.poiseDamage},");
-            sb.AppendLine(I(7) + $"\"attackOffset\": {{ \"x\": {phase.attackOffset.x}, \"y\": {phase.attackOffset.y}, \"z\": {phase.attackOffset.z} }},");
-            sb.AppendLine(I(7) + $"\"attackRadius\": {phase.attackRadius},");
+            sb.AppendLine(I(7) + $"\"hitboxGroupId\": \"{phase.hitboxGroupId}\",");
+            sb.AppendLine(I(7) + $"\"impactOffset\": {{ \"x\": {phase.impactOffset.x}, \"y\": {phase.impactOffset.y}, \"z\": {phase.impactOffset.z} }},");
+            sb.AppendLine(I(7) + $"\"targetingRange\": {phase.targetingRange},");
             sb.AppendLine(I(7) + $"\"hitParticleName\": \"{phase.hitParticleName}\",");
             // Reaction Forces — reactionType이 KnockBack/Airborne/Pull일 때만 의미 있지만 항상 내보낸다
             sb.AppendLine(I(7) + $"\"knockbackForce\": {phase.knockBackForce},");

@@ -36,6 +36,7 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 192
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7399917076840972449
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -45,3 +46,4 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 64
         hitPhaseIndex: 1
+        hitboxGroupId: MainWeapon

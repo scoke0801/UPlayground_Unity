@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -69,9 +69,7 @@ namespace UPlayGround.State
             if (_combat == null || _attackData == null)
                 return null;
 
-            return _combat.FindFreeAttackFacingTarget(
-                _attackData.hitRange,
-                _attackData.hitAngle);
+            return _combat.FindFreeAttackFacingTarget();
         }
 
         private void SnapToTarget(Transform target)

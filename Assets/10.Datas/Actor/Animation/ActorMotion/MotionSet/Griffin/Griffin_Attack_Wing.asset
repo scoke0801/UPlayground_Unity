@@ -36,3 +36,4 @@ MonoBehaviour:
           serializedVersion: 2
           m_Bits: 64
         hitPhaseIndex: 0
+        hitboxGroupId: Default

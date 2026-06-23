@@ -23,7 +23,6 @@ namespace UPlayGround.Component
         ISpecialBreakAttackMotionEventTarget
     {
         private readonly HashSet<IDamageable> _hitTargets = new();
-        private readonly Collider[] _hitOverlapBuffer = new Collider[128];
         private readonly List<CombatHit> _detectedHits = new(32);
         private static readonly Func<Transform, bool> WarpDamageableFilter = static t =>
         {
@@ -49,6 +48,11 @@ namespace UPlayGround.Component
         private float _specialBreakDamageByMaxHpRate;
         private float _specialBreakFixedDamage;
         private float _specialBreakMinReferenceHealth;
+        private CombatHitboxSet _hitboxSet;
+        private string _requestedHitboxGroupId;
+        private float _homingReachRange;
+        private float _homingReachAngle;
+        private float _warpSearchRange;
 
         public event Action<AttackData> OnAttackHit;
 
@@ -76,10 +80,15 @@ namespace UPlayGround.Component
             _specialBreakDamageByMaxHpRate = snapshot.SpecialBreakDamageByMaxHpRate;
             _specialBreakFixedDamage = snapshot.SpecialBreakFixedDamage;
             _specialBreakMinReferenceHealth = snapshot.SpecialBreakMinReferenceHealth;
+            _homingReachRange = snapshot.HomingReachRange;
+            _homingReachAngle = snapshot.HomingReachAngle;
+            _warpSearchRange = snapshot.WarpSearchRange;
             _isCollisionEnabled = false;
             _hitTargets.Clear();
+            _hitboxSet = gameObject.GetOrAddComponent<CombatHitboxSet>();
+            _hitboxSet.Refresh();
 
-            Debug.Log($"[ResidualAttack] Combat initialized. owner={_ownerPlayer?.name}, character={_ownerType}, animKey={_attackData?.animKey}, kind={_attackData?.attackKind}, range={_attackData?.hitRange}, angle={_attackData?.hitAngle}, targetLayer={_targetLayerMask.value}, hitPhaseCount={_hitPhases?.Count ?? 0}, hasInfoBase={_attackInfoBase != null}, allowHitStop={_allowHitStop}");
+            Debug.Log($"[ResidualAttack] Combat initialized. owner={_ownerPlayer?.name}, character={_ownerType}, animKey={_attackData?.animKey}, kind={_attackData?.attackKind}, homingReach={_homingReachRange}/{_homingReachAngle}, targetLayer={_targetLayerMask.value}, hitPhaseCount={_hitPhases?.Count ?? 0}, hasInfoBase={_attackInfoBase != null}, allowHitStop={_allowHitStop}");
         }
 
         private void Update()
@@ -96,11 +105,26 @@ namespace UPlayGround.Component
 
         public void SetEnableCollision(bool enabled)
         {
+            if (enabled)
+                BeginHitboxWindow();
+            else
+            {
+                _hitboxSet?.EndGroup();
+                // 윈도우 종료 시 그룹 요청을 비워 다음 윈도우에 직전 공격의 그룹이 잔존하지 않게 한다.
+                _requestedHitboxGroupId = null;
+            }
             _isCollisionEnabled = enabled;
-            Debug.Log($"[ResidualAttack] Combat collision {(enabled ? "ON" : "OFF")}. animKey={_attackData?.animKey}, range={_attackData?.hitRange}, angle={_attackData?.hitAngle}, targetLayer={_targetLayerMask.value}");
+            Debug.Log($"[ResidualAttack] Combat collision {(enabled ? "ON" : "OFF")}. animKey={_attackData?.animKey}, group={_hitboxSet?.ActiveGroupId ?? "-"}, targetLayer={_targetLayerMask.value}");
         }
 
         public void SetTargetLayerMask(LayerMask targetLayerMask) => _targetLayerMask = targetLayerMask;
+
+        public void SetHitboxGroup(string hitboxGroupId)
+        {
+            _requestedHitboxGroupId = string.IsNullOrWhiteSpace(hitboxGroupId)
+                ? null
+                : hitboxGroupId.Trim();
+        }
 
         public WarpResolverContext BuildWarpResolverContext()
         {
@@ -109,8 +133,11 @@ namespace UPlayGround.Component
             return new WarpResolverContext
             {
                 origin = transform,
-                hitRange = _attackData.hitRange,
-                hitAngle = _attackData.hitAngle,
+                targetingRange = _homingReachRange,
+                // searchRange를 명시하지 않으면 resolver가 targetingRange를 OverlapSphere 반경으로 폴백한다.
+                // reach(작은 값)를 검색 반경으로 쓰면 잔상 워프가 대상을 못 찾으므로 캡처한 검색 반경을 명시한다.
+                searchRange = _warpSearchRange,
+                targetingAngle = _homingReachAngle,
                 targetLayer = _targetLayerMask,
                 targetFilter = WarpDamageableFilter,
             };
@@ -141,9 +168,6 @@ namespace UPlayGround.Component
             _attackData.forceReaction = phase.forceReaction;
             _attackData.forceBreakExpose = phase.forceBreakExpose;
             _attackData.reactionType = phase.reactionType;
-            _attackData.hitRange = phase.attackRadius;
-            _attackData.hitHeightOffset = phase.attackOffset.y;
-            _attackData.hitHeightRange = phase.hitHeightRange;
             _attackData.hitParticleName = phase.hitParticleName;
             _attackData.pullForce = phase.pullForce;
             _attackData.airborneForce = phase.airborneForce;
@@ -153,7 +177,7 @@ namespace UPlayGround.Component
             _attackData.guaranteedReaction = phase.guaranteedReaction;
             _attackData.reactionData = phase.reactionProfile?.Resolve();
 
-            Debug.Log($"[ResidualAttack] Hit phase applied. phase={hitPhaseIndex}, damage={_attackData.damage}, range={_attackData.hitRange}, angle={_attackData.hitAngle}, heightOffset={_attackData.hitHeightOffset}, heightRange={_attackData.hitHeightRange}");
+            Debug.Log($"[ResidualAttack] Hit phase applied. phase={hitPhaseIndex}, damage={_attackData.damage}, group={phase.hitboxGroupId}");
         }
 
         public void ApplyFinishAttackFromMotionEvent()
@@ -195,16 +219,15 @@ namespace UPlayGround.Component
                 return;
             }
 
-            Vector3 origin = transform.position + Vector3.up * _attackData.hitHeightOffset;
-            var hitShape = new MeleeHitShape(
+            if (_hitboxSet == null || !_hitboxSet.IsActive)
+                return;
+
+            _hitboxSet.DetectActiveGroup(
                 transform,
-                origin,
-                transform.forward,
-                _attackData.hitRange,
-                _attackData.hitAngle,
-                _attackData.hitHeightRange,
-                _targetLayerMask);
-            CombatHitDetector.DetectMeleeHits(hitShape, _hitOverlapBuffer, _hitTargets, _detectedHits);
+                _targetLayerMask,
+                _hitTargets,
+                _detectedHits,
+                includeInvincibleTargets: false);
 
             bool hitOccurred = false;
             Vector3 firstHitPoint = Vector3.zero;
@@ -262,10 +285,6 @@ namespace UPlayGround.Component
                 attackKind = source.attackKind,
                 reactionType = source.reactionType,
                 attacker = source.attacker,
-                hitRange = source.hitRange,
-                hitAngle = source.hitAngle,
-                hitHeightOffset = source.hitHeightOffset,
-                hitHeightRange = source.hitHeightRange,
                 hitPoint = source.hitPoint,
                 hitTarget = source.hitTarget,
                 criticalMultiplier = source.criticalMultiplier,
@@ -290,6 +309,23 @@ namespace UPlayGround.Component
         {
             if (phases == null || phases.Count == 0) return null;
             return phases[Mathf.Clamp(index, 0, phases.Count - 1)];
+        }
+
+        private void BeginHitboxWindow()
+        {
+            HitPhaseData phase = _attackInfoBase != null
+                ? _attackInfoBase.GetHitPhase(_attackData?.hitPhaseIndex ?? 0)
+                : GetHitPhase(_hitPhases, _attackData?.hitPhaseIndex ?? 0);
+            string groupId = !string.IsNullOrWhiteSpace(_requestedHitboxGroupId)
+                ? _requestedHitboxGroupId
+                : phase?.hitboxGroupId;
+            bool activated = _hitboxSet != null && _hitboxSet.BeginGroup(groupId);
+            if (!activated)
+            {
+                Debug.LogError(
+                    $"[ResidualAttack] 필수 HitBox 그룹 '{groupId ?? CombatHitbox.DefaultGroupId}'을 찾지 못해 공격 판정을 중단합니다.",
+                    this);
+            }
         }
 
         private void ShowDamageFloater(in CombatResult result)

@@ -35,6 +35,7 @@ MonoBehaviour:
         endTime: 1.5125
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7399917165060554909
       type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

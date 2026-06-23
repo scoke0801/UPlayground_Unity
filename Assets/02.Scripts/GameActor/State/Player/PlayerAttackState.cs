@@ -649,8 +649,6 @@ namespace UPlayGround.State
 
             bool isLockedOn = lockOnTarget != null;
             return _combat.FindMotionWarpTarget(
-                _currentAttack.hitRange,
-                _currentAttack.hitAngle,
                 isLockedOn,
                 warpSearchRange);
         }

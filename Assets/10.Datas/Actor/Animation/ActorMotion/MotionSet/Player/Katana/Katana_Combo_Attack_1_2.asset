@@ -59,6 +59,7 @@ MonoBehaviour:
         rotationOffset: {x: 180, y: -116.4, z: -144.4}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031959771152506
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -106,6 +107,7 @@ MonoBehaviour:
         endTime: 0.28894928
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
+        hitboxGroupId: MainWeapon
     - rid: 7399917007448310084
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

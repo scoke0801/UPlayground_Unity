@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Debugging;
 
 namespace UPlayGround.Combat
 {
@@ -18,8 +20,30 @@ namespace UPlayGround.Combat
         [SerializeField, Range(1, 32)] private int _maxSweepSteps = 8;
         [SerializeField] private Color _debugColor = new(1f, 0.25f, 0.1f, 0.45f);
 
+        [Header("Swing Trail (Debug)")]
+        [Tooltip("공격 활성 윈도우 동안의 HitBox 궤적을 N초간 잔상으로 표시한다.")]
+        [SerializeField] private bool _drawSwingTrail = true;
+        [Tooltip("궤적 잔상이 유지되는 시간(초). 0이면 비활성.")]
+        [SerializeField, Min(0f)] private float _swingTrailDuration = 1f;
+        [SerializeField] private Color _swingTrailColor = new(0.2f, 0.9f, 1f, 0.8f);
+
         private CombatHitboxShape _previousShape;
         private bool _hasPreviousShape;
+
+        // 활성 윈도우 동안 누적되는 궤적 샘플. 가장 오래된 것이 앞쪽(인덱스 0)에 위치한다.
+        private readonly List<TrailSample> _swingTrail = new(64);
+
+        private readonly struct TrailSample
+        {
+            public readonly CombatHitboxShape Shape;
+            public readonly float Time;
+
+            public TrailSample(in CombatHitboxShape shape, float time)
+            {
+                Shape = shape;
+                Time = time;
+            }
+        }
 
         public string GroupId => string.IsNullOrWhiteSpace(_groupId) ? DefaultGroupId : _groupId.Trim();
         public Collider ShapeCollider => _shapeCollider;
@@ -43,6 +67,7 @@ namespace UPlayGround.Combat
             _groupId = string.IsNullOrWhiteSpace(_groupId) ? DefaultGroupId : _groupId.Trim();
             _sweepStepDistance = Mathf.Max(0.01f, _sweepStepDistance);
             _maxSweepSteps = Mathf.Clamp(_maxSweepSteps, 1, 32);
+            _swingTrailDuration = Mathf.Max(0f, _swingTrailDuration);
             NormalizeCollider();
         }
 
@@ -64,17 +89,41 @@ namespace UPlayGround.Combat
         public void BeginSampling()
         {
             _hasPreviousShape = TryGetWorldShape(out _previousShape);
+            if (_hasPreviousShape)
+                RecordTrail(_previousShape);
         }
 
         public void CommitShape(in CombatHitboxShape shape)
         {
             _previousShape = shape;
             _hasPreviousShape = true;
+            RecordTrail(shape);
         }
 
         public void ClearSampling()
         {
             _hasPreviousShape = false;
+        }
+
+        private void RecordTrail(in CombatHitboxShape shape)
+        {
+            if (!_drawSwingTrail || _swingTrailDuration <= 0f)
+                return;
+
+            float now = Time.time;
+            _swingTrail.Add(new TrailSample(shape, now));
+            PruneTrail(now);
+        }
+
+        // 수명이 다한 궤적 샘플을 앞쪽부터 제거한다. 샘플은 시간순으로 누적되므로 앞에서부터 끊으면 된다.
+        private void PruneTrail(float now)
+        {
+            float cutoff = now - _swingTrailDuration;
+            int removeCount = 0;
+            while (removeCount < _swingTrail.Count && _swingTrail[removeCount].Time < cutoff)
+                removeCount++;
+            if (removeCount > 0)
+                _swingTrail.RemoveRange(0, removeCount);
         }
 
         public bool TryGetWorldShape(out CombatHitboxShape shape)
@@ -139,7 +188,49 @@ namespace UPlayGround.Combat
             if (!TryGetWorldShape(out CombatHitboxShape shape))
                 return;
 
-            Gizmos.color = _debugColor;
+            DrawShapeWire(shape, _debugColor);
+        }
+
+        // 활성 윈도우 동안 누적된 궤적을 N초간 잔상으로 표시한다.
+        // 선택 여부와 무관하게 보여야 하므로 OnDrawGizmosSelected 가 아닌 OnDrawGizmos 에서 그린다.
+        private void OnDrawGizmos()
+        {
+            if (!_drawSwingTrail || _swingTrailDuration <= 0f || _swingTrail.Count == 0)
+                return;
+
+            if (!DebugGizmoManager.IsLocalContentEnabled(
+                    DebugGizmoCategory.Combat,
+                    DebugGizmoContentType.HitboxSwingTrail))
+                return;
+
+            float now = Time.time;
+            PruneTrail(now);
+
+            CombatHitboxShape? prev = null;
+            for (int i = 0; i < _swingTrail.Count; i++)
+            {
+                TrailSample sample = _swingTrail[i];
+                float life = Mathf.Clamp01(1f - (now - sample.Time) / _swingTrailDuration);
+                if (life <= 0f)
+                    continue;
+
+                Color color = _swingTrailColor;
+                color.a *= life;
+                DrawShapeWire(sample.Shape, color);
+
+                // 연속 샘플의 중심을 이어 스윙 경로를 강조한다.
+                if (prev.HasValue)
+                {
+                    Gizmos.color = color;
+                    Gizmos.DrawLine(prev.Value.Center, sample.Shape.Center);
+                }
+                prev = sample.Shape;
+            }
+        }
+
+        private void DrawShapeWire(in CombatHitboxShape shape, Color color)
+        {
+            Gizmos.color = color;
             if (shape.Type == CombatHitboxShapeType.Box)
             {
                 Matrix4x4 previous = Gizmos.matrix;
@@ -149,10 +240,14 @@ namespace UPlayGround.Combat
                 return;
             }
 
+            Vector3 radial = shape.Point1 - shape.Point0;
+            radial = radial.sqrMagnitude > 0.0001f
+                ? Vector3.Cross(radial, Vector3.up).normalized
+                : transform.right;
             Gizmos.DrawWireSphere(shape.Point0, shape.Radius);
             Gizmos.DrawWireSphere(shape.Point1, shape.Radius);
-            Gizmos.DrawLine(shape.Point0 + transform.right * shape.Radius, shape.Point1 + transform.right * shape.Radius);
-            Gizmos.DrawLine(shape.Point0 - transform.right * shape.Radius, shape.Point1 - transform.right * shape.Radius);
+            Gizmos.DrawLine(shape.Point0 + radial * shape.Radius, shape.Point1 + radial * shape.Radius);
+            Gizmos.DrawLine(shape.Point0 - radial * shape.Radius, shape.Point1 - radial * shape.Radius);
         }
     }
 }

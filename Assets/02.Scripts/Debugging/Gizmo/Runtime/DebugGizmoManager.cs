@@ -79,6 +79,29 @@ namespace UPlayGround.Debugging
 #endif
         }
 
+        /// <summary>
+        /// 중앙에서 그리지 않고 로컬 컴포넌트가 직접 그리는 기즈모(예: HitBox 스윙 궤적)의 표시 허용 여부.
+        /// 중앙 핸들러가 있어 중복을 막는 <see cref="ShouldSuppressLocalGizmos"/> 와 반대로,
+        /// 여기서는 "그려도 되는가"를 카테고리/콘텐츠 토글 기준으로 판단한다.
+        /// 매니저가 없으면(에디트 모드 등) 로컬 컴포넌트 자체 토글에 위임하도록 true 를 반환한다.
+        /// </summary>
+        public static bool IsLocalContentEnabled(
+            DebugGizmoCategory category,
+            DebugGizmoContentType contentType)
+        {
+#if UNITY_EDITOR
+            var manager = FindFirstObjectByType<DebugGizmoManager>();
+            if (manager == null)
+                return true;
+
+            return manager.Enabled
+                   && manager.IsCategoryEnabled(category)
+                   && manager.IsContentTypeEnabled(contentType);
+#else
+            return false;
+#endif
+        }
+
         public void SetEnabled(bool value) => _enabled = value;
         public void SetCategory(DebugGizmoCategory category, bool enabled)
         {

@@ -104,6 +104,7 @@ namespace UPlayGround.Debugging.Editor
             DrawContentTypeToggle(manager, DebugGizmoContentType.PlayerCombatHit);
             DrawContentTypeToggle(manager, DebugGizmoContentType.EnemyDetection);
             DrawContentTypeToggle(manager, DebugGizmoContentType.MotionWarp);
+            DrawContentTypeToggle(manager, DebugGizmoContentType.HitboxSwingTrail);
         }
 
         private static void DrawContentTypeToggle(DebugGizmoManager manager, DebugGizmoContentType contentType)

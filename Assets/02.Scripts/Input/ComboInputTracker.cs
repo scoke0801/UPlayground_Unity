@@ -51,6 +51,18 @@ namespace UPlayGround.Input
             get { Expire(); return _entries.Count; }
         }
 
+        /// <summary>
+        /// 마지막으로 기록된 토큰 이후 경과 시간(초). 스트림이 비었으면 +Inf.
+        /// 연계 라우트의 '마무리 입력' 정밀도(퍼펙트 타이밍) 판정에 쓴다 — 토큰 push 이전에 호출해야
+        /// 직전 토큰과 이번 입력 사이의 간격을 얻는다(push 후엔 0).
+        /// </summary>
+        public float TimeSinceLastToken()
+        {
+            Expire();
+            if (_entries.Count == 0) return float.PositiveInfinity;
+            return Time.time - _entries[_entries.Count - 1].time;
+        }
+
         // ── 조회 ───────────────────────────────────────────────────────
 
         /// <summary>

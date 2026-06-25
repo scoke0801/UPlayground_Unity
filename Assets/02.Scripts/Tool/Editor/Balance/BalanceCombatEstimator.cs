@@ -217,6 +217,9 @@ namespace UPlayGround.Tool.Editor.Balance
             result.EstimatedBreaksPerFight = result.TargetDuration / cycle;
             result.BreakExposedUptime = Mathf.Clamp01(result.BreakExposedDuration / cycle);
 
+            // 통합 취약 배율(CombatPolicyResolver.GetVulnerabilityMultiplier) 중 Break 노출 가동률 성분만 모델링한다.
+            // 리액션 상태(Stun/Knockdown/Airborne/Grabbed) 배율은 가동률이 플레이어 콤보·Poise에 의존하는 transient라
+            // 정상상태 추정에서 의도적으로 제외한다. 따라서 이 값은 버스트 윈도우를 포함한 실측 대비 하한이다.
             float bonusMultiplier = Mathf.Lerp(1f, result.BreakDamageTakenMultiplier, result.BreakExposedUptime);
             result.PlayerEffectiveDpsWithBreak = result.PlayerExpectedDps * Mathf.Max(0f, bonusMultiplier);
         }

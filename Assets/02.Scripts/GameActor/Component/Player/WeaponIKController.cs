@@ -84,6 +84,15 @@ namespace UPlayGround.Component
         /// <summary>현재 그립 손과 그립 포인트의 실제 거리(m). Phase 0 정확도 검증용.</summary>
         public float DebugGripDistance => _dbgDistance;
 
+#if UNITY_EDITOR
+        // ── 에디터 상태 패널 전용 게터 (WeaponIKControllerEditor) ──
+        // 에디터 어셈블리에서 접근하므로 internal이 아닌 public. 빌드엔 포함되지 않음.
+        public bool EditorIkEverProcessed => _ikEverProcessed;
+        public bool EditorHasGrip => _hasGrip;
+        public bool EditorOffsetLocked => _offsetLocked;
+        public float EditorCurrentWeight => _currentWeight;
+#endif
+
         private void Awake()
         {
             _animator = GetComponentInChildren<Animator>();

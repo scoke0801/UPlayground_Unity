@@ -954,7 +954,7 @@ namespace UPlayGround.Component
         /// 패턴 마지막 토큰으로 AttackKind를 결정하고, 게이지를 소비한다.
         /// 연계는 단발이므로 약/강 분기 메모리는 보존하되 진행 인덱스는 종료한다(설계 §8).
         /// </summary>
-        public AttackData ExecuteComboRoute(ComboRouteEntry route)
+        public AttackData ExecuteComboRoute(ComboRouteEntry route, bool isPerfect = false)
         {
             if (route == null || route.attackInfo?.baseInfo == null) return null;
             ClearResidualAttackContext();
@@ -970,7 +970,27 @@ namespace UPlayGround.Component
 
             ResetComboPreserveChains();
 
-            _currentAttackData = ConvertToAttackData(route.attackInfo, kind);
+            // 퍼펙트 강화: 전용 공격이 있으면 그것으로 교체, 없으면 기본 공격에 런타임 배율을 싣는다(둘 다 지원).
+            bool useEnhancedAttack = isPerfect && route.HasEnhancedAttack;
+            PlayerAttackInfo source = useEnhancedAttack ? route.enhancedAttackInfo : route.attackInfo;
+
+            _currentAttackData = ConvertToAttackData(source, kind);
+
+            if (isPerfect && !useEnhancedAttack && _currentAttackData != null)
+            {
+                _currentAttackData.damageMultiplier = Mathf.Max(0f, route.enhancedDamageMultiplier);
+                _currentAttackData.poiseMultiplier  = Mathf.Max(0f, route.enhancedPoiseMultiplier);
+
+                // Create가 세팅한 phase0 초기값에도 즉시 반영 — 첫 타가 SetHitPhaseIndex(0) 이전에 들어오는
+                // 단일타 라우트 등의 엣지에서 첫 타 미배율을 방지. 이후 페이즈 갱신은 phase에서 재계산되어 누적되지 않는다.
+                _currentAttackData.damage      *= _currentAttackData.damageMultiplier;
+                _currentAttackData.poiseDamage *= _currentAttackData.poiseMultiplier;
+                _currentAttackData.breakDamage *= _currentAttackData.poiseMultiplier;
+            }
+
+            if (isPerfect && route.enhancedGrantTagId != GameplayTagId.None)
+                _playerActor?.Tags?.AddTag(route.enhancedGrantTagId);
+
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -1273,9 +1293,9 @@ namespace UPlayGround.Component
                 : GetHitPhase(_currentResidualHitPhases, index);
             if (phase == null) return;
             _currentAttackData.hitPhaseIndex   = index;
-            _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
-            _currentAttackData.poiseDamage     = phase.poiseDamage;
-            _currentAttackData.breakDamage     = phase.breakDamage;
+            _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f) * _currentAttackData.damageMultiplier;
+            _currentAttackData.poiseDamage     = phase.poiseDamage * _currentAttackData.poiseMultiplier;
+            _currentAttackData.breakDamage     = phase.breakDamage * _currentAttackData.poiseMultiplier;
             _currentAttackData.reactionDuration = phase.reactionDuration;
             _currentAttackData.forceReaction   = phase.forceReaction;
             _currentAttackData.forceBreakExpose = phase.forceBreakExpose;

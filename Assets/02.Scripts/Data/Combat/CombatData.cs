@@ -347,6 +347,12 @@ namespace UPlayGround.Data
         public float damage;
         public float poiseDamage = 30f;
         public float breakDamage = 10f;
+
+        // 영속 배율: 멀티히트 페이즈 갱신(SetHitPhaseIndex)마다 phase 값에 곱해진다.
+        // 연계 라우트 퍼펙트 타이밍 강화처럼 공유 SO(hitPhases)를 변형하지 않고 런타임 한정으로 데미지를 증폭할 때 쓴다.
+        public float damageMultiplier = 1f;
+        public float poiseMultiplier = 1f; // poiseDamage + breakDamage(강인도/브레이크 압력)에 공통 적용
+
         public float reactionDuration = 0f;
         public bool forceReaction = false;
         public bool forceBreakExpose = false;

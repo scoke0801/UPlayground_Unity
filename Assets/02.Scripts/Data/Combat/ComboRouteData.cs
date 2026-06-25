@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Combat
@@ -85,7 +86,31 @@ namespace UPlayGround.Data.Combat
         [Tooltip("같은 길이의 라우트가 경합할 때 우선순위(높을수록 먼저)")]
         public int priority = 0;
 
+        [Header("퍼펙트 타이밍 강화 (선택)")]
+        [Tooltip("마무리 입력이 직전 토큰으로부터 이 시간(초) 안에 들어오면 강화 발동. 0이면 강화 비활성.")]
+        [Min(0f)] public float perfectWindow = 0f;
+
+        [Tooltip("강화 시 사용할 전용 공격. animKey가 설정되면 기본 공격 대신 이 공격을 실행한다. 비우면 기본 공격에 아래 배율/태그만 적용.")]
+        public PlayerAttackInfo enhancedAttackInfo = new();
+
+        [Tooltip("강화 시 데미지 배율(전용 공격 미설정일 때 기본 공격에 곱). 1이면 데미지 보너스 없음.")]
+        [Min(0f)] public float enhancedDamageMultiplier = 1.15f;
+
+        [Tooltip("강화 시 강인도/브레이크 피해 배율(전용 공격 미설정일 때 적용). 1이면 보너스 없음.")]
+        [Min(0f)] public float enhancedPoiseMultiplier = 1.15f;
+
+        [Tooltip("강화 발동 시 플레이어에게 부여할 태그(연계 보상/후속 분기용). None이면 없음.")]
+        public GameplayTagId enhancedGrantTagId = GameplayTagId.None;
+
         public bool IsEmpty => inputPattern == null || inputPattern.Count == 0;
+
+        /// <summary>퍼펙트 타이밍 강화가 활성화된 라우트인지.</summary>
+        public bool HasPerfectWindow => perfectWindow > 0f;
+
+        /// <summary>강화 시 실행할 전용 공격(animKey 보유)이 설정돼 있는지.</summary>
+        public bool HasEnhancedAttack =>
+            enhancedAttackInfo?.baseInfo != null
+            && enhancedAttackInfo.baseInfo.animKey != AnimKey.None;
 
         /// <summary>패턴의 마지막 토큰(없으면 LightAttack 폴백).</summary>
         public ComboInputToken LastToken =>

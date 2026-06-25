@@ -397,4 +397,19 @@ delta = Quaternion.AngleAxis(correction * weight, axis(tipDir→wantDir))   // F
 1. **휴머노이드 직접 본 쓰기 지속성** — weight를 올렸는데 보조손이 전혀 안 움직이면 retargeting이 직접 쓰기를 덮는 케이스 → 폴백 `Animator.SetIKPosition(AvatarIKGoal.LeftHand)`(팔꿈치 hint 제어 상실 감수).
 2. **극단 포즈 팔 비틀림** — muscle 한계 우회 부작용. 보이면 보정 각/그립 도달 범위 클램프 필요.
 
+### 12.5 세팅 보조 에디터 (구현됨)
+
+수작업 마찰(그립 눈대중 배치 / 콘솔-only 디버그)을 줄이는 에디터 도구 2종. 시스템 가동의 전제는 아니며 보조용.
+구현 파일: `Editor/WeaponGripPointEditor.cs`, `Editor/WeaponIKControllerEditor.cs` (둘 다 `[CustomEditor]`, `WeaponSlashVfxSpawnerEditor` 패턴 미러).
+
+- **`WeaponGripPointEditor`** — 무기 프리팹의 그립 마커 선택 시:
+  - 씬뷰에 그립 자세 축 기즈모(RGB) + 보조손 본까지 시안 점선/거리(cm) 표시 → 정렬 상태 시각 확인.
+  - 인스펙터 **"보조손 본 위치로 스냅"** 버튼 → 무기 부모 계층(또는 씬 폴백) 휴머노이드 Animator의 보조손 본 위치/회전으로 마커를 맞춘 뒤 미세조정(눈대중 시작점 제거). Undo 지원.
+  - §12.1-1의 "빈 GameObject를 메시 위에 손으로 배치"를 "본에 스냅 후 미세조정"으로 대체.
+- **`WeaponIKControllerEditor`** — 플레이 중 인스펙터에 IK 발화/그립 보유/오프셋 락/적용 weight/그립 거리를 실시간 패널로 표시(§12.3 콘솔 경고를 인스펙터로). 그립 거리 판정 주의(§12.2-a)도 HelpBox로 병기.
+
+> 자동 그립 주입(발도 무기 → `_debugGripOverride`) 버튼은 **의도적으로 만들지 않음** — Phase 1의 `PlayerEquipment.SetGrip` 자동배선에서 폐기될 한시 기능이며, 현재도 `Update()`의 override 감지로 드래그 1회면 충분.
+
+---
+
 → 이 절차 통과 시 Phase 1(그립 정식화 + `PlayerEquipment.SetGrip` 배선)로 진행. 막히면 §11 폴백.

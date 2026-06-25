@@ -9,6 +9,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Diagnostics;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Combat;
 using UPlayGround.State;
@@ -68,7 +69,16 @@ namespace UPlayGround
         public float CurrentHealth => _currentHealth;
         public MonsterActorGrade Grade => _grade;
         public int Level => Mathf.Max(1, _level);
-        
+
+        /// <summary>
+        /// 현재 행동불능/리액션 상태. 데미지 해석 시 통합 취약 배율(Vulnerability Multiplier) 산출에 쓰인다.
+        /// 적 상태 진입(<see cref="State.EnemyActorState.OnEnter"/>)에서 갱신되며, 일반 상태로 복귀하면 None이 된다.
+        /// </summary>
+        public CombatReactionState CurrentReactionState { get; private set; } = CombatReactionState.None;
+
+        /// <summary> 적 상태 머신이 상태 진입 시점에 호출한다(상태 진입과 동기). 외부 임의 호출 금지. </summary>
+        internal void SetCurrentReactionState(CombatReactionState state) => CurrentReactionState = state;
+
         protected override void Awake()
         {
             base.Awake();
@@ -133,7 +143,12 @@ namespace UPlayGround
 
             if (!CanTakeDamage())
             {
-                Debug.Log($"[MonsterActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.");
+                RuntimeLog.TraceThrottled(
+                    RuntimeLogCategory.Combat,
+                    GetInstanceID(),
+                    1f,
+                    $"[MonsterActor] {gameObject.name}는 현재 데미지를 받을 수 없습니다.",
+                    this);
                 return false;
             }
 
@@ -147,7 +162,10 @@ namespace UPlayGround
 
             if (damageResult.IsCritical)
             {
-                Debug.Log($"[MonsterActor] 크리티컬 히트! 데미지: {finalDamage}");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat,
+                    $"[MonsterActor] 크리티컬 히트! 데미지: {finalDamage}",
+                    this);
             }
 
             _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
@@ -286,7 +304,10 @@ namespace UPlayGround
                 : transform.position;
             UIManager.Instance.ShowDamageFloaterHeal(floaterPos, actualHeal, FloatStyle.MonsterHeal);
 
-            Debug.Log($"[MonsterActor] {gameObject.name} 체력 회복: +{actualHeal:F1} HP (현재: {_currentHealth:F1}/{_maxHealth})");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat,
+                $"[MonsterActor] {gameObject.name} 체력 회복: +{actualHeal:F1} HP (현재: {_currentHealth:F1}/{_maxHealth})",
+                this);
         }
         
         public void SetHealth(float health)
@@ -474,7 +495,10 @@ namespace UPlayGround
             if (_isDead) return;
             _isDead = true;
 
-            Debug.Log($"[MonsterActor] {gameObject.name} 사망!");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat,
+                $"[MonsterActor] {gameObject.name} 사망!",
+                this);
 
             CombatTelemetrySession.NotifyMonsterDeath(this);
             GetComponent<EncounterReplayRecorder>()?.EndAndSave("death", "몬스터 사망");
@@ -766,7 +790,10 @@ namespace UPlayGround
         /// </summary>
         public void OnParried()
         {
-            Debug.Log($"[MonsterActor] {gameObject.name} 패리당함!");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat,
+                $"[MonsterActor] {gameObject.name} 패리당함!",
+                this);
 
             AIController?.OnParried();
 

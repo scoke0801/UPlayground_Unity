@@ -3,6 +3,7 @@ using UPlayGround.Component;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Diagnostics;
 using UPlayGround.InputDefine;
 using UPlayGround.MovementController;
 
@@ -19,7 +20,7 @@ namespace UPlayGround.State
     public static class ComboRouteRunner
     {
         /// <summary>연계 라우트 진단 로그 토글(문제 해결 후 false로). 기록(execute) 경로에서만 1회씩 출력.</summary>
-        public static bool DebugLog = true;
+        public static bool DebugLog = false;
 
         /// <summary>
         /// 이번 진입의 pending 토큰을 산출하고 라우트를 Resolve한다.
@@ -47,7 +48,9 @@ namespace UPlayGround.State
                 {
                     tracker.Push(pending);
                     if (DebugLog)
-                        Debug.Log($"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수=0 → 활성 _attackData에 comboRoutes 없음! (편집한 SO와 다른 에셋이 캐릭터에 연결됐을 수 있음)");
+                        RuntimeLog.Trace(
+                            RuntimeLogCategory.Combat | RuntimeLogCategory.Input,
+                            $"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수=0 → 활성 _attackData에 comboRoutes 없음! (편집한 SO와 다른 에셋이 캐릭터에 연결됐을 수 있음)");
                 }
                 return null;
             }
@@ -68,7 +71,9 @@ namespace UPlayGround.State
                 candidate, routes, playerActor.Tags, grounded, combat.CanAffordRoute);
 
             if (recordToken && DebugLog)
-                Debug.Log($"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수={routes.Count} grounded={grounded} → {(result != null ? $"매칭 '{result.routeName}' animKey={result.attackInfo?.baseInfo?.animKey}" : "매칭없음")}");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Input,
+                    $"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수={routes.Count} grounded={grounded} → {(result != null ? $"매칭 '{result.routeName}' animKey={result.attackInfo?.baseInfo?.animKey}" : "매칭없음")}");
 
             return result;
         }
@@ -90,13 +95,21 @@ namespace UPlayGround.State
         {
             animKey = AnimKey.None;
 
+            // 마무리 입력 간격은 ResolveRoute가 트래커에 push하기 '이전'에 캡처한다(push 후엔 0).
+            float finishingInterval = playerActor != null
+                ? playerActor.ComboInputTracker.TimeSinceLastToken()
+                : float.PositiveInfinity;
+
             var route = ResolveRoute(playerActor, controller, combat,
                 isHeavyAttack, forcedAttackAction, recordToken: true);
             if (route == null) return null;
 
+            // 퍼펙트 타이밍: 마무리 입력이 직전 토큰으로부터 perfectWindow 안에 들어왔는가.
+            bool isPerfect = route.HasPerfectWindow && finishingInterval <= route.perfectWindow;
+
             // 연계 발동 → 윈도우를 비워 stale 접두 토큰의 재매칭을 방지(설계 §8).
             playerActor.ComboInputTracker.Clear();
-            var attack = combat.ExecuteComboRoute(route);
+            var attack = combat.ExecuteComboRoute(route, isPerfect);
             animKey = attack?.animKey ?? AnimKey.None;
             return attack;
         }

@@ -38,6 +38,7 @@ namespace UPlayGround.Data.Enemy
 
         [Header("Exposed")]
         [Min(0.1f)] public float exposedDuration = 4f;
+        [Tooltip("Break 노출 중 받는 피해 배율. 통합 취약 배율 채널의 한 입력으로, 리액션 상태(Stun/Knockdown 등) 배율과 동시 성립 시 더 큰 쪽 하나만 적용된다(max-wins).")]
         [Min(0f)] public float damageTakenMultiplierWhileExposed = 1.15f;
         [Tooltip("노출 시간이 끝났을 때 이미 깎인 비율. 0.25면 잔량 75%에서 재시작")]
         [Range(0f, 1f)] public float resetGaugeRatioOnExpire = 0.25f;

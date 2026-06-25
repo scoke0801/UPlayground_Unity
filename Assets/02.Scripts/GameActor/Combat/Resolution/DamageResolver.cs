@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Component;
+using UPlayGround.Data.EnumType;
 using UPlayGround.UI;
 
 namespace UPlayGround.Combat
@@ -51,9 +52,14 @@ namespace UPlayGround.Combat
             float defenseRate = target != null
                 ? Mathf.Clamp01(target.Stats.Defense)
                 : 0f;
-            float damageTakenMultiplier = breakGauge != null
-                ? breakGauge.DamageTakenMultiplier
-                : 1f;
+            // 통합 취약 배율: 리액션 상태(Stun/Knockdown/Airborne/Grabbed) 배율과 Break 노출 배율을 단일 채널로 묶어
+            // 동시 성립 시 더 큰 하나만 적용한다(max-wins).
+            float breakExposedMultiplier = breakGauge != null ? breakGauge.DamageTakenMultiplier : 1f;
+            float damageTakenMultiplier = CombatPolicyResolver.GetVulnerabilityMultiplier(
+                target != null ? target.Definition?.combatReactionPolicy : null,
+                target != null ? target.Grade : MonsterActorGrade.Normal,
+                target != null ? target.CurrentReactionState : CombatReactionState.None,
+                breakExposedMultiplier);
             float criticalMultiplier = ResolveCriticalMultiplier(hit.CriticalMultiplier);
             float finalDamage = baseDamage
                                 * attackerPower

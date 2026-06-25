@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.AI.BehaviorTree
 {
@@ -18,7 +19,7 @@ namespace UPlayGround.AI.BehaviorTree
         {
             if (_logEveryTick || !_logged)
             {
-                Debug.Log($"[BT] {_message}", Context?.Owner);
+                RuntimeLog.Trace(RuntimeLogCategory.AI, $"[BT] {_message}", Context?.Owner);
                 _logged = true;
             }
 

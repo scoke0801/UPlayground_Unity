@@ -104,6 +104,26 @@ namespace UPlayGround.Manager
         {
             SetGlobalTimeScaleExceptPlayer(1.0f);
         }
+
+        /// <summary>
+        /// 연출과 무관한 안전 복구용. 플레이어를 포함한 모든 액터의 LocalTimeScale을 1.0으로 되돌린다.
+        /// SetGlobalTimeScaleExceptPlayer는 플레이어를 제외하므로, freeze/히트스톱 누수가
+        /// 플레이어에만 고착됐을 때 이를 회복할 전역 안전망이 없다. 전투 종료/씬 전환/Dispose에서만 호출.
+        /// </summary>
+        public void ResetAllActorsTimeScaleIncludingPlayer()
+        {
+            foreach (var actor in _allActors)
+            {
+                if (actor != null)
+                    actor.LocalTimeScale = 1.0f;
+            }
+
+            if (_resetTimeScaleCoroutine != null)
+            {
+                StopCoroutine(_resetTimeScaleCoroutine);
+                _resetTimeScaleCoroutine = null;
+            }
+        }
         
         private System.Collections.IEnumerator ResetTimeScaleCoroutine(float delay)
         {

@@ -74,6 +74,7 @@ namespace UPlayGround.Manager.Combat
         {
             Stop();
             StopAllActors();
+            GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
 
             if (_volumeInstance != null)
             {
@@ -106,6 +107,7 @@ namespace UPlayGround.Manager.Combat
         {
             Stop();
             StopAllActors();
+            GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
         }
 
         #endregion
@@ -209,7 +211,7 @@ namespace UPlayGround.Manager.Combat
 
             var request = new ActorTimeScaleRequest
             {
-                OriginalLocalTimeScale = actor.LocalTimeScale,
+                OriginalLocalTimeScale = ResolveOriginalForCapture(actor),
             };
             request.Coroutine = GameCombatManager.Instance.StartCoroutine(ActorOnlyCoroutine(actor, request, duration, animSpeed));
             _actorCoroutines[actor] = request;
@@ -275,6 +277,36 @@ namespace UPlayGround.Manager.Combat
 
         public bool IsActorHitStopping(GameActor actor) =>
             actor != null && _actorCoroutines.ContainsKey(actor);
+
+        /// <summary>
+        /// actor가 현재 이 핸들러의 actor-only 히트스톱으로 관리 중이면
+        /// 해당 request가 보관한 "진짜 original" LocalTimeScale을 반환한다.
+        /// 다른 시스템(DefenseSuccessFeedback 등)이 freeze 중간값을 original로
+        /// 오인 캡처하는 것을 막기 위한 교차 조회용.
+        /// </summary>
+        public bool TryGetActorOriginalScale(GameActor actor, out float original)
+        {
+            if (actor != null && _actorCoroutines.TryGetValue(actor, out var req))
+            {
+                original = req.OriginalLocalTimeScale;
+                return true;
+            }
+            original = 1f;
+            return false;
+        }
+
+        // 캡처 시점에 다른 시스템이 이미 이 actor를 freeze 중이면, 오염된 라이브값이 아니라
+        // 그 시스템이 들고 있는 진짜 original을 신뢰한다. 아무도 관리 중이 아니면 라이브값이 곧 진실.
+        private float ResolveOriginalForCapture(GameActor actor)
+        {
+            if (actor == null) return 1f;
+
+            var defense = GameCombatManager.Instance?.DefenseSuccessFeedback;
+            if (defense != null && defense.TryGetFrozenOriginalScale(actor, out var trueOriginal))
+                return trueOriginal;
+
+            return actor.LocalTimeScale;
+        }
 
         #endregion
 

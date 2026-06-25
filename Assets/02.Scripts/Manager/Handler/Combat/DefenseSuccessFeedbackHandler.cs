@@ -90,11 +90,13 @@ namespace UPlayGround.Manager.Combat
         public override void Dispose()
         {
             StopImmediate();
+            GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
         }
 
         public override void OnSceneChanged(string sceneType)
         {
             StopImmediate();
+            GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
         }
 
         private DefenseSuccessFeedbackProfile GetProfile(DefenseSuccessType type)
@@ -115,8 +117,8 @@ namespace UPlayGround.Manager.Combat
 
             _frozenPlayer = player;
             _frozenAttacker = attacker;
-            _originalPlayerScale = player != null ? player.LocalTimeScale : 1f;
-            _originalAttackerScale = attacker != null ? attacker.LocalTimeScale : 1f;
+            _originalPlayerScale = ResolveTrueOriginalScale(player);
+            _originalAttackerScale = ResolveTrueOriginalScale(attacker);
 
             if (player != null)
                 player.LocalTimeScale = Mathf.Min(_originalPlayerScale, profile.freezeTimeScale);
@@ -201,6 +203,44 @@ namespace UPlayGround.Manager.Combat
         private void StopImmediate()
         {
             StopCurrentFeedback(GameCombatManager.Instance, true);
+        }
+
+        /// <summary>
+        /// 캡처 시점에 GameHitStop이 이미 이 actor를 freeze 중이면, 오염된 라이브값이 아니라
+        /// 그 핸들러가 보관한 진짜 original을 신뢰한다. 아무도 관리 중이 아니면 라이브값이 곧 진실.
+        /// </summary>
+        private static float ResolveTrueOriginalScale(GameActor actor)
+        {
+            if (actor == null)
+                return 1f;
+
+            var hitStop = GameCombatManager.Instance?.GameHitStop;
+            if (hitStop != null && hitStop.TryGetActorOriginalScale(actor, out var trueOriginal))
+                return trueOriginal;
+
+            return actor.LocalTimeScale;
+        }
+
+        /// <summary>
+        /// actor가 현재 이 핸들러의 freeze로 눌려 있으면 그 진짜 original을 반환한다.
+        /// GameHitStop이 freeze 중간값을 original로 오인 캡처하는 것을 막기 위한 교차 조회용.
+        /// freeze 단계 종료 시 _frozenPlayer/_frozenAttacker는 null로 비워지므로,
+        /// 그 이후엔 라이브값이 곧 진실이 되어 폴백이 정확하다.
+        /// </summary>
+        public bool TryGetFrozenOriginalScale(GameActor actor, out float original)
+        {
+            if (actor != null && actor == _frozenPlayer)
+            {
+                original = _originalPlayerScale;
+                return true;
+            }
+            if (actor != null && actor == _frozenAttacker)
+            {
+                original = _originalAttackerScale;
+                return true;
+            }
+            original = 1f;
+            return false;
         }
 
         public void StopForCounterAttack(GameActor counterActor)

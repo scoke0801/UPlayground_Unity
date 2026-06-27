@@ -2,7 +2,8 @@
 
 > 작성일: 2026-06-25
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 분류: **설계서(미구현 계획)**. 본 문서의 코드 스니펫은 모두 **의사코드 스케치**이며 실제 구현이 아니다.
+> 분류: **P1~P3 구현 완료(2026-06-27) · Unity 플레이 검증 대기**. P4(대표 무기 윈도우 저작=콘텐츠)·P5(규칙층)는 미착수.
+> 본문 §1~§7의 코드 스니펫은 설계 당시 의사코드 스케치다. 실제 구현은 §8 표 하단 "구현 메모"와 어긋날 경우 코드를 신뢰한다.
 > 레퍼런스: 격투/액션 장르의 cancel window·hit-confirm 관례(DMC/베요네타의 액션 캔슬, 격투게임의 gatling/special-cancel), 본 프로젝트 기존 전투 에디터 오버레이.
 > 선행/연관: `project_combat_editor_overlay`(전투 트랙·프레임 테이블), `project_interrupt_cancel_system`(PlayerInterruptAction 마스크 + 콜리전 캔슬 윈도우).
 
@@ -197,15 +198,37 @@ public PlayerInterruptAction ResolveCancelMask(out bool fromAuthored)
 
 ## 8. 단계별 구현 계획
 
-| Phase | 내용 | 산출물 |
-|---|---|---|
-| **P1 데이터** | `CancelWindowSpan` 구조 + `AttackInfoBase.cancelWindows` 추가(빈 리스트 기본) | 컴파일·역직렬화 무회귀 |
-| **P2 런타임** | `ResolveCancelMask`/`CurrentNormalizedTime` 구현, `PlayerAttackState` 게이트 교체, 폴백 보존 | 저작 없는 공격 = 기존과 동일 |
-| **P3 에디터** | 오버레이 캔슬 트랙을 저작 인지로 승격(실선/점선 구분, 프레임 병기, 드래그 편집) | 디자이너 저작 가능 |
-| **P4 저작·튜닝** | 대표 무기 공격에 윈도우 저작, 체감 튜닝 | 밸런스/조작감 |
-| **P5(선택) 규칙층** | on-hit/최소커밋 훅 활성화(별도 결정) | 깊이 |
+| Phase | 내용 | 산출물 | 상태 |
+|---|---|---|---|
+| **P1 데이터** | `CancelWindowSpan` 구조 + `AttackInfoBase.cancelWindows` 추가(빈 리스트 기본) | 컴파일·역직렬화 무회귀 | ✅ 완료 |
+| **P2 런타임** | `ResolveCancelMask`/`CurrentNormalizedTime` 구현, `PlayerAttackState` 게이트 교체, 폴백 보존 | 저작 없는 공격 = 기존과 동일 | ✅ 완료 |
+| **P3 에디터** | 오버레이 캔슬 트랙을 저작 인지로 승격(실선/점선 구분) | 디자이너 저작 가능 | ✅ 완료(드래그 편집은 후속, 저작은 Inspector) |
+| **P4 저작·튜닝** | 대표 무기 공격에 윈도우 저작, 체감 튜닝 | 밸런스/조작감 | ⏳ 콘텐츠(에디터 데이터) |
+| **P5(선택) 규칙층** | on-hit/최소커밋 훅 활성화(별도 결정) | 깊이 | ⏳ 차기 축 |
 
 P1~P3까지가 "방식 고도화"의 본체이며, P4는 콘텐츠, P5는 차기 축이다.
+
+### 구현 메모 (2026-06-27)
+
+- **P1** `CombatData.cs`: `CancelWindowSpan{start,end,maskOverride,Contains()}` struct + `AttackInfoBase.cancelWindows`(빈 리스트 기본). 기존 에셋은 빈 리스트 역직렬화 → 폴백.
+- **P2** `PlayerCombat.cs`: `ResolveCancelMask(out fromAuthored)` + `CurrentNormalizedTime()`(=`ActorAnimator.GetNormalizedTime()`, 히트 검출과 동일 MotionSet 시계). `PlayerAttackState.UpdateState` 게이트가 `_currentAttack.interruptActions` → `ResolveCancelMask`로 교체.
+  - **설계 편차:** `IsCancelWindowOpen`은 `!IsPossibleCollide` 그대로 유지(설계 §4.1의 재정의 안 함). 차지(`PlayerChargeState`)·디버그 HUD가 콜리전 기반 의미를 그대로 쓰고, 차지의 전역 마스크 소스(`chargeInterruptActions`)가 `_currentAttackData.interruptActions`(=stage)와 달라 재정의 시 차지 회피 캔슬이 깨질 수 있어서다. 정규화-인지 분기는 일반 공격 게이트에만 적용.
+  - **D2 결정:** 저작 공격의 버퍼 만료정지는 `ResolveCancelMask==None`(윈도우 밖) 기준으로 정렬. 폴백은 `IsPossibleCollide` 유지(비트 동일).
+  - **D3 유지:** Move(이동) 후딜 캔슬은 별도 축 그대로(`moveCancelDelayAfterLastHit`). 저작 윈도우와 독립.
+- **P3** `CombatTimelineUtility.ResolvedAttack.CancelWindows` 노출(차지 단계는 baseInfo 없어 null=폴백). `MotionSetWindow.CombatOverlay`의 캔슬 트랙 ②가 저작 시 실선 스팬(스팬별 effective 마스크 라벨), 미저작 시 complement 점선(`OverlaySpan.dashed`). 저작은 `AttackDataSO` Inspector에서 `cancelWindows` 편집.
+
+### 어드바이저 검토 반영 (2026-06-27)
+
+독립 코드 감사 결과 무회귀(빈 리스트)·차지 경로·컴파일은 PASS. 저작 진입 시 드러나는 풋건 3종을 런타임/에디터에서 방어:
+
+- **[5c] `[0,0]` 기본행 절벽 제거**: `ResolveCancelMask`가 **유효 폭(end>start) 스팬이 하나도 없으면 폴백**으로 떨어진다. Inspector "+"가 추가하는 기본 `[0,0]` 행이 폴백을 끄고 공격을 통째로 캔슬 불가로 만들던 절벽을 차단(운영 단계 무회귀 보존).
+- **[6] degenerate 스팬 런타임/에디터 통일**: 런타임이 `end<=start` 스팬을 무시(기존 `Contains`만으론 raw end로 죽은 윈도우). 에디터도 `Min/Max` 환산 + 점선·경고 라벨(`⚠ 폭0`/`⚠ 마스크없음`)로 **무효 스팬을 숨기지 않고 가시화**(기존 `continue`로 안 그리던 것 수정).
+- **[3] null 애니메이터 오개방 차단**: 시계 소스(`_actorAnimator`)가 없으면(모델 스왑 재탐색 프레임) 저작 평가(t=0) 대신 폴백 → `start=0` 윈도우 한 프레임 오개방 방지.
+
+**남은 한계(P4 저작 전 인지/추후):**
+- **D2 leniency 무한정**: 저작 공격은 cancelMask==None인 모든 구간에서 만료정지가 걸려, 긴 윈드업+늦은 윈도우면 선입력 보존 시간이 길어진다(체감 위화감 가능). 최대 보존 캡은 후속 검토.
+- **looping 모션**: `IsInfiniteLooping` 공격에 저작 윈도우를 쓰면 `_globalTime` 리셋으로 윈도우가 루프마다 재개방. 저작 비권장(현재 대상 공격은 비루프).
+- **Move(이동) 캔슬은 윈도우 밖**: 설계 §4.3/D3대로 `moveCancelDelayAfterLastHit` 별도 축 유지. 오버레이가 `& ~Move`로 캔슬 트랙에서 분리해 이 사실을 시각화.
 
 ---
 

@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5ac3ec8b4ab42388a46b11f9e423031, type: 3}
+  m_Name: CombatHitboxSetupProfile_Humanoid_Foot
+  m_EditorClassIdentifier: 
+  _profileId: Humanoid_Foot
+  _targetKind: 1
+  _defaultGroupId: Foot
+  _preferredShape: 0
+  _includeNamePatterns: []
+  _excludeNamePatterns:
+  - Sheath
+  - Scabbard
+  - Effect
+  - Trail
+  - VFX
+  - FX
+  _padding: 0.02
+  _minimumThickness: 0.04
+  _axisTrimStart: 0
+  _axisTrimEnd: 0
+  _useSweep: 1
+  _sweepStepDistance: 0.15
+  _maxSweepSteps: 8
+  _boneRules:
+  - groupId: RightFoot
+    humanoidBone: 6
+    shape: 2
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.18, y: 0.18, z: 0.42}
+  - groupId: LeftFoot
+    humanoidBone: 5
+    shape: 2
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.18, y: 0.18, z: 0.42}
+  - groupId: RightLowerLeg
+    humanoidBone: 4
+    shape: 2
+    center: {x: 0, y: 0, z: 0}
+    size: {x: 0.18, y: 0.18, z: 0.48}
+  - groupId: LeftLowerLeg
+    humanoidBone: 3
+    shape: 2
+    center: {x: 0, y: 0, z: 0}
+    size: {x: 0.18, y: 0.18, z: 0.48}
+  - groupId: RightUpperLeg
+    humanoidBone: 2
+    shape: 2
+    center: {x: 0, y: 0, z: 0}
+    size: {x: 0.22, y: 0.22, z: 0.5}
+  - groupId: LeftUpperLeg
+    humanoidBone: 1
+    shape: 2
+    center: {x: 0, y: 0, z: 0}
+    size: {x: 0.22, y: 0.22, z: 0.5}
+  - groupId: RightToes
+    humanoidBone: 20
+    shape: 1
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.2, y: 0.12, z: 0.22}
+  - groupId: LeftToes
+    humanoidBone: 19
+    shape: 1
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.2, y: 0.12, z: 0.22}

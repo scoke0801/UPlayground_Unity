@@ -38,6 +38,8 @@ namespace UPlayGround.Animation.Editor
             // ── MotionSetDrawer로 전체 편집 UI 그리기 ──
             EditorGUI.BeginChangeCheck();
             _drawer.DrawFullGUI(asset.motionSet);
+            EditorGUILayout.Space(4);
+            _drawer.DrawEventsGUI(asset.motionSet);
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();

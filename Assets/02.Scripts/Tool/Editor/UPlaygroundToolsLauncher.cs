@@ -53,6 +53,7 @@ namespace UPlayGround.Editor
                 Tool("서브 스토리 생성기",             "UPlayGround/생성 도구/서브 스토리 생성기", "서브 스토리 데이터 묶음을 생성합니다.", "서브 퀘스트와 관련 Dialogue/StoryEntry를 생성하고 기본 연결 구조를 잡습니다."),
                 Tool("로코모션 모션 설정",         "UPlayGround/생성 도구/로코모션 모션 설정", "이동 애니메이션 MotionSet을 일괄 구성합니다.", "FBX 클립을 기반으로 8방향/속도별 로코모션 MotionSetAsset을 생성하거나 등록합니다."),
                 Tool("카메라 흔들림 프리셋",            "UPlayGround/생성 도구/카메라 흔들림 프리셋", "기본 카메라 쉐이크 프리셋을 생성합니다.", "CameraShakeData 또는 카메라 효과 프리셋이 누락됐을 때 표준 전투 피드백 프리셋을 채웁니다."),
+                Tool("입력 글리프 데이터 생성·동기화",     "UPlayGround/입력/글리프 데이터 생성·동기화", "InputGlyphDataSO를 입력 액션 기준으로 생성/동기화합니다.", "PlayerInputActions 에셋의 controlPath 목록을 자동 추출해 InputGlyphDataSO를 만들고 키캡 글리프 항목을 동기화합니다. 입력 바인딩을 추가/변경한 뒤 프롬프트 UI 글리프 누락을 맞출 때 사용합니다."),
                 Tool("P09 Weapon EditPartData",         "Tools/P09 Builder/Generate Weapon EditPartData", "P09 무기 EditPartData를 생성/갱신합니다.", "P09 기본 프리팹의 무기 메시를 스캔해 WeaponEditPartData 카탈로그 에셋을 생성하거나 갱신합니다."),
             }),
             ("캐릭터 / 액터", new[]
@@ -78,6 +79,10 @@ namespace UPlayGround.Editor
                 Tool("Project 선택 Rules 가져오기", "UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", "Project 선택 JSON들을 가져옵니다.", "Project 창에서 선택한 Monster Rules JSON들을 한 번에 BT 에셋으로 변환합니다."),
                 Tool("SourceJson 전체 가져오기", "UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", "SourceJson 전체를 가져옵니다.", "BehaviorTree SourceJson 폴더의 모든 몬스터 행동 규칙 JSON을 일괄 재생성합니다."),
             }),
+            ("캐릭터 / 궁극기", new[]
+            {
+                Tool("궁극기 시퀀스 에디터",              "UPlayGround/캐릭터/궁극기/궁극기 시퀀스 에디터", "UltimateSequenceAsset 연출 타임라인을 편집합니다.", "궁극기 시퀀스의 VFX/SFX/TimeScale/카메라 이펙트/카메라 쉐이크/데미지 윈도우 이벤트를 타임라인으로 구성하는 궁극기 연출 편집기입니다."),
+            }),
             ("적 / 의도 가중치", new[]
             {
                 Tool("기본 프로필 전체 생성",       "UPlayGround/적/의도 가중치/기본 프로필 전체 생성", "기본 Intent Weight 프로필을 생성합니다.", "EnemyIntentWeights 기본 프로필 세트를 프로젝트 데이터로 생성합니다."),
@@ -94,12 +99,17 @@ namespace UPlayGround.Editor
                 Tool("HitBox 셋업",                  "UPlayGround/게임플레이/전투/도구/HitBox 셋업", "부착형 Combat HitBox를 자동 생성하고 검증합니다.", "무기/캐릭터 계층을 분석해 HitBox를 생성하고, 통합 검증으로 HitBox 그룹과 AttackData/MotionSet 이벤트 연결 상태를 확인합니다."),
                 Tool("HitBox 그룹 ID 동기화",         "UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", "HitBox와 공격 데이터의 그룹 ID를 함께 변경합니다.", "CombatHitbox.groupId, HitPhaseData.hitboxGroupId, BeginCollisionEvent.hitboxGroupId를 같은 매핑으로 정리해 판정 누락을 방지합니다."),
                 Tool("기본 정책 에셋 생성",  "UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", "기본 전투 정책 에셋을 생성합니다.", "CombatPolicy 계열 기본 에셋이 누락됐을 때 표준 설정으로 생성합니다."),
+                Tool("입장 변형 슬롯 채우기",          "UPlayGround/게임플레이/전투/입장 변형 슬롯 채우기 (모든 무기)", "모든 무기의 입장 변형(Entry Variant) 슬롯을 일괄 채웁니다.", "PlayerAttackDataSO의 기본 entryAttack을 깊은 복사해 그로기/공중 타깃용 입장 공격 슬롯을 채우고 토글을 켭니다. 이미 켜진 슬롯은 건너뛰어 재실행이 멱등합니다."),
             }),
             ("게임플레이 / 밸런스", new[]
             {
                 Tool("밸런스 디자이너",                "UPlayGround/게임플레이/밸런스/밸런스 디자이너", "전투 밸런스 값을 설계합니다.", "몬스터/플레이어 스탯, 전투력, 성장 수치 등을 비교하며 밸런스 기준값을 조정하는 도구입니다."),
                 Tool("밸런스 데이터 추출기",          "UPlayGround/게임플레이/밸런스/밸런스 데이터 추출기", "밸런스 데이터를 추출합니다.", "프로젝트의 스탯/전투 데이터를 분석 가능한 형태로 모아 밸런스 점검에 사용합니다."),
                 Tool("몬스터 스탯 생성기",          "UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기", "몬스터 스탯을 생성합니다.", "밸런스 기준과 몬스터 정의를 기반으로 EnemyStatsSO 또는 관련 스탯 데이터를 생성합니다."),
+                Tool("밸런스 점검 (스냅샷·검증)",     "UPlayGround/게임플레이/밸런스/밸런스 점검 (스냅샷·검증)", "스냅샷 diff와 일괄 검증으로 밸런스 변경을 점검합니다.", "베이스라인 JSON과 현재 에셋 수치를 비교해 의도치 않은 변경을 표시하고, 전체 몬스터 ActorDefinitionSO에 검증/추정을 실행합니다. 생성기 실행 전후 비교가 권장 워크플로입니다."),
+                Tool("밸런스 CSV 편집",              "UPlayGround/게임플레이/밸런스/밸런스 CSV 편집", "밸런스 수치를 CSV로 왕복 편집합니다.", "몬스터 스탯/적 스킬 데이터를 CSV로 내보내 외부 시트에서 일괄 수정한 뒤 다시 적용합니다. 가져오기 전 밸런스 점검에서 베이스라인을 저장하면 diff 검증이 가능합니다."),
+                Tool("리스크·리워드 산점도",          "UPlayGround/게임플레이/밸런스/리스크·리워드 산점도", "공격별 리스크 대비 리워드를 산점도로 봅니다.", "쿨다운/선후딜 리스크와 데미지/경직/브레이크 리워드를 사분면 산점도로 그려 '저리스크·고리워드' 지배적 공격을 시각적으로 드러냅니다."),
+                Tool("몬스터 경험치 발급기",          "UPlayGround/게임플레이/밸런스/몬스터 경험치 발급기", "몬스터 EXP 보상을 일괄 발급합니다.", "ActorDefinitionSO의 level/grade와 기준 플레이어 레벨 차이를 사용해 성장 설계 기반 expReward를 일괄 계산/적용합니다."),
             }),
             ("게임플레이 / 아이템", new[]
             {
@@ -129,6 +139,7 @@ namespace UPlayGround.Editor
             ("월드 / 맵", new[]
             {
                 Tool("맵 배치 도구",              "UPlayGround/월드/맵/맵 배치 도구", "씬에 액터/포탈/오브젝트를 배치합니다.", "ActorDefinition 기반 프리팹을 씬 클릭으로 배치하고 맵 제작용 배치 워크플로를 제공합니다."),
+                Tool("SceneEntityId 일괄 부여",      "UPlayGround/World/배치 몬스터 SceneEntityId 일괄 부여", "씬 몬스터에 SceneEntityId/GUID를 일괄 부여합니다.", "열린 씬의 모든 MonsterActor에 SceneEntityId를 부착하고 비었거나 중복된 GUID를 보정합니다. 몬스터 처치 영속화(세이브)의 안정적 식별자를 발급하는 용도입니다."),
             }),
             ("월드 / 미니맵", new[]
             {
@@ -137,6 +148,7 @@ namespace UPlayGround.Editor
             ("월드 / 카메라", new[]
             {
                 Tool("카메라 스냅샷 에디터",           "UPlayGround/월드/카메라/카메라 스냅샷 에디터", "카메라 스냅샷을 저장/관리합니다.", "씬 카메라 구도나 연출용 카메라 상태를 스냅샷으로 기록하고 재사용하는 도구입니다."),
+                Tool("대화 카메라 녹화",              "UPlayGround/월드/카메라/대화 카메라 녹화", "대화 카메라 연출을 사전 녹화합니다.", "PlayMode에서 프리카메라로 카메라를 직접 몰며 연기/녹화한 뒤 DialogueCameraRecordingSO로 베이크하는 저작 전용 도구입니다. 재생은 런타임이 담당합니다."),
                 Tool("대화 카메라 설정 생성", "UPlayGround/월드/카메라/대화 카메라 설정 생성", "대화용 카메라 설정 에셋을 생성합니다.", "Dialogue 카메라 모드에서 사용할 기본 설정 데이터가 없을 때 생성합니다."),
                 Tool("전투 카메라 프로필 DB 생성", "UPlayGround/월드/카메라/전투 카메라 프로필 DB 생성", "전투 카메라 프로필 DB를 생성합니다.", "Combat Camera Profile Database 에셋이 없을 때 기본 데이터베이스를 생성합니다."),
                 Tool("전투 카메라 프로필 DB 검증", "UPlayGround/월드/카메라/전투 카메라 프로필 DB 검증", "전투 카메라 프로필 DB를 검증합니다.", "Combat Camera Profile Database의 누락 프로필, 중복, 참조 상태를 검사합니다."),
@@ -145,6 +157,14 @@ namespace UPlayGround.Editor
             {
                 Tool("대화 그래프 에디터",           "UPlayGround/내러티브/대화/대화 그래프 에디터", "대화 그래프를 편집합니다.", "DialogueGraphSO와 노드 기반 대화 흐름을 편집하는 스토리/대화 도구입니다."),
                 Tool("화자 액터 바인딩 생성기",           "UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", "대화 화자와 액터 바인딩 테이블을 생성합니다.", "DialogueGraph의 speaker 정보를 씬/Actor 데이터와 연결하기 위한 바인딩 데이터를 만듭니다."),
+            }),
+            ("VFX", new[]
+            {
+                Tool("무기 슬래시 셋업",               "UPlayGround/VFX/Weapon Slash Setup", "무기 슬래시 VFX 스포너와 모션 이벤트를 셋업합니다.", "무기 칼날(Blade) 트랜스폼을 분석해 WeaponSlashVfxSpawner를 구성하고, MotionSet의 슬래시 스폰 이벤트와 프리뷰를 연결하는 전투 VFX 저작 도구입니다."),
+            }),
+            ("디버그", new[]
+            {
+                Tool("디버그 기즈모 창",               "UPlayGround/Debug/Debug Gizmo Window", "런타임 디버그 기즈모 표시를 토글합니다.", "DebugGizmo 시스템의 카테고리별 기즈모 표시 여부를 제어하는 개발용 창입니다."),
             }),
             ("유틸", new[]
             {
@@ -171,14 +191,18 @@ namespace UPlayGround.Editor
         private string _selectedCategory;
         private bool _favoritesOnly;
         private bool _recentOnly;
-        private GUIStyle _selectedToolStyle;
-        private GUIStyle _toolRowStyle;
-        private GUIStyle _summaryStyle;
-        private GUIStyle _mutedWrapStyle;
-        private GUIStyle _sectionTitleStyle;
-        private GUIStyle _detailBoxStyle;
-        private GUIStyle _badgeStyle;
-        private GUIStyle _favoriteButtonStyle;
+        // 캐시된 GUIStyle은 EditorStyles에서 복사한 내장 텍스처(HideFlags.DontSaveInEditor)를 참조한다.
+        // 직렬화되어 도메인 리로드(재컴파일)를 넘어가면 텍스처가 무효화되어
+        // GUI.Label 호출 시 "kDontSaveInEditor" Assertion으로 UI가 깨진다.
+        // [NonSerialized]로 리로드 후 null이 되게 해 EnsureStyles에서 매번 새로 빌드한다.
+        [System.NonSerialized] private GUIStyle _selectedToolStyle;
+        [System.NonSerialized] private GUIStyle _toolRowStyle;
+        [System.NonSerialized] private GUIStyle _summaryStyle;
+        [System.NonSerialized] private GUIStyle _mutedWrapStyle;
+        [System.NonSerialized] private GUIStyle _sectionTitleStyle;
+        [System.NonSerialized] private GUIStyle _detailBoxStyle;
+        [System.NonSerialized] private GUIStyle _badgeStyle;
+        [System.NonSerialized] private GUIStyle _favoriteButtonStyle;
 
         private static ToolEntry Tool(string name, string menuPath, string summary, string detail) =>
             new ToolEntry(name, menuPath, summary, detail);
@@ -203,6 +227,16 @@ namespace UPlayGround.Editor
 
         private void OnGUI()
         {
+            // 컴파일/도메인 리로드 진행 중에는 EditorStyles 텍스처가 무효화될 수 있어
+            // 그리기를 건너뛴다(재컴파일 중 UI 깨짐 방지). 리로드 후 다시 정상 렌더한다.
+            if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            {
+                EditorGUILayout.Space(8);
+                EditorGUILayout.LabelField("스크립트 컴파일 중...", EditorStyles.centeredGreyMiniLabel);
+                Repaint();
+                return;
+            }
+
             EnsureStyles();
             DrawToolbar();
             DrawSearchBar();

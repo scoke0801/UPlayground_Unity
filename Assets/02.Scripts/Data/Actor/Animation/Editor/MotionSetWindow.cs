@@ -25,6 +25,8 @@ namespace UPlayGround.Animation.Editor
         Vector2         _scrollPos;
         Vector2         _actorMotionListScroll;
         string          _actorMotionSearch = "";
+        bool            _actorMotionListHasKeyboardFocus;
+        bool            _scrollSelectedActorMotionIntoView;
         
         // 테스트 씬 설정
         string          _testScenePath = "Assets/01.Scenes/Test/MotionTestMap.unity"; // 기본 경로
@@ -921,6 +923,7 @@ namespace UPlayGround.Animation.Editor
                 showFrames = prevShowFrames,
                 fps        = prevFps,
             };
+            _drawer.SelectFirstMotionForAsset(_asset?.motionSet);
         }
 
         void OnSelectedMotionChanged(int previousIndex, int selectedIndex)
@@ -1244,6 +1247,9 @@ namespace UPlayGround.Animation.Editor
 
         void DrawMotionSetEditorBody()
         {
+            if (Event.current.type == EventType.MouseDown)
+                _actorMotionListHasKeyboardFocus = false;
+
             var currentSet = GetCurrentMotionSet();
             if (currentSet == null)
             {
@@ -1251,17 +1257,20 @@ namespace UPlayGround.Animation.Editor
                 return;
             }
 
-            _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos);
-            {
-                _drawer.DrawFullGUI(currentSet);
+            _drawer.DrawFullGUI(currentSet);
 
-                if (GUI.changed)
-                {
-                    if (_asset != null)
-                        EditorUtility.SetDirty(_asset);
-                }
+            EditorGUILayout.Space(4);
+            _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUILayout.ExpandHeight(true));
+            {
+                _drawer.DrawEventsGUI(currentSet);
             }
-            EditorGUILayout.EndScrollView(); 
+            EditorGUILayout.EndScrollView();
+
+            if (GUI.changed)
+            {
+                if (_asset != null)
+                    EditorUtility.SetDirty(_asset);
+            }
             
             // 타임라인 클릭으로 재생 위치 조절 처리
             HandleTimelineScrubbing();
@@ -1902,13 +1911,14 @@ namespace UPlayGround.Animation.Editor
                     EditorGUILayout.HelpBox("등록된 모션 키가 없습니다. 아래 버튼으로 추가하세요.", MessageType.Info);
                 }
 
+                var visibleEntries = entries.FindAll(MatchesActorMotionSearch);
+                HandleActorMotionListKeyboard(visibleEntries);
+
                 _actorMotionListScroll = EditorGUILayout.BeginScrollView(_actorMotionListScroll, GUILayout.MinHeight(260));
                 {
                     string currentGroup = null;
-                    foreach (var entry in entries)
+                    foreach (var entry in visibleEntries)
                     {
-                        if (!MatchesActorMotionSearch(entry)) continue;
-
                         string group = GetActorKeyGroupLabel(entry.key);
                         if (group != currentGroup)
                         {
@@ -1927,6 +1937,44 @@ namespace UPlayGround.Animation.Editor
                     ShowAddActorMotionMenu();
             }
             EditorGUILayout.EndVertical();
+        }
+
+        void HandleActorMotionListKeyboard(System.Collections.Generic.List<ActorMotionEntry> visibleEntries)
+        {
+            if (!_actorMotionListHasKeyboardFocus) return;
+            if (visibleEntries == null || visibleEntries.Count == 0) return;
+
+            Event e = Event.current;
+            if (e == null || e.type != EventType.KeyDown) return;
+            if (EditorGUIUtility.editingTextField) return;
+
+            int currentIndex = visibleEntries.FindIndex(entry =>
+                entry.key == _selectedActorMotionKey && entry.asset == _asset);
+            if (currentIndex < 0) currentIndex = 0;
+
+            int nextIndex = currentIndex;
+            switch (e.keyCode)
+            {
+                case KeyCode.UpArrow:
+                    nextIndex = Mathf.Max(0, currentIndex - 1);
+                    break;
+                case KeyCode.DownArrow:
+                    nextIndex = Mathf.Min(visibleEntries.Count - 1, currentIndex + 1);
+                    break;
+                case KeyCode.Home:
+                    nextIndex = 0;
+                    break;
+                case KeyCode.End:
+                    nextIndex = visibleEntries.Count - 1;
+                    break;
+                default:
+                    return;
+            }
+
+            if (nextIndex != currentIndex)
+                SelectActorMotionEntry(visibleEntries[nextIndex], true);
+
+            e.Use();
         }
 
         bool MatchesActorMotionSearch(ActorMotionEntry entry)
@@ -1968,7 +2016,7 @@ namespace UPlayGround.Animation.Editor
 
             Rect buttonRect = new Rect(row.x, row.y, row.width - 46f, row.height);
             if (GUI.Button(buttonRect, GUIContent.none, GUIStyle.none))
-                SelectActorMotionEntry(entry);
+                SelectActorMotionEntry(entry, true);
 
             string keyText = entry.key.ToString();
             string assetText = entry.asset != null ? entry.asset.name : "(MotionSet 없음)";
@@ -1997,13 +2045,23 @@ namespace UPlayGround.Animation.Editor
                 EditorGUIUtility.PingObject(entry.asset);
             }
             EditorGUI.EndDisabledGroup();
+
+            if (selected && _scrollSelectedActorMotionIntoView && Event.current.type == EventType.Repaint)
+            {
+                GUI.ScrollTo(new Rect(0f, row.y - 4f, 1f, row.height + 8f));
+                _scrollSelectedActorMotionIntoView = false;
+            }
         }
 
-        void SelectActorMotionEntry(ActorMotionEntry entry)
+        void SelectActorMotionEntry(ActorMotionEntry entry, bool focusList = false)
         {
             _selectedActorMotionKey = entry.key;
             SetAsset(entry.asset);
+            _drawer?.SelectFirstMotionForAsset(_asset?.motionSet);
             _useTemporarySet = false;
+            if (focusList)
+                _actorMotionListHasKeyboardFocus = true;
+            _scrollSelectedActorMotionIntoView = true;
             Repaint();
         }
         

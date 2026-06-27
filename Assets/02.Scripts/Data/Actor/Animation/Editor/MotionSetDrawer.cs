@@ -45,6 +45,8 @@ namespace UPlayGround.Animation.Editor
         static readonly Color COL_RANGE_OVERLAY = new Color(0.3f, 1f, 0.3f, 0.12f); // ④ 재생 구간 오버레이
         static readonly Color COL_RANGE_BORDER = new Color(0.3f, 1f, 0.3f, 0.5f); // ④ 재생 구간 경계선
         static readonly Color COL_CLIP_HANDLE = new Color(1f, 0.85f, 0.2f, 0.9f); // ⑥ 클립 핸들 색상
+        static readonly Color COL_SELECTED_MOTION_OUTLINE = new Color(0.55f, 0.78f, 1f, 1f);
+        static readonly Color COL_SELECTED_MOTION_FILL = new Color(0.35f, 0.62f, 1f, 0.18f);
 
         // 레이아웃 상수
         const float LABEL_WIDTH       = 160f;
@@ -58,6 +60,7 @@ namespace UPlayGround.Animation.Editor
         const float SECTION_GAP       = 4f;
         const float BASE_PPS          = 80f;
         const float CLIP_HANDLE_W     = 6f;
+        const string PREFS_EVENT_AUTO_EXPAND_MODE = "MotionSetDrawer_EventAutoExpandMode";
 
         // 인스펙터 패널 스크롤
         Vector2 _inspectorScroll;
@@ -104,11 +107,26 @@ namespace UPlayGround.Animation.Editor
         // 이벤트 복사 버퍼
         MotionEventBase _copiedEvent = null;
         string _eventFilterText = string.Empty;
+        bool _scrollSelectedMotionIntoView;
 
         // 섹션 접힘 상태
         public bool foldMotions = true;
         public bool foldTimeline = true;
         public bool foldEvents = true;
+
+        enum EventAutoExpandMode
+        {
+            Keep = 0,
+            SectionOnly = 1,
+            All = 2
+        }
+
+        static readonly GUIContent[] EVENT_AUTO_EXPAND_LABELS =
+        {
+            new GUIContent("유지", "모션 선택 시 이벤트 펼침 상태를 바꾸지 않습니다."),
+            new GUIContent("섹션만", "모션 선택 시 애니메이션 이벤트 섹션만 엽니다."),
+            new GUIContent("전체", "모션 선택 시 해당 모션의 이벤트를 모두 펼칩니다."),
+        };
 
         // ====================================================================
         //  외부 주입 오버레이 트랙 (전투 데이터 등 읽기 전용 시각화)
@@ -145,6 +163,57 @@ namespace UPlayGround.Animation.Editor
         void SetEventFold(string key, bool open)
         {
             _eventFoldouts[key] = open;
+        }
+
+        void ExpandMotionEvents(Motion motion, int motionIdx)
+        {
+            EventAutoExpandMode mode = GetEventAutoExpandMode();
+            if (mode == EventAutoExpandMode.Keep) return;
+
+            foldEvents = true;
+            if (mode == EventAutoExpandMode.SectionOnly || motion?.events == null) return;
+
+            for (int i = 0; i < motion.events.Count; i++)
+            {
+                if (motion.events[i] == null) continue;
+                SetEventFold(EventKey(motionIdx, i), true);
+            }
+        }
+
+        void SelectMotionIndex(MotionSet set, int index)
+        {
+            int previousIndex = selectedMotionIndex;
+            selectedMotionIndex = index;
+            _scrollSelectedMotionIntoView = selectedMotionIndex >= 0;
+
+            if (selectedMotionIndex >= 0 &&
+                set?.motions != null &&
+                selectedMotionIndex < set.motions.Count)
+            {
+                ExpandMotionEvents(set.motions[selectedMotionIndex], selectedMotionIndex);
+            }
+
+            if (previousIndex != selectedMotionIndex)
+                _onSelectedMotionChanged?.Invoke(previousIndex, selectedMotionIndex);
+        }
+
+        static EventAutoExpandMode GetEventAutoExpandMode()
+        {
+            int value = EditorPrefs.GetInt(PREFS_EVENT_AUTO_EXPAND_MODE, (int)EventAutoExpandMode.All);
+            if (!Enum.IsDefined(typeof(EventAutoExpandMode), value))
+                value = (int)EventAutoExpandMode.All;
+            return (EventAutoExpandMode)value;
+        }
+
+        public void SelectFirstMotionForAsset(MotionSet set)
+        {
+            if (set?.motions == null || set.motions.Count == 0)
+            {
+                selectedMotionIndex = -1;
+                return;
+            }
+
+            SelectMotionIndex(set, 0);
         }
 
         static string EventKey(int motionIdx, int eventIdx) => $"m{motionIdx}_{eventIdx}";
@@ -213,13 +282,20 @@ namespace UPlayGround.Animation.Editor
                 DrawTimeline(tlRect, set);
             }
 
-            EditorGUILayout.Space(4);
-
-            foldEvents = EditorGUILayout.Foldout(foldEvents, "애니메이션 이벤트", true, EditorStyles.foldoutHeader);
-            if (foldEvents) DrawMotionSetEvents(set);
-
             if (isDraggingCursor || _isDraggingStart || _isDraggingEnd || _isDraggingBody
                 || _clipHandleDraggingStart || _clipHandleDraggingEnd) Repaint();
+        }
+
+        public void DrawEventsGUI(MotionSet set)
+        {
+            if (set == null) return;
+
+            DrawEventSectionHeader();
+            if (!foldEvents) return;
+
+            DrawSelectedMotionEvents(set);
+            EditorGUILayout.Space(3);
+            DrawMotionSetEvents(set);
         }
 
         /// <summary>
@@ -562,11 +638,13 @@ namespace UPlayGround.Animation.Editor
         {
             set.motions ??= new List<Motion>();
 
+            HandleMotionListKeyboard(set);
+
             EditorGUI.indentLevel++;
             for (int i = 0; i < set.motions.Count; i++)
             {
                 var motion = set.motions[i];
-                EditorGUILayout.BeginVertical(GUI.skin.box);
+                Rect motionRect = EditorGUILayout.BeginVertical(GUI.skin.box);
                 {
                     EditorGUILayout.BeginHorizontal();
                     {
@@ -575,10 +653,7 @@ namespace UPlayGround.Animation.Editor
 
                         if (GUILayout.Button($"#{i}", GUILayout.Width(28)))
                         {
-                            int previousIndex = selectedMotionIndex;
-                            selectedMotionIndex = selectedMotionIndex == i ? -1 : i;
-                            if (previousIndex != selectedMotionIndex)
-                                _onSelectedMotionChanged?.Invoke(previousIndex, selectedMotionIndex);
+                            SelectMotionIndex(set, selectedMotionIndex == i ? -1 : i);
                         }
 
                         GUI.backgroundColor = Color.white;
@@ -700,10 +775,14 @@ namespace UPlayGround.Animation.Editor
                         EditorGUILayout.EndHorizontal();
                     }
 
-                    // ⑦ 이벤트 리스트: 선택된 이벤트 강조
-                    if (selectedMotionIndex == i) DrawMotionEvents(motion, i);
                 }
                 EditorGUILayout.EndVertical();
+
+                if (selectedMotionIndex == i && _scrollSelectedMotionIntoView && Event.current.type == EventType.Repaint)
+                {
+                    GUI.ScrollTo(new Rect(0f, motionRect.y - 6f, 1f, motionRect.height + 12f));
+                    _scrollSelectedMotionIntoView = false;
+                }
             }
 
             EditorGUI.indentLevel--;
@@ -722,6 +801,76 @@ namespace UPlayGround.Animation.Editor
             }
 
             EditorGUILayout.EndHorizontal();
+        }
+
+        void HandleMotionListKeyboard(MotionSet set)
+        {
+            if (set?.motions == null || set.motions.Count == 0) return;
+            if (selectedMotionIndex < 0) return;
+
+            Event e = Event.current;
+            if (e == null || e.type != EventType.KeyDown) return;
+            if (EditorGUIUtility.editingTextField) return;
+
+            int nextIndex = selectedMotionIndex;
+            switch (e.keyCode)
+            {
+                case KeyCode.UpArrow:
+                    nextIndex = Mathf.Max(0, selectedMotionIndex - 1);
+                    break;
+                case KeyCode.DownArrow:
+                    nextIndex = Mathf.Min(set.motions.Count - 1, selectedMotionIndex + 1);
+                    break;
+                case KeyCode.Home:
+                    nextIndex = 0;
+                    break;
+                case KeyCode.End:
+                    nextIndex = set.motions.Count - 1;
+                    break;
+                default:
+                    return;
+            }
+
+            if (nextIndex != selectedMotionIndex)
+                SelectMotionIndex(set, nextIndex);
+
+            e.Use();
+            Repaint();
+        }
+
+        void DrawEventSectionHeader()
+        {
+            EditorGUILayout.BeginHorizontal();
+            {
+                foldEvents = EditorGUILayout.Foldout(foldEvents, "애니메이션 이벤트", true, EditorStyles.foldoutHeader);
+                GUILayout.FlexibleSpace();
+
+                EditorGUILayout.LabelField("선택 시", EditorStyles.miniLabel, GUILayout.Width(42));
+                EditorGUI.BeginChangeCheck();
+                int selected = GUILayout.Toolbar(
+                    (int)GetEventAutoExpandMode(),
+                    EVENT_AUTO_EXPAND_LABELS,
+                    EditorStyles.miniButton,
+                    GUILayout.Width(150));
+                if (EditorGUI.EndChangeCheck())
+                    EditorPrefs.SetInt(PREFS_EVENT_AUTO_EXPAND_MODE, selected);
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
+        void DrawSelectedMotionEvents(MotionSet set)
+        {
+            if (selectedMotionIndex < 0 || set?.motions == null || selectedMotionIndex >= set.motions.Count)
+            {
+                EditorGUILayout.HelpBox("이벤트를 편집할 모션을 애니메이션 리스트에서 선택하세요.", MessageType.Info);
+                return;
+            }
+
+            var motion = set.motions[selectedMotionIndex];
+            EditorGUILayout.LabelField(
+                $"선택 모션 이벤트: #{selectedMotionIndex} {motion.motionName}",
+                EditorStyles.miniBoldLabel);
+            DrawMotionEvents(motion, selectedMotionIndex);
         }
 
         // ====================================================================
@@ -1370,11 +1519,21 @@ namespace UPlayGround.Animation.Editor
                 float tOff = 0f;
                 for (int i = 0; i < set.motions.Count; i++)
                 {
-                    DrawTrackLabel(new Rect(content.x, y, labelW, TRACK_HEIGHT),
+                    Rect labelRect = new Rect(content.x, y, labelW, TRACK_HEIGHT);
+                    Rect clipRect = new Rect(content.x + labelW, y, trackW, TRACK_HEIGHT);
+                    bool selected = selectedMotionIndex == i;
+
+                    if (selected)
+                        DrawSelectedMotionTimelineHighlight(labelRect, clipRect);
+
+                    DrawTrackLabel(labelRect,
                         set.motions[i].motionName ?? $"Motion {i}",
                         COL_MOTION_CLIPS[i % COL_MOTION_CLIPS.Length]);
-                    DrawMotionClipBar(new Rect(content.x + labelW, y, trackW, TRACK_HEIGHT),
-                        set.motions[i], i, tOff, pps);
+                    DrawMotionClipBar(clipRect, set.motions[i], i, tOff, pps);
+
+                    if (selected)
+                        DrawSelectedMotionTimelineOutline(labelRect, clipRect);
+
                     tOff += set.motions[i].Duration;
                     y    += TRACK_HEIGHT + TRACK_GAP;
                 }
@@ -1418,6 +1577,26 @@ namespace UPlayGround.Animation.Editor
             DrawPlayRangeOverlay(cursorArea, totalDur, pps);
 
             HandleScroll(content, timelineW, trackW);
+        }
+
+        void DrawSelectedMotionTimelineHighlight(Rect labelRect, Rect clipRect)
+        {
+            Rect fullRect = Rect.MinMaxRect(labelRect.x, labelRect.y, clipRect.xMax, clipRect.yMax);
+            EditorGUI.DrawRect(fullRect, COL_SELECTED_MOTION_FILL);
+        }
+
+        void DrawSelectedMotionTimelineOutline(Rect labelRect, Rect clipRect)
+        {
+            Rect fullRect = Rect.MinMaxRect(labelRect.x, labelRect.y, clipRect.xMax, clipRect.yMax);
+            DrawRectOutline(fullRect, COL_SELECTED_MOTION_OUTLINE, 2f);
+        }
+
+        static void DrawRectOutline(Rect rect, Color color, float thickness)
+        {
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, thickness), color);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), color);
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, thickness, rect.height), color);
+            EditorGUI.DrawRect(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), color);
         }
 
         // 그룹 헤더 (색상 악센트 + 제목) — y를 반환

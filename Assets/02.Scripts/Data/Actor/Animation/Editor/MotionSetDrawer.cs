@@ -118,6 +118,8 @@ namespace UPlayGround.Animation.Editor
             public float start;
             public float end;
             public string label;
+            /// <summary> true면 점선/흐림으로 그려 "저작이 아니라 자동 추론된 구간"임을 시각 구분한다. </summary>
+            public bool dashed;
         }
 
         public sealed class OverlayTrack
@@ -1883,12 +1885,21 @@ namespace UPlayGround.Animation.Editor
                 float w  = Mathf.Max(x1 - x0, 3f);
                 if (x0 + w < 0 || x0 > trackRect.width) continue;
 
-                Color dim = new Color(track.color.r, track.color.g, track.color.b, 0.35f);
+                Color dim = new Color(track.color.r, track.color.g, track.color.b, span.dashed ? 0.15f : 0.35f);
                 Rect bar = new Rect(x0, 2, w, trackRect.height - 4);
                 EditorGUI.DrawRect(bar, dim);
-                EditorGUI.DrawRect(new Rect(x0, 2, w, 2), track.color);
-                EditorGUI.DrawRect(new Rect(x0, 2, 1, trackRect.height - 4), track.color);
-                EditorGUI.DrawRect(new Rect(x0 + w - 1, 2, 1, trackRect.height - 4), track.color);
+                if (span.dashed)
+                {
+                    // 자동 추론 구간: 상단 경계를 점선으로 그려 저작 구간(실선)과 구분한다.
+                    for (float dx = 0; dx < w; dx += 6f)
+                        EditorGUI.DrawRect(new Rect(x0 + dx, 2, Mathf.Min(3f, w - dx), 1), track.color);
+                }
+                else
+                {
+                    EditorGUI.DrawRect(new Rect(x0, 2, w, 2), track.color);
+                    EditorGUI.DrawRect(new Rect(x0, 2, 1, trackRect.height - 4), track.color);
+                    EditorGUI.DrawRect(new Rect(x0 + w - 1, 2, 1, trackRect.height - 4), track.color);
+                }
 
                 if (!string.IsNullOrEmpty(span.label) && w > 24f)
                     GUI.Label(bar, span.label, textStyle);

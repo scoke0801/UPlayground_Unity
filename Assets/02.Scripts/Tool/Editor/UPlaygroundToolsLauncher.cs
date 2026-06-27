@@ -91,6 +91,8 @@ namespace UPlayGround.Editor
                 Tool("전투 데이터 검증기",           "UPlayGround/게임플레이/전투/도구/데이터 검증기", "전투 데이터 정합성을 검사합니다.", "공격 데이터, 충돌 이벤트, 전투 정책 등 전투 관련 에셋 연결 누락과 위험값을 검증합니다."),
                 Tool("전투 로그 기록기",             "UPlayGround/게임플레이/전투/도구/전투 로그 기록기", "전투 로그를 기록/확인합니다.", "플레이 중 전투 판정과 의사결정 로그를 수집해 밸런스와 버그 재현에 사용합니다."),
                 Tool("프레임 데이터 테이블",          "UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블", "전 공격의 선딜/액티브/후딜·데미지를 한 테이블로 봅니다.", "MotionSet의 Collision/ComboWindow 이벤트와 AttackDataSO를 합산해 격투게임식 프레임 데이터를 만듭니다. 정렬/CSV 내보내기와 페이즈 불일치 하이라이트를 지원합니다."),
+                Tool("HitBox 셋업",                  "UPlayGround/게임플레이/전투/도구/HitBox 셋업", "부착형 Combat HitBox를 자동 생성하고 검증합니다.", "무기/캐릭터 계층을 분석해 HitBox를 생성하고, 통합 검증으로 HitBox 그룹과 AttackData/MotionSet 이벤트 연결 상태를 확인합니다."),
+                Tool("HitBox 그룹 ID 동기화",         "UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", "HitBox와 공격 데이터의 그룹 ID를 함께 변경합니다.", "CombatHitbox.groupId, HitPhaseData.hitboxGroupId, BeginCollisionEvent.hitboxGroupId를 같은 매핑으로 정리해 판정 누락을 방지합니다."),
                 Tool("기본 정책 에셋 생성",  "UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", "기본 전투 정책 에셋을 생성합니다.", "CombatPolicy 계열 기본 에셋이 누락됐을 때 표준 설정으로 생성합니다."),
             }),
             ("게임플레이 / 밸런스", new[]

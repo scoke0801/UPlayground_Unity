@@ -32,7 +32,7 @@ namespace UPlayGround.Tool.Editor.Combat
 
     [CreateAssetMenu(
         fileName = "CombatHitboxSetupProfile",
-        menuName = "UPlayGround/Combat/HitBox Setup Profile")]
+        menuName = "UPlayGround/전투/HitBox Setup Profile")]
     public sealed class CombatHitboxSetupProfileSO : ScriptableObject
     {
         [SerializeField] private string _profileId = "Default";

@@ -1077,6 +1077,9 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(typeP,      new GUIContent("공격 타입"));
                     EditorGUILayout.PropertyField(interruptP, new GUIContent("캔슬 액션"));
                     EditorGUILayout.PropertyField(moveCancelDelayP, new GUIContent("이동 캔슬 지연 (초)"));
+                    EditorGUILayout.LabelField(
+                        "캔슬 '구간'은 MotionSet 타임라인의 CancelWindow 이벤트로 저작합니다(없으면 콜리전 폴백).",
+                        EditorStyles.miniLabel);
                 }
 
                 EditorGUILayout.Space(4);
@@ -1166,17 +1169,21 @@ namespace UPlayGround.Editor
                 using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
                     EditorGUILayout.LabelField("데미지", EditorStyles.miniBoldLabel);
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.PropertyField(damageP, new GUIContent("데미지"));
-                    EditorGUILayout.PropertyField(poiseP,  new GUIContent("포이즈 데미지"));
-                    EditorGUILayout.PropertyField(breakP,  new GUIContent("브레이크 데미지"));
-                    EditorGUILayout.EndHorizontal();
+                    using (new EditorGUILayout.HorizontalScope())
+                    using (new LabelWidthScope(54f))
+                    {
+                        EditorGUILayout.PropertyField(damageP, new GUIContent("데미지"));
+                        EditorGUILayout.PropertyField(poiseP,  new GUIContent("포이즈"));
+                        EditorGUILayout.PropertyField(breakP,  new GUIContent("브레이크"));
+                    }
                     EditorGUILayout.PropertyField(reactionP, new GUIContent("반응 타입"));
                     EditorGUILayout.PropertyField(phase.FindPropertyRelative("reactionDuration"), new GUIContent("반응 지속시간"));
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("forceReaction"), new GUIContent("반응 강제"));
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("forceBreakExpose"), new GUIContent("브레이크 노출 강제"));
-                    EditorGUILayout.EndHorizontal();
+                    using (new EditorGUILayout.HorizontalScope())
+                    using (new LabelWidthScope(120f))
+                    {
+                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("forceReaction"), new GUIContent("반응 강제"));
+                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("forceBreakExpose"), new GUIContent("브레이크 노출 강제"));
+                    }
                 }
 
                 // 대미지 시각화 바
@@ -1201,10 +1208,12 @@ namespace UPlayGround.Editor
                     EditorGUILayout.LabelField("반응 힘", EditorStyles.miniBoldLabel);
                     EditorGUILayout.PropertyField(phase.FindPropertyRelative("pullForce"),      new GUIContent("끌어당기기 힘"));
                     EditorGUILayout.PropertyField(phase.FindPropertyRelative("airborneForce"),  new GUIContent("공중 띄우기 힘"));
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("knockBackForce"), new GUIContent("넉백 힘"));
-                    EditorGUILayout.PropertyField(phase.FindPropertyRelative("knockBackDrag"),  new GUIContent("넉백 감속"));
-                    EditorGUILayout.EndHorizontal();
+                    using (new EditorGUILayout.HorizontalScope())
+                    using (new LabelWidthScope(70f))
+                    {
+                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("knockBackForce"), new GUIContent("넉백 힘"));
+                        EditorGUILayout.PropertyField(phase.FindPropertyRelative("knockBackDrag"),  new GUIContent("넉백 감속"));
+                    }
                 }
 
                 string rStr = reactionP.enumDisplayNames[reactionP.enumValueIndex];
@@ -1259,15 +1268,19 @@ namespace UPlayGround.Editor
                             EditorGUILayout.Slider(analysis.FindPropertyRelative("rootMotionScore"), 0f, 1f, new GUIContent("Root Motion"));
                             EditorGUILayout.Slider(analysis.FindPropertyRelative("bodyRotationScore"), 0f, 1f, new GUIContent("Body Rotation"));
                             EditorGUILayout.Slider(analysis.FindPropertyRelative("attackWeightScore"), 0f, 1f, new GUIContent("Attack Weight"));
-                            EditorGUILayout.BeginHorizontal();
-                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeStart"), new GUIContent("Active Start"));
-                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeEnd"), new GUIContent("Active End"));
-                            EditorGUILayout.EndHorizontal();
-                            EditorGUILayout.BeginHorizontal();
-                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeDuration"), new GUIContent("Active"));
-                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("startupDuration"), new GUIContent("Startup"));
-                            EditorGUILayout.PropertyField(analysis.FindPropertyRelative("recoveryDuration"), new GUIContent("Recovery"));
-                            EditorGUILayout.EndHorizontal();
+                            using (new EditorGUILayout.HorizontalScope())
+                            using (new LabelWidthScope(80f))
+                            {
+                                EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeStart"), new GUIContent("Active Start"));
+                                EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeEnd"), new GUIContent("Active End"));
+                            }
+                            using (new EditorGUILayout.HorizontalScope())
+                            using (new LabelWidthScope(58f))
+                            {
+                                EditorGUILayout.PropertyField(analysis.FindPropertyRelative("activeDuration"), new GUIContent("Active"));
+                                EditorGUILayout.PropertyField(analysis.FindPropertyRelative("startupDuration"), new GUIContent("Startup"));
+                                EditorGUILayout.PropertyField(analysis.FindPropertyRelative("recoveryDuration"), new GUIContent("Recovery"));
+                            }
                         }
                     }
                 }
@@ -1293,23 +1306,31 @@ namespace UPlayGround.Editor
         private static void DrawReactionDataFields(SerializedProperty data)
         {
             EditorGUILayout.PropertyField(data.FindPropertyRelative("impactTime"), new GUIContent("Impact Time"));
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("hitStopDuration"), new GUIContent("HitStop Duration"));
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("hitStopScale"), new GUIContent("Scale"));
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("cameraShakeAmplitude"), new GUIContent("Shake Amp"));
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("cameraShakeDuration"), new GUIContent("Shake Duration"));
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("fovKickAmount"), new GUIContent("FOV Amount"));
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("fovKickDuration"), new GUIContent("FOV Duration"));
-            EditorGUILayout.EndHorizontal();
+            using (new EditorGUILayout.HorizontalScope())
+            using (new LabelWidthScope(100f))
+            {
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("hitStopDuration"), new GUIContent("HitStop Dur"));
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("hitStopScale"), new GUIContent("Scale"));
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            using (new LabelWidthScope(100f))
+            {
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("cameraShakeAmplitude"), new GUIContent("Shake Amp"));
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("cameraShakeDuration"), new GUIContent("Shake Dur"));
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            using (new LabelWidthScope(100f))
+            {
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("fovKickAmount"), new GUIContent("FOV Amount"));
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("fovKickDuration"), new GUIContent("FOV Dur"));
+            }
             EditorGUILayout.PropertyField(data.FindPropertyRelative("trailIntensity"), new GUIContent("Trail Intensity"));
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("fakeImpactSlowScale"), new GUIContent("Fake Slow"));
-            EditorGUILayout.PropertyField(data.FindPropertyRelative("fakeImpactDuration"), new GUIContent("Fake Duration"));
-            EditorGUILayout.EndHorizontal();
+            using (new EditorGUILayout.HorizontalScope())
+            using (new LabelWidthScope(100f))
+            {
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("fakeImpactSlowScale"), new GUIContent("Fake Slow"));
+                EditorGUILayout.PropertyField(data.FindPropertyRelative("fakeImpactDuration"), new GUIContent("Fake Dur"));
+            }
         }
 
         private static void DrawManualOverride(SerializedProperty manual)
@@ -1338,6 +1359,21 @@ namespace UPlayGround.Editor
             using (new EditorGUI.DisabledScope(toggle == null || !toggle.boolValue))
                 EditorGUILayout.PropertyField(value, GUIContent.none);
             EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>
+        /// 한 줄(BeginHorizontal)에 여러 라벨 필드를 나란히 그릴 때, 각 PropertyField가 기본
+        /// 라벨 폭(~150px)을 그대로 잡아 서로 겹치는 문제를 막는다. 스코프 동안 labelWidth를 좁히고 복원.
+        /// </summary>
+        private readonly struct LabelWidthScope : System.IDisposable
+        {
+            private readonly float _prev;
+            public LabelWidthScope(float width)
+            {
+                _prev = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = width;
+            }
+            public void Dispose() => EditorGUIUtility.labelWidth = _prev;
         }
 
         private static void DrawOverridePair(SerializedProperty manual, string toggleName, string firstName, string secondName, string label)

@@ -304,15 +304,50 @@ namespace UPlayGround.Animation.Editor
             }
             tracks.Add(activeTrack);
 
-            // ② 캔슬 윈도우 (콜리전 비활성 구간, Move 제외 마스크)
+            // ② 캔슬 윈도우 (Move 제외 마스크)
+            //   - 저작(CancelWindowEvent 타임라인 이벤트) 있음: 이벤트 구간을 실선으로, 스팬별 effective
+            //     마스크를 라벨로. 런타임 PlayerCombat.ResolveCancelMask와 동일 기준(이벤트 활성=캔슬).
+            //   - 없음(폴백): 콜리전 비활성 구간(complement)을 [자동] 점선으로 = "자동 추론(미저작)" 구분.
             PlayerInterruptAction nonMove = atk.InterruptActions & ~PlayerInterruptAction.Move;
+            var cancelEvents = CombatTimelineUtility.CollectCancelWindowSpans(set);
             if (nonMove != PlayerInterruptAction.None)
             {
-                string maskText = CombatTimelineUtility.FormatInterruptMask(nonMove);
-                var cancelTrack = new MotionSetDrawer.OverlayTrack { label = $"✂ 캔슬 ({maskText})", color = COL_COMBAT_CANCEL };
-                foreach (var span in CombatTimelineUtility.ComputeComplementSpans(collisions, total))
-                    cancelTrack.spans.Add(new MotionSetDrawer.OverlaySpan { start = span.Start, end = span.End, label = maskText });
-                tracks.Add(cancelTrack);
+                if (cancelEvents.Count > 0)
+                {
+                    var cancelTrack = new MotionSetDrawer.OverlayTrack { label = "✂ 캔슬 (저작)", color = COL_COMBAT_CANCEL };
+                    foreach (var ce in cancelEvents)
+                    {
+                        // 런타임 ResolveCancelMask와 동일: maskOverride 없으면 전역, 있으면 전역과 교집합.
+                        PlayerInterruptAction eff = (ce.Mask == PlayerInterruptAction.None
+                            ? atk.InterruptActions
+                            : (atk.InterruptActions & ce.Mask)) & ~PlayerInterruptAction.Move;
+                        bool dead = eff == PlayerInterruptAction.None;
+                        // 저작 캔슬 구간이 콜리전(액티브 히트)과 겹치면 런타임 ResolveCancelMask가 액티브 히트
+                        // 가드(IsPossibleCollide)를 우회한다 → 히트 도중 캔슬이 열린다. 저작 실수일 수 있어 경고 표기.
+                        bool overlapsActive = !dead && OverlapsCollision(ce.Start, ce.End, collisions);
+                        string label = dead
+                            ? "⚠ 마스크없음"
+                            : (overlapsActive
+                                ? $"⚠ 히트중 {CombatTimelineUtility.FormatInterruptMask(eff)}"
+                                : CombatTimelineUtility.FormatInterruptMask(eff));
+                        cancelTrack.spans.Add(new MotionSetDrawer.OverlaySpan
+                        {
+                            start = ce.Start, end = ce.End,
+                            label = label,
+                            dashed = dead,
+                        });
+                    }
+                    tracks.Add(cancelTrack);
+                }
+                else
+                {
+                    // 런타임 폴백과 일치: 콜리전 complement를 [자동] 점선으로.
+                    string maskText = CombatTimelineUtility.FormatInterruptMask(nonMove);
+                    var cancelTrack = new MotionSetDrawer.OverlayTrack { label = $"✂ 캔슬 ({maskText}) [자동]", color = COL_COMBAT_CANCEL };
+                    foreach (var span in CombatTimelineUtility.ComputeComplementSpans(collisions, total))
+                        cancelTrack.spans.Add(new MotionSetDrawer.OverlaySpan { start = span.Start, end = span.End, label = maskText, dashed = true });
+                    tracks.Add(cancelTrack);
+                }
             }
 
             // ③ 이동 캔슬 — 마지막 히트 페이즈 이후 후딜에서만 (PlayerAttackState 게이트와 동일)
@@ -353,6 +388,16 @@ namespace UPlayGround.Animation.Editor
             }
 
             _drawer.overlayTracks = tracks;
+        }
+
+        // 저작 캔슬 구간 [start, end)가 콜리전(액티브 히트) 구간 중 하나와 겹치는지.
+        static bool OverlapsCollision(float start, float end, List<CombatTimelineUtility.TimedSpan> collisions)
+        {
+            if (collisions == null) return false;
+            foreach (var c in collisions)
+                if (start < c.End && c.Start < end)
+                    return true;
+            return false;
         }
 
         // ─────────────────────────────────────────────────────────────────

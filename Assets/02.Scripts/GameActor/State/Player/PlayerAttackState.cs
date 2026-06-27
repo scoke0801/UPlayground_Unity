@@ -246,6 +246,8 @@ namespace UPlayGround.State
             _motionWarp = controller.MotionWarp;
 
             _combat    = playerActor.GetCombat();
+            // 이전 공격이 CancelWindowEvent 종료 전에 잘렸을 때의 잔존 캔슬 윈도우 정리(stale 방지).
+            _combat?.ResetCancelWindows();
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             // 공격 중 FootIK를 끄지 않는다. IK on/off 전환 자체가 발을 ~38mm 튀게 하는 스냅 원인이었음.
@@ -347,6 +349,8 @@ namespace UPlayGround.State
 
             gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Attack);
 
+            // 공격 종료 시 열린 채 남은 캔슬 윈도우 정리(다음 상태로 누수 방지).
+            _combat.ResetCancelWindows();
             _combat.ClearHitTargets();
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _playerActorAnimator.IsOpenedComboWindow = false;
@@ -377,14 +381,16 @@ namespace UPlayGround.State
             // 풀려 선입력이 살아있는 채로 아래 TryInterrupt/콤보 검사에 즉시 소비된다.
             InputManager.Instance.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide);
 
-            // 인터럽트(캔슬): 허용 액션은 데이터(interruptActions) 마스크로, 허용 구간은
-            // 캔슬 윈도우(히트박스 콜리전 비활성 구간)로 제어한다. 액티브 히트 중엔 캔슬 불가.
+            // 인터럽트(캔슬): 허용 액션·허용 구간을 ResolveCancelMask가 함께 산출한다.
+            // 활성 CancelWindowEvent가 있으면 그 구간 마스크(maskOverride 교집합 포함)를, 없으면
+            // 기존 폴백(콜리전 비활성 구간에서 전역 interruptActions)을 반환한다 → 무회귀.
             // 콤보 검사보다 먼저 실행되어 둘 다 성립하면 캔슬이 우선한다.
             // Dash가 입력만 소비하고 전환에 실패하면 false가 반환되어 아래 콤보 로직으로 fall-through 한다.
             // allowGuardCancel: 가드(hold) 캔슬은 액티브 히트가 한 번이라도 발생한 뒤(리커버리/멀티히트 간격)에만
             // 허용한다. 초기 윈드업에서 가드를 쥔 채 시작하는 패리/카운터 반격이 곧바로 가드로 튕기는 걸 막는다.
-            if (_combat.IsCancelWindowOpen
-                && PlayerInterruptResolver.TryInterrupt(playerController, _currentAttack.interruptActions,
+            var cancelMask = _combat.ResolveCancelMask();
+            if (cancelMask != PlayerInterruptAction.None
+                && PlayerInterruptResolver.TryInterrupt(playerController, cancelMask,
                     allowGuardCancel: _hasActiveHitFired))
                 return;
 

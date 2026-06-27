@@ -2,8 +2,8 @@
 
 > 작성일: 2026-06-25
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 분류: **P1~P3 구현 완료(2026-06-27) · Unity 플레이 검증 대기**. P4(대표 무기 윈도우 저작=콘텐츠)·P5(규칙층)는 미착수.
-> 본문 §1~§7의 코드 스니펫은 설계 당시 의사코드 스케치다. 실제 구현은 §8 표 하단 "구현 메모"와 어긋날 경우 코드를 신뢰한다.
+> 분류: **P1~P3 구현 완료(2026-06-27, MotionEvent 방식) · Unity 플레이 검증 대기**. P4(대표 무기 타임라인 저작=콘텐츠)·P5(규칙층)는 미착수.
+> ⚠ **최종 구현은 §3 정규화 리스트가 아니라 `CancelWindowEvent`(MotionEvent) 방식이다.** 본문 §1~§7은 설계 당시 정규화 스케치이며, 실제 동작은 §8 "구현 메모(MotionEvent 방식 채택)"를 신뢰한다.
 > 레퍼런스: 격투/액션 장르의 cancel window·hit-confirm 관례(DMC/베요네타의 액션 캔슬, 격투게임의 gatling/special-cancel), 본 프로젝트 기존 전투 에디터 오버레이.
 > 선행/연관: `project_combat_editor_overlay`(전투 트랙·프레임 테이블), `project_interrupt_cancel_system`(PlayerInterruptAction 마스크 + 콜리전 캔슬 윈도우).
 
@@ -200,35 +200,28 @@ public PlayerInterruptAction ResolveCancelMask(out bool fromAuthored)
 
 | Phase | 내용 | 산출물 | 상태 |
 |---|---|---|---|
-| **P1 데이터** | `CancelWindowSpan` 구조 + `AttackInfoBase.cancelWindows` 추가(빈 리스트 기본) | 컴파일·역직렬화 무회귀 | ✅ 완료 |
-| **P2 런타임** | `ResolveCancelMask`/`CurrentNormalizedTime` 구현, `PlayerAttackState` 게이트 교체, 폴백 보존 | 저작 없는 공격 = 기존과 동일 | ✅ 완료 |
-| **P3 에디터** | 오버레이 캔슬 트랙을 저작 인지로 승격(실선/점선 구분) | 디자이너 저작 가능 | ✅ 완료(드래그 편집은 후속, 저작은 Inspector) |
-| **P4 저작·튜닝** | 대표 무기 공격에 윈도우 저작, 체감 튜닝 | 밸런스/조작감 | ⏳ 콘텐츠(에디터 데이터) |
+| **P1 데이터** | `CancelWindowEvent : MotionEventBase`(+`maskOverride`) — 타임라인 이벤트로 저작 | 컴파일·역직렬화 무회귀 | ✅ 완료 |
+| **P2 런타임** | `PlayerCombat.Open/Close/ResetCancelWindow` + `ResolveCancelMask()`, `PlayerAttackState` 게이트 교체·폴백 보존 | 저작 없는 공격 = 기존과 동일 | ✅ 완료 |
+| **P3 에디터** | 오버레이 캔슬 트랙을 이벤트 기반으로(실선/점선), AddPopup·Style 등록 | 디자이너 저작 가능 | ✅ 완료(드래그 편집은 타임라인 기본 제공) |
+| **P4 저작·튜닝** | 대표 무기 공격 타임라인에 CancelWindow 이벤트 저작, 체감 튜닝 | 밸런스/조작감 | ⏳ 콘텐츠(에디터 데이터) |
 | **P5(선택) 규칙층** | on-hit/최소커밋 훅 활성화(별도 결정) | 깊이 | ⏳ 차기 축 |
 
 P1~P3까지가 "방식 고도화"의 본체이며, P4는 콘텐츠, P5는 차기 축이다.
 
-### 구현 메모 (2026-06-27)
+### 구현 메모 (2026-06-27) — **MotionEvent 방식 채택(설계 §3.1 정규화 리스트 → 타임라인 이벤트로 전환)**
 
-- **P1** `CombatData.cs`: `CancelWindowSpan{start,end,maskOverride,Contains()}` struct + `AttackInfoBase.cancelWindows`(빈 리스트 기본). 기존 에셋은 빈 리스트 역직렬화 → 폴백.
-- **P2** `PlayerCombat.cs`: `ResolveCancelMask(out fromAuthored)` + `CurrentNormalizedTime()`(=`ActorAnimator.GetNormalizedTime()`, 히트 검출과 동일 MotionSet 시계). `PlayerAttackState.UpdateState` 게이트가 `_currentAttack.interruptActions` → `ResolveCancelMask`로 교체.
-  - **설계 편차:** `IsCancelWindowOpen`은 `!IsPossibleCollide` 그대로 유지(설계 §4.1의 재정의 안 함). 차지(`PlayerChargeState`)·디버그 HUD가 콜리전 기반 의미를 그대로 쓰고, 차지의 전역 마스크 소스(`chargeInterruptActions`)가 `_currentAttackData.interruptActions`(=stage)와 달라 재정의 시 차지 회피 캔슬이 깨질 수 있어서다. 정규화-인지 분기는 일반 공격 게이트에만 적용.
-  - **D2 결정:** 저작 공격의 버퍼 만료정지는 `ResolveCancelMask==None`(윈도우 밖) 기준으로 정렬. 폴백은 `IsPossibleCollide` 유지(비트 동일).
-  - **D3 유지:** Move(이동) 후딜 캔슬은 별도 축 그대로(`moveCancelDelayAfterLastHit`). 저작 윈도우와 독립.
-- **P3** `CombatTimelineUtility.ResolvedAttack.CancelWindows` 노출(차지 단계는 baseInfo 없어 null=폴백). `MotionSetWindow.CombatOverlay`의 캔슬 트랙 ②가 저작 시 실선 스팬(스팬별 effective 마스크 라벨), 미저작 시 complement 점선(`OverlaySpan.dashed`). 저작은 `AttackDataSO` Inspector에서 `cancelWindows` 편집.
+당초 §3 정규화 리스트(`AttackInfoBase.cancelWindows`) 1차 구현 후, **Collision·ComboWindow와 동일한 MotionEvent 방식**으로 재설계했다. 근거: 같은 종류의 "타이밍 윈도우"라 일관성·시각화·드래그 편집이 통일되고, 히트 검출과 **동일한 `MotionEventExecutor` 타임라인**에서 발화해 시계 정합(§4.2)이 구조적으로 보장된다. 정규화↔절대 환산/멀티모션 "0.5=전체 절반"/null 애니메이터/`[0,0]` 절벽 등 정규화 평가 특유의 함정이 **모델 차원에서 소멸**한다.
 
-### 어드바이저 검토 반영 (2026-06-27)
+- **P1** `MotionEvent_CancelWindow.cs`: `CancelWindowEvent : MotionEventBase` + `PlayerInterruptAction maskOverride`. `Execute`→`OpenCancelWindow(mask)`, `OnCompleteEvent`→`CloseCancelWindow(mask)` (ComboWindowEvent 미러). `AttackInfoBase.cancelWindows`/`CancelWindowSpan`/정규화 평가 **전부 제거**.
+- **P2** `PlayerCombat`: 활성 윈도우 maskOverride 스택(`_activeCancelWindows`) + `Open/Close/ResetCancelWindows`. `ResolveCancelMask()`(out 인자 없음)는 "활성 이벤트 마스크 합집합(maskOverride None=전역, 지정=전역∩), 없으면 콜리전 폴백". `PlayerAttackState` 게이트가 이를 사용하고, OnEnter/OnExit에서 `ResetCancelWindows()`로 stale 정리(모션 중단 시 OnCompleteEvent 미발화 대비). `SetExpiryPaused`는 원래의 `IsPossibleCollide`로 환원(이벤트 모델은 D2 특수처리 불필요).
+  - **설계 편차/유지:** `IsCancelWindowOpen`(`!IsPossibleCollide`)은 차지/디버그 HUD용으로 그대로 유지. 차지(`PlayerChargeState`)는 이벤트 미사용 → 폴백. Move 캔슬(D3)은 `moveCancelDelayAfterLastHit` 별도 축.
+- **P3** `CombatTimelineUtility.CollectCancelWindowSpans`(maskOverride 동반). 오버레이 캔슬 트랙 ②가 **이벤트 있으면 실선(effective 마스크 라벨)**, 없으면 complement `[자동]` 점선. `MotionEventAddPopup`(Combat 카테고리)·`MotionEventStyle`(✂) 등록.
 
-독립 코드 감사 결과 무회귀(빈 리스트)·차지 경로·컴파일은 PASS. 저작 진입 시 드러나는 풋건 3종을 런타임/에디터에서 방어:
+**무회귀:** 캔슬 이벤트가 없는 공격 = `ResolveCancelMask`가 `IsPossibleCollide ? None : global` → 기존 게이트와 비트 동일. `PlayerAttackDataSODrawer`는 정규화 `cancelWindows` UI 제거(인스펙터 레이아웃 겹침 수정·`LabelWidthScope`는 유지), "구간은 타임라인 CancelWindow 이벤트로 저작" 안내 추가.
 
-- **[5c] `[0,0]` 기본행 절벽 제거**: `ResolveCancelMask`가 **유효 폭(end>start) 스팬이 하나도 없으면 폴백**으로 떨어진다. Inspector "+"가 추가하는 기본 `[0,0]` 행이 폴백을 끄고 공격을 통째로 캔슬 불가로 만들던 절벽을 차단(운영 단계 무회귀 보존).
-- **[6] degenerate 스팬 런타임/에디터 통일**: 런타임이 `end<=start` 스팬을 무시(기존 `Contains`만으론 raw end로 죽은 윈도우). 에디터도 `Min/Max` 환산 + 점선·경고 라벨(`⚠ 폭0`/`⚠ 마스크없음`)로 **무효 스팬을 숨기지 않고 가시화**(기존 `continue`로 안 그리던 것 수정).
-- **[3] null 애니메이터 오개방 차단**: 시계 소스(`_actorAnimator`)가 없으면(모델 스왑 재탐색 프레임) 저작 평가(t=0) 대신 폴백 → `start=0` 윈도우 한 프레임 오개방 방지.
-
-**남은 한계(P4 저작 전 인지/추후):**
-- **D2 leniency 무한정**: 저작 공격은 cancelMask==None인 모든 구간에서 만료정지가 걸려, 긴 윈드업+늦은 윈도우면 선입력 보존 시간이 길어진다(체감 위화감 가능). 최대 보존 캡은 후속 검토.
-- **looping 모션**: `IsInfiniteLooping` 공격에 저작 윈도우를 쓰면 `_globalTime` 리셋으로 윈도우가 루프마다 재개방. 저작 비권장(현재 대상 공격은 비루프).
-- **Move(이동) 캔슬은 윈도우 밖**: 설계 §4.3/D3대로 `moveCancelDelayAfterLastHit` 별도 축 유지. 오버레이가 `& ~Move`로 캔슬 트랙에서 분리해 이 사실을 시각화.
+**남은 한계/주의:**
+- **선입력 보존(구 D2)**: 이벤트 모델에선 만료정지가 콜리전 기준이라, 좁게 저작한 윈도우가 윈드업 한참 뒤면 그 전 선입력이 0.24s 버퍼로 한정 보존된다(무한정 leniency 제거 = 어드바이저 지적 해소). 필요 시 윈도우를 입력 타이밍 가까이 배치.
+- **Move(이동) 캔슬은 윈도우 밖**: 설계 §4.3/D3대로 별도 축. 오버레이가 `& ~Move`로 분리 표기.
 
 ---
 

@@ -19,8 +19,10 @@ namespace UPlayGround.Tool.Editor.Combat
     /// 애니메이션 에디터의 전투 오버레이와 프레임 데이터 테이블이 공유한다.
     ///
     /// 시간 규칙: 모든 반환 시간은 MotionSet 전체 타임라인 기준 절대 시간(초).
-    /// 캔슬 윈도우 규칙(런타임 PlayerCombat.IsCancelWindowOpen과 동일):
-    ///   콜리전 비활성 구간 = 캔슬 허용. 단 Move는 마지막 히트 페이즈 이후 리커버리에서만.
+    /// 캔슬 윈도우 규칙:
+    ///   - 저작(CancelWindowEvent 타임라인 이벤트) 있음: 그 구간 = 캔슬 허용(런타임 PlayerCombat.ResolveCancelMask).
+    ///   - 미저작(폴백): 콜리전 비활성 구간 = 캔슬 허용(런타임 IsCancelWindowOpen). 오버레이는 점선으로 구분.
+    ///   - Move는 두 경우 모두 마지막 히트 페이즈 이후 리커버리에서만(별도 축).
     /// </summary>
     public static class CombatTimelineUtility
     {
@@ -94,6 +96,46 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             return CollectSpans<BeginCollisionEvent>(set);
         }
+
+        /// <summary> CancelWindowEvent 구간을 maskOverride와 함께 수집(절대 시간). </summary>
+        public struct CancelWindowSpanInfo
+        {
+            public float Start;
+            public float End;
+            public PlayerInterruptAction Mask;
+        }
+
+        public static List<CancelWindowSpanInfo> CollectCancelWindowSpans(MotionSet set)
+        {
+            var result = new List<CancelWindowSpanInfo>();
+            if (set == null) return result;
+
+            if (set.globalEvents != null)
+                foreach (MotionEventBase evt in set.globalEvents)
+                    if (evt is CancelWindowEvent cw) result.Add(MakeCancelSpan(cw, 0f));
+
+            float offset = 0f;
+            if (set.motions != null)
+            {
+                foreach (UPlayGround.Animation.Motion motion in set.motions)
+                {
+                    if (motion?.events != null)
+                        foreach (MotionEventBase evt in motion.events)
+                            if (evt is CancelWindowEvent cw) result.Add(MakeCancelSpan(cw, offset));
+                    offset += motion?.Duration ?? 0f;
+                }
+            }
+
+            result.Sort((a, b) => a.Start.CompareTo(b.Start));
+            return result;
+        }
+
+        static CancelWindowSpanInfo MakeCancelSpan(CancelWindowEvent cw, float offset) => new CancelWindowSpanInfo
+        {
+            Start = offset + cw.startTime,
+            End = offset + Mathf.Max(cw.startTime, cw.endTime),
+            Mask = cw.maskOverride,
+        };
 
         static TimedSpan MakeSpan(MotionEventBase evt, float offset)
         {

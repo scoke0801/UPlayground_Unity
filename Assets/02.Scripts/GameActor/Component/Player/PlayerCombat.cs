@@ -215,8 +215,65 @@ namespace UPlayGround.Component
         /// <summary>
         /// 캔슬(인터럽트) 허용 구간 여부. 현재 규칙: 히트박스 콜리전이 비활성인 구간
         /// (윈드업/리커버리/멀티히트 간격). 액티브 히트 구간에는 닫힌다.
+        /// 저작 캔슬 윈도우와 무관한 폴백 기준이며, 차지/디버그 HUD가 그대로 참조한다.
         /// </summary>
         public bool IsCancelWindowOpen => !IsPossibleCollide;
+
+        // 활성 캔슬 윈도우 이벤트(CancelWindowEvent)의 maskOverride 스택.
+        // Open이 Add, Close가 해당 값 제거. MotionEventExecutor가 히트 검출과 동일 타임라인에서 발화하므로
+        // 시계 정합이 구조적으로 보장된다(별도 정규화 평가 불필요).
+        private readonly List<PlayerInterruptAction> _activeCancelWindows = new List<PlayerInterruptAction>(4);
+
+        /// <summary> 캔슬 윈도우 이벤트가 현재 하나라도 열려 있는지. </summary>
+        public bool HasActiveCancelWindow => _activeCancelWindows.Count > 0;
+
+        /// <summary> CancelWindowEvent 시작 — 허용 구간을 연다. </summary>
+        public void OpenCancelWindow(PlayerInterruptAction maskOverride) => _activeCancelWindows.Add(maskOverride);
+
+        /// <summary> CancelWindowEvent 끝 — 해당 구간을 닫는다(동일 maskOverride 한 건 제거). </summary>
+        public void CloseCancelWindow(PlayerInterruptAction maskOverride)
+        {
+            int idx = _activeCancelWindows.IndexOf(maskOverride);
+            if (idx >= 0)
+                _activeCancelWindows.RemoveAt(idx);
+            else if (_activeCancelWindows.Count > 0)
+                _activeCancelWindows.RemoveAt(_activeCancelWindows.Count - 1);
+        }
+
+        /// <summary>
+        /// 공격 진입/종료 시 호출 — 모션이 중간에 잘려 CancelWindowEvent의 종료(OnCompleteEvent)가
+        /// 발화하지 못한 경우의 잔존 상태를 비운다(콤보 윈도우 stale 처리와 동일 취지).
+        /// </summary>
+        public void ResetCancelWindows() => _activeCancelWindows.Clear();
+
+        /// <summary>
+        /// 현재 허용되는 캔슬 마스크를 산출한다. 호출부(PlayerAttackState)는 이 마스크를 그대로
+        /// TryInterrupt에 넘겨 '무엇을' 거른다.
+        ///
+        /// - 활성 CancelWindowEvent가 없으면 폴백: 콜리전 OFF에서 전역 interruptActions 허용
+        ///   = 기존 IsCancelWindowOpen 규칙과 비트 동일(무회귀).
+        /// - 활성 이벤트가 있으면 그 구간들의 마스크 합집합. maskOverride가 None이면 전역,
+        ///   지정되면 전역과의 교집합으로 좁힌다(구간별 차등 캔슬).
+        /// </summary>
+        public PlayerInterruptAction ResolveCancelMask()
+        {
+            var global = _currentAttackData != null ? _currentAttackData.interruptActions : PlayerInterruptAction.None;
+
+            // 폴백: 저작 캔슬 이벤트가 없으면 현행 규칙 그대로.
+            if (_activeCancelWindows.Count == 0)
+                return IsPossibleCollide ? PlayerInterruptAction.None : global;
+
+            if (global == PlayerInterruptAction.None)
+                return PlayerInterruptAction.None;
+
+            PlayerInterruptAction allowed = PlayerInterruptAction.None;
+            for (int i = 0; i < _activeCancelWindows.Count; i++)
+            {
+                PlayerInterruptAction m = _activeCancelWindows[i];
+                allowed |= m == PlayerInterruptAction.None ? global : (global & m);
+            }
+            return allowed;
+        }
 
         /// <summary> 현재 진행 중인 공격의 액션 러너 히트 페이즈 인덱스(0-기준). </summary>
         public int CurrentHitPhaseIndex => _actionRunner != null ? _actionRunner.CurrentPhaseIndex : 0;

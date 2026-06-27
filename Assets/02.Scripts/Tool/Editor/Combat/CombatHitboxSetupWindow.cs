@@ -5,6 +5,9 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Combat;
+using UPlayGround.Component;
+using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
@@ -22,8 +25,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private readonly List<CombatHitboxSetupResult> _results = new();
         private readonly List<GameObject> _resultHitboxes = new();
 
-        [MenuItem("UPlayGround/Combat/HitBox Setup")]
-        [MenuItem("UPlayGround/Generator Tool/Combat HitBox Setup")]
+        [MenuItem("UPlayGround/게임플레이/전투/도구/HitBox 셋업", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 3)]
         private static void Open()
         {
             GetWindow<CombatHitboxSetupWindow>("Combat HitBox Setup");
@@ -101,6 +103,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 {
                     if (GUILayout.Button("검증"))
                         ExecuteSingle(_target, CombatHitboxSetupMode.ValidateOnly);
+                    if (GUILayout.Button("통합 검증"))
+                        ExecuteIntegratedValidation(_target);
                     if (GUILayout.Button("기존 항목 Refit"))
                         ExecuteSingle(_target, CombatHitboxSetupMode.RefitExisting);
                     if (GUILayout.Button("생성 항목 제거"))
@@ -285,6 +289,26 @@ namespace UPlayGround.Tool.Editor.Combat
             FinishExecution();
         }
 
+        private void ExecuteIntegratedValidation(GameObject target)
+        {
+            _results.Clear();
+            if (target == null)
+            {
+                _results.Add(new CombatHitboxSetupResult("(null)", 0, 0, 1, new[] { "대상이 null입니다." }));
+                FinishExecution();
+                return;
+            }
+
+            List<UnityEngine.Object> assets = CollectIntegratedValidationAssets(target);
+            _results.Add(new CombatHitboxSetupResult(
+                target.name,
+                0,
+                0,
+                0,
+                CombatHitboxSetupValidator.Validate(target, assets)));
+            FinishExecution();
+        }
+
         private void Execute(GameObject[] targets, bool automaticMode)
         {
             _results.Clear();
@@ -303,6 +327,37 @@ namespace UPlayGround.Tool.Editor.Combat
             AssetDatabase.SaveAssets();
             SceneView.RepaintAll();
             CollectResultHitboxes();
+        }
+
+        private static List<UnityEngine.Object> CollectIntegratedValidationAssets(GameObject target)
+        {
+            var assets = new List<UnityEngine.Object>();
+            if (target == null)
+                return assets;
+
+            if (!CombatHitboxGroupSyncUtility.TryResolveContext(
+                    target,
+                    out CharacterModelData model,
+                    out PlayerActorAnimationMotionSet container))
+            {
+                return assets;
+            }
+
+            CombatHitboxGroupSyncUtility.CollectAttackData(model, assets);
+            if (container == null)
+                return assets;
+
+            List<WeaponType> weaponTypes = CombatHitboxGroupSyncUtility.GetWeaponTypes(container);
+            if (model != null && weaponTypes.Contains(model.defaultWeaponType))
+            {
+                CombatHitboxGroupSyncUtility.CollectMotionSetsForWeapon(container, model.defaultWeaponType, assets);
+            }
+            else
+            {
+                foreach (WeaponType weaponType in weaponTypes)
+                    CombatHitboxGroupSyncUtility.CollectMotionSetsForWeapon(container, weaponType, assets);
+            }
+            return assets.Distinct().ToList();
         }
 
         private void ExecuteTarget(GameObject target, CombatHitboxSetupMode mode)

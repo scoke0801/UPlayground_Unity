@@ -489,6 +489,7 @@ namespace UPlayGround.Animation.Editor
                     Meta<BeginCollisionEvent>("Collision", Combat, "공격 판정을 켜고 hitPhaseIndex를 Combat에 전달합니다.", "hitbox", "attack", "damage", "타격", "피격", "콜리전"),
                     Meta<DisableCollisionEvent>("DisableCollision", Combat, "공격 판정을 명시적으로 끕니다.", "hitbox off", "collision off", "판정 종료"),
                     Meta<ComboWindowEvent>("ComboWindow", Combat, "다음 콤보 입력을 받을 수 있는 구간을 엽니다.", "combo", "cancel", "chain", "연계", "콤보"),
+                    Meta<CancelWindowEvent>("CancelWindow", Combat, "이 구간 동안 회피/대시/공격타입 등으로 공격을 캔슬할 수 있게 합니다(maskOverride로 구간별 제한).", "cancel", "interrupt", "dodge", "캔슬", "인터럽트", "회피"),
                     Meta<FinishAttackEvent>("FinishAttack", Combat, "피니시 공격 처리 타이밍을 발생시킵니다.", "finish", "execution", "처형", "피니시"),
                     Meta<SpecialBreakAttackEvent>("SpecialBreakAttack", Combat, "브레이크 특수공격 피해 적용 타이밍을 발생시킵니다.", "break", "special", "groggy", "브레이크", "특수공격"),
                     Meta<InvincibilityEvent>("Invincibility", Combat, "피격 무적 구간을 설정합니다.", "iframe", "invincible", "무적", "회피"),

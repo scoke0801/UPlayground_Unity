@@ -1229,6 +1229,8 @@ namespace UPlayGround.Animation.Editor
 
         void OnGUI()
         {
+            HandlePlaybackShortcuts();
+
             DrawToolbar();
             DrawActorAnimationSetBar();
             DrawTestActorRegistry();
@@ -1243,6 +1245,45 @@ namespace UPlayGround.Animation.Editor
             }
 
             DrawMotionSetEditorBody();
+        }
+
+        void HandlePlaybackShortcuts()
+        {
+            Event e = Event.current;
+            if (e == null || e.type != EventType.KeyDown)
+                return;
+
+            if (EditorGUIUtility.editingTextField || e.alt || e.control || e.command)
+                return;
+
+            switch (e.keyCode)
+            {
+                case KeyCode.Space:
+                    if (_isPaused)
+                    {
+                        ResumePlayback();
+                    }
+                    else if (_isPlaying)
+                    {
+                        StopPlayback();
+                    }
+                    else
+                    {
+                        StartPlayback();
+                    }
+                    e.Use();
+                    Repaint();
+                    break;
+
+                case KeyCode.S:
+                    if (_isPlaying || _isPaused)
+                    {
+                        StopPlayback();
+                        e.Use();
+                        Repaint();
+                    }
+                    break;
+            }
         }
 
         void DrawMotionSetEditorBody()
@@ -2136,7 +2177,7 @@ namespace UPlayGround.Animation.Editor
   if (!_isPlaying)
                 {
                     GUI.backgroundColor = new Color(0.5f, 1f, 0.5f);
-                    if (GUILayout.Button("▶ 재생", GUILayout.Width(60)))
+                    if (GUILayout.Button(new GUIContent("▶ 재생", "단축키: Space"), GUILayout.Width(60)))
                         StartPlayback();
                     GUI.backgroundColor = Color.white;
                 }
@@ -2145,7 +2186,7 @@ namespace UPlayGround.Animation.Editor
                     if (_isPaused)
                     {
                         GUI.backgroundColor = new Color(0.5f, 1f, 0.5f);
-                        if (GUILayout.Button("▶ 계속", GUILayout.Width(60)))
+                        if (GUILayout.Button(new GUIContent("▶ 계속", "단축키: Space"), GUILayout.Width(60)))
                             ResumePlayback();
                         GUI.backgroundColor = Color.white;
                     }
@@ -2158,7 +2199,7 @@ namespace UPlayGround.Animation.Editor
                     }
                     
                     GUI.backgroundColor = new Color(1f, 0.5f, 0.5f);
-                    if (GUILayout.Button("■ 중지", GUILayout.Width(60)))
+                    if (GUILayout.Button(new GUIContent("■ 중지", "단축키: Space 또는 S"), GUILayout.Width(60)))
                         StopPlayback();
                     GUI.backgroundColor = Color.white;
                 }

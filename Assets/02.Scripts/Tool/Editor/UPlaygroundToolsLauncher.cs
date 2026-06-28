@@ -431,12 +431,22 @@ namespace UPlayGround.Editor
 
             Rect favoriteRect = new Rect(rowRect.xMax - 30f, rowRect.y, 28f, 22f);
             Rect clickRect = new Rect(rowRect.x, rowRect.y, rowRect.width - 34f, rowRect.height);
-            if (GUI.Button(clickRect, GUIContent.none, GUIStyle.none))
+            // GUI.Button은 MouseUp에 true를 반환하지만 clickCount는 MouseDown에서만 채워진다.
+            // 따라서 더블클릭은 raw MouseDown 이벤트에서 직접 감지해야 한다(MouseUp 기준 검사는 항상 실패).
+            Event evt = Event.current;
+            bool doubleClick = evt.type == EventType.MouseDown
+                               && evt.button == 0
+                               && evt.clickCount == 2
+                               && clickRect.Contains(evt.mousePosition);
+            if (GUI.Button(clickRect, GUIContent.none, GUIStyle.none) || doubleClick)
             {
                 SelectTool(category, tool);
 
-                if (Event.current.clickCount == 2)
+                if (doubleClick)
+                {
                     OpenSelectedTool();
+                    evt.Use();
+                }
             }
 
             ToolImpact impact = GetToolImpact(tool);

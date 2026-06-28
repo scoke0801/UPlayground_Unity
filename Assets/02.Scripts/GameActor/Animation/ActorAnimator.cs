@@ -282,10 +282,16 @@ namespace UPlayGround.Animation
         private void LateUpdate()
         {
             // Animancer(본) 평가가 끝난 이후 시점.
-            // 이번 프레임 UpdateTime에서 발화가 결정된 공간 샘플링 이벤트(SlashVFX 등)를 여기서 실행해,
-            // 블레이드 본을 항상 이번 프레임 최종 포즈로 샘플링한다. (Update 시점 실행 시 직전 프레임 포즈)
             if (_isPlayingMotionSet)
             {
+                // 이벤트 발화는 _globalTime(손수 누적한 디렉터 시계)이 아니라
+                // 실제 평가된 포즈 시간으로 판정한다. 그래프가 이미 이번 프레임 포즈를
+                // 만든 LateUpdate에서 _currentState.Time을 역산하므로, 히트스톱·타임스케일·
+                // 프레임 변동과 무관하게 이벤트가 항상 동일한 모션 시점에 발화한다.
+                _eventExecutor?.UpdateTime(GetPoseDrivenGlobalTime());
+
+                // 이번 프레임 발화가 결정된 공간 샘플링 이벤트(SlashVFX 등)를 여기서 실행해,
+                // 블레이드 본을 항상 이번 프레임 최종 포즈로 샘플링한다.
                 _eventExecutor?.FlushDeferredEvents();
             }
         }
@@ -746,8 +752,8 @@ namespace UPlayGround.Animation
                     if (_currentState != null)
                         _currentState.Speed = GetCurrentMotion()?.playbackSpeed ?? 1f;
                 }
-                // Freeze 중에도 이벤트 업데이트는 수행 (다른 이벤트가 동작할 수 있도록)
-                _eventExecutor?.UpdateTime(_globalTime);
+                // Freeze 중 이벤트 갱신은 LateUpdate에서 포즈 시간으로 수행된다.
+                // (Speed=0이므로 포즈가 멈춰 이벤트도 자연히 정지한다)
                 return;
             }
 
@@ -791,7 +797,53 @@ namespace UPlayGround.Animation
                 }
             }
 
-            _eventExecutor?.UpdateTime(_globalTime);
+            // 이벤트 발화는 LateUpdate에서 실제 포즈 시간으로 판정한다(디렉터/포즈 클럭 분리).
+        }
+
+        /// <summary>
+        /// 이벤트 발화용 글로벌 시간을 실제 Animancer 포즈(_currentState.Time)에서 역산한다.
+        /// 손수 누적한 _globalTime(디렉터 클럭)은 Graph.Speed와 _localTimeScale이 어긋나는
+        /// 히트스톱/타임스케일 구간에서 실제 포즈와 드리프트한다. 이 메서드는 그래프가 실제로
+        /// 평가한 포즈에 잠긴 시간을 돌려주므로, 이벤트가 항상 동일한 모션 시점에 발화한다.
+        /// 반드시 그래프 평가가 끝난 LateUpdate에서 호출해야 이번 프레임 최종 포즈를 반영한다.
+        /// 오프셋 규칙은 MotionEventExecutor.CalculateEventOffsets(이전 모션 Duration 누적)와 동일하다.
+        /// </summary>
+        private float GetPoseDrivenGlobalTime()
+        {
+            if (_currentState == null || _currentMotionSet == null)
+                return _globalTime;
+
+            Motion motion = GetCurrentMotion();
+            if (motion == null)
+                return _globalTime;
+
+            float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+            // 클립 로컬 시간 → 모션 로컬 시간(재생 속도 역보정). 미세 오버슈트는 [0, Duration]으로 클램프.
+            float localPose = (_currentState.Time - motion.ClipStartTime) / spd;
+            localPose = Mathf.Clamp(localPose, 0f, motion.Duration);
+
+            return GetAccumulatedDurationBeforeCurrentMotion() + localPose;
+        }
+
+        /// <summary>
+        /// 현재 모션 인덱스 이전 모션들의 Duration 합. 이벤트 오프셋 누적 규칙과 동일하다.
+        /// </summary>
+        private float GetAccumulatedDurationBeforeCurrentMotion()
+        {
+            if (_currentMotionSet?.motions == null)
+                return 0f;
+
+            float accumulated = 0f;
+            int index = 0;
+            foreach (Motion motion in _currentMotionSet.motions)
+            {
+                if (index >= _currentMotionIndex)
+                    break;
+                if (motion != null)
+                    accumulated += motion.Duration;
+                index++;
+            }
+            return accumulated;
         }
 
         /// <summary>

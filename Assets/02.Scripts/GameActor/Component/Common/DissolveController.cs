@@ -450,6 +450,9 @@ namespace UPlayGround.Component
             if (_forceLilToonCutout)
                 ConvertLilToonInstanceToCutout(instance, slot.originalMaterial);
 
+            // 디졸브 키워드는 인스턴스 수명 동안 불변이므로 생성 시 1회만 활성화한다.
+            EnableLilToonDissolveKeyword(instance);
+
             SetLilToonDissolve(instance, _lilToonStartRange);
             if (instance.HasProperty(LilDissolveColorID))
                 instance.SetColor(LilDissolveColorID, _lilToonDissolveColor);
@@ -589,8 +592,8 @@ namespace UPlayGround.Component
 
         private void SetLilToonDissolve(Material material, float range, Vector4 dissolvePosition)
         {
-            EnableLilToonDissolveKeyword(material);
-            
+            // 키워드 활성화는 머티리얼 인스턴스 생성 시 1회만 수행한다(CreateLilToonDissolveInstance).
+            // 이 메서드는 디졸브 진행 중 매 프레임 호출되므로 여기서 키워드를 만지면 헛수고가 반복된다.
             if (!material.HasProperty(LilDissolveParamsID))
             {
                 int materialId = material.GetInstanceID();
@@ -614,15 +617,24 @@ namespace UPlayGround.Component
             if (material == null)
                 return;
 
-            material.EnableKeyword(LilDissolveKeyword);
-
 #if UNITY_2021_2_OR_NEWER
-            if (material.shader == null)
+            // lilToon 디졸브는 _DissolveParams 벡터만으로 동작하며 별도 로컬 키워드를 쓰지 않는다.
+            // 셰이더 키워드 공간에 실제로 존재하는 키워드만 켠다. 존재하지 않는 키워드로
+            // LocalKeyword를 생성하면 Unity 6에서 "doesn't exist in the shader" 에러가 매 프레임 발생한다.
+            var shader = material.shader;
+            if (shader == null)
                 return;
 
-            var keyword = new UnityEngine.Rendering.LocalKeyword(material.shader, LilDissolveKeyword);
-            if (keyword.isValid)
+            foreach (var keyword in shader.keywordSpace.keywords)
+            {
+                if (keyword.name != LilDissolveKeyword)
+                    continue;
+
                 material.SetKeyword(keyword, true);
+                break;
+            }
+#else
+            material.EnableKeyword(LilDissolveKeyword);
 #endif
         }
 

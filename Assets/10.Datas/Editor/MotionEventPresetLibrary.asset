@@ -28,6 +28,13 @@ MonoBehaviour:
     events:
     - rid: 889909668156276752
     - rid: 889909668156276753
+  - id: 2033c4a3d1c2445985279fd3423d6813
+    displayName: SlashVFX Sword Slash 11
+    description: "\uC560\uB2C8\uBA54\uC774\uC158 \uC5D0\uB514\uD130 SlashVFX Scene
+      Tune\uC5D0\uC11C \uC800\uC7A5\uD55C \uD504\uB9AC\uC14B\uC785\uB2C8\uB2E4."
+    aliases: slash,vfx,scene-tune
+    events:
+    - rid: 889910163469238471
   references:
     version: 2
     RefIds:
@@ -62,6 +69,26 @@ MonoBehaviour:
         fadeOutDuration: 0.25
         offset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
+    - rid: 889910163469238471
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0
+        endTime: 0.5159737
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: 
+        weaponRootName: 
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: -0.33, y: 0, z: -0.7}
+        rotationSpace: 1
+        rotationOffset: {x: -176.1, y: -44.98, z: -6.3}
+        scale: 0.7
+        destroyDelay: 2
+        attachToActor: 1
     - rid: 7432452529509105821
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -97,6 +124,11 @@ MonoBehaviour:
           m_PostInfinity: 2
           m_RotationOrder: 4
         amplifyMaxSpeed: 25
+        bakedValid: 0
+        bakedLocalTotal: {x: 0, y: 0, z: 0}
+        bakedPathLen: 0
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452529509105822
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -104,6 +136,7 @@ MonoBehaviour:
         endTime: 0.25
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
+        hitboxGroupId: 
     - rid: 7432452529509105823
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

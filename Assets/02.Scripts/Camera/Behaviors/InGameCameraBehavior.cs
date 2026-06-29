@@ -29,6 +29,7 @@ namespace UPlayGround.CameraSystem
             AddModifier(new EffectRotationInjectCameraModifier());      // 600
             AddModifier(new PitchClampCameraModifier());                // 650
             AddModifier(new LockOnReleaseSmoothingCameraModifier());    // 660
+            AddModifier(new LockOnFitDistanceCameraModifier());         // 670 (상단·공중 대상 거리 피팅)
             AddModifier(new FollowCameraModifier());                    // 700
             AddModifier(new CollisionCameraModifier());                 // 800
             AddModifier(new EffectPositionFovCameraModifier());         // 850

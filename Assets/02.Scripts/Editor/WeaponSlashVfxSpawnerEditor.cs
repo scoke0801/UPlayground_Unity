@@ -91,7 +91,7 @@ namespace UPlayGround.Editor.VFX
                     value = Vector3.zero;
 
                 if (GUILayout.Button("Flip Forward", GUILayout.Height(22)))
-                    value.y = MotionEventOffsetFieldUtil.NormalizeAngle(value.y + 180f);
+                    value = MotionEventOffsetFieldUtil.FlipForwardKeepingUp(value);
             }
 
             using (new EditorGUILayout.HorizontalScope())

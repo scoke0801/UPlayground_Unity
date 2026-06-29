@@ -181,6 +181,21 @@ namespace UPlayGround.Data
         [Tooltip("오비탈 오프셋 수렴 스무딩 시간")]
         public float lockOnOrbitSmoothTime = 0.15f;
 
+        [Header("=== 락온 거리 피팅(상단·공중 대상) ===")]
+        [Tooltip("상단/공중 대상이 피치 클램프만으로 화면에 안 담길 때, 카메라 거리를 늘려 플레이어와 대상을 모두 프레임에 담는다.")]
+        public bool enableLockOnFitDistance = true;
+        [Tooltip("프레이밍 안전 영역 비율(0.3~1). 1=프러스텀 가장자리, 0.8=80% 안쪽에 대상을 가둔다.")]
+        [Range(0.3f, 1f)]
+        public float lockOnFitSafeFraction = 0.78f;
+        [Tooltip("거리 피팅 시 도달 가능한 최대 거리. 필요 시 일반 maxDistance를 넘어선다.")]
+        public float lockOnFitMaxDistance = 13f;
+        [Tooltip("대상 콜라이더 월드 상단에 더할 머리 위 여백(m).")]
+        public float lockOnFitTopPadding = 0.4f;
+        [Tooltip("이 높이차(대상 상단 - 피벗) 이상일 때만 거리 피팅을 시작한다(m). 미세 진동 방지용.")]
+        public float lockOnFitMinHeightDiff = 1.0f;
+        [Tooltip("거리 피팅 수렴 스무딩 시간.")]
+        public float lockOnFitSmoothTime = 0.35f;
+
         [Header("=== 다수 적 줌아웃 ===")]
         public float crowdZoomOutDistance = 7.4f;
         public float crowdDetectRadius = 12f;

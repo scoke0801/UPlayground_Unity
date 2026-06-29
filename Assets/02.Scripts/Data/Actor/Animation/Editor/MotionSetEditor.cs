@@ -182,12 +182,13 @@ namespace UPlayGround.Animation.Editor
             float lineH = EditorGUIUtility.singleLineHeight;
             float gap = 2f;
             Vector3 value = property.vector3Value;
+            Color color = MotionEventOffsetFieldUtil.GetSpaceColor(spaceLabel);
 
-            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineH), $"{property.displayName} ({spaceLabel} Local)", EditorStyles.boldLabel);
+            DrawColoredLabelField(new Rect(rect.x, rect.y, rect.width, lineH), $"{property.displayName} ({spaceLabel} Local)", color);
             EditorGUI.indentLevel++;
-            value.x = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap), rect.width, lineH), $"{spaceLabel} Right / X", value.x);
-            value.y = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 2, rect.width, lineH), $"{spaceLabel} Up / Y", value.y);
-            value.z = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 3, rect.width, lineH), $"{spaceLabel} Forward / Z", value.z);
+            value.x = DrawColoredFloatField(new Rect(rect.x, rect.y + (lineH + gap), rect.width, lineH), $"{spaceLabel} Right / X", value.x, Color.red);
+            value.y = DrawColoredFloatField(new Rect(rect.x, rect.y + (lineH + gap) * 2, rect.width, lineH), $"{spaceLabel} Up / Y", value.y, Color.green);
+            value.z = DrawColoredFloatField(new Rect(rect.x, rect.y + (lineH + gap) * 3, rect.width, lineH), $"{spaceLabel} Forward / Z", value.z, Color.blue);
             EditorGUI.indentLevel--;
 
             if (GUI.Button(new Rect(rect.x, rect.y + (lineH + gap) * 4, rect.width, lineH), "Reset Offset"))
@@ -204,12 +205,13 @@ namespace UPlayGround.Animation.Editor
             float lineH = EditorGUIUtility.singleLineHeight;
             float gap = 2f;
             Vector3 value = property.vector3Value;
+            Color color = MotionEventOffsetFieldUtil.GetSpaceColor(spaceLabel);
 
-            EditorGUI.LabelField(new Rect(rect.x, rect.y, rect.width, lineH), $"Rotation ({spaceLabel})", EditorStyles.boldLabel);
+            DrawColoredLabelField(new Rect(rect.x, rect.y, rect.width, lineH), $"Rotation ({spaceLabel})", color);
             EditorGUI.indentLevel++;
-            value.x = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap), rect.width, lineH), "Pitch / X", value.x);
-            value.y = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 2, rect.width, lineH), "Yaw / Y", value.y);
-            value.z = EditorGUI.FloatField(new Rect(rect.x, rect.y + (lineH + gap) * 3, rect.width, lineH), "Roll / Z", value.z);
+            value.x = DrawColoredFloatField(new Rect(rect.x, rect.y + (lineH + gap), rect.width, lineH), "Pitch / X", value.x, Color.red);
+            value.y = DrawColoredFloatField(new Rect(rect.x, rect.y + (lineH + gap) * 2, rect.width, lineH), "Yaw / Y", value.y, Color.green);
+            value.z = DrawColoredFloatField(new Rect(rect.x, rect.y + (lineH + gap) * 3, rect.width, lineH), "Roll / Z", value.z, Color.blue);
             EditorGUI.indentLevel--;
 
             Rect buttonRect = new Rect(rect.x, rect.y + (lineH + gap) * 4, rect.width, lineH);
@@ -217,7 +219,7 @@ namespace UPlayGround.Animation.Editor
             if (GUI.Button(new Rect(buttonRect.x, buttonRect.y, thirdWidth, buttonRect.height), "Reset"))
                 value = Vector3.zero;
             if (GUI.Button(new Rect(buttonRect.x + thirdWidth + 2f, buttonRect.y, thirdWidth, buttonRect.height), "Flip"))
-                value.y = MotionEventOffsetFieldUtil.NormalizeAngle(value.y + 180f);
+                value = MotionEventOffsetFieldUtil.FlipForwardKeepingUp(value);
             if (GUI.Button(new Rect(buttonRect.x + (thirdWidth + 2f) * 2f, buttonRect.y, thirdWidth, buttonRect.height), "Roll +90"))
                 value.z = MotionEventOffsetFieldUtil.NormalizeAngle(value.z + 90f);
 
@@ -226,6 +228,35 @@ namespace UPlayGround.Animation.Editor
 
         static string GetRotationOffsetSpaceLabel(SerializedProperty eventProperty)
             => MotionEventOffsetFieldUtil.GetRotationOffsetSpaceLabel(GetTargetObjectOfProperty(eventProperty));
+
+        static void DrawColoredLabelField(Rect rect, string text, Color color)
+        {
+            GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
+            style.normal.textColor = color;
+            EditorGUI.LabelField(rect, text, style);
+        }
+
+        static float DrawColoredFloatField(Rect rect, string label, float value, Color color)
+        {
+            using (new GuiContentColorScope(color))
+                return EditorGUI.FloatField(rect, label, value);
+        }
+
+        readonly struct GuiContentColorScope : IDisposable
+        {
+            readonly Color _previousColor;
+
+            public GuiContentColorScope(Color color)
+            {
+                _previousColor = GUI.contentColor;
+                GUI.contentColor = color;
+            }
+
+            public void Dispose()
+            {
+                GUI.contentColor = _previousColor;
+            }
+        }
 
         static object GetTargetObjectOfProperty(SerializedProperty prop)
         {

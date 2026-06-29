@@ -201,6 +201,38 @@ namespace UPlayGround.Animation
         }
 
         /// <summary>
+        /// 이벤트의 글로벌 시작 시각을 발화 검출(GetEventsInRange)과 동일한 Duration 누적 방식으로 즉석 계산한다.
+        /// 캐시된 globalStartTimeOffset 대신 이걸 쓰면 포즈시간(_currentTime)과 항상 같은 기준으로 정렬된다.
+        /// </summary>
+        public bool TryGetEventGlobalStart(MotionEventBase evt, out float globalStart)
+        {
+            globalStart = 0f;
+            if (evt == null) return false;
+
+            if (globalEvents != null && globalEvents.Contains(evt))
+            {
+                globalStart = evt.startTime; // globalEvents는 오프셋 0
+                return true;
+            }
+
+            if (motions == null) return false;
+
+            float accumulated = 0f;
+            foreach (var motion in motions)
+            {
+                if (motion == null) continue;
+                if (motion.events != null && motion.events.Contains(evt))
+                {
+                    globalStart = accumulated + evt.startTime;
+                    return true;
+                }
+                accumulated += motion.Duration;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// 특정 모션의 인덱스와 로컬 타임 계산
         /// </summary>
         public bool GetMotionAtTime(float globalTime, out int motionIndex, out float localTime)

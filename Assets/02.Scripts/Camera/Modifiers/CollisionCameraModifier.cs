@@ -33,7 +33,9 @@ namespace UPlayGround.CameraSystem
             // 누적 상태의 목표 회전을 다시 사용하면 충돌 단계에서 위치만 선행해 회전과 궤도가 불일치한다.
             Quaternion appliedRotation = frame.Pose.CameraRotation;
             Vector3 camDir = appliedRotation * Vector3.back;
-            float desiredDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, settings.maxDistance)
+            // DistanceCeiling이 설정되면(락온 거리 피팅) Follow와 동일하게 maxDistance 상한을 끌어올린다.
+            float maxDistance = Mathf.Max(settings.maxDistance, frame.DistanceCeiling);
+            float desiredDistance = Mathf.Clamp(state.TargetDistance, settings.minDistance, maxDistance)
                                     + frame.Effects.distanceDelta;
 
             float finalDist = context.Collision != null

@@ -217,8 +217,8 @@ namespace UPlayGround.Editor.VFX
                 if (GUILayout.Button("Reset Rotation", GUILayout.Height(22)))
                     value = Vector3.zero;
 
-                if (GUILayout.Button(space == SlashVFXRotationSpace.World ? "Yaw +180" : "Flip Forward", GUILayout.Height(22)))
-                    value.y = MotionEventOffsetFieldUtil.NormalizeAngle(value.y + 180f);
+                if (GUILayout.Button("Flip Forward", GUILayout.Height(22)))
+                    value = MotionEventOffsetFieldUtil.FlipForwardKeepingUp(value);
             }
 
             using (new EditorGUILayout.HorizontalScope())

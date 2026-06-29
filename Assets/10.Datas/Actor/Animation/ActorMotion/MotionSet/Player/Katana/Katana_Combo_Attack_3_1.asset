@@ -66,11 +66,12 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0.6, y: 0.5, z: 0}
+        positionOffset: {x: -0.23, y: 0.05, z: -0.88}
         rotationSpace: 1
-        rotationOffset: {x: 180, y: -116, z: -144}
+        rotationOffset: {x: 181.8, y: -255.4, z: -180.3}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031959771152511
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

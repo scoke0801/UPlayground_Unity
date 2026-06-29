@@ -226,6 +226,8 @@ namespace UPlayGround.Data.Editor
                 warns.Add($"freeOrbitStartDistance({c.freeOrbitStartDistance:0.##}) ≥ freeOrbitFullDistance({c.freeOrbitFullDistance:0.##})");
             if (c.monsterSizeReference >= c.monsterSizeForMaxFOV)
                 warns.Add($"monsterSizeReference({c.monsterSizeReference:0.##}) ≥ monsterSizeForMaxFOV({c.monsterSizeForMaxFOV:0.##})");
+            if (c.enableLockOnFitDistance && c.lockOnFitMaxDistance < c.maxDistance)
+                warns.Add($"lockOnFitMaxDistance({c.lockOnFitMaxDistance:0.##}) < maxDistance({c.maxDistance:0.##}) — 거리 피팅이 일반 max보다 가까워 효과가 없습니다.");
 
             if (warns.Count == 0) return;
 

@@ -108,6 +108,7 @@ namespace UPlayGround.Animation.Editor
         MotionEventBase _copiedEvent = null;
         string _eventFilterText = string.Empty;
         bool _scrollSelectedMotionIntoView;
+        int _scrollSelectedMotionRepaintBudget;
 
         // 섹션 접힘 상태
         public bool foldMotions = true;
@@ -184,7 +185,7 @@ namespace UPlayGround.Animation.Editor
         {
             int previousIndex = selectedMotionIndex;
             selectedMotionIndex = index;
-            _scrollSelectedMotionIntoView = selectedMotionIndex >= 0;
+            RequestScrollSelectedMotionIntoView();
 
             if (selectedMotionIndex >= 0 &&
                 set?.motions != null &&
@@ -195,6 +196,12 @@ namespace UPlayGround.Animation.Editor
 
             if (previousIndex != selectedMotionIndex)
                 _onSelectedMotionChanged?.Invoke(previousIndex, selectedMotionIndex);
+        }
+
+        void RequestScrollSelectedMotionIntoView()
+        {
+            _scrollSelectedMotionIntoView = selectedMotionIndex >= 0;
+            _scrollSelectedMotionRepaintBudget = _scrollSelectedMotionIntoView ? 3 : 0;
         }
 
         static EventAutoExpandMode GetEventAutoExpandMode()
@@ -223,6 +230,7 @@ namespace UPlayGround.Animation.Editor
         readonly Func<UnityEngine.Object> _getTarget;
         readonly Action _repaint;
         readonly Action<int, int> _onSelectedMotionChanged;
+        public Action<MotionEventBase> onDrawEventToolPanel;
 
         /// <param name="getTarget">Undo/Dirty 대상 오브젝트 반환</param>
         /// <param name="repaint">Repaint 요청 콜백</param>
@@ -595,7 +603,7 @@ namespace UPlayGround.Animation.Editor
             GUI.Label(rect, text, style);
         }
 
-        MotionEventBase GetSelectedEvent(MotionSet set)
+        public MotionEventBase GetSelectedEvent(MotionSet set)
         {
             if (selectedEventIsSetEvent)
             {
@@ -679,6 +687,7 @@ namespace UPlayGround.Animation.Editor
                             set.motions[i - 1] = tmp;
                             if (selectedMotionIndex == i) selectedMotionIndex = i - 1;
                             else if (selectedMotionIndex == i - 1) selectedMotionIndex = i;
+                            RequestScrollSelectedMotionIntoView();
                             MarkDirty();
                             break;
                         }
@@ -694,6 +703,7 @@ namespace UPlayGround.Animation.Editor
                             set.motions[i + 1] = tmp;
                             if (selectedMotionIndex == i) selectedMotionIndex = i + 1;
                             else if (selectedMotionIndex == i + 1) selectedMotionIndex = i;
+                            RequestScrollSelectedMotionIntoView();
                             MarkDirty();
                             break;
                         }
@@ -781,7 +791,11 @@ namespace UPlayGround.Animation.Editor
                 if (selectedMotionIndex == i && _scrollSelectedMotionIntoView && Event.current.type == EventType.Repaint)
                 {
                     GUI.ScrollTo(new Rect(0f, motionRect.y - 6f, 1f, motionRect.height + 12f));
-                    _scrollSelectedMotionIntoView = false;
+                    _scrollSelectedMotionRepaintBudget--;
+                    if (_scrollSelectedMotionRepaintBudget <= 0)
+                        _scrollSelectedMotionIntoView = false;
+                    else
+                        Repaint();
                 }
             }
 
@@ -1059,6 +1073,7 @@ namespace UPlayGround.Animation.Editor
         {
             // 리플렉션을 통해 모든 필드를 가져와 순회하며 그립니다.
             DrawObjectFields(evt);
+            onDrawEventToolPanel?.Invoke(evt);
         }
 
         void DrawAttachedEventFilterBar(string label, int totalCount, int filteredCount)
@@ -1342,11 +1357,12 @@ namespace UPlayGround.Animation.Editor
 
         static Vector3 DrawLocalOffsetField(string label, Vector3 value)
         {
-            EditorGUILayout.LabelField($"Position Offset ({label})", EditorStyles.boldLabel);
+            Color color = MotionEventOffsetFieldUtil.GetSpaceColor(label);
+            DrawColoredLabelField($"Position Offset ({label})", color);
             EditorGUI.indentLevel++;
-            value.x = EditorGUILayout.FloatField($"{label} Right / X", value.x);
-            value.y = EditorGUILayout.FloatField($"{label} Up / Y", value.y);
-            value.z = EditorGUILayout.FloatField($"{label} Forward / Z", value.z);
+            value.x = DrawColoredFloatField($"{label} Right / X", value.x, Color.red);
+            value.y = DrawColoredFloatField($"{label} Up / Y", value.y, Color.green);
+            value.z = DrawColoredFloatField($"{label} Forward / Z", value.z, Color.blue);
             EditorGUI.indentLevel--;
 
             if (GUILayout.Button("Reset Offset", GUILayout.Height(20)))
@@ -1357,11 +1373,12 @@ namespace UPlayGround.Animation.Editor
 
         static Vector3 DrawRotationOffsetField(string label, Vector3 value)
         {
-            EditorGUILayout.LabelField($"Rotation ({label})", EditorStyles.boldLabel);
+            Color color = MotionEventOffsetFieldUtil.GetSpaceColor(label);
+            DrawColoredLabelField($"Rotation ({label})", color);
             EditorGUI.indentLevel++;
-            value.x = EditorGUILayout.FloatField("Pitch / X", value.x);
-            value.y = EditorGUILayout.FloatField("Yaw / Y", value.y);
-            value.z = EditorGUILayout.FloatField("Roll / Z", value.z);
+            value.x = DrawColoredFloatField("Pitch / X", value.x, Color.red);
+            value.y = DrawColoredFloatField("Yaw / Y", value.y, Color.green);
+            value.z = DrawColoredFloatField("Roll / Z", value.z, Color.blue);
             EditorGUI.indentLevel--;
 
             using (new EditorGUILayout.HorizontalScope())
@@ -1370,7 +1387,7 @@ namespace UPlayGround.Animation.Editor
                     value = Vector3.zero;
 
                 if (GUILayout.Button("Flip Forward", GUILayout.Height(20)))
-                    value.y = MotionEventOffsetFieldUtil.NormalizeAngle(value.y + 180f);
+                    value = MotionEventOffsetFieldUtil.FlipForwardKeepingUp(value);
             }
 
             using (new EditorGUILayout.HorizontalScope())
@@ -1383,6 +1400,35 @@ namespace UPlayGround.Animation.Editor
             }
 
             return value;
+        }
+
+        static void DrawColoredLabelField(string text, Color color)
+        {
+            GUIStyle style = new GUIStyle(EditorStyles.boldLabel);
+            style.normal.textColor = color;
+            EditorGUILayout.LabelField(text, style);
+        }
+
+        static float DrawColoredFloatField(string label, float value, Color color)
+        {
+            using (new GuiContentColorScope(color))
+                return EditorGUILayout.FloatField(label, value);
+        }
+
+        readonly struct GuiContentColorScope : IDisposable
+        {
+            readonly Color _previousColor;
+
+            public GuiContentColorScope(Color color)
+            {
+                _previousColor = GUI.contentColor;
+                GUI.contentColor = color;
+            }
+
+            public void Dispose()
+            {
+                GUI.contentColor = _previousColor;
+            }
         }
 
         // ====================================================================

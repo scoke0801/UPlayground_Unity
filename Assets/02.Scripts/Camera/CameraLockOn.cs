@@ -746,6 +746,26 @@ namespace UPlayGround.CameraSystem
             return !blocked;
         }
 
+        /// <summary>
+        /// 거리 피팅 프레이밍(LockOnFitDistance)용 대상 좌표를 제공한다.
+        /// focus = 추적 포커스(하반신), top = 대상 콜라이더 월드 상단 + 머리 위 여백.
+        /// 락온 비활성 또는 대상 없음이면 false.
+        /// </summary>
+        public bool TryGetTargetFramingPoints(float topPadding, out Vector3 focus, out Vector3 top)
+        {
+            focus = Vector3.zero;
+            top = Vector3.zero;
+            if (!IsActive || CurrentTarget == null)
+                return false;
+
+            focus = GetCurrentTargetFocusPosition();
+            top = focus;
+            // bounds는 월드 공간이라 비행/대형 대상의 실제 상단을 그대로 반영한다.
+            top.y = (_targetCollider != null ? _targetCollider.bounds.max.y : focus.y + 1f)
+                    + Mathf.Max(0f, topPadding);
+            return true;
+        }
+
         private Vector3 GetTargetFocusPosition(Transform target)
         {
             if (target == null)

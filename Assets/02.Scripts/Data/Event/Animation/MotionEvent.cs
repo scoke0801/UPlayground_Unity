@@ -60,6 +60,16 @@ namespace UPlayGround.Data.Event
         /// 이벤트 실행 (런타임)
         /// </summary>
         public abstract void Execute(GameObject target);
+
+        /// <summary>
+        /// 서브프레임 보정용 Execute. <paramref name="subFrameFraction"/>은 이벤트의 글로벌 시작 시각이
+        /// 직전 프레임(lastTime)과 현재 프레임(currentTime) 사이 어디에 위치하는지를 [0,1]로 나타낸다.
+        /// RequiresPostEvaluation 공간 이벤트(SlashVFX 등)는 이 값으로 직전/현재 프레임 포즈를 보간해,
+        /// 발화 프레임의 오버슈트(프레임 타이밍 변동)와 무관하게 항상 동일한 모션 시점 위치에서 샘플링한다.
+        /// 분율이 필요 없는 이벤트는 기존 Execute로 위임한다.
+        /// </summary>
+        public virtual void Execute(GameObject target, float subFrameFraction) => Execute(target);
+
         public abstract void OnCompleteEvent(GameObject target);
     }
 

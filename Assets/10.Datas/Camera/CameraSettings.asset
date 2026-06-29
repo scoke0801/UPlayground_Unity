@@ -23,6 +23,8 @@ MonoBehaviour:
   rotationSpeed: 20
   minVerticalAngle: 0
   maxVerticalAngle: 50
+  gamepadYawSpeed: 220
+  gamepadPitchSpeed: 140
   slopeCheckDistance: 1.5
   slopePitchCorrectionStrength: 0.5
   slopeCorrectionSmoothTime: 0.3
@@ -169,6 +171,12 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   lockOnOrbitSmoothTime: 0.15
+  enableLockOnFitDistance: 1
+  lockOnFitSafeFraction: 0.78
+  lockOnFitMaxDistance: 13
+  lockOnFitTopPadding: 0.4
+  lockOnFitMinHeightDiff: 1
+  lockOnFitSmoothTime: 0.35
   crowdZoomOutDistance: 7.4
   crowdDetectRadius: 12
   crowdEnemyThreshold: 3

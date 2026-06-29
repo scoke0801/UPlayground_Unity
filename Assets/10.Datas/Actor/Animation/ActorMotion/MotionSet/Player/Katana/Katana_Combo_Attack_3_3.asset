@@ -43,7 +43,7 @@ MonoBehaviour:
     - rid: 889910008326652161
       type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.3162557
+        startTime: 0.3276523
         endTime: 0.75217575
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
@@ -54,11 +54,12 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0, y: -0.3, z: 0}
+        positionOffset: {x: 0.59, y: 0.31, z: -1.1}
         rotationSpace: 1
-        rotationOffset: {x: -40, y: 116, z: 144}
+        rotationOffset: {x: -199.5, y: 108.47, z: 182.7}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031959771152513
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

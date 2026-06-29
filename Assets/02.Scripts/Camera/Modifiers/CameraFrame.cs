@@ -45,5 +45,12 @@ namespace UPlayGround.CameraSystem
         /// LockOn.EvaluatePivotOffset()가 부작용(스무딩)을 가지므로 프레임당 1회만 계산하기 위함.
         /// </summary>
         public Vector3 PivotBase;
+
+        /// <summary>
+        /// 이번 프레임 카메라 거리 클램프 상한. 0이면 settings.maxDistance를 사용한다.
+        /// LockOnFitDistance(670)가 상단·공중 대상 프레이밍을 위해 일반 max를 넘겨 설정하고,
+        /// Follow(700)/Collision(800)이 거리 클램프 상한으로 소비한다.
+        /// </summary>
+        public float DistanceCeiling;
     }
 }

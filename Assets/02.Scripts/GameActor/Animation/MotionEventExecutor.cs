@@ -23,7 +23,15 @@ namespace UPlayGround.Animation
 
         // RequiresPostEvaluation 이벤트는 발화 결정(UpdateTime)과 실제 Execute를 분리해,
         // 본 평가가 끝난 뒤 FlushDeferredEvents(LateUpdate)에서 실행한다.
-        private List<MotionEventBase> _deferredExecute = new List<MotionEventBase>();
+        // 발화 프레임의 포즈는 eventStart를 0~한 프레임만큼 오버슈트하므로, eventStart가
+        // [_lastTime, _currentTime] 구간 어디에 위치하는지(subFrameFraction)를 함께 보관해
+        // 공간 이벤트가 직전/현재 프레임 포즈를 보간하도록 한다.
+        private struct DeferredEvent
+        {
+            public MotionEventBase evt;
+            public float subFrameFraction;
+        }
+        private List<DeferredEvent> _deferredExecute = new List<DeferredEvent>();
 
         // 인스펙터에서 _targetObject를 지정하지 않은 경우, 부모의 GameActor를 자동 탐색해 캐싱한다.
         // 모션 이벤트들은 target.GetComponent<GameActor>() 로 액터를 찾으므로,
@@ -117,7 +125,7 @@ namespace UPlayGround.Animation
                     // 공간 샘플링 이벤트는 본 평가 후 실행해야 하므로 Execute만 LateUpdate로 미룬다.
                     // active/complete 추적은 기존과 동일하게 이 시점에 등록한다.
                     if (evt.RequiresPostEvaluation)
-                        _deferredExecute.Add(evt);
+                        _deferredExecute.Add(new DeferredEvent { evt = evt, subFrameFraction = ComputeSubFrameFraction(evt) });
                     else
                         ExecuteEvent(evt);
 
@@ -136,13 +144,30 @@ namespace UPlayGround.Animation
         }
 
         /// <summary>
+        /// 이벤트의 글로벌 시작 시각이 [_lastTime, _currentTime] 구간 어디에 위치하는지 [0,1]로 환산.
+        /// 0 = 직전 프레임 포즈, 1 = 현재 프레임 포즈. 공간 이벤트의 프레임 간 보간에 사용한다.
+        /// </summary>
+        float ComputeSubFrameFraction(MotionEventBase evt)
+        {
+            float span = _currentTime - _lastTime;
+            if (span <= 1e-6f) return 1f; // 시간이 흐르지 않은 프레임은 현재 포즈 사용
+
+            // 캐시된 globalStartTimeOffset 대신 발화 검출과 동일한 누적으로 즉석 재계산(포즈시간과 기준 일치).
+            float eventStartGlobal = _currentMotionSet != null && _currentMotionSet.TryGetEventGlobalStart(evt, out float gs)
+                ? gs
+                : evt.startTime + evt.globalStartTimeOffset;
+
+            return Mathf.Clamp01((eventStartGlobal - _lastTime) / span);
+        }
+
+        /// <summary>
         /// 이벤트 실행
         /// </summary>
-        void ExecuteEvent(MotionEventBase evt)
+        void ExecuteEvent(MotionEventBase evt, float subFrameFraction = 1f)
         {
             if (evt == null) return;
 
-            evt.Execute(TargetObject);
+            evt.Execute(TargetObject, subFrameFraction);
             MotionSetEventDebugOverlay.RecordEvent(
                 $"Start {evt.GetShortLabel()} @{_currentTime:F2}s");
         }
@@ -157,7 +182,7 @@ namespace UPlayGround.Animation
             if (_deferredExecute.Count == 0) return;
 
             for (int i = 0; i < _deferredExecute.Count; i++)
-                ExecuteEvent(_deferredExecute[i]);
+                ExecuteEvent(_deferredExecute[i].evt, _deferredExecute[i].subFrameFraction);
 
             _deferredExecute.Clear();
         }

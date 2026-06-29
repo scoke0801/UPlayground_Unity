@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Animations;
 using Animancer;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Actor.Animation;
@@ -154,6 +155,7 @@ namespace UPlayGround.Animation.Editor
         void OnEnable()
         {
             _drawer = new MotionSetDrawer(() => _asset, Repaint, OnSelectedMotionChanged);
+            ConfigureMotionSetDrawer(_drawer);
 
             // ⑤ EditorPrefs 복원
             LoadEditorPrefs();
@@ -179,11 +181,13 @@ namespace UPlayGround.Animation.Editor
             SaveWarpTargetPrefs();
 
             DestroyWarpTarget();
+            DestroySlashVfxPreview();
 
             EditorApplication.update -= OnEditorUpdate;
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
             SceneView.duringSceneGui -= OnSceneGUI;
             ReleaseMotionToolInputLock();
+            ClearSlashVfxSceneTuneGameViewGizmo();
             // 창을 닫을 때 잠금 배너도 함께 정리(OnDisable에선 UpdatePlayerPreviewLock이 더는 안 돈다).
             if (_previewLockIndicatorOn)
             {
@@ -547,6 +551,8 @@ namespace UPlayGround.Animation.Editor
         void OnEditorUpdate()
         {
             AbortWarpBakeIfNeeded(); // Play 모드/재생이 끊긴 채 베이크 중이면 설정 안전 복원
+            PublishSlashVfxSceneTuneGameViewGizmo();
+            UpdateSlashVfxPreviewPose();
 
             // 프리뷰 세션 동안(= 플레이모드에서 타깃에 바인딩된 동안) 플레이어 입력을 지속적으로
             // 잠근다. 과거엔 활성 재생 중에만 잠갔던 탓에, 비루프 모션이 끝나면(StopPlayback) 잠금이
@@ -851,6 +857,7 @@ namespace UPlayGround.Animation.Editor
             DrawRootMotionGizmo();
             DrawWarpTargetSceneHandle();
             DrawCombatHitboxGizmo(sceneView);
+            DrawSlashVfxSceneTuneHandle(sceneView);
 
             if (!_showSceneEventOverlay) return;
             if (!_isPlaying || _targetActor == null) return;
@@ -923,7 +930,20 @@ namespace UPlayGround.Animation.Editor
                 showFrames = prevShowFrames,
                 fps        = prevFps,
             };
+            ConfigureMotionSetDrawer(_drawer);
             _drawer.SelectFirstMotionForAsset(_asset?.motionSet);
+        }
+
+        void ConfigureMotionSetDrawer(MotionSetDrawer drawer)
+        {
+            if (drawer == null)
+                return;
+
+            drawer.onDrawEventToolPanel = evt =>
+            {
+                if (evt is SlashVFXEvent slashEvent)
+                    DrawSlashVfxSceneTunePanel(GetCurrentMotionSet(), slashEvent);
+            };
         }
 
         void OnSelectedMotionChanged(int previousIndex, int selectedIndex)
@@ -2435,6 +2455,7 @@ namespace UPlayGround.Animation.Editor
         void StartPlayback()
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
+            DestroySlashVfxPreview();
 
             var motionSet = GetCurrentMotionSet();
             // 입력 잠금 수명은 UpdatePlayerPreviewLock(매 프레임)이 단독 관리하므로 여기서 직접
@@ -2589,7 +2610,7 @@ namespace UPlayGround.Animation.Editor
         }
             
         // 특정 시간으로 재생 위치 이동
-        void SeekToTime(float time)
+        void SeekToTime(float time, bool executeEvents = true)
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
 
@@ -2615,12 +2636,14 @@ namespace UPlayGround.Animation.Editor
             
             // 이벤트 실행 기록 초기화
             _executedEvents?.Clear();
-            
-            ExecuteActiveEvents(GetCurrentMotionSet());
-            
+
             // Animancer 상태 업데이트
             UpdateAnimancerPlayback();
-            
+            _animancer.Evaluate();
+
+            if (executeEvents)
+                ExecuteActiveEvents(GetCurrentMotionSet());
+
             Repaint();
         }
         
@@ -2669,6 +2692,7 @@ namespace UPlayGround.Animation.Editor
         void ExecuteActiveEvents(MotionSet motionSet)
         {
             if (_targetActor == null || motionSet == null) return;
+            EnsureEventRuntimeCollections();
 
             if (motionSet.globalEvents != null)
             {
@@ -2698,15 +2722,21 @@ namespace UPlayGround.Animation.Editor
 
         void TryStartEvent(MotionEventBase evt, float eventGlobalStart)
         {
+            EnsureEventRuntimeCollections();
+
             bool justStarted = eventGlobalStart > _previousTime && eventGlobalStart <= _playbackTime;
             if (!justStarted || _executedEvents.Contains(evt)) return;
 
             try
             {
-                evt.Execute(_targetActor);
+                if (evt.RequiresPostEvaluation)
+                    ExecutePostEvaluationEventAtTime(evt, eventGlobalStart);
+                else
+                    evt.Execute(_targetActor);
+
                 _executedEvents.Add(evt);
                 _activeEvents.Add(evt);
-                RecordEventLog($"Start {evt.GetShortLabel()} @{_playbackTime:F2}s");
+                RecordEventLog($"Start {evt.GetShortLabel()} @{eventGlobalStart:F2}s");
             }
             catch (System.Exception e)
             {
@@ -2716,6 +2746,7 @@ namespace UPlayGround.Animation.Editor
         
         void ProcessCompletedEvents(MotionSet motionSet)
         {
+            EnsureEventRuntimeCollections();
             var toRemove = new System.Collections.Generic.List<MotionEventBase>();
     
             foreach (var evt in _activeEvents)
@@ -2748,6 +2779,8 @@ namespace UPlayGround.Animation.Editor
         // 이벤트를 실행하고 기록하는 헬퍼 메서드
         void CheckAndExecuteEvent(MotionEventBase evt, float prevTime, float currTime)
         {
+            EnsureEventRuntimeCollections();
+
             // 이벤트의 시작 시간이 이전 프레임과 현재 프레임 사이에 있는지 확인
             bool justStarted = evt.startTime >= prevTime && evt.startTime <= currTime;
 
@@ -2765,6 +2798,115 @@ namespace UPlayGround.Animation.Editor
                     Debug.LogError($"이벤트 실행 중 오류: {evt.GetDisplayName()}\n{e.Message}");
                 }
             }
+        }
+
+        void ExecutePostEvaluationEventAtTime(MotionEventBase evt, float eventGlobalStart)
+        {
+            if (_animancer == null || evt == null)
+            {
+                evt?.Execute(_targetActor);
+                return;
+            }
+
+            float restoreTime = _playbackTime;
+            bool restored = false;
+
+            // 에디터 프리뷰는 SetAnimancerPoseOnly + SyncParentConstraints로 블레이드를 eventStart 포즈에
+            // 정확히 배치한다. 그런데 evt.Execute → SlashVFXEvent.Execute(target,1f)가 런타임 서브프레임
+            // 보간(BeginInterpolatedBladePose)을 호출하면, 스포너의 "라이브(playbackTime) 손 스냅샷"으로
+            // 무기를 다시 덮어써 방금 잡은 eventStart 포즈가 무효화된다. 그래서 이 구간만 보간을 끈다.
+            bool prevInterp = FX.WeaponSlashVfxSpawner.EnableSubFrameInterpolation;
+            FX.WeaponSlashVfxSpawner.EnableSubFrameInterpolation = false;
+            try
+            {
+                SetAnimancerPoseOnly(eventGlobalStart);
+                // 무기/블레이드는 주손 본에 ParentConstraint로 부착돼 한 프레임 지연된다.
+                // Evaluate()는 손 본만 옮기고 콘스트레인트는 재해석하지 않으므로, 여기서 소스(손)
+                // 기준으로 콘스트레인트를 즉석 재계산해 블레이드를 eventStart 포즈로 동기화한다.
+                SyncParentConstraintsToSources(_targetActor);
+                evt.Execute(_targetActor);
+            }
+            finally
+            {
+                FX.WeaponSlashVfxSpawner.EnableSubFrameInterpolation = prevInterp;
+                if (!Mathf.Approximately(restoreTime, eventGlobalStart))
+                {
+                    SetAnimancerPoseOnly(restoreTime);
+                    SyncParentConstraintsToSources(_targetActor);
+                    restored = true;
+                }
+            }
+
+            if (restored)
+                SceneView.RepaintAll();
+        }
+
+        // 타깃의 ParentConstraint들을 소스(주손 본 등) 기준으로 즉석 재계산해 강체 부착물(무기/블레이드)을
+        // 현재 손 포즈에 맞춘다. SetAnimancerPoseOnly로 본을 옮긴 직후 호출해야 블레이드가 그 포즈를 따른다.
+        // 단일 소스(weight 1) 강체 부착 기준. 콘스트레인트는 다음 프레임 자동 재해석되므로 영구 변경 아님.
+        void SyncParentConstraintsToSources(GameObject target)
+        {
+            if (target == null)
+                return;
+
+            ParentConstraint[] constraints = target.GetComponentsInChildren<ParentConstraint>(true);
+            foreach (ParentConstraint pc in constraints)
+            {
+                if (pc == null || !pc.constraintActive || pc.sourceCount == 0)
+                    continue;
+
+                ConstraintSource src = pc.GetSource(0);
+                if (src.sourceTransform == null || src.weight <= 0f)
+                    continue;
+
+                // 런타임 스폰과 동일한 오프셋 공식을 공유한다(양 경로 결과 일치 보장).
+                Transform s = src.sourceTransform;
+                FX.WeaponSlashVfxSpawner.PlaceConstrainedFromSourcePose(pc, s.position, s.rotation);
+            }
+        }
+
+        void SetAnimancerPoseOnly(float globalTime)
+        {
+            MotionSet motionSet = GetCurrentMotionSet();
+            if (_animancer == null || motionSet == null)
+                return;
+
+            if (!motionSet.GetMotionAtTime(globalTime, out int motionIndex, out float localTime))
+                return;
+
+            if (motionIndex < 0 || motionIndex >= motionSet.motions.Count)
+                return;
+
+            Motion motion = motionSet.motions[motionIndex];
+            if (motion == null || !motion.IsValid())
+                return;
+
+            // fade 0 즉시 전환 + 대상 상태 weight=1 강제. 공격 진입 크로스페이드가 진행 중이면 outgoing
+            // 상태가 잔여 weight로 Evaluate에서 블렌드돼, 같은 eventStart인데도 포즈가 라이브 시간에 따라
+            // 흔들린다(블레이드가 호를 그림). 단일 상태로 격리해 eventStart의 순수 모션 포즈를 결정적으로 만든다.
+            var state = _animancer.Play(motion.motionClip, 0f);
+            float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+            state.Time = motion.ClipStartTime + localTime * spd;
+            state.Speed = (_isPaused || !_isPlaying) ? 0f : motion.playbackSpeed * _playbackSpeed;
+            state.Weight = 1f;
+            state.Events(this).OnEnd = null;
+
+            // 같은 레이어의 다른(빠져나가는) 상태들을 0으로 눌러 블렌드 잔재를 완전히 제거한다.
+            AnimancerLayer layer = state.Layer;
+            for (int i = 0; i < layer.ChildCount; i++)
+            {
+                AnimancerState other = layer.GetChild(i);
+                if (other != null && other != state)
+                    other.Weight = 0f;
+            }
+
+            _animancer.Evaluate();
+        }
+
+        void EnsureEventRuntimeCollections()
+        {
+            _executedEvents ??= new System.Collections.Generic.HashSet<MotionEventBase>();
+            _activeEvents ??= new System.Collections.Generic.HashSet<MotionEventBase>();
         }
         
         // ── 에셋 미선택 상태 ──
@@ -2890,6 +3032,7 @@ namespace UPlayGround.Animation.Editor
             _useTemporarySet = true;
             _asset = null;
             _drawer = new MotionSetDrawer(() => null, Repaint, OnSelectedMotionChanged);
+            ConfigureMotionSetDrawer(_drawer);
             
             Debug.Log("임시 MotionSet이 생성되었습니다. 에셋으로 저장하려면 '새로 만들기'를 사용하세요.");
         }

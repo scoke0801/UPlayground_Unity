@@ -27,10 +27,76 @@ MonoBehaviour:
       - rid: 5792125030652444813
       - rid: 5792125030652444814
       - rid: 5792125030652444815
+      - rid: 889910219224383597
+      - rid: 889910219224383602
+      - rid: 889910219224383601
+      - rid: 889910219224383600
+      - rid: 889910219224383599
+      - rid: 889910219224383598
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383597
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.21938461
+        endTime: 0.7193846
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383598
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 3.0672505
+        endTime: 3.5672505
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383599
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.3720577
+        endTime: 2.8720577
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383600
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.867758
+        endTime: 2.367758
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383601
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.1269789
+        endTime: 1.6269789
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383602
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7993266
+        endTime: 1.2993264
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 5792125030652444811
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

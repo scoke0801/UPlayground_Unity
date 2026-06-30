@@ -29,6 +29,7 @@ MonoBehaviour:
     requiredCount: 1
   reward:
     gold: 0
+    exp: 0
     items:
     - itemId: 200001
       count: 5

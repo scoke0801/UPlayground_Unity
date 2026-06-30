@@ -58,6 +58,7 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031959771152519
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -101,7 +102,7 @@ MonoBehaviour:
     - rid: 5792125035945394309
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 0.51911277
+        startTime: 0.47295898
         endTime: 0.63591313
         globalStartTimeOffset: 0
         hitPhaseIndex: 0

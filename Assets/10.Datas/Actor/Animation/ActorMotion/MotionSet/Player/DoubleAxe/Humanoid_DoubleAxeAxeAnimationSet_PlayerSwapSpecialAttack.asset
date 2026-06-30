@@ -24,10 +24,43 @@ MonoBehaviour:
       - rid: 7432452544598638619
       - rid: 7432452548399988930
       - rid: 7432452548399988931
+      - rid: 889910219224383571
+      - rid: 889910219224383573
+      - rid: 889910219224383572
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383571
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.4730108
+        endTime: 1.9730108
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383572
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 3.4290926
+        endTime: 3.9290926
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383573
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.2182035
+        endTime: 2.7182035
+        globalStartTimeOffset: 0
+        soundKey: Attack_Kick
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452544598638619
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -43,7 +76,7 @@ MonoBehaviour:
         endTime: 2.587677
         globalStartTimeOffset: 0
         hitPhaseIndex: 1
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: RightFoot
     - rid: 7432452548399988931
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

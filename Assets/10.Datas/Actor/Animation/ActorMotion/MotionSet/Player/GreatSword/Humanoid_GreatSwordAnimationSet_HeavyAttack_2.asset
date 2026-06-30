@@ -39,7 +39,7 @@ MonoBehaviour:
         startTime: 0.415976
         endTime: 0.915976
         globalStartTimeOffset: 0
-        soundKey: DualBlade_Attack_Heavy
+        soundKey: GreatSword_Attack_Heavy
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
@@ -49,7 +49,7 @@ MonoBehaviour:
         startTime: 0.90759426
         endTime: 1.4075943
         globalStartTimeOffset: 0
-        soundKey: DualBlade_Attack_Heavy
+        soundKey: GreatSword_Attack_Heavy
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
@@ -72,6 +72,7 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         scale: 1
         destroyDelay: 2
+        attachToActor: 1
     - rid: 889910011055833245
       type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -91,6 +92,7 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         scale: 1
         destroyDelay: 2
+        attachToActor: 1
     - rid: 7432452531840876575
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

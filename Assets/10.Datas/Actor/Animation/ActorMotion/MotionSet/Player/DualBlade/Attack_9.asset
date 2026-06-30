@@ -25,10 +25,32 @@ MonoBehaviour:
       - rid: 7432452542259527837
       - rid: 7432452542259527838
       - rid: 7432452542259527840
+      - rid: 889910219224383527
+      - rid: 889910219224383528
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383527
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.16809991
+        endTime: 0.6680998
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383528
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.4387692
+        endTime: 0.9387691
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452542259527836
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -67,6 +89,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: -0.09844979, y: 0, z: 0.83975863}
         bakedPathLen: 0.84763545
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452542259527837
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -74,7 +98,7 @@ MonoBehaviour:
         endTime: 0.34936523
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: SubWeapon
     - rid: 7432452542259527838
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

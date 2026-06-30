@@ -32,5 +32,5 @@ MonoBehaviour:
   _sweepStepDistance: 0.15
   _maxSweepSteps: 8
   _chainSegmentStride: 1
-  _chainRadius: 0.5
+  _chainRadius: 0.15
   _boneRules: []

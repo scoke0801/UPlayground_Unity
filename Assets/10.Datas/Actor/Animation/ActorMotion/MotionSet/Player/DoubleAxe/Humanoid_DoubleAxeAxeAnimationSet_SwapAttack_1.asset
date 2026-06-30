@@ -48,6 +48,7 @@ MonoBehaviour:
         rotationOffset: {x: 119.9, y: 90, z: 0}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 889910008326652142
       type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

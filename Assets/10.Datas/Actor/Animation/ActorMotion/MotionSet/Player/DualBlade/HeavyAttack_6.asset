@@ -25,10 +25,43 @@ MonoBehaviour:
       - rid: 7432452542259527865
       - rid: 7432452542259527866
       - rid: 7432452542259527867
+      - rid: 889910219224383539
+      - rid: 889910219224383541
+      - rid: 889910219224383540
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383539
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.17664734
+        endTime: 0.6766473
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383540
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7594385
+        endTime: 1.2594385
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383541
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.39189804
+        endTime: 0.89189804
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452542259527864
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

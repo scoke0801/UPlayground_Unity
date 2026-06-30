@@ -26,10 +26,43 @@ MonoBehaviour:
       - rid: 7432452542259527846
       - rid: 7432452542259527847
       - rid: 7432452542259527848
+      - rid: 889910219224383530
+      - rid: 889910219224383532
+      - rid: 889910219224383531
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383530
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.30770826
+        endTime: 0.80770826
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383531
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0472026
+        endTime: 1.5472026
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383532
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.63692504
+        endTime: 1.136925
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452542259527844
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -68,6 +101,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.021043573, y: 0, z: -0.024916759}
         bakedPathLen: 0.09413002
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452542259527845
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

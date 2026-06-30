@@ -27,10 +27,65 @@ MonoBehaviour:
       - rid: 7432452542259527879
       - rid: 7432452542259527880
       - rid: 7432452542259527881
+      - rid: 889910219224383547
+      - rid: 889910219224383551
+      - rid: 889910219224383550
+      - rid: 889910219224383549
+      - rid: 889910219224383548
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383547
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.643908
+        endTime: 1.1439077
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383548
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0614485
+        endTime: 1.5614485
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383549
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.958879
+        endTime: 1.458879
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383550
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.78508085
+        endTime: 1.2850808
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383551
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.68536055
+        endTime: 1.1853606
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452542259527876
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

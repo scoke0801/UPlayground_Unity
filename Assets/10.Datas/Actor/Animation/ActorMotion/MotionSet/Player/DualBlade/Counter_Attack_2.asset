@@ -22,10 +22,21 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7432452549191925890
+      - rid: 889910219224383558
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383558
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.7322317
+        endTime: 1.2322316
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452549191925890
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

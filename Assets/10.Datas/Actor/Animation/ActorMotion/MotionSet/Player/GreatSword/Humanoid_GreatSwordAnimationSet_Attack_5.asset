@@ -36,7 +36,7 @@ MonoBehaviour:
         startTime: 0.53279114
         endTime: 1.0327911
         globalStartTimeOffset: 0
-        soundKey: DualBlade_Attack_Light
+        soundKey: GreatSword_Attack_Light
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
@@ -59,6 +59,7 @@ MonoBehaviour:
         rotationOffset: {x: 90, y: 90, z: 0}
         scale: 1
         destroyDelay: 2
+        attachToActor: 1
     - rid: 7432452531840876553
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

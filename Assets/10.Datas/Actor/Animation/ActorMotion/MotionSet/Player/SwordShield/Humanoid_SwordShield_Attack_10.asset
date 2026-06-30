@@ -24,10 +24,32 @@ MonoBehaviour:
       - rid: 7432452529509105882
       - rid: 7432452529509105883
       - rid: 7432452529509105885
+      - rid: 889910219224383498
+      - rid: 889910219224383499
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383498
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.11396603
+        endTime: 0.613966
+        globalStartTimeOffset: 0
+        soundKey: SwordShield_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383499
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.51156235
+        endTime: 1.0115622
+        globalStartTimeOffset: 0
+        soundKey: SwordShield_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452529509105882
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -66,6 +88,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: -0.023208575, y: 0, z: 0.34387925}
         bakedPathLen: 0.4035392
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452529509105883
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

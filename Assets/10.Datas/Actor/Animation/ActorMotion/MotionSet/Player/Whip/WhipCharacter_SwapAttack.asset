@@ -22,10 +22,21 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7399917016132091904
+      - rid: 889910219224383620
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383620
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.23647946
+        endTime: 0.73647946
+        globalStartTimeOffset: 0
+        soundKey: Attack_Kick
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7399917016132091904
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -33,4 +44,4 @@ MonoBehaviour:
         endTime: 0.5162395
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-        hitboxGroupId: MainWeapon
+        hitboxGroupId: RightFoot

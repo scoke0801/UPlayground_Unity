@@ -25,10 +25,54 @@ MonoBehaviour:
       - rid: 7432452544598638641
       - rid: 7432452544598638642
       - rid: 7432452544598638643
+      - rid: 889910219224383567
+      - rid: 889910219224383570
+      - rid: 889910219224383569
+      - rid: 889910219224383568
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383567
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8974824
+        endTime: 1.3974824
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383568
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3976482
+        endTime: 1.8976481
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383569
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2380956
+        endTime: 1.7380956
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383570
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.1041857
+        endTime: 1.6041857
+        globalStartTimeOffset: 0
+        soundKey: DoubleAxe_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452544598638640
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

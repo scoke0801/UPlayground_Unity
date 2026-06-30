@@ -27,6 +27,7 @@ MonoBehaviour:
     requiredCount: 1
   reward:
     gold: 0
+    exp: 0
     items: []
   isRepeatable: 0
   autoComplete: 0

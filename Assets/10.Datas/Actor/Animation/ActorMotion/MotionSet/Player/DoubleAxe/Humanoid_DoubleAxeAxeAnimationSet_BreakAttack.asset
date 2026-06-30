@@ -104,3 +104,4 @@ MonoBehaviour:
         rotationOffset: {x: 90, y: 90, z: 0}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1

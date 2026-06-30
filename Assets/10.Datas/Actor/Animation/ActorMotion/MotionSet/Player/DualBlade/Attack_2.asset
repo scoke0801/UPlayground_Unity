@@ -24,10 +24,21 @@ MonoBehaviour:
       - rid: 7432452542259527812
       - rid: 7432452542259527813
       - rid: 7432452542259527814
+      - rid: 889910219224383519
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383519
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.2193846
+        endTime: 0.7193846
+        globalStartTimeOffset: 0
+        soundKey: DualBlade_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452542259527812
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -66,6 +77,8 @@ MonoBehaviour:
         bakedValid: 1
         bakedLocalTotal: {x: 0.0074265096, y: 0, z: 0.7945171}
         bakedPathLen: 0.82599294
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452542259527813
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

@@ -28,10 +28,65 @@ MonoBehaviour:
       - rid: 5792125030652444798
       - rid: 5792125030652444799
       - rid: 7432452548399988917
+      - rid: 889910219224383580
+      - rid: 889910219224383582
+      - rid: 889910219224383581
+      - rid: 889910219224383583
+      - rid: 889910219224383584
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383580
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.15100498
+        endTime: 0.65100497
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383581
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.8164215
+        endTime: 1.3164215
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383582
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.37480316
+        endTime: 0.8748031
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383583
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3279841
+        endTime: 1.8279841
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383584
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.8309989
+        endTime: 2.3309987
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 5792125030652444794
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

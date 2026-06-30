@@ -71,6 +71,7 @@ MonoBehaviour:
         rotationOffset: {x: 30.3, y: -231.1, z: -148.9}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 889910008326652166
       type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -90,6 +91,7 @@ MonoBehaviour:
         rotationOffset: {x: -150, y: 140, z: 144}
         scale: 0.7
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031959771152517
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

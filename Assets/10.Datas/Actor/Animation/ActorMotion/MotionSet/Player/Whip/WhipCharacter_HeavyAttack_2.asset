@@ -25,10 +25,43 @@ MonoBehaviour:
       - rid: 5792125030652444801
       - rid: 5792125030652444802
       - rid: 7432452548399988918
+      - rid: 889910219224383585
+      - rid: 889910219224383587
+      - rid: 889910219224383586
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383585
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.25642353
+        endTime: 0.75642353
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383586
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3834025
+        endTime: 1.8834025
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383587
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.85915875
+        endTime: 1.3591588
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Light
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 5792125030652444800
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

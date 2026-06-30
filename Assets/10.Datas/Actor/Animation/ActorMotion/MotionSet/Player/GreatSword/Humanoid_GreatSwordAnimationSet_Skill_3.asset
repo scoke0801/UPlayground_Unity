@@ -23,6 +23,7 @@ MonoBehaviour:
       events:
       - rid: 7432452531840876596
       - rid: 889909689146671298
+      - rid: 889910219224383562
     globalEvents: []
   references:
     version: 2
@@ -67,6 +68,16 @@ MonoBehaviour:
         bakedPathLen: 0
         bakedStartTime: 0
         bakedEndTime: 0
+    - rid: 889910219224383562
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 2.0998237
+        endTime: 2.5998237
+        globalStartTimeOffset: 0
+        soundKey: GreatSword_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 7432452531840876596
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

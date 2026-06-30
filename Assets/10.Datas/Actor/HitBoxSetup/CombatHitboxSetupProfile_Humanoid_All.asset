@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5ac3ec8b4ab42388a46b11f9e423031, type: 3}
+  m_Name: CombatHitboxSetupProfile_Humanoid_All
+  m_EditorClassIdentifier: 
+  _profileId: Humanoid_Hand
+  _targetKind: 1
+  _defaultGroupId: Hand
+  _preferredShape: 0
+  _includeNamePatterns: []
+  _excludeNamePatterns:
+  - Sheath
+  - Scabbard
+  - Effect
+  - Trail
+  - VFX
+  - FX
+  _padding: 0.02
+  _minimumThickness: 0.04
+  _axisTrimStart: 0
+  _axisTrimEnd: 0
+  _useSweep: 1
+  _sweepStepDistance: 0.15
+  _maxSweepSteps: 8
+  _chainSegmentStride: 1
+  _chainRadius: 0.08
+  _boneRules:
+  - groupId: RightHand
+    humanoidBone: 18
+    shape: 1
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.22, y: 0.22, z: 0.34}
+  - groupId: LeftHand
+    humanoidBone: 17
+    shape: 1
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.22, y: 0.22, z: 0.34}
+  - groupId: RightFoot
+    humanoidBone: 6
+    shape: 1
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.22, y: 0.22, z: 0.42}
+  - groupId: LeftFoot
+    humanoidBone: 5
+    shape: 1
+    center: {x: 0, y: 0, z: 0.04}
+    size: {x: 0.22, y: 0.22, z: 0.42}

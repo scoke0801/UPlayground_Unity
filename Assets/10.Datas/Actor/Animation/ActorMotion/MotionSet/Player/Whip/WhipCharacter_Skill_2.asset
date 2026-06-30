@@ -28,18 +28,93 @@ MonoBehaviour:
       - rid: 5792125030652444823
       - rid: 5792125030652444824
       - rid: 5792125030652444825
+      - rid: 889910219224383608
+      - rid: 889910219224383614
+      - rid: 889910219224383613
+      - rid: 889910219224383612
+      - rid: 889910219224383611
+      - rid: 889910219224383610
+      - rid: 889910219224383609
     globalEvents: []
   references:
     version: 2
     RefIds:
+    - rid: 889910219224383608
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.26497102
+        endTime: 0.764971
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383609
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.8022277
+        endTime: 2.3022277
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383610
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.3891008
+        endTime: 1.8891008
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383611
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.2295482
+        endTime: 1.7295482
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383612
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 1.0386553
+        endTime: 1.5386554
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383613
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.88480115
+        endTime: 1.3848011
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
+    - rid: 889910219224383614
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.69675714
+        endTime: 1.1967573
+        globalStartTimeOffset: 0
+        soundKey: Whip_Attack_Heavy
+        audioClip: {fileID: 0}
+        volume: 1
+        is3D: 1
     - rid: 5792125030652444820
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
         startTime: 0.7229667
         endTime: 0.80905116
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 1
         hitboxGroupId: MainWeapon
     - rid: 5792125030652444821
@@ -47,9 +122,7 @@ MonoBehaviour:
       data:
         startTime: 0.9045827
         endTime: 0.99066716
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 2
         hitboxGroupId: MainWeapon
     - rid: 5792125030652444822
@@ -57,9 +130,7 @@ MonoBehaviour:
       data:
         startTime: 1.0606699
         endTime: 1.1380911
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 3
         hitboxGroupId: MainWeapon
     - rid: 5792125030652444823
@@ -67,9 +138,7 @@ MonoBehaviour:
       data:
         startTime: 1.2422858
         endTime: 1.319707
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 4
         hitboxGroupId: MainWeapon
     - rid: 5792125030652444824
@@ -77,9 +146,7 @@ MonoBehaviour:
       data:
         startTime: 1.4129362
         endTime: 1.5322914
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 5
         hitboxGroupId: MainWeapon
     - rid: 5792125030652444825
@@ -87,9 +154,7 @@ MonoBehaviour:
       data:
         startTime: 1.8152025
         endTime: 1.9345577
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 6
         hitboxGroupId: MainWeapon
     - rid: 7399917016132091904
@@ -97,8 +162,6 @@ MonoBehaviour:
       data:
         startTime: 0.25102133
         endTime: 0.41033217
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon

@@ -60,6 +60,7 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         scale: 1
         destroyDelay: 2
+        attachToActor: 1
     - rid: 5792125535029297270
       type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

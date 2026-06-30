@@ -36,6 +36,12 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
         _itemCount = count;
     }
 
+    public void Clear()
+    {
+        Init(null, 0);
+        RefreshUI();
+    }
+
     public void SetParent(UI_Inventory inventory)
     {
         _parent = inventory;

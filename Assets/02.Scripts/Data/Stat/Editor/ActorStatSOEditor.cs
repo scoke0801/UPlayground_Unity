@@ -27,7 +27,7 @@ namespace UPlayGround.Editor.Stat
         // ── 슬라이더 범위 ─────────────────────────────────────────
         private static readonly Dictionary<StatType, (float min, float max)> _sliderRanges = new()
         {
-            { StatType.MaxHealth,          (0f, 999900f) },
+            { StatType.MaxHealth,          (0f, 999999f) },
             { StatType.HealthRegenRate,    (0f, 50f)   },
             { StatType.AttackPower,        (0f, 5f)    },
             { StatType.Defense,            (0f, 1f)    },

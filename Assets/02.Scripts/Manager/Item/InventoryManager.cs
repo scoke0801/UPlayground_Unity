@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UPlayGround.Component;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.Item;
@@ -8,6 +11,18 @@ using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager
 {
+    public enum InventoryActionResult
+    {
+        Success = 0,
+        InvalidItem,
+        NotEnoughCount,
+        NotUsable,
+        NotEquippable,
+        EquippedItem,
+        NoEffect,
+        Failed,
+    }
+
     public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable
     {
         private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
@@ -127,6 +142,125 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        public InventoryActionResult TryUseItem(int itemId, int count = 1)
+        {
+            if (count <= 0)
+            {
+                return InventoryActionResult.Failed;
+            }
+
+            if (!_itemPair.TryGetValue(itemId, out var item))
+            {
+                return InventoryActionResult.InvalidItem;
+            }
+
+            if (item.count < count)
+            {
+                return InventoryActionResult.NotEnoughCount;
+            }
+
+            if (item.data == null || item.data.itemType != ItemType.CONSUMABLE)
+            {
+                return InventoryActionResult.NotUsable;
+            }
+
+            if (item.data is not ConsumableSO consumableData)
+            {
+                return InventoryActionResult.NotUsable;
+            }
+
+            InventoryActionResult applyResult = TryApplyConsumable(consumableData);
+            if (applyResult != InventoryActionResult.Success)
+            {
+                return applyResult;
+            }
+
+            return UseItem(itemId, count)
+                ? InventoryActionResult.Success
+                : InventoryActionResult.Failed;
+        }
+
+        public InventoryActionResult TryEquipItem(int itemId)
+        {
+            if (!_itemPair.TryGetValue(itemId, out var item) || item.data == null)
+            {
+                return InventoryActionResult.InvalidItem;
+            }
+
+            if (item.data is not EquipmentSO equipData)
+            {
+                return InventoryActionResult.NotEquippable;
+            }
+
+            PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+            {
+                itemKey = equipData.itemId,
+                weaponType = equipData.weaponType,
+                equipPosition = equipData.equipSlot,
+                isEquip = true
+            };
+
+            if (EventManager.Instance == null)
+            {
+                return InventoryActionResult.Failed;
+            }
+
+            EventManager.Instance.Send(PlayerEvent.EquipItem, eventData);
+            return eventData.handled && eventData.succeeded
+                ? InventoryActionResult.Success
+                : InventoryActionResult.Failed;
+        }
+
+        public InventoryActionResult TryDropItem(int itemId, int count = 1)
+        {
+            if (count <= 0)
+            {
+                return InventoryActionResult.Failed;
+            }
+
+            if (!_itemPair.TryGetValue(itemId, out var item))
+            {
+                return InventoryActionResult.InvalidItem;
+            }
+
+            if (item.count < count)
+            {
+                return InventoryActionResult.NotEnoughCount;
+            }
+
+            if (IsEquippedItem(itemId))
+            {
+                return InventoryActionResult.EquippedItem;
+            }
+
+            return RemoveItem(itemId, count)
+                ? InventoryActionResult.Success
+                : InventoryActionResult.Failed;
+        }
+
+        public bool IsEquippedItem(int itemId)
+        {
+            PlayerEquipment playerEquipment = GameObjectManager.Instance?.Player?.GetPlayerEquipment();
+            if (playerEquipment == null)
+            {
+                return false;
+            }
+
+            if (playerEquipment.MainWeaponKey == itemId || playerEquipment.SubWeaponKey == itemId)
+            {
+                return true;
+            }
+
+            if (ItemManager.Instance.GetItemData(itemId) is not EquipmentSO equipment)
+            {
+                return false;
+            }
+
+            EquipArmorType armorType = ToArmorType(equipment.equipSlot);
+            return armorType != EquipArmorType.None &&
+                   playerEquipment.GetActiveEquipmentKey(armorType) == itemId;
+        }
+
         /// <summary>
         /// 퀘스트 아이템 전달 공통 API. 소비 성공 시 ItemDeliver 퀘스트 목표를 갱신한다.
         /// </summary>
@@ -244,6 +378,61 @@ namespace UPlayGround.Manager
 
         public void MakeTestItems()
         {
+        }
+
+        private static EquipArmorType ToArmorType(EquipPosition equipPosition)
+        {
+            switch (equipPosition)
+            {
+                case EquipPosition.Chest: return EquipArmorType.Chest;
+                case EquipPosition.Head: return EquipArmorType.Head;
+                case EquipPosition.Gloves: return EquipArmorType.Arm;
+                case EquipPosition.Pants: return EquipArmorType.Waist;
+                case EquipPosition.Shoes: return EquipArmorType.Leg;
+                default: return EquipArmorType.None;
+            }
+        }
+
+        private InventoryActionResult TryApplyConsumable(ConsumableSO consumableData)
+        {
+            if (consumableData == null || consumableData.amount <= 0f)
+            {
+                return InventoryActionResult.NotUsable;
+            }
+
+            var player = GameObjectManager.Instance?.Player;
+            if (player == null || !player.IsAlive())
+            {
+                return InventoryActionResult.Failed;
+            }
+
+            float beforeHealth = player.CurrentHealth;
+            switch (consumableData.effectType)
+            {
+                case ConsumableEffectType.HealFlat:
+                    if (consumableData.requireEffectiveUse && beforeHealth >= player.MaxHealth - 0.01f)
+                    {
+                        return InventoryActionResult.NoEffect;
+                    }
+                    player.Heal(consumableData.amount);
+                    break;
+                case ConsumableEffectType.HealPercent:
+                    if (consumableData.requireEffectiveUse && beforeHealth >= player.MaxHealth - 0.01f)
+                    {
+                        return InventoryActionResult.NoEffect;
+                    }
+                    player.HealPercent(consumableData.amount);
+                    break;
+                default:
+                    return InventoryActionResult.NotUsable;
+            }
+
+            if (consumableData.requireEffectiveUse && player.CurrentHealth <= beforeHealth)
+            {
+                return InventoryActionResult.NoEffect;
+            }
+
+            return InventoryActionResult.Success;
         }
 
         // ──────────────────────────────────────────────────────────

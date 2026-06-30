@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5ac3ec8b4ab42388a46b11f9e423031, type: 3}
-  m_Name: CombatHitboxSetupProfile_MainWeapon
+  m_Name: CombatHitboxSetupProfile_WhipWeapon
   m_EditorClassIdentifier: 
   _profileId: MainWeapon
   _targetKind: 0
@@ -31,4 +31,6 @@ MonoBehaviour:
   _useSweep: 1
   _sweepStepDistance: 0.15
   _maxSweepSteps: 8
+  _chainSegmentStride: 1
+  _chainRadius: 0.5
   _boneRules: []

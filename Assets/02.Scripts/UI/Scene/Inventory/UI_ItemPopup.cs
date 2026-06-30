@@ -4,8 +4,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Event;
-using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
 public class UI_ItemPopup : UI_Base
@@ -31,7 +29,7 @@ public class UI_ItemPopup : UI_Base
     {
         base.Awake();
         _closeButton.onClick.AddListener(OnClickClose);
-        _bottomButton.Button.onClick.AddListener(OnBottomButtonClick);
+        _bottomButton.BindClickResult(OnBottomButtonClick);
     }
 
     // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -55,7 +53,7 @@ public class UI_ItemPopup : UI_Base
         _cachedItemSo = itemData;
         _itemSlot.Init(itemData, count);
         
-        _itemNameText.text = itemData.name;
+        _itemNameText.text = itemData.itemName;
         _itemDescText.text = itemData.itemDescription;
         
         _itemWeightText.text = $"{InventoryManager.Instance.GetItemWeight(itemData.itemId):0.0}";
@@ -95,32 +93,47 @@ public class UI_ItemPopup : UI_Base
         Hide();
     }
     
-    private void OnBottomButtonClick()
+    private UICommonButtonClickResult OnBottomButtonClick()
     {
+        InventoryActionResult result = InventoryActionResult.Failed;
+
         // 버튼 유형에 따라서 처리
         if (_bottomButtonType == BottomButtonType.Equip)
         {
-            HandleEquip(); 
+            result = HandleEquip();
         }
-        
+        else if (_bottomButtonType == BottomButtonType.Use)
+        {
+            result = HandleUse();
+        }
+
+        if (result != InventoryActionResult.Success)
+        {
+            Debug.LogWarning($"[UI_ItemPopup] 아이템 액션 실패: {result}");
+            return UICommonButtonClickResult.Failed;
+        }
+
         Hide();
+        return UICommonButtonClickResult.Success;
     }
 
-    private void HandleEquip()
+    private InventoryActionResult HandleEquip()
     {
-        EquipmentSO equipData = _cachedItemSo as EquipmentSO;
-        if (equipData == null)
+        if (_cachedItemSo == null)
         {
-            return;
+            return InventoryActionResult.InvalidItem;
         }
-        PlayerEquipChangeEvent eventData = new PlayerEquipChangeEvent()
+
+        return InventoryManager.Instance.TryEquipItem(_cachedItemSo.itemId);
+    }
+
+    private InventoryActionResult HandleUse()
+    {
+        if (_cachedItemSo == null)
         {
-            itemKey = equipData.itemId,
-            weaponType = equipData.weaponType,
-            equipPosition = equipData.equipSlot,
-            isEquip = true
-        };
-        
-        EventManager.Instance.Send(PlayerEvent.EquipItem, eventData);  
+            return InventoryActionResult.InvalidItem;
+        }
+
+        return InventoryManager.Instance.TryUseItem(_cachedItemSo.itemId);
     }
 }

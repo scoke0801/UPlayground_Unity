@@ -26,12 +26,20 @@ namespace UPlayGround.Combat
         [Tooltip("궤적 잔상이 유지되는 시간(초). 0이면 비활성.")]
         [SerializeField, Min(0f)] private float _swingTrailDuration = 1f;
         [SerializeField] private Color _swingTrailColor = new(0.2f, 0.9f, 1f, 0.8f);
+        [Tooltip("스윙 트레일 대신 현재 HitBox 형상만 상시 표시한다(누적 없음). 세그먼트가 많은 채찍 등에서 렉 없이 보이게 한다.")]
+        [SerializeField] private bool _drawStaticShape;
+
+        // 스윙 트레일 누적 상한과 공간 데시메이션 간격.
+        // 채찍처럼 HitBox가 많을 때 트레일 샘플 폭증으로 인한 기즈모 드로콜 렉을 막는다.
+        private const int MaxTrailSamples = 96;
+        private const float TrailMinSpacing = 0.015f;
+        private const float TrailMinSpacingSqr = TrailMinSpacing * TrailMinSpacing;
 
         private CombatHitboxShape _previousShape;
         private bool _hasPreviousShape;
 
         // 활성 윈도우 동안 누적되는 궤적 샘플. 가장 오래된 것이 앞쪽(인덱스 0)에 위치한다.
-        private readonly List<TrailSample> _swingTrail = new(64);
+        private readonly List<TrailSample> _swingTrail = new(MaxTrailSamples);
 
         private readonly struct TrailSample
         {
@@ -110,9 +118,37 @@ namespace UPlayGround.Combat
             if (!_drawSwingTrail || _swingTrailDuration <= 0f)
                 return;
 
+            // 공간 데시메이션: 직전 샘플과 거의 같은 위치면 누적하지 않는다.
+            // 느린 구간/제자리 샘플의 폭증을 막아 세그먼트가 많아도 드로콜이 선형으로 늘지 않게 한다.
+            if (_swingTrail.Count > 0 &&
+                (_swingTrail[_swingTrail.Count - 1].Shape.Center - shape.Center).sqrMagnitude < TrailMinSpacingSqr)
+                return;
+
             float now = Time.time;
             _swingTrail.Add(new TrailSample(shape, now));
+            // 하드 캡: 고프레임에서 빠른 스윙이어도 샘플 수를 상한으로 묶는다(오래된 것부터 제거).
+            if (_swingTrail.Count > MaxTrailSamples)
+                _swingTrail.RemoveRange(0, _swingTrail.Count - MaxTrailSamples);
             PruneTrail(now);
+        }
+
+        /// <summary>
+        /// 세그먼트가 많은 무기(채찍 등)에서 per-세그먼트 스윙 트레일을 꺼 기즈모 드로콜 폭증을 줄인다.
+        /// 에디터 생성 도구가 체인 HitBox를 만들 때 호출한다.
+        /// </summary>
+        public void SetSwingTrailEnabled(bool enabled)
+        {
+            _drawSwingTrail = enabled;
+            if (!enabled)
+                _swingTrail.Clear();
+        }
+
+        /// <summary>
+        /// 누적 없는 상시 형상 표시를 켠다. 체인(채찍)처럼 트레일을 끈 HitBox가 선택 없이도 보이게 한다.
+        /// </summary>
+        public void SetStaticShapeEnabled(bool enabled)
+        {
+            _drawStaticShape = enabled;
         }
 
         // 수명이 다한 궤적 샘플을 앞쪽부터 제거한다. 샘플은 시간순으로 누적되므로 앞에서부터 끊으면 된다.
@@ -191,16 +227,24 @@ namespace UPlayGround.Combat
             DrawShapeWire(shape, _debugColor);
         }
 
-        // 활성 윈도우 동안 누적된 궤적을 N초간 잔상으로 표시한다.
-        // 선택 여부와 무관하게 보여야 하므로 OnDrawGizmosSelected 가 아닌 OnDrawGizmos 에서 그린다.
+        // 선택 여부와 무관하게 보여야 하는 디버그 표시(스윙 트레일/상시 형상)를 OnDrawGizmosSelected 가 아닌
+        // 여기서 그린다. 둘 다 Combat/HitboxSwingTrail 토글로 끌 수 있다.
         private void OnDrawGizmos()
         {
-            if (!_drawSwingTrail || _swingTrailDuration <= 0f || _swingTrail.Count == 0)
+            bool wantTrail = _drawSwingTrail && _swingTrailDuration > 0f && _swingTrail.Count > 0;
+            if (!wantTrail && !_drawStaticShape)
                 return;
 
             if (!DebugGizmoManager.IsLocalContentEnabled(
                     DebugGizmoCategory.Combat,
                     DebugGizmoContentType.HitboxSwingTrail))
+                return;
+
+            // 상시 형상: 누적 없이 현재 형상만 1회 그린다. 세그먼트가 많아도 비용이 선형이라 채찍에 적합.
+            if (_drawStaticShape && TryGetWorldShape(out CombatHitboxShape staticShape))
+                DrawShapeWire(staticShape, _debugColor);
+
+            if (!wantTrail)
                 return;
 
             float now = Time.time;

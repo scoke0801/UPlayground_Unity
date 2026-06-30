@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5ac3ec8b4ab42388a46b11f9e423031, type: 3}
   m_Name: CombatHitboxSetupProfile_Humanoid_Hand
   m_EditorClassIdentifier: 
-  _profileId: Bokusei_Katana
+  _profileId: Humanoid_Hand
   _targetKind: 1
   _defaultGroupId: Hand
   _preferredShape: 0
@@ -42,23 +42,3 @@ MonoBehaviour:
     shape: 1
     center: {x: 0, y: 0, z: 0.04}
     size: {x: 0.22, y: 0.22, z: 0.34}
-  - groupId: RightLowerArm
-    humanoidBone: 16
-    shape: 2
-    center: {x: 0, y: 0, z: 0}
-    size: {x: 0.16, y: 0.16, z: 0.42}
-  - groupId: LeftLowerArm
-    humanoidBone: 15
-    shape: 2
-    center: {x: 0, y: 0, z: 0}
-    size: {x: 0.16, y: 0.16, z: 0.42}
-  - groupId: RightUpperArm
-    humanoidBone: 14
-    shape: 2
-    center: {x: 0, y: 0, z: 0}
-    size: {x: 0.18, y: 0.18, z: 0.4}
-  - groupId: LeftUpperArm
-    humanoidBone: 13
-    shape: 2
-    center: {x: 0, y: 0, z: 0}
-    size: {x: 0.18, y: 0.18, z: 0.4}

@@ -45,6 +45,7 @@ namespace UPlayGround.Component
         private bool? _requestedSubWeaponDrawn = null;
         private int _mainWeaponDrawRequestVersion = 0;
         private readonly Dictionary<EquipArmorType, int> _equippedArmorItemKeys = new Dictionary<EquipArmorType, int>();
+        private readonly Dictionary<Renderer, Material[]> _builtInWeaponSharedMaterials = new Dictionary<Renderer, Material[]>();
         private readonly List<ParentConstraint> _weaponConstraints = new List<ParentConstraint>();
         private readonly List<WeaponSocketBinding> _weaponSocketBindings = new List<WeaponSocketBinding>();
         private Transform _weaponRoot;
@@ -144,7 +145,8 @@ namespace UPlayGround.Component
                 return;
             }
 
-            EquipWeapon(data.itemKey, data.equipPosition,data.weaponType);
+            bool succeeded = EquipWeapon(data.itemKey, data.equipPosition, data.weaponType);
+            data.MarkHandled(succeeded, succeeded ? null : "무기 변경 실패");
         }
 
         private IEnumerator CoEquipStartItem()
@@ -174,91 +176,111 @@ namespace UPlayGround.Component
             EquipmentSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey) as EquipmentSO;
             if (itemData == null)
             {
+                eventData.MarkHandled(false, "장비 데이터를 찾을 수 없음");
                 return;
             }
             
             if (eventData.equipPosition == EquipPosition.LeftHand)
             {
-                SetLeftWeaponType(eventData.weaponType);
-                EquipWeapon(eventData.itemKey, eventData.equipPosition, eventData.weaponType);
+                bool succeeded = EquipWeapon(eventData.itemKey, eventData.equipPosition, eventData.weaponType);
+                eventData.MarkHandled(succeeded, succeeded ? null : "왼손 무기 장착 실패");
                 return;
             }
             else if (eventData.equipPosition == EquipPosition.RightHand)
             {
-                SetRightWeaponType(eventData.weaponType);
-                EquipWeapon(eventData.itemKey, eventData.equipPosition, eventData.weaponType);
+                bool succeeded = EquipWeapon(eventData.itemKey, eventData.equipPosition, eventData.weaponType);
+                eventData.MarkHandled(succeeded, succeeded ? null : "오른손 무기 장착 실패");
                 return;
             }
             
             EquipArmorType armorType = ToArmorType(itemData.equipSlot);
             if (armorType == EquipArmorType.None)
+            {
+                eventData.MarkHandled(false, "지원하지 않는 장비 슬롯");
                 return;
+            }
 
             if (eventData.isEquip)
                 _equippedArmorItemKeys[armorType] = itemData.itemId;
             else
                 _equippedArmorItemKeys.Remove(armorType);
+
+            eventData.MarkHandled(true);
         }
 
         /// <summary>
         /// 특정 무기 장착 (아이템 시스템 연동)
         /// </summary>
-        public void EquipWeapon(int itemKey, EquipPosition equipPosition, WeaponType weaponType)
+        public bool EquipWeapon(int itemKey, EquipPosition equipPosition, WeaponType weaponType)
         {
-            DestroyEquippedWeapon(equipPosition);
-            
-            GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
-
             ParentConstraint constraint = null;
             switch (equipPosition)
             {
                 case EquipPosition.LeftHand: 
                     SetLeftWeaponType(weaponType);
                     constraint = _subWeaponConstraint;
-                    _currentSubWeaponObj = newWeapon;
-                    SubWeaponKey = itemKey;
                     break;
                 case EquipPosition.RightHand: 
                     SetRightWeaponType(weaponType);
                     constraint = _mainWeaponConstraint;
-                    _currentMainWeaponObj = newWeapon;
-                    MainWeaponKey = itemKey;
                     break;
-                default: return;
+                default:
+                    return false;
             }
-            
-            if (newWeapon != null)
+
+            DestroyEquippedWeapon(equipPosition);
+
+            GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
+            if (newWeapon == null)
             {
-                if (constraint == null)
-                {
-                    Debug.LogWarning($"[PlayerEquipment] {equipPosition}/{weaponType}에 매핑된 ParentConstraint가 없습니다.");
-                    Destroy(newWeapon);
-                    if (equipPosition == EquipPosition.LeftHand)
-                    {
-                        _currentSubWeaponObj = null;
-                        SubWeaponKey = -1;
-                    }
-                    else if (equipPosition == EquipPosition.RightHand)
-                    {
-                        _currentMainWeaponObj = null;
-                        MainWeaponKey = -1;
-                    }
-                    return;
-                }
-
-                // 1. 부모 설정: constraint가 붙은 오브젝트의 자식으로 설정
-                newWeapon.transform.SetParent(constraint.transform, false);
-
-                // 2. 위치 및 회전 초기화: 부모 오브젝트의 위치에 맞게 정렬
-                newWeapon.transform.localPosition = Vector3.zero;
+                // 슬롯은 DestroyEquippedWeapon으로 이미 비었으므로(key=-1) 타입도 NoWeapon으로 맞춘다.
+                // 그러지 않으면 stale 타입이 모션셋/Idle 분기/발도 시 빌트인 무기 복원을 오작동시킨다.
+                ResetWeaponType(equipPosition);
+                return false;
             }
+
+            if (constraint == null)
+            {
+                Debug.LogWarning($"[PlayerEquipment] {equipPosition}/{weaponType}에 매핑된 ParentConstraint가 없습니다.");
+                Destroy(newWeapon);
+                ResetWeaponType(equipPosition);
+                return false;
+            }
+
+            if (equipPosition == EquipPosition.LeftHand)
+            {
+                _currentSubWeaponObj = newWeapon;
+                SubWeaponKey = itemKey;
+            }
+            else if (equipPosition == EquipPosition.RightHand)
+            {
+                _currentMainWeaponObj = newWeapon;
+                MainWeaponKey = itemKey;
+            }
+
+            // 1. 부모 설정: constraint가 붙은 오브젝트의 자식으로 설정
+            newWeapon.transform.SetParent(constraint.transform, false);
+
+            // 2. 위치 및 회전 초기화: 부모 오브젝트의 위치에 맞게 정렬
+            newWeapon.transform.localPosition = Vector3.zero;
 
             // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.
             // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
             ForceSyncWeaponState(equipPosition, false);
             ActorWeaponTrailController.RefreshAttackTrails(this);
             GetComponentInParent<UPlayGround.Combat.CombatHitboxSet>()?.Refresh();
+            return true;
         }
+
+        // 장착 실패 슬롯의 무기 타입을 NoWeapon으로 되돌려 key(-1)/obj(null)와 일관시킨다.
+        private void ResetWeaponType(EquipPosition equipPosition)
+        {
+            if (equipPosition == EquipPosition.LeftHand)
+                SetLeftWeaponType(WeaponType.NoWeapon);
+            else if (equipPosition == EquipPosition.RightHand)
+                SetRightWeaponType(WeaponType.NoWeapon);
+        }
+
         public void SetRightWeaponType(WeaponType type)
         {
             if (_weaponConstraints.Count == 0)
@@ -299,6 +321,7 @@ namespace UPlayGround.Component
             _subWeaponConstraint = null;
             _weaponRoot = WeaponAttachmentResolver.FindWeaponRoot(transform);
             WeaponAttachmentResolver.CollectBindings(transform, _weaponRoot, _weaponConstraints, _weaponSocketBindings);
+            CacheBuiltInWeaponSharedMaterials();
         }
 
         private static EquipArmorType ToArmorType(EquipPosition equipPosition)
@@ -630,12 +653,15 @@ namespace UPlayGround.Component
         {
             if (weaponObj == null) return;
 
+            RestoreBuiltInWeaponSharedMaterials(weaponObj);
+
             var dissolve = weaponObj.GetComponent<DissolveController>();
             if (dissolve == null)
                 dissolve = weaponObj.AddComponent<DissolveController>();
 
             dissolve.CompleteDissolve(destroyOnComplete: false, onComplete: () =>
             {
+                RestoreBuiltInWeaponSharedMaterials(weaponObj);
                 foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
                     r.enabled = false;
             });
@@ -658,9 +684,12 @@ namespace UPlayGround.Component
             if (weaponObj == null) return;
             if (weaponObj.GetComponent<DissolveController>() != null) return; // 이미 진행 중 또는 완료
 
+            RestoreBuiltInWeaponSharedMaterials(weaponObj);
+
             var dissolve = weaponObj.AddComponent<DissolveController>();
             dissolve.StartDissolve(_weaponDissolveDuration, destroyOnComplete: false, onComplete: () =>
             {
+                RestoreBuiltInWeaponSharedMaterials(weaponObj);
                 foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
                     r.enabled = false;
             });
@@ -676,6 +705,8 @@ namespace UPlayGround.Component
                 dissolve.ResetDissolve();
                 Destroy(dissolve);
             }
+
+            RestoreBuiltInWeaponSharedMaterials(weaponObj);
 
             foreach (var r in weaponObj.GetComponentsInChildren<Renderer>(true))
                 r.enabled = true;
@@ -782,6 +813,44 @@ namespace UPlayGround.Component
                 if (_mainWeaponConstraint != null && child == _mainWeaponConstraint.transform) continue;
                 if (child.GetComponentInChildren<Renderer>() == null) continue;
                 RestoreBuiltInWeapon(child.gameObject);
+            }
+        }
+
+        private void CacheBuiltInWeaponSharedMaterials()
+        {
+            _builtInWeaponSharedMaterials.Clear();
+            if (_weaponRoot == null) return;
+
+            foreach (var renderer in _weaponRoot.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null) continue;
+
+                var materials = renderer.sharedMaterials;
+                if (materials == null || materials.Length == 0) continue;
+
+                bool hasValidMaterial = false;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (materials[i] == null) continue;
+                    hasValidMaterial = true;
+                    break;
+                }
+
+                if (hasValidMaterial)
+                    _builtInWeaponSharedMaterials[renderer] = (Material[])materials.Clone();
+            }
+        }
+
+        private void RestoreBuiltInWeaponSharedMaterials(GameObject weaponObj)
+        {
+            if (weaponObj == null || _builtInWeaponSharedMaterials.Count == 0) return;
+
+            foreach (var renderer in weaponObj.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null) continue;
+                if (!_builtInWeaponSharedMaterials.TryGetValue(renderer, out var materials)) continue;
+
+                renderer.sharedMaterials = materials;
             }
         }
     }

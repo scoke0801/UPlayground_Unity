@@ -51,6 +51,9 @@ namespace UPlayGround.Tool.Editor.Combat
             if (selected != null && !_resultHitboxes.Contains(selected))
             {
                 _target = selected;
+                // 대상이 바뀌면 이전 대상의 실행 결과는 무효다. ObjectField 변경 경로와 동일하게 비워
+                // "무기 분석인데 신체 결과가 보이는" 잔존 결과 혼란을 막는다.
+                _results.Clear();
                 CollectResultHitboxes();
             }
             Repaint();
@@ -88,11 +91,40 @@ namespace UPlayGround.Tool.Editor.Combat
 
             DrawProfileGuidance();
 
+            CombatHitboxSetupMode resolvedMode = ResolveMode(analysis);
+            // 프로필의 TargetKind(의도)와 실제 선택 대상의 계층 분석 결과가 어긋나면 경고한다.
+            // 예: 무기 프로필인데 휴머노이드 캐릭터 루트를 선택 → 무기 대신 신체 히트박스가 생성되는 함정.
+            bool profileConflict = _target != null
+                && _profile != null
+                && IsGenerativeMode(resolvedMode)
+                && ModesConflict(ProfileExpectedMode(_profile), resolvedMode);
+            if (profileConflict)
+            {
+                EditorGUILayout.HelpBox(
+                    $"프로필은 '{GetModeLabel(ProfileExpectedMode(_profile))}' 대상인데 선택한 '{_target.name}'은(는) "
+                    + $"'{GetModeLabel(resolvedMode)}'로 분석됩니다.\n"
+                    + "무기 히트박스는 캐릭터 루트가 아니라 무기 노드(예: Katana)를 선택하세요.",
+                    MessageType.Warning);
+            }
+
             using (new EditorGUI.DisabledScope(_target == null))
             {
-                GUI.backgroundColor = new Color(0.35f, 0.8f, 0.45f);
+                GUI.backgroundColor = profileConflict
+                    ? new Color(0.85f, 0.6f, 0.3f)
+                    : new Color(0.35f, 0.8f, 0.45f);
                 if (GUILayout.Button("하위 계층 분석 후 HitBox 자동 생성", GUILayout.Height(34f)))
-                    ExecuteSingle(_target, ResolveMode(analysis));
+                {
+                    if (!profileConflict || EditorUtility.DisplayDialog(
+                            "대상/프로필 불일치",
+                            $"프로필은 '{GetModeLabel(ProfileExpectedMode(_profile))}' 대상인데 선택 대상은 "
+                            + $"'{GetModeLabel(resolvedMode)}'로 분석됩니다.\n"
+                            + "이대로 진행하면 프로필 의도와 다른 히트박스가 생성됩니다. 계속할까요?",
+                            "그래도 생성",
+                            "취소"))
+                    {
+                        ExecuteSingle(_target, resolvedMode);
+                    }
+                }
                 GUI.backgroundColor = Color.white;
             }
 
@@ -221,7 +253,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 + "• 형상: Auto (길쭉하면 Capsule, 아니면 Box)  · 최소 두께 0.04  · 패딩 0.02\n"
                 + "• 제외 키워드: Sheath, Scabbard, Effect, Trail, VFX, FX\n"
                 + "• 스윕: 사용 (step 0.15 / 최대 8단계)\n"
-                + "그룹 ID·형상·크기·본 규칙을 커스터마이즈해야 할 때만 프로필을 만들어 지정하세요.",
+                + "• 체인(채찍): 단일 자식 체인을 따라 링크마다 캡슐 생성 (stride 1 / 반경 0.08m / 스윕 step 0.1·16단계)\n"
+                + "그룹 ID·형상·크기·본 규칙·체인 옵션을 커스터마이즈해야 할 때만 프로필을 만들어 지정하세요.",
                 MessageType.Info);
 
             if (GUILayout.Button("기본값 프로필 에셋 생성"))
@@ -281,6 +314,34 @@ namespace UPlayGround.Tool.Editor.Combat
 
         private CombatHitboxSetupMode ResolveMode(CombatHitboxTargetAnalysis analysis)
             => _useAutomaticMode ? analysis.SuggestedMode : _mode;
+
+        // 프로필의 TargetKind(저작자가 선언한 의도)를 실행 모드로 환산한다. 실제 생성 모드는 선택 대상의
+        // 계층 분석(ResolveMode)이 결정하므로, 이 값은 둘이 어긋나는지 검사하는 가드 용도로만 쓴다.
+        private static CombatHitboxSetupMode ProfileExpectedMode(CombatHitboxSetupProfileSO profile)
+            => profile.TargetKind switch
+            {
+                CombatHitboxSetupTargetKind.Humanoid => CombatHitboxSetupMode.HumanoidBodySetup,
+                CombatHitboxSetupTargetKind.Generic => CombatHitboxSetupMode.GenericBodySetup,
+                CombatHitboxSetupTargetKind.Chain => CombatHitboxSetupMode.ChainAutoFit,
+                _ => CombatHitboxSetupMode.WeaponAutoFit,
+            };
+
+        private static bool IsGenerativeMode(CombatHitboxSetupMode mode)
+            => mode is CombatHitboxSetupMode.WeaponAutoFit
+                or CombatHitboxSetupMode.HumanoidBodySetup
+                or CombatHitboxSetupMode.GenericBodySetup
+                or CombatHitboxSetupMode.ChainAutoFit;
+
+        // 무기 계열(WeaponAutoFit/ChainAutoFit)은 서로 호환으로 보고 충돌로 잡지 않는다.
+        // (무기 프로필을 채찍에 쓰거나, 체인 프로필을 단순 무기에 써도 막지 않음)
+        private static bool ModesConflict(CombatHitboxSetupMode a, CombatHitboxSetupMode b)
+        {
+            if (a == b)
+                return false;
+            bool aWeaponFamily = a is CombatHitboxSetupMode.WeaponAutoFit or CombatHitboxSetupMode.ChainAutoFit;
+            bool bWeaponFamily = b is CombatHitboxSetupMode.WeaponAutoFit or CombatHitboxSetupMode.ChainAutoFit;
+            return !(aWeaponFamily && bWeaponFamily);
+        }
 
         private void ExecuteSingle(GameObject target, CombatHitboxSetupMode mode)
         {
@@ -428,6 +489,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 CombatHitboxSetupMode.WeaponAutoFit => "무기 Renderer Bounds",
                 CombatHitboxSetupMode.HumanoidBodySetup => "Humanoid 본",
                 CombatHitboxSetupMode.GenericBodySetup => "Generic 본 이름",
+                CombatHitboxSetupMode.ChainAutoFit => "체인(채찍) 캡슐",
                 _ => mode.ToString(),
             };
     }

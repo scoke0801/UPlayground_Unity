@@ -103,14 +103,8 @@ namespace UPlayGround.Component
 
         private void OnDestroy()
         {
-            // 인스턴스 머티리얼 해제
-            foreach (var mat in _instancedMaterials)
-            {
-                if (mat != null)
-                {
-                    Destroy(mat);
-                }
-            }
+            RestoreOriginalSharedMaterials();
+            ReleaseInstancedMaterials();
         }
         
         private void EnsureDissolveMaterialLoading()
@@ -195,18 +189,9 @@ namespace UPlayGround.Component
         {
             StopAllCoroutines();
 
-            foreach (var info in _rendererInfos)
-            {
-                if (info.renderer == null) continue;
-                info.renderer.enabled = true;
-                if (info.originalSharedMaterials != null)
-                    info.renderer.sharedMaterials = info.originalSharedMaterials;
-            }
+            RestoreOriginalSharedMaterials(enableRenderers: true);
 
-            foreach (var mat in _instancedMaterials)
-                if (mat != null) Destroy(mat);
-            _instancedMaterials.Clear();
-            _runtimeMaterialInfos.Clear();
+            ReleaseInstancedMaterials();
             _preparedMaterialSets.Clear();
             _isDissolvePrepared = false;
         }
@@ -218,10 +203,9 @@ namespace UPlayGround.Component
         {
             StopAllCoroutines();
 
-            foreach (var mat in _instancedMaterials)
-                if (mat != null) Destroy(mat);
-            _instancedMaterials.Clear();
-            _runtimeMaterialInfos.Clear();
+            RestoreOriginalSharedMaterials();
+
+            ReleaseInstancedMaterials();
             _preparedMaterialSets.Clear();
             _isDissolvePrepared = false;
 
@@ -298,6 +282,9 @@ namespace UPlayGround.Component
                 SetDissolveAmount(1f);
             }
 
+            if (!destroyOnComplete)
+                RestoreOriginalMaterialsAndReleaseInstances();
+
             onComplete?.Invoke();
             if (destroyOnComplete) Destroy(gameObject);
         }
@@ -343,16 +330,18 @@ namespace UPlayGround.Component
 
             SetDissolveAmount(1f);
 
+            if (!destroyOnComplete)
+                RestoreOriginalMaterialsAndReleaseInstances();
+
             onComplete?.Invoke();
             if (destroyOnComplete) Destroy(gameObject);
         }
 
         private void PrepareDissolveMaterials(bool assignToRenderers)
         { 
-            foreach (var mat in _instancedMaterials)
-                if (mat != null) Destroy(mat);
-            _instancedMaterials.Clear();
-            _runtimeMaterialInfos.Clear();
+            RestoreOriginalSharedMaterials();
+
+            ReleaseInstancedMaterials();
             _preparedMaterialSets.Clear();
             _isDissolvePrepared = false;
             GetGlobalLilToonRange(out float globalStartRange, out float globalEndRange);
@@ -405,7 +394,7 @@ namespace UPlayGround.Component
 
                 _preparedMaterialSets[info.renderer] = mats;
                 if (assignToRenderers)
-                    info.renderer.materials = mats;
+                    info.renderer.sharedMaterials = mats;
             }
 
             _isDissolvePrepared = !HasFallbackDissolveSlots() || _dissolveSourceMaterial != null;
@@ -418,8 +407,39 @@ namespace UPlayGround.Component
                 if (pair.Key == null || pair.Value == null)
                     continue;
 
-                pair.Key.materials = pair.Value;
+                pair.Key.sharedMaterials = pair.Value;
             }
+        }
+
+        private void RestoreOriginalSharedMaterials(bool enableRenderers = false)
+        {
+            foreach (var info in _rendererInfos)
+            {
+                if (info.renderer == null) continue;
+
+                if (enableRenderers)
+                    info.renderer.enabled = true;
+
+                if (info.originalSharedMaterials != null)
+                    info.renderer.sharedMaterials = info.originalSharedMaterials;
+            }
+        }
+
+        private void RestoreOriginalMaterialsAndReleaseInstances()
+        {
+            RestoreOriginalSharedMaterials();
+            ReleaseInstancedMaterials();
+            _preparedMaterialSets.Clear();
+            _isDissolvePrepared = false;
+        }
+
+        private void ReleaseInstancedMaterials()
+        {
+            foreach (var mat in _instancedMaterials)
+                if (mat != null) Destroy(mat);
+
+            _instancedMaterials.Clear();
+            _runtimeMaterialInfos.Clear();
         }
 
         private void SetDissolveAmount(float amount)

@@ -33,9 +33,16 @@ public class UI_Inventory : UI_Base
     [SerializeField] private TextMeshProUGUI _selectedItemNameText;
     [SerializeField] private TextMeshProUGUI _selectedItemTypeText;
     [SerializeField] private TextMeshProUGUI _selectedItemDescText;
+
+    [Header("Selected Item Actions")]
+    [SerializeField] private UICommonButton _useButton;
+    [SerializeField] private UICommonButton _equipButton;
+    [SerializeField] private UICommonButton _dropButton;
     
     
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
+    private ItemSO _selectedItemData;
+    private int _selectedItemCount;
 
     public GameObject _itemClickTap;
     
@@ -44,6 +51,7 @@ public class UI_Inventory : UI_Base
         base.Awake();
         
         Init();
+        BindActionButtons();
     }
 
     // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -126,6 +134,11 @@ public class UI_Inventory : UI_Base
             }
             _uiSlots[value++].Init(item.Value.data, item.Value.count);
         }
+
+        for (int i = value; i < _uiSlots.Count; i++)
+        {
+            _uiSlots[i].Clear();
+        }
     }
 
     private void AddSlot(int count)
@@ -148,6 +161,10 @@ public class UI_Inventory : UI_Base
             ClearSelectedItemDetail();
             return;
         }
+
+        _selectedItemData = itemData;
+        _selectedItemCount = count;
+
         _selectedItemPrefab.SetActive(true);
         _selectedItemImage.sprite = itemData.icon;
         _selectedItemImage.enabled = true;
@@ -155,10 +172,15 @@ public class UI_Inventory : UI_Base
         _selectedItemNameText.text = itemData.itemName;
         _selectedItemTypeText.text = itemData.itemType.ToDisplayString();
         _selectedItemDescText.text = itemData.itemDescription;
+
+        RefreshActionButtons();
     }
 
     public void ClearSelectedItemDetail()
     {
+        _selectedItemData = null;
+        _selectedItemCount = 0;
+
         _selectedItemImage.sprite = null;
         _selectedItemImage.enabled = false;
         _selectedItemCountText.text = string.Empty;
@@ -167,5 +189,86 @@ public class UI_Inventory : UI_Base
         _selectedItemDescText.text = string.Empty;
 
         _selectedItemPrefab.SetActive(false);
+        RefreshActionButtons();
+    }
+
+    private void BindActionButtons()
+    {
+        _useButton?.BindClickResult(OnClickUseSelectedItem);
+        _equipButton?.BindClickResult(OnClickEquipSelectedItem);
+        _dropButton?.BindClickResult(OnClickDropSelectedItem);
+    }
+
+    private void RefreshActionButtons()
+    {
+        bool hasItem = _selectedItemData != null && _selectedItemCount > 0;
+
+        SetActionButtonActive(_useButton, hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE);
+        SetActionButtonActive(_equipButton, hasItem && _selectedItemData.itemType == ItemType.EQUIPMENT);
+        SetActionButtonActive(_dropButton, hasItem);
+    }
+
+    private static void SetActionButtonActive(UICommonButton button, bool active)
+    {
+        if (button != null)
+        {
+            button.gameObject.SetActive(active);
+        }
+    }
+
+    private UICommonButtonClickResult OnClickUseSelectedItem()
+    {
+        if (_selectedItemData == null)
+        {
+            return UICommonButtonClickResult.Failed;
+        }
+
+        InventoryActionResult result = InventoryManager.Instance.TryUseItem(_selectedItemData.itemId);
+        return RefreshAfterAction(result);
+    }
+
+    private UICommonButtonClickResult OnClickEquipSelectedItem()
+    {
+        if (_selectedItemData == null)
+        {
+            return UICommonButtonClickResult.Failed;
+        }
+
+        InventoryActionResult result = InventoryManager.Instance.TryEquipItem(_selectedItemData.itemId);
+        return RefreshAfterAction(result);
+    }
+
+    private UICommonButtonClickResult OnClickDropSelectedItem()
+    {
+        if (_selectedItemData == null)
+        {
+            return UICommonButtonClickResult.Failed;
+        }
+
+        InventoryActionResult result = InventoryManager.Instance.TryDropItem(_selectedItemData.itemId);
+        return RefreshAfterAction(result);
+    }
+
+    private UICommonButtonClickResult RefreshAfterAction(InventoryActionResult result)
+    {
+        if (result != InventoryActionResult.Success)
+        {
+            Debug.LogWarning($"[UI_Inventory] 아이템 액션 실패: {result}");
+            return UICommonButtonClickResult.Failed;
+        }
+
+        RefreshDictItem();
+        SetInventory();
+
+        if (_selectedItemData != null && InventoryManager.Instance.HasItem(_selectedItemData.itemId))
+        {
+            ShowSelectedItemDetail(_selectedItemData, InventoryManager.Instance.GetItemCount(_selectedItemData.itemId));
+        }
+        else
+        {
+            ClearSelectedItemDetail();
+        }
+
+        return UICommonButtonClickResult.Success;
     }
 }

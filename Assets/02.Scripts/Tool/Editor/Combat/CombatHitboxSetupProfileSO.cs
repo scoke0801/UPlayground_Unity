@@ -11,6 +11,7 @@ namespace UPlayGround.Tool.Editor.Combat
         Weapon,
         Humanoid,
         Generic,
+        Chain,
     }
 
     public enum CombatHitboxPreferredShape
@@ -49,6 +50,11 @@ namespace UPlayGround.Tool.Editor.Combat
         [SerializeField] private bool _useSweep = true;
         [SerializeField, Min(0.01f)] private float _sweepStepDistance = 0.15f;
         [SerializeField, Range(1, 32)] private int _maxSweepSteps = 8;
+        [Header("Chain (채찍/세그먼트 무기)")]
+        [Tooltip("체인 모드에서 N개 노드마다 캡슐 1개를 만든다. 1이면 모든 링크에 생성.")]
+        [SerializeField, Min(1)] private int _chainSegmentStride = 1;
+        [Tooltip("체인 캡슐의 반경(월드 기준 m). 본 lossyScale로 자동 보정된다.")]
+        [SerializeField, Min(0.001f)] private float _chainRadius = 0.08f;
         [SerializeField] private List<CombatHitboxBoneRule> _boneRules = new();
 
         public string ProfileId => _profileId;
@@ -65,6 +71,8 @@ namespace UPlayGround.Tool.Editor.Combat
         public bool UseSweep => _useSweep;
         public float SweepStepDistance => Mathf.Max(0.01f, _sweepStepDistance);
         public int MaxSweepSteps => Mathf.Clamp(_maxSweepSteps, 1, 32);
+        public int ChainSegmentStride => Mathf.Max(1, _chainSegmentStride);
+        public float ChainRadius => Mathf.Max(0.001f, _chainRadius);
         public IReadOnlyList<CombatHitboxBoneRule> BoneRules => _boneRules;
     }
 }

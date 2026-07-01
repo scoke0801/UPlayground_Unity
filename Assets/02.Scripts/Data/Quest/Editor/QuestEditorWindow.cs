@@ -621,12 +621,14 @@ namespace UPlayGround.Editor
         {
             var rewardProp = _serializedQuest.FindProperty("reward");
             var goldProp   = rewardProp.FindPropertyRelative("gold");
+            var expProp    = rewardProp.FindPropertyRelative("exp");
             var itemsProp  = rewardProp.FindPropertyRelative("items");
 
             EditorGUILayout.BeginVertical(_sectionStyle);
             GUILayout.Label("보상", EditorStyles.boldLabel);
 
             EditorGUILayout.PropertyField(goldProp, new GUIContent("골드"));
+            EditorGUILayout.PropertyField(expProp, new GUIContent("경험치"));
 
             EditorGUILayout.Space(2);
             EditorGUILayout.BeginHorizontal();

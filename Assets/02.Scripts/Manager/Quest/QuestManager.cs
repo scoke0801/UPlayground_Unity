@@ -662,6 +662,8 @@ namespace UPlayGround.Manager
             if (reward == null) return;
             if (reward.gold > 0)
                 InventoryManager.Instance.Gold += reward.gold;
+            if (reward.exp > 0)
+                PartyManager.Instance?.AwardBattleExp(reward.exp);
             foreach (var itemReward in reward.items)
                 if (itemReward.count > 0)
                     InventoryManager.Instance.AddItem(itemReward.itemId, itemReward.count);

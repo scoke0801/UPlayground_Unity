@@ -34,6 +34,7 @@ namespace UPlayGround.Editor
                 Description = "마을 밖 길이 끊기기 시작했다. 중앙 호수 주변을 조사해 원인을 확인한다.",
                 RequiredProgress = 0,
                 RewardGold = 100,
+                RewardExp = 60,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Reach("obj_reach_lake", "중앙 호수 주변을 조사한다.", "loc_central_lake")
@@ -57,6 +58,7 @@ namespace UPlayGround.Editor
                 Description = "거미 숲 깊은 곳의 Spider Queen을 처치해 막힌 숲길을 연다.",
                 RequiredProgress = 10,
                 RewardGold = 180,
+                RewardExp = 150,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Kill("obj_kill_spider_queen", "거미 숲 깊은 곳의 Spider Queen을 처치한다.", ActorIdType.SpiderQueen_1)
@@ -80,6 +82,7 @@ namespace UPlayGround.Editor
                 Description = "바위 고지대나 숲 경계의 중형 몬스터를 처치하고 던전 방향 단서를 확보한다.",
                 RequiredProgress = 10,
                 RewardGold = 180,
+                RewardExp = 130,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Kill("obj_kill_highland_guardian", "바위 고지대의 Golem을 처치한다.", ActorIdType.Golem_Normal)
@@ -103,6 +106,7 @@ namespace UPlayGround.Editor
                 Description = "석등과 목조 등롱이 이어지는 길 끝을 조사해 던전 입구의 위치를 확인한다.",
                 RequiredProgress = 10,
                 RewardGold = 150,
+                RewardExp = 90,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Reach("obj_reach_lantern_path_end", "석등 길 끝을 조사한다.", "loc_lantern_path_end")
@@ -126,6 +130,7 @@ namespace UPlayGround.Editor
                 Description = "던전 입구를 막고 있는 Lich를 처치하고 내부로 진입할 길을 연다.",
                 RequiredProgress = 30,
                 RewardGold = 300,
+                RewardExp = 300,
                 RequiredQuestIds = new[] { "quest_main_001" },
                 Objectives = new[]
                 {
@@ -327,6 +332,7 @@ namespace UPlayGround.Editor
             quest.requiredQuestIds = seed.RequiredQuestIds?.ToList() ?? new List<string>();
             quest.objectives = seed.Objectives.Select(x => x.ToData()).ToList();
             quest.reward.gold = seed.RewardGold;
+            quest.reward.exp = seed.RewardExp;
             quest.reward.items.Clear();
             quest.isRepeatable = false;
             quest.autoComplete = true;
@@ -386,6 +392,7 @@ namespace UPlayGround.Editor
             public string Description;
             public int RequiredProgress;
             public int RewardGold;
+            public int RewardExp;
             public string[] RequiredQuestIds = System.Array.Empty<string>();
             public ObjectiveSeed[] Objectives;
             public DialogueSeed[] Dialogues;
@@ -398,6 +405,7 @@ namespace UPlayGround.Editor
                 Description = quest.description,
                 RequiredProgress = quest.requiredProgress,
                 RewardGold = quest.rewardGold,
+                RewardExp = quest.rewardExp,
                 RequiredQuestIds = quest.requiredQuestIds ?? System.Array.Empty<string>(),
                 Objectives = (quest.objectives ?? System.Array.Empty<StoryGeneratorObjective>())
                     .Select(ObjectiveSeed.FromDocument)

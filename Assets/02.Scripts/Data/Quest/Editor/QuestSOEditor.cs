@@ -366,9 +366,11 @@ namespace UPlayGround.Editor
             EditorGUILayout.LabelField("보상", EditorStyles.boldLabel);
 
             var goldProp  = _reward.FindPropertyRelative("gold");
+            var expProp   = _reward.FindPropertyRelative("exp");
             var itemsProp = _reward.FindPropertyRelative("items");
 
             EditorGUILayout.PropertyField(goldProp, new GUIContent("골드"));
+            EditorGUILayout.PropertyField(expProp, new GUIContent("경험치"));
 
             EditorGUILayout.Space(2);
             EditorGUILayout.BeginHorizontal();

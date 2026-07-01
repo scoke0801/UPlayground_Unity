@@ -217,6 +217,8 @@ namespace UPlayGround.Tool.Editor.Validation
 
                 if (quest.reward.gold < 0)
                     Add(issues, EditorValidationSeverity.Error, "Quest", path, quest, "reward.gold", "보상 골드가 음수입니다.", "0 이상의 값을 사용하세요.");
+                if (quest.reward.exp < 0)
+                    Add(issues, EditorValidationSeverity.Error, "Quest", path, quest, "reward.exp", "보상 경험치가 음수입니다.", "0 이상의 값을 사용하세요.");
                 for (int i = 0; i < quest.reward.items.Count; i++)
                 {
                     QuestItemReward reward = quest.reward.items[i];

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Data.Event;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Actor.Animation.Editor
@@ -23,6 +25,16 @@ namespace UPlayGround.Data.Actor.Animation.Editor
         Vector2 _scroll;
 
         readonly List<MotionSetAsset> _previewAssets = new();
+
+        // ── 이벤트 타입 제외 ──
+        // 체크한 타입의 이벤트는 복제된 MotionSetAsset 들에서 모두 제거된다(원본은 그대로).
+        bool _showEventExclusion;
+        bool _onlyUsedTypes = true; // 소스에서 실제 사용된 타입만 목록에 표시(기본 ON)
+        Vector2 _eventScroll;
+        readonly List<Type> _eventTypes = new();                       // 전체 구체 MotionEvent 타입(이름순)
+        readonly Dictionary<Type, string> _eventTypeNames = new();     // 타입 → 표시 이름
+        readonly Dictionary<Type, int> _eventTypeCounts = new();       // 타입 → 소스 발견 개수
+        readonly HashSet<Type> _excludedTypes = new();                 // 제외 대상 타입
 
         [MenuItem("Tools/UPlayGround/Animation/모션셋 복제기 (참조 포함)")]
         static void OpenFromMenu()
@@ -94,6 +106,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                     _overwriteExisting);
 
                 EditorGUILayout.Space(8);
+                DrawEventExclusion();
+
+                EditorGUILayout.Space(8);
                 DrawPreview();
 
                 EditorGUILayout.Space(8);
@@ -128,6 +143,8 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                     if (kv.Value != null) _previewAssets.Add(kv.Value);
                 }
             }
+
+            RecomputeEventCounts();
         }
 
         bool CanExecute()
@@ -239,6 +256,20 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
+            // 3.5) 선택한 이벤트 타입을 복제본(모든 복사된 자식 MotionSetAsset)에서 제거
+            int strippedEvents = 0;
+            if (_excludedTypes.Count > 0)
+            {
+                foreach (var copied in copiedPaths.Values)
+                    strippedEvents += StripExcludedEvents(copied);
+
+                if (strippedEvents > 0)
+                {
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
+                }
+            }
+
             // 4) 새 root 의 참조를 새 자식들로 교체
             var newRoot = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(newRootPath);
             if (newRoot == null)
@@ -269,7 +300,8 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             Selection.activeObject = newRoot;
 
             Debug.Log($"[모션셋 복제기] 완료 → {newRootPath}\n  자식 {copiedPaths.Count}개 복사 / {rewired}개 재연결" +
-                     (newFallbackPath != null ? $"\n  Fallback 복사: {newFallbackPath}" : ""));
+                     (newFallbackPath != null ? $"\n  Fallback 복사: {newFallbackPath}" : "") +
+                     (_excludedTypes.Count > 0 ? $"\n  제외 타입 {_excludedTypes.Count}종 → 이벤트 {strippedEvents}개 제거" : ""));
         }
 
         string ResolveTargetPath(string desiredPath)
@@ -344,6 +376,173 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             }
 
             return rewired;
+        }
+
+        // ──────────────────────────────────────────────────────────────
+        //  이벤트 타입 제외
+        // ──────────────────────────────────────────────────────────────
+
+        void DrawEventExclusion()
+        {
+            EnsureEventTypeList();
+
+            _showEventExclusion = EditorGUILayout.Foldout(
+                _showEventExclusion, $"복사 제외 이벤트 타입 ({_excludedTypes.Count})", true);
+            if (!_showEventExclusion) return;
+
+            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
+            {
+                EditorGUILayout.LabelField(
+                    "체크한 타입의 이벤트는 복제본에서 모두 제거됩니다(원본은 그대로).",
+                    EditorStyles.miniLabel);
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    _onlyUsedTypes = GUILayout.Toggle(
+                        _onlyUsedTypes,
+                        new GUIContent("사용된 타입만 표시",
+                            "원본에서 실제로 쓰인 이벤트 타입만 목록에 표시"),
+                        EditorStyles.miniButton, GUILayout.Width(120));
+
+                    GUILayout.FlexibleSpace();
+
+                    using (new EditorGUI.DisabledScope(_excludedTypes.Count == 0))
+                    {
+                        if (GUILayout.Button("전체 해제", EditorStyles.miniButton, GUILayout.Width(70)))
+                            _excludedTypes.Clear();
+                    }
+                }
+
+                _eventScroll = EditorGUILayout.BeginScrollView(
+                    _eventScroll, GUILayout.MinHeight(40), GUILayout.MaxHeight(220));
+
+                bool drewAny = false;
+                foreach (var t in _eventTypes)
+                {
+                    _eventTypeCounts.TryGetValue(t, out int count);
+                    if (_onlyUsedTypes && count == 0 && !_excludedTypes.Contains(t)) continue;
+
+                    drewAny = true;
+                    bool on = _excludedTypes.Contains(t);
+                    string label = count > 0
+                        ? $"{_eventTypeNames[t]}  ({count})"
+                        : _eventTypeNames[t];
+
+                    bool now = EditorGUILayout.ToggleLeft(label, on);
+                    if (now == on) continue;
+
+                    if (now) _excludedTypes.Add(t);
+                    else _excludedTypes.Remove(t);
+                }
+
+                if (!drewAny)
+                {
+                    EditorGUILayout.LabelField(
+                        _onlyUsedTypes ? "원본에 이벤트가 없습니다." : "이벤트 타입을 찾지 못했습니다.",
+                        EditorStyles.miniLabel);
+                }
+
+                EditorGUILayout.EndScrollView();
+            }
+        }
+
+        // MotionEventBase 의 구체 파생 타입을 이름순으로 1회만 수집한다.
+        void EnsureEventTypeList()
+        {
+            if (_eventTypes.Count > 0) return;
+
+            foreach (var t in TypeCache.GetTypesDerivedFrom<MotionEventBase>())
+            {
+                if (t.IsAbstract) continue;
+                _eventTypes.Add(t);
+                _eventTypeNames[t] = ResolveEventTypeName(t);
+            }
+
+            _eventTypes.Sort((a, b) =>
+                string.Compare(_eventTypeNames[a], _eventTypeNames[b], StringComparison.OrdinalIgnoreCase));
+        }
+
+        // 가능하면 GetDisplayName()으로 사람이 읽기 좋은 이름을, 실패 시 타입 이름을 쓴다.
+        static string ResolveEventTypeName(Type t)
+        {
+            try
+            {
+                if (Activator.CreateInstance(t) is MotionEventBase e)
+                {
+                    string n = e.GetDisplayName();
+                    if (!string.IsNullOrEmpty(n)) return n;
+                }
+            }
+            catch { /* 매개변수 없는 생성자가 없거나 예외 → 타입 이름으로 폴백 */ }
+
+            return t.Name;
+        }
+
+        // 원본 프리뷰 에셋 기준으로 타입별 이벤트 개수를 갱신한다(목록 표시/안내용).
+        void RecomputeEventCounts()
+        {
+            _eventTypeCounts.Clear();
+            foreach (var a in _previewAssets)
+                CountEvents(a != null ? a.motionSet : null);
+        }
+
+        void CountEvents(MotionSet set)
+        {
+            if (set == null) return;
+
+            if (set.globalEvents != null)
+                foreach (var e in set.globalEvents) BumpCount(e);
+
+            if (set.motions != null)
+            {
+                foreach (var m in set.motions)
+                {
+                    if (m?.events == null) continue;
+                    foreach (var e in m.events) BumpCount(e);
+                }
+            }
+        }
+
+        void BumpCount(MotionEventBase e)
+        {
+            if (e == null) return;
+            var t = e.GetType();
+            _eventTypeCounts.TryGetValue(t, out int c);
+            _eventTypeCounts[t] = c + 1;
+        }
+
+        // 복사된 MotionSetAsset 하나에서 제외 대상 타입의 이벤트를 모두 제거하고 제거 개수를 반환.
+        int StripExcludedEvents(string assetPath)
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(assetPath);
+            if (asset == null || asset.motionSet == null) return 0;
+
+            int removed = RemoveExcluded(asset.motionSet.globalEvents);
+
+            if (asset.motionSet.motions != null)
+            {
+                foreach (var m in asset.motionSet.motions)
+                {
+                    if (m != null)
+                        removed += RemoveExcluded(m.events);
+                }
+            }
+
+            if (removed > 0)
+            {
+                EditorUtility.SetDirty(asset);
+                AssetDatabase.SaveAssetIfDirty(asset);
+            }
+
+            return removed;
+        }
+
+        int RemoveExcluded(List<MotionEventBase> list)
+        {
+            if (list == null || list.Count == 0) return 0;
+            int before = list.Count;
+            list.RemoveAll(e => e != null && _excludedTypes.Contains(e.GetType()));
+            return before - list.Count;
         }
     }
 }

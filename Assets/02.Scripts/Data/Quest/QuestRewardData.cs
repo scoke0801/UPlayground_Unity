@@ -10,6 +10,7 @@ namespace UPlayGround.Data.Quest
     public class QuestRewardData
     {
         public int gold;
+        public long exp;
         public List<QuestItemReward> items = new List<QuestItemReward>();
     }
 

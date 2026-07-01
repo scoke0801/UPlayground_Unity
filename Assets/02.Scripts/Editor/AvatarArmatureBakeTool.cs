@@ -21,6 +21,10 @@ namespace UPlayGround.Editor
         private bool _deleteRetargetedDuplicateBones = true;
         private bool _keepSourceRootAsChild = true;
         private bool _autoDetectPrefixSuffix = true;
+        private const string DefaultBakedMeshFolder = "Assets/10.Datas/Generated/ArmatureBakeMeshes";
+        private bool _saveBakedMeshesAsAssets = true;
+        private string _bakedMeshFolder = DefaultBakedMeshFolder;
+        private int _savedMeshCount;
         private Vector2 _scroll;
         private string _status = "아바타와 헤어/의상 오브젝트를 지정하세요.";
 
@@ -80,6 +84,17 @@ namespace UPlayGround.Editor
                 {
                     _retargetSkinnedMeshes = EditorGUILayout.ToggleLeft("Retarget SkinnedMeshRenderer bones/rootBone", _retargetSkinnedMeshes);
                     _deleteRetargetedDuplicateBones = EditorGUILayout.ToggleLeft("Delete duplicate source bones after retarget", _deleteRetargetedDuplicateBones);
+                    _saveBakedMeshesAsAssets = EditorGUILayout.ToggleLeft("Save baked meshes as project assets", _saveBakedMeshesAsAssets);
+                    using (new EditorGUI.DisabledScope(!_saveBakedMeshesAsAssets))
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        _bakedMeshFolder = EditorGUILayout.TextField("Baked Mesh Folder", _bakedMeshFolder);
+                        if (GUILayout.Button("...", GUILayout.Width(32f)))
+                        {
+                            SelectBakedMeshFolder();
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
                 }
             }
 
@@ -263,6 +278,7 @@ namespace UPlayGround.Editor
             MergeRecursive(_sourceRoot, _targetRoot, mapping, true);
 
             int rendererCount = 0;
+            _savedMeshCount = 0;
             if (!_keepSourceRootAsChild && _retargetSkinnedMeshes)
             {
                 rendererCount = RetargetSkinnedMeshRenderers(mapping);
@@ -276,7 +292,13 @@ namespace UPlayGround.Editor
 
             EditorUtility.SetDirty(_avatarObject);
             EditorUtility.SetDirty(_sourceObject);
-            _status = $"베이크 완료: 매칭 본 {mapping.Count}개, SMR {rendererCount}개 갱신, 중복 본 {deletedCount}개 삭제.";
+            if (_savedMeshCount > 0)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+
+            _status = $"베이크 완료: 매칭 본 {mapping.Count}개, SMR {rendererCount}개 갱신, 저장 Mesh {_savedMeshCount}개, 중복 본 {deletedCount}개 삭제.";
         }
 
         private bool IsLikelyBodyArmatureBake()
@@ -412,6 +434,11 @@ namespace UPlayGround.Editor
 
                 if (!changed)
                 {
+                    if (SaveTransientSharedMeshIfNeeded(renderer))
+                    {
+                        changedCount++;
+                    }
+
                     continue;
                 }
 
@@ -422,6 +449,10 @@ namespace UPlayGround.Editor
                     var mesh = UnityEngine.Object.Instantiate(renderer.sharedMesh);
                     mesh.name = renderer.sharedMesh.name + "_BakedArmature";
                     mesh.bindposes = newBindposes;
+                    if (_saveBakedMeshesAsAssets)
+                    {
+                        mesh = SaveBakedMeshAsset(mesh, renderer);
+                    }
                     renderer.sharedMesh = mesh;
                 }
 
@@ -429,6 +460,114 @@ namespace UPlayGround.Editor
             }
 
             return changedCount;
+        }
+
+        private bool SaveTransientSharedMeshIfNeeded(SkinnedMeshRenderer renderer)
+        {
+            if (!_saveBakedMeshesAsAssets || renderer == null || renderer.sharedMesh == null)
+            {
+                return false;
+            }
+
+            if (AssetDatabase.Contains(renderer.sharedMesh))
+            {
+                return false;
+            }
+
+            Undo.RecordObject(renderer, "Save transient baked mesh");
+            var mesh = UnityEngine.Object.Instantiate(renderer.sharedMesh);
+            mesh.name = renderer.sharedMesh.name;
+            renderer.sharedMesh = SaveBakedMeshAsset(mesh, renderer);
+            EditorUtility.SetDirty(renderer);
+            return true;
+        }
+
+        private void SelectBakedMeshFolder()
+        {
+            string selectedPath = EditorUtility.OpenFolderPanel("Baked Mesh 저장 폴더", "Assets", string.Empty);
+            if (string.IsNullOrEmpty(selectedPath))
+            {
+                return;
+            }
+
+            string projectPath = Application.dataPath.Replace('\\', '/');
+            selectedPath = selectedPath.Replace('\\', '/');
+            if (!selectedPath.StartsWith(projectPath, StringComparison.Ordinal))
+            {
+                EditorUtility.DisplayDialog("폴더 선택 오류", "프로젝트의 Assets 폴더 아래 경로를 선택하세요.", "확인");
+                return;
+            }
+
+            _bakedMeshFolder = "Assets" + selectedPath.Substring(projectPath.Length);
+        }
+
+        private Mesh SaveBakedMeshAsset(Mesh mesh, SkinnedMeshRenderer renderer)
+        {
+            string folder = NormalizeBakedMeshFolder(_bakedMeshFolder);
+            EnsureAssetFolder(folder);
+
+            string rendererName = renderer != null ? SanitizeFileName(renderer.name) : "SkinnedMesh";
+            string meshName = SanitizeFileName(mesh.name);
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{rendererName}_{meshName}.asset");
+
+            AssetDatabase.CreateAsset(mesh, path);
+            _savedMeshCount++;
+            return AssetDatabase.LoadAssetAtPath<Mesh>(path);
+        }
+
+        // 텍스트 필드로 직접 입력된 폴더가 Assets 루트 밖이거나 비어 있으면 기본 폴더로 폴백한다.
+        // (그대로 두면 CreateFolder가 조용히 실패해 메시 저장이 누락된다.)
+        private static string NormalizeBakedMeshFolder(string folder)
+        {
+            if (string.IsNullOrWhiteSpace(folder))
+            {
+                return DefaultBakedMeshFolder;
+            }
+
+            folder = folder.Replace('\\', '/').TrimEnd('/');
+            if (folder != "Assets" && !folder.StartsWith("Assets/", StringComparison.Ordinal))
+            {
+                Debug.LogWarning($"[ArmatureBake] Baked Mesh 폴더 '{folder}'가 Assets 경로가 아니어서 기본 폴더로 저장합니다: {DefaultBakedMeshFolder}");
+                return DefaultBakedMeshFolder;
+            }
+
+            return folder;
+        }
+
+        private static void EnsureAssetFolder(string folderPath)
+        {
+            if (AssetDatabase.IsValidFolder(folderPath))
+            {
+                return;
+            }
+
+            string[] parts = folderPath.Split('/');
+            string current = parts[0];
+            for (int i = 1; i < parts.Length; i++)
+            {
+                string next = $"{current}/{parts[i]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                {
+                    AssetDatabase.CreateFolder(current, parts[i]);
+                }
+
+                current = next;
+            }
+        }
+
+        private static string SanitizeFileName(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return "BakedMesh";
+            }
+
+            foreach (char invalid in System.IO.Path.GetInvalidFileNameChars())
+            {
+                value = value.Replace(invalid, '_');
+            }
+
+            return value.Replace(' ', '_');
         }
 
         private static int DeleteRetargetedDuplicateBones(Dictionary<Transform, Transform> mapping)

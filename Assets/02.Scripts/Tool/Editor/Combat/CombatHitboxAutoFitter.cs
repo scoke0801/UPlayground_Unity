@@ -309,6 +309,9 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 $"체인 {chain.Count}노드 · 캡슐 {sampled.Count - 1}개 (stride {stride}, 반경 {radius:0.###}, 그룹 '{groupId}')",
             };
+            // 첫 링크 하나만 스윙 트레일 리더로 삼고 끝 노드(chain 말단)를 트레일 종점으로 준다.
+            // 나머지 링크는 트레일 off(상시 형상만) → 트레일 비용이 세그먼트 수와 무관하게 1줄로 고정.
+            Transform chainTip = chain[chain.Count - 1];
             for (int i = 0; i < sampled.Count - 1; i++)
             {
                 CombatHitboxSetupResult result = CreateOrRefitChainLink(
@@ -319,7 +322,8 @@ namespace UPlayGround.Tool.Editor.Combat
                     radius,
                     profile,
                     forceRefit,
-                    GetPath(root.transform, sampled[i]));
+                    GetPath(root.transform, sampled[i]),
+                    i == 0 ? chainTip : null);
                 created += result.Created;
                 updated += result.Updated;
                 skipped += result.Skipped;
@@ -329,11 +333,12 @@ namespace UPlayGround.Tool.Editor.Combat
             return new CombatHitboxSetupResult(root.name, created, updated, skipped, messages);
         }
 
-        // 본의 lossyScale 평균(균등 스케일 근사). 채찍 본이 1이 아닌 스케일을 상속해도 월드 크기를 맞추는 데 쓴다.
-        private static float ComputeUniformScale(Transform t)
+        // 캡슐 반경의 월드 변환 스케일. direction=2(로컬 Z축)일 때 반경은 X/Y 중 큰 값으로 스케일된다.
+        // CombatHitbox.TryGetWorldShape의 radialScale 계산과 정확히 일치시켜야 월드 반경이 어긋나지 않는다.
+        private static float ComputeRadialScaleXY(Transform t)
         {
             Vector3 s = t.lossyScale;
-            return Mathf.Max(0.0001f, (Mathf.Abs(s.x) + Mathf.Abs(s.y) + Mathf.Abs(s.z)) / 3f);
+            return Mathf.Max(0.0001f, Mathf.Max(Mathf.Abs(s.x), Mathf.Abs(s.y)));
         }
 
         // 루트에서 첫 번째 자식을 따라 내려가며 transform 체인을 수집한다(사이클 가드 포함).
@@ -358,7 +363,8 @@ namespace UPlayGround.Tool.Editor.Combat
             float radius,
             CombatHitboxSetupProfileSO profile,
             bool forceRefit,
-            string sourcePath)
+            string sourcePath,
+            Transform trailEndpoint)
         {
             CombatHitboxGeneratedMarker existing = root
                 .GetComponentsInChildren<CombatHitboxGeneratedMarker>(true)
@@ -409,9 +415,12 @@ namespace UPlayGround.Tool.Editor.Combat
                 return Result(root, 0, 0, 1, $"{groupId}: CapsuleCollider 생성 실패 ({node.name}) — 콘솔 로그 확인");
 
             // radius/length는 노드 로컬 공간 값이지만 본 lossyScale에 따라 월드 크기가 달라진다.
-            // _chainRadius를 "월드 기준" 값으로 해석해, 본 스케일이 작아도 콜라이더가 쪼그라들지 않게 보정한다.
-            float uniformScale = ComputeUniformScale(node);
-            float localRadius = Mathf.Max(0.001f, radius / uniformScale);
+            // _chainRadius를 "월드 기준" 값으로 해석해 보정한다. 단, 런타임 TryGetWorldShape는
+            // 캡슐 반경을 radial scale(direction=2이면 max(x,y))로 월드 변환하므로, 여기서도
+            // 같은 radial scale로 나눠야 월드 반경이 정확히 radius가 된다(평균 스케일로 나누면
+            // 비균등 본에서 월드 반경이 부풀어 오른다).
+            float radialScale = ComputeRadialScaleXY(node);
+            float localRadius = Mathf.Max(0.001f, radius / radialScale);
             capsule.direction = 2; // 로컬 Z = 세그먼트 방향
             capsule.center = new Vector3(0f, 0f, length * 0.5f);
             capsule.radius = localRadius;
@@ -419,16 +428,27 @@ namespace UPlayGround.Tool.Editor.Combat
             capsule.isTrigger = true;
             capsule.enabled = false;
 
+            // 채찍 끝 세그먼트는 프레임당 매우 빠르게 움직인다. 스윕 스텝이 반경보다 크면 샘플 사이에
+            // 틈이 생겨 빠른 끝점이 적을 관통(터널링)한다 → 검보다 덜 민감하게 느껴지는 주원인.
+            // 스텝을 반경 이하로 조여 연속 오버랩 질의가 겹치게 하고, 빠른 끝점을 위해 캡을 올린다.
+            // (월드 기준 radius를 그대로 스윕 거리 단위로 쓴다 — 둘 다 월드 단위)
+            float chainSweepStep = Mathf.Clamp(radius * 0.9f, 0.01f, profile?.SweepStepDistance ?? 0.1f);
+            int chainMaxSweepSteps = Mathf.Clamp(Mathf.Max(profile?.MaxSweepSteps ?? 0, 24), 1, 32);
             hitbox.Configure(
                 groupId,
                 capsule,
                 profile == null || profile.UseSweep,
-                profile?.SweepStepDistance ?? 0.1f,
-                profile?.MaxSweepSteps ?? 16);
+                chainSweepStep,
+                chainMaxSweepSteps);
             // 세그먼트가 많은 채찍은 per-세그먼트 스윙 트레일이 기즈모 렉의 주범이므로 끄고,
-            // 대신 누적 없는 상시 형상 표시를 켠다(선택 없이도 보이면서 비용은 세그먼트당 1회).
-            hitbox.SetSwingTrailEnabled(false);
+            // 대신 누적 없는 상시 형상 표시를 켠다. 상시 형상의 캡슐은 CombatHitbox에서 와이어 스피어가 아닌
+            // 선 윤곽으로 그려지므로(렌더 단계에서 일괄 처리), 세그먼트가 많아도 가볍다.
             hitbox.SetStaticShapeEnabled(true);
+            if (trailEndpoint != null)
+                // 첫 링크만: '첫 노드→끝 노드' 직선 하나로 스윙 궤적을 보여준다(트레일 비용 일정).
+                hitbox.SetChainTrail(trailEndpoint, Mathf.Max(0.02f, radius * 0.5f));
+            else
+                hitbox.SetSwingTrailEnabled(false);
 
             string profilePath = profile != null ? AssetDatabase.GetAssetPath(profile) : null;
             string profileGuid = string.IsNullOrEmpty(profilePath)

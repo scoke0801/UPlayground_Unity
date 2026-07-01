@@ -34,6 +34,7 @@ namespace UPlayGround.Editor
                 Description = "마을과 호수 사이 길목에 모인 Skeleton 무리를 정리한다.",
                 RequiredProgress = 0,
                 RewardGold = 80,
+                RewardExp = 50,
                 IsRepeatable = true,
                 Objectives = new[]
                 {
@@ -58,6 +59,7 @@ namespace UPlayGround.Editor
                 Description = "거미 숲 바깥쪽의 Spider를 처치해 주민들이 우회로를 쓸 수 있게 한다.",
                 RequiredProgress = 10,
                 RewardGold = 120,
+                RewardExp = 80,
                 IsRepeatable = true,
                 Objectives = new[]
                 {
@@ -82,6 +84,7 @@ namespace UPlayGround.Editor
                 Description = "중앙 호수 근처의 약초 자리를 확인하고 약초상이 다시 채집할 수 있는지 살핀다.",
                 RequiredProgress = 10,
                 RewardGold = 90,
+                RewardExp = 45,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Reach("obj_reach_lake_herb_patch", "중앙 호수 근처 약초 자리를 확인한다.", "loc_lake_herb_patch")
@@ -105,6 +108,7 @@ namespace UPlayGround.Editor
                 Description = "석등 길 초입의 쓰러진 등롱을 확인해 길잡이에게 위치 정보를 전한다.",
                 RequiredProgress = 10,
                 RewardGold = 90,
+                RewardExp = 45,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Reach("obj_reach_broken_lantern", "석등 길 초입의 쓰러진 등롱을 확인한다.", "loc_broken_lantern")
@@ -128,6 +132,7 @@ namespace UPlayGround.Editor
                 Description = "바위 고지대의 Golem을 처치하고 고지대 길의 위험도를 낮춘다.",
                 RequiredProgress = 20,
                 RewardGold = 160,
+                RewardExp = 120,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Kill("obj_kill_highland_golem", "바위 고지대의 Golem을 처치한다.", ActorIdType.Golem_Normal, 1)
@@ -151,6 +156,7 @@ namespace UPlayGround.Editor
                 Description = "던전 입구 근처에서 생존자가 잃어버린 짐을 확인한다.",
                 RequiredProgress = 30,
                 RewardGold = 140,
+                RewardExp = 70,
                 Objectives = new[]
                 {
                     ObjectiveSeed.Reach("obj_reach_survivor_pack", "던전 입구 근처의 잃어버린 짐을 확인한다.", "loc_survivor_lost_pack")
@@ -348,6 +354,7 @@ namespace UPlayGround.Editor
             quest.requiredQuestIds = seed.RequiredQuestIds?.ToList() ?? new List<string>();
             quest.objectives = seed.Objectives.Select(x => x.ToData()).ToList();
             quest.reward.gold = seed.RewardGold;
+            quest.reward.exp = seed.RewardExp;
             quest.reward.items.Clear();
             quest.isRepeatable = seed.IsRepeatable;
             quest.autoComplete = true;
@@ -407,6 +414,7 @@ namespace UPlayGround.Editor
             public string Description;
             public int RequiredProgress;
             public int RewardGold;
+            public int RewardExp;
             public bool IsRepeatable;
             public string[] RequiredQuestIds = System.Array.Empty<string>();
             public ObjectiveSeed[] Objectives;
@@ -420,6 +428,7 @@ namespace UPlayGround.Editor
                 Description = quest.description,
                 RequiredProgress = quest.requiredProgress,
                 RewardGold = quest.rewardGold,
+                RewardExp = quest.rewardExp,
                 IsRepeatable = quest.isRepeatable,
                 RequiredQuestIds = quest.requiredQuestIds ?? System.Array.Empty<string>(),
                 Objectives = (quest.objectives ?? System.Array.Empty<StoryGeneratorObjective>())

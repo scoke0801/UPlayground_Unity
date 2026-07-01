@@ -134,6 +134,7 @@ namespace UPlayGround.Editor
         public string description;
         public int requiredProgress;
         public int rewardGold;
+        public int rewardExp;
         public bool isRepeatable;
         public string[] requiredQuestIds;
         public StoryGeneratorObjective[] objectives;

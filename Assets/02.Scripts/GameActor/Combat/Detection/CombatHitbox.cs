@@ -28,6 +28,9 @@ namespace UPlayGround.Combat
         [SerializeField] private Color _swingTrailColor = new(0.2f, 0.9f, 1f, 0.8f);
         [Tooltip("스윙 트레일 대신 현재 HitBox 형상만 상시 표시한다(누적 없음). 세그먼트가 많은 채찍 등에서 렉 없이 보이게 한다.")]
         [SerializeField] private bool _drawStaticShape;
+        [Tooltip("체인(채찍) 트레일 리더. 설정 시 스윙 트레일을 세그먼트별이 아닌 'this(첫 노드)→끝 노드' 직선 하나로 기록한다. 세그먼트 수와 무관하게 트레일 비용이 일정.")]
+        [SerializeField] private Transform _chainTrailEndpoint;
+        [SerializeField, Min(0.005f)] private float _chainTrailRadius = 0.03f;
 
         // 스윙 트레일 누적 상한과 공간 데시메이션 간격.
         // 채찍처럼 HitBox가 많을 때 트레일 샘플 폭증으로 인한 기즈모 드로콜 렉을 막는다.
@@ -76,6 +79,7 @@ namespace UPlayGround.Combat
             _sweepStepDistance = Mathf.Max(0.01f, _sweepStepDistance);
             _maxSweepSteps = Mathf.Clamp(_maxSweepSteps, 1, 32);
             _swingTrailDuration = Mathf.Max(0f, _swingTrailDuration);
+            _chainTrailRadius = Mathf.Max(0.005f, _chainTrailRadius);
             NormalizeCollider();
         }
 
@@ -118,14 +122,20 @@ namespace UPlayGround.Combat
             if (!_drawSwingTrail || _swingTrailDuration <= 0f)
                 return;
 
+            // 체인 리더면 개별 세그먼트 형상 대신 '첫 노드→끝 노드' 직선 하나만 기록한다.
+            // 세그먼트가 11개여도 트레일은 1줄이라 드로콜이 세그먼트 수에 비례하지 않는다.
+            CombatHitboxShape recordShape = shape;
+            if (_chainTrailEndpoint != null && TryGetChainChordShape(out CombatHitboxShape chord))
+                recordShape = chord;
+
             // 공간 데시메이션: 직전 샘플과 거의 같은 위치면 누적하지 않는다.
             // 느린 구간/제자리 샘플의 폭증을 막아 세그먼트가 많아도 드로콜이 선형으로 늘지 않게 한다.
             if (_swingTrail.Count > 0 &&
-                (_swingTrail[_swingTrail.Count - 1].Shape.Center - shape.Center).sqrMagnitude < TrailMinSpacingSqr)
+                (_swingTrail[_swingTrail.Count - 1].Shape.Center - recordShape.Center).sqrMagnitude < TrailMinSpacingSqr)
                 return;
 
             float now = Time.time;
-            _swingTrail.Add(new TrailSample(shape, now));
+            _swingTrail.Add(new TrailSample(recordShape, now));
             // 하드 캡: 고프레임에서 빠른 스윙이어도 샘플 수를 상한으로 묶는다(오래된 것부터 제거).
             if (_swingTrail.Count > MaxTrailSamples)
                 _swingTrail.RemoveRange(0, _swingTrail.Count - MaxTrailSamples);
@@ -149,6 +159,40 @@ namespace UPlayGround.Combat
         public void SetStaticShapeEnabled(bool enabled)
         {
             _drawStaticShape = enabled;
+        }
+
+        /// <summary>
+        /// 이 HitBox를 체인(채찍) 트레일 리더로 지정한다. 스윙 트레일을 세그먼트마다가 아니라
+        /// 'this(첫 노드)→endpoint(끝 노드)' 직선 하나로만 기록해, 세그먼트 수와 무관하게 비용을 일정하게 유지한다.
+        /// </summary>
+        public void SetChainTrail(Transform endpoint, float radius)
+        {
+            _chainTrailEndpoint = endpoint;
+            _chainTrailRadius = Mathf.Max(0.005f, radius);
+            _drawSwingTrail = endpoint != null;
+            if (endpoint == null)
+                _swingTrail.Clear();
+        }
+
+        // 체인 첫 노드(this)→끝 노드(_chainTrailEndpoint)를 잇는 가는 캡슐(직선) 형상.
+        private bool TryGetChainChordShape(out CombatHitboxShape shape)
+        {
+            if (_chainTrailEndpoint == null)
+            {
+                shape = default;
+                return false;
+            }
+
+            Vector3 a = transform.position;
+            Vector3 b = _chainTrailEndpoint.position;
+            if ((b - a).sqrMagnitude <= 1e-6f)
+            {
+                shape = default;
+                return false;
+            }
+
+            shape = CombatHitboxShape.Capsule((a + b) * 0.5f, a, b, Mathf.Max(0.005f, _chainTrailRadius));
+            return true;
         }
 
         // 수명이 다한 궤적 샘플을 앞쪽부터 제거한다. 샘플은 시간순으로 누적되므로 앞에서부터 끊으면 된다.
@@ -219,12 +263,22 @@ namespace UPlayGround.Combat
         private static Vector3 Abs(Vector3 value)
             => new(Mathf.Abs(value.x), Mathf.Abs(value.y), Mathf.Abs(value.z));
 
+        // 선택된 HitBox의 형상. 채찍처럼 세그먼트가 많으면 부모를 선택하는 것만으로 자식 HitBox 전부의
+        // OnDrawGizmosSelected가 호출돼 무거워진다. (1) 다른 전투 기즈모와 동일하게 토글로 끌 수 있게 하고,
+        // (2) 캡슐은 와이어 스피어 대신 선 윤곽으로 그려 선택 중에도 가볍게 유지한다.
         private void OnDrawGizmosSelected()
         {
+            if (!DebugGizmoManager.IsLocalContentEnabled(
+                    DebugGizmoCategory.Combat,
+                    DebugGizmoContentType.HitboxSwingTrail))
+                return;
             if (!TryGetWorldShape(out CombatHitboxShape shape))
                 return;
 
-            DrawShapeWire(shape, _debugColor);
+            if (shape.Type == CombatHitboxShapeType.Capsule)
+                DrawCapsuleLineOutline(shape, _debugColor);
+            else
+                DrawShapeWire(shape, _debugColor);
         }
 
         // 선택 여부와 무관하게 보여야 하는 디버그 표시(스윙 트레일/상시 형상)를 OnDrawGizmosSelected 가 아닌
@@ -240,15 +294,26 @@ namespace UPlayGround.Combat
                     DebugGizmoContentType.HitboxSwingTrail))
                 return;
 
-            // 상시 형상: 누적 없이 현재 형상만 1회 그린다. 세그먼트가 많아도 비용이 선형이라 채찍에 적합.
+            // 상시 형상: 누적 없이 현재 형상만 1회 그린다. 매 프레임 그려지므로 비용이 중요하다.
+            // 캡슐은 와이어 스피어(호출당 메시 생성, 무거움) 대신 선 윤곽으로만 그린다 → 세그먼트가 많은
+            // 채찍이 idle로 뭉쳐 있어도 가볍다. 정밀 형상은 해당 HitBox를 선택하면(OnDrawGizmosSelected) 보인다.
             if (_drawStaticShape && TryGetWorldShape(out CombatHitboxShape staticShape))
-                DrawShapeWire(staticShape, _debugColor);
+            {
+                if (staticShape.Type == CombatHitboxShapeType.Capsule)
+                    DrawCapsuleLineOutline(staticShape, _debugColor);
+                else
+                    DrawShapeWire(staticShape, _debugColor);
+            }
 
             if (!wantTrail)
                 return;
 
             float now = Time.time;
             PruneTrail(now);
+
+            // 체인 리더는 샘플마다 '첫 노드→끝 노드' 직선 하나만 기록한다. 이 경우 캡슐 와이어(스피어 2개씩)를
+            // 그리면 드로콜이 폭증해 렉이 생기므로, 가벼운 선(스윙 부채꼴 + 말단 궤적)만 그린다.
+            bool chainTrail = _chainTrailEndpoint != null;
 
             CombatHitboxShape? prev = null;
             for (int i = 0; i < _swingTrail.Count; i++)
@@ -260,16 +325,45 @@ namespace UPlayGround.Combat
 
                 Color color = _swingTrailColor;
                 color.a *= life;
-                DrawShapeWire(sample.Shape, color);
+                Gizmos.color = color;
 
-                // 연속 샘플의 중심을 이어 스윙 경로를 강조한다.
-                if (prev.HasValue)
+                if (chainTrail)
                 {
-                    Gizmos.color = color;
-                    Gizmos.DrawLine(prev.Value.Center, sample.Shape.Center);
+                    // 직선(첫 노드→끝 노드) 자체를 그려 휘두름의 부채꼴을 보여준다.
+                    Gizmos.DrawLine(sample.Shape.Point0, sample.Shape.Point1);
+                    // 말단(Point1) 궤적을 이어 스윙 호를 강조한다.
+                    if (prev.HasValue)
+                        Gizmos.DrawLine(prev.Value.Point1, sample.Shape.Point1);
+                }
+                else
+                {
+                    DrawShapeWire(sample.Shape, color);
+                    // 연속 샘플의 중심을 이어 스윙 경로를 강조한다.
+                    if (prev.HasValue)
+                        Gizmos.DrawLine(prev.Value.Center, sample.Shape.Center);
                 }
                 prev = sample.Shape;
             }
+        }
+
+        // 와이어 스피어 없이 선만으로 캡슐 윤곽(축 + 양옆 레일 + 양끝 캡)을 그린다.
+        // DrawWireSphere가 호출당 메시를 생성해 무거운 것과 달리, 세그먼트당 5개 선이라 매우 가볍다.
+        private void DrawCapsuleLineOutline(in CombatHitboxShape shape, Color color)
+        {
+            Gizmos.color = color;
+            Vector3 axis = shape.Point1 - shape.Point0;
+            Vector3 perp = axis.sqrMagnitude > 0.0001f
+                ? Vector3.Cross(axis, Vector3.up)
+                : transform.right;
+            if (perp.sqrMagnitude < 0.0001f)
+                perp = transform.right;
+            perp = perp.normalized * shape.Radius;
+
+            Gizmos.DrawLine(shape.Point0, shape.Point1);
+            Gizmos.DrawLine(shape.Point0 + perp, shape.Point1 + perp);
+            Gizmos.DrawLine(shape.Point0 - perp, shape.Point1 - perp);
+            Gizmos.DrawLine(shape.Point0 + perp, shape.Point0 - perp);
+            Gizmos.DrawLine(shape.Point1 + perp, shape.Point1 - perp);
         }
 
         private void DrawShapeWire(in CombatHitboxShape shape, Color color)

@@ -31,6 +31,8 @@ MonoBehaviour:
       data:
         startTime: 0.79999995
         endTime: 3.35
+        globalStartTimeOffset: 0
         vfxPrefabKey: Heal
         vfxAuraPrefabKey: HealAura
+        soundKey: Heal
         vfxLifeTime: 2.2

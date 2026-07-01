@@ -32,8 +32,5 @@ MonoBehaviour:
         startTime: 0.4818461
         endTime: 0.71035033
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon

@@ -17,6 +17,9 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: -4855906848265491450, guid: 39f4f9c2bf1e29440b11700fdafecd5d, type: 3}
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917010493636618
     globalEvents: []
@@ -26,9 +29,8 @@ MonoBehaviour:
     - rid: 7399917010493636618
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        hitboxGroupId: Default
         startTime: 0.3840546
         endTime: 0.76388884
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+        hitboxGroupId: Default

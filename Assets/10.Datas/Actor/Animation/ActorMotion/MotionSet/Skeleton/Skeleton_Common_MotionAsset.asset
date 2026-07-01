@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: Skeleton_Common_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -23,9 +24,9 @@ MonoBehaviour:
     - Key: 4
       Value: {fileID: 11400000, guid: f011cbd1061f2b24f8e4d1ef9faea009, type: 2}
     - Key: 100
-      Value: {fileID: 11400000, guid: 22454d2712db4af428c0b086a87ebb43, type: 2}
+      Value: {fileID: 11400000, guid: b520f8462224b32488e0572eb34c7182, type: 2}
     - Key: 101
-      Value: {fileID: 11400000, guid: 8b7e29a7cad0d554785525d912324c33, type: 2}
+      Value: {fileID: 11400000, guid: 330264c3a3d27444ca09dd005b45e5ab, type: 2}
     - Key: 800
       Value: {fileID: 11400000, guid: c4ea4e5292d22534ba99f51462c73bb5, type: 2}
     - Key: 700

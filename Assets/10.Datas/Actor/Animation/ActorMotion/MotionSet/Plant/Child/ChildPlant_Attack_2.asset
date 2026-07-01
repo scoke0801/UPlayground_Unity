@@ -32,8 +32,5 @@ MonoBehaviour:
         startTime: 0.15332538
         endTime: 0.36140978
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
         hitPhaseIndex: 0
         hitboxGroupId: Default

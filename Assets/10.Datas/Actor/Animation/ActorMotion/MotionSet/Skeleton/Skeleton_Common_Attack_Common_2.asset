@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 330e2db566b6498db629773c1db530db, type: 3}
-  m_Name: PlantRoot_Attack_1
+  m_Name: Skeleton_Common_Attack_Common_2
   m_EditorClassIdentifier: 
   motionSet:
     motionSetName: 
     motions:
-    - motionName: Motion_0
-      motionClip: {fileID: 8992522252433359312, guid: cc2af03f35ca6334b810e8efb64415c6, type: 3}
+    - motionName: 
+      motionClip: {fileID: 4151081468701231442, guid: aa8c4e3fe81fe0846857c9d324f94884, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
-      - rid: 5792125262806122499
+      - rid: 7399917010493636617
     globalEvents: []
   references:
     version: 2
     RefIds:
-    - rid: 5792125262806122499
+    - rid: 7399917010493636617
       type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
-        startTime: 1.3343195
-        endTime: 2.066568
+        startTime: 0.4818461
+        endTime: 0.71035033
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
-        hitboxGroupId: Default
+        hitboxGroupId: RightHand

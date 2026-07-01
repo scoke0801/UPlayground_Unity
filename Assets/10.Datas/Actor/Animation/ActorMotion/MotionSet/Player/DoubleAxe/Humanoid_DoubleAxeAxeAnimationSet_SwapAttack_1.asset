@@ -43,9 +43,9 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0.78, y: 0, z: 0}
+        positionOffset: {x: 0.5, y: 0, z: 0}
         rotationSpace: 1
-        rotationOffset: {x: 119.9, y: 90, z: 0}
+        rotationOffset: {x: -74.7, y: 234.4, z: 27.5}
         scale: 0.7
         destroyDelay: 2
         attachToActor: 1
@@ -107,3 +107,4 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []

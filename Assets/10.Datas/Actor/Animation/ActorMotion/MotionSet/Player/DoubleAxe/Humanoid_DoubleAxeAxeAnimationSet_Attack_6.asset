@@ -47,9 +47,9 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: 0, y: 2, z: 0}
+        positionOffset: {x: -0.28, y: 1.86, z: -0.53}
         rotationSpace: 0
-        rotationOffset: {x: 0, y: 0, z: 45}
+        rotationOffset: {x: 178.69, y: -75.13, z: 4.04}
         scale: 0.7
         destroyDelay: 10
         attachToActor: 1
@@ -67,9 +67,9 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 0
-        positionOffset: {x: 0, y: 0, z: 0}
+        positionOffset: {x: 0, y: -0.39, z: 0}
         rotationSpace: 0
-        rotationOffset: {x: 0, y: 0, z: 45}
+        rotationOffset: {x: -192.7, y: 292, z: 0}
         scale: 0.7
         destroyDelay: 10
         attachToActor: 1
@@ -141,6 +141,7 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 7432452544598638607
       type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:
@@ -155,3 +156,4 @@ MonoBehaviour:
         globalStartTimeOffset: 0
         hitPhaseIndex: 1
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []

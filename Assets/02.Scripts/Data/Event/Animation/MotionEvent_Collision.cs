@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Component;
@@ -19,11 +20,16 @@ namespace UPlayGround.Data.Event
         [Tooltip("CombatHitbox.groupId. 비어 있으면 HitPhaseData 또는 Default 그룹을 사용한다.")]
         public string hitboxGroupId;
 
+        [Tooltip("같은 CollisionEvent에서 함께 활성화할 추가 CombatHitbox.groupId 목록.")]
+        public List<string> additionalHitboxGroupIds = new();
+
         public override string GetDisplayName() => "Collision";
 
         public override string GetShortLabel()
         {
             string groupLabel = string.IsNullOrWhiteSpace(hitboxGroupId) ? "Phase Default" : hitboxGroupId;
+            if (additionalHitboxGroupIds != null && additionalHitboxGroupIds.Count > 0)
+                groupLabel += $"+{additionalHitboxGroupIds.Count}";
             return $"Collision [P{hitPhaseIndex} / {groupLabel}]";
         }
 
@@ -58,6 +64,7 @@ namespace UPlayGround.Data.Event
             {
                 combatTarget.SetHitPhaseIndex(hitPhaseIndex);
                 combatTarget.SetHitboxGroup(hitboxGroupId);
+                combatTarget.SetHitboxGroups(additionalHitboxGroupIds);
             }
             combatTarget.SetEnableCollision(isCollisionEnable);
             return true;
@@ -81,10 +88,13 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
+            // 정규화(Trim/중복 제거/primary 결합)는 실제 활성화 시점(각 Combat)에서
+            // HitboxGroupIds.Normalize로 일괄 처리한다. 여기서는 원본 목록을 그대로 전달한다.
             runner.HandleCollisionEvent(
                 isCollisionEnable,
                 hitPhaseIndex,
                 hitboxGroupId,
+                additionalHitboxGroupIds,
                 actor.GetAttackTargetLayerMask());
         }
     }

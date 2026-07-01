@@ -417,12 +417,14 @@ namespace UPlayGround.Animation.Editor
             float time = _drawer != null ? _drawer.cursorTime : 0f;
             int phaseIndex = -1;
             string eventHitboxGroupId = null;
+            List<string> eventAdditionalHitboxGroupIds = null;
             bool isActive = false;
             foreach (var span in CombatTimelineUtility.CollectCollisionSpans(set))
             {
                 if (time < span.Start || time > span.End) continue;
                 phaseIndex = span.PhaseIndex;
                 eventHitboxGroupId = span.HitboxGroupId;
+                eventAdditionalHitboxGroupIds = span.AdditionalHitboxGroupIds;
                 isActive = true;
                 break;
             }
@@ -445,6 +447,19 @@ namespace UPlayGround.Animation.Editor
                 phaseIndex,
                 attachedGroupId,
                 isActive);
+
+            if (isActive && eventAdditionalHitboxGroupIds != null)
+            {
+                foreach (string additionalGroupId in eventAdditionalHitboxGroupIds)
+                {
+                    DrawAttachedCombatHitboxes(
+                        atk,
+                        phase,
+                        phaseIndex,
+                        additionalGroupId,
+                        true);
+                }
+            }
         }
 
         bool DrawAttachedCombatHitboxes(

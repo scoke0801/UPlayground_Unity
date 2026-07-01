@@ -101,6 +101,7 @@ namespace UPlayGround.Component
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
         private CombatHitboxSet _hitboxSet;
         private string _requestedHitboxGroupId;
+        private IReadOnlyList<string> _requestedHitboxGroupIds;
         private int _lastMeleeHitCheckFrame = -1;
         private int _meleeHitCheckRequestedFrame = -1;
         private float _lastTelegraphStartTime = -999f;
@@ -709,6 +710,7 @@ namespace UPlayGround.Component
                 _hitboxSet?.EndGroup();
                 // 윈도우 종료 시 그룹 요청을 비워 다음 윈도우에 직전 공격의 그룹이 잔존하지 않게 한다.
                 _requestedHitboxGroupId = null;
+                _requestedHitboxGroupIds = null;
             }
 
             // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다.
@@ -744,6 +746,14 @@ namespace UPlayGround.Component
             _requestedHitboxGroupId = string.IsNullOrWhiteSpace(hitboxGroupId)
                 ? null
                 : hitboxGroupId.Trim();
+            _requestedHitboxGroupIds = null;
+        }
+
+        public void SetHitboxGroups(IReadOnlyList<string> hitboxGroupIds)
+        {
+            _requestedHitboxGroupIds = hitboxGroupIds != null && hitboxGroupIds.Count > 0
+                ? hitboxGroupIds
+                : null;
         }
 
         public void SetHitPhaseIndex(int index)
@@ -758,11 +768,19 @@ namespace UPlayGround.Component
             string groupId = !string.IsNullOrWhiteSpace(_requestedHitboxGroupId)
                 ? _requestedHitboxGroupId
                 : phase?.hitboxGroupId;
-            bool activated = _hitboxSet != null && _hitboxSet.BeginGroup(groupId);
+            List<string> groupIds = HitboxGroupIds.Normalize(groupId, _requestedHitboxGroupIds);
+            bool activated;
+            if (_hitboxSet == null)
+                activated = false;
+            else if (groupIds != null && groupIds.Count > 0)
+                activated = _hitboxSet.BeginGroups(groupIds);
+            else
+                activated = _hitboxSet.BeginGroup(groupId);
+
             if (!activated)
             {
                 Debug.LogError(
-                    $"[EnemyCombat] 필수 HitBox 그룹 '{groupId ?? CombatHitbox.DefaultGroupId}'을 찾지 못해 공격 판정을 중단합니다.",
+                    $"[EnemyCombat] 필수 HitBox 그룹 '{HitboxGroupIds.Describe(groupId, groupIds)}'을 찾지 못해 공격 판정을 중단합니다.",
                     this);
             }
         }

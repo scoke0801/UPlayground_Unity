@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
@@ -32,6 +33,7 @@ namespace UPlayGround.Tool.Editor.Combat
             public float End;
             public int PhaseIndex; // Collision 전용. 그 외 -1
             public string HitboxGroupId; // Collision 전용
+            public List<string> AdditionalHitboxGroupIds; // Collision 전용
 
             public float Duration => Mathf.Max(0f, End - Start);
         }
@@ -145,6 +147,9 @@ namespace UPlayGround.Tool.Editor.Combat
                 End = offset + Mathf.Max(evt.startTime, evt.endTime),
                 PhaseIndex = evt is BeginCollisionEvent col ? Mathf.Max(0, col.hitPhaseIndex) : -1,
                 HitboxGroupId = evt is BeginCollisionEvent collision ? collision.hitboxGroupId : null,
+                AdditionalHitboxGroupIds = evt is BeginCollisionEvent collisionWithGroups
+                    ? HitboxGroupIds.Normalize(null, collisionWithGroups.additionalHitboxGroupIds)
+                    : null,
             };
         }
 

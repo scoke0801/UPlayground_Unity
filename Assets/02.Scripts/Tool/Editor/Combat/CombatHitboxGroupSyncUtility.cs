@@ -21,6 +21,7 @@ namespace UPlayGround.Tool.Editor.Combat
     {
         public const string HitboxGroupFieldName = "hitboxGroupId";
         public const string HitboxComponentGroupFieldName = "_groupId";
+        public const string AdditionalHitboxGroupsFieldName = "additionalHitboxGroupIds";
 
         /// <summary>한 그룹 ID가 HitBox / 공격데이터 / 모션이벤트 각각에서 몇 번 쓰이는지 집계.</summary>
         public sealed class GroupUsage
@@ -119,6 +120,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 enter = true;
                 if (it.propertyType == SerializedPropertyType.String && it.name == HitboxGroupFieldName)
                     return true;
+                if (it.isArray && it.name == AdditionalHitboxGroupsFieldName)
+                    return true;
             }
             return false;
         }
@@ -176,6 +179,17 @@ namespace UPlayGround.Tool.Editor.Combat
                             if (isData) usage.DataPhaseCount++;
                             else usage.EventCount++;
                         }
+                        else if (!isData && it.isArray && it.name == AdditionalHitboxGroupsFieldName)
+                        {
+                            for (int i = 0; i < it.arraySize; i++)
+                            {
+                                SerializedProperty item = it.GetArrayElementAtIndex(i);
+                                if (item.propertyType != SerializedPropertyType.String)
+                                    continue;
+
+                                Get(item.stringValue).EventCount++;
+                            }
+                        }
                     }
                 }
             }
@@ -228,7 +242,27 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 enter = true;
                 if (it.propertyType != SerializedPropertyType.String || it.name != HitboxGroupFieldName)
+                {
+                    if (it.isArray && it.name == AdditionalHitboxGroupsFieldName)
+                    {
+                        for (int i = 0; i < it.arraySize; i++)
+                        {
+                            SerializedProperty item = it.GetArrayElementAtIndex(i);
+                            if (item.propertyType != SerializedPropertyType.String)
+                                continue;
+
+                            if (map.TryGetValue(item.stringValue ?? string.Empty, out string additionalTo)
+                                && additionalTo != item.stringValue)
+                            {
+                                item.stringValue = additionalTo;
+                                changed++;
+                            }
+                        }
+                    }
+
                     continue;
+                }
+
                 if (map.TryGetValue(it.stringValue ?? string.Empty, out string to) && to != it.stringValue)
                 {
                     it.stringValue = to;

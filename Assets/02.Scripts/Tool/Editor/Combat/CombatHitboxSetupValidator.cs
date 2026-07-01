@@ -238,6 +238,18 @@ namespace UPlayGround.Tool.Editor.Combat
                     {
                         issues.Add($"Error: {asset.name} Collision 이벤트 그룹 '{span.HitboxGroupId}'이 HitBox에 없습니다.");
                     }
+
+                    if (span.AdditionalHitboxGroupIds == null)
+                        continue;
+
+                    foreach (string additionalGroupId in span.AdditionalHitboxGroupIds)
+                    {
+                        if (!string.IsNullOrWhiteSpace(additionalGroupId)
+                            && !hitboxGroups.Contains(additionalGroupId.Trim()))
+                        {
+                            issues.Add($"Error: {asset.name} Collision 이벤트 추가 그룹 '{additionalGroupId}'이 HitBox에 없습니다.");
+                        }
+                    }
                 }
 
                 issues.Add($"통합 검증: {asset.name} Collision {collisions.Count}개, 최대 Phase P{maxPhase}");

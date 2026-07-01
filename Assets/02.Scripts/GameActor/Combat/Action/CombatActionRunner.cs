@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
 
@@ -33,6 +34,14 @@ namespace UPlayGround.Combat
             int hitPhaseIndex,
             string hitboxGroupId,
             LayerMask targetLayer)
+            => HandleCollisionEvent(enable, hitPhaseIndex, hitboxGroupId, null, targetLayer);
+
+        public void HandleCollisionEvent(
+            bool enable,
+            int hitPhaseIndex,
+            string hitboxGroupId,
+            IReadOnlyList<string> hitboxGroupIds,
+            LayerMask targetLayer)
         {
             if (_collisionExecutor == null)
             {
@@ -45,7 +54,10 @@ namespace UPlayGround.Combat
             {
                 _collisionExecutor.SetTargetLayerMask(targetLayer);
                 _collisionExecutor.SetHitPhaseIndex(hitPhaseIndex);
+                // SetHitboxGroup이 먼저 그룹 목록을 비우므로 순서 유지 필수.
+                // SetHitboxGroups는 null/빈 목록을 안전하게 무시(단일 그룹으로 폴백)한다.
                 _collisionExecutor.SetHitboxGroup(hitboxGroupId);
+                _collisionExecutor.SetHitboxGroups(hitboxGroupIds);
                 CurrentAction?.SetHitboxGroup(hitboxGroupId);
             }
             _collisionExecutor.SetEnableCollision(enable);

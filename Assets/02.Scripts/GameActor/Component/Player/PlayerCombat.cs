@@ -190,6 +190,7 @@ namespace UPlayGround.Component
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
         private CombatHitboxSet _hitboxSet;
         private string _requestedHitboxGroupId;
+        private IReadOnlyList<string> _requestedHitboxGroupIds;
         private int _lastHitDetectionFrame = -1;
         private readonly List<CombatHit> _detectedHits = new List<CombatHit>(32);
         private PlayerCombatStateTracker _combatStateTracker;
@@ -1324,6 +1325,7 @@ namespace UPlayGround.Component
                 // 직접 SetEnableCollision(true)로 들어오더라도(예: 얼티밋) 직전 공격의
                 // 그룹이 잔존하지 않고 phase 기본값으로 폴백되도록 한다.
                 _requestedHitboxGroupId = null;
+                _requestedHitboxGroupIds = null;
             }
 
             // forwarding이 곧 윈도우의 권위 쓰기 — runner instance를 갱신한다(직접 호출자 PlayerChargeState 포함).
@@ -1340,6 +1342,14 @@ namespace UPlayGround.Component
             _requestedHitboxGroupId = string.IsNullOrWhiteSpace(hitboxGroupId)
                 ? null
                 : hitboxGroupId.Trim();
+            _requestedHitboxGroupIds = null;
+        }
+
+        public void SetHitboxGroups(IReadOnlyList<string> hitboxGroupIds)
+        {
+            _requestedHitboxGroupIds = hitboxGroupIds != null && hitboxGroupIds.Count > 0
+                ? hitboxGroupIds
+                : null;
         }
 
         public void SetHitPhaseIndex(int index)
@@ -1372,11 +1382,19 @@ namespace UPlayGround.Component
             string groupId = !string.IsNullOrWhiteSpace(_requestedHitboxGroupId)
                 ? _requestedHitboxGroupId
                 : phase?.hitboxGroupId;
-            bool activated = _hitboxSet != null && _hitboxSet.BeginGroup(groupId);
+            List<string> groupIds = HitboxGroupIds.Normalize(groupId, _requestedHitboxGroupIds);
+            bool activated;
+            if (_hitboxSet == null)
+                activated = false;
+            else if (groupIds != null && groupIds.Count > 0)
+                activated = _hitboxSet.BeginGroups(groupIds);
+            else
+                activated = _hitboxSet.BeginGroup(groupId);
+
             if (!activated)
             {
                 Debug.LogError(
-                    $"[PlayerCombat] 필수 HitBox 그룹 '{groupId ?? CombatHitbox.DefaultGroupId}'을 찾지 못해 공격 판정을 중단합니다.",
+                    $"[PlayerCombat] 필수 HitBox 그룹 '{HitboxGroupIds.Describe(groupId, groupIds)}'을 찾지 못해 공격 판정을 중단합니다.",
                     this);
             }
         }

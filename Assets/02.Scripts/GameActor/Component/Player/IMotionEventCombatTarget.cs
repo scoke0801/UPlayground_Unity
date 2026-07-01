@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.MovementController;
 
@@ -11,6 +12,7 @@ namespace UPlayGround.Component
         void SetTargetLayerMask(LayerMask targetLayerMask);
         void SetHitPhaseIndex(int hitPhaseIndex);
         void SetHitboxGroup(string hitboxGroupId);
+        void SetHitboxGroups(IReadOnlyList<string> hitboxGroupIds);
         void SetEnableCollision(bool enabled);
         void ClearHitTargets();
     }

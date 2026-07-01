@@ -30,7 +30,7 @@ MonoBehaviour:
     requiredCount: 1
   reward:
     gold: 90
-    exp: 90
+    exp: 45
     items: []
   isRepeatable: 0
   autoComplete: 1

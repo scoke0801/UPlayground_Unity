@@ -28,7 +28,7 @@ MonoBehaviour:
     requiredCount: 5
   reward:
     gold: 80
-    exp: 80
+    exp: 50
     items: []
   isRepeatable: 1
   autoComplete: 1

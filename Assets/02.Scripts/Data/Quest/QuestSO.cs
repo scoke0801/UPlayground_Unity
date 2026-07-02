@@ -27,6 +27,10 @@ namespace UPlayGround.Data.Quest
         [Tooltip("퀘스트 고유 ID. 전체 DB에서 유일해야 함.")]
         public string questId;
         public string questName;
+        [Tooltip("메인/서브 구분. UI 슬롯 아이콘 등에 사용.")]
+        public QuestType questType = QuestType.Sub;
+        [Tooltip("퀘스트 슬롯에 표시되는 짧은 한 줄 부제(요약). 비우면 questDescription로 대체.")]
+        public string shortSummary;
         [TextArea] public string questDescription;
 
         [Header("선행 조건")]

@@ -2,6 +2,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 public class UIItemSlot : MonoBehaviour
@@ -33,10 +34,23 @@ public class UIItemSlot : MonoBehaviour
         {            
             _rootContent.SetActive(true);
             
-            _imgRarity.sprite = AssetManager.Instance.GetAtlas(_itemData.itemRarity.ToString());
+            _imgRarity.color = GetRarityColor(_itemData.itemRarity);
             _imgItem.sprite = _itemData.icon;
             _txtCount.text = _itemCount.ToString();
             _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemData.itemId):0.0}";
         }
+    }
+
+    private static Color GetRarityColor(ItemRarity rarity)
+    {
+        return rarity switch
+        {
+            ItemRarity.COMMON => Color.white,
+            ItemRarity.UNCOMMON => new Color(0.35f, 0.9f, 0.45f),
+            ItemRarity.RARE => new Color(0.35f, 0.6f, 1f),
+            ItemRarity.UNIQUE => new Color(0.85f, 0.45f, 1f),
+            ItemRarity.LEGENDARY => new Color(1f, 0.65f, 0.2f),
+            _ => Color.clear
+        };
     }
 }

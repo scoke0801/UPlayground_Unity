@@ -146,8 +146,18 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool CompleteQuest(QuestIdType questId) => CompleteQuestById(questId.ToQuestId());
 
+        /// <summary>퀘스트를 완료 처리한다. (문자열 ID 오버로드 — UI용)</summary>
+        public bool CompleteQuest(string questId) => CompleteQuestById(questId);
+
         /// <summary>진행 중인 퀘스트를 포기한다.</summary>
         public bool AbandonQuest(QuestIdType questId) => AbandonQuestById(questId.ToQuestId());
+
+        /// <summary>진행 중인 퀘스트를 포기한다. (문자열 ID 오버로드 — UI용)</summary>
+        public bool AbandonQuest(string questId) => AbandonQuestById(questId);
+
+        /// <summary>ID로 QuestSO 정의를 조회한다. DB 미로드/없음이면 null. (UI 상세 표시용)</summary>
+        public QuestSO GetQuestData(string questId) =>
+            IsDBLoaded && !string.IsNullOrEmpty(questId) ? _db.GetQuest(questId) : null;
 
         /// <summary>진행 중인 퀘스트를 실패 처리한다.</summary>
         public bool FailQuest(QuestIdType questId) => FailQuestById(questId.ToQuestId());
@@ -168,6 +178,14 @@ namespace UPlayGround.Manager
         public QuestRuntimeData GetActiveQuestRuntime(QuestIdType questId)
         {
             _activeQuests.TryGetValue(questId.ToQuestId(), out var r);
+            return r;
+        }
+
+        /// <summary>진행 중인 퀘스트의 런타임 데이터를 반환한다. (문자열 ID 오버로드 — UI용)</summary>
+        public QuestRuntimeData GetActiveQuestRuntime(string questId)
+        {
+            if (string.IsNullOrEmpty(questId)) return null;
+            _activeQuests.TryGetValue(questId, out var r);
             return r;
         }
 
@@ -235,6 +253,29 @@ namespace UPlayGround.Manager
                 if (!q.isRepeatable && _failedQuestIds.Contains(q.questId)) continue;
                 if (!CheckPrerequisites(q)) continue;
                 result.Add(q);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 완료한 퀘스트 목록 (UI 완료 탭용). DB에 존재하는 QuestSO만 반환한다.
+        /// </summary>
+        public List<QuestSO> GetCompletedQuests() => ResolveQuests(_completedQuestIds);
+
+        /// <summary>
+        /// 실패한 퀘스트 목록 (UI 실패 탭용). DB에 존재하는 QuestSO만 반환한다.
+        /// </summary>
+        public List<QuestSO> GetFailedQuests() => ResolveQuests(_failedQuestIds);
+
+        private List<QuestSO> ResolveQuests(IEnumerable<string> questIds)
+        {
+            var result = new List<QuestSO>();
+            if (!IsDBLoaded) return result;
+
+            foreach (var id in questIds)
+            {
+                var q = _db.GetQuest(id);
+                if (q != null) result.Add(q);
             }
             return result;
         }

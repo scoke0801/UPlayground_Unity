@@ -14,22 +14,24 @@ public class UI_CraftingRecipeSlot : MonoBehaviour, IPointerClickHandler, IPoint
     [SerializeField] private Image            _imgResultIcon;
     [SerializeField] private TextMeshProUGUI  _txtRecipeName;
     [SerializeField] private Image            _imgCraftable;     // 제작 가능 인디케이터
+    [SerializeField] private TextMeshProUGUI  _txtStatus;        // "제작 가능" / "재료 부족" 상태 문구
     [SerializeField] private GameObject       _selectOverlay;    // 선택 시 하이라이트
 
     [Header("색상")]
     [SerializeField] private Color _colorCraftable   = new Color(0.2f, 0.9f, 0.3f);
     [SerializeField] private Color _colorUncraftable = new Color(0.5f, 0.5f, 0.5f);
+    [SerializeField] private Color _colorStatusFail  = new Color(0.9f, 0.25f, 0.25f); // "재료 부족" 문구색
     [SerializeField] private Color _colorHover       = new Color(1f, 1f, 1f, 0.12f);
 
     private int        _recipeID;
-    private UI_Crafting _parent;
+    private UI_CraftMenu _parent;
 
     // ──────────────────────────────────────────
 
     /// <summary>
     /// 슬롯 초기화.
     /// </summary>
-    public void Init(int recipeID, UI_Crafting parent)
+    public void Init(int recipeID, UI_CraftMenu parent)
     {
         _recipeID = recipeID;
         _parent   = parent;
@@ -68,6 +70,12 @@ public class UI_CraftingRecipeSlot : MonoBehaviour, IPointerClickHandler, IPoint
         bool can = RecipeManager.Instance.CanCraft(_recipeID);
         if (_imgCraftable != null)
             _imgCraftable.color = can ? _colorCraftable : _colorUncraftable;
+
+        if (_txtStatus != null)
+        {
+            _txtStatus.text  = can ? "제작 가능" : "재료 부족";
+            _txtStatus.color = can ? _colorCraftable : _colorStatusFail;
+        }
     }
 
     /// <summary>

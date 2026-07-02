@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.U2D;
 
 namespace UPlayGround.Manager
 {
@@ -30,7 +29,6 @@ namespace UPlayGround.Manager
             public readonly HashSet<string> Owners = new();
         }
 
-        private SpriteAtlas _itemAtlas;
         private readonly Dictionary<(Type Type, string Key), AssetHandleRecord> _globalHandles = new();
         private readonly Dictionary<(Type Type, string Key), AssetHandleRecord> _sceneHandles = new();
 
@@ -38,8 +36,11 @@ namespace UPlayGround.Manager
         {
         }
 
-        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
-            LoadItemAtlasAsync(cancellationToken);
+        public UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
+            IsLoaded = true;
+            return UniTask.CompletedTask;
+        }
 
         public void AfterInit()
         {
@@ -53,7 +54,6 @@ namespace UPlayGround.Manager
 #endif
             ReleaseAll(_sceneHandles, AssetLifetime.Scene);
             ReleaseAll(_globalHandles, AssetLifetime.Global);
-            _itemAtlas = null;
             IsLoaded = false;
         }
 
@@ -70,17 +70,6 @@ namespace UPlayGround.Manager
         }
 
         public void OnSceneChanged(string sceneType) { }
-
-        public Sprite GetAtlas(string key)
-        {
-            if (_itemAtlas == null)
-            {
-                Debug.LogError("[AssetManager] ItemAtlas가 준비되지 않았습니다.");
-                return null;
-            }
-
-            return _itemAtlas.GetSprite(key);
-        }
 
         public bool IsLoaded { get; private set; } = false;
 
@@ -297,29 +286,5 @@ namespace UPlayGround.Manager
             }
         }
 
-        private async UniTask LoadItemAtlasAsync(CancellationToken cancellationToken)
-        {
-            const string path = "ItemAtlas";
-
-            try
-            {
-                _itemAtlas = await LoadGlobalAsync<SpriteAtlas>(
-                    path,
-                    nameof(AssetManager),
-                    cancellationToken);
-
-                IsLoaded = true;
-                Debug.Log($"[AssetManager] {path} 로드 완료");
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[AssetManager] {path} 로드 실패: {e.Message}");
-                throw;
-            }
-        }
     }
 }

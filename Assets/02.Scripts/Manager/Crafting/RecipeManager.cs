@@ -465,6 +465,37 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 현재 보유 재료·골드로 제작할 수 있는 최대 수량을 반환한다.
+        /// UI의 MAX 버튼에서 사용한다. 언락되지 않았거나 결과물이 유효하지 않으면 0.
+        /// </summary>
+        public int GetMaxCraftableQuantity(int recipeID)
+        {
+            if (!IsDBLoaded) return 0;
+
+            var recipe = _db.GetRecipe(recipeID);
+            if (recipe == null)             return 0;
+            if (!HasValidResult(recipe))     return 0;
+            if (!IsRecipeUnlocked(recipeID)) return 0;
+
+            int max = int.MaxValue;
+
+            // 재료별 제약
+            foreach (var ingr in _db.GetIngredients(recipeID))
+            {
+                if (ingr.requiredQuantity <= 0) continue;
+                int have = InventoryManager.Instance.GetItemCount(ingr.ingredientItemID);
+                max = Mathf.Min(max, have / ingr.requiredQuantity);
+            }
+
+            // 골드 제약
+            if (recipe.costType != CostType.Free && recipe.costAmount > 0)
+                max = Mathf.Min(max, InventoryManager.Instance.Gold / recipe.costAmount);
+
+            // 재료가 하나도 없는 레시피(int.MaxValue 유지)는 0으로 취급
+            return max == int.MaxValue ? 0 : Mathf.Max(0, max);
+        }
+
+        /// <summary>
         /// 1회 제작에 사용하는 재료가 인벤토리에 충분한지 여부를 재료별로 반환.
         /// key=ingredientItemID, value=충분 여부
         /// </summary>

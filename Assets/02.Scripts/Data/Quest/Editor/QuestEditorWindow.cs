@@ -455,6 +455,8 @@ namespace UPlayGround.Editor
             GUILayout.Label("기본 정보", EditorStyles.boldLabel);
             DrawProp("questId",          "퀘스트 ID");
             DrawProp("questName",        "퀘스트 이름");
+            DrawProp("questType",        "분류(메인/서브)");
+            DrawProp("shortSummary",     "짧은 부제");
             DrawProp("questDescription", "설명");
             EditorGUILayout.EndVertical();
         }

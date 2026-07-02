@@ -21,6 +21,8 @@ namespace UPlayGround.Editor
         // ──── 프로퍼티 캐시 ────
         private SerializedProperty _questId;
         private SerializedProperty _questName;
+        private SerializedProperty _questType;
+        private SerializedProperty _shortSummary;
         private SerializedProperty _questDescription;
         private SerializedProperty _requiredQuestIds;
         private SerializedProperty _requiredStoryProgress;
@@ -78,6 +80,8 @@ namespace UPlayGround.Editor
         {
             _questId               = serializedObject.FindProperty("questId");
             _questName             = serializedObject.FindProperty("questName");
+            _questType             = serializedObject.FindProperty("questType");
+            _shortSummary          = serializedObject.FindProperty("shortSummary");
             _questDescription      = serializedObject.FindProperty("questDescription");
             _requiredQuestIds      = serializedObject.FindProperty("requiredQuestIds");
             _requiredStoryProgress = serializedObject.FindProperty("requiredStoryProgress");
@@ -171,6 +175,8 @@ namespace UPlayGround.Editor
             EditorGUILayout.LabelField("기본 정보", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(_questId,          new GUIContent("퀘스트 ID"));
             EditorGUILayout.PropertyField(_questName,        new GUIContent("퀘스트 이름"));
+            EditorGUILayout.PropertyField(_questType,        new GUIContent("분류(메인/서브)"));
+            EditorGUILayout.PropertyField(_shortSummary,     new GUIContent("짧은 부제"));
             EditorGUILayout.PropertyField(_questDescription, new GUIContent("설명"));
             EditorGUILayout.EndVertical();
         }

@@ -321,6 +321,7 @@ Assets/
 | [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](TODO/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
 | [ACTOR_ID_SYSTEM_GUIDE.md](Complete/ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
 | [CRAFTING_SYSTEM_GUIDE.md](Complete/CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
+| [CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md](CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md) | 제작 UI / 퀘스트 UI 에디터 작업 가이드 — 현재 코드·데이터·프리팹 연결 상태 기반 세팅 순서 |
 | [SAVE_SYSTEM_GUIDE.md](Complete/SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |
 | [UI_Base_Guide.md](Complete/UI_Base_Guide.md) | UI 시스템 — UIRoot, EventSystem 자동 구성, 레이어 구조, UI 생성/제거 |
 | [GAMEMANAGER_README.md](Complete/GAMEMANAGER_README.md) | GameManager — 매니저 등록 및 초기화 순서 |

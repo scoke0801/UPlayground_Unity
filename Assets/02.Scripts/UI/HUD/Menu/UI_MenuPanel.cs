@@ -123,18 +123,16 @@ public class UI_MenuPanel : UI_Base
     private void Toggle(UIKeyType type)
     {
         GameObject go = UIManager.Instance.GetActiveUI(type);
-        if (go == null)
-        {
-            UIManager.Instance.ShowUI(type);
-            return;
-        }
+        UI_Base ui = go != null ? go.GetComponent<UI_Base>() : null;
+        bool shouldShowTarget = ui == null || ui.IsVisible == false;
 
-        UI_Base ui = go.GetComponent<UI_Base>();
-        if (ui == null || ui.IsVisible == false)
+        Hide();
+
+        if (shouldShowTarget)
         {
             UIManager.Instance.ShowUI(type);
         }
-        else
+        else if (go != null)
         {
             UIManager.Instance.HideUI(type);
         }

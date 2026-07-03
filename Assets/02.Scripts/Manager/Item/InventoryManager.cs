@@ -32,6 +32,9 @@ namespace UPlayGround.Manager
         // [TODO] Config 데이터로 별도 분리 필요
         public float MaxWeight => 3000.0f;
 
+        /// <summary> 인벤토리 최대 슬롯 수 (UI 용량 표시용). </summary>
+        public int MaxSlots => 120;
+
         /// <summary> 보유 골드 </summary>
         public int Gold { get; set; } = 0;
 

@@ -21,12 +21,19 @@ namespace UPlayGround.Data.Party
 
             public Sprite weaponIcon;
             public string name;
-            
+
+            [Tooltip("무기 이름 (예: 카타나)")]
+            public string weaponName;
+            [Tooltip("등급(별 개수). 1~5")]
+            [Range(1, 5)] public int rarity;
+            [Tooltip("역할/특성 태그")]
+            public PartyRole role;
+
             // [TODO] 쓸 일 있으면 쓰자
             public Sprite angrySprite;
             public Sprite happySprite;
             public Sprite blueSprite;
-            
+
         }
         
         public List<PartyMemberSpriteData> sprites = new();
@@ -81,6 +88,37 @@ namespace UPlayGround.Data.Party
             }
 
             return string.Empty;
+        }
+
+        public string GetWeaponName(CharacterActorType type)
+        {
+            for (var index = 0; index < sprites.Count; index++)
+            {
+                if (sprites[index].type != type) continue;
+                return sprites[index].weaponName;
+            }
+            return string.Empty;
+        }
+
+        /// <summary> 등급(별 개수, 1~5). 미설정이면 1. </summary>
+        public int GetRarity(CharacterActorType type)
+        {
+            for (var index = 0; index < sprites.Count; index++)
+            {
+                if (sprites[index].type != type) continue;
+                return Mathf.Clamp(sprites[index].rarity, 1, 5);
+            }
+            return 1;
+        }
+
+        public PartyRole GetRole(CharacterActorType type)
+        {
+            for (var index = 0; index < sprites.Count; index++)
+            {
+                if (sprites[index].type != type) continue;
+                return sprites[index].role;
+            }
+            return PartyRole.Balanced;
         }
     }
 }

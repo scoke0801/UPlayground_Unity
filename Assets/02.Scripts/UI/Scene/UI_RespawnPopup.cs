@@ -16,20 +16,29 @@ public class UI_RespawnPopup : UI_Base
     [SerializeField] private Button           _spotReviveButton;
     [SerializeField] private TextMeshProUGUI  _spotReviveLabel;
     [SerializeField] private TextMeshProUGUI  _spotItemCountText;
+    [SerializeField] private TextMeshProUGUI  _spotHealText;   // "HP 50% 회복"
 
     [Header("포탈 부활")]
     [SerializeField] private Button           _portalReviveButton;
+    [SerializeField] private TextMeshProUGUI  _portalReviveLabel;
+    [SerializeField] private TextMeshProUGUI  _portalHealText; // "HP 100% 회복"
+
+    [Header("공용")]
+    [SerializeField] private TextMeshProUGUI  _warningText;    // "전멸 상태입니다..."
 
     [Header("설정")]
     [Tooltip("제자리 부활에 사용할 아이템 ID (기본: 부활석=100006)")]
     [SerializeField] private int _revivalItemId = (int)ItemIdType.None;
     [Tooltip("제자리 부활 시 회복할 HP 비율 (0~1)")]
     [SerializeField] private float _spotHealPercent = 0.5f;
+    [Tooltip("포탈 부활 시 회복할 HP 비율 (0~1)")]
+    [SerializeField] private float _portalHealPercent = 1.0f;
 
     private Action _onSpotRevive;
     private Action _onPortalRevive;
 
-    public float SpotHealPercent => _spotHealPercent;
+    public float SpotHealPercent   => _spotHealPercent;
+    public float PortalHealPercent => _portalHealPercent;
 
     protected override void Awake()
     {
@@ -49,6 +58,15 @@ public class UI_RespawnPopup : UI_Base
         GameTimeManager.Instance?.SetPause(true);
         FadeIn(0.3f);
         RefreshItemCount();
+        RefreshHealTexts();
+    }
+
+    private void RefreshHealTexts()
+    {
+        if (_spotHealText != null)
+            _spotHealText.text = $"HP {Mathf.RoundToInt(_spotHealPercent * 100f)}% 회복";
+        if (_portalHealText != null)
+            _portalHealText.text = $"HP {Mathf.RoundToInt(_portalHealPercent * 100f)}% 회복";
     }
 
     protected override void OnHide()
@@ -74,7 +92,7 @@ public class UI_RespawnPopup : UI_Base
         int count = InventoryManager.Instance?.GetItemCount(_revivalItemId) ?? 0;
 
         if (_spotItemCountText != null)
-            _spotItemCountText.text = $"부활석 x{count}";
+            _spotItemCountText.text = $"보유 부활석 x{count}";
 
         if (_spotReviveButton != null)
             _spotReviveButton.interactable = count > 0;

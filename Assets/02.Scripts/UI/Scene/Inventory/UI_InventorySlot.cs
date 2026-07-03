@@ -14,11 +14,13 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject _rootEmptySlot;
     [SerializeField] private TextMeshProUGUI _txtCount;
     [SerializeField] private TextMeshProUGUI _txtWeight;
+    [SerializeField] private TextMeshProUGUI _txtEnhance;   // 강화 배지 "+N"
     [SerializeField] private Image _imgItem;
     [SerializeField] private Image _imgRarity;
-    
+
     private ItemSO _itemData = null;
     private int _itemCount = 0;
+    private int _enhanceLevel = 0;
 
     private UI_Inventory _parent;
 
@@ -31,10 +33,11 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
     {
     }
 
-    public void Init(ItemSO itemData, int count)
+    public void Init(ItemSO itemData, int count, int enhanceLevel = 0)
     {
         _itemData = itemData;
         _itemCount = count;
+        _enhanceLevel = enhanceLevel;
     }
 
     public void Clear()
@@ -59,10 +62,13 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
         {            
             _rootContent.SetActive(true);
             _rootEmptySlot.SetActive(false);
-            _imgRarity.color = GetRarityColor(_itemData.itemRarity);
+            _imgRarity.color = _itemData.itemRarity.ToColor();
             _imgItem.sprite = _itemData.icon;
             _txtCount.text = _itemCount.ToString();
             _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemData.itemId):0.0}";
+
+            if (_txtEnhance != null)
+                _txtEnhance.text = _enhanceLevel > 0 ? $"+{_enhanceLevel}" : string.Empty;
         }
     }
 
@@ -84,17 +90,4 @@ public class UI_InventorySlot : UI_Base, IPointerEnterHandler, IPointerExitHandl
             _parent.ClearSelectedItemDetail();
     }
     #endregion
-
-    private static Color GetRarityColor(ItemRarity rarity)
-    {
-        return rarity switch
-        {
-            ItemRarity.COMMON => Color.white,
-            ItemRarity.UNCOMMON => new Color(0.35f, 0.9f, 0.45f),
-            ItemRarity.RARE => new Color(0.35f, 0.6f, 1f),
-            ItemRarity.UNIQUE => new Color(0.85f, 0.45f, 1f),
-            ItemRarity.LEGENDARY => new Color(1f, 0.65f, 0.2f),
-            _ => Color.clear
-        };
-    }
 }

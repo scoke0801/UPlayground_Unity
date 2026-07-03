@@ -12,7 +12,7 @@ public enum UICommonButtonClickResult
     Failed,
 }
 
-class UICommonButton : MonoBehaviour
+public class UICommonButton : MonoBehaviour
 {
     [SerializeField] private Button _button;
     [SerializeField] private TextMeshProUGUI _buttonText;

@@ -26,12 +26,23 @@ public class UI_PartyMenu : UI_Base
     [Header("버튼")]
     [SerializeField] private Button _saveButton;
     [SerializeField] private Button _autoOrganizationButton;
+    [SerializeField] private Button _disbandBattleButton;   // 출전 해제 (선택 캐릭터 제외)
+    [SerializeField] private Button _disbandPartyButton;     // 파티 해제 (리더만 남김)
+    [SerializeField] private Button _closeButton;            // 닫기 (저장 안 함)
 
     [Header("텍스트")]
     [SerializeField] private TextMeshProUGUI _partyCombatPowerText;
-    
+    [SerializeField] private TextMeshProUGUI _rosterCountText;      // 보유 동료 수
+    [SerializeField] private TextMeshProUGUI _battlePartyCountText; // 출전 파티 N / 최대 (중앙 헤더)
+    [SerializeField] private TextMeshProUGUI _battleMemberCountText;// 출전 인원 N / 최대 (하단)
+
+    [Header("상세")]
+    [SerializeField] private UI_PartyDetailPanel _detailPanel;
+
     private readonly List<UIPartyMenuEntry> _menuEntries  = new();
     private readonly List<CharacterActorType> _pendingOrder = new();
+
+    private CharacterActorType _selectedType = CharacterActorType.None;
 
     // ─── 생명주기 ─────────────────────────────────────────────────────
 
@@ -53,10 +64,13 @@ public class UI_PartyMenu : UI_Base
         }
 
         foreach (var battleEntry in _partyBattleEntries)
-            battleEntry.OnRemoveRequested += OnBattleEntryRemoveRequested;
+            battleEntry.OnSelectRequested += OnBattleEntrySelected;
 
         _saveButton?.onClick.AddListener(OnSaveClicked);
         _autoOrganizationButton?.onClick.AddListener(OnAutoOrganizationClicked);
+        _disbandBattleButton?.onClick.AddListener(OnDisbandBattleClicked);
+        _disbandPartyButton?.onClick.AddListener(OnDisbandPartyClicked);
+        _closeButton?.onClick.AddListener(Hide);
     }
 
     // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -76,6 +90,9 @@ public class UI_PartyMenu : UI_Base
         _pendingOrder.Clear();
         if (PartyManager.Instance != null)
             _pendingOrder.AddRange(PartyManager.Instance.BattleOrder);
+
+        // 기본 선택: 첫 출전 멤버
+        _selectedType = _pendingOrder.Count > 0 ? _pendingOrder[0] : CharacterActorType.None;
 
         SortMenuEntries();
         Refresh();
@@ -102,7 +119,7 @@ public class UI_PartyMenu : UI_Base
             entry.OnToggleRequested -= OnEntryToggleRequested;
 
         foreach (var battleEntry in _partyBattleEntries)
-            battleEntry.OnRemoveRequested -= OnBattleEntryRemoveRequested;
+            battleEntry.OnSelectRequested -= OnBattleEntrySelected;
     }
 
     public override bool PerformBackFunction()
@@ -136,14 +153,13 @@ public class UI_PartyMenu : UI_Base
 
     // ─── 엔트리 이벤트 ───────────────────────────────────────────────
 
+    // 목록 클릭: 상세 선택 + (미편성이고 자리 있으면) 출전 파티에 추가. 제거는 하단 버튼으로.
     private void OnEntryToggleRequested(CharacterActorType type)
     {
-        if (_pendingOrder.Contains(type))
-        {
-            if (_pendingOrder.Count <= 1) return; // 마지막 출전 멤버는 목록 클릭으로도 해제 불가
-            _pendingOrder.Remove(type);
-        }
-        else if (_pendingOrder.Count < (PartyManager.Instance?.MaxBattleSize ?? 4))
+        _selectedType = type;
+
+        if (!_pendingOrder.Contains(type) &&
+            _pendingOrder.Count < (PartyManager.Instance?.MaxBattleSize ?? 4))
         {
             _pendingOrder.Add(type);
         }
@@ -151,10 +167,32 @@ public class UI_PartyMenu : UI_Base
         Refresh();
     }
 
-    private void OnBattleEntryRemoveRequested(CharacterActorType type)
+    // 출전 슬롯 클릭: 상세 선택만.
+    private void OnBattleEntrySelected(CharacterActorType type)
     {
-        if (_pendingOrder.Count <= 1) return; // 마지막 슬롯은 해제 불가
-        _pendingOrder.Remove(type);
+        _selectedType = type;
+        Refresh();
+    }
+
+    // 출전 해제: 선택 캐릭터를 편성에서 제외 (최소 1명 유지).
+    private void OnDisbandBattleClicked()
+    {
+        if (_selectedType == CharacterActorType.None) return;
+        if (!_pendingOrder.Contains(_selectedType)) return;
+        if (_pendingOrder.Count <= 1) return;
+
+        _pendingOrder.Remove(_selectedType);
+        Refresh();
+    }
+
+    // 파티 해제: 리더(첫 슬롯)만 남기고 전원 제외.
+    private void OnDisbandPartyClicked()
+    {
+        if (_pendingOrder.Count <= 1) return;
+
+        var leader = _pendingOrder[0];
+        _pendingOrder.Clear();
+        _pendingOrder.Add(leader);
         Refresh();
     }
 
@@ -168,6 +206,32 @@ public class UI_PartyMenu : UI_Base
         RefreshBattleEntries();
         RefreshMenuEntries();
         RefreshPartyCombatPower();
+        RefreshCounts();
+        RefreshDetail();
+    }
+
+    private void RefreshCounts()
+    {
+        var pm = PartyManager.Instance;
+        if (pm == null) return;
+
+        int max = pm.MaxBattleSize;
+        if (_rosterCountText != null)
+            _rosterCountText.text = pm.Roster.Count.ToString("N0", CultureInfo.InvariantCulture);
+        if (_battlePartyCountText != null)
+            _battlePartyCountText.text = $"{_pendingOrder.Count} / {max}";
+        if (_battleMemberCountText != null)
+            _battleMemberCountText.text = $"{_pendingOrder.Count} / {max}";
+    }
+
+    private void RefreshDetail()
+    {
+        if (_detailPanel == null) return;
+
+        if (_selectedType == CharacterActorType.None)
+            _detailPanel.Clear();
+        else
+            _detailPanel.Show(_selectedType);
     }
 
     private void RefreshBattleEntries()
@@ -187,7 +251,7 @@ public class UI_PartyMenu : UI_Base
     private void RefreshMenuEntries()
     {
         foreach (var entry in _menuEntries)
-            entry.RefreshBattleStatus(_pendingOrder);
+            entry.RefreshBattleStatus(_pendingOrder, _selectedType);
     }
 
     private void RefreshPartyCombatPower()

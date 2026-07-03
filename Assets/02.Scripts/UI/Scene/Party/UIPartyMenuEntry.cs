@@ -59,8 +59,8 @@ public class UIPartyMenuEntry : MonoBehaviour
         return true;
     }
 
-    /// <summary>초안 BattleOrder를 받아 뱃지·선택 상태를 갱신한다.</summary>
-    public void RefreshBattleStatus(IReadOnlyList<CharacterActorType> pendingOrder)
+    /// <summary>초안 BattleOrder와 상세 선택 대상을 받아 뱃지·선택 상태를 갱신한다.</summary>
+    public void RefreshBattleStatus(IReadOnlyList<CharacterActorType> pendingOrder, CharacterActorType selectedType)
     {
         var pm = PartyManager.Instance;
         bool isUnlocked = pm != null && pm.Roster.Contains(_type);
@@ -78,7 +78,7 @@ public class UIPartyMenuEntry : MonoBehaviour
         if (isInBattle)
             _partyOrderText.text = (battleIndex + 1).ToString();
 
-        _selectedImage.SetActive(isInBattle);
+        _selectedImage.SetActive(selectedType == _type);
     }
 
     private void RefreshLevelText(bool isUnlocked)

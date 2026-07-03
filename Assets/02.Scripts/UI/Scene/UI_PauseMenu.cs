@@ -11,22 +11,23 @@ using UPlayGround.Manager;
 public class UI_PauseMenu : UI_Base
 {
     [Header("UI 버튼")]
-    [SerializeField] private Button saveButton;
-    [SerializeField] private Button gameExitButton;
-    [SerializeField] private Button gotoTitleButton;
-    [SerializeField] private Button quitButton;
+    [SerializeField] private Button resumeButton;   // 재개
+    [SerializeField] private Button saveButton;     // 저장
+    [SerializeField] private Button gotoTitleButton;// 타이틀로 이동
+    [SerializeField] private Button exitButton;     // 게임 종료
 
-    [Header("플레이 시간 표시 (선택)")]
-    [SerializeField] private TMPro.TextMeshProUGUI playTimeText;
-    
+    [Header("표시 (선택)")]
+    [SerializeField] private TMPro.TextMeshProUGUI playTimeText;   // "플레이 시간 HH:MM:SS"
+    [SerializeField] private TMPro.TextMeshProUGUI pauseStatusText; // "게임이 일시정지되었습니다"
+
     protected override void Awake()
     {
         base.Awake();
-        
+
+        if (resumeButton != null)    resumeButton.onClick.AddListener(OnResumeClicked);
         if (saveButton != null)      saveButton.onClick.AddListener(OnSaveClicked);
-        if (gameExitButton != null) gameExitButton.onClick.AddListener(OnGameExitClicked);
         if (gotoTitleButton != null) gotoTitleButton.onClick.AddListener(OnGoToTitleClicked);
-        if (quitButton != null)      quitButton.onClick.AddListener(OnResumeClicked);
+        if (exitButton != null)      exitButton.onClick.AddListener(OnGameExitClicked);
     }
 
     private void OnSaveClicked()
@@ -48,7 +49,10 @@ public class UI_PauseMenu : UI_Base
         GameTimeManager.Instance.SetPause(true);
 
         if (playTimeText != null)
-            playTimeText.text = GameTimeManager.Instance.FormatPlayTime();
+            playTimeText.text = $"플레이 시간 {GameTimeManager.Instance.FormatPlayTime()}";
+
+        if (pauseStatusText != null)
+            pauseStatusText.text = "게임이 일시정지되었습니다";
     }
 
     protected override void OnHide()

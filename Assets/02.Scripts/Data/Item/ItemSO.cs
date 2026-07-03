@@ -23,4 +23,7 @@ public class ItemInstance
     public ItemSO data;
 
     public int inventorySlotKey;
+
+    [Tooltip("장비 강화 레벨. 0이면 미강화(표시 안 함).")]
+    public int enhancementLevel;
 }

@@ -21,7 +21,13 @@ public class UIPartyBattleEntry : MonoBehaviour
     [SerializeField] private GameObject _selectedImage;
     [SerializeField] private Button     _slotButton;
 
-    public event Action<CharacterActorType> OnRemoveRequested;
+    [Header("HP")]
+    [SerializeField] private Image           _hpFill;
+    [SerializeField] private TextMeshProUGUI _hpText;
+    [SerializeField] private GameObject      _deadText;   // "전투 불능"
+
+    /// <summary> 슬롯 클릭 시 해당 캐릭터를 상세 표시 대상으로 선택 요청. </summary>
+    public event Action<CharacterActorType> OnSelectRequested;
 
     private CharacterActorType _boundType = CharacterActorType.None;
 
@@ -54,9 +60,22 @@ public class UIPartyBattleEntry : MonoBehaviour
                         PartyManager.Instance.ActiveCharacterType == type;
         if (_selectedImage != null) _selectedImage.SetActive(isActive);
 
-        if (_slotButton != null) _slotButton.interactable = canRemove;
+        RefreshHp();
+
+        if (_slotButton != null) _slotButton.interactable = true; // 클릭=선택(항상 가능)
 
         gameObject.SetActive(true);
+    }
+
+    private void RefreshHp()
+    {
+        var player = GameObjectManager.Instance?.Player;
+        float cur = player != null ? player.GetHealthForCharacter(_boundType)    : 0f;
+        float max = player != null ? player.GetMaxHealthForCharacter(_boundType) : 0f;
+
+        if (_hpFill != null) _hpFill.fillAmount = max > 0f ? Mathf.Clamp01(cur / max) : 0f;
+        if (_hpText != null) _hpText.text = $"{Mathf.RoundToInt(cur)} / {Mathf.RoundToInt(max)}";
+        if (_deadText != null) _deadText.SetActive(cur <= 0f);
     }
 
     public void Unbind()
@@ -76,6 +95,6 @@ public class UIPartyBattleEntry : MonoBehaviour
     private void OnSlotButtonClicked()
     {
         if (_boundType != CharacterActorType.None)
-            OnRemoveRequested?.Invoke(_boundType);
+            OnSelectRequested?.Invoke(_boundType);
     }
 }

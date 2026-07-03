@@ -79,13 +79,10 @@ public abstract class UI_Base : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
-        // Hide를 거치지 않고 파괴되는 경우(Close→OnClose, 씬 전환 등)에도
-        // push한 커서 표시를 pop해 스택 누수를 막는다.
-        if (_cursorVisiblePushed)
-        {
-            InputManager.Instance?.ShowCursor(false);
-            _cursorVisiblePushed = false;
-        }
+        // Hide를 거치지 않고 파괴되는 경우(Close, 씬 전환 등)에도
+        // 커서/입력 레이어/입력 이벤트 정리 누수를 막는다.
+        if (IsVisible || _cursorVisiblePushed || _inputLayerRaised)
+            Hide();
 
         OnDispose();
     }
@@ -163,6 +160,9 @@ public abstract class UI_Base : MonoBehaviour
             Initialize();
         }
 
+        if (IsVisible)
+            return;
+
         gameObject.SetActive(true);
         IsVisible = true;
 
@@ -191,6 +191,9 @@ public abstract class UI_Base : MonoBehaviour
     /// </summary>
     public void Hide()
     {
+        if (!IsVisible && !_cursorVisiblePushed && !_inputLayerRaised)
+            return;
+
         IsVisible = false;
 
         // Show에서 push한 커서 표시를 짝 맞춰 pop.
@@ -224,6 +227,9 @@ public abstract class UI_Base : MonoBehaviour
     /// </summary>
     public virtual void Close()
     {
+        if (IsVisible)
+            Hide();
+
         OnClose();
     }
 

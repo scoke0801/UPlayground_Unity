@@ -407,7 +407,7 @@ namespace UPlayGround.Manager
 
         public void CloseUI(string uiName)
         {
-            if (!_activeUIObjects.TryGetValue(uiName, out _)) return;
+            if (!_activeUIObjects.TryGetValue(uiName, out GameObject uiObj)) return;
 
             if (_activeUIComponents.TryGetValue(uiName, out UI_Base uiBase))
             {
@@ -415,10 +415,11 @@ namespace UPlayGround.Manager
                     _uiByType.Remove(uiBase.GetType());
                 _activeUIComponents.Remove(uiName);
                 uiBase.Close();
+                if (uiObj != null) Destroy(uiObj);
             }
             else
             {
-                Destroy(_activeUIObjects[uiName]);
+                if (uiObj != null) Destroy(uiObj);
             }
 
             _activeUIObjects.Remove(uiName);

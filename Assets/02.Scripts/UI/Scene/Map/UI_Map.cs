@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -60,6 +61,27 @@ public class UI_Map : UI_Base
     [SerializeField] private Button _zoomOutButton;
     [SerializeField] private Button _findMeButton;
 
+    [Header("범례/필터")]
+    [SerializeField] private Toggle _togglePlayer;
+    [SerializeField] private Toggle _toggleQuest;
+    [SerializeField] private Toggle _toggleEnemy;
+    [SerializeField] private Toggle _toggleNpc;
+    [SerializeField] private Toggle _toggleStatic;
+    [SerializeField] private Toggle _toggleUser;
+    [SerializeField] private Button _clearAllButton;
+
+    [Header("지역 정보")]
+    [SerializeField] private MapRegionInfoSO  _regionInfo;
+    [SerializeField] private TextMeshProUGUI  _headerRegionText;
+    [SerializeField] private TextMeshProUGUI  _regionNameText;
+    [SerializeField] private TextMeshProUGUI  _regionLevelText;
+    [SerializeField] private TextMeshProUGUI  _regionDescText;
+    [SerializeField] private Image            _regionThumbnail;
+
+    [Header("줌 UI")]
+    [SerializeField] private Slider           _zoomSlider;
+    [SerializeField] private TextMeshProUGUI  _zoomText;
+
     [Header("설정")]
     [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
 
@@ -95,6 +117,9 @@ public class UI_Map : UI_Base
     private readonly Dictionary<string,       MinimapEntityIcon> _staticMarkerIconMap = new();
     private readonly Dictionary<int,          MinimapEntityIcon> _userMarkerIconMap   = new();
 
+    // 카테고리별 표시 여부 (범례/필터). 기본 전부 표시.
+    private readonly Dictionary<MapMarkerCategory, bool> _categoryVisible = new();
+
     // 우클릭으로 마커를 제거할 때 사용하는 픽셀 거리 임계값
     private const float UserMarkerRemoveThresholdPx = 20f;
 
@@ -110,6 +135,26 @@ public class UI_Map : UI_Base
         if (_zoomInButton  != null) _zoomInButton.onClick.AddListener(() => ZoomAtCenter(_currentZoom + _zoomStep));
         if (_zoomOutButton != null) _zoomOutButton.onClick.AddListener(() => ZoomAtCenter(_currentZoom - _zoomStep));
         if (_findMeButton  != null) _findMeButton.onClick.AddListener(CenterOnPlayer);
+
+        // 범례/필터 토글 초기화 + 바인딩
+        foreach (MapMarkerCategory c in System.Enum.GetValues(typeof(MapMarkerCategory)))
+            _categoryVisible[c] = true;
+
+        BindToggle(_togglePlayer, MapMarkerCategory.Player);
+        BindToggle(_toggleQuest,  MapMarkerCategory.QuestTarget);
+        BindToggle(_toggleEnemy,  MapMarkerCategory.Enemy);
+        BindToggle(_toggleNpc,    MapMarkerCategory.Npc);
+        BindToggle(_toggleStatic, MapMarkerCategory.StaticMarker);
+        BindToggle(_toggleUser,   MapMarkerCategory.UserMarker);
+        if (_clearAllButton != null) _clearAllButton.onClick.AddListener(OnClearAllFilters);
+
+        // 줌 슬라이더
+        if (_zoomSlider != null)
+        {
+            _zoomSlider.minValue = _minZoom;
+            _zoomSlider.maxValue = _maxZoom;
+            _zoomSlider.onValueChanged.AddListener(OnZoomSliderChanged);
+        }
 
         if (_mapViewport != null)
         {
@@ -149,6 +194,7 @@ public class UI_Map : UI_Base
 
         SetupMapBackground();
         SetupMarkers();
+        RefreshRegionInfo();
 
         // 초기 줌으로 플레이어 위치를 중심으로 열기
         _currentZoom = _initialZoom;
@@ -267,7 +313,59 @@ public class UI_Map : UI_Base
             AddUserMarker(marker);
     }
 
+    // ── 범례 / 필터 ──────────────────────────────────────────
+
+    private bool Cat(MapMarkerCategory c) => !_categoryVisible.TryGetValue(c, out var v) || v;
+
+    /// <summary> 카테고리 표시 여부 설정. 다음 프레임 갱신부터 반영된다. </summary>
+    public void SetCategoryVisible(MapMarkerCategory c, bool visible) => _categoryVisible[c] = visible;
+
+    private void BindToggle(Toggle toggle, MapMarkerCategory category)
+    {
+        if (toggle == null) return;
+        toggle.SetIsOnWithoutNotify(true);
+        toggle.onValueChanged.AddListener(v => SetCategoryVisible(category, v));
+    }
+
+    private void OnClearAllFilters()
+    {
+        // 모든 토글 끄기 → 각 콜백이 카테고리를 숨김 처리
+        if (_togglePlayer != null) _togglePlayer.isOn = false;
+        if (_toggleQuest  != null) _toggleQuest.isOn  = false;
+        if (_toggleEnemy  != null) _toggleEnemy.isOn  = false;
+        if (_toggleNpc    != null) _toggleNpc.isOn    = false;
+        if (_toggleStatic != null) _toggleStatic.isOn = false;
+        if (_toggleUser   != null) _toggleUser.isOn   = false;
+    }
+
+    // ── 지역 정보 ────────────────────────────────────────────
+
+    private void RefreshRegionInfo()
+    {
+        if (_regionInfo == null) return;
+
+        if (_headerRegionText != null)
+            _headerRegionText.text = $"{_regionInfo.continentName}    {_regionInfo.regionName}";
+        if (_regionNameText != null)  _regionNameText.text  = _regionInfo.regionName;
+        if (_regionLevelText != null) _regionLevelText.text = _regionInfo.GetRecommendedLevelText();
+        if (_regionDescText != null)  _regionDescText.text  = _regionInfo.description;
+        if (_regionThumbnail != null)
+        {
+            _regionThumbnail.sprite  = _regionInfo.thumbnail;
+            _regionThumbnail.enabled = _regionInfo.thumbnail != null;
+        }
+    }
+
     // ── 줌 / 패닝 ────────────────────────────────────────────
+
+    private void OnZoomSliderChanged(float value) => ZoomAtCenter(value);
+
+    private void RefreshZoomUI()
+    {
+        if (_zoomSlider != null) _zoomSlider.SetValueWithoutNotify(_currentZoom);
+        if (_zoomText != null)
+            _zoomText.text = $"{Mathf.RoundToInt(_currentZoom * 100f)}%";
+    }
 
     /// <summary>뷰 중심 기준 줌 변경 (±버튼용)</summary>
     private void ZoomAtCenter(float newZoom)
@@ -307,6 +405,8 @@ public class UI_Map : UI_Base
         }
         if (_iconContainer  != null) _iconContainer.anchoredPosition  = _panOffset;
         if (_questContainer != null) _questContainer.anchoredPosition = _panOffset;
+
+        RefreshZoomUI();
     }
 
     /// <summary>플레이어 위치가 뷰 중심에 오도록 패닝 오프셋 재설정</summary>
@@ -361,6 +461,12 @@ public class UI_Map : UI_Base
     private void UpdatePlayerIcon()
     {
         if (_playerIcon == null) return;
+
+        bool visible = Cat(MapMarkerCategory.Player);
+        if (_playerIcon.gameObject.activeSelf != visible)
+            _playerIcon.gameObject.SetActive(visible);
+        if (!visible) return;
+
         // PlayerIcon은 IconContainer의 형제 → 동일한 공식: panOffset + mapPos * zoom
         Vector2 mapPos = _config.WorldToMapImagePos(_player.transform.position, _mapDisplaySize);
         _playerIcon.anchoredPosition = _panOffset + mapPos * _currentZoom;
@@ -377,7 +483,7 @@ public class UI_Map : UI_Base
             if (monster == null || icon == null) { toRemove.Add(monster); continue; }
             bool isDetected = monster.Detection?.HasTarget == true;
             icon.SetColor(isDetected ? _config.enemyDetected.color : _config.enemy.color);
-            bool inRange = IsInProximity(monster.transform.position);
+            bool inRange = IsInProximity(monster.transform.position) && Cat(MapMarkerCategory.Enemy);
             icon.UpdateIcon(_config.WorldToMapImagePos(monster.transform.position, _mapDisplaySize) * _currentZoom, inRange);
         }
         CleanupDeadEntries(toRemove, _enemyIconMap);
@@ -391,7 +497,7 @@ public class UI_Map : UI_Base
         foreach (var (actor, icon) in _actorIconMap)
         {
             if (actor == null || icon == null) { toRemove.Add(actor); continue; }
-            bool inRange = IsInProximity(actor.transform.position);
+            bool inRange = IsInProximity(actor.transform.position) && Cat(MapMarkerCategory.Npc);
             icon.UpdateIcon(_config.WorldToMapImagePos(actor.transform.position, _mapDisplaySize) * _currentZoom, inRange);
         }
         CleanupDeadEntries(toRemove, _actorIconMap);
@@ -405,7 +511,7 @@ public class UI_Map : UI_Base
         foreach (var (locationId, icon) in _questIconMap)
         {
             if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar) || icon == null) continue;
-            icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, true);
+            icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.QuestTarget));
         }
     }
 
@@ -499,7 +605,7 @@ public class UI_Map : UI_Base
             if (icon == null) { _tempRemoveIds.Add(locationId); continue; }
             if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar))
             { _tempRemoveIds.Add(locationId); continue; }
-            icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, true);
+            icon.UpdateIcon(_config.WorldToMapImagePos(registrar.WorldPosition, _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.StaticMarker));
         }
 
         foreach (var id in _tempRemoveIds)
@@ -543,7 +649,7 @@ public class UI_Map : UI_Base
         {
             if (icon == null) continue;
             if (!MinimapUserMarkerSystem.TryGet(id, out var marker)) continue;
-            icon.UpdateIcon(_config.WorldToMapImagePos(marker.WorldPosition, _mapDisplaySize) * _currentZoom, true);
+            icon.UpdateIcon(_config.WorldToMapImagePos(marker.WorldPosition, _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.UserMarker));
         }
     }
 
@@ -665,7 +771,7 @@ public class UI_Map : UI_Base
     {
         if (!map.TryGetValue(key, out var icon)) return;
         map.Remove(key);
-        if (icon != null) Object.Destroy(icon.gameObject);
+        if (icon != null) UnityEngine.Object.Destroy(icon.gameObject);
     }
 
     private void ClearAllIcons()
@@ -696,7 +802,7 @@ public class UI_Map : UI_Base
     {
         foreach (var dead in toRemove)
         {
-            if (map.TryGetValue(dead, out var icon) && icon != null) Object.Destroy(icon.gameObject);
+            if (map.TryGetValue(dead, out var icon) && icon != null) UnityEngine.Object.Destroy(icon.gameObject);
             map.Remove(dead);
         }
     }

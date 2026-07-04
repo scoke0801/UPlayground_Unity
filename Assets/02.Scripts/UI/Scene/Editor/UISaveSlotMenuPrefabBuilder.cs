@@ -128,6 +128,15 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
                 SetRef(so, "_closeButtonAlt", closeAlt);
                 SetRef(so, "_slotRoot",       content.transform);
 
+                // 지역 표시용 MapConfigDatabaseSO 자동 연결(프로젝트에 하나만 있다고 가정).
+                var mapDbGuids = AssetDatabase.FindAssets("t:MapConfigDatabaseSO");
+                if (mapDbGuids.Length > 0)
+                {
+                    var mapDb = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.MapConfigDatabaseSO>(
+                        AssetDatabase.GUIDToAssetPath(mapDbGuids[0]));
+                    SetRef(so, "_mapConfigDB", mapDb);
+                }
+
                 var templateProp = so.FindProperty("_slotTemplate");
                 if (templateProp == null)
                 {

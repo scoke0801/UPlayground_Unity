@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questId: quest_main_001
   questName: "\uB04A\uAE34 \uAE38"
+  questType: 0
+  shortSummary: 
   questDescription: "\uB9C8\uC744 \uBC16 \uAE38\uC774 \uB04A\uAE30\uAE30 \uC2DC\uC791\uD588\uB2E4.
     \uC911\uC559 \uD638\uC218 \uC8FC\uBCC0\uC744 \uC870\uC0AC\uD574 \uC6D0\uC778\uC744
     \uD655\uC778\uD55C\uB2E4."
   requiredQuestIds: []
   requiredStoryProgress: 0
+  autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_reach_lake
     description: "\uC911\uC559 \uD638\uC218 \uC8FC\uBCC0\uC744 \uC870\uC0AC\uD55C\uB2E4."

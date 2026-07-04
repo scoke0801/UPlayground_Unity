@@ -413,6 +413,7 @@ namespace UPlayGround.Manager
                 saveVersion = partial?.saveVersion ?? string.Empty,
                 mapId = partial?.party?.mapId ?? string.Empty,
                 storyProgress = partial?.story?.progress ?? 0,
+                mainQuestName = QuestManager.Instance.ResolveMainQuestName(partial?.quest) ?? string.Empty,
                 filePath = path
             };
         }
@@ -670,6 +671,7 @@ namespace UPlayGround.Manager
         public string saveVersion;
         public string mapId;        // 저장 당시 맵 식별자
         public int storyProgress;   // 스토리 진행도
+        public string mainQuestName; // 저장 당시 진행 중인 메인 퀘스트 명 (없으면 빈 문자열)
         public string filePath;
     }
 

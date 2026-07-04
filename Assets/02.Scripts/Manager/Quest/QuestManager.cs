@@ -192,6 +192,24 @@ namespace UPlayGround.Manager
         /// <summary> 진행 중인 모든 퀘스트 런타임 데이터 </summary>
         public IEnumerable<QuestRuntimeData> GetActiveQuests() => _activeQuests.Values;
 
+        /// <summary>
+        /// 세이브 데이터의 진행 중 퀘스트 목록에서 메인 퀘스트 표시 이름을 해석한다.
+        /// 세이브 슬롯 미리보기용(런타임 상태가 아닌 파일 내용 기준). DB가 로드돼 있어야 하며,
+        /// 메인 퀘스트가 없거나 DB 미로드면 null. (여러 개면 첫 번째. questName이 비면 questId로 대체.)
+        /// </summary>
+        public string ResolveMainQuestName(QuestSaveData questSave)
+        {
+            if (questSave?.activeQuests == null) return null;
+            foreach (var entry in questSave.activeQuests)
+            {
+                if (entry == null) continue;
+                var so = GetQuestData(entry.questId);
+                if (so != null && so.questType == QuestType.Main)
+                    return string.IsNullOrEmpty(so.questName) ? so.questId : so.questName;
+            }
+            return null;
+        }
+
         /// <summary>현재 HUD에서 추적 중인 퀘스트 ID. 없으면 null.</summary>
         public string TrackedQuestId => _trackedQuestId;
 

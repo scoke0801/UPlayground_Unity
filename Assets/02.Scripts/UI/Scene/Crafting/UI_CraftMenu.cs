@@ -271,6 +271,7 @@ public class UI_CraftMenu : UI_Base
         if (resultItem != null)
         {
             _imgResultIcon.sprite  = resultItem.icon;
+            _imgResultIcon.color   = Color.white;
             _imgResultIcon.enabled = resultItem.icon != null;
             _txtResultName.text    = recipe.resultQuantity > 1
                 ? $"{recipe.recipeName}  <size=75%>x{recipe.resultQuantity}</size>"
@@ -300,10 +301,12 @@ public class UI_CraftMenu : UI_Base
             if (s != null) Destroy(s.gameObject);
         _spawnedIngredientSlots.Clear();
 
+        var availability = RecipeManager.Instance.GetIngredientAvailability(recipeID, _quantity);
         foreach (var ingr in RecipeManager.Instance.GetIngredients(recipeID))
         {
             var slot = Instantiate(_ingredientSlotPrefab, _ingredientContent);
-            slot.Init(ingr.ingredientItemID, ingr.requiredQuantity, _quantity);
+            availability.TryGetValue(ingr.ingredientItemID, out bool isAvailable);
+            slot.Init(ingr.ingredientItemID, ingr.requiredQuantity, _quantity, isAvailable);
             _spawnedIngredientSlots.Add(slot);
         }
 
@@ -362,9 +365,11 @@ public class UI_CraftMenu : UI_Base
         if (_selectedRecipeID == -1) return;
 
         var ingredients = RecipeManager.Instance.GetIngredients(_selectedRecipeID);
+        var availability = RecipeManager.Instance.GetIngredientAvailability(_selectedRecipeID, _quantity);
         for (int i = 0; i < _spawnedIngredientSlots.Count && i < ingredients.Count; i++)
         {
-            _spawnedIngredientSlots[i].RefreshCount(ingredients[i].requiredQuantity, _quantity);
+            availability.TryGetValue(ingredients[i].ingredientItemID, out bool isAvailable);
+            _spawnedIngredientSlots[i].RefreshCount(ingredients[i].requiredQuantity, _quantity, isAvailable);
         }
     }
 
@@ -403,8 +408,28 @@ public class UI_CraftMenu : UI_Base
         }
 
         bool canCraft = RecipeManager.Instance.CanCraft(_selectedRecipeID, _quantity);
+        CraftAvailabilityReason reason = RecipeManager.Instance.GetCraftAvailabilityReason(_selectedRecipeID, _quantity);
         _btnCraft.interactable = canCraft;
-        _txtCraftButton.text   = canCraft ? "제작" : "재료 부족";
+        _txtCraftButton.text   = canCraft ? "제작" : GetUnavailableLabel(reason);
+    }
+
+    private static string GetUnavailableLabel(CraftAvailabilityReason reason)
+    {
+        switch (reason)
+        {
+            case CraftAvailabilityReason.InvalidResult:
+                return "결과 아이템 없음";
+            case CraftAvailabilityReason.NotEnoughCost:
+                return "골드 부족";
+            case CraftAvailabilityReason.NotEnoughIngredients:
+                return "재료 부족";
+            case CraftAvailabilityReason.Locked:
+                return "레시피 잠김";
+            case CraftAvailabilityReason.AlreadyCrafting:
+                return "제작 중";
+            default:
+                return "제작 불가";
+        }
     }
 
     #endregion

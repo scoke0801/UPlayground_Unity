@@ -60,10 +60,19 @@ public class UI_Inventory : UI_Base
     [SerializeField] private TextMeshProUGUI _statCritDmgText;
     [SerializeField] private TextMeshProUGUI _statAtkSpeedText;
 
+    [Header("Party Equipment")]
+    [SerializeField] private Transform _partySelectorContainer;                 // 파티원 선택 버튼 컨테이너
+    [SerializeField] private UIPartyEquipSelectorEntry _partyEntryPrefab;       // 파티원 선택 버튼 프리팹
+    [SerializeField] private UIEquipmentSlot[] _equipmentSlots;                 // 선택 캐릭터 장비 슬롯(주/보조 무기 + 방어구 5)
+    [SerializeField] private TextMeshProUGUI _selectedCharacterNameText;        // 선택 캐릭터 이름
+
     [Header("Etc")]
     [SerializeField] private Button              _btnClose;
-    
+
     private enum InventorySortMode { Default = 0, Name = 1, Rarity = 2, Weight = 3 }
+
+    private readonly List<UIPartyEquipSelectorEntry> _partyEntries = new List<UIPartyEquipSelectorEntry>();
+    private CharacterActorType _selectedCharacter = CharacterActorType.None;
 
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
     private ItemSO _selectedItemData;
@@ -92,6 +101,9 @@ public class UI_Inventory : UI_Base
 
         if (_tabGroup != null)
             _tabGroup.SelectionChanged -= OnTabSelected;
+
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
     }
 
     protected override void OnShow()
@@ -102,6 +114,13 @@ public class UI_Inventory : UI_Base
 
         // "전체" 탭(인덱스 0) 하이라이트만 갱신 (리스트 채우기는 아래에서 직접 수행하므로 notify:false)
         _tabGroup?.Select(0, notify: false);
+
+        var inv = InventoryManager.Instance;
+        if (inv != null)
+        {
+            inv.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
+            inv.OnPartyEquipmentChanged += OnPartyEquipmentChanged;
+        }
 
         var items = RefreshDictItem();
         SetInventory();
@@ -159,19 +178,127 @@ public class UI_Inventory : UI_Base
     }
 
     
+    // 장착 부위별 표시 라벨 + 슬롯 매핑에 쓰는 순서(빌더의 _equipmentSlots 배열 순서와 동일).
+    private static readonly EquipPosition[] EquipmentSlotOrder =
+    {
+        EquipPosition.RightHand, EquipPosition.LeftHand,
+        EquipPosition.Head, EquipPosition.Chest, EquipPosition.Pants,
+        EquipPosition.Shoes, EquipPosition.Gloves
+    };
+
     private void InitPlayerEquipmentSlot()
     {
-        PlayerEquipment playerEquipment = GameObjectManager.Instance?.Player?.GetPlayerEquipment();
-        if (playerEquipment == null)
+        BuildPartySelector();
+
+        // 장비 슬롯 클릭 → 해당 슬롯 해제
+        if (_equipmentSlots != null)
         {
-            return;
+            foreach (var slot in _equipmentSlots)
+            {
+                if (slot == null) continue;
+                var captured = slot; // 클로저 캡처 안전
+                captured.SetClickHandler(OnClickUnequipSlot);
+            }
         }
 
-        ItemManager manager = ItemManager.Instance;
-        if (manager == null)
+        // 기본 선택 대상: 현재 활성 캐릭터
+        CharacterActorType initial = PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None;
+        if (initial == CharacterActorType.None)
         {
-            return;
+            var roster = PartyManager.Instance?.Roster;
+            if (roster != null && roster.Count > 0) initial = roster[0];
         }
+        SelectCharacter(initial);
+    }
+
+    // 보유(Roster) 전체를 파티원 선택 버튼으로 구성한다.
+    private void BuildPartySelector()
+    {
+        if (_partySelectorContainer == null || _partyEntryPrefab == null)
+            return;
+
+        foreach (var e in _partyEntries)
+            if (e != null) Destroy(e.gameObject);
+        _partyEntries.Clear();
+
+        var roster = PartyManager.Instance?.Roster;
+        var memberData = PartyManager.Instance?.PartyMemberDataSO;
+        if (roster == null) return;
+
+        foreach (var type in roster)
+        {
+            if (type == CharacterActorType.None) continue;
+
+            var entry = Instantiate(_partyEntryPrefab, _partySelectorContainer);
+            Sprite portrait = memberData != null ? memberData.GetHeadSprite(type) : null;
+            string charName = memberData != null ? memberData.GetName(type) : type.ToString();
+            entry.Bind(type, portrait, charName, SelectCharacter);
+            _partyEntries.Add(entry);
+        }
+    }
+
+    /// <summary> 장비 편집 대상 캐릭터를 선택한다. </summary>
+    public void SelectCharacter(CharacterActorType type)
+    {
+        _selectedCharacter = type;
+
+        foreach (var e in _partyEntries)
+            if (e != null) e.SetSelected(e.Type == type);
+
+        if (_selectedCharacterNameText != null)
+        {
+            var memberData = PartyManager.Instance?.PartyMemberDataSO;
+            _selectedCharacterNameText.text = memberData != null ? memberData.GetName(type) : type.ToString();
+        }
+
+        RefreshEquipmentPanel();
+        RefreshActionButtons();
+    }
+
+    // 선택 캐릭터의 7개 장비 슬롯 아이콘을 레지스트리 값대로 갱신한다.
+    private void RefreshEquipmentPanel()
+    {
+        if (_equipmentSlots == null) return;
+
+        var inv = InventoryManager.Instance;
+        var itemManager = ItemManager.Instance;
+
+        for (int i = 0; i < _equipmentSlots.Length; i++)
+        {
+            var slot = _equipmentSlots[i];
+            if (slot == null) continue;
+
+            EquipPosition pos = slot.Slot != EquipPosition.None
+                ? slot.Slot
+                : (i < EquipmentSlotOrder.Length ? EquipmentSlotOrder[i] : EquipPosition.None);
+
+            slot.SetLabel(pos.ToDisplayString());
+
+            int itemId = inv != null && _selectedCharacter != CharacterActorType.None
+                ? inv.GetEquippedItem(_selectedCharacter, pos)
+                : -1;
+
+            ItemSO item = itemId >= 0 && itemManager != null
+                ? itemManager.GetItemData(itemId) as ItemSO
+                : null;
+            slot.SetItem(item);
+        }
+    }
+
+    private void OnClickUnequipSlot(EquipPosition slot)
+    {
+        if (_selectedCharacter == CharacterActorType.None)
+            return;
+
+        InventoryManager.Instance.TryUnequipItem(_selectedCharacter, slot);
+        // 레지스트리 변경은 OnPartyEquipmentChanged로 UI 일괄 갱신됨
+    }
+
+    private void OnPartyEquipmentChanged()
+    {
+        RefreshEquipmentPanel();
+        SetInventory();            // 아이템 슬롯 장착중 뱃지 갱신
+        RefreshActionButtons();
     }
     
     public void SetItemClickAnimation(UI_InventorySlot slot)
@@ -355,6 +482,7 @@ public class UI_Inventory : UI_Base
 
         _selectedItemPrefab.SetActive(true);
         _selectedItemImage.sprite = itemData.icon;
+        _selectedItemImage.color = Color.white;
         _selectedItemImage.enabled = true;
         _selectedItemCountText.text = "보유: " + count.ToString();
         _selectedItemNameText.text = (isEquip && enhance > 0)
@@ -375,7 +503,7 @@ public class UI_Inventory : UI_Base
         // 장착 부위
         if (_selectedEquipSlotText != null)
         {
-            _selectedEquipSlotText.gameObject.SetActive(isEquip);
+            SetEquipSlotRowActive(isEquip);
             if (isEquip)
                 _selectedEquipSlotText.text = equip.equipSlot.ToDisplayString(equip.weaponType);
         }
@@ -407,7 +535,7 @@ public class UI_Inventory : UI_Base
 
         if (_selectedRarityText != null)    _selectedRarityText.text = string.Empty;
         if (_selectedWeightText != null)    _selectedWeightText.text = string.Empty;
-        if (_selectedEquipSlotText != null) _selectedEquipSlotText.gameObject.SetActive(false);
+        SetEquipSlotRowActive(false);
         if (_statPanel != null)             _statPanel.SetActive(false);
 
         _selectedItemPrefab.SetActive(false);
@@ -426,9 +554,12 @@ public class UI_Inventory : UI_Base
     private void RefreshActionButtons()
     {
         bool hasItem = _selectedItemData != null && _selectedItemCount > 0;
+        // 장착은 선택된 파티원 대상으로 판정
+        bool canEquip = hasItem && _selectedCharacter != CharacterActorType.None &&
+                        InventoryManager.Instance.CanEquipItem(_selectedCharacter, _selectedItemData.itemId);
 
         SetActionButtonActive(_useButton, hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE);
-        SetActionButtonActive(_equipButton, hasItem && _selectedItemData.itemType == ItemType.EQUIPMENT);
+        SetActionButtonActive(_equipButton, canEquip);
         SetActionButtonActive(_dropButton, hasItem);
     }
 
@@ -453,13 +584,33 @@ public class UI_Inventory : UI_Base
 
     private UICommonButtonClickResult OnClickEquipSelectedItem()
     {
-        if (_selectedItemData == null)
+        if (_selectedItemData == null ||
+            _selectedCharacter == CharacterActorType.None ||
+            !InventoryManager.Instance.CanEquipItem(_selectedCharacter, _selectedItemData.itemId))
         {
             return UICommonButtonClickResult.Failed;
         }
 
-        InventoryActionResult result = InventoryManager.Instance.TryEquipItem(_selectedItemData.itemId);
+        InventoryActionResult result = InventoryManager.Instance.TryEquipItem(_selectedCharacter, _selectedItemData.itemId);
         return RefreshAfterAction(result);
+    }
+
+    private void SetEquipSlotRowActive(bool active)
+    {
+        if (_selectedEquipSlotText == null)
+        {
+            return;
+        }
+
+        Transform row = _selectedEquipSlotText.transform.parent;
+        if (row != null)
+        {
+            row.gameObject.SetActive(active);
+        }
+        else
+        {
+            _selectedEquipSlotText.gameObject.SetActive(active);
+        }
     }
 
     private UICommonButtonClickResult OnClickDropSelectedItem()

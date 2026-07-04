@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questId: main_001
   questName: "\uBAAC\uC2A4\uD130 \uC815\uC218 \uC218\uC9D1"
+  questType: 0
+  shortSummary: 
   questDescription: "\uBAAC\uC2A4\uD130 \uC815\uC218\uB97C 3\uAC1C \uC218\uC9D1\uD558\uC138\uC694"
   requiredQuestIds: []
   requiredStoryProgress: 0

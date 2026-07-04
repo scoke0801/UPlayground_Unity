@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questId: quest_sub_guide_broken_lantern
   questName: "\uC4F0\uB7EC\uC9C4 \uB4F1\uB871"
+  questType: 0
+  shortSummary: 
   questDescription: "\uC11D\uB4F1 \uAE38 \uCD08\uC785\uC758 \uC4F0\uB7EC\uC9C4 \uB4F1\uB871\uC744
     \uD655\uC778\uD574 \uAE38\uC7A1\uC774\uC5D0\uAC8C \uC704\uCE58 \uC815\uBCF4\uB97C
     \uC804\uD55C\uB2E4."
   requiredQuestIds: []
   requiredStoryProgress: 10
+  autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_reach_broken_lantern
     description: "\uC11D\uB4F1 \uAE38 \uCD08\uC785\uC758 \uC4F0\uB7EC\uC9C4 \uB4F1\uB871\uC744

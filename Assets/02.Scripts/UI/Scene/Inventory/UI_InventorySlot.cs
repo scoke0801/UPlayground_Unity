@@ -24,6 +24,9 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
     [SerializeField] private Image _imgItem;
     [SerializeField] private Image _imgRarity;
     [SerializeField] private GameObject _focusHighlight;    // 포커스(선택) 시 표시되는 하이라이트 프레임
+    [SerializeField] private GameObject _equippedBadge;     // 파티원이 장착 중일 때 표시 (선택적)
+    [SerializeField] private Image _equippedPortrait;       // 장착 중인 파티원 초상 (선택적)
+    [SerializeField] private TextMeshProUGUI _equippedBadgeText; // 2명 이상일 때 "+N" (선택적)
 
     private ItemSO _itemData = null;
     private int _itemCount = 0;
@@ -68,9 +71,10 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
         {
             _rootContent.SetActive(false);
             _rootEmptySlot.SetActive(true);
+            if (_equippedBadge != null) _equippedBadge.SetActive(false);
         }
         else
-        {            
+        {
             _rootContent.SetActive(true);
             _rootEmptySlot.SetActive(false);
             _imgRarity.color = _itemData.itemRarity.ToColor();
@@ -80,6 +84,9 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
 
             if (_txtEnhance != null)
                 _txtEnhance.text = _enhanceLevel > 0 ? $"+{_enhanceLevel}" : string.Empty;
+
+            // 장착 중인 파티원 초상 뱃지. 프리팹에 뱃지 오브젝트가 없으면 무시.
+            RefreshEquippedBadge();
         }
     }
 
@@ -121,6 +128,37 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
         SetFocus(false);
     }
     #endregion
+
+    // 이 아이템을 장착 중인 파티원의 초상을 슬롯 우상단에 표시한다(여러 명이면 첫 초상 + "+N").
+    private void RefreshEquippedBadge()
+    {
+        if (_equippedBadge == null && _equippedPortrait == null && _equippedBadgeText == null)
+            return;
+
+        var equippers = InventoryManager.Instance?.GetEquippingCharacters(_itemData.itemId);
+        bool anyEquipped = equippers != null && equippers.Count > 0;
+
+        if (_equippedBadge != null)
+            _equippedBadge.SetActive(anyEquipped);
+
+        if (!anyEquipped)
+        {
+            if (_equippedPortrait != null) _equippedPortrait.enabled = false;
+            if (_equippedBadgeText != null) _equippedBadgeText.text = string.Empty;
+            return;
+        }
+
+        var memberData = PartyManager.Instance?.PartyMemberDataSO;
+        Sprite head = memberData != null ? memberData.GetHeadSprite(equippers[0]) : null;
+
+        if (_equippedPortrait != null)
+        {
+            _equippedPortrait.sprite  = head;
+            _equippedPortrait.enabled = head != null;
+        }
+        if (_equippedBadgeText != null)
+            _equippedBadgeText.text = equippers.Count > 1 ? $"+{equippers.Count - 1}" : string.Empty;
+    }
 
     /// <summary> 포커스 하이라이트 표시/숨김. </summary>
     public void SetFocus(bool focused)

@@ -96,6 +96,22 @@ namespace UPlayGround.Data.Save
     {
         public int gold;
         public List<ItemSaveEntry> items = new List<ItemSaveEntry>();
+
+        /// <summary> 캐릭터별 장착 장비 (활성/벤치 공통). </summary>
+        public List<CharacterEquipmentSaveEntry> equipment = new List<CharacterEquipmentSaveEntry>();
+    }
+
+    [Serializable]
+    public class CharacterEquipmentSaveEntry
+    {
+        public string type;
+        public int rightHand = -1;
+        public int leftHand  = -1;
+        public int head      = -1;
+        public int chest     = -1;
+        public int pants     = -1;
+        public int shoes     = -1;
+        public int gloves    = -1;
     }
 
     [Serializable]

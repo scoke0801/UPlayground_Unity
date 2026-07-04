@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questId: quest_main_003
   questName: "\uC6C0\uC9C1\uC774\uB294 \uBC14\uC704"
+  questType: 0
+  shortSummary: 
   questDescription: "\uBC14\uC704 \uACE0\uC9C0\uB300\uB098 \uC232 \uACBD\uACC4\uC758
     \uC911\uD615 \uBAAC\uC2A4\uD130\uB97C \uCC98\uCE58\uD558\uACE0 \uB358\uC804 \uBC29\uD5A5
     \uB2E8\uC11C\uB97C \uD655\uBCF4\uD55C\uB2E4."
   requiredQuestIds: []
   requiredStoryProgress: 10
+  autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_kill_highland_guardian
     description: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD55C\uB2E4."

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Data.UI;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -36,7 +37,7 @@ public class UI_SaveSlotMenu : UI_Base
         public TextMeshProUGUI infoText;
         [Tooltip("슬롯 썸네일 이미지. 캡처 파일이 없으면 플레이스홀더 색으로 표시한다.")]
         public Image thumbnail;
-        [Tooltip("세이브 유무 상태 문구 ('세이브 있음'/'비어 있음').")]
+        [Tooltip("상태 문구. 세이브가 있으면 진행 중인 메인 퀘스트 명(없으면 '메인 퀘스트 없음'), 빈 슬롯은 '비어 있음'.")]
         public TextMeshProUGUI statusText;
         [Tooltip("저장 일시.")]
         public TextMeshProUGUI dateText;
@@ -54,11 +55,16 @@ public class UI_SaveSlotMenu : UI_Base
     [SerializeField] private string _loadButtonLabel = "불러오기";
 
     [Header("슬롯 상태 문구")]
-    [SerializeField] private string _slotFilledLabel = "세이브 있음";
+    [Tooltip("세이브가 있는 슬롯에서 진행 중인 메인 퀘스트가 없을 때 표시할 문구.")]
+    [SerializeField] private string _noMainQuestLabel = "메인 퀘스트 없음";
     [SerializeField] private string _slotEmptyLabel = "비어 있음";
 
     [Tooltip("썸네일이 없는(빈) 슬롯의 플레이스홀더 색.")]
     [SerializeField] private Color _emptyThumbnailColor = new Color(0.03f, 0.04f, 0.06f, 1f);
+
+    [Header("지역 표시")]
+    [Tooltip("mapId → 대륙(continent) 이름 매핑용. 연결하면 슬롯 지역 표시가 mapId 대신 continentName으로 나온다. 미연결/미등록 시 mapId로 폴백.")]
+    [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
 
     [Header("슬롯 행")]
     [Tooltip("동적으로 생성된 슬롯 행이 배치될 Content Transform. 비어 있으면 템플릿 행의 부모를 사용한다.")]
@@ -123,7 +129,7 @@ public class UI_SaveSlotMenu : UI_Base
             if (row.infoText != null)
             {
                 row.infoText.text = hasSave
-                    ? $"슬롯 {slot + 1}\n{info.saveDateTime}\n맵: {info.mapId}  진행도: {info.storyProgress}"
+                    ? $"슬롯 {slot + 1}\n{info.saveDateTime}\n맵: {ResolveRegionName(info.mapId)}  진행도: {info.storyProgress}"
                     : $"슬롯 {slot + 1}\n- 비어 있음 -";
             }
 
@@ -146,12 +152,25 @@ public class UI_SaveSlotMenu : UI_Base
             }
 
             // 세분화 정보 필드(연결된 것만 갱신).
+            // 상태 문구: 세이브가 있으면 '세이브 있음' 대신 그 슬롯에 저장된 진행 중 메인 퀘스트 명을 표시.
+            //           메인 퀘스트가 없으면 '메인 퀘스트 없음', 빈 슬롯은 '비어 있음'.
             if (row.statusText != null)
-                row.statusText.text = hasSave ? _slotFilledLabel : _slotEmptyLabel;
+            {
+                if (hasSave)
+                {
+                    row.statusText.text = string.IsNullOrEmpty(info.mainQuestName)
+                        ? _noMainQuestLabel
+                        : info.mainQuestName;
+                }
+                else
+                {
+                    row.statusText.text = _slotEmptyLabel;
+                }
+            }
             if (row.dateText != null)
                 row.dateText.text = hasSave ? info.saveDateTime : "-";
             if (row.mapText != null)
-                row.mapText.text = hasSave ? $"맵: {info.mapId}" : "맵: -";
+                row.mapText.text = hasSave ? $"맵: {ResolveRegionName(info.mapId)}" : "맵: -";
             if (row.progressText != null)
                 row.progressText.text = $"진행도: {(hasSave ? info.storyProgress : 0)}";
 
@@ -166,6 +185,21 @@ public class UI_SaveSlotMenu : UI_Base
             if (row.deleteButton != null)
                 row.deleteButton.gameObject.SetActive(hasSave);
         }
+    }
+
+    /// <summary>
+    /// mapId를 표시용 지역 이름으로 변환한다. MapConfigDatabaseSO가 연결돼 있고 해당 mapId의
+    /// continentName이 있으면 그것을, 없으면 원본 mapId를 그대로 반환한다.
+    /// </summary>
+    private string ResolveRegionName(string mapId)
+    {
+        if (_mapConfigDB != null && !string.IsNullOrEmpty(mapId))
+        {
+            var region = _mapConfigDB.GetRegionInfo(mapId);
+            if (region != null && !string.IsNullOrEmpty(region.continentName))
+                return region.continentName;
+        }
+        return mapId;
     }
 
     private void RebuildRows()

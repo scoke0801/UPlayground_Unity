@@ -1,5 +1,7 @@
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Item;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Cheat.Editor
@@ -21,6 +23,12 @@ namespace UPlayGround.Cheat.Editor
 
         // ── 스크롤 ────────────────────────────────────────────────────
         private Vector2 _scrollPos;
+        private Vector2 _itemListScrollPos;
+
+        // ── 아이템 지급 ───────────────────────────────────────────────
+        private int    _grantItemId = (int)ItemIdType.저급_회복물약;
+        private int    _grantItemCount = 1;
+        private string _itemSearchText = string.Empty;
 
         // ── 색상 팔레트 ───────────────────────────────────────────────
         private static readonly Color ColorOn      = new Color(0.20f, 0.80f, 0.35f);
@@ -71,6 +79,9 @@ namespace UPlayGround.Cheat.Editor
             {
                 EditorGUILayout.Space(6);
                 DrawCombatSection(cheat);
+
+                EditorGUILayout.Space(8);
+                DrawItemSection(cheat);
 
                 EditorGUILayout.Space(8);
                 DrawFooter(cheat);
@@ -131,6 +142,88 @@ namespace UPlayGround.Cheat.Editor
                 onToggle:    v => cheat.SetAlwaysParry(v));
 
             EditorGUILayout.Space(4);
+        }
+
+        // ── 섹션: 아이템 ──────────────────────────────────────────────
+
+        private void DrawItemSection(CheatManager cheat)
+        {
+            DrawSectionHeader("◆  아이템");
+
+            EditorGUILayout.Space(4);
+
+            var itemManager = ItemManager.Instance;
+            var inventoryManager = InventoryManager.Instance;
+            bool itemDbReady = itemManager != null && itemManager.IsItemDBLoaded && itemManager.GetItemDB() != null;
+
+            if (!itemDbReady || inventoryManager == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "ItemDatabase 또는 InventoryManager가 아직 준비되지 않았습니다.",
+                    MessageType.Warning);
+                return;
+            }
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField("직접 지급", EditorStyles.boldLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                _grantItemId = EditorGUILayout.IntField("Item ID", _grantItemId);
+                _grantItemCount = Mathf.Max(1, EditorGUILayout.IntField("수량", _grantItemCount, GUILayout.Width(140)));
+                if (GUILayout.Button("지급", GUILayout.Width(64)))
+                    cheat.GrantItem(_grantItemId, _grantItemCount);
+                EditorGUILayout.EndHorizontal();
+
+                ItemSO selectedItem = itemManager.GetItemData(_grantItemId);
+                string selectedLabel = selectedItem != null
+                    ? $"{selectedItem.itemName} / {selectedItem.itemType.ToDisplayString()} / 보유 {inventoryManager.GetItemCount(_grantItemId)}"
+                    : "ItemDatabase에서 찾을 수 없는 ID입니다.";
+                EditorGUILayout.LabelField(selectedLabel, EditorStyles.miniLabel);
+            }
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.Space(4);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField("DB에서 선택", EditorStyles.boldLabel);
+                _itemSearchText = EditorGUILayout.TextField("검색", _itemSearchText);
+
+                _itemListScrollPos = EditorGUILayout.BeginScrollView(_itemListScrollPos, GUILayout.Height(170));
+                foreach (var item in itemManager.GetItemDB().AllItems)
+                {
+                    if (item == null || !IsItemSearchMatch(item))
+                        continue;
+
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label($"{item.itemId}", GUILayout.Width(58));
+                    GUILayout.Label(item.itemName, GUILayout.MinWidth(110));
+                    GUILayout.Label(item.itemType.ToDisplayString(), EditorStyles.miniLabel, GUILayout.Width(82));
+                    GUILayout.FlexibleSpace();
+                    GUILayout.Label($"보유 {inventoryManager.GetItemCount(item.itemId)}", EditorStyles.miniLabel, GUILayout.Width(58));
+                    if (GUILayout.Button("선택", GUILayout.Width(48)))
+                        _grantItemId = item.itemId;
+                    if (GUILayout.Button("+1", GUILayout.Width(40)))
+                        cheat.GrantItem(item.itemId, 1);
+                    if (GUILayout.Button($"+{_grantItemCount}", GUILayout.Width(48)))
+                        cheat.GrantItem(item.itemId, _grantItemCount);
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndScrollView();
+            }
+            EditorGUILayout.EndVertical();
+        }
+
+        private bool IsItemSearchMatch(ItemSO item)
+        {
+            if (string.IsNullOrWhiteSpace(_itemSearchText))
+                return true;
+
+            string keyword = _itemSearchText.Trim();
+            return item.itemId.ToString().Contains(keyword) ||
+                   (!string.IsNullOrEmpty(item.itemName) &&
+                    item.itemName.IndexOf(keyword, System.StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         // ── 공통 레이아웃 헬퍼 ────────────────────────────────────────

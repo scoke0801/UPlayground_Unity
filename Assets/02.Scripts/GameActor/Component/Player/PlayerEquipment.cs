@@ -68,6 +68,9 @@ namespace UPlayGround.Component
         public WeaponType GetSubWeaponType() => _subWeaponType;
         public WeaponType GetMainWeaponType() => _mainWeaponType;
 
+        /// <summary> 이 모델의 기본(시작) 장비 목록. 장비 레지스트리 시딩용 읽기 접근자. </summary>
+        public IReadOnlyList<EquipmentSO> StartEquipItems => _startEquipItemList;
+
         public bool IsWeaponTrailDrawable(WeaponTrailEffect trail)
         {
             if (trail == null) return false;
@@ -125,7 +128,8 @@ namespace UPlayGround.Component
             if (_subWeaponType != WeaponType.NoWeapon)
                 SetLeftWeaponType(_subWeaponType);
 
-            StartCoroutine(CoEquipStartItem());
+            // 시작 장비 착용은 장비 레지스트리(InventoryManager) → RefreshForCharacter의
+            // ApplyEquipmentSnapshot 경로로 일원화한다. 여기서 직접 착용하면 이중 착용/레이스가 발생.
         }
 
         private void OnDestroy()
@@ -149,28 +153,6 @@ namespace UPlayGround.Component
             data.MarkHandled(succeeded, succeeded ? null : "무기 변경 실패");
         }
 
-        private IEnumerator CoEquipStartItem()
-        {
-            yield return new WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded);
-
-            if (_startEquipItemList == null || _startEquipItemList.Count == 0)
-            {
-                yield break;
-            }
-
-            for (int i = 0; i < _startEquipItemList.Count; i++)
-            {
-                var itemData = _startEquipItemList[i];
-        
-                OnEquipItem(new PlayerEquipChangeEvent()
-                {
-                    equipPosition = itemData.equipSlot,
-                    isEquip = true,
-                    itemKey = itemData.itemId,
-                    weaponType = itemData.weaponType
-                });
-            }
-        }
         private void OnEquipItem(PlayerEquipChangeEvent eventData)
         {
             EquipmentSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey) as EquipmentSO;
@@ -267,9 +249,74 @@ namespace UPlayGround.Component
             // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.
             // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
             ForceSyncWeaponState(equipPosition, false);
+
+            // 주 무기를 교체했을 때 기존 보조 무기와 타입이 맞지 않으면 자동 해제
+            if (equipPosition == EquipPosition.RightHand)
+                UnequipIncompatibleSubWeapon(weaponType);
+
             ActorWeaponTrailController.RefreshAttackTrails(this);
             GetComponentInParent<UPlayGround.Combat.CombatHitboxSet>()?.Refresh();
             return true;
+        }
+
+        // 주 무기 타입이 바뀌어 현재 보조 무기와 호환되지 않으면 보조 무기를 제거하고 타입을 초기화한다.
+        private void UnequipIncompatibleSubWeapon(WeaponType newMainType)
+        {
+            if (SubWeaponKey < 0 || _subWeaponType == newMainType)
+                return;
+
+            DestroyEquippedWeapon(EquipPosition.LeftHand);
+            ResetWeaponType(EquipPosition.LeftHand);
+        }
+
+        private Coroutine _applySnapshotCo;
+
+        /// <summary>
+        /// 장비 레지스트리의 주/보조 무기 itemId대로 외형을 동기화한다. (방어구는 외형 반영 없음)
+        /// 현재 장착 키와 동일한 슬롯은 재생성하지 않는다. item DB 로드 전이면 로드 후 적용.
+        /// 활성(enabled) 모델에서만 동작 — 벤치 모델은 레지스트리가 소스이므로 시각 반영 불필요.
+        /// </summary>
+        public void ApplyEquipmentSnapshot(int mainKey, int subKey)
+        {
+            if (!isActiveAndEnabled)
+                return;
+
+            if (_applySnapshotCo != null)
+                StopCoroutine(_applySnapshotCo);
+            _applySnapshotCo = StartCoroutine(CoApplyEquipmentSnapshot(mainKey, subKey));
+        }
+
+        private IEnumerator CoApplyEquipmentSnapshot(int mainKey, int subKey)
+        {
+            yield return new WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded);
+
+            // 주 무기 먼저 적용 — 주 무기 교체가 EquipWeapon 내부에서 비호환 보조를 정리할 수 있어,
+            // 보조는 그 이후에 최신 상태(live 키)로 판정한다.
+            ApplyWeaponSlot(EquipPosition.RightHand, mainKey);
+            ApplyWeaponSlot(EquipPosition.LeftHand,  subKey);
+
+            _applySnapshotCo = null;
+        }
+
+        private void ApplyWeaponSlot(EquipPosition slot, int targetKey)
+        {
+            int currentKey = slot == EquipPosition.RightHand ? MainWeaponKey : SubWeaponKey;
+            if (targetKey == currentKey)
+                return; // 이미 일치 — 재생성 불필요 (방어구 변경 등으로 인한 불필요한 무기 재생성 방지)
+
+            if (targetKey < 0)
+            {
+                DestroyEquippedWeapon(slot);
+                ResetWeaponType(slot);
+                ActorWeaponTrailController.RefreshAttackTrails(this);
+                GetComponentInParent<UPlayGround.Combat.CombatHitboxSet>()?.Refresh();
+                return;
+            }
+
+            WeaponType type = ItemManager.Instance.GetItemData(targetKey) is EquipmentSO eq
+                ? eq.weaponType
+                : WeaponType.NoWeapon;
+            EquipWeapon(targetKey, slot, type);
         }
 
         // 장착 실패 슬롯의 무기 타입을 NoWeapon으로 되돌려 key(-1)/obj(null)와 일관시킨다.

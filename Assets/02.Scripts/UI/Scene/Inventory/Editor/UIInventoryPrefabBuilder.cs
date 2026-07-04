@@ -2,6 +2,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.UI.Inventory.EditorTools
 {
@@ -18,6 +19,12 @@ namespace UPlayGround.UI.Inventory.EditorTools
     {
         private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UI_Inventory.prefab";
         private const string SlotPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UI_InventorySlot.prefab";
+        private const string PartyEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UIPartyEquipSelectorEntry.prefab";
+
+        private const int GridColumnCount = 10;
+        private const int InitialRowCount = 12;
+        private const float SlotCellSize = 155f;
+        private const float SlotOverlaySize = 150f;
 
         private static readonly Color Dim       = new Color(0f, 0f, 0f, 0.6f);
         private static readonly Color WindowBg  = new Color(0.07f, 0.09f, 0.12f, 0.98f);
@@ -44,6 +51,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
             }
 
             var slot = BuildSlotPrefab();
+            var partyEntry = BuildPartyEntryPrefab();
 
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
@@ -75,6 +83,57 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 var btnClose = MakeButton("BtnClose", header.transform, "X", out _);
                 AnchorTopRight(Rt(btnClose.gameObject), 38, 38);
 
+                // ── 파티 장비 바 (헤더와 본문 사이, 전체 폭) — 본문 3열 레이아웃을 건드리지 않는다 ──
+                var partyBar = NewUI("PartyEquipBar", window.transform);
+                SetHeight(partyBar, 150);
+                AddImage(partyBar, PanelBg, UISprite, sliced: true);
+                AddHLG(partyBar, spacing: 12, pad: 8).childForceExpandHeight = true;
+
+                // 파티원 선택 영역 (런타임에 Roster로 채움)
+                var partyBox = NewUI("PartyBox", partyBar.transform);
+                AddFlexibleW(partyBox, 1f);
+                AddVLG(partyBox, spacing: 4, pad: 4).childForceExpandHeight = false;
+                var partyTitle = AddText(NewUI("PartyTitle", partyBox.transform), "파티", 18, TextMain, TextAlignmentOptions.Left);
+                SetHeight(partyTitle.gameObject, 22);
+                var partySelector = NewUI("PartySelector", partyBox.transform);
+                AddFlexible(partySelector, 1);
+                AddImage(partySelector, new Color(0.08f, 0.09f, 0.12f, 0.6f), UISprite, sliced: true);
+                var pGrid = partySelector.AddComponent<GridLayoutGroup>();
+                pGrid.cellSize = new Vector2(80, 96);
+                pGrid.spacing = new Vector2(6, 6);
+                pGrid.padding = new RectOffset(8, 8, 8, 8);
+                pGrid.startAxis = GridLayoutGroup.Axis.Horizontal;
+                pGrid.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+                pGrid.constraintCount = 1;
+
+                // 선택 캐릭터 장비 영역 (주/보조 무기 + 방어구 5)
+                var equipBox = NewUI("EquipBox", partyBar.transform);
+                SetWidth(equipBox, 600);
+                AddVLG(equipBox, spacing: 4, pad: 4).childForceExpandHeight = false;
+                var txtSelChar = AddText(NewUI("SelectedCharName", equipBox.transform), "캐릭터", 18, Accent, TextAlignmentOptions.Left);
+                SetHeight(txtSelChar.gameObject, 22);
+                var equipGrid = NewUI("EquipmentSlots", equipBox.transform);
+                AddFlexible(equipGrid, 1);
+                AddImage(equipGrid, new Color(0.08f, 0.09f, 0.12f, 0.6f), UISprite, sliced: true);
+                var eGrid = equipGrid.AddComponent<GridLayoutGroup>();
+                eGrid.cellSize = new Vector2(72, 88);
+                eGrid.spacing = new Vector2(6, 6);
+                eGrid.padding = new RectOffset(8, 8, 8, 8);
+                eGrid.startAxis = GridLayoutGroup.Axis.Horizontal;
+                eGrid.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+                eGrid.constraintCount = 1;
+
+                var slotDefs = new (EquipPosition pos, string label)[]
+                {
+                    (EquipPosition.RightHand, "주무기"), (EquipPosition.LeftHand, "보조"),
+                    (EquipPosition.Head, "머리"),        (EquipPosition.Chest, "상의"),
+                    (EquipPosition.Pants, "하의"),       (EquipPosition.Shoes, "신발"),
+                    (EquipPosition.Gloves, "장갑")
+                };
+                var equipSlots = new UIEquipmentSlot[slotDefs.Length];
+                for (int i = 0; i < slotDefs.Length; i++)
+                    equipSlots[i] = BuildEquipmentSlot(equipGrid.transform, slotDefs[i].pos, slotDefs[i].label);
+
                 // ── 본문(좌 탭 / 중앙 그리드 / 우 상세) ──
                 var body = NewUI("Body", window.transform);
                 AddFlexible(body, 1);
@@ -83,7 +142,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 // ===== 좌측 카테고리 탭 =====
                 var left = NewUI("CategoryPanel", body.transform);
                 AddImage(left, PanelBg, UISprite, sliced: true);
-                SetWidth(left, 145);
+                SetWidth(left, minWidth: 240, preferredWidth: 145);
                 AddVLG(left, spacing: 6, pad: 8).childForceExpandHeight = false;
                 var tabAll   = MakeTab("TabAll",       left.transform, "전체");
                 var tabCons  = MakeTab("TabConsumable", left.transform, "소비");
@@ -136,7 +195,10 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 AddHLG(iconRow, spacing: 12, pad: 0);
                 var iconGo = NewUI("Icon", iconRow.transform);
                 SetWidth(iconGo, 112);
-                var imgIcon = AddImage(iconGo, SlotBg, UISprite, sliced: true);
+                AddImage(iconGo, SlotBg, UISprite, sliced: true);
+                var itemIconGo = NewUI("ItemImage", iconGo.transform);
+                InsetStretch(Rt(itemIconGo), 6);
+                var imgIcon = AddImage(itemIconGo, Color.white);
                 var infoCol = NewUI("Info", iconRow.transform);
                 AddFlexibleW(infoCol, 1f);
                 AddVLG(infoCol, spacing: 6, pad: 8).childForceExpandHeight = false;
@@ -211,7 +273,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
 
                 // 호버 하이라이트 (코드에서 슬롯으로 재부모됨)
                 var clickTap = NewUI("ItemClickTap", window.transform);
-                Center(Rt(clickTap), 64, 64);
+                Center(Rt(clickTap), SlotOverlaySize, SlotOverlaySize);
                 var tapImg = AddImage(clickTap, new Color(0.35f, 0.80f, 0.90f, 0.25f), UISprite, sliced: true);
                 tapImg.raycastTarget = false;
                 clickTap.SetActive(false);
@@ -250,12 +312,18 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 SetRef(so, "_equipButton", btnEquip);
                 SetRef(so, "_dropButton",  btnDrop);
 
-                // 풀링 단위를 그리드 열 수(14)와 맞춤: 기본 9행 = 126슬롯.
-                // 표시 용량은 InventoryManager.MaxSlots(120)를 따르고, 여분 슬롯은 화면 채움용 빈 슬롯이다.
+                // 파티 장비 패널
+                SetRef(so, "_partySelectorContainer",   partySelector.transform);
+                SetRef(so, "_partyEntryPrefab",         partyEntry);
+                SetRef(so, "_selectedCharacterNameText", txtSelChar);
+                SetRefArray(so, "_equipmentSlots", equipSlots);
+
+                // 풀링 단위를 그리드 열 수와 맞춤: 기본 12행 = 120슬롯.
+                // 표시 용량은 InventoryManager.MaxSlots(120)를 따른다.
                 var pRow = so.FindProperty("_slotCountPerRow");
-                if (pRow != null) pRow.intValue = 14;
+                if (pRow != null) pRow.intValue = GridColumnCount;
                 var pStartRows = so.FindProperty("_startRowCount");
-                if (pStartRows != null) pStartRows.intValue = 9;
+                if (pStartRows != null) pStartRows.intValue = InitialRowCount;
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
@@ -283,7 +351,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
             // 포커스(선택) 하이라이트 — 슬롯보다 약간 크게, 첫 자식(뒤쪽)으로 두어 불투명한 슬롯 배경 밖 테두리 림만 보이게 함.
             // 이렇게 하면 아이콘 위를 덮지 않고 골드 테두리로 포커스를 표현한다.
             var focus = NewUI("FocusHighlight", go.transform);
-            Center(Rt(focus), 72, 72);
+            Center(Rt(focus), SlotOverlaySize, SlotOverlaySize);
             var focusImg = AddImage(focus, new Color(0.95f, 0.78f, 0.35f, 1f), UISprite, sliced: true);
             focusImg.raycastTarget = false;
             focus.SetActive(false);
@@ -325,6 +393,21 @@ namespace UPlayGround.UI.Inventory.EditorTools
             var txtWeight = AddText(weight, "0.0", 12, TextSub, TextAlignmentOptions.TopLeft);
             txtWeight.raycastTarget = false;
 
+            // 장착 중인 파티원 초상 뱃지 — 우상단 (여러 명이면 첫 초상 + "+N")
+            var badge = NewUI("EquippedBadge", content.transform);
+            AnchorTopRight(Rt(badge), 40, 40);
+            var badgeImg = AddImage(badge, new Color(0f, 0f, 0f, 0.55f), UISprite, sliced: true);
+            badgeImg.raycastTarget = false;
+            var badgePortraitGo = NewUI("Portrait", badge.transform);
+            InsetStretch(Rt(badgePortraitGo), 3);
+            var badgePortrait = AddImage(badgePortraitGo, Color.white);
+            badgePortrait.raycastTarget = false;
+            var badgeTextGo = NewUI("Text", badge.transform);
+            Stretch(badgeTextGo);
+            var badgeText = AddText(badgeTextGo, "", 11, TextMain, TextAlignmentOptions.BottomRight);
+            badgeText.raycastTarget = false;
+            badge.SetActive(false);
+
             var so = new SerializedObject(slot);
             SetRef(so, "_rootContent",   content);
             SetRef(so, "_rootEmptySlot", empty);
@@ -334,11 +417,94 @@ namespace UPlayGround.UI.Inventory.EditorTools
             SetRef(so, "_imgItem",       imgItem);
             SetRef(so, "_imgRarity",     imgRarity);
             SetRef(so, "_focusHighlight", focus);
+            SetRef(so, "_equippedBadge",     badge);
+            SetRef(so, "_equippedPortrait",  badgePortrait);
+            SetRef(so, "_equippedBadgeText", badgeText);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, SlotPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);
             return asset.GetComponent<UI_InventorySlot>();
+        }
+
+        // 파티원 선택 버튼 프리팹 (초상 + 이름 + 선택 하이라이트).
+        private static UIPartyEquipSelectorEntry BuildPartyEntryPrefab()
+        {
+            var go = NewUI("UIPartyEquipSelectorEntry", null);
+            Center(Rt(go), 84, 100);
+            var entry = go.AddComponent<UIPartyEquipSelectorEntry>();
+            AddImage(go, SlotBg, UISprite, sliced: true);
+
+            var hl = NewUI("SelectedHighlight", go.transform);
+            Center(Rt(hl), 88, 104);
+            var hlImg = AddImage(hl, new Color(0.35f, 0.80f, 0.90f, 1f), UISprite, sliced: true);
+            hlImg.raycastTarget = false;
+            hl.SetActive(false);
+
+            var portraitGo = NewUI("Portrait", go.transform);
+            var prt = Rt(portraitGo);
+            prt.anchorMin = prt.anchorMax = prt.pivot = new Vector2(0.5f, 1f);
+            prt.sizeDelta = new Vector2(72, 72);
+            prt.anchoredPosition = new Vector2(0, -6);
+            var portrait = AddImage(portraitGo, Color.white);
+            portrait.raycastTarget = false;
+
+            var nameGo = NewUI("Name", go.transform);
+            var nrt = Rt(nameGo);
+            nrt.anchorMin = new Vector2(0, 0);
+            nrt.anchorMax = new Vector2(1, 0);
+            nrt.pivot = new Vector2(0.5f, 0);
+            nrt.sizeDelta = new Vector2(0, 22);
+            nrt.anchoredPosition = new Vector2(0, 4);
+            var nameText = AddText(nameGo, "이름", 14, TextMain, TextAlignmentOptions.Center);
+            nameText.raycastTarget = false;
+
+            var so = new SerializedObject(entry);
+            SetRef(so, "_portrait",          portrait);
+            SetRef(so, "_nameText",          nameText);
+            SetRef(so, "_selectedHighlight", hl);
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            var asset = PrefabUtility.SaveAsPrefabAsset(go, PartyEntryPrefabPath);
+            UnityEngine.Object.DestroyImmediate(go);
+            return asset.GetComponent<UIPartyEquipSelectorEntry>();
+        }
+
+        // 장비 슬롯 한 개(그리드에 인라인 배치). 아이콘 + 빈 오버레이 + 하단 라벨.
+        private static UIEquipmentSlot BuildEquipmentSlot(Transform parent, EquipPosition slot, string label)
+        {
+            var go = NewUI($"EquipSlot_{slot}", parent);
+            var comp = go.AddComponent<UIEquipmentSlot>();
+            AddImage(go, SlotBg, UISprite, sliced: true);
+
+            var empty = NewUI("Empty", go.transform);
+            Stretch(empty);
+            AddImage(empty, new Color(0.10f, 0.12f, 0.15f, 1f), UISprite, sliced: true);
+
+            var iconGo = NewUI("Icon", go.transform);
+            InsetStretch(Rt(iconGo), 5);
+            var icon = AddImage(iconGo, Color.white);
+            icon.raycastTarget = false;
+            icon.enabled = false;
+
+            var lblGo = NewUI("Label", go.transform);
+            var lrt = Rt(lblGo);
+            lrt.anchorMin = new Vector2(0, 0);
+            lrt.anchorMax = new Vector2(1, 0);
+            lrt.pivot = new Vector2(0.5f, 0);
+            lrt.sizeDelta = new Vector2(0, 16);
+            lrt.anchoredPosition = Vector2.zero;
+            var lblText = AddText(lblGo, label, 12, TextSub, TextAlignmentOptions.Center);
+            lblText.raycastTarget = false;
+
+            var so = new SerializedObject(comp);
+            SetRef(so, "_icon",         icon);
+            SetRef(so, "_emptyOverlay", empty);
+            SetRef(so, "_slotLabel",    lblText);
+            var pSlot = so.FindProperty("_slot");
+            if (pSlot != null) pSlot.enumValueIndex = (int)slot; // EquipPosition은 0부터 순차라 index==값
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return comp;
         }
 
         #endregion
@@ -535,6 +701,14 @@ namespace UPlayGround.UI.Inventory.EditorTools
             le.flexibleWidth = 0;
         }
 
+        private static void SetWidth(GameObject go, float minWidth, float preferredWidth)
+        {
+            var le = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
+            le.minWidth = minWidth;
+            le.preferredWidth = preferredWidth;
+            le.flexibleWidth = 0;
+        }
+
         private static void AddFlexible(GameObject go, float flexH)
         {
             var le = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
@@ -569,11 +743,11 @@ namespace UPlayGround.UI.Inventory.EditorTools
             crt.sizeDelta = Vector2.zero;
 
             var grid = content.AddComponent<GridLayoutGroup>();
-            grid.cellSize = new Vector2(64, 64);
+            grid.cellSize = new Vector2(SlotCellSize, SlotCellSize);
             grid.spacing = new Vector2(5, 5);
             grid.padding = new RectOffset(8, 8, 8, 8);
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            grid.constraintCount = 14;
+            grid.constraintCount = GridColumnCount;
 
             content.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
@@ -591,6 +765,19 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 return;
             }
             p.objectReferenceValue = value;
+        }
+
+        private static void SetRefArray(SerializedObject so, string propName, UnityEngine.Object[] values)
+        {
+            var p = so.FindProperty(propName);
+            if (p == null)
+            {
+                Debug.LogWarning($"[InvBuilder] 직렬화 프로퍼티를 찾을 수 없음: {propName}");
+                return;
+            }
+            p.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++)
+                p.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
         }
 
         private static void ClearChildren(Transform t)

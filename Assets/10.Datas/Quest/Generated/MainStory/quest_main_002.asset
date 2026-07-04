@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questId: quest_main_002
   questName: "\uAC70\uBBF8\uC904\uC5D0 \uB9C9\uD78C \uC232"
+  questType: 0
+  shortSummary: 
   questDescription: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744
     \uCC98\uCE58\uD574 \uB9C9\uD78C \uC232\uAE38\uC744 \uC5F0\uB2E4."
   requiredQuestIds: []
   requiredStoryProgress: 10
+  autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_kill_spider_queen
     description: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744

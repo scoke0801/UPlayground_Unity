@@ -67,14 +67,34 @@ public class UI_CraftingRecipeSlot : MonoBehaviour, IPointerClickHandler, IPoint
     /// </summary>
     public void RefreshCraftable()
     {
-        bool can = RecipeManager.Instance.CanCraft(_recipeID);
+        CraftAvailabilityReason reason = RecipeManager.Instance.GetCraftAvailabilityReason(_recipeID);
+        bool can = reason == CraftAvailabilityReason.Available;
         if (_imgCraftable != null)
             _imgCraftable.color = can ? _colorCraftable : _colorUncraftable;
 
         if (_txtStatus != null)
         {
-            _txtStatus.text  = can ? "제작 가능" : "재료 부족";
+            _txtStatus.text  = can ? "제작 가능" : GetUnavailableLabel(reason);
             _txtStatus.color = can ? _colorCraftable : _colorStatusFail;
+        }
+    }
+
+    private static string GetUnavailableLabel(CraftAvailabilityReason reason)
+    {
+        switch (reason)
+        {
+            case CraftAvailabilityReason.InvalidResult:
+                return "결과 없음";
+            case CraftAvailabilityReason.NotEnoughCost:
+                return "골드 부족";
+            case CraftAvailabilityReason.NotEnoughIngredients:
+                return "재료 부족";
+            case CraftAvailabilityReason.Locked:
+                return "잠김";
+            case CraftAvailabilityReason.AlreadyCrafting:
+                return "제작 중";
+            default:
+                return "제작 불가";
         }
     }
 

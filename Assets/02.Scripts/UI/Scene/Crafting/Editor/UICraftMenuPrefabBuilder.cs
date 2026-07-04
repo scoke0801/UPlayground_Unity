@@ -131,7 +131,10 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 AddHLG(resultRow, spacing: 12, pad: 0);
                 var resultIconGo = NewUI("ResultIcon", resultRow.transform);
                 SetWidth(resultIconGo, 110);
-                var imgResultIcon = AddImage(resultIconGo, SlotBg, UISprite, sliced: true);
+                AddImage(resultIconGo, SlotBg, UISprite, sliced: true);
+                var resultIconImageGo = NewUI("ResultIconImage", resultIconGo.transform);
+                InsetStretch(Rt(resultIconImageGo), 6);
+                var imgResultIcon = AddImage(resultIconImageGo, Color.white);
                 var nameCol = NewUI("NameCol", resultRow.transform);
                 AddFlexibleW(nameCol, 1f);
                 AddVLG(nameCol, spacing: 4, pad: 4);
@@ -313,8 +316,8 @@ namespace UPlayGround.UI.Crafting.EditorTools
 
             var countBgGo = NewUI("CountBg", go.transform);
             SetWidth(countBgGo, 90);
-            var countBg = AddImage(countBgGo, new Color(0.2f, 0.8f, 0.3f, 0.2f), UISprite, sliced: true);
-            var count = AddText(NewUI("Count", countBgGo.transform), "0/0", 20, Green, TextAlignmentOptions.Center);
+            var countBg = AddImage(countBgGo, new Color(0.2f, 0.8f, 0.3f, 0.85f), UISprite, sliced: true);
+            var count = AddText(NewUI("Count", countBgGo.transform), "0/0", 20, TextMain, TextAlignmentOptions.Center);
             Stretch(count.gameObject);
 
             var so = new SerializedObject(slot);
@@ -322,6 +325,9 @@ namespace UPlayGround.UI.Crafting.EditorTools
             SetRef(so, "_txtName",    name);
             SetRef(so, "_txtCount",   count);
             SetRef(so, "_imgCountBg", countBg);
+            SetColor(so, "_colorSufficientBg", new Color(0.2f, 0.8f, 0.3f, 0.85f));
+            SetColor(so, "_colorInsufficientBg", new Color(0.9f, 0.25f, 0.25f, 0.85f));
+            SetColor(so, "_colorCountText", TextMain);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, IngrSlotPrefabPath);
@@ -350,6 +356,14 @@ namespace UPlayGround.UI.Crafting.EditorTools
             rt.anchorMax = Vector2.one;
             rt.offsetMin = Vector2.zero;
             rt.offsetMax = Vector2.zero;
+        }
+
+        private static void InsetStretch(RectTransform rt, float inset)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(inset, inset);
+            rt.offsetMax = new Vector2(-inset, -inset);
         }
 
         private static void Center(RectTransform rt, float w, float h)
@@ -518,6 +532,18 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 return;
             }
             p.objectReferenceValue = value;
+        }
+
+        private static void SetColor(SerializedObject so, string propName, Color value)
+        {
+            var p = so.FindProperty(propName);
+            if (p == null)
+            {
+                Debug.LogWarning($"[CraftBuilder] 직렬화 프로퍼티를 찾을 수 없음: {propName}");
+                return;
+            }
+
+            p.colorValue = value;
         }
 
         private static void ClearChildren(Transform t)

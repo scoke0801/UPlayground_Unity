@@ -8,7 +8,7 @@ namespace UPlayGround.UI.Party.EditorTools
     /// <summary>
     /// 동료(파티) UI(UI_PartyMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_PartyMenu.prefab / UIPartyMenuEntry.prefab을 덮어쓴다(자식 재구성).
+    /// - 기존 UI_PartyMenu.prefab / UIPartyMenuEntry.prefab / UIPartyBattleEntry.prefab을 덮어쓴다(자식 재구성).
     /// - 3열(보유 동료 / 출전 파티 / 상세) + 하단 바 구성.
     /// - 배틀 슬롯 4개는 인라인 인스턴스.
     /// - 스킬 4종·궁극기 게이지는 데이터 미연동 → 회색 플레이스홀더로만 배치(비배선).
@@ -18,6 +18,7 @@ namespace UPlayGround.UI.Party.EditorTools
     {
         private const string MainPrefabPath  = "Assets/03.Prefabs/UI/Scene/Party/UI_PartyMenu.prefab";
         private const string EntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIPartyMenuEntry.prefab";
+        private const string BattleEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIPartyBattleEntry.prefab";
 
         private static readonly Color Dim       = new Color(0f, 0f, 0f, 0.52f);
         private static readonly Color WindowBg  = new Color(0.07f, 0.09f, 0.13f, 0.98f);
@@ -46,6 +47,7 @@ namespace UPlayGround.UI.Party.EditorTools
             }
 
             var entryPrefab = BuildMenuEntryPrefab();
+            BuildBattleEntryPrefab();
 
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
@@ -121,7 +123,7 @@ namespace UPlayGround.UI.Party.EditorTools
                 cardsLayout.childAlignment = TextAnchor.UpperLeft;
                 var battleEntries = new UIPartyBattleEntry[4];
                 for (int i = 0; i < 4; i++)
-                    battleEntries[i] = BuildBattleCard(cardsRow.transform, i);
+                    battleEntries[i] = BuildBattleCard(cardsRow.transform, $"BattleCard{i + 1}", i, addFlexibleWidth: true);
 
                 var battleBlank = NewUI("BattleBlank", center.transform);
                 AddFlexible(battleBlank, 1f);
@@ -245,11 +247,20 @@ namespace UPlayGround.UI.Party.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 배틀 카드 (인라인)
 
-        private static UIPartyBattleEntry BuildBattleCard(Transform parent, int index)
+        private static UIPartyBattleEntry BuildBattleEntryPrefab()
         {
-            var card = NewUI($"BattleCard{index + 1}", parent);
+            var entry = BuildBattleCard(null, "UIPartyBattleEntry", 0, addFlexibleWidth: false);
+            var asset = PrefabUtility.SaveAsPrefabAsset(entry.gameObject, BattleEntryPrefabPath);
+            UnityEngine.Object.DestroyImmediate(entry.gameObject);
+            return asset.GetComponent<UIPartyBattleEntry>();
+        }
+
+        private static UIPartyBattleEntry BuildBattleCard(Transform parent, string cardName, int index, bool addFlexibleWidth)
+        {
+            var card = NewUI(cardName, parent);
             SetWidth(card, 172);
-            AddFlexibleW(card, 1f);
+            if (addFlexibleWidth)
+                AddFlexibleW(card, 1f);
             var img = AddImage(card, SlotBg, UISprite, sliced: true);
             var entry = card.AddComponent<UIPartyBattleEntry>();
             var btn = card.AddComponent<Button>();

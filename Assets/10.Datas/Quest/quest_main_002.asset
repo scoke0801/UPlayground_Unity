@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questId: main_002
   questName: "\uC2A4\uCF08\uB808\uD1A4 \uCC98\uCE58"
+  questType: 0
+  shortSummary: 
   questDescription: "\uC2A4\uCF08\uB808\uD1A4\uC744 3\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
   requiredQuestIds:
   - main_001

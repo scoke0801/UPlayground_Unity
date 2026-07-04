@@ -10,6 +10,19 @@ using UPlayGround.Data.Save;
 
 namespace UPlayGround.Manager
 {
+    public enum CraftAvailabilityReason
+    {
+        Available,
+        DatabaseNotLoaded,
+        InvalidRecipe,
+        InvalidQuantity,
+        InvalidResult,
+        Locked,
+        AlreadyCrafting,
+        NotEnoughCost,
+        NotEnoughIngredients,
+    }
+
     /// <summary>
     /// 제작(크래프팅) 시스템 매니저.
     /// GameManager에 등록되어 다른 매니저와 동일한 생명주기로 동작한다.
@@ -142,18 +155,23 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool CanCraft(int recipeID, int quantity = 1)
         {
-            if (!IsDBLoaded) return false;
+            return GetCraftAvailabilityReason(recipeID, quantity) == CraftAvailabilityReason.Available;
+        }
+
+        public CraftAvailabilityReason GetCraftAvailabilityReason(int recipeID, int quantity = 1)
+        {
+            if (!IsDBLoaded) return CraftAvailabilityReason.DatabaseNotLoaded;
 
             var recipe = _db.GetRecipe(recipeID);
-            if (recipe == null)             return false;
-            if (quantity <= 0)               return false;
-            if (!HasValidResult(recipe))     return false;
-            if (!IsRecipeUnlocked(recipeID)) return false;
-            if (IsCrafting())               return false;
-            if (!HasEnoughCost(recipe, quantity))        return false;
-            if (!HasEnoughIngredients(recipeID, quantity)) return false;
+            if (recipe == null) return CraftAvailabilityReason.InvalidRecipe;
+            if (quantity <= 0) return CraftAvailabilityReason.InvalidQuantity;
+            if (!HasValidResult(recipe)) return CraftAvailabilityReason.InvalidResult;
+            if (!IsRecipeUnlocked(recipeID)) return CraftAvailabilityReason.Locked;
+            if (IsCrafting()) return CraftAvailabilityReason.AlreadyCrafting;
+            if (!HasEnoughCost(recipe, quantity)) return CraftAvailabilityReason.NotEnoughCost;
+            if (!HasEnoughIngredients(recipeID, quantity)) return CraftAvailabilityReason.NotEnoughIngredients;
 
-            return true;
+            return CraftAvailabilityReason.Available;
         }
 
         private bool HasValidResult(RecipeData recipe)

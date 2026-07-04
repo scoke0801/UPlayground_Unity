@@ -42,11 +42,17 @@ using UPlayGround.UI;
 ///   ├─ CloseButton   (Button)  ← _closeButton
 ///   ├─ ZoomInButton  (Button)  ← _zoomInButton
 ///   ├─ ZoomOutButton (Button)  ← _zoomOutButton
-///   └─ FindMeButton  (Button)  ← _findMeButton
+///   ├─ FindMeButton  (Button)  ← _findMeButton
+///   ├─ MapRegionSelectorPanel/Content     (RectTransform) ← _regionListContent (지역 버튼 부모)
+///   │    └─ RegionButtonTemplate (Button, 비활성)          ← _regionButtonTemplate (런타임 복제)
+///   └─ MapConfirmPanel (GameObject, 기본 비활성)           ← _confirmPanel (이동 확인 팝업)
+///        └─ Box/{Message, Buttons/{YesButton, NoButton}}   ← _confirmMessageText/_confirmYesButton/_confirmNoButton
+///
+/// ■ 브라우즈 모드 / 파스트트래블: UI_Map.Browse.cs 참조.
 /// </code>
 /// </summary>
 [RequireComponent(typeof(Canvas))]
-public class UI_Map : UI_Base
+public partial class UI_Map : UI_Base
 {
     [Header("컴포넌트")]
     [SerializeField] private RectTransform _mapViewport;    // 클리핑 영역 (RectMask2D + MapInputReceiver 부착)
@@ -67,7 +73,6 @@ public class UI_Map : UI_Base
     [SerializeField] private Toggle _toggleEnemy;
     [SerializeField] private Toggle _toggleNpc;
     [SerializeField] private Toggle _toggleStatic;
-    [SerializeField] private Toggle _toggleUser;
     [SerializeField] private Button _clearAllButton;
 
     [Header("지역 정보")]
@@ -145,8 +150,10 @@ public class UI_Map : UI_Base
         BindToggle(_toggleEnemy,  MapMarkerCategory.Enemy);
         BindToggle(_toggleNpc,    MapMarkerCategory.Npc);
         BindToggle(_toggleStatic, MapMarkerCategory.StaticMarker);
-        BindToggle(_toggleUser,   MapMarkerCategory.UserMarker);
+        // 유저 마커는 범례/필터에서 제외한다(우클릭 배치 기능은 유지, 항상 표시).
         if (_clearAllButton != null) _clearAllButton.onClick.AddListener(OnClearAllFilters);
+
+        HookBrowseUI();
 
         // 줌 슬라이더
         if (_zoomSlider != null)
@@ -189,12 +196,22 @@ public class UI_Map : UI_Base
             return;
         }
 
+        // 현재 맵의 지역 메타데이터를 DB에서 조회. 없으면 인스펙터에 직접 할당된 기본값을 유지한다.
+        var dbRegionInfo = _mapConfigDB.GetRegionInfo(mapId);
+        if (dbRegionInfo != null) _regionInfo = dbRegionInfo;
+
+        // 브라우즈 모드 기준점: 열 때는 항상 현재 씬(라이브) 지역을 본다.
+        _currentSceneMapId = mapId;
+        _viewRegionMapId   = mapId;
+
         // 커서 표시·입력 레이어 상승은 UI_Base가 일괄 처리한다(BlocksLowerInput/_layer 기준).
         _player = GameObjectManager.Instance?.Player;
 
         SetupMapBackground();
         SetupMarkers();
         RefreshRegionInfo();
+        PopulateRegionList();
+        HideConfirm();
 
         // 초기 줌으로 플레이어 위치를 중심으로 열기
         _currentZoom = _initialZoom;
@@ -248,6 +265,7 @@ public class UI_Map : UI_Base
         }
 
         ClearAllIcons();
+        ClearBrowsePortals();
     }
 
     protected override void RegisterInputEvents()
@@ -264,7 +282,16 @@ public class UI_Map : UI_Base
 
     private void LateUpdate()
     {
-        if (!IsVisible || _player == null || _config == null) return;
+        if (!IsVisible || _config == null) return;
+
+        // 브라우즈 모드: 다른 지역 미리보기 — 라이브 마커는 갱신하지 않고 데이터 포탈만 배치한다.
+        if (IsBrowsing)
+        {
+            UpdateBrowsePortals();
+            return;
+        }
+
+        if (_player == null) return;
 
         UpdatePlayerIcon();
         UpdateEnemyIcons();
@@ -335,7 +362,6 @@ public class UI_Map : UI_Base
         if (_toggleEnemy  != null) _toggleEnemy.isOn  = false;
         if (_toggleNpc    != null) _toggleNpc.isOn    = false;
         if (_toggleStatic != null) _toggleStatic.isOn = false;
-        if (_toggleUser   != null) _toggleUser.isOn   = false;
     }
 
     // ── 지역 정보 ────────────────────────────────────────────
@@ -517,6 +543,7 @@ public class UI_Map : UI_Base
 
     private void RefreshAllQuestMarkers()
     {
+        if (IsBrowsing) return;
         foreach (var icon in _questIconMap.Values) if (icon) Destroy(icon.gameObject);
         _questIconMap.Clear();
 
@@ -570,6 +597,7 @@ public class UI_Map : UI_Base
 
     private void AddStaticMarker(MinimapMarkerRegistrar registrar)
     {
+        if (IsBrowsing) return;
         if (_config == null) return;
         if (!_config.IsStaticMarkerVisible(registrar.MarkerType)) return;
         if (_staticMarkerIconMap.ContainsKey(registrar.LocationId)) return;
@@ -619,6 +647,7 @@ public class UI_Map : UI_Base
 
     private void AddUserMarker(UserMapMarker marker)
     {
+        if (IsBrowsing) return;
         if (_config == null || !_config.showUserMarkers) return;
         if (_userMarkerIconMap.ContainsKey(marker.Id)) return;
         if (_iconContainer == null) return;
@@ -658,6 +687,7 @@ public class UI_Map : UI_Base
     /// </summary>
     private void OnMapRightClick(PointerEventData e)
     {
+        if (IsBrowsing) return;   // 브라우즈 모드에서는 사용자 마커 배치 비활성
         if (_config == null || !_config.showUserMarkers) return;
 
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -704,6 +734,7 @@ public class UI_Map : UI_Base
 
     private void OnMarkerAdded(MinimapMarkerRegistrar registrar)
     {
+        if (IsBrowsing) return;
         if (registrar.MarkerType == MinimapMarkerType.QuestTarget)
         {
             if (!_config.showQuestMarkers) return;
@@ -740,6 +771,7 @@ public class UI_Map : UI_Base
 
     private void RegisterActor(GameActor actor)
     {
+        if (IsBrowsing) return;
         if (actor is PlayerActor || actor.HasActorType(ActorType.Obstacle)) return;
 
         if (actor is MonsterActor monster)

@@ -41,6 +41,10 @@ namespace UPlayGround.Manager
         // Loading씬에서 읽어갈 목적지. static이라 씬 전환 후에도 유지된다.
         public static string PendingSceneName { get; private set; }
 
+        // 파스트트래블 도착 지점 Id. static이라 Loading 씬을 거쳐도 유지된다.
+        // 대상 씬 진입·안정화 시 SceneArrivalRegistry에서 조회해 1회 적용 후 비운다.
+        public static string PendingArrivalId { get; private set; }
+
         private bool _isLoading;
         private bool _activationRequested;
         private bool _pendingLoadStarted;
@@ -69,6 +73,17 @@ namespace UPlayGround.Manager
         /// </summary>
         public void LoadScene(string sceneName)
         {
+            PendingArrivalId = null;   // 일반 전환은 도착 지점 지정 없음(씬 기본 스폰)
+            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
+        }
+
+        /// <summary>
+        /// 파스트트래블: 대상 씬으로 전환하고 도착 후 arrivalId 지점(SceneArrivalPoint)에 플레이어를 배치한다.
+        /// arrivalId가 비었거나 대상 씬에 해당 지점이 없으면 씬 기본 스폰으로 폴백한다.
+        /// </summary>
+        public void LoadScene(string sceneName, string arrivalId)
+        {
+            PendingArrivalId = string.IsNullOrEmpty(arrivalId) ? null : arrivalId;
             StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
         }
 

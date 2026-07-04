@@ -145,17 +145,25 @@ namespace UPlayGround.Manager
             }
         }
 
-        public void SetInputLayer(InputLayer layer)
+        /// <summary>
+        /// 현재 열려 있는 "입력 차단 모달"들을 기준으로 입력 레이어를 재계산한다.
+        /// 모달 Show(올림)·Hide(복원) 양쪽에서 호출해 두 기준을 대칭으로 맞춘다.
+        /// 차단 모달이 하나도 없으면 Level_0(게임플레이)으로 내려간다.
+        /// 파생값 재계산이라 누적 상태가 없어 순서·재진입에 관계없이 항상 정합하다.
+        /// </summary>
+        public void RefreshInputLayer()
         {
+            if (UIManager.Instance == null)
+            {
+                return;
+            }
+
+            InputLayer layer = UIManager.Instance.GetTopBlockingInputLayer();
             if (CurrentLayer == layer)
             {
                 return;
             }
 
-            if (layer == InputLayer.None)
-            {
-                layer = UIManager.Instance.GetTopCanvasLayer().ToInputLayer();
-            }
             CurrentLayer = layer;
 
             InvokeCancelEvents(layer);

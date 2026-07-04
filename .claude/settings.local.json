@@ -246,7 +246,9 @@
       "Bash(find .claude -iname \"*.md\" -path \"*review-cs*\")",
       "Bash(find .claude -name \"SKILL.md\")",
       "WebFetch(domain:www.gameaipro.com)",
-      "WebFetch(domain:moonjump.com)"
+      "WebFetch(domain:moonjump.com)",
+      "Bash(find Assets/03.Prefabs -iname \"*.prefab\" \\\\\\( -iname \"*slider*\" -o -iname \"*switch*\" -o -iname \"*dropdown*\" -o -iname \"*setting*\" -o -iname \"*common*\" \\\\\\))",
+      "Bash(ls -la \"Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab\")"
     ]
   }
 }

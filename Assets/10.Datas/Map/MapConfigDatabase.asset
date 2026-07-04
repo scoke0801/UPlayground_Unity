@@ -15,11 +15,16 @@ MonoBehaviour:
   _entries:
   - mapId: CombatScene
     config: {fileID: 11400000, guid: 2adbc7c0994db3141aafd40c533b392e, type: 2}
+    regionInfo: {fileID: 0}
   - mapId: InGame
     config: {fileID: 11400000, guid: 8c408310883bac44088943404da13e58, type: 2}
+    regionInfo: {fileID: 11400000, guid: ec6dcb7b4aa85ee48848619e57c7cd1e, type: 2}
   - mapId: Dungeon
     config: {fileID: 11400000, guid: 4ea18d7c2873d6a4fa4c45845370fab3, type: 2}
+    regionInfo: {fileID: 0}
   - mapId: Farmland
     config: {fileID: 11400000, guid: 4891ae57b417a2042bba568e1a5c7f73, type: 2}
+    regionInfo: {fileID: 11400000, guid: 3d9d2bf9877c0ce40ad83bf7970bbc3b, type: 2}
   - mapId: AllLand
     config: {fileID: 11400000, guid: 51d73beaae11b0448a11f8c4e43176bf, type: 2}
+    regionInfo: {fileID: 0}

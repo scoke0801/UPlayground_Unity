@@ -130,6 +130,7 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
             var img = AddImage(go, bg, UISprite, sliced: true);
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = img;
+            go.AddComponent<UISelectOnPointerEnter>();
 
             AddHLG(go, spacing: 16, pad: 20).childAlignment = TextAnchor.MiddleLeft;
 

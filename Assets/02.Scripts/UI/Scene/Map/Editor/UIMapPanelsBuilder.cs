@@ -28,7 +28,6 @@ namespace UPlayGround.UI.Map.EditorTools
         private static readonly Color Accent   = new Color(0.35f, 0.80f, 0.90f, 1f);
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
-        private static Sprite Knob     => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
         private static Sprite Checkmark=> AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
 
         [MenuItem("UPlayGround/UI/맵 UI 패널 추가 (초안)")]
@@ -53,22 +52,33 @@ namespace UPlayGround.UI.Map.EditorTools
 
                 var so = new SerializedObject(map);
 
-                // ── 헤더(상단 중앙 지역명) ──
+                // ── 좌상단 타이틀 칩 (시안: 좌상단 "지도" 장식 라벨) ──
+                var titleChip = GetOrReplace(root, "MapTitleChip");
+                SetAnchored(Rt(titleChip), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                            new Vector2(150, 48), new Vector2(20, -18));
+                AddImage(titleChip, PanelBg, UISprite, sliced: true);
+                var chipLabel = AddText(NewUI("Label", titleChip.transform), "지도", 26, TextMain, TextAlignmentOptions.Center);
+                Stretch(chipLabel.gameObject);
+
+                // ── 헤더(상단 중앙: 타이틀 + 지역 브레드크럼) ──
                 var header = GetOrReplace(root, "MapHeaderPanel");
                 SetAnchored(Rt(header), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                            new Vector2(900, 56), new Vector2(0, -18));
-                AddText(NewUI("MapTitle", header.transform), "지도", 30, TextMain, TextAlignmentOptions.Left)
-                    .rectTransform.anchoredPosition = new Vector2(-380, 0);
+                            new Vector2(760, 48), new Vector2(0, -22));
+                var headerHlg = AddHLG(header, spacing: 40, pad: 0);
+                headerHlg.childForceExpandWidth = false;
+                headerHlg.childAlignment = TextAnchor.MiddleCenter;
+                AddText(NewUI("MapTitle", header.transform), "지도", 28, TextMain, TextAlignmentOptions.Center);
                 var headerRegion = AddText(NewUI("Region", header.transform), "벨리안 대륙    그레이우드 평원", 24, Gold, TextAlignmentOptions.Center);
-                Stretch(headerRegion.gameObject);
                 SetRef(so, "_headerRegionText", headerRegion);
 
-                // ── 범례/필터 패널(우측) ──
+                // ── 범례/필터 패널(우상단, 콘텐츠 맞춤 컴팩트 높이) ──
                 var legend = GetOrReplace(root, "MapLegendPanel");
                 SetAnchored(Rt(legend), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f),
-                            new Vector2(300, 720), new Vector2(-20, -100));
+                            new Vector2(300, 0), new Vector2(-20, -70));
                 AddImage(legend, PanelBg, UISprite, sliced: true);
                 AddVLG(legend, spacing: 4, pad: 12).childForceExpandHeight = false;
+                // 세로축은 자식 콘텐츠 합에 맞춤(시안처럼 상단 우측에 컴팩트하게)
+                FitPreferredHeight(legend);
 
                 var tabRow = NewUI("Tabs", legend.transform);
                 SetHeight(tabRow, 40);
@@ -81,19 +91,15 @@ namespace UPlayGround.UI.Map.EditorTools
                 var tEnemy  = MakeLegendRow(legend.transform, "적",                  new Color(0.85f, 0.30f, 0.30f));
                 var tNpc    = MakeLegendRow(legend.transform, "NPC / 상인 / 채집",     new Color(0.55f, 0.80f, 0.45f));
                 var tStatic = MakeLegendRow(legend.transform, "포탈 / 거점 / 던전",     new Color(0.55f, 0.75f, 0.95f));
-                var tUser   = MakeLegendRow(legend.transform, "유저 마커",            new Color(0.40f, 0.55f, 0.95f));
 
-                var spacer = NewUI("Spacer", legend.transform);
-                AddFlexible(spacer, 1);
                 var clearBtn = MakeButton("ClearAllButton", legend.transform, "전체 해제", out _, BtnBg);
-                SetHeight(clearBtn.gameObject, 48);
+                SetHeight(clearBtn.gameObject, 44);
 
                 SetRef(so, "_togglePlayer", tPlayer);
                 SetRef(so, "_toggleQuest",  tQuest);
                 SetRef(so, "_toggleEnemy",  tEnemy);
                 SetRef(so, "_toggleNpc",    tNpc);
                 SetRef(so, "_toggleStatic", tStatic);
-                SetRef(so, "_toggleUser",   tUser);
                 SetRef(so, "_clearAllButton", clearBtn);
 
                 // ── 지역 정보 패널(좌하단) ──
@@ -119,21 +125,70 @@ namespace UPlayGround.UI.Map.EditorTools
                 SetRef(so, "_regionDescText",  regionDesc);
                 SetRef(so, "_regionThumbnail", thumb);
 
-                // ── 줌 슬라이더(우측, 버튼 영역 아래) ──
-                var zoomWrap = GetOrReplace(root, "MapZoomSlider");
-                SetAnchored(Rt(zoomWrap), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
-                            new Vector2(34, 220), new Vector2(-30, 40));
-                var slider = MakeVerticalSlider(zoomWrap);
-                SetRef(so, "_zoomSlider", slider);
+                // ── 세로 줌 슬라이더 제거 ──
+                // 시안에는 우측 세로 슬라이더가 없다. 줌은 스캐폴드 "Buttons"(확대/축소/내 위치)
+                // 버튼 바 + 우하단 % 표기로 처리한다. 이전 빌드가 만든 슬라이더가 있으면 정리한다.
+                var oldSlider = root.transform.Find("MapZoomSlider");
+                if (oldSlider != null) UnityEngine.Object.DestroyImmediate(oldSlider.gameObject);
+                SetRef(so, "_zoomSlider", null);
 
-                // ── 줌 % (우하단) ──
+                // ── 줌 % (우하단 코너, 확대/축소 버튼 바 아래). 라벨+값 세로 스택 ──
                 var zpct = GetOrReplace(root, "MapZoomPercent");
                 SetAnchored(Rt(zpct), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f),
-                            new Vector2(140, 44), new Vector2(-30, 24));
+                            new Vector2(150, 56), new Vector2(-20, 20));
                 AddImage(zpct, PanelBg, UISprite, sliced: true);
-                var zoomText = AddText(NewUI("Text", zpct.transform), "100%", 22, TextMain, TextAlignmentOptions.Center);
-                Stretch(zoomText.gameObject);
+                AddVLG(zpct, spacing: 0, pad: 4).childForceExpandHeight = true;
+                var zoomLabel = AddText(NewUI("Label", zpct.transform), "줌 배율", 13, TextSub, TextAlignmentOptions.Center);
+                SetHeight(zoomLabel.gameObject, 16);
+                var zoomText = AddText(NewUI("Text", zpct.transform), "200%", 22, TextMain, TextAlignmentOptions.Center);
                 SetRef(so, "_zoomText", zoomText);
+
+                // ── 지역 선택 패널(좌측, 타이틀 칩 아래). 런타임에 DB 지역으로 채워짐 ──
+                var regionSel = GetOrReplace(root, "MapRegionSelectorPanel");
+                SetAnchored(Rt(regionSel), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                            new Vector2(210, 0), new Vector2(20, -76));
+                AddImage(regionSel, PanelBg, UISprite, sliced: true);
+                AddVLG(regionSel, spacing: 4, pad: 10).childForceExpandHeight = false;
+                FitPreferredHeight(regionSel);
+
+                var regionSelTitle = AddText(NewUI("Title", regionSel.transform), "지역 이동", 18, Gold, TextAlignmentOptions.Left);
+                SetHeight(regionSelTitle.gameObject, 26);
+
+                var regionContent = NewUI("Content", regionSel.transform);
+                AddVLG(regionContent, spacing: 4, pad: 0).childForceExpandHeight = false;
+                var regionTemplate = MakeButton("RegionButtonTemplate", regionContent.transform, "지역", out _, BtnBg);
+                SetHeight(regionTemplate.gameObject, 36);
+                regionTemplate.gameObject.SetActive(false);   // 복제용 템플릿
+
+                SetRef(so, "_regionListContent",    Rt(regionContent));
+                SetRef(so, "_regionButtonTemplate", regionTemplate);
+
+                // ── 이동 확인 팝업(중앙 오버레이, 기본 숨김) ──
+                var confirm = GetOrReplace(root, "MapConfirmPanel");
+                Stretch(confirm);
+                AddImage(confirm, new Color(0f, 0f, 0f, 0.6f));   // 딤 + 하위 클릭 차단
+
+                var confirmBox = NewUI("Box", confirm.transform);
+                SetAnchored(Rt(confirmBox), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                            new Vector2(520, 220), Vector2.zero);
+                AddImage(confirmBox, PanelBg, UISprite, sliced: true);
+
+                var confirmMsg = AddText(NewUI("Message", confirmBox.transform), "이동하시겠습니까?", 22, TextMain, TextAlignmentOptions.Center);
+                SetAnchored(Rt(confirmMsg.gameObject), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                            new Vector2(-40, 90), new Vector2(0, -30));
+
+                var confirmBtnRow = NewUI("Buttons", confirmBox.transform);
+                SetAnchored(Rt(confirmBtnRow), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                            new Vector2(440, 60), new Vector2(0, 30));
+                AddHLG(confirmBtnRow, spacing: 20, pad: 0).childForceExpandWidth = true;
+                var yesBtn = MakeButton("YesButton", confirmBtnRow.transform, "확인", out _, new Color(0.20f, 0.45f, 0.30f, 1f));
+                var noBtn  = MakeButton("NoButton",  confirmBtnRow.transform, "취소", out _, BtnBg);
+
+                SetRef(so, "_confirmPanel",       confirm);
+                SetRef(so, "_confirmMessageText", confirmMsg);
+                SetRef(so, "_confirmYesButton",   yesBtn);
+                SetRef(so, "_confirmNoButton",    noBtn);
+                confirm.SetActive(false);
 
                 so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -187,25 +242,6 @@ namespace UPlayGround.UI.Map.EditorTools
             toggle.graphic = checkImg;
             toggle.isOn = true;
             return toggle;
-        }
-
-        private static Slider MakeVerticalSlider(GameObject parent)
-        {
-            var slider = parent.AddComponent<Slider>();
-            AddImage(parent, SlotBg, UISprite, sliced: true);
-            slider.direction = Slider.Direction.BottomToTop;
-
-            var handleArea = NewUI("Handle Slide Area", parent.transform);
-            SetAnchored(Rt(handleArea), Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            var handle = NewUI("Handle", handleArea.transform);
-            var hrt = Rt(handle);
-            hrt.sizeDelta = new Vector2(30, 30);
-            var handleImg = AddImage(handle, Accent, Knob != null ? Knob : UISprite, sliced: false);
-
-            slider.handleRect = hrt;
-            slider.targetGraphic = handleImg;
-            slider.value = 1f;
-            return slider;
         }
 
         #endregion
@@ -294,6 +330,14 @@ namespace UPlayGround.UI.Map.EditorTools
         {
             var le = go.GetComponent<LayoutElement>() ?? go.AddComponent<LayoutElement>();
             le.minHeight = le.preferredHeight = hgt; le.flexibleHeight = 0;
+        }
+
+        /// <summary> 세로축을 자식 콘텐츠 합(preferred)에 맞춘다. VLG와 함께 쓴다. </summary>
+        private static void FitPreferredHeight(GameObject go)
+        {
+            var fitter = go.GetComponent<ContentSizeFitter>() ?? go.AddComponent<ContentSizeFitter>();
+            fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+            fitter.verticalFit   = ContentSizeFitter.FitMode.PreferredSize;
         }
 
         private static void SetWidth(GameObject go, float w)

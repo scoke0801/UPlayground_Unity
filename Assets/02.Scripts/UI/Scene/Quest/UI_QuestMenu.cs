@@ -20,10 +20,7 @@ public class UI_QuestMenu : UI_Base
 {
     // ──── 카테고리 탭 ────
     [Header("상태 탭")]
-    [SerializeField] private Button _tabAvailable;
-    [SerializeField] private Button _tabActive;
-    [SerializeField] private Button _tabCompleted;
-    [SerializeField] private Button _tabFailed;
+    [SerializeField] private UITabGroup _tabGroup;
     [SerializeField] private TextMeshProUGUI _txtCountAvailable;
     [SerializeField] private TextMeshProUGUI _txtCountActive;
     [SerializeField] private TextMeshProUGUI _txtCountCompleted;
@@ -37,6 +34,7 @@ public class UI_QuestMenu : UI_Base
     // ──── 상세 ────
     [Header("퀘스트 상세")]
     [SerializeField] private GameObject      _detailPanel;
+    [SerializeField] private CanvasGroup     _detailPanelGroup;
     [SerializeField] private TextMeshProUGUI _txtQuestTitle;
     [SerializeField] private TextMeshProUGUI _txtStatusBadge;
     [SerializeField] private TextMeshProUGUI _txtQuestDesc;
@@ -60,9 +58,18 @@ public class UI_QuestMenu : UI_Base
     private readonly List<UI_QuestObjectiveSlot> _spawnedObjectives = new List<UI_QuestObjectiveSlot>();
     private readonly List<UI_QuestRewardSlot>    _spawnedRewards    = new List<UI_QuestRewardSlot>();
 
-    private QuestStatus _currentTab       = QuestStatus.Active;
+    private QuestStatus _currentTab       = QuestStatus.Available;
     private string      _selectedQuestId  = null;
     private QuestStatus _selectedStatus   = QuestStatus.Active;
+
+    // 탭 인덱스 → 상태 매핑 (프리팹의 탭 배치 순서와 반드시 일치)
+    private static readonly QuestStatus[] TabOrder =
+    {
+        QuestStatus.Available,
+        QuestStatus.Active,
+        QuestStatus.Completed,
+        QuestStatus.Failed,
+    };
 
     // ──────────────────────────────────────────────────────────
     #region UI_Base 생명주기
@@ -71,10 +78,8 @@ public class UI_QuestMenu : UI_Base
     {
         base.Awake();
 
-        _tabAvailable?.onClick.AddListener(() => SetTab(QuestStatus.Available));
-        _tabActive?.onClick.AddListener(()    => SetTab(QuestStatus.Active));
-        _tabCompleted?.onClick.AddListener(()  => SetTab(QuestStatus.Completed));
-        _tabFailed?.onClick.AddListener(()     => SetTab(QuestStatus.Failed));
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged += OnTabSelected;
 
         _btnTrack?.onClick.AddListener(OnClickTrack);
         _btnComplete?.onClick.AddListener(OnClickComplete);
@@ -87,16 +92,29 @@ public class UI_QuestMenu : UI_Base
     protected override void OnShow()
     {
         _selectedQuestId = null;
-        _currentTab      = QuestStatus.Active;
+        _currentTab      = QuestStatus.Available;
 
-        if (_detailPanel != null)
-            _detailPanel.SetActive(false);
-
+        SetDetailVisible(false);
         RefreshTabCounts();
-        RefreshList();
+
+        // "수락 가능" 탭(인덱스 0)을 선택 상태로 시작 → SelectionChanged → SetTab이 리스트를 채운다.
+        if (_tabGroup != null)
+        {
+            _tabGroup.Select(IndexOfTab(QuestStatus.Available));
+        }
+        else
+        {
+            RefreshList(); // 그룹 미연결 폴백
+        }
     }
 
-    protected override void OnDispose() { }
+    protected override void OnDispose()
+    {
+        base.OnDispose();
+
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged -= OnTabSelected;
+    }
 
     public override bool PerformBackFunction()
     {
@@ -114,13 +132,26 @@ public class UI_QuestMenu : UI_Base
     // ──────────────────────────────────────────────────────────
     #region 탭 / 리스트
 
+    // UITabGroup 선택 콜백 (탭 클릭 및 초기 Select 모두 여기로 들어온다)
+    private void OnTabSelected(int index)
+    {
+        if (index < 0 || index >= TabOrder.Length) return;
+        SetTab(TabOrder[index]);
+    }
+
+    private static int IndexOfTab(QuestStatus status)
+    {
+        for (int i = 0; i < TabOrder.Length; i++)
+            if (TabOrder[i] == status) return i;
+        return 0;
+    }
+
     private void SetTab(QuestStatus tab)
     {
         _currentTab      = tab;
         _selectedQuestId = null;
 
-        if (_detailPanel != null)
-            _detailPanel.SetActive(false);
+        SetDetailVisible(false);
 
         RefreshList();
     }
@@ -170,7 +201,12 @@ public class UI_QuestMenu : UI_Base
         if (!stillPresent)
         {
             _selectedQuestId = null;
-            if (_detailPanel != null) _detailPanel.SetActive(false);
+
+            // 선택된 퀘스트가 없으면 리스트의 첫 대상 퀘스트를 자동 선택
+            if (_spawnedSlots.Count > 0)
+                OnQuestSlotClicked(_spawnedSlots[0].QuestId, _currentTab);
+            else
+                SetDetailVisible(false);
         }
     }
 
@@ -206,8 +242,7 @@ public class UI_QuestMenu : UI_Base
         var so = qm?.GetQuestData(questId);
         if (so == null) return;
 
-        if (_detailPanel != null)
-            _detailPanel.SetActive(true);
+        SetDetailVisible(true);
 
         _txtQuestTitle.text  = so.questName;
         if (_txtStatusBadge != null) _txtStatusBadge.text = StatusLabel(status);
@@ -332,6 +367,27 @@ public class UI_QuestMenu : UI_Base
         int n = 0;
         foreach (var _ in src) n++;
         return n;
+    }
+
+    private void SetDetailVisible(bool visible)
+    {
+        if (_detailPanel == null) return;
+
+        if (_detailPanelGroup == null)
+            _detailPanelGroup = _detailPanel.GetComponent<CanvasGroup>();
+
+        if (_detailPanelGroup == null)
+        {
+            _detailPanel.SetActive(visible);
+            return;
+        }
+
+        if (!_detailPanel.activeSelf)
+            _detailPanel.SetActive(true);
+
+        _detailPanelGroup.alpha = visible ? 1f : 0f;
+        _detailPanelGroup.interactable = visible;
+        _detailPanelGroup.blocksRaycasts = visible;
     }
 
     private void ClearSlots()

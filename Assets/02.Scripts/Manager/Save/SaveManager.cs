@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -34,8 +35,9 @@ namespace UPlayGround.Manager
         private const string BACKUP_FILE_EXTENSION = ".bak";
         private const string CURRENT_SAVE_VERSION = "2.0";    // 1.0=평문 JSON, 2.0=AES 암호화
 
-        /// <summary> 지원하는 세이브 슬롯 개수 (0 ~ MAX_SLOTS-1). </summary>
-        public const int MAX_SLOTS = 3;
+        private static readonly Regex SaveFileRegex = new Regex(
+            $"^{Regex.Escape(SAVE_FILE_PREFIX)}(?<slot>\\d+){Regex.Escape(SAVE_FILE_EXTENSION)}(?:{Regex.Escape(BACKUP_FILE_EXTENSION)})?$",
+            RegexOptions.Compiled);
 
         private readonly List<ISaveable> _saveables = new List<ISaveable>();
 
@@ -95,7 +97,7 @@ namespace UPlayGround.Manager
             {
                 return CompleteWithFailure(
                     result,
-                    $"잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1})");
+                    $"잘못된 슬롯 번호 {slot} (0 이상의 정수만 허용)");
             }
 
             if (_isSaving)
@@ -141,6 +143,8 @@ namespace UPlayGround.Manager
                 string json = JsonConvert.SerializeObject(data, Formatting.Indented);
                 byte[] encrypted = SaveCrypto.Encrypt(json);
                 WriteSaveAtomically(slot, encrypted);
+                // 저장 성공 직후 UI 제외 화면 캡처를 슬롯 썸네일로 저장(부가 기능, 실패해도 저장은 유효).
+                SaveThumbnail.Capture(_saveFolder, slot);
                 Debug.Log($"[SaveManager] 슬롯 {slot} 저장 완료 → {GetSavePath(slot)}");
                 result.Succeeded = true;
                 result.FilePath = GetSavePath(slot);
@@ -265,7 +269,7 @@ namespace UPlayGround.Manager
             {
                 CompleteWithFailure(
                     result,
-                    $"잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1})");
+                    $"잘못된 슬롯 번호 {slot} (0 이상의 정수만 허용)");
                 return false;
             }
 
@@ -357,7 +361,7 @@ namespace UPlayGround.Manager
         {
             if (!IsValidSlot(slot))
             {
-                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (유효 범위 0~{MAX_SLOTS - 1}). 삭제 중단.");
+                Debug.LogError($"[SaveManager] 잘못된 슬롯 번호 {slot} (0 이상의 정수만 허용). 삭제 중단.");
                 return;
             }
 
@@ -375,8 +379,16 @@ namespace UPlayGround.Manager
             if (File.Exists(tempPath))
                 File.Delete(tempPath);
 
+            SaveThumbnail.Delete(_saveFolder, slot);
+
             Debug.Log($"[SaveManager] 슬롯 {slot} 삭제 완료");
         }
+
+        /// <summary>
+        /// 슬롯 썸네일 Sprite를 반환한다(세이브 슬롯 UI용). 캡처된 파일이 없으면 null.
+        /// 결과는 슬롯별로 캐시되며 저장/삭제 시 갱신된다.
+        /// </summary>
+        public Sprite GetSlotThumbnail(int slot) => SaveThumbnail.GetSprite(_saveFolder, slot);
 
         /// <summary>
         /// 슬롯의 메타 정보(저장 일시, 버전, 맵, 진행도)를 빠르게 조회한다.
@@ -405,16 +417,39 @@ namespace UPlayGround.Manager
             };
         }
 
-        /// <summary>
-        /// 모든 슬롯(0 ~ MAX_SLOTS-1)의 메타 정보를 조회한다.
-        /// 비어 있는 슬롯은 해당 인덱스가 null이다. 슬롯 선택 UI에서 사용.
-        /// </summary>
+        /// <summary>저장 파일이 존재하는 모든 슬롯의 메타 정보를 슬롯 번호 오름차순으로 조회한다.</summary>
         public SaveSlotInfo[] GetAllSlotInfos()
         {
-            var infos = new SaveSlotInfo[MAX_SLOTS];
-            for (int i = 0; i < MAX_SLOTS; i++)
-                infos[i] = GetSaveSlotInfo(i);
-            return infos;
+            var indices = GetExistingSlotIndices();
+            var infos = new List<SaveSlotInfo>(indices.Count);
+            foreach (int index in indices)
+            {
+                var info = GetSaveSlotInfo(index);
+                if (info != null)
+                    infos.Add(info);
+            }
+
+            return infos.ToArray();
+        }
+
+        /// <summary>
+        /// 슬롯 선택 UI에 표시할 슬롯 번호 목록을 반환한다.
+        /// 저장 모드에서는 기존 저장 슬롯 전체와 가장 낮은 빈 슬롯 1개를 함께 노출한다.
+        /// </summary>
+        public List<int> GetSlotIndicesForMenu(bool includeNextEmptySlot)
+        {
+            var indices = GetExistingSlotIndices();
+            if (!includeNextEmptySlot)
+                return indices;
+
+            int nextEmpty = 0;
+            var used = new HashSet<int>(indices);
+            while (used.Contains(nextEmpty))
+                nextEmpty++;
+
+            indices.Add(nextEmpty);
+            indices.Sort();
+            return indices;
         }
 
         /// <summary>
@@ -424,7 +459,7 @@ namespace UPlayGround.Manager
         {
             int best = -1;
             string bestDate = null;
-            for (int i = 0; i < MAX_SLOTS; i++)
+            foreach (int i in GetExistingSlotIndices())
             {
                 var info = GetSaveSlotInfo(i);
                 if (info == null) continue;
@@ -591,8 +626,27 @@ namespace UPlayGround.Manager
             }
         }
 
-        /// <summary> 슬롯 번호가 유효 범위(0 ~ MAX_SLOTS-1)인지 검사한다. </summary>
-        private static bool IsValidSlot(int slot) => slot >= 0 && slot < MAX_SLOTS;
+        private List<int> GetExistingSlotIndices()
+        {
+            var slots = new SortedSet<int>();
+            if (string.IsNullOrEmpty(_saveFolder) || !Directory.Exists(_saveFolder))
+                return new List<int>();
+
+            foreach (string path in Directory.EnumerateFiles(_saveFolder))
+            {
+                var match = SaveFileRegex.Match(Path.GetFileName(path));
+                if (!match.Success)
+                    continue;
+
+                if (int.TryParse(match.Groups["slot"].Value, out int slot))
+                    slots.Add(slot);
+            }
+
+            return new List<int>(slots);
+        }
+
+        /// <summary> 슬롯 번호가 유효한지 검사한다. 세이브 슬롯은 개수 제한 없이 0 이상의 정수를 허용한다. </summary>
+        private static bool IsValidSlot(int slot) => slot >= 0;
 
         private SaveOperationResult CompleteWithFailure(
             SaveOperationResult result,

@@ -16,6 +16,8 @@ using UPlayGround.Manager;
 /// </summary>
 public class UI_PartyMenu : UI_Base
 {
+    private const int RosterDisplayCapacity = 20;
+
     [Header("캐릭터 목록")]
     [SerializeField] private Transform        _content;
     [SerializeField] private UIPartyMenuEntry _partyMenuEntryPrefab;
@@ -217,7 +219,7 @@ public class UI_PartyMenu : UI_Base
 
         int max = pm.MaxBattleSize;
         if (_rosterCountText != null)
-            _rosterCountText.text = pm.Roster.Count.ToString("N0", CultureInfo.InvariantCulture);
+            _rosterCountText.text = $"{pm.Roster.Count.ToString("N0", CultureInfo.InvariantCulture)} / {RosterDisplayCapacity}";
         if (_battlePartyCountText != null)
             _battlePartyCountText.text = $"{_pendingOrder.Count} / {max}";
         if (_battleMemberCountText != null)

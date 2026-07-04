@@ -141,6 +141,34 @@ namespace UPlayGround.Manager
             CompleteCurrentLoad();
         }
 
+        /// <summary>
+        /// 파스트트래블 도착 지점(PendingArrivalId)이 지정돼 있으면 플레이어를 그 위치에 1회 배치한다.
+        /// 대상 씬에 해당 SceneArrivalPoint가 없으면 경고 후 씬 기본 스폰을 유지한다.
+        /// </summary>
+        private void TryApplyPendingArrival(PlayerActor player)
+        {
+            if (string.IsNullOrEmpty(PendingArrivalId) || player == null)
+                return;
+
+            if (SceneArrivalRegistry.TryGet(PendingArrivalId, out var arrival))
+            {
+                // KCC 모터가 준비되기 전 transform으로 옮기면 모터가 되돌린다.
+                // 모터가 생성될 때까지 소비하지 않고 다음 프레임에 재시도한다.
+                var motor = player.ActorController?.Motor;
+                if (motor == null) return;
+
+                motor.SetPositionAndRotation(arrival.Position, arrival.Rotation);
+                CameraManager.Instance?.SnapToTarget(arrival.Position);
+            }
+            else
+            {
+                Debug.LogWarning(
+                    $"[SceneManager] 도착 지점 '{PendingArrivalId}'을(를) 찾을 수 없어 씬 기본 스폰을 사용합니다.");
+            }
+
+            PendingArrivalId = null;   // 1회성 소비
+        }
+
         private async UniTask WaitForGameplayStabilizationAsync(CancellationToken cancellationToken)
         {
             float startedAt = Time.realtimeSinceStartup;
@@ -154,6 +182,8 @@ namespace UPlayGround.Manager
 
                 if (player == null)
                     player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
+
+                TryApplyPendingArrival(player);
 
                 PartyManager partyManager = PartyManager.Instance;
                 bool sceneRestoreReady = partyManager == null
@@ -212,6 +242,8 @@ namespace UPlayGround.Manager
 
                 if (player == null)
                     player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
+
+                TryApplyPendingArrival(player);
 
                 PartyManager partyManager = PartyManager.Instance;
                 bool sceneRestoreReady = partyManager == null

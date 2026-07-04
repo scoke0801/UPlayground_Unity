@@ -14,15 +14,17 @@ public class UI_SettingMenu : UI_Base
     [SerializeField] private UISettingPageKeyBinding _panelKeys;
 
     [Header("TabButtons")]
-    [SerializeField] private Button _btnGamePlay;
-    [SerializeField] private Button _btnGraphic;
-    [SerializeField] private Button _btnAudio;
-    [SerializeField] private Button _btnKeyBinding;
-    
+    // 탭 하이라이트/단일 선택은 UITabGroup이 관리한다. 인덱스 순서: 0=게임플레이,1=그래픽,2=오디오,3=키설정
+    [SerializeField] private UITabGroup _tabGroup;
+
     [Header("Footer")]
     [SerializeField] private Button _btnApply;
     [SerializeField] private Button _btnCancel;
     [SerializeField] private Button _btnReset;
+
+    [Header("Close")]
+    // 상단 X 버튼(선택). 취소(변경 취소 후 닫기)와 동일하게 동작한다.
+    [SerializeField] private Button _btnClose;
 
     [Header("Data")]
     // AudioMixer는 오디오 반영용. null이면 오디오 적용만 스킵된다.
@@ -37,42 +39,35 @@ public class UI_SettingMenu : UI_Base
     // SyncUIFromData() 중 콜백이 data를 다시 덮어쓰는 것을 방지
     private bool _isSyncing;
 
+    // 탭 인덱스 → 페이지 (프리팹의 탭 배치 순서와 반드시 일치)
+    private UISettingPageBase[] _pages;
+
     protected override void Awake()
     {
         base.Awake();
-        
-        _btnGamePlay.onClick.AddListener(OnClickedGamePlay);
-        _btnGraphic.onClick.AddListener(OnClickedGraphic);
-        _btnAudio.onClick.AddListener(OnClickedAudio);
-        _btnKeyBinding.onClick.AddListener(OnClickedKeyBinding);
-        
+
+        _pages = new UISettingPageBase[] { _panelGameplay, _panelGraphics, _panelAudio, _panelKeys };
+
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged += OnTabSelected;
+
         BindFooterButtons();
     }
 
-    private void OnClickedGamePlay()
+    protected override void OnDispose()
     {
-        _currentPage = _panelGameplay;
-        ShowTab(_currentPage.gameObject);
-        SyncUIFromData();
+        base.OnDispose();
+
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged -= OnTabSelected;
     }
 
-    private void OnClickedGraphic()
-    {        
-        _currentPage = _panelGraphics;
-        ShowTab(_currentPage.gameObject);
-        SyncUIFromData();
-    }
-
-    private void OnClickedAudio()
-    {        
-        _currentPage = _panelAudio;
-        ShowTab(_currentPage.gameObject);
-        SyncUIFromData();
-    }
-
-    private void OnClickedKeyBinding()
+    // UITabGroup 선택 콜백 (탭 클릭 및 초기 Select 모두 여기로 들어온다)
+    private void OnTabSelected(int index)
     {
-        _currentPage = _panelKeys;
+        if (_pages == null || index < 0 || index >= _pages.Length) return;
+
+        _currentPage = _pages[index];
         ShowTab(_currentPage.gameObject);
         SyncUIFromData();
     }
@@ -87,10 +82,19 @@ public class UI_SettingMenu : UI_Base
         if (!TryBindSettingsData())
             return;
 
-        _currentPage = _panelGameplay;
         _snapshot = SettingsSnapshot.From(_settingsData);
-        ShowTab(_panelGameplay.gameObject);
-        SyncUIFromData();
+
+        // 게임플레이 탭(인덱스 0)을 선택 상태로 시작 → SelectionChanged → ShowTab/SyncUIFromData
+        if (_tabGroup != null)
+        {
+            _tabGroup.Select(0);
+        }
+        else
+        {
+            _currentPage = _panelGameplay;
+            ShowTab(_panelGameplay.gameObject);
+            SyncUIFromData();
+        }
     }
 
     // ---- 탭 ----
@@ -145,11 +149,15 @@ public class UI_SettingMenu : UI_Base
         _btnApply.onClick.AddListener(OnApply);
         _btnCancel.onClick.AddListener(OnCancel);
         _btnReset.onClick.AddListener(OnReset);
+        if (_btnClose != null)
+            _btnClose.onClick.AddListener(OnCancel);
     }
 
     private void OnApply()
     {
-        SettingsApplier.ApplyAll(_settingsData, _audioMixer);
+        // 적용은 SettingsManager에 위임한다. 믹서 미연결 시에도 ResolveMixer() 폴백으로
+        // 오디오가 즉시 반영되며, 그래픽도 이 시점에 적용된다.
+        SettingsManager.Instance.ApplyCurrentSettings(_audioMixer);
         _settingsData.Save();
         Hide();
     }

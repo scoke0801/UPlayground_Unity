@@ -17,12 +17,14 @@ namespace UPlayGround
 
         [Header("Tips")]
         [SerializeField] private TMP_Text _tipsText;
+        [SerializeField] private string _tipsPrefix = "Tips | ";
         [SerializeField] private string[] _tips;
 
         private bool _activationTriggered = false;
         private GameObject _persistentCanvasRoot;
         private bool _isPresentationPersistent;
         private bool _releaseRequested;
+        private int _currentTipIndex = -1;
 
         private void Start()
         {
@@ -61,6 +63,9 @@ namespace UPlayGround
 
         private void Update()
         {
+            if (UnityEngine.Input.GetMouseButtonDown(0) || HasNewTouch())
+                ShowNextTip();
+
             if (_activationTriggered) return;
 
             float target = SceneManager.Instance.LoadProgress * 100f;
@@ -180,7 +185,41 @@ namespace UPlayGround
         private void ShowRandomTip()
         {
             if (_tips == null || _tips.Length == 0 || _tipsText == null) return;
-            _tipsText.text = $"Tips | {_tips[Random.Range(0, _tips.Length)]}";
+
+            int nextIndex = Random.Range(0, _tips.Length);
+            if (_tips.Length > 1 && nextIndex == _currentTipIndex)
+                nextIndex = (nextIndex + 1) % _tips.Length;
+
+            ShowTip(nextIndex);
+        }
+
+        private void ShowNextTip()
+        {
+            if (_tips == null || _tips.Length == 0 || _tipsText == null) return;
+
+            int nextIndex = _currentTipIndex < 0
+                ? 0
+                : (_currentTipIndex + 1) % _tips.Length;
+            ShowTip(nextIndex);
+        }
+
+        private void ShowTip(int index)
+        {
+            if (index < 0 || index >= _tips.Length) return;
+
+            _currentTipIndex = index;
+            _tipsText.text = $"{_tipsPrefix}{_tips[index]}";
+        }
+
+        private static bool HasNewTouch()
+        {
+            for (int i = 0; i < UnityEngine.Input.touchCount; i++)
+            {
+                if (UnityEngine.Input.GetTouch(i).phase == TouchPhase.Began)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

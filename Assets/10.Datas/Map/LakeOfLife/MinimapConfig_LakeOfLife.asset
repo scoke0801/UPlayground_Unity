@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 092777d72f642bc46b5bf7eab365f3b7, type: 3}
-  m_Name: InGame_MinimapConfig
+  m_Name: MinimapConfig_LakeOfLife
   m_EditorClassIdentifier: 
   player:
     sprite: {fileID: 21300000, guid: df3348d2fa5a44f2da5dea047a7efc0e, type: 3}

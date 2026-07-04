@@ -147,6 +147,9 @@ public abstract class UI_Base : MonoBehaviour
     /// </summary>
     protected virtual bool BlocksLowerInput => false;
 
+    // UIManager가 입력 레이어 재계산 시 "차단 모달"만 필터링하기 위해 읽는다.
+    public bool BlocksInput => BlocksLowerInput;
+
     // BlocksLowerInput으로 입력 레이어를 올렸는지 추적해 Show/Hide 짝을 맞춘다.
     private bool _inputLayerRaised;
 
@@ -174,11 +177,12 @@ public abstract class UI_Base : MonoBehaviour
             _cursorVisiblePushed = true;
         }
 
-        // 입력을 독점하는 모달이면 입력 레이어를 자신의 _layer로 올려 하위(게임플레이 등) 입력을 차단한다.
+        // 입력을 독점하는 모달이면 입력 레이어를 재계산해 하위(게임플레이 등) 입력을 차단한다.
+        // IsVisible이 위에서 이미 true이므로 재계산 시 자신이 포함돼 자신의 레이어까지 올라간다.
         if (!_inputLayerRaised && BlocksLowerInput)
         {
-            InputManager.Instance?.SetInputLayer(_layer.ToInputLayer());
             _inputLayerRaised = true;
+            InputManager.Instance?.RefreshInputLayer();
         }
 
         RegisterInputEvents();
@@ -203,12 +207,13 @@ public abstract class UI_Base : MonoBehaviour
             _cursorVisiblePushed = false;
         }
 
-        // Show에서 올린 입력 레이어를 복원한다(None → 현재 최상위 표시 UI 레이어로 재계산).
-        // IsVisible은 위에서 이미 false이므로 GetTopCanvasLayer가 자신을 제외한다.
+        // Show에서 올린 입력 레이어를 복원한다(가시 차단 모달 기준으로 재계산).
+        // IsVisible은 위에서 이미 false이므로 재계산이 자신을 제외한다.
+        // 남아 있는 차단 모달이 없으면 Level_0(게임플레이)으로 내려간다.
         if (_inputLayerRaised)
         {
-            InputManager.Instance?.SetInputLayer(InputLayer.None);
             _inputLayerRaised = false;
+            InputManager.Instance?.RefreshInputLayer();
         }
 
         UnRegisterInputEvents();

@@ -86,7 +86,7 @@ namespace UPlayGround.UI.Quest.EditorTools
                 // ===== 좌측 =====
                 var left = NewUI("LeftPanel", body.transform);
                 AddImage(left, PanelBg, UISprite, sliced: true);
-                AddFlexibleW(left, 2f);
+                SetWidth(left, 560);
                 AddVLG(left, spacing: 8, pad: 10).childForceExpandHeight = false;
 
                 var tabs = NewUI("Tabs", left.transform);
@@ -97,18 +97,23 @@ namespace UPlayGround.UI.Quest.EditorTools
                 var tabDone  = MakeTab("TabCompleted", tabs.transform, "완료",     out var cntDone);
                 var tabFail  = MakeTab("TabFailed",    tabs.transform, "실패",     out var cntFail);
 
+                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_QuestMenu.TabOrder와 반드시 일치
+                var tabGroup = tabs.AddComponent<UITabGroup>();
+                tabGroup.SetTabs(new[] { tabAvail, tabActive, tabDone, tabFail });
+
                 var scroll = NewUI("QuestScroll", left.transform);
                 AddFlexible(scroll, 1);
                 var listContent = BuildVerticalScroll(scroll);
 
                 // ===== 우측 =====
                 var right = NewUI("RightColumn", body.transform);
-                AddFlexibleW(right, 3f);
+                AddFlexibleW(right, 1f);
                 AddVLG(right, spacing: 8, pad: 0).childForceExpandHeight = false;
 
                 // 상세 패널
                 var detail = NewUI("DetailPanel", right.transform);
                 AddImage(detail, PanelBg, UISprite, sliced: true);
+                var detailGroup = detail.AddComponent<CanvasGroup>();
                 AddFlexible(detail, 1);
                 AddVLG(detail, spacing: 8, pad: 14).childForceExpandHeight = false;
 
@@ -164,10 +169,7 @@ namespace UPlayGround.UI.Quest.EditorTools
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);
-                SetRef(so, "_tabAvailable",  tabAvail);
-                SetRef(so, "_tabActive",     tabActive);
-                SetRef(so, "_tabCompleted",  tabDone);
-                SetRef(so, "_tabFailed",     tabFail);
+                SetRef(so, "_tabGroup",      tabGroup);
                 SetRef(so, "_txtCountAvailable", cntAvail);
                 SetRef(so, "_txtCountActive",    cntActive);
                 SetRef(so, "_txtCountCompleted", cntDone);
@@ -175,6 +177,7 @@ namespace UPlayGround.UI.Quest.EditorTools
                 SetRef(so, "_questListContent", listContent.transform);
                 SetRef(so, "_questSlotPrefab",  questSlot);
                 SetRef(so, "_detailPanel",     detail);
+                SetRef(so, "_detailPanelGroup", detailGroup);
                 SetRef(so, "_txtQuestTitle",   txtTitle);
                 SetRef(so, "_txtStatusBadge",  txtBadge);
                 SetRef(so, "_txtQuestDesc",    txtDesc);
@@ -388,15 +391,26 @@ namespace UPlayGround.UI.Quest.EditorTools
             return btn;
         }
 
-        /// <summary> 라벨 + 우상단 카운트 배지를 가진 탭 버튼. </summary>
-        private static Button MakeTab(string name, Transform parent, string label, out TextMeshProUGUI countText)
+        /// <summary> 라벨 + 우상단 카운트 배지 + UITabButton(선택 하이라이트)을 가진 탭 버튼. </summary>
+        private static UITabButton MakeTab(string name, Transform parent, string label, out TextMeshProUGUI countText)
         {
-            var btn = MakeButton(name, parent, label, out _, BtnBg);
+            var btn = MakeButton(name, parent, label, out var labelText, BtnBg);
             var badge = NewUI("Count", btn.transform);
             AnchorTopRight(Rt(badge), 30, 24);
             countText = AddText(badge, "0", 16, Accent, TextAlignmentOptions.Center);
             countText.raycastTarget = false;
-            return btn;
+
+            // 선택 시 배경=AccentBtn/라벨=TextMain, 비선택 시 배경=BtnBg/라벨=TextSub
+            var tab = btn.gameObject.AddComponent<UITabButton>();
+            tab.Configure(
+                btn,
+                btn.targetGraphic as Image,
+                labelText,
+                normalBg:     BtnBg,
+                selectedBg:   AccentBtn,
+                normalText:   TextSub,
+                selectedText: TextMain);
+            return tab;
         }
 
         /// <summary> 골드/경험치용 라벨+값 박스. 값 TMP를 반환. </summary>

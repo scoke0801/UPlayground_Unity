@@ -42,6 +42,21 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 현재 Data 값을 즉시 전체 시스템(그래픽/오디오)에 적용한다. 설정 메뉴 '적용' 시 호출.
+        /// 믹서는 override가 있으면 사용하고, 없으면 ResolveMixer() 폴백을 타므로
+        /// UI 쪽 믹서 연결 누락으로 오디오가 재시작 전까지 반영되지 않던 문제를 방지한다.
+        /// (게임플레이 감도/흔들림/타겟보정 등은 각 시스템이 Data를 라이브로 읽으므로 별도 push 불필요.)
+        /// </summary>
+        public void ApplyCurrentSettings(UnityEngine.Audio.AudioMixer mixerOverride = null)
+        {
+            if (!IsLoaded || Data == null)
+                return;
+
+            var mixer = mixerOverride != null ? mixerOverride : ResolveMixer();
+            SettingsApplier.ApplyAll(Data, mixer);
+        }
+
+        /// <summary>
         /// 믹서가 늦게 준비된 경우(SoundManager의 Addressable 믹서) 저장된 오디오 설정을 재적용한다.
         /// SoundManager가 믹서 로드 완료 시 호출한다.
         /// </summary>

@@ -576,6 +576,32 @@ namespace UPlayGround.Manager
             return CanvasLayer.HUD;
         }
 
+        /// <summary>
+        /// 현재 가시(visible)이면서 입력을 차단(BlocksInput)하는 UI들 중 최상위 레이어를 InputLayer로 반환한다.
+        /// 그런 UI가 없으면 Level_0(게임플레이)을 반환한다.
+        /// GetTopCanvasLayer와 달리 비-차단 UI(커서 전용 팝업 등)는 계산에서 제외해, 입력 레이어를
+        /// "올린 기준(BlocksLowerInput)"과 "복원 기준"을 대칭으로 맞춘다.
+        /// 중첩된 UI_Base까지 모두 검사하므로 계층 구조에 관계없이 정확하다.
+        /// </summary>
+        public InputLayer GetTopBlockingInputLayer()
+        {
+            InputLayer top = InputLayer.Level_0;
+            foreach (var canvas in _canvasDictionary.Values)
+            {
+                if (canvas == null) continue;
+
+                var uiBases = canvas.GetComponentsInChildren<UI_Base>(true);
+                foreach (var ui in uiBases)
+                {
+                    if (ui == null || !ui.IsVisible || !ui.BlocksInput) continue;
+
+                    InputLayer layer = ui.Layer.ToInputLayer();
+                    if (layer > top) top = layer;
+                }
+            }
+            return top;
+        }
+
         #endregion
 
         #region Input

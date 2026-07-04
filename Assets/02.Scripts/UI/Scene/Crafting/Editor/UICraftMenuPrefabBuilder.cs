@@ -97,11 +97,15 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 var tabs = NewUI("Tabs", left.transform);
                 SetHeight(tabs, 44);
                 AddHLG(tabs, spacing: 4, pad: 0).childForceExpandWidth = true; // 5개 균등 분할
-                var tabAll        = MakeButton("TabAll",        tabs.transform, "전체", out _);
-                var tabConsumable = MakeButton("TabConsumable", tabs.transform, "소비", out _);
-                var tabEquipment  = MakeButton("TabEquipment",  tabs.transform, "장비", out _);
-                var tabMaterial   = MakeButton("TabMaterial",   tabs.transform, "재료", out _);
-                var tabSpecial    = MakeButton("TabSpecial",    tabs.transform, "특수", out _);
+                var tabAll        = MakeTab("TabAll",        tabs.transform, "전체");
+                var tabConsumable = MakeTab("TabConsumable", tabs.transform, "소비");
+                var tabEquipment  = MakeTab("TabEquipment",  tabs.transform, "장비");
+                var tabMaterial   = MakeTab("TabMaterial",   tabs.transform, "재료");
+                var tabSpecial    = MakeTab("TabSpecial",    tabs.transform, "특수");
+
+                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_CraftMenu.TabCategories와 반드시 일치
+                var tabGroup = tabs.AddComponent<UITabGroup>();
+                tabGroup.SetTabs(new[] { tabAll, tabConsumable, tabEquipment, tabMaterial, tabSpecial });
 
                 // 레시피 스크롤
                 var recipeScroll = NewUI("RecipeScroll", left.transform);
@@ -212,11 +216,7 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 var so = new SerializedObject(menu);
                 SetRef(so, "_recipeListContent", recipeContent.transform);
                 SetRef(so, "_recipeSlotPrefab",  recipeSlot);
-                SetRef(so, "_tabAll",        tabAll);
-                SetRef(so, "_tabConsumable", tabConsumable);
-                SetRef(so, "_tabEquipment",  tabEquipment);
-                SetRef(so, "_tabMaterial",   tabMaterial);
-                SetRef(so, "_tabSpecial",    tabSpecial);
+                SetRef(so, "_tabGroup",      tabGroup);
                 SetRef(so, "_detailPanel",       detail);
                 SetRef(so, "_imgResultIcon",     imgResultIcon);
                 SetRef(so, "_txtResultName",     txtResultName);
@@ -407,6 +407,24 @@ namespace UPlayGround.UI.Crafting.EditorTools
             labelText = AddText(lblGo, label, 22, TextMain, TextAlignmentOptions.Center);
             labelText.raycastTarget = false;
             return btn;
+        }
+
+        /// <summary> 선택 하이라이트(UITabButton)를 가진 카테고리 탭 버튼. </summary>
+        private static UITabButton MakeTab(string name, Transform parent, string label)
+        {
+            var btn = MakeButton(name, parent, label, out var lbl, BtnBg);
+
+            // 선택 시 배경=AccentBtn/라벨=TextMain, 비선택 시 배경=BtnBg/라벨=TextSub
+            var tab = btn.gameObject.AddComponent<UITabButton>();
+            tab.Configure(
+                btn,
+                btn.targetGraphic as Image,
+                lbl,
+                normalBg:     BtnBg,
+                selectedBg:   AccentBtn,
+                normalText:   TextSub,
+                selectedText: TextMain);
+            return tab;
         }
 
         private static VerticalLayoutGroup AddVLG(GameObject go, float spacing, int pad)

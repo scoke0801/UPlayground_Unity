@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround;
 using UPlayGround.Component;
@@ -23,8 +24,8 @@ public class UI_Inventory : UI_Base
     [SerializeField] private TextMeshProUGUI _txtWeight;
 
     [Header("Slot Setting")]
-    [SerializeField] private int _slotCountPerRow = 5;
-    [SerializeField] private int _startRowCount = 10;
+    [SerializeField] private int _slotCountPerRow = 14;
+    [SerializeField] private int _startRowCount = 9;
     
     [Header("Select Detail Panel")]
     [SerializeField] private GameObject _selectedItemPrefab;
@@ -40,12 +41,8 @@ public class UI_Inventory : UI_Base
     [SerializeField] private UICommonButton _dropButton;
 
     [Header("Category Tabs")]
-    [SerializeField] private Button _tabAll;
-    [SerializeField] private Button _tabConsumable;
-    [SerializeField] private Button _tabEquipment;
-    [SerializeField] private Button _tabMaterial;
-    [SerializeField] private Button _tabQuest;
-    [SerializeField] private Button _tabImportant;
+    // 탭 하이라이트/단일 선택은 UITabGroup이 관리한다. 인덱스 순서는 TabCategories와 일치.
+    [SerializeField] private UITabGroup _tabGroup;
 
     [Header("Header / Footer")]
     [SerializeField] private TextMeshProUGUI _txtItemCount; // "전체 38 / 120"
@@ -63,6 +60,9 @@ public class UI_Inventory : UI_Base
     [SerializeField] private TextMeshProUGUI _statCritDmgText;
     [SerializeField] private TextMeshProUGUI _statAtkSpeedText;
 
+    [Header("Etc")]
+    [SerializeField] private Button              _btnClose;
+    
     private enum InventorySortMode { Default = 0, Name = 1, Rarity = 2, Weight = 3 }
 
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
@@ -86,11 +86,22 @@ public class UI_Inventory : UI_Base
     // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
     protected override bool BlocksLowerInput => true;
 
+    protected override void OnDispose()
+    {
+        base.OnDispose();
+
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged -= OnTabSelected;
+    }
+
     protected override void OnShow()
     {
         _categoryFilter = null;
         _sortMode       = InventorySortMode.Default;
         if (_sortDropdown != null) _sortDropdown.SetValueWithoutNotify(0);
+
+        // "전체" 탭(인덱스 0) 하이라이트만 갱신 (리스트 채우기는 아래에서 직접 수행하므로 notify:false)
+        _tabGroup?.Select(0, notify: false);
 
         var items = RefreshDictItem();
         SetInventory();
@@ -101,6 +112,25 @@ public class UI_Inventory : UI_Base
             ShowSelectedItemDetail(firstItem.data, firstItem.count);
         else
             ClearSelectedItemDetail();
+
+        // 키보드/게임패드 네비게이션 시작점: 아이템이 있으면 첫 아이템 슬롯을 선택 상태로 둔다.
+        SetInitialItemSlotFocus(items);
+    }
+
+    /// <summary> 인벤토리를 열 때 첫 아이템 슬롯을 EventSystem 포커스로 지정한다(네비게이션 시작점). </summary>
+    private void SetInitialItemSlotFocus(IReadOnlyList<ItemInstance> items)
+    {
+        if (EventSystem.current == null) return;
+        if (items == null || items.Count == 0) return;
+        if (_uiSlots.Count == 0) return;
+
+        var first = _uiSlots[0];
+        if (first == null || !first.HasItem) return;
+
+        // 같은 슬롯이 이전 선택으로 남아 있으면 OnSelect가 다시 호출되지 않을 수 있어 한 번 해제 후 지정한다.
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(first.gameObject);
+        first.SetFocus(true);
     }
     
     public override bool PerformBackFunction()
@@ -169,7 +199,7 @@ public class UI_Inventory : UI_Base
         int value = 0;
         foreach (var inst in items)
         {
-            if (_uiSlots.Count <= value + 1)
+            if (_uiSlots.Count <= value)
             {
                 AddSlot(1);
             }
@@ -208,14 +238,28 @@ public class UI_Inventory : UI_Base
 
     // ──── 카테고리 / 정렬 ────
 
+    // 탭 인덱스 → 카테고리 필터 (프리팹의 탭 배치 순서와 반드시 일치, null = 전체)
+    private static readonly ItemType?[] TabCategories =
+    {
+        null,
+        ItemType.CONSUMABLE,
+        ItemType.EQUIPMENT,
+        ItemType.MATERIAL,
+        ItemType.QUEST,
+        ItemType.IMPORTANT,
+    };
+
     private void BindCategoryTabs()
     {
-        _tabAll?.onClick.AddListener(()        => SetCategory(null));
-        _tabConsumable?.onClick.AddListener(() => SetCategory(ItemType.CONSUMABLE));
-        _tabEquipment?.onClick.AddListener(()  => SetCategory(ItemType.EQUIPMENT));
-        _tabMaterial?.onClick.AddListener(()   => SetCategory(ItemType.MATERIAL));
-        _tabQuest?.onClick.AddListener(()      => SetCategory(ItemType.QUEST));
-        _tabImportant?.onClick.AddListener(()  => SetCategory(ItemType.IMPORTANT));
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged += OnTabSelected;
+    }
+
+    // UITabGroup 선택 콜백 (탭 클릭 및 초기 Select 모두 여기로 들어온다)
+    private void OnTabSelected(int index)
+    {
+        if (index < 0 || index >= TabCategories.Length) return;
+        SetCategory(TabCategories[index]);
     }
 
     private void SetCategory(ItemType? type)
@@ -375,6 +419,8 @@ public class UI_Inventory : UI_Base
         _useButton?.BindClickResult(OnClickUseSelectedItem);
         _equipButton?.BindClickResult(OnClickEquipSelectedItem);
         _dropButton?.BindClickResult(OnClickDropSelectedItem);
+        
+        _btnClose?.onClick.AddListener(Hide);
     }
 
     private void RefreshActionButtons()

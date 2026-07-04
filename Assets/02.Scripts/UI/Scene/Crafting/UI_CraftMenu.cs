@@ -27,11 +27,8 @@ public class UI_CraftMenu : UI_Base
     [SerializeField] private UI_CraftingRecipeSlot  _recipeSlotPrefab;
 
     [Header("카테고리 탭")]
-    [SerializeField] private Button _tabAll;
-    [SerializeField] private Button _tabConsumable;
-    [SerializeField] private Button _tabEquipment;
-    [SerializeField] private Button _tabMaterial;
-    [SerializeField] private Button _tabSpecial;
+    // 탭 하이라이트/단일 선택은 UITabGroup이 관리한다. 인덱스 순서는 TabCategories와 일치.
+    [SerializeField] private UITabGroup _tabGroup;
 
     // ──── 오른쪽: 레시피 상세 ────
     [Header("레시피 상세")]
@@ -79,11 +76,25 @@ public class UI_CraftMenu : UI_Base
         _btnQtyMax?.onClick.AddListener(SetQuantityMax);
         _btnClose?.onClick.AddListener(Hide);
 
-        _tabAll?.onClick.AddListener(()         => SetCategoryFilter(null));
-        _tabConsumable?.onClick.AddListener(()  => SetCategoryFilter(CraftingCategory.Consumable));
-        _tabEquipment?.onClick.AddListener(()   => SetCategoryFilter(CraftingCategory.Equipment));
-        _tabMaterial?.onClick.AddListener(()    => SetCategoryFilter(CraftingCategory.Material));
-        _tabSpecial?.onClick.AddListener(()     => SetCategoryFilter(CraftingCategory.Special));
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged += OnTabSelected;
+    }
+
+    // 탭 인덱스 → 카테고리 필터 (프리팹의 탭 배치 순서와 반드시 일치, null = 전체)
+    private static readonly CraftingCategory?[] TabCategories =
+    {
+        null,
+        CraftingCategory.Consumable,
+        CraftingCategory.Equipment,
+        CraftingCategory.Material,
+        CraftingCategory.Special,
+    };
+
+    // UITabGroup 선택 콜백 (탭 클릭 및 초기 Select 모두 여기로 들어온다)
+    private void OnTabSelected(int index)
+    {
+        if (index < 0 || index >= TabCategories.Length) return;
+        SetCategoryFilter(TabCategories[index]);
     }
 
     // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -105,7 +116,16 @@ public class UI_CraftMenu : UI_Base
         if (_detailPanel != null)
             _detailPanel.SetActive(false);
 
-        RefreshRecipeList();
+        // "전체" 탭(인덱스 0)을 선택 상태로 시작 → SelectionChanged → SetCategoryFilter(null) → RefreshRecipeList
+        if (_tabGroup != null)
+        {
+            _tabGroup.Select(0);
+        }
+        else
+        {
+            _categoryFilter = null;
+            RefreshRecipeList();
+        }
     }
 
     protected override void OnHide()
@@ -118,6 +138,11 @@ public class UI_CraftMenu : UI_Base
 
     protected override void OnDispose()
     {
+        base.OnDispose();
+
+        if (_tabGroup != null)
+            _tabGroup.SelectionChanged -= OnTabSelected;
+
         // 혹시 구독이 남아있으면 정리
         if (RecipeManager.Instance != null)
         {
@@ -171,6 +196,8 @@ public class UI_CraftMenu : UI_Base
 
         var ids = RecipeManager.Instance.GetUnlockedRecipeIDs();
 
+        bool selectionStillVisible = false;
+
         foreach (var id in ids)
         {
             var data = RecipeManager.Instance.GetRecipeData(id);
@@ -186,10 +213,17 @@ public class UI_CraftMenu : UI_Base
 
             // 이전 선택 유지
             if (id == _selectedRecipeID)
+            {
                 slot.SetSelected(true);
+                selectionStillVisible = true;
+            }
         }
 
         RefreshAllSlotCraftability();
+
+        // 현재 선택이 목록에 없으면(최초 진입/카테고리 전환 등) 첫 번째 레시피를 자동 선택한다.
+        if (!selectionStillVisible && _spawnedRecipeSlots.Count > 0)
+            OnRecipeSlotClicked(_spawnedRecipeSlots[0].RecipeID);
     }
 
     private void RefreshAllSlotCraftability()

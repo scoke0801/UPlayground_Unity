@@ -13,13 +13,16 @@ MonoBehaviour:
   m_Name: BgmRouting
   m_EditorClassIdentifier: 
   mapRoutes:
-  - mapId: InGame
+  - mapId: LakeOfLife
+    bgmKey: ElegantAgility
+    playlist: {fileID: 11400000, guid: 52a5a428ed8cc174488937006e9ba3cd, type: 2}
+  - mapId: HarvestOfPlain
     bgmKey: ElegantAgility
     playlist: {fileID: 11400000, guid: 52a5a428ed8cc174488937006e9ba3cd, type: 2}
   - mapId: Title
     bgmKey: SkyGateAwaits
     playlist: {fileID: 11400000, guid: b77d244e030fc454c8227b2c331a0c6b, type: 2}
   sceneRoutes:
-  - sceneType: 
-    bgmKey: 
-    playlist: {fileID: 0}
+  - sceneType: GamePlay
+    bgmKey: ElegantAgility
+    playlist: {fileID: 11400000, guid: 52a5a428ed8cc174488937006e9ba3cd, type: 2}

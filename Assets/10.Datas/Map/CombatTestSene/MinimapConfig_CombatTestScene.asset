@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 092777d72f642bc46b5bf7eab365f3b7, type: 3}
-  m_Name: InGameAll_MinimapConfig
+  m_Name: MinimapConfig_CombatTestScene
   m_EditorClassIdentifier: 
   player:
-    sprite: {fileID: 21300000, guid: df3348d2fa5a44f2da5dea047a7efc0e, type: 3}
-    color: {r: 0, g: 0, b: 0, a: 1}
-    size: 16.1
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 2
   enemy:
     sprite: {fileID: 21300000, guid: 8aef5e93528b4a44d9f83c965f84cc47, type: 3}
-    color: {r: 1, g: 1, b: 1, a: 1}
+    color: {r: 1, g: 0, b: 0, a: 1}
     size: 16
   enemyDetected:
     sprite: {fileID: 0}
     color: {r: 1, g: 0.4, b: 0, a: 1}
-    size: 16
+    size: 6
   npc:
     sprite: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
@@ -39,27 +39,27 @@ MonoBehaviour:
   questNpc:
     sprite: {fileID: 0}
     color: {r: 0, g: 0, b: 0, a: 0}
-    size: 1
+    size: 8
   town:
     sprite: {fileID: 0}
     color: {r: 1, g: 1, b: 1, a: 1}
     size: 8
   portal:
     sprite: {fileID: 21300000, guid: bba935c61e6910043bd60fbe1ed0ca02, type: 3}
-    color: {r: 1, g: 1, b: 1, a: 1}
+    color: {r: 0.6, g: 0.4, b: 1, a: 1}
     size: 40
   staticNpc:
     sprite: {fileID: 21300000, guid: 7545c1bca465746d09ba3adae7ed872d, type: 3}
-    color: {r: 1, g: 1, b: 1, a: 1}
-    size: 40
+    color: {r: 0.4, g: 0.8, b: 1, a: 1}
+    size: 16
   customMarker:
     sprite: {fileID: 0}
     color: {r: 1, g: 1, b: 0, a: 1}
     size: 8
   userMarker:
-    sprite: {fileID: 21300000, guid: 2d9d2217c9084438dbf59774a069c344, type: 3}
-    color: {r: 0.9627025, g: 1, b: 0.28773582, a: 1}
-    size: 30.6
+    sprite: {fileID: 0}
+    color: {r: 1, g: 0.8, b: 0, a: 1}
+    size: 8
   showQuestMarkers: 1
   showEnemies: 1
   showOnlyDetectedEnemies: 0
@@ -69,13 +69,10 @@ MonoBehaviour:
   showPortals: 1
   showStaticNpcs: 1
   showUserMarkers: 1
-  backgroundSprite: {fileID: 21300000, guid: f806677421d24864dac5b1301b181121, type: 3}
-  captureCenter: {x: 914.76776, y: 905.1387}
-  captureWorldSize: 1800
+  backgroundSprite: {fileID: 21300000, guid: 6fb1cbd7b42efe24da3b875fcf9896ed, type: 3}
+  captureCenter: {x: -2.1948242, y: -3.4741464}
+  captureWorldSize: 1000
   mapZoom: 20
-  flipX: 0
-  flipY: 0
-  rotationDegrees: 0
-  expandedMapSize: 385
+  expandedMapSize: 500
   expandedMapZoom: 3
   expandTransitionDuration: 0.2

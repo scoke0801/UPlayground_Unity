@@ -26,8 +26,15 @@ namespace UPlayGround.Data.UI
 
         [SerializeField] private List<Entry> _entries = new();
 
+        [Header("게임 흐름")]
+        [Tooltip("새 게임 시작 시 진입할 씬(mapId). Entry.mapId 중 하나와 일치시킬 것.")]
+        [SerializeField] private string _defaultStartMapId;
+
         /// <summary> 등록된 모든 엔트리 (지역 선택 UI 등에서 순회용). </summary>
         public IReadOnlyList<Entry> Entries => _entries;
+
+        /// <summary> 새 게임 시작 씬(mapId). 미설정 시 빈 문자열. </summary>
+        public string DefaultStartMapId => _defaultStartMapId;
 
         /// <summary>
         /// mapId 에 해당하는 Config를 반환. 없으면 null.

@@ -10,14 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b340f021559f22947ac41d01554f46f8, type: 3}
-  m_Name: MapRegionInfo_HarvestOfPlain
+  m_Name: MapRegionInfo_ForgottenWatchpost
   m_EditorClassIdentifier: 
-  continentName: "\uD48D\uC694\uC758 \uB300\uC9C0"
-  recommendedLevelMin: 1
-  recommendedLevelMax: 10
+  continentName: "\uC78A\uD600\uC9C4 \uD68C\uB791"
+  showContinentName: 0
+  recommendedLevelMin: 0
+  recommendedLevelMax: 0
   description: 
-  portals:
-  - label: Portal_01
-    worldPosition: {x: -87.924835, y: -544.81433, z: -662.36835}
-    targetSceneName: 
-    arrivalId: 
+  portals: []

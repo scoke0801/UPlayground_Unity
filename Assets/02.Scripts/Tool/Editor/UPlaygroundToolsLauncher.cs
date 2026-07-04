@@ -174,6 +174,7 @@ namespace UPlayGround.Editor
                 Tool("Root Motion 임포트 일괄 변경",        "UPlayGround/유틸/Root Motion 임포트 설정 일괄 변경", "루트 모션 임포트 설정을 일괄 변경합니다.", "선택 폴더 하위 모델 에셋의 AnimationClip Root Transform 옵션을 스캔하고 일괄 적용합니다."),
                 Tool("액터 스크린샷 도구",           "UPlayGround/유틸/액터 스크린샷 도구", "액터 스크린샷을 촬영합니다.", "캐릭터/몬스터 프리뷰, 문서, UI 아이콘용 이미지를 캡처하는 보조 도구입니다."),
                 Tool("데이터 검증 허브",             "UPlayGround/유틸/데이터 검증 허브", "프로젝트 데이터 정합성을 통합 검증합니다.", "ActorDefinitionSO 중심 참조, ActorDatabase 등록 상태, 전투 데이터 검증 결과를 한 화면에서 확인하고 리포트를 저장합니다."),
+                Tool("PlayMode 변경값 프리팹 적용",   "UPlayGround/유틸/PlayMode 변경값 프리팹 적용", "PlayMode에서 조정한 값을 원본 프리팹에 저장합니다.", "Hierarchy에서 선택한 프리팹 인스턴스의 현재 PlayMode 직렬화 값을 프리팹 override로 기록한 뒤 원본 프리팹 에셋에 즉시 적용합니다."),
                 Tool("URP 머티리얼 변환기",               "UPlayGround/유틸/변환기/URP 머티리얼 변환기", "머티리얼을 URP 호환으로 변환합니다.", "레거시/외부 에셋 머티리얼을 URP 프로젝트에서 사용할 수 있도록 변환합니다."),
                 Tool("JSON 테이블 뷰어",               "UPlayGround/유틸/뷰어/JSON 테이블 뷰어", "JSON 테이블 파일을 확인합니다.", "외부 데이터 테이블 내용을 Unity 에디터 안에서 빠르게 열람합니다."),
                 Tool("Missing Script 정리",             "UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체", "선택 오브젝트 하위 Missing Script를 제거합니다.", "프리팹/씬 오브젝트에 남은 깨진 MonoBehaviour 참조를 정리합니다. 선택 대상 전체에 적용되므로 실행 전 범위를 확인해야 합니다."),

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Game.Input;
+using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
 
@@ -107,6 +109,9 @@ namespace UPlayGround.Manager
             if (ShouldSuppressPlayerActionInput(context))
                 return;
 
+            if (ShouldBlockPointerPlayerActionOverUI(context))
+                return;
+
             ExecuteCallbacks(context, startCallbackDict);
         }
 
@@ -115,8 +120,12 @@ namespace UPlayGround.Manager
             if (ShouldSuppressPlayerActionInput(context))
                 return;
 
+            if (ShouldBlockPointerPlayerActionOverUI(context))
+                return;
+
             // 전투 관련 입력은 Level_0(HUD)일 때만 버퍼에 추가
-            if (CurrentLayer == InputLayer.Level_0)
+            if (CurrentLayer == InputLayer.Level_0
+                && context.action.actionMap?.name == InputMapNames.PlayerAction)
             {
                 string actionName = context.action.name;
                 switch (actionName)
@@ -138,6 +147,42 @@ namespace UPlayGround.Manager
             }
 
             ExecuteCallbacks(context, performCallbackDict);
+        }
+
+        private bool ShouldBlockPointerPlayerActionOverUI(InputAction.CallbackContext context)
+        {
+            var action = context.action;
+            if (action == null) return false;
+            if (CurrentLayer != InputLayer.Level_0) return false;
+            if (action.actionMap?.name != InputMapNames.PlayerAction) return false;
+            if (!IsPointerLikeInput(context)) return false;
+
+            return IsPointerOverUI();
+        }
+
+        private static bool IsPointerLikeInput(InputAction.CallbackContext context)
+        {
+            var device = context.control?.device;
+            return device is Mouse || device is Touchscreen || device is Pen;
+        }
+
+        private static bool IsPointerOverUI()
+        {
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem == null)
+                return false;
+
+            if (Mouse.current != null && eventSystem.IsPointerOverGameObject())
+                return true;
+
+            if (Touchscreen.current != null)
+            {
+                var touch = Touchscreen.current.primaryTouch;
+                if (touch.press.isPressed)
+                    return eventSystem.IsPointerOverGameObject(touch.touchId.ReadValue());
+            }
+
+            return false;
         }
 
         public static float GetPlayerActionBufferTime(string actionName)
@@ -172,10 +217,17 @@ namespace UPlayGround.Manager
         // Look(카메라 회전)은 _allowLookDuringSuppression이 켜져 있으면 통과 — 모션 프리뷰 중 시점 회전용.
         private bool ShouldSuppressPlayerActionInput(InputAction.CallbackContext context)
         {
-            if (!_isPlayerActionInputSuppressed) return false;
             var action = context.action;
             if (action == null) return false;
             if (action.actionMap?.name != InputMapNames.PlayerAction) return false;
+
+            if (!_isPlayerActionInputSuppressed
+                && Time.frameCount > _playerActionSuppressedUntilFrame
+                && Time.unscaledTime > _playerActionSuppressedUntilTime)
+            {
+                return false;
+            }
+
             // 참조 비교: InitInputAction에서 캐시된 동일 인스턴스이므로 문자열 비교보다 저렴.
             if (_allowLookDuringSuppression && action == _cachedLookAction) return false;
             return true;

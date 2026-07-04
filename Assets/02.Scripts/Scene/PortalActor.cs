@@ -35,7 +35,24 @@ namespace UPlayGround
         [Tooltip("false로 설정하면 플레이어가 진입해도 포탈이 동작하지 않는다.")]
         [SerializeField] private bool _isActive = true;
 
+        [Header("맵 UI 동기화")]
+        [Tooltip("이 포탈을 맵(RegionInfo)에 동기화할지 여부. 숨김 포탈은 false.")]
+        [SerializeField] private bool _showOnMap = true;
+
+        [Tooltip("파스트트래블 시 대상 씬에서 도착할 SceneArrivalPoint.Id. 비우면 씬 기본 스폰.")]
+        [SerializeField] private string _targetArrivalId;
+
+        [Tooltip("맵에 표시할 이름. 비우면 오브젝트 이름 사용.")]
+        [SerializeField] private string _mapLabel;
+
         private bool _isActivating;
+
+        // ── 맵 UI 동기화용 읽기 전용 접근자 ──────────────────────
+        public PortalType Type            => _portalType;
+        public string     TargetSceneName => _targetSceneName;
+        public string     TargetArrivalId => _targetArrivalId;
+        public bool       ShowOnMap       => _showOnMap;
+        public string     MapLabel        => string.IsNullOrEmpty(_mapLabel) ? gameObject.name : _mapLabel;
 
         private void Awake()
         {
@@ -65,7 +82,8 @@ namespace UPlayGround
             if (string.IsNullOrEmpty(_targetSceneName)) return;
 
             _isActivating = true;
-            SceneManager.Instance.LoadScene(_targetSceneName);
+            // 걸어서 통과할 때도 맵 파스트트래블과 동일한 도착 지점을 사용해 일관성을 맞춘다.
+            SceneManager.Instance.LoadScene(_targetSceneName, _targetArrivalId);
         }
 
         private void ActivateInMapTeleport(GameActor actor)

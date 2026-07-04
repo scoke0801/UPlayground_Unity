@@ -19,14 +19,13 @@
     /// </summary>
     public static class SceneName
     {
-        public const string Boot            = "Boot";
-        public const string Title           = "Title";
-        public const string Loading         = "Loading";   // 로딩 전용 씬
-        public const string InGame          = "InGame";
-        public const string InGame_Dungeon   = "InGame_Dungeon";
-        public const string InteractionTest = "InteractionTest";
-        public const string CameraTest      = "CameraTest";
-        public const string KccTest         = "KccTest";
-        public const string CombatTest      = "CombatTest";
+        // 인프라 씬만 코드 상수로 유지한다(구조적으로 코드가 직접 참조).
+        public const string Boot    = "Boot";
+        public const string Title   = "Title";
+        public const string Loading = "Loading";   // 로딩 전용 씬
+
+        // 게임플레이(지역) 씬은 코드 상수로 두지 않는다.
+        // 씬 파일명 = 지역 식별자(mapId)로, MapConfigDatabaseSO(데이터)에서 관리한다.
+        // 새 게임 시작 씬 역시 MapConfigDatabaseSO.DefaultStartMapId 로 지정한다.
     }
 }

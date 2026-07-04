@@ -212,8 +212,19 @@ public abstract class UI_Base : MonoBehaviour
         // 남아 있는 차단 모달이 없으면 Level_0(게임플레이)으로 내려간다.
         if (_inputLayerRaised)
         {
+            InputLayer previousLayer = InputManager.Instance != null
+                ? InputManager.Instance.CurrentLayer
+                : InputLayer.None;
+
             _inputLayerRaised = false;
             InputManager.Instance?.RefreshInputLayer();
+
+            if (previousLayer > InputLayer.Level_0
+                && InputManager.Instance != null
+                && InputManager.Instance.CurrentLayer == InputLayer.Level_0)
+            {
+                InputManager.Instance.SuppressPlayerActionInputBriefly();
+            }
         }
 
         UnRegisterInputEvents();

@@ -147,26 +147,42 @@ namespace UPlayGround.Manager
         /// </summary>
         private void TryApplyPendingArrival(PlayerActor player)
         {
-            if (string.IsNullOrEmpty(PendingArrivalId) || player == null)
+            bool hasId  = !string.IsNullOrEmpty(PendingArrivalId);
+            bool hasPos = PendingArrivalPosition.HasValue;
+            if (player == null || (!hasId && !hasPos))
                 return;
 
-            if (SceneArrivalRegistry.TryGet(PendingArrivalId, out var arrival))
-            {
-                // KCC 모터가 준비되기 전 transform으로 옮기면 모터가 되돌린다.
-                // 모터가 생성될 때까지 소비하지 않고 다음 프레임에 재시도한다.
-                var motor = player.ActorController?.Motor;
-                if (motor == null) return;
+            Vector3    pos;
+            Quaternion rot = Quaternion.identity;
 
-                motor.SetPositionAndRotation(arrival.Position, arrival.Rotation);
-                CameraManager.Instance?.SnapToTarget(arrival.Position);
+            if (hasId)
+            {
+                if (!SceneArrivalRegistry.TryGet(PendingArrivalId, out var arrival))
+                {
+                    Debug.LogWarning(
+                        $"[SceneManager] 도착 지점 '{PendingArrivalId}'을(를) 찾을 수 없어 씬 기본 스폰을 사용합니다.");
+                    PendingArrivalId = null;
+                    PendingArrivalPosition = null;
+                    return;
+                }
+                pos = arrival.Position;
+                rot = arrival.Rotation;
             }
             else
             {
-                Debug.LogWarning(
-                    $"[SceneManager] 도착 지점 '{PendingArrivalId}'을(를) 찾을 수 없어 씬 기본 스폰을 사용합니다.");
+                pos = PendingArrivalPosition.Value;
             }
 
-            PendingArrivalId = null;   // 1회성 소비
+            // KCC 모터가 준비되기 전 transform으로 옮기면 모터가 되돌린다.
+            // 모터가 생성될 때까지 소비하지 않고 다음 프레임에 재시도한다.
+            var motor = player.ActorController?.Motor;
+            if (motor == null) return;
+
+            motor.SetPositionAndRotation(pos, rot);
+            CameraManager.Instance?.SnapToTarget(pos);
+
+            PendingArrivalId = null;         // 1회성 소비
+            PendingArrivalPosition = null;
         }
 
         private async UniTask WaitForGameplayStabilizationAsync(CancellationToken cancellationToken)

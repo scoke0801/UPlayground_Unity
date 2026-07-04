@@ -45,6 +45,9 @@ namespace UPlayGround.Manager
         // 대상 씬 진입·안정화 시 SceneArrivalRegistry에서 조회해 1회 적용 후 비운다.
         public static string PendingArrivalId { get; private set; }
 
+        // 파스트트래블 도착 월드 좌표. arrivalId 없이 좌표로 직접 스폰할 때 사용(맵 포탈 클릭 등).
+        public static Vector3? PendingArrivalPosition { get; private set; }
+
         private bool _isLoading;
         private bool _activationRequested;
         private bool _pendingLoadStarted;
@@ -74,6 +77,7 @@ namespace UPlayGround.Manager
         public void LoadScene(string sceneName)
         {
             PendingArrivalId = null;   // 일반 전환은 도착 지점 지정 없음(씬 기본 스폰)
+            PendingArrivalPosition = null;
             StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
         }
 
@@ -84,6 +88,18 @@ namespace UPlayGround.Manager
         public void LoadScene(string sceneName, string arrivalId)
         {
             PendingArrivalId = string.IsNullOrEmpty(arrivalId) ? null : arrivalId;
+            PendingArrivalPosition = null;
+            StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
+        }
+
+        /// <summary>
+        /// 파스트트래블: 대상 씬으로 전환하고 도착 후 지정 월드 좌표에 플레이어를 배치한다.
+        /// SceneArrivalPoint가 없는 지점(맵 포탈 위치 등)으로 이동할 때 사용한다.
+        /// </summary>
+        public void LoadScene(string sceneName, Vector3 arrivalPosition)
+        {
+            PendingArrivalId = null;
+            PendingArrivalPosition = arrivalPosition;
             StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true));
         }
 
@@ -92,6 +108,19 @@ namespace UPlayGround.Manager
             if (string.IsNullOrWhiteSpace(request.SceneName))
             {
                 Debug.LogError("[SceneManager] 빈 씬 이름으로 로드를 요청할 수 없습니다.");
+                return;
+            }
+
+            // Build Profile/Build Settings에 없는 씬이면 로딩 흐름에 진입하기 전에 명확히 조기 실패한다.
+            // (씬 이름 변경·오타·스테일 세이브의 loadSceneName 등을 크립틱한 비동기 오류 대신 바로 진단)
+            if (!Application.CanStreamedLevelBeLoaded(request.SceneName))
+            {
+                Debug.LogError(
+                    $"[SceneManager] 씬 '{request.SceneName}'을(를) 로드할 수 없습니다. " +
+                    $"Build Profile(File▸Build Profiles)의 씬 목록에 등록되어 있는지 확인하세요. " +
+                    $"(세이브의 loadSceneName이나 MapConfigDatabase의 mapId가 옛 씬 이름을 가리킬 수 있습니다.)");
+                PendingArrivalId = null;
+                PendingArrivalPosition = null;
                 return;
             }
 

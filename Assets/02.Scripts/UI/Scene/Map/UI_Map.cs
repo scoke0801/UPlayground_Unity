@@ -81,7 +81,6 @@ public partial class UI_Map : UI_Base
     [SerializeField] private TextMeshProUGUI  _regionNameText;
     [SerializeField] private TextMeshProUGUI  _regionLevelText;
     [SerializeField] private TextMeshProUGUI  _regionDescText;
-    [SerializeField] private Image            _regionThumbnail;
 
     [Header("줌 UI")]
     [SerializeField] private Slider           _zoomSlider;
@@ -212,6 +211,7 @@ public partial class UI_Map : UI_Base
         RefreshRegionInfo();
         PopulateRegionList();
         HideConfirm();
+        HideRegionDetail();
 
         // 초기 줌으로 플레이어 위치를 중심으로 열기
         _currentZoom = _initialZoom;
@@ -368,17 +368,32 @@ public partial class UI_Map : UI_Base
 
     private void RefreshRegionInfo()
     {
-        if (_regionInfo == null) return;
+        // 지역 표시 이름 = showContinentName이 켜졌을 때만 continentName, 아니면 씬 이름(mapId).
+        string regionLabel = _regionInfo != null
+                             && _regionInfo.showContinentName
+                             && !string.IsNullOrEmpty(_regionInfo.continentName)
+            ? _regionInfo.continentName
+            : _viewRegionMapId;
 
+        // 상단 헤더는 continentName을 표시하되, showContinentName 플래그가 허용한 지역만 노출(끄면 빈 문자열).
         if (_headerRegionText != null)
-            _headerRegionText.text = $"{_regionInfo.continentName}    {_regionInfo.regionName}";
-        if (_regionNameText != null)  _regionNameText.text  = _regionInfo.regionName;
-        if (_regionLevelText != null) _regionLevelText.text = _regionInfo.GetRecommendedLevelText();
-        if (_regionDescText != null)  _regionDescText.text  = _regionInfo.description;
-        if (_regionThumbnail != null)
+            _headerRegionText.text = _regionInfo != null
+                                     && _regionInfo.showContinentName
+                                     && !string.IsNullOrEmpty(_regionInfo.continentName)
+                ? _regionInfo.continentName
+                : string.Empty;
+
+        if (_regionNameText != null) _regionNameText.text = regionLabel;
+
+        if (_regionInfo != null)
         {
-            _regionThumbnail.sprite  = _regionInfo.thumbnail;
-            _regionThumbnail.enabled = _regionInfo.thumbnail != null;
+            if (_regionLevelText != null) _regionLevelText.text = _regionInfo.GetRecommendedLevelText();
+            if (_regionDescText  != null) _regionDescText.text  = _regionInfo.description;
+        }
+        else
+        {
+            if (_regionLevelText != null) _regionLevelText.text = string.Empty;
+            if (_regionDescText  != null) _regionDescText.text  = string.Empty;
         }
     }
 

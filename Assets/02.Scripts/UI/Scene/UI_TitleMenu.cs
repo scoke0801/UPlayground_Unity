@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UPlayGround.UREnum;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.UI;
 using UPlayGround.Manager;
 
 /// <summary>
@@ -11,11 +12,15 @@ using UPlayGround.Manager;
 /// </summary>
 public class UI_TitleMenu : UI_Base
 {
-    [Header("UI 버튼")] 
+    [Header("UI 버튼")]
     [SerializeField] private Button continueButton;
     [SerializeField] private Button loadButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button optionButton;
+
+    [Header("게임 흐름")]
+    [Tooltip("새 게임 시작 씬을 읽어올 맵 설정 DB. DefaultStartMapId 를 사용한다.")]
+    [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
     
     protected override void Awake()
     {
@@ -55,7 +60,7 @@ public class UI_TitleMenu : UI_Base
         {
             // 저장이 없어 새 게임으로 폴백하는 경우도 새 게임과 동일하게 상태를 초기화한다.
             SaveManager.Instance.ResetForNewGame();
-            SceneManager.Instance.LoadScene(SceneName.InGame);
+            LoadStartScene();
         }
     }
     
@@ -72,9 +77,26 @@ public class UI_TitleMenu : UI_Base
         // 모든 ISaveable 매니저의 인메모리 상태를 초기화한 뒤 진입한다.
         SaveManager.Instance.ResetForNewGame();
         UIManager.Instance.HideAllUI();
-        SceneManager.Instance.LoadScene(SceneName.InGame);
+        LoadStartScene();
     }
-    
+
+    /// <summary>
+    /// 새 게임 시작 씬으로 진입한다. 씬 이름은 코드 상수가 아닌
+    /// MapConfigDatabaseSO.DefaultStartMapId(데이터)에서 읽는다.
+    /// </summary>
+    private void LoadStartScene()
+    {
+        string startScene = _mapConfigDB != null ? _mapConfigDB.DefaultStartMapId : null;
+        if (string.IsNullOrEmpty(startScene))
+        {
+            Debug.LogError("[UI_TitleMenu] 시작 씬이 지정되지 않았습니다. " +
+                           "MapConfigDatabaseSO를 할당하고 DefaultStartMapId를 설정하세요.");
+            return;
+        }
+
+        SceneManager.Instance.LoadScene(startScene);
+    }
+
     private void OnClickOptionButton()
     {
         UIManager.Instance.ShowUI(UIKeyType.Config);

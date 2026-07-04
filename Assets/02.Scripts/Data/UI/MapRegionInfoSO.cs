@@ -8,8 +8,8 @@ namespace UPlayGround.Data.UI
     /// 맵 화면 좌하단 "지역 정보" 패널에 표시할 지역 메타데이터.
     /// 맵(씬)별로 하나씩 만들어 UI_Map의 _regionInfo(또는 MapConfigDatabaseSO)에 연결한다.
     /// </summary>
-    [CreateAssetMenu(fileName = "MapRegionInfo", menuName = "UPlayGround/Map/Region Info")]
-    public class MapRegionInfoSO : ScriptableObject
+    [CreateAssetMenu(fileName = "MapRegionInfo", menuName = "UPlayGround/맵/Region Info")]
+    public class MapRegionInfoSO : ScriptableObject 
     {
         /// <summary>
         /// 브라우즈 모드(다른 지역 미리보기)에서 지도 위에 표시할 파스트트래블 포탈.
@@ -34,16 +34,19 @@ namespace UPlayGround.Data.UI
         }
 
         [Header("이름")]
-        public string continentName;   // 예: 벨리안 대륙
-        public string regionName;       // 예: 그레이우드 평원
+        [Tooltip("대륙/월드 단위 이름. 상단 헤더에 표시. 예: 벨리안 대륙")]
+        public string continentName;
+
+        [Tooltip("상단 헤더에 continentName을 노출할지 여부. 일부 지역(던전·특수 씬 등)은 끄면 숨겨진다.")]
+        public bool showContinentName = true;
+        // 지역 이름은 씬 이름(mapId)을 사용한다. 별도 regionName 필드는 두지 않는다.
 
         [Header("권장 레벨")]
         public int recommendedLevelMin;
         public int recommendedLevelMax;
 
-        [Header("설명 / 썸네일")]
+        [Header("설명")]
         [TextArea] public string description;
-        public Sprite thumbnail;
 
         [Header("파스트트래블 포탈 (브라우즈 모드)")]
         [Tooltip("이 지역 지도에 표시할 포탈 목록. 지역 선택 후 아이콘 클릭 시 해당 씬으로 이동.")]

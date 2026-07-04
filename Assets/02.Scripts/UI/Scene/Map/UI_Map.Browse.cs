@@ -33,6 +33,13 @@ public partial class UI_Map
     [SerializeField] private Button           _confirmYesButton;
     [SerializeField] private Button           _confirmNoButton;
 
+    [Header("지역 상세 정보 팝업")]
+    [SerializeField] private Button           _regionInfoButton;      // 좌하단 "지역 정보" 버튼
+    [SerializeField] private GameObject       _regionDetailPanel;     // 상세 팝업 루트(토글)
+    [SerializeField] private TextMeshProUGUI  _regionDetailTitle;
+    [SerializeField] private TextMeshProUGUI  _regionDetailBody;
+    [SerializeField] private Button           _regionDetailCloseButton;
+
     // ── 런타임 상태 ─────────────────────────────────────────────
     private string _currentSceneMapId;   // 실제 진입해 있는 씬의 MapID (라이브 기준)
     private string _viewRegionMapId;      // 현재 지도에 표시 중인 지역의 MapID
@@ -58,7 +65,12 @@ public partial class UI_Map
         if (_confirmYesButton != null) _confirmYesButton.onClick.AddListener(OnConfirmYes);
         if (_confirmNoButton  != null) _confirmNoButton.onClick.AddListener(HideConfirm);
         if (_regionButtonTemplate != null) _regionButtonTemplate.gameObject.SetActive(false);
+
+        if (_regionInfoButton != null)        _regionInfoButton.onClick.AddListener(ShowRegionDetail);
+        if (_regionDetailCloseButton != null) _regionDetailCloseButton.onClick.AddListener(HideRegionDetail);
+
         HideConfirm();
+        HideRegionDetail();
     }
 
     // ── 지역 목록 ───────────────────────────────────────────────
@@ -77,14 +89,18 @@ public partial class UI_Map
         {
             if (string.IsNullOrEmpty(entry.mapId)) continue;
 
+            // showContinentName이 켜지고 continentName이 있는 지역만 목록에 노출한다.
+            // (플래그가 꺼진 지역은 mapId로도 노출하지 않고 아예 제외)
+            if (entry.regionInfo == null
+                || !entry.regionInfo.showContinentName
+                || string.IsNullOrEmpty(entry.regionInfo.continentName))
+                continue;
+
             var btn = Instantiate(_regionButtonTemplate, _regionListContent);
             btn.gameObject.SetActive(true);
 
-            string label = entry.regionInfo != null && !string.IsNullOrEmpty(entry.regionInfo.regionName)
-                ? entry.regionInfo.regionName
-                : entry.mapId;
             var txt = btn.GetComponentInChildren<TextMeshProUGUI>(true);
-            if (txt != null) txt.text = label;
+            if (txt != null) txt.text = entry.regionInfo.continentName;
 
             string targetMapId = entry.mapId;   // 캡처
             btn.onClick.AddListener(() => ShowRegion(targetMapId));
@@ -116,6 +132,7 @@ public partial class UI_Map
         if (cfg == null) return;
 
         HideConfirm();
+        HideRegionDetail();
 
         _viewRegionMapId = mapId;
         _config = cfg;
@@ -191,21 +208,36 @@ public partial class UI_Map
 
     private void OnBrowsePortalClicked(MapRegionInfoSO.PortalEntry portal)
     {
-        if (string.IsNullOrEmpty(portal.targetSceneName))
+        // 대상 씬: 포탈에 targetSceneName이 명시돼 있으면 그 씬(인터맵 연결),
+        // 없으면 현재 보고 있는 지역 자신(웨이포인트 이동).
+        string destScene = string.IsNullOrEmpty(portal.targetSceneName) ? _viewRegionMapId : portal.targetSceneName;
+        if (string.IsNullOrEmpty(destScene))
         {
-            Debug.LogWarning($"[UI_Map] 포탈 '{portal.label}'에 대상 씬이 지정되지 않았습니다.");
+            Debug.LogWarning("[UI_Map] 포탈 이동 대상 씬을 확인할 수 없습니다.");
             return;
         }
 
-        string dest = string.IsNullOrEmpty(portal.label) ? portal.targetSceneName : portal.label;
-        ShowConfirm($"'{dest}'(으)로 이동하시겠습니까?", () => DoFastTravel(portal));
+        ShowConfirm($"'{RegionDisplayName(destScene)}'(으)로 이동하시겠습니까?", () => DoFastTravel(portal, destScene));
     }
 
-    private void DoFastTravel(MapRegionInfoSO.PortalEntry portal)
+    private void DoFastTravel(MapRegionInfoSO.PortalEntry portal, string destScene)
     {
         HideConfirm();
         UIManager.Instance?.HideUI(UIKeyType.Map);
-        SceneManager.Instance?.LoadScene(portal.targetSceneName, portal.arrivalId);
+
+        if (!string.IsNullOrEmpty(portal.arrivalId))
+            SceneManager.Instance?.LoadScene(destScene, portal.arrivalId);                 // 지정 도착 지점
+        else if (string.IsNullOrEmpty(portal.targetSceneName))
+            SceneManager.Instance?.LoadScene(destScene, portal.worldPosition);             // 포탈 위치에 스폰(웨이포인트)
+        else
+            SceneManager.Instance?.LoadScene(destScene);                                   // 대상 씬 기본 스폰
+    }
+
+    /// <summary>mapId에 대한 표시 이름(continentName 우선, 없으면 mapId).</summary>
+    private string RegionDisplayName(string mapId)
+    {
+        var ri = _mapConfigDB != null ? _mapConfigDB.GetRegionInfo(mapId) : null;
+        return ri != null && !string.IsNullOrEmpty(ri.continentName) ? ri.continentName : mapId;
     }
 
     private void ShowConfirm(string message, Action onYes)
@@ -226,5 +258,39 @@ public partial class UI_Map
         var action = _pendingConfirm;
         HideConfirm();
         action?.Invoke();
+    }
+
+    // ── 지역 상세 정보 팝업 ──────────────────────────────────────
+
+    /// <summary>현재 표시 중인 지역의 상세 정보(대륙·권장레벨·설명)를 팝업으로 보여준다.</summary>
+    private void ShowRegionDetail()
+    {
+        if (_regionDetailTitle != null) _regionDetailTitle.text = _viewRegionMapId;
+
+        if (_regionDetailBody != null)
+        {
+            var lines = new List<string>();
+            if (_regionInfo != null)
+            {
+                if (!string.IsNullOrEmpty(_regionInfo.continentName))
+                    lines.Add($"대륙: {_regionInfo.continentName}");
+                lines.Add($"권장 레벨: {_regionInfo.GetRecommendedLevelText()}");
+                if (!string.IsNullOrEmpty(_regionInfo.description))
+                {
+                    lines.Add(string.Empty);
+                    lines.Add(_regionInfo.description);
+                }
+            }
+            _regionDetailBody.text = lines.Count > 0
+                ? string.Join("\n", lines)
+                : "등록된 지역 정보가 없습니다.";
+        }
+
+        if (_regionDetailPanel != null) _regionDetailPanel.SetActive(true);
+    }
+
+    private void HideRegionDetail()
+    {
+        if (_regionDetailPanel != null) _regionDetailPanel.SetActive(false);
     }
 }

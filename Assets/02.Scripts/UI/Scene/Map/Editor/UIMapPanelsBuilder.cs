@@ -110,9 +110,6 @@ namespace UPlayGround.UI.Map.EditorTools
                 AddVLG(region, spacing: 6, pad: 12).childForceExpandHeight = false;
                 var regionName = AddText(NewUI("Name", region.transform), "지역명", 24, TextMain, TextAlignmentOptions.Left);
                 SetHeight(regionName.gameObject, 32);
-                var thumbGo = NewUI("Thumbnail", region.transform);
-                SetHeight(thumbGo, 110);
-                var thumb = AddImage(thumbGo, SlotBg, UISprite, sliced: true);
                 var regionLevel = AddText(NewUI("Level", region.transform), "권장 레벨  Lv. 1 ~ 1", 18, Gold, TextAlignmentOptions.Left);
                 SetHeight(regionLevel.gameObject, 24);
                 var regionDesc = AddText(NewUI("Desc", region.transform), "지역 설명", 16, TextSub, TextAlignmentOptions.TopLeft);
@@ -123,7 +120,7 @@ namespace UPlayGround.UI.Map.EditorTools
                 SetRef(so, "_regionNameText",  regionName);
                 SetRef(so, "_regionLevelText", regionLevel);
                 SetRef(so, "_regionDescText",  regionDesc);
-                SetRef(so, "_regionThumbnail", thumb);
+                SetRef(so, "_regionInfoButton", regionInfoBtn);
 
                 // ── 세로 줌 슬라이더 제거 ──
                 // 시안에는 우측 세로 슬라이더가 없다. 줌은 스캐폴드 "Buttons"(확대/축소/내 위치)
@@ -189,6 +186,35 @@ namespace UPlayGround.UI.Map.EditorTools
                 SetRef(so, "_confirmYesButton",   yesBtn);
                 SetRef(so, "_confirmNoButton",    noBtn);
                 confirm.SetActive(false);
+
+                // ── 지역 상세 정보 팝업(중앙 오버레이, 기본 숨김) ──
+                var detail = GetOrReplace(root, "MapRegionDetailPanel");
+                Stretch(detail);
+                AddImage(detail, new Color(0f, 0f, 0f, 0.6f));   // 딤 + 하위 클릭 차단
+
+                var detailBox = NewUI("Box", detail.transform);
+                SetAnchored(Rt(detailBox), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                            new Vector2(560, 440), Vector2.zero);
+                AddImage(detailBox, PanelBg, UISprite, sliced: true);
+
+                var detailTitle = AddText(NewUI("Title", detailBox.transform), "지역 정보", 26, Gold, TextAlignmentOptions.Center);
+                SetAnchored(Rt(detailTitle.gameObject), new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                            new Vector2(-40, 44), new Vector2(0, -24));
+
+                var detailBody = AddText(NewUI("Body", detailBox.transform), "", 18, TextMain, TextAlignmentOptions.TopLeft);
+                var detailBodyRt = Rt(detailBody.gameObject);
+                detailBodyRt.anchorMin = new Vector2(0f, 0f); detailBodyRt.anchorMax = new Vector2(1f, 1f);
+                detailBodyRt.offsetMin = new Vector2(24, 80); detailBodyRt.offsetMax = new Vector2(-24, -80);
+
+                var detailClose = MakeButton("CloseButton", detailBox.transform, "닫기", out _, BtnBg);
+                SetAnchored(Rt(detailClose.gameObject), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                            new Vector2(220, 52), new Vector2(0, 24));
+
+                SetRef(so, "_regionDetailPanel",       detail);
+                SetRef(so, "_regionDetailTitle",       detailTitle);
+                SetRef(so, "_regionDetailBody",        detailBody);
+                SetRef(so, "_regionDetailCloseButton", detailClose);
+                detail.SetActive(false);
 
                 so.ApplyModifiedPropertiesWithoutUndo();
 

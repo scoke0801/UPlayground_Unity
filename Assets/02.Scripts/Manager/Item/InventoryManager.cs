@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UPlayGround.Component;
@@ -102,13 +105,15 @@ namespace UPlayGround.Manager
         };
     }
 
-    public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable
+    public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable, IAsyncInitializableManager
     {
+        private const string STARTING_INVENTORY_KEY = "StartingInventory";
+
         private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
 
         public Dictionary<int, ItemInstance> ItemDict => _itemPair;
 
-        // 캐릭터별 장비 레지스트리 — 활성/벤치 공통 단일 소스. 활성 캐릭터의 PlayerEquipment는 이 값을 시각 반영만 한다.
+        // 캐릭터별 장비 레지스트리 — 활성/벤치 공통 단일 소스. 외형은 캐릭터 모델 기본 장비를 사용한다.
         private readonly Dictionary<CharacterActorType, CharacterEquipment> _equipmentByCharacter = new();
 
         /// <summary> 파티원 장비 변경 시 발행 (UI 갱신용). </summary>
@@ -125,6 +130,9 @@ namespace UPlayGround.Manager
 
         // ItemDatabase 로드 완료 전에 LoadGame()이 호출될 경우 보관
         private InventorySaveData _pendingLoad;
+        private StartingInventorySO _startingInventory;
+        private bool _applyStartingEquipmentOnSeed;
+        private bool _pendingNewGameStartingInventory;
 
         public void Init()
         {
@@ -134,6 +142,32 @@ namespace UPlayGround.Manager
         public void AfterInit()
         {
 
+        }
+
+        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                _startingInventory = await AssetManager.Instance.LoadGlobalAsync<StartingInventorySO>(
+                    STARTING_INVENTORY_KEY,
+                    nameof(InventoryManager),
+                    cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                _startingInventory = null;
+                Debug.LogWarning($"[InventoryManager] StartingInventory 로드 실패. 초기 아이템 지급을 건너뜁니다: {e.Message}");
+            }
+
+            if (_pendingNewGameStartingInventory)
+            {
+                ApplyStartingInventoryForNewGame();
+                _pendingNewGameStartingInventory = false;
+            }
         }
 
         public void Dispose()
@@ -289,7 +323,7 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 해당 캐릭터의 장비 엔트리가 없으면 주어진 시작 장비 목록으로 시딩한다.
-        /// (RefreshForCharacter에서 모델의 StartEquipItems를 넘겨 호출 — GameObjectManager 의존 회피)
+        /// 시작 장비는 인벤토리 보유 아이템에도 1회 지급하되, 장착 외형은 변경하지 않는다.
         /// </summary>
         public void SeedCharacterEquipmentIfAbsent(CharacterActorType c, IReadOnlyList<EquipmentSO> startItems)
         {
@@ -297,11 +331,14 @@ namespace UPlayGround.Manager
                 return;
 
             var eq = new CharacterEquipment();
-            if (startItems != null)
+            if (_applyStartingEquipmentOnSeed && startItems != null)
             {
                 foreach (var so in startItems)
                     if (so != null)
+                    {
+                        GrantStartingEquipmentItem(so);
                         eq.Set(so.equipSlot, so.itemId);
+                    }
             }
             _equipmentByCharacter[c] = eq;
         }
@@ -317,6 +354,9 @@ namespace UPlayGround.Manager
         // (모델은 비활성이어도 계층에 존재하므로 언제든 조회 가능. itemId만 읽으므로 item DB 불필요.)
         private void SeedFromModelStartItems(CharacterActorType c, CharacterEquipment eq)
         {
+            if (!_applyStartingEquipmentOnSeed)
+                return;
+
             var player = GameObjectManager.Instance?.Player;
             var swap = player != null ? player.GetComponent<PlayerSwapBehaviour>() : null;
             var model = swap?.GetModelData(c);
@@ -326,8 +366,54 @@ namespace UPlayGround.Manager
             foreach (var so in pe.StartEquipItems)
             {
                 if (so != null)
+                {
+                    GrantStartingEquipmentItem(so);
                     eq.Set(so.equipSlot, so.itemId);
+                }
             }
+        }
+
+        // 시작 장비 SO를 인벤토리 보유 아이템으로 시딩한다. 장비는 비스택 정책이므로 이미 있으면 유지한다.
+        private void GrantStartingEquipmentItem(EquipmentSO equipment)
+        {
+            if (equipment == null || equipment.itemId < 0 || _itemPair.ContainsKey(equipment.itemId))
+                return;
+
+            _itemPair[equipment.itemId] = new ItemInstance { data = equipment, count = 1 };
+        }
+
+        private void ApplyStartingInventoryForNewGame()
+        {
+            if (_startingInventory == null || _startingInventory.items == null)
+            {
+                return;
+            }
+
+            foreach (var entry in _startingInventory.items)
+            {
+                if (entry?.item == null)
+                    continue;
+
+                AddStartingItem(entry.item, Mathf.Max(1, entry.count));
+            }
+        }
+
+        private void AddStartingItem(ItemSO itemData, int count)
+        {
+            if (itemData == null || count <= 0)
+                return;
+
+            if (_itemPair.TryGetValue(itemData.itemId, out var existing))
+            {
+                if (existing.data is EquipmentSO)
+                    return;
+
+                existing.count += count;
+                return;
+            }
+
+            int storeCount = itemData is EquipmentSO ? 1 : count;
+            _itemPair[itemData.itemId] = new ItemInstance { data = itemData, count = storeCount };
         }
 
         private int OwnedCount(int itemId) =>
@@ -443,16 +529,9 @@ namespace UPlayGround.Manager
             return false;
         }
 
-        // 대상 캐릭터가 활성이면 무기 외형을 레지스트리 값대로 동기화(방어구는 외형 반영 없음).
+        // 장비 레지스트리는 데이터/UI/세이브 용도다. 외형은 캐릭터 모델 기본 장비를 유지한다.
         private void SyncActiveCharacterVisual(CharacterActorType c)
         {
-            if (c == CharacterActorType.None || c != ActiveCharacterType) return;
-
-            var pe = GameObjectManager.Instance?.Player?.GetPlayerEquipment();
-            if (pe == null) return;
-
-            var eq = GetOrSeedEntry(c);
-            pe.ApplyEquipmentSnapshot(eq.rightHand, eq.leftHand);
         }
 
         public InventoryActionResult TryEquipItem(int itemId) => TryEquipItem(ActiveCharacterType, itemId);
@@ -799,6 +878,8 @@ namespace UPlayGround.Manager
 
         public void ImportSaveData(GameSaveData saveData)
         {
+            _applyStartingEquipmentOnSeed = false;
+            _pendingNewGameStartingInventory = false;
             Gold = saveData.inventory.gold;
             _pendingLoad = saveData.inventory;
 
@@ -812,11 +893,14 @@ namespace UPlayGround.Manager
             _pendingLoad = null;
             _itemPair.Clear();
             _equipmentByCharacter.Clear();
+            _applyStartingEquipmentOnSeed = true;
+            _pendingNewGameStartingInventory = false;
             Gold = 0;
 
-            // 신규 실행 직후 OnItemDatabaseReady와 동일하게 기본 아이템을 채운다.
-            if (ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded)
-                MakeTestItems();
+            if (_startingInventory != null)
+                ApplyStartingInventoryForNewGame();
+            else
+                _pendingNewGameStartingInventory = true;
         }
 
         /// <summary>
@@ -827,8 +911,6 @@ namespace UPlayGround.Manager
         {
             if (_pendingLoad != null)
                 ApplyPendingLoad();
-            else
-                MakeTestItems();
         }
 
         private void ApplyPendingLoad()
@@ -841,7 +923,8 @@ namespace UPlayGround.Manager
                     instance.inventorySlotKey = entry.slotKey;
             }
 
-            // 캐릭터별 장비 복원 (없는 캐릭터는 이후 GetOrSeedEntry가 모델 기본으로 시딩).
+            // 캐릭터별 장비 복원.
+            // 로드 중에는 기본 장비 시딩을 막지만, 복원 완료 뒤 새로 생성되는 캐릭터 엔트리는 기본값을 다시 시딩한다.
             _equipmentByCharacter.Clear();
             foreach (var e in _pendingLoad.equipment ?? new System.Collections.Generic.List<CharacterEquipmentSaveEntry>())
             {
@@ -861,9 +944,9 @@ namespace UPlayGround.Manager
             }
 
             _pendingLoad = null;
+            _applyStartingEquipmentOnSeed = true;
 
-            // 파티가 이미 구성된 뒤 로드가 적용된 경우, 활성 캐릭터 외형을 복원된 장비로 재동기화.
-            // (파티 구성이 이후라면 RefreshForCharacter가 로드된 레지스트리를 읽어 반영.)
+            // 장착 데이터는 레지스트리에만 복원한다. 외형은 캐릭터 모델 기본 장비를 유지한다.
             SyncActiveCharacterVisual(ActiveCharacterType);
         }
 

@@ -695,23 +695,16 @@ namespace UPlayGround
             _equipment           = GetComponentInChildren<PlayerEquipment>();
             _equipment?.RefreshWeaponConstraintsFromModel();
 
-            // 장비는 캐릭터별 레지스트리(InventoryManager)를 단일 소스로 삼는다.
-            // 최초 진입이면 이 모델의 시작 장비로 레지스트리를 시딩한 뒤, 저장된 주/보조 무기를 외형에 반영.
+            // 장비 데이터는 캐릭터별 레지스트리(InventoryManager)에 시딩한다.
+            // 외형은 장착 데이터와 분리하고, 캐릭터 모델의 기본 무기 타입만 사용한다.
             var inventory = InventoryManager.Instance;
-            int mainKey = -1, subKey = -1;
             if (inventory != null)
             {
                 inventory.SeedCharacterEquipmentIfAbsent(
                     data.characterType, _equipment != null ? _equipment.StartEquipItems : null);
-                (mainKey, subKey) = inventory.GetActiveWeaponSnapshot(data.characterType);
             }
 
-            // 장착 주 무기가 없을 때만 기본(빌트인) 무기 타입을 세팅해 모션셋/발도 기준을 확립한다.
-            // (장착 무기가 있으면 그 무기 타입이 기준이 되어야 하므로 default로 덮어쓰지 않는다.)
-            if (mainKey < 0)
-                _equipment?.SetWeaponType(data.defaultWeaponType);
-
-            _equipment?.ApplyEquipmentSnapshot(mainKey, subKey);
+            _equipment?.SetWeaponType(data.defaultWeaponType);
             
             // 애니메이터에 Actor 재주입 (PlayerEquipment 참조 포함)
             _playerActorAnimator?.Init(this);

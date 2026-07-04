@@ -248,7 +248,11 @@
       "WebFetch(domain:www.gameaipro.com)",
       "WebFetch(domain:moonjump.com)",
       "Bash(find Assets/03.Prefabs -iname \"*.prefab\" \\\\\\( -iname \"*slider*\" -o -iname \"*switch*\" -o -iname \"*dropdown*\" -o -iname \"*setting*\" -o -iname \"*common*\" \\\\\\))",
-      "Bash(ls -la \"Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab\")"
+      "Bash(ls -la \"Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab\")",
+      "PowerShell(Select-String -Path \"Assets\\\\ExternalAssets\\\\AnimationOnly\\\\Frank_Slash_Pack\\\\Assets\\\\Animations\\\\Frank_SlashPack_Katana\\\\FBX_Animation\\\\Root_Motion\\\\Frank_RPG_Katana_S1_Skill01.FBX.meta\" -Pattern \"animationType|avatarSetup|humanDescription|copyAvatar|lastHumanDescriptionAvatarSource|animationDoRetargetingWarnings|extraExposedTransformPaths\" -Context 0,0 | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
+      "WebFetch(domain:forum.unity.com)",
+      "PowerShell(Select-String -Path \"Assets\\\\ExternalAssets\\\\AnimationOnly\\\\Frank_Slash_Pack\\\\Assets\\\\Animations\\\\Frank_SlashPack_Katana\\\\FBX_Animation\\\\Root_Motion\\\\Frank_RPG_Katana_S1_Skill01.FBX.meta\" -Pattern \"\\(?i\\)weapon|sword|transformMask|bodyMask\" | ForEach-Object { $_.Line.TrimEnd\\(\\) } | Select-Object -First 40)",
+      "PowerShell($lines = Get-Content \"Assets\\\\03.Prefabs\\\\Actor\\\\Player\\\\Player.prefab\"; $idx = \\($lines | Select-String -Pattern \"m_Name: R_Hand_Weapon\"\\).LineNumber; foreach\\($i in $idx\\){ $lines[\\($i-30\\)..\\($i+5\\)] })"
     ]
   }
 }

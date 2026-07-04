@@ -128,8 +128,8 @@ namespace UPlayGround.Component
             if (_subWeaponType != WeaponType.NoWeapon)
                 SetLeftWeaponType(_subWeaponType);
 
-            // 시작 장비 착용은 장비 레지스트리(InventoryManager) → RefreshForCharacter의
-            // ApplyEquipmentSnapshot 경로로 일원화한다. 여기서 직접 착용하면 이중 착용/레이스가 발생.
+            // 시작 장비는 InventoryManager의 보유/장착 데이터로만 시딩한다.
+            // 외형은 캐릭터 모델 기본 무기 타입을 유지하므로 여기서 아이템 장착을 실행하지 않는다.
         }
 
         private void OnDestroy()

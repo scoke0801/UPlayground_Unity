@@ -1,13 +1,45 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Data.Item;
 
 namespace UPlayGround.Manager
 {
+    /// <summary>치트 액션 분류(실행 로그 표시/필터용).</summary>
+    public enum CheatCategory
+    {
+        Gizmo,
+        Item,
+        Quest,
+        Stat,
+        Party,
+        Combat,
+    }
+
+    /// <summary>치트 실행 로그 1건.</summary>
+    public readonly struct CheatLogEntry
+    {
+        public readonly DateTime      Time;
+        public readonly CheatCategory Category;
+        public readonly string        Message;
+
+        public CheatLogEntry(DateTime time, CheatCategory category, string message)
+        {
+            Time     = time;
+            Category = category;
+            Message  = message;
+        }
+    }
+
     /// <summary>
     /// 치트 옵션 관리 매니저.
     /// GameManager에 등록되며 개발/테스트용 옵션을 중앙 관리한다.
+    ///
+    /// 실제 치트 조작(아이템/퀘스트/스탯/파티/기즈모)은 partial 파일에 분리되어 있으며
+    /// <c>#if UNITY_EDITOR || DEVELOPMENT_BUILD</c> 로 감싸져 릴리스 빌드에서는 스트립된다.
+    /// 이 코어 파일은 항상 컴파일된다(GameManager가 무조건 등록하고, IsAlwaysParryEnabled를
+    /// 릴리스 전투 코드가 참조하기 때문).
     /// </summary>
-    public class CheatManager : BaseManager<CheatManager>, IManager
+    public partial class CheatManager : BaseManager<CheatManager>, IManager
     {
         [Header("전투 치트")]
         [Tooltip("활성화 시 어떤 상태에서도 적의 공격을 패리할 수 있다")]
@@ -20,60 +52,47 @@ namespace UPlayGround.Manager
         {
             _alwaysParry = value;
             Debug.Log($"[CheatManager] 항상 패리: {(_alwaysParry ? "ON" : "OFF")}");
+            Log(CheatCategory.Combat, $"항상 패리 {(_alwaysParry ? "ON" : "OFF")}");
         }
 
-        public void ToggleAlwaysParry()     => SetAlwaysParry(!_alwaysParry);
+        public void ToggleAlwaysParry() => SetAlwaysParry(!_alwaysParry);
 
-        /// <summary>
-        /// 지정 아이템을 인벤토리에 지급한다.
-        /// 장비 아이템은 InventoryManager 정책에 따라 이미 보유 중이면 추가되지 않는다.
-        /// </summary>
-        public bool GrantItem(int itemId, int count)
+        #region 실행 로그
+
+        private const int MaxLogEntries = 50;
+
+        // 최신 항목이 앞(index 0)에 오도록 유지한다(UI는 위에서부터 최신 순으로 표시).
+        private readonly List<CheatLogEntry> _log = new(MaxLogEntries);
+
+        /// <summary> 최근 실행 로그(최신순). </summary>
+        public IReadOnlyList<CheatLogEntry> RecentLogs => _log;
+
+        /// <summary> 로그가 갱신될 때 발생. 치트 패널이 구독해 목록을 다시 그린다. </summary>
+        public event Action OnLogChanged;
+
+        /// <summary> 치트 실행 1건을 로그에 남긴다. </summary>
+        public void Log(CheatCategory category, string message)
         {
-            if (count <= 0)
-            {
-                Debug.LogWarning($"[CheatManager] 아이템 지급 실패: 수량이 올바르지 않습니다. ({count})");
-                return false;
-            }
+            _log.Insert(0, new CheatLogEntry(DateTime.Now, category, message));
+            if (_log.Count > MaxLogEntries)
+                _log.RemoveRange(MaxLogEntries, _log.Count - MaxLogEntries);
 
-            var itemManager = ItemManager.Instance;
-            var inventoryManager = InventoryManager.Instance;
-            if (itemManager == null || inventoryManager == null)
-            {
-                Debug.LogWarning("[CheatManager] 아이템 지급 실패: ItemManager 또는 InventoryManager가 없습니다.");
-                return false;
-            }
-
-            if (!itemManager.IsItemDBLoaded)
-            {
-                Debug.LogWarning("[CheatManager] 아이템 지급 실패: ItemDatabase가 아직 로드되지 않았습니다.");
-                return false;
-            }
-
-            var itemData = itemManager.GetItemData(itemId);
-            if (itemData == null)
-            {
-                Debug.LogWarning($"[CheatManager] 아이템 지급 실패: ItemID {itemId}를 찾을 수 없습니다.");
-                return false;
-            }
-
-            int beforeCount = inventoryManager.GetItemCount(itemId);
-            inventoryManager.AddItem(itemId, count);
-            int afterCount = inventoryManager.GetItemCount(itemId);
-
-            Debug.Log(
-                $"[CheatManager] 아이템 지급: {itemData.itemName}({itemId}) x{count} " +
-                $"보유 {beforeCount} → {afterCount}");
-            return afterCount > beforeCount || beforeCount > 0;
+            OnLogChanged?.Invoke();
         }
 
-        public bool GrantItem(ItemIdType itemId, int count) => GrantItem((int)itemId, count);
+        public void ClearLog()
+        {
+            _log.Clear();
+            OnLogChanged?.Invoke();
+        }
+
+        #endregion
 
         #region IManager
 
         public void Init()                          => Debug.Log("[CheatManager] 초기화");
         public void AfterInit()                     { }
-        public void Dispose()                       { }
+        public void Dispose()                       { _log.Clear(); OnLogChanged = null; }
         public void OnUpdate()                      { }
         public void OnFixedUpdate()                 { }
         public void OnLateUpdate()                  { }

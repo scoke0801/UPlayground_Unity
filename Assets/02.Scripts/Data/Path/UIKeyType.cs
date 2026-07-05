@@ -37,6 +37,7 @@ namespace UPlayGround.Data.Path
         BreakInteraction = 28,
         HudSkill = 29,
         SaveSlotMenu = 30,
+        Notification = 31,
     }
 
     public static class UIKeyTypeExtensions
@@ -74,6 +75,7 @@ namespace UPlayGround.Data.Path
             UIKeyType.BreakInteraction => "BreakInteraction",
             UIKeyType.HudSkill => "HudSkill",
             UIKeyType.SaveSlotMenu => "SaveSlotMenu",
+            UIKeyType.Notification => "Notification",
             _ => string.Empty,
         };
     }

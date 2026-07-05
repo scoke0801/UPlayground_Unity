@@ -252,7 +252,13 @@
       "PowerShell(Select-String -Path \"Assets\\\\ExternalAssets\\\\AnimationOnly\\\\Frank_Slash_Pack\\\\Assets\\\\Animations\\\\Frank_SlashPack_Katana\\\\FBX_Animation\\\\Root_Motion\\\\Frank_RPG_Katana_S1_Skill01.FBX.meta\" -Pattern \"animationType|avatarSetup|humanDescription|copyAvatar|lastHumanDescriptionAvatarSource|animationDoRetargetingWarnings|extraExposedTransformPaths\" -Context 0,0 | Select-Object -First 20 | ForEach-Object { $_.Line.Trim\\(\\) })",
       "WebFetch(domain:forum.unity.com)",
       "PowerShell(Select-String -Path \"Assets\\\\ExternalAssets\\\\AnimationOnly\\\\Frank_Slash_Pack\\\\Assets\\\\Animations\\\\Frank_SlashPack_Katana\\\\FBX_Animation\\\\Root_Motion\\\\Frank_RPG_Katana_S1_Skill01.FBX.meta\" -Pattern \"\\(?i\\)weapon|sword|transformMask|bodyMask\" | ForEach-Object { $_.Line.TrimEnd\\(\\) } | Select-Object -First 40)",
-      "PowerShell($lines = Get-Content \"Assets\\\\03.Prefabs\\\\Actor\\\\Player\\\\Player.prefab\"; $idx = \\($lines | Select-String -Pattern \"m_Name: R_Hand_Weapon\"\\).LineNumber; foreach\\($i in $idx\\){ $lines[\\($i-30\\)..\\($i+5\\)] })"
+      "PowerShell($lines = Get-Content \"Assets\\\\03.Prefabs\\\\Actor\\\\Player\\\\Player.prefab\"; $idx = \\($lines | Select-String -Pattern \"m_Name: R_Hand_Weapon\"\\).LineNumber; foreach\\($i in $idx\\){ $lines[\\($i-30\\)..\\($i+5\\)] })",
+      "Bash(grep -nA6 CanvasGroup: C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
+      "Bash(sed -i '2391s/m_RenderMode: 2/m_RenderMode: 0/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
+      "Bash(sed -i '2396s/m_OverrideSorting: 0/m_OverrideSorting: 1/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
+      "Bash(sed -i '2403s/m_SortingOrder: 0/m_SortingOrder: 32767/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
+      "Bash(sed -i '2396s/m_OverrideSorting: 1/m_OverrideSorting: 0/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
+      "Bash(sed -i '2403s/m_SortingOrder: 32767/m_SortingOrder: 0/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)"
     ]
   }
 }

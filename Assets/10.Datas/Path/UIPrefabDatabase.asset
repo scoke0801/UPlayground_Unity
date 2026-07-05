@@ -137,3 +137,12 @@ MonoBehaviour:
     prefab: {fileID: 6723849809703534315, guid: 344de551d8e3e0541854c4082483449e, type: 3}
     defaultLayer: 1000
     description: 
+  - key: Notification
+    prefab: {fileID: 2737705972155397537, guid: 53c4ae32155a8c04eaada35850c75efe, type: 3}
+    defaultLayer: 0
+    description: "\uC2DC\uC2A4\uD15C/\uD018\uC2A4\uD2B8/\uD30C\uD2F0 \uD68D\uB4DD
+      Notification"
+  - key: DevCheatPanel
+    prefab: {fileID: 6521419298711023042, guid: 7efd0fb3ed4132e45951b46b33c0b2e8, type: 3}
+    defaultLayer: 3000
+    description: "\uAC1C\uBC1C \uCE58\uD2B8 \uD328\uB110 (F11)"

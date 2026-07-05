@@ -28,8 +28,8 @@ namespace UPlayGround.Combat
         public void Refresh()
         {
             string activeGroup = ActiveGroupId;
+            EndGroup();
             _groups.Clear();
-            _activeHitboxes.Clear();
 
             CombatHitbox[] hitboxes = GetComponentsInChildren<CombatHitbox>(true);
             foreach (CombatHitbox hitbox in hitboxes)

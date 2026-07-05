@@ -195,7 +195,8 @@ namespace UPlayGround.Tool.Debugging
     }
 
     /// <summary>
-    /// F10으로 표시하고 F11로 최근 600프레임의 기준선을 JSON 저장하는 개발용 성능 모니터.
+    /// F10으로 표시하고 F12로 최근 600프레임의 기준선을 JSON 저장하는 개발용 성능 모니터.
+    /// (F11은 개발 치트 패널 전용)
     /// </summary>
     public sealed class RuntimePerformanceMonitor : MonoBehaviour
     {
@@ -251,7 +252,8 @@ namespace UPlayGround.Tool.Debugging
                 return;
             if (Keyboard.current[Key.F10].wasPressedThisFrame)
                 _visible = !_visible;
-            if (Keyboard.current[Key.F11].wasPressedThisFrame)
+            // F11은 개발 치트 패널(DevCheatBootstrap) 전용이므로 캡처는 F12를 사용한다.
+            if (Keyboard.current[Key.F12].wasPressedThisFrame)
                 SaveSnapshot();
         }
 
@@ -296,7 +298,7 @@ namespace UPlayGround.Tool.Debugging
             float slowRatio = CalculateSlowFrameRatio(frameBudgetMs);
 
             TextBuilder.Clear();
-            TextBuilder.AppendLine("[Runtime Performance] F10 Toggle / F11 JSON Capture");
+            TextBuilder.AppendLine("[Runtime Performance] F10 Toggle / F12 JSON Capture");
             TextBuilder.Append("Scene: ").Append(UnitySceneManager.GetActiveScene().name).AppendLine();
             TextBuilder.Append("Window: ").Append(_count).Append(" frames").AppendLine();
             TextBuilder.Append("Frame Avg: ").Append(averageFrameMs.ToString("0.00")).Append(" ms / ")

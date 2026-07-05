@@ -140,6 +140,9 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool AcceptQuest(QuestIdType questId) => AcceptQuestById(questId.ToQuestId());
 
+        /// <summary>퀘스트를 수락한다. (문자열 ID 오버로드 — UI/치트용)</summary>
+        public bool AcceptQuest(string questId) => AcceptQuestById(questId);
+
         /// <summary>
         /// 퀘스트를 완료 처리한다.
         /// autoComplete=false 퀘스트는 외부(UI 등)에서 명시적으로 호출해야 한다.
@@ -162,8 +165,18 @@ namespace UPlayGround.Manager
         /// <summary>진행 중인 퀘스트를 실패 처리한다.</summary>
         public bool FailQuest(QuestIdType questId) => FailQuestById(questId.ToQuestId());
 
+        /// <summary>진행 중인 퀘스트를 실패 처리한다. (문자열 ID 오버로드 — UI/치트용)</summary>
+        public bool FailQuest(string questId) => FailQuestById(questId);
+
         /// <summary>퀘스트 현재 상태를 반환한다.</summary>
         public QuestStatus GetQuestStatus(QuestIdType questId) => GetQuestStatusById(questId.ToQuestId());
+
+        /// <summary>퀘스트 현재 상태를 반환한다. (문자열 ID 오버로드 — UI/치트용)</summary>
+        public QuestStatus GetQuestStatus(string questId) => GetQuestStatusById(questId);
+
+        /// <summary>DB에 정의된 모든 퀘스트를 열거한다. (치트/디버그 도구용)</summary>
+        public IEnumerable<QuestSO> GetAllQuestDefinitions() =>
+            IsDBLoaded && _db != null ? _db.GetAllQuests() : System.Linq.Enumerable.Empty<QuestSO>();
 
         /// <summary>퀘스트 완료 여부를 반환한다.</summary>
         public bool IsQuestCompleted(QuestIdType questId) => _completedQuestIds.Contains(questId.ToQuestId());

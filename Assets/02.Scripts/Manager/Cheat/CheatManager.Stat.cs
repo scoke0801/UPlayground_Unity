@@ -1,0 +1,36 @@
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System.Collections.Generic;
+using UPlayGround.Data.Stat;
+
+namespace UPlayGround.Manager
+{
+    /// <summary>CheatManager — 플레이어 스탯 치트. 개발 빌드 전용.</summary>
+    public partial class CheatManager
+    {
+        /// <summary>
+        /// 활성 플레이어 캐릭터의 base 스탯을 즉시 변경한다.
+        /// PlayerActor.RefreshGrowthStatsLive 를 재사용하므로 장비/버프 modifier는 보존되고,
+        /// MaxHealth 변경 시 현재 HP/HUD가 자동 갱신된다(풀 회복).
+        /// </summary>
+        public bool SetPlayerStat(StatType type, float value)
+        {
+            var player = PartyManager.Instance != null ? PartyManager.Instance.ActiveCharacter : null;
+            if (player == null)
+                return false;
+
+            player.RefreshGrowthStatsLive(new Dictionary<StatType, float> { { type, value } });
+            Log(CheatCategory.Stat, $"{type} = {value:0.##}");
+            return true;
+        }
+
+        /// <summary> 활성 플레이어의 현재 base 스탯 값. 없으면 0. </summary>
+        public float GetPlayerStat(StatType type)
+        {
+            var player = PartyManager.Instance != null ? PartyManager.Instance.ActiveCharacter : null;
+            if (player == null || player.Stats == null)
+                return 0f;
+            return player.Stats.GetBase(type);
+        }
+    }
+}
+#endif

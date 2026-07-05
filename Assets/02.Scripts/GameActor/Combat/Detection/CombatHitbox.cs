@@ -65,6 +65,15 @@ namespace UPlayGround.Combat
         public bool HasPreviousShape => _hasPreviousShape;
         public CombatHitboxShape PreviousShape => _previousShape;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        // 개발 빌드 전용 런타임 히트박스 렌더러(HitboxRuntimeDebugRenderer)가 순회하는 판정 활성 레지스트리.
+        // 릴리스 빌드에서는 아래 등록/해제 코드가 전부 스트립되어 0비용이 된다.
+        private static readonly HashSet<CombatHitbox> s_active = new();
+        public static IReadOnlyCollection<CombatHitbox> Active => s_active;
+
+        private void OnDisable() => s_active.Remove(this);
+#endif
+
         private void Reset()
         {
             _shapeCollider = GetComponent<Collider>();
@@ -101,6 +110,9 @@ namespace UPlayGround.Combat
         public void BeginSampling()
         {
             _hasPreviousShape = TryGetWorldShape(out _previousShape);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            s_active.Add(this);
+#endif
             if (_hasPreviousShape)
                 RecordTrail(_previousShape);
         }
@@ -115,6 +127,9 @@ namespace UPlayGround.Combat
         public void ClearSampling()
         {
             _hasPreviousShape = false;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            s_active.Remove(this);
+#endif
         }
 
         private void RecordTrail(in CombatHitboxShape shape)

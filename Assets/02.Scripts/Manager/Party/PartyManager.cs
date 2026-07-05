@@ -1048,6 +1048,19 @@ namespace UPlayGround.Manager
             OnSwapCooldownChanged?.Invoke(type, duration, duration);
         }
 
+        /// <summary> 모든 캐릭터의 스왑 쿨다운을 즉시 해제한다(치트/디버그용). </summary>
+        public void ClearAllSwapCooldowns()
+        {
+            if (_swapCooldownEndTimes.Count == 0) return;
+
+            var types = new List<CharacterActorType>(_swapCooldownEndTimes.Keys);
+            _swapCooldownEndTimes.Clear();
+
+            float duration = SwapCooldownDuration;
+            foreach (var type in types)
+                OnSwapCooldownChanged?.Invoke(type, 0f, duration);
+        }
+
         /// <summary>
         /// from 인덱스에 가까운 BattleOrder 살아있는 슬롯을 탐색.
         /// </summary>

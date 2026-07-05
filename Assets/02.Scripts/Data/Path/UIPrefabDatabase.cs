@@ -95,6 +95,17 @@ namespace UPlayGround.Data.Path
         }
 
         /// <summary>
+        /// 직렬화된 목록에 해당 키가 있는지 검사한다(에디터/런타임 모두 안전, Initialize 불필요).
+        /// </summary>
+        public bool HasKey(string key)
+        {
+            foreach (var entry in prefabs)
+                if (entry != null && entry.key == key)
+                    return true;
+            return false;
+        }
+
+        /// <summary>
         /// Editor용: 프리팹 추가
         /// </summary>
         public void AddPrefab(string key, GameObject prefab, CanvasLayer layer, string description = "")

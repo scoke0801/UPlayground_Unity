@@ -149,6 +149,9 @@ namespace UPlayGround.Manager
             ExecuteCallbacks(context, performCallbackDict);
         }
 
+        private PointerEventData _uiPointerEventData;
+        private readonly List<RaycastResult> _uiRaycastResults = new(16);
+
         private bool ShouldBlockPointerPlayerActionOverUI(InputAction.CallbackContext context)
         {
             var action = context.action;
@@ -157,7 +160,7 @@ namespace UPlayGround.Manager
             if (action.actionMap?.name != InputMapNames.PlayerAction) return false;
             if (!IsPointerLikeInput(context)) return false;
 
-            return IsPointerOverUI();
+            return IsPointerOverUI(context);
         }
 
         private static bool IsPointerLikeInput(InputAction.CallbackContext context)
@@ -166,23 +169,43 @@ namespace UPlayGround.Manager
             return device is Mouse || device is Touchscreen || device is Pen;
         }
 
-        private static bool IsPointerOverUI()
+        // 입력 콜백에서 EventSystem.IsPointerOverGameObject()를 호출하지 않기 위해
+        // 현재 포인터 좌표로 직접 UI 레이캐스트한다.
+        private bool IsPointerOverUI(InputAction.CallbackContext context)
         {
             EventSystem eventSystem = EventSystem.current;
             if (eventSystem == null)
                 return false;
 
-            if (Mouse.current != null && eventSystem.IsPointerOverGameObject())
-                return true;
+            if (!TryGetPointerPosition(context, out Vector2 position))
+                return false;
 
-            if (Touchscreen.current != null)
+            _uiPointerEventData ??= new PointerEventData(eventSystem);
+            _uiPointerEventData.Reset();
+            _uiPointerEventData.position = position;
+
+            _uiRaycastResults.Clear();
+            eventSystem.RaycastAll(_uiPointerEventData, _uiRaycastResults);
+            return _uiRaycastResults.Count > 0;
+        }
+
+        private static bool TryGetPointerPosition(InputAction.CallbackContext context, out Vector2 position)
+        {
+            switch (context.control?.device)
             {
-                var touch = Touchscreen.current.primaryTouch;
-                if (touch.press.isPressed)
-                    return eventSystem.IsPointerOverGameObject(touch.touchId.ReadValue());
+                case Mouse mouse:
+                    position = mouse.position.ReadValue();
+                    return true;
+                case Pen pen:
+                    position = pen.position.ReadValue();
+                    return true;
+                case Touchscreen touchscreen:
+                    position = touchscreen.primaryTouch.position.ReadValue();
+                    return true;
+                default:
+                    position = default;
+                    return false;
             }
-
-            return false;
         }
 
         public static float GetPlayerActionBufferTime(string actionName)

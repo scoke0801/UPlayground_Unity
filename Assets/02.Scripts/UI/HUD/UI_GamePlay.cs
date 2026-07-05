@@ -21,6 +21,7 @@ class UI_GamePlay : UI_Base
     private UI_HudParty _hudParty;
     private UI_HudQuest _hudQuest;
     private UI_HudSkill _hudSkill;
+    private UPlayGround.UI.HUD.Notification.UI_Notification _notification;
     
     #region UI_Base
 
@@ -40,6 +41,12 @@ class UI_GamePlay : UI_Base
         _hudQuest = UIManager.Instance.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
 
         _hudSkill = UIManager.Instance.ShowUI(UIKeyType.HudSkill)?.GetComponent<UI_HudSkill>();
+
+        if (UIManager.Instance.GetUIPrefabEntry(UIKeyType.Notification.ToKey()) != null)
+        {
+            _notification = UIManager.Instance.ShowUI(UIKeyType.Notification, CanvasLayer.HUD)
+                ?.GetComponent<UPlayGround.UI.HUD.Notification.UI_Notification>();
+        }
 
         UIManager.Instance.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
@@ -61,6 +68,7 @@ class UI_GamePlay : UI_Base
         UIManager.Instance.HideUI(UIKeyType.HudParty);
         UIManager.Instance.HideUI(UIKeyType.HudQuest);
         UIManager.Instance.HideUI(UIKeyType.HudSkill);
+        UIManager.Instance.HideUI(UIKeyType.Notification);
         UIManager.Instance.HideUI(UIKeyType.OffscreenThreatIndicator);
 
         if (_playerCombat == null)
@@ -72,6 +80,7 @@ class UI_GamePlay : UI_Base
         _playerCombat = null;
         _playerActor = null;
         _hudPlayerInfo = null;
+        _notification = null;
     }
 
     protected override void RegisterInputEvents()

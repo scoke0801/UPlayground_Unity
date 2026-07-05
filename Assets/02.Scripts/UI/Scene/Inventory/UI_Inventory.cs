@@ -9,6 +9,7 @@ using UPlayGround;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using Image = UnityEngine.UI.Image;
@@ -75,6 +76,7 @@ public class UI_Inventory : UI_Base
     private CharacterActorType _selectedCharacter = CharacterActorType.None;
 
     private List<UI_InventorySlot> _uiSlots = new List<UI_InventorySlot>();
+    private readonly List<TextMeshProUGUI> _statRows = new List<TextMeshProUGUI>();
     private ItemSO _selectedItemData;
     private int _selectedItemCount;
     private ItemType? _categoryFilter = null;   // null = 전체
@@ -512,10 +514,7 @@ public class UI_Inventory : UI_Base
         if (_statPanel != null) _statPanel.SetActive(isEquip);
         if (isEquip)
         {
-            if (_statAttackText != null)   _statAttackText.text   = $"{equip.attackPower:0.#}";
-            if (_statCritText != null)     _statCritText.text     = $"{equip.critChance:0.#}%";
-            if (_statCritDmgText != null)  _statCritDmgText.text  = $"{equip.critDamage:0.#}%";
-            if (_statAtkSpeedText != null) _statAtkSpeedText.text = $"{equip.attackSpeed:0.00}";
+            RefreshSelectedEquipmentStats(equip);
         }
 
         RefreshActionButtons();
@@ -537,9 +536,139 @@ public class UI_Inventory : UI_Base
         if (_selectedWeightText != null)    _selectedWeightText.text = string.Empty;
         SetEquipSlotRowActive(false);
         if (_statPanel != null)             _statPanel.SetActive(false);
+        ClearSelectedEquipmentStats();
 
         _selectedItemPrefab.SetActive(false);
         RefreshActionButtons();
+    }
+
+    private void RefreshSelectedEquipmentStats(EquipmentSO equip)
+    {
+        var modifiers = new List<StatModifier>();
+        equip?.AddStatModifiersTo(modifiers, equip);
+
+        if (_statPanel != null)
+            _statPanel.SetActive(modifiers.Count > 0);
+
+        EnsureStatRows(modifiers.Count);
+
+        for (int i = 0; i < _statRows.Count; i++)
+        {
+            TextMeshProUGUI row = _statRows[i];
+            if (row == null)
+                continue;
+
+            bool active = i < modifiers.Count;
+            SetStatRowActive(row, active);
+            row.text = active
+                ? StatDisplayFormatter.FormatModifier(modifiers[i])
+                : string.Empty;
+        }
+    }
+
+    private void ClearSelectedEquipmentStats()
+    {
+        EnsureStatRows(0);
+        for (int i = 0; i < _statRows.Count; i++)
+        {
+            if (_statRows[i] == null)
+                continue;
+
+            _statRows[i].text = string.Empty;
+            SetStatRowActive(_statRows[i], false);
+        }
+    }
+
+    private void EnsureStatRows(int requiredCount)
+    {
+        if (_statRows.Count == 0)
+        {
+            AddStatRowReference(_statAttackText);
+            AddStatRowReference(_statCritText);
+            AddStatRowReference(_statCritDmgText);
+            AddStatRowReference(_statAtkSpeedText);
+        }
+
+        TextMeshProUGUI template = _statRows.Count > 0 ? _statRows[0] : null;
+        while (_statRows.Count < requiredCount && template != null)
+        {
+            Transform templateRow = template.transform.parent != null
+                ? template.transform.parent
+                : template.transform;
+            Transform parent = templateRow.parent;
+            if (parent == null)
+                break;
+
+            var clone = Instantiate(templateRow.gameObject, parent);
+            clone.name = $"StatOptionRow_{_statRows.Count + 1}";
+
+            TextMeshProUGUI cloneText = FindStatValueText(clone);
+            if (cloneText == null)
+                break;
+
+            _statRows.Add(cloneText);
+            ConfigureStatRow(cloneText);
+        }
+
+        for (int i = 0; i < _statRows.Count; i++)
+        {
+            if (_statRows[i] != null)
+                ConfigureStatRow(_statRows[i]);
+        }
+    }
+
+    private void AddStatRowReference(TextMeshProUGUI text)
+    {
+        if (text == null || _statRows.Contains(text))
+            return;
+
+        _statRows.Add(text);
+    }
+
+    private static TextMeshProUGUI FindStatValueText(GameObject row)
+    {
+        var texts = row.GetComponentsInChildren<TextMeshProUGUI>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            if (texts[i] != null && texts[i].name == "Value")
+                return texts[i];
+        }
+
+        return texts.Length > 0 ? texts[texts.Length - 1] : null;
+    }
+
+    private static void ConfigureStatRow(TextMeshProUGUI valueText)
+    {
+        if (valueText == null)
+            return;
+
+        Transform row = valueText.transform.parent;
+        if (row != null)
+        {
+            var texts = row.GetComponentsInChildren<TextMeshProUGUI>(true);
+            for (int i = 0; i < texts.Length; i++)
+            {
+                if (texts[i] != valueText)
+                    texts[i].gameObject.SetActive(false);
+            }
+        }
+
+        valueText.alignment = TextAlignmentOptions.Left;
+        LayoutElement layout = valueText.GetComponent<LayoutElement>();
+        if (layout == null)
+            layout = valueText.gameObject.AddComponent<LayoutElement>();
+        layout.minWidth = 0f;
+        layout.preferredWidth = -1f;
+        layout.flexibleWidth = 1f;
+    }
+
+    private static void SetStatRowActive(TextMeshProUGUI valueText, bool active)
+    {
+        Transform row = valueText != null && valueText.transform.parent != null
+            ? valueText.transform.parent
+            : valueText?.transform;
+        if (row != null)
+            row.gameObject.SetActive(active);
     }
 
     private void BindActionButtons()

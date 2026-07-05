@@ -87,6 +87,8 @@ public class UI_PartyMenu : UI_Base
             PartyManager.Instance.OnSwapCompleted += OnSwapCompleted;
             PartyManager.Instance.OnPartyProgressionChanged += OnPartyProgressionChanged;
         }
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnPartyEquipmentChanged += OnPartyEquipmentChanged;
 
         // 현재 BattleOrder를 초안으로 복사
         _pendingOrder.Clear();
@@ -107,6 +109,8 @@ public class UI_PartyMenu : UI_Base
             PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
             PartyManager.Instance.OnPartyProgressionChanged -= OnPartyProgressionChanged;
         }
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
     }
 
     protected override void OnDispose()
@@ -116,6 +120,8 @@ public class UI_PartyMenu : UI_Base
             PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
             PartyManager.Instance.OnPartyProgressionChanged -= OnPartyProgressionChanged;
         }
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
 
         foreach (var entry in _menuEntries)
             entry.OnToggleRequested -= OnEntryToggleRequested;
@@ -200,6 +206,7 @@ public class UI_PartyMenu : UI_Base
 
     private void OnSwapCompleted(PlayerActor _) => RefreshBattleEntries();
     private void OnPartyProgressionChanged(CharacterActorType _) => Refresh();
+    private void OnPartyEquipmentChanged() => Refresh();
 
     // ─── 갱신 ────────────────────────────────────────────────────────
 

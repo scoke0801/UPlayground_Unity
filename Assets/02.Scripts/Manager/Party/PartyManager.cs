@@ -931,6 +931,20 @@ namespace UPlayGround.Manager
             return PartyPowerCalculator.Calculate(type, growth, level);
         }
 
+        public PartyMemberGrowthSO GetGrowthData(CharacterActorType type)
+        {
+            _growthLookup.TryGetValue(type, out var growth);
+            return growth;
+        }
+
+        public PartyCombatPowerResult GetEffectiveCombatPower(CharacterActorType type)
+        {
+            int level = GetLevel(type);
+            var stats = CharacterEffectiveStatCalculator.Calculate(type, GetGrowthData(type), level);
+            long combatPower = PartyPowerCalculator.CalculateCombatPower(stats);
+            return new PartyCombatPowerResult(type, Mathf.Max(1, level), combatPower, stats);
+        }
+
         public IReadOnlyDictionary<StatType, float> GetGrowthStats(CharacterActorType type)
             => GetCombatPower(type).GrowthStats;
 
@@ -944,7 +958,7 @@ namespace UPlayGround.Manager
             {
                 CharacterActorType type = targetOrder[i];
                 if (type == CharacterActorType.None) continue;
-                total += GetCombatPower(type).CombatPower;
+                total += GetEffectiveCombatPower(type).CombatPower;
             }
 
             return total;
@@ -954,7 +968,7 @@ namespace UPlayGround.Manager
         {
             var results = new List<PartyCombatPowerResult>(_battleOrder.Count);
             for (int i = 0; i < _battleOrder.Count; i++)
-                results.Add(GetCombatPower(_battleOrder[i]));
+                results.Add(GetEffectiveCombatPower(_battleOrder[i]));
             return results;
         }
 

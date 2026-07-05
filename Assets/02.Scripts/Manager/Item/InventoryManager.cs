@@ -434,6 +434,26 @@ namespace UPlayGround.Manager
         public int GetEquippedItem(CharacterActorType c, EquipPosition slot) =>
             GetOrSeedEntry(c)?.Get(slot) ?? -1;
 
+        public List<EquipmentSO> GetEquippedEquipment(CharacterActorType c)
+        {
+            var result = new List<EquipmentSO>();
+            var eq = GetOrSeedEntry(c);
+            if (eq == null)
+                return result;
+
+            for (int i = 0; i < CharacterEquipment.AllSlots.Length; i++)
+            {
+                int itemId = eq.Get(CharacterEquipment.AllSlots[i]);
+                if (itemId < 0)
+                    continue;
+
+                if (ItemManager.Instance?.GetItemData(itemId) is EquipmentSO equipment)
+                    result.Add(equipment);
+            }
+
+            return result;
+        }
+
         /// <summary> 해당 itemId를 장착 중인 캐릭터 목록. </summary>
         public List<CharacterActorType> GetEquippingCharacters(int itemId)
         {
@@ -503,12 +523,15 @@ namespace UPlayGround.Manager
                 foreach (var owner in roster)
                 {
                     if (owner == requester) continue;
-                    if (_equipmentByCharacter.TryGetValue(owner, out var oeq) &&
-                        oeq.TryRemoveFirst(itemId, out var freed))
+                    if (_equipmentByCharacter.TryGetValue(owner, out var oeq) && oeq.CountOf(itemId) > 0)
                     {
+                        CaptureHealthSnapshot(owner, out float oldHp, out float oldMax);
+                        if (!oeq.TryRemoveFirst(itemId, out var freed))
+                            continue;
                         if (freed == EquipPosition.RightHand)
                             EnsureSubCompatibility(owner, oeq);
                         SyncActiveCharacterVisual(owner);
+                        ApplyEquipmentStats(owner, oldHp, oldMax);
                         return true;
                     }
                 }
@@ -518,11 +541,15 @@ namespace UPlayGround.Manager
             foreach (var kv in _equipmentByCharacter)
             {
                 if (kv.Key == requester) continue;
-                if (kv.Value.TryRemoveFirst(itemId, out var freed))
+                if (kv.Value.CountOf(itemId) > 0)
                 {
+                    CaptureHealthSnapshot(kv.Key, out float oldHp, out float oldMax);
+                    if (!kv.Value.TryRemoveFirst(itemId, out var freed))
+                        continue;
                     if (freed == EquipPosition.RightHand)
                         EnsureSubCompatibility(kv.Key, kv.Value);
                     SyncActiveCharacterVisual(kv.Key);
+                    ApplyEquipmentStats(kv.Key, oldHp, oldMax);
                     return true;
                 }
             }
@@ -554,6 +581,8 @@ namespace UPlayGround.Manager
             if (eq.Get(slot) == itemId)
                 return InventoryActionResult.Success;
 
+            CaptureHealthSnapshot(c, out float oldHp, out float oldMax);
+
             // 여유분이 없으면 다른 소유자에게서 이동(transfer). 실패 시 기존 슬롯 상태를 건드리지 않는다.
             if (GetFreeCount(itemId) <= 0 && !TransferFromAnotherOwner(itemId, c))
                 return InventoryActionResult.Failed;
@@ -565,6 +594,7 @@ namespace UPlayGround.Manager
                 EnsureSubCompatibility(c, eq);
 
             SyncActiveCharacterVisual(c);
+            ApplyEquipmentStats(c, oldHp, oldMax);
             OnPartyEquipmentChanged?.Invoke();
             return InventoryActionResult.Success;
         }
@@ -575,6 +605,8 @@ namespace UPlayGround.Manager
             if (eq == null || eq.Get(slot) < 0)
                 return InventoryActionResult.Failed;
 
+            CaptureHealthSnapshot(c, out float oldHp, out float oldMax);
+
             eq.Set(slot, -1);
 
             // 주 무기(아이템) 해제 시 보조 무기가 유효 주 무기 타입(빌트인 폴백)과 맞지 않으면 해제
@@ -582,8 +614,21 @@ namespace UPlayGround.Manager
                 EnsureSubCompatibility(c, eq);
 
             SyncActiveCharacterVisual(c);
+            ApplyEquipmentStats(c, oldHp, oldMax);
             OnPartyEquipmentChanged?.Invoke();
             return InventoryActionResult.Success;
+        }
+
+        private void CaptureHealthSnapshot(CharacterActorType c, out float currentHealth, out float maxHealth)
+        {
+            var player = GameObjectManager.Instance?.Player;
+            currentHealth = player != null ? player.GetHealthForCharacter(c) : 0f;
+            maxHealth = player != null ? player.GetMaxHealthForCharacter(c) : 1f;
+        }
+
+        private void ApplyEquipmentStats(CharacterActorType c, float oldHp, float oldMax)
+        {
+            GameObjectManager.Instance?.Player?.RefreshEquipmentStatsForCharacter(c, oldHp, oldMax);
         }
 
         public bool CanEquipItem(int itemId) => CanEquipItem(ActiveCharacterType, itemId);

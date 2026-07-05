@@ -22,3 +22,11 @@ MonoBehaviour:
   equipSlot: 1
   equipmentPrefab: {fileID: 721968354175901190, guid: e4d1b353608e138449a2022c1bd4d9df, type: 3}
   weaponType: 2
+  _statModifiers:
+  - statType: 3
+    modifierType: 0
+    value: 0.01
+  attackPower: 0
+  critChance: 0
+  critDamage: 100
+  attackSpeed: 1

@@ -222,10 +222,10 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 AddFlexible(statPanel, 1);
                 AddVLG(statPanel, spacing: 4, pad: 10).childForceExpandHeight = false;
                 AddText(NewUI("Title", statPanel.transform), "능력치", 20, TextMain, TextAlignmentOptions.Left);
-                var txtAtk     = BuildInfoRow(statPanel.transform, "공격력",      "0",   out _);
-                var txtCrit    = BuildInfoRow(statPanel.transform, "치명타 확률", "0%",  out _);
-                var txtCritDmg = BuildInfoRow(statPanel.transform, "치명타 피해", "0%",  out _);
-                var txtAtkSpd  = BuildInfoRow(statPanel.transform, "공격 속도",   "1.0", out _);
+                var txtAtk     = BuildStatOptionRow(statPanel.transform, "옵션 1");
+                var txtCrit    = BuildStatOptionRow(statPanel.transform, "옵션 2");
+                var txtCritDmg = BuildStatOptionRow(statPanel.transform, "옵션 3");
+                var txtAtkSpd  = BuildStatOptionRow(statPanel.transform, "옵션 4");
 
                 // ── 하단 바 ──
                 var bottom = NewUI("BottomBar", window.transform);
@@ -659,6 +659,16 @@ namespace UPlayGround.UI.Inventory.EditorTools
             AddFlexibleW(labelText.gameObject, 1f);
             var val = AddText(NewUI("Value", row.transform), value, 18, TextMain, TextAlignmentOptions.Right);
             SetWidth(val.gameObject, 120);
+            return val;
+        }
+
+        private static TextMeshProUGUI BuildStatOptionRow(Transform parent, string name)
+        {
+            var row = NewUI(name + "Row", parent);
+            SetHeight(row.gameObject, 30);
+            AddHLG(row, spacing: 0, pad: 0);
+            var val = AddText(NewUI("Value", row.transform), string.Empty, 18, TextMain, TextAlignmentOptions.Left);
+            AddFlexibleW(val.gameObject, 1f);
             return val;
         }
 

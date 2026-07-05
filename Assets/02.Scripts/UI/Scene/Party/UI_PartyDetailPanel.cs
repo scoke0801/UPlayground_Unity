@@ -87,7 +87,7 @@ public class UI_PartyDetailPanel : MonoBehaviour
         if (_weaponNameText != null) _weaponNameText.text = data.GetWeaponName(type);
 
         // 전투력
-        var cp = pm.GetCombatPower(type);
+        var cp = pm.GetEffectiveCombatPower(type);
         if (_combatPowerText != null) _combatPowerText.text = cp.CombatPower.ToString("N0");
 
         // HP (현재/최대) — 액티브/벤치 공통 조회
@@ -99,11 +99,11 @@ public class UI_PartyDetailPanel : MonoBehaviour
 
         // 능력치
         var s = cp.GrowthStats;
-        if (_statAttackText != null)   _statAttackText.text   = Stat(s, StatType.AttackPower).ToString("N0");
-        if (_statDefenseText != null)  _statDefenseText.text  = Stat(s, StatType.Defense).ToString("N0");
-        if (_statHealthText != null)   _statHealthText.text   = Stat(s, StatType.MaxHealth).ToString("N0");
-        if (_statCritRateText != null) _statCritRateText.text = $"{Stat(s, StatType.CritRate) * 100f:0.#}%";
-        if (_statCritDmgText != null)  _statCritDmgText.text  = $"{Stat(s, StatType.CritMultiplier) * 100f:0.#}%";
+        if (_statAttackText != null)   _statAttackText.text   = StatDisplayFormatter.FormatValue(StatType.AttackPower, Stat(s, StatType.AttackPower));
+        if (_statDefenseText != null)  _statDefenseText.text  = StatDisplayFormatter.FormatValue(StatType.Defense, Stat(s, StatType.Defense));
+        if (_statHealthText != null)   _statHealthText.text   = StatDisplayFormatter.FormatValue(StatType.MaxHealth, Stat(s, StatType.MaxHealth));
+        if (_statCritRateText != null) _statCritRateText.text = StatDisplayFormatter.FormatValue(StatType.CritRate, Stat(s, StatType.CritRate));
+        if (_statCritDmgText != null)  _statCritDmgText.text  = StatDisplayFormatter.FormatValue(StatType.CritMultiplier, Stat(s, StatType.CritMultiplier));
         if (_statAtkSpeedText != null) _statAtkSpeedText.text = "-"; // 공격 속도 스탯 미정의
 
         // 역할 하이라이트

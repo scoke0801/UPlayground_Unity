@@ -38,6 +38,8 @@ namespace UPlayGround
         private readonly Dictionary<CharacterActorType, float> _characterHealthMap = new();
         private readonly Dictionary<CharacterActorType, float> _characterSkillMap  = new();
         private readonly Dictionary<CharacterActorType, float[]> _characterSkillCooldownMap = new();
+        private readonly object _equipmentStatSource = new();
+        private readonly List<StatModifier> _equipmentStatBuffer = new();
         private bool _hasInitializedCharacterRuntime;
 
         [SerializeField] private PlayerEquipment  _equipment;
@@ -667,28 +669,9 @@ namespace UPlayGround
             // 연계 토큰 스트림은 캐릭터 종속 — 교체 시 비운다(설계 §8).
             _comboInputTracker?.Clear();
 
-            // 성장 스탯 적용 후 체력 복원 (처음 등장 시 최대치)
+            // 성장 스탯 적용 후 장비 스탯까지 먼저 반영한다.
+            // 체력 복원은 최종 MaxHealth 기준으로 처리해야 교체 시 장비 체력 보너스가 비율을 왜곡하지 않는다.
             _maxHealth = ApplyCharacterStats(data);
-            if (_characterHealthMap.TryGetValue(data.characterType, out var hp))
-            {
-                // 초기화 순서상 기본 maxHp(100) 풀피 상태가 먼저 저장된 뒤 성장 스탯 maxHp(예: 120)가
-                // 적용될 수 있다. 이전 max 기준 풀피였다면 새 max 기준 풀피로 유지한다.
-                _currentHealth = previousType == data.characterType && wasPreviousHealthFull
-                    ? _maxHealth
-                    : Mathf.Clamp(hp, 0f, _maxHealth);
-            }
-            else
-            {
-                _currentHealth = _maxHealth;
-            }
-
-            // 스킬 게이지 복원
-            _skillGauge.SetGauge(
-                _characterSkillMap.TryGetValue(data.characterType, out var sg) ? sg : 0f);
-            _skillGauge.SetCooldownRemainingSnapshot(
-                _characterSkillCooldownMap.TryGetValue(data.characterType, out var cooldowns) ? cooldowns : null);
-
-            // 활성 Model의 컴포넌트 참조 갱신
             _animator            = GetComponentInChildren<ActorAnimator>();
             
             _playerActorAnimator = _animator as PlayerActorAnimator;
@@ -703,6 +686,27 @@ namespace UPlayGround
                 inventory.SeedCharacterEquipmentIfAbsent(
                     data.characterType, _equipment != null ? _equipment.StartEquipItems : null);
             }
+
+            ApplyEquipmentStatsForActiveCharacter(preserveHealthRatio: false);
+
+            if (_characterHealthMap.TryGetValue(data.characterType, out var hp))
+            {
+                // 이전 max 기준 풀피였다면 최종 max 기준 풀피로 유지한다.
+                _currentHealth = previousType == data.characterType && wasPreviousHealthFull
+                    ? _maxHealth
+                    : Mathf.Clamp(hp, 0f, _maxHealth);
+            }
+            else
+            {
+                _currentHealth = _maxHealth;
+            }
+            OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+
+            // 스킬 게이지 복원
+            _skillGauge.SetGauge(
+                _characterSkillMap.TryGetValue(data.characterType, out var sg) ? sg : 0f);
+            _skillGauge.SetCooldownRemainingSnapshot(
+                _characterSkillCooldownMap.TryGetValue(data.characterType, out var cooldowns) ? cooldowns : null);
 
             _equipment?.SetWeaponType(data.defaultWeaponType);
             
@@ -787,6 +791,67 @@ namespace UPlayGround
             return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : ActorStatSO.GetDefault(StatType.MaxHealth));
         }
 
+        public void ApplyEquipmentStatsForActiveCharacter(bool preserveHealthRatio = true)
+        {
+            if (Stats == null || _characterActorType == CharacterActorType.None)
+                return;
+
+            float oldMax = Mathf.Max(1f, _maxHealth);
+            float oldCurrent = Mathf.Clamp(_currentHealth, 0f, oldMax);
+            bool wasFull = oldCurrent >= oldMax - 0.01f;
+            float oldRatio = oldMax > 0f ? oldCurrent / oldMax : 1f;
+
+            Stats.RemoveModifiersBySource(_equipmentStatSource);
+            _equipmentStatBuffer.Clear();
+
+            var equipment = InventoryManager.Instance?.GetEquippedEquipment(_characterActorType);
+            if (equipment != null)
+            {
+                for (int i = 0; i < equipment.Count; i++)
+                    equipment[i]?.AddStatModifiersTo(_equipmentStatBuffer, _equipmentStatSource);
+            }
+
+            for (int i = 0; i < _equipmentStatBuffer.Count; i++)
+                Stats.AddModifier(_equipmentStatBuffer[i]);
+
+            _maxHealth = Mathf.Max(1f, Stats.MaxHealth);
+            if (preserveHealthRatio)
+            {
+                _currentHealth = wasFull
+                    ? _maxHealth
+                    : Mathf.Clamp(_maxHealth * oldRatio, 0f, _maxHealth);
+                OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+            }
+        }
+
+        public void RefreshEquipmentStatsForCharacter(
+            CharacterActorType type,
+            float previousCurrentHealth,
+            float previousMaxHealth)
+        {
+            if (type == CharacterActorType.None)
+                return;
+
+            if (type == _characterActorType)
+            {
+                ApplyEquipmentStatsForActiveCharacter();
+                return;
+            }
+
+            if (!_characterHealthMap.ContainsKey(type))
+                return;
+
+            float oldMax = Mathf.Max(1f, previousMaxHealth);
+            float oldCurrent = Mathf.Clamp(previousCurrentHealth, 0f, oldMax);
+            bool wasFull = oldCurrent >= oldMax - 0.01f;
+            float oldRatio = oldMax > 0f ? oldCurrent / oldMax : 1f;
+            float newMax = GetMaxHealthForCharacter(type);
+
+            _characterHealthMap[type] = wasFull
+                ? newMax
+                : Mathf.Clamp(newMax * oldRatio, 0f, newMax);
+        }
+
         /// <summary>
         /// 전투 중 레벨업 등으로 활성 캐릭터의 성장 스탯을 즉시 반영한다.
         /// 기둥 A: base 스탯만 교체(SetBase)하여 장비/버프 modifier를 보존한다. Init()을 호출하지 않는다.
@@ -824,9 +889,7 @@ namespace UPlayGround
             // 다운된(HP 0) 멤버는 레벨업으로 부활시키지 않는다.
             if (!_characterHealthMap.TryGetValue(type, out float stored) || stored <= 0f) return;
 
-            float newMax = growthStats.TryGetValue(StatType.MaxHealth, out float max)
-                ? Mathf.Max(1f, max)
-                : GetMaxHealthForCharacter(type);
+            float newMax = GetMaxHealthForCharacter(type);
             _characterHealthMap[type] = newMax;          // 살아있는 대기 멤버만 풀 회복
         }
 
@@ -849,8 +912,9 @@ namespace UPlayGround
         {
             if (type == _characterActorType) return _maxHealth;
 
-            IReadOnlyDictionary<StatType, float> growthStats = PartyManager.Instance?.GetGrowthStats(type);
-            if (growthStats != null && growthStats.TryGetValue(StatType.MaxHealth, out float maxHealth))
+            IReadOnlyDictionary<StatType, float> effectiveStats =
+                UPlayGround.Data.Party.CharacterEffectiveStatCalculator.Calculate(type);
+            if (effectiveStats != null && effectiveStats.TryGetValue(StatType.MaxHealth, out float maxHealth))
                 return Mathf.Max(1f, maxHealth);
 
             return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxHealth));

@@ -124,6 +124,8 @@ namespace UPlayGround.Combat
             if (data == null)
                 return default;
 
+            float criticalMultiplier = ResolveCriticalMultiplier(data);
+
             return new HitRequest(
                 data.attacker,
                 data.animKey,
@@ -137,7 +139,7 @@ namespace UPlayGround.Combat
                 data.reactionDuration,
                 data.forceReaction,
                 data.forceBreakExpose,
-                data.criticalMultiplier,
+                criticalMultiplier,
                 data.isCounterAttack,
                 data.useCounterHitFeedback,
                 data.isProjectile,
@@ -153,6 +155,29 @@ namespace UPlayGround.Combat
                 data.victimForcedAnimKey,
                 data.guaranteedReaction,
                 data.reactionData);
+        }
+
+        private static float ResolveCriticalMultiplier(AttackData data)
+        {
+            if (data == null)
+                return 1f;
+
+            // AttackData가 이미 1보다 큰 배율을 들고 있으면 스킬/특수공격이 강제한 치명타로 본다.
+            if (data.criticalMultiplier > 1f)
+                return data.criticalMultiplier;
+
+            GameActor attacker = data.attacker;
+            if (attacker == null || attacker.Stats == null)
+                return 1f;
+
+            float critRate = Mathf.Clamp01(attacker.Stats.CritRate);
+            if (critRate <= 0f)
+                return 1f;
+
+            if (Random.value > critRate)
+                return 1f;
+
+            return Mathf.Max(1f, attacker.Stats.CritMultiplier);
         }
 
         public static HitRequest CreateSpecialBreak(

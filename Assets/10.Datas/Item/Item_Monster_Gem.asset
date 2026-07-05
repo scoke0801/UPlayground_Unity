@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
-  m_Name: MonsterEnergy
+  m_Name: Item_Monster_Gem
   m_EditorClassIdentifier: 
-  itemId: 100005
+  itemId: 200006
   itemName: "\uBAAC\uC2A4\uD130\uC815\uC218"
   itemDescription: "\uBAAC\uC2A4\uD130 \uCC98\uCE58 \uC2DC \uD68D\uB4DD\uD560 \uC218
     \uC788\uB294 \uC815\uC218"

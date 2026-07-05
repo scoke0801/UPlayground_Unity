@@ -43,7 +43,7 @@ MonoBehaviour:
         basePointName: Blade_Base
         tipPointName: Blade_Tip
         positionSpace: 1
-        positionOffset: {x: -0.34, y: 0, z: -0.34}
+        positionOffset: {x: -0.75, y: 0, z: -0.34}
         rotationSpace: 1
         rotationOffset: {x: 178.41, y: -184.36, z: 0.67}
         scale: 0.7

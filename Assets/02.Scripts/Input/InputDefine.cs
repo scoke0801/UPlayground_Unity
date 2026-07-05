@@ -55,6 +55,7 @@
         public const string Map = "Map";
         public const string Party = "Party";
         public const string MenuPanel = "MenuPanel";
+        public const string CheatPanel = "CheatPanel";
         
         public const string Submit = "Submit";
         public const string Cancel = "Cancel";

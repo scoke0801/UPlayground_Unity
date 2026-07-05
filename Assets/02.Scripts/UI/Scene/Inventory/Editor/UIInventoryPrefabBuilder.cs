@@ -70,7 +70,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 AddImage(dim, Dim);
 
                 var window = NewUI("Window", root.transform);
-                StretchInset(window, 18, 8, 18, 8);
+                Stretch(window);
                 AddImage(window, WindowBg, UISprite, sliced: true);
                 AddVLG(window, spacing: 8, pad: 14).childForceExpandHeight = false;
 
@@ -174,7 +174,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 // ===== 우측 상세 =====
                 var right = NewUI("DetailPanel", body.transform);
                 AddImage(right, PanelBg, UISprite, sliced: true);
-                SetWidth(right, 300);
+                SetWidth(right, minWidth: 650, preferredWidth: 300);
                 AddVLG(right, spacing: 8, pad: 12).childForceExpandHeight = false;
 
                 // 이름 + 등급
@@ -311,6 +311,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 SetRef(so, "_useButton",   btnUse);
                 SetRef(so, "_equipButton", btnEquip);
                 SetRef(so, "_dropButton",  btnDrop);
+                SetRef(so, "_btnClose",    btnClose);
 
                 // 파티 장비 패널
                 SetRef(so, "_partySelectorContainer",   partySelector.transform);

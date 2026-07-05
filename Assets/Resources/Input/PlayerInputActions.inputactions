@@ -911,6 +911,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "CheatPanel",
+                    "type": "Button",
+                    "id": "ea06f98f-fcfd-4ea1-a1a4-069d0047f9be",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1098,6 +1107,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "MenuPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba00efff-8a14-4786-8c2e-12018f84223a",
+                    "path": "<Keyboard>/f11",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "CheatPanel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
-  m_Name: Feather
+  m_Name: legendary_hp_potion
   m_EditorClassIdentifier: 
-  itemId: 200001
-  itemName: "\uC800\uAE09 \uD68C\uBCF5\uBB3C\uC57D"
-  itemDescription: "\uCCB4\uB825\uC744 \uD68C\uBCF5\uC2DC\uCF1C\uC8FC\uB294 \uBB3C\uC57D.
-    \uD488\uC9C8\uC774 \uB0AE\uC544\uBCF4\uC778\uB2E4."
+  itemId: 200005
+  itemName: "\uD68C\uBCF5 \uBB3C\uC57D"
+  itemDescription: "\uCCB4\uB825\uC744 \uD68C\uBCF5\uC2DC\uCF1C\uC8FC\uB294 \uBB3C\uC57D."
   weight: 0.5
   itemType: 2
-  itemRarity: 1
-  icon: {fileID: 21300000, guid: 030e1544e2fa04d53947261dced1405c, type: 3}
+  itemRarity: 5
+  icon: {fileID: 21300000, guid: f01c83406cf6c43a49bc3839e97afc63, type: 3}

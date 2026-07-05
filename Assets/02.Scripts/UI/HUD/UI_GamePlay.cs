@@ -7,6 +7,7 @@ using UPlayGround.Component;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
+using UPlayGround.UI.DevCheat;
 using UPlayGround.UI.InputPrompt;
 
 class UI_GamePlay : UI_Base
@@ -63,13 +64,17 @@ class UI_GamePlay : UI_Base
 
     protected override void OnHide()
     {
-        UIManager.Instance.HideUI(UIKeyType.HudPlayerInfo);
-        UIManager.Instance.HideUI(UIKeyType.Minimap);
-        UIManager.Instance.HideUI(UIKeyType.HudParty);
-        UIManager.Instance.HideUI(UIKeyType.HudQuest);
-        UIManager.Instance.HideUI(UIKeyType.HudSkill);
-        UIManager.Instance.HideUI(UIKeyType.Notification);
-        UIManager.Instance.HideUI(UIKeyType.OffscreenThreatIndicator);
+        var uiManager = UIManager.Instance;
+        if (uiManager != null)
+        {
+            uiManager.HideUI(UIKeyType.HudPlayerInfo);
+            uiManager.HideUI(UIKeyType.Minimap);
+            uiManager.HideUI(UIKeyType.HudParty);
+            uiManager.HideUI(UIKeyType.HudQuest);
+            uiManager.HideUI(UIKeyType.HudSkill);
+            uiManager.HideUI(UIKeyType.Notification);
+            uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
+        }
 
         if (_playerCombat == null)
         {
@@ -85,25 +90,37 @@ class UI_GamePlay : UI_Base
 
     protected override void RegisterInputEvents()
     {
-        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
+        var inputManager = InputManager.Instance;
+        if (inputManager == null)
+            return;
+
+        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
             null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
        
-        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
+        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
             null, OnPerformedMap, null, null, null, InputLayer.Level_0);
         
-        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Party,
+        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Party,
             null, OnPerformedParty, null, null, null, InputLayer.Level_0);
         
-        InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
+        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
             null, OnPerformedMenuPanel, null, null, null, InputLayer.Level_0);
+        
+        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel,
+            null, OnPerformedCheatPanel, null, null, null, InputLayer.Level_0);
     }
 
     protected override void UnRegisterInputEvents()
     {
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory,null);
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap,null);
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel, null, OnPerformedMenuPanel, null);
+        var inputManager = InputManager.Instance;
+        if (inputManager == null)
+            return;
+
+        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory, null);
+        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap, null);
+        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
+        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel, null, OnPerformedMenuPanel, null);
+        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel, null, OnPerformedCheatPanel, null);
     }
 
     #endregion
@@ -157,7 +174,19 @@ class UI_GamePlay : UI_Base
         OnClickedMenuButton();
     }
     
+    private void OnPerformedCheatPanel(InputAction.CallbackContext obj)
+    {
+        var mgr = UIManager.Instance;
+        if (mgr == null)
+            return;
 
+        var panel = mgr.GetUI<UI_DevCheatPanel>();
+        if (panel != null && panel.IsVisible)
+            panel.Hide();
+        else
+            mgr.ShowUI("DevCheatPanel");
+    }
+    
     private void OnClickedMenuButton()
     {
         UI_MenuPanel party = UIManager.Instance.GetActiveUI(UIKeyType.MenuPanel)?.GetComponent<UI_MenuPanel>();

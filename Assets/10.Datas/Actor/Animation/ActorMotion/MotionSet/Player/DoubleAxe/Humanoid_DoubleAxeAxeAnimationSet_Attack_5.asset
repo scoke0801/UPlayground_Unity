@@ -47,8 +47,8 @@ MonoBehaviour:
         tipPointName: Blade_Tip
         positionSpace: 1
         positionOffset: {x: 0.42, y: 0.55, z: -0.18}
-        rotationSpace: 0
-        rotationOffset: {x: 178.32, y: -133.45, z: -2.86}
+        rotationSpace: 1
+        rotationOffset: {x: 0, y: 11.82, z: 50.78}
         scale: 0.7
         destroyDelay: 10
         attachToActor: 1

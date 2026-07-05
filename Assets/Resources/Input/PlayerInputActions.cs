@@ -997,6 +997,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CheatPanel"",
+                    ""type"": ""Button"",
+                    ""id"": ""ea06f98f-fcfd-4ea1-a1a4-069d0047f9be"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1184,6 +1193,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""MenuPanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ba00efff-8a14-4786-8c2e-12018f84223a"",
+                    ""path"": ""<Keyboard>/f11"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""CheatPanel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1482,6 +1502,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_Map = m_UI.FindAction("Map", throwIfNotFound: true);
         m_UI_Party = m_UI.FindAction("Party", throwIfNotFound: true);
         m_UI_MenuPanel = m_UI.FindAction("MenuPanel", throwIfNotFound: true);
+        m_UI_CheatPanel = m_UI.FindAction("CheatPanel", throwIfNotFound: true);
         // Gamepad
         m_Gamepad = asset.FindActionMap("Gamepad", throwIfNotFound: true);
         m_Gamepad_L1 = m_Gamepad.FindAction("L1", throwIfNotFound: true);
@@ -2057,6 +2078,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Map;
     private readonly InputAction m_UI_Party;
     private readonly InputAction m_UI_MenuPanel;
+    private readonly InputAction m_UI_CheatPanel;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -2116,6 +2138,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/MenuPanel".
         /// </summary>
         public InputAction @MenuPanel => m_Wrapper.m_UI_MenuPanel;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/CheatPanel".
+        /// </summary>
+        public InputAction @CheatPanel => m_Wrapper.m_UI_CheatPanel;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2178,6 +2204,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @MenuPanel.started += instance.OnMenuPanel;
             @MenuPanel.performed += instance.OnMenuPanel;
             @MenuPanel.canceled += instance.OnMenuPanel;
+            @CheatPanel.started += instance.OnCheatPanel;
+            @CheatPanel.performed += instance.OnCheatPanel;
+            @CheatPanel.canceled += instance.OnCheatPanel;
         }
 
         /// <summary>
@@ -2225,6 +2254,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @MenuPanel.started -= instance.OnMenuPanel;
             @MenuPanel.performed -= instance.OnMenuPanel;
             @MenuPanel.canceled -= instance.OnMenuPanel;
+            @CheatPanel.started -= instance.OnCheatPanel;
+            @CheatPanel.performed -= instance.OnCheatPanel;
+            @CheatPanel.canceled -= instance.OnCheatPanel;
         }
 
         /// <summary>
@@ -2773,6 +2805,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMenuPanel(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CheatPanel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCheatPanel(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gamepad" which allows adding and removing callbacks.

@@ -32,6 +32,6 @@ MonoBehaviour:
   combatReactionPolicy: {fileID: 11400000, guid: edf64fc11281e84489cf8a7c029d1121, type: 2}
   behaviorData: {fileID: 11400000, guid: 415adac601a51f6418833086408e92fd, type: 2}
   npcData: {fileID: 0}
-  dropTable: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: 3fb83bea7e5379645acd84b081d11b0e, type: 2}
   recruitableAs: 0
   expReward: 18

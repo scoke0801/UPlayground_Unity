@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7161cef1eb36d5645a44f66173564eab, type: 3}
+  m_Name: DropTable_Humanoid_LV10_Bow
+  m_EditorClassIdentifier: 
+  dropItems:
+  - itemData: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
+    rate: 100
+    maximumDropCount: 3
+  - itemData: {fileID: 11400000, guid: 812807101455b2d4c80288f6ee33d47e, type: 2}
+    rate: 25
+    maximumDropCount: 1
+  - itemData: {fileID: 11400000, guid: 0922b791e0d4cbe45a7b0805465985cb, type: 2}
+    rate: 25
+    maximumDropCount: 1
+  - itemData: {fileID: 11400000, guid: 58696f11c2f2a7446a0bdb7b18e8c4a2, type: 2}
+    rate: 25
+    maximumDropCount: 1
+  - itemData: {fileID: 11400000, guid: 46ed1440c3d9d914ebb35b69378ab8df, type: 2}
+    rate: 25
+    maximumDropCount: 1
+  - itemData: {fileID: 11400000, guid: fc5f0fd1768c0714fb6f842ea16091b7, type: 2}
+    rate: 25
+    maximumDropCount: 1
+  - itemData: {fileID: 11400000, guid: 216983318bb99104397a334bfcb0d998, type: 2}
+    rate: 50
+    maximumDropCount: 1

@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 40ba7885f5600db40af06b3df1ee545b, type: 3}
-  m_Name: Item_Monster_Gem
+  m_Name: Item_Monster_Leaft
   m_EditorClassIdentifier: 
-  itemId: 200006
-  itemName: "\uBAAC\uC2A4\uD130\uC815\uC218"
-  itemDescription: "\uBAAC\uC2A4\uD130 \uCC98\uCE58 \uC2DC \uD68D\uB4DD\uD560 \uC218
-    \uC788\uB294 \uC815\uC218"
+  itemId: 100007
+  itemName: "\uB098\uBB47\uC78E"
+  itemDescription: "\uD3C9\uBC94\uD55C \uB098\uBB47\uC78E"
   weight: 1
-  itemType: 3
+  itemType: 4
   itemRarity: 1
-  icon: {fileID: 21300000, guid: 8a7705f838049bb46932a35e9bc9df00, type: 3}
+  icon: {fileID: 21300000, guid: 5c71866ab7db846339f06ec5a63520b6, type: 3}

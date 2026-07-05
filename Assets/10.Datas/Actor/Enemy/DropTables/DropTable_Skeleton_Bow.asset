@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7161cef1eb36d5645a44f66173564eab, type: 3}
+  m_Name: DropTable_Skeleton_Bow
+  m_EditorClassIdentifier: 
+  dropItems:
+  - itemData: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
+    rate: 100
+    maximumDropCount: 3
+  - itemData: {fileID: 11400000, guid: b659f132661d4674aa5f06407a318e62, type: 2}
+    rate: 50
+    maximumDropCount: 1

@@ -16,7 +16,7 @@ MonoBehaviour:
   - recipeID: 1
     recipeName: "\uD558\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
     description: 
-    resultItemID: 206
+    resultItemID: 200001
     resultQuantity: 1
     costType: 0
     costAmount: 0
@@ -26,7 +26,7 @@ MonoBehaviour:
   - recipeID: 2
     recipeName: "\uC911\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
     description: 
-    resultItemID: 0
+    resultItemID: 200002
     resultQuantity: 1
     costType: 0
     costAmount: 0
@@ -36,12 +36,62 @@ MonoBehaviour:
   - recipeID: 3
     recipeName: "\uACE0\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
     description: 
-    resultItemID: 0
+    resultItemID: 200003
     resultQuantity: 1
     costType: 0
     costAmount: 0
     castTimeSeconds: 2
     category: 0
+    isDebugUnlocked: 0
+  - recipeID: 4
+    recipeName: "\uBC29\uD328"
+    description: 
+    resultItemID: 2001
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 5
+    recipeName: "\uC18C\uAC80"
+    description: 
+    resultItemID: 1001
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 6
+    recipeName: "\uB300\uAC80"
+    description: 
+    resultItemID: 4001
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 7
+    recipeName: "\uC9C0\uD321\uC774"
+    description: 
+    resultItemID: 3001
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 8
+    recipeName: "\uD65C"
+    description: 
+    resultItemID: 5001
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 2
+    category: 1
     isDebugUnlocked: 0
   ingredients:
   - recipeID: 1
@@ -51,6 +101,27 @@ MonoBehaviour:
     ingredientItemID: 100005
     requiredQuantity: 3
   - recipeID: 3
-    ingredientItemID: 100005
+    ingredientItemID: 200001
     requiredQuantity: 5
+  - recipeID: 2
+    ingredientItemID: 200001
+    requiredQuantity: 3
+  - recipeID: 3
+    ingredientItemID: 100006
+    requiredQuantity: 1
+  - recipeID: 4
+    ingredientItemID: 100003
+    requiredQuantity: 3
+  - recipeID: 5
+    ingredientItemID: 100003
+    requiredQuantity: 3
+  - recipeID: 6
+    ingredientItemID: 100003
+    requiredQuantity: 3
+  - recipeID: 7
+    ingredientItemID: 100003
+    requiredQuantity: 3
+  - recipeID: 8
+    ingredientItemID: 100003
+    requiredQuantity: 3
   unlockConditions: []

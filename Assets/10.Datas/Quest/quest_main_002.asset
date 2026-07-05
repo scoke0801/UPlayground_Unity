@@ -22,8 +22,8 @@ MonoBehaviour:
   requiredStoryProgress: 0
   autoAcceptNextQuestIds: []
   objectives:
-  - objectiveId: 100005
-    description: "\uC2A4\uCF08\uB808\uD1A4\uC744 1\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
+  - objectiveId: Skeleton_Sword
+    description: "\uC2A4\uCF08\uB808\uD1A4 \uAC80\uBCD1\uC744 1\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
     type: 3
     targetId: 100005
     npcId: 0
@@ -31,7 +31,7 @@ MonoBehaviour:
     requiredCount: 1
   reward:
     gold: 0
-    exp: 0
+    exp: 150
     items:
     - itemId: 200001
       count: 5

@@ -31,9 +31,9 @@ MonoBehaviour:
     requiredCount: 3
   reward:
     gold: 0
-    exp: 0
+    exp: 100
     items:
-    - itemId: 2002
-      count: 1
+    - itemId: 200001
+      count: 3
   isRepeatable: 0
   autoComplete: 1

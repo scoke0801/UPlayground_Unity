@@ -16,6 +16,6 @@ MonoBehaviour:
   itemName: "\uAE43\uD138"
   itemDescription: 
   weight: 0.5
-  itemType: 3
+  itemType: 4
   itemRarity: 1
   icon: {fileID: 21300000, guid: d3a8174da3a522e4b8be1081b3eb78b8, type: 3}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
   m_Name: Skeleton_Common
   m_EditorClassIdentifier: 
-  actorId: 100005
+  actorId: Skeleton_Common
   displayName: "\uC2A4\uCF08\uB808\uD1A4"
   description: 
   actorType: 2

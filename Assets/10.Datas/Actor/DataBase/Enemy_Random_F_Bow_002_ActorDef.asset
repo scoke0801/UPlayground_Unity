@@ -28,10 +28,10 @@ MonoBehaviour:
   grade: 0
   level: 5
   attackData: {fileID: 11400000, guid: 8c0b40f19285def46b7b710687c0954b, type: 2}
-  combatDefensePolicy: {fileID: 11400000, guid: 28960edf4610ea44e8ce8df399f1b677, type: 2}
+  combatDefensePolicy: {fileID: 0}
   combatReactionPolicy: {fileID: 0}
   behaviorData: {fileID: 11400000, guid: 95f33d850b4fcc14d8eda279a436776d, type: 2}
   npcData: {fileID: 0}
-  dropTable: {fileID: 0}
+  dropTable: {fileID: 11400000, guid: 50a2bcef61fdca94e8e074915053e510, type: 2}
   recruitableAs: 0
   expReward: 27

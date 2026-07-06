@@ -9,6 +9,8 @@ using UPlayGround;
 using UPlayGround.Component;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Item;
+using UPlayGround.Data.Sound;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
@@ -79,6 +81,7 @@ public class UI_Inventory : UI_Base
     private readonly List<TextMeshProUGUI> _statRows = new List<TextMeshProUGUI>();
     private ItemSO _selectedItemData;
     private int _selectedItemCount;
+    private int _selectedInventorySlotKey = -1;
     private ItemType? _categoryFilter = null;   // null = 전체
     private InventorySortMode _sortMode = InventorySortMode.Default;
 
@@ -130,7 +133,7 @@ public class UI_Inventory : UI_Base
 
         var firstItem = items.FirstOrDefault();
         if (firstItem != null)
-            ShowSelectedItemDetail(firstItem.data, firstItem.count);
+            ShowSelectedItemDetail(firstItem.data, firstItem.count, firstItem.inventorySlotKey);
         else
             ClearSelectedItemDetail();
 
@@ -192,14 +195,14 @@ public class UI_Inventory : UI_Base
     {
         BuildPartySelector();
 
-        // 장비 슬롯 클릭 → 해당 슬롯 해제
+        // 장비 슬롯 클릭 → 채워진 슬롯 해제 / 빈 슬롯에 선택 아이템 장착
         if (_equipmentSlots != null)
         {
             foreach (var slot in _equipmentSlots)
             {
                 if (slot == null) continue;
                 var captured = slot; // 클로저 캡처 안전
-                captured.SetClickHandler(OnClickUnequipSlot);
+                captured.SetClickHandler(OnClickEquipmentSlot);
             }
         }
 
@@ -263,8 +266,6 @@ public class UI_Inventory : UI_Base
         if (_equipmentSlots == null) return;
 
         var inv = InventoryManager.Instance;
-        var itemManager = ItemManager.Instance;
-
         for (int i = 0; i < _equipmentSlots.Length; i++)
         {
             var slot = _equipmentSlots[i];
@@ -276,23 +277,40 @@ public class UI_Inventory : UI_Base
 
             slot.SetLabel(pos.ToDisplayString());
 
-            int itemId = inv != null && _selectedCharacter != CharacterActorType.None
+            int inventorySlotKey = inv != null && _selectedCharacter != CharacterActorType.None
                 ? inv.GetEquippedItem(_selectedCharacter, pos)
                 : -1;
 
-            ItemSO item = itemId >= 0 && itemManager != null
-                ? itemManager.GetItemData(itemId) as ItemSO
+            ItemSO item = inventorySlotKey >= 0
+                ? inv.GetInventoryItemBySlotKey(inventorySlotKey)?.data
                 : null;
             slot.SetItem(item);
         }
     }
 
-    private void OnClickUnequipSlot(EquipPosition slot)
+    // 장비 슬롯 클릭: 채워진 슬롯이면 해제, 빈 슬롯이면 현재 선택한 아이템을 그 슬롯에 장착 시도.
+    // (쌍검 캐릭터가 검을 주/보조 손에 각각 지정 장착하는 경로)
+    private void OnClickEquipmentSlot(EquipPosition slot)
     {
         if (_selectedCharacter == CharacterActorType.None)
             return;
 
-        InventoryManager.Instance.TryUnequipItem(_selectedCharacter, slot);
+        var inv = InventoryManager.Instance;
+        if (inv == null)
+            return;
+
+        // 채워진 슬롯 → 해제
+        if (inv.GetEquippedItem(_selectedCharacter, slot) >= 0)
+        {
+            inv.TryUnequipItem(_selectedCharacter, slot);
+            return;
+        }
+
+        // 빈 슬롯 → 선택한 아이템을 이 슬롯에 지정 장착 (호환 불가 시 내부에서 거부됨)
+        if (_selectedItemData == null || _selectedItemCount <= 0)
+            return;
+
+        inv.TryEquipInventorySlot(_selectedCharacter, _selectedInventorySlotKey, slot);
         // 레지스트리 변경은 OnPartyEquipmentChanged로 UI 일괄 갱신됨
     }
 
@@ -332,7 +350,7 @@ public class UI_Inventory : UI_Base
             {
                 AddSlot(1);
             }
-            _uiSlots[value++].Init(inst.data, inst.count, inst.enhancementLevel);
+            _uiSlots[value++].Init(inst.data, inst.count, inst.enhancementLevel, inst.inventorySlotKey);
         }
 
         for (int i = value; i < _uiSlots.Count; i++)
@@ -438,16 +456,22 @@ public class UI_Inventory : UI_Base
             for (int i = 0; i < items.Count; i++)
             {
                 var inst = items[i];
-                if (inst?.data == null || inst.data.itemId != _selectedItemData.itemId)
+                if (inst?.data == null)
                     continue;
 
-                ShowSelectedItemDetail(inst.data, inst.count);
+                if (_selectedInventorySlotKey >= 0 && inst.inventorySlotKey != _selectedInventorySlotKey)
+                    continue;
+
+                if (_selectedInventorySlotKey < 0 && inst.data.itemId != _selectedItemData.itemId)
+                    continue;
+
+                ShowSelectedItemDetail(inst.data, inst.count, inst.inventorySlotKey);
                 return;
             }
         }
 
         var first = items[0];
-        ShowSelectedItemDetail(first.data, first.count);
+        ShowSelectedItemDetail(first.data, first.count, first.inventorySlotKey);
     }
 
     private void AddSlot(int count)
@@ -463,7 +487,7 @@ public class UI_Inventory : UI_Base
         }
     }
 
-    public void ShowSelectedItemDetail(ItemSO itemData, int count)
+    public void ShowSelectedItemDetail(ItemSO itemData, int count, int inventorySlotKey = -1)
     {
         if (itemData == null)
         {
@@ -473,10 +497,13 @@ public class UI_Inventory : UI_Base
 
         _selectedItemData = itemData;
         _selectedItemCount = count;
+        _selectedInventorySlotKey = inventorySlotKey;
 
         // 강화 레벨 조회 (장비 인스턴스에서)
         int enhance = 0;
-        if (InventoryManager.Instance.ItemDict.TryGetValue(itemData.itemId, out var inst))
+        var inst = InventoryManager.Instance.GetInventoryItemBySlotKey(inventorySlotKey) ??
+                   InventoryManager.Instance.GetItem(itemData.itemId);
+        if (inst != null)
             enhance = inst.enhancementLevel;
 
         var equip = itemData as EquipmentSO;
@@ -510,11 +537,19 @@ public class UI_Inventory : UI_Base
                 _selectedEquipSlotText.text = equip.equipSlot.ToDisplayString(equip.weaponType);
         }
 
-        // 능력치 (장비만)
-        if (_statPanel != null) _statPanel.SetActive(isEquip);
+        // 능력치 (장비) / 회복량 (소비)
         if (isEquip)
         {
             RefreshSelectedEquipmentStats(equip);
+        }
+        else if (itemData is ConsumableSO consumable)
+        {
+            RefreshSelectedConsumableStats(consumable);
+        }
+        else
+        {
+            if (_statPanel != null) _statPanel.SetActive(false);
+            ClearSelectedEquipmentStats();
         }
 
         RefreshActionButtons();
@@ -524,6 +559,7 @@ public class UI_Inventory : UI_Base
     {
         _selectedItemData = null;
         _selectedItemCount = 0;
+        _selectedInventorySlotKey = -1;
 
         _selectedItemImage.sprite = null;
         _selectedItemImage.enabled = false;
@@ -563,6 +599,44 @@ public class UI_Inventory : UI_Base
             row.text = active
                 ? StatDisplayFormatter.FormatModifier(modifiers[i])
                 : string.Empty;
+        }
+    }
+
+    private void RefreshSelectedConsumableStats(ConsumableSO consumable)
+    {
+        string healText = BuildConsumableHealText(consumable);
+        bool hasInfo = !string.IsNullOrEmpty(healText);
+
+        if (_statPanel != null)
+            _statPanel.SetActive(hasInfo);
+
+        EnsureStatRows(hasInfo ? 1 : 0);
+
+        for (int i = 0; i < _statRows.Count; i++)
+        {
+            TextMeshProUGUI row = _statRows[i];
+            if (row == null)
+                continue;
+
+            bool active = hasInfo && i == 0;
+            SetStatRowActive(row, active);
+            row.text = active ? healText : string.Empty;
+        }
+    }
+
+    private static string BuildConsumableHealText(ConsumableSO consumable)
+    {
+        if (consumable == null || consumable.amount <= 0f)
+            return string.Empty;
+
+        switch (consumable.effectType)
+        {
+            case ConsumableEffectType.HealFlat:
+                return $"체력 회복 +{consumable.amount:0.#}";
+            case ConsumableEffectType.HealPercent:
+                return $"체력 회복 +{consumable.amount * 100f:0.#}%";
+            default:
+                return string.Empty;
         }
     }
 
@@ -707,7 +781,13 @@ public class UI_Inventory : UI_Base
             return UICommonButtonClickResult.Failed;
         }
 
+        bool isConsumable = _selectedItemData is ConsumableSO;
         InventoryActionResult result = InventoryManager.Instance.TryUseItem(_selectedItemData.itemId);
+
+        // 소모품 사용이 실제로 성공(회복 발생)했을 때 회복 사운드 재생
+        if (result == InventoryActionResult.Success && isConsumable)
+            SoundManager.Instance?.PlayUi(GameSoundKey.Heal);
+
         return RefreshAfterAction(result);
     }
 
@@ -720,7 +800,9 @@ public class UI_Inventory : UI_Base
             return UICommonButtonClickResult.Failed;
         }
 
-        InventoryActionResult result = InventoryManager.Instance.TryEquipItem(_selectedCharacter, _selectedItemData.itemId);
+        InventoryActionResult result = _selectedInventorySlotKey >= 0
+            ? InventoryManager.Instance.TryEquipInventorySlot(_selectedCharacter, _selectedInventorySlotKey)
+            : InventoryManager.Instance.TryEquipItem(_selectedCharacter, _selectedItemData.itemId);
         return RefreshAfterAction(result);
     }
 

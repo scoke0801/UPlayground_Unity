@@ -7,7 +7,9 @@ using UPlayGround.Component;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UPlayGround.UI.DevCheat;
+#endif
 using UPlayGround.UI.InputPrompt;
 
 class UI_GamePlay : UI_Base
@@ -106,8 +108,10 @@ class UI_GamePlay : UI_Base
         inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
             null, OnPerformedMenuPanel, null, null, null, InputLayer.Level_0);
         
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel,
             null, OnPerformedCheatPanel, null, null, null, InputLayer.Level_0);
+#endif
     }
 
     protected override void UnRegisterInputEvents()
@@ -120,7 +124,9 @@ class UI_GamePlay : UI_Base
         inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap, null);
         inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
         inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel, null, OnPerformedMenuPanel, null);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel, null, OnPerformedCheatPanel, null);
+#endif
     }
 
     #endregion
@@ -174,6 +180,7 @@ class UI_GamePlay : UI_Base
         OnClickedMenuButton();
     }
     
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     private void OnPerformedCheatPanel(InputAction.CallbackContext obj)
     {
         var mgr = UIManager.Instance;
@@ -186,6 +193,7 @@ class UI_GamePlay : UI_Base
         else
             mgr.ShowUI("DevCheatPanel");
     }
+#endif
     
     private void OnClickedMenuButton()
     {

@@ -1,4 +1,5 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Combat;
 
@@ -24,6 +25,9 @@ namespace UPlayGround.Debugging
         public static Color LineColor { get; set; } = new(1f, 0.25f, 0.1f, 0.9f);
 
         private static HitboxRuntimeDebugRenderer s_instance;
+
+        // 레지스트리를 순회하며 그리는 동안 만료 히트박스를 제거해도 안전하도록 매 프레임 복사해 두는 버퍼.
+        private static readonly List<CombatHitbox> s_drawBuffer = new(64);
 
         private Material _lineMaterial;
 
@@ -62,26 +66,113 @@ namespace UPlayGround.Debugging
 
             EnsureMaterial();
 
+            // 그리는 도중 TryReleaseInactiveDebug 로 레지스트리를 수정해도 안전하도록 스냅샷을 뜬다.
+            s_drawBuffer.Clear();
+            foreach (var hitbox in CombatHitbox.Active)
+                s_drawBuffer.Add(hitbox);
+
             _lineMaterial.SetPass(0);
             GL.PushMatrix();
             GL.Begin(GL.LINES);
-            GL.Color(LineColor);
 
-            foreach (var hitbox in CombatHitbox.Active)
+            for (int i = 0; i < s_drawBuffer.Count; i++)
             {
-                if (hitbox == null)
-                    continue;
-                if (!hitbox.TryGetWorldShape(out CombatHitboxShape shape))
-                    continue;
-
-                if (shape.Type == CombatHitboxShapeType.Box)
-                    DrawBox(shape);
-                else
-                    DrawCapsule(shape);
+                CombatHitbox hitbox = s_drawBuffer[i];
+                if (hitbox != null)
+                    DrawHitbox(hitbox);
             }
 
             GL.End();
             GL.PopMatrix();
+
+            // 판정이 끝났고 잔상도 만료된 히트박스를 레지스트리에서 정리한다(다음 프레임부터 순회 제외).
+            for (int i = 0; i < s_drawBuffer.Count; i++)
+                s_drawBuffer[i]?.TryReleaseInactiveDebug();
+            s_drawBuffer.Clear();
+        }
+
+        // 에디터 CombatHitbox.OnDrawGizmos 와 동일한 구성으로 그린다:
+        // (1) 시간에 따라 페이드되는 스윙 트레일(잔상 호), (2) 현재 판정 형상(감지 스윕 샘플 또는 현재 형상).
+        private static void DrawHitbox(CombatHitbox hitbox)
+        {
+            DrawSwingTrail(hitbox);
+
+            var detectionSamples = hitbox.LastDetectionSamples;
+            if (detectionSamples != null && detectionSamples.Count > 0)
+            {
+                GL.Color(LineColor);
+                CombatHitboxShape? previous = null;
+                for (int i = 0; i < detectionSamples.Count; i++)
+                {
+                    CombatHitboxShape sample = detectionSamples[i];
+                    DrawShape(sample);
+
+                    if (previous.HasValue)
+                        Line(previous.Value.Center, sample.Center);
+                    previous = sample;
+                }
+                return;
+            }
+
+            // 감지 샘플이 아직 없는 활성 프레임에서만 현재 형상을 그린다. 판정이 끝난 뒤에는 잔상 트레일만 남긴다.
+            if (hitbox.IsSampling && hitbox.TryGetWorldShape(out CombatHitboxShape current))
+            {
+                GL.Color(LineColor);
+                DrawShape(current);
+            }
+        }
+
+        // 에디터 OnDrawGizmos 의 스윙 트레일 로직을 그대로 옮긴다: 수명에 따라 알파 페이드, 연속 샘플 중심 연결,
+        // 체인(채찍) 리더는 '첫 노드→끝 노드' 직선 + 말단 궤적만 그려 경량 유지.
+        private static void DrawSwingTrail(CombatHitbox hitbox)
+        {
+            if (!hitbox.WantsSwingTrail)
+                return;
+
+            hitbox.PruneSwingTrailForDebug();
+            int count = hitbox.SwingTrailSampleCount;
+            if (count == 0)
+                return;
+
+            float now = Time.time;
+            float duration = hitbox.SwingTrailDuration;
+            bool chain = hitbox.IsChainTrail;
+            Color baseColor = hitbox.SwingTrailColor;
+
+            CombatHitboxShape? previous = null;
+            for (int i = 0; i < count; i++)
+            {
+                hitbox.GetSwingTrailSample(i, out CombatHitboxShape shape, out float time);
+                float life = Mathf.Clamp01(1f - (now - time) / duration);
+                if (life <= 0f)
+                    continue;
+
+                Color color = baseColor;
+                color.a *= life;
+                GL.Color(color);
+
+                if (chain)
+                {
+                    Line(shape.Point0, shape.Point1);
+                    if (previous.HasValue)
+                        Line(previous.Value.Point1, shape.Point1);
+                }
+                else
+                {
+                    DrawShape(shape);
+                    if (previous.HasValue)
+                        Line(previous.Value.Center, shape.Center);
+                }
+                previous = shape;
+            }
+        }
+
+        private static void DrawShape(in CombatHitboxShape shape)
+        {
+            if (shape.Type == CombatHitboxShapeType.Box)
+                DrawBox(shape);
+            else
+                DrawCapsule(shape);
         }
 
         private static void DrawBox(in CombatHitboxShape shape)
@@ -108,35 +199,45 @@ namespace UPlayGround.Debugging
         private static Vector3 ToWorld(in CombatHitboxShape shape, Vector3 local)
             => shape.Center + shape.Rotation * local;
 
-        // CombatHitbox.DrawCapsuleLineOutline 과 동일한 경량 윤곽(축 + 양옆 레일 + 양끝 캡).
+        // 와이어 스피어의 원을 근사하는 세그먼트 수. 에디터 Gizmos.DrawWireSphere 와 비슷한 해상도.
+        private const int CircleSegments = 24;
+
+        // 에디터 기즈모(CombatHitbox.DrawShapeWire)와 동일한 구조로 그린다:
+        // 양 끝점의 와이어 스피어 + 양옆 레일 2줄. GL 즉시모드라 DrawWireSphere 대신 원을 직접 근사한다.
         private static void DrawCapsule(in CombatHitboxShape shape)
         {
-            Vector3 axis = shape.Point1 - shape.Point0;
-            Vector3 perp = axis.sqrMagnitude > 0.0001f
-                ? Vector3.Cross(axis, Vector3.up)
+            DrawWireSphere(shape.Point0, shape.Radius);
+            DrawWireSphere(shape.Point1, shape.Radius);
+
+            Vector3 radial = shape.Point1 - shape.Point0;
+            radial = radial.sqrMagnitude > 0.0001f
+                ? Vector3.Cross(radial, Vector3.up).normalized
                 : Vector3.right;
-            if (perp.sqrMagnitude < 0.0001f)
-                perp = Vector3.right;
-            perp = perp.normalized * shape.Radius;
+            Line(shape.Point0 + radial * shape.Radius, shape.Point1 + radial * shape.Radius);
+            Line(shape.Point0 - radial * shape.Radius, shape.Point1 - radial * shape.Radius);
+        }
 
-            Vector3 perp2 = axis.sqrMagnitude > 0.0001f
-                ? Vector3.Cross(axis, perp).normalized * shape.Radius
-                : Vector3.forward * shape.Radius;
+        // Gizmos.DrawWireSphere 와 동일하게 월드 축에 정렬된 3개 원(XY/YZ/XZ 평면)으로 스피어 윤곽을 근사한다.
+        private static void DrawWireSphere(Vector3 center, float radius)
+        {
+            if (radius <= 0f)
+                return;
 
-            Line(shape.Point0, shape.Point1);
-            Line(shape.Point0 + perp, shape.Point1 + perp);
-            Line(shape.Point0 - perp, shape.Point1 - perp);
-            Line(shape.Point0 + perp2, shape.Point1 + perp2);
-            Line(shape.Point0 - perp2, shape.Point1 - perp2);
-            // 양끝 캡(사각 링)
-            Line(shape.Point0 + perp, shape.Point0 + perp2);
-            Line(shape.Point0 + perp2, shape.Point0 - perp);
-            Line(shape.Point0 - perp, shape.Point0 - perp2);
-            Line(shape.Point0 - perp2, shape.Point0 + perp);
-            Line(shape.Point1 + perp, shape.Point1 + perp2);
-            Line(shape.Point1 + perp2, shape.Point1 - perp);
-            Line(shape.Point1 - perp, shape.Point1 - perp2);
-            Line(shape.Point1 - perp2, shape.Point1 + perp);
+            DrawCircle(center, Vector3.right, Vector3.up, radius);
+            DrawCircle(center, Vector3.up, Vector3.forward, radius);
+            DrawCircle(center, Vector3.right, Vector3.forward, radius);
+        }
+
+        private static void DrawCircle(Vector3 center, Vector3 u, Vector3 v, float radius)
+        {
+            Vector3 previous = center + u * radius;
+            for (int i = 1; i <= CircleSegments; i++)
+            {
+                float angle = (i / (float)CircleSegments) * Mathf.PI * 2f;
+                Vector3 point = center + (u * Mathf.Cos(angle) + v * Mathf.Sin(angle)) * radius;
+                Line(previous, point);
+                previous = point;
+            }
         }
 
         private static void Line(Vector3 a, Vector3 b)

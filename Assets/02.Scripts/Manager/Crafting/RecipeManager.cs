@@ -234,7 +234,8 @@ namespace UPlayGround.Manager
             var recipe = _db.GetRecipe(recipeID);
             _craftingRecipeID  = recipeID;
             _craftingQuantity  = quantity;
-            _totalCastTime     = recipe.castTimeSeconds * quantity;
+            // 제작 시간은 수량과 무관하게 레시피 기준 시간만 소모한다 (1개든 여러 개든 동일).
+            _totalCastTime     = recipe.castTimeSeconds;
             _castTimeRemaining = _totalCastTime;
             _craftingProgress  = 0f;
 
@@ -321,15 +322,17 @@ namespace UPlayGround.Manager
             // 제작 완료로 새로운 레시피가 언락될 수 있음
             CheckUnlockConditions();
 
-            QuestManager.Instance?.NotifyItemCrafted(recipeID, quantity);
-            OnCraftingCompleted?.Invoke(recipeID, totalYield);
-            Debug.Log($"[RecipeManager] 제작 완료: {recipe.recipeName} x{totalYield}");
-
+            // 완료 이벤트 발행 전에 제작 상태를 먼저 해제한다.
+            // (IsCrafting()이 false여야 UI가 버튼 텍스트를 "취소"→"제작"으로 복원한다.)
             _craftingRecipeID  = -1;
             _craftingQuantity  = 1;
             _craftingProgress  = 0f;
             _castTimeRemaining = 0f;
             _totalCastTime     = 0f;
+
+            QuestManager.Instance?.NotifyItemCrafted(recipeID, quantity);
+            OnCraftingCompleted?.Invoke(recipeID, totalYield);
+            Debug.Log($"[RecipeManager] 제작 완료: {recipe.recipeName} x{totalYield}");
         }
 
         #endregion

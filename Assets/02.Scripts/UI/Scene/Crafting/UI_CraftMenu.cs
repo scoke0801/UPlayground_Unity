@@ -108,6 +108,9 @@ public class UI_CraftMenu : UI_Base
         RecipeManager.Instance.OnCraftingCompleted += OnCraftingCompleted;
         RecipeManager.Instance.OnCraftingCancelled += OnCraftingCancelled;
 
+        // 인벤토리 수량 변동(제작 차감, 외부 아이템 획득 등)을 실시간으로 반영
+        InventoryManager.Instance.OnInventoryChanged += OnInventoryChanged;
+
         SetProgress(0f);
         _txtCraftStatus.text       = string.Empty;
         _selectedRecipeID          = -1;
@@ -134,6 +137,9 @@ public class UI_CraftMenu : UI_Base
         RecipeManager.Instance.OnCraftingStarted   -= OnCraftingStarted;
         RecipeManager.Instance.OnCraftingCompleted -= OnCraftingCompleted;
         RecipeManager.Instance.OnCraftingCancelled -= OnCraftingCancelled;
+
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnInventoryChanged -= OnInventoryChanged;
     }
 
     protected override void OnDispose()
@@ -151,6 +157,9 @@ public class UI_CraftMenu : UI_Base
             RecipeManager.Instance.OnCraftingCompleted -= OnCraftingCompleted;
             RecipeManager.Instance.OnCraftingCancelled -= OnCraftingCancelled;
         }
+
+        if (InventoryManager.Instance != null)
+            InventoryManager.Instance.OnInventoryChanged -= OnInventoryChanged;
     }
 
     public override bool PerformBackFunction()
@@ -440,6 +449,17 @@ public class UI_CraftMenu : UI_Base
     private void OnRecipeUnlocked(int recipeID)
     {
         RefreshRecipeList();
+    }
+
+    /// <summary>
+    /// 인벤토리 수량이 바뀔 때(제작 재료 차감, 외부 아이템 획득/소모 등) 호출된다.
+    /// 목록 재생성 없이 좌측 제작 가능 여부·우측 재료 카운트·제작 버튼만 갱신한다.
+    /// </summary>
+    private void OnInventoryChanged()
+    {
+        RefreshAllSlotCraftability();
+        RefreshIngredientCounts();
+        RefreshCraftButton();
     }
 
     private void OnCraftingStarted(int recipeID)

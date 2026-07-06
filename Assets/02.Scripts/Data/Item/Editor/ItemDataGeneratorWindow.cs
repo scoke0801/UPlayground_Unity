@@ -63,6 +63,9 @@ public class ItemDataGeneratorWindow : EditorWindow
     private float _weight;
     private Sprite _icon;
     private GameObject _equipmentPrefab;
+    private ConsumableEffectType _consumableEffect = ConsumableEffectType.HealFlat;
+    private float _consumableAmount;
+    private bool _requireEffectiveUse = true;
     private bool _refreshDatabase = true;
     private bool _generateItemEnum = true;
     private bool _selectCreatedAsset = true;
@@ -206,6 +209,14 @@ public class ItemDataGeneratorWindow : EditorWindow
         if (_itemType == ItemType.EQUIPMENT)
             _equipmentPrefab = (GameObject)EditorGUILayout.ObjectField("장비 프리팹", _equipmentPrefab, typeof(GameObject), false);
 
+        if (_itemType == ItemType.CONSUMABLE)
+        {
+            _consumableEffect = (ConsumableEffectType)EditorGUILayout.EnumPopup("효과 타입", _consumableEffect);
+            string amountLabel = _consumableEffect == ConsumableEffectType.HealPercent ? "회복 비율 (0~1)" : "회복량";
+            _consumableAmount = Mathf.Max(0f, EditorGUILayout.FloatField(amountLabel, _consumableAmount));
+            _requireEffectiveUse = EditorGUILayout.Toggle("효과 없으면 소모 안 함", _requireEffectiveUse);
+        }
+
         EditorGUILayout.EndVertical();
     }
 
@@ -219,7 +230,10 @@ public class ItemDataGeneratorWindow : EditorWindow
         EditorGUILayout.LabelField("ID 대역", range.ToString());
         EditorGUILayout.LabelField("발급 ID", _previewID > 0 ? _previewID.ToString() : "발급 가능 ID 없음");
         EditorGUILayout.LabelField("저장 경로", range.SavePath);
-        EditorGUILayout.LabelField("SO 타입", _itemType == ItemType.EQUIPMENT ? nameof(EquipmentSO) : nameof(ItemSO));
+        EditorGUILayout.LabelField("SO 타입",
+            _itemType == ItemType.EQUIPMENT ? nameof(EquipmentSO)
+            : _itemType == ItemType.CONSUMABLE ? nameof(ConsumableSO)
+            : nameof(ItemSO));
         EditorGUILayout.LabelField("최종 파일명", BuildAssetFileName(range));
 
         if (_duplicateIDs.Count > 0)
@@ -322,7 +336,9 @@ public class ItemDataGeneratorWindow : EditorWindow
         string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{range.SavePath}/{BuildAssetFileName(range)}.asset");
         ItemSO item = _itemType == ItemType.EQUIPMENT
             ? ScriptableObject.CreateInstance<EquipmentSO>()
-            : ScriptableObject.CreateInstance<ItemSO>();
+            : _itemType == ItemType.CONSUMABLE
+                ? ScriptableObject.CreateInstance<ConsumableSO>()
+                : ScriptableObject.CreateInstance<ItemSO>();
 
         item.itemId = _previewID;
         item.itemName = _itemName;
@@ -337,6 +353,13 @@ public class ItemDataGeneratorWindow : EditorWindow
             equipment.equipSlot = _equipPosition;
             equipment.weaponType = _weaponType;
             equipment.equipmentPrefab = _equipmentPrefab;
+        }
+
+        if (item is ConsumableSO consumable)
+        {
+            consumable.effectType = _consumableEffect;
+            consumable.amount = _consumableAmount;
+            consumable.requireEffectiveUse = _requireEffectiveUse;
         }
 
         AssetDatabase.CreateAsset(item, assetPath);

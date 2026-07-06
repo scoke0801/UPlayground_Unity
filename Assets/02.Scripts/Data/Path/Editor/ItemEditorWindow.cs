@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 
 /// <summary>
@@ -438,6 +439,33 @@ public class ItemEditorWindow : EditorWindow
                 DrawProperty("equipSlot",        "장비 슬롯");
                 DrawProperty("weaponType",       "무기 타입");
                 DrawProperty("equipmentPrefab",  "장비 프리팹");
+            });
+
+            EditorGUILayout.Space(4);
+            DrawSection("장비 능력치", () =>
+            {
+                DrawProperty("_statModifiers", "능력치 수정자");
+                EditorGUILayout.Space(2);
+                GUILayout.Label("레거시 능력치 (수정자 목록이 비어있을 때만 적용)", EditorStyles.miniLabel);
+                DrawProperty("attackPower",  "공격력");
+                DrawProperty("critChance",   "치명타 확률 (%)");
+                DrawProperty("critDamage",   "치명타 피해 (%)");
+                DrawProperty("attackSpeed",  "공격 속도");
+            });
+        }
+
+        // ── 소비 데이터 ───────────────────────────────────────
+        if (item is ConsumableSO)
+        {
+            EditorGUILayout.Space(4);
+            DrawSection("소비 데이터", () =>
+            {
+                DrawProperty("effectType",          "효과 타입");
+                var effectProp = _serializedItem.FindProperty("effectType");
+                bool isPercent = effectProp != null &&
+                    effectProp.enumValueIndex == (int)ConsumableEffectType.HealPercent;
+                DrawProperty("amount", isPercent ? "회복 비율 (0~1)" : "회복 수치");
+                DrawProperty("requireEffectiveUse", "효과 없으면 소모 안 함");
             });
         }
 

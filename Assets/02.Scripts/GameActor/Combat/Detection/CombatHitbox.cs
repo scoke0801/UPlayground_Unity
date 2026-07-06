@@ -69,9 +69,68 @@ namespace UPlayGround.Combat
         // 개발 빌드 전용 런타임 히트박스 렌더러(HitboxRuntimeDebugRenderer)가 순회하는 판정 활성 레지스트리.
         // 릴리스 빌드에서는 아래 등록/해제 코드가 전부 스트립되어 0비용이 된다.
         private static readonly HashSet<CombatHitbox> s_active = new();
-        public static IReadOnlyCollection<CombatHitbox> Active => s_active;
+        private readonly List<CombatHitboxShape> _lastDetectionSamples = new(32);
 
-        private void OnDisable() => s_active.Remove(this);
+        public static IReadOnlyCollection<CombatHitbox> Active => s_active;
+        public IReadOnlyList<CombatHitboxShape> LastDetectionSamples => _lastDetectionSamples;
+
+        // 현재 판정 윈도우가 진행 중인지. 렌더러는 이 값이 참일 때만 현재 형상을 실시간으로 그린다.
+        public bool IsSampling { get; private set; }
+
+        // 스윙 트레일(잔상)을 런타임 렌더러가 에디터 기즈모와 동일하게 그릴 수 있도록 노출한다.
+        public bool WantsSwingTrail => _drawSwingTrail && _swingTrailDuration > 0f && _swingTrail.Count > 0;
+        public bool IsChainTrail => _chainTrailEndpoint != null;
+        public Color SwingTrailColor => _swingTrailColor;
+        public float SwingTrailDuration => _swingTrailDuration;
+        public int SwingTrailSampleCount => _swingTrail.Count;
+
+        public void GetSwingTrailSample(int index, out CombatHitboxShape shape, out float time)
+        {
+            TrailSample sample = _swingTrail[index];
+            shape = sample.Shape;
+            time = sample.Time;
+        }
+
+        // 렌더러가 매 프레임 호출해 만료된 트레일 샘플을 제거한다. 남은 샘플이 있으면 true.
+        public bool PruneSwingTrailForDebug()
+        {
+            if (_swingTrailDuration > 0f)
+                PruneTrail(Time.time);
+            return _swingTrail.Count > 0;
+        }
+
+        // 판정이 끝났고(!IsSampling) 잔상 트레일도 만료됐으면 레지스트리에서 스스로 제거한다. 제거 시 true.
+        // 렌더러가 프레임 끝에서 호출하며, 그동안은 잔상을 계속 그릴 수 있도록 s_active에 남는다.
+        public bool TryReleaseInactiveDebug()
+        {
+            if (IsSampling)
+                return false;
+            if (_drawSwingTrail && _swingTrailDuration > 0f)
+            {
+                PruneTrail(Time.time);
+                if (_swingTrail.Count > 0)
+                    return false;
+            }
+            s_active.Remove(this);
+            return true;
+        }
+
+        public void BeginDebugDetectionSamples()
+        {
+            _lastDetectionSamples.Clear();
+        }
+
+        public void AddDebugDetectionSample(in CombatHitboxShape shape)
+        {
+            _lastDetectionSamples.Add(shape);
+        }
+
+        private void OnDisable()
+        {
+            s_active.Remove(this);
+            _lastDetectionSamples.Clear();
+            IsSampling = false;
+        }
 #endif
 
         private void Reset()
@@ -112,6 +171,7 @@ namespace UPlayGround.Combat
             _hasPreviousShape = TryGetWorldShape(out _previousShape);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             s_active.Add(this);
+            IsSampling = true;
 #endif
             if (_hasPreviousShape)
                 RecordTrail(_previousShape);
@@ -128,7 +188,12 @@ namespace UPlayGround.Combat
         {
             _hasPreviousShape = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            s_active.Remove(this);
+            IsSampling = false;
+            _lastDetectionSamples.Clear();
+            // 스윙 트레일이 남아 있으면 렌더러가 잔상을 계속 그리도록 레지스트리에 유지한다(만료 시 렌더러가 정리).
+            // 트레일이 없으면 즉시 제거해 종전과 동일하게 동작한다.
+            if (!WantsSwingTrail)
+                s_active.Remove(this);
 #endif
         }
 
@@ -301,13 +366,42 @@ namespace UPlayGround.Combat
         private void OnDrawGizmos()
         {
             bool wantTrail = _drawSwingTrail && _swingTrailDuration > 0f && _swingTrail.Count > 0;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            bool wantDetectionSamples = _lastDetectionSamples.Count > 0;
+            if (!wantDetectionSamples && !wantTrail && !_drawStaticShape)
+                return;
+#else
             if (!wantTrail && !_drawStaticShape)
                 return;
+#endif
 
             if (!DebugGizmoManager.IsLocalContentEnabled(
                     DebugGizmoCategory.Combat,
                     DebugGizmoContentType.HitboxSwingTrail))
                 return;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // 실제 충돌 판정은 이전 프레임 형상과 현재 형상 사이를 sweep 샘플로 보간해 Overlap한다.
+            // 에디터 기즈모도 현재 무기 콜라이더가 아니라 방금 판정에 사용한 샘플들을 우선 표시한다.
+            if (wantDetectionSamples)
+            {
+                CombatHitboxShape? previous = null;
+                Gizmos.color = _swingTrailColor;
+                for (int i = 0; i < _lastDetectionSamples.Count; i++)
+                {
+                    CombatHitboxShape sample = _lastDetectionSamples[i];
+                    DrawShapeWire(sample, _swingTrailColor);
+
+                    if (previous.HasValue)
+                    {
+                        Gizmos.color = _swingTrailColor;
+                        Gizmos.DrawLine(previous.Value.Center, sample.Center);
+                    }
+                    previous = sample;
+                }
+                return;
+            }
+#endif
 
             // 상시 형상: 누적 없이 현재 형상만 1회 그린다. 매 프레임 그려지므로 비용이 중요하다.
             // 캡슐은 와이어 스피어(호출당 메시 생성, 무거움) 대신 선 윤곽으로만 그린다 → 세그먼트가 많은

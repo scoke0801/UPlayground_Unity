@@ -31,6 +31,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
     private ItemSO _itemData = null;
     private int _itemCount = 0;
     private int _enhanceLevel = 0;
+    private int _inventorySlotKey = -1;
 
     private UI_Inventory _parent;
 
@@ -47,11 +48,12 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
         SetFocus(false);
     }
 
-    public void Init(ItemSO itemData, int count, int enhanceLevel = 0)
+    public void Init(ItemSO itemData, int count, int enhanceLevel = 0, int inventorySlotKey = -1)
     {
         _itemData = itemData;
         _itemCount = count;
         _enhanceLevel = enhanceLevel;
+        _inventorySlotKey = inventorySlotKey;
     }
 
     public void Clear()
@@ -80,7 +82,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
             _imgRarity.color = _itemData.itemRarity.ToColor();
             _imgItem.sprite = _itemData.icon;
             _txtCount.text = _itemCount.ToString();
-            _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemData.itemId):0.0}";
+            _txtWeight.text = $"{_itemData.weight * _itemCount:0.0}";
 
             if (_txtEnhance != null)
                 _txtEnhance.text = _enhanceLevel > 0 ? $"+{_enhanceLevel}" : string.Empty;
@@ -106,7 +108,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
             return;
 
         if (_itemData != null)
-            _parent.ShowSelectedItemDetail(_itemData, _itemCount);
+            _parent.ShowSelectedItemDetail(_itemData, _itemCount, _inventorySlotKey);
         else
             _parent.ClearSelectedItemDetail();
     }
@@ -118,7 +120,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
         SetFocus(true);
 
         if (_itemData != null)
-            _parent?.ShowSelectedItemDetail(_itemData, _itemCount);
+            _parent?.ShowSelectedItemDetail(_itemData, _itemCount, _inventorySlotKey);
         else
             _parent?.ClearSelectedItemDetail();
     }
@@ -135,7 +137,7 @@ public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExi
         if (_equippedBadge == null && _equippedPortrait == null && _equippedBadgeText == null)
             return;
 
-        var equippers = InventoryManager.Instance?.GetEquippingCharacters(_itemData.itemId);
+        var equippers = InventoryManager.Instance?.GetEquippingCharacters(_inventorySlotKey);
         bool anyEquipped = equippers != null && equippers.Count > 0;
 
         if (_equippedBadge != null)

@@ -348,12 +348,12 @@ namespace UPlayGround.UI.Party.EditorTools
             AddImage(detail, PanelBg, UISprite, sliced: true);
             SetWidth(detail, 530);
             comp = detail.AddComponent<UI_PartyDetailPanel>();
-            var detailLayout = AddHLG(detail, spacing: 12, pad: 12);
+            var detailLayout = AddVLG(detail, spacing: 10, pad: 12);
             detailLayout.childAlignment = TextAnchor.UpperLeft;
 
-            // 좌측: 캐릭터 프리뷰
+            // 상단: 캐릭터 프리뷰
             var preview = NewUI("Preview", detail.transform);
-            AddFlexibleW(preview, 1f);
+            SetHeight(preview, 390);
             AddImage(preview, FieldBg, UISprite, sliced: true);
             var portraitGo = NewUI("Portrait", preview.transform);
             StretchInset(portraitGo, 28, 18, 28, 18);
@@ -364,10 +364,13 @@ namespace UPlayGround.UI.Party.EditorTools
             var portrait = AddImage(portraitImageGo, Color.white);
             portrait.preserveAspect = true;
 
-            // 우측: 선택 캐릭터 정보
-            var inspector = NewUI("Inspector", detail.transform);
-            SetWidth(inspector, 260);
-            AddVLG(inspector, spacing: 7, pad: 0).childForceExpandHeight = false;
+            // 하단: 선택 캐릭터 정보. 내용이 늘어나도 상세 패널 밖으로 그려지지 않도록 마스크된 스크롤 영역으로 둔다.
+            var inspectorScroll = NewUI("InspectorScroll", detail.transform);
+            AddFlexible(inspectorScroll, 1f);
+            var inspector = BuildVerticalScroll(inspectorScroll);
+            var inspectorLayout = inspector.GetComponent<VerticalLayoutGroup>();
+            inspectorLayout.spacing = 7;
+            inspectorLayout.padding = new RectOffset(0, 0, 0, 0);
 
             var info = NewUI("Info", inspector.transform);
             AddImage(info, FieldBg, UISprite, sliced: true);
@@ -413,15 +416,17 @@ namespace UPlayGround.UI.Party.EditorTools
             AddText(NewUI("SkillTitle", inspector.transform), "스킬", 20, TextMain, TextAlignmentOptions.Left);
             var skillRow = NewUI("Skills", inspector.transform);
             SetHeight(skillRow, 64);
-            AddHLG(skillRow, spacing: 8, pad: 0).childForceExpandWidth = false;
+            var skillLayout = AddHLG(skillRow, spacing: 8, pad: 0);
+            skillLayout.childForceExpandWidth = false;
+            skillLayout.childAlignment = TextAnchor.MiddleLeft;
             for (int i = 0; i < 4; i++)
             {
                 var sk = NewUI($"Skill{i + 1}", skillRow.transform);
-                SetWidth(sk, 56);
+                SetWidth(sk, 54);
                 AddImage(sk, SlotBg, UISprite, sliced: true);
             }
             var ultGo = NewUI("Ultimate", skillRow.transform);
-            SetWidth(ultGo, 64);
+            SetWidth(ultGo, 62);
             AddImage(ultGo, Gold, UISprite, sliced: true);
             AddText(NewUI("Text", ultGo.transform), "100%", 14, Color.black, TextAlignmentOptions.Center).raycastTarget = false;
             Stretch(ultGo.transform.GetChild(0).gameObject);

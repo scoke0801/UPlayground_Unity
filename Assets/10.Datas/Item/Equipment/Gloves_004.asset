@@ -21,3 +21,15 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 1c119ec5716d1cb4cb27c2279c4373f2, type: 3}
   equipSlot: 7
   equipmentPrefab: {fileID: 0}
+  weaponType: 0
+  _statModifiers:
+  - statType: 0
+    modifierType: 0
+    value: 40
+  - statType: 3
+    modifierType: 0
+    value: 0.04
+  attackPower: 0
+  critChance: 0
+  critDamage: 100
+  attackSpeed: 1

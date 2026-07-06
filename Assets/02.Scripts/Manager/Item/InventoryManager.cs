@@ -27,7 +27,7 @@ namespace UPlayGround.Manager
     }
 
     /// <summary>
-    /// 한 캐릭터의 장비 슬롯 상태. 각 슬롯은 itemId(-1 = 빈칸)를 보관한다.
+    /// 한 캐릭터의 장비 슬롯 상태. 각 슬롯은 인벤토리 슬롯 키(-1 = 빈칸)를 보관한다.
     /// 무기(주/보조)와 방어구 5부위를 모두 담으며, 방어구는 데이터만 보관(외형 미반영).
     /// </summary>
     public class CharacterEquipment
@@ -66,27 +66,27 @@ namespace UPlayGround.Manager
             }
         }
 
-        /// <summary> 해당 itemId를 장착 중인 슬롯 수(같은 아이템이 여러 슬롯에 걸릴 수 있어 카운트). </summary>
-        public int CountOf(int itemId)
+        /// <summary> 해당 인벤토리 슬롯 키를 장착 중인 슬롯 수. </summary>
+        public int CountOf(int inventorySlotKey)
         {
-            if (itemId < 0) return 0;
+            if (inventorySlotKey < 0) return 0;
             int n = 0;
-            if (rightHand == itemId) n++;
-            if (leftHand  == itemId) n++;
-            if (head      == itemId) n++;
-            if (chest     == itemId) n++;
-            if (pants     == itemId) n++;
-            if (shoes     == itemId) n++;
-            if (gloves    == itemId) n++;
+            if (rightHand == inventorySlotKey) n++;
+            if (leftHand  == inventorySlotKey) n++;
+            if (head      == inventorySlotKey) n++;
+            if (chest     == inventorySlotKey) n++;
+            if (pants     == inventorySlotKey) n++;
+            if (shoes     == inventorySlotKey) n++;
+            if (gloves    == inventorySlotKey) n++;
             return n;
         }
 
-        /// <summary> 지정 itemId를 낀 첫 슬롯을 비우고 그 슬롯을 반환. 없으면 false. </summary>
-        public bool TryRemoveFirst(int itemId, out EquipPosition freedSlot)
+        /// <summary> 지정 인벤토리 슬롯 키를 낀 첫 슬롯을 비우고 그 슬롯을 반환. 없으면 false. </summary>
+        public bool TryRemoveFirst(int inventorySlotKey, out EquipPosition freedSlot)
         {
             foreach (var slot in AllSlots)
             {
-                if (Get(slot) == itemId)
+                if (Get(slot) == inventorySlotKey)
                 {
                     Set(slot, -1);
                     freedSlot = slot;
@@ -110,14 +110,88 @@ namespace UPlayGround.Manager
         private const string STARTING_INVENTORY_KEY = "StartingInventory";
 
         private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
+        private int _nextInventorySlotKey = int.MaxValue;
+
+        // itemId → 해당 아이템을 담고 있는 인벤토리 슬롯 키 목록(역인덱스).
+        // 장비가 인스턴스별 슬롯 키로 쪼개지면서 itemId 조회가 _itemPair 전체 선형 스캔(O(n))이 되는 것을 막는다.
+        // _itemPair 구조 변경은 반드시 PutItem/RemoveSlot/ClearItems 를 통해서만 하여 이 인덱스와 동기화한다.
+        private readonly Dictionary<int, List<int>> _slotKeysByItemId = new();
+        private static readonly List<int> s_emptySlotKeys = new();
 
         public Dictionary<int, ItemInstance> ItemDict => _itemPair;
+
+        // _itemPair 에 슬롯을 추가/교체하고 역인덱스를 갱신한다. (구조 변경 단일 진입점)
+        private void PutItem(int slotKey, ItemInstance instance)
+        {
+            if (_itemPair.TryGetValue(slotKey, out var previous))
+                UnindexSlot(slotKey, previous);
+
+            _itemPair[slotKey] = instance;
+            IndexSlot(slotKey, instance);
+        }
+
+        // _itemPair 에서 슬롯을 제거하고 역인덱스를 갱신한다. 제거되면 true.
+        private bool RemoveSlot(int slotKey)
+        {
+            if (!_itemPair.TryGetValue(slotKey, out var instance))
+                return false;
+
+            _itemPair.Remove(slotKey);
+            UnindexSlot(slotKey, instance);
+            return true;
+        }
+
+        private void ClearItems()
+        {
+            _itemPair.Clear();
+            _slotKeysByItemId.Clear();
+        }
+
+        private void IndexSlot(int slotKey, ItemInstance instance)
+        {
+            if (instance?.data == null)
+                return;
+
+            int itemId = instance.data.itemId;
+            if (!_slotKeysByItemId.TryGetValue(itemId, out var keys))
+            {
+                keys = new List<int>();
+                _slotKeysByItemId[itemId] = keys;
+            }
+
+            if (!keys.Contains(slotKey))
+                keys.Add(slotKey);
+        }
+
+        private void UnindexSlot(int slotKey, ItemInstance instance)
+        {
+            if (instance?.data == null)
+                return;
+
+            int itemId = instance.data.itemId;
+            if (_slotKeysByItemId.TryGetValue(itemId, out var keys))
+            {
+                keys.Remove(slotKey);
+                if (keys.Count == 0)
+                    _slotKeysByItemId.Remove(itemId);
+            }
+        }
+
+        // 해당 itemId 를 담고 있는 슬롯 키 목록. 없으면 빈 리스트(공유 인스턴스, 수정 금지).
+        private List<int> GetSlotKeys(int itemId) =>
+            _slotKeysByItemId.TryGetValue(itemId, out var keys) ? keys : s_emptySlotKeys;
 
         // 캐릭터별 장비 레지스트리 — 활성/벤치 공통 단일 소스. 외형은 캐릭터 모델 기본 장비를 사용한다.
         private readonly Dictionary<CharacterActorType, CharacterEquipment> _equipmentByCharacter = new();
 
         /// <summary> 파티원 장비 변경 시 발행 (UI 갱신용). </summary>
         public event System.Action OnPartyEquipmentChanged;
+
+        /// <summary> 아이템 수량이 변동될 때 발행 (인벤토리/제작 UI 실시간 갱신용). </summary>
+        public event System.Action OnInventoryChanged;
+
+        // 아이템 수량 변동 지점에서 호출 — UI가 보유 수량을 즉시 반영하도록 알린다.
+        private void RaiseInventoryChanged() => OnInventoryChanged?.Invoke();
 
         // [TODO] Config 데이터로 별도 분리 필요
         public float MaxWeight => 3000.0f;
@@ -205,9 +279,16 @@ namespace UPlayGround.Manager
                 return;
             }
 
+            if (itemInstance.data is EquipmentSO)
+            {
+                AddEquipmentInstances(itemInstance.data, itemInstance.count, true);
+                return;
+            }
+
             if (_itemPair.ContainsKey(itemId) == false)
             {
-                _itemPair.TryAdd(itemId, itemInstance);
+                itemInstance.inventorySlotKey = itemId;
+                PutItem(itemId, itemInstance);
 
                 // TODO...  인벤토리 슬롯 지정 필요
             }
@@ -217,11 +298,14 @@ namespace UPlayGround.Manager
             }
 
             NotifyItemCollected(itemId, itemInstance.count);
+            RaiseInventoryChanged();
         }
 
         public void RemoveItem(int itemId)
         {
-            _itemPair.Remove(itemId);
+            int count = GetItemCount(itemId);
+            if (count > 0)
+                RemoveItem(itemId, count);
         }
 
         /// <summary>
@@ -231,17 +315,53 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool RemoveItem(int itemId, int count)
         {
-            if (!_itemPair.TryGetValue(itemId, out var item))
+            if (count <= 0)
                 return false;
 
-            if (item.count < count)
+            if (GetItemCount(itemId) < count)
                 return false;
 
-            item.count -= count;
+            if (_itemPair.TryGetValue(itemId, out var stackedItem) && stackedItem.data is not EquipmentSO)
+            {
+                if (stackedItem.count < count)
+                    return false;
 
-            if (item.count <= 0)
-                _itemPair.Remove(itemId);
+                stackedItem.count -= count;
 
+                if (stackedItem.count <= 0)
+                    RemoveSlot(itemId);
+
+                RaiseInventoryChanged();
+                return true;
+            }
+
+            // 장비는 인스턴스 1개가 인벤토리 슬롯 1개를 차지한다.
+            // 장착 레지스트리는 itemId 기반이므로, 장착 수량을 남긴 채 여유분만 제거한다.
+            if (GetItemDataForInventory(itemId) is EquipmentSO && count > GetFreeCount(itemId))
+                return false;
+
+            int remaining = count;
+            var removeKeys = new List<int>();
+            var slotKeys = GetSlotKeys(itemId);
+            for (int i = 0; i < slotKeys.Count; i++)
+            {
+                int key = slotKeys[i];
+                if (IsInventorySlotEquipped(key))
+                    continue;
+
+                removeKeys.Add(key);
+                remaining--;
+                if (remaining <= 0)
+                    break;
+            }
+
+            if (remaining > 0)
+                return false;
+
+            foreach (int key in removeKeys)
+                RemoveSlot(key);
+
+            RaiseInventoryChanged();
             return true;
         }
 
@@ -271,12 +391,13 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.Failed;
             }
 
-            if (!_itemPair.TryGetValue(itemId, out var item))
+            var item = GetItem(itemId);
+            if (item == null)
             {
                 return InventoryActionResult.InvalidItem;
             }
 
-            if (item.count < count)
+            if (GetItemCount(itemId) < count)
             {
                 return InventoryActionResult.NotEnoughCount;
             }
@@ -336,8 +457,8 @@ namespace UPlayGround.Manager
                 foreach (var so in startItems)
                     if (so != null)
                     {
-                        GrantStartingEquipmentItem(so);
-                        eq.Set(so.equipSlot, so.itemId);
+                        int inventorySlotKey = GrantStartingEquipmentItem(so);
+                        eq.Set(so.equipSlot, inventorySlotKey);
                     }
             }
             _equipmentByCharacter[c] = eq;
@@ -367,19 +488,19 @@ namespace UPlayGround.Manager
             {
                 if (so != null)
                 {
-                    GrantStartingEquipmentItem(so);
-                    eq.Set(so.equipSlot, so.itemId);
+                    int inventorySlotKey = GrantStartingEquipmentItem(so);
+                    eq.Set(so.equipSlot, inventorySlotKey);
                 }
             }
         }
 
         // 시작 장비 SO를 인벤토리 보유 아이템으로 시딩한다. 장비는 비스택 정책이므로 이미 있으면 유지한다.
-        private void GrantStartingEquipmentItem(EquipmentSO equipment)
+        private int GrantStartingEquipmentItem(EquipmentSO equipment)
         {
-            if (equipment == null || equipment.itemId < 0 || _itemPair.ContainsKey(equipment.itemId))
-                return;
+            if (equipment == null || equipment.itemId < 0)
+                return -1;
 
-            _itemPair[equipment.itemId] = new ItemInstance { data = equipment, count = 1 };
+            return AddEquipmentInstance(equipment, false);
         }
 
         private void ApplyStartingInventoryForNewGame()
@@ -403,28 +524,37 @@ namespace UPlayGround.Manager
             if (itemData == null || count <= 0)
                 return;
 
+            if (itemData is EquipmentSO)
+            {
+                AddEquipmentInstances(itemData, count, false);
+                return;
+            }
+
             if (_itemPair.TryGetValue(itemData.itemId, out var existing))
             {
-                if (existing.data is EquipmentSO)
-                    return;
-
                 existing.count += count;
                 return;
             }
 
-            int storeCount = itemData is EquipmentSO ? 1 : count;
-            _itemPair[itemData.itemId] = new ItemInstance { data = itemData, count = storeCount };
+            PutItem(itemData.itemId, new ItemInstance { data = itemData, count = count, inventorySlotKey = itemData.itemId });
         }
 
         private int OwnedCount(int itemId) =>
-            _itemPair.TryGetValue(itemId, out var it) ? it.count : 0;
+            GetItemCount(itemId);
 
         /// <summary> 파티 전체에서 해당 itemId가 장착된 총 개수. </summary>
         public int GetEquippedCount(int itemId)
         {
             int n = 0;
             foreach (var eq in _equipmentByCharacter.Values)
-                n += eq.CountOf(itemId);
+            {
+                foreach (var slot in CharacterEquipment.AllSlots)
+                {
+                    int inventorySlotKey = eq.Get(slot);
+                    if (IsInventorySlotKeyForItemId(inventorySlotKey, itemId))
+                        n++;
+                }
+            }
             return n;
         }
 
@@ -433,6 +563,12 @@ namespace UPlayGround.Manager
 
         public int GetEquippedItem(CharacterActorType c, EquipPosition slot) =>
             GetOrSeedEntry(c)?.Get(slot) ?? -1;
+
+        public ItemInstance GetInventoryItemBySlotKey(int inventorySlotKey)
+        {
+            _itemPair.TryGetValue(inventorySlotKey, out var item);
+            return item;
+        }
 
         public List<EquipmentSO> GetEquippedEquipment(CharacterActorType c)
         {
@@ -443,46 +579,34 @@ namespace UPlayGround.Manager
 
             for (int i = 0; i < CharacterEquipment.AllSlots.Length; i++)
             {
-                int itemId = eq.Get(CharacterEquipment.AllSlots[i]);
-                if (itemId < 0)
+                int inventorySlotKey = eq.Get(CharacterEquipment.AllSlots[i]);
+                if (inventorySlotKey < 0)
                     continue;
 
-                if (ItemManager.Instance?.GetItemData(itemId) is EquipmentSO equipment)
+                if (GetEquipmentDataBySlotKey(inventorySlotKey) is EquipmentSO equipment)
                     result.Add(equipment);
             }
 
             return result;
         }
 
-        /// <summary> 해당 itemId를 장착 중인 캐릭터 목록. </summary>
-        public List<CharacterActorType> GetEquippingCharacters(int itemId)
+        /// <summary> 해당 인벤토리 슬롯 키를 장착 중인 캐릭터 목록. </summary>
+        public List<CharacterActorType> GetEquippingCharacters(int inventorySlotKey)
         {
             var list = new List<CharacterActorType>();
             foreach (var kv in _equipmentByCharacter)
-                if (kv.Value.CountOf(itemId) > 0)
+                if (kv.Value.CountOf(inventorySlotKey) > 0)
                     list.Add(kv.Key);
             return list;
         }
 
-        // 보조 무기(왼손)는 대상 캐릭터의 "유효 주 무기 타입"과 같을 때만 호환된다.
+        // 보조 무기(왼손)는 캐릭터 모델 기본 타입이 받아들이는 보조 무기 아이템만 호환된다.
+        // (검+방패→방패, 쌍검→두 번째 검) 기준은 교체 가능한 주 무기 아이템이 아니라
+        // 캐릭터의 정체성인 모델 기본 타입이므로, 베이스 검을 끼워도 보조 슬롯 판정은 흔들리지 않는다.
         private bool IsSubWeaponCompatible(CharacterActorType c, WeaponType subWeaponType)
         {
             if (subWeaponType == WeaponType.NoWeapon) return false;
-            return GetCharacterMainWeaponType(c) == subWeaponType;
-        }
-
-        // 캐릭터의 유효 주 무기 타입: 장착된 주 무기 아이템 타입 → 없으면 모델의 빌트인 기본 무기 타입.
-        // (검+방패처럼 주 무기가 빌트인인 캐릭터도 보조(방패) 장착을 허용하기 위함.)
-        private WeaponType GetCharacterMainWeaponType(CharacterActorType c)
-        {
-            var eq = GetOrSeedEntry(c);
-            if (eq != null && eq.rightHand >= 0 &&
-                ItemManager.Instance?.GetItemData(eq.rightHand) is EquipmentSO mainEq)
-            {
-                return mainEq.weaponType;
-            }
-
-            return GetModelDefaultWeaponType(c);
+            return GetModelDefaultWeaponType(c).AcceptsSubWeaponItem(subWeaponType);
         }
 
         private WeaponType GetModelDefaultWeaponType(CharacterActorType c)
@@ -493,45 +617,39 @@ namespace UPlayGround.Manager
             return model != null ? model.defaultWeaponType : WeaponType.NoWeapon;
         }
 
-        // 주 무기는 캐릭터 모델에 지정된 기본 주무기 타입과 같은 타입만 장착할 수 있다.
+        // 주 무기는 캐릭터 모델 기본 주무기 타입이 받아들이는 무기 아이템만 장착할 수 있다.
+        // (동일 타입 + 검 기반 무기(검+방패·쌍검)의 기본 검 아이템 허용 — 비대칭)
         private bool IsMainWeaponCompatible(CharacterActorType c, WeaponType weaponType)
         {
             if (weaponType == WeaponType.NoWeapon) return false;
-            return GetModelDefaultWeaponType(c) == weaponType;
+            return GetModelDefaultWeaponType(c).AcceptsMainWeaponItem(weaponType);
         }
 
-        // 주 무기 슬롯이 바뀐 뒤, 현재 보조 무기가 "유효 주 무기 타입"과 맞지 않으면 해제한다.
-        // (빌트인 주 무기 폴백 포함 — 임시 주 무기를 벗어도 빌트인과 호환되면 보조를 유지한다.)
+        // 주 무기 슬롯이 바뀐 뒤, 현재 보조 무기가 캐릭터 모델 기본 타입과 맞지 않으면 해제한다.
+        // 기준은 모델 기본 타입이므로 베이스 검 아이템을 끼워도 방패/두 번째 검은 유지된다.
         private void EnsureSubCompatibility(CharacterActorType c, CharacterEquipment eq)
         {
             if (eq.leftHand < 0) return;
 
-            WeaponType mainType = GetCharacterMainWeaponType(c);
-            bool keep = mainType != WeaponType.NoWeapon &&
-                        ItemManager.Instance?.GetItemData(eq.leftHand) is EquipmentSO subEq &&
-                        subEq.weaponType == mainType;
+            bool keep = GetEquipmentDataBySlotKey(eq.leftHand) is EquipmentSO subEq &&
+                        IsSubWeaponCompatible(c, subEq.weaponType);
             if (!keep)
                 eq.leftHand = -1;
         }
 
-        // 여유분이 없을 때, 해당 itemId를 낀 다른 캐릭터(roster 순서 우선)에게서 해제해 한 copy를 확보한다.
-        private bool TransferFromAnotherOwner(int itemId, CharacterActorType requester)
+        // 여유분이 없을 때, 해당 itemId를 낀 다른 캐릭터(roster 순서 우선)에게서 해제해 한 인스턴스를 확보한다.
+        private bool TransferFromAnotherOwner(int itemId, CharacterActorType requester, out int freedInventorySlotKey)
         {
+            freedInventorySlotKey = -1;
             var roster = PartyManager.Instance?.Roster;
             if (roster != null)
             {
                 foreach (var owner in roster)
                 {
                     if (owner == requester) continue;
-                    if (_equipmentByCharacter.TryGetValue(owner, out var oeq) && oeq.CountOf(itemId) > 0)
+                    if (_equipmentByCharacter.TryGetValue(owner, out var oeq) &&
+                        TryRemoveFirstEquippedItem(owner, oeq, itemId, out freedInventorySlotKey))
                     {
-                        CaptureHealthSnapshot(owner, out float oldHp, out float oldMax);
-                        if (!oeq.TryRemoveFirst(itemId, out var freed))
-                            continue;
-                        if (freed == EquipPosition.RightHand)
-                            EnsureSubCompatibility(owner, oeq);
-                        SyncActiveCharacterVisual(owner);
-                        ApplyEquipmentStats(owner, oldHp, oldMax);
                         return true;
                     }
                 }
@@ -541,19 +659,102 @@ namespace UPlayGround.Manager
             foreach (var kv in _equipmentByCharacter)
             {
                 if (kv.Key == requester) continue;
-                if (kv.Value.CountOf(itemId) > 0)
+                if (TryRemoveFirstEquippedItem(kv.Key, kv.Value, itemId, out freedInventorySlotKey))
                 {
-                    CaptureHealthSnapshot(kv.Key, out float oldHp, out float oldMax);
-                    if (!kv.Value.TryRemoveFirst(itemId, out var freed))
-                        continue;
-                    if (freed == EquipPosition.RightHand)
-                        EnsureSubCompatibility(kv.Key, kv.Value);
-                    SyncActiveCharacterVisual(kv.Key);
-                    ApplyEquipmentStats(kv.Key, oldHp, oldMax);
                     return true;
                 }
             }
             return false;
+        }
+
+        private bool TryRemoveFirstEquippedItem(CharacterActorType owner, CharacterEquipment eq, int itemId, out int freedInventorySlotKey)
+        {
+            freedInventorySlotKey = -1;
+            if (eq == null)
+                return false;
+
+            foreach (var slot in CharacterEquipment.AllSlots)
+            {
+                int inventorySlotKey = eq.Get(slot);
+                if (!IsInventorySlotKeyForItemId(inventorySlotKey, itemId))
+                    continue;
+
+                CaptureHealthSnapshot(owner, out float oldHp, out float oldMax);
+                eq.Set(slot, -1);
+                if (slot == EquipPosition.RightHand)
+                    EnsureSubCompatibility(owner, eq);
+                SyncActiveCharacterVisual(owner);
+                ApplyEquipmentStats(owner, oldHp, oldMax);
+                freedInventorySlotKey = inventorySlotKey;
+                return true;
+            }
+
+            return false;
+        }
+
+        private void UnequipInventorySlotKey(int inventorySlotKey, CharacterActorType requester)
+        {
+            foreach (var kv in _equipmentByCharacter)
+            {
+                var eq = kv.Value;
+                if (eq == null)
+                    continue;
+
+                foreach (var slot in CharacterEquipment.AllSlots)
+                {
+                    if (eq.Get(slot) != inventorySlotKey)
+                        continue;
+
+                    CaptureHealthSnapshot(kv.Key, out float oldHp, out float oldMax);
+                    eq.Set(slot, -1);
+                    if (slot == EquipPosition.RightHand)
+                        EnsureSubCompatibility(kv.Key, eq);
+
+                    if (kv.Key != requester)
+                    {
+                        SyncActiveCharacterVisual(kv.Key);
+                        ApplyEquipmentStats(kv.Key, oldHp, oldMax);
+                    }
+                    return;
+                }
+            }
+        }
+
+        private bool IsInventorySlotEquipped(int inventorySlotKey)
+        {
+            foreach (var eq in _equipmentByCharacter.Values)
+            {
+                if (eq != null && eq.CountOf(inventorySlotKey) > 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private int FindFreeInventorySlotKey(int itemId)
+        {
+            var slotKeys = GetSlotKeys(itemId);
+            for (int i = 0; i < slotKeys.Count; i++)
+            {
+                if (!IsInventorySlotEquipped(slotKeys[i]))
+                    return slotKeys[i];
+            }
+
+            return -1;
+        }
+
+        private bool IsInventorySlotKeyForItemId(int inventorySlotKey, int itemId)
+        {
+            return _itemPair.TryGetValue(inventorySlotKey, out var item) &&
+                   item?.data != null &&
+                   item.data.itemId == itemId;
+        }
+
+        private EquipmentSO GetEquipmentDataBySlotKey(int inventorySlotKey)
+        {
+            return _itemPair.TryGetValue(inventorySlotKey, out var item)
+                ? item.data as EquipmentSO
+                : null;
         }
 
         // 장비 레지스트리는 데이터/UI/세이브 용도다. 외형은 캐릭터 모델 기본 장비를 유지한다.
@@ -565,29 +766,65 @@ namespace UPlayGround.Manager
 
         public InventoryActionResult TryEquipItem(CharacterActorType c, int itemId)
         {
-            if (c == CharacterActorType.None)
-                return InventoryActionResult.Failed;
-            if (!_itemPair.TryGetValue(itemId, out var item) || item.data == null)
+            var item = GetItem(itemId);
+            if (item == null || item.data == null)
                 return InventoryActionResult.InvalidItem;
             if (item.data is not EquipmentSO equipData)
                 return InventoryActionResult.NotEquippable;
-            if (!CanEquipItem(c, equipData))
+            // 대상 슬롯을 지정하지 않으면 아이템의 기본 장착 부위로 장착한다.
+            return TryEquipItem(c, itemId, equipData.equipSlot);
+        }
+
+        // 대상 슬롯을 지정해 장착한다. (쌍검 캐릭터가 검을 주/보조 손에 각각 장착하는 등)
+        public InventoryActionResult TryEquipItem(CharacterActorType c, int itemId, EquipPosition targetSlot)
+        {
+            if (c == CharacterActorType.None)
+                return InventoryActionResult.Failed;
+            var item = GetItem(itemId);
+            if (item == null || item.data == null)
+                return InventoryActionResult.InvalidItem;
+            if (item.data is not EquipmentSO equipData)
+                return InventoryActionResult.NotEquippable;
+            if (!CanEquipItem(c, equipData, targetSlot))
+                return InventoryActionResult.NotEquippable;
+
+            int inventorySlotKey = FindFreeInventorySlotKey(itemId);
+            if (inventorySlotKey < 0 && !TransferFromAnotherOwner(itemId, c, out inventorySlotKey))
+                return InventoryActionResult.Failed;
+
+            return TryEquipInventorySlot(c, inventorySlotKey, targetSlot);
+        }
+
+        public InventoryActionResult TryEquipInventorySlot(CharacterActorType c, int inventorySlotKey) =>
+            TryEquipInventorySlot(c, inventorySlotKey, GetEquipmentDataBySlotKey(inventorySlotKey)?.equipSlot ?? EquipPosition.None);
+
+        public InventoryActionResult TryEquipInventorySlot(CharacterActorType c, int inventorySlotKey, EquipPosition targetSlot)
+        {
+            if (c == CharacterActorType.None)
+                return InventoryActionResult.Failed;
+
+            if (!_itemPair.TryGetValue(inventorySlotKey, out var item) || item.data == null)
+                return InventoryActionResult.InvalidItem;
+
+            if (item.data is not EquipmentSO equipData)
+                return InventoryActionResult.NotEquippable;
+
+            if (!CanEquipItem(c, equipData, targetSlot))
                 return InventoryActionResult.NotEquippable;
 
             var eq = GetOrSeedEntry(c);
-            EquipPosition slot = equipData.equipSlot;
+            EquipPosition slot = targetSlot;
 
-            // 같은 슬롯에 이미 같은 아이템이면 무시
-            if (eq.Get(slot) == itemId)
+            // 같은 슬롯에 이미 같은 장비 인스턴스면 무시
+            if (eq.Get(slot) == inventorySlotKey)
                 return InventoryActionResult.Success;
 
             CaptureHealthSnapshot(c, out float oldHp, out float oldMax);
 
-            // 여유분이 없으면 다른 소유자에게서 이동(transfer). 실패 시 기존 슬롯 상태를 건드리지 않는다.
-            if (GetFreeCount(itemId) <= 0 && !TransferFromAnotherOwner(itemId, c))
-                return InventoryActionResult.Failed;
+            // 같은 장비 인스턴스가 다른 슬롯/캐릭터에 장착되어 있으면 먼저 해제해서 이동한다.
+            UnequipInventorySlotKey(inventorySlotKey, c);
 
-            eq.Set(slot, itemId);
+            eq.Set(slot, inventorySlotKey);
 
             // 주 무기 교체 시 보조 무기 호환성 재검사
             if (slot == EquipPosition.RightHand)
@@ -635,7 +872,8 @@ namespace UPlayGround.Manager
 
         public bool CanEquipItem(CharacterActorType c, int itemId)
         {
-            if (!_itemPair.TryGetValue(itemId, out var item) || item.data == null)
+            var item = GetItem(itemId);
+            if (item == null || item.data == null)
                 return false;
             return item.data is EquipmentSO equipData && CanEquipItem(c, equipData);
         }
@@ -643,19 +881,24 @@ namespace UPlayGround.Manager
         public bool CanEquipItem(EquipmentSO equipData) => CanEquipItem(ActiveCharacterType, equipData);
 
         public bool CanEquipItem(CharacterActorType c, EquipmentSO equipData)
+            => CanEquipItem(c, equipData, equipData != null ? equipData.equipSlot : EquipPosition.None);
+
+        // 지정한 대상 슬롯에 장착 가능한지. (무기는 아이템 기본 슬롯과 무관하게 좌/우 손을 지정할 수 있다.
+        //  쌍검 캐릭터는 검을 주/보조 양손에, 검+방패는 검을 주 무기·방패를 보조로 장착한다.)
+        public bool CanEquipItem(CharacterActorType c, EquipmentSO equipData, EquipPosition targetSlot)
         {
             if (equipData == null || c == CharacterActorType.None)
                 return false;
 
-            switch (equipData.equipSlot)
+            switch (targetSlot)
             {
                 case EquipPosition.RightHand:
-                    // 주 무기: 캐릭터 고유 주무기 타입과 일치하는 장비만 장착 가능
+                    // 주 무기: 캐릭터 고유 주무기 타입이 받아들이는 장비만 장착 가능
                     return equipData.weaponType != WeaponType.NoWeapon &&
                            equipData.equipmentPrefab != null &&
                            IsMainWeaponCompatible(c, equipData.weaponType);
                 case EquipPosition.LeftHand:
-                    // 보조 무기: 기본 유효성 + 주 무기와 동일한 무기 타입일 때만 (쌍검↔방패 거부)
+                    // 보조 무기: 기본 유효성 + 캐릭터 모델 기본 타입이 받아들이는 보조 무기일 때만
                     return equipData.weaponType != WeaponType.NoWeapon &&
                            equipData.equipmentPrefab != null &&
                            IsSubWeaponCompatible(c, equipData.weaponType);
@@ -664,7 +907,9 @@ namespace UPlayGround.Manager
                 case EquipPosition.Pants:
                 case EquipPosition.Shoes:
                 case EquipPosition.Gloves:
-                    return ToArmorType(equipData.equipSlot) != EquipArmorType.None;
+                    // 방어구는 자신의 지정 부위 슬롯에만 장착 가능
+                    return equipData.equipSlot == targetSlot &&
+                           ToArmorType(targetSlot) != EquipArmorType.None;
                 default:
                     return false;
             }
@@ -679,12 +924,13 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.Failed;
             }
 
-            if (!_itemPair.TryGetValue(itemId, out var item))
+            var item = GetItem(itemId);
+            if (item == null)
             {
                 return InventoryActionResult.InvalidItem;
             }
 
-            if (item.count < count)
+            if (GetItemCount(itemId) < count)
             {
                 return InventoryActionResult.NotEnoughCount;
             }
@@ -745,23 +991,6 @@ namespace UPlayGround.Manager
         {
             if (count <= 0) return;
 
-            if (_itemPair.TryGetValue(itemId, out var existing))
-            {
-                // 장비는 인벤토리 슬롯 1개당 1개만 관리 — 이미 보유 중이면 수량을 늘리지 않는다(비-스택).
-                if (existing.data is EquipmentSO)
-                {
-                    Debug.LogWarning($"[InventoryManager] 장비(ItemID {itemId})는 슬롯당 1개만 보관합니다 — 중복 획득 무시.");
-                    return;
-                }
-
-                existing.count += count;
-                if (notifyProgress)
-                {
-                    NotifyItemCollected(itemId, count);
-                }
-                return;
-            }
-
             var itemData = ItemManager.Instance.GetItemData(itemId);
             if (itemData == null)
             {
@@ -769,14 +998,123 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            // 장비는 비-스택: 요청 수량과 무관하게 1개만 보관.
-            int storeCount = itemData is EquipmentSO ? 1 : count;
-            _itemPair[itemId] = new ItemInstance { data = itemData, count = storeCount };
+            if (itemData is EquipmentSO)
+            {
+                AddEquipmentInstances(itemData, count, notifyProgress);
+                return;
+            }
+
+            if (_itemPair.TryGetValue(itemId, out var existing))
+            {
+                existing.count += count;
+                if (notifyProgress)
+                {
+                    NotifyItemCollected(itemId, count);
+                }
+                RaiseInventoryChanged();
+                return;
+            }
+
+            PutItem(itemId, new ItemInstance { data = itemData, count = count, inventorySlotKey = itemId });
 
             if (notifyProgress)
             {
-                NotifyItemCollected(itemId, storeCount);
+                NotifyItemCollected(itemId, count);
             }
+            RaiseInventoryChanged();
+        }
+
+        private void RestoreItem(int itemId, int count, int slotKey)
+        {
+            if (count <= 0) return;
+
+            var itemData = ItemManager.Instance.GetItemData(itemId);
+            if (itemData == null)
+            {
+                Debug.LogWarning($"[InventoryManager] RestoreItem 실패 — ItemID {itemId}를 ItemDatabase에서 찾을 수 없습니다.");
+                return;
+            }
+
+            if (itemData is EquipmentSO)
+            {
+                int firstSlotKey = slotKey != 0 ? slotKey : itemId;
+                AddEquipmentInstances(itemData, count, false, firstSlotKey);
+                return;
+            }
+
+            int key = slotKey != 0 ? slotKey : itemId;
+            if (_itemPair.TryGetValue(key, out var existing))
+            {
+                existing.count += count;
+                return;
+            }
+
+            PutItem(key, new ItemInstance { data = itemData, count = count, inventorySlotKey = key });
+        }
+
+        private void AddEquipmentInstances(ItemSO itemData, int count, bool notifyProgress, int preferredFirstSlotKey = 0)
+        {
+            if (itemData == null || count <= 0)
+                return;
+
+            for (int i = 0; i < count; i++)
+            {
+                AddEquipmentInstance(itemData, false, i == 0 ? preferredFirstSlotKey : 0);
+            }
+
+            if (notifyProgress)
+            {
+                NotifyItemCollected(itemData.itemId, count);
+            }
+            RaiseInventoryChanged();
+        }
+
+        private int AddEquipmentInstance(ItemSO itemData, bool notifyProgress, int preferredSlotKey = 0)
+        {
+            if (itemData == null)
+                return -1;
+
+            int key = CreateInventorySlotKey(itemData.itemId, preferredSlotKey);
+            PutItem(key, new ItemInstance
+            {
+                data = itemData,
+                count = 1,
+                inventorySlotKey = key
+            });
+
+            if (notifyProgress)
+            {
+                NotifyItemCollected(itemData.itemId, 1);
+                RaiseInventoryChanged();
+            }
+
+            return key;
+        }
+
+        private int CreateInventorySlotKey(int itemId, int preferredSlotKey = 0)
+        {
+            if (preferredSlotKey != 0 && !_itemPair.ContainsKey(preferredSlotKey))
+                return preferredSlotKey;
+
+            if (!_itemPair.ContainsKey(itemId))
+                return itemId;
+
+            while (_nextInventorySlotKey > 0 && _itemPair.ContainsKey(_nextInventorySlotKey))
+                _nextInventorySlotKey--;
+
+            return _nextInventorySlotKey--;
+        }
+
+        private ItemSO GetItemDataForInventory(int itemId)
+        {
+            var slotKeys = GetSlotKeys(itemId);
+            for (int i = 0; i < slotKeys.Count; i++)
+            {
+                if (_itemPair.TryGetValue(slotKeys[i], out var item) && item?.data != null)
+                    return item.data;
+            }
+
+            return ItemManager.Instance != null ? ItemManager.Instance.GetItemData(itemId) : null;
         }
 
         // 매니저 미초기화 시점(씬 전환/종료 등)에도 안전하도록 가드 후 알림
@@ -791,29 +1129,47 @@ namespace UPlayGround.Manager
 
         public int GetItemCount(int itemId)
         {
-            return _itemPair.TryGetValue(itemId, out var item) ? item.count : 0;
+            int count = 0;
+            var slotKeys = GetSlotKeys(itemId);
+            for (int i = 0; i < slotKeys.Count; i++)
+            {
+                if (_itemPair.TryGetValue(slotKeys[i], out var item) && item?.data != null)
+                    count += item.count;
+            }
+            return count;
         }
 
         public bool HasItem(int itemId)
         {
-            return _itemPair.ContainsKey(itemId);
+            return GetItemCount(itemId) > 0;
         }
 
         public ItemInstance GetItem(int itemId)
         {
-            _itemPair.TryGetValue(itemId, out ItemInstance item);
-            return item;
+            var slotKeys = GetSlotKeys(itemId);
+            for (int i = 0; i < slotKeys.Count; i++)
+            {
+                if (_itemPair.TryGetValue(slotKeys[i], out var item) && item?.data != null)
+                    return item;
+            }
+            return null;
         }
 
         public float GetItemWeight(int itemId)
         {
-            if (HasItem(itemId))
+            float weight = 0.0f;
+            bool found = false;
+            var slotKeys = GetSlotKeys(itemId);
+            for (int i = 0; i < slotKeys.Count; i++)
             {
-                ItemInstance item = _itemPair[itemId];
-                return item.data.weight * item.count;
+                if (!_itemPair.TryGetValue(slotKeys[i], out var item) || item?.data == null)
+                    continue;
+
+                weight += item.data.weight * item.count;
+                found = true;
             }
 
-            return -1.0f;
+            return found ? weight : -1.0f;
         }
 
         public float GetTotalWeight()
@@ -895,11 +1251,14 @@ namespace UPlayGround.Manager
             saveData.inventory.items.Clear();
             foreach (var kv in _itemPair)
             {
+                if (kv.Value?.data == null)
+                    continue;
+
                 saveData.inventory.items.Add(new ItemSaveEntry
                 {
-                    itemId = kv.Key,
+                    itemId = kv.Value.data.itemId,
                     count = kv.Value.count,
-                    slotKey = kv.Value.inventorySlotKey
+                    slotKey = kv.Key
                 });
             }
 
@@ -936,7 +1295,7 @@ namespace UPlayGround.Manager
         public void ResetForNewGame()
         {
             _pendingLoad = null;
-            _itemPair.Clear();
+            ClearItems();
             _equipmentByCharacter.Clear();
             _applyStartingEquipmentOnSeed = true;
             _pendingNewGameStartingInventory = false;
@@ -960,12 +1319,11 @@ namespace UPlayGround.Manager
 
         private void ApplyPendingLoad()
         {
-            _itemPair.Clear();
+            ClearItems();
+            _nextInventorySlotKey = int.MaxValue;
             foreach (var entry in _pendingLoad.items ?? new System.Collections.Generic.List<ItemSaveEntry>())
             {
-                RestoreItem(entry.itemId, entry.count);
-                if (_itemPair.TryGetValue(entry.itemId, out var instance))
-                    instance.inventorySlotKey = entry.slotKey;
+                RestoreItem(entry.itemId, entry.count, entry.slotKey);
             }
 
             // 캐릭터별 장비 복원.

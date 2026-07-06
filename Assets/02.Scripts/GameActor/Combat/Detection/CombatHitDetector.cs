@@ -58,12 +58,18 @@ namespace UPlayGround.Combat
                         hitbox.MaxSweepSteps);
                 }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                hitbox.BeginDebugDetectionSamples();
+#endif
                 for (int sample = 1; sample <= sampleCount; sample++)
                 {
                     float t = sample / (float)sampleCount;
                     CombatHitboxShape shape = hitbox.HasPreviousShape
                         ? CombatHitboxShape.Lerp(hitbox.PreviousShape, current, t)
                         : current;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                    hitbox.AddDebugDetectionSample(shape);
+#endif
                     CollectAttachedShapeHits(
                         ownerRoot,
                         shape,

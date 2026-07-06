@@ -40,6 +40,11 @@ namespace UPlayGround.Manager
         {
             base.Awake();
 
+#if DEVELOPMENT_BUILD
+            DisableDevelopmentConsole();
+            Application.logMessageReceived += SuppressDevelopmentConsole;
+#endif
+
             QualitySettings.vSyncCount = 1;
             Application.targetFrameRate = -1;
 
@@ -353,8 +358,34 @@ namespace UPlayGround.Manager
             }
         }
 
+#if DEVELOPMENT_BUILD
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void DisableDevelopmentConsoleBeforeSceneLoad()
+        {
+            DisableDevelopmentConsole();
+        }
+
+        // 개발 빌드의 인게임 Development Console 오버레이만 비활성화한다.
+        // 로그 자체는 Player.log에 그대로 남는다.
+        private static void DisableDevelopmentConsole()
+        {
+            Debug.developerConsoleEnabled = false;
+            Debug.developerConsoleVisible = false;
+        }
+
+        // Unity가 에러/예외 로그로 콘솔을 다시 켜려고 할 때 한 번 더 막는다.
+        private static void SuppressDevelopmentConsole(string condition, string stackTrace, LogType type)
+        {
+            DisableDevelopmentConsole();
+        }
+#endif
+
         protected override void OnDestroy()
         {
+#if DEVELOPMENT_BUILD
+            Application.logMessageReceived -= SuppressDevelopmentConsole;
+#endif
+
             BootState = GameBootState.Disposing;
             _initializationCancellation?.Cancel();
 

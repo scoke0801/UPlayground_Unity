@@ -12,16 +12,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaed2788113ac845b3df18c68f6854a, type: 3}
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
-  partyOrder: 010000000500000009000000080000000200000003000000040000000a0000000b000000
+  partyOrder: 0100000008000000020000000b000000
   maxBattleSize: 4
   defaultBattleOrder: 010000000b0000000200000008000000
   startActiveIndex: 0
   swapCooldown: 1
+  enableSwapEvade: 1
+  swapEvadeWindowBeforeHit: 0.25
+  swapEvadeGraceAfterHitStart: 0.08
+  swapEvadeIFrameDuration: 0.35
+  swapEvadeCounterInputWindow: 0.45
+  swapEvadeThreatSearchRange: 6
+  swapEvadeThreatRadiusPadding: 0.5
+  swapEvadeThreatLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  swapEvadeEnableHitStop: 1
+  swapEvadeHitStopDuration: 0.06
+  swapEvadeHitStopTimeScale: 0.08
+  swapEvadeCameraShakeKey: 5
+  swapEvadeFxKey: 
+  swapEvadeFxSocket: 3
+  swapEvadeFxOffset: {x: 0, y: 0, z: 0}
+  swapEvadeCompleteDangerRing: 1
+  swapEvadeSpawnDodgeVitalOrb: 0
   enableResidualAttackOnSwap: 1
   residualAttackMaxLifetime: 2.4
   residualAttackMinVisibleLifetime: 1
   residualAttackFadeOutDuration: 0.55
   residualAttackDissolveColor: {r: 1, g: 1, b: 1, a: 1}
+  residualAttackDissolveNoiseMask: {fileID: 0}
+  residualAttackDissolveNoiseStrength: 0.1
+  residualAttackDissolveNoiseScrollRotate: {x: 0, y: 0, z: 0, w: 0}
   residualAttackAllowHitStop: 1
   residualAttackUseRootMotion: 0
   residualAttackRootMotionMaxDistance: 2.5

@@ -48,7 +48,7 @@ MonoBehaviour:
         groundProbeHeight: 10
         groundProbeDistance: 20
         speed: 10
-        duration: 3
+        duration: 1
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 0

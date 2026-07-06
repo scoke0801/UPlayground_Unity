@@ -16,18 +16,18 @@ MonoBehaviour:
   questName: "\uC2A4\uCF08\uB808\uD1A4 \uCC98\uCE58"
   questType: 0
   shortSummary: 
-  questDescription: "\uC2A4\uCF08\uB808\uD1A4\uC744 3\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
+  questDescription: "\uC2A4\uCF08\uB808\uD1A4 \uAC80\uBCD1\uC744 1\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
   requiredQuestIds:
   - main_001
   requiredStoryProgress: 0
   autoAcceptNextQuestIds: []
   objectives:
-  - objectiveId: Skeleton_Sword
+  - objectiveId: "\uC2A4\uCF08\uB808\uD1A4 \uCC98\uCE58"
     description: "\uC2A4\uCF08\uB808\uD1A4 \uAC80\uBCD1\uC744 1\uB9C8\uB9AC \uCC98\uCE58\uD558\uC138\uC694."
     type: 3
-    targetId: 100005
+    targetId: 0
     npcId: 0
-    targetStringId: 
+    targetStringId: Skeleton_Sword
     requiredCount: 1
   reward:
     gold: 0

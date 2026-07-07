@@ -14,6 +14,8 @@ using UPlayGround.UI.InputPrompt;
 
 class UI_GamePlay : UI_Base
 {
+    private const string HudWorldClockKey = "HudWorldClock";
+
     [SerializeField] Button _menuButton;
 
     private PlayerActor _playerActor;
@@ -51,6 +53,12 @@ class UI_GamePlay : UI_Base
                 ?.GetComponent<UPlayGround.UI.HUD.Notification.UI_Notification>();
         }
 
+        // 인게임 시계 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
+        if (UIManager.Instance.GetUIPrefabEntry(HudWorldClockKey) != null)
+        {
+            UIManager.Instance.ShowUI(HudWorldClockKey, CanvasLayer.HUD);
+        }
+
         UIManager.Instance.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
         if (GameObjectManager.Instance != null)
@@ -76,6 +84,7 @@ class UI_GamePlay : UI_Base
             uiManager.HideUI(UIKeyType.HudSkill);
             uiManager.HideUI(UIKeyType.Notification);
             uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
+            uiManager.HideUI(HudWorldClockKey);
         }
 
         if (_playerCombat == null)

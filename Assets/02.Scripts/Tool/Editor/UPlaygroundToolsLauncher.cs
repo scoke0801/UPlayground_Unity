@@ -139,7 +139,7 @@ namespace UPlayGround.Editor
             ("월드 / 맵", new[]
             {
                 Tool("맵 배치 도구",              "UPlayGround/월드/맵/맵 배치 도구", "씬에 액터/포탈/오브젝트를 배치합니다.", "ActorDefinition 기반 프리팹을 씬 클릭으로 배치하고 맵 제작용 배치 워크플로를 제공합니다."),
-                Tool("SceneEntityId 일괄 부여",      "UPlayGround/World/배치 몬스터 SceneEntityId 일괄 부여", "씬 몬스터에 SceneEntityId/GUID를 일괄 부여합니다.", "열린 씬의 모든 MonsterActor에 SceneEntityId를 부착하고 비었거나 중복된 GUID를 보정합니다. 몬스터 처치 영속화(세이브)의 안정적 식별자를 발급하는 용도입니다."),
+                Tool("SceneEntityId 일괄 부여",      "UPlayGround/World/월드 상태 SceneEntityId 일괄 부여", "월드 상태 대상에 SceneEntityId/GUID를 일괄 부여합니다.", "열린 씬의 MonsterActor와 GatheringActor에 SceneEntityId를 부착하고 비었거나 중복된 GUID를 보정합니다. 몬스터 처치/채집 오브젝트 소모 영속화의 안정적 식별자를 발급하는 용도입니다."),
             }),
             ("월드 / 미니맵", new[]
             {

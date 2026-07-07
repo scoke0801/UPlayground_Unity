@@ -13,6 +13,7 @@ namespace UPlayGround.Manager
         Stat,
         Party,
         Combat,
+        Time,
     }
 
     /// <summary>치트 실행 로그 1건.</summary>

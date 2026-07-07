@@ -84,6 +84,10 @@ namespace UPlayGround.Data.Actor
         [Tooltip("처치 시 출전 파티 전원에게 지급할 경험치. 0이면 지급 없음.")]
         public long expReward = 0;
 
+        [Min(0)]
+        [Tooltip("처치 시 지급할 골드. 0이면 지급 없음. 재스폰 레벨 스케일링 시 경험치와 같은 공식으로 증가한다.")]
+        public int goldReward = 0;
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

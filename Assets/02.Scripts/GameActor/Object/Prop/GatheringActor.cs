@@ -24,6 +24,7 @@ namespace UPlayGround
             _actorType = ActorType.Obstacle;
             _this = GetComponent<GameActor>();
             _currentHp = _interactableData.hp;
+            _originalRotation = transform.rotation;
         }
         
         public void Interact(GameActor user)
@@ -90,7 +91,7 @@ namespace UPlayGround
             
                 GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
             
-                Destroy(gameObject);
+                ConsumeOrDestroy();
             }
         }
 
@@ -138,6 +139,23 @@ namespace UPlayGround
         private void OnGatheringComplete()
         {
             // 채집 완료 로직 (아이템 드랍, 오브젝트 파괴 등)
+            ConsumeOrDestroy();
+        }
+
+        public void ResetForRespawn()
+        {
+            StopAllCoroutines();
+            _isGathering = false;
+            _currentHp = _interactableData != null ? _interactableData.hp : 0;
+            transform.rotation = _originalRotation;
+        }
+
+        private void ConsumeOrDestroy()
+        {
+            if (InteractionRespawnManager.Instance != null
+                && InteractionRespawnManager.Instance.TryConsume(this))
+                return;
+
             Destroy(gameObject);
         }
         

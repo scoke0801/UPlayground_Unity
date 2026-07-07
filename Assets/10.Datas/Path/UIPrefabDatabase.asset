@@ -44,11 +44,7 @@ MonoBehaviour:
   - key: ItemPopup
     prefab: {fileID: 909020946507988054, guid: 0ba3c3b3ef26eef42b442065bdac0c3f, type: 3}
     defaultLayer: 2000
-    description: 
-  - key: ItemPopup
-    prefab: {fileID: 909020946507988054, guid: 0ba3c3b3ef26eef42b442065bdac0c3f, type: 3}
-    defaultLayer: 2000
-    description: 
+    description:
   - key: HudPlayerInfo
     prefab: {fileID: 2061351792792607043, guid: 9452141b8d8e78a40aca39d02638a51f, type: 3}
     defaultLayer: 0
@@ -146,3 +142,7 @@ MonoBehaviour:
     prefab: {fileID: 6521419298711023042, guid: 7efd0fb3ed4132e45951b46b33c0b2e8, type: 3}
     defaultLayer: 3000
     description: "\uAC1C\uBC1C \uCE58\uD2B8 \uD328\uB110 (F11)"
+  - key: HudWorldClock
+    prefab: {fileID: 3959862155877919956, guid: ba20b3c0b6958344faf9e6870f9eca4f, type: 3}
+    defaultLayer: 0
+    description: "\uC778\uAC8C\uC784 \uC2DC\uACC4 HUD"

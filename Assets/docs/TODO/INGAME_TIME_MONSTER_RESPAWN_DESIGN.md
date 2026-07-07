@@ -1,6 +1,7 @@
 # 인게임 시간/몬스터 재스폰/낮밤 조명 설계
 
 작성일: 2026-07-06
+갱신일: 2026-07-07 — 코드 구현 완료, "에디터 수동 작업" 섹션 추가
 
 ## 목표
 
@@ -105,13 +106,41 @@ public enum DayPeriod
 
 ### 3. WorldLightingController
 
-씬에 배치하는 MonoBehaviour로 설계한다. 전역 매니저가 아닌 씬 오브젝트가 적합하다. 이유는 씬마다 방향광, Volume, 하늘색, 안개 설정이 다를 수 있기 때문이다.
+`WorldLightingController`는 프리팹으로 제작하고 런타임에 동적 배치한다. 씬에 수동 배치하지 않는다.
+
+권장 프리팹 경로:
+
+```text
+Assets/03.Prefabs/World/WorldLightingController.prefab
+```
+
+동적 배치 주체는 `WorldLightingManager` 또는 `SceneManager`의 씬 로드 후 hook으로 둔다. 기존 매니저 구조를 고려하면 `WorldLightingManager : BaseManager<WorldLightingManager>, IManager`를 새로 만들고, `OnSceneChanged`에서 현재 씬의 조명 레퍼런스를 찾은 뒤 프리팹을 생성하는 방식이 가장 명확하다.
+
+생성 흐름:
+
+```text
+SceneManager.OnSceneChanged
+→ WorldLightingManager.EnsureController()
+→ Addressables 또는 Resources/직접 참조로 WorldLightingController prefab 로드
+→ DontDestroyOnLoad 루트 또는 현재 씬 루트에 Instantiate
+→ 현재 씬의 Light/Volume 레퍼런스 자동 바인딩
+→ GameTimeManager 시간 이벤트 구독
+```
+
+동적 배치로 바꾸는 이유:
+
+- 모든 월드 씬에 같은 프리팹을 수동 배치하는 중복을 줄인다.
+- 시간 시스템이 켜진 씬에서만 생성하고, 메뉴/타이틀 씬에서는 생성하지 않을 수 있다.
+- 씬 전환 시 이전 씬의 Light/Volume 참조가 끊기는 문제를 매니저가 일괄 재바인딩할 수 있다.
+- 기본 연출값은 프리팹/`WorldTimeSettingsSO`로 통일하고, 씬별 차이는 `WorldLightingSceneProfile`로 덮어쓴다.
 
 필드:
 
 - `Light _sunLight`
 - `Light _moonLight` 선택
 - `Volume _globalVolume` 선택
+- `WorldTimeSettingsSO _defaultSettings`
+- `WorldLightingSceneProfileSO _sceneProfile` 선택
 - `Gradient sunColorByTime`
 - `AnimationCurve sunIntensityByTime`
 - `Gradient ambientColorByTime`
@@ -130,6 +159,14 @@ RenderSettings.ambientLight = ambientColorByTime.Evaluate(dayProgress01)
 ```
 
 URP Volume은 프로파일을 직접 수정하면 에셋 오염 가능성이 있으므로 런타임에는 인스턴스화된 Profile 또는 전용 override 컴포넌트를 사용한다. 구현 단계에서는 노출/색보정만 최소 적용하고, 이후 안개/하늘/달빛을 확장한다.
+
+씬 레퍼런스 바인딩 정책:
+
+- 우선순위 1: 씬에 있는 `WorldLightingSceneBinding` 컴포넌트가 명시한 `sunLight`, `moonLight`, `globalVolume`
+- 우선순위 2: 태그 또는 이름 규칙(`Directional Light`, `Sun`, `Global Volume`) 자동 검색
+- 우선순위 3: 프리팹 내부 fallback Light/Volume 사용
+
+`WorldLightingSceneBinding`은 데이터 바인딩 전용 컴포넌트로 두고 로직을 넣지 않는다. 이렇게 하면 씬에는 가벼운 참조 컴포넌트만 두고 실제 제어 로직은 런타임 생성 프리팹이 담당한다.
 
 ### 4. 몬스터 재스폰 데이터
 
@@ -377,6 +414,32 @@ fade out 0.45s
 그레이우드 평원의 마물 5체가 다시 출현했습니다.
 ```
 
+프리팹 Builder도 함께 제공한다.
+
+권장 파일:
+
+```text
+Assets/02.Scripts/UI/Scene/Editor/UIWorldRespawnNoticePrefabBuilder.cs
+Assets/03.Prefabs/UI/Scene/World/UI_WorldRespawnNotice.prefab
+```
+
+Builder 메뉴:
+
+```text
+UPlayGround/UI/Build World Respawn Notice
+```
+
+Builder 책임:
+
+- `UI_WorldRespawnNotice` 루트 생성
+- `CanvasGroup` 자동 추가 및 `_canvasGroup` 직렬화 필드 연결
+- 전체 화면 암전 `Image` 생성
+- 안내 문구 `TextMeshProUGUI` 생성 및 `_messageText` 연결
+- 필요 시 레이아웃/앵커/폰트 크기/색상 기본값 설정
+- 기존 프리팹이 있으면 루트 스크립트와 GUID는 유지하고 자식 UI만 재구성
+
+기존 `UIRespawnPopupPrefabBuilder` 패턴을 참고하되, 이 UI는 입력 차단/일시정지 목적이 아니므로 `Button`이나 입력 레이어 상승 처리는 넣지 않는다.
+
 ### 10. 재스폰 타이밍 정책
 
 권장 기본 정책:
@@ -430,19 +493,87 @@ private void NotifyWorldStateKill()
 
 1. `GameTimeManager`에 인게임 시간 필드/API/이벤트 추가
 2. `WorldTimeSettingsSO` 추가
-3. `WorldLightingController` 추가 및 테스트 씬에 연결
+3. `WorldLightingController` 프리팹, `WorldLightingManager`, `WorldLightingSceneBinding` 추가
 4. `MonsterRespawnSettingsSO`, `MonsterRespawnPoint`, 저장 데이터 추가
 5. `WorldStateManager`를 permanent kill/respawn state로 분리
 6. `MonsterActor.OnAnyMonsterDied` 또는 `NotifyWorldStateKill` 정책 분기 추가
 7. `MonsterRespawnManager` 추가 및 `GameManager` 등록
 8. `MonsterActor.ApplyRuntimeLevel`, `SetRuntimeRewards` 추가
 9. `ActorDefinitionSO.goldReward` 추가 및 보상 지급 처리
-10. `UI_WorldRespawnNotice` 프리팹/스크립트 추가
-11. 에디터 검증기 추가
+10. `UI_WorldRespawnNotice` 스크립트와 `UIWorldRespawnNoticePrefabBuilder` 추가
+11. Builder로 `UI_WorldRespawnNotice.prefab` 생성
+12. 에디터 검증기 추가
     - 보스가 respawn point에 들어가면 warning
     - respawn 대상 ActorDefinitionSO에 `monsterScaling` 누락 시 error
     - `goldReward`, `expReward` 음수 검사
-12. 저장/로드/씬 전환 수동 QA
+13. 저장/로드/씬 전환 수동 QA
+
+## 에디터 수동 작업 (코드 구현 완료 후)
+
+코드 구현은 완료된 상태이며, 아래는 Unity 에디터에서 수동으로 수행해야 하는 작업이다.
+모든 설정 에셋/프리팹은 Addressables 선택 로드(try/catch + 코드 기본값 폴백) 구조이므로,
+"선택" 항목은 건너뛰어도 기본값으로 동작한다.
+
+### 필수 작업
+
+1. **재스폰 안내 UI 프리팹 빌드 + DB 등록**
+   - 메뉴 `UPlayGround/UI/월드 재스폰 안내 프리팹 빌드` 실행
+     → `Assets/03.Prefabs/UI/Scene/World/UI_WorldRespawnNotice.prefab` 생성
+   - `Assets/10.Datas/Path/UIPrefabDatabase.asset`에 수동 등록:
+     Key `WorldRespawnNotice`, Default Layer `HUD`
+   - 미등록 시: 재스폰은 정상 동작하되 안내 UI만 표시되지 않는다.
+
+2. **인게임 시계 HUD 프리팹 빌드 + DB 등록**
+   - 메뉴 `UPlayGround/UI/인게임 시계 HUD 프리팹 빌드` 실행
+     → `Assets/03.Prefabs/UI/HUD/UI_HudWorldClock.prefab` 생성
+   - `UIPrefabDatabase.asset`에 수동 등록: Key `HudWorldClock`, Default Layer `HUD`
+   - `UI_GamePlay`가 `GetUIPrefabEntry`로 등록 여부를 확인하므로, 미등록 시 시계 HUD만 스킵된다.
+
+3. **개발 치트 패널 프리팹 재빌드** (시간 치트 탭)
+   - 메뉴 `UPlayGround/UI/개발 치트 패널 프리팹 빌드 (초안)` 재실행
+     → 6번째 "시간" 탭 버튼/패널이 프리팹에 추가된다 (DB 등록은 빌더가 자동 처리).
+   - 재빌드 전 기존 5탭 프리팹으로도 오류는 없다 (배열 범위 가드).
+
+### 선택 작업 (미수행 시 코드 기본값 사용)
+
+4. **WorldTimeSettings 에셋 생성**
+   - Create 메뉴 `UPlayGround/월드/World Time Settings`
+     → 권장 경로 `Assets/10.Datas/World/WorldTimeSettings.asset`
+   - Addressables 주소를 정확히 `WorldTimeSettings`로 지정 (GameTimeManager가 이 키로 로드).
+   - 기본값: 실제 1초 = 인게임 1분(24분 = 1일), 시작 08:00, pause 시 시간 정지.
+
+5. **MonsterRespawnSettings 에셋 생성**
+   - Create 메뉴 `UPlayGround/월드/Monster Respawn Settings`
+     → 권장 경로 `Assets/10.Datas/World/MonsterRespawnSettings.asset`
+   - Addressables 주소를 정확히 `MonsterRespawnSettings`로 지정.
+   - 기본값: 약몹 240분/일반 360분/엘리트 720분, 보스 재스폰 없음, 일당 +0.5레벨,
+     재스폰 3회당 +1레벨(최대 +20), 레벨당 경험치/골드 +8%.
+
+6. **WorldLightingController 프리팹 제작**
+   - `WorldLightingController` 컴포넌트를 붙인 프리팹을 만들어 Addressables 주소
+     `WorldLightingController`로 등록하면 그라디언트/커브를 인스펙터에서 커스텀할 수 있다.
+   - 미등록 시: WorldLightingManager가 빈 GameObject를 생성하고 코드 기본 프로필
+     (`BuildDefaultProfile`)로 동작한다.
+
+7. **씬별 WorldLightingSceneBinding 배치**
+   - 각 인게임 씬에 `WorldLightingSceneBinding` 컴포넌트를 배치하고
+     태양광/달광/Global Volume을 지정하면 자동 검색을 우회한다.
+   - 특정 씬에서 낮밤 조명을 끄려면 `disableWorldLighting`을 체크.
+   - 미배치 시 자동 검색: `RenderSettings.sun` → 가장 밝은 Directional Light,
+     Volume은 priority 최상위 Global Volume.
+
+8. **몬스터 골드 보상 설정**
+   - 각 몬스터 `ActorDefinitionSO`의 신규 필드 `goldReward` 값 입력 (기본 0 = 골드 미지급).
+
+9. **데이터 검증 실행**
+   - 메뉴 `UPlayGround/월드/몬스터 재스폰 데이터 검증` 실행:
+     보상 음수(error), 재스폰 대상의 `monsterScaling` 누락(error), 보상 0(warning)을 점검.
+
+### 검증
+
+- 스크립트 컴파일 에러 확인 (전체 구현이 컴파일 검증 대기 상태).
+- 치트 패널 → 시간 탭 → `+6시간` 스킵으로 재스폰/안내 UI, `x240` 배속으로 낮밤 전환을 빠르게 확인.
+- 아래 QA 체크리스트 수행.
 
 ## QA 체크리스트
 
@@ -467,4 +598,4 @@ private void NotifyWorldStateKill()
 - 런타임 스탯 적용 방식: `ActorStatContainer`에 딕셔너리 주입 API가 있는지 확인 후, 없으면 런타임 `ActorStatSO` 인스턴스를 생성한다.
 - 씬 배치 몬스터 자동 등록만으로는 그룹/인카운터 복원이 완벽하지 않을 수 있다. 중요한 전투는 `MonsterRespawnPoint` 명시 배치가 필요하다.
 - 기존 `WorldStateManager.killedMonsters` 세이브 호환이 필요하다. 기존 저장 데이터는 모두 permanent kill로 읽는 것이 안전하다.
-- 조명은 씬마다 레퍼런스가 다르므로 매니저보다 씬 컴포넌트가 적합하다. 단, 공통 설정은 `WorldTimeSettingsSO`로 공유한다.
+- `WorldLightingController`는 씬 수동 배치가 아니라 프리팹 런타임 동적 배치로 간다. 씬별 레퍼런스 차이는 `WorldLightingSceneBinding` 또는 자동 검색으로 해결하고, 공통 설정은 `WorldTimeSettingsSO`로 공유한다.

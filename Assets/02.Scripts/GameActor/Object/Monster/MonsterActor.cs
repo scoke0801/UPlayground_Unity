@@ -39,6 +39,13 @@ namespace UPlayGround
         [Tooltip("처치 시 출전 파티 전원에게 지급할 경험치. 0이면 지급 없음.")]
         [HideInInspector, SerializeField] private long _expReward = 0;
 
+        [Tooltip("처치 시 지급할 골드. 0이면 지급 없음.")]
+        [HideInInspector, SerializeField] private int _goldReward = 0;
+
+        // 재스폰 레벨 스케일링이 주입하는 런타임 보상. 음수면 미설정(기본 보상 사용).
+        private long _runtimeExpReward = -1;
+        private int _runtimeGoldReward = -1;
+
         [Header("AI Components")]
         [SerializeField] private EnemyDetection _detection;
         [FormerlySerializedAs("_brain")]
@@ -69,6 +76,9 @@ namespace UPlayGround
         public float CurrentHealth => _currentHealth;
         public MonsterActorGrade Grade => _grade;
         public int Level => Mathf.Max(1, _level);
+        public CharacterActorType RecruitableAs => _recruitableAs;
+        public long BaseExpReward => _expReward;
+        public int BaseGoldReward => _goldReward;
 
         /// <summary>
         /// 현재 행동불능/리액션 상태. 데미지 해석 시 통합 취약 배율(Vulnerability Multiplier) 산출에 쓰인다.
@@ -510,6 +520,7 @@ namespace UPlayGround
             NotifyWorldStateKill();
             SpawnDropItems();
             GrantPartyExp();
+            GrantGold();
             TryRecruitToParty();
 
             if (_uiHpBar != null)
@@ -544,16 +555,22 @@ namespace UPlayGround
         }
 
         /// <summary>
-        /// 배치 몬스터(SceneEntityId 보유)의 처치를 월드 상태에 기록한다.
-        /// 동적 스폰 몬스터는 SceneEntityId가 없어 추적 대상이 아니다.
+        /// 몬스터 처치를 월드 상태에 기록한다.
+        /// 재스폰 대상(일반 필드 몬스터)이면 재스폰 예약으로, 아니면(보스/합류 몬스터 등) 영구 처치로 기록한다.
+        /// 재스폰으로 생성된 몬스터는 SceneEntityId가 없지만 MonsterRespawnManager가 guid를 복원한다.
         /// </summary>
         private void NotifyWorldStateKill()
         {
             var entityId = GetComponent<SceneEntityId>();
-            if (entityId == null || !entityId.HasGuid) return;
-
+            string guid = entityId != null && entityId.HasGuid ? entityId.Guid : null;
             string mapId = SceneManager.Instance?.CurrentMapID;
-            WorldStateManager.Instance?.RecordKill(mapId, entityId.Guid);
+
+            if (MonsterRespawnManager.Instance != null
+                && MonsterRespawnManager.Instance.TryScheduleRespawn(this, mapId, guid))
+                return;
+
+            if (string.IsNullOrEmpty(guid)) return;
+            WorldStateManager.Instance?.RecordPermanentKill(mapId, guid);
         }
 
         private void TryRecruitToParty()
@@ -564,8 +581,16 @@ namespace UPlayGround
 
         private void GrantPartyExp()
         {
-            if (_expReward <= 0) return;
-            PartyManager.Instance?.AwardBattleExp(_expReward);
+            long exp = _runtimeExpReward >= 0 ? _runtimeExpReward : _expReward;
+            if (exp <= 0) return;
+            PartyManager.Instance?.AwardBattleExp(exp);
+        }
+
+        private void GrantGold()
+        {
+            int gold = _runtimeGoldReward >= 0 ? _runtimeGoldReward : _goldReward;
+            if (gold <= 0 || InventoryManager.Instance == null) return;
+            InventoryManager.Instance.Gold += gold;
         }
 
         private void SpawnDropItems()
@@ -604,6 +629,50 @@ namespace UPlayGround
             ApplyDefinitionData(definition);
         }
 
+        /// <summary>
+        /// 재스폰 레벨 스케일링용 런타임 레벨 오버라이드.
+        /// definition.monsterScaling 기반으로 스탯을 재계산해 베이스 값을 교체하고 HP를 풀로 리셋한다.
+        /// 전투 중이 아닌 갓 스폰된(또는 씬 로드 직후) 몬스터에만 호출할 것.
+        /// scaling이 없으면 스탯은 그대로 두고 레벨 표기만 바꾼다.
+        /// </summary>
+        /// <param name="runtimeLevel">적용할 레벨 (1 이상)</param>
+        /// <param name="difficultyOverride">0보다 크면 scaling의 difficultyMultiplier 대신 사용</param>
+        public void ApplyRuntimeLevel(int runtimeLevel, float difficultyOverride = 0f)
+        {
+            runtimeLevel = Mathf.Max(1, runtimeLevel);
+
+            MonsterScalingSO scaling = Definition != null ? Definition.monsterScaling : null;
+            if (scaling == null)
+            {
+                _level = runtimeLevel;
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat,
+                    $"[MonsterActor] {gameObject.name} monsterScaling이 없어 레벨 표기만 변경 (Lv.{runtimeLevel})",
+                    this);
+                return;
+            }
+
+            var stats = MonsterStatCalculator.CalculateAtLevel(scaling, Definition, runtimeLevel, difficultyOverride);
+            foreach (var kv in stats)
+                Stats.SetBase(kv.Key, kv.Value);
+
+            _level = runtimeLevel;
+
+            // PoiseStat/BreakGauge는 ActorStatContainer를 직접 읽으므로 베이스 교체로 함께 반영된다.
+            ResetHealthFromStats();
+            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
+        /// <summary>
+        /// 재스폰 레벨에 맞춘 런타임 보상(경험치/골드)을 주입한다. 음수는 0으로 취급.
+        /// 미호출 시 정의 기본 보상을 사용한다.
+        /// </summary>
+        public void SetRuntimeRewards(long expReward, int goldReward)
+        {
+            _runtimeExpReward = System.Math.Max(0, expReward);
+            _runtimeGoldReward = Mathf.Max(0, goldReward);
+        }
+
         private void ApplyDefinitionData(ActorDefinitionSO definition)
         {
             if (definition == null) return;
@@ -613,6 +682,7 @@ namespace UPlayGround
             _level = Mathf.Max(1, definition.level);
             _recruitableAs = definition.recruitableAs;
             _expReward = System.Math.Max(0, definition.expReward);
+            _goldReward = Mathf.Max(0, definition.goldReward);
 
             // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
             if (definition.statData != null)

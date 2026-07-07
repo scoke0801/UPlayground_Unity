@@ -16,6 +16,19 @@ namespace UPlayGround.Data.Save
         public QuestSaveData quest = new QuestSaveData();
         public PartySaveData party = new PartySaveData();
         public WorldStateSaveData world = new WorldStateSaveData();
+        public TimeSaveData time = new TimeSaveData();
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // Time (플레이 시간 + 인게임 시계)
+
+    [Serializable]
+    public class TimeSaveData
+    {
+        public float totalPlaySeconds;
+
+        /// <summary> 누적 인게임 분. 음수면 미기록(구버전 세이브)으로 간주한다. </summary>
+        public float totalGameMinutes = -1f;
     }
 
     // ──────────────────────────────────────────────────────────
@@ -46,8 +59,38 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class WorldStateSaveData
     {
-        // mapId → 처치된 SceneEntityId GUID 목록
+        // mapId → 영구 처치된 SceneEntityId GUID 목록 (보스/합류 몬스터 등 재스폰 제외 대상).
+        // 구버전 세이브의 killedMonsters는 전부 영구 처치로 읽는다(호환).
         public Dictionary<string, List<string>> killedMonsters = new Dictionary<string, List<string>>();
+
+        /// <summary> 일반 필드 몬스터의 재스폰 상태 목록. </summary>
+        public List<MonsterRespawnState> respawnStates = new List<MonsterRespawnState>();
+
+        /// <summary> 맵별 소모된 채집/파괴형 인터랙션 오브젝트 GUID 목록. </summary>
+        public Dictionary<string, List<string>> consumedInteractables = new Dictionary<string, List<string>>();
+    }
+
+    /// <summary>
+    /// 배치 몬스터 1개의 재스폰 상태. 런타임(WorldStateManager)과 세이브에서 같은 타입을 사용한다.
+    /// </summary>
+    [Serializable]
+    public class MonsterRespawnState
+    {
+        public string mapId;
+        /// <summary> SceneEntityId GUID. 재스폰 상태의 키. </summary>
+        public string guid;
+        public string actorId;
+        public SerializableVector3 position;
+        public SerializableQuaternion rotation;
+        /// <summary> MonsterActorGrade 이름 문자열. </summary>
+        public string grade;
+        public int baseLevel = 1;
+
+        /// <summary> true=사망 후 재스폰 대기 중, false=재스폰되어 생존 중. </summary>
+        public bool waitingRespawn;
+        public int respawnCount;
+        public float firstKilledGameMinute;
+        public float nextRespawnGameMinute;
     }
 
     // ──────────────────────────────────────────────────────────

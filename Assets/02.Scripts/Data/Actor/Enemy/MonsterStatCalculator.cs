@@ -54,10 +54,24 @@ namespace UPlayGround.Data.Enemy
             ActorDefinitionSO actor,
             float difficultyOverride = 0f)
         {
+            return CalculateAtLevel(scaling, actor, actor != null ? actor.level : 1, difficultyOverride);
+        }
+
+        /// <summary>
+        /// 정의 기준이되 레벨만 오버라이드해 계산한다. 재스폰 런타임 레벨 스케일링용.
+        /// 휴머노이드 무기 편차 등 정의 기반 보정을 동일하게 적용한다.
+        /// Calculate 오버로드로 두지 않는 이유: int 리터럴 난이도 인자가 조용히 레벨로 바인딩되는 것을 막기 위함.
+        /// </summary>
+        public static Dictionary<StatType, float> CalculateAtLevel(
+            MonsterScalingSO scaling,
+            ActorDefinitionSO actor,
+            int levelOverride,
+            float difficultyOverride = 0f)
+        {
             Dictionary<StatType, float> stats = Calculate(
                 scaling,
                 actor != null ? actor.grade : MonsterActorGrade.Normal,
-                actor != null ? actor.level : 1,
+                levelOverride,
                 difficultyOverride);
 
             ApplyHumanoidWeaponVariation(stats, actor);

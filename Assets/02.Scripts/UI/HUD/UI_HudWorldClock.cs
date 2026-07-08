@@ -14,7 +14,6 @@ public class UI_HudWorldClock : UI_Base
     [Header("표시")]
     [SerializeField] private TextMeshProUGUI _timeText;   // "08:24"
     [SerializeField] private TextMeshProUGUI _dayText;    // "1일차 · 낮"
-    [SerializeField] private Image _periodIcon;           // 시간대 색상 점 (선택)
 
     [Header("시간대 아이콘 색")]
     [SerializeField] private Color _dawnColor  = new Color(0.95f, 0.70f, 0.50f, 1f);
@@ -83,10 +82,7 @@ public class UI_HudWorldClock : UI_Base
             _timeText.text = $"{minuteOfDay / 60:D2}:{minuteOfDay % 60:D2}";
 
         if (_dayText != null)
-            _dayText.text = $"{time.CurrentDay + 1}일차 · {GetPeriodLabel(time.CurrentDayPeriod)}";
-
-        if (_periodIcon != null)
-            _periodIcon.color = GetPeriodColor(time.CurrentDayPeriod);
+            _dayText.text = $"{time.CurrentDay + 1}일차 {GetPeriodLabel(time.CurrentDayPeriod)}";
     }
 
     private static string GetPeriodLabel(DayPeriod period) => period switch

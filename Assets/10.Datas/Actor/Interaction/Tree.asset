@@ -22,3 +22,5 @@ MonoBehaviour:
     maximumDropCount: 5
   showInfoUI: 1
   showShakeEffect: 1
+  fishingDepleteCatchCount: 0
+  reviveDowned: 0

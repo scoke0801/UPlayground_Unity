@@ -494,6 +494,7 @@ namespace UPlayGround.Animation.Editor
                     Meta<SpecialBreakAttackEvent>("SpecialBreakAttack", Combat, "브레이크 특수공격 피해 적용 타이밍을 발생시킵니다.", "break", "special", "groggy", "브레이크", "특수공격"),
                     Meta<InvincibilityEvent>("Invincibility", Combat, "피격 무적 구간을 설정합니다.", "iframe", "invincible", "무적", "회피"),
                     Meta<HealSkillEvent>("HealSkill", Combat, "회복 스킬 판정을 실행합니다.", "heal", "recovery", "힐", "회복"),
+                    Meta<InteractionEvent>("Interaction", Combat, "인터렉션 대상에 채집/채광/벌목/낚시 처리 타이밍을 전달합니다.", "interaction", "gather", "mining", "woodcutting", "fishing", "채집", "채광", "벌목", "낚시"),
 
                     Meta<BeginParticleEvent>("Particle", VfxSfx, "파티클/VFX를 생성합니다.", "vfx", "effect", "fx", "이펙트", "파티클"),
                     Meta<AfterimageEvent>("Afterimage", VfxSfx, "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.", "ghost", "after image", "alpha", "잔상", "알파"),

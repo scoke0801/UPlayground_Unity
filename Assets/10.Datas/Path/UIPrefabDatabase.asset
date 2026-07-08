@@ -146,3 +146,7 @@ MonoBehaviour:
     prefab: {fileID: 3959862155877919956, guid: ba20b3c0b6958344faf9e6870f9eca4f, type: 3}
     defaultLayer: 0
     description: "\uC778\uAC8C\uC784 \uC2DC\uACC4 HUD"
+  - key: WorldRespawnNotice
+    prefab: {fileID: 1783118673345676083, guid: fcf69e1f7ef533949978044f94508c6e, type: 3}
+    defaultLayer: 0
+    description: "\uBAAC\uC2A4\uD130 \uC7AC\uC2A4\uD3F0 \uC548\uB0B4"

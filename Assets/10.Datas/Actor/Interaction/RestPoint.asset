@@ -19,4 +19,5 @@ MonoBehaviour:
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 1
+  fishingDepleteCatchCount: 0
   reviveDowned: 1

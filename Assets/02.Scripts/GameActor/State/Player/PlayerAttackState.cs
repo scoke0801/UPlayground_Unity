@@ -41,6 +41,7 @@ namespace UPlayGround.State
         private float      _attackTimer;
 
         private bool _comboInputted;
+        private bool _comboContinuesSameType;
         // 현재 공격 모션에서 액티브 히트(콜리전)가 최소 1회 발생했는지. 이동 후딜 캔슬 게이트에 사용.
         // 단일 페이즈 공격은 윈드업에도 CurrentHitPhaseIndex == LastHitPhaseIndex == 0 이라
         // 페이즈 비교만으로는 윈드업을 못 거른다 → 히트 1회 발생 여부를 함께 본다.
@@ -311,6 +312,7 @@ namespace UPlayGround.State
             _hasActiveHitFired = false;
             _lastActiveHitEndTime = -1f;
             _wasActiveHit = false;
+            _comboContinuesSameType = true;
 
             if (_isHeavyAttack)
             {
@@ -399,12 +401,14 @@ namespace UPlayGround.State
                 if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
                     _comboInputted = true;
+                    _comboContinuesSameType = !_isHeavyAttack;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
                 }
                 else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
                     _comboInputted = true;
+                    _comboContinuesSameType = _isHeavyAttack;
                     _isHeavyAttack = true;
                     _combat.CloseComboWindow();
                 }
@@ -480,6 +484,7 @@ namespace UPlayGround.State
                 _isSwapEvadeCounterAttack = false;
                 _isEntryAttack  = false;
                 _isSwapSpecialAttack = false;
+                bool continueCombo = _comboContinuesSameType;
 
                 // 다음 콤보 키를 미리 조회해 보유 여부를 확인.
                 // 모션이 없으면 콤보 인덱스를 진행시키지 않고 Idle/Move로 이탈.
@@ -491,8 +496,8 @@ namespace UPlayGround.State
 
                 AnimKey peekedKey = peekRoute != null
                     ? (peekRoute.attackInfo?.baseInfo?.animKey ?? AnimKey.None)
-                    : (_isHeavyAttack ? _combat.PeekHeavyAttackAnimKey(true)
-                                      : _combat.PeekNormalAttackAnimKey(true));
+                    : (_isHeavyAttack ? _combat.PeekHeavyAttackAnimKey(continueCombo)
+                                      : _combat.PeekNormalAttackAnimKey(continueCombo));
 
                 if (peekedKey == AnimKey.None || !gameActor.Animator.HasMotion(peekedKey, true))
                 {
@@ -512,6 +517,7 @@ namespace UPlayGround.State
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
                 _comboInputted = false;
+                _comboContinuesSameType = true;
                 _homingTarget = FindHomingTarget();
                 _motionWarp.SetTarget(_homingTarget);
             }
@@ -615,9 +621,10 @@ namespace UPlayGround.State
             }
 
             // 2순위: 기본 약/강 콤보
+            bool continueCombo = !_comboInputted || _comboContinuesSameType;
             _currentAttack = _isHeavyAttack
-                ? _combat.ExecuteHeavyAttack(_comboInputted)
-                : _combat.ExecuteAttack(_comboInputted);
+                ? _combat.ExecuteHeavyAttack(continueCombo && _comboInputted)
+                : _combat.ExecuteAttack(continueCombo && _comboInputted);
 
             return _currentAttack?.animKey ?? AnimKey.None;
         }

@@ -58,23 +58,23 @@ namespace UPlayGround.Manager
             var consumed = WorldStateManager.Instance?.GetConsumedInteractables(mapId);
             if (consumed == null || consumed.Count == 0) return;
 
-            int hidden = 0;
+            int applied = 0;
             foreach (string guid in consumed)
             {
                 if (string.IsNullOrEmpty(guid)) continue;
                 if (!_placements.TryGetValue(guid, out var placement)) continue;
                 if (placement.actor == null) continue;
 
-                placement.actor.gameObject.SetActive(false);
-                hidden++;
+                placement.actor.ApplyConsumedState();
+                applied++;
             }
 
-            if (hidden > 0)
-                Debug.Log($"[InteractionRespawnManager] 맵 '{mapId}' 소모된 인터랙션 오브젝트 {hidden}개 숨김");
+            if (applied > 0)
+                Debug.Log($"[InteractionRespawnManager] 맵 '{mapId}' 소모된 인터랙션 오브젝트 {applied}개 적용");
         }
 
         /// <summary>
-        /// 채집/파괴형 인터랙션 오브젝트 소모를 기록하고 현재 씬에서는 비활성화한다.
+        /// 채집/파괴형 인터랙션 오브젝트 소모를 기록하고 현재 씬 상태를 소모됨으로 적용한다.
         /// SceneEntityId가 없으면 false를 반환해 호출자가 기존 Destroy 흐름으로 폴백한다.
         /// </summary>
         public bool TryConsume(GatheringActor actor)
@@ -90,7 +90,7 @@ namespace UPlayGround.Manager
             WorldStateManager.Instance?.RecordConsumedInteractable(mapId, entityId.Guid);
             _placements[entityId.Guid] = new PlacementInfo { actor = actor };
 
-            actor.gameObject.SetActive(false);
+            actor.ApplyConsumedState();
             return true;
         }
 

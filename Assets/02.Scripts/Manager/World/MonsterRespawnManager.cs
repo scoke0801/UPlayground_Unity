@@ -369,12 +369,22 @@ namespace UPlayGround.Manager
             RegisterRuntimeTracking(monster, state.guid);
         }
 
-        /// <summary> SceneEntityId가 없는 재스폰 인스턴스를 사망 시 guid 복원용으로 추적한다. </summary>
+        /// <summary>
+        /// 재스폰 인스턴스를 사망 시 guid 복원용으로 추적한다.
+        /// 씬 배치 원본(컴포넌트 guid == 배치 guid)은 사망 시 컴포넌트에서 직접 읽으므로 추적이 필요 없다.
+        /// 그 외에는 무조건 추적 등록한다 — 프리팹 에셋에 guid가 구워진 채 복제된 인스턴스는
+        /// 낡은 guid를 갖고 있어(HasGuid true), 방치하면 사망 시 잘못된 guid로 영구 처치가
+        /// 기록되고 재스폰 예약이 조용히 실패한다. 이런 컴포넌트는 제거해 guid 복원 경로를 강제한다.
+        /// </summary>
         private void RegisterRuntimeTracking(MonsterActor monster, string guid)
         {
             var entityId = monster.GetComponent<SceneEntityId>();
-            if (entityId == null || !entityId.HasGuid)
-                _runtimeSpawned[monster] = guid;
+            if (entityId != null && entityId.HasGuid && entityId.Guid == guid)
+                return;
+
+            if (entityId != null)
+                UnityEngine.Object.Destroy(entityId);
+            _runtimeSpawned[monster] = guid;
         }
 
         /// <summary>
@@ -444,7 +454,7 @@ namespace UPlayGround.Manager
 
             string message = count > 1
                 ? $"쓰러졌던 마물 {count}체가 다시 출현했습니다."
-                : "쓰러졌던 마물이 다시 움직이기 시작했습니다.";
+                : "쓰러졌던 마물들이 다시 움직이기 시작했습니다.";
             notice.ShowNotice(message);
         }
 

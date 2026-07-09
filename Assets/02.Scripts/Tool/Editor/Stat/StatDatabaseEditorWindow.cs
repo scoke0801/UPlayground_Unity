@@ -50,6 +50,7 @@ namespace UPlayGround.Tool.Editor.Stat
             ("이동",  new[] { StatType.MoveSpeed, StatType.DashDistance }),
             ("강인도", new[] { StatType.MaxPoise, StatType.PoiseRecoveryRate, StatType.PoiseRecoveryDelay }),
             ("스킬",  new[] { StatType.SkillGaugeRate, StatType.InvincibleDuration }),
+            ("생활",  new[] { StatType.GatheringPower }),
         };
 
         // ── 메뉴 ─────────────────────────────────────────────────
@@ -120,7 +121,7 @@ namespace UPlayGround.Tool.Editor.Stat
             GUILayout.FlexibleSpace();
 
             // 카테고리 필터
-            string[] categoryNames = new[] { "전체", "생존", "전투", "이동", "강인도", "스킬" };
+            string[] categoryNames = new[] { "전체", "생존", "전투", "이동", "강인도", "스킬", "생활" };
             int currentIndex = Array.IndexOf(categoryNames, _categoryFilter);
             int newIndex = EditorGUILayout.Popup(currentIndex < 0 ? 0 : currentIndex, categoryNames, EditorStyles.toolbarPopup, GUILayout.Width(80));
             _categoryFilter = categoryNames[newIndex];
@@ -242,8 +243,22 @@ namespace UPlayGround.Tool.Editor.Stat
             GUILayout.Label(type.ToString(), GUILayout.Width(170));
             GUI.color = prevColor;
 
-            // 값 입력
-            float newValue = EditorGUILayout.FloatField(value, GUILayout.Width(100));
+            // 값 입력 — 폴백(미등록) 상태는 [+]로 명시 등록 후 편집한다.
+            // 양쪽 분기 모두 22px 버튼을 그려 비교 모드 컬럼 정렬을 유지한다.
+            float newValue     = value;
+            bool  addClicked   = false;
+            bool  resetClicked = false;
+            if (isExplicit)
+            {
+                newValue = EditorGUILayout.FloatField(value, GUILayout.Width(100));
+                resetClicked = GUILayout.Button(new GUIContent("↺", "명시 해제 (기본값 폴백)"), GUILayout.Width(22));
+            }
+            else
+            {
+                using (new EditorGUI.DisabledScope(true))
+                    EditorGUILayout.FloatField(value, GUILayout.Width(100));
+                addClicked = GUILayout.Button(new GUIContent("+", "기본값으로 명시 등록"), GUILayout.Width(22));
+            }
 
             // 비교
             if (_compareMode && _compareTarget != null)
@@ -272,7 +287,23 @@ namespace UPlayGround.Tool.Editor.Stat
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
-            if (!Mathf.Approximately(newValue, value))
+            if (resetClicked)
+            {
+                Undo.RecordObject(so, "Reset Stat");
+                so.EditorRemove(type);
+                EditorUtility.SetDirty(so);
+                return;
+            }
+
+            if (addClicked)
+            {
+                Undo.RecordObject(so, "Add Stat");
+                so.EditorSet(type, value);
+                EditorUtility.SetDirty(so);
+                return;
+            }
+
+            if (isExplicit && !Mathf.Approximately(newValue, value))
             {
                 Undo.RecordObject(so, "Edit Stat");
                 so.EditorSet(type, newValue);

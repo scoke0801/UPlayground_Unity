@@ -21,6 +21,7 @@ namespace UPlayGround.Data.Stat
                 StatType.PoiseRecoveryDelay => "강인도 회복 대기",
                 StatType.SkillGaugeRate => "스킬 게이지",
                 StatType.InvincibleDuration => "무적 시간",
+                StatType.GatheringPower => "채집력",
                 _ => type.ToString()
             };
         }

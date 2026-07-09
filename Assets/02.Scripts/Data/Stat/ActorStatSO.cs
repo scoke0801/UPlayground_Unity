@@ -39,6 +39,7 @@ namespace UPlayGround.Data.Stat
             { StatType.PoiseRecoveryDelay, 2.0f },
             { StatType.SkillGaugeRate,     1.0f },
             { StatType.InvincibleDuration, 1.0f },
+            { StatType.GatheringPower,     1.0f },
         };
 
         public IReadOnlyList<StatEntry> Entries => _stats;

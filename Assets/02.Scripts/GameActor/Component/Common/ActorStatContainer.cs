@@ -37,6 +37,7 @@ namespace UPlayGround.Component
         public float PoiseRecoveryDelay => GetFinalStat(StatType.PoiseRecoveryDelay);
         public float SkillGaugeRate     => GetFinalStat(StatType.SkillGaugeRate);
         public float InvincibleDuration => GetFinalStat(StatType.InvincibleDuration);
+        public float GatheringPower     => GetFinalStat(StatType.GatheringPower);
 
         // ── 초기화 ────────────────────────────────────────────────
 

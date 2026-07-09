@@ -23,17 +23,19 @@ MonoBehaviour:
     baseValue: 0.05
   - statType: 5
     baseValue: 1.5
+  - statType: 6
+    baseValue: 1
+  - statType: 7
+    baseValue: 1
   - statType: 8
     baseValue: 100
   - statType: 9
     baseValue: 40
   - statType: 10
     baseValue: 2
-  - statType: 6
-    baseValue: 1
-  - statType: 7
-    baseValue: 1
   - statType: 11
     baseValue: 1
   - statType: 12
     baseValue: 1
+  - statType: 13
+    baseValue: 50

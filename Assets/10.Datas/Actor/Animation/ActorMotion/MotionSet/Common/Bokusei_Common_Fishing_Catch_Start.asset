@@ -17,8 +17,20 @@ MonoBehaviour:
     motions:
     - motionName: 
       motionClip: {fileID: 3094330708855449807, guid: cf73933e92a602d47a63e8991a762ccb, type: 3}
-      events: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
+      events:
+      - rid: 5341827903424561152
     globalEvents: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5341827903424561152
+      type: {class: InteractionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      data:
+        startTime: 0.61249995
+        endTime: 1.1125
+        globalStartTimeOffset: 0
+        interactionEvent: 1
+        showHitFx: 1

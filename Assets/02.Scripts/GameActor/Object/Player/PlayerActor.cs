@@ -1521,12 +1521,26 @@ namespace UPlayGround
     // 애니메이션 이벤트 리시버
     public partial class PlayerActor : GameActor, IDamageable
     {
+        /// <summary>
+        /// 채광/벌목/채집 1회 타격량. 채집력(GatheringPower) 스탯을 단일 소스로 사용하며 최소 1을 보장한다.
+        /// 레거시 애니메이션 이벤트(Hit)와 MotionEvent_Interaction 타임라인이 공유하는 유일한 계산식.
+        /// </summary>
+        public static int CalcGatheringHitAmount(ActorStatContainer stats)
+        {
+            float power = stats != null
+                ? stats.GetFinalStat(StatType.GatheringPower)
+                : ActorStatSO.GetDefault(StatType.GatheringPower);
+
+            return Mathf.Max(1, Mathf.RoundToInt(power));
+        }
+
         public void Hit()
         {
             IInteractable target = GameObjectManager.Instance?.InteractionHandler?.CurrentClosestInteractable;
             if (target == null) return;
 
-            target.OnAnimationEvent(InteractionAnimEvent.OnHit, new PlayerInteractionEvent { value = Random.Range(10, 50) });
+            int hitAmount = CalcGatheringHitAmount(Stats);
+            target.OnAnimationEvent(InteractionAnimEvent.OnHit, new PlayerInteractionEvent { value = hitAmount });
 
             GameActor actor = target.GetActor();
             if (actor == null) return;

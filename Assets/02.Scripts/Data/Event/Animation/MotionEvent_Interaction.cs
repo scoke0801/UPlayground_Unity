@@ -10,19 +10,19 @@ namespace UPlayGround.Data.Event
     /// <summary>
     /// 플레이어 인터렉션 모션 타임라인에서 현재 상호작용 대상에 처리 타이밍을 전달한다.
     /// 채광/벌목/채집은 OnHit, 낚시는 CatchFish를 사용한다.
+    /// 타임라인은 발화 타이밍만 담당하고, 타격량은 플레이어 스탯(GatheringPower)에서만 나온다.
     /// </summary>
     [Serializable]
     public class InteractionEvent : MotionEventBase
     {
         public InteractionAnimEvent interactionEvent = InteractionAnimEvent.OnHit;
-        public int value = 1;
         public bool showHitFx = true;
 
         public override string GetDisplayName() => "Interaction";
 
         public override string GetShortLabel() => interactionEvent switch
         {
-            InteractionAnimEvent.OnHit => $"Interact Hit ({value})",
+            InteractionAnimEvent.OnHit => "Interact Hit",
             InteractionAnimEvent.CatchFish => "Catch Fish",
             _ => "Interaction"
         };
@@ -35,7 +35,7 @@ namespace UPlayGround.Data.Event
 
             interactable.OnAnimationEvent(
                 interactionEvent,
-                new PlayerInteractionEvent { value = value });
+                new PlayerInteractionEvent { value = CalcHitAmount() });
 
             if (showHitFx)
                 ShowInteractionFx(interactable);
@@ -44,6 +44,12 @@ namespace UPlayGround.Data.Event
         public override void OnCompleteEvent(GameObject target)
         {
         }
+
+        /// <summary>
+        /// 타격량 = 플레이어 채집력(GatheringPower). 계산식은 PlayerActor와 공유한다.
+        /// </summary>
+        private static int CalcHitAmount()
+            => PlayerActor.CalcGatheringHitAmount(GameObjectManager.Instance?.Player?.Stats);
 
         private static void ShowInteractionFx(IInteractable interactable)
         {

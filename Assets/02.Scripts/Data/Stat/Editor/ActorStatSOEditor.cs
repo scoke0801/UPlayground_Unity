@@ -22,6 +22,7 @@ namespace UPlayGround.Editor.Stat
             ("이동",  new[] { StatType.MoveSpeed, StatType.DashDistance },                          new Color(0.30f, 0.55f, 0.90f)),
             ("강인도", new[] { StatType.MaxPoise, StatType.PoiseRecoveryRate, StatType.PoiseRecoveryDelay }, new Color(0.85f, 0.70f, 0.10f)),
             ("스킬",  new[] { StatType.SkillGaugeRate, StatType.InvincibleDuration },               new Color(0.60f, 0.30f, 0.90f)),
+            ("생활",  new[] { StatType.GatheringPower },                                             new Color(0.35f, 0.70f, 0.65f)),
         };
 
         // ── 슬라이더 범위 ─────────────────────────────────────────
@@ -40,11 +41,11 @@ namespace UPlayGround.Editor.Stat
             { StatType.PoiseRecoveryDelay, (0f, 10f)   },
             { StatType.SkillGaugeRate,     (0f, 5f)    },
             { StatType.InvincibleDuration, (0f, 3f)    },
+            { StatType.GatheringPower,     (0f, 50f)   },
         };
 
         // ── 스타일 캐시 ───────────────────────────────────────────
         private GUIStyle _categoryHeaderStyle;
-        private GUIStyle _missingLabelStyle;
         private bool _stylesInitialized;
 
         private void InitStyles()
@@ -57,11 +58,6 @@ namespace UPlayGround.Editor.Stat
                 fontSize = 12,
                 alignment = TextAnchor.MiddleLeft,
                 padding = new RectOffset(6, 0, 2, 2),
-            };
-
-            _missingLabelStyle = new GUIStyle(EditorStyles.miniLabel)
-            {
-                fontStyle = FontStyle.Italic,
             };
         }
 
@@ -132,29 +128,60 @@ namespace UPlayGround.Editor.Stat
             // 라벨
             GUILayout.Label(type.ToString(), GUILayout.Width(155));
 
-            // 슬라이더
-            float newValue = EditorGUILayout.Slider(value, min, max);
+            bool resetClicked = false;
+            bool addClicked   = false;
+            float newValue    = value;
 
-            // 명시 여부 토글 (스왑 버튼)
-            GUI.color = prevColor;
             if (isExplicit)
             {
-                if (GUILayout.Button("↺", GUILayout.Width(22), GUILayout.Height(18)))
-                {
-                    Undo.RecordObject(so, "Reset Stat");
-                    so.EditorRemove(type);
-                    EditorUtility.SetDirty(so);
-                    return;
-                }
+                // 슬라이더 범위는 권장 범위(드래그 편의용)일 뿐, 입력 필드는 제한 없음.
+                // EditorGUILayout.Slider는 타이핑 입력까지 범위로 클램프해서 분리했다.
+                EditorGUI.BeginChangeCheck();
+                float sliderValue = GUILayout.HorizontalSlider(value, min, max, GUILayout.ExpandWidth(true));
+                if (EditorGUI.EndChangeCheck())
+                    newValue = sliderValue;
+
+                EditorGUI.BeginChangeCheck();
+                float fieldValue = EditorGUILayout.FloatField(newValue, GUILayout.Width(55));
+                if (EditorGUI.EndChangeCheck())
+                    newValue = fieldValue;
+
+                GUI.color = prevColor;
+                resetClicked = GUILayout.Button(new GUIContent("↺", "명시 해제 (기본값 폴백)"),
+                    GUILayout.Width(22), GUILayout.Height(18));
             }
             else
             {
-                GUILayout.Label("(폴백)", _missingLabelStyle, GUILayout.Width(34));
+                // 폴백 = 미등록 상태. 직접 편집 대신 [+]로 명시 등록 후 편집한다.
+                using (new EditorGUI.DisabledScope(true))
+                {
+                    GUILayout.HorizontalSlider(value, min, max, GUILayout.ExpandWidth(true));
+                    EditorGUILayout.FloatField(value, GUILayout.Width(55));
+                }
+                GUI.color = prevColor;
+                addClicked = GUILayout.Button(new GUIContent("+", "기본값으로 명시 등록"),
+                    GUILayout.Width(22), GUILayout.Height(18));
             }
 
             EditorGUILayout.EndHorizontal();
 
-            if (!Mathf.Approximately(newValue, value))
+            if (resetClicked)
+            {
+                Undo.RecordObject(so, "Reset Stat");
+                so.EditorRemove(type);
+                EditorUtility.SetDirty(so);
+                return;
+            }
+
+            if (addClicked)
+            {
+                Undo.RecordObject(so, "Add Stat");
+                so.EditorSet(type, value);
+                EditorUtility.SetDirty(so);
+                return;
+            }
+
+            if (isExplicit && !Mathf.Approximately(newValue, value))
             {
                 Undo.RecordObject(so, "Edit Stat");
                 so.EditorSet(type, newValue);

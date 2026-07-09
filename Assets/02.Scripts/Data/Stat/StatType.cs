@@ -29,5 +29,8 @@ namespace UPlayGround.Data.Stat
         // ── 스킬 ──────────────────────────────
         SkillGaugeRate,     // 스킬 게이지 충전 속도 배율
         InvincibleDuration, // 무적 시간 배율
+
+        // ── 생활 ──────────────────────────────
+        GatheringPower,     // 채집력 (채광/벌목/채집 1회 타격량)
     }
 }

@@ -49,6 +49,7 @@ namespace UPlayGround.Tool.Editor.Party
             ("이동",  new[] { StatType.MoveSpeed, StatType.DashDistance }),
             ("강인도", new[] { StatType.MaxPoise, StatType.PoiseRecoveryRate, StatType.PoiseRecoveryDelay }),
             ("스킬",  new[] { StatType.SkillGaugeRate, StatType.InvincibleDuration }),
+            ("생활",  new[] { StatType.GatheringPower }),
             ("전체",  (StatType[])Enum.GetValues(typeof(StatType))),
         };
 

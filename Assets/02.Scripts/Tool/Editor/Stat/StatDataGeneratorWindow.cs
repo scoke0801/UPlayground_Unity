@@ -1725,6 +1725,7 @@ namespace UPlayGround.Tool.Editor.Stat
                     so.EditorSet(StatType.DashDistance,       1.0f);
                     so.EditorSet(StatType.SkillGaugeRate,     1.0f);
                     so.EditorSet(StatType.InvincibleDuration, 1.0f);
+                    so.EditorSet(StatType.GatheringPower,     1.0f);
                     break;
             }
         }

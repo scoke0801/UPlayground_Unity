@@ -50,7 +50,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            _cachedData = handler.CurrentClosestInteractable.GetData();
+            _cachedData = handler.CurrentClosestInteractable?.GetData();
             if (_cachedData == null)
             {
                 ForceChangeToNextState();
@@ -59,6 +59,11 @@ namespace UPlayGround.State
 
             // 플레이어에 대한 처리
             PlayAnimation();
+
+            // 채광/채집/벌목은 대상이 소진될 때까지 같은 모션을 반복 재생해야 한다.
+            // (AnimancerState.OwnedEvents.OnEnd는 타임라인 완료와 무관하게 클립 종료 시점에 발화하고,
+            //  재진입 시 _animPlayState 가드에 막혀 재생이 끊기므로 MotionSet 완료 이벤트를 사용한다)
+            gameActor.Animator.OnMotionSetCompleted += OnInteractionMotionCompleted;
 
             handler.StartInteraction();
 
@@ -72,6 +77,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            gameActor.Animator.OnMotionSetCompleted -= OnInteractionMotionCompleted;
+
             GameObjectManager.Instance?.InteractionHandler?.StopInteraction();
 
             if (EventManager.Instance != null)
@@ -171,50 +178,55 @@ namespace UPlayGround.State
 
         private void PlayMiningAnimation()
         {
-            AnimancerState state = null; 
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    state = gameActor.Animator.PlayMotion(AnimKey.Mining_Ground);
+                    gameActor.Animator.PlayMotion(AnimKey.Mining_Ground);
                     _animPlayState = AnimPlayState.Start;
                     break;
-                default: break;    
+                default: break;
             }
-
-            if (state == null)
-                return;
-            
-            state.OwnedEvents.OnEnd = PlayAnimation;
         }
 
         private void PlayDefaultGatheringAnimation()
         {
-            AnimancerState state = null; 
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    state = gameActor.Animator.PlayMotion(AnimKey.HandGathering);
+                    gameActor.Animator.PlayMotion(AnimKey.HandGathering);
                     _animPlayState = AnimPlayState.Start;
                     break;
-                default: break;    
+                default: break;
             }
+        }
 
-            if (state == null)
-                return;
-            
-            state.OwnedEvents.OnEnd = PlayAnimation;
+        /// <summary>
+        /// 채광/채집/벌목 MotionSet 타임라인 완료 시 같은 모션을 처음부터 반복 재생한다.
+        /// 대상 소진(InteractionTargetDestroy)이나 상태 이탈 시 OnExit에서 구독 해제되어 반복이 멈춘다.
+        /// 낚시는 Throw→Idle→Catch 체이닝(OwnedEvents.OnEnd)으로 별도 진행되므로 제외.
+        /// </summary>
+        private void OnInteractionMotionCompleted()
+        {
+            switch (_cachedData?.interactionObjectType)
+            {
+                case InteractionObjectType.STONE:
+                case InteractionObjectType.GATERING_ZONE:
+                case InteractionObjectType.TREE:
+                    _animPlayState = AnimPlayState.None;
+                    PlayAnimation();
+                    break;
+            }
         }
 
         private void PlayWoodCuttingAnimation()
         {
-            AnimancerState state = null; 
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    state = gameActor.Animator.PlayMotion(AnimKey.Woodcutting);
-                    _animPlayState = AnimPlayState.Idle;
+                    gameActor.Animator.PlayMotion(AnimKey.Woodcutting);
+                    _animPlayState = AnimPlayState.Start;
                     break;
-                default: break;    
+                default: break;
             }
         }
         

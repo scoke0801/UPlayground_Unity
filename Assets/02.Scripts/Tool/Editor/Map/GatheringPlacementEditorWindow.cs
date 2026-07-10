@@ -23,6 +23,7 @@ namespace UPlayGround.Tool.Editor.Map
         private const string DropItemInteractionDataPath = InteractionDataFolder + "/DropItem.asset";
         private const string ItemDataFolder = "Assets/10.Datas/Item";
         private const string SearchControlName = "WorldInteractionPlacement.Search";
+        private const string InteractableObjectLayerName = "InteractableObject";
 
         private const string PrefsPrefix = "UPlayground.GatheringPlacement.";
         private const string RecentPrefsKey = PrefsPrefix + "RecentGuids";
@@ -48,6 +49,7 @@ namespace UPlayGround.Tool.Editor.Map
         private bool _placementMode;
         private bool _autoCreateRoot = true;
         private bool _selectAfterPlace = true;
+        private bool _stickToSurface = true;
         private bool _alignToSurface;
         private bool _snapToGrid;
         private bool _randomRotation;
@@ -61,6 +63,7 @@ namespace UPlayGround.Tool.Editor.Map
         private Vector2 _randomRotationYRange = new(0f, 360f);
         private Vector2 _randomRotationZRange = Vector2.zero;
         private float _heightOffset;
+        // LayerMask.NameToLayer는 생성자/필드 초기화식에서 호출이 금지되므로 OnEnable에서 초기화한다.
         private LayerMask _raycastMask = ~0;
 
         private Vector3 _previewPosition;
@@ -98,6 +101,7 @@ namespace UPlayGround.Tool.Editor.Map
 
         private void OnEnable()
         {
+            _raycastMask = CreateDefaultRaycastMask();
             SceneView.duringSceneGui += OnSceneGUI;
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             LoadPrefs();
@@ -400,6 +404,7 @@ namespace UPlayGround.Tool.Editor.Map
             {
                 EditorGUI.indentLevel++;
                 _raycastMask = LayerMaskField("Raycast Layer", _raycastMask);
+                _stickToSurface = EditorGUILayout.Toggle("Stick To Surface", _stickToSurface);
                 _heightOffset = EditorGUILayout.FloatField("Y Offset", _heightOffset);
 
                 _alignToSurface = EditorGUILayout.Toggle("Align To Surface", _alignToSurface);
@@ -582,6 +587,7 @@ namespace UPlayGround.Tool.Editor.Map
 
             ApplyInteractableLayer(instance);
             SetupColliderIfNeeded(instance);
+            StickInstanceToSurface(instance);
             ApplyPlacementData(instance);
             AddSceneEntityIdIfNeeded(instance);
 
@@ -617,7 +623,7 @@ namespace UPlayGround.Tool.Editor.Map
 
         private void ApplyInteractableLayer(GameObject instance)
         {
-            int layer = LayerMask.NameToLayer("InteractableObject");
+            int layer = LayerMask.NameToLayer(InteractableObjectLayerName);
             if (layer < 0)
             {
                 Debug.LogWarning("[GatheringPlacement] 'InteractableObject' Layer를 찾지 못했습니다. 배치 오브젝트 Layer를 변경하지 않았습니다.", instance);
@@ -708,6 +714,81 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             return hasBounds;
+        }
+
+        private void StickInstanceToSurface(GameObject instance)
+        {
+            if (!_stickToSurface)
+                return;
+
+            Vector3 surfaceNormal = _previewNormal.sqrMagnitude > 0.0001f ? _previewNormal.normalized : Vector3.up;
+            if (!TryGetPlacementBounds(instance, out Bounds bounds))
+                return;
+
+            float lowestProjection = GetLowestBoundsProjection(bounds, surfaceNormal);
+            float targetProjection = Vector3.Dot(_previewPosition, surfaceNormal);
+            float offset = targetProjection - lowestProjection;
+
+            if (Mathf.Abs(offset) <= 0.0001f)
+                return;
+
+            Undo.RecordObject(instance.transform, "Stick Gathering To Surface");
+            instance.transform.position += surfaceNormal * offset;
+            EditorUtility.SetDirty(instance.transform);
+        }
+
+        private static bool TryGetPlacementBounds(GameObject instance, out Bounds bounds)
+        {
+            if (TryGetRendererBounds(instance, out bounds))
+                return true;
+
+            bool hasBounds = false;
+            bounds = default;
+
+            // 배치 직후에는 물리 동기화 전이라 collider.bounds가 이동 전 위치 기준일 수 있다.
+            Physics.SyncTransforms();
+
+            foreach (var collider in instance.GetComponentsInChildren<Collider>(true))
+            {
+                if (collider == null)
+                    continue;
+
+                if (!hasBounds)
+                {
+                    bounds = collider.bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    bounds.Encapsulate(collider.bounds);
+                }
+            }
+
+            return hasBounds;
+        }
+
+        private static float GetLowestBoundsProjection(Bounds bounds, Vector3 normal)
+        {
+            Vector3 min = bounds.min;
+            Vector3 max = bounds.max;
+            float lowest = float.PositiveInfinity;
+
+            for (int x = 0; x <= 1; x++)
+            {
+                for (int y = 0; y <= 1; y++)
+                {
+                    for (int z = 0; z <= 1; z++)
+                    {
+                        var corner = new Vector3(
+                            x == 0 ? min.x : max.x,
+                            y == 0 ? min.y : max.y,
+                            z == 0 ? min.z : max.z);
+                        lowest = Mathf.Min(lowest, Vector3.Dot(corner, normal));
+                    }
+                }
+            }
+
+            return lowest;
         }
 
         private static Vector3 WorldSizeToLocalSize(Transform root, Vector3 worldSize)
@@ -1344,6 +1425,16 @@ namespace UPlayGround.Tool.Editor.Map
 
             string path = AssetDatabase.GUIDToAssetPath(guid);
             return string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<InteractableActorSO>(path);
+        }
+
+        private static LayerMask CreateDefaultRaycastMask()
+        {
+            int mask = Physics.DefaultRaycastLayers;
+            int interactableLayer = LayerMask.NameToLayer(InteractableObjectLayerName);
+            if (interactableLayer >= 0)
+                mask &= ~(1 << interactableLayer);
+
+            return mask;
         }
 
         private static void EnsureFolder(string folder)

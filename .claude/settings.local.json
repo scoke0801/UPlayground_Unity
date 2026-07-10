@@ -259,7 +259,8 @@
       "Bash(sed -i '2403s/m_SortingOrder: 0/m_SortingOrder: 32767/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
       "Bash(sed -i '2396s/m_OverrideSorting: 1/m_OverrideSorting: 0/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
       "Bash(sed -i '2403s/m_SortingOrder: 32767/m_SortingOrder: 0/' C:/UsingProject/UnityProject/UPlayground/Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab)",
-      "WebFetch(domain:assetstore.unity.com)"
+      "WebFetch(domain:assetstore.unity.com)",
+      "PowerShell(try { $j = Get-Content \"Assets\\\\Resources\\\\Input\\\\PlayerInputActions.inputactions\" -Raw | ConvertFrom-Json; \"JSON OK\" } catch { \"JSON ERROR: $\\($_.Exception.Message\\)\" })"
     ]
   }
 }

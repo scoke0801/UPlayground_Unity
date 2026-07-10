@@ -13,7 +13,7 @@ namespace UPlayGround.UI.Guide.EditorTools
     /// </summary>
     public static class UIGuidePopupPrefabBuilder
     {
-        private const string PrefabPath = "Assets/03.Prefabs/UI/Scene/UI_GuidePopup.prefab";
+        private const string PrefabPath = "Assets/03.Prefabs/UI/Popup/UI_GuidePopup.prefab";
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
 
         private static readonly Color Dim = new(0f, 0f, 0f, 0.42f);
@@ -28,7 +28,7 @@ namespace UPlayGround.UI.Guide.EditorTools
         [MenuItem("UPlayGround/UI/가이드 팝업 프리팹 빌드")]
         public static void Build()
         {
-            EnsureFolder("Assets/03.Prefabs/UI/Scene");
+            EnsureFolder("Assets/03.Prefabs/UI/Popup");
 
             GameObject root = new("UI_GuidePopup", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
             try
@@ -113,6 +113,7 @@ namespace UPlayGround.UI.Guide.EditorTools
                 Anchor(closeButton.gameObject, new Vector2(0.925f, 0.925f), new Vector2(0.975f, 0.975f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
 
                 var so = new SerializedObject(popup);
+                so.FindProperty("_layer").intValue = (int)CanvasLayer.Popup;
                 SetRef(so, "_guideImage", guideImage);
                 SetRef(so, "_guideVideoImage", guideVideoImage);
                 SetRef(so, "_videoPlayer", videoPlayer);

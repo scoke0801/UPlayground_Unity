@@ -19,6 +19,9 @@ namespace UPlayGround.CameraSystem
         public override bool AllowsLockOnInput => true;
         public override bool UseCollision => true;
 
+        // 락온 플릭 전환용 마우스 X 델타 누적치
+        private float _flickAccum;
+
         public InGameCameraBehavior()
         {
             AddModifier(new RotationTransitionCameraModifier());        // 100
@@ -38,8 +41,15 @@ namespace UPlayGround.CameraSystem
         public override void HandleInput(CameraContext context, float deltaTime)
         {
             if (context?.Settings == null || context.State == null) return;
-            if (InputManager.Instance.CurrentLayer != InputLayer.Level_0) return;
-            if (Cursor.visible || context.IsInputLocked) return;
+
+            // 입력이 처리되지 않는 프레임에는 플릭 누적치를 남기지 않는다.
+            // 잔존 누적치가 있으면 팝업/메뉴 복귀 직후 미세한 이동만으로 대상 전환이 발동할 수 있다.
+            if (InputManager.Instance.CurrentLayer != InputLayer.Level_0 ||
+                Cursor.visible || context.IsInputLocked)
+            {
+                _flickAccum = 0f;
+                return;
+            }
 
             var input = InputManager.Instance;
             if (input == null) return;
@@ -83,6 +93,12 @@ namespace UPlayGround.CameraSystem
                 }
             }
 
+            // 락온 중에는 마우스 Look 델타가 카메라 회전에 쓰이지 않으므로, 좌우 플릭을 대상 전환 입력으로 사용한다.
+            if (isLockOn)
+                UpdateLockOnFlickSwitch(context, input);
+            else
+                _flickAccum = 0f;
+
             if (input.GetAction(InputMapNames.PlayerAction, PlayerAction.Zoom, out InputAction zoomAction))
             {
                 float scroll = zoomAction.ReadValue<Vector2>().y;
@@ -94,6 +110,36 @@ namespace UPlayGround.CameraSystem
                         context.Settings.minDistance,
                         context.Settings.maxDistance);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 락온 중 마우스 좌우 플릭으로 대상을 전환한다.
+        /// 프레임당 X 델타를 누적하고, 임계치 도달 시 그 방향의 대상으로 전환한다.
+        /// 누적치는 시간에 따라 감쇠하므로 느린 마우스 이동으로는 발동하지 않는다.
+        /// </summary>
+        private void UpdateLockOnFlickSwitch(CameraContext context, InputManager input)
+        {
+            if (context.LockOn == null || !context.Settings.lockOnMouseFlickSwitch)
+                return;
+            if (!input.GetAction(InputMapNames.PlayerAction, PlayerAction.Look, out InputAction lookAction))
+                return;
+
+            // 게임패드 우스틱 좌우는 LockOnSwitchLeft/Right 액션 바인딩이 별도로 처리한다.
+            if (lookAction.activeControl?.device is Gamepad)
+            {
+                _flickAccum = 0f;
+                return;
+            }
+
+            _flickAccum += lookAction.ReadValue<Vector2>().x;
+            _flickAccum = Mathf.MoveTowards(
+                _flickAccum, 0f, context.Settings.lockOnFlickDecay * Time.unscaledDeltaTime);
+
+            if (Mathf.Abs(_flickAccum) >= context.Settings.lockOnFlickThreshold)
+            {
+                context.LockOn.SwitchTarget(_flickAccum > 0f ? 1 : -1);
+                _flickAccum = 0f;
             }
         }
 

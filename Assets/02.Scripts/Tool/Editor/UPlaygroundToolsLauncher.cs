@@ -139,7 +139,7 @@ namespace UPlayGround.Editor
             ("월드 / 맵", new[]
             {
                 Tool("맵 배치 도구",              "UPlayGround/월드/맵/맵 배치 도구", "씬에 액터/포탈/오브젝트를 배치합니다.", "ActorDefinition 기반 프리팹을 씬 클릭으로 배치하고 맵 제작용 배치 워크플로를 제공합니다."),
-                Tool("Gathering 배치 도구",      "UPlayGround/월드/맵/Gathering 배치 도구", "채집/벌목/채광/낚시터 오브젝트를 배치합니다.", "InteractableActorSO를 선택하고 씬 클릭으로 GatheringActor를 배치합니다. 프리팹이 없으면 기본 GameObject를 만들고 상호작용 데이터와 SceneEntityId를 자동 주입합니다."),
+                Tool("월드 인터랙션 배치 도구",      "UPlayGround/월드/맵/월드 인터랙션 배치 도구", "채집/벌목/채광/낚시터 오브젝트와 드랍 아이템을 배치합니다.", "InteractableActorSO 또는 ItemSO를 선택하고 씬 클릭으로 GatheringActor/DropItemActor를 배치합니다. 프리팹이 없으면 기본 GameObject를 만들고 상호작용 데이터와 SceneEntityId를 자동 주입합니다."),
                 Tool("SceneEntityId 일괄 부여",      "UPlayGround/World/월드 상태 SceneEntityId 일괄 부여", "월드 상태 대상에 SceneEntityId/GUID를 일괄 부여합니다.", "열린 씬의 MonsterActor와 GatheringActor에 SceneEntityId를 부착하고 비었거나 중복된 GUID를 보정합니다. 몬스터 처치/채집 오브젝트 소모 영속화의 안정적 식별자를 발급하는 용도입니다."),
             }),
             ("월드 / 미니맵", new[]
@@ -153,6 +153,10 @@ namespace UPlayGround.Editor
                 Tool("대화 카메라 설정 생성", "UPlayGround/월드/카메라/대화 카메라 설정 생성", "대화용 카메라 설정 에셋을 생성합니다.", "Dialogue 카메라 모드에서 사용할 기본 설정 데이터가 없을 때 생성합니다."),
                 Tool("전투 카메라 프로필 DB 생성", "UPlayGround/월드/카메라/전투 카메라 프로필 DB 생성", "전투 카메라 프로필 DB를 생성합니다.", "Combat Camera Profile Database 에셋이 없을 때 기본 데이터베이스를 생성합니다."),
                 Tool("전투 카메라 프로필 DB 검증", "UPlayGround/월드/카메라/전투 카메라 프로필 DB 검증", "전투 카메라 프로필 DB를 검증합니다.", "Combat Camera Profile Database의 누락 프로필, 중복, 참조 상태를 검사합니다."),
+            }),
+            ("UI", new[]
+            {
+                Tool("가이드 팝업 데이터 편집기", "UPlayGround/UI/가이드 팝업 데이터 편집기", "GuidePopupDataSO를 생성하고 페이지 내용을 편집합니다.", "가이드 팝업의 이미지/동영상 페이지, 제목, 본문, 반복 재생 여부를 한 창에서 설정합니다. 페이지 추가, 복제, 삭제, 순서 변경과 미디어 누락 검사를 지원합니다."),
             }),
             ("내러티브 / 대화", new[]
             {

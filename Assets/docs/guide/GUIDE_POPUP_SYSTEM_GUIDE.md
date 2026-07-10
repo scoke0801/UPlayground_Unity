@@ -23,7 +23,7 @@ UPlayGround/UI/가이드 팝업 프리팹 빌드
 
 실행 결과:
 
-- `Assets/03.Prefabs/UI/Scene/UI_GuidePopup.prefab` 생성 또는 갱신
+- `Assets/03.Prefabs/UI/Popup/UI_GuidePopup.prefab` 생성 또는 갱신
 - `Assets/10.Datas/Path/UIPrefabDatabase.asset`에 `GuidePopup` 키 등록
 
 프리팹 구조나 SerializeField가 변경되면 이 메뉴를 다시 실행한다.
@@ -93,6 +93,35 @@ go?.GetComponent<UI_GuidePopup>()?.Setup(_guideData, startPageIndex: 1);
 ```
 
 `startPageIndex`는 0부터 시작한다. `1`은 두 번째 페이지다.
+
+표준 헬퍼를 사용하면 `ShowUI`와 `Setup`을 직접 나누지 않아도 된다.
+
+```csharp
+using UPlayGround.Data.UI;
+using UPlayGround.UI.Guide;
+
+public class GuidePopupExample : MonoBehaviour
+{
+    [SerializeField] private GuidePopupDataSO _guideData;
+
+    public void OpenGuide()
+    {
+        GuidePopupRuntime.Open(_guideData);
+    }
+}
+```
+
+## 트리거에서 출력
+
+`TriggerComposer`의 Action으로 가이드 팝업을 출력할 수 있다.
+
+1. 씬 오브젝트에 `TriggerComposer`를 추가한다.
+2. Source를 `플레이어가 영역에 들어오면`, `몬스터 그룹이 전멸하면` 등 원하는 타이밍으로 설정한다.
+3. Action에서 `가이드 팝업 표시`를 생성한다.
+4. 생성된 `ShowGuidePopupTriggerActionSO`의 `Guide Data`에 `GuidePopupDataSO`를 넣는다.
+5. `Wait For Close`를 켜면 팝업이 닫힐 때까지 Sequence의 다음 Action 실행을 기다린다.
+
+가이드 팝업은 표시 중 `BlocksLowerInput = true`로 하위 입력 레이어를 차단한다. 현재 프리팹은 `Popup` 레이어로 설정되어 있어 게임플레이 입력은 사용할 수 없고, 팝업의 다음/닫기 입력만 동작한다.
 
 ## 동영상과 GIF
 

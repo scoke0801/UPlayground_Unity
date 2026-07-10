@@ -143,6 +143,14 @@ namespace UPlayGround.Data
         public float lockOnSwitchScreenWeight = 1f;
         public float lockOnSwitchCenterWeight = 0.35f;
         public float lockOnSwitchDistanceWeight = 0.25f;
+        [Tooltip("락온 중 마우스를 좌우로 빠르게 움직이면(플릭) 그 방향의 대상으로 전환한다.")]
+        public bool lockOnMouseFlickSwitch = true;
+        [Tooltip("전환 발동에 필요한 마우스 X 델타 누적치(픽셀). 클수록 더 크게 움직여야 전환된다.")]
+        [Min(1f)]
+        public float lockOnFlickThreshold = 150f;
+        [Tooltip("플릭 누적치 감쇠 속도(픽셀/초). 이 속도보다 느린 마우스 이동으로는 전환이 발동하지 않는다.")]
+        [Min(0f)]
+        public float lockOnFlickDecay = 600f;
 
         [Header("=== 락온 가시성 검증 ===")]
         [Tooltip("신규 락온 후보가 카메라에서 보이지 않으면 제외한다.")]

@@ -11,14 +11,14 @@ namespace UPlayGround.Data.World
     [CreateAssetMenu(fileName = "MonsterRespawnSettings", menuName = "UPlayGround/월드/Monster Respawn Settings")]
     public class MonsterRespawnSettingsSO : ScriptableObject
     {
-        [Header("등급별 재스폰 간격 (인게임 분)")]
-        [Tooltip("약몹 재스폰 간격. 240 = 인게임 4시간.")]
+        [Header("등급별 최소 대기 시간 (인게임 분) — 이 시간이 지난 뒤 도래하는 첫 자정에 리스폰")]
+        [Tooltip("약몹 최소 대기. 240 = 인게임 4시간 경과 후 첫 자정.")]
         [Min(1f)] public float weakIntervalMinutes = 4f * 60f;
 
-        [Tooltip("일반 몬스터 재스폰 간격. 360 = 인게임 6시간.")]
+        [Tooltip("일반 몬스터 최소 대기. 360 = 인게임 6시간 경과 후 첫 자정.")]
         [Min(1f)] public float normalIntervalMinutes = 6f * 60f;
 
-        [Tooltip("엘리트 재스폰 간격. 720 = 인게임 12시간.")]
+        [Tooltip("엘리트 최소 대기. 720 = 인게임 12시간 경과 후 첫 자정.")]
         [Min(1f)] public float eliteIntervalMinutes = 12f * 60f;
 
         [Header("등급별 재스폰 허용")]

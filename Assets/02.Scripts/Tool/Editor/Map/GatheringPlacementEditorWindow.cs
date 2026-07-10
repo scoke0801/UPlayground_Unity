@@ -12,14 +12,17 @@ using UPlayGround.Component;
 namespace UPlayGround.Tool.Editor.Map
 {
     /// <summary>
-    /// 씬 뷰 클릭으로 채집/벌목/채광/낚시터용 GatheringActor를 배치하는 전용 에디터 도구.
-    /// 메뉴: UPlayGround/월드/맵/Gathering 배치 도구
+    /// 씬 뷰 클릭으로 채집/벌목/채광/낚시터용 GatheringActor와 수동 획득 DropItemActor를 배치하는 에디터 도구.
+    /// 메뉴: UPlayGround/월드/맵/월드 인터랙션 배치 도구
     /// </summary>
     public class GatheringPlacementEditorWindow : EditorWindow
     {
         private const string DefaultRootName = "GatheringPlacementRoot";
+        private const string DropItemRootName = "DropItemPlacementRoot";
         private const string InteractionDataFolder = "Assets/10.Datas/Actor/Interaction";
-        private const string SearchControlName = "GatheringPlacement.Search";
+        private const string DropItemInteractionDataPath = InteractionDataFolder + "/DropItem.asset";
+        private const string ItemDataFolder = "Assets/10.Datas/Item";
+        private const string SearchControlName = "WorldInteractionPlacement.Search";
 
         private const string PrefsPrefix = "UPlayground.GatheringPlacement.";
         private const string RecentPrefsKey = PrefsPrefix + "RecentGuids";
@@ -29,10 +32,14 @@ namespace UPlayGround.Tool.Editor.Map
         private const int MaxRecentCount = 5;
 
         private readonly List<InteractableActorSO> _interactableDatas = new();
+        private readonly List<ItemSO> _itemDatas = new();
         private readonly List<string> _recentDataGuids = new();
 
+        private PlacementKind _placementKind = PlacementKind.Gathering;
         private InteractableActorSO _selectedData;
+        private ItemSO _selectedItem;
         private GameObject _prefab;
+        private GameObject _dropItemPrefab;
         private Transform _parent;
         private string _searchFilter = "";
         private Vector2 _dataListScroll;
@@ -43,7 +50,6 @@ namespace UPlayGround.Tool.Editor.Map
         private bool _selectAfterPlace = true;
         private bool _alignToSurface;
         private bool _snapToGrid;
-        private bool _randomYaw;
         private bool _randomRotation;
         private bool _addSceneEntityId = true;
         private bool _autoSetupCollider = true;
@@ -73,11 +79,19 @@ namespace UPlayGround.Tool.Editor.Map
         private GUIStyle _chipStyle;
         private bool _stylesInitialized;
 
-        [MenuItem("UPlayGround/월드/맵/Gathering 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
+        private int _dropItemCount = 1;
+
+        private enum PlacementKind
+        {
+            Gathering = 0,
+            DropItem = 1,
+        }
+
+        [MenuItem("UPlayGround/월드/맵/월드 인터랙션 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
         public static void Open()
         {
             var window = GetWindow<GatheringPlacementEditorWindow>();
-            window.titleContent = new GUIContent("Gathering Placement", EditorGUIUtility.IconContent("d_TerrainInspector.TerrainToolPlants").image);
+            window.titleContent = new GUIContent("World Placement", EditorGUIUtility.IconContent("d_TerrainInspector.TerrainToolPlants").image);
             window.minSize = new Vector2(420f, 560f);
             window.Show();
         }
@@ -88,6 +102,7 @@ namespace UPlayGround.Tool.Editor.Map
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             LoadPrefs();
             RefreshInteractableDatas();
+            RefreshItemDatas();
             SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
         }
 
@@ -107,6 +122,7 @@ namespace UPlayGround.Tool.Editor.Map
             DrawToolbar();
 
             _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
+            DrawPlacementKindTabs();
             DrawDataSection();
             DrawTargetSection();
             DrawPlacementSettings();
@@ -125,9 +141,7 @@ namespace UPlayGround.Tool.Editor.Map
             EditorGUI.DrawRect(rect, barColor);
 
             string modeText = _placementMode ? "배치 모드 ON" : "배치 모드 OFF";
-            string selectionText = _selectedData != null
-                ? $"{GetDataTitle(_selectedData)} ({_selectedData.interactionObjectType})"
-                : "데이터 미선택";
+            string selectionText = GetSelectionStatusText();
 
             Rect leftRect = new Rect(rect.x + 10f, rect.y + 5f, rect.width - 170f, 22f);
             GUI.Label(leftRect, $"{modeText} - {selectionText}", _statusTextStyle);
@@ -140,7 +154,7 @@ namespace UPlayGround.Tool.Editor.Map
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            using (new EditorGUI.DisabledScope(_selectedData == null))
+            using (new EditorGUI.DisabledScope(!HasSelectedPlacementData()))
             {
                 if (GUILayout.Button(_placementMode ? "배치 중지" : "배치 시작", EditorStyles.toolbarButton, GUILayout.Width(82f)))
                 {
@@ -151,22 +165,38 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             if (GUILayout.Button("데이터 새로고침", EditorStyles.toolbarButton, GUILayout.Width(105f)))
+            {
                 RefreshInteractableDatas();
+                RefreshItemDatas();
+            }
 
             GUILayout.FlexibleSpace();
 
-            using (new EditorGUI.DisabledScope(_selectedData == null))
+            using (new EditorGUI.DisabledScope(GetSelectedPingObject() == null))
             {
                 if (GUILayout.Button("선택 데이터 Ping", EditorStyles.toolbarButton, GUILayout.Width(110f)))
-                    EditorGUIUtility.PingObject(_selectedData);
+                    EditorGUIUtility.PingObject(GetSelectedPingObject());
             }
 
             EditorGUILayout.EndHorizontal();
         }
 
+        private void DrawPlacementKindTabs()
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUI.BeginChangeCheck();
+            _placementKind = (PlacementKind)GUILayout.Toolbar((int)_placementKind, new[] { "Gathering", "Drop Item" });
+            if (EditorGUI.EndChangeCheck())
+            {
+                _placementMode = false;
+                SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+                SceneView.RepaintAll();
+            }
+        }
+
         private void DrawDataSection()
         {
-            DrawSectionLabel("데이터 선택");
+            DrawSectionLabel(_placementKind == PlacementKind.Gathering ? "상호작용 데이터 선택" : "드랍 아이템 선택");
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel("검색");
@@ -176,32 +206,47 @@ namespace UPlayGround.Tool.Editor.Map
                 _searchFilter = "";
             EditorGUILayout.EndHorizontal();
 
-            DrawRecentDataChips();
+            if (_placementKind == PlacementKind.Gathering)
+                DrawRecentDataChips();
 
             _dataListScroll = EditorGUILayout.BeginScrollView(_dataListScroll, GUILayout.Height(210f));
 
             bool anyShown = false;
-            foreach (var data in _interactableDatas)
+            if (_placementKind == PlacementKind.Gathering)
             {
-                if (!ShouldShowData(data))
-                    continue;
+                foreach (var data in _interactableDatas)
+                {
+                    if (!ShouldShowData(data))
+                        continue;
 
-                anyShown = true;
-                DrawDataRow(data);
+                    anyShown = true;
+                    DrawDataRow(data);
+                }
+            }
+            else
+            {
+                foreach (var item in _itemDatas)
+                {
+                    if (!ShouldShowItem(item))
+                        continue;
+
+                    anyShown = true;
+                    DrawItemRow(item);
+                }
             }
 
             if (!anyShown)
             {
                 string emptyMessage = string.IsNullOrWhiteSpace(_searchFilter)
-                    ? "등록된 상호작용 데이터가 없습니다. Interaction 데이터 폴더에 SO를 추가하세요."
+                    ? GetEmptyDataMessage()
                     : $"'{_searchFilter}'와(과) 일치하는 데이터가 없습니다.";
                 GUILayout.Label(emptyMessage, EditorStyles.centeredGreyMiniLabel, GUILayout.Height(32f));
             }
 
             EditorGUILayout.EndScrollView();
 
-            if (_selectedData == null)
-                EditorGUILayout.HelpBox("배치할 상호작용 데이터를 먼저 선택하세요.", MessageType.Warning);
+            if (!HasSelectedPlacementData())
+                EditorGUILayout.HelpBox(GetSelectionRequiredMessage(), MessageType.Warning);
         }
 
         private void DrawRecentDataChips()
@@ -255,25 +300,69 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
+        private void DrawItemRow(ItemSO item)
+        {
+            bool isSelected = _selectedItem == item;
+            Rect rect = GUILayoutUtility.GetRect(0f, 34f, GUILayout.ExpandWidth(true));
+
+            if (Event.current.type == EventType.Repaint)
+                (isSelected ? _selectedItemStyle : _normalItemStyle).Draw(rect, GUIContent.none, false, false, isSelected, false);
+
+            if (isSelected && Event.current.type == EventType.Repaint)
+                EditorGUI.DrawRect(new Rect(rect.x, rect.y + 3f, 3f, rect.height - 6f), new Color(0.55f, 0.72f, 1f));
+
+            string title = GetItemTitle(item);
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 5f, rect.width * 0.42f, 18f), title, EditorStyles.boldLabel);
+            GUI.Label(new Rect(rect.x + rect.width * 0.42f, rect.y + 6f, rect.width * 0.28f, 16f),
+                $"ID {item.itemId}  |  {item.itemType}", EditorStyles.miniLabel);
+            GUI.Label(new Rect(rect.xMax - 110f, rect.y + 6f, 104f, 16f), item.name, EditorStyles.miniLabel);
+
+            if (item.icon != null)
+            {
+                Rect iconRect = new Rect(rect.xMax - 136f, rect.y + 4f, 24f, 24f);
+                GUI.DrawTexture(iconRect, item.icon.texture, ScaleMode.ScaleToFit, true);
+            }
+
+            if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+            {
+                SelectItem(item, false);
+                Event.current.Use();
+            }
+        }
+
         private void DrawTargetSection()
         {
             EditorGUILayout.Space(8f);
             DrawSectionLabel("배치 대상");
 
-            _prefab = (GameObject)EditorGUILayout.ObjectField("Gathering Prefab", _prefab, typeof(GameObject), false);
+            if (_placementKind == PlacementKind.Gathering)
+            {
+                _prefab = (GameObject)EditorGUILayout.ObjectField("Gathering Prefab", _prefab, typeof(GameObject), false);
 
-            if (_prefab == null)
-                DrawInlineNotice("지정된 Prefab이 없어 기본 GameObject + GatheringActor로 생성됩니다.", MessageType.Warning);
-            else if (_prefab.GetComponent<GatheringActor>() == null)
-                DrawInlineNotice("선택한 프리팹 루트에 GatheringActor가 없습니다. 배치 후 루트에 추가합니다.", MessageType.Warning);
+                if (_prefab == null)
+                    DrawInlineNotice("지정된 Prefab이 없어 기본 GameObject + GatheringActor로 생성됩니다.", MessageType.Warning);
+                else if (_prefab.GetComponent<GatheringActor>() == null)
+                    DrawInlineNotice("선택한 프리팹 루트에 GatheringActor가 없습니다. 배치 후 루트에 추가합니다.", MessageType.Warning);
+            }
+            else
+            {
+                _dropItemPrefab = (GameObject)EditorGUILayout.ObjectField("DropItem Prefab", _dropItemPrefab, typeof(GameObject), false);
+                _dropItemCount = Mathf.Max(1, EditorGUILayout.IntField("Item Count", _dropItemCount));
+
+                if (_dropItemPrefab == null)
+                    DrawInlineNotice("지정된 Prefab이 없어 기본 GameObject + DropItemActor로 생성됩니다.", MessageType.Warning);
+                else if (_dropItemPrefab.GetComponent<DropItemActor>() == null)
+                    DrawInlineNotice("선택한 프리팹 루트에 DropItemActor가 없습니다. 배치 후 루트에 추가합니다.", MessageType.Warning);
+            }
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Project 선택 사용"))
                 UseSelectedProjectPrefab();
 
-            if (GUILayout.Button("Interaction 데이터 폴더"))
+            if (GUILayout.Button(_placementKind == PlacementKind.Gathering ? "Interaction 데이터 폴더" : "Item 데이터 폴더"))
             {
-                var folder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(InteractionDataFolder);
+                string folderPath = _placementKind == PlacementKind.Gathering ? InteractionDataFolder : ItemDataFolder;
+                var folder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folderPath);
                 if (folder != null)
                     EditorGUIUtility.PingObject(folder);
             }
@@ -330,7 +419,6 @@ namespace UPlayGround.Tool.Editor.Map
                     EditorGUI.indentLevel--;
                 }
 
-                _randomYaw = false;
                 EditorGUI.indentLevel--;
             }
         }
@@ -351,10 +439,15 @@ namespace UPlayGround.Tool.Editor.Map
 
             EditorGUILayout.HelpBox(status, statusType);
 
-            if (_selectedData != null)
+            if (_placementKind == PlacementKind.Gathering && _selectedData != null)
             {
                 EditorGUILayout.LabelField("선택 데이터", $"{GetDataTitle(_selectedData)} / {_selectedData.interactionObjectType} / HP {_selectedData.hp}");
                 EditorGUILayout.LabelField("생성 방식", _prefab != null ? _prefab.name : "기본 GameObject 생성");
+            }
+            else if (_placementKind == PlacementKind.DropItem && _selectedItem != null)
+            {
+                EditorGUILayout.LabelField("선택 아이템", $"{GetItemTitle(_selectedItem)} / ID {_selectedItem.itemId} / {_selectedItem.itemType} x{_dropItemCount}");
+                EditorGUILayout.LabelField("생성 방식", _dropItemPrefab != null ? _dropItemPrefab.name : "기본 GameObject 생성");
             }
 
             EditorGUILayout.LabelField("단축키", "Esc 종료, Ctrl/Cmd+Z 취소, Ctrl+F 검색, 1~5 최근 사용 전환");
@@ -462,7 +555,7 @@ namespace UPlayGround.Tool.Editor.Map
             Handles.DrawWireDisc(_previewPosition, _previewNormal, 0.75f);
             Handles.DrawLine(_previewPosition, _previewPosition + _previewNormal.normalized * 1.5f);
 
-            string label = canPlace ? GetDataTitle(_selectedData) : "배치할 데이터 없음";
+            string label = canPlace ? GetSelectedPlacementTitle() : "배치할 데이터 없음";
             Handles.Label(_previewPosition + Vector3.up * 1.25f, label);
         }
 
@@ -489,14 +582,15 @@ namespace UPlayGround.Tool.Editor.Map
 
             ApplyInteractableLayer(instance);
             SetupColliderIfNeeded(instance);
-            ApplyGatheringData(instance);
+            ApplyPlacementData(instance);
             AddSceneEntityIdIfNeeded(instance);
 
             if (_selectAfterPlace)
                 Selection.activeGameObject = instance;
 
             _sessionPlacementCount++;
-            AddRecentData(_selectedData);
+            if (_placementKind == PlacementKind.Gathering)
+                AddRecentData(_selectedData);
             SetTemporaryStatus($"배치 완료 (이번 세션 {_sessionPlacementCount}개)", MessageType.Info);
             EditorSceneManager.MarkSceneDirty(instance.scene);
             Repaint();
@@ -504,15 +598,19 @@ namespace UPlayGround.Tool.Editor.Map
 
         private GameObject CreateInstance()
         {
-            if (_prefab != null)
+            GameObject targetPrefab = _placementKind == PlacementKind.Gathering ? _prefab : _dropItemPrefab;
+            if (targetPrefab != null)
             {
-                var prefabInstance = PrefabUtility.InstantiatePrefab(_prefab, SceneManager.GetActiveScene()) as GameObject;
-                return prefabInstance != null ? prefabInstance : Instantiate(_prefab);
+                var prefabInstance = PrefabUtility.InstantiatePrefab(targetPrefab, SceneManager.GetActiveScene()) as GameObject;
+                return prefabInstance != null ? prefabInstance : Instantiate(targetPrefab);
             }
 
-            string objectName = BuildObjectName(_selectedData);
+            string objectName = BuildObjectName();
             var instance = new GameObject(objectName);
-            instance.AddComponent<GatheringActor>();
+            if (_placementKind == PlacementKind.Gathering)
+                instance.AddComponent<GatheringActor>();
+            else
+                instance.AddComponent<DropItemActor>();
 
             return instance;
         }
@@ -672,6 +770,17 @@ namespace UPlayGround.Tool.Editor.Map
             EditorUtility.SetDirty(collider);
         }
 
+        private void ApplyPlacementData(GameObject instance)
+        {
+            if (_placementKind == PlacementKind.Gathering)
+            {
+                ApplyGatheringData(instance);
+                return;
+            }
+
+            ApplyDropItemData(instance);
+        }
+
         private void ApplyGatheringData(GameObject instance)
         {
             var gatheringActor = instance.GetComponent<GatheringActor>();
@@ -689,6 +798,57 @@ namespace UPlayGround.Tool.Editor.Map
             dataProperty.objectReferenceValue = _selectedData;
             serializedActor.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(gatheringActor);
+        }
+
+        private void ApplyDropItemData(GameObject instance)
+        {
+            var dropItemActor = instance.GetComponent<DropItemActor>();
+            if (dropItemActor == null)
+                dropItemActor = Undo.AddComponent<DropItemActor>(instance);
+
+            var serializedActor = new SerializedObject(dropItemActor);
+            SerializedProperty itemProperty = serializedActor.FindProperty("_itemData");
+            SerializedProperty countProperty = serializedActor.FindProperty("_count");
+            SerializedProperty interactionDataProperty = serializedActor.FindProperty("_interactionData");
+
+            if (itemProperty == null || countProperty == null || interactionDataProperty == null)
+            {
+                Debug.LogWarning($"[GatheringPlacement] '{instance.name}'에서 DropItemActor 아이템 프로퍼티를 찾지 못했습니다.", instance);
+                return;
+            }
+
+            itemProperty.objectReferenceValue = _selectedItem;
+            countProperty.intValue = Mathf.Max(1, _dropItemCount);
+            interactionDataProperty.objectReferenceValue = GetOrCreateDropItemInteractionData();
+            serializedActor.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(dropItemActor);
+        }
+
+        private static InteractableActorSO GetOrCreateDropItemInteractionData()
+        {
+            foreach (string guid in AssetDatabase.FindAssets("t:InteractableActorSO", new[] { InteractionDataFolder }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var data = AssetDatabase.LoadAssetAtPath<InteractableActorSO>(path);
+                if (data != null && data.interactionObjectType == InteractionObjectType.DROP_ITEM)
+                    return data;
+            }
+
+            EnsureFolder(InteractionDataFolder);
+
+            var dropItemData = ScriptableObject.CreateInstance<InteractableActorSO>();
+            dropItemData.actorName = "드랍 아이템";
+            dropItemData.description = "맵 배치/드랍 아이템 줍기용 기본 상호작용 데이터";
+            dropItemData.interactionObjectType = InteractionObjectType.DROP_ITEM;
+            dropItemData.hp = 1;
+            dropItemData.showInfoUI = false;
+            dropItemData.showShakeEffect = false;
+            dropItemData.reviveDowned = false;
+
+            AssetDatabase.CreateAsset(dropItemData, DropItemInteractionDataPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            return AssetDatabase.LoadAssetAtPath<InteractableActorSO>(DropItemInteractionDataPath);
         }
 
         private void AddSceneEntityIdIfNeeded(GameObject instance)
@@ -731,11 +891,12 @@ namespace UPlayGround.Tool.Editor.Map
             if (!_autoCreateRoot)
                 return null;
 
-            var root = GameObject.Find(DefaultRootName);
+            string rootName = _placementKind == PlacementKind.Gathering ? DefaultRootName : DropItemRootName;
+            var root = GameObject.Find(rootName);
             if (root == null)
             {
-                root = new GameObject(DefaultRootName);
-                Undo.RegisterCreatedObjectUndo(root, "Create Gathering Placement Root");
+                root = new GameObject(rootName);
+                Undo.RegisterCreatedObjectUndo(root, "Create World Placement Root");
                 EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             }
 
@@ -775,6 +936,35 @@ namespace UPlayGround.Tool.Editor.Map
             Repaint();
         }
 
+        private void RefreshItemDatas()
+        {
+            _itemDatas.Clear();
+
+            foreach (string guid in AssetDatabase.FindAssets("t:ItemSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var data = AssetDatabase.LoadAssetAtPath<ItemSO>(path);
+                if (data == null)
+                    continue;
+
+                _itemDatas.Add(data);
+            }
+
+            _itemDatas.Sort((a, b) =>
+            {
+                int idCompare = a.itemId.CompareTo(b.itemId);
+                return idCompare != 0 ? idCompare : string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase);
+            });
+
+            if (_selectedItem == null && _itemDatas.Count > 0)
+                SelectItem(_itemDatas[0], false, armPlacement: false);
+
+            if (_selectedItem != null && !_itemDatas.Contains(_selectedItem))
+                SelectItem(_itemDatas.Count > 0 ? _itemDatas[0] : null, false, armPlacement: false);
+
+            Repaint();
+        }
+
         /// <summary>
         /// armPlacement: 사용자가 직접 선택했을 때만 배치 모드를 켠다.
         /// 창 열기/새로고침의 자동 선택은 false로 호출해 의도치 않은 씬 클릭 배치를 막는다.
@@ -794,11 +984,23 @@ namespace UPlayGround.Tool.Editor.Map
             SceneView.RepaintAll();
         }
 
+        private void SelectItem(ItemSO item, bool addToRecent, bool armPlacement = true)
+        {
+            _selectedItem = item;
+
+            if (armPlacement && item != null && !_placementMode)
+                _placementMode = true;
+
+            SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+            Repaint();
+            SceneView.RepaintAll();
+        }
+
         private bool CanPlace(out string reason)
         {
-            if (_selectedData == null)
+            if (!HasSelectedPlacementData())
             {
-                reason = "배치할 상호작용 데이터를 먼저 선택하세요.";
+                reason = GetSelectionRequiredMessage();
                 return false;
             }
 
@@ -814,8 +1016,19 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string BuildReadinessMessage()
         {
-            if (_selectedData == null)
-                return "배치할 상호작용 데이터를 먼저 선택하세요.";
+            if (!HasSelectedPlacementData())
+                return GetSelectionRequiredMessage();
+
+            if (_placementKind == PlacementKind.DropItem)
+            {
+                if (_dropItemPrefab == null)
+                    return "지정된 Prefab이 없어 기본 GameObject + DropItemActor로 생성됩니다. 씬 뷰 클릭으로 배치할 수 있습니다.";
+
+                if (_dropItemPrefab.GetComponent<DropItemActor>() == null)
+                    return "선택한 프리팹 루트에 DropItemActor가 없습니다. 배치 후 루트에 자동 추가됩니다.";
+
+                return "DropItem 배치 준비 완료 - 씬 뷰 클릭으로 배치하세요. Esc 종료, Ctrl/Cmd+Z 취소.";
+            }
 
             if (_prefab == null)
                 return "지정된 Prefab이 없어 기본 GameObject + GatheringActor로 생성됩니다. 씬 뷰 클릭으로 배치할 수 있습니다.";
@@ -828,8 +1041,13 @@ namespace UPlayGround.Tool.Editor.Map
 
         private MessageType GetReadinessMessageType()
         {
-            if (_selectedData == null)
+            if (!HasSelectedPlacementData())
                 return MessageType.Warning;
+
+            if (_placementKind == PlacementKind.DropItem)
+                return _dropItemPrefab == null || _dropItemPrefab.GetComponent<DropItemActor>() == null
+                    ? MessageType.Info
+                    : MessageType.None;
 
             return _prefab == null || _prefab.GetComponent<GatheringActor>() == null
                 ? MessageType.Info
@@ -897,6 +1115,9 @@ namespace UPlayGround.Tool.Editor.Map
 
         private bool TrySelectRecentByKey(KeyCode keyCode)
         {
+            if (_placementKind != PlacementKind.Gathering)
+                return false;
+
             int index = keyCode switch
             {
                 KeyCode.Alpha1 => 0,
@@ -962,6 +1183,21 @@ namespace UPlayGround.Tool.Editor.Map
                 || ContainsIgnoreCase(data.interactionObjectType.ToString(), _searchFilter);
         }
 
+        private bool ShouldShowItem(ItemSO item)
+        {
+            if (item == null)
+                return false;
+
+            if (string.IsNullOrEmpty(_searchFilter))
+                return true;
+
+            return ContainsIgnoreCase(item.name, _searchFilter)
+                || ContainsIgnoreCase(item.itemName, _searchFilter)
+                || ContainsIgnoreCase(item.itemDescription, _searchFilter)
+                || ContainsIgnoreCase(item.itemType.ToString(), _searchFilter)
+                || item.itemId.ToString().IndexOf(_searchFilter, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         private void UseSelectedProjectPrefab()
         {
             var selected = Selection.activeObject as GameObject;
@@ -978,7 +1214,11 @@ namespace UPlayGround.Tool.Editor.Map
                 return;
             }
 
-            _prefab = selected;
+            if (_placementKind == PlacementKind.Gathering)
+                _prefab = selected;
+            else
+                _dropItemPrefab = selected;
+
             SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
             Repaint();
         }
@@ -1013,13 +1253,65 @@ namespace UPlayGround.Tool.Editor.Map
                 currentEvent.Use();
         }
 
-        private static string BuildObjectName(InteractableActorSO data)
+        private string BuildObjectName()
         {
-            string baseName = data == null
+            if (_placementKind == PlacementKind.DropItem)
+                return $"DropItem_{GetItemTitle(_selectedItem)}";
+
+            string baseName = _selectedData == null
                 ? "GatheringActor"
-                : GetDataTitle(data);
+                : GetDataTitle(_selectedData);
 
             return $"Gathering_{baseName}";
+        }
+
+        private bool HasSelectedPlacementData()
+        {
+            return _placementKind == PlacementKind.Gathering
+                ? _selectedData != null
+                : _selectedItem != null;
+        }
+
+        private string GetSelectionRequiredMessage()
+        {
+            return _placementKind == PlacementKind.Gathering
+                ? "배치할 상호작용 데이터를 먼저 선택하세요."
+                : "배치할 아이템 데이터를 먼저 선택하세요.";
+        }
+
+        private string GetEmptyDataMessage()
+        {
+            return _placementKind == PlacementKind.Gathering
+                ? "등록된 상호작용 데이터가 없습니다. Interaction 데이터 폴더에 SO를 추가하세요."
+                : "등록된 아이템 데이터가 없습니다. Item 데이터 폴더에 SO를 추가하세요.";
+        }
+
+        private string GetSelectionStatusText()
+        {
+            if (_placementKind == PlacementKind.Gathering)
+            {
+                return _selectedData != null
+                    ? $"{GetDataTitle(_selectedData)} ({_selectedData.interactionObjectType})"
+                    : "데이터 미선택";
+            }
+
+            return _selectedItem != null
+                ? $"{GetItemTitle(_selectedItem)} x{_dropItemCount}"
+                : "아이템 미선택";
+        }
+
+        private string GetSelectedPlacementTitle()
+        {
+            return _placementKind == PlacementKind.Gathering
+                ? GetDataTitle(_selectedData)
+                : GetItemTitle(_selectedItem);
+        }
+
+        private UnityEngine.Object GetSelectedPingObject()
+        {
+            return _placementKind == PlacementKind.Gathering
+                ? _selectedData
+                : _selectedItem;
         }
 
         private static string GetDataTitle(InteractableActorSO data)
@@ -1027,6 +1319,13 @@ namespace UPlayGround.Tool.Editor.Map
             return data == null
                 ? "데이터 없음"
                 : string.IsNullOrEmpty(data.actorName) ? data.name : data.actorName;
+        }
+
+        private static string GetItemTitle(ItemSO item)
+        {
+            return item == null
+                ? "아이템 없음"
+                : string.IsNullOrEmpty(item.itemName) ? item.name : item.itemName;
         }
 
         private static string GetDataGuid(InteractableActorSO data)
@@ -1045,6 +1344,19 @@ namespace UPlayGround.Tool.Editor.Map
 
             string path = AssetDatabase.GUIDToAssetPath(guid);
             return string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<InteractableActorSO>(path);
+        }
+
+        private static void EnsureFolder(string folder)
+        {
+            string[] parts = folder.Split('/');
+            string current = parts[0];
+            for (int i = 1; i < parts.Length; i++)
+            {
+                string next = $"{current}/{parts[i]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                    AssetDatabase.CreateFolder(current, parts[i]);
+                current = next;
+            }
         }
 
         private static bool ContainsIgnoreCase(string text, string filter)

@@ -116,7 +116,8 @@ namespace UPlayGround.Manager.Handler
             foreach (var collider in colliders)
             {
                 // IInteractable 인터페이스를 가지고 있는지 확인
-                var interactable = collider.GetComponent<IInteractable>();
+                var interactable = collider.GetComponent<IInteractable>()
+                                   ?? collider.GetComponentInParent<IInteractable>();
                 if (interactable == null || !interactable.CanInteract()) continue;
 
                 // 가장 가까운 대상 지정 (성능을 위해 sqrMagnitude 사용)

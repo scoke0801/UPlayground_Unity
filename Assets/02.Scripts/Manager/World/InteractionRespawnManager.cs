@@ -13,6 +13,7 @@ namespace UPlayGround.Manager
         private class PlacementInfo
         {
             public GatheringActor actor;
+            public UPlayGround.DropItemActor dropItemActor;
         }
 
         private readonly Dictionary<string, PlacementInfo> _placements = new();
@@ -47,6 +48,20 @@ namespace UPlayGround.Manager
                     actor = actor,
                 };
             }
+
+            var dropItemActors = UnityEngine.Object.FindObjectsByType<UPlayGround.DropItemActor>(FindObjectsSortMode.None);
+            foreach (var actor in dropItemActors)
+            {
+                if (actor == null) continue;
+
+                var entityId = actor.GetComponent<SceneEntityId>();
+                if (entityId == null || !entityId.HasGuid) continue;
+
+                _placements[entityId.Guid] = new PlacementInfo
+                {
+                    dropItemActor = actor,
+                };
+            }
         }
 
         /// <summary> 저장된 소모 상태를 현재 씬에 적용한다. 세이브 로드 직후에도 호출된다. </summary>
@@ -63,10 +78,16 @@ namespace UPlayGround.Manager
             {
                 if (string.IsNullOrEmpty(guid)) continue;
                 if (!_placements.TryGetValue(guid, out var placement)) continue;
-                if (placement.actor == null) continue;
-
-                placement.actor.ApplyConsumedState();
-                applied++;
+                if (placement.actor != null)
+                {
+                    placement.actor.ApplyConsumedState();
+                    applied++;
+                }
+                else if (placement.dropItemActor != null)
+                {
+                    placement.dropItemActor.ApplyConsumedState();
+                    applied++;
+                }
             }
 
             if (applied > 0)
@@ -95,6 +116,27 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 맵 배치 아이템 픽업 소모를 기록하고 현재 씬 상태를 소모됨으로 적용한다.
+        /// SceneEntityId가 없으면 false를 반환해 호출자가 Destroy 흐름으로 폴백한다.
+        /// </summary>
+        public bool TryConsume(UPlayGround.DropItemActor actor)
+        {
+            if (actor == null) return false;
+
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            if (string.IsNullOrEmpty(mapId)) return false;
+
+            var entityId = actor.GetComponent<SceneEntityId>();
+            if (entityId == null || !entityId.HasGuid) return false;
+
+            WorldStateManager.Instance?.RecordConsumedInteractable(mapId, entityId.Guid);
+            _placements[entityId.Guid] = new PlacementInfo { dropItemActor = actor };
+
+            actor.ApplyConsumedState();
+            return true;
+        }
+
+        /// <summary>
         /// 현재 맵의 소모된 인터랙션 오브젝트를 모두 복구한다.
         /// 현재 씬에 없는 GUID도 저장 상태에서는 제거되어 다음 진입 시 원본 배치가 살아난다.
         /// </summary>
@@ -114,11 +156,18 @@ namespace UPlayGround.Manager
             {
                 if (string.IsNullOrEmpty(guid)) continue;
                 if (!_placements.TryGetValue(guid, out var placement)) continue;
-                if (placement.actor == null) continue;
-
-                placement.actor.ResetForRespawn();
-                placement.actor.gameObject.SetActive(true);
-                restored++;
+                if (placement.actor != null)
+                {
+                    placement.actor.ResetForRespawn();
+                    placement.actor.gameObject.SetActive(true);
+                    restored++;
+                }
+                else if (placement.dropItemActor != null)
+                {
+                    placement.dropItemActor.ResetForRespawn();
+                    placement.dropItemActor.gameObject.SetActive(true);
+                    restored++;
+                }
             }
 
             if (restored > 0)

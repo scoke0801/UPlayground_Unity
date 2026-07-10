@@ -250,6 +250,7 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 몬스터 사망 시 재스폰 예약을 시도한다. 성공하면 true.
+        /// 리스폰 시각은 등급별 최소 대기가 지난 뒤 도래하는 첫 자정.
         /// false를 반환하면 호출자(MonsterActor)가 영구 처치로 기록해야 한다.
         /// 제외 대상: 보스 등급, 합류(recruitableAs) 몬스터, 추적 정보가 없는 동적 스폰.
         /// </summary>
@@ -268,14 +269,14 @@ namespace UPlayGround.Manager
             _runtimeSpawned.Remove(monster);
 
             float now = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
-            float interval = Settings.GetIntervalMinutes(monster.Grade);
+            float respawnAt = NextMidnightAfterInterval(now, Settings.GetIntervalMinutes(monster.Grade));
 
             if (WorldStateManager.Instance != null
                 && WorldStateManager.Instance.TryGetRespawnState(mapId, guid, out var state))
             {
                 // 기존 상태 갱신(재사망): 누적 카운트/최초 사망 시각은 유지
                 state.waitingRespawn = true;
-                state.nextRespawnGameMinute = now + interval;
+                state.nextRespawnGameMinute = respawnAt;
             }
             else
             {
@@ -293,12 +294,22 @@ namespace UPlayGround.Manager
                     waitingRespawn = true,
                     respawnCount = 0,
                     firstKilledGameMinute = now,
-                    nextRespawnGameMinute = now + interval,
+                    nextRespawnGameMinute = respawnAt,
                 };
             }
 
             WorldStateManager.Instance?.SetRespawnState(state);
             return true;
+        }
+
+        /// <summary>
+        /// 사망 시각에 등급별 간격(최소 대기)을 더한 뒤 도래하는 첫 자정(인게임 누적 분)을 계산한다.
+        /// 리스폰은 항상 자정에 일어나되, 자정 직전 사망 시 곧바로 부활하는 것을 간격이 막는다.
+        /// </summary>
+        private static float NextMidnightAfterInterval(float now, float intervalMinutes)
+        {
+            float earliest = now + intervalMinutes;
+            return Mathf.Ceil(earliest / WorldTimeSettingsSO.MinutesPerDay) * WorldTimeSettingsSO.MinutesPerDay;
         }
 
         // ── 인게임 분 경과 → due 재스폰 처리 ──────────────────────────

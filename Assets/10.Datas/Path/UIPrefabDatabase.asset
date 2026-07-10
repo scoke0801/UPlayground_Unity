@@ -44,7 +44,7 @@ MonoBehaviour:
   - key: ItemPopup
     prefab: {fileID: 909020946507988054, guid: 0ba3c3b3ef26eef42b442065bdac0c3f, type: 3}
     defaultLayer: 2000
-    description:
+    description: 
   - key: HudPlayerInfo
     prefab: {fileID: 2061351792792607043, guid: 9452141b8d8e78a40aca39d02638a51f, type: 3}
     defaultLayer: 0
@@ -150,3 +150,8 @@ MonoBehaviour:
     prefab: {fileID: 1783118673345676083, guid: fcf69e1f7ef533949978044f94508c6e, type: 3}
     defaultLayer: 0
     description: "\uBAAC\uC2A4\uD130 \uC7AC\uC2A4\uD3F0 \uC548\uB0B4"
+  - key: GuidePopup
+    prefab: {fileID: 6590198345821671809, guid: 8aa96bb4a8bca0a4da0cb74e6ebc657c, type: 3}
+    defaultLayer: 2000
+    description: "\uC774\uBBF8\uC9C0\uC640 \uC124\uBA85\uC744 \uD45C\uC2DC\uD558\uB294
+      \uAC00\uC774\uB4DC \uD31D\uC5C5"

@@ -38,6 +38,7 @@ namespace UPlayGround.Data.Path
         HudSkill = 29,
         SaveSlotMenu = 30,
         Notification = 31,
+        GuidePopup = 32,
     }
 
     public static class UIKeyTypeExtensions
@@ -76,6 +77,7 @@ namespace UPlayGround.Data.Path
             UIKeyType.HudSkill => "HudSkill",
             UIKeyType.SaveSlotMenu => "SaveSlotMenu",
             UIKeyType.Notification => "Notification",
+            UIKeyType.GuidePopup => "GuidePopup",
             _ => string.Empty,
         };
     }

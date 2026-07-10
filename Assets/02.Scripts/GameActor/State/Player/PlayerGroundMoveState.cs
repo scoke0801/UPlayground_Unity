@@ -96,6 +96,9 @@ namespace UPlayGround.State
                     playerController.TransitionToState(new PlayerSpecialBreakAttackState(playerController, breakTarget));
                     return;
                 }
+
+                playerController.TransitionToState(new PlayerInteractionState(playerController));
+                return;
             }
 
             // 이동 입력이 없으면 Stop 전환 시도 — 전방 기본 클립이 등록된 경우에만 Stop 상태 사용

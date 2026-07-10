@@ -50,15 +50,27 @@ namespace UPlayGround.State
                 return;
             }
 
-            _cachedData = handler.CurrentClosestInteractable?.GetData();
-            if (_cachedData == null)
+            IInteractable interactable = handler.CurrentClosestInteractable;
+            if (interactable == null)
             {
                 ForceChangeToNextState();
                 return;
             }
 
-            // 플레이어에 대한 처리
-            PlayAnimation();
+            _cachedData = interactable.GetData();
+
+            if (EventManager.Instance != null)
+            {
+                EventManager.Instance.Subscribe<PlayerEvent, EmptyEventData>(
+                    PlayerEvent.InteractionTargetDestroy,
+                    OnInteractionTargetDestroy);
+            }
+
+            // 플레이어에 대한 처리. 데이터가 없는 즉시 상호작용은 모션 없이 Interact만 실행한다.
+            if (_cachedData != null)
+            {
+                PlayAnimation();
+            }
 
             // 채광/채집/벌목은 대상이 소진될 때까지 같은 모션을 반복 재생해야 한다.
             // (AnimancerState.OwnedEvents.OnEnd는 타임라인 완료와 무관하게 클립 종료 시점에 발화하고,
@@ -67,11 +79,9 @@ namespace UPlayGround.State
 
             handler.StartInteraction();
 
-            if (EventManager.Instance != null)
+            if (_cachedData == null)
             {
-                EventManager.Instance.Subscribe<PlayerEvent, EmptyEventData>(
-                    PlayerEvent.InteractionTargetDestroy,
-                    OnInteractionTargetDestroy);
+                ForceChangeToNextState();
             }
         }
 
@@ -107,6 +117,12 @@ namespace UPlayGround.State
                 return;
             }
 
+            if (_cachedData?.interactionObjectType == InteractionObjectType.DROP_ITEM)
+            {
+                ForceChangeToNextState();
+                return;
+            }
+
             // NPC 대화가 끝나면 자동으로 상태 종료
             var handler = GameObjectManager.Instance.InteractionHandler;
             if (_cachedData?.interactionObjectType == InteractionObjectType.NPC
@@ -136,6 +152,8 @@ namespace UPlayGround.State
                     // NPC 대화 중에는 별도 애니메이션 없이 대기.
                     // 대화 종료 시 NpcActor가 _isInteracting을 false로 바꾸므로
                     // UpdateState의 CanInteract 체크로 자연스럽게 상태가 빠져나옵니다.
+                    return;
+                case InteractionObjectType.DROP_ITEM:
                     return;
             }
         }
@@ -257,8 +275,13 @@ namespace UPlayGround.State
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-           // [TODO] 인터렉션 타겟 대상을 바라보도록 수정필요
-           GameActor target = GameObjectManager.Instance.InteractionHandler.CurrentClosestInteractable.GetActor();
+           // 즉시 소모형 대상(드랍 아이템 등)은 상태 종료 전에 타겟이 사라질 수 있으므로 회전을 생략한다.
+           GameActor target = GameObjectManager.Instance?.InteractionHandler?.CurrentClosestInteractable?.GetActor();
+           if (target == null)
+           {
+               currentRotation = currentRotation.normalized;
+               return;
+           }
 
            Vector3 lookDirection = target.transform.position - playerActor.transform.position;
            lookDirection.y = 0f;

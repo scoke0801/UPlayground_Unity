@@ -189,7 +189,7 @@ namespace UPlayGround.Manager
     {
         public bool CanInteract()
         {
-            return _interactionHandler.CurrentClosestInteractable != null;
+            return _interactionHandler.CurrentClosestInteractable?.CanInteract() == true;
         }
     }
 }

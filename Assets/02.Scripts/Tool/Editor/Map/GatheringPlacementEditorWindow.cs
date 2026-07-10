@@ -49,7 +49,7 @@ namespace UPlayGround.Tool.Editor.Map
         private bool _placementMode;
         private bool _autoCreateRoot = true;
         private bool _selectAfterPlace = true;
-        private bool _stickToSurface = true;
+        private SurfaceSnapMode _surfaceSnapMode = SurfaceSnapMode.LowerOnly;
         private bool _alignToSurface;
         private bool _snapToGrid;
         private bool _randomRotation;
@@ -65,6 +65,8 @@ namespace UPlayGround.Tool.Editor.Map
         private float _heightOffset;
         // LayerMask.NameToLayer는 생성자/필드 초기화식에서 호출이 금지되므로 OnEnable에서 초기화한다.
         private LayerMask _raycastMask = ~0;
+        // 낚시터처럼 트리거 수면 위에 배치하는 경우가 있으므로 기본값은 트리거 허용(전역 설정 따름).
+        private bool _ignoreTriggerColliders;
 
         private Vector3 _previewPosition;
         private Vector3 _previewNormal = Vector3.up;
@@ -88,6 +90,28 @@ namespace UPlayGround.Tool.Editor.Map
         {
             Gathering = 0,
             DropItem = 1,
+        }
+
+        /// <summary>표면 스냅 방식. 밑면 피벗 프리팹은 LowerOnly, 중앙 피벗 프리팹(바위 등)은 Full 사용.</summary>
+        private enum SurfaceSnapMode
+        {
+            None = 0,
+            LowerOnly = 1,
+            Full = 2,
+        }
+
+        private readonly struct PlacementInstance
+        {
+            public readonly GameObject Root;
+            public readonly GameObject SurfaceTarget;
+            public readonly bool MoveSurfaceTargetOnly;
+
+            public PlacementInstance(GameObject root, GameObject surfaceTarget, bool moveSurfaceTargetOnly)
+            {
+                Root = root;
+                SurfaceTarget = surfaceTarget;
+                MoveSurfaceTargetOnly = moveSurfaceTargetOnly;
+            }
         }
 
         [MenuItem("UPlayGround/월드/맵/월드 인터랙션 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
@@ -404,7 +428,18 @@ namespace UPlayGround.Tool.Editor.Map
             {
                 EditorGUI.indentLevel++;
                 _raycastMask = LayerMaskField("Raycast Layer", _raycastMask);
-                _stickToSurface = EditorGUILayout.Toggle("Stick To Surface", _stickToSurface);
+                _ignoreTriggerColliders = EditorGUILayout.Toggle(
+                    new GUIContent("Ignore Triggers", "배치 레이캐스트가 트리거 콜라이더를 무시합니다. 트리거 수면 위에 낚시터를 배치할 때는 꺼두세요."),
+                    _ignoreTriggerColliders);
+                _surfaceSnapMode = (SurfaceSnapMode)EditorGUILayout.Popup(
+                    new GUIContent("Surface Snap", "내리기만: 떠 있을 때만 표면까지 내림(밑면 피벗 프리팹 권장). 양방향: 최저점을 표면에 맞춰 올리기도 함(중앙 피벗 바위 등)."),
+                    (int)_surfaceSnapMode,
+                    new[]
+                    {
+                        new GUIContent("없음"),
+                        new GUIContent("내리기만 (기본)"),
+                        new GUIContent("양방향 (최저점 스냅)"),
+                    });
                 _heightOffset = EditorGUILayout.FloatField("Y Offset", _heightOffset);
 
                 _alignToSurface = EditorGUILayout.Toggle("Align To Surface", _alignToSurface);
@@ -519,10 +554,9 @@ namespace UPlayGround.Tool.Editor.Map
         private void UpdatePreview(Vector2 guiMousePosition)
         {
             Ray ray = HandleUtility.GUIPointToWorldRay(guiMousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 10000f, _raycastMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, 10000f, _raycastMask, GetTriggerInteraction()))
             {
-                _previewPosition = ApplyPositionRules(hit.point, hit.normal);
-                _previewNormal = hit.normal;
+                _previewPosition = ApplyPositionRules(hit.point, hit.normal, out _previewNormal);
                 _hasPreviewHit = true;
                 return;
             }
@@ -530,8 +564,7 @@ namespace UPlayGround.Tool.Editor.Map
             var plane = new Plane(Vector3.up, Vector3.zero);
             if (plane.Raycast(ray, out float enter))
             {
-                _previewPosition = ApplyPositionRules(ray.GetPoint(enter), Vector3.up);
-                _previewNormal = Vector3.up;
+                _previewPosition = ApplyPositionRules(ray.GetPoint(enter), Vector3.up, out _previewNormal);
                 _hasPreviewHit = true;
                 return;
             }
@@ -539,15 +572,39 @@ namespace UPlayGround.Tool.Editor.Map
             _hasPreviewHit = false;
         }
 
-        private Vector3 ApplyPositionRules(Vector3 position, Vector3 normal)
+        private Vector3 ApplyPositionRules(Vector3 position, Vector3 normal, out Vector3 resolvedNormal)
         {
-            if (_snapToGrid && !Event.current.shift)
+            resolvedNormal = normal.sqrMagnitude > 0.0001f ? normal.normalized : Vector3.up;
+
+            if (_snapToGrid && Event.current != null && !Event.current.shift)
             {
                 position.x = Mathf.Round(position.x / _gridSize) * _gridSize;
                 position.z = Mathf.Round(position.z / _gridSize) * _gridSize;
+                position = ResolveSurfaceAtPosition(position, resolvedNormal, out resolvedNormal);
             }
 
-            return position + normal.normalized * _heightOffset;
+            return position + resolvedNormal * _heightOffset;
+        }
+
+        private Vector3 ResolveSurfaceAtPosition(Vector3 position, Vector3 fallbackNormal, out Vector3 resolvedNormal)
+        {
+            const float verticalProbeHalfHeight = 5000f;
+            var origin = new Vector3(position.x, position.y + verticalProbeHalfHeight, position.z);
+            var ray = new Ray(origin, Vector3.down);
+
+            if (Physics.Raycast(ray, out RaycastHit hit, verticalProbeHalfHeight * 2f, _raycastMask, GetTriggerInteraction()))
+            {
+                resolvedNormal = hit.normal.sqrMagnitude > 0.0001f ? hit.normal.normalized : Vector3.up;
+                return hit.point;
+            }
+
+            resolvedNormal = fallbackNormal.sqrMagnitude > 0.0001f ? fallbackNormal.normalized : Vector3.up;
+            return position;
+        }
+
+        private QueryTriggerInteraction GetTriggerInteraction()
+        {
+            return _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.UseGlobal;
         }
 
         private void DrawScenePreview()
@@ -574,20 +631,22 @@ namespace UPlayGround.Tool.Editor.Map
 
             Transform parent = ResolveParent();
             Quaternion rotation = BuildPlacementRotation();
-            GameObject instance = CreateInstance();
+            PlacementInstance placement = CreateInstance();
+            GameObject instance = placement.Root;
 
             if (instance == null)
                 return;
 
             Undo.RegisterCreatedObjectUndo(instance, "Gathering Placement");
-            instance.transform.SetPositionAndRotation(_previewPosition, rotation);
-
             if (parent != null)
                 Undo.SetTransformParent(instance.transform, parent, "Gathering Placement Parent");
 
+            // Parent가 위치/회전/스케일을 가진 경우를 대비해 Parent 연결 이후 월드 배치 좌표를 확정한다.
+            instance.transform.SetPositionAndRotation(_previewPosition, rotation);
+
             ApplyInteractableLayer(instance);
+            StickInstanceToSurface(placement);
             SetupColliderIfNeeded(instance);
-            StickInstanceToSurface(instance);
             ApplyPlacementData(instance);
             AddSceneEntityIdIfNeeded(instance);
 
@@ -602,13 +661,37 @@ namespace UPlayGround.Tool.Editor.Map
             Repaint();
         }
 
-        private GameObject CreateInstance()
+        private PlacementInstance CreateInstance()
         {
             GameObject targetPrefab = _placementKind == PlacementKind.Gathering ? _prefab : _dropItemPrefab;
             if (targetPrefab != null)
             {
-                var prefabInstance = PrefabUtility.InstantiatePrefab(targetPrefab, SceneManager.GetActiveScene()) as GameObject;
-                return prefabInstance != null ? prefabInstance : Instantiate(targetPrefab);
+                Type actorType = _placementKind == PlacementKind.Gathering
+                    ? typeof(GatheringActor)
+                    : typeof(DropItemActor);
+
+                if (targetPrefab.GetComponent(actorType) != null)
+                {
+                    var prefabInstance = InstantiatePrefab(targetPrefab);
+                    return new PlacementInstance(prefabInstance, prefabInstance, moveSurfaceTargetOnly: false);
+                }
+
+                var root = new GameObject(BuildObjectName());
+                var visual = InstantiatePrefab(targetPrefab);
+                visual.name = targetPrefab.name;
+                Undo.RegisterCreatedObjectUndo(visual, "Gathering Placement");
+                Undo.SetTransformParent(visual.transform, root.transform, "Attach Placement Visual");
+                // 프리팹 에셋 루트에 저장된 위치는 씬 저작 잔여값일 수 있으므로 오프셋으로 복사하지 않는다.
+                visual.transform.localPosition = Vector3.zero;
+                visual.transform.localRotation = targetPrefab.transform.localRotation;
+                visual.transform.localScale = targetPrefab.transform.localScale;
+
+                if (_placementKind == PlacementKind.Gathering)
+                    root.AddComponent<GatheringActor>();
+                else
+                    root.AddComponent<DropItemActor>();
+
+                return new PlacementInstance(root, visual, moveSurfaceTargetOnly: true);
             }
 
             string objectName = BuildObjectName();
@@ -618,7 +701,13 @@ namespace UPlayGround.Tool.Editor.Map
             else
                 instance.AddComponent<DropItemActor>();
 
-            return instance;
+            return new PlacementInstance(instance, instance, moveSurfaceTargetOnly: false);
+        }
+
+        private static GameObject InstantiatePrefab(GameObject targetPrefab)
+        {
+            var prefabInstance = PrefabUtility.InstantiatePrefab(targetPrefab, SceneManager.GetActiveScene()) as GameObject;
+            return prefabInstance != null ? prefabInstance : Instantiate(targetPrefab);
         }
 
         private void ApplyInteractableLayer(GameObject instance)
@@ -716,47 +805,85 @@ namespace UPlayGround.Tool.Editor.Map
             return hasBounds;
         }
 
-        private void StickInstanceToSurface(GameObject instance)
+        private void StickInstanceToSurface(PlacementInstance placement)
         {
-            if (!_stickToSurface)
+            if (_surfaceSnapMode == SurfaceSnapMode.None)
+                return;
+
+            GameObject surfaceTarget = placement.SurfaceTarget;
+            if (surfaceTarget == null)
                 return;
 
             Vector3 surfaceNormal = _previewNormal.sqrMagnitude > 0.0001f ? _previewNormal.normalized : Vector3.up;
-            if (!TryGetPlacementBounds(instance, out Bounds bounds))
+            if (!TryGetLowestSupportProjection(surfaceTarget, surfaceNormal, out float lowestProjection))
                 return;
 
-            float lowestProjection = GetLowestBoundsProjection(bounds, surfaceNormal);
             float targetProjection = Vector3.Dot(_previewPosition, surfaceNormal);
             float offset = targetProjection - lowestProjection;
+
+            // 내리기만 모드: 최저점이 표면 아래에 있으면(뿌리·밑동 등 파묻히라고 만든 여유 지오메트리)
+            // 저작된 피벗을 신뢰하고 끌어올리지 않는다. 비주얼이 표면 위에 떠 있을 때만 아래로 내린다.
+            if (_surfaceSnapMode == SurfaceSnapMode.LowerOnly && offset >= -0.0001f)
+                return;
 
             if (Mathf.Abs(offset) <= 0.0001f)
                 return;
 
-            Undo.RecordObject(instance.transform, "Stick Gathering To Surface");
-            instance.transform.position += surfaceNormal * offset;
-            EditorUtility.SetDirty(instance.transform);
+            Transform targetTransform = placement.MoveSurfaceTargetOnly
+                ? surfaceTarget.transform
+                : placement.Root.transform;
+            Undo.RecordObject(targetTransform, "Stick Gathering To Surface");
+            targetTransform.position += surfaceNormal * offset;
+            EditorUtility.SetDirty(targetTransform);
         }
 
-        private static bool TryGetPlacementBounds(GameObject instance, out Bounds bounds)
+        private static bool TryGetLowestSupportProjection(GameObject instance, Vector3 normal, out float lowestProjection)
         {
-            if (TryGetRendererBounds(instance, out bounds))
-                return true;
+            lowestProjection = float.PositiveInfinity;
+            bool hasProjection = false;
 
-            bool hasBounds = false;
-            bounds = default;
+            // 비활성 자식(채집 후 그루터기, 파편 등)이나 꺼진 렌더러는 최저점 계산을 오염시키므로 제외한다.
+            foreach (var meshFilter in instance.GetComponentsInChildren<MeshFilter>(false))
+            {
+                if (meshFilter == null || meshFilter.sharedMesh == null)
+                    continue;
+
+                if (!meshFilter.TryGetComponent(out MeshRenderer meshRenderer) || !meshRenderer.enabled)
+                    continue;
+
+                EncapsulateLocalBoundsProjection(meshFilter.transform, meshFilter.sharedMesh.bounds, normal, ref lowestProjection);
+                hasProjection = true;
+            }
+
+            foreach (var skinnedMeshRenderer in instance.GetComponentsInChildren<SkinnedMeshRenderer>(false))
+            {
+                if (skinnedMeshRenderer == null || skinnedMeshRenderer.sharedMesh == null || !skinnedMeshRenderer.enabled)
+                    continue;
+
+                // SkinnedMeshRenderer.localBounds는 rootBone 기준 공간이다 (rootBone이 없으면 SMR 트랜스폼 기준).
+                Transform boundsSpace = skinnedMeshRenderer.rootBone != null
+                    ? skinnedMeshRenderer.rootBone
+                    : skinnedMeshRenderer.transform;
+                EncapsulateLocalBoundsProjection(boundsSpace, skinnedMeshRenderer.localBounds, normal, ref lowestProjection);
+                hasProjection = true;
+            }
+
+            if (hasProjection)
+                return true;
 
             // 배치 직후에는 물리 동기화 전이라 collider.bounds가 이동 전 위치 기준일 수 있다.
             Physics.SyncTransforms();
 
-            foreach (var collider in instance.GetComponentsInChildren<Collider>(true))
+            Bounds bounds = default;
+            foreach (var collider in instance.GetComponentsInChildren<Collider>(false))
             {
-                if (collider == null)
+                if (collider == null || !collider.enabled)
                     continue;
 
-                if (!hasBounds)
+                if (!hasProjection)
                 {
                     bounds = collider.bounds;
-                    hasBounds = true;
+                    hasProjection = true;
                 }
                 else
                 {
@@ -764,10 +891,36 @@ namespace UPlayGround.Tool.Editor.Map
                 }
             }
 
-            return hasBounds;
+            if (!hasProjection)
+                return false;
+
+            lowestProjection = GetLowestWorldAabbProjection(bounds, normal);
+            return true;
         }
 
-        private static float GetLowestBoundsProjection(Bounds bounds, Vector3 normal)
+        private static void EncapsulateLocalBoundsProjection(Transform transform, Bounds localBounds, Vector3 normal, ref float lowestProjection)
+        {
+            Vector3 min = localBounds.min;
+            Vector3 max = localBounds.max;
+
+            for (int x = 0; x <= 1; x++)
+            {
+                for (int y = 0; y <= 1; y++)
+                {
+                    for (int z = 0; z <= 1; z++)
+                    {
+                        var localCorner = new Vector3(
+                            x == 0 ? min.x : max.x,
+                            y == 0 ? min.y : max.y,
+                            z == 0 ? min.z : max.z);
+                        Vector3 worldCorner = transform.TransformPoint(localCorner);
+                        lowestProjection = Mathf.Min(lowestProjection, Vector3.Dot(worldCorner, normal));
+                    }
+                }
+            }
+        }
+
+        private static float GetLowestWorldAabbProjection(Bounds bounds, Vector3 normal)
         {
             Vector3 min = bounds.min;
             Vector3 max = bounds.max;

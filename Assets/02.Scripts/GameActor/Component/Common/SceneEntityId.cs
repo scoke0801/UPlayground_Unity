@@ -25,6 +25,12 @@ namespace UPlayGround.Component
 
         public bool HasGuid => !string.IsNullOrEmpty(_guid);
 
+        public void RuntimeSetGuid(string guid)
+        {
+            if (!string.IsNullOrEmpty(guid))
+                _guid = guid;
+        }
+
 #if UNITY_EDITOR
         /// <summary> 에디터 전용: GUID를 강제로 설정한다(일괄 보정 툴에서 사용). </summary>
         public void EditorSetGuid(string guid)

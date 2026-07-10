@@ -115,6 +115,18 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        public void RegisterRuntimePlacement(GatheringActor actor, string guid)
+        {
+            if (actor == null || string.IsNullOrEmpty(guid)) return;
+
+            _placements[guid] = new PlacementInfo { actor = actor };
+
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            if (WorldStateManager.Instance != null
+                && WorldStateManager.Instance.IsInteractableConsumed(mapId, guid))
+                actor.ApplyConsumedState();
+        }
+
         /// <summary>
         /// 맵 배치 아이템 픽업 소모를 기록하고 현재 씬 상태를 소모됨으로 적용한다.
         /// SceneEntityId가 없으면 false를 반환해 호출자가 Destroy 흐름으로 폴백한다.
@@ -134,6 +146,18 @@ namespace UPlayGround.Manager
 
             actor.ApplyConsumedState();
             return true;
+        }
+
+        public void RegisterRuntimePlacement(UPlayGround.DropItemActor actor, string guid)
+        {
+            if (actor == null || string.IsNullOrEmpty(guid)) return;
+
+            _placements[guid] = new PlacementInfo { dropItemActor = actor };
+
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            if (WorldStateManager.Instance != null
+                && WorldStateManager.Instance.IsInteractableConsumed(mapId, guid))
+                actor.ApplyConsumedState();
         }
 
         /// <summary>

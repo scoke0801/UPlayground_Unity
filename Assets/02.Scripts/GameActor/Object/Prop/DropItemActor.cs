@@ -25,6 +25,10 @@ namespace UPlayGround
         private bool _isInteracting;
         private bool _isConsumed;
 
+        public ItemSO ItemData => _itemData;
+        public int Count => Mathf.Max(1, _count);
+        public InteractableActorSO InteractionData => _interactionData;
+
         protected override void Awake()
         {
             base.Awake();
@@ -33,8 +37,14 @@ namespace UPlayGround
 
         public void Init(ItemSO itemData, int count = 1)
         {
+            Init(itemData, count, _interactionData);
+        }
+
+        public void Init(ItemSO itemData, int count, InteractableActorSO interactionData)
+        {
             _itemData = itemData;
             _count = Mathf.Max(1, count);
+            _interactionData = interactionData;
             _isInteracting = false;
             _isConsumed = false;
         }

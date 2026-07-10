@@ -8,15 +8,20 @@ using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UPlayGround.Component;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.World;
+using UPlayGround.Group;
 
 namespace UPlayGround.Tool.Editor.Map
 {
     /// <summary>
-    /// 씬 뷰 클릭으로 채집/벌목/채광/낚시터용 GatheringActor와 수동 획득 DropItemActor를 배치하는 에디터 도구.
-    /// 메뉴: UPlayGround/월드/맵/월드 인터랙션 배치 도구
+    /// 씬 뷰 클릭으로 액터, 채집/벌목/채광/낚시터용 GatheringActor, 수동 획득 DropItemActor를 배치하는 에디터 도구.
+    /// 메뉴: UPlayGround/월드/맵/월드 배치 도구
     /// </summary>
     public class GatheringPlacementEditorWindow : EditorWindow
     {
+        private const string ActorPlacementRootName = "MapPlacementRoot";
         private const string DefaultRootName = "GatheringPlacementRoot";
         private const string DropItemRootName = "DropItemPlacementRoot";
         private const string InteractionDataFolder = "Assets/10.Datas/Actor/Interaction";
@@ -24,18 +29,30 @@ namespace UPlayGround.Tool.Editor.Map
         private const string ItemDataFolder = "Assets/10.Datas/Item";
         private const string SearchControlName = "WorldInteractionPlacement.Search";
         private const string InteractableObjectLayerName = "InteractableObject";
+        private const float LeftPanelWidth = 300f;
 
         private const string PrefsPrefix = "UPlayground.GatheringPlacement.";
         private const string RecentPrefsKey = PrefsPrefix + "RecentGuids";
         private const string AttachFoldoutPrefsKey = PrefsPrefix + "AttachFoldout";
         private const string PlacementFoldoutPrefsKey = PrefsPrefix + "PlacementFoldout";
+        private const string SourceFoldoutPrefsKey = PrefsPrefix + "SourceFoldout";
+        private const string BakeFoldoutPrefsKey = PrefsPrefix + "BakeFoldout";
         private const char PrefsSeparator = '|';
         private const int MaxRecentCount = 5;
 
+        private readonly List<ActorDefinitionSO> _actorDefinitions = new();
         private readonly List<InteractableActorSO> _interactableDatas = new();
         private readonly List<ItemSO> _itemDatas = new();
         private readonly List<string> _recentDataGuids = new();
 
+        private WorldPlacementMode _worldPlacementMode = WorldPlacementMode.Actor;
+        private ActorPlacementSource _actorSource = ActorPlacementSource.ActorDatabase;
+        private ActorDatabase _actorDatabase;
+        private ActorDefinitionSO _selectedActorDefinition;
+        private GameObject _directActorPrefab;
+        private ActorType _actorFilter = ActorType.Monster | ActorType.NPC;
+        private string _actorSearchFilter = "";
+        private Vector2 _actorListScroll;
         private PlacementKind _placementKind = PlacementKind.Gathering;
         private InteractableActorSO _selectedData;
         private ItemSO _selectedItem;
@@ -55,8 +72,13 @@ namespace UPlayGround.Tool.Editor.Map
         private bool _randomRotation;
         private bool _addSceneEntityId = true;
         private bool _autoSetupCollider = true;
+        private bool _addPlacementMetadata = true;
+        private WorldPlacementMetadata.PlacementBakeMode _placementBakeMode = WorldPlacementMetadata.PlacementBakeMode.SceneObject;
         private bool _attachOptionsFoldout = true;
         private bool _placementRulesFoldout = true;
+        // 액터 배치 소스는 최초 자동 연결 후 거의 바꾸지 않으므로 기본 접힘.
+        private bool _actorSourceFoldout;
+        private bool _bakeFoldout = true;
         private float _gridSize = 1f;
         private float _yawOffset;
         private Vector2 _randomRotationXRange = Vector2.zero;
@@ -72,6 +94,15 @@ namespace UPlayGround.Tool.Editor.Map
         private Vector3 _previewNormal = Vector3.up;
         private bool _hasPreviewHit;
 
+        // 몬스터 그룹 지정 — 배치되는 MonsterActor를 이 그룹 하위로 넣어 자동 소속시킨다.
+        private MonsterGroupController _targetGroup;
+
+        // Bake 데이터 뷰어
+        private readonly List<WorldPlacementDataSO> _bakedDataAssets = new();
+        private WorldPlacementDataSO _selectedBakedData;
+        private Vector2 _bakedListScroll;
+        private bool _showBakedInScene;
+
         private int _sessionPlacementCount;
         private string _statusMessage = "배치할 상호작용 데이터를 선택하세요.";
         private MessageType _statusType = MessageType.Info;
@@ -82,9 +113,26 @@ namespace UPlayGround.Tool.Editor.Map
         private GUIStyle _normalItemStyle;
         private GUIStyle _statusTextStyle;
         private GUIStyle _chipStyle;
+        private GUIStyle _selectionCaptionStyle;
+        private GUIStyle _selectionTitleStyle;
+        private GUIStyle _selectionDetailStyle;
+        private GUIStyle _statusStripStyle;
+        private GUIStyle _bakeHeaderStyle;
         private bool _stylesInitialized;
 
         private int _dropItemCount = 1;
+
+        private enum WorldPlacementMode
+        {
+            Actor = 0,
+            Interaction = 1,
+        }
+
+        private enum ActorPlacementSource
+        {
+            ActorDatabase = 0,
+            DirectPrefab = 1,
+        }
 
         private enum PlacementKind
         {
@@ -114,12 +162,29 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
-        [MenuItem("UPlayGround/월드/맵/월드 인터랙션 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
+        [MenuItem("UPlayGround/월드/맵/월드 배치 도구", priority = UPlaygroundMenuPriority.WorldMap)]
         public static void Open()
         {
+            Open(WorldPlacementMode.Actor);
+        }
+
+        internal static void OpenActorPlacement()
+        {
+            Open(WorldPlacementMode.Actor);
+        }
+
+        internal static void OpenInteractionPlacement()
+        {
+            Open(WorldPlacementMode.Interaction);
+        }
+
+        private static void Open(WorldPlacementMode mode)
+        {
             var window = GetWindow<GatheringPlacementEditorWindow>();
-            window.titleContent = new GUIContent("World Placement", EditorGUIUtility.IconContent("d_TerrainInspector.TerrainToolPlants").image);
-            window.minSize = new Vector2(420f, 560f);
+            window.titleContent = new GUIContent("World Placement", EditorGUIUtility.IconContent("d_Prefab Icon").image);
+            // Master-Detail(좌 리스트 / 우 상세) 레이아웃 최소 폭 확보.
+            window.minSize = new Vector2(760f, 560f);
+            window.SetMode(mode);
             window.Show();
         }
 
@@ -129,8 +194,11 @@ namespace UPlayGround.Tool.Editor.Map
             SceneView.duringSceneGui += OnSceneGUI;
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             LoadPrefs();
+            TryAutoLoadActorDatabase();
+            RefreshActorDefinitions();
             RefreshInteractableDatas();
             RefreshItemDatas();
+            RefreshBakedDataAssets();
             SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
         }
 
@@ -146,67 +214,499 @@ namespace UPlayGround.Tool.Editor.Map
             InitStyles();
             HandleWindowShortcuts();
 
-            DrawStatusBar();
-            DrawToolbar();
+            DrawTopToolbar();
+            DrawStatusStrip();
 
-            _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll);
-            DrawPlacementKindTabs();
-            DrawDataSection();
-            DrawTargetSection();
-            DrawPlacementSettings();
-            DrawValidationSection();
-            EditorGUILayout.EndScrollView();
+            EditorGUILayout.BeginHorizontal(GUILayout.ExpandHeight(true));
+
+            using (new EditorGUILayout.VerticalScope(GUILayout.Width(LeftPanelWidth), GUILayout.ExpandHeight(true)))
+                DrawLeftPanel();
+
+            DrawVerticalSeparator();
+
+            using (new EditorGUILayout.VerticalScope(GUILayout.ExpandHeight(true)))
+                DrawRightPanel();
+
+            EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawStatusBar()
+        /// <summary>모드 상태 + 세션 카운트 + 주요 액션을 한 줄로 묶은 상단 툴바.</summary>
+        private void DrawTopToolbar()
         {
             bool canPlace = CanPlace(out _);
             Color barColor = _placementMode
                 ? canPlace ? new Color(0.22f, 0.48f, 0.28f) : new Color(0.52f, 0.32f, 0.14f)
                 : new Color(0.22f, 0.22f, 0.22f);
 
-            Rect rect = EditorGUILayout.GetControlRect(false, 34f);
-            EditorGUI.DrawRect(rect, barColor);
+            Rect barRect = EditorGUILayout.BeginHorizontal(GUILayout.Height(30f));
+            if (Event.current.type == EventType.Repaint)
+                EditorGUI.DrawRect(barRect, barColor);
 
+            GUILayout.Space(10f);
             string modeText = _placementMode ? "배치 모드 ON" : "배치 모드 OFF";
-            string selectionText = GetSelectionStatusText();
-
-            Rect leftRect = new Rect(rect.x + 10f, rect.y + 5f, rect.width - 170f, 22f);
-            GUI.Label(leftRect, $"{modeText} - {selectionText}", _statusTextStyle);
-
-            Rect rightRect = new Rect(rect.xMax - 160f, rect.y + 5f, 150f, 22f);
-            GUI.Label(rightRect, $"이번 세션 {_sessionPlacementCount}개", _statusTextStyle);
-        }
-
-        private void DrawToolbar()
-        {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-            using (new EditorGUI.DisabledScope(!HasSelectedPlacementData()))
-            {
-                if (GUILayout.Button(_placementMode ? "배치 중지" : "배치 시작", EditorStyles.toolbarButton, GUILayout.Width(82f)))
-                {
-                    _placementMode = !_placementMode;
-                    SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
-                    SceneView.RepaintAll();
-                }
-            }
-
-            if (GUILayout.Button("데이터 새로고침", EditorStyles.toolbarButton, GUILayout.Width(105f)))
-            {
-                RefreshInteractableDatas();
-                RefreshItemDatas();
-            }
+            GUILayout.Label($"{modeText}  ·  세션 {_sessionPlacementCount}개", _statusTextStyle, GUILayout.Height(30f));
 
             GUILayout.FlexibleSpace();
 
-            using (new EditorGUI.DisabledScope(GetSelectedPingObject() == null))
+            using (new EditorGUILayout.VerticalScope(GUILayout.Height(30f)))
             {
-                if (GUILayout.Button("선택 데이터 Ping", EditorStyles.toolbarButton, GUILayout.Width(110f)))
-                    EditorGUIUtility.PingObject(GetSelectedPingObject());
+                GUILayout.FlexibleSpace();
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    Color previousBg = GUI.backgroundColor;
+                    using (new EditorGUI.DisabledScope(!HasSelectedPlacementData()))
+                    {
+                        GUI.backgroundColor = _placementMode
+                            ? new Color(0.9f, 0.45f, 0.38f)
+                            : new Color(0.5f, 0.85f, 0.55f);
+                        if (GUILayout.Button(_placementMode ? "■ 배치 중지" : "▶ 배치 시작", GUILayout.Width(92f)))
+                        {
+                            _placementMode = !_placementMode;
+                            SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+                            SceneView.RepaintAll();
+                        }
+                    }
+                    GUI.backgroundColor = previousBg;
+
+                    if (GUILayout.Button(new GUIContent("새로고침", "데이터 새로고침"), GUILayout.Width(62f)))
+                    {
+                        RefreshActorDefinitions();
+                        RefreshInteractableDatas();
+                        RefreshItemDatas();
+                        RefreshBakedDataAssets();
+                    }
+
+                    using (new EditorGUI.DisabledScope(GetSelectedPingObject() == null))
+                    {
+                        if (GUILayout.Button(new GUIContent("Ping", "선택 데이터 Ping"), GUILayout.Width(44f)))
+                            EditorGUIUtility.PingObject(GetSelectedPingObject());
+                    }
+                }
+                GUILayout.FlexibleSpace();
             }
 
+            GUILayout.Space(6f);
             EditorGUILayout.EndHorizontal();
+        }
+
+        /// <summary>준비 상태 또는 임시 상태 메시지를 한 줄로 보여주는 얇은 스트립.</summary>
+        private void DrawStatusStrip()
+        {
+            string message = ShouldShowTemporaryStatus() ? _statusMessage : BuildReadinessMessage();
+            MessageType type = ShouldShowTemporaryStatus() ? _statusType : GetReadinessMessageType();
+
+            Rect rect = EditorGUILayout.GetControlRect(false, 20f);
+            EditorGUI.DrawRect(rect, new Color(0.16f, 0.16f, 0.16f));
+
+            _statusStripStyle.normal.textColor = type switch
+            {
+                MessageType.Error => new Color(0.95f, 0.55f, 0.5f),
+                MessageType.Warning => new Color(0.95f, 0.78f, 0.35f),
+                _ => new Color(0.75f, 0.75f, 0.75f),
+            };
+
+            GUI.Label(new Rect(rect.x + 8f, rect.y, rect.width - 16f, rect.height), message, _statusStripStyle);
+        }
+
+        private static void DrawVerticalSeparator()
+        {
+            Rect rect = GUILayoutUtility.GetRect(1f, 1f, GUILayout.Width(1f), GUILayout.ExpandHeight(true));
+            EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f));
+        }
+
+        /// <summary>좌측 패널: 모드 탭 + 검색 + 데이터 리스트. 무엇을 배치할지 고르는 영역.</summary>
+        private void DrawLeftPanel()
+        {
+            DrawWorldPlacementModeTabs();
+            EditorGUILayout.Space(2f);
+
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+                DrawActorListPanel();
+            else
+                DrawInteractionListPanel();
+
+            GUILayout.Label(
+                "선택 시 배치 모드 자동 ON · Esc 종료 · Ctrl+F 검색 · 1~5 최근 사용",
+                EditorStyles.wordWrappedMiniLabel);
+        }
+
+        /// <summary>우측 패널: 선택 상세(상단 고정) + 배치 옵션(스크롤) + Bake(하단 고정).</summary>
+        private void DrawRightPanel()
+        {
+            DrawSelectionHeader();
+
+            _mainScroll = EditorGUILayout.BeginScrollView(_mainScroll, GUILayout.ExpandHeight(true));
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                DrawActorCommonOptions();
+                DrawMonsterGroupSection();
+                DrawActorPlacementRules();
+                DrawActorSourceSettings();
+            }
+            else
+            {
+                DrawTargetSection();
+                DrawPlacementSettings();
+            }
+            EditorGUILayout.EndScrollView();
+
+            DrawRuntimeDataActions();
+        }
+
+        private void DrawWorldPlacementModeTabs()
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUI.BeginChangeCheck();
+            _worldPlacementMode = (WorldPlacementMode)GUILayout.Toolbar(
+                (int)_worldPlacementMode,
+                new[] { "Actor / Prefab", "Interaction / Item" });
+            if (EditorGUI.EndChangeCheck())
+            {
+                _placementMode = false;
+                SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+                SceneView.RepaintAll();
+            }
+        }
+
+        private void DrawActorListPanel()
+        {
+            if (_actorSource == ActorPlacementSource.DirectPrefab)
+            {
+                EditorGUILayout.HelpBox(
+                    "직접 프리팹 소스를 사용 중입니다.\n우측 '액터 배치 소스 설정'에서 프리팹을 연결하세요.",
+                    MessageType.Info);
+                GUILayout.FlexibleSpace();
+                return;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+            GUI.SetNextControlName(SearchControlName);
+            _actorSearchFilter = EditorGUILayout.TextField(_actorSearchFilter, EditorStyles.toolbarSearchField);
+            if (GUILayout.Button("x", EditorStyles.toolbarButton, GUILayout.Width(22f)))
+                _actorSearchFilter = "";
+            EditorGUILayout.EndHorizontal();
+
+            DrawActorFilterChips();
+
+            if (_actorDatabase == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "ActorDatabase를 연결해야 몬스터/NPC 목록을 사용할 수 있습니다.\n우측 '액터 배치 소스 설정'에서 연결하세요.",
+                    MessageType.Warning);
+                GUILayout.FlexibleSpace();
+                return;
+            }
+
+            DrawActorDefinitionList();
+        }
+
+        private void DrawActorFilterChips()
+        {
+            EditorGUILayout.BeginHorizontal();
+            DrawActorFilterChip(ActorType.Monster, "Monster");
+            DrawActorFilterChip(ActorType.NPC, "NPC");
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+        }
+
+        private void DrawActorFilterChip(ActorType flag, string label)
+        {
+            bool active = (_actorFilter & flag) != 0;
+            Color previousBg = GUI.backgroundColor;
+            GUI.backgroundColor = active ? new Color(0.5f, 0.75f, 0.55f) : new Color(0.35f, 0.35f, 0.35f);
+            if (GUILayout.Button(label, _chipStyle, GUILayout.MaxWidth(80f)))
+                _actorFilter = active ? _actorFilter & ~flag : _actorFilter | flag;
+            GUI.backgroundColor = previousBg;
+        }
+
+        private void DrawActorDefinitionList()
+        {
+            _actorListScroll = EditorGUILayout.BeginScrollView(_actorListScroll, GUILayout.ExpandHeight(true));
+
+            bool anyShown = false;
+            foreach (var definition in _actorDefinitions)
+            {
+                if (!ShouldShowDefinition(definition))
+                    continue;
+
+                anyShown = true;
+                DrawActorDefinitionRow(definition);
+            }
+
+            if (!anyShown)
+                GUILayout.Label("표시할 ActorDefinitionSO가 없습니다.", EditorStyles.centeredGreyMiniLabel, GUILayout.Height(32f));
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        private void DrawActorDefinitionRow(ActorDefinitionSO definition)
+        {
+            bool isSelected = _selectedActorDefinition == definition;
+            Rect rect = GUILayoutUtility.GetRect(0f, 38f, GUILayout.ExpandWidth(true));
+
+            if (Event.current.type == EventType.Repaint)
+                (isSelected ? _selectedItemStyle : _normalItemStyle).Draw(rect, GUIContent.none, false, false, isSelected, false);
+
+            if (isSelected && Event.current.type == EventType.Repaint)
+                EditorGUI.DrawRect(new Rect(rect.x, rect.y + 3f, 3f, rect.height - 6f), new Color(0.55f, 0.72f, 1f));
+
+            string displayName = string.IsNullOrEmpty(definition.displayName) ? definition.actorId : definition.displayName;
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 4f, rect.width - 16f, 16f), displayName, EditorStyles.boldLabel);
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 20f, rect.width - 16f, 14f),
+                $"{definition.actorId}  |  {definition.actorType}", EditorStyles.miniLabel);
+
+            if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
+            {
+                SelectActorDefinition(definition);
+                Event.current.Use();
+            }
+        }
+
+        /// <summary>우측 상단 고정: 지금 무엇이 배치될지를 항상 보여주는 선택 상세 패널.</summary>
+        private void DrawSelectionHeader()
+        {
+            Rect rect = EditorGUILayout.BeginVertical();
+            if (Event.current.type == EventType.Repaint)
+            {
+                EditorGUI.DrawRect(rect, new Color(0.14f, 0.19f, 0.28f));
+                EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - 2f, rect.width, 2f), new Color(0.23f, 0.45f, 0.71f));
+            }
+
+            GUILayout.Space(6f);
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                GUILayout.Space(10f);
+                using (new EditorGUILayout.VerticalScope())
+                {
+                    GUILayout.Label("선택 영역 — 배치될 대상", _selectionCaptionStyle);
+                    GUILayout.Label(
+                        HasSelectedPlacementData() ? GetSelectedPlacementTitle() : "선택된 항목이 없습니다",
+                        _selectionTitleStyle);
+
+                    string detail = BuildSelectionDetailText();
+                    if (!string.IsNullOrEmpty(detail))
+                        GUILayout.Label(detail, _selectionDetailStyle);
+                }
+                GUILayout.Space(10f);
+            }
+            GUILayout.Space(8f);
+            EditorGUILayout.EndVertical();
+        }
+
+        private string BuildSelectionDetailText()
+        {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                if (_actorSource == ActorPlacementSource.ActorDatabase)
+                {
+                    if (_selectedActorDefinition == null)
+                        return "좌측 목록에서 배치할 액터를 선택하세요.";
+
+                    if (_selectedActorDefinition.prefab == null)
+                        return $"Actor ID {_selectedActorDefinition.actorId}  |  ⚠ prefab이 비어 있어 배치할 수 없습니다";
+
+                    string groupSuffix = ShouldParentToGroup() ? $"  |  그룹 {_targetGroup.name}" : "";
+                    return $"Actor ID {_selectedActorDefinition.actorId}  |  Type {_selectedActorDefinition.actorType}  |  Prefab {_selectedActorDefinition.prefab.name}{groupSuffix}";
+                }
+
+                return _directActorPrefab != null
+                    ? $"직접 프리팹  |  {_directActorPrefab.name}{(ShouldParentToGroup() ? $"  |  그룹 {_targetGroup.name}" : "")}"
+                    : "아래 '액터 배치 소스 설정'에서 직접 프리팹을 연결하세요.";
+            }
+
+            if (_placementKind == PlacementKind.Gathering)
+            {
+                if (_selectedData == null)
+                    return "좌측 목록에서 배치할 상호작용 데이터를 선택하세요.";
+
+                return $"{_selectedData.interactionObjectType}  |  HP {_selectedData.hp}  |  생성: {(_prefab != null ? _prefab.name : "기본 GameObject")}";
+            }
+
+            if (_selectedItem == null)
+                return "좌측 목록에서 배치할 아이템을 선택하세요.";
+
+            return $"ID {_selectedItem.itemId}  |  {_selectedItem.itemType}  x{_dropItemCount}  |  생성: {(_dropItemPrefab != null ? _dropItemPrefab.name : "기본 GameObject")}";
+        }
+
+        /// <summary>선택 항목과 무관하게 모든 액터 배치에 적용되는 공용 옵션.</summary>
+        private void DrawActorCommonOptions()
+        {
+            DrawSectionLabel("공용 옵션");
+
+            _parent = (Transform)EditorGUILayout.ObjectField("Parent", _parent, typeof(Transform), true);
+            _autoCreateRoot = EditorGUILayout.Toggle("Auto Create Root", _autoCreateRoot);
+            _selectAfterPlace = EditorGUILayout.Toggle("Select After Place", _selectAfterPlace);
+            _addPlacementMetadata = EditorGUILayout.Toggle("Add Placement Metadata", _addPlacementMetadata);
+            using (new EditorGUI.DisabledScope(!_addPlacementMetadata))
+                _placementBakeMode = (WorldPlacementMetadata.PlacementBakeMode)EditorGUILayout.EnumPopup("Bake Mode", _placementBakeMode);
+        }
+
+        /// <summary>
+        /// 몬스터 배치 시 소속 그룹 지정.
+        /// MonsterGroupController는 자식 계층에서 멤버를 수집하므로, 그룹 지정 = 그룹 오브젝트 하위로 부모 지정이다.
+        /// </summary>
+        private void DrawMonsterGroupSection()
+        {
+            EditorGUILayout.Space(6f);
+            DrawSectionLabel("몬스터 그룹");
+
+            EditorGUILayout.BeginHorizontal();
+            _targetGroup = (MonsterGroupController)EditorGUILayout.ObjectField("Group", _targetGroup, typeof(MonsterGroupController), true);
+            if (GUILayout.Button("새 그룹", GUILayout.Width(56f)))
+                CreateNewMonsterGroup();
+            EditorGUILayout.EndHorizontal();
+
+            DrawSceneGroupPopup();
+
+            if (_targetGroup == null)
+                return;
+
+            var prefab = GetActorPrefab();
+            if (prefab != null && prefab.GetComponent<MonsterActor>() == null)
+                DrawInlineNotice("선택 프리팹에 MonsterActor가 없어 그룹 지정이 무시됩니다.", MessageType.Warning);
+            else
+                DrawInlineNotice($"배치되는 몬스터가 '{_targetGroup.name}' 하위로 들어가 그룹에 소속됩니다. Parent 옵션보다 우선합니다.", MessageType.Info);
+        }
+
+        private void DrawSceneGroupPopup()
+        {
+            var groups = FindSceneMonsterGroups();
+            if (groups.Count == 0)
+                return;
+
+            var options = new string[groups.Count + 1];
+            options[0] = "(그룹 없음)";
+            int current = 0;
+            for (int i = 0; i < groups.Count; i++)
+            {
+                options[i + 1] = groups[i].name;
+                if (groups[i] == _targetGroup)
+                    current = i + 1;
+            }
+
+            int picked = EditorGUILayout.Popup("씬 그룹", current, options);
+            if (picked != current)
+                _targetGroup = picked <= 0 ? null : groups[picked - 1];
+        }
+
+        private static List<MonsterGroupController> FindSceneMonsterGroups()
+        {
+            var groups = new List<MonsterGroupController>(
+                UnityEngine.Object.FindObjectsByType<MonsterGroupController>(FindObjectsInactive.Include, FindObjectsSortMode.None));
+            groups.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase));
+            return groups;
+        }
+
+        private void CreateNewMonsterGroup()
+        {
+            Transform parent = _parent != null ? _parent : GetOrCreatePlacementRoot(ActorPlacementRootName);
+
+            var groupObject = new GameObject(GameObjectUtility.GetUniqueNameForSibling(parent, "MonsterGroup"));
+            Undo.RegisterCreatedObjectUndo(groupObject, "Create Monster Group");
+            if (parent != null)
+                Undo.SetTransformParent(groupObject.transform, parent, "Create Monster Group Parent");
+
+            // 씬 뷰 피벗 근처에 두어 하이어라키에서 찾기 쉽게 한다. 멤버 배치 좌표는 월드 기준이라 영향 없음.
+            var sceneView = SceneView.lastActiveSceneView;
+            groupObject.transform.position = sceneView != null ? sceneView.pivot : Vector3.zero;
+
+            _targetGroup = Undo.AddComponent<MonsterGroupController>(groupObject);
+            EditorSceneManager.MarkSceneDirty(groupObject.scene);
+            SetTemporaryStatus($"'{groupObject.name}' 그룹을 생성했습니다.", MessageType.Info);
+        }
+
+        /// <summary>그룹 지정이 실제로 적용되는 상황인지. Actor 모드 + 그룹 선택 + 프리팹이 MonsterActor일 때만.</summary>
+        private bool ShouldParentToGroup()
+        {
+            if (_worldPlacementMode != WorldPlacementMode.Actor || _targetGroup == null)
+                return false;
+
+            var prefab = GetActorPrefab();
+            return prefab != null && prefab.GetComponent<MonsterActor>() != null;
+        }
+
+        private void DrawActorPlacementRules()
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUI.BeginChangeCheck();
+            _placementRulesFoldout = EditorGUILayout.Foldout(_placementRulesFoldout, "정렬 및 배치 규칙", true);
+            if (EditorGUI.EndChangeCheck())
+                SaveFoldoutPrefs();
+
+            if (!_placementRulesFoldout)
+                return;
+
+            EditorGUI.indentLevel++;
+            _raycastMask = LayerMaskField("Raycast Layer", _raycastMask);
+            _heightOffset = EditorGUILayout.FloatField("Y Offset", _heightOffset);
+
+            _alignToSurface = EditorGUILayout.Toggle("Align To Surface", _alignToSurface);
+            _yawOffset = EditorGUILayout.Slider("Yaw Offset", _yawOffset, -180f, 180f);
+
+            _snapToGrid = EditorGUILayout.Toggle("Snap To Grid", _snapToGrid);
+            using (new EditorGUI.DisabledScope(!_snapToGrid))
+                _gridSize = Mathf.Max(0.01f, EditorGUILayout.FloatField("Grid Size", _gridSize));
+
+            _randomRotation = EditorGUILayout.Toggle("Random Yaw", _randomRotation);
+            EditorGUI.indentLevel--;
+        }
+
+        private void DrawActorSourceSettings()
+        {
+            EditorGUILayout.Space(6f);
+            EditorGUI.BeginChangeCheck();
+            _actorSourceFoldout = EditorGUILayout.Foldout(_actorSourceFoldout, "액터 배치 소스 설정", true);
+            if (EditorGUI.EndChangeCheck())
+                SaveFoldoutPrefs();
+
+            if (!_actorSourceFoldout)
+                return;
+
+            EditorGUI.indentLevel++;
+
+            EditorGUI.BeginChangeCheck();
+            _actorSource = (ActorPlacementSource)EditorGUILayout.EnumPopup("Source", _actorSource);
+            if (EditorGUI.EndChangeCheck())
+            {
+                _placementMode = false;
+                SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+                SceneView.RepaintAll();
+            }
+
+            if (_actorSource == ActorPlacementSource.ActorDatabase)
+            {
+                EditorGUILayout.BeginHorizontal();
+                _actorDatabase = (ActorDatabase)EditorGUILayout.ObjectField("ActorDatabase", _actorDatabase, typeof(ActorDatabase), false);
+                if (GUILayout.Button("자동", GUILayout.Width(44f)))
+                {
+                    TryAutoLoadActorDatabase();
+                    RefreshActorDefinitions();
+                }
+                EditorGUILayout.EndHorizontal();
+
+                _actorFilter = (ActorType)EditorGUILayout.EnumFlagsField("Actor Filter", _actorFilter);
+            }
+            else
+            {
+                _directActorPrefab = (GameObject)EditorGUILayout.ObjectField("Prefab", _directActorPrefab, typeof(GameObject), false);
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Project 선택 사용"))
+                    UseSelectedProjectPrefab();
+
+                if (GUILayout.Button("Portal 폴더 열기"))
+                {
+                    var portalFolder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>("Assets/03.Prefabs/Actor/Portal");
+                    if (portalFolder != null)
+                        EditorGUIUtility.PingObject(portalFolder);
+                }
+                EditorGUILayout.EndHorizontal();
+
+                if (_directActorPrefab == null)
+                    EditorGUILayout.HelpBox("포탈, 트리거, 장식물처럼 ActorDatabase에 없는 배치물은 직접 프리팹을 연결하세요.", MessageType.Info);
+            }
+
+            EditorGUI.indentLevel--;
         }
 
         private void DrawPlacementKindTabs()
@@ -222,22 +722,21 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
-        private void DrawDataSection()
+        private void DrawInteractionListPanel()
         {
-            DrawSectionLabel(_placementKind == PlacementKind.Gathering ? "상호작용 데이터 선택" : "드랍 아이템 선택");
+            DrawPlacementKindTabs();
 
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel("검색");
             GUI.SetNextControlName(SearchControlName);
             _searchFilter = EditorGUILayout.TextField(_searchFilter, EditorStyles.toolbarSearchField);
-            if (GUILayout.Button("x", EditorStyles.toolbarButton, GUILayout.Width(24f)))
+            if (GUILayout.Button("x", EditorStyles.toolbarButton, GUILayout.Width(22f)))
                 _searchFilter = "";
             EditorGUILayout.EndHorizontal();
 
             if (_placementKind == PlacementKind.Gathering)
                 DrawRecentDataChips();
 
-            _dataListScroll = EditorGUILayout.BeginScrollView(_dataListScroll, GUILayout.Height(210f));
+            _dataListScroll = EditorGUILayout.BeginScrollView(_dataListScroll, GUILayout.ExpandHeight(true));
 
             bool anyShown = false;
             if (_placementKind == PlacementKind.Gathering)
@@ -272,9 +771,6 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             EditorGUILayout.EndScrollView();
-
-            if (!HasSelectedPlacementData())
-                EditorGUILayout.HelpBox(GetSelectionRequiredMessage(), MessageType.Warning);
         }
 
         private void DrawRecentDataChips()
@@ -315,11 +811,11 @@ namespace UPlayGround.Tool.Editor.Map
             if (isSelected && Event.current.type == EventType.Repaint)
                 EditorGUI.DrawRect(new Rect(rect.x, rect.y + 3f, 3f, rect.height - 6f), new Color(0.55f, 0.72f, 1f));
 
+            // 좌측 300px 패널에 맞춘 2줄 스택 레이아웃.
             string title = GetDataTitle(data);
-            GUI.Label(new Rect(rect.x + 8f, rect.y + 7f, rect.width * 0.45f, 18f), title, EditorStyles.boldLabel);
-            GUI.Label(new Rect(rect.x + rect.width * 0.45f, rect.y + 8f, rect.width * 0.34f, 16f),
-                $"{data.interactionObjectType}  |  HP {data.hp}", EditorStyles.miniLabel);
-            GUI.Label(new Rect(rect.xMax - 110f, rect.y + 8f, 104f, 16f), data.name, EditorStyles.miniLabel);
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 2f, rect.width - 16f, 16f), title, EditorStyles.boldLabel);
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 17f, rect.width - 16f, 14f),
+                $"{data.interactionObjectType}  |  HP {data.hp}  |  {data.name}", EditorStyles.miniLabel);
 
             if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
             {
@@ -339,15 +835,16 @@ namespace UPlayGround.Tool.Editor.Map
             if (isSelected && Event.current.type == EventType.Repaint)
                 EditorGUI.DrawRect(new Rect(rect.x, rect.y + 3f, 3f, rect.height - 6f), new Color(0.55f, 0.72f, 1f));
 
+            // 좌측 300px 패널에 맞춘 2줄 스택 레이아웃. 아이콘은 우측에 유지.
+            float textWidth = rect.width - 46f;
             string title = GetItemTitle(item);
-            GUI.Label(new Rect(rect.x + 8f, rect.y + 5f, rect.width * 0.42f, 18f), title, EditorStyles.boldLabel);
-            GUI.Label(new Rect(rect.x + rect.width * 0.42f, rect.y + 6f, rect.width * 0.28f, 16f),
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 3f, textWidth, 16f), title, EditorStyles.boldLabel);
+            GUI.Label(new Rect(rect.x + 8f, rect.y + 18f, textWidth, 14f),
                 $"ID {item.itemId}  |  {item.itemType}", EditorStyles.miniLabel);
-            GUI.Label(new Rect(rect.xMax - 110f, rect.y + 6f, 104f, 16f), item.name, EditorStyles.miniLabel);
 
             if (item.icon != null)
             {
-                Rect iconRect = new Rect(rect.xMax - 136f, rect.y + 4f, 24f, 24f);
+                Rect iconRect = new Rect(rect.xMax - 32f, rect.y + 5f, 24f, 24f);
                 GUI.DrawTexture(iconRect, item.icon.texture, ScaleMode.ScaleToFit, true);
             }
 
@@ -414,6 +911,9 @@ namespace UPlayGround.Tool.Editor.Map
             if (_attachOptionsFoldout)
             {
                 EditorGUI.indentLevel++;
+                _addPlacementMetadata = EditorGUILayout.Toggle("Add Placement Metadata", _addPlacementMetadata);
+                using (new EditorGUI.DisabledScope(!_addPlacementMetadata))
+                    _placementBakeMode = (WorldPlacementMetadata.PlacementBakeMode)EditorGUILayout.EnumPopup("Bake Mode", _placementBakeMode);
                 _addSceneEntityId = EditorGUILayout.Toggle("Add SceneEntityId", _addSceneEntityId);
                 _autoSetupCollider = EditorGUILayout.Toggle("Auto Setup Collider", _autoSetupCollider);
                 EditorGUI.indentLevel--;
@@ -463,34 +963,172 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
-        private void DrawValidationSection()
+        /// <summary>우측 하단 고정: 고급 기능인 RuntimeData Bake 영역. 실수 방지를 위해 경고색으로 구분.</summary>
+        private void DrawRuntimeDataActions()
         {
-            EditorGUILayout.Space(8f);
-            DrawSectionLabel("검증 및 실행 상태");
-
-            string readiness = BuildReadinessMessage();
-            MessageType readinessType = GetReadinessMessageType();
-            string status = ShouldShowTemporaryStatus()
-                ? _statusMessage
-                : readiness;
-            MessageType statusType = ShouldShowTemporaryStatus()
-                ? _statusType
-                : readinessType;
-
-            EditorGUILayout.HelpBox(status, statusType);
-
-            if (_placementKind == PlacementKind.Gathering && _selectedData != null)
+            Rect rect = EditorGUILayout.BeginVertical();
+            if (Event.current.type == EventType.Repaint)
             {
-                EditorGUILayout.LabelField("선택 데이터", $"{GetDataTitle(_selectedData)} / {_selectedData.interactionObjectType} / HP {_selectedData.hp}");
-                EditorGUILayout.LabelField("생성 방식", _prefab != null ? _prefab.name : "기본 GameObject 생성");
-            }
-            else if (_placementKind == PlacementKind.DropItem && _selectedItem != null)
-            {
-                EditorGUILayout.LabelField("선택 아이템", $"{GetItemTitle(_selectedItem)} / ID {_selectedItem.itemId} / {_selectedItem.itemType} x{_dropItemCount}");
-                EditorGUILayout.LabelField("생성 방식", _dropItemPrefab != null ? _dropItemPrefab.name : "기본 GameObject 생성");
+                EditorGUI.DrawRect(rect, new Color(0.16f, 0.15f, 0.12f));
+                EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, 2f), new Color(0.42f, 0.35f, 0.17f));
             }
 
-            EditorGUILayout.LabelField("단축키", "Esc 종료, Ctrl/Cmd+Z 취소, Ctrl+F 검색, 1~5 최근 사용 전환");
+            GUILayout.Space(4f);
+
+            EditorGUI.BeginChangeCheck();
+            _bakeFoldout = EditorGUILayout.Foldout(_bakeFoldout, "⚠ RuntimeData Bake (고급)", true, _bakeHeaderStyle);
+            if (EditorGUI.EndChangeCheck())
+                SaveFoldoutPrefs();
+
+            if (_bakeFoldout)
+            {
+                GUILayout.Label(
+                    "Bake Mode가 RuntimeData인 배치만 PlacementDataSO로 저장하고 씬 오브젝트를 제거합니다. 씬에는 RuntimePlacementLoader가 자동 생성됩니다.",
+                    EditorStyles.wordWrappedMiniLabel);
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (GUILayout.Button("Bake Open Scene", GUILayout.Height(24f)))
+                    {
+                        var baked = WorldPlacementBakeUtility.BakeOpenSceneRuntimeData();
+                        RefreshBakedDataAssets();
+                        if (baked != null)
+                            _selectedBakedData = baked;
+                    }
+
+                    bool canRestore = Selection.activeObject is WorldPlacementDataSO;
+                    using (new EditorGUI.DisabledScope(!canRestore))
+                    {
+                        if (GUILayout.Button(
+                                new GUIContent("Restore Selected Data", canRestore ? "" : "WorldPlacementDataSO 에셋을 선택하면 활성화됩니다."),
+                                GUILayout.Height(24f)))
+                            WorldPlacementBakeUtility.RestoreSelectedPlacementData();
+                    }
+                }
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    using (new EditorGUI.DisabledScope(Selection.gameObjects == null || Selection.gameObjects.Length == 0))
+                    {
+                        if (GUILayout.Button("선택 RuntimeData 표시", GUILayout.Height(22f)))
+                            WorldPlacementBakeUtility.MarkSelectedAsRuntimeData();
+
+                        if (GUILayout.Button("선택 SceneObject 표시", GUILayout.Height(22f)))
+                            WorldPlacementBakeUtility.MarkSelectedAsSceneObject();
+                    }
+                }
+
+                if (Selection.activeObject is not WorldPlacementDataSO)
+                    GUILayout.Label("※ Restore는 WorldPlacementDataSO 에셋 선택 시 활성화됩니다.", EditorStyles.miniLabel);
+
+                DrawBakedDataViewer();
+            }
+
+            GUILayout.Space(4f);
+            EditorGUILayout.EndVertical();
+        }
+
+        /// <summary>Bake된 WorldPlacementDataSO의 레코드 목록을 확인하고 씬에서 위치를 표시/이동한다.</summary>
+        private void DrawBakedDataViewer()
+        {
+            EditorGUILayout.Space(4f);
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Bake된 데이터", EditorStyles.miniBoldLabel, GUILayout.Width(84f));
+
+            string[] options = BuildBakedDataOptions(out int current);
+            int picked = EditorGUILayout.Popup(current, options);
+            if (picked != current)
+            {
+                _selectedBakedData = picked <= 0 || picked > _bakedDataAssets.Count ? null : _bakedDataAssets[picked - 1];
+                SceneView.RepaintAll();
+            }
+            EditorGUILayout.EndHorizontal();
+
+            if (_selectedBakedData == null)
+                return;
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label($"레코드 {_selectedBakedData.Records.Count}개", EditorStyles.miniLabel);
+            GUILayout.FlexibleSpace();
+
+            EditorGUI.BeginChangeCheck();
+            _showBakedInScene = GUILayout.Toggle(_showBakedInScene, "씬에 표시", EditorStyles.miniButton, GUILayout.Width(62f));
+            if (EditorGUI.EndChangeCheck())
+                SceneView.RepaintAll();
+
+            if (GUILayout.Button("에셋 선택", EditorStyles.miniButton, GUILayout.Width(62f)))
+            {
+                Selection.activeObject = _selectedBakedData;
+                EditorGUIUtility.PingObject(_selectedBakedData);
+            }
+            EditorGUILayout.EndHorizontal();
+
+            _bakedListScroll = EditorGUILayout.BeginScrollView(_bakedListScroll, GUILayout.Height(120f));
+            var records = _selectedBakedData.Records;
+            for (int i = 0; i < records.Count; i++)
+            {
+                var record = records[i];
+                if (record == null)
+                    continue;
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label($"{i + 1}. {GetRecordDisplayName(record)}", EditorStyles.miniLabel);
+                GUILayout.FlexibleSpace();
+                GUILayout.Label(
+                    $"({record.position.x:F1}, {record.position.y:F1}, {record.position.z:F1})",
+                    EditorStyles.miniLabel, GUILayout.Width(120f));
+                if (GUILayout.Button("이동", EditorStyles.miniButton, GUILayout.Width(36f)))
+                    FrameSceneView(record.position);
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndScrollView();
+        }
+
+        private string[] BuildBakedDataOptions(out int currentIndex)
+        {
+            var options = new string[_bakedDataAssets.Count + 1];
+            options[0] = _bakedDataAssets.Count == 0 ? "(Bake된 데이터 없음)" : "(선택 안 함)";
+            currentIndex = 0;
+            for (int i = 0; i < _bakedDataAssets.Count; i++)
+            {
+                options[i + 1] = _bakedDataAssets[i].name;
+                if (_bakedDataAssets[i] == _selectedBakedData)
+                    currentIndex = i + 1;
+            }
+
+            return options;
+        }
+
+        private static string GetRecordDisplayName(WorldPlacementRecord record)
+        {
+            if (!string.IsNullOrEmpty(record.actorId))
+                return string.IsNullOrEmpty(record.groupName) ? record.actorId : $"{record.actorId} @{record.groupName}";
+
+            return record.prefab != null ? record.prefab.name : record.prefabId;
+        }
+
+        private void RefreshBakedDataAssets()
+        {
+            _bakedDataAssets.Clear();
+            foreach (string guid in AssetDatabase.FindAssets("t:WorldPlacementDataSO"))
+            {
+                var asset = AssetDatabase.LoadAssetAtPath<WorldPlacementDataSO>(AssetDatabase.GUIDToAssetPath(guid));
+                if (asset != null)
+                    _bakedDataAssets.Add(asset);
+            }
+
+            _bakedDataAssets.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase));
+
+            if (_selectedBakedData != null && !_bakedDataAssets.Contains(_selectedBakedData))
+                _selectedBakedData = null;
+        }
+
+        private static void FrameSceneView(Vector3 position)
+        {
+            var sceneView = SceneView.lastActiveSceneView;
+            if (sceneView != null)
+                sceneView.Frame(new Bounds(position, Vector3.one * 6f), false);
         }
 
         private void OnSceneGUI(SceneView sceneView)
@@ -504,6 +1142,7 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             HandleSceneShortcuts(currentEvent);
+            DrawBakedRecordMarkers();
 
             if (!_placementMode)
                 return;
@@ -607,6 +1246,28 @@ namespace UPlayGround.Tool.Editor.Map
             return _ignoreTriggerColliders ? QueryTriggerInteraction.Ignore : QueryTriggerInteraction.UseGlobal;
         }
 
+        /// <summary>'씬에 표시'가 켜진 동안 선택된 Bake 데이터의 레코드 위치를 씬 뷰에 마커로 그린다.</summary>
+        private void DrawBakedRecordMarkers()
+        {
+            if (!_showBakedInScene || _selectedBakedData == null)
+                return;
+
+            var records = _selectedBakedData.Records;
+            // 대량 레코드에서 씬 뷰 핸들 드로우가 프레임을 잡아먹지 않도록 상한을 둔다.
+            int max = Mathf.Min(records.Count, 300);
+            Handles.color = new Color(1f, 0.85f, 0.3f, 0.9f);
+            for (int i = 0; i < max; i++)
+            {
+                var record = records[i];
+                if (record == null)
+                    continue;
+
+                Handles.DrawWireDisc(record.position, Vector3.up, 0.6f);
+                Handles.DrawLine(record.position, record.position + Vector3.up * 1.2f);
+                Handles.Label(record.position + Vector3.up * 1.4f, GetRecordDisplayName(record));
+            }
+        }
+
         private void DrawScenePreview()
         {
             if (!_hasPreviewHit)
@@ -637,24 +1298,34 @@ namespace UPlayGround.Tool.Editor.Map
             if (instance == null)
                 return;
 
-            Undo.RegisterCreatedObjectUndo(instance, "Gathering Placement");
+            string undoName = _worldPlacementMode == WorldPlacementMode.Actor ? "Actor Placement" : "Interaction Placement";
+            Undo.RegisterCreatedObjectUndo(instance, undoName);
             if (parent != null)
-                Undo.SetTransformParent(instance.transform, parent, "Gathering Placement Parent");
+                Undo.SetTransformParent(instance.transform, parent, "World Placement Parent");
 
             // Parent가 위치/회전/스케일을 가진 경우를 대비해 Parent 연결 이후 월드 배치 좌표를 확정한다.
             instance.transform.SetPositionAndRotation(_previewPosition, rotation);
 
-            ApplyInteractableLayer(instance);
-            StickInstanceToSurface(placement);
-            SetupColliderIfNeeded(instance);
-            ApplyPlacementData(instance);
-            AddSceneEntityIdIfNeeded(instance);
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                ApplyActorDefinitionIfNeeded(instance);
+            }
+            else
+            {
+                ApplyInteractableLayer(instance);
+                StickInstanceToSurface(placement);
+                SetupColliderIfNeeded(instance);
+                ApplyPlacementData(instance);
+                AddSceneEntityIdIfNeeded(instance);
+            }
+
+            AddPlacementMetadataIfNeeded(instance);
 
             if (_selectAfterPlace)
                 Selection.activeGameObject = instance;
 
             _sessionPlacementCount++;
-            if (_placementKind == PlacementKind.Gathering)
+            if (_worldPlacementMode == WorldPlacementMode.Interaction && _placementKind == PlacementKind.Gathering)
                 AddRecentData(_selectedData);
             SetTemporaryStatus($"배치 완료 (이번 세션 {_sessionPlacementCount}개)", MessageType.Info);
             EditorSceneManager.MarkSceneDirty(instance.scene);
@@ -663,6 +1334,16 @@ namespace UPlayGround.Tool.Editor.Map
 
         private PlacementInstance CreateInstance()
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                GameObject actorPrefab = GetActorPrefab();
+                if (actorPrefab == null)
+                    return new PlacementInstance(null, null, moveSurfaceTargetOnly: false);
+
+                var actorInstance = InstantiatePrefab(actorPrefab);
+                return new PlacementInstance(actorInstance, actorInstance, moveSurfaceTargetOnly: false);
+            }
+
             GameObject targetPrefab = _placementKind == PlacementKind.Gathering ? _prefab : _dropItemPrefab;
             if (targetPrefab != null)
             {
@@ -1006,6 +1687,12 @@ namespace UPlayGround.Tool.Editor.Map
 
         private void ApplyPlacementData(GameObject instance)
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                ApplyActorDefinitionIfNeeded(instance);
+                return;
+            }
+
             if (_placementKind == PlacementKind.Gathering)
             {
                 ApplyGatheringData(instance);
@@ -1013,6 +1700,46 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             ApplyDropItemData(instance);
+        }
+
+        private void ApplyActorDefinitionIfNeeded(GameObject instance)
+        {
+            if (_actorSource != ActorPlacementSource.ActorDatabase || _selectedActorDefinition == null)
+                return;
+
+            var actor = instance.GetComponent<GameActor>();
+            if (actor == null)
+            {
+                Debug.LogWarning($"[WorldPlacement] '{instance.name}'에 GameActor 컴포넌트가 없어 actorId를 주입하지 못했습니다.", instance);
+                return;
+            }
+
+            var serializedActor = new SerializedObject(actor);
+            var actorIdProperty = serializedActor.FindProperty("_actorId");
+            if (actorIdProperty == null)
+            {
+                Debug.LogWarning($"[WorldPlacement] '{instance.name}'에서 _actorId 프로퍼티를 찾지 못했습니다.", instance);
+                return;
+            }
+
+            actorIdProperty.stringValue = _selectedActorDefinition.actorId;
+            serializedActor.ApplyModifiedPropertiesWithoutUndo();
+
+            if (actor is NpcActor && _selectedActorDefinition.npcData != null)
+            {
+                var npcDataProperty = serializedActor.FindProperty("_data");
+                if (npcDataProperty != null)
+                {
+                    npcDataProperty.objectReferenceValue = _selectedActorDefinition.npcData;
+                    serializedActor.ApplyModifiedPropertiesWithoutUndo();
+                }
+                else
+                {
+                    Debug.LogWarning($"[WorldPlacement] '{instance.name}'에서 NPC _data 프로퍼티를 찾지 못했습니다.", instance);
+                }
+            }
+
+            EditorUtility.SetDirty(actor);
         }
 
         private void ApplyGatheringData(GameObject instance)
@@ -1102,6 +1829,56 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
+        private void AddPlacementMetadataIfNeeded(GameObject instance)
+        {
+            if (!_addPlacementMetadata)
+                return;
+
+            var metadata = instance.GetComponent<WorldPlacementMetadata>();
+            if (metadata == null)
+                metadata = Undo.AddComponent<WorldPlacementMetadata>(instance);
+            else
+                Undo.RecordObject(metadata, "Set World Placement Metadata");
+
+            metadata.EditorSetPlacementInfo(
+                GetPlacementSourceKind(),
+                GetPlacementSourceId(),
+                _placementBakeMode,
+                cellId: "",
+                randomSeed: UnityEngine.Random.Range(int.MinValue, int.MaxValue),
+                initiallyActive: instance.activeSelf);
+            EditorUtility.SetDirty(metadata);
+        }
+
+        private WorldPlacementMetadata.PlacementSourceKind GetPlacementSourceKind()
+        {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                return _actorSource == ActorPlacementSource.ActorDatabase
+                    ? WorldPlacementMetadata.PlacementSourceKind.ActorDefinition
+                    : WorldPlacementMetadata.PlacementSourceKind.DirectPrefab;
+            }
+
+            return _placementKind == PlacementKind.Gathering
+                ? WorldPlacementMetadata.PlacementSourceKind.GatheringData
+                : WorldPlacementMetadata.PlacementSourceKind.DropItemData;
+        }
+
+        private string GetPlacementSourceId()
+        {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                if (_actorSource == ActorPlacementSource.ActorDatabase)
+                    return _selectedActorDefinition != null ? _selectedActorDefinition.actorId : "";
+
+                return GetAssetGuid(_directActorPrefab);
+            }
+
+            return _placementKind == PlacementKind.Gathering
+                ? GetAssetGuid(_selectedData)
+                : GetAssetGuid(_selectedItem);
+        }
+
         private Quaternion BuildPlacementRotation()
         {
             Quaternion localRotation = _randomRotation
@@ -1119,13 +1896,24 @@ namespace UPlayGround.Tool.Editor.Map
 
         private Transform ResolveParent()
         {
+            // 몬스터 그룹 지정은 Parent/루트 옵션보다 우선한다.
+            if (ShouldParentToGroup())
+                return _targetGroup.transform;
+
             if (_parent != null)
                 return _parent;
 
             if (!_autoCreateRoot)
                 return null;
 
-            string rootName = _placementKind == PlacementKind.Gathering ? DefaultRootName : DropItemRootName;
+            string rootName = _worldPlacementMode == WorldPlacementMode.Actor
+                ? ActorPlacementRootName
+                : _placementKind == PlacementKind.Gathering ? DefaultRootName : DropItemRootName;
+            return GetOrCreatePlacementRoot(rootName);
+        }
+
+        private static Transform GetOrCreatePlacementRoot(string rootName)
+        {
             var root = GameObject.Find(rootName);
             if (root == null)
             {
@@ -1167,6 +1955,41 @@ namespace UPlayGround.Tool.Editor.Map
                 SelectData(_interactableDatas.Count > 0 ? _interactableDatas[0] : null, false, armPlacement: false);
 
             PruneRecentDataGuids();
+            Repaint();
+        }
+
+        private void RefreshActorDefinitions()
+        {
+            _actorDefinitions.Clear();
+
+            if (_actorDatabase == null)
+                TryAutoLoadActorDatabase();
+
+            if (_actorDatabase == null)
+            {
+                Repaint();
+                return;
+            }
+
+            foreach (var definition in _actorDatabase.All)
+            {
+                if (definition != null)
+                    _actorDefinitions.Add(definition);
+            }
+
+            _actorDefinitions.Sort((a, b) =>
+            {
+                string left = string.IsNullOrEmpty(a.actorId) ? a.name : a.actorId;
+                string right = string.IsNullOrEmpty(b.actorId) ? b.name : b.actorId;
+                return string.Compare(left, right, StringComparison.OrdinalIgnoreCase);
+            });
+
+            if (_selectedActorDefinition == null && _actorDefinitions.Count > 0)
+                SelectActorDefinition(_actorDefinitions[0], armPlacement: false);
+
+            if (_selectedActorDefinition != null && !_actorDefinitions.Contains(_selectedActorDefinition))
+                SelectActorDefinition(_actorDefinitions.Count > 0 ? _actorDefinitions[0] : null, armPlacement: false);
+
             Repaint();
         }
 
@@ -1230,6 +2053,19 @@ namespace UPlayGround.Tool.Editor.Map
             SceneView.RepaintAll();
         }
 
+        private void SelectActorDefinition(ActorDefinitionSO definition, bool armPlacement = true)
+        {
+            _selectedActorDefinition = definition;
+            _actorSource = ActorPlacementSource.ActorDatabase;
+
+            if (armPlacement && definition != null && !_placementMode)
+                _placementMode = true;
+
+            SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+            Repaint();
+            SceneView.RepaintAll();
+        }
+
         private bool CanPlace(out string reason)
         {
             if (!HasSelectedPlacementData())
@@ -1252,6 +2088,14 @@ namespace UPlayGround.Tool.Editor.Map
         {
             if (!HasSelectedPlacementData())
                 return GetSelectionRequiredMessage();
+
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                if (GetActorPrefab() == null)
+                    return "배치할 ActorDefinitionSO 또는 직접 프리팹을 선택하세요.";
+
+                return "Actor/Prefab 배치 준비 완료 - 씬 뷰 클릭으로 배치하세요. Esc 종료, Ctrl/Cmd+Z 취소.";
+            }
 
             if (_placementKind == PlacementKind.DropItem)
             {
@@ -1277,6 +2121,9 @@ namespace UPlayGround.Tool.Editor.Map
         {
             if (!HasSelectedPlacementData())
                 return MessageType.Warning;
+
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+                return GetActorPrefab() == null ? MessageType.Warning : MessageType.None;
 
             if (_placementKind == PlacementKind.DropItem)
                 return _dropItemPrefab == null || _dropItemPrefab.GetComponent<DropItemActor>() == null
@@ -1349,6 +2196,9 @@ namespace UPlayGround.Tool.Editor.Map
 
         private bool TrySelectRecentByKey(KeyCode keyCode)
         {
+            if (_worldPlacementMode != WorldPlacementMode.Interaction)
+                return false;
+
             if (_placementKind != PlacementKind.Gathering)
                 return false;
 
@@ -1382,6 +2232,8 @@ namespace UPlayGround.Tool.Editor.Map
 
             _attachOptionsFoldout = EditorPrefs.GetBool(AttachFoldoutPrefsKey, true);
             _placementRulesFoldout = EditorPrefs.GetBool(PlacementFoldoutPrefsKey, true);
+            _actorSourceFoldout = EditorPrefs.GetBool(SourceFoldoutPrefsKey, false);
+            _bakeFoldout = EditorPrefs.GetBool(BakeFoldoutPrefsKey, true);
         }
 
         private void SaveRecentDataGuids()
@@ -1393,6 +2245,8 @@ namespace UPlayGround.Tool.Editor.Map
         {
             EditorPrefs.SetBool(AttachFoldoutPrefsKey, _attachOptionsFoldout);
             EditorPrefs.SetBool(PlacementFoldoutPrefsKey, _placementRulesFoldout);
+            EditorPrefs.SetBool(SourceFoldoutPrefsKey, _actorSourceFoldout);
+            EditorPrefs.SetBool(BakeFoldoutPrefsKey, _bakeFoldout);
         }
 
         private static bool IsGatheringPlacementData(InteractableActorSO data)
@@ -1432,6 +2286,22 @@ namespace UPlayGround.Tool.Editor.Map
                 || item.itemId.ToString().IndexOf(_searchFilter, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
+        private bool ShouldShowDefinition(ActorDefinitionSO definition)
+        {
+            if (definition == null)
+                return false;
+
+            if (_actorFilter != ActorType.None && (definition.actorType & _actorFilter) == 0)
+                return false;
+
+            if (string.IsNullOrEmpty(_actorSearchFilter))
+                return true;
+
+            return ContainsIgnoreCase(definition.actorId, _actorSearchFilter)
+                || ContainsIgnoreCase(definition.displayName, _actorSearchFilter)
+                || ContainsIgnoreCase(definition.name, _actorSearchFilter);
+        }
+
         private void UseSelectedProjectPrefab()
         {
             var selected = Selection.activeObject as GameObject;
@@ -1448,10 +2318,19 @@ namespace UPlayGround.Tool.Editor.Map
                 return;
             }
 
-            if (_placementKind == PlacementKind.Gathering)
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                _directActorPrefab = selected;
+                _actorSource = ActorPlacementSource.DirectPrefab;
+            }
+            else if (_placementKind == PlacementKind.Gathering)
+            {
                 _prefab = selected;
+            }
             else
+            {
                 _dropItemPrefab = selected;
+            }
 
             SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
             Repaint();
@@ -1489,6 +2368,19 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string BuildObjectName()
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+            {
+                if (_actorSource == ActorPlacementSource.ActorDatabase && _selectedActorDefinition != null)
+                {
+                    string actorName = string.IsNullOrEmpty(_selectedActorDefinition.displayName)
+                        ? _selectedActorDefinition.actorId
+                        : _selectedActorDefinition.displayName;
+                    return actorName;
+                }
+
+                return _directActorPrefab != null ? _directActorPrefab.name : "PlacedActor";
+            }
+
             if (_placementKind == PlacementKind.DropItem)
                 return $"DropItem_{GetItemTitle(_selectedItem)}";
 
@@ -1501,6 +2393,9 @@ namespace UPlayGround.Tool.Editor.Map
 
         private bool HasSelectedPlacementData()
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+                return GetActorPrefab() != null;
+
             return _placementKind == PlacementKind.Gathering
                 ? _selectedData != null
                 : _selectedItem != null;
@@ -1508,6 +2403,11 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string GetSelectionRequiredMessage()
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+                return _actorSource == ActorPlacementSource.ActorDatabase
+                    ? "배치할 ActorDefinitionSO를 먼저 선택하세요."
+                    : "배치할 직접 프리팹을 먼저 선택하세요.";
+
             return _placementKind == PlacementKind.Gathering
                 ? "배치할 상호작용 데이터를 먼저 선택하세요."
                 : "배치할 아이템 데이터를 먼저 선택하세요.";
@@ -1520,22 +2420,11 @@ namespace UPlayGround.Tool.Editor.Map
                 : "등록된 아이템 데이터가 없습니다. Item 데이터 폴더에 SO를 추가하세요.";
         }
 
-        private string GetSelectionStatusText()
-        {
-            if (_placementKind == PlacementKind.Gathering)
-            {
-                return _selectedData != null
-                    ? $"{GetDataTitle(_selectedData)} ({_selectedData.interactionObjectType})"
-                    : "데이터 미선택";
-            }
-
-            return _selectedItem != null
-                ? $"{GetItemTitle(_selectedItem)} x{_dropItemCount}"
-                : "아이템 미선택";
-        }
-
         private string GetSelectedPlacementTitle()
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+                return BuildObjectName();
+
             return _placementKind == PlacementKind.Gathering
                 ? GetDataTitle(_selectedData)
                 : GetItemTitle(_selectedItem);
@@ -1543,9 +2432,43 @@ namespace UPlayGround.Tool.Editor.Map
 
         private UnityEngine.Object GetSelectedPingObject()
         {
+            if (_worldPlacementMode == WorldPlacementMode.Actor)
+                return _actorSource == ActorPlacementSource.ActorDatabase
+                    ? _selectedActorDefinition
+                    : _directActorPrefab;
+
             return _placementKind == PlacementKind.Gathering
                 ? _selectedData
                 : _selectedItem;
+        }
+
+        private GameObject GetActorPrefab()
+        {
+            return _actorSource == ActorPlacementSource.ActorDatabase
+                ? _selectedActorDefinition != null ? _selectedActorDefinition.prefab : null
+                : _directActorPrefab;
+        }
+
+        private void TryAutoLoadActorDatabase()
+        {
+            if (_actorDatabase != null)
+                return;
+
+            var guids = AssetDatabase.FindAssets("t:ActorDatabase");
+            if (guids.Length == 0)
+                return;
+
+            string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            _actorDatabase = AssetDatabase.LoadAssetAtPath<ActorDatabase>(path);
+        }
+
+        private void SetMode(WorldPlacementMode mode)
+        {
+            _worldPlacementMode = mode;
+            _placementMode = false;
+            SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+            Repaint();
+            SceneView.RepaintAll();
         }
 
         private static string GetDataTitle(InteractableActorSO data)
@@ -1569,6 +2492,15 @@ namespace UPlayGround.Tool.Editor.Map
 
             string path = AssetDatabase.GetAssetPath(data);
             return string.IsNullOrEmpty(path) ? null : AssetDatabase.AssetPathToGUID(path);
+        }
+
+        private static string GetAssetGuid(UnityEngine.Object asset)
+        {
+            if (asset == null)
+                return "";
+
+            string path = AssetDatabase.GetAssetPath(asset);
+            return string.IsNullOrEmpty(path) ? "" : AssetDatabase.AssetPathToGUID(path);
         }
 
         private static InteractableActorSO LoadDataByGuid(string guid)
@@ -1711,6 +2643,40 @@ namespace UPlayGround.Tool.Editor.Map
                 alignment = TextAnchor.MiddleCenter,
                 padding = new RectOffset(8, 8, 2, 2),
             };
+
+            _selectionCaptionStyle = new GUIStyle(EditorStyles.miniBoldLabel)
+            {
+                normal = { textColor = new Color(0.5f, 0.69f, 0.94f) },
+            };
+
+            _selectionTitleStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                fontSize = 14,
+                normal = { textColor = Color.white },
+            };
+
+            _selectionDetailStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                wordWrap = true,
+                normal = { textColor = new Color(0.85f, 0.89f, 0.96f) },
+            };
+
+            _statusStripStyle = new GUIStyle(EditorStyles.miniLabel)
+            {
+                alignment = TextAnchor.MiddleLeft,
+            };
+
+            var bakeHeaderColor = new Color(0.88f, 0.72f, 0.29f);
+            _bakeHeaderStyle = new GUIStyle(EditorStyles.foldout)
+            {
+                fontStyle = FontStyle.Bold,
+            };
+            _bakeHeaderStyle.normal.textColor = bakeHeaderColor;
+            _bakeHeaderStyle.onNormal.textColor = bakeHeaderColor;
+            _bakeHeaderStyle.hover.textColor = bakeHeaderColor;
+            _bakeHeaderStyle.onHover.textColor = bakeHeaderColor;
+            _bakeHeaderStyle.active.textColor = bakeHeaderColor;
+            _bakeHeaderStyle.onActive.textColor = bakeHeaderColor;
 
             _stylesInitialized = true;
         }

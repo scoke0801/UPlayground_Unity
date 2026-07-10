@@ -138,6 +138,15 @@ namespace UPlayGround
             return _interactableData;
         }
 
+        public void Init(InteractableActorSO interactableData)
+        {
+            _interactableData = interactableData;
+            _isGathering = false;
+            _isInteractionDepleted = false;
+            _currentInteractionCount = 0;
+            _currentHp = _interactableData != null ? _interactableData.hp : 0;
+        }
+
         private void ShowInteractionBoard()
         {
             UI_InteractionHPBoard ui = UIManager.Instance.ShowUI(UIKeyType.InteractionHPBoard)?.GetComponent<UI_InteractionHPBoard>();

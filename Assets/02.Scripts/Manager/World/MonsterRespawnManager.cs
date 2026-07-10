@@ -230,6 +230,61 @@ namespace UPlayGround.Manager
             UnityEngine.Object.Destroy(monster.gameObject);
         }
 
+        public void RegisterRuntimePlacement(
+            MonsterActor monster,
+            string guid,
+            string actorId,
+            Vector3 position,
+            Quaternion rotation,
+            MonsterGroupController group)
+        {
+            if (monster == null || string.IsNullOrEmpty(guid) || string.IsNullOrEmpty(actorId))
+                return;
+
+            var placement = new PlacementInfo
+            {
+                actorId = actorId,
+                position = position,
+                rotation = rotation,
+                baseLevel = monster.Level,
+                grade = monster.Grade,
+                group = group,
+                placedInstance = monster,
+            };
+            _placements[guid] = placement;
+
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            if (WorldStateManager.Instance != null
+                && WorldStateManager.Instance.IsPermanentlyKilled(mapId, guid))
+            {
+                DestroyInstance(monster, placement);
+                return;
+            }
+
+            if (WorldStateManager.Instance != null
+                && WorldStateManager.Instance.TryGetRespawnState(mapId, guid, out var state))
+            {
+                float now = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
+                if (state.waitingRespawn && now < state.nextRespawnGameMinute)
+                {
+                    DestroyInstance(monster, placement);
+                    return;
+                }
+
+                if (state.waitingRespawn)
+                    CompleteRespawn(monster, state);
+                else
+                {
+                    ApplyLevelAndRewards(monster, state);
+                    RegisterRuntimeTracking(monster, guid);
+                }
+
+                return;
+            }
+
+            RegisterRuntimeTracking(monster, guid);
+        }
+
         /// <summary>
         /// 원본 배치 정보로 기본 레벨 몬스터를 다시 스폰한다.
         /// 세이브에 재스폰 상태가 없는 guid를 인게임 로드에서 원복할 때 사용한다.

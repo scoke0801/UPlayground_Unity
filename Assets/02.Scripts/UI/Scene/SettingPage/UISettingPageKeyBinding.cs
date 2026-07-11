@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using TMPro;
 
-public class UISettingPageKeyBinding : UISettingPageBase
+namespace UPlayGround.UI
 {
+    public class UISettingPageKeyBinding : UISettingPageBase
+    {
+    }
 }

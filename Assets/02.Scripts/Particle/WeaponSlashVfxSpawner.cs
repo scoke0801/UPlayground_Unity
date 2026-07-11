@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Animations;
 
-namespace FX
+namespace UPlayGround.Particle
 {
     public sealed class WeaponSlashVfxSpawner : MonoBehaviour
     {

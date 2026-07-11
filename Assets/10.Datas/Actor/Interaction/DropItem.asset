@@ -17,6 +17,7 @@ MonoBehaviour:
     \uAE30\uBCF8 \uC0C1\uD638\uC791\uC6A9 \uB370\uC774\uD130"
   interactionObjectType: 7
   hp: 1
+  interactionCompleteDuration: 1.5
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0

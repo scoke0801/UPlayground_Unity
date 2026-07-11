@@ -3,56 +3,59 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class UISwitchButton : MonoBehaviour
+namespace UPlayGround.UI
 {
-    [SerializeField] private Button _switchButton;
-    [SerializeField] private GameObject _offRoot;
-    [SerializeField] private GameObject _onRoot;
-
-    public event Action<bool> OnValueChanged;
-    public bool IsOn = false;
-
-    private void Awake()
+    public class UISwitchButton : MonoBehaviour
     {
-        if (_switchButton != null)
-            _switchButton.onClick.AddListener(OnClickedSwitchButton);
-    }
+        [SerializeField] private Button _switchButton;
+        [SerializeField] private GameObject _offRoot;
+        [SerializeField] private GameObject _onRoot;
 
-    private void Start()
-    {
-        RefreshVisual();
-    }
+        public event Action<bool> OnValueChanged;
+        public bool IsOn = false;
 
-    private void OnDestroy()
-    {
-        if (_switchButton != null)
-            _switchButton.onClick.RemoveListener(OnClickedSwitchButton);
-    }
-
-    public void SetValueWithoutNotify(bool isOn)
-    {
-        IsOn = isOn;
-        RefreshVisual();
-    }
-
-    private void OnClickedSwitchButton()
-    {
-        if(IsOn)
+        private void Awake()
         {
-            IsOn = false;
-        }
-        else
-        {
-            IsOn = true;
+            if (_switchButton != null)
+                _switchButton.onClick.AddListener(OnClickedSwitchButton);
         }
 
-        RefreshVisual();
-        OnValueChanged?.Invoke(IsOn);
-    }
+        private void Start()
+        {
+            RefreshVisual();
+        }
 
-    private void RefreshVisual()
-    {
-        if (_offRoot != null) _offRoot.SetActive(!IsOn);
-        if (_onRoot != null) _onRoot.SetActive(IsOn);
+        private void OnDestroy()
+        {
+            if (_switchButton != null)
+                _switchButton.onClick.RemoveListener(OnClickedSwitchButton);
+        }
+
+        public void SetValueWithoutNotify(bool isOn)
+        {
+            IsOn = isOn;
+            RefreshVisual();
+        }
+
+        private void OnClickedSwitchButton()
+        {
+            if(IsOn)
+            {
+                IsOn = false;
+            }
+            else
+            {
+                IsOn = true;
+            }
+
+            RefreshVisual();
+            OnValueChanged?.Invoke(IsOn);
+        }
+
+        private void RefreshVisual()
+        {
+            if (_offRoot != null) _offRoot.SetActive(!IsOn);
+            if (_onRoot != null) _onRoot.SetActive(IsOn);
+        }
     }
 }

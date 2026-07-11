@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using P09.Modular.Humanoid.Data;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     public sealed class IconResolver
     {

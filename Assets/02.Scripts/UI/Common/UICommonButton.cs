@@ -5,56 +5,59 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum UICommonButtonClickResult
+namespace UPlayGround.UI
 {
-    None = 0,
-    Success,
-    Failed,
-}
-
-public class UICommonButton : MonoBehaviour
-{
-    [SerializeField] private Button _button;
-    [SerializeField] private TextMeshProUGUI _buttonText;
-
-    public TextMeshProUGUI Text => this._buttonText;
-    public Button Button => _button;
-    public UICommonButtonClickResult LastClickResult { get; private set; } = UICommonButtonClickResult.None;
-
-    public event Action<UICommonButtonClickResult> OnClickResultChanged;
-
-    private Func<UICommonButtonClickResult> _clickResultHandler;
-
-    private void Awake()
+    public enum UICommonButtonClickResult
     {
-        _button?.onClick.AddListener(InvokeClickResultHandler);
+        None = 0,
+        Success,
+        Failed,
     }
 
-    private void OnDestroy()
+    public class UICommonButton : MonoBehaviour
     {
-        _button?.onClick.RemoveListener(InvokeClickResultHandler);
-    }
+        [SerializeField] private Button _button;
+        [SerializeField] private TextMeshProUGUI _buttonText;
 
-    public void BindClickResult(Func<UICommonButtonClickResult> handler)
-    {
-        _clickResultHandler = handler;
-        LastClickResult = UICommonButtonClickResult.None;
-    }
+        public TextMeshProUGUI Text => this._buttonText;
+        public Button Button => _button;
+        public UICommonButtonClickResult LastClickResult { get; private set; } = UICommonButtonClickResult.None;
 
-    public void ClearClickResult()
-    {
-        _clickResultHandler = null;
-        LastClickResult = UICommonButtonClickResult.None;
-    }
+        public event Action<UICommonButtonClickResult> OnClickResultChanged;
 
-    private void InvokeClickResultHandler()
-    {
-        if (_clickResultHandler == null)
+        private Func<UICommonButtonClickResult> _clickResultHandler;
+
+        private void Awake()
         {
-            return;
+            _button?.onClick.AddListener(InvokeClickResultHandler);
         }
 
-        LastClickResult = _clickResultHandler.Invoke();
-        OnClickResultChanged?.Invoke(LastClickResult);
+        private void OnDestroy()
+        {
+            _button?.onClick.RemoveListener(InvokeClickResultHandler);
+        }
+
+        public void BindClickResult(Func<UICommonButtonClickResult> handler)
+        {
+            _clickResultHandler = handler;
+            LastClickResult = UICommonButtonClickResult.None;
+        }
+
+        public void ClearClickResult()
+        {
+            _clickResultHandler = null;
+            LastClickResult = UICommonButtonClickResult.None;
+        }
+
+        private void InvokeClickResultHandler()
+        {
+            if (_clickResultHandler == null)
+            {
+                return;
+            }
+
+            LastClickResult = _clickResultHandler.Invoke();
+            OnClickResultChanged?.Invoke(LastClickResult);
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
-using UPlayGround.Component;
+using UPlayGround.Components;
 
 namespace UPlayGround.Data.Event
 {

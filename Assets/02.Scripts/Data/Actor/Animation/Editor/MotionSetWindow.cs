@@ -1,3 +1,4 @@
+using UPlayGround.Particle;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -7,7 +8,7 @@ using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Debugging;
 using UPlayGround.MovementController;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using ActorAnimatorType = UPlayGround.Animation.ActorAnimator;
@@ -2815,8 +2816,8 @@ namespace UPlayGround.Animation.Editor
             // 정확히 배치한다. 그런데 evt.Execute → SlashVFXEvent.Execute(target,1f)가 런타임 서브프레임
             // 보간(BeginInterpolatedBladePose)을 호출하면, 스포너의 "라이브(playbackTime) 손 스냅샷"으로
             // 무기를 다시 덮어써 방금 잡은 eventStart 포즈가 무효화된다. 그래서 이 구간만 보간을 끈다.
-            bool prevInterp = FX.WeaponSlashVfxSpawner.EnableSubFrameInterpolation;
-            FX.WeaponSlashVfxSpawner.EnableSubFrameInterpolation = false;
+            bool prevInterp = WeaponSlashVfxSpawner.EnableSubFrameInterpolation;
+            WeaponSlashVfxSpawner.EnableSubFrameInterpolation = false;
             try
             {
                 SetAnimancerPoseOnly(eventGlobalStart);
@@ -2828,7 +2829,7 @@ namespace UPlayGround.Animation.Editor
             }
             finally
             {
-                FX.WeaponSlashVfxSpawner.EnableSubFrameInterpolation = prevInterp;
+                WeaponSlashVfxSpawner.EnableSubFrameInterpolation = prevInterp;
                 if (!Mathf.Approximately(restoreTime, eventGlobalStart))
                 {
                     SetAnimancerPoseOnly(restoreTime);
@@ -2861,7 +2862,7 @@ namespace UPlayGround.Animation.Editor
 
                 // 런타임 스폰과 동일한 오프셋 공식을 공유한다(양 경로 결과 일치 보장).
                 Transform s = src.sourceTransform;
-                FX.WeaponSlashVfxSpawner.PlaceConstrainedFromSourcePose(pc, s.position, s.rotation);
+                WeaponSlashVfxSpawner.PlaceConstrainedFromSourcePose(pc, s.position, s.rotation);
             }
         }
 

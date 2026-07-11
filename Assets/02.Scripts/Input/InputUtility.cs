@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Input
+namespace UPlayGround.Input
 {
     /// <summary>
     /// 입력 관련 유틸리티 함수

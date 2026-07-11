@@ -1,5 +1,5 @@
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;

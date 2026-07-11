@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// P09CharacterPrefabBuilderWindow의 탭 1개를 표현하는 인터페이스.

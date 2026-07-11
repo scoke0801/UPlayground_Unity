@@ -4,7 +4,8 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.MovementController;
-using UPlayGround.UREnum;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Manager.World;
 
 namespace UPlayGround.Manager
 {
@@ -187,6 +188,8 @@ namespace UPlayGround.Manager
 
         private async UniTask WaitForGameplayStabilizationAsync(CancellationToken cancellationToken)
         {
+            await WaitForRuntimePlacementLoadersAsync(cancellationToken);
+
             float startedAt = Time.realtimeSinceStartup;
             int stableFixedFrames = 0;
             PlayerActor player = null;
@@ -297,6 +300,51 @@ namespace UPlayGround.Manager
             }
 
             await UniTask.WaitForEndOfFrame(cancellationToken);
+        }
+
+        private static async UniTask WaitForRuntimePlacementLoadersAsync(CancellationToken cancellationToken)
+        {
+            float waitStartedAt = Time.realtimeSinceStartup;
+            float lastDiagnosticLogAt = waitStartedAt;
+
+            while (true)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                RuntimePlacementLoader[] loaders =
+                    UnityEngine.Object.FindObjectsByType<RuntimePlacementLoader>(
+                        FindObjectsInactive.Exclude,
+                        FindObjectsSortMode.None);
+
+                bool allComplete = true;
+                int pendingCount = 0;
+                for (int i = 0; i < loaders.Length; i++)
+                {
+                    RuntimePlacementLoader loader = loaders[i];
+                    if (loader == null || !loader.isActiveAndEnabled)
+                        continue;
+
+                    if (loader.IsSpawnComplete)
+                        continue;
+
+                    allComplete = false;
+                    pendingCount++;
+                }
+
+                if (allComplete)
+                    return;
+
+                float now = Time.realtimeSinceStartup;
+                if (now - lastDiagnosticLogAt >= SceneWaitDiagnosticLogInterval)
+                {
+                    lastDiagnosticLogAt = now;
+                    Debug.LogWarning(
+                        $"[SceneManager] RuntimePlacementLoader {pendingCount}개가 {now - waitStartedAt:F1}초째 스폰 중입니다. " +
+                        "로딩 화면을 유지합니다.");
+                }
+
+                await UniTask.Yield(cancellationToken);
+            }
         }
 
         private static bool AreNearbyMonstersStable(Vector3 playerPosition)

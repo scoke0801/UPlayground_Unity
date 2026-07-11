@@ -1,11 +1,14 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "InteractionConfig", menuName = "UPlayGround/설정/Interaction")]
-public class InteractionConfig : ScriptableObject
+namespace UPlayGround.Data.Config
 {
-    public float checkRadius = 5.0f;
-    public LayerMask interactableLayer;
+    [CreateAssetMenu(fileName = "InteractionConfig", menuName = "UPlayGround/설정/Interaction")]
+    public class InteractionConfig : ScriptableObject
+    {
+        public float checkRadius = 5.0f;
+        public LayerMask interactableLayer;
 
-    public float activationDistance = 3.0f;
+        public float activationDistance = 3.0f;
 
+    }
 }

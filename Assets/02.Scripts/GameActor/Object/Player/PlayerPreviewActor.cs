@@ -5,7 +5,7 @@ using UnityEngine.Animations;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Item;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Manager;
 
 namespace UPlayGround

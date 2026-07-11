@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Editor

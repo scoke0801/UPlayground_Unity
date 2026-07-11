@@ -1,6 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.MovementController;
 using UPlayGround.Data.Sound;
@@ -20,7 +20,7 @@ namespace UPlayGround.State
         private EnemyAIContext _context;
         private EnemyDetection _detection;
         private EnemyCombat _combat;
-        private UPlayGround.Component.EnemyTacticalMemory _memory;
+        private UPlayGround.Components.EnemyTacticalMemory _memory;
         
         private float _guardDuration;
         private float _guardTimer;
@@ -45,7 +45,7 @@ namespace UPlayGround.State
             if (monsterActor)
             {
                 _combat = monsterActor.Combat;
-                _memory = gameActor.GetComponent<UPlayGround.Component.EnemyTacticalMemory>();
+                _memory = gameActor.GetComponent<UPlayGround.Components.EnemyTacticalMemory>();
                 if (_combat != null)
                     _combat.IsGuarding = true;
 

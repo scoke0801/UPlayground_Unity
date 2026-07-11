@@ -1,10 +1,11 @@
 using System.Collections;
-using Interaction.Enum;
-using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UnityEngine;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
+using UPlayGround.Data.Actor;
+using UPlayGround.UI;
 
 namespace UPlayGround
 {

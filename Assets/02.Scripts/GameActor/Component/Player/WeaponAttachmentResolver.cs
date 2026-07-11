@@ -4,7 +4,7 @@ using UnityEngine.Animations;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public static class WeaponAttachmentResolverUtility
     {

@@ -8,7 +8,7 @@ using UPlayGround.Manager;
 using UPlayGround.State;
 using UnityEngine.SceneManagement;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public enum UltimateSequenceEndReason
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     public enum BuilderArmorSlot
     {

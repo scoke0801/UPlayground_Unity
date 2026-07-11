@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 씬에 배치된 오브젝트에 세션 간 안정적인 고유 식별자(GUID)를 부여한다.

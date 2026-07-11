@@ -2,7 +2,7 @@ using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State

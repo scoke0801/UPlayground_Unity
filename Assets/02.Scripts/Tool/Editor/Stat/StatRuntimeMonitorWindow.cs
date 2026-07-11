@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
 

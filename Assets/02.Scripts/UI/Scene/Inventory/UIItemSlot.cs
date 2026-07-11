@@ -4,53 +4,57 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
+using UPlayGround.Data.Item;
 
-public class UIItemSlot : MonoBehaviour
+namespace UPlayGround.UI
 {
-    [SerializeField] private GameObject _rootContent;  
-    [SerializeField] private TextMeshProUGUI _txtCount;
-    [SerializeField] private TextMeshProUGUI _txtWeight;
-    [SerializeField] private Image _imgItem;
-    [SerializeField] private Image _imgRarity;
-
-    private ItemSO _itemData = null;
-    private int _itemCount = 0;
-    
-    public void Init(ItemSO itemData, int count)
+    public class UIItemSlot : MonoBehaviour
     {
-        _itemData = itemData;
-        _itemCount = count;
+        [SerializeField] private GameObject _rootContent;  
+        [SerializeField] private TextMeshProUGUI _txtCount;
+        [SerializeField] private TextMeshProUGUI _txtWeight;
+        [SerializeField] private Image _imgItem;
+        [SerializeField] private Image _imgRarity;
 
-        RefreshUI();
-    }
-    
-    public void RefreshUI()
-    {
-        if (_itemData == null)
+        private ItemSO _itemData = null;
+        private int _itemCount = 0;
+
+        public void Init(ItemSO itemData, int count)
         {
-            _rootContent.SetActive(false);
-        }
-        else
-        {            
-            _rootContent.SetActive(true);
-            
-            _imgRarity.color = GetRarityColor(_itemData.itemRarity);
-            _imgItem.sprite = _itemData.icon;
-            _txtCount.text = _itemCount.ToString();
-            _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemData.itemId):0.0}";
-        }
-    }
+            _itemData = itemData;
+            _itemCount = count;
 
-    private static Color GetRarityColor(ItemRarity rarity)
-    {
-        return rarity switch
+            RefreshUI();
+        }
+
+        public void RefreshUI()
         {
-            ItemRarity.COMMON => Color.white,
-            ItemRarity.UNCOMMON => new Color(0.35f, 0.9f, 0.45f),
-            ItemRarity.RARE => new Color(0.35f, 0.6f, 1f),
-            ItemRarity.UNIQUE => new Color(0.85f, 0.45f, 1f),
-            ItemRarity.LEGENDARY => new Color(1f, 0.65f, 0.2f),
-            _ => Color.clear
-        };
+            if (_itemData == null)
+            {
+                _rootContent.SetActive(false);
+            }
+            else
+            {            
+                _rootContent.SetActive(true);
+
+                _imgRarity.color = GetRarityColor(_itemData.itemRarity);
+                _imgItem.sprite = _itemData.icon;
+                _txtCount.text = _itemCount.ToString();
+                _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemData.itemId):0.0}";
+            }
+        }
+
+        private static Color GetRarityColor(ItemRarity rarity)
+        {
+            return rarity switch
+            {
+                ItemRarity.COMMON => Color.white,
+                ItemRarity.UNCOMMON => new Color(0.35f, 0.9f, 0.45f),
+                ItemRarity.RARE => new Color(0.35f, 0.6f, 1f),
+                ItemRarity.UNIQUE => new Color(0.85f, 0.45f, 1f),
+                ItemRarity.LEGENDARY => new Color(1f, 0.65f, 0.2f),
+                _ => Color.clear
+            };
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using INab.Common;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 공격 상태 기준으로 액터 하위 WeaponTrailEffect를 직접 제어한다.

@@ -9,7 +9,7 @@ using UPlayGround.MovementController;
 using UPlayGround.State;
 using Random = UnityEngine.Random;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 적 행동 결정자

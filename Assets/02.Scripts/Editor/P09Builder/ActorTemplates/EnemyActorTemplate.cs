@@ -7,13 +7,13 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround;
 using UPlayGround.Data;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// Enemy(MonsterActor) 프리팹 빌드 템플릿.

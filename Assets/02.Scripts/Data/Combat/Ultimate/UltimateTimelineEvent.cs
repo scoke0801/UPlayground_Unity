@@ -4,7 +4,7 @@ using UnityEngine;
 using UPlayGround.CameraSystem;
 using UPlayGround.Data.Sound;
 using UPlayGround.Manager;
-using UPlayGround.Component;
+using UPlayGround.Components;
 
 namespace UPlayGround.Data
 {

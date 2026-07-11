@@ -2,8 +2,9 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Stat;
+using UPlayGround.UI;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// Poise(강인도) 런타임 컴포넌트.

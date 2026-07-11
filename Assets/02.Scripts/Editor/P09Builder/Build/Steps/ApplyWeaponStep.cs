@@ -5,11 +5,11 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
 using UPlayGround.Animation;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// 무기 슬롯에 해당하는 메쉬를 SetActive 토글로 활성화한다.

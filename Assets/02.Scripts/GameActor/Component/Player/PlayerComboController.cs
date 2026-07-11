@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>캐릭터별 콤보 진행도 보관과 콤보 입력 창 상태의 단일 소유자.</summary>
     public sealed class PlayerComboController

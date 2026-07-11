@@ -1,7 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Path;

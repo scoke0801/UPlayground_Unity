@@ -69,13 +69,13 @@ namespace UPlayGround.Manager
                 return;
             }
 
-            Light moon = binding != null ? binding.moonLight : null;
+            Light moon = ResolveMoonLight(binding, sun);
             Volume volume = ResolveGlobalVolume(binding);
 
             _activeController = CreateController();
             _activeController.Bind(sun, moon, volume);
 
-            Debug.Log($"[WorldLightingManager] 맵 '{mapId}' 낮밤 조명 활성화 (sun: {sun.name}, volume: {(volume != null ? volume.name : "없음")})");
+            Debug.Log($"[WorldLightingManager] 맵 '{mapId}' 낮밤 조명 활성화 (sun: {sun.name}, moon: {(moon != null ? moon.name : "없음")}, volume: {(volume != null ? volume.name : "없음")})");
         }
 
         private WorldLightingController CreateController()
@@ -106,12 +106,40 @@ namespace UPlayGround.Manager
             if (RenderSettings.sun != null)
                 return RenderSettings.sun;
 
-            // 방향광 자동 검색: 가장 밝은 것을 태양으로 간주
+            // 방향광 자동 검색: 그림자를 만들 수 있는 라이트를 우선하고, 그 안에서 가장 밝은 것을 태양으로 간주
             Light best = null;
             var lights = UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
             foreach (var light in lights)
             {
-                if (light == null || light.type != LightType.Directional) continue;
+                if (light == null || light.type != LightType.Directional || !light.isActiveAndEnabled) continue;
+                if (best == null || CompareSunCandidate(light, best) > 0)
+                    best = light;
+            }
+            return best;
+        }
+
+        private static int CompareSunCandidate(Light candidate, Light current)
+        {
+            bool candidateCastsShadows = candidate.shadows != LightShadows.None;
+            bool currentCastsShadows = current.shadows != LightShadows.None;
+            if (candidateCastsShadows != currentCastsShadows)
+                return candidateCastsShadows ? 1 : -1;
+
+            return candidate.intensity.CompareTo(current.intensity);
+        }
+
+        private static Light ResolveMoonLight(WorldLightingSceneBinding binding, Light sun)
+        {
+            if (binding != null && binding.moonLight != null)
+                return binding.moonLight;
+
+            Light best = null;
+            var lights = UnityEngine.Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
+            foreach (var light in lights)
+            {
+                if (light == null || light == sun || light.type != LightType.Directional || !light.isActiveAndEnabled)
+                    continue;
+
                 if (best == null || light.intensity > best.intensity)
                     best = light;
             }

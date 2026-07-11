@@ -4,7 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;

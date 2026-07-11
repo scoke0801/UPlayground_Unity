@@ -5,8 +5,9 @@ using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.UI;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public class MonsterBreakGauge : MonoBehaviour
     {

@@ -1,51 +1,85 @@
-﻿using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.Manager.Handler;
+using UPlayGround.UI.InputPrompt;
 
-public class UI_InteractionKey : UI_Base
+namespace UPlayGround.UI
 {
-    // 상호작용 키 프롬프트. 활성 디바이스에 따라 F(키보드) / 버튼(게임패드)로 자동 전환된다.
-    [SerializeField] private UI_InputPromptIcon _promptIcon;
-
-    private bool _isSubscribed = false;
-
-    protected override void OnShow()
+    public class UI_InteractionKey : UI_Base
     {
-        AnimationChange("On");
-        if (_promptIcon != null)
-            _promptIcon.SetAction(InputMapNames.PlayerAction, PlayerAction.Interact);
-        SubscribeEvents();
-    }
+        // 상호작용 키 프롬프트. 활성 디바이스에 따라 F(키보드) / 버튼(게임패드)로 자동 전환된다.
+        [SerializeField] private UI_InputPromptIcon _promptIcon;
+        [SerializeField] private Image _progressFill;
 
-    protected override void OnHide()
-    {
-        UnsubscribeEvents();
-    }
+        private bool _isSubscribed = false;
 
-    protected override void OnClose()
-    {
-        UnsubscribeEvents();
-    }
-
-    private void SubscribeEvents()
-    {
-        if (_isSubscribed) return;
-    }
-    
-    private void UnsubscribeEvents()
-    {
-        if (!_isSubscribed) return;
-
-        _isSubscribed = false;
-    }
-
-    private void OnInteract(InputAction.CallbackContext context)
-    {
-        if (this.gameObject != null)
+        protected override void OnShow()
         {
-            Hide();   
+            AnimationChange("On");
+            if (_promptIcon != null)
+                _promptIcon.SetAction(InputMapNames.PlayerAction, PlayerAction.Interact);
+            SetProgressVisible(false);
+            SubscribeEvents();
+        }
+
+        private void Update()
+        {
+            GameInteractionHandler handler = GameObjectManager.Instance?.InteractionHandler;
+            if (handler == null || !handler.IsInteractionProgressActive)
+            {
+                SetProgressVisible(false);
+                return;
+            }
+
+            SetProgressVisible(true);
+            if (_progressFill != null)
+            {
+                _progressFill.fillAmount = handler.InteractionProgress;
+            }
+        }
+
+        protected override void OnHide()
+        {
+            SetProgressVisible(false);
+            UnsubscribeEvents();
+        }
+
+        protected override void OnClose()
+        {
+            SetProgressVisible(false);
+            UnsubscribeEvents();
+        }
+
+        private void SubscribeEvents()
+        {
+            if (_isSubscribed) return;
+        }
+
+        private void UnsubscribeEvents()
+        {
+            if (!_isSubscribed) return;
+
+            _isSubscribed = false;
+        }
+
+        private void SetProgressVisible(bool visible)
+        {
+            if (_progressFill == null)
+            {
+                return;
+            }
+
+            if (_progressFill.gameObject.activeSelf != visible)
+            {
+                _progressFill.gameObject.SetActive(visible);
+            }
+
+            if (!visible)
+            {
+                _progressFill.fillAmount = 0f;
+            }
         }
     }
 }

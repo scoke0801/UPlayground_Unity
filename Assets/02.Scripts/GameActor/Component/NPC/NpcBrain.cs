@@ -1,7 +1,7 @@
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// NPC 행동 설정.

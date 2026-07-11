@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     [Serializable]
     public class CharacterBuildConfig

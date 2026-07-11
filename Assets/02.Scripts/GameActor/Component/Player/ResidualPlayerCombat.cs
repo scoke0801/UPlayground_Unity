@@ -11,7 +11,7 @@ using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
 using UPlayGround.UI;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 캐릭터 스왑 후 필드에 남는 모델 전용 히트 판정 실행체.

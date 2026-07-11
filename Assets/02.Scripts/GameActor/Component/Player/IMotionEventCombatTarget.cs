@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.MovementController;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// GameActor가 아닌 실행체가 MotionEvent 기반 전투 이벤트를 받을 때 사용하는 최소 인터페이스.

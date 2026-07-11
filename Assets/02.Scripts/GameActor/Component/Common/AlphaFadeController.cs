@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 모델 렌더러의 머티리얼 알파를 조절해 잔상/페이드아웃 표현을 만든다.

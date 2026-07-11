@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UPlayGround.Data.EnumType;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public class WeaponSocketBinding : MonoBehaviour
     {

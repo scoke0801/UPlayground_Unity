@@ -6,6 +6,8 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Editor
 {

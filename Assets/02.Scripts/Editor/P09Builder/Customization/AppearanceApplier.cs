@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using P09.Modular.Humanoid.Data;
 using UnityEngine;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// AvatarView의 SetActive 토글 / 머티리얼 교체 로직을 에디터에서 재현.

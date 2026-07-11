@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.World;
 using UPlayGround.Group;
+using UPlayGround.UI;
 
 namespace UPlayGround.Manager
 {
@@ -24,6 +25,13 @@ namespace UPlayGround.Manager
     /// </summary>
     public class MonsterRespawnManager : BaseManager<MonsterRespawnManager>, IManager
     {
+        // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
+        private GameTimeManager _cachedGameTimeManager;
+        private GameTimeManager GameTimeMgr => _cachedGameTimeManager != null ? _cachedGameTimeManager : (_cachedGameTimeManager = GameTimeManager.Instance);
+        private WorldStateManager _cachedWorldStateManager;
+        private WorldStateManager WorldStateMgr => _cachedWorldStateManager != null ? _cachedWorldStateManager : (_cachedWorldStateManager = WorldStateManager.Instance);
+
+
         private const string SettingsKey = "MonsterRespawnSettings";
         private const string NoticeUIKey = UI_WorldRespawnNotice.UIKey;
 
@@ -68,14 +76,14 @@ namespace UPlayGround.Manager
 
         public void AfterInit()
         {
-            if (GameTimeManager.Instance != null)
-                GameTimeManager.Instance.OnGameMinuteChanged += HandleGameMinuteChanged;
+            if (GameTimeMgr != null)
+                GameTimeMgr.OnGameMinuteChanged += HandleGameMinuteChanged;
         }
 
         public void Dispose()
         {
-            if (GameTimeManager.Instance != null)
-                GameTimeManager.Instance.OnGameMinuteChanged -= HandleGameMinuteChanged;
+            if (GameTimeMgr != null)
+                GameTimeMgr.OnGameMinuteChanged -= HandleGameMinuteChanged;
 
             _placements.Clear();
             _runtimeSpawned.Clear();
@@ -148,10 +156,10 @@ namespace UPlayGround.Manager
                     runtimeByGuid[kv.Value] = kv.Key;
             }
 
-            float now = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
+            float now = GameTimeMgr != null ? GameTimeMgr.TotalGameMinutes : 0f;
             int removed = 0, revived = 0;
 
-            var states = WorldStateManager.Instance?.GetRespawnStates(mapId);
+            var states = WorldStateMgr?.GetRespawnStates(mapId);
             if (states != null)
             {
                 foreach (var state in states)
@@ -254,17 +262,17 @@ namespace UPlayGround.Manager
             _placements[guid] = placement;
 
             string mapId = SceneManager.Instance?.CurrentMapID;
-            if (WorldStateManager.Instance != null
-                && WorldStateManager.Instance.IsPermanentlyKilled(mapId, guid))
+            if (WorldStateMgr != null
+                && WorldStateMgr.IsPermanentlyKilled(mapId, guid))
             {
                 DestroyInstance(monster, placement);
                 return;
             }
 
-            if (WorldStateManager.Instance != null
-                && WorldStateManager.Instance.TryGetRespawnState(mapId, guid, out var state))
+            if (WorldStateMgr != null
+                && WorldStateMgr.TryGetRespawnState(mapId, guid, out var state))
             {
-                float now = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
+                float now = GameTimeMgr != null ? GameTimeMgr.TotalGameMinutes : 0f;
                 if (state.waitingRespawn && now < state.nextRespawnGameMinute)
                 {
                     DestroyInstance(monster, placement);
@@ -323,11 +331,11 @@ namespace UPlayGround.Manager
 
             _runtimeSpawned.Remove(monster);
 
-            float now = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
+            float now = GameTimeMgr != null ? GameTimeMgr.TotalGameMinutes : 0f;
             float respawnAt = NextMidnightAfterInterval(now, Settings.GetIntervalMinutes(monster.Grade));
 
-            if (WorldStateManager.Instance != null
-                && WorldStateManager.Instance.TryGetRespawnState(mapId, guid, out var state))
+            if (WorldStateMgr != null
+                && WorldStateMgr.TryGetRespawnState(mapId, guid, out var state))
             {
                 // 기존 상태 갱신(재사망): 누적 카운트/최초 사망 시각은 유지
                 state.waitingRespawn = true;
@@ -353,7 +361,7 @@ namespace UPlayGround.Manager
                 };
             }
 
-            WorldStateManager.Instance?.SetRespawnState(state);
+            WorldStateMgr?.SetRespawnState(state);
             return true;
         }
 
@@ -374,10 +382,10 @@ namespace UPlayGround.Manager
             string mapId = SceneManager.Instance?.CurrentMapID;
             if (string.IsNullOrEmpty(mapId)) return;
 
-            var states = WorldStateManager.Instance?.GetRespawnStates(mapId);
+            var states = WorldStateMgr?.GetRespawnStates(mapId);
             if (states == null || states.Count == 0) return;
 
-            float now = GameTimeManager.Instance.TotalGameMinutes;
+            float now = GameTimeMgr.TotalGameMinutes;
             int respawnedCount = 0;
 
             foreach (var state in states)
@@ -479,7 +487,7 @@ namespace UPlayGround.Manager
         /// </summary>
         private int ComputeTargetLevel(MonsterRespawnState state)
         {
-            float now = GameTimeManager.Instance != null ? GameTimeManager.Instance.TotalGameMinutes : 0f;
+            float now = GameTimeMgr != null ? GameTimeMgr.TotalGameMinutes : 0f;
             int baseLevel = Mathf.Max(1, state.baseLevel);
 
             int elapsedDays = Mathf.FloorToInt(

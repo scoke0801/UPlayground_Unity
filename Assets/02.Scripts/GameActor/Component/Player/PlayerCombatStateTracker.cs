@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public class PlayerCombatStateTracker : PlayerActorComponent
     {

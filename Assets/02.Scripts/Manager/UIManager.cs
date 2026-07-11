@@ -12,7 +12,6 @@ using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.UI;
-using UPlayGround.UREnum;
 using UPlayGround.InputDefine;
 using UPlayGround.UI;
 

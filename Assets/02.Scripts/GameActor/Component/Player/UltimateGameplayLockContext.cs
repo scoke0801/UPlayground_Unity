@@ -5,7 +5,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.UI;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 궁극기 중 획득한 잠금을 기록하고 자신이 변경한 상태만 복구한다.

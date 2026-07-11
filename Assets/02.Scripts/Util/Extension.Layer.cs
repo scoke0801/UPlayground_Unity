@@ -1,17 +1,20 @@
 ﻿using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
-public static class LayerExtensions
+namespace UPlayGround
 {
-    public static InputLayer ToInputLayer(this CanvasLayer canvasLayer)
+    public static class LayerExtensions
     {
-        // 정수 값이 일치하므로 바로 캐스팅
-        return (InputLayer)(int)canvasLayer;
-    }
+        public static InputLayer ToInputLayer(this CanvasLayer canvasLayer)
+        {
+            // 정수 값이 일치하므로 바로 캐스팅
+            return (InputLayer)(int)canvasLayer;
+        }
 
-    public static CanvasLayer ToCanvasLayer(this InputLayer inputLayer)
-    {
-        // 정수 값이 일치하므로 바로 캐스팅
-        return (CanvasLayer)(int)inputLayer;
+        public static CanvasLayer ToCanvasLayer(this InputLayer inputLayer)
+        {
+            // 정수 값이 일치하므로 바로 캐스팅
+            return (CanvasLayer)(int)inputLayer;
+        }
     }
 }

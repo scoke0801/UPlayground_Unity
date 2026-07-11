@@ -11,7 +11,7 @@ using UPlayGround.Data.Event;
 using UPlayGround.Data.Item;
 using UPlayGround.Manager;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
 
     /// <summary>

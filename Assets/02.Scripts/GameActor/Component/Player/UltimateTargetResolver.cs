@@ -3,7 +3,7 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Manager;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public static class UltimateTargetResolver
     {

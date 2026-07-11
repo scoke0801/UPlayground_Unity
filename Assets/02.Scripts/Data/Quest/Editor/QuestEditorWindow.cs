@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Quest;
 using UPlayGround.Tool.Editor;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Editor
 {

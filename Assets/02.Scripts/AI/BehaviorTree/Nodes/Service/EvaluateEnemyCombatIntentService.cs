@@ -1,6 +1,6 @@
 using UPlayGround.AI.CombatDecision;
 using UPlayGround.AI.Debugging;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UnityEngine;
 
 namespace UPlayGround.AI.BehaviorTree

@@ -2,7 +2,7 @@ using KINEMATION.MotionWarping.Runtime.Core;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 무기 IK — Phase 0 프로토타입 (보조손 그립).

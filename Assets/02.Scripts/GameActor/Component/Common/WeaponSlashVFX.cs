@@ -1,19 +1,19 @@
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public sealed class WeaponSlashVFX : MonoBehaviour
     {
-        [SerializeField] private FX.WeaponSlashVfxSpawner spawner;
+        [SerializeField] private UPlayGround.Particle.WeaponSlashVfxSpawner spawner;
 
         public void SpawnSlash()
         {
             if (spawner == null)
-                spawner = GetComponentInChildren<FX.WeaponSlashVfxSpawner>(true);
+                spawner = GetComponentInChildren<UPlayGround.Particle.WeaponSlashVfxSpawner>(true);
 
             if (spawner == null)
             {
-                Debug.LogWarning($"{nameof(WeaponSlashVFX)}: Missing {nameof(FX.WeaponSlashVfxSpawner)}.", this);
+                Debug.LogWarning($"{nameof(WeaponSlashVFX)}: Missing {nameof(UPlayGround.Particle.WeaponSlashVfxSpawner)}.", this);
                 return;
             }
 

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// GameActor에 부착하여 메테리얼 색상을 변경하기 위한 컴포넌트

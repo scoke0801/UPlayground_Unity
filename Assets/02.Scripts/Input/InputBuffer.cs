@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game.Input
+namespace UPlayGround.Input
 {
     /// <summary>
     /// 입력 버퍼 데이터

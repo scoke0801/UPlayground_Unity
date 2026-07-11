@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 몬스터 전투 의도를 점수화한다.

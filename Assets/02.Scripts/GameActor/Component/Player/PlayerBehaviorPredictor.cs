@@ -4,7 +4,7 @@ using UPlayGround.MovementController;
 using UPlayGround.State;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     [DisallowMultipleComponent]
     public class PlayerBehaviorPredictor : MonoBehaviour

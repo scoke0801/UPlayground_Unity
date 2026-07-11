@@ -1,36 +1,39 @@
 using UPlayGround.Data.Config;
 
-public class UISettingPageAudio : UISettingPageBase
+namespace UPlayGround.UI
 {
-    private UICommonSlider[] _sliders;
-
-    protected override void BindControls(SettingsData settingsData)
+    public class UISettingPageAudio : UISettingPageBase
     {
-        CacheControls();
+        private UICommonSlider[] _sliders;
 
-        var master = GetAt(_sliders, 0);
-        var bgm = GetAt(_sliders, 1);
-        var sfx = GetAt(_sliders, 2);
-        var voice = GetAt(_sliders, 3);
+        protected override void BindControls(SettingsData settingsData)
+        {
+            CacheControls();
 
-        if (master != null) master.OnValueChanged += value => settingsData.masterVolume = RoundToInt(value);
-        if (bgm != null) bgm.OnValueChanged += value => settingsData.bgmVolume = RoundToInt(value);
-        if (sfx != null) sfx.OnValueChanged += value => settingsData.sfxVolume = RoundToInt(value);
-        if (voice != null) voice.OnValueChanged += value => settingsData.voiceVolume = RoundToInt(value);
-    }
+            var master = GetAt(_sliders, 0);
+            var bgm = GetAt(_sliders, 1);
+            var sfx = GetAt(_sliders, 2);
+            var voice = GetAt(_sliders, 3);
 
-    public override void SyncUIFromData(SettingsData settingsData)
-    {
-        CacheControls();
+            if (master != null) master.OnValueChanged += value => settingsData.masterVolume = RoundToInt(value);
+            if (bgm != null) bgm.OnValueChanged += value => settingsData.bgmVolume = RoundToInt(value);
+            if (sfx != null) sfx.OnValueChanged += value => settingsData.sfxVolume = RoundToInt(value);
+            if (voice != null) voice.OnValueChanged += value => settingsData.voiceVolume = RoundToInt(value);
+        }
 
-        GetAt(_sliders, 0)?.SetValueWithoutNotify(settingsData.masterVolume);
-        GetAt(_sliders, 1)?.SetValueWithoutNotify(settingsData.bgmVolume);
-        GetAt(_sliders, 2)?.SetValueWithoutNotify(settingsData.sfxVolume);
-        GetAt(_sliders, 3)?.SetValueWithoutNotify(settingsData.voiceVolume);
-    }
+        public override void SyncUIFromData(SettingsData settingsData)
+        {
+            CacheControls();
 
-    private void CacheControls()
-    {
-        _sliders ??= GetComponentsInChildren<UICommonSlider>(true);
+            GetAt(_sliders, 0)?.SetValueWithoutNotify(settingsData.masterVolume);
+            GetAt(_sliders, 1)?.SetValueWithoutNotify(settingsData.bgmVolume);
+            GetAt(_sliders, 2)?.SetValueWithoutNotify(settingsData.sfxVolume);
+            GetAt(_sliders, 3)?.SetValueWithoutNotify(settingsData.voiceVolume);
+        }
+
+        private void CacheControls()
+        {
+            _sliders ??= GetComponentsInChildren<UICommonSlider>(true);
+        }
     }
 }

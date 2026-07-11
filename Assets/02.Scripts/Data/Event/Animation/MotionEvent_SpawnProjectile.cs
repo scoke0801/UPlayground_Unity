@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event

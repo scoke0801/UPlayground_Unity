@@ -1,17 +1,20 @@
 ﻿using UnityEngine;
 
-public static class GameObjectExtensions
+namespace UPlayGround
 {
-    /// <summary>
-    /// 컴포넌트가 존재하면 가져오고, 없으면 새로 추가하여 반환합니다.
-    /// </summary>
-    public static T GetOrAddComponent<T>(this GameObject gameObject) where T : Component
+    public static class GameObjectExtensions
     {
-        T component = gameObject.GetComponent<T>();
-        if (component == null)
+        /// <summary>
+        /// 컴포넌트가 존재하면 가져오고, 없으면 새로 추가하여 반환합니다.
+        /// </summary>
+        public static T GetOrAddComponent<T>(this GameObject gameObject) where T : Component
         {
-            component = gameObject.AddComponent<T>();
+            T component = gameObject.GetComponent<T>();
+            if (component == null)
+            {
+                component = gameObject.AddComponent<T>();
+            }
+            return component;
         }
-        return component;
     }
 }

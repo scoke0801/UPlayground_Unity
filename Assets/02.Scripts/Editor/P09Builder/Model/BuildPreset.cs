@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// CharacterBuildConfig의 스냅샷을 ScriptableObject로 저장.

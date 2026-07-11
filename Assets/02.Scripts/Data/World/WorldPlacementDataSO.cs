@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Data.World
 {

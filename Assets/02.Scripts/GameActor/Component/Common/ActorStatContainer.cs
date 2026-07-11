@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Stat;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 모든 GameActor의 런타임 스탯 컨테이너.

@@ -319,6 +319,7 @@ Assets/
 |------|------|
 | [GAMEPLAY_GUIDE.md](GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
 | [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](TODO/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
+| [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](TODO/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |
 | [ACTOR_ID_SYSTEM_GUIDE.md](Complete/ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
 | [CRAFTING_SYSTEM_GUIDE.md](Complete/CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
 | [CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md](CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md) | 제작 UI / 퀘스트 UI 에디터 작업 가이드 — 현재 코드·데이터·프리팹 연결 상태 기반 세팅 순서 |

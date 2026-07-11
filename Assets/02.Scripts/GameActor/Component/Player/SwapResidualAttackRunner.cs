@@ -5,7 +5,7 @@ using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public enum SwapResidualAttackCancelReason
     {

@@ -5,7 +5,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Tag;

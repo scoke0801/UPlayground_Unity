@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Editor
 {

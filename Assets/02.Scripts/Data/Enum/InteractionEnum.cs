@@ -1,4 +1,4 @@
-﻿namespace Interaction.Enum
+﻿namespace UPlayGround.Data.EnumType
 {
     public enum LifeInteractionType
     {

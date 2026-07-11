@@ -1,6 +1,6 @@
 using UnityEngine;
 using Animancer;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;

@@ -4,7 +4,7 @@ using P09.Modular.Humanoid.Data;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// ScriptableObject 리스트를 아이콘 그리드 형태로 그리는 GUI 헬퍼.

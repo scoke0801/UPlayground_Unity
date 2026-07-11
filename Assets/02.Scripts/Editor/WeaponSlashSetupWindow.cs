@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using FX;
+using UPlayGround.Particle;
 using UPlayGround.Animation;
 using UPlayGround.Animation.Editor;
 using UPlayGround.Data.Event;

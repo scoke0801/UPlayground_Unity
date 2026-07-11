@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.World;
 using UPlayGround.Group;
@@ -267,9 +267,210 @@ namespace UPlayGround.Tool.Editor.Map
             SetSelectedBakeMode(WorldPlacementMetadata.PlacementBakeMode.RuntimeData);
         }
 
+        public static void RegisterSelectedAsRuntimeData()
+        {
+            RegisterSelectedAsRuntimeDataInternal(false);
+        }
+
+        public static WorldPlacementDataSO RegisterSelectedAndBakeRuntimeData()
+        {
+            if (!RegisterSelectedAsRuntimeDataInternal(true))
+                return null;
+
+            return BakeOpenSceneRuntimeData();
+        }
+
         public static void MarkSelectedAsSceneObject()
         {
             SetSelectedBakeMode(WorldPlacementMetadata.PlacementBakeMode.SceneObject);
+        }
+
+        private static bool RegisterSelectedAsRuntimeDataInternal(bool suppressSuccessDialog)
+        {
+            var selectedRoots = Selection.gameObjects;
+            if (selectedRoots == null || selectedRoots.Length == 0)
+            {
+                EditorUtility.DisplayDialog("기존 배치 등록", "씬에서 Bake할 오브젝트를 선택하세요.", "확인");
+                return false;
+            }
+
+            ActorDatabase actorDatabase = LoadActorDatabaseAsset();
+            var targets = selectedRoots
+                .Select(ResolvePlacementRoot)
+                .Where(go => go != null && go.scene.IsValid())
+                .Distinct()
+                .ToArray();
+
+            if (targets.Length == 0)
+            {
+                EditorUtility.DisplayDialog("기존 배치 등록", "선택 항목에 씬 오브젝트가 없습니다.", "확인");
+                return false;
+            }
+
+            int registered = 0;
+            int skipped = 0;
+            foreach (var target in targets)
+            {
+                if (TryRegisterRuntimeDataTarget(target, actorDatabase))
+                    registered++;
+                else
+                    skipped++;
+            }
+
+            if (registered > 0)
+                EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+
+            if (!suppressSuccessDialog || registered == 0)
+            {
+                string skipMessage = skipped > 0
+                    ? $"\n\n건너뜀 {skipped}개: ActorDatabase 항목, 프리팹 원본, Gathering/DropItem 데이터 중 하나도 찾지 못했습니다."
+                    : "";
+                EditorUtility.DisplayDialog(
+                    "기존 배치 등록",
+                    $"{registered}개 씬 오브젝트를 RuntimeData Bake 대상으로 등록했습니다.{skipMessage}",
+                    "확인");
+            }
+
+            return registered > 0;
+        }
+
+        private static GameObject ResolvePlacementRoot(GameObject selected)
+        {
+            if (selected == null)
+                return null;
+
+            var metadata = selected.GetComponentInParent<WorldPlacementMetadata>();
+            if (metadata != null)
+                return metadata.gameObject;
+
+            var dropItem = selected.GetComponentInParent<DropItemActor>();
+            if (dropItem != null)
+                return dropItem.gameObject;
+
+            var gathering = selected.GetComponentInParent<GatheringActor>();
+            if (gathering != null)
+                return gathering.gameObject;
+
+            return PrefabUtility.GetNearestPrefabInstanceRoot(selected) ?? selected;
+        }
+
+        private static bool TryRegisterRuntimeDataTarget(GameObject target, ActorDatabase actorDatabase)
+        {
+            if (target == null || !target.scene.IsValid())
+                return false;
+
+            if (!TryResolvePlacementSource(target, actorDatabase, out var sourceKind, out string sourceId))
+                return false;
+
+            var metadata = target.GetComponent<WorldPlacementMetadata>();
+            if (metadata == null)
+                metadata = Undo.AddComponent<WorldPlacementMetadata>(target);
+            else
+                Undo.RecordObject(metadata, "Register RuntimeData Placement");
+
+            metadata.EditorSetPlacementInfo(
+                sourceKind,
+                sourceId,
+                WorldPlacementMetadata.PlacementBakeMode.RuntimeData,
+                metadata.CellId,
+                metadata.RandomSeed != 0 ? metadata.RandomSeed : UnityEngine.Random.Range(int.MinValue, int.MaxValue),
+                target.activeSelf);
+            EditorUtility.SetDirty(metadata);
+
+            var entityId = target.GetComponent<SceneEntityId>();
+            if (entityId == null)
+                entityId = Undo.AddComponent<SceneEntityId>(target);
+
+            if (!entityId.HasGuid)
+            {
+                Undo.RecordObject(entityId, "Set SceneEntityId GUID");
+                entityId.EditorSetGuid(Guid.NewGuid().ToString("N"));
+                EditorUtility.SetDirty(entityId);
+            }
+
+            return true;
+        }
+
+        private static bool TryResolvePlacementSource(
+            GameObject target,
+            ActorDatabase actorDatabase,
+            out WorldPlacementMetadata.PlacementSourceKind sourceKind,
+            out string sourceId)
+        {
+            var dropItem = target.GetComponent<DropItemActor>();
+            if (dropItem != null && dropItem.ItemData != null)
+            {
+                sourceKind = WorldPlacementMetadata.PlacementSourceKind.DropItemData;
+                sourceId = GetAssetGuid(dropItem.ItemData);
+                return true;
+            }
+
+            var gathering = target.GetComponent<GatheringActor>();
+            if (gathering != null && gathering.GetData() != null)
+            {
+                sourceKind = WorldPlacementMetadata.PlacementSourceKind.GatheringData;
+                sourceId = GetAssetGuid(gathering.GetData());
+                return true;
+            }
+
+            var actor = target.GetComponent<GameActor>();
+            if (actor != null
+                && !string.IsNullOrEmpty(actor.ActorId)
+                && actorDatabase != null
+                && actorDatabase.TryGetDefinition(actor.ActorId, out _))
+            {
+                sourceKind = WorldPlacementMetadata.PlacementSourceKind.ActorDefinition;
+                sourceId = actor.ActorId;
+                return true;
+            }
+
+            GameObject prefab = ResolvePrefab(target);
+            if (prefab != null && TryFindActorDefinition(actorDatabase, prefab, out var definition))
+            {
+                sourceKind = WorldPlacementMetadata.PlacementSourceKind.ActorDefinition;
+                sourceId = definition.actorId;
+                return true;
+            }
+
+            if (prefab != null)
+            {
+                sourceKind = WorldPlacementMetadata.PlacementSourceKind.DirectPrefab;
+                sourceId = GetAssetGuid(prefab);
+                return !string.IsNullOrEmpty(sourceId);
+            }
+
+            sourceKind = WorldPlacementMetadata.PlacementSourceKind.DirectPrefab;
+            sourceId = "";
+            return false;
+        }
+
+        private static bool TryFindActorDefinition(ActorDatabase actorDatabase, GameObject prefab, out ActorDefinitionSO definition)
+        {
+            definition = null;
+            if (actorDatabase == null || prefab == null)
+                return false;
+
+            string prefabPath = AssetDatabase.GetAssetPath(prefab);
+            foreach (var candidate in actorDatabase.All)
+            {
+                if (candidate == null || candidate.prefab == null || string.IsNullOrEmpty(candidate.actorId))
+                    continue;
+
+                if (candidate.prefab == prefab)
+                {
+                    definition = candidate;
+                    return true;
+                }
+
+                if (!string.IsNullOrEmpty(prefabPath)
+                    && prefabPath == AssetDatabase.GetAssetPath(candidate.prefab))
+                {
+                    definition = candidate;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static void SetSelectedBakeMode(WorldPlacementMetadata.PlacementBakeMode bakeMode)
@@ -401,6 +602,18 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             return null;
+        }
+
+        private static GameObject ResolvePrefab(GameObject instance)
+        {
+            if (instance == null)
+                return null;
+
+            GameObject sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(instance);
+            if (sourcePrefab != null)
+                return sourcePrefab;
+
+            return PrefabUtility.GetCorrespondingObjectFromOriginalSource(instance);
         }
 
         private static bool CanCreateDefaultFromMetadata(WorldPlacementMetadata metadata)

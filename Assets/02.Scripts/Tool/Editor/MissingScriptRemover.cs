@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tool.Editor
+namespace UPlayGround.Tool.Editor
 {
     public static class MissingScriptRemover
     {

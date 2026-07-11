@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace UPlayGround.Object.Particle
+namespace UPlayGround.Particle
 {
     public class ParticlePositionFixer : MonoBehaviour
     {

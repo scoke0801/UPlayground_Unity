@@ -1,4 +1,4 @@
-﻿namespace UPlayGround.UREnum
+﻿namespace UPlayGround.Data.EnumType
 {
     /// <summary>
     /// 씬의 논리적 타입 식별자.

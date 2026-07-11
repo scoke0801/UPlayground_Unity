@@ -9,7 +9,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 using UPlayGround.Tool.Editor.Balance;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     public sealed class SyncActorDatabaseStep : IBuildStep
     {

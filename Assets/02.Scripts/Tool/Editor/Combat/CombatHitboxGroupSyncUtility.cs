@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;

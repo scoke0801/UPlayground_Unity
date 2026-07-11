@@ -1,7 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 무기 프리팹에 배치하는 보조손 그립 마커.

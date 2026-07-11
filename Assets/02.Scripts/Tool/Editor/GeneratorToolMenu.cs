@@ -1,6 +1,8 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UPlayGround.Animation.Editor;
+using UPlayGround.Data.Item.Editor;
+using UPlayGround.Data.Crafting.Editor;
 using UPlayGround.Tool.Editor.Actor;
 using UPlayGround.Tool.Editor.Party;
 using UPlayGround.Tool.Editor.Stat;

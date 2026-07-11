@@ -10,6 +10,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Stat;
 using UPlayGround.Dialogue;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Tool.Editor.Validation
 {

@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 단일 PlayerActor 하위의 Model 서브루트들을 관리한다.

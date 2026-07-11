@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public sealed class UltimateRuntimeContext
     {

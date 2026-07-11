@@ -23,14 +23,16 @@ Unity 프로젝트이므로 CLI 빌드 명령어 없음. Unity 6 (6000.0.60f1+)�
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
 
-매니저 목록: InputManager, AssetManager, UIManager, CameraManager, GameObjectManager, ItemManager, InventoryManager, EventManager, GameHitStopManager, VitalOrbManager, DialogueManager, GlobalFlagManager, StoryManager, GameTimeManager, PartyManager, SceneManager, SettingsManager.
+매니저 목록 (GameManager 등록 순): SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager.
+
+히트스톱·바이탈오브·방어성공 피드백·레벨업 피드백은 별도 매니저가 아니라 `GameCombatManager` 산하 핸들러(`Manager/Handler/Combat/`)로 재편됨.
 
 ### GameActor 계층 구조
 
 `GameActor`(추상 MonoBehaviour)가 모든 인터랙티브 오브젝트의 베이스:
-- `PlayerActor` — partial class로 5개 파일 분리 (base, lifecycle, input, combat, equipment). `IDamageable` 구현.
+- `PlayerActor` — `GameActor/Object/Player/`에 partial 6파일 분리 (base / Lifecycle / Input / Components / Combat / AnimationEvents). `IDamageable` 구현.
 - `MonsterActor` — 적 엔티티. `IDamageable` 구현.
-- `NpcActor` — `IInteractable` 구현.
+- `NpcActor` — `GameActor/Object/Npc/`. `IInteractable` 구현.
 - `GatheringActor`, `ItemActor`, `VitalOrbActor`, 투사체 (`BaseProjectile` → `LinearProjectile` / `AOEProjectile`).
 
 ### 상태 머신 (핵심 패턴)
@@ -39,7 +41,7 @@ Unity 프로젝트이므로 CLI 빌드 명령어 없음. Unity 6 (6000.0.60f1+)�
 
 ```
 GameActorState (추상)
-├── PlayerActorState → 11개 구체 상태 (Idle, GroundMove, Airborn, Attack, Charge, Dash, DashAttack, Dodge, Guard, Crouching, Hit, Death, Interaction)
+├── PlayerActorState → 24개 구체 상태 (Idle, GroundMove, Airborn, Attack, Charge, Dash, DashAttack, JumpAttack, JumpDashAttack, FinishAttack, SpecialBreakAttack, Dodge, Guard, GuardBreak, Crouching, Hit, Stun, Knockdown, Grabbed, Death, Interaction, Stop, TurnInPlace 등)
 ├── EnemyActorState → 13개+ 지상 상태 + 9개 비행 상태 (State/Enemy/EnemyFlying/)
 └── NpcActorState → Idle, Talk, Wander
 ```
@@ -50,7 +52,7 @@ GameActorState (추상)
 
 `ActorComponent`(베이스) → `PlayerActorComponent`(플레이어 전용 베이스). GameActor에 기능별 컴포넌트를 조합:
 
-- **전투:** `PlayerCombat`, `EnemyCombat` — 공격 로직, 데미지, 스킬
+- **전투:** `PlayerCombat`(partial 6파일: base / Attack / HitDetection / Combo / Finish / Gizmo), `EnemyCombat` — 공격 로직, 데미지, 스킬
 - **AI:** `EnemyBrain`(의사결정), `EnemyFlyingBrain`, `EnemyDetection`(시야/거리 감지), `EnemyTacticalMemory`
 - **스탯:** `PoiseStat`(강인도/경직 저항)
 - **장비/파티:** `PlayerEquipment`, `PlayerSkillGauge`, `PlayerSwapBehaviour`, `CharacterModelData`
@@ -62,6 +64,7 @@ GameActorState (추상)
 `ActorMovementController`가 KCC의 `ICharacterController`를 구현하고 상태 머신을 호스팅:
 - `PlayerMovementController`, `EnemyMovementController`, `NpcMovementController`
 - 이동 컨트롤러가 KCC 콜백을 현재 상태에 위임.
+- 모션 워프는 별도 컴포넌트: `MotionWarpController.cs` + `MotionWarpTypes.cs` (같은 폴더).
 
 ### 애니메이션 시스템
 
@@ -75,7 +78,8 @@ Unity Input System 기반, 우선순위 `InputLayer` 레벨 사용 (HUD=0, Scene
 
 모든 수치 데이터는 `Assets/10.Datas/`의 ScriptableObject로 외부화:
 - `EnemyBehaviorSO` — 페이즈 기반 AI 프로필 (HP 임계값에 따른 행동 전환)
-- `EnemyStatsSO`, `EnemyFlyingSettingsSO`, `PoiseSO`
+- `ActorStatSO` — 액터 스탯 단일 소스 (구 `EnemyStatsSO`는 제거됨)
+- `EnemyFlyingSettingsSO`, `PoiseSO`
 - `PlayerAttackDataSO`, `EnemyAttackDataSO` — 다단 `HitPhaseData`를 포함한 공격 데이터
 - `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
 - `CameraShakeData`, 카메라 이펙트 SO
@@ -93,5 +97,7 @@ Unity Input System 기반, 우선순위 `InputLayer` 레벨 사용 (HUD=0, Scene
 - 폴더 앞 숫자 접두사 (`01.Scenes`, `02.Scripts` 등)로 Unity Project 창 정렬
 - 상태 이름 패턴: `{액터타입}{액션이름}State` (예: `PlayerDashState`, `EnemyChaseState`)
 - 컴포넌트 이름 패턴: `{액터타입}{기능}` (예: `PlayerCombat`, `EnemyBrain`)
-- PlayerActor는 partial class 사용 — 플레이어 동작 수정 시 5개 파일 모두 확인 필요
 - 적 비행 상태는 별도 하위 폴더: `State/Enemy/EnemyFlying/`
+- 네임스페이스는 `UPlayGround` 루트 아래에서 폴더 경로를 따른다 (예: `Manager/` → `UPlayGround.Manager`). 신규 파일은 네임스페이스 필수
+- UI 네이밍: `UI_Base` 상속 클래스만 `UI_` 접두사, 그 외 UI 보조 클래스는 `UIXxx`
+- 대형 클래스(GameManager, InputManager, GameObjectManager, CheatManager 등)는 `클래스명.기능.cs` partial 분리 패턴 사용

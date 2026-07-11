@@ -1,7 +1,7 @@
 using System;
 using UnityEditor;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     internal sealed class P09AssetCatalogPostprocessor : AssetPostprocessor
     {

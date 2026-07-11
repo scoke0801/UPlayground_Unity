@@ -11,300 +11,303 @@ using UPlayGround.Data.UI;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
-/// <summary>
-/// 이미지와 설명 텍스트를 페이지 단위로 보여주는 가이드 팝업.
-/// UIManager.ShowUI(UIKeyType.GuidePopup)로 표시한 뒤 Setup(data)를 호출한다.
-/// </summary>
-public class UI_GuidePopup : UI_Base
+namespace UPlayGround.UI
 {
-    public const string UIKey = "GuidePopup";
-
-    [Header("표시")]
-    [SerializeField] private Image _guideImage;
-    [SerializeField] private RawImage _guideVideoImage;
-    [SerializeField] private VideoPlayer _videoPlayer;
-    [SerializeField] private TextMeshProUGUI _titleText;
-    [SerializeField] private TextMeshProUGUI _bodyText;
-    [SerializeField] private TextMeshProUGUI _pageText;
-
-    [Header("버튼")]
-    [SerializeField] private Button _previousButton;
-    [SerializeField] private Button _nextButton;
-    [SerializeField] private Button _closeButton;
-
-    [Header("동작")]
-    [SerializeField] private bool _pauseGameWhileOpen = true;
-    [SerializeField] private bool _closeOnLastNext = true;
-
-    private readonly List<GuidePopupPage> _pages = new();
-    private int _pageIndex;
-    private RenderTexture _videoTexture;
-    private bool _pausedByThisPopup;
-    private Coroutine _fadeRoutine;
-
-    protected override bool BlocksLowerInput => true;
-
-    protected override void Awake()
+    /// <summary>
+    /// 이미지와 설명 텍스트를 페이지 단위로 보여주는 가이드 팝업.
+    /// UIManager.ShowUI(UIKeyType.GuidePopup)로 표시한 뒤 Setup(data)를 호출한다.
+    /// </summary>
+    public class UI_GuidePopup : UI_Base
     {
-        base.Awake();
+        public const string UIKey = "GuidePopup";
 
-        if (_previousButton != null) _previousButton.onClick.AddListener(ShowPreviousPage);
-        if (_nextButton != null) _nextButton.onClick.AddListener(ShowNextPageOrClose);
-        if (_closeButton != null) _closeButton.onClick.AddListener(ClosePopup);
-    }
+        [Header("표시")]
+        [SerializeField] private Image _guideImage;
+        [SerializeField] private RawImage _guideVideoImage;
+        [SerializeField] private VideoPlayer _videoPlayer;
+        [SerializeField] private TextMeshProUGUI _titleText;
+        [SerializeField] private TextMeshProUGUI _bodyText;
+        [SerializeField] private TextMeshProUGUI _pageText;
 
-    protected override void OnShow()
-    {
-        base.OnShow();
+        [Header("버튼")]
+        [SerializeField] private Button _previousButton;
+        [SerializeField] private Button _nextButton;
+        [SerializeField] private Button _closeButton;
 
-        _pausedByThisPopup = false;
-        if (_pauseGameWhileOpen && GameTimeManager.Instance != null && !GameTimeManager.Instance.IsPaused)
+        [Header("동작")]
+        [SerializeField] private bool _pauseGameWhileOpen = true;
+        [SerializeField] private bool _closeOnLastNext = true;
+
+        private readonly List<GuidePopupPage> _pages = new();
+        private int _pageIndex;
+        private RenderTexture _videoTexture;
+        private bool _pausedByThisPopup;
+        private Coroutine _fadeRoutine;
+
+        protected override bool BlocksLowerInput => true;
+
+        protected override void Awake()
         {
-            GameTimeManager.Instance?.SetPause(true);
-            _pausedByThisPopup = true;
+            base.Awake();
+
+            if (_previousButton != null) _previousButton.onClick.AddListener(ShowPreviousPage);
+            if (_nextButton != null) _nextButton.onClick.AddListener(ShowNextPageOrClose);
+            if (_closeButton != null) _closeButton.onClick.AddListener(ClosePopup);
         }
 
-        FadeInUnscaled(0.15f);
-        Refresh();
-        SelectDefaultButton();
-    }
-
-    protected override void OnHide()
-    {
-        StopVideo();
-
-        StopFade();
-
-        if (_pausedByThisPopup)
+        protected override void OnShow()
         {
-            GameTimeManager.Instance?.SetPause(false);
+            base.OnShow();
+
             _pausedByThisPopup = false;
-        }
-
-        base.OnHide();
-    }
-
-    protected override void RegisterInputEvents()
-    {
-        InputManager.Instance?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
-            null, OnInputNext, null, null, null, InputLayer.Level_2);
-    }
-
-    protected override void UnRegisterInputEvents()
-    {
-        if (InputManager.Instance == null)
-            return;
-
-        InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
-            null, OnInputNext, null);
-    }
-
-    public override bool PerformBackFunction()
-    {
-        ClosePopup();
-        return true;
-    }
-
-    public void Setup(GuidePopupDataSO data, int startPageIndex = 0)
-    {
-        Setup(data != null ? data.Pages : null, startPageIndex);
-    }
-
-    public void Setup(IReadOnlyList<GuidePopupPage> pages, int startPageIndex = 0)
-    {
-        _pages.Clear();
-
-        if (pages != null)
-        {
-            for (int i = 0; i < pages.Count; i++)
+            if (_pauseGameWhileOpen && GameTimeManager.Instance != null && !GameTimeManager.Instance.IsPaused)
             {
-                if (pages[i] != null)
-                    _pages.Add(pages[i]);
+                GameTimeManager.Instance?.SetPause(true);
+                _pausedByThisPopup = true;
             }
-        }
 
-        _pageIndex = Mathf.Clamp(startPageIndex, 0, Mathf.Max(0, _pages.Count - 1));
-        Refresh();
-    }
-
-    private void OnInputNext(InputAction.CallbackContext ctx)
-    {
-        ShowNextPageOrClose();
-    }
-
-    private void ShowPreviousPage()
-    {
-        if (_pageIndex <= 0)
-            return;
-
-        _pageIndex--;
-        Refresh();
-    }
-
-    private void ShowNextPageOrClose()
-    {
-        if (_pages.Count == 0)
-        {
-            ClosePopup();
-            return;
-        }
-
-        if (_pageIndex < _pages.Count - 1)
-        {
-            _pageIndex++;
+            FadeInUnscaled(0.15f);
             Refresh();
-            return;
+            SelectDefaultButton();
         }
 
-        if (_closeOnLastNext)
+        protected override void OnHide()
+        {
+            StopVideo();
+
+            StopFade();
+
+            if (_pausedByThisPopup)
+            {
+                GameTimeManager.Instance?.SetPause(false);
+                _pausedByThisPopup = false;
+            }
+
+            base.OnHide();
+        }
+
+        protected override void RegisterInputEvents()
+        {
+            InputManager.Instance?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+                null, OnInputNext, null, null, null, InputLayer.Level_2);
+        }
+
+        protected override void UnRegisterInputEvents()
+        {
+            if (InputManager.Instance == null)
+                return;
+
+            InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+                null, OnInputNext, null);
+        }
+
+        public override bool PerformBackFunction()
+        {
             ClosePopup();
-    }
-
-    private void ClosePopup()
-    {
-        UIManager.Instance?.HideUI(UIKey);
-    }
-
-    private void Refresh()
-    {
-        StopVideo();
-
-        bool hasPage = _pages.Count > 0;
-        GuidePopupPage page = hasPage ? _pages[_pageIndex] : null;
-        bool showVideo = page != null && page.MediaType == GuidePopupMediaType.Video && page.Video != null;
-
-        if (_guideImage != null)
-        {
-            _guideImage.sprite = !showVideo ? page?.Image : null;
-            _guideImage.enabled = !showVideo && page?.Image != null;
-            _guideImage.preserveAspect = true;
+            return true;
         }
 
-        if (_guideVideoImage != null)
-            _guideVideoImage.enabled = showVideo;
-
-        if (showVideo)
-            PlayVideo(page);
-
-        if (_titleText != null)
-            _titleText.text = hasPage ? page.Title : string.Empty;
-
-        if (_bodyText != null)
-            _bodyText.text = hasPage ? page.Body : string.Empty;
-
-        if (_pageText != null)
-            _pageText.text = hasPage ? $"{_pageIndex + 1}/{_pages.Count}" : "0/0";
-
-        if (_previousButton != null)
-            _previousButton.interactable = _pageIndex > 0;
-
-        if (_nextButton != null)
+        public void Setup(GuidePopupDataSO data, int startPageIndex = 0)
         {
-            var label = _nextButton.GetComponentInChildren<TextMeshProUGUI>(true);
-            if (label != null)
-                label.text = hasPage && _pageIndex >= _pages.Count - 1 ? "닫기" : "다음";
+            Setup(data != null ? data.Pages : null, startPageIndex);
         }
 
-        SelectDefaultButton();
-    }
-
-    private void PlayVideo(GuidePopupPage page)
-    {
-        if (_videoPlayer == null || _guideVideoImage == null || page?.Video == null)
-            return;
-
-        if (_videoTexture == null)
-            _videoTexture = new RenderTexture(1280, 720, 0, RenderTextureFormat.ARGB32);
-
-        _videoPlayer.playOnAwake = false;
-        _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
-        _videoPlayer.targetTexture = _videoTexture;
-        _videoPlayer.clip = page.Video;
-        _videoPlayer.isLooping = page.LoopVideo;
-        _videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
-
-        _guideVideoImage.texture = _videoTexture;
-        _videoPlayer.Play();
-    }
-
-    private void StopVideo()
-    {
-        if (_videoPlayer != null)
+        public void Setup(IReadOnlyList<GuidePopupPage> pages, int startPageIndex = 0)
         {
-            _videoPlayer.Stop();
-            _videoPlayer.clip = null;
+            _pages.Clear();
+
+            if (pages != null)
+            {
+                for (int i = 0; i < pages.Count; i++)
+                {
+                    if (pages[i] != null)
+                        _pages.Add(pages[i]);
+                }
+            }
+
+            _pageIndex = Mathf.Clamp(startPageIndex, 0, Mathf.Max(0, _pages.Count - 1));
+            Refresh();
         }
 
-        if (_guideVideoImage != null)
-            _guideVideoImage.texture = null;
-    }
-
-    private void FadeInUnscaled(float duration)
-    {
-        StopFade();
-
-        if (_canvasGroup == null)
-            return;
-
-        _fadeRoutine = StartCoroutine(FadeUnscaled(0f, 1f, duration));
-    }
-
-    private void StopFade()
-    {
-        if (_fadeRoutine == null)
-            return;
-
-        StopCoroutine(_fadeRoutine);
-        _fadeRoutine = null;
-    }
-
-    private IEnumerator FadeUnscaled(float from, float to, float duration)
-    {
-        if (_canvasGroup == null)
-            yield break;
-
-        if (duration <= 0f)
+        private void OnInputNext(InputAction.CallbackContext ctx)
         {
+            ShowNextPageOrClose();
+        }
+
+        private void ShowPreviousPage()
+        {
+            if (_pageIndex <= 0)
+                return;
+
+            _pageIndex--;
+            Refresh();
+        }
+
+        private void ShowNextPageOrClose()
+        {
+            if (_pages.Count == 0)
+            {
+                ClosePopup();
+                return;
+            }
+
+            if (_pageIndex < _pages.Count - 1)
+            {
+                _pageIndex++;
+                Refresh();
+                return;
+            }
+
+            if (_closeOnLastNext)
+                ClosePopup();
+        }
+
+        private void ClosePopup()
+        {
+            UIManager.Instance?.HideUI(UIKey);
+        }
+
+        private void Refresh()
+        {
+            StopVideo();
+
+            bool hasPage = _pages.Count > 0;
+            GuidePopupPage page = hasPage ? _pages[_pageIndex] : null;
+            bool showVideo = page != null && page.MediaType == GuidePopupMediaType.Video && page.Video != null;
+
+            if (_guideImage != null)
+            {
+                _guideImage.sprite = !showVideo ? page?.Image : null;
+                _guideImage.enabled = !showVideo && page?.Image != null;
+                _guideImage.preserveAspect = true;
+            }
+
+            if (_guideVideoImage != null)
+                _guideVideoImage.enabled = showVideo;
+
+            if (showVideo)
+                PlayVideo(page);
+
+            if (_titleText != null)
+                _titleText.text = hasPage ? page.Title : string.Empty;
+
+            if (_bodyText != null)
+                _bodyText.text = hasPage ? page.Body : string.Empty;
+
+            if (_pageText != null)
+                _pageText.text = hasPage ? $"{_pageIndex + 1}/{_pages.Count}" : "0/0";
+
+            if (_previousButton != null)
+                _previousButton.interactable = _pageIndex > 0;
+
+            if (_nextButton != null)
+            {
+                var label = _nextButton.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (label != null)
+                    label.text = hasPage && _pageIndex >= _pages.Count - 1 ? "닫기" : "다음";
+            }
+
+            SelectDefaultButton();
+        }
+
+        private void PlayVideo(GuidePopupPage page)
+        {
+            if (_videoPlayer == null || _guideVideoImage == null || page?.Video == null)
+                return;
+
+            if (_videoTexture == null)
+                _videoTexture = new RenderTexture(1280, 720, 0, RenderTextureFormat.ARGB32);
+
+            _videoPlayer.playOnAwake = false;
+            _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+            _videoPlayer.targetTexture = _videoTexture;
+            _videoPlayer.clip = page.Video;
+            _videoPlayer.isLooping = page.LoopVideo;
+            _videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
+
+            _guideVideoImage.texture = _videoTexture;
+            _videoPlayer.Play();
+        }
+
+        private void StopVideo()
+        {
+            if (_videoPlayer != null)
+            {
+                _videoPlayer.Stop();
+                _videoPlayer.clip = null;
+            }
+
+            if (_guideVideoImage != null)
+                _guideVideoImage.texture = null;
+        }
+
+        private void FadeInUnscaled(float duration)
+        {
+            StopFade();
+
+            if (_canvasGroup == null)
+                return;
+
+            _fadeRoutine = StartCoroutine(FadeUnscaled(0f, 1f, duration));
+        }
+
+        private void StopFade()
+        {
+            if (_fadeRoutine == null)
+                return;
+
+            StopCoroutine(_fadeRoutine);
+            _fadeRoutine = null;
+        }
+
+        private IEnumerator FadeUnscaled(float from, float to, float duration)
+        {
+            if (_canvasGroup == null)
+                yield break;
+
+            if (duration <= 0f)
+            {
+                _canvasGroup.alpha = to;
+                _fadeRoutine = null;
+                yield break;
+            }
+
+            float elapsed = 0f;
+            _canvasGroup.alpha = from;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                _canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / duration);
+                yield return null;
+            }
+
             _canvasGroup.alpha = to;
             _fadeRoutine = null;
-            yield break;
         }
 
-        float elapsed = 0f;
-        _canvasGroup.alpha = from;
-
-        while (elapsed < duration)
+        private void SelectDefaultButton()
         {
-            elapsed += Time.unscaledDeltaTime;
-            _canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / duration);
-            yield return null;
+            if (!IsVisible || EventSystem.current == null)
+                return;
+
+            Button target = _nextButton != null && _nextButton.interactable ? _nextButton : _closeButton;
+            if (target != null)
+                EventSystem.current.SetSelectedGameObject(target.gameObject);
         }
 
-        _canvasGroup.alpha = to;
-        _fadeRoutine = null;
-    }
-
-    private void SelectDefaultButton()
-    {
-        if (!IsVisible || EventSystem.current == null)
-            return;
-
-        Button target = _nextButton != null && _nextButton.interactable ? _nextButton : _closeButton;
-        if (target != null)
-            EventSystem.current.SetSelectedGameObject(target.gameObject);
-    }
-
-    protected override void OnDispose()
-    {
-        base.OnDispose();
-        StopFade();
-        StopVideo();
-
-        if (_videoTexture != null)
+        protected override void OnDispose()
         {
-            _videoTexture.Release();
-            Destroy(_videoTexture);
-            _videoTexture = null;
+            base.OnDispose();
+            StopFade();
+            StopVideo();
+
+            if (_videoTexture != null)
+            {
+                _videoTexture.Release();
+                Destroy(_videoTexture);
+                _videoTexture = null;
+            }
         }
     }
 }

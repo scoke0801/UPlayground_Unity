@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Data.Party
 {

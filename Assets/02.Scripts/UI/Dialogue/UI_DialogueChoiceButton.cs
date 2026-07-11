@@ -3,19 +3,22 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Dialogue;
 
-public class UI_DialogueChoiceButton : MonoBehaviour
+namespace UPlayGround.UI
 {
-    [SerializeField] private TextMeshProUGUI label;
-    [SerializeField] private Button button;
-    [SerializeField] private CanvasGroup canvasGroup;
-
-    public void Setup(string text, bool isAvailable, int capturedIndex)
+    public class UI_DialogueChoiceButton : MonoBehaviour
     {
-        label.text = text;
-        button.interactable = isAvailable;
-        canvasGroup.alpha = isAvailable ? 1f : 0.4f;
+        [SerializeField] private TextMeshProUGUI label;
+        [SerializeField] private Button button;
+        [SerializeField] private CanvasGroup canvasGroup;
 
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(() => DialogueManager.Instance.SelectChoice(capturedIndex));
+        public void Setup(string text, bool isAvailable, int capturedIndex)
+        {
+            label.text = text;
+            button.interactable = isAvailable;
+            canvasGroup.alpha = isAvailable ? 1f : 0.4f;
+
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => DialogueManager.Instance.SelectChoice(capturedIndex));
+        }
     }
 }

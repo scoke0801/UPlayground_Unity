@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Manager
 {

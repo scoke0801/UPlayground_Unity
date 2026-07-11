@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// 색상 항목(헤어 컬러 / 눈 컬러 / 피부 등)을 가로로 나열하는 32x32 스워치 드로어.

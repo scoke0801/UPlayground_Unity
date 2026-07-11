@@ -1,9 +1,12 @@
-using Interaction.Enum;
-using UnityEngine;
 using UPlayGround.Data.EnumType;
+using System.Collections;
+using UnityEngine;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.Item;
+using UPlayGround.UI;
 
 namespace UPlayGround
 {
@@ -24,6 +27,7 @@ namespace UPlayGround
 
         private bool _isInteracting;
         private bool _isConsumed;
+        private Coroutine _interactionCoroutine;
 
         public ItemSO ItemData => _itemData;
         public int Count => Mathf.Max(1, _count);
@@ -65,11 +69,25 @@ namespace UPlayGround
             if (!CanInteract()) return;
 
             _isInteracting = true;
-            Collect();
+
+            float completeDuration = GetInteractionCompleteDuration();
+            if (completeDuration <= 0f)
+            {
+                Collect();
+                return;
+            }
+
+            _interactionCoroutine = StartCoroutine(CompleteInteractionAfterDelay(completeDuration));
         }
 
         public void StopInteract()
         {
+            if (_interactionCoroutine != null)
+            {
+                StopCoroutine(_interactionCoroutine);
+                _interactionCoroutine = null;
+            }
+
             _isInteracting = false;
         }
 
@@ -100,15 +118,28 @@ namespace UPlayGround
 
         public void ResetForRespawn()
         {
+            StopInteract();
             _isInteracting = false;
             _isConsumed = false;
         }
 
         public void ApplyConsumedState()
         {
-            _isInteracting = false;
+            StopInteract();
             _isConsumed = true;
             gameObject.SetActive(false);
+        }
+
+        private IEnumerator CompleteInteractionAfterDelay(float duration)
+        {
+            yield return new WaitForSeconds(duration);
+            _interactionCoroutine = null;
+            Collect();
+        }
+
+        private float GetInteractionCompleteDuration()
+        {
+            return _interactionData != null ? Mathf.Max(0f, _interactionData.interactionCompleteDuration) : 0f;
         }
 
         private void Collect()

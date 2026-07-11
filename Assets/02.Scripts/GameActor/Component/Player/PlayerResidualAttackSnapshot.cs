@@ -4,7 +4,7 @@ using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public readonly struct PlayerResidualAttackSnapshot
     {

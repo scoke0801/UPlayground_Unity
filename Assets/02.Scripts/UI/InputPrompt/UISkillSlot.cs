@@ -2,7 +2,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Combat;
 
 namespace UPlayGround.UI.InputPrompt

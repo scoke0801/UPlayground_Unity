@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Actor;
 
 namespace UPlayGround
 {

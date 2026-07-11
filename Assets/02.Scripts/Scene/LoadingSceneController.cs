@@ -54,7 +54,7 @@ namespace UPlayGround
             {
                 Debug.LogWarning("[LoadingSceneController] PendingSceneName 없음. Title로 fallback.");
                 SceneManager.Instance.CancelCurrentLoad("대상 씬 정보가 없어 Title로 복구합니다.");
-                SceneManager.Instance.LoadSceneDirect(UREnum.SceneName.Title);
+                SceneManager.Instance.LoadSceneDirect(UPlayGround.Data.EnumType.SceneName.Title);
                 yield break;
             }
 

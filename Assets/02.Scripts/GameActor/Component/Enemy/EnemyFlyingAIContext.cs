@@ -1,7 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.Enemy;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 비행 몬스터 BT/State Facade.

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FX
+namespace UPlayGround.Particle
 {
     public class ActorDestroyParticle : MonoBehaviour
     {

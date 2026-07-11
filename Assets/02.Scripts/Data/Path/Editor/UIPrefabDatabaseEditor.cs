@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Path
     using UnityEngine;
 
     [CustomEditor(typeof(UIPrefabDatabase))]
-    public class UIPrefabDatabaseEditor : Editor
+    public class UIPrefabDatabaseEditor : UnityEditor.Editor
     {
         private const float PreviewSize = 42f;
 

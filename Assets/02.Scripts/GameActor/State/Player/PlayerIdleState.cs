@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;

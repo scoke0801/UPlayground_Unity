@@ -9,7 +9,7 @@ using UPlayGround.State;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 비행형 몬스터 전용 Brain.

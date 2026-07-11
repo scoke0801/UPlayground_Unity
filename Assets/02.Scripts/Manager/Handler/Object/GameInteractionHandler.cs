@@ -2,6 +2,9 @@
 using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Config;
+using UPlayGround.UI;
+using UPlayGround.Data.Actor;
 using Random = UnityEngine.Random;
 
 namespace UPlayGround.Manager.Handler
@@ -19,8 +22,25 @@ namespace UPlayGround.Manager.Handler
         private Camera _camera;
         
         private Coroutine _waitEventCoroutine;
+        private float _interactionStartedTime;
+        private float _interactionDuration;
         
         public IInteractable CurrentClosestInteractable => _currentClosestInteractable;
+        public bool IsInteractionProgressActive => _interactionDuration > 0f
+                                                   && _currentClosestInteractable != null
+                                                   && _currentClosestInteractable.IsInteracting();
+        public float InteractionProgress
+        {
+            get
+            {
+                if (!IsInteractionProgressActive)
+                {
+                    return 0f;
+                }
+
+                return Mathf.Clamp01((Time.time - _interactionStartedTime) / _interactionDuration);
+            }
+        }
         
         public override void Init()
         {
@@ -55,8 +75,7 @@ namespace UPlayGround.Manager.Handler
             FindClosestInteractable(_player.transform.position);
            
             if (_currentClosestInteractable != null
-                && _currentClosestInteractable.CanInteract()
-                && _currentClosestInteractable.IsInteracting() == false)
+                && (_currentClosestInteractable.CanInteract() || _currentClosestInteractable.IsInteracting()))
             {
                 ShowIcon(_currentClosestInteractable.GetActor().transform);
             }
@@ -74,6 +93,15 @@ namespace UPlayGround.Manager.Handler
             }
 
             _currentClosestInteractable.Interact(_player);
+
+            _interactionDuration = 0f;
+            _interactionStartedTime = Time.time;
+
+            InteractableActorSO data = _currentClosestInteractable.GetData();
+            if (data != null && _currentClosestInteractable.IsInteracting())
+            {
+                _interactionDuration = Mathf.Max(0f, data.interactionCompleteDuration);
+            }
         }
 
         public void StopInteraction()
@@ -81,7 +109,10 @@ namespace UPlayGround.Manager.Handler
             if (_waitEventCoroutine != null)
             {
                 GameObjectManager.Instance.StopCoroutine(_waitEventCoroutine);
+                _waitEventCoroutine = null;
             }
+
+            _interactionDuration = 0f;
             
             if (_currentClosestInteractable == null)
             {

@@ -1,17 +1,17 @@
 #if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
-using Interaction.Enum;
+using UPlayGround.Data.EnumType;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Actor;
-using UPlayGround.Data.EnumType;
 using UPlayGround.Data.World;
 using UPlayGround.Group;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Tool.Editor.Map
 {
@@ -168,6 +168,16 @@ namespace UPlayGround.Tool.Editor.Map
             Open(WorldPlacementMode.Actor);
         }
 
+        [MenuItem("UPlayGround/월드/맵/NPC 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
+        public static void OpenNpcPlacement()
+        {
+            var window = Open(WorldPlacementMode.Actor);
+            window._actorSource = ActorPlacementSource.ActorDatabase;
+            window._actorFilter = ActorType.NPC;
+            window.RefreshActorDefinitions();
+            window.SetPersistentStatus("NPC ActorDefinitionSO를 선택해 씬에 배치하세요.", MessageType.Info);
+        }
+
         internal static void OpenActorPlacement()
         {
             Open(WorldPlacementMode.Actor);
@@ -178,7 +188,7 @@ namespace UPlayGround.Tool.Editor.Map
             Open(WorldPlacementMode.Interaction);
         }
 
-        private static void Open(WorldPlacementMode mode)
+        private static GatheringPlacementEditorWindow Open(WorldPlacementMode mode)
         {
             var window = GetWindow<GatheringPlacementEditorWindow>();
             window.titleContent = new GUIContent("World Placement", EditorGUIUtility.IconContent("d_Prefab Icon").image);
@@ -186,6 +196,7 @@ namespace UPlayGround.Tool.Editor.Map
             window.minSize = new Vector2(760f, 560f);
             window.SetMode(mode);
             window.Show();
+            return window;
         }
 
         private void OnEnable()
@@ -985,8 +996,25 @@ namespace UPlayGround.Tool.Editor.Map
             if (_bakeFoldout)
             {
                 GUILayout.Label(
-                    "Bake Mode가 RuntimeData인 배치만 PlacementDataSO로 저장하고 씬 오브젝트를 제거합니다. 씬에는 RuntimePlacementLoader가 자동 생성됩니다.",
+                    "Bake Mode가 RuntimeData인 배치만 PlacementDataSO로 저장하고 씬 오브젝트를 제거합니다. 메타데이터가 없는 기존 씬 오브젝트는 먼저 등록할 수 있습니다.",
                     EditorStyles.wordWrappedMiniLabel);
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    using (new EditorGUI.DisabledScope(Selection.gameObjects == null || Selection.gameObjects.Length == 0))
+                    {
+                        if (GUILayout.Button("기존 선택 RuntimeData 등록", GUILayout.Height(22f)))
+                            WorldPlacementBakeUtility.RegisterSelectedAsRuntimeData();
+
+                        if (GUILayout.Button("기존 선택 등록 후 Bake", GUILayout.Height(22f)))
+                        {
+                            var baked = WorldPlacementBakeUtility.RegisterSelectedAndBakeRuntimeData();
+                            RefreshBakedDataAssets();
+                            if (baked != null)
+                                _selectedBakedData = baked;
+                        }
+                    }
+                }
 
                 using (new EditorGUILayout.HorizontalScope())
                 {

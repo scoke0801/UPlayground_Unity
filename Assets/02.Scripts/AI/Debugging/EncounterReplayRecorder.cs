@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using UPlayGround.AI.BehaviorTree;
 using UPlayGround.AI.CombatDecision;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UnityEngine;
 
 namespace UPlayGround.AI.Debugging

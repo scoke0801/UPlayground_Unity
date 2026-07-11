@@ -1,13 +1,13 @@
 ﻿using System.Collections;
 using Animancer;
-using Interaction.Enum;
-using UnityEngine;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UnityEngine;
+using UPlayGround.Components;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
+using UPlayGround.Data.Actor;
 
 namespace UPlayGround.State
 {
@@ -108,18 +108,23 @@ namespace UPlayGround.State
                 return;
             }
 
-            // REST_POINT: 회복은 OnEnter의 StartInteraction에서 즉시 처리됨.
-            // 별도 애니메이션/대기 없이 바로 상태를 빠져나와 플레이어 고착을 방지한다.
-            // [TODO] 추후 휴식 모션을 넣을 경우 PlayAnimation에 REST_POINT 케이스 추가 후 이 즉시 종료 제거.
             if (_cachedData?.interactionObjectType == InteractionObjectType.REST_POINT)
             {
-                ForceChangeToNextState();
+                if (IsCurrentInteractionCompleted())
+                {
+                    ForceChangeToNextState();
+                }
+
                 return;
             }
 
             if (_cachedData?.interactionObjectType == InteractionObjectType.DROP_ITEM)
             {
-                ForceChangeToNextState();
+                if (IsCurrentInteractionCompleted())
+                {
+                    ForceChangeToNextState();
+                }
+
                 return;
             }
 
@@ -130,6 +135,13 @@ namespace UPlayGround.State
             {
                 ForceChangeToNextState();
             }
+        }
+
+        private bool IsCurrentInteractionCompleted()
+        {
+            var handler = GameObjectManager.Instance?.InteractionHandler;
+            IInteractable interactable = handler?.CurrentClosestInteractable;
+            return interactable == null || interactable.IsInteracting() == false;
         }
 
         private void PlayAnimation()

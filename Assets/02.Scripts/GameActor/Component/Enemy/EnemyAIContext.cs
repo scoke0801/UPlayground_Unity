@@ -2,7 +2,7 @@ using UnityEngine;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Group;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public interface IEnemyAIController
     {

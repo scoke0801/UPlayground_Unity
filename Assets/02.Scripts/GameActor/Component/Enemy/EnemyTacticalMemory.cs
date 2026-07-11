@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 적 전술 기억 컴포넌트

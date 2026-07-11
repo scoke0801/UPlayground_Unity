@@ -1,4 +1,4 @@
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 

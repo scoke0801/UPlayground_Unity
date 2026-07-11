@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Tool.Editor;
 
 namespace UPlayGround.Tool.Editor.Save

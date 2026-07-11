@@ -1,7 +1,6 @@
 using System;
-using Interaction.Enum;
-using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 

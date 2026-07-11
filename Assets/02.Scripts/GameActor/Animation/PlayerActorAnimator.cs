@@ -2,7 +2,7 @@
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Animation

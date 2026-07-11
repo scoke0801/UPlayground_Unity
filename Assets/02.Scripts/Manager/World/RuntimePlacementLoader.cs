@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.World;
 using UPlayGround.Group;
 using UnityEngine;
@@ -28,14 +28,20 @@ namespace UPlayGround.Manager.World
 
         private readonly List<GameObject> _instances = new();
         private Dictionary<string, MonsterGroupController> _groupLookup;
+        private bool _isSpawning;
+        private bool _hasSpawnCompleted;
 
         public WorldPlacementDataSO PlacementData => _placementData;
         public IReadOnlyList<GameObject> Instances => _instances;
+        public bool IsSpawnComplete => !_spawnOnStart || _hasSpawnCompleted;
+        public bool IsSpawning => _isSpawning;
 
         private void Start()
         {
             if (_spawnOnStart)
                 StartCoroutine(SpawnAllWhenReady());
+            else
+                _hasSpawnCompleted = true;
         }
 
         /// <summary>
@@ -43,6 +49,9 @@ namespace UPlayGround.Manager.World
         /// </summary>
         public IEnumerator SpawnAllWhenReady()
         {
+            _isSpawning = true;
+            _hasSpawnCompleted = false;
+
             if (HasActorIdRecords())
             {
                 float timeoutAt = Time.realtimeSinceStartup + DatabaseWaitTimeoutSeconds;
@@ -54,15 +63,22 @@ namespace UPlayGround.Manager.World
             }
 
             SpawnAll();
+            _isSpawning = false;
+            _hasSpawnCompleted = true;
         }
 
         public void SpawnAll()
         {
+            _hasSpawnCompleted = false;
+
             if (_clearBeforeSpawn)
                 ClearSpawned();
 
             if (_placementData == null)
+            {
+                _hasSpawnCompleted = true;
                 return;
+            }
 
             _groupLookup = null;
 
@@ -91,6 +107,8 @@ namespace UPlayGround.Manager.World
                 SetupRuntimeState(record, instance);
                 _instances.Add(instance);
             }
+
+            _hasSpawnCompleted = true;
         }
 
         /// <summary>
@@ -148,10 +166,15 @@ namespace UPlayGround.Manager.World
             Transform parent = group != null ? group.transform : transform;
 
             var actor = ActorSpawnManager.Instance.SpawnActor(record.actorId, record.position, record.rotation, group, parent);
+            if (actor != null)
+            {
+                string guid = GetRecordGuid(record);
+                EnsureSceneEntityId(actor.gameObject, guid);
+            }
+
             if (actor is MonsterActor monster)
             {
                 string guid = GetRecordGuid(record);
-                EnsureSceneEntityId(monster.gameObject, guid);
                 MonsterRespawnManager.Instance?.RegisterRuntimePlacement(
                     monster,
                     guid,

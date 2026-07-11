@@ -4,7 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// Model 서브루트에 붙는 캐릭터 식별·전투 데이터 컨테이너.

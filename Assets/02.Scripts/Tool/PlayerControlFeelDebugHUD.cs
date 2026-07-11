@@ -2,13 +2,13 @@
 using System;
 using System.IO;
 using System.Text;
-using Game.Input;
+using UPlayGround.Input;
 using KinematicCharacterController;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Profiling;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Diagnostics;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;

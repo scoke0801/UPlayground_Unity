@@ -5,7 +5,8 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Combat;
-using UPlayGround.Component;
+using UPlayGround.Components;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Tool.Editor.Combat
 {

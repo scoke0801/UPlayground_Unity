@@ -3,53 +3,57 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Item;
 
-public class UI_ItemAcquisitionEntry : UI_Base
+namespace UPlayGround.UI
 {
-    [SerializeField] TextMeshProUGUI _itemInfoText;
-    [SerializeField] private Image _rarityIcon;
-    [SerializeField] private Image _itemIcon;
-
-    protected override void Awake()
+    public class UI_ItemAcquisitionEntry : UI_Base
     {
-        base.Awake();
-        _animator = GetComponent<Animator>();
-    }
+        [SerializeField] TextMeshProUGUI _itemInfoText;
+        [SerializeField] private Image _rarityIcon;
+        [SerializeField] private Image _itemIcon;
 
-    public void Init(ItemSO itemData)
-    {
-        _rarityIcon.color = GetRarityColor(itemData.itemRarity);
-        _itemIcon.sprite = itemData.icon;
-        _itemInfoText.text = itemData.itemName;
-
-        StartCoroutine(DestroyAfterAnimation());
-    }
-
-    private IEnumerator DestroyAfterAnimation()
-    {
-        yield return null; // 애니메이터 상태 갱신 대기
-
-        float clipLength = 0f;
-        if (_animator != null)
+        protected override void Awake()
         {
-            var info = _animator.GetCurrentAnimatorStateInfo(0);
-            clipLength = info.length;
+            base.Awake();
+            _animator = GetComponent<Animator>();
         }
 
-        yield return new WaitForSeconds(clipLength);
-        Destroy(gameObject);
-    }
-
-    private static Color GetRarityColor(ItemRarity rarity)
-    {
-        return rarity switch
+        public void Init(ItemSO itemData)
         {
-            ItemRarity.COMMON => Color.white,
-            ItemRarity.UNCOMMON => new Color(0.35f, 0.9f, 0.45f),
-            ItemRarity.RARE => new Color(0.35f, 0.6f, 1f),
-            ItemRarity.UNIQUE => new Color(0.85f, 0.45f, 1f),
-            ItemRarity.LEGENDARY => new Color(1f, 0.65f, 0.2f),
-            _ => Color.clear
-        };
+            _rarityIcon.color = GetRarityColor(itemData.itemRarity);
+            _itemIcon.sprite = itemData.icon;
+            _itemInfoText.text = itemData.itemName;
+
+            StartCoroutine(DestroyAfterAnimation());
+        }
+
+        private IEnumerator DestroyAfterAnimation()
+        {
+            yield return null; // 애니메이터 상태 갱신 대기
+
+            float clipLength = 0f;
+            if (_animator != null)
+            {
+                var info = _animator.GetCurrentAnimatorStateInfo(0);
+                clipLength = info.length;
+            }
+
+            yield return new WaitForSeconds(clipLength);
+            Destroy(gameObject);
+        }
+
+        private static Color GetRarityColor(ItemRarity rarity)
+        {
+            return rarity switch
+            {
+                ItemRarity.COMMON => Color.white,
+                ItemRarity.UNCOMMON => new Color(0.35f, 0.9f, 0.45f),
+                ItemRarity.RARE => new Color(0.35f, 0.6f, 1f),
+                ItemRarity.UNIQUE => new Color(0.85f, 0.45f, 1f),
+                ItemRarity.LEGENDARY => new Color(1f, 0.65f, 0.2f),
+                _ => Color.clear
+            };
+        }
     }
 }

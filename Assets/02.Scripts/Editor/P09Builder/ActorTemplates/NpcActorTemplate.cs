@@ -8,8 +8,9 @@ using UnityEngine;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
+using UPlayGround.Data.Actor;
 
-namespace Game.Editor.P09Builder
+namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// Npc(NpcActor) 프리팹 빌드 템플릿.

@@ -3,7 +3,7 @@ using UnityEngine;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Combat;

@@ -3,7 +3,7 @@ using UnityEngine;
 using UPlayGround.Debugging;
 using UPlayGround.Manager;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 적 탐지 시스템 - 플레이어 감지 및 추적 타겟 관리

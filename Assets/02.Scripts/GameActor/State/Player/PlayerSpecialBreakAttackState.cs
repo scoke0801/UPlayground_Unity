@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;

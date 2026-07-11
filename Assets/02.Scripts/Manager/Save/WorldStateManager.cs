@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.Save;
 
 namespace UPlayGround.Manager

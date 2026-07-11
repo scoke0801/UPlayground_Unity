@@ -2,7 +2,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>플레이어 공격 정의를 런타임 공격 데이터로 변환하고 복제하는 책임.</summary>
     public sealed class PlayerAttackController

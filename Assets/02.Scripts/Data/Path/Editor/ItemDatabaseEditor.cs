@@ -5,7 +5,7 @@
     using UnityEngine;
 
     [CustomEditor(typeof(ItemDatabase))]
-    public class ItemDatabaseEditor : Editor
+    public class ItemDatabaseEditor : UnityEditor.Editor
     {
         [SerializeField] private string itemFolderPath = "Assets/10.Datas/Item"; // 검색할 폴더 경로
 

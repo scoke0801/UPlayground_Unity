@@ -1,4 +1,4 @@
-using UPlayGround.Component;
+using UPlayGround.Components;
 
 namespace UPlayGround.AI.BehaviorTree
 {

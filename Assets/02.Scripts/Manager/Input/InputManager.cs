@@ -1,4 +1,4 @@
-using Game.Input;
+using UPlayGround.Input;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;

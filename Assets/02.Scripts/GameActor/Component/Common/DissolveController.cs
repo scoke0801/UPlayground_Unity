@@ -7,7 +7,7 @@ using UnityEngine;
 using UPlayGround.Data.Rendering;
 using UPlayGround.Manager;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public class DissolveController : MonoBehaviour
     {

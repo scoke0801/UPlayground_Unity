@@ -3,7 +3,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Animation.Editor;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 

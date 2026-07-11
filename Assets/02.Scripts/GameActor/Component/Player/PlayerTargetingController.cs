@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>공격 보정 타깃과 주변 적 검색 책임.</summary>
     public sealed class PlayerTargetingController

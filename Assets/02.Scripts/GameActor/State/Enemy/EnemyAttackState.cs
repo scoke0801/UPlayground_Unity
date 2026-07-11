@@ -1,7 +1,7 @@
 using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.MovementController;
 
@@ -66,7 +66,7 @@ namespace UPlayGround.State
             _isAttackActive = true;
             _motionWarp     = controller.MotionWarp;
 
-            gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(true);
+            gameActor.GetComponent<UPlayGround.Components.PoiseStat>()?.SetHyperArmor(true);
             ActorWeaponTrailController.StartAttackTrails(gameActor);
 
             float distanceToTarget = _detection.DistanceToTarget;
@@ -112,7 +112,7 @@ namespace UPlayGround.State
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
 
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
-            gameActor.GetComponent<UPlayGround.Component.PoiseStat>()?.SetHyperArmor(false);
+            gameActor.GetComponent<UPlayGround.Components.PoiseStat>()?.SetHyperArmor(false);
             _context.ReleaseGroupSlot();
         }
 

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround;
-using UPlayGround.Component;
+using UPlayGround.Components;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
@@ -12,222 +12,230 @@ using UPlayGround.UI.DevCheat;
 #endif
 using UPlayGround.UI.InputPrompt;
 
-class UI_GamePlay : UI_Base
+namespace UPlayGround.UI
 {
-    private const string HudWorldClockKey = "HudWorldClock";
-
-    [SerializeField] Button _menuButton;
-
-    private PlayerActor _playerActor;
-
-    private PlayerCombat _playerCombat;
-
-    private UI_HudPlayerInfo _hudPlayerInfo;
-    private UI_HudParty _hudParty;
-    private UI_HudQuest _hudQuest;
-    private UI_HudSkill _hudSkill;
-    private UPlayGround.UI.HUD.Notification.UI_Notification _notification;
-    
-    #region UI_Base
-
-    protected override void Awake()
+    class UI_GamePlay : UI_Base
     {
-        base.Awake();
-        _menuButton.onClick.AddListener(OnClickedMenuButton);
-    }
+        // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
+        private UIManager _cachedUIManager;
+        private UIManager UIMgr => _cachedUIManager != null ? _cachedUIManager : (_cachedUIManager = UIManager.Instance);
 
-    protected override void OnShow()
-    {
-        _hudPlayerInfo = UIManager.Instance.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HudPlayerInfo>();
-        UIManager.Instance.ShowUI(UIKeyType.Minimap);
 
-        _hudParty = UIManager.Instance.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HudParty>();
+        private const string HudWorldClockKey = "HudWorldClock";
 
-        _hudQuest = UIManager.Instance.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
+        [SerializeField] Button _menuButton;
 
-        _hudSkill = UIManager.Instance.ShowUI(UIKeyType.HudSkill)?.GetComponent<UI_HudSkill>();
+        private PlayerActor _playerActor;
 
-        if (UIManager.Instance.GetUIPrefabEntry(UIKeyType.Notification.ToKey()) != null)
+        private PlayerCombat _playerCombat;
+
+        private UI_HudPlayerInfo _hudPlayerInfo;
+        private UI_HudParty _hudParty;
+        private UI_HudQuest _hudQuest;
+        private UI_HudSkill _hudSkill;
+        private UPlayGround.UI.HUD.Notification.UI_Notification _notification;
+
+        #region UI_Base
+
+        protected override void Awake()
         {
-            _notification = UIManager.Instance.ShowUI(UIKeyType.Notification, CanvasLayer.HUD)
-                ?.GetComponent<UPlayGround.UI.HUD.Notification.UI_Notification>();
+            base.Awake();
+            _menuButton.onClick.AddListener(OnClickedMenuButton);
         }
 
-        // 인게임 시계 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
-        if (UIManager.Instance.GetUIPrefabEntry(HudWorldClockKey) != null)
+        protected override void OnShow()
         {
-            UIManager.Instance.ShowUI(HudWorldClockKey, CanvasLayer.HUD);
-        }
+            _hudPlayerInfo = UIMgr.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HudPlayerInfo>();
+            UIMgr.ShowUI(UIKeyType.Minimap);
 
-        UIManager.Instance.ShowUI(UIKeyType.OffscreenThreatIndicator);
+            _hudParty = UIMgr.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HudParty>();
 
-        if (GameObjectManager.Instance != null)
-        {
-            _playerActor = GameObjectManager.Instance.Player;
-            _playerCombat = _playerActor?.GetCombat();
-            if (_playerCombat != null)
+            _hudQuest = UIMgr.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
+
+            _hudSkill = UIMgr.ShowUI(UIKeyType.HudSkill)?.GetComponent<UI_HudSkill>();
+
+            if (UIMgr.GetUIPrefabEntry(UIKeyType.Notification.ToKey()) != null)
             {
-                _playerCombat.OnChangeCombatState += OnPlayerCombatStateChanged;
+                _notification = UIMgr.ShowUI(UIKeyType.Notification, CanvasLayer.HUD)
+                    ?.GetComponent<UPlayGround.UI.HUD.Notification.UI_Notification>();
+            }
+
+            // 인게임 시계 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
+            if (UIMgr.GetUIPrefabEntry(HudWorldClockKey) != null)
+            {
+                UIMgr.ShowUI(HudWorldClockKey, CanvasLayer.HUD);
+            }
+
+            UIMgr.ShowUI(UIKeyType.OffscreenThreatIndicator);
+
+            if (GameObjectManager.Instance != null)
+            {
+                _playerActor = GameObjectManager.Instance.Player;
+                _playerCombat = _playerActor?.GetCombat();
+                if (_playerCombat != null)
+                {
+                    _playerCombat.OnChangeCombatState += OnPlayerCombatStateChanged;
+                }
             }
         }
-    }
 
-    protected override void OnHide()
-    {
-        var uiManager = UIManager.Instance;
-        if (uiManager != null)
+        protected override void OnHide()
         {
-            uiManager.HideUI(UIKeyType.HudPlayerInfo);
-            uiManager.HideUI(UIKeyType.Minimap);
-            uiManager.HideUI(UIKeyType.HudParty);
-            uiManager.HideUI(UIKeyType.HudQuest);
-            uiManager.HideUI(UIKeyType.HudSkill);
-            uiManager.HideUI(UIKeyType.Notification);
-            uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
-            uiManager.HideUI(HudWorldClockKey);
+            var uiManager = UIMgr;
+            if (uiManager != null)
+            {
+                uiManager.HideUI(UIKeyType.HudPlayerInfo);
+                uiManager.HideUI(UIKeyType.Minimap);
+                uiManager.HideUI(UIKeyType.HudParty);
+                uiManager.HideUI(UIKeyType.HudQuest);
+                uiManager.HideUI(UIKeyType.HudSkill);
+                uiManager.HideUI(UIKeyType.Notification);
+                uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
+                uiManager.HideUI(HudWorldClockKey);
+            }
+
+            if (_playerCombat == null)
+            {
+                return;
+            }
+
+            _playerCombat.OnChangeCombatState -= OnPlayerCombatStateChanged;
+            _playerCombat = null;
+            _playerActor = null;
+            _hudPlayerInfo = null;
+            _notification = null;
         }
 
-        if (_playerCombat == null)
+        protected override void RegisterInputEvents()
         {
-            return;
+            var inputManager = InputManager.Instance;
+            if (inputManager == null)
+                return;
+
+            inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
+                null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
+
+            inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
+                null, OnPerformedMap, null, null, null, InputLayer.Level_0);
+
+            inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Party,
+                null, OnPerformedParty, null, null, null, InputLayer.Level_0);
+
+            inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
+                null, OnPerformedMenuPanel, null, null, null, InputLayer.Level_0);
+
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel,
+                null, OnPerformedCheatPanel, null, null, null, InputLayer.Level_0);
+    #endif
         }
 
-        _playerCombat.OnChangeCombatState -= OnPlayerCombatStateChanged;
-        _playerCombat = null;
-        _playerActor = null;
-        _hudPlayerInfo = null;
-        _notification = null;
-    }
-
-    protected override void RegisterInputEvents()
-    {
-        var inputManager = InputManager.Instance;
-        if (inputManager == null)
-            return;
-
-        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
-            null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
-       
-        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
-            null, OnPerformedMap, null, null, null, InputLayer.Level_0);
-        
-        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Party,
-            null, OnPerformedParty, null, null, null, InputLayer.Level_0);
-        
-        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
-            null, OnPerformedMenuPanel, null, null, null, InputLayer.Level_0);
-        
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel,
-            null, OnPerformedCheatPanel, null, null, null, InputLayer.Level_0);
-#endif
-    }
-
-    protected override void UnRegisterInputEvents()
-    {
-        var inputManager = InputManager.Instance;
-        if (inputManager == null)
-            return;
-
-        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory, null);
-        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap, null);
-        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
-        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel, null, OnPerformedMenuPanel, null);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel, null, OnPerformedCheatPanel, null);
-#endif
-    }
-
-    #endregion
-
-    #region InputCallback
-
-    private void ToggleMap()
-    {
-        var mapObj = UIManager.Instance.GetActiveUI(UIKeyType.Map);
-        var map    = mapObj?.GetComponent<UI_Map>();
-        if (map != null && map.IsVisible)
-            UIManager.Instance.HideUI(UIKeyType.Map);
-        else
-            UIManager.Instance.ShowUI(UIKeyType.Map);
-    }
-
-    private void OnPerformedInventory(InputAction.CallbackContext obj)
-    {
-        UI_Inventory inventory = UIManager.Instance.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
-        if (inventory == null || inventory.IsVisible == false)
+        protected override void UnRegisterInputEvents()
         {
-            UIManager.Instance.ShowUI(UIKeyType.Inventory);
+            var inputManager = InputManager.Instance;
+            if (inputManager == null)
+                return;
+
+            inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory, null);
+            inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap, null);
+            inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
+            inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel, null, OnPerformedMenuPanel, null);
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+            inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.CheatPanel, null, OnPerformedCheatPanel, null);
+    #endif
         }
-        else
+
+        #endregion
+
+        #region InputCallback
+
+        private void ToggleMap()
         {
-            UIManager.Instance.HideUI(UIKeyType.Inventory);
+            var mapObj = UIMgr.GetActiveUI(UIKeyType.Map);
+            var map    = mapObj?.GetComponent<UI_Map>();
+            if (map != null && map.IsVisible)
+                UIMgr.HideUI(UIKeyType.Map);
+            else
+                UIMgr.ShowUI(UIKeyType.Map);
         }
-    }
+
+        private void OnPerformedInventory(InputAction.CallbackContext obj)
+        {
+            UI_Inventory inventory = UIMgr.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
+            if (inventory == null || inventory.IsVisible == false)
+            {
+                UIMgr.ShowUI(UIKeyType.Inventory);
+            }
+            else
+            {
+                UIMgr.HideUI(UIKeyType.Inventory);
+            }
+        }
 
 
-    private void OnPerformedMap(InputAction.CallbackContext obj)
-    {
-        ToggleMap();
-    }
-    
-    private void OnPerformedParty(InputAction.CallbackContext obj)
-    {
-        UI_PartyMenu party = UIManager.Instance.GetActiveUI(UIKeyType.Party)?.GetComponent<UI_PartyMenu>();
-        if (party == null || party.IsVisible == false)
+        private void OnPerformedMap(InputAction.CallbackContext obj)
         {
-            UIManager.Instance.ShowUI(UIKeyType.Party);
+            ToggleMap();
         }
-        else
-        {
-            UIManager.Instance.HideUI(UIKeyType.Party);
-        }
-    }
-    
-    private void OnPerformedMenuPanel(InputAction.CallbackContext obj)
-    {
-        OnClickedMenuButton();
-    }
-    
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    private void OnPerformedCheatPanel(InputAction.CallbackContext obj)
-    {
-        var mgr = UIManager.Instance;
-        if (mgr == null)
-            return;
 
-        var panel = mgr.GetUI<UI_DevCheatPanel>();
-        if (panel != null && panel.IsVisible)
-            panel.Hide();
-        else
-            mgr.ShowUI("DevCheatPanel");
-    }
-#endif
-    
-    private void OnClickedMenuButton()
-    {
-        UI_MenuPanel party = UIManager.Instance.GetActiveUI(UIKeyType.MenuPanel)?.GetComponent<UI_MenuPanel>();
-        if (party == null || party.IsVisible == false)
+        private void OnPerformedParty(InputAction.CallbackContext obj)
         {
-            UIManager.Instance.ShowUI(UIKeyType.MenuPanel);
+            UI_PartyMenu party = UIMgr.GetActiveUI(UIKeyType.Party)?.GetComponent<UI_PartyMenu>();
+            if (party == null || party.IsVisible == false)
+            {
+                UIMgr.ShowUI(UIKeyType.Party);
+            }
+            else
+            {
+                UIMgr.HideUI(UIKeyType.Party);
+            }
         }
-        else
+
+        private void OnPerformedMenuPanel(InputAction.CallbackContext obj)
         {
-            UIManager.Instance.HideUI(UIKeyType.MenuPanel);
+            OnClickedMenuButton();
         }
-    }
-    #endregion
 
-    #region EventCallback
-
-    private void OnPlayerCombatStateChanged(bool isInCombat)
-    {
-        if (_hudPlayerInfo != null)
+    #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private void OnPerformedCheatPanel(InputAction.CallbackContext obj)
         {
-            _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");
-            _hudPlayerInfo.SetIsInCombat(isInCombat);
-        }
-    }
+            var mgr = UIMgr;
+            if (mgr == null)
+                return;
 
-    #endregion
+            var panel = mgr.GetUI<UI_DevCheatPanel>();
+            if (panel != null && panel.IsVisible)
+                panel.Hide();
+            else
+                mgr.ShowUI("DevCheatPanel");
+        }
+    #endif
+
+        private void OnClickedMenuButton()
+        {
+            UI_MenuPanel party = UIMgr.GetActiveUI(UIKeyType.MenuPanel)?.GetComponent<UI_MenuPanel>();
+            if (party == null || party.IsVisible == false)
+            {
+                UIMgr.ShowUI(UIKeyType.MenuPanel);
+            }
+            else
+            {
+                UIMgr.HideUI(UIKeyType.MenuPanel);
+            }
+        }
+        #endregion
+
+        #region EventCallback
+
+        private void OnPlayerCombatStateChanged(bool isInCombat)
+        {
+            if (_hudPlayerInfo != null)
+            {
+                _hudPlayerInfo.AnimationChange(isInCombat ? "Show" : "Hide");
+                _hudPlayerInfo.SetIsInCombat(isInCombat);
+            }
+        }
+
+        #endregion
+    }
 }

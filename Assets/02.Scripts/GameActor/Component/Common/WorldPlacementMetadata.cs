@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// 월드 배치 툴로 생성된 씬 오브젝트의 출처와 향후 Bake 정보를 기록한다.

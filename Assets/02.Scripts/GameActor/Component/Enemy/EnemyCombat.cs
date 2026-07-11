@@ -10,8 +10,9 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.UI;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     public readonly struct EnemyAttackThreat
     {

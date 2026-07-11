@@ -2,7 +2,7 @@ using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>
     /// PlayerCombat의 전투 상태 변화에 맞춰 주 무기를 손/등 위치로 전환한다.

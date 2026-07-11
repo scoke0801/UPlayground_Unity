@@ -1,15 +1,19 @@
 using UnityEngine;
+using UPlayGround.Data.Item;
 
-public class UI_ItemAcquisitionList : UI_Base
+namespace UPlayGround.UI
 {
-    [SerializeField] private UI_ItemAcquisitionEntry _itemEntry;
-    [SerializeField] private Transform _content;
-
-    public void SetItem(ItemSO itemDaItem)
+    public class UI_ItemAcquisitionList : UI_Base
     {
-        var go = Instantiate(_itemEntry, _content);
-        go.gameObject.SetActive(true);
-        
-        go.Init(itemDaItem);
+        [SerializeField] private UI_ItemAcquisitionEntry _itemEntry;
+        [SerializeField] private Transform _content;
+
+        public void SetItem(ItemSO itemDaItem)
+        {
+            var go = Instantiate(_itemEntry, _content);
+            go.gameObject.SetActive(true);
+
+            go.Init(itemDaItem);
+        }
     }
 }

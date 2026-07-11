@@ -5,7 +5,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.UI;
 using UnityEngine;
 
-namespace UPlayGround.Component
+namespace UPlayGround.Components
 {
     /// <summary>플레이어 공격의 숫자, 히트 FX, 카메라와 히트스톱 표현 책임.</summary>
     public sealed class PlayerCombatPresenter

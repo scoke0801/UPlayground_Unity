@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48c829f4b3864e97a9c25bf96c3a1a3c, type: 3}
+  m_Name: MonsterProfile_Enemy_Random_M_GreatSword_001
+  m_EditorClassIdentifier: 
+  grade: 0
+  level: 3
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: 946d816e41cf9354e8780e9f5fd834c8, type: 2}
+  attackData: {fileID: 11400000, guid: 37531016fd86e4e4ea6bd66458033da6, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 65f4a6c747f8d7e4e813ec829974519a, type: 2}
+  dropTable: {fileID: 11400000, guid: d45a241e18c04104b993176470df1248, type: 2}
+  recruitableAs: 0
+  expReward: 22
+  goldReward: 0

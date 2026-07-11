@@ -66,9 +66,17 @@ namespace UPlayGround.Manager.World
 
             _groupLookup = null;
 
+            // 이미 존재하는 PlayerActor(선행 확보된 플레이어)는 레코드마다 재탐색하지 않고 루프 밖에서 1회만 캐싱한다.
+            var existingPlayer = FindFirstObjectByType<PlayerActor>();
+
             foreach (var record in _placementData.Records)
             {
                 if (record == null)
+                    continue;
+
+                if (existingPlayer != null
+                    && !string.IsNullOrEmpty(record.actorId)
+                    && PlayerMatchesActorId(existingPlayer, record.actorId))
                     continue;
 
                 GameObject instance = !string.IsNullOrEmpty(record.actorId)
@@ -83,6 +91,49 @@ namespace UPlayGround.Manager.World
                 SetupRuntimeState(record, instance);
                 _instances.Add(instance);
             }
+        }
+
+        /// <summary>
+        /// 씬에 PlayerActor가 없을 때 PartyManager가 호출한다.
+        /// 전체 배치 스폰보다 먼저 Player만 확보하기 위한 경로이므로 _instances 소유로 넣지 않는다.
+        /// </summary>
+        public bool TrySpawnPlayerActor(string actorId, out PlayerActor player)
+        {
+            player = FindExistingPlayerActor(actorId);
+            if (player != null)
+                return true;
+
+            if (_placementData == null || string.IsNullOrWhiteSpace(actorId))
+                return false;
+
+            foreach (var record in _placementData.Records)
+            {
+                if (record == null || record.actorId != actorId)
+                    continue;
+
+                GameObject instance = SpawnViaActorManager(record);
+                if (instance == null)
+                    return false;
+
+                instance.transform.localScale = record.scale;
+
+                string guid = GetRecordGuid(record);
+                EnsureSceneEntityId(instance, guid);
+
+                player = instance.GetComponent<PlayerActor>();
+                if (player != null)
+                {
+                    // 플레이어는 파티 구성에 필수이므로 배치의 initiallyActive와 무관하게 활성 상태로 확보한다.
+                    instance.SetActive(true);
+                    return true;
+                }
+
+                instance.SetActive(record.initiallyActive);
+                Debug.LogWarning($"[RuntimePlacementLoader] '{actorId}' 레코드가 PlayerActor를 생성하지 않았습니다.", this);
+                return false;
+            }
+
+            return false;
         }
 
         private GameObject SpawnViaActorManager(WorldPlacementRecord record)
@@ -253,6 +304,23 @@ namespace UPlayGround.Manager.World
             }
 
             return false;
+        }
+
+        private static PlayerActor FindExistingPlayerActor(string actorId)
+        {
+            var player = FindFirstObjectByType<PlayerActor>();
+            return PlayerMatchesActorId(player, actorId) ? player : null;
+        }
+
+        private static bool PlayerMatchesActorId(PlayerActor player, string actorId)
+        {
+            if (player == null)
+                return false;
+
+            if (string.IsNullOrEmpty(actorId))
+                return true;
+
+            return player.ActorId == actorId || (player.Definition != null && player.Definition.actorId == actorId);
         }
 
         private static bool IsSpawnManagerReady()

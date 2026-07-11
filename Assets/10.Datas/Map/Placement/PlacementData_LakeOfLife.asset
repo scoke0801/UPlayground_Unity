@@ -15,28 +15,65 @@ MonoBehaviour:
   _records:
   - placementGuid: 69607391829544d2afa167d316c00afd
     prefabId: ChildPlant_1
+    sceneEntityGuid: 
+    sourceKind: 0
+    actorId: 
     prefab: {fileID: 7329998113064271559, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
     position: {x: 1105.5485, y: 53.359406, z: 401.86594}
     rotation: {x: -0, y: -0, z: -0, w: 1}
     scale: {x: 1, y: 1, z: 1}
+    groupName: 
     cellId: 
     randomSeed: -350591372
     initiallyActive: 1
   - placementGuid: c3888d35007e4265bc808aa710e07b8b
     prefabId: ChildPlant_1
+    sceneEntityGuid: 
+    sourceKind: 0
+    actorId: 
     prefab: {fileID: 7329998113064271559, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
     position: {x: 1107.706, y: 53.201077, z: 402.97113}
     rotation: {x: -0, y: -0, z: -0, w: 1}
     scale: {x: 1, y: 1, z: 1}
+    groupName: 
     cellId: 
     randomSeed: -1084310464
     initiallyActive: 1
   - placementGuid: cdd88d51b5264226bbe37d0df4cfe12f
     prefabId: ChildPlant_1
+    sceneEntityGuid: 
+    sourceKind: 0
+    actorId: 
     prefab: {fileID: 7329998113064271559, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
     position: {x: 1109.5958, y: 53.094532, z: 403.87964}
     rotation: {x: -0, y: -0, z: -0, w: 1}
     scale: {x: 1, y: 1, z: 1}
+    groupName: 
     cellId: 
     randomSeed: 1153369414
+    initiallyActive: 1
+  - placementGuid: a83c82f1285b42df8b9cd4328c82071e
+    prefabId: 
+    sceneEntityGuid: a83c82f1285b42df8b9cd4328c82071e
+    sourceKind: 0
+    actorId: Player_Main
+    prefab: {fileID: 0}
+    interactableData: {fileID: 0}
+    itemData: {fileID: 0}
+    itemCount: 1
+    position: {x: 1118.3672, y: 51.818047, z: 391.17047}
+    rotation: {x: -0, y: -0, z: -0, w: 1}
+    scale: {x: 1, y: 1, z: 1}
+    groupName: 
+    cellId: 
+    randomSeed: -1440607628
     initiallyActive: 1

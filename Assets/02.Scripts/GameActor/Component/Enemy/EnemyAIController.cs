@@ -93,8 +93,8 @@ namespace UPlayGround.Component
 
         public void Init(ActorDefinitionSO definition)
         {
-            if (definition?.behaviorData == null) return;
-            Init(definition.behaviorData);
+            if (definition?.EffectiveBehaviorData == null) return;
+            Init(definition.EffectiveBehaviorData);
         }
 
         protected virtual void Awake()

@@ -103,8 +103,8 @@ namespace UPlayGround.Component
 
         public void Init(ActorDefinitionSO definition)
         {
-            if (definition?.breakGaugeData == null) return;
-            Init(definition.breakGaugeData);
+            if (definition?.EffectiveBreakGaugeData == null) return;
+            Init(definition.EffectiveBreakGaugeData);
         }
 
         public void ConnectUiBar(UI_ActorHpBar actorUIBar)

@@ -376,7 +376,7 @@ namespace UPlayGround
                     ShouldEnterAirborneState(hit),
                     CanEnterKnockdownState(hit),
                     Grade,
-                    Definition != null ? Definition.combatReactionPolicy : null),
+                    Definition != null ? Definition.EffectiveCombatReactionPolicy : null),
                 hit);
 
             bool appliedReactionForce = false;
@@ -641,7 +641,7 @@ namespace UPlayGround
         {
             runtimeLevel = Mathf.Max(1, runtimeLevel);
 
-            MonsterScalingSO scaling = Definition != null ? Definition.monsterScaling : null;
+            MonsterScalingSO scaling = Definition != null ? Definition.EffectiveMonsterScaling : null;
             if (scaling == null)
             {
                 _level = runtimeLevel;
@@ -678,11 +678,11 @@ namespace UPlayGround
             if (definition == null) return;
 
             // 메타(등급/레벨)는 정의가 권위 소스. 정의 값으로 덮어쓴다.
-            _grade = definition.grade;
-            _level = Mathf.Max(1, definition.level);
-            _recruitableAs = definition.recruitableAs;
-            _expReward = System.Math.Max(0, definition.expReward);
-            _goldReward = Mathf.Max(0, definition.goldReward);
+            _grade = definition.EffectiveGrade;
+            _level = definition.EffectiveLevel;
+            _recruitableAs = definition.EffectiveRecruitableAs;
+            _expReward = definition.EffectiveExpReward;
+            _goldReward = definition.EffectiveGoldReward;
 
             // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
             if (definition.statData != null)
@@ -698,7 +698,7 @@ namespace UPlayGround
 
             _poiseStat?.Init(definition);
 
-            if (definition.breakGaugeData != null && _breakGauge == null)
+            if (definition.EffectiveBreakGaugeData != null && _breakGauge == null)
             {
                 _breakGauge = gameObject.AddComponent<MonsterBreakGauge>();
                 BindBreakGauge();
@@ -706,7 +706,7 @@ namespace UPlayGround
 
             _breakGauge?.Init(definition);
 
-            _dropTable = definition.dropTable;
+            _dropTable = definition.EffectiveDropTable;
 
             _combat?.Init(definition);
 

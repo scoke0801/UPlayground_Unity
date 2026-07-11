@@ -13,6 +13,7 @@ using UPlayGround.Data.Save;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
 using UPlayGround.Core.Party;
+using UPlayGround.Manager.World;
 
 namespace UPlayGround.Manager
 {
@@ -1096,7 +1097,7 @@ namespace UPlayGround.Manager
 
         private void BuildPartyFromScene()
         {
-            _player = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
+            _player = ResolvePlayerActor();
             _roster.Clear();
             _battleOrder.Clear();
             _swapCooldownEndTimes.Clear();
@@ -1145,6 +1146,31 @@ namespace UPlayGround.Manager
             InitializeRosterLevels();
             OnRosterChanged?.Invoke();
             OnBattleOrderChanged?.Invoke();
+        }
+
+        private PlayerActor ResolvePlayerActor()
+        {
+            var scenePlayer = UnityEngine.Object.FindFirstObjectByType<PlayerActor>();
+            if (scenePlayer != null)
+                return scenePlayer;
+
+            if (_config == null || string.IsNullOrWhiteSpace(_config.playerActorId))
+                return null;
+
+            var loaders = UnityEngine.Object.FindObjectsByType<RuntimePlacementLoader>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            foreach (var loader in loaders)
+            {
+                if (loader != null && loader.TrySpawnPlayerActor(_config.playerActorId, out var spawned))
+                {
+                    Debug.Log($"[PartyManager] Bake 배치에서 PlayerActor 스폰: {_config.playerActorId}");
+                    return spawned;
+                }
+            }
+
+            return null;
         }
 
         private void BuildGrowthLookup()

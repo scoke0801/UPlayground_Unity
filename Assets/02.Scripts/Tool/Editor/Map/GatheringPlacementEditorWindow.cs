@@ -50,7 +50,7 @@ namespace UPlayGround.Tool.Editor.Map
         private ActorDatabase _actorDatabase;
         private ActorDefinitionSO _selectedActorDefinition;
         private GameObject _directActorPrefab;
-        private ActorType _actorFilter = ActorType.Monster | ActorType.NPC;
+        private ActorType _actorFilter = ActorType.Player | ActorType.Monster | ActorType.NPC;
         private string _actorSearchFilter = "";
         private Vector2 _actorListScroll;
         private PlacementKind _placementKind = PlacementKind.Gathering;
@@ -339,7 +339,8 @@ namespace UPlayGround.Tool.Editor.Map
             if (_worldPlacementMode == WorldPlacementMode.Actor)
             {
                 DrawActorCommonOptions();
-                DrawMonsterGroupSection();
+                if (IsMonsterActorPrefab(GetActorPrefab()))
+                    DrawMonsterGroupSection();
                 DrawActorPlacementRules();
                 DrawActorSourceSettings();
             }
@@ -391,7 +392,7 @@ namespace UPlayGround.Tool.Editor.Map
             if (_actorDatabase == null)
             {
                 EditorGUILayout.HelpBox(
-                    "ActorDatabase를 연결해야 몬스터/NPC 목록을 사용할 수 있습니다.\n우측 '액터 배치 소스 설정'에서 연결하세요.",
+                    "ActorDatabase를 연결해야 액터 목록을 사용할 수 있습니다.\n우측 '액터 배치 소스 설정'에서 연결하세요.",
                     MessageType.Warning);
                 GUILayout.FlexibleSpace();
                 return;
@@ -403,6 +404,7 @@ namespace UPlayGround.Tool.Editor.Map
         private void DrawActorFilterChips()
         {
             EditorGUILayout.BeginHorizontal();
+            DrawActorFilterChip(ActorType.Player, "Player");
             DrawActorFilterChip(ActorType.Monster, "Monster");
             DrawActorFilterChip(ActorType.NPC, "NPC");
             GUILayout.FlexibleSpace();
@@ -622,7 +624,7 @@ namespace UPlayGround.Tool.Editor.Map
                 return false;
 
             var prefab = GetActorPrefab();
-            return prefab != null && prefab.GetComponent<MonsterActor>() != null;
+            return IsMonsterActorPrefab(prefab);
         }
 
         private void DrawActorPlacementRules()
@@ -2447,6 +2449,11 @@ namespace UPlayGround.Tool.Editor.Map
             return _actorSource == ActorPlacementSource.ActorDatabase
                 ? _selectedActorDefinition != null ? _selectedActorDefinition.prefab : null
                 : _directActorPrefab;
+        }
+
+        private static bool IsMonsterActorPrefab(GameObject prefab)
+        {
+            return prefab != null && prefab.GetComponent<MonsterActor>() != null;
         }
 
         private void TryAutoLoadActorDatabase()

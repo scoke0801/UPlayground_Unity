@@ -1210,7 +1210,7 @@ namespace UPlayGround
                 CanTakeDamage(),
                 alwaysParry,
                 _combat.IsAssistParryWindow,
-                Definition != null ? Definition.combatDefensePolicy : null);
+                Definition != null ? Definition.EffectiveCombatDefensePolicy : null);
         }
 
         private void OnParrySuccess(AttackData attackData)

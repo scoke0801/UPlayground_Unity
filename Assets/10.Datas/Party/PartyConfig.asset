@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddaed2788113ac845b3df18c68f6854a, type: 3}
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
+  playerActorId: Player_Main
   partyOrder: 0100000008000000020000000b000000
   maxBattleSize: 4
   defaultBattleOrder: 010000000b0000000200000008000000

@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -23,6 +23,7 @@ MonoBehaviour:
   prefab: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
   statData: {fileID: 11400000, guid: 98298b5ec8db14c42b5cd2671aab0591, type: 2}
   poiseData: {fileID: 11400000, guid: 25d7c32e3639c1d4bb0a2ec5dda453d8, type: 2}
+  monsterProfile: {fileID: 11400000, guid: a8fb25451202812458369a82dc9805ec, type: 2}
   breakGaugeData: {fileID: 11400000, guid: 2197995f0b1e66a49b146fad418e366e, type: 2}
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   grade: 2
@@ -35,3 +36,4 @@ MonoBehaviour:
   dropTable: {fileID: 11400000, guid: c5c7f23648d4b1b4d9a03f2e065a070f, type: 2}
   recruitableAs: 0
   expReward: 180
+  goldReward: 0

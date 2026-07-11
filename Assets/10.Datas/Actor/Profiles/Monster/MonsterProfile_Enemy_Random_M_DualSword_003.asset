@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48c829f4b3864e97a9c25bf96c3a1a3c, type: 3}
+  m_Name: MonsterProfile_Enemy_Random_M_DualSword_003
+  m_EditorClassIdentifier: 
+  grade: 0
+  level: 5
+  monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
+  breakGaugeData: {fileID: 11400000, guid: c3e3f68f28de26e4298e681fa110557e, type: 2}
+  attackData: {fileID: 11400000, guid: 8e4fa9a7599332044b0381cf2f90a75d, type: 2}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 11400000, guid: 53ac5600dbe72c344ababe27c7e146fd, type: 2}
+  dropTable: {fileID: 11400000, guid: c4005e691fe26674a984b1c02fcd6797, type: 2}
+  recruitableAs: 0
+  expReward: 27
+  goldReward: 0

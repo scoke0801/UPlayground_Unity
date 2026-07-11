@@ -28,31 +28,32 @@ namespace UPlayGround.Tool.Editor.Balance
             if (actor.prefab == null)
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "prefab이 비어 있습니다. Play Mode 검증과 BT Runner 탐색이 제한됩니다."));
 
-            if (actor.statData == null)
-                messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "statData가 비어 있습니다."));
-
             bool isMonster = (actor.actorType & ActorType.Monster) != 0;
             if (isMonster)
             {
-                if (actor.monsterScaling == null)
+                if (actor.statData == null)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 statData가 비어 있습니다."));
+
+                if (actor.EffectiveMonsterScaling == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "monsterScaling이 비어 있어 몬스터 Growth 기준을 명시적으로 추적할 수 없습니다."));
 
-                if (actor.attackData == null)
+                if (actor.EffectiveAttackData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 attackData가 비어 있습니다."));
 
-                if (actor.breakGaugeData == null)
+                if (actor.EffectiveBreakGaugeData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "breakGaugeData가 비어 있어 브레이크 시간/노출 보너스 분석을 할 수 없습니다."));
 
-                if (actor.behaviorData == null)
+                var behaviorData = actor.EffectiveBehaviorData;
+                if (behaviorData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "behaviorData가 비어 있어 BT/Intent 분석을 할 수 없습니다."));
-                else if (actor.behaviorData.behaviorTree == null)
+                else if (behaviorData.behaviorTree == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "behaviorData.behaviorTree가 비어 있습니다."));
             }
 
             if (actor.level < 1)
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "level이 1보다 작습니다."));
 
-            ValidateAttackData(actor.attackData, assumedDistance, monsterLevel, messages);
+            ValidateAttackData(actor.EffectiveAttackData, assumedDistance, monsterLevel, messages);
 
             if (scenario == null)
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "BalanceScenarioAsset이 없어 창의 임시 입력값으로 분석합니다."));
@@ -163,20 +164,21 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (result.SkillBreakdowns.Count > 0)
             {
-                (float low, float high) = GetStrongChanceBand(result.Actor.grade);
+                MonsterActorGrade grade = result.Actor.EffectiveGrade;
+                (float low, float high) = GetStrongChanceBand(grade);
                 float strong = result.StrongAttackChance;
                 if (strong > high)
                 {
                     // 상한 초과: 강한 공격을 너무 자주 던져 과하게 치명적일 수 있음 → 경고
                     result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning,
-                        $"강한 공격 합산 확률 {strong * 100f:F0}%가 {result.Actor.grade} 권장 상한 {high * 100f:F0}%를 초과합니다."));
+                        $"강한 공격 합산 확률 {strong * 100f:F0}%가 {grade} 권장 상한 {high * 100f:F0}%를 초과합니다."));
                 }
                 else if (strong > 0f && strong < low)
                 {
                     // 강한 공격이 있긴 하나 하한 미만: 의도일 수 있어 정보 수준으로만 안내.
                     // (강한 공격이 전혀 없는 순수 기본 공격 몬스터는 정상 설계이므로 경고하지 않는다.)
                     result.Messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Info,
-                        $"강한 공격 합산 확률 {strong * 100f:F0}%가 {result.Actor.grade} 권장 하한 {low * 100f:F0}% 미만입니다."));
+                        $"강한 공격 합산 확률 {strong * 100f:F0}%가 {grade} 권장 하한 {low * 100f:F0}% 미만입니다."));
                 }
             }
 

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 938c75d2325d197469d3e708cad85fec, type: 3}
+  m_Name: ActorDef_Player
+  m_EditorClassIdentifier: 
+  actorId: Player_Main
+  displayName: "\uD50C\uB808\uC774\uC5B4"
+  description: 
+  actorType: 17
+  characterType: 0
+  targetLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  prefab: {fileID: 7225480054528834325, guid: 69a31ad8e6117734ba10ff9e6215c248, type: 3}
+  statData: {fileID: 11400000, guid: 4b9b7ee8642c9114282b8ec2757cb1b9, type: 2}
+  poiseData: {fileID: 0}
+  monsterProfile: {fileID: 0}
+  breakGaugeData: {fileID: 0}
+  monsterScaling: {fileID: 0}
+  grade: 0
+  level: 1
+  attackData: {fileID: 0}
+  combatDefensePolicy: {fileID: 0}
+  combatReactionPolicy: {fileID: 0}
+  behaviorData: {fileID: 0}
+  npcData: {fileID: 0}
+  dropTable: {fileID: 0}
+  recruitableAs: 0
+  expReward: 0
+  goldReward: 0

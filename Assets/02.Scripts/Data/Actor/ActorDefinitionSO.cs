@@ -40,6 +40,11 @@ namespace UPlayGround.Data.Actor
         [Tooltip("Poise 데이터. null이면 프리팹에 설정된 값 사용.")]
         public PoiseSO poiseData;
 
+        [Header("몬스터 프로필")]
+        [Tooltip("몬스터 전용 정적 프로필. Monster 타입이 아니면 비워둔다.")]
+        public MonsterActorProfileSO monsterProfile;
+
+        [Header("몬스터 데이터 (레거시 호환)")]
         [Tooltip("몬스터 브레이크 게이지 데이터. null이면 프리팹에 설정된 값 사용.")]
         public MonsterBreakGaugeSO breakGaugeData;
 
@@ -87,6 +92,19 @@ namespace UPlayGround.Data.Actor
         [Min(0)]
         [Tooltip("처치 시 지급할 골드. 0이면 지급 없음. 재스폰 레벨 스케일링 시 경험치와 같은 공식으로 증가한다.")]
         public int goldReward = 0;
+
+        public MonsterBreakGaugeSO EffectiveBreakGaugeData => monsterProfile != null ? monsterProfile.breakGaugeData : breakGaugeData;
+        public MonsterScalingSO EffectiveMonsterScaling => monsterProfile != null ? monsterProfile.monsterScaling : monsterScaling;
+        public MonsterActorGrade EffectiveGrade => monsterProfile != null ? monsterProfile.grade : grade;
+        public int EffectiveLevel => monsterProfile != null ? Mathf.Max(1, monsterProfile.level) : Mathf.Max(1, level);
+        public EnemyAttackDataSO EffectiveAttackData => monsterProfile != null ? monsterProfile.attackData : attackData;
+        public CombatDefensePolicySO EffectiveCombatDefensePolicy => monsterProfile != null ? monsterProfile.combatDefensePolicy : combatDefensePolicy;
+        public CombatReactionPolicySO EffectiveCombatReactionPolicy => monsterProfile != null ? monsterProfile.combatReactionPolicy : combatReactionPolicy;
+        public EnemyBehaviorSO EffectiveBehaviorData => monsterProfile != null ? monsterProfile.behaviorData : behaviorData;
+        public EnemyDropTableSO EffectiveDropTable => monsterProfile != null ? monsterProfile.dropTable : dropTable;
+        public CharacterActorType EffectiveRecruitableAs => monsterProfile != null ? monsterProfile.recruitableAs : recruitableAs;
+        public long EffectiveExpReward => monsterProfile != null ? System.Math.Max(0, monsterProfile.expReward) : System.Math.Max(0, expReward);
+        public int EffectiveGoldReward => monsterProfile != null ? Mathf.Max(0, monsterProfile.goldReward) : goldReward;
 
 #if UNITY_EDITOR
         private void OnValidate()

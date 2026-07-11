@@ -12,6 +12,10 @@ namespace UPlayGround.Data.Party
     [CreateAssetMenu(fileName = "PartyConfig", menuName = "UPlayGround/파티/Config")]
     public class PartyConfigSO : ScriptableObject
     {
+        [Header("Player Actor")]
+        [Tooltip("씬에 PlayerActor가 없을 때 월드 배치 Bake 데이터에서 찾아 스폰할 ActorDatabase actorId.")]
+        public string playerActorId = "Player";
+
         [Header("Roster")]
         [Tooltip("게임 시작 시 보유한 캐릭터 전체 목록(=초기 Roster). 처치 보상으로 추가될 캐릭터는 런타임에 합류한다.")]
         public List<CharacterActorType> partyOrder = new();

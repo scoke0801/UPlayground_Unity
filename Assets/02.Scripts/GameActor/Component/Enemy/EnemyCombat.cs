@@ -167,7 +167,7 @@ namespace UPlayGround.Component
         {
             if (definition == null) return;
 
-            Init(definition.attackData);
+            Init(definition.EffectiveAttackData);
             if (_ownerActor != null)
                 SetTargetLayer(_ownerActor.GetAttackTargetLayerMask());
             else if (definition.targetLayerMask.value != 0)

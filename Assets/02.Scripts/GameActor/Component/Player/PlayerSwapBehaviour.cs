@@ -60,6 +60,7 @@ namespace UPlayGround.Components
 
             _activeModel = target;
             _activeModel.gameObject.SetActive(true);
+            ResetModelInteractionEquipment(_activeModel);
             _playerActor.RefreshForCharacter(_activeModel);
         }
 
@@ -99,9 +100,11 @@ namespace UPlayGround.Components
             }
 
             StopOutgoingModelPlayback(_activeModel);
+            ResetModelInteractionEquipment(_activeModel);
             _activeModel?.gameObject.SetActive(false);
             _activeModel = target;
             _activeModel.gameObject.SetActive(true);
+            ResetModelInteractionEquipment(_activeModel);
             _playerActor.RefreshForCharacter(_activeModel, animationSnapshot);
             CameraManager.Instance?.RefreshTargetCollisionReference();
             PlaySwapFx();
@@ -130,6 +133,14 @@ namespace UPlayGround.Components
 
             var animator = sourceModel.GetComponentInChildren<ActorAnimator>(includeInactive: true);
             animator?.StopMotionSet();
+        }
+
+        private static void ResetModelInteractionEquipment(CharacterModelData model)
+        {
+            if (model == null) return;
+
+            var equipment = model.GetComponentInChildren<PlayerEquipment>(includeInactive: true);
+            equipment?.ResetInteractionEquipmentImmediate();
         }
 
         private void TrySpawnResidualAttack(CharacterModelData sourceModel)

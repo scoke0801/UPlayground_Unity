@@ -35,6 +35,14 @@ namespace UPlayGround.Components
 
         [Header("Weapon Definition")]
         [SerializeField] private List<WeaponDefinitionSO> _weaponDefinitions = new List<WeaponDefinitionSO>();
+
+        [Header("Interaction Equipment")]
+        [SerializeField] private GameObject _pickaxeObject;
+        [SerializeField] private GameObject _fishingRodObject;
+        [SerializeField] private GameObject _axeObject;
+        [SerializeField, Min(0f)] private float _interactionEquipmentRevealDuration = 0.35f;
+        [SerializeField, Min(0f)] private float _interactionEquipmentHideDelay = 1.5f;
+        [SerializeField, Min(0f)] private float _interactionEquipmentDissolveDuration = 0.6f;
         
         private WeaponType _subWeaponType = WeaponType.NoWeapon;
         private WeaponType _mainWeaponType = WeaponType.NoWeapon;
@@ -49,6 +57,10 @@ namespace UPlayGround.Components
         private readonly List<ParentConstraint> _weaponConstraints = new List<ParentConstraint>();
         private readonly List<WeaponSocketBinding> _weaponSocketBindings = new List<WeaponSocketBinding>();
         private Transform _weaponRoot;
+        private bool _interactionEquipmentActive;
+        private bool _mainWeaponDrawnBeforeInteraction;
+        private Coroutine _interactionEquipmentHideCo;
+        private GameObject _currentInteractionEquipmentObj;
 
         // 가지고 있는 무기
         private GameObject _currentMainWeaponObj = null;
@@ -111,6 +123,8 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            ResetInteractionEquipmentImmediate();
+
             if (EventManager.Instance == null) return;
             EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
             EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
@@ -127,6 +141,8 @@ namespace UPlayGround.Components
                 SetRightWeaponType(_mainWeaponType);
             if (_subWeaponType != WeaponType.NoWeapon)
                 SetLeftWeaponType(_subWeaponType);
+
+            HideAllInteractionEquipmentImmediate();
 
             // 시작 장비는 InventoryManager의 보유/장착 데이터로만 시딩한다.
             // 외형은 캐릭터 모델 기본 무기 타입을 유지하므로 여기서 아이템 장착을 실행하지 않는다.
@@ -528,6 +544,182 @@ namespace UPlayGround.Components
                 CompleteHideDrawnWeapons();
                 ActorWeaponTrailController.SuppressAttackTrails(this);
             }
+        }
+
+        /// <summary>
+        /// 인터렉션 모션 중 생활 도구 외형을 표시한다.
+        /// 채광=곡괭이, 낚시=낚싯대, 벌목=도끼이며 채집/기타는 맨손 처리한다.
+        /// </summary>
+        public void BeginInteractionEquipment(InteractionObjectType interactionObjectType)
+        {
+            // 비활성 모델(벤치 캐릭터)의 장비에 호출되면 리빌/숨김 코루틴이 모두 실패한다.
+            // 호출측이 stale 참조를 쓴 설정 오류이므로 조용히 무시하지 않고 보고 후 중단한다.
+            if (!isActiveAndEnabled)
+            {
+                Debug.LogWarning($"[PlayerEquipment] 비활성 상태({name})에서 BeginInteractionEquipment 호출이 무시됩니다.");
+                return;
+            }
+
+            CancelInteractionEquipmentHide();
+
+            if (!_interactionEquipmentActive)
+            {
+                _mainWeaponDrawnBeforeInteraction = IsMainWeaponEquipped;
+                ForceSyncMainWeaponState(false);
+                _interactionEquipmentActive = true;
+            }
+
+            GameObject target = GetInteractionEquipmentObject(interactionObjectType);
+            HideInteractionEquipmentExcept(target);
+            _currentInteractionEquipmentObj = target;
+
+            if (target != null)
+                ShowInteractionEquipment(target);
+        }
+
+        public void EndInteractionEquipment()
+        {
+            if (!_interactionEquipmentActive)
+                return;
+
+            _interactionEquipmentActive = false;
+
+            if (_currentInteractionEquipmentObj != null)
+            {
+                _interactionEquipmentHideCo = StartCoroutine(
+                    CoHideInteractionEquipmentAfterDelay(_currentInteractionEquipmentObj));
+                return;
+            }
+
+            RestoreMainWeaponAfterInteraction();
+        }
+
+        /// <summary>
+        /// 캐릭터 교체/모델 비활성화 시 인터렉션 장비 상태를 즉시 버린다.
+        /// 대기 디졸브나 무기 복원 예약을 이어가지 않는다.
+        /// </summary>
+        public void ResetInteractionEquipmentImmediate()
+        {
+            CancelInteractionEquipmentHide();
+            HideAllInteractionEquipmentImmediate();
+            _interactionEquipmentActive = false;
+            _mainWeaponDrawnBeforeInteraction = false;
+        }
+
+        private GameObject GetInteractionEquipmentObject(InteractionObjectType interactionObjectType)
+        {
+            return interactionObjectType switch
+            {
+                InteractionObjectType.STONE => _pickaxeObject,
+                InteractionObjectType.FISHING_ZONE => _fishingRodObject,
+                InteractionObjectType.TREE => _axeObject,
+                _ => null,
+            };
+        }
+
+        private void HideAllInteractionEquipmentImmediate()
+        {
+            HideInteractionEquipmentImmediate(_pickaxeObject);
+            HideInteractionEquipmentImmediate(_fishingRodObject);
+            HideInteractionEquipmentImmediate(_axeObject);
+            _currentInteractionEquipmentObj = null;
+        }
+
+        private void HideInteractionEquipmentExcept(GameObject visibleTarget)
+        {
+            if (_pickaxeObject != visibleTarget)
+                HideInteractionEquipmentImmediate(_pickaxeObject);
+            if (_fishingRodObject != visibleTarget)
+                HideInteractionEquipmentImmediate(_fishingRodObject);
+            if (_axeObject != visibleTarget)
+                HideInteractionEquipmentImmediate(_axeObject);
+        }
+
+        private void ShowInteractionEquipment(GameObject equipmentObj)
+        {
+            if (equipmentObj == null)
+                return;
+
+            bool wasHidden = !equipmentObj.activeSelf || !HasVisibleRenderer(equipmentObj.transform);
+            equipmentObj.SetActive(true);
+
+            var dissolve = equipmentObj.GetComponent<DissolveController>();
+            if (dissolve == null)
+                dissolve = equipmentObj.AddComponent<DissolveController>();
+
+            dissolve.RefreshRenderers();
+
+            if (wasHidden)
+                dissolve.StartReveal(_interactionEquipmentRevealDuration);
+            else
+                dissolve.ResetDissolve();
+        }
+
+        private void HideInteractionEquipmentImmediate(GameObject equipmentObj)
+        {
+            if (equipmentObj == null)
+                return;
+
+            var dissolve = equipmentObj.GetComponent<DissolveController>();
+            if (dissolve != null)
+                dissolve.ResetDissolve();
+
+            equipmentObj.SetActive(false);
+        }
+
+        private IEnumerator CoHideInteractionEquipmentAfterDelay(GameObject equipmentObj)
+        {
+            if (_interactionEquipmentHideDelay > 0f)
+                yield return new WaitForSeconds(_interactionEquipmentHideDelay);
+
+            if (_interactionEquipmentActive || equipmentObj == null || equipmentObj != _currentInteractionEquipmentObj)
+            {
+                _interactionEquipmentHideCo = null;
+                yield break;
+            }
+
+            DissolveInteractionEquipment(equipmentObj);
+            _currentInteractionEquipmentObj = null;
+            _interactionEquipmentHideCo = null;
+        }
+
+        private void DissolveInteractionEquipment(GameObject equipmentObj)
+        {
+            if (equipmentObj == null)
+            {
+                RestoreMainWeaponAfterInteraction();
+                return;
+            }
+
+            equipmentObj.SetActive(true);
+
+            var dissolve = equipmentObj.GetComponent<DissolveController>();
+            if (dissolve == null)
+                dissolve = equipmentObj.AddComponent<DissolveController>();
+
+            dissolve.RefreshRenderers();
+            dissolve.StartDissolve(_interactionEquipmentDissolveDuration, destroyOnComplete: false, onComplete: () =>
+            {
+                equipmentObj.SetActive(false);
+                RestoreMainWeaponAfterInteraction();
+            });
+        }
+
+        private void CancelInteractionEquipmentHide()
+        {
+            if (_interactionEquipmentHideCo == null)
+                return;
+
+            StopCoroutine(_interactionEquipmentHideCo);
+            _interactionEquipmentHideCo = null;
+        }
+
+        private void RestoreMainWeaponAfterInteraction()
+        {
+            if (_mainWeaponDrawnBeforeInteraction)
+                ForceSyncMainWeaponState(true);
+
+            _mainWeaponDrawnBeforeInteraction = false;
         }
 
         private void ForceSyncWeaponState(EquipPosition equipPosition, bool drawn)

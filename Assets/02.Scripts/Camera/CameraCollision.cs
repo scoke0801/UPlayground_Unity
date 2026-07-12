@@ -168,7 +168,7 @@ namespace UPlayGround.CameraSystem
             {
                 Vector3 pivotRayOrigin = pivot + Vector3.up * 0.25f;
                 float rayDistance = pivotDrop + clearance + 0.5f;
-                if (Physics.Raycast(pivotRayOrigin, Vector3.down, out RaycastHit pivotGroundHit, rayDistance, layers))
+                if (Physics.Raycast(pivotRayOrigin, Vector3.down, out RaycastHit pivotGroundHit, rayDistance, layers, QueryTriggerInteraction.Ignore))
                 {
                     float minY = pivotGroundHit.point.y + clearance;
                     requiredMinY = Mathf.Max(requiredMinY, minY);
@@ -177,7 +177,7 @@ namespace UPlayGround.CameraSystem
 
             Vector3 cameraRayOrigin = cameraPosition + Vector3.up * (clearance + 0.25f);
             float cameraRayDistance = clearance + 0.5f;
-            if (Physics.Raycast(cameraRayOrigin, Vector3.down, out RaycastHit cameraGroundHit, cameraRayDistance, layers))
+            if (Physics.Raycast(cameraRayOrigin, Vector3.down, out RaycastHit cameraGroundHit, cameraRayDistance, layers, QueryTriggerInteraction.Ignore))
             {
                 float groundClearanceY = cameraGroundHit.point.y + clearance;
                 requiredMinY = Mathf.Max(requiredMinY, groundClearanceY);
@@ -216,7 +216,7 @@ namespace UPlayGround.CameraSystem
 
             float r = _settings.cameraRadius;
 
-            if (Physics.SphereCast(pivot, r, camDir, out RaycastHit hit, desiredDistance, _collisionLayers))
+            if (Physics.SphereCast(pivot, r, camDir, out RaycastHit hit, desiredDistance, _collisionLayers, QueryTriggerInteraction.Ignore))
             {
                 if (hit.transform == _target || hit.transform.IsChildOf(_target))
                     return desiredDistance;
@@ -263,7 +263,7 @@ namespace UPlayGround.CameraSystem
             float desiredDistance,
             ref float minReach)
         {
-            if (!Physics.Linecast(probeStart, probeEnd, out RaycastHit hit, _collisionLayers))
+            if (!Physics.Linecast(probeStart, probeEnd, out RaycastHit hit, _collisionLayers, QueryTriggerInteraction.Ignore))
                 return;
 
             if (hit.transform == _target || hit.transform.IsChildOf(_target))

@@ -392,9 +392,9 @@ namespace UPlayGround.Manager
             if (_target == null || settings.slopePitchCorrectionStrength <= 0f)
                 return 0f;
 
-            // 발밑 레이캐스트 (캐릭터 콜라이더를 제외하려면 Player 레이어는 _collisionLayers에서 이미 제외돼 있음)
+            // 발밑 레이캐스트 (캐릭터 콜라이더를 제외하려면 Player 레이어는 _collisionLayers에 포함되지 않아야 함)
             var ray = new Ray(_target.position + Vector3.up * 0.1f, Vector3.down);
-            if (!Physics.Raycast(ray, out RaycastHit hit, settings.slopeCheckDistance, _collisionLayers))
+            if (!Physics.Raycast(ray, out RaycastHit hit, settings.slopeCheckDistance, _collisionLayers, QueryTriggerInteraction.Ignore))
                 return 0f;
 
             // 법선과 Up 벡터의 각도 = 경사각

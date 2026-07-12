@@ -359,6 +359,7 @@ Assets/
 | [STORY_SYSTEM_GUIDE.md](Complete/STORY_SYSTEM_GUIDE.md) | Story 시스템 — 진행도 단조 증가, storyId 1회 트리거, StoryEntrySO Variants, StoryTriggerZone, Markdown 일괄 생성 |
 | [CAMERA_SYSTEM_GUIDE.md](Complete/CAMERA_SYSTEM_GUIDE.md) | Camera 시스템 — CameraManager 오케스트레이터, LockOn/Collision/Distance/Effect/Shaker/KillCam 서브시스템, ICameraEffect 블렌딩 |
 | [CAMERA_LOCK_ON_SYSTEM_GUIDE.md](CAMERA_LOCK_ON_SYSTEM_GUIDE.md) | Camera Lock-On 시스템 분석 — 현재 락온 처리 흐름, 명조식 전투 카메라와의 차이, 타겟 선정·유지·전환·프레이밍 개선 우선순위 |
+| [CAMERA_COLLISION_LAYER_GUIDE.md](CAMERA_COLLISION_LAYER_GUIDE.md) | 카메라 충돌 레이어 규약 — 충돌 화이트리스트(Default/Ground), 트리거 무조건 제외, 트리거 볼륨 Trigger 레이어 저작, 대형 인터랙션 오브젝트 물리차단/감지 콜라이더 분리 |
 | [CAMERA_MODE_ARCHITECTURE_DESIGN.md](Complete/CAMERA_MODE_ARCHITECTURE_DESIGN.md) | Camera Mode Architecture 설계 — InGame/Free/Dialogue 모드 분리, 스킬 카메라 시퀀스, Cinemachine 연동 검토 |
 | [CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md](Complete/CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md) | Camera Snapshot Sequence — 프로필 기반 다중 샷 카메라 연출, MotionEvent 연동, 에디터 캡처/미리보기, 맵 트리거 |
 | [COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md](TODO/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md) | 전투 카메라 시스템 구조 개선 계획 — 명조식 전투 카메라 레퍼런스 기반 CombatCameraIntent, Director, ProfileSO 도입안 |

@@ -8,14 +8,14 @@ namespace UPlayGround.Data.Config
         {
             "Enemy",
         };
-        public static readonly string[] CollisionExcludeLayer = new string[]
+        // 카메라 충돌은 정적 환경 지오메트리(벽·지형·대형 구조물)에만 반응한다.
+        // 제외 방식은 새 레이어가 추가될 때마다 자동으로 카메라 차단체가 되어
+        // 캐릭터·인터랙션 오브젝트가 카메라를 당기는 사고가 반복되므로 포함 방식으로 운용한다.
+        // 카메라에 막혀야 하는 오브젝트는 반드시 아래 레이어 중 하나에 배치할 것.
+        public static readonly string[] CollisionIncludeLayer = new string[]
         {
-            "Player",
-            "Enemy",
-//             "Default",
-            "Npc",
-            "Projectile",
-            "Trigger"
+            "Default",
+            "Ground",
         };
 
         public static readonly LayerMask LockOnOutlineLayerMask = LayerMask.NameToLayer("LockOnOutline");
@@ -38,17 +38,17 @@ namespace UPlayGround.Data.Config
 
         public static LayerMask GetCollisionLayerMask()
         {
-            LayerMask mask = ~0; // 모든 레이어를 포함 (비트 전체를 1로)
+            LayerMask mask = 0;
 
-            foreach (string layerName in CollisionExcludeLayer)
+            foreach (string layerName in CollisionIncludeLayer)
             {
                 int layer = LayerMask.NameToLayer(layerName);
                 if (layer != -1) // 유효한 레이어인 경우
                 {
-                    mask &= ~(1 << layer); // 해당 레이어 비트를 0으로 만들어 제외
+                    mask |= (1 << layer); // 해당 레이어 비트를 1로 만들어 포함
                 }
             }
-    
+
             return mask;
         }
     }

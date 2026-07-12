@@ -238,6 +238,20 @@ namespace UPlayGround.Components
             StartCoroutine(DissolveRoutine(destroyOnComplete, onComplete));
         }
 
+        public void StartReveal(float duration, System.Action onComplete = null)
+        {
+            if (_rendererInfos.Count == 0)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            _dissolveDuration = duration;
+
+            StopAllCoroutines();
+            StartCoroutine(RevealRoutine(onComplete));
+        }
+
         public void SetDissolveColor(Color color)
         {
             _lilToonDissolveColor = color;
@@ -335,6 +349,52 @@ namespace UPlayGround.Components
 
             onComplete?.Invoke();
             if (destroyOnComplete) Destroy(gameObject);
+        }
+
+        private IEnumerator RevealRoutine(System.Action onComplete)
+        {
+            EnsureDissolveMaterialLoading();
+
+            float waitTime = 0f;
+            while (HasFallbackDissolveSlots() && _dissolveSourceMaterial == null)
+            {
+                waitTime += Time.unscaledDeltaTime;
+                if (waitTime > 1.5f)
+                {
+                    if (!HasLilToonDissolveSlots())
+                    {
+                        Debug.LogWarning("[DissolveController] DissolveMaterial 로드 지연/실패 — 즉시 노출 처리.");
+                        ResetDissolve();
+                        onComplete?.Invoke();
+                        yield break;
+                    }
+
+                    Debug.LogWarning("[DissolveController] DissolveMaterial 로드 지연/실패 — lilToon 슬롯만 리빌 처리.");
+                    break;
+                }
+                yield return null;
+            }
+
+            if (!_isDissolvePrepared)
+                PrepareDissolveMaterials(assignToRenderers: true);
+            else
+                ApplyPreparedMaterials();
+
+            RestoreOriginalSharedMaterials(enableRenderers: true);
+            ApplyPreparedMaterials();
+            SetDissolveAmount(1f);
+
+            float elapsed = 0f;
+            while (elapsed < _dissolveDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                SetDissolveAmount(1f - Mathf.Clamp01(elapsed / _dissolveDuration));
+                yield return null;
+            }
+
+            SetDissolveAmount(0f);
+            RestoreOriginalMaterialsAndReleaseInstances();
+            onComplete?.Invoke();
         }
 
         private void PrepareDissolveMaterials(bool assignToRenderers)

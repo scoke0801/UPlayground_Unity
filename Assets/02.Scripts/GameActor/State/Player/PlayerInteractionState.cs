@@ -69,6 +69,7 @@ namespace UPlayGround.State
             // 플레이어에 대한 처리. 데이터가 없는 즉시 상호작용은 모션 없이 Interact만 실행한다.
             if (_cachedData != null)
             {
+                playerActor.GetPlayerEquipment()?.BeginInteractionEquipment(_cachedData.interactionObjectType);
                 PlayAnimation();
             }
 
@@ -90,6 +91,7 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted -= OnInteractionMotionCompleted;
 
             GameObjectManager.Instance?.InteractionHandler?.StopInteraction();
+            playerActor.GetPlayerEquipment()?.EndInteractionEquipment();
 
             if (EventManager.Instance != null)
             {

@@ -68,7 +68,7 @@ namespace UPlayGround.CameraSystem
 
             float targetDistance = toCamDist;
             if (Physics.SphereCast(pivotBase, settings.cameraRadius, toCamDir,
-                    out RaycastHit safeHit, toCamDist, context.CollisionLayers))
+                    out RaycastHit safeHit, toCamDist, context.CollisionLayers, QueryTriggerInteraction.Ignore))
             {
                 if (safeHit.transform != context.Target && !safeHit.transform.IsChildOf(context.Target))
                 {
@@ -117,7 +117,7 @@ namespace UPlayGround.CameraSystem
             const float CHECK_HEIGHT = 20f;
             const float CHECK_DIST = 40f;
             Vector3 checkOrigin = new Vector3(backPos.x, backPos.y + CHECK_HEIGHT, backPos.z);
-            if (!Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, context.CollisionLayers))
+            if (!Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, context.CollisionLayers, QueryTriggerInteraction.Ignore))
                 return backPos;
 
             float minY = groundHit.point.y + settings.collisionOffset;

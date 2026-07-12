@@ -58,6 +58,20 @@ namespace UPlayGround.Animation.Editor
         GameObject       _cachedActorKey;
         PlayerActor      _cachedPlayerActor;
         PlayerEquipment  _cachedPlayerEquipment;
+
+        // 프리뷰 무기/생활도구 표시 상태 (플레이모드 전용)
+        bool _previewWeaponDrawn = true;
+        InteractionObjectType _previewInteractionTool = InteractionObjectType.NONE;
+
+        static readonly string[] PreviewToolLabels =
+            { "도구 없음", "곡괭이", "도끼", "낚싯대" };
+        static readonly InteractionObjectType[] PreviewToolValues =
+        {
+            InteractionObjectType.NONE,
+            InteractionObjectType.STONE,
+            InteractionObjectType.TREE,
+            InteractionObjectType.FISHING_ZONE,
+        };
         
         // 이벤트 재생 관리
         System.Collections.Generic.HashSet<MotionEventBase> _executedEvents;   
@@ -281,6 +295,7 @@ namespace UPlayGround.Animation.Editor
                 _availableCharacterTypes = null;
                 _characterTypeNames = null;
                 _selectedCharacterType = CharacterActorType.None;
+                _previewInteractionTool = InteractionObjectType.NONE; // 런타임 전용 상태라 플레이 종료 시 리셋
                 RefreshRootMotionCache();
                 Repaint();
             }
@@ -331,9 +346,9 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || _idleAnimation == null) return;
 
-            ForceDrawPlayerWeapons();
+            ApplyPreviewWeaponState();
             _animancer.Play(_idleAnimation);
-            ForceDrawPlayerWeapons();
+            ApplyPreviewWeaponState();
             Debug.Log($"Idle 애니메이션 재생: {_idleAnimation.name}");
         }
 
@@ -368,38 +383,96 @@ namespace UPlayGround.Animation.Editor
             var modelData = _playerSwapBehaviour.GetModelData(_selectedCharacterType);
             if (modelData?.AnimancerComponent != null)
                 _animancer = modelData.AnimancerComponent;
-            ForceDrawPlayerWeapons();
+            ApplyPreviewWeaponState();
             RefreshRootMotionCache();
         }
 
         void RefreshTargetActorCache()
         {
-            if (_cachedActorKey == _targetActor) return;
-
-            _cachedActorKey = _targetActor;
-            if (_targetActor == null)
+            if (_cachedActorKey != _targetActor)
             {
-                _cachedPlayerActor = null;
-                _cachedPlayerEquipment = null;
-                return;
+                _cachedActorKey = _targetActor;
+                if (_targetActor == null)
+                {
+                    _cachedPlayerActor = null;
+                    _cachedPlayerEquipment = null;
+                }
+                else
+                {
+                    _cachedPlayerActor = _targetActor.GetComponent<PlayerActor>()
+                                      ?? _targetActor.GetComponentInChildren<PlayerActor>(true);
+                    if (_cachedPlayerActor == null)
+                        _cachedPlayerEquipment = _targetActor.GetComponentInChildren<PlayerEquipment>(true);
+                }
             }
 
-            _cachedPlayerActor = _targetActor.GetComponent<PlayerActor>()
-                              ?? _targetActor.GetComponentInChildren<PlayerActor>(true);
-            _cachedPlayerEquipment = _cachedPlayerActor != null
-                ? _cachedPlayerActor.GetPlayerEquipment()
-                : _targetActor.GetComponentInChildren<PlayerEquipment>(true);
+            // 캐릭터 모델 스왑 시 PlayerActor._equipment가 새 모델의 것으로 교체되므로 매번 최신을 읽는다.
+            // (_targetActor 참조만 캐시 키로 쓰면 스왑 후 이전(비활성) 모델의 장비를 조작하게 된다)
+            if (_cachedPlayerActor != null)
+                _cachedPlayerEquipment = _cachedPlayerActor.GetPlayerEquipment();
         }
 
-        void ForceDrawPlayerWeapons()
+        // 프리뷰 무기 표시 토글 상태를 대상 플레이어에 적용.
+        // 재생 루프/클립 전환마다 반복 호출되므로 항상 토글 상태를 따라간다.
+        // 생활 도구 표시 중에는 PlayerEquipment가 무기를 강제 납도한 상태이므로 건드리지 않는다.
+        void ApplyPreviewWeaponState()
         {
             if (!Application.isPlaying || _targetActor == null) return;
 
             RefreshTargetActorCache();
             if (_cachedPlayerEquipment == null) return;
+            if (_previewInteractionTool != InteractionObjectType.NONE) return;
 
-            _cachedPlayerEquipment.SetMainWeaponDrawn(true);
-            _cachedPlayerEquipment.SetSubWeaponDrawn(true);
+            _cachedPlayerEquipment.SetMainWeaponDrawn(_previewWeaponDrawn);
+            _cachedPlayerEquipment.SetSubWeaponDrawn(_previewWeaponDrawn);
+        }
+
+        void SetPreviewWeaponDrawn(bool drawn)
+        {
+            _previewWeaponDrawn = drawn;
+
+            if (!Application.isPlaying || _targetActor == null) return;
+
+            RefreshTargetActorCache();
+            if (_cachedPlayerEquipment == null) return;
+
+            if (drawn)
+            {
+                ShowSelectedPlayerWeapon();
+                return;
+            }
+
+            _cachedPlayerEquipment.SetMainWeaponDrawn(false);
+            _cachedPlayerEquipment.SetSubWeaponDrawn(false);
+            Repaint();
+        }
+
+        void SetPreviewInteractionTool(InteractionObjectType tool)
+        {
+            if (_previewInteractionTool == tool) return;
+            _previewInteractionTool = tool;
+
+            if (!Application.isPlaying || _targetActor == null) return;
+
+            RefreshTargetActorCache();
+            if (_cachedPlayerEquipment == null) return;
+
+            if (tool == InteractionObjectType.NONE)
+                _cachedPlayerEquipment.EndInteractionEquipment();      // 지연 후 도구 숨김 + 무기 상태 복원
+            else
+                _cachedPlayerEquipment.BeginInteractionEquipment(tool); // 무기 납도 + 해당 도구 표시
+            Repaint();
+        }
+
+        // 캐릭터 모델 스왑 후 새 모델의 장비에 프리뷰 도구 표시를 다시 적용
+        void ReapplyPreviewInteractionTool()
+        {
+            if (_previewInteractionTool == InteractionObjectType.NONE) return;
+            if (!Application.isPlaying || _targetActor == null) return;
+
+            RefreshTargetActorCache();
+            if (_cachedPlayerEquipment != null)
+                _cachedPlayerEquipment.BeginInteractionEquipment(_previewInteractionTool);
         }
 
         void ShowSelectedPlayerWeapon()
@@ -508,6 +581,7 @@ namespace UPlayGround.Animation.Editor
 
             _selectedCharacterType = type;
             RefreshAnimancerFromActiveModel();
+            ReapplyPreviewInteractionTool();
             EnsureDebugOverlay();
             TryAutoSelectMotionSet(_targetActor);
 
@@ -562,7 +636,7 @@ namespace UPlayGround.Animation.Editor
 
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
             {
-                ForceDrawPlayerWeapons();
+                ApplyPreviewWeaponState();
 
                 var currentSet = GetCurrentMotionSet();
                 if (currentSet == null) return;
@@ -641,7 +715,7 @@ namespace UPlayGround.Animation.Editor
                 }
 
                 ExecuteActiveEvents(currentSet);
-                ForceDrawPlayerWeapons();
+                ApplyPreviewWeaponState();
 
                 // 회전 적용(TickRootMotionPreview) 전 = 런타임 투영 타이밍과 정합.
                 // 이 틱에서 FinishWarpBake 가 발동하면(StopPlayback 포함) 액터 위치가 시작점으로 복원되므로,
@@ -1028,6 +1102,10 @@ namespace UPlayGround.Animation.Editor
             if (_selectedPlayerWeaponType == weaponType) return;
             _selectedPlayerWeaponType = weaponType;
             SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
+
+            // 무기 표시 중이면 바뀐 무기 종류를 프리뷰에 즉시 반영
+            if (_previewWeaponDrawn && _previewInteractionTool == InteractionObjectType.NONE)
+                ShowSelectedPlayerWeapon();
         }
 
         void AssignPlayerWeaponActorSet(ActorAnimationMotionSet actorSet)
@@ -1546,10 +1624,22 @@ namespace UPlayGround.Animation.Editor
                         SetSelectedPlayerWeaponType(newWeapon);
 
                     EditorGUI.BeginDisabledGroup(!Application.isPlaying || _targetActor == null);
-                    if (GUILayout.Button(new GUIContent("무기 Show", "현재 테스트 플레이어의 무기를 즉시 발도 상태로 표시합니다."),
-                            GUILayout.Width(75)))
                     {
-                        ShowSelectedPlayerWeapon();
+                        // 무기 On/Off — 생활 도구 표시 중에는 PlayerEquipment가 무기를 강제 납도하므로 잠근다
+                        EditorGUI.BeginDisabledGroup(_previewInteractionTool != InteractionObjectType.NONE);
+                        bool newDrawn = GUILayout.Toggle(_previewWeaponDrawn,
+                            new GUIContent("무기 표시", "테스트 플레이어의 무기 발도/납도를 전환합니다."),
+                            EditorStyles.miniButton, GUILayout.Width(60));
+                        if (newDrawn != _previewWeaponDrawn)
+                            SetPreviewWeaponDrawn(newDrawn);
+                        EditorGUI.EndDisabledGroup();
+
+                        // 생활 도구 (곡괭이/도끼/낚싯대) 표시
+                        int toolIdx = System.Array.IndexOf(PreviewToolValues, _previewInteractionTool);
+                        if (toolIdx < 0) toolIdx = 0;
+                        int newToolIdx = EditorGUILayout.Popup(toolIdx, PreviewToolLabels, GUILayout.Width(75));
+                        if (newToolIdx != toolIdx)
+                            SetPreviewInteractionTool(PreviewToolValues[newToolIdx]);
                     }
                     EditorGUI.EndDisabledGroup();
 
@@ -2576,11 +2666,11 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || motion == null || !motion.IsValid()) return;
 
-            ForceDrawPlayerWeapons();
+            ApplyPreviewWeaponState();
             var state = _animancer.Play(motion.motionClip);
             state.Time  = motion.ClipStartTime;
             state.Speed = motion.playbackSpeed * _playbackSpeed;
-            ForceDrawPlayerWeapons();
+            ApplyPreviewWeaponState();
 
             // Animancer 자체 OnEnd 완전 제거 — 에디터 타임라인이 종료를 관리
             state.Events(this).OnEnd = null;

@@ -114,6 +114,9 @@ namespace UPlayGround
             }
 
             Quaternion cameraRotation = _camera != null ? _camera.transform.rotation : Quaternion.identity;
+            bool isInteractHeld = InputMgr != null
+                                  && InputMgr.GetAction(InputMapNames.PlayerAction, PlayerAction.Interact, out InputAction interactAction)
+                                  && interactAction.IsPressed();
 
             PlayerMovementPlayerController.SetInputs(new PlayerCharacterInputs
             {
@@ -126,6 +129,7 @@ namespace UPlayGround
                 HeavyAttackInput = _heavyInputCondition,
                 EquipInput       = _equipInputCondition,
                 InteractInput    = _interactionInputCondition,
+                InteractHeld     = isInteractHeld,
                 GuardInput       = _guardInputCondition,
                 DashInput        = _dashInputCondition,
                 ChargeAttackHeld = _chargeAttackHeld && _chargeHoldTime >= ChargeThreshold,

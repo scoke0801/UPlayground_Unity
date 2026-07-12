@@ -45,6 +45,8 @@ namespace UPlayGround.UI
             public TextMeshProUGUI dateText;
             [Tooltip("맵 식별자 ('맵: {mapId}').")]
             public TextMeshProUGUI mapText;
+            [Tooltip("인게임 경과 일수 ('경과일: {n}일').")]
+            public TextMeshProUGUI gameDayText;
             [Tooltip("스토리 진행도 ('진행도: {n}').")]
             public TextMeshProUGUI progressText;
         }
@@ -131,7 +133,7 @@ namespace UPlayGround.UI
                 if (row.infoText != null)
                 {
                     row.infoText.text = hasSave
-                        ? $"슬롯 {slot + 1}\n{info.saveDateTime}\n맵: {ResolveRegionName(info.mapId)}  진행도: {info.storyProgress}"
+                        ? $"슬롯 {slot + 1}\n{info.saveDateTime}\n맵: {ResolveRegionName(info.mapId)}  경과일: {info.elapsedGameDays}일  진행도: {info.storyProgress}"
                         : $"슬롯 {slot + 1}\n- 비어 있음 -";
                 }
 
@@ -173,8 +175,14 @@ namespace UPlayGround.UI
                     row.dateText.text = hasSave ? info.saveDateTime : "-";
                 if (row.mapText != null)
                     row.mapText.text = hasSave ? $"맵: {ResolveRegionName(info.mapId)}" : "맵: -";
+                if (row.gameDayText != null)
+                    row.gameDayText.text = hasSave ? $"경과일: {info.elapsedGameDays}일" : "경과일: -";
                 if (row.progressText != null)
-                    row.progressText.text = $"진행도: {(hasSave ? info.storyProgress : 0)}";
+                    row.progressText.text = row.gameDayText != null
+                        ? $"진행도: {(hasSave ? info.storyProgress : 0)}"
+                        : hasSave
+                            ? $"경과일: {info.elapsedGameDays}일  진행도: {info.storyProgress}"
+                            : "진행도: 0";
 
                 // 슬롯 버튼 라벨을 모드에 맞게 갱신(연결돼 있을 때만).
                 if (row.selectLabel != null)
@@ -311,6 +319,7 @@ namespace UPlayGround.UI
                 statusText = FindComponent<TextMeshProUGUI>(root.transform, "InfoCol/StatusText"),
                 dateText = FindComponent<TextMeshProUGUI>(root.transform, "InfoCol/DateText"),
                 mapText = FindComponent<TextMeshProUGUI>(root.transform, "InfoCol/MapText"),
+                gameDayText = FindComponent<TextMeshProUGUI>(root.transform, "InfoCol/GameDayText"),
                 progressText = FindComponent<TextMeshProUGUI>(root.transform, "InfoCol/ProgressText"),
                 infoText = FindComponent<TextMeshProUGUI>(root.transform, "InfoText")
             };

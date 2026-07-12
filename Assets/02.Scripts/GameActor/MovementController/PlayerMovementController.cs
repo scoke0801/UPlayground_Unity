@@ -33,6 +33,7 @@ namespace UPlayGround.MovementController
         // 일회성 상태 변경 - 기타
         public InputCondition EquipInput;
         public InputCondition InteractInput;
+        public bool InteractHeld;
         
         public List<InputCondition> SkillInput;
         
@@ -246,6 +247,11 @@ namespace UPlayGround.MovementController
         public bool HasInteractInput()
         {
             return _inputState.InteractInput == InputCondition.Pressed;
+        }
+
+        public bool IsInteractHeld()
+        {
+            return _inputState.InteractHeld;
         }
 
         public bool HasSkillInput(int index)

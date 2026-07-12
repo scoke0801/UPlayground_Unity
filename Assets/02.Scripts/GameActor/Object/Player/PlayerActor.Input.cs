@@ -156,6 +156,9 @@ namespace UPlayGround
             if (GameObjectMgr.CanInteract())
                 return true;
 
+            if (GameObjectMgr.InteractionHandler?.CurrentClosestInteractable?.IsInteracting() == true)
+                return true;
+
             return GetCombat()?.FindSpecialBreakAttackTarget() != null;
         }
 

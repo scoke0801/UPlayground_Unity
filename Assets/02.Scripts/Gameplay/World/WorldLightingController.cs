@@ -333,14 +333,14 @@ namespace UPlayGround.Gameplay.World
         {
             _lightingProfile = new[]
             {
-                new LightingKeyframe(0.00f, 0.00f, 0.34f, 0.70f, -0.18f, 1.15f, new Color(0.34f, 0.38f, 0.55f), new Color(0.46f, 0.52f, 0.74f), new Color(0.24f, 0.27f, 0.36f), new Color(0.48f, 0.54f, 0.76f)),
-                new LightingKeyframe(0.22f, 0.08f, 0.26f, 0.76f, -0.10f, 1.20f, new Color(0.72f, 0.54f, 0.42f), new Color(0.48f, 0.54f, 0.76f), new Color(0.30f, 0.32f, 0.40f), new Color(0.62f, 0.58f, 0.52f)),
+                new LightingKeyframe(0.00f, 0.00f, 0.60f, 0.90f, -0.05f, 1.35f, new Color(0.34f, 0.38f, 0.55f), new Color(0.55f, 0.62f, 0.85f), new Color(0.40f, 0.44f, 0.58f), new Color(0.48f, 0.54f, 0.76f)),
+                new LightingKeyframe(0.22f, 0.08f, 0.48f, 0.92f, -0.03f, 1.35f, new Color(0.72f, 0.54f, 0.42f), new Color(0.55f, 0.62f, 0.85f), new Color(0.44f, 0.46f, 0.56f), new Color(0.62f, 0.58f, 0.52f)),
                 new LightingKeyframe(0.28f, 0.65f, 0.04f, 0.88f, -0.03f, 0.75f, new Color(1.00f, 0.62f, 0.42f), new Color(0.42f, 0.46f, 0.65f), new Color(0.48f, 0.43f, 0.42f), new Color(0.82f, 0.62f, 0.48f)),
                 new LightingKeyframe(0.38f, 1.05f, 0.00f, 0.95f, 0.00f, 0.25f, new Color(1.00f, 0.92f, 0.82f), new Color(0.42f, 0.46f, 0.65f), new Color(0.55f, 0.56f, 0.60f), new Color(0.86f, 0.80f, 0.72f)),
                 new LightingKeyframe(0.50f, 1.25f, 0.00f, 1.00f, 0.00f, 0.18f, new Color(1.00f, 0.98f, 0.94f), new Color(0.42f, 0.46f, 0.65f), new Color(0.58f, 0.58f, 0.60f), new Color(0.90f, 0.86f, 0.80f)),
                 new LightingKeyframe(0.72f, 0.95f, 0.00f, 0.92f, 0.00f, 0.30f, new Color(1.00f, 0.88f, 0.72f), new Color(0.42f, 0.46f, 0.65f), new Color(0.55f, 0.54f, 0.56f), new Color(0.86f, 0.76f, 0.64f)),
-                new LightingKeyframe(0.80f, 0.32f, 0.16f, 0.78f, -0.08f, 1.05f, new Color(1.00f, 0.50f, 0.30f), new Color(0.48f, 0.54f, 0.76f), new Color(0.46f, 0.38f, 0.40f), new Color(0.72f, 0.52f, 0.46f)),
-                new LightingKeyframe(0.87f, 0.00f, 0.30f, 0.70f, -0.18f, 1.15f, new Color(0.34f, 0.38f, 0.55f), new Color(0.46f, 0.52f, 0.74f), new Color(0.24f, 0.27f, 0.36f), new Color(0.48f, 0.54f, 0.76f)),
+                new LightingKeyframe(0.80f, 0.32f, 0.30f, 0.85f, -0.03f, 1.15f, new Color(1.00f, 0.50f, 0.30f), new Color(0.55f, 0.62f, 0.85f), new Color(0.50f, 0.44f, 0.48f), new Color(0.72f, 0.52f, 0.46f)),
+                new LightingKeyframe(0.87f, 0.00f, 0.55f, 0.90f, -0.05f, 1.35f, new Color(0.34f, 0.38f, 0.55f), new Color(0.55f, 0.62f, 0.85f), new Color(0.40f, 0.44f, 0.58f), new Color(0.48f, 0.54f, 0.76f)),
             };
         }
 

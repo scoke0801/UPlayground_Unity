@@ -179,6 +179,7 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
             public TextMeshProUGUI statusText;
             public TextMeshProUGUI dateText;
             public TextMeshProUGUI mapText;
+            public TextMeshProUGUI gameDayText;
             public TextMeshProUGUI progressText;
         }
 
@@ -204,13 +205,14 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
             SetWidth(thumbGo, 300);
             refs.thumbnail = AddImage(thumbGo, ThumbBg, UISprite, sliced: true);
 
-            // 정보 컬럼 (상태/일시/맵/진행도)
+            // 정보 컬럼 (상태/일시/맵/경과일/진행도)
             var infoCol = NewUI("InfoCol", row.transform);
             AddFlexibleW(infoCol, 1f);
             AddVLG(infoCol, spacing: 8, pad: 0).childAlignment = TextAnchor.MiddleLeft;
             refs.statusText   = AddText(NewUI("StatusText", infoCol.transform),   "세이브 있음",           26, Accent,  TextAlignmentOptions.Left);
             refs.dateText     = AddText(NewUI("DateText", infoCol.transform),     "2026-01-01 00:00:00", 22, TextSub, TextAlignmentOptions.Left);
             refs.mapText      = AddText(NewUI("MapText", infoCol.transform),      "맵: -",               22, TextSub, TextAlignmentOptions.Left);
+            refs.gameDayText  = AddText(NewUI("GameDayText", infoCol.transform),  "경과일: 0일",          22, TextSub, TextAlignmentOptions.Left);
             refs.progressText = AddText(NewUI("ProgressText", infoCol.transform), "진행도: 0",            22, TextSub, TextAlignmentOptions.Left);
 
             // 버튼 컬럼 (저장 + 삭제)
@@ -386,6 +388,7 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
             SetRel(element, "statusText",   refs.statusText);
             SetRel(element, "dateText",     refs.dateText);
             SetRel(element, "mapText",      refs.mapText);
+            SetRel(element, "gameDayText",  refs.gameDayText);
             SetRel(element, "progressText", refs.progressText);
             SetRel(element, "infoText",     null);
         }

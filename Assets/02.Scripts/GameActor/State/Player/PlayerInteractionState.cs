@@ -23,6 +23,7 @@ namespace UPlayGround.State
         
         private InteractableActorSO _cachedData = null;
         private AnimPlayState _animPlayState = AnimPlayState.None;
+        private bool _requiresHeldInput;
         
         public override string StateName => "Interaction";
 
@@ -42,6 +43,7 @@ namespace UPlayGround.State
 
             _cachedData = null;
             _animPlayState = AnimPlayState.None;
+            _requiresHeldInput = false;
 
             GameInteractionHandler handler = GameObjectManager.Instance.InteractionHandler;
             if (handler == null)
@@ -58,6 +60,7 @@ namespace UPlayGround.State
             }
 
             _cachedData = interactable.GetData();
+            _requiresHeldInput = _cachedData != null && _cachedData.interactionCompleteDuration > 0f;
 
             if (EventManager.Instance != null)
             {
@@ -104,7 +107,13 @@ namespace UPlayGround.State
         }
         public override void UpdateState(float deltaTime)
         {
-            if (playerController.HasInteractInput())
+            if (_requiresHeldInput && !playerController.IsInteractHeld())
+            {
+                ForceChangeToNextState();
+                return;
+            }
+
+            if (!_requiresHeldInput && playerController.HasInteractInput())
             {
                 ForceChangeToNextState();
                 return;

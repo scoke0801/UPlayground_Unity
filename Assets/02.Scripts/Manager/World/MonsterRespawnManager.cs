@@ -526,9 +526,7 @@ namespace UPlayGround.Manager
             var notice = uiObject != null ? uiObject.GetComponentInChildren<UI_WorldRespawnNotice>() : null;
             if (notice == null) return;
 
-            string message = count > 1
-                ? $"쓰러졌던 마물 {count}체가 다시 출현했습니다."
-                : "쓰러졌던 마물들이 다시 움직이기 시작했습니다.";
+            string message = "쓰러졌던 마물들이 다시 움직이기 시작했습니다.";
             notice.ShowNotice(message);
         }
 

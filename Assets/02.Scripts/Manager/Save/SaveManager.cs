@@ -6,6 +6,7 @@ using System.Text;
 using Newtonsoft.Json;
 using UnityEngine;
 using UPlayGround.Data.Save;
+using UPlayGround.Data.World;
 
 namespace UPlayGround.Manager
 {
@@ -413,6 +414,7 @@ namespace UPlayGround.Manager
                 saveVersion = partial?.saveVersion ?? string.Empty,
                 mapId = partial?.party?.mapId ?? string.Empty,
                 storyProgress = partial?.story?.progress ?? 0,
+                elapsedGameDays = CalcElapsedGameDays(partial?.time),
                 mainQuestName = QuestManager.Instance.ResolveMainQuestName(partial?.quest) ?? string.Empty,
                 filePath = path
             };
@@ -649,6 +651,14 @@ namespace UPlayGround.Manager
         /// <summary> 슬롯 번호가 유효한지 검사한다. 세이브 슬롯은 개수 제한 없이 0 이상의 정수를 허용한다. </summary>
         private static bool IsValidSlot(int slot) => slot >= 0;
 
+        private static int CalcElapsedGameDays(TimeSaveData time)
+        {
+            if (time == null || time.totalGameMinutes < 0f)
+                return 0;
+
+            return Mathf.Max(0, Mathf.FloorToInt(time.totalGameMinutes / WorldTimeSettingsSO.MinutesPerDay));
+        }
+
         private SaveOperationResult CompleteWithFailure(
             SaveOperationResult result,
             string message)
@@ -671,6 +681,7 @@ namespace UPlayGround.Manager
         public string saveVersion;
         public string mapId;        // 저장 당시 맵 식별자
         public int storyProgress;   // 스토리 진행도
+        public int elapsedGameDays;  // 저장 당시 경과 일수(0부터)
         public string mainQuestName; // 저장 당시 진행 중인 메인 퀘스트 명 (없으면 빈 문자열)
         public string filePath;
     }

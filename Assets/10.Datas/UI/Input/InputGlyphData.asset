@@ -61,6 +61,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: f3656663c063a644b9a684b3746d57a2, type: 3}
   - controlPath: backquote
     sprite: {fileID: 21300000, guid: d75a12d2150e5c9429f4491fb3fb5838, type: 3}
+  - controlPath: f11
+    sprite: {fileID: 0}
   _gamepadGlyphs:
   - controlPath: buttonSouth
     sprite: {fileID: 21300000, guid: 259423a89efe85c418fc586eadcc21b9, type: 3}
@@ -94,10 +96,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: aeba5ea410377c642bdb98ab3b7fd165, type: 3}
   - controlPath: rightStick/left
     sprite: {fileID: 21300000, guid: f9291e867b343e94884ee644b1d4a5b7, type: 3}
-  - controlPath: select
-    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}
-  - controlPath: Share
-    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}
+  - controlPath: start
+    sprite: {fileID: 0}
   _xboxGlyphs: []
   _playStationGlyphs:
   - controlPath: buttonSouth

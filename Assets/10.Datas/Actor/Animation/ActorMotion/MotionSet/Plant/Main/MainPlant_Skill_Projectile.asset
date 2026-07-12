@@ -38,6 +38,14 @@ MonoBehaviour:
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
         damage: 10
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 5
         duration: 5
         targetHitLayer:

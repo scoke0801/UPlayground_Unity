@@ -18,6 +18,7 @@ MonoBehaviour:
   interactionObjectType: 7
   hp: 1
   interactionCompleteDuration: 1.5
+  interactionAnimKey: 1700
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0

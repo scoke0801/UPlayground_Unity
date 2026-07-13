@@ -24,6 +24,7 @@ namespace UPlayGround.State
         private InteractableActorSO _cachedData = null;
         private AnimPlayState _animPlayState = AnimPlayState.None;
         private bool _requiresHeldInput;
+        private bool _hasPickupMotion;
         
         public override string StateName => "Interaction";
 
@@ -44,9 +45,16 @@ namespace UPlayGround.State
             _cachedData = null;
             _animPlayState = AnimPlayState.None;
             _requiresHeldInput = false;
+            _hasPickupMotion = false;
 
             GameInteractionHandler handler = GameObjectManager.Instance.InteractionHandler;
             if (handler == null)
+            {
+                ForceChangeToNextState();
+                return;
+            }
+
+            if (!playerActor.CanStartInteraction())
             {
                 ForceChangeToNextState();
                 return;
@@ -107,6 +115,21 @@ namespace UPlayGround.State
         }
         public override void UpdateState(float deltaTime)
         {
+            // 드랍 아이템은 완료 후 입력이 풀려도 남은 획득 모션 재생을 기다려야 하므로 입력 체크보다 먼저 처리한다.
+            if (_cachedData?.interactionObjectType == InteractionObjectType.DROP_ITEM
+                && IsCurrentInteractionCompleted())
+            {
+                // 획득 모션이 재생 중이면 루프 구간을 풀고 남은 모션이 끝날 때까지 대기한다.
+                if (_hasPickupMotion && gameActor.Animator.IsPlayingMotionSet)
+                {
+                    gameActor.Animator.BreakAllInfiniteLoops();
+                    return;
+                }
+
+                ForceChangeToNextState();
+                return;
+            }
+
             if (_requiresHeldInput && !playerController.IsInteractHeld())
             {
                 ForceChangeToNextState();
@@ -131,11 +154,7 @@ namespace UPlayGround.State
 
             if (_cachedData?.interactionObjectType == InteractionObjectType.DROP_ITEM)
             {
-                if (IsCurrentInteractionCompleted())
-                {
-                    ForceChangeToNextState();
-                }
-
+                // 완료 처리는 위쪽(입력 체크 이전)에서 수행. 진행 중에는 대기만 한다.
                 return;
             }
 
@@ -177,7 +196,32 @@ namespace UPlayGround.State
                     // UpdateState의 CanInteract 체크로 자연스럽게 상태가 빠져나옵니다.
                     return;
                 case InteractionObjectType.DROP_ITEM:
+                    PlayDropItemPickupAnimation();
                     return;
+            }
+        }
+
+        /// <summary>
+        /// 드랍 아이템 획득 모션 재생.
+        /// 듀레이션이 있는 대상은 모션 내 Loop 이벤트 구간에서 정지해 있다가 완료 시 UpdateState에서 루프를 해제하고,
+        /// 즉시 획득 대상은 Loop 이벤트를 건너뛰고 모션을 끝까지 재생한다.
+        /// </summary>
+        private void PlayDropItemPickupAnimation()
+        {
+            if (_animPlayState != AnimPlayState.None)
+                return;
+
+            AnimKey animKey = _cachedData.interactionAnimKey;
+            if (animKey == AnimKey.None)
+                return;
+
+            AnimancerState state = gameActor.Animator.PlayMotion(animKey);
+            _hasPickupMotion = state != null;
+            _animPlayState = AnimPlayState.Start;
+
+            if (_hasPickupMotion && !_requiresHeldInput)
+            {
+                gameActor.Animator.SuppressLoopEvents();
             }
         }
 
@@ -255,6 +299,14 @@ namespace UPlayGround.State
                 case InteractionObjectType.TREE:
                     _animPlayState = AnimPlayState.None;
                     PlayAnimation();
+                    break;
+                case InteractionObjectType.DROP_ITEM:
+                    // 획득 모션은 반복하지 않는다. 상호작용이 끝났다면 즉시 상태를 빠져나간다.
+                    _hasPickupMotion = false;
+                    if (IsCurrentInteractionCompleted())
+                    {
+                        ForceChangeToNextState();
+                    }
                     break;
             }
         }

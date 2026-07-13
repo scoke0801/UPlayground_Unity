@@ -153,14 +153,28 @@ namespace UPlayGround
 
         private bool CanInputInteract()
         {
-            if (GameObjectMgr.CanInteract())
+            if (GetCombat()?.FindSpecialBreakAttackTarget() != null)
                 return true;
+
+            if (IsInteractionBlockedByDrawnWeapon)
+                return false;
 
             if (GameObjectMgr.InteractionHandler?.CurrentClosestInteractable?.IsInteracting() == true)
                 return true;
 
-            return GetCombat()?.FindSpecialBreakAttackTarget() != null;
+            return GameObjectMgr.CanInteract();
         }
+
+        public bool CanStartInteraction()
+        {
+            if (IsInteractionBlockedByDrawnWeapon)
+                return false;
+
+            return GameObjectMgr != null && GameObjectMgr.CanInteract();
+        }
+
+        public bool IsInteractionBlockedByDrawnWeapon =>
+            _equipment != null && (_equipment.IsMainWeaponEquipped || _equipment.IsSubWeaponEquipped);
 
         private void ClearAllInputState()
         {

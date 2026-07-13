@@ -65,8 +65,11 @@ namespace UPlayGround.Manager.Handler
                 _player = GameObjectManager.Instance.Player;
             }
             
-            if (_player == null || _player.IsInCombat == true)
+            if (_player == null
+                || _player.IsInCombat == true
+                || _player.IsInteractionBlockedByDrawnWeapon)
             {
+                ClearIdleInteractable();
                 RemoveIcon();
                 return;
             }
@@ -165,6 +168,15 @@ namespace UPlayGround.Manager.Handler
             // 현재 타겟 업데이트
             _currentClosestInteractable = bestTarget;
         }
+
+        private void ClearIdleInteractable()
+        {
+            if (_currentClosestInteractable?.IsInteracting() == true)
+                return;
+
+            _currentClosestInteractable = null;
+        }
+
         private void RemoveIcon()
         {
             if(_activeIcon != null && _activeIcon.IsVisible)

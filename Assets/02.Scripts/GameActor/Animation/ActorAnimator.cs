@@ -48,6 +48,7 @@ namespace UPlayGround.Animation
         private bool _isInfiniteLooping;
         private float _infiniteLoopElapsed; // InfiniteLoop 진입 후 경과 시간
         private int _infiniteLoopStageIndex = -1; // 현재까지 진입한 InfiniteLoop 순번 (0-based, 미진입 시 -1)
+        private bool _suppressLoopEvents; // 현재 MotionSet의 Loop/Freeze 이벤트를 전부 무시 (다음 재생 시 자동 해제)
         
         public event Action OnMotionSetCompleted;
         public event Action<MotionSet, bool> OnMotionSetEnded;
@@ -851,6 +852,8 @@ namespace UPlayGround.Animation
         /// </summary>
         private void ProcessLoopEvents(float start, float end)
         {
+            if (_suppressLoopEvents) return;
+
             var motion = GetCurrentMotion();
             if (motion?.events == null) return;
 
@@ -1079,6 +1082,16 @@ namespace UPlayGround.Animation
         }
 
         /// <summary>
+        /// 현재 재생 중인 MotionSet의 Loop/Freeze/InfiniteLoop 이벤트를 전부 무시한다.
+        /// 시간 점프 없이 타임라인이 그대로 통과하며, 다음 MotionSet 재생 시 자동 해제된다.
+        /// 재생 시작 시 초기화되므로 반드시 PlayMotion 직후에 호출할 것.
+        /// </summary>
+        public void SuppressLoopEvents()
+        {
+            _suppressLoopEvents = true;
+        }
+
+        /// <summary>
         /// 현재 InfiniteLoop 상태인지 확인
         /// </summary>
         public bool IsInfiniteLooping => _isInfiniteLooping;
@@ -1100,6 +1113,7 @@ namespace UPlayGround.Animation
             _isInfiniteLooping      = false;
             _infiniteLoopElapsed    = 0f;
             _infiniteLoopStageIndex = -1;
+            _suppressLoopEvents     = false;
             _lastLocalTime          = -0.001f;
         }
 

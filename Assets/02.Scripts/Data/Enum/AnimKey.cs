@@ -148,6 +148,8 @@ namespace UPlayGround.Data.EnumType
         
         Mining_Ground = 1600,
         Mining_Wall,
+
+        ItemPickup = 1700,
         
         GroundWork_Start = 1800,
         GroundWork_Loop,

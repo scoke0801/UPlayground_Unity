@@ -30,6 +30,9 @@ namespace UPlayGround.Cheat.Editor
         private int    _grantItemCount = 1;
         private string _itemSearchText = string.Empty;
 
+        // ── 주변 몬스터 처치 ──────────────────────────────────────────
+        private float _killNearbyRadius = 30f;
+
         // ── 색상 팔레트 ───────────────────────────────────────────────
         private static readonly Color ColorOn      = new Color(0.20f, 0.80f, 0.35f);
         private static readonly Color ColorOff     = new Color(0.55f, 0.55f, 0.55f);
@@ -140,6 +143,24 @@ namespace UPlayGround.Cheat.Editor
                 description: "어떤 상태에서도 적의 공격을 패리합니다.",
                 isOn:        cheat.IsAlwaysParryEnabled,
                 onToggle:    v => cheat.SetAlwaysParry(v));
+
+            EditorGUILayout.Space(4);
+
+            // 주변 몬스터 처치
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField("주변 몬스터 처치", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(
+                    "활성 캐릭터 반경 내 몬스터를 즉시 처치합니다 (드랍/경험치/퀘스트 정상 처리).",
+                    EditorStyles.miniLabel);
+
+                EditorGUILayout.BeginHorizontal();
+                _killNearbyRadius = Mathf.Max(1f, EditorGUILayout.FloatField("반경 (m)", _killNearbyRadius));
+                if (GUILayout.Button("처치", GUILayout.Width(64)))
+                    cheat.KillNearbyMonsters(_killNearbyRadius);
+                EditorGUILayout.EndHorizontal();
+            }
+            EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space(4);
         }

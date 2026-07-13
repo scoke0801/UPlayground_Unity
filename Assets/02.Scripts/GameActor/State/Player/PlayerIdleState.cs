@@ -60,6 +60,9 @@ namespace UPlayGround.State
                     return;
                 }
 
+                if (!playerActor.CanStartInteraction())
+                    return;
+
                 playerController.TransitionToState(new PlayerInteractionState(playerController));
                 return;
             }

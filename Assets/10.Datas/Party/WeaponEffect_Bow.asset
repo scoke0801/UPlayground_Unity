@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c76c3c0282aa2046a83fa2e566bb391, type: 3}
+  m_Name: WeaponEffect_Bow
+  m_EditorClassIdentifier: 
+  weaponType: 5
+  weaponDisplayName: 
+  weaponIcon: {fileID: 0}
+  weaponDescription: 거리를 두고 정밀하게 쏘는 원거리 활.
+  effects:
+  - title: 집중 사격
+    description: 조준을 유지할수록 화살의 관통력과 피해가 증가한다.
+    icon: {fileID: 0}
+  - title: 약점 간파
+    description: 원거리에서 명중 시 일정 확률로 치명 피해를 준다.
+    icon: {fileID: 0}

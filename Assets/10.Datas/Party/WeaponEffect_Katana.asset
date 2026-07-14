@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c76c3c0282aa2046a83fa2e566bb391, type: 3}
+  m_Name: WeaponEffect_Katana
+  m_EditorClassIdentifier: 
+  weaponType: 10
+  weaponDisplayName: 
+  weaponIcon: {fileID: 0}
+  weaponDescription: 빠른 발도와 연속 베기에 특화된 한손 도.
+  effects:
+  - title: 발도 가속
+    description: 연속 공격이 이어질수록 다음 베기의 선딜이 짧아진다.
+    icon: {fileID: 0}
+  - title: 심안
+    description: 완벽 회피 직후 일정 시간 치명타 확률이 크게 증가한다.
+    icon: {fileID: 0}

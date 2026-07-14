@@ -24,6 +24,9 @@ namespace UPlayGround.UI
         [Tooltip("새 게임 시작 씬을 읽어올 맵 설정 DB. DefaultStartMapId 를 사용한다.")]
         [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
 
+        // 새 게임 진입 시 띄운 캐릭터 선택 UI 인스턴스. 확정/취소 후 구독 해제에 사용.
+        private UI_CharacterSelect _characterSelect;
+
         protected override void Awake()
         {
             base.Awake();
@@ -75,8 +78,64 @@ namespace UPlayGround.UI
 
         private void OnClickNewGameButton()
         {
-            // 새 게임: 이전 세션의 진행 상태(처치 몬스터·레벨·플래그 등)가 누수되지 않도록
-            // 모든 ISaveable 매니저의 인메모리 상태를 초기화한 뒤 진입한다.
+            // 새 게임: 곧바로 시작하지 않고 캐릭터 선택 UI를 띄운다.
+            // 캐릭터를 확정하면 CharacterConfirmed 이벤트로 실제 시작 흐름을 진행한다.
+            // (취소 시 캐릭터 선택 UI만 닫히고 타이틀로 복귀.)
+            var go = UIManager.Instance.ShowUI(UI_CharacterSelect.UIKey);
+            _characterSelect = go != null ? go.GetComponent<UI_CharacterSelect>() : null;
+            if (_characterSelect == null)
+            {
+                // 캐릭터 선택 UI가 없으면 기존 흐름으로 폴백(바로 시작).
+                Debug.LogWarning("[UI_TitleMenu] 캐릭터 선택 UI를 찾을 수 없어 바로 새 게임을 시작합니다.");
+                StartNewGame(CharacterActorType.None);
+                return;
+            }
+
+            // 재사용되는 UI 인스턴스이므로 중복 구독을 방지한 뒤 확정/취소 이벤트를 연결한다.
+            _characterSelect.CharacterConfirmed -= OnCharacterSelected;
+            _characterSelect.CharacterConfirmed += OnCharacterSelected;
+            _characterSelect.Cancelled -= OnCharacterSelectCancelled;
+            _characterSelect.Cancelled += OnCharacterSelectCancelled;
+
+            // 캐릭터 선택이 뜨는 동안 타이틀 메뉴는 숨긴다(겹침 방지). 취소 시 복귀.
+            Hide();
+        }
+
+        /// <summary>
+        /// 캐릭터 선택 화면에서 캐릭터를 확정했을 때. 선택 캐릭터로 새 게임을 시작한다.
+        /// </summary>
+        private void OnCharacterSelected(CharacterActorType selected)
+        {
+            UnsubscribeCharacterSelect();
+            StartNewGame(selected);
+        }
+
+        /// <summary>
+        /// 캐릭터 선택을 취소하고 뒤로 나왔을 때. 타이틀 메뉴를 다시 표시한다.
+        /// </summary>
+        private void OnCharacterSelectCancelled()
+        {
+            UnsubscribeCharacterSelect();
+            Show();
+        }
+
+        private void UnsubscribeCharacterSelect()
+        {
+            if (_characterSelect != null)
+            {
+                _characterSelect.CharacterConfirmed -= OnCharacterSelected;
+                _characterSelect.Cancelled -= OnCharacterSelectCancelled;
+                _characterSelect = null;
+            }
+        }
+
+        /// <summary>
+        /// 새 게임 시작. 이전 세션의 진행 상태(처치 몬스터·레벨·플래그 등)가 누수되지 않도록
+        /// 모든 ISaveable 매니저의 인메모리 상태를 초기화한 뒤 진입한다.
+        /// </summary>
+        private void StartNewGame(CharacterActorType selectedCharacter)
+        {
+            // TODO: 선택 캐릭터(selectedCharacter)를 PartyConfig/시작 파티에 반영. (추후 연동)
             SaveManager.Instance.ResetForNewGame();
             UIManager.Instance.HideAllUI();
             LoadStartScene();
@@ -102,6 +161,13 @@ namespace UPlayGround.UI
         private void OnClickOptionButton()
         {
             UIManager.Instance.ShowUI(UIKeyType.Config);
+        }
+
+        protected override void OnDispose()
+        {
+            // 씬 전환 등으로 파괴될 때 캐릭터 선택 UI 구독이 남지 않도록 정리.
+            UnsubscribeCharacterSelect();
+            base.OnDispose();
         }
     }
 }

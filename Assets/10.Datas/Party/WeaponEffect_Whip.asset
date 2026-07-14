@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c76c3c0282aa2046a83fa2e566bb391, type: 3}
+  m_Name: WeaponEffect_Whip
+  m_EditorClassIdentifier: 
+  weaponType: 12
+  weaponDisplayName: 
+  weaponIcon: {fileID: 0}
+  weaponDescription: 넓은 범위를 훑는 유연한 채찍.
+  effects:
+  - title: 포박
+    description: 채찍 끝에 맞은 적의 이동 속도를 잠시 늦춘다.
+    icon: {fileID: 0}
+  - title: 연격 확산
+    description: 광역 휘두르기가 다수의 적을 동시에 경직시킨다.
+    icon: {fileID: 0}

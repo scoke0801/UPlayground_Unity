@@ -155,3 +155,7 @@ MonoBehaviour:
     defaultLayer: 2000
     description: "\uC774\uBBF8\uC9C0\uC640 \uC124\uBA85\uC744 \uD45C\uC2DC\uD558\uB294
       \uAC00\uC774\uB4DC \uD31D\uC5C5"
+  - key: CharacterSelect
+    prefab: {fileID: 8065138479794686207, guid: fda1e2a8012a2a94d915d22b119c42bc, type: 3}
+    defaultLayer: 1000
+    description: "\uC2E0\uADDC \uAC8C\uC784 \uCE90\uB9AD\uD130 \uC120\uD0DD \uD654\uBA74"

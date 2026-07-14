@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1931b7b2f206b3478b0d608c8319961, type: 3}
+  m_Name: CharacterSelectDatabase
+  m_EditorClassIdentifier: 
+  entries:
+  - characterType: 1
+    displayName: 보쿠세이
+    tagline: 이야기의 시작을 여는 균형형 카타나 검사.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 03dacda964ab53397fb83771671ed6f3, type: 2}
+  - characterType: 2
+    displayName: 호노카
+    tagline: 쌍도끼로 적을 부수는 파괴형 전사.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 11bd19cc66b70fa5d64c4a59ac323e91, type: 2}
+  - characterType: 3
+    displayName: 레이네
+    tagline: 창으로 거리를 지배하는 견제형 무투가.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 4a4189237a3beae922f91497121cb344, type: 2}
+  - characterType: 4
+    displayName: 리안리안
+    tagline: 채찍으로 광역을 제압하는 기교파.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: dfafefa43b65274ab138707bfeb72501, type: 2}
+  - characterType: 5
+    displayName: 넨미르
+    tagline: 활로 적을 저격하는 원거리 딜러.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 6690fb6a3f4f64e9365edf5d23b399ea, type: 2}
+  - characterType: 6
+    displayName: 세라
+    tagline: 대검 한 방에 모든 것을 거는 중량 딜러.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 4baec38774ad3072cc2bc34c4e7ac02c, type: 2}
+  - characterType: 7
+    displayName: 이노리
+    tagline: 지팡이로 원소를 다루는 마법사.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 7d7f3f7ddc3d22d3a872ac49f53fad92, type: 2}
+  - characterType: 8
+    displayName: 히치
+    tagline: 쌍검 연타로 몰아치는 속공형 검사.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: bc93142c9fc3771969d1e7b20055fbce, type: 2}
+  - characterType: 9
+    displayName: 시우하
+    tagline: 검과 방패로 공수를 겸비한 균형형.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 1ee46ed7be7595da22f771af376c6c42, type: 2}
+  - characterType: 10
+    displayName: 코모에
+    tagline: 지팡이로 아군을 지원하는 술사.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 7d7f3f7ddc3d22d3a872ac49f53fad92, type: 2}
+  - characterType: 11
+    displayName: 릴리
+    tagline: 대검을 다루는 강타 지향 전사.
+    portrait: {fileID: 0}
+    weaponEffect: {fileID: 11400000, guid: 4baec38774ad3072cc2bc34c4e7ac02c, type: 2}

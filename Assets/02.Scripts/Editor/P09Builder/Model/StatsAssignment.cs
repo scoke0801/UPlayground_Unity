@@ -39,8 +39,6 @@ namespace UPlayGround.Editor.P09Builder
 
         // ---------- Player ----------
         public ScriptableObject playerAttackDataSo;
-        public bool addToStartingParty = false;
-        public int partyOrder = 0;
 
         // ---------- NPC ----------
         public ScriptableObject dialogueSo;

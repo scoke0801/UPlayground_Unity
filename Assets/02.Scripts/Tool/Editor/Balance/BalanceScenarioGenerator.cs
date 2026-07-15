@@ -48,25 +48,17 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         /// <summary>
-        /// 현재 조작 캐릭터를 해석한다.
-        /// defaultBattleOrder가 있으면 그 startActiveIndex 슬롯, 없으면 partyOrder의 startActiveIndex.
-        /// 둘 다 비어 있으면 기본 고정 캐릭터 Bokusei.
+        /// 에디터 밸런스 도구의 대표 캐릭터를 해석한다.
+        /// 시작 캐릭터는 런타임 선택값이므로 growthData의 첫 유효 캐릭터를 사용하고,
+        /// 성장 데이터도 비어 있으면 기본 고정 캐릭터 Bokusei를 사용한다.
         /// </summary>
         public static CharacterActorType ResolveActiveCharacter(PartyConfigSO config)
         {
-            if (config == null)
-                return CharacterActorType.Bokusei;
-
-            List<CharacterActorType> order =
-                config.defaultBattleOrder != null && config.defaultBattleOrder.Count > 0
-                    ? config.defaultBattleOrder
-                    : config.partyOrder;
-
-            if (order == null || order.Count == 0)
-                return CharacterActorType.Bokusei;
-
-            int index = Mathf.Clamp(config.startActiveIndex, 0, order.Count - 1);
-            return order[index];
+            if (config?.growthData != null)
+                foreach (PartyMemberGrowthSO growth in config.growthData)
+                    if (growth != null && growth.characterType != CharacterActorType.None)
+                        return growth.characterType;
+            return CharacterActorType.Bokusei;
         }
 
         /// <summary>현재 조작 캐릭터 1명에 대한 시나리오를 생성/갱신한다.</summary>

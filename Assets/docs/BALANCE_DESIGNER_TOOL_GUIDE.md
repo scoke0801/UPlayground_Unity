@@ -207,7 +207,7 @@ Assets/02.Scripts/Tool/Editor/Balance/
 
 | 버튼 | 동작 |
 |------|------|
-| `Scenario ← Player` | `PartyConfigSO`의 현재 조작 캐릭터(`defaultBattleOrder[startActiveIndex]`, 없으면 `partyOrder`, 둘 다 비면 Bokusei) 1명에 대한 시나리오를 생성/갱신하고 창의 분석 대상으로 자동 연결 |
+| `Scenario ← Player` | `PartyConfigSO.growthData`의 첫 유효 캐릭터(없으면 Bokusei) 1명에 대한 시나리오를 생성/갱신하고 창의 분석 대상으로 자동 연결 |
 | `Scenario ← Party` | `PartyConfig.growthData`에 등록된 모든 파티 캐릭터에 대해 시나리오를 일괄 생성/갱신 |
 
 ### 채워지는 값과 보존되는 값

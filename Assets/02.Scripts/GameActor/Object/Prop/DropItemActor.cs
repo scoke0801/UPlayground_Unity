@@ -165,8 +165,14 @@ namespace UPlayGround
                 count = Mathf.Max(1, _count),
             };
 
-            InventoryManager.Instance.AddItem(_itemData.itemId, itemInstance);
-            ShowAcquisitionUI();
+            bool routedToCycleLedger = CycleRemainsManager.Instance?.TryAddUnsettledMaterial(
+                _itemData.itemId,
+                itemInstance.count) == true;
+            if (!routedToCycleLedger)
+            {
+                InventoryManager.Instance.AddItem(_itemData.itemId, itemInstance);
+                ShowAcquisitionUI();
+            }
             ShowCollectEffects();
 
             // Destroy 폴백 경로에서 _isInteracting이 true로 남으면 핸들러의

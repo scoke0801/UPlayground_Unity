@@ -12,11 +12,12 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.World;
 using UPlayGround.Group;
 using UPlayGround.Data.Item;
+using UPlayGround.Cycle;
 
 namespace UPlayGround.Tool.Editor.Map
 {
     /// <summary>
-    /// 씬 뷰 클릭으로 액터, 채집/벌목/채광/낚시터용 GatheringActor, 수동 획득 DropItemActor를 배치하는 에디터 도구.
+    /// 씬 뷰 클릭으로 액터, 상호작용 오브젝트, 사이클 스폰 지점을 배치하는 에디터 도구.
     /// 메뉴: UPlayGround/월드/맵/월드 배치 도구
     /// </summary>
     public class GatheringPlacementEditorWindow : EditorWindow
@@ -24,6 +25,7 @@ namespace UPlayGround.Tool.Editor.Map
         private const string ActorPlacementRootName = "MapPlacementRoot";
         private const string DefaultRootName = "GatheringPlacementRoot";
         private const string DropItemRootName = "DropItemPlacementRoot";
+        private const string CycleSpawnRootName = "CycleSpawnPointRoot";
         private const string InteractionDataFolder = "Assets/10.Datas/Actor/Interaction";
         private const string DropItemInteractionDataPath = InteractionDataFolder + "/DropItem.asset";
         private const string ItemDataFolder = "Assets/10.Datas/Item";
@@ -121,11 +123,23 @@ namespace UPlayGround.Tool.Editor.Map
         private bool _stylesInitialized;
 
         private int _dropItemCount = 1;
+        private CycleSpawnMarkerKind _cycleSpawnMarkerKind = CycleSpawnMarkerKind.Regular;
+        private CycleSpawnRole _cycleSpawnRoles = CycleSpawnRole.Player;
+        private string _cycleSpawnIdPrefix = "player_spawn_pos";
+        private string _cycleSectorId = "sector_01";
+        private float _cycleSafetyRadius = 10f;
 
         private enum WorldPlacementMode
         {
             Actor = 0,
             Interaction = 1,
+            CycleSpawn = 2,
+        }
+
+        private enum CycleSpawnMarkerKind
+        {
+            Regular = 0,
+            CentralBoss = 1,
         }
 
         private enum ActorPlacementSource
@@ -331,14 +345,23 @@ namespace UPlayGround.Tool.Editor.Map
             DrawWorldPlacementModeTabs();
             EditorGUILayout.Space(2f);
 
-            if (_worldPlacementMode == WorldPlacementMode.Actor)
-                DrawActorListPanel();
-            else
-                DrawInteractionListPanel();
+            switch (_worldPlacementMode)
+            {
+                case WorldPlacementMode.Actor:
+                    DrawActorListPanel();
+                    break;
+                case WorldPlacementMode.Interaction:
+                    DrawInteractionListPanel();
+                    break;
+                case WorldPlacementMode.CycleSpawn:
+                    DrawCycleSpawnListPanel();
+                    break;
+            }
 
-            GUILayout.Label(
-                "선택 시 배치 모드 자동 ON · Esc 종료 · Ctrl+F 검색 · 1~5 최근 사용",
-                EditorStyles.wordWrappedMiniLabel);
+            string shortcutGuide = _worldPlacementMode == WorldPlacementMode.CycleSpawn
+                ? "프리셋 선택 시 배치 모드 자동 ON · Esc 종료 · Ctrl/Cmd+Z 취소"
+                : "선택 시 배치 모드 자동 ON · Esc 종료 · Ctrl+F 검색 · 1~5 최근 사용";
+            GUILayout.Label(shortcutGuide, EditorStyles.wordWrappedMiniLabel);
         }
 
         /// <summary>우측 패널: 선택 상세(상단 고정) + 배치 옵션(스크롤) + Bake(하단 고정).</summary>
@@ -355,14 +378,19 @@ namespace UPlayGround.Tool.Editor.Map
                 DrawActorPlacementRules();
                 DrawActorSourceSettings();
             }
-            else
+            else if (_worldPlacementMode == WorldPlacementMode.Interaction)
             {
                 DrawTargetSection();
                 DrawPlacementSettings();
             }
+            else
+            {
+                DrawCycleSpawnSettings();
+            }
             EditorGUILayout.EndScrollView();
 
-            DrawRuntimeDataActions();
+            if (_worldPlacementMode != WorldPlacementMode.CycleSpawn)
+                DrawRuntimeDataActions();
         }
 
         private void DrawWorldPlacementModeTabs()
@@ -371,13 +399,39 @@ namespace UPlayGround.Tool.Editor.Map
             EditorGUI.BeginChangeCheck();
             _worldPlacementMode = (WorldPlacementMode)GUILayout.Toolbar(
                 (int)_worldPlacementMode,
-                new[] { "Actor / Prefab", "Interaction / Item" });
+                new[] { "Actor / Prefab", "Interaction / Item", "Cycle Spawn" });
             if (EditorGUI.EndChangeCheck())
             {
                 _placementMode = false;
                 SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
                 SceneView.RepaintAll();
             }
+        }
+
+        private void DrawCycleSpawnListPanel()
+        {
+            EditorGUILayout.HelpBox(
+                "프리셋을 선택한 뒤 씬 뷰를 클릭하면 사이클 스폰 마커가 생성됩니다.\n" +
+                "같은 ID 접두사를 연속 배치하면 고유 번호가 자동으로 붙습니다.",
+                MessageType.Info);
+
+            DrawSectionLabel("역할 프리셋");
+            if (GUILayout.Button("Player 스폰"))
+                SelectCycleSpawnPreset(CycleSpawnMarkerKind.Regular, CycleSpawnRole.Player, "player_spawn_pos");
+            if (GUILayout.Button("Outer Boss 스폰"))
+                SelectCycleSpawnPreset(CycleSpawnMarkerKind.Regular, CycleSpawnRole.OuterBoss, "outer_boss_spawn_pos");
+            if (GUILayout.Button("Respawn 지점"))
+                SelectCycleSpawnPreset(CycleSpawnMarkerKind.Regular, CycleSpawnRole.Respawn, "respawn_pos");
+            if (GUILayout.Button("Player + Respawn"))
+                SelectCycleSpawnPreset(CycleSpawnMarkerKind.Regular, CycleSpawnRole.Player | CycleSpawnRole.Respawn, "player_spawn_pos");
+            if (GUILayout.Button("Central Boss 스폰"))
+                SelectCycleSpawnPreset(CycleSpawnMarkerKind.CentralBoss, CycleSpawnRole.None, "central_boss");
+
+            GUILayout.Space(8f);
+            CycleSpawnPoint[] regular = FindObjectsByType<CycleSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            CentralBossSpawnPoint[] central = FindObjectsByType<CentralBossSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            GUILayout.Label($"현재 씬: 일반 {regular.Length}개 / 중앙 보스 {central.Length}개", EditorStyles.wordWrappedMiniLabel);
+            GUILayout.FlexibleSpace();
         }
 
         private void DrawActorListPanel()
@@ -508,6 +562,13 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string BuildSelectionDetailText()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+            {
+                return _cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss
+                    ? $"Central Boss  |  ID {_cycleSpawnIdPrefix.Trim()}  |  씬 마커"
+                    : $"Role {_cycleSpawnRoles}  |  ID Prefix {_cycleSpawnIdPrefix.Trim()}  |  Sector {_cycleSectorId.Trim()}";
+            }
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
             {
                 if (_actorSource == ActorPlacementSource.ActorDatabase)
@@ -539,6 +600,69 @@ namespace UPlayGround.Tool.Editor.Map
                 return "좌측 목록에서 배치할 아이템을 선택하세요.";
 
             return $"ID {_selectedItem.itemId}  |  {_selectedItem.itemType}  x{_dropItemCount}  |  생성: {(_dropItemPrefab != null ? _dropItemPrefab.name : "기본 GameObject")}";
+        }
+
+        private void DrawCycleSpawnSettings()
+        {
+            DrawSectionLabel("사이클 스폰 설정");
+
+            EditorGUI.BeginChangeCheck();
+            _cycleSpawnMarkerKind = (CycleSpawnMarkerKind)EditorGUILayout.EnumPopup("Marker Kind", _cycleSpawnMarkerKind);
+            if (EditorGUI.EndChangeCheck())
+            {
+                _cycleSpawnIdPrefix = _cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss
+                    ? "central_boss"
+                    : GetDefaultCycleSpawnPrefix(_cycleSpawnRoles);
+            }
+
+            if (_cycleSpawnMarkerKind == CycleSpawnMarkerKind.Regular)
+            {
+                const CycleSpawnRole validRoles = CycleSpawnRole.Player | CycleSpawnRole.OuterBoss | CycleSpawnRole.Respawn;
+                _cycleSpawnRoles = (CycleSpawnRole)EditorGUILayout.EnumFlagsField("Allowed Roles", _cycleSpawnRoles) & validRoles;
+                _cycleSpawnIdPrefix = EditorGUILayout.TextField("Spawn ID Prefix", _cycleSpawnIdPrefix);
+                _cycleSectorId = EditorGUILayout.TextField("Sector ID", _cycleSectorId);
+                _cycleSafetyRadius = Mathf.Max(0f, EditorGUILayout.FloatField("Safety Radius", _cycleSafetyRadius));
+
+                if ((_cycleSpawnRoles & CycleSpawnRole.OuterBoss) != 0 && string.IsNullOrWhiteSpace(_cycleSectorId))
+                    DrawInlineNotice("OuterBoss 역할은 검증을 위해 Sector ID가 필요합니다.", MessageType.Warning);
+                if (_cycleSpawnRoles == CycleSpawnRole.None)
+                    DrawInlineNotice("Allowed Roles를 하나 이상 선택하세요.", MessageType.Warning);
+            }
+            else
+            {
+                _cycleSpawnIdPrefix = EditorGUILayout.TextField("Spawn ID", _cycleSpawnIdPrefix);
+                int centralCount = FindObjectsByType<CentralBossSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length;
+                if (centralCount > 0)
+                    DrawInlineNotice($"현재 씬에 CentralBossSpawnPoint가 이미 {centralCount}개 있습니다.", MessageType.Warning);
+            }
+
+            EditorGUILayout.Space(6f);
+            DrawSectionLabel("배치 옵션");
+            _parent = (Transform)EditorGUILayout.ObjectField("Parent", _parent, typeof(Transform), true);
+            _autoCreateRoot = EditorGUILayout.Toggle("Auto Create Root", _autoCreateRoot);
+            _selectAfterPlace = EditorGUILayout.Toggle("Select After Place", _selectAfterPlace);
+
+            EditorGUILayout.Space(6f);
+            DrawSectionLabel("정렬 및 배치 규칙");
+            _raycastMask = LayerMaskField("Raycast Layer", _raycastMask);
+            _heightOffset = EditorGUILayout.FloatField("Y Offset", _heightOffset);
+            _yawOffset = EditorGUILayout.Slider("Yaw Offset", _yawOffset, -180f, 180f);
+            _snapToGrid = EditorGUILayout.Toggle("Snap To Grid", _snapToGrid);
+            using (new EditorGUI.DisabledScope(!_snapToGrid))
+                _gridSize = Mathf.Max(0.01f, EditorGUILayout.FloatField("Grid Size", _gridSize));
+
+            DrawInlineNotice("사이클 스폰 지점은 Bake 대상이 아닌 씬 마커로 유지됩니다.", MessageType.Info);
+        }
+
+        private void SelectCycleSpawnPreset(CycleSpawnMarkerKind kind, CycleSpawnRole roles, string idPrefix)
+        {
+            _cycleSpawnMarkerKind = kind;
+            _cycleSpawnRoles = roles;
+            _cycleSpawnIdPrefix = idPrefix;
+            _placementMode = true;
+            SetPersistentStatus(BuildReadinessMessage(), GetReadinessMessageType());
+            Repaint();
+            SceneView.RepaintAll();
         }
 
         /// <summary>선택 항목과 무관하게 모든 액터 배치에 적용되는 공용 옵션.</summary>
@@ -1328,7 +1452,12 @@ namespace UPlayGround.Tool.Editor.Map
             if (instance == null)
                 return;
 
-            string undoName = _worldPlacementMode == WorldPlacementMode.Actor ? "Actor Placement" : "Interaction Placement";
+            string undoName = _worldPlacementMode switch
+            {
+                WorldPlacementMode.Actor => "Actor Placement",
+                WorldPlacementMode.Interaction => "Interaction Placement",
+                _ => "Cycle Spawn Placement",
+            };
             Undo.RegisterCreatedObjectUndo(instance, undoName);
             if (parent != null)
                 Undo.SetTransformParent(instance.transform, parent, "World Placement Parent");
@@ -1336,11 +1465,12 @@ namespace UPlayGround.Tool.Editor.Map
             // Parent가 위치/회전/스케일을 가진 경우를 대비해 Parent 연결 이후 월드 배치 좌표를 확정한다.
             instance.transform.SetPositionAndRotation(_previewPosition, rotation);
 
+            string placedCycleSpawnId = null;
             if (_worldPlacementMode == WorldPlacementMode.Actor)
             {
                 ApplyActorDefinitionIfNeeded(instance);
             }
-            else
+            else if (_worldPlacementMode == WorldPlacementMode.Interaction)
             {
                 ApplyInteractableLayer(instance);
                 StickInstanceToSurface(placement);
@@ -1348,8 +1478,13 @@ namespace UPlayGround.Tool.Editor.Map
                 ApplyPlacementData(instance);
                 AddSceneEntityIdIfNeeded(instance);
             }
+            else
+            {
+                placedCycleSpawnId = ApplyCycleSpawnData(instance);
+            }
 
-            AddPlacementMetadataIfNeeded(instance);
+            if (_worldPlacementMode != WorldPlacementMode.CycleSpawn)
+                AddPlacementMetadataIfNeeded(instance);
 
             if (_selectAfterPlace)
                 Selection.activeGameObject = instance;
@@ -1357,13 +1492,22 @@ namespace UPlayGround.Tool.Editor.Map
             _sessionPlacementCount++;
             if (_worldPlacementMode == WorldPlacementMode.Interaction && _placementKind == PlacementKind.Gathering)
                 AddRecentData(_selectedData);
-            SetTemporaryStatus($"배치 완료 (이번 세션 {_sessionPlacementCount}개)", MessageType.Info);
+            string completion = placedCycleSpawnId == null
+                ? $"배치 완료 (이번 세션 {_sessionPlacementCount}개)"
+                : $"사이클 스폰 '{placedCycleSpawnId}' 배치 완료 (이번 세션 {_sessionPlacementCount}개)";
+            SetTemporaryStatus(completion, MessageType.Info);
             EditorSceneManager.MarkSceneDirty(instance.scene);
             Repaint();
         }
 
         private PlacementInstance CreateInstance()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+            {
+                var spawnMarker = new GameObject(BuildObjectName());
+                return new PlacementInstance(spawnMarker, spawnMarker, moveSurfaceTargetOnly: false);
+            }
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
             {
                 GameObject actorPrefab = GetActorPrefab();
@@ -1413,6 +1557,43 @@ namespace UPlayGround.Tool.Editor.Map
                 instance.AddComponent<DropItemActor>();
 
             return new PlacementInstance(instance, instance, moveSurfaceTargetOnly: false);
+        }
+
+        private string ApplyCycleSpawnData(GameObject instance)
+        {
+            string spawnId = _cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss
+                ? _cycleSpawnIdPrefix.Trim()
+                : MakeUniqueCycleSpawnId(_cycleSpawnIdPrefix);
+
+            if (_cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss)
+            {
+                CentralBossSpawnPoint point = Undo.AddComponent<CentralBossSpawnPoint>(instance);
+                SerializedObject serialized = new(point);
+                serialized.FindProperty("_spawnId").stringValue = spawnId;
+                serialized.ApplyModifiedProperties();
+                instance.name = spawnId;
+                return spawnId;
+            }
+
+            CycleSpawnPoint regularPoint = Undo.AddComponent<CycleSpawnPoint>(instance);
+            SerializedObject regularSerialized = new(regularPoint);
+            regularSerialized.FindProperty("_spawnId").stringValue = spawnId;
+            regularSerialized.FindProperty("_allowedRoles").intValue = (int)_cycleSpawnRoles;
+            regularSerialized.FindProperty("_sectorId").stringValue = _cycleSectorId.Trim();
+            regularSerialized.FindProperty("_safetyRadius").floatValue = Mathf.Max(0f, _cycleSafetyRadius);
+            regularSerialized.ApplyModifiedProperties();
+
+            if ((_cycleSpawnRoles & CycleSpawnRole.Respawn) != 0)
+            {
+                CycleRespawnPoint respawnPoint = Undo.AddComponent<CycleRespawnPoint>(instance);
+                SerializedObject respawnSerialized = new(respawnPoint);
+                respawnSerialized.FindProperty("_respawnId").stringValue = spawnId;
+                respawnSerialized.FindProperty("_isActive").boolValue = true;
+                respawnSerialized.ApplyModifiedProperties();
+            }
+
+            instance.name = spawnId;
+            return spawnId;
         }
 
         private static GameObject InstantiatePrefab(GameObject targetPrefab)
@@ -1911,6 +2092,9 @@ namespace UPlayGround.Tool.Editor.Map
 
         private Quaternion BuildPlacementRotation()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return Quaternion.Euler(0f, _yawOffset, 0f);
+
             Quaternion localRotation = _randomRotation
                 ? Quaternion.Euler(
                     RandomRange(_randomRotationXRange),
@@ -1936,9 +2120,12 @@ namespace UPlayGround.Tool.Editor.Map
             if (!_autoCreateRoot)
                 return null;
 
-            string rootName = _worldPlacementMode == WorldPlacementMode.Actor
-                ? ActorPlacementRootName
-                : _placementKind == PlacementKind.Gathering ? DefaultRootName : DropItemRootName;
+            string rootName = _worldPlacementMode switch
+            {
+                WorldPlacementMode.Actor => ActorPlacementRootName,
+                WorldPlacementMode.CycleSpawn => CycleSpawnRootName,
+                _ => _placementKind == PlacementKind.Gathering ? DefaultRootName : DropItemRootName,
+            };
             return GetOrCreatePlacementRoot(rootName);
         }
 
@@ -2104,6 +2291,23 @@ namespace UPlayGround.Tool.Editor.Map
                 return false;
             }
 
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+            {
+                if (_cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss &&
+                    FindObjectsByType<CentralBossSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None).Length > 0)
+                {
+                    reason = "CentralBossSpawnPoint는 씬에 하나만 배치할 수 있습니다.";
+                    return false;
+                }
+
+                if (_cycleSpawnMarkerKind == CycleSpawnMarkerKind.Regular &&
+                    (_cycleSpawnRoles & CycleSpawnRole.OuterBoss) != 0 && string.IsNullOrWhiteSpace(_cycleSectorId))
+                {
+                    reason = "OuterBoss 역할에는 Sector ID를 입력해야 합니다.";
+                    return false;
+                }
+            }
+
             if (!_hasPreviewHit)
             {
                 reason = "이 위치에는 배치할 표면이 없습니다. Raycast Layer 설정을 확인하세요.";
@@ -2126,6 +2330,9 @@ namespace UPlayGround.Tool.Editor.Map
 
                 return "Actor/Prefab 배치 준비 완료 - 씬 뷰 클릭으로 배치하세요. Esc 종료, Ctrl/Cmd+Z 취소.";
             }
+
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return "사이클 스폰 배치 준비 완료 - 씬 뷰를 여러 번 클릭해 후보 지점을 배치하세요. Esc 종료, Ctrl/Cmd+Z 취소.";
 
             if (_placementKind == PlacementKind.DropItem)
             {
@@ -2154,6 +2361,9 @@ namespace UPlayGround.Tool.Editor.Map
 
             if (_worldPlacementMode == WorldPlacementMode.Actor)
                 return GetActorPrefab() == null ? MessageType.Warning : MessageType.None;
+
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return MessageType.None;
 
             if (_placementKind == PlacementKind.DropItem)
                 return _dropItemPrefab == null || _dropItemPrefab.GetComponent<DropItemActor>() == null
@@ -2398,6 +2608,9 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string BuildObjectName()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return string.IsNullOrWhiteSpace(_cycleSpawnIdPrefix) ? "CycleSpawnPoint" : _cycleSpawnIdPrefix.Trim();
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
             {
                 if (_actorSource == ActorPlacementSource.ActorDatabase && _selectedActorDefinition != null)
@@ -2421,8 +2634,50 @@ namespace UPlayGround.Tool.Editor.Map
             return $"Gathering_{baseName}";
         }
 
+        private static string GetDefaultCycleSpawnPrefix(CycleSpawnRole roles)
+        {
+            if ((roles & CycleSpawnRole.Player) != 0)
+                return "player_spawn_pos";
+            if ((roles & CycleSpawnRole.OuterBoss) != 0)
+                return "outer_boss_spawn_pos";
+            if ((roles & CycleSpawnRole.Respawn) != 0)
+                return "respawn_pos";
+            return "cycle_spawn_pos";
+        }
+
+        private static string MakeUniqueCycleSpawnId(string requestedPrefix)
+        {
+            string prefix = requestedPrefix.Trim().Replace(' ', '_');
+            var used = new HashSet<string>(StringComparer.Ordinal);
+            foreach (CycleSpawnPoint point in FindObjectsByType<CycleSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (point != null && !string.IsNullOrWhiteSpace(point.SpawnId))
+                    used.Add(point.SpawnId);
+            }
+            foreach (CentralBossSpawnPoint point in FindObjectsByType<CentralBossSpawnPoint>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            {
+                if (point != null && !string.IsNullOrWhiteSpace(point.SpawnId))
+                    used.Add(point.SpawnId);
+            }
+
+            if (!used.Contains(prefix))
+                return prefix;
+
+            int suffix = 2;
+            while (used.Contains($"{prefix}_{suffix}"))
+                suffix++;
+            return $"{prefix}_{suffix}";
+        }
+
         private bool HasSelectedPlacementData()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+            {
+                if (string.IsNullOrWhiteSpace(_cycleSpawnIdPrefix))
+                    return false;
+                return _cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss || _cycleSpawnRoles != CycleSpawnRole.None;
+            }
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
                 return GetActorPrefab() != null;
 
@@ -2433,6 +2688,11 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string GetSelectionRequiredMessage()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return string.IsNullOrWhiteSpace(_cycleSpawnIdPrefix)
+                    ? "Spawn ID 또는 ID Prefix를 입력하세요."
+                    : "Allowed Roles를 하나 이상 선택하세요.";
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
                 return _actorSource == ActorPlacementSource.ActorDatabase
                     ? "배치할 ActorDefinitionSO를 먼저 선택하세요."
@@ -2452,6 +2712,11 @@ namespace UPlayGround.Tool.Editor.Map
 
         private string GetSelectedPlacementTitle()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return _cycleSpawnMarkerKind == CycleSpawnMarkerKind.CentralBoss
+                    ? $"CentralBoss: {_cycleSpawnIdPrefix.Trim()}"
+                    : $"{_cycleSpawnRoles}: {_cycleSpawnIdPrefix.Trim()}";
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
                 return BuildObjectName();
 
@@ -2462,6 +2727,9 @@ namespace UPlayGround.Tool.Editor.Map
 
         private UnityEngine.Object GetSelectedPingObject()
         {
+            if (_worldPlacementMode == WorldPlacementMode.CycleSpawn)
+                return null;
+
             if (_worldPlacementMode == WorldPlacementMode.Actor)
                 return _actorSource == ActorPlacementSource.ActorDatabase
                     ? _selectedActorDefinition

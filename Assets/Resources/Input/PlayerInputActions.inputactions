@@ -212,6 +212,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "BossAssist",
+                    "type": "Button",
+                    "id": "74b58739-2c2d-4aa4-b401-a607753a9e01",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -707,6 +716,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "LockOnSwitchLeft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e207f62b-e404-42a3-893f-6077736e6e6e",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BossAssist",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

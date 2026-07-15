@@ -60,6 +60,28 @@ MonoBehaviour:
     sprite: {fileID: 0}
     color: {r: 1, g: 0.8, b: 0, a: 1}
     size: 8
+  unknownBoss:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  discoveredOuterBoss:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  discoveredCentralBoss:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  remains:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  activeRestPoint:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  showCycleBossMarkers: 1
+  showRemainsMarker: 1
   showQuestMarkers: 1
   showEnemies: 1
   showOnlyDetectedEnemies: 0
@@ -72,7 +94,11 @@ MonoBehaviour:
   backgroundSprite: {fileID: 21300000, guid: 6fb1cbd7b42efe24da3b875fcf9896ed, type: 3}
   captureCenter: {x: -2.1948242, y: -3.4741464}
   captureWorldSize: 1000
+  captureWorldSizeXY: {x: 0, y: 0}
   mapZoom: 20
+  flipX: 0
+  flipY: 0
+  rotationDegrees: 0
   expandedMapSize: 500
   expandedMapZoom: 3
   expandTransitionDuration: 0.2

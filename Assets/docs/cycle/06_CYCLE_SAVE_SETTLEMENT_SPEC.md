@@ -147,7 +147,6 @@ public sealed class CycleSettlementPlan
     public List<CycleItemStack> materialRewards;
     public int completedCycleIndex;
     public bool discardRemains;
-    public string pendingAssistDecision;
 }
 ```
 

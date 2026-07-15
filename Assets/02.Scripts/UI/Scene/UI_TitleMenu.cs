@@ -55,17 +55,16 @@ namespace UPlayGround.UI
             // 이어하기: 가장 최근 슬롯을 로드하고 저장된 씬으로 진입.
             // 저장이 없으면 새 게임으로 폴백.
             int recent = SaveManager.Instance.GetMostRecentSlot();
-            UIManager.Instance.HideAllUI();
 
             if (recent >= 0)
             {
+                UIManager.Instance.HideAllUI();
                 SaveManager.Instance.LoadGameToScene(recent);
             }
             else
             {
-                // 저장이 없어 새 게임으로 폴백하는 경우도 새 게임과 동일하게 상태를 초기화한다.
-                SaveManager.Instance.ResetForNewGame();
-                LoadStartScene();
+                // 시작 파티는 반드시 캐릭터 선택 결과로 구성한다.
+                OnClickNewGameButton();
             }
         }
 
@@ -85,9 +84,7 @@ namespace UPlayGround.UI
             _characterSelect = go != null ? go.GetComponent<UI_CharacterSelect>() : null;
             if (_characterSelect == null)
             {
-                // 캐릭터 선택 UI가 없으면 기존 흐름으로 폴백(바로 시작).
-                Debug.LogWarning("[UI_TitleMenu] 캐릭터 선택 UI를 찾을 수 없어 바로 새 게임을 시작합니다.");
-                StartNewGame(CharacterActorType.None);
+                Debug.LogError("[UI_TitleMenu] 캐릭터 선택 UI가 없어 새 게임을 시작할 수 없습니다.");
                 return;
             }
 
@@ -135,8 +132,16 @@ namespace UPlayGround.UI
         /// </summary>
         private void StartNewGame(CharacterActorType selectedCharacter)
         {
-            // TODO: 선택 캐릭터(selectedCharacter)를 PartyConfig/시작 파티에 반영. (추후 연동)
+            if (selectedCharacter == CharacterActorType.None)
+            {
+                Debug.LogError("[UI_TitleMenu] 시작 캐릭터가 선택되지 않아 새 게임을 중단합니다.");
+                Show();
+                return;
+            }
+
             SaveManager.Instance.ResetForNewGame();
+            PartyManager.Instance.PrepareNewGameStartingCharacter(selectedCharacter);
+            CycleRunManager.Instance.RequestStartNewCycleOnNextWorld();
             UIManager.Instance.HideAllUI();
             LoadStartScene();
         }

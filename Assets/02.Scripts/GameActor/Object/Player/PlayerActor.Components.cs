@@ -119,6 +119,7 @@ namespace UPlayGround
                 partyManager == null || partyManager.PreserveComboStatePerCharacter,
                 partyManager != null ? partyManager.ComboStateMaxCarryTime : 1.8f);
             _combatWeaponStateController?.RefreshReferences();
+            ApplyCharacterWeight(data.weightProfile);
 
             // 새 모델의 ParentConstraint 기본 weight는 prefab 세팅에 의존하므로,
             // 현재 전투 상태에 맞춰 weight + 플래그를 강제 동기화한다.

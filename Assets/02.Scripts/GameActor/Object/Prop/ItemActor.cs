@@ -108,13 +108,16 @@ namespace UPlayGround
 
             Instantiate(_getParticle, endPosition, Quaternion.identity);
 
-            var ui = UIManager.Instance.ShowUI(UIKeyType.ItemAcquisitionList);
-            if (ui != null)
+            bool routedToCycleLedger = CycleRemainsManager.Instance?.TryAddUnsettledMaterial(
+                _itemInstance.data.itemId,
+                _itemInstance.count) == true;
+            if (!routedToCycleLedger)
             {
-                ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemInstance.data);
+                var ui = UIManager.Instance.ShowUI(UIKeyType.ItemAcquisitionList);
+                if (ui != null)
+                    ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemInstance.data);
+                InventoryManager.Instance.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
             }
-            
-            InventoryManager.Instance.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
 
             UI_Inventory inventory = UIManager.Instance.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
             if(inventory && inventory.IsVisible)

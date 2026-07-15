@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Cycle;
 
 namespace UPlayGround.Data.Save
 {
@@ -17,6 +18,23 @@ namespace UPlayGround.Data.Save
         public PartySaveData party = new PartySaveData();
         public WorldStateSaveData world = new WorldStateSaveData();
         public TimeSaveData time = new TimeSaveData();
+        public CycleSaveData cycle = new CycleSaveData();
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // Cycle Runtime (01 단계 최소 저장 모델. 후속 스펙에서 세부 DTO 확장)
+
+    [Serializable]
+    public sealed class CycleSaveData
+    {
+        public int dataVersion = 1;
+        public CycleRunState run = CycleRunState.CreateInactive();
+
+        public CycleLayoutState layout;
+        public List<CycleItemStack> unsettledMaterials = new List<CycleItemStack>();
+        public RemainsState remains;
+        public AssistProgressSaveData assists = new AssistProgressSaveData();
+        public CycleHistorySaveData history = new CycleHistorySaveData();
     }
 
     // ──────────────────────────────────────────────────────────

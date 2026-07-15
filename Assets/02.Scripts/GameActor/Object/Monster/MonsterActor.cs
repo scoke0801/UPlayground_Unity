@@ -20,7 +20,10 @@ using Random = System.Random;
 namespace UPlayGround
 {
     public partial class MonsterActor : GameActor, IDamageable
-    {  
+    {
+        public event System.Action<MonsterActor> OnDied;
+        public bool LastDeathWasSpecialBreak { get; private set; }
+
         [Tooltip("등급. ActorDefinitionSO 주입 시 덮어쓰며, 정의 없이 씬 배치된 경우 이 값을 폴백으로 사용.")]
         [HideInInspector, SerializeField] private MonsterActorGrade _grade = MonsterActorGrade.Normal;
         [Min(1)]
@@ -232,6 +235,8 @@ namespace UPlayGround
                 fixedDamage,
                 minReferenceHealth,
                 hitPoint));
+            if (attacker is PlayerActor player)
+                player.TrySpawnWeightRecovery(hitPoint, VitalOrbTrigger.FinishAttackHit, true);
         }
 
         private CombatResult ApplySpecialBreakResult(
@@ -245,6 +250,7 @@ namespace UPlayGround
 
             if (_currentHealth <= 0)
             {
+                LastDeathWasSpecialBreak = true;
                 OnDeath();
                 return combatResult;
             }
@@ -522,6 +528,7 @@ namespace UPlayGround
             GrantPartyExp();
             GrantGold();
             TryRecruitToParty();
+            OnDied?.Invoke(this);
 
             if (_uiHpBar != null)
             {

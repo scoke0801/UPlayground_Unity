@@ -113,6 +113,35 @@ namespace UPlayGround.Manager.Combat
             SpawnDropObject(entry, trigger, validPos);
         }
 
+        /// <summary>캐릭터 체급 정책이 기본 트리거 확률/개수/회복량을 명시적으로 대체한다.</summary>
+        public void TrySpawnByPolicy(
+            VitalOrbTrigger trigger,
+            Vector3 spawnPosition,
+            float probability,
+            int count,
+            float healScale)
+        {
+            if (_triggerConfig == null || _vitalOrbObjectPrefab == null || _orbPool == null || count <= 0)
+                return;
+
+            VitalOrbTriggerEntry entry = GetEntry(trigger);
+            if (entry == null || _triggerStates[trigger].IsOnCooldown || Random.value > Mathf.Clamp01(probability))
+                return;
+            if (!TryGetGroundPosition(spawnPosition, out Vector3 validPos))
+                return;
+
+            int available = Mathf.Max(0, entry.maxStack - _activeCountMap[trigger]);
+            int spawnCount = Mathf.Min(count, available);
+            for (int i = 0; i < spawnCount; i++)
+            {
+                float angle = i * Mathf.PI * 2f / Mathf.Max(1, spawnCount);
+                Vector3 offset = spawnCount > 1
+                    ? new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle)) * 0.25f
+                    : Vector3.zero;
+                SpawnDropObject(entry, trigger, validPos + offset, healScale);
+            }
+        }
+
         private async UniTask LoadAssetsAsync()
         {
             UniTask configTask = LoadConfigDataAsync();
@@ -164,11 +193,15 @@ namespace UPlayGround.Manager.Combat
             }
         }
 
-        private void SpawnDropObject(VitalOrbTriggerEntry entry, VitalOrbTrigger trigger, Vector3 position)
+        private void SpawnDropObject(
+            VitalOrbTriggerEntry entry,
+            VitalOrbTrigger trigger,
+            Vector3 position,
+            float healScale = 1f)
         {
             var instance = _orbPool.Get();
             instance.transform.SetPositionAndRotation(position, Quaternion.identity);
-            instance.Initialize(entry.dropData, OnOrbFinished);
+            instance.Initialize(entry.dropData, OnOrbFinished, healScale);
 
             _triggerStates[trigger].StartCooldown(entry.cooldown);
             _activeCountMap[trigger]++;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -51,6 +52,10 @@ namespace UPlayGround.Manager
         // 구성 완료 후 적용한다. (InventoryManager/RecipeManager/QuestManager와 동일 패턴)
         private PartySaveData _pendingPartyLoad;
         private readonly Dictionary<CharacterActorType, float> _swapCooldownEndTimes = new();
+        // 타이틀 캐릭터 선택 결과. Loading 씬을 지나 실제 PlayerActor가 준비될 때까지 유지한다.
+        private CharacterActorType _newGameStartingCharacter = CharacterActorType.None;
+        // 최초 새 게임 선택 또는 세이브 복원 이후에는 씬 전환 시 PartyConfig로 재시딩하지 않는다.
+        private bool _hasRuntimePartyComposition;
         private int                    _activeIndex  = 0;
         private int                    _maxBattleSize = 4;
         private bool                   _isSwapping   = false;
@@ -209,6 +214,8 @@ namespace UPlayGround.Manager
             _exp.Clear();
             _swapCooldownEndTimes.Clear();
             _pendingPartyLoad = null;
+            _newGameStartingCharacter = CharacterActorType.None;
+            _hasRuntimePartyComposition = false;
 
             _config = null;
         }
@@ -560,6 +567,17 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 타이틀에서 선택한 캐릭터를 다음 새 게임 파티의 리더로 예약한다.
+        /// 실제 PlayerActor 모델 검증과 파티 반영은 게임플레이 씬의 BuildPartyFromScene에서 수행한다.
+        /// </summary>
+        public void PrepareNewGameStartingCharacter(CharacterActorType type)
+        {
+            _newGameStartingCharacter = type;
+            if (type != CharacterActorType.None)
+                Debug.Log($"[PartyManager] 새 게임 시작 캐릭터 예약: {type}");
+        }
+
+        /// <summary>
         /// 활성 캐릭터 사망 연출이 끝난 뒤 살아있는 다음 출전 멤버로 전환한다.
         /// 전투 전멸이면 false를 반환해 RespawnPopup 표시 흐름으로 넘긴다.
         /// </summary>
@@ -628,6 +646,30 @@ namespace UPlayGround.Manager
         /// <summary>현재 레벨 내 누적 경험치(다음 레벨까지의 진행분).</summary>
         public long GetExp(CharacterActorType type)
             => _exp.TryGetValue(type, out long exp) ? exp : 0;
+
+        /// <summary>현재 레벨 경험치만 차감하고 실제 차감량을 반환한다. 레벨은 낮추지 않는다.</summary>
+        public long RemoveCurrentLevelExp(CharacterActorType type, long amount)
+        {
+            if (type == CharacterActorType.None || amount <= 0) return 0;
+            long current = GetExp(type);
+            long removed = Math.Min(current, amount);
+            if (removed <= 0) return 0;
+            _exp[type] = current - removed;
+            OnExpChanged?.Invoke(type, _exp[type], GetRequiredExp(type));
+            OnPartyProgressionChanged?.Invoke(type);
+            return removed;
+        }
+
+        /// <summary>유해 회수 전용. 레벨업 없이 현재 레벨 경험치 범위 안에서 복구한다.</summary>
+        public void RestoreCurrentLevelExp(CharacterActorType type, long amount)
+        {
+            if (type == CharacterActorType.None || amount <= 0) return;
+            InitializeLevelIfMissing(type);
+            long required = Math.Max(0, GetRequiredExp(type));
+            _exp[type] = Math.Min(required > 0 ? required - 1 : long.MaxValue, GetExp(type) + amount);
+            OnExpChanged?.Invoke(type, _exp[type], required);
+            OnPartyProgressionChanged?.Invoke(type);
+        }
 
         /// <summary>현재 레벨에서 다음 레벨로 가는 데 필요한 총 경험치.</summary>
         public long GetRequiredExp(CharacterActorType type)
@@ -782,6 +824,8 @@ namespace UPlayGround.Manager
 
         public void ImportSaveData(GameSaveData saveData)
         {
+            _newGameStartingCharacter = CharacterActorType.None;
+            _hasRuntimePartyComposition = false;
             var party = saveData?.party;
             if (party == null) return;
 
@@ -805,6 +849,10 @@ namespace UPlayGround.Manager
             // 비어 있어야 초기 레벨을 다시 부여하므로 여기서 반드시 비워야 한다.
             // (캐릭터별 HP/스킬게이지는 PlayerActor에 있어 새 씬의 신규 플레이어에서 초기화됨)
             _pendingPartyLoad = null;
+            _newGameStartingCharacter = CharacterActorType.None;
+            _hasRuntimePartyComposition = false;
+            _roster.Clear();
+            _battleOrder.Clear();
             _levels.Clear();
             _exp.Clear();
             _swapCooldownEndTimes.Clear();
@@ -879,6 +927,7 @@ namespace UPlayGround.Manager
             _activeIndex = _battleOrder.Count > 0
                 ? Mathf.Clamp(party.activeIndex, 0, _battleOrder.Count - 1)
                 : 0;
+            _hasRuntimePartyComposition = _roster.Count > 0 && _battleOrder.Count > 0;
 
             OnRosterChanged?.Invoke();
             OnBattleOrderChanged?.Invoke();
@@ -1098,54 +1147,96 @@ namespace UPlayGround.Manager
         private void BuildPartyFromScene()
         {
             _player = ResolvePlayerActor();
-            _roster.Clear();
-            _battleOrder.Clear();
             _swapCooldownEndTimes.Clear();
 
             _maxBattleSize = _config != null ? Mathf.Max(1, _config.maxBattleSize) : 4;
             _swapCooldown = _config != null ? Mathf.Max(0f, _config.swapCooldown) : Mathf.Max(0f, _swapCooldown);
             BuildGrowthLookup();
 
-            if (_config != null && _config.partyOrder.Count > 0)
+            // 새 게임 최초 구성이나 세이브 복원 이후의 씬 전환에서는 현재 런타임 편성을 유지한다.
+            // 씬별 PlayerActor 모델만 다시 바인딩하고 PartyConfig 시작 명단은 재적용하지 않는다.
+            if (_hasRuntimePartyComposition && _roster.Count > 0 && _battleOrder.Count > 0)
             {
-                _roster.AddRange(_config.partyOrder);
-            }
-            else
-            {
-                // SO 없으면 PlayerSwapBehaviour에서 폴백
-                var swap = _player?.GetComponent<PlayerSwapBehaviour>();
-                if (swap != null)
-                {
-                    _roster.AddRange(swap.GetAllCharacterTypes());
-                }
+                _activeIndex = Mathf.Clamp(_activeIndex, 0, _battleOrder.Count - 1);
+                InitializeRosterLevels();
+                OnRosterChanged?.Invoke();
+                OnBattleOrderChanged?.Invoke();
+                return;
             }
 
-            // BattleOrder 초기화 — defaultBattleOrder 우선, 없으면 Roster 앞 maxBattleSize
-            if (_config != null && _config.defaultBattleOrder.Count > 0)
+            _roster.Clear();
+            _battleOrder.Clear();
+
+            // Loading 씬에는 PlayerActor가 없으므로 선택 결과를 소비하지도,
+            // PartyConfig 기본 명단을 임시 파티로 노출하지도 않는다.
+            if (_newGameStartingCharacter != CharacterActorType.None && _player == null)
             {
-                foreach (var t in _config.defaultBattleOrder)
-                {
-                    if (_battleOrder.Count >= _maxBattleSize) break;
-                    if (!_roster.Contains(t))                  continue;
-                    if (_battleOrder.Contains(t))              continue;
-                    _battleOrder.Add(t);
-                }
+                _activeIndex = 0;
+                OnRosterChanged?.Invoke();
+                OnBattleOrderChanged?.Invoke();
+                return;
             }
 
-            if (_battleOrder.Count == 0)
+            // 에디터에서 게임플레이 씬을 직접 실행할 때만 PlayerSwapBehaviour의 전체 모델을 폴백으로 사용한다.
+            // 정상 새 게임은 아래 ApplyNewGameStartingCharacter에서 선택한 한 명만 남긴다.
+            var swap = _player?.GetComponent<PlayerSwapBehaviour>();
+            if (swap != null)
             {
-                int take = Mathf.Min(_maxBattleSize, _roster.Count);
-                for (int i = 0; i < take; ++i) _battleOrder.Add(_roster[i]);
+                _roster.AddRange(swap.GetAllCharacterTypes());
             }
 
-            int startIdx = _config != null ? _config.startActiveIndex : 0;
-            _activeIndex = _battleOrder.Count > 0
-                ? Mathf.Clamp(startIdx, 0, _battleOrder.Count - 1)
-                : 0;
+            int take = Mathf.Min(_maxBattleSize, _roster.Count);
+            for (int i = 0; i < take; ++i) _battleOrder.Add(_roster[i]);
+
+            ApplyNewGameStartingCharacter();
+
+            _activeIndex = 0;
+            if (_player != null && _battleOrder.Count > 0)
+                _hasRuntimePartyComposition = true;
 
             InitializeRosterLevels();
             OnRosterChanged?.Invoke();
             OnBattleOrderChanged?.Invoke();
+        }
+
+        private void ApplyNewGameStartingCharacter()
+        {
+            CharacterActorType selected = _newGameStartingCharacter;
+            if (selected == CharacterActorType.None || _player == null)
+                return;
+
+            PlayerSwapBehaviour swap = _player.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null || swap.GetModelData(selected) == null)
+            {
+                CharacterActorType fallback = swap?.GetModelData(CharacterActorType.Bokusei) != null
+                    ? CharacterActorType.Bokusei
+                    : _roster.FirstOrDefault(type => swap?.GetModelData(type) != null);
+
+                _newGameStartingCharacter = CharacterActorType.None;
+                if (fallback == CharacterActorType.None)
+                {
+                    _roster.Clear();
+                    _battleOrder.Clear();
+                    Debug.LogError($"[PartyManager] 선택한 시작 캐릭터 {selected}와 대체 캐릭터 모델을 찾지 못했습니다.");
+                    return;
+                }
+
+                _roster.Clear();
+                _roster.Add(fallback);
+                _battleOrder.Clear();
+                _battleOrder.Add(fallback);
+                Debug.LogError($"[PartyManager] 선택한 시작 캐릭터 {selected}의 모델이 없어 {fallback}(으)로 대체합니다.");
+                return;
+            }
+
+            _roster.Clear();
+            _roster.Add(selected);
+
+            _battleOrder.Clear();
+            _battleOrder.Add(selected);
+
+            _newGameStartingCharacter = CharacterActorType.None;
+            Debug.Log($"[PartyManager] 선택 캐릭터를 새 게임 파티 리더로 적용: {selected}");
         }
 
         private PlayerActor ResolvePlayerActor()

@@ -406,28 +406,6 @@ namespace UPlayGround.Tool.Editor.Validation
 
                 if (config.maxBattleSize <= 0)
                     Add(issues, EditorValidationSeverity.Error, "Party", path, config, "maxBattleSize", "maxBattleSize가 0 이하입니다.", "1 이상의 값을 사용하세요.");
-                if (config.startActiveIndex < 0 || (config.defaultBattleOrder.Count > 0 && config.startActiveIndex >= config.defaultBattleOrder.Count))
-                    Add(issues, EditorValidationSeverity.Warning, "Party", path, config, "startActiveIndex", "startActiveIndex가 시작 출전 슬롯 범위를 벗어납니다.", "defaultBattleOrder 기준 인덱스를 확인하세요.");
-
-                var partySet = new HashSet<CharacterActorType>();
-                for (int i = 0; i < config.partyOrder.Count; i++)
-                {
-                    CharacterActorType type = config.partyOrder[i];
-                    if (type == CharacterActorType.None)
-                        Add(issues, EditorValidationSeverity.Warning, "Party", path, config, $"partyOrder[{i}]", "partyOrder에 None이 포함되어 있습니다.", "초기 파티 멤버가 아니라면 제거하세요.");
-                    if (!partySet.Add(type))
-                        Add(issues, EditorValidationSeverity.Warning, "Party", path, config, $"partyOrder[{i}]", $"partyOrder 캐릭터가 중복됩니다: {type}", "초기 roster 중복 여부를 확인하세요.");
-                }
-
-                var battleSet = new HashSet<CharacterActorType>();
-                for (int i = 0; i < config.defaultBattleOrder.Count; i++)
-                {
-                    CharacterActorType type = config.defaultBattleOrder[i];
-                    if (!battleSet.Add(type))
-                        Add(issues, EditorValidationSeverity.Warning, "Party", path, config, $"defaultBattleOrder[{i}]", $"defaultBattleOrder 캐릭터가 중복됩니다: {type}", "출전 슬롯 중복 여부를 확인하세요.");
-                    if (type != CharacterActorType.None && !partySet.Contains(type))
-                        Add(issues, EditorValidationSeverity.Warning, "Party", path, config, $"defaultBattleOrder[{i}]", $"defaultBattleOrder 캐릭터가 partyOrder에 없습니다: {type}", "초기 roster에 포함시키거나 출전 슬롯에서 제거하세요.");
-                }
 
                 var growthSet = new HashSet<CharacterActorType>();
                 for (int i = 0; i < config.growthData.Count; i++)

@@ -16,21 +16,10 @@ namespace UPlayGround.Data.Party
         [Tooltip("씬에 PlayerActor가 없을 때 월드 배치 Bake 데이터에서 찾아 스폰할 ActorDatabase actorId.")]
         public string playerActorId = "Player";
 
-        [Header("Roster")]
-        [Tooltip("게임 시작 시 보유한 캐릭터 전체 목록(=초기 Roster). 처치 보상으로 추가될 캐릭터는 런타임에 합류한다.")]
-        public List<CharacterActorType> partyOrder = new();
-
         [Header("Battle Order")]
         [Tooltip("출전(BattleOrder) 슬롯 상한. 신규 합류 시 이 수보다 적게 차있으면 자동 편입된다.")]
         [Min(1)]
         public int maxBattleSize = 4;
-
-        [Tooltip("게임 시작 시 출전 슬롯에 배치할 캐릭터. 비어있으면 partyOrder의 앞 maxBattleSize 명을 사용.")]
-        public List<CharacterActorType> defaultBattleOrder = new();
-
-        [Tooltip("게임 시작 시 조작할 캐릭터의 BattleOrder 인덱스 (0부터 시작)")]
-        [Min(0)]
-        public int startActiveIndex = 0;
 
         [Header("Swap")]
         [Tooltip("다른 출전 파티원으로 교체한 뒤, 교체되어 나간 캐릭터에게 적용할 개별 스왑 쿨타임.")]

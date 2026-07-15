@@ -3,6 +3,7 @@ using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Cycle;
 
 namespace UPlayGround.Components
 {
@@ -23,6 +24,9 @@ namespace UPlayGround.Components
 
         [Header("Combat")]
         public PlayerAttackDataSO attackData;
+
+        [Header("Cycle Weight")]
+        public CharacterWeightProfileSO weightProfile;
 
         [Header("Entry Attack")]
         [Tooltip("교체 등장 시 자동 발동될 공격의 검출 반경. 0 이하이면 PartyConfigSO.defaultEntryAttackRange 사용.")]

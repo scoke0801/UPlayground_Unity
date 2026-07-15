@@ -359,14 +359,16 @@ namespace UPlayGround.Components
 
             if (isPerfect && !useEnhancedAttack && _currentAttackData != null)
             {
-                _currentAttackData.damageMultiplier = Mathf.Max(0f, route.enhancedDamageMultiplier);
-                _currentAttackData.poiseMultiplier  = Mathf.Max(0f, route.enhancedPoiseMultiplier);
+                float enhancedDamageMultiplier = Mathf.Max(0f, route.enhancedDamageMultiplier);
+                float enhancedPoiseMultiplier = Mathf.Max(0f, route.enhancedPoiseMultiplier);
+                _currentAttackData.damageMultiplier *= enhancedDamageMultiplier;
+                _currentAttackData.poiseMultiplier  *= enhancedPoiseMultiplier;
 
                 // Create가 세팅한 phase0 초기값에도 즉시 반영 — 첫 타가 SetHitPhaseIndex(0) 이전에 들어오는
-                // 단일타 라우트 등의 엣지에서 첫 타 미배율을 방지. 이후 페이즈 갱신은 phase에서 재계산되어 누적되지 않는다.
-                _currentAttackData.damage      *= _currentAttackData.damageMultiplier;
-                _currentAttackData.poiseDamage *= _currentAttackData.poiseMultiplier;
-                _currentAttackData.breakDamage *= _currentAttackData.poiseMultiplier;
+                // 단일타 라우트 등의 엣지에서 강화분만 반영한다. 기존 장비/체급 배율은 이미 현재 값에 적용돼 있다.
+                _currentAttackData.damage      *= enhancedDamageMultiplier;
+                _currentAttackData.poiseDamage *= enhancedPoiseMultiplier;
+                _currentAttackData.breakDamage *= enhancedPoiseMultiplier;
             }
 
             if (isPerfect && route.enhancedGrantTagId != GameplayTagId.None)
@@ -513,7 +515,17 @@ namespace UPlayGround.Components
                 return null;
             _currentAttackInfoBase = attackInfo.baseInfo;
             _currentResidualHitPhases = attackInfo.baseInfo.hitPhases;
-            return _attackController.Create(attackInfo, attackKind);
+            AttackData data = _attackController.Create(attackInfo, attackKind);
+            if (data != null && _playerActor != null)
+            {
+                // 공격 생성 시 스냅샷해 스왑 후 잔류 공격도 outgoing 캐릭터 배율을 유지한다.
+                data.damageMultiplier *= _playerActor.WeightDamageMultiplier;
+                data.poiseMultiplier *= _playerActor.WeightBreakDamageMultiplier;
+                data.damage *= _playerActor.WeightDamageMultiplier;
+                data.poiseDamage *= _playerActor.WeightBreakDamageMultiplier;
+                data.breakDamage *= _playerActor.WeightBreakDamageMultiplier;
+            }
+            return data;
         }
 
         private static AttackData CopyAttackData(AttackData source)

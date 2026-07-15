@@ -321,7 +321,8 @@
       "PowerShell($checks = @\\(@{File=\"Assets\\\\01.Scenes\\\\Ingame\\\\LakeOfLife.unity\"; Id=\"1819444409\"}, @{File=\"Assets\\\\01.Scenes\\\\Ingame\\\\HarvestOfPlain.unity\"; Id=\"704720811\"}, @{File=\"Assets\\\\03.Prefabs\\\\Actor\\\\NPC\\\\NPC_Default.prefab\"; Id=\"2998090787808333351\"}\\); foreach \\($c in $checks\\) { $content = [System.IO.File]::ReadAllText\\($c.File\\); $start = $content.IndexOf\\(\"--- !u!1 &$\\($c.Id\\)\"\\); $end = $content.IndexOf\\(\"--- !u!\", $start + 10\\); $block = $content.Substring\\($start, $end - $start\\); $layer = [regex]::Match\\($block, \"m_Layer: \\(\\\\d+\\)\"\\).Groups[1].Value; $name = [regex]::Match\\($block, \"m_Name: \\(.+\\)\"\\).Groups[1].Value.Trim\\(\\); \"$\\($c.File\\) -> $name : layer=$layer\" })",
       "Bash(openssl rand *)",
       "Bash(xxd)",
-      "Bash(awk '/MonoBehaviour:/{p=NR} /guid: e1931b7b2f206b3478b0d608c8319961|_database:|_memberData:|_cardPrefab:|_cardRoot:|_confirmButton:|_cancelButton:/{print NR\": \"$0}' Assets/03.Prefabs/UI/Scene/CharacterSelect/UI_CharacterSelect.prefab)"
+      "Bash(awk '/MonoBehaviour:/{p=NR} /guid: e1931b7b2f206b3478b0d608c8319961|_database:|_memberData:|_cardPrefab:|_cardRoot:|_confirmButton:|_cancelButton:/{print NR\": \"$0}' Assets/03.Prefabs/UI/Scene/CharacterSelect/UI_CharacterSelect.prefab)",
+      "PowerShell(foreach \\($ln in 92970,122349,277367\\) { $s=[Math]::Max\\(0,$ln-40\\); \\(Get-Content Assets\\\\03.Prefabs\\\\Actor\\\\Player\\\\Player.prefab | Select-Object -Skip $s -First 42 | Select-String \"characterType|m_Name\"\\) | Select-Object -Last 3 })"
     ]
   }
 }

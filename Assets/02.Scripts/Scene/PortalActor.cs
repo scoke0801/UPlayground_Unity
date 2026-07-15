@@ -35,6 +35,9 @@ namespace UPlayGround
         [Tooltip("false로 설정하면 플레이어가 진입해도 포탈이 동작하지 않는다.")]
         [SerializeField] private bool _isActive = true;
 
+        [Tooltip("중앙 보스 처치 후 활성화되고, 진입 시 사이클 정산을 먼저 요청하는 탈출 포탈.")]
+        [SerializeField] private bool _isCycleExitPortal;
+
         [Header("맵 UI 동기화")]
         [Tooltip("이 포탈을 맵(RegionInfo)에 동기화할지 여부. 숨김 포탈은 false.")]
         [SerializeField] private bool _showOnMap = true;
@@ -53,6 +56,7 @@ namespace UPlayGround
         public string     TargetArrivalId => _targetArrivalId;
         public bool       ShowOnMap       => _showOnMap;
         public string     MapLabel        => string.IsNullOrEmpty(_mapLabel) ? gameObject.name : _mapLabel;
+        public bool       IsCycleExitPortal => _isCycleExitPortal;
 
         private void Awake()
         {
@@ -65,6 +69,10 @@ namespace UPlayGround
 
             var actor = other.GetComponent<GameActor>();
             if (actor == null || !actor.HasActorType(ActorType.Player)) return;
+
+            // 정산이 실패하면 씬 전환도 시작하지 않는다. 중복 트리거는 매니저 단계 검사에서 거부된다.
+            if (_isCycleExitPortal && !(CycleRunManager.Instance?.RequestExit() ?? false))
+                return;
 
             switch (_portalType)
             {

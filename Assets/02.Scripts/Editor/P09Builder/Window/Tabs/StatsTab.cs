@@ -148,16 +148,6 @@ namespace UPlayGround.Editor.P09Builder
                 "Player AttackData SO",
                 config.Stats.playerAttackDataSo,
                 typeof(ScriptableObject), false) as ScriptableObject;
-
-            config.Stats.addToStartingParty = EditorGUILayout.Toggle(
-                "시작 파티 포함", config.Stats.addToStartingParty);
-            if (config.Stats.addToStartingParty)
-            {
-                using (new EditorGUI.IndentLevelScope())
-                {
-                    config.Stats.partyOrder = EditorGUILayout.IntField("파티 순서", config.Stats.partyOrder);
-                }
-            }
         }
 
         // ---------- NPC ----------

@@ -298,6 +298,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BossAssist"",
+                    ""type"": ""Button"",
+                    ""id"": ""74b58739-2c2d-4aa4-b401-a607753a9e01"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -793,6 +802,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""LockOnSwitchLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e207f62b-e404-42a3-893f-6077736e6e6e"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BossAssist"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1482,6 +1502,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_CharacterSwap_4 = m_PlayerAction.FindAction("CharacterSwap_4", throwIfNotFound: true);
         m_PlayerAction_LockOnSwitchRight = m_PlayerAction.FindAction("LockOnSwitchRight", throwIfNotFound: true);
         m_PlayerAction_LockOnSwitchLeft = m_PlayerAction.FindAction("LockOnSwitchLeft", throwIfNotFound: true);
+        m_PlayerAction_BossAssist = m_PlayerAction.FindAction("BossAssist", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -1622,6 +1643,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_CharacterSwap_4;
     private readonly InputAction m_PlayerAction_LockOnSwitchRight;
     private readonly InputAction m_PlayerAction_LockOnSwitchLeft;
+    private readonly InputAction m_PlayerAction_BossAssist;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -1726,6 +1748,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @LockOnSwitchLeft => m_Wrapper.m_PlayerAction_LockOnSwitchLeft;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/BossAssist".
+        /// </summary>
+        public InputAction @BossAssist => m_Wrapper.m_PlayerAction_BossAssist;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -1820,6 +1846,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LockOnSwitchLeft.started += instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.performed += instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.canceled += instance.OnLockOnSwitchLeft;
+            @BossAssist.started += instance.OnBossAssist;
+            @BossAssist.performed += instance.OnBossAssist;
+            @BossAssist.canceled += instance.OnBossAssist;
         }
 
         /// <summary>
@@ -1900,6 +1929,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @LockOnSwitchLeft.started -= instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.performed -= instance.OnLockOnSwitchLeft;
             @LockOnSwitchLeft.canceled -= instance.OnLockOnSwitchLeft;
+            @BossAssist.started -= instance.OnBossAssist;
+            @BossAssist.performed -= instance.OnBossAssist;
+            @BossAssist.canceled -= instance.OnBossAssist;
         }
 
         /// <summary>
@@ -2677,6 +2709,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnLockOnSwitchLeft(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "BossAssist" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBossAssist(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

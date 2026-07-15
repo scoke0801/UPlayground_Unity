@@ -13,10 +13,7 @@ MonoBehaviour:
   m_Name: PartyConfig
   m_EditorClassIdentifier: 
   playerActorId: Player_Main
-  partyOrder: 0100000008000000020000000b000000
   maxBattleSize: 4
-  defaultBattleOrder: 010000000b0000000200000008000000
-  startActiveIndex: 0
   swapCooldown: 1
   enableSwapEvade: 1
   swapEvadeWindowBeforeHit: 0.25

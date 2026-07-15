@@ -56,7 +56,6 @@ public sealed class CharacterWeightProfileSO : ScriptableObject
     public float breakDamageMultiplier = 1f;
     public float dodgeIFrameSeconds = 0.35f;
     public VitalRecoveryPolicySO recoveryPolicy;
-    public SuperArmorPolicySO superArmorPolicy;
 }
 ```
 
@@ -145,6 +144,7 @@ P0는 생성 원인을 두 종류로 기록한다.
 - 피해는 받고 경직만 억제한다.
 - 잡기, 다운, 강제 브레이크 반응은 무시할 수 있다.
 - P0 전용 데이터 연결이 준비되지 않으면 슈퍼아머를 빼고 무게 경제부터 검증한다.
+- 현재 P0에는 저작 구간 연결이 없으므로 슈퍼아머 정책 필드를 노출하지 않는다. 실제 연결을 구현할 때 데이터와 검증을 함께 추가한다.
 
 ---
 

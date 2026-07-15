@@ -46,17 +46,22 @@ namespace UPlayGround.Manager
         private bool _isSaving;
 
         public SaveOperationResult LastOperationResult { get; private set; }
+        public int? ActiveSlot { get; private set; }
 
         #region IManager
 
         public void Init()
         {
+            ActiveSlot = null;
             _saveFolder = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
             Directory.CreateDirectory(_saveFolder);
         }
 
         public void AfterInit() { }
-        public void Dispose() { }
+        public void Dispose()
+        {
+            ActiveSlot = null;
+        }
         public void OnUpdate() { }
         public void OnFixedUpdate() { }
         public void OnLateUpdate() { }
@@ -149,6 +154,7 @@ namespace UPlayGround.Manager
                 Debug.Log($"[SaveManager] 슬롯 {slot} 저장 완료 → {GetSavePath(slot)}");
                 result.Succeeded = true;
                 result.FilePath = GetSavePath(slot);
+                ActiveSlot = slot;
                 LastOperationResult = result;
                 return result;
             }
@@ -184,6 +190,9 @@ namespace UPlayGround.Manager
         /// </summary>
         public void ResetForNewGame()
         {
+            // 새 게임이 직전 플레이 슬롯을 자동 저장으로 덮어쓰지 않게 슬롯 귀속도 초기화한다.
+            ActiveSlot = null;
+
             foreach (var saveable in _saveables)
             {
                 try
@@ -333,6 +342,8 @@ namespace UPlayGround.Manager
                 result.Message = importFailed
                     ? "일부 데이터 복원에 실패했습니다."
                     : "로드가 완료되었습니다.";
+                if (result.Succeeded)
+                    ActiveSlot = slot;
                 return result.Succeeded;
             }
             catch (Exception e)
@@ -351,6 +362,18 @@ namespace UPlayGround.Manager
 
         // ──────────────────────────────────────────────────────────
         #region 슬롯 관리
+
+        /// <summary>
+        /// 마지막으로 정상 저장하거나 로드한 슬롯에 현재 상태를 저장한다.
+        /// 활성 슬롯이 없으면 임의 슬롯을 덮어쓰지 않고 실패한다.
+        /// </summary>
+        public bool TrySaveActiveSlot()
+        {
+            if (!ActiveSlot.HasValue)
+                return false;
+
+            return SaveGameDetailed(ActiveSlot.Value).Succeeded;
+        }
 
         /// <summary> 해당 슬롯에 세이브 파일이 존재하는지 확인한다. </summary>
         public bool HasSaveFile(int slot = 0) =>
@@ -381,6 +404,9 @@ namespace UPlayGround.Manager
                 File.Delete(tempPath);
 
             SaveThumbnail.Delete(_saveFolder, slot);
+
+            if (ActiveSlot == slot)
+                ActiveSlot = null;
 
             Debug.Log($"[SaveManager] 슬롯 {slot} 삭제 완료");
         }
@@ -610,6 +636,9 @@ namespace UPlayGround.Manager
             data.quest ??= new QuestSaveData();
             data.party ??= new PartySaveData();
             data.world ??= new WorldStateSaveData();
+            data.cycle ??= new CycleSaveData();
+            data.cycle.assists ??= new UPlayGround.Data.Cycle.AssistProgressSaveData();
+            data.cycle.history ??= new UPlayGround.Data.Cycle.CycleHistorySaveData();
             data.saveVersion = CURRENT_SAVE_VERSION;
         }
 

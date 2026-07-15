@@ -75,6 +75,9 @@ namespace UPlayGround.State
                 return;
             }
 
+            if (CycleRemainsManager.Instance?.HandlePartyWipe(_deathPosition, _deathRotation) == true)
+                return;
+
             ShowRespawnUI();
         }
 

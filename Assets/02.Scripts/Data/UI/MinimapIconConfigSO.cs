@@ -50,6 +50,15 @@ namespace UPlayGround.Data.UI
         [Tooltip("플레이어가 맵에 직접 찍는 핀 마커")]
         public IconEntry userMarker;
 
+        [Header("Cycle")]
+        public IconEntry unknownBoss;
+        public IconEntry discoveredOuterBoss;
+        public IconEntry discoveredCentralBoss;
+        public IconEntry remains;
+        public IconEntry activeRestPoint;
+        public bool showCycleBossMarkers = true;
+        public bool showRemainsMarker = true;
+
         // ── 표시 옵션 ────────────────────────────────────────────
         [Header("표시 옵션 — 퀘스트 / 적")]
         [Tooltip("활성 퀘스트 목표 마커 표시")]

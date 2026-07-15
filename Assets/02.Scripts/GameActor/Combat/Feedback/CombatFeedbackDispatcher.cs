@@ -151,7 +151,10 @@ namespace UPlayGround.Combat
             VitalOrbTrigger orbTrigger = kind is AttackKind.HeavyAttack or AttackKind.ChargeAttack
                 ? VitalOrbTrigger.HeavyAttackHit
                 : VitalOrbTrigger.LightAttackHit;
-            GameCombatMgr.GameVitalOrb.TrySpawn(orbTrigger, attackData.hitPoint);
+            bool weightPolicyHandled = attackData.attacker is PlayerActor player
+                                       && player.TrySpawnWeightRecovery(attackData.hitPoint, orbTrigger, false);
+            if (!weightPolicyHandled)
+                GameCombatMgr.GameVitalOrb.TrySpawn(orbTrigger, attackData.hitPoint);
 
             if (attackData.isCounterAttack || attackData.useCounterHitFeedback)
             {

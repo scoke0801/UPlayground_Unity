@@ -12,6 +12,7 @@ namespace UPlayGround
     public class VitalOrbActor : MonoBehaviour
     {
         private VitalOrbDataSO _data;
+        private float _healScale = 1f;
         private Action<VitalOrbActor, FinishReason> _onFinished;
 
         private State _state = State.Idle;
@@ -31,9 +32,10 @@ namespace UPlayGround
         private enum State { Idle, Attract, Collect, Expire }
         public enum FinishReason { Collected, Expired }
 
-        public void Initialize(VitalOrbDataSO data, Action<VitalOrbActor, FinishReason> onFinished)
+        public void Initialize(VitalOrbDataSO data, Action<VitalOrbActor, FinishReason> onFinished, float healScale = 1f)
         {
             _data = data;
+            _healScale = Mathf.Max(0f, healScale);
             _onFinished = onFinished;
             _spawnY = transform.position.y;
             _state = State.Idle;
@@ -48,6 +50,7 @@ namespace UPlayGround
         public void ResetForPool()
         {
             _data = null;
+            _healScale = 1f;
             _onFinished = null;
             _state = State.Idle;
             _lifetimeTimer = 0f;
@@ -164,7 +167,7 @@ namespace UPlayGround
             if (player == null) return;
 
             if (_data.healAmount > 0f)
-                player.HealPercent(_data.healAmount);
+                player.HealPercent(_data.healAmount * _healScale);
 
             if (player.SkillGauge != null)
                 player.SkillGauge.AddGauge(_data.gaugeAmount);

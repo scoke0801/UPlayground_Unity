@@ -21,6 +21,7 @@ MonoBehaviour:
     \uD655\uC778\uD55C\uB2E4."
   requiredQuestIds: []
   requiredStoryProgress: 0
+  autoAcceptOnNewGame: 1
   autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_reach_lake

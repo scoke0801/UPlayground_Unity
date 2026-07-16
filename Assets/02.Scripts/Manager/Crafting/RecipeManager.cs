@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Data.Crafting;
+using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
 
@@ -190,10 +191,17 @@ namespace UPlayGround.Manager
 
         private bool HasEnoughIngredients(int recipeID, int quantity)
         {
+            var requiredByItem = new Dictionary<int, int>();
             foreach (var ingr in _db.GetIngredients(recipeID))
             {
-                int needed = ingr.requiredQuantity * quantity;
-                if (InventoryManager.Instance.GetItemCount(ingr.ingredientItemID) < needed)
+                int amount = ingr.requiredQuantity * quantity;
+                requiredByItem.TryGetValue(ingr.ingredientItemID, out int current);
+                requiredByItem[ingr.ingredientItemID] = current + amount;
+            }
+
+            foreach (var pair in requiredByItem)
+            {
+                if (InventoryManager.Instance.GetItemCount(pair.Key) < pair.Value)
                     return false;
             }
             return true;
@@ -207,11 +215,18 @@ namespace UPlayGround.Manager
             var missing = new List<int>();
             if (!IsDBLoaded) return missing;
 
+            var requiredByItem = new Dictionary<int, int>();
             foreach (var ingr in _db.GetIngredients(recipeID))
             {
-                int needed = ingr.requiredQuantity * quantity;
-                if (InventoryManager.Instance.GetItemCount(ingr.ingredientItemID) < needed)
-                    missing.Add(ingr.ingredientItemID);
+                int amount = ingr.requiredQuantity * quantity;
+                requiredByItem.TryGetValue(ingr.ingredientItemID, out int current);
+                requiredByItem[ingr.ingredientItemID] = current + amount;
+            }
+
+            foreach (var pair in requiredByItem)
+            {
+                if (InventoryManager.Instance.GetItemCount(pair.Key) < pair.Value)
+                    missing.Add(pair.Key);
             }
             return missing;
         }
@@ -267,19 +282,21 @@ namespace UPlayGround.Manager
             var ingredients = _db.GetIngredients(recipeID);
 
             // 차감 성공한 재료를 기록해 두고, 중간 실패 시 롤백
-            var deducted = new List<(int itemID, int amount)>();
+            var deducted = new List<ItemInstance>();
 
             foreach (var ingr in ingredients)
             {
                 int toRemove = ingr.requiredQuantity * quantity;
-                if (!InventoryManager.Instance.RemoveItem(ingr.ingredientItemID, toRemove))
+                if (!InventoryManager.Instance.TryRemoveItemInstances(
+                        ingr.ingredientItemID,
+                        toRemove,
+                        out List<ItemInstance> removedItems))
                 {
                     Debug.LogError($"[RecipeManager] 재료 차감 실패 — ItemID: {ingr.ingredientItemID}");
-                    foreach (var (itemID, amount) in deducted)
-                        InventoryManager.Instance.RestoreItem(itemID, amount);
+                    InventoryManager.Instance.RestoreItemInstances(deducted);
                     return false;
                 }
-                deducted.Add((ingr.ingredientItemID, toRemove));
+                deducted.AddRange(removedItems);
             }
 
             if (recipe.costType == CostType.Gold)

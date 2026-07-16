@@ -10,6 +10,7 @@ using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.Item;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager
@@ -315,6 +316,16 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool RemoveItem(int itemId, int count)
         {
+            return TryRemoveItemInstances(itemId, count, out _);
+        }
+
+        /// <summary>
+        /// 아이템을 차감하고 실제로 제거된 인스턴스를 반환한다.
+        /// 제작처럼 후속 단계 실패 시 강화/랜덤 옵션까지 동일하게 롤백해야 하는 트랜잭션에서 사용한다.
+        /// </summary>
+        public bool TryRemoveItemInstances(int itemId, int count, out List<ItemInstance> removedItems)
+        {
+            removedItems = new List<ItemInstance>();
             if (count <= 0)
                 return false;
 
@@ -326,6 +337,7 @@ namespace UPlayGround.Manager
                 if (stackedItem.count < count)
                     return false;
 
+                removedItems.Add(CloneItemInstance(stackedItem, count));
                 stackedItem.count -= count;
 
                 if (stackedItem.count <= 0)
@@ -359,10 +371,65 @@ namespace UPlayGround.Manager
                 return false;
 
             foreach (int key in removeKeys)
+            {
+                if (_itemPair.TryGetValue(key, out ItemInstance instance))
+                    removedItems.Add(CloneItemInstance(instance, instance.count));
                 RemoveSlot(key);
+            }
 
             RaiseInventoryChanged();
             return true;
+        }
+
+        /// <summary>차감 영수증의 아이템을 원래 슬롯 키와 인스턴스 데이터로 복원한다.</summary>
+        public void RestoreItemInstances(IEnumerable<ItemInstance> removedItems)
+        {
+            if (removedItems == null)
+                return;
+
+            bool restoredAny = false;
+            foreach (ItemInstance removed in removedItems)
+            {
+                if (removed?.data == null || removed.count <= 0)
+                    continue;
+
+                if (removed.data is EquipmentSO)
+                {
+                    AddEquipmentInstance(
+                        removed.data,
+                        false,
+                        removed.inventorySlotKey,
+                        removed.enhancementLevel,
+                        removed.growthAttributeRolls);
+                }
+                else if (_itemPair.TryGetValue(removed.data.itemId, out ItemInstance existing))
+                {
+                    existing.count += removed.count;
+                }
+                else
+                {
+                    PutItem(removed.data.itemId, CloneItemInstance(removed, removed.count));
+                }
+
+                restoredAny = true;
+            }
+
+            if (restoredAny)
+                RaiseInventoryChanged();
+        }
+
+        private static ItemInstance CloneItemInstance(ItemInstance source, int count)
+        {
+            return new ItemInstance
+            {
+                data = source.data,
+                count = count,
+                inventorySlotKey = source.inventorySlotKey,
+                enhancementLevel = source.enhancementLevel,
+                growthAttributeRolls = source.growthAttributeRolls != null
+                    ? new List<EquipmentGrowthAttributeRoll>(source.growthAttributeRolls)
+                    : new List<EquipmentGrowthAttributeRoll>()
+            };
         }
 
         /// <summary>
@@ -587,6 +654,25 @@ namespace UPlayGround.Manager
                     result.Add(equipment);
             }
 
+            return result;
+        }
+
+        /// <summary>인스턴스별 랜덤 능력치를 포함한 현재 장착 장비 목록.</summary>
+        public List<ItemInstance> GetEquippedItemInstances(CharacterActorType c)
+        {
+            var result = new List<ItemInstance>();
+            var eq = GetOrSeedEntry(c);
+            if (eq == null)
+                return result;
+
+            for (int i = 0; i < CharacterEquipment.AllSlots.Length; i++)
+            {
+                int inventorySlotKey = eq.Get(CharacterEquipment.AllSlots[i]);
+                if (inventorySlotKey >= 0 &&
+                    _itemPair.TryGetValue(inventorySlotKey, out ItemInstance instance) &&
+                    instance?.data is EquipmentSO)
+                    result.Add(instance);
+            }
             return result;
         }
 
@@ -866,6 +952,7 @@ namespace UPlayGround.Manager
         private void ApplyEquipmentStats(CharacterActorType c, float oldHp, float oldMax)
         {
             GameObjectManager.Instance?.Player?.RefreshEquipmentStatsForCharacter(c, oldHp, oldMax);
+            PartyManager.Instance?.NotifyEquipmentGrowthChanged(c);
         }
 
         public bool CanEquipItem(int itemId) => CanEquipItem(ActiveCharacterType, itemId);
@@ -1024,7 +1111,9 @@ namespace UPlayGround.Manager
             RaiseInventoryChanged();
         }
 
-        private void RestoreItem(int itemId, int count, int slotKey)
+        private void RestoreItem(int itemId, int count, int slotKey,
+            int enhancementLevel = 0,
+            List<EquipmentGrowthAttributeRoll> growthAttributeRolls = null)
         {
             if (count <= 0) return;
 
@@ -1038,7 +1127,13 @@ namespace UPlayGround.Manager
             if (itemData is EquipmentSO)
             {
                 int firstSlotKey = slotKey != 0 ? slotKey : itemId;
-                AddEquipmentInstances(itemData, count, false, firstSlotKey);
+                for (int i = 0; i < count; i++)
+                    AddEquipmentInstance(
+                        itemData,
+                        false,
+                        i == 0 ? firstSlotKey : 0,
+                        i == 0 ? enhancementLevel : 0,
+                        i == 0 ? growthAttributeRolls : null);
                 return;
             }
 
@@ -1069,18 +1164,28 @@ namespace UPlayGround.Manager
             RaiseInventoryChanged();
         }
 
-        private int AddEquipmentInstance(ItemSO itemData, bool notifyProgress, int preferredSlotKey = 0)
+        private int AddEquipmentInstance(
+            ItemSO itemData,
+            bool notifyProgress,
+            int preferredSlotKey = 0,
+            int enhancementLevel = 0,
+            List<EquipmentGrowthAttributeRoll> restoredRolls = null)
         {
             if (itemData == null)
                 return -1;
 
             int key = CreateInventorySlotKey(itemData.itemId, preferredSlotKey);
-            PutItem(key, new ItemInstance
+            var instance = new ItemInstance
             {
                 data = itemData,
                 count = 1,
-                inventorySlotKey = key
-            });
+                inventorySlotKey = key,
+                enhancementLevel = enhancementLevel,
+                growthAttributeRolls = restoredRolls != null
+                    ? new List<EquipmentGrowthAttributeRoll>(restoredRolls)
+                    : RollGrowthAttributes(itemData as EquipmentSO)
+            };
+            PutItem(key, instance);
 
             if (notifyProgress)
             {
@@ -1089,6 +1194,44 @@ namespace UPlayGround.Manager
             }
 
             return key;
+        }
+
+        private static List<EquipmentGrowthAttributeRoll> RollGrowthAttributes(EquipmentSO equipment)
+        {
+            var result = new List<EquipmentGrowthAttributeRoll>();
+            if (equipment == null || !equipment.grantRandomGrowthAttributes)
+                return result;
+
+            var pool = new List<GrowthAttributeType>();
+            if (equipment.randomAttributePool != null && equipment.randomAttributePool.Count > 0)
+            {
+                for (int i = 0; i < equipment.randomAttributePool.Count; i++)
+                    if (!pool.Contains(equipment.randomAttributePool[i]))
+                        pool.Add(equipment.randomAttributePool[i]);
+            }
+            else
+            {
+                foreach (GrowthAttributeType type in Enum.GetValues(typeof(GrowthAttributeType)))
+                    pool.Add(type);
+            }
+
+            int minCount = Mathf.Clamp(equipment.randomAttributeCountMin, 1, pool.Count);
+            int maxCount = Mathf.Clamp(equipment.randomAttributeCountMax, minCount, pool.Count);
+            int count = UnityEngine.Random.Range(minCount, maxCount + 1);
+            int minRank = Mathf.Max(1, equipment.randomRankMin);
+            int maxRank = Mathf.Max(minRank, equipment.randomRankMax);
+
+            for (int i = 0; i < count; i++)
+            {
+                int index = UnityEngine.Random.Range(0, pool.Count);
+                result.Add(new EquipmentGrowthAttributeRoll
+                {
+                    attributeType = pool[index],
+                    rank = UnityEngine.Random.Range(minRank, maxRank + 1)
+                });
+                pool.RemoveAt(index);
+            }
+            return result;
         }
 
         private int CreateInventorySlotKey(int itemId, int preferredSlotKey = 0)
@@ -1122,6 +1265,9 @@ namespace UPlayGround.Manager
         {
             SoundManager.Instance?.PlayUi(GameSoundKey.GetItem);
             QuestManager.Instance?.NotifyItemCollected(itemId, count);
+
+            if (ItemManager.Instance?.GetItemData(itemId) is EquipmentSO)
+                EventManager.Instance?.Send(GameMilestoneEvent.EquipmentAcquired);
 
             if (RecipeManager.Instance != null)
                 RecipeManager.Instance.NotifyItemCollected(itemId, count);
@@ -1258,7 +1404,11 @@ namespace UPlayGround.Manager
                 {
                     itemId = kv.Value.data.itemId,
                     count = kv.Value.count,
-                    slotKey = kv.Key
+                    slotKey = kv.Key,
+                    enhancementLevel = kv.Value.enhancementLevel,
+                    growthAttributeRolls = kv.Value.growthAttributeRolls != null
+                        ? new List<EquipmentGrowthAttributeRoll>(kv.Value.growthAttributeRolls)
+                        : new List<EquipmentGrowthAttributeRoll>()
                 });
             }
 
@@ -1323,7 +1473,8 @@ namespace UPlayGround.Manager
             _nextInventorySlotKey = int.MaxValue;
             foreach (var entry in _pendingLoad.items ?? new System.Collections.Generic.List<ItemSaveEntry>())
             {
-                RestoreItem(entry.itemId, entry.count, entry.slotKey);
+                RestoreItem(entry.itemId, entry.count, entry.slotKey,
+                    entry.enhancementLevel, entry.growthAttributeRolls);
             }
 
             // 캐릭터별 장비 복원.

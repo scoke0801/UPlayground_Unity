@@ -120,6 +120,8 @@ namespace UPlayGround.UI
             PartyManager.Instance.OnGrowthPointsChanged += HandlePointsChanged;
             PartyManager.Instance.OnGrowthUnlock -= HandleUnlock;
             PartyManager.Instance.OnGrowthUnlock += HandleUnlock;
+            PartyManager.Instance.OnPartyProgressionChanged -= HandleProgressionChanged;
+            PartyManager.Instance.OnPartyProgressionChanged += HandleProgressionChanged;
         }
 
         private void Unsubscribe()
@@ -127,9 +129,11 @@ namespace UPlayGround.UI
             if (PartyManager.Instance == null) return;
             PartyManager.Instance.OnGrowthPointsChanged -= HandlePointsChanged;
             PartyManager.Instance.OnGrowthUnlock -= HandleUnlock;
+            PartyManager.Instance.OnPartyProgressionChanged -= HandleProgressionChanged;
         }
 
         private void HandlePointsChanged(CharacterActorType type, int _) { if (type == _targetType) RefreshView(); }
+        private void HandleProgressionChanged(CharacterActorType type) { if (type == _targetType) RefreshView(); }
 
         private void HandleUnlock(CharacterActorType type, GrowthUnlockMilestone milestone)
         {
@@ -155,10 +159,15 @@ namespace UPlayGround.UI
             if (growth == null) return;
             growth.TryGetInvestmentRule(card.attribute, out GrowthInvestmentRule rule);
             int rank = party.GetGrowthRank(_targetType, card.attribute);
+            int effectiveRank = party.GetEffectiveGrowthRank(_targetType, card.attribute);
+            int equipmentRank = Mathf.Max(0, effectiveRank - rank);
             if (card.nameText != null) card.nameText.text = GetDisplayName(card.attribute);
-            if (card.rankText != null) card.rankText.text = $"{rank} / {Mathf.Max(1, rule.maxRank)}";
+            if (card.rankText != null)
+                card.rankText.text = equipmentRank > 0
+                    ? $"{effectiveRank} (투자 {rank} + 장비 {equipmentRank})"
+                    : $"{rank} / {Mathf.Max(1, rule.maxRank)}";
             if (card.effectText != null) card.effectText.text = $"랭크당 +{FormatEffect(rule)}";
-            if (card.milestoneText != null) card.milestoneText.text = GetNextMilestoneText(rule, rank);
+            if (card.milestoneText != null) card.milestoneText.text = GetNextMilestoneText(rule, effectiveRank);
             if (card.investButton != null)
                 card.investButton.interactable = party.GetGrowthPoints(_targetType) > 0 && rank < Mathf.Max(1, rule.maxRank);
         }

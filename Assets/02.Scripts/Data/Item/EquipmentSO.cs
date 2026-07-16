@@ -1,6 +1,7 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
+using UPlayGround.Data.Party;
 
 namespace UPlayGround.Data.Item
 {
@@ -25,6 +26,16 @@ namespace UPlayGround.Data.Item
 
         [Header("Equipment Stats")]
         [SerializeField] private System.Collections.Generic.List<EquipmentStatEntry> _statModifiers = new();
+
+        [Header("Random Growth Attributes")]
+        [Tooltip("획득할 때마다 성장 능력치를 새로 추첨한다.")]
+        public bool grantRandomGrowthAttributes = true;
+        [Min(1)] public int randomAttributeCountMin = 1;
+        [Min(1)] public int randomAttributeCountMax = 1;
+        [Min(1)] public int randomRankMin = 1;
+        [Min(1)] public int randomRankMax = 3;
+        [Tooltip("비어 있으면 모든 성장 능력치를 후보로 사용한다. 같은 능력치는 한 장비에 중복 추첨하지 않는다.")]
+        public System.Collections.Generic.List<GrowthAttributeType> randomAttributePool = new();
 
         [Header("Legacy Equipment Stats")]
         [Tooltip("공격력")]              public float attackPower;

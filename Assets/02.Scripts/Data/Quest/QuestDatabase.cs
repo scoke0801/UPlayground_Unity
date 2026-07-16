@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.UI;
 
 namespace UPlayGround.Data.Quest
 {
@@ -11,6 +12,7 @@ namespace UPlayGround.Data.Quest
     public class QuestDatabase : ScriptableObject
     {
         [SerializeField] private List<QuestSO> _quests = new List<QuestSO>();
+        [SerializeField] private FirstTimeGuideConfigSO _firstTimeGuideConfig;
 
         private Dictionary<string, QuestSO> _questMap;
 
@@ -39,6 +41,7 @@ namespace UPlayGround.Data.Quest
 
         public IEnumerable<QuestSO> GetAllQuests() => _quests;
         public List<QuestSO> QuestList => _quests;
+        public FirstTimeGuideConfigSO FirstTimeGuideConfig => _firstTimeGuideConfig;
 
         public IEnumerable<string> GetAllQuestIds()
         {

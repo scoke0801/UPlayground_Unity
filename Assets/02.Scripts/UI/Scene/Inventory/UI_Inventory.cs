@@ -10,6 +10,7 @@ using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Item;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.Sound;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
@@ -549,7 +550,7 @@ namespace UPlayGround.UI
             // 능력치 (장비) / 회복량 (소비)
             if (isEquip)
             {
-                RefreshSelectedEquipmentStats(equip);
+                RefreshSelectedEquipmentStats(equip, inst);
             }
             else if (itemData is ConsumableSO consumable)
             {
@@ -587,15 +588,25 @@ namespace UPlayGround.UI
             RefreshActionButtons();
         }
 
-        private void RefreshSelectedEquipmentStats(EquipmentSO equip)
+        private void RefreshSelectedEquipmentStats(EquipmentSO equip, ItemInstance instance)
         {
             var modifiers = new List<StatModifier>();
             equip?.AddStatModifiersTo(modifiers, equip);
 
-            if (_statPanel != null)
-                _statPanel.SetActive(modifiers.Count > 0);
+            var displayRows = new List<string>(modifiers.Count + (instance?.growthAttributeRolls?.Count ?? 0));
+            for (int i = 0; i < modifiers.Count; i++)
+                displayRows.Add(StatDisplayFormatter.FormatModifier(modifiers[i]));
 
-            EnsureStatRows(modifiers.Count);
+            if (instance?.growthAttributeRolls != null)
+            {
+                for (int i = 0; i < instance.growthAttributeRolls.Count; i++)
+                    displayRows.Add(FormatGrowthAttributeRoll(instance.growthAttributeRolls[i]));
+            }
+
+            if (_statPanel != null)
+                _statPanel.SetActive(displayRows.Count > 0);
+
+            EnsureStatRows(displayRows.Count);
 
             for (int i = 0; i < _statRows.Count; i++)
             {
@@ -603,12 +614,26 @@ namespace UPlayGround.UI
                 if (row == null)
                     continue;
 
-                bool active = i < modifiers.Count;
+                bool active = i < displayRows.Count;
                 SetStatRowActive(row, active);
                 row.text = active
-                    ? StatDisplayFormatter.FormatModifier(modifiers[i])
+                    ? displayRows[i]
                     : string.Empty;
             }
+        }
+
+        private static string FormatGrowthAttributeRoll(EquipmentGrowthAttributeRoll roll)
+        {
+            string attributeName = roll.attributeType switch
+            {
+                GrowthAttributeType.Health => "체력",
+                GrowthAttributeType.Defense => "방어력",
+                GrowthAttributeType.Critical => "크리티컬",
+                GrowthAttributeType.AttackSpeed => "공격속도",
+                _ => "공격력",
+            };
+
+            return $"랜덤 성장 · {attributeName} +{Mathf.Max(0, roll.rank)}랭크";
         }
 
         private void RefreshSelectedConsumableStats(ConsumableSO consumable)

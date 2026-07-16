@@ -8,6 +8,8 @@ using UnityEngine.InputSystem;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
+using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Save;
@@ -442,6 +444,7 @@ namespace UPlayGround.Manager
             InitializeLevelIfMissing(type);
             OnRosterChanged?.Invoke();
             OnCharacterUnlocked?.Invoke(type);
+            EventManager.Instance?.Send(GameMilestoneEvent.CharacterUnlocked);
             OnPartyProgressionChanged?.Invoke(type);
             Debug.Log($"[PartyManager] {type} 보유 합류!");
 
@@ -645,6 +648,33 @@ namespace UPlayGround.Manager
                 ? Mathf.Max(0, rank)
                 : 0;
 
+        /// <summary>투자 랭크와 현재 장착 장비의 랜덤 성장 랭크를 합친 실효 랭크.</summary>
+        public int GetEffectiveGrowthRank(CharacterActorType type, GrowthAttributeType attribute)
+        {
+            int rank = GetGrowthRank(type, attribute);
+            InventoryManager inventory = InventoryManager.Instance;
+            if (inventory == null)
+                return rank;
+
+            IReadOnlyList<ItemInstance> equipment = inventory.GetEquippedItemInstances(type);
+            for (int i = 0; i < equipment.Count; i++)
+            {
+                List<EquipmentGrowthAttributeRoll> rolls = equipment[i]?.growthAttributeRolls;
+                if (rolls == null) continue;
+                for (int j = 0; j < rolls.Count; j++)
+                    if (rolls[j].attributeType == attribute)
+                        rank += Mathf.Max(0, rolls[j].rank);
+            }
+            return rank;
+        }
+
+        /// <summary>장착/해제로 실효 성장 랭크가 바뀌었음을 성장 UI에 알린다.</summary>
+        public void NotifyEquipmentGrowthChanged(CharacterActorType type)
+        {
+            if (type != CharacterActorType.None)
+                OnPartyProgressionChanged?.Invoke(type);
+        }
+
         public bool TryInvestGrowthPoint(CharacterActorType type, GrowthAttributeType attribute)
         {
             if (type == CharacterActorType.None || GetGrowthPoints(type) <= 0) return false;
@@ -747,7 +777,7 @@ namespace UPlayGround.Manager
                     GrowthUnlockMilestone milestone = rule.milestones[i];
                     if (milestone.unlockType != unlockType || milestone.unlockId != unlockId) continue;
                     configured = true;
-                    if (GetGrowthRank(type, attribute) >= milestone.requiredRank) return true;
+                    if (GetEffectiveGrowthRank(type, attribute) >= milestone.requiredRank) return true;
                 }
             }
             return !configured;

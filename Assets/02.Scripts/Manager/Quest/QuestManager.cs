@@ -7,6 +7,7 @@ using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Sound;
+using UPlayGround.Data.UI;
 using UPlayGround.Story;
 
 namespace UPlayGround.Manager
@@ -60,8 +61,10 @@ namespace UPlayGround.Manager
         // DB 로드 전에 LoadGame()이 호출될 경우 보관
         private QuestSaveData _pendingLoad;
         private int _autoAcceptChainDepth;
+        private bool _pendingNewGameAutoAccept;
 
         public bool IsDBLoaded { get; private set; } = false;
+        public FirstTimeGuideConfigSO FirstTimeGuideConfig => _db?.FirstTimeGuideConfig;
 
         // ──────────────────────────────────────────────────────────
         #region IManager
@@ -92,7 +95,10 @@ namespace UPlayGround.Manager
         public void OnUpdate()      { }
         public void OnFixedUpdate() { }
         public void OnLateUpdate()  { }
-        public void OnSceneChanged(string sceneType) { }
+        public void OnSceneChanged(string sceneType)
+        {
+            TryAutoAcceptNewGameQuests();
+        }
 
         #endregion
 
@@ -115,6 +121,7 @@ namespace UPlayGround.Manager
                     ApplyPendingLoad();
 
                 FlushPendingQuestRequests();
+                TryAutoAcceptNewGameQuests();
 
                 Debug.Log("[QuestManager] QuestDatabase 로드 완료");
             }
@@ -793,6 +800,44 @@ namespace UPlayGround.Manager
             }
         }
 
+        private void TryAutoAcceptNewGameQuests()
+        {
+            if (!_pendingNewGameAutoAccept || !IsDBLoaded || _db == null)
+                return;
+
+            _pendingNewGameAutoAccept = false;
+            var pending = new List<QuestSO>();
+            foreach (var quest in _db.GetAllQuests())
+            {
+                if (quest == null || !quest.autoAcceptOnNewGame)
+                    continue;
+
+                pending.Add(quest);
+            }
+
+            bool acceptedAny;
+            do
+            {
+                acceptedAny = false;
+                for (int i = pending.Count - 1; i >= 0; i--)
+                {
+                    QuestSO quest = pending[i];
+                    if (!CheckPrerequisites(quest))
+                        continue;
+
+                    if (AcceptQuestById(quest.questId))
+                    {
+                        pending.RemoveAt(i);
+                        acceptedAny = true;
+                    }
+                }
+            }
+            while (acceptedAny && pending.Count > 0);
+
+            for (int i = 0; i < pending.Count; i++)
+                Debug.LogWarning($"[QuestManager] 새 게임 자동 퀘스트 수락 실패: {pending[i].questId} (선행 조건 미충족)");
+        }
+
         #endregion
 
         // ──────────────────────────────────────────────────────────
@@ -854,6 +899,7 @@ namespace UPlayGround.Manager
 
         public void ImportSaveData(GameSaveData saveData)
         {
+            _pendingNewGameAutoAccept = false;
             _pendingLoad = saveData.quest;
             if (IsDBLoaded) ApplyPendingLoad();
         }
@@ -870,6 +916,7 @@ namespace UPlayGround.Manager
             _trackedQuestId = null;
             _isQuestTrackingSuppressed = false;
             _autoAcceptChainDepth = 0;
+            _pendingNewGameAutoAccept = true;
         }
 
         private void ApplyPendingLoad()

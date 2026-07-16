@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Cycle;
+using UPlayGround.Data.Item;
 
 namespace UPlayGround.Data.Save
 {
@@ -15,6 +16,7 @@ namespace UPlayGround.Data.Save
         public FlagSaveData flags = new FlagSaveData();
         public RecipeSaveData recipe = new RecipeSaveData();
         public QuestSaveData quest = new QuestSaveData();
+        public FirstTimeGuideSaveData firstTimeGuide = new FirstTimeGuideSaveData();
         public PartySaveData party = new PartySaveData();
         public WorldStateSaveData world = new WorldStateSaveData();
         public TimeSaveData time = new TimeSaveData();
@@ -191,6 +193,8 @@ namespace UPlayGround.Data.Save
         public int itemId;
         public int count;
         public int slotKey;
+        public int enhancementLevel;
+        public List<EquipmentGrowthAttributeRoll> growthAttributeRolls = new List<EquipmentGrowthAttributeRoll>();
     }
 
     [Serializable]
@@ -249,5 +253,13 @@ namespace UPlayGround.Data.Save
         public string questId;
         /// <summary> objectiveId → 현재 진행 카운트 </summary>
         public Dictionary<string, int> objectiveProgress = new Dictionary<string, int>();
+    }
+
+    [Serializable]
+    public class FirstTimeGuideSaveData
+    {
+        public bool combatGuideShown;
+        public bool companionGuideShown;
+        public bool equipmentGuideShown;
     }
 }

@@ -477,6 +477,7 @@ namespace UPlayGround.Editor
         {
             EditorGUILayout.BeginVertical(_sectionStyle);
             GUILayout.Label("자동 연계", EditorStyles.boldLabel);
+            DrawProp("autoAcceptOnNewGame", "새 게임 시작 시 자동 수락");
             DrawProp("autoAcceptNextQuestIds", "완료 후 자동 수락 퀘스트 ID");
             EditorGUILayout.EndVertical();
         }

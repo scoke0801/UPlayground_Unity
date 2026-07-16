@@ -115,6 +115,7 @@ namespace UPlayGround.Manager
             RegisterManager(CheatManager.Instance);
             RegisterManager(RecipeManager.Instance);
             RegisterManager(QuestManager.Instance);
+            RegisterManager(GameGuideManager.Instance);
 
             var bootStopwatch = System.Diagnostics.Stopwatch.StartNew();
 

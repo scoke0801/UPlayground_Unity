@@ -27,6 +27,7 @@ namespace UPlayGround.Editor
         private SerializedProperty _questDescription;
         private SerializedProperty _requiredQuestIds;
         private SerializedProperty _requiredStoryProgress;
+        private SerializedProperty _autoAcceptOnNewGame;
         private SerializedProperty _autoAcceptNextQuestIds;
         private SerializedProperty _objectives;
         private SerializedProperty _reward;
@@ -86,6 +87,7 @@ namespace UPlayGround.Editor
             _questDescription      = serializedObject.FindProperty("questDescription");
             _requiredQuestIds      = serializedObject.FindProperty("requiredQuestIds");
             _requiredStoryProgress = serializedObject.FindProperty("requiredStoryProgress");
+            _autoAcceptOnNewGame   = serializedObject.FindProperty("autoAcceptOnNewGame");
             _autoAcceptNextQuestIds = serializedObject.FindProperty("autoAcceptNextQuestIds");
             _objectives            = serializedObject.FindProperty("objectives");
             _reward                = serializedObject.FindProperty("reward");
@@ -197,6 +199,7 @@ namespace UPlayGround.Editor
         {
             EditorGUILayout.BeginVertical(_sectionStyle);
             EditorGUILayout.LabelField("자동 연계", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(_autoAcceptOnNewGame, new GUIContent("새 게임 시작 시 자동 수락"));
             EditorGUILayout.PropertyField(_autoAcceptNextQuestIds, new GUIContent("완료 후 자동 수락 퀘스트 ID"));
             EditorGUILayout.EndVertical();
         }

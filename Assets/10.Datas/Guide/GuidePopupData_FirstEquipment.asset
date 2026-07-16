@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f9c40c0e8720764c94cde209e6da2ad, type: 3}
+  m_Name: GuidePopupData_FirstEquipment
+  m_EditorClassIdentifier: 
+  _pages:
+  - _mediaType: 0
+    _image: {fileID: 0}
+    _video: {fileID: 0}
+    _loopVideo: 0
+    _title: "장비 획득"
+    _body: "새 장비를 획득했습니다. 인벤토리에서 장비의 능력치와 착용 가능 캐릭터를 확인한 뒤 원하는 파티원에게 장착하세요."

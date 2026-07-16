@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Debugging;
 using UPlayGround.Manager;
+using UPlayGround.Data.Event;
 
 namespace UPlayGround.Components
 {
@@ -86,7 +87,10 @@ namespace UPlayGround.Components
             _targetAcquiredExternally = wasWithoutTarget; // 새로 주입된 경우만 true
 
             if (wasWithoutTarget)
+            {
                 OnTargetAcquiredExternally?.Invoke();
+                EventManager.Instance?.Send(GameMilestoneEvent.CombatStarted);
+            }
         }
 
         /// <summary>

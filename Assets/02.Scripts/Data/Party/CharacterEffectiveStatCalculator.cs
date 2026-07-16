@@ -17,7 +17,7 @@ namespace UPlayGround.Data.Party
             IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
         {
             Dictionary<StatType, float> stats = PartyPowerCalculator.CalculateGrowthStats(growthData, level, investments);
-            ApplyEquipmentStats(type, stats);
+            ApplyEquipmentStats(type, growthData, stats);
             return stats;
         }
 
@@ -30,7 +30,10 @@ namespace UPlayGround.Data.Party
             return Calculate(type, party.GetGrowthData(type), party.GetLevel(type), party.GetGrowthInvestments(type));
         }
 
-        private static void ApplyEquipmentStats(CharacterActorType type, Dictionary<StatType, float> stats)
+        private static void ApplyEquipmentStats(
+            CharacterActorType type,
+            PartyMemberGrowthSO growthData,
+            Dictionary<StatType, float> stats)
         {
             if (type == CharacterActorType.None || stats == null)
                 return;
@@ -40,14 +43,41 @@ namespace UPlayGround.Data.Party
                 return;
 
             List<StatModifier> modifiers = new();
-            IReadOnlyList<EquipmentSO> equipment = inventory.GetEquippedEquipment(type);
+            IReadOnlyList<ItemInstance> equipment = inventory.GetEquippedItemInstances(type);
             for (int i = 0; i < equipment.Count; i++)
-                equipment[i]?.AddStatModifiersTo(modifiers, equipment[i]);
+            {
+                ItemInstance instance = equipment[i];
+                if (instance?.data is not EquipmentSO equipmentData)
+                    continue;
+
+                equipmentData.AddStatModifiersTo(modifiers, instance);
+                AddRandomGrowthModifiers(growthData, instance, modifiers);
+            }
 
             foreach (StatType statType in Enum.GetValues(typeof(StatType)))
                 stats[statType] = ComputeFinal(stats.TryGetValue(statType, out float baseValue)
                     ? baseValue
                     : ActorStatSO.GetDefault(statType), statType, modifiers);
+        }
+
+        private static void AddRandomGrowthModifiers(
+            PartyMemberGrowthSO growthData,
+            ItemInstance instance,
+            List<StatModifier> modifiers)
+        {
+            if (growthData == null || instance?.growthAttributeRolls == null)
+                return;
+
+            for (int i = 0; i < instance.growthAttributeRolls.Count; i++)
+            {
+                EquipmentGrowthAttributeRoll roll = instance.growthAttributeRolls[i];
+                growthData.TryGetInvestmentRule(roll.attributeType, out GrowthInvestmentRule rule);
+                modifiers.Add(new StatModifier(
+                    rule.statType,
+                    ModifierType.Flat,
+                    rule.flatPerRank * Mathf.Max(0, roll.rank),
+                    instance));
+            }
         }
 
         private static float ComputeFinal(float baseValue, StatType type, List<StatModifier> modifiers)

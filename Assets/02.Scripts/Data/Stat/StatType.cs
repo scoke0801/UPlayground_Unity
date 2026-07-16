@@ -32,5 +32,6 @@ namespace UPlayGround.Data.Stat
 
         // ── 생활 ──────────────────────────────
         GatheringPower,     // 채집력 (채광/벌목/채집 1회 타격량)
+        AttackSpeed,        // 공격 애니메이션 재생 속도 배율 (1.0 = 기본, 직렬화 호환을 위해 끝에 추가)
     }
 }

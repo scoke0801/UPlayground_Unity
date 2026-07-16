@@ -1,6 +1,5 @@
 using UnityEngine;
 using UPlayGround.Data.Cycle;
-using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Cycle
@@ -89,16 +88,4 @@ namespace UPlayGround.Cycle
         }
     }
 
-    public sealed class CycleBossEncounterTrigger : MonoBehaviour
-    {
-        private CycleBossRuntimeHandle _owner;
-        public void Initialize(CycleBossRuntimeHandle owner) => _owner = owner;
-
-        private void OnTriggerEnter(Collider other)
-        {
-            GameActor actor = other.GetComponentInParent<GameActor>();
-            if (actor != null && actor.HasActorType(ActorType.Player))
-                _owner?.Discover();
-        }
-    }
 }

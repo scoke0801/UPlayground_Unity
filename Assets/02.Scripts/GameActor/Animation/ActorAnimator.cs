@@ -49,6 +49,7 @@ namespace UPlayGround.Animation
         private float _infiniteLoopElapsed; // InfiniteLoop 진입 후 경과 시간
         private int _infiniteLoopStageIndex = -1; // 현재까지 진입한 InfiniteLoop 순번 (0-based, 미진입 시 -1)
         private bool _suppressLoopEvents; // 현재 MotionSet의 Loop/Freeze 이벤트를 전부 무시 (다음 재생 시 자동 해제)
+        private float _motionTimelineSpeed = 1f;
         
         public event Action OnMotionSetCompleted;
         public event Action<MotionSet, bool> OnMotionSetEnded;
@@ -168,6 +169,21 @@ namespace UPlayGround.Animation
             }
         }
 
+        /// <summary>
+        /// MotionSet 디렉터 시간 배율. Graph.Speed와 별개이며 공격속도처럼
+        /// 모션 전환, 종료, 타임라인 이벤트까지 함께 빨라져야 하는 경우 사용한다.
+        /// </summary>
+        public float MotionTimelineSpeed
+        {
+            get => _motionTimelineSpeed;
+            set
+            {
+                _motionTimelineSpeed = Mathf.Clamp(value, 0.1f, 5f);
+                if (_subAnimator != null)
+                    _subAnimator.MotionTimelineSpeed = _motionTimelineSpeed;
+            }
+        }
+
         public Vector3 DeltaPosition { get; private set; }
         public Quaternion DeltaRotation { get; private set; }
 
@@ -189,7 +205,7 @@ namespace UPlayGround.Animation
         /// 현재 재생 중인 타임라인에서 현재 시점(_globalTime) 이후 처음으로 시작되는 T 이벤트까지
         /// 남은 시간(초)을 반환한다. globalStartTimeOffset은 PlayMotionSet 시점에 이미 계산되어 있다.
         /// 예: Danger Ring 수축 시간을 다음 Collision 이벤트까지로 자동 산출.
-        /// 그래프 Speed ≈ 1 가정(히트스톱 등으로 어긋나도 호출부의 Collision 스냅이 보정).
+        /// MotionTimelineSpeed를 반영한 실제 남은 시간으로 반환한다.
         /// </summary>
         public bool TryGetTimeUntilNextEvent<T>(out float seconds) where T : MotionEventBase
         {
@@ -219,7 +235,7 @@ namespace UPlayGround.Animation
                     if (motion?.events != null)
                         foreach (var evt in motion.events) Consider(evt);
 
-            if (found) seconds = Mathf.Max(0f, best - now);
+            if (found) seconds = Mathf.Max(0f, best - now) / Mathf.Max(0.1f, _motionTimelineSpeed);
             return found;
         }
 
@@ -758,7 +774,7 @@ namespace UPlayGround.Animation
                 return;
             }
 
-            _globalTime += deltaTime;
+            _globalTime += deltaTime * _motionTimelineSpeed;
 
             // MotionSet 종료 체크
             if (_globalTime >= _currentMotionSet.TotalDuration)

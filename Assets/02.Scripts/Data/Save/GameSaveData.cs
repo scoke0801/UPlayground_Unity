@@ -142,6 +142,16 @@ namespace UPlayGround.Data.Save
         public string type;
         public int level;
         public long exp;
+        public bool growthInitialized;
+        public int growthPoints;
+        public List<GrowthInvestmentSaveEntry> growthInvestments = new List<GrowthInvestmentSaveEntry>();
+    }
+
+    [Serializable]
+    public class GrowthInvestmentSaveEntry
+    {
+        public string attribute;
+        public int rank;
     }
 
     [Serializable]

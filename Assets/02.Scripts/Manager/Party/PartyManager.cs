@@ -44,6 +44,8 @@ namespace UPlayGround.Manager
         private readonly Dictionary<CharacterActorType, int> _levels = new();
         // 현재 레벨 내 누적 경험치 (다음 레벨까지의 진행분). 레벨업 시 차감 후 캐리오버.
         private readonly Dictionary<CharacterActorType, long> _exp = new();
+        private readonly Dictionary<CharacterActorType, int> _growthPoints = new();
+        private readonly Dictionary<CharacterActorType, Dictionary<GrowthAttributeType, int>> _growthInvestments = new();
 
         // growth.levelCurve가 없을 때 사용하는 폴백 곡선 파라미터.
         private const int   DefaultCurveBaseExp  = 100;
@@ -83,6 +85,9 @@ namespace UPlayGround.Manager
         public event Action<CharacterActorType>       OnPartyProgressionChanged;
         public event Action<CharacterActorType, long, long> OnExpChanged;  // (type, currentExp, requiredExp)
         public event Action<CharacterActorType, int>        OnLevelUp;     // (type, newLevel)
+        public event Action<CharacterActorType, int>        OnGrowthPointsChanged;
+        public event Action<CharacterActorType, GrowthAttributeType, int> OnGrowthInvestmentChanged;
+        public event Action<CharacterActorType, GrowthUnlockMilestone> OnGrowthUnlock;
         public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
         public event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
         public event Action                           OnPartyHealthRefreshed;   // HUD 벤치 엔트리 일괄 갱신 신호
@@ -626,6 +631,162 @@ namespace UPlayGround.Manager
             return _levels.TryGetValue(type, out level) ? level : 1;
         }
 
+        public int GetGrowthPoints(CharacterActorType type)
+            => _growthPoints.TryGetValue(type, out int points) ? Mathf.Max(0, points) : 0;
+
+        public IReadOnlyDictionary<GrowthAttributeType, int> GetGrowthInvestments(CharacterActorType type)
+        {
+            EnsureGrowthState(type);
+            return _growthInvestments.TryGetValue(type, out var values) ? values : null;
+        }
+
+        public int GetGrowthRank(CharacterActorType type, GrowthAttributeType attribute)
+            => _growthInvestments.TryGetValue(type, out var values) && values.TryGetValue(attribute, out int rank)
+                ? Mathf.Max(0, rank)
+                : 0;
+
+        public bool TryInvestGrowthPoint(CharacterActorType type, GrowthAttributeType attribute)
+        {
+            if (type == CharacterActorType.None || GetGrowthPoints(type) <= 0) return false;
+            PartyMemberGrowthSO growth = GetGrowthData(type);
+            if (growth == null) return false;
+
+            EnsureGrowthState(type);
+            growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
+            int oldRank = GetGrowthRank(type, attribute);
+            if (oldRank >= Mathf.Max(1, rule.maxRank)) return false;
+
+            int newRank = oldRank + 1;
+            _growthInvestments[type][attribute] = newRank;
+            _growthPoints[type]--;
+            RefreshGrowthStats(type);
+            OnGrowthInvestmentChanged?.Invoke(type, attribute, newRank);
+            OnGrowthPointsChanged?.Invoke(type, _growthPoints[type]);
+            OnPartyProgressionChanged?.Invoke(type);
+
+            if (rule.milestones != null)
+                for (int i = 0; i < rule.milestones.Count; i++)
+                    if (rule.milestones[i].requiredRank == newRank)
+                        OnGrowthUnlock?.Invoke(type, rule.milestones[i]);
+            return true;
+        }
+
+        /// <summary>개발 치트용 성장 포인트 증감. 저장 대상 상태를 직접 변경한다.</summary>
+        public bool AddGrowthPointsForDebug(CharacterActorType type, int amount)
+        {
+            if (type == CharacterActorType.None || amount == 0) return false;
+            EnsureGrowthState(type);
+            _growthPoints[type] = Mathf.Max(0, _growthPoints[type] + amount);
+            OnGrowthPointsChanged?.Invoke(type, _growthPoints[type]);
+            OnPartyProgressionChanged?.Invoke(type);
+            return true;
+        }
+
+        /// <summary>
+        /// 개발 치트용 성장 랭크 직접 설정. 포인트를 소비하지 않으며,
+        /// 상승 중 통과한 마일스톤의 해금 이벤트도 정상 발행한다.
+        /// </summary>
+        public bool SetGrowthRankForDebug(
+            CharacterActorType type,
+            GrowthAttributeType attribute,
+            int rank)
+        {
+            if (type == CharacterActorType.None) return false;
+            PartyMemberGrowthSO growth = GetGrowthData(type);
+            if (growth == null) return false;
+
+            EnsureGrowthState(type);
+            growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
+            int oldRank = GetGrowthRank(type, attribute);
+            int newRank = Mathf.Clamp(rank, 0, Mathf.Max(1, rule.maxRank));
+            if (oldRank == newRank) return true;
+
+            _growthInvestments[type][attribute] = newRank;
+            RefreshGrowthStats(type);
+            OnGrowthInvestmentChanged?.Invoke(type, attribute, newRank);
+            OnPartyProgressionChanged?.Invoke(type);
+
+            if (newRank > oldRank && rule.milestones != null)
+            {
+                for (int i = 0; i < rule.milestones.Count; i++)
+                {
+                    GrowthUnlockMilestone milestone = rule.milestones[i];
+                    if (milestone.requiredRank > oldRank && milestone.requiredRank <= newRank)
+                        OnGrowthUnlock?.Invoke(type, milestone);
+                }
+            }
+            return true;
+        }
+
+        public bool IsGrowthUnlockConfigured(CharacterActorType type, GrowthUnlockType unlockType, string unlockId)
+        {
+            PartyMemberGrowthSO growth = GetGrowthData(type);
+            if (growth == null || string.IsNullOrWhiteSpace(unlockId)) return false;
+            foreach (GrowthAttributeType attribute in Enum.GetValues(typeof(GrowthAttributeType)))
+            {
+                growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
+                if (rule.milestones == null) continue;
+                for (int i = 0; i < rule.milestones.Count; i++)
+                    if (rule.milestones[i].unlockType == unlockType && rule.milestones[i].unlockId == unlockId)
+                        return true;
+            }
+            return false;
+        }
+
+        public bool IsGrowthUnlockAvailable(CharacterActorType type, GrowthUnlockType unlockType, string unlockId)
+        {
+            PartyMemberGrowthSO growth = GetGrowthData(type);
+            if (growth == null || string.IsNullOrWhiteSpace(unlockId)) return true;
+            bool configured = false;
+            foreach (GrowthAttributeType attribute in Enum.GetValues(typeof(GrowthAttributeType)))
+            {
+                growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
+                if (rule.milestones == null) continue;
+                for (int i = 0; i < rule.milestones.Count; i++)
+                {
+                    GrowthUnlockMilestone milestone = rule.milestones[i];
+                    if (milestone.unlockType != unlockType || milestone.unlockId != unlockId) continue;
+                    configured = true;
+                    if (GetGrowthRank(type, attribute) >= milestone.requiredRank) return true;
+                }
+            }
+            return !configured;
+        }
+
+        public int GetUnlockedComboLength(
+            CharacterActorType type,
+            GrowthComboType comboType,
+            int dataLength)
+        {
+            if (dataLength <= 1) return Mathf.Max(0, dataLength);
+
+            int unlockedLength = 1;
+            for (int step = 2; step <= dataLength; step++)
+            {
+                string unlockId = GrowthUnlockIds.Combo(comboType, step);
+                if (!IsGrowthUnlockAvailable(type, GrowthUnlockType.Combo, unlockId))
+                    break;
+                unlockedLength = step;
+            }
+            return unlockedLength;
+        }
+
+        public bool IsSkillUnlocked(CharacterActorType type, GrowthSkillType skillType)
+        {
+            return IsGrowthUnlockAvailable(
+                type,
+                GrowthUnlockType.Skill,
+                GrowthUnlockIds.Skill(skillType));
+        }
+
+        private void EnsureGrowthState(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None) return;
+            if (!_growthPoints.ContainsKey(type)) _growthPoints[type] = 0;
+            if (!_growthInvestments.ContainsKey(type))
+                _growthInvestments[type] = new Dictionary<GrowthAttributeType, int>();
+        }
+
         public bool SetLevelForDebug(CharacterActorType type, int level)
         {
             if (type == CharacterActorType.None) return false;
@@ -716,6 +877,12 @@ namespace UPlayGround.Manager
                 exp -= required;
                 level++;
                 leveled = true;
+                EnsureGrowthState(type);
+                int pointsPerLevel = _growthLookup.TryGetValue(type, out var growth) && growth != null
+                    ? Mathf.Max(1, growth.growthPointsPerLevel)
+                    : 1;
+                _growthPoints[type] += pointsPerLevel;
+                OnGrowthPointsChanged?.Invoke(type, _growthPoints[type]);
                 OnLevelUp?.Invoke(type, level);
             }
             if (level >= cap) exp = 0;                       // 만렙 도달 시 잉여 버림
@@ -789,6 +956,9 @@ namespace UPlayGround.Manager
                     type  = kv.Key.ToString(),
                     level = kv.Value,
                     exp   = GetExp(kv.Key),
+                    growthInitialized = true,
+                    growthPoints = GetGrowthPoints(kv.Key),
+                    growthInvestments = BuildGrowthSaveEntries(kv.Key),
                 });
             }
 
@@ -855,6 +1025,8 @@ namespace UPlayGround.Manager
             _battleOrder.Clear();
             _levels.Clear();
             _exp.Clear();
+            _growthPoints.Clear();
+            _growthInvestments.Clear();
             _swapCooldownEndTimes.Clear();
         }
 
@@ -910,6 +1082,8 @@ namespace UPlayGround.Manager
 
             _levels.Clear();
             _exp.Clear();
+            _growthPoints.Clear();
+            _growthInvestments.Clear();
             if (party.members != null)
             {
                 foreach (var m in party.members)
@@ -918,6 +1092,18 @@ namespace UPlayGround.Manager
                     int cap = LevelCapOf(t);
                     _levels[t] = Mathf.Clamp(m.level, 1, cap);
                     _exp[t]    = m.level >= cap ? 0 : System.Math.Max(0, m.exp);
+                    EnsureGrowthState(t);
+                    int initialLevel = _growthLookup.TryGetValue(t, out var growth) && growth != null
+                        ? Mathf.Max(1, growth.initialLevel)
+                        : 1;
+                    int pointsPerLevel = growth != null ? Mathf.Max(1, growth.growthPointsPerLevel) : 1;
+                    _growthPoints[t] = m.growthInitialized
+                        ? Mathf.Max(0, m.growthPoints)
+                        : Mathf.Max(0, _levels[t] - initialLevel) * pointsPerLevel;
+                    if (m.growthInvestments != null)
+                        foreach (var investment in m.growthInvestments)
+                            if (Enum.TryParse(investment.attribute, out GrowthAttributeType attribute))
+                                _growthInvestments[t][attribute] = Mathf.Max(0, investment.rank);
                 }
             }
 
@@ -978,7 +1164,7 @@ namespace UPlayGround.Manager
         {
             int level = GetLevel(type);
             _growthLookup.TryGetValue(type, out var growth);
-            return PartyPowerCalculator.Calculate(type, growth, level);
+            return PartyPowerCalculator.Calculate(type, growth, level, GetGrowthInvestments(type));
         }
 
         public PartyMemberGrowthSO GetGrowthData(CharacterActorType type)
@@ -990,13 +1176,22 @@ namespace UPlayGround.Manager
         public PartyCombatPowerResult GetEffectiveCombatPower(CharacterActorType type)
         {
             int level = GetLevel(type);
-            var stats = CharacterEffectiveStatCalculator.Calculate(type, GetGrowthData(type), level);
+            var stats = CharacterEffectiveStatCalculator.Calculate(type, GetGrowthData(type), level, GetGrowthInvestments(type));
             long combatPower = PartyPowerCalculator.CalculateCombatPower(stats);
             return new PartyCombatPowerResult(type, Mathf.Max(1, level), combatPower, stats);
         }
 
         public IReadOnlyDictionary<StatType, float> GetGrowthStats(CharacterActorType type)
             => GetCombatPower(type).GrowthStats;
+
+        private List<GrowthInvestmentSaveEntry> BuildGrowthSaveEntries(CharacterActorType type)
+        {
+            var result = new List<GrowthInvestmentSaveEntry>();
+            if (!_growthInvestments.TryGetValue(type, out var values)) return result;
+            foreach (var value in values)
+                result.Add(new GrowthInvestmentSaveEntry { attribute = value.Key.ToString(), rank = value.Value });
+            return result;
+        }
 
         public long GetPartyCombatPower(IReadOnlyList<CharacterActorType> order = null)
         {
@@ -1291,7 +1486,9 @@ namespace UPlayGround.Manager
 
         private void InitializeLevelIfMissing(CharacterActorType type)
         {
-            if (type == CharacterActorType.None || _levels.ContainsKey(type)) return;
+            if (type == CharacterActorType.None) return;
+            EnsureGrowthState(type);
+            if (_levels.ContainsKey(type)) return;
 
             int initialLevel = _growthLookup.TryGetValue(type, out var growth) && growth != null
                 ? Mathf.Clamp(growth.initialLevel, 1, Mathf.Max(1, growth.levelCap))

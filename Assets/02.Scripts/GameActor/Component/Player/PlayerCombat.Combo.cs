@@ -8,6 +8,7 @@ using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Party;
 using UPlayGround.Manager;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
@@ -25,16 +26,7 @@ namespace UPlayGround.Components
 
         private bool CanContinueCombo()
         {
-            int length = _attackState switch
-            {
-                AttackState.NormalAttack => _attackData.liteComboAttackList.Count,
-                AttackState.HeavyAttack  => _attackData.heavyComboAttackList.Count,
-                AttackState.JumpAttack   => _attackData.jumpAttackList.Count,
-                AttackState.DashAttack   => _attackData.dashAttackList.Count,
-                AttackState.SkillAttack  => _attackData.skillAttackList.Count,
-                AttackState.ChargeAttack => 0,
-                _                        => 0,
-            };
+            int length = GetComboLength(_attackState);
             return CurrentComboIndex < length - 1;
         }
 
@@ -151,8 +143,25 @@ namespace UPlayGround.Components
 
         private bool TryResolveSkill(int skillIndex, out PlayerSkillResolveResult resolved)
         {
+            resolved = default;
+            if (!IsSkillUnlocked(skillIndex))
+                return false;
+
             PlayerSkillContext context = CreateSkillContext();
             return PlayerSkillResolver.TryResolve(_attackData, skillIndex, context, out resolved);
+        }
+
+        private bool IsSkillUnlocked(int skillIndex)
+        {
+            if (!PlayerSkillGauge.IsValidSkillSlot(skillIndex) || PartyManager.Instance == null)
+                return true;
+
+            GrowthSkillType skillType = skillIndex == PlayerSkillGauge.AbilitySkillSlot
+                ? GrowthSkillType.Ability
+                : GrowthSkillType.Ultimate;
+            return PartyManager.Instance.IsSkillUnlocked(
+                PartyManager.Instance.ActiveCharacterType,
+                skillType);
         }
 
         private PlayerSkillContext CreateSkillContext()
@@ -177,12 +186,7 @@ namespace UPlayGround.Components
         /// </summary>
         private int PeekNextComboIndex(AttackState desiredState, bool isCombo)
         {
-            int length = desiredState switch
-            {
-                AttackState.NormalAttack => _attackData.liteComboAttackList.Count,
-                AttackState.HeavyAttack  => _attackData.heavyComboAttackList.Count,
-                _                        => 0,
-            };
+            int length = GetComboLength(desiredState);
             if (length <= 0) return 0;
 
             int baseIndex = desiredState switch
@@ -344,7 +348,7 @@ namespace UPlayGround.Components
         {
             if (_attackData == null) return 0;
 
-            return attackState switch
+            int dataLength = attackState switch
             {
                 AttackState.NormalAttack => _attackData.liteComboAttackList?.Count ?? 0,
                 AttackState.HeavyAttack  => _attackData.heavyComboAttackList?.Count ?? 0,
@@ -354,6 +358,18 @@ namespace UPlayGround.Components
                 AttackState.ChargeAttack => 0,
                 _                        => 0,
             };
+
+            GrowthComboType? comboType = attackState switch
+            {
+                AttackState.NormalAttack => GrowthComboType.Light,
+                AttackState.HeavyAttack => GrowthComboType.Heavy,
+                _ => null,
+            };
+            if (!comboType.HasValue || dataLength <= 1 || PartyManager.Instance == null)
+                return dataLength;
+
+            CharacterActorType type = PartyManager.Instance.ActiveCharacterType;
+            return PartyManager.Instance.GetUnlockedComboLength(type, comboType.Value, dataLength);
         }
 
         private void ApplyComboTags()

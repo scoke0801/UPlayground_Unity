@@ -10,13 +10,14 @@ Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP
 
 Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지 캐릭터는 `CharacterActorType`을 기준으로 플레이어블 대상으로 확장 가능한 구조를 지향한다.
 
-적 처치 시 `MonsterActor`의 합류 설정(`_recruitableAs`)에 지정된 `CharacterActorType`이 있으면 `PartyManager.UnlockCharacter`를 통해 파티 슬롯에 추가된다. 실제 조작 캐릭터는 단일 `PlayerActor`를 유지하고, `PlayerSwapBehaviour`가 하위 모델(`CharacterModelData`)을 교체한 뒤 `PlayerActor.RefreshForCharacter()`로 캐릭터별 상태를 갱신한다.
+`MonsterActor._recruitableAs`가 지정된 적은 처치 시 `PartyManager.UnlockCharacter`를 통해 플레이어블 파티에 합류한다. 사이클 보스의 BossAssist 영입은 이 계약과 별도로 동작하며, `BossAssistDatabaseSO.sourceBossActorId` 매핑과 `BossRecruitmentService` 확률 롤을 사용한다. 실제 조작 캐릭터는 단일 `PlayerActor`를 유지하고, `PlayerSwapBehaviour`가 하위 모델(`CharacterModelData`)을 교체한 뒤 `PlayerActor.RefreshForCharacter()`로 캐릭터별 상태를 갱신한다.
 
 | 구분 | 설명 |
 |------|------|
 | 기본 캐릭터 | `Bokusei` — 게임 시작 기준 고정 플레이어블 |
 | 확장 대상 | `CharacterActorType`에 정의된 타입 중 `CharacterModelData`와 데이터가 준비된 캐릭터 |
-| 합류 조건 | 처치한 `MonsterActor._recruitableAs`가 `None`이 아닐 때 파티에 합류 |
+| 캐릭터 합류 | 처치한 `MonsterActor._recruitableAs`가 `None`이 아닐 때 플레이어블 파티에 합류 |
+| 보스 어시스트 영입 | 사이클 BossAssist 확률 롤 — 어시스트 로스터에 추가(파티 슬롯 아님) |
 | 교체 방식 | 단일 `PlayerActor` + 모델 서브루트 활성/비활성 전환 |
 | 현재 타입 | `Bokusei`, `Honoka`, `Reine`, `LianLian`, `Nenmir`, `Sera`, `Inori`, `H09` |
 

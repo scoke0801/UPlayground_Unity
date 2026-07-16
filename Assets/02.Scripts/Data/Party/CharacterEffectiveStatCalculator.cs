@@ -13,9 +13,10 @@ namespace UPlayGround.Data.Party
         public static Dictionary<StatType, float> Calculate(
             CharacterActorType type,
             PartyMemberGrowthSO growthData,
-            int level)
+            int level,
+            IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
         {
-            Dictionary<StatType, float> stats = PartyPowerCalculator.CalculateGrowthStats(growthData, level);
+            Dictionary<StatType, float> stats = PartyPowerCalculator.CalculateGrowthStats(growthData, level, investments);
             ApplyEquipmentStats(type, stats);
             return stats;
         }
@@ -26,7 +27,7 @@ namespace UPlayGround.Data.Party
             if (party == null)
                 return BuildDefaultStats();
 
-            return Calculate(type, party.GetGrowthData(type), party.GetLevel(type));
+            return Calculate(type, party.GetGrowthData(type), party.GetLevel(type), party.GetGrowthInvestments(type));
         }
 
         private static void ApplyEquipmentStats(CharacterActorType type, Dictionary<StatType, float> stats)

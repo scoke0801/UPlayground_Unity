@@ -91,6 +91,10 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
+            // unscaled 기반이라 히트스톱/슬로모에는 영향받지 않되,
+            // 메뉴 등 명시적 일시정지(GameTimeManager.SetPause) 중에는 런 타이머를 멈춘다.
+            if (GameTimeManager.Instance != null && GameTimeManager.Instance.IsPaused) return;
+
             if (_current.phase is CycleRunPhase.Active or CycleRunPhase.BossDefeated)
                 _current.elapsedSeconds += Time.unscaledDeltaTime;
         }

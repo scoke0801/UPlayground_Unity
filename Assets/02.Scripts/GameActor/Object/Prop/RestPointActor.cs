@@ -70,6 +70,7 @@ namespace UPlayGround
             // 연출: FX (기존 키 재사용)
             GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
             SoundManager.Instance?.PlaySfx(GameSoundKey.RestPointHeal, transform.position);
+            UIManager.Instance?.ShowUI("RestGrowth", CanvasLayer.Popup);
             _isInteracting = false;
         }
 

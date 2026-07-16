@@ -26,6 +26,7 @@ namespace UPlayGround.Components
         public AttackData ExecuteAttack(bool isCombo)
         {
             ClearResidualAttackContext();
+            if (GetComboLength(AttackState.NormalAttack) <= 0) return null;
             _attackState      = AttackState.NormalAttack;          // 전환(ResetCombo 호출 제거 — 강 체인 보존)
             CurrentComboIndex = _normalComboIndex;                 // 약 체인 보존 인덱스 복원(-1 = 미시작)
             // stale 콤보 윈도우 닫기: 전환 시 ResetCombo가 하던 CanCombo=false 대체.
@@ -46,6 +47,7 @@ namespace UPlayGround.Components
         public AttackData ExecuteHeavyAttack(bool isCombo)
         {
             ClearResidualAttackContext();
+            if (GetComboLength(AttackState.HeavyAttack) <= 0) return null;
             _attackState      = AttackState.HeavyAttack;           // 전환(ResetCombo 호출 제거 — 약 체인 보존)
             CurrentComboIndex = _heavyComboIndex;                  // 강 체인 보존 인덱스 복원(-1 = 미시작)
             _comboController?.CloseWindow();                       // stale 콤보 윈도우 닫기(ExecuteAttack과 동일)

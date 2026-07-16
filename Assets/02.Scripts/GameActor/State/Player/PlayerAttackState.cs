@@ -238,6 +238,8 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTagId.State_Combat_Attack);
 
+            ApplyAttackSpeed(1f);
+
             bool hasForcedAttack = _forcedAttackAction != PlayerInterruptAction.None;
             _isHeavyAttack = !hasForcedAttack
                              && InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
@@ -357,6 +359,7 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _playerActorAnimator.IsOpenedComboWindow = false;
             playerActor.Animator.ApplyRootMotion(false);
+            gameActor.Animator.MotionTimelineSpeed = 1f;
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
             // 공격 진입 시 끄지 않으므로 여기서 다시 켤 필요도 없음 (IK는 계속 활성 유지).
             _homingTarget = null;
@@ -369,7 +372,7 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            _attackTimer += deltaTime;
+            _attackTimer += deltaTime * GetAttackSpeed();
 
             // 이번 공격 모션에서 액티브 히트가 한 번이라도 열렸는지 기록(이동 후딜 캔슬 게이트용).
             if (_combat.IsPossibleCollide)
@@ -676,7 +679,7 @@ namespace UPlayGround.State
             float playbackScale = _combat.IsMotionWarping
                 ? _motionWarp.WarpPlayRateScale
                 : 1f;
-            gameActor.Animator.Speed = playbackScale * gameActor.LocalTimeScale;
+            ApplyAttackSpeed(playbackScale);
 
             Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
             currentVelocity = _motionWarp.EvaluateVelocity(
@@ -695,6 +698,20 @@ namespace UPlayGround.State
                 currentVelocity,
                 motor.TransientPosition,
                 deltaTime);
+        }
+
+        private float GetAttackSpeed()
+        {
+            return playerActor.Stats != null
+                ? Mathf.Clamp(playerActor.Stats.AttackSpeed, 0.1f, 5f)
+                : 1f;
+        }
+
+        private void ApplyAttackSpeed(float playbackScale)
+        {
+            float attackSpeed = GetAttackSpeed();
+            gameActor.Animator.MotionTimelineSpeed = attackSpeed;
+            gameActor.Animator.Speed = Mathf.Max(0.1f, playbackScale) * attackSpeed * gameActor.LocalTimeScale;
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

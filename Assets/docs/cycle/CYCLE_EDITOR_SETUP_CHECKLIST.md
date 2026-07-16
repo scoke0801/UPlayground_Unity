@@ -40,13 +40,13 @@
 - [x] Honoka: 이동 `1.15`, 템포 `1.25`, 피해 `0.70`, 브레이크 `0.55`, 회피 `0.45`초로 설정한다.
 - [x] Bokusei: 이동/템포/피해/브레이크 `1.00`, 회피 `0.35`초로 설정한다.
 - [x] H09: 이동 `0.82`, 템포 `0.68`, 피해 `1.80`, 브레이크 `2.10`, 회피 `0.24`초로 설정한다.
-- [ ] `VitalRecoveryPolicySO`를 무게별로 생성해 일반 히트와 브레이크 특수공격의 확률·개수·회복 배율을 설정한다. ⚠️ 에셋 3종은 존재하나 `m_Script: {fileID: 0}`으로 스크립트 참조가 깨져 있음. `VitalRecoveryPolicySO`가 `CharacterWeightProfileSO.cs` 안의 두 번째 클래스라 MonoScript가 연결되지 않는다 → 클래스를 `VitalRecoveryPolicySO.cs`로 분리한 뒤 에셋을 재생성/재연결해야 한다. (`BossAssistDatabase_P0.asset`도 동일 문제)
+- [ ] `VitalRecoveryPolicySO`를 무게별로 생성해 일반 히트와 브레이크 특수공격의 확률·개수·회복 배율을 설정한다. — 2026-07-15 스크립트 참조 복구 완료(`VitalRecoveryPolicySO.cs` 분리 + 에셋 3종 `m_Script` 재연결, 프로필의 `recoveryPolicy` 링크는 원래 정상). ⚠️ 남은 작업: 3종 에셋 값이 전부 동일한 기본값(0.1/1/0.25, 0.25/1/1) — 무게별 차등 수치 세팅 필요.
 - [x] 각 캐릭터 모델의 `CharacterModelData.Weight Profile`에 해당 프로필을 연결한다. — Player.prefab에서 Bokusei=Standard, Honoka=Light, H09=Heavy 연결 확인
 - [ ] 공격 템포 값은 메타데이터다. MotionSet 전체 시간축을 실제로 조정하려면 애니메이션, 이벤트, 캔슬 윈도우가 함께 스케일되는 저작 경로를 별도로 검증한다.
 
 ## 4. 보스 어시스트 데이터와 프리팹
 
-- [ ] 보스별 `BossAssistDefinitionSO`를 생성한다. ⚠️ 정의 에셋 0개, `BossAssistDatabase_P0.asset`의 `definitions: []` 비어 있음 + 스크립트 참조 깨짐(3절 참고)
+- [ ] 보스별 `BossAssistDefinitionSO`를 생성한다. — 2026-07-15 `BossAssistDatabase_P0.asset` 스크립트 참조 복구 완료(`BossAssistDatabaseSO.cs` 분리). ⚠️ 정의 에셋은 여전히 0개, `definitions: []` 비어 있음 — 보스 4종(MonsterHonoka/Bokusei/Hichi/Lili) 정의 저작 필요
 - [ ] 저장용 `Assist Id`를 유일하고 변경되지 않는 문자열로 지정한다.
 - [ ] `Source Boss Actor Id`를 `ActorDatabase` ID와 일치시킨다.
 - [ ] 역할, 아이콘, 쿨다운, 최대 실행 시간, 배치 정책, 대상 필요 여부를 설정한다.
@@ -111,3 +111,33 @@
 - [ ] 탈출 포털을 연속 진입해도 정산이 한 번만 적용되는지 확인한다.
 - [ ] 개발 빌드 텔레메트리 JSON은 `Application.persistentDataPath/cycle_telemetry`에서 확인한다.
 - [ ] 스펙 `07`의 수동 검증 시나리오 A~E를 모두 수행한다.
+
+## 10. 추가 확인 포인트 (2026-07-15 코드 대조에서 발견, 기존 절에 없던 항목)
+
+### 10.1 코드 수정 완료 — Unity 재임포트 후 확인만 필요
+
+- [x] **멀티클래스 파일 분리** — 파일명과 클래스명이 달라 MonoScript가 연결되지 않던 클래스 6종을 각자 파일로 분리. `VitalRecoveryPolicySO.cs`, `BossAssistDatabaseSO.cs`, `CentralBossSpawnPoint.cs`, `CycleRespawnPoint.cs`, `UI_CycleEncounterBanner.cs`, `UI_BossAssistHud.cs` (고정 GUID `.meta` 동반 생성).
+- [x] **깨진 에셋 4종 `m_Script` 복구** — `VitalRecovery_{Light,Standard,Heavy}.asset`, `BossAssistDatabase_P0.asset`.
+- [x] **LakeOfLife 씬 임베디드 MonoScript 제거** — `CentralBossSpawnPoint`/`CycleRespawnPoint` 컴포넌트가 씬 내부에 직렬화된 가짜 MonoScript(`!u!115`)를 참조하던 것을 정식 스크립트 GUID 참조로 교체하고 임베디드 블록 2건 삭제. 직렬화 필드(`_spawnId: central_boss`, `_respawnId: player_spawn_pos` 등)는 보존됨.
+- [ ] 위 수정 후 Unity에서 LakeOfLife를 열어 CentralBossSpawnPoint/CycleRespawnPoint 컴포넌트가 Missing Script 없이 표시되는지, 에셋 4종 인스펙터가 정상 노출되는지 확인한다.
+
+### 10.2 미구현 — 코드 작업 필요
+
+- [ ] **정산 화면 UI** — `CycleRunManager.OnSettlementCommitted` 구독자가 텔레메트리뿐. ⚠️ **데드락 리스크**: 어시스트 로스터가 가득 찬 상태에서 신규 영입이 성공하면 `PendingRecruitAssistId`가 남고, `CycleSettlementService`는 보류 결정이 있으면 정산을 거부한다. 방출/포기 결정 UI가 없으므로 이 경우 사이클 정산이 영구 차단된다. 정산 UI 전까지 임시 자동 결정(포기 등) 폴백 검토.
+- [ ] **`IBossAssistEffectExecutor` 구현체 0개** — 현재 데이터만으로 실행 가능한 어시스트는 회복형(`healAmount`)뿐. 공격/브레이크/버프형은 실행 컴포넌트 신규 작성 필요.
+- [ ] **전멸/유해/회수 알림 UI** — `CycleRemainsManager`의 `OnRemainsCreated/Recovered/Discarded` 구독 UI 클래스 부재(9.8절 항목의 전제).
+- [ ] **각인 파편 지급 시스템 부재** — `OnDuplicateRecruitRewardRequested` 구독자 0개, 중복 영입이 무보상으로 소멸(4절 항목은 "연결"만 언급하나 연결할 대상 시스템 자체가 없음).
+
+### 10.3 기획 결정 필요
+
+- [ ] **미정산 재료 대상 아이템 목록** — 1절 `Unsettled Material Item Ids`에 넣을 실제 Item ID 선정. 비어 있는 동안은 모든 재료가 즉시 인벤토리로 들어가 유해 손실(미정산 재료 전량) 스펙이 무력화된다.
+- [ ] **어시스트 4종 스킬 기획** — 보스별 역할군/쿨다운/배치 정책/`recruitableFromCentralBoss`(중앙 보스 Lili 영입 허용 여부).
+- [ ] **각인 파편의 P0 포지션** — P0 공통 제약은 "메타 재화 제외"인데 중복 영입 보상 훅은 존재. P0에서 무보상 유지 vs 간이 보상 대체 결정.
+- [ ] **rewardGrade의 정산 반영** — 현재 Common/Rare/Heroic은 스폰 시 EXP/골드 배율(1.0/1.35/1.75)로만 소비됨. 정산 화면에서 보여줄/지급할 보상 테이블 미정의.
+- [ ] **무게별 바이탈 회복 수치** — 10.1에서 참조는 복구했으나 Light/Standard/Heavy 3종 값이 동일. 03 스펙 취지(무게별 리스크·리턴 차등)에 맞는 수치 필요.
+
+### 10.4 정리 결정 기록 (2026-07-15)
+
+- 처치-즉시-합류(`MonsterActor.TryRecruitToParty` → `PartyManager.UnlockCharacter`)는 플레이어블 캐릭터 합류 계약으로 유지한다. 사이클 BossAssist 영입은 별도 로스터 계약이며 두 경로를 서로 대체하지 않는다.
+- 필드 몬스터 영구처치/재스폰 상태(WorldStateManager·MonsterRespawnManager)가 사이클 회차를 넘어 유지되는 것은 **의도된 현행 유지**로 결정(회차 간 필드 소모 허용).
+- P0 스코프 외 레거시(제작/퀘스트/스토리·대화)는 유지 — 사이클과 충돌 없음.

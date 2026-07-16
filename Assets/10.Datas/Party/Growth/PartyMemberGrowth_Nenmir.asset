@@ -17,4 +17,57 @@ MonoBehaviour:
   levelCurve: {fileID: 11400000, guid: d5a8ccffdeaa07b46a92429547dfdb75, type: 2}
   initialLevel: 1
   levelCap: 100
+  useAutomaticLevelGrowth: 0
+  growthPointsPerLevel: 1
+  investmentRules:
+  - attributeType: 0
+    statType: 0
+    maxRank: 20
+    flatPerRank: 20
+    milestones:
+    - requiredRank: 7
+      unlockType: 1
+      unlockId: Skill.Ultimate
+      displayName: "\uAD81\uADF9 \uC2A4\uD0AC"
+      description: "7\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
+  - attributeType: 1
+    statType: 3
+    maxRank: 20
+    flatPerRank: 0.02
+    milestones:
+    - requiredRank: 5
+      unlockType: 0
+      unlockId: Combo.Heavy.3
+      displayName: "\uAC15\uACF5\uACA9 3\uC5F0\uACC4"
+      description: "5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
+  - attributeType: 2
+    statType: 4
+    maxRank: 20
+    flatPerRank: 0.01
+    milestones:
+    - requiredRank: 5
+      unlockType: 1
+      unlockId: Skill.Ability
+      displayName: "\uC5B4\uBE4C\uB9AC\uD2F0 \uC2A4\uD0AC"
+      description: "5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
+  - attributeType: 3
+    statType: 14
+    maxRank: 20
+    flatPerRank: 0.03
+    milestones:
+    - requiredRank: 3
+      unlockType: 0
+      unlockId: Combo.Heavy.2
+      displayName: "\uAC15\uACF5\uACA9 2\uC5F0\uACC4"
+      description: "3\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
+  - attributeType: 4
+    statType: 2
+    maxRank: 20
+    flatPerRank: 0.05
+    milestones:
+    - requiredRank: 3
+      unlockType: 0
+      unlockId: Combo.Light.3
+      displayName: "\uC57D\uACF5\uACA9 3\uC5F0\uACC4"
+      description: "3\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
   growthRules: []

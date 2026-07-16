@@ -30,6 +30,7 @@ namespace UPlayGround.Components
         public float Defense            => GetFinalStat(StatType.Defense);
         public float CritRate           => GetFinalStat(StatType.CritRate);
         public float CritMultiplier     => GetFinalStat(StatType.CritMultiplier);
+        public float AttackSpeed        => GetFinalStat(StatType.AttackSpeed);
         public float MoveSpeed          => GetFinalStat(StatType.MoveSpeed);
         public float DashDistance       => GetFinalStat(StatType.DashDistance);
         public float MaxPoise           => GetFinalStat(StatType.MaxPoise);

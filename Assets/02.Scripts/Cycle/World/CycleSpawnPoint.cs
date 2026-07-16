@@ -37,29 +37,4 @@ namespace UPlayGround.Cycle
         }
     }
 
-    public sealed class CentralBossSpawnPoint : MonoBehaviour
-    {
-        [SerializeField] private string _spawnId = "central_boss";
-        [SerializeField] private Transform _arrivalPoint;
-        public string SpawnId => _spawnId;
-        public Vector3 Position => _arrivalPoint != null ? _arrivalPoint.position : transform.position;
-        public Quaternion Rotation => _arrivalPoint != null ? _arrivalPoint.rotation : transform.rotation;
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(Position, 1.25f);
-        }
-    }
-
-    public sealed class CycleRespawnPoint : MonoBehaviour
-    {
-        [SerializeField] private string _respawnId;
-        [SerializeField] private bool _isActive = true;
-        [SerializeField] private Transform _arrivalPoint;
-        public string RespawnId => _respawnId;
-        public bool IsActive => _isActive;
-        public Transform ArrivalPoint => _arrivalPoint != null ? _arrivalPoint : transform;
-        public void SetActive(bool active) => _isActive = active;
-    }
 }

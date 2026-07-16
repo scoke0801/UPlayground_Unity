@@ -1,5 +1,7 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using System.Collections.Generic;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Manager
@@ -30,6 +32,25 @@ namespace UPlayGround.Manager
             if (player == null || player.Stats == null)
                 return 0f;
             return player.Stats.GetBase(type);
+        }
+
+        public bool AddGrowthPoints(CharacterActorType type, int amount)
+        {
+            bool ok = PartyManager.Instance != null
+                      && PartyManager.Instance.AddGrowthPointsForDebug(type, amount);
+            if (ok)
+                Log(CheatCategory.Stat, $"성장 포인트 변경: {type} {(amount >= 0 ? "+" : "")}{amount}");
+            return ok;
+        }
+
+        public bool SetGrowthRank(CharacterActorType type, GrowthAttributeType attribute, int rank)
+        {
+            bool ok = PartyManager.Instance != null
+                      && PartyManager.Instance.SetGrowthRankForDebug(type, attribute, rank);
+            if (ok)
+                Log(CheatCategory.Stat,
+                    $"성장 능력치 적용: {type} {attribute} Rank {PartyManager.Instance.GetGrowthRank(type, attribute)}");
+            return ok;
         }
     }
 }

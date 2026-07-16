@@ -322,7 +322,17 @@
       "Bash(openssl rand *)",
       "Bash(xxd)",
       "Bash(awk '/MonoBehaviour:/{p=NR} /guid: e1931b7b2f206b3478b0d608c8319961|_database:|_memberData:|_cardPrefab:|_cardRoot:|_confirmButton:|_cancelButton:/{print NR\": \"$0}' Assets/03.Prefabs/UI/Scene/CharacterSelect/UI_CharacterSelect.prefab)",
-      "PowerShell(foreach \\($ln in 92970,122349,277367\\) { $s=[Math]::Max\\(0,$ln-40\\); \\(Get-Content Assets\\\\03.Prefabs\\\\Actor\\\\Player\\\\Player.prefab | Select-Object -Skip $s -First 42 | Select-String \"characterType|m_Name\"\\) | Select-Object -Last 3 })"
+      "PowerShell(foreach \\($ln in 92970,122349,277367\\) { $s=[Math]::Max\\(0,$ln-40\\); \\(Get-Content Assets\\\\03.Prefabs\\\\Actor\\\\Player\\\\Player.prefab | Select-Object -Skip $s -First 42 | Select-String \"characterType|m_Name\"\\) | Select-Object -Last 3 })",
+      "PowerShell($files = @\\('Assets\\\\02.Scripts\\\\Cycle\\\\World\\\\CycleWorldContext.cs.meta','Assets\\\\02.Scripts\\\\Cycle\\\\World\\\\CycleSpawnPoint.cs.meta','Assets\\\\02.Scripts\\\\Cycle\\\\Assist\\\\BossAssistBootstrap.cs.meta'\\); foreach \\($f in $files\\) { $g = \\(Select-String -Path $f -Pattern 'guid: \\(\\\\w+\\)'\\).Matches[0].Groups[1].Value; $count = \\(Select-String -Path 'Assets\\\\01.Scenes\\\\Ingame\\\\LakeOfLife.unity' -Pattern $g -AllMatches | Measure-Object\\).Count; Write-Output \"$f -> $g : scene refs $count\" })",
+      "PowerShell(1..6 | ForEach-Object { [guid]::NewGuid\\(\\).ToString\\('N'\\) })",
+      "PowerShell(Select-String -Path 'Assets\\\\01.Scenes\\\\Ingame\\\\LakeOfLife.unity' -Pattern 'm_ClassName:|--- !u!115' -Context 0,0 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
+      "PowerShell(Select-String -Path 'Assets\\\\01.Scenes\\\\Ingame\\\\LakeOfLife.unity' -Pattern 'm_Script: \\\\{fileID: \\(74789056|463114943\\)\\\\}' | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
+      "PowerShell($s = Select-String -Path 'Assets\\\\01.Scenes\\\\Ingame\\\\LakeOfLife.unity' -Pattern '!u!115|m_ClassName|fileID: 74789056|fileID: 463114943'; if \\($s\\) { $s | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" } } else { 'clean' })",
+      "PowerShell([guid]::NewGuid\\(\\).ToString\\('N'\\))",
+      "PowerShell(Select-String -Path 'Assets\\\\02.Scripts\\\\GameActor\\\\Object\\\\GameActor.cs','Assets\\\\02.Scripts\\\\GameActor\\\\Object\\\\Monster\\\\MonsterActor.cs' -Pattern '^namespace|^public abstract class|^public class' | ForEach-Object { \"$\\($_.Filename\\):$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
+      "PowerShell($files = @\\('UIPartyWeightUtil','UIAssistRosterEntry','UIAssistRosterPanel'\\); foreach \\($f in $files\\) { $p = Get-ChildItem -Path 'Assets\\\\02.Scripts\\\\UI\\\\Scene\\\\Party' -Filter \"$f.cs.meta\" -ErrorAction SilentlyContinue; if \\($p\\) { \"$f.cs.meta EXISTS\" } else { \"$f.cs.meta MISSING\" } })",
+      "PowerShell(Start-Sleep -Seconds 3; $files = @\\('UIAssistRosterEntry','UIAssistRosterPanel'\\); foreach \\($f in $files\\) { $p = Get-ChildItem -Path 'Assets\\\\02.Scripts\\\\UI\\\\Scene\\\\Party' -Filter \"$f.cs.meta\" -ErrorAction SilentlyContinue; if \\($p\\) { \"$f.cs.meta EXISTS\" } else { \"$f.cs.meta MISSING\" } })",
+      "PowerShell(1..2 | ForEach-Object { [guid]::NewGuid\\(\\).ToString\\('N'\\) })"
     ]
   }
 }

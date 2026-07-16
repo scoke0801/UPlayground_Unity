@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Manager;
 
@@ -35,38 +34,4 @@ namespace UPlayGround.UI
         }
     }
 
-    public sealed class UI_CycleEncounterBanner : MonoBehaviour
-    {
-        [SerializeField] private TMP_Text _title;
-        [SerializeField] private CanvasGroup _group;
-        [Min(0.1f), SerializeField] private float _duration = 3f;
-        private float _remaining;
-        private void OnEnable() { if (CycleRunManager.Instance != null) CycleRunManager.Instance.OnBossDiscovered += Show; if (_group != null) _group.alpha = 0f; }
-        private void OnDisable() { if (CycleRunManager.Instance != null) CycleRunManager.Instance.OnBossDiscovered -= Show; }
-        private void Show(CycleBossPlacement boss) { if (_title != null) _title.text = $"{(boss.isCentral ? "중앙" : "외곽")} 보스\n{boss.actorId}"; _remaining = _duration; if (_group != null) _group.alpha = 1f; }
-        private void Update() { if (_remaining <= 0f) return; _remaining -= Time.unscaledDeltaTime; if (_remaining <= 0f && _group != null) _group.alpha = 0f; }
-    }
-
-    public sealed class UI_BossAssistHud : MonoBehaviour
-    {
-        [SerializeField] private Image _icon;
-        [SerializeField] private Image _cooldownFill;
-        [SerializeField] private TMP_Text _cooldownText;
-        [SerializeField] private CanvasGroup _group;
-        private void Update()
-        {
-            BossAssistManager manager = BossAssistManager.Instance;
-            if (manager == null) return;
-            BossAssistDefinitionSO definition = manager.EquippedDefinition;
-            if (_icon != null)
-            {
-                _icon.enabled = definition != null && definition.icon != null;
-                _icon.sprite = definition != null ? definition.icon : null;
-            }
-            (float remaining, float duration) = manager.SampleCooldown();
-            if (_cooldownFill != null) _cooldownFill.fillAmount = duration > 0f ? remaining / duration : 0f;
-            if (_cooldownText != null) _cooldownText.text = remaining > 0f ? Mathf.CeilToInt(remaining).ToString() : string.Empty;
-            if (_group != null) _group.alpha = definition == null ? 0.25f : manager.IsExecuting || remaining > 0f ? 0.55f : 1f;
-        }
-    }
 }

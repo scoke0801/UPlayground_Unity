@@ -47,6 +47,10 @@ namespace UPlayGround.UI
         [SerializeField] private GameObject _roleBalanced;
         [SerializeField] private GameObject _roleMobility;
 
+        [Header("무게 클래스 (사이클)")]
+        [SerializeField] private TextMeshProUGUI _weightClassText;   // 경량/표준/중량
+        [SerializeField] private TextMeshProUGUI _weightDerivedText; // 이동/템포/피해/브레이크/회피 파생값
+
         [Header("설정")]
         [SerializeField] private int _maxLevel = 40;
 
@@ -106,13 +110,29 @@ namespace UPlayGround.UI
             if (_statHealthText != null)   _statHealthText.text   = StatDisplayFormatter.FormatValue(StatType.MaxHealth, Stat(s, StatType.MaxHealth));
             if (_statCritRateText != null) _statCritRateText.text = StatDisplayFormatter.FormatValue(StatType.CritRate, Stat(s, StatType.CritRate));
             if (_statCritDmgText != null)  _statCritDmgText.text  = StatDisplayFormatter.FormatValue(StatType.CritMultiplier, Stat(s, StatType.CritMultiplier));
-            if (_statAtkSpeedText != null) _statAtkSpeedText.text = "-"; // 공격 속도 스탯 미정의
+            if (_statAtkSpeedText != null) _statAtkSpeedText.text = StatDisplayFormatter.FormatValue(StatType.AttackSpeed, Stat(s, StatType.AttackSpeed));
 
             // 역할 하이라이트
             var role = data.GetRole(type);
             if (_roleMelee != null)    _roleMelee.SetActive(role == PartyRole.Melee);
             if (_roleBalanced != null) _roleBalanced.SetActive(role == PartyRole.Balanced);
             if (_roleMobility != null) _roleMobility.SetActive(role == PartyRole.Mobility);
+
+            // 무게 클래스 (사이클 03 스펙 파생값)
+            RefreshWeight(type);
+        }
+
+        private void RefreshWeight(CharacterActorType type)
+        {
+            var profile = UIPartyWeightUtil.FindProfile(type);
+            if (_weightClassText != null)
+                _weightClassText.text = profile != null ? UIPartyWeightUtil.ClassLabel(profile.weightClass) : "-";
+            if (_weightDerivedText != null)
+                _weightDerivedText.text = profile != null
+                    ? $"이동 x{profile.moveSpeedMultiplier:0.##} · 템포 x{profile.attackTempoMultiplier:0.##} · " +
+                      $"피해 x{profile.damageMultiplier:0.##} · 브레이크 x{profile.breakDamageMultiplier:0.##} · " +
+                      $"회피 무적 {profile.dodgeIFrameSeconds:0.##}초"
+                    : string.Empty;
         }
 
         private static float Stat(IReadOnlyDictionary<StatType, float> stats, StatType type)

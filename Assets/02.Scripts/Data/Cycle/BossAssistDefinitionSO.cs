@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 
@@ -26,12 +24,4 @@ namespace UPlayGround.Data.Cycle
         [Min(0f)] public float healAmount;
     }
 
-    [CreateAssetMenu(fileName = "BossAssistDatabase", menuName = "UPlayGround/사이클/보스 어시스트 DB")]
-    public sealed class BossAssistDatabaseSO : ScriptableObject
-    {
-        public List<BossAssistDefinitionSO> definitions = new();
-
-        public BossAssistDefinitionSO FindByAssistId(string id) => definitions?.Find(value => value != null && value.assistId == id);
-        public BossAssistDefinitionSO FindByBossActorId(string id) => definitions?.Find(value => value != null && value.sourceBossActorId == id);
-    }
 }

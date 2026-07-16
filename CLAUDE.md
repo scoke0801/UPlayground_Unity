@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 프로젝트 개요
 
 Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP 렌더링 파이프라인.
-Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `CharacterActorType`에 정의된 타입을 플레이어블 대상으로 확장할 수 있는 구조. 적 처치 시 `MonsterActor._recruitableAs`에 지정된 타입을 `PartyManager.UnlockCharacter`로 파티에 합류시키는 방향.
+**사이클형 보스 헌팅** 구조: 시드 기반 런(개발 20분/정식 40분)에서 외곽 보스 3 + 중앙 보스 1을 배치하고, 중앙 보스 처치 후 포털 정산으로 사이클을 마친다 (스펙: `Assets/docs/cycle/`). 처치한 보스는 파티에 합류하지 않고 **BossAssist**(장착 1마리, 지정 스킬 1회, 비이동·비어그로 서포트 소환)로 영입된다 — 매핑은 `BossAssistDatabaseSO.sourceBossActorId`, 확률 롤은 `BossRecruitmentService`. `MonsterActor._recruitableAs`는 재스폰 제외 판정용 네임드 표시로만 남아 있으며 `PartyManager.UnlockCharacter` 자동 호출은 제거됨(치트 전용).
 
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 

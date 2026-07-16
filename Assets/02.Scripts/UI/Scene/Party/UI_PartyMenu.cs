@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,8 +23,6 @@ namespace UPlayGround.UI
         private InventoryManager InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = InventoryManager.Instance);
 
 
-        private const int RosterDisplayCapacity = 20;
-
         [Header("캐릭터 목록")]
         [SerializeField] private Transform        _content;
         [SerializeField] private UIPartyMenuEntry _partyMenuEntryPrefab;
@@ -46,33 +42,29 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _rosterCountText;      // 보유 동료 수
         [SerializeField] private TextMeshProUGUI _battlePartyCountText; // 출전 파티 N / 최대 (중앙 헤더)
         [SerializeField] private TextMeshProUGUI _battleMemberCountText;// 출전 인원 N / 최대 (하단)
+        [SerializeField] private TextMeshProUGUI _partyWeightSummaryText; // 파티 무게 구성 (예: 경량1·표준1·중량1)
 
         [Header("상세")]
         [SerializeField] private UI_PartyDetailPanel _detailPanel;
+
+        [Header("어시스트 (사이클 보스 영입 동료)")]
+        [SerializeField] private UIAssistRosterPanel _assistPanel;
+
+        [Header("옵션")]
+        [Tooltip("편성 화면을 여는 동안 게임을 일시정지한다. 사이클 런 타이머도 함께 멈춘다.")]
+        [SerializeField] private bool _pauseGameOnShow = true;
 
         private readonly List<UIPartyMenuEntry> _menuEntries  = new();
         private readonly List<CharacterActorType> _pendingOrder = new();
 
         private CharacterActorType _selectedType = CharacterActorType.None;
+        private bool _didPauseGame;
 
         // ─── 생명주기 ─────────────────────────────────────────────────────
 
         protected override void OnInit()
         {
             base.OnInit();
-
-            foreach (CharacterActorType type in Enum.GetValues(typeof(CharacterActorType)))
-            {
-                if (type == CharacterActorType.None || type == CharacterActorType.H09)
-                    continue;
-
-                var entry = Instantiate(_partyMenuEntryPrefab, _content);
-                if (entry == null) continue;
-
-                entry.Init(type);
-                entry.OnToggleRequested += OnEntryToggleRequested;
-                _menuEntries.Add(entry);
-            }
 
             foreach (var battleEntry in _partyBattleEntries)
                 battleEntry.OnSelectRequested += OnBattleEntrySelected;
@@ -91,10 +83,19 @@ namespace UPlayGround.UI
         {
             base.OnShow();
 
+            // 이미 다른 UI가 일시정지한 상태면 우리가 재개 책임을 지지 않는다(단순 bool 모델이라 이중 해제 방지).
+            var timeMgr = GameTimeManager.Instance;
+            if (_pauseGameOnShow && timeMgr != null && !timeMgr.IsPaused)
+            {
+                timeMgr.SetPause(true);
+                _didPauseGame = true;
+            }
+
             if (PartyMgr != null)
             {
                 PartyMgr.OnSwapCompleted += OnSwapCompleted;
                 PartyMgr.OnPartyProgressionChanged += OnPartyProgressionChanged;
+                PartyMgr.OnRosterChanged += OnRosterChanged;
             }
             if (InventoryMgr != null)
                 InventoryMgr.OnPartyEquipmentChanged += OnPartyEquipmentChanged;
@@ -107,7 +108,7 @@ namespace UPlayGround.UI
             // 기본 선택: 첫 출전 멤버
             _selectedType = _pendingOrder.Count > 0 ? _pendingOrder[0] : CharacterActorType.None;
 
-            SortMenuEntries();
+            RebuildMenuEntries();
             Refresh();
         }
 
@@ -117,9 +118,16 @@ namespace UPlayGround.UI
             {
                 PartyMgr.OnSwapCompleted -= OnSwapCompleted;
                 PartyMgr.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+                PartyMgr.OnRosterChanged -= OnRosterChanged;
             }
             if (InventoryMgr != null)
                 InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
+
+            if (_didPauseGame)
+            {
+                GameTimeManager.Instance?.SetPause(false);
+                _didPauseGame = false;
+            }
         }
 
         protected override void OnDispose()
@@ -128,6 +136,7 @@ namespace UPlayGround.UI
             {
                 PartyMgr.OnSwapCompleted -= OnSwapCompleted;
                 PartyMgr.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+                PartyMgr.OnRosterChanged -= OnRosterChanged;
             }
             if (InventoryMgr != null)
                 InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
@@ -217,6 +226,12 @@ namespace UPlayGround.UI
         private void OnPartyProgressionChanged(CharacterActorType _) => Refresh();
         private void OnPartyEquipmentChanged() => Refresh();
 
+        private void OnRosterChanged()
+        {
+            RebuildMenuEntries();
+            Refresh();
+        }
+
         // ─── 갱신 ────────────────────────────────────────────────────────
 
         private void Refresh()
@@ -225,7 +240,37 @@ namespace UPlayGround.UI
             RefreshMenuEntries();
             RefreshPartyCombatPower();
             RefreshCounts();
+            RefreshWeightSummary();
             RefreshDetail();
+            _assistPanel?.Refresh();
+        }
+
+        /// <summary>
+        /// 보유(Roster) 캐릭터만으로 목록을 재구성한다.
+        /// 사이클 전환 후 영입은 BossAssist 전용이라 미보유 캐릭터는 게임 내 획득 수단이 없으므로 노출하지 않는다.
+        /// </summary>
+        private void RebuildMenuEntries()
+        {
+            var pm = PartyMgr;
+            if (pm == null || _partyMenuEntryPrefab == null || _content == null) return;
+
+            foreach (var entry in _menuEntries)
+            {
+                if (entry == null) continue;
+                entry.OnToggleRequested -= OnEntryToggleRequested;
+                Destroy(entry.gameObject);
+            }
+            _menuEntries.Clear();
+
+            foreach (var type in pm.Roster)
+            {
+                var entry = Instantiate(_partyMenuEntryPrefab, _content);
+                if (entry == null) continue;
+
+                entry.Init(type);
+                entry.OnToggleRequested += OnEntryToggleRequested;
+                _menuEntries.Add(entry);
+            }
         }
 
         private void RefreshCounts()
@@ -235,7 +280,7 @@ namespace UPlayGround.UI
 
             int max = pm.MaxBattleSize;
             if (_rosterCountText != null)
-                _rosterCountText.text = $"{pm.Roster.Count.ToString("N0", CultureInfo.InvariantCulture)} / {RosterDisplayCapacity}";
+                _rosterCountText.text = pm.Roster.Count.ToString("N0", CultureInfo.InvariantCulture);
             if (_battlePartyCountText != null)
                 _battlePartyCountText.text = $"{_pendingOrder.Count} / {max}";
             if (_battleMemberCountText != null)
@@ -280,15 +325,27 @@ namespace UPlayGround.UI
             _partyCombatPowerText.text = combatPower.ToString("#,0", CultureInfo.InvariantCulture);
         }
 
-        /// <summary>보유(Roster) 캐릭터가 목록 상단에 오도록 sibling 순서 재정렬.</summary>
-        private void SortMenuEntries()
+        /// <summary>초안 출전 파티의 무게 클래스 구성 요약 (사이클 03 스펙 파생).</summary>
+        private void RefreshWeightSummary()
         {
-            var pm = PartyMgr;
-            if (pm == null) return;
+            if (_partyWeightSummaryText == null) return;
 
-            int idx = 0;
-            foreach (var entry in _menuEntries.OrderByDescending(e => pm.Roster.Contains(e.Type)))
-                entry.transform.SetSiblingIndex(idx++);
+            int light = 0, standard = 0, heavy = 0, unknown = 0;
+            foreach (var type in _pendingOrder)
+            {
+                var profile = UIPartyWeightUtil.FindProfile(type);
+                if (profile == null) { unknown++; continue; }
+                switch (profile.weightClass)
+                {
+                    case Data.Cycle.CharacterWeightClass.Light:  light++;    break;
+                    case Data.Cycle.CharacterWeightClass.Heavy:  heavy++;    break;
+                    default:                                     standard++; break;
+                }
+            }
+
+            string text = $"경량 {light} · 표준 {standard} · 중량 {heavy}";
+            if (unknown > 0) text += $" · 미분류 {unknown}";
+            _partyWeightSummaryText.text = text;
         }
     }
 }

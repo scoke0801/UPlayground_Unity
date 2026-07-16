@@ -14,6 +14,7 @@ namespace UPlayGround.Data.Stat
                 StatType.Defense => "방어력",
                 StatType.CritRate => "치명타 확률",
                 StatType.CritMultiplier => "치명타 피해",
+                StatType.AttackSpeed => "공격 속도",
                 StatType.MoveSpeed => "이동 속도",
                 StatType.DashDistance => "대시 거리",
                 StatType.MaxPoise => "강인도",
@@ -32,7 +33,7 @@ namespace UPlayGround.Data.Stat
             {
                 StatType.Defense or StatType.CritRate => $"{Mathf.Clamp01(value) * 100f:0.#}%",
                 StatType.CritMultiplier => $"{value * 100f:0.#}%",
-                StatType.AttackPower or StatType.MoveSpeed or StatType.DashDistance or
+                StatType.AttackPower or StatType.AttackSpeed or StatType.MoveSpeed or StatType.DashDistance or
                     StatType.SkillGaugeRate or StatType.InvincibleDuration => $"{value:0.##}",
                 _ => $"{value:0.#}"
             };

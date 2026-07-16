@@ -32,6 +32,8 @@ namespace UPlayGround.Manager
         public UPlayGround.Cycle.AssistRosterService Roster => _roster;
         public UPlayGround.Cycle.BossRecruitmentService Recruitment => _recruitment;
         public BossAssistDefinitionSO EquippedDefinition => _database?.FindByAssistId(_roster.EquippedAssistId);
+        /// <summary>UI 등 외부에서 어시스트 정의를 조회한다. DB 미구성/미등록이면 null.</summary>
+        public BossAssistDefinitionSO FindDefinition(string assistId) => _database?.FindByAssistId(assistId);
         public bool IsExecuting => _activeModel != null;
         public event Action<string> OnAssistStarted;
         public event Action<string> OnAssistCompleted;
@@ -79,6 +81,9 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
+            // 명시적 일시정지 중에는 쿨다운 감소·어시스트 실행 타이머를 멈춘다 (사이클 런 타이머와 동일 계약).
+            if (GameTimeManager.Instance != null && GameTimeManager.Instance.IsPaused) return;
+
             if (_cooldowns.Count > 0)
             {
                 string[] ids = new string[_cooldowns.Count];

@@ -32,7 +32,10 @@ namespace UPlayGround.Data.Party
     /// </summary>
     public static class PartyPowerCalculator
     {
-        public static Dictionary<StatType, float> CalculateGrowthStats(PartyMemberGrowthSO growthData, int level)
+        public static Dictionary<StatType, float> CalculateGrowthStats(
+            PartyMemberGrowthSO growthData,
+            int level,
+            IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
         {
             var stats = new Dictionary<StatType, float>();
             int clampedLevel = growthData != null
@@ -45,7 +48,21 @@ namespace UPlayGround.Data.Party
                     ? growthData.baseStat.GetBase(type)
                     : ActorStatSO.GetDefault(type);
 
-                stats[type] = CalculateStatValue(growthData, type, baseValue, clampedLevel);
+                stats[type] = growthData != null && growthData.useAutomaticLevelGrowth
+                    ? CalculateStatValue(growthData, type, baseValue, clampedLevel)
+                    : baseValue;
+            }
+
+            if (growthData != null && investments != null)
+            {
+                foreach (var investment in investments)
+                {
+                    growthData.TryGetInvestmentRule(investment.Key, out GrowthInvestmentRule rule);
+                    int rank = Mathf.Clamp(investment.Value, 0, Mathf.Max(1, rule.maxRank));
+                    stats[rule.statType] = stats.TryGetValue(rule.statType, out float value)
+                        ? value + rule.flatPerRank * rank
+                        : rule.flatPerRank * rank;
+                }
             }
 
             return stats;
@@ -60,12 +77,14 @@ namespace UPlayGround.Data.Party
             float defense = Mathf.Clamp01(Get(stats, StatType.Defense));
             float critRate = Mathf.Clamp01(Get(stats, StatType.CritRate));
             float critMultiplier = Mathf.Max(1f, Get(stats, StatType.CritMultiplier));
+            float attackSpeed = Mathf.Max(0.1f, Get(stats, StatType.AttackSpeed));
             float maxPoise = Mathf.Max(0f, Get(stats, StatType.MaxPoise));
             float skillGaugeRate = Mathf.Max(0f, Get(stats, StatType.SkillGaugeRate));
             float moveSpeed = Mathf.Max(0f, Get(stats, StatType.MoveSpeed));
 
             float effectiveAttack = attackPower
                                     * (1f + critRate * Mathf.Max(0f, critMultiplier - 1f))
+                                    * attackSpeed
                                     * skillGaugeRate;
             float effectiveHealth = maxHealth / Mathf.Max(0.1f, 1f - defense);
             float utility = maxPoise * 0.25f + Mathf.Max(0f, moveSpeed - 1f) * 100f;
@@ -80,9 +99,10 @@ namespace UPlayGround.Data.Party
         public static PartyCombatPowerResult Calculate(
             CharacterActorType characterType,
             PartyMemberGrowthSO growthData,
-            int level)
+            int level,
+            IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
         {
-            var stats = CalculateGrowthStats(growthData, level);
+            var stats = CalculateGrowthStats(growthData, level, investments);
             long combatPower = CalculateCombatPower(stats);
             return new PartyCombatPowerResult(characterType, Mathf.Max(1, level), combatPower, stats);
         }

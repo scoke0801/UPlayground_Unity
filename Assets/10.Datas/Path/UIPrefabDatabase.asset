@@ -159,3 +159,8 @@ MonoBehaviour:
     prefab: {fileID: 8065138479794686207, guid: fda1e2a8012a2a94d915d22b119c42bc, type: 3}
     defaultLayer: 1000
     description: "\uC2E0\uADDC \uAC8C\uC784 \uCE90\uB9AD\uD130 \uC120\uD0DD \uD654\uBA74"
+  - key: RestGrowth
+    prefab: {fileID: 3289338467361294954, guid: e8d18ef7b733f7b4bb2582c072f12a6d, type: 3}
+    defaultLayer: 2000
+    description: "\uD734\uC2DD\uC9C0\uC810 \uB2A5\uB825\uCE58 \uC120\uD0DD \uC131\uC7A5
+      UI (uGUI)"

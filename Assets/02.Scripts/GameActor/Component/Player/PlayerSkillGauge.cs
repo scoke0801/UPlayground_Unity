@@ -3,6 +3,8 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Party;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Components
 {
@@ -121,6 +123,14 @@ namespace UPlayGround.Components
         public bool CanUseSkill(int skillSlot)
         {
             if (!IsValidSkillSlot(skillSlot)) return false;
+            GrowthSkillType skillType = skillSlot == AbilitySkillSlot
+                ? GrowthSkillType.Ability
+                : GrowthSkillType.Ultimate;
+            if (PartyManager.Instance != null
+                && !PartyManager.Instance.IsSkillUnlocked(
+                    PartyManager.Instance.ActiveCharacterType,
+                    skillType))
+                return false;
             if (IsSkillOnCooldown(skillSlot)) return false;
             if (!UsesGaugeCost(skillSlot)) return true;
             return _maxGauge > 0f && _currentGauge >= _maxGauge;

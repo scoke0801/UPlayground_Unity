@@ -32,6 +32,7 @@ namespace UPlayGround.Data.Stat
             { StatType.Defense,            0.0f },
             { StatType.CritRate,           0.0f },
             { StatType.CritMultiplier,     1.5f },
+            { StatType.AttackSpeed,        1.0f },
             { StatType.MoveSpeed,          1.0f },
             { StatType.DashDistance,       1.0f },
             { StatType.MaxPoise,           100f },

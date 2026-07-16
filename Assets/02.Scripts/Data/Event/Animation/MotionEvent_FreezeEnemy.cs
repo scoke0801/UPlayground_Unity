@@ -9,6 +9,9 @@ namespace UPlayGround.Data.Event
     /// 액터 Freeze 이벤트
     /// </summary>
     [Serializable]
+    [MotionEventMeta("FreezeEnemy", Category = "Utility", CategoryOrder = 40,
+        Description = "적을 일시 정지시킵니다.",
+        Aliases = new[] { "freeze", "enemy", "stop", "빙결", "정지" })]
     public class FreezeEnemyEvent : MotionEventBase
     {
         public override string GetDisplayName() => "FreezeEnemy";

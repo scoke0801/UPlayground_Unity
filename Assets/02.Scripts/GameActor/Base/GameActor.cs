@@ -12,8 +12,11 @@ using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround
 {
-    public abstract class GameActor : MonoBehaviour
+    public abstract class GameActor : MonoBehaviour, IMotionEventTargetRoot
     {
+        // 패키지의 MotionEventExecutor가 모델(자식)에 붙었을 때 이벤트 타깃을 액터 루트로 해석하기 위한 계약.
+        public GameObject EventTargetRoot => gameObject;
+
         private const string PlayerDefaultTargetLayerName = "Enemy";
         private const string MonsterDefaultTargetLayerName = "Player";
 

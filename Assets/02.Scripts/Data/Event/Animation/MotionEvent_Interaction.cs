@@ -12,6 +12,9 @@ namespace UPlayGround.Data.Event
     /// 타임라인은 발화 타이밍만 담당하고, 타격량은 플레이어 스탯(GatheringPower)에서만 나온다.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("Interaction", Category = "Combat", CategoryOrder = 0,
+        Description = "인터렉션 대상에 채집/채광/벌목/낚시 처리 타이밍을 전달합니다.",
+        Aliases = new[] { "interaction", "gather", "mining", "woodcutting", "fishing", "채집", "채광", "벌목", "낚시" })]
     public class InteractionEvent : MotionEventBase
     {
         public InteractionAnimEvent interactionEvent = InteractionAnimEvent.OnHit;

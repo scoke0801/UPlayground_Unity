@@ -9,6 +9,10 @@ namespace UPlayGround.Data.Event
     /// 충돌 판정 활성화 이벤트
     /// </summary>
     [Serializable]
+    [MotionEventMeta("ComboWindow", Category = "Combat", CategoryOrder = 0,
+        Description = "다음 콤보 입력을 받을 수 있는 구간을 엽니다.",
+        Aliases = new[] { "combo", "cancel", "chain", "연계", "콤보" },
+        Icon = "🔓", Color = new[] { 0.98f, 0.55f, 0.15f })]
     public class ComboWindowEvent : MotionEventBase
     {
 

@@ -8,6 +8,10 @@ using UPlayGround.State;
 namespace UPlayGround.Data.Event
 {
     [Serializable]
+    [MotionEventMeta("SpecialBreakAttack", Category = "Combat", CategoryOrder = 0,
+        Description = "브레이크 특수공격 피해 적용 타이밍을 발생시킵니다.",
+        Aliases = new[] { "break", "special", "groggy", "브레이크", "특수공격" },
+        Icon = "◆", Color = new[] { 1.00f, 0.35f, 0.35f })]
     public class SpecialBreakAttackEvent : MotionEventBase
     {
         public override string GetDisplayName() => "SpecialBreakAttack";

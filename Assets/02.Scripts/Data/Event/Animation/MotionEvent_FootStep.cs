@@ -8,6 +8,10 @@ namespace UPlayGround.Data.Event
     /// 발자국 이벤트 (지형별 사운드)
     /// </summary>
     [Serializable]
+    [MotionEventMeta("Footstep", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "지형 기반 발자국 사운드를 재생합니다.",
+        Aliases = new[] { "foot", "step", "walk", "발소리", "발자국" },
+        Icon = "👣", Color = new[] { 0.65f, 0.55f, 1.00f })]
     public class FootstepEvent : MotionEventBase
     {
         public enum Foot { Left, Right }

@@ -23,6 +23,10 @@ namespace UPlayGround.Data.Event
     ///  모션 에디터(PlayMode) 타임라인 스크럽으로 카메라 방향을 미리 확인할 수 있다.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("FinishSideView", Category = "Camera", CategoryOrder = 20,
+        Description = "피니시 연출용 사이드뷰 카메라를 시작/종료합니다.",
+        Aliases = new[] { "side", "cinematic", "연출", "사이드뷰" },
+        Icon = "🎬", Color = new[] { 0.25f, 0.85f, 0.65f })]
     public class FinishSideViewEvent : MotionEventBase
     {
         [Tooltip("플레이어→타겟 방향 기준 측면 오프셋 각도\n+90 = 왼쪽 측면  /  -90 = 오른쪽 측면")]

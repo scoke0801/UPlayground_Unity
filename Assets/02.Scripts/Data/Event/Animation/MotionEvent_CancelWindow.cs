@@ -14,6 +14,10 @@ namespace UPlayGround.Data.Event
     /// 이벤트가 하나도 없는 공격은 기존 폴백(히트박스 콜리전 비활성 = 캔슬 가능)으로 동작한다(무회귀).
     /// </summary>
     [Serializable]
+    [MotionEventMeta("CancelWindow", Category = "Combat", CategoryOrder = 0,
+        Description = "이 구간 동안 회피/대시/공격타입 등으로 공격을 캔슬할 수 있게 합니다(maskOverride로 구간별 제한).",
+        Aliases = new[] { "cancel", "interrupt", "dodge", "캔슬", "인터럽트", "회피" },
+        Icon = "✂", Color = new[] { 0.35f, 0.75f, 1.00f })]
     public class CancelWindowEvent : MotionEventBase
     {
         [Tooltip("None이면 공격의 전역 interruptActions를 그대로 허용한다.\n지정하면 이 구간에서는 전역 마스크와의 교집합으로 좁힌다(예: 선딜 후반은 Dodge만).")]

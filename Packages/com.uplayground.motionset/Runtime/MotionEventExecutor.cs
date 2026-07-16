@@ -2,9 +2,6 @@
 using UnityEngine;
 using UPlayGround.Data.Event;
 
-using UPlayGround.Debugging;
-using UPlayGround.MovementController;
-
 namespace UPlayGround.Animation
 {
     /// <summary>
@@ -33,9 +30,9 @@ namespace UPlayGround.Animation
         }
         private List<DeferredEvent> _deferredExecute = new List<DeferredEvent>();
 
-        // 인스펙터에서 _targetObject를 지정하지 않은 경우, 부모의 GameActor를 자동 탐색해 캐싱한다.
-        // 모션 이벤트들은 target.GetComponent<GameActor>() 로 액터를 찾으므로,
-        // Executor가 모델(GameActor의 자식)에 붙은 경우 반드시 부모의 GameActor.gameObject로 해석되어야 한다.
+        // 인스펙터에서 _targetObject를 지정하지 않은 경우, 부모의 IMotionEventTargetRoot를 자동 탐색해 캐싱한다.
+        // 모션 이벤트들은 target에서 액터 컴포넌트를 찾으므로,
+        // Executor가 모델(액터 루트의 자식)에 붙은 경우 반드시 부모의 루트 GameObject로 해석되어야 한다.
         private GameObject _resolvedTarget;
 
         public GameObject TargetObject
@@ -45,8 +42,8 @@ namespace UPlayGround.Animation
                 if (_targetObject != null) return _targetObject;
                 if (_resolvedTarget != null) return _resolvedTarget;
 
-                var actor = GetComponentInParent<GameActor>();
-                _resolvedTarget = actor != null ? actor.gameObject : gameObject;
+                var root = GetComponentInParent<IMotionEventTargetRoot>();
+                _resolvedTarget = root != null ? root.EventTargetRoot : gameObject;
                 return _resolvedTarget;
             }
         }
@@ -110,7 +107,7 @@ namespace UPlayGround.Animation
             foreach (var evt in toRemove)
             {
                 _activeEvents.Remove(evt);
-                MotionSetEventDebugOverlay.RecordEvent(
+                MotionEventDebugHook.Sink?.RecordEvent(
                     $"Complete {evt.GetShortLabel()} @{_currentTime:F2}s");
             }
 
@@ -134,7 +131,7 @@ namespace UPlayGround.Animation
                 }
             }
 
-            MotionSetEventDebugOverlay.Publish(
+            MotionEventDebugHook.Sink?.Publish(
                 TargetObject,
                 _currentTime,
                 _activeEvents,
@@ -168,7 +165,7 @@ namespace UPlayGround.Animation
             if (evt == null) return;
 
             evt.Execute(TargetObject, subFrameFraction);
-            MotionSetEventDebugOverlay.RecordEvent(
+            MotionEventDebugHook.Sink?.RecordEvent(
                 $"Start {evt.GetShortLabel()} @{_currentTime:F2}s");
         }
 
@@ -201,7 +198,7 @@ namespace UPlayGround.Animation
             _executedEvents.Clear();
             // 중단 시점의 부정확한 포즈로 내보내지 않도록 미실행 지연 이벤트는 폐기한다.
             _deferredExecute.Clear();
-            MotionSetEventDebugOverlay.Clear();
+            MotionEventDebugHook.Sink?.Clear();
         }
 
         /// <summary>
@@ -339,128 +336,5 @@ namespace UPlayGround.Animation
             }
         }
 #endif
-    }
-}
-
-namespace UPlayGround.Debugging
-{
-    /// <summary>
-    /// MotionSet 테스트 재생 중 이벤트 실행 상태를 Game/Scene 뷰에 표시한다.
-    /// </summary>
-    public class MotionSetEventDebugOverlay : MonoBehaviour
-    {
-        private const int MaxRecentEvents = 8;
-
-        private static readonly List<string> ActiveEventNames = new List<string>();
-        private static readonly List<string> RecentEventNames = new List<string>();
-
-        [SerializeField] private bool _showGameViewOverlay = true;
-        [SerializeField] private bool _showSceneLabel = true;
-        [SerializeField] private Vector2 _screenOffset = new Vector2(16f, 16f);
-
-        private static GameObject _currentTarget;
-        private static float _currentTime;
-        private static string _sourceName = "MotionSet";
-        private static string _warpStatus = string.Empty;
-
-        public static void Publish(
-            GameObject target,
-            float currentTime,
-            IEnumerable<MotionEventBase> activeEvents,
-            string sourceName = "MotionSet")
-        {
-            _currentTarget = target;
-            _currentTime = currentTime;
-            _sourceName = string.IsNullOrEmpty(sourceName) ? "MotionSet" : sourceName;
-            _warpStatus = BuildWarpStatus(target);
-
-            ActiveEventNames.Clear();
-            if (activeEvents == null) return;
-
-            foreach (var evt in activeEvents)
-            {
-                if (evt == null) continue;
-                ActiveEventNames.Add(evt.GetShortLabel());
-            }
-        }
-
-        public static void RecordEvent(string message)
-        {
-            if (string.IsNullOrEmpty(message)) return;
-
-            RecentEventNames.Insert(0, message);
-            while (RecentEventNames.Count > MaxRecentEvents)
-                RecentEventNames.RemoveAt(RecentEventNames.Count - 1);
-        }
-
-        public static void Clear()
-        {
-            _currentTarget = null;
-            _currentTime = 0f;
-            ActiveEventNames.Clear();
-            RecentEventNames.Clear();
-            _warpStatus = string.Empty;
-        }
-
-        private void OnGUI()
-        {
-            if (!_showGameViewOverlay) return;
-            if (_currentTarget == null || _currentTarget != gameObject) return;
-
-            const float width = 300f;
-            float height = 78f + (ActiveEventNames.Count + RecentEventNames.Count) * 18f;
-            Rect rect = new Rect(_screenOffset.x, _screenOffset.y, width, height);
-
-            GUILayout.BeginArea(rect, GUI.skin.box);
-            GUILayout.Label($"{_sourceName} Event Debug  {_currentTime:F2}s");
-            if (!string.IsNullOrEmpty(_warpStatus))
-                GUILayout.Label(_warpStatus);
-            DrawList("Active", ActiveEventNames);
-            DrawList("Recent", RecentEventNames);
-            GUILayout.EndArea();
-        }
-
-        private static void DrawList(string label, IReadOnlyList<string> values)
-        {
-            GUILayout.Label($"{label}: {(values.Count == 0 ? "-" : string.Empty)}");
-            for (int i = 0; i < values.Count; i++)
-                GUILayout.Label($"  {values[i]}");
-        }
-
-#if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            if (!_showSceneLabel) return;
-            if (_currentTarget == null || _currentTarget != gameObject) return;
-
-            string active = ActiveEventNames.Count > 0
-                ? string.Join(", ", ActiveEventNames)
-                : "-";
-
-            UnityEditor.Handles.Label(
-                transform.position + Vector3.up * 2f,
-                $"{_sourceName} {_currentTime:F2}s\n{_warpStatus}\nActive: {active}");
-        }
-#endif
-
-        private static string BuildWarpStatus(GameObject target)
-        {
-            if (target == null) return string.Empty;
-
-            var controller = target.GetComponent<ActorMovementController>()
-                          ?? target.GetComponentInParent<ActorMovementController>()
-                          ?? target.GetComponentInChildren<ActorMovementController>();
-            if (controller == null || controller.MotionWarp == null)
-                return string.Empty;
-
-            var warp = controller.MotionWarp;
-            if (warp.IsApplicable)
-                return $"Warp: 적용 / 오차 {warp.LastArrivalError:F2}m";
-
-            if (!string.IsNullOrEmpty(warp.LastFailureReason))
-                return $"Warp: {warp.LastFailureReason}";
-
-            return "Warp: 대기";
-        }
     }
 }

@@ -12,6 +12,10 @@ namespace UPlayGround.Data.Event
     /// BeginCollisionEvent와 반대 동작 — 특정 구간만 피격/공격 판정을 제거할 때 사용.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("DisableCollision", Category = "Combat", CategoryOrder = 0,
+        Description = "공격 판정을 명시적으로 끕니다.",
+        Aliases = new[] { "hitbox off", "collision off", "판정 종료" },
+        Icon = "⚔", Color = new[] { 1.00f, 0.35f, 0.35f })]
     public class DisableCollisionEvent : MotionEventBase
     {
         public override string GetDisplayName() => "Disable Collision";

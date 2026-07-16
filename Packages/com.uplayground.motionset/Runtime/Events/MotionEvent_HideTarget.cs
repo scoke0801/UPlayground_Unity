@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
 namespace UPlayGround.Data.Event
 {
@@ -9,6 +10,11 @@ namespace UPlayGround.Data.Event
     /// SetActive는 MonoBehaviour를 비활성화시켜 UpdateTimeline이 멈추므로 절대 사용 금지
     /// </summary>
     [Serializable]
+    [MotionEventMeta("HideTarget", Category = "Utility", CategoryOrder = 40,
+        Description = "대상을 숨기거나 표시합니다.",
+        Aliases = new[] { "hide", "visible", "렌더", "숨김" },
+        Icon = "👁", Color = new[] { 0.60f, 0.60f, 0.65f })]
+    [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
     public class HideTargetEvent : MotionEventBase
     {
         // 숨길 자식 오브젝트 이름. 비어있으면 target의 모든 Renderer를 토글

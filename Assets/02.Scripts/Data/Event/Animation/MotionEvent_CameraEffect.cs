@@ -13,6 +13,10 @@ namespace UPlayGround.Data.Event
     /// Shake, Zoom, FOV, Rotation, TimeScale 등 모든 이펙트 타입에 사용 가능.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("CameraEffect", Category = "Camera", CategoryOrder = 20,
+        Description = "카메라 흔들림, 줌, FOV 등 CameraEffectData를 재생합니다.",
+        Aliases = new[] { "shake", "zoom", "fov", "camera", "카메라", "흔들림" },
+        Icon = "📷", Color = new[] { 0.25f, 0.85f, 0.65f })]
     public class CameraEffectEvent : MotionEventBase
     {
         [Tooltip("재생할 CameraEffectData SO 목록")]

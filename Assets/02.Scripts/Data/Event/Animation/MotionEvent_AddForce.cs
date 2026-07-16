@@ -10,6 +10,10 @@ namespace UPlayGround.Data.Event
     /// Controller에 힘 작용
     /// </summary>
     [Serializable]
+    [MotionEventMeta("AddForce", Category = "Movement / Time", CategoryOrder = 30,
+        Description = "대상에게 힘/이동량을 가합니다.",
+        Aliases = new[] { "force", "move", "push", "넉백", "이동" },
+        Icon = "↗", Color = new[] { 0.40f, 1.00f, 0.55f })]
     public class AddForceEvent : MotionEventBase
     {
         public Vector3 direction;   // normalized로 사용

@@ -17,31 +17,25 @@ namespace UPlayGround.Animation.Editor
         /// <summary>해당 필드가 로컬 위치 오프셋(Blade/Spawn 기준)으로 그려야 하는 필드인지.</summary>
         public static bool IsLocalOffset(object owner, string fieldName)
         {
-            return owner is BeginParticleEvent && fieldName == nameof(BeginParticleEvent.offset)
-                   || owner is SlashVFXEvent && fieldName == nameof(SlashVFXEvent.positionOffset);
+            return owner is IMotionEventOffsetFields fields && fields.IsLocalOffsetField(fieldName);
         }
 
         /// <summary>해당 필드가 회전 오프셋(Euler)으로 그려야 하는 필드인지.</summary>
         public static bool IsRotationOffset(object owner, string fieldName)
         {
-            return owner is BeginParticleEvent && fieldName == nameof(BeginParticleEvent.rotationOffset)
-                   || owner is SlashVFXEvent && fieldName == nameof(SlashVFXEvent.rotationOffset);
+            return owner is IMotionEventOffsetFields fields && fields.IsRotationOffsetField(fieldName);
         }
 
         /// <summary>위치 오프셋 위젯에 표시할 좌표 공간 라벨.</summary>
         public static string GetLocalOffsetSpaceLabel(object owner)
         {
-            return owner is SlashVFXEvent slash && slash.positionSpace == SlashVFXPositionSpace.World
-                ? "World"
-                : owner is SlashVFXEvent ? "Blade" : "Spawn Point";
+            return owner is IMotionEventOffsetFields fields ? fields.LocalOffsetSpaceLabel : "Spawn Point";
         }
 
         /// <summary>회전 오프셋 위젯에 표시할 좌표 공간 라벨.</summary>
         public static string GetRotationOffsetSpaceLabel(object owner)
         {
-            return owner is SlashVFXEvent slash && slash.rotationSpace == SlashVFXRotationSpace.World
-                ? "World Euler"
-                : owner is SlashVFXEvent ? "Blade Offset" : "Spawn Point Offset";
+            return owner is IMotionEventOffsetFields fields ? fields.RotationOffsetSpaceLabel : "Spawn Point Offset";
         }
 
         public static Color GetSpaceColor(string spaceLabel)

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Scripting.APIUpdating;
 
 namespace UPlayGround.Data.Event
 {
@@ -16,6 +17,11 @@ namespace UPlayGround.Data.Event
     /// Execute/OnCompleteEvent는 사용하지 않음 — 타임라인 레벨에서 처리.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("Loop", Category = "Movement / Time", CategoryOrder = 30,
+        Description = "모션 구간 반복, 정지, 무한 루프를 설정합니다.",
+        Aliases = new[] { "repeat", "freeze", "loop", "반복", "정지" },
+        Icon = "🔁", Color = new[] { 0.35f, 0.75f, 1.00f })]
+    [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
     public class LoopEvent : MotionEventBase
     {
         public LoopEventMode mode = LoopEventMode.Loop;

@@ -10,6 +10,10 @@ namespace UPlayGround.Data.Event
     /// 방향 오버라이드, 전환 속도(상수/커브), 종료 시 원복 여부를 지정할 수 있다.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("CameraLookAtSocket", Category = "Camera", CategoryOrder = 20,
+        Description = "카메라가 특정 소켓/본을 바라보도록 합니다.",
+        Aliases = new[] { "lookat", "socket", "target", "시선", "소켓" },
+        Icon = "🎯", Color = new[] { 0.35f, 0.75f, 1.00f })]
     public class CameraLookAtSocketEvent : MotionEventBase
     {
         [Tooltip("주시할 소켓 타입")]

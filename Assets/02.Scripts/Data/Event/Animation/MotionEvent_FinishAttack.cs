@@ -11,6 +11,10 @@ namespace UPlayGround.Data.Event
     /// 발자국 이벤트 (지형별 사운드)
     /// </summary>
     [Serializable]
+    [MotionEventMeta("FinishAttack", Category = "Combat", CategoryOrder = 0,
+        Description = "피니시 공격 처리 타이밍을 발생시킵니다.",
+        Aliases = new[] { "finish", "execution", "처형", "피니시" },
+        Icon = "✔", Color = new[] { 1.00f, 0.35f, 0.35f })]
     public class FinishAttackEvent : MotionEventBase
     {
         public override string GetDisplayName() => "FinishAttack";

@@ -9,6 +9,10 @@ namespace UPlayGround.Data.Event
     /// 사운드 재생 이벤트
     /// </summary>
     [Serializable]
+    [MotionEventMeta("PlaySound", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "오디오 클립을 재생합니다.",
+        Aliases = new[] { "audio", "sfx", "sound", "소리", "사운드" },
+        Icon = "♪", Color = new[] { 0.65f, 0.55f, 1.00f })]
     public class PlaySoundEvent : MotionEventBase
     {
         public string soundKey = "";

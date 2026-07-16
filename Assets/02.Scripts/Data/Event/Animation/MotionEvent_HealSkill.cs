@@ -8,6 +8,10 @@ using UPlayGround.Data.Sound;
 namespace UPlayGround.Data.Event
 {
     [Serializable]
+    [MotionEventMeta("HealSkill", Category = "Combat", CategoryOrder = 0,
+        Description = "회복 스킬 판정을 실행합니다.",
+        Aliases = new[] { "heal", "recovery", "힐", "회복" },
+        Icon = "💚", Color = new[] { 0.40f, 1.00f, 0.55f })]
     public class HealSkillEvent : MotionEventBase
     {
         public string vfxPrefabKey;

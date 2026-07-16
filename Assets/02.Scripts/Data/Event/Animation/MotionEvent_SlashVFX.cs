@@ -24,8 +24,18 @@ namespace UPlayGround.Data.Event
     }
 
     [Serializable]
-    public class SlashVFXEvent : MotionEventBase
+    [MotionEventMeta("SlashVFX", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "Blade_Base / Blade_Tip의 현재 자세를 샘플링해 Slash VFX를 월드에 1회 생성합니다.",
+        Aliases = new[] { "slash", "weapon", "blade", "vfx", "검기", "참격" },
+        Icon = "✦", Color = new[] { 1.00f, 0.82f, 0.25f })]
+    public class SlashVFXEvent : MotionEventBase, IMotionEventOffsetFields
     {
+        // 에디터 오프셋 위젯 계약 (IMotionEventOffsetFields)
+        public bool IsLocalOffsetField(string fieldName) => fieldName == nameof(positionOffset);
+        public bool IsRotationOffsetField(string fieldName) => fieldName == nameof(rotationOffset);
+        public string LocalOffsetSpaceLabel => positionSpace == SlashVFXPositionSpace.World ? "World" : "Blade";
+        public string RotationOffsetSpaceLabel => rotationSpace == SlashVFXRotationSpace.World ? "World Euler" : "Blade Offset";
+
         [Header("Slash VFX Setting")]
         [Tooltip("WeaponSlashVfxSpawner를 찾으면 Spawner 설정을 사용한다. 단, vfxPrefab이 직접 지정되어 있으면 Spawner의 prefab보다 우선한다.")]
         public bool useSpawnerSettings = true;

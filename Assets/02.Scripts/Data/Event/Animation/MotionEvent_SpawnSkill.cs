@@ -23,6 +23,10 @@ namespace UPlayGround.Data.Event
     /// 투사체 발사 이벤트
     /// </summary>
     [Serializable]
+    [MotionEventMeta("SpawnSkill", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "스킬 오브젝트를 생성합니다.",
+        Aliases = new[] { "skill", "cast", "스킬", "소환" },
+        Icon = "⚡", Color = new[] { 1.00f, 0.82f, 0.25f })]
     public class SpawnSkillEvent : MotionEventBase
     {
         private const int OverlapBufferSize = 64;

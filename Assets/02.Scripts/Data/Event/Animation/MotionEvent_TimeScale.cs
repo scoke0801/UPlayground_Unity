@@ -12,6 +12,10 @@ namespace UPlayGround.Data.Event
     /// 다른 HitStop 효과와 자동으로 강도 비교된다.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("TimeScale", Category = "Movement / Time", CategoryOrder = 30,
+        Description = "게임 시간 배율을 변경합니다.",
+        Aliases = new[] { "hit stop", "slow motion", "time", "히트스톱", "시간" },
+        Icon = "⏱", Color = new[] { 0.60f, 0.60f, 0.65f })]
     public class TimeScaleEvent : MotionEventBase
     {
         [Tooltip("목표 타임스케일 (0.01 = 거의 정지, 1.0 = 정상)")]

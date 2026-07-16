@@ -521,7 +521,9 @@ $RECYCLE.BIN/
 steam_appid.txt
 
 Assets/01.Scenes/
-Packages/
+# Packages 전체를 무시하되, 자체 임베디드 패키지는 추적한다
+Packages/*
+!Packages/com.uplayground.motionset/
 Assets/02.Scripts/.claude/settings.local.json
 Assets/Resources/PerformanceTestRunInfo.json
 Assets/Resources/PerformanceTestRunInfo.json.meta

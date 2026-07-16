@@ -9,6 +9,10 @@ namespace UPlayGround.Data.Event
     /// Player/Monster 모두 지원 (SetInvincible 공통 호출)
     /// </summary>
     [Serializable]
+    [MotionEventMeta("Invincibility", Category = "Combat", CategoryOrder = 0,
+        Description = "피격 무적 구간을 설정합니다.",
+        Aliases = new[] { "iframe", "invincible", "무적", "회피" },
+        Icon = "🛡", Color = new[] { 0.98f, 0.55f, 0.15f })]
     public class InvincibilityEvent : MotionEventBase
     {
         public override string GetDisplayName() => "Invincibility";

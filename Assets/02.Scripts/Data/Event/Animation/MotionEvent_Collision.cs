@@ -12,6 +12,10 @@ namespace UPlayGround.Data.Event
     /// hitPhaseIndex로 현재 히트가 몇 번째 구간인지 Combat에 알린다.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("Collision", Category = "Combat", CategoryOrder = 0,
+        Description = "공격 판정을 켜고 hitPhaseIndex를 Combat에 전달합니다.",
+        Aliases = new[] { "hitbox", "attack", "damage", "타격", "피격", "콜리전" },
+        Icon = "⚔", Color = new[] { 1.00f, 0.35f, 0.35f })]
     public class BeginCollisionEvent : MotionEventBase
     {
         [Tooltip("AttackInfoBase.hitPhases의 인덱스. 멀티 히트 시 구간마다 다른 값을 설정한다.")]

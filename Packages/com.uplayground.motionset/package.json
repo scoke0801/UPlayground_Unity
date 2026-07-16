@@ -1,0 +1,10 @@
+{
+  "name": "com.uplayground.motionset",
+  "version": "0.1.0",
+  "displayName": "UPlayGround MotionSet",
+  "description": "MotionSet 타임라인 프레임워크 — 애니메이션 타임라인 이벤트 데이터 모델(MotionSet/Motion/MotionEventBase), 재생 실행기(MotionEventExecutor), 범용 타임라인 에디터(인스펙터 드로어, 이벤트 추가 팝업, 프리셋). 구체 이벤트는 사용처 프로젝트가 MotionEventBase 파생 + [MotionEventMeta] 부착으로 정의한다.",
+  "unity": "6000.0",
+  "author": {
+    "name": "UPlayGround"
+  }
+}

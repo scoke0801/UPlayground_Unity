@@ -18,6 +18,10 @@ namespace UPlayGround.Data.Event
     /// 투사체 발사 이벤트
     /// </summary>
     [Serializable]
+    [MotionEventMeta("SpawnProjectile", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "투사체를 지정 위치에서 발사합니다.",
+        Aliases = new[] { "projectile", "bullet", "arrow", "shot", "투사체", "화살" },
+        Icon = "🚀", Color = new[] { 1.00f, 0.35f, 0.35f })]
     public class SpawnProjectileEvent : MotionEventBase
     {
         [Header("Projectile Setting")]

@@ -8,8 +8,18 @@ namespace UPlayGround.Data.Event
     /// 파티클 이펙트 재생 이벤트
     /// </summary>
     [Serializable]
-    public class BeginParticleEvent : MotionEventBase
+    [MotionEventMeta("Particle", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "파티클/VFX를 생성합니다.",
+        Aliases = new[] { "vfx", "effect", "fx", "이펙트", "파티클" },
+        Icon = "✦", Color = new[] { 1.00f, 0.82f, 0.25f })]
+    public class BeginParticleEvent : MotionEventBase, IMotionEventOffsetFields
     {
+        // 에디터 오프셋 위젯 계약 (IMotionEventOffsetFields)
+        public bool IsLocalOffsetField(string fieldName) => fieldName == nameof(offset);
+        public bool IsRotationOffsetField(string fieldName) => fieldName == nameof(rotationOffset);
+        public string LocalOffsetSpaceLabel => "Spawn Point";
+        public string RotationOffsetSpaceLabel => "Spawn Point Offset";
+
         public GameObject particlePrefab;
         public string spawnPointName;
         public Vector3 offset;                    // 위치 보정용

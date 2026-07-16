@@ -267,7 +267,7 @@ namespace UPlayGround.Animation.Editor
 
         void ReloadPresets()
         {
-            _presets = MotionEventMetadata.GetPresets();
+            _presets = MotionEventPresetProviders.CollectAll();
 
             var library = MotionEventPresetLibraryUtility.Load();
             if (library?.presets == null)
@@ -474,140 +474,70 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
+
+        /// <summary>
+        /// [MotionEventMeta] 어트리뷰트 기반 이벤트 카탈로그.
+        /// MotionEventBase 파생 타입을 전수 스캔하므로, 어느 어셈블리의 이벤트든 자동 등록된다.
+        /// </summary>
         static class MotionEventMetadata
         {
-            static readonly EventCategory Combat = new EventCategory("Combat", 0);
-            static readonly EventCategory VfxSfx = new EventCategory("VFX / SFX", 10);
-            static readonly EventCategory Camera = new EventCategory("Camera", 20);
-            static readonly EventCategory Movement = new EventCategory("Movement / Time", 30);
-            static readonly EventCategory Utility = new EventCategory("Utility", 40);
+            const string FallbackCategoryName = "Utility";
+            const int FallbackCategoryOrder = 40;
+            const string FallbackDescription = "분류되지 않은 MotionEvent입니다.";
 
             public static List<EventMeta> GetAll()
             {
-                var known = new List<EventMeta>
+                var types = MotionEventTypeRegistry.GetAllEventTypes();
+
+                // 같은 이름 카테고리는 하나의 인스턴스로 합친다 (정렬 순서는 최솟값 채택).
+                var categoryOrders = new Dictionary<string, int>();
+                foreach (var type in types)
                 {
-                    Meta<BeginCollisionEvent>("Collision", Combat, "공격 판정을 켜고 hitPhaseIndex를 Combat에 전달합니다.", "hitbox", "attack", "damage", "타격", "피격", "콜리전"),
-                    Meta<DisableCollisionEvent>("DisableCollision", Combat, "공격 판정을 명시적으로 끕니다.", "hitbox off", "collision off", "판정 종료"),
-                    Meta<ComboWindowEvent>("ComboWindow", Combat, "다음 콤보 입력을 받을 수 있는 구간을 엽니다.", "combo", "cancel", "chain", "연계", "콤보"),
-                    Meta<CancelWindowEvent>("CancelWindow", Combat, "이 구간 동안 회피/대시/공격타입 등으로 공격을 캔슬할 수 있게 합니다(maskOverride로 구간별 제한).", "cancel", "interrupt", "dodge", "캔슬", "인터럽트", "회피"),
-                    Meta<FinishAttackEvent>("FinishAttack", Combat, "피니시 공격 처리 타이밍을 발생시킵니다.", "finish", "execution", "처형", "피니시"),
-                    Meta<SpecialBreakAttackEvent>("SpecialBreakAttack", Combat, "브레이크 특수공격 피해 적용 타이밍을 발생시킵니다.", "break", "special", "groggy", "브레이크", "특수공격"),
-                    Meta<InvincibilityEvent>("Invincibility", Combat, "피격 무적 구간을 설정합니다.", "iframe", "invincible", "무적", "회피"),
-                    Meta<HealSkillEvent>("HealSkill", Combat, "회복 스킬 판정을 실행합니다.", "heal", "recovery", "힐", "회복"),
-                    Meta<InteractionEvent>("Interaction", Combat, "인터렉션 대상에 채집/채광/벌목/낚시 처리 타이밍을 전달합니다.", "interaction", "gather", "mining", "woodcutting", "fishing", "채집", "채광", "벌목", "낚시"),
-
-                    Meta<BeginParticleEvent>("Particle", VfxSfx, "파티클/VFX를 생성합니다.", "vfx", "effect", "fx", "이펙트", "파티클"),
-                    Meta<AfterimageEvent>("Afterimage", VfxSfx, "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.", "ghost", "after image", "alpha", "잔상", "알파"),
-                    Meta<PlaySoundEvent>("PlaySound", VfxSfx, "오디오 클립을 재생합니다.", "audio", "sfx", "sound", "소리", "사운드"),
-                    Meta<FootstepEvent>("Footstep", VfxSfx, "지형 기반 발자국 사운드를 재생합니다.", "foot", "step", "walk", "발소리", "발자국"),
-                    Meta<SlashVFXEvent>("SlashVFX", VfxSfx, "Blade_Base / Blade_Tip의 현재 자세를 샘플링해 Slash VFX를 월드에 1회 생성합니다.", "slash", "weapon", "blade", "vfx", "검기", "참격"),
-                    Meta<SpawnProjectileEvent>("SpawnProjectile", VfxSfx, "투사체를 지정 위치에서 발사합니다.", "projectile", "bullet", "arrow", "shot", "투사체", "화살"),
-                    Meta<SpawnSkillEvent>("SpawnSkill", VfxSfx, "스킬 오브젝트를 생성합니다.", "skill", "cast", "스킬", "소환"),
-
-                    Meta<CameraEffectEvent>("CameraEffect", Camera, "카메라 흔들림, 줌, FOV 등 CameraEffectData를 재생합니다.", "shake", "zoom", "fov", "camera", "카메라", "흔들림"),
-                    Meta<CameraLookAtSocketEvent>("CameraLookAtSocket", Camera, "카메라가 특정 소켓/본을 바라보도록 합니다.", "lookat", "socket", "target", "시선", "소켓"),
-                    Meta<FinishSideViewEvent>("FinishSideView", Camera, "피니시 연출용 사이드뷰 카메라를 시작/종료합니다.", "side", "cinematic", "연출", "사이드뷰"),
-
-                    Meta<AddForceEvent>("AddForce", Movement, "대상에게 힘/이동량을 가합니다.", "force", "move", "push", "넉백", "이동"),
-                    Meta<MotionEvent_MotionWarp>("MotionWarp", Movement, "모션 워핑을 적용합니다.", "warp", "root", "타겟 보정", "워프"),
-                    Meta<AnimationSpeedEvent>("AnimationSpeed", Movement, "애니메이션 재생 속도를 구간별로 변경합니다.", "speed", "slow", "fast", "속도"),
-                    Meta<TimeScaleEvent>("TimeScale", Movement, "게임 시간 배율을 변경합니다.", "hit stop", "slow motion", "time", "히트스톱", "시간"),
-                    Meta<LoopEvent>("Loop", Movement, "모션 구간 반복, 정지, 무한 루프를 설정합니다.", "repeat", "freeze", "loop", "반복", "정지"),
-
-                    Meta<CustomCallbackEvent>("CustomCallback", Utility, "문자열 기반 커스텀 콜백을 남깁니다.", "callback", "custom", "콜백"),
-                    Meta<FreezeEnemyEvent>("FreezeEnemy", Utility, "적을 일시 정지시킵니다.", "freeze", "enemy", "stop", "빙결", "정지"),
-                    Meta<HideTargetEvent>("HideTarget", Utility, "대상을 숨기거나 표시합니다.", "hide", "visible", "렌더", "숨김"),
-                };
-
-                var knownTypes = new HashSet<Type>(known.Select(m => m.Type));
-                foreach (var type in MotionEventTypeRegistry.GetAllEventTypes())
-                {
-                    if (knownTypes.Contains(type))
-                        continue;
-
-                    known.Add(new EventMeta(
-                        type,
-                        MotionEventTypeRegistry.GetFriendlyName(type),
-                        Utility,
-                        "분류되지 않은 MotionEvent입니다.",
-                        type.Name));
+                    var attr = GetAttr(type);
+                    string name = string.IsNullOrEmpty(attr?.Category) ? FallbackCategoryName : attr.Category;
+                    int order = attr != null ? attr.CategoryOrder : FallbackCategoryOrder;
+                    if (!categoryOrders.TryGetValue(name, out int existing) || order < existing)
+                        categoryOrders[name] = order;
                 }
 
-                return known;
-            }
+                var categories = new Dictionary<string, EventCategory>();
+                foreach (var pair in categoryOrders)
+                    categories[pair.Key] = new EventCategory(pair.Key, pair.Value);
 
-            public static List<EventPreset> GetPresets()
-            {
-                return new List<EventPreset>
+                var metas = new List<EventMeta>(types.Length);
+                foreach (var type in types)
                 {
-                    new EventPreset(
-                        "melee_basic",
-                        "근접 공격 기본",
-                        "Collision, ComboWindow를 기본 타이밍으로 추가합니다.",
-                        start => new MotionEventBase[]
-                        {
-                            Timed(new BeginCollisionEvent(), start + 0.10f, 0.15f),
-                            Timed(new ComboWindowEvent(), start + 0.25f, 0.25f),
-                        },
-                        "melee", "attack", "combo", "근접", "공격", "콤보"),
+                    var attr = GetAttr(type);
+                    if (attr != null)
+                    {
+                        string displayName = string.IsNullOrEmpty(attr.DisplayName)
+                            ? MotionEventTypeRegistry.GetFriendlyName(type)
+                            : attr.DisplayName;
+                        string categoryName = string.IsNullOrEmpty(attr.Category) ? FallbackCategoryName : attr.Category;
 
-                    new EventPreset(
-                        "camera_melee",
-                        "카메라 연출 공격",
-                        "CameraEffect, Collision, FinishAttack을 함께 추가합니다.",
-                        start => new MotionEventBase[]
-                        {
-                            Timed(new CameraEffectEvent(), start + 0.00f, 0.25f),
-                            Timed(new BeginCollisionEvent(), start + 0.12f, 0.15f),
-                            Timed(new FinishAttackEvent(), start + 0.45f, 0.05f),
-                        },
-                        "camera", "shake", "attack", "카메라", "연출"),
+                        metas.Add(new EventMeta(
+                            type,
+                            displayName,
+                            categories[categoryName],
+                            attr.Description,
+                            attr.Aliases ?? Array.Empty<string>()));
+                    }
+                    else
+                    {
+                        metas.Add(new EventMeta(
+                            type,
+                            MotionEventTypeRegistry.GetFriendlyName(type),
+                            categories[FallbackCategoryName],
+                            FallbackDescription,
+                            type.Name));
+                    }
+                }
 
-                    new EventPreset(
-                        "special_break_attack",
-                        "브레이크 특수공격",
-                        "SpecialBreakAttackEvent와 CameraEffect를 기본 타이밍으로 추가합니다.",
-                        start => new MotionEventBase[]
-                        {
-                            Timed(new CameraEffectEvent(), start + 0.00f, 0.25f),
-                            Timed(new SpecialBreakAttackEvent(), start + 0.18f, 0.05f),
-                        },
-                        "break", "special", "finish", "브레이크", "특수공격", "처형"),
-
-                    new EventPreset(
-                        "slash_vfx_basic",
-                        "Slash VFX 기본",
-                        "무기 Blade_Base / Blade_Tip 기준으로 Slash VFX를 1회 생성합니다.",
-                        start => new MotionEventBase[]
-                        {
-                            Timed(new SlashVFXEvent(), start + 0.00f, 0.05f),
-                        },
-                        "slash", "weapon", "blade", "vfx", "검기", "참격"),
-
-                    new EventPreset(
-                        "projectile_basic",
-                        "투사체 발사 기본",
-                        "PlaySound와 SpawnProjectile을 기본 타이밍으로 추가합니다.",
-                        start => new MotionEventBase[]
-                        {
-                            Timed(new PlaySoundEvent(), start + 0.00f, 0.05f),
-                            Timed(new SpawnProjectileEvent(), start + 0.10f, 0.05f),
-                        },
-                        "projectile", "shoot", "arrow", "bullet", "투사체", "발사"),
-                };
+                return metas;
             }
 
-            static EventMeta Meta<T>(string displayName, EventCategory category, string description, params string[] aliases)
-                where T : MotionEventBase
-            {
-                return new EventMeta(typeof(T), displayName, category, description, aliases);
-            }
-
-            static MotionEventBase Timed(MotionEventBase evt, float start, float duration)
-            {
-                ApplyDefaultTime(evt, start, duration);
-                return evt;
-            }
+            static MotionEventMetaAttribute GetAttr(Type type)
+                => (MotionEventMetaAttribute)Attribute.GetCustomAttribute(type, typeof(MotionEventMetaAttribute));
         }
     }
 }

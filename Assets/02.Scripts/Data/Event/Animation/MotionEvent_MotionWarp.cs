@@ -14,6 +14,9 @@ namespace UPlayGround.Data.Event
     /// 플레이어(PlayerCombat)와 몬스터(EnemyCombat) 모두 지원.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("MotionWarp", Category = "Movement / Time", CategoryOrder = 30,
+        Description = "모션 워핑을 적용합니다.",
+        Aliases = new[] { "warp", "root", "타겟 보정", "워프" })]
     public class MotionEvent_MotionWarp : MotionEventBase
     {
         // 워프 전역 토글은 SettingsManager.Data.debugMotionWarpEnabled 로 위임.

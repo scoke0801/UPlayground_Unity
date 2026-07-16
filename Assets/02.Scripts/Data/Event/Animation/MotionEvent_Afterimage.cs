@@ -11,6 +11,9 @@ namespace UPlayGround.Data.Event
     /// 현재 포즈를 BakeMesh로 캡처해 알파 페이드 잔상을 만든다.
     /// </summary>
     [Serializable]
+    [MotionEventMeta("Afterimage", Category = "VFX / SFX", CategoryOrder = 10,
+        Description = "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.",
+        Aliases = new[] { "ghost", "after image", "alpha", "잔상", "알파" })]
     public class AfterimageEvent : MotionEventBase
     {
         [Tooltip("복제할 자식 오브젝트 이름. 비워두면 활성 CharacterModelData 모델을 사용한다.")]

@@ -7,6 +7,22 @@
 
 ---
 
+## 구현 진행 현황
+
+### 2026-07-16 Phase 1~3 일괄 실행 (Unity 검증 대기)
+
+| 항목 | 상태 | 비고 |
+|------|------|------|
+| Phase 1 패키지 골격 + 프레임워크 이동 | 완료 | `Packages/com.uplayground.motionset` 생성(Runtime/Editor asmdef). §3.1의 11파일 git mv(.meta 동반, GUID 보존). Executor 결합 제거: `IMotionEventTargetRoot`(GameActor 구현 1줄), 디버그 오버레이는 **정적 호출 4곳이 있어 계획보다 결합이 깊었음** → `IMotionEventDebugSink`/`MotionEventDebugHook` 훅 신설, `MotionSetEventDebugOverlay`는 게임 측 자체 파일(`GameActor/Animation/`)로 분리 후 어댑터를 Runtime/Editor 초기화 시점에 등록 |
+| Phase 2 어트리뷰트 역전 | 완료 | Runtime에 `MotionEventMetaAttribute`(DisplayName/Category/CategoryOrder/Description/Aliases/Icon/Color). Style 23건·AddPopup 카탈로그 27건 하드코딩 제거, TypeCache 스캔+어트리뷰트로 대체. **빌트인 프리셋 5종도 구체 타입 생성이라 잔류 필요** → `MotionEventPresetProviders` 등록점 신설, 게임 측 `GameMotionEventPresets`([InitializeOnLoad])가 제공. 구체 이벤트 27종에 기존 카탈로그 메타 그대로 부착(Telegraph·CameraSnapshotSequence는 원래 미분류 → 미부착 유지) |
+| Phase 3 범용 이벤트 이동 | 완료 | Loop/AnimationSpeed/CustomCallback/HideTarget 4종 `Runtime/Events/`로 이동 + `[MovedFrom(true, sourceAssembly: "Assembly-CSharp")]` 부착. `Assets/10.Datas`에서 구 어셈블리명을 기록한 에셋 9개 확인 — 로드 시 리매핑됨 |
+| 정적 검증 | 완료 | 패키지 내 금지 의존(게임 네임스페이스·Animancer·KCC·AYellowpaper) 0건, Runtime의 UnityEditor 참조는 `#if UNITY_EDITOR` 내부만, 어셈블리 경계 넘는 partial 없음, 게임 측 참조는 전부 동일 네임스페이스로 해석 |
+| 1차 컴파일 수정 | 완료 | 네임스페이스 기준 스캔이 놓친 구체 클래스명 직접 참조 2건: ① `MotionEventOffsetFieldUtil` → Runtime `IMotionEventOffsetFields` 신설·역전(BeginParticleEvent/SlashVFXEvent 구현) ② `MotionSetAssetEditor` → 게임 측 원위치 복귀(MotionSetEditorWindow 참조). 구체 클래스명 전체(29종+enum) 재스캔으로 잔여 0건 확인 |
+
+**Unity 수작업 잔여 (§6 체크리스트):** 에디터 포커스 → 신규 파일 .meta 생성·컴파일 0에러 확인 → MotionSetWindow에서 임의 MotionSet 로드·팝업 항목/색·프리셋 5종 표시 동일 확인 → 플레이 모드 공격 콤보/SlashVFX 스모크 → 이동 4종 이벤트가 든 MotionSetAsset 9개 로드·재저장 확인.
+
+---
+
 ## 0. 개요
 
 2026-07-16 기준 소스 전수 조사 결과를 바탕으로 한 분리 계획이다.
@@ -109,9 +125,9 @@ Packages/com.uplayground.motionset/
 | `Data/Actor/Animation/MotionSetAsset.cs` | `MotionSetAsset` | ScriptableObject — .meta 동반 이동 시 GUID 유지 |
 | `Editor/MotionSetEditor.cs` | | 의존: UnityEditor + `UPlayGround.Data.Event`뿐 (확인 완료) |
 | `Editor/MotionSetDrawer.cs` | | 상동 |
-| `Editor/MotionSetAssetEditor.cs` | | 상동 |
-| `Editor/MotionEventOffsetFieldUtil.cs` | | 상동 |
 | `Editor/MotionEventPresetLibrarySO.cs` | | 상동. 기존 프리셋 에셋은 .meta 이동으로 GUID 유지 |
+| ~~`Editor/MotionSetAssetEditor.cs`~~ | | **정정(구현 중 발견): 게임 잔류.** `MotionSetEditorWindow`(게임 잔류 윈도우)를 여는 인스펙터라 이동 불가. CustomEditor는 게임 에디터 어셈블리에서도 패키지의 MotionSetAsset에 적용됨 |
+| `Editor/MotionEventOffsetFieldUtil.cs` | | **정정(구현 중 발견): 리팩터 후 이동.** BeginParticleEvent/SlashVFXEvent 구체 타입 판별이 있었음 → Runtime `IMotionEventOffsetFields` 인터페이스로 역전, 두 이벤트가 구현 |
 
 ### 3.2 리팩터 후 이동
 

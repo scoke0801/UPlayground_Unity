@@ -1,0 +1,15 @@
+{
+  "name": "UPlayGround.GameActor.Editor",
+  "rootNamespace": "UPlayGround.Editor",
+  "references": [
+    "UPlayGround.Actor",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "UPlayGround.Core",
+    "AYellowpaper.SerializedCollections"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

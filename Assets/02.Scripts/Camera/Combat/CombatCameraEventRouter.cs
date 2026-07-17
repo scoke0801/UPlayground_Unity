@@ -5,10 +5,35 @@ using UPlayGround.Data.Config;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
-using UPlayGround.State;
 
 namespace UPlayGround.CameraSystem
 {
+    public readonly struct CombatCameraAttackContext
+    {
+        public readonly Transform Attacker;
+        public readonly Transform Victim;
+        public readonly Vector3 HitPoint;
+        public readonly Vector3 AttackDirection;
+        public readonly AttackKind AttackKind;
+        public readonly AttackReactionType ReactionType;
+
+        public CombatCameraAttackContext(
+            Transform attacker,
+            Transform victim,
+            Vector3 hitPoint,
+            Vector3 attackDirection,
+            AttackKind attackKind,
+            AttackReactionType reactionType)
+        {
+            Attacker = attacker;
+            Victim = victim;
+            HitPoint = hitPoint;
+            AttackDirection = attackDirection;
+            AttackKind = attackKind;
+            ReactionType = reactionType;
+        }
+    }
+
     /// <summary>
     /// 전투 결과를 카메라 의도로 변환하고 CameraManager API 호출을 한곳에 모은다.
     /// P1 단계에서는 기존 PlayerAttackHitFeedbackProfile을 재사용해 회귀 범위를 줄인다.
@@ -17,6 +42,7 @@ namespace UPlayGround.CameraSystem
     {
         private readonly CameraManager _cameraManager;
         private CombatCameraProfileDatabaseSO _profileDatabase;
+        private FOVCameraEffectData _perfectGuardFovData;
 
         public CombatCameraEventRouter(CameraManager cameraManager)
         {
@@ -26,6 +52,11 @@ namespace UPlayGround.CameraSystem
         public void SetProfileDatabase(CombatCameraProfileDatabaseSO profileDatabase)
         {
             _profileDatabase = profileDatabase;
+        }
+
+        public void SetPerfectGuardFovData(FOVCameraEffectData data)
+        {
+            _perfectGuardFovData = data;
         }
 
         public void Play(in CombatCameraIntent intent)
@@ -113,7 +144,7 @@ namespace UPlayGround.CameraSystem
                 deathShakeKey));
         }
 
-        public void PlayPerfectGuard(AttackData incomingAttack, CameraShakeIdType shakeKey)
+        public void PlayPerfectGuard(in CombatCameraAttackContext incomingAttack, CameraShakeIdType shakeKey)
         {
             Play(CreateDefenseIntent(
                 CombatCameraIntentType.PerfectGuard,
@@ -123,7 +154,7 @@ namespace UPlayGround.CameraSystem
                 0.2f));
         }
 
-        public void PlayPerfectDodge(AttackData incomingAttack, CameraShakeIdType shakeKey)
+        public void PlayPerfectDodge(in CombatCameraAttackContext incomingAttack, CameraShakeIdType shakeKey)
         {
             Play(CreateDefenseIntent(
                 CombatCameraIntentType.PerfectDodge,
@@ -156,20 +187,19 @@ namespace UPlayGround.CameraSystem
                 0.12f));
         }
 
-        public void PlayPlayerAttackHit(AttackData attackData, in PlayerAttackHitFeedbackProfile profile)
+        public void PlayPlayerAttackHit(
+            in CombatCameraAttackContext attackData,
+            in PlayerAttackHitFeedbackProfile profile)
         {
-            if (attackData == null)
-                return;
-
             CombatCameraIntent intent = CreatePlayerAttackHitIntent(attackData, profile);
             Play(intent);
         }
 
         public static CombatCameraIntent CreatePlayerAttackHitIntent(
-            AttackData attackData,
+            in CombatCameraAttackContext attackData,
             in PlayerAttackHitFeedbackProfile profile)
         {
-            AttackKind kind = attackData != null ? attackData.attackKind : AttackKind.NormalAttack;
+            AttackKind kind = attackData.AttackKind;
             CombatCameraIntentType intentType = ResolveIntentType(kind);
 
             CameraShakeIdType shakeKey = intentType is CombatCameraIntentType.SkillHit
@@ -199,17 +229,14 @@ namespace UPlayGround.CameraSystem
                     break;
             }
 
-            Transform attacker = attackData?.attacker != null ? attackData.attacker.transform : null;
-            Transform victim = attackData?.hitTarget != null ? attackData.hitTarget.transform : null;
-
             return new CombatCameraIntent(
                 intentType,
-                attacker,
-                victim,
-                attackData != null ? attackData.hitPoint : Vector3.zero,
-                attackData != null ? attackData.attackDirection : Vector3.zero,
+                attackData.Attacker,
+                attackData.Victim,
+                attackData.HitPoint,
+                attackData.AttackDirection,
                 kind,
-                attackData != null ? attackData.reactionType : AttackReactionType.Hit,
+                attackData.ReactionType,
                 shakeKey,
                 punchStrength,
                 punchDuration);
@@ -217,23 +244,22 @@ namespace UPlayGround.CameraSystem
 
         private CombatCameraIntent CreateDefenseIntent(
             CombatCameraIntentType intentType,
-            AttackData incomingAttack,
+            in CombatCameraAttackContext incomingAttack,
             CameraShakeIdType shakeKey,
             float punchStrength,
             float punchDuration)
         {
-            Vector3 attackDirection = incomingAttack != null ? incomingAttack.attackDirection : Vector3.zero;
-            Transform attacker = incomingAttack?.attacker != null ? incomingAttack.attacker.transform : null;
+            Vector3 attackDirection = incomingAttack.AttackDirection;
             Transform playerTarget = _cameraManager != null ? _cameraManager.GetTarget() : null;
 
             return new CombatCameraIntent(
                 intentType,
-                attacker,
+                incomingAttack.Attacker,
                 playerTarget,
-                incomingAttack != null ? incomingAttack.hitPoint : Vector3.zero,
+                incomingAttack.HitPoint,
                 attackDirection.sqrMagnitude > 0.0001f ? -attackDirection.normalized : Vector3.zero,
-                incomingAttack != null ? incomingAttack.attackKind : AttackKind.NormalAttack,
-                incomingAttack != null ? incomingAttack.reactionType : AttackReactionType.Hit,
+                incomingAttack.AttackKind,
+                incomingAttack.ReactionType,
                 shakeKey,
                 punchStrength,
                 punchDuration);
@@ -250,41 +276,6 @@ namespace UPlayGround.CameraSystem
                 AttackKind.JumpAttack => CombatCameraIntentType.DashHit,
                 _ => CombatCameraIntentType.LightHit
             };
-        }
-
-        public static CombatCameraIntent FromCombatResult(
-            in CombatResult result,
-            in PlayerAttackHitFeedbackProfile profile)
-        {
-            CameraShakeIdType shakeKey = result.Hit.AttackKind is AttackKind.HeavyAttack
-                                                            or AttackKind.SkillAttack
-                                                            or AttackKind.ChargeAttack
-                ? profile.ShakeKeyHeavy
-                : profile.ShakeKeyLight;
-
-            float punchStrength = result.Hit.AttackKind is AttackKind.HeavyAttack
-                                                        or AttackKind.SkillAttack
-                                                        or AttackKind.ChargeAttack
-                ? profile.PunchStrengthHeavy
-                : profile.PunchStrengthLight;
-
-            float punchDuration = result.Hit.AttackKind is AttackKind.HeavyAttack
-                                                        or AttackKind.SkillAttack
-                                                        or AttackKind.ChargeAttack
-                ? profile.PunchDurationHeavy
-                : profile.PunchDurationLight;
-
-            return new CombatCameraIntent(
-                ResolveIntentType(result.Hit.AttackKind),
-                result.Attacker != null ? result.Attacker.transform : null,
-                result.Victim != null ? result.Victim.transform : null,
-                result.Hit.HitPoint,
-                result.Hit.AttackDirection,
-                result.Hit.AttackKind,
-                result.Hit.ReactionType,
-                shakeKey,
-                punchStrength,
-                punchDuration);
         }
 
         public void PlaySoftTargetAssist(
@@ -351,8 +342,8 @@ namespace UPlayGround.CameraSystem
 
         private void PlayFallback(in CombatCameraIntent intent)
         {
-            if (intent.Type == CombatCameraIntentType.PerfectGuard && PlayerGuardState.PerfectGuardFOVData != null)
-                _cameraManager.PlayEffect(PlayerGuardState.PerfectGuardFOVData);
+            if (intent.Type == CombatCameraIntentType.PerfectGuard && _perfectGuardFovData != null)
+                _cameraManager.PlayEffect(_perfectGuardFovData);
 
             float shakeScale = GetShakeScale();
             if (intent.PunchStrength > 0f && intent.HitDirection.sqrMagnitude > 0.0001f)
@@ -433,8 +424,8 @@ namespace UPlayGround.CameraSystem
 
         private static SettingsData GetSettingsData()
         {
-            SettingsManager settingsManager = SettingsManager.Instance;
-            return settingsManager != null && settingsManager.IsLoaded ? settingsManager.Data : null;
+            ISettingsService settings = Svc.Settings;
+            return settings != null && settings.IsLoaded ? settings.Data : null;
         }
 
         /// <summary>

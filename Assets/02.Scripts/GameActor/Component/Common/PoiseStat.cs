@@ -2,6 +2,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Stat;
+using UPlayGround.Manager;
 using UPlayGround.UI;
 
 namespace UPlayGround.Components
@@ -26,7 +27,7 @@ namespace UPlayGround.Components
         private float _recoveryTimer;
         private bool  _isBroken = false;
         private bool  _isHyperArmorActive;
-        private UI_ActorHpBar _actorUIBar;
+        private IActorHpBarView _actorUIBar;
         private float _lastMaxPoise;
 
         public bool  IsHyperArmorActive => _isHyperArmorActive;
@@ -109,7 +110,7 @@ namespace UPlayGround.Components
                 _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
         }
 
-        public void ConnectUiBar(UI_ActorHpBar actorUIBar)
+        public void ConnectUiBar(IActorHpBarView actorUIBar)
         {
             _actorUIBar = actorUIBar;
         }

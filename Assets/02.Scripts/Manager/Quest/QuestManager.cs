@@ -41,7 +41,9 @@ namespace UPlayGround.Manager
     ///   메뉴: UPlayGround / ID Enum Generator → Quest 행 [생성] 버튼
     ///   또는: Quest Editor 창 툴바 → [Enum 생성] 버튼
     /// </summary>
-    public class QuestManager : BaseManager<QuestManager>, IManager, ISaveable, IAsyncInitializableManager
+    public class QuestManager : BaseManager<QuestManager>, IManager, ISaveable, IAsyncInitializableManager,
+        UPlayGround.UI.IUIQuestService,
+        IQuestProgressService
     {
         private const string QUEST_DATABASE_KEY = "QuestDatabase";
         private const int MAX_AUTO_ACCEPT_CHAIN_DEPTH = 32;

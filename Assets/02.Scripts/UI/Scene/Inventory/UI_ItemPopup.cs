@@ -1,4 +1,4 @@
-﻿
+
 
 using TMPro;
 using UnityEngine;
@@ -59,7 +59,7 @@ namespace UPlayGround.UI
             _itemNameText.text = itemData.itemName;
             _itemDescText.text = itemData.itemDescription;
 
-            _itemWeightText.text = $"{InventoryManager.Instance.GetItemWeight(itemData.itemId):0.0}";
+            _itemWeightText.text = $"{UISvc.Inventory.GetItemWeight(itemData.itemId):0.0}";
 
             InitButton(itemData);
         }
@@ -127,7 +127,7 @@ namespace UPlayGround.UI
                 return InventoryActionResult.InvalidItem;
             }
 
-            return InventoryManager.Instance.TryEquipItem(_cachedItemSo.itemId);
+            return UISvc.Inventory.TryEquipItem(_cachedItemSo.itemId);
         }
 
         private InventoryActionResult HandleUse()
@@ -137,7 +137,7 @@ namespace UPlayGround.UI
                 return InventoryActionResult.InvalidItem;
             }
 
-            return InventoryManager.Instance.TryUseItem(_cachedItemSo.itemId);
+            return UISvc.Inventory.TryUseItem(_cachedItemSo.itemId);
         }
     }
 }

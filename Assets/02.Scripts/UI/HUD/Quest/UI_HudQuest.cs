@@ -75,7 +75,7 @@ namespace UPlayGround.UI
                 return;
             }
 
-            if (QuestManager.Instance == null || !QuestManager.Instance.IsDBLoaded)
+            if (UISvc.Quest == null || !UISvc.Quest.IsDBLoaded)
             {
                 return;
             }
@@ -109,12 +109,12 @@ namespace UPlayGround.UI
 
         private void SubscribeQuestEvents()
         {
-            if (_isSubscribed || EventManager.Instance == null)
+            if (_isSubscribed || Svc.Events == null)
             {
                 return;
             }
 
-            var ev = EventManager.Instance;
+            var ev = Svc.Events;
             ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted, OnQuestStateChanged);
             ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestCompleted);
             ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed, OnQuestStateChanged);
@@ -126,13 +126,13 @@ namespace UPlayGround.UI
 
         private void UnsubscribeQuestEvents()
         {
-            if (!_isSubscribed || EventManager.Instance == null)
+            if (!_isSubscribed || Svc.Events == null)
             {
                 _isSubscribed = false;
                 return;
             }
 
-            var ev = EventManager.Instance;
+            var ev = Svc.Events;
             ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted, OnQuestStateChanged);
             ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestCompleted);
             ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed, OnQuestStateChanged);
@@ -146,7 +146,7 @@ namespace UPlayGround.UI
         {
             CacheTextComponents();
 
-            var questManager = QuestManager.Instance;
+            var questManager = UISvc.Quest;
             if (questManager == null || !questManager.IsDBLoaded)
             {
                 _isWaitingForDatabaseLoad = true;
@@ -176,7 +176,7 @@ namespace UPlayGround.UI
             SetVisible(true);
         }
 
-        private QuestRuntimeData FindQuestToDisplay(QuestManager questManager)
+        private QuestRuntimeData FindQuestToDisplay(IUIQuestService questManager)
         {
             if (questManager.IsQuestTrackingSuppressed)
             {
@@ -187,7 +187,7 @@ namespace UPlayGround.UI
             return trackedQuest ?? FindActiveMainQuest(questManager);
         }
 
-        private QuestRuntimeData FindActiveMainQuest(QuestManager questManager)
+        private QuestRuntimeData FindActiveMainQuest(IUIQuestService questManager)
         {
             QuestRuntimeData selectedQuest = null;
 

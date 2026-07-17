@@ -17,17 +17,17 @@ namespace UPlayGround.UI
     ///   하단 패널  : 수량 스텝퍼 + 제작 버튼 + 진행 바
     ///
     /// UIPrefabDatabase 키: "Craft" (UIKeyType.Craft)
-    /// 호출 예: UIManager.Instance.Toggle(UIKeyType.Craft);
+    /// 호출 예: UISvc.UI.Toggle(UIKeyType.Craft);
     ///
     /// 프리팹 초안은 에디터 툴 "UPlayGround/UI/제작 UI 프리팹 빌드"로 생성한다.
     /// </summary>
     public class UI_CraftMenu : UI_Base
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
-        private RecipeManager _cachedRecipeManager;
-        private RecipeManager RecipeMgr => _cachedRecipeManager != null ? _cachedRecipeManager : (_cachedRecipeManager = RecipeManager.Instance);
-        private InventoryManager _cachedInventoryManager;
-        private InventoryManager InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = InventoryManager.Instance);
+        private IUIRecipeService _cachedRecipeManager;
+        private IUIRecipeService RecipeMgr => _cachedRecipeManager != null ? _cachedRecipeManager : (_cachedRecipeManager = UISvc.Recipe);
+        private IUIInventoryService _cachedInventoryManager;
+        private IUIInventoryService InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = UISvc.Inventory);
 
 
         // ──── 왼쪽: 레시피 리스트 ────
@@ -111,7 +111,7 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
-            // RecipeManager 이벤트 구독
+            // IUIRecipeService 이벤트 구독
             RecipeMgr.OnRecipeUnlocked    += OnRecipeUnlocked;
             RecipeMgr.OnCraftingStarted   += OnCraftingStarted;
             RecipeMgr.OnCraftingCompleted += OnCraftingCompleted;
@@ -285,7 +285,7 @@ namespace UPlayGround.UI
                 _detailPanel.SetActive(true);
 
             // 결과 아이콘
-            var resultItem = ItemManager.Instance.GetItemData(recipe.resultItemID);
+            var resultItem = Svc.Item.GetItemData(recipe.resultItemID);
             if (resultItem != null)
             {
                 _imgResultIcon.sprite  = resultItem.icon;
@@ -453,7 +453,7 @@ namespace UPlayGround.UI
         #endregion
 
         // ──────────────────────────────────────────────────────────
-        #region RecipeManager 이벤트 콜백
+        #region IUIRecipeService 이벤트 콜백
 
         private void OnRecipeUnlocked(int recipeID)
         {

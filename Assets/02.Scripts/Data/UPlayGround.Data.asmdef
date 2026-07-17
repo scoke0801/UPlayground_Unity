@@ -1,0 +1,9 @@
+{
+  "name": "UPlayGround.Data",
+  "rootNamespace": "UPlayGround.Data",
+  "references": [
+    "UPlayGround.Core",
+    "AYellowpaper.SerializedCollections"
+  ],
+  "autoReferenced": true
+}

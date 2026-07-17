@@ -16,7 +16,7 @@ namespace UPlayGround.UI.InputPrompt
     ///   "L1 + R1"처럼 여러 글리프를 그린다. 미지정 시 첫 파트만 표시(공백 대신 degraded).
     ///
     /// 활성 디바이스(키보드+마우스 ↔ 게임패드) 또는 게임패드 브랜드 전환 시
-    /// InputManager.OnActiveDeviceChanged를 받아 자동으로 글리프를 교체한다. (요구사항 1·2 + Phase 3)
+    /// IInputService.OnActiveDeviceChanged를 받아 자동으로 글리프를 교체한다. (요구사항 1·2 + Phase 3)
     /// </summary>
     public class UI_InputPromptIcon : MonoBehaviour
     {
@@ -38,7 +38,7 @@ namespace UPlayGround.UI.InputPrompt
         [SerializeField] private UI_InputPromptGlyphItem _comboItemTemplate;
 
         // OnDisable에서 안전하게 구독 해제하기 위해 캐시. (Instance getter는 null이면 새로 생성하므로 직접 호출 금지)
-        private InputManager _inputManager;
+        private IInputService _inputManager;
         private readonly List<UI_InputPromptGlyphItem> _comboPool = new();
 
         private void Awake()
@@ -51,7 +51,7 @@ namespace UPlayGround.UI.InputPrompt
 
         private void OnEnable()
         {
-            _inputManager = FindFirstObjectByType<InputManager>();
+            _inputManager = Svc.Input;
             if (_inputManager != null)
             {
                 _inputManager.OnActiveDeviceChanged += OnDeviceChanged;
@@ -83,7 +83,7 @@ namespace UPlayGround.UI.InputPrompt
         private void Refresh()
         {
             if (_inputManager == null)
-                _inputManager = FindFirstObjectByType<InputManager>();
+                _inputManager = Svc.Input;
 
             if (_inputManager == null)
                 return;

@@ -10,8 +10,6 @@ using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Party;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
@@ -153,14 +151,14 @@ namespace UPlayGround.Components
 
         private bool IsSkillUnlocked(int skillIndex)
         {
-            if (!PlayerSkillGauge.IsValidSkillSlot(skillIndex) || PartyManager.Instance == null)
+            if (!PlayerSkillGauge.IsValidSkillSlot(skillIndex) || Svc.Party == null)
                 return true;
 
             GrowthSkillType skillType = skillIndex == PlayerSkillGauge.AbilitySkillSlot
                 ? GrowthSkillType.Ability
                 : GrowthSkillType.Ultimate;
-            return PartyManager.Instance.IsSkillUnlocked(
-                PartyManager.Instance.ActiveCharacterType,
+            return Svc.Party.IsSkillUnlocked(
+                Svc.Party.ActiveCharacterType,
                 skillType);
         }
 
@@ -280,7 +278,7 @@ namespace UPlayGround.Components
             ApplyComboTags();
             OnComboReset?.Invoke();
             if (clearInputBuffer)
-                InputManager.Instance.InputBuffer.Clear();
+                Svc.Input.InputBuffer.Clear();
         }
 
         private CharacterComboState CaptureComboState()
@@ -365,11 +363,11 @@ namespace UPlayGround.Components
                 AttackState.HeavyAttack => GrowthComboType.Heavy,
                 _ => null,
             };
-            if (!comboType.HasValue || dataLength <= 1 || PartyManager.Instance == null)
+            if (!comboType.HasValue || dataLength <= 1 || Svc.Party == null)
                 return dataLength;
 
-            CharacterActorType type = PartyManager.Instance.ActiveCharacterType;
-            return PartyManager.Instance.GetUnlockedComboLength(type, comboType.Value, dataLength);
+            CharacterActorType type = Svc.Party.ActiveCharacterType;
+            return Svc.Party.GetUnlockedComboLength(type, comboType.Value, dataLength);
         }
 
         private void ApplyComboTags()

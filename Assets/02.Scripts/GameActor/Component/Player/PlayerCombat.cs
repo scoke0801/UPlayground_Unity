@@ -9,8 +9,6 @@ using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
@@ -539,7 +537,7 @@ namespace UPlayGround.Components
         private void OnEnable()
         {
             if (Application.isPlaying)
-                DebugGizmoManager.RegisterProvider(this);
+                DebugGizmoBridge.RegisterProvider(this);
         }
 
         private void Update()
@@ -598,7 +596,7 @@ namespace UPlayGround.Components
         {
             // 컷씬·씬 전환 등으로 비활성화될 때 상호작용 UI가 남지 않도록 정리.
             SetBreakInteractionTarget(null);
-            DebugGizmoManager.UnregisterProvider(this);
+            DebugGizmoBridge.UnregisterProvider(this);
         }
 
         /// <summary>
@@ -829,7 +827,7 @@ namespace UPlayGround.Components
         private void OnDrawGizmosSelected()
         {
             if (!_showHitDebug || _currentAttackData == null) return;
-            if (DebugGizmoManager.ShouldSuppressLocalGizmos(DebugGizmoCategory.Combat, gameObject, DebugGizmoContentType.PlayerCombatHit))
+            if (DebugGizmoBridge.ShouldSuppressLocalGizmos(DebugGizmoCategory.Combat, gameObject, DebugGizmoContentType.PlayerCombatHit))
                 return;
 
             DrawHitGizmos();

@@ -225,14 +225,14 @@ namespace UPlayGround.UI
         private void DoFastTravel(MapRegionInfoSO.PortalEntry portal, string destScene)
         {
             HideConfirm();
-            UIManager.Instance?.HideUI(UIKeyType.Map);
+            UISvc.UI?.HideUI(UIKeyType.Map);
 
             if (!string.IsNullOrEmpty(portal.arrivalId))
-                SceneManager.Instance?.LoadScene(destScene, portal.arrivalId);                 // 지정 도착 지점
+                UISvc.Scene?.LoadScene(destScene, portal.arrivalId);                 // 지정 도착 지점
             else if (string.IsNullOrEmpty(portal.targetSceneName))
-                SceneManager.Instance?.LoadScene(destScene, portal.worldPosition);             // 포탈 위치에 스폰(웨이포인트)
+                UISvc.Scene?.LoadScene(destScene, portal.worldPosition);             // 포탈 위치에 스폰(웨이포인트)
             else
-                SceneManager.Instance?.LoadScene(destScene);                                   // 대상 씬 기본 스폰
+                UISvc.Scene?.LoadScene(destScene);                                   // 대상 씬 기본 스폰
         }
 
         /// <summary>mapId에 대한 표시 이름(continentName 우선, 없으면 mapId).</summary>

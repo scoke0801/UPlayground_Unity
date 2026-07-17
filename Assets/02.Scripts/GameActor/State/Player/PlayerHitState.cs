@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
@@ -139,7 +139,7 @@ namespace UPlayGround.State
             if (!_canCancel) return;
 
             // 회피 캔슬 (Heavy 포함 허용)
-            var dodgeInput = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dodge);
+            var dodgeInput = Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Dodge);
             if (dodgeInput != null)
             {
                 controller.TransitionToState(new PlayerDodgeState(controller));
@@ -150,14 +150,14 @@ namespace UPlayGround.State
 
             // 공격 캔슬 (일반 Hit 이하만)
             // 입력 소비는 TryEnter 성공 시에만 일어나도록 HasInput으로 사전 확인.
-            bool hasAttack      = InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack);
-            bool hasHeavyAttack = InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+            bool hasAttack      = Svc.Input.InputBuffer.HasInput(PlayerAction.Attack);
+            bool hasHeavyAttack = Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (hasAttack || hasHeavyAttack)
             {
                 if (PlayerAttackState.TryEnter(playerController))
                 {
-                    if (hasAttack)      InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
-                    if (hasHeavyAttack) InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                    if (hasAttack)      Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                    if (hasHeavyAttack) Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     return;
                 }
             }

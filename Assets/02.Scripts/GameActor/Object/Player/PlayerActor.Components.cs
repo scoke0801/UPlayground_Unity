@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
@@ -15,8 +15,6 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -77,7 +75,7 @@ namespace UPlayGround
 
             // 장비 데이터는 캐릭터별 레지스트리(InventoryManager)에 시딩한다.
             // 외형은 장착 데이터와 분리하고, 캐릭터 모델의 기본 무기 타입만 사용한다.
-            var inventory = InventoryManager.Instance;
+            var inventory = Svc.Inventory;
             if (inventory != null)
             {
                 inventory.SeedCharacterEquipmentIfAbsent(
@@ -112,7 +110,7 @@ namespace UPlayGround
 
             // 전투 컴포넌트 참조 갱신 + 공격 데이터 교체
             _combat.RefreshComponentReferences();
-            var partyManager = PartyManager.Instance;
+            var partyManager = Svc.Party;
             _combat.RefreshAttackData(
                 data.attackData,
                 data.characterType,
@@ -169,7 +167,7 @@ namespace UPlayGround
         private float ApplyCharacterStats(CharacterModelData data)
         {
             CharacterActorType type = data != null ? data.characterType : _characterActorType;
-            IReadOnlyDictionary<StatType, float> growthStats = PartyManager.Instance?.GetGrowthStats(type);
+            IReadOnlyDictionary<StatType, float> growthStats = Svc.Party?.GetGrowthStats(type);
 
             if (growthStats != null && growthStats.Count > 0)
             {
@@ -202,7 +200,7 @@ namespace UPlayGround
             Stats.RemoveModifiersBySource(_equipmentStatSource);
             _equipmentStatBuffer.Clear();
 
-            var equipment = InventoryManager.Instance?.GetEquippedEquipment(_characterActorType);
+            var equipment = Svc.Inventory?.GetEquippedEquipment(_characterActorType);
             if (equipment != null)
             {
                 for (int i = 0; i < equipment.Count; i++)
@@ -331,7 +329,7 @@ namespace UPlayGround
                 if (_currentHealth > old)
                 {
                     OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-                    UIManager.Instance.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
+                    ActorSvc.UI.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
                 }
                 return;
             }

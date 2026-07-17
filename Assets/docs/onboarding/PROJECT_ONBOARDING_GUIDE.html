@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>UPlayground 신규 합류 온보딩 가이드</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --panel: #101c2b;
+      --panel-2: #142438;
+      --line: #29415d;
+      --text: #e8f0f8;
+      --muted: #9eb0c3;
+      --cyan: #59d8ff;
+      --mint: #6ee7b7;
+      --amber: #fbbf6a;
+      --red: #fb7185;
+      --violet: #b79cff;
+      --sidebar: 286px;
+      --radius: 16px;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(89, 216, 255, .10), transparent 28rem),
+        radial-gradient(circle at 15% 55%, rgba(183, 156, 255, .08), transparent 30rem),
+        var(--bg);
+      font-family: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+      line-height: 1.72;
+      word-break: keep-all;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+    code {
+      padding: .12rem .38rem;
+      border: 1px solid rgba(89, 216, 255, .16);
+      border-radius: 6px;
+      color: #bceeff;
+      background: rgba(89, 216, 255, .07);
+      font-size: .92em;
+    }
+    pre {
+      margin: 14px 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0b1624;
+      font-size: .86rem;
+      line-height: 1.6;
+    }
+    pre code { padding: 0; border: 0; background: none; color: #d7e6f4; }
+
+    .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 17, 29, .92);
+      overflow-y: auto;
+    }
+    .brand { margin-bottom: 6px; font-size: 1.05rem; font-weight: 800; letter-spacing: -.01em; }
+    .brand small { display: block; color: var(--muted); font-size: .78rem; font-weight: 500; }
+    nav { margin-top: 20px; display: flex; flex-direction: column; gap: 2px; }
+    nav a {
+      display: flex; align-items: baseline; gap: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+    nav a:hover { color: var(--text); background: var(--panel-2); text-decoration: none; }
+    nav a .no { min-width: 1.5em; color: var(--cyan); font-size: .74rem; font-family: Consolas, monospace; }
+    nav .nav-group { margin: 14px 0 4px; padding: 0 10px; color: var(--muted); font-size: .68rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+
+    main { padding: 44px clamp(24px, 5vw, 72px) 96px; max-width: 980px; }
+
+    header.hero { margin-bottom: 42px; }
+    .eyebrow { color: var(--cyan); font-size: .74rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 8px 0 12px; font-size: clamp(1.7rem, 3.4vw, 2.4rem); font-weight: 800; letter-spacing: -.02em; line-height: 1.25; text-wrap: balance; }
+    .lede { max-width: 62ch; color: var(--muted); font-size: 1.02rem; }
+    .chips { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      padding: 5px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--text);
+      font-size: .8rem;
+    }
+    .chip b { color: var(--cyan); font-weight: 600; }
+
+    section { margin-top: 58px; scroll-margin-top: 24px; }
+    h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 6px; font-size: 1.4rem; font-weight: 800; letter-spacing: -.015em; }
+    h2 .no { color: var(--cyan); font-size: .95rem; font-family: Consolas, monospace; }
+    .section-sub { margin: 0 0 20px; color: var(--muted); font-size: .93rem; max-width: 68ch; }
+    h3 { margin: 28px 0 10px; font-size: 1.05rem; font-weight: 700; color: #cfe6f5; }
+    p { max-width: 70ch; margin: 10px 0; }
+    ul, ol { max-width: 70ch; padding-left: 1.3em; }
+    li { margin: 5px 0; }
+    li::marker { color: var(--cyan); }
+    strong { color: #fff; }
+
+    .card {
+      margin: 16px 0;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+
+    .table-wrap { margin: 14px 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    th, td { padding: 9px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--panel-2); color: var(--muted); font-size: .76rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+    tr:last-child td { border-bottom: 0; }
+    td code { white-space: nowrap; }
+
+    /* asmdef 수직 스택 다이어그램 */
+    .stack { margin: 20px 0; display: grid; gap: 0; max-width: 640px; }
+    .stack-row { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: 14px; align-items: stretch; }
+    .stack-node {
+      padding: 12px 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+    }
+    .stack-node .t { font-weight: 700; font-size: .95rem; }
+    .stack-node .t code { border: 0; background: none; padding: 0; color: var(--cyan); }
+    .stack-node .d { color: var(--muted); font-size: .8rem; }
+    .stack-node.top { border-color: rgba(251, 191, 106, .45); }
+    .stack-node.top .t code { color: var(--amber); }
+    .stack-arrow { display: flex; justify-content: center; padding: 2px 0; color: var(--muted); font-size: .82rem; }
+    .stack-side { align-self: center; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+    .stack-side code { white-space: nowrap; }
+
+    /* 함정 카드 */
+    .pitfall {
+      margin: 16px 0;
+      padding: 16px 18px 14px 18px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+    .pitfall.warn { border-left-color: var(--amber); }
+    .pitfall.note { border-left-color: var(--cyan); }
+    .pitfall .badge {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+    .pitfall.warn .badge { color: var(--amber); }
+    .pitfall.note .badge { color: var(--cyan); }
+    .pitfall h4 { margin: 0 0 6px; font-size: .98rem; }
+    .pitfall p { margin: 6px 0; font-size: .9rem; color: #d5e2ee; }
+
+    .checklist { list-style: none; padding: 0; max-width: 70ch; }
+    .checklist li {
+      display: flex; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px dashed var(--line);
+    }
+    .checklist li::before {
+      content: "";
+      flex: none;
+      width: 18px; height: 18px;
+      margin-top: 3px;
+      border: 1.5px solid var(--cyan);
+      border-radius: 5px;
+    }
+
+    .kbd-path { color: var(--mint); }
+
+    footer { margin-top: 72px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      .stack-row { grid-template-columns: 1fr; }
+      .stack-side { padding: 4px 6px 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <div class="brand">UPlayground<small>신규 합류 온보딩 가이드</small></div>
+  <nav>
+    <div class="nav-group">Day 1</div>
+    <a href="#overview"><span class="no">01</span>프로젝트 한눈에</a>
+    <a href="#setup"><span class="no">02</span>개발 환경 셋업</a>
+    <a href="#folders"><span class="no">03</span>폴더 구조</a>
+    <div class="nav-group">아키텍처</div>
+    <a href="#asmdef"><span class="no">04</span>어셈블리 모듈</a>
+    <a href="#managers"><span class="no">05</span>매니저 &amp; 서비스</a>
+    <a href="#actors"><span class="no">06</span>GameActor &amp; 상태머신</a>
+    <a href="#animation"><span class="no">07</span>애니메이션 &amp; 전투</a>
+    <a href="#data"><span class="no">08</span>데이터 (SO)</a>
+    <a href="#ai"><span class="no">09</span>적 AI (BT)</a>
+    <a href="#input-ui"><span class="no">10</span>입력 &amp; UI</a>
+    <div class="nav-group">규칙</div>
+    <a href="#conventions"><span class="no">11</span>코드 컨벤션</a>
+    <a href="#pitfalls"><span class="no">12</span>함정 모음 (필독)</a>
+    <a href="#first-week"><span class="no">13</span>첫 주 체크리스트</a>
+  </nav>
+</aside>
+
+<main>
+
+<header class="hero">
+  <div class="eyebrow">Onboarding Guide</div>
+  <h1>UPlayground에 오신 것을 환영합니다</h1>
+  <p class="lede">
+    Unity 6 기반 싱글플레이 TPS 액션 게임입니다. 시드 기반 런에서 외곽 보스 3 + 중앙 보스 1을
+    사냥하는 <strong>사이클형 보스 헌팅</strong> 구조를 중심으로, 상태머신·컴포넌트 조합·서비스 계약
+    아키텍처 위에서 개발합니다. 이 문서 하나로 코드베이스의 멘탈 모델을 잡는 것이 목표입니다.
+  </p>
+  <div class="chips">
+    <span class="chip">엔진 <b>Unity 6000.0.60f1</b></span>
+    <span class="chip">렌더링 <b>URP</b></span>
+    <span class="chip">애니메이션 <b>Animancer Pro V8</b></span>
+    <span class="chip">이동 <b>Kinematic Character Controller</b></span>
+    <span class="chip">에셋 <b>Addressables</b></span>
+    <span class="chip">셰이더 <b>lilToon</b></span>
+    <span class="chip">클로스 <b>MagicaCloth2</b></span>
+  </div>
+</header>
+
+<!-- ============================================================ -->
+<section id="overview">
+  <h2><span class="no">01</span>프로젝트 한눈에</h2>
+  <p class="section-sub">무엇을 만드는 프로젝트인지, 게임플레이 골격부터 파악합니다.</p>
+
+  <div class="card">
+    <ul>
+      <li><strong>장르</strong> — 싱글플레이 3인칭 액션(TPS). 소울라이크 계열의 전투 감각: 가드/패리/퍼펙트 도지/포이즈·브레이크.</li>
+      <li><strong>사이클 구조</strong> — 시드 기반 런(개발 20분 / 정식 40분)에 외곽 보스 3 + 중앙 보스 1을 배치.
+          중앙 보스 처치 후 포털 정산으로 사이클 종료. 스펙 문서: <code>Assets/docs/cycle/</code></li>
+      <li><strong>BossAssist 영입</strong> — 처치한 보스는 파티에 합류하지 않고 <em>어시스트 소환수</em>(장착 1마리,
+          지정 스킬 1회)로 영입됩니다. 매핑은 <code>BossAssistDatabaseSO.sourceBossActorId</code>,
+          확률 롤은 <code>BossRecruitmentService</code>.</li>
+      <li><strong>파티 시스템</strong> — 복수 캐릭터 스왑 전투(스왑 회피/입장 공격/잔상 공격), 개별 캐릭터 성장(EXP/레벨/성장 포인트).</li>
+    </ul>
+  </div>
+
+  <h3>언어 규칙</h3>
+  <p>한국어 프로젝트입니다. <strong>코드 주석, 커밋 메시지, 문서 모두 한국어</strong>로 작성합니다.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="setup">
+  <h2><span class="no">02</span>개발 환경 셋업</h2>
+  <p class="section-sub">CLI 빌드 파이프라인이 없는 순수 Unity 프로젝트입니다.</p>
+
+  <ol>
+    <li><strong>Unity 6000.0.60f1</strong> 이상 설치 (Unity Hub 권장).</li>
+    <li>저장소 클론 후 Unity Hub에서 프로젝트 루트를 열기 — 첫 임포트는 Addressables/플러그인 때문에 오래 걸립니다.</li>
+    <li>유료 플러그인(Animancer Pro V8, KCC, MagicaCloth2 등)은 저장소에 포함되어 있어 별도 설치가 필요 없습니다.</li>
+    <li>자동화된 테스트 스위트는 없습니다. <strong>검증은 에디터 플레이 모드에서 직접</strong> 합니다.</li>
+  </ol>
+
+  <div class="pitfall note">
+    <span class="badge">참고</span>
+    <h4>Enter Play Mode Options (도메인 리로드 비활성화)</h4>
+    <p>이 프로젝트는 빠른 반복을 위해 도메인 리로드가 꺼진 환경을 상정합니다.
+    즉 <strong>static 필드가 플레이 세션 간에 유지</strong>됩니다. static 상태를 만들면 반드시
+    <code>[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]</code> 리셋 훅을 함께 작성하세요.
+    선례: <code>ManagerLifecycle</code>, <code>CombatHitDetector.ResetStatics</code>, <code>CombatFeedbackDispatcher.ResetStaticCaches</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="folders">
+  <h2><span class="no">03</span>폴더 구조</h2>
+  <p class="section-sub">폴더 앞 숫자 접두사는 Unity Project 창 정렬용입니다.</p>
+
+<pre><code>Assets/
+├── 01.Scenes/          씬 (Boot → Title → GamePlay 흐름)
+├── 02.Scripts/         런타임/에디터 코드 전체 (아래 04 참고)
+│   ├── Core/           공통 기반 (UPlayGround.Core)
+│   ├── Data/           SO·DTO·enum 순수 데이터 (UPlayGround.Data)
+│   ├── Contracts/      서비스 계약·레지스트리 (UPlayGround.Contracts)
+│   ├── Camera/         카메라 런타임 (UPlayGround.Camera)
+│   ├── GameActor/      액터·상태·전투·AI (UPlayGround.Actor)
+│   ├── UI/             UI 런타임 (UPlayGround.UI)
+│   ├── Manager/        매니저 구현 = 조립 계층 (Assembly-CSharp)
+│   ├── Cycle/          사이클/BossAssist 시스템
+│   ├── Editor/         프로젝트 공용 에디터 툴 (Assembly-CSharp-Editor)
+│   └── Debugging/      치트 패널·기즈모
+├── 10.Datas/           ScriptableObject 데이터 에셋 (수치의 단일 소스)
+├── docs/               설계·가이드 문서 (이 문서 포함)
+└── ExternalAssets/     서드파티 (KCC, INab FX 등)</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section id="asmdef">
+  <h2><span class="no">04</span>어셈블리 모듈</h2>
+  <p class="section-sub">
+    런타임 코드는 asmdef 경계로 분리되어 있고, 참조 방향은 아래에서 위로 올라올 수 없습니다.
+    상세 배경은 <a href="ASMDEF_MODULARIZATION_ONBOARDING.html">모듈 구조 온보딩 문서</a> 참고.
+  </p>
+
+  <div class="stack">
+    <div class="stack-row">
+      <div class="stack-node top">
+        <div class="t"><code>Assembly-CSharp</code> — Manager/ · Cycle/ 등</div>
+        <div class="d">모든 계약을 구현하는 최상위 조립 계층. 매니저 구현체가 여기 산다.</div>
+      </div>
+      <div class="stack-side">에디터 전용:<br><code>UPlayGround.Data.Editor</code><br><code>UPlayGround.GameActor.Editor</code><br><code>UPlayGround.UI.Editor</code><br><code>Assembly-CSharp-Editor</code></div>
+    </div>
+    <div class="stack-arrow">▼ 참조 방향 (위가 아래를 참조)</div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.UI</code></div><div class="d">UI 런타임 + UI 소비자 계약(UISvc)</div></div><div class="stack-side"></div></div>
+    <div class="stack-arrow">▼</div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Actor</code></div><div class="d">GameActor, 상태머신, 전투, AI, MotionEvent</div></div><div class="stack-side"></div></div>
+    <div class="stack-arrow">▼</div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Camera</code></div><div class="d">카메라 Director/Behavior/Modifier 런타임</div></div><div class="stack-side"></div></div>
+    <div class="stack-arrow">▼</div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Contracts</code></div><div class="d">IGameService, Services 레지스트리, Svc 파사드</div></div><div class="stack-side"></div></div>
+    <div class="stack-arrow">▼</div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Data</code></div><div class="d">ScriptableObject, DTO, enum — 순수 데이터</div></div><div class="stack-side"></div></div>
+    <div class="stack-arrow">▼</div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Core</code></div><div class="d">의존 없는 공통 기반</div></div><div class="stack-side"></div></div>
+  </div>
+
+  <div class="pitfall warn">
+    <span class="badge">규칙</span>
+    <h4>하위 모듈에서 구체 매니저 싱글톤을 새로 참조하지 마세요</h4>
+    <p>UI/Actor/Camera 모듈에서 <code>XxxManager.Instance</code>를 직접 참조하는 코드를 새로 만들지 않습니다.
+    대신 <code>Svc</code>(공용) / <code>ActorSvc</code>(액터 소비자) / <code>UISvc</code>(UI 소비자) 계약을 사용합니다.
+    예외적으로 Actor→Camera는 의도된 asmdef 참조라 <code>CameraManager.Instance</code>가 남아 있습니다.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="managers">
+  <h2><span class="no">05</span>매니저 시스템 &amp; 서비스 레지스트리</h2>
+  <p class="section-sub"><code>GameManager</code>가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화합니다.</p>
+
+  <h3>생명주기</h3>
+  <p>모든 매니저는 <code>BaseManager&lt;T&gt;</code>(제네릭 싱글톤)를 상속하고 <code>IManager</code>를 구현합니다.</p>
+  <pre><code>Init → AfterInit → OnUpdate / OnFixedUpdate / OnLateUpdate → Dispose → OnSceneChanged</code></pre>
+
+  <h3>서비스 레지스트리 흐름</h3>
+  <ol>
+    <li><code>GameManager.RegisterManager()</code>가 매니저를 등록하면서, 매니저가 구현한
+        <code>IGameService</code> 파생 계약들을 <code>Services</code>에 자동 등록합니다.</li>
+    <li>소비자는 <code>Svc.Input</code>, <code>ActorSvc.Combat</code>, <code>UISvc.Party</code>처럼
+        파사드 프로퍼티로 계약을 조회합니다 (매 호출 시 레지스트리 조회 — 캐싱 주의사항은 12장).</li>
+    <li><code>Services.Get&lt;T&gt;()</code>는 미등록 계약을 최초 1회 경고합니다. 초기화 전
+        <code>Awake</code> 접근 경고가 보이면 지연 조회로 바꾸거나 초기화 순서를 수정하세요.</li>
+    <li>앱/플레이 종료 중에는 <code>Services.Get</code>이 null을 반환합니다. <strong>종료 경로(OnDisable/OnDestroy)에서는
+        항상 null 가드</strong>를 쓰세요.</li>
+  </ol>
+
+  <h3>매니저 목록 (등록 순)</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>분류</th><th>매니저</th></tr>
+      <tr><td>기반</td><td>SaveManager · InputManager · AssetManager · SettingsManager · SoundManager</td></tr>
+      <tr><td>화면</td><td>UIManager · CameraManager</td></tr>
+      <tr><td>월드/오브젝트</td><td>GameObjectManager · ActorSpawnManager · AgentTickManager · SceneManager · WorldStateManager · WorldLightingManager</td></tr>
+      <tr><td>파티/아이템</td><td>PartyManager · ItemManager · InventoryManager · RecipeManager</td></tr>
+      <tr><td>전투</td><td>GameCombatManager (히트스톱·바이탈오브·방어성공·레벨업 피드백은 산하 핸들러 <code>Manager/Handler/Combat/</code>)</td></tr>
+      <tr><td>진행</td><td>EventManager · GlobalFlagManager · DialogueManager · StoryManager · QuestManager · GameTimeManager</td></tr>
+      <tr><td>리스폰</td><td>InteractionRespawnManager · MonsterRespawnManager</td></tr>
+      <tr><td>개발</td><td>DebugGizmoManager (에디터 전용) · CheatManager</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="actors">
+  <h2><span class="no">06</span>GameActor &amp; 상태머신</h2>
+  <p class="section-sub">모든 인터랙티브 오브젝트는 <code>GameActor</code>(추상 MonoBehaviour)에서 출발합니다.</p>
+
+  <h3>액터 계층</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>타입</th><th>설명</th></tr>
+      <tr><td><code>PlayerActor</code></td><td><span class="kbd-path">GameActor/Object/Player/</span>에 partial 6파일 분리 (base / Lifecycle / Input / Components / Combat / AnimationEvents). <code>IDamageable</code> 구현.</td></tr>
+      <tr><td><code>MonsterActor</code></td><td>적 엔티티. <code>IDamageable</code> 구현. <code>_recruitableAs</code>는 재스폰 제외 판정용 네임드 표시.</td></tr>
+      <tr><td><code>NpcActor</code></td><td><code>IInteractable</code> 구현. 상태: Idle / Talk / Wander.</td></tr>
+      <tr><td>기타</td><td><code>GatheringActor</code>, <code>ItemActor</code>, <code>VitalOrbActor</code>, <code>PortalActor</code>, 투사체(<code>BaseProjectile</code> → Linear/AOE)</td></tr>
+    </table>
+  </div>
+
+  <h3>상태머신 — 이 프로젝트의 핵심 패턴</h3>
+  <p>
+    상태는 KCC의 <code>ICharacterController</code>와 긴밀히 결합됩니다. <strong>각 상태가
+    <code>UpdateVelocity</code>, <code>UpdateRotation</code> 등 KCC 콜백을 오버라이드</strong>하여
+    상태별 물리 동작을 직접 제어합니다. 이동 컨트롤러(<code>ActorMovementController</code> 계열)가
+    KCC 콜백을 현재 상태에 위임하는 구조입니다.
+  </p>
+<pre><code>GameActorState (추상)
+├── PlayerActorState → 24개 (Idle, GroundMove, Airborn, Attack, Charge, Dash,
+│                      DashAttack, JumpAttack, FinishAttack, Dodge, Guard,
+│                      GuardBreak, Hit, Stun, Knockdown, Grabbed, Death, …)
+├── EnemyActorState  → 지상 13개+ / 비행 9개 (State/Enemy/EnemyFlying/)
+└── NpcActorState    → Idle, Talk, Wander</code></pre>
+  <p>주요 메서드: <code>OnEnter</code> / <code>OnExit</code> / <code>UpdateState</code> /
+     <code>CanTransitionState(string)</code> / <code>UpdateVelocity</code> / <code>UpdateRotation</code> /
+     <code>BeforeCharacterUpdate</code> / <code>AfterCharacterUpdate</code> / <code>PostGroundingUpdate</code></p>
+
+  <h3>컴포넌트 조합</h3>
+  <p><code>ActorComponent</code> → <code>PlayerActorComponent</code> 베이스 위에 기능별 컴포넌트를 조합합니다.</p>
+  <div class="table-wrap">
+    <table>
+      <tr><th>영역</th><th>컴포넌트</th></tr>
+      <tr><td>전투</td><td><code>PlayerCombat</code> (partial 6파일: base/Attack/HitDetection/Combo/Finish/Gizmo) · <code>EnemyCombat</code></td></tr>
+      <tr><td>AI</td><td><code>EnemyAIController</code> · <code>EnemyDetection</code> · <code>EnemyTacticalMemory</code></td></tr>
+      <tr><td>스탯</td><td><code>PoiseStat</code> (강인도/경직 저항 — <code>ActorStatContainer</code>를 읽음)</td></tr>
+      <tr><td>장비/파티</td><td><code>PlayerEquipment</code> · <code>PlayerSkillGauge</code> · <code>PlayerSwapBehaviour</code> · <code>CharacterModelData</code></td></tr>
+      <tr><td>VFX</td><td><code>ActorColorChanger</code> (피격 플래시) · <code>DissolveController</code> (사망 디졸브) · <code>ActorWeaponTrailController</code></td></tr>
+      <tr><td>IK/워프</td><td><code>FootIKController</code> · <code>MotionWarpController</code></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="animation">
+  <h2><span class="no">07</span>애니메이션 &amp; 전투 데이터</h2>
+  <p class="section-sub">Animancer 기반 MotionSet 타임라인이 전투의 뼈대입니다.</p>
+
+  <ul>
+    <li><strong>MotionSet 타임라인</strong> — 하나의 액션에 여러 클립을 순차 체이닝. <code>MotionSetAsset</code>으로 정의.</li>
+    <li><strong>MotionEvent</strong> — <code>MotionEventExecutor</code>가 타임라인 시점에 히트박스 활성화·VFX·SFX 등
+        이벤트를 발화. 이벤트 클래스는 <code>[SerializeReference]</code>로 에셋에 직렬화됩니다 (12장 MovedFrom 함정 참고).</li>
+    <li><strong>레이어</strong> — <code>AvatarMask</code>로 상체/하체 분리 지원.</li>
+    <li><strong>전투 흐름</strong> — 공격 데이터(<code>PlayerAttackDataSO</code>/<code>EnemyAttackDataSO</code>, 다단 <code>HitPhaseData</code>)
+        → 히트 판정(<code>CombatHitbox</code>) → <code>AttackData</code>(런타임) → 피격 리액션/히트스톱/카메라 피드백
+        (<code>CombatFeedbackDispatcher</code>).</li>
+    <li><strong>편집 툴</strong> — 애니메이션 에디터(MotionSetWindow)에 전투 트랙/히트박스 오버레이·프레임 테이블이 통합되어 있습니다.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="data">
+  <h2><span class="no">08</span>데이터 (ScriptableObject)</h2>
+  <p class="section-sub">모든 수치 데이터는 <span class="kbd-path">Assets/10.Datas/</span>의 SO로 외부화합니다. 코드에 수치를 하드코딩하지 마세요.</p>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>SO</th><th>역할</th></tr>
+      <tr><td><code>ActorStatSO</code></td><td>액터 스탯의 <strong>단일 소스</strong> (구 EnemyStatsSO는 제거됨)</td></tr>
+      <tr><td><code>EnemyBehaviorSO</code></td><td>페이즈 기반 AI 프로필 — HP 임계값에 따른 행동 전환 + BT 에셋 연결</td></tr>
+      <tr><td><code>PlayerAttackDataSO</code> / <code>EnemyAttackDataSO</code></td><td>다단 HitPhase 공격 데이터 (데미지·포이즈·리액션·캔슬 윈도우)</td></tr>
+      <tr><td><code>MotionSetAsset</code></td><td>애니메이션 타임라인 정의</td></tr>
+      <tr><td><code>PartyConfigSO</code></td><td>시작 파티 순서·초기 활성 캐릭터</td></tr>
+      <tr><td><code>CameraShakeData</code> · FOV 등</td><td>카메라 이펙트 데이터</td></tr>
+    </table>
+  </div>
+
+  <div class="pitfall note">
+    <span class="badge">규칙</span>
+    <h4>CreateAssetMenu 경로 규약</h4>
+    <p><code>UPlayGround/&lt;Domain&gt;/&lt;Item&gt;</code> 2단계가 기본입니다. super-root 금지,
+    3단계는 Trigger·Camera Effect·Dialogue만 허용. "SO"·"ActorData" 같은 타입 기준 분류는 금지.</p>
+  </div>
+
+  <div class="pitfall note">
+    <span class="badge">규칙</span>
+    <h4>데이터 필드를 수정하면 커스텀 인스펙터도 함께</h4>
+    <p>SO 필드를 추가/변경했다면 해당 SO의 커스텀 인스펙터·에디터 툴에도 같이 반영해야 합니다.
+    이 프로젝트는 커스텀 에디터가 많습니다 (Data/Editor, GameActor/Editor).</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="ai">
+  <h2><span class="no">09</span>적 AI (Behavior Tree)</h2>
+  <p class="section-sub"><code>EnemyAIController</code>가 <code>BehaviorTreeRunner</code>를 호스팅하고 <code>BehaviorTreeAsset</code>을 실행합니다.</p>
+
+  <h3>책임 분리 (레이어 귀속)</h3>
+  <ul>
+    <li><strong>Rules JSON</strong> — 의사결정과 페이싱 (스코어러 기반)</li>
+    <li><strong>공격 데이터</strong> — 텔레그래프 (선딜·모션)</li>
+    <li><strong>코드·스코어러</strong> — 템포 (<code>maxComboPressure</code>, <code>RhythmPhase</code>)</li>
+  </ul>
+
+  <h3>BT 저작 포맷 2종 — 혼동 주의</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>포맷</th><th>위치</th><th>특징</th></tr>
+      <tr><td>Rules JSON</td><td><span class="kbd-path">SourceJson/</span></td><td>임포트 시 <strong>스코어러가 자동 부착</strong>됨. 신규 적 AI의 표준 경로.</td></tr>
+      <tr><td>Raw BT-node JSON</td><td><span class="kbd-path">Json/</span></td><td>관찰 분기를 직접 저작. 스코어러를 <strong>우회</strong>하므로 특수 용도에만.</td></tr>
+    </table>
+  </div>
+  <p>임포트 메뉴: <code>UPlayGround → 비헤이비어 트리 → JSON</code>. BT 에디터 창에서 시각적으로 확인·편집할 수 있습니다.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="input-ui">
+  <h2><span class="no">10</span>입력 &amp; UI</h2>
+  <p class="section-sub">Unity Input System 기반, 레이어 우선순위로 입력 라우팅을 제어합니다.</p>
+
+  <h3>InputLayer 우선순위</h3>
+  <div class="table-wrap">
+    <table>
+      <tr><th>레이어</th><th>값</th><th>용도</th></tr>
+      <tr><td>HUD</td><td>0</td><td>게임플레이 기본</td></tr>
+      <tr><td>Scene</td><td>1000</td><td>맵·인벤토리 등 전체 화면 UI</td></tr>
+      <tr><td>Popup</td><td>2000</td><td>팝업</td></tr>
+      <tr><td>System</td><td>3000</td><td>시스템 다이얼로그</td></tr>
+      <tr><td>Top</td><td>10000</td><td>최상위</td></tr>
+    </table>
+  </div>
+  <ul>
+    <li><strong>선입력</strong> — <code>InputBuffer</code>가 선입력을 보관합니다. 상태 전환 시 <code>HasInput</code>/<code>ConsumeInput</code>으로 소비.</li>
+    <li><strong>등록/해제</strong> — <code>RegisterInputEvent</code> / <code>UnRegisterInputEvent</code> 쌍으로 관리.
+        해제는 반드시 <code>Svc.Input?.</code> null 가드와 함께 (종료 경로에서 호출될 수 있음).</li>
+  </ul>
+
+  <h3>UI 규약</h3>
+  <ul>
+    <li><code>UI_Base</code>를 상속하는 클래스만 <code>UI_</code> 접두사 (예: <code>UI_Map</code>).
+        그 외 UI 보조 클래스는 <code>UIXxx</code> (예: <code>UIAssistRosterPanel</code>).</li>
+    <li>캔버스 레이어는 <code>CanvasLayer</code> enum (HUD/Scene/Popup/System/WorldSpace)으로 지정.</li>
+    <li>UI에서 게임 상태 조회는 <code>UISvc.*</code> 계약 사용 — 매니저 직접 참조 금지.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<section id="conventions">
+  <h2><span class="no">11</span>코드 컨벤션</h2>
+  <p class="section-sub">기존 코드의 스타일을 따르는 것이 첫 번째 규칙입니다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <tr><th>항목</th><th>규칙</th><th>예</th></tr>
+      <tr><td>네임스페이스</td><td><code>UPlayGround</code> 루트 아래 폴더 경로를 따름. 신규 파일 필수</td><td><code>Manager/</code> → <code>UPlayGround.Manager</code></td></tr>
+      <tr><td>상태 이름</td><td><code>{액터타입}{액션}State</code></td><td><code>PlayerDashState</code>, <code>EnemyChaseState</code></td></tr>
+      <tr><td>컴포넌트 이름</td><td><code>{액터타입}{기능}</code></td><td><code>PlayerCombat</code>, <code>EnemyDetection</code></td></tr>
+      <tr><td>대형 클래스</td><td><code>클래스명.기능.cs</code> partial 분리</td><td><code>PlayerActor.Combat.cs</code>, <code>UI_DevCheatPanel.Item.cs</code></td></tr>
+      <tr><td>UI 클래스</td><td><code>UI_Base</code> 상속만 <code>UI_</code>, 그 외 <code>UIXxx</code></td><td><code>UI_Map</code> / <code>UIServices</code></td></tr>
+      <tr><td>적 비행 상태</td><td>별도 하위 폴더</td><td><span class="kbd-path">State/Enemy/EnemyFlying/</span></td></tr>
+      <tr><td>커밋 메시지</td><td>한국어, 프로젝트 컨벤션 준수</td><td>"액터 전투 구조와 월드 상호작용 정리"</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="pitfalls">
+  <h2><span class="no">12</span>함정 모음 (필독)</h2>
+  <p class="section-sub">실제로 버그를 만들었던, 이 코드베이스 고유의 함정들입니다.</p>
+
+  <div class="pitfall">
+    <span class="badge">Critical</span>
+    <h4>인터페이스 참조는 파괴된 매니저(fake-null)를 감지하지 못합니다</h4>
+    <p><code>Svc.X</code>가 반환하는 것은 인터페이스입니다. 파괴된 MonoBehaviour가 뒤에 있어도
+    <code>!= null</code>과 <code>??=</code>는 통과합니다. 그래서 —</p>
+    <p>· 서비스 참조를 <strong>static 필드에 캐싱하면</strong> 도메인 리로드 꺼진 환경에서 2회차 플레이가
+    파괴된 매니저를 쓰게 됩니다. 캐싱했다면 <code>SubsystemRegistration</code> 리셋 훅 필수.<br>
+    · 인스턴스 필드 캐싱은 "액터가 매니저보다 먼저 파괴된다"는 전제에서만 안전합니다.</p>
+  </div>
+
+  <div class="pitfall">
+    <span class="badge">Critical</span>
+    <h4>[SerializeReference] 클래스를 다른 어셈블리로 옮길 때 [MovedFrom] 필수</h4>
+    <p>MotionEvent/Ultimate 이벤트 클래스를 이동하면 반드시
+    <code>[MovedFrom(true, sourceAssembly: "이전 어셈블리")]</code>를 유지해야 합니다.
+    누락하면 <strong>에셋의 이벤트·VFX 참조가 역직렬화되지 않고 조용히 사라집니다.</strong></p>
+  </div>
+
+  <div class="pitfall warn">
+    <span class="badge">Warning</span>
+    <h4>UPlayGround.Object 네임스페이스 충돌</h4>
+    <p><code>UPlayGround.Object</code> 네임스페이스가 존재해서, static 컨텍스트의 무자격
+    <code>Object.Destroy(...)</code> 등이 CS0234로 터집니다. static 코드에서는
+    <code>UnityEngine.Object</code>를 명시하세요.</p>
+  </div>
+
+  <div class="pitfall warn">
+    <span class="badge">Warning</span>
+    <h4>종료 경로(OnDisable/OnDestroy)에서 서비스는 null일 수 있습니다</h4>
+    <p>앱 종료 중 <code>Services.Get</code>은 null을 반환합니다. 이벤트 구독 해제·입력 해제는
+    <code>Svc.Input?.UnRegisterInputEvent(...)</code>처럼 가드하고, 이벤트 <code>-=</code>는
+    지역 변수에 받아서 null 체크 후 해제하세요.</p>
+  </div>
+
+  <div class="pitfall warn">
+    <span class="badge">Warning</span>
+    <h4>비활성화 캐스케이드 중 StartCoroutine 금지</h4>
+    <p>OnDisable에서 (자신 또는 다른 컴포넌트의) 코루틴을 기동하면 "Coroutine couldn't be started" 경고가
+    납니다. <code>isActiveAndEnabled</code> 체크로도 이 창을 못 거릅니다. 정리 로직은 코루틴 없이
+    직접 수행하세요. 선례: <code>ActorWeaponTrailController.OnDisable</code>.</p>
+  </div>
+
+  <div class="pitfall note">
+    <span class="badge">참고</span>
+    <h4>VFXRenderer에는 material을 할당할 수 없습니다</h4>
+    <p>렌더러를 순회하며 material을 만질 때 <code>ParticleSystemRenderer</code>와
+    <code>UnityEngine.VFX.VFXRenderer</code>는 제외하세요. 선례: <code>DissolveController.InitializeRendererData</code>.</p>
+  </div>
+
+  <div class="pitfall note">
+    <span class="badge">참고</span>
+    <h4>Services.Get 미등록 경고가 뜬다면</h4>
+    <p>매니저 초기화 전에 <code>Awake</code>에서 접근한 것입니다. 프로퍼티 지연 조회로 바꾸거나,
+    <code>GameObjectManager.AfterInit</code>의 씬 스캔 보정처럼 초기화 완료 시점 재수집을 활용하세요.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="first-week">
+  <h2><span class="no">13</span>첫 주 체크리스트</h2>
+  <p class="section-sub">순서대로 진행하면 코드베이스의 주요 경로를 한 번씩 밟게 됩니다.</p>
+
+  <ul class="checklist">
+    <li>프로젝트를 열고 Boot 씬부터 플레이 → 타이틀 → 게임플레이 진입 흐름 확인</li>
+    <li>플레이 중 치트 패널(<code>UI_DevCheatPanel</code>)을 열어 스탯/아이템/시간 치트 훑어보기</li>
+    <li><code>GameManager.RegisterManager</code>에 브레이크포인트를 걸고 매니저 초기화 순서 관찰</li>
+    <li><code>PlayerActor</code> partial 6파일과 <code>PlayerAttackState</code> 하나를 읽고 상태 전환·KCC 콜백 위임 구조 이해</li>
+    <li>애니메이션 에디터(MotionSetWindow)에서 캐릭터 공격 MotionSet 하나 열어보기 — 타임라인·이벤트·히트박스 오버레이</li>
+    <li><span class="kbd-path">10.Datas/</span>에서 적 하나의 <code>ActorStatSO</code>·<code>EnemyBehaviorSO</code>·공격 데이터를 따라가며 데이터 흐름 파악</li>
+    <li>BT 에디터에서 적 하나의 BehaviorTreeAsset을 열고, 플레이 중 디버그 시각화로 노드 활성 확인</li>
+    <li><span class="kbd-path">Assets/docs/</span>의 시스템 설계 문서 중 담당 영역 문서 정독 (전투·카메라·사이클 등)</li>
+    <li>작은 수정 하나로 커밋까지 — 한국어 커밋 메시지 컨벤션으로 첫 PR/커밋 만들기</li>
+  </ul>
+
+  <h3>더 읽을 문서</h3>
+  <ul>
+    <li><code>CLAUDE.md</code> — 프로젝트 규칙의 단일 소스 (이 문서와 어긋나면 CLAUDE.md가 우선)</li>
+    <li><code>Assets/docs/ASMDEF_MODULARIZATION_ONBOARDING.html</code> — 모듈 구조 상세</li>
+    <li><code>Assets/docs/cycle/</code> — 사이클형 보스 헌팅 스펙</li>
+    <li><code>Assets/docs/</code>의 각 시스템 가이드 (카메라 락온, 공격 캔슬, 밸런스 툴 등)</li>
+  </ul>
+</section>
+
+<footer>
+  UPlayground 온보딩 가이드 · 이 문서는 <code>Assets/docs/PROJECT_ONBOARDING_GUIDE.html</code>로 저장소에 포함됩니다.
+  구조가 바뀌면 이 문서와 CLAUDE.md를 함께 갱신해 주세요.
+</footer>
+
+</main>
+</div>
+</body>
+</html>

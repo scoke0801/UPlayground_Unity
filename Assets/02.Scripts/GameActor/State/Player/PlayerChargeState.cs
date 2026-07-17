@@ -206,7 +206,7 @@ namespace UPlayGround.State
                 ? socketTM.position + offset
                 : gameActor.transform.position + offset;
             
-            GameObjectManager.Instance.ShowFX(key, pos, gameActor.transform.rotation);
+            ActorSvc.Objects.ShowFX(key, pos, gameActor.transform.rotation);
         }
 
         private void FireChargeAttack()

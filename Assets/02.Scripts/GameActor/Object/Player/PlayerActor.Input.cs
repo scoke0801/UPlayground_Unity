@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
@@ -15,8 +15,6 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -32,7 +30,7 @@ namespace UPlayGround
 
         private void RegisterInputEvents()
         {
-            if (!InputMgr || _isInputRegistered) return;
+            if (InputMgr == null || _isInputRegistered) return;
             _isInputRegistered = true;
 
             InputLayer layer = InputLayer.Level_0;
@@ -56,7 +54,7 @@ namespace UPlayGround
 
         private void UnRegisterInputEvents()
         {
-            if (!InputMgr || !_isInputRegistered) return;
+            if (InputMgr == null || !_isInputRegistered) return;
             _isInputRegistered = false;
 
             var I = InputMgr;
@@ -342,7 +340,7 @@ namespace UPlayGround
 
         private void PlaySwapEvadeFeedback(MonsterActor target)
         {
-            var party = PartyManager.Instance;
+            var party = Svc.Party;
             if (party == null) return;
 
             Vector3 fxPos = TryGetSocket(party.SwapEvadeFxSocket, out var socket)
@@ -351,7 +349,7 @@ namespace UPlayGround
             fxPos += party.SwapEvadeFxOffset;
 
             if (party.SwapEvadeEnableHitStop && party.SwapEvadeHitStopDuration > 0f)
-                GameCombatMgr?.GameHitStop?.Execute(
+                GameCombatMgr?.ExecuteHitStop(
                     party.SwapEvadeHitStopDuration,
                     party.SwapEvadeHitStopTimeScale);
 
@@ -363,7 +361,7 @@ namespace UPlayGround
                 GameObjectMgr?.ShowFX(party.SwapEvadeFxKey, fxPos, transform.rotation);
 
             if (party.SwapEvadeSpawnDodgeVitalOrb)
-                GameCombatMgr?.GameVitalOrb?.TrySpawn(VitalOrbTrigger.Dodge, fxPos);
+                GameCombatMgr?.TrySpawnVitalOrb(VitalOrbTrigger.Dodge, fxPos);
         }
 
         private bool TryStartSwapEvadeCounterAttack()

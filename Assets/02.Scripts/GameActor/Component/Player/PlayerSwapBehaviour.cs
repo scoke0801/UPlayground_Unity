@@ -145,7 +145,7 @@ namespace UPlayGround.Components
 
         private void TrySpawnResidualAttack(CharacterModelData sourceModel)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = Svc.Party;
             if (partyManager != null && !partyManager.EnableResidualAttackOnSwap)
             {
                 Debug.LogWarning("[ResidualAttack] Spawn skipped: PartyManager disabled residual attack.");
@@ -205,7 +205,7 @@ namespace UPlayGround.Components
 
         private void TryReturnToResidualRunner(CharacterActorType targetType)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = Svc.Party;
             if (partyManager != null && !partyManager.ResidualAttackReturnToSameCharacterRunner)
                 return;
 
@@ -244,7 +244,7 @@ namespace UPlayGround.Components
                 _activeSwapFxInstance = null;
             }
 
-            _activeSwapFxInstance = GameObjectManager.Instance?.ShowFX(
+            _activeSwapFxInstance = ActorSvc.Objects?.ShowFX(
                 _swapFxKey,
                 position,
                 owner.rotation,

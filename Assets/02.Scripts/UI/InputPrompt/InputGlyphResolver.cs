@@ -62,7 +62,7 @@ namespace UPlayGround.UI.InputPrompt
         public static InputGlyphResult Resolve(string mapName, string actionName,
             ActiveInputDevice device, GamepadBrand brand, InputGlyphDataSO glyphData)
         {
-            InputManager inputManager = UnityEngine.Object.FindFirstObjectByType<InputManager>();
+            IInputService inputManager = Svc.Input;
             if (inputManager == null)
                 return InputGlyphResult.Missing(actionName);
 
@@ -76,7 +76,7 @@ namespace UPlayGround.UI.InputPrompt
             => Resolve(mapName, actionName, device, GamepadBrand.Generic, glyphData);
 
         /// <summary>
-        /// InputManager(런타임 씬) 없이 <see cref="InputAction"/>을 직접 받아 해석한다.
+        /// IInputService(런타임 씬) 없이 <see cref="InputAction"/>을 직접 받아 해석한다.
         /// 에디터 미리보기 등 액션을 외부에서 확보한 경우에 쓴다. 바인딩 메타데이터만 읽으므로
         /// 액션이 Enable 상태가 아니어도 동작한다.
         /// </summary>

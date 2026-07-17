@@ -19,6 +19,38 @@ Unity 프로젝트이므로 CLI 빌드 명령어 없음. Unity 6 (6000.0.60f1+)�
 
 ## 아키텍처
 
+### 모듈화 구조 — Codex 지속 메모리
+
+asmdef 모듈화 작업은 Phase 5 UI 모듈화와 Phase 6 자동 검증까지 완료되었다. 이후 구조 관련 작업을 시작하기 전에 반드시 다음 문서를 기준으로 삼을 것.
+
+- 상세 온보딩: `Assets/docs/ASMDEF_MODULARIZATION_ONBOARDING.html`
+- 작업 이력과 체크포인트: `Assets/docs/TODO/ASMDEF_MODULARIZATION_PLAN.md`
+- 최신 프로젝트 요약: `CLAUDE.md`
+
+현재 런타임 asmdef 경계:
+
+- `UPlayGround.Core` — 공통 기반
+- `UPlayGround.Data` — ScriptableObject, DTO, enum 등 순수 데이터
+- `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
+- `UPlayGround.Camera` — 카메라 런타임
+- `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
+- `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
+
+이후 작업의 필수 규칙:
+
+1. 하위 모듈, 특히 UI에 구체 `SomeManager.Instance` 의존을 새로 추가하지 않는다. 공용 기능은 `Svc`, UI 소비자 기능은 `UISvc` 또는 소비자 소유 인터페이스를 사용한다.
+2. `GameManager.RegisterManager`가 매니저가 구현한 `IGameService` 계약을 `Services`에 자동 등록한다. `Services.Get<T>()`은 자동 생성하지 않으며, 등록 전 접근은 null과 최초 1회 경고를 만든다.
+3. Data 모듈은 Manager, Actor, Camera, UI 구현을 참조하지 않는다.
+4. `UnityEditor` 사용 코드는 모듈별 `Editor` asmdef 또는 `Assets/02.Scripts/Editor/`에 둔다. 런타임 asmdef에 Editor 코드가 들어가면 안 된다.
+5. 스크립트 물리 이동 시 `.meta`를 함께 이동하여 MonoScript GUID와 프리팹 연결을 보존한다.
+6. `[SerializeReference]` 기반 MotionEvent/Ultimate 타입을 이동할 때 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 반드시 적용한다. 이 규칙을 어기면 이벤트와 VFX 참조가 유실될 수 있다.
+7. MotionSet/Ultimate/프리팹 오류가 있는 상태에서 에셋을 저장하거나 일괄 재직렬화하지 않는다. 먼저 컴파일과 타입 매핑을 복구하고 managed reference 및 VFX null 검사를 수행한다.
+8. 모듈 변경 완료 조건은 Unity 컴파일 오류 0, 런타임의 무가드 `UnityEditor` 참조 0, UI의 신규 Manager 싱글톤 참조 0, Missing Script 0, managed reference/VFX 누락 0, Play Mode 서비스 경고·예외 0, Player Build 오류 0이다.
+9. 검증 과정에서 `Assets/10.Datas/` 또는 `Assets/03.Prefabs/`가 자동 변경되면 diff를 반드시 검사한다. 검증이 만든 자동 재직렬화 변경만 원복하고 사용자 데이터 변경은 보존한다.
+10. 사용자가 요청하지 않는 한 커밋하지 않는다.
+
+2026-07-17 최종 자동 검증 기준: UI/Player 프리팹 63개 Missing Script 0, MotionSet/Ultimate 에셋 1,156개 managed reference 1,638개 중 누락 0, VFX 참조 168개 중 누락 0, StandaloneWindows64 Development Boot 빌드 오류 0.
+
 ### 매니저 시스템
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.

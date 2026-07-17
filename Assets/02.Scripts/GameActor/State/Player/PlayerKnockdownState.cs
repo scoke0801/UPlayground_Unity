@@ -49,7 +49,7 @@ namespace UPlayGround.State
             if (_getupStarted) return;
 
             _downTimer -= deltaTime;
-            bool dodgeBuffered = InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dodge);
+            bool dodgeBuffered = Svc.Input.InputBuffer.HasInput(PlayerAction.Dodge);
             if (_downTimer <= 0f || dodgeBuffered)
                 BeginGetup();
         }
@@ -77,7 +77,7 @@ namespace UPlayGround.State
             _getupStarted = true;
             _invincibleTimer = Mathf.Max(_invincibleTimer, 0.3f);
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dodge) != null)
+            if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Dodge) != null)
             {
                 controller.TransitionToState(new PlayerDodgeState(controller));
                 return;

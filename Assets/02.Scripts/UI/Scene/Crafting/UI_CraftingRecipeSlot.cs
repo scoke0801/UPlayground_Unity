@@ -38,11 +38,11 @@ namespace UPlayGround.UI
             _recipeID = recipeID;
             _parent   = parent;
 
-            var recipe = RecipeManager.Instance.GetRecipeData(recipeID);
+            var recipe = UISvc.Recipe.GetRecipeData(recipeID);
             if (recipe == null) return;
 
             // 결과 아이템 아이콘
-            var resultItem = ItemManager.Instance.GetItemData(recipe.resultItemID);
+            var resultItem = Svc.Item.GetItemData(recipe.resultItemID);
             if (resultItem != null && resultItem.icon != null)
             {
                 _imgResultIcon.sprite  = resultItem.icon;
@@ -69,7 +69,7 @@ namespace UPlayGround.UI
         /// </summary>
         public void RefreshCraftable()
         {
-            CraftAvailabilityReason reason = RecipeManager.Instance.GetCraftAvailabilityReason(_recipeID);
+            CraftAvailabilityReason reason = UISvc.Recipe.GetCraftAvailabilityReason(_recipeID);
             bool can = reason == CraftAvailabilityReason.Available;
             if (_imgCraftable != null)
                 _imgCraftable.color = can ? _colorCraftable : _colorUncraftable;

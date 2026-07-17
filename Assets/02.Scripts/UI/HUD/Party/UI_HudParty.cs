@@ -43,35 +43,35 @@ namespace UPlayGround.UI
 
         private void SubscribePartyEvents()
         {
-            if (_isSubscribedToPartyEvents || PartyManager.Instance == null) return;
+            if (_isSubscribedToPartyEvents || UISvc.Party == null) return;
 
-            PartyManager.Instance.OnBattleOrderChanged += Refresh;
-            PartyManager.Instance.OnSwapCompleted += OnSwapCompleted;
-            PartyManager.Instance.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
-            PartyManager.Instance.OnSwapCooldownChanged += OnSwapCooldownChanged;
-            PartyManager.Instance.OnPartyHealthRefreshed += RefreshEntryValues;
+            UISvc.Party.OnBattleOrderChanged += Refresh;
+            UISvc.Party.OnSwapCompleted += OnSwapCompleted;
+            UISvc.Party.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
+            UISvc.Party.OnSwapCooldownChanged += OnSwapCooldownChanged;
+            UISvc.Party.OnPartyHealthRefreshed += RefreshEntryValues;
             _isSubscribedToPartyEvents = true;
         }
 
         private void UnsubscribePartyEvents()
         {
-            if (!_isSubscribedToPartyEvents || PartyManager.Instance == null)
+            if (!_isSubscribedToPartyEvents || UISvc.Party == null)
             {
                 _isSubscribedToPartyEvents = false;
                 return;
             }
 
-            PartyManager.Instance.OnBattleOrderChanged -= Refresh;
-            PartyManager.Instance.OnSwapCompleted -= OnSwapCompleted;
-            PartyManager.Instance.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
-            PartyManager.Instance.OnSwapCooldownChanged -= OnSwapCooldownChanged;
-            PartyManager.Instance.OnPartyHealthRefreshed -= RefreshEntryValues;
+            UISvc.Party.OnBattleOrderChanged -= Refresh;
+            UISvc.Party.OnSwapCompleted -= OnSwapCompleted;
+            UISvc.Party.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
+            UISvc.Party.OnSwapCooldownChanged -= OnSwapCooldownChanged;
+            UISvc.Party.OnPartyHealthRefreshed -= RefreshEntryValues;
             _isSubscribedToPartyEvents = false;
         }
 
         private void Refresh()
         {
-            var pm = PartyManager.Instance;
+            var pm = UISvc.Party;
             if (pm == null) return;
 
             var battleOrder = pm.BattleOrder;
@@ -94,7 +94,7 @@ namespace UPlayGround.UI
         {
             base.Update();
 
-            if (IsVisible && (_hasSwapCooldownVisible || PartyManager.Instance?.IsSwapOnCooldown == true))
+            if (IsVisible && (_hasSwapCooldownVisible || UISvc.Party?.IsSwapOnCooldown == true))
                 RefreshSwapCooldown();
         }
 
@@ -128,7 +128,7 @@ namespace UPlayGround.UI
 
         private void OnActiveHpChanged(float current, float max)
         {
-            var activeType = PartyManager.Instance?.ActiveCharacterType
+            var activeType = UISvc.Party?.ActiveCharacterType
                              ?? UPlayGround.Data.EnumType.CharacterActorType.None;
             foreach (var entry in _entries)
             {
@@ -142,20 +142,20 @@ namespace UPlayGround.UI
 
         private void OnActiveSkillGaugeChanged(float current, float max)
         {
-            RefreshUltimateReady(PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None);
+            RefreshUltimateReady(UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None);
         }
 
         private void OnActiveSkillCooldownChanged(int skillSlot, float remaining, float duration)
         {
             if (skillSlot == UltimateSkillSlot)
-                RefreshUltimateReady(PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None);
+                RefreshUltimateReady(UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None);
         }
 
         private void RefreshUltimateReady(CharacterActorType type)
         {
             if (type == CharacterActorType.None) return;
 
-            var player = PartyManager.Instance?.ActiveCharacter;
+            var player = UISvc.Party?.ActiveCharacter;
             foreach (var entry in _entries)
             {
                 if (entry != null && entry.BoundType == type)
@@ -172,7 +172,7 @@ namespace UPlayGround.UI
             {
                 if (entry != null && entry.BoundType == type)
                 {
-                    var player = PartyManager.Instance?.ActiveCharacter;
+                    var player = UISvc.Party?.ActiveCharacter;
                     entry.SetUltimateReady(player != null
                         ? player.IsUltimateReadyForCharacter(type)
                         : max > 0f && current >= max);
@@ -197,7 +197,7 @@ namespace UPlayGround.UI
 
         private void RefreshEntryValues()
         {
-            var pm = PartyManager.Instance;
+            var pm = UISvc.Party;
             var player = pm?.ActiveCharacter;
             if (pm == null || player == null) return;
 
@@ -220,7 +220,7 @@ namespace UPlayGround.UI
 
         private void RefreshSpawnedState()
         {
-            var activeType = PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None;
+            var activeType = UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
             for (int i = 0; i < _entries.Count; i++)
             {
                 var entry = _entries[i];
@@ -231,7 +231,7 @@ namespace UPlayGround.UI
 
         private void RefreshSwapCooldown()
         {
-            var pm = PartyManager.Instance;
+            var pm = UISvc.Party;
             if (pm == null)
             {
                 _hasSwapCooldownVisible = false;

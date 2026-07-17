@@ -1,0 +1,18 @@
+{
+  "name": "UPlayGround.Actor",
+  "rootNamespace": "UPlayGround",
+  "references": [
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "UPlayGround.Core",
+    "UPlayGround.Camera",
+    "UniTask",
+    "Unity.InputSystem",
+    "AYellowpaper.SerializedCollections",
+    "Kybernetik.Animancer",
+    "KinematicCharacterController",
+    "MotionWarping.Runtime",
+    "WeaponTrail"
+  ],
+  "autoReferenced": true
+}

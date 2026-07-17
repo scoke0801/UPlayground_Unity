@@ -3,6 +3,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Dialogue;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 
 namespace UPlayGround
@@ -36,8 +37,8 @@ namespace UPlayGround
 
             _isInteracting = true;
 
-            DialogueManager.Instance.OnDialogueEnd += OnDialogueEnd;
-            DialogueManager.Instance.StartDialogue(_data.dialogueGraph);
+            Svc.Dialogue.OnDialogueEnd += OnDialogueEnd;
+            Svc.Dialogue.StartDialogue(_data.dialogueGraph);
         }
 
         public void StopInteract()
@@ -45,7 +46,7 @@ namespace UPlayGround
             if (!_isInteracting) return;
 
             // 강제 종료 시 이벤트 정리
-            DialogueManager.Instance.OnDialogueEnd -= OnDialogueEnd;
+            Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
             _isInteracting = false;
         }
 
@@ -57,7 +58,7 @@ namespace UPlayGround
 
         private void OnDialogueEnd()
         {
-            DialogueManager.Instance.OnDialogueEnd -= OnDialogueEnd;
+            Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
             _isInteracting = false;
         }
 

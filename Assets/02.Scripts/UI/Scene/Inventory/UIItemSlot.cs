@@ -1,4 +1,4 @@
-﻿
+
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -40,7 +40,7 @@ namespace UPlayGround.UI
                 _imgRarity.color = GetRarityColor(_itemData.itemRarity);
                 _imgItem.sprite = _itemData.icon;
                 _txtCount.text = _itemCount.ToString();
-                _txtWeight.text = $"{InventoryManager.Instance.GetItemWeight(_itemData.itemId):0.0}";
+                _txtWeight.text = $"{UISvc.Inventory.GetItemWeight(_itemData.itemId):0.0}";
             }
         }
 

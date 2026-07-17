@@ -138,10 +138,10 @@ namespace UPlayGround
 
             ApplyRewards();
 
-            GameObjectManager.Instance.ShowFX(_data.collectParticleName, transform.position);
+            ActorSvc.Objects.ShowFX(_data.collectParticleName, transform.position);
 
             if (!string.IsNullOrWhiteSpace(_data.collectSoundName))
-                SoundManager.Instance?.PlayUi(_data.collectSoundName);
+                Svc.Sound?.PlayUi(_data.collectSoundName);
 
             Finish(FinishReason.Collected);
         }
@@ -163,7 +163,7 @@ namespace UPlayGround
 
         private void ApplyRewards()
         {
-            var player = GameObjectManager.Instance.Player;
+            var player = ActorSvc.Objects.Player;
             if (player == null) return;
 
             if (_data.healAmount > 0f)

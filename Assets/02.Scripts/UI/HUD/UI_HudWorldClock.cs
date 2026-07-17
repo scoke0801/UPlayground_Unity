@@ -34,7 +34,7 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
-            var time = GameTimeManager.Instance;
+            var time = Svc.GameTime;
             if (time != null && !_subscribed)
             {
                 time.OnGameMinuteChanged += OnGameMinuteChanged;
@@ -67,7 +67,7 @@ namespace UPlayGround.UI
             if (!_subscribed) return;
             _subscribed = false;
 
-            var time = GameTimeManager.Instance;
+            var time = Svc.GameTime;
             if (time != null)
                 time.OnGameMinuteChanged -= OnGameMinuteChanged;
         }
@@ -76,7 +76,7 @@ namespace UPlayGround.UI
 
         private void Refresh()
         {
-            var time = GameTimeManager.Instance;
+            var time = Svc.GameTime;
             if (time == null) return;
 
             int minuteOfDay = (int)time.MinuteOfDay;

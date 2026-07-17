@@ -5,7 +5,6 @@ using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.Data.Actor;
-using UPlayGround.UI;
 
 namespace UPlayGround
 {
@@ -65,7 +64,7 @@ namespace UPlayGround
         {
             if (_interactableData == null || eventData == null) return;
 
-            PlayerActor player = GameObjectManager.Instance.Player;
+            PlayerActor player = ActorSvc.Objects.Player;
             if (player != null && _interactableData.showShakeEffect)
             {
                 Shake(transform.position - player.transform.position);
@@ -75,24 +74,20 @@ namespace UPlayGround
 
             if (_interactableData.showInfoUI)
             {
-                UI_InteractionHPBoard ui = UIManager.Instance.GetUI<UI_InteractionHPBoard>(UIKeyType.InteractionHPBoard);
-                if (ui != null)
-                {
-                    ui.BoardFill(_currentHp, _interactableData.hp);
-                }
+                ActorSvc.UI?.UpdateInteractionBoard(_currentHp, _interactableData.hp);
             }
 
             if (_currentHp == 0)
             {
                 SendInteractionFinishedEvent();
 
-                var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
+                var items = Svc.Item.GetDropItemList(_interactableData.dropItems);
                 for (int i = 0; i < items.Count; ++i)
                 {
-                    GameObjectManager.Instance.SpawnItem(items[i], transform.position);
+                    ActorSvc.Objects.SpawnItem(items[i], transform.position);
                 }
 
-                GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
+                ActorSvc.Objects.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
 
                 ConsumeOrDestroy();
             }
@@ -102,13 +97,13 @@ namespace UPlayGround
         {
             if (_interactableData == null) return;
 
-            var items = ItemManager.Instance.GetDropItemList(_interactableData.dropItems);
+            var items = Svc.Item.GetDropItemList(_interactableData.dropItems);
             for (int i = 0; i < items.Count; ++i)
             {
-                GameObjectManager.Instance.SpawnItem(items[i], transform.position);
+                ActorSvc.Objects.SpawnItem(items[i], transform.position);
             }
 
-            GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
+            ActorSvc.Objects.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
 
             if (!ShouldDepleteFishingZone()) return;
 
@@ -150,12 +145,7 @@ namespace UPlayGround
 
         private void ShowInteractionBoard()
         {
-            UI_InteractionHPBoard ui = UIManager.Instance.ShowUI(UIKeyType.InteractionHPBoard)?.GetComponent<UI_InteractionHPBoard>();
-            if (ui != null)
-            {
-                ui.BoardFill(_currentHp, _interactableData.hp);
-                ui.SetInteractionData(_interactableData);
-            }
+            ActorSvc.UI?.ShowInteractionBoard(_interactableData, _currentHp, _interactableData.hp);
         }
 
         private void OnGatheringComplete()
@@ -193,8 +183,7 @@ namespace UPlayGround
 
         private void ConsumeOrDestroy()
         {
-            if (InteractionRespawnManager.Instance != null
-                && InteractionRespawnManager.Instance.TryConsume(this))
+            if (ActorSvc.InteractionPersistence?.TryConsume(this) == true)
                 return;
 
             if (IsFishingZone())
@@ -221,7 +210,7 @@ namespace UPlayGround
 
         private static void SendInteractionFinishedEvent()
         {
-            EventManager.Instance?.Send(PlayerEvent.InteractionTargetDestroy, new EmptyEventData());
+            Svc.EventPublisher?.Send(PlayerEvent.InteractionTargetDestroy, new EmptyEventData());
         }
 
         private void Shake(Vector3 attackDirection)

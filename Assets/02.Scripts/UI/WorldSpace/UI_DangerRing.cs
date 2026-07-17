@@ -4,6 +4,7 @@ using UPlayGround;
 using UPlayGround.Animation;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 
 namespace UPlayGround.UI
 {
@@ -25,7 +26,7 @@ namespace UPlayGround.UI
     /// 히트스톱/일시정지(Time.timeScale 변화) 시 자동으로 함께 멈춘다.
     /// Screen Space - Overlay Canvas(UI_WorldSpaceHudLayer) 아래에 부착된다.
     /// </summary>
-    public class UI_DangerRing : MonoBehaviour
+    public class UI_DangerRing : MonoBehaviour, IActorDangerRingView
     {
         [Header("Ring")]
         [Tooltip("링 스프라이트. 수축 동안 항상 가득 그려진다(fillAmount=1).")]

@@ -318,6 +318,7 @@ Assets/
 
 | 문서 | 설명 |
 |------|------|
+| [ASMDEF_MODULARIZATION_ONBOARDING.html](ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
 | [GAMEPLAY_GUIDE.md](GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
 | [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](TODO/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |

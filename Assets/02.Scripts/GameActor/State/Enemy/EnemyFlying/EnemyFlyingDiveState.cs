@@ -360,7 +360,7 @@ namespace UPlayGround.State
             Vector3 impactPos = motor.TransientPosition;
             impactPos.y = GetGroundY(impactPos);
 
-            GameObjectManager.Instance.ShowFX(FXKeyType.GriffinDiveImpact, impactPos);
+            ActorSvc.Objects.ShowFX(FXKeyType.GriffinDiveImpact, impactPos);
 
             LayerMask targetLayer = LayerMask.GetMask("Player");
             Collider[] hits = Physics.OverlapSphere(impactPos, radius, targetLayer);

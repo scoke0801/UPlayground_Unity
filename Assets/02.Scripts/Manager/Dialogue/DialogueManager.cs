@@ -16,7 +16,8 @@ namespace UPlayGround.Dialogue
     /// Main/System은 단일 실행, Monologue는 큐로 순차 처리합니다.
     /// SpeakerColorTableSO를 Addressables로 로드해 Runner/UI에 제공합니다.
     /// </summary>
-    public class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager
+    public class DialogueManager : BaseManager<DialogueManager>, IManager, IAsyncInitializableManager,
+        IDialogueService, UPlayGround.UI.IUIDialogueService
     {
         // UI 레이어가 구독하는 이벤트 — 채널별로 분리
         public event Action<DialogueNodeSO> OnMainNodeEnter;

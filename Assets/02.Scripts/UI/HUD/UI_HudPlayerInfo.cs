@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,9 +47,9 @@ namespace UPlayGround.UI
             _boardHpFill.fillAmount      = 1.0f;
             _boardHpWhiteFill.fillAmount = 1.0f;
 
-            if (GameObjectManager.Instance == null) return;
+            if (UISvc.Actors == null) return;
 
-            _playerActor = GameObjectManager.Instance.Player;
+            _playerActor = UISvc.Actors.Player;
             if (_playerActor == null) return;
 
             _playerActor.EnsureCharacterRuntimeInitialized();
@@ -63,7 +63,7 @@ namespace UPlayGround.UI
             float maxGauge = _playerActor.SkillGauge?.MaxGauge     ?? 100f;
             SetSkillGaugeImmediate(gauge, maxGauge);
 
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager != null)
             {
                 partyManager.OnSwapCompleted += OnPlayerSwapCompleted;
@@ -84,7 +84,7 @@ namespace UPlayGround.UI
                 _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
             }
 
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager != null)
             {
                 partyManager.OnSwapCompleted -= OnPlayerSwapCompleted;
@@ -198,7 +198,7 @@ namespace UPlayGround.UI
         {
             if (_levelText == null || player == null) return;
 
-            int level = PartyManager.Instance?.GetLevel(player.CharacterType) ?? 1;
+            int level = UISvc.Party?.GetLevel(player.CharacterType) ?? 1;
             _levelText.text = $"Lv. {Mathf.Max(1, level)}";
         }
 
@@ -225,7 +225,7 @@ namespace UPlayGround.UI
         /// <summary>현재 활성 캐릭터의 경험치를 즉시 스냅한다(초기화/교체용).</summary>
         private void RefreshExp(CharacterActorType type)
         {
-            var pm = PartyManager.Instance;
+            var pm = UISvc.Party;
             if (pm == null) return;
             SetExpImmediate(pm.GetExp(type), pm.GetRequiredExp(type));
         }

@@ -4,10 +4,11 @@ using UnityEngine.UI;
 using UPlayGround;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 
 namespace UPlayGround.UI
 {
-    public class UI_ActorHpBar : MonoBehaviour
+    public class UI_ActorHpBar : MonoBehaviour, IActorHpBarView
     {
         [SerializeField] private Image _fillHpImage;
         [SerializeField] private Image _fillHpDelayImage;

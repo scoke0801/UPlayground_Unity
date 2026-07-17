@@ -9,8 +9,6 @@ using UPlayGround.InputDefine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.Data.Sound;
 using UPlayGround.MovementController;
 
@@ -31,18 +29,6 @@ namespace UPlayGround.State
         private const float HeavyGuardPushMultiplier = 1.2f;
         private Vector3 _guardBlockRecoilDirection;
         private float _guardBlockRecoilTimer;
-
-        // 퍼펙트 가드 FOV 연출용 SO - CameraManager.SetPerfectGuardFOVData()로 주입받음
-        public static FOVCameraEffectData PerfectGuardFOVData { get; private set; }
-
-        /// <summary>
-        /// CameraManager 초기화 시 Addressables로 로드한 SO를 주입.
-        /// 씬 로드 전에 한 번만 호출하면 된다.
-        /// </summary>
-        public static void SetPerfectGuardFOVData(FOVCameraEffectData data)
-        {
-            PerfectGuardFOVData = data;
-        }
 
         public PlayerGuardState(ActorMovementController controller) : base(controller)
         {
@@ -116,12 +102,12 @@ namespace UPlayGround.State
             // 퍼펙트 가드 반격 창이 열려 있을 때 Attack 입력 → 반격 전환
             // 카운터 모션이 없으면 진입 자체를 막고 카운터 창/태그도 손대지 않는다.
             if (_combat.IsPerfectGuardCounterAvailable &&
-                InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
+                Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
             {
                 playerActor.Tags?.AddTag(GameplayTagId.State_Combat_Counter);
                 if (PlayerAttackState.TryEnter(playerController))
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
                     _combat.ClosePerfectGuardCounterWindow();
                     return;
                 }
@@ -180,7 +166,7 @@ namespace UPlayGround.State
 
             // 일반 가드 드롭 스폰
             Vector3 guardDropPos = gameActor.transform.position + gameActor.transform.forward;
-            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.Guard, guardDropPos);
+            ActorSvc.Combat?.TrySpawnVitalOrb(VitalOrbTrigger.Guard, guardDropPos);
 
             // 가드 브레이크 판정 (누적 횟수 초과 or 공격 자체가 GuardBreak)
             if (_combat.IsGuardBreak(incomingAttack))
@@ -203,8 +189,6 @@ namespace UPlayGround.State
 
             if (isPerfectGuard)
             {
-                var defenseFeedback = GameCombatManager.Instance?.DefenseSuccessFeedback;
-
                 // 공격자 경직 + 반격 창 열기 — Parryable 공격만 카운터 성립.
                 // (GuardableOnly/Unblockable은 퍼펙트 가드 피드백은 받되 카운터는 열리지 않는다.)
                 if (incomingAttack.defenseType == AttackDefenseType.Parryable)
@@ -216,23 +200,22 @@ namespace UPlayGround.State
                     }
 
                     _combat.OpenPerfectGuardCounterWindow(
-                        defenseFeedback?.GetCounterWindowDuration(DefenseSuccessType.PerfectGuard) ?? -1f);
+                        ActorSvc.Combat?.GetCounterWindowDuration(DefenseSuccessType.PerfectGuard) ?? -1f);
                 }
 
                 Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;
-                defenseFeedback?.Play(
+                ActorSvc.Combat?.PlayDefenseSuccess(
                     DefenseSuccessType.PerfectGuard,
-                    new DefenseSuccessFeedbackContext(
-                        playerActor,
-                        incomingAttack?.attacker,
-                        incomingAttack,
-                        spawnPos));
+                    playerActor,
+                    incomingAttack?.attacker,
+                    incomingAttack,
+                    spawnPos);
             }
             else
             {
                 var socketTM = playerActor.GetSocket(ActorSocketType.GuardPosition);
-                GameObjectManager.Instance.ShowFX(FXKeyType.playerGuardFX, socketTM.position);
-                SoundManager.Instance?.PlaySfx(GameSoundKey.CombatGuard, socketTM.position);
+                ActorSvc.Objects.ShowFX(FXKeyType.playerGuardFX, socketTM.position);
+                Svc.Sound?.PlaySfx(GameSoundKey.CombatGuard, socketTM.position);
             }
         }
 

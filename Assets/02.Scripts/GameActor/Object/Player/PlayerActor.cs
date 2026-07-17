@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
@@ -15,8 +15,6 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -25,17 +23,20 @@ using UPlayGround.AI.CombatDecision;
 
 namespace UPlayGround
 {
-    public partial class PlayerActor : GameActor, IDamageable
+    public partial class PlayerActor : GameActor, IDamageable, IPlayerInputSuppressible
     {
-        // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
-        private InputManager _cachedInputManager;
-        private InputManager InputMgr => _cachedInputManager != null ? _cachedInputManager : (_cachedInputManager = InputManager.Instance);
+        // 매니저 참조 캐싱 — 반복 레지스트리/Instance 조회 방지.
+        // 인터페이스 캐시(??=)는 파괴된 매니저(fake-null)를 감지하지 못하지만,
+        // 매니저는 DDoL로 세션 내내 유지되고 PlayerActor는 씬 오브젝트로 재생성되므로
+        // 인스턴스 필드 캐시는 세션 내 stale 위험이 없다. (CameraMgr는 Unity null 비교로 자가 복구)
+        private IInputService _cachedInputManager;
+        private IInputService InputMgr => _cachedInputManager ??= Svc.Input;
         private CameraManager _cachedCameraManager;
         private CameraManager CameraMgr => _cachedCameraManager != null ? _cachedCameraManager : (_cachedCameraManager = CameraManager.Instance);
-        private GameObjectManager _cachedGameObjectManager;
-        private GameObjectManager GameObjectMgr => _cachedGameObjectManager != null ? _cachedGameObjectManager : (_cachedGameObjectManager = GameObjectManager.Instance);
-        private GameCombatManager _cachedGameCombatManager;
-        private GameCombatManager GameCombatMgr => _cachedGameCombatManager != null ? _cachedGameCombatManager : (_cachedGameCombatManager = GameCombatManager.Instance);
+        private IActorObjectService _cachedGameObjectManager;
+        private IActorObjectService GameObjectMgr => _cachedGameObjectManager ??= ActorSvc.Objects;
+        private IActorCombatService _cachedGameCombatManager;
+        private IActorCombatService GameCombatMgr => _cachedGameCombatManager ??= ActorSvc.Combat;
 
 
         [SerializeField] private float _interactionRadius;

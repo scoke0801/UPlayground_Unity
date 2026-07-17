@@ -1,6 +1,7 @@
 using UnityEngine;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 
 namespace UPlayGround.UI
 {
@@ -13,7 +14,7 @@ namespace UPlayGround.UI
     /// 위치 추적·카메라 뒤 처리는 UI_ActorHpBar / UI_DangerRing 패턴을 그대로 따른다.
     /// Screen Space Canvas(UI_WorldSpaceHudLayer) 아래에 부착된다.
     /// </summary>
-    public class UI_BreakInteraction : MonoBehaviour
+    public class UI_BreakInteraction : MonoBehaviour, IActorBreakInteractionView
     {
         [Header("Anchor")]
         [Tooltip("Center 소켓 기준(소켓 없으면 루트 기준) 월드 오프셋.")]

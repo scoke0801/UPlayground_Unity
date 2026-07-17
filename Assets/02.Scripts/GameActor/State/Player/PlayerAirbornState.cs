@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Combat;
 using UPlayGround.InputDefine;
@@ -58,7 +58,7 @@ namespace UPlayGround.State
             _landTimer = 0f;
             _landDuration = 0f;
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
+            if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
                 _remainingJumps -= 1;
                 gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
@@ -99,11 +99,11 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Dash))
             {
                 if (controller.TryTransitionToState(new PlayerDashState(controller)))
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Dash);
                     return;
                 }
             }
@@ -118,12 +118,12 @@ namespace UPlayGround.State
                     new PlayerJumpAttackState(playerController, startAsFinish: false, forcedAttackAction: PlayerInterruptAction.Skill)))
                 return;
 
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
             {
                 if (playerController.TryTransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: false)))
                     return;
             }
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack))
             {
                 if (playerController.TryTransitionToState(new PlayerJumpAttackState(playerController, startAsFinish: true)))
                     return;

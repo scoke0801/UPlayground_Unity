@@ -19,6 +19,22 @@ Unity 프로젝트이므로 CLI 빌드 명령어 없음. Unity 6 (6000.0.60f1+)�
 
 ## 아키텍처
 
+### 어셈블리 모듈
+
+런타임 코드는 다음 asmdef 경계로 분리되어 있다. 하위 모듈에서 구체 매니저 싱글톤을 새로 참조하지 말고 `Contracts`의 `Svc` 또는 소비자 모듈 소유 서비스 계약을 사용한다.
+
+- `UPlayGround.Core` — 공통 기반 코드
+- `UPlayGround.Data` — ScriptableObject, DTO, enum 등 순수 데이터
+- `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
+- `UPlayGround.Camera` — 카메라 런타임
+- `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
+- `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
+- `UPlayGround.Data.Editor`, `UPlayGround.GameActor.Editor`, `UPlayGround.UI.Editor` — Editor 전용 코드
+
+`GameManager.RegisterManager`가 매니저가 구현한 `IGameService` 계약을 `Services`에 자동 등록한다. `Services.Get<T>()`는 등록되지 않은 계약을 최초 1회 경고하므로, 초기화 전 `Awake` 접근 경고가 발생하면 지연 조회 또는 초기화 순서를 수정한다.
+
+`[SerializeReference]` 기반 MotionEvent/Ultimate 이벤트 클래스를 다른 어셈블리로 이동할 때는 반드시 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 유지해야 한다. 누락하면 에셋의 이벤트와 VFX 참조가 역직렬화되지 않는다.
+
 ### 매니저 시스템
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
@@ -53,7 +69,7 @@ GameActorState (추상)
 `ActorComponent`(베이스) → `PlayerActorComponent`(플레이어 전용 베이스). GameActor에 기능별 컴포넌트를 조합:
 
 - **전투:** `PlayerCombat`(partial 6파일: base / Attack / HitDetection / Combo / Finish / Gizmo), `EnemyCombat` — 공격 로직, 데미지, 스킬
-- **AI:** `EnemyBrain`(의사결정), `EnemyFlyingBrain`, `EnemyDetection`(시야/거리 감지), `EnemyTacticalMemory`
+- **AI:** `EnemyAIController`가 `BehaviorTreeRunner`를 호스팅하고 `BehaviorTreeAsset`을 실행한다. `EnemyDetection`(시야/거리 감지), `EnemyTacticalMemory`, BT Blackboard/Service/Action 노드가 전투 의사결정을 구성한다.
 - **스탯:** `PoiseStat`(강인도/경직 저항)
 - **장비/파티:** `PlayerEquipment`, `PlayerSkillGauge`, `PlayerSwapBehaviour`, `CharacterModelData`
 - **VFX:** `ActorColorChanger`(피격 플래시), `DissolveController`(사망 디졸브)

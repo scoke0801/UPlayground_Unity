@@ -74,13 +74,13 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             _pausedByThisPopup = false;
-            if (GameTimeManager.Instance != null && !GameTimeManager.Instance.IsPaused)
+            if (Svc.GameTime != null && !Svc.GameTime.IsPaused)
             {
-                GameTimeManager.Instance.SetPause(true);
+                Svc.GameTime.SetPause(true);
                 _pausedByThisPopup = true;
             }
 
-            _targetType = PartyManager.Instance?.ActiveCharacterType ?? CharacterActorType.None;
+            _targetType = UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
             Subscribe();
             if (_unlockText != null) _unlockText.text = string.Empty;
             RefreshView();
@@ -92,7 +92,7 @@ namespace UPlayGround.UI
 
             if (_pausedByThisPopup)
             {
-                GameTimeManager.Instance?.SetPause(false);
+                Svc.GameTime?.SetPause(false);
                 _pausedByThisPopup = false;
             }
         }
@@ -109,27 +109,27 @@ namespace UPlayGround.UI
 
         private void Invest(GrowthAttributeType attribute)
         {
-            if (PartyManager.Instance?.TryInvestGrowthPoint(_targetType, attribute) == true)
+            if (UISvc.Party?.TryInvestGrowthPoint(_targetType, attribute) == true)
                 RefreshView();
         }
 
         private void Subscribe()
         {
-            if (PartyManager.Instance == null) return;
-            PartyManager.Instance.OnGrowthPointsChanged -= HandlePointsChanged;
-            PartyManager.Instance.OnGrowthPointsChanged += HandlePointsChanged;
-            PartyManager.Instance.OnGrowthUnlock -= HandleUnlock;
-            PartyManager.Instance.OnGrowthUnlock += HandleUnlock;
-            PartyManager.Instance.OnPartyProgressionChanged -= HandleProgressionChanged;
-            PartyManager.Instance.OnPartyProgressionChanged += HandleProgressionChanged;
+            if (UISvc.Party == null) return;
+            UISvc.Party.OnGrowthPointsChanged -= HandlePointsChanged;
+            UISvc.Party.OnGrowthPointsChanged += HandlePointsChanged;
+            UISvc.Party.OnGrowthUnlock -= HandleUnlock;
+            UISvc.Party.OnGrowthUnlock += HandleUnlock;
+            UISvc.Party.OnPartyProgressionChanged -= HandleProgressionChanged;
+            UISvc.Party.OnPartyProgressionChanged += HandleProgressionChanged;
         }
 
         private void Unsubscribe()
         {
-            if (PartyManager.Instance == null) return;
-            PartyManager.Instance.OnGrowthPointsChanged -= HandlePointsChanged;
-            PartyManager.Instance.OnGrowthUnlock -= HandleUnlock;
-            PartyManager.Instance.OnPartyProgressionChanged -= HandleProgressionChanged;
+            if (UISvc.Party == null) return;
+            UISvc.Party.OnGrowthPointsChanged -= HandlePointsChanged;
+            UISvc.Party.OnGrowthUnlock -= HandleUnlock;
+            UISvc.Party.OnPartyProgressionChanged -= HandleProgressionChanged;
         }
 
         private void HandlePointsChanged(CharacterActorType type, int _) { if (type == _targetType) RefreshView(); }
@@ -144,7 +144,7 @@ namespace UPlayGround.UI
 
         private void RefreshView()
         {
-            PartyManager party = PartyManager.Instance;
+            IUIPartyService party = UISvc.Party;
             if (party == null || _targetType == CharacterActorType.None) return;
             if (_characterNameText != null) _characterNameText.text = $"{_targetType} 성장";
             if (_pointText != null) _pointText.text = $"사용 가능 포인트  {party.GetGrowthPoints(_targetType)}";
@@ -154,7 +154,7 @@ namespace UPlayGround.UI
         private void RefreshCard(GrowthCard card)
         {
             if (card == null) return;
-            PartyManager party = PartyManager.Instance;
+            IUIPartyService party = UISvc.Party;
             PartyMemberGrowthSO growth = party.GetGrowthData(_targetType);
             if (growth == null) return;
             growth.TryGetInvestmentRule(card.attribute, out GrowthInvestmentRule rule);

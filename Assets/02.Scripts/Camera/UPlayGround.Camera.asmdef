@@ -1,0 +1,13 @@
+{
+  "name": "UPlayGround.Camera",
+  "rootNamespace": "UPlayGround.CameraSystem",
+  "references": [
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "UPlayGround.Core",
+    "UniTask",
+    "Unity.InputSystem",
+    "Unity.RenderPipelines.Core.Runtime"
+  ],
+  "autoReferenced": true
+}

@@ -71,7 +71,7 @@ namespace UPlayGround.Data.Combat
             return true;
         }
 
-        private bool CheckTags(GameplayTagContainer tags)
+        private bool CheckTags(IGameplayTagReader tags)
         {
             if (tags == null)
                 return requiredTagIds == null || requiredTagIds.Count == 0;
@@ -141,13 +141,13 @@ namespace UPlayGround.Data.Combat
     public readonly struct PlayerSkillContext
     {
         public readonly bool IsGrounded;
-        public readonly GameplayTagContainer Tags;
+        public readonly IGameplayTagReader Tags;
         public readonly float CurrentSkillGauge;
         public readonly float MaxSkillGauge;
 
         public PlayerSkillContext(
             bool isGrounded,
-            GameplayTagContainer tags,
+            IGameplayTagReader tags,
             float currentSkillGauge,
             float maxSkillGauge)
         {

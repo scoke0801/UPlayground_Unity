@@ -30,7 +30,11 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
-            StopCachedAttackTrails(immediate: true);
+            // 비활성화/파괴 캐스케이드 중에는 StartCoroutine이 거부되어 경고 로그가 남는다
+            // (isActiveAndEnabled 체크로는 이 창을 못 거른다). 이 계층의 실행 중 코루틴은
+            // Unity가 알아서 정지시키고, ForceStopTrailProperties가 VFX 상태를 직접 정리하므로
+            // 코루틴 기반 StopTrail 경로는 건너뛴다.
+            StopCachedAttackTrails(immediate: true, allowCoroutine: false);
         }
 
         public static void StartAttackTrails(UnityEngine.Component owner)
@@ -114,7 +118,7 @@ namespace UPlayGround.Components
             StopCachedAttackTrails(immediate: false);
         }
 
-        private void StopCachedAttackTrails(bool immediate)
+        private void StopCachedAttackTrails(bool immediate, bool allowCoroutine = true)
         {
             EnsureCache();
 
@@ -143,7 +147,7 @@ namespace UPlayGround.Components
                 try
                 {
                     if (immediate)
-                        StopTrailImmediate(trail);
+                        StopTrailImmediate(trail, allowCoroutine);
                     else
                         StopTrailIfAvailable(trail);
                 }
@@ -224,13 +228,13 @@ namespace UPlayGround.Components
             trail.SetProperty_EffectAlive(0f);
         }
 
-        private static void StopTrailImmediate(WeaponTrailEffect trail)
+        private static void StopTrailImmediate(WeaponTrailEffect trail, bool allowCoroutine = true)
         {
             if (trail == null || trail.vfxComponent == null) return;
 
             // 활성 트레일은 StopTrail(0f)로 실행 중인 코루틴을 먼저 끊고,
             // 이후 VFX Graph 시뮬레이션까지 직접 초기화해 월드 공간 잔여 Trail을 제거한다.
-            if (trail.isActiveAndEnabled)
+            if (allowCoroutine && trail.isActiveAndEnabled)
                 trail.StopTrail(0f);
 
             ForceStopTrailProperties(trail);

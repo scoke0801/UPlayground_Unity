@@ -4,8 +4,6 @@ using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 
 namespace UPlayGround
 {
@@ -67,7 +65,7 @@ namespace UPlayGround
 
             // 처형 공격으로 사망 시에는 처형 연출이 있으므로 킬캠 제외
             // (호출부에서 처형 여부를 걸러주는 것이 이상적이나, 방어적으로 체크)
-            MonsterActor actor = victim.GetComponentInParent<MonsterActor>();
+            IWorldActor actor = victim.GetComponentInParent<IWorldActor>();
 
             if (!skipChance)
             {
@@ -128,7 +126,7 @@ namespace UPlayGround
         private IEnumerator KillCamSequence(Transform victim)
         {
             var cameraManager = CameraManager.Instance;
-            var hitStopManager = GameCombatManager.Instance.GameHitStop;
+            IHitStopService hitStopManager = Svc.HitStop;
 
             if (cameraManager == null)
             {
@@ -136,7 +134,7 @@ namespace UPlayGround
                 yield break;
             }
 
-            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.KillKillCam, victim.position);
+            Svc.VitalOrb?.TrySpawn(VitalOrbTrigger.KillKillCam, victim.position);
 
             float originalDistance = cameraManager.GetCurrentDistance();
             Vector3 originalOffset = cameraManager.GetCurrentOffset();
@@ -145,7 +143,7 @@ namespace UPlayGround
             cameraManager.SetInputLock(true);
 
             // ① HitStop + 슬로모션 시작
-            MonsterActor actor = victim.GetComponent<MonsterActor>();
+            IWorldActor actor = victim.GetComponentInParent<IWorldActor>();
             if (actor != null && actor.Grade != MonsterActorGrade.Normal)
             {
                 hitStopManager?.Execute(_data.slowMotionDuration, _data.slowMotionTimeScale);
@@ -174,7 +172,7 @@ namespace UPlayGround
             cameraManager?.SetInputLock(false);
 
             if (Time.timeScale < 1f)
-                GameCombatManager.Instance?.GameHitStop?.Stop();
+                Svc.HitStop?.Stop();
         }
 
         private void RestoreState(float originalDistance, Vector3 originalOffset, float originalFOV)

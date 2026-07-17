@@ -7,7 +7,6 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Combat;
 using UPlayGround.MovementController;
 
 namespace UPlayGround.State

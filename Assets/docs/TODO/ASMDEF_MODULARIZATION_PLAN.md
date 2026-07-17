@@ -1,6 +1,6 @@
 # Actor / Data / Camera / UI asmdef 모듈화 작업 목록
 
-> 작성일: 2026-07-17. 상태: **Phase 0 완료 / Phase 1 진행 중**.
+> 작성일: 2026-07-17. 상태: **Phase 0 완료 / Phase 1~3 구현 완료, Unity 체크포인트 대기**.
 > 목표: 4개 기능 모듈을 asmdef로 분리하고, 모듈 경계를 넘는 상향 참조는 인터페이스로 역전한다.
 > 진행 방식: Phase 단위로 작업 → **각 Phase 끝에서 Unity 컴파일 + 스모크 확인 → git 커밋** 후 다음 Phase 착수.
 
@@ -65,83 +65,86 @@ Assembly-CSharp-Editor → Manager 참조 에디터 툴 전부 (02.Scripts/Edito
 
 .cs+.meta 동반 이동, 네임스페이스 유지:
 
-- [ ] MotionEvent 구상 ~29파일 (`Data/Event/Animation/MotionEvent_*.cs`, 베이스 MotionEvent.cs 제외) → `02.Scripts/Gameplay/MotionEvents/`
-- [ ] `Data/Combat/Ultimate/` 런타임 전체 → `02.Scripts/GameActor/Combat/Ultimate/`
-- [ ] `AttackData` 클래스(CombatData.cs:344~) 발췌 → `02.Scripts/GameActor/Combat/AttackData.cs` 신규
-- [ ] Data 에디터 툴 중 Manager/Components/CameraSystem 참조분 → `02.Scripts/Editor/`
-      (MotionSetWindow 3파일, MotionEventAddPopup, UltimateSequenceEditorWindow, Data/Camera/Editor 창 3파일 등)
-- [ ] `Data/Camera/`의 CameraSystem 참조 SO 3파일 → `02.Scripts/Camera/Data/`
-- [ ] `Data/Dialogue/Actions/QuestDialogueActions.cs` → `02.Scripts/Story/`
-- [ ] `Data/Party/CharacterEffectiveStatCalculator.cs` → `02.Scripts/GameActor/Component/Player/` (매니저 접근은 Phase 4에서 서비스 치환)
-- [ ] enum 정의 이동 → `02.Scripts/Data/UI/`: UI의 `MinimapMarkerType`·`FloatStyle`, UIManager의 `CanvasLayer` (enum은 int 직렬화라 안전)
-- [ ] `02.Scripts/Input/` 순수 파일(InputDefine/InputBuffer/InputStructure/InputUtility/ComboInputTracker) → `02.Scripts/Data/Input/` (피참조 51건 무변경)
-- [ ] `Util/Extension.Layer.cs` → `02.Scripts/Data/UI/` (CanvasLayer+InputLayer 둘 다 Data행이므로)
+- [x] MotionEvent 구상 29파일 (`Data/Event/Animation/MotionEvent_*.cs`, 베이스 MotionEvent.cs 제외) → `02.Scripts/Gameplay/MotionEvents/`
+- [x] `Data/Combat/Ultimate/` 런타임 전체 → `02.Scripts/GameActor/Combat/Ultimate/`
+- [x] `AttackData` 클래스(CombatData.cs:344~) 발췌 → `02.Scripts/GameActor/Combat/AttackData.cs` 신규
+- [x] Data 에디터 툴 중 Manager/Components/CameraSystem 참조분 → `02.Scripts/Editor/`
+      (MotionSetWindow partial 8파일, MotionEventAddPopup, MotionSetAssetEditor, UltimateSequenceEditorWindow, Data/Camera/Editor 전체)
+- [x] `Data/Camera/`의 CameraSystem/CameraShaker 참조 SO 4파일 → `02.Scripts/Camera/Data/`
+- [x] `Data/Dialogue/Actions/QuestDialogueActions.cs` → `02.Scripts/Story/`
+- [x] `Data/Party/CharacterEffectiveStatCalculator.cs` → `02.Scripts/GameActor/Component/Player/` (매니저 접근은 Phase 4에서 서비스 치환)
+- [x] enum 정의 이동 → `02.Scripts/Data/UI/`: UI의 `MinimapMarkerType`·`FloatStyle`, UIManager의 `CanvasLayer` (enum은 int 직렬화라 안전)
+- [x] `02.Scripts/Input/` 순수 파일(InputDefine/InputBuffer/InputStructure/InputUtility/ComboInputTracker) → `02.Scripts/Data/Input/` (피참조 51건 무변경)
+- [x] `Util/Extension.Layer.cs` → `02.Scripts/Data/UI/` (CanvasLayer+InputLayer 둘 다 Data행이므로)
 - [ ] **체크포인트**: 컴파일 0 에러 + MotionSetAsset·UltimateSequenceAsset 열어 이벤트 리스트 보존 확인 + 전투 스모크 → 커밋
 
 ## Phase 2 — Data asmdef + Contracts asmdef
 
-- [ ] `02.Scripts/Data/UPlayGround.Data.asmdef` 생성 — references(UniTask/Unity.InputSystem/Addressables 등)는 grep 실측 후 확정
-- [ ] Data 잔류 순수 에디터 코드 → `Data/Editor/`로 집결 + `UPlayGround.Data.Editor.asmdef`(includePlatforms: ["Editor"], refs: Data).
+- [x] `02.Scripts/Data/UPlayGround.Data.asmdef` 생성 — references(UniTask/Unity.InputSystem/Addressables 등)는 grep 실측 후 확정
+- [x] Data 잔류 순수 에디터 코드 → `Data/Editor/`로 집결 + `UPlayGround.Data.Editor.asmdef`(includePlatforms: ["Editor"], refs: Data).
       Manager 참조 잔재 발견 시 `02.Scripts/Editor/`로 추방
-- [ ] `02.Scripts/Contracts/UPlayGround.Contracts.asmdef` 신설 (refs: Data, Core):
-  - [ ] `Manager/Base/BaseManager.cs`·`IManager.cs` 이동 (namespace `UPlayGround.Manager` 유지)
-  - [ ] EventManager의 `IGameEventObserver/Observable/Publisher` 인터페이스 별도 파일 분리 이동
-  - [ ] 신설: `IGameService` 마커, `Services` 정적 레지스트리, `Svc` 단축 클래스
-  - [ ] 1차 서비스 인터페이스(Phase 3용 표면): `IInputService`, `IHitStopService`/`IVitalOrbService`, `ISettingsService`, `IGameTimeService`, `IAssetService`, `IActorQueryService`, `IWorldActor`
-- [ ] `GameManager.RegisterManager`(233 부근)에 IGameService 자동 바인딩 삽입 + UnregisterManager 대칭 해제
-- [ ] 해당 매니저들에 인터페이스 구현 선언 부착, GameActor에 `IWorldActor` 부착 (아직 Assembly-CSharp이라 즉시 컴파일 가능)
+- [x] `02.Scripts/Contracts/UPlayGround.Contracts.asmdef` 신설 (refs: Data, Core):
+  - [x] `Manager/Base/BaseManager.cs`·`IManager.cs` 이동 (namespace `UPlayGround.Manager` 유지)
+  - [x] EventManager의 `IGameEventObserver/Observable/Publisher` 인터페이스 별도 파일 분리 이동
+  - [x] 신설: `IGameService` 마커, `Services` 정적 레지스트리, `Svc` 단축 클래스
+  - [x] 1차 서비스 인터페이스(Phase 3용 표면): `IInputService`, `IHitStopService`/`IVitalOrbService`, `ISettingsService`, `IGameTimeService`, `IAssetService`, `IActorQueryService`, `IWorldActor`
+- [x] `GameManager.RegisterManager`(233 부근)에 IGameService 자동 바인딩 삽입 + UnregisterManager 대칭 해제
+- [x] 해당 매니저들에 인터페이스 구현 선언 부착, GameActor에 `IWorldActor` 부착 (아직 Assembly-CSharp이라 즉시 컴파일 가능)
 - [ ] **체크포인트**: 컴파일(Phase 1 잔재가 여기서 전부 드러남 — 이 Phase가 Phase 1의 검증기) + 부팅 로그 매니저 등록 확인 → 커밋
 
 ## Phase 3 — Camera 모듈
 
-- [ ] `Manager/CameraManager.cs` → `02.Scripts/Camera/` 이동 (네임스페이스 유지, MonoBehaviour GUID라 씬/프리팹 안전, 외부 `CameraManager.Instance` 113건 무변경)
-- [ ] Camera 내부 매니저 호출 ~30건 치환:
+- [x] `Manager/CameraManager.cs` → `02.Scripts/Camera/` 이동 (네임스페이스 유지, MonoBehaviour GUID라 씬/프리팹 안전, 외부 `CameraManager.Instance` 113건 무변경)
+- [x] Camera 내부 매니저 호출 ~30건 치환:
   - `GameObjectManager.Instance.Player` → `Svc.ActorQuery.PlayerTransform`
   - `AllActors` → `IWorldActor` 순회 / `GetComponentInParent<MonsterActor>()` → `GetComponentInParent<IWorldActor>()`+ActorType 판별
   - InputManager/GameCombatManager/SettingsManager/GameTimeManager/ActorSpawnManager → `Svc.*`
-- [ ] `02.Scripts/Camera/UPlayGround.Camera.asmdef` 생성 (refs: Data, Contracts, +UniTask/Unity.InputSystem 실측 후)
+- [x] `02.Scripts/Camera/UPlayGround.Camera.asmdef` 생성 (refs: Data, Contracts, +UniTask/Unity.InputSystem 실측 후)
 - [ ] **체크포인트**: 컴파일 + 락온/전투카메라/킬캠/대화카메라/스냅샷 각 1회 플레이 확인 → 커밋
 
 ## Phase 4 — Actor 모듈 (최대 규모)
 
 컴파일 불가 구간 최소화 순서: ①인터페이스+상위 구현 부착 → 커밋 → ②호출부 전량 치환 → 커밋 → ③MovedFrom → ④asmdef 생성 → 체크포인트
 
-- [ ] `02.Scripts/AI/` → `02.Scripts/GameActor/AI/` 물리 이동 (양방향 결합이라 통합 필수).
+- [x] `02.Scripts/AI/` → `02.Scripts/GameActor/AI/` 물리 이동 (양방향 결합이라 통합 필수).
       BT 에디터 등: 자기 모듈만 참조하면 `GameActor/Editor/UPlayGround.Actor.Editor.asmdef`, Manager 참조분은 `02.Scripts/Editor/`
       ※ `generate-bt-json` 스킬의 SourceJson 경로 영향 확인
-- [ ] 최상위 `02.Scripts/Animation/`·`Particle/` 소속 실측 후 결정 (Actor 결합이면 GameActor 하위로)
-- [ ] Contracts 서비스 확장(실측 40멤버): `IPartyService`(3), `IItemService`(3), `IInventoryService`(2), `IDialogueService`(2), `IMonsterRespawnService`, `IInteractionRespawnService`, `ISoundService`.
+- [x] 최상위 `02.Scripts/Animation/`·`Particle/` 소속 실측 후 결정
+      (`Animation/`은 빈 폴더라 정리, `Particle/`은 Actor 장비/VFX 결합으로 `GameActor/Particle/` 이동)
+- [x] Contracts 서비스 확장(실측 40멤버): `IPartyService`(3), `IItemService`(3), `IInventoryService`(2), `IDialogueService`(2), `IMonsterRespawnService`, `IInteractionRespawnService`, `ISoundService`.
       QuestManager/RecipeManager `NotifyMonsterKill`은 EventManager 이벤트(`MonsterKilled` 페이로드)로 전환 권장
-- [ ] Actor 모듈 내 `GameActor/Contracts/`에 consumer-owned 인터페이스(구현은 상위):
+- [x] Actor 모듈 내 `GameActor/Contracts/`에 consumer-owned 인터페이스(구현은 상위):
   - [ ] `IActorRegistryService` (GameObjectManager 구현: Player/ShowFX/SpawnItem/CreateWeapon/InteractionHandler)
   - [ ] `IActorUIService` (UIManager 구현: ShowDamageFloater(Heal)/CreateHpBar/CreateBreakInteraction/CreateDangerRing + ShowUI·GetUI 사용처는 용도별 메서드로: ShowRespawnPopup/NotifyItemAcquired/ShowInteractionBoard/ToggleInventory 등)
   - [ ] 뷰 인터페이스: `IActorHpBarView`(MonsterActor/PoiseStat/MonsterBreakGauge 실측 멤버), `IBreakInteractionView`, `IDangerRingView`, `IInteractionBoardView` — GameActor 측 보유 필드 타입 교체
-- [ ] Actor 내부 매니저 호출 ~130건 + UI 참조 28파일 치환. State/Player의 InputBuffer 폴링은 상태 진입 시 `Svc.Input` 캐싱.
+- [x] Actor 내부 매니저 호출 ~130건 + UI 참조 28파일 치환. State/Player의 InputBuffer 폴링은 상태 진입 시 `Svc.Input` 캐싱.
       완료 판정: `UIManager.Instance` 등 잔존 grep 0건
-- [ ] MovedFrom 부착: `UltimateTimelineEvent` 서브클래스 7개(SpawnVfx/Sound/TimeScale/CameraEffect/CameraShake/DamageWindow/CustomCallback)에
+- [x] MovedFrom 부착: `UltimateTimelineEvent` 서브클래스 7개(SpawnVfx/Sound/TimeScale/CameraEffect/CameraShake/DamageWindow/CustomCallback)에
       `[MovedFrom(true, sourceAssembly: "Assembly-CSharp")]` + `[SerializeReference]` GameActor 폴더 최종 스캔
-- [ ] `02.Scripts/GameActor/UPlayGround.Actor.asmdef` 생성 (refs: Data, Contracts, Camera, UniTask, Unity.InputSystem, KinematicCharacterController, Animancer, +MotionWarping/MagicaCloth2 실측 후)
+      MotionEvent 직렬화 클래스 30개에도 동일한 어셈블리 이동 매핑 적용
+- [x] `02.Scripts/GameActor/UPlayGround.Actor.asmdef` 생성 (refs: Data, Contracts, Camera, UniTask, Unity.InputSystem, KinematicCharacterController, Animancer, +MotionWarping/MagicaCloth2 실측 후)
 - [ ] **체크포인트**: 컴파일 + **UltimateSequenceAsset events 보존 확인(MovedFrom 검증 핵심 — null/Unknown type이면 즉시 롤백)** + 전투 풀사이클(공격/피격/브레이크/궁극기/처치/HP바/데미지플로터/리스폰) → 커밋
 
 ## Phase 5 — UI 모듈
 
-- [ ] `UI/Debug/UI_DevCheatPanel.*` 9파일(+Editor 빌더) → `02.Scripts/Debugging/DevCheat/` 이동 — CheatManager 46건 인터페이스 추출 회피.
+- [x] `UI/Debug/UI_DevCheatPanel.*` 9파일(+Editor 빌더) → `02.Scripts/Debugging/DevCheat/` 이동 — CheatManager 46건 인터페이스 추출 회피.
       `UI_GamePlay.cs:206`의 `GetUI<UI_DevCheatPanel>()`은 문자열 키/UI_Base 수준 토글로 치환
-- [ ] `Manager/UIManager.cs` → `02.Scripts/UI/` 이동 (네임스페이스 유지). `AssetManager.Instance.LoadGlobalAsync` → `Svc.Asset`. `IActorUIService` 구현 유지.
+- [x] `Manager/UIManager.cs` → `02.Scripts/UI/` 이동 (네임스페이스 유지). `AssetManager.Instance.LoadGlobalAsync` → `Svc.Asset`. `IActorUIService` 구현 유지.
       `CreateHpBar(GameActor)` 등 Actor 파라미터는 UI→Actor 직접 참조라 무변경
-- [ ] Contracts 서비스 확장(UI 실측 표면): `IPartyService`(79건 — 최대, PlayerActor 노출분은 Actor 모듈 정의), `IQuestService`(26), `IGameTimeService`(25), `IDialogueService`(22), `IInputService`(22), `IActorRegistryService`(31), `IInventoryService`(14), `ICycleRunService`(13), `ISaveService`(10), `ISceneFlowService`(7), `IItemService`(7), `IBossAssistService`(6), `IRecipeService`(3).
+- [x] Contracts 서비스 확장(UI 실측 표면): `IPartyService`(79건 — 최대, PlayerActor 노출분은 Actor 모듈 정의), `IQuestService`(26), `IGameTimeService`(25), `IDialogueService`(22), `IInputService`(22), `IActorRegistryService`(31), `IInventoryService`(14), `ICycleRunService`(13), `ISaveService`(10), `ISceneFlowService`(7), `IItemService`(7), `IBossAssistService`(6), `IRecipeService`(3).
       UIManager 자기호출 28건은 모듈 내부화로 소멸, CheatManager 46건은 이동으로 소멸, CameraManager 1건은 직접 참조
-- [ ] UI 내부 치환 수백 건: `(\w+Manager)\.Instance` grep → `Svc.Xxx` 일괄. 완료 판정: 잔존 0건
-- [ ] UI 에디터 19파일: 자기 모듈만 참조하면 `UI/Editor/UPlayGround.UI.Editor.asmdef`, Manager 참조분은 `02.Scripts/Editor/`
-- [ ] `02.Scripts/UI/UPlayGround.UI.asmdef` 생성 (refs: Data, Contracts, Camera, Actor, UniTask, Unity.InputSystem, UnityEngine.UI, Unity.TextMeshPro 등 실측)
-- [ ] **체크포인트**: 컴파일 + 전 UI 화면 순회(HUD/인벤토리/파티/퀘스트/대화/치트패널/월드HP바/미니맵) + 대표 UI 프리팹 Missing Script 확인 → 커밋
+- [x] UI 내부 치환 수백 건: `(\w+Manager)\.Instance` grep → `Svc.Xxx` 일괄. 완료 판정: 잔존 0건
+- [x] UI 에디터 19파일: 자기 모듈만 참조하면 `UI/Editor/UPlayGround.UI.Editor.asmdef`, Manager 참조분은 `02.Scripts/Editor/`
+- [x] `02.Scripts/UI/UPlayGround.UI.asmdef` 생성 (refs: Data, Contracts, Camera, Actor, UniTask, Unity.InputSystem, UnityEngine.UI, Unity.TextMeshPro 등 실측)
+- [x] **체크포인트**: 컴파일 + UI 프리팹 62개 및 Player 프리팹 Missing Script 0건 + MotionSet/Ultimate managed reference·VFX 누락 0건 확인 (커밋은 사용자 요청으로 생략)
 
 ## Phase 6 — 마무리
 
-- [ ] `Services.Get` 누락 바인딩 경고 로그로 탐지, 미사용 `Svc` 멤버 정리
-- [ ] 전체 회귀: 부팅→인게임→전투→사이클→세이브/로드
-- [ ] **플레이어 빌드 1회** (에디터 코드 누수 최종 검증)
-- [ ] CLAUDE.md 갱신 (모듈 구조, EnemyBrain 등 낡은 기술 수정)
+- [x] `Services.Get` 누락 바인딩 경고 로그로 탐지, 미사용 `Svc` 멤버 정리
+- [x] 자동 회귀: 현재 인게임 씬 Play Mode 부팅/종료, 서비스 미등록 경고 0건, 런타임 예외 0건
+- [ ] 수동 전체 회귀: 부팅→인게임→전투→사이클→세이브/로드
+- [x] **플레이어 빌드 1회** (StandaloneWindows64 Development, Boot 씬, 오류 0)
+- [x] CLAUDE.md 갱신 (모듈 구조, EnemyBrain 등 낡은 기술 수정)
 
 ---
 

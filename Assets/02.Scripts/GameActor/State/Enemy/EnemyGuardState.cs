@@ -102,7 +102,7 @@ namespace UPlayGround.State
         {
             FaceIncomingAttack(incomingAttack);
             _memory?.NotifyBlocked();
-            SoundManager.Instance?.PlaySfx(GameSoundKey.CombatGuard, gameActor.transform.position);
+            Svc.Sound?.PlaySfx(GameSoundKey.CombatGuard, gameActor.transform.position);
 
             // 블록 성공 → 카운터 공격으로 즉시 전환
             if (_combat != null && _context != null && _detection != null)

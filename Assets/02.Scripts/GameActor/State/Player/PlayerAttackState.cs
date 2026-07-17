@@ -9,8 +9,6 @@ using UPlayGround.MovementController;
 using UPlayGround.Manager;
 using UPlayGround.InputDefine;
 using UPlayGround.Gameplay.Tag;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 
 namespace UPlayGround.State
 {
@@ -107,7 +105,7 @@ namespace UPlayGround.State
             bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
             bool isHeavyPending = hasForcedAttack
                 ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
-                : InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+                : Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (isHeavyPending && combat.FindFinishableTarget() != null)
                 return true;
 
@@ -133,13 +131,13 @@ namespace UPlayGround.State
             bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
             bool isHeavyPending = hasForcedAttack
                 ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
-                : InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+                : Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (isHeavyPending && combat != null)
             {
                 Transform finishTarget = combat.FindFinishableTarget();
                 if (finishTarget != null)
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     controller.TransitionToState(new PlayerFinishAttackState(controller, finishTarget));
                     return true;
                 }
@@ -242,7 +240,7 @@ namespace UPlayGround.State
 
             bool hasForcedAttack = _forcedAttackAction != PlayerInterruptAction.None;
             _isHeavyAttack = !hasForcedAttack
-                             && InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+                             && Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             playerActor.Animator.ApplyRootMotion(true);
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
@@ -292,12 +290,12 @@ namespace UPlayGround.State
 
             if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
             {
-                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
                 _isHeavyAttack = false;
             }
             else if ((_forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
             {
-                _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+                _isHeavyAttack = Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
             }
 
             bool shouldResetCombo = !_isCounter
@@ -349,7 +347,7 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             // 상태를 빠져나갈 때 만료 정지를 반드시 해제(콜리전 ON 도중 전환되어도 버퍼가 멈춘 채 남지 않도록).
-            InputManager.Instance.InputBuffer.SetExpiryPaused(false);
+            Svc.Input.InputBuffer.SetExpiryPaused(false);
 
             gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Attack);
 
@@ -384,7 +382,7 @@ namespace UPlayGround.State
             // 선입력 보존: 액티브 히트(캔슬 불가) 동안엔 입력 버퍼 만료를 정지해, 이 구간에 들어온
             // 캔슬/콤보 선입력이 0.24s 만료로 유실되지 않게 한다. 캔슬창이 열리면(콜리전 OFF) 정지가
             // 풀려 선입력이 살아있는 채로 아래 TryInterrupt/콤보 검사에 즉시 소비된다.
-            InputManager.Instance.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide);
+            Svc.Input.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide);
 
             // 인터럽트(캔슬): 허용 액션·허용 구간을 ResolveCancelMask가 함께 산출한다.
             // 활성 CancelWindowEvent가 있으면 그 구간 마스크(maskOverride 교집합 포함)를, 없으면
@@ -401,14 +399,14 @@ namespace UPlayGround.State
 
             if (_combat.CanCombo)
             {
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
                     _comboInputted = true;
                     _comboContinuesSameType = !_isHeavyAttack;
                     _isHeavyAttack = false;
                     _combat.CloseComboWindow();
                 }
-                else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                else if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
                     _comboInputted = true;
                     _comboContinuesSameType = _isHeavyAttack;
@@ -468,7 +466,7 @@ namespace UPlayGround.State
             _wasActiveHit = false;
 
             if (!_comboInputted)
-                _isHeavyAttack = InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+                _isHeavyAttack = Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
 
             if (_isHeavyAttack)
             {

@@ -1,8 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 
 namespace UPlayGround
 {
@@ -35,12 +33,12 @@ namespace UPlayGround
             if (_useHitStopManager)
             {
                 // HitStopManager 경로: duration 종료 후 자동 Release
-                GameCombatManager.Instance?.GameHitStop?.Execute(Mathf.Max(0.01f, _duration), _targetTimeScale);
+                Svc.HitStop?.Execute(Mathf.Max(0.01f, _duration), _targetTimeScale);
             }
             else
             {
                 // 직접 관리 경로: id 발급, ForceDispose/OnStop에서 Release
-                _requestId = GameTimeManager.Instance?.Request(_targetTimeScale) ?? -1;
+                _requestId = Svc.GameTime?.Request(_targetTimeScale) ?? -1;
             }
         }
 
@@ -57,7 +55,7 @@ namespace UPlayGround
         public override void ForceDispose()
         {
             if (_useHitStopManager)
-                GameCombatManager.Instance?.GameHitStop?.Stop();
+                Svc.HitStop?.Stop();
             else
                 ReleaseDirect();
 
@@ -67,7 +65,7 @@ namespace UPlayGround
         private void ReleaseDirect()
         {
             if (_requestId < 0) return;
-            GameTimeManager.Instance?.Release(_requestId);
+            Svc.GameTime?.Release(_requestId);
             _requestId = -1;
         }
     }

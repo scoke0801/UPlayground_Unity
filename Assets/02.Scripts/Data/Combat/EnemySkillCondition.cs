@@ -174,10 +174,11 @@ namespace UPlayGround.Data.Combat
                     continue;
                 
                 // 아군의 체력 체크
-                var damageable = allyCollider.GetComponent<IDamageable>();
-                if (damageable != null)
+                var healthProvider = allyCollider.GetComponent<IHealthRatioProvider>()
+                                     ?? allyCollider.GetComponentInParent<IHealthRatioProvider>();
+                if (healthProvider != null)
                 {
-                    float allyHealthPercent = damageable.GetHealthPercent();
+                    float allyHealthPercent = healthProvider.HealthRatio;
                     
                     if (allyHealthPercent >= minHealthPercent && 
                         allyHealthPercent <= maxHealthPercent)

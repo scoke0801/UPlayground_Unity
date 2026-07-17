@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -140,7 +140,7 @@ namespace UPlayGround.UI
             if (_equippedBadge == null && _equippedPortrait == null && _equippedBadgeText == null)
                 return;
 
-            var equippers = InventoryManager.Instance?.GetEquippingCharacters(_inventorySlotKey);
+            var equippers = UISvc.Inventory?.GetEquippingCharacters(_inventorySlotKey);
             bool anyEquipped = equippers != null && equippers.Count > 0;
 
             if (_equippedBadge != null)
@@ -153,7 +153,7 @@ namespace UPlayGround.UI
                 return;
             }
 
-            var memberData = PartyManager.Instance?.PartyMemberDataSO;
+            var memberData = UISvc.Party?.PartyMemberDataSO;
             Sprite head = memberData != null ? memberData.GetHeadSprite(equippers[0]) : null;
 
             if (_equippedPortrait != null)

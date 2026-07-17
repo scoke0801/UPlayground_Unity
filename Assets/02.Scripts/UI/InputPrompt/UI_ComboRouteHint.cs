@@ -15,7 +15,7 @@ namespace UPlayGround.UI.InputPrompt
     /// '다음에 누를 토큰'을 <see cref="ComboRouteResolver.CollectHints"/>로 모아, 분기별로 한 줄씩
     /// (키 글리프 + 스킬명) 띄운다. 윈도우/지상상태가 바뀔 때만 재계산해 글리프 재해석 핫호출을 막는다.
     ///
-    /// 활성 캐릭터는 <see cref="PartyManager"/>에서 받고 교체(OnSwapCompleted)에 따라간다.
+    /// 활성 캐릭터는 <see cref="IUIPartyService"/>에서 받고 교체(OnSwapCompleted)에 따라간다.
     /// 프리팹 배치/행 템플릿/글리프 데이터 연결은 Unity 에디터 작업.
     /// </summary>
     public class UI_ComboRouteHint : MonoBehaviour
@@ -33,7 +33,7 @@ namespace UPlayGround.UI.InputPrompt
         private PlayerSkillGauge _gauge;
         private Func<ComboRouteEntry, bool> _resourceFilter; // 메서드그룹 delegate 캐시(프레임 alloc 방지)
 
-        private PartyManager _partyManager;
+        private IUIPartyService _partyManager;
 
         private readonly List<ComboRouteResolver.ComboRouteHint> _hints = new();
         private readonly List<UI_ComboRouteHintRow>              _pool  = new();
@@ -50,7 +50,7 @@ namespace UPlayGround.UI.InputPrompt
 
         private void OnEnable()
         {
-            _partyManager = PartyManager.Instance;
+            _partyManager = UISvc.Party;
             if (_partyManager != null)
             {
                 _partyManager.OnSwapCompleted += OnSwapCompleted;

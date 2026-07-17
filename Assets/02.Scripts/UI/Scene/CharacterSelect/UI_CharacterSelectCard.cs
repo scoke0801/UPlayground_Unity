@@ -102,12 +102,21 @@ namespace UPlayGround.UI
             if (_content != null)
             {
                 _seq.Join(_content.DOScale(selected ? _selectedScale : 1f, dur).SetEase(Ease.OutBack));
-                _seq.Join(_content.DOAnchorPos(
-                    selected ? _baseAnchoredPos + Vector2.up * _selectedLift : _baseAnchoredPos,
+                Vector2 targetPosition = selected
+                    ? _baseAnchoredPos + Vector2.up * _selectedLift
+                    : _baseAnchoredPos;
+                _seq.Join(DOTween.To(
+                    () => _content.anchoredPosition,
+                    value => _content.anchoredPosition = value,
+                    targetPosition,
                     dur).SetEase(Ease.OutCubic));
             }
             if (_selectedFrame != null)
-                _seq.Join(_selectedFrame.DOFade(selected ? 1f : 0f, dur));
+                _seq.Join(DOTween.To(
+                    () => _selectedFrame.alpha,
+                    value => _selectedFrame.alpha = value,
+                    selected ? 1f : 0f,
+                    dur));
 
             if (!selected && _selectedFrame != null)
                 _seq.OnComplete(() =>
@@ -121,7 +130,11 @@ namespace UPlayGround.UI
             if (_canvasGroup == null) return;
             _canvasGroup.DOKill();
             float dur = animate ? _duration : 0f;
-            _canvasGroup.DOFade(dimmed ? _dimAlpha : 1f, dur).SetUpdate(true);
+            DOTween.To(
+                () => _canvasGroup.alpha,
+                value => _canvasGroup.alpha = value,
+                dimmed ? _dimAlpha : 1f,
+                dur).SetUpdate(true);
         }
 
         private void SetFrameAlpha(float a)

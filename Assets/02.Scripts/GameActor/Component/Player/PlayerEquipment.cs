@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System;
 using System.Collections.Generic;
 using INab.Common;
@@ -116,18 +116,18 @@ namespace UPlayGround.Components
 
         private void OnEnable()
         {
-            if (EventManager.Instance == null) return;
-            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
-            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
+            if (Svc.Events == null) return;
+            Svc.Events.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
+            Svc.Events.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
         }
 
         private void OnDisable()
         {
             ResetInteractionEquipmentImmediate();
 
-            if (EventManager.Instance == null) return;
-            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
-            EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
+            if (Svc.Events == null) return;
+            Svc.Events.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
+            Svc.Events.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
         }
 
         private void Start()
@@ -171,7 +171,7 @@ namespace UPlayGround.Components
 
         private void OnEquipItem(PlayerEquipChangeEvent eventData)
         {
-            EquipmentSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey) as EquipmentSO;
+            EquipmentSO itemData = Svc.Item.GetItemData(eventData.itemKey) as EquipmentSO;
             if (itemData == null)
             {
                 eventData.MarkHandled(false, "장비 데이터를 찾을 수 없음");
@@ -228,7 +228,7 @@ namespace UPlayGround.Components
 
             DestroyEquippedWeapon(equipPosition);
 
-            GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
+            GameObject newWeapon = ActorSvc.Objects.CreateWeapon(itemKey);
             if (newWeapon == null)
             {
                 // 슬롯은 DestroyEquippedWeapon으로 이미 비었으므로(key=-1) 타입도 NoWeapon으로 맞춘다.
@@ -304,7 +304,7 @@ namespace UPlayGround.Components
 
         private IEnumerator CoApplyEquipmentSnapshot(int mainKey, int subKey)
         {
-            yield return new WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsItemDBLoaded);
+            yield return new WaitUntil(() => Svc.Item != null && Svc.Item.IsItemDBLoaded);
 
             // 주 무기 먼저 적용 — 주 무기 교체가 EquipWeapon 내부에서 비호환 보조를 정리할 수 있어,
             // 보조는 그 이후에 최신 상태(live 키)로 판정한다.
@@ -329,7 +329,7 @@ namespace UPlayGround.Components
                 return;
             }
 
-            WeaponType type = ItemManager.Instance.GetItemData(targetKey) is EquipmentSO eq
+            WeaponType type = Svc.Item.GetItemData(targetKey) is EquipmentSO eq
                 ? eq.weaponType
                 : WeaponType.NoWeapon;
             EquipWeapon(targetKey, slot, type);
@@ -500,7 +500,7 @@ namespace UPlayGround.Components
 
         private void PlayWeaponDrawFx(GameObject weaponObj, ParentConstraint constraint)
         {
-            if (string.IsNullOrWhiteSpace(_weaponDrawFxKey) || GameObjectManager.Instance == null)
+            if (string.IsNullOrWhiteSpace(_weaponDrawFxKey) || ActorSvc.Objects == null)
                 return;
 
             Transform fxParent = null;
@@ -524,7 +524,7 @@ namespace UPlayGround.Components
                 position = transform.TransformPoint(_weaponDrawFxOffset);
             }
 
-            GameObjectManager.Instance.ShowFX(_weaponDrawFxKey, position, rotation, fxParent, _weaponDrawFxDuration);
+            ActorSvc.Objects.ShowFX(_weaponDrawFxKey, position, rotation, fxParent, _weaponDrawFxDuration);
         }
 
         /// <summary>
@@ -955,7 +955,7 @@ namespace UPlayGround.Components
         {
             if (MainWeaponKey != -1)
             {
-                var newMain = GameObjectManager.Instance.CreateWeapon(MainWeaponKey);
+                var newMain = ActorSvc.Objects.CreateWeapon(MainWeaponKey);
                 if (newMain != null && _mainWeaponConstraint != null)
                 {
                     newMain.transform.SetParent(_mainWeaponConstraint.transform, false);
@@ -972,7 +972,7 @@ namespace UPlayGround.Components
 
             if (SubWeaponKey != -1)
             {
-                var newSub = GameObjectManager.Instance.CreateWeapon(SubWeaponKey);
+                var newSub = ActorSvc.Objects.CreateWeapon(SubWeaponKey);
                 if (newSub != null && _subWeaponConstraint != null)
                 {
                     newSub.transform.SetParent(_subWeaponConstraint.transform, false);

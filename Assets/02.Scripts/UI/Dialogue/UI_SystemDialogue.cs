@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UPlayGround.Dialogue;
@@ -21,21 +21,26 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
-            DialogueManager.Instance.OnSystemNodeEnter += HandleNodeEnter;
-            DialogueManager.Instance.OnDialogueEnd     += HandleDialogueEnd;
+            UISvc.Dialogue.OnSystemNodeEnter += HandleNodeEnter;
+            UISvc.Dialogue.OnDialogueEnd     += HandleDialogueEnd;
         }
 
         protected override void OnHide()
         {
-            DialogueManager.Instance.OnSystemNodeEnter -= HandleNodeEnter;
-            DialogueManager.Instance.OnDialogueEnd     -= HandleDialogueEnd;
+            // 앱 종료 중 UIManager.Dispose 경유로도 호출되므로 서비스가 null일 수 있다.
+            var dialogue = UISvc.Dialogue;
+            if (dialogue != null)
+            {
+                dialogue.OnSystemNodeEnter -= HandleNodeEnter;
+                dialogue.OnDialogueEnd     -= HandleDialogueEnd;
+            }
 
             if (_autoHideCoroutine != null) StopCoroutine(_autoHideCoroutine);
         }
 
         private void HandleNodeEnter(DialogueNodeSO node)
         {
-            var table = DialogueManager.Instance.ColorTable;
+            var table = UISvc.Dialogue.ColorTable;
             messageText.color = table != null ? table.GetColor(node.speakerId) : Color.white;
 
             messageText.text = node.dialogueText;
@@ -56,7 +61,7 @@ namespace UPlayGround.UI
         private IEnumerator AutoHide(float delay)
         {
             yield return new WaitForSeconds(delay);
-            DialogueManager.Instance.Advance(DialogueChannel.System);
+            UISvc.Dialogue.Advance(DialogueChannel.System);
         }
     }
 }

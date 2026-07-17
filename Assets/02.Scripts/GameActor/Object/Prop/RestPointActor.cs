@@ -65,12 +65,12 @@ namespace UPlayGround
         {
             if (!_isInteracting) return;
 
-            PartyManager.Instance?.HealAllParty(_data != null && _data.reviveDowned);
+            Svc.Party?.HealAllParty(_data != null && _data.reviveDowned);
 
             // 연출: FX (기존 키 재사용)
-            GameObjectManager.Instance.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
-            SoundManager.Instance?.PlaySfx(GameSoundKey.RestPointHeal, transform.position);
-            UIManager.Instance?.ShowUI("RestGrowth", CanvasLayer.Popup);
+            ActorSvc.Objects.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
+            Svc.Sound?.PlaySfx(GameSoundKey.RestPointHeal, transform.position);
+            ActorSvc.UI?.ShowRestGrowth();
             _isInteracting = false;
         }
 

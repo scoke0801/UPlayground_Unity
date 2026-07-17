@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
@@ -15,8 +15,6 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;

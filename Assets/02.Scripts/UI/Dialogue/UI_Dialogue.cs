@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -39,7 +39,7 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
-            advanceButton.onClick.AddListener(() => DialogueManager.Instance.Advance());
+            advanceButton.onClick.AddListener(() => UISvc.Dialogue.Advance());
         }
 
         // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -47,21 +47,26 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
-            DialogueManager.Instance.OnMainNodeEnter   += HandleNodeEnter;
-            DialogueManager.Instance.OnChoicePresented += HandleChoicePresented;
-            DialogueManager.Instance.OnDialogueEnd     += HandleDialogueEnd;
+            UISvc.Dialogue.OnMainNodeEnter   += HandleNodeEnter;
+            UISvc.Dialogue.OnChoicePresented += HandleChoicePresented;
+            UISvc.Dialogue.OnDialogueEnd     += HandleDialogueEnd;
 
-            InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputDialogueNext, null, null, null, InputLayer.Level_1);
         }
 
         protected override void OnHide()
         {
-            DialogueManager.Instance.OnMainNodeEnter   -= HandleNodeEnter;
-            DialogueManager.Instance.OnChoicePresented -= HandleChoicePresented;
-            DialogueManager.Instance.OnDialogueEnd     -= HandleDialogueEnd;
+            // 앱 종료 중 UIManager.Dispose 경유로도 호출되므로 서비스가 null일 수 있다.
+            var dialogue = UISvc.Dialogue;
+            if (dialogue != null)
+            {
+                dialogue.OnMainNodeEnter   -= HandleNodeEnter;
+                dialogue.OnChoicePresented -= HandleChoicePresented;
+                dialogue.OnDialogueEnd     -= HandleDialogueEnd;
+            }
 
-            InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputDialogueNext, null);
         }
 
@@ -122,7 +127,7 @@ namespace UPlayGround.UI
                 return node.speakerId;
             }
 
-            var party = PartyManager.Instance;
+            var party = UISvc.Party;
             var memberData = party != null ? party.PartyMemberDataSO : null;
             CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
             string activeName = memberData != null ? memberData.GetName(activeType) : string.Empty;
@@ -137,7 +142,7 @@ namespace UPlayGround.UI
                 return node.portrait;
             }
 
-            var party = PartyManager.Instance;
+            var party = UISvc.Party;
             var memberData = party != null ? party.PartyMemberDataSO : null;
             CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
             Sprite activePortrait = memberData != null ? memberData.GetFullBodySprite(activeType) : null;
@@ -194,7 +199,7 @@ namespace UPlayGround.UI
 
         private void OnInputDialogueNext(InputAction.CallbackContext obj)
         {
-            DialogueManager.Instance.Advance();
+            UISvc.Dialogue.Advance();
         }
 
     }

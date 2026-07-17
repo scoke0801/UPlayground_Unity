@@ -188,7 +188,7 @@ namespace UPlayGround.UI
                 return;
             }
 
-            string mapId = SceneManager.Instance?.CurrentMapID;
+            string mapId = UISvc.Scene?.CurrentMapID;
             _config = _mapConfigDB.GetConfig(mapId);
 
             if (_config == null)
@@ -206,7 +206,7 @@ namespace UPlayGround.UI
             _viewRegionMapId   = mapId;
 
             // 커서 표시·입력 레이어 상승은 UI_Base가 일괄 처리한다(BlocksLowerInput/_layer 기준).
-            _player = GameObjectManager.Instance?.Player;
+            _player = UISvc.Actors?.Player;
 
             SetupMapBackground();
             SetupMarkers();
@@ -219,7 +219,7 @@ namespace UPlayGround.UI
             _currentZoom = _initialZoom;
             CenterOnPlayer();
 
-            var gom = GameObjectManager.Instance;
+            var gom = UISvc.Actors;
             if (gom != null)
             {
                 gom.OnActorRegistered   += RegisterActor;
@@ -233,7 +233,7 @@ namespace UPlayGround.UI
             MinimapUserMarkerSystem.OnMarkerRemoved    += RemoveUserMarker;
             MinimapUserMarkerSystem.OnAllMarkersCleared += ClearUserMarkers;
 
-            var ev = EventManager.Instance;
+            var ev = Svc.Events;
             if (ev != null)
             {
                 ev.Subscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted,  OnQuestStateChanged);
@@ -245,10 +245,10 @@ namespace UPlayGround.UI
         protected override void OnHide()
         {
             // 커서 숨김·입력 레이어 복원도 UI_Base가 짝 맞춰 처리한다.
-            if (GameObjectManager.Instance != null)
+            if (UISvc.Actors != null)
             {
-                GameObjectManager.Instance.OnActorRegistered   -= RegisterActor;
-                GameObjectManager.Instance.OnActorUnregistered -= UnregisterActor;
+                UISvc.Actors.OnActorRegistered   -= RegisterActor;
+                UISvc.Actors.OnActorUnregistered -= UnregisterActor;
             }
 
             MinimapMarkerRegistry.OnMarkerAdded   -= OnMarkerAdded;
@@ -258,9 +258,9 @@ namespace UPlayGround.UI
             MinimapUserMarkerSystem.OnMarkerRemoved    -= RemoveUserMarker;
             MinimapUserMarkerSystem.OnAllMarkersCleared -= ClearUserMarkers;
 
-            if (EventManager.Instance != null)
+            if (Svc.Events != null)
             {
-                var ev = EventManager.Instance;
+                var ev = Svc.Events;
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestAccepted,  OnQuestStateChanged);
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestCompleted, OnQuestStateChanged);
                 ev.Unsubscribe<QuestEvent, QuestStateEventData>(QuestEvent.QuestFailed,    OnQuestStateChanged);
@@ -272,13 +272,13 @@ namespace UPlayGround.UI
 
         protected override void RegisterInputEvents()
         {
-            InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.Map,
                 null, OnPerformedMap, null, null, null, InputLayer.Level_1);
         }
 
         protected override void UnRegisterInputEvents()
         {
-            InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map,
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map,
                 null, OnPerformedMap, null);
         }
 
@@ -331,8 +331,8 @@ namespace UPlayGround.UI
         {
             ClearAllIcons();
 
-            if (GameObjectManager.Instance?.AllActors != null)
-                foreach (var actor in GameObjectManager.Instance.AllActors)
+            if (UISvc.Actors?.AllActors != null)
+                foreach (var actor in UISvc.Actors.AllActors)
                     RegisterActor(actor);
 
             RefreshAllQuestMarkers();
@@ -495,9 +495,9 @@ namespace UPlayGround.UI
             ZoomAtMouse(_currentZoom + e.scrollDelta.y * _scrollZoomSpeed, e.position);
         }
 
-        private void OnCloseClicked() => UIManager.Instance.HideUI(UIKeyType.Map);
+        private void OnCloseClicked() => UISvc.UI.HideUI(UIKeyType.Map);
 
-        private void OnPerformedMap(InputAction.CallbackContext obj) => UIManager.Instance.HideUI(UIKeyType.Map);
+        private void OnPerformedMap(InputAction.CallbackContext obj) => UISvc.UI.HideUI(UIKeyType.Map);
 
         // ── 플레이어 아이콘 ──────────────────────────────────────
 
@@ -565,7 +565,7 @@ namespace UPlayGround.UI
             _questIconMap.Clear();
 
             if (!_config.showQuestMarkers) return;
-            var questManager = QuestManager.Instance;
+            var questManager = UISvc.Quest;
             if (questManager == null || !questManager.IsDBLoaded) return;
 
             foreach (var runtime in questManager.GetActiveQuests())
@@ -636,7 +636,7 @@ namespace UPlayGround.UI
             if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar)) return;
             var portal = registrar.GetComponent<PortalActor>();
             if (portal == null) return;
-            var player = GameObjectManager.Instance?.Player;
+            var player = UISvc.Actors?.Player;
             if (player == null) return;
             portal.TeleportPlayerHere(player);
         }
@@ -755,7 +755,7 @@ namespace UPlayGround.UI
             if (registrar.MarkerType == MinimapMarkerType.QuestTarget)
             {
                 if (!_config.showQuestMarkers) return;
-                var questManager = QuestManager.Instance;
+                var questManager = UISvc.Quest;
                 if (questManager == null) return;
                 foreach (var runtime in questManager.GetActiveQuests())
                     foreach (var obj in runtime.QuestSO.objectives)

@@ -1,4 +1,4 @@
-﻿
+
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -123,7 +123,7 @@ namespace UPlayGround.Components
             try
             {
                 _dissolveSourceMaterial =
-                    await AssetManager.Instance.LoadGlobalAsync<Material>(
+                    await Svc.Asset.LoadGlobalAsync<Material>(
                         DissolveMaterialAddress,
                         nameof(DissolveController));
             }
@@ -146,6 +146,8 @@ namespace UPlayGround.Components
             foreach (var r in GetComponentsInChildren<Renderer>())
             {
                 if (r is ParticleSystemRenderer) continue;
+                // VFXRenderer는 sharedMaterials 할당이 금지되어(경고 로그) 디졸브 대상에서 제외한다.
+                if (r is UnityEngine.VFX.VFXRenderer) continue;
 
                 var sharedMaterials = r.sharedMaterials;
                 if (sharedMaterials == null || sharedMaterials.Length == 0) continue;

@@ -13,7 +13,7 @@ namespace UPlayGround.UI
     {
         public static CharacterWeightProfileSO FindProfile(CharacterActorType type)
         {
-            PlayerActor player = GameObjectManager.Instance?.Player;
+            PlayerActor player = UISvc.Actors?.Player;
             PlayerSwapBehaviour swap = player != null ? player.GetComponent<PlayerSwapBehaviour>() : null;
             CharacterModelData model = swap != null ? swap.GetModelData(type) : null;
             return model != null ? model.weightProfile : null;

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Combat;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -154,7 +153,7 @@ namespace UPlayGround.Data
 
         [Header("Attached HitBox")]
         [Tooltip("BeginCollisionEvent에 그룹이 없을 때 사용할 CombatHitbox.groupId")]
-        public string hitboxGroupId = CombatHitbox.DefaultGroupId;
+        public string hitboxGroupId = "Default";
 
         [Header("Telegraph (Generated — HitBox에서 베이크)")]
         [Tooltip("적 텔레그래프/위협존 기준 위치. attackOrigin 상대 좌표. 직접 수정 금지 — 부착형 HitBox impact 포즈에서 베이크된다.")]
@@ -340,66 +339,4 @@ namespace UPlayGround.Data
         public float moveCancelDelayAfterLastHit = 0f;
     }
 
-    // 런타임에 결정되는 공격 정보
-    public class AttackData
-    {
-        public AnimKey animKey;
-        public float damage;
-        public float poiseDamage = 30f;
-        public float breakDamage = 10f;
-
-        // 영속 배율: 멀티히트 페이즈 갱신(SetHitPhaseIndex)마다 phase 값에 곱해진다.
-        // 연계 라우트 퍼펙트 타이밍 강화처럼 공유 SO(hitPhases)를 변형하지 않고 런타임 한정으로 데미지를 증폭할 때 쓴다.
-        public float damageMultiplier = 1f;
-        public float poiseMultiplier = 1f; // poiseDamage + breakDamage(강인도/브레이크 압력)에 공통 적용
-
-        public float reactionDuration = 0f;
-        public bool forceReaction = false;
-        public bool forceBreakExpose = false;
-        public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
-        public float moveCancelDelayAfterLastHit = 0f;
-        public AttackKind attackKind = AttackKind.NormalAttack;
-
-        public AttackReactionType reactionType = AttackReactionType.Hit;
-
-        // 공격자
-        public GameActor attacker;
-
-        public Vector3 hitPoint;
-        public GameObject hitTarget;
-        public float criticalMultiplier;
-        public bool isCounterAttack;
-        // 카운터급 타격 피드백(히트스톱/카메라)만 원할 때 사용. isCounterAttack과 달리
-        // MonsterActor의 리액션 정책 우회(정책 게이트 없는 shove 단락)를 유발하지 않는다.
-        public bool useCounterHitFeedback;
-        public Vector3 attackDirection;
-        public string hitParticleName = "LiteHit";
-
-        // 방어 대응 분류 — 퍼펙트 가드 카운터 성립 여부 판단에 사용. 기본 Parryable로 기존 동작 유지.
-        public AttackDefenseType defenseType = AttackDefenseType.Parryable;
-
-        // 투사체/AOE로 전달되는 공격 여부. defenseType(노란/빨간 링 분류)과는 직교하는 '전달 방식' 플래그다.
-        // true면 패리/카운터가 성립하지 않는다(가드·퍼펙트 도지는 영향 없음). BaseProjectile.Initialize에서 설정.
-        public bool isProjectile = false;
-
-        // 반응 파라미터
-        public float pullForce      = 10f;
-        public float airborneForce  = 8f;
-        public float knockbackForce = 10f;
-        public float knockbackDrag  = 20f;
-
-        // Grab
-        public float grabDuration = 1.5f;
-
-        // Forced Motion
-        public AnimKey victimForcedAnimKey = AnimKey.None;
-        // true면 등급 리액션 정책을 무시하고 피격 리액션 상태 전환을 보장한다(보스 등 강인한 적도 흔들림).
-        public bool guaranteedReaction = false;
-
-        // 멀티 히트
-        public int hitPhaseIndex = 0;
-
-        // MotionSet 자동 반응 데이터. 실제 재생 여부는 피드백/카메라 시스템에서 결정한다.
-        public AttackReactionData reactionData;
-    }
 }

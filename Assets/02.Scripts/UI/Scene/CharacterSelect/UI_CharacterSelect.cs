@@ -315,12 +315,20 @@ namespace UPlayGround.UI
             }
 
             var seq = DOTween.Sequence().SetUpdate(true);
-            seq.Join(_detailGroup.DOFade(show ? 1f : 0f, _detailDuration));
+            seq.Join(DOTween.To(
+                () => _detailGroup.alpha,
+                value => _detailGroup.alpha = value,
+                show ? 1f : 0f,
+                _detailDuration));
             if (_detailPanel != null)
             {
                 if (show) _detailPanel.anchoredPosition = _detailBasePos + Vector2.right * _detailSlide;
                 Vector2 to = show ? _detailBasePos : _detailBasePos + Vector2.right * _detailSlide;
-                seq.Join(_detailPanel.DOAnchorPos(to, _detailDuration).SetEase(Ease.OutCubic));
+                seq.Join(DOTween.To(
+                    () => _detailPanel.anchoredPosition,
+                    value => _detailPanel.anchoredPosition = value,
+                    to,
+                    _detailDuration).SetEase(Ease.OutCubic));
             }
             if (!show)
                 seq.OnComplete(() =>

@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.Data.Item;
-using UPlayGround.UI;
 using Random = UnityEngine.Random;
 
 namespace UPlayGround
@@ -25,7 +24,7 @@ namespace UPlayGround
         {
             base.Start();
             
-            _player = GameObjectManager.Instance.Player.transform;
+            _player = ActorSvc.Objects.Player.transform;
             Collider playerCollider = _player.gameObject.GetComponent<Collider>();
             if (playerCollider != null)
             {
@@ -108,22 +107,16 @@ namespace UPlayGround
 
             Instantiate(_getParticle, endPosition, Quaternion.identity);
 
-            bool routedToCycleLedger = CycleRemainsManager.Instance?.TryAddUnsettledMaterial(
+            bool routedToCycleLedger = ActorSvc.CycleRemains?.TryAddUnsettledMaterial(
                 _itemInstance.data.itemId,
                 _itemInstance.count) == true;
             if (!routedToCycleLedger)
             {
-                var ui = UIManager.Instance.ShowUI(UIKeyType.ItemAcquisitionList);
-                if (ui != null)
-                    ui.GetComponent<UI_ItemAcquisitionList>().SetItem(_itemInstance.data);
-                InventoryManager.Instance.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
+                ActorSvc.UI?.ShowItemAcquisition(_itemInstance.data);
+                Svc.Inventory.AddItem(_itemInstance.data.itemId, itemInstance: _itemInstance);
             }
 
-            UI_Inventory inventory = UIManager.Instance.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
-            if(inventory && inventory.IsVisible)
-            {
-                inventory.Show();
-            }
+            ActorSvc.UI?.RefreshInventoryIfVisible();
             Destroy(gameObject);
         }
     }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -25,10 +25,10 @@ namespace UPlayGround.UI
     public class UI_Inventory : UI_Base
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
-        private InventoryManager _cachedInventoryManager;
-        private InventoryManager InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = InventoryManager.Instance);
-        private PartyManager _cachedPartyManager;
-        private PartyManager PartyMgr => _cachedPartyManager != null ? _cachedPartyManager : (_cachedPartyManager = PartyManager.Instance);
+        private IUIInventoryService _cachedInventoryManager;
+        private IUIInventoryService InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = UISvc.Inventory);
+        private IUIPartyService _cachedPartyManager;
+        private IUIPartyService PartyMgr => _cachedPartyManager != null ? _cachedPartyManager : (_cachedPartyManager = UISvc.Party);
 
 
         [SerializeField] private UI_InventorySlot _itemPanelPrefab;
@@ -820,7 +820,7 @@ namespace UPlayGround.UI
 
             // 소모품 사용이 실제로 성공(회복 발생)했을 때 회복 사운드 재생
             if (result == InventoryActionResult.Success && isConsumable)
-                SoundManager.Instance?.PlayUi(GameSoundKey.Heal);
+                Svc.Sound?.PlayUi(GameSoundKey.Heal);
 
             return RefreshAfterAction(result);
         }

@@ -44,15 +44,14 @@ namespace UPlayGround.CameraSystem
 
             // 입력이 처리되지 않는 프레임에는 플릭 누적치를 남기지 않는다.
             // 잔존 누적치가 있으면 팝업/메뉴 복귀 직후 미세한 이동만으로 대상 전환이 발동할 수 있다.
-            if (InputManager.Instance.CurrentLayer != InputLayer.Level_0 ||
+            IInputService input = Svc.Input;
+            if (input == null
+                || input.CurrentLayer != InputLayer.Level_0 ||
                 Cursor.visible || context.IsInputLocked)
             {
                 _flickAccum = 0f;
                 return;
             }
-
-            var input = InputManager.Instance;
-            if (input == null) return;
 
             CameraState state = context.State;
             bool isLockOn = context.LockOn?.IsActive ?? false;
@@ -118,7 +117,7 @@ namespace UPlayGround.CameraSystem
         /// 프레임당 X 델타를 누적하고, 임계치 도달 시 그 방향의 대상으로 전환한다.
         /// 누적치는 시간에 따라 감쇠하므로 느린 마우스 이동으로는 발동하지 않는다.
         /// </summary>
-        private void UpdateLockOnFlickSwitch(CameraContext context, InputManager input)
+        private void UpdateLockOnFlickSwitch(CameraContext context, IInputService input)
         {
             if (context.LockOn == null || !context.Settings.lockOnMouseFlickSwitch)
                 return;
@@ -145,8 +144,9 @@ namespace UPlayGround.CameraSystem
 
         private static void ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY)
         {
-            var settingsManager = SettingsManager.Instance;
-            var settingsData = settingsManager != null && settingsManager.IsLoaded ? settingsManager.Data : null;
+            var settingsData = Svc.Settings is { IsLoaded: true } settings
+                ? settings.Data
+                : null;
 
             sensitivityX = settingsData != null ? Mathf.Clamp(settingsData.sensitivityX, 1, 10) / 5f : 1f;
             sensitivityY = settingsData != null ? Mathf.Clamp(settingsData.sensitivityY, 1, 10) / 5f : 1f;

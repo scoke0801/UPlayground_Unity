@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 using TMPro;
@@ -125,7 +125,7 @@ namespace UPlayGround.UI
                 return true;
 
             // SettingsManager가 Addressable 비동기 로드를 완료했는지 확인
-            var sm = SettingsManager.Instance;
+            var sm = UISvc.Settings;
             if (!sm.IsLoaded || sm.Data == null)
             {
                 Debug.LogWarning("[UI_Settings] SettingsManager가 아직 로드되지 않았습니다.");
@@ -159,7 +159,7 @@ namespace UPlayGround.UI
         {
             // 적용은 SettingsManager에 위임한다. 믹서 미연결 시에도 ResolveMixer() 폴백으로
             // 오디오가 즉시 반영되며, 그래픽도 이 시점에 적용된다.
-            SettingsManager.Instance.ApplyCurrentSettings(_audioMixer);
+            UISvc.Settings.ApplyCurrentSettings(_audioMixer);
             _settingsData.Save();
             Hide();
         }

@@ -17,10 +17,10 @@ namespace UPlayGround.UI
     public class UI_PartyMenu : UI_Base
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
-        private PartyManager _cachedPartyManager;
-        private PartyManager PartyMgr => _cachedPartyManager != null ? _cachedPartyManager : (_cachedPartyManager = PartyManager.Instance);
-        private InventoryManager _cachedInventoryManager;
-        private InventoryManager InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = InventoryManager.Instance);
+        private IUIPartyService _cachedPartyManager;
+        private IUIPartyService PartyMgr => _cachedPartyManager != null ? _cachedPartyManager : (_cachedPartyManager = UISvc.Party);
+        private IUIInventoryService _cachedInventoryManager;
+        private IUIInventoryService InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = UISvc.Inventory);
 
 
         [Header("캐릭터 목록")]
@@ -48,7 +48,7 @@ namespace UPlayGround.UI
         [SerializeField] private UI_PartyDetailPanel _detailPanel;
 
         [Header("어시스트 (사이클 보스 영입 동료)")]
-        [SerializeField] private UIAssistRosterPanel _assistPanel;
+        [SerializeField] private MonoBehaviour _assistPanel;
 
         [Header("옵션")]
         [Tooltip("편성 화면을 여는 동안 게임을 일시정지한다. 사이클 런 타이머도 함께 멈춘다.")]
@@ -84,7 +84,7 @@ namespace UPlayGround.UI
             base.OnShow();
 
             // 이미 다른 UI가 일시정지한 상태면 우리가 재개 책임을 지지 않는다(단순 bool 모델이라 이중 해제 방지).
-            var timeMgr = GameTimeManager.Instance;
+            var timeMgr = Svc.GameTime;
             if (_pauseGameOnShow && timeMgr != null && !timeMgr.IsPaused)
             {
                 timeMgr.SetPause(true);
@@ -125,7 +125,7 @@ namespace UPlayGround.UI
 
             if (_didPauseGame)
             {
-                GameTimeManager.Instance?.SetPause(false);
+                Svc.GameTime?.SetPause(false);
                 _didPauseGame = false;
             }
         }
@@ -242,7 +242,7 @@ namespace UPlayGround.UI
             RefreshCounts();
             RefreshWeightSummary();
             RefreshDetail();
-            _assistPanel?.Refresh();
+            (_assistPanel as IUIRefreshable)?.Refresh();
         }
 
         /// <summary>

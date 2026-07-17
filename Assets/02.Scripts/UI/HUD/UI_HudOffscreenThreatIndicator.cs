@@ -54,31 +54,31 @@ namespace UPlayGround.UI
         {
             base.OnShow();
 
-            _player = GameObjectManager.Instance?.Player;
+            _player = UISvc.Actors?.Player;
             RebuildTrackedMonsters();
 
-            var gom = GameObjectManager.Instance;
+            var gom = UISvc.Actors;
             if (gom != null)
             {
                 gom.OnActorRegistered   += OnActorRegistered;
                 gom.OnActorUnregistered += OnActorUnregistered;
             }
 
-            var party = PartyManager.Instance;
+            var party = UISvc.Party;
             if (party != null)
                 party.OnSwapCompleted += OnSwapCompleted;
         }
 
         protected override void OnHide()
         {
-            var gom = GameObjectManager.Instance;
+            var gom = UISvc.Actors;
             if (gom != null)
             {
                 gom.OnActorRegistered   -= OnActorRegistered;
                 gom.OnActorUnregistered -= OnActorUnregistered;
             }
 
-            var party = PartyManager.Instance;
+            var party = UISvc.Party;
             if (party != null)
                 party.OnSwapCompleted -= OnSwapCompleted;
 
@@ -111,7 +111,7 @@ namespace UPlayGround.UI
         {
             _trackedMonsters.Clear();
 
-            var gom = GameObjectManager.Instance;
+            var gom = UISvc.Actors;
             if (gom == null)
                 return;
 
@@ -133,7 +133,7 @@ namespace UPlayGround.UI
                 return;
 
             // 카메라 모드 게이트: 인게임이 아닐 때(대화/킬캠/시네마틱 등) 표시하지 않는다.
-            var cameraManager = CameraManager.Instance;
+            var cameraManager = Svc.Camera;
             if (cameraManager == null || cameraManager.CurrentCameraMode != CameraModeType.InGame)
             {
                 HideAllMarkers();
@@ -143,7 +143,7 @@ namespace UPlayGround.UI
             // 스왑 없는 고정 플레이어(Bokusei)가 HUD 표시 시점 이후에 스폰되는 경우를 대비해
             // _player가 비어 있으면 매 프레임 지연 재획득한다. (OnSwapCompleted는 스왑 시에만 발생)
             if (_player == null)
-                _player = GameObjectManager.Instance?.Player;
+                _player = UISvc.Actors?.Player;
 
             _camera = cameraManager.GetMainCamera();
             if (_camera == null || _player == null || _config == null

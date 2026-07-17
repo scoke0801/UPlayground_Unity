@@ -49,13 +49,13 @@ namespace UPlayGround.UI
 
         protected override void RegisterInputEvents()
         {
-            InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
                 null, OnPerformedMenuPanel, null, null, null, InputLayer.Level_1);
         }
 
         protected override void UnRegisterInputEvents()
         {
-            InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.MenuPanel,
                 null, OnPerformedMenuPanel, null);
         }
 
@@ -124,7 +124,7 @@ namespace UPlayGround.UI
 
         private void Toggle(UIKeyType type)
         {
-            GameObject go = UIManager.Instance.GetActiveUI(type);
+            GameObject go = UISvc.UI.GetActiveUI(type);
             UI_Base ui = go != null ? go.GetComponent<UI_Base>() : null;
             bool shouldShowTarget = ui == null || ui.IsVisible == false;
 
@@ -132,11 +132,11 @@ namespace UPlayGround.UI
 
             if (shouldShowTarget)
             {
-                UIManager.Instance.ShowUI(type);
+                UISvc.UI.ShowUI(type);
             }
             else if (go != null)
             {
-                UIManager.Instance.HideUI(type);
+                UISvc.UI.HideUI(type);
             }
         }
     }

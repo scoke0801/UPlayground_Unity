@@ -58,8 +58,8 @@ namespace UPlayGround.UI
             if (_partyOrderRoot != null) _partyOrderRoot.SetActive(true);
             if (_partyOrderText != null) _partyOrderText.text = (slotIndex + 1).ToString();
 
-            bool isActive = PartyManager.Instance != null &&
-                            PartyManager.Instance.ActiveCharacterType == type;
+            bool isActive = UISvc.Party != null &&
+                            UISvc.Party.ActiveCharacterType == type;
             if (_selectedImage != null) _selectedImage.SetActive(isActive);
 
             RefreshHp();
@@ -71,7 +71,7 @@ namespace UPlayGround.UI
 
         private void RefreshHp()
         {
-            var player = GameObjectManager.Instance?.Player;
+            var player = UISvc.Actors?.Player;
             float cur = player != null ? player.GetHealthForCharacter(_boundType)    : 0f;
             float max = player != null ? player.GetMaxHealthForCharacter(_boundType) : 0f;
 
@@ -90,7 +90,7 @@ namespace UPlayGround.UI
         {
             if (_characterLevelText == null) return;
 
-            int level = PartyManager.Instance?.GetLevel(_boundType) ?? 1;
+            int level = UISvc.Party?.GetLevel(_boundType) ?? 1;
             _characterLevelText.text = $"Lv. {Mathf.Max(1, level)}";
         }
 

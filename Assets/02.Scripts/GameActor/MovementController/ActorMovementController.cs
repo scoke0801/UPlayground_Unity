@@ -6,10 +6,11 @@ using UnityEngine.Serialization;
 using UPlayGround;
 using UPlayGround.Debugging;
 using UPlayGround.State;
+using UPlayGround.CameraSystem;
 
 namespace UPlayGround.MovementController
 {
-    public partial class ActorMovementController : MonoBehaviour, ICharacterController
+    public partial class ActorMovementController : MonoBehaviour, ICharacterController, ICameraVelocityProvider
     {
         [Header("Stable Movement")]
         public float MaxWalkMoveSpeed = 3f;
@@ -73,6 +74,7 @@ namespace UPlayGround.MovementController
         public bool HasImpulse => _hasImpulse;
 
         public KinematicCharacterMotor Motor { get; private set; }
+        public Vector3 CameraVelocity => Motor != null ? Motor.Velocity : Vector3.zero;
         public GameActor Actor { get; private set; }
         public MotionWarpController MotionWarp { get; private set; }
 

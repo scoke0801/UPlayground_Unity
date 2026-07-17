@@ -6,7 +6,6 @@ using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Item;
-using UPlayGround.UI;
 
 namespace UPlayGround
 {
@@ -150,7 +149,7 @@ namespace UPlayGround
                 return;
             }
 
-            if (InventoryManager.Instance == null)
+            if (Svc.Inventory == null)
             {
                 Debug.LogWarning(
                     $"[{nameof(DropItemActor)}] 인벤토리 매니저가 없어 '{_itemData.name}' 획득을 중단합니다.",
@@ -165,12 +164,12 @@ namespace UPlayGround
                 count = Mathf.Max(1, _count),
             };
 
-            bool routedToCycleLedger = CycleRemainsManager.Instance?.TryAddUnsettledMaterial(
+            bool routedToCycleLedger = ActorSvc.CycleRemains?.TryAddUnsettledMaterial(
                 _itemData.itemId,
                 itemInstance.count) == true;
             if (!routedToCycleLedger)
             {
-                InventoryManager.Instance.AddItem(_itemData.itemId, itemInstance);
+                Svc.Inventory.AddItem(_itemData.itemId, itemInstance);
                 ShowAcquisitionUI();
             }
             ShowCollectEffects();
@@ -183,19 +182,10 @@ namespace UPlayGround
 
         private void ShowAcquisitionUI()
         {
-            if (!_showAcquisitionUI || UIManager.Instance == null || _itemData == null) return;
+            if (!_showAcquisitionUI || _itemData == null) return;
 
-            var ui = UIManager.Instance.ShowUI(UIKeyType.ItemAcquisitionList);
-            if (ui != null)
-            {
-                ui.GetComponent<UI_ItemAcquisitionList>()?.SetItem(_itemData);
-            }
-
-            UI_Inventory inventory = UIManager.Instance.GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
-            if (inventory != null && inventory.IsVisible)
-            {
-                inventory.Show();
-            }
+            ActorSvc.UI?.ShowItemAcquisition(_itemData);
+            ActorSvc.UI?.RefreshInventoryIfVisible();
         }
 
         private void ShowCollectEffects()
@@ -207,14 +197,13 @@ namespace UPlayGround
 
             if (_showPickupFX)
             {
-                GameObjectManager.Instance?.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
+                ActorSvc.Objects?.ShowFX(FXKeyType.ItemArrivedToPlayerPos, transform.position);
             }
         }
 
         private void ConsumeOrDestroy()
         {
-            if (InteractionRespawnManager.Instance != null
-                && InteractionRespawnManager.Instance.TryConsume(this))
+            if (ActorSvc.InteractionPersistence?.TryConsume(this) == true)
             {
                 return;
             }

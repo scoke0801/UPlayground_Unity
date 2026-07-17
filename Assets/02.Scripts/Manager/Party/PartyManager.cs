@@ -35,7 +35,8 @@ namespace UPlayGround.Manager
     /// - 교체 어시스트: PerfectDodgeWindow 중 교체 성공 시 incoming 캐릭터 공격 자동 발동
     /// </summary>
     public class PartyManager : BaseManager<PartyManager>, IManager, ISaveable, IAsyncInitializableManager,
-        IUpdatableManager
+        UPlayGround.UI.IUIPartyService,
+        IUpdatableManager, IPartyService
     {
         private PartyConfigSO          _config;
         private PlayerActor            _player;

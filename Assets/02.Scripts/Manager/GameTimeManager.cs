@@ -22,7 +22,8 @@ namespace UPlayGround.Manager
     ///   IsPaused(메뉴 등)일 때는 설정(pauseStopsWorldTime)에 따라 멈춘다.
     ///   재스폰/조명 시스템은 OnGameMinuteChanged(정수 분 단위)를 구독한다.
     /// </summary>
-    public class GameTimeManager : BaseManager<GameTimeManager>, IManager, IUpdatableManager, ISaveable
+    public class GameTimeManager : BaseManager<GameTimeManager>, IManager, IUpdatableManager, ISaveable,
+        IGameTimeService
     {
         private const string SettingsKey = "WorldTimeSettings";
 

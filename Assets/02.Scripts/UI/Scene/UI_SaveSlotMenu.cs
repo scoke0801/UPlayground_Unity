@@ -95,9 +95,9 @@ namespace UPlayGround.UI
             ResolveTemplate();
 
             if (_closeButton != null)
-                _closeButton.onClick.AddListener(() => UIManager.Instance.HideUI(UIKey));
+                _closeButton.onClick.AddListener(() => UISvc.UI.HideUI(UIKey));
             if (_closeButtonAlt != null)
-                _closeButtonAlt.onClick.AddListener(() => UIManager.Instance.HideUI(UIKey));
+                _closeButtonAlt.onClick.AddListener(() => UISvc.UI.HideUI(UIKey));
         }
 
         protected override void OnShow()
@@ -126,7 +126,7 @@ namespace UPlayGround.UI
                 if (row == null) continue;
 
                 int slot = i < _activeSlotIndices.Count ? _activeSlotIndices[i] : i;
-                var info = SaveManager.Instance.GetSaveSlotInfo(slot);
+                var info = UISvc.Save.GetSaveSlotInfo(slot);
                 bool hasSave = info != null;
 
                 // 레거시 통합 텍스트(연결돼 있을 때만).
@@ -140,7 +140,7 @@ namespace UPlayGround.UI
                 // 썸네일(연결돼 있을 때만). 세이브가 있으면 캡처 스프라이트, 없으면 회색 플레이스홀더.
                 if (row.thumbnail != null)
                 {
-                    var thumb = hasSave ? SaveManager.Instance.GetSlotThumbnail(slot) : null;
+                    var thumb = hasSave ? UISvc.Save.GetSlotThumbnail(slot) : null;
                     if (thumb != null)
                     {
                         row.thumbnail.sprite = thumb;
@@ -234,7 +234,7 @@ namespace UPlayGround.UI
 
             _templateRoot.SetActive(false);
 
-            var slots = SaveManager.Instance.GetSlotIndicesForMenu(_mode == SaveSlotMode.Save);
+            var slots = UISvc.Save.GetSlotIndicesForMenu(_mode == SaveSlotMode.Save);
             foreach (int slot in slots)
             {
                 var rowRoot = Instantiate(_templateRoot, _slotRoot != null ? _slotRoot : _templateRoot.transform.parent);
@@ -349,20 +349,20 @@ namespace UPlayGround.UI
         {
             if (_mode == SaveSlotMode.Save)
             {
-                SaveManager.Instance.SaveGame(slot);
+                UISvc.Save.SaveGame(slot);
                 Refresh();
             }
             else
             {
-                if (!SaveManager.Instance.HasSaveFile(slot)) return;
-                UIManager.Instance.HideAllUI();
-                SaveManager.Instance.LoadGameToScene(slot);
+                if (!UISvc.Save.HasSaveFile(slot)) return;
+                UISvc.UI.HideAllUI();
+                UISvc.Save.LoadGameToScene(slot);
             }
         }
 
         private void OnDeleteClicked(int slot)
         {
-            SaveManager.Instance.DeleteSaveFile(slot);
+            UISvc.Save.DeleteSaveFile(slot);
             Refresh();
         }
     }

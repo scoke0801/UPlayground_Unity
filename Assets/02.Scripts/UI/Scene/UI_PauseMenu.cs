@@ -66,7 +66,7 @@ namespace UPlayGround.UI
         private void OnSaveClicked()
         {
             // 포즈 메뉴를 유지한 채 슬롯 선택 UI만 위에 띄워 일시정지 상태를 보존한다.
-            var go = UIManager.Instance.ShowUI(UI_SaveSlotMenu.UIKey);
+            var go = UISvc.UI.ShowUI(UI_SaveSlotMenu.UIKey);
             go?.GetComponent<UI_SaveSlotMenu>()?.SetMode(UI_SaveSlotMenu.SaveSlotMode.Save);
         }
 
@@ -83,10 +83,10 @@ namespace UPlayGround.UI
         {
             base.OnShow();
 
-            GameTimeManager.Instance.SetPause(true);
+            Svc.GameTime.SetPause(true);
 
             if (playTimeText != null)
-                playTimeText.text = $"플레이 시간 {GameTimeManager.Instance.FormatPlayTime()}";
+                playTimeText.text = $"플레이 시간 {Svc.GameTime.FormatPlayTime()}";
 
             if (pauseStatusText != null)
                 pauseStatusText.text = "게임이 일시정지되었습니다";
@@ -215,19 +215,19 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
-            GameTimeManager.Instance.SetPause(false);
+            Svc.GameTime.SetPause(false);
             base.OnHide();
         }
 
         private void OnResumeClicked()
         {
-            UIManager.Instance.HideUI(UIKeyType.PauseMenu);
+            UISvc.UI.HideUI(UIKeyType.PauseMenu);
         }
 
         private void OnGoToTitleClicked()
         {
             // 타이틀로 나가기 전 timeScale 복구는 GameTimeManager.Dispose에서 처리됨
-            SceneManager.Instance.LoadScene(SceneName.Title);
+            UISvc.Scene.LoadScene(SceneName.Title);
         }
 
         private void OnGameExitClicked()

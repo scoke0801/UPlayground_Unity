@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
     /// 락온용 포커스/앵커/우선순위를 제공하는 선택 인터페이스.
-    /// 구현하지 않은 대상은 기존 IDamageable + Transform 기준으로 동작한다.
+    /// 구현하지 않은 대상은 IWorldActor의 Transform 기준으로 동작한다.
     /// </summary>
     public interface ILockOnTarget
     {
@@ -436,7 +437,7 @@ namespace UPlayGround.CameraSystem
         {
             CurrentTarget = t;
             _targetCollider = t.GetComponent<CapsuleCollider>() ?? t.GetComponentInChildren<CapsuleCollider>();
-            t.GetComponent<IDamageable>()?.LockOn();
+            (t.GetComponent<IWorldActor>() ?? t.GetComponentInParent<IWorldActor>())?.LockOn();
             InitSmoothY();
             _activeFocusPos = GetCurrentTargetFocusPosition();
             _activeFocusVelocity = Vector3.zero;
@@ -564,12 +565,12 @@ namespace UPlayGround.CameraSystem
                 if (hit.transform == _player || hit.transform.IsChildOf(_player))
                     continue;
 
-                var dmg = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
-                if (dmg == null || !dmg.IsAlive())
+                var actor = hit.GetComponent<IWorldActor>() ?? hit.GetComponentInParent<IWorldActor>();
+                if (actor == null || !actor.IsAlive)
                     continue;
 
-                if (dmg is UnityEngine.Component dmgComponent
-                    && (dmgComponent.transform == _player || dmgComponent.transform.IsChildOf(_player)))
+                if (actor.Transform != null
+                    && (actor.Transform == _player || actor.Transform.IsChildOf(_player)))
                 {
                     continue;
                 }
@@ -578,7 +579,7 @@ namespace UPlayGround.CameraSystem
                 if (lockOnTarget != null && !lockOnTarget.CanLockOn)
                     continue;
 
-                Transform candidate = ResolveTargetTransform(hit, dmg, lockOnTarget);
+                Transform candidate = ResolveTargetTransform(hit, actor, lockOnTarget);
                 if (candidate == null)
                     continue;
                 if (_targetSet.Contains(candidate))
@@ -710,8 +711,8 @@ namespace UPlayGround.CameraSystem
         private static bool IsAliveTarget(Transform t)
         {
             if (t == null) return false;
-            var dmg = t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>();
-            return dmg != null && dmg.IsAlive();
+            var actor = t.GetComponent<IWorldActor>() ?? t.GetComponentInParent<IWorldActor>();
+            return actor != null && actor.IsAlive;
         }
 
         private float GetReleaseRange()
@@ -799,14 +800,14 @@ namespace UPlayGround.CameraSystem
 
         private static Transform ResolveTargetTransform(
             Collider hit,
-            IDamageable damageable,
+            IWorldActor actor,
             ILockOnTarget lockOnTarget)
         {
             if (lockOnTarget != null && lockOnTarget.Transform != null)
                 return lockOnTarget.Transform;
 
-            if (damageable is UnityEngine.Component component)
-                return component.transform;
+            if (actor?.Transform != null)
+                return actor.Transform;
 
             return hit != null ? hit.transform : null;
         }
@@ -850,7 +851,8 @@ namespace UPlayGround.CameraSystem
 
         private static void NotifyUnLockOn(Transform t)
         {
-            if (t != null) (t.GetComponent<IDamageable>() ?? t.GetComponentInParent<IDamageable>())?.UnLockOn();
+            if (t != null)
+                (t.GetComponent<IWorldActor>() ?? t.GetComponentInParent<IWorldActor>())?.UnLockOn();
         }
     }
 }

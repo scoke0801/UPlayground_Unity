@@ -45,7 +45,7 @@ namespace UPlayGround.UI
         {
             _type = type;
 
-            var pm   = PartyManager.Instance;
+            var pm   = UISvc.Party;
             var data = pm?.PartyMemberDataSO;
             if (data == null) return false;
 
@@ -64,7 +64,7 @@ namespace UPlayGround.UI
         /// <summary>초안 BattleOrder와 상세 선택 대상을 받아 뱃지·선택 상태를 갱신한다.</summary>
         public void RefreshBattleStatus(IReadOnlyList<CharacterActorType> pendingOrder, CharacterActorType selectedType)
         {
-            var pm = PartyManager.Instance;
+            var pm = UISvc.Party;
             bool isUnlocked = pm != null && pm.Roster.Contains(_type);
             RefreshLevelText(isUnlocked);
             _dimmedImage.SetActive(!isUnlocked);
@@ -93,14 +93,14 @@ namespace UPlayGround.UI
                 return;
             }
 
-            int level = PartyManager.Instance?.GetLevel(_type) ?? 1;
+            int level = UISvc.Party?.GetLevel(_type) ?? 1;
             _characterLevelText.text = $"Lv. {Mathf.Max(1, level)}";
         }
 
         private void OnClickedButton()
         {
             // 미보유(잠금) 캐릭터는 클릭 무시
-            var pm = PartyManager.Instance;
+            var pm = UISvc.Party;
             if (pm == null || !pm.Roster.Contains(_type)) return;
 
             OnToggleRequested?.Invoke(_type);

@@ -1,4 +1,4 @@
-﻿using KinematicCharacterController;
+using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround;
 using UPlayGround.Data.EnumType;
@@ -56,12 +56,12 @@ namespace UPlayGround.UI
         /// </summary>
         public void ShowPreview()
         {
-            if(GameObjectManager.Instance == null)
+            if(UISvc.Actors == null)
             {
                 return;
             }
 
-            PlayerActor player = GameObjectManager.Instance.Player;
+            PlayerActor player = UISvc.Actors.Player;
             if (player == null)
             {
                 return;

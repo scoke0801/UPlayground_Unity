@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
@@ -15,8 +15,6 @@ using UPlayGround.MovementController;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
-using UPlayGround.Manager.Combat;
 using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -107,7 +105,7 @@ namespace UPlayGround
             if (_currentHealth > old)
             {
                 OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-                UIManager.Instance.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
+                ActorSvc.UI.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
             }
         }
 
@@ -115,7 +113,7 @@ namespace UPlayGround
 
         private PlayerDefenseQuery CreatePlayerDefenseQuery()
         {
-            bool alwaysParry = CheatManager.Instance?.IsAlwaysParryEnabled ?? false;
+            bool alwaysParry = ActorSvc.CheatState?.IsAlwaysParryEnabled ?? false;
             bool isAttackState = MovementController.CurrentState.StateName == "Attack";
             bool isCurrentAttackParryCapable = _combat.CurrentAttackData?.attackKind == AttackKind.NormalAttack;
 
@@ -148,11 +146,9 @@ namespace UPlayGround
                 Debug.Log("[PlayerActor] 패리 성공!");
             }
 
-            var defenseFeedback = GameCombatMgr?.DefenseSuccessFeedback;
-
             // 패리 반격 창을 먼저 열어둬야 상태 전환 후 반격 입력을 받을 수 있다
             _combat.OpenParryCounterWindow(
-                defenseFeedback?.GetCounterWindowDuration(DefenseSuccessType.Parry) ?? -1f);
+                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.Parry) ?? -1f);
 
             // 히트 감지를 즉시 비활성화해 이후 PerformHitDetection이 HitStop을 덮어쓰지 않도록 한다
             _combat.SetEnableCollision(false);
@@ -170,14 +166,13 @@ namespace UPlayGround
             if (attackData?.attacker is MonsterActor monster)
                 monster.OnParried();
 
-            defenseFeedback?.Play(
+            GameCombatMgr?.PlayDefenseSuccess(
                 DefenseSuccessType.Parry,
-                new DefenseSuccessFeedbackContext(
-                    this,
-                    attackData?.attacker,
-                    attackData,
-                    fxPos,
-                    _parryFxName));
+                this,
+                attackData?.attacker,
+                attackData,
+                fxPos,
+                _parryFxName);
         }
 
         /// <summary>
@@ -190,22 +185,20 @@ namespace UPlayGround
             // 퍼펙트 도지 성공 — 창 즉시 닫아 중복 발동 방지
             _combat.ClosePerfectDodgeWindow();
 
-            var defenseFeedback = GameCombatMgr?.DefenseSuccessFeedback;
             _combat.OpenDodgeCounterWindow(
                 attackData,
-                defenseFeedback?.GetCounterWindowDuration(DefenseSuccessType.PerfectDodge) ?? -1f);
+                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.PerfectDodge) ?? -1f);
 
             Vector3 feedbackPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : transform.position;
 
-            defenseFeedback?.Play(
+            GameCombatMgr?.PlayDefenseSuccess(
                 DefenseSuccessType.PerfectDodge,
-                new DefenseSuccessFeedbackContext(
-                    this,
-                    attackData?.attacker,
-                    attackData,
-                    feedbackPos));
+                this,
+                attackData?.attacker,
+                attackData,
+                feedbackPos);
 
             Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
         }
@@ -220,20 +213,18 @@ namespace UPlayGround
             if (MovementController.CurrentState is not PlayerDashState dashState) return;
             if (!dashState.TryConsumeEvadeFeedback()) return;
 
-            var defenseFeedback = GameCombatMgr?.DefenseSuccessFeedback;
-            if (defenseFeedback == null) return;
+            if (GameCombatMgr == null) return;
 
             Vector3 feedbackPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : transform.position;
 
             // 대시 회피는 포스트프로세스(볼륨) 플래시 없이 타임스케일 슬로우만 또렷하게 발동한다.
-            defenseFeedback.PlayDashEvade(
-                new DefenseSuccessFeedbackContext(
-                    this,
-                    attackData?.attacker,
-                    attackData,
-                    feedbackPos));
+            GameCombatMgr.PlayDashEvade(
+                this,
+                attackData?.attacker,
+                attackData,
+                feedbackPos);
 
             Debug.Log("[PlayerActor] 대시 회피 피드백 발동!");
         }

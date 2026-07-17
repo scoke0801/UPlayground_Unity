@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using KinematicCharacterController;
 using UnityEngine;
@@ -166,12 +166,12 @@ namespace UPlayGround.MovementController
         private void OnEnable()
         {
             if (Application.isPlaying)
-                DebugGizmoManager.RegisterProvider(this);
+                DebugGizmoBridge.RegisterProvider(this);
         }
 
         private void OnDisable()
         {
-            DebugGizmoManager.UnregisterProvider(this);
+            DebugGizmoBridge.UnregisterProvider(this);
         }
 
         public bool HasTarget => _activeTarget.IsValid;
@@ -1045,7 +1045,7 @@ namespace UPlayGround.MovementController
         {
             if (!_drawGizmos) return;
             if (!_activeTarget.IsValid) return;
-            if (DebugGizmoManager.ShouldSuppressLocalGizmos(DebugGizmoCategory.Movement, gameObject, DebugGizmoContentType.MotionWarp))
+            if (DebugGizmoBridge.ShouldSuppressLocalGizmos(DebugGizmoCategory.Movement, gameObject, DebugGizmoContentType.MotionWarp))
                 return;
 
             Vector3 selfPos = transform.position;

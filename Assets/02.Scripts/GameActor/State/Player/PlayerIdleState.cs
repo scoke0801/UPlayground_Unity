@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
 using UPlayGround.InputDefine;
@@ -35,7 +35,7 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             // 점프 입력이 있으면 Airborne 상태로 전환 (낙하 판정보다 먼저 체크)
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Jump))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Jump))
             {
                 playerController.TransitionToState(new PlayerAirborneState(playerController));
                 return;
@@ -55,7 +55,7 @@ namespace UPlayGround.State
                 Transform breakTarget = combat != null ? combat.FindSpecialBreakAttackTarget() : null;
                 if (breakTarget != null)
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Interact);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Interact);
                     playerController.TransitionToState(new PlayerSpecialBreakAttackState(playerController, breakTarget));
                     return;
                 }
@@ -74,13 +74,13 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dodge))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Dodge))
             {
                 playerController.TransitionToState(new PlayerDodgeState(playerController));
                 return;
             }
             
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Dash))
             {
                 if (controller.TryTransitionToState(new PlayerDashState(controller)))
                 {
@@ -103,7 +103,7 @@ namespace UPlayGround.State
 
             //if (playerActor.IsEquippedRightWeapon || playerActor.IsEquippedLeftWeapon)
             {
-                if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Attack))
+                if (Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
                 {
                     if (PlayerAttackState.TryEnter(playerController)) return;
                 }
@@ -115,7 +115,7 @@ namespace UPlayGround.State
                     return;
                 }
 
-                if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
+                if (Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack))
                 {
                     if (PlayerAttackState.TryEnter(playerController)) return;
                 }

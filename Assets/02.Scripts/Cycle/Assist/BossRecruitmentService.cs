@@ -13,9 +13,6 @@ namespace UPlayGround.Cycle
         { this.bossActorId = bossActorId; this.cycleSpawnId = cycleSpawnId; finishedBySpecialBreakAttack = specialBreak; this.noHit = noHit; }
     }
 
-    [Serializable]
-    public sealed class AssistPityEntry { public string assistId; public int failures; }
-
     public readonly struct BossRecruitmentResult
     {
         public readonly string assistId;

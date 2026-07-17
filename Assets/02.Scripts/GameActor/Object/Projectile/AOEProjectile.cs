@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Components;
@@ -167,7 +167,7 @@ namespace UPlayGround
             // 폭발 이펙트
             if (!string.IsNullOrEmpty(hitEffectKey))
             {
-                UPlayGround.Manager.GameObjectManager.Instance.ShowFX(hitEffectKey, transform.position);
+                UPlayGround.Manager.ActorSvc.Objects.ShowFX(hitEffectKey, transform.position);
             }
         }
 

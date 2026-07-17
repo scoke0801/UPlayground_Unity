@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
@@ -92,7 +92,7 @@ namespace UPlayGround.State
                 Transform breakTarget = combat != null ? combat.FindSpecialBreakAttackTarget() : null;
                 if (breakTarget != null)
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Interact);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Interact);
                     playerController.TransitionToState(new PlayerSpecialBreakAttackState(playerController, breakTarget));
                     return;
                 }
@@ -127,7 +127,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+            if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
             {
                 if (PlayerAttackState.TryEnter(playerController))
                     return;
@@ -140,12 +140,12 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.HeavyAttack))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack))
             {
                 if (gameActor.MoveAnimType == BaseMoveAnimType.Sprint
                     && playerController.TryTransitionToState(new PlayerDashAttackState(playerController)))
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     return;
                 }
 

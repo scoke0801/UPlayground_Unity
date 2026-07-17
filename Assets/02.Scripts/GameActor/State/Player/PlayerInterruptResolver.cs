@@ -58,7 +58,7 @@ namespace UPlayGround.State
                 return false;
             }
 
-            var buffer = InputManager.Instance.InputBuffer;
+            var buffer = Svc.Input.InputBuffer;
             bool hadMatchingInput = false;
 
             if ((mask & PlayerInterruptAction.Dodge) != 0 &&

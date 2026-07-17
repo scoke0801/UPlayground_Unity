@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Combat;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Components;
@@ -12,7 +13,7 @@ using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround
 {
-    public abstract class GameActor : MonoBehaviour
+    public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider
     {
         private const string PlayerDefaultTargetLayerName = "Enemy";
         private const string MonsterDefaultTargetLayerName = "Player";
@@ -68,6 +69,25 @@ namespace UPlayGround
 
         public ActorType ActorType => _actorType;
         public CharacterActorType CharacterType => _characterActorType;
+
+        MonsterActorGrade IWorldActor.Grade =>
+            this is MonsterActor monster ? monster.Grade : MonsterActorGrade.Normal;
+        Transform IWorldActor.Transform => transform;
+        bool IWorldActor.IsAlive => this is IDamageable damageable && damageable.IsAlive();
+        float IHealthRatioProvider.HealthRatio =>
+            this is IDamageable damageable ? damageable.GetHealthPercent() : 0f;
+
+        void IWorldActor.LockOn()
+        {
+            if (this is IDamageable damageable)
+                damageable.LockOn();
+        }
+
+        void IWorldActor.UnLockOn()
+        {
+            if (this is IDamageable damageable)
+                damageable.UnLockOn();
+        }
 
         /// <summary>런타임 고유 ID. 스폰 시 ActorDefinitionSO에서 주입되거나 Inspector에서 직접 설정.</summary>
         public string ActorId => _actorId;
@@ -126,7 +146,7 @@ namespace UPlayGround
             _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
             
             // 매니저에 등록
-            GameObjectManager.Instance?.RegisterActor(this);
+            ActorSvc.Objects?.RegisterActor(this);
         }
 
         private void ApplyBaseDefinition()
@@ -144,7 +164,7 @@ namespace UPlayGround
         protected virtual void OnDestroy()
         {
             // 매니저에서 제거
-            GameObjectManager.Instance?.UnregisterActor(this);
+            ActorSvc.Objects?.UnregisterActor(this);
         }
         
         protected virtual void Start()
@@ -152,7 +172,7 @@ namespace UPlayGround
             // SpawnActor를 거치지 않고 생성된 Actor(스킬 소환 등)를 추적 목록에 등록.
             // AfterInit 스캔 또는 SpawnActor에서 이미 등록된 경우 무시된다.
             if (!string.IsNullOrEmpty(_actorId))
-                ActorSpawnManager.Instance?.RegisterActor(this);
+                ActorSvc.SpawnTracking?.RegisterActor(this);
         }
 
         /// <summary>

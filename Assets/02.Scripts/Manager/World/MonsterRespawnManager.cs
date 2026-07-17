@@ -23,7 +23,8 @@ namespace UPlayGround.Manager
     /// 데이터 저장은 WorldStateManager(재스폰 상태 저장소)가, 시간은 GameTimeManager가 소유한다.
     /// GameManager 등록 순서는 WorldStateManager/ActorSpawnManager/SceneManager 이후여야 한다.
     /// </summary>
-    public class MonsterRespawnManager : BaseManager<MonsterRespawnManager>, IManager
+    public class MonsterRespawnManager : BaseManager<MonsterRespawnManager>, IManager,
+        IMonsterLifecycleService
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
         private GameTimeManager _cachedGameTimeManager;
@@ -101,6 +102,16 @@ namespace UPlayGround.Manager
         }
 
         #endregion
+
+        public void RecordDeath(MonsterActor monster, string guid)
+        {
+            string mapId = SceneManager.Instance?.CurrentMapID;
+            if (TryScheduleRespawn(monster, mapId, guid))
+                return;
+
+            if (!string.IsNullOrEmpty(guid))
+                WorldStateManager.Instance?.RecordPermanentKill(mapId, guid);
+        }
 
         // ── 씬 배치 등록 / 씬 적용 ────────────────────────────────────
 

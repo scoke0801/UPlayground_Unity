@@ -12,7 +12,7 @@ using UPlayGround.Data.Sound;
 namespace UPlayGround.Manager
 {
     public sealed class SoundManager : BaseManager<SoundManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager
+        IUpdatableManager, ISoundService
     {
         private const string SoundDatabaseKey = "SoundDatabase";
         private const string AudioMixerKey = "AudioMixer";

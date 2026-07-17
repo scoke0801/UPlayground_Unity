@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>UPlayground 모듈 구조 온보딩</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --panel: #101c2b;
+      --panel-2: #142438;
+      --line: #29415d;
+      --text: #e8f0f8;
+      --muted: #9eb0c3;
+      --cyan: #59d8ff;
+      --mint: #6ee7b7;
+      --amber: #fbbf6a;
+      --red: #fb7185;
+      --violet: #b79cff;
+      --sidebar: 286px;
+      --radius: 16px;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(89, 216, 255, .10), transparent 28rem),
+        radial-gradient(circle at 15% 55%, rgba(183, 156, 255, .08), transparent 30rem),
+        var(--bg);
+      font-family: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+      line-height: 1.72;
+      word-break: keep-all;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+    code {
+      padding: .12rem .38rem;
+      border: 1px solid rgba(89, 216, 255, .16);
+      border-radius: 6px;
+      color: #bceeff;
+      background: rgba(89, 216, 255, .07);
+      font-size: .92em;
+    }
+
+    .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 17, 29, .92);
+      backdrop-filter: blur(18px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(89, 216, 255, .45);
+      border-radius: 12px;
+      color: var(--cyan);
+      background: linear-gradient(145deg, rgba(89,216,255,.14), rgba(183,156,255,.08));
+      box-shadow: inset 0 0 18px rgba(89, 216, 255, .08);
+      font-weight: 800;
+    }
+    .brand strong { display: block; font-size: 15px; letter-spacing: .02em; }
+    .brand span { display: block; color: var(--muted); font-size: 12px; }
+
+    .search {
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      color: var(--text);
+      background: var(--panel);
+    }
+    .search:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(89,216,255,.09); }
+    nav { display: grid; gap: 4px; }
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-left: 2px solid transparent;
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover, nav a.active {
+      color: var(--text);
+      border-left-color: var(--cyan);
+      background: rgba(89, 216, 255, .07);
+      text-decoration: none;
+    }
+    .side-note {
+      margin-top: 24px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      background: rgba(16, 28, 43, .62);
+      font-size: 12px;
+    }
+
+    main { min-width: 0; padding: 0 5vw 96px; }
+    .hero {
+      position: relative;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 86px 0 52px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(110, 231, 183, .25);
+      border-radius: 999px;
+      color: var(--mint);
+      background: rgba(110, 231, 183, .07);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 850px;
+      margin: 18px 0 16px;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+    .hero p { max-width: 780px; margin: 0; color: var(--muted); font-size: 18px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #c6d4e2;
+      background: rgba(16, 28, 43, .68);
+      font-size: 12px;
+    }
+
+    section { max-width: 1120px; margin: 0 auto 76px; }
+    section[data-search-hidden="true"] { display: none; }
+    h2 { margin: 0 0 14px; font-size: clamp(27px, 3vw, 38px); letter-spacing: -.025em; }
+    h3 { margin: 28px 0 12px; font-size: 20px; }
+    .lead { max-width: 850px; margin: 0 0 26px; color: var(--muted); }
+    .kicker { display: block; margin-bottom: 6px; color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(20,36,56,.92), rgba(12,23,37,.92));
+      box-shadow: var(--shadow);
+    }
+    .card h3 { margin-top: 0; }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .number {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(89,216,255,.34);
+      border-radius: 9px;
+      color: var(--cyan);
+      background: rgba(89,216,255,.08);
+      font-weight: 800;
+    }
+
+    .callout {
+      margin: 20px 0;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--cyan);
+      border-radius: 12px;
+      background: rgba(16, 28, 43, .82);
+    }
+    .callout strong { color: var(--cyan); }
+    .callout.warn { border-left-color: var(--amber); }
+    .callout.warn strong { color: var(--amber); }
+    .callout.danger { border-left-color: var(--red); }
+    .callout.danger strong { color: var(--red); }
+    .callout.good { border-left-color: var(--mint); }
+    .callout.good strong { color: var(--mint); }
+
+    .module-map {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      margin: 26px 0;
+    }
+    .module {
+      position: relative;
+      min-height: 128px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--panel);
+    }
+    .module strong { display: block; margin-bottom: 8px; font-size: 14px; }
+    .module small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .module.core { border-color: rgba(158,176,195,.35); }
+    .module.data { border-color: rgba(110,231,183,.35); }
+    .module.contracts { border-color: rgba(251,191,106,.4); }
+    .module.camera { border-color: rgba(89,216,255,.4); }
+    .module.actor { border-color: rgba(183,156,255,.42); }
+    .module.ui { border-color: rgba(251,113,133,.4); }
+    .module::after {
+      content: "→";
+      position: absolute;
+      right: -11px;
+      top: 46%;
+      z-index: 2;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .module:last-child::after { display: none; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .flow > div {
+      position: relative;
+      padding: 14px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      text-align: center;
+      background: var(--panel);
+      font-size: 13px;
+    }
+    .flow > div:not(:last-child)::after {
+      content: "›";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      z-index: 2;
+      transform: translateY(-50%);
+      color: var(--cyan);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; }
+    table { width: 100%; border-collapse: collapse; background: rgba(16, 28, 43, .7); font-size: 14px; }
+    th, td { padding: 13px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--cyan); background: rgba(89,216,255,.055); font-size: 12px; letter-spacing: .04em; }
+    tr:last-child td { border-bottom: 0; }
+
+    .code-block { position: relative; margin: 16px 0; }
+    pre {
+      margin: 0;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: #d8e6f3;
+      background: #07101a;
+      overflow-x: auto;
+      line-height: 1.62;
+      font-size: 13px;
+      tab-size: 4;
+    }
+    pre code { padding: 0; border: 0; color: inherit; background: none; }
+    .copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--muted);
+      background: var(--panel);
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .copy:hover { color: var(--text); border-color: var(--cyan); }
+
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .do-dont .do { border-top: 3px solid var(--mint); }
+    .do-dont .dont { border-top: 3px solid var(--red); }
+    .do-dont ul, .checklist { margin: 0; padding: 0; list-style: none; }
+    .do-dont li, .checklist li { position: relative; padding: 7px 0 7px 26px; }
+    .do-dont .do li::before { content: "✓"; color: var(--mint); }
+    .do-dont .dont li::before { content: "×"; color: var(--red); }
+    .checklist li::before { content: "□"; color: var(--cyan); }
+    .do-dont li::before, .checklist li::before { position: absolute; left: 0; font-weight: 900; }
+
+    .decision {
+      padding: 20px;
+      border: 1px dashed rgba(89,216,255,.32);
+      border-radius: 14px;
+      background: rgba(89,216,255,.035);
+    }
+    .decision ol { margin: 0; padding-left: 22px; }
+    .decision li { margin: 10px 0; padding-left: 4px; }
+
+    details {
+      margin: 10px 0;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: rgba(16, 28, 43, .64);
+    }
+    summary { padding: 14px 16px; cursor: pointer; color: #dce8f3; font-weight: 700; }
+    details > div { padding: 0 16px 16px; color: var(--muted); }
+
+    footer {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding-top: 30px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1080px) {
+      .module-map { grid-template-columns: repeat(3, 1fr); }
+      .module:nth-child(3)::after { display: none; }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 820px) {
+      .layout { display: block; }
+      aside { position: relative; width: 100%; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      aside nav { grid-template-columns: repeat(2, 1fr); }
+      .side-note { display: none; }
+      main { padding-inline: 20px; }
+      .hero { padding-top: 56px; }
+      .grid.two, .grid.three, .do-dont { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow > div:not(:last-child)::after { content: "⌄"; right: 50%; top: auto; bottom: -18px; transform: translateX(50%); }
+    }
+    @media (max-width: 560px) {
+      aside nav { grid-template-columns: 1fr; }
+      .module-map { grid-template-columns: 1fr; }
+      .module::after, .module:nth-child(3)::after { content: "↓"; display: block; top: auto; right: 50%; bottom: -18px; transform: translateX(50%); }
+      .module:last-child::after { display: none; }
+      .card { padding: 18px; }
+      th, td { padding: 10px 11px; }
+    }
+    @media print {
+      :root { color-scheme: light; }
+      body { color: #182230; background: white; }
+      aside { display: none; }
+      .layout { display: block; }
+      main { padding: 0; }
+      .hero, section, footer { max-width: none; }
+      .card, .module, .callout, details, .table-wrap, pre { box-shadow: none; break-inside: avoid; }
+      .copy { display: none; }
+      a { color: #0369a1; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <div class="brand-mark">UP</div>
+      <div><strong>UPlayground</strong><span>Architecture onboarding</span></div>
+    </div>
+    <input id="docSearch" class="search" type="search" placeholder="섹션 검색…" aria-label="문서 검색">
+    <nav id="toc" aria-label="문서 목차">
+      <a href="#quickstart">10분 빠른 시작</a>
+      <a href="#architecture">모듈 구조</a>
+      <a href="#rules">의존성 규칙</a>
+      <a href="#services">서비스 레지스트리</a>
+      <a href="#add-service">서비스 추가법</a>
+      <a href="#ui">UI 개발 규칙</a>
+      <a href="#editor">Editor 코드 격리</a>
+      <a href="#serialization">직렬화 안전</a>
+      <a href="#placement">파일 배치 판단</a>
+      <a href="#diagnostics">오류 진단</a>
+      <a href="#verification">검증 체크리스트</a>
+      <a href="#files">핵심 파일 지도</a>
+    </nav>
+    <div class="side-note">
+      기준 버전: Unity 6.0.60f1<br>
+      구조 검증: 2026-07-17<br>
+      이 문서는 저장소의 실제 asmdef와 서비스 계약을 기준으로 작성되었습니다.
+    </div>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <span class="eyebrow">Modular architecture · onboarding</span>
+      <h1>수정 완료된 모듈 구조를<br>안전하게 확장하는 법</h1>
+      <p>
+        Data, Contracts, Camera, Actor, UI로 분리된 현재 구조에서 파일을 어디에 두고,
+        매니저 기능을 어떻게 요청하며, SerializeReference 데이터를 어떻게 지켜야 하는지 설명합니다.
+      </p>
+      <div class="hero-meta">
+        <span class="chip">Unity 6</span>
+        <span class="chip">asmdef 6개 런타임 경계</span>
+        <span class="chip">Svc / UISvc</span>
+        <span class="chip">MovedFrom 필수</span>
+        <span class="chip">Player Build 검증 완료</span>
+      </div>
+    </header>
+
+    <section id="quickstart">
+      <span class="kicker">START HERE</span>
+      <h2>10분 빠른 시작</h2>
+      <p class="lead">처음 참여했다면 아래 다섯 가지만 먼저 기억하면 대부분의 경계 오류를 피할 수 있습니다.</p>
+      <div class="grid three">
+        <article class="card">
+          <span class="number">1</span>
+          <h3>데이터는 아래로만</h3>
+          <p><code>UPlayGround.Data</code>는 SO, DTO, enum 같은 순수 데이터입니다. 런타임 매니저·Actor·UI 타입을 참조하지 않습니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">2</span>
+          <h3>구체 매니저 대신 계약</h3>
+          <p>UI와 하위 모듈에서는 <code>SomeManager.Instance</code>를 새로 만들지 않습니다. <code>Svc.Xxx</code> 또는 <code>UISvc.Xxx</code>를 사용합니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">3</span>
+          <h3>Editor는 별도 asmdef</h3>
+          <p><code>UnityEditor</code>, 커스텀 인스펙터, 프리팹 빌더는 반드시 Editor 전용 폴더와 asmdef 아래에 둡니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">4</span>
+          <h3>Awake 접근을 경계</h3>
+          <p><code>Services.Get</code>은 자동 생성하지 않습니다. GameManager 등록 전에 호출하면 null이며 최초 1회 경고가 출력됩니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">5</span>
+          <h3>SerializeReference는 이동 금지 수준으로 조심</h3>
+          <p>MotionEvent·Ultimate 이벤트 타입 이동 시 <code>MovedFrom</code> 없이 저장하면 이벤트와 VFX 연결이 유실될 수 있습니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">✓</span>
+          <h3>끝은 Player Build</h3>
+          <p>Editor 컴파일 성공만으로 끝내지 않습니다. Missing Script, managed reference, VFX 참조와 Player Build를 함께 확인합니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <span class="kicker">DEPENDENCY MAP</span>
+      <h2>현재 모듈 구조</h2>
+      <p class="lead">
+        아래 순서는 “기반 → 소비자” 방향입니다. 오른쪽 모듈은 왼쪽 모듈을 참조할 수 있지만,
+        왼쪽 모듈이 오른쪽 구현을 참조하면 순환 의존이 됩니다.
+      </p>
+      <div class="module-map" aria-label="asmdef 의존성 개요">
+        <div class="module core"><strong>Core</strong><small>공통 기반 코드<br>가장 낮은 계층</small></div>
+        <div class="module data"><strong>Data</strong><small>SO · DTO · enum<br>순수 데이터</small></div>
+        <div class="module contracts"><strong>Contracts</strong><small>IGameService<br>Services · Svc</small></div>
+        <div class="module camera"><strong>Camera</strong><small>카메라 런타임<br>Data + Contracts</small></div>
+        <div class="module actor"><strong>Actor</strong><small>Actor · 전투 · AI<br>MotionEvent</small></div>
+        <div class="module ui"><strong>UI</strong><small>UI 런타임<br>UISvc 계약</small></div>
+      </div>
+      <div class="callout">
+        <strong>중요:</strong> 위 그림은 이해용 선형 표현입니다. 실제로 UI는 Actor와 Camera를,
+        Actor는 Camera를 직접 참조합니다. 각 asmdef의 정확한 references가 최종 진실입니다.
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>어셈블리</th><th>대표 경로</th><th>책임</th><th>참조하면 안 되는 것</th></tr></thead>
+          <tbody>
+            <tr><td><code>UPlayGround.Core</code></td><td><code>02.Scripts/Core</code></td><td>공통 기반</td><td>게임 기능 구현</td></tr>
+            <tr><td><code>UPlayGround.Data</code></td><td><code>02.Scripts/Data</code></td><td>SO, DTO, enum, 순수 계산</td><td>Manager, Actor, Camera, UI</td></tr>
+            <tr><td><code>UPlayGround.Contracts</code></td><td><code>02.Scripts/Contracts</code></td><td>공유 서비스 계약과 레지스트리</td><td>구체 매니저 구현</td></tr>
+            <tr><td><code>UPlayGround.Camera</code></td><td><code>02.Scripts/Camera</code></td><td>카메라 모드·효과·락온</td><td>Actor/UI 구체 타입</td></tr>
+            <tr><td><code>UPlayGround.Actor</code></td><td><code>02.Scripts/GameActor</code></td><td>액터, 상태, 전투, AI, MotionEvent</td><td>UI 구현, 상위 기능 매니저</td></tr>
+            <tr><td><code>UPlayGround.UI</code></td><td><code>02.Scripts/UI</code></td><td>UI 런타임과 UI 소비자 계약</td><td>구체 Manager 싱글톤</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="rules">
+      <span class="kicker">BOUNDARY POLICY</span>
+      <h2>의존성 규칙</h2>
+      <div class="do-dont">
+        <article class="card do">
+          <h3>해야 하는 것</h3>
+          <ul>
+            <li>공유 계약은 <code>Contracts</code>에 둔다.</li>
+            <li>한 소비자만 필요한 계약은 소비자 모듈이 소유한다.</li>
+            <li>UI는 <code>Svc</code>와 <code>UISvc</code>로 기능을 요청한다.</li>
+            <li>기능 전용 UI는 기능 폴더가 소유하고 UI 기반 타입만 참조한다.</li>
+            <li>asmdef references는 실제 using/type 사용을 근거로 추가한다.</li>
+          </ul>
+        </article>
+        <article class="card dont">
+          <h3>하지 말아야 하는 것</h3>
+          <ul>
+            <li>컴파일 오류를 없애기 위해 무작정 Assembly-CSharp 타입을 옮긴다.</li>
+            <li>UI에서 <code>PartyManager.Instance</code> 같은 직접 접근을 추가한다.</li>
+            <li>Data에 MonoBehaviour 런타임 구현을 넣는다.</li>
+            <li>서비스가 null일 때 <code>FindFirstObjectByType</code>로 우회한다.</li>
+            <li>Editor 폴더 없이 <code>UnityEditor</code> using을 추가한다.</li>
+          </ul>
+        </article>
+      </div>
+      <div class="callout warn">
+        <strong>기존 코드와 신규 정책을 구분하세요.</strong>
+        Actor 모듈에는 Camera 모듈 타입을 직접 사용하는 기존 코드가 있습니다. asmdef가 허용하는 모듈 간 직접 참조 자체는 유효하지만,
+        새로운 상위 Manager 의존을 추가하는 근거로 사용하면 안 됩니다.
+      </div>
+    </section>
+
+    <section id="services">
+      <span class="kicker">RUNTIME SERVICES</span>
+      <h2>서비스 레지스트리 동작</h2>
+      <p class="lead">
+        <code>Services</code>는 구체 매니저를 하위 모듈에 노출하지 않기 위한 런타임 레지스트리입니다.
+        GameManager가 매니저를 등록할 때 구현된 모든 <code>IGameService</code> 인터페이스가 자동 바인딩됩니다.
+      </p>
+      <div class="flow">
+        <div>Manager 생성</div>
+        <div><code>RegisterManager</code></div>
+        <div><code>Services.Register</code></div>
+        <div>인터페이스별 바인딩</div>
+        <div><code>Svc / UISvc</code> 조회</div>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3><code>Svc</code></h3>
+          <p>여러 런타임 모듈이 공유하는 공용 계약입니다.</p>
+          <p><code>Svc.Input</code>, <code>Svc.Asset</code>, <code>Svc.GameTime</code>, <code>Svc.Camera</code>, <code>Svc.Events</code>, <code>Svc.Sound</code> 등.</p>
+        </article>
+        <article class="card">
+          <h3><code>UISvc</code></h3>
+          <p>UI가 실제로 소비하는 표면만 노출하는 UI 소유 계약입니다.</p>
+          <p><code>UISvc.Party</code>, <code>UISvc.Inventory</code>, <code>UISvc.Quest</code>, <code>UISvc.Scene</code>, <code>UISvc.UI</code> 등.</p>
+        </article>
+      </div>
+      <h3>조회 예시</h3>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+        <pre><code>// 공용 런타임 서비스
+var input = Svc.Input;
+input?.ShowCursor(true);
+
+// UI 소비자 전용 서비스
+var inventory = UISvc.Inventory;
+if (inventory != null && inventory.HasItem(itemId))
+{
+    inventory.TryUseItem(itemId);
+}</code></pre>
+      </div>
+      <div class="callout danger">
+        <strong>초기화 타이밍:</strong> <code>Services.Get&lt;T&gt;()</code>은 BaseManager.Instance처럼 객체를 자동 생성하지 않습니다.
+        GameManager 등록 전 필드 초기화나 이른 Awake에서 접근하면 null이며
+        <code>[Services] 등록되지 않은 서비스 계약 요청</code> 경고가 최초 1회 발생합니다.
+      </div>
+    </section>
+
+    <section id="add-service">
+      <span class="kicker">HOW TO EXTEND</span>
+      <h2>새 서비스 추가 방법</h2>
+      <p class="lead">구현을 옮기기 전에 소비자가 정말 필요한 최소 API부터 계약으로 정의합니다.</p>
+      <div class="grid two">
+        <article class="card">
+          <span class="number">1</span>
+          <h3>계약 위치 결정</h3>
+          <p>Camera·Actor·UI 등 여러 모듈이 쓰면 <code>Contracts</code>. UI만 쓰면 <code>UI/Contracts</code>처럼 소비자 모듈에 둡니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">2</span>
+          <h3>최소 표면 선언</h3>
+          <p>구체 Manager 전체 API를 복사하지 말고 현재 소비 코드가 요구하는 이벤트·프로퍼티·메서드만 선언합니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">3</span>
+          <h3>Manager가 구현</h3>
+          <p>Assembly-CSharp에 남은 Manager가 인터페이스를 구현합니다. GameManager 등록 코드는 추가할 필요가 없습니다.</p>
+        </article>
+        <article class="card">
+          <span class="number">4</span>
+          <h3>접근점과 검증</h3>
+          <p><code>Svc</code> 또는 <code>UISvc</code> getter를 추가하고 직접 싱글톤 호출을 치환한 뒤 Play Mode 경고를 확인합니다.</p>
+        </article>
+      </div>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+        <pre><code>// 1) 소비자 또는 Contracts 모듈
+public interface IExampleService : IGameService
+{
+    bool IsReady { get; }
+    void Execute(string key);
+}
+
+// 2) Assembly-CSharp의 구체 매니저
+public sealed class ExampleManager :
+    BaseManager&lt;ExampleManager&gt;, IManager, IExampleService
+{
+    public bool IsReady =&gt; _isReady;
+    public void Execute(string key) { /* 구현 */ }
+}
+
+// 3) 단축 접근점
+public static IExampleService Example =&gt;
+    Services.Get&lt;IExampleService&gt;();</code></pre>
+      </div>
+      <div class="callout good">
+        <strong>자동 등록 조건:</strong> Manager 인스턴스가 <code>IGameService</code>를 상속한 인터페이스를 구현하고
+        기존 <code>GameManager.RegisterManager</code> 경로로 등록되면 해당 계약은 자동으로 레지스트리에 들어갑니다.
+      </div>
+    </section>
+
+    <section id="ui">
+      <span class="kicker">UI MODULE</span>
+      <h2>UI 개발 규칙</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상황</th><th>사용할 접근</th><th>예시</th></tr></thead>
+          <tbody>
+            <tr><td>UI 표시/숨김</td><td><code>UISvc.UI</code></td><td><code>UISvc.UI?.ShowUI(UIKeyType.Inventory)</code></td></tr>
+            <tr><td>파티/인벤토리/퀘스트</td><td><code>UISvc</code></td><td><code>UISvc.Party</code>, <code>UISvc.Inventory</code></td></tr>
+            <tr><td>입력/시간/사운드/에셋</td><td><code>Svc</code></td><td><code>Svc.Input</code>, <code>Svc.GameTime</code></td></tr>
+            <tr><td>현재 플레이어와 액터 목록</td><td><code>UISvc.Actors</code></td><td><code>UISvc.Actors?.Player</code></td></tr>
+            <tr><td>카메라 모드/메인 카메라</td><td><code>Svc.Camera</code></td><td><code>Svc.Camera?.GetMainCamera()</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>기능 전용 UI의 소유권</h3>
+      <p>
+        사이클 구현에 강하게 결합된 <code>UI_BossAssistHud</code>, <code>UIAssistRosterPanel</code>,
+        <code>UI_CycleCompass</code>, <code>UI_Minimap</code> 같은 컴포넌트는 기능 폴더가 소유합니다.
+        네임스페이스는 프리팹 연결을 위해 <code>UPlayGround.UI</code>를 유지할 수 있습니다.
+      </p>
+      <div class="callout">
+        <strong>프리팹 참조 유지:</strong> 스크립트를 옮길 때 <code>.cs.meta</code>를 반드시 함께 이동합니다.
+        GUID가 바뀌면 프리팹에는 즉시 Missing Script가 생깁니다.
+      </div>
+    </section>
+
+    <section id="editor">
+      <span class="kicker">EDITOR ISOLATION</span>
+      <h2>Editor 코드 격리</h2>
+      <p class="lead">
+        런타임 asmdef 아래의 Editor 코드는 전용 asmdef가 없으면 Player 빌드에 섞일 수 있습니다.
+        현재 UI 에디터 코드는 중앙 <code>UI/Editor</code>에 집결되어 있습니다.
+      </p>
+      <div class="grid two">
+        <article class="card">
+          <h3>모듈 내부 Editor</h3>
+          <p>해당 모듈과 하위 모듈만 참조하는 커스텀 에디터.</p>
+          <ul>
+            <li><code>Data/Editor/UPlayGround.Data.Editor.asmdef</code></li>
+            <li><code>GameActor/Editor/UPlayGround.GameActor.Editor.asmdef</code></li>
+            <li><code>UI/Editor/UPlayGround.UI.Editor.asmdef</code></li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>상위 기능 종속 Editor</h3>
+          <p>Assembly-CSharp의 기능 타입이나 구체 Manager를 참조하는 도구.</p>
+          <ul>
+            <li><code>02.Scripts/Editor/</code>로 이동</li>
+            <li>예: 파티 어시스트 프리팹 빌더, Region Portal 동기화 창</li>
+          </ul>
+        </article>
+      </div>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+        <pre><code>{
+  "name": "UPlayGround.UI.Editor",
+  "references": [
+    "UPlayGround.UI",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "UPlayGround.Actor"
+  ],
+  "includePlatforms": ["Editor"]
+}</code></pre>
+      </div>
+    </section>
+
+    <section id="serialization">
+      <span class="kicker">DATA SAFETY</span>
+      <h2>SerializeReference와 에셋 안전</h2>
+      <p class="lead">
+        MotionSet과 Ultimate 이벤트는 구체 타입 정보를 어셈블리 이름까지 포함해 저장합니다.
+        클래스 이름과 네임스페이스가 같아도 어셈블리가 바뀌면 Unity 입장에서는 다른 타입입니다.
+      </p>
+      <div class="callout danger">
+        <strong>실제 장애 사례:</strong> MotionEvent 타입이 <code>Assembly-CSharp</code>에서
+        <code>UPlayGround.Actor</code>로 이동한 뒤 매핑이 없으면 이벤트가 Unknown/null이 되고,
+        그 안의 Particle/VFX 오브젝트 참조도 사라진 것처럼 보일 수 있습니다.
+      </div>
+      <h3>필수 매핑</h3>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+        <pre><code>using System;
+using UnityEngine.Scripting.APIUpdating;
+
+[Serializable]
+[MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+public sealed class SlashVFXEvent : MotionEvent
+{
+    // 기존 직렬화 필드 이름과 타입도 유지
+}</code></pre>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <h3>이동 전</h3>
+          <ul class="checklist">
+            <li><code>[SerializeReference]</code> 하위 타입 목록 수집</li>
+            <li>원래 assembly / namespace / class 기록</li>
+            <li>MotionSet·Ultimate 대표 에셋 백업</li>
+            <li>에셋 diff가 깨끗한지 확인</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>이동 후</h3>
+          <ul class="checklist">
+            <li>모든 구체 타입에 <code>MovedFrom</code> 적용</li>
+            <li>managed reference null/Unknown 0건 확인</li>
+            <li><code>particlePrefab</code>, <code>vfxPrefab</code> null 0건 확인</li>
+            <li>검증 중 자동 재직렬화된 에셋 diff 확인</li>
+          </ul>
+        </article>
+      </div>
+      <div class="callout warn">
+        <strong>금지:</strong> 타입 오류가 있는 상태에서 MotionSet/Ultimate 에셋을 열고 저장하거나,
+        전체 에셋을 일괄 재직렬화하지 마세요. 먼저 컴파일과 타입 매핑을 복구해야 합니다.
+      </div>
+    </section>
+
+    <section id="placement">
+      <span class="kicker">DECISION TREE</span>
+      <h2>새 파일은 어디에 둘까?</h2>
+      <div class="decision">
+        <ol>
+          <li><strong>SO, DTO, enum, 순수 계산인가?</strong> → <code>Data</code></li>
+          <li><strong>여러 모듈이 구현과 분리해 써야 하는 계약인가?</strong> → <code>Contracts</code></li>
+          <li><strong>카메라 모드·효과·락온 구현인가?</strong> → <code>Camera</code></li>
+          <li><strong>GameActor, 전투, 상태, AI, MotionEvent인가?</strong> → <code>GameActor</code></li>
+          <li><strong>일반 UI 런타임인가?</strong> → <code>UI</code></li>
+          <li><strong>사이클 등 특정 기능 구현에 결합된 UI인가?</strong> → 해당 기능의 <code>UI</code> 하위 폴더</li>
+          <li><strong>UnityEditor API를 사용하는가?</strong> → 참조 대상에 따라 모듈 <code>Editor</code> 또는 전역 <code>02.Scripts/Editor</code></li>
+        </ol>
+      </div>
+      <div class="callout">
+        폴더를 정한 다음 “그 폴더의 asmdef references만으로 컴파일 가능한가?”를 확인하세요.
+        불가능하다면 references를 늘리기 전에 파일 소유권이나 서비스 계약이 잘못된 것은 아닌지 먼저 검토합니다.
+      </div>
+    </section>
+
+    <section id="diagnostics">
+      <span class="kicker">TROUBLESHOOTING</span>
+      <h2>자주 만나는 오류 진단</h2>
+      <details open>
+        <summary>CS0246 — 타입 또는 네임스페이스를 찾을 수 없음</summary>
+        <div>
+          먼저 타입 정의가 어느 asmdef에 포함되는지 확인합니다. 소비 모듈의 asmdef reference가 정당한지,
+          타입이 잘못된 모듈에 놓였는지, Editor 타입이 런타임에 섞였는지 순서대로 봅니다.
+          단순히 using만 추가해서 해결되지 않는 경우가 대부분입니다.
+        </div>
+      </details>
+      <details>
+        <summary>CS0535 / CS0738 — 서비스 인터페이스 구현 불일치</summary>
+        <div>
+          계약의 반환 타입, 이벤트 제네릭 타입, nullable/오버로드가 구체 Manager의 public API와 정확히 같은지 확인합니다.
+          필요하면 명시적 인터페이스 구현으로 구체 API 노출을 제한합니다.
+        </div>
+      </details>
+      <details>
+        <summary>[Services] 등록되지 않은 서비스 계약 요청</summary>
+        <div>
+          Manager가 해당 <code>IGameService</code> 인터페이스를 구현하는지, GameManager에 등록되는 타입인지,
+          조회 시점이 등록 이전인지 확인합니다. Awake 필드 캐시보다 OnShow/Init 이후 지연 조회를 우선합니다.
+        </div>
+      </details>
+      <details>
+        <summary>Missing Prefab / Missing Script</summary>
+        <div>
+          이동한 파일의 <code>.meta</code>가 함께 이동했는지 확인합니다. 프리팹에 기록된 GUID를 프로젝트의 meta에서 찾고,
+          GUID를 새로 만들거나 프리팹 YAML을 임의 삭제하지 않습니다.
+        </div>
+      </details>
+      <details>
+        <summary>MotionEvent는 보이지만 VFX가 null</summary>
+        <div>
+          디스크 YAML의 GUID 존재 여부와 Unity 메모리 역직렬화 결과를 구분해 확인합니다.
+          <code>MovedFrom</code> 적용 후 에셋을 unload/reimport하고 object reference null 수를 검증합니다.
+        </div>
+      </details>
+      <details>
+        <summary>Burst의 Failed to resolve assembly</summary>
+        <div>
+          대개 선행 C# 컴파일 실패 때문에 대상 DLL이 생성되지 않은 2차 오류입니다.
+          Burst 스택보다 먼저 출력된 첫 번째 CS 오류를 해결합니다.
+        </div>
+      </details>
+    </section>
+
+    <section id="verification">
+      <span class="kicker">DEFINITION OF DONE</span>
+      <h2>변경 완료 체크리스트</h2>
+      <div class="grid two">
+        <article class="card">
+          <h3>모든 모듈 변경</h3>
+          <ul class="checklist">
+            <li>Unity Tundra 컴파일 오류 0</li>
+            <li>새 asmdef reference가 최소 집합</li>
+            <li>런타임 폴더의 무가드 UnityEditor 참조 0</li>
+            <li>Play Mode에서 서비스 미등록 경고 0</li>
+            <li>Play Mode 시작/종료 런타임 예외 0</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>UI·직렬화 변경 추가 검사</h3>
+          <ul class="checklist">
+            <li>UI의 신규 <code>Manager.Instance</code> 0</li>
+            <li>대표 UI/Player 프리팹 Missing Script 0</li>
+            <li>managed reference 누락 0</li>
+            <li>MotionEvent VFX 참조 누락 0</li>
+            <li>Player Build 오류 0</li>
+          </ul>
+        </article>
+      </div>
+      <div class="callout good">
+        <strong>2026-07-17 기준 검증 결과:</strong>
+        UI·Player 프리팹 63개 Missing Script 0,
+        MotionSet/Ultimate 에셋 1,156개 managed reference 1,638개 중 누락 0,
+        VFX 참조 168개 중 누락 0,
+        StandaloneWindows64 Development Boot 빌드 오류 0.
+      </div>
+    </section>
+
+    <section id="files">
+      <span class="kicker">SOURCE MAP</span>
+      <h2>핵심 파일 지도</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>파일</th><th>용도</th></tr></thead>
+          <tbody>
+            <tr><td><code>Assets/02.Scripts/Contracts/Services.cs</code></td><td>IGameService, 레지스트리, Svc 단축 접근</td></tr>
+            <tr><td><code>Assets/02.Scripts/Contracts/GameServices.cs</code></td><td>공유 런타임 서비스 계약</td></tr>
+            <tr><td><code>Assets/02.Scripts/UI/Contracts/UIServices.cs</code></td><td>UI 소비자 전용 계약과 UISvc</td></tr>
+            <tr><td><code>Assets/02.Scripts/Manager/GameManager.cs</code></td><td>매니저 생명주기와 서비스 자동 등록/해제</td></tr>
+            <tr><td><code>Assets/02.Scripts/UI/UPlayGround.UI.asmdef</code></td><td>UI 런타임 어셈블리 경계</td></tr>
+            <tr><td><code>Assets/02.Scripts/UI/Editor/UPlayGround.UI.Editor.asmdef</code></td><td>UI Editor 전용 경계</td></tr>
+            <tr><td><code>Assets/docs/TODO/ASMDEF_MODULARIZATION_PLAN.md</code></td><td>모듈화 이력, 체크포인트, 리스크</td></tr>
+            <tr><td><code>CLAUDE.md</code></td><td>프로젝트 전체 구조와 개발 규칙 요약</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <strong>UPlayground 모듈 구조 온보딩</strong><br>
+      소스 코드와 asmdef가 문서보다 우선합니다. 구조 변경 시 이 문서와
+      <code>ASMDEF_MODULARIZATION_PLAN.md</code>를 함께 갱신하세요.
+    </footer>
+  </main>
+</div>
+
+<script>
+  const sections = [...document.querySelectorAll("main section")];
+  const links = [...document.querySelectorAll("#toc a")];
+  const search = document.querySelector("#docSearch");
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    links.forEach(link => {
+      link.classList.toggle("active", link.getAttribute("href") === "#" + visible.target.id);
+    });
+  }, { rootMargin: "-15% 0px -70% 0px", threshold: [0, .25, .6] });
+  sections.forEach(section => observer.observe(section));
+
+  search.addEventListener("input", () => {
+    const query = search.value.trim().toLocaleLowerCase("ko");
+    sections.forEach(section => {
+      const match = !query || section.textContent.toLocaleLowerCase("ko").includes(query);
+      section.dataset.searchHidden = String(!match);
+    });
+    links.forEach(link => {
+      const section = document.querySelector(link.getAttribute("href"));
+      link.hidden = section?.dataset.searchHidden === "true";
+    });
+  });
+
+  document.querySelectorAll(".copy").forEach(button => {
+    button.addEventListener("click", async () => {
+      const text = button.nextElementSibling.innerText;
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+      const original = button.textContent;
+      button.textContent = "복사됨";
+      setTimeout(() => button.textContent = original, 1200);
+    });
+  });
+</script>
+</body>
+</html>

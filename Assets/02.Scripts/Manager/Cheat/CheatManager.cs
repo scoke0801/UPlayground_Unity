@@ -40,7 +40,7 @@ namespace UPlayGround.Manager
     /// 이 코어 파일은 항상 컴파일된다(GameManager가 무조건 등록하고, IsAlwaysParryEnabled를
     /// 릴리스 전투 코드가 참조하기 때문).
     /// </summary>
-    public partial class CheatManager : BaseManager<CheatManager>, IManager
+    public partial class CheatManager : BaseManager<CheatManager>, IManager, ICheatStateService
     {
         [Header("전투 치트")]
         [Tooltip("활성화 시 어떤 상태에서도 적의 공격을 패리할 수 있다")]

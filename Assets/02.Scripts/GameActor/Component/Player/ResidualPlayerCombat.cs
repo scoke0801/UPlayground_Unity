@@ -6,8 +6,6 @@ using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Combat;
-using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
 using UPlayGround.UI;
 
@@ -255,7 +253,7 @@ namespace UPlayGround.Components
                 _hitTargets.Add(hit.Damageable);
                 CombatResult result = hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_attackData));
                 ShowDamageFloater(result);
-                GameObjectManager.Instance?.ShowFX(GetHitFxKey(_attackData), hit.HitPoint);
+                ActorSvc.Objects?.ShowFX(GetHitFxKey(_attackData), hit.HitPoint);
                 OnAttackHit?.Invoke(_attackData);
                 _ownerPlayer?.GetCombat()?.NotifyAttackHit(_attackData);
                 Debug.Log($"[ResidualAttack] Hit applied. target={hit.HitObject?.name}, damage={_attackData.damage}, phase={_attackData.hitPhaseIndex}, point={hit.HitPoint}");
@@ -354,11 +352,11 @@ namespace UPlayGround.Components
             if (_showCharacterOnDamageFloater && _ownerType != CharacterActorType.None)
             {
                 string label = $"{_ownerType} {Mathf.RoundToInt(result.FinalDamage)}";
-                UIManager.Instance?.ShowDamageFloaterLabel(result.Hit.HitPoint, label, result.FloaterStyle);
+                ActorSvc.UI?.ShowDamageFloaterLabel(result.Hit.HitPoint, label, result.FloaterStyle);
             }
             else
             {
-                UIManager.Instance?.ShowDamageFloater(
+                ActorSvc.UI?.ShowDamageFloater(
                     result.Hit.HitPoint,
                     result.FinalDamage,
                     result.FloaterStyle);
@@ -367,13 +365,13 @@ namespace UPlayGround.Components
 
         private void ApplyHitFeedback()
         {
-            if (!_allowHitStop || GameCombatManager.Instance == null) return;
+            if (!_allowHitStop || ActorSvc.Combat == null) return;
             if (_feedbackMinInterval > 0f && Time.unscaledTime - _lastFeedbackTime < _feedbackMinInterval)
                 return;
 
             _lastFeedbackTime = Time.unscaledTime;
             if (_hitStopDuration > 0f)
-                GameCombatManager.Instance.GameHitStop.Execute(_hitStopDuration, _hitStopTimeScale);
+            ActorSvc.Combat.ExecuteHitStop(_hitStopDuration, _hitStopTimeScale);
         }
 
         private static string GetHitFxKey(AttackData attackData)

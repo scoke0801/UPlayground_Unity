@@ -14,7 +14,8 @@ namespace UPlayGround.Manager
         Scene,
     }
 
-    public class AssetManager : BaseManager<AssetManager>, IManager, IAsyncInitializableManager
+    public class AssetManager : BaseManager<AssetManager>, IManager, IAsyncInitializableManager,
+        IAssetService
     {
         // 에디터 첫 임포트/번들 빌드가 느린 환경의 오탐(타임아웃)을 피하려 에디터에서는 더 길게 둔다.
 #if UNITY_EDITOR

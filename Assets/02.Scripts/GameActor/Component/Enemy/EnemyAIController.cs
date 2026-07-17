@@ -178,7 +178,9 @@ namespace UPlayGround.Components
 
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
             _behaviorTreeRunner ??= gameObject.AddComponent<BehaviorTreeRunner>();
-            _behaviorTreeRunner.SetTreeAsset(_behaviorData.behaviorTree, restartIfRunning: false);
+            _behaviorTreeRunner.SetTreeAsset(
+                _behaviorData.behaviorTree as BehaviorTreeAsset,
+                restartIfRunning: false);
 
             if (isActiveAndEnabled && !_behaviorTreeRunner.IsRunning && !_behaviorTreeRunner.IsPaused)
                 _behaviorTreeRunner.StartTree();

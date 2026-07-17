@@ -11,7 +11,6 @@ using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Diagnostics;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
 using UnityEngine.Serialization;
@@ -62,8 +61,8 @@ namespace UPlayGround
         protected bool _isDead = false;
         private int _externalHitReactionSuppressionCount;
         
-        protected UI_ActorHpBar _uiHpBar;
-        private UI_BreakInteraction _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
+        protected IActorHpBarView _uiHpBar;
+        private IActorBreakInteractionView _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
 
         // 기본 Airborne 수치(7~8)는 피격 경직으로 처리하고, 전용 launch급 공격만 공중 상태로 보낸다.
         private const float MinAirborneStateForce = 10f;
@@ -119,7 +118,7 @@ namespace UPlayGround
         {
             if (_uiHpBar != null) return;
             
-            _uiHpBar = UIManager.Instance.CreateHpBar(this);
+            _uiHpBar = ActorSvc.UI.CreateHpBar(this);
             if (_uiHpBar != null)
             {
                 OnHealthChanged += _uiHpBar.UpdateHealth;
@@ -212,7 +211,7 @@ namespace UPlayGround
             if (_uiHpBar == null) AttachHpUI();
 
             MovementController.AddVelocity(attackDirection.normalized * 30.0f);
-            GameCombatManager.Instance.GameVitalOrb.TrySpawn(VitalOrbTrigger.FinishAttackHit, transform.position);
+            ActorSvc.Combat?.TrySpawnVitalOrb(VitalOrbTrigger.FinishAttackHit, transform.position);
             OnDeath();
         }
 
@@ -318,7 +317,7 @@ namespace UPlayGround
             Vector3 floaterPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position
                 : transform.position;
-            UIManager.Instance.ShowDamageFloaterHeal(floaterPos, actualHeal, FloatStyle.MonsterHeal);
+            ActorSvc.UI.ShowDamageFloaterHeal(floaterPos, actualHeal, FloatStyle.MonsterHeal);
 
             RuntimeLog.Trace(
                 RuntimeLogCategory.Combat,
@@ -543,22 +542,12 @@ namespace UPlayGround
 
         private void NotifyQuestMonsterKill()
         {
-            if (QuestManager.Instance == null)
-            {
-                return;
-            }
-
-            QuestManager.Instance.NotifyMonsterKill(ActorId);
+            ActorSvc.QuestProgress?.NotifyMonsterKill(ActorId);
         }
 
         private void NotifyRecipeMonsterKill()
         {
-            if (RecipeManager.Instance == null)
-            {
-                return;
-            }
-
-            RecipeManager.Instance.NotifyMonsterKill(ActorId);
+            ActorSvc.RecipeProgress?.NotifyMonsterKill(ActorId);
         }
 
         /// <summary>
@@ -570,44 +559,37 @@ namespace UPlayGround
         {
             var entityId = GetComponent<SceneEntityId>();
             string guid = entityId != null && entityId.HasGuid ? entityId.Guid : null;
-            string mapId = SceneManager.Instance?.CurrentMapID;
-
-            if (MonsterRespawnManager.Instance != null
-                && MonsterRespawnManager.Instance.TryScheduleRespawn(this, mapId, guid))
-                return;
-
-            if (string.IsNullOrEmpty(guid)) return;
-            WorldStateManager.Instance?.RecordPermanentKill(mapId, guid);
+            ActorSvc.MonsterLifecycle?.RecordDeath(this, guid);
         }
 
         private void TryRecruitToParty()
         {
             if (_recruitableAs == CharacterActorType.None) return;
-            PartyManager.Instance?.UnlockCharacter(_recruitableAs);
+            Svc.Party?.UnlockCharacter(_recruitableAs);
         }
 
         private void GrantPartyExp()
         {
             long exp = _runtimeExpReward >= 0 ? _runtimeExpReward : _expReward;
             if (exp <= 0) return;
-            PartyManager.Instance?.AwardBattleExp(exp);
+            Svc.Party?.AwardBattleExp(exp);
         }
 
         private void GrantGold()
         {
             int gold = _runtimeGoldReward >= 0 ? _runtimeGoldReward : _goldReward;
-            if (gold <= 0 || InventoryManager.Instance == null) return;
-            InventoryManager.Instance.Gold += gold;
+            if (gold <= 0 || Svc.Inventory == null) return;
+            Svc.Inventory.Gold += gold;
         }
 
         private void SpawnDropItems()
         {
             if (_dropTable == null) return;
 
-            var items = ItemManager.Instance.GetDropItemList(_dropTable.dropItems);
+            var items = Svc.Item.GetDropItemList(_dropTable.dropItems);
             foreach (var item in items)
             {
-                GameObjectManager.Instance.SpawnItem(item, transform.position);
+                ActorSvc.Objects.SpawnItem(item, transform.position);
             }
         }
 
@@ -789,8 +771,8 @@ namespace UPlayGround
 
         private void ShowBreakInteraction()
         {
-            if (_breakInteraction != null || _isDead || UIManager.Instance == null) return;
-            _breakInteraction = UIManager.Instance.CreateBreakInteraction(this);
+            if (_breakInteraction != null || _isDead || ActorSvc.UI == null) return;
+            _breakInteraction = ActorSvc.UI.CreateBreakInteraction(this);
         }
 
         private void HideBreakInteraction()

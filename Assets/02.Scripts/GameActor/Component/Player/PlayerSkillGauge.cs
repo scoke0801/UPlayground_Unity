@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
@@ -126,9 +126,9 @@ namespace UPlayGround.Components
             GrowthSkillType skillType = skillSlot == AbilitySkillSlot
                 ? GrowthSkillType.Ability
                 : GrowthSkillType.Ultimate;
-            if (PartyManager.Instance != null
-                && !PartyManager.Instance.IsSkillUnlocked(
-                    PartyManager.Instance.ActiveCharacterType,
+            if (Svc.Party != null
+                && !Svc.Party.IsSkillUnlocked(
+                    Svc.Party.ActiveCharacterType,
                     skillType))
                 return false;
             if (IsSkillOnCooldown(skillSlot)) return false;

@@ -5,6 +5,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.AI.BehaviorTree.Editor;
+using UPlayGround.AI.BehaviorTree;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -313,7 +314,8 @@ namespace UPlayGround.Tool.Editor.Balance
                     using (new EditorGUI.DisabledScope(_selectedActor.behaviorData == null || _selectedActor.behaviorData.behaviorTree == null))
                     {
                         if (GUILayout.Button("Open BT", GUILayout.Width(86f)))
-                            BehaviorTreeEditorWindow.Open(_selectedActor.behaviorData.behaviorTree);
+                    BehaviorTreeEditorWindow.Open(
+                        _selectedActor.behaviorData.behaviorTree as BehaviorTreeAsset);
                     }
 
                     using (new EditorGUI.DisabledScope(!BalanceDataAutoGenerator.HasMissingData(_selectedActor)))

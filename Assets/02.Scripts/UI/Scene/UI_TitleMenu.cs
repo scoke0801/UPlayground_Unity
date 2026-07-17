@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -54,12 +53,12 @@ namespace UPlayGround.UI
         {
             // 이어하기: 가장 최근 슬롯을 로드하고 저장된 씬으로 진입.
             // 저장이 없으면 새 게임으로 폴백.
-            int recent = SaveManager.Instance.GetMostRecentSlot();
+            int recent = UISvc.Save.GetMostRecentSlot();
 
             if (recent >= 0)
             {
-                UIManager.Instance.HideAllUI();
-                SaveManager.Instance.LoadGameToScene(recent);
+                UISvc.UI.HideAllUI();
+                UISvc.Save.LoadGameToScene(recent);
             }
             else
             {
@@ -71,7 +70,7 @@ namespace UPlayGround.UI
         private void OnClickLoadButton()
         {
             // 슬롯 선택 UI를 로드 모드로 띄운다. 슬롯 선택 시 저장된 씬으로 진입한다.
-            var go = UIManager.Instance.ShowUI(UI_SaveSlotMenu.UIKey);
+            var go = UISvc.UI.ShowUI(UI_SaveSlotMenu.UIKey);
             go?.GetComponent<UI_SaveSlotMenu>()?.SetMode(UI_SaveSlotMenu.SaveSlotMode.Load);
         }
 
@@ -80,7 +79,7 @@ namespace UPlayGround.UI
             // 새 게임: 곧바로 시작하지 않고 캐릭터 선택 UI를 띄운다.
             // 캐릭터를 확정하면 CharacterConfirmed 이벤트로 실제 시작 흐름을 진행한다.
             // (취소 시 캐릭터 선택 UI만 닫히고 타이틀로 복귀.)
-            var go = UIManager.Instance.ShowUI(UI_CharacterSelect.UIKey);
+            var go = UISvc.UI.ShowUI(UI_CharacterSelect.UIKey);
             _characterSelect = go != null ? go.GetComponent<UI_CharacterSelect>() : null;
             if (_characterSelect == null)
             {
@@ -139,10 +138,10 @@ namespace UPlayGround.UI
                 return;
             }
 
-            SaveManager.Instance.ResetForNewGame();
-            PartyManager.Instance.PrepareNewGameStartingCharacter(selectedCharacter);
-            CycleRunManager.Instance.RequestStartNewCycleOnNextWorld();
-            UIManager.Instance.HideAllUI();
+            UISvc.Save.ResetForNewGame();
+            UISvc.Party.PrepareNewGameStartingCharacter(selectedCharacter);
+            UISvc.Cycle.RequestStartNewCycleOnNextWorld();
+            UISvc.UI.HideAllUI();
             LoadStartScene();
         }
 
@@ -160,12 +159,12 @@ namespace UPlayGround.UI
                 return;
             }
 
-            SceneManager.Instance.LoadScene(startScene);
+            UISvc.Scene.LoadScene(startScene);
         }
 
         private void OnClickOptionButton()
         {
-            UIManager.Instance.ShowUI(UIKeyType.Config);
+            UISvc.UI.ShowUI(UIKeyType.Config);
         }
 
         protected override void OnDispose()

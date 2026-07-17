@@ -47,13 +47,4 @@ namespace UPlayGround.UI
         }
     #endif
     }
-
-    public enum MinimapMarkerType
-    {
-        QuestTarget, // 퀘스트 목표 지점 ("!" 아이콘, 활성 퀘스트 조건 충족 시에만 표시)
-        Custom,      // 커스텀 정적 마커 (config의 customMarker 아이콘)
-        Town,        // 마을 입구 / 거점 마커
-        Portal,      // 포탈 / 워프 지점 마커
-        Npc,         // 고정 NPC 마커 (액터 시스템과 별개로 항상 표시)
-    }
 }

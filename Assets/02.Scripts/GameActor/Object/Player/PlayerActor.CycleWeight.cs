@@ -2,7 +2,7 @@ using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Stat;
-using UPlayGround.Manager.Combat;
+using UPlayGround.Manager;
 
 namespace UPlayGround
 {
@@ -25,10 +25,7 @@ namespace UPlayGround
             VitalRecoveryPolicySO policy = _weightProfile != null ? _weightProfile.recoveryPolicy : null;
             if (policy == null) return false;
 
-            GameVitalOrbHandler handler = GameCombatManager.Instance?.GameVitalOrb;
-            if (handler == null) return true;
-
-            handler.TrySpawnByPolicy(
+            ActorSvc.Combat?.TrySpawnVitalOrbByPolicy(
                 trigger,
                 position,
                 specialBreak ? policy.specialBreakSpawnChance : policy.normalHitSpawnChance,

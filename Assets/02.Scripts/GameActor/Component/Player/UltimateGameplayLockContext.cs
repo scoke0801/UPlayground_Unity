@@ -3,7 +3,6 @@ using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
-using UPlayGround.UI;
 
 namespace UPlayGround.Components
 {
@@ -172,29 +171,24 @@ namespace UPlayGround.Components
 
         private void HideHud()
         {
-            UIManager uiManager = UIManager.Instance;
+            IActorUIService uiManager = ActorSvc.UI;
             if (uiManager == null)
                 return;
 
             foreach (UIKeyType key in HudKeys)
             {
-                GameObject active = uiManager.GetActiveUI(key);
-                UI_Base ui = active != null ? active.GetComponent<UI_Base>() : null;
-                if (ui == null || !ui.IsVisible)
-                    continue;
-
-                _hiddenHudKeys.Add(key);
-                uiManager.HideUI(key);
+                if (uiManager.HideHud(key))
+                    _hiddenHudKeys.Add(key);
             }
         }
 
         private void RestoreHud()
         {
-            UIManager uiManager = UIManager.Instance;
+            IActorUIService uiManager = ActorSvc.UI;
             if (uiManager != null)
             {
                 foreach (UIKeyType key in _hiddenHudKeys)
-                    uiManager.ShowUI(key);
+                    uiManager.ShowHud(key);
             }
 
             _hiddenHudKeys.Clear();

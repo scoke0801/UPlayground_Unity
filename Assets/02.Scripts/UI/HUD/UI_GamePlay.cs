@@ -1,4 +1,4 @@
-﻿
+
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -7,9 +7,6 @@ using UPlayGround.Components;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-using UPlayGround.UI.DevCheat;
-#endif
 using UPlayGround.UI.InputPrompt;
 
 namespace UPlayGround.UI
@@ -17,8 +14,8 @@ namespace UPlayGround.UI
     class UI_GamePlay : UI_Base
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
-        private UIManager _cachedUIManager;
-        private UIManager UIMgr => _cachedUIManager != null ? _cachedUIManager : (_cachedUIManager = UIManager.Instance);
+        private IUIRuntimeService _cachedUIManager;
+        private IUIRuntimeService UIMgr => _cachedUIManager != null ? _cachedUIManager : (_cachedUIManager = UISvc.UI);
 
 
         private const string HudWorldClockKey = "HudWorldClock";
@@ -68,9 +65,9 @@ namespace UPlayGround.UI
 
             UIMgr.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
-            if (GameObjectManager.Instance != null)
+            if (UISvc.Actors != null)
             {
-                _playerActor = GameObjectManager.Instance.Player;
+                _playerActor = UISvc.Actors.Player;
                 _playerCombat = _playerActor?.GetCombat();
                 if (_playerCombat != null)
                 {
@@ -108,7 +105,7 @@ namespace UPlayGround.UI
 
         protected override void RegisterInputEvents()
         {
-            var inputManager = InputManager.Instance;
+            var inputManager = Svc.Input;
             if (inputManager == null)
                 return;
 
@@ -132,7 +129,7 @@ namespace UPlayGround.UI
 
         protected override void UnRegisterInputEvents()
         {
-            var inputManager = InputManager.Instance;
+            var inputManager = Svc.Input;
             if (inputManager == null)
                 return;
 
@@ -203,9 +200,9 @@ namespace UPlayGround.UI
             if (mgr == null)
                 return;
 
-            var panel = mgr.GetUI<UI_DevCheatPanel>();
-            if (panel != null && panel.IsVisible)
-                panel.Hide();
+            var panel = mgr.GetActiveUI("DevCheatPanel");
+            if (panel != null)
+                mgr.HideUI("DevCheatPanel");
             else
                 mgr.ShowUI("DevCheatPanel");
         }

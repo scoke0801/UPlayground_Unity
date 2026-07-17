@@ -113,10 +113,10 @@ namespace UPlayGround.UI
 
             if (_pauseGameOnShow)
             {
-                GameTimeManager.Instance?.SetPause(true);
+                Svc.GameTime?.SetPause(true);
             }
 
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager != null)
             {
                 partyManager.OnSwapCompleted += OnSwapCompleted;
@@ -133,7 +133,7 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager != null)
             {
                 partyManager.OnSwapCompleted -= OnSwapCompleted;
@@ -144,7 +144,7 @@ namespace UPlayGround.UI
 
             if (_pauseGameOnShow)
             {
-                GameTimeManager.Instance?.SetPause(false);
+                Svc.GameTime?.SetPause(false);
             }
 
             if (_previewRenderer != null)
@@ -170,7 +170,7 @@ namespace UPlayGround.UI
 
         public void Refresh()
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             PlayerActor player = partyManager?.ActiveCharacter;
 
             if (partyManager == null || player == null)
@@ -227,7 +227,7 @@ namespace UPlayGround.UI
 
         private void RefreshRoster(PlayerActor player)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager == null)
             {
                 SetRosterSlotCount(0);
@@ -268,7 +268,7 @@ namespace UPlayGround.UI
 
         public void PreviewMember(int index)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             IReadOnlyList<CharacterActorType> battleOrder = partyManager?.BattleOrder;
 
             if (battleOrder == null || index < 0 || index >= battleOrder.Count)
@@ -292,7 +292,7 @@ namespace UPlayGround.UI
 
         public void PreviewCandidate(int candidateIndex)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager == null) return;
 
             var roster = partyManager.Roster;
@@ -327,7 +327,7 @@ namespace UPlayGround.UI
         {
             if (!_rosterOpen) return;
 
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager == null) return;
 
             var roster = partyManager.Roster;
@@ -354,7 +354,7 @@ namespace UPlayGround.UI
 
         public void SelectMember(int index)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager == null) return;
 
             if (partyManager.RequestSwapTo(index))
@@ -388,7 +388,7 @@ namespace UPlayGround.UI
 
         public void RemoveSelectedBattleSlot()
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             if (partyManager == null) return;
 
             IReadOnlyList<CharacterActorType> battleOrder = partyManager.BattleOrder;
@@ -428,7 +428,7 @@ namespace UPlayGround.UI
 
         private void ShowPreviewFor(CharacterActorType type)
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = UISvc.Party;
             PlayerActor player = partyManager?.ActiveCharacter;
             if (player == null) return;
 
@@ -495,7 +495,7 @@ namespace UPlayGround.UI
 
             if (_removeSlotButton != null)
             {
-                var battleOrder = PartyManager.Instance?.BattleOrder;
+                var battleOrder = UISvc.Party?.BattleOrder;
                 bool canRemove = hasSelection && battleOrder != null && _selectedBattleIndex < battleOrder.Count;
                 _removeSlotButton.gameObject.SetActive(canRemove);
             }

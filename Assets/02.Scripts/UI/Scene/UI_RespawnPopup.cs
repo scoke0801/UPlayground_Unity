@@ -57,7 +57,7 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             base.OnShow();
-            GameTimeManager.Instance?.SetPause(true);
+            Svc.GameTime?.SetPause(true);
             FadeIn(0.3f);
             RefreshItemCount();
             RefreshHealTexts();
@@ -73,7 +73,7 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
-            GameTimeManager.Instance?.SetPause(false);
+            Svc.GameTime?.SetPause(false);
             _onSpotRevive  = null;
             _onPortalRevive = null;
             base.OnHide();
@@ -91,7 +91,7 @@ namespace UPlayGround.UI
 
         private void RefreshItemCount()
         {
-            int count = InventoryManager.Instance?.GetItemCount(_revivalItemId) ?? 0;
+            int count = UISvc.Inventory?.GetItemCount(_revivalItemId) ?? 0;
 
             if (_spotItemCountText != null)
                 _spotItemCountText.text = $"보유 부활석 x{count}";
@@ -107,16 +107,16 @@ namespace UPlayGround.UI
 
         private void OnSpotReviveClicked()
         {
-            bool consumed = InventoryManager.Instance?.RemoveItem(_revivalItemId, 1) ?? false;
+            bool consumed = UISvc.Inventory?.RemoveItem(_revivalItemId, 1) ?? false;
             if (!consumed) return;
 
-            UIManager.Instance.HideUI(UIKeyType.RespawnPopup);
+            UISvc.UI.HideUI(UIKeyType.RespawnPopup);
             _onSpotRevive?.Invoke();
         }
 
         private void OnPortalReviveClicked()
         {
-            UIManager.Instance.HideUI(UIKeyType.RespawnPopup);
+            UISvc.UI.HideUI(UIKeyType.RespawnPopup);
             _onPortalRevive?.Invoke();
         }
     }

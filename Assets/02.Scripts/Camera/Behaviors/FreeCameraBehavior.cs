@@ -20,7 +20,7 @@ namespace UPlayGround.CameraSystem
         private bool _initialized;
         private bool _previousPlayerActionSuppressed;
         private bool _previousPlayerActorInputSuppressed;
-        private PlayerActor _suppressedPlayerActor;
+        private IPlayerInputSuppressible _suppressedPlayerActor;
 
         public CameraModeType ModeType => CameraModeType.Free;
         public int Priority => 90;
@@ -140,17 +140,18 @@ namespace UPlayGround.CameraSystem
 
         private void SuppressPlayerInput(CameraContext context)
         {
-            _previousPlayerActionSuppressed = InputManager.Instance != null
-                                             && InputManager.Instance.IsPlayerActionInputSuppressed;
+            IInputService input = Svc.Input;
+            _previousPlayerActionSuppressed = input != null
+                                             && input.IsPlayerActionInputSuppressed;
 
-            if (InputManager.Instance != null)
+            if (input != null)
             {
-                InputManager.Instance.SetPlayerActionInputSuppressed(true);
-                InputManager.Instance.InputBuffer?.Clear();
+                input.SetPlayerActionInputSuppressed(true);
+                input.InputBuffer?.Clear();
             }
 
             _suppressedPlayerActor = context.Target != null
-                ? context.Target.GetComponentInParent<PlayerActor>()
+                ? context.Target.GetComponentInParent<IPlayerInputSuppressible>()
                 : null;
 
             _previousPlayerActorInputSuppressed = _suppressedPlayerActor != null
@@ -164,11 +165,12 @@ namespace UPlayGround.CameraSystem
             _suppressedPlayerActor = null;
             _previousPlayerActorInputSuppressed = false;
 
-            if (InputManager.Instance == null)
+            IInputService input = Svc.Input;
+            if (input == null)
                 return;
 
-            InputManager.Instance.SetPlayerActionInputSuppressed(_previousPlayerActionSuppressed);
-            InputManager.Instance.InputBuffer?.Clear();
+            input.SetPlayerActionInputSuppressed(_previousPlayerActionSuppressed);
+            input.InputBuffer?.Clear();
         }
     }
 }

@@ -12,9 +12,11 @@ namespace UPlayGround.Manager
     /// 월드 배치와 정산의 구체 구현은 서비스 경계를 통해서만 호출한다.
     /// </summary>
     public sealed class CycleRunManager : BaseManager<CycleRunManager>,
+        UPlayGround.UI.IUICycleRunService,
         IManager,
         IUpdatableManager,
-        ISaveable
+        ISaveable,
+        ICycleExitService
     {
         private const int MinCycleIndex = 1;
         private const int MaxCycleIndex = 3;

@@ -36,9 +36,9 @@ namespace UPlayGround.UI
         {
             _ingredientItemID = ingredientItemID;
 
-            var itemData = ItemManager.Instance.GetItemData(ingredientItemID);
+            var itemData = Svc.Item.GetItemData(ingredientItemID);
             int needed   = requiredPerCraft * quantity;
-            int have     = InventoryManager.Instance.GetItemCount(ingredientItemID);
+            int have     = UISvc.Inventory.GetItemCount(ingredientItemID);
 
             // 아이콘 / 이름
             if (itemData != null)
@@ -63,7 +63,7 @@ namespace UPlayGround.UI
         public void RefreshCount(int requiredPerCraft, int quantity = 1, bool? isAvailable = null)
         {
             int needed = requiredPerCraft * quantity;
-            int have   = InventoryManager.Instance.GetItemCount(_ingredientItemID);
+            int have   = UISvc.Inventory.GetItemCount(_ingredientItemID);
 
             ApplyCountState(have, needed, isAvailable);
         }

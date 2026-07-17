@@ -4,16 +4,6 @@ using UPlayGround.Data.UI;
 
 namespace UPlayGround.UI
 {
-    public enum FloatStyle
-    {
-        Normal,       // 일반 공격 데미지 (흰색)
-        Critical,     // 강/스킬 공격 데미지 (골드)
-        Heal,         // 플레이어 체력 회복 (밝은 그린)
-        MonsterHeal,  // 몬스터 체력 회복 (황록색)
-        Miss,         // 회피·무적 (회색)
-        PlayerDamage, // 플레이어 피격 데미지 (레드)
-    }
-
     /// <summary>
     /// 피격 지점 위로 떠오르는 데미지 숫자 하나.
     ///

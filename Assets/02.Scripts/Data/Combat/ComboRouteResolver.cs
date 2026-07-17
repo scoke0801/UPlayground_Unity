@@ -26,7 +26,7 @@ namespace UPlayGround.Data.Combat
         public static ComboRouteEntry Resolve(
             IReadOnlyList<ComboInputToken>  stream,
             IReadOnlyList<ComboRouteEntry>  routes,
-            GameplayTagContainer            tags,
+            IGameplayTagReader              tags,
             bool                            isGrounded,
             Func<ComboRouteEntry, bool>     resourceFilter = null)
         {
@@ -74,7 +74,7 @@ namespace UPlayGround.Data.Combat
         public static void CollectHints(
             IReadOnlyList<ComboInputToken>  stream,
             IReadOnlyList<ComboRouteEntry>  routes,
-            GameplayTagContainer            tags,
+            IGameplayTagReader              tags,
             bool                            isGrounded,
             Func<ComboRouteEntry, bool>     resourceFilter,
             List<ComboRouteHint>            results)

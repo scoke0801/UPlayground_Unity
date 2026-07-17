@@ -8,7 +8,8 @@ namespace UPlayGround.Manager
     /// 시간 기반 월드 리스폰 시 소모된 채집/파괴형 인터랙션 오브젝트를 복구한다.
     /// 데이터 저장은 WorldStateManager가 담당하고, 이 매니저는 현재 씬 오브젝트 적용만 담당한다.
     /// </summary>
-    public class InteractionRespawnManager : BaseManager<InteractionRespawnManager>, IManager
+    public class InteractionRespawnManager : BaseManager<InteractionRespawnManager>, IManager,
+        IInteractionPersistenceService
     {
         private class PlacementInfo
         {

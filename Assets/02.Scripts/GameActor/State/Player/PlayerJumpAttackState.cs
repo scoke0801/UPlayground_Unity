@@ -85,13 +85,13 @@ namespace UPlayGround.State
 
             if (_combat != null && _combat.CanCombo)
             {
-                if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
                 {
                     _comboInputted = true;
                     _comboIsFinish = false;
                     _combat.CloseComboWindow();
                 }
-                else if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                else if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
                 {
                     _comboInputted = true;
                     _comboIsFinish = true;
@@ -109,11 +109,11 @@ namespace UPlayGround.State
             // 착지 시: 콤보 입력 대기 중이면 현재 애니메이션 유지
             if (motor.GroundingStatus.IsStableOnGround && !_comboInputted)
             {
-                if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
+                if (Svc.Input.InputBuffer.HasInput(PlayerAction.Dash))
                 {
                     if (playerController.TryTransitionToState(new PlayerDashState(controller)))
                     {
-                        InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash);
+                        Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Dash);
                         return;
                     }
                 }
@@ -174,7 +174,7 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
-            // 착지 FX: GameObjectManager.Instance.ShowFX("");
+            // 착지 FX: ActorSvc.Objects.ShowFX("");
         }
     }
 }

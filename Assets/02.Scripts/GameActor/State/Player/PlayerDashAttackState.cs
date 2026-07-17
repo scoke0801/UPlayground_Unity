@@ -105,11 +105,11 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
-            if (InputManager.Instance.InputBuffer.HasInput(PlayerAction.Dash))
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Dash))
             {
                 if (playerController.TryTransitionToState(new PlayerDashState(controller)))
                 {
-                    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Dash);
+                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Dash);
                     return;
                 }
             }

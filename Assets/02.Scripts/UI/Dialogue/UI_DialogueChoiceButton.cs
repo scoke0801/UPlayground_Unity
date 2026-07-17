@@ -1,4 +1,4 @@
-﻿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Dialogue;
@@ -18,7 +18,7 @@ namespace UPlayGround.UI
             canvasGroup.alpha = isAvailable ? 1f : 0.4f;
 
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => DialogueManager.Instance.SelectChoice(capturedIndex));
+            button.onClick.AddListener(() => UISvc.Dialogue.SelectChoice(capturedIndex));
         }
     }
 }

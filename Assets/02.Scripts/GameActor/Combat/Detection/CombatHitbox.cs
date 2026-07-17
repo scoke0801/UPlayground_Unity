@@ -348,7 +348,7 @@ namespace UPlayGround.Combat
         // (2) 캡슐은 와이어 스피어 대신 선 윤곽으로 그려 선택 중에도 가볍게 유지한다.
         private void OnDrawGizmosSelected()
         {
-            if (!DebugGizmoManager.IsLocalContentEnabled(
+            if (!DebugGizmoBridge.IsLocalContentEnabled(
                     DebugGizmoCategory.Combat,
                     DebugGizmoContentType.HitboxSwingTrail))
                 return;
@@ -375,7 +375,7 @@ namespace UPlayGround.Combat
                 return;
 #endif
 
-            if (!DebugGizmoManager.IsLocalContentEnabled(
+            if (!DebugGizmoBridge.IsLocalContentEnabled(
                     DebugGizmoCategory.Combat,
                     DebugGizmoContentType.HitboxSwingTrail))
                 return;

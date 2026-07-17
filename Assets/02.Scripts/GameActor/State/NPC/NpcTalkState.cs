@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 
@@ -37,7 +37,7 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // 대화 상대(플레이어)를 향해 부드럽게 회전
-            var player = UPlayGround.Manager.GameObjectManager.Instance.Player;
+            var player = UPlayGround.Manager.ActorSvc.Objects.Player;
             if (player == null) return;
 
             Vector3 lookDir = player.transform.position - npcActor.transform.position;

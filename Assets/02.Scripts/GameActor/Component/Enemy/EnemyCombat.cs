@@ -111,7 +111,7 @@ namespace UPlayGround.Components
         private float _lastCollisionStartTime = -999f;
 
         // Danger Ring UI — 공격당 1개. 바닥 텔레그래프와 독립.
-        private UI_DangerRing _dangerRing;
+        private IActorDangerRingView _dangerRing;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
@@ -578,7 +578,7 @@ namespace UPlayGround.Components
             Quaternion rotation = GetTelegraphRotation();
             string fxKey = GetTelegraphFXKey(_currentSkill);
 
-            GameObject instance = GameObjectManager.Instance.ShowFX(fxKey, position, rotation, null, 0f);
+            GameObject instance = ActorSvc.Objects.ShowFX(fxKey, position, rotation, null, 0f);
             if (instance == null) return;
 
             _telegraphHitPositions[clampedHitPhaseIndex] = position;
@@ -589,14 +589,14 @@ namespace UPlayGround.Components
         private void BeginDangerRing()
         {
             float duration = ResolveDangerRingDuration(_currentSkill);
-            _dangerRing = UIManager.Instance?.CreateDangerRing(_ownerActor, _currentSkill, duration);
+            _dangerRing = ActorSvc.UI?.CreateDangerRing(_ownerActor, _currentSkill, duration);
         }
 
         private float ResolveDangerRingDuration(EnemyAttackInfo skill)
         {
             // 1순위: 타임라인의 다음 Collision/투사체 발사 이벤트 중 더 먼저 시작되는 것까지 자동 산출 — 수동 오써링 불필요.
             // 수축이 가장 작아지는 순간이 실제 타격(Collision) 또는 투사체 발사와 자동 정렬된다.
-            // UI_DangerRing.TryGetCollisionProgress와 반드시 동일한 목표 선택 규칙을 사용해야 한다.
+            // IActorDangerRingView.TryGetCollisionProgress와 반드시 동일한 목표 선택 규칙을 사용해야 한다.
             if (_ownerActor?.Animator != null &&
                 _ownerActor.Animator.TryGetTimeUntilNextEvent<BeginCollisionEvent, SpawnProjectileEvent>(out float untilTarget) &&
                 untilTarget > 0f)

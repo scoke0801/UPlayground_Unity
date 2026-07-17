@@ -14,7 +14,7 @@ namespace UPlayGround.Manager
     /// GameManager에서 초기화 순서 중 GameObjectManager 이후에 등록한다.
     /// </summary>
     public class ActorSpawnManager : BaseManager<ActorSpawnManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager
+        IUpdatableManager, IActorSpawnTrackingService
     {
         private const string DATABASE_KEY = "ActorDatabase";
         private ActorDatabase _database;

@@ -61,7 +61,7 @@ namespace UPlayGround.UI
 
         public void Show(CharacterActorType type)
         {
-            var pm   = PartyManager.Instance;
+            var pm   = UISvc.Party;
             var data = pm?.PartyMemberDataSO;
             if (pm == null || data == null || type == CharacterActorType.None)
             {
@@ -97,7 +97,7 @@ namespace UPlayGround.UI
             if (_combatPowerText != null) _combatPowerText.text = cp.CombatPower.ToString("N0");
 
             // HP (현재/최대) — 액티브/벤치 공통 조회
-            var player = GameObjectManager.Instance?.Player;
+            var player = UISvc.Actors?.Player;
             float curHp = player != null ? player.GetHealthForCharacter(type) : 0f;
             float maxHp = player != null ? player.GetMaxHealthForCharacter(type) : Stat(cp.GrowthStats, StatType.MaxHealth);
             if (_hpText != null) _hpText.text = $"{Mathf.RoundToInt(curHp):N0} / {Mathf.RoundToInt(maxHp):N0}";

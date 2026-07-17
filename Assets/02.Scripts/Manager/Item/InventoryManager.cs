@@ -15,18 +15,6 @@ using UPlayGround.Data.Sound;
 
 namespace UPlayGround.Manager
 {
-    public enum InventoryActionResult
-    {
-        Success = 0,
-        InvalidItem,
-        NotEnoughCount,
-        NotUsable,
-        NotEquippable,
-        EquippedItem,
-        NoEffect,
-        Failed,
-    }
-
     /// <summary>
     /// 한 캐릭터의 장비 슬롯 상태. 각 슬롯은 인벤토리 슬롯 키(-1 = 빈칸)를 보관한다.
     /// 무기(주/보조)와 방어구 5부위를 모두 담으며, 방어구는 데이터만 보관(외형 미반영).
@@ -106,7 +94,9 @@ namespace UPlayGround.Manager
         };
     }
 
-    public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable, IAsyncInitializableManager
+    public class InventoryManager : BaseManager<InventoryManager>, IManager, ISaveable, IAsyncInitializableManager,
+        UPlayGround.UI.IUIInventoryService,
+        IInventoryService
     {
         private const string STARTING_INVENTORY_KEY = "StartingInventory";
 

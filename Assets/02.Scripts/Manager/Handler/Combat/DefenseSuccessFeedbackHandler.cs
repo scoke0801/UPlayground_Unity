@@ -1,7 +1,9 @@
 using System.Collections;
 using UnityEngine;
+using UPlayGround.CameraSystem;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Manager.Handler;
 
 namespace UPlayGround.Manager.Combat
@@ -178,13 +180,24 @@ namespace UPlayGround.Manager.Combat
             switch (profile.successType)
             {
                 case DefenseSuccessType.PerfectDodge:
-                    combatCamera.PlayPerfectDodge(context.IncomingAttack, profile.shakeKey);
+                    combatCamera.PlayPerfectDodge(ToCameraContext(context.IncomingAttack), profile.shakeKey);
                     break;
                 case DefenseSuccessType.Parry:
                 case DefenseSuccessType.PerfectGuard:
-                    combatCamera.PlayPerfectGuard(context.IncomingAttack, profile.shakeKey);
+                    combatCamera.PlayPerfectGuard(ToCameraContext(context.IncomingAttack), profile.shakeKey);
                     break;
             }
+        }
+
+        private static CombatCameraAttackContext ToCameraContext(AttackData attackData)
+        {
+            return new CombatCameraAttackContext(
+                attackData?.attacker != null ? attackData.attacker.transform : null,
+                attackData?.hitTarget != null ? attackData.hitTarget.transform : null,
+                attackData?.hitPoint ?? Vector3.zero,
+                attackData?.attackDirection ?? Vector3.zero,
+                attackData?.attackKind ?? AttackKind.NormalAttack,
+                attackData?.reactionType ?? AttackReactionType.Hit);
         }
 
         private void PlayFxAndReward(DefenseSuccessFeedbackProfile profile, in DefenseSuccessFeedbackContext context)

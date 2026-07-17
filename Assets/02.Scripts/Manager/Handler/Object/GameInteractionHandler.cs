@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace UPlayGround.Manager.Handler
 {
-    public class GameInteractionHandler : GameHandlerBase
+    public class GameInteractionHandler : GameHandlerBase, IActorInteractionService
     {
         private IInteractable _currentClosestInteractable;
         

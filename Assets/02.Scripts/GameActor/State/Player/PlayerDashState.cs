@@ -94,7 +94,7 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             if (!motor.GroundingStatus.IsStableOnGround &&
-                InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
+                Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
             {
                 playerController.TryTransitionToState(new PlayerJumpDashAttackState(playerController));
             }

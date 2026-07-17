@@ -119,10 +119,10 @@ namespace UPlayGround.Data.Combat
                 : ComboInputToken.LightAttack;
 
         /// <summary>
-        /// 태그 조건을 GameplayTagContainer로 검사한다.
+        /// 태그 조건을 읽기 전용 태그 계약으로 검사한다.
         /// container == null이면 required가 비어 있을 때만 통과(에디터/무태그 환경 관대 처리).
         /// </summary>
-        public bool CheckTagConditions(GameplayTagContainer container)
+        public bool CheckTagConditions(IGameplayTagReader container)
         {
             if (container == null)
                 return requiredTagIds == null || requiredTagIds.Count == 0;

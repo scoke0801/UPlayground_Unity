@@ -52,7 +52,7 @@ namespace UPlayGround.Components
             {
                 _tickManager = AgentTickManager.Instance;
                 _tickManager?.Register(this);
-                DebugGizmoManager.RegisterProvider(this);
+                DebugGizmoBridge.RegisterProvider(this);
             }
         }
 
@@ -60,7 +60,7 @@ namespace UPlayGround.Components
         {
             _tickManager?.Unregister(this);
             _tickManager = null;
-            DebugGizmoManager.UnregisterProvider(this);
+            DebugGizmoBridge.UnregisterProvider(this);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace UPlayGround.Components
             if (wasWithoutTarget)
             {
                 OnTargetAcquiredExternally?.Invoke();
-                EventManager.Instance?.Send(GameMilestoneEvent.CombatStarted);
+                Svc.EventPublisher?.Send(GameMilestoneEvent.CombatStarted);
             }
         }
 
@@ -322,7 +322,7 @@ namespace UPlayGround.Components
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            if (DebugGizmoManager.ShouldSuppressLocalGizmos(DebugGizmoCategory.AI, gameObject, DebugGizmoContentType.EnemyDetection))
+            if (DebugGizmoBridge.ShouldSuppressLocalGizmos(DebugGizmoCategory.AI, gameObject, DebugGizmoContentType.EnemyDetection))
                 return;
 
             DrawDetectionGizmos();

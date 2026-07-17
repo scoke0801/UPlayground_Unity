@@ -9,7 +9,7 @@ namespace UPlayGround.Manager
     /// <summary>
     /// 입력 시스템 관리 매니저
     /// </summary>
-    public partial class InputManager : BaseManager<InputManager>, IManager
+    public partial class InputManager : BaseManager<InputManager>, IManager, IInputService
     {
         private int _cursorVisibleStack = 0;
         private InputBuffer _inputBuffer; // InputBuffer 선언

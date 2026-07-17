@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
 using UPlayGround.UI.InputPrompt;
 
 namespace UPlayGround.UI
@@ -24,9 +23,9 @@ namespace UPlayGround.UI
             SubscribeEvents();
         }
 
-        private void Update()
+        protected override void Update()
         {
-            GameInteractionHandler handler = GameObjectManager.Instance?.InteractionHandler;
+            IActorInteractionService handler = UISvc.Actors?.InteractionHandler;
             if (handler == null || !handler.IsInteractionProgressActive)
             {
                 SetProgressVisible(false);

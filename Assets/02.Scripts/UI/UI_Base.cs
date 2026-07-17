@@ -126,7 +126,7 @@ namespace UPlayGround.UI
 
         private static void PlayDefaultButtonSound()
         {
-            SoundManager.Instance?.PlayUi(GameSoundKey.UiClick);
+            Svc.Sound?.PlayUi(GameSoundKey.UiClick);
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace UPlayGround.UI
             // _cursorVisiblePushed로 1회만 push해 중복 Show로 스택이 새는 것을 방지.
             if (!_cursorVisiblePushed && RequiresCursorVisible)
             {
-                InputManager.Instance?.ShowCursor(true);
+                Svc.Input?.ShowCursor(true);
                 _cursorVisiblePushed = true;
             }
 
@@ -184,7 +184,7 @@ namespace UPlayGround.UI
             if (!_inputLayerRaised && BlocksLowerInput)
             {
                 _inputLayerRaised = true;
-                InputManager.Instance?.RefreshInputLayer();
+                Svc.Input?.RefreshInputLayer();
             }
 
             RegisterInputEvents();
@@ -205,7 +205,7 @@ namespace UPlayGround.UI
             // Show에서 push한 커서 표시를 짝 맞춰 pop.
             if (_cursorVisiblePushed)
             {
-                InputManager.Instance?.ShowCursor(false);
+                Svc.Input?.ShowCursor(false);
                 _cursorVisiblePushed = false;
             }
 
@@ -214,18 +214,18 @@ namespace UPlayGround.UI
             // 남아 있는 차단 모달이 없으면 Level_0(게임플레이)으로 내려간다.
             if (_inputLayerRaised)
             {
-                InputLayer previousLayer = InputManager.Instance != null
-                    ? InputManager.Instance.CurrentLayer
+                InputLayer previousLayer = Svc.Input != null
+                    ? Svc.Input.CurrentLayer
                     : InputLayer.None;
 
                 _inputLayerRaised = false;
-                InputManager.Instance?.RefreshInputLayer();
+                Svc.Input?.RefreshInputLayer();
 
                 if (previousLayer > InputLayer.Level_0
-                    && InputManager.Instance != null
-                    && InputManager.Instance.CurrentLayer == InputLayer.Level_0)
+                    && Svc.Input != null
+                    && Svc.Input.CurrentLayer == InputLayer.Level_0)
                 {
-                    InputManager.Instance.SuppressPlayerActionInputBriefly();
+                    Svc.Input.SuppressPlayerActionInputBriefly();
                 }
             }
 

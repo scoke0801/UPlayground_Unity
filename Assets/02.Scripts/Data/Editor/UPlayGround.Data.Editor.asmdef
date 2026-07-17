@@ -1,0 +1,15 @@
+{
+  "name": "UPlayGround.Data.Editor",
+  "rootNamespace": "UPlayGround.Data.Editor",
+  "references": [
+    "UPlayGround.Data",
+    "AYellowpaper.SerializedCollections",
+    "AYellowpaper.SerializedCollections.Editor",
+    "Kybernetik.Animancer",
+    "Unity.Addressables.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

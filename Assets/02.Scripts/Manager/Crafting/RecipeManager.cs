@@ -11,19 +11,6 @@ using UPlayGround.Data.Save;
 
 namespace UPlayGround.Manager
 {
-    public enum CraftAvailabilityReason
-    {
-        Available,
-        DatabaseNotLoaded,
-        InvalidRecipe,
-        InvalidQuantity,
-        InvalidResult,
-        Locked,
-        AlreadyCrafting,
-        NotEnoughCost,
-        NotEnoughIngredients,
-    }
-
     /// <summary>
     /// 제작(크래프팅) 시스템 매니저.
     /// GameManager에 등록되어 다른 매니저와 동일한 생명주기로 동작한다.
@@ -35,7 +22,8 @@ namespace UPlayGround.Manager
     ///   - 제작 취소         → RecipeManager.Instance.CancelCrafting()
     /// </summary>
     public class RecipeManager : BaseManager<RecipeManager>, IManager, ISaveable, IAsyncInitializableManager,
-        IUpdatableManager
+        UPlayGround.UI.IUIRecipeService,
+        IUpdatableManager, IRecipeProgressService
     {
         private const string RECIPE_DATABASE_KEY = "RecipeDatabase";
 

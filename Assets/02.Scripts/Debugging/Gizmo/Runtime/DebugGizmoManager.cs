@@ -160,7 +160,27 @@ namespace UPlayGround.Debugging
 
         public void Init()
         {
+            DebugGizmoBridge.RegisterHandler = Register;
+            DebugGizmoBridge.UnregisterHandler = Unregister;
+            DebugGizmoBridge.SuppressLocalHandler = ShouldSuppressLocalGizmosForActor;
+            DebugGizmoBridge.IsLocalContentEnabledHandler =
+                (category, contentType) =>
+                    Enabled && IsCategoryEnabled(category) && IsContentTypeEnabled(contentType);
             Debug.Log("[DebugGizmoManager] 초기화");
+        }
+
+        private bool ShouldSuppressLocalGizmosForActor(
+            DebugGizmoCategory category,
+            GameObject owner,
+            DebugGizmoContentType contentType)
+        {
+            if (!Enabled || !IsCategoryEnabled(category) || !IsContentTypeEnabled(contentType))
+                return false;
+
+            if (!_drawOnlyFocus || _focusObject == null || owner == null)
+                return true;
+
+            return IsFocusMatch(owner);
         }
 
 #if UNITY_EDITOR
@@ -203,6 +223,7 @@ namespace UPlayGround.Debugging
         public void AfterInit() { }
         public void Dispose()
         {
+            DebugGizmoBridge.Clear();
             _providers.Clear();
             _recorder.Clear();
         }

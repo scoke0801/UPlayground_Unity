@@ -12,7 +12,7 @@ namespace UPlayGround.CameraSystem
             if (!reference.enabled)
                 return fallback;
 
-            GameActor actor = ResolveActor(reference);
+            IWorldActor actor = ResolveActor(reference);
             if (actor == null)
                 return fallback;
 
@@ -23,10 +23,10 @@ namespace UPlayGround.CameraSystem
                 return socket;
             }
 
-            return actor.transform;
+            return actor.Transform;
         }
 
-        public static GameActor ResolveActor(CameraSnapshotActorReference reference)
+        public static IWorldActor ResolveActor(CameraSnapshotActorReference reference)
         {
             if (!reference.enabled)
                 return null;
@@ -34,28 +34,12 @@ namespace UPlayGround.CameraSystem
             string actorId = reference.ResolvedActorId;
 
             if (string.IsNullOrEmpty(actorId) && reference.useActivePlayerWhenEmpty)
-                return GameObjectManager.Instance != null ? GameObjectManager.Instance.Player : null;
+                return Svc.ActorQuery?.Player;
 
             if (string.IsNullOrEmpty(actorId))
                 return null;
 
-            if (GameObjectManager.Instance != null)
-            {
-                foreach (GameActor actor in GameObjectManager.Instance.AllActors)
-                {
-                    if (actor != null && actor.ActorId == actorId)
-                        return actor;
-                }
-            }
-
-            if (ActorSpawnManager.Instance != null)
-            {
-                var spawnedActors = ActorSpawnManager.Instance.GetSpawnedActors(actorId);
-                if (spawnedActors != null && spawnedActors.Count > 0)
-                    return spawnedActors[0];
-            }
-
-            return null;
+            return Svc.ActorQuery?.FindActor(actorId);
         }
     }
 }

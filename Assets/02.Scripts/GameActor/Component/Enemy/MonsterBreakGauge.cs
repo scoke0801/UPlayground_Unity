@@ -5,6 +5,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.UI;
 
 namespace UPlayGround.Components
@@ -16,7 +17,7 @@ namespace UPlayGround.Components
         [HideInInspector, SerializeField] private MonsterBreakGaugeSO _data;
 
         private MonsterActor _owner;
-        private UI_ActorHpBar _actorUIBar;
+        private IActorHpBarView _actorUIBar;
         private float _currentGauge;
         private float _exposedTimer;
         private float _repeatCooldownTimer;
@@ -108,7 +109,7 @@ namespace UPlayGround.Components
             Init(definition.EffectiveBreakGaugeData);
         }
 
-        public void ConnectUiBar(UI_ActorHpBar actorUIBar)
+        public void ConnectUiBar(IActorHpBarView actorUIBar)
         {
             _actorUIBar = actorUIBar;
             RefreshUi();

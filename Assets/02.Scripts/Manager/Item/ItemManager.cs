@@ -8,7 +8,8 @@ using UPlayGround.Data.Item;
 
 namespace UPlayGround.Manager
 {
-    public class ItemManager : BaseManager<ItemManager>, IManager, IAsyncInitializableManager
+    public class ItemManager : BaseManager<ItemManager>, IManager, IAsyncInitializableManager,
+        IItemService
     {
         private const string ITEM_DATABASE_PATH = "ItemDatabase";
         [SerializeField] private ItemDatabase _itemDatabase;

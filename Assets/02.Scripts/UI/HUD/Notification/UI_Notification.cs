@@ -28,7 +28,7 @@ namespace UPlayGround.UI.HUD.Notification
 
         private readonly List<UI_NotificationEntry> _entries = new();
         private IDisposable _questCompletedSubscription;
-        private PartyManager _subscribedPartyManager;
+        private IUIPartyService _subscribedPartyManager;
 
         protected override bool RequiresCursorVisible => false;
         protected override bool BlocksLowerInput => false;
@@ -106,25 +106,25 @@ namespace UPlayGround.UI.HUD.Notification
 
         private static UI_Notification EnsureVisible()
         {
-            if (UIManager.Instance == null)
+            if (UISvc.UI == null)
                 return null;
 
-            var obj = UIManager.Instance.ShowUI(UIKeyType.Notification, CanvasLayer.HUD);
+            var obj = UISvc.UI.ShowUI(UIKeyType.Notification, CanvasLayer.HUD);
             return obj != null ? obj.GetComponent<UI_Notification>() : null;
         }
 
         private void SubscribeEvents()
         {
-            if (_listenQuestCompleted && _questCompletedSubscription == null && EventManager.Instance != null)
+            if (_listenQuestCompleted && _questCompletedSubscription == null && Svc.Events != null)
             {
-                _questCompletedSubscription = EventManager.Instance.Subscribe<QuestEvent, QuestStateEventData>(
+                _questCompletedSubscription = Svc.Events.Subscribe<QuestEvent, QuestStateEventData>(
                     QuestEvent.QuestCompleted,
                     OnQuestCompleted);
             }
 
-            if (_listenPartyUnlocked && _subscribedPartyManager == null && PartyManager.Instance != null)
+            if (_listenPartyUnlocked && _subscribedPartyManager == null && UISvc.Party != null)
             {
-                _subscribedPartyManager = PartyManager.Instance;
+                _subscribedPartyManager = UISvc.Party;
                 _subscribedPartyManager.OnCharacterUnlocked += OnCharacterUnlocked;
             }
         }
@@ -155,7 +155,7 @@ namespace UPlayGround.UI.HUD.Notification
 
         private void ResolvePartyMember(CharacterActorType type, out string name, out Sprite icon)
         {
-            PartyMemberDataSO memberData = PartyManager.Instance?.PartyMemberDataSO;
+            PartyMemberDataSO memberData = UISvc.Party?.PartyMemberDataSO;
             name = memberData != null ? memberData.GetName(type) : string.Empty;
             if (string.IsNullOrWhiteSpace(name))
                 name = type.ToString();

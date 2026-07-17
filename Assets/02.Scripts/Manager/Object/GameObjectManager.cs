@@ -8,7 +8,8 @@ using UPlayGround.Manager.Handler;
 namespace UPlayGround.Manager
 {
     public partial class GameObjectManager : BaseManager<GameObjectManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager, IFixedUpdatableManager
+        IUpdatableManager, IFixedUpdatableManager, IActorQueryService, IActorObjectService,
+        UPlayGround.UI.IUIActorRegistryService
     {
         private PlayerActor _player;
         private List<GameActor> _allActors = new List<GameActor>();
@@ -16,6 +17,25 @@ namespace UPlayGround.Manager
 
         public PlayerActor Player => _player;
         public IReadOnlyList<GameActor> AllActors => _allActors;
+
+        IWorldActor IActorQueryService.Player => _player;
+        Transform IActorQueryService.PlayerTransform => _player != null ? _player.transform : null;
+        IEnumerable<IWorldActor> IActorQueryService.AllActors => _allActors;
+
+        IWorldActor IActorQueryService.FindActor(string actorId)
+        {
+            if (string.IsNullOrEmpty(actorId))
+                return null;
+
+            for (int i = 0; i < _allActors.Count; i++)
+            {
+                GameActor actor = _allActors[i];
+                if (actor != null && actor.ActorId == actorId)
+                    return actor;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// PartyManager가 활성 캐릭터를 교체할 때 호출.
@@ -32,6 +52,8 @@ namespace UPlayGround.Manager
         private GameInteractionHandler _interactionHandler;
         
         public GameInteractionHandler InteractionHandler => _interactionHandler;
+        IActorInteractionService IActorObjectService.InteractionHandler => _interactionHandler;
+        IActorInteractionService UPlayGround.UI.IUIActorRegistryService.InteractionHandler => _interactionHandler;
 
         private List<GameHandlerBase> _handlerList;
         public void Init()
@@ -137,6 +159,15 @@ namespace UPlayGround.Manager
             for (int i = 0; i < _handlerList.Count; ++i)
             {
                 _handlerList[i].AfterInit();
+            }
+
+            // 서비스 등록(GameManager 초기화) 이전에 Awake가 실행된 씬 배치 액터는
+            // GameActor.Awake의 ActorSvc.Objects?.RegisterActor가 조용히 건너뛰므로,
+            // 매니저 초기화 완료 시점에 씬을 스캔해 누락분을 보정한다. (RegisterActor는 중복 무시)
+            var sceneActors = FindObjectsByType<GameActor>(FindObjectsSortMode.None);
+            foreach (var actor in sceneActors)
+            {
+                RegisterActor(actor);
             }
         }
 

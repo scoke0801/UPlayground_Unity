@@ -91,7 +91,7 @@ namespace UPlayGround.UI
             yield return FadeUnscaled(1f, 0f, _fadeOutDuration);
 
             _sequence = null;
-            UIManager.Instance?.HideUI(UIKey);
+            UISvc.UI?.HideUI(UIKey);
         }
 
         /// <summary> UI_Base.FadeIn/Out은 scaled time 기반이라 사용하지 않고 unscaled로 직접 보간한다. </summary>

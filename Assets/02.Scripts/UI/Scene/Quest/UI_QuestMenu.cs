@@ -160,19 +160,19 @@ namespace UPlayGround.UI
 
         private void RefreshTabCounts()
         {
-            if (QuestManager.Instance == null) return;
+            if (UISvc.Quest == null) return;
 
-            SetCount(_txtCountAvailable, QuestManager.Instance.GetAvailableQuests().Count);
-            SetCount(_txtCountActive,    CountEnumerable(QuestManager.Instance.GetActiveQuests()));
-            SetCount(_txtCountCompleted, QuestManager.Instance.GetCompletedQuests().Count);
-            SetCount(_txtCountFailed,    QuestManager.Instance.GetFailedQuests().Count);
+            SetCount(_txtCountAvailable, UISvc.Quest.GetAvailableQuests().Count);
+            SetCount(_txtCountActive,    CountEnumerable(UISvc.Quest.GetActiveQuests()));
+            SetCount(_txtCountCompleted, UISvc.Quest.GetCompletedQuests().Count);
+            SetCount(_txtCountFailed,    UISvc.Quest.GetFailedQuests().Count);
         }
 
         private void RefreshList()
         {
             ClearSlots();
 
-            var qm = QuestManager.Instance;
+            var qm = UISvc.Quest;
             if (qm == null) return;
 
             switch (_currentTab)
@@ -217,7 +217,7 @@ namespace UPlayGround.UI
             if (so == null) return;
 
             var slot = Instantiate(_questSlotPrefab, _questListContent);
-            bool tracked = QuestManager.Instance.IsQuestTracked(so.questId);
+            bool tracked = UISvc.Quest.IsQuestTracked(so.questId);
             slot.Init(so, status, tracked, this);
             _spawnedSlots.Add(slot);
         }
@@ -240,7 +240,7 @@ namespace UPlayGround.UI
 
         private void ShowDetail(string questId, QuestStatus status)
         {
-            var qm = QuestManager.Instance;
+            var qm = UISvc.Quest;
             var so = qm?.GetQuestData(questId);
             if (so == null) return;
 
@@ -289,7 +289,7 @@ namespace UPlayGround.UI
         private void RefreshDetailButtons(QuestSO so, QuestStatus status, QuestRuntimeData runtime)
         {
             bool active  = status == QuestStatus.Active;
-            bool tracked = QuestManager.Instance.IsQuestTracked(so.questId);
+            bool tracked = UISvc.Quest.IsQuestTracked(so.questId);
 
             if (_btnTrack != null)      _btnTrack.interactable = active;
             if (_txtTrackButton != null) _txtTrackButton.text  = tracked ? "추적 해제" : "추적";
@@ -310,7 +310,7 @@ namespace UPlayGround.UI
         {
             if (string.IsNullOrEmpty(_selectedQuestId)) return;
 
-            var qm = QuestManager.Instance;
+            var qm = UISvc.Quest;
             if (qm == null) return;
 
             if (qm.IsQuestTracked(_selectedQuestId))
@@ -326,7 +326,7 @@ namespace UPlayGround.UI
         {
             if (string.IsNullOrEmpty(_selectedQuestId)) return;
 
-            if (QuestManager.Instance != null && QuestManager.Instance.CompleteQuest(_selectedQuestId))
+            if (UISvc.Quest != null && UISvc.Quest.CompleteQuest(_selectedQuestId))
             {
                 RefreshTabCounts();
                 RefreshList();  // 완료 탭으로 이동 → 현재(진행중) 리스트에서 사라지며 상세 자동 닫힘
@@ -337,7 +337,7 @@ namespace UPlayGround.UI
         {
             if (string.IsNullOrEmpty(_selectedQuestId)) return;
 
-            if (QuestManager.Instance != null && QuestManager.Instance.AbandonQuest(_selectedQuestId))
+            if (UISvc.Quest != null && UISvc.Quest.AbandonQuest(_selectedQuestId))
             {
                 RefreshTabCounts();
                 RefreshList();
@@ -418,12 +418,12 @@ namespace UPlayGround.UI
         // ──────────────────────────────────────────────────────────
         #region 외부 API (기존 유지)
 
-        public void TrackQuest(string questId)   => QuestManager.Instance?.TrackQuest(questId);
-        public void UntrackQuest()               => QuestManager.Instance?.UntrackQuest();
+        public void TrackQuest(string questId)   => UISvc.Quest?.TrackQuest(questId);
+        public void UntrackQuest()               => UISvc.Quest?.UntrackQuest();
 
         public void ToggleTrackQuest(string questId)
         {
-            var qm = QuestManager.Instance;
+            var qm = UISvc.Quest;
             if (qm == null) return;
 
             if (qm.IsQuestTracked(questId)) qm.UntrackQuest();

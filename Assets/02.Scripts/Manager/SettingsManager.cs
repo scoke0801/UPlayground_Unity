@@ -11,7 +11,9 @@ namespace UPlayGround.Manager
     /// SettingsData(SO)를 Addressable로 로드하고 전역에서 접근 가능하게 관리.
     /// 게임 시작 시 자동으로 저장된 값을 로드하여 시스템에 반영한다.
     /// </summary>
-    public class SettingsManager : BaseManager<SettingsManager>, IManager, IAsyncInitializableManager
+    public class SettingsManager : BaseManager<SettingsManager>, IManager, IAsyncInitializableManager,
+        UPlayGround.UI.IUISettingsService,
+        ISettingsService
     {
         // Addressable 키 — Inspector나 AddressableGroups에서 이 이름으로 등록
         private const string SETTINGS_DATA_KEY = "SettingsData";

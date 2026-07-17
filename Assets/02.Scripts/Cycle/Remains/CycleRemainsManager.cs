@@ -9,7 +9,8 @@ using UPlayGround.Data.Save;
 
 namespace UPlayGround.Manager
 {
-    public sealed class CycleRemainsManager : BaseManager<CycleRemainsManager>, IManager, ISaveable
+    public sealed class CycleRemainsManager : BaseManager<CycleRemainsManager>, IManager, ISaveable,
+        ICycleRemainsService
     {
         [SerializeField] private RemainsActor _remainsPrefab;
         private readonly CycleLootLedger _ledger = new();

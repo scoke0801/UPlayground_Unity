@@ -1,0 +1,11 @@
+{
+  "name": "UPlayGround.Contracts",
+  "rootNamespace": "UPlayGround.Contracts",
+  "references": [
+    "UPlayGround.Data",
+    "UPlayGround.Core",
+    "UniTask",
+    "Unity.InputSystem"
+  ],
+  "autoReferenced": true
+}

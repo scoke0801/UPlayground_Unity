@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
@@ -219,11 +220,11 @@ namespace UPlayGround.CameraSystem
                 if (hit.transform == _player || hit.transform.IsChildOf(_player))
                     continue;
 
-                var dmg = hit.GetComponent<IDamageable>() ?? hit.GetComponentInParent<IDamageable>();
-                if (dmg == null || !dmg.IsAlive())
+                var actor = hit.GetComponent<IWorldActor>() ?? hit.GetComponentInParent<IWorldActor>();
+                if (actor == null || !actor.IsAlive)
                     continue;
 
-                Transform metricRoot = ResolveMetricRoot(hit, dmg);
+                Transform metricRoot = ResolveMetricRoot(hit, actor);
                 if (metricRoot == null || !_metricTargets.Add(metricRoot))
                     continue;
 
@@ -232,16 +233,9 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        private static Transform ResolveMetricRoot(Collider hit, IDamageable damageable)
+        private static Transform ResolveMetricRoot(Collider hit, IWorldActor actor)
         {
-            MonsterActor monster = hit.GetComponentInParent<MonsterActor>();
-            if (monster != null)
-                return monster.transform;
-
-            if (damageable is UnityEngine.Component component)
-                return component.transform;
-
-            return hit.transform;
+            return actor?.Transform != null ? actor.Transform : hit.transform;
         }
 
         private float EvaluateTargetMaxSize(Transform root, Collider fallbackCollider)

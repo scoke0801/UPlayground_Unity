@@ -16,7 +16,7 @@ namespace UPlayGround.UI.InputPrompt
     /// - <b>콤보 다음 키 강조</b>: <see cref="ComboRouteResolver.CollectHints"/>를 입력 윈도우 변화 시에만 재계산.
     ///
     /// <see cref="UI_Base"/>를 상속해 UIManager 생명주기(Show/Hide)로 구동된다(다른 HUD와 동일).
-    /// 활성 캐릭터는 <see cref="PartyManager"/>에서 받고 교체(OnSwapCompleted)를 따른다.
+    /// 활성 캐릭터는 <see cref="IUIPartyService"/>에서 받고 교체(OnSwapCompleted)를 따른다.
     /// ※ 슬롯 아이콘은 v1에서 프리팹 직렬화라 교체를 따라가지 않음(스왑 미추적, 캐릭터별 스킬 아이콘 파이프라인 부재).
     /// 프리팹 배치/슬롯 구성/글로우 연출은 Unity 에디터 작업.
     /// </summary>
@@ -39,7 +39,7 @@ namespace UPlayGround.UI.InputPrompt
         private PlayerMovementController _movement; // 대시 쿨타임 소스(이동 컨트롤러 소유)
         private Func<ComboRouteEntry, bool> _resourceFilter; // 메서드그룹 delegate 캐시
 
-        private PartyManager _partyManager;
+        private IUIPartyService _partyManager;
         private bool _subscribedSwap;
 
         private readonly List<ComboRouteResolver.ComboRouteHint> _hints = new();
@@ -54,7 +54,7 @@ namespace UPlayGround.UI.InputPrompt
 
             EnsureSlotsBound();
 
-            _partyManager = PartyManager.Instance;
+            _partyManager = UISvc.Party;
             if (_partyManager != null)
             {
                 _partyManager.OnSwapCompleted += OnSwapCompleted;

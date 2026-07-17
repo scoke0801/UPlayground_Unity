@@ -6,8 +6,6 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Combat;
-using UPlayGround.Manager.Handler;
 using UPlayGround.Data.Sound;
 using UPlayGround.UI;
 
@@ -15,12 +13,32 @@ namespace UPlayGround.Combat
 {
     public static class CombatFeedbackDispatcher
     {
-        // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
-        private static GameCombatManager _cachedGameCombatManager;
-        private static GameCombatManager GameCombatMgr => _cachedGameCombatManager != null ? _cachedGameCombatManager : (_cachedGameCombatManager = GameCombatManager.Instance);
+        // 매니저 참조 캐싱 — 반복 레지스트리/Instance 조회 방지.
+        // 인터페이스 캐시는 파괴된 매니저(fake-null)를 C# null 체크로 감지하지 못하므로,
+        // 도메인 리로드 비활성화 환경에서 세션 간 stale 참조가 남지 않도록
+        // ResetStaticCaches()가 매 플레이 진입 시(SubsystemRegistration) 캐시를 비운다.
+        private static IActorCombatService _cachedGameCombatManager;
+        private static IActorCombatService GameCombatMgr => _cachedGameCombatManager ??= ActorSvc.Combat;
         private static CameraManager _cachedCameraManager;
         private static CameraManager CameraMgr => _cachedCameraManager != null ? _cachedCameraManager : (_cachedCameraManager = CameraManager.Instance);
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticCaches()
+        {
+            _cachedGameCombatManager = null;
+            _cachedCameraManager = null;
+        }
+
+        private static CombatCameraAttackContext ToCameraContext(AttackData attackData)
+        {
+            return new CombatCameraAttackContext(
+                attackData?.attacker != null ? attackData.attacker.transform : null,
+                attackData?.hitTarget != null ? attackData.hitTarget.transform : null,
+                attackData?.hitPoint ?? Vector3.zero,
+                attackData?.attackDirection ?? Vector3.zero,
+                attackData?.attackKind ?? AttackKind.NormalAttack,
+                attackData?.reactionType ?? AttackReactionType.Hit);
+        }
 
         // 플레이어 공격 적중 시 피격자(적)는 항상 풀프리즈하고 공격자(플레이어)만 reactionData의 약한 스케일로 멈춘다.
         // 사람 눈은 0%↔10% 차이는 잘 못 느끼지만, 공격자 쪽 루트모션/카메라가 미세하게 진행되어 조작감이 끊기지 않는다.
@@ -28,7 +46,7 @@ namespace UPlayGround.Combat
 
         public static void ShowDamageFloater(in CombatFeedbackContext context)
         {
-            UIManager.Instance.ShowDamageFloater(
+            ActorSvc.UI.ShowDamageFloater(
                 context.HitPoint,
                 context.DamageAmount,
                 context.FloaterStyle);
@@ -39,7 +57,7 @@ namespace UPlayGround.Combat
             if (string.IsNullOrWhiteSpace(context.HitFxKey))
                 return;
 
-            GameObjectManager.Instance.ShowFX(context.HitFxKey, context.HitPoint);
+            ActorSvc.Objects.ShowFX(context.HitFxKey, context.HitPoint);
         }
 
         public static void ShowHitFx(string hitFxKey, Vector3 hitPoint)
@@ -47,7 +65,7 @@ namespace UPlayGround.Combat
             if (string.IsNullOrWhiteSpace(hitFxKey))
                 return;
 
-            GameObjectManager.Instance.ShowFX(hitFxKey, hitPoint);
+            ActorSvc.Objects.ShowFX(hitFxKey, hitPoint);
         }
 
         public static void ApplyColorHit(ActorColorChanger colorChanger)
@@ -69,7 +87,7 @@ namespace UPlayGround.Combat
             if (position == Vector3.zero && hit.Victim != null)
                 position = hit.Victim.transform.position;
 
-            SoundManager.Instance?.PlaySfx(soundKey, position);
+            Svc.Sound?.PlaySfx(soundKey, position);
         }
 
         public static void ApplyPlayerDamagedCamera(
@@ -77,7 +95,7 @@ namespace UPlayGround.Combat
             UPlayGround.Data.Path.CameraShakeIdType lightShakeKey,
             UPlayGround.Data.Path.CameraShakeIdType heavyShakeKey)
         {
-            CameraMgr.CombatCamera?.PlayPlayerDamaged(isHeavyReaction, lightShakeKey, heavyShakeKey);
+            CameraMgr?.CombatCamera?.PlayPlayerDamaged(isHeavyReaction, lightShakeKey, heavyShakeKey);
         }
 
         public static void ApplyPlayerDamagedHitStop(AttackData incomingAttack, GameActor victim)
@@ -91,18 +109,18 @@ namespace UPlayGround.Combat
 
             // 다인 전투 누수 차단: 플레이어가 이미 피격 히트스톱 중이면 피해자 freeze만 재시작하지 않는다.
             // 공격자 히트스톱과 global pulse는 타격 피드백이므로 유지한다.
-            if (victim != null && GameCombatMgr.GameHitStop.IsActorHitStopping(victim))
+            if (victim != null && GameCombatMgr?.IsActorHitStopping(victim) == true)
             {
                 if (incomingAttack.attacker != null)
-                    GameCombatMgr.GameHitStop.ExecuteActorOnly(incomingAttack.attacker, duration, localScale);
+                    GameCombatMgr?.ExecuteActorHitStop(incomingAttack.attacker, duration, localScale);
 
                 if (globalDuration > 0f)
-                    GameCombatMgr.GameHitStop.Execute(globalDuration, globalScale);
+                    GameCombatMgr?.ExecuteHitStop(globalDuration, globalScale);
 
                 return;
             }
 
-            GameCombatMgr.GameHitStop.ExecuteLocalImpact(
+            GameCombatMgr?.ExecuteLocalImpact(
                 incomingAttack.attacker,
                 victim,
                 duration,
@@ -110,13 +128,13 @@ namespace UPlayGround.Combat
                 includeAttacker: true);
 
             if (globalDuration > 0f)
-                GameCombatMgr.GameHitStop.Execute(globalDuration, globalScale);
+                GameCombatMgr?.ExecuteHitStop(globalDuration, globalScale);
         }
 
         public static void ApplyPlayerDeathFeedback(UPlayGround.Data.Path.CameraShakeIdType deathShakeKey)
         {
-            GameCombatMgr.GameHitStop.Execute(GameHitStopHandler.HitStopIntensity.PlayerDie);
-            CameraMgr.CombatCamera?.PlayPlayerDeath(deathShakeKey);
+            GameCombatMgr?.ExecutePlayerDeathHitStop();
+            CameraMgr?.CombatCamera?.PlayPlayerDeath(deathShakeKey);
         }
 
         public static FloatStyle GetPlayerAttackFloaterStyle(AttackKind attackKind)
@@ -136,7 +154,7 @@ namespace UPlayGround.Combat
             if (attackData == null)
                 return;
 
-            GameCombatMgr.GameHitStop.ResetActorTimeScale();
+            GameCombatMgr?.ResetActorHitStop();
 
             AttackKind kind = attackData.attackKind;
             bool isKillHit = attackData.hitTarget != null
@@ -154,11 +172,11 @@ namespace UPlayGround.Combat
             bool weightPolicyHandled = attackData.attacker is PlayerActor player
                                        && player.TrySpawnWeightRecovery(attackData.hitPoint, orbTrigger, false);
             if (!weightPolicyHandled)
-                GameCombatMgr.GameVitalOrb.TrySpawn(orbTrigger, attackData.hitPoint);
+                GameCombatMgr?.TrySpawnVitalOrb(orbTrigger, attackData.hitPoint);
 
             if (attackData.isCounterAttack || attackData.useCounterHitFeedback)
             {
-                CameraMgr.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
+                CameraMgr?.CombatCamera?.PlayPlayerAttackHit(ToCameraContext(attackData), profile);
                 ApplyPlayerAttackLocalHitStop(attackData, 0.14f, 0.01f, 0.045f);
                 return;
             }
@@ -167,19 +185,19 @@ namespace UPlayGround.Combat
             {
                 case AttackKind.ChargeAttack:
                 case AttackKind.SkillAttack:
-                    CameraMgr.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
+                    CameraMgr?.CombatCamera?.PlayPlayerAttackHit(ToCameraContext(attackData), profile);
                     ApplyPlayerAttackLocalHitStop(attackData, 0.13f, 0.01f, 0.04f);
                     break;
 
                 case AttackKind.HeavyAttack:
                 case AttackKind.DashAttack:
                 case AttackKind.JumpAttack:
-                    CameraMgr.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
+                    CameraMgr?.CombatCamera?.PlayPlayerAttackHit(ToCameraContext(attackData), profile);
                     ApplyPlayerAttackLocalHitStop(attackData, 0.10f, 0.015f, 0.035f);
                     break;
 
                 default:
-                    CameraMgr.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
+                    CameraMgr?.CombatCamera?.PlayPlayerAttackHit(ToCameraContext(attackData), profile);
                     ApplyPlayerAttackLocalHitStop(attackData, 0.06f, 0.03f, 0.025f);
                     break;
             }
@@ -189,7 +207,7 @@ namespace UPlayGround.Combat
             AttackData attackData,
             in PlayerAttackHitFeedbackProfile profile)
         {
-            CameraMgr.CombatCamera?.PlayPlayerAttackHit(attackData, profile);
+            CameraMgr?.CombatCamera?.PlayPlayerAttackHit(ToCameraContext(attackData), profile);
 
             float duration = attackData.isCounterAttack || attackData.useCounterHitFeedback
                 ? 0.15f
@@ -204,7 +222,7 @@ namespace UPlayGround.Combat
                 0.05f,
                 useReactionData: false);
 
-            CameraMgr.CombatCamera?.TryPlayKill(attackData.hitTarget.transform);
+            CameraMgr?.CombatCamera?.TryPlayKill(attackData.hitTarget.transform);
         }
 
         public static void ApplyPlayerSpecialBreakHitStop(
@@ -244,7 +262,7 @@ namespace UPlayGround.Combat
             localTimeScale = Mathf.Clamp(localTimeScale, 0.001f, 1f);
             if (duration > 0f)
             {
-                GameCombatMgr.GameHitStop.ExecuteLocalImpact(
+                GameCombatMgr.ExecuteLocalImpact(
                     attacker,
                     victim,
                     duration,
@@ -255,13 +273,13 @@ namespace UPlayGround.Combat
             globalPulseDuration = Mathf.Max(0f, globalPulseDuration);
             if (globalPulseDuration > 0f)
             {
-                GameCombatMgr.GameHitStop.Execute(
+                GameCombatMgr.ExecuteHitStop(
                     globalPulseDuration,
                     Mathf.Clamp(globalPulseScale, 0.001f, 1f));
             }
 
             Vector3 hitDirection = ResolveHitDirection(attacker, victim);
-            CameraMgr.CombatCamera?.Play(new CombatCameraIntent(
+            CameraMgr?.CombatCamera?.Play(new CombatCameraIntent(
                 CombatCameraIntentType.SkillHit,
                 attacker != null ? attacker.transform : null,
                 victim != null ? victim.transform : null,
@@ -298,9 +316,9 @@ namespace UPlayGround.Combat
                 : null;
 
             if (attackData.isCounterAttack || attackData.useCounterHitFeedback)
-                GameCombatMgr.DefenseSuccessFeedback?.StopForCounterAttack(attackData.attacker);
+                GameCombatMgr.StopDefenseFeedbackForCounterAttack(attackData.attacker);
 
-            GameCombatMgr.GameHitStop.ExecuteLocalImpact(
+            GameCombatMgr.ExecuteLocalImpact(
                 attackData.attacker,
                 victim,
                 duration,
@@ -317,7 +335,7 @@ namespace UPlayGround.Combat
                 out float pulseScale);
 
             if (pulseDuration > 0f)
-                GameCombatMgr.GameHitStop.Execute(pulseDuration, pulseScale);
+                GameCombatMgr.ExecuteHitStop(pulseDuration, pulseScale);
         }
 
         private static bool TryGetReactionHitStop(

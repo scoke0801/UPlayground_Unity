@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Animancer;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -61,7 +61,7 @@ namespace UPlayGround
             
             RefreshWeaponConstraintsFromModel();
 
-            PlayerActor playerActor = GameObjectManager.Instance.Player?.GetComponent<PlayerActor>();
+            PlayerActor playerActor = ActorSvc.Objects.Player?.GetComponent<PlayerActor>();
             if (playerActor != null)
             {
                 _cachedPlayerEquipment = playerActor.GetPlayerEquipment();
@@ -70,7 +70,7 @@ namespace UPlayGround
 
         private void Start()
         {
-            EventManager.Instance.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
+            Svc.Events.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(
                 PlayerEvent.EquipItem, 
                 OnEquipItem
             );
@@ -86,9 +86,9 @@ namespace UPlayGround
 
         private void OnDestroy()
         {
-            if (EventManager.Instance != null)
+            if (Svc.Events != null)
             {
-                EventManager.Instance.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
+                Svc.Events.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(
                     PlayerEvent.EquipItem, 
                     OnEquipItem
                 );
@@ -167,7 +167,7 @@ namespace UPlayGround
             
             DestroyEquippedWeapon(equipPosition);
 
-            GameObject newWeapon = GameObjectManager.Instance.CreateWeapon(itemKey);
+            GameObject newWeapon = ActorSvc.Objects.CreateWeapon(itemKey);
 
             if (newWeapon == null)
                 return;
@@ -234,7 +234,7 @@ namespace UPlayGround
         
         private void OnEquipItem(PlayerEquipChangeEvent eventData)
         {
-            EquipmentSO itemData = ItemManager.Instance.GetItemData(eventData.itemKey) as EquipmentSO;
+            EquipmentSO itemData = Svc.Item.GetItemData(eventData.itemKey) as EquipmentSO;
             if (itemData == null)
             {
                 return;

@@ -72,9 +72,9 @@ namespace UPlayGround.UI
             base.OnShow();
 
             _pausedByThisPopup = false;
-            if (_pauseGameWhileOpen && GameTimeManager.Instance != null && !GameTimeManager.Instance.IsPaused)
+            if (_pauseGameWhileOpen && Svc.GameTime != null && !Svc.GameTime.IsPaused)
             {
-                GameTimeManager.Instance?.SetPause(true);
+                Svc.GameTime?.SetPause(true);
                 _pausedByThisPopup = true;
             }
 
@@ -91,7 +91,7 @@ namespace UPlayGround.UI
 
             if (_pausedByThisPopup)
             {
-                GameTimeManager.Instance?.SetPause(false);
+                Svc.GameTime?.SetPause(false);
                 _pausedByThisPopup = false;
             }
 
@@ -100,16 +100,16 @@ namespace UPlayGround.UI
 
         protected override void RegisterInputEvents()
         {
-            InputManager.Instance?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            Svc.Input?.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputNext, null, null, null, InputLayer.Level_2);
         }
 
         protected override void UnRegisterInputEvents()
         {
-            if (InputManager.Instance == null)
+            if (Svc.Input == null)
                 return;
 
-            InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputNext, null);
         }
 
@@ -176,7 +176,7 @@ namespace UPlayGround.UI
 
         private void ClosePopup()
         {
-            UIManager.Instance?.HideUI(UIKey);
+            UISvc.UI?.HideUI(UIKey);
         }
 
         private void Refresh()

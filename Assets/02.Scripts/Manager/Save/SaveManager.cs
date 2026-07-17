@@ -21,7 +21,7 @@ namespace UPlayGround.Manager
     /// ISaveable을 구현한 매니저는 RegisterSaveable()로 자신을 등록해야 한다.
     /// GameManager.InitializeManagers()에서 SaveManager 등록 이후에 각 매니저가 등록한다.
     /// </summary>
-    public class SaveManager : BaseManager<SaveManager>, IManager
+    public class SaveManager : BaseManager<SaveManager>, IManager, UPlayGround.UI.IUISaveService
     {
         private const string SAVE_FOLDER = "saves";
         private const string SAVE_FILE_PREFIX = "save_slot_";
@@ -700,19 +700,6 @@ namespace UPlayGround.Manager
         }
 
         #endregion
-    }
-
-    /// <summary> 세이브 슬롯 UI 표시용 메타 정보 </summary>
-    public class SaveSlotInfo
-    {
-        public int slot;
-        public string saveDateTime;
-        public string saveVersion;
-        public string mapId;        // 저장 당시 맵 식별자
-        public int storyProgress;   // 스토리 진행도
-        public int elapsedGameDays;  // 저장 당시 경과 일수(0부터)
-        public string mainQuestName; // 저장 당시 진행 중인 메인 퀘스트 명 (없으면 빈 문자열)
-        public string filePath;
     }
 
     public enum SaveOperationType

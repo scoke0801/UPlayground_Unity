@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -7,7 +7,6 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
-using UPlayGround.UI;
 
 namespace UPlayGround.State
 {
@@ -71,13 +70,13 @@ namespace UPlayGround.State
 
         private void TrySwitchOrShowRespawn()
         {
-            var partyManager = PartyManager.Instance;
+            var partyManager = Svc.Party;
             if (partyManager != null && partyManager.TrySwitchToNextAliveAfterActiveDeath())
             {
                 return;
             }
 
-            if (CycleRemainsManager.Instance?.HandlePartyWipe(_deathPosition, _deathRotation) == true)
+            if (ActorSvc.CycleRemains?.HandlePartyWipe(_deathPosition, _deathRotation) == true)
                 return;
 
             ShowRespawnUI();
@@ -118,20 +117,15 @@ namespace UPlayGround.State
 
             var actor = playerActor ?? gameActor as PlayerActor;
 
-            var uiObj = UIManager.Instance?.ShowUI(UIKeyType.RespawnPopup);
-            var popup = uiObj?.GetComponentInChildren<UI_RespawnPopup>();
-
-            float spotHealPercent = popup != null ? popup.SpotHealPercent : 0.5f;
-
-            popup?.Setup(
-                onSpotRevive:   () => actor?.Respawn(_deathPosition, _deathRotation, spotHealPercent),
-                onPortalRevive: () => actor?.Respawn(portalPos, portalRot, 1f)
-            );
-            
-            if (popup == null)
+            if (ActorSvc.UI == null)
             {
                 actor?.Respawn(portalPos, portalRot, 1f);
+                return;
             }
+
+            ActorSvc.UI.ShowRespawn(
+                spotHealPercent => actor?.Respawn(_deathPosition, _deathRotation, spotHealPercent),
+                () => actor?.Respawn(portalPos, portalRot, 1f));
         }
 
         public override void UpdateState(float deltaTime)

@@ -246,6 +246,8 @@ namespace UPlayGround.Manager
 
             _registeredManagers.Add(manager);
             _managerLookup[manager.GetType()] = manager;
+            if (manager is IGameService gameService)
+                Services.Register(gameService);
             if (manager is IUpdatableManager updatable)
                 _updatableManagers.Add(updatable);
             if (manager is IFixedUpdatableManager fixedUpdatable)
@@ -271,6 +273,8 @@ namespace UPlayGround.Manager
                 manager.Dispose();
                 _registeredManagers.Remove(manager);
                 _managerLookup.Remove(manager.GetType());
+                if (manager is IGameService gameService)
+                    Services.Unregister(gameService);
                 if (manager is IUpdatableManager updatable)
                     _updatableManagers.Remove(updatable);
                 if (manager is IFixedUpdatableManager fixedUpdatable)
@@ -400,7 +404,13 @@ namespace UPlayGround.Manager
             // 모든 매니저 정리
             for (int i = _registeredManagers.Count - 1; i >= 0; i--)
             {
-                _registeredManagers[i]?.Dispose();
+                IManager manager = _registeredManagers[i];
+                // Unity는 같은 GameObject의 컴포넌트 OnDestroy 순서를 보장하지 않는다.
+                // GameManager보다 먼저 파괴된 MonoBehaviour 매니저에는 Dispose를 호출하지 않는다.
+                if (manager is UnityEngine.Object unityObject && unityObject == null)
+                    continue;
+
+                manager?.Dispose();
             }
 
             _registeredManagers.Clear();
@@ -410,6 +420,7 @@ namespace UPlayGround.Manager
             _runtimeReadyManagers.Clear();
             _afterInitializedManagers.Clear();
             _managerLookup.Clear();
+            Services.Clear();
             _managerInitializationMilliseconds.Clear();
             IsInitialized = false;
             _initializationCancellation?.Dispose();

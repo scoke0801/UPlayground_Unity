@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,19 +24,24 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
-            DialogueManager.Instance.OnMonologueNodeEnter += HandleNodeEnter;
-            DialogueManager.Instance.OnDialogueEnd        += HandleDialogueEnd;
+            UISvc.Dialogue.OnMonologueNodeEnter += HandleNodeEnter;
+            UISvc.Dialogue.OnDialogueEnd        += HandleDialogueEnd;
 
-            InputManager.Instance.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputNext, null, null, null, InputLayer.Level_1);
         }
 
         protected override void OnHide()
         {
-            DialogueManager.Instance.OnMonologueNodeEnter -= HandleNodeEnter;
-            DialogueManager.Instance.OnDialogueEnd        -= HandleDialogueEnd;
+            // 앱 종료 중 UIManager.Dispose 경유로도 호출되므로 서비스가 null일 수 있다.
+            var dialogue = UISvc.Dialogue;
+            if (dialogue != null)
+            {
+                dialogue.OnMonologueNodeEnter -= HandleNodeEnter;
+                dialogue.OnDialogueEnd        -= HandleDialogueEnd;
+            }
 
-            InputManager.Instance.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputNext, null);
 
             if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
@@ -46,7 +51,7 @@ namespace UPlayGround.UI
 
         private void HandleNodeEnter(DialogueNodeSO node)
         {
-            var table = DialogueManager.Instance.ColorTable;
+            var table = UISvc.Dialogue.ColorTable;
             monologueText.color = table != null ? table.GetColor(node.speakerId) : Color.white;
 
             if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
@@ -61,7 +66,7 @@ namespace UPlayGround.UI
 
         private void OnInputNext(InputAction.CallbackContext ctx)
         {
-            DialogueManager.Instance.Advance(DialogueChannel.Monologue);
+            UISvc.Dialogue.Advance(DialogueChannel.Monologue);
         }
 
         // ── 타이핑 이펙트 ────────────────────────────────────────────────
@@ -80,7 +85,7 @@ namespace UPlayGround.UI
             if (autoAdvanceDuration > 0f)
             {
                 yield return new WaitForSeconds(autoAdvanceDuration);
-                DialogueManager.Instance.Advance(DialogueChannel.Monologue);
+                UISvc.Dialogue.Advance(DialogueChannel.Monologue);
             }
         }
     }

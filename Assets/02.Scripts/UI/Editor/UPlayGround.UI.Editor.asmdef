@@ -1,0 +1,19 @@
+{
+  "name": "UPlayGround.UI.Editor",
+  "rootNamespace": "UPlayGround.UI.Editor",
+  "references": [
+    "UPlayGround.UI",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "UPlayGround.Core",
+    "UPlayGround.Camera",
+    "UPlayGround.Actor",
+    "Unity.InputSystem",
+    "UnityEngine.UI",
+    "Unity.TextMeshPro"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

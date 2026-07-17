@@ -16,7 +16,7 @@ namespace UPlayGround.UI
 
         public void Init(int itemId, int count)
         {
-            var itemData = ItemManager.Instance != null ? ItemManager.Instance.GetItemData(itemId) : null;
+            var itemData = Svc.Item != null ? Svc.Item.GetItemData(itemId) : null;
             if (itemData != null && itemData.icon != null)
             {
                 _imgIcon.sprite  = itemData.icon;

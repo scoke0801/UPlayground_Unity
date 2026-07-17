@@ -9,7 +9,8 @@ using UPlayGround.Manager.World;
 
 namespace UPlayGround.Manager
 {
-    public partial class SceneManager : BaseManager<SceneManager>, IManager
+    public partial class SceneManager : BaseManager<SceneManager>, IManager, ISceneTransitionService,
+        UPlayGround.UI.IUISceneService
     {
         private const float SceneStabilizationTimeout = 2f;
         private const float SceneWaitDiagnosticLogInterval = 5f;

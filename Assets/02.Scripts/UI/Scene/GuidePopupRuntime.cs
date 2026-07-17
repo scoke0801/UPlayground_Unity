@@ -12,10 +12,10 @@ namespace UPlayGround.UI.Guide
     {
         public static UI_GuidePopup Open(GuidePopupDataSO data, int startPageIndex = 0)
         {
-            if (data == null || UIManager.Instance == null)
+            if (data == null || UISvc.UI == null)
                 return null;
 
-            var go = UIManager.Instance.ShowUI(UIKeyType.GuidePopup, CanvasLayer.Popup);
+            var go = UISvc.UI.ShowUI(UIKeyType.GuidePopup, CanvasLayer.Popup);
             var popup = go != null ? go.GetComponent<UI_GuidePopup>() : null;
             popup?.Setup(data, startPageIndex);
             return popup;
@@ -23,13 +23,13 @@ namespace UPlayGround.UI.Guide
 
         public static bool IsOpen()
         {
-            var popup = UIManager.Instance?.GetUI<UI_GuidePopup>(UIKeyType.GuidePopup);
+            var popup = UISvc.UI?.GetUI<UI_GuidePopup>(UIKeyType.GuidePopup);
             return popup != null && popup.IsVisible;
         }
 
         public static void Close()
         {
-            UIManager.Instance?.HideUI(UIKeyType.GuidePopup);
+            UISvc.UI?.HideUI(UIKeyType.GuidePopup);
         }
     }
 }

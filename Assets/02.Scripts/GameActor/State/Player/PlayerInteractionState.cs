@@ -1,11 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 using Animancer;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
-using UPlayGround.Manager.Handler;
 using UPlayGround.MovementController;
 using UPlayGround.Data.Actor;
 
@@ -47,7 +46,7 @@ namespace UPlayGround.State
             _requiresHeldInput = false;
             _hasPickupMotion = false;
 
-            GameInteractionHandler handler = GameObjectManager.Instance.InteractionHandler;
+            IActorInteractionService handler = ActorSvc.Objects?.InteractionHandler;
             if (handler == null)
             {
                 ForceChangeToNextState();
@@ -70,9 +69,9 @@ namespace UPlayGround.State
             _cachedData = interactable.GetData();
             _requiresHeldInput = _cachedData != null && _cachedData.interactionCompleteDuration > 0f;
 
-            if (EventManager.Instance != null)
+            if (Svc.Events != null)
             {
-                EventManager.Instance.Subscribe<PlayerEvent, EmptyEventData>(
+                Svc.Events.Subscribe<PlayerEvent, EmptyEventData>(
                     PlayerEvent.InteractionTargetDestroy,
                     OnInteractionTargetDestroy);
             }
@@ -101,12 +100,12 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnInteractionMotionCompleted;
 
-            GameObjectManager.Instance?.InteractionHandler?.StopInteraction();
+            ActorSvc.Objects?.InteractionHandler?.StopInteraction();
             playerActor.GetPlayerEquipment()?.EndInteractionEquipment();
 
-            if (EventManager.Instance != null)
+            if (Svc.Events != null)
             {
-                EventManager.Instance.Unsubscribe<PlayerEvent, EmptyEventData>(
+                Svc.Events.Unsubscribe<PlayerEvent, EmptyEventData>(
                     PlayerEvent.InteractionTargetDestroy,
                     OnInteractionTargetDestroy);
             }
@@ -159,7 +158,7 @@ namespace UPlayGround.State
             }
 
             // NPC 대화가 끝나면 자동으로 상태 종료
-            var handler = GameObjectManager.Instance.InteractionHandler;
+            var handler = ActorSvc.Objects.InteractionHandler;
             if (_cachedData?.interactionObjectType == InteractionObjectType.NPC
                 && handler?.CurrentClosestInteractable?.IsInteracting() == false)
             {
@@ -169,7 +168,7 @@ namespace UPlayGround.State
 
         private bool IsCurrentInteractionCompleted()
         {
-            var handler = GameObjectManager.Instance?.InteractionHandler;
+            var handler = ActorSvc.Objects?.InteractionHandler;
             IInteractable interactable = handler?.CurrentClosestInteractable;
             return interactable == null || interactable.IsInteracting() == false;
         }
@@ -238,7 +237,7 @@ namespace UPlayGround.State
                     state = gameActor.Animator.PlayMotion(AnimKey.Fishing_Idle);
                     _animPlayState = AnimPlayState.Idle;
                     
-                    GameObjectManager.Instance.InteractionHandler?.SetWaitEvent(OnFishCatch);
+                    ActorSvc.Objects.InteractionHandler?.SetWaitEvent(OnFishCatch);
                     return;
                 default: break;    
             }
@@ -351,7 +350,7 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
            // 즉시 소모형 대상(드랍 아이템 등)은 상태 종료 전에 타겟이 사라질 수 있으므로 회전을 생략한다.
-           GameActor target = GameObjectManager.Instance?.InteractionHandler?.CurrentClosestInteractable?.GetActor();
+           GameActor target = ActorSvc.Objects?.InteractionHandler?.CurrentClosestInteractable?.GetActor();
            if (target == null)
            {
                currentRotation = currentRotation.normalized;

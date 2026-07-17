@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UPlayGround.Story;
 using UPlayGround.Dialogue;
+using UPlayGround.CameraSystem;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
 #if UNITY_EDITOR
@@ -86,6 +87,7 @@ namespace UPlayGround.Manager
             RegisterManager(SettingsManager.Instance); // 설정 (Addressable 로드 → 시스템 반영)
             RegisterManager(SoundManager.Instance); // 사운드 재생/풀링
             RegisterManager(UIManager.Instance); // UI 관리
+            CameraRuntimeServices.Configure(new UPlayGroundCameraRuntimeAdapter());
             RegisterManager(CameraManager.Instance); // 카메라 시스템
             RegisterManager(GameObjectManager.Instance);
             RegisterManager(PartyManager.Instance);
@@ -421,6 +423,7 @@ namespace UPlayGround.Manager
             _afterInitializedManagers.Clear();
             _managerLookup.Clear();
             Services.Clear();
+            CameraRuntimeServices.Reset();
             _managerInitializationMilliseconds.Clear();
             IsInitialized = false;
             _initializationCancellation?.Dispose();

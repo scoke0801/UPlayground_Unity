@@ -422,12 +422,6 @@ namespace UPlayGround.CameraSystem
             return profile == null || profile.triggerChance >= 1f || Random.value <= profile.triggerChance;
         }
 
-        private static SettingsData GetSettingsData()
-        {
-            ISettingsService settings = Svc.Settings;
-            return settings != null && settings.IsLoaded ? settings.Data : null;
-        }
-
         /// <summary>
         /// 카덴스(Tier 3-G): 타입별 막타 강조. 가산형 보이스의 콤보 누적 위에 얹어
         /// 스킬/마무리/처치를 더 도드라지게 한다. (콤보 인덱스 기반 곡선은 후속 과제)
@@ -449,29 +443,29 @@ namespace UPlayGround.CameraSystem
 
         private float GetShakeScale()
         {
-            SettingsData data = GetSettingsData();
-            if (data != null && !data.screenShake)
+            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
+            if (!preferences.ScreenShakeEnabled)
                 return 0f;
 
             float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraShakeScale : 1f;
-            return Mathf.Max(0f, settingsScale * (data != null ? data.cameraShakeScale : 1f));
+            return Mathf.Max(0f, settingsScale * preferences.CameraShakeScale);
         }
 
         private float GetAutoCorrectionScale()
         {
-            SettingsData data = GetSettingsData();
-            if (data != null && !data.aimAssist)
+            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
+            if (!preferences.AimAssistEnabled)
                 return 0f;
 
             float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraAutoCorrectionScale : 1f;
-            return Mathf.Clamp01(settingsScale * (data != null ? data.combatCameraAutoCorrection : 1f));
+            return Mathf.Clamp01(settingsScale * preferences.AutoCorrectionScale);
         }
 
         private float GetSequenceIntensity()
         {
-            SettingsData data = GetSettingsData();
+            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
             float settingsScale = _cameraManager != null ? _cameraManager.SettingsCombatCameraSequenceIntensity : 1f;
-            return Mathf.Clamp01(settingsScale * (data != null ? data.combatCameraSequenceIntensity : 1f));
+            return Mathf.Clamp01(settingsScale * preferences.SequenceIntensity);
         }
     }
 }

@@ -1,7 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UPlayGround.InputDefine;
-using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
@@ -44,9 +42,8 @@ namespace UPlayGround.CameraSystem
 
             // 입력이 처리되지 않는 프레임에는 플릭 누적치를 남기지 않는다.
             // 잔존 누적치가 있으면 팝업/메뉴 복귀 직후 미세한 이동만으로 대상 전환이 발동할 수 있다.
-            IInputService input = Svc.Input;
-            if (input == null
-                || input.CurrentLayer != InputLayer.Level_0 ||
+            ICameraRuntimeAdapter input = CameraRuntimeServices.Adapter;
+            if (!input.IsGameplayInputActive ||
                 Cursor.visible || context.IsInputLocked)
             {
                 _flickAccum = 0f;
@@ -58,7 +55,7 @@ namespace UPlayGround.CameraSystem
 
             if (!isLockOn && !context.IsAligning)
             {
-                if (input.GetAction(InputMapNames.PlayerAction, PlayerAction.Look, out InputAction lookAction))
+                if (input.TryGetPlayerAction(CameraRuntimeServices.LookAction, out InputAction lookAction))
                 {
                     Vector2 look = lookAction.ReadValue<Vector2>();
                     ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY);
@@ -98,7 +95,7 @@ namespace UPlayGround.CameraSystem
             else
                 _flickAccum = 0f;
 
-            if (input.GetAction(InputMapNames.PlayerAction, PlayerAction.Zoom, out InputAction zoomAction))
+            if (input.TryGetPlayerAction(CameraRuntimeServices.ZoomAction, out InputAction zoomAction))
             {
                 float scroll = zoomAction.ReadValue<Vector2>().y;
                 if (Mathf.Abs(scroll) > 0.01f)
@@ -117,11 +114,11 @@ namespace UPlayGround.CameraSystem
         /// 프레임당 X 델타를 누적하고, 임계치 도달 시 그 방향의 대상으로 전환한다.
         /// 누적치는 시간에 따라 감쇠하므로 느린 마우스 이동으로는 발동하지 않는다.
         /// </summary>
-        private void UpdateLockOnFlickSwitch(CameraContext context, IInputService input)
+        private void UpdateLockOnFlickSwitch(CameraContext context, ICameraRuntimeAdapter input)
         {
             if (context.LockOn == null || !context.Settings.lockOnMouseFlickSwitch)
                 return;
-            if (!input.GetAction(InputMapNames.PlayerAction, PlayerAction.Look, out InputAction lookAction))
+            if (!input.TryGetPlayerAction(CameraRuntimeServices.LookAction, out InputAction lookAction))
                 return;
 
             // 게임패드 우스틱 좌우는 LockOnSwitchLeft/Right 액션 바인딩이 별도로 처리한다.
@@ -144,13 +141,10 @@ namespace UPlayGround.CameraSystem
 
         private static void ResolveLookSettings(out float sensitivityX, out float sensitivityY, out bool invertY)
         {
-            var settingsData = Svc.Settings is { IsLoaded: true } settings
-                ? settings.Data
-                : null;
-
-            sensitivityX = settingsData != null ? Mathf.Clamp(settingsData.sensitivityX, 1, 10) / 5f : 1f;
-            sensitivityY = settingsData != null ? Mathf.Clamp(settingsData.sensitivityY, 1, 10) / 5f : 1f;
-            invertY = settingsData != null && settingsData.invertY;
+            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
+            sensitivityX = preferences.SensitivityX;
+            sensitivityY = preferences.SensitivityY;
+            invertY = preferences.InvertY;
         }
     }
 }

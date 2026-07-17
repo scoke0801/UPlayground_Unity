@@ -215,7 +215,7 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
-            Svc.GameTime.SetPause(false);
+            Svc.GameTime?.SetPause(false);
             base.OnHide();
         }
 

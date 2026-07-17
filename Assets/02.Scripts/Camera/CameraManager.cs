@@ -6,7 +6,6 @@ using UPlayGround.CameraSystem;
 using UPlayGround.Data;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Path;
-using UPlayGround.InputDefine;
 
 namespace UPlayGround.Manager
 {
@@ -116,7 +115,7 @@ namespace UPlayGround.Manager
         {
             if (settings == null)
             {
-                settings = await Svc.Asset.LoadGlobalAsync<CameraSettings>(
+                settings = await CameraRuntimeServices.Adapter.LoadAssetAsync<CameraSettings>(
                     SETTINGS_ADDRESSABLE_KEY,
                     nameof(CameraManager),
                     cancellationToken);
@@ -159,31 +158,37 @@ namespace UPlayGround.Manager
             if (_isCameraInputRegistered)
                 return;
 
-            IInputService input = Svc.Input;
-            if (input == null)
+            ICameraRuntimeAdapter runtime = CameraRuntimeServices.Adapter;
+            if (runtime == null)
                 return;
 
-            input.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
-                null, OnLockOnPerformed, null, null, null, InputLayer.Level_1);
-            input.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
-                null, OnLockOnSwitchLeft, null, null, null, InputLayer.Level_1);
-            input.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
-                null, OnLockOnSwitchRight, null, null, null, InputLayer.Level_1);
+            runtime.RegisterPlayerAction(
+                CameraRuntimeServices.LockOnAction,
+                OnLockOnPerformed);
+            runtime.RegisterPlayerAction(
+                CameraRuntimeServices.LockOnSwitchLeftAction,
+                OnLockOnSwitchLeft);
+            runtime.RegisterPlayerAction(
+                CameraRuntimeServices.LockOnSwitchRightAction,
+                OnLockOnSwitchRight);
             _isCameraInputRegistered = true;
         }
 
         private void UnregisterCameraInputEvents()
         {
-            IInputService input = Svc.Input;
-            if (!_isCameraInputRegistered || input == null)
+            ICameraRuntimeAdapter runtime = CameraRuntimeServices.Adapter;
+            if (!_isCameraInputRegistered || runtime == null)
                 return;
 
-            input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOn,
-                null, OnLockOnPerformed, null);
-            input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft,
-                null, OnLockOnSwitchLeft, null);
-            input.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight,
-                null, OnLockOnSwitchRight, null);
+            runtime.UnregisterPlayerAction(
+                CameraRuntimeServices.LockOnAction,
+                OnLockOnPerformed);
+            runtime.UnregisterPlayerAction(
+                CameraRuntimeServices.LockOnSwitchLeftAction,
+                OnLockOnSwitchLeft);
+            runtime.UnregisterPlayerAction(
+                CameraRuntimeServices.LockOnSwitchRightAction,
+                OnLockOnSwitchRight);
             _isCameraInputRegistered = false;
         }
 
@@ -701,7 +706,7 @@ namespace UPlayGround.Manager
             try
             {
                 _cameraShakeDatabase =
-            await Svc.Asset.LoadGlobalAsync<CameraShakeDatabase>(
+                    await CameraRuntimeServices.Adapter.LoadAssetAsync<CameraShakeDatabase>(
                         CAMERA_SHAKE_DB_KEY,
                         nameof(CameraManager),
                         cancellationToken);
@@ -722,7 +727,7 @@ namespace UPlayGround.Manager
             try
             {
                 _dialogueCameraSettings =
-            await Svc.Asset.LoadGlobalAsync<DialogueCameraSettingsSO>(
+                    await CameraRuntimeServices.Adapter.LoadAssetAsync<DialogueCameraSettingsSO>(
                         DIALOGUE_CAMERA_SETTINGS_KEY,
                         nameof(CameraManager),
                         cancellationToken);
@@ -742,7 +747,7 @@ namespace UPlayGround.Manager
         {
             try
             {
-                var data = await Svc.Asset.LoadGlobalAsync<KillCamData>(
+                var data = await CameraRuntimeServices.Adapter.LoadAssetAsync<KillCamData>(
                     KILL_CAM_DATA_KEY,
                     nameof(CameraManager),
                     cancellationToken);
@@ -763,7 +768,7 @@ namespace UPlayGround.Manager
             try
             {
                 var data =
-                await Svc.Asset.LoadGlobalAsync<CombatCameraProfileDatabaseSO>(
+                    await CameraRuntimeServices.Adapter.LoadAssetAsync<CombatCameraProfileDatabaseSO>(
                         COMBAT_CAMERA_PROFILE_DB_KEY,
                         nameof(CameraManager),
                         cancellationToken);
@@ -783,7 +788,7 @@ namespace UPlayGround.Manager
         {
             try
             {
-                var data = await Svc.Asset.LoadGlobalAsync<FOVCameraEffectData>(
+                var data = await CameraRuntimeServices.Adapter.LoadAssetAsync<FOVCameraEffectData>(
                     PERFECT_GUARD_FOV_KEY,
                     nameof(CameraManager),
                     cancellationToken);

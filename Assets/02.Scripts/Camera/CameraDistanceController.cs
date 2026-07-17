@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
-using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
@@ -220,11 +219,15 @@ namespace UPlayGround.CameraSystem
                 if (hit.transform == _player || hit.transform.IsChildOf(_player))
                     continue;
 
-                var actor = hit.GetComponent<IWorldActor>() ?? hit.GetComponentInParent<IWorldActor>();
-                if (actor == null || !actor.IsAlive)
+                if (!CameraRuntimeServices.Adapter.TryResolveTarget(
+                        hit,
+                        out CameraTargetInfo target)
+                    || !target.IsAlive)
+                {
                     continue;
+                }
 
-                Transform metricRoot = ResolveMetricRoot(hit, actor);
+                Transform metricRoot = ResolveMetricRoot(hit, target);
                 if (metricRoot == null || !_metricTargets.Add(metricRoot))
                     continue;
 
@@ -233,9 +236,9 @@ namespace UPlayGround.CameraSystem
             }
         }
 
-        private static Transform ResolveMetricRoot(Collider hit, IWorldActor actor)
+        private static Transform ResolveMetricRoot(Collider hit, CameraTargetInfo target)
         {
-            return actor?.Transform != null ? actor.Transform : hit.transform;
+            return target.Root != null ? target.Root : hit.transform;
         }
 
         private float EvaluateTargetMaxSize(Transform root, Collider fallbackCollider)

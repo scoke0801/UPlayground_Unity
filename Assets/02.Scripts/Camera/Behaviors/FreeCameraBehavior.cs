@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
@@ -20,7 +19,7 @@ namespace UPlayGround.CameraSystem
         private bool _initialized;
         private bool _previousPlayerActionSuppressed;
         private bool _previousPlayerActorInputSuppressed;
-        private IPlayerInputSuppressible _suppressedPlayerActor;
+        private Transform _suppressedPlayerTarget;
 
         public CameraModeType ModeType => CameraModeType.Free;
         public int Priority => 90;
@@ -140,37 +139,30 @@ namespace UPlayGround.CameraSystem
 
         private void SuppressPlayerInput(CameraContext context)
         {
-            IInputService input = Svc.Input;
-            _previousPlayerActionSuppressed = input != null
-                                             && input.IsPlayerActionInputSuppressed;
+            ICameraRuntimeAdapter runtime = CameraRuntimeServices.Adapter;
+            _previousPlayerActionSuppressed = runtime.IsPlayerActionInputSuppressed;
 
-            if (input != null)
-            {
-                input.SetPlayerActionInputSuppressed(true);
-                input.InputBuffer?.Clear();
-            }
+            runtime.SetPlayerActionInputSuppressed(true);
+            runtime.ClearBufferedInput();
 
-            _suppressedPlayerActor = context.Target != null
-                ? context.Target.GetComponentInParent<IPlayerInputSuppressible>()
-                : null;
+            _suppressedPlayerTarget = context.Target;
 
-            _previousPlayerActorInputSuppressed = _suppressedPlayerActor != null
-                                                  && _suppressedPlayerActor.IsInputSuppressed;
-            _suppressedPlayerActor?.SetInputSuppressed(true);
+            _previousPlayerActorInputSuppressed =
+                runtime.IsTargetInputSuppressed(_suppressedPlayerTarget);
+            runtime.SetTargetInputSuppressed(_suppressedPlayerTarget, true);
         }
 
         private void RestorePlayerInput()
         {
-            _suppressedPlayerActor?.SetInputSuppressed(_previousPlayerActorInputSuppressed);
-            _suppressedPlayerActor = null;
+            ICameraRuntimeAdapter runtime = CameraRuntimeServices.Adapter;
+            runtime.SetTargetInputSuppressed(
+                _suppressedPlayerTarget,
+                _previousPlayerActorInputSuppressed);
+            _suppressedPlayerTarget = null;
             _previousPlayerActorInputSuppressed = false;
 
-            IInputService input = Svc.Input;
-            if (input == null)
-                return;
-
-            input.SetPlayerActionInputSuppressed(_previousPlayerActionSuppressed);
-            input.InputBuffer?.Clear();
+            runtime.SetPlayerActionInputSuppressed(_previousPlayerActionSuppressed);
+            runtime.ClearBufferedInput();
         }
     }
 }

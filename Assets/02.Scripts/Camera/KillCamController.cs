@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UPlayGround.CameraSystem;
 using UPlayGround.Data;
-using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
@@ -65,14 +65,14 @@ namespace UPlayGround
 
             // 처형 공격으로 사망 시에는 처형 연출이 있으므로 킬캠 제외
             // (호출부에서 처형 여부를 걸러주는 것이 이상적이나, 방어적으로 체크)
-            IWorldActor actor = victim.GetComponentInParent<IWorldActor>();
-
             if (!skipChance)
             {
                 float chance = _data.triggerChance;
-                if (actor != null)
+                if (CameraRuntimeServices.Adapter.TryResolveTarget(
+                        victim,
+                        out CameraTargetInfo target))
                 {
-                    chance = actor.Grade switch
+                    chance = target.Grade switch
                     {
                         MonsterActorGrade.Normal => 0.25f,
                         MonsterActorGrade.Elite  => 0.60f,
@@ -126,7 +126,6 @@ namespace UPlayGround
         private IEnumerator KillCamSequence(Transform victim)
         {
             var cameraManager = CameraManager.Instance;
-            IHitStopService hitStopManager = Svc.HitStop;
 
             if (cameraManager == null)
             {
@@ -134,7 +133,7 @@ namespace UPlayGround
                 yield break;
             }
 
-            Svc.VitalOrb?.TrySpawn(VitalOrbTrigger.KillKillCam, victim.position);
+            CameraRuntimeServices.Adapter.NotifyKillCamStarted(victim);
 
             float originalDistance = cameraManager.GetCurrentDistance();
             Vector3 originalOffset = cameraManager.GetCurrentOffset();
@@ -143,15 +142,9 @@ namespace UPlayGround
             cameraManager.SetInputLock(true);
 
             // ① HitStop + 슬로모션 시작
-            IWorldActor actor = victim.GetComponentInParent<IWorldActor>();
-            if (actor != null && actor.Grade != MonsterActorGrade.Normal)
-            {
-                hitStopManager?.Execute(_data.slowMotionDuration, _data.slowMotionTimeScale);
-            }
-            else
-            {
-                hitStopManager?.Execute(_data.slowMotionDuration, _data.slowMotionTimeScale);
-            }
+            CameraRuntimeServices.Adapter.ExecuteHitStop(
+                _data.slowMotionDuration,
+                _data.slowMotionTimeScale);
 
             // ③ KillCam 쉐이크 시작 (슬로우 구간 미진동)
             if (!string.IsNullOrEmpty(_data.cameraShakeKey))
@@ -172,7 +165,7 @@ namespace UPlayGround
             cameraManager?.SetInputLock(false);
 
             if (Time.timeScale < 1f)
-                Svc.HitStop?.Stop();
+                CameraRuntimeServices.Adapter.StopHitStop();
         }
 
         private void RestoreState(float originalDistance, Vector3 originalOffset, float originalFOV)

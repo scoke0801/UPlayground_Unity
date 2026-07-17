@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
-using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
     /// 락온용 포커스/앵커/우선순위를 제공하는 선택 인터페이스.
-    /// 구현하지 않은 대상은 IWorldActor의 Transform 기준으로 동작한다.
+    /// 구현하지 않은 대상은 호스트의 ICameraRuntimeAdapter가 반환한 루트 Transform을 사용한다.
     /// </summary>
     public interface ILockOnTarget
     {
@@ -437,7 +436,7 @@ namespace UPlayGround.CameraSystem
         {
             CurrentTarget = t;
             _targetCollider = t.GetComponent<CapsuleCollider>() ?? t.GetComponentInChildren<CapsuleCollider>();
-            (t.GetComponent<IWorldActor>() ?? t.GetComponentInParent<IWorldActor>())?.LockOn();
+            CameraRuntimeServices.Adapter.NotifyLockOnChanged(t, true);
             InitSmoothY();
             _activeFocusPos = GetCurrentTargetFocusPosition();
             _activeFocusVelocity = Vector3.zero;
@@ -565,21 +564,28 @@ namespace UPlayGround.CameraSystem
                 if (hit.transform == _player || hit.transform.IsChildOf(_player))
                     continue;
 
-                var actor = hit.GetComponent<IWorldActor>() ?? hit.GetComponentInParent<IWorldActor>();
-                if (actor == null || !actor.IsAlive)
+                ILockOnTarget lockOnTarget = ResolveLockOnTarget(hit);
+                bool hasRuntimeTarget = CameraRuntimeServices.Adapter.TryResolveTarget(
+                    hit,
+                    out CameraTargetInfo runtimeTarget);
+                if (hasRuntimeTarget && !runtimeTarget.IsAlive)
                     continue;
-
-                if (actor.Transform != null
-                    && (actor.Transform == _player || actor.Transform.IsChildOf(_player)))
+                if (!hasRuntimeTarget && lockOnTarget == null)
+                    continue;
+                if (hasRuntimeTarget
+                    && runtimeTarget.Root != null
+                    && (runtimeTarget.Root == _player || runtimeTarget.Root.IsChildOf(_player)))
                 {
                     continue;
                 }
-
-                ILockOnTarget lockOnTarget = ResolveLockOnTarget(hit);
                 if (lockOnTarget != null && !lockOnTarget.CanLockOn)
                     continue;
 
-                Transform candidate = ResolveTargetTransform(hit, actor, lockOnTarget);
+                Transform candidate = ResolveTargetTransform(
+                    hit,
+                    hasRuntimeTarget,
+                    runtimeTarget,
+                    lockOnTarget);
                 if (candidate == null)
                     continue;
                 if (_targetSet.Contains(candidate))
@@ -711,8 +717,16 @@ namespace UPlayGround.CameraSystem
         private static bool IsAliveTarget(Transform t)
         {
             if (t == null) return false;
-            var actor = t.GetComponent<IWorldActor>() ?? t.GetComponentInParent<IWorldActor>();
-            return actor != null && actor.IsAlive;
+
+            if (CameraRuntimeServices.Adapter.TryResolveTarget(
+                    t,
+                    out CameraTargetInfo target))
+            {
+                return target.IsAlive;
+            }
+
+            ILockOnTarget lockOnTarget = GetLockOnTarget(t);
+            return lockOnTarget != null && lockOnTarget.CanLockOn;
         }
 
         private float GetReleaseRange()
@@ -800,14 +814,15 @@ namespace UPlayGround.CameraSystem
 
         private static Transform ResolveTargetTransform(
             Collider hit,
-            IWorldActor actor,
+            bool hasRuntimeTarget,
+            CameraTargetInfo runtimeTarget,
             ILockOnTarget lockOnTarget)
         {
             if (lockOnTarget != null && lockOnTarget.Transform != null)
                 return lockOnTarget.Transform;
 
-            if (actor?.Transform != null)
-                return actor.Transform;
+            if (hasRuntimeTarget && runtimeTarget.Root != null)
+                return runtimeTarget.Root;
 
             return hit != null ? hit.transform : null;
         }
@@ -852,7 +867,7 @@ namespace UPlayGround.CameraSystem
         private static void NotifyUnLockOn(Transform t)
         {
             if (t != null)
-                (t.GetComponent<IWorldActor>() ?? t.GetComponentInParent<IWorldActor>())?.UnLockOn();
+                CameraRuntimeServices.Adapter.NotifyLockOnChanged(t, false);
         }
     }
 }

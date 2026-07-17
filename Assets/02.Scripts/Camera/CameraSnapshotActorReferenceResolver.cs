@@ -1,7 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Manager;
 
 namespace UPlayGround.CameraSystem
 {
@@ -12,21 +11,24 @@ namespace UPlayGround.CameraSystem
             if (!reference.enabled)
                 return fallback;
 
-            IWorldActor actor = ResolveActor(reference);
+            Transform actor = ResolveActor(reference);
             if (actor == null)
                 return fallback;
 
             if (reference.socketType != ActorSocketType.None
-                && actor.TryGetSocket(reference.socketType, out Transform socket)
+                && CameraRuntimeServices.Adapter.TryGetSocket(
+                    actor,
+                    reference.socketType,
+                    out Transform socket)
                 && socket != null)
             {
                 return socket;
             }
 
-            return actor.Transform;
+            return actor;
         }
 
-        public static IWorldActor ResolveActor(CameraSnapshotActorReference reference)
+        private static Transform ResolveActor(CameraSnapshotActorReference reference)
         {
             if (!reference.enabled)
                 return null;
@@ -34,12 +36,12 @@ namespace UPlayGround.CameraSystem
             string actorId = reference.ResolvedActorId;
 
             if (string.IsNullOrEmpty(actorId) && reference.useActivePlayerWhenEmpty)
-                return Svc.ActorQuery?.Player;
+                return CameraRuntimeServices.Adapter.ActivePlayer;
 
             if (string.IsNullOrEmpty(actorId))
                 return null;
 
-            return Svc.ActorQuery?.FindActor(actorId);
+            return CameraRuntimeServices.Adapter.FindActor(actorId);
         }
     }
 }

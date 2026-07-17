@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.CameraSystem;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Manager;
 
 namespace UPlayGround.Data
 {
@@ -51,10 +50,13 @@ namespace UPlayGround.Data
 
         private static bool TryGetMonsterGrade(Transform target, out MonsterActorGrade grade)
         {
-            IWorldActor actor = target != null ? target.GetComponentInParent<IWorldActor>() : null;
-            if (actor != null && (actor.ActorType & ActorType.Monster) != 0)
+            if (target != null
+                && CameraRuntimeServices.Adapter.TryResolveTarget(
+                    target,
+                    out CameraTargetInfo cameraTarget)
+                && cameraTarget.IsMonster)
             {
-                grade = actor.Grade;
+                grade = cameraTarget.Grade;
                 return true;
             }
 

@@ -1,7 +1,7 @@
 # 방어 성공 피드백 개선 스펙
 
 > 작성일: 2026-06-05  
-> 분류: 전투 피드백 개선 / TODO  
+> 분류: 전투 피드백 개선 / 구현 완료  
 > 기준 레퍼런스: 명조(Wuthering Waves) 패리, 퍼펙트 회피, 카운터 피드백  
 > 관련 문서: `Assets/docs/Complete/TIME_HITSTOP_GUIDE.md`, `Assets/docs/Complete/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md`, `Assets/docs/Complete/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md`
 

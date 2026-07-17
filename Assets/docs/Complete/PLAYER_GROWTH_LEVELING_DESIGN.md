@@ -1,7 +1,7 @@
 # 플레이어 성장 시스템 설계 — 개별 캐릭터 레벨링 (EXP 루프)
 
 > 작성일: 2026-06-08
-> 상태: 설계 단계 (구현 전)
+> 상태: 코드 구현 완료 (Unity 컴파일/플레이 검증 대기)
 > 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
 > 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
 

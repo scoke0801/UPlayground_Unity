@@ -48,6 +48,18 @@ namespace UPlayGround.UI
 
         protected override void Awake()
         {
+            // 이 팝업은 Canvas_Popup 전체를 덮는 UI다. 프리팹 빌드 시 독립 Canvas의
+            // 구동값이 직렬화되더라도 런타임에서는 항상 정상 크기로 복구한다.
+            if (transform is RectTransform rectTransform)
+            {
+                rectTransform.localScale = Vector3.one;
+                rectTransform.anchorMin = Vector2.zero;
+                rectTransform.anchorMax = Vector2.one;
+                rectTransform.offsetMin = Vector2.zero;
+                rectTransform.offsetMax = Vector2.zero;
+                rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            }
+
             base.Awake();
 
             if (_previousButton != null) _previousButton.onClick.AddListener(ShowPreviousPage);

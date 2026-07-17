@@ -30,9 +30,16 @@ namespace UPlayGround.UI.Guide.EditorTools
         {
             EnsureFolder("Assets/03.Prefabs/UI/Popup");
 
+            // Canvas가 씬 계층의 루트인 상태에서는 Unity가 RectTransform을 구동하며,
+            // 에디터용 임시 오브젝트의 0 스케일/0 크기가 프리팹에 직렬화될 수 있다.
+            // 실제 런타임과 동일하게 부모 Canvas 아래에서 팝업을 구성한다.
+            GameObject stagingCanvas = new("GuidePopupBuildCanvas", typeof(RectTransform), typeof(Canvas));
             GameObject root = new("UI_GuidePopup", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
+            root.transform.SetParent(stagingCanvas.transform, false);
             try
             {
+                stagingCanvas.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
+
                 var canvas = root.GetComponent<Canvas>();
                 canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 canvas.sortingOrder = (int)CanvasLayer.Popup;
@@ -135,7 +142,7 @@ namespace UPlayGround.UI.Guide.EditorTools
             }
             finally
             {
-                UnityEngine.Object.DestroyImmediate(root);
+                UnityEngine.Object.DestroyImmediate(stagingCanvas);
             }
         }
 

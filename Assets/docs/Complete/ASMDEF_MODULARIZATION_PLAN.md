@@ -154,7 +154,7 @@ Assembly-CSharp-Editor → Manager 참조 에디터 툴 전부 (02.Scripts/Edito
 - [x] UPlayground 구현을 `Manager/Camera/UPlayGroundCameraRuntimeAdapter.cs` 조립 계층으로 격리
 - [x] `GameManager`가 CameraManager 등록 전에 어댑터를 구성하고 종료 시 리셋
 - [x] 기존 CameraManager 공개 API, 카메라 SO, 직렬화 어셈블리 유지
-- [x] 이식 절차 문서: `Assets/docs/CAMERA_MODULE_PORTABILITY_GUIDE.md`
+- [x] 이식 절차 문서: `Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md`
 - [x] Camera / Actor / UI / Assembly-CSharp CLI 컴파일 오류 0
 - [ ] Play Mode 락온/전투카메라/킬캠/대화카메라/스냅샷 스모크
 

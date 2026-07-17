@@ -185,7 +185,7 @@
 
 ## 관련 문서
 
-- [combat-character-swap-system.md](Complete/combat-character-swap-system.md) — 캐릭터 교체 시스템 상세 설계
-- [INPUT_SYSTEM_GUIDE.md](Complete/INPUT_SYSTEM_GUIDE.md) — 입력 시스템 구조
-- [ATTACK_CANCEL_SYSTEM_GUIDE.md](ATTACK_CANCEL_SYSTEM_GUIDE.md) — 공격 캔슬/인터럽트
-- [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) — 스탯/포이즈 데이터
+- [combat-character-swap-system.md](combat-character-swap-system.md) — 캐릭터 교체 시스템 상세 설계
+- [INPUT_SYSTEM_GUIDE.md](INPUT_SYSTEM_GUIDE.md) — 입력 시스템 구조
+- [ATTACK_CANCEL_SYSTEM_GUIDE.md](../guide/ATTACK_CANCEL_SYSTEM_GUIDE.md) — 공격 캔슬/인터럽트
+- [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md) — 스탯/포이즈 데이터

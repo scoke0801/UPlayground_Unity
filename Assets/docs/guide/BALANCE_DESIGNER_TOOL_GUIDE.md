@@ -4,7 +4,7 @@
 
 `Balance Designer Tool`은 `ActorDefinitionSO`를 기준으로 몬스터의 스탯, 공격 데이터, Behavior Tree 의사결정 흐름을 한 화면에서 확인하고, 지정한 플레이어 조건과 전투 시간 안에서 전투가 성립하는지 추정하기 위한 에디터 도구다.
 
-레벨 차이와 몬스터 등급별 목표 전투 시간은 [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)를 기준으로 한다.
+레벨 차이와 몬스터 등급별 목표 전투 시간은 [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](../LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)를 기준으로 한다.
 
 현재 프로젝트에는 다음 기반 기능이 이미 있다.
 
@@ -237,7 +237,7 @@ Balance Designer는 단순히 `Stable/TooEasy/TooLethal`만 보여주는 도구�
 
 | 개선 항목 | 설명 |
 |-----------|------|
-| 레벨 프리셋 | [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)의 저레벨 Normal, 동레벨 Normal, Elite, Boss 기준을 Scenario 프리셋으로 제공 |
+| 레벨 프리셋 | [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](../LEVEL_GRADE_COMBAT_BALANCE_POLICY.md)의 저레벨 Normal, 동레벨 Normal, Elite, Boss 기준을 Scenario 프리셋으로 제공 |
 | 강한 공격 확률 표시 | 사용 가능 공격 풀에서 Heavy, Skill, Heavy+Skill 합산 사용 확률을 표시 |
 | 위험 기여도 표시 | 공격별 DPS 기여도와 함께 전투 전체 위험 기여도를 정렬 표시 |
 | Danger Ring 누락 경고 | Heavy/Skill 공격인데 `useDangerRing == false`이면 Warning |

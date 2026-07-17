@@ -318,15 +318,15 @@ Assets/
 
 | 문서 | 설명 |
 |------|------|
-| [ASMDEF_MODULARIZATION_ONBOARDING.html](ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
+| [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
-| [GAMEPLAY_GUIDE.md](GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
-| [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](TODO/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
-| [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](TODO/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |
-| [MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md](TODO/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md) | MotionEvent/MotionSet asmdef 패키지 분리 리팩터 계획 — 프레임워크/구체 이벤트 경계 판정, SerializeReference·MovedFrom 직렬화 안전성, Executor·에디터 하드코딩 역전, Phase 1~4 |
+| [GAMEPLAY_GUIDE.md](Complete/GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
+| [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](Complete/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
+| [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |
+| [MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md](Complete/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md) | MotionEvent/MotionSet asmdef 패키지 분리 리팩터 계획 — 프레임워크/구체 이벤트 경계 판정, SerializeReference·MovedFrom 직렬화 안전성, Executor·에디터 하드코딩 역전, Phase 1~4 |
 | [ACTOR_ID_SYSTEM_GUIDE.md](Complete/ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
 | [CRAFTING_SYSTEM_GUIDE.md](Complete/CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
-| [CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md](CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md) | 제작 UI / 퀘스트 UI 에디터 작업 가이드 — 현재 코드·데이터·프리팹 연결 상태 기반 세팅 순서 |
+| [CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md](guide/CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md) | 제작 UI / 퀘스트 UI 에디터 작업 가이드 — 현재 코드·데이터·프리팹 연결 상태 기반 세팅 순서 |
 | [SAVE_SYSTEM_GUIDE.md](Complete/SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |
 | [UI_Base_Guide.md](Complete/UI_Base_Guide.md) | UI 시스템 — UIRoot, EventSystem 자동 구성, 레이어 구조, UI 생성/제거 |
 | [GAMEMANAGER_README.md](Complete/GAMEMANAGER_README.md) | GameManager — 매니저 등록 및 초기화 순서 |
@@ -338,45 +338,45 @@ Assets/
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](Complete/ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [MOTION_EVENT_ROLE_GUIDE.md](guide/MOTION_EVENT_ROLE_GUIDE.md) | MotionEvent 역할 — 전투 판정, VFX/SFX, 카메라, 이동/시간, 유틸리티 이벤트별 실행 타이밍과 주의사항 |
 | [COMBAT_SYSTEM_GUIDE.md](guide/COMBAT_SYSTEM_GUIDE.md) | 전투 시스템 — PlayerCombat/EnemyCombat, 공격 데이터, 판정, 피해 적용, 가드·패리·Poise·Break 흐름 |
-| [ATTACK_CANCEL_SYSTEM_GUIDE.md](ATTACK_CANCEL_SYSTEM_GUIDE.md) | 공격 캔슬(인터럽트) 시스템 — PlayerInterruptAction 마스크, 캔슬 윈도우, 이동 후딜 캔슬 게이트(윈드업/멀티히트 제외), 마이그레이션 메뉴 |
+| [ATTACK_CANCEL_SYSTEM_GUIDE.md](guide/ATTACK_CANCEL_SYSTEM_GUIDE.md) | 공격 캔슬(인터럽트) 시스템 — PlayerInterruptAction 마스크, 캔슬 윈도우, 이동 후딜 캔슬 게이트(윈드업/멀티히트 제외), 마이그레이션 메뉴 |
 | [COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md](Complete/COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md) | 전투 시스템 구조 개선 계획 — DamageResolver, DefenseResolver, ReactionResolver, CombatActionRunner 단계별 리팩토링 |
-| [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](TODO/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |
-| [ATTACHED_HITBOX_COLLISION_IMPLEMENTATION_PLAN.md](TODO/ATTACHED_HITBOX_COLLISION_IMPLEMENTATION_PLAN.md) | 부착형 HitBox 충돌 판정 구현 계획 — Hurtbox 없이 무기·신체 Collider 기반 판정, Sweep 보정, 자동 부착 에디터와 MotionSet 검증 설계 |
+| [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](Complete/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |
+| [ATTACHED_HITBOX_COLLISION_IMPLEMENTATION_PLAN.md](Complete/ATTACHED_HITBOX_COLLISION_IMPLEMENTATION_PLAN.md) | 부착형 HitBox 충돌 판정 구현 계획 — Hurtbox 없이 무기·신체 Collider 기반 판정, Sweep 보정, 자동 부착 에디터와 MotionSet 검증 설계 |
 | [ENEMY_LOCOMOTION_GUIDE.md](Complete/ENEMY_LOCOMOTION_GUIDE.md) | 몬스터 방향성 로코모션 — EnemyLocomotionHelper 8방향 분기, Walk·WalkSlow·Run 스타일, LocoMotionSetupWindow 클립 등록 |
 | [PLAYER_COMBAT_WEAPON_STATE_GUIDE.md](guide/PLAYER_COMBAT_WEAPON_STATE_GUIDE.md) | 플레이어 전투 무기 상태 연동 — 전투 진입/해제 시 무기 장착·해제 처리 설계 |
 | [WEAPON_SYSTEM_GUIDE.md](guide/WEAPON_SYSTEM_GUIDE.md) | Weapon 시스템 — EquipmentSO 기반 장착, ParentConstraint 부착, 발도 상태, 레거시 분석과 개선 로드맵 |
-| [WEAPON_RIG_SYSTEM_GUIDE.md](WEAPON_RIG_SYSTEM_GUIDE.md) | Weapon Rig 시스템 — 현재 무기/투사체 조준 구조 분석, 공통 조준점, WeaponAimPivot과 양손 IK 단계별 도입 설계 |
-| [STAT_SYSTEM_GUIDE.md](STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
+| [WEAPON_RIG_SYSTEM_GUIDE.md](guide/WEAPON_RIG_SYSTEM_GUIDE.md) | Weapon Rig 시스템 — 현재 무기/투사체 조준 구조 분석, 공통 조준점, WeaponAimPivot과 양손 IK 단계별 도입 설계 |
+| [STAT_SYSTEM_GUIDE.md](guide/STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
 | [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](LEVEL_GRADE_COMBAT_BALANCE_POLICY.md) | 레벨 / 등급 기반 전투 시간 밸런스 정책 — 저레벨·동레벨 Normal, Elite, Boss 기준 전투 시간과 검증 절차 |
 | [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](guide/MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — EnemyAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |
-| [MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md](MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) | 몬스터 브레이크 / 행동 불능 / 특수공격 — Poise, 피격 반응, 브레이크 게이지, 특수공격 입력 기회 통합 설계 |
+| [MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md](design/MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) | 몬스터 브레이크 / 행동 불능 / 특수공격 — Poise, 피격 반응, 브레이크 게이지, 특수공격 입력 기회 통합 설계 |
 | [TARGETED_PROJECTILE_AOE_GUIDE.md](guide/TARGETED_PROJECTILE_AOE_GUIDE.md) | 타게팅 투사체 AOE — 락온 대상, 몬스터 스킬 대상, 텔레그래프 예약 위치 기반 범위 투사체 설계 |
 | [PARTY_LEVEL_POWER_DESIGN.md](Complete/PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](Complete/BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
-| [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability System 적용 스펙 — 언리얼 ASC 개념을 UPlayground의 상태 머신, MotionSet, 전투 파이프라인, 스탯·태그 구조에 점진 적용하는 설계 기준 |
+| [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability / 스킬 시스템 구조 스펙 — Ability·Effect·Tag·자원·쿨다운의 데이터 스키마, asmdef 경계, 실행 트랜잭션, 저장·교체·잔류 공격, 검증·텔레메트리·단계별 완료 조건 |
 | [EVENT_MANAGER_GUIDE.md](Complete/EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |
 | [GAMEOBJECT_MANAGER_GUIDE.md](Complete/GAMEOBJECT_MANAGER_GUIDE.md) | GameObjectManager — 활성 플레이어 참조, 액터 레지스트리, FX/Item/Weapon 스폰, InteractionHandler, 글로벌 타임스케일 |
 | [DIALOGUE_SYSTEM_GUIDE.md](Complete/DIALOGUE_SYSTEM_GUIDE.md) | Dialogue 시스템 — DialogueGraphSO/NodeSO, Main/System/Monologue 채널 Runner, ConditionSO/ActionSO 확장, GlobalFlagManager 세이브 연동 |
 | [STORY_SYSTEM_GUIDE.md](Complete/STORY_SYSTEM_GUIDE.md) | Story 시스템 — 진행도 단조 증가, storyId 1회 트리거, StoryEntrySO Variants, StoryTriggerZone, Markdown 일괄 생성 |
 | [CAMERA_SYSTEM_GUIDE.md](Complete/CAMERA_SYSTEM_GUIDE.md) | Camera 시스템 — CameraManager 오케스트레이터, LockOn/Collision/Distance/Effect/Shaker/KillCam 서브시스템, ICameraEffect 블렌딩 |
-| [CAMERA_LOCK_ON_SYSTEM_GUIDE.md](CAMERA_LOCK_ON_SYSTEM_GUIDE.md) | Camera Lock-On 시스템 분석 — 현재 락온 처리 흐름, 명조식 전투 카메라와의 차이, 타겟 선정·유지·전환·프레이밍 개선 우선순위 |
-| [CAMERA_COLLISION_LAYER_GUIDE.md](CAMERA_COLLISION_LAYER_GUIDE.md) | 카메라 충돌 레이어 규약 — 충돌 화이트리스트(Default/Ground), 트리거 무조건 제외, 트리거 볼륨 Trigger 레이어 저작, 대형 인터랙션 오브젝트 물리차단/감지 콜라이더 분리 |
+| [CAMERA_LOCK_ON_SYSTEM_GUIDE.md](guide/CAMERA_LOCK_ON_SYSTEM_GUIDE.md) | Camera Lock-On 시스템 분석 — 현재 락온 처리 흐름, 명조식 전투 카메라와의 차이, 타겟 선정·유지·전환·프레이밍 개선 우선순위 |
+| [CAMERA_COLLISION_LAYER_GUIDE.md](guide/CAMERA_COLLISION_LAYER_GUIDE.md) | 카메라 충돌 레이어 규약 — 충돌 화이트리스트(Default/Ground), 트리거 무조건 제외, 트리거 볼륨 Trigger 레이어 저작, 대형 인터랙션 오브젝트 물리차단/감지 콜라이더 분리 |
 | [CAMERA_MODE_ARCHITECTURE_DESIGN.md](Complete/CAMERA_MODE_ARCHITECTURE_DESIGN.md) | Camera Mode Architecture 설계 — InGame/Free/Dialogue 모드 분리, 스킬 카메라 시퀀스, Cinemachine 연동 검토 |
 | [CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md](Complete/CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md) | Camera Snapshot Sequence — 프로필 기반 다중 샷 카메라 연출, MotionEvent 연동, 에디터 캡처/미리보기, 맵 트리거 |
-| [COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md](TODO/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md) | 전투 카메라 시스템 구조 개선 계획 — 명조식 전투 카메라 레퍼런스 기반 CombatCameraIntent, Director, ProfileSO 도입안 |
-| [ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md](ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) | 궁극기 연출 시스템 설계 — CameraSnapshot 기반 궁극기 시퀀스, 입력/AI/HUD 잠금, 타겟 배치, VFX·SFX·TimeScale 통합 |
-| [PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md](PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md) | 플레이어 스킬 시스템 개선 설계 — Skill1/Skill2 2슬롯 고정, 다중 AnimKey Variant, Forte·Concerto 자원 분리 계획 |
-| [CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md](CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md) | 캐릭터 스왑 잔류 공격 시스템 설계 — 명조식 Intro/Outro 레퍼런스 기반 퇴장 모델 잔류 공격, 독립 히트 판정, 단계별 구현 계획 |
+| [COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md](Complete/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md) | 전투 카메라 시스템 구조 개선 계획 — 명조식 전투 카메라 레퍼런스 기반 CombatCameraIntent, Director, ProfileSO 도입안 |
+| [ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md](design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) | 궁극기 연출 시스템 설계 — CameraSnapshot 기반 궁극기 시퀀스, 입력/AI/HUD 잠금, 타겟 배치, VFX·SFX·TimeScale 통합 |
+| [PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md](design/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md) | 플레이어 스킬 시스템 개선 설계 — Skill1/Skill2 2슬롯 고정, 다중 AnimKey Variant, Forte·Concerto 자원 분리 계획 |
+| [CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md](design/CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md) | 캐릭터 스왑 잔류 공격 시스템 설계 — 명조식 Intro/Outro 레퍼런스 기반 퇴장 모델 잔류 공격, 독립 히트 판정, 단계별 구현 계획 |
 | [TIME_HITSTOP_GUIDE.md](Complete/TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](Complete/INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
-| [CONTROL_FEEL_IMPROVEMENT_GUIDE.md](CONTROL_FEEL_IMPROVEMENT_GUIDE.md) | 조작감 개선 종합 가이드 — 웹 레퍼런스 기반 입력 관용, 이동 반응성, 공격 캔슬, 회피·대시, 카메라·타격 피드백 개선 우선순위 |
-| [BALANCE_DESIGNER_TOOL_GUIDE.md](BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |
-| [ANIME_AUTO_SHADING_GENERATOR_DESIGN.md](ANIME_AUTO_SHADING_GENERATOR_DESIGN.md) | 애니 캐릭터 자동 셰이딩 생성기 설계 — lilToon Flat 페이스 섀도우(무 아트 에셋)/Backlight/Rim/RimShade, 에디터 타임 비파괴 머티리얼 생성, 빌드 스트립 제약, 풀 SDF는 V2 보류 |
-| [DEBUG_GIZMO_SYSTEM_DESIGN.md](DEBUG_GIZMO_SYSTEM_DESIGN.md) | 디버깅 기즈모 시스템 설계 — AAA 공개 사례 기반 카테고리 토글, Provider 구조, 런타임 스냅샷, 전투·AI·이동 기즈모 통합 제안 |
-| [RUNTIME_LOG_PERFORMANCE_GUIDE.md](RUNTIME_LOG_PERFORMANCE_GUIDE.md) | 런타임 로그 및 성능 검증 — 빌드별 로그 정책, 카테고리·스로틀 API, F10 성능 HUD, F11 JSON 기준선 저장과 측정 절차 |
+| [CONTROL_FEEL_IMPROVEMENT_GUIDE.md](guide/CONTROL_FEEL_IMPROVEMENT_GUIDE.md) | 조작감 개선 종합 가이드 — 웹 레퍼런스 기반 입력 관용, 이동 반응성, 공격 캔슬, 회피·대시, 카메라·타격 피드백 개선 우선순위 |
+| [BALANCE_DESIGNER_TOOL_GUIDE.md](guide/BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |
+| [ANIME_AUTO_SHADING_GENERATOR_DESIGN.md](design/ANIME_AUTO_SHADING_GENERATOR_DESIGN.md) | 애니 캐릭터 자동 셰이딩 생성기 설계 — lilToon Flat 페이스 섀도우(무 아트 에셋)/Backlight/Rim/RimShade, 에디터 타임 비파괴 머티리얼 생성, 빌드 스트립 제약, 풀 SDF는 V2 보류 |
+| [DEBUG_GIZMO_SYSTEM_DESIGN.md](design/DEBUG_GIZMO_SYSTEM_DESIGN.md) | 디버깅 기즈모 시스템 설계 — AAA 공개 사례 기반 카테고리 토글, Provider 구조, 런타임 스냅샷, 전투·AI·이동 기즈모 통합 제안 |
+| [RUNTIME_LOG_PERFORMANCE_GUIDE.md](guide/RUNTIME_LOG_PERFORMANCE_GUIDE.md) | 런타임 로그 및 성능 검증 — 빌드별 로그 정책, 카테고리·스로틀 API, F10 성능 HUD, F11 JSON 기준선 저장과 측정 절차 |
 
 ---
 

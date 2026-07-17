@@ -27,8 +27,8 @@ asmdef 모듈화 작업은 Phase 5 UI 모듈화와 Phase 6 자동 검증을 완�
 
 - 상세 온보딩: `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`
 - 프로젝트 온보딩: `Assets/docs/onboarding/PROJECT_ONBOARDING_GUIDE.html`
-- 작업 이력과 체크포인트: `Assets/docs/TODO/ASMDEF_MODULARIZATION_PLAN.md`
-- 카메라 이식 가이드: `Assets/docs/CAMERA_MODULE_PORTABILITY_GUIDE.md`
+- 작업 이력과 체크포인트: `Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md`
+- 카메라 이식 가이드: `Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md`
 - 최신 프로젝트 요약: `CLAUDE.md`
 
 현재 런타임 asmdef 경계:

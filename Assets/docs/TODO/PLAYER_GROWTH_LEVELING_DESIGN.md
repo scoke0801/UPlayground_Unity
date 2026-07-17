@@ -3,7 +3,7 @@
 > 작성일: 2026-06-08
 > 상태: 설계 단계 (구현 전)
 > 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
-> 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
+> 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
 
 ---
 

@@ -10,7 +10,7 @@ TODO 문서와 현재 프로젝트 에셋을 대조해, 코드 작성이 아니�
    - `RecipeDatabase`는 준비되어 있지만 실제 제작 UI 프리팹과 슬롯 프리팹 구성이 필요하다.
 3. [퀘스트 추적 HUD 에디터 작업](./QUEST_TRACKING_HUD_EDITOR_TASKS.md)
    - HUD 완료 알림과 퀘스트 메뉴 추적 조작을 연결한다.
-4. [디버그 기즈모 시스템 에디터 작업](./DEBUG_GIZMO_SYSTEM_EDITOR_TASKS.md)
+4. 디버그 기즈모 시스템 에디터 작업 (`DEBUG_GIZMO_SYSTEM_EDITOR_TASKS.md`는 현재 파일 없음)
    - 설정 에셋과 Addressables 등록은 선택 사항이며, 기본값만으로도 동작한다.
 
 ## 현재 상태 요약

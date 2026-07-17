@@ -488,5 +488,5 @@ public interface ILockOnTarget
 | `Assets/docs/Complete/CAMERA_SYSTEM_GUIDE.md` | 현재 카메라 시스템 전체 구조 |
 | `Assets/docs/Complete/CAMERA_MODE_ARCHITECTURE_DESIGN.md` | 카메라 모드 분리 구조 |
 | `Assets/docs/Complete/CAMERA_SNAPSHOT_SEQUENCE_GUIDE.md` | 스냅샷 기반 연출 카메라 |
-| `Assets/docs/TODO/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md` | 명조식 전투 카메라 구조 개선 계획 |
-| `Assets/docs/CODEX_REVIEW_CAMERA.md` | 카메라 계산/충돌/락온 후보 평가 관련 코드 리뷰 |
+| `Assets/docs/Complete/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md` | 명조식 전투 카메라 구조 개선 계획 |
+| `Assets/docs/Complete/CODEX_REVIEW_CAMERA.md` | 카메라 계산/충돌/락온 후보 평가 관련 코드 리뷰 |

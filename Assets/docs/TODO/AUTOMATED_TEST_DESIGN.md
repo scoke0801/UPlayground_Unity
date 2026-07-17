@@ -306,4 +306,4 @@ namespace UPlayGround.Tests.PlayMode
 
 ---
 
-*관련 문서: [GAMEMANAGER_README.md](Complete/GAMEMANAGER_README.md), [TIME_HITSTOP_GUIDE.md](Complete/TIME_HITSTOP_GUIDE.md)*
+*관련 문서: [GAMEMANAGER_README.md](../Complete/GAMEMANAGER_README.md), [TIME_HITSTOP_GUIDE.md](../Complete/TIME_HITSTOP_GUIDE.md)*

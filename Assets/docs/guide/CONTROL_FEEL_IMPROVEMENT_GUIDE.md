@@ -517,8 +517,7 @@ public sealed class PlayerControlFeelDebugHUD : MonoBehaviour
 | 문서 | 관계 |
 |------|------|
 | `Assets/docs/Complete/INPUT_SYSTEM_GUIDE.md` | 입력 라우팅, InputBuffer, InputLayer |
-| `Assets/docs/ATTACK_CANCEL_SYSTEM_GUIDE.md` | 공격 캔슬, 이동 후딜 캔슬, 선입력 만료 정지 |
-| `Assets/docs/CAMERA_LOCK_ON_SYSTEM_GUIDE.md` | 락온, 소프트락/하드락, 타겟 선정 |
+| `Assets/docs/guide/ATTACK_CANCEL_SYSTEM_GUIDE.md` | 공격 캔슬, 이동 후딜 캔슬, 선입력 만료 정지 |
+| `Assets/docs/guide/CAMERA_LOCK_ON_SYSTEM_GUIDE.md` | 락온, 소프트락/하드락, 타겟 선정 |
 | `Assets/docs/Complete/TIME_HITSTOP_GUIDE.md` | HitStop, LocalTimeScale, 타격 피드백 |
-| `Assets/docs/TODO/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md` | 전투 카메라 구조 개선 |
-
+| `Assets/docs/Complete/COMBAT_CAMERA_SYSTEM_IMPROVEMENT_PLAN.md` | 전투 카메라 구조 개선 |

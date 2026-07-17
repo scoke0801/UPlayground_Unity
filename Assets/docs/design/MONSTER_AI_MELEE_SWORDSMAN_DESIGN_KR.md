@@ -2,7 +2,7 @@
 
 > 대상: 근거리 melee 1종 심화 설계
 > 기준 시스템: `MonsterBehaviorTreeJson` (Rules 포맷) → `BehaviorTreeAsset` 컴파일
-> 상위 철학 문서: [`monster_ai_bt_design_gdd_kr.md`](Complete/monster_ai_bt_design_gdd_kr.md)
+> 상위 철학 문서: [`monster_ai_bt_design_gdd_kr.md`](../Complete/monster_ai_bt_design_gdd_kr.md)
 
 이 문서는 프로젝트에 **이미 구현된** BT/Rules 시스템과 CombatDecision(Intent 스코어러), Player-Read 메모리, 그룹 어택 슬롯을 활용해, "전투가 재밌게 느껴지는" 근거리 몬스터 1종을 구체적 수치까지 정의한다. 함께 제공되는 import 가능한 JSON:
 

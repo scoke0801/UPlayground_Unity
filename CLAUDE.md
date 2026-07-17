@@ -33,7 +33,7 @@ Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0
 
 모듈 경계의 상세 기준은 `Assets/docs/onboarding/PROJECT_ONBOARDING_GUIDE.html`,
 `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`,
-`Assets/docs/TODO/ASMDEF_MODULARIZATION_PLAN.md`를 함께 확인한다.
+`Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md`를 함께 확인한다.
 
 `GameManager.RegisterManager`가 매니저가 구현한 `IGameService` 계약을 `Services`에 자동 등록한다. `Services.Get<T>()`는 등록되지 않은 계약을 최초 1회 경고하므로, 초기화 전 `Awake` 접근 경고가 발생하면 지연 조회 또는 초기화 순서를 수정한다.
 
@@ -44,7 +44,7 @@ Camera 모듈은 이식 가능한 런타임 경계를 위해 내부에서 `Svc.*
 `CameraManager` 초기화 전에 어댑터를 설정하고 종료 시 초기화 상태를 해제한다. Actor에서 기존
 `CameraManager.Instance`를 사용하는 경로는 의도된 asmdef 예외지만, 새 기능은 먼저 기존 카메라
 계약이나 어댑터로 표현할 수 있는지 검토한다. 새 프로젝트 이식 절차는
-`Assets/docs/CAMERA_MODULE_PORTABILITY_GUIDE.md`를 기준으로 한다.
+`Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md`를 기준으로 한다.
 
 `[SerializeReference]` 기반 MotionEvent/Ultimate 이벤트 클래스를 다른 어셈블리로 이동할 때는 반드시 `[MovedFrom(true, sourceAssembly: "이전 어셈블리")]`를 유지해야 한다. 누락하면 에셋의 이벤트와 VFX 참조가 역직렬화되지 않는다.
 

@@ -271,7 +271,7 @@ PlayerAttackState.TryEnter()
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyTacticalMemory.cs` | 최근 피격/강한 피격/Poise Break 기억 |
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` | 피니시 타겟 탐색, 공격 데이터 생성 후보 |
 | `Assets/02.Scripts/Manager/Handler/Combat/GameHitStopHandler.cs` | 특수공격 적중 연출 강화 후보 |
-| `Assets/docs/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` | 카메라/모션/입력 잠금형 연출 설계 재사용 후보 |
+| `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` | 카메라/모션/입력 잠금형 연출 설계 재사용 후보 |
 
 ---
 

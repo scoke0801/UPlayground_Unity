@@ -484,7 +484,7 @@ Pixel Crushers처럼 `Camera(Closeup, target=Listener, t=2.0, blend=Cut)` 같은
 
 ## 참고 자료
 
-- 프로젝트 내부: [CAMERA_MODE_ARCHITECTURE_DESIGN.md](CAMERA_MODE_ARCHITECTURE_DESIGN.md), [Complete/DIALOGUE_SYSTEM_GUIDE.md](Complete/DIALOGUE_SYSTEM_GUIDE.md)
+- 프로젝트 내부: [CAMERA_MODE_ARCHITECTURE_DESIGN.md](CAMERA_MODE_ARCHITECTURE_DESIGN.md), [DIALOGUE_SYSTEM_GUIDE.md](DIALOGUE_SYSTEM_GUIDE.md)
 - [Pixel Crushers — Sequencer Camera (Cutscene Sequences)](https://www.pixelcrushers.com/dialogue_system/manual2x/html/cutscene_sequences.html)
 - [Pixel Crushers — Default Camera Angle](https://www.pixelcrushers.com/dialogue_system/manual2x/html/default_camera_angle.html)
 - [Pixel Crushers — Sequencer Command Reference](https://www.pixelcrushers.com/dialogue_system/manual2x/html/sequencer_command_reference.html)

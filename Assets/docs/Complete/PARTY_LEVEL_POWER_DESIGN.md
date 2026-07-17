@@ -5,7 +5,7 @@
 > 상태: 1차 범위 Phase A~C 구현 완료
 > 완료 범위: 캐릭터별 레벨/성장 스탯/전투력 계산, PartyManager API, 표시·검증 도구
 > 후속 Phase D: [PLAYER_GROWTH_LEVELING_DESIGN.md](../TODO/PLAYER_GROWTH_LEVELING_DESIGN.md)로 대체
-> 관련 문서: [party-formation-system.md](./party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../STAT_SYSTEM_GUIDE.md)
+> 관련 문서: [party-formation-system.md](./party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md)
 
 ---
 

@@ -21,7 +21,7 @@
 
 ## CLAUDE_REVIEW_CAMERA.md 교차 검토 반영
 
-`Assets/docs/CLAUDE_REVIEW_CAMERA.md`를 대조한 결과, 다음 항목은 타당하므로 이 문서의 판단에 반영한다.
+`Assets/docs/Complete/CLAUDE_REVIEW_CAMERA.md`를 대조한 결과, 다음 항목은 타당하므로 이 문서의 판단에 반영한다.
 
 ### 수용한 지적
 

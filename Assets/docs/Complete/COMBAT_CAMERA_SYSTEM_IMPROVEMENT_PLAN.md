@@ -3,7 +3,7 @@
 > 작성일: 2026-06-04  
 > 분류: 구조 개선 제안 / TODO  
 > 기준 레퍼런스: 명조(Wuthering Waves)식 전투 카메라 감각  
-> 관련 문서: `Assets/docs/Complete/CAMERA_SYSTEM_GUIDE.md`, `Assets/docs/Complete/CAMERA_MODE_ARCHITECTURE_DESIGN.md`, `Assets/docs/TODO/CAMERA_ENHANCEMENT_ROADMAP_DESIGN.md`, `Assets/docs/TODO/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md`
+> 관련 문서: `Assets/docs/Complete/CAMERA_SYSTEM_GUIDE.md`, `Assets/docs/Complete/CAMERA_MODE_ARCHITECTURE_DESIGN.md`, `Assets/docs/Complete/CAMERA_ENHANCEMENT_ROADMAP_DESIGN.md`, `Assets/docs/Complete/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md`
 
 ---
 

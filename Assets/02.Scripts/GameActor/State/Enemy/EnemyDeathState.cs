@@ -1,5 +1,7 @@
 using System.Collections;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;

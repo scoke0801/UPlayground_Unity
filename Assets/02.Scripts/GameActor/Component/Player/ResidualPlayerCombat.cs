@@ -169,9 +169,12 @@ namespace UPlayGround.Components
             }
 
             _attackData.hitPhaseIndex = hitPhaseIndex;
-            _attackData.damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f);
-            _attackData.poiseDamage = phase.poiseDamage;
-            _attackData.breakDamage = phase.breakDamage;
+            _attackData.damage = UPlayGround.Util.ApplyRandomValue(
+                phase.damage, -0.2f, 0.2f) * _attackData.damageMultiplier;
+            _attackData.poiseDamage = phase.poiseDamage * _attackData.poiseMultiplier;
+            _attackData.breakDamage = phase.breakDamage
+                                      * _attackData.poiseMultiplier
+                                      * _attackData.breakDamageMultiplier;
             _attackData.reactionDuration = phase.reactionDuration;
             _attackData.forceReaction = phase.forceReaction;
             _attackData.forceBreakExpose = phase.forceBreakExpose;
@@ -286,6 +289,9 @@ namespace UPlayGround.Components
                 damage = source.damage,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
+                damageMultiplier = source.damageMultiplier,
+                poiseMultiplier = source.poiseMultiplier,
+                breakDamageMultiplier = source.breakDamageMultiplier,
                 reactionDuration = source.reactionDuration,
                 forceReaction = source.forceReaction,
                 forceBreakExpose = source.forceBreakExpose,

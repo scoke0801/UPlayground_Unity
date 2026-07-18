@@ -301,7 +301,7 @@ namespace UPlayGround.Gameplay.Ability
                 current,
                 required,
                 GetCooldownRemaining(group),
-                Mathf.Max(0f, definition.cooldown.durationSeconds),
+                GetEffectiveCooldownDuration(definition, slot),
                 variant?.variantId);
             return true;
         }
@@ -406,21 +406,35 @@ namespace UPlayGround.Gameplay.Ability
 
         private GameplayEffectSO ResolveEffectDefinition(string effectId)
         {
-            if (_abilitySet == null || string.IsNullOrWhiteSpace(effectId))
+            if (string.IsNullOrWhiteSpace(effectId))
                 return null;
-            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            if (_abilitySet != null)
             {
-                GameplayEffectSO found = FindEffect(ability?.commitEffects, effectId)
-                                         ?? FindEffect(ability?.endEffects, effectId);
-                if (found != null) return found;
-                if (ability?.variants == null) continue;
-                for (int i = 0; i < ability.variants.Count; i++)
+                foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
                 {
-                    AbilityVariantDefinition variant = ability.variants[i];
-                    found = FindEffect(variant?.ownerEffects, effectId)
-                            ?? FindEffect(variant?.targetEffects, effectId);
+                    GameplayEffectSO found = FindEffect(ability?.commitEffects, effectId)
+                                             ?? FindEffect(ability?.endEffects, effectId);
                     if (found != null) return found;
+                    if (ability?.variants == null) continue;
+                    for (int i = 0; i < ability.variants.Count; i++)
+                    {
+                        AbilityVariantDefinition variant = ability.variants[i];
+                        found = FindEffect(variant?.ownerEffects, effectId)
+                                ?? FindEffect(variant?.targetEffects, effectId);
+                        if (found != null) return found;
+                    }
                 }
+            }
+
+            CharacterPassiveSetSO passiveSet =
+                Svc.Passives?.GetPassiveSet(_owner.CharacterType);
+            if (passiveSet?.passives == null)
+                return null;
+            for (int i = 0; i < passiveSet.passives.Count; i++)
+            {
+                GameplayEffectSO found = FindEffect(
+                    passiveSet.passives[i]?.triggeredEffects, effectId);
+                if (found != null) return found;
             }
             return null;
         }
@@ -575,11 +589,39 @@ namespace UPlayGround.Gameplay.Ability
 
         private void StartCooldown(GameplayAbilitySO definition)
         {
-            float duration = Mathf.Max(0f, definition.cooldown.durationSeconds);
+            float duration = GetEffectiveCooldownDuration(
+                definition,
+                FindPlayerSlot(definition));
             if (duration <= 0f) return;
             string group = definition.cooldown.ResolveGroupId(definition.abilityId);
             _cooldowns.Start(group, duration);
             _trackedCooldownGroups.Add(group);
+        }
+
+        private PlayerSkillSlot? FindPlayerSlot(GameplayAbilitySO definition)
+        {
+            if (_abilitySet?.playerSlots == null || definition == null)
+                return null;
+            for (int i = 0; i < _abilitySet.playerSlots.Count; i++)
+            {
+                AbilitySetSO.PlayerSlotEntry entry = _abilitySet.playerSlots[i];
+                if (entry?.ability == definition)
+                    return entry.slot;
+            }
+            return null;
+        }
+
+        private float GetEffectiveCooldownDuration(
+            GameplayAbilitySO definition,
+            PlayerSkillSlot? slot)
+        {
+            float duration = Mathf.Max(0f, definition?.cooldown?.durationSeconds ?? 0f);
+            if (_owner is not PlayerActor || !slot.HasValue)
+                return duration;
+
+            float multiplier =
+                Svc.Passives?.GetActiveSkillCooldownMultiplier(slot.Value) ?? 1f;
+            return duration * Mathf.Max(0f, multiplier);
         }
 
         private float GetCooldownRemaining(string group)

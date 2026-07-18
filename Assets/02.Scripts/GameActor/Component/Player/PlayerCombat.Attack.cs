@@ -541,12 +541,26 @@ namespace UPlayGround.Components
             AttackData data = _attackController.Create(attackInfo, attackKind);
             if (data != null && _playerActor != null)
             {
+                float attackMultiplier = attackKind switch
+                {
+                    AttackKind.NormalAttack => Svc.Passives?.GetActiveMultiplier(
+                        PassiveModifierType.LightAttackDamage) ?? 1f,
+                    AttackKind.HeavyAttack => Svc.Passives?.GetActiveMultiplier(
+                        PassiveModifierType.HeavyAttackDamage) ?? 1f,
+                    AttackKind.SkillAttack => Svc.Passives?.GetActiveMultiplier(
+                        PassiveModifierType.SkillDamage) ?? 1f,
+                    _ => 1f,
+                };
+                float passiveBreakMultiplier = Svc.Passives?.GetActiveMultiplier(
+                    PassiveModifierType.BreakDamage) ?? 1f;
+
                 // 공격 생성 시 스냅샷해 스왑 후 잔류 공격도 outgoing 캐릭터 배율을 유지한다.
-                data.damageMultiplier *= _playerActor.WeightDamageMultiplier;
+                data.damageMultiplier *= _playerActor.WeightDamageMultiplier * attackMultiplier;
                 data.poiseMultiplier *= _playerActor.WeightBreakDamageMultiplier;
-                data.damage *= _playerActor.WeightDamageMultiplier;
+                data.breakDamageMultiplier *= passiveBreakMultiplier;
+                data.damage *= _playerActor.WeightDamageMultiplier * attackMultiplier;
                 data.poiseDamage *= _playerActor.WeightBreakDamageMultiplier;
-                data.breakDamage *= _playerActor.WeightBreakDamageMultiplier;
+                data.breakDamage *= _playerActor.WeightBreakDamageMultiplier * passiveBreakMultiplier;
             }
             return data;
         }

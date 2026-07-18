@@ -745,7 +745,9 @@ namespace UPlayGround.Components
             _currentAttackData.hitPhaseIndex   = index;
             _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f) * _currentAttackData.damageMultiplier;
             _currentAttackData.poiseDamage     = phase.poiseDamage * _currentAttackData.poiseMultiplier;
-            _currentAttackData.breakDamage     = phase.breakDamage * _currentAttackData.poiseMultiplier;
+            _currentAttackData.breakDamage     = phase.breakDamage
+                                                 * _currentAttackData.poiseMultiplier
+                                                 * _currentAttackData.breakDamageMultiplier;
             _currentAttackData.reactionDuration = phase.reactionDuration;
             _currentAttackData.forceReaction   = phase.forceReaction;
             _currentAttackData.forceBreakExpose = phase.forceBreakExpose;

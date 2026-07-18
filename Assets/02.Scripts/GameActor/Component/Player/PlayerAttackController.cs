@@ -51,6 +51,7 @@ namespace UPlayGround.Components
                 breakDamage = source.breakDamage,
                 damageMultiplier = source.damageMultiplier,
                 poiseMultiplier = source.poiseMultiplier,
+                breakDamageMultiplier = source.breakDamageMultiplier,
                 reactionDuration = source.reactionDuration,
                 forceReaction = source.forceReaction,
                 forceBreakExpose = source.forceBreakExpose,

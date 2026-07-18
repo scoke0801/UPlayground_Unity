@@ -5,6 +5,7 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Manager;
 
 namespace UPlayGround.Gameplay.Effect
 {
@@ -62,6 +63,7 @@ namespace UPlayGround.Gameplay.Effect
                 return default;
             }
 
+            float effectiveDuration = ResolveEffectiveDuration(definition);
             string key = definition.EffectiveStackingKey;
             if (_stackingKeys.TryGetValue(key, out ulong existingId)
                 && _active.TryGetValue(existingId, out GameplayEffectInstance existing))
@@ -77,7 +79,8 @@ namespace UPlayGround.Gameplay.Effect
                     case AbilityEffectStackAction.RefreshExisting:
                         bool stackChanged = existing.StackCount != stackResult.StackCount;
                         existing.StackCount = stackResult.StackCount;
-                        existing.RemainingSeconds = definition.durationSeconds;
+                        existing.DurationSeconds = effectiveDuration;
+                        existing.RemainingSeconds = effectiveDuration;
                         if (stackChanged)
                             RebuildModifiers(existing);
                         StateChanged?.Invoke();
@@ -95,7 +98,8 @@ namespace UPlayGround.Gameplay.Effect
                 Definition = definition,
                 Source = source,
                 StackCount = 1,
-                RemainingSeconds = definition.durationSeconds,
+                DurationSeconds = effectiveDuration,
+                RemainingSeconds = effectiveDuration,
                 NextPeriodSeconds = definition.periodSeconds,
             };
 
@@ -210,10 +214,35 @@ namespace UPlayGround.Gameplay.Effect
                     definition.durationType == GameplayEffectDurationType.Infinite
                         ? 0f
                         : Mathf.Max(0f, entry.remainingSeconds);
+                instance.DurationSeconds = ResolveEffectiveDuration(definition);
                 instance.NextPeriodSeconds = definition.periodSeconds;
                 RebuildModifiers(instance);
             }
             StateChanged?.Invoke();
+        }
+
+        private float ResolveEffectiveDuration(GameplayEffectSO definition)
+        {
+            float duration = Mathf.Max(0f, definition.durationSeconds);
+            if (definition.durationType != GameplayEffectDurationType.Duration
+                || definition.ignorePassiveDurationModifiers
+                || _owner is not PlayerActor)
+            {
+                return duration;
+            }
+
+            float multiplier = definition.polarity switch
+            {
+                GameplayEffectPolarity.Beneficial =>
+                    Svc.Passives?.GetActiveMultiplier(
+                        PassiveModifierType.BeneficialEffectDuration) ?? 1f,
+                GameplayEffectPolarity.Harmful =>
+                    Svc.Passives?.GetActiveMultiplier(
+                        PassiveModifierType.HarmfulEffectDuration) ?? 1f,
+                _ => 1f,
+            };
+            return PassiveModifierCalculator.CalculateEffectDuration(
+                duration, definition.polarity, multiplier);
         }
 
         private void Update()

@@ -8,6 +8,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.Animation;
 using UPlayGround.Components;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Stat;
@@ -26,6 +27,11 @@ namespace UPlayGround
     // IDamageable
     public partial class PlayerActor : GameActor, IDamageable
     {
+        internal event Action<PassiveActivationType> PassiveActivationSucceeded;
+
+        internal void NotifyPassiveActivation(PassiveActivationType activationType)
+            => PassiveActivationSucceeded?.Invoke(activationType);
+
         public CombatResult ReceiveHit(in HitRequest request)
             => CombatResolutionPipeline.Execute(this, request);
 
@@ -200,6 +206,7 @@ namespace UPlayGround
                 attackData,
                 feedbackPos);
 
+            NotifyPassiveActivation(PassiveActivationType.PerfectDodge);
             Debug.Log("[PlayerActor] 퍼펙트 도지 성공!");
         }
 

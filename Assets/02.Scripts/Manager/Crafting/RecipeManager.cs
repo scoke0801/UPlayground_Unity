@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Data.Crafting;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
@@ -179,15 +180,7 @@ namespace UPlayGround.Manager
 
         private bool HasEnoughIngredients(int recipeID, int quantity)
         {
-            var requiredByItem = new Dictionary<int, int>();
-            foreach (var ingr in _db.GetIngredients(recipeID))
-            {
-                int amount = ingr.requiredQuantity * quantity;
-                requiredByItem.TryGetValue(ingr.ingredientItemID, out int current);
-                requiredByItem[ingr.ingredientItemID] = current + amount;
-            }
-
-            foreach (var pair in requiredByItem)
+            foreach (var pair in BuildIngredientRequirements(recipeID, quantity))
             {
                 if (InventoryManager.Instance.GetItemCount(pair.Key) < pair.Value)
                     return false;
@@ -203,15 +196,7 @@ namespace UPlayGround.Manager
             var missing = new List<int>();
             if (!IsDBLoaded) return missing;
 
-            var requiredByItem = new Dictionary<int, int>();
-            foreach (var ingr in _db.GetIngredients(recipeID))
-            {
-                int amount = ingr.requiredQuantity * quantity;
-                requiredByItem.TryGetValue(ingr.ingredientItemID, out int current);
-                requiredByItem[ingr.ingredientItemID] = current + amount;
-            }
-
-            foreach (var pair in requiredByItem)
+            foreach (var pair in BuildIngredientRequirements(recipeID, quantity))
             {
                 if (InventoryManager.Instance.GetItemCount(pair.Key) < pair.Value)
                     missing.Add(pair.Key);
@@ -267,20 +252,19 @@ namespace UPlayGround.Manager
         private bool DeductResources(int recipeID, int quantity)
         {
             var recipe      = _db.GetRecipe(recipeID);
-            var ingredients = _db.GetIngredients(recipeID);
+            var requirements = BuildIngredientRequirements(recipeID, quantity);
 
             // 차감 성공한 재료를 기록해 두고, 중간 실패 시 롤백
             var deducted = new List<ItemInstance>();
 
-            foreach (var ingr in ingredients)
+            foreach (var requirement in requirements)
             {
-                int toRemove = ingr.requiredQuantity * quantity;
                 if (!InventoryManager.Instance.TryRemoveItemInstances(
-                        ingr.ingredientItemID,
-                        toRemove,
+                        requirement.Key,
+                        requirement.Value,
                         out List<ItemInstance> removedItems))
                 {
-                    Debug.LogError($"[RecipeManager] 재료 차감 실패 — ItemID: {ingr.ingredientItemID}");
+                    Debug.LogError($"[RecipeManager] 재료 차감 실패 — ItemID: {requirement.Key}");
                     InventoryManager.Instance.RestoreItemInstances(deducted);
                     return false;
                 }
@@ -475,6 +459,20 @@ namespace UPlayGround.Manager
 
         public RecipeData          GetRecipeData(int recipeID)    => _db?.GetRecipe(recipeID);
         public List<IngredientData> GetIngredients(int recipeID)  => _db?.GetIngredients(recipeID) ?? new List<IngredientData>();
+        public List<IngredientData> GetEffectiveIngredients(int recipeID, int quantity = 1)
+        {
+            var result = new List<IngredientData>();
+            foreach (var pair in BuildIngredientRequirements(recipeID, quantity))
+            {
+                result.Add(new IngredientData
+                {
+                    recipeID = recipeID,
+                    ingredientItemID = pair.Key,
+                    requiredQuantity = pair.Value,
+                });
+            }
+            return result;
+        }
         public float               GetCraftingProgress()          => _craftingProgress;
         public int                 GetCurrentCraftingRecipeID()   => _craftingRecipeID;
         public bool                IsCrafting()                   => _craftingRecipeID != -1;
@@ -505,12 +503,17 @@ namespace UPlayGround.Manager
 
             int max = int.MaxValue;
 
-            // 재료별 제약
-            foreach (var ingr in _db.GetIngredients(recipeID))
+            // 재료별 제약. ceil(base * quantity * multiplier) <= have를 역산한다.
+            Dictionary<int, int> baseRequirements =
+                BuildBaseIngredientRequirements(recipeID);
+            float ingredientMultiplier = GetIngredientCostMultiplier();
+            foreach (var requirement in baseRequirements)
             {
-                if (ingr.requiredQuantity <= 0) continue;
-                int have = InventoryManager.Instance.GetItemCount(ingr.ingredientItemID);
-                max = Mathf.Min(max, have / ingr.requiredQuantity);
+                if (requirement.Value <= 0) continue;
+                int have = InventoryManager.Instance.GetItemCount(requirement.Key);
+                int candidate = Mathf.FloorToInt(
+                    have / (requirement.Value * Mathf.Max(0.01f, ingredientMultiplier)));
+                max = Mathf.Min(max, candidate);
             }
 
             // 골드 제약
@@ -530,14 +533,51 @@ namespace UPlayGround.Manager
             var result = new Dictionary<int, bool>();
             if (!IsDBLoaded) return result;
 
-            foreach (var ingr in _db.GetIngredients(recipeID))
+            foreach (var requirement in BuildIngredientRequirements(recipeID, quantity))
             {
-                int needed = ingr.requiredQuantity * quantity;
-                result[ingr.ingredientItemID] =
-                    InventoryManager.Instance.GetItemCount(ingr.ingredientItemID) >= needed;
+                result[requirement.Key] =
+                    InventoryManager.Instance.GetItemCount(requirement.Key) >= requirement.Value;
             }
             return result;
         }
+
+        private Dictionary<int, int> BuildBaseIngredientRequirements(int recipeID)
+        {
+            var result = new Dictionary<int, int>();
+            if (!IsDBLoaded)
+                return result;
+
+            foreach (IngredientData ingredient in _db.GetIngredients(recipeID))
+            {
+                if (ingredient == null || ingredient.requiredQuantity <= 0)
+                    continue;
+                result.TryGetValue(ingredient.ingredientItemID, out int current);
+                result[ingredient.ingredientItemID] =
+                    current + ingredient.requiredQuantity;
+            }
+            return result;
+        }
+
+        private Dictionary<int, int> BuildIngredientRequirements(
+            int recipeID,
+            int quantity)
+        {
+            var result = new Dictionary<int, int>();
+            if (quantity <= 0)
+                return result;
+
+            float multiplier = GetIngredientCostMultiplier();
+            foreach (var pair in BuildBaseIngredientRequirements(recipeID))
+            {
+                result[pair.Key] = PassiveModifierCalculator.CalculateIngredientCost(
+                    pair.Value, quantity, multiplier);
+            }
+            return result;
+        }
+
+        private static float GetIngredientCostMultiplier()
+            => Svc.Passives?.GetBattlePartyMultiplier(
+                PassiveModifierType.CraftIngredientCost) ?? 1f;
 
         #endregion
 

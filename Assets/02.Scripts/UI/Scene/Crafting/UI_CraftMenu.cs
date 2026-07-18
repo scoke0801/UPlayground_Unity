@@ -324,11 +324,11 @@ namespace UPlayGround.UI
             _spawnedIngredientSlots.Clear();
 
             var availability = RecipeMgr.GetIngredientAvailability(recipeID, _quantity);
-            foreach (var ingr in RecipeMgr.GetIngredients(recipeID))
+            foreach (var ingr in RecipeMgr.GetEffectiveIngredients(recipeID, _quantity))
             {
                 var slot = Instantiate(_ingredientSlotPrefab, _ingredientContent);
                 availability.TryGetValue(ingr.ingredientItemID, out bool isAvailable);
-                slot.Init(ingr.ingredientItemID, ingr.requiredQuantity, _quantity, isAvailable);
+                slot.Init(ingr.ingredientItemID, ingr.requiredQuantity, 1, isAvailable);
                 _spawnedIngredientSlots.Add(slot);
             }
 
@@ -386,12 +386,12 @@ namespace UPlayGround.UI
         {
             if (_selectedRecipeID == -1) return;
 
-            var ingredients = RecipeMgr.GetIngredients(_selectedRecipeID);
+            var ingredients = RecipeMgr.GetEffectiveIngredients(_selectedRecipeID, _quantity);
             var availability = RecipeMgr.GetIngredientAvailability(_selectedRecipeID, _quantity);
             for (int i = 0; i < _spawnedIngredientSlots.Count && i < ingredients.Count; i++)
             {
                 availability.TryGetValue(ingredients[i].ingredientItemID, out bool isAvailable);
-                _spawnedIngredientSlots[i].RefreshCount(ingredients[i].requiredQuantity, _quantity, isAvailable);
+                _spawnedIngredientSlots[i].RefreshCount(ingredients[i].requiredQuantity, 1, isAvailable);
             }
         }
 

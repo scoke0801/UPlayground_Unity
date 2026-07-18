@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
@@ -32,8 +33,9 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
 
         // 초상화/무기 아이콘 재사용 소스(PartyMemberData) 경로.
         private const string MemberDataPath = "Assets/10.Datas/Party/PartyMemberData.asset";
+        private const string PassiveDbPath = "Assets/10.Datas/Ability/CharacterPassiveDatabase.asset";
 
-        private const int EffectRowCount = 3;
+        private const int PassiveRowCount = CharacterPassiveSetSO.MaxCharacterSelectRepresentatives;
 
         // 카드 크기(캐릭터가 많아 가로로 다 들어가도록 축소). 하단 버튼과 겹치지 않게 배치도 함께 조정.
         private const float CardWidth  = 180f;
@@ -48,7 +50,6 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
         private static readonly Color Accent    = new Color(0.35f, 0.80f, 0.90f, 1f);
         private static readonly Color TextMain  = new Color(0.90f, 0.92f, 0.95f, 1f);
         private static readonly Color TextSub   = new Color(0.62f, 0.68f, 0.74f, 1f);
-        private static readonly Color Gold      = new Color(0.95f, 0.78f, 0.35f, 1f);
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
@@ -238,7 +239,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             var drt = Rt(detail);
             drt.anchorMin = drt.anchorMax = new Vector2(1f, 0.5f);
             drt.pivot = new Vector2(1f, 0.5f);
-            drt.sizeDelta = new Vector2(560, 640);
+            drt.sizeDelta = new Vector2(560, 860);
             drt.anchoredPosition = new Vector2(-40, 140);
             var detailGroup = detail.AddComponent<CanvasGroup>();
             detailGroup.alpha = 0f;
@@ -257,30 +258,13 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
 
             AddDivider(detailContent.transform);
 
-            // 무기 행 (아이콘 + 이름)
-            var weaponRow = NewUI("WeaponRow", detailContent.transform);
-            SetHeight(weaponRow, 64);
-            AddHLG(weaponRow, spacing: 12, pad: 0).childAlignment = TextAnchor.MiddleLeft;
-            var weaponIconGo = NewUI("WeaponIcon", weaponRow.transform);
-            SetWidth(weaponIconGo, 56);
-            var weaponIcon = AddImage(weaponIconGo, Color.white);
-            weaponIcon.preserveAspect = true;
-            weaponIcon.enabled = false;
-            var weaponNameText = AddText(NewUI("WeaponName", weaponRow.transform), "무기", 28, Gold, TextAlignmentOptions.Left);
-            AddFlexibleW(weaponNameText.gameObject, 1f);
-
-            var weaponDescText = AddText(NewUI("WeaponDesc", detailContent.transform), "무기 설명", 18, TextMain, TextAlignmentOptions.TopLeft);
-            SetHeight(weaponDescText.gameObject, 72);
-
-            AddText(NewUI("EffectsHeader", detailContent.transform), "무기 효과", 22, Accent, TextAlignmentOptions.Left);
-
-            // 효과 고정 행 3개
-            var effectRoots  = new GameObject[EffectRowCount];
-            var effectIcons  = new Image[EffectRowCount];
-            var effectTitles = new TextMeshProUGUI[EffectRowCount];
-            var effectDescs  = new TextMeshProUGUI[EffectRowCount];
-            for (int i = 0; i < EffectRowCount; i++)
-                BuildEffectRow(detailContent.transform, i, out effectRoots[i], out effectIcons[i], out effectTitles[i], out effectDescs[i]);
+            AddText(NewUI("PassivesHeader", detailContent.transform), "대표 패시브", 22, Accent, TextAlignmentOptions.Left);
+            var passiveRows = new UIPassiveAbilityRow[PassiveRowCount];
+            for (int i = 0; i < PassiveRowCount; i++)
+                passiveRows[i] = BuildPassiveRow(detailContent.transform, i);
+            var passiveEmpty = NewUI("PassiveEmpty", detailContent.transform);
+            SetHeight(passiveEmpty, 42);
+            AddText(passiveEmpty, "대표 패시브 정보 없음", 17, TextSub, TextAlignmentOptions.Left);
 
             // 하단 버튼 — 카드 스트립 위쪽(우측)에 배치해 카드와 겹치지 않게 한다.
             var cancelBtn = MakeButton("CancelButton", root.transform, "취소", out _, BtnBg);
@@ -324,6 +308,10 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             if (memberData != null) SetRef(so, "_memberData", memberData);
             else Debug.LogWarning($"[CharacterSelectBuilder] PartyMemberData 를 찾지 못해 _memberData 는 비웁니다: {MemberDataPath}");
 
+            var passiveDb = AssetDatabase.LoadAssetAtPath<CharacterPassiveDatabaseSO>(PassiveDbPath);
+            if (passiveDb != null) SetRef(so, "_passiveDatabase", passiveDb);
+            else Debug.LogWarning($"[CharacterSelectBuilder] 패시브 DB를 찾지 못해 _passiveDatabase 는 비웁니다: {PassiveDbPath}");
+
             SetRef(so, "_cardPrefab", cardPrefab);
             SetRef(so, "_cardRoot", cardRow.transform);
             SetRef(so, "_portraitLarge", portraitLargeImg);
@@ -332,13 +320,8 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             SetRef(so, "_detailPanel", drt);
             SetRef(so, "_detailNameText", nameText);
             SetRef(so, "_detailTaglineText", taglineText);
-            SetRef(so, "_weaponIcon", weaponIcon);
-            SetRef(so, "_weaponNameText", weaponNameText);
-            SetRef(so, "_weaponDescText", weaponDescText);
-            SetArray(so, "_effectRoots", effectRoots);
-            SetArray(so, "_effectIcons", effectIcons);
-            SetArray(so, "_effectTitles", effectTitles);
-            SetArray(so, "_effectDescs", effectDescs);
+            SetArray(so, "_passiveRows", passiveRows);
+            SetRef(so, "_passiveEmptyRoot", passiveEmpty);
             SetRef(so, "_confirmButton", confirmBtn);
             SetRef(so, "_cancelButton", cancelBtn);
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -348,27 +331,35 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             return saved;
         }
 
-        private static void BuildEffectRow(Transform parent, int index,
-            out GameObject rootGo, out Image icon, out TextMeshProUGUI title, out TextMeshProUGUI desc)
+        private static UIPassiveAbilityRow BuildPassiveRow(Transform parent, int index)
         {
-            rootGo = NewUI($"EffectRow{index + 1}", parent);
-            SetHeight(rootGo, 76);
-            AddImage(rootGo, RowBg, UISprite, sliced: true);
-            AddHLG(rootGo, spacing: 10, pad: 8).childAlignment = TextAnchor.MiddleLeft;
+            var root = NewUI($"PassiveRow{index + 1}", parent);
+            SetHeight(root, 92);
+            AddImage(root, RowBg, UISprite, sliced: true);
+            AddHLG(root, spacing: 10, pad: 8).childAlignment = TextAnchor.MiddleLeft;
 
-            var iconGo = NewUI("Icon", rootGo.transform);
-            SetWidth(iconGo, 48);
-            icon = AddImage(iconGo, Color.white);
+            var iconGo = NewUI("Icon", root.transform);
+            SetWidth(iconGo, 52);
+            var icon = AddImage(iconGo, Color.white);
             icon.preserveAspect = true;
             icon.enabled = false;
 
-            var texts = NewUI("Texts", rootGo.transform);
+            var texts = NewUI("Texts", root.transform);
             AddFlexibleW(texts, 1f);
             AddVLG(texts, spacing: 2, pad: 0);
-            title = AddText(NewUI("Title", texts.transform), "효과", 20, TextMain, TextAlignmentOptions.Left);
-            desc = AddText(NewUI("Desc", texts.transform), "효과 설명", 16, TextSub, TextAlignmentOptions.TopLeft);
+            var title = AddText(NewUI("Title", texts.transform), "패시브", 19, TextMain, TextAlignmentOptions.Left);
+            var desc = AddText(NewUI("Description", texts.transform), "패시브 설명", 15, TextSub, TextAlignmentOptions.TopLeft);
+            var trigger = AddText(NewUI("Trigger", texts.transform), "상시", 14, Accent, TextAlignmentOptions.Left);
 
-            rootGo.SetActive(false);
+            var row = root.AddComponent<UIPassiveAbilityRow>();
+            var so = new SerializedObject(row);
+            SetRef(so, "_icon", icon);
+            SetRef(so, "_title", title);
+            SetRef(so, "_description", desc);
+            SetRef(so, "_trigger", trigger);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            root.SetActive(false);
+            return row;
         }
 
         #endregion

@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Editor.Ability
 {
@@ -47,6 +48,7 @@ namespace UPlayGround.Data.Editor.Ability
             public string SearchText;
             public bool HasInputConnection;
             public bool HasBtConnection;
+            public readonly HashSet<CharacterActorType> CharacterTypes = new();
         }
 
         private sealed class AbilitySetScopePopup : PopupWindowContent
@@ -309,6 +311,7 @@ namespace UPlayGround.Data.Editor.Ability
             firstRow.Add(_nameLabel);
 
             firstRow.Add(MakeToolbarButton("새 Ability", () => CreateAsset<GameplayAbilitySO>("GA_")));
+            firstRow.Add(MakeToolbarButton("새 Passive", () => CreateAsset<PassiveAbilitySO>("PA_")));
             firstRow.Add(MakeToolbarButton("새 Effect", () => CreateAsset<GameplayEffectSO>("GE_")));
             firstRow.Add(MakeToolbarButton("새 Set", () => CreateAsset<AbilitySetSO>("AbilitySet_")));
             firstRow.Add(MakeToolbarButton("전체 검증", ValidateAll));
@@ -525,12 +528,12 @@ namespace UPlayGround.Data.Editor.Ability
 
             _filterMenu = new ToolbarMenu { text = "전체" };
             _filterMenu.tooltip = "현재 AbilitySet 범위 안에서 에셋 타입을 좁힙니다.";
-            _filterMenu.style.width = 62f;
-            _filterMenu.style.minWidth = 62f;
-            _filterMenu.style.maxWidth = 62f;
+            _filterMenu.style.width = 72f;
+            _filterMenu.style.minWidth = 72f;
+            _filterMenu.style.maxWidth = 72f;
             _filterMenu.style.flexShrink = 0f;
             _filterMenu.style.marginLeft = 4f;
-            foreach (string filter in new[] { "전체", "Ability", "Effect", "Set" })
+            foreach (string filter in new[] { "전체", "Ability", "Passive", "Effect", "Set" })
             {
                 string captured = filter;
                 _filterMenu.menu.AppendAction(filter, _ =>
@@ -682,7 +685,7 @@ namespace UPlayGround.Data.Editor.Ability
                 var empty = new HelpBox(
                     "왼쪽에서 AbilitySet 범위를 선택하고 편집할 에셋을 고르세요.\n"
                     + "AbilitySet은 캐릭터의 전체 전투 구성, Ability는 개별 행동, "
-                    + "Effect는 비용·버프·상태 변화를 정의합니다.",
+                    + "Passive는 상시·조건부 능력, Effect는 버프·상태 변화를 정의합니다.",
                     HelpBoxMessageType.Info);
                 empty.style.marginTop = 24f;
                 _detail.Add(empty);
@@ -752,6 +755,14 @@ namespace UPlayGround.Data.Editor.Ability
                 AddSummary("쿨다운", $"{ability.cooldown?.durationSeconds:0.##}s");
                 AddSummary("공유 그룹", ability.cooldown?.ResolveGroupId(ability.abilityId));
             }
+            else if (_selected is PassiveAbilitySO passive)
+            {
+                AddSummary("분류", "Passive");
+                AddSummary("발동", passive.activationType.ToString());
+                AddSummary("범위", passive.scope.ToString());
+                AddSummary("Modifier", (passive.modifiers?.Count ?? 0).ToString());
+                AddSummary("발동 Effect", (passive.triggeredEffects?.Count ?? 0).ToString());
+            }
             else if (_selected is GameplayEffectSO effect)
             {
                 AddSummary("지속 타입", effect.durationType.ToString());
@@ -803,6 +814,7 @@ namespace UPlayGround.Data.Editor.Ability
         {
             _assets.Clear();
             LoadAssets<GameplayAbilitySO>();
+            LoadAssets<PassiveAbilitySO>();
             LoadAssets<GameplayEffectSO>();
             LoadAssets<AbilitySetSO>();
             _assets.Sort((a, b) => string.Compare(GetStableId(a), GetStableId(b), StringComparison.Ordinal));
@@ -819,11 +831,16 @@ namespace UPlayGround.Data.Editor.Ability
             for (int i = 0; i < _assets.Count; i++)
             {
                 UnityEngine.Object asset = _assets[i];
-                if (scopedAssets != null && !scopedAssets.Contains(asset)) continue;
+                bool showAllPassives = _filter == "Passive"
+                                       && asset is PassiveAbilitySO;
+                if (scopedAssets != null
+                    && !showAllPassives
+                    && !scopedAssets.Contains(asset))
+                    continue;
                 if (!MatchesType(asset)) continue;
                 if (!string.IsNullOrEmpty(query)
-                    && GetStableId(asset).IndexOf(query, StringComparison.OrdinalIgnoreCase) < 0
-                    && asset.name.IndexOf(query, StringComparison.OrdinalIgnoreCase) < 0)
+                    && GetSearchText(asset).IndexOf(
+                        query, StringComparison.OrdinalIgnoreCase) < 0)
                     continue;
                 _filtered.Add(asset);
             }
@@ -867,6 +884,22 @@ namespace UPlayGround.Data.Editor.Ability
                 if (ability == null || !result.Add(ability)) continue;
                 AddEffects(result, ability.commitEffects);
                 AddEffects(result, ability.endEffects);
+            }
+            AbilitySetScope scope = _setScopes.FirstOrDefault(x => x.Set == _activeSet);
+            if (scope != null && scope.CharacterTypes.Count > 0)
+            {
+                foreach (CharacterPassiveDatabaseSO database
+                         in LoadAssetsIncludingSubAssets<CharacterPassiveDatabaseSO>())
+                {
+                    foreach (CharacterActorType characterType in scope.CharacterTypes)
+                    {
+                        CharacterPassiveSetSO passiveSet = database.Get(characterType);
+                        if (passiveSet?.passives == null) continue;
+                        for (int i = 0; i < passiveSet.passives.Count; i++)
+                            if (passiveSet.passives[i] != null)
+                                result.Add(passiveSet.passives[i]);
+                    }
+                }
             }
             return result;
         }
@@ -960,7 +993,7 @@ namespace UPlayGround.Data.Editor.Ability
                             ? "BT 연결"
                             : "미부착";
                 string assetPath = AssetDatabase.GetAssetPath(set);
-                _setScopes.Add(new AbilitySetScope
+                var addedScope = new AbilitySetScope
                 {
                     Set = set,
                     SetName = set.name,
@@ -970,7 +1003,15 @@ namespace UPlayGround.Data.Editor.Ability
                     SearchText = $"{set.name} {ownerText} {assetPath}",
                     HasInputConnection = hasInputConnection,
                     HasBtConnection = hasBtConnection,
-                });
+                };
+                if (owners != null)
+                {
+                    foreach (string owner in owners)
+                        if (Enum.TryParse(owner, out CharacterActorType characterType)
+                            && characterType != CharacterActorType.None)
+                            addedScope.CharacterTypes.Add(characterType);
+                }
+                _setScopes.Add(addedScope);
             }
             _setScopes.Sort((a, b) =>
             {
@@ -1027,6 +1068,7 @@ namespace UPlayGround.Data.Editor.Ability
         private bool MatchesType(UnityEngine.Object asset) => _filter switch
         {
             "Ability" => asset is GameplayAbilitySO,
+            "Passive" => asset is PassiveAbilitySO,
             "Effect" => asset is GameplayEffectSO,
             "Set" => asset is AbilitySetSO,
             _ => true,
@@ -1034,12 +1076,41 @@ namespace UPlayGround.Data.Editor.Ability
 
         private void LoadAssets<T>() where T : UnityEngine.Object
         {
+            foreach (T asset in LoadAssetsIncludingSubAssets<T>())
+                if (!_assets.Contains(asset))
+                    _assets.Add(asset);
+        }
+
+        private static IReadOnlyList<T> LoadAssetsIncludingSubAssets<T>()
+            where T : UnityEngine.Object
+        {
+            var result = new List<T>();
+            var seen = new HashSet<int>();
+            var paths = new HashSet<string>(StringComparer.Ordinal);
             string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
             for (int i = 0; i < guids.Length; i++)
+                paths.Add(AssetDatabase.GUIDToAssetPath(guids[i]));
+
+            if (typeof(T) == typeof(PassiveAbilitySO)
+                || typeof(T) == typeof(CharacterPassiveSetSO)
+                || typeof(T) == typeof(GameplayEffectSO))
             {
-                T asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guids[i]));
-                if (asset != null) _assets.Add(asset);
+                string[] databaseGuids =
+                    AssetDatabase.FindAssets($"t:{nameof(CharacterPassiveDatabaseSO)}");
+                for (int i = 0; i < databaseGuids.Length; i++)
+                    paths.Add(AssetDatabase.GUIDToAssetPath(databaseGuids[i]));
             }
+
+            foreach (string path in paths)
+            {
+                UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+                for (int j = 0; j < assets.Length; j++)
+                {
+                    if (assets[j] is T asset && seen.Add(asset.GetInstanceID()))
+                        result.Add(asset);
+                }
+            }
+            return result;
         }
 
         private void CreateAsset<T>(string prefix) where T : ScriptableObject
@@ -1102,7 +1173,8 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 EditorUtility.DisplayDialog(
                     "삭제할 수 없음",
-                    "프로젝트의 메인 Ability/Effect/Set 에셋만 삭제할 수 있습니다.\n\n"
+                    "프로젝트의 메인 Ability/Passive/Effect/Set 에셋만 삭제할 수 있습니다.\n"
+                    + "데이터베이스 내부 서브에셋은 해당 데이터베이스에서 관리해야 합니다.\n\n"
                     + string.Join("\n", invalidNames),
                     "확인");
                 return;
@@ -1269,6 +1341,22 @@ namespace UPlayGround.Data.Editor.Ability
                     _ => Array.Empty<string>(),
                 };
             }
+            if (target is PassiveAbilitySO)
+            {
+                return tab switch
+                {
+                    "기본 정보" => new[]
+                    {
+                        "passiveId",
+                        "schemaVersion",
+                        "presentation",
+                        "characterSelectDescription",
+                    },
+                    "활성화 조건" => new[] { "activationType", "scope" },
+                    "Effect" => new[] { "stackPolicy", "modifiers", "triggeredEffects" },
+                    _ => Array.Empty<string>(),
+                };
+            }
             if (target is AbilitySetSO)
             {
                 return tab switch
@@ -1294,14 +1382,28 @@ namespace UPlayGround.Data.Editor.Ability
         private static string GetStableId(UnityEngine.Object asset) => asset switch
         {
             GameplayAbilitySO ability => string.IsNullOrWhiteSpace(ability.abilityId) ? ability.name : ability.abilityId,
+            PassiveAbilitySO passive => string.IsNullOrWhiteSpace(passive.passiveId) ? passive.name : passive.passiveId,
             GameplayEffectSO effect => string.IsNullOrWhiteSpace(effect.effectId) ? effect.name : effect.effectId,
             _ => asset != null ? asset.name : "-",
         };
+
+        private static string GetSearchText(UnityEngine.Object asset)
+        {
+            string presentationName = asset switch
+            {
+                GameplayAbilitySO ability => ability.presentation?.displayName,
+                PassiveAbilitySO passive => passive.presentation?.displayName,
+                _ => null,
+            };
+            return $"{GetStableId(asset)} {asset?.name} {presentationName}";
+        }
 
         private static Texture GetIcon(UnityEngine.Object asset)
         {
             if (asset is GameplayAbilitySO ability && ability.presentation?.icon != null)
                 return ability.presentation.icon.texture;
+            if (asset is PassiveAbilitySO passive && passive.presentation?.icon != null)
+                return passive.presentation.icon.texture;
             return AssetPreview.GetMiniThumbnail(asset);
         }
 
@@ -1325,6 +1427,7 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 AbilitySetSO => "AbilitySet은 한 캐릭터의 슬롯, 일반 공격, 차지, 콤보 구성을 묶습니다. ",
                 GameplayAbilitySO => "Ability는 입력 한 번으로 실행되는 행동과 그 조건·비용을 정의합니다. ",
+                PassiveAbilitySO => "Passive는 상시 Modifier 또는 조건부 Effect를 정의합니다. ",
                 GameplayEffectSO => "Effect는 지속 시간, 스택, 자원·스탯 변화를 정의합니다. ",
                 _ => string.Empty,
             };
@@ -1334,9 +1437,14 @@ namespace UPlayGround.Data.Editor.Ability
         private static string GetPropertyLabel(string propertyName) => propertyName switch
         {
             "abilityId" => "Ability ID",
+            "passiveId" => "Passive ID",
             "effectId" => "Effect ID",
             "schemaVersion" => "스키마 버전",
             "presentation" => "표시 정보",
+            "characterSelectDescription" => "캐릭터 선택 요약",
+            "activationType" => "패시브 발동 조건",
+            "scope" => "적용 범위",
+            "triggeredEffects" => "조건 충족 시 Effect",
             "abilityTagIds" => "Ability 태그",
             "concurrency" => "동시 실행 정책",
             "activation" => "활성화 조건",
@@ -1370,8 +1478,12 @@ namespace UPlayGround.Data.Editor.Ability
 
         private static string GetPropertyHelp(string propertyName) => propertyName switch
         {
-            "abilityId" or "effectId" => "저장 파일명과 별개인 런타임 고유 식별자입니다.",
+            "abilityId" or "passiveId" or "effectId" => "저장 파일명과 별개인 런타임 고유 식별자입니다.",
             "presentation" => "이름, 설명, 아이콘, HUD 색상과 분류를 설정합니다.",
+            "characterSelectDescription" => "UI_CharacterSelect에 표시할 수치 없는 요약 설명입니다.",
+            "activationType" => "상시 적용 또는 퍼펙트 회피·가드 성공 시 발동하도록 설정합니다.",
+            "scope" => "활성 캐릭터, 소유 캐릭터 또는 출전 파티 최고값 정책을 설정합니다.",
+            "triggeredEffects" => "조건부 패시브가 성공했을 때 적용할 GameplayEffect입니다.",
             "abilityTagIds" or "grantedTagIds" => "조건 판정과 다른 시스템 연동에 사용하는 태그입니다.",
             "concurrency" => "같은 Ability가 이미 실행 중일 때 새 요청을 처리하는 방법입니다.",
             "activation" => "필요·차단 태그와 활성화 규칙을 설정합니다.",

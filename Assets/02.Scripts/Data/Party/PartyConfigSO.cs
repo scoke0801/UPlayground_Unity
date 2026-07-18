@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround.Data.Party
 {
@@ -165,6 +166,10 @@ namespace UPlayGround.Data.Party
         [Header("Growth")]
         [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]
         public List<PartyMemberGrowthSO> growthData = new();
+
+        [Header("Passive Ability")]
+        [Tooltip("캐릭터별 패시브 목록과 CharacterSelect 대표 패시브의 단일 데이터베이스.")]
+        public CharacterPassiveDatabaseSO characterPassiveDatabase;
 
         [Header("Entry Attack Defaults")]
         [Tooltip("CharacterModelData.entryAttackRange 가 0 이하일 때 사용할 기본 검출 반경.")]

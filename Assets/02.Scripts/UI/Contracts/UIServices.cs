@@ -151,6 +151,7 @@ namespace UPlayGround.UI
         void CancelCrafting();
         RecipeData GetRecipeData(int recipeId);
         List<IngredientData> GetIngredients(int recipeId);
+        List<IngredientData> GetEffectiveIngredients(int recipeId, int quantity = 1);
         float GetCraftingProgress();
         bool IsCrafting();
         List<int> GetUnlockedRecipeIDs();

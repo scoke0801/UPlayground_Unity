@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Ability;
 using UPlayGround.Manager;
 
 namespace UPlayGround.UI
@@ -26,6 +27,7 @@ namespace UPlayGround.UI
 
         [Header("Data")]
         [SerializeField] private CharacterSelectDatabaseSO _database;
+        [SerializeField] private CharacterPassiveDatabaseSO _passiveDatabase;
 
         [Tooltip("초상화/무기 아이콘 재사용 소스(PartyConfig 의 PartyMemberData). " +
                  "entry.portrait 가 비어 있으면 캐릭터 타입으로 여기서 조회한다.")]
@@ -55,6 +57,10 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI[] _effectTitles;
         [SerializeField] private TextMeshProUGUI[] _effectDescs;
 
+        [Header("Representative Passives")]
+        [SerializeField] private UIPassiveAbilityRow[] _passiveRows;
+        [SerializeField] private GameObject _passiveEmptyRoot;
+
         [Header("Buttons")]
         [SerializeField] private Button _confirmButton;
         [SerializeField] private Button _cancelButton;
@@ -74,6 +80,7 @@ namespace UPlayGround.UI
         public event Action Cancelled;
 
         private readonly List<UI_CharacterSelectCard> _cards = new();
+        private readonly List<CharacterSelectDatabaseSO.Entry> _cardEntries = new();
         private int _selectedIndex = -1;
         private Vector2 _detailBasePos;
         private bool _detailBaseCached;
@@ -92,8 +99,74 @@ namespace UPlayGround.UI
             if (_previewRenderer != null && _characterPreview != null)
                 _characterPreview.texture = _previewRenderer.GetRenderTexture();
 
+            HideLegacyWeaponSection();
+            EnsurePassiveRows();
             CacheDetailBase();
             BuildCards();
+        }
+
+        private void HideLegacyWeaponSection()
+        {
+            if (_weaponIcon != null && _weaponIcon.transform.parent != null)
+                _weaponIcon.transform.parent.gameObject.SetActive(false);
+            if (_weaponDescText != null)
+                _weaponDescText.gameObject.SetActive(false);
+            if (_effectRoots != null)
+                for (int i = 0; i < _effectRoots.Length; i++)
+                    if (_effectRoots[i] != null)
+                        _effectRoots[i].SetActive(false);
+
+            Transform content = _weaponDescText != null
+                ? _weaponDescText.transform.parent
+                : _detailPanel;
+            content?.Find("EffectsHeader")?.gameObject.SetActive(false);
+        }
+
+        private void EnsurePassiveRows()
+        {
+            if (_passiveRows != null && _passiveRows.Length > 0)
+                return;
+            Transform parent = _weaponDescText != null
+                ? _weaponDescText.transform.parent
+                : _detailPanel;
+            if (parent == null)
+                return;
+
+            var header = new GameObject(
+                "PassivesHeader_Runtime",
+                typeof(RectTransform),
+                typeof(LayoutElement),
+                typeof(TextMeshProUGUI));
+            header.transform.SetParent(parent, false);
+            header.GetComponent<LayoutElement>().preferredHeight = 32f;
+            var headerText = header.GetComponent<TextMeshProUGUI>();
+            headerText.text = "대표 패시브";
+            headerText.fontSize = 22f;
+            headerText.color = new Color(0.35f, 0.80f, 0.90f, 1f);
+            headerText.alignment = TextAlignmentOptions.Left;
+
+            _passiveRows =
+                new UIPassiveAbilityRow[CharacterPassiveSetSO.MaxCharacterSelectRepresentatives];
+            for (int i = 0; i < _passiveRows.Length; i++)
+                _passiveRows[i] = UIPassiveAbilityRow.CreateRuntime(parent, i);
+
+            _passiveEmptyRoot = new GameObject(
+                "PassiveEmpty_Runtime",
+                typeof(RectTransform),
+                typeof(LayoutElement),
+                typeof(TextMeshProUGUI));
+            _passiveEmptyRoot.transform.SetParent(parent, false);
+            _passiveEmptyRoot.GetComponent<LayoutElement>().preferredHeight = 36f;
+            var emptyText = _passiveEmptyRoot.GetComponent<TextMeshProUGUI>();
+            emptyText.text = "대표 패시브 정보 없음";
+            emptyText.fontSize = 17f;
+            emptyText.color = new Color(0.62f, 0.68f, 0.74f, 1f);
+            emptyText.alignment = TextAlignmentOptions.Left;
+
+            if (_detailPanel != null)
+                _detailPanel.sizeDelta = new Vector2(
+                    _detailPanel.sizeDelta.x,
+                    Mathf.Max(860f, _detailPanel.sizeDelta.y));
         }
 
         private void CacheDetailBase()
@@ -108,6 +181,7 @@ namespace UPlayGround.UI
             foreach (var c in _cards)
                 if (c != null) Destroy(c.gameObject);
             _cards.Clear();
+            _cardEntries.Clear();
 
             if (_cardPrefab == null || _cardRoot == null || _database == null)
                 return;
@@ -120,6 +194,7 @@ namespace UPlayGround.UI
                 var card = Instantiate(_cardPrefab, _cardRoot);
                 card.Init(this, _cards.Count, entry.characterType, ResolveDisplayName(entry), ResolveCardSprite(entry), entry.locked);
                 _cards.Add(card);
+                _cardEntries.Add(entry);
             }
         }
 
@@ -205,10 +280,10 @@ namespace UPlayGround.UI
 
         private void Confirm()
         {
-            if (_database == null || _selectedIndex < 0 || _selectedIndex >= _database.entries.Count)
+            if (_selectedIndex < 0 || _selectedIndex >= _cardEntries.Count)
                 return;
 
-            CharacterActorType type = _database.entries[_selectedIndex].characterType;
+            CharacterActorType type = _cardEntries[_selectedIndex].characterType;
             CharacterConfirmed?.Invoke(type);
 
             // TODO: PartyConfig 연동 — 선택한 캐릭터로 신규 게임을 시작한다. 현재는 이벤트만 발생.
@@ -237,7 +312,9 @@ namespace UPlayGround.UI
 
         private void PopulateDetail(int index)
         {
-            var entry = _database.entries[index];
+            if (index < 0 || index >= _cardEntries.Count)
+                return;
+            var entry = _cardEntries[index];
 
             if (_detailNameText != null) _detailNameText.text = ResolveDisplayName(entry);
             if (_detailTaglineText != null) _detailTaglineText.text = entry.tagline;
@@ -250,50 +327,34 @@ namespace UPlayGround.UI
             }
             if (_previewRenderer != null) _previewRenderer.ShowPreview(entry.characterType);
 
-            WeaponEffectSO effect = entry.weaponEffect;
-            if (effect != null)
-            {
-                if (_weaponIcon != null)
-                {
-                    Sprite icon = effect.weaponIcon != null
-                        ? effect.weaponIcon
-                        : (_memberData != null ? _memberData.GetWeaponIcon(entry.characterType) : null);
-                    _weaponIcon.sprite = icon;
-                    _weaponIcon.enabled = icon != null;
-                }
-                if (_weaponNameText != null) _weaponNameText.text = effect.ResolveWeaponName();
-                if (_weaponDescText != null) _weaponDescText.text = effect.weaponDescription;
-                PopulateEffects(effect.effects);
-            }
-            else
-            {
-                if (_weaponIcon != null) _weaponIcon.enabled = false;
-                if (_weaponNameText != null) _weaponNameText.text = "-";
-                if (_weaponDescText != null) _weaponDescText.text = string.Empty;
-                PopulateEffects(null);
-            }
+            PopulatePassives(entry.characterType);
         }
 
-        private void PopulateEffects(List<WeaponEffectSO.EffectEntry> effects)
+        private void PopulatePassives(CharacterActorType characterType)
         {
-            int rows = _effectRoots != null ? _effectRoots.Length : 0;
-            for (int i = 0; i < rows; i++)
+            if (_passiveRows != null)
             {
-                bool has = effects != null && i < effects.Count;
-                if (_effectRoots[i] != null) _effectRoots[i].SetActive(has);
-                if (!has) continue;
-
-                WeaponEffectSO.EffectEntry e = effects[i];
-                if (_effectIcons != null && i < _effectIcons.Length && _effectIcons[i] != null)
-                {
-                    _effectIcons[i].sprite = e.icon;
-                    _effectIcons[i].enabled = e.icon != null;
-                }
-                if (_effectTitles != null && i < _effectTitles.Length && _effectTitles[i] != null)
-                    _effectTitles[i].text = e.title;
-                if (_effectDescs != null && i < _effectDescs.Length && _effectDescs[i] != null)
-                    _effectDescs[i].text = e.description;
+                for (int i = 0; i < _passiveRows.Length; i++)
+                    _passiveRows[i]?.Clear();
             }
+
+            CharacterPassiveSetSO set =
+                _passiveDatabase?.Get(characterType)
+                ?? Svc.Passives?.GetPassiveSet(characterType);
+            int rowIndex = 0;
+            if (set != null && _passiveRows != null)
+            {
+                foreach (PassiveAbilitySO passive in set.EnumerateCharacterSelectRepresentatives())
+                {
+                    if (rowIndex >= _passiveRows.Length)
+                        break;
+                    _passiveRows[rowIndex]?.Bind(passive);
+                    rowIndex++;
+                }
+            }
+
+            if (_passiveEmptyRoot != null)
+                _passiveEmptyRoot.SetActive(rowIndex == 0);
         }
 
         private void ShowDetail(bool show, bool animate)

@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.EnumType;
@@ -183,6 +184,17 @@ namespace UPlayGround.Manager
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         int GetLevel(CharacterActorType type);
         IReadOnlyDictionary<GrowthAttributeType, int> GetGrowthInvestments(CharacterActorType type);
+    }
+
+    public interface IPassiveModifierReader : IGameService
+    {
+        CharacterPassiveSetSO GetPassiveSet(CharacterActorType type);
+        float GetActiveMultiplier(PassiveModifierType type);
+        float GetActiveSkillCooldownMultiplier(PlayerSkillSlot slot);
+        float GetCharacterMultiplier(
+            CharacterActorType characterType,
+            PassiveModifierType type);
+        float GetBattlePartyMultiplier(PassiveModifierType type);
     }
 
     public interface IInventoryService : IGameService

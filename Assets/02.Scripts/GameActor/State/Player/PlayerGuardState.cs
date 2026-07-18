@@ -7,6 +7,7 @@ using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Ability;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 using UPlayGround.Data.Sound;
@@ -210,6 +211,7 @@ namespace UPlayGround.State
                     incomingAttack?.attacker,
                     incomingAttack,
                     spawnPos);
+                playerActor.NotifyPassiveActivation(PassiveActivationType.PerfectGuard);
             }
             else
             {

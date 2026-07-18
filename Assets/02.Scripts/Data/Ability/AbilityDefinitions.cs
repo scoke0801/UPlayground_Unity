@@ -84,6 +84,13 @@ namespace UPlayGround.Data.Ability
         Infinite,
     }
 
+    public enum GameplayEffectPolarity
+    {
+        Neutral,
+        Beneficial,
+        Harmful,
+    }
+
     public enum GameplayEffectStackPolicy
     {
         RejectNew,

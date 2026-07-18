@@ -1,0 +1,718 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000005, type: 3}
+  m_Name: CharacterPassiveDatabase
+  m_EditorClassIdentifier:
+  entries:
+  - {fileID: 11403001}
+  - {fileID: 11403002}
+  - {fileID: 11403003}
+  - {fileID: 11403004}
+  - {fileID: 11403005}
+  - {fileID: 11403006}
+  - {fileID: 11403007}
+  - {fileID: 11403008}
+  - {fileID: 11403009}
+  - {fileID: 11403010}
+  - {fileID: 11403011}
+--- !u!114 &11401001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
+  m_Name: GE_Passive_PerfectDodgeFocus
+  m_EditorClassIdentifier:
+  effectId: passive.perfect_dodge_focus
+  schemaVersion: 1
+  polarity: 1
+  ignorePassiveDurationModifiers: 0
+  durationType: 1
+  durationSeconds: 5
+  periodSeconds: 0
+  stackingKey: passive.perfect_dodge_focus
+  stackPolicy: 1
+  maxStackCount: 1
+  modifiers:
+  - statType: 2
+    modifierType: 1
+    value: 0.06
+  resourceOperations: []
+  grantedTagIds: []
+  removalPolicy: 0
+  savePolicy: 0
+--- !u!114 &11401002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
+  m_Name: GE_Passive_PerfectGuardFortify
+  m_EditorClassIdentifier:
+  effectId: passive.perfect_guard_fortify
+  schemaVersion: 1
+  polarity: 1
+  ignorePassiveDurationModifiers: 0
+  durationType: 1
+  durationSeconds: 5
+  periodSeconds: 0
+  stackingKey: passive.perfect_guard_fortify
+  stackPolicy: 1
+  maxStackCount: 1
+  modifiers:
+  - statType: 3
+    modifierType: 0
+    value: 0.05
+  resourceOperations: []
+  grantedTagIds: []
+  removalPolicy: 0
+  savePolicy: 0
+--- !u!114 &11402001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_LightAttackDamage
+  m_EditorClassIdentifier:
+  passiveId: passive.light_attack_damage
+  schemaVersion: 1
+  presentation:
+    displayName: 가벼운 칼끝
+    description: 약공격 피해가 6% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 약공격 피해가 강화된다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 0
+    operation: 1
+    value: 0.06
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_HeavyAttackDamage
+  m_EditorClassIdentifier:
+  passiveId: passive.heavy_attack_damage
+  schemaVersion: 1
+  presentation:
+    displayName: 묵직한 일격
+    description: 강공격 피해가 7% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 강공격 피해가 강화된다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 1
+    operation: 1
+    value: 0.07
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_SkillDamage
+  m_EditorClassIdentifier:
+  passiveId: passive.skill_damage
+  schemaVersion: 1
+  presentation:
+    displayName: 응축된 기예
+    description: 스킬 피해가 6% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 스킬 공격의 피해가 강화된다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 2
+    operation: 1
+    value: 0.06
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_SkillCooldown
+  m_EditorClassIdentifier:
+  passiveId: passive.skill_cooldown
+  schemaVersion: 1
+  presentation:
+    displayName: 빠른 호흡
+    description: 일반 스킬 쿨타임이 8% 감소한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 일반 스킬의 재사용 대기시간이 감소한다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 3
+    operation: 1
+    value: -0.08
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_BreakDamage
+  m_EditorClassIdentifier:
+  passiveId: passive.break_damage
+  schemaVersion: 1
+  presentation:
+    displayName: 균형 파쇄
+    description: 적에게 주는 브레이크 수치가 10% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 적에게 주는 브레이크 수치가 증가한다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 4
+    operation: 1
+    value: 0.1
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_EquipmentLuck
+  m_EditorClassIdentifier:
+  passiveId: passive.equipment_luck
+  schemaVersion: 1
+  presentation:
+    displayName: 감별안
+    description: 장비 옵션 등급이 한 단계 오를 확률이 15% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 장비에서 더 좋은 성장 옵션을 얻기 쉬워진다.
+  activationType: 0
+  scope: 2
+  stackPolicy: 1
+  modifiers:
+  - modifierType: 5
+    operation: 1
+    value: 0.15
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_ConsumableRecovery
+  m_EditorClassIdentifier:
+  passiveId: passive.consumable_recovery
+  schemaVersion: 1
+  presentation:
+    displayName: 약효 증폭
+    description: 소모품의 회복량이 10% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 소모품의 회복 효과가 강화된다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 6
+    operation: 1
+    value: 0.1
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_CraftIngredientCost
+  m_EditorClassIdentifier:
+  passiveId: passive.craft_ingredient_cost
+  schemaVersion: 1
+  presentation:
+    displayName: 절약 제작
+    description: 제작에 필요한 재료가 10% 감소한다. 최종 수량은 올림한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 제작에 필요한 재료가 감소한다.
+  activationType: 0
+  scope: 2
+  stackPolicy: 1
+  modifiers:
+  - modifierType: 7
+    operation: 1
+    value: -0.1
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_ExperienceGain
+  m_EditorClassIdentifier:
+  passiveId: passive.experience_gain
+  schemaVersion: 1
+  presentation:
+    displayName: 빠른 습득
+    description: 획득 경험치가 8% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 획득하는 경험치가 증가한다.
+  activationType: 0
+  scope: 1
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 8
+    operation: 1
+    value: 0.08
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_HarmfulEffectRecovery
+  m_EditorClassIdentifier:
+  passiveId: passive.harmful_effect_recovery
+  schemaVersion: 1
+  presentation:
+    displayName: 빠른 정화
+    description: 해로운 상태의 회복 속도가 15% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 해로운 상태에서 더 빠르게 회복한다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 9
+    operation: 1
+    value: 0.15
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_BeneficialEffectDuration
+  m_EditorClassIdentifier:
+  passiveId: passive.beneficial_effect_duration
+  schemaVersion: 1
+  presentation:
+    displayName: 긴 여운
+    description: 이로운 상태의 지속시간이 15% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 이로운 상태가 더 오래 유지된다.
+  activationType: 0
+  scope: 0
+  stackPolicy: 0
+  modifiers:
+  - modifierType: 10
+    operation: 1
+    value: 0.15
+    abilitySlotFilter: 1
+  triggeredEffects: []
+--- !u!114 &11402012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_PerfectDodgeFocus
+  m_EditorClassIdentifier:
+  passiveId: passive.perfect_dodge_focus
+  schemaVersion: 1
+  presentation:
+    displayName: 찰나의 집중
+    description: 퍼펙트 회피 시 5초 동안 공격력이 6% 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 퍼펙트 회피 시 일시적으로 공격력이 강화된다.
+  activationType: 1
+  scope: 0
+  stackPolicy: 1
+  modifiers: []
+  triggeredEffects:
+  - {fileID: 11401001}
+--- !u!114 &11402013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
+  m_Name: PA_PerfectGuardFortify
+  m_EditorClassIdentifier:
+  passiveId: passive.perfect_guard_fortify
+  schemaVersion: 1
+  presentation:
+    displayName: 철벽의 순간
+    description: 퍼펙트 가드 시 5초 동안 방어력이 5%p 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
+    category: 5
+    ownerType: 0
+  characterSelectDescription: 퍼펙트 가드 시 일시적으로 방어력이 강화된다.
+  activationType: 2
+  scope: 0
+  stackPolicy: 1
+  modifiers: []
+  triggeredEffects:
+  - {fileID: 11401002}
+--- !u!114 &11403001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Bokusei
+  m_EditorClassIdentifier:
+  characterType: 1
+  passives:
+  - {fileID: 11402001}
+  - {fileID: 11402009}
+  characterSelectRepresentatives:
+  - {fileID: 11402001}
+  - {fileID: 11402009}
+--- !u!114 &11403002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Honoka
+  m_EditorClassIdentifier:
+  characterType: 2
+  passives:
+  - {fileID: 11402002}
+  - {fileID: 11402010}
+  characterSelectRepresentatives:
+  - {fileID: 11402002}
+  - {fileID: 11402010}
+--- !u!114 &11403003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Reine
+  m_EditorClassIdentifier:
+  characterType: 3
+  passives:
+  - {fileID: 11402005}
+  - {fileID: 11402006}
+  characterSelectRepresentatives:
+  - {fileID: 11402005}
+  - {fileID: 11402006}
+--- !u!114 &11403004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_LianLian
+  m_EditorClassIdentifier:
+  characterType: 4
+  passives:
+  - {fileID: 11402004}
+  - {fileID: 11402008}
+  characterSelectRepresentatives:
+  - {fileID: 11402004}
+  - {fileID: 11402008}
+--- !u!114 &11403005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Nenmir
+  m_EditorClassIdentifier:
+  characterType: 5
+  passives:
+  - {fileID: 11402003}
+  - {fileID: 11402011}
+  characterSelectRepresentatives:
+  - {fileID: 11402003}
+  - {fileID: 11402011}
+--- !u!114 &11403006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Sera
+  m_EditorClassIdentifier:
+  characterType: 6
+  passives:
+  - {fileID: 11402002}
+  - {fileID: 11402007}
+  characterSelectRepresentatives:
+  - {fileID: 11402002}
+  - {fileID: 11402007}
+--- !u!114 &11403007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Inori
+  m_EditorClassIdentifier:
+  characterType: 7
+  passives:
+  - {fileID: 11402004}
+  - {fileID: 11402009}
+  characterSelectRepresentatives:
+  - {fileID: 11402004}
+  - {fileID: 11402009}
+--- !u!114 &11403008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Hichi
+  m_EditorClassIdentifier:
+  characterType: 8
+  passives:
+  - {fileID: 11402001}
+  - {fileID: 11402010}
+  characterSelectRepresentatives:
+  - {fileID: 11402001}
+  - {fileID: 11402010}
+--- !u!114 &11403009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Siuha
+  m_EditorClassIdentifier:
+  characterType: 9
+  passives:
+  - {fileID: 11402013}
+  - {fileID: 11402008}
+  characterSelectRepresentatives:
+  - {fileID: 11402013}
+  - {fileID: 11402008}
+--- !u!114 &11403010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Komoe
+  m_EditorClassIdentifier:
+  characterType: 10
+  passives:
+  - {fileID: 11402007}
+  - {fileID: 11402011}
+  characterSelectRepresentatives:
+  - {fileID: 11402007}
+  - {fileID: 11402011}
+--- !u!114 &11403011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
+  m_Name: PassiveSet_Lili
+  m_EditorClassIdentifier:
+  characterType: 11
+  passives:
+  - {fileID: 11402012}
+  - {fileID: 11402006}
+  characterSelectRepresentatives:
+  - {fileID: 11402012}
+  - {fileID: 11402006}

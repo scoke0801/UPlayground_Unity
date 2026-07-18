@@ -17,6 +17,7 @@ namespace UPlayGround.Data
         // 연계 라우트 퍼펙트 타이밍 강화처럼 공유 SO(hitPhases)를 변형하지 않고 런타임 한정으로 데미지를 증폭할 때 쓴다.
         public float damageMultiplier = 1f;
         public float poiseMultiplier = 1f;
+        public float breakDamageMultiplier = 1f;
 
         public float reactionDuration = 0f;
         public bool forceReaction = false;

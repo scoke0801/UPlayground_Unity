@@ -10,6 +10,7 @@ using UPlayGround.Data.Event;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.Item;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Sound;
 
@@ -1241,7 +1242,7 @@ namespace UPlayGround.Manager
             return key;
         }
 
-        private static List<EquipmentGrowthAttributeRoll> RollGrowthAttributes(EquipmentSO equipment)
+        private List<EquipmentGrowthAttributeRoll> RollGrowthAttributes(EquipmentSO equipment)
         {
             var result = new List<EquipmentGrowthAttributeRoll>();
             if (equipment == null || !equipment.grantRandomGrowthAttributes)
@@ -1265,14 +1266,20 @@ namespace UPlayGround.Manager
             int count = UnityEngine.Random.Range(minCount, maxCount + 1);
             int minRank = Mathf.Max(1, equipment.randomRankMin);
             int maxRank = Mathf.Max(minRank, equipment.randomRankMax);
+            float rankUpgradeChance = Mathf.Clamp01(
+                (Svc.Passives?.GetBattlePartyMultiplier(
+                    PassiveModifierType.EquipmentGrowthRankLuck) ?? 1f) - 1f);
 
             for (int i = 0; i < count; i++)
             {
                 int index = UnityEngine.Random.Range(0, pool.Count);
+                int rank = UnityEngine.Random.Range(minRank, maxRank + 1);
+                if (rank < maxRank && UnityEngine.Random.value < rankUpgradeChance)
+                    rank++;
                 result.Add(new EquipmentGrowthAttributeRoll
                 {
                     attributeType = pool[index],
-                    rank = UnityEngine.Random.Range(minRank, maxRank + 1)
+                    rank = rank
                 });
                 pool.RemoveAt(index);
             }
@@ -1405,6 +1412,9 @@ namespace UPlayGround.Manager
             }
 
             float beforeHealth = player.CurrentHealth;
+            float recoveryMultiplier = Svc.Passives?.GetActiveMultiplier(
+                PassiveModifierType.ConsumableRecovery) ?? 1f;
+            float recoveryAmount = consumableData.amount * Mathf.Max(0f, recoveryMultiplier);
             switch (consumableData.effectType)
             {
                 case ConsumableEffectType.HealFlat:
@@ -1412,14 +1422,14 @@ namespace UPlayGround.Manager
                     {
                         return InventoryActionResult.NoEffect;
                     }
-                    player.Heal(consumableData.amount);
+                    player.Heal(recoveryAmount);
                     break;
                 case ConsumableEffectType.HealPercent:
                     if (consumableData.requireEffectiveUse && beforeHealth >= player.MaxHealth - 0.01f)
                     {
                         return InventoryActionResult.NoEffect;
                     }
-                    player.HealPercent(consumableData.amount);
+                    player.HealPercent(recoveryAmount);
                     break;
                 default:
                     return InventoryActionResult.NotUsable;

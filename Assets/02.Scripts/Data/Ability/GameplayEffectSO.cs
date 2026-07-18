@@ -9,6 +9,9 @@ namespace UPlayGround.Data.Ability
     {
         public string effectId;
         [Min(1)] public int schemaVersion = 1;
+        public GameplayEffectPolarity polarity;
+        [Tooltip("패시브의 상태강화/상태이상 지속시간 배율을 적용하지 않습니다.")]
+        public bool ignorePassiveDurationModifiers;
         public GameplayEffectDurationType durationType = GameplayEffectDurationType.Instant;
         [Min(0f)] public float durationSeconds;
         [Min(0f)] public float periodSeconds;

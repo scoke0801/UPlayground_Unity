@@ -360,6 +360,8 @@ Assets/
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
 | [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability / 스킬 시스템 구조 스펙 — Ability·Effect·Tag·자원·쿨다운의 데이터 스키마, asmdef 경계, 실행 트랜잭션, 저장·교체·잔류 공격, 검증·텔레메트리·단계별 완료 조건 |
+| [PASSIVE_ABILITY_SYSTEM_SPEC.md](TODO/PASSIVE_ABILITY_SYSTEM_SPEC.md) | 캐릭터 패시브 어빌리티 적용 스펙 — 캐릭터별 무제한 보유, CharacterSelect 대표 2개 노출, 공격·쿨다운·방어 Trigger·아이템·제작·경험치·Effect 지속시간 보정 계약 |
+| [BUFF_DEBUFF_SYSTEM_SPEC.md](TODO/BUFF_DEBUFF_SYSTEM_SPEC.md) | 버프·디버프 시스템 및 HUD 표시 스펙 — GameplayEffect 표시 데이터·가시성 정책·읽기 계약, UI_HudPlayerInfo 아이콘 영역과 프리팹 빌더, 검증·테스트 기준 |
 | [EVENT_MANAGER_GUIDE.md](Complete/EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |
 | [GAMEOBJECT_MANAGER_GUIDE.md](Complete/GAMEOBJECT_MANAGER_GUIDE.md) | GameObjectManager — 활성 플레이어 참조, 액터 레지스트리, FX/Item/Weapon 스폰, InteractionHandler, 글로벌 타임스케일 |
 | [DIALOGUE_SYSTEM_GUIDE.md](Complete/DIALOGUE_SYSTEM_GUIDE.md) | Dialogue 시스템 — DialogueGraphSO/NodeSO, Main/System/Monologue 채널 Runner, ConditionSO/ActionSO 확장, GlobalFlagManager 세이브 연동 |
@@ -405,7 +407,7 @@ Assets/
 | `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play 모드 액터 스탯 및 수정자 모니터링 |
 | `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
 | `UPlayGround/Gameplay/Balance/Balance Designer` | BalanceDesignerWindow | ActorDefinitionSO·공격 데이터·BT 연결 상태 기반 N초 전투 가능성 분석, CSV 내보내기 |
-| `UPlayGround/게임플레이/Ability Editor` | GameplayAbilityEditorWindow | AbilitySet·Ability·Effect 편집, 참조 안전 삭제, 전체 검증 |
+| `UPlayGround/게임플레이/Ability Editor` | GameplayAbilityEditorWindow | AbilitySet·Ability·Passive·Effect 편집, 참조 안전 삭제, 전체 검증 |
 | `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | AbilitySetSO/AbilitySetSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
 
 ---

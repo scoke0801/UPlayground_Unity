@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Item;
@@ -37,7 +38,7 @@ namespace UPlayGround.Manager
     /// </summary>
     public class PartyManager : BaseManager<PartyManager>, IManager, ISaveable, IAsyncInitializableManager,
         UPlayGround.UI.IUIPartyService,
-        IUpdatableManager, IPartyService
+        IUpdatableManager, IPartyService, IPassiveModifierReader
     {
         private PartyConfigSO          _config;
         private PlayerActor            _player;
@@ -149,6 +150,50 @@ namespace UPlayGround.Manager
         public float                     ComboStateMaxCarryTime => _config != null ? Mathf.Max(0f, _config.comboStateMaxCarryTime) : 1.8f;
 
         public PartyMemberDataSO PartyMemberDataSO => _config?.partyMemberData;
+
+        public CharacterPassiveSetSO GetPassiveSet(CharacterActorType type)
+            => _config?.characterPassiveDatabase != null
+                ? _config.characterPassiveDatabase.Get(type)
+                : null;
+
+        public float GetActiveMultiplier(PassiveModifierType type)
+            => GetCharacterMultiplier(ActiveCharacterType, type);
+
+        public float GetActiveSkillCooldownMultiplier(PlayerSkillSlot slot)
+            => PassiveModifierCalculator.CalculateMultiplier(
+                GetPassiveSet(ActiveCharacterType),
+                PassiveModifierType.SkillCooldownDuration,
+                slot,
+                PassiveScope.ActiveCharacter,
+                PassiveScope.OwnerCharacter);
+
+        public float GetCharacterMultiplier(
+            CharacterActorType characterType,
+            PassiveModifierType type)
+            => PassiveModifierCalculator.CalculateMultiplier(
+                GetPassiveSet(characterType),
+                type,
+                null,
+                PassiveScope.ActiveCharacter,
+                PassiveScope.OwnerCharacter);
+
+        public float GetBattlePartyMultiplier(PassiveModifierType type)
+        {
+            float resolved = 1f;
+            bool preferLower = type == PassiveModifierType.CraftIngredientCost;
+            for (int i = 0; i < _battleOrder.Count; i++)
+            {
+                float candidate = PassiveModifierCalculator.CalculateMultiplier(
+                    GetPassiveSet(_battleOrder[i]),
+                    type,
+                    null,
+                    PassiveScope.BattlePartyHighest);
+                resolved = preferLower
+                    ? Mathf.Min(resolved, candidate)
+                    : Mathf.Max(resolved, candidate);
+            }
+            return Mathf.Max(0f, resolved);
+        }
         
         private const string AddressableKey = "PartyConfig";
 
@@ -882,7 +927,10 @@ namespace UPlayGround.Manager
             {
                 var type = _battleOrder[i];
                 if (type == CharacterActorType.None) continue;
-                AddExp(type, amount);
+                long granted = PassiveModifierCalculator.CalculateExperience(
+                    amount,
+                    GetCharacterMultiplier(type, PassiveModifierType.ExperienceGain));
+                AddExp(type, granted);
             }
         }
 

@@ -17,6 +17,7 @@ namespace UPlayGround.Gameplay.Effect
         public GameplayEffectSO Definition;
         public GameActor Source;
         public int StackCount;
+        public float DurationSeconds;
         public float RemainingSeconds;
         public float NextPeriodSeconds;
         public readonly List<AbilityModifierHandle> ModifierHandles = new();

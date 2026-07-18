@@ -19,6 +19,7 @@ using UPlayGround.Manager;
 using UPlayGround.Combat;
 using UPlayGround.State;
 using UPlayGround.UI;
+using UPlayGround.Gameplay.Passive;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
 
@@ -27,6 +28,8 @@ namespace UPlayGround
     // Component
     public partial class PlayerActor : GameActor, IDamageable
     {
+        private PassiveAbilityController _passiveAbilities;
+
         public PlayerEquipment GetPlayerEquipment() => _equipment;
         public PlayerCombat    GetCombat()          => _combat;
 
@@ -113,6 +116,7 @@ namespace UPlayGround
                 _characterAbilityRuntimeMap.TryGetValue(data.characterType, out var abilityRuntime)
                     ? abilityRuntime
                     : null);
+            _passiveAbilities?.RefreshForCharacter(data.characterType);
 
             _equipment?.SetWeaponType(data.defaultWeaponType);
             
@@ -504,6 +508,8 @@ namespace UPlayGround
             if (_footIK     == null) _footIK     = GetComponent<FootIKController>();
             if (_swapBehaviour == null) _swapBehaviour = GetComponent<PlayerSwapBehaviour>();
             if (_behaviorPredictor == null) _behaviorPredictor = gameObject.GetOrAddComponent<PlayerBehaviorPredictor>();
+            if (_passiveAbilities == null)
+                _passiveAbilities = gameObject.GetOrAddComponent<PassiveAbilityController>();
 
             if (_skillGauge != null)
                 _skillGauge.OnGaugeChanged += (cur, max) => OnSkillGaugeChanged?.Invoke(cur, max);

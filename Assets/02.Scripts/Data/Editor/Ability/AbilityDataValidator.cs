@@ -41,36 +41,87 @@ namespace UPlayGround.Data.Editor.Ability
         {
             var issues = new List<AbilityValidationIssue>();
             var ids = new Dictionary<string, UnityEngine.Object>(StringComparer.Ordinal);
-            string[] abilityGuids = AssetDatabase.FindAssets("t:GameplayAbilitySO");
-            string[] effectGuids = AssetDatabase.FindAssets("t:GameplayEffectSO");
-            string[] setGuids = AssetDatabase.FindAssets("t:AbilitySetSO");
+            List<GameplayAbilitySO> abilities =
+                LoadAssetsIncludingSubAssets<GameplayAbilitySO>();
+            List<GameplayEffectSO> effects =
+                LoadAssetsIncludingSubAssets<GameplayEffectSO>();
+            List<AbilitySetSO> sets =
+                LoadAssetsIncludingSubAssets<AbilitySetSO>();
+            List<PassiveAbilitySO> passives =
+                LoadAssetsIncludingSubAssets<PassiveAbilitySO>();
+            List<CharacterPassiveSetSO> passiveSets =
+                LoadAssetsIncludingSubAssets<CharacterPassiveSetSO>();
+            List<CharacterPassiveDatabaseSO> passiveDatabases =
+                LoadAssetsIncludingSubAssets<CharacterPassiveDatabaseSO>();
 
-            for (int i = 0; i < abilityGuids.Length; i++)
+            for (int i = 0; i < abilities.Count; i++)
             {
-                var ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(
-                    AssetDatabase.GUIDToAssetPath(abilityGuids[i]));
+                GameplayAbilitySO ability = abilities[i];
                 ValidateAbility(ability, issues);
                 ValidateUniqueId(ability?.abilityId, ability, "Ability", ids, issues);
             }
 
-            for (int i = 0; i < effectGuids.Length; i++)
+            for (int i = 0; i < effects.Count; i++)
             {
-                var effect = AssetDatabase.LoadAssetAtPath<GameplayEffectSO>(
-                    AssetDatabase.GUIDToAssetPath(effectGuids[i]));
+                GameplayEffectSO effect = effects[i];
                 ValidateEffect(effect, issues);
                 ValidateUniqueId(effect?.effectId, effect, "Effect", ids, issues);
             }
 
-            for (int i = 0; i < setGuids.Length; i++)
+            for (int i = 0; i < sets.Count; i++)
             {
-                var set = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(
-                    AssetDatabase.GUIDToAssetPath(setGuids[i]));
-                ValidateSet(set, issues);
+                ValidateSet(sets[i], issues);
             }
+
+            for (int i = 0; i < passives.Count; i++)
+            {
+                PassiveAbilitySO passive = passives[i];
+                ValidatePassive(passive, issues);
+                ValidateUniqueId(
+                    passive?.passiveId, passive, "Passive", ids, issues);
+            }
+
+            for (int i = 0; i < passiveSets.Count; i++)
+                ValidatePassiveSet(passiveSets[i], issues);
+
+            for (int i = 0; i < passiveDatabases.Count; i++)
+                ValidatePassiveDatabase(passiveDatabases[i], issues);
 
             ValidateActorAbilityBindings(issues);
 
             return issues;
+        }
+
+        private static List<T> LoadAssetsIncludingSubAssets<T>()
+            where T : UnityEngine.Object
+        {
+            var result = new List<T>();
+            var seen = new HashSet<int>();
+            var paths = new HashSet<string>(StringComparer.Ordinal);
+            string[] guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
+            for (int i = 0; i < guids.Length; i++)
+                paths.Add(AssetDatabase.GUIDToAssetPath(guids[i]));
+
+            if (typeof(T) == typeof(PassiveAbilitySO)
+                || typeof(T) == typeof(CharacterPassiveSetSO)
+                || typeof(T) == typeof(GameplayEffectSO))
+            {
+                string[] databaseGuids =
+                    AssetDatabase.FindAssets($"t:{nameof(CharacterPassiveDatabaseSO)}");
+                for (int i = 0; i < databaseGuids.Length; i++)
+                    paths.Add(AssetDatabase.GUIDToAssetPath(databaseGuids[i]));
+            }
+
+            foreach (string path in paths)
+            {
+                UnityEngine.Object[] assets = AssetDatabase.LoadAllAssetsAtPath(path);
+                for (int j = 0; j < assets.Length; j++)
+                {
+                    if (assets[j] is T asset && seen.Add(asset.GetInstanceID()))
+                        result.Add(asset);
+                }
+            }
+            return result;
         }
 
         private static void ValidateActorAbilityBindings(
@@ -124,6 +175,15 @@ namespace UPlayGround.Data.Editor.Ability
                     break;
                 case AbilitySetSO set:
                     ValidateSet(set, issues);
+                    break;
+                case PassiveAbilitySO passive:
+                    ValidatePassive(passive, issues);
+                    break;
+                case CharacterPassiveSetSO passiveSet:
+                    ValidatePassiveSet(passiveSet, issues);
+                    break;
+                case CharacterPassiveDatabaseSO database:
+                    ValidatePassiveDatabase(database, issues);
                     break;
             }
             return issues;
@@ -340,6 +400,96 @@ namespace UPlayGround.Data.Editor.Ability
                     Error(set, $"연계 라우트 '{route.DisplayLabel}'의 Ability 참조가 없습니다.", issues);
                 else if (route.IsEmpty)
                     Warning(set, $"연계 라우트 '{route.DisplayLabel}'의 입력 패턴이 비어 있습니다.", issues);
+            }
+        }
+
+        private static void ValidatePassive(
+            PassiveAbilitySO passive,
+            List<AbilityValidationIssue> issues)
+        {
+            if (passive == null) return;
+            if (string.IsNullOrWhiteSpace(passive.passiveId))
+                Error(passive, "passiveId가 비어 있습니다.", issues);
+            if (passive.schemaVersion < 1)
+                Error(passive, "schemaVersion은 1 이상이어야 합니다.", issues);
+            if (passive.presentation == null
+                || passive.presentation.category != AbilityCategory.Passive)
+            {
+                Error(passive, "표시 카테고리는 Passive여야 합니다.", issues);
+            }
+            if (string.IsNullOrWhiteSpace(passive.characterSelectDescription))
+                Warning(passive, "캐릭터 선택 화면용 수치 없는 요약 설명이 비어 있습니다.", issues);
+
+            if (passive.activationType == PassiveActivationType.Always)
+            {
+                if (passive.modifiers == null || passive.modifiers.Count == 0)
+                    Error(passive, "상시 패시브에는 Modifier가 필요합니다.", issues);
+            }
+            else if (passive.triggeredEffects == null
+                     || passive.triggeredEffects.Count == 0)
+            {
+                Error(passive, "조건부 패시브에는 발동 Effect가 필요합니다.", issues);
+            }
+
+            if (passive.modifiers != null)
+                for (int i = 0; i < passive.modifiers.Count; i++)
+                    if (passive.modifiers[i] == null)
+                        Error(passive, $"Modifier {i}번이 null입니다.", issues);
+            ValidateEffectReferences(
+                passive.triggeredEffects, passive, "Triggered Effect", issues);
+        }
+
+        private static void ValidatePassiveSet(
+            CharacterPassiveSetSO set,
+            List<AbilityValidationIssue> issues)
+        {
+            if (set == null) return;
+            var owned = new HashSet<PassiveAbilitySO>();
+            for (int i = 0; i < (set.passives?.Count ?? 0); i++)
+            {
+                PassiveAbilitySO passive = set.passives[i];
+                if (passive == null)
+                    Error(set, $"보유 패시브 {i}번 참조가 없습니다.", issues);
+                else if (!owned.Add(passive))
+                    Error(set, $"보유 패시브 '{passive.name}'가 중복되었습니다.", issues);
+            }
+
+            if ((set.characterSelectRepresentatives?.Count ?? 0)
+                > CharacterPassiveSetSO.MaxCharacterSelectRepresentatives)
+            {
+                Error(set, "캐릭터 선택 대표 패시브는 최대 2개입니다.", issues);
+            }
+
+            var representatives = new HashSet<PassiveAbilitySO>();
+            for (int i = 0;
+                 i < (set.characterSelectRepresentatives?.Count ?? 0);
+                 i++)
+            {
+                PassiveAbilitySO passive = set.characterSelectRepresentatives[i];
+                if (passive == null)
+                    Error(set, $"대표 패시브 {i}번 참조가 없습니다.", issues);
+                else if (!owned.Contains(passive))
+                    Error(set, $"대표 패시브 '{passive.name}'는 보유 목록에 없습니다.", issues);
+                else if (!representatives.Add(passive))
+                    Error(set, $"대표 패시브 '{passive.name}'가 중복되었습니다.", issues);
+            }
+        }
+
+        private static void ValidatePassiveDatabase(
+            CharacterPassiveDatabaseSO database,
+            List<AbilityValidationIssue> issues)
+        {
+            if (database == null) return;
+            var types = new HashSet<CharacterActorType>();
+            for (int i = 0; i < (database.entries?.Count ?? 0); i++)
+            {
+                CharacterPassiveSetSO set = database.entries[i];
+                if (set == null)
+                    Error(database, $"패시브 세트 {i}번 참조가 없습니다.", issues);
+                else if (set.characterType == CharacterActorType.None)
+                    Error(set, "캐릭터 타입이 None입니다.", issues);
+                else if (!types.Add(set.characterType))
+                    Error(database, $"'{set.characterType}' 패시브 세트가 중복되었습니다.", issues);
             }
         }
 

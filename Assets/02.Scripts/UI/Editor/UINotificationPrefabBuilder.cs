@@ -23,7 +23,7 @@ namespace UPlayGround.UI.HUD.Notification.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/Notification 프리팹 빌드")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/Notification")]
         public static void Build()
         {
             EnsureDirectory(Path.GetDirectoryName(MainPrefabPath));

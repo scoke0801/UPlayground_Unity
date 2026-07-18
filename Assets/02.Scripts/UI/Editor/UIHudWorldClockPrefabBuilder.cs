@@ -23,7 +23,7 @@ namespace UPlayGround.UI.HUD.EditorTools
         private static readonly Color TextMain = new Color(0.94f, 0.93f, 0.88f, 1f);
         private static readonly Color TextSub  = new Color(0.72f, 0.72f, 0.68f, 1f);
 
-        [MenuItem("UPlayGround/UI/인게임 시계 HUD 프리팹 빌드")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/인게임 시계 HUD")]
         public static void Build()
         {
             EnsureFolder(PrefabDir);

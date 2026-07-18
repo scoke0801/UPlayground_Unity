@@ -29,7 +29,7 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/일시정지 메뉴 프리팹 빌드 (초안)")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/일시정지 메뉴 (초안)")]
         public static void Build()
         {
             if (!System.IO.File.Exists(MainPrefabPath))

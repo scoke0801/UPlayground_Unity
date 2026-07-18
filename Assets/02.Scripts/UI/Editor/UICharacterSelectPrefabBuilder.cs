@@ -52,7 +52,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/신규 게임 캐릭터 선택 UI 빌드")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/신규 게임 캐릭터 선택")]
         public static void Build()
         {
             if (!Directory.Exists(Dir))

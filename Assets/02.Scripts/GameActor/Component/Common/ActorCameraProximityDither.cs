@@ -63,7 +63,7 @@ namespace UPlayGround.Components
         [SerializeField, Min(0.01f)] private float _maximumFadeDistance = 0.25f;
         [SerializeField, Min(0.02f)] private float _fadeStartDistance = 0.65f;
         [Tooltip("근접 상태의 최대 투명도")]
-        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.18f;
+        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.85f;
         [SerializeField, Min(0f)] private float _fadeSpeed = 8f;
 
         private readonly List<RendererInfo> _rendererInfos = new();

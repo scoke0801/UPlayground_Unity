@@ -239,6 +239,11 @@ namespace UPlayGround.Data.Editor.Ability
         private static readonly Color Bg2 = new(0.11f, 0.13f, 0.16f);
         private static readonly Color Border = new(0.22f, 0.27f, 0.32f);
         private static readonly Color Accent = new(0.18f, 0.52f, 0.92f);
+        private static readonly string[] AbilitySetOwnerPrefabSearchFolders =
+        {
+            "Assets/03.Prefabs/Actor",
+            "Assets/03.Prefabs/Characters/Enemy",
+        };
 
         [MenuItem("UPlayGround/Ability/Ability & Effect 데이터 툴")]
         public static void Open()
@@ -882,7 +887,12 @@ namespace UPlayGround.Data.Editor.Ability
             var ownersBySet = new Dictionary<AbilitySetSO, HashSet<string>>();
             var inputConnectedSets = new HashSet<AbilitySetSO>();
             var btConnectedSets = new HashSet<AbilitySetSO>();
-            string[] prefabGuids = AssetDatabase.FindAssets("t:Prefab");
+            // 프로젝트 전체 프리팹을 로드하면 창을 열 때 수천 개의 에셋과
+            // MonoBehaviour를 동기 검사하게 된다. AbilitySet을 소유하는
+            // 플레이어/몬스터 프리팹 경계만 검색한다.
+            string[] prefabGuids = AssetDatabase.FindAssets(
+                "t:Prefab",
+                AbilitySetOwnerPrefabSearchFolders);
             for (int i = 0; i < prefabGuids.Length; i++)
             {
                 string path = AssetDatabase.GUIDToAssetPath(prefabGuids[i]);

@@ -33,7 +33,7 @@ namespace UPlayGround.Data.UI.EditorTools
         private GUIStyle _pageHeaderStyle;
         private bool _stylesInitialized;
 
-        [MenuItem("UPlayGround/UI/가이드 팝업 데이터 편집기")]
+        [MenuItem("UPlayGround/UI/편집기/가이드 팝업 데이터 편집기")]
         public static void Open()
         {
             var window = GetWindow<GuidePopupDataEditorWindow>();

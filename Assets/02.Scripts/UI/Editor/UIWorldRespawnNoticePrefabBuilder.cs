@@ -23,7 +23,7 @@ namespace UPlayGround.UI.World.EditorTools
         private static readonly Color Dim      = new Color(0f, 0f, 0f, 0.28f);
         private static readonly Color TextMain = new Color(0.92f, 0.90f, 0.82f, 1f);
 
-        [MenuItem("UPlayGround/UI/월드 재스폰 안내 프리팹 빌드")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/월드 재스폰 안내")]
         public static void Build()
         {
             EnsureFolder(PrefabDir);

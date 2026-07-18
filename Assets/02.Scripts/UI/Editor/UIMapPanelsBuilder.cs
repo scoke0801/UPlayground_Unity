@@ -30,7 +30,7 @@ namespace UPlayGround.UI.Map.EditorTools
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         private static Sprite Checkmark=> AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd");
 
-        [MenuItem("UPlayGround/UI/맵 UI 패널 추가 (초안)")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/맵 UI 패널 추가 (초안)")]
         public static void Build()
         {
             if (!System.IO.File.Exists(MainPrefabPath))

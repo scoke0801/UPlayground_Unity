@@ -32,7 +32,7 @@ namespace UPlayGround.UI.Respawn.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/부활 팝업 프리팹 빌드 (초안)")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/부활 팝업 (초안)")]
         public static void Build()
         {
             if (!System.IO.File.Exists(MainPrefabPath))

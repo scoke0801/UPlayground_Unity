@@ -33,7 +33,7 @@ namespace UPlayGround.UI.Quest.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/퀘스트 UI 프리팹 빌드 (초안)")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/퀘스트 (초안)")]
         public static void Build()
         {
             if (!System.IO.File.Exists(MainPrefabPath))

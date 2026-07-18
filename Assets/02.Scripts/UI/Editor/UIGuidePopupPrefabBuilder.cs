@@ -29,7 +29,7 @@ namespace UPlayGround.UI.Guide.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/가이드 팝업 프리팹 빌드")]
+        [MenuItem("UPlayGround/UI/프리팹 빌드/가이드 팝업")]
         public static void Build()
         {
             EnsureFolder("Assets/03.Prefabs/UI/Popup");

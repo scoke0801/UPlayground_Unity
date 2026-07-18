@@ -4,10 +4,12 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -27,7 +29,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         public sealed class PlayerAttackSummary
         {
-            public PlayerAttackDataSO Asset;
+            public AbilitySetSO Asset;
             public string AssetName;
             public string Path;
             public int LiteCount;
@@ -83,33 +85,28 @@ namespace UPlayGround.Tool.Editor.Balance
         public static List<PlayerAttackSummary> ExtractPlayerAttackData()
         {
             var result = new List<PlayerAttackSummary>();
-            foreach (PlayerAttackDataSO asset in LoadAll<PlayerAttackDataSO>())
+            foreach (AbilitySetSO asset in LoadAll<AbilitySetSO>())
             {
+                if (asset.combatBindings == null || asset.combatBindings.Count == 0)
+                    continue;
+                PlayerCombatAbilityDataView view =
+                    PlayerCombatAbilityDataView.Build(asset);
                 var summary = new PlayerAttackSummary
                 {
                     Asset = asset,
                     AssetName = asset.name,
                     Path = AssetDatabase.GetAssetPath(asset),
-                    LiteCount = Count(asset.liteComboAttackList),
-                    HeavyCount = Count(asset.heavyComboAttackList),
-                    JumpCount = Count(asset.jumpAttackList),
-                    DashCount = Count(asset.dashAttackList),
-                    SkillCount = Count(asset.skillAttackList),
-                    ChargeStageCount = asset.chargeStages?.Count ?? 0,
-                    ComboRouteCount = asset.comboRoutes?.Count ?? 0,
+                    LiteCount = Count(view.liteComboAttackList),
+                    HeavyCount = Count(view.heavyComboAttackList),
+                    JumpCount = Count(view.jumpAttackList),
+                    DashCount = Count(view.dashAttackList),
+                    SkillCount = Count(view.skillAttackList),
+                    ChargeStageCount = view.chargeStages?.Count ?? 0,
+                    ComboRouteCount = view.comboRoutes?.Count ?? 0,
                 };
 
-                var attacks = new List<PlayerAttackInfo>();
-                AddRange(attacks, asset.liteComboAttackList);
-                AddRange(attacks, asset.heavyComboAttackList);
-                AddRange(attacks, asset.jumpAttackList);
-                AddRange(attacks, asset.dashAttackList);
-                AddRange(attacks, asset.skillAttackList);
-                AddOne(attacks, asset.counterAttack);
-                AddOne(attacks, asset.parryCounterAttack);
-                AddOne(attacks, asset.entryAttack);
-                AddOne(attacks, asset.swapEvadeCounterAttack);
-                AddOne(attacks, asset.swapSpecialAttack);
+                List<PlayerAttackInfo> attacks =
+                    BalanceAttackAnalyzer.CollectAttacks(asset);
 
                 float total = 0f;
                 int counted = 0;

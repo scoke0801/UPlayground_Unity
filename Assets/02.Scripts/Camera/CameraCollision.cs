@@ -47,8 +47,8 @@ namespace UPlayGround.CameraSystem
             {
                 // 정설(asymmetric damping): 당김은 즉시. 스무딩하면 그 몇 프레임 동안 카메라가
                 // 벽 뒤에 남아 지오메트리 내부가 비친다(클리핑). 안전 우선이라 속도 제한도 두지 않는다.
-                // 당김 타깃(heldBlockedDistance)은 MultiProbe+법선필터+히스테리시스로 안정화되어
-                // 단조 수렴하므로 즉시 스냅해도 평면 벽에서는 부드럽게 추종한다.
+                // 당김 타깃은 MultiProbe+법선 필터로 안정화한다.
+                // 더 가까워질 때만 즉시 스냅하고, 확보 공간이 늘어날 때는 아래 복귀 감쇠를 사용한다.
                 _collisionDistance = targetDistance;
                 _collisionDistanceVel = 0f;
             }
@@ -102,8 +102,11 @@ namespace UPlayGround.CameraSystem
                     _isCollisionActive = true;
                     _heldBlockedDistance = blockedDistance;
                 }
-                else if (blockedDistance < _heldBlockedDistance - enterEpsilon)
+                else if (Mathf.Abs(blockedDistance - _heldBlockedDistance) > enterEpsilon)
                 {
+                    // 충돌 상태가 완전히 해제되기 전이라도 장애물이 멀어지면 확보된 거리만큼
+                    // 복귀 타깃을 갱신한다. Evaluate의 비대칭 감쇠가 안쪽은 즉시,
+                    // 바깥쪽은 collisionReturnSpeed로 부드럽게 처리한다.
                     _heldBlockedDistance = blockedDistance;
                 }
 

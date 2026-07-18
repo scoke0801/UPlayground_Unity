@@ -1,6 +1,6 @@
 # 전투 시스템 가이드
 
-> 작성일: 2026-06-03  
+> 작성일: 2026-06-03 / Ability 데이터 구조 갱신: 2026-07-18
 > 대상 버전: Unity 6 (6000.0.60f1), URP
 
 ---
@@ -13,7 +13,7 @@
 
 - 공격 실행은 상태(`PlayerAttackState`, `EnemyAttackState`)가 시작하고, 실제 공격 데이터와 판정은 `PlayerCombat`, `EnemyCombat`이 담당한다.
 - 판정 타이밍은 애니메이션 클립이 아니라 `MotionSet`의 `BeginCollisionEvent`, `TelegraphEvent`, `SpawnProjectileEvent`, `MotionEvent_MotionWarp` 등으로 제어한다.
-- 공격 수치는 `PlayerAttackDataSO`, `EnemyAttackDataSO`의 `AttackInfoBase.hitPhases`와 `HitPhaseData`에 들어간다.
+- 플레이어 공격 수치는 `AbilitySetSO → GameplayAbilitySO.Variant → UPlayGroundMotionAbilityPayloadSO`의 `PlayerAttackInfo`에, 몬스터 공격 수치는 `EnemyAttackDataSO`에 들어간다.
 - 피해 적용은 `IDamageable.TakeDamage(AttackData)`로 통일되어 있고, 피해량 계산은 `DamageResolver`가 담당한다.
 - 방어 판정은 `DefenseResolver`, 피격 상태 결정은 `ReactionResolver`, 근접 히트 탐색은 `CombatHitDetector`가 담당한다.
 - 공격 적중 피드백은 `CombatFeedbackDispatcher`를 통해 `GameHitStopHandler`, `GameVitalOrbHandler`, `CameraManager`, `UIManager`, `GameObjectManager`로 전달된다.
@@ -34,7 +34,7 @@
 | 전투 상태 | `PlayerCombatStateTracker` 추가 | 플레이어 전투 유지 시간, 위협 탐색, 전투 상태 변화 이벤트가 `PlayerCombat`에서 분리 |
 | 액션 실행 | `CombatActionRunner`, `CombatActionDefinition`, `CombatActionInstance`, `CombatTimelineEvent` 추가 | 기존 MotionEvent 직접 호출과 병행되는 공격 실행 컨텍스트 경로 확보 |
 | 정책 데이터 | `CombatDefensePolicySO`, `CombatReactionPolicySO`, `CombatPolicyResolver` 추가 | ActorDefinition 단위로 방어 가능 여부와 몬스터 등급별 리액션 허용 규칙을 데이터화 |
-| 데이터 검증 | `CombatDataValidator`, `CombatDataValidatorWindow` 추가 | `PlayerAttackDataSO`, `EnemyAttackDataSO` 기본 오류/경고 검증과 Markdown 리포트 저장 지원 |
+| 데이터 검증 | `CombatDataValidator`, `CombatDataValidatorWindow` 추가 | `AbilitySetSO`, `EnemyAttackDataSO` 기본 오류/경고 검증과 Markdown 리포트 저장 지원 |
 
 현재 `PlayerCombat`과 `EnemyCombat`은 공격 데이터 선택, 콤보/쿨다운, 판정 루프를 계속 가진다. `CombatActionRunner`는 현재 action, phase, collision window를 소유하고, MotionEvent의 actor 분기는 runner를 통해 Combat executor로 전달된다.
 
@@ -48,7 +48,7 @@ Input / AI / BT
     ├── PlayerMovementController ── PlayerAttackState / Guard / Dodge / Hit ...
     │       │
     │       └── PlayerCombat
-    │              ├── PlayerAttackDataSO
+    │              ├── PlayerCombatAbilityDataView ← AbilitySetSO
     │              ├── AttackData 생성
     │              ├── 콤보 / 캔슬
     │              ├── PlayerCombatStateTracker
@@ -115,7 +115,10 @@ IDamageable.TakeDamage(AttackData)
 | `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AttackInfoBase`, `HitPhaseData`, `EnemyAttackInfo`, `PlayerAttackInfo`, `AttackData` |
 | `Assets/02.Scripts/Data/Combat/CombatDefensePolicySO.cs` | ActorDefinition 단위 방어 정책. `Unblockable`에 대한 Guard/Parry/PerfectDodge 허용 여부 |
 | `Assets/02.Scripts/Data/Combat/CombatReactionPolicySO.cs` | 몬스터 등급별 리액션 정책. forceReaction, Poise Break 요구, 상태별 허용 여부 |
-| `Assets/02.Scripts/Data/Combat/PlayerAttackDataSO.cs` | 플레이어 약/강/점프/대시/스킬/차지/교체 공격 데이터 |
+| `Assets/02.Scripts/Data/Ability/AbilitySetSO.cs` | 플레이어 공격·스킬 로드아웃과 콤보·차지 연결 |
+| `Assets/02.Scripts/Data/Ability/GameplayAbilitySO.cs` | 조건·비용·쿨다운·Variant 정의 |
+| `Assets/02.Scripts/Ability/UPlayGround/UPlayGroundMotionAbilityPayloadSO.cs` | Variant 실행용 `AnimKey`와 `PlayerAttackInfo` |
+| `Assets/02.Scripts/GameActor/Gameplay/Ability/PlayerCombatAbilityDataView.cs` | AbilitySet을 기존 PlayerCombat 실행 형태로 해석하는 읽기 전용 뷰 |
 | `Assets/02.Scripts/Data/Combat/EnemyAttackDataSO.cs` | 몬스터 스킬 풀, 거리/레벨/가중치 기반 선택 |
 | `Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs` | 몬스터 강인도 런타임 처리 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/MonsterBreakGauge.cs` | 몬스터 브레이크 게이지, 노출, 반복 쿨다운 |
@@ -150,9 +153,11 @@ IDamageable.TakeDamage(AttackData)
 
 런타임 판정에는 `AttackData`가 사용된다. `PlayerCombat`과 `EnemyCombat`은 SO 값을 읽어 `AttackData`를 만들고, 피격 대상의 `TakeDamage(AttackData)`에 전달한다.
 
-### 플레이어 공격 데이터
+### 플레이어 Ability 데이터
 
-`PlayerAttackDataSO`는 캐릭터별 공격 풀이다.
+`AbilitySetSO`가 캐릭터별 공격 풀의 단일 소스다. 각 라우트는 `GameplayAbilitySO`를 참조하고,
+선택된 Variant의 `UPlayGroundMotionAbilityPayloadSO`가 `AnimKey`와 `PlayerAttackInfo`를 제공한다.
+`PlayerCombatAbilityDataView`는 이를 아래 실행 분류로 해석하지만 별도 직렬화 복사본을 만들지 않는다.
 
 | 필드 | 용도 |
 |------|------|
@@ -496,8 +501,8 @@ Markdown 리포트는 `Expected Duration` 입력값이 0보다 크면 실제 로
 
 ### 플레이어 캐릭터
 
-1. 활성 모델의 `CharacterModelData`에 캐릭터 타입, 기본 무기 타입, `PlayerAttackDataSO`, 체력 값을 설정한다.
-2. `PlayerAttackDataSO`에 약/강/점프/대시/스킬/차지 공격 데이터를 등록한다.
+1. 활성 모델의 `CharacterModelData`에 캐릭터 타입, 기본 무기 타입, `AbilitySetSO`, 체력 값을 설정한다.
+2. Ability Editor에서 Set의 약/강/점프/대시/스킬/차지·교체 공격 Ability를 연결하고 Variant Payload를 편집한다.
 3. 각 `AttackInfoBase.animKey`에 대응하는 `MotionSetAsset`이 `PlayerActorAnimationMotionSet`에 등록되어 있어야 한다.
 4. MotionSet에 `BeginCollisionEvent`와 필요 시 `ComboWindowEvent`, `MotionEvent_MotionWarp`, 카메라/TimeScale 이벤트를 배치한다.
 5. 멀티 히트 공격은 `hitPhases` 개수와 `BeginCollisionEvent.hitPhaseIndex`를 맞춘다.
@@ -583,7 +588,7 @@ playerCombat.NotifyAttackHit(attackData);
 
 ## 확장 포인트
 
-- 새 플레이어 공격 타입은 `PlayerAttackDataSO`에 데이터 필드를 추가한 뒤 `PlayerCombat.Execute*()`와 `PlayerAttackState.GetAnimKey()` 우선순위에 연결한다.
+- 새 플레이어 공격 타입은 `AbilitySetSO`의 명시적 라우트 또는 `playerSlots`에 `GameplayAbilitySO`를 연결하고, Variant 조건과 Payload를 추가한 뒤 `PlayerCombatAbilityDataView` 및 실행 상태가 해당 라우트를 해석하도록 확장한다.
 - 새 몬스터 공격 선택 규칙은 `EnemyAttackInfo.conditionGroup` 또는 `EnemyCombat.GetAvailableSkills()` 필터에 추가한다.
 - 새 피격 반응은 `AttackReactionType` 추가 후 `ReactionResolver`, `PlayerActor.OnDamaged()`, `MonsterActor.OnDamaged()`, 필요 시 `CombatReactionPolicySO`를 함께 확장한다.
 - 새 방어 분류는 `AttackDefenseType`, `DefenseResolver`, `CombatDefensePolicySO`, `PlayerGuardState`, `UI_DangerRing` 색/표현 규칙을 같이 갱신한다.

@@ -60,7 +60,7 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         public static int CollectAttackData(CharacterModelData model, List<UnityEngine.Object> into)
-            => model != null && model.attackData != null && AddUnique(into, model.attackData) ? 1 : 0;
+            => model != null && model.abilitySet != null && AddUnique(into, model.abilitySet) ? 1 : 0;
 
         /// <summary>
         /// 지정한 무기 타입의 MotionSet만 수집한다(+ fallback 체인). 컨테이너의 모든 무기 타입을

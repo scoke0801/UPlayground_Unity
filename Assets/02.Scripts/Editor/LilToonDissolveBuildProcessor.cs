@@ -63,7 +63,6 @@ namespace UPlayGround.Editor
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DissolveMask");
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DissolveNoiseMask");
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DITHER");
-            SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DISTANCE_FADE");
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_ALPHAMASK");
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_AlphaMask");
 

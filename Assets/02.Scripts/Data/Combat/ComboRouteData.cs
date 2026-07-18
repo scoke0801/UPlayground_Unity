@@ -42,7 +42,7 @@ namespace UPlayGround.Data.Combat
     /// <summary>
     /// 하나의 연계 라우트(연계스킬) 정의.
     /// 입력 패턴이 일치하고 태그/상태/자원 조건을 통과할 때 대응 공격을 실행한다.
-    /// PlayerAttackDataSO.comboRoutes 리스트에 등록한다.
+    /// 런타임에서는 AbilitySetSO.comboRoutes를 이 형태로 해석해 사용한다.
     /// </summary>
     [Serializable]
     public class ComboRouteEntry

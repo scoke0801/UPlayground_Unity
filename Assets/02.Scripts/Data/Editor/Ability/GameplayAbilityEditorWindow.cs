@@ -24,7 +24,6 @@ namespace UPlayGround.Data.Editor.Ability
         private UnityEngine.Object _selected;
         private string _filter = "전체";
         private string _activeTab = "기본 정보";
-        private ObjectField _legacySource;
         private VisualElement _main;
         private VisualElement _assetColumn;
         private Label _toolbarPathLabel;
@@ -100,9 +99,6 @@ namespace UPlayGround.Data.Editor.Ability
             toolbar.Add(MakeToolbarButton("새 Ability", () => CreateAsset<GameplayAbilitySO>("GA_")));
             toolbar.Add(MakeToolbarButton("새 Effect", () => CreateAsset<GameplayEffectSO>("GE_")));
             toolbar.Add(MakeToolbarButton("새 Set", () => CreateAsset<AbilitySetSO>("AbilitySet_")));
-            toolbar.Add(MakeToolbarButton(
-                "일괄 변환",
-                AbilityBatchMigrationWindow.Open));
             toolbar.Add(MakeToolbarButton("전체 검증", ValidateAll));
 
             var delete = MakeToolbarButton("선택 삭제", DeleteSelected);
@@ -116,27 +112,6 @@ namespace UPlayGround.Data.Editor.Ability
             toolbar.Add(save);
             toolbarScroll.Add(toolbar);
             rootVisualElement.Add(toolbarScroll);
-        }
-
-        private void ConvertSelectedPayload()
-        {
-            if (_selected is not GameplayAbilitySO ability)
-            {
-                EditorUtility.DisplayDialog(
-                    "Payload 변환",
-                    "변환할 GameplayAbilitySO를 에셋 목록에서 선택하세요.",
-                    "확인");
-                return;
-            }
-
-            int converted = AbilityPayloadMigration.ConvertLegacyVariants(ability);
-            EditorUtility.DisplayDialog(
-                "Payload 변환",
-                converted > 0
-                    ? $"{converted}개 Variant를 비파괴 변환했습니다."
-                    : "변환할 레거시 Variant가 없습니다.",
-                "확인");
-            RebuildDetail();
         }
 
         private void BuildTabs()
@@ -471,6 +446,13 @@ namespace UPlayGround.Data.Editor.Ability
                 AddSummary("주기", effect.IsPeriodic ? $"{effect.periodSeconds:0.##}s" : "없음");
                 AddSummary("최대 스택", effect.maxStackCount.ToString());
             }
+            else if (_selected is AbilitySetSO set)
+            {
+                AddSummary("스킬 슬롯", (set.playerSlots?.Count ?? 0).ToString());
+                AddSummary("전투 슬롯", (set.combatBindings?.Count ?? 0).ToString());
+                AddSummary("차지 단계", (set.charge?.stages?.Count ?? 0).ToString());
+                AddSummary("연계 라우트", (set.comboRoutes?.Count ?? 0).ToString());
+            }
 
             _summary.Add(SectionHeader("현재 상태"));
             _validation = new VisualElement();
@@ -718,28 +700,6 @@ namespace UPlayGround.Data.Editor.Ability
             RebuildValidation();
         }
 
-        private void ConvertLegacy()
-        {
-            if (_legacySource.value is not PlayerAttackDataSO source)
-            {
-                ShowNotification(new GUIContent("PlayerAttackDataSO를 선택하세요."));
-                return;
-            }
-            string absolute = EditorUtility.OpenFolderPanel(
-                "변환 데이터 저장 폴더", Application.dataPath + "/10.Datas/Ability", "");
-            if (string.IsNullOrEmpty(absolute)) return;
-            string normalized = absolute.Replace('\\', '/');
-            string dataPath = Application.dataPath.Replace('\\', '/');
-            if (!normalized.StartsWith(dataPath, StringComparison.Ordinal))
-            {
-                EditorUtility.DisplayDialog("잘못된 경로", "Assets 내부 폴더를 선택하세요.", "확인");
-                return;
-            }
-            string folder = "Assets" + normalized.Substring(dataPath.Length);
-            AbilityMigrationUtility.Convert(source, folder);
-            RefreshAssets();
-        }
-
         private void HandleUndoRedo()
         {
             RefreshAssets();
@@ -774,9 +734,24 @@ namespace UPlayGround.Data.Editor.Ability
                 };
             }
             if (target is AbilitySetSO)
-                return tab == "기본 정보"
-                    ? new[] { "playerSlots", "additionalAbilities" }
-                    : Array.Empty<string>();
+            {
+                return tab switch
+                {
+                    "기본 정보" => new[]
+                    {
+                        "playerSlots",
+                        "combatBindings",
+                        "additionalAbilities",
+                    },
+                    "활성화 조건" => new[]
+                    {
+                        "comboRoutes",
+                        "comboLinkWindow",
+                    },
+                    "Variant" => new[] { "charge" },
+                    _ => Array.Empty<string>(),
+                };
+            }
             return Array.Empty<string>();
         }
 

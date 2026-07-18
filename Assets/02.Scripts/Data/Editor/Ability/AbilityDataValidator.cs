@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
@@ -246,7 +247,7 @@ namespace UPlayGround.Data.Editor.Ability
         {
             if (set == null) return;
             var seenSlots = new HashSet<Data.Combat.PlayerSkillSlot>();
-            for (int i = 0; i < set.playerSlots.Count; i++)
+            for (int i = 0; i < (set.playerSlots?.Count ?? 0); i++)
             {
                 AbilitySetSO.PlayerSlotEntry entry = set.playerSlots[i];
                 if (entry == null || entry.ability == null)
@@ -254,9 +255,50 @@ namespace UPlayGround.Data.Editor.Ability
                 else if (!seenSlots.Add(entry.slot))
                     Error(set, $"'{entry.slot}' 슬롯이 중복되었습니다.", issues);
             }
-            for (int i = 0; i < set.additionalAbilities.Count; i++)
+            for (int i = 0; i < (set.additionalAbilities?.Count ?? 0); i++)
                 if (set.additionalAbilities[i] == null)
                     Error(set, $"추가 Ability {i}번 참조가 없습니다.", issues);
+
+            var seenCombatSlots = new HashSet<PlayerCombatAbilitySlot>();
+            for (int i = 0; i < (set.combatBindings?.Count ?? 0); i++)
+            {
+                PlayerCombatAbilityBinding binding = set.combatBindings[i];
+                if (binding == null)
+                {
+                    Error(set, $"전투 슬롯 {i}가 null입니다.", issues);
+                    continue;
+                }
+                if (!seenCombatSlots.Add(binding.slot))
+                    Error(set, $"전투 슬롯 '{binding.slot}'이 중복되었습니다.", issues);
+                if (binding.abilities == null || binding.abilities.Count == 0)
+                    Error(set, $"전투 슬롯 '{binding.slot}'에 Ability가 없습니다.", issues);
+                else
+                    for (int j = 0; j < binding.abilities.Count; j++)
+                        if (binding.abilities[j] == null)
+                            Error(set, $"전투 슬롯 '{binding.slot}' {j}번 참조가 없습니다.", issues);
+            }
+
+            int stageCount = set.charge?.stages?.Count ?? 0;
+            int thresholdCount = set.charge?.stageThresholds?.Count ?? 0;
+            if (thresholdCount > 0 && thresholdCount != Mathf.Max(0, stageCount - 1))
+                Error(
+                    set,
+                    $"차지 임계값 수({thresholdCount})는 단계 수 - 1({Mathf.Max(0, stageCount - 1)})이어야 합니다.",
+                    issues);
+            for (int i = 0; i < stageCount; i++)
+                if (set.charge.stages[i] == null)
+                    Error(set, $"차지 단계 {i}의 Ability 참조가 없습니다.", issues);
+
+            for (int i = 0; i < (set.comboRoutes?.Count ?? 0); i++)
+            {
+                AbilityComboRouteDefinition route = set.comboRoutes[i];
+                if (route == null)
+                    Error(set, $"연계 라우트 {i}가 null입니다.", issues);
+                else if (route.ability == null)
+                    Error(set, $"연계 라우트 '{route.DisplayLabel}'의 Ability 참조가 없습니다.", issues);
+                else if (route.IsEmpty)
+                    Warning(set, $"연계 라우트 '{route.DisplayLabel}'의 입력 패턴이 비어 있습니다.", issues);
+            }
         }
 
         private static void ValidateEffectReferences(

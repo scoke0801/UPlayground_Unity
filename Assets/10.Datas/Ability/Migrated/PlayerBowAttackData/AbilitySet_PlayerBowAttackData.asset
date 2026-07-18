@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_PlayerBowAttackData
+  m_EditorClassIdentifier: 
+  playerSlots:
+  - slot: 0
+    ability: {fileID: 11400000, guid: e11147570bbcc0e44bc106c45b90db3f, type: 2}
+  - slot: 1
+    ability: {fileID: 11400000, guid: b3ba0bb92e54d634da7877ec443b7898, type: 2}
+  additionalAbilities: []
+  combatBindings:
+  - slot: 0
+    abilities:
+    - {fileID: 11400000, guid: ad518fe050f8a2d46bc43777cecfbe27, type: 2}
+    - {fileID: 11400000, guid: c68194e817b35b141ae6edb18db842a6, type: 2}
+    - {fileID: 11400000, guid: 82256b22b83d03c4490e8e5f84550563, type: 2}
+    - {fileID: 11400000, guid: fc9c2a973436e2f428d0fc2d750585f1, type: 2}
+    - {fileID: 11400000, guid: 6adedb7f1fe95964299950cd52cfc5be, type: 2}
+  - slot: 4
+    abilities:
+    - {fileID: 11400000, guid: 361b099c18989a5448ba7f1c4ab93944, type: 2}
+  - slot: 5
+    abilities:
+    - {fileID: 11400000, guid: 5a720f68ae3029d4288835a2e85c8be6, type: 2}
+  - slot: 6
+    abilities:
+    - {fileID: 11400000, guid: 9529f2c3a4ea3984e8d237dffa8c7b74, type: 2}
+  - slot: 7
+    abilities:
+    - {fileID: 11400000, guid: 16e6c57013b3b9d4795435b4b75f5ab8, type: 2}
+  - slot: 8
+    abilities:
+    - {fileID: 11400000, guid: f38e62b3166f108489f6cc75120d5db6, type: 2}
+  - slot: 9
+    abilities:
+    - {fileID: 11400000, guid: 325e9ab570ddc0047b9ba1c877d6066e, type: 2}
+  - slot: 10
+    abilities:
+    - {fileID: 11400000, guid: f389b7e45dde03e4f8a908c8af3c0ea1, type: 2}
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 5
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

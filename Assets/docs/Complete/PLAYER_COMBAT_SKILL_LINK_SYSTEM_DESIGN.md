@@ -1,5 +1,7 @@
 # 플레이어 전투 스킬/연계 시스템 고도화 설계 문서
 
+> **보관 문서 주의:** 이 문서는 Ability 전환 전 스킬/연계 구조의 작업 기록이다. 현재 단일 소스는 `AbilitySetSO`이며 최신 기준은 `../TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 > 상태: **Phase 1 구현됨 (Unity 컴파일·플레이 검증 대기)**.
 > 작성일: 2026-05-31 / 구현: 2026-05-31
 > 레퍼런스: **명조(Wuthering Waves)** 전투 구조 (Basic / Heavy / Resonance Skill / Liberation / Forte / Intro·Outro)

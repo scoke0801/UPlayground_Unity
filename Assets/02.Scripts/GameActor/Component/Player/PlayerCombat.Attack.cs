@@ -64,7 +64,7 @@ namespace UPlayGround.Components
         
         public float[] GetChargeStageThresholds()
         {
-            int stageCount = _attackData.chargeStageThresholds?.Count ?? 0;
+            int stageCount = _attackData.chargeStages?.Count ?? 0;
             if (stageCount <= 1) return System.Array.Empty<float>();
 
             var configured = _attackData.chargeStageThresholds;
@@ -302,12 +302,12 @@ namespace UPlayGround.Components
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             ClearResidualAttackContext();
-            if (!TryResolveSkill(skillIndex, out PlayerSkillResolveResult resolved)) return null;
+            if (!TryResolveSkill(skillIndex, out PlayerAttackInfo attackInfo, out AnimKey animKey)) return null;
 
             _attackState = AttackState.SkillAttack;
             ResetComboPreserveChains();
-            _currentAttackData = ConvertToAttackData(resolved.AttackInfo, AttackKind.SkillAttack);
-            _currentAttackData.animKey = resolved.AnimKey;
+            _currentAttackData = ConvertToAttackData(attackInfo, AttackKind.SkillAttack);
+            _currentAttackData.animKey = animKey;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);

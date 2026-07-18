@@ -1,0 +1,435 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6425298137067441236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: GA_PlayerBowAttackData_Ability_Skill_4_Payload
+  m_EditorClassIdentifier: 
+  executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_4
+  animKey: 503
+  playerAttackInfo:
+    baseInfo:
+      animKey: 503
+      attackType: 0
+      hitPhases:
+      - damage: 155
+        poiseDamage: 465
+        breakDamage: 166
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 61
+    moveCancelDelayAfterLastHit: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_PlayerBowAttackData_Ability
+  m_EditorClassIdentifier: 
+  abilityId: Ability.Player.PlayerBowAttackData.Ability
+  schemaVersion: 1
+  presentation:
+    displayName: Ability
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 0}
+    hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
+    category: 0
+    ownerType: 0
+  abilityTagIds: 
+  activation:
+    requiredTagIds: 
+    blockedTagIds: 
+    executionGrantedTagIds: 
+    groundCondition: 0
+    targetPolicy: 0
+    targetRelation: 2
+    minDistance: 0
+    maxDistance: 0
+  cost:
+    resourceType: 0
+    policy: 0
+    value: 0
+  cooldown:
+    durationSeconds: 3
+    cooldownGroupId: Cooldown.Player.GA_PlayerBowAttackData_Ability
+  concurrency: 2
+  variants:
+  - variantId: Default
+    priority: 0
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: 
+      blockedTagIds: 
+    executionPayload: {fileID: 2166548816649415960}
+    targetEffects: []
+    ownerEffects: []
+  - variantId: Skill_3
+    priority: 2
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: 
+      blockedTagIds: 
+    executionPayload: {fileID: 8589718301081052317}
+    targetEffects: []
+    ownerEffects: []
+  - variantId: Skill_4
+    priority: 3
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: 
+      blockedTagIds: 
+    executionPayload: {fileID: -6425298137067441236}
+    targetEffects: []
+    ownerEffects: []
+  - variantId: Skill_5
+    priority: 4
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: 
+      blockedTagIds: 
+    executionPayload: {fileID: 3516406023466531942}
+    targetEffects: []
+    ownerEffects: []
+  commitEffects: []
+  endEffects: []
+  cues:
+    startCueId: 
+    failureCueId: 
+    endCueId: 
+    cooldownReadyCueId: 
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+  balance:
+    expectedDamage: 0
+    expectedDuration: 0
+    roleTags: []
+    designerNotes: 
+--- !u!114 &2166548816649415960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: GA_PlayerBowAttackData_Ability_Default_Payload
+  m_EditorClassIdentifier: 
+  executionId: Ability.Player.PlayerBowAttackData.Ability.Default
+  animKey: 500
+  playerAttackInfo:
+    baseInfo:
+      animKey: 500
+      attackType: 0
+      hitPhases:
+      - damage: 142
+        poiseDamage: 426
+        breakDamage: 152
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 61
+    moveCancelDelayAfterLastHit: 0
+--- !u!114 &3516406023466531942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: GA_PlayerBowAttackData_Ability_Skill_5_Payload
+  m_EditorClassIdentifier: 
+  executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_5
+  animKey: 504
+  playerAttackInfo:
+    baseInfo:
+      animKey: 504
+      attackType: 0
+      hitPhases:
+      - damage: 210
+        poiseDamage: 630
+        breakDamage: 225
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 61
+    moveCancelDelayAfterLastHit: 0
+--- !u!114 &8589718301081052317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: GA_PlayerBowAttackData_Ability_Skill_3_Payload
+  m_EditorClassIdentifier: 
+  executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_3
+  animKey: 502
+  playerAttackInfo:
+    baseInfo:
+      animKey: 502
+      attackType: 0
+      hitPhases:
+      - damage: 148
+        poiseDamage: 444
+        breakDamage: 159
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 61
+    moveCancelDelayAfterLastHit: 0

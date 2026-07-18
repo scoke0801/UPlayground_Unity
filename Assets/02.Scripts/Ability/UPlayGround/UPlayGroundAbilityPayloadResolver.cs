@@ -15,19 +15,12 @@ namespace UPlayGround.Ability.UPlayGround
             attackInfo = null;
             if (variant == null) return false;
 
-            if (variant.executionPayload != null)
-            {
-                if (variant.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
-                    return false;
-                animKey = payload.ResolveAnimKey();
-                attackInfo = payload.playerAttackInfo;
-                return payload.IsExecutable;
-            }
+            if (variant.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
+                return false;
 
-            // V1 에셋 호환: 기존 Variant 내부 직렬화 데이터는 명시적 변환 전까지 유지한다.
-            animKey = variant.ResolveLegacyAnimKey();
-            attackInfo = variant.playerAttackInfo;
-            return variant.HasLegacyExecutionData;
+            animKey = payload.ResolveAnimKey();
+            attackInfo = payload.playerAttackInfo;
+            return payload.IsExecutable;
         }
     }
 }

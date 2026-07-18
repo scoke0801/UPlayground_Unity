@@ -58,7 +58,8 @@ namespace UPlayGround.Tests.Editor
             string resultName)
         {
             var api = ScriptableObject.CreateInstance<TestRunnerApi>();
-            api.RegisterCallbacks(new ResultWriter(resultName));
+            var writer = new ResultWriter(resultName, api);
+            api.RegisterCallbacks(writer);
             api.Execute(new ExecutionSettings(new Filter
             {
                 testMode = mode,
@@ -70,10 +71,12 @@ namespace UPlayGround.Tests.Editor
         private sealed class ResultWriter : ICallbacks
         {
             private readonly string _resultName;
+            private readonly TestRunnerApi _api;
 
-            public ResultWriter(string resultName)
+            public ResultWriter(string resultName, TestRunnerApi api)
             {
                 _resultName = resultName;
+                _api = api;
             }
 
             public void RunStarted(ITestAdaptor testsToRun)
@@ -88,6 +91,8 @@ namespace UPlayGround.Tests.Editor
                     $"[AbilityTestAutomation] {_resultName} 완료: "
                     + $"성공 {result.PassCount}, 실패 {result.FailCount}, "
                     + $"건너뜀 {result.SkipCount}, 결과 {path}");
+                _api.UnregisterCallbacks(this);
+                UnityEngine.Object.DestroyImmediate(_api);
             }
 
             public void TestStarted(ITestAdaptor test)

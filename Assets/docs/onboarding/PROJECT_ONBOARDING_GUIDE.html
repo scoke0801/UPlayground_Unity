@@ -448,7 +448,7 @@
     <li><strong>MotionEvent</strong> — <code>MotionEventExecutor</code>가 타임라인 시점에 히트박스 활성화·VFX·SFX 등
         이벤트를 발화. 이벤트 클래스는 <code>[SerializeReference]</code>로 에셋에 직렬화됩니다 (14장 MovedFrom 함정 참고).</li>
     <li><strong>레이어</strong> — <code>AvatarMask</code>로 상체/하체 분리 지원.</li>
-    <li><strong>전투 흐름</strong> — 공격 데이터(<code>PlayerAttackDataSO</code>/<code>EnemyAttackDataSO</code>, 다단 <code>HitPhaseData</code>)
+    <li><strong>전투 흐름</strong> — 플레이어 Ability Payload 또는 <code>EnemyAttackDataSO</code>의 공격 데이터(다단 <code>HitPhaseData</code>)
         → 히트 판정(<code>CombatHitbox</code>) → <code>AttackData</code>(런타임) → 피격 리액션/히트스톱/카메라 피드백
         (<code>CombatFeedbackDispatcher</code>).</li>
     <li><strong>편집 툴</strong> — 애니메이션 에디터(MotionSetWindow)에 전투 트랙/히트박스 오버레이·프레임 테이블이 통합되어 있습니다.</li>
@@ -465,7 +465,8 @@
       <tr><th>SO</th><th>역할</th></tr>
       <tr><td><code>ActorStatSO</code></td><td>액터 스탯의 <strong>단일 소스</strong> (구 EnemyStatsSO는 제거됨)</td></tr>
       <tr><td><code>EnemyBehaviorSO</code></td><td>페이즈 기반 AI 프로필 — HP 임계값에 따른 행동 전환 + BT 에셋 연결</td></tr>
-      <tr><td><code>PlayerAttackDataSO</code> / <code>EnemyAttackDataSO</code></td><td>다단 HitPhase 공격 데이터 (데미지·포이즈·리액션·캔슬 윈도우)</td></tr>
+      <tr><td><code>AbilitySetSO</code> / <code>GameplayAbilitySO</code> / Motion Payload</td><td>플레이어 공격·스킬의 단일 소스. 조건·비용·쿨다운·Variant와 실행용 AnimKey/PlayerAttackInfo</td></tr>
+      <tr><td><code>EnemyAttackDataSO</code></td><td>몬스터용 다단 HitPhase 공격 데이터</td></tr>
       <tr><td><code>MotionSetAsset</code></td><td>애니메이션 타임라인 정의</td></tr>
       <tr><td><code>PartyConfigSO</code></td><td>시작 파티 순서·초기 활성 캐릭터</td></tr>
       <tr><td><code>CameraShakeData</code> · FOV 등</td><td>카메라 이펙트 데이터</td></tr>
@@ -641,7 +642,8 @@
     <table>
       <tr><th>툴</th><th>메뉴 경로</th><th>하는 일</th></tr>
       <tr><td><strong>애니메이션 에디터</strong></td><td>캐릭터 → 액터 → 애니메이션 에디터</td><td>MotionSet 타임라인 저작의 중심. 클립 체이닝, MotionEvent 배치, 전투 트랙/히트박스 오버레이, 프레임 데이터 테이블, 루트모션 프리뷰까지 통합</td></tr>
-      <tr><td><strong>공격 데이터 에디터</strong></td><td>게임플레이 → 전투 → 공격 데이터 에디터</td><td><code>PlayerAttackDataSO</code>/<code>EnemyAttackDataSO</code>의 다단 HitPhase·리액션·캔슬 윈도우 편집</td></tr>
+      <tr><td><strong>Ability 에디터</strong></td><td>게임플레이 → Ability Editor</td><td>플레이어 <code>AbilitySetSO</code>·Ability·Effect·Variant Payload 편집과 전체 검증</td></tr>
+      <tr><td><strong>공격 데이터 에디터</strong></td><td>게임플레이 → 전투 → 공격 데이터 에디터</td><td>몬스터 <code>EnemyAttackDataSO</code>의 다단 HitPhase·리액션·캔슬 윈도우 편집</td></tr>
       <tr><td><strong>치트 콘솔</strong></td><td>유틸 → 치트 콘솔 (<code>Ctrl+Alt+C</code>)</td><td>플레이 중 스탯/아이템/시간/플래그 치트. 런타임 치트 패널(<code>UI_DevCheatPanel</code>)과 짝</td></tr>
       <tr><td><strong>액터 런타임 모니터</strong></td><td>캐릭터 → 액터 → 액터 런타임 모니터</td><td>플레이 중 액터 상태머신·태그·스탯 실시간 관찰 (스탯 전용은 스탯 런타임 모니터)</td></tr>
       <tr><td><strong>씬 핫키</strong></td><td>Tools → 씬 핫키 (<code>Ctrl+H</code>)</td><td>지정 씬 바로 플레이 — 반복 테스트 필수품</td></tr>

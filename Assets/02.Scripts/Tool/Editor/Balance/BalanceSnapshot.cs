@@ -7,9 +7,11 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -153,8 +155,9 @@ namespace UPlayGround.Tool.Editor.Balance
                 snapshot.actors.Add(CaptureActor(def));
             snapshot.actors.Sort((a, b) => string.CompareOrdinal(a.actorId, b.actorId));
 
-            foreach (PlayerAttackDataSO asset in LoadAll<PlayerAttackDataSO>())
-                snapshot.playerAttacks.Add(CapturePlayerAttack(asset));
+            foreach (AbilitySetSO asset in LoadAll<AbilitySetSO>())
+                if (asset.combatBindings != null && asset.combatBindings.Count > 0)
+                    snapshot.playerAttacks.Add(CapturePlayerAttack(asset));
             snapshot.playerAttacks.Sort((a, b) => string.CompareOrdinal(a.assetName, b.assetName));
 
             return snapshot;
@@ -218,7 +221,7 @@ namespace UPlayGround.Tool.Editor.Balance
             return actor;
         }
 
-        private static PlayerAttackSnapshot CapturePlayerAttack(PlayerAttackDataSO asset)
+        private static PlayerAttackSnapshot CapturePlayerAttack(AbilitySetSO asset)
         {
             var snapshot = new PlayerAttackSnapshot
             {
@@ -226,16 +229,18 @@ namespace UPlayGround.Tool.Editor.Balance
                 assetName = asset.name,
             };
 
-            CaptureSlotList(snapshot, "lite", asset.liteComboAttackList);
-            CaptureSlotList(snapshot, "heavy", asset.heavyComboAttackList);
-            CaptureSlotList(snapshot, "jump", asset.jumpAttackList);
-            CaptureSlotList(snapshot, "dash", asset.dashAttackList);
-            CaptureSlotList(snapshot, "skill", asset.skillAttackList);
-            CaptureSlot(snapshot, "counter", asset.counterAttack);
-            CaptureSlot(snapshot, "parryCounter", asset.parryCounterAttack);
-            CaptureSlot(snapshot, "entry", asset.entryAttack);
-            CaptureSlot(snapshot, "swapEvadeCounter", asset.swapEvadeCounterAttack);
-            CaptureSlot(snapshot, "swapSpecial", asset.swapSpecialAttack);
+            PlayerCombatAbilityDataView view =
+                PlayerCombatAbilityDataView.Build(asset);
+            CaptureSlotList(snapshot, "lite", view.liteComboAttackList);
+            CaptureSlotList(snapshot, "heavy", view.heavyComboAttackList);
+            CaptureSlotList(snapshot, "jump", view.jumpAttackList);
+            CaptureSlotList(snapshot, "dash", view.dashAttackList);
+            CaptureSlotList(snapshot, "skill", view.skillAttackList);
+            CaptureSlot(snapshot, "counter", view.counterAttack);
+            CaptureSlot(snapshot, "parryCounter", view.parryCounterAttack);
+            CaptureSlot(snapshot, "entry", view.entryAttack);
+            CaptureSlot(snapshot, "swapEvadeCounter", view.swapEvadeCounterAttack);
+            CaptureSlot(snapshot, "swapSpecial", view.swapSpecialAttack);
             return snapshot;
         }
 

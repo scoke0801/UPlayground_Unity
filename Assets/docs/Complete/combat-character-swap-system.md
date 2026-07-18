@@ -1,5 +1,7 @@
 # 전투 캐릭터 교체 시스템 설계
 
+> **보관 문서 주의:** 이 문서의 플레이어 공격 데이터 예시는 Ability 전환 이전 구조다. 현재 단일 소스는 `AbilitySetSO`이며 최신 기준은 `../TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 > 작성일: 2026-04-25  
 > 최종 수정: 2026-05-01 (Roster/BattleOrder 분리 — 별도 문서 분기)  
 > 대상 버전: Unity 6 (6000.0.60f1), URP

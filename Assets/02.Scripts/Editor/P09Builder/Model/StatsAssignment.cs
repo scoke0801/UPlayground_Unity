@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Editor.P09Builder
@@ -38,7 +39,7 @@ namespace UPlayGround.Editor.P09Builder
         public CharacterActorType recruitableAs = CharacterActorType.None;
 
         // ---------- Player ----------
-        public ScriptableObject playerAttackDataSo;
+        public AbilitySetSO playerAbilitySet;
 
         // ---------- NPC ----------
         public ScriptableObject dialogueSo;

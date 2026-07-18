@@ -5,6 +5,7 @@ using System.Text;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Components;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -16,7 +17,7 @@ namespace UPlayGround.Tool.Editor.Balance
     /// 현재 Player 데이터(PartyConfig 성장 데이터 + 캐릭터 모델 공격 데이터)를 기반으로
     /// <see cref="BalanceScenarioAsset"/>을 자동 생성/갱신하는 에디터 전용 서비스.
     ///
-    /// 플레이어 파생 4개 필드(playerCharacter / playerStatData / playerAttackData / playerLevel)만 채우고,
+    /// 플레이어 파생 4개 필드(playerCharacter / playerStatData / playerAbilitySet / playerLevel)만 채우고,
     /// 인카운터·방어 가정값은 건드리지 않는다.
     /// - 신규 생성: 인카운터/방어 가정값은 BalanceScenarioAsset의 필드 기본값을 그대로 사용.
     /// - 기존 갱신: 사용자가 손으로 튜닝한 인카운터/방어 가정값을 보존하고 플레이어 4개 필드만 새로고침.
@@ -67,8 +68,8 @@ namespace UPlayGround.Tool.Editor.Balance
             config = config != null ? config : FindPartyConfig();
             CharacterActorType character = ResolveActiveCharacter(config);
 
-            Dictionary<CharacterActorType, PlayerAttackDataSO> attackMap = BuildAttackDataMap();
-            List<PlayerAttackDataSO> allAttackData = LoadAllPlayerAttackData();
+            Dictionary<CharacterActorType, AbilitySetSO> attackMap = BuildAttackDataMap();
+            List<AbilitySetSO> allAttackData = LoadAllPlayerAttackData();
 
             ScenarioGenResult result = GenerateOne(config, character, attackMap, allAttackData);
             AssetDatabase.SaveAssets();
@@ -84,8 +85,8 @@ namespace UPlayGround.Tool.Editor.Balance
             if (config == null || config.growthData == null)
                 return results;
 
-            Dictionary<CharacterActorType, PlayerAttackDataSO> attackMap = BuildAttackDataMap();
-            List<PlayerAttackDataSO> allAttackData = LoadAllPlayerAttackData();
+            Dictionary<CharacterActorType, AbilitySetSO> attackMap = BuildAttackDataMap();
+            List<AbilitySetSO> allAttackData = LoadAllPlayerAttackData();
 
             var seen = new HashSet<CharacterActorType>();
             for (int i = 0; i < config.growthData.Count; i++)
@@ -104,8 +105,8 @@ namespace UPlayGround.Tool.Editor.Balance
         private static ScenarioGenResult GenerateOne(
             PartyConfigSO config,
             CharacterActorType character,
-            Dictionary<CharacterActorType, PlayerAttackDataSO> attackMap,
-            List<PlayerAttackDataSO> allAttackData)
+            Dictionary<CharacterActorType, AbilitySetSO> attackMap,
+            List<AbilitySetSO> allAttackData)
         {
             EnsureFolder(ScenarioFolder);
 
@@ -113,7 +114,7 @@ namespace UPlayGround.Tool.Editor.Balance
             ActorStatSO statData = growth != null ? growth.baseStat : null;
             int level = growth != null ? Mathf.Max(1, growth.initialLevel) : 1;
 
-            PlayerAttackDataSO attackData = ResolveAttackData(character, attackMap, allAttackData, out string attackSource);
+            AbilitySetSO attackData = ResolveAttackData(character, attackMap, allAttackData, out string attackSource);
 
             string path = $"{ScenarioFolder}/BalanceScenario_{SanitizeFileName(character.ToString())}.asset";
             var asset = AssetDatabase.LoadAssetAtPath<BalanceScenarioAsset>(path);
@@ -131,7 +132,7 @@ namespace UPlayGround.Tool.Editor.Balance
             // 플레이어 파생 4개 필드만 갱신. 인카운터/방어 가정값(targetDuration, hitReceiveRate 등)은 보존한다.
             asset.playerCharacter = character;
             asset.playerStatData = statData;
-            asset.playerAttackData = attackData;
+            asset.playerAbilitySet = attackData;
             asset.playerLevel = level;
 
             if (created)
@@ -152,19 +153,19 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         /// <summary>
-        /// 캐릭터 → PlayerAttackDataSO 해석. 우선순위:
-        /// 1) Model 프리팹의 CharacterModelData.attackData (캐릭터 타입 일치)
-        /// 2) 이름에 캐릭터 이름이 포함된 PlayerAttackDataSO
-        /// 3) 프로젝트에 PlayerAttackDataSO가 하나뿐이면 공용 기본값으로 사용
+        /// 캐릭터 → AbilitySetSO 해석. 우선순위:
+        /// 1) Model 프리팹의 CharacterModelData.abilitySet (캐릭터 타입 일치)
+        /// 2) 이름에 캐릭터 이름이 포함된 AbilitySetSO
+        /// 3) 프로젝트에 AbilitySetSO가 하나뿐이면 공용 기본값으로 사용
         /// 모두 실패하면 null(추정기는 manualPlayerDps로 폴백).
         /// </summary>
-        private static PlayerAttackDataSO ResolveAttackData(
+        private static AbilitySetSO ResolveAttackData(
             CharacterActorType character,
-            Dictionary<CharacterActorType, PlayerAttackDataSO> attackMap,
-            List<PlayerAttackDataSO> allAttackData,
+            Dictionary<CharacterActorType, AbilitySetSO> attackMap,
+            List<AbilitySetSO> allAttackData,
             out string source)
         {
-            if (attackMap.TryGetValue(character, out PlayerAttackDataSO fromPrefab) && fromPrefab != null)
+            if (attackMap.TryGetValue(character, out AbilitySetSO fromPrefab) && fromPrefab != null)
             {
                 source = $"Model 프리팹: {fromPrefab.name}";
                 return fromPrefab;
@@ -173,7 +174,7 @@ namespace UPlayGround.Tool.Editor.Balance
             string token = character.ToString();
             for (int i = 0; i < allAttackData.Count; i++)
             {
-                PlayerAttackDataSO candidate = allAttackData[i];
+                AbilitySetSO candidate = allAttackData[i];
                 if (candidate != null && candidate.name.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     source = $"이름 매칭: {candidate.name}";
@@ -192,9 +193,9 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         /// <summary>모든 프리팹을 스캔해 CharacterModelData가 가진 캐릭터 타입 → 공격 데이터 맵을 만든다.</summary>
-        private static Dictionary<CharacterActorType, PlayerAttackDataSO> BuildAttackDataMap()
+        private static Dictionary<CharacterActorType, AbilitySetSO> BuildAttackDataMap()
         {
-            var map = new Dictionary<CharacterActorType, PlayerAttackDataSO>();
+            var map = new Dictionary<CharacterActorType, AbilitySetSO>();
             // 캐릭터 모델 프리팹은 03.Prefabs에 있으므로 그 폴더만 스캔한다(ExternalAssets 전체 로드 방지).
             string[] guids = AssetDatabase.IsValidFolder(ModelPrefabFolder)
                 ? AssetDatabase.FindAssets("t:Prefab", new[] { ModelPrefabFolder })
@@ -207,12 +208,12 @@ namespace UPlayGround.Tool.Editor.Balance
                     continue;
 
                 var model = go.GetComponentInChildren<CharacterModelData>(true);
-                if (model == null || model.attackData == null)
+                if (model == null || model.abilitySet == null)
                     continue;
 
                 // 같은 캐릭터 타입의 프리팹이 여러 개면 먼저 발견된 것을 사용한다.
                 if (!map.ContainsKey(model.characterType))
-                    map[model.characterType] = model.attackData;
+                    map[model.characterType] = model.abilitySet;
             }
 
             return map;
@@ -247,15 +248,15 @@ namespace UPlayGround.Tool.Editor.Balance
             return builder.ToString();
         }
 
-        private static List<PlayerAttackDataSO> LoadAllPlayerAttackData()
+        private static List<AbilitySetSO> LoadAllPlayerAttackData()
         {
-            var list = new List<PlayerAttackDataSO>();
-            string[] guids = AssetDatabase.FindAssets("t:PlayerAttackDataSO");
+            var list = new List<AbilitySetSO>();
+            string[] guids = AssetDatabase.FindAssets("t:AbilitySetSO");
             for (int i = 0; i < guids.Length; i++)
             {
                 string path = AssetDatabase.GUIDToAssetPath(guids[i]);
-                var asset = AssetDatabase.LoadAssetAtPath<PlayerAttackDataSO>(path);
-                if (asset != null)
+                var asset = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(path);
+                if (asset != null && asset.combatBindings.Count > 0)
                     list.Add(asset);
             }
 

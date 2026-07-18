@@ -122,8 +122,8 @@ namespace UPlayGround
             // 전투 컴포넌트 참조 갱신 + 공격 데이터 교체
             _combat.RefreshComponentReferences();
             var partyManager = Svc.Party;
-            _combat.RefreshAttackData(
-                data.attackData,
+            _combat.RefreshAbilitySet(
+                data.abilitySet,
                 data.characterType,
                 partyManager == null || partyManager.PreserveComboStatePerCharacter,
                 partyManager != null ? partyManager.ComboStateMaxCarryTime : 1.8f);

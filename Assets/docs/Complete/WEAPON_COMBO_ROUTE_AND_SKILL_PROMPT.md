@@ -1,5 +1,7 @@
 # 무기 타입별 콤보 라우트 매핑 & 스킬 키 제시(HUD) 설계
 
+> **보관 문서 주의:** 이 문서는 Ability 전환 전 콤보/스킬 구조의 작업 기록이다. 현재 단일 소스는 `AbilitySetSO`이며 최신 기준은 `../TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 > 상태: **설계 + HUD 위젯 코드 1차 작성**(2026-06-05). Unity 컴파일/플레이 검증 대기(이 환경 CLI 빌드 없음).
 > 레퍼런스: **명조(Wuthering Waves)** 입력 트리거 구조.
 > 선행: 연계 라우트 엔진 = [PLAYER_COMBAT_SKILL_LINK_SYSTEM_DESIGN.md](../Complete/PLAYER_COMBAT_SKILL_LINK_SYSTEM_DESIGN.md)(Phase 1/1.1 구현됨).

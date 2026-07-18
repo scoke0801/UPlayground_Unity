@@ -40,7 +40,7 @@ namespace UPlayGround.State
 
         private const float MaxChargeTime = 1.5f; // 풀 차지까지 걸리는 시간 (초)
 
-        // 스테이지 전환 임계값. OnEnter에서 PlayerAttackDataSO 기준으로 초기화.
+        // 스테이지 전환 임계값. OnEnter에서 AbilitySetSO 기반 전투 뷰로 초기화.
         private float[] _stageThresholds = System.Array.Empty<float>();
 
         // 락온/소프트 타겟 (회전 보정용)

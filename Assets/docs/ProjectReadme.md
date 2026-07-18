@@ -236,7 +236,8 @@ UIManager
 | `EnemyFlyingSettingsSO` | — | 비행 몬스터 설정 |
 | `EnemyDropTableSO` | `10.Datas/Actor/Enemy/DropTables` | 몬스터 드랍 테이블 |
 | `PoiseSO` | — | 강인도 데이터 |
-| `PlayerAttackDataSO` | — | 플레이어 공격 데이터 |
+| `AbilitySetSO` / `GameplayAbilitySO` | `10.Datas/Ability/Migrated` | 플레이어 공격·스킬의 단일 데이터 소스 |
+| `UPlayGroundMotionAbilityPayloadSO` | Ability Variant의 서브에셋 | 실행용 `AnimKey`와 `PlayerAttackInfo` |
 | `ActorDefinitionSO` | — | 액터 정의 (prefab + 필수 statData + 레거시 stats + npcData + dropTable) |
 | `ActorDatabase` | — | 전체 ActorDefinitionSO 조회 테이블 |
 | `PartyConfigSO` | — | 시작 파티 순서와 초기 활성 캐릭터 인덱스 |
@@ -296,7 +297,8 @@ Assets/
 │   └── Data/
 │       ├── Actor/               ActorDefinitionSO, ActorDatabase, Enemy SO군, AnimationSO군
 │       ├── Item/                ItemSO, EquipmentSO, ItemDropList
-│       ├── Combat/              EnemyAttackDataSO, PlayerAttackDataSO, VitalOrbDataSO
+│       ├── Ability/             AbilitySetSO, GameplayAbilitySO, Ability/Effect 정의
+│       ├── Combat/              EnemyAttackDataSO, PlayerAttackInfo, VitalOrbDataSO
 │       ├── Crafting/            RecipeData, RecipeDatabase
 │       ├── Party/               PartyConfigSO
 │       ├── Dialogue/            DialogueGraphSO, DialogueNodeSO
@@ -304,6 +306,7 @@ Assets/
 │       └── Enum/                프로젝트 전역 열거형
 │
 ├── 10.Datas/                    ScriptableObject 에셋
+│   ├── Ability/Migrated/        플레이어 AbilitySet, GameplayAbility, Payload
 │   ├── Actor/                   Enemy 스탯, DropTable, Animation MotionSet
 │   └── Item/                    ItemSO 에셋, Equipment, ItemDatabase
 │
@@ -402,7 +405,8 @@ Assets/
 | `UPlayGround/Stat/Stat Runtime Monitor` | StatRuntimeMonitorWindow | Play 모드 액터 스탯 및 수정자 모니터링 |
 | `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
 | `UPlayGround/Gameplay/Balance/Balance Designer` | BalanceDesignerWindow | ActorDefinitionSO·공격 데이터·BT 연결 상태 기반 N초 전투 가능성 분석, CSV 내보내기 |
-| `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | PlayerAttackDataSO/EnemyAttackDataSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
+| `UPlayGround/게임플레이/Ability Editor` | GameplayAbilityEditorWindow | AbilitySet·Ability·Effect 편집, 참조 안전 삭제, 전체 검증 |
+| `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | AbilitySetSO/EnemyAttackDataSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
 
 ---
 

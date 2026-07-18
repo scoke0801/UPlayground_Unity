@@ -3,7 +3,7 @@
 > 문서 버전: 2.1<br>
 > 기준일: 2026-07-18<br>
 > 대상 버전: Unity 6 (6000.0.60f1), 싱글플레이, URP<br>
-> 상태: 구현 전 구조 확정안<br>
+> 상태: V1 구현·플레이어 데이터 전환·레거시 제거 완료 / 독립 패키지화 후속 진행<br>
 > 관련 문서: `../design/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md`, `../Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md`, `../guide/BALANCE_DESIGNER_TOOL_GUIDE.md`
 
 ## 1. 목적
@@ -97,9 +97,9 @@ Unity의 `ScriptableObject`는 여러 런타임 인스턴스가 공유하는 불
 
 | 영역 | 기존 타입 | 현재 역할 |
 |------|-----------|-----------|
-| 플레이어 스킬 정의 | `PlayerSkillDefinition`, `PlayerSkillVariant` | 2슬롯과 조건별 공격 Variant |
-| 스킬 해석 | `PlayerSkillResolver` | 지상·공중·게이지·태그·우선순위 판정 |
-| 스킬 데이터 호스트 | `PlayerAttackDataSO` | 일반 공격, 스킬, 콤보, 차지, 교체 공격 통합 보관 |
+| 플레이어 스킬 정의 | `GameplayAbilitySO`, `AbilityVariantDefinition` | 2슬롯과 조건별 공격 Variant |
+| 스킬 해석 | `ActorAbilitySystem` | 지상·공중·자원·태그·우선순위 판정 |
+| 캐릭터 전투 데이터 호스트 | `AbilitySetSO` | 일반 공격, 스킬, 콤보, 차지, 교체 공격 통합 보관 |
 | 자원·쿨다운 | `PlayerSkillGauge` | 단일 게이지와 2슬롯 쿨다운 |
 | 실행 | `PlayerCombat`, `PlayerAttackState` | 공격 데이터 변환과 MotionSet 실행 |
 | 태그 | `GameplayTagContainer` | `HashSet` 기반 상태·콤보 태그 |
@@ -109,13 +109,12 @@ Unity의 `ScriptableObject`는 여러 런타임 인스턴스가 공유하는 불
 
 ### 5.2 해결할 간극
 
-1. `PlayerAttackDataSO`에 공격·스킬·콤보·교체 공격 책임이 집중되어 있다.
-2. `PlayerSkillDefinition.costPolicy`, `cooldownPolicy`는 런타임에서 사용되지 않는다.
-3. 비용과 쿨다운이 `PlayerSkillGauge` 프리팹 직렬화 값에 남아 있어 스킬 정의와 분리되어 있다.
-4. 회복, 버프, 디버프, 설치기, 지속 장판을 공통 데이터로 표현할 Effect 계층이 없다.
-5. 동일 태그를 여러 소스가 부여할 때 한 소스의 제거가 다른 소유권을 보존하지 못한다.
-6. 런타임 실패 사유와 UI 표시 사유가 표준화되어 있지 않다.
-7. 캐릭터 교체와 저장 시 Ability/Effect 상태를 어떻게 처리할지 공통 정책이 없다.
+1. 플레이어 공격·스킬·콤보·교체 공격의 단일 소스를 `AbilitySetSO`와 실행 Payload로 통합했다.
+2. 비용과 쿨다운 정의는 `GameplayAbilitySO`가 소유하고 `PlayerSkillGauge`는 런타임 상태만 관리한다.
+3. 회복, 버프, 디버프, 설치기, 지속 장판을 공통 데이터로 표현할 Effect 계층을 확장한다.
+4. 동일 태그를 여러 소스가 부여할 때 각 소유권을 보존한다.
+5. 런타임 실패 사유와 UI 표시 사유를 동일한 표준 결과로 제공한다.
+6. 캐릭터 교체와 저장 시 Ability/Effect 상태를 공통 정책으로 처리한다.
 
 ---
 
@@ -202,7 +201,7 @@ UPlayGround.Actor
     │   ├── AbilityExecution.cs
     │   ├── AbilityExecutionHandle.cs
     │   ├── AbilityActivationResult.cs
-    │   └── PlayerSkillDefinitionAdapter.cs
+    │   └── PlayerCombatAbilityDataView.cs
     ├── Effect/
     │   ├── GameplayEffectController.cs
     │   ├── GameplayEffectInstance.cs
@@ -346,22 +345,26 @@ UPlayGroundMotionAbilityPayloadSO
 
 `UPlayGroundMotionAbilityPayloadSO`는 `UPlayGround.Ability.UPlayGround`에 둔다. 이를 통해 Core 데이터와 런타임은 Uplayground의 MotionSet 및 전투 데이터 구조를 알지 않는다.
 
-### 7.7 V1 전환기 예외
+### 7.7 구현 과정의 전환기 예외와 해소 상태
 
-V1 수직 슬라이스에서는 회귀 위험을 낮추기 위해 다음 임시 결합을 허용한다.
+V1 수직 슬라이스 초기에는 회귀 위험을 낮추기 위해 다음 임시 결합을 허용했다.
 
 - `AbilityVariantDefinition`의 `AnimKey`, `PlayerAttackInfo` 직접 참조
 - `ActorAbilitySystem`의 `GameActor`, `PlayerActor`, `PlayerSkillGauge` 직접 연결
 - Effect 런타임의 `ActorStatContainer`, `GameplayTagContainer` 직접 연결
 - `PlayerSkillSlot` 기반 플레이어 2슬롯 바인딩
 
-이 예외는 UPlayground 내부 V1 구현을 위한 것이며 독립 재사용 모듈 완료로 간주하지 않는다.
+현재 Variant의 직접 실행 필드와 호환 Resolver/폴백은 제거되었고 실행 데이터는
+`AbilityExecutionPayloadSO`만 소유한다. 자원·태그·스탯 접근도 Port를 통한다.
+`PlayerSkillSlot`은 입력 슬롯 바인딩으로 유지하지만 공격 데이터 원본은 아니다.
+`ActorAbilitySystem`과 Effect 수명주기의 UPlayground 연결은 프로젝트 어댑터 계층에 남아 있으므로
+전체 시스템을 독립 재사용 모듈 완료로 간주하지 않는다.
 
-V1 이후에는 다음 순서로 분리한다.
+분리는 다음 순서로 진행했으며 4~5번은 후속 작업이다.
 
-1. 공용 ID, 정책, 저장 DTO, 실행 상태를 `UPlayGround.Ability.Core`로 이동한다.
-2. `AnimKey`와 공격 데이터를 `UPlayGroundMotionAbilityPayloadSO`로 이동한다.
-3. 자원·태그·스탯·시간 접근을 Port 인터페이스로 교체한다.
+1. 공용 ID, 정책, 저장 DTO, 실행 상태를 `UPlayGround.Ability.Core`로 이동했다.
+2. `AnimKey`와 공격 데이터를 `UPlayGroundMotionAbilityPayloadSO`로 이동했다.
+3. 자원·태그·스탯·시간 접근을 Port 인터페이스로 교체했다.
 4. 기존 `ActorAbilitySystem`을 UPlayground Adapter 또는 Adapter 조립 컴포넌트로 축소한다.
 5. 공용 에디터와 UPlayground 전용 MotionSet 검증 확장을 분리한다.
 
@@ -380,28 +383,34 @@ V1 이후에는 다음 순서로 분리한다.
 
 ### 7.9 구현 진행 상태 (2026-07-18)
 
-현재는 독립 모듈 전환 기반과 UPlayground V1 수직 슬라이스를 구현 중이다.
+UPlayground V1 수직 슬라이스, 실제 데이터 전환, 레거시 제거와 자동 검증까지 완료했다.
+외부 재사용 가능한 독립 패키지 승격은 진행 중이다.
 
 - `UPlayGround.Ability.Core` asmdef를 생성했고 UPlayground 프로젝트 asmdef 참조는 0건이다.
 - 실행 상태, 활성화 결과, UI View State, `IAbilityClock`, 자원·태그·스탯·실행 Port,
   쿨다운 런타임, 추상 실행 Payload가 Core에 배치되었다.
-- `UPlayGround.Ability.UPlayGround` asmdef에 `UPlayGroundMotionAbilityPayloadSO`와
-  V1 Variant 호환 Resolver를 배치했다.
+- `UPlayGround.Ability.UPlayGround` asmdef에 `UPlayGroundMotionAbilityPayloadSO`를 배치했다.
+- 초기 전환용 Variant 호환 Resolver와 직접 실행 필드는 데이터 변환 완료 후 제거했다.
 - `ActorAbilitySystem`의 쿨다운은 Core 런타임을 사용하며, 자원·태그 접근은
   `UPlayGroundAbilityOwnerPorts`를 거친다.
 - Effect의 중첩/갱신/교체 판정은 Core의 `AbilityEffectStackRuntime`을 사용하고,
   자원·태그·스탯 적용과 핸들 제거는 Port 인터페이스를 거친다.
-- 데이터 툴의 `Payload 변환`은 기존 Variant 공격 데이터를 Ability 에셋의 서브에셋으로
-  비파괴 복사한다. 변환 후에도 V1 필드는 롤백을 위해 유지한다.
+- Variant 실행 데이터는 `AbilityExecutionPayloadSO`만 소유한다.
 - 플레이어 캐릭터 교체와 사망 시 Ability/Effect 정리 정책을 연결했고,
   캐릭터별 쿨다운·저장 허용 Effect·자원 DTO를 실제 파티 세이브에 연결했다.
 - `Self`/`Ally`/`Enemy` 대상 관계와 Self 자동 대상 해석을 런타임에 적용했다.
 - `GameplayCueDispatcher`가 시작·실패·종료·쿨다운 준비 신호를 액터 로컬 이벤트로 제공한다.
   - UI Toolkit Ability Editor는 생성·저장·참조 검사 기반 안전 삭제·전체 검증을 제공한다.
-  - 기존 `PlayerAttackDataSO` 일괄 마이그레이션 UI를 제작했다. 읽기 전용 미리보기,
-    결정적 출력 경로, ID/경로 충돌 차단, 정의 우선 및 `skillAttackList[0/1]` 폴백,
-    원본 비수정, Motion Payload 서브에셋 생성, 실행 후 비교 리포트를 제공한다.
-    2026-07-18 기준 도구만 제작했으며 실제 프로젝트 데이터 일괄 변환은 실행하지 않았다.
+  - 2026-07-18 실제 프로젝트 데이터 일괄 변환을 완료했다.
+    - 8개 캐릭터 전투 Set에 일반 공격·반격·교체 공격·차지·연계 라우트를 포함한
+      GameplayAbility 에셋 210개와 Variant/Payload 221개를 구성했다.
+    - `CharacterModelData`의 런타임 데이터 소스를 `AbilitySetSO` 하나로 통합하고
+      `PlayerCombat`은 `PlayerCombatAbilityDataView`를 통해 Payload를 소비한다.
+    - 밸런스 분석·몬테카를로·스냅샷·전투 검증 도구도 `AbilitySetSO`를 소비한다.
+    - 기존 Player 프리팹 참조와 밸런스 시나리오 참조를 신규 Set으로 전환한 뒤
+      `Assets/10.Datas/Actor/Player/AttackData`의 원본 에셋 9개를 제거했다.
+    - 변환 완료 후 일회성 마이그레이션 UI, 구형 플레이어 공격 SO 타입·전용 에디터,
+      Variant V1 중복 실행 필드와 런타임 폴백을 제거했다.
 
 아직 `GameplayAbilitySO`, `GameplayEffectSO`, `AbilitySetSO` 정의 자체와 Effect 수명주기는
 `UPlayGround.Data`/Actor 호환 계층에 남아 있다. 따라서 현재 상태를 독립 재사용 모듈
@@ -525,7 +534,7 @@ public sealed class AbilityVariantDefinition
 }
 ```
 
-V1은 현재 `PlayerSkillVariant`와 `PlayerAttackInfo`를 재사용할 수 있다.
+V1 실행 정보는 프로젝트 전용 `AbilityExecutionPayloadSO` 구현이 소유한다.
 
 선택 규칙:
 
@@ -533,8 +542,8 @@ V1은 현재 `PlayerSkillVariant`와 `PlayerAttackInfo`를 재사용할 수 있�
 2. 조건을 모두 만족한 Variant만 남긴다.
 3. `priority`가 높은 순서로 선택한다.
 4. 우선순위가 같으면 목록의 앞 항목을 선택하되 검증 경고를 발생시킨다.
-5. 조건을 만족하는 Variant가 없으면 레거시로 폴백하지 않고 실패한다.
-6. `GameplayAbilitySO` 자체가 없는 슬롯만 기존 `PlayerSkillDefinition` 또는 `skillAttackList` 어댑터로 폴백한다.
+5. 조건을 만족하는 Variant가 없으면 실패한다.
+6. 실행 Payload가 없는 Variant는 검증 오류이며 런타임에서도 실행하지 않는다.
 
 ---
 
@@ -660,7 +669,7 @@ Created
 
 비용과 쿨다운 정의는 `GameplayAbilitySO`가 소유한다.
 
-`PlayerSkillGauge`의 `_skillCost`, `_skillCooldown`은 마이그레이션 동안만 어댑터 입력으로 사용한다. 신규 Ability 데이터가 존재하면 해당 배열 값을 읽지 않는다.
+`PlayerSkillGauge`는 현재 자원과 슬롯별 쿨다운 상태를 관리하며 정의 값은 `GameplayAbilitySO`에서 읽는다.
 
 ### 12.2 자원 종류
 
@@ -673,7 +682,7 @@ V1 권장 자원:
 | Concerto | 교체 Intro/Outro 조건 |
 | SkillCharge | 충전형 Ability 사용 횟수 |
 
-현재 `PlayerSkillGauge.CurrentGauge`는 마이그레이션 동안 `UltimateEnergy`로 해석한다.
+현재 `PlayerSkillGauge.CurrentGauge`는 `UltimateEnergy` 런타임 상태로 해석한다.
 
 ### 12.3 비용 정책
 
@@ -866,28 +875,25 @@ Ability Effect가 같은 HitPhase 피해를 다시 적용하면 안 된다.
 
 ## 16. 플레이어 스킬 통합
 
-### 16.1 전환기 흐름
+### 16.1 실행 흐름
 
 ```text
 Ability / Ultimate 입력
         │
         ▼
-GameplayAbilitySO 존재?
-  ├─ Yes → ActorAbilitySystem 활성화 경로
-  └─ No  → PlayerSkillDefinitionAdapter
-              ├─ PlayerSkillResolver
-              └─ skillAttackList 레거시 폴백
+AbilitySetSO 슬롯 Ability 조회
+        │
+        ▼
+ActorAbilitySystem 활성화 판정
+        │
+        ▼
+AbilityExecutionPayloadSO 해석 → PlayerCombat 실행
 ```
 
-### 16.2 마이그레이션 우선순위
+### 16.2 단일 소스 규칙
 
-```text
-GameplayAbilitySO
-    > PlayerSkillDefinition
-        > skillAttackList[0/1]
-```
-
-같은 슬롯에 신규 Ability가 연결되면 레거시 비용·쿨다운·Variant를 동시에 실행하면 안 된다.
+`AbilitySetSO → GameplayAbilitySO → AbilityExecutionPayloadSO`만 플레이어 전투 실행 데이터로 사용한다.
+누락된 슬롯이나 Payload는 폴백하지 않고 명시적으로 실패한다.
 
 ### 16.3 `PlayerSkillGauge` 목표 책임
 
@@ -1174,7 +1180,7 @@ MotionSet 기반 생성기는 다음을 자동 채울 수 있다.
 
 - 같은 우선순위와 동일 조건의 Variant
 - 사용되지 않는 Ability/Effect 에셋
-- 신규 Ability와 레거시 스킬 데이터가 동시에 존재
+- 제거된 플레이어 레거시 공격 타입·직접 실행 필드·호환 폴백이 재도입됨
 - Ability 아이콘 또는 로컬라이즈 키 누락
 - 쿨다운 그룹이 의도치 않게 여러 캐릭터에서 공유됨
 - Duration Effect에 제거 정책 없음
@@ -1231,7 +1237,7 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 - Stack/Refresh/Replace 정책
 - 저장 DTO 직렬화·복원
 - ID 중복과 누락 검증
-- 레거시 어댑터 우선순위
+- Payload 필수 참조와 Variant 실행 데이터 단일 소스
 
 ### 26.2 PlayMode
 
@@ -1245,7 +1251,15 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 - HUD 슬롯 재바인딩과 쿨다운 표시
 - Ultimate Sequence 중 입력·카메라·종료 정리
 
-### 26.3 회귀 검증
+### 26.3 현재 자동 검증 기준
+
+2026-07-18 Unity Test Runner 실제 실행 결과:
+
+- EditMode: 14/14 통과
+- PlayMode 수직 슬라이스: 2/2 통과
+- EditMode와 PlayMode 결과 파일은 자동화 콜백을 각각 해제하여 서로 덮어쓰지 않는다.
+
+### 26.4 회귀 검증
 
 - 기존 일반 공격, 강공, 차지, 점프, 대시 공격
 - 패리, 퍼펙트 가드, 회피 카운터
@@ -1256,7 +1270,7 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 
 ---
 
-## 27. 마이그레이션 단계
+## 27. 마이그레이션 단계와 완료 상태
 
 ### Phase A — 데이터 단일 소스
 
@@ -1268,10 +1282,10 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 
 작업:
 
-1. 현재 `PlayerSkillDefinition`을 Ability 에셋으로 변환하는 에디터 도구를 만든다.
+1. 기존 플레이어 스킬 정의를 Ability 에셋으로 변환하는 에디터 도구를 만든다.
 2. 비용·쿨다운을 Ability 데이터로 복사한다.
 3. 기존 에셋은 변경하지 않고 비교 리포트를 만든다.
-4. 신규 데이터가 있을 때 레거시 필드와 충돌하는지 검사한다.
+4. 신규 데이터와 원본 데이터의 충돌을 검사한다.
 
 완료 조건:
 
@@ -1326,12 +1340,12 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 1. 캐릭터별 `AbilitySetSO` 생성
 2. UI 아이콘과 이름을 Ability 데이터에 연결
 3. 캐릭터별 자원·쿨다운 스냅샷
-4. 레거시 폴백 사용량 텔레메트리
+4. AbilitySet 연결 및 실행 Payload 누락 검증
 
 완료 조건:
 
-- 플레이어 신규 데이터에서 레거시 폴백 0회
-- 기존 `skillAttackList` 에셋을 지우지 않아도 신규 경로만 실행
+- 플레이어 실행 경로에서 구형 데이터 폴백 0회
+- 구형 플레이어 공격 타입·에셋·마이그레이션 도구 제거
 
 ### Phase E — 몬스터와 보스
 

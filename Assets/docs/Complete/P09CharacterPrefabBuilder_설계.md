@@ -1,5 +1,7 @@
 # P09CharacterPrefabBuilder 설계 문서
 
+> **보관 문서 주의:** 이 문서의 플레이어 공격 데이터 예시는 Ability 전환 이전 구조다. 현재 프리팹은 `CharacterModelData.abilitySet`을 연결하며 최신 기준은 `../TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 Unity 6 (6000.0.60f1) 기반 TPS 액션 게임용 캐릭터 프리팹 자동 생성 에디터 툴 설계서
 
 ---

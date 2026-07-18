@@ -7,7 +7,9 @@ using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
+using UPlayGround.Gameplay.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 
@@ -54,23 +56,24 @@ namespace UPlayGround.Tool.Editor.Combat
 
         private static void ValidatePlayerAttackData(List<CombatValidationIssue> issues)
         {
-            foreach (string guid in AssetDatabase.FindAssets("t:PlayerAttackDataSO"))
+            foreach (string guid in AssetDatabase.FindAssets("t:AbilitySetSO"))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<PlayerAttackDataSO>(path);
-                if (asset == null)
+                var asset = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(path);
+                PlayerCombatAbilityDataView view = PlayerCombatAbilityDataView.Build(asset);
+                if (view == null)
                     continue;
 
-                ValidatePlayerList(issues, path, "liteComboAttackList", asset.liteComboAttackList);
-                ValidatePlayerList(issues, path, "heavyComboAttackList", asset.heavyComboAttackList);
-                ValidatePlayerList(issues, path, "jumpAttackList", asset.jumpAttackList);
-                ValidatePlayerList(issues, path, "dashAttackList", asset.dashAttackList);
-                ValidatePlayerList(issues, path, "skillAttackList", asset.skillAttackList);
-                ValidatePlayerAttack(issues, path, "counterAttack", asset.counterAttack);
-                ValidatePlayerAttack(issues, path, "entryAttack", asset.entryAttack);
-                ValidatePlayerAttack(issues, path, "swapSpecialAttack", asset.swapSpecialAttack);
-                ValidatePlayerAttack(issues, path, "swapEvadeCounterAttack", asset.swapEvadeCounterAttack);
-                ValidatePlayerAttack(issues, path, "parryCounterAttack", asset.parryCounterAttack);
+                ValidatePlayerList(issues, path, "liteComboAttackList", view.liteComboAttackList);
+                ValidatePlayerList(issues, path, "heavyComboAttackList", view.heavyComboAttackList);
+                ValidatePlayerList(issues, path, "jumpAttackList", view.jumpAttackList);
+                ValidatePlayerList(issues, path, "dashAttackList", view.dashAttackList);
+                ValidatePlayerList(issues, path, "skillAttackList", view.skillAttackList);
+                ValidatePlayerAttack(issues, path, "counterAttack", view.counterAttack);
+                ValidatePlayerAttack(issues, path, "entryAttack", view.entryAttack);
+                ValidatePlayerAttack(issues, path, "swapSpecialAttack", view.swapSpecialAttack);
+                ValidatePlayerAttack(issues, path, "swapEvadeCounterAttack", view.swapEvadeCounterAttack);
+                ValidatePlayerAttack(issues, path, "parryCounterAttack", view.parryCounterAttack);
             }
         }
 
@@ -240,14 +243,15 @@ namespace UPlayGround.Tool.Editor.Combat
                     continue;
 
                 var modelData = prefab.GetComponentInChildren<CharacterModelData>(true);
-                if (modelData == null || modelData.attackData == null)
+                if (modelData == null || modelData.abilitySet == null)
                     continue;
 
                 ActorAnimationMotionSet motionSet = ResolveMotionSet(prefab);
                 if (motionSet == null)
                     continue;
 
-                PlayerAttackDataSO data = modelData.attackData;
+                PlayerCombatAbilityDataView data =
+                    PlayerCombatAbilityDataView.Build(modelData.abilitySet);
                 ValidatePlayerListMotionSet(issues, path, "liteComboAttackList", data.liteComboAttackList, motionSet);
                 ValidatePlayerListMotionSet(issues, path, "heavyComboAttackList", data.heavyComboAttackList, motionSet);
                 ValidatePlayerListMotionSet(issues, path, "jumpAttackList", data.jumpAttackList, motionSet);

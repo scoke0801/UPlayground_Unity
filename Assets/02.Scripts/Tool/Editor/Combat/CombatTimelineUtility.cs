@@ -7,11 +7,13 @@ using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
@@ -204,66 +206,39 @@ namespace UPlayGround.Tool.Editor.Combat
             var result = new List<ResolvedAttack>();
             if (data == null || key == AnimKey.None) return result;
 
-            if (data is PlayerAttackDataSO player)
-                ResolvePlayerAttacks(player, key, result);
-            else if (data is EnemyAttackDataSO enemy)
+            if (data is EnemyAttackDataSO enemy)
                 ResolveEnemyAttacks(enemy, key, result);
 
             return result;
         }
 
-        static void ResolvePlayerAttacks(PlayerAttackDataSO data, AnimKey key, List<ResolvedAttack> result)
+        public static List<ResolvedAttack> ResolveAttacks(AbilitySetSO data, AnimKey key)
         {
-            AddPlayerList(result, data, data.liteComboAttackList, "약 공격", key);
-            AddPlayerList(result, data, data.heavyComboAttackList, "강 공격", key);
-            AddPlayerList(result, data, data.jumpAttackList, "점프 공격", key);
-            AddPlayerList(result, data, data.dashAttackList, "대시 공격", key);
-            AddPlayerList(result, data, data.skillAttackList, "스킬", key);
+            var result = new List<ResolvedAttack>();
+            if (data == null || key == AnimKey.None)
+                return result;
 
-            if (data.skillDefinitions != null)
-            {
-                foreach (PlayerSkillDefinition def in data.skillDefinitions)
-                {
-                    if (def?.variants == null) continue;
-                    foreach (PlayerSkillVariant variant in def.variants)
-                    {
-                        if (variant == null || variant.ResolveAnimKey() != key) continue;
-                        AddPlayerInfo(result, data, variant.attackInfo,
-                            $"스킬 정의 {def.slot}/{variant.variantName}", key);
-                    }
-                }
-            }
+            PlayerCombatAbilityDataView view = PlayerCombatAbilityDataView.Build(data);
+            if (view == null)
+                return result;
 
-            AddPlayerInfo(result, data, data.counterAttack, "카운터", key);
-            AddPlayerInfo(result, data, data.parryCounterAttack, "패리 카운터", key);
-            AddPlayerInfo(result, data, data.entryAttack, "교체 등장", key);
-            if (data.useEntryAttackVsGroggy)
-                AddPlayerInfo(result, data, data.entryAttackVsGroggy, "교체 등장 (그로기)", key);
-            if (data.useEntryAttackVsAirborne)
-                AddPlayerInfo(result, data, data.entryAttackVsAirborne, "교체 등장 (공중)", key);
-            AddPlayerInfo(result, data, data.swapEvadeCounterAttack, "스왑 회피 카운터", key);
-            AddPlayerInfo(result, data, data.swapSpecialAttack, "스왑 특수", key);
+            AddPlayerList(result, data, view.liteComboAttackList, "약 공격", key);
+            AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", key);
+            AddPlayerList(result, data, view.jumpAttackList, "점프 공격", key);
+            AddPlayerList(result, data, view.dashAttackList, "대시 공격", key);
+            AddPlayerList(result, data, view.skillAttackList, "스킬", key);
+            AddPlayerInfo(result, data, view.counterAttack, "카운터", key);
+            AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", key);
+            AddPlayerInfo(result, data, view.entryAttack, "교체 등장", key);
+            AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", key);
+            AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", key);
+            AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", key);
+            AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", key);
 
-            if (data.chargeAnimKey == key && data.chargeStages != null)
-            {
-                for (int i = 0; i < data.chargeStages.Count; i++)
-                {
-                    ChargeStageData stage = data.chargeStages[i];
-                    if (stage == null) continue;
-                    result.Add(new ResolvedAttack
-                    {
-                        SourceName = $"차지 {i + 1}단계",
-                        AnimKey = key,
-                        HitPhases = stage.hitPhases,
-                        InterruptActions = stage.interruptActions,
-                        ChargeStage = stage,
-                        Owner = data,
-                    });
-                }
-            }
+            return result;
         }
 
-        static void AddPlayerList(List<ResolvedAttack> result, PlayerAttackDataSO data,
+        static void AddPlayerList(List<ResolvedAttack> result, AbilitySetSO data,
             List<PlayerAttackInfo> list, string listName, AnimKey key)
         {
             if (list == null) return;
@@ -274,7 +249,7 @@ namespace UPlayGround.Tool.Editor.Combat
             }
         }
 
-        static void AddPlayerInfo(List<ResolvedAttack> result, PlayerAttackDataSO data,
+        static void AddPlayerInfo(List<ResolvedAttack> result, AbilitySetSO data,
             PlayerAttackInfo info, string sourceName, AnimKey key)
         {
             if (info?.baseInfo == null) return;

@@ -144,10 +144,10 @@ namespace UPlayGround.Editor.P09Builder
         {
             EditorGUILayout.HelpBox("Player Stats (Phase 2 예정)", MessageType.Info);
 
-            config.Stats.playerAttackDataSo = EditorGUILayout.ObjectField(
-                "Player AttackData SO",
-                config.Stats.playerAttackDataSo,
-                typeof(ScriptableObject), false) as ScriptableObject;
+            config.Stats.playerAbilitySet = (UPlayGround.Data.Ability.AbilitySetSO)EditorGUILayout.ObjectField(
+                "Player Ability Set",
+                config.Stats.playerAbilitySet,
+                typeof(UPlayGround.Data.Ability.AbilitySetSO), false);
         }
 
         // ---------- NPC ----------

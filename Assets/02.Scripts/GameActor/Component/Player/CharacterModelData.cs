@@ -1,7 +1,6 @@
 using Animancer;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
-using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Ability;
@@ -24,9 +23,7 @@ namespace UPlayGround.Components
         public WeaponType defaultWeaponType = WeaponType.NoWeapon;
 
         [Header("Combat")]
-        public PlayerAttackDataSO attackData;
-
-        [Tooltip("신규 Gameplay Ability 데이터. 비어 있으면 기존 PlayerAttackDataSO 스킬 경로를 사용한다.")]
+        [Tooltip("캐릭터의 일반 공격, 스킬, 차지, 연계 라우트를 포함하는 단일 전투 데이터입니다.")]
         public AbilitySetSO abilitySet;
 
         [Header("Cycle Weight")]

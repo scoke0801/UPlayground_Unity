@@ -1,5 +1,7 @@
 # 몬스터 브레이크 / 행동 불능 / 특수공격 시스템 기획 문서
 
+> **설계 기록 주의:** 플레이어 특수공격 데이터 예시는 Ability 전환 이전 구조다. 현재 단일 소스는 `AbilitySetSO`이며 최신 기준은 `../TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 > 작성일: 2026-05-18  
 > 대상 버전: Unity 6 (6000.0.60f1), URP  
 > 레퍼런스: 명조 `Vibration Strength` / `Off-Tune` 계열 브레이크 기믹

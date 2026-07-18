@@ -15,7 +15,7 @@ Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP
 
 ## 빌드 & 실행
 
-Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0.60f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. 광범위한 자동 게임플레이 테스트 스위트는 없지만, `Assets/Tests/EditMode/PartyRosterServiceTests.cs`에 Core EditMode 테스트 3개가 있다.
+Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0.60f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개가 있다.
 
 ## 아키텍처
 
@@ -26,6 +26,8 @@ Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0
 - `UPlayGround.Core` — 공통 기반 코드
 - `UPlayGround.Data` — ScriptableObject, DTO, enum 등 순수 데이터
 - `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
+- `UPlayGround.Ability.Core` — 프로젝트 타입을 참조하지 않는 Ability 실행 상태·정책·Port·쿨다운·Effect 스택 코어
+- `UPlayGround.Ability.UPlayGround` — MotionSet과 플레이어 전투 Payload를 Core에 연결하는 프로젝트 어댑터
 - `UPlayGround.Camera` — 카메라 런타임
 - `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
 - `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
@@ -108,13 +110,37 @@ Animancer 기반 **MotionSet 타임라인** 구조 — 하나의 액션에 여�
 
 Unity Input System 기반, 우선순위 `InputLayer` 레벨 사용 (HUD=0, Scene=1000, Popup=2000, System=3000, Top=10000). `InputBuffer`로 선입력 지원. 이벤트 기반 등록/해제: `RegisterInputEvent`/`UnRegisterInputEvent`.
 
+### Gameplay Ability 시스템
+
+플레이어 공격·스킬 데이터의 단일 소스는 `AbilitySetSO`다.
+
+```text
+CharacterModelData.abilitySet
+→ ActorAbilitySystem / PlayerCombatAbilityDataView
+→ GameplayAbilitySO.Variant
+→ UPlayGroundMotionAbilityPayloadSO
+→ AnimKey + PlayerAttackInfo
+```
+
+- `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
+- `UPlayGroundMotionAbilityPayloadSO`는 실행용 `AnimKey`와 `PlayerAttackInfo`를 소유한다.
+- `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 Set을 소비한다.
+- `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
+- 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
+- `EnemyAttackDataSO`는 몬스터 공격에만 사용하며 MotionSet 기반 공격 데이터 생성기도 적 데이터 전용이다.
+- 플레이어 Ability 에셋은 `Assets/10.Datas/Ability/Migrated/`에 있고, UI Toolkit 기반 Ability Editor에서 편집·검증한다.
+- Core asmdef는 프로젝트 비의존이지만 Ability/Effect/Set 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템은 아직 외부 재사용 가능한 독립 패키지가 아니다.
+
+2026-07-18 기준 AbilitySet 8개, GameplayAbility 에셋 210개, Variant/Payload 221개이며 Unity Test Runner에서 EditMode 14/14, PlayMode 2/2를 통과했다. 상세 기준은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 ### 데이터 아키텍처 (ScriptableObject)
 
 모든 수치 데이터는 `Assets/10.Datas/`의 ScriptableObject로 외부화:
 - `EnemyBehaviorSO` — 페이즈 기반 AI 프로필 (HP 임계값에 따른 행동 전환)
 - `ActorStatSO` — 액터 스탯 단일 소스 (구 `EnemyStatsSO`는 제거됨)
 - `EnemyFlyingSettingsSO`, `PoiseSO`
-- `PlayerAttackDataSO`, `EnemyAttackDataSO` — 다단 `HitPhaseData`를 포함한 공격 데이터
+- `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어 공격·스킬 정의와 실행 Payload
+- `EnemyAttackDataSO` — 몬스터용 다단 `HitPhaseData` 공격 데이터
 - `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
 - `CameraShakeData`, 카메라 이펙트 SO
 - `MotionSetAsset` — 애니메이션 타임라인 정의

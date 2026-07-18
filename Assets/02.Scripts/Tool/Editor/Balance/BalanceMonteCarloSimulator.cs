@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -300,20 +302,22 @@ namespace UPlayGround.Tool.Editor.Balance
         private static List<(float damage, float breakDamage)> BuildPlayerAttackPool(BalanceScenarioAsset scenario)
         {
             var pool = new List<(float, float)>();
-            PlayerAttackDataSO data = scenario != null ? scenario.playerAttackData : null;
+            AbilitySetSO data = scenario != null ? scenario.playerAbilitySet : null;
             if (data == null)
                 return pool;
 
-            AddAttacks(pool, data.liteComboAttackList);
-            AddAttacks(pool, data.heavyComboAttackList);
-            AddAttacks(pool, data.jumpAttackList);
-            AddAttacks(pool, data.dashAttackList);
-            AddAttacks(pool, data.skillAttackList);
-            AddAttack(pool, data.counterAttack);
-            AddAttack(pool, data.parryCounterAttack);
-            AddAttack(pool, data.entryAttack);
-            AddAttack(pool, data.swapEvadeCounterAttack);
-            AddAttack(pool, data.swapSpecialAttack);
+            PlayerCombatAbilityDataView view =
+                PlayerCombatAbilityDataView.Build(data);
+            AddAttacks(pool, view.liteComboAttackList);
+            AddAttacks(pool, view.heavyComboAttackList);
+            AddAttacks(pool, view.jumpAttackList);
+            AddAttacks(pool, view.dashAttackList);
+            AddAttacks(pool, view.skillAttackList);
+            AddAttack(pool, view.counterAttack);
+            AddAttack(pool, view.parryCounterAttack);
+            AddAttack(pool, view.entryAttack);
+            AddAttack(pool, view.swapEvadeCounterAttack);
+            AddAttack(pool, view.swapSpecialAttack);
             return pool;
         }
 

@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_PlayerGreatSwordAttackData
+  m_EditorClassIdentifier: 
+  playerSlots:
+  - slot: 0
+    ability: {fileID: 11400000, guid: 5e3d2b8422ec88e4c99888e4634d92a4, type: 2}
+  - slot: 1
+    ability: {fileID: 11400000, guid: c1c4c77b5fd8b2042bbff47d32b7d261, type: 2}
+  additionalAbilities: []
+  combatBindings:
+  - slot: 0
+    abilities:
+    - {fileID: 11400000, guid: 5cf6f7841c516b74f8ee1e9a8ec2f72e, type: 2}
+    - {fileID: 11400000, guid: 36f7631ab48b8c24e9f88de84f7bb2a6, type: 2}
+    - {fileID: 11400000, guid: acfc763fbbf3dcd4192cc6a9a2143f47, type: 2}
+    - {fileID: 11400000, guid: 0c6331772745c064e88ad9d1294d6661, type: 2}
+    - {fileID: 11400000, guid: b78ff35bc7d1ef0469111c1530018a4a, type: 2}
+    - {fileID: 11400000, guid: a2bd3b3c46972ac48a56fd8ae13d3736, type: 2}
+    - {fileID: 11400000, guid: 2b16a76704858f84bb66199e77c5ae22, type: 2}
+    - {fileID: 11400000, guid: 502fdab6aa509324a9baff122697b4d6, type: 2}
+    - {fileID: 11400000, guid: ca8445cea9484274e80661c3a54bfb3e, type: 2}
+    - {fileID: 11400000, guid: e4479da6d7478d04eab443c0ab2a907e, type: 2}
+  - slot: 1
+    abilities:
+    - {fileID: 11400000, guid: 64ac89c1ab9ea5c4cb83ee39027f1e6d, type: 2}
+    - {fileID: 11400000, guid: f9ac8390a3011f54780892d47e64d697, type: 2}
+    - {fileID: 11400000, guid: 7d5a46f4a9882f14584002d972c23142, type: 2}
+    - {fileID: 11400000, guid: a9a0c950af4995d48ad7c302672bf2b9, type: 2}
+    - {fileID: 11400000, guid: bb220032b231b184baa7b0f96e191487, type: 2}
+    - {fileID: 11400000, guid: a99cd89121c435e46beb8ff1057ea909, type: 2}
+    - {fileID: 11400000, guid: 0d51d19899cc2ea4db7cab379d5d5f3b, type: 2}
+  - slot: 4
+    abilities:
+    - {fileID: 11400000, guid: e1ff477dc444ab44d9244ee2a7937eda, type: 2}
+  - slot: 5
+    abilities:
+    - {fileID: 11400000, guid: 66206b385860013448dc8aa5e6d5f4a5, type: 2}
+  - slot: 6
+    abilities:
+    - {fileID: 11400000, guid: fa83e392958e9f54a91e319c4d0e30f0, type: 2}
+  - slot: 7
+    abilities:
+    - {fileID: 11400000, guid: 2443cefbaaf11ba46a14bd0b3102f871, type: 2}
+  - slot: 8
+    abilities:
+    - {fileID: 11400000, guid: 8f9ad3b485d7e9d43aca20a342f7cc1e, type: 2}
+  - slot: 9
+    abilities:
+    - {fileID: 11400000, guid: ffaa3d42d0508bd4e92ceea912dd2412, type: 2}
+  - slot: 10
+    abilities:
+    - {fileID: 11400000, guid: 943334549df6d1f43bf27e745e4d78b0, type: 2}
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 5
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

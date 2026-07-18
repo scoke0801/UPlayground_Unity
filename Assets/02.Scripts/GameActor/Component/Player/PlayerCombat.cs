@@ -14,6 +14,8 @@ using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.MovementController;
 using UPlayGround.Debugging;
+using UPlayGround.Data.Ability;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Components
 {
@@ -50,9 +52,8 @@ namespace UPlayGround.Components
         [SerializeField] private PlayerEquipment _equipment;
         [SerializeField] private ActorAnimator   _actorAnimator;
 
-        [FormerlySerializedAs("stats")]
-        [Header("Combat Data")]
-        [SerializeField] private PlayerAttackDataSO _attackData;
+        private AbilitySetSO _abilitySet;
+        private PlayerCombatAbilityDataView _attackData;
 
         [Header("Combat State")]
         [SerializeField] private float _combatStateDuration = 30f;

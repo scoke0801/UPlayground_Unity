@@ -202,21 +202,19 @@ if ((_currentAttack.interruptActions & PlayerInterruptAction.Move) != 0
 
 위 파일들은 수정이 끝나 있습니다. **Unity 에디터에서 컴파일 에러가 없는지 콘솔을 확인**하세요.
 
-### 2. 기존 공격 에셋에 Move 플래그 부여 (필수)
+### 2. Ability Payload의 Move 플래그 확인
 
-기존 `PlayerAttackDataSO` 에셋에는 아직 `Move` 비트가 없으므로 이동 캔슬이 동작하지 않습니다.
-아래 메뉴를 실행해 **비파괴적으로**(기존 손튜닝 값 보존, OR로 추가) Move 플래그를 넣습니다.
+플레이어 공격 데이터는 `AbilitySetSO → GameplayAbilitySO.Variant → UPlayGroundMotionAbilityPayloadSO`에 있습니다.
+기존 데이터는 일괄 전환이 끝났으므로 별도 마이그레이션 메뉴를 실행하지 않습니다.
 
-```
-메뉴: UPlayGround → 게임플레이 → 전투 → PlayerAttackData 이동 후딜 캔슬(Move) 플래그 추가
-```
-
-- 약공/강공/스킬 공격 리스트에 `Move`를 추가합니다.
-- 차지·대시·점프 공격은 커밋감 유지를 위해 **제외**(자동 부여 안 함). 필요하면 인스펙터에서 개별 체크.
+- Ability Editor에서 해당 Variant의 Payload와 `PlayerAttackInfo.interruptActions`를 확인합니다.
+- 약공/강공/스킬은 필요에 따라 `Move`를 허용합니다.
+- 차지·대시·점프 공격은 커밋감을 위해 기본적으로 보수적으로 설정하고 개별 조정합니다.
 
 ### 3. 개별 조정 (인스펙터)
 
-특정 공격만 이동 캔슬을 켜거나 끄려면 `PlayerAttackDataSO`의 해당 공격 `interruptActions`에서 `Move` 체크박스를 직접 토글합니다.
+특정 공격만 이동 캔슬을 켜거나 끄려면 Ability Editor에서 해당 Variant Payload의
+`PlayerAttackInfo.interruptActions`에 있는 `Move`를 토글합니다.
 
 ---
 

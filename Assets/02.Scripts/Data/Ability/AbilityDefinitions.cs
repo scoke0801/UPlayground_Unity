@@ -173,24 +173,12 @@ namespace UPlayGround.Data.Ability
         public string variantId = "Default";
         public int priority;
         public AbilityVariantCondition condition = new();
-        [Tooltip("신규 모듈형 실행 데이터. 설정된 경우 레거시 필드보다 우선합니다.")]
+        [Tooltip("프로젝트별 실행 데이터. UPlayGround에서는 Motion Ability Payload를 사용합니다.")]
         public AbilityExecutionPayloadSO executionPayload;
-        [Tooltip("V1 에셋 호환 필드. 변환 도구 적용 전까지 유지합니다.")]
-        public AnimKey animKey = AnimKey.None;
-        [Tooltip("V1 에셋 호환 필드. 변환 도구 적용 전까지 유지합니다.")]
-        public PlayerAttackInfo playerAttackInfo = new();
         public List<GameplayEffectSO> targetEffects = new();
         public List<GameplayEffectSO> ownerEffects = new();
 
-        public AnimKey ResolveLegacyAnimKey() =>
-            animKey != AnimKey.None
-                ? animKey
-                : playerAttackInfo?.baseInfo?.animKey ?? AnimKey.None;
-
-        public bool HasLegacyExecutionData =>
-            playerAttackInfo?.baseInfo != null && ResolveLegacyAnimKey() != AnimKey.None;
-
-        public bool IsExecutable => executionPayload != null || HasLegacyExecutionData;
+        public bool IsExecutable => executionPayload != null;
     }
 
     [Serializable]

@@ -1,5 +1,7 @@
 # 플레이어 스킬 시스템 개선 설계 문서
 
+> **설계 기록 주의:** 이 문서는 현재 Gameplay Ability 시스템의 선행 설계 기록이다. 실제 플레이어 데이터 단일 소스는 `AbilitySetSO`이며 최신 구현·후속 모듈 조건은 `../TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
 > 작성일: 2026-06-06
 > 상태: Phase 2 구현 완료 / Unity 플레이 검증 대기
 > 레퍼런스: 명조(Wuthering Waves) 전투 구조

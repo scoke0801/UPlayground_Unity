@@ -1,6 +1,6 @@
 #if UNITY_EDITOR
 using UnityEngine;
-using UPlayGround.Data.Combat;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 
@@ -12,7 +12,7 @@ namespace UPlayGround.Tool.Editor.Balance
         [Header("Player")]
         public CharacterActorType playerCharacter = CharacterActorType.Bokusei;
         public ActorStatSO playerStatData;
-        public PlayerAttackDataSO playerAttackData;
+        public AbilitySetSO playerAbilitySet;
         [Min(1)] public int playerLevel = 1;
         [Tooltip("playerStatData가 없을 때 사용하는 플레이어 공격력 배율")]
         [Min(0f)] public float manualPlayerAttackPower = 1f;

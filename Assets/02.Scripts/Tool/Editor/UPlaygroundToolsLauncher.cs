@@ -92,15 +92,14 @@ namespace UPlayGround.Editor
             }),
             ("게임플레이 / 전투", new[]
             {
-                Tool("공격 데이터 에디터",                "UPlayGround/게임플레이/전투/공격 데이터 에디터", "플레이어 공격 데이터를 편집합니다.", "PlayerAttackDataSO의 콤보, 강공격, 점프/대시/스킬/차지 공격 데이터를 조정합니다."),
-                Tool("MotionSet 기반 공격 데이터 생성기", "UPlayGround/게임플레이/전투/MotionSet 기반 공격 데이터 생성기", "MotionSet 이벤트에서 공격 데이터 초안을 생성합니다.", "BeginCollisionEvent의 hitPhaseIndex와 타이밍을 분석해 AttackDataSO/HitPhase 구성을 만드는 보조 도구입니다."),
+                Tool("Ability 에디터",                    "UPlayGround/게임플레이/Ability Editor", "플레이어 AbilitySet과 Ability를 편집합니다.", "플레이어 공격·스킬·차지·교체 공격 데이터를 AbilitySetSO 중심으로 조정하고 검증합니다."),
+                Tool("MotionSet 기반 적 공격 생성기",    "UPlayGround/게임플레이/전투/MotionSet 기반 적 공격 데이터 생성기", "MotionSet 이벤트에서 적 공격 데이터 초안을 생성합니다.", "BeginCollisionEvent의 hitPhaseIndex를 분석해 EnemyAttackDataSO/HitPhase 구성을 만드는 보조 도구입니다."),
                 Tool("전투 데이터 검증기",           "UPlayGround/게임플레이/전투/도구/데이터 검증기", "전투 데이터 정합성을 검사합니다.", "공격 데이터, 충돌 이벤트, 전투 정책 등 전투 관련 에셋 연결 누락과 위험값을 검증합니다."),
                 Tool("전투 로그 기록기",             "UPlayGround/게임플레이/전투/도구/전투 로그 기록기", "전투 로그를 기록/확인합니다.", "플레이 중 전투 판정과 의사결정 로그를 수집해 밸런스와 버그 재현에 사용합니다."),
                 Tool("프레임 데이터 테이블",          "UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블", "전 공격의 선딜/액티브/후딜·데미지를 한 테이블로 봅니다.", "MotionSet의 Collision/ComboWindow 이벤트와 AttackDataSO를 합산해 격투게임식 프레임 데이터를 만듭니다. 정렬/CSV 내보내기와 페이즈 불일치 하이라이트를 지원합니다."),
                 Tool("HitBox 셋업",                  "UPlayGround/게임플레이/전투/도구/HitBox 셋업", "부착형 Combat HitBox를 자동 생성하고 검증합니다.", "무기/캐릭터 계층을 분석해 HitBox를 생성하고, 통합 검증으로 HitBox 그룹과 AttackData/MotionSet 이벤트 연결 상태를 확인합니다."),
                 Tool("HitBox 그룹 ID 동기화",         "UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", "HitBox와 공격 데이터의 그룹 ID를 함께 변경합니다.", "CombatHitbox.groupId, HitPhaseData.hitboxGroupId, BeginCollisionEvent.hitboxGroupId를 같은 매핑으로 정리해 판정 누락을 방지합니다."),
                 Tool("기본 정책 에셋 생성",  "UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", "기본 전투 정책 에셋을 생성합니다.", "CombatPolicy 계열 기본 에셋이 누락됐을 때 표준 설정으로 생성합니다."),
-                Tool("입장 변형 슬롯 채우기",          "UPlayGround/게임플레이/전투/입장 변형 슬롯 채우기 (모든 무기)", "모든 무기의 입장 변형(Entry Variant) 슬롯을 일괄 채웁니다.", "PlayerAttackDataSO의 기본 entryAttack을 깊은 복사해 그로기/공중 타깃용 입장 공격 슬롯을 채우고 토글을 켭니다. 이미 켜진 슬롯은 건너뛰어 재실행이 멱등합니다."),
             }),
             ("게임플레이 / 밸런스", new[]
             {

@@ -61,7 +61,7 @@ namespace UPlayGround.Tool.Editor.Balance
             {
                 if (scenario.playerStatData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "플레이어 statData가 비어 있어 기본 스탯으로 계산합니다."));
-                if (scenario.playerAttackData == null && scenario.manualPlayerDps <= 0f)
+            if (scenario.playerAbilitySet == null && scenario.manualPlayerDps <= 0f)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "플레이어 공격 데이터가 없고 manualPlayerDps도 0 이하입니다."));
             }
 

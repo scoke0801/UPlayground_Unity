@@ -26,7 +26,7 @@
 | `ActorStatSO` | `MoveSpeed`, `InvincibleDuration` 등 기본 스탯 보유 | 영구 기본값 유지. 무게 배율의 원본으로 사용 |
 | `ActorStatContainer` | 런타임 스탯 컨테이너 | 캐릭터 전환 시 이동 배율 적용 경로 확인 |
 | `PlayerSwapBehaviour.SwapTo` | 모델 활성화 후 `PlayerActor.RefreshForCharacter` 호출 | 프로필 재적용 시점 |
-| `PlayerAttackDataSO` / `HitPhaseData` | 피해·브레이크 데이터 보유 | 실행 시 무게 배율을 한 번 적용 |
+| Ability Payload의 `PlayerAttackInfo` / `HitPhaseData` | 피해·브레이크 데이터 보유 | 실행 시 무게 배율을 한 번 적용 |
 | `PoiseStat`, `MonsterBreakGauge` | 포이즈·브레이크 처리 | 최종 브레이크 값에 프로필 배율 적용 |
 | 플레이어 회피 상태 | 회피 무적 구간 소유 | 고정값 대신 프로필의 초 단위 값 조회 |
 | `VitalOrbManager` | 바이탈 오브 생성 관리 | 히트/브레이크 보상 정책 연결 |

@@ -115,7 +115,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (_playerAttacks == null || _playerAttacks.Count == 0)
             {
-                EditorGUILayout.HelpBox("PlayerAttackDataSO 에셋이 없습니다.", MessageType.Info);
+                EditorGUILayout.HelpBox("전투 로드아웃 AbilitySetSO 에셋이 없습니다.", MessageType.Info);
                 return;
             }
 

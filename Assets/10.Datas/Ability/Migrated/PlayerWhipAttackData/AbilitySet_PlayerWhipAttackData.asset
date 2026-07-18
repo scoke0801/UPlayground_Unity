@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_PlayerWhipAttackData
+  m_EditorClassIdentifier: 
+  playerSlots:
+  - slot: 0
+    ability: {fileID: 11400000, guid: e8b887bf849213c49aa74a9a13ed93a6, type: 2}
+  - slot: 1
+    ability: {fileID: 11400000, guid: 7fe899e0efd5b0743b5f94f3a719e6e3, type: 2}
+  additionalAbilities: []
+  combatBindings:
+  - slot: 0
+    abilities:
+    - {fileID: 11400000, guid: 1fc9380c75fa33145be74a633947ea88, type: 2}
+    - {fileID: 11400000, guid: ed40af9ad77f53549936ed0c2f94a219, type: 2}
+    - {fileID: 11400000, guid: 43b3881ddf8e8d74ca00b4dc36bfa142, type: 2}
+    - {fileID: 11400000, guid: 13cc5e9f4a446fd4094357749e15e219, type: 2}
+    - {fileID: 11400000, guid: d011d42b6c5913b41a0f254a61011404, type: 2}
+    - {fileID: 11400000, guid: 4e34fee377803e141ab10c0a6ced91e7, type: 2}
+  - slot: 1
+    abilities:
+    - {fileID: 11400000, guid: 40881f47e4d669e40b0c5e83dfa2cd80, type: 2}
+    - {fileID: 11400000, guid: 8121f538cce7ed4468eabaa455ff6624, type: 2}
+    - {fileID: 11400000, guid: cb00d808be073b549994cd06df81e537, type: 2}
+    - {fileID: 11400000, guid: 54828a4b79a34ed45ba2af3d70570e7b, type: 2}
+    - {fileID: 11400000, guid: 1a098e3bc64d06142a8388edb6b4dc68, type: 2}
+  - slot: 4
+    abilities:
+    - {fileID: 11400000, guid: cf29e84c2337b6a43a9f1eda3ba3fe24, type: 2}
+  - slot: 5
+    abilities:
+    - {fileID: 11400000, guid: 189537bd2ba01e340a43bbd613679980, type: 2}
+  - slot: 6
+    abilities:
+    - {fileID: 11400000, guid: e87b07535c028a245b53fc6ba0055125, type: 2}
+  - slot: 7
+    abilities:
+    - {fileID: 11400000, guid: 0ea5c13d8e3437e4c9237783782b9c71, type: 2}
+  - slot: 8
+    abilities:
+    - {fileID: 11400000, guid: 9965842e9873ce14ea7579ae02da6995, type: 2}
+  - slot: 9
+    abilities:
+    - {fileID: 11400000, guid: 48b082a936940844491876ab7aaca554, type: 2}
+  - slot: 10
+    abilities:
+    - {fileID: 11400000, guid: 0d77472aac406fb43912a630b1817205, type: 2}
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 5
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

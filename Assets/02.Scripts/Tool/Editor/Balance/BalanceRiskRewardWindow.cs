@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -53,7 +55,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private RiskAxis _riskAxis = RiskAxis.Cooldown;
         private RewardAxis _rewardAxis = RewardAxis.Damage;
         private EnemyAttackDataSO _enemyData;
-        private PlayerAttackDataSO _playerData;
+        private AbilitySetSO _playerData;
         private readonly List<PlotPoint> _points = new();
         private readonly List<string> _excluded = new();
         private Vector2 _listScroll;
@@ -78,7 +80,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 EditorGUILayout.HelpBox(
                     _mode == DataMode.EnemySkills
                         ? "EnemyAttackDataSO를 선택하세요. (프레임 축은 Attack Generator의 자동 리액션 분석이 생성된 공격만 표시)"
-                        : "PlayerAttackDataSO를 선택하세요.",
+                    : "AbilitySetSO를 선택하세요.",
                     MessageType.Info);
                 DrawExcluded();
                 return;
@@ -98,7 +100,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (_mode == DataMode.EnemySkills)
                     _enemyData = (EnemyAttackDataSO)EditorGUILayout.ObjectField(_enemyData, typeof(EnemyAttackDataSO), false, GUILayout.Width(220f));
                 else
-                    _playerData = (PlayerAttackDataSO)EditorGUILayout.ObjectField(_playerData, typeof(PlayerAttackDataSO), false, GUILayout.Width(220f));
+            _playerData = (AbilitySetSO)EditorGUILayout.ObjectField(_playerData, typeof(AbilitySetSO), false, GUILayout.Width(220f));
 
                 GUILayout.Space(8f);
                 EditorGUILayout.LabelField("리스크(X)", GUILayout.Width(56f));
@@ -165,16 +167,18 @@ namespace UPlayGround.Tool.Editor.Balance
             if (_playerData == null)
                 return;
 
-            AddPlayerList("lite", _playerData.liteComboAttackList, new Color(0.45f, 0.7f, 0.95f));
-            AddPlayerList("heavy", _playerData.heavyComboAttackList, new Color(0.95f, 0.6f, 0.3f));
-            AddPlayerList("jump", _playerData.jumpAttackList, new Color(0.6f, 0.85f, 0.5f));
-            AddPlayerList("dash", _playerData.dashAttackList, new Color(0.55f, 0.55f, 0.95f));
-            AddPlayerList("skill", _playerData.skillAttackList, new Color(0.9f, 0.4f, 0.5f));
-            AddPlayerOne("counter", _playerData.counterAttack, new Color(0.85f, 0.8f, 0.4f));
-            AddPlayerOne("parryCounter", _playerData.parryCounterAttack, new Color(0.85f, 0.8f, 0.4f));
-            AddPlayerOne("entry", _playerData.entryAttack, new Color(0.7f, 0.7f, 0.7f));
-            AddPlayerOne("swapEvadeCounter", _playerData.swapEvadeCounterAttack, new Color(0.85f, 0.8f, 0.4f));
-            AddPlayerOne("swapSpecial", _playerData.swapSpecialAttack, new Color(0.95f, 0.45f, 0.85f));
+            PlayerCombatAbilityDataView view =
+                PlayerCombatAbilityDataView.Build(_playerData);
+            AddPlayerList("lite", view.liteComboAttackList, new Color(0.45f, 0.7f, 0.95f));
+            AddPlayerList("heavy", view.heavyComboAttackList, new Color(0.95f, 0.6f, 0.3f));
+            AddPlayerList("jump", view.jumpAttackList, new Color(0.6f, 0.85f, 0.5f));
+            AddPlayerList("dash", view.dashAttackList, new Color(0.55f, 0.55f, 0.95f));
+            AddPlayerList("skill", view.skillAttackList, new Color(0.9f, 0.4f, 0.5f));
+            AddPlayerOne("counter", view.counterAttack, new Color(0.85f, 0.8f, 0.4f));
+            AddPlayerOne("parryCounter", view.parryCounterAttack, new Color(0.85f, 0.8f, 0.4f));
+            AddPlayerOne("entry", view.entryAttack, new Color(0.7f, 0.7f, 0.7f));
+            AddPlayerOne("swapEvadeCounter", view.swapEvadeCounterAttack, new Color(0.85f, 0.8f, 0.4f));
+            AddPlayerOne("swapSpecial", view.swapSpecialAttack, new Color(0.95f, 0.45f, 0.85f));
         }
 
         private void AddPlayerList(string prefix, List<PlayerAttackInfo> list, Color color)

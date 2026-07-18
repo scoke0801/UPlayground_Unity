@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_PlayerSwordShieldAttackData
+  m_EditorClassIdentifier: 
+  playerSlots:
+  - slot: 0
+    ability: {fileID: 11400000, guid: 63126ed99c50cfe438ebe0d2b504c8c3, type: 2}
+  - slot: 1
+    ability: {fileID: 11400000, guid: 231d9f6b0961bff46b2edf4c8c19e93f, type: 2}
+  additionalAbilities: []
+  combatBindings:
+  - slot: 0
+    abilities:
+    - {fileID: 11400000, guid: d8400366d1d4b0c4f945b62779e899b1, type: 2}
+    - {fileID: 11400000, guid: f0f672b97b98d4146b6f2d0557acabd1, type: 2}
+    - {fileID: 11400000, guid: 435cea1e31ff4c743a9ebb4eab7a20a7, type: 2}
+    - {fileID: 11400000, guid: 877c4aab50fcb794fbc6bb73135f1eb8, type: 2}
+    - {fileID: 11400000, guid: 2568a0a6d02dddf4c8349b1c0f822ab5, type: 2}
+    - {fileID: 11400000, guid: 92daa3396f4cda344a2cfad41b20776d, type: 2}
+    - {fileID: 11400000, guid: c10193db34f2f624292d9cfd28029d3c, type: 2}
+    - {fileID: 11400000, guid: c3048853760e9ac4695b0332e463a30c, type: 2}
+    - {fileID: 11400000, guid: f92e532e0c62f82449bcc51fbd6c7067, type: 2}
+    - {fileID: 11400000, guid: 1d6059e9754401542b86879edc4d3496, type: 2}
+  - slot: 1
+    abilities:
+    - {fileID: 11400000, guid: e68e5034e8640ae408b59d5f9dd7e3e3, type: 2}
+    - {fileID: 11400000, guid: c50ab34d78395b94e85df0d69cbdc52f, type: 2}
+    - {fileID: 11400000, guid: 2dc9011fe8a3f494a95a1d8fdfc2628c, type: 2}
+    - {fileID: 11400000, guid: 6808089e95f0ad14dadb942aa1b465cb, type: 2}
+    - {fileID: 11400000, guid: 786b69a20e444734b8e64c97395bbb72, type: 2}
+    - {fileID: 11400000, guid: c6da838564deeac4c862722fb00b78ef, type: 2}
+    - {fileID: 11400000, guid: 7c484806fef5f9b4396d76cff7cb9e05, type: 2}
+    - {fileID: 11400000, guid: e2932c29569010a41a561905ec966969, type: 2}
+    - {fileID: 11400000, guid: f44f304f03ac1d14dbbfaa2f8a5b1236, type: 2}
+  - slot: 2
+    abilities:
+    - {fileID: 11400000, guid: 0834dce5b3949b344b47620cbe86fd0c, type: 2}
+    - {fileID: 11400000, guid: 4f803ea49e5ff8248b2d5e8bf508423c, type: 2}
+    - {fileID: 11400000, guid: 3803802d8e471924a85fdba94abf1af3, type: 2}
+  - slot: 4
+    abilities:
+    - {fileID: 11400000, guid: 79ae71e64f4eb8d41942432b1820fd95, type: 2}
+  - slot: 5
+    abilities:
+    - {fileID: 11400000, guid: 57b0835e55bfcfd408fb93d56ed9a7a4, type: 2}
+  - slot: 6
+    abilities:
+    - {fileID: 11400000, guid: 90127f3d677284b42aed740520b19de7, type: 2}
+  - slot: 7
+    abilities:
+    - {fileID: 11400000, guid: c3eb41673dc35f24db9834c8c229a482, type: 2}
+  - slot: 8
+    abilities:
+    - {fileID: 11400000, guid: 3629b1c027e009142b785ab16b569297, type: 2}
+  - slot: 9
+    abilities:
+    - {fileID: 11400000, guid: b726d146d5a80334eb050b14f985dd38, type: 2}
+  - slot: 10
+    abilities:
+    - {fileID: 11400000, guid: 5914b058107ebb24dbc7092e90b68049, type: 2}
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 5
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

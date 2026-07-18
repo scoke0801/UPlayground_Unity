@@ -12,8 +12,8 @@
 |------|-----------|
 | 액터 기준 데이터 | `ActorDefinitionSO`, `ActorDatabase`, `ActorDatabaseEditorWindow` |
 | 스탯 | `ActorStatSO`, `ActorStatContainer`, `StatType` |
-| 공격 데이터 | `EnemyAttackDataSO`, `PlayerAttackDataSO`, `HitPhaseData`, `AttackDataFromMotionSetWindow` |
-| Motion 기반 생성 | `AttackDataFromMotionSetWindow`가 `ActorAnimationMotionSet`의 공격 `AnimKey`와 `BeginCollisionEvent`를 스캔해 `AttackDataSO`를 생성/동기화 |
+| 공격 데이터 | `EnemyAttackDataSO`, `AbilitySetSO`, `GameplayAbilitySO`, `HitPhaseData` |
+| Motion 기반 생성 | `AttackDataFromMotionSetWindow`는 몬스터 MotionSet을 스캔해 `EnemyAttackDataSO`를 생성/동기화. 플레이어 데이터는 Ability Editor에서 편집 |
 | BT 디버그 | `BehaviorTreeEditorWindow`, `BehaviorTreeRunner`, `BehaviorTreeDebugTrace`, `IntentScoreTimelineView`, `EncounterReplay` |
 
 이 문서는 위 기능을 묶어 밸런스 디자이너용 분석 툴로 확장하기 위한 기준 문서다. 현재 1차 구현은 `Balance Designer` 분석 창, 누락 데이터 자동 생성, MotionSet 기반 공격 데이터 생성 개선까지 포함한다.
@@ -135,9 +135,15 @@ ActorAnimationMotionSet
                       ↓
 AttackDataFromMotionSetWindow
                       ↓
-EnemyAttackDataSO / PlayerAttackDataSO
+EnemyAttackDataSO
                       ↓
 Balance Designer Tool 분석 입력
+
+CharacterModelData.abilitySet
+                      ↓
+AbilitySetSO → GameplayAbilitySO → Motion Payload
+                      ↓
+Balance Designer Tool 플레이어 분석 입력
 ```
 
 BT 쪽 데이터는 두 갈래로 사용한다.
@@ -179,7 +185,7 @@ Assets/02.Scripts/Tool/Editor/Balance/
 | `BalanceDesignerWindow` | Actor/Player/시간/거리/가정값 입력, 결과 테이블 표시, Motion 공격 데이터 생성기와 BT 에디터 열기 |
 | `BalanceScenarioAsset` | 반복 테스트할 조건 저장. 예: 플레이어 레벨, 몬스터 레벨 범위, 기준 시간, 거리 가정 |
 | `BalanceCombatEstimator` | HP, 방어, 공격 주기, 쿨다운, 가중치를 이용해 예상 생존 시간 계산 |
-| `BalanceAttackAnalyzer` | `EnemyAttackDataSO`와 `PlayerAttackDataSO`에서 총 피해량, 평균 피해량, 히트 수, 쿨다운, 레벨 해금 정보를 요약 |
+| `BalanceAttackAnalyzer` | `EnemyAttackDataSO`와 `AbilitySetSO`에서 총 피해량, 평균 피해량, 히트 수, 쿨다운, 레벨 해금 정보를 요약 |
 | `BalanceActorDataValidator` | `ActorDefinitionSO` 필수 참조와 공격 데이터 누락을 검사 |
 | `BalanceScenarioGenerator` | `PartyConfigSO`(성장 데이터) + 캐릭터 모델 공격 데이터를 읽어 `BalanceScenarioAsset`을 자동 생성/갱신 |
 | `BalanceReplayComparator` | `EncounterReplay`의 실제 Intent/거리/선택 빈도와 정적 추정치를 비교 |
@@ -219,7 +225,7 @@ Assets/02.Scripts/Tool/Editor/Balance/
 | `playerCharacter` | 해석된 캐릭터 타입 |
 | `playerStatData` | `PartyMemberGrowthSO.baseStat` (캐릭터 타입 일치) |
 | `playerLevel` | `PartyMemberGrowthSO.initialLevel` (없으면 1) |
-| `playerAttackData` | ① Model 프리팹 `CharacterModelData.attackData` → ② 이름에 캐릭터명이 포함된 `PlayerAttackDataSO` → ③ 프로젝트에 `PlayerAttackDataSO`가 하나뿐이면 공용 기본값 → ④ 실패 시 `null`(추정기가 `manualPlayerDps`로 폴백) |
+| `playerAbilitySet` | ① Model 프리팹 `CharacterModelData.abilitySet` → ② 이름에 캐릭터명이 포함된 `AbilitySetSO` → ③ 프로젝트에 `AbilitySetSO`가 하나뿐이면 공용 기본값 → ④ 실패 시 `null`(추정기가 `manualPlayerDps`로 폴백) |
 
 인카운터/방어/임계 가정값(`targetDuration`, `assumedDistance`, `hitReceiveRate`, `guardMitigationRate` 등)은 **건드리지 않는다.** 신규 생성 시에는 `BalanceScenarioAsset`의 필드 기본값을 그대로 쓰고, 기존 에셋을 재생성할 때는 사용자가 손으로 튜닝한 가정값을 보존한 채 플레이어 4개 필드만 새로고침한다(Undo 지원).
 
@@ -887,7 +893,7 @@ git status --short
 
 ### 파티/캐릭터별 비교
 
-플레이어는 `CharacterActorType` 단위로 비교한다. 초기에는 수동으로 `PlayerAttackDataSO`와 `ActorStatSO`를 입력하고, 이후 `PartyConfigSO` 또는 캐릭터별 데이터베이스와 연결한다.
+플레이어는 `CharacterActorType` 단위로 비교한다. `AbilitySetSO`와 `ActorStatSO`를 기준으로 비교하며, `PartyConfigSO`와 모델의 `CharacterModelData.abilitySet`에서 캐릭터별 시나리오를 자동 연결한다.
 
 ### BT 리플레이 기반 프리셋
 

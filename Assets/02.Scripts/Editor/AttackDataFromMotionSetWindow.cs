@@ -1,93 +1,56 @@
 #if UNITY_EDITOR
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data;
-using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
-using UPlayGround.Data.Stat;
-using UPlayGround.Tool.Editor.Balance;
 
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// ActorAnimationMotionSet의 공격 AnimKey와 Collision 이벤트를 기준으로 AttackDataSO 골격을 생성한다.
+    /// MotionSet의 공격 키와 Collision 이벤트를 EnemyAttackDataSO 골격으로 동기화한다.
+    /// 플레이어 공격 저작은 Ability Editor가 담당한다.
     /// </summary>
     public sealed class AttackDataFromMotionSetWindow : EditorWindow
     {
-        private enum TargetKind { Player, Enemy }
-        private enum ExistingPolicy { Skip, SyncPhaseCount, Replace }
+        private enum ExistingPolicy
+        {
+            Skip,
+            SyncPhaseCount,
+            Replace,
+        }
 
-        private ActorDefinitionSO _actorDefinition;
-        private BalanceScenarioAsset _balanceScenario;
         private ActorAnimationMotionSet _motionSet;
-        private AttackDataSO _attackData;
-        private TargetKind _targetKind = TargetKind.Player;
+        private EnemyAttackDataSO _attackData;
         private ExistingPolicy _existingPolicy = ExistingPolicy.SyncPhaseCount;
         private bool _includeFallback = true;
         private bool _requireCollisionEvent = true;
         private bool _normalizeCollisionPhaseIndex = true;
-        private bool _applyBalancedDamage = true;
-        private bool _overwriteExistingDamage = false;
-        private bool _useActorStatAndLevel = true;
-        private bool _normalizeRuntimeAttackPower = true;
-        private ActorStatSO _sourceStatData;
-        private int _sourceLevel = 1;
-        private float _levelDamageGrowth = 0.04f;
-        private float _targetPlayerDps = 45f;
-        private float _enemyBaseDamage = 8f;
-        // Poise/Break는 더 이상 damage 배율이 아니라, 기준 게이지(보통 maxPoise/maxGauge=100)의 분수로 산출한다.
-        // 이렇게 하면 damage 스케일을 재튜닝해도 경직/브레이크 난이도가 따라 흔들리지 않는다.
-        private float _referencePoiseGauge = 100f;
-        private float _referenceBreakGauge = 100f;
-        private float _poiseGaugeFraction = 0.15f;
-        private float _breakGaugeFraction = 0.10f;
-        private float _motionDurationWeight = 0.15f;
-        private float _comboStepWeight = 0.08f;
-        private bool _applyAutoReaction = true;
-        // HitStop/피드백 강도는 per-phase 후딜레이(다음 타격까지의 공백, 마지막 phase는 모션 끝까지)를 주축으로 산출한다.
-        // endlag ≤ _shortEndlag → 가벼운 피드백, ≥ _longEndlag → 강한 피드백. activeWindowWeight는 긴 타격판정창의 보조 가중.
-        private float _shortEndlag = 0.08f;
-        private float _longEndlag = 0.5f;
-        private float _activeWindowWeight = 0.2f;
-
-        // HitStop 튜닝 시작값(명조+DMC 계열 3D 액션 기준). 피격자는 런타임에서 항상 풀프리즈,
-        // 아래는 '공격자' HitStop이다. 체감은 강도(scale)보다 지속시간(duration)이 더 좌우하므로 duration 범위를 넓게 잡는다.
-        //   지속시간: 가벼운 타격 ~0.03s(약 2F) → 무거운 타격 ~0.12s, 궁극기/브레이크 상한 0.20s(약 12F @60fps)
-        //   공격자 스케일: 가벼운 타격 0.15(거의 안 멈춤) → 무거운 타격 0.0(공격자도 풀프리즈)
-        private const float AutoHitStopDurationMin = 0.03f;
-        private const float AutoHitStopDurationMax = 0.12f;   // typeMultiplier 적용 전 기준
-        private const float AutoHitStopDurationCap = 0.20f;
-        private const float AutoHitStopAttackerScaleWeak = 0.15f;
-        private const float AutoHitStopAttackerScaleStrong = 0f;
-        private const float ActiveWindowShortSec = 0.03f;
-        private const float ActiveWindowLongSec = 0.25f;
-        private bool _overwriteExistingReaction = false;
         private Vector2 _scroll;
-        private List<ScanEntry> _scanEntries = new();
-        private string _lastMessage = "";
+        private List<ScanEntry> _entries = new();
+        private string _message;
 
-        [MenuItem("UPlayGround/게임플레이/전투/MotionSet 기반 공격 데이터 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombat + 1)]
+        [MenuItem(
+            "UPlayGround/게임플레이/전투/MotionSet 기반 적 공격 데이터 생성기",
+            priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombat + 1)]
         public static void OpenFromMenu()
         {
-            var window = GetWindow<AttackDataFromMotionSetWindow>("공격 데이터 생성기");
-            window.minSize = new Vector2(560f, 480f);
+            var window = GetWindow<AttackDataFromMotionSetWindow>("적 공격 생성기");
+            window.minSize = new Vector2(560f, 420f);
             window.BindSelection();
             window.Show();
         }
 
-        public static void Open(AttackDataSO attackData)
+        public static void Open(EnemyAttackDataSO attackData)
         {
-            var window = GetWindow<AttackDataFromMotionSetWindow>("공격 데이터 생성기");
-            window.minSize = new Vector2(560f, 480f);
+            var window = GetWindow<AttackDataFromMotionSetWindow>("적 공격 생성기");
+            window.minSize = new Vector2(560f, 420f);
             window._attackData = attackData;
-            window._targetKind = attackData is EnemyAttackDataSO ? TargetKind.Enemy : TargetKind.Player;
             window.BindSelection(false);
             window.RefreshScan();
             window.Show();
@@ -95,8 +58,8 @@ namespace UPlayGround.Editor
 
         public static void Open(ActorAnimationMotionSet motionSet)
         {
-            var window = GetWindow<AttackDataFromMotionSetWindow>("공격 데이터 생성기");
-            window.minSize = new Vector2(560f, 480f);
+            var window = GetWindow<AttackDataFromMotionSetWindow>("적 공격 생성기");
+            window.minSize = new Vector2(560f, 420f);
             window._motionSet = motionSet;
             window.BindSelection(false);
             window.RefreshScan();
@@ -116,1327 +79,195 @@ namespace UPlayGround.Editor
             Repaint();
         }
 
-        private void BindSelection(bool overwriteExisting = true)
+        private void BindSelection(bool overwrite = true)
         {
-            if (Selection.activeObject is ActorAnimationMotionSet selectedMotionSet)
+            if (Selection.activeObject is ActorAnimationMotionSet motionSet
+                && (overwrite || _motionSet == null))
             {
-                if (overwriteExisting || _motionSet == null)
-                    _motionSet = selectedMotionSet;
+                _motionSet = motionSet;
             }
-            else if (Selection.activeObject is AttackDataSO selectedAttackData)
+            else if (Selection.activeObject is EnemyAttackDataSO attackData
+                     && (overwrite || _attackData == null))
             {
-                if (overwriteExisting || _attackData == null)
-                {
-                    _attackData = selectedAttackData;
-                    _targetKind = selectedAttackData is EnemyAttackDataSO ? TargetKind.Enemy : TargetKind.Player;
-                }
-            }
-            else if (Selection.activeObject is ActorDefinitionSO selectedActor)
-            {
-                if (overwriteExisting || _actorDefinition == null)
-                    BindActorDefinition(selectedActor, overwriteExisting);
-            }
-        }
-
-        private void BindActorDefinition(ActorDefinitionSO actor, bool overwriteExisting)
-        {
-            _actorDefinition = actor;
-            if (actor == null)
-                return;
-
-            _sourceStatData = actor.statData != null ? actor.statData : _sourceStatData;
-            _sourceLevel = Mathf.Max(1, actor.level);
-
-            if ((actor.actorType & ActorType.Monster) != 0)
-            {
-                _targetKind = TargetKind.Enemy;
-                if (overwriteExisting || _attackData == null)
-                    _attackData = actor.attackData;
-                _enemyBaseDamage = GetDefaultEnemyBaseDamage(actor);
-            }
-
-            if (actor.prefab != null)
-            {
-                var animator = actor.prefab.GetComponentInChildren<ActorAnimator>(true);
-                if (animator != null && animator.MotionSet != null && (overwriteExisting || _motionSet == null))
-                    _motionSet = animator.MotionSet;
+                _attackData = attackData;
             }
         }
 
         private void OnGUI()
         {
-            DrawHeader();
-            DrawSourceFields();
-            DrawOptions();
-            DrawPreview();
-            DrawActions();
-        }
+            EditorGUILayout.LabelField("MotionSet 기반 적 공격 데이터 생성기", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "플레이어 공격은 Ability Editor에서 저작합니다. 이 도구는 EnemyAttackDataSO만 생성·동기화합니다.",
+                MessageType.Info);
 
-        private void DrawHeader()
-        {
-            Rect header = GUILayoutUtility.GetRect(0, 42f, GUILayout.ExpandWidth(true));
-            EditorGUI.DrawRect(header, new Color(0.12f, 0.12f, 0.12f));
-            EditorGUI.DrawRect(new Rect(header.x, header.yMax - 2f, header.width, 2f), new Color(0.45f, 0.75f, 1f));
-            EditorGUI.LabelField(
-                new Rect(header.x + 10f, header.y, header.width - 20f, header.height),
-                "MotionSet 기반 공격 데이터 생성기",
-                new GUIStyle(EditorStyles.boldLabel) { fontSize = 13, normal = { textColor = Color.white } });
-        }
-
-        private void DrawSourceFields()
-        {
-            EditorGUILayout.Space(8);
             EditorGUI.BeginChangeCheck();
-            var newActor = (ActorDefinitionSO)EditorGUILayout.ObjectField(
-                "ActorDefinitionSO", _actorDefinition, typeof(ActorDefinitionSO), false);
-            if (newActor != _actorDefinition)
-                BindActorDefinition(newActor, true);
-
             _motionSet = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
-                "Animation MotionSet", _motionSet, typeof(ActorAnimationMotionSet), false);
-            _attackData = (AttackDataSO)EditorGUILayout.ObjectField(
-                "AttackData 대상", _attackData, typeof(AttackDataSO), false);
-            _balanceScenario = (BalanceScenarioAsset)EditorGUILayout.ObjectField(
-                "Balance Scenario", _balanceScenario, typeof(BalanceScenarioAsset), false);
-            _targetKind = (TargetKind)EditorGUILayout.EnumPopup("생성 대상 타입", _targetKind);
+                "Animation MotionSet",
+                _motionSet,
+                typeof(ActorAnimationMotionSet),
+                false);
+            _attackData = (EnemyAttackDataSO)EditorGUILayout.ObjectField(
+                "Enemy Attack Data",
+                _attackData,
+                typeof(EnemyAttackDataSO),
+                false);
+            _includeFallback = EditorGUILayout.ToggleLeft("Fallback MotionSet까지 스캔", _includeFallback);
+            _requireCollisionEvent = EditorGUILayout.ToggleLeft(
+                "Collision 이벤트가 있는 공격만 포함",
+                _requireCollisionEvent);
+            _normalizeCollisionPhaseIndex = EditorGUILayout.ToggleLeft(
+                "Collision hitPhaseIndex를 시간순으로 정규화",
+                _normalizeCollisionPhaseIndex);
+            _existingPolicy = (ExistingPolicy)EditorGUILayout.EnumPopup(
+                "기존 공격 처리",
+                _existingPolicy);
             if (EditorGUI.EndChangeCheck())
-            {
-                if (_attackData is EnemyAttackDataSO) _targetKind = TargetKind.Enemy;
-                else if (_attackData is PlayerAttackDataSO) _targetKind = TargetKind.Player;
                 RefreshScan();
-            }
-        }
 
-        private void DrawOptions()
-        {
-            EditorGUILayout.Space(4);
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                _includeFallback = EditorGUILayout.ToggleLeft("Fallback MotionSet까지 스캔", _includeFallback);
-                _requireCollisionEvent = EditorGUILayout.ToggleLeft("Collision 이벤트가 있는 공격만 생성", _requireCollisionEvent);
-                _normalizeCollisionPhaseIndex = EditorGUILayout.ToggleLeft(
-                    "Collision hitPhaseIndex를 시간순으로 0부터 재정렬", _normalizeCollisionPhaseIndex);
-                _existingPolicy = (ExistingPolicy)EditorGUILayout.EnumPopup("기존 공격 처리", _existingPolicy);
-            }
-
-            EditorGUILayout.Space(4);
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                _applyBalancedDamage = EditorGUILayout.ToggleLeft("밸런싱 대미지 자동 설정", _applyBalancedDamage);
-                using (new EditorGUI.DisabledScope(!_applyBalancedDamage))
-                {
-                    using (new EditorGUI.DisabledScope(_balanceScenario == null))
-                    {
-                        if (GUILayout.Button("Balance Scenario 기준값 적용", GUILayout.Height(22f)))
-                            ApplyBalanceScenarioDefaults();
-                    }
-                    _overwriteExistingDamage = EditorGUILayout.ToggleLeft("기존 Phase 대미지/Poise/Break도 갱신", _overwriteExistingDamage);
-                    _useActorStatAndLevel = EditorGUILayout.ToggleLeft("Actor Stat/Level 반영", _useActorStatAndLevel);
-                    using (new EditorGUI.DisabledScope(!_useActorStatAndLevel))
-                    {
-                        _sourceStatData = (ActorStatSO)EditorGUILayout.ObjectField("기준 StatData", _sourceStatData, typeof(ActorStatSO), false);
-                        _sourceLevel = EditorGUILayout.IntField("기준 레벨", Mathf.Max(1, _sourceLevel));
-                        _levelDamageGrowth = EditorGUILayout.Slider("레벨당 피해 성장률", _levelDamageGrowth, 0f, 0.2f);
-                        _normalizeRuntimeAttackPower = EditorGUILayout.ToggleLeft("AttackPower 런타임 곱셈 역보정", _normalizeRuntimeAttackPower);
-                        EditorGUILayout.HelpBox("런타임에서 HitPhaseData.damage에 공격자 AttackPower가 다시 곱해집니다. 역보정을 켜면 최종 목표 피해는 레벨/등급을 반영하되 AttackPower가 중복 적용되지 않도록 저장 피해를 나눠서 생성합니다.", MessageType.Info);
-                    }
-                    _targetPlayerDps = EditorGUILayout.FloatField("플레이어 목표 DPS", Mathf.Max(0f, _targetPlayerDps));
-                    _enemyBaseDamage = EditorGUILayout.FloatField("적 기준 대미지", Mathf.Max(0f, _enemyBaseDamage));
-                    EditorGUILayout.HelpBox(
-                        "플레이어 대미지는 라이트 콤보 전체 DPS가 '목표 DPS'가 되도록 자동 정규화됩니다. " +
-                        "콤보 타수가 많아도 합산 DPS는 일정하게 유지되고, 다른 공격(헤비/스킬 등)은 라이트 기준 대비 카테고리 배율만큼 더/덜 들어갑니다.",
-                        MessageType.Info);
-                    EditorGUILayout.Space(2);
-                    _referencePoiseGauge = EditorGUILayout.FloatField("기준 Poise 게이지", Mathf.Max(1f, _referencePoiseGauge));
-                    _referenceBreakGauge = EditorGUILayout.FloatField("기준 Break 게이지", Mathf.Max(1f, _referenceBreakGauge));
-                    _poiseGaugeFraction = EditorGUILayout.Slider("타격당 Poise 비율(라이트 기준)", _poiseGaugeFraction, 0f, 0.5f);
-                    _breakGaugeFraction = EditorGUILayout.Slider("타격당 Break 비율(라이트 기준)", _breakGaugeFraction, 0f, 0.5f);
-                    EditorGUILayout.HelpBox(
-                        $"라이트 1타 = 기준 게이지의 약 {_poiseGaugeFraction * 100f:F0}% Poise / {_breakGaugeFraction * 100f:F0}% Break. " +
-                        $"기준 게이지 {_referencePoiseGauge:F0} 기준 라이트 1콤보(예: 3타)로는 깨지지 않고, 누적·강공격으로 깨지도록 잡습니다.",
-                        MessageType.None);
-                    _motionDurationWeight = EditorGUILayout.Slider("모션 길이 반영", _motionDurationWeight, 0f, 0.5f);
-                    _comboStepWeight = EditorGUILayout.Slider("콤보 순번 반영", _comboStepWeight, 0f, 0.25f);
-                }
-            }
-
-            EditorGUILayout.Space(4);
-            using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
-            {
-                _applyAutoReaction = EditorGUILayout.ToggleLeft("공격 반응 자동 추천값 생성", _applyAutoReaction);
-                using (new EditorGUI.DisabledScope(!_applyAutoReaction))
-                {
-                    _overwriteExistingReaction = EditorGUILayout.ToggleLeft("기존 Auto Reaction도 갱신", _overwriteExistingReaction);
-                    EditorGUILayout.HelpBox(
-                        "HitStop/Camera/FOV/Trail 강도는 per-phase 후딜레이(다음 타격까지의 공백, 마지막 타격은 모션 끝까지)를 주축으로 산출합니다. " +
-                        "긴 후딜=강한 공격=강한 피드백, 짧은 후딜=가벼운 피드백. 카테고리는 보조 배율로만 반영됩니다.",
-                        MessageType.Info);
-                    _shortEndlag = EditorGUILayout.Slider("약한 피드백 후딜(초)", _shortEndlag, 0.01f, 0.4f);
-                    _longEndlag = EditorGUILayout.Slider("강한 피드백 후딜(초)", Mathf.Max(_shortEndlag + 0.01f, _longEndlag), _shortEndlag + 0.01f, 1.2f);
-                    _activeWindowWeight = EditorGUILayout.Slider("타격판정창 길이 보조 반영", _activeWindowWeight, 0f, 0.5f);
-                }
-            }
-        }
-
-        private void DrawPreview()
-        {
-            EditorGUILayout.Space(6);
-            EditorGUILayout.BeginHorizontal();
-            PlayerAttackDataSODrawer.DrawSectionHeader($"스캔 결과 ({_scanEntries.Count}개)", new Color(0.45f, 0.75f, 1f));
-            EditorGUILayout.EndHorizontal();
-
-            if (_motionSet == null)
-            {
-                EditorGUILayout.HelpBox("ActorAnimationMotionSet을 지정하세요.", MessageType.Info);
-                return;
-            }
-
-            if (_scanEntries.Count == 0)
-            {
-                EditorGUILayout.HelpBox("조건에 맞는 공격 AnimKey가 없습니다.", MessageType.Warning);
-                return;
-            }
-
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField($"스캔 결과 ({_entries.Count}개)", EditorStyles.boldLabel);
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
-            float enemyTotalWeight = _targetKind == TargetKind.Enemy ? CalculateEnemyTotalWeight(_scanEntries) : 0f;
-            foreach (ScanEntry entry in _scanEntries)
+            foreach (ScanEntry entry in _entries)
             {
-                using (new EditorGUILayout.HorizontalScope(EditorStyles.helpBox))
-                {
-                    GUILayout.Label(entry.Key.ToString(), EditorStyles.boldLabel, GUILayout.Width(170f));
-                    GUILayout.Label(entry.CategoryLabel, GUILayout.Width(90f));
-                    GUILayout.Label($"Collision {entry.CollisionCount}", GUILayout.Width(90f));
-                    GUILayout.Label($"Phase {entry.PhaseCount}", GUILayout.Width(70f));
-                    GUILayout.Label($"DMG {CalculateTotalDamage(entry):F0}", GUILayout.Width(80f));
-                    if (_applyAutoReaction)
-                    {
-                        GetStrongestPhasePreview(entry, out float endlag, out float hitStopDuration, out float hitStopScale);
-                        GUILayout.Label($"후딜 {endlag * 1000f:F0}ms", GUILayout.Width(80f));
-                        // xScale은 공격자 스케일. 피격자는 런타임에서 항상 풀프리즈(~0)된다.
-                        GUILayout.Label($"HS {hitStopDuration * 1000f:F0}ms·공x{hitStopScale:F2}", GUILayout.Width(140f));
-                    }
-                    if (_targetKind == TargetKind.Enemy)
-                    {
-                        float weight = GetEnemySelectionWeight(entry.Category);
-                        float chance = enemyTotalWeight > 0f ? weight / enemyTotalWeight : 0f;
-                        float runtimeDamage = CalculateRuntimeExpectedDamage(entry);
-                        GUILayout.Label($"Final {runtimeDamage:F0}", GUILayout.Width(70f));
-                        GUILayout.Label($"W {weight:F0}", GUILayout.Width(46f));
-                        GUILayout.Label($"{chance * 100f:F0}%", GUILayout.Width(46f));
-                        GUILayout.Label(IsStrongEnemyAttack(entry.Category) ? "Ring" : "-", GUILayout.Width(46f));
-                    }
-                    GUILayout.FlexibleSpace();
-                    EditorGUILayout.ObjectField(entry.Asset, typeof(MotionSetAsset), false, GUILayout.Width(180f));
-                }
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                EditorGUILayout.LabelField(entry.Key.ToString(), GUILayout.Width(190f));
+                EditorGUILayout.LabelField($"Phase {entry.PhaseCount}", GUILayout.Width(75f));
+                EditorGUILayout.ObjectField(entry.Asset, typeof(MotionSetAsset), false);
+                EditorGUILayout.EndHorizontal();
             }
             EditorGUILayout.EndScrollView();
-        }
 
-        private void DrawActions()
-        {
-            EditorGUILayout.Space(6);
-            using (new EditorGUI.DisabledScope(_motionSet == null))
+            if (!string.IsNullOrWhiteSpace(_message))
+                EditorGUILayout.HelpBox(_message, MessageType.None);
+
+            using (new EditorGUI.DisabledScope(_motionSet == null || _attackData == null))
             {
-                if (GUILayout.Button("다시 스캔", GUILayout.Height(26f)))
-                    RefreshScan();
+                if (GUILayout.Button("EnemyAttackDataSO에 적용", GUILayout.Height(30f)))
+                    Apply();
             }
-
-            using (new EditorGUI.DisabledScope(_motionSet == null || _attackData == null || _scanEntries.Count == 0))
-            {
-                GUI.backgroundColor = new Color(0.35f, 0.65f, 1f);
-                if (GUILayout.Button("AttackData 생성/동기화", GUILayout.Height(32f)))
-                    Generate();
-                GUI.backgroundColor = Color.white;
-            }
-
-            if (!string.IsNullOrEmpty(_lastMessage))
-                EditorGUILayout.HelpBox(_lastMessage, MessageType.Info);
-        }
-
-        private void ApplyBalanceScenarioDefaults()
-        {
-            if (_balanceScenario == null)
-                return;
-
-            _useActorStatAndLevel = true;
-            _sourceStatData = _balanceScenario.playerStatData != null ? _balanceScenario.playerStatData : _sourceStatData;
-            _sourceLevel = Mathf.Max(1, _balanceScenario.playerLevel);
-
-            if (_targetKind == TargetKind.Player)
-            {
-                if (_balanceScenario.playerAttackData != null)
-                    _attackData = _balanceScenario.playerAttackData;
-
-                // manualPlayerDps를 그대로 목표 DPS로 사용한다(과거: × attackInterval 후 base 재증폭 → 이중 인플레).
-                _targetPlayerDps = Mathf.Max(1f, _balanceScenario.manualPlayerDps);
-            }
-
-            _lastMessage = $"Balance Scenario 기준 적용: Lv.{_sourceLevel}, 플레이어 목표 DPS {_targetPlayerDps:F1}";
-            RefreshScan();
         }
 
         private void RefreshScan()
         {
-            _scanEntries = _motionSet == null
-                ? new List<ScanEntry>()
-                : CollectScanEntries(_motionSet, _includeFallback, _requireCollisionEvent, _targetKind);
+            _entries = Scan(_motionSet, _includeFallback, _requireCollisionEvent);
+            _message = "";
         }
 
-        private void Generate()
+        private void Apply()
         {
-            if (_attackData == null || _motionSet == null) return;
+            if (_motionSet == null || _attackData == null)
+                return;
 
-            Undo.RecordObject(_attackData, "Generate AttackData From MotionSet");
+            Undo.RecordObject(_attackData, "적 공격 데이터 MotionSet 동기화");
+            if (_normalizeCollisionPhaseIndex)
+                NormalizeCollisionPhaseIndexes(_entries);
+
+            _attackData.skills ??= new List<EnemyAttackInfo>();
             int created = 0;
             int updated = 0;
-
-            if (_normalizeCollisionPhaseIndex)
-                NormalizeCollisionPhaseIndexes(_scanEntries);
-
-            if (_attackData is PlayerAttackDataSO player)
+            foreach (ScanEntry entry in _entries)
             {
-                foreach (ScanEntry entry in _scanEntries)
-                    ApplyPlayerEntry(player, entry, ref created, ref updated);
-            }
-            else if (_attackData is EnemyAttackDataSO enemy)
-            {
-                foreach (ScanEntry entry in _scanEntries)
-                    ApplyEnemyEntry(enemy, entry, ref created, ref updated);
+                EnemyAttackInfo existing = _attackData.skills.FirstOrDefault(
+                    skill => skill?.baseInfo?.animKey == entry.Key);
+                if (existing == null)
+                {
+                    _attackData.skills.Add(CreateAttack(entry));
+                    created++;
+                    continue;
+                }
+
+                if (_existingPolicy == ExistingPolicy.Skip)
+                    continue;
+
+                if (_existingPolicy == ExistingPolicy.Replace || existing.baseInfo == null)
+                    existing.baseInfo = CreateBaseInfo(entry);
+                else
+                    SyncHitPhases(existing.baseInfo, entry);
+                updated++;
             }
 
             EditorUtility.SetDirty(_attackData);
             AssetDatabase.SaveAssets();
-            _lastMessage = $"생성 {created}개, 갱신 {updated}개 완료.";
-            RefreshScan();
+            _message = $"생성 {created}개, 갱신 {updated}개 완료.";
         }
 
-        private void ApplyPlayerEntry(PlayerAttackDataSO data, ScanEntry entry, ref int created, ref int updated)
+        private static EnemyAttackInfo CreateAttack(ScanEntry entry)
         {
-            if (entry.Category == AttackCategory.Charge)
+            return new EnemyAttackInfo
             {
-                if (_existingPolicy != ExistingPolicy.Skip || data.chargeAnimKey == AnimKey.None)
-                {
-                    data.chargeAnimKey = entry.Key;
-                    SyncChargeStageHitPhases(data, entry, _applyBalancedDamage,
-                        _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
-                    updated++;
-                }
-                return;
-            }
-
-            if (TryApplySpecialPlayerEntry(data, entry, ref created, ref updated))
-                return;
-
-            if (entry.Category == AttackCategory.Skill)
-                ApplyPlayerSkillDefinitionEntry(data, entry, ref created, ref updated);
-
-            List<PlayerAttackInfo> list = GetPlayerList(data, entry.Category);
-            if (list == null) return;
-
-            PlayerAttackInfo existing = list.FirstOrDefault(x => x?.baseInfo?.animKey == entry.Key);
-            if (existing != null)
-            {
-                if (_existingPolicy == ExistingPolicy.Skip) return;
-                if (_existingPolicy == ExistingPolicy.Replace)
-                    ReplacePlayerAttack(existing, entry);
-                else
-                    SyncHitPhases(existing.baseInfo, entry.PhaseCount);
-                ApplyBalancedDamage(existing.baseInfo, entry,
-                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
-                ApplyAutoReaction(existing.baseInfo, entry,
-                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
-                updated++;
-                return;
-            }
-
-            list.Add(CreatePlayerAttack(entry));
-            created++;
-        }
-
-        private void ApplyPlayerSkillDefinitionEntry(PlayerAttackDataSO data, ScanEntry entry, ref int created, ref int updated)
-        {
-            if (data == null || entry == null || entry.Category != AttackCategory.Skill)
-                return;
-
-            data.skillDefinitions ??= new List<PlayerSkillDefinition>();
-
-            PlayerSkillSlot slot = ResolvePlayerSkillSlot(entry.Key);
-            PlayerSkillDefinition definition = FindOrCreateSkillDefinition(data, slot, ref created);
-            ApplyDefaultSkillDefinitionPolicy(definition);
-
-            definition.variants ??= new List<PlayerSkillVariant>();
-            PlayerSkillVariant existing = definition.variants.FirstOrDefault(v => v != null && v.ResolveAnimKey() == entry.Key);
-            if (existing != null)
-            {
-                if (_existingPolicy == ExistingPolicy.Skip) return;
-
-                if (_existingPolicy == ExistingPolicy.Replace || existing.attackInfo?.baseInfo == null)
-                    existing.attackInfo = CreatePlayerAttack(entry);
-                else
-                    SyncHitPhases(existing.attackInfo.baseInfo, entry.PhaseCount);
-
-                existing.animKey = entry.Key;
-                existing.variantName = ResolveSkillVariantName(slot, entry.Key);
-                existing.condition ??= new SkillVariantCondition();
-                ApplyBalancedDamage(existing.attackInfo.baseInfo, entry,
-                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
-                ApplyAutoReaction(existing.attackInfo.baseInfo, entry,
-                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
-                updated++;
-                return;
-            }
-
-            definition.variants.Add(new PlayerSkillVariant
-            {
-                variantName = ResolveSkillVariantName(slot, entry.Key),
-                animKey = entry.Key,
-                attackInfo = CreatePlayerAttack(entry),
-                condition = new SkillVariantCondition(),
-                priority = GetDefaultSkillVariantPriority(slot, entry.Key),
-            });
-            created++;
-        }
-
-        private static PlayerSkillDefinition FindOrCreateSkillDefinition(
-            PlayerAttackDataSO data,
-            PlayerSkillSlot slot,
-            ref int created)
-        {
-            for (int i = 0; i < data.skillDefinitions.Count; i++)
-            {
-                PlayerSkillDefinition definition = data.skillDefinitions[i];
-                if (definition != null && definition.slot == slot)
-                {
-                    if (string.IsNullOrWhiteSpace(definition.displayName) ||
-                        definition.displayName is "Skill1" or "Skill2" or "Skill")
-                    {
-                        definition.displayName = GetDefaultSkillDisplayName(slot);
-                    }
-
-                    return definition;
-                }
-            }
-
-            var result = new PlayerSkillDefinition
-            {
-                slot = slot,
-                displayName = GetDefaultSkillDisplayName(slot),
-                costPolicy = GetDefaultSkillCostPolicy(slot),
-                cooldownPolicy = SkillCooldownPolicy.UseGaugeSlot,
-                variants = new List<PlayerSkillVariant>(),
-            };
-            data.skillDefinitions.Add(result);
-            created++;
-            return result;
-        }
-
-        private static void ApplyDefaultSkillDefinitionPolicy(PlayerSkillDefinition definition)
-        {
-            if (definition == null) return;
-
-            definition.displayName = string.IsNullOrWhiteSpace(definition.displayName) ||
-                                     definition.displayName is "Skill1" or "Skill2" or "Skill"
-                ? GetDefaultSkillDisplayName(definition.slot)
-                : definition.displayName;
-            definition.costPolicy = GetDefaultSkillCostPolicy(definition.slot);
-            definition.cooldownPolicy = SkillCooldownPolicy.UseGaugeSlot;
-        }
-
-        private static PlayerSkillSlot ResolvePlayerSkillSlot(AnimKey key)
-            => key == AnimKey.Skill_2
-                ? PlayerSkillSlot.Ultimate
-                : PlayerSkillSlot.Ability;
-
-        private static string ResolveSkillVariantName(PlayerSkillSlot slot, AnimKey key)
-        {
-            if (slot == PlayerSkillSlot.Ability && key == AnimKey.Skill_1)
-                return "Default";
-            if (slot == PlayerSkillSlot.Ultimate && key == AnimKey.Skill_2)
-                return "Default";
-            return key.ToString();
-        }
-
-        private static int GetDefaultSkillVariantPriority(PlayerSkillSlot slot, AnimKey key)
-        {
-            if (slot == PlayerSkillSlot.Ability && key == AnimKey.Skill_1)
-                return 0;
-            if (slot == PlayerSkillSlot.Ultimate && key == AnimKey.Skill_2)
-                return 0;
-            return Mathf.Max(1, (int)key - (int)AnimKey.Skill_1);
-        }
-
-        private static string GetDefaultSkillDisplayName(PlayerSkillSlot slot)
-            => slot == PlayerSkillSlot.Ultimate ? "Ultimate" : "Ability";
-
-        private static SkillCostPolicy GetDefaultSkillCostPolicy(PlayerSkillSlot slot)
-            => slot == PlayerSkillSlot.Ultimate
-                ? SkillCostPolicy.UseGaugeSlot
-                : SkillCostPolicy.NoCost;
-
-        private bool TryApplySpecialPlayerEntry(PlayerAttackDataSO data, ScanEntry entry, ref int created, ref int updated)
-        {
-            if (entry.Category != AttackCategory.Counter &&
-                entry.Category != AttackCategory.Entry &&
-                entry.Category != AttackCategory.SwapEvadeCounter &&
-                entry.Category != AttackCategory.SwapSpecial)
-                return false;
-
-            PlayerAttackInfo target = entry.Category switch
-            {
-                AttackCategory.Counter => data.counterAttack,
-                AttackCategory.Entry => data.entryAttack,
-                AttackCategory.SwapEvadeCounter => data.swapEvadeCounterAttack,
-                AttackCategory.SwapSpecial => data.swapSpecialAttack,
-                _ => null,
-            };
-
-            bool isEmpty = target?.baseInfo == null || target.baseInfo.animKey == AnimKey.None;
-            if (!isEmpty && _existingPolicy == ExistingPolicy.Skip) return true;
-
-            PlayerAttackInfo value = target ?? new PlayerAttackInfo();
-            if (_existingPolicy == ExistingPolicy.Replace || isEmpty)
-                ReplacePlayerAttack(value, entry);
-            else
-                SyncHitPhases(value.baseInfo, entry.PhaseCount);
-            ApplyBalancedDamage(value.baseInfo, entry, isEmpty || _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
-            ApplyAutoReaction(value.baseInfo, entry, isEmpty || _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
-
-            if (entry.Category == AttackCategory.Counter)
-                data.counterAttack = value;
-            else if (entry.Category == AttackCategory.Entry)
-                data.entryAttack = value;
-            else if (entry.Category == AttackCategory.SwapEvadeCounter)
-                data.swapEvadeCounterAttack = value;
-            else
-                data.swapSpecialAttack = value;
-
-            if (isEmpty) created++;
-            else updated++;
-            return true;
-        }
-
-        private void ApplyEnemyEntry(EnemyAttackDataSO data, ScanEntry entry, ref int created, ref int updated)
-        {
-            data.skills ??= new List<EnemyAttackInfo>();
-            EnemyAttackInfo existing = data.skills.FirstOrDefault(x => x?.baseInfo?.animKey == entry.Key);
-            if (existing != null)
-            {
-                if (_existingPolicy == ExistingPolicy.Skip) return;
-                if (_existingPolicy == ExistingPolicy.Replace)
-                    ReplaceEnemyAttack(existing, entry);
-                else
-                {
-                    SyncHitPhases(existing.baseInfo, entry.PhaseCount);
-                    SyncEnemyAttackMetadata(existing, entry);
-                }
-                ApplyBalancedDamage(existing.baseInfo, entry,
-                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingDamage);
-                ApplyAutoReaction(existing.baseInfo, entry,
-                    _existingPolicy == ExistingPolicy.Replace || _overwriteExistingReaction);
-                updated++;
-                return;
-            }
-
-            data.skills.Add(CreateEnemyAttack(entry));
-            created++;
-        }
-
-        private void SyncChargeStageHitPhases(PlayerAttackDataSO data, ScanEntry entry, bool applyDamage, bool overwriteDamage)
-        {
-            data.chargeStages ??= new List<ChargeStageData>();
-
-            data.chargeInterruptActions = GetDefaultChargeHoldInterruptActions();
-
-            if (data.chargeStages.Count == 0)
-                data.chargeStages.Add(new ChargeStageData());
-
-            for (int i = 0; i < data.chargeStages.Count; i++)
-            {
-                ChargeStageData stage = data.chargeStages[i];
-                stage.interruptActions = GetDefaultChargeStageInterruptActions(i, data.chargeStages.Count);
-                SyncHitPhases(stage, entry.PhaseCount);
-                if (applyDamage)
-                    ApplyBalancedDamage(stage, entry, overwriteDamage, i, data.chargeStages.Count);
-                ApplyAutoReaction(stage.hitPhases, entry, overwriteDamage || _overwriteExistingReaction);
-            }
-        }
-
-        private static void SyncHitPhases(ChargeStageData stage, int phaseCount)
-        {
-            if (stage == null) return;
-            stage.hitPhases ??= new List<HitPhaseData>();
-            phaseCount = Mathf.Max(1, phaseCount);
-
-            while (stage.hitPhases.Count < phaseCount)
-                stage.hitPhases.Add(CloneOrDefault(stage.hitPhases.LastOrDefault()));
-            while (stage.hitPhases.Count > phaseCount)
-                stage.hitPhases.RemoveAt(stage.hitPhases.Count - 1);
-        }
-
-        private PlayerAttackInfo CreatePlayerAttack(ScanEntry entry)
-        {
-            var attack = new PlayerAttackInfo();
-            ReplacePlayerAttack(attack, entry);
-            return attack;
-        }
-
-        private EnemyAttackInfo CreateEnemyAttack(ScanEntry entry)
-        {
-            var attack = new EnemyAttackInfo();
-            ReplaceEnemyAttack(attack, entry);
-            return attack;
-        }
-
-        private void ReplacePlayerAttack(PlayerAttackInfo attack, ScanEntry entry)
-        {
-            attack.baseInfo = CreateBaseInfo(entry);
-            attack.interruptActions = GetDefaultInterruptActions(entry.Category);
-        }
-
-        private static PlayerInterruptAction GetDefaultInterruptActions(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light =>
-                    PlayerInterruptAction.Dodge |
-                    PlayerInterruptAction.Jump |
-                    PlayerInterruptAction.Dash |
-                    PlayerInterruptAction.Guard |
-                    PlayerInterruptAction.HeavyAttack |
-                    PlayerInterruptAction.Skill |
-                    PlayerInterruptAction.Move,
-
-                AttackCategory.Heavy =>
-                    PlayerInterruptAction.Dodge |
-                    PlayerInterruptAction.Dash |
-                    PlayerInterruptAction.Guard |
-                    PlayerInterruptAction.LightAttack |
-                    PlayerInterruptAction.Skill |
-                    PlayerInterruptAction.Move,
-
-                AttackCategory.Skill =>
-                    PlayerInterruptAction.Dodge |
-                    PlayerInterruptAction.Dash |
-                    PlayerInterruptAction.Guard |
-                    PlayerInterruptAction.LightAttack |
-                    PlayerInterruptAction.HeavyAttack |
-                    PlayerInterruptAction.Move,
-
-                AttackCategory.Dash or AttackCategory.Jump =>
-                    PlayerInterruptAction.Dodge |
-                    PlayerInterruptAction.Dash |
-                    PlayerInterruptAction.Skill,
-
-                // 등장/스왑 공격: 리커버리에서 방어·이동으로 빠져나올 수 있게 한다(스왑 후 후딜 단축).
-                // 공격타입(Light/Heavy/Skill)은 제외 — 연타 시 버퍼에 남은 공격 입력이 윈드업에서
-                // 이 특수 공격을 선점·취소해 "스왑 공격이 안 나가는" 회귀를 막기 위함.
-                // (가드/이동 캔슬은 PlayerAttackState의 _hasActiveHitFired 게이트로 리커버리에서만 발동.)
-                AttackCategory.Entry or AttackCategory.SwapEvadeCounter or AttackCategory.SwapSpecial =>
-                    PlayerInterruptAction.Dodge |
-                    PlayerInterruptAction.Jump |
-                    PlayerInterruptAction.Dash |
-                    PlayerInterruptAction.Guard |
-                    PlayerInterruptAction.Move,
-
-                // Counter/ParryCounter는 '커밋' 설계라 의도적으로 None 유지.
-                _ => PlayerInterruptAction.None,
+                baseInfo = CreateBaseInfo(entry),
+                selectionWeight = 10f,
+                minRange = 0f,
+                maxRange = 2.5f,
+                cooldown = 2f,
             };
         }
 
-        private static PlayerInterruptAction GetDefaultChargeHoldInterruptActions()
-            => PlayerInterruptAction.Dodge | PlayerInterruptAction.Dash;
-
-        private static PlayerInterruptAction GetDefaultChargeStageInterruptActions(int stageIndex, int stageCount)
+        private static AttackInfoBase CreateBaseInfo(ScanEntry entry)
         {
-            bool isFinalStage = stageCount > 0 && stageIndex >= stageCount - 1;
-            return isFinalStage
-                ? PlayerInterruptAction.Dodge
-                : PlayerInterruptAction.Dodge | PlayerInterruptAction.Dash | PlayerInterruptAction.Skill;
-        }
-
-        private void ReplaceEnemyAttack(EnemyAttackInfo attack, ScanEntry entry)
-        {
-            attack.baseInfo = CreateBaseInfo(entry);
-            SyncEnemyAttackMetadata(attack, entry);
-        }
-
-        private void SyncEnemyAttackMetadata(EnemyAttackInfo attack, ScanEntry entry)
-        {
-            if (attack == null || entry == null) return;
-
-            if (attack.baseInfo != null)
-                attack.baseInfo.animKey = entry.Key;
-            attack.attackCategory = ToEnemyAttackCategory(entry.Category);
-            attack.selectionWeight = GetEnemySelectionWeight(entry.Category);
-            attack.minRange = 0f;
-            attack.maxRange = entry.Category == AttackCategory.Dash ? 4f : 2.5f;
-            attack.cooldown = GetEnemyCooldown(entry.Category);
-            attack.skillType = SkillType.Attack;
-            attack.isAerialSkill = entry.Key == AnimKey.Fly_Attack;
-            attack.useDangerRing = IsStrongEnemyAttack(entry.Category);
-            attack.dangerRingDuration = 0f;
-        }
-
-        private float CalculateEnemyTotalWeight(List<ScanEntry> entries)
-        {
-            if (entries == null)
-                return 0f;
-
-            float total = 0f;
-            for (int i = 0; i < entries.Count; i++)
-                total += GetEnemySelectionWeight(entries[i].Category);
-            return total;
-        }
-
-        private static EnemyAttackCategory ToEnemyAttackCategory(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Heavy => EnemyAttackCategory.Heavy,
-                AttackCategory.Skill or AttackCategory.Counter => EnemyAttackCategory.Skill,
-                _ => EnemyAttackCategory.Basic,
-            };
-        }
-
-        private float GetEnemySelectionWeight(AttackCategory category)
-            => GetEnemySelectionWeight(category, _actorDefinition != null ? _actorDefinition.grade : MonsterActorGrade.Normal);
-
-        private static float GetEnemySelectionWeight(AttackCategory category, MonsterActorGrade grade)
-        {
-            if (category == AttackCategory.Heavy)
-            {
-                return grade switch
-                {
-                    MonsterActorGrade.Boss => 7f,
-                    MonsterActorGrade.Elite => 5f,
-                    MonsterActorGrade.Normal => 3f,
-                    _ => 3f,
-                };
-            }
-
-            if (category is AttackCategory.Skill or AttackCategory.Counter)
-            {
-                return grade switch
-                {
-                    MonsterActorGrade.Boss => 7f,
-                    MonsterActorGrade.Elite => 4f,
-                    MonsterActorGrade.Normal => 1f,
-                    _ => 1f,
-                };
-            }
-
-            return category switch
-            {
-                _ => 10f,
-            };
-        }
-
-        private static float GetEnemyCooldown(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Heavy or AttackCategory.Counter => 3f,
-                AttackCategory.Skill => 4f,
-                _ => 2f,
-            };
-        }
-
-        private static bool IsStrongEnemyAttack(AttackCategory category)
-            => category is AttackCategory.Heavy or AttackCategory.Skill or AttackCategory.Counter;
-
-        private AttackInfoBase CreateBaseInfo(ScanEntry entry)
-        {
-            var baseInfo = new AttackInfoBase
+            var result = new AttackInfoBase
             {
                 animKey = entry.Key,
                 attackType = AttackType.Melee,
-                hitPhases = new List<HitPhaseData>()
+                hitPhases = new List<HitPhaseData>(),
             };
-            SyncHitPhases(baseInfo, entry.PhaseCount);
-            ApplyBalancedDamage(baseInfo, entry, true);
-            ApplyAutoReaction(baseInfo, entry, true);
-            return baseInfo;
+            SyncHitPhases(result, entry);
+            return result;
         }
 
-        private static void SyncHitPhases(AttackInfoBase baseInfo, int phaseCount)
+        private static void SyncHitPhases(AttackInfoBase baseInfo, ScanEntry entry)
         {
-            if (baseInfo == null) return;
             baseInfo.hitPhases ??= new List<HitPhaseData>();
-            phaseCount = Mathf.Max(1, phaseCount);
-
-            while (baseInfo.hitPhases.Count < phaseCount)
-                baseInfo.hitPhases.Add(CloneOrDefault(baseInfo.hitPhases.LastOrDefault()));
-            while (baseInfo.hitPhases.Count > phaseCount)
+            while (baseInfo.hitPhases.Count < entry.PhaseCount)
+                baseInfo.hitPhases.Add(new HitPhaseData());
+            while (baseInfo.hitPhases.Count > entry.PhaseCount)
                 baseInfo.hitPhases.RemoveAt(baseInfo.hitPhases.Count - 1);
-        }
 
-        private static HitPhaseData CloneOrDefault(HitPhaseData source)
-        {
-            if (source == null) return new HitPhaseData();
-            return new HitPhaseData
+            for (int i = 0; i < entry.Collisions.Count; i++)
             {
-                damage = source.damage,
-                poiseDamage = source.poiseDamage,
-                breakDamage = source.breakDamage,
-                reactionType = source.reactionType,
-                reactionDuration = source.reactionDuration,
-                forceReaction = source.forceReaction,
-                forceBreakExpose = source.forceBreakExpose,
-                hitboxGroupId = source.hitboxGroupId,
-                impactOffset = source.impactOffset,
-                targetingRange = source.targetingRange,
-                hitParticleName = source.hitParticleName,
-                pullForce = source.pullForce,
-                airborneForce = source.airborneForce,
-                knockBackForce = source.knockBackForce,
-                knockBackDrag = source.knockBackDrag,
-                grabDuration = source.grabDuration,
-                victimForcedAnimKey = source.victimForcedAnimKey,
-                guaranteedReaction = source.guaranteedReaction,
-                reactionProfile = CloneReactionProfile(source.reactionProfile),
-            };
-        }
-
-        private static AttackReactionProfile CloneReactionProfile(AttackReactionProfile source)
-        {
-            if (source == null) return new AttackReactionProfile();
-            return new AttackReactionProfile
-            {
-                useAutoReaction = source.useAutoReaction,
-                hasAutoReactionGenerated = source.hasAutoReactionGenerated,
-                analysis = CloneAnalysis(source.analysis),
-                autoData = CloneReactionData(source.autoData),
-                useManualOverride = source.useManualOverride,
-                manualOverride = CloneManualOverride(source.manualOverride),
-            };
-        }
-
-        private static AttackMotionAnalysisResult CloneAnalysis(AttackMotionAnalysisResult source)
-        {
-            if (source == null) return new AttackMotionAnalysisResult();
-            return new AttackMotionAnalysisResult
-            {
-                weaponSpeedScore = source.weaponSpeedScore,
-                rootMotionScore = source.rootMotionScore,
-                bodyRotationScore = source.bodyRotationScore,
-                attackWeightScore = source.attackWeightScore,
-                impactScore = source.impactScore,
-                activeStart = source.activeStart,
-                activeEnd = source.activeEnd,
-                activeDuration = source.activeDuration,
-                startupDuration = source.startupDuration,
-                recoveryDuration = source.recoveryDuration,
-                isEstimated = source.isEstimated,
-            };
-        }
-
-        private static AttackReactionData CloneReactionData(AttackReactionData source)
-        {
-            if (source == null) return new AttackReactionData();
-            return new AttackReactionData
-            {
-                impactTime = source.impactTime,
-                hitStopDuration = source.hitStopDuration,
-                hitStopScale = source.hitStopScale,
-                cameraShakeAmplitude = source.cameraShakeAmplitude,
-                cameraShakeDuration = source.cameraShakeDuration,
-                fovKickAmount = source.fovKickAmount,
-                fovKickDuration = source.fovKickDuration,
-                trailIntensity = source.trailIntensity,
-                fakeImpactSlowScale = source.fakeImpactSlowScale,
-                fakeImpactDuration = source.fakeImpactDuration,
-            };
-        }
-
-        private static ManualReactionOverride CloneManualOverride(ManualReactionOverride source)
-        {
-            if (source == null) return new ManualReactionOverride();
-            return new ManualReactionOverride
-            {
-                overrideImpactTime = source.overrideImpactTime,
-                impactTime = source.impactTime,
-                overrideHitStop = source.overrideHitStop,
-                hitStopDuration = source.hitStopDuration,
-                hitStopScale = source.hitStopScale,
-                overrideCamera = source.overrideCamera,
-                cameraShakeAmplitude = source.cameraShakeAmplitude,
-                cameraShakeDuration = source.cameraShakeDuration,
-                overrideFov = source.overrideFov,
-                fovKickAmount = source.fovKickAmount,
-                fovKickDuration = source.fovKickDuration,
-                overrideTrail = source.overrideTrail,
-                trailIntensity = source.trailIntensity,
-                overrideFakeImpact = source.overrideFakeImpact,
-                fakeImpactSlowScale = source.fakeImpactSlowScale,
-                fakeImpactDuration = source.fakeImpactDuration,
-            };
-        }
-
-        private void ApplyBalancedDamage(AttackInfoBase baseInfo, ScanEntry entry, bool overwriteDamage)
-        {
-            if (!_applyBalancedDamage || baseInfo?.hitPhases == null) return;
-            ApplyBalancedDamage(baseInfo.hitPhases, entry, overwriteDamage);
-        }
-
-        private void ApplyBalancedDamage(ChargeStageData stage, ScanEntry entry, bool overwriteDamage, int stageIndex, int stageCount)
-        {
-            if (!_applyBalancedDamage || stage?.hitPhases == null) return;
-            float stageMultiplier = stageCount <= 1 ? 1f : Mathf.Lerp(1f, 2.25f, (float)stageIndex / (stageCount - 1));
-            ApplyBalancedDamage(stage.hitPhases, entry, overwriteDamage, stageMultiplier);
-        }
-
-        private void ApplyBalancedDamage(List<HitPhaseData> phases, ScanEntry entry, bool overwriteDamage, float extraMultiplier = 1f)
-        {
-            if (phases == null || phases.Count == 0) return;
-            float totalDamage = CalculateTotalDamage(entry) * Mathf.Max(0f, extraMultiplier);
-            float totalWeight = 0f;
-            float[] weights = new float[phases.Count];
-
-            for (int i = 0; i < phases.Count; i++)
-            {
-                weights[i] = Mathf.Lerp(1f, 1.25f, phases.Count <= 1 ? 0f : (float)i / (phases.Count - 1));
-                totalWeight += weights[i];
-            }
-
-            for (int i = 0; i < phases.Count; i++)
-            {
-                HitPhaseData phase = phases[i];
-                if (phase == null) continue;
-                bool canOverwriteDamage = overwriteDamage || phase.damage == 0f || Mathf.Approximately(phase.damage, 10f);
-                bool canOverwriteBreak = overwriteDamage || phase.breakDamage == 0f || Mathf.Approximately(phase.breakDamage, 10f);
-
-                // phase 가중치를 평균 1로 정규화 → 각 타격이 'per-hit 목표값'을 중심으로 분포한다.
-                float phaseShare = NormalizedPhaseWeight(weights[i], totalWeight, phases.Count);
-
-                if (canOverwriteDamage)
-                {
-                    float damage = totalWeight > 0f ? totalDamage * weights[i] / totalWeight : totalDamage;
-                    phase.damage = Mathf.Round(damage);
-                    // Poise는 damage 배율이 아니라 기준 게이지의 분수 × 카테고리(강공격일수록 큼)로 산출 → damage 재튜닝과 독립.
-                    phase.poiseDamage = Mathf.Round(
-                        _referencePoiseGauge * _poiseGaugeFraction * GetCategoryBreakMultiplier(entry.Category) * phaseShare);
-                }
-
-                if (canOverwriteBreak)
-                {
-                    // Break는 플레이어 공격만 의미 있다(적의 공격을 받는 플레이어에는 BreakGauge가 없음). 예전처럼 적은 0 유지.
-                    phase.breakDamage = _targetKind == TargetKind.Player
-                        ? Mathf.Round(_referenceBreakGauge * _breakGaugeFraction * GetCategoryBreakMultiplier(entry.Category) * phaseShare)
-                        : 0f;
-                }
+                BeginCollisionEvent collision = entry.Collisions[i];
+                int phaseIndex = Mathf.Clamp(collision.hitPhaseIndex, 0, baseInfo.hitPhases.Count - 1);
+                if (!string.IsNullOrWhiteSpace(collision.hitboxGroupId))
+                    baseInfo.hitPhases[phaseIndex].hitboxGroupId = collision.hitboxGroupId;
             }
         }
 
-        private void ApplyAutoReaction(AttackInfoBase baseInfo, ScanEntry entry, bool overwriteReaction)
-        {
-            if (baseInfo?.hitPhases == null) return;
-            ApplyAutoReaction(baseInfo.hitPhases, entry, overwriteReaction);
-        }
-
-        private void ApplyAutoReaction(List<HitPhaseData> phases, ScanEntry entry, bool overwriteReaction)
-        {
-            if (!_applyAutoReaction || phases == null || entry == null) return;
-
-            for (int i = 0; i < phases.Count; i++)
-            {
-                HitPhaseData phase = phases[i];
-                if (phase == null) continue;
-
-                phase.reactionProfile ??= new AttackReactionProfile();
-                if (!overwriteReaction && phase.reactionProfile.hasAutoReactionGenerated)
-                    continue;
-
-                float activeStart = entry.GetPhaseActiveStart(i);
-                float activeEnd = entry.GetPhaseActiveEnd(i);
-                float activeDuration = Mathf.Max(0f, activeEnd - activeStart);
-                float startupDuration = Mathf.Max(0f, activeStart);
-
-                // 카테고리 분석 점수: 더 이상 impactScore의 주도값이 아니라 디버그 기록/참고용으로만 보존한다.
-                float weaponSpeedScore = GetCategoryWeaponSpeedScore(entry.Category);
-                float rootMotionScore = Mathf.Clamp01(Mathf.InverseLerp(0.4f, 1.8f, entry.Duration) * GetCategoryRootMotionBias(entry.Category));
-                float bodyRotationScore = GetCategoryBodyRotationScore(entry.Category);
-                float attackWeightScore = GetCategoryAttackWeightScore(entry.Category);
-
-                // 강도 = per-phase 후딜레이 주도(ComputePhaseImpactScore). 실제 생성과 프리뷰가 동일 식을 쓴다.
-                float impactScore = ComputePhaseImpactScore(entry, i, out float endlag);
-                float typeMultiplier = GetReactionTypeMultiplier(entry.Category);
-
-                phase.reactionProfile.useAutoReaction = true;
-                phase.reactionProfile.hasAutoReactionGenerated = true;
-                phase.reactionProfile.analysis ??= new AttackMotionAnalysisResult();
-                phase.reactionProfile.analysis.isEstimated = true;
-                phase.reactionProfile.analysis.weaponSpeedScore = weaponSpeedScore;
-                phase.reactionProfile.analysis.rootMotionScore = rootMotionScore;
-                phase.reactionProfile.analysis.bodyRotationScore = bodyRotationScore;
-                phase.reactionProfile.analysis.attackWeightScore = attackWeightScore;
-                phase.reactionProfile.analysis.impactScore = impactScore;
-                phase.reactionProfile.analysis.activeStart = activeStart;
-                phase.reactionProfile.analysis.activeEnd = activeEnd;
-                phase.reactionProfile.analysis.activeDuration = activeDuration;
-                phase.reactionProfile.analysis.startupDuration = startupDuration;
-                // recoveryDuration 슬롯 의미를 per-phase endlag(다음 타격까지의 공백/모션 끝까지)로 재정의해 기록한다.
-                phase.reactionProfile.analysis.recoveryDuration = endlag;
-
-                // hitStopScale은 '공격자' 스케일이다. 피격자는 런타임(CombatFeedbackDispatcher)에서 항상 풀프리즈된다.
-                ResolveAutoHitStop(impactScore, typeMultiplier, out float hitStopDuration, out float hitStopScale);
-
-                phase.reactionProfile.autoData ??= new AttackReactionData();
-                phase.reactionProfile.autoData.impactTime = activeStart;
-                phase.reactionProfile.autoData.hitStopDuration = hitStopDuration;
-                phase.reactionProfile.autoData.hitStopScale = hitStopScale;
-                phase.reactionProfile.autoData.cameraShakeAmplitude = Mathf.Lerp(0.15f, 0.8f, impactScore) * typeMultiplier;
-                phase.reactionProfile.autoData.cameraShakeDuration = Mathf.Lerp(0.06f, 0.16f, impactScore);
-                phase.reactionProfile.autoData.fovKickAmount = Mathf.Lerp(0.5f, 3.5f, impactScore) * typeMultiplier;
-                phase.reactionProfile.autoData.fovKickDuration = Mathf.Lerp(0.08f, 0.18f, impactScore);
-                phase.reactionProfile.autoData.trailIntensity = Mathf.Lerp(0.4f, 1.2f, impactScore);
-                phase.reactionProfile.autoData.fakeImpactDuration = Mathf.Min(0.06f, Mathf.Lerp(0.025f, 0.055f, impactScore));
-                phase.reactionProfile.autoData.fakeImpactSlowScale = Mathf.Lerp(0.92f, 0.82f, impactScore);
-            }
-        }
-
-        /// <summary>
-        /// 단일 진실 소스: per-phase 후딜레이(endlag) → impactScore(강도 0~1).
-        /// 강도 주축은 후딜레이, 보조는 타격판정창 길이. 실제 생성(ApplyAutoReaction)과 프리뷰가 반드시 이 식을 공유한다.
-        /// </summary>
-        private float ComputePhaseImpactScore(ScanEntry entry, int phaseIndex, out float endlag)
-        {
-            endlag = entry.GetPhaseEndlag(phaseIndex);
-            float activeDuration = Mathf.Max(0f, entry.GetPhaseActiveEnd(phaseIndex) - entry.GetPhaseActiveStart(phaseIndex));
-            float endlagNorm = Mathf.Clamp01(Mathf.InverseLerp(_shortEndlag, _longEndlag, endlag));
-            float activeNorm = Mathf.Clamp01(Mathf.InverseLerp(ActiveWindowShortSec, ActiveWindowLongSec, activeDuration));
-            return Mathf.Clamp01(endlagNorm * (1f - _activeWindowWeight) + activeNorm * _activeWindowWeight);
-        }
-
-        /// <summary>
-        /// 단일 진실 소스: impactScore + 카테고리 배율 → '공격자' HitStop(지속시간/스케일).
-        /// 피격자는 런타임에서 항상 풀프리즈하므로 여기서 다루지 않는다.
-        /// </summary>
-        private static void ResolveAutoHitStop(float impactScore, float typeMultiplier, out float duration, out float scale)
-        {
-            duration = Mathf.Min(
-                AutoHitStopDurationCap,
-                Mathf.Lerp(AutoHitStopDurationMin, AutoHitStopDurationMax, impactScore) * typeMultiplier);
-            scale = Mathf.Lerp(AutoHitStopAttackerScaleWeak, AutoHitStopAttackerScaleStrong, impactScore);
-        }
-
-        /// <summary>
-        /// 프리뷰용: 가장 강한 phase(impactScore 최대) 기준 endlag와 그 결과 공격자 HitStop을 ApplyAutoReaction과 동일 식으로 추정한다.
-        /// </summary>
-        private void GetStrongestPhasePreview(ScanEntry entry, out float endlag, out float hitStopDuration, out float hitStopScale)
-        {
-            endlag = 0f;
-            hitStopDuration = 0f;
-            hitStopScale = AutoHitStopAttackerScaleWeak;
-            if (entry == null) return;
-
-            float typeMultiplier = GetReactionTypeMultiplier(entry.Category);
-            float bestImpact = -1f;
-            for (int i = 0; i < entry.PhaseCount; i++)
-            {
-                float impactScore = ComputePhaseImpactScore(entry, i, out float phaseEndlag);
-                if (impactScore < bestImpact) continue;
-
-                bestImpact = impactScore;
-                endlag = phaseEndlag;
-                ResolveAutoHitStop(impactScore, typeMultiplier, out hitStopDuration, out hitStopScale);
-            }
-        }
-
-        private static float GetCategoryWeaponSpeedScore(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => 0.35f,
-                AttackCategory.Dash => 0.55f,
-                AttackCategory.Jump => 0.50f,
-                AttackCategory.Heavy => 0.72f,
-                AttackCategory.Skill => 0.78f,
-                AttackCategory.Counter => 0.82f,
-                AttackCategory.Entry => 0.58f,
-                AttackCategory.SwapEvadeCounter => 0.84f,
-                AttackCategory.SwapSpecial => 0.90f,
-                AttackCategory.Charge => 0.80f,
-                _ => 0.45f,
-            };
-        }
-
-        private static float GetCategoryRootMotionBias(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Dash => 1.0f,
-                AttackCategory.Entry => 0.85f,
-                AttackCategory.SwapEvadeCounter => 0.9f,
-                AttackCategory.SwapSpecial => 1.0f,
-                AttackCategory.Charge => 0.75f,
-                AttackCategory.Heavy => 0.7f,
-                AttackCategory.Skill => 0.8f,
-                _ => 0.45f,
-            };
-        }
-
-        private static float GetCategoryBodyRotationScore(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => 0.35f,
-                AttackCategory.Heavy => 0.70f,
-                AttackCategory.Skill => 0.72f,
-                AttackCategory.Counter => 0.68f,
-                AttackCategory.Charge => 0.76f,
-                AttackCategory.SwapSpecial => 0.80f,
-                _ => 0.50f,
-            };
-        }
-
-        private static float GetCategoryAttackWeightScore(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => 0.25f,
-                AttackCategory.Dash or AttackCategory.Jump => 0.45f,
-                AttackCategory.Heavy => 0.72f,
-                AttackCategory.Skill => 0.82f,
-                AttackCategory.Counter => 0.78f,
-                AttackCategory.Entry => 0.55f,
-                AttackCategory.SwapEvadeCounter => 0.80f,
-                AttackCategory.SwapSpecial => 0.92f,
-                AttackCategory.Charge => 0.88f,
-                _ => 0.4f,
-            };
-        }
-
-        private static float GetReactionTypeMultiplier(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => 0.8f,
-                AttackCategory.Heavy or AttackCategory.Charge => 1.2f,
-                AttackCategory.Skill => 1.35f,
-                AttackCategory.SwapSpecial => 1.6f,
-                AttackCategory.Counter or AttackCategory.SwapEvadeCounter => 1.25f,
-                _ => 1f,
-            };
-        }
-
-        private float CalculateTotalDamage(ScanEntry entry)
-        {
-            if (!_applyBalancedDamage || entry == null) return 0f;
-
-            if (_targetKind == TargetKind.Player)
-            {
-                // 라이트 콤보 DPS = _targetPlayerDps가 되도록 역산한 base에, 공격별 shape 배율과 레벨 성장을 곱한다.
-                float playerDamage = ComputePlayerAttackBase()
-                                     * GetPlayerAttackShapeStack(entry)
-                                     * GetStatLevelDamageMultiplier();
-                return Mathf.Max(1f, playerDamage);
-            }
-
-            // 적: 기존 base × 배율 스택 유지(아무도 문제 제기하지 않은 적 데이터는 건드리지 않는다).
-            float baseDamage = _enemyBaseDamage;
-            float categoryMultiplier = GetCategoryDamageMultiplier(entry.Category);
-            float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
-            float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
-            float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.18f;
-            float statLevelMultiplier = GetStatLevelDamageMultiplier();
-
-            return Mathf.Max(1f, baseDamage * categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation * statLevelMultiplier);
-        }
-
-        /// <summary>레벨/스탯을 제외한 공격별 상대 배율(카테고리·콤보순번·모션길이·멀티히트). 정규화의 분모로 쓰여 자기상쇄된다.</summary>
-        private float GetPlayerAttackShapeStack(ScanEntry entry)
-        {
-            float categoryMultiplier = GetCategoryDamageMultiplier(entry.Category);
-            float comboMultiplier = 1f + GetComboStep(entry.Key, entry.Category) * _comboStepWeight;
-            float durationMultiplier = 1f + Mathf.Max(0f, entry.Duration - 1f) * _motionDurationWeight;
-            float multiHitCompensation = 1f + Mathf.Max(0, entry.PhaseCount - 1) * 0.18f;
-            return Mathf.Max(0.0001f, categoryMultiplier * comboMultiplier * durationMultiplier * multiHitCompensation);
-        }
-
-        /// <summary>
-        /// 라이트 콤보 전체 DPS가 _targetPlayerDps가 되도록 base를 역산한다.
-        /// base × Σ(shape) = _targetPlayerDps × Σ(모션시간) → base = dps × T / W.
-        /// T가 분자/분모에 함께 들어가 자기정규화되므로 클립 길이 절대값에 둔감하고, 콤보 타수가 늘어도 합산 DPS는 유지된다.
-        /// </summary>
-        private float ComputePlayerAttackBase()
-        {
-            if (_scanEntries == null || _scanEntries.Count == 0)
-                return Mathf.Max(1f, _targetPlayerDps);
-
-            float timeSum = 0f;
-            float weightSum = 0f;
-            AccumulateBaseNormalization(AttackCategory.Light, ref timeSum, ref weightSum);
-
-            // 라이트 공격이 없으면 스캔된 전체 공격으로 폴백(합산 DPS ≈ 목표).
-            if (weightSum <= 0f)
-                AccumulateBaseNormalization(null, ref timeSum, ref weightSum);
-
-            if (weightSum <= 0f || timeSum <= 0f)
-                return Mathf.Max(1f, _targetPlayerDps);
-
-            return Mathf.Max(0.01f, _targetPlayerDps * timeSum / weightSum);
-        }
-
-        private void AccumulateBaseNormalization(AttackCategory? filter, ref float timeSum, ref float weightSum)
-        {
-            foreach (ScanEntry e in _scanEntries)
-            {
-                if (e == null) continue;
-                if (filter.HasValue && e.Category != filter.Value) continue;
-                timeSum += Mathf.Max(0.01f, e.Duration);
-                weightSum += GetPlayerAttackShapeStack(e);
-            }
-        }
-
-        /// <summary>phase 가중치를 평균 1로 정규화 → 단일 phase면 1, 다중 phase면 per-hit 목표값 주변으로 완만히 분포.</summary>
-        private static float NormalizedPhaseWeight(float weight, float totalWeight, int phaseCount)
-        {
-            if (totalWeight <= 0f || phaseCount <= 0) return 1f;
-            float average = totalWeight / phaseCount;
-            return average > 0f ? weight / average : 1f;
-        }
-
-        private float CalculateRuntimeExpectedDamage(ScanEntry entry)
-        {
-            float storedDamage = CalculateTotalDamage(entry);
-            return _targetKind == TargetKind.Enemy
-                ? storedDamage * ResolveAttackPower()
-                : storedDamage * ResolveAttackPower();
-        }
-
-        private float GetStatLevelDamageMultiplier()
-        {
-            if (!_useActorStatAndLevel)
-                return 1f;
-
-            float levelMultiplier = 1f + Mathf.Max(0, _sourceLevel - 1) * Mathf.Max(0f, _levelDamageGrowth);
-            if (_targetKind == TargetKind.Player)
-                return Mathf.Max(0.01f, levelMultiplier);
-
-            float attackPower = ResolveAttackPower();
-            float attackPowerMultiplier = _normalizeRuntimeAttackPower
-                ? 1f / Mathf.Max(0.01f, attackPower)
-                : attackPower;
-
-            return Mathf.Max(0.01f, levelMultiplier * attackPowerMultiplier);
-        }
-
-        private float ResolveAttackPower()
-        {
-            if (_sourceStatData != null)
-                return Mathf.Max(0.01f, _sourceStatData.GetBase(StatType.AttackPower));
-
-            return ActorStatSO.GetDefault(StatType.AttackPower);
-        }
-
-        private static float GetCategoryDamageMultiplier(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => 1.00f,
-                AttackCategory.Heavy => 1.55f,
-                AttackCategory.Dash => 1.25f,
-                AttackCategory.Jump => 1.20f,
-                AttackCategory.Skill => 2.10f,
-                AttackCategory.Counter => 1.75f,
-                AttackCategory.Entry => 1.15f,
-                AttackCategory.SwapEvadeCounter => 1.85f,
-                AttackCategory.SwapSpecial => 2.40f,
-                AttackCategory.Charge => 1.35f,
-                _ => 1.00f,
-            };
-        }
-
-        private static float GetDefaultEnemyBaseDamage(ActorDefinitionSO actor)
-        {
-            return actor != null && actor.grade == MonsterActorGrade.Boss ? 18f
-                : actor != null && actor.grade == MonsterActorGrade.Elite ? 12f
-                : 8f;
-        }
-
-        private static float GetCategoryBreakMultiplier(AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => 1.00f,
-                AttackCategory.Heavy => 1.80f,
-                AttackCategory.Dash => 1.35f,
-                AttackCategory.Jump => 1.25f,
-                AttackCategory.Skill => 2.25f,
-                AttackCategory.Counter => 2.50f,
-                AttackCategory.Entry => 1.60f,
-                AttackCategory.SwapEvadeCounter => 2.20f,
-                AttackCategory.SwapSpecial => 2.50f,
-                AttackCategory.Charge => 2.25f,
-                _ => 1.00f,
-            };
-        }
-
-        private static int GetComboStep(AnimKey key, AttackCategory category)
-        {
-            int value = (int)key;
-            return category switch
-            {
-                AttackCategory.Light => Mathf.Max(0, value - (int)AnimKey.Attack_1),
-                AttackCategory.Heavy => Mathf.Max(0, value - (int)AnimKey.HeavyAttack_1),
-                AttackCategory.Dash => key == AnimKey.JumpDashAttack_1 ? 1 : Mathf.Max(0, value - (int)AnimKey.DashAttack_1),
-                AttackCategory.Jump => Mathf.Max(0, value - (int)AnimKey.JumpAttack_1),
-                AttackCategory.Skill => Mathf.Max(0, value - (int)AnimKey.Skill_1),
-                AttackCategory.Counter => Mathf.Max(0, value - (int)AnimKey.Counter_Attack_1),
-                AttackCategory.Entry => Mathf.Max(0, value - (int)AnimKey.Player_SwapAttack_1),
-                AttackCategory.SwapEvadeCounter => 0,
-                AttackCategory.Charge => Mathf.Max(0, value - (int)AnimKey.ChargeAttack_1),
-                _ => 0,
-            };
-        }
-
-        private static List<PlayerAttackInfo> GetPlayerList(PlayerAttackDataSO data, AttackCategory category)
-        {
-            return category switch
-            {
-                AttackCategory.Light => data.liteComboAttackList,
-                AttackCategory.Heavy => data.heavyComboAttackList,
-                AttackCategory.Jump => data.jumpAttackList,
-                AttackCategory.Dash => data.dashAttackList,
-                AttackCategory.Skill => data.skillAttackList,
-                _ => null,
-            };
-        }
-
-        private static List<ScanEntry> CollectScanEntries(
+        private static List<ScanEntry> Scan(
             ActorAnimationMotionSet root,
             bool includeFallback,
-            bool requireCollision,
-            TargetKind targetKind)
+            bool requireCollision)
         {
             var result = new List<ScanEntry>();
             var seen = new HashSet<AnimKey>();
-
             foreach (ActorAnimationMotionSet set in EnumerateMotionSets(root, includeFallback))
             {
-                if (set?.motionSets == null) continue;
+                if (set?.motionSets == null)
+                    continue;
 
                 foreach (KeyValuePair<AnimKey, MotionSetAsset> pair in set.motionSets)
                 {
-                    AnimKey key = pair.Key;
-                    if (!seen.Add(key)) continue;
-                    if (!TryGetAttackCategory(key, targetKind, out AttackCategory category)) continue;
-
+                    if (!seen.Add(pair.Key) || !IsEnemyAttackKey(pair.Key))
+                        continue;
                     MotionSetAsset asset = pair.Value;
-                    if (asset == null || asset.motionSet == null) continue;
+                    if (asset?.motionSet == null)
+                        continue;
 
                     List<BeginCollisionEvent> collisions = CollectCollisionEvents(asset.motionSet);
-                    if (requireCollision && collisions.Count == 0) continue;
+                    if (requireCollision && collisions.Count == 0)
+                        continue;
 
-                    int phaseCount = CalculatePhaseCount(collisions);
-                    result.Add(new ScanEntry(key, category, asset, collisions, phaseCount, asset.motionSet.TotalDuration));
+                    int phaseCount = collisions.Count == 0
+                        ? 1
+                        : Mathf.Max(collisions.Count, collisions.Max(x => Mathf.Max(0, x.hitPhaseIndex)) + 1);
+                    result.Add(new ScanEntry(pair.Key, asset, collisions, phaseCount));
                 }
             }
-
-            return result.OrderBy(x => (int)x.Key).ToList();
+            return result.OrderBy(entry => (int)entry.Key).ToList();
         }
 
-        private static IEnumerable<ActorAnimationMotionSet> EnumerateMotionSets(ActorAnimationMotionSet root, bool includeFallback)
+        private static IEnumerable<ActorAnimationMotionSet> EnumerateMotionSets(
+            ActorAnimationMotionSet root,
+            bool includeFallback)
         {
             var visited = new HashSet<ActorAnimationMotionSet>();
             ActorAnimationMotionSet current = root;
@@ -1444,7 +275,8 @@ namespace UPlayGround.Editor
             while (current != null && visited.Add(current) && depth++ < 8)
             {
                 yield return current;
-                if (!includeFallback) yield break;
+                if (!includeFallback)
+                    yield break;
                 current = current.fallbackMotionSet;
             }
         }
@@ -1452,7 +284,6 @@ namespace UPlayGround.Editor
         private static List<BeginCollisionEvent> CollectCollisionEvents(MotionSet motionSet)
         {
             var result = new List<(float Time, BeginCollisionEvent Event)>();
-
             if (motionSet.globalEvents != null)
             {
                 foreach (MotionEventBase evt in motionSet.globalEvents)
@@ -1474,15 +305,7 @@ namespace UPlayGround.Editor
                     offset += motion?.Duration ?? 0f;
                 }
             }
-
-            return result.OrderBy(x => x.Time).Select(x => x.Event).ToList();
-        }
-
-        private static int CalculatePhaseCount(List<BeginCollisionEvent> collisions)
-        {
-            if (collisions == null || collisions.Count == 0) return 1;
-            int maxIndex = collisions.Max(x => Mathf.Max(0, x.hitPhaseIndex));
-            return Mathf.Max(collisions.Count, maxIndex + 1);
+            return result.OrderBy(item => item.Time).Select(item => item.Event).ToList();
         }
 
         private static void NormalizeCollisionPhaseIndexes(List<ScanEntry> entries)
@@ -1492,204 +315,46 @@ namespace UPlayGround.Editor
             {
                 for (int i = 0; i < entry.Collisions.Count; i++)
                 {
-                    if (entry.Collisions[i].hitPhaseIndex == i) continue;
+                    if (entry.Collisions[i].hitPhaseIndex == i)
+                        continue;
                     entry.Collisions[i].hitPhaseIndex = i;
                     dirtyAssets.Add(entry.Asset);
                 }
             }
-
             foreach (MotionSetAsset asset in dirtyAssets)
                 EditorUtility.SetDirty(asset);
         }
 
-        private static bool TryGetAttackCategory(AnimKey key, TargetKind targetKind, out AttackCategory category)
+        private static bool IsEnemyAttackKey(AnimKey key)
         {
             int value = (int)key;
-            category = AttackCategory.Unknown;
-
-            if (key == AnimKey.Fly_Attack)
-            {
-                category = AttackCategory.Skill;
-                return targetKind == TargetKind.Enemy;
-            }
-
-            if (value >= (int)AnimKey.Attack_1 && value <= (int)AnimKey.Attack_10)
-                category = AttackCategory.Light;
-            else if (value >= (int)AnimKey.HeavyAttack_1 && value <= (int)AnimKey.HeavyAttack_10)
-                category = AttackCategory.Heavy;
-            else if (value >= (int)AnimKey.DashAttack_1 && value <= (int)AnimKey.DashAttack_5)
-                category = AttackCategory.Dash;
-            else if (key == AnimKey.JumpDashAttack_1)
-                category = AttackCategory.Dash;
-            else if (value >= (int)AnimKey.JumpAttack_1 && value <= (int)AnimKey.JumpAttack_7)
-                category = AttackCategory.Jump;
-            else if (value >= (int)AnimKey.Skill_1 && value <= (int)AnimKey.Skill_9)
-                category = AttackCategory.Skill;
-            else if (value >= (int)AnimKey.Counter_Attack_1 && value <= (int)AnimKey.Counter_Attack_2)
-                category = AttackCategory.Counter;
-            else if (value >= (int)AnimKey.Player_SwapAttack_1 && value <= (int)AnimKey.Player_SwapAttack_5)
-                category = AttackCategory.Entry;
-            else if (key == AnimKey.Player_SwapSpecialAttack_1)
-                category = AttackCategory.SwapSpecial;
-            else if (key == AnimKey.Player_SwapEvadeCounterAttack_1)
-                category = AttackCategory.SwapEvadeCounter;
-            else if (value >= (int)AnimKey.ChargeAttack_1 && value <= (int)AnimKey.ChargeAttack_5)
-                category = AttackCategory.Charge;
-
-            if (category == AttackCategory.Unknown) return false;
-            return targetKind == TargetKind.Player || category is not (AttackCategory.Entry or AttackCategory.SwapEvadeCounter or AttackCategory.SwapSpecial or AttackCategory.Charge);
-        }
-
-        private enum AttackCategory
-        {
-            Unknown,
-            Light,
-            Heavy,
-            Dash,
-            Jump,
-            Skill,
-            Counter,
-            Entry,
-            SwapEvadeCounter,
-            SwapSpecial,
-            Charge,
+            return key == AnimKey.Fly_Attack
+                   || value >= (int)AnimKey.Attack_1 && value <= (int)AnimKey.Attack_10
+                   || value >= (int)AnimKey.HeavyAttack_1 && value <= (int)AnimKey.HeavyAttack_10
+                   || value >= (int)AnimKey.DashAttack_1 && value <= (int)AnimKey.DashAttack_5
+                   || value >= (int)AnimKey.JumpAttack_1 && value <= (int)AnimKey.JumpAttack_7
+                   || value >= (int)AnimKey.Skill_1 && value <= (int)AnimKey.Skill_9
+                   || value >= (int)AnimKey.Counter_Attack_1 && value <= (int)AnimKey.Counter_Attack_2;
         }
 
         private sealed class ScanEntry
         {
             public readonly AnimKey Key;
-            public readonly AttackCategory Category;
             public readonly MotionSetAsset Asset;
             public readonly List<BeginCollisionEvent> Collisions;
             public readonly int PhaseCount;
-            public readonly float Duration;
 
-            public ScanEntry(AnimKey key, AttackCategory category, MotionSetAsset asset,
-                List<BeginCollisionEvent> collisions, int phaseCount, float duration)
+            public ScanEntry(
+                AnimKey key,
+                MotionSetAsset asset,
+                List<BeginCollisionEvent> collisions,
+                int phaseCount)
             {
                 Key = key;
-                Category = category;
                 Asset = asset;
-                Collisions = collisions ?? new List<BeginCollisionEvent>();
+                Collisions = collisions;
                 PhaseCount = Mathf.Max(1, phaseCount);
-                Duration = Mathf.Max(0f, duration);
             }
-
-            public int CollisionCount => Collisions.Count;
-
-            public float GetPhaseActiveStart(int phaseIndex)
-            {
-                if (TryGetPhaseCollisionTime(phaseIndex, out float start, out _))
-                    return start;
-                return 0f;
-            }
-
-            public float GetPhaseActiveEnd(int phaseIndex)
-            {
-                if (TryGetPhaseCollisionTime(phaseIndex, out _, out float end))
-                    return Mathf.Max(end, GetPhaseActiveStart(phaseIndex));
-                return Duration;
-            }
-
-            /// <summary>
-            /// 해당 phase의 "후딜레이" 신호. 멀티히트에서 의미가 뒤집히지 않도록
-            /// 마지막 phase는 (모션 끝 - 타격 종료), 중간 phase는 (다음 타격 시작 - 이번 타격 종료)로 정의한다.
-            /// 콤보 마무리·단타 강공격은 뒤가 비어 큰 값, 연타 중간 타격은 다음 타격이 곧 와서 작은 값이 된다.
-            /// </summary>
-            public float GetPhaseEndlag(int phaseIndex)
-            {
-                float activeEnd = GetPhaseActiveEnd(phaseIndex);
-
-                // 마지막 phase: 모션 끝까지가 후딜.
-                if (phaseIndex >= PhaseCount - 1)
-                    return Mathf.Max(0f, Duration - activeEnd);
-
-                // 중간 phase: 다음 타격 active 시작까지의 공백. 다음 타격 시점을 못 구하면
-                // 모션 끝까지로 부풀리지 않고(=의도 역전 방지) 0(타이트한 연결타)으로 둔다.
-                float nextActiveStart = GetPhaseActiveStart(phaseIndex + 1);
-                float gap = nextActiveStart - activeEnd;
-                return gap > 0f ? gap : 0f;
-            }
-
-            private bool TryGetPhaseCollisionTime(int phaseIndex, out float start, out float end)
-            {
-                start = 0f;
-                end = 0f;
-
-                if (Asset?.motionSet == null || Collisions == null)
-                    return false;
-
-                BeginCollisionEvent target = null;
-                foreach (BeginCollisionEvent collision in Collisions)
-                {
-                    if (collision != null && Mathf.Max(0, collision.hitPhaseIndex) == phaseIndex)
-                    {
-                        target = collision;
-                        break;
-                    }
-                }
-
-                target ??= phaseIndex >= 0 && phaseIndex < Collisions.Count ? Collisions[phaseIndex] : null;
-                if (target == null)
-                    return false;
-
-                return TryGetCollisionGlobalTime(Asset.motionSet, target, out start, out end);
-            }
-
-            private static bool TryGetCollisionGlobalTime(MotionSet motionSet, BeginCollisionEvent target, out float start, out float end)
-            {
-                start = 0f;
-                end = 0f;
-                if (motionSet == null || target == null)
-                    return false;
-
-                if (motionSet.globalEvents != null)
-                {
-                    foreach (MotionEventBase evt in motionSet.globalEvents)
-                    {
-                        if (!ReferenceEquals(evt, target)) continue;
-                        start = Mathf.Max(0f, target.startTime);
-                        end = Mathf.Max(start, target.endTime);
-                        return true;
-                    }
-                }
-
-                float offset = 0f;
-                if (motionSet.motions != null)
-                {
-                    foreach (UPlayGround.Animation.Motion motion in motionSet.motions)
-                    {
-                        if (motion?.events != null)
-                        {
-                            foreach (MotionEventBase evt in motion.events)
-                            {
-                                if (!ReferenceEquals(evt, target)) continue;
-                                start = Mathf.Max(0f, offset + target.startTime);
-                                end = Mathf.Max(start, offset + target.endTime);
-                                return true;
-                            }
-                        }
-                        offset += motion?.Duration ?? 0f;
-                    }
-                }
-
-                return false;
-            }
-
-            public string CategoryLabel => Category switch
-            {
-                AttackCategory.Light => "약공격",
-                AttackCategory.Heavy => "강공격",
-                AttackCategory.Dash => "대쉬",
-                AttackCategory.Jump => "점프",
-                AttackCategory.Skill => "스킬",
-                AttackCategory.Counter => "카운터",
-                AttackCategory.Entry => "등장",
-                AttackCategory.SwapEvadeCounter => "회피",
-                AttackCategory.SwapSpecial => "특수",
-                AttackCategory.Charge => "차지",
-                _ => "기타",
-            };
         }
     }
 }

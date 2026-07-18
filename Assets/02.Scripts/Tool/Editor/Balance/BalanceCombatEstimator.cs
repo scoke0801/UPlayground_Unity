@@ -66,7 +66,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 result);
 
             float rawPlayerDps = BalanceAttackAnalyzer.EstimatePlayerRawDps(
-                scenario != null ? scenario.playerAttackData : null,
+                scenario != null ? scenario.playerAbilitySet : null,
                 scenario != null ? scenario.playerAttackInterval : fallbackInput.PlayerAttackInterval,
                 scenario != null ? scenario.manualPlayerDps : fallbackInput.ManualPlayerDps);
 
@@ -197,7 +197,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             float attackInterval = scenario != null ? scenario.playerAttackInterval : fallbackInput.PlayerAttackInterval;
             float rawBreakDps = BalanceAttackAnalyzer.EstimatePlayerRawBreakDps(
-                scenario != null ? scenario.playerAttackData : null,
+                scenario != null ? scenario.playerAbilitySet : null,
                 attackInterval);
 
             result.PlayerExpectedBreakDps = rawBreakDps * (1f - Mathf.Clamp01(breakData.breakResist));

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -86,22 +88,12 @@ namespace UPlayGround.Tool.Editor.Balance
             return result;
         }
 
-        public static float EstimatePlayerRawDps(PlayerAttackDataSO data, float attackInterval, float fallbackDps)
+        public static float EstimatePlayerRawDps(AbilitySetSO data, float attackInterval, float fallbackDps)
         {
             if (data == null)
                 return fallbackDps;
 
-            var attacks = new List<PlayerAttackInfo>();
-            AddRange(attacks, data.liteComboAttackList);
-            AddRange(attacks, data.heavyComboAttackList);
-            AddRange(attacks, data.jumpAttackList);
-            AddRange(attacks, data.dashAttackList);
-            AddRange(attacks, data.skillAttackList);
-            AddOne(attacks, data.counterAttack);
-            AddOne(attacks, data.parryCounterAttack);
-            AddOne(attacks, data.entryAttack);
-            AddOne(attacks, data.swapEvadeCounterAttack);
-            AddOne(attacks, data.swapSpecialAttack);
+            List<PlayerAttackInfo> attacks = CollectAttacks(data);
 
             float totalDamage = 0f;
             int count = 0;
@@ -122,22 +114,12 @@ namespace UPlayGround.Tool.Editor.Balance
             return averageDamage / UnityEngine.Mathf.Max(0.05f, attackInterval);
         }
 
-        public static float EstimatePlayerRawBreakDps(PlayerAttackDataSO data, float attackInterval)
+        public static float EstimatePlayerRawBreakDps(AbilitySetSO data, float attackInterval)
         {
             if (data == null)
                 return 0f;
 
-            var attacks = new List<PlayerAttackInfo>();
-            AddRange(attacks, data.liteComboAttackList);
-            AddRange(attacks, data.heavyComboAttackList);
-            AddRange(attacks, data.jumpAttackList);
-            AddRange(attacks, data.dashAttackList);
-            AddRange(attacks, data.skillAttackList);
-            AddOne(attacks, data.counterAttack);
-            AddOne(attacks, data.parryCounterAttack);
-            AddOne(attacks, data.entryAttack);
-            AddOne(attacks, data.swapEvadeCounterAttack);
-            AddOne(attacks, data.swapSpecialAttack);
+            List<PlayerAttackInfo> attacks = CollectAttacks(data);
 
             float totalBreak = 0f;
             int count = 0;
@@ -171,6 +153,34 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (value?.baseInfo != null)
                 target.Add(value);
+        }
+
+        public static List<PlayerAttackInfo> CollectAttacks(AbilitySetSO data)
+        {
+            var attacks = new List<PlayerAttackInfo>();
+            PlayerCombatAbilityDataView view =
+                PlayerCombatAbilityDataView.Build(data);
+            if (view == null)
+                return attacks;
+
+            AddRange(attacks, view.liteComboAttackList);
+            AddRange(attacks, view.heavyComboAttackList);
+            AddRange(attacks, view.jumpAttackList);
+            AddRange(attacks, view.dashAttackList);
+            AddRange(attacks, view.skillAttackList);
+            AddOne(attacks, view.counterAttack);
+            AddOne(attacks, view.parryCounterAttack);
+            AddOne(attacks, view.entryAttack);
+            AddOne(attacks, view.entryAttackVsGroggy);
+            AddOne(attacks, view.entryAttackVsAirborne);
+            AddOne(attacks, view.swapEvadeCounterAttack);
+            AddOne(attacks, view.swapSpecialAttack);
+            for (int i = 0; i < view.comboRoutes.Count; i++)
+            {
+                AddOne(attacks, view.comboRoutes[i]?.attackInfo);
+                AddOne(attacks, view.comboRoutes[i]?.enhancedAttackInfo);
+            }
+            return attacks;
         }
     }
 }

@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Path;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Party;
 using UPlayGround.Manager;
 using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Gameplay.Ability;
 using UPlayGround.MovementController;
 using UPlayGround.Debugging;
 
@@ -134,19 +138,38 @@ namespace UPlayGround.Components
         /// <summary> 스킬 공격 AnimKey 조회. 인덱스가 범위 밖이면 None. </summary>
         public AnimKey PeekSkillAttackAnimKey(int skillIndex)
         {
-            return TryResolveSkill(skillIndex, out PlayerSkillResolveResult resolved)
-                ? resolved.AnimKey
+            return TryResolveSkill(skillIndex, out _, out AnimKey animKey)
+                ? animKey
                 : AnimKey.None;
         }
 
-        private bool TryResolveSkill(int skillIndex, out PlayerSkillResolveResult resolved)
+        private bool TryResolveSkill(
+            int skillIndex,
+            out PlayerAttackInfo attackInfo,
+            out AnimKey animKey)
         {
-            resolved = default;
+            attackInfo = null;
+            animKey = AnimKey.None;
             if (!IsSkillUnlocked(skillIndex))
                 return false;
 
-            PlayerSkillContext context = CreateSkillContext();
-            return PlayerSkillResolver.TryResolve(_attackData, skillIndex, context, out resolved);
+            if (_playerActor?.Abilities == null
+                || !System.Enum.IsDefined(typeof(PlayerSkillSlot), skillIndex))
+                return false;
+
+            AbilityActivationResult result = _playerActor.Abilities.EvaluatePlayerSlot(
+                (PlayerSkillSlot)skillIndex,
+                IsGroundedForSkill(),
+                null,
+                out AbilityVariantDefinition variant);
+            if (result != AbilityActivationResult.Success
+                || !UPlayGroundAbilityPayloadResolver.TryResolve(
+                    variant,
+                    out animKey,
+                    out attackInfo))
+                return false;
+
+            return attackInfo?.baseInfo != null && animKey != AnimKey.None;
         }
 
         private bool IsSkillUnlocked(int skillIndex)
@@ -162,18 +185,12 @@ namespace UPlayGround.Components
                 skillType);
         }
 
-        private PlayerSkillContext CreateSkillContext()
+        private bool IsGroundedForSkill()
         {
-            bool isGrounded = _playerActor == null
-                              || _playerActor.PlayerController == null
-                              || _playerActor.PlayerController.Motor == null
-                              || _playerActor.PlayerController.Motor.GroundingStatus.IsStableOnGround;
-            var gauge = _playerActor != null ? _playerActor.SkillGauge : null;
-            return new PlayerSkillContext(
-                isGrounded,
-                _playerActor != null ? _playerActor.Tags : null,
-                gauge != null ? gauge.CurrentGauge : 0f,
-                gauge != null ? gauge.MaxGauge : 0f);
+            return _playerActor == null
+                   || _playerActor.PlayerController == null
+                   || _playerActor.PlayerController.Motor == null
+                   || _playerActor.PlayerController.Motor.GroundingStatus.IsStableOnGround;
         }
 
         /// <summary>
@@ -221,10 +238,10 @@ namespace UPlayGround.Components
         }
 
         /// <summary>
-        /// 캐릭터 교체 시 공격 데이터 SO를 교체하고, 캐릭터별 콤보 상태를 복원한다.
+        /// 캐릭터 교체 시 Ability 전투 로드아웃을 교체하고, 캐릭터별 콤보 상태를 복원한다.
         /// </summary>
-        public void RefreshAttackData(
-            PlayerAttackDataSO newData,
+        public void RefreshAbilitySet(
+            AbilitySetSO abilitySet,
             CharacterActorType characterType,
             bool preserveComboState = true,
             float comboStateMaxCarryTime = 1.8f)
@@ -232,12 +249,13 @@ namespace UPlayGround.Components
             if (_comboCharacterType != CharacterActorType.None && _comboCharacterType != characterType)
                 SaveComboState(_comboCharacterType);
 
-            _attackData = newData;
+            _abilitySet = abilitySet;
+            _attackData = PlayerCombatAbilityDataView.Build(abilitySet);
             _comboCharacterType = characterType;
 
             // 캐릭터별 연계 토큰 간격을 트래커에 반영.
-            if (_playerActor != null && newData != null)
-                _playerActor.ComboInputTracker.LinkWindow = newData.comboLinkWindow;
+            if (_playerActor != null && _attackData != null)
+                _playerActor.ComboInputTracker.LinkWindow = _attackData.comboLinkWindow;
 
             if (preserveComboState && TryRestoreComboState(characterType, comboStateMaxCarryTime))
                 return;
@@ -245,9 +263,9 @@ namespace UPlayGround.Components
             ResetCombo();
         }
 
-        public void RefreshAttackData(PlayerAttackDataSO newData)
+        public void RefreshAbilitySet(AbilitySetSO abilitySet)
         {
-            RefreshAttackData(newData, _comboCharacterType, false);
+            RefreshAbilitySet(abilitySet, _comboCharacterType, false);
         }
 
         public void ResetCombo()

@@ -11,6 +11,7 @@ using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -58,11 +59,11 @@ namespace UPlayGround.Tool.Editor.Combat
             public bool PhaseMismatch;
             public bool NoCollision;
             public MotionSetAsset Asset;
-            public AttackDataSO Data;
+            public UnityEngine.Object Data;
         }
 
         SourceMode _mode = SourceMode.Player;
-        PlayerAttackDataSO _playerData;
+        AbilitySetSO _playerData;
         ActorAnimationMotionSet _playerMotionSet;
         ActorDefinitionSO _enemyActor;
         bool _includeFallback = true;
@@ -154,8 +155,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 EditorGUI.BeginChangeCheck();
                 if (_mode == SourceMode.Player)
                 {
-                    _playerData = (PlayerAttackDataSO)EditorGUILayout.ObjectField(
-                        "PlayerAttackData", _playerData, typeof(PlayerAttackDataSO), false);
+                    _playerData = (AbilitySetSO)EditorGUILayout.ObjectField(
+                        "AbilitySet", _playerData, typeof(AbilitySetSO), false);
                     _playerMotionSet = (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
                         "MotionSet (무기별)", _playerMotionSet, typeof(ActorAnimationMotionSet), false);
                 }
@@ -186,7 +187,7 @@ namespace UPlayGround.Tool.Editor.Combat
             if (_mode == SourceMode.Player)
             {
                 if (_playerData == null || _playerMotionSet == null) return;
-                AppendRows(_playerData.name.Replace("PlayerAttackData_", ""), _playerMotionSet, _playerData);
+                AppendRows(_playerData.name.Replace("AbilitySet_", ""), _playerMotionSet, _playerData);
             }
             else if (_enemyActor != null)
             {
@@ -237,6 +238,24 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         void AppendRows(string actorName, ActorAnimationMotionSet root, AttackDataSO data)
+            => AppendRows(
+                actorName,
+                root,
+                data,
+                key => CombatTimelineUtility.ResolveAttacks(data, key));
+
+        void AppendRows(string actorName, ActorAnimationMotionSet root, AbilitySetSO data)
+            => AppendRows(
+                actorName,
+                root,
+                data,
+                key => CombatTimelineUtility.ResolveAttacks(data, key));
+
+        void AppendRows(
+            string actorName,
+            ActorAnimationMotionSet root,
+            UnityEngine.Object data,
+            System.Func<AnimKey, List<CombatTimelineUtility.ResolvedAttack>> resolve)
         {
             var seen = new HashSet<AnimKey>();
             foreach (ActorAnimationMotionSet set in CombatTimelineUtility.EnumerateMotionSets(root, _includeFallback))
@@ -247,14 +266,18 @@ namespace UPlayGround.Tool.Editor.Combat
                     if (!seen.Add(pair.Key)) continue;
                     if (pair.Value == null || pair.Value.motionSet == null) continue;
 
-                    var resolved = CombatTimelineUtility.ResolveAttacks(data, pair.Key);
+                    var resolved = resolve(pair.Key);
                     foreach (CombatTimelineUtility.ResolvedAttack atk in resolved)
                         _rows.Add(BuildRow(actorName, pair.Value, data, atk));
                 }
             }
         }
 
-        Row BuildRow(string actorName, MotionSetAsset asset, AttackDataSO data, CombatTimelineUtility.ResolvedAttack atk)
+        Row BuildRow(
+            string actorName,
+            MotionSetAsset asset,
+            UnityEngine.Object data,
+            CombatTimelineUtility.ResolvedAttack atk)
         {
             var set = asset.motionSet;
             float total = set.TotalDuration;
@@ -333,7 +356,7 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 EditorGUILayout.HelpBox(
                     _mode == SourceMode.Player
-                        ? "PlayerAttackDataSO와 무기별 MotionSet을 지정하세요."
+                        ? "AbilitySetSO와 무기별 MotionSet을 지정하세요."
                         : "ActorDefinitionSO를 지정하거나 [전체 몬스터 스캔]을 실행하세요.",
                     MessageType.Info);
                 return;
@@ -410,10 +433,10 @@ namespace UPlayGround.Tool.Editor.Combat
                     var capturedRow = row;
                     menu.AddItem(new GUIContent("애니메이션 에디터에서 열기"), false,
                         () => UPlayGround.Animation.Editor.MotionSetEditorWindow.Open(capturedRow.Asset));
-                    menu.AddItem(new GUIContent("공격 데이터 에디터에서 열기"), false, () =>
+                    menu.AddItem(new GUIContent("데이터 에셋 선택"), false, () =>
                     {
-                        if (capturedRow.Data is PlayerAttackDataSO p) UPlayGround.Editor.PlayerAttackDataSOWindow.Open(p);
-                        else if (capturedRow.Data is EnemyAttackDataSO e) UPlayGround.Editor.PlayerAttackDataSOWindow.Open(e);
+                        Selection.activeObject = capturedRow.Data;
+                        EditorGUIUtility.PingObject(capturedRow.Data);
                     });
                     menu.ShowAsContext();
                 }

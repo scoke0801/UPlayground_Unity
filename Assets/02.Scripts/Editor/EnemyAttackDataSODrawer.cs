@@ -7,7 +7,7 @@ namespace UPlayGround.Editor
 {
     /// <summary>
     /// EnemyAttackDataSO 편집 UI.
-    /// PlayerAttackDataSOWindow에서 공유 사용.
+    /// EnemyAttackDataSO 전용 편집 UI.
     /// </summary>
     public class EnemyAttackDataSODrawer
     {
@@ -46,7 +46,7 @@ namespace UPlayGround.Editor
             EnsureStyles();
 
             // 헤더 바
-            PlayerAttackDataSODrawer.DrawSectionHeader("전역 설정", AccentColor);
+            DrawSectionHeader("전역 설정", AccentColor);
             EditorGUILayout.Space(4);
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 EditorGUILayout.PropertyField(_globalCooldown, new GUIContent("전역 쿨다운 (초)"));
@@ -54,7 +54,7 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(8);
 
             // 스킬 목록 헤더
-            PlayerAttackDataSODrawer.DrawSectionHeader($"스킬 풀  ({_skillList.arraySize}개)", AccentColor);
+            DrawSectionHeader($"스킬 풀  ({_skillList.arraySize}개)", AccentColor);
             EditorGUILayout.Space(4);
 
             // 전체 펼치기/접기
@@ -255,8 +255,7 @@ namespace UPlayGround.Editor
 
                 EditorGUILayout.Space(4);
 
-                // Hit Phases — 공유 로직 사용
-                PlayerAttackDataSODrawer.DrawHitPhaseListShared(phasesP, _phaseFold[index], AccentColor);
+                EditorGUILayout.PropertyField(phasesP, new GUIContent("Hit Phases"), true);
             }
 
             EditorGUILayout.EndVertical();
@@ -345,6 +344,17 @@ namespace UPlayGround.Editor
             }
 
             return false;
+        }
+
+        private static void DrawSectionHeader(string title, Color accent)
+        {
+            Rect rect = GUILayoutUtility.GetRect(0f, 25f, GUILayout.ExpandWidth(true));
+            EditorGUI.DrawRect(rect, new Color(accent.r, accent.g, accent.b, 0.18f));
+            EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - 1f, rect.width, 1f), accent);
+            EditorGUI.LabelField(
+                new Rect(rect.x + 7f, rect.y, rect.width - 14f, rect.height),
+                title,
+                EditorStyles.boldLabel);
         }
     }
 }

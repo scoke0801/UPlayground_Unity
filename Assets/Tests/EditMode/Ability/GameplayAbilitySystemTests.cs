@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
 using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
@@ -369,15 +370,19 @@ namespace UPlayGround.Ability.Tests
             GameplayAbilitySO ability = ScriptableObject.CreateInstance<GameplayAbilitySO>();
             ability.abilityId = "Ability.Test.Basic";
             ability.cooldown.durationSeconds = 2f;
+            var payload =
+                ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
+            payload.executionId = ability.abilityId;
+            payload.animKey = AnimKey.Attack_1;
+            payload.playerAttackInfo = new PlayerAttackInfo
+            {
+                baseInfo = new AttackInfoBase { animKey = AnimKey.Attack_1 },
+            };
             ability.variants.Add(new AbilityVariantDefinition
             {
                 variantId = "Ground",
                 priority = 1,
-                animKey = AnimKey.Attack_1,
-                playerAttackInfo = new PlayerAttackInfo
-                {
-                    baseInfo = new AttackInfoBase { animKey = AnimKey.Attack_1 },
-                },
+                executionPayload = payload,
             });
             return ability;
         }

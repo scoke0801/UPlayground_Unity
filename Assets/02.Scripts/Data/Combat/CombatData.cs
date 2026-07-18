@@ -304,7 +304,7 @@ namespace UPlayGround.Data
 
     /// <summary>
     /// 차지 단계별 공격 데이터.
-    /// AnimKey는 PlayerAttackDataSO.chargeAnimKey 하나로 공유하므로 수치만 포함한다.
+    /// AnimKey는 AbilitySetSO의 차지 단계 Ability Payload가 소유한다.
     /// </summary>
     [Serializable]
     public class ChargeStageData

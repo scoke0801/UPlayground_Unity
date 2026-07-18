@@ -1,9 +1,11 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Ability;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -37,8 +39,8 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (actor.EffectiveMonsterScaling == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "monsterScaling이 비어 있어 몬스터 Growth 기준을 명시적으로 추적할 수 없습니다."));
 
-                if (actor.EffectiveAttackData == null)
-                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 attackData가 비어 있습니다."));
+                if (actor.EffectiveAbilitySet == null)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 AbilitySet이 비어 있습니다."));
 
                 if (actor.EffectiveBreakGaugeData == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "breakGaugeData가 비어 있어 브레이크 시간/노출 보너스 분석을 할 수 없습니다."));
@@ -53,7 +55,7 @@ namespace UPlayGround.Tool.Editor.Balance
             if (actor.level < 1)
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "level이 1보다 작습니다."));
 
-            ValidateAttackData(actor.EffectiveAttackData, assumedDistance, monsterLevel, messages);
+            ValidateAttackData(actor.EffectiveAbilitySet, assumedDistance, monsterLevel, messages);
 
             if (scenario == null)
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "BalanceScenarioAsset이 없어 창의 임시 입력값으로 분석합니다."));
@@ -69,26 +71,29 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         private static void ValidateAttackData(
-            EnemyAttackDataSO attackData,
+            AbilitySetSO abilitySet,
             float assumedDistance,
             int monsterLevel,
             List<BalanceValidationMessage> messages)
         {
-            if (attackData == null)
+            if (abilitySet == null)
                 return;
 
-            if (attackData.skills == null || attackData.skills.Count == 0)
+            List<AbilityAttackEditorUtility.Entry> entries =
+                AbilityAttackEditorUtility.Collect(abilitySet, true);
+            if (entries.Count == 0)
             {
-                messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "EnemyAttackDataSO.skills가 비어 있습니다."));
+                messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "BT가 선택할 공격 Ability가 없습니다."));
                 return;
             }
 
             int usableCount = 0;
             int unlockedCount = 0;
-            for (int i = 0; i < attackData.skills.Count; i++)
+            for (int i = 0; i < entries.Count; i++)
             {
-                EnemyAttackInfo skill = attackData.skills[i];
-                string label = $"skills[{i}]";
+                GameplayAbilitySO ability = entries[i].Ability;
+                AbilityAttackInfo skill = entries[i].AttackInfo;
+                string label = ability != null ? ability.name : $"Ability[{i}]";
                 if (skill == null)
                 {
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, $"{label}이 null입니다."));
@@ -107,7 +112,8 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (skill.selectionWeight <= 0f)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}.selectionWeight가 0 이하입니다."));
 
-                if (skill.cooldown <= 0f)
+                if (ability?.cooldown == null
+                    || ability.cooldown.durationSeconds <= 0f)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}.cooldown이 0 이하입니다."));
 
                 if (BalanceAttackAnalyzer.SumDamage(skill.baseInfo) <= 0f)
@@ -121,7 +127,9 @@ namespace UPlayGround.Tool.Editor.Balance
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}은 Danger Ring 자동 수축 시간 계산에 필요한 공격 Phase가 없습니다."));
 
                 // 넓은 범위/긴 사거리 강공격인데 바닥 텔레그래프가 없으면 경고 (Danger Ring과 별개)
-                bool wideOrLongRange = skill.maxRange >= 4f || skill.telegraphRadiusScale >= 1.5f;
+                bool wideOrLongRange =
+                    (ability?.activation?.maxDistance ?? 0f) >= 4f
+                    || skill.telegraphRadiusScale >= 1.5f;
                 if (isStrong && wideOrLongRange && !skill.useTelegraph)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, $"{label}은 넓은 범위/긴 사거리 강공격인데 useTelegraph가 꺼져 있습니다."));
 
@@ -132,7 +140,9 @@ namespace UPlayGround.Tool.Editor.Balance
                     continue;
 
                 unlockedCount++;
-                if (skill.IsInRange(assumedDistance))
+                if (AbilityAttackEditorUtility.IsInRange(
+                        ability,
+                        assumedDistance))
                     usableCount++;
             }
 

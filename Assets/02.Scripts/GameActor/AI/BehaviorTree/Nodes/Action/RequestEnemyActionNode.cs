@@ -1,4 +1,4 @@
-using UPlayGround.Components;
+﻿using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
@@ -10,7 +10,7 @@ namespace UPlayGround.AI.BehaviorTree
     {
         [SerializeField] private EnemyActionIntent _intent = EnemyActionIntent.None;
         [SerializeField] private EnemyActionStyle _style = EnemyActionStyle.None;
-        [SerializeField] private EnemyAttackCategory _attackCategory = EnemyAttackCategory.None;
+        [SerializeField] private AbilityAttackCategory _attackCategory = AbilityAttackCategory.None;
         [SerializeField] private bool _skipIfAlreadyInState = true;
         [SerializeField] private string _cooldownId;
         [SerializeField] private float _cooldownDuration;
@@ -29,7 +29,7 @@ namespace UPlayGround.AI.BehaviorTree
             set => _style = value;
         }
 
-        public EnemyAttackCategory AttackCategory
+        public AbilityAttackCategory AttackCategory
         {
             get => _attackCategory;
             set => _attackCategory = value;

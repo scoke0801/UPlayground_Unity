@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround.Editor.P09Builder
 {
@@ -103,10 +104,10 @@ namespace UPlayGround.Editor.P09Builder
 
             EditorGUILayout.Space();
 
-            // AttackData
-            EditorGUILayout.LabelField("공격 데이터", EditorStyles.boldLabel);
-            config.Stats.attackDataSo = EditorGUILayout.ObjectField(
-                "AttackData SO", config.Stats.attackDataSo, typeof(EnemyAttackDataSO), false) as ScriptableObject;
+            // Ability
+            EditorGUILayout.LabelField("Ability 데이터", EditorStyles.boldLabel);
+            config.Stats.abilitySet = (AbilitySetSO)EditorGUILayout.ObjectField(
+                "Ability Set", config.Stats.abilitySet, typeof(AbilitySetSO), false);
             config.Stats.combatStyle = (EnemyCombatStyle)EditorGUILayout.EnumPopup(
                 "전투 스타일", config.Stats.combatStyle);
             config.Stats.defaultAttackDamage = EditorGUILayout.FloatField(
@@ -121,8 +122,8 @@ namespace UPlayGround.Editor.P09Builder
                         "무기 티어당 공격 증가율", config.Stats.weaponAttackPerTier);
                 }
             }
-            if (config.Stats.attackDataSo != null)
-                EditorGUILayout.HelpBox("기존 AttackData SO를 지정하면 공유 자산 보호를 위해 새 공격 데이터 보정은 적용하지 않습니다.", MessageType.Info);
+            if (config.Stats.abilitySet != null)
+                EditorGUILayout.HelpBox("기존 AbilitySet을 지정하면 공유 자산 보호를 위해 공격 데이터 자동 보정은 적용하지 않습니다.", MessageType.Info);
 
             EditorGUILayout.Space();
 

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_4
   animKey: 503
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 503
       attackType: 0
@@ -198,7 +198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Default
   animKey: 500
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 500
       attackType: 0
@@ -281,7 +281,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_5
   animKey: 504
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 504
       attackType: 0
@@ -364,7 +364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_3
   animKey: 502
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 502
       attackType: 0

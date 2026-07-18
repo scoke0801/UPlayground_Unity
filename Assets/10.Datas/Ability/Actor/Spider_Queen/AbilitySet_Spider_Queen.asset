@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Spider_Queen
+  m_EditorClassIdentifier: 
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: 4f7d39d1f1cb840498356d16bc6b13c8, type: 2}
+  - {fileID: 11400000, guid: 63a9f22250820a243bb2cc6c455e91de, type: 2}
+  - {fileID: 11400000, guid: 24dc3f8d6268ad44ea383907ad2cd51d, type: 2}
+  - {fileID: 11400000, guid: 68ac9a31de099fd499d61d2f9b8983d5, type: 2}
+  - {fileID: 11400000, guid: 9a3e8b775644a7f419898cb56cb57e84, type: 2}
+  - {fileID: 11400000, guid: b8eab113e2e79ed42baa1f3ba948ffe5, type: 2}
+  combatBindings: []
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

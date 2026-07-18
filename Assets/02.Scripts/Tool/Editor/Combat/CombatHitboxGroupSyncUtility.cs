@@ -8,13 +8,15 @@ using UPlayGround.Components;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Ability.UPlayGround;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
     /// <summary>
     /// CombatHitbox.groupId와 공격 데이터/모션이벤트의 hitboxGroupId를 함께 변경(rename)하는 에디터 유틸.
     /// 런타임 그룹 결정 우선순위는 BeginCollisionEvent → HitPhaseData → Default 이므로
-    /// AttackDataSO(HitPhaseData)와 MotionSet 에셋(BeginCollisionEvent)을 모두 같은 필드명(hitboxGroupId)으로 다룬다.
+    /// Ability Payload(HitPhaseData)와 MotionSet 에셋(BeginCollisionEvent)을 모두 같은 필드명(hitboxGroupId)으로 다룬다.
     /// 타입 하드코딩 대신 SerializedProperty 전체 순회로 중첩 위치(콤보/차지/잔상/라우트 등)를 빠짐없이 잡는다.
     /// </summary>
     public static class CombatHitboxGroupSyncUtility
@@ -28,8 +30,8 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             public string GroupId;
             public int HitboxCount;
-            public int DataPhaseCount;   // AttackDataSO 내부 hitboxGroupId 출현 수
-            public int EventCount;       // MotionSet 등 비-AttackDataSO 에셋의 hitboxGroupId 출현 수
+            public int DataPhaseCount;   // Ability Payload 내부 hitboxGroupId 출현 수
+            public int EventCount;       // MotionSet 등 비-Payload 에셋의 hitboxGroupId 출현 수
             public string NewGroupId;    // UI 편집용 매핑 대상
 
             public int TotalCount => HitboxCount + DataPhaseCount + EventCount;
@@ -60,7 +62,16 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         public static int CollectAttackData(CharacterModelData model, List<UnityEngine.Object> into)
-            => model != null && model.abilitySet != null && AddUnique(into, model.abilitySet) ? 1 : 0;
+        {
+            if (model == null || model.abilitySet == null)
+                return 0;
+
+            int added = 0;
+            foreach (AbilityAttackEditorUtility.Entry entry in AbilityAttackEditorUtility.Collect(model.abilitySet))
+                if (AddUnique(into, entry.Payload))
+                    added++;
+            return added;
+        }
 
         /// <summary>
         /// 지정한 무기 타입의 MotionSet만 수집한다(+ fallback 체인). 컨테이너의 모든 무기 타입을
@@ -166,7 +177,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 {
                     if (asset == null)
                         continue;
-                    bool isData = asset is AttackDataSO;
+                    bool isData = asset is UPlayGroundMotionAbilityPayloadSO;
                     var so = new SerializedObject(asset);
                     SerializedProperty it = so.GetIterator();
                     bool enter = true;
@@ -226,7 +237,7 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         /// <summary>
-        /// 에셋(AttackDataSO / MotionSet 등) 내부의 모든 hitboxGroupId를 단일 패스로 remap한다.
+        /// 에셋(Ability Payload / MotionSet 등) 내부의 모든 hitboxGroupId를 단일 패스로 remap한다.
         /// 변경된 출현 수를 반환하며 0보다 크면 에셋을 dirty로 표시한다.
         /// </summary>
         public static int RemapInAsset(UnityEngine.Object asset, IReadOnlyDictionary<string, string> map)

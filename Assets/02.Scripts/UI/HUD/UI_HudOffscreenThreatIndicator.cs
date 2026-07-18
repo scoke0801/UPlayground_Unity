@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.CameraSystem;
 using UPlayGround.Data.EnumType;
@@ -264,7 +264,7 @@ namespace UPlayGround.UI
                 return false;
 
             return skill.useDangerRing
-                   || skill.attackCategory is EnemyAttackCategory.Heavy or EnemyAttackCategory.Skill;
+                   || skill.attackCategory is AbilityAttackCategory.Heavy or AbilityAttackCategory.Skill;
         }
 
         #endregion

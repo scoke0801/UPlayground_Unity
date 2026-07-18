@@ -200,8 +200,11 @@ namespace UPlayGround.UI
             if (mgr == null)
                 return;
 
-            var panel = mgr.GetActiveUI("DevCheatPanel");
-            if (panel != null)
+            // GetActiveUI는 객체 존재만 반환한다(Hide 후에도 캐시에 남음). 다른 토글과 동일하게
+            // 실제 가시성(IsVisible)으로 판단해야 한 번 닫은 뒤에도 다시 열 수 있다.
+            var panelObj = mgr.GetActiveUI("DevCheatPanel");
+            var panel = panelObj != null ? panelObj.GetComponentInChildren<UI_Base>(true) : null;
+            if (panel != null && panel.IsVisible)
                 mgr.HideUI("DevCheatPanel");
             else
                 mgr.ShowUI("DevCheatPanel");

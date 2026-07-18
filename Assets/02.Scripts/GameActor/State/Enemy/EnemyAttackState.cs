@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
@@ -29,7 +29,7 @@ namespace UPlayGround.State
         private EnemyAIContext _context;
         private EnemyDetection _detection;
 
-        private EnemyAttackInfo _currentSkill;
+        private AbilityAttackInfo _currentSkill;
         private float           _attackTimer;
         private bool            _isAttackActive;
 
@@ -74,7 +74,7 @@ namespace UPlayGround.State
 
             if (_currentSkill != null)
             {
-                var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
+                var animState = gameActor.Animator.PlayMotion(_combat.CurrentAnimKey, 0.1f);
                 if (!_currentSkill.useMotionEventTelegraph)
                     _combat.BeginCurrentSkillTelegraph();
 
@@ -82,7 +82,7 @@ namespace UPlayGround.State
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
                 else
                 {
-                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_currentSkill.baseInfo.animKey}");
+                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_combat.CurrentAnimKey}");
                     OnAttackAnimationEnd();
                 }
 
@@ -138,6 +138,7 @@ namespace UPlayGround.State
 
             if (!_isAttackActive) return;
 
+            _combat.CompleteCurrentAbility();
             _combat.ClearHitTargets();
             TransitionToNextState();
         }

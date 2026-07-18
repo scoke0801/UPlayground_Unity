@@ -232,12 +232,12 @@ UIManager
 | `ActorStatSO` | `10.Datas/Stat` | 액터 공통 전투/생존/이동 배율 스탯 |
 | `EnemyStatsSO` | `10.Datas/Actor/Enemy/StatData` | 레거시 몬스터 튜닝 및 `ActorStatSO` 생성 입력 |
 | `EnemyBehaviorSO` | — | 페이즈 기반 AI 프로필 |
-| `EnemyAttackDataSO` | `10.Datas/Actor/Enemy/AttackData` | 다단 `HitPhaseData` 공격 데이터 |
+| `AbilitySetSO` | `10.Datas/Actor/Enemy/AttackData` | 다단 `HitPhaseData` 공격 데이터 |
 | `EnemyFlyingSettingsSO` | — | 비행 몬스터 설정 |
 | `EnemyDropTableSO` | `10.Datas/Actor/Enemy/DropTables` | 몬스터 드랍 테이블 |
 | `PoiseSO` | — | 강인도 데이터 |
 | `AbilitySetSO` / `GameplayAbilitySO` | `10.Datas/Ability/Migrated` | 플레이어 공격·스킬의 단일 데이터 소스 |
-| `UPlayGroundMotionAbilityPayloadSO` | Ability Variant의 서브에셋 | 실행용 `AnimKey`와 `PlayerAttackInfo` |
+| `UPlayGroundMotionAbilityPayloadSO` | Ability Variant의 서브에셋 | 실행용 `AnimKey`와 `AbilityAttackInfo` |
 | `ActorDefinitionSO` | — | 액터 정의 (prefab + 필수 statData + 레거시 stats + npcData + dropTable) |
 | `ActorDatabase` | — | 전체 ActorDefinitionSO 조회 테이블 |
 | `PartyConfigSO` | — | 시작 파티 순서와 초기 활성 캐릭터 인덱스 |
@@ -298,7 +298,7 @@ Assets/
 │       ├── Actor/               ActorDefinitionSO, ActorDatabase, Enemy SO군, AnimationSO군
 │       ├── Item/                ItemSO, EquipmentSO, ItemDropList
 │       ├── Ability/             AbilitySetSO, GameplayAbilitySO, Ability/Effect 정의
-│       ├── Combat/              EnemyAttackDataSO, PlayerAttackInfo, VitalOrbDataSO
+│       ├── Combat/              AbilitySetSO, AbilityAttackInfo, VitalOrbDataSO
 │       ├── Crafting/            RecipeData, RecipeDatabase
 │       ├── Party/               PartyConfigSO
 │       ├── Dialogue/            DialogueGraphSO, DialogueNodeSO
@@ -351,7 +351,7 @@ Assets/
 | [WEAPON_RIG_SYSTEM_GUIDE.md](guide/WEAPON_RIG_SYSTEM_GUIDE.md) | Weapon Rig 시스템 — 현재 무기/투사체 조준 구조 분석, 공통 조준점, WeaponAimPivot과 양손 IK 단계별 도입 설계 |
 | [STAT_SYSTEM_GUIDE.md](guide/STAT_SYSTEM_GUIDE.md) | 액터 스탯 시스템 — ActorStatSO, ActorStatContainer, Stat Data Generator 검증 정책 |
 | [LEVEL_GRADE_COMBAT_BALANCE_POLICY.md](LEVEL_GRADE_COMBAT_BALANCE_POLICY.md) | 레벨 / 등급 기반 전투 시간 밸런스 정책 — 저레벨·동레벨 Normal, Elite, Boss 기준 전투 시간과 검증 절차 |
-| [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](guide/MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — EnemyAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |
+| [MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md](guide/MONSTER_HEAVY_ATTACK_TELEGRAPH_GUIDE.md) | 몬스터 공격 범위 텔레그래프 — AbilityAttackInfo, HitPhaseData, EnemyCombat 기반 범위 예고 표시와 확장 설계 |
 | [MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md](design/MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md) | 몬스터 브레이크 / 행동 불능 / 특수공격 — Poise, 피격 반응, 브레이크 게이지, 특수공격 입력 기회 통합 설계 |
 | [TARGETED_PROJECTILE_AOE_GUIDE.md](guide/TARGETED_PROJECTILE_AOE_GUIDE.md) | 타게팅 투사체 AOE — 락온 대상, 몬스터 스킬 대상, 텔레그래프 예약 위치 기반 범위 투사체 설계 |
 | [PARTY_LEVEL_POWER_DESIGN.md](Complete/PARTY_LEVEL_POWER_DESIGN.md) | 파티 레벨 / 전투력 계산 설계 — 캐릭터별 레벨, 성장 스탯, 전투력 산출 API |
@@ -406,7 +406,7 @@ Assets/
 | `UPlayGround/Stat/Validate Stat Data Coverage` | StatDataGeneratorWindow | 모든 ActorDefinitionSO의 statData와 StatType 누락 검증 |
 | `UPlayGround/Gameplay/Balance/Balance Designer` | BalanceDesignerWindow | ActorDefinitionSO·공격 데이터·BT 연결 상태 기반 N초 전투 가능성 분석, CSV 내보내기 |
 | `UPlayGround/게임플레이/Ability Editor` | GameplayAbilityEditorWindow | AbilitySet·Ability·Effect 편집, 참조 안전 삭제, 전체 검증 |
-| `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | AbilitySetSO/EnemyAttackDataSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
+| `UPlayGround/Combat/Data Validator` | CombatDataValidatorWindow | AbilitySetSO/AbilitySetSO 기본 검증, 오류/경고 목록 표시, Markdown 리포트 저장 |
 
 ---
 

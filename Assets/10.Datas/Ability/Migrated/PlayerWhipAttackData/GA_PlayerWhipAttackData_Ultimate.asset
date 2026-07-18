@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerWhipAttackData.Ultimate.Default
   animKey: 501
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 501
       attackType: 0

@@ -47,7 +47,7 @@ namespace UPlayGround
             
             // AttackData 구성
             // TODO(DangerRing): defenseType이 기본 Parryable로 들어간다. 원거리 Unblockable 공격을 만들려면
-            //   Initialize에 defenseType을 인자로 받아 스킬(EnemyAttackInfo.defenseType)에서 전달할 것.
+            //   Initialize에 defenseType을 인자로 받아 스킬(AbilityAttackInfo.defenseType)에서 전달할 것.
             //   (근접은 EnemyCombat.CheckMeleeAttackHit에서 이미 복사 중)
             // isProjectile=true: 투사체/AOE는 패리·카운터가 성립하지 않는다(가드·퍼펙트 도지는 유지).
             attackData = new AttackData

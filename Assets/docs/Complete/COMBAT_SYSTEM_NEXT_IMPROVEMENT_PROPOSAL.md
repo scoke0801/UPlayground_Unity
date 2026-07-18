@@ -47,7 +47,7 @@ Unreal GAS는 능력 실행, 수치 효과, 속성, 연출 이벤트를 분리�
 
 Unity 공식 가이드는 ScriptableObject를 데이터 컨테이너로 사용해 데이터와 로직을 분리하고, 작은 컴포넌트를 조합하는 구조를 권장한다.
 
-UPlayground에는 이미 `PlayerAttackDataSO`, `EnemyAttackDataSO`, `MotionSetAsset`, `ActorDefinitionSO`가 있으므로 전체 구조 전환보다 다음 원칙을 적용하는 것이 적절하다.
+UPlayground에는 이미 `PlayerAttackDataSO`, `AbilitySetSO`, `MotionSetAsset`, `ActorDefinitionSO`가 있으므로 전체 구조 전환보다 다음 원칙을 적용하는 것이 적절하다.
 
 - 공격 정의 데이터는 SO에 유지한다.
 - 런타임 실행 상태는 `CombatActionInstance`로 분리한다.

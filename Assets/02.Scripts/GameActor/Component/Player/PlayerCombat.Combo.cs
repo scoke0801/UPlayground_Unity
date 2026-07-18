@@ -145,7 +145,7 @@ namespace UPlayGround.Components
 
         private bool TryResolveSkill(
             int skillIndex,
-            out PlayerAttackInfo attackInfo,
+            out AbilityAttackInfo attackInfo,
             out AnimKey animKey)
         {
             attackInfo = null;

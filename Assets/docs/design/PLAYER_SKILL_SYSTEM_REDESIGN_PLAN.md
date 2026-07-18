@@ -301,7 +301,7 @@ public sealed class PlayerSkillDefinition
 public sealed class PlayerSkillVariant
 {
     public AnimKey animKey;
-    public PlayerAttackInfo attackInfo;
+    public AbilityAttackInfo attackInfo;
     public SkillVariantCondition condition;
     public int priority;
 }
@@ -665,7 +665,7 @@ UI 원칙:
 
 | 구분 | 권장 관리 방식 |
 |------|----------------|
-| 일반 공격 | 기존 `EnemyAttackDataSO` 공격 데이터 |
+| 일반 공격 | 기존 `AbilitySetSO` 공격 데이터 |
 | 스킬/패턴 | AI/BT 노드 또는 `EnemyBehaviorSO` 페이즈 패턴 |
 | 특수기 | `SpecialAttack`, 브레이크 대응기, 보스 페이즈 전용 패턴 |
 | 쿨타임/조건 | AI 블랙보드, 전투 의사결정, 페이즈/거리/HP 조건 |

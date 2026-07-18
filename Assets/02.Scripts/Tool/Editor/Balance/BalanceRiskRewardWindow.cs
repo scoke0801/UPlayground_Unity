@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -7,6 +7,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -54,7 +55,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private DataMode _mode = DataMode.EnemySkills;
         private RiskAxis _riskAxis = RiskAxis.Cooldown;
         private RewardAxis _rewardAxis = RewardAxis.Damage;
-        private EnemyAttackDataSO _enemyData;
+        private AbilitySetSO _enemyData;
         private AbilitySetSO _playerData;
         private readonly List<PlotPoint> _points = new();
         private readonly List<string> _excluded = new();
@@ -79,7 +80,7 @@ namespace UPlayGround.Tool.Editor.Balance
             {
                 EditorGUILayout.HelpBox(
                     _mode == DataMode.EnemySkills
-                        ? "EnemyAttackDataSO를 선택하세요. (프레임 축은 Attack Generator의 자동 리액션 분석이 생성된 공격만 표시)"
+                        ? "몬스터 AbilitySetSO를 선택하세요."
                     : "AbilitySetSO를 선택하세요.",
                     MessageType.Info);
                 DrawExcluded();
@@ -98,7 +99,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 _mode = (DataMode)EditorGUILayout.EnumPopup(_mode, EditorStyles.toolbarPopup, GUILayout.Width(110f));
 
                 if (_mode == DataMode.EnemySkills)
-                    _enemyData = (EnemyAttackDataSO)EditorGUILayout.ObjectField(_enemyData, typeof(EnemyAttackDataSO), false, GUILayout.Width(220f));
+                    _enemyData = (AbilitySetSO)EditorGUILayout.ObjectField(_enemyData, typeof(AbilitySetSO), false, GUILayout.Width(220f));
                 else
             _playerData = (AbilitySetSO)EditorGUILayout.ObjectField(_playerData, typeof(AbilitySetSO), false, GUILayout.Width(220f));
 
@@ -128,17 +129,18 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private void BuildEnemyPoints()
         {
-            if (_enemyData?.skills == null)
-                return;
-
-            for (int i = 0; i < _enemyData.skills.Count; i++)
+            List<AbilityAttackEditorUtility.Entry> entries =
+                AbilityAttackEditorUtility.Collect(_enemyData, true);
+            for (int i = 0; i < entries.Count; i++)
             {
-                EnemyAttackInfo skill = _enemyData.skills[i];
+                AbilityAttackInfo skill = entries[i].AttackInfo;
                 if (skill?.baseInfo == null || skill.skillType != SkillType.Attack)
                     continue;
 
                 string name = $"[{i}] {skill.baseInfo.animKey}";
-                float cooldown = Mathf.Max(0.05f, Mathf.Max(skill.cooldown, _enemyData.globalCooldown));
+                float cooldown = Mathf.Max(
+                    0.05f,
+                    entries[i].Ability?.cooldown?.durationSeconds ?? 0f);
                 if (!TryGetRisk(skill.baseInfo, cooldown, name, out float risk))
                     continue;
 
@@ -181,7 +183,7 @@ namespace UPlayGround.Tool.Editor.Balance
             AddPlayerOne("swapSpecial", view.swapSpecialAttack, new Color(0.95f, 0.45f, 0.85f));
         }
 
-        private void AddPlayerList(string prefix, List<PlayerAttackInfo> list, Color color)
+        private void AddPlayerList(string prefix, List<AbilityAttackInfo> list, Color color)
         {
             if (list == null)
                 return;
@@ -189,7 +191,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 AddPlayerOne($"{prefix}[{i}]", list[i], color);
         }
 
-        private void AddPlayerOne(string slot, PlayerAttackInfo info, Color color)
+        private void AddPlayerOne(string slot, AbilityAttackInfo info, Color color)
         {
             if (info?.baseInfo == null)
                 return;
@@ -251,10 +253,10 @@ namespace UPlayGround.Tool.Editor.Balance
             return true;
         }
 
-        private static Color GetEnemyCategoryColor(EnemyAttackInfo skill)
+        private static Color GetEnemyCategoryColor(AbilityAttackInfo skill)
         {
             if (BalanceAttackAnalyzer.IsStrongEnemyAttack(skill))
-                return skill.attackCategory == EnemyAttackCategory.Skill
+                return skill.attackCategory == AbilityAttackCategory.Skill
                     ? new Color(0.9f, 0.35f, 0.35f)
                     : new Color(0.95f, 0.6f, 0.3f);
             return new Color(0.45f, 0.7f, 0.95f);

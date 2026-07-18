@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.Components;
@@ -8,7 +8,7 @@ namespace UPlayGround.Data.Event
 {
     /// <summary>
     /// 몬스터 공격 범위 텔레그래프 이벤트.
-    /// EnemyAttackInfo.useTelegraph가 켜진 현재 스킬의 히트 페이즈 범위를 표시한다.
+    /// AbilityAttackInfo.useTelegraph가 켜진 현재 스킬의 히트 페이즈 범위를 표시한다.
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]

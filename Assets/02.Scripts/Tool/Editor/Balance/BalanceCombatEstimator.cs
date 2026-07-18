@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
@@ -7,6 +7,8 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
+using UPlayGround.Data.Ability;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -31,7 +33,10 @@ namespace UPlayGround.Tool.Editor.Balance
             result.MonsterLevel = monsterLevel;
             result.Messages.AddRange(BalanceActorDataValidator.Validate(actor, scenario, assumedDistance, monsterLevel));
 
-            if (actor == null || actor.statData == null || actor.attackData == null || result.HasError)
+            if (actor == null
+                || actor.statData == null
+                || actor.EffectiveAbilitySet == null
+                || result.HasError)
             {
                 result.Status = BalanceCheckStatus.InvalidData;
                 result.Summary = "필수 데이터가 부족합니다.";
@@ -52,12 +57,12 @@ namespace UPlayGround.Tool.Editor.Balance
             result.PlayerAttackPower = playerAttackPower;
             result.PlayerMaxPoise = playerMaxPoise;
             result.PlayerPoiseRecoveryRate = playerPoiseRecovery;
-            CountSkillUnlock(actor.attackData, monsterLevel, out int unlockedCount, out int lockedCount);
+            CountSkillUnlock(actor.EffectiveAbilitySet, monsterLevel, out int unlockedCount, out int lockedCount);
             result.UnlockedSkillCount = unlockedCount;
             result.LockedSkillCount = lockedCount;
 
             result.EnemyExpectedDps = EstimateEnemyDps(
-                actor.attackData,
+                actor.EffectiveAbilitySet,
                 monsterLevel,
                 assumedDistance,
                 monsterAttackPower,
@@ -224,16 +229,19 @@ namespace UPlayGround.Tool.Editor.Balance
             result.PlayerEffectiveDpsWithBreak = result.PlayerExpectedDps * Mathf.Max(0f, bonusMultiplier);
         }
 
-        private static void CountSkillUnlock(EnemyAttackDataSO data, int level, out int unlocked, out int locked)
+        private static void CountSkillUnlock(
+            AbilitySetSO data,
+            int level,
+            out int unlocked,
+            out int locked)
         {
             unlocked = 0;
             locked = 0;
-            if (data?.skills == null)
-                return;
-
-            for (int i = 0; i < data.skills.Count; i++)
+            List<AbilityAttackEditorUtility.Entry> entries =
+                AbilityAttackEditorUtility.Collect(data, true);
+            for (int i = 0; i < entries.Count; i++)
             {
-                EnemyAttackInfo skill = data.skills[i];
+                AbilityAttackInfo skill = entries[i].AttackInfo;
                 if (skill == null || skill.baseInfo == null || skill.skillType != SkillType.Attack)
                     continue;
 
@@ -245,7 +253,7 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         private static float EstimateEnemyDps(
-            EnemyAttackDataSO attackData,
+            AbilitySetSO attackData,
             int monsterLevel,
             float assumedDistance,
             float monsterAttackPower,
@@ -253,7 +261,7 @@ namespace UPlayGround.Tool.Editor.Balance
             BalanceScenarioAsset scenario,
             BalanceScenarioResult result)
         {
-            List<EnemyAttackInfo> skills = BalanceAttackAnalyzer.GetUsableEnemySkills(attackData, assumedDistance, monsterLevel);
+            List<AbilityAttackInfo> skills = BalanceAttackAnalyzer.GetUsableEnemySkills(attackData, assumedDistance, monsterLevel);
             result.AvailableSkillCount = skills.Count;
             if (skills.Count == 0)
                 return 0f;
@@ -282,9 +290,13 @@ namespace UPlayGround.Tool.Editor.Balance
             float skillChance = 0f;
             for (int i = 0; i < skills.Count; i++)
             {
-                EnemyAttackInfo skill = skills[i];
+                AbilityAttackInfo skill = skills[i];
                 float chance = Mathf.Max(0f, skill.selectionWeight) / totalWeight;
-                float cooldown = Mathf.Max(0.05f, Mathf.Max(skill.cooldown, attackData.globalCooldown));
+                GameplayAbilitySO ability =
+                    BalanceAttackAnalyzer.FindAbility(attackData, skill);
+                float cooldown = Mathf.Max(
+                    0.05f,
+                    ability?.cooldown?.durationSeconds ?? 0f);
                 float rawDamage = BalanceAttackAnalyzer.SumDamage(skill.baseInfo);
                 float expectedDamage = rawDamage * monsterAttackPower * defenseMultiplier * avoidMultiplier;
 
@@ -345,7 +357,7 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         private static void AccumulateCategoryChance(
-            EnemyAttackInfo skill,
+            AbilityAttackInfo skill,
             float chance,
             ref float basicChance,
             ref float heavyChance,
@@ -353,10 +365,10 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             switch (ResolveCategory(skill))
             {
-                case EnemyAttackCategory.Heavy:
+                case AbilityAttackCategory.Heavy:
                     heavyChance += chance;
                     break;
-                case EnemyAttackCategory.Skill:
+                case AbilityAttackCategory.Skill:
                     skillChance += chance;
                     break;
                 default:
@@ -365,24 +377,24 @@ namespace UPlayGround.Tool.Editor.Balance
             }
         }
 
-        private static EnemyAttackCategory ResolveCategory(EnemyAttackInfo skill)
+        private static AbilityAttackCategory ResolveCategory(AbilityAttackInfo skill)
         {
             if (skill == null)
-                return EnemyAttackCategory.Basic;
+                return AbilityAttackCategory.Basic;
 
-            if (skill.attackCategory is EnemyAttackCategory.Basic or EnemyAttackCategory.Heavy or EnemyAttackCategory.Skill)
+            if (skill.attackCategory is AbilityAttackCategory.Basic or AbilityAttackCategory.Heavy or AbilityAttackCategory.Skill)
                 return skill.attackCategory;
 
             AnimKey key = skill.baseInfo != null ? skill.baseInfo.animKey : AnimKey.None;
             int value = (int)key;
             if (value >= (int)AnimKey.HeavyAttack_1 && value <= (int)AnimKey.HeavyAttack_10)
-                return EnemyAttackCategory.Heavy;
+                return AbilityAttackCategory.Heavy;
             if (key == AnimKey.Fly_Attack ||
                 (value >= (int)AnimKey.Skill_1 && value <= (int)AnimKey.Skill_9) ||
                 (value >= (int)AnimKey.Counter_Attack_1 && value <= (int)AnimKey.Counter_Attack_2))
-                return EnemyAttackCategory.Skill;
+                return AbilityAttackCategory.Skill;
 
-            return EnemyAttackCategory.Basic;
+            return AbilityAttackCategory.Basic;
         }
 
         private static float ReadPlayerStat(BalanceScenarioAsset scenario, StatType type)

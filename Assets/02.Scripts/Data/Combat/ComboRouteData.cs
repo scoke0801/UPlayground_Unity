@@ -81,7 +81,7 @@ namespace UPlayGround.Data.Combat
 
         [Header("실행 공격")]
         [Tooltip("라우트 매칭 시 실행할 공격 정보")]
-        public PlayerAttackInfo attackInfo = new();
+        public AbilityAttackInfo attackInfo = new();
 
         [Tooltip("같은 길이의 라우트가 경합할 때 우선순위(높을수록 먼저)")]
         public int priority = 0;
@@ -91,7 +91,7 @@ namespace UPlayGround.Data.Combat
         [Min(0f)] public float perfectWindow = 0f;
 
         [Tooltip("강화 시 사용할 전용 공격. animKey가 설정되면 기본 공격 대신 이 공격을 실행한다. 비우면 기본 공격에 아래 배율/태그만 적용.")]
-        public PlayerAttackInfo enhancedAttackInfo = new();
+        public AbilityAttackInfo enhancedAttackInfo = new();
 
         [Tooltip("강화 시 데미지 배율(전용 공격 미설정일 때 기본 공격에 곱). 1이면 데미지 보너스 없음.")]
         [Min(0f)] public float enhancedDamageMultiplier = 1.15f;

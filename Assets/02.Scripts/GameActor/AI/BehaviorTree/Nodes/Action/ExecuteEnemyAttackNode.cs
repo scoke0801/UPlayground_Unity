@@ -1,4 +1,4 @@
-using UPlayGround.Components;
+﻿using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
@@ -8,11 +8,11 @@ namespace UPlayGround.AI.BehaviorTree
 {
     public class ExecuteEnemyAttackNode : BTActionNode
     {
-        [SerializeField] private EnemyAttackCategory _attackCategory = EnemyAttackCategory.None;
+        [SerializeField] private AbilityAttackCategory _attackCategory = AbilityAttackCategory.None;
 
         private bool _attackStarted;
 
-        public EnemyAttackCategory AttackCategory
+        public AbilityAttackCategory AttackCategory
         {
             get => _attackCategory;
             set => _attackCategory = value;

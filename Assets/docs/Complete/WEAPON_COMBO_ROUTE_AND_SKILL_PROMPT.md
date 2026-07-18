@@ -158,7 +158,7 @@
 **스킬 데이터 사실**(설계 근거):
 - 스킬은 **쿨다운 없음**. `PlayerSkillGauge`의 **게이지 비용**(`_skillCost[slot]`, `CanUseSkill`)으로만 게이팅 → Ready = 게이지 충족.
 - 토큰→게이지 슬롯: `Skill1→0`, `Skill2→1`(슬롯별 `_gaugeSlotOverride`로 교정 가능). `ExecuteSkillAttack`은 `skillAttackList[index]`(캐릭터별)을 쓰며, 게이지 슬롯과 1:1 가정.
-- **스킬 아이콘 파이프라인 부재**(`PlayerAttackInfo`에 icon 필드 없음) → v1은 **슬롯 프리팹에 아이콘 직렬화**. ⚠ 캐릭터 교체 시 아이콘은 안 바뀜(스왑 미추적). 추후 캐릭터별 스킬 아이콘 소스(예: `skillAttackList`에 icon 필드 추가) 도입 시 스왑 대응.
+- **스킬 아이콘 파이프라인 부재**(`AbilityAttackInfo`에 icon 필드 없음) → v1은 **슬롯 프리팹에 아이콘 직렬화**. ⚠ 캐릭터 교체 시 아이콘은 안 바뀜(스왑 미추적). 추후 캐릭터별 스킬 아이콘 소스(예: `skillAttackList`에 icon 필드 추가) 도입 시 스왑 대응.
 
 **`UI_ComboRouteHint`(지난 턴 행 위젯)와의 관계**: 둘 다 `CollectHints`를 두뇌로 공유하는 **대체 출력**이다. 사진처럼 가려면 **스킬바 슬롯 글로우(`UI_HudSkill`)**를 쓰고, 행 위젯은 미사용. 한 HUD에 둘을 동시에 라이브로 두지 말 것.
 

@@ -75,13 +75,10 @@ namespace UPlayGround.Components
         protected int _currentAirAttackLimit;     // 매 공중 루프마다 랜덤 결정
         protected int _groundAttackCount;
         protected int _airAttackCount;
-        protected float _lastAttackTime;
-        protected float _maxAttackRange;
         protected Vector3 _spawnPosition;
 
         protected MonsterActor _monster;
         private MonsterGroupController _groupController;
-        private readonly List<EnemyAttackInfo> _diveSkillBuffer = new();
 
         // ── 프로퍼티 (State에서 접근) ──
         public override EnemyDetection Detection => _detection;
@@ -130,9 +127,6 @@ namespace UPlayGround.Components
 
         protected virtual void Start()
         {
-            _maxAttackRange = _combat?.AttackData?.GetMaxAttackRange() ?? 3f;
-            _lastAttackTime = -(_combat?.AttackData?.globalCooldown ?? 1f);
-
             ResetAllCounters();
 
             EnsureBehaviorTreeRunner();
@@ -197,7 +191,6 @@ namespace UPlayGround.Components
         public override void OnGroundAttackFinished()
         {
             _groundAttackCount++;
-            _lastAttackTime = Time.time;
         }
 
         /// <summary>
@@ -219,8 +212,10 @@ namespace UPlayGround.Components
 
         public override bool CanUseSkill()
         {
-            if (_combat?.AttackData == null) return false;
-            return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
+            return _combat != null
+                   && _detection != null
+                   && _detection.HasTarget
+                   && _combat.HasAvailableSkillAtDistance(_detection.DistanceToTarget);
         }
 
         public override bool TryRequestAttackSlot()
@@ -232,8 +227,7 @@ namespace UPlayGround.Components
 
         public override void NotifyBTAttackStarted()
         {
-            // 카운터 증가는 OnGroundAttackFinished / OnAirAttackFinished에서 처리하므로 여기서는 타임스탬프만 갱신.
-            _lastAttackTime = Time.time;
+            // 실제 재사용 대기시간은 ActorAbilitySystem이 Ability별로 관리한다.
         }
 
         protected virtual void TransitionToTakeOff()
@@ -257,19 +251,15 @@ namespace UPlayGround.Components
         }
 
         /// <summary>
-        /// 발사 가능한 dive 스킬이 있는지 판정. 타겟/AttackData 없으면 false.
+        /// 발사 가능한 급강하 Ability가 있는지 판정한다.
         /// </summary>
         public override bool HasDiveSkillAvailable()
         {
-            if (_detection == null || !_detection.HasTarget || _combat?.AttackData == null)
+            if (_detection == null || !_detection.HasTarget || _combat == null)
                 return false;
-
-            foreach (var skill in _combat.AttackData.skills)
-            {
-                if (skill.isDiveAttack && skill.IsUnlockedForLevel(_combat.CurrentLevel))
-                    return true;
-            }
-            return false;
+            return _combat.HasAvailableAerialAbility(
+                _detection.DistanceToTarget,
+                true);
         }
 
         /// <summary>
@@ -277,25 +267,18 @@ namespace UPlayGround.Components
         /// </summary>
         public override bool SelectAndSetDiveSkill()
         {
-            if (_combat?.AttackData == null)
+            if (_combat == null
+                || _detection == null
+                || !_detection.HasTarget)
                 return false;
 
-            _diveSkillBuffer.Clear();
-            foreach (var skill in _combat.AttackData.skills)
-            {
-                if (skill.isDiveAttack && skill.IsUnlockedForLevel(_combat.CurrentLevel))
-                    _diveSkillBuffer.Add(skill);
-            }
-
-            if (_diveSkillBuffer.Count == 0)
+            if (!_combat.TrySelectAerialAbility(
+                    _detection.DistanceToTarget,
+                    true,
+                    out var selected))
                 return false;
 
-            var selected = _combat.AttackData.SelectRandomAerialSkill(_diveSkillBuffer);
-            if (selected == null)
-                return false;
-
-            _combat.SetCurrentSkill(selected);
-            return true;
+            return _combat.SetCurrentAbility(selected);
         }
 
         public override void ResetAllCounters()
@@ -333,7 +316,6 @@ namespace UPlayGround.Components
 
         public void OnParried()
         {
-            _lastAttackTime = Time.time;
         }
 
         public void Freeze()

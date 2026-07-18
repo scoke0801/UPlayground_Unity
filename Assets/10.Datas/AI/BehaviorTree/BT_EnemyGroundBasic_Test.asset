@@ -444,7 +444,7 @@ MonoBehaviour:
   _guid: cond_can_use_enemy_skill
   _displayName: Condition_CanUseEnemySkill
   _comment: "\uD604\uC7AC \uAC70\uB9AC\uC5D0\uC11C \uC0AC\uC6A9 \uAC00\uB2A5\uD55C
-    EnemyAttackInfo\uAC00 \uC788\uB294\uC9C0 \uD655\uC778\uD55C\uB2E4."
+    AbilityAttackInfo\uAC00 \uC788\uB294\uC9C0 \uD655\uC778\uD55C\uB2E4."
   _editorPosition: {x: -720, y: 1079.1552}
   _children: []
   _disabled: 0

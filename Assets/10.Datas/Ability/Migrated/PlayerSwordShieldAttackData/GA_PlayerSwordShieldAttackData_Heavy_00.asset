@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_00.Default
   animKey: 200
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 200
       attackType: 0

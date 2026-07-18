@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Humanoid_DoubleAxeAttackData
+  m_EditorClassIdentifier: 
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: bd0dfb4859dac9c4290bea4f3a60ad4d, type: 2}
+  - {fileID: 11400000, guid: b0ec67e896ffa3b4ea8b3d80b38db5c0, type: 2}
+  - {fileID: 11400000, guid: 7f93782a640efbe4a816d11597dc52b1, type: 2}
+  - {fileID: 11400000, guid: 546683644f2828f4289b9e1dcaff49d4, type: 2}
+  - {fileID: 11400000, guid: cecf9d322cbe3d046b90318920f202e2, type: 2}
+  - {fileID: 11400000, guid: 19690915202ed784a9f2827a64b3ab41, type: 2}
+  - {fileID: 11400000, guid: a29d1a1bd62e59d4c982cafe7619b8a3, type: 2}
+  - {fileID: 11400000, guid: fa5710f673e8b544e8faa946731d17d2, type: 2}
+  - {fileID: 11400000, guid: e2b3317d32978a9439eec98f538bc460, type: 2}
+  - {fileID: 11400000, guid: 7498a6d641d522843afa8ab69cbbd2f5, type: 2}
+  - {fileID: 11400000, guid: 57b821804cf30ae4c8651d2302f26414, type: 2}
+  - {fileID: 11400000, guid: 8f4f57a602da3f143a364b765ff1db15, type: 2}
+  - {fileID: 11400000, guid: 4dc1b85123f993b46b0e7fe2524244fe, type: 2}
+  - {fileID: 11400000, guid: 427ef9ae0e0727f478f62f31b31d6b14, type: 2}
+  - {fileID: 11400000, guid: 8501f7889eb347d4c95069e49b29f69a, type: 2}
+  - {fileID: 11400000, guid: 61c1fe293a10b904995a1520b3884bd5, type: 2}
+  - {fileID: 11400000, guid: ce3c04eb97a5fbc498a77c31cf004319, type: 2}
+  - {fileID: 11400000, guid: 16c3be01e20924b489e5617b681c9c0f, type: 2}
+  - {fileID: 11400000, guid: 038389402c466aa408489dc2a85c0ead, type: 2}
+  combatBindings: []
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

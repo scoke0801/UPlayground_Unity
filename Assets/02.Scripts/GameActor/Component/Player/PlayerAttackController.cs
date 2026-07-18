@@ -7,7 +7,7 @@ namespace UPlayGround.Components
     /// <summary>플레이어 공격 정의를 런타임 공격 데이터로 변환하고 복제하는 책임.</summary>
     public sealed class PlayerAttackController
     {
-        public AttackData Create(PlayerAttackInfo attackInfo, AttackKind attackKind)
+        public AttackData Create(AbilityAttackInfo attackInfo, AttackKind attackKind)
         {
             if (attackInfo?.baseInfo == null)
                 return null;

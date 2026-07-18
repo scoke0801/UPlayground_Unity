@@ -305,10 +305,10 @@ namespace UPlayGround.Tool.Editor.Balance
                     if (GUILayout.Button("Inspector", GUILayout.Width(86f)))
                         Selection.activeObject = _selectedActor;
 
-                    using (new EditorGUI.DisabledScope(_selectedActor.attackData == null))
+                    using (new EditorGUI.DisabledScope(_selectedActor.EffectiveAbilitySet == null))
                     {
-                        if (GUILayout.Button("Attack Generator", GUILayout.Width(128f)))
-                            UPlayGround.Editor.AttackDataFromMotionSetWindow.Open(_selectedActor.attackData);
+                        if (GUILayout.Button("Ability Set", GUILayout.Width(128f)))
+                            Selection.activeObject = _selectedActor.EffectiveAbilitySet;
                     }
 
                     using (new EditorGUI.DisabledScope(_selectedActor.behaviorData == null || _selectedActor.behaviorData.behaviorTree == null))
@@ -328,9 +328,9 @@ namespace UPlayGround.Tool.Editor.Balance
                 string statSummary = _selectedActor.statData != null
                     ? $"HP {_selectedActor.statData.GetBase(StatType.MaxHealth):F0} / ATK {_selectedActor.statData.GetBase(StatType.AttackPower):F2} / DEF {_selectedActor.statData.GetBase(StatType.Defense):F2}"
                     : "statData 없음";
-                string attackSummary = _selectedActor.attackData != null
-                    ? $"Skills {_selectedActor.attackData.skills?.Count ?? 0} / GlobalCD {_selectedActor.attackData.globalCooldown:F2}"
-                    : "attackData 없음";
+                string attackSummary = _selectedActor.EffectiveAbilitySet != null
+                    ? $"Abilities {_selectedActor.EffectiveAbilitySet.additionalAbilities?.Count ?? 0}"
+                    : "AbilitySet 없음";
 
                 EditorGUILayout.LabelField($"{statSummary}  |  {attackSummary}", EditorStyles.miniLabel);
             }
@@ -609,7 +609,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 EditorGUILayout.LabelField(dmgText, EditorStyles.miniLabel);
 
                 bool meaningfulScale = rec.CanSolveDamage && !Mathf.Approximately(rec.RecommendedDamageScale, 1f) && rec.RecommendedDamageScale > 0f;
-                using (new EditorGUI.DisabledScope(!meaningfulScale || result.Actor.attackData == null))
+                using (new EditorGUI.DisabledScope(!meaningfulScale || result.Actor.EffectiveAbilitySet == null))
                 {
                     if (GUILayout.Button("Apply Damage", GUILayout.Width(110f)) &&
                         ConfirmApply($"모든 공격 HitPhase 피해에 ×{rec.RecommendedDamageScale:F2}를 곱합니다.\n(Undo 가능)"))

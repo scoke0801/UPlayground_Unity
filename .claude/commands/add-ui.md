@@ -24,33 +24,81 @@
 
 ### 1단계: 스크립트 파일 생성
 
-아래 템플릿을 기반으로 `Assets/02.Scripts/UI/<Category>/UI_<UIName>.cs` 를 **Write 툴**로 생성한다.
+`Assets/02.Scripts/UI/<Category>/UI_<UIName>.cs` 를 **Write 툴**로 생성한다.
+`Layer`에 따라 상속 베이스가 달라진다.
+
+- **`Layer`가 `Popup`이 아니면** 아래 기본 템플릿(`UI_Base` 상속)을 사용한다.
 
 ```csharp
 using UnityEngine;
 using UPlayGround.Manager;
 
-public class UI_<UIName> : UI_Base
+namespace UPlayGround.UI
 {
-    #region UI_Base
-
-    protected override void OnInit()
+    public class UI_<UIName> : UI_Base
     {
-    }
+        #region UI_Base
 
-    protected override void OnShow()
+        protected override void OnInit()
+        {
+        }
+
+        protected override void OnShow()
+        {
+        }
+
+        protected override void OnHide()
+        {
+        }
+
+        protected override void OnClose()
+        {
+        }
+
+        #endregion
+    }
+}
+```
+
+- **`Layer`가 `Popup`이면** 아래 팝업 템플릿(`UI_PopupBase` 상속)을 사용한다.
+  `UI_PopupBase`는 Dim 페이드 인 + Panel 스케일 팝인/아웃 트윈(DOTween, `SetUpdate(true)`로
+  일시정지 대응)을 내장한다.
+  - `OnShow`에서 `base.OnShow()`를 호출하면 **오픈 트윈이 자동 재생**된다.
+  - `UIManager.HideUI(...)`로 숨기면 `UI_PopupBase.Hide`가 **클로즈 트윈을 자동 재생한 뒤** 숨긴다.
+    (직접 `Hide()`를 호출해도 동일. 별도로 트윈을 호출할 필요 없음.)
+  - 트윈 사용 여부는 인스펙터의 `_playOpenTween` / `_playCloseTween`으로 켜고 끌 수 있으며 **기본값은 사용**이다.
+
+```csharp
+using UnityEngine;
+using UPlayGround.Manager;
+
+namespace UPlayGround.UI
+{
+    public class UI_<UIName> : UI_PopupBase
     {
-    }
+        #region UI_PopupBase
 
-    protected override void OnHide()
-    {
-    }
+        protected override void OnInit()
+        {
+        }
 
-    protected override void OnClose()
-    {
-    }
+        protected override void OnShow()
+        {
+            // Dim 페이드 인 + Panel 스케일 팝인 트윈이 재생된다.
+            base.OnShow();
+        }
 
-    #endregion
+        protected override void OnHide()
+        {
+            base.OnHide();
+        }
+
+        protected override void OnClose()
+        {
+        }
+
+        #endregion
+    }
 }
 ```
 
@@ -69,6 +117,10 @@ public class UI_<UIName> : UI_Base
    - 프리팹 루트에 `Canvas` 컴포넌트 추가 (CanvasGroup은 UI_Base.Awake에서 자동 추가됨)
    - `UI_<UIName>` 스크립트 컴포넌트 추가
    - 필요 시 `Animator` 컴포넌트 추가 후 _animator 필드에 할당
+   - **`Layer`가 `Popup`인 경우(`UI_PopupBase` 상속):** 루트 아래에 아래 두 오브젝트를 만들고
+     스크립트의 `_dim` / `_panel` 필드에 각각 할당한다. (없으면 트윈은 자동으로 건너뛴다.)
+     - `Dim` — 화면 전체를 덮는 반투명 `Image` + `CanvasGroup`. `_dim`에 CanvasGroup 할당.
+     - `Panel` — 중앙 고정 UI 영역(전체 화면이 아님). 실제 콘텐츠는 이 아래에 배치. `_panel`에 RectTransform 할당.
 
 2. **UIPrefabDatabase 등록**
    - `Assets/10.Datas/Path/UIPrefabDatabase.asset` 열기

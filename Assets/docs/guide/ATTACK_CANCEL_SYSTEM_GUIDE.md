@@ -63,7 +63,7 @@ PlayerAttackState (공격 상태)
 데이터(마스크)가 흐르는 경로:
 
 ```
-PlayerAttackInfo.interruptActions  (SO, 공격별 정의)
+AbilityAttackInfo.interruptActions  (SO, 공격별 정의)
         │  ConvertToAttackData()
         ▼
 AttackData.interruptActions        (런타임)
@@ -86,7 +86,7 @@ Assets/02.Scripts/
 ├── GameActor/Component/Player/
 │   └── PlayerCombat.cs                    IsCancelWindowOpen / 페이즈 인덱스 노출
 └── Data/Combat/Editor/
-    ├── AttackDataFromMotionSetWindow.cs   신규 공격 생성 시 기본 마스크 부여
+    ├── GameplayAbilityEditorWindow.cs   신규 공격 생성 시 기본 마스크 부여
     └── PlayerAttackDataInterruptMigration.cs  기존 에셋 일괄 마이그레이션 메뉴
 ```
 
@@ -207,14 +207,14 @@ if ((_currentAttack.interruptActions & PlayerInterruptAction.Move) != 0
 플레이어 공격 데이터는 `AbilitySetSO → GameplayAbilitySO.Variant → UPlayGroundMotionAbilityPayloadSO`에 있습니다.
 기존 데이터는 일괄 전환이 끝났으므로 별도 마이그레이션 메뉴를 실행하지 않습니다.
 
-- Ability Editor에서 해당 Variant의 Payload와 `PlayerAttackInfo.interruptActions`를 확인합니다.
+- Ability Editor에서 해당 Variant의 Payload와 `AbilityAttackInfo.interruptActions`를 확인합니다.
 - 약공/강공/스킬은 필요에 따라 `Move`를 허용합니다.
 - 차지·대시·점프 공격은 커밋감을 위해 기본적으로 보수적으로 설정하고 개별 조정합니다.
 
 ### 3. 개별 조정 (인스펙터)
 
 특정 공격만 이동 캔슬을 켜거나 끄려면 Ability Editor에서 해당 Variant Payload의
-`PlayerAttackInfo.interruptActions`에 있는 `Move`를 토글합니다.
+`AbilityAttackInfo.interruptActions`에 있는 `Move`를 토글합니다.
 
 ---
 
@@ -222,12 +222,12 @@ if ((_currentAttack.interruptActions & PlayerInterruptAction.Move) != 0
 
 ### 새 공격을 코드로 만들 때
 
-신규 공격을 `AttackDataFromMotionSetWindow`로 생성하면 Light/Heavy/Skill 카테고리는 기본으로 `Move`가 포함됩니다. 별도 작업 불필요.
+신규 공격을 `GameplayAbilityEditorWindow`로 생성하면 Light/Heavy/Skill 카테고리는 기본으로 `Move`가 포함됩니다. 별도 작업 불필요.
 
 ### 데이터에서 캔슬 가능 액션 지정
 
 ```
-약공 1타 (PlayerAttackInfo.interruptActions):
+약공 1타 (AbilityAttackInfo.interruptActions):
   Dodge | Jump | Dash | Guard | HeavyAttack | Skill | Move
 
 강공 마무리 (커밋감 주고 싶다면):

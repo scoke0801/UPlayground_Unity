@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
 
@@ -66,7 +68,47 @@ namespace UPlayGround.Data.Editor.Ability
                 ValidateSet(set, issues);
             }
 
+            ValidateActorAbilityBindings(issues);
+
             return issues;
+        }
+
+        private static void ValidateActorAbilityBindings(
+            List<AbilityValidationIssue> issues)
+        {
+            string[] profileGuids = AssetDatabase.FindAssets(
+                $"t:{nameof(MonsterActorProfileSO)}");
+            for (int i = 0; i < profileGuids.Length; i++)
+            {
+                MonsterActorProfileSO profile =
+                    AssetDatabase.LoadAssetAtPath<MonsterActorProfileSO>(
+                        AssetDatabase.GUIDToAssetPath(profileGuids[i]));
+                if (profile.abilitySet == null)
+                {
+                    Error(profile, "공용 AbilitySet이 없습니다.", issues);
+                    continue;
+                }
+
+                bool hasAiAttack = false;
+                foreach (GameplayAbilitySO ability in profile.abilitySet.EnumerateAll())
+                {
+                    if (ability?.variants == null) continue;
+                    for (int j = 0; j < ability.variants.Count; j++)
+                    {
+                        if (!UPlayGroundAbilityPayloadResolver.TryResolve(
+                                ability.variants[j],
+                                out _,
+                                out AbilityAttackInfo attackInfo)
+                            || !attackInfo.aiSelectable)
+                            continue;
+                        hasAiAttack = true;
+                        break;
+                    }
+                }
+
+                if (!hasAiAttack)
+                    Error(profile, "BT가 선택할 공격 Ability가 없습니다.", issues);
+            }
         }
 
         public static List<AbilityValidationIssue> Validate(UnityEngine.Object target)
@@ -138,8 +180,8 @@ namespace UPlayGround.Data.Editor.Ability
                 }
                 if (string.IsNullOrWhiteSpace(variant.variantId))
                     Error(ability, $"Variant {i}의 ID가 비어 있습니다.", issues);
-                bool executable = UPlayGroundAbilityPayloadResolver.TryResolve(
-                    variant, out AnimKey animKey, out _);
+                bool executable = UPlayGroundAbilityPayloadResolver.TryResolveAnimKey(
+                    variant, out AnimKey animKey);
                 if (animKey == AnimKey.None)
                     Error(ability, $"Variant '{variant.variantId}'의 AnimKey가 None입니다.", issues);
                 if (!executable)

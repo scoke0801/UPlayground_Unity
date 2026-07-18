@@ -347,7 +347,8 @@
       "Bash(awk -F: '{s+=$2} END {print \"editor BT total lines:\", s}')",
       "Bash(grep -v \":0$\")",
       "Bash(awk -F'\\(' '{print $1}')",
-      "WebFetch(domain:nenoso.gitbook.io)"
+      "WebFetch(domain:nenoso.gitbook.io)",
+      "Bash(echo \"EXIT grep: $?  \\(0=found, 1=none\\)\")"
     ]
   }
 }

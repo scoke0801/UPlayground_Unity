@@ -119,19 +119,19 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AnimKey + PlayerAttackInfo
+→ AnimKey + AbilityAttackInfo
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 실행용 `AnimKey`와 `PlayerAttackInfo`를 소유한다.
+- `UPlayGroundMotionAbilityPayloadSO`는 실행용 `AnimKey`와 공용 `AbilityAttackInfo`를 소유한다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 Set을 소비한다.
 - `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
 - 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
-- `EnemyAttackDataSO`는 몬스터 공격에만 사용하며 MotionSet 기반 공격 데이터 생성기도 적 데이터 전용이다.
+- 플레이어와 몬스터는 같은 Ability 구조를 사용하며, 몬스터 BT는 AbilitySet의 `aiSelectable` 공격 Ability를 선택·활성화한다.
 - 플레이어 Ability 에셋은 `Assets/10.Datas/Ability/Migrated/`에 있고, UI Toolkit 기반 Ability Editor에서 편집·검증한다.
 - Core asmdef는 프로젝트 비의존이지만 Ability/Effect/Set 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템은 아직 외부 재사용 가능한 독립 패키지가 아니다.
 
-2026-07-18 기준 AbilitySet 8개, GameplayAbility 에셋 210개, Variant/Payload 221개이며 Unity Test Runner에서 EditMode 14/14, PlayMode 2/2를 통과했다. 상세 기준은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 상세 기준은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
 
 ### 데이터 아키텍처 (ScriptableObject)
 
@@ -140,7 +140,7 @@ CharacterModelData.abilitySet
 - `ActorStatSO` — 액터 스탯 단일 소스 (구 `EnemyStatsSO`는 제거됨)
 - `EnemyFlyingSettingsSO`, `PoiseSO`
 - `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어 공격·스킬 정의와 실행 Payload
-- `EnemyAttackDataSO` — 몬스터용 다단 `HitPhaseData` 공격 데이터
+- `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어와 몬스터 공용 다단 `HitPhaseData` 공격 데이터
 - `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
 - `CameraShakeData`, 카메라 이펙트 SO
 - `MotionSetAsset` — 애니메이션 타임라인 정의

@@ -374,7 +374,7 @@ namespace UPlayGround.Ability.Tests
                 ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = ability.abilityId;
             payload.animKey = AnimKey.Attack_1;
-            payload.playerAttackInfo = new PlayerAttackInfo
+            payload.attackInfo = new AbilityAttackInfo
             {
                 baseInfo = new AttackInfoBase { animKey = AnimKey.Attack_1 },
             };

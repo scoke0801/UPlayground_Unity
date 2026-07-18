@@ -81,5 +81,14 @@ namespace UPlayGround.Data.Ability
                 if (route?.enhancedAbility != null) yield return route.enhancedAbility;
             }
         }
+
+        public bool Contains(GameplayAbilitySO ability)
+        {
+            if (ability == null) return false;
+            foreach (GameplayAbilitySO candidate in EnumerateAll())
+                if (candidate == ability)
+                    return true;
+            return false;
+        }
     }
 }

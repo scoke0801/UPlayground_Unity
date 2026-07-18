@@ -11,7 +11,7 @@
 
 **코드 완료:**
 - `AttackInfo.cs` — `AttackDefenseType { Parryable, GuardableOnly, Unblockable }` enum 추가.
-- `CombatData.cs` — `EnemyAttackInfo`에 `useDangerRing`/`dangerRingDuration`/`dangerRingPrefabKey`/`defenseType`, `AttackData`에 `defenseType`(기본 `Parryable`).
+- `CombatData.cs` — `AbilityAttackInfo`에 `useDangerRing`/`dangerRingDuration`/`dangerRingPrefabKey`/`defenseType`, `AttackData`에 `defenseType`(기본 `Parryable`).
 - `ActorType.cs` — `ActorSocketType.UI_DangerRing`(**enum 끝에 추가** — 직렬화 값 시프트 방지).
 - `EnemyCombat.cs` — `BeginTelegraph` 디스패처 재구조화(early-return 제거, 바닥FX/링 독립 분기), `BeginDangerRing`/`ResolveDangerRingDuration`, `ClearTelegraphs`에서 링 정리, `CheckMeleeAttackHit`에서 `defenseType` 복사.
 - `PlayerGuardState.cs` — 퍼펙트 가드 시 `defenseType == Parryable`만 `OnParried()`+카운터 창.
@@ -39,7 +39,7 @@
 - **기존 바닥 원형 FX 텔레그래프를 대체하지 않고 보완한다.** 바닥 데칼은 "어디"(공간 범위), Danger Ring은 "언제"(타이밍)를 담당한다.
 - **Danger Ring은 바닥 텔레그래프와 독립이다.** 같은 생명주기 훅(`OnEnter`/`UpdateState`/`OnExit`, `TelegraphEvent`)에 얹지만, `useTelegraph`와 `useDangerRing`은 **서로 다른 플래그**로 각자 켜고 끈다. 바닥 텔레그래프가 꺼져 있어도(`useTelegraph=false`) Danger Ring은 단독 출력될 수 있어야 한다. (요구사항: 텔레그래프 미출력 시에도 링 출력)
 - 위치 추적·화면 변환·`fillAmount` 구동은 이미 검증된 `UI_ActorHpBar` 패턴을 그대로 재사용한다.
-- 채우는 시간(윈드업 길이)은 공격 데이터(`EnemyAttackInfo`)가 명시한 단일 값을 진실 소스로 사용한다.
+- 채우는 시간(윈드업 길이)은 공격 데이터(`AbilityAttackInfo`)가 명시한 단일 값을 진실 소스로 사용한다.
 - **공격마다 패링 가능/불가를 구분한다.** 명조 Weakness Halo처럼, 링의 비주얼(색)이 "이 공격이 패링 가능한가"를 표현한다. 이를 위해 공격 데이터에 방어 타입 축(`AttackDefenseType`)을 추가하고, 플레이어 가드/카운터 로직이 이를 검사하도록 함께 수정한다. (현재는 모든 공격이 무조건 패링/카운터 가능)
 - 1차 구현은 **공격당 단일 링**으로 한정한다. 다단 히트·동시 다수 적·오프스크린 핸드오프는 아래 "미해결 과제"에서 범위를 분리한다.
 
@@ -130,7 +130,7 @@ EnemyAttackState.OnExit
 
 링이 `0 → 1`로 채워지는 시간(= 윈드업 길이)을 **무엇을 기준으로 정하는가**가 이 시스템의 정확도를 좌우한다.
 
-### 결정: `EnemyAttackInfo.dangerRingDuration` 단일 명시 값
+### 결정: `AbilityAttackInfo.dangerRingDuration` 단일 명시 값
 
 공격 데이터에 윈드업 길이를 초 단위로 직접 명시한다. 두 진입 경로(자동 시작 / MotionEvent) 모두 같은 값을 사용해 진실 소스를 하나로 유지한다.
 
@@ -154,7 +154,7 @@ public float dangerRingDuration = 0.6f;
 
 ---
 
-## 데이터 필드 추가 (`EnemyAttackInfo`)
+## 데이터 필드 추가 (`AbilityAttackInfo`)
 
 `Assets/02.Scripts/Data/Combat/CombatData.cs`의 기존 `[Header("Telegraph")]` 블록 아래에 추가한다.
 
@@ -212,7 +212,7 @@ public enum AttackDefenseType
 
 ### 전파 경로
 
-1. **`EnemyAttackInfo`** (스킬 단위)에 필드 추가 — 패링 가능 여부는 "텔레그래프되는 스윙 1개"의 속성이므로 스킬 단위가 자연스럽다.
+1. **`AbilityAttackInfo`** (스킬 단위)에 필드 추가 — 패링 가능 여부는 "텔레그래프되는 스윙 1개"의 속성이므로 스킬 단위가 자연스럽다.
    ```csharp
    [Header("Defense")]
    [Tooltip("이 공격에 대한 플레이어 방어 대응 분류. Danger Ring 색·패링 성립 여부를 결정한다.")]
@@ -236,7 +236,7 @@ public enum AttackDefenseType
 
 ### Danger Ring 색 매핑
 
-`UI_DangerRing`은 생성 시 `EnemyAttackInfo.defenseType`(또는 `AttackData.defenseType`)을 받아 색을 정한다.
+`UI_DangerRing`은 생성 시 `AbilityAttackInfo.defenseType`(또는 `AttackData.defenseType`)을 받아 색을 정한다.
 
 | `AttackDefenseType` | 링 색 | 의미 | 레퍼런스 |
 |------|------|------|------|
@@ -320,7 +320,7 @@ if (_dangerRing != null) { _dangerRing.Release(); _dangerRing = null; }
 
 ```csharp
 // UIManager
-public UI_DangerRing CreateDangerRing(GameActor actor, EnemyAttackInfo skill, float duration)
+public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration)
     => _worldSpaceHudLayer?.CreateDangerRing(actor, skill, duration);
 ```
 
@@ -368,13 +368,13 @@ public UI_DangerRing CreateDangerRing(GameActor actor, EnemyAttackInfo skill, fl
 
 **A. 방어 타입 구분 (패링 가능/불가)**
 1. `AttackInfo.cs`에 `AttackDefenseType` enum 추가.
-2. `EnemyAttackInfo`에 `defenseType`, `AttackData`에 `defenseType` 필드 추가(기본값 `Parryable`).
+2. `AbilityAttackInfo`에 `defenseType`, `AttackData`에 `defenseType` 필드 추가(기본값 `Parryable`).
 3. `EnemyCombat.CheckMeleeAttackHit`(및 기타 AttackData 빌드 지점)에서 `defenseType` 복사.
 4. `PlayerGuardState.OnAttackBlocked`에서 `defenseType == Parryable`일 때만 `OnParried()` + 카운터 창. → 회귀 테스트: 기본값 `Parryable`이라 기존 동작 유지되는지 확인.
 
 **B. Danger Ring (독립 출력 구조)**
 5. `ActorSocketType.UI_DangerRing` enum 추가 + 적 프리팹에 머리 위 소켓 Transform 배치.
-6. `EnemyAttackInfo`에 `useDangerRing` / `dangerRingDuration` / `dangerRingPrefabKey` 필드 추가.
+6. `AbilityAttackInfo`에 `useDangerRing` / `dangerRingDuration` / `dangerRingPrefabKey` 필드 추가.
 7. `UI_DangerRing.cs` 작성(`UI_ActorHpBar` 복제 → `fillAmount` 채움 + `defenseType` 색 + 완성 강조).
 8. Danger Ring 프리팹 생성(`Image` Filled/Radial360 + `CanvasGroup`) 및 `UIKeyType.DangerRing` 키 등록. *(에디터 작업 — 직접 수행 필요)*
 9. `UI_WorldSpaceHudLayer.CreateDangerRing` + `UIManager.CreateDangerRing` 추가(풀링).
@@ -425,7 +425,7 @@ public UI_DangerRing CreateDangerRing(GameActor actor, EnemyAttackInfo skill, fl
 
 ### 4단계 — 테스트 공격 데이터 설정
 
-링을 띄울 적의 `EnemyAttackDataSO` → `skills` 중 한 `EnemyAttackInfo`:
+링을 띄울 적의 `AbilitySetSO` → `skills` 중 한 `AbilityAttackInfo`:
 
 | 필드 | 테스트 값 |
 |------|------|
@@ -450,7 +450,7 @@ public UI_DangerRing CreateDangerRing(GameActor actor, EnemyAttackInfo skill, fl
 
 | 파일 | 역할 |
 |------|------|
-| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `EnemyAttackInfo`에 Danger Ring 필드 + `defenseType` 추가, `AttackData`에 `defenseType` 추가 |
+| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AbilityAttackInfo`에 Danger Ring 필드 + `defenseType` 추가, `AttackData`에 `defenseType` 추가 |
 | `Assets/02.Scripts/Data/Enum/AttackInfo.cs` | `AttackDefenseType` enum 추가 |
 | `Assets/02.Scripts/Data/Enum/ActorType.cs` | `ActorSocketType.UI_DangerRing` 추가 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` | `BeginTelegraph` 디스패처 재구조화(독립 분기), `CheckMeleeAttackHit`에 `defenseType` 복사 |

@@ -46,7 +46,7 @@ MotionSetAsset
 | `Assets/02.Scripts/GameActor/Object/Projectile/LinearProjectile.cs` | 직선 이동 투사체, SphereCast 기반 충돌 |
 | `Assets/02.Scripts/GameActor/Object/Projectile/AOEProjectile.cs` | 범위 투사체, OverlapSphere 기반 피해 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` | 몬스터 현재 스킬 대상과 텔레그래프 판정 위치 제공 |
-| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AttackData`, `HitPhaseData`, `EnemyAttackInfo` 정의 |
+| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AttackData`, `HitPhaseData`, `AbilityAttackInfo` 정의 |
 
 ---
 

@@ -383,7 +383,7 @@ public enum HitDetectionMode
 - `attackOffset`
 - `attackRadius`
 - `hitHeightRange`
-- `PlayerAttackInfo.hitAngle`
+- `AbilityAttackInfo.hitAngle`
 - `ChargeStageData.hitAngle`
 
 이 필드들은 텔레그래프나 AI 사거리 산정에 재사용되고 있으므로 즉시 삭제하지 않는다. 판정 형상과 AI 사용 거리 데이터를 분리한 뒤 제거한다.
@@ -394,8 +394,8 @@ HitBox 크기를 AI의 공격 가능 거리로 사용하면 무기 애니메이�
 
 다음 데이터는 유지한다.
 
-- `EnemyAttackInfo.minRange`
-- `EnemyAttackInfo.maxRange`
+- `GameplayAbilitySO.activation.minDistance`
+- `GameplayAbilitySO.activation.maxDistance`
 - 모션 워프 검색 거리
 - 텔레그래프 범위
 

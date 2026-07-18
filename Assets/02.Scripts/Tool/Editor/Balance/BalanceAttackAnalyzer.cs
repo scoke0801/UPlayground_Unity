@@ -1,21 +1,22 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
+using UPlayGround.EditorTools;
 using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
     public static class BalanceAttackAnalyzer
     {
-        public static bool IsStrongEnemyAttack(EnemyAttackInfo skill)
+        public static bool IsStrongEnemyAttack(AbilityAttackInfo skill)
         {
             if (skill == null)
                 return false;
 
-            if (skill.attackCategory is EnemyAttackCategory.Heavy or EnemyAttackCategory.Skill)
+            if (skill.attackCategory is AbilityAttackCategory.Heavy or AbilityAttackCategory.Skill)
                 return true;
 
             AnimKey key = skill.baseInfo != null ? skill.baseInfo.animKey : AnimKey.None;
@@ -62,22 +63,26 @@ namespace UPlayGround.Tool.Editor.Balance
         public static int CountHitPhases(AttackInfoBase baseInfo)
             => baseInfo?.hitPhases?.Count ?? 0;
 
-        public static List<EnemyAttackInfo> GetUsableEnemySkills(EnemyAttackDataSO data, float distance, int level)
+        public static List<AbilityAttackInfo> GetUsableEnemySkills(
+            AbilitySetSO data,
+            float distance,
+            int level)
         {
-            var result = new List<EnemyAttackInfo>();
-            if (data?.skills == null)
-                return result;
-
-            for (int i = 0; i < data.skills.Count; i++)
+            var result = new List<AbilityAttackInfo>();
+            List<AbilityAttackEditorUtility.Entry> entries =
+                AbilityAttackEditorUtility.Collect(data, true);
+            for (int i = 0; i < entries.Count; i++)
             {
-                EnemyAttackInfo skill = data.skills[i];
+                AbilityAttackInfo skill = entries[i].AttackInfo;
                 if (skill == null || skill.baseInfo == null)
                     continue;
                 if (skill.skillType != SkillType.Attack)
                     continue;
                 if (!skill.IsUnlockedForLevel(level))
                     continue;
-                if (!skill.IsInRange(distance))
+                if (!AbilityAttackEditorUtility.IsInRange(
+                        entries[i].Ability,
+                        distance))
                     continue;
                 if (SumDamage(skill.baseInfo) <= 0f)
                     continue;
@@ -88,12 +93,24 @@ namespace UPlayGround.Tool.Editor.Balance
             return result;
         }
 
+        public static GameplayAbilitySO FindAbility(
+            AbilitySetSO set,
+            AbilityAttackInfo attackInfo)
+        {
+            List<AbilityAttackEditorUtility.Entry> entries =
+                AbilityAttackEditorUtility.Collect(set);
+            for (int i = 0; i < entries.Count; i++)
+                if (ReferenceEquals(entries[i].AttackInfo, attackInfo))
+                    return entries[i].Ability;
+            return null;
+        }
+
         public static float EstimatePlayerRawDps(AbilitySetSO data, float attackInterval, float fallbackDps)
         {
             if (data == null)
                 return fallbackDps;
 
-            List<PlayerAttackInfo> attacks = CollectAttacks(data);
+            List<AbilityAttackInfo> attacks = CollectAttacks(data);
 
             float totalDamage = 0f;
             int count = 0;
@@ -119,7 +136,7 @@ namespace UPlayGround.Tool.Editor.Balance
             if (data == null)
                 return 0f;
 
-            List<PlayerAttackInfo> attacks = CollectAttacks(data);
+            List<AbilityAttackInfo> attacks = CollectAttacks(data);
 
             float totalBreak = 0f;
             int count = 0;
@@ -140,7 +157,7 @@ namespace UPlayGround.Tool.Editor.Balance
             return averageBreak / UnityEngine.Mathf.Max(0.05f, attackInterval);
         }
 
-        private static void AddRange(List<PlayerAttackInfo> target, List<PlayerAttackInfo> source)
+        private static void AddRange(List<AbilityAttackInfo> target, List<AbilityAttackInfo> source)
         {
             if (source == null)
                 return;
@@ -149,15 +166,15 @@ namespace UPlayGround.Tool.Editor.Balance
                 AddOne(target, source[i]);
         }
 
-        private static void AddOne(List<PlayerAttackInfo> target, PlayerAttackInfo value)
+        private static void AddOne(List<AbilityAttackInfo> target, AbilityAttackInfo value)
         {
             if (value?.baseInfo != null)
                 target.Add(value);
         }
 
-        public static List<PlayerAttackInfo> CollectAttacks(AbilitySetSO data)
+        public static List<AbilityAttackInfo> CollectAttacks(AbilitySetSO data)
         {
-            var attacks = new List<PlayerAttackInfo>();
+            var attacks = new List<AbilityAttackInfo>();
             PlayerCombatAbilityDataView view =
                 PlayerCombatAbilityDataView.Build(data);
             if (view == null)

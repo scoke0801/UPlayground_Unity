@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Components;
 using UPlayGround.Data;
@@ -22,7 +22,7 @@ namespace UPlayGround.State
         private readonly EnemyDetection _detection;
         private readonly EnemyTacticalMemory _memory;
 
-        private EnemyAttackInfo _skill;
+        private AbilityAttackInfo _skill;
         private bool _isActive;
 
         // 카운터 전진 - Guard 블록 후 순간적으로 파고드는 느낌

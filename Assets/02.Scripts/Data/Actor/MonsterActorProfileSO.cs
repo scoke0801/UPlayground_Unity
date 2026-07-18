@@ -1,3 +1,4 @@
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
@@ -24,7 +25,8 @@ namespace UPlayGround.Data.Actor
         public MonsterBreakGaugeSO breakGaugeData;
 
         [Header("전투/AI")]
-        public EnemyAttackDataSO attackData;
+        [Tooltip("이 몬스터에게 부여할 공용 AbilitySet입니다. BT는 이 Set에 포함된 Ability만 활성화합니다.")]
+        public AbilitySetSO abilitySet;
         public CombatDefensePolicySO combatDefensePolicy;
         public CombatReactionPolicySO combatReactionPolicy;
         public EnemyBehaviorSO behaviorData;

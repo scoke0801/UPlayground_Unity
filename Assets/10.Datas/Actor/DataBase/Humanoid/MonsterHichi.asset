@@ -1,4 +1,4 @@
-﻿%YAML 1.1
+%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -28,7 +28,7 @@ MonoBehaviour:
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   grade: 2
   level: 10
-  attackData: {fileID: 11400000, guid: 8e4fa9a7599332044b0381cf2f90a75d, type: 2}
+  abilitySet: {fileID: 11400000, guid: eeb14a86ccb7a5140a0baedd986a2221, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
   behaviorData: {fileID: 11400000, guid: 0830cd5fc52bfcc46ba5ad09a987291a, type: 2}

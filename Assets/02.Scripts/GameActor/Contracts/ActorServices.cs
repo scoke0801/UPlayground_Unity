@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
@@ -75,7 +75,7 @@ namespace UPlayGround.Manager
     public interface IActorUIService : IGameService
     {
         IActorHpBarView CreateHpBar(GameActor actor);
-        IActorDangerRingView CreateDangerRing(GameActor actor, EnemyAttackInfo skill, float duration);
+        IActorDangerRingView CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration);
         IActorBreakInteractionView CreateBreakInteraction(GameActor actor);
         void ShowDamageFloater(Vector3 worldPos, float damage, FloatStyle style = FloatStyle.Normal);
         void ShowDamageFloaterLabel(Vector3 worldPos, string label, FloatStyle style = FloatStyle.Normal);

@@ -69,7 +69,7 @@ namespace UPlayGround.Tool.Editor.Combat
                     AutoCollect();
             }
             EditorGUILayout.HelpBox(
-                "HitBox 루트의 상위 부모에서 CharacterModelData.attackData(공격 데이터)와 "
+                    "HitBox 루트의 상위 부모에서 CharacterModelData.abilitySet과 "
                 + "PlayerActorAnimator의 해당 무기 타입 MotionSet(이벤트)만 찾아 대상 에셋을 구성합니다.",
                 MessageType.None);
 
@@ -114,7 +114,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private void DrawAssetList()
         {
             _assetsFoldout = EditorGUILayout.Foldout(
-                _assetsFoldout, $"대상 에셋 (AttackDataSO / MotionSet) — {_assets.Count}개", true);
+                _assetsFoldout, $"대상 에셋 (Ability Payload / MotionSet) — {_assets.Count}개", true);
             if (_assetsFoldout)
             {
                 _assetScroll = EditorGUILayout.BeginScrollView(_assetScroll, GUILayout.MaxHeight(140f));

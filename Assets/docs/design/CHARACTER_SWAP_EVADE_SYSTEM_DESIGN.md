@@ -27,7 +27,7 @@
 | 카운터 공격 데이터 | 완료 | `PlayerAttackDataSO.swapEvadeCounterAttack`, `PlayerCombat.ExecuteSwapEvadeCounterAttack()` |
 | 전용 AnimKey | 완료 | `AnimKey.Player_SwapEvadeCounterAttack_1` |
 | 공격 데이터 에디터 탭 | 완료 | `PlayerAttackDataSODrawer`의 `회피` 탭 |
-| MotionSet 기반 생성기 | 완료 | `AttackDataFromMotionSetWindow`의 `SwapEvadeCounter` 카테고리 |
+| MotionSet 기반 생성기 | 완료 | `GameplayAbilityEditorWindow`의 `SwapEvadeCounter` 카테고리 |
 | 밸런스 분석 포함 | 완료 | `BalanceAttackAnalyzer`, `BalanceDataExtractor` |
 | 성공 피드백 설정 | 완료 | `PartyConfigSO`의 `Swap Evade Feedback` |
 | 성공 히트스톱/쉐이크/FX | 완료 | `PlayerActor.PlaySwapEvadeFeedback()` |
@@ -385,7 +385,7 @@ public void QueueSwapEvade(MonsterActor target, float counterWindow)
 
 ```csharp
 [Tooltip("스왑 회피 성공 시 발동하는 카운터 공격 데이터.")]
-public PlayerAttackInfo swapEvadeCounterAttack;
+public AbilityAttackInfo swapEvadeCounterAttack;
 ```
 
 ---

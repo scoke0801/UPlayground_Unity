@@ -59,7 +59,7 @@ OnDamaged() → CombatFeedbackDispatcher.ApplyPlayerDamagedHitStop()
 
 ### 누수 ③ (경미) — 물리 힘은 과장하지 말 것
 
-`ReactionResolver`의 `shouldApplyForce`는 항상 true지만, `OnDamaged`의 임펄스 스위치는 **KnockBack/Pull/Airborne/Grab에만** 힘을 준다. plain `Hit`엔 넉백 없음. 따라서 "사방에서 밀쳐진다"는 군중 적의 `EnemyAttackData.reactionType`이 실제로 넉백류일 때만 성립 → **데이터 점검 항목**으로 격하(§6).
+`ReactionResolver`의 `shouldApplyForce`는 항상 true지만, `OnDamaged`의 임펄스 스위치는 **KnockBack/Pull/Airborne/Grab에만** 힘을 준다. plain `Hit`엔 넉백 없음. 따라서 "사방에서 밀쳐진다"는 군중 적의 Ability Payload `HitPhaseData.reactionType`이 실제로 넉백류일 때만 성립 → **데이터 점검 항목**으로 격하(§6).
 
 ---
 
@@ -122,7 +122,7 @@ OnDamaged() → CombatFeedbackDispatcher.ApplyPlayerDamagedHitStop()
 
 ## 6. 선행 데이터 점검 (구현 전)
 
-- 군중 잡몹(예: `Enemy_Random_*` 휴머노이드)의 `EnemyAttackData.reactionType` 분포 확인. 다수가 KnockBack/Pull류면 누수 ③도 실효 → 일반 잡몹 기본 타격은 `Hit`/`Light`로 정렬 권장(중공격만 넉백).
+- 군중 잡몹(예: `Enemy_Random_*` 휴머노이드)의 Ability Payload `HitPhaseData.reactionType` 분포 확인. 다수가 KnockBack/Pull류면 누수 ③도 실효 → 일반 잡몹 기본 타격은 `Hit`/`Light`로 정렬 권장(중공격만 넉백).
 - `MonsterGroupController._maxMeleeAttackers`(현재 2)·`_breatherDuration`(0.6s)이 씬별로 적정한지. 누수 ①·② 해소 후 슬롯 수 재튜닝 여지.
 
 ---

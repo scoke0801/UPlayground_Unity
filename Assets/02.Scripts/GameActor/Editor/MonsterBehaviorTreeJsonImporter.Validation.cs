@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -141,8 +141,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             }
 
             if (!string.IsNullOrWhiteSpace(action.attackCategory)
-                && !Enum.TryParse<EnemyAttackCategory>(action.attackCategory, true, out _))
-                throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyAttackCategory입니다. {action.attackCategory}");
+                && !Enum.TryParse<AbilityAttackCategory>(action.attackCategory, true, out _))
+                throw new InvalidDataException($"{ruleName}: 알 수 없는 AbilityAttackCategory입니다. {action.attackCategory}");
 
             ValidateActorScope(definition.Scope, actorKind, ruleName, "action", action.action);
         }

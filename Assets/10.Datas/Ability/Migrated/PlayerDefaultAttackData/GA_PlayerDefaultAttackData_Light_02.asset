@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.Light_02.Default
   animKey: 102
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 102
       attackType: 0

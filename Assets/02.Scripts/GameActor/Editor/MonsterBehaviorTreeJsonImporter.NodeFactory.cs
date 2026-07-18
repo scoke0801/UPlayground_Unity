@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -285,7 +285,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private static ExecuteEnemyAttackNode CreateExecuteAttackNode(BehaviorTreeAsset tree, string attackCategory, int row)
         {
             var node = CreateNode<ExecuteEnemyAttackNode>(tree, string.IsNullOrWhiteSpace(attackCategory) ? "Execute Attack" : $"Execute Attack {attackCategory}", ActionPosition(row));
-            if (Enum.TryParse<EnemyAttackCategory>(attackCategory, true, out var parsed))
+            if (Enum.TryParse<AbilityAttackCategory>(attackCategory, true, out var parsed))
                 node.AttackCategory = parsed;
             return node;
         }
@@ -412,10 +412,10 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 && !Enum.TryParse(action.style, true, out style))
                 throw new System.IO.InvalidDataException($"알 수 없는 EnemyActionStyle입니다. {action.style}");
 
-            var attackCategory = EnemyAttackCategory.None;
+            var attackCategory = AbilityAttackCategory.None;
             if (!string.IsNullOrWhiteSpace(action.attackCategory)
                 && !Enum.TryParse(action.attackCategory, true, out attackCategory))
-                throw new System.IO.InvalidDataException($"알 수 없는 EnemyAttackCategory입니다. {action.attackCategory}");
+                throw new System.IO.InvalidDataException($"알 수 없는 AbilityAttackCategory입니다. {action.attackCategory}");
 
             var displayName = style == EnemyActionStyle.None
                 ? $"Request {intent}"

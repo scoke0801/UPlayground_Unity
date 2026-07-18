@@ -77,7 +77,7 @@ public sealed class BossAssistDefinitionSO : ScriptableObject
 | `maxExecutionSeconds` | 종료 이벤트 누락 시 강제 정리 시간 |
 | `effect` | 공격 또는 비공격 효과를 공통 실행 계약으로 표현 |
 
-공격 데이터가 없는 회복·버프 어시스트를 지원해야 하므로 `EnemyAttackDataSO`만 필수로 삼지 않는다.
+공격 데이터가 없는 회복·버프 어시스트를 지원해야 하므로 `AbilitySetSO`만 필수로 삼지 않는다.
 
 ---
 

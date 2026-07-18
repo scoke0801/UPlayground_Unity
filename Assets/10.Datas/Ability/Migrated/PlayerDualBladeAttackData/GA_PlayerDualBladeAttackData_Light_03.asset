@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_03.Default
   animKey: 103
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 103
       attackType: 0

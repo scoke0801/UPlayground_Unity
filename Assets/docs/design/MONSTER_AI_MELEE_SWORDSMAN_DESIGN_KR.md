@@ -46,7 +46,7 @@
 - **플레이어 읽기 반응**: 회피/평타/가드 빈도, 최근 피격, 경직/후딜에 대한 분기.
 
 ### Rules JSON이 책임지지 **않는** 것 — **공격 데이터 / MotionSet 레이어**
-다음은 `EnemyAttackDataSO` + `HitPhaseData` + MotionSet 타임라인의 책임이며, **본 설계의 *전제(요구사항)***다.
+다음은 `AbilitySetSO` + `HitPhaseData` + MotionSet 타임라인의 책임이며, **본 설계의 *전제(요구사항)***다.
 
 - **텔레그래프(선딜) / 가독성**: 각 공격의 wind-up 모션·VFX·SFX. → *공격 자체의 읽힘은 공격 데이터에서 보장해야 한다. JSON은 읽힘을 만들지 못한다.*
 - **후딜 / 회복창의 존재**: 공격 후 빈틈의 길이. (JSON은 이 빈틈을 *이용*만 한다.)
@@ -90,7 +90,7 @@
 | whiff-punish (적→플레이어) | `IsPlayerRecovering`/`IsPlayerStaggered` → `Punish`/`ExecuteAttack Heavy` | ✅ JSON |
 | 적응형(Player Read) | `IsPlayerAttackingFrequently`/`IsPlayerGuardingFrequently`/`IsPlayerDodgingFrequently` | ✅ JSON (SyncEnemyMemoryService 자동) |
 | 컴뱃 코디네이터 역할/의도 | `SelectedIntent`(EvaluateEnemyCombatIntentService가 자동 산출) | ✅ JSON |
-| 텔레그래프/가독성(적 공격 읽힘) | `EnemyAttackDataSO` wind-up 모션/VFX | ⚠ **공격 데이터 전제** (JSON 밖) |
+| 텔레그래프/가독성(적 공격 읽힘) | `AbilitySetSO` wind-up 모션/VFX | ⚠ **공격 데이터 전제** (JSON 밖) |
 | 후딜/회복창 존재 | `HitPhaseData`/MotionSet 후딜 | ⚠ **공격 데이터 전제** |
 | 지연 공격(낚시) | `do:[Wait, ExecuteAttack]` 순차 시퀀스 | ✅ JSON (제한적, 4.1 참조) |
 | 진짜 페이크/캔슬(선딜만 보이고 취소) | 취소 액션 부재 | ❌ **신규 액션 필요(needs code)** |

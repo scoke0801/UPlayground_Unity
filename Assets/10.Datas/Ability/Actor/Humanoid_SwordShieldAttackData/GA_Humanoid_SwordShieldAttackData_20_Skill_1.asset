@@ -1,0 +1,240 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2021132120990317328
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: Payload_Skill_1
+  m_EditorClassIdentifier: 
+  executionId: 
+  animKey: 500
+  attackInfo:
+    baseInfo:
+      animKey: 500
+      attackType: 0
+      hitPhases:
+      - damage: 11
+        poiseDamage: 33
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+      - damage: 14
+        poiseDamage: 42
+        breakDamage: 0
+        reactionType: 2
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedAnimKey: 0
+        guaranteedReaction: 0
+        reactionProfile:
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 0
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 0
+            hitStopDuration: 0
+            hitStopScale: 0.1
+            overrideCamera: 0
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 0
+    moveCancelDelayAfterLastHit: 0
+    aiSelectable: 1
+    skillType: 1
+    attackCategory: 3
+    requiredLevel: 1
+    selectionWeight: 1
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 1
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_Humanoid_SwordShieldAttackData_20_Skill_1
+  m_EditorClassIdentifier: 
+  abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_1.20
+  schemaVersion: 1
+  presentation:
+    displayName: Skill_1
+    description: "Humanoid_SwordShieldAttackData\uC758 BT \uC120\uD0DD\uD615 \uC804\uD22C
+      Ability"
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 0}
+    hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
+    category: 0
+    ownerType: 0
+  abilityTagIds: 
+  activation:
+    requiredTagIds: 
+    blockedTagIds: 
+    executionGrantedTagIds: 
+    groundCondition: 0
+    targetPolicy: 2
+    targetRelation: 2
+    minDistance: 0
+    maxDistance: 2.5
+  cost:
+    resourceType: 0
+    policy: 0
+    value: 0
+  cooldown:
+    durationSeconds: 4
+    cooldownGroupId: 
+  concurrency: 2
+  variants:
+  - variantId: Default
+    priority: 0
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: 
+      blockedTagIds: 
+    executionPayload: {fileID: -2021132120990317328}
+    targetEffects: []
+    ownerEffects: []
+  commitEffects: []
+  endEffects: []
+  cues:
+    startCueId: 
+    failureCueId: 
+    endCueId: 
+    cooldownReadyCueId: 
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+  balance:
+    expectedDamage: 25
+    expectedDuration: 0
+    roleTags:
+    - AI.Selected
+    designerNotes: 

@@ -1,10 +1,11 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Stat;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -101,18 +102,23 @@ namespace UPlayGround.Tool.Editor.Balance
         /// <summary>모든 공격 HitPhase.damage에 배율을 곱한다(Undo 가능). 저장 피해이므로 런타임 공격력은 그대로 곱해진다.</summary>
         public static bool ApplyDamageScale(ActorDefinitionSO actor, float scale)
         {
-            if (actor == null || actor.attackData == null || actor.attackData.skills == null)
+            if (actor == null || actor.EffectiveAbilitySet == null)
                 return false;
             if (scale <= 0f || Mathf.Approximately(scale, 1f))
                 return false;
 
-            Undo.RecordObject(actor.attackData, "Apply Recommended Damage Scale");
-            for (int i = 0; i < actor.attackData.skills.Count; i++)
+            var entries = AbilityAttackEditorUtility.Collect(
+                actor.EffectiveAbilitySet,
+                true);
+            for (int i = 0; i < entries.Count; i++)
             {
-                EnemyAttackInfo skill = actor.attackData.skills[i];
+                AbilityAttackInfo skill = entries[i].AttackInfo;
                 if (skill?.baseInfo?.hitPhases == null)
                     continue;
 
+                Undo.RecordObject(
+                    entries[i].Payload,
+                    "Apply Recommended Damage Scale");
                 for (int p = 0; p < skill.baseInfo.hitPhases.Count; p++)
                 {
                     HitPhaseData phase = skill.baseInfo.hitPhases[p];
@@ -120,11 +126,10 @@ namespace UPlayGround.Tool.Editor.Balance
                         continue;
                     phase.damage = Mathf.Max(1f, Mathf.Round(phase.damage * scale));
                 }
+                EditorUtility.SetDirty(entries[i].Payload);
             }
-
-            EditorUtility.SetDirty(actor.attackData);
             AssetDatabase.SaveAssets();
-            return true;
+            return entries.Count > 0;
         }
     }
 }

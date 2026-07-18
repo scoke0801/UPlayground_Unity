@@ -16,7 +16,7 @@ MonoBehaviour:
   level: 10
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   breakGaugeData: {fileID: 11400000, guid: 450ea839534638b48be40735252c46f3, type: 2}
-  attackData: {fileID: 11400000, guid: 24c4331990bf3dd41b3d764f53e4ab66, type: 2}
+  abilitySet: {fileID: 11400000, guid: 79e1c4a3850ab2c48aafd3919075531a, type: 2}
   combatDefensePolicy: {fileID: 11400000, guid: 367ddf7ac6efe0d40ae5f77efac19d28, type: 2}
   combatReactionPolicy: {fileID: 11400000, guid: a2dd28f89f46be84cbf06fc4ea197b9e, type: 2}
   behaviorData: {fileID: 11400000, guid: 992408ad276f7cf4fafe95cbb5c51546, type: 2}

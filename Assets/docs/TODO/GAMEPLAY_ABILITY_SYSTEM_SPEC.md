@@ -246,7 +246,7 @@ Editor asmdef
 
 - `GameActor`, `PlayerActor`, `MonsterActor`
 - `PlayerSkillGauge`, `ActorStatContainer`
-- `PlayerAttackInfo`, `EnemyAttackInfo`, `AnimKey`
+- `AbilityAttackInfo`, `AbilityAttackInfo`, `AnimKey`
 - `PlayerSkillSlot`, `GrowthSkillType`
 - UPlayground 전용 `GameplayTagId`, `StatType`
 - Manager 구현, `Svc`, `ActorSvc`, `UISvc`
@@ -320,7 +320,7 @@ Core는 상태 전환이나 MotionSet 실행 성공 여부를 `IAbilityExecution
 
 ### 7.6 실행 Payload 분리
 
-공용 `GameplayAbilitySO`는 `PlayerAttackInfo` 또는 `AnimKey`를 직접 보관하지 않는다. 프로젝트별 실행 데이터는 Core가 정의한 추상 Payload 참조 또는 안정 실행 키로 연결한다.
+공용 `GameplayAbilitySO`는 `AbilityAttackInfo` 또는 `AnimKey`를 직접 보관하지 않는다. 프로젝트별 실행 데이터는 Core가 정의한 추상 Payload 참조 또는 안정 실행 키로 연결한다.
 
 ```csharp
 public abstract class AbilityExecutionPayloadSO : ScriptableObject
@@ -340,7 +340,7 @@ GameplayAbilitySO
             ▼
 UPlayGroundMotionAbilityPayloadSO
 ├── AnimKey
-└── PlayerAttackInfo
+└── AbilityAttackInfo
 ```
 
 `UPlayGroundMotionAbilityPayloadSO`는 `UPlayGround.Ability.UPlayGround`에 둔다. 이를 통해 Core 데이터와 런타임은 Uplayground의 MotionSet 및 전투 데이터 구조를 알지 않는다.
@@ -349,7 +349,7 @@ UPlayGroundMotionAbilityPayloadSO
 
 V1 수직 슬라이스 초기에는 회귀 위험을 낮추기 위해 다음 임시 결합을 허용했다.
 
-- `AbilityVariantDefinition`의 `AnimKey`, `PlayerAttackInfo` 직접 참조
+- `AbilityVariantDefinition`의 `AnimKey`, `AbilityAttackInfo` 직접 참조
 - `ActorAbilitySystem`의 `GameActor`, `PlayerActor`, `PlayerSkillGauge` 직접 연결
 - Effect 런타임의 `ActorStatContainer`, `GameplayTagContainer` 직접 연결
 - `PlayerSkillSlot` 기반 플레이어 2슬롯 바인딩
@@ -528,7 +528,7 @@ public sealed class AbilityVariantDefinition
     public int priority;
     public AbilityVariantCondition condition;
     public AnimKey animKey;
-    public PlayerAttackInfo playerAttackInfo;
+    public AbilityAttackInfo attackInfo;
     public List<GameplayEffectSO> targetEffects;
     public List<GameplayEffectSO> ownerEffects;
 }
@@ -917,11 +917,24 @@ AbilityExecutionPayloadSO 해석 → PlayerCombat 실행
 
 몬스터는 플레이어 슬롯 구조를 사용하지 않는다.
 
+2026-07-18 공용 AbilitySet 적용 현황:
+
+- 플레이어/몬스터 전용 Ability 타입을 나누지 않고 모두 `GameplayAbilitySO`와
+  `AbilitySetSO`를 사용한다.
+- 플레이어는 입력 슬롯이 Ability를 선택하고, 몬스터는 BT와
+  `EnemyCombatDecisionEvaluator`가 같은 Set의 Ability를 선택한다.
+- 공격 데이터가 있는 `MonsterActorProfileSO` 50개를 공용 AbilitySet 22개에 연결했다.
+- `AbilityAttackInfo` 192개를 공용 GameplayAbility에 연결했다.
+- AI 선택 가중치, 공격 카테고리, 복합 전술 조건은 `AbilityAttackInfo`가 계속 소유한다.
+- 거리, 쿨다운, 태그, 비용, Effect, 실행 수명주기는 `GameplayAbilitySO`와
+  `ActorAbilitySystem`이 소유한다.
+- MotionSet과 HitPhase 공격 판정은 기존 전투 파이프라인이 계속 최종 소유한다.
+
 ```text
 Behavior Tree / EnemyCombatDecisionEvaluator
        │
        ▼
-Ability 후보 ID 또는 EnemyAttackInfo 선택
+Ability 후보 ID 또는 AbilityAttackInfo 선택
        │
        ▼
 ActorAbilitySystem.TryPrepareAbility()
@@ -935,11 +948,12 @@ EnemyAttackState 전환
 
 단계적 적용:
 
-1. V1은 플레이어 수직 슬라이스만 구현한다.
-2. 몬스터 기존 `EnemyAttackInfo.cooldown`, 가중치, 거리 조건을 유지한다.
-3. 적 Ability 전환 시 선택 확률과 공격 카테고리는 기존 AI가 계속 소유한다.
-4. 쿨다운만 공통 런타임으로 옮긴 뒤 결과를 비교한다.
-5. 보스 페이즈 Ability Set 추가·제거는 후속 단계에서 적용한다.
+1. 플레이어 수직 슬라이스와 전체 플레이어 전환을 완료했다.
+2. 몬스터 BT 공격 선택을 공용 Ability Prepare/Commit/End 수명주기에 연결했다.
+3. 적 Ability 전환 후에도 선택 확률과 공격 카테고리는 기존 AI가 계속 소유한다.
+4. 연결된 공격의 거리·쿨다운 판정은 공용 Ability 런타임이 소유하며,
+   미연결 레거시 공격만 기존 값을 폴백으로 사용한다.
+5. 보스 페이즈별 Ability Set 추가·제거와 Play Mode 회귀 검증은 후속 단계다.
 
 ---
 

@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Humanoid_SpeatAttackData
+  m_EditorClassIdentifier: 
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: cef9098b6e3aa794d85fe9558f3da030, type: 2}
+  - {fileID: 11400000, guid: 3b252c38502193e499a3380b1688ba25, type: 2}
+  - {fileID: 11400000, guid: 2449f4de360710342a6a9e86a1faa33d, type: 2}
+  - {fileID: 11400000, guid: e12ffdc96c19afc4eb7c000a7364c02d, type: 2}
+  - {fileID: 11400000, guid: b86b788da597d7f4a8d994188cc8f6c4, type: 2}
+  - {fileID: 11400000, guid: 9221aa60959b0ee43b346aca61f1b078, type: 2}
+  - {fileID: 11400000, guid: 5b3ed86236195f94099b963b93eb7a2f, type: 2}
+  - {fileID: 11400000, guid: 43784ef9dfd256d49bcafa0d04b10909, type: 2}
+  - {fileID: 11400000, guid: 75724f84b3fd91847bc90d0f7c70d2cf, type: 2}
+  - {fileID: 11400000, guid: a2eda30656d25094a89b9a21b21770c2, type: 2}
+  - {fileID: 11400000, guid: ad4ca32492e1e1041b4f7c57a5bbe514, type: 2}
+  - {fileID: 11400000, guid: 4bc26c66eb63a1c48a3cc47526a55940, type: 2}
+  - {fileID: 11400000, guid: 279e0e994b05ff84a99d107c630eb003, type: 2}
+  - {fileID: 11400000, guid: da5f3b62dcef86a4f85efe7f8ef8cf1d, type: 2}
+  - {fileID: 11400000, guid: 9d82e38975da90249b92877c8ef8e6bf, type: 2}
+  - {fileID: 11400000, guid: c2e80fd651d750843a7a65fd5f7a4610, type: 2}
+  - {fileID: 11400000, guid: d4b90b94b97d26f49850386dcd1bd3bb, type: 2}
+  - {fileID: 11400000, guid: e6f03a655b65f6c41916244d8d68fe83, type: 2}
+  - {fileID: 11400000, guid: 9b37a85f4ec50ce408187b529775f3f9, type: 2}
+  - {fileID: 11400000, guid: f18cec03774f9204ba61806c68ce924b, type: 2}
+  - {fileID: 11400000, guid: 11262dcbbb7ae694d9bb4ffdffd2ec89, type: 2}
+  - {fileID: 11400000, guid: ab7d8ff2c9dca7d449dc5cc5e6dab3aa, type: 2}
+  - {fileID: 11400000, guid: aa1f9a2485c054b4eac87b6766996a3e, type: 2}
+  combatBindings: []
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

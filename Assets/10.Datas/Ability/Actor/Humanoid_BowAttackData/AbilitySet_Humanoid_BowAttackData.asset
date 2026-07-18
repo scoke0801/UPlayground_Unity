@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Humanoid_BowAttackData
+  m_EditorClassIdentifier: 
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: 4bb932322b1248c4c878ca0d96d04582, type: 2}
+  - {fileID: 11400000, guid: 904c9c0283afa2546969c70ae5343dad, type: 2}
+  - {fileID: 11400000, guid: 8c90e91efbb447f4888abc87564eb5d8, type: 2}
+  - {fileID: 11400000, guid: 694944b101f7e9144ac7a368f026d129, type: 2}
+  - {fileID: 11400000, guid: fbc261bbf54038649b68dad05e29289b, type: 2}
+  - {fileID: 11400000, guid: 2f188be705d1a114f90d75e03f48a0f0, type: 2}
+  - {fileID: 11400000, guid: 0fd9af1e8c2494a4a802db65a9013d72, type: 2}
+  - {fileID: 11400000, guid: 12a2675485e9ef84a8c35f05fea60ba7, type: 2}
+  - {fileID: 11400000, guid: f8bfd07ac67c22949949beacddca79f0, type: 2}
+  - {fileID: 11400000, guid: 3f9117dbe68c0234bb68e793bf2e1e58, type: 2}
+  - {fileID: 11400000, guid: 7898d147e4e4dbf458d148ce14dcbb3e, type: 2}
+  - {fileID: 11400000, guid: 5e23305e4ddab1844b2a836972fe8818, type: 2}
+  combatBindings: []
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

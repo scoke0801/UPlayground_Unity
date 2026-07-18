@@ -3,7 +3,7 @@ using UPlayGround.Components;
 namespace UPlayGround.AI.BehaviorTree
 {
     /// <summary>
-    /// 비행형 CanUseSkill. 글로벌 쿨다운 + 사거리 보유 스킬 존재 여부.
+    /// 비행형 CanUseSkill. Ability 활성화 조건과 사거리 충족 여부.
     /// </summary>
     public class FlyingCanUseSkillNode : BTConditionNode
     {
@@ -17,7 +17,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return BTStatus.Failure;
 
             var combat = context.Combat;
-            if (combat?.AttackData == null)
+            if (combat?.AbilitySet == null)
                 return BTStatus.Failure;
 
             var detection = context.Detection;

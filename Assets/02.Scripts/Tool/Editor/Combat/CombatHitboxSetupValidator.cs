@@ -5,6 +5,7 @@ using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -95,7 +96,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 .ToList() ?? new List<UnityEngine.Object>();
             if (validAssets.Count == 0)
             {
-                issues.Add("통합 검증: 자동 수집된 AttackDataSO/MotionSet 에셋이 없습니다.");
+                issues.Add("통합 검증: 자동 수집된 Ability Payload/MotionSet 에셋이 없습니다.");
                 return issues;
             }
 
@@ -104,7 +105,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 hitboxes.Select(hitbox => hitbox.GroupId),
                 System.StringComparer.OrdinalIgnoreCase);
 
-            issues.Add($"통합 검증: 대상 에셋 {validAssets.Count}개 (AttackData/MotionSet)");
+            issues.Add($"통합 검증: 대상 에셋 {validAssets.Count}개 (Ability Payload/MotionSet)");
             AppendGroupUsageIssues(root, validAssets, issues);
             AppendAttackDataIssues(validAssets, hitboxGroups, issues);
             AppendMotionSetIssues(validAssets, hitboxGroups, issues);
@@ -150,7 +151,7 @@ namespace UPlayGround.Tool.Editor.Combat
             HashSet<string> hitboxGroups,
             List<string> issues)
         {
-            foreach (AttackDataSO attackData in assets.OfType<AttackDataSO>())
+            foreach (AbilitySetSO attackData in assets.OfType<AbilitySetSO>())
             {
                 int attackCount = 0;
                 foreach (AnimKey key in System.Enum.GetValues(typeof(AnimKey)))
@@ -171,7 +172,7 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         private static void ValidateAttackPhases(
-            AttackDataSO owner,
+            AbilitySetSO owner,
             CombatTimelineUtility.ResolvedAttack attack,
             HashSet<string> hitboxGroups,
             List<string> issues)

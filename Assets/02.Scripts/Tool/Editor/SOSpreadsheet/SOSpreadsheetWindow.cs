@@ -36,10 +36,16 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         private readonly HashSet<string> _hiddenColumns = new();
         private float _nameColumnWidth = 180f;
         private bool _syncingScroll;
+        private bool _syncingSelection;
+        /// <summary>표 갱신마다 증가. 같은 패스에서 행의 UpdateIfRequiredOrScript를 1회로 제한한다.</summary>
+        private int _updatePass;
+        private IVisualElementScheduledItem _searchDebounce;
 
         // 상세 패널이 보여주는 대상 (없으면 null)
         private RowEntry _detailRow;
         private ColumnInfo _detailColumn;
+        /// <summary>마지막으로 상세 패널에 띄웠던 열 경로. 행 빈 영역 클릭 시 재사용한다.</summary>
+        private string _lastDetailColumnPath;
 
         private AdvancedDropdownState _typeDropdownState = new();
 
@@ -48,6 +54,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         [SerializeField] private bool _excludeExternal = true;
         [SerializeField] private string _selectedTypeName;
         [SerializeField] private string _assetSearch = string.Empty;
+        [SerializeField] private bool _searchValues;
+        [SerializeField] private List<ColumnFilter> _filters = new();
         [SerializeField] private bool _showChildren = true;
         [SerializeField] private int _pageSizeIndex = 1; // 기본 50
         /// <summary>가로 스크롤과 무관하게 항상 표시할 왼쪽 열 개수 (엑셀 틀 고정).</summary>
@@ -55,6 +63,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         // UI 참조
         private ToolbarButton _typeButton;
+        private ToolbarButton _filterButton;
+        private VisualElement _filterBar;
         private ToolbarButton _newAssetButton;
         private ToolbarButton _columnsButton;
         private ToolbarButton _widthButton;
@@ -103,13 +113,22 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 scopeFolder = _scopeFolder,
                 excludeExternal = _excludeExternal,
                 assetSearch = _assetSearch,
+                searchValues = _searchValues,
+                filters = _filters, // 창이 직렬화하는 리스트를 그대로 공유
                 showChildren = _showChildren,
                 pageSizeIndex = _pageSizeIndex,
             };
 
             LoadStyleSheet();
             BuildLayout(rootVisualElement);
-            Rescan();
+
+            // 에디터 기동 중 창 복원 시 CreateGUI가 EditorStyles 초기화 전에 불릴 수 있어
+            // (boldLabel 접근에서 NRE) 최초 스캔은 에디터 루프가 준비된 뒤로 미룬다.
+            EditorApplication.delayCall += () =>
+            {
+                if (this != null)
+                    Rescan();
+            };
         }
 
         /// <summary>
@@ -198,11 +217,34 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             _searchField.SetValueWithoutNotify(_assetSearch);
             _searchField.RegisterValueChangedCallback(evt =>
             {
+                // 타이핑마다 전체 표를 다시 바인딩하지 않도록 짧게 디바운스
                 _assetSearch = _model.assetSearch = evt.newValue;
-                _model.ApplyFilter();
-                RefreshData();
+                _searchDebounce ??= rootVisualElement.schedule.Execute(ApplyFiltersAndRefresh);
+                _searchDebounce.ExecuteLater(250);
             });
             toolbar.Add(_searchField);
+
+            var valueSearchToggle = new ToolbarToggle
+            {
+                text = "값 검색",
+                value = _searchValues,
+                tooltip = "켜면 에셋 이름뿐 아니라 셀 값(숫자/문자열/enum/참조 이름)에서도 검색합니다.",
+            };
+            valueSearchToggle.RegisterValueChangedCallback(evt =>
+            {
+                _searchValues = _model.searchValues = evt.newValue;
+                if (!string.IsNullOrEmpty(_assetSearch))
+                    ApplyFiltersAndRefresh();
+            });
+            toolbar.Add(valueSearchToggle);
+
+            _filterButton = new ToolbarButton(ShowAddFilterMenu) { text = "필터 ▾" };
+            toolbar.Add(_filterButton);
+
+            // 활성 필터 칩 바 (필터가 없으면 숨김)
+            _filterBar = new VisualElement();
+            _filterBar.AddToClassList("so-filter-bar");
+            root.Add(_filterBar);
 
             // 가운데 영역: 테이블 + (필요 시) 우측 상세 패널
             var content = new VisualElement();
@@ -246,16 +288,28 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         private void OpenDetailPanel(RowEntry row, ColumnInfo info)
         {
+            if (_detailRow == row && _detailColumn == info)
+                return; // 이미 같은 대상을 표시 중이면 재바인딩 생략
             _detailRow = row;
             _detailColumn = info;
+            _lastDetailColumnPath = info.propertyPath;
             BindDetailPanel();
+        }
+
+        /// <summary>같은 (행, 열)을 다시 클릭하면 패널을 닫고, 아니면 그 대상으로 연다.</summary>
+        private void ToggleDetailPanel(RowEntry row, ColumnInfo info)
+        {
+            if (_detailRow == row && _detailColumn == info)
+                CloseDetailPanel();
+            else
+                OpenDetailPanel(row, info);
         }
 
         /// <summary>현재 대상(_detailRow/_detailColumn)을 패널에 다시 바인딩한다. 대상이 사라졌으면 닫는다.</summary>
         private void BindDetailPanel()
         {
             var so = _detailRow?.GetSerialized();
-            var prop = so?.FindProperty(_detailColumn?.propertyPath);
+            var prop = _detailColumn != null ? so?.FindProperty(_detailColumn.propertyPath) : null;
             if (prop == null)
             {
                 CloseDetailPanel();
@@ -434,6 +488,11 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         private void OnTypeSelected(TypeEntry entry)
         {
+            // 도메인 리로드 후 같은 타입 복원 시에는 필터를 유지하고, 타입이 바뀔 때만 초기화
+            bool typeChanged = _selectedTypeName != entry?.type.AssemblyQualifiedName;
+            if (typeChanged)
+                _filters.Clear();
+
             CloseDetailPanel();
             _model.SelectType(entry);
             _selectedTypeName = entry?.type.AssemblyQualifiedName;
@@ -448,6 +507,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 _model.ApplyFilter();
             }
 
+            RebuildFilterBar();
             RefreshPageRows();
             RebuildTable();
             UpdateChrome();
@@ -462,6 +522,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             _model.BuildColumns();
             AutoFitWidths();
             _model.ApplyFilter();
+            RebuildFilterBar(); // 열 구성이 바뀌면 필터 칩의 열 참조도 다시 해석
             RefreshPageRows();
             RebuildTable();
             UpdateChrome();
@@ -483,6 +544,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         private void RebuildTable()
         {
+            _updatePass++;
+
             // 재구성 전 사용자 조정 열 너비 보존
             HarvestColumnWidths();
 
@@ -535,6 +598,19 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
             // 두 리스트뷰의 세로 스크롤 동기화 (레이아웃이 잡힌 뒤 훅)
             _tableHost.schedule.Execute(SetupScrollSync);
+
+            // 행 선택 하이라이트를 고정/스크롤 파트 간 동기화
+            _leftView.selectedIndicesChanged += indices => SyncSelection(_rightView, indices);
+            _rightView.selectedIndicesChanged += indices => SyncSelection(_leftView, indices);
+        }
+
+        private void SyncSelection(MultiColumnListView target, IEnumerable<int> indices)
+        {
+            if (_syncingSelection || target == null)
+                return;
+            _syncingSelection = true;
+            target.SetSelectionWithoutNotify(indices.ToList());
+            _syncingSelection = false;
         }
 
         private void AddPlaceholder(string message)
@@ -550,7 +626,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             {
                 fixedItemHeight = RowHeight,
                 itemsSource = _pageRows,
-                selectionType = SelectionType.None,
+                selectionType = SelectionType.Single, // 행 클릭 하이라이트 (넓은 표에서 행 추적용)
                 showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly,
                 sortingMode = ColumnSortingMode.Custom,
             };
@@ -560,7 +636,82 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 view.columns.Add(CreateColumn(mi));
 
             view.columnSortingChanged += () => OnSortChanged(view);
+            // 셀을 정확히 누르지 않아도 행 아무 곳(빈 영역 포함) 클릭으로 상세 패널을 열고 닫는다
+            view.RegisterCallback<ClickEvent>(evt => OnTableClick(view, evt));
             return view;
+        }
+
+        /// <summary>
+        /// 행의 빈 영역 클릭을 상세 패널 열기/닫기로 연결한다.
+        /// 편집 컨트롤(필드/버튼/스크롤바) 위의 클릭은 본래 동작을 유지하도록 무시한다.
+        /// 같은 행을 다시 클릭하면 패널을 닫는다.
+        /// </summary>
+        private void OnTableClick(MultiColumnListView view, ClickEvent evt)
+        {
+            if (evt.target is not VisualElement target || IsInteractiveElement(target, view))
+                return;
+
+            int index = RowIndexAtPosition(view, evt.position);
+            if (index < 0 || index >= _pageRows.Count)
+                return;
+
+            var row = _pageRows[index];
+            if (_detailRow == row)
+            {
+                CloseDetailPanel();
+                return;
+            }
+
+            var column = ResolveDetailColumn();
+            if (column != null)
+                OpenDetailPanel(row, column);
+        }
+
+        /// <summary>클릭 대상이 편집/조작 컨트롤(또는 그 내부)인지. stopAt(리스트뷰)까지 부모를 거슬러 검사.</summary>
+        private static bool IsInteractiveElement(VisualElement element, VisualElement stopAt)
+        {
+            for (var v = element; v != null && v != stopAt; v = v.parent)
+            {
+                if (v is Button || v is Scroller || v is IBindable)
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>고정 높이 행 가정으로 클릭 위치의 행 인덱스를 계산한다 (헤더/범위 밖은 -1).</summary>
+        private int RowIndexAtPosition(MultiColumnListView view, Vector2 worldPosition)
+        {
+            var scroll = view.Q<ScrollView>();
+            if (scroll == null)
+                return -1;
+            Vector2 local = scroll.contentContainer.WorldToLocal(worldPosition);
+            if (local.y < 0f)
+                return -1;
+            return (int)(local.y / RowHeight);
+        }
+
+        /// <summary>
+        /// 행 빈 영역 클릭으로 패널을 열 때 사용할 열:
+        /// 현재 열 → 마지막으로 열었던 열 → 첫 번째 표시 중인 요약 열 순으로 고른다.
+        /// </summary>
+        private ColumnInfo ResolveDetailColumn()
+        {
+            if (_detailColumn != null)
+                return _detailColumn;
+
+            if (!string.IsNullOrEmpty(_lastDetailColumnPath))
+            {
+                var last = _model.FindColumn(_lastDetailColumnPath);
+                if (last != null)
+                    return last;
+            }
+
+            foreach (var c in _model.columns)
+            {
+                if (c.summaryOnly && !_hiddenColumns.Contains(c.propertyPath))
+                    return c;
+            }
+            return null;
         }
 
         private Column CreateColumn(int modelIndex)
@@ -719,19 +870,25 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 missingLabel.text = "—";
                 return;
             }
-            so.UpdateIfRequiredOrScript();
+
+            // 같은 갱신 패스에서 행당 1회만 동기화 (열 수만큼 반복 호출 방지, 이후는 바인딩이 추적)
+            if (row.lastUpdatePass != _updatePass)
+            {
+                so.UpdateIfRequiredOrScript();
+                row.lastUpdatePass = _updatePass;
+            }
 
             if (info.summaryOnly)
             {
                 // 리스트/중첩 데이터는 요약만 표시하고, 클릭하면 우측 상세 패널에서 편집
                 var summary = EnsureContent(cell, "summary", () =>
                 {
-                    var b = new Button { tooltip = "클릭하면 우측 패널에서 편집합니다" };
+                    var b = new Button { tooltip = "클릭하면 우측 패널에서 편집, 다시 클릭하면 닫습니다" };
                     b.AddToClassList("so-summary-button");
                     b.clicked += () =>
                     {
                         if (b.userData is RowEntry r)
-                            OpenDetailPanel(r, info);
+                            ToggleDetailPanel(r, info);
                     };
                     return b;
                 });
@@ -740,11 +897,92 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 return;
             }
 
+            // 커스텀 드로어가 없는 단순 타입은 PropertyField(내부 드로어 해석·재생성 비용)보다
+            // 훨씬 가벼운 타입 전용 필드로 그린다 → 페이지 전환/스크롤 체감 성능의 핵심
+            if (!info.hasCustomDrawer)
+            {
+                var typed = EnsureTypedField(cell, info);
+                if (typed is IBindable bindable)
+                {
+                    bindable.BindProperty(prop);
+                    return;
+                }
+            }
+
             var pf = EnsureContent(cell, "prop", () => new PropertyField { label = string.Empty });
             pf.BindProperty(prop);
             // PropertyField 내부 구성은 바인딩 후에 만들어지므로 다음 틱에 드로어 보정
             if (info.hasCustomDrawer || info.topCut > 0f)
                 pf.schedule.Execute(() => FixupPropertyField(pf, info));
+        }
+
+        /// <summary>
+        /// 셀에 열 타입 전용 편집 필드를 만들어 재사용한다 (셀은 열에 귀속되므로 타입이 바뀌지 않는다).
+        /// 전용 필드가 없는 타입이면 null → 호출측이 PropertyField로 폴백.
+        /// </summary>
+        private static VisualElement EnsureTypedField(VisualElement cell, ColumnInfo info)
+        {
+            if (Equals(cell.userData, "typed") && cell.childCount == 1)
+                return cell[0];
+
+            var made = CreateTypedField(info);
+            if (made == null)
+                return null;
+
+            cell.Clear();
+            cell.Add(made);
+            cell.userData = "typed";
+            return made;
+        }
+
+        private static VisualElement CreateTypedField(ColumnInfo info)
+        {
+            switch (info.propType)
+            {
+                case SerializedPropertyType.Integer:
+                    return new IntegerField();
+                case SerializedPropertyType.Boolean:
+                    return new Toggle();
+                case SerializedPropertyType.Float:
+                    return new FloatField();
+                case SerializedPropertyType.String:
+                    return new TextField();
+                case SerializedPropertyType.Color:
+                    return new ColorField();
+                case SerializedPropertyType.ObjectReference:
+                    return new ObjectField
+                    {
+                        objectType = info.objectType ?? typeof(UnityEngine.Object),
+                        allowSceneObjects = false,
+                    };
+                case SerializedPropertyType.LayerMask:
+                    return new LayerMaskField();
+                case SerializedPropertyType.Enum:
+                {
+                    if (info.enumType == null)
+                        return null; // 타입을 못 찾으면 PropertyField 폴백
+                    var defaultValue = (Enum)Enum.ToObject(info.enumType, 0);
+                    if (info.isFlagsEnum)
+                        return new EnumFlagsField(defaultValue);
+                    return new EnumField(defaultValue);
+                }
+                case SerializedPropertyType.Vector2:
+                    return new Vector2Field();
+                case SerializedPropertyType.Vector3:
+                    return new Vector3Field();
+                case SerializedPropertyType.Vector4:
+                    return new Vector4Field();
+                case SerializedPropertyType.Vector2Int:
+                    return new Vector2IntField();
+                case SerializedPropertyType.Vector3Int:
+                    return new Vector3IntField();
+                case SerializedPropertyType.AnimationCurve:
+                    return new CurveField();
+                case SerializedPropertyType.Gradient:
+                    return new GradientField();
+                default:
+                    return null;
+            }
         }
 
         private static string FormatItemCount(int count)
@@ -841,6 +1079,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         private void RefreshTables()
         {
+            _updatePass++;
             _leftView?.RefreshItems();
             _rightView?.RefreshItems();
         }
@@ -861,6 +1100,9 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             if (selected != null)
             {
                 string info = $"{_model.view.Count}/{_model.rows.Count}행 · {_model.columns.Count}열";
+                int activeFilters = _filters.Count(f => f.IsActive);
+                if (activeFilters > 0)
+                    info += $" · 필터 {activeFilters}개";
                 if (_model.columnsTruncated)
                     info += " (열 일부 생략)";
                 _infoLabel.text = info;
@@ -968,6 +1210,187 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             menu.DropDown(_pageSizeButton.worldBound);
         }
 
+        // ── 열 필터 ──────────────────────────────────────────────────
+
+        private void ApplyFiltersAndRefresh()
+        {
+            _model.ApplyFilter();
+            RefreshData();
+        }
+
+        /// <summary>필터를 지원하는 열인지 (값을 1차원 조건으로 비교할 수 있는 타입 + 리스트 요소 수).</summary>
+        private static bool IsFilterableColumn(ColumnInfo col)
+        {
+            switch (col.propType)
+            {
+                case SerializedPropertyType.Integer:
+                case SerializedPropertyType.Float:
+                case SerializedPropertyType.Boolean:
+                case SerializedPropertyType.String:
+                case SerializedPropertyType.Enum:
+                case SerializedPropertyType.ObjectReference:
+                case SerializedPropertyType.LayerMask:
+                case SerializedPropertyType.Character:
+                    return true;
+                default:
+                    return col.isList;
+            }
+        }
+
+        private void ShowAddFilterMenu()
+        {
+            var menu = new GenericMenu();
+            if (_model.columns.Count == 0)
+            {
+                menu.AddDisabledItem(new GUIContent("타입을 먼저 선택하세요"));
+            }
+            else
+            {
+                foreach (var col in _model.columns)
+                {
+                    if (!IsFilterableColumn(col))
+                        continue;
+                    string path = col.propertyPath;
+                    string label = col.displayName.Replace("/", "∕");
+                    if (_filters.Any(f => f.propertyPath == path))
+                    {
+                        menu.AddDisabledItem(new GUIContent(label), true);
+                        continue;
+                    }
+                    menu.AddItem(new GUIContent(label), false, () =>
+                    {
+                        _filters.Add(new ColumnFilter { propertyPath = path });
+                        RebuildFilterBar();
+                    });
+                }
+            }
+
+            if (_filters.Count > 0)
+            {
+                menu.AddSeparator(string.Empty);
+                menu.AddItem(new GUIContent("필터 모두 제거"), false, () =>
+                {
+                    _filters.Clear();
+                    RebuildFilterBar();
+                    ApplyFiltersAndRefresh();
+                });
+            }
+            menu.DropDown(_filterButton.worldBound);
+        }
+
+        private void RebuildFilterBar()
+        {
+            if (_filterBar == null)
+                return;
+            _filterBar.Clear();
+            _filterBar.style.display = _filters.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            foreach (var filter in _filters)
+                _filterBar.Add(MakeFilterChip(filter));
+        }
+
+        private VisualElement MakeFilterChip(ColumnFilter filter)
+        {
+            var chip = new VisualElement();
+            chip.AddToClassList("so-filter-chip");
+
+            var col = _model.FindColumn(filter.propertyPath);
+
+            var nameLabel = new Label(col?.displayName ?? $"(없는 열) {filter.propertyPath}");
+            nameLabel.AddToClassList("so-filter-name");
+            chip.Add(nameLabel);
+
+            if (col != null)
+            {
+                if (col.propType == SerializedPropertyType.Enum ||
+                    col.propType == SerializedPropertyType.Boolean)
+                {
+                    var valueButton = new Button { text = AllowedSummary(filter, col) };
+                    valueButton.AddToClassList("so-filter-value-button");
+                    valueButton.clicked += () => ShowAllowedValuesMenu(filter, col, valueButton);
+                    chip.Add(valueButton);
+                }
+                else
+                {
+                    bool numeric = col.propType != SerializedPropertyType.String &&
+                                   col.propType != SerializedPropertyType.ObjectReference;
+                    var textField = new TextField { value = filter.text, isDelayed = true };
+                    textField.AddToClassList("so-filter-text");
+                    textField.tooltip = numeric
+                        ? "비교식: 10 / >=10 / <5 / 3..8" + (col.isList ? " (요소 수 기준)" : string.Empty)
+                        : "포함 텍스트 (대소문자 무시)";
+                    textField.RegisterValueChangedCallback(evt =>
+                    {
+                        filter.text = evt.newValue;
+                        ApplyFiltersAndRefresh();
+                    });
+                    chip.Add(textField);
+                }
+            }
+
+            var remove = new Button(() =>
+            {
+                _filters.Remove(filter);
+                RebuildFilterBar();
+                ApplyFiltersAndRefresh();
+            }) { text = "✕", tooltip = "필터 제거" };
+            remove.AddToClassList("so-filter-remove");
+            chip.Add(remove);
+            return chip;
+        }
+
+        private static string AllowedSummary(ColumnFilter filter, ColumnInfo col)
+        {
+            if (filter.allowed.Count == 0)
+                return "전체 ▾";
+            if (filter.allowed.Count == 1)
+            {
+                string raw = filter.allowed[0];
+                if (col.enumNames != null)
+                {
+                    int idx = Array.IndexOf(col.enumNames, raw);
+                    if (idx >= 0 && col.enumDisplayNames != null && idx < col.enumDisplayNames.Length)
+                        raw = col.enumDisplayNames[idx];
+                }
+                return $"{raw} ▾";
+            }
+            return $"{filter.allowed.Count}개 ▾";
+        }
+
+        private void ShowAllowedValuesMenu(ColumnFilter filter, ColumnInfo col, Button anchor)
+        {
+            string[] raws = col.propType == SerializedPropertyType.Boolean
+                ? new[] { "True", "False" }
+                : col.enumNames ?? Array.Empty<string>();
+            string[] displays = col.propType == SerializedPropertyType.Boolean
+                ? raws
+                : col.enumDisplayNames ?? raws;
+
+            var menu = new GenericMenu();
+            for (int i = 0; i < raws.Length; i++)
+            {
+                string raw = raws[i];
+                string display = (i < displays.Length ? displays[i] : raw).Replace("/", "∕");
+                bool on = filter.allowed.Contains(raw);
+                menu.AddItem(new GUIContent(display), on, () =>
+                {
+                    if (on)
+                        filter.allowed.Remove(raw);
+                    else
+                        filter.allowed.Add(raw);
+                    anchor.text = AllowedSummary(filter, col);
+                    ApplyFiltersAndRefresh();
+                });
+            }
+            menu.AddSeparator(string.Empty);
+            menu.AddItem(new GUIContent("전체 (선택 해제)"), filter.allowed.Count == 0, () =>
+            {
+                filter.allowed.Clear();
+                anchor.text = AllowedSummary(filter, col);
+                ApplyFiltersAndRefresh();
+            });
+            menu.DropDown(anchor.worldBound);
+        }
+
         /// <summary>선택 타입의 새 에셋을 기존 에셋 폴더(없으면 범위 폴더)에 생성한다.</summary>
         private void CreateNewAsset()
         {
@@ -1029,7 +1452,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             int nameSamples = Mathf.Min(_model.rows.Count, 200);
             for (int i = 0; i < nameSamples; i++)
             {
-                float w = EditorStyles.boldLabel.CalcSize(new GUIContent(_model.rows[i].DisplayName)).x + 36f;
+                float w = MeasureLabel(_model.rows[i].DisplayName, bold: true) + 36f;
                 nameWidth = Mathf.Max(nameWidth, w);
             }
             _nameColumnWidth = Mathf.Clamp(nameWidth, 100f, 320f);
@@ -1037,11 +1460,31 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             foreach (var col in _model.columns)
             {
                 // 정렬 화살표 여유분 포함
-                float width = EditorStyles.boldLabel.CalcSize(new GUIContent(col.displayName)).x + 24f;
+                float width = MeasureLabel(col.displayName, bold: true) + 24f;
                 width = Mathf.Max(width, MinContentWidth(col.propType));
                 width = Mathf.Max(width, SampleContentWidth(col));
                 _savedWidths[col.propertyPath] = Mathf.Clamp(width, 40f, 420f);
             }
+        }
+
+        /// <summary>
+        /// 라벨 텍스트 폭 측정. 에디터 기동 직후에는 EditorStyles가 아직 초기화되지 않아
+        /// 접근만으로 NRE가 나므로, 실패 시 글자 수 기반 근사치로 폴백한다.
+        /// </summary>
+        private static float MeasureLabel(string text, bool bold)
+        {
+            if (string.IsNullOrEmpty(text))
+                return 0f;
+            try
+            {
+                var style = bold ? EditorStyles.boldLabel : EditorStyles.label;
+                if (style != null)
+                    return style.CalcSize(new GUIContent(text)).x;
+            }
+            catch (NullReferenceException)
+            {
+            }
+            return text.Length * 7.5f;
         }
 
         /// <summary>표시 중인 열들을 비율 유지한 채 창 너비에 맞게 늘리거나 줄인다.</summary>
@@ -1126,7 +1569,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 }
                 if (string.IsNullOrEmpty(text))
                     continue;
-                width = Mathf.Max(width, EditorStyles.label.CalcSize(new GUIContent(text)).x + padding);
+                width = Mathf.Max(width, MeasureLabel(text, bold: false) + padding);
             }
             return width;
         }

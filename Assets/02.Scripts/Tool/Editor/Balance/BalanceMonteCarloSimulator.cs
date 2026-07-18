@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
@@ -79,8 +79,11 @@ namespace UPlayGround.Tool.Editor.Balance
             float monsterAtk = Mathf.Max(0f, actor.statData.GetBase(StatType.AttackPower));
             float monsterDef = Mathf.Clamp01(actor.statData.GetBase(StatType.Defense));
 
-            List<EnemyAttackInfo> usable = BalanceAttackAnalyzer.GetUsableEnemySkills(actor.attackData, assumedDistance, monsterLevel);
-            float globalCooldown = actor.attackData != null ? Mathf.Max(0.05f, actor.attackData.globalCooldown) : 1f;
+            List<AbilityAttackInfo> usable = BalanceAttackAnalyzer.GetUsableEnemySkills(
+                actor.EffectiveAbilitySet,
+                assumedDistance,
+                monsterLevel);
+            const float globalCooldown = 0.05f;
 
             // 플레이어 측 파라미터 (Estimator와 동일한 읽기 규칙)
             float playerMaxHp = Mathf.Max(1f, ReadPlayerStat(scenario, StatType.MaxHealth));
@@ -117,7 +120,11 @@ namespace UPlayGround.Tool.Editor.Balance
                     Damage = BalanceAttackAnalyzer.SumDamage(usable[i].baseInfo),
                     PoiseDamage = BalanceAttackAnalyzer.SumPoiseDamage(usable[i].baseInfo),
                     Weight = Mathf.Max(0f, usable[i].selectionWeight),
-                    Cooldown = Mathf.Max(0.05f, usable[i].cooldown),
+                    Cooldown = Mathf.Max(
+                        0.05f,
+                        BalanceAttackAnalyzer.FindAbility(
+                            actor.EffectiveAbilitySet,
+                            usable[i])?.cooldown?.durationSeconds ?? 0f),
                     DefenseType = usable[i].defenseType,
                 });
             }
@@ -321,7 +328,7 @@ namespace UPlayGround.Tool.Editor.Balance
             return pool;
         }
 
-        private static void AddAttacks(List<(float, float)> pool, List<PlayerAttackInfo> list)
+        private static void AddAttacks(List<(float, float)> pool, List<AbilityAttackInfo> list)
         {
             if (list == null)
                 return;
@@ -329,7 +336,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 AddAttack(pool, list[i]);
         }
 
-        private static void AddAttack(List<(float, float)> pool, PlayerAttackInfo info)
+        private static void AddAttack(List<(float, float)> pool, AbilityAttackInfo info)
         {
             if (info?.baseInfo == null)
                 return;

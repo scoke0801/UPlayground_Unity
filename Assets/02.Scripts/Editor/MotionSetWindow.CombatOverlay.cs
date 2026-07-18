@@ -4,6 +4,7 @@ using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
@@ -13,7 +14,7 @@ namespace UPlayGround.Animation.Editor
 {
     /// <summary>
     /// 애니메이션 에디터 전투 오버레이 확장.
-    /// 현재 모션(AnimKey)에 매칭되는 AttackDataSO를 찾아
+    /// 현재 모션(AnimKey)에 매칭되는 AbilitySetSO 공격 Payload를 찾아
     /// ① 타임라인에 판정/캔슬/콤보/선후딜 트랙을 표시하고
     /// ② 씬 뷰에 히트박스 기즈모(+편집 핸들)를 그린다.
     /// </summary>
@@ -28,7 +29,7 @@ namespace UPlayGround.Animation.Editor
         static readonly Color COL_COMBAT_COMBO    = new Color(0.35f, 0.80f, 0.40f);
         static readonly Color COL_COMBAT_PREPOST  = new Color(0.55f, 0.55f, 0.60f);
 
-        AttackDataSO _combatAttackData;
+        AbilitySetSO _combatAttackData;
         bool _combatPrefsLoaded;
         bool _showCombatOverlay = true;
         bool _combatEditHitbox;
@@ -63,8 +64,8 @@ namespace UPlayGround.Animation.Editor
                     }
 
                     EditorGUI.BeginChangeCheck();
-                    var newData = (AttackDataSO)EditorGUILayout.ObjectField(
-                        _combatAttackData, typeof(AttackDataSO), false, GUILayout.MinWidth(160));
+                    var newData = (AbilitySetSO)EditorGUILayout.ObjectField(
+                        _combatAttackData, typeof(AbilitySetSO), false, GUILayout.MinWidth(160));
                     if (EditorGUI.EndChangeCheck())
                     {
                         _combatAttackData = newData;
@@ -232,7 +233,7 @@ namespace UPlayGround.Animation.Editor
 
             if (_actorAnimationSet != null)
             {
-                var found = CombatTimelineUtility.FindEnemyAttackDataForMotionSet(_actorAnimationSet, out var owner);
+                var found = CombatTimelineUtility.FindAbilitySetForMotionSet(_actorAnimationSet, out var owner);
                 if (found != null)
                 {
                     _combatAttackData = found;

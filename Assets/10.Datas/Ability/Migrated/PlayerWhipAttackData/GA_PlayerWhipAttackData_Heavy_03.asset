@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_03.Default
   animKey: 203
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 203
       attackType: 0

@@ -104,11 +104,11 @@ namespace UPlayGround.Tool.Editor.Validation
                         "Stat Data Generator 또는 Monster Stat Generator에서 MonsterScalingSO를 연결하세요.");
                 }
 
-                if (definition.attackData == null)
+                if (definition.EffectiveAbilitySet == null)
                 {
-                    Add(issues, EditorValidationSeverity.Warning, path, definition, "attackData",
-                        "몬스터 attackData가 비어 있습니다.",
-                        "프리팹 EnemyCombat 폴백을 의도한 경우가 아니면 EnemyAttackDataSO를 연결하세요.");
+                    Add(issues, EditorValidationSeverity.Warning, path, definition, "abilitySet",
+                        "몬스터 AbilitySet이 비어 있습니다.",
+                        "BT가 활성화할 Ability가 포함된 AbilitySetSO를 연결하세요.");
                 }
 
                 if (definition.behaviorData == null)

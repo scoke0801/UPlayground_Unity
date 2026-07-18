@@ -1,4 +1,4 @@
-using UPlayGround.Data.EnumType;
+﻿using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.AI.BehaviorTree
 {
@@ -7,7 +7,7 @@ namespace UPlayGround.AI.BehaviorTree
         public EnemyActionRequest(
             EnemyActionIntent intent,
             EnemyActionStyle style = EnemyActionStyle.None,
-            EnemyAttackCategory attackCategory = EnemyAttackCategory.None,
+            AbilityAttackCategory attackCategory = AbilityAttackCategory.None,
             string cooldownId = null,
             float cooldownDuration = 0f)
         {
@@ -20,7 +20,7 @@ namespace UPlayGround.AI.BehaviorTree
 
         public EnemyActionIntent Intent { get; }
         public EnemyActionStyle Style { get; }
-        public EnemyAttackCategory AttackCategory { get; }
+        public AbilityAttackCategory AttackCategory { get; }
         public string CooldownId { get; }
         public float CooldownDuration { get; }
     }

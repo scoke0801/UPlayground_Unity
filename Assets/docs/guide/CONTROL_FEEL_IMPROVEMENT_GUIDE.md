@@ -459,8 +459,8 @@ public sealed class PlayerControlFeelDebugHUD : MonoBehaviour
 
 | 순서 | 작업 | 파일/데이터 |
 |------|------|-------------|
-| 1 | 이동 후딜 캔슬 지연 필드 추가 | `AttackData`, `PlayerAttackInfo` |
-| 2 | 공격별 소프트 타겟 보정 필드 추가 | `PlayerAttackInfo` 또는 별도 Feel Profile |
+| 1 | 이동 후딜 캔슬 지연 필드 추가 | `AttackData`, `AbilityAttackInfo` |
+| 2 | 공격별 소프트 타겟 보정 필드 추가 | `AbilityAttackInfo` 또는 별도 Feel Profile |
 | 3 | 퍼펙트 도지 강/약 보상 창 분리 | `PlayerCombat`, `PlayerActor` |
 | 4 | SprintAutoStartDelay 전투/비전투 분리 | `PlayerMovementController` |
 

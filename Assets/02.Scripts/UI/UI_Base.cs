@@ -195,7 +195,7 @@ namespace UPlayGround.UI
         /// <summary>
         /// UI 숨김
         /// </summary>
-        public void Hide()
+        public virtual void Hide()
         {
             if (!IsVisible && !_cursorVisiblePushed && !_inputLayerRaised)
                 return;

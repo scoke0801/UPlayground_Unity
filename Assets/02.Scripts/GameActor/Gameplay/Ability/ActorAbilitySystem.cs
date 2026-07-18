@@ -26,7 +26,7 @@ namespace UPlayGround.Gameplay.Ability
         private GameActor _owner;
         private AbilitySetSO _abilitySet;
         private ulong _nextHandle = 1;
-        private ulong _activePlayerExecution;
+        private ulong _activeExecution;
         private GameplayEffectController _effects;
         private AbilityCooldownRuntime _cooldowns;
         private IAbilityResourcePort _resources;
@@ -37,7 +37,8 @@ namespace UPlayGround.Gameplay.Ability
 
         public event Action StateChanged;
         public AbilitySetSO AbilitySet => _abilitySet;
-        public bool HasActivePlayerAbility => _activePlayerExecution != 0;
+        public bool HasActiveAbility => _activeExecution != 0;
+        public bool HasActivePlayerAbility => HasActiveAbility;
 
         private void Awake()
         {
@@ -62,7 +63,7 @@ namespace UPlayGround.Gameplay.Ability
 
         public void SetAbilitySet(AbilitySetSO abilitySet)
         {
-            CancelActivePlayerAbility();
+            CancelActiveAbility();
             _abilitySet = abilitySet;
             _trackedCooldownGroups.Clear();
             StateChanged?.Invoke();
@@ -87,6 +88,22 @@ namespace UPlayGround.Gameplay.Ability
                 out variant);
         }
 
+        public AbilityActivationResult EvaluateAbility(
+            GameplayAbilitySO definition,
+            bool isGrounded,
+            GameActor target,
+            out AbilityVariantDefinition variant)
+        {
+            variant = null;
+            if (_abilitySet == null || !_abilitySet.Contains(definition))
+                return AbilityActivationResult.NotGranted;
+            return Evaluate(
+                definition,
+                isGrounded,
+                ResolveTarget(definition, target),
+                out variant);
+        }
+
         public AbilityActivationResult TryPreparePlayerSlot(
             PlayerSkillSlot slot,
             bool isGrounded,
@@ -98,6 +115,26 @@ namespace UPlayGround.Gameplay.Ability
             variant = null;
             GameplayAbilitySO definition = _abilitySet?.GetPlayerAbility(slot);
             if (definition == null) return AbilityActivationResult.NotGranted;
+
+            return TryPrepareAbility(
+                definition,
+                isGrounded,
+                target,
+                out handle,
+                out variant);
+        }
+
+        public AbilityActivationResult TryPrepareAbility(
+            GameplayAbilitySO definition,
+            bool isGrounded,
+            GameActor target,
+            out AbilityExecutionHandle handle,
+            out AbilityVariantDefinition variant)
+        {
+            handle = default;
+            variant = null;
+            if (_abilitySet == null || !_abilitySet.Contains(definition))
+                return AbilityActivationResult.NotGranted;
 
             GameActor resolvedTarget = ResolveTarget(definition, target);
             AbilityActivationResult result =
@@ -112,7 +149,7 @@ namespace UPlayGround.Gameplay.Ability
                 return result;
             }
 
-            if (_activePlayerExecution != 0)
+            if (_activeExecution != 0)
             {
                 if (definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
                 {
@@ -124,7 +161,7 @@ namespace UPlayGround.Gameplay.Ability
                     return AbilityActivationResult.ConflictingAbility;
                 }
                 if (definition.concurrency == AbilityConcurrencyPolicy.CancelExisting)
-                    CancelActivePlayerAbility();
+                    CancelActiveAbility();
             }
 
             handle = new AbilityExecutionHandle(_nextHandle++);
@@ -171,7 +208,7 @@ namespace UPlayGround.Gameplay.Ability
 
             execution.StartTime = Time.time;
             execution.State = AbilityExecutionState.Active;
-            _activePlayerExecution = handle.Value;
+            _activeExecution = handle.Value;
             DispatchCue(
                 execution.Definition,
                 execution.Variant,
@@ -203,12 +240,12 @@ namespace UPlayGround.Gameplay.Ability
             }
         }
 
-        public void EndActivePlayerAbility(bool completed)
+        public void EndActiveAbility(bool completed)
         {
-            if (_activePlayerExecution == 0
-                || !_executions.Remove(_activePlayerExecution, out AbilityExecution execution))
+            if (_activeExecution == 0
+                || !_executions.Remove(_activeExecution, out AbilityExecution execution))
             {
-                _activePlayerExecution = 0;
+                _activeExecution = 0;
                 return;
             }
 
@@ -223,11 +260,15 @@ namespace UPlayGround.Gameplay.Ability
                 execution.Variant,
                 AbilityCueEventType.Ended,
                 AbilityActivationResult.Success);
-            _activePlayerExecution = 0;
+            _activeExecution = 0;
             StateChanged?.Invoke();
         }
 
-        public void CancelActivePlayerAbility() => EndActivePlayerAbility(false);
+        public void EndActivePlayerAbility(bool completed) => EndActiveAbility(completed);
+
+        public void CancelActiveAbility() => EndActiveAbility(false);
+
+        public void CancelActivePlayerAbility() => CancelActiveAbility();
 
         public bool TryGetPlayerSlotState(PlayerSkillSlot slot, out AbilitySlotViewState state)
         {
@@ -427,7 +468,7 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.InsufficientResource;
             if (GetCooldownRemaining(definition.cooldown.ResolveGroupId(definition.abilityId)) > 0f)
                 return AbilityActivationResult.CooldownActive;
-            if (_activePlayerExecution != 0
+            if (_activeExecution != 0
                 && definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
                 return AbilityActivationResult.ConflictingAbility;
 
@@ -447,8 +488,8 @@ namespace UPlayGround.Gameplay.Ability
             {
                 AbilityVariantDefinition candidate = definition.variants[i];
                 if (candidate == null
-                    || !UPlayGroundAbilityPayloadResolver.TryResolve(
-                        candidate, out _, out _))
+                    || !UPlayGroundAbilityPayloadResolver.TryResolveAnimKey(
+                        candidate, out _))
                     continue;
                 AbilityVariantCondition condition = candidate.condition;
                 if (condition != null)

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.Jump_04.Default
   animKey: 404
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 404
       attackType: 0

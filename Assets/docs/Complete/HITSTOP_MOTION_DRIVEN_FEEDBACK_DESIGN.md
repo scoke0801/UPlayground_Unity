@@ -17,13 +17,13 @@
 |------|------|------|
 | HitStop 실행 | `GameHitStopHandler` (강도/스케일/Actor-local) | ✅ 완비 |
 | 적중 시 HitStop 디스패치 | `CombatFeedbackDispatcher` → `reactionData.hitStopDuration/Scale` | ✅ 완비 |
-| 모션 타이밍 추출 | `AttackDataFromMotionSetWindow.ScanEntry` (`GetPhaseActiveStart/End`, `Duration`) | ✅ 완비 |
+| 모션 타이밍 추출 | `GameplayAbilityEditorWindow.ScanEntry` (`GetPhaseActiveStart/End`, `Duration`) | ✅ 완비 |
 | 피드백 자동 생성 | `ApplyAutoReaction()` → `hitStopDuration/Scale`, camera, FOV, trail | ✅ 동작하나 **카테고리 기반** |
 | 후딜레이 분석값 | `analysis.recoveryDuration` (`CombatData.cs`) | ⚠️ **산출만 하고 미사용** |
 
 ### 핵심 갭
 
-`ApplyAutoReaction`의 `impactScore`(`AttackDataFromMotionSetWindow.cs:1033`)는
+`ApplyAutoReaction`의 `impactScore`(`GameplayAbilityEditorWindow.cs:1033`)는
 사실상 **AttackCategory 룩업 4종**(weaponSpeed/rootMotion/bodyRotation/attackWeight)으로만 결정된다.
 모션 길이는 `rootMotionScore` 안의 약한 항(가중치 0.25) 하나로만 새어 들어간다.
 
@@ -139,7 +139,7 @@ AAA 액션은 ① 타격감 ② 조작감 ③ 애니메이션 연속성을 동�
 
 ## 5. 작업 항목 (구현 완료)
 
-**A. 모션 후딜 기반 자동 산출 — `AttackDataFromMotionSetWindow.cs`**
+**A. 모션 후딜 기반 자동 산출 — `GameplayAbilityEditorWindow.cs`**
 1. ✅ `ScanEntry.GetPhaseEndlag(i)` — 마지막 phase = `Duration - activeEnd`,
    중간 phase = `GetPhaseActiveStart(i+1) - activeEnd`(gap≤0이면 0으로 폴백, 의도 역전 방지).
 2. ✅ `ApplyAutoReaction` `impactScore`를 후딜 주도로 교체. 카테고리 4종 룩업은 `analysis` 기록용 보존,

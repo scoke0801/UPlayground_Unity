@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerWhipAttackData.Combat.Light_02.Default
   animKey: 102
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 102
       attackType: 0

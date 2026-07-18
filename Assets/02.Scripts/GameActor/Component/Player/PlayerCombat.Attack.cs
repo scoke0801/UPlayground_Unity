@@ -200,7 +200,7 @@ namespace UPlayGround.Components
         /// §5.2 타깃 적 상태로 등장 변형을 선택한다. 매칭 없으면 기본 entryAttack → 약공 첫 번째 폴백.
         /// (공중 변형 우선, 다음 그로기 변형)
         /// </summary>
-        private PlayerAttackInfo SelectEntryAttackInfo()
+        private AbilityAttackInfo SelectEntryAttackInfo()
         {
             if (_attackData == null) return null;
 
@@ -302,7 +302,7 @@ namespace UPlayGround.Components
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             ClearResidualAttackContext();
-            if (!TryResolveSkill(skillIndex, out PlayerAttackInfo attackInfo, out AnimKey animKey)) return null;
+            if (!TryResolveSkill(skillIndex, out AbilityAttackInfo attackInfo, out AnimKey animKey)) return null;
 
             _attackState = AttackState.SkillAttack;
             ResetComboPreserveChains();
@@ -322,7 +322,7 @@ namespace UPlayGround.Components
         {
             ClearResidualAttackContext();
             if (!UPlayGroundAbilityPayloadResolver.TryResolve(
-                    variant, out AnimKey animKey, out PlayerAttackInfo attackInfo))
+                    variant, out AnimKey animKey, out AbilityAttackInfo attackInfo))
                 return null;
 
             _attackState = AttackState.SkillAttack;
@@ -376,7 +376,7 @@ namespace UPlayGround.Components
 
             // 퍼펙트 강화: 전용 공격이 있으면 그것으로 교체, 없으면 기본 공격에 런타임 배율을 싣는다(둘 다 지원).
             bool useEnhancedAttack = isPerfect && route.HasEnhancedAttack;
-            PlayerAttackInfo source = useEnhancedAttack ? route.enhancedAttackInfo : route.attackInfo;
+            AbilityAttackInfo source = useEnhancedAttack ? route.enhancedAttackInfo : route.attackInfo;
 
             _currentAttackData = ConvertToAttackData(source, kind);
 
@@ -532,7 +532,7 @@ namespace UPlayGround.Components
             return AnimKey.Attack_1;
         }
 
-        private AttackData ConvertToAttackData(PlayerAttackInfo attackInfo, AttackKind attackKind)
+        private AttackData ConvertToAttackData(AbilityAttackInfo attackInfo, AttackKind attackKind)
         {
             if (attackInfo?.baseInfo == null)
                 return null;

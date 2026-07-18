@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerWhipAttackData.Ability.Skill_3
   animKey: 502
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 502
       attackType: 0
@@ -345,7 +345,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerWhipAttackData.Ability.Default
   animKey: 500
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 500
       attackType: 0

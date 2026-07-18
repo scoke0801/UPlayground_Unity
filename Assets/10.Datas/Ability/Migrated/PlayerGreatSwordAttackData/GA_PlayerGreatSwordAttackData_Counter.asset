@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerGreatSwordAttackData.Combat.Counter.Default
   animKey: 530
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 530
       attackType: 0

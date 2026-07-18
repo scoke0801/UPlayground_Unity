@@ -148,7 +148,7 @@ public readonly struct EnemyActionRequest
 {
     public EnemyActionIntent Intent { get; init; }
     public EnemyActionStyle Style { get; init; }
-    public EnemyAttackCategory AttackCategory { get; init; }
+    public AbilityAttackCategory AttackCategory { get; init; }
     public string CooldownId { get; init; }
     public float CooldownDuration { get; init; }
 }

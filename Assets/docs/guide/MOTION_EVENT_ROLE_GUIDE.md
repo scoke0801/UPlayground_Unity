@@ -163,7 +163,7 @@ ActorAnimator
 |--------|-----------|------|-----------|-----------|-----------|
 | `TelegraphEvent` | `Telegraph` | 몬스터 현재 스킬의 공격 범위 텔레그래프를 MotionSet 타이밍으로 표시한다. | Monster Actor의 `EnemyCombat.BeginTelegraph(hitPhaseIndex, lockPositionOnStart)` 호출 | `EnemyCombat.ClearTelegraphs()` 호출 | `hitPhaseIndex`, `lockPositionOnStart` |
 
-`TelegraphEvent`는 `EnemyAttackInfo.useMotionEventTelegraph`가 true인 공격에서 수동 타이밍 제어용으로 사용한다. `hitPhaseIndex`는 대응되는 `BeginCollisionEvent.hitPhaseIndex`와 맞춰야 한다.
+`TelegraphEvent`는 `AbilityAttackInfo.useMotionEventTelegraph`가 true인 공격에서 수동 타이밍 제어용으로 사용한다. `hitPhaseIndex`는 대응되는 `BeginCollisionEvent.hitPhaseIndex`와 맞춰야 한다.
 
 ---
 

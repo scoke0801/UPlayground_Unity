@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -12,6 +12,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Gameplay.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
@@ -47,14 +48,14 @@ namespace UPlayGround.Tool.Editor.Combat
         public static List<CombatValidationIssue> ValidateAll()
         {
             var issues = new List<CombatValidationIssue>();
-            ValidatePlayerAttackData(issues);
-            ValidateEnemyAttackData(issues);
+            ValidateCombatBindings(issues);
+            ValidateAiSelectableAbilities(issues);
             ValidateMotionSetMatching(issues);
             ValidateCombatPolicyData(issues);
             return issues;
         }
 
-        private static void ValidatePlayerAttackData(List<CombatValidationIssue> issues)
+        private static void ValidateCombatBindings(List<CombatValidationIssue> issues)
         {
             foreach (string guid in AssetDatabase.FindAssets("t:AbilitySetSO"))
             {
@@ -77,23 +78,25 @@ namespace UPlayGround.Tool.Editor.Combat
             }
         }
 
-        private static void ValidateEnemyAttackData(List<CombatValidationIssue> issues)
+        private static void ValidateAiSelectableAbilities(List<CombatValidationIssue> issues)
         {
-            foreach (string guid in AssetDatabase.FindAssets("t:EnemyAttackDataSO"))
+            foreach (string guid in AssetDatabase.FindAssets("t:AbilitySetSO"))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                var asset = AssetDatabase.LoadAssetAtPath<EnemyAttackDataSO>(path);
+                var asset = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(path);
                 if (asset == null)
                     continue;
 
-                if (asset.skills == null || asset.skills.Count == 0)
-                {
-                    AddIssue(issues, CombatValidationSeverity.Warning, path, "skills", "사용 가능한 몬스터 스킬이 없습니다.");
+                var entries = AbilityAttackEditorUtility.Collect(asset, true);
+                if (entries.Count == 0)
                     continue;
-                }
 
-                for (int i = 0; i < asset.skills.Count; i++)
-                    ValidateEnemyAttack(issues, path, $"skills[{i}]", asset.skills[i]);
+                for (int i = 0; i < entries.Count; i++)
+                    ValidateAiSelectableAttack(
+                        issues,
+                        path,
+                        entries[i].Ability.name,
+                        entries[i].AttackInfo);
             }
         }
 
@@ -101,7 +104,7 @@ namespace UPlayGround.Tool.Editor.Combat
             List<CombatValidationIssue> issues,
             string path,
             string context,
-            List<PlayerAttackInfo> attacks)
+            List<AbilityAttackInfo> attacks)
         {
             if (attacks == null)
                 return;
@@ -114,7 +117,7 @@ namespace UPlayGround.Tool.Editor.Combat
             List<CombatValidationIssue> issues,
             string path,
             string context,
-            PlayerAttackInfo attack)
+            AbilityAttackInfo attack)
         {
             if (attack == null)
                 return;
@@ -122,15 +125,15 @@ namespace UPlayGround.Tool.Editor.Combat
             ValidateAttackInfoBase(issues, path, context, attack.baseInfo, requireMeleeHitPhase: true);
         }
 
-        private static void ValidateEnemyAttack(
+        private static void ValidateAiSelectableAttack(
             List<CombatValidationIssue> issues,
             string path,
             string context,
-            EnemyAttackInfo attack)
+            AbilityAttackInfo attack)
         {
             if (attack == null)
             {
-                AddIssue(issues, CombatValidationSeverity.Error, path, context, "EnemyAttackInfo가 null입니다.");
+                AddIssue(issues, CombatValidationSeverity.Error, path, context, "AbilityAttackInfo가 null입니다.");
                 return;
             }
 
@@ -208,24 +211,23 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var actor = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
-                if (actor == null || actor.attackData == null)
+                if (actor == null || actor.EffectiveAbilitySet == null)
                     continue;
 
                 ActorAnimationMotionSet motionSet = ResolveMotionSet(actor.prefab);
                 if (motionSet == null)
                 {
                     AddIssue(issues, CombatValidationSeverity.Warning, path, "prefab",
-                        "attackData가 있으나 prefab에서 ActorAnimationMotionSet을 찾을 수 없어 MotionSet 매칭 검증을 건너뜁니다.");
+                        "AbilitySet이 있으나 prefab에서 ActorAnimationMotionSet을 찾을 수 없어 MotionSet 매칭 검증을 건너뜁니다.");
                     continue;
                 }
 
-                List<EnemyAttackInfo> skills = actor.attackData.skills;
-                if (skills == null)
-                    continue;
-
-                for (int i = 0; i < skills.Count; i++)
+                var entries = AbilityAttackEditorUtility.Collect(
+                    actor.EffectiveAbilitySet,
+                    true);
+                for (int i = 0; i < entries.Count; i++)
                 {
-                    EnemyAttackInfo skill = skills[i];
+                    AbilityAttackInfo skill = entries[i].AttackInfo;
                     if (skill?.baseInfo == null)
                         continue;
                     ValidateAttackMotionSet(issues, path, $"skills[{i}]", skill.baseInfo, motionSet, skill);
@@ -269,7 +271,7 @@ namespace UPlayGround.Tool.Editor.Combat
             List<CombatValidationIssue> issues,
             string path,
             string context,
-            List<PlayerAttackInfo> attacks,
+            List<AbilityAttackInfo> attacks,
             ActorAnimationMotionSet motionSet)
         {
             if (attacks == null)
@@ -283,7 +285,7 @@ namespace UPlayGround.Tool.Editor.Combat
             List<CombatValidationIssue> issues,
             string path,
             string context,
-            PlayerAttackInfo attack,
+            AbilityAttackInfo attack,
             ActorAnimationMotionSet motionSet)
         {
             if (attack?.baseInfo == null)
@@ -309,7 +311,7 @@ namespace UPlayGround.Tool.Editor.Combat
             string context,
             AttackInfoBase baseInfo,
             ActorAnimationMotionSet motionSetRoot,
-            EnemyAttackInfo enemyInfo)
+            AbilityAttackInfo enemyInfo)
         {
             // animKey == None은 SO 기본 검증에서 이미 보고하므로 여기서는 건너뛴다.
             if (baseInfo == null || baseInfo.animKey == AnimKey.None)
@@ -447,7 +449,7 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 var actor = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
-                if (actor == null || actor.attackData == null)
+                if (actor == null || actor.EffectiveAbilitySet == null)
                     continue;
 
                 if (actor.grade is MonsterActorGrade.Elite or MonsterActorGrade.Boss

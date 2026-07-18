@@ -19,10 +19,10 @@ namespace UPlayGround.Tool.Editor.Combat
 {
     /// <summary>
     /// 프레임 데이터 테이블 — 격투게임식 선딜/액티브/후딜 + 데미지/캔슬 정보를
-    /// MotionSet 타임라인과 AttackDataSO에서 자동 합산해 한 테이블로 보여준다.
+    /// MotionSet 타임라인과 AbilitySet 공격 Payload에서 자동 합산해 한 테이블로 보여준다.
     ///
     /// 데이터 소스: 추가 입력 없음. 타이밍은 MotionSet의 Collision/ComboWindow 이벤트,
-    /// 수치는 AttackDataSO의 HitPhaseData에서 읽는다.
+    /// 수치는 Ability Payload의 HitPhaseData에서 읽는다.
     /// </summary>
     public class CombatFrameDataWindow : EditorWindow
     {
@@ -209,7 +209,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 for (int i = 0; i < guids.Length; i++)
                 {
                     var actor = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guids[i]));
-                    if (actor == null || actor.attackData == null || actor.prefab == null) continue;
+                    if (actor == null || actor.EffectiveAbilitySet == null || actor.prefab == null) continue;
 
                     EditorUtility.DisplayProgressBar("프레임 데이터 스캔", actor.name, (float)i / guids.Length);
                     if (AppendEnemyActorRows(actor))
@@ -227,22 +227,15 @@ namespace UPlayGround.Tool.Editor.Combat
 
         bool AppendEnemyActorRows(ActorDefinitionSO actor)
         {
-            if (actor == null || actor.attackData == null || actor.prefab == null) return false;
+            if (actor == null || actor.EffectiveAbilitySet == null || actor.prefab == null) return false;
 
             var animator = actor.prefab.GetComponentInChildren<UPlayGround.Animation.ActorAnimator>(true);
             if (animator == null || animator.MotionSet == null) return false;
 
             int before = _rows.Count;
-            AppendRows(actor.name, animator.MotionSet, actor.attackData);
+            AppendRows(actor.name, animator.MotionSet, actor.EffectiveAbilitySet);
             return _rows.Count > before;
         }
-
-        void AppendRows(string actorName, ActorAnimationMotionSet root, AttackDataSO data)
-            => AppendRows(
-                actorName,
-                root,
-                data,
-                key => CombatTimelineUtility.ResolveAttacks(data, key));
 
         void AppendRows(string actorName, ActorAnimationMotionSet root, AbilitySetSO data)
             => AppendRows(

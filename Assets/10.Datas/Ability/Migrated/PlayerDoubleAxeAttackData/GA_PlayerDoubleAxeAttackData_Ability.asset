@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDoubleAxeAttackData.Ability.Default
   animKey: 500
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 500
       attackType: 0

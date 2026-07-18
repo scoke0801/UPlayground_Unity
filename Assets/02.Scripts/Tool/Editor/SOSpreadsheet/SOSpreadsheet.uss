@@ -71,6 +71,54 @@
     -unity-font-style: bold;
 }
 
+/* 활성 열 필터 칩 바 (필터 없으면 코드에서 숨김) */
+.so-filter-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 2px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.35);
+}
+
+.so-filter-chip {
+    flex-direction: row;
+    align-items: center;
+    margin: 1px 4px 1px 0;
+    padding: 1px 3px;
+    border-radius: 8px;
+    background-color: rgba(128, 128, 128, 0.18);
+}
+
+.so-filter-name {
+    -unity-font-style: bold;
+    margin-right: 3px;
+    opacity: 0.85;
+}
+
+.so-filter-text {
+    width: 110px;
+    margin: 0;
+}
+
+.so-filter-value-button {
+    margin: 0;
+    padding: 0 6px;
+}
+
+.so-filter-remove {
+    width: 16px;
+    margin: 0 0 0 2px;
+    padding: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0.55;
+}
+
+.so-filter-remove:hover {
+    opacity: 1;
+}
+
 /* 가운데 영역: 테이블 + 우측 상세 패널 */
 .so-content-row {
     flex-grow: 1;

@@ -4,7 +4,7 @@ namespace UPlayGround.Data.EnumType
 {
     /// <summary>
     /// 플레이어 동작(공격/차지 등)을 캔슬할 수 있는 입력 액션 마스크.
-    /// 공격 데이터(PlayerAttackInfo / ChargeStageData)에서 "이 동작을 어떤 입력으로 캔슬할 수 있는가"를
+    /// 공격 데이터(AbilityAttackInfo / ChargeStageData)에서 "이 동작을 어떤 입력으로 캔슬할 수 있는가"를
     /// 데이터로 지정한다. 새 캔슬 액션 추가 = 여기 플래그 1개 + PlayerInterruptResolver 매핑 1줄.
     ///
     /// 기존 단일 bool(canBeInterrupted = 1, 캔슬 허용)의 동작은 Dodge|Jump|Dash(=7)와 동일하다.

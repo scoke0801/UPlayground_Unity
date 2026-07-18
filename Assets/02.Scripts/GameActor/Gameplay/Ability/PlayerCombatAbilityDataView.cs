@@ -13,24 +13,24 @@ namespace UPlayGround.Gameplay.Ability
     /// </summary>
     public sealed class PlayerCombatAbilityDataView
     {
-        public readonly List<PlayerAttackInfo> liteComboAttackList = new();
-        public readonly List<PlayerAttackInfo> heavyComboAttackList = new();
-        public readonly List<PlayerAttackInfo> jumpAttackList = new();
-        public readonly List<PlayerAttackInfo> dashAttackList = new();
-        public readonly List<PlayerAttackInfo> skillAttackList = new();
+        public readonly List<AbilityAttackInfo> liteComboAttackList = new();
+        public readonly List<AbilityAttackInfo> heavyComboAttackList = new();
+        public readonly List<AbilityAttackInfo> jumpAttackList = new();
+        public readonly List<AbilityAttackInfo> dashAttackList = new();
+        public readonly List<AbilityAttackInfo> skillAttackList = new();
         public readonly List<ChargeStageData> chargeStages = new();
         public readonly List<float> chargeStageThresholds = new();
         public readonly List<ComboRouteEntry> comboRoutes = new();
 
-        public PlayerAttackInfo counterAttack;
-        public PlayerAttackInfo parryCounterAttack;
-        public PlayerAttackInfo entryAttack;
+        public AbilityAttackInfo counterAttack;
+        public AbilityAttackInfo parryCounterAttack;
+        public AbilityAttackInfo entryAttack;
         public bool useEntryAttackVsGroggy;
-        public PlayerAttackInfo entryAttackVsGroggy;
+        public AbilityAttackInfo entryAttackVsGroggy;
         public bool useEntryAttackVsAirborne;
-        public PlayerAttackInfo entryAttackVsAirborne;
-        public PlayerAttackInfo swapEvadeCounterAttack;
-        public PlayerAttackInfo swapSpecialAttack;
+        public AbilityAttackInfo entryAttackVsAirborne;
+        public AbilityAttackInfo swapEvadeCounterAttack;
+        public AbilityAttackInfo swapSpecialAttack;
         public AnimKey chargeAnimKey;
         public PlayerInterruptAction chargeInterruptActions;
         public string fullChargeVfxKey;
@@ -78,7 +78,7 @@ namespace UPlayGround.Gameplay.Ability
                 view.fullChargeVfxOffset = set.charge.fullChargeVfxOffset;
                 for (int i = 0; i < set.charge.stages.Count; i++)
                 {
-                    PlayerAttackInfo attack = Resolve(set.charge.stages[i]);
+                    AbilityAttackInfo attack = Resolve(set.charge.stages[i]);
                     if (attack?.baseInfo == null) continue;
                     if (view.chargeAnimKey == AnimKey.None)
                         view.chargeAnimKey = attack.baseInfo.animKey;
@@ -119,12 +119,12 @@ namespace UPlayGround.Gameplay.Ability
         private static void AddSequence(
             AbilitySetSO set,
             PlayerCombatAbilitySlot slot,
-            List<PlayerAttackInfo> destination)
+            List<AbilityAttackInfo> destination)
         {
             IReadOnlyList<GameplayAbilitySO> abilities = set.GetCombatSequence(slot);
             for (int i = 0; i < abilities.Count; i++)
             {
-                PlayerAttackInfo attack = Resolve(abilities[i]);
+                AbilityAttackInfo attack = Resolve(abilities[i]);
                 if (attack?.baseInfo != null) destination.Add(attack);
             }
         }
@@ -132,13 +132,13 @@ namespace UPlayGround.Gameplay.Ability
         private static void AddPlayerSlot(
             AbilitySetSO set,
             PlayerSkillSlot slot,
-            List<PlayerAttackInfo> destination)
+            List<AbilityAttackInfo> destination)
         {
-            PlayerAttackInfo attack = Resolve(set.GetPlayerAbility(slot));
+            AbilityAttackInfo attack = Resolve(set.GetPlayerAbility(slot));
             if (attack?.baseInfo != null) destination.Add(attack);
         }
 
-        private static PlayerAttackInfo Resolve(GameplayAbilitySO ability)
+        private static AbilityAttackInfo Resolve(GameplayAbilitySO ability)
         {
             if (ability?.variants == null) return null;
             AbilityVariantDefinition best = null;
@@ -152,7 +152,7 @@ namespace UPlayGround.Gameplay.Ability
                     best = candidate;
             }
             return UPlayGroundAbilityPayloadResolver.TryResolve(
-                best, out _, out PlayerAttackInfo attack)
+                best, out _, out AbilityAttackInfo attack)
                 ? attack
                 : null;
         }

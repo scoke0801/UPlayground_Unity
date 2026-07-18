@@ -32,7 +32,7 @@ namespace UPlayGround.Editor.P09Builder
         public ScriptableObject existingBehaviorSo;
         public float optimalCombatDistance = 2.5f;
 
-        public ScriptableObject attackDataSo;
+        public AbilitySetSO abilitySet;
         public EnemyCombatStyle combatStyle = EnemyCombatStyle.Melee;
 
         public bool recruitableOnDefeat = false;
@@ -47,7 +47,7 @@ namespace UPlayGround.Editor.P09Builder
     }
 
     /// <summary>
-    /// 공격 데이터(EnemyAttackDataSO) 생성 시 적용할 공격 배율을 계산한다.
+    /// 공격 Ability 생성 시 적용할 공격 배율을 계산한다.
     /// 체력/이동 등 런타임 스탯 튜닝은 MonsterScalingSO 기반 생성 경로가 담당하므로 여기서는 공격 배율만 다룬다.
     /// </summary>
     internal static class EnemyStatTuningUtility

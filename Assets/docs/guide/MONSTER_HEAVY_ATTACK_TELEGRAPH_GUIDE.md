@@ -9,11 +9,11 @@
 
 몬스터가 공격 또는 스킬을 사용하기 전에 바닥에 공격 범위를 표시해 플레이어가 회피/가드/거리 조절을 판단할 수 있게 하는 텔레그래프 시스템 가이드.
 
-현재 프로젝트에는 원형 텔레그래프의 런타임 기반과 MotionSet 타임라인 이벤트가 들어와 있다. `EnemyAttackInfo`에서 공격별 사용 여부, 형태, FX 키, 위치 기준, 타이밍 제어 방식을 설정하고, `EnemyAttackState` 또는 `TelegraphEvent`가 `EnemyCombat.BeginTelegraph()`를 호출한다. 실제 표시 위치와 크기는 `HitPhaseData.attackOffset` / `attackRadius` 기준으로 계산되며, AOE 장판형 공격은 텔레그래프가 예약한 위치를 실제 판정 위치로 재사용할 수 있다.
+현재 프로젝트에는 원형 텔레그래프의 런타임 기반과 MotionSet 타임라인 이벤트가 들어와 있다. `AbilityAttackInfo`에서 공격별 사용 여부, 형태, FX 키, 위치 기준, 타이밍 제어 방식을 설정하고, `EnemyAttackState` 또는 `TelegraphEvent`가 `EnemyCombat.BeginTelegraph()`를 호출한다. 실제 표시 위치와 크기는 `HitPhaseData.attackOffset` / `attackRadius` 기준으로 계산되며, AOE 장판형 공격은 텔레그래프가 예약한 위치를 실제 판정 위치로 재사용할 수 있다.
 
 핵심 방향은 다음과 같다.
 
-- 공격 데이터(`EnemyAttackInfo`)가 텔레그래프 사용 여부와 형태를 결정한다.
+- 공격 데이터(`AbilityAttackInfo`)가 텔레그래프 사용 여부와 형태를 결정한다.
 - 실제 판정 데이터(`HitPhaseData`)를 시각 범위의 기준으로 사용한다.
 - 공격 상태 진입/업데이트/종료 지점에서 생성, 추적, 정리를 보장한다.
 - 1차 구현은 현재 코드와 맞는 `Circle` 중심으로 유지한다.
@@ -28,10 +28,10 @@ BehaviorTree
 └── ExecuteEnemyAttackNode
         └── EnemyAttackState 진입
                 ├── EnemyCombat.SelectAndExecuteSkill(distance)
-                │       └── EnemyAttackDataSO.skills 중 EnemyAttackInfo 선택
+                │       └── AbilitySetSO.additionalAbilities 중 AbilityAttackInfo 선택
                 ├── ActorAnimator.PlayMotion(currentSkill.baseInfo.animKey)
                 ├── EnemyCombat.BeginCurrentSkillTelegraph()
-                │       ├── EnemyAttackInfo.useTelegraph 확인
+                │       ├── AbilityAttackInfo.useTelegraph 확인
                 │       ├── useMotionEventTelegraph == false일 때 자동 시작
                 │       ├── TelegraphShape.Circle 확인
                 │       ├── TelegraphAnchorType 기준 위치 계산
@@ -52,8 +52,8 @@ EnemyAttackState.OnExit
 
 | 파일 | 역할 |
 |------|------|
-| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `TelegraphShape`, `HitPhaseData`, `EnemyAttackInfo` 정의 |
-| `Assets/02.Scripts/Data/Combat/EnemyAttackDataSO.cs` | 몬스터 스킬 목록, 거리 조건, 가중치 선택 |
+| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `TelegraphShape`, `HitPhaseData`, `AbilityAttackInfo` 정의 |
+| `Assets/02.Scripts/Data/Combat/AbilitySetSO.cs` | 몬스터 스킬 목록, 거리 조건, 가중치 선택 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` | 스킬 선택, 히트 판정, 텔레그래프 생성/갱신/정리 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyAttackState.cs` | 공격 상태 진입, 모션 재생, 텔레그래프 생명주기 호출 |
 | `Assets/02.Scripts/Data/Event/Animation/MotionEvent_Telegraph.cs` | `TelegraphEvent` 정의. MotionSet에서 텔레그래프 시작/종료 타이밍 제어 |
@@ -96,7 +96,7 @@ public enum TelegraphAnchorType
 | `CasterOffset` | 기존 방식. `_attackOrigin`과 `HitPhaseData.attackOffset` 기준 |
 | `TargetPosition` | 실행 시점의 현재 타겟 위치 기준. 지면에 미리 찍고 N초 뒤 폭발하는 AOE에 사용 |
 
-### EnemyAttackInfo 텔레그래프 필드
+### AbilityAttackInfo 텔레그래프 필드
 
 | 필드 | 설명 |
 |------|------|
@@ -236,7 +236,7 @@ Vector3 position = _attackOrigin.position
 
 ### 1. 공격 데이터 설정
 
-`EnemyAttackDataSO`의 대상 `EnemyAttackInfo`에서 다음을 설정한다.
+`AbilitySetSO`의 대상 `AbilityAttackInfo`에서 다음을 설정한다.
 
 | 필드 | 권장값 |
 |------|------|
@@ -252,7 +252,7 @@ Vector3 position = _attackOrigin.position
 
 ### 2. FX 프리팹 준비
 
-기본 Circle 텔레그래프는 `"EnemyHeavyAttackTelegraph_Circle"` 키를 사용한다. 해당 키가 `FXPrefabDatabase`에 등록되어 있어야 한다. 공격별 다른 FX가 필요하면 `EnemyAttackInfo.telegraphFXKey`에 별도 키를 입력한다.
+기본 Circle 텔레그래프는 `"EnemyHeavyAttackTelegraph_Circle"` 키를 사용한다. 해당 키가 `FXPrefabDatabase`에 등록되어 있어야 한다. 공격별 다른 FX가 필요하면 `AbilityAttackInfo.telegraphFXKey`에 별도 키를 입력한다.
 
 권장 프리팹 기준:
 
@@ -270,7 +270,7 @@ Vector3 position = _attackOrigin.position
 
 | 필드 | 확인 |
 |------|------|
-| `_attackData` | 텔레그래프 설정이 들어간 `EnemyAttackDataSO` |
+| `_abilitySet` | 텔레그래프 설정이 들어간 `AbilitySetSO` |
 | `_attackOrigin` | 공격 기준 Transform. 비어 있으면 `transform` 사용 |
 | `_targetLayer` | 실제 히트 판정 대상 |
 | `_telegraphGroundLayers` | 바닥 레이어 포함 여부 |
@@ -279,7 +279,7 @@ Vector3 position = _attackOrigin.position
 
 타겟 위치에 장판을 미리 표시하고 2초 뒤 폭발하는 공격은 다음처럼 설정한다.
 
-`EnemyAttackInfo`:
+`AbilityAttackInfo`:
 
 | 필드 | 값 |
 |------|------|
@@ -328,7 +328,7 @@ MotionSet:
 
 몬스터 주변 또는 전방에 원형 범위를 표시하고 실제 공격 위치도 몬스터 기준으로 계산하는 방식이다.
 
-1. `EnemyAttackDataSO`에서 대상 스킬을 연다.
+1. `AbilitySetSO`에서 대상 스킬을 연다.
 2. `useTelegraph = true`로 설정한다.
 3. `telegraphShape = Circle`로 둔다.
 4. `telegraphAnchorType = CasterOffset`으로 둔다.
@@ -344,7 +344,7 @@ MotionSet:
 
 플레이어 위치에 장판을 먼저 찍고 N초 뒤 같은 위치에서 폭발시키는 방식이다.
 
-1. `EnemyAttackDataSO`에서 대상 스킬을 연다.
+1. `AbilitySetSO`에서 대상 스킬을 연다.
 2. `useTelegraph = true`로 설정한다.
 3. `telegraphShape = Circle`로 둔다.
 4. `telegraphAnchorType = TargetPosition`으로 설정한다.
@@ -417,7 +417,7 @@ MotionSet:
 
 1. `FXPrefabDatabase`에 `EnemyHeavyAttackTelegraph_Circle` 키가 등록되어 있는지 확인한다.
 2. 몬스터 프리팹의 `EnemyCombat._telegraphGroundLayers`가 지형 레이어를 포함하는지 확인한다.
-3. `EnemyAttackDataSO`에서 `useTelegraph`와 반경 값을 확인한다.
+3. `AbilitySetSO`에서 `useTelegraph`와 반경 값을 확인한다.
 4. MotionSet 방식이면 `TelegraphEvent`와 `BeginCollisionEvent`의 `hitPhaseIndex`가 같은지 확인한다.
 5. 플레이 모드에서 표시 위치와 실제 피격 위치를 비교한다.
 6. 경사 지형에서 장판이 바닥에 붙는지 확인한다.
@@ -459,7 +459,7 @@ Unity/URP에서 적 공격 범위 표시는 보통 두 방식으로 구현한다
 
 ### 1. FX 키 데이터화
 
-현재 `EnemyCombat`는 `EnemyAttackInfo.telegraphFXKey`가 비어 있을 때만 기본 Circle 키를 사용한다. 형태가 늘어나면 형태별 기본 키 매핑을 확장하면 된다.
+현재 `EnemyCombat`는 `AbilityAttackInfo.telegraphFXKey`가 비어 있을 때만 기본 Circle 키를 사용한다. 형태가 늘어나면 형태별 기본 키 매핑을 확장하면 된다.
 
 현재 필드:
 
@@ -513,7 +513,7 @@ EnemyTelegraphView
 
 필요 작업:
 
-- `EnemyAttackInfo`에 각도 필드 추가
+- `AbilityAttackInfo`에 각도 필드 추가
 - 부채꼴 Mesh 프리팹 또는 런타임 Mesh 생성
 - 실제 히트 판정도 `OverlapSphere + Vector3.Angle` 필터로 맞추는 정책 검토
 
@@ -541,7 +541,7 @@ public float telegraphWidth = 1.2f;
 
 ### 5. MotionEvent 기반 타이밍 제어
 
-`MotionEvent_Telegraph.cs`에는 `TelegraphEvent`가 구현되어 있다. 공격별로 예고 시작/종료 타이밍을 정밀하게 다루려면 `EnemyAttackInfo.useMotionEventTelegraph`를 켜고 MotionSet 타임라인에 `TelegraphEvent`를 배치한다.
+`MotionEvent_Telegraph.cs`에는 `TelegraphEvent`가 구현되어 있다. 공격별로 예고 시작/종료 타이밍을 정밀하게 다루려면 `AbilityAttackInfo.useMotionEventTelegraph`를 켜고 MotionSet 타임라인에 `TelegraphEvent`를 배치한다.
 
 권장 이벤트:
 
@@ -580,7 +580,7 @@ MotionSet 규칙:
 
 ## 주의 사항
 
-- 현재 런타임은 `Circle`만 지원한다. `EnemyAttackInfo.telegraphShape`를 `Cone` 또는 `Line`으로 설정하면 경고 로그만 출력되고 표시되지 않는다.
+- 현재 런타임은 `Circle`만 지원한다. `AbilityAttackInfo.telegraphShape`를 `Cone` 또는 `Line`으로 설정하면 경고 로그만 출력되고 표시되지 않는다.
 - 텔레그래프 크기는 `attackRadius * telegraphRadiusScale`이다. 프리팹 기본 크기와 이 계산식이 맞지 않으면 실제 판정보다 크게 또는 작게 보인다.
 - `ClearTelegraphs()`는 현재 `Destroy()`를 사용한다. FX 풀링을 강하게 쓰는 프로젝트 정책과 맞추려면 반환 API로 바꾸는 것이 좋다.
 - `Motion Warp` 공격은 `lockPositionOnStart == false`일 때 공격자가 이동하면서 텔레그래프도 매 프레임 갱신된다. 플레이어 입장에서는 경고 위치가 미끄러져 보일 수 있으므로 공격별로 추적형/고정형을 선택해야 한다.

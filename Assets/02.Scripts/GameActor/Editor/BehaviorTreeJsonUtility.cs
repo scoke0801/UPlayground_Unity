@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -67,7 +67,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             typeof(FloatComparisonType),
             typeof(EnemyTransitionStateType),
             typeof(IntComparisonType),
-            typeof(EnemyAttackCategory),
+            typeof(AbilityAttackCategory),
             typeof(List<float>)
         };
 

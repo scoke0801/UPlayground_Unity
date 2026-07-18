@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerGreatSwordAttackData.Combat.SwapEvade.Default
   animKey: 100
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 100
       attackType: 0

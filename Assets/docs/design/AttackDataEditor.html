@@ -720,7 +720,7 @@ function App() {
       <div className="topbar">
         <span style={{fontSize:12, color:'var(--t1)', fontFamily:'var(--mono)'}}>공격 데이터 에디터</span>
         <span style={{color:'var(--border)'}}>|</span>
-        <span className="topbar-path">{isEnemy ? 'EnemyAttackDataSO' : 'PlayerAttackDataSO'} · Assets/10.Datas/Combat/</span>
+        <span className="topbar-path">{isEnemy ? 'AbilitySetSO' : 'PlayerAttackDataSO'} · Assets/10.Datas/Combat/</span>
         <span style={{flex:1}}/>
         <button className="tbtn" onClick={toggleCompare} style={{color: compareMode ? 'var(--hit)' : 'inherit', background: compareMode ? 'var(--hit-dim)' : 'var(--bg4)'}}>
           {compareMode ? `비교 중 (${cmpIds.size})` : '⟺ 비교'}
@@ -737,7 +737,7 @@ function App() {
         </button>
         <button className="tab" style={tabStyle('enemy')} onClick={() => { setTab('enemy'); setSelId(null); setCompareMode(false); setCmpIds(new Set()); }}>
           <span style={{width:7, height:7, borderRadius:'50%', background:'var(--enemy)', display:'inline-block'}}/>
-          EnemyAttackDataSO
+          AbilitySetSO
         </button>
       </div>
 

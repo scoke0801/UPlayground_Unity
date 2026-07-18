@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerSwordShieldAttackData.Combat.Jump_01.Default
   animKey: 401
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 401
       attackType: 0

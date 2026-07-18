@@ -484,7 +484,7 @@ Player (PlayerActor, 단일 고정)
 | `PlayerActorAnimator._playerActorAnimationMotionSet` | 캐릭터별 애니메이션 세트 SO | `CharacterModelData`에서 주입 |
 | `ActorAnimator._animator` (AnimancerComponent) | 활성 Model의 AnimancerComponent 참조 | `GetComponentInChildren` 재획득 |
 | `Animator` (UnityAnimator) | Avatar가 다르면 `Rebind()` 필요 | CharacterModelData에서 Animator 제공 |
-| `PlayerCombat._attackData` | 캐릭터별 공격 데이터 SO | `CharacterModelData`에서 주입 |
+| `PlayerCombat._abilitySet` | 캐릭터별 공격 데이터 SO | `CharacterModelData`에서 주입 |
 | `PlayerEquipment` 무기 타입 + Constraint 본 | 캐릭터마다 장착 무기 다름 | `CharacterModelData`에서 Constraint 제공 |
 | `GameActor._socketDict` | 소켓 Transform = Model 내부 본 | `CharacterModelData`에서 소켓 맵 제공 |
 | `ActorColorChanger` | 렌더러 목록이 Model에 종속 | `InitializeRendererData()` 재호출 |
@@ -697,7 +697,7 @@ _playerActorAnimator.RefreshMotionSet(data.motionSet, data.animancerComponent);
 ```csharp
 public void RefreshAttackData(PlayerAttackDataSO newData)
 {
-    _attackData = newData;
+    _abilitySet = newData;
     // 진행 중인 공격 콤보 초기화
     ResetCombo();
 }
@@ -959,7 +959,7 @@ private bool TryFindEntryAttackTarget(CharacterModelData modelData, out MonsterA
 
 | 자산 | 담당 | 편집 위치 |
 |------|------|-----------|
-| `PlayerAttackDataSO.entryAttack` (PlayerAttackInfo) | 공격 데이터 (모션·히트박스·VFX) | PlayerAttackDataSO 인스펙터 / 전용 에디터 창의 **"등장" 탭** |
+| `PlayerAttackDataSO.entryAttack` (AbilityAttackInfo) | 공격 데이터 (모션·히트박스·VFX) | PlayerAttackDataSO 인스펙터 / 전용 에디터 창의 **"등장" 탭** |
 | `CharacterModelData.entryAttackRange / requireLineOfSight` | 캐릭터별 검출 반경·LOS | 각 Model 프리팹 인스펙터 |
 | `PartyConfigSO.defaultEntryAttackRange / entryAttackTargetLayer / entryAttackLineOfSightBlocker` | 글로벌 폴백·검출 레이어 | `Resources/Data/PartyConfig.asset` |
 
@@ -968,13 +968,13 @@ private bool TryFindEntryAttackTarget(CharacterModelData modelData, out MonsterA
 ```csharp
 // Assets/02.Scripts/Data/Combat/PlayerAttackDataSO.cs
 [Tooltip("교체 등장 공격 데이터. 비어 있으면 약 공격 첫 번째로 대체된다.")]
-public PlayerAttackInfo entryAttack;
+public AbilityAttackInfo entryAttack;
 ```
 
 기존 `counterAttack` / `parryCounterAttack` 와 같은 패턴. `baseInfo.animKey`, `baseInfo.hitPhases` (다단 공격), `canBeInterrupted`, `hitAngle` 모두 동일하게 설정 가능.  
 비워두면 `liteComboAttackList[0]` 으로 폴백한다 (`PlayerCombat.ExecuteEntryAttack`).
 
-**에디터 통합:** `PlayerAttackDataSOEditor` 와 `PlayerAttackDataSOWindow` 가 공유하는 `PlayerAttackDataSODrawer` 에 **"등장" 탭**(시안 색 액센트)을 추가했다. 카운터 탭과 동일하게 단일 `PlayerAttackInfo` 카드 + HitPhase 미니맵을 제공한다.
+**에디터 통합:** `PlayerAttackDataSOEditor` 와 `PlayerAttackDataSOWindow` 가 공유하는 `PlayerAttackDataSODrawer` 에 **"등장" 탭**(시안 색 액센트)을 추가했다. 카운터 탭과 동일하게 단일 `AbilityAttackInfo` 카드 + HitPhase 미니맵을 제공한다.
 
 #### 13.4.2 캐릭터별 검출 설정 — `CharacterModelData`
 
@@ -1111,9 +1111,9 @@ private void ConsumeEntryAttackQueue()
 // Component/Player/PlayerCombat.cs (ExecuteCounterAttack 옆)
 public AttackData ExecuteEntryAttack()
 {
-    var source = _attackData.entryAttack?.baseInfo != null
-        ? _attackData.entryAttack
-        : (_attackData.liteComboAttackList.Count > 0 ? _attackData.liteComboAttackList[0] : null);
+    var source = _abilitySet.entryAttack?.baseInfo != null
+        ? _abilitySet.entryAttack
+        : (_abilitySet.liteComboAttackList.Count > 0 ? _abilitySet.liteComboAttackList[0] : null);
 
     if (source == null) return null;
 
@@ -1151,7 +1151,7 @@ public AttackData ExecuteEntryAttack()
 
 | 항목 | 파일 / 위치 | 상태 |
 |------|------------|------|
-| `PlayerAttackInfo entryAttack` 필드 | `Data/Combat/PlayerAttackDataSO.cs` | ✅ |
+| `AbilityAttackInfo entryAttack` 필드 | `Data/Combat/PlayerAttackDataSO.cs` | ✅ |
 | `ExecuteEntryAttack()` (lite[0] 폴백) | `GameActor/Component/Player/PlayerCombat.cs` | ✅ |
 | `entryAttackRange`, `requireLineOfSight` 필드 | `Component/Player/CharacterModelData.cs` | ✅ |
 | `defaultEntryAttackRange`, `entryAttackTargetLayer`, `entryAttackLineOfSightBlocker` | `Data/Party/PartyConfigSO.cs` | ✅ |
@@ -1159,7 +1159,7 @@ public AttackData ExecuteEntryAttack()
 | `_isEntryAttack` 라우팅 (`OnEnter` + `GetAnimKey` 1순위 분기) | `GameActor/State/Player/PlayerAttackState.cs` | ✅ |
 | `RequestSwapTo` 분기, `TryFindEntryAttackTarget` 헬퍼 | `Manager/Party/PartyManager.cs` | ✅ |
 | **"등장" 탭** (`DrawEntryAttack` + `_entry` SerializedProperty) | `Data/Combat/Editor/PlayerAttackDataSODrawer.cs` | ✅ |
-| 캐릭터별 `entryAttack` 데이터 (PlayerAttackInfo 채우기) | 각 캐릭터의 `PlayerAttackDataSO` | ⚠️ 에디터 작업 필요 |
+| 캐릭터별 `entryAttack` 데이터 (AbilityAttackInfo 채우기) | 각 캐릭터의 `PlayerAttackDataSO` | ⚠️ 에디터 작업 필요 |
 | 글로벌 폴백 `PartyConfig.asset` 의 기본값 (반경/레이어) | `Assets/Resources/Data/PartyConfig.asset` | ⚠️ 에디터 작업 필요 |
 | 모델별 `entryAttackRange` (캐릭터 튜닝값) | 각 `CharacterModelData` 인스펙터 | ⚠️ 에디터 작업 필요 |
 
@@ -1168,7 +1168,7 @@ public AttackData ExecuteEntryAttack()
 | 항목 | 결정 |
 |------|------|
 | 전용 `PlayerEntryAttackState` 도입 여부 | ❌ **재사용**. `_attackInputCondition = Pressed` 로 일반 `PlayerAttackState` 진입 후, `_isEntryAttackPending` 플래그로 `GetAnimKey()` 가 `ExecuteEntryAttack()` 로 라우팅. 이유: MotionSet 타임라인 이벤트(히트박스/VFX/SFX) 인프라와 카운터/스킬 라우팅 패턴을 그대로 활용 가능. |
-| 등장 공격 데이터 위치 | ✅ **`PlayerAttackDataSO.entryAttack` (PlayerAttackInfo)** 로 통일. `counterAttack` / `parryCounterAttack` 와 동일 패턴. 비어 있으면 `liteComboAttackList[0]` 폴백. PlayerAttackDataSO 에디터의 **"등장" 탭**에서 편집. |
+| 등장 공격 데이터 위치 | ✅ **`PlayerAttackDataSO.entryAttack` (AbilityAttackInfo)** 로 통일. `counterAttack` / `parryCounterAttack` 와 동일 패턴. 비어 있으면 `liteComboAttackList[0]` 폴백. PlayerAttackDataSO 에디터의 **"등장" 탭**에서 편집. |
 | 등장 공격이 적 `Poise` 무시 여부 | ❌ **일반 공격과 동일**. 보상성이 아닌 컨텍스트 자동 발동이므로 특수 처리 안 함. |
 | LOS 차단 레이어 | ✅ **`PartyConfigSO.entryAttackLineOfSightBlocker`로 인스펙터 노출**. 기본값 0 (LOS 검사 비활성). `requireLineOfSight = true` 인 캐릭터에 한해 적용. |
 | 어시스트 vs 등장 공격 우선순위 | ✅ **어시스트 우선**, 배타. PartyManager `if/else if`로 강제. AttackState 라우팅 우선순위는 `ParryCounter > Counter > Entry > Skill > 일반`. |

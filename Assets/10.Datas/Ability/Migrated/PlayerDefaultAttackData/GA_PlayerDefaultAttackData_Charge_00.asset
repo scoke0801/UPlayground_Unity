@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.Charge_00.Default
   animKey: 620
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 620
       attackType: 0

@@ -106,6 +106,8 @@ namespace UPlayGround
             if (_poiseStat == null) _poiseStat = GetComponent<PoiseStat>();
             if (_breakGauge == null) _breakGauge = GetComponent<MonsterBreakGauge>();
             BindBreakGauge();
+            // Definition 없이 직접 배치된 몬스터는 프리팹에 직렬화된 AbilitySet을 사용한다.
+            _combat?.Init(_combat.AbilitySet);
             ApplyDefinitionData(Definition);
         }
 
@@ -698,6 +700,7 @@ namespace UPlayGround
 
             _dropTable = definition.EffectiveDropTable;
 
+            Abilities?.SetAbilitySet(definition.EffectiveAbilitySet);
             _combat?.Init(definition);
 
             _groundAIController?.Init(definition);

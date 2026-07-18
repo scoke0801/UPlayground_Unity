@@ -10,7 +10,7 @@ Unity 6 (6000.0.60f1) 기반 TPS 액션 게임용 캐릭터 프리팹 자동 생
 
 ### 1.1 배경
 
-P09_Modular_Humanoid 에셋은 159개의 ScriptableObject로 구성된 모듈러 커스터마이징 시스템을 제공하지만, 데모 씬용 런타임 시스템에 머물러 있어 게임 내 NPC/Player/Enemy 프리팹을 손수 조립해야 한다. 갑옷 5부위 × 13개 옵션, 헤어 14종, 얼굴 11종, 무기 13+종을 매번 인스펙터로 끌어다 맞추면 캐릭터 1체당 30분 이상이 소요되며, 캐릭터마다 `MonsterActor`/`EnemyMovementController`/`KinematicCharacterMotor` 등 10여 개의 필수 컴포넌트와 3종 이상의 ScriptableObject(`EnemyStatsSO`, `EnemyBehaviorSO`, `EnemyAttackDataSO`)를 누락 없이 셋업해야 하므로 휴먼 에러가 잦다.
+P09_Modular_Humanoid 에셋은 159개의 ScriptableObject로 구성된 모듈러 커스터마이징 시스템을 제공하지만, 데모 씬용 런타임 시스템에 머물러 있어 게임 내 NPC/Player/Enemy 프리팹을 손수 조립해야 한다. 갑옷 5부위 × 13개 옵션, 헤어 14종, 얼굴 11종, 무기 13+종을 매번 인스펙터로 끌어다 맞추면 캐릭터 1체당 30분 이상이 소요되며, 캐릭터마다 `MonsterActor`/`EnemyMovementController`/`KinematicCharacterMotor` 등 10여 개의 필수 컴포넌트와 3종 이상의 ScriptableObject(`EnemyStatsSO`, `EnemyBehaviorSO`, `AbilitySetSO`)를 누락 없이 셋업해야 하므로 휴먼 에러가 잦다.
 
 ### 1.2 목적
 
@@ -330,7 +330,7 @@ Actor 타입에 따라 인스펙터가 동적으로 바뀐다.
   ◉ 기존 SO 사용
   ○ 새로 생성:    Phases: 1   AggroRange: 8m
 
-▼ EnemyAttackDataSO (다중 추가 가능)
+▼ AbilitySetSO (다중 추가 가능)
   [+] Add  [Attack01 ▼] [Attack02 ▼]
 
 ▼ Combat Style
@@ -455,7 +455,7 @@ GenerateActorDescStep.Execute(ctx)
 |------|---------|------------|
 | `{name}_Stats` | `EnemyStatsSO` | `Default_EnemyStats` 템플릿 SO 복제 |
 | `{name}_Behavior` | `EnemyBehaviorSO` | 1페이즈 기본 행동 |
-| `{name}_Attack01` | `EnemyAttackDataSO` | 1단 히트박스 기본값 |
+| `{name}_Attack01` | `AbilitySetSO` | 1단 히트박스 기본값 |
 
 생성된 SO는 `AttachActorComponentsStep` 종료 후 `AssignStatsStep`에서 `MonsterActor`/`EnemyCombat`/`EnemyAIController`의 SerializedField에 SerializedObject API로 주입.
 

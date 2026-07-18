@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Animancer;
@@ -100,9 +100,6 @@ namespace UPlayGround.Editor.P09Builder
             if (config != null && config.Stats != null && config.Stats.createNewBehavior)
                 yield return new EnemyBehaviorDescDef();
 
-            // AttackData: 기존 SO가 지정돼있으면 생성하지 않음
-            if (config == null || config.Stats == null || config.Stats.attackDataSo == null)
-                yield return new EnemyAttackDataDescDef();
         }
 
         public void WireDescAssets(GameObject root, List<ScriptableObject> generatedDescs, CharacterBuildConfig config)
@@ -116,8 +113,7 @@ namespace UPlayGround.Editor.P09Builder
             var behavior = FindFirst<EnemyBehaviorSO>(generatedDescs)
                            ?? (config?.Stats?.existingBehaviorSo as EnemyBehaviorSO);
 
-            var attackData = FindFirst<EnemyAttackDataSO>(generatedDescs)
-                             ?? (config?.Stats?.attackDataSo as EnemyAttackDataSO);
+            var abilitySet = config?.Stats?.abilitySet;
 
             var poiseData = FindFirst<PoiseSO>(generatedDescs)
                             ?? (config?.Stats?.existingPoiseSo as PoiseSO);
@@ -137,8 +133,8 @@ namespace UPlayGround.Editor.P09Builder
             if (aiController != null && behavior != null)
                 ReflectionUtil.SetField(aiController, "_behaviorData", behavior);
 
-            if (combat != null && attackData != null)
-                ReflectionUtil.SetField(combat, "_attackData", attackData);
+            if (combat != null && abilitySet != null)
+                ReflectionUtil.SetField(combat, "_abilitySet", abilitySet);
         }
 
         // ---------- helpers ----------
@@ -276,44 +272,5 @@ namespace UPlayGround.Editor.P09Builder
             }
         }
 
-        private sealed class EnemyAttackDataDescDef : IDescDef
-        {
-            public Type DescType => typeof(EnemyAttackDataSO);
-            public string Suffix => "_AttackData";
-
-            public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
-            {
-                if (so is EnemyAttackDataSO attackData && config?.Stats != null)
-                {
-                    float attackMultiplier = EnemyStatTuningUtility.CalculateAttackMultiplier(config);
-                    var skill = new EnemyAttackInfo
-                    {
-                        baseInfo = new AttackInfoBase
-                        {
-                            attackType = AttackType.Melee,
-                            hitPhases = new List<HitPhaseData>
-                            {
-                                new HitPhaseData
-                                {
-                                    damage = config.Stats.defaultAttackDamage * attackMultiplier,
-                                    poiseDamage = 30f,
-                                    reactionType = AttackReactionType.Hit,
-                                }
-                            }
-                        },
-                        skillType = SkillType.Attack,
-                        selectionWeight = 10f,
-                        minRange = 0f,
-                        maxRange = Mathf.Max(1f, config.Stats.optimalCombatDistance + 0.5f),
-                        cooldown = 2f,
-                    };
-
-                    attackData.skills.Clear();
-                    attackData.skills.Add(skill);
-                }
-
-                EditorUtility.SetDirty(so);
-            }
-        }
     }
 }

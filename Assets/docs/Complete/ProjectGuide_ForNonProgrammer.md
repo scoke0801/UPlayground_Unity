@@ -182,7 +182,7 @@ GameActor (모든 존재의 공통 기반)
 | ItemDatabase | 전체 아이템 목록 |
 | EnemyStatsSO | 몬스터 스탯 (체력, 공격력 등) |
 | EnemyBehaviorSO | 몬스터 AI 행동 패턴 (페이즈별) |
-| EnemyAttackDataSO | 몬스터 공격 데이터 (다단 히트 포함) |
+| AbilitySetSO | 몬스터 공격 데이터 (다단 히트 포함) |
 | PlayerAttackDataSO | 플레이어 공격 데이터 |
 | PartyConfigSO | 시작 파티 구성 |
 | MotionSetAsset | 애니메이션 타임라인 |

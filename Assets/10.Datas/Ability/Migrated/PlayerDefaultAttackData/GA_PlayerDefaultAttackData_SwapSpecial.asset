@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.SwapSpecial.Default
   animKey: 555
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 555
       attackType: 0

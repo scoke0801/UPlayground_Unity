@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerKatanaAttackData.Combat.Jump_06.Default
   animKey: 406
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 406
       attackType: 0

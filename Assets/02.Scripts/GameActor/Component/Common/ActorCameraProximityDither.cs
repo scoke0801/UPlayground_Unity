@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Components
 {
@@ -32,6 +33,7 @@ namespace UPlayGround.Components
         private const string LilToonCutoutShaderName = "Hidden/lilToonCutout";
         private const string LilToonCutoutOutlineShaderName = "Hidden/lilToonCutoutOutline";
         private const string KeepAliveResourcePath = "Rendering/LilToonDissolveKeepAlive";
+        private const string DitherResourcePath = "Rendering/LDR_LLL1_0";
         private const string DitherKeyword = "ETC1_EXTERNAL_ALPHA";
         private const string AlphaMaskKeyword = "_COLOROVERLAY_ON";
 
@@ -56,16 +58,18 @@ namespace UPlayGround.Components
         private static Texture2D _ditherTexture;
 
         [Header("카메라 근접 디더")]
-        [SerializeField, Min(0f)] private float _insideHideDistance = 0.08f;
-        [SerializeField, Min(0.01f)] private float _maximumFadeDistance = 0.3f;
-        [SerializeField, Min(0.02f)] private float _fadeStartDistance = 0.85f;
-        [Tooltip("근접 상태의 최대 투명도. 화면 공간 디더 노출을 줄이기 위해 기본값은 65%, 상한은 85%로 제한한다.")]
-        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.65f;
+        [Tooltip("카메라가 KCC 캡슐 안쪽으로 들어온 뒤 렌더링을 중단할 깊이.")]
+        [SerializeField, Min(0f)] private float _insideHideDistance = 0.03f;
+        [SerializeField, Min(0.01f)] private float _maximumFadeDistance = 0.25f;
+        [SerializeField, Min(0.02f)] private float _fadeStartDistance = 0.65f;
+        [Tooltip("근접 상태의 최대 투명도")]
+        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.18f;
         [SerializeField, Min(0f)] private float _fadeSpeed = 8f;
 
         private readonly List<RendererInfo> _rendererInfos = new();
         private readonly List<RuntimeMaterialInfo> _runtimeMaterials = new();
         private Camera _camera;
+        private CapsuleCollider _actorCapsule;
         private float _visibility = 1f;
         private bool _isCameraInside;
         private bool _runtimePrepared;
@@ -73,6 +77,7 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
+            ResolveActorCapsule();
             RefreshRenderers();
         }
 
@@ -107,7 +112,7 @@ namespace UPlayGround.Components
                 return;
             }
 
-            if (Vector3.Distance(cameraPosition, visualCenter) <= _insideHideDistance)
+            if (IsCameraInsideActor(cameraPosition, visualCenter))
             {
                 EnsureRuntimeMaterials();
                 _visibility = 0f;
@@ -123,10 +128,11 @@ namespace UPlayGround.Components
                 cameraDistance);
             float smoothDistance = normalized * normalized * (3f - 2f * normalized);
             // 페이드 구간 초입에서는 디더 점이 갑자기 많이 드러나지 않도록 감쇠량을
-            // 한 번 더 제곱한다. 최대 근접 구간에서는 설정한 최대 투명도에 정확히 도달한다.
+            // 4제곱으로 감쇠해 카메라가 매우 가까워졌을 때만 패턴이 뚜렷해지게 한다.
             float fadeAmount = 1f - smoothDistance;
             fadeAmount *= fadeAmount;
-            float maximumTransparency = Mathf.Clamp(_maximumTransparency, 0f, 0.85f);
+            fadeAmount *= fadeAmount;
+            float maximumTransparency = Mathf.Clamp(_maximumTransparency, 0f, 0.5f);
             float targetVisibility = 1f - maximumTransparency * fadeAmount;
             if (targetVisibility < 0.999f)
                 EnsureRuntimeMaterials();
@@ -179,6 +185,102 @@ namespace UPlayGround.Components
             cameraDistance = Mathf.Sqrt(nearestDistanceSqr);
             visualCenter = combinedBounds.center;
             return true;
+        }
+
+        private void ResolveActorCapsule()
+        {
+            ActorMovementController movementController =
+                GetComponent<ActorMovementController>();
+            if (movementController?.Motor != null)
+                _actorCapsule = movementController.Motor.Capsule;
+        }
+
+        private bool IsCameraInsideActor(
+            Vector3 cameraPosition,
+            Vector3 visualCenter)
+        {
+            if (_actorCapsule == null)
+                ResolveActorCapsule();
+
+            if (_actorCapsule == null ||
+                !_actorCapsule.enabled ||
+                !_actorCapsule.gameObject.activeInHierarchy)
+            {
+                // KCC가 없는 예외 액터는 기존 중심 기반 판정을 유지한다.
+                return Vector3.Distance(cameraPosition, visualCenter) <=
+                       _insideHideDistance;
+            }
+
+            float signedDistance =
+                GetCapsuleSignedDistance(_actorCapsule, cameraPosition);
+            return signedDistance <= -_insideHideDistance;
+        }
+
+        private static float GetCapsuleSignedDistance(
+            CapsuleCollider capsule,
+            Vector3 worldPosition)
+        {
+            Transform capsuleTransform = capsule.transform;
+            Vector3 scale = capsuleTransform.lossyScale;
+            Vector3 axisLocal;
+            float axisScale;
+            float radiusScale;
+
+            switch (capsule.direction)
+            {
+                case 0:
+                    axisLocal = Vector3.right;
+                    axisScale = Mathf.Abs(scale.x);
+                    radiusScale = Mathf.Max(
+                        Mathf.Abs(scale.y),
+                        Mathf.Abs(scale.z));
+                    break;
+                case 2:
+                    axisLocal = Vector3.forward;
+                    axisScale = Mathf.Abs(scale.z);
+                    radiusScale = Mathf.Max(
+                        Mathf.Abs(scale.x),
+                        Mathf.Abs(scale.y));
+                    break;
+                default:
+                    axisLocal = Vector3.up;
+                    axisScale = Mathf.Abs(scale.y);
+                    radiusScale = Mathf.Max(
+                        Mathf.Abs(scale.x),
+                        Mathf.Abs(scale.z));
+                    break;
+            }
+
+            Vector3 axis =
+                capsuleTransform.TransformDirection(axisLocal).normalized;
+            Vector3 center = capsuleTransform.TransformPoint(capsule.center);
+            float radius = capsule.radius * radiusScale;
+            float height = Mathf.Max(
+                capsule.height * axisScale,
+                radius * 2f);
+            float segmentHalfLength = height * 0.5f - radius;
+            Vector3 start = center - axis * segmentHalfLength;
+            Vector3 end = center + axis * segmentHalfLength;
+            Vector3 closest = ClosestPointOnSegment(
+                worldPosition,
+                start,
+                end);
+            return Vector3.Distance(worldPosition, closest) - radius;
+        }
+
+        private static Vector3 ClosestPointOnSegment(
+            Vector3 point,
+            Vector3 start,
+            Vector3 end)
+        {
+            Vector3 segment = end - start;
+            float lengthSqr = segment.sqrMagnitude;
+            if (lengthSqr <= Mathf.Epsilon)
+                return start;
+
+            float t = Mathf.Clamp01(
+                Vector3.Dot(point - start, segment) / lengthSqr);
+            return start + segment * t;
         }
 
         private void OnDisable()
@@ -234,8 +336,17 @@ namespace UPlayGround.Components
             if (_runtimePrepared)
                 return;
 
+            Texture2D ditherTexture = GetDitherTexture();
+            if (ditherTexture == null)
+            {
+                Debug.LogError(
+                    "[ActorCameraProximityDither] " +
+                    "LDR_LLL1_0 텍스처를 불러오지 못했습니다.",
+                    this);
+                return;
+            }
+
             _runtimePrepared = true;
-            Texture2D ditherTexture = GetOrCreateDitherTexture();
             var preparedBySource = new Dictionary<Material, RuntimeMaterialInfo>();
             foreach (RendererInfo info in _rendererInfos)
             {
@@ -511,68 +622,15 @@ namespace UPlayGround.Components
             material.shaderKeywords = Array.Empty<string>();
         }
 
-        private static Texture2D GetOrCreateDitherTexture()
+        private static Texture2D GetDitherTexture()
         {
             if (_ditherTexture != null)
                 return _ditherTexture;
 
-            const int textureSize = 32;
-            byte[] pixels = GenerateInterleavedGradientThresholds(textureSize);
+            _ditherTexture =
+                Resources.Load<Texture2D>(DitherResourcePath);
 
-            _ditherTexture = new Texture2D(
-                textureSize,
-                textureSize,
-                TextureFormat.R8,
-                false,
-                true)
-            {
-                name = "UPlayGround Camera Dither IGN 32x32",
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Repeat,
-                hideFlags = HideFlags.DontSave
-            };
-            _ditherTexture.SetPixelData(pixels, 0);
-            _ditherTexture.Apply(false, true);
             return _ditherTexture;
-        }
-
-        private static byte[] GenerateInterleavedGradientThresholds(int size)
-        {
-            int pixelCount = size * size;
-            var noise = new float[pixelCount];
-            var sortedIndices = new int[pixelCount];
-
-            // Interleaved Gradient Noise는 화면 픽셀에서 국소 분포가 고르게 나타나는
-            // 저비용 순서형 노이즈다. Bayer의 규칙적인 격자와 백색 노이즈의 점 뭉침을
-            // 모두 줄이면서 카메라가 정지했을 때 패턴도 시간적으로 안정적이다.
-            for (int y = 0; y < size; y++)
-            {
-                for (int x = 0; x < size; x++)
-                {
-                    int index = y * size + x;
-                    float gradient = 0.06711056f * x + 0.00583715f * y;
-                    noise[index] = Mathf.Repeat(
-                        52.9829189f * Mathf.Repeat(gradient, 1f),
-                        1f);
-                    sortedIndices[index] = index;
-                }
-            }
-
-            Array.Sort(
-                sortedIndices,
-                (left, right) =>
-                    noise[left].CompareTo(noise[right]));
-
-            // lilToon은 0~255 임계값을 직접 비교하므로 순위화하여 각 투명도 단계의
-            // 화면 점유율이 선형으로 변하도록 보장한다.
-            var thresholds = new byte[pixelCount];
-            for (int rank = 0; rank < pixelCount; rank++)
-            {
-                int threshold = rank * 256 / pixelCount;
-                thresholds[sortedIndices[rank]] = (byte)Mathf.Min(threshold, 255);
-            }
-
-            return thresholds;
         }
 
         private void RestoreOriginalMaterials()

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_08.Default
   animKey: 108
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 108
       attackType: 0

@@ -221,7 +221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _guid: cond_attack_range
   _displayName: Condition_AttackRange
-  _comment: "\uACF5\uACA9 \uAC00\uB2A5 \uC0AC\uAC70\uB9AC 2.5m \uC774\uB0B4. EnemyAttackDataSO\uC758
+  _comment: "\uACF5\uACA9 \uAC00\uB2A5 \uC0AC\uAC70\uB9AC 2.5m \uC774\uB0B4. AbilitySetSO\uC758
     maxRange\uBCF4\uB2E4 \uB109\uB109\uD558\uAC8C \uC124\uC815 \u2014 \uC2E4\uC81C
     \uC2A4\uD0AC \uAC80\uC99D\uC740 CanUseEnemySkillNode\uC5D0\uC11C \uCC98\uB9AC."
   _editorPosition: {x: -793.8004, y: 1655.0002}

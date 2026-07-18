@@ -18,7 +18,7 @@ namespace UPlayGround.AI.BehaviorTree
         {
             var combat = Context?.GetComponentCached<EnemyCombat>();
             var detection = Context?.GetComponentCached<EnemyDetection>();
-            if (combat?.AttackData == null)
+            if (combat?.AbilitySet == null)
                 return BTStatus.Failure;
 
             if (_requireTarget && (detection == null || !detection.HasTarget))

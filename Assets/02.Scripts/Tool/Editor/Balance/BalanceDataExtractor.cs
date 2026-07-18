@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +10,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -48,7 +49,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         public sealed class MonsterAttackSummary
         {
-            public EnemyAttackDataSO Asset;
+            public AbilitySetSO Asset;
             public string AssetName;
             public string Path;
             public int SkillCount;
@@ -105,7 +106,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     ComboRouteCount = view.comboRoutes?.Count ?? 0,
                 };
 
-                List<PlayerAttackInfo> attacks =
+                List<AbilityAttackInfo> attacks =
                     BalanceAttackAnalyzer.CollectAttacks(asset);
 
                 float total = 0f;
@@ -136,24 +137,26 @@ namespace UPlayGround.Tool.Editor.Balance
         public static List<MonsterAttackSummary> ExtractMonsterAttackData()
         {
             var result = new List<MonsterAttackSummary>();
-            foreach (EnemyAttackDataSO asset in LoadAll<EnemyAttackDataSO>())
+            foreach (AbilitySetSO asset in LoadAll<AbilitySetSO>())
             {
+                List<AbilityAttackEditorUtility.Entry> entries =
+                    AbilityAttackEditorUtility.Collect(asset, true);
+                if (entries.Count == 0)
+                    continue;
+
                 var summary = new MonsterAttackSummary
                 {
                     Asset = asset,
                     AssetName = asset.name,
                     Path = AssetDatabase.GetAssetPath(asset),
-                    SkillCount = asset.skills?.Count ?? 0,
-                    GlobalCooldown = asset.globalCooldown,
+                    SkillCount = entries.Count,
                 };
 
                 float total = 0f;
                 float strongWeight = 0f;
-                if (asset.skills != null)
+                for (int i = 0; i < entries.Count; i++)
                 {
-                    for (int i = 0; i < asset.skills.Count; i++)
-                    {
-                        EnemyAttackInfo skill = asset.skills[i];
+                        AbilityAttackInfo skill = entries[i].AttackInfo;
                         if (skill == null || skill.baseInfo == null)
                             continue;
                         if (skill.skillType != SkillType.Attack)
@@ -164,11 +167,11 @@ namespace UPlayGround.Tool.Editor.Balance
 
                         switch (skill.attackCategory)
                         {
-                            case EnemyAttackCategory.Heavy:
+                            case AbilityAttackCategory.Heavy:
                                 summary.HeavyCount++;
                                 strongWeight += Mathf.Max(0f, skill.selectionWeight);
                                 break;
-                            case EnemyAttackCategory.Skill:
+                            case AbilityAttackCategory.Skill:
                                 summary.SkillCatCount++;
                                 strongWeight += Mathf.Max(0f, skill.selectionWeight);
                                 break;
@@ -192,7 +195,6 @@ namespace UPlayGround.Tool.Editor.Balance
                         float damage = BalanceAttackAnalyzer.SumDamage(skill.baseInfo);
                         summary.MaxSingleAttackDamage = Mathf.Max(summary.MaxSingleAttackDamage, damage);
                         total += damage;
-                    }
                 }
 
                 summary.TotalDamage = total;
@@ -297,7 +299,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private static int Count<T>(List<T> list) => list?.Count ?? 0;
 
-        private static void AddRange(List<PlayerAttackInfo> target, List<PlayerAttackInfo> source)
+        private static void AddRange(List<AbilityAttackInfo> target, List<AbilityAttackInfo> source)
         {
             if (source == null)
                 return;
@@ -305,7 +307,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 AddOne(target, source[i]);
         }
 
-        private static void AddOne(List<PlayerAttackInfo> target, PlayerAttackInfo value)
+        private static void AddOne(List<AbilityAttackInfo> target, AbilityAttackInfo value)
         {
             if (value?.baseInfo != null)
                 target.Add(value);

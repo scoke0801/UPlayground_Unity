@@ -1,7 +1,7 @@
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
-using PlayerAttackInfo = global::UPlayGround.Data.PlayerAttackInfo;
+using AbilityAttackInfo = global::UPlayGround.Data.AbilityAttackInfo;
 
 namespace UPlayGround.Ability.UPlayGround
 {
@@ -11,14 +11,16 @@ namespace UPlayGround.Ability.UPlayGround
     public sealed class UPlayGroundMotionAbilityPayloadSO : AbilityExecutionPayloadSO
     {
         public AnimKey animKey = AnimKey.None;
-        public PlayerAttackInfo playerAttackInfo = new();
+        public AbilityAttackInfo attackInfo = new();
 
         public AnimKey ResolveAnimKey() =>
             animKey != AnimKey.None
                 ? animKey
-                : playerAttackInfo?.baseInfo?.animKey ?? AnimKey.None;
+                : attackInfo?.baseInfo?.animKey ?? AnimKey.None;
 
-        public bool IsExecutable =>
-            playerAttackInfo?.baseInfo != null && ResolveAnimKey() != AnimKey.None;
+        public bool IsExecutable => ResolveAnimKey() != AnimKey.None;
+
+        public bool IsAttackExecutable =>
+            attackInfo?.baseInfo != null && IsExecutable;
     }
 }

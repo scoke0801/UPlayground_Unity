@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
@@ -218,91 +219,6 @@ namespace UPlayGround.Data
     }
 
     /// <summary>
-    /// 적 공격 정보, 에디터 타임 사전 설정
-    /// </summary>
-    [Serializable]
-    public class EnemyAttackInfo
-    {
-        public AttackInfoBase baseInfo;
-
-        [Header("Skill Type")]
-        public SkillType skillType = SkillType.Attack;
-
-        [Header("AI Selection")]
-        [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. None이면 모든 카테고리 요청에 포함된다.")]
-        public EnemyAttackCategory attackCategory = EnemyAttackCategory.None;
-
-        [Header("Unlock")]
-        [Min(1)]
-        [Tooltip("이 레벨 이상인 몬스터만 이 스킬을 선택할 수 있습니다.")]
-        public int requiredLevel = 1;
-
-        [Header("Selection Weight")]
-        [Range(0f, 100f)]
-        public float selectionWeight = 10f;
-
-        [Header("Range")]
-        public float minRange = 0f;
-        public float maxRange = 2.5f;
-
-        [Header("Cooldown")]
-        public float cooldown = 2f;
-
-        [Header("Telegraph")]
-        [Tooltip("강공격 판정 전에 텔레그래프 경고 연출을 사용할지 여부")]
-        public bool useTelegraph = false;
-        [Tooltip("텔레그래프 형태. 현재 런타임 구현은 Circle만 지원한다.")]
-        public TelegraphShape telegraphShape = TelegraphShape.Circle;
-        [Tooltip("현재 히트 반경에 곱할 텔레그래프 표시 배율")]
-        public float telegraphRadiusScale = 1f;
-        [Tooltip("비워두면 기본 형태별 FX 키를 사용한다. 현재 기본값: EnemyHeavyAttackTelegraph_Circle")]
-        public string telegraphFXKey;
-        [Tooltip("true면 EnemyAttackState 진입 시 자동 표시하지 않고 MotionSet의 TelegraphEvent 타이밍을 따른다.")]
-        public bool useMotionEventTelegraph = false;
-        [Tooltip("텔레그래프 위치 기준. TargetPosition은 시전 시작 시 현재 타겟 위치에 고정하는 AOE 장판에 사용한다.")]
-        public TelegraphAnchorType telegraphAnchorType = TelegraphAnchorType.CasterOffset;
-        [Tooltip("true면 TelegraphEvent에서 예약한 위치를 실제 Collision 판정 위치로 사용한다. TargetPosition AOE에 사용한다.")]
-        public bool useTelegraphPositionForHit = false;
-
-        [Header("Danger Ring (UI)")]
-        [Tooltip("공격 윈드업 동안 적 몸통(락온 포커스 지점)에 수축 타이밍 링을 표시할지 여부. useTelegraph와 독립이다.")]
-        public bool useDangerRing = false;
-        [Tooltip("Danger Ring 수축 시간(초) — 보통 비워둠(0). 기본은 타임라인의 다음 Collision 이벤트까지 자동 산출된다. 공격자 타임라인에 Collision 이벤트가 없는 투사체 공격 등에서만 폴백으로 수동 지정. 0 이하면 자동/기본값(0.6초) 사용.")]
-        public float dangerRingDuration = 0f;
-        [Tooltip("비워두면 기본 Danger Ring 프리팹(UIPrefabDatabase의 \"DangerRing\" 키)을 사용한다.")]
-        public string dangerRingPrefabKey;
-
-        [Header("Defense")]
-        [Tooltip("이 공격에 대한 플레이어 방어 대응 분류. Danger Ring 색과 패링(카운터) 성립 여부를 결정한다.")]
-        public AttackDefenseType defenseType = AttackDefenseType.Parryable;
-
-        [Header("Aerial")]
-        [Tooltip("true = EnemyAerialState에서만 선택되는 공중 전용 스킬")]
-        public bool isAerialSkill = false;
-        [Tooltip("true = Dive Attack 전용 하강 이동 로직 사용")]
-        public bool isDiveAttack = false;
-        [Tooltip("Dive Attack 전용 하강 속도 (기본 낙하보다 빠르게)")]
-        public float diveDescentSpeed = 15f;
-        [Tooltip("공중 스킬 가중치 (aerialSkillWeight > 0 인 스킬끼리 경쟁)")]
-        public float aerialSkillWeight = 1f;
-
-        [Header("Activation Conditions")]
-        [Tooltip("복합 조건 설정 (여러 조건을 AND/OR로 연결)")]
-        public SkillConditionGroup conditionGroup = new SkillConditionGroup();
-
-        public bool IsUnlockedForLevel(int level) => level >= requiredLevel;
-
-        public bool IsInRange(float distance) => distance >= minRange && distance <= maxRange;
-
-        public bool CheckCondition(SkillConditionContext context) => conditionGroup.CheckAll(context);
-
-        public bool CanUse(float distance, SkillConditionContext context)
-            => IsUnlockedForLevel(context.CurrentLevel)
-               && IsInRange(distance)
-               && CheckCondition(context);
-    }
-
-    /// <summary>
     /// 차지 단계별 공격 데이터.
     /// AnimKey는 AbilitySetSO의 차지 단계 Ability Payload가 소유한다.
     /// </summary>
@@ -327,7 +243,7 @@ namespace UPlayGround.Data
     /// 캐릭터 공격 정보, 에디터 타임 사전 설정
     /// </summary>
     [Serializable]
-    public class PlayerAttackInfo
+    public class AbilityAttackInfo
     {
         public AttackInfoBase baseInfo;
 
@@ -337,6 +253,45 @@ namespace UPlayGround.Data
         [Min(0f)]
         [Tooltip("마지막 히트 판정이 끝난 뒤 이동 후딜 캔슬을 허용하기까지의 지연 시간(초). 0이면 기존처럼 조건 충족 즉시 이동 캔슬.")]
         public float moveCancelDelayAfterLastHit = 0f;
+
+        [Header("AI Selection")]
+        public bool aiSelectable;
+        public SkillType skillType = SkillType.Attack;
+        [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. None이면 모든 요청에 포함된다.")]
+        public AbilityAttackCategory attackCategory = AbilityAttackCategory.None;
+        [Min(1)] public int requiredLevel = 1;
+        [Range(0f, 100f)] public float selectionWeight = 10f;
+
+        [Header("Telegraph")]
+        public bool useTelegraph;
+        public TelegraphShape telegraphShape = TelegraphShape.Circle;
+        public float telegraphRadiusScale = 1f;
+        public string telegraphFXKey;
+        public bool useMotionEventTelegraph;
+        public TelegraphAnchorType telegraphAnchorType = TelegraphAnchorType.CasterOffset;
+        public bool useTelegraphPositionForHit;
+
+        [Header("Danger Ring")]
+        public bool useDangerRing;
+        public float dangerRingDuration;
+        public string dangerRingPrefabKey;
+
+        [Header("Defense")]
+        public AttackDefenseType defenseType = AttackDefenseType.Parryable;
+
+        [Header("Aerial")]
+        public bool isAerialSkill;
+        public bool isDiveAttack;
+        public float diveDescentSpeed = 15f;
+        public float aerialSkillWeight = 1f;
+
+        [Header("AI Conditions")]
+        public SkillConditionGroup conditionGroup = new();
+
+        public bool IsUnlockedForLevel(int level) => level >= requiredLevel;
+
+        public bool CheckCondition(SkillConditionContext context) =>
+            conditionGroup == null || conditionGroup.CheckAll(context);
     }
 
 }

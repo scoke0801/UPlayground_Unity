@@ -74,7 +74,7 @@ namespace UPlayGround.Ability.Tests
         {
             GameplayAbilitySO ability = Create<GameplayAbilitySO>();
             ability.abilityId = id;
-            var attack = new PlayerAttackInfo
+            var attack = new AbilityAttackInfo
             {
                 baseInfo = new AttackInfoBase(),
             };
@@ -84,7 +84,7 @@ namespace UPlayGround.Ability.Tests
                 Create<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = id;
             payload.animKey = animKey;
-            payload.playerAttackInfo = attack;
+            payload.attackInfo = attack;
             ability.variants.Add(new AbilityVariantDefinition
             {
                 variantId = "Default",

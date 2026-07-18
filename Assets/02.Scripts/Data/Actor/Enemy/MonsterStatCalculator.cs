@@ -220,8 +220,11 @@ namespace UPlayGround.Data.Enemy
             if (actor == null)
                 return string.Empty;
 
-            string attackName = actor.attackData != null ? actor.attackData.name : string.Empty;
-            return $"{actor.actorId} {actor.displayName} {actor.name} {attackName}";
+            string abilitySetName =
+                actor.EffectiveAbilitySet != null
+                    ? actor.EffectiveAbilitySet.name
+                    : string.Empty;
+            return $"{actor.actorId} {actor.displayName} {actor.name} {abilitySetName}";
         }
 
         private static void Multiply(Dictionary<StatType, float> stats, StatType type, float multiplier)

@@ -28,7 +28,6 @@ MonoBehaviour:
   monsterScaling: {fileID: 0}
   grade: 0
   level: 1
-  attackData: {fileID: 0}
   combatDefensePolicy: {fileID: 0}
   combatReactionPolicy: {fileID: 0}
   behaviorData: {fileID: 0}

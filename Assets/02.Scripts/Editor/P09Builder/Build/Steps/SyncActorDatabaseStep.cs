@@ -136,8 +136,7 @@ namespace UPlayGround.Editor.P09Builder
             definition.prefab = prefab;
             definition.poiseData = FindFirst<PoiseSO>(ctx.GeneratedDescs)
                                    ?? ctx.Config?.Stats?.existingPoiseSo as PoiseSO;
-            definition.attackData = FindFirst<EnemyAttackDataSO>(ctx.GeneratedDescs)
-                                    ?? ctx.Config?.Stats?.attackDataSo as EnemyAttackDataSO;
+            definition.abilitySet = ctx.Config?.Stats?.abilitySet;
             definition.behaviorData = FindFirst<EnemyBehaviorSO>(ctx.GeneratedDescs)
                                       ?? ctx.Config?.Stats?.existingBehaviorSo as EnemyBehaviorSO;
             definition.recruitableAs = ctx.Config?.Stats != null && ctx.Config.Stats.recruitableOnDefeat

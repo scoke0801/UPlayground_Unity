@@ -11,7 +11,7 @@
 | 전투 공식에 들어가는 값 | `ActorStatSO` + `ActorStatContainer` |
 | 버프/디버프/장비로 변하는 값 | `StatModifier` |
 | 적 AI 성향과 순찰 | `EnemyBehaviorSO` |
-| 적 스킬 사거리/쿨타임/히트 판정 | `EnemyAttackDataSO` |
+| 적 스킬 사거리/쿨타임/히트 판정 | `AbilitySetSO` |
 | 기존 적 체력/이동/감지 튜닝 에셋 | `EnemyStatsSO` 마이그레이션 입력 |
 
 `EnemyStatsSO.maxHealth`는 더 이상 런타임 체력 기준이 아닙니다. `StatDataGeneratorWindow`가 `ActorStatSO.MaxHealth` 초기값으로 옮기는 입력값이며, 런타임에서는 모든 `ActorDefinitionSO`에 `statData`가 연결되어 있어야 합니다.
@@ -161,7 +161,7 @@ float finalDamage   = attackData.damage * attackerPower * (1f - defenseRate);
 | `maxHealth` | `ActorStatSO` 생성 시 `StatType.MaxHealth` 초기값 |
 | `walkSpeed`, `runSpeed` | 적 전용 이동 튜닝 값 보존 |
 | `detectionRadius`, `lostTargetRadius`, `fieldOfView` | 감지 튜닝 값 보존 |
-| `attackRange`, `attackCooldown` | 레거시 값. 실제 스킬은 `EnemyAttackDataSO` 우선 |
+| `attackRange`, `attackCooldown` | 레거시 값. 실제 스킬은 `AbilitySetSO` 우선 |
 | `grade` | `StatDataGeneratorWindow`의 등급 템플릿 선택과 `MonsterActor.Grade` 폴백 |
 | `enablePatrol`, `patrolRadius`, `patrolWaitTime` | 레거시 값. AI 순찰은 `EnemyBehaviorSO` 우선 |
 
@@ -282,5 +282,5 @@ float defenseRate = actor.Stats.Defense;
 |--------|---------|
 | 생존/공격/방어/치명타/이동 배율 | `ActorStatSO` |
 | 행동 확률/페이즈/거리 유지/순찰 | `EnemyBehaviorSO` |
-| 스킬 사거리/쿨타임/히트박스 | `EnemyAttackDataSO` |
+| 스킬 사거리/쿨타임/히트박스 | `AbilitySetSO` |
 | 감지 반경/시야/등급 같은 적 고유 튜닝 | `EnemyStatsSO` 또는 후속 `EnemyTuningSO` |

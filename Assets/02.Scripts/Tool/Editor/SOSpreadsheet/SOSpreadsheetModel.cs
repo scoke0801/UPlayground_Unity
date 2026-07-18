@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,6 +22,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         public ScriptableObject asset;
         public SerializedObject serialized;
         public Dictionary<string, SerializedProperty> props;
+        /// <summary>마지막으로 UpdateIfRequiredOrScript를 수행한 갱신 패스 (셀마다 중복 호출 방지).</summary>
+        public int lastUpdatePass = -1;
 
         public string DisplayName => asset != null
             ? asset.name
@@ -71,6 +75,105 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         public bool summaryOnly;
         /// <summary>배열/리스트 열인지 (요약을 "N Items"로 표시).</summary>
         public bool isList;
+        /// <summary>ObjectReference 열의 참조 타입 (ObjectField 픽커 제한용, 리플렉션 실패 시 null).</summary>
+        public Type objectType;
+        /// <summary>Enum 열의 enum 타입 (EnumField 생성/플래그 필터용, 리플렉션 실패 시 null).</summary>
+        public Type enumType;
+        /// <summary>[Flags] enum 열인지 (필터를 비트 교집합으로 판정).</summary>
+        public bool isFlagsEnum;
+        /// <summary>Enum 열의 원시 이름 목록 (필터 저장 키).</summary>
+        public string[] enumNames;
+        /// <summary>Enum 열의 표시 이름 목록 (enumNames와 병렬).</summary>
+        public string[] enumDisplayNames;
+    }
+
+    /// <summary>
+    /// 열 하나에 걸린 값 필터. EditorWindow에 직렬화되어 도메인 리로드에도 유지된다.
+    /// 조건이 비어 있으면(IsActive=false) 전체 통과로 취급한다.
+    /// </summary>
+    [Serializable]
+    internal class ColumnFilter
+    {
+        public string propertyPath;
+        /// <summary>문자열/참조 열: 포함 텍스트. 숫자/리스트 열: 비교식("10", ">=10", "&lt;5", "3..8").</summary>
+        public string text = string.Empty;
+        /// <summary>enum/bool 열: 허용할 값 목록 (enum은 원시 이름). 비어 있으면 전체 허용.</summary>
+        public List<string> allowed = new();
+
+        public bool IsActive => !string.IsNullOrWhiteSpace(text) || allowed.Count > 0;
+    }
+
+    /// <summary>숫자 필터 비교식 파서. 잘못된 식은 valid=false → 전체 통과.</summary>
+    internal struct NumericRange
+    {
+        public bool valid;
+        public double lo, hi;
+        public bool loExclusive, hiExclusive;
+
+        public bool Contains(double v)
+        {
+            if (loExclusive ? v <= lo : v < lo) return false;
+            if (hiExclusive ? v >= hi : v > hi) return false;
+            return true;
+        }
+
+        public static NumericRange Parse(string text)
+        {
+            var range = new NumericRange { lo = double.NegativeInfinity, hi = double.PositiveInfinity };
+            text = text?.Trim();
+            if (string.IsNullOrEmpty(text))
+                return range;
+
+            int dots = text.IndexOf("..", StringComparison.Ordinal);
+            if (dots >= 0)
+            {
+                range.valid = TryParse(text.Substring(0, dots), out range.lo)
+                              & TryParse(text.Substring(dots + 2), out range.hi);
+                if (!range.valid)
+                {
+                    range.lo = double.NegativeInfinity;
+                    range.hi = double.PositiveInfinity;
+                }
+                return range;
+            }
+
+            if (text.StartsWith(">=", StringComparison.Ordinal))
+                range.valid = TryParse(text.Substring(2), out range.lo);
+            else if (text.StartsWith("<=", StringComparison.Ordinal))
+                range.valid = TryParse(text.Substring(2), out range.hi);
+            else if (text.StartsWith(">", StringComparison.Ordinal))
+            {
+                range.valid = TryParse(text.Substring(1), out range.lo);
+                range.loExclusive = true;
+            }
+            else if (text.StartsWith("<", StringComparison.Ordinal))
+            {
+                range.valid = TryParse(text.Substring(1), out range.hi);
+                range.hiExclusive = true;
+            }
+            else
+            {
+                string body = text.StartsWith("=", StringComparison.Ordinal) ? text.Substring(1) : text;
+                if (TryParse(body, out double v))
+                {
+                    range.valid = true;
+                    range.lo = range.hi = v;
+                }
+            }
+
+            if (!range.valid)
+            {
+                range.lo = double.NegativeInfinity;
+                range.hi = double.PositiveInfinity;
+                range.loExclusive = range.hiExclusive = false;
+            }
+            return range;
+        }
+
+        private static bool TryParse(string s, out double v)
+        {
+            return double.TryParse(s.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out v);
+        }
     }
 
     /// <summary>
@@ -104,6 +207,10 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         public bool excludeExternal = true;
         public bool showChildren = true;
         public string assetSearch = string.Empty;
+        /// <summary>검색어를 에셋 이름뿐 아니라 셀 값에서도 찾을지 (전체 에셋 로드 필요).</summary>
+        public bool searchValues;
+        /// <summary>활성 열 필터 목록 (창이 소유·직렬화하는 리스트를 공유).</summary>
+        public List<ColumnFilter> filters = new();
         public int pageSizeIndex = 1; // 기본 50
         public int pageIndex;
 
@@ -282,6 +389,33 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             // (리스트·클래스를 셀에 통째로 그리면 느리고 깨진다 → 상세 패널에서 편집)
             bool summaryOnly = generic && !(customDrawer && SOPropertyDrawerUtility.IsSingleLineDrawn(prop));
 
+            // 참조/enum 열은 필드 타입을 한 번 리플렉션해 둔다 (ObjectField 픽커 제한, EnumField 생성, 플래그 필터)
+            Type fieldType = null;
+            if (prop.propertyType == SerializedPropertyType.ObjectReference ||
+                prop.propertyType == SerializedPropertyType.Enum)
+                fieldType = ResolveFieldType(selected?.type, prop.propertyPath);
+
+            Type objectType = null;
+            Type enumType = null;
+            bool isFlagsEnum = false;
+            string[] enumNames = null;
+            string[] enumDisplayNames = null;
+            if (prop.propertyType == SerializedPropertyType.ObjectReference &&
+                fieldType != null && typeof(UnityEngine.Object).IsAssignableFrom(fieldType))
+            {
+                objectType = fieldType;
+            }
+            else if (prop.propertyType == SerializedPropertyType.Enum)
+            {
+                if (fieldType is { IsEnum: true })
+                {
+                    enumType = fieldType;
+                    isFlagsEnum = fieldType.IsDefined(typeof(FlagsAttribute), false);
+                }
+                enumNames = prop.enumNames;
+                enumDisplayNames = prop.enumDisplayNames;
+            }
+
             columns.Add(new ColumnInfo
             {
                 propertyPath = prop.propertyPath,
@@ -291,7 +425,38 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 topCut = topCut,
                 summaryOnly = summaryOnly,
                 isList = generic && prop.isArray,
+                objectType = objectType,
+                enumType = enumType,
+                isFlagsEnum = isFlagsEnum,
+                enumNames = enumNames,
+                enumDisplayNames = enumDisplayNames,
             });
+        }
+
+        /// <summary>
+        /// SO 타입에서 propertyPath("부모.자식" 꼴, 배열 구간 없음)를 따라 필드 타입을 찾는다.
+        /// private 필드와 상속 필드를 모두 뒤지고, 실패하면 null (호출측이 폴백 처리).
+        /// </summary>
+        private static Type ResolveFieldType(Type ownerType, string propertyPath)
+        {
+            if (ownerType == null)
+                return null;
+
+            Type current = ownerType;
+            foreach (string part in propertyPath.Split('.'))
+            {
+                FieldInfo field = null;
+                for (Type t = current; t != null && field == null; t = t.BaseType)
+                {
+                    field = t.GetField(part,
+                        BindingFlags.Instance | BindingFlags.Public |
+                        BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                }
+                if (field == null)
+                    return null;
+                current = field.FieldType;
+            }
+            return current;
         }
 
         /// <summary>프로퍼티의 직계 가시 자식들을 순회한다 (배열에는 사용하지 않음).</summary>
@@ -313,12 +478,175 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         public void ApplyFilter()
         {
-            view = string.IsNullOrEmpty(assetSearch)
-                ? new List<RowEntry>(rows)
-                : rows.Where(r => r.DisplayName.IndexOf(assetSearch, StringComparison.OrdinalIgnoreCase) >= 0)
-                      .ToList();
+            // 활성 필터의 열/비교식은 행 루프 밖에서 한 번만 해석
+            var active = new List<(ColumnFilter filter, ColumnInfo column, NumericRange range)>();
+            foreach (var f in filters)
+            {
+                if (!f.IsActive)
+                    continue;
+                var column = FindColumn(f.propertyPath);
+                if (column == null)
+                    continue;
+                active.Add((f, column, NumericRange.Parse(f.text)));
+            }
+
+            bool hasSearch = !string.IsNullOrEmpty(assetSearch);
+            view = rows.Where(r => MatchesSearch(r, hasSearch) && MatchesFilters(r, active)).ToList();
             ApplySort();
             pageIndex = Mathf.Clamp(pageIndex, 0, Mathf.Max(0, PageCount - 1));
+        }
+
+        public ColumnInfo FindColumn(string propertyPath)
+        {
+            foreach (var c in columns)
+            {
+                if (c.propertyPath == propertyPath)
+                    return c;
+            }
+            return null;
+        }
+
+        private bool MatchesSearch(RowEntry row, bool hasSearch)
+        {
+            if (!hasSearch)
+                return true;
+            if (row.DisplayName.IndexOf(assetSearch, StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+            if (!searchValues)
+                return false;
+
+            // 값 검색은 에셋 로드가 필요하므로 토글이 켜졌을 때만 수행 (로드 후에는 캐시됨)
+            var so = row.GetSerialized();
+            if (so == null)
+                return false;
+            foreach (var column in columns)
+            {
+                string text = GetValueText(column, row.GetProperty(column.propertyPath));
+                if (!string.IsNullOrEmpty(text) &&
+                    text.IndexOf(assetSearch, StringComparison.OrdinalIgnoreCase) >= 0)
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool MatchesFilters(
+            RowEntry row, List<(ColumnFilter filter, ColumnInfo column, NumericRange range)> active)
+        {
+            if (active.Count == 0)
+                return true;
+            var so = row.GetSerialized();
+            if (so == null)
+                return false;
+
+            foreach (var (filter, column, range) in active)
+            {
+                if (!FilterMatches(filter, column, range, row.GetProperty(column.propertyPath)))
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool FilterMatches(
+            ColumnFilter filter, ColumnInfo column, NumericRange range, SerializedProperty p)
+        {
+            if (p == null)
+                return false;
+
+            switch (column.propType)
+            {
+                case SerializedPropertyType.Boolean:
+                    return filter.allowed.Count == 0 ||
+                           filter.allowed.Contains(p.boolValue ? "True" : "False");
+                case SerializedPropertyType.Enum:
+                    return EnumMatches(filter, column, p);
+                case SerializedPropertyType.Integer:
+                case SerializedPropertyType.LayerMask:
+                case SerializedPropertyType.Character:
+                    return !range.valid || range.Contains(p.longValue);
+                case SerializedPropertyType.Float:
+                    return !range.valid || range.Contains(p.doubleValue);
+                case SerializedPropertyType.String:
+                    return string.IsNullOrWhiteSpace(filter.text) ||
+                           (p.stringValue ?? string.Empty)
+                               .IndexOf(filter.text.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+                case SerializedPropertyType.ObjectReference:
+                {
+                    string name = p.objectReferenceValue != null ? p.objectReferenceValue.name : "None";
+                    return string.IsNullOrWhiteSpace(filter.text) ||
+                           name.IndexOf(filter.text.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+                }
+                default:
+                    // 리스트 요약 열은 요소 수로 숫자 필터
+                    if (column.isList || p.isArray)
+                        return !range.valid || range.Contains(p.arraySize);
+                    return true;
+            }
+        }
+
+        private static bool EnumMatches(ColumnFilter filter, ColumnInfo column, SerializedProperty p)
+        {
+            if (filter.allowed.Count == 0)
+                return true;
+
+            // [Flags] enum은 선택 값과 비트가 겹치면 통과 (0 선택은 값 0만 매칭)
+            if (column.isFlagsEnum && column.enumType != null)
+            {
+                long value = p.longValue;
+                foreach (string name in filter.allowed)
+                {
+                    long bits;
+                    try
+                    {
+                        bits = Convert.ToInt64(Enum.Parse(column.enumType, name), CultureInfo.InvariantCulture);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
+                    if (bits == 0 ? value == 0 : (value & bits) == bits)
+                        return true;
+                }
+                return false;
+            }
+
+            int idx = p.enumValueIndex;
+            string raw = column.enumNames != null && idx >= 0 && idx < column.enumNames.Length
+                ? column.enumNames[idx]
+                : p.intValue.ToString();
+            return filter.allowed.Contains(raw);
+        }
+
+        /// <summary>값 검색용 셀 텍스트. 검색 의미가 없는 타입(벡터/색상 등)은 빈 문자열.</summary>
+        public static string GetValueText(ColumnInfo column, SerializedProperty p)
+        {
+            if (p == null)
+                return string.Empty;
+
+            switch (column.propType)
+            {
+                case SerializedPropertyType.Integer:
+                case SerializedPropertyType.LayerMask:
+                case SerializedPropertyType.Character:
+                    return p.longValue.ToString();
+                case SerializedPropertyType.Float:
+                    return p.doubleValue.ToString("0.####", CultureInfo.InvariantCulture);
+                case SerializedPropertyType.Boolean:
+                    return p.boolValue ? "True" : "False";
+                case SerializedPropertyType.String:
+                    return p.stringValue;
+                case SerializedPropertyType.Enum:
+                {
+                    int idx = p.enumValueIndex;
+                    var names = column.enumDisplayNames;
+                    return names != null && idx >= 0 && idx < names.Length
+                        ? names[idx]
+                        : p.intValue.ToString();
+                }
+                case SerializedPropertyType.ObjectReference:
+                    return p.objectReferenceValue != null ? p.objectReferenceValue.name : string.Empty;
+                default:
+                    return string.Empty;
+            }
         }
 
         public int PageSize => PageSizes[Mathf.Clamp(pageSizeIndex, 0, PageSizes.Length - 1)];

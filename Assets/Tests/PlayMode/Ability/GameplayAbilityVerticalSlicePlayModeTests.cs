@@ -42,7 +42,7 @@ namespace UPlayGround.Ability.PlayModeTests
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = "Execution.Test.PlayMode";
             payload.animKey = AnimKey.Attack_1;
-            payload.playerAttackInfo = new PlayerAttackInfo
+            payload.attackInfo = new AbilityAttackInfo
             {
                 baseInfo = new AttackInfoBase { animKey = AnimKey.Attack_1 },
             };
@@ -84,10 +84,10 @@ namespace UPlayGround.Ability.PlayModeTests
                 Assert.That(prepare, Is.EqualTo(AbilityActivationResult.Success));
                 Assert.That(
                     UPlayGroundAbilityPayloadResolver.TryResolve(
-                        variant, out AnimKey animKey, out PlayerAttackInfo attackInfo),
+                        variant, out AnimKey animKey, out AbilityAttackInfo attackInfo),
                     Is.True);
                 Assert.That(animKey, Is.EqualTo(AnimKey.Attack_1));
-                Assert.That(attackInfo, Is.SameAs(payload.playerAttackInfo));
+                Assert.That(attackInfo, Is.SameAs(payload.attackInfo));
 
                 // 실제 프로젝트에서는 이 사이에서 상태 전환과 MotionSet 시작 승인을 수행한다.
                 yield return null;

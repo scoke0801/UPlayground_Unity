@@ -319,7 +319,7 @@
             "position": { "x": -940.0, "y": 940.0 },
             "children": [],
             "properties": [
-                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.EnemyAttackCategory, Assembly-CSharp", "value": "Heavy" }
+                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.AbilityAttackCategory, Assembly-CSharp", "value": "Heavy" }
             ]
         },
 
@@ -580,7 +580,7 @@
             "position": { "x": 400.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.EnemyAttackCategory, Assembly-CSharp", "value": "Heavy" }
+                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.AbilityAttackCategory, Assembly-CSharp", "value": "Heavy" }
             ]
         },
 
@@ -629,7 +629,7 @@
             "position": { "x": 640.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.EnemyAttackCategory, Assembly-CSharp", "value": "Skill" }
+                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.AbilityAttackCategory, Assembly-CSharp", "value": "Skill" }
             ]
         },
 
@@ -706,7 +706,7 @@
             "position": { "x": 1040.0, "y": 940.0 },
             "children": [],
             "properties": [
-                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.EnemyAttackCategory, Assembly-CSharp", "value": "Heavy" }
+                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.AbilityAttackCategory, Assembly-CSharp", "value": "Heavy" }
             ]
         },
 
@@ -780,7 +780,7 @@
             "position": { "x": 1580.0, "y": 760.0 },
             "children": [],
             "properties": [
-                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.EnemyAttackCategory, Assembly-CSharp", "value": "Basic" }
+                { "name": "_attackCategory", "type": "UPlayGround.Data.EnumType.AbilityAttackCategory, Assembly-CSharp", "value": "Basic" }
             ]
         },
 

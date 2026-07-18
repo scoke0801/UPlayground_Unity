@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Monster_Honoka
+  m_EditorClassIdentifier: 
+  playerSlots: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: 07fa3fdc751564e489d9c5b61157f2cb, type: 2}
+  - {fileID: 11400000, guid: 4a543a2633c59f645bc1096975739a46, type: 2}
+  - {fileID: 11400000, guid: e27597b1dd6767a4dbcca5a460654cde, type: 2}
+  - {fileID: 11400000, guid: 6c36abb0302b6dc438874b1940b10388, type: 2}
+  - {fileID: 11400000, guid: ed447d46735b0474fbfb9f40206e3c0d, type: 2}
+  - {fileID: 11400000, guid: ace687ad28030134fa5a49d0632b0b16, type: 2}
+  - {fileID: 11400000, guid: af40d92dc13660d4d814c73d6a70c42c, type: 2}
+  - {fileID: 11400000, guid: 817bc669aae441846b853a8189646043, type: 2}
+  - {fileID: 11400000, guid: 951b8dec7f98e4d469b423b8757dc08b, type: 2}
+  - {fileID: 11400000, guid: 08dfba87f0e2d804eb1458bb9663e33b, type: 2}
+  - {fileID: 11400000, guid: 909ec1b346e253349917942216f33d0b, type: 2}
+  - {fileID: 11400000, guid: d5643e869745a244b84c2555ba89481d, type: 2}
+  combatBindings: []
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  comboRoutes: []
+  comboLinkWindow: 1

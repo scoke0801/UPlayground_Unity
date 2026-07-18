@@ -140,7 +140,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (_monsterAttacks == null || _monsterAttacks.Count == 0)
             {
-                EditorGUILayout.HelpBox("EnemyAttackDataSO 에셋이 없습니다.", MessageType.Info);
+                EditorGUILayout.HelpBox("AI 공격 Ability가 포함된 AbilitySetSO가 없습니다.", MessageType.Info);
                 return;
             }
 

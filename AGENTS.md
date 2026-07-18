@@ -128,19 +128,19 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AnimKey + PlayerAttackInfo
+→ AnimKey + AbilityAttackInfo
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 실제 실행에 필요한 `AnimKey`와 `PlayerAttackInfo`를 소유한다.
+- `UPlayGroundMotionAbilityPayloadSO`는 실제 실행에 필요한 `AnimKey`와 공용 `AbilityAttackInfo`를 소유한다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 `AbilitySetSO`를 읽는다.
 - `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
 - 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
-- `EnemyAttackDataSO`는 몬스터 공격 데이터에만 사용한다. MotionSet 기반 공격 데이터 생성기도 현재 적 데이터 전용이다.
+- 플레이어와 몬스터는 같은 `AbilitySetSO`/`GameplayAbilitySO`/`UPlayGroundMotionAbilityPayloadSO` 구조를 사용한다. 몬스터 BT는 AbilitySet 안에서 `AbilityAttackInfo.aiSelectable`인 Ability만 선택·활성화한다.
 - 생성된 플레이어 데이터는 `Assets/10.Datas/Ability/Migrated/` 아래에 있다. 편집·전체 검증은 UI Toolkit 기반 Ability Editor를 사용한다.
 - `UPlayGround.Ability.Core` 자체는 프로젝트 비의존 경계를 갖지만, `GameplayAbilitySO`/`GameplayEffectSO`/`AbilitySetSO` 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템을 외부 재사용 가능한 독립 패키지로 간주하지 않는다.
 
-2026-07-18 기준 데이터는 AbilitySet 8개, GameplayAbility 에셋 210개, Variant/Payload 221개다. Unity Test Runner 실제 실행 결과는 EditMode 14/14, PlayMode 2/2 통과다. 구조와 후속 독립 모듈 조건은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
+2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 구조와 후속 독립 모듈 조건은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
 
 ### 데이터 아키텍처 (ScriptableObject)
 
@@ -149,7 +149,7 @@ CharacterModelData.abilitySet
 - `ActorStatSO` — 액터 스탯 단일 소스 (구 `EnemyStatsSO`는 제거됨)
 - `EnemyFlyingSettingsSO`, `PoiseSO`
 - `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어 공격·스킬 정의와 실행 Payload
-- `EnemyAttackDataSO` — 몬스터용 다단 `HitPhaseData` 공격 데이터
+- `AbilitySetSO`, `GameplayAbilitySO`, `UPlayGroundMotionAbilityPayloadSO` — 플레이어와 몬스터가 공유하는 다단 `HitPhaseData` 공격 데이터
 - `PartyConfigSO` — 시작 파티 순서와 초기 활성 캐릭터 인덱스
 - `CameraShakeData`, 카메라 이펙트 SO
 - `MotionSetAsset` — 애니메이션 타임라인 정의

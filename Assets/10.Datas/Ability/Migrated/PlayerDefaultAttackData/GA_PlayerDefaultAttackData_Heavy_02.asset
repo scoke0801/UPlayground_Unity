@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.Heavy_02.Default
   animKey: 202
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 202
       attackType: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_01.Default
   animKey: 101
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 101
       attackType: 0

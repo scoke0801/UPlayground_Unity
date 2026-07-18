@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerKatanaAttackData.Combat.Light_09.Default
   animKey: 109
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 109
       attackType: 0

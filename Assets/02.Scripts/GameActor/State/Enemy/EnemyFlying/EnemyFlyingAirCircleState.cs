@@ -96,6 +96,8 @@ namespace UPlayGround.State
         {
             base.OnExit(toState);
             gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
+            if (_isAttacking)
+                _brain.Combat.CancelCurrentAbility();
             _isAttacking = false;
         }
 
@@ -211,24 +213,21 @@ namespace UPlayGround.State
         private void TryAerialAttack()
         {
             float dist = _brain.Detection.DistanceToTarget;
-            var aerialSkills = _brain.Combat.AttackData?.GetAvailableAerialSkills(dist, _brain.Combat.CurrentLevel);
-            // isDiveAttack 스킬 제외 (Dive는 Brain.TransitionToDescend에서 처리)
-            aerialSkills?.RemoveAll(s => s.isDiveAttack);
-
-            if (aerialSkills == null || aerialSkills.Count == 0)
+            if (!_brain.Combat.TrySelectAerialAbility(
+                    dist,
+                    false,
+                    out var ability))
             {
                 _attackCooldown = 0.5f;
                 return;
             }
 
-            var skill = _brain.Combat.AttackData.SelectRandomAerialSkill(aerialSkills);
-            if (skill == null) return;
-
-            // Combat에 스킬 설정 — AnimEvent가 이 스킬을 참조하여 투사체 발사
-            _brain.Combat.SetCurrentSkill(skill);
+            // Combat에 Ability를 설정 — AnimEvent가 Payload의 공격 정보를 참조해 투사체를 발사한다.
+            if (!_brain.Combat.SetCurrentAbility(ability))
+                return;
             _isAttacking = true;
 
-            var animState = gameActor.Animator.PlayMotion(skill.baseInfo.animKey, 0.1f);
+            var animState = gameActor.Animator.PlayMotion(_brain.Combat.CurrentAnimKey, 0.1f);
             if (animState != null)
             {
                 gameActor.Animator.OnMotionSetCompleted += OnAttackMotionEnd;
@@ -238,6 +237,7 @@ namespace UPlayGround.State
                 // 모션 없으면 즉시 완료 처리
                 _isAttacking = false;
                 _attackCooldown = Cfg_ShotInterval;
+                _brain.Combat.CancelCurrentAbility();
                 _brain.OnAirAttackFinished();
             }
         }
@@ -249,6 +249,7 @@ namespace UPlayGround.State
             if (!_isAttacking) return;
             _isAttacking = false;
             _attackCooldown = Cfg_ShotInterval;
+            _brain.Combat.CompleteCurrentAbility();
 
             // 선회 모션 복귀 + 방향 반전
             gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);

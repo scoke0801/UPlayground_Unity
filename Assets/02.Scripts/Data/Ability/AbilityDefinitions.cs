@@ -11,8 +11,7 @@ namespace UPlayGround.Data.Ability
 {
     public enum AbilityOwnerType
     {
-        Player,
-        Enemy,
+        Actor,
     }
 
     public enum AbilityCategory
@@ -123,7 +122,7 @@ namespace UPlayGround.Data.Ability
         public Sprite icon;
         public Color hudColor = new(0.29f, 0.62f, 1f, 1f);
         public AbilityCategory category = AbilityCategory.Attack;
-        public AbilityOwnerType ownerType = AbilityOwnerType.Player;
+        public AbilityOwnerType ownerType = AbilityOwnerType.Actor;
     }
 
     [Serializable]

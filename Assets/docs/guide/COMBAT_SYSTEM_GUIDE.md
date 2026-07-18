@@ -13,7 +13,7 @@
 
 - 공격 실행은 상태(`PlayerAttackState`, `EnemyAttackState`)가 시작하고, 실제 공격 데이터와 판정은 `PlayerCombat`, `EnemyCombat`이 담당한다.
 - 판정 타이밍은 애니메이션 클립이 아니라 `MotionSet`의 `BeginCollisionEvent`, `TelegraphEvent`, `SpawnProjectileEvent`, `MotionEvent_MotionWarp` 등으로 제어한다.
-- 플레이어 공격 수치는 `AbilitySetSO → GameplayAbilitySO.Variant → UPlayGroundMotionAbilityPayloadSO`의 `PlayerAttackInfo`에, 몬스터 공격 수치는 `EnemyAttackDataSO`에 들어간다.
+- 플레이어 공격 수치는 `AbilitySetSO → GameplayAbilitySO.Variant → UPlayGroundMotionAbilityPayloadSO`의 `AbilityAttackInfo`에, 몬스터 공격 수치는 `AbilitySetSO`에 들어간다.
 - 피해 적용은 `IDamageable.TakeDamage(AttackData)`로 통일되어 있고, 피해량 계산은 `DamageResolver`가 담당한다.
 - 방어 판정은 `DefenseResolver`, 피격 상태 결정은 `ReactionResolver`, 근접 히트 탐색은 `CombatHitDetector`가 담당한다.
 - 공격 적중 피드백은 `CombatFeedbackDispatcher`를 통해 `GameHitStopHandler`, `GameVitalOrbHandler`, `CameraManager`, `UIManager`, `GameObjectManager`로 전달된다.
@@ -34,7 +34,7 @@
 | 전투 상태 | `PlayerCombatStateTracker` 추가 | 플레이어 전투 유지 시간, 위협 탐색, 전투 상태 변화 이벤트가 `PlayerCombat`에서 분리 |
 | 액션 실행 | `CombatActionRunner`, `CombatActionDefinition`, `CombatActionInstance`, `CombatTimelineEvent` 추가 | 기존 MotionEvent 직접 호출과 병행되는 공격 실행 컨텍스트 경로 확보 |
 | 정책 데이터 | `CombatDefensePolicySO`, `CombatReactionPolicySO`, `CombatPolicyResolver` 추가 | ActorDefinition 단위로 방어 가능 여부와 몬스터 등급별 리액션 허용 규칙을 데이터화 |
-| 데이터 검증 | `CombatDataValidator`, `CombatDataValidatorWindow` 추가 | `AbilitySetSO`, `EnemyAttackDataSO` 기본 오류/경고 검증과 Markdown 리포트 저장 지원 |
+| 데이터 검증 | `CombatDataValidator`, `CombatDataValidatorWindow` 추가 | `AbilitySetSO`, `AbilitySetSO` 기본 오류/경고 검증과 Markdown 리포트 저장 지원 |
 
 현재 `PlayerCombat`과 `EnemyCombat`은 공격 데이터 선택, 콤보/쿨다운, 판정 루프를 계속 가진다. `CombatActionRunner`는 현재 action, phase, collision window를 소유하고, MotionEvent의 actor 분기는 runner를 통해 Combat executor로 전달된다.
 
@@ -58,7 +58,7 @@ Input / AI / BT
     └── EnemyMovementController ── EnemyAttackState / Guard / Hit / Death ...
             │
             └── EnemyCombat
-                   ├── EnemyAttackDataSO
+                   ├── AbilitySetSO
                    ├── 스킬 선택 / 쿨다운 / 타겟 캐시
                    ├── 텔레그래프 / Danger Ring
                    ├── CombatActionRunner
@@ -112,14 +112,14 @@ IDamageable.TakeDamage(AttackData)
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombatStateTracker.cs` | 플레이어 전투 상태 지속 시간, 위협 탐색, 상태 변화 이벤트 |
 | `Assets/02.Scripts/Tool/Editor/Combat/CombatDataValidatorWindow.cs` | 공격 데이터 기본 검증 에디터 윈도우 |
 | `Assets/02.Scripts/Tool/Editor/Combat/CombatLogRecorderWindow.cs` | Play Mode 전투 로그 기록/CSV/Markdown export 창 |
-| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AttackInfoBase`, `HitPhaseData`, `EnemyAttackInfo`, `PlayerAttackInfo`, `AttackData` |
+| `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AttackInfoBase`, `HitPhaseData`, `AbilityAttackInfo`, `AbilityAttackInfo`, `AttackData` |
 | `Assets/02.Scripts/Data/Combat/CombatDefensePolicySO.cs` | ActorDefinition 단위 방어 정책. `Unblockable`에 대한 Guard/Parry/PerfectDodge 허용 여부 |
 | `Assets/02.Scripts/Data/Combat/CombatReactionPolicySO.cs` | 몬스터 등급별 리액션 정책. forceReaction, Poise Break 요구, 상태별 허용 여부 |
 | `Assets/02.Scripts/Data/Ability/AbilitySetSO.cs` | 플레이어 공격·스킬 로드아웃과 콤보·차지 연결 |
 | `Assets/02.Scripts/Data/Ability/GameplayAbilitySO.cs` | 조건·비용·쿨다운·Variant 정의 |
-| `Assets/02.Scripts/Ability/UPlayGround/UPlayGroundMotionAbilityPayloadSO.cs` | Variant 실행용 `AnimKey`와 `PlayerAttackInfo` |
+| `Assets/02.Scripts/Ability/UPlayGround/UPlayGroundMotionAbilityPayloadSO.cs` | Variant 실행용 `AnimKey`와 `AbilityAttackInfo` |
 | `Assets/02.Scripts/GameActor/Gameplay/Ability/PlayerCombatAbilityDataView.cs` | AbilitySet을 기존 PlayerCombat 실행 형태로 해석하는 읽기 전용 뷰 |
-| `Assets/02.Scripts/Data/Combat/EnemyAttackDataSO.cs` | 몬스터 스킬 풀, 거리/레벨/가중치 기반 선택 |
+| `Assets/02.Scripts/Data/Combat/AbilitySetSO.cs` | 몬스터 스킬 풀, 거리/레벨/가중치 기반 선택 |
 | `Assets/02.Scripts/GameActor/Component/Common/PoiseStat.cs` | 몬스터 강인도 런타임 처리 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/MonsterBreakGauge.cs` | 몬스터 브레이크 게이지, 노출, 반복 쿨다운 |
 | `Assets/02.Scripts/Manager/Combat/GameCombatManager.cs` | 전투 핸들러 호스트 |
@@ -156,7 +156,7 @@ IDamageable.TakeDamage(AttackData)
 ### 플레이어 Ability 데이터
 
 `AbilitySetSO`가 캐릭터별 공격 풀의 단일 소스다. 각 라우트는 `GameplayAbilitySO`를 참조하고,
-선택된 Variant의 `UPlayGroundMotionAbilityPayloadSO`가 `AnimKey`와 `PlayerAttackInfo`를 제공한다.
+선택된 Variant의 `UPlayGroundMotionAbilityPayloadSO`가 `AnimKey`와 `AbilityAttackInfo`를 제공한다.
 `PlayerCombatAbilityDataView`는 이를 아래 실행 분류로 해석하지만 별도 직렬화 복사본을 만들지 않는다.
 
 | 필드 | 용도 |
@@ -176,7 +176,7 @@ IDamageable.TakeDamage(AttackData)
 
 ### 몬스터 공격 데이터
 
-`EnemyAttackDataSO.skills`에는 `EnemyAttackInfo` 목록이 들어간다. `EnemyCombat.SelectAndExecuteSkill()`은 거리, 레벨, 조건, 쿨다운, 공격 카테고리를 통과한 스킬 중 `selectionWeight` 기반 랜덤으로 현재 스킬을 고른다.
+`AbilitySetSO.additionalAbilities`에는 `AbilityAttackInfo` 목록이 들어간다. `EnemyCombat.SelectAndExecuteSkill()`은 거리, 레벨, 조건, 쿨다운, 공격 카테고리를 통과한 스킬 중 `selectionWeight` 기반 랜덤으로 현재 스킬을 고른다.
 
 | 필드 | 용도 |
 |------|------|
@@ -248,11 +248,11 @@ IDamageable.TakeDamage(AttackData)
 
 `EnemyAttackState.OnEnter()`는 `EnemyCombat.SelectAndExecuteSkill(distanceToTarget)`를 호출한다. `EnemyCombat`은 다음 조건을 통과한 스킬만 후보로 만든다.
 
-- `EnemyAttackDataSO.skills`에 등록되어 있음
+- `AbilitySetSO.additionalAbilities`에 등록되어 있음
 - 공중 전용 스킬이 아님
 - 현재 쿨다운 중이 아님
 - `requiredLevel`, `minRange`, `maxRange`, `conditionGroup`을 만족함
-- BT나 AI가 예약한 `EnemyAttackCategory`와 일치함
+- BT나 AI가 예약한 `AbilityAttackCategory`와 일치함
 
 선택된 스킬은 `_currentSkill`로 저장되고, 쿨다운 딕셔너리에 등록된다. `SkillType.Attack`은 현재 타겟을 `SkillTargetList`에 저장하고, 회복/소환 계열은 조건에 맞는 자기 자신 또는 아군을 저장한다.
 
@@ -262,8 +262,8 @@ IDamageable.TakeDamage(AttackData)
 
 | 기능 | 플래그 | 처리 |
 |------|--------|------|
-| 바닥 텔레그래프 FX | `EnemyAttackInfo.useTelegraph` | `EnemyCombat.BeginGroundTelegraph()`가 `EnemyHeavyAttackTelegraph_Circle` 또는 `telegraphFXKey`를 생성 |
-| 몸통 Danger Ring UI | `EnemyAttackInfo.useDangerRing` | `UIManager.CreateDangerRing()`으로 공격 타이밍 링 생성 |
+| 바닥 텔레그래프 FX | `AbilityAttackInfo.useTelegraph` | `EnemyCombat.BeginGroundTelegraph()`가 `EnemyHeavyAttackTelegraph_Circle` 또는 `telegraphFXKey`를 생성 |
+| 몸통 Danger Ring UI | `AbilityAttackInfo.useDangerRing` | `UIManager.CreateDangerRing()`으로 공격 타이밍 링 생성 |
 
 `useMotionEventTelegraph == false`이면 `EnemyAttackState.OnEnter()`에서 즉시 텔레그래프를 시작한다. `true`이면 MotionSet 안의 `TelegraphEvent` 타이밍을 따른다.
 
@@ -510,7 +510,7 @@ Markdown 리포트는 `Expected Duration` 입력값이 0보다 크면 실제 로
 ### 몬스터
 
 1. `ActorDefinitionSO`에 `statData`, `attackData`, 필요 시 `poiseData`, `breakGaugeData`, `combatDefensePolicy`, `combatReactionPolicy`, `dropTable`, `targetLayerMask`를 연결한다.
-2. `EnemyAttackDataSO.skills`에 `EnemyAttackInfo`를 등록한다.
+2. `AbilitySetSO.additionalAbilities`에 `AbilityAttackInfo`를 등록한다.
 3. 각 스킬의 `baseInfo.animKey`에 대응하는 MotionSet을 몬스터 애니메이션 데이터에 등록한다.
 4. 근접 공격은 `BeginCollisionEvent`를 MotionSet 타이밍에 배치한다.
 5. 강공격/위험 공격은 `useTelegraph`, `useDangerRing`, `defenseType`을 설정한다.
@@ -555,7 +555,7 @@ player.Animator.PlayMotion(key, 0.25f);
 
 ```csharp
 float distance = detection.DistanceToTarget;
-EnemyAttackInfo skill = enemyCombat.SelectAndExecuteSkill(distance);
+AbilityAttackInfo skill = enemyCombat.SelectAndExecuteSkill(distance);
 if (skill != null)
 {
     enemy.Animator.PlayMotion(skill.baseInfo.animKey, 0.1f);
@@ -589,7 +589,7 @@ playerCombat.NotifyAttackHit(attackData);
 ## 확장 포인트
 
 - 새 플레이어 공격 타입은 `AbilitySetSO`의 명시적 라우트 또는 `playerSlots`에 `GameplayAbilitySO`를 연결하고, Variant 조건과 Payload를 추가한 뒤 `PlayerCombatAbilityDataView` 및 실행 상태가 해당 라우트를 해석하도록 확장한다.
-- 새 몬스터 공격 선택 규칙은 `EnemyAttackInfo.conditionGroup` 또는 `EnemyCombat.GetAvailableSkills()` 필터에 추가한다.
+- 새 몬스터 공격 선택 규칙은 `AbilityAttackInfo.conditionGroup` 또는 `EnemyCombat.GetAvailableSkills()` 필터에 추가한다.
 - 새 피격 반응은 `AttackReactionType` 추가 후 `ReactionResolver`, `PlayerActor.OnDamaged()`, `MonsterActor.OnDamaged()`, 필요 시 `CombatReactionPolicySO`를 함께 확장한다.
 - 새 방어 분류는 `AttackDefenseType`, `DefenseResolver`, `CombatDefensePolicySO`, `PlayerGuardState`, `UI_DangerRing` 색/표현 규칙을 같이 갱신한다.
 - 새 전투 연출은 `MotionEventBase`를 상속한 이벤트를 만들고 `MotionEventAddPopup` 카테고리에 등록한다.

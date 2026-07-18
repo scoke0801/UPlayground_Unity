@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,6 +12,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
@@ -194,28 +195,30 @@ namespace UPlayGround.Tool.Editor.Balance
                 actor.breakDamageTakenMultiplier = def.breakGaugeData.damageTakenMultiplierWhileExposed;
             }
 
-            if (def.attackData?.skills != null)
+            List<AbilityAttackEditorUtility.Entry> entries =
+                AbilityAttackEditorUtility.Collect(
+                    def.EffectiveAbilitySet,
+                    true);
+            for (int i = 0; i < entries.Count; i++)
             {
-                for (int i = 0; i < def.attackData.skills.Count; i++)
-                {
-                    EnemyAttackInfo skill = def.attackData.skills[i];
+                    AbilityAttackInfo skill = entries[i].AttackInfo;
                     if (skill?.baseInfo == null)
                         continue;
+                    GameplayAbilitySO ability = entries[i].Ability;
 
                     actor.skills.Add(new SkillSnapshot
                     {
                         index = i,
                         animKey = skill.baseInfo.animKey.ToString(),
                         selectionWeight = skill.selectionWeight,
-                        cooldown = skill.cooldown,
-                        minRange = skill.minRange,
-                        maxRange = skill.maxRange,
+                        cooldown = ability?.cooldown?.durationSeconds ?? 0f,
+                        minRange = ability?.activation?.minDistance ?? 0f,
+                        maxRange = ability?.activation?.maxDistance ?? 0f,
                         requiredLevel = skill.requiredLevel,
                         totalDamage = BalanceAttackAnalyzer.SumDamage(skill.baseInfo),
                         totalPoiseDamage = BalanceAttackAnalyzer.SumPoiseDamage(skill.baseInfo),
                         totalBreakDamage = BalanceAttackAnalyzer.SumBreakDamage(skill.baseInfo),
                     });
-                }
             }
 
             return actor;
@@ -244,7 +247,7 @@ namespace UPlayGround.Tool.Editor.Balance
             return snapshot;
         }
 
-        private static void CaptureSlotList(PlayerAttackSnapshot snapshot, string prefix, List<PlayerAttackInfo> list)
+        private static void CaptureSlotList(PlayerAttackSnapshot snapshot, string prefix, List<AbilityAttackInfo> list)
         {
             if (list == null)
                 return;
@@ -252,7 +255,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 CaptureSlot(snapshot, $"{prefix}[{i}]", list[i]);
         }
 
-        private static void CaptureSlot(PlayerAttackSnapshot snapshot, string slot, PlayerAttackInfo info)
+        private static void CaptureSlot(PlayerAttackSnapshot snapshot, string slot, AbilityAttackInfo info)
         {
             if (info?.baseInfo == null)
                 return;

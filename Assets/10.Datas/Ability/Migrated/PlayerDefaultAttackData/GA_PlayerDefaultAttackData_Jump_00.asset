@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.Jump_00.Default
   animKey: 400
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 400
       attackType: 0

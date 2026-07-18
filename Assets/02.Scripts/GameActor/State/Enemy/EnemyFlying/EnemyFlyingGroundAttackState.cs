@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Components;
 using UPlayGround.Data;
@@ -20,7 +20,7 @@ namespace UPlayGround.State
         private EnemyCombat _combat;
         private float _attackTimer;
         private bool _isActive;
-        private EnemyAttackInfo _currentSkill;
+        private AbilityAttackInfo _currentSkill;
 
         private const float MotionTimeout = 3.0f;
 
@@ -58,7 +58,7 @@ namespace UPlayGround.State
             if (_currentSkill != null)
             {
                 Debug.Log($"[FlyingGroundAttack] 스킬: {_currentSkill.baseInfo.animKey}");
-                var animState = gameActor.Animator.PlayMotion(_currentSkill.baseInfo.animKey, 0.1f);
+                var animState = gameActor.Animator.PlayMotion(_combat.CurrentAnimKey, 0.1f);
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += OnAttackEnd;
                 else
@@ -144,6 +144,7 @@ namespace UPlayGround.State
         {
             if (!_isActive) return;
             _isActive = false;
+            _combat?.CompleteCurrentAbility();
             _combat?.CancelCurrentAction();
             _brain.OnGroundAttackFinished();
         }
@@ -152,6 +153,7 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackEnd;
             _isActive = false;
+            _combat?.CompleteCurrentAbility();
             _combat?.CancelCurrentAction();
             _brain.OnGroundAttackFinished();
         }

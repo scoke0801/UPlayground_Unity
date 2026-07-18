@@ -1,15 +1,19 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Gameplay.Ability;
 using UPlayGround.UI;
 
 namespace UPlayGround.Components
@@ -58,7 +62,7 @@ namespace UPlayGround.Components
         }
 
         [Header("Combat Settings")]
-        [HideInInspector, SerializeField] private EnemyAttackDataSO _attackData;
+        [HideInInspector, SerializeField] private AbilitySetSO _abilitySet;
         [SerializeField] private Transform _attackOrigin;
         [HideInInspector, SerializeField] private LayerMask _targetLayer;
 
@@ -82,21 +86,37 @@ namespace UPlayGround.Components
         public float WarpMaxSpeed    => _warpMaxSpeed;
 
         private MonsterActor _ownerActor;
+        private ActorAbilitySystem _abilitySystem;
         private IDamageable _ownerDamageable;
         private EnemyDetection _detection;
 
-        private EnemyAttackInfo _currentSkill;
+        private readonly struct AbilityCandidate
+        {
+            public readonly GameplayAbilitySO Ability;
+            public readonly AbilityAttackInfo AttackInfo;
+
+            public AbilityCandidate(
+                GameplayAbilitySO ability,
+                AbilityAttackInfo attackInfo)
+            {
+                Ability = ability;
+                AttackInfo = attackInfo;
+            }
+        }
+
+        private GameplayAbilitySO _currentAbility;
+        private AbilityAttackInfo _currentSkill;
+        private AnimKey _currentAbilityAnimKey = AnimKey.None;
         private readonly HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
-        private readonly Dictionary<EnemyAttackInfo, float> _skillCooldowns = new Dictionary<EnemyAttackInfo, float>();
-        private readonly List<EnemyAttackInfo> _expiredCooldowns = new List<EnemyAttackInfo>();
         private int _currentHitPhaseIndex = 0;
 
         private SkillType _reservedSkillType = SkillType.None;
-        private EnemyAttackCategory _reservedAttackCategory = EnemyAttackCategory.None;
+        private AbilityAttackCategory _reservedAttackCategory = AbilityAttackCategory.None;
 
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
-        private readonly List<EnemyAttackInfo> _keysToProcess = new List<EnemyAttackInfo>();
+        private readonly List<AbilityCandidate> _abilityCandidates = new();
+        private readonly HashSet<GameplayAbilitySO> _visitedAbilities = new();
         private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
         private readonly List<CombatHit> _detectedMeleeHits = new List<CombatHit>(32);
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
@@ -123,13 +143,18 @@ namespace UPlayGround.Components
         public bool  IsMotionWarping   => _motionWarp != null && _motionWarp.IsMotionWarping;
         // ──────────────────────────────────────────────────────────────
 
-        public EnemyAttackDataSO AttackData       => _attackData;
-        public EnemyAttackInfo   CurrentSkill     => _currentSkill;
+        public AbilitySetSO      AbilitySet       => _abilitySet;
+        public GameplayAbilitySO CurrentAbility   => _currentAbility;
+        public AbilityAttackInfo CurrentSkill     => _currentSkill;
+        public AnimKey CurrentAnimKey =>
+            _currentAbilityAnimKey != AnimKey.None
+                ? _currentAbilityAnimKey
+                : _currentSkill?.baseInfo?.animKey ?? AnimKey.None;
         public int               CurrentLevel     => _ownerActor != null ? _ownerActor.Level : 1;
         // P3 3차: 충돌 윈도우의 단일 소유는 CombatActionRunner의 instance. 자체 플래그를 두지 않고 runner를 읽는다.
         public bool              IsPossibleCollide => _actionRunner != null && _actionRunner.IsCollisionActive;
         public SkillType         ReservedSkillType => _reservedSkillType;
-        public EnemyAttackCategory ReservedAttackCategory => _reservedAttackCategory;
+        public AbilityAttackCategory ReservedAttackCategory => _reservedAttackCategory;
         public List<IDamageable> SkillTargetList  => _skillTargets;
         public bool              IsGuarding { get; set; } = false;
 
@@ -144,8 +169,11 @@ namespace UPlayGround.Components
             _ownerDamageable = GetComponent<IDamageable>();
             _detection       = GetComponent<EnemyDetection>();
             _ownerActor      = GetComponent<MonsterActor>();
+            _abilitySystem   = GetComponent<ActorAbilitySystem>();
             if (_ownerActor?.Definition != null)
                 Init(_ownerActor.Definition);
+            else
+                Init(_abilitySet);
 
             // 워프 진실 소스는 MotionWarpController. 컴포넌트가 없으면 즉시 부착.
             _motionWarp = GetComponent<MotionWarpController>();
@@ -157,28 +185,26 @@ namespace UPlayGround.Components
             _hitboxSet.Refresh();
         }
 
-        /// <summary> MonsterActor.SetDefinition() 등에서 공격 데이터를 주입할 때 사용. </summary>
-        public void Init(EnemyAttackDataSO data)
+        /// <summary>액터가 사용할 공용 AbilitySet을 주입한다.</summary>
+        public void Init(AbilitySetSO abilitySet)
         {
-            if (data != null)
-                _attackData = data;
+            if (abilitySet == null) return;
+
+            _abilitySet = abilitySet;
+            _abilitySystem ??= GetComponent<ActorAbilitySystem>();
+            if (_abilitySystem != null && _abilitySystem.AbilitySet != _abilitySet)
+                _abilitySystem.SetAbilitySet(_abilitySet);
         }
 
         public void Init(ActorDefinitionSO definition)
         {
             if (definition == null) return;
 
-            Init(definition.EffectiveAttackData);
+            Init(definition.EffectiveAbilitySet);
             if (_ownerActor != null)
                 SetTargetLayer(_ownerActor.GetAttackTargetLayerMask());
             else if (definition.targetLayerMask.value != 0)
                 SetTargetLayer(definition.targetLayerMask);
-        }
-
-        private void Update()
-        {
-            UpdateCooldowns();
-            // 워프 타이머는 MotionWarpController.Update 가 처리.
         }
 
         private void LateUpdate()
@@ -196,32 +222,6 @@ namespace UPlayGround.Components
         /// 실제 Overlap 질의는 LateUpdate에서 수행해 갓 적용된 포즈를 읽는다(1프레임 지연 제거).
         /// </summary>
         public void RequestMeleeHitCheck() => _meleeHitCheckRequestedFrame = Time.frameCount;
-
-        private void UpdateCooldowns()
-        {
-            // 1. 순회할 키들을 별도의 리스트에 복사합니다. (딕셔너리 변경에 안전함)
-            _keysToProcess.Clear();
-            foreach (var key in _skillCooldowns.Keys)
-            {
-                _keysToProcess.Add(key);
-            }
-
-            _expiredCooldowns.Clear();
-
-            // 2. 복사된 리스트를 순회하며 쿨타임을 갱신합니다.
-            foreach (var skill in _keysToProcess)
-            {
-                _skillCooldowns[skill] -= Time.deltaTime;
-        
-                // 3. 만료된 경우 삭제 리스트에 추가
-                if (_skillCooldowns[skill] <= 0f)
-                    _expiredCooldowns.Add(skill);
-            }
-
-            // 4. 만료된 스킬을 실제 딕셔너리에서 제거
-            foreach (var skill in _expiredCooldowns)
-                _skillCooldowns.Remove(skill);
-        }
 
         /// <summary> MotionEvent_MotionWarp.Execute()에서 호출. warpDuration = endTime - startTime. </summary>
         public void BeginMotionWarp(float warpDuration)
@@ -286,88 +286,222 @@ namespace UPlayGround.Components
             return _detection.GetAllyCount();
         }
 
-        public EnemyAttackInfo SelectAndExecuteSkill(float distanceToTarget)
+        public AbilityAttackInfo SelectAndExecuteSkill(float distanceToTarget)
         {
             return SelectAndExecuteSkill(distanceToTarget, ConsumeReservedAttackCategory());
         }
 
-        public EnemyAttackInfo SelectAndExecuteSkill(float distanceToTarget, EnemyAttackCategory attackCategory)
+        public AbilityAttackInfo SelectAndExecuteSkill(
+            float distanceToTarget,
+            AbilityAttackCategory attackCategory)
         {
-            if (_attackData == null || _attackData.skills.Count == 0)
-            {
-                return null;
-            }
-
             _spawnedUnits.RemoveAll(unit => unit == null);
 
-            var availableSkills = GetAvailableSkills(distanceToTarget, attackCategory);
-            if (availableSkills == null || availableSkills.Count == 0)
+            List<AbilityCandidate> available =
+                GetAvailableAbilities(distanceToTarget, attackCategory, false, false);
+            if (available.Count == 0)
                 return null;
 
-            _currentSkill = _attackData.SelectRandomSkill(availableSkills);
+            AbilityCandidate selected = SelectWeighted(available, false);
+            if (!SetCurrentAbility(selected.Ability))
+                return null;
 
-            if (_currentSkill != null)
-            {
-                ClearTelegraphHitPositions();
-                _currentHitPhaseIndex = 0;
-                _skillCooldowns[_currentSkill] = _currentSkill.cooldown;
-                // P3 3차: 지상 적 공격도 runner 액션을 시작해야 IsPossibleCollide(=runner.IsCollisionActive)가 동작한다.
-                StartRunnerActionForSkill(_currentSkill);
-                ExecuteSkill(_currentSkill);
-            }
-
+            ExecuteSkill(_currentSkill);
             return _currentSkill;
         }
 
-        private List<EnemyAttackInfo> GetAvailableSkills(float distanceToTarget, EnemyAttackCategory attackCategory = EnemyAttackCategory.None)
+        private List<AbilityCandidate> GetAvailableAbilities(
+            float distanceToTarget,
+            AbilityAttackCategory attackCategory,
+            bool aerialOnly,
+            bool diveOnly)
         {
-            if (_attackData == null || _attackData.skills.Count == 0)
-                return null;
+            _abilityCandidates.Clear();
+            _visitedAbilities.Clear();
+            if (_abilitySet == null || _abilitySystem == null)
+                return _abilityCandidates;
 
-            var context         = CreateContext(distanceToTarget);
-            var availableSkills = new List<EnemyAttackInfo>();
-
-            foreach (var skill in _attackData.skills)
+            SkillConditionContext context = CreateContext(distanceToTarget);
+            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
             {
-                if (skill.isAerialSkill)                     continue;
-                if (_skillCooldowns.ContainsKey(skill))       continue;
-                if (!skill.CanUse(distanceToTarget, context)) continue;
-                if (!MatchesAttackCategory(skill, attackCategory)) continue;
+                if (ability == null || !_visitedAbilities.Add(ability))
+                    continue;
+                if (!TryEvaluateAbility(ability, out AbilityAttackInfo attackInfo))
+                    continue;
+                if (!attackInfo.aiSelectable
+                    || attackInfo.isAerialSkill != aerialOnly
+                    || (diveOnly && !attackInfo.isDiveAttack)
+                    || (!diveOnly && aerialOnly && attackInfo.isDiveAttack)
+                    || !attackInfo.IsUnlockedForLevel(context.CurrentLevel)
+                    || !attackInfo.CheckCondition(context)
+                    || !MatchesAttackCategory(attackInfo, attackCategory))
+                    continue;
 
-                availableSkills.Add(skill);
+                _abilityCandidates.Add(new AbilityCandidate(ability, attackInfo));
             }
 
-            return availableSkills;
+            return _abilityCandidates;
         }
 
+        private bool TryEvaluateAbility(
+            GameplayAbilitySO ability,
+            out AbilityAttackInfo attackInfo)
+        {
+            attackInfo = null;
+            if (ability == null || _abilitySystem == null)
+                return false;
+
+            AbilityActivationResult result = _abilitySystem.EvaluateAbility(
+                ability,
+                IsGrounded(),
+                ResolveAbilityTarget(),
+                out AbilityVariantDefinition variant);
+            return result == AbilityActivationResult.Success
+                   && UPlayGroundAbilityPayloadResolver.TryResolve(
+                       variant,
+                       out _,
+                       out attackInfo);
+        }
+
+        public bool CanActivateAbility(GameplayAbilitySO ability) =>
+            TryEvaluateAbility(ability, out _);
+
+        private bool TryActivateAbility(
+            GameplayAbilitySO ability,
+            out AbilityAttackInfo attackInfo)
+        {
+            attackInfo = null;
+            _currentAbilityAnimKey = AnimKey.None;
+            if (ability == null || _abilitySystem == null)
+                return false;
+
+            AbilityActivationResult prepare = _abilitySystem.TryPrepareAbility(
+                ability,
+                IsGrounded(),
+                ResolveAbilityTarget(),
+                out AbilityExecutionHandle handle,
+                out AbilityVariantDefinition variant);
+            if (prepare != AbilityActivationResult.Success)
+                return false;
+
+            AbilityActivationResult commit = _abilitySystem.Commit(handle);
+            if (commit == AbilityActivationResult.Success)
+            {
+                if (UPlayGroundAbilityPayloadResolver.TryResolve(
+                        variant,
+                        out AnimKey animKey,
+                        out attackInfo))
+                {
+                    _currentAbilityAnimKey = animKey;
+                    return true;
+                }
+
+                _abilitySystem.EndActiveAbility(false);
+                return false;
+            }
+
+            _abilitySystem.Abort(handle, commit);
+            return false;
+        }
+
+        private bool IsGrounded()
+        {
+            ActorMovementController movement =
+                _ownerActor != null
+                    ? _ownerActor.GetComponent<ActorMovementController>()
+                    : null;
+            return movement?.Motor == null
+                   || movement.Motor.GroundingStatus.IsStableOnGround;
+        }
+
+        private GameActor ResolveAbilityTarget()
+        {
+            Transform target = _detection != null && _detection.HasTarget
+                ? _detection.CurrentTarget
+                : null;
+            return target != null ? target.GetComponentInParent<GameActor>() : null;
+        }
+
+        public void CompleteCurrentAbility() =>
+            _abilitySystem?.EndActiveAbility(true);
+
+        public void CancelCurrentAbility() =>
+            _abilitySystem?.EndActiveAbility(false);
+
         public bool HasAvailableSkillAtDistance(float distanceToTarget)
-            => GetAvailableSkills(distanceToTarget)?.Count > 0;
+            => GetAvailableAbilities(
+                distanceToTarget,
+                AbilityAttackCategory.None,
+                false,
+                false).Count > 0;
 
-        public bool HasAvailableSkillAtDistance(float distanceToTarget, EnemyAttackCategory attackCategory)
-            => GetAvailableSkills(distanceToTarget, attackCategory)?.Count > 0;
+        public bool HasAvailableSkillAtDistance(float distanceToTarget, AbilityAttackCategory attackCategory)
+            => GetAvailableAbilities(
+                distanceToTarget,
+                attackCategory,
+                false,
+                false).Count > 0;
 
-        public void ReserveAttackCategory(EnemyAttackCategory attackCategory)
+        public float GetMaxAttackRange()
+        {
+            float maxRange = 0f;
+            if (_abilitySet == null)
+                return maxRange;
+
+            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            {
+                if (ability?.activation == null)
+                    continue;
+                maxRange = Mathf.Max(maxRange, ability.activation.maxDistance);
+            }
+            return maxRange;
+        }
+
+        public bool HasAttackType(AttackType attackType)
+        {
+            if (_abilitySet == null)
+                return false;
+
+            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            {
+                if (ability?.variants == null)
+                    continue;
+                for (int i = 0; i < ability.variants.Count; i++)
+                    if (UPlayGroundAbilityPayloadResolver.TryResolve(
+                            ability.variants[i],
+                            out _,
+                            out AbilityAttackInfo attackInfo)
+                        && attackInfo.aiSelectable
+                        && attackInfo.baseInfo.attackType == attackType)
+                        return true;
+            }
+            return false;
+        }
+
+        public void ReserveAttackCategory(AbilityAttackCategory attackCategory)
         {
             _reservedAttackCategory = attackCategory;
         }
 
-        private EnemyAttackCategory ConsumeReservedAttackCategory()
+        private AbilityAttackCategory ConsumeReservedAttackCategory()
         {
             var category = _reservedAttackCategory;
-            _reservedAttackCategory = EnemyAttackCategory.None;
+            _reservedAttackCategory = AbilityAttackCategory.None;
             return category;
         }
 
-        private static bool MatchesAttackCategory(EnemyAttackInfo skill, EnemyAttackCategory attackCategory)
+        private static bool MatchesAttackCategory(
+            AbilityAttackInfo skill,
+            AbilityAttackCategory attackCategory)
         {
-            if (attackCategory == EnemyAttackCategory.None)
+            if (attackCategory == AbilityAttackCategory.None)
                 return true;
 
             return skill != null
-                   && (skill.attackCategory == attackCategory || skill.attackCategory == EnemyAttackCategory.None);
+                   && (skill.attackCategory == attackCategory || skill.attackCategory == AbilityAttackCategory.None);
         }
 
-        private void ExecuteSkill(EnemyAttackInfo skill)
+        private void ExecuteSkill(AbilityAttackInfo skill)
         {
             _skillTargets.Clear();
 
@@ -496,9 +630,40 @@ namespace UPlayGround.Components
             }
         }
 
-        public void SetCurrentSkill(EnemyAttackInfo skill)
+        public bool TrySelectAerialAbility(
+            float distanceToTarget,
+            bool diveOnly,
+            out GameplayAbilitySO ability)
         {
-            _currentSkill         = skill;
+            ability = null;
+            List<AbilityCandidate> available = GetAvailableAbilities(
+                distanceToTarget,
+                AbilityAttackCategory.None,
+                true,
+                diveOnly);
+            if (available.Count == 0)
+                return false;
+
+            ability = SelectWeighted(available, true).Ability;
+            return ability != null;
+        }
+
+        public bool HasAvailableAerialAbility(
+            float distanceToTarget,
+            bool diveOnly) =>
+            GetAvailableAbilities(
+                distanceToTarget,
+                AbilityAttackCategory.None,
+                true,
+                diveOnly).Count > 0;
+
+        public bool SetCurrentAbility(GameplayAbilitySO ability)
+        {
+            if (!TryActivateAbility(ability, out AbilityAttackInfo attackInfo))
+                return false;
+
+            _currentAbility       = ability;
+            _currentSkill         = attackInfo;
             _currentHitPhaseIndex = 0;
             _lastTelegraphStartTime = -999f;
             _lastTelegraphDuration = 0f;
@@ -506,7 +671,38 @@ namespace UPlayGround.Components
             _lastCollisionStartTime = -999f;
             ClearTelegraphHitPositions();
 
-            StartRunnerActionForSkill(skill);
+            StartRunnerActionForSkill(attackInfo);
+            return true;
+        }
+
+        private static AbilityCandidate SelectWeighted(
+            List<AbilityCandidate> candidates,
+            bool useAerialWeight)
+        {
+            float total = 0f;
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                AbilityAttackInfo info = candidates[i].AttackInfo;
+                total += Mathf.Max(
+                    0f,
+                    useAerialWeight ? info.aerialSkillWeight : info.selectionWeight);
+            }
+
+            if (total <= 0f)
+                return candidates[UnityEngine.Random.Range(0, candidates.Count)];
+
+            float roll = UnityEngine.Random.Range(0f, total);
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                AbilityAttackInfo info = candidates[i].AttackInfo;
+                roll -= Mathf.Max(
+                    0f,
+                    useAerialWeight ? info.aerialSkillWeight : info.selectionWeight);
+                if (roll <= 0f)
+                    return candidates[i];
+            }
+
+            return candidates[candidates.Count - 1];
         }
 
         /// <summary>
@@ -514,13 +710,13 @@ namespace UPlayGround.Components
         /// 지상(SelectAndExecuteSkill)·비행(SetCurrentSkill) 모든 적 공격이 이 경로를 통과해야
         /// IsPossibleCollide(= runner.IsCollisionActive)가 동작한다. (P3 3차)
         /// </summary>
-        private void StartRunnerActionForSkill(EnemyAttackInfo skill)
+        private void StartRunnerActionForSkill(AbilityAttackInfo skill)
         {
             if (skill?.baseInfo == null) return;
             _actionRunner?.StartAction(new AttackData
             {
                 attacker = _ownerActor,
-                animKey = skill.baseInfo.animKey,
+                animKey = CurrentAnimKey,
                 hitPhaseIndex = _currentHitPhaseIndex,
                 defenseType = skill.defenseType,
             });
@@ -558,7 +754,7 @@ namespace UPlayGround.Components
                 BeginDangerRing();
         }
 
-        private bool ShouldShowDangerRing(EnemyAttackInfo skill)
+        private bool ShouldShowDangerRing(AbilityAttackInfo skill)
         {
             if (skill == null)
                 return false;
@@ -592,7 +788,7 @@ namespace UPlayGround.Components
             _dangerRing = ActorSvc.UI?.CreateDangerRing(_ownerActor, _currentSkill, duration);
         }
 
-        private float ResolveDangerRingDuration(EnemyAttackInfo skill)
+        private float ResolveDangerRingDuration(AbilityAttackInfo skill)
         {
             // 1순위: 타임라인의 다음 Collision/투사체 발사 이벤트 중 더 먼저 시작되는 것까지 자동 산출 — 수동 오써링 불필요.
             // 수축이 가장 작아지는 순간이 실제 타격(Collision) 또는 투사체 발사와 자동 정렬된다.
@@ -695,6 +891,7 @@ namespace UPlayGround.Components
 
         public void CancelCurrentAction()
         {
+            CancelCurrentAbility();
             _actionRunner?.CancelCurrentAction();
             ClearHitTargets();
             ClearTelegraphs();
@@ -932,7 +1129,7 @@ namespace UPlayGround.Components
             return Mathf.Clamp(hitPhaseIndex, 0, count - 1);
         }
 
-        private static string GetTelegraphFXKey(EnemyAttackInfo skill)
+        private static string GetTelegraphFXKey(AbilityAttackInfo skill)
         {
             if (!string.IsNullOrWhiteSpace(skill?.telegraphFXKey))
                 return skill.telegraphFXKey;

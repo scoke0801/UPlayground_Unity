@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDoubleAxeAttackData.Combat.ParryCounter.Default
   animKey: 530
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 530
       attackType: 0

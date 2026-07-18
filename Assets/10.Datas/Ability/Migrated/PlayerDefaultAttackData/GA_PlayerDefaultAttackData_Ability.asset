@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Ability.Default
   animKey: 500
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 0
       attackType: 0

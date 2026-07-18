@@ -95,6 +95,7 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             base.OnExit(toState);
+            _brain?.Combat?.CancelCurrentAbility();
             motor.SetGroundSolvingActivation(true);
             gameActor.GetComponent<PoiseStat>()?.SetHyperArmor(false);
 
@@ -159,7 +160,10 @@ namespace UPlayGround.State
 
                 case Phase.Recovery:
                     if (_phaseTimer >= Cfg_Recovery)
+                    {
+                        _brain.Combat.CompleteCurrentAbility();
                         _brain.OnDiveLanded();
+                    }
                     break;
             }
         }

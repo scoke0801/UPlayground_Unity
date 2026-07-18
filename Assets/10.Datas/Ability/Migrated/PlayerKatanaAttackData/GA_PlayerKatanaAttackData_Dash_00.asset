@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerKatanaAttackData.Combat.Dash_00.Default
   animKey: 300
-  playerAttackInfo:
+  attackInfo:
     baseInfo:
       animKey: 300
       attackType: 0

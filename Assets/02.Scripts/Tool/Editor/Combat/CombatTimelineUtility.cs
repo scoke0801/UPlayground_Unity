@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,11 +14,12 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
     /// <summary>
-    /// MotionSet 타임라인과 AttackDataSO를 연결하는 에디터 공용 유틸.
+    /// MotionSet 타임라인과 AbilitySet의 공격 Payload를 연결하는 에디터 공용 유틸.
     /// 애니메이션 에디터의 전투 오버레이와 프레임 데이터 테이블이 공유한다.
     ///
     /// 시간 규칙: 모든 반환 시간은 MotionSet 전체 타임라인 기준 절대 시간(초).
@@ -40,17 +41,16 @@ namespace UPlayGround.Tool.Editor.Combat
             public float Duration => Mathf.Max(0f, End - Start);
         }
 
-        /// <summary> AnimKey 하나에 대해 AttackDataSO에서 찾은 공격 데이터 묶음. </summary>
+        /// <summary> AnimKey 하나에 대해 AbilitySet에서 찾은 공격 데이터 묶음. </summary>
         public sealed class ResolvedAttack
         {
             public string SourceName;                  // 예: "약 공격 [2]", "차지 2단계"
             public AnimKey AnimKey;
             public List<HitPhaseData> HitPhases;
             public PlayerInterruptAction InterruptActions;
-            public PlayerAttackInfo PlayerInfo;        // nullable
-            public EnemyAttackInfo EnemyInfo;          // nullable
+            public AbilityAttackInfo AttackInfo;        // nullable
             public ChargeStageData ChargeStage;        // nullable
-            public UnityEngine.Object Owner;           // Undo/Dirty 대상 (AttackDataSO)
+            public UnityEngine.Object Owner;           // Undo/Dirty 대상 (Ability Payload)
 
             public HitPhaseData GetHitPhase(int index)
             {
@@ -194,24 +194,13 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         // ====================================================================
-        //  AttackDataSO 역조회 (AnimKey → 공격 데이터)
+        //  AbilitySet 역조회 (AnimKey → 공격 데이터)
         // ====================================================================
 
         /// <summary>
-        /// AttackDataSO 안에서 해당 AnimKey를 쓰는 공격 데이터를 모두 찾는다.
+        /// AbilitySet 안에서 해당 AnimKey를 쓰는 공격 데이터를 모두 찾는다.
         /// 차지 공격은 단계별로 1개씩 반환한다.
         /// </summary>
-        public static List<ResolvedAttack> ResolveAttacks(AttackDataSO data, AnimKey key)
-        {
-            var result = new List<ResolvedAttack>();
-            if (data == null || key == AnimKey.None) return result;
-
-            if (data is EnemyAttackDataSO enemy)
-                ResolveEnemyAttacks(enemy, key, result);
-
-            return result;
-        }
-
         public static List<ResolvedAttack> ResolveAttacks(AbilitySetSO data, AnimKey key)
         {
             var result = new List<ResolvedAttack>();
@@ -219,27 +208,45 @@ namespace UPlayGround.Tool.Editor.Combat
                 return result;
 
             PlayerCombatAbilityDataView view = PlayerCombatAbilityDataView.Build(data);
-            if (view == null)
-                return result;
+            if (view != null)
+            {
+                AddPlayerList(result, data, view.liteComboAttackList, "약 공격", key);
+                AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", key);
+                AddPlayerList(result, data, view.jumpAttackList, "점프 공격", key);
+                AddPlayerList(result, data, view.dashAttackList, "대시 공격", key);
+                AddPlayerList(result, data, view.skillAttackList, "스킬", key);
+                AddPlayerInfo(result, data, view.counterAttack, "카운터", key);
+                AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", key);
+                AddPlayerInfo(result, data, view.entryAttack, "교체 등장", key);
+                AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", key);
+                AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", key);
+                AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", key);
+                AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", key);
+            }
 
-            AddPlayerList(result, data, view.liteComboAttackList, "약 공격", key);
-            AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", key);
-            AddPlayerList(result, data, view.jumpAttackList, "점프 공격", key);
-            AddPlayerList(result, data, view.dashAttackList, "대시 공격", key);
-            AddPlayerList(result, data, view.skillAttackList, "스킬", key);
-            AddPlayerInfo(result, data, view.counterAttack, "카운터", key);
-            AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", key);
-            AddPlayerInfo(result, data, view.entryAttack, "교체 등장", key);
-            AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", key);
-            AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", key);
-            AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", key);
-            AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", key);
+            var entries = AbilityAttackEditorUtility.Collect(data, true);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                AbilityAttackInfo info = entries[i].AttackInfo;
+                if (info.baseInfo.animKey != key
+                    || result.Exists(x => ReferenceEquals(x.AttackInfo, info)))
+                    continue;
+                result.Add(new ResolvedAttack
+                {
+                    SourceName = entries[i].Ability.name,
+                    AnimKey = key,
+                    HitPhases = info.baseInfo.hitPhases,
+                    InterruptActions = info.interruptActions,
+                    AttackInfo = info,
+                    Owner = entries[i].Payload,
+                });
+            }
 
             return result;
         }
 
         static void AddPlayerList(List<ResolvedAttack> result, AbilitySetSO data,
-            List<PlayerAttackInfo> list, string listName, AnimKey key)
+            List<AbilityAttackInfo> list, string listName, AnimKey key)
         {
             if (list == null) return;
             for (int i = 0; i < list.Count; i++)
@@ -250,14 +257,14 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         static void AddPlayerInfo(List<ResolvedAttack> result, AbilitySetSO data,
-            PlayerAttackInfo info, string sourceName, AnimKey key)
+            AbilityAttackInfo info, string sourceName, AnimKey key)
         {
             if (info?.baseInfo == null) return;
             // 리스트 직접 매칭이 아닌 단일 슬롯(카운터 등)은 animKey 일치 시에만 추가
             if (info.baseInfo.animKey != key) return;
             // 동일 인스턴스 중복 방지 (skillDefinitions가 리스트 항목을 공유하는 경우)
             foreach (ResolvedAttack existing in result)
-                if (ReferenceEquals(existing.PlayerInfo, info)) return;
+                if (ReferenceEquals(existing.AttackInfo, info)) return;
 
             result.Add(new ResolvedAttack
             {
@@ -265,32 +272,13 @@ namespace UPlayGround.Tool.Editor.Combat
                 AnimKey = key,
                 HitPhases = info.baseInfo.hitPhases,
                 InterruptActions = info.interruptActions,
-                PlayerInfo = info,
+                AttackInfo = info,
                 Owner = data,
             });
         }
 
-        static void ResolveEnemyAttacks(EnemyAttackDataSO data, AnimKey key, List<ResolvedAttack> result)
-        {
-            if (data.skills == null) return;
-            for (int i = 0; i < data.skills.Count; i++)
-            {
-                EnemyAttackInfo skill = data.skills[i];
-                if (skill?.baseInfo == null || skill.baseInfo.animKey != key) continue;
-                result.Add(new ResolvedAttack
-                {
-                    SourceName = $"스킬 [{i}] {skill.attackCategory}",
-                    AnimKey = key,
-                    HitPhases = skill.baseInfo.hitPhases,
-                    InterruptActions = PlayerInterruptAction.None,
-                    EnemyInfo = skill,
-                    Owner = data,
-                });
-            }
-        }
-
         // ====================================================================
-        //  MotionSet ↔ AttackDataSO 자동 연결
+        //  MotionSet ↔ AbilitySet 자동 연결
         // ====================================================================
 
         /// <summary> root와 fallback 체인을 순회한다 (최대 8단계, 순환 방지). </summary>
@@ -308,10 +296,10 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         /// <summary>
-        /// ActorDefinitionSO 전체를 스캔해 이 MotionSet(또는 fallback 체인)을 쓰는 몬스터의 attackData를 찾는다.
+        /// ActorDefinitionSO 전체를 스캔해 이 MotionSet(또는 fallback 체인)을 쓰는 몬스터의 AbilitySet을 찾는다.
         /// 플레이어 세트는 ActorDefinitionSO에 연결되지 않으므로 찾지 못한다(수동 지정 + 캐시 사용).
         /// </summary>
-        public static EnemyAttackDataSO FindEnemyAttackDataForMotionSet(
+        public static AbilitySetSO FindAbilitySetForMotionSet(
             ActorAnimationMotionSet motionSet, out ActorDefinitionSO owner)
         {
             owner = null;
@@ -320,7 +308,7 @@ namespace UPlayGround.Tool.Editor.Combat
             foreach (string guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
             {
                 var actor = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(AssetDatabase.GUIDToAssetPath(guid));
-                if (actor == null || actor.attackData == null || actor.prefab == null) continue;
+                if (actor == null || actor.EffectiveAbilitySet == null || actor.prefab == null) continue;
 
                 var animator = actor.prefab.GetComponentInChildren<ActorAnimator>(true);
                 if (animator == null || animator.MotionSet == null) continue;
@@ -329,16 +317,16 @@ namespace UPlayGround.Tool.Editor.Combat
                 {
                     if (set != motionSet) continue;
                     owner = actor;
-                    return actor.attackData;
+                    return actor.EffectiveAbilitySet;
                 }
             }
             return null;
         }
 
-        // ── MotionSet GUID → AttackDataSO GUID 수동 매핑 캐시 (플레이어 세트용) ──
-        const string PAIR_PREFS_PREFIX = "UPlayground.CombatTimeline.AttackDataFor.";
+        // ── MotionSet GUID → AbilitySet GUID 수동 매핑 캐시 (플레이어 세트용) ──
+        const string PAIR_PREFS_PREFIX = "UPlayground.CombatTimeline.AbilitySetFor.";
 
-        public static void SaveAttackDataPairing(UnityEngine.Object motionSetAsset, AttackDataSO attackData)
+        public static void SaveAttackDataPairing(UnityEngine.Object motionSetAsset, AbilitySetSO attackData)
         {
             string setGuid = GetAssetGuid(motionSetAsset);
             if (string.IsNullOrEmpty(setGuid)) return;
@@ -350,14 +338,14 @@ namespace UPlayGround.Tool.Editor.Combat
                 EditorPrefs.SetString(PAIR_PREFS_PREFIX + setGuid, dataGuid);
         }
 
-        public static AttackDataSO LoadAttackDataPairing(UnityEngine.Object motionSetAsset)
+        public static AbilitySetSO LoadAttackDataPairing(UnityEngine.Object motionSetAsset)
         {
             string setGuid = GetAssetGuid(motionSetAsset);
             if (string.IsNullOrEmpty(setGuid)) return null;
 
             string dataGuid = EditorPrefs.GetString(PAIR_PREFS_PREFIX + setGuid, string.Empty);
             if (string.IsNullOrEmpty(dataGuid)) return null;
-            return AssetDatabase.LoadAssetAtPath<AttackDataSO>(AssetDatabase.GUIDToAssetPath(dataGuid));
+            return AssetDatabase.LoadAssetAtPath<AbilitySetSO>(AssetDatabase.GUIDToAssetPath(dataGuid));
         }
 
         static string GetAssetGuid(UnityEngine.Object obj)

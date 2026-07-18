@@ -12,8 +12,8 @@
 |------|-----------|
 | 액터 기준 데이터 | `ActorDefinitionSO`, `ActorDatabase`, `ActorDatabaseEditorWindow` |
 | 스탯 | `ActorStatSO`, `ActorStatContainer`, `StatType` |
-| 공격 데이터 | `EnemyAttackDataSO`, `AbilitySetSO`, `GameplayAbilitySO`, `HitPhaseData` |
-| Motion 기반 생성 | `AttackDataFromMotionSetWindow`는 몬스터 MotionSet을 스캔해 `EnemyAttackDataSO`를 생성/동기화. 플레이어 데이터는 Ability Editor에서 편집 |
+| 공격 데이터 | `AbilitySetSO`, `AbilitySetSO`, `GameplayAbilitySO`, `HitPhaseData` |
+| Motion 기반 생성 | `GameplayAbilityEditorWindow`는 몬스터 MotionSet을 스캔해 `AbilitySetSO`를 생성/동기화. 플레이어 데이터는 Ability Editor에서 편집 |
 | BT 디버그 | `BehaviorTreeEditorWindow`, `BehaviorTreeRunner`, `BehaviorTreeDebugTrace`, `IntentScoreTimelineView`, `EncounterReplay` |
 
 이 문서는 위 기능을 묶어 밸런스 디자이너용 분석 툴로 확장하기 위한 기준 문서다. 현재 1차 구현은 `Balance Designer` 분석 창, 누락 데이터 자동 생성, MotionSet 기반 공격 데이터 생성 개선까지 포함한다.
@@ -124,7 +124,7 @@ ActorDatabase
           ├── level
           ├── grade
           ├── statData              → ActorStatSO
-          ├── attackData            → EnemyAttackDataSO
+          ├── attackData            → AbilitySetSO
           ├── behaviorData          → EnemyBehaviorSO / BehaviorTreeAsset 연계 대상
           └── prefab                → GameActor / BehaviorTreeRunner / EnemyCombat
 
@@ -133,9 +133,9 @@ ActorAnimationMotionSet
           └── MotionSet
                 └── BeginCollisionEvent(hitPhaseIndex)
                       ↓
-AttackDataFromMotionSetWindow
+GameplayAbilityEditorWindow
                       ↓
-EnemyAttackDataSO
+AbilitySetSO
                       ↓
 Balance Designer Tool 분석 입력
 
@@ -150,7 +150,7 @@ BT 쪽 데이터는 두 갈래로 사용한다.
 
 | 사용 방식 | 설명 |
 |-----------|------|
-| 정적 추정 | `EnemyAttackInfo.selectionWeight`, `cooldown`, `requiredLevel`, `minRange`, `maxRange`, `attackCategory`를 사용해 공격 빈도와 기대 DPS를 계산 |
+| 정적 추정 | `AbilityAttackInfo.selectionWeight`, `cooldown`, `requiredLevel`, `minRange`, `maxRange`, `attackCategory`를 사용해 공격 빈도와 기대 DPS를 계산 |
 | 런타임 검증 | `BehaviorTreeRunner.DebugTrace`, `IntentScoreTimeline`, `EncounterReplay`를 로드해 실제 선택 Intent와 정적 추정 결과를 비교 |
 
 ---
@@ -165,7 +165,7 @@ Assets/02.Scripts/Tool/Editor/Balance/
 ├── BalanceScenarioAsset.cs                  ✅ 분석 조건 ScriptableObject
 ├── BalanceScenarioResult.cs                 ✅ 분석 결과 DTO
 ├── BalanceCombatEstimator.cs                ✅ 정적 전투 추정 계산기 (경직 압박/정렬/과점/품질 점수 포함)
-├── BalanceAttackAnalyzer.cs                 ✅ AttackDataSO 요약/검증 (damage/poise 합산)
+├── BalanceAttackAnalyzer.cs                 ✅ AbilitySet/Payload 요약·검증 (damage/poise 합산)
 ├── BalanceActorDataValidator.cs             ✅ 누락 검증 + 텔레그래프/Strong밴드/과점 사후 검증
 ├── BalanceDataAutoGenerator.cs              ✅ MotionSet 기반 누락 데이터 자동 생성
 ├── BalanceScenarioGenerator.cs              ✅ 현재 Player 데이터 기반 시나리오 에셋 자동 생성/갱신
@@ -185,7 +185,7 @@ Assets/02.Scripts/Tool/Editor/Balance/
 | `BalanceDesignerWindow` | Actor/Player/시간/거리/가정값 입력, 결과 테이블 표시, Motion 공격 데이터 생성기와 BT 에디터 열기 |
 | `BalanceScenarioAsset` | 반복 테스트할 조건 저장. 예: 플레이어 레벨, 몬스터 레벨 범위, 기준 시간, 거리 가정 |
 | `BalanceCombatEstimator` | HP, 방어, 공격 주기, 쿨다운, 가중치를 이용해 예상 생존 시간 계산 |
-| `BalanceAttackAnalyzer` | `EnemyAttackDataSO`와 `AbilitySetSO`에서 총 피해량, 평균 피해량, 히트 수, 쿨다운, 레벨 해금 정보를 요약 |
+| `BalanceAttackAnalyzer` | `AbilitySetSO`와 `AbilitySetSO`에서 총 피해량, 평균 피해량, 히트 수, 쿨다운, 레벨 해금 정보를 요약 |
 | `BalanceActorDataValidator` | `ActorDefinitionSO` 필수 참조와 공격 데이터 누락을 검사 |
 | `BalanceScenarioGenerator` | `PartyConfigSO`(성장 데이터) + 캐릭터 모델 공격 데이터를 읽어 `BalanceScenarioAsset`을 자동 생성/갱신 |
 | `BalanceReplayComparator` | `EncounterReplay`의 실제 Intent/거리/선택 빈도와 정적 추정치를 비교 |
@@ -273,7 +273,7 @@ actorId | level | grade | score | 플레이어 생존 | 몬스터 처치 | 플�
 
 ### Motion 기반 공격 데이터 생성기 개선 방향
 
-`AttackDataFromMotionSetWindow`와 Balance Designer의 자동 생성 기능은 같은 규칙을 공유해야 한다. 수동 창에서 만든 공격 데이터와 누락 자동 생성으로 만든 공격 데이터가 서로 다른 기본값을 가지면 밸런스 분석이 흔들린다.
+`GameplayAbilityEditorWindow`와 Balance Designer의 자동 생성 기능은 같은 규칙을 공유해야 한다. 수동 창에서 만든 공격 데이터와 누락 자동 생성으로 만든 공격 데이터가 서로 다른 기본값을 가지면 밸런스 분석이 흔들린다.
 
 | 개선 항목 | 설명 |
 |-----------|------|
@@ -349,16 +349,16 @@ Motion 기반 공격 데이터 생성기는 `ActorDefinitionSO`를 직접 입력
 | `displayName` | UI 표시명 |
 | `actorType` | 몬스터/플레이어/NPC 필터 |
 | `characterType` | 플레이어블 캐릭터 비교 기준 |
-| `level` | `EnemyAttackInfo.requiredLevel` 필터와 레벨 스케일링 기준 |
+| `level` | `AbilityAttackInfo.requiredLevel` 필터와 레벨 스케일링 기준 |
 | `grade` | Normal/Elite/Boss 가중치 또는 기준 시간 프리셋 |
 | `statData` | `MaxHealth`, `AttackPower`, `Defense`, `MaxPoise` 등 계산 입력 |
-| `attackData` | 몬스터 공격 풀 분석 |
+| `abilitySet` | 액터의 공용 Ability 풀 분석 |
 | `behaviorData` | BT/AI 프로필 연결 지점 |
 | `prefab` | Play Mode 검증 시 `BehaviorTreeRunner`, `EnemyCombat` 등 런타임 컴포넌트 확인 |
 
-### AttackDataSO
+### AbilitySetSO와 공격 Payload
 
-`EnemyAttackDataSO.skills`는 몬스터의 공격 가능성과 위험도를 계산하는 핵심 데이터다.
+`AbilitySetSO.additionalAbilities`는 몬스터의 공격 가능성과 위험도를 계산하는 핵심 데이터다.
 
 | 필드 | 계산 방식 |
 |------|-----------|
@@ -412,8 +412,8 @@ Balance Designer는 개별 공격 확률뿐 아니라 카테고리별 합산 확
 
 | 조건 | 기본 동작 |
 |------|-----------|
-| `attackCategory == EnemyAttackCategory.Heavy` | `useDangerRing = true` 자동 설정 |
-| `attackCategory == EnemyAttackCategory.Skill` | `useDangerRing = true` 자동 설정 |
+| `attackCategory == AbilityAttackCategory.Heavy` | `useDangerRing = true` 자동 설정 |
+| `attackCategory == AbilityAttackCategory.Skill` | `useDangerRing = true` 자동 설정 |
 | `AnimKey.HeavyAttack_*` | 공격 데이터 생성 시 `attackCategory = Heavy`, `useDangerRing = true` |
 | `AnimKey.Skill_*`, `AnimKey.Fly_Attack`, 카운터형 특수 공격 | 공격 데이터 생성 시 `attackCategory = Skill`, `useDangerRing = true` |
 | Basic 공격 | 기본 `useDangerRing = false`, 단 예외 패턴은 수동 설정 |
@@ -561,7 +561,7 @@ UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기
 |------|------|
 | `Analyze Selected` | 선택한 `ActorDefinitionSO`만 계산 |
 | `Analyze Database` | `ActorDatabase.All` 전체 계산 |
-| `Open Attack Generator` | `AttackDataFromMotionSetWindow.Open(...)` 호출 |
+| `Open Attack Generator` | `GameplayAbilityEditorWindow.Open(...)` 호출 |
 | `Open Behavior Tree` | 연결 가능한 `BehaviorTreeAsset` 또는 BT 에디터 열기 |
 | `Load Replay` | `EncounterReplayLoader`로 리플레이 JSON 로드 |
 | `Export CSV` | 결과 테이블을 밸런스 비교용 CSV로 저장 |
@@ -606,7 +606,7 @@ UPlayGround/Gameplay/Combat/MotionSet 기반 공격 데이터 생성기
 2. 상단 요약의 `Generate Missing` 버튼이 활성화되어 있으면 누락 데이터가 있다는 뜻이다.
 3. `Generate Missing`을 누르면 다음 데이터가 필요에 따라 생성/연결된다.
    - `ActorStatSO`
-   - `EnemyAttackDataSO`
+   - `AbilitySetSO`
    - `EnemyBehaviorSO`
    - `BehaviorTreeAsset`
    - 누락된 `MonsterScalingSO` 연결
@@ -682,7 +682,7 @@ SO를 변경하지 않는 기능부터 확인한다.
 
 | 증상 | 확인 |
 |------|------|
-| `InvalidData`가 많음 | `ActorDefinitionSO.statData`, `attackData`, `EnemyAttackDataSO.skills` 누락 |
+| `InvalidData`가 많음 | `ActorDefinitionSO.statData`, `attackData`, `AbilitySetSO.additionalAbilities` 누락 |
 | 모든 `Enemy DPS`가 0 | 기준 거리에서 사용 가능한 공격이 없는지, `selectionWeight/cooldown/damage` 확인 |
 | `Score`가 0에 가까움 | 목표 시간 대비 생존/처치 시간이 극단값인지 확인 |
 
@@ -742,7 +742,7 @@ git status --short
 
 공유 SO 위험 테스트:
 
-1. 수정 대상 `ActorStatSO` 또는 `EnemyAttackDataSO`를 참조하는 다른 `ActorDefinitionSO`가 있는지 확인한다.
+1. 수정 대상 `ActorStatSO` 또는 `AbilitySetSO`를 참조하는 다른 `ActorDefinitionSO`가 있는지 확인한다.
 2. 공유 중이면 적용 전 별도 에셋으로 분리하거나, 영향 범위를 문서화한다.
 
 ### 7. 회귀 테스트 체크리스트
@@ -781,11 +781,11 @@ git status --short
 4. Heavy/Skill 공격은 `useDangerRing`을 자동으로 켜고, 첫 Collision까지의 수축 시간을 자동 산출
 5. 생성/동기화 후 즉시 재분석
 
-자동 누락 데이터 생성은 `ActorDefinitionSO.prefab`의 `ActorAnimator.MotionSet`을 먼저 읽고, 없으면 `actorId`/에셋 이름/displayName으로 `ActorAnimationMotionSet` 에셋을 검색한다. MotionSet에서 공격 `AnimKey`와 `BeginCollisionEvent`를 찾으면 해당 Collision 개수와 `hitPhaseIndex`를 기준으로 `EnemyAttackDataSO.skills`와 `HitPhaseData`를 생성한다. 유효한 공격 Motion을 찾지 못한 경우에만 기본 `Attack_1` 플레이스홀더를 생성한다.
+자동 누락 데이터 생성은 `ActorDefinitionSO.prefab`의 `ActorAnimator.MotionSet`을 먼저 읽고, 없으면 `actorId`/에셋 이름/displayName으로 `ActorAnimationMotionSet` 에셋을 검색한다. MotionSet에서 공격 `AnimKey`와 `BeginCollisionEvent`를 찾으면 해당 Collision 개수와 `hitPhaseIndex`를 기준으로 `AbilitySetSO.additionalAbilities`와 `HitPhaseData`를 생성한다. 유효한 공격 Motion을 찾지 못한 경우에만 기본 `Attack_1` 플레이스홀더를 생성한다.
 
 ### 3단계: BT 정적 요약
 
-1. `EnemyAttackCategory`별 공격 풀 요약
+1. `AbilityAttackCategory`별 공격 풀 요약
 2. Basic/Heavy/Skill/강한 공격 합산 사용 확률 표시
 3. Intent별 기대 공격 빈도 보정값 표시
 4. `behaviorData` 또는 연결된 `BehaviorTreeAsset` 누락 경고
@@ -832,7 +832,7 @@ git status --short
 
 | 조건 | 심각도 |
 |------|--------|
-| `EnemyAttackDataSO.skills` 비어 있음 | Error |
+| `AbilitySetSO.additionalAbilities` 비어 있음 | Error |
 | `baseInfo` 또는 `hitPhases` 없음 | Error |
 | `selectionWeight <= 0` | Warning |
 | `cooldown <= 0` | Warning |
@@ -859,7 +859,7 @@ git status --short
 
 ### 레벨 스케일링 (✅ 구현: MonsterScalingSO)
 
-`ActorDefinitionSO.level`은 몬스터 기준 레벨이고, `EnemyAttackInfo.requiredLevel` 필터에 바로 사용된다. 레벨·등급·난이도 → 몬스터 스탯/목표 피해 산출은 `MonsterScalingSO`로 구현했다. 플레이어의 `PartyMemberGrowthSO`/`PartyPowerCalculator`를 미러하되, 플레이어에 없는 등급 배율·난이도 배율 두 축을 추가로 얹는다. 성장 규칙은 플레이어와 동일한 `StatGrowthRule`/`GrowthFormula`를 재사용한다.
+`ActorDefinitionSO.level`은 몬스터 기준 레벨이고, `AbilityAttackInfo.requiredLevel` 필터에 바로 사용된다. 레벨·등급·난이도 → 몬스터 스탯/목표 피해 산출은 `MonsterScalingSO`로 구현했다. 플레이어의 `PartyMemberGrowthSO`/`PartyPowerCalculator`를 미러하되, 플레이어에 없는 등급 배율·난이도 배율 두 축을 추가로 얹는다. 성장 규칙은 플레이어와 동일한 `StatGrowthRule`/`GrowthFormula`를 재사용한다.
 
 | 구성 | 위치 | 역할 |
 |------|------|------|
@@ -911,7 +911,7 @@ git status --short
 ## 주의 사항
 
 - 초기 툴은 실제 액션 게임 전투를 완전 재현하는 시뮬레이터가 아니다. 설명 가능한 정적 추정값과 리플레이 비교를 우선한다.
-- `AttackDataFromMotionSetWindow`는 `BeginCollisionEvent`가 없는 공격을 제외할 수 있다. 투사체나 소환형 공격은 별도 규칙이 필요하다.
+- `GameplayAbilityEditorWindow`는 `BeginCollisionEvent`가 없는 공격을 제외할 수 있다. 투사체나 소환형 공격은 별도 규칙이 필요하다.
 - `ActorStatSO.Defense`는 0~1 감소율로 해석해야 한다. 1 이상 값이 들어가면 피해량 계산이 0 이하로 떨어질 수 있으므로 검증해야 한다.
 - BT는 노드 전체를 에디터에서 정적으로 실행하지 않는다. 정적 단계에서는 공격 풀과 Intent/카테고리 분포를 추정하고, 실제 검증은 `BehaviorTreeRunner`와 `EncounterReplay`를 사용한다.
 - 자동 밸런스 수정은 최종 단계에서만 도입한다. 처음부터 SO 값을 직접 바꾸면 원인 추적이 어려워진다.

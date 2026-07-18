@@ -101,8 +101,8 @@
 
 | 원인 | 확인 항목 |
 |------|-----------|
-| 기준 거리에서 공격 없음 | `EnemyAttackInfo.minRange`, `maxRange` |
-| 레벨 조건으로 공격 잠김 | `EnemyAttackInfo.requiredLevel` |
+| 기준 거리에서 공격 없음 | `GameplayAbilitySO.activation.minDistance`, `maxRange` |
+| 레벨 조건으로 공격 잠김 | `AbilityAttackInfo.requiredLevel` |
 | 쿨다운 과다 | `cooldown`, `globalCooldown` |
 | BT가 공격 Intent로 진입하지 않음 | `BehaviorTreeAsset`, Intent 로그 |
 | 몬스터 HP만 높음 | `MaxHealth`, `Defense`, 플레이어 DPS |
@@ -243,10 +243,10 @@ Boss는 전투 시간 자체보다 페이즈 구성과 위험 분포가 중요�
 
 | 입력 | 사용 |
 |------|------|
-| `EnemyAttackInfo.requiredLevel` | 현재 몬스터 레벨에서 해금 여부 |
-| `EnemyAttackInfo.minRange/maxRange` | 기준 거리에서 사용 가능 여부 |
-| `EnemyAttackInfo.selectionWeight` | 공격 선택 확률 |
-| `EnemyAttackInfo.cooldown` | 공격 빈도 |
+| `AbilityAttackInfo.requiredLevel` | 현재 몬스터 레벨에서 해금 여부 |
+| `GameplayAbilitySO.activation.minDistance/maxDistance` | 기준 거리에서 사용 가능 여부 |
+| `AbilityAttackInfo.selectionWeight` | 공격 선택 확률 |
+| `GameplayAbilitySO.cooldown.durationSeconds` | 공격 빈도 |
 | `HitPhaseData.damage` | 공격 1회 피해량 |
 | `ActorStatSO.AttackPower` | 몬스터 공격력 배율 |
 

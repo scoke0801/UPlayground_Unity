@@ -30,7 +30,6 @@ namespace UPlayGround.Editor.P09Builder
 
         public const string CharactersRoot = "Assets/03.Prefabs/Characters";
         public const string ActorDefinitionRoot = "Assets/10.Datas/Actor/DataBase";
-        public const string EnemyAttackDataRoot = "Assets/10.Datas/Actor/Enemy/AttackData";
         public const string EnemyBehaviorDataRoot = "Assets/10.Datas/Actor/Enemy/BehaviorData";
         public const string EnemyPoiseDataRoot = "Assets/10.Datas/Actor/Enemy/PoiseData";
         public const string NpcDataRoot = "Assets/10.Datas/Actor/Npc";
@@ -68,8 +67,6 @@ namespace UPlayGround.Editor.P09Builder
         {
             if (assetType == typeof(ActorDefinitionSO))
                 return ActorDefinitionRoot;
-            if (assetType == typeof(EnemyAttackDataSO))
-                return EnemyAttackDataRoot;
             if (assetType == typeof(EnemyBehaviorSO))
                 return EnemyBehaviorDataRoot;
             if (assetType == typeof(PoiseSO))

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,7 +16,7 @@ namespace UPlayGround.UI
     /// 이미지와 설명 텍스트를 페이지 단위로 보여주는 가이드 팝업.
     /// UIManager.ShowUI(UIKeyType.GuidePopup)로 표시한 뒤 Setup(data)를 호출한다.
     /// </summary>
-    public class UI_GuidePopup : UI_Base
+    public class UI_GuidePopup : UI_PopupBase
     {
         public const string UIKey = "GuidePopup";
 
@@ -42,7 +41,6 @@ namespace UPlayGround.UI
         private int _pageIndex;
         private RenderTexture _videoTexture;
         private bool _pausedByThisPopup;
-        private Coroutine _fadeRoutine;
 
         protected override bool BlocksLowerInput => true;
 
@@ -69,6 +67,7 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            // UI_PopupBase.OnShow가 Dim 페이드 인 + Panel 스케일 팝인 트윈을 재생한다.
             base.OnShow();
 
             _pausedByThisPopup = false;
@@ -78,7 +77,6 @@ namespace UPlayGround.UI
                 _pausedByThisPopup = true;
             }
 
-            FadeInUnscaled(0.15f);
             Refresh();
             SelectDefaultButton();
         }
@@ -86,8 +84,6 @@ namespace UPlayGround.UI
         protected override void OnHide()
         {
             StopVideo();
-
-            StopFade();
 
             if (_pausedByThisPopup)
             {
@@ -176,6 +172,7 @@ namespace UPlayGround.UI
 
         private void ClosePopup()
         {
+            // HideUI → UI_PopupBase.Hide가 클로즈 트윈(Dim 페이드 아웃 + Panel 축소) 후 실제로 숨긴다.
             UISvc.UI?.HideUI(UIKey);
         }
 
@@ -253,51 +250,6 @@ namespace UPlayGround.UI
                 _guideVideoImage.texture = null;
         }
 
-        private void FadeInUnscaled(float duration)
-        {
-            StopFade();
-
-            if (_canvasGroup == null)
-                return;
-
-            _fadeRoutine = StartCoroutine(FadeUnscaled(0f, 1f, duration));
-        }
-
-        private void StopFade()
-        {
-            if (_fadeRoutine == null)
-                return;
-
-            StopCoroutine(_fadeRoutine);
-            _fadeRoutine = null;
-        }
-
-        private IEnumerator FadeUnscaled(float from, float to, float duration)
-        {
-            if (_canvasGroup == null)
-                yield break;
-
-            if (duration <= 0f)
-            {
-                _canvasGroup.alpha = to;
-                _fadeRoutine = null;
-                yield break;
-            }
-
-            float elapsed = 0f;
-            _canvasGroup.alpha = from;
-
-            while (elapsed < duration)
-            {
-                elapsed += Time.unscaledDeltaTime;
-                _canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / duration);
-                yield return null;
-            }
-
-            _canvasGroup.alpha = to;
-            _fadeRoutine = null;
-        }
-
         private void SelectDefaultButton()
         {
             if (!IsVisible || EventSystem.current == null)
@@ -311,7 +263,6 @@ namespace UPlayGround.UI
         protected override void OnDispose()
         {
             base.OnDispose();
-            StopFade();
             StopVideo();
 
             if (_videoTexture != null)

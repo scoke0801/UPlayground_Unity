@@ -70,7 +70,7 @@
 
 > 즉, 동일한 `[3] 스킬1` 입력이라도 **직전 입력 히스토리**에 따라 일반 스킬1 또는 연계스킬로 분기한다.
 
-몬스터 측 구조는 기존 유지(`EnemyAttackInfo` / BT 기반)이며 본 설계는 **플레이어 전용**이다.
+몬스터 측 구조는 기존 유지(`AbilityAttackInfo` / BT 기반)이며 본 설계는 **플레이어 전용**이다.
 
 ---
 
@@ -82,7 +82,7 @@
   - `liteComboAttackList`, `heavyComboAttackList`, `jumpAttackList`, `dashAttackList`, `skillAttackList`
   - `counterAttack`, `parryCounterAttack`, `entryAttack`, `swapSpecialAttack`
   - `chargeAnimKey` / `chargeStages` / `chargeStageThresholds`
-- `PlayerAttackInfo { AttackInfoBase baseInfo; PlayerInterruptAction interruptActions; float hitAngle; }`
+- `AbilityAttackInfo { AttackInfoBase baseInfo; PlayerInterruptAction interruptActions; float hitAngle; }`
 - `AttackInfoBase { AnimKey animKey; AttackType attackType; List<HitPhaseData> hitPhases; }`
 
 ### 2.2 실행 흐름
@@ -224,7 +224,7 @@ public class ComboRouteEntry
     public float cooldown = 0f;
 
     [Header("실행 공격")]
-    public PlayerAttackInfo attackInfo = new();
+    public AbilityAttackInfo attackInfo = new();
 
     [Tooltip("같은 길이/우선 라우트 경합 시 우선순위(높을수록 먼저)")]
     public int priority = 0;
@@ -389,7 +389,7 @@ PlayerAttackDataSOWindow [공격 데이터 에디터]
 - **좌측 리스트 미니 미리보기**: 각 라우트의 첫 5토큰을 색칩으로, 초과 시 `…`.
 - **태그 조건 드롭다운**: `requiredTagIds`(초록) / `blockedTagIds`(빨강) — `GameplayTagId` enum 드롭다운,
   툴바에 `🏷 Tag Registry Editor` 바로가기(기존 `GameplayTagRegistryEditorWindow.Open()`).
-- **공격 정보 섹션**: `attackInfo`(`PlayerAttackInfo`) 인라인 편집.
+- **공격 정보 섹션**: `attackInfo`(`AbilityAttackInfo`) 인라인 편집.
 
 ### 7.4 신규/개선 항목 (과거 대비)
 
@@ -401,7 +401,7 @@ PlayerAttackDataSOWindow [공격 데이터 에디터]
 | **자원 표기** | `skillGaugeIndex` 배지(`G:n`) + `cooldown` 필드. 0 미만/초과 경고 |
 | **충돌 진단(diagnostics)** | ★ 핵심: 라우트 간 **그림자(shadow)/도달불가** 자동 검출. 예) 짧은 Suffix 라우트가 긴 라우트의 접미를 항상 선점 → 경고. 같은 패턴+조건 중복 → 경고 |
 | **입력 시뮬레이터** | ★ 토큰 스트림을 직접 입력(버튼 클릭 누적)하면 **`ComboRouteResolver`와 동일 로직**으로 어떤 라우트가 매칭되는지 실시간 하이라이트. 만료 윈도우/우선순위 결과 미리보기 |
-| **MotionSet 연동** | `attackInfo.animKey`를 캐릭터 MotionSet에서 드롭다운 선택 (기존 `AttackDataFromMotionSetWindow` 패턴 재사용) |
+| **MotionSet 연동** | `attackInfo.animKey`를 캐릭터 MotionSet에서 드롭다운 선택 (기존 `GameplayAbilityEditorWindow` 패턴 재사용) |
 
 > **진단 로직은 런타임 `ComboRouteResolver`와 동일 코드를 공유**해야 한다(에디터 전용 재구현 금지).
 > Resolver의 매칭 함수를 `static`/순수 함수로 분리해 에디터·런타임 양쪽에서 호출하도록 설계한다.

@@ -795,7 +795,7 @@ PlayerAttackState / EnemyAttackState
 - [x] `CombatDataValidator` 순수 검증 로직 추가
 - [x] `CombatDataValidatorWindow` 추가
 - [x] PlayerAttackDataSO 전체 기본 검증
-- [x] EnemyAttackDataSO 전체 기본 검증
+- [x] AbilitySetSO 전체 기본 검증
 - [ ] MotionSet 이벤트와 hitPhases 매칭 검증
 - [x] Markdown 리포트 출력
 
@@ -811,7 +811,7 @@ PlayerAttackState / EnemyAttackState
 - 가드/패리/퍼펙트도지/Unblockable이 `DefenseResult`로 명시된다.
 - Poise/Break/HitReaction 상태 전환이 `ReactionDecision`으로 설명 가능하다.
 - MotionEvent가 `PlayerCombat` / `EnemyCombat` 직접 호출이 아니라 runner timeline event로 전달될 수 있다.
-- 공격 데이터 검증 툴이 `PlayerAttackDataSO`, `EnemyAttackDataSO`의 기본 오류/경고를 사전에 잡고 Markdown 리포트를 저장할 수 있다.
+- 공격 데이터 검증 툴이 `PlayerAttackDataSO`, `AbilitySetSO`의 기본 오류/경고를 사전에 잡고 Markdown 리포트를 저장할 수 있다.
 
 ### 후속 완료 목표
 

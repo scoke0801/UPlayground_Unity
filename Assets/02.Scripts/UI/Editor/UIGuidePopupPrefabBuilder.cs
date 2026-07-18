@@ -23,6 +23,10 @@ namespace UPlayGround.UI.Guide.EditorTools
         private static readonly Color TextMain = new(0.24f, 0.26f, 0.28f, 1f);
         private static readonly Color ButtonBg = new(0.35f, 0.34f, 0.30f, 0.80f);
 
+        // Dim 위에 떠 있는 중앙 UI 영역 크기(참조 해상도 2560x1440 기준).
+        // 가로는 좁고 세로가 긴 세로형 비율(약 0.9:1).
+        private static readonly Vector2 PanelSize = new(1120f, 1260f);
+
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
         [MenuItem("UPlayGround/UI/가이드 팝업 프리팹 빌드")]
@@ -52,12 +56,16 @@ namespace UPlayGround.UI.Guide.EditorTools
                 var popup = root.AddComponent<UI_GuidePopup>();
                 Stretch(root);
 
+                // Dim은 화면 전체를 덮고, 오픈/클로즈 트윈에서 알파를 조절할 수 있도록 CanvasGroup을 둔다.
                 var dim = NewUI("Dim", root.transform);
                 Stretch(dim);
                 AddImage(dim, Dim);
+                var dimCanvasGroup = dim.AddComponent<CanvasGroup>();
 
+                // Panel은 전체 화면이 아니라 중앙 고정 UI 영역(참조 해상도 2560x1440의 약 65%)이다.
                 var panel = NewUI("Panel", root.transform);
-                StretchWithMargin(panel, 12f);
+                Anchor(panel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                    new Vector2(0.5f, 0.5f), Vector2.zero, PanelSize);
                 AddImage(panel, Panel, UISprite, true);
 
                 var border = NewUI("Border", panel.transform);
@@ -121,6 +129,8 @@ namespace UPlayGround.UI.Guide.EditorTools
 
                 var so = new SerializedObject(popup);
                 so.FindProperty("_layer").intValue = (int)CanvasLayer.Popup;
+                SetRef(so, "_dim", dimCanvasGroup);
+                SetRef(so, "_panel", (RectTransform)panel.transform);
                 SetRef(so, "_guideImage", guideImage);
                 SetRef(so, "_guideVideoImage", guideVideoImage);
                 SetRef(so, "_videoPlayer", videoPlayer);

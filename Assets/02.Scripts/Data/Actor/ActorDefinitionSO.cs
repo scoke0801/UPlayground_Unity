@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Enemy;
@@ -60,8 +61,8 @@ namespace UPlayGround.Data.Actor
         public int level = 1;
 
         [Header("전투/AI 데이터")]
-        [Tooltip("적 공격 데이터. null이면 프리팹의 EnemyCombat에 설정된 값 사용.")]
-        public EnemyAttackDataSO attackData;
+        [Tooltip("액터에게 부여할 공용 AbilitySet. 몬스터 프로필에 값이 있으면 프로필 값이 우선합니다.")]
+        public AbilitySetSO abilitySet;
 
         [Tooltip("방어 판정 정책. null이면 기존 기본 방어 규칙을 사용한다.")]
         public CombatDefensePolicySO combatDefensePolicy;
@@ -97,7 +98,9 @@ namespace UPlayGround.Data.Actor
         public MonsterScalingSO EffectiveMonsterScaling => monsterProfile != null ? monsterProfile.monsterScaling : monsterScaling;
         public MonsterActorGrade EffectiveGrade => monsterProfile != null ? monsterProfile.grade : grade;
         public int EffectiveLevel => monsterProfile != null ? Mathf.Max(1, monsterProfile.level) : Mathf.Max(1, level);
-        public EnemyAttackDataSO EffectiveAttackData => monsterProfile != null ? monsterProfile.attackData : attackData;
+        public AbilitySetSO EffectiveAbilitySet => monsterProfile != null && monsterProfile.abilitySet != null
+            ? monsterProfile.abilitySet
+            : abilitySet;
         public CombatDefensePolicySO EffectiveCombatDefensePolicy => monsterProfile != null ? monsterProfile.combatDefensePolicy : combatDefensePolicy;
         public CombatReactionPolicySO EffectiveCombatReactionPolicy => monsterProfile != null ? monsterProfile.combatReactionPolicy : combatReactionPolicy;
         public EnemyBehaviorSO EffectiveBehaviorData => monsterProfile != null ? monsterProfile.behaviorData : behaviorData;

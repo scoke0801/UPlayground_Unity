@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -447,7 +447,7 @@ namespace UPlayGround.Manager
         /// 몬스터 공격 윈드업 Danger Ring 생성. skill.dangerRingPrefabKey가 있으면 해당 프리팹,
         /// 없으면 기본 프리팹을 사용한다. 프리팹 미등록 시 null 반환(조용히 스킵).
         /// </summary>
-        public UI_DangerRing CreateDangerRing(GameActor actor, EnemyAttackInfo skill, float duration)
+        public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration)
         {
             if (_worldSpaceHudLayer == null || skill == null) return null;
 
@@ -482,7 +482,7 @@ namespace UPlayGround.Manager
         IActorHpBarView IActorUIService.CreateHpBar(GameActor actor) => CreateHpBar(actor);
         IActorDangerRingView IActorUIService.CreateDangerRing(
             GameActor actor,
-            EnemyAttackInfo skill,
+            AbilityAttackInfo skill,
             float duration) => CreateDangerRing(actor, skill, duration);
         IActorBreakInteractionView IActorUIService.CreateBreakInteraction(GameActor actor) =>
             CreateBreakInteraction(actor);

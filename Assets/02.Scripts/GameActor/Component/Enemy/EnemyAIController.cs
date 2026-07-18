@@ -27,7 +27,6 @@ namespace UPlayGround.Components
         [SerializeField] private EnemyTacticalMemory     _memory;
         [SerializeField] private BehaviorTreeRunner      _behaviorTreeRunner;
 
-        protected float       _lastAttackTime;
         private Vector3       _spawnPosition;
         private float         _maxAttackRange;
         private float         _effectiveOptimalCombatDistance;
@@ -124,9 +123,9 @@ namespace UPlayGround.Components
         {
             _effectiveOptimalCombatDistance = data?.optimalCombatDistance ?? 2.5f;
 
-            if (_combat?.AttackData != null)
+            if (_combat?.AbilitySet != null)
             {
-                _maxAttackRange = _combat.AttackData.GetMaxAttackRange();
+                _maxAttackRange = _combat.GetMaxAttackRange();
                 if (_effectiveOptimalCombatDistance > _maxAttackRange)
                     _effectiveOptimalCombatDistance = _maxAttackRange * 0.8f;
             }
@@ -135,11 +134,9 @@ namespace UPlayGround.Components
                 _maxAttackRange = 2.5f;
             }
 
-            _lastAttackTime = -(_combat?.AttackData?.globalCooldown ?? 1f);
-
-            // 공격 타입 캐싱 — 모든 스킬이 Ranged면 원거리, 하나라도 Melee면 근접
-            _myAttackType = (_combat?.AttackData?.HasRangedSkill() == true
-                             && !_combat.AttackData.HasMeleeSkill())
+            // 공격 타입 캐싱 — 모든 Ability가 Ranged면 원거리, 하나라도 Melee면 근접
+            _myAttackType = (_combat?.HasAttackType(AttackType.Ranged) == true
+                             && !_combat.HasAttackType(AttackType.Melee))
                 ? AttackType.Ranged
                 : AttackType.Melee;
 
@@ -268,8 +265,10 @@ namespace UPlayGround.Components
         
         public override bool CanUseSkill()
         {
-            if (_combat?.AttackData == null) return false;
-            return Time.time - _lastAttackTime >= _combat.AttackData.globalCooldown;
+            return _combat != null
+                   && _detection != null
+                   && _detection.HasTarget
+                   && _combat.HasAvailableSkillAtDistance(_detection.DistanceToTarget);
         }
 
         public override bool TryRequestAttackSlot()
@@ -296,7 +295,6 @@ namespace UPlayGround.Components
 
         public override void NotifyBTAttackStarted()
         {
-            _lastAttackTime = Time.time;
             _actionCooldownTimer = 0f;
             _consecutiveDefensiveCount = 0;
             _memory?.NotifyCombatAction();

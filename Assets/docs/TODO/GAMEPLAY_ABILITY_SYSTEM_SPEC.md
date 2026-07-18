@@ -380,7 +380,7 @@ V1 이후에는 다음 순서로 분리한다.
 
 ### 7.9 구현 진행 상태 (2026-07-18)
 
-현재는 독립 모듈 전환 1단계까지 구현되었다.
+현재는 독립 모듈 전환 기반과 UPlayground V1 수직 슬라이스를 구현 중이다.
 
 - `UPlayGround.Ability.Core` asmdef를 생성했고 UPlayground 프로젝트 asmdef 참조는 0건이다.
 - 실행 상태, 활성화 결과, UI View State, `IAbilityClock`, 자원·태그·스탯·실행 Port,
@@ -389,9 +389,19 @@ V1 이후에는 다음 순서로 분리한다.
   V1 Variant 호환 Resolver를 배치했다.
 - `ActorAbilitySystem`의 쿨다운은 Core 런타임을 사용하며, 자원·태그 접근은
   `UPlayGroundAbilityOwnerPorts`를 거친다.
-- Effect의 중첩/갱신/교체 판정은 Core의 `AbilityEffectStackRuntime`을 사용한다.
+- Effect의 중첩/갱신/교체 판정은 Core의 `AbilityEffectStackRuntime`을 사용하고,
+  자원·태그·스탯 적용과 핸들 제거는 Port 인터페이스를 거친다.
 - 데이터 툴의 `Payload 변환`은 기존 Variant 공격 데이터를 Ability 에셋의 서브에셋으로
   비파괴 복사한다. 변환 후에도 V1 필드는 롤백을 위해 유지한다.
+- 플레이어 캐릭터 교체와 사망 시 Ability/Effect 정리 정책을 연결했고,
+  캐릭터별 쿨다운·저장 허용 Effect·자원 DTO를 실제 파티 세이브에 연결했다.
+- `Self`/`Ally`/`Enemy` 대상 관계와 Self 자동 대상 해석을 런타임에 적용했다.
+- `GameplayCueDispatcher`가 시작·실패·종료·쿨다운 준비 신호를 액터 로컬 이벤트로 제공한다.
+  - UI Toolkit Ability Editor는 생성·저장·참조 검사 기반 안전 삭제·전체 검증을 제공한다.
+  - 기존 `PlayerAttackDataSO` 일괄 마이그레이션 UI를 제작했다. 읽기 전용 미리보기,
+    결정적 출력 경로, ID/경로 충돌 차단, 정의 우선 및 `skillAttackList[0/1]` 폴백,
+    원본 비수정, Motion Payload 서브에셋 생성, 실행 후 비교 리포트를 제공한다.
+    2026-07-18 기준 도구만 제작했으며 실제 프로젝트 데이터 일괄 변환은 실행하지 않았다.
 
 아직 `GameplayAbilitySO`, `GameplayEffectSO`, `AbilitySetSO` 정의 자체와 Effect 수명주기는
 `UPlayGround.Data`/Actor 호환 계층에 남아 있다. 따라서 현재 상태를 독립 재사용 모듈

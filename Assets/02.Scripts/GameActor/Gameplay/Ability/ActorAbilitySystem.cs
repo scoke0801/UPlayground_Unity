@@ -7,7 +7,9 @@ using UPlayGround.Components;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
+using UPlayGround.Gameplay.Cue;
 using UPlayGround.Gameplay.Effect;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
@@ -29,6 +31,9 @@ namespace UPlayGround.Gameplay.Ability
         private AbilityCooldownRuntime _cooldowns;
         private IAbilityResourcePort _resources;
         private IAbilityTagPort _tags;
+        private GameplayCueDispatcher _cues;
+        private readonly HashSet<string> _trackedCooldownGroups =
+            new(StringComparer.Ordinal);
 
         public event Action StateChanged;
         public AbilitySetSO AbilitySet => _abilitySet;
@@ -36,9 +41,20 @@ namespace UPlayGround.Gameplay.Ability
 
         private void Awake()
         {
-            _owner = GetComponent<GameActor>();
+            Initialize(GetComponent<GameActor>());
+        }
+
+        public void Initialize(GameActor owner)
+        {
+            if (owner == null)
+                throw new ArgumentNullException(nameof(owner));
+            if (ReferenceEquals(_owner, owner) && _cooldowns != null)
+                return;
+
+            _owner = owner;
             _effects = GetComponent<GameplayEffectController>();
             _cooldowns = new AbilityCooldownRuntime(new UnityAbilityClock());
+            _cues = gameObject.GetOrAddComponent<GameplayCueDispatcher>();
             var ports = new UPlayGroundAbilityOwnerPorts(_owner);
             _resources = ports;
             _tags = ports;
@@ -48,6 +64,7 @@ namespace UPlayGround.Gameplay.Ability
         {
             CancelActivePlayerAbility();
             _abilitySet = abilitySet;
+            _trackedCooldownGroups.Clear();
             StateChanged?.Invoke();
         }
 
@@ -63,7 +80,11 @@ namespace UPlayGround.Gameplay.Ability
             variant = null;
             GameplayAbilitySO definition = _abilitySet?.GetPlayerAbility(slot);
             if (definition == null) return AbilityActivationResult.NotGranted;
-            return Evaluate(definition, isGrounded, target, out variant);
+            return Evaluate(
+                definition,
+                isGrounded,
+                ResolveTarget(definition, target),
+                out variant);
         }
 
         public AbilityActivationResult TryPreparePlayerSlot(
@@ -78,21 +99,37 @@ namespace UPlayGround.Gameplay.Ability
             GameplayAbilitySO definition = _abilitySet?.GetPlayerAbility(slot);
             if (definition == null) return AbilityActivationResult.NotGranted;
 
-            AbilityActivationResult result = Evaluate(definition, isGrounded, target, out variant);
+            GameActor resolvedTarget = ResolveTarget(definition, target);
+            AbilityActivationResult result =
+                Evaluate(definition, isGrounded, resolvedTarget, out variant);
             if (result != AbilityActivationResult.Success)
+            {
+                DispatchCue(
+                    definition,
+                    variant,
+                    AbilityCueEventType.Failed,
+                    result);
                 return result;
+            }
 
             if (_activePlayerExecution != 0)
             {
                 if (definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
+                {
+                    DispatchCue(
+                        definition,
+                        variant,
+                        AbilityCueEventType.Failed,
+                        AbilityActivationResult.ConflictingAbility);
                     return AbilityActivationResult.ConflictingAbility;
+                }
                 if (definition.concurrency == AbilityConcurrencyPolicy.CancelExisting)
                     CancelActivePlayerAbility();
             }
 
             handle = new AbilityExecutionHandle(_nextHandle++);
             _executions.Add(handle.Value, new AbilityExecution(
-                handle, definition, variant, _owner, target, Time.frameCount));
+                handle, definition, variant, _owner, resolvedTarget, Time.frameCount));
             return AbilityActivationResult.Success;
         }
 
@@ -107,12 +144,22 @@ namespace UPlayGround.Gameplay.Ability
             if (Time.frameCount > execution.PreparedFrame + 1)
             {
                 Abort(handle);
+                DispatchCue(
+                    execution.Definition,
+                    execution.Variant,
+                    AbilityCueEventType.Failed,
+                    AbilityActivationResult.PreparedExecutionExpired);
                 return AbilityActivationResult.PreparedExecutionExpired;
             }
 
             if (!TryConsumeCost(execution.Definition.cost))
             {
                 Abort(handle);
+                DispatchCue(
+                    execution.Definition,
+                    execution.Variant,
+                    AbilityCueEventType.Failed,
+                    AbilityActivationResult.InsufficientResource);
                 return AbilityActivationResult.InsufficientResource;
             }
 
@@ -125,15 +172,35 @@ namespace UPlayGround.Gameplay.Ability
             execution.StartTime = Time.time;
             execution.State = AbilityExecutionState.Active;
             _activePlayerExecution = handle.Value;
+            DispatchCue(
+                execution.Definition,
+                execution.Variant,
+                AbilityCueEventType.Started,
+                AbilityActivationResult.Success);
             StateChanged?.Invoke();
             return AbilityActivationResult.Success;
         }
 
         public void Abort(AbilityExecutionHandle handle)
         {
+            Abort(handle, AbilityActivationResult.Success);
+        }
+
+        public void Abort(
+            AbilityExecutionHandle handle,
+            AbilityActivationResult reason)
+        {
             if (!handle.IsValid || !_executions.Remove(handle.Value, out AbilityExecution execution))
                 return;
             execution.State = AbilityExecutionState.Aborted;
+            if (reason != AbilityActivationResult.Success)
+            {
+                DispatchCue(
+                    execution.Definition,
+                    execution.Variant,
+                    AbilityCueEventType.Failed,
+                    reason);
+            }
         }
 
         public void EndActivePlayerAbility(bool completed)
@@ -151,6 +218,11 @@ namespace UPlayGround.Gameplay.Ability
                 : AbilityExecutionState.Cancelled;
             if (completed)
                 ApplyEffects(execution.Definition.endEffects, _owner);
+            DispatchCue(
+                execution.Definition,
+                execution.Variant,
+                AbilityCueEventType.Ended,
+                AbilityActivationResult.Success);
             _activePlayerExecution = 0;
             StateChanged?.Invoke();
         }
@@ -171,7 +243,11 @@ namespace UPlayGround.Gameplay.Ability
             }
 
             AbilityActivationResult result =
-                Evaluate(definition, grounded, null, out AbilityVariantDefinition variant);
+                Evaluate(
+                    definition,
+                    grounded,
+                    ResolveTarget(definition, null),
+                    out AbilityVariantDefinition variant);
             float current = GetResourceCurrent(definition.cost.resourceType);
             float required = GetRequiredCost(definition.cost);
             string group = definition.cooldown.ResolveGroupId(definition.abilityId);
@@ -189,26 +265,54 @@ namespace UPlayGround.Gameplay.Ability
             return true;
         }
 
-        public AbilityRuntimeSaveData CaptureRuntimeState()
+        public AbilityRuntimeSaveData CaptureRuntimeState(bool forCharacterSwap = false)
         {
             var data = new AbilityRuntimeSaveData();
+            if (_resources.TryGet(
+                    AbilityResourceType.UltimateEnergy.ToString(),
+                    out float resourceCurrent,
+                    out _))
+            {
+                data.resources.Add(new AbilityResourceSaveEntry
+                {
+                    resourceType = AbilityResourceType.UltimateEnergy,
+                    currentValue = resourceCurrent,
+                });
+            }
+
             var snapshots = new List<AbilityCooldownSnapshot>();
             _cooldowns.Capture(snapshots);
             for (int i = 0; i < snapshots.Count; i++)
             {
                 AbilityCooldownSnapshot cooldown = snapshots[i];
+                if (!forCharacterSwap && !ShouldSaveCooldown(cooldown.GroupId))
+                    continue;
                 data.cooldowns.Add(new AbilityCooldownSaveEntry
                 {
                     cooldownGroupId = cooldown.GroupId,
                     remainingSeconds = cooldown.RemainingSeconds,
                 });
             }
+            _effects?.CaptureRuntimeState(data.activeEffects, forCharacterSwap);
             return data;
         }
 
         public void RestoreRuntimeState(AbilityRuntimeSaveData data)
         {
             _cooldowns.Clear();
+            _trackedCooldownGroups.Clear();
+            if (data?.resources != null)
+            {
+                for (int i = 0; i < data.resources.Count; i++)
+                {
+                    AbilityResourceSaveEntry entry = data.resources[i];
+                    if (entry == null || entry.resourceType == AbilityResourceType.None)
+                        continue;
+                    _resources.TrySet(
+                        entry.resourceType.ToString(),
+                        Mathf.Max(0f, entry.currentValue));
+                }
+            }
             if (data?.cooldowns != null)
             {
                 for (int i = 0; i < data.cooldowns.Count; i++)
@@ -218,16 +322,79 @@ namespace UPlayGround.Gameplay.Ability
                         continue;
                     float remaining = Mathf.Max(0f, entry.remainingSeconds);
                     if (remaining > 0f)
+                    {
                         _cooldowns.Restore(entry.cooldownGroupId, remaining);
+                        _trackedCooldownGroups.Add(entry.cooldownGroupId.Trim());
+                    }
                 }
             }
+            _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
             StateChanged?.Invoke();
+        }
+
+        private bool ShouldSaveCooldown(string groupId)
+        {
+            if (_abilitySet == null || string.IsNullOrWhiteSpace(groupId))
+                return false;
+            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            {
+                if (ability == null
+                    || ability.persistence == null
+                    || !ability.persistence.saveCooldown)
+                    continue;
+                if (string.Equals(
+                        ability.cooldown.ResolveGroupId(ability.abilityId),
+                        groupId,
+                        StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
         }
 
         public void HandleCharacterSwap()
         {
             CancelActivePlayerAbility();
             _effects?.RemoveForSwap();
+        }
+
+        public void HandleOwnerDeath()
+        {
+            CancelActivePlayerAbility();
+            _effects?.RemoveAll();
+        }
+
+        private GameplayEffectSO ResolveEffectDefinition(string effectId)
+        {
+            if (_abilitySet == null || string.IsNullOrWhiteSpace(effectId))
+                return null;
+            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            {
+                GameplayEffectSO found = FindEffect(ability?.commitEffects, effectId)
+                                         ?? FindEffect(ability?.endEffects, effectId);
+                if (found != null) return found;
+                if (ability?.variants == null) continue;
+                for (int i = 0; i < ability.variants.Count; i++)
+                {
+                    AbilityVariantDefinition variant = ability.variants[i];
+                    found = FindEffect(variant?.ownerEffects, effectId)
+                            ?? FindEffect(variant?.targetEffects, effectId);
+                    if (found != null) return found;
+                }
+            }
+            return null;
+        }
+
+        private static GameplayEffectSO FindEffect(
+            List<GameplayEffectSO> definitions,
+            string effectId)
+        {
+            if (definitions == null) return null;
+            for (int i = 0; i < definitions.Count; i++)
+                if (definitions[i] != null
+                    && string.Equals(
+                        definitions[i].effectId, effectId, StringComparison.Ordinal))
+                    return definitions[i];
+            return null;
         }
 
         private AbilityActivationResult Evaluate(
@@ -250,6 +417,9 @@ namespace UPlayGround.Gameplay.Ability
             if (!MatchesGround(activation.groundCondition, isGrounded))
                 return AbilityActivationResult.InvalidGroundState;
             if (activation.targetPolicy == AbilityTargetPolicy.Required && target == null)
+                return AbilityActivationResult.InvalidTarget;
+            if (target != null
+                && !MatchesTargetRelation(activation.targetRelation, target))
                 return AbilityActivationResult.InvalidTarget;
             if (target != null && !MatchesDistance(activation, target))
                 return AbilityActivationResult.OutOfRange;
@@ -368,6 +538,7 @@ namespace UPlayGround.Gameplay.Ability
             if (duration <= 0f) return;
             string group = definition.cooldown.ResolveGroupId(definition.abilityId);
             _cooldowns.Start(group, duration);
+            _trackedCooldownGroups.Add(group);
         }
 
         private float GetCooldownRemaining(string group)
@@ -427,15 +598,105 @@ namespace UPlayGround.Gameplay.Ability
             return activation.maxDistance <= 0f || distance <= activation.maxDistance;
         }
 
+        private GameActor ResolveTarget(GameplayAbilitySO definition, GameActor target)
+        {
+            return definition?.activation?.targetRelation == AbilityTargetRelation.Self
+                ? _owner
+                : target;
+        }
+
+        private bool MatchesTargetRelation(
+            AbilityTargetRelation relation,
+            GameActor target)
+        {
+            if (target == null) return false;
+            if (relation == AbilityTargetRelation.Self)
+                return ReferenceEquals(target, _owner);
+            if (ReferenceEquals(target, _owner))
+                return false;
+
+            bool ownerPlayer = _owner.HasActorType(ActorType.Player);
+            bool targetPlayer = target.HasActorType(ActorType.Player);
+            bool ownerMonster = _owner.HasActorType(ActorType.Monster);
+            bool targetMonster = target.HasActorType(ActorType.Monster);
+            bool sameFaction = ownerPlayer && targetPlayer
+                               || ownerMonster && targetMonster;
+            return relation == AbilityTargetRelation.Ally
+                ? sameFaction
+                : !sameFaction
+                  && (ownerPlayer || ownerMonster)
+                  && (targetPlayer || targetMonster);
+        }
+
         private static bool MatchesGround(AbilityGroundCondition condition, bool grounded) =>
             condition == AbilityGroundCondition.Any
             || (condition == AbilityGroundCondition.Grounded && grounded)
             || (condition == AbilityGroundCondition.Airborne && !grounded);
 
+        private void DispatchCue(
+            GameplayAbilitySO definition,
+            AbilityVariantDefinition variant,
+            AbilityCueEventType eventType,
+            AbilityActivationResult result)
+        {
+            AbilityCueDefinition cues = definition?.cues;
+            string cueId = eventType switch
+            {
+                AbilityCueEventType.Started => cues?.startCueId,
+                AbilityCueEventType.Failed => cues?.failureCueId,
+                AbilityCueEventType.Ended => cues?.endCueId,
+                AbilityCueEventType.CooldownReady => cues?.cooldownReadyCueId,
+                _ => null,
+            };
+            _cues?.Dispatch(new AbilityCueEvent(
+                cueId,
+                eventType,
+                definition?.abilityId,
+                variant?.variantId,
+                result));
+        }
+
+        private void DispatchCooldownReady(string groupId)
+        {
+            if (_abilitySet == null)
+                return;
+            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            {
+                if (ability == null
+                    || !string.Equals(
+                        ability.cooldown.ResolveGroupId(ability.abilityId),
+                        groupId,
+                        StringComparison.Ordinal))
+                    continue;
+                DispatchCue(
+                    ability,
+                    null,
+                    AbilityCueEventType.CooldownReady,
+                    AbilityActivationResult.Success);
+            }
+        }
+
         private void Update()
         {
+            List<string> readyGroups = null;
+            foreach (string groupId in _trackedCooldownGroups)
+            {
+                if (_cooldowns.GetRemaining(groupId) > 0f)
+                    continue;
+                readyGroups ??= new List<string>();
+                readyGroups.Add(groupId);
+            }
+
             if (_cooldowns.RemoveExpired())
                 StateChanged?.Invoke();
+            if (readyGroups == null)
+                return;
+            for (int i = 0; i < readyGroups.Count; i++)
+            {
+                string groupId = readyGroups[i];
+                _trackedCooldownGroups.Remove(groupId);
+                DispatchCooldownReady(groupId);
+            }
         }
 
         private void LateUpdate()
@@ -446,7 +707,7 @@ namespace UPlayGround.Gameplay.Ability
                     && Time.frameCount > execution.PreparedFrame + 1)
                     stale.Add(execution.Handle);
             for (int i = 0; i < stale.Count; i++)
-                Abort(stale[i]);
+                Abort(stale[i], AbilityActivationResult.PreparedExecutionExpired);
         }
 
         private void OnDestroy()

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Item;
 
@@ -126,6 +127,9 @@ namespace UPlayGround.Data.Save
 
         /// <summary> 캐릭터별 현재 체력 (액티브/벤치 공통). </summary>
         public List<CharacterHpEntry> characterHealth = new List<CharacterHpEntry>();
+        /// <summary> 캐릭터별 Ability 자원·쿨다운·지속 Effect 런타임. </summary>
+        public List<CharacterAbilityRuntimeEntry> characterAbilities =
+            new List<CharacterAbilityRuntimeEntry>();
 
         // ── 위치/씬 정보 ──
         /// <summary> 로드 시 진입할 씬 에셋명 (SceneName). </summary>
@@ -162,6 +166,13 @@ namespace UPlayGround.Data.Save
         public string type;
         public float currentHp;
         public float skillGauge;
+    }
+
+    [Serializable]
+    public sealed class CharacterAbilityRuntimeEntry
+    {
+        public string type;
+        public AbilityRuntimeSaveData runtime = new AbilityRuntimeSaveData();
     }
 
     [Serializable]

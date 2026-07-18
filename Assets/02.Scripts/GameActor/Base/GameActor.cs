@@ -36,6 +36,7 @@ namespace UPlayGround
         
         protected ActorColorChanger _colorChanger;
         protected DissolveController _dissolveController;
+        protected ActorCameraProximityDither _cameraProximityDither;
 
         private float _localTimeScale = 1.0f;
 
@@ -154,6 +155,7 @@ namespace UPlayGround
             
             _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
             _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
+            _cameraProximityDither = gameObject.GetOrAddComponent<ActorCameraProximityDither>();
             
             // 매니저에 등록
             ActorSvc.Objects?.RegisterActor(this);

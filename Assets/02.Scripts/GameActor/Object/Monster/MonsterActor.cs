@@ -509,6 +509,7 @@ namespace UPlayGround
         {
             if (_isDead) return;
             _isDead = true;
+            Abilities?.HandleOwnerDeath();
 
             RuntimeLog.Trace(
                 RuntimeLogCategory.Combat,

@@ -10,7 +10,8 @@ using UnityEngine;
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// lilToon 빌드 최적화가 런타임 디졸브용 셰이더 코드를 제거하지 않도록 디졸브 기능을 보존한다.
+    /// lilToon 빌드 최적화가 런타임 디졸브 및 카메라 근접 디더용 셰이더 코드를 제거하지 않도록
+    /// 필요한 기능을 보존한다.
     /// </summary>
     public sealed class LilToonDissolveBuildProcessor : IPreprocessBuildWithReport
     {
@@ -61,6 +62,10 @@ namespace UPlayGround.Editor
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DISSOLVE");
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DissolveMask");
             SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DissolveNoiseMask");
+            SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DITHER");
+            SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_DISTANCE_FADE");
+            SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_ALPHAMASK");
+            SetFeature(lilToonSettingType, shaderSetting, "LIL_FEATURE_AlphaMask");
 
             var shaders = new List<Shader>();
             AddShader(shaders, CutoutShaderName);

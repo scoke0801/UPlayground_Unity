@@ -1,0 +1,18 @@
+{
+  "name": "UPlayGround.Ability.Tests",
+  "rootNamespace": "UPlayGround.Ability.Tests",
+  "references": [
+    "UPlayGround.Ability.Core",
+    "UPlayGround.Ability.UPlayGround",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "UPlayGround.Actor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

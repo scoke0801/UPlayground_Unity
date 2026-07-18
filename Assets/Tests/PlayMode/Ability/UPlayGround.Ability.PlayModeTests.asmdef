@@ -1,0 +1,15 @@
+{
+  "name": "UPlayGround.Ability.PlayModeTests",
+  "rootNamespace": "UPlayGround.Ability.PlayModeTests",
+  "references": [
+    "UPlayGround.Ability.Core",
+    "UPlayGround.Ability.UPlayGround",
+    "UPlayGround.Contracts",
+    "UPlayGround.Data",
+    "UPlayGround.Actor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

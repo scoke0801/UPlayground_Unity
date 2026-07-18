@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
+using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Gameplay.Ability
@@ -12,11 +13,14 @@ namespace UPlayGround.Gameplay.Ability
     /// </summary>
     internal sealed class UPlayGroundAbilityOwnerPorts :
         IAbilityResourcePort,
-        IAbilityTagPort
+        IAbilityTagPort,
+        IAbilityStatPort
     {
         private readonly GameActor _owner;
         private readonly Dictionary<ulong, GameplayTagHandle> _tagHandles = new();
+        private readonly Dictionary<ulong, object> _modifierSources = new();
         private ulong _nextTagHandle = 1;
+        private ulong _nextModifierHandle = 1;
 
         public UPlayGroundAbilityOwnerPorts(GameActor owner)
         {
@@ -27,6 +31,17 @@ namespace UPlayGround.Gameplay.Ability
         {
             current = 0f;
             maximum = 0f;
+            if (string.Equals(
+                    resourceId,
+                    UPlayGround.Data.Ability.AbilityResourceType.Health.ToString(),
+                    StringComparison.Ordinal)
+                && _owner is IDamageable damageable)
+            {
+                current = damageable.GetCurrentHealth();
+                float percent = damageable.GetHealthPercent();
+                maximum = percent > 0f ? current / percent : _owner?.Stats?.MaxHealth ?? 0f;
+                return true;
+            }
             if (!string.Equals(
                     resourceId,
                     UPlayGround.Data.Ability.AbilityResourceType.UltimateEnergy.ToString(),
@@ -42,6 +57,17 @@ namespace UPlayGround.Gameplay.Ability
 
         public bool TrySet(string resourceId, float value)
         {
+            if (string.Equals(
+                    resourceId,
+                    UPlayGround.Data.Ability.AbilityResourceType.Health.ToString(),
+                    StringComparison.Ordinal)
+                && _owner is IDamageable damageable)
+            {
+                float delta = value - damageable.GetCurrentHealth();
+                if (delta < 0f) return false;
+                if (delta > 0f) damageable.Heal(delta);
+                return true;
+            }
             if (!TryGet(resourceId, out _, out float maximum)
                 || _owner is not PlayerActor player)
                 return false;
@@ -77,6 +103,43 @@ namespace UPlayGround.Gameplay.Ability
                 || _owner?.Tags == null)
                 return false;
             return _owner.Tags.RemoveTag(projectHandle);
+        }
+
+        public AbilityModifierHandle AddModifier(
+            string statId,
+            AbilityModifierOperation operation,
+            float magnitude,
+            string sourceType,
+            ulong sourceId)
+        {
+            if (_owner?.Stats == null
+                || !Enum.TryParse(statId, out StatType statType))
+                return default;
+
+            ModifierType modifierType = operation switch
+            {
+                AbilityModifierOperation.Add => ModifierType.Flat,
+                AbilityModifierOperation.Percent => ModifierType.Percent,
+                AbilityModifierOperation.Multiply => ModifierType.Multiply,
+                _ => throw new NotSupportedException(
+                    $"UPlayGround는 '{operation}' Stat 연산을 지원하지 않습니다."),
+            };
+            ulong value = _nextModifierHandle++;
+            var source = new object();
+            _modifierSources[value] = source;
+            _owner.Stats.AddModifier(new StatModifier(
+                statType, modifierType, magnitude, source, -1f));
+            return new AbilityModifierHandle(value);
+        }
+
+        public bool RemoveModifier(AbilityModifierHandle handle)
+        {
+            if (!handle.IsValid
+                || !_modifierSources.Remove(handle.Value, out object source)
+                || _owner?.Stats == null)
+                return false;
+            _owner.Stats.RemoveModifiersBySource(source);
+            return true;
         }
 
         private static bool TryParseTag(string tagId, out GameplayTagId id)

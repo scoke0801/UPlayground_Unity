@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.Components;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Item;
@@ -1008,6 +1009,23 @@ namespace UPlayGround.Manager
                 }
             }
 
+            party.characterAbilities = new List<CharacterAbilityRuntimeEntry>(_roster.Count);
+            if (_player != null)
+            {
+                foreach (CharacterActorType type in _roster)
+                {
+                    AbilityRuntimeSaveData runtime =
+                        _player.GetAbilityRuntimeForCharacter(type);
+                    if (runtime == null)
+                        continue;
+                    party.characterAbilities.Add(new CharacterAbilityRuntimeEntry
+                    {
+                        type = type.ToString(),
+                        runtime = runtime,
+                    });
+                }
+            }
+
             // 위치/씬 정보 (인게임에서 _player가 존재할 때만 유효).
             if (_player != null)
             {
@@ -1180,6 +1198,17 @@ namespace UPlayGround.Manager
                     _player.RestoreCharacterSkillGauge(t, entry.skillGauge);
                 }
                 OnPartyHealthRefreshed?.Invoke();   // HUD 벤치 엔트리 일괄 갱신
+            }
+
+            if (party.characterAbilities != null && _player != null)
+            {
+                foreach (CharacterAbilityRuntimeEntry entry in party.characterAbilities)
+                {
+                    if (entry == null
+                        || !TryParseCharacter(entry.type, out CharacterActorType type))
+                        continue;
+                    _player.RestoreCharacterAbilityRuntime(type, entry.runtime);
+                }
             }
         }
 

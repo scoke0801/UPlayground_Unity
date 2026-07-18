@@ -2,6 +2,7 @@
   "name": "UPlayGround.Contracts",
   "rootNamespace": "UPlayGround.Contracts",
   "references": [
+    "UPlayGround.Ability.Core",
     "UPlayGround.Data",
     "UPlayGround.Core",
     "UniTask",

@@ -8,6 +8,7 @@ using UPlayGround.Data.Path;
 using UPlayGround.Animation;
 using UPlayGround.Components;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Stat;
@@ -56,7 +57,8 @@ namespace UPlayGround
                 _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
                 _characterSkillCooldownMap[_characterActorType] = _skillGauge.GetCooldownRemainingSnapshot();
                 if (Abilities != null)
-                    _characterAbilityRuntimeMap[_characterActorType] = Abilities.CaptureRuntimeState();
+                    _characterAbilityRuntimeMap[_characterActorType] =
+                        Abilities.CaptureRuntimeState(forCharacterSwap: true);
                 _combat?.SaveComboState(_characterActorType);
             }
 
@@ -138,6 +140,7 @@ namespace UPlayGround
             // 비주얼 효과 컴포넌트 재초기화
             _colorChanger.InitializeRendererData();
             _dissolveController.RefreshRenderers();
+            _cameraProximityDither?.RefreshRenderers();
 
             // Foot IK
             _footIK.Refresh(data.AnimancerComponent?.Animator);
@@ -393,6 +396,35 @@ namespace UPlayGround
         {
             if (type == _characterActorType) return _skillGauge != null ? _skillGauge.CurrentGauge : 0f;
             return _characterSkillMap.TryGetValue(type, out var gauge) ? gauge : 0f;
+        }
+
+        public AbilityRuntimeSaveData GetAbilityRuntimeForCharacter(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None)
+                return null;
+            if (type == _characterActorType)
+                return Abilities?.CaptureRuntimeState();
+            return _characterAbilityRuntimeMap.TryGetValue(type, out AbilityRuntimeSaveData data)
+                ? data
+                : null;
+        }
+
+        public void RestoreCharacterAbilityRuntime(
+            CharacterActorType type,
+            AbilityRuntimeSaveData data)
+        {
+            if (type == CharacterActorType.None)
+                return;
+            if (type == _characterActorType)
+            {
+                Abilities?.RestoreRuntimeState(data);
+                return;
+            }
+
+            if (data == null)
+                _characterAbilityRuntimeMap.Remove(type);
+            else
+                _characterAbilityRuntimeMap[type] = data;
         }
 
         public float GetMaxSkillGaugeForCharacter(CharacterActorType type)

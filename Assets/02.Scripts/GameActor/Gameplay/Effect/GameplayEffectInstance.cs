@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
-using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Gameplay.Effect
 {
@@ -19,8 +19,7 @@ namespace UPlayGround.Gameplay.Effect
         public int StackCount;
         public float RemainingSeconds;
         public float NextPeriodSeconds;
-        public object ModifierSource;
-        public GameplayTagSource TagSource;
-        public readonly List<GameplayTagHandle> TagHandles = new();
+        public readonly List<AbilityModifierHandle> ModifierHandles = new();
+        public readonly List<AbilityTagHandle> TagHandles = new();
     }
 }

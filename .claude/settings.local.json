@@ -341,7 +341,13 @@
       "Bash(awk '$1>0 && $1<=10' /tmp/mod_sizes.txt)",
       "Bash(grep -vE 'Svc\\\\.|ActorSvc\\\\.|UISvc\\\\.|using |MovedFrom|IActor|IUI|IWorld|IInput|ISettings|IParty|IGame|IHitStop|IVitalOrb|IHealth|ICameraVelocity|IPlayerInput|^\\\\+\\\\s*$|^\\\\+\\\\s*[{}]\\\\s*$|Services\\\\.')",
       "Skill(artifact-design)",
-      "Artifact"
+      "Artifact",
+      "PowerShell(Select-String -Path \"UPlayGround.Data.Editor.csproj\",\"Assembly-CSharp-Editor.csproj\" -Pattern \"ItemEditorWindow|QuestEditorWindow|RecipeEditorWindow|ItemDataGeneratorWindow|RecipeDataGeneratorWindow\" | ForEach-Object { \"$\\(Split-Path $_.Path -Leaf\\): $\\($_.Line.Trim\\(\\)\\)\" })",
+      "PowerShell(dotnet build *)",
+      "Bash(awk -F: '{s+=$2} END {print \"editor BT total lines:\", s}')",
+      "Bash(grep -v \":0$\")",
+      "Bash(awk -F'\\(' '{print $1}')",
+      "WebFetch(domain:nenoso.gitbook.io)"
     ]
   }
 }

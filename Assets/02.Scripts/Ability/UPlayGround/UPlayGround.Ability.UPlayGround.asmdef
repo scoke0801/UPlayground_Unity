@@ -1,0 +1,9 @@
+{
+  "name": "UPlayGround.Ability.UPlayGround",
+  "rootNamespace": "UPlayGround.Ability.UPlayGround",
+  "references": [
+    "UPlayGround.Ability.Core",
+    "UPlayGround.Data"
+  ],
+  "autoReferenced": true
+}

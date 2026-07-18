@@ -312,13 +312,18 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 var txtAtkSpd  = BuildStatOptionRow(statPanel.transform, "옵션 4");
 
                 var comparisonPanel = NewUI("ComparisonPanel", detail.transform);
-                SetHeight(comparisonPanel, 76);
+                SetHeight(comparisonPanel, 170);
                 AddImage(comparisonPanel, new Color(0.07f, 0.11f, 0.14f, 1f), UISprite, sliced: true);
-                AddVLG(comparisonPanel, spacing: 3, pad: 8).childForceExpandHeight = false;
-                var comparisonTitle = AddText(NewUI("Title", comparisonPanel.transform), "비교 대상 (현재 장착)", 14, Accent, TextAlignmentOptions.Left);
+                AddVLG(comparisonPanel, spacing: 5, pad: 8).childForceExpandHeight = false;
+                var comparisonTitle = AddText(NewUI("Title", comparisonPanel.transform), "장비 능력치 비교", 15, Accent, TextAlignmentOptions.Left);
                 SetHeight(comparisonTitle.gameObject, 20);
-                var comparisonName = AddText(NewUI("ItemName", comparisonPanel.transform), "장착 아이템", 16, TextMain, TextAlignmentOptions.Left);
+                var comparisonName = AddText(NewUI("ItemName", comparisonPanel.transform), "현재 장비 → 선택 장비", 15, TextMain, TextAlignmentOptions.Left);
                 SetHeight(comparisonName.gameObject, 24);
+                var comparisonStats = AddText(NewUI("Stats", comparisonPanel.transform),
+                    "공격력  0 → 0  —", 14, TextMain, TextAlignmentOptions.TopLeft);
+                comparisonStats.richText = true;
+                comparisonStats.textWrappingMode = TextWrappingModes.NoWrap;
+                AddFlexible(comparisonStats.gameObject, 1f);
                 comparisonPanel.SetActive(false);
                 var detailSpacer = NewUI("Spacer", detail.transform);
                 AddFlexible(detailSpacer, 1f);
@@ -328,13 +333,14 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 SetHeight(bottom, 48);
                 AddImage(bottom, new Color(0.05f, 0.07f, 0.09f, 0.96f), UISprite, sliced: true);
                 AddHLG(bottom, spacing: 10, pad: 4);
-                var footerHint = AddText(NewUI("Hints", bottom.transform),
-                    "마우스  카테고리 / 정렬 선택     퀵슬롯 버튼  선택 아이템 등록",
-                    14, TextSub, TextAlignmentOptions.Left);
-                AddFlexibleW(footerHint.gameObject, 1f);
-                var quickLabel = AddText(NewUI("QuickSlotLabel", bottom.transform), "퀵슬롯", 14,
+
+                // 선택한 소모품을 등록할 수 있을 때만 런타임에서 노출한다.
+                var quickSlotRegistration = NewUI("QuickSlotRegistration", bottom.transform);
+                SetWidth(quickSlotRegistration, 292);
+                AddHLG(quickSlotRegistration, spacing: 8, pad: 0);
+                var quickLabel = AddText(NewUI("QuickSlotLabel", quickSlotRegistration.transform), "퀵슬롯 등록", 14,
                     TextSub, TextAlignmentOptions.Center);
-                SetWidth(quickLabel.gameObject, 58);
+                SetWidth(quickLabel.gameObject, 92);
                 var glyphData = AssetDatabase.LoadAssetAtPath<InputGlyphDataSO>(GlyphDataPath);
                 var quickSlotActions = new[]
                 {
@@ -347,7 +353,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 for (int i = 0; i < quickButtons.Length; i++)
                 {
                     quickButtons[i] = MakeCommonButton(
-                        $"BtnQuickSlot{i + 1}", bottom.transform, quickSlotActions[i], BtnBg,
+                        $"BtnQuickSlot{i + 1}", quickSlotRegistration.transform, quickSlotActions[i], BtnBg,
                         out var quickSlotFallback);
                     ConfigureInputPrompt(
                         quickButtons[i].gameObject,
@@ -356,6 +362,10 @@ namespace UPlayGround.UI.Inventory.EditorTools
                         glyphData);
                     SetWidth(quickButtons[i].gameObject, 42);
                 }
+                quickSlotRegistration.SetActive(false);
+
+                var bottomSpacer = NewUI("Spacer", bottom.transform);
+                AddFlexibleW(bottomSpacer, 1f);
                 var btnUse   = MakeCommonButton("BtnUse",   bottom.transform, "사용",   BtnBg,     out _);
                 SetWidth(btnUse.gameObject, 104);
                 var btnEquip = MakeCommonButton("BtnEquip", bottom.transform, "장착",   AccentBtn, out _);
@@ -372,6 +382,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(inv);
+                SetRef(so, "_sceneContent",    window.GetComponent<RectTransform>()); // Scene 열기/닫기 슬라이드 대상
                 SetRef(so, "_itemPanelPrefab", slot);
                 SetRef(so, "_content",         gridContent.transform);
                 SetRef(so, "_itemGrid",        gridContent.GetComponent<GridLayoutGroup>());
@@ -386,7 +397,6 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 SetRef(so, "_sortButton",   btnSort);
                 SetRef(so, "_sortModeText", sortModeText);
                 SetRef(so, "_txtPlayTime",  playTime);
-                SetRef(so, "_footerHintText", footerHint);
 
                 SetRef(so, "_selectedItemPrefab",    detail);
                 SetRef(so, "_selectedItemImage",     imgIcon);
@@ -405,11 +415,13 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 SetRef(so, "_statAtkSpeedText",      txtAtkSpd);
                 SetRef(so, "_comparisonPanel",       comparisonPanel);
                 SetRef(so, "_comparisonItemNameText", comparisonName);
+                SetRef(so, "_comparisonStatsText",   comparisonStats);
 
                 SetRef(so, "_useButton",   btnUse);
                 SetRef(so, "_equipButton", btnEquip);
                 SetRef(so, "_dropButton",  btnDrop);
                 SetRefArray(so, "_quickSlotButtons", quickButtons);
+                SetRef(so, "_quickSlotRegistrationRoot", quickSlotRegistration);
                 SetRef(so, "_btnClose",    btnClose);
 
                 // 파티 장비 패널
@@ -433,6 +445,14 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 if (pRow != null) pRow.intValue = GridColumnCount;
                 var pStartRows = so.FindProperty("_startRowCount");
                 if (pStartRows != null) pStartRows.intValue = InitialRowCount;
+
+                // _sceneContent는 UI_Scene의 열기/닫기 트윈 대상이다.
+                // 연결 실패 상태로 프리팹을 저장하면 화면 전환이 깨지므로 저장 자체를 중단한다.
+                SerializedProperty sceneContentProperty = so.FindProperty("_sceneContent");
+                if (sceneContentProperty?.objectReferenceValue == null)
+                    throw new System.InvalidOperationException(
+                        "[InvBuilder] _sceneContent 연결에 실패하여 프리팹 저장을 중단합니다.");
+
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
@@ -489,6 +509,24 @@ namespace UPlayGround.UI.Inventory.EditorTools
             InsetStretch(Rt(icon), 6);
             var imgItem = AddImage(icon, Color.white);
 
+            var cooldown = NewUI("Cooldown", content.transform);
+            Stretch(cooldown);
+            var cooldownFill = AddImage(cooldown, new Color(0f, 0f, 0f, 0.72f), UISprite);
+            cooldownFill.type = Image.Type.Filled;
+            cooldownFill.fillMethod = Image.FillMethod.Radial360;
+            cooldownFill.fillOrigin = 2;
+            cooldownFill.fillClockwise = false;
+            cooldownFill.raycastTarget = false;
+            var cooldownText = AddText(
+                NewUI("CooldownText", cooldown.transform),
+                string.Empty,
+                15,
+                TextMain,
+                TextAlignmentOptions.Center);
+            Stretch(cooldownText.gameObject);
+            cooldownText.raycastTarget = false;
+            cooldown.SetActive(false);
+
             var enhance = NewUI("Enhance", content.transform);
             AnchorBottomLeft(Rt(enhance), 34, 20);
             var txtEnhance = AddText(enhance, "+5", 15, Accent, TextAlignmentOptions.BottomLeft);
@@ -531,6 +569,9 @@ namespace UPlayGround.UI.Inventory.EditorTools
             SetRef(so, "_equippedBadge",     badge);
             SetRef(so, "_equippedPortrait",  badgePortrait);
             SetRef(so, "_equippedBadgeText", badgeText);
+            SetRef(so, "_cooldownRoot", cooldown);
+            SetRef(so, "_cooldownFill", cooldownFill);
+            SetRef(so, "_cooldownText", cooldownText);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, SlotPrefabPath);

@@ -7,7 +7,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.UI
 {
-    public class UI_SettingMenu : UI_Base
+    public class UI_SettingMenu : UI_SceneBase
     {
         [Header("Panels")]
         [SerializeField] private UISettingPageGamePlay _panelGameplay;
@@ -79,8 +79,14 @@ namespace UPlayGround.UI
             TryBindSettingsData();
         }
 
+        // 설정 메뉴는 전체 화면을 덮는 모달이므로 하위(게임플레이 등) 입력을 차단한다.
+        // (실제 전체 화면 커버 비주얼은 프리팹 루트 RectTransform을 stretch + 불투명/딤 배경으로 구성해야 한다.)
+        protected override bool BlocksLowerInput => true;
+
         protected override void OnShow()
         {
+            base.OnShow();
+
             if (!TryBindSettingsData())
                 return;
 

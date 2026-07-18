@@ -74,9 +74,9 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 Stretch(dim);
                 AddImage(dim, Dim);
 
-                // 중앙 패널 (여백 두고 화면 대부분 채움)
+                // 설정은 전체 화면을 덮는 형태. 패널을 화면 전체로 스트레치한다(여백 없음).
                 var panel = NewUI("Panel", root.transform);
-                StretchMargin(panel, 60, 40, 60, 40);
+                Stretch(panel);
                 AddImage(panel, PanelBg, UISprite, sliced: true);
                 var panelV = AddVLG(panel, spacing: 12, pad: 20);
                 panelV.childForceExpandHeight = false;
@@ -137,6 +137,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);
+                SetRef(so, "_sceneContent", panel.GetComponent<RectTransform>()); // Scene 열기/닫기 슬라이드 대상
                 SetRef(so, "_panelGameplay", gameplayPage);
                 SetRef(so, "_panelGraphics", graphicPage);
                 SetRef(so, "_panelAudio",    audioPage);

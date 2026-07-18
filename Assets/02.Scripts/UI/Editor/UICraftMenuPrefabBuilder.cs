@@ -217,6 +217,7 @@ namespace UPlayGround.UI.Crafting.EditorTools
 
                 // 3) 필드 자동 연결
                 var so = new SerializedObject(menu);
+                SetRef(so, "_sceneContent", window.GetComponent<RectTransform>()); // Scene 열기/닫기 슬라이드 대상
                 SetRef(so, "_recipeListContent", recipeContent.transform);
                 SetRef(so, "_recipeSlotPrefab",  recipeSlot);
                 SetRef(so, "_tabGroup",      tabGroup);

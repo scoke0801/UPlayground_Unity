@@ -54,6 +54,8 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
                 var dim = NewUI("Dim", root.transform);
                 Stretch(dim);
                 AddImage(dim, Dim);
+                // 팝업 오픈/클로즈 트윈이 알파를 페이드하는 대상. UI_PopupBase._dim에 연결한다.
+                var dimGroup = dim.AddComponent<CanvasGroup>();
 
                 // 중앙 패널
                 var panel = NewUI("Panel", root.transform);
@@ -103,6 +105,9 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
                 SetRef(so, "exitButton",      exitBtn);
                 SetRef(so, "playTimeText",    playTime);
                 SetRef(so, "pauseStatusText", statusText);
+                // UI_PopupBase 트윈 대상: Dim 페이드 + Panel 스케일
+                SetRef(so, "_dim",   dimGroup);
+                SetRef(so, "_panel", Rt(panel));
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
@@ -144,22 +149,13 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
 
             if (highlight)
             {
-                // 청록 테두리(오버레이) + 좌측 다이아 포인터
+                // 청록 테두리(오버레이). 좌측 포인터는 사용하지 않는다.
                 var outline = NewUI("Highlight", go.transform);
                 Stretch(outline);
                 var ol = AddImage(outline, new Color(Accent.r, Accent.g, Accent.b, 0.16f), UISprite, sliced: true);
                 ol.raycastTarget = false;
                 outline.AddComponent<LayoutElement>().ignoreLayout = true;
                 outline.transform.SetAsFirstSibling();
-
-                var pointer = NewUI("Pointer", go.transform);
-                var prt = Rt(pointer);
-                prt.anchorMin = prt.anchorMax = prt.pivot = new Vector2(0f, 0.5f);
-                prt.sizeDelta = new Vector2(20, 20);
-                prt.anchoredPosition = new Vector2(-26, 0);
-                var pImg = AddImage(pointer, Accent, UISprite, sliced: true);
-                pImg.raycastTarget = false;
-                pointer.AddComponent<LayoutElement>().ignoreLayout = true;
             }
 
             return btn;

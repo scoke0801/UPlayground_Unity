@@ -22,3 +22,4 @@ MonoBehaviour:
   effectType: 2
   amount: 0.75
   requireEffectiveUse: 1
+  cooldownDuration: 5

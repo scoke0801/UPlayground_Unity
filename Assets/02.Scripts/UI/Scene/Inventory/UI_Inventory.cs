@@ -16,6 +16,7 @@ using UPlayGround.Data.Sound;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.UI.InputPrompt;
 using Image = UnityEngine.UI.Image;
 
 namespace UPlayGround.UI
@@ -23,8 +24,17 @@ namespace UPlayGround.UI
     /// <summary>
     /// 인벤토리 UI
     /// </summary>
-    public class UI_Inventory : UI_Base
+    public class UI_Inventory : UI_SceneBase
     {
+        // 빌더/HUD와 동일한 시계 방향 슬롯 순서: 위 → 오른쪽 → 아래 → 왼쪽.
+        private static readonly string[] QuickSlotActionNames =
+        {
+            PlayerAction.QuickSlot_Up,
+            PlayerAction.QuickSlot_Right,
+            PlayerAction.QuickSlot_Down,
+            PlayerAction.QuickSlot_Left,
+        };
+
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
         private IUIInventoryService _cachedInventoryManager;
         private IUIInventoryService InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = UISvc.Inventory);
@@ -56,6 +66,8 @@ namespace UPlayGround.UI
         [SerializeField] private UICommonButton _dropButton;
         [Tooltip("소비 아이템을 위/오른쪽/아래/왼쪽 퀵슬롯에 등록하는 버튼.")]
         [SerializeField] private UICommonButton[] _quickSlotButtons;
+        [Tooltip("퀵슬롯 등록 라벨과 방향별 버튼을 함께 숨기기 위한 루트.")]
+        [SerializeField] private GameObject _quickSlotRegistrationRoot;
 
         [Header("Category Tabs")]
         // 탭 하이라이트/단일 선택은 UITabGroup이 관리한다. 인덱스 순서는 TabCategories와 일치.
@@ -68,7 +80,6 @@ namespace UPlayGround.UI
         [SerializeField] private UICommonButton  _sortButton;   // 하단 정렬 버튼 (선택, 클릭 시 순환)
         [SerializeField] private TextMeshProUGUI _sortModeText; // "정렬 : 최근 획득순"
         [SerializeField] private TextMeshProUGUI _txtPlayTime;
-        [SerializeField] private TextMeshProUGUI _footerHintText;
 
         [Header("Detail - Extended")]
         [SerializeField] private TextMeshProUGUI _selectedRarityText;
@@ -81,6 +92,7 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _statAtkSpeedText;
         [SerializeField] private GameObject _comparisonPanel;
         [SerializeField] private TextMeshProUGUI _comparisonItemNameText;
+        [SerializeField] private TextMeshProUGUI _comparisonStatsText;
 
         [Header("Party Equipment")]
         [SerializeField] private Transform _partySelectorContainer;                 // 파티원 선택 버튼 컨테이너
@@ -162,6 +174,8 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
+
             _categoryFilter = null;
             _sortMode       = InventorySortMode.Default;
             if (_sortDropdown != null) _sortDropdown.SetValueWithoutNotify(0);
@@ -209,7 +223,7 @@ namespace UPlayGround.UI
             if (_inputService != null)
             {
                 _inputService.OnActiveDeviceChanged += OnActiveInputDeviceChanged;
-                RefreshFooterHint(_inputService.ActiveDevice);
+                RefreshQuickSlotBindingLabels(_inputService.ActiveDevice);
             }
         }
 
@@ -223,16 +237,34 @@ namespace UPlayGround.UI
         }
 
         private void OnActiveInputDeviceChanged(ActiveInputDevice device)
-            => RefreshFooterHint(device);
+            => RefreshQuickSlotBindingLabels(device);
 
-        private void RefreshFooterHint(ActiveInputDevice device)
+        /// <summary>
+        /// 구 빌더 산출물(숫자 5~8 라벨)도 프리팹 재생성 전부터 실제 액션 바인딩을 표시한다.
+        /// 신 빌더 산출물에서는 UI_InputPromptIcon이 스프라이트 글리프를 우선 표시한다.
+        /// </summary>
+        private void RefreshQuickSlotBindingLabels(ActiveInputDevice device)
         {
-            if (_footerHintText == null)
+            if (_quickSlotButtons == null)
                 return;
 
-            _footerHintText.text = device == ActiveInputDevice.Gamepad
-                ? "방향키 / 스틱  아이템 선택     퀵슬롯 버튼  선택 아이템 등록     B  닫기"
-                : "마우스  카테고리 / 정렬 선택     퀵슬롯 버튼  선택 아이템 등록";
+            int count = Mathf.Min(_quickSlotButtons.Length, QuickSlotActionNames.Length);
+            for (int i = 0; i < count; i++)
+            {
+                TMP_Text label = _quickSlotButtons[i]?.Text;
+                if (label == null)
+                    continue;
+
+                InputGlyphResult result = InputGlyphResolver.Resolve(
+                    InputMapNames.PlayerAction,
+                    QuickSlotActionNames[i],
+                    device,
+                    _inputService?.GamepadBrand ?? GamepadBrand.Generic,
+                    null);
+                label.text = result.Count > 0
+                    ? result.Primary.Text
+                    : QuickSlotActionNames[i];
+            }
         }
 
         private void RefreshPlayTime()
@@ -927,7 +959,8 @@ namespace UPlayGround.UI
                 return;
             }
 
-            ItemSO equipped = InventoryMgr.GetInventoryItemBySlotKey(equippedSlotKey)?.data;
+            ItemInstance equippedInstance = InventoryMgr.GetInventoryItemBySlotKey(equippedSlotKey);
+            var equipped = equippedInstance?.data as EquipmentSO;
             if (equipped == null)
             {
                 SetComparisonPanelActive(false);
@@ -936,27 +969,183 @@ namespace UPlayGround.UI
 
             SetComparisonPanelActive(true);
             if (_comparisonItemNameText != null)
-                _comparisonItemNameText.text = equipped.itemName;
+                _comparisonItemNameText.text = $"현재: {equipped.itemName}  →  선택: {selected.itemName}";
+            if (_comparisonStatsText != null)
+            {
+                ItemInstance selectedInstance =
+                    InventoryMgr.GetInventoryItemBySlotKey(_selectedInventorySlotKey)
+                    ?? InventoryMgr.GetItem(selected.itemId);
+                _comparisonStatsText.text = BuildEquipmentComparisonText(
+                    equipped,
+                    equippedInstance,
+                    selected,
+                    selectedInstance);
+            }
         }
 
         private void SetComparisonPanelActive(bool active)
         {
             if (_comparisonPanel != null)
                 _comparisonPanel.SetActive(active);
+            if (!active && _comparisonStatsText != null)
+                _comparisonStatsText.text = string.Empty;
         }
 
-        private static string FormatGrowthAttributeRoll(EquipmentGrowthAttributeRoll roll)
+        private static string BuildEquipmentComparisonText(
+            EquipmentSO equipped,
+            ItemInstance equippedInstance,
+            EquipmentSO selected,
+            ItemInstance selectedInstance)
         {
-            string attributeName = roll.attributeType switch
+            var equippedValues = CollectModifierValues(equipped);
+            var selectedValues = CollectModifierValues(selected);
+            var keys = new HashSet<(StatType stat, ModifierType modifier)>(equippedValues.Keys);
+            keys.UnionWith(selectedValues.Keys);
+
+            var orderedKeys = keys
+                .OrderBy(key => (int)key.stat)
+                .ThenBy(key => (int)key.modifier);
+            var rows = new List<string>();
+
+            foreach (var key in orderedKeys)
+            {
+                equippedValues.TryGetValue(key, out float current);
+                selectedValues.TryGetValue(key, out float next);
+                float delta = next - current;
+                rows.Add(
+                    $"{StatDisplayFormatter.GetDisplayName(key.stat)}  " +
+                    $"{FormatComparisonValue(key.stat, key.modifier, current)} → " +
+                    $"{FormatComparisonValue(key.stat, key.modifier, next)}  " +
+                    FormatComparisonDelta(key.stat, key.modifier, delta));
+            }
+
+            AppendGrowthComparisonRows(
+                rows,
+                equippedInstance?.growthAttributeRolls,
+                selectedInstance?.growthAttributeRolls);
+
+            return rows.Count > 0
+                ? string.Join("\n", rows)
+                : "비교할 능력치가 없습니다.";
+        }
+
+        private static Dictionary<(StatType stat, ModifierType modifier), float> CollectModifierValues(
+            EquipmentSO equipment)
+        {
+            var modifiers = new List<StatModifier>();
+            equipment?.AddStatModifiersTo(modifiers, equipment);
+            var values = new Dictionary<(StatType, ModifierType), float>();
+
+            for (int i = 0; i < modifiers.Count; i++)
+            {
+                StatModifier modifier = modifiers[i];
+                var key = (modifier.statType, modifier.modifierType);
+                if (modifier.modifierType == ModifierType.Multiply)
+                {
+                    float previous = values.TryGetValue(key, out float value) ? value : 1f;
+                    values[key] = previous * modifier.value;
+                }
+                else
+                {
+                    values[key] = values.TryGetValue(key, out float value)
+                        ? value + modifier.value
+                        : modifier.value;
+                }
+            }
+
+            return values;
+        }
+
+        private static void AppendGrowthComparisonRows(
+            ICollection<string> rows,
+            IReadOnlyList<EquipmentGrowthAttributeRoll> equippedRolls,
+            IReadOnlyList<EquipmentGrowthAttributeRoll> selectedRolls)
+        {
+            var currentRanks = CollectGrowthRanks(equippedRolls);
+            var selectedRanks = CollectGrowthRanks(selectedRolls);
+            var types = new HashSet<GrowthAttributeType>(currentRanks.Keys);
+            types.UnionWith(selectedRanks.Keys);
+
+            foreach (GrowthAttributeType type in types.OrderBy(value => (int)value))
+            {
+                currentRanks.TryGetValue(type, out int current);
+                selectedRanks.TryGetValue(type, out int next);
+                int delta = next - current;
+                string deltaText = delta == 0
+                    ? "<color=#A6B3C2>—</color>"
+                    : delta > 0
+                        ? $"<color=#78D86B>▲ +{delta}</color>"
+                        : $"<color=#F06B67>▼ {delta}</color>";
+                rows.Add($"랜덤 성장 {GetGrowthAttributeName(type)}  R{current} → R{next}  {deltaText}");
+            }
+        }
+
+        private static Dictionary<GrowthAttributeType, int> CollectGrowthRanks(
+            IReadOnlyList<EquipmentGrowthAttributeRoll> rolls)
+        {
+            var ranks = new Dictionary<GrowthAttributeType, int>();
+            if (rolls == null)
+                return ranks;
+
+            for (int i = 0; i < rolls.Count; i++)
+            {
+                EquipmentGrowthAttributeRoll roll = rolls[i];
+                ranks[roll.attributeType] = ranks.TryGetValue(roll.attributeType, out int rank)
+                    ? rank + Mathf.Max(0, roll.rank)
+                    : Mathf.Max(0, roll.rank);
+            }
+
+            return ranks;
+        }
+
+        private static string FormatComparisonValue(
+            StatType stat,
+            ModifierType modifier,
+            float value)
+        {
+            return modifier switch
+            {
+                ModifierType.Percent => $"{value * 100f:0.#}%",
+                ModifierType.Multiply => $"x{value:0.##}",
+                _ when stat is StatType.Defense or StatType.CritRate or StatType.CritMultiplier =>
+                    $"{value * 100f:0.#}%",
+                _ => $"{value:0.##}",
+            };
+        }
+
+        private static string FormatComparisonDelta(
+            StatType stat,
+            ModifierType modifier,
+            float delta)
+        {
+            if (Mathf.Approximately(delta, 0f))
+                return "<color=#A6B3C2>—</color>";
+
+            string marker = delta > 0f ? "▲" : "▼";
+            string color = delta > 0f ? "#78D86B" : "#F06B67";
+            string sign = delta > 0f ? "+" : string.Empty;
+            string value = modifier == ModifierType.Percent ||
+                           stat is StatType.Defense or StatType.CritRate or StatType.CritMultiplier
+                ? $"{sign}{delta * 100f:0.#}%"
+                : $"{sign}{delta:0.##}";
+            return $"<color={color}>{marker} {value}</color>";
+        }
+
+        private static string GetGrowthAttributeName(GrowthAttributeType type)
+        {
+            return type switch
             {
                 GrowthAttributeType.Health => "체력",
                 GrowthAttributeType.Defense => "방어력",
                 GrowthAttributeType.Critical => "크리티컬",
-                GrowthAttributeType.AttackSpeed => "공격속도",
+                GrowthAttributeType.AttackSpeed => "공격 속도",
                 _ => "공격력",
             };
+        }
 
-            return $"랜덤 성장 - {attributeName} +{Mathf.Max(0, roll.rank)}랭크";
+        private static string FormatGrowthAttributeRoll(EquipmentGrowthAttributeRoll roll)
+        {
+            return $"랜덤 성장 - {GetGrowthAttributeName(roll.attributeType)} +{Mathf.Max(0, roll.rank)}랭크";
         }
 
         private void RefreshSelectedConsumableStats(ConsumableSO consumable)
@@ -1131,8 +1320,14 @@ namespace UPlayGround.UI
             SetActionButtonActive(_equipButton, canEquip);
             SetActionButtonActive(_dropButton, hasItem);
             bool canAssignQuickSlot = hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE;
-            if (_quickSlotButtons != null)
+
+            if (_quickSlotRegistrationRoot != null)
             {
+                _quickSlotRegistrationRoot.SetActive(canAssignQuickSlot);
+            }
+            else if (_quickSlotButtons != null)
+            {
+                // 구 프리팹 호환: 전용 루트가 없으면 버튼만 개별 제어한다.
                 for (int i = 0; i < _quickSlotButtons.Length; i++)
                     SetActionButtonActive(_quickSlotButtons[i], canAssignQuickSlot);
             }

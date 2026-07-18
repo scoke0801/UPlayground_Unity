@@ -21,6 +21,7 @@ namespace UPlayGround.State
         }
         
         private InteractableActorSO _cachedData = null;
+        private GameActor _cachedTarget = null;
         private AnimPlayState _animPlayState = AnimPlayState.None;
         private bool _requiresHeldInput;
         private bool _hasPickupMotion;
@@ -42,6 +43,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _cachedData = null;
+            _cachedTarget = null;
             _animPlayState = AnimPlayState.None;
             _requiresHeldInput = false;
             _hasPickupMotion = false;
@@ -67,6 +69,10 @@ namespace UPlayGround.State
             }
 
             _cachedData = interactable.GetData();
+            // 상호작용을 시작한 실제 대상을 캐싱한다. UpdateRotation은 매 프레임 CurrentClosestInteractable를
+            // 재조회하지 않고 이 대상만 바라본다. 대상이 소진되어 사라지면 다음 프레임 핸들러가
+            // CurrentClosestInteractable를 주변의 다른 대상으로 교체하는데, 그쪽으로 회전하면 어색하기 때문이다.
+            _cachedTarget = interactable.GetActor();
             _requiresHeldInput = _cachedData != null && _cachedData.interactionCompleteDuration > 0f;
 
             if (Svc.Events != null)
@@ -102,6 +108,8 @@ namespace UPlayGround.State
 
             ActorSvc.Objects?.InteractionHandler?.StopInteraction();
             playerActor.GetPlayerEquipment()?.EndInteractionEquipment();
+
+            _cachedTarget = null;
 
             if (Svc.Events != null)
             {
@@ -349,8 +357,10 @@ namespace UPlayGround.State
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+           // 상호작용을 시작한 대상만 바라본다. CurrentClosestInteractable를 매 프레임 재조회하면
+           // 대상 소진 직후 주변의 다른 대상으로 교체되어 상태 이탈 전 몇 프레임 동안 그쪽으로 회전한다.
            // 즉시 소모형 대상(드랍 아이템 등)은 상태 종료 전에 타겟이 사라질 수 있으므로 회전을 생략한다.
-           GameActor target = ActorSvc.Objects?.InteractionHandler?.CurrentClosestInteractable?.GetActor();
+           GameActor target = _cachedTarget;
            if (target == null)
            {
                currentRotation = currentRotation.normalized;

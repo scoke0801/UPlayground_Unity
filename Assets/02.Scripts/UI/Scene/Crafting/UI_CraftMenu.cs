@@ -21,7 +21,7 @@ namespace UPlayGround.UI
     ///
     /// 프리팹 초안은 에디터 툴 "UPlayGround/UI/제작 UI 프리팹 빌드"로 생성한다.
     /// </summary>
-    public class UI_CraftMenu : UI_Base
+    public class UI_CraftMenu : UI_SceneBase
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
         private IUIRecipeService _cachedRecipeManager;
@@ -111,6 +111,8 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
+
             // IUIRecipeService 이벤트 구독
             RecipeMgr.OnRecipeUnlocked    += OnRecipeUnlocked;
             RecipeMgr.OnCraftingStarted   += OnCraftingStarted;
@@ -142,6 +144,8 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            base.OnHide();
+
             RecipeMgr.OnRecipeUnlocked    -= OnRecipeUnlocked;
             RecipeMgr.OnCraftingStarted   -= OnCraftingStarted;
             RecipeMgr.OnCraftingCompleted -= OnCraftingCompleted;

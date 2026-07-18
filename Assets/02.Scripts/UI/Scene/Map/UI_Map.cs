@@ -54,7 +54,7 @@ namespace UPlayGround.UI
     /// </code>
     /// </summary>
     [RequireComponent(typeof(Canvas))]
-    public partial class UI_Map : UI_Base
+    public partial class UI_Map : UI_SceneBase
     {
         [Header("컴포넌트")]
         [SerializeField] private RectTransform _mapViewport;    // 클리핑 영역 (RectMask2D + MapInputReceiver 부착)
@@ -182,6 +182,8 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
+
             if (_mapConfigDB == null)
             {
                 Debug.LogError("[UI_Map] MapConfigDatabaseSO가 할당되지 않았습니다.");
@@ -244,6 +246,8 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            base.OnHide();
+
             // 커서 숨김·입력 레이어 복원도 UI_Base가 짝 맞춰 처리한다.
             if (UISvc.Actors != null)
             {

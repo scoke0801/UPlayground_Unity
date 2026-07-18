@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Data.Item;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
@@ -12,6 +13,9 @@ namespace UPlayGround.UI
     /// </summary>
     public sealed class UI_HudQuickSlot : UI_Base
     {
+        private const int StartingQuickSlotIndex = 0;
+        private const int StartingPotionCount = 5;
+
         [SerializeField] private List<UIHudQuickSlotEntry> _slots = new();
 
         protected override void RegisterInputEvents()
@@ -69,11 +73,39 @@ namespace UPlayGround.UI
             UIQuickSlotAssignments.Changed -= Refresh;
         }
 
+        protected override void Update()
+        {
+            base.Update();
+            if (!IsVisible)
+                return;
+
+            var inventory = UISvc.Inventory;
+            for (int i = 0; i < _slots.Count; i++)
+                _slots[i]?.RefreshCooldown(inventory);
+        }
+
         public void Refresh()
         {
             var inventory = UISvc.Inventory;
+            TryAssignStartingPotion(inventory);
+
             for (int i = 0; i < _slots.Count; i++)
                 _slots[i]?.Refresh(inventory);
+        }
+
+        private static void TryAssignStartingPotion(IUIInventoryService inventory)
+        {
+            if (inventory == null
+                || UIQuickSlotAssignments.GetItemId(StartingQuickSlotIndex) != 0)
+                return;
+
+            int itemId = (int)ItemIdType.저급_회복물약;
+            if (inventory.GetItemCount(itemId) < StartingPotionCount)
+                return;
+
+            UIQuickSlotAssignments.AssignInitialIfEmpty(
+                StartingQuickSlotIndex,
+                inventory.GetItem(itemId)?.data);
         }
 
         public void TryUseSlot(int slotIndex)

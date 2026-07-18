@@ -284,6 +284,43 @@ namespace UPlayGround.Group
             return position;
         }
 
+        /// <summary>
+        /// 근접 그룹 멤버들로부터 밀려나는 분리(separation) 벡터를 계산한다.
+        /// 여러 마리가 같은 지점으로 수렴해 서로 콜라이더로 막혀 멈추는 현상을 완화한다.
+        /// 반환 벡터는 수평(XZ) 방향이며 크기는 0~1로 정규화된 밀어내기 강도.
+        /// 근접한 동료가 없으면 Vector3.zero.
+        /// </summary>
+        public Vector3 ComputeSeparation(MonsterActor self, float radius)
+        {
+            if (self == null || radius <= 0.01f)
+                return Vector3.zero;
+
+            var selfPos = self.transform.position;
+            var push = Vector3.zero;
+            var radiusSq = radius * radius;
+
+            for (int i = 0; i < _members.Count; i++)
+            {
+                var other = _members[i];
+                if (other == null || ReferenceEquals(other, self) || !other.IsAlive())
+                    continue;
+
+                var delta = selfPos - other.transform.position;
+                delta.y = 0f;
+                var distSq = delta.sqrMagnitude;
+                if (distSq >= radiusSq || distSq < 0.0001f)
+                    continue;
+
+                // 가까울수록 강하게 밀어낸다 (선형 폴오프).
+                var dist = Mathf.Sqrt(distSq);
+                push += (delta / dist) * (1f - dist / radius);
+            }
+
+            if (push.sqrMagnitude > 1f)
+                push.Normalize();
+            return push;
+        }
+
         public void NotifyMemberAttackEnded(MonsterActor member)
         {
             if (member == null)

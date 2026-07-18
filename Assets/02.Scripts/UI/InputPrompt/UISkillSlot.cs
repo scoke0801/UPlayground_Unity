@@ -448,6 +448,8 @@ namespace UPlayGround.UI.InputPrompt
         private Tween _slotTween;
         private Tween _cooldownTween;
         private Tween _availableTween;
+        private float _lastUseFeedbackRealtime = -999f;
+        private const float DuplicateUseFeedbackWindow = 0.12f;
 
         private Transform ScaleTarget => _tweenTarget != null ? (Transform)_tweenTarget : transform;
 
@@ -476,10 +478,16 @@ namespace UPlayGround.UI.InputPrompt
                 return;
             }
 
-            if (onCooldown && !_prevOnCooldown)
+            bool cooldownStarted = onCooldown && !_prevOnCooldown;
+            bool becameUnavailable = !ready && _prevReady;
+
+            if (cooldownStarted || becameUnavailable)
             {
-                Punch(ref _slotTween, ScaleTarget, _usePunch, _useDuration);            // #1
-                if (_cooldownRoot != null)
+                if (Time.realtimeSinceStartup - _lastUseFeedbackRealtime
+                    > DuplicateUseFeedbackWindow)
+                    PlayUseFeedback();
+
+                if (cooldownStarted && _cooldownRoot != null)
                     Punch(ref _cooldownTween, _cooldownRoot.transform, _overlayPunch, _overlayDuration); // #2
             }
             else if (ready && !_prevReady)
@@ -491,6 +499,20 @@ namespace UPlayGround.UI.InputPrompt
 
             _prevReady      = ready;
             _prevOnCooldown = onCooldown;
+        }
+
+        /// <summary>슬롯 입력이 수행됐을 때 즉시 사용 펀치를 재생한다.</summary>
+        public void PlayUseFeedback()
+        {
+            if (!_enableTween)
+                return;
+
+            // Ability/Ultimate가 이미 사용 불가 상태라면 입력 반복으로 피드백을 재생하지 않는다.
+            if (_stateInitialized && !_prevReady)
+                return;
+
+            _lastUseFeedbackRealtime = Time.realtimeSinceStartup;
+            Punch(ref _slotTween, ScaleTarget, _usePunch, _useDuration);
         }
 
         // 공용 펀치 스케일. 대상이 비활성이면 건너뛰고, 직전 펀치는 원복(complete:true)한 뒤 새로 시작한다.
@@ -518,6 +540,7 @@ namespace UPlayGround.UI.InputPrompt
             _cooldownTween?.Kill(complete: true);
             _availableTween?.Kill(complete: true);
             _slotTween = _cooldownTween = _availableTween = null;
+            _lastUseFeedbackRealtime = -999f;
         }
     }
 }

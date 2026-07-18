@@ -279,6 +279,14 @@ namespace UPlayGround.Components
             return _groupController.RequestAttackSlot(_monster, _myAttackType);
         }
 
+        public override Vector3 GetGroupSeparation(float radius)
+        {
+            if (_groupController == null || _monster == null)
+                return Vector3.zero;
+
+            return _groupController.ComputeSeparation(_monster, radius);
+        }
+
         public override bool TryGetFormationSlotPosition(float radius, out Vector3 position)
         {
             position = default;

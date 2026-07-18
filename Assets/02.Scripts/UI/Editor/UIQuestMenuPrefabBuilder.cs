@@ -169,6 +169,7 @@ namespace UPlayGround.UI.Quest.EditorTools
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);
+                SetRef(so, "_sceneContent",  window.GetComponent<RectTransform>()); // Scene 열기/닫기 슬라이드 대상
                 SetRef(so, "_tabGroup",      tabGroup);
                 SetRef(so, "_txtCountAvailable", cntAvail);
                 SetRef(so, "_txtCountActive",    cntActive);

@@ -25,7 +25,6 @@ namespace UPlayGround.UI.HUD.EditorTools
         private const string GlyphDataPath = "Assets/10.Datas/UI/Input/InputGlyphData.asset";
 
         private static readonly Color Navy = new(0.025f, 0.075f, 0.13f, 0.88f);
-        private static readonly Color NavySoft = new(0.055f, 0.14f, 0.22f, 0.84f);
         private static readonly Color Cyan = new(0.12f, 0.68f, 1f, 0.95f);
         private static readonly Color CyanSoft = new(0.20f, 0.75f, 1f, 0.28f);
         private static readonly Color Gold = new(1f, 0.78f, 0.22f, 1f);
@@ -54,7 +53,7 @@ namespace UPlayGround.UI.HUD.EditorTools
         private static GameObject BuildSkillPrefab()
         {
             var root = NewUI("UI_HudSkill", null);
-            ConfigureHudRoot(root, new Vector2(600f, 255f), new Vector2(-24f, 34f), rightAligned: true);
+            ConfigureHudRoot(root, new Vector2(600f, 255f), new Vector2(-24f, 48f), rightAligned: true);
             var hud = root.AddComponent<UI_HudSkill>();
             var glyphData = AssetDatabase.LoadAssetAtPath<InputGlyphDataSO>(GlyphDataPath);
 
@@ -62,21 +61,23 @@ namespace UPlayGround.UI.HUD.EditorTools
             {
                 MakeSkillSlot(root.transform, "Ultimate", ComboInputToken.Skill2, "얼티밋",
                     PlayerAction.SkillUltimate, LoadSprite("Assets/04.Images/UI/SkillIcon/Skill_Ultimate.png"),
-                    new Vector2(-205f, 166f), LabelSide.Right, glyphData, true),
+                    new Vector2(-180f, 186f), LabelSide.Right, glyphData, true),
                 MakeSkillSlot(root.transform, "Ability", ComboInputToken.Skill1, "어빌리티",
                     PlayerAction.SkillAbility, LoadSprite("Assets/04.Images/UI/SkillIcon/Skill_Ability.png"),
-                    new Vector2(-205f, 90f), LabelSide.Right, glyphData, true),
+                    new Vector2(-180f, 70f), LabelSide.Right, glyphData, true),
                 MakeSkillSlot(root.transform, "HeavyAttack", ComboInputToken.HeavyAttack, "강공격",
                     PlayerAction.HeavyAttack, LoadSprite("Assets/04.Images/UI/SkillIcon/HeavyAttack.png"),
-                    new Vector2(-345f, 170f), LabelSide.Top, glyphData, false),
-                MakeSkillSlot(root.transform, "Dodge", ComboInputToken.Dodge, "회피",
-                    PlayerAction.Dodge, LoadSprite("Assets/04.Images/UI/SkillIcon/Dash.png"),
-                    new Vector2(-303f, 128f), LabelSide.Right, glyphData, false),
+                    new Vector2(-410f, 186f), LabelSide.Top, glyphData, false),
+                MakeSkillSlot(root.transform, "Dash", ComboInputToken.Dash, "회피",
+                    PlayerAction.Dash, LoadSprite("Assets/04.Images/UI/SkillIcon/Dash.png"),
+                    new Vector2(-352f, 128f), LabelSide.Right, glyphData, false),
                 MakeSkillSlot(root.transform, "LightAttack", ComboInputToken.LightAttack, "공격",
                     PlayerAction.Attack, LoadSprite("Assets/04.Images/UI/SkillIcon/lightAttack.png"),
-                    new Vector2(-387f, 128f), LabelSide.Left, glyphData, false),
+                    new Vector2(-468f, 128f), LabelSide.Left, glyphData, false),
                 MakeSkillSlot(root.transform, "Jump", ComboInputToken.Jump, "점프",
-                    PlayerAction.Jump, null, new Vector2(-345f, 86f), LabelSide.Bottom, glyphData, false),
+                    PlayerAction.Jump,
+                    LoadSprite("Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Demo/Demo_Play/Joystick_Action_Icon_Jump.png"),
+                    new Vector2(-410f, 70f), LabelSide.Bottom, glyphData, false),
             };
 
             var so = new SerializedObject(hud);
@@ -105,7 +106,7 @@ namespace UPlayGround.UI.HUD.EditorTools
         {
             var go = NewUI($"UISkillSlot_{name}", parent);
             SetAnchored(Rt(go), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(.5f, .5f),
-                new Vector2(180f, 64f), position);
+                new Vector2(220f, 88f), position);
             var slot = go.AddComponent<UISkillSlot>();
             var dimGroup = go.AddComponent<CanvasGroup>();
 
@@ -116,22 +117,22 @@ namespace UPlayGround.UI.HUD.EditorTools
             {
                 case LabelSide.Right:
                     ribbonRt.pivot = new Vector2(0f, .5f);
-                    ribbonRt.anchoredPosition = new Vector2(36f, 0f);
+                    ribbonRt.anchoredPosition = new Vector2(80f, 0f);
                     break;
                 case LabelSide.Left:
                     ribbonRt.pivot = new Vector2(1f, .5f);
-                    ribbonRt.anchoredPosition = new Vector2(-36f, 0f);
+                    ribbonRt.anchoredPosition = new Vector2(-80f, 0f);
                     break;
                 case LabelSide.Top:
                     ribbonRt.pivot = new Vector2(.5f, 0f);
-                    ribbonRt.anchoredPosition = new Vector2(0f, 36f);
+                    ribbonRt.anchoredPosition = new Vector2(0f, 80f);
                     break;
                 default:
                     ribbonRt.pivot = new Vector2(.5f, 1f);
-                    ribbonRt.anchoredPosition = new Vector2(0f, -36f);
+                    ribbonRt.anchoredPosition = new Vector2(0f, -80f);
                     break;
             }
-            bool compactRightLabel = token == ComboInputToken.Dodge && side == LabelSide.Right;
+            bool compactRightLabel = token == ComboInputToken.Dash && side == LabelSide.Right;
             ribbonRt.sizeDelta = side is LabelSide.Left or LabelSide.Right
                 ? new Vector2(compactRightLabel ? 76f : 112f, 30f)
                 : new Vector2(92f, 28f);
@@ -149,7 +150,7 @@ namespace UPlayGround.UI.HUD.EditorTools
 
             var diamond = NewUI("Diamond", go.transform);
             SetAnchored(Rt(diamond), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
-                new Vector2(58f, 58f), Vector2.zero);
+                new Vector2(82f, 82f), Vector2.zero);
             Rt(diamond).localRotation = Quaternion.Euler(0f, 0f, 45f);
             AddImage(diamond, usesGauge ? new Color(.08f, .14f, .20f, .94f) : Navy, UISprite, true)
                 .raycastTarget = false;
@@ -167,7 +168,7 @@ namespace UPlayGround.UI.HUD.EditorTools
 
             var iconGo = NewUI("Icon", content.transform);
             SetAnchored(Rt(iconGo), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
-                new Vector2(30f, 30f), Vector2.zero);
+                new Vector2(42f, 42f), Vector2.zero);
             var iconImage = AddImage(iconGo, Color.white);
             iconImage.sprite = icon;
             iconImage.enabled = icon != null;
@@ -176,6 +177,7 @@ namespace UPlayGround.UI.HUD.EditorTools
 
             var cooldown = NewUI("Cooldown", content.transform);
             Stretch(cooldown);
+            Rt(cooldown).localRotation = Quaternion.Euler(0f, 0f, 45f);
             var cooldownImage = AddImage(cooldown, new Color(0f, .02f, .05f, .78f), UISprite);
             cooldownImage.type = Image.Type.Filled;
             cooldownImage.fillMethod = Image.FillMethod.Radial360;
@@ -190,12 +192,13 @@ namespace UPlayGround.UI.HUD.EditorTools
             cooldownText.raycastTarget = false;
 
             var keyCap = NewUI("KeyCap", go.transform);
-            Vector2 keyPosition = side switch
+            Vector2 keyPosition = token switch
             {
-                LabelSide.Right => new Vector2(39f, 0f),
-                LabelSide.Left => new Vector2(-39f, 0f),
-                LabelSide.Top => new Vector2(29f, 29f),
-                _ => new Vector2(29f, -29f),
+                ComboInputToken.HeavyAttack => new Vector2(0f, 62f),
+                ComboInputToken.Dash => new Vector2(62f, 0f),
+                ComboInputToken.Jump => new Vector2(0f, -62f),
+                ComboInputToken.LightAttack => new Vector2(-62f, 0f),
+                _ => side == LabelSide.Left ? new Vector2(-55f, 0f) : new Vector2(55f, 0f),
             };
             SetAnchored(Rt(keyCap), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                 new Vector2(30f, 30f), keyPosition);
@@ -230,7 +233,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             SetBool(slotSo, "_useGaugeFeature", usesGauge);
             SetBool(slotSo, "_showOnlyWhenGaugeFull", token == ComboInputToken.Skill2);
             SetBool(slotSo, "_showGaugeUi", false);
-            SetBool(slotSo, "_showCooldownUi", usesGauge || token == ComboInputToken.Dodge);
+            SetBool(slotSo, "_showCooldownUi", usesGauge || token == ComboInputToken.Dash);
             SetRef(slotSo, "_iconImage", iconImage);
             SetRef(slotSo, "_keyIcon", prompt);
             SetRef(slotSo, "_labelText", ribbonText);
@@ -301,7 +304,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             SetAnchored(Rt(diamond), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                 new Vector2(82f, 82f), Vector2.zero);
             Rt(diamond).localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var background = AddImage(diamond, NavySoft, UISprite, true);
+            var background = AddImage(diamond, Navy, UISprite, true);
             var rarityOutline = AddOutline(diamond, Cyan, 2f);
 
             var content = NewUI("Content", diamond.transform);
@@ -316,9 +319,28 @@ namespace UPlayGround.UI.HUD.EditorTools
             icon.preserveAspect = true;
             icon.raycastTarget = false;
 
-            var countBadge = NewUI("CountBadge", go.transform);
+            var cooldown = NewUI("Cooldown", content.transform);
+            Stretch(cooldown);
+            Rt(cooldown).localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var cooldownFill = AddImage(cooldown, new Color(0f, .02f, .05f, .78f), UISprite);
+            cooldownFill.type = Image.Type.Filled;
+            cooldownFill.fillMethod = Image.FillMethod.Radial360;
+            cooldownFill.fillOrigin = 2;
+            cooldownFill.fillClockwise = false;
+            cooldownFill.raycastTarget = false;
+            var cooldownText = AddText(
+                NewUI("CooldownText", cooldown.transform),
+                string.Empty,
+                15f,
+                Color.white,
+                TextAlignmentOptions.Center);
+            Stretch(cooldownText.gameObject);
+            cooldownText.raycastTarget = false;
+            cooldown.SetActive(false);
+
+            var countBadge = NewUI("CountBadge", content.transform);
             SetAnchored(Rt(countBadge), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
-                new Vector2(38f, 24f), new Vector2(25f, -25f));
+                new Vector2(30f, 20f), new Vector2(15f, -15f));
             AddImage(countBadge, new Color(.02f, .055f, .09f, .9f), UISprite, true).raycastTarget = false;
             var count = AddText(NewUI("Count", countBadge.transform), string.Empty, 17f, TextMain,
                 TextAlignmentOptions.Center);
@@ -327,10 +349,17 @@ namespace UPlayGround.UI.HUD.EditorTools
             count.raycastTarget = false;
 
             var keyCap = NewUI("KeyCap", go.transform);
-            SetAnchored(Rt(keyCap), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(.5f, .5f),
-                new Vector2(28f, 28f), new Vector2(7f, -7f));
-            AddImage(keyCap, new Color(.035f, .07f, .11f, 1f), UISprite, true);
-            AddOutline(keyCap, Gold, 2f);
+            Vector2 keyPosition = slotIndex switch
+            {
+                0 => new Vector2(0f, 62f),
+                1 => new Vector2(62f, 0f),
+                2 => new Vector2(0f, -62f),
+                _ => new Vector2(-62f, 0f),
+            };
+            SetAnchored(Rt(keyCap), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
+                new Vector2(28f, 28f), keyPosition);
+            AddImage(keyCap, new Color(.04f, .10f, .18f, 1f), UISprite, true);
+            AddOutline(keyCap, Cyan, 2f);
 
             var glyphImageGo = NewUI("Glyph", keyCap.transform);
             InsetStretch(Rt(glyphImageGo), 4f);
@@ -372,6 +401,10 @@ namespace UPlayGround.UI.HUD.EditorTools
             SetRef(so, "_emptyMark", empty.gameObject);
             SetRef(so, "_stateGroup", state);
             SetRef(so, "_useButton", button);
+            SetRef(so, "_cooldownRoot", cooldown);
+            SetRef(so, "_cooldownFill", cooldownFill);
+            SetRef(so, "_cooldownText", cooldownText);
+            SetRef(so, "_tweenTarget", Rt(diamond));
             so.ApplyModifiedPropertiesWithoutUndo();
             return entry;
         }

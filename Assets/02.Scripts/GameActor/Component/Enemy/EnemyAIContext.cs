@@ -45,6 +45,12 @@ namespace UPlayGround.Components
         public abstract bool CanUseSkill();
         public abstract bool TryRequestAttackSlot();
         public abstract bool TryGetFormationSlotPosition(float radius, out Vector3 position);
+
+        /// <summary>
+        /// 근접 그룹 동료로부터 밀려나는 분리(separation) 벡터. 그룹 비소속이면 Vector3.zero.
+        /// 여러 마리가 겹쳐 서로 막혀 멈추는 현상을 이동 상태에서 완화하는 데 쓴다.
+        /// </summary>
+        public virtual Vector3 GetGroupSeparation(float radius) => Vector3.zero;
         public abstract void NotifyBTAttackStarted();
         public abstract void UpdatePhase(float hpPercent);
         public abstract void DecidePostAttack(bool attackHit);

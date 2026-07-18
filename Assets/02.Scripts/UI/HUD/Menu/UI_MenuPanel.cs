@@ -1,3 +1,5 @@
+using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -8,7 +10,9 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// UI 창 열기 위한 메뉴 패널
+    /// UI 창 열기 위한 메뉴 패널.
+    /// 열릴 때 화면 우측 밖에서 원래 위치까지 슬라이드 인, 닫힐 때 다시 우측으로 슬라이드 아웃한다.
+    /// 히트스톱/일시정지(timeScale=0)에도 동작하도록 트윈은 SetUpdate(true)로 갱신한다.
     /// </summary>
     public class UI_MenuPanel : UI_Base
     {
@@ -22,12 +26,38 @@ namespace UPlayGround.UI
         [SerializeField] private Button _configButton;
         [SerializeField] private Button _exitButton;
 
+        [Header("슬라이드 트윈")]
+        [Tooltip("슬라이드시킬 대상 RectTransform. 비우면 패널 루트를 사용한다.")]
+        [SerializeField] private RectTransform _slidePanel;
+        [Tooltip("열림 트윈 사용 여부. 끄면 즉시 표시.")]
+        [SerializeField] private bool _playOpenTween = true;
+        [Tooltip("닫힘 트윈 사용 여부. 끄면 즉시 숨김.")]
+        [SerializeField] private bool _playCloseTween = true;
+        [SerializeField] private float _openDuration = 0.28f;
+        [SerializeField] private float _closeDuration = 0.2f;
+        [Tooltip("우측 화면 밖으로 밀어낼 가로 거리. 0이면 패널 너비로 자동 계산.")]
+        [SerializeField] private float _slideDistance = 0f;
+        [SerializeField] private Ease _openEase = Ease.OutCubic;
+        [SerializeField] private Ease _closeEase = Ease.InCubic;
+
         private int _openedFrame = -1;
+
+        // 슬라이드 대상의 원래(홈) 앵커 위치. Awake에서 최초 1회만 캐싱한다.
+        private Vector2 _homeAnchoredPos;
+        private Tween _slideTween;
+        private bool _closeTweening;      // 닫힘 트윈 진행 중(재진입 방지)
+        private bool _forceImmediateHide; // OnDestroy 등 즉시 숨겨야 하는 경로
+
+        private RectTransform SlideTarget => _slidePanel != null ? _slidePanel : _rectTransform;
 
 
         protected override void Awake()
         {
             base.Awake();
+
+            // 홈 위치는 어떤 트윈보다 먼저, 디자인된 위치에서 캐싱한다.
+            RectTransform target = SlideTarget;
+            _homeAnchoredPos = target != null ? target.anchoredPosition : Vector2.zero;
 
             _mapButton.onClick.AddListener(OnClickedMapButton);
             _bagButton.onClick.AddListener(OnClickedBagButton);
@@ -45,6 +75,59 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             _openedFrame = Time.frameCount;
+            PlayOpenTween();
+        }
+
+        /// <summary>
+        /// 숨김 요청. 닫힘 트윈이 켜져 있으면 슬라이드 아웃을 재생한 뒤 실제로 숨긴다.
+        /// UIManager.HideUI 등 외부 경로도 이 오버라이드를 통해 트윈을 탄다.
+        /// </summary>
+        public override void Hide()
+        {
+            // 트윈 없이 즉시 숨겨야 하는 조건: 즉시숨김 강제 / 미표시 / 트윈 비활성 /
+            // 지속시간 0 / 슬라이드 대상 없음 / 비활성 상태(파괴·씬전환 등).
+            if (_forceImmediateHide
+                || !IsVisible
+                || !_playCloseTween
+                || _closeDuration <= 0f
+                || SlideTarget == null
+                || !isActiveAndEnabled)
+            {
+                KillSlideTween();
+                _closeTweening = false;
+                base.Hide();
+                return;
+            }
+
+            if (_closeTweening)
+                return; // 이미 닫기 트윈 진행 중
+
+            _closeTweening = true;
+            PlayCloseTween(() =>
+            {
+                _closeTweening = false;
+                base.Hide();
+            });
+        }
+
+        protected override void OnHide()
+        {
+            // 실제 숨김 직전 트윈을 정리하고 홈 위치로 되돌려, 다음 표시가 항상 정상 위치에서 시작하도록 한다.
+            KillSlideTween();
+            _closeTweening = false;
+            RectTransform target = SlideTarget;
+            if (target != null)
+                target.anchoredPosition = _homeAnchoredPos;
+
+            base.OnHide();
+        }
+
+        protected override void OnDestroy()
+        {
+            // 파괴 중에는 트윈 지연 없이 즉시 정리해야 커서/입력 레이어 복원이 누락되지 않는다.
+            _forceImmediateHide = true;
+            KillSlideTween();
+            base.OnDestroy();
         }
 
         protected override void RegisterInputEvents()
@@ -68,6 +151,8 @@ namespace UPlayGround.UI
             if (_partyButton != null) _partyButton.onClick.RemoveListener(OnClickedPartyButton);
             if (_configButton != null) _configButton.onClick.RemoveListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.RemoveListener(OnClickedExitButton);
+
+            KillSlideTween();
 
             base.OnDispose();
         }
@@ -139,5 +224,78 @@ namespace UPlayGround.UI
                 UISvc.UI.HideUI(type);
             }
         }
+
+        #region 슬라이드 트윈
+
+        /// <summary>
+        /// 우측 화면 밖에서 홈 위치까지 슬라이드 인. 트윈이 꺼져 있으면 즉시 홈 위치로 스냅한다.
+        /// </summary>
+        private void PlayOpenTween()
+        {
+            KillSlideTween();
+            _closeTweening = false;
+
+            RectTransform target = SlideTarget;
+            if (target == null)
+                return;
+
+            if (!_playOpenTween || _openDuration <= 0f)
+            {
+                target.anchoredPosition = _homeAnchoredPos;
+                return;
+            }
+
+            Vector2 start = _homeAnchoredPos + new Vector2(ResolveSlideDistance(target), 0f);
+            target.anchoredPosition = start;
+            _slideTween = TweenAnchoredPos(target, _homeAnchoredPos, _openDuration, _openEase);
+        }
+
+        /// <summary>
+        /// 홈 위치에서 우측 화면 밖까지 슬라이드 아웃 후 onComplete를 호출한다.
+        /// </summary>
+        private void PlayCloseTween(Action onComplete)
+        {
+            KillSlideTween();
+
+            RectTransform target = SlideTarget;
+            if (target == null || _closeDuration <= 0f)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            Vector2 exit = _homeAnchoredPos + new Vector2(ResolveSlideDistance(target), 0f);
+            _slideTween = TweenAnchoredPos(target, exit, _closeDuration, _closeEase)
+                .OnComplete(() => onComplete?.Invoke());
+        }
+
+        // UI asmdef는 프리컴파일 DOTween.dll만 참조하므로 RectTransform.DOAnchorPos(DOTweenModuleUI)를
+        // 쓸 수 없다. 기존 UI 코드와 동일하게 DOTween.To로 anchoredPosition을 트윈한다.
+        private Tween TweenAnchoredPos(RectTransform target, Vector2 end, float duration, Ease ease)
+        {
+            return DOTween.To(() => target.anchoredPosition,
+                    value => target.anchoredPosition = value, end, duration)
+                .SetEase(ease)
+                .SetUpdate(true);
+        }
+
+        // 밀어낼 거리: 지정값이 있으면 사용, 없으면 패널 너비(그마저 0이면 화면 너비)로 자동 계산한다.
+        private float ResolveSlideDistance(RectTransform target)
+        {
+            if (_slideDistance > 0f)
+                return _slideDistance;
+
+            float width = target != null ? target.rect.width : 0f;
+            return width > 0f ? width : Screen.width;
+        }
+
+        private void KillSlideTween()
+        {
+            if (_slideTween != null && _slideTween.IsActive())
+                _slideTween.Kill();
+            _slideTween = null;
+        }
+
+        #endregion
     }
 }

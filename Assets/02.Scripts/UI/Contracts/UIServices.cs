@@ -114,6 +114,7 @@ namespace UPlayGround.UI
         int MaxSlots { get; }
         float MaxWeight { get; }
         int GetItemCount(int itemId);
+        bool TryGetConsumableCooldown(int itemId, out float remaining, out float duration);
         float GetItemWeight(int itemId);
         float GetTotalWeight();
         ItemInstance GetItem(int itemId);

@@ -30,6 +30,9 @@ namespace UPlayGround.UI
         [SerializeField] private GameObject _equippedBadge;     // 파티원이 장착 중일 때 표시 (선택적)
         [SerializeField] private Image _equippedPortrait;       // 장착 중인 파티원 초상 (선택적)
         [SerializeField] private TextMeshProUGUI _equippedBadgeText; // 2명 이상일 때 "+N" (선택적)
+        [SerializeField] private GameObject _cooldownRoot;
+        [SerializeField] private Image _cooldownFill;
+        [SerializeField] private TextMeshProUGUI _cooldownText;
 
         private ItemSO _itemData = null;
         private int _itemCount = 0;
@@ -49,6 +52,12 @@ namespace UPlayGround.UI
         {
             // 비활성화되면 포커스 하이라이트도 해제(재사용 시 잔상 방지)
             SetFocus(false);
+        }
+
+        private void Update()
+        {
+            if (_itemData is ConsumableSO)
+                RefreshCooldown();
         }
 
         public void Init(ItemSO itemData, int count, int enhanceLevel = 0, int inventorySlotKey = -1)
@@ -77,6 +86,7 @@ namespace UPlayGround.UI
                 _rootContent.SetActive(false);
                 _rootEmptySlot.SetActive(true);
                 if (_equippedBadge != null) _equippedBadge.SetActive(false);
+                SetCooldownVisible(false, 0f, 0f);
             }
             else
             {
@@ -92,7 +102,32 @@ namespace UPlayGround.UI
 
                 // 장착 중인 파티원 초상 뱃지. 프리팹에 뱃지 오브젝트가 없으면 무시.
                 RefreshEquippedBadge();
+                RefreshCooldown();
             }
+        }
+
+        private void RefreshCooldown()
+        {
+            float remaining = 0f;
+            float duration = 0f;
+            bool onCooldown = _itemData is ConsumableSO
+                && UISvc.Inventory != null
+                && UISvc.Inventory.TryGetConsumableCooldown(
+                    _itemData.itemId, out remaining, out duration);
+
+            SetCooldownVisible(onCooldown, remaining, duration);
+        }
+
+        private void SetCooldownVisible(bool visible, float remaining, float duration)
+        {
+            if (_cooldownRoot != null)
+                _cooldownRoot.SetActive(visible);
+            if (_cooldownFill != null)
+                _cooldownFill.fillAmount = visible && duration > 0f
+                    ? Mathf.Clamp01(remaining / duration)
+                    : 0f;
+            if (_cooldownText != null)
+                _cooldownText.text = visible ? remaining.ToString("0.0") : string.Empty;
         }
 
         #region IPointerEnterHandler / IPointerExitHandler

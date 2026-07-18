@@ -14,7 +14,7 @@ namespace UPlayGround.UI
     /// 파티원 선택 / 편성 화면.
     /// 클릭은 _pendingOrder(초안)만 수정하며, 저장 버튼으로 PartyManager에 반영한다.
     /// </summary>
-    public class UI_PartyMenu : UI_Base
+    public class UI_PartyMenu : UI_SceneBase
     {
         // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
         private IUIPartyService _cachedPartyManager;
@@ -114,6 +114,8 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            base.OnHide();
+
             if (PartyMgr != null)
             {
                 PartyMgr.OnSwapCompleted -= OnSwapCompleted;
@@ -132,6 +134,8 @@ namespace UPlayGround.UI
 
         protected override void OnDispose()
         {
+            base.OnDispose();
+
             if (PartyMgr != null)
             {
                 PartyMgr.OnSwapCompleted -= OnSwapCompleted;
@@ -343,8 +347,8 @@ namespace UPlayGround.UI
                 }
             }
 
-            string text = $"경량 {light} · 표준 {standard} · 중량 {heavy}";
-            if (unknown > 0) text += $" · 미분류 {unknown}";
+            string text = $"경량 {light} / 표준 {standard} / 중량 {heavy}";
+            if (unknown > 0) text += $" / 미분류 {unknown}";
             _partyWeightSummaryText.text = text;
         }
     }

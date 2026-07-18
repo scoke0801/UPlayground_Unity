@@ -28,6 +28,10 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _hpText;
         [SerializeField] private GameObject      _deadText;   // "전투 불능"
 
+        [Header("상태")]
+        [SerializeField] private GameObject _contentRoot;   // 편성된 캐릭터 내용
+        [SerializeField] private GameObject _emptyRoot;     // 빈 슬롯 플레이스홀더
+
         /// <summary> 슬롯 클릭 시 해당 캐릭터를 상세 표시 대상으로 선택 요청. </summary>
         public event Action<CharacterActorType> OnSelectRequested;
 
@@ -66,6 +70,9 @@ namespace UPlayGround.UI
 
             if (_slotButton != null) _slotButton.interactable = true; // 클릭=선택(항상 가능)
 
+            if (_contentRoot != null) _contentRoot.SetActive(true);
+            if (_emptyRoot != null)   _emptyRoot.SetActive(false);
+
             gameObject.SetActive(true);
         }
 
@@ -83,7 +90,12 @@ namespace UPlayGround.UI
         public void Unbind()
         {
             _boundType = CharacterActorType.None;
-            gameObject.SetActive(false);
+
+            // 슬롯 자체는 활성 상태로 두어 레이아웃 폭을 유지하고(편성 1명일 때 늘어짐 방지),
+            // 캐릭터 내용 대신 "빈 슬롯" 플레이스홀더를 표시한다.
+            if (_contentRoot != null) _contentRoot.SetActive(false);
+            if (_emptyRoot != null)   _emptyRoot.SetActive(true);
+            gameObject.SetActive(true);
         }
 
         private void RefreshLevelText()

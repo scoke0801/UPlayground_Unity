@@ -18,7 +18,7 @@ namespace UPlayGround.UI
     /// UIPrefabDatabase 키: "Quest" (UIKeyType.Quest)
     /// 프리팹 초안은 에디터 툴 "UPlayGround/UI/퀘스트 UI 프리팹 빌드"로 생성한다.
     /// </summary>
-    public class UI_QuestMenu : UI_Base
+    public class UI_QuestMenu : UI_SceneBase
     {
         // ──── 카테고리 탭 ────
         [Header("상태 탭")]
@@ -93,6 +93,8 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
+
             _selectedQuestId = null;
             _currentTab      = QuestStatus.Available;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data.Combat;
@@ -52,6 +53,34 @@ namespace UPlayGround.UI.InputPrompt
         private const int NoSignature = int.MinValue;
 
         // ── UI_Base 생명주기 ─────────────────────────────────────────
+        protected override void RegisterInputEvents()
+        {
+            var input = Svc.Input;
+            if (input == null)
+                return;
+
+            RegisterSkillInput(input, PlayerAction.Attack, OnLightAttack);
+            RegisterSkillInput(input, PlayerAction.HeavyAttack, OnHeavyAttack);
+            RegisterSkillInput(input, PlayerAction.Jump, OnJump);
+            RegisterSkillInput(input, PlayerAction.Dash, OnDash);
+            RegisterSkillInput(input, PlayerAction.SkillAbility, OnAbility);
+            RegisterSkillInput(input, PlayerAction.SkillUltimate, OnUltimate);
+        }
+
+        protected override void UnRegisterInputEvents()
+        {
+            var input = Svc.Input;
+            if (input == null)
+                return;
+
+            UnRegisterSkillInput(input, PlayerAction.Attack, OnLightAttack);
+            UnRegisterSkillInput(input, PlayerAction.HeavyAttack, OnHeavyAttack);
+            UnRegisterSkillInput(input, PlayerAction.Jump, OnJump);
+            UnRegisterSkillInput(input, PlayerAction.Dash, OnDash);
+            UnRegisterSkillInput(input, PlayerAction.SkillAbility, OnAbility);
+            UnRegisterSkillInput(input, PlayerAction.SkillUltimate, OnUltimate);
+        }
+
         protected override void OnShow()
         {
             base.OnShow();
@@ -91,6 +120,66 @@ namespace UPlayGround.UI.InputPrompt
         }
 
         private void OnSwapCompleted(PlayerActor newPlayer) => Bind(newPlayer);
+
+        private static void RegisterSkillInput(
+            IInputService input,
+            string action,
+            Action<InputAction.CallbackContext> callback)
+        {
+            input.RegisterInputEvent(
+                InputMapNames.PlayerAction,
+                action,
+                null,
+                callback,
+                null,
+                null,
+                null,
+                InputLayer.Level_0);
+        }
+
+        private static void UnRegisterSkillInput(
+            IInputService input,
+            string action,
+            Action<InputAction.CallbackContext> callback)
+        {
+            input.UnRegisterInputEvent(
+                InputMapNames.PlayerAction,
+                action,
+                null,
+                callback,
+                null);
+        }
+
+        private void OnLightAttack(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.LightAttack);
+
+        private void OnHeavyAttack(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.HeavyAttack);
+
+        private void OnJump(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.Jump);
+
+        private void OnDash(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.Dash);
+
+        private void OnAbility(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.Skill1);
+
+        private void OnUltimate(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.Skill2);
+
+        private void PlayUseFeedback(ComboInputToken token)
+        {
+            for (int i = 0; i < _slots.Count; i++)
+            {
+                UISkillSlot slot = _slots[i];
+                if (slot == null || slot.Token != token)
+                    continue;
+
+                slot.PlayUseFeedback();
+                return;
+            }
+        }
 
         private void Bind(PlayerActor player)
         {

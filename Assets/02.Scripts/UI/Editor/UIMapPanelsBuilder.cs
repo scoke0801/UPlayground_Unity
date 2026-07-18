@@ -52,6 +52,9 @@ namespace UPlayGround.UI.Map.EditorTools
 
                 var so = new SerializedObject(map);
 
+                // UI_Map은 전체 화면 맵 스캐폴드 위에 코너 패널을 얹는 구조라 슬라이드시킬 단일 창이 없다.
+                // 따라서 UI_SceneBase._sceneContent는 의도적으로 비워 두고 루트 CanvasGroup 페이드만 사용한다.
+
                 // ── 좌상단 타이틀 칩 (시안: 좌상단 "지도" 장식 라벨) ──
                 var titleChip = GetOrReplace(root, "MapTitleChip");
                 SetAnchored(Rt(titleChip), new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),

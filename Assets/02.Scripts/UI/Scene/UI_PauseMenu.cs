@@ -9,9 +9,11 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// 일시정지 메뉴 UI
+    /// 일시정지 메뉴 UI.
+    /// 표시/닫기 트윈(Dim 페이드 + Panel 스케일 팝인/아웃)은 UI_PopupBase가 담당한다.
+    /// 인스펙터에서 UI_PopupBase의 _dim(CanvasGroup)/_panel(RectTransform)을 연결해야 트윈이 재생된다.
     /// </summary>
-    public class UI_PauseMenu : UI_Base
+    public class UI_PauseMenu : UI_PopupBase
     {
         private static readonly Color DefaultButtonColor = new Color(0.10f, 0.13f, 0.17f, 1f);
         private static readonly Color DefaultSelectedButtonColor = new Color(0.10f, 0.30f, 0.36f, 1f);
@@ -32,7 +34,6 @@ namespace UPlayGround.UI
         private Image _gotoTitleButtonImage;
         private Image _exitButtonImage;
         private RectTransform _selectionHighlight;
-        private RectTransform _selectionPointer;
         private Button _focusedButton;
         private Color _normalButtonColor = DefaultButtonColor;
         private Color _selectedButtonColor = DefaultSelectedButtonColor;
@@ -136,9 +137,6 @@ namespace UPlayGround.UI
             _selectionHighlight = resumeButton != null
                 ? resumeButton.transform.Find("Highlight") as RectTransform
                 : null;
-            _selectionPointer = resumeButton != null
-                ? resumeButton.transform.Find("Pointer") as RectTransform
-                : null;
         }
 
         private static Image GetButtonImage(Button button)
@@ -179,8 +177,7 @@ namespace UPlayGround.UI
 
             if (changed)
             {
-                MoveSelectionChild(_selectionHighlight, button.transform, stretch: true);
-                MoveSelectionChild(_selectionPointer, button.transform, stretch: false);
+                MoveSelectionChild(_selectionHighlight, button.transform);
             }
         }
 
@@ -190,7 +187,7 @@ namespace UPlayGround.UI
                 image.color = color;
         }
 
-        private static void MoveSelectionChild(RectTransform child, Transform parent, bool stretch)
+        private static void MoveSelectionChild(RectTransform child, Transform parent)
         {
             if (child == null || parent == null)
                 return;
@@ -198,19 +195,11 @@ namespace UPlayGround.UI
             child.SetParent(parent, false);
             child.gameObject.SetActive(true);
 
-            if (stretch)
-            {
-                child.anchorMin = Vector2.zero;
-                child.anchorMax = Vector2.one;
-                child.offsetMin = Vector2.zero;
-                child.offsetMax = Vector2.zero;
-                child.SetAsFirstSibling();
-                return;
-            }
-
-            child.anchorMin = child.anchorMax = child.pivot = new Vector2(0f, 0.5f);
-            child.sizeDelta = new Vector2(20f, 20f);
-            child.anchoredPosition = new Vector2(-26f, 0f);
+            child.anchorMin = Vector2.zero;
+            child.anchorMax = Vector2.one;
+            child.offsetMin = Vector2.zero;
+            child.offsetMax = Vector2.zero;
+            child.SetAsFirstSibling();
         }
 
         protected override void OnHide()

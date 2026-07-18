@@ -129,8 +129,8 @@ namespace UPlayGround.UI
                 _weightClassText.text = profile != null ? UIPartyWeightUtil.ClassLabel(profile.weightClass) : "-";
             if (_weightDerivedText != null)
                 _weightDerivedText.text = profile != null
-                    ? $"이동 x{profile.moveSpeedMultiplier:0.##} · 템포 x{profile.attackTempoMultiplier:0.##} · " +
-                      $"피해 x{profile.damageMultiplier:0.##} · 브레이크 x{profile.breakDamageMultiplier:0.##} · " +
+                    ? $"이동 x{profile.moveSpeedMultiplier:0.##} / 템포 x{profile.attackTempoMultiplier:0.##} / " +
+                      $"피해 x{profile.damageMultiplier:0.##} / 브레이크 x{profile.breakDamageMultiplier:0.##} / " +
                       $"회피 무적 {profile.dodgeIFrameSeconds:0.##}초"
                     : string.Empty;
         }

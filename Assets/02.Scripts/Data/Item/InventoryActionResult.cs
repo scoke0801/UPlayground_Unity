@@ -9,6 +9,7 @@ namespace UPlayGround.Data.Item
         NotEquippable,
         EquippedItem,
         NoEffect,
+        OnCooldown,
         Failed,
     }
 }

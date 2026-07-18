@@ -28,6 +28,9 @@ namespace UPlayGround.State
 
         private const float TARGET_CONTACT_BREAK_TIME = 0.08f;
         private const float TARGET_CONTACT_CHECK_INTERVAL = 0.05f;
+        // 그룹 분리 스티어링: 이 반경 안의 동료로부터 밀려나며, 밀어내기 강도를 이동 방향에 블렌드한다.
+        private const float SEPARATION_RADIUS = 1.6f;
+        private const float SEPARATION_WEIGHT = 0.65f;
         
         public EnemyChaseState(ActorMovementController controller, EnemyAIContext context, EnemyDetection detection) : base(controller)
         {
@@ -160,6 +163,12 @@ namespace UPlayGround.State
                 Vector3 strafeDir = Vector3.Cross(Vector3.up, moveDir) * _strafeSign;
                 moveDir = (moveDir * 0.7f + strafeDir * 0.3f).normalized;
             }
+
+            // 그룹 동료로부터의 분리 스티어링 — 여러 마리가 같은 각도로 몰려
+            // 서로 콜라이더에 막혀 제자리에 갈리는 현상을 완화한다.
+            Vector3 separation = _context.GetGroupSeparation(SEPARATION_RADIUS);
+            if (separation.sqrMagnitude > 0.0001f)
+                moveDir = (moveDir + separation * SEPARATION_WEIGHT).normalized;
 
             Vector3 targetVelocity = moveDir * _chaseSpeed;
             targetVelocity = motor.GetDirectionTangentToSurface(targetVelocity, motor.GroundingStatus.GroundNormal)

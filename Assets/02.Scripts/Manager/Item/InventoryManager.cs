@@ -102,6 +102,19 @@ namespace UPlayGround.Manager
 
         private Dictionary<int, ItemInstance> _itemPair = new Dictionary<int, ItemInstance>();
         private int _nextInventorySlotKey = int.MaxValue;
+        private readonly Dictionary<int, ConsumableCooldownState> _consumableCooldowns = new();
+
+        private readonly struct ConsumableCooldownState
+        {
+            public readonly float EndTime;
+            public readonly float Duration;
+
+            public ConsumableCooldownState(float endTime, float duration)
+            {
+                EndTime = endTime;
+                Duration = duration;
+            }
+        }
 
         // itemId → 해당 아이템을 담고 있는 인벤토리 슬롯 키 목록(역인덱스).
         // 장비가 인스턴스별 슬롯 키로 쪼개지면서 itemId 조회가 _itemPair 전체 선형 스캔(O(n))이 되는 것을 막는다.
@@ -136,6 +149,7 @@ namespace UPlayGround.Manager
         {
             _itemPair.Clear();
             _slotKeysByItemId.Clear();
+            _consumableCooldowns.Clear();
         }
 
         private void IndexSlot(int slotKey, ItemInstance instance)
@@ -469,15 +483,56 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.NotUsable;
             }
 
+            if (TryGetConsumableCooldown(itemId, out _, out _))
+            {
+                return InventoryActionResult.OnCooldown;
+            }
+
             InventoryActionResult applyResult = TryApplyConsumable(consumableData);
             if (applyResult != InventoryActionResult.Success)
             {
                 return applyResult;
             }
 
-            return UseItem(itemId, count)
-                ? InventoryActionResult.Success
-                : InventoryActionResult.Failed;
+            if (!UseItem(itemId, count))
+            {
+                return InventoryActionResult.Failed;
+            }
+
+            StartConsumableCooldown(itemId, consumableData.cooldownDuration);
+            return InventoryActionResult.Success;
+        }
+
+        public bool TryGetConsumableCooldown(int itemId, out float remaining, out float duration)
+        {
+            if (!_consumableCooldowns.TryGetValue(itemId, out ConsumableCooldownState state))
+            {
+                remaining = 0f;
+                duration = 0f;
+                return false;
+            }
+
+            remaining = Mathf.Max(0f, state.EndTime - Time.time);
+            duration = state.Duration;
+            if (remaining > 0f)
+                return true;
+
+            _consumableCooldowns.Remove(itemId);
+            remaining = 0f;
+            return false;
+        }
+
+        private void StartConsumableCooldown(int itemId, float duration)
+        {
+            duration = Mathf.Max(0f, duration);
+            if (duration <= 0f)
+            {
+                _consumableCooldowns.Remove(itemId);
+                return;
+            }
+
+            _consumableCooldowns[itemId] =
+                new ConsumableCooldownState(Time.time + duration, duration);
         }
 
         // ──────────────────────────────────────────────────────────

@@ -121,8 +121,13 @@ namespace UPlayGround.UI.Party.EditorTools
                 var battleCount = AddText(NewUI("Count", battleHeader.transform), "0 / 4", 20, TextSub, TextAlignmentOptions.Right);
                 AddFlexibleW(battleCount.gameObject, 1f);
 
+                // 카드 영역을 상/하 스페이서로 감싸 세로 중앙에 배치(해상도 독립적).
+                var battleBlankTop = NewUI("BattleBlankTop", center.transform);
+                AddFlexible(battleBlankTop, 1f);
+
                 var cardsRow = NewUI("Cards", center.transform);
-                SetHeight(cardsRow, 420);
+                SetHeight(cardsRow, 420);       // 최소 높이 보장
+                AddFlexible(cardsRow, 1f);       // 남는 세로 공간을 카드가 함께 채움
                 var cardsLayout = AddHLG(cardsRow, spacing: 14, pad: 0);
                 cardsLayout.childForceExpandWidth = true;
                 cardsLayout.childAlignment = TextAnchor.UpperLeft;
@@ -132,7 +137,7 @@ namespace UPlayGround.UI.Party.EditorTools
 
                 // 파티 무게 구성 요약 (사이클 03 스펙)
                 var weightSummary = AddText(NewUI("WeightSummary", center.transform),
-                    "경량 0 · 표준 0 · 중량 0", 18, TextSub, TextAlignmentOptions.Left);
+                    "경량 0 / 표준 0 / 중량 0", 18, TextSub, TextAlignmentOptions.Left);
                 SetHeight(weightSummary.gameObject, 26);
 
                 var battleBlank = NewUI("BattleBlank", center.transform);
@@ -156,6 +161,7 @@ namespace UPlayGround.UI.Party.EditorTools
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);
+                SetRef(so, "_sceneContent",          window.GetComponent<RectTransform>()); // Scene 열기/닫기 슬라이드 대상
                 SetRef(so, "_content",               rosterContent.transform);
                 SetRef(so, "_partyMenuEntryPrefab",  entryPrefab);
                 SetArray(so, "_partyBattleEntries",  battleEntries);
@@ -277,9 +283,13 @@ namespace UPlayGround.UI.Party.EditorTools
             var entry = card.AddComponent<UIPartyBattleEntry>();
             var btn = card.AddComponent<Button>();
             btn.targetGraphic = img;
-            AddVLG(card, spacing: 6, pad: 10).childForceExpandHeight = false;
 
-            var portrait = NewUI("Portrait", card.transform);
+            // ── 편성된 캐릭터 내용 (미편성 슬롯에서는 숨김) ──
+            var content = NewUI("Content", card.transform);
+            Stretch(content);
+            AddVLG(content, spacing: 6, pad: 10).childForceExpandHeight = false;
+
+            var portrait = NewUI("Portrait", content.transform);
             AddFlexible(portrait, 1);
             AddImage(portrait, FieldBg, UISprite, sliced: true);
             var portraitImageGo = NewUI("Image", portrait.transform);
@@ -287,12 +297,12 @@ namespace UPlayGround.UI.Party.EditorTools
             var portImg = AddImage(portraitImageGo, Color.white);
             portImg.preserveAspect = true;
 
-            var name = AddText(NewUI("Name", card.transform), "이름", 22, TextMain, TextAlignmentOptions.Center);
+            var name = AddText(NewUI("Name", content.transform), "이름", 22, TextMain, TextAlignmentOptions.Center);
             SetHeight(name.gameObject, 30);
-            var level = AddText(NewUI("Level", card.transform), "Lv. 1", 17, TextSub, TextAlignmentOptions.Center);
+            var level = AddText(NewUI("Level", content.transform), "Lv. 1", 17, TextSub, TextAlignmentOptions.Center);
             SetHeight(level.gameObject, 22);
 
-            var hpBar = NewUI("HpBar", card.transform);
+            var hpBar = NewUI("HpBar", content.transform);
             SetHeight(hpBar, 12);
             AddImage(hpBar, new Color(0.08f, 0.10f, 0.13f, 1f), UISprite, sliced: true);
             var hpFillGo = NewUI("Fill", hpBar.transform);
@@ -301,30 +311,30 @@ namespace UPlayGround.UI.Party.EditorTools
             hpFill.type = Image.Type.Filled;
             hpFill.fillMethod = Image.FillMethod.Horizontal;
             hpFill.fillAmount = 1f;
-            var hpText = AddText(NewUI("HpText", card.transform), "0 / 0", 16, TextMain, TextAlignmentOptions.Center);
+            var hpText = AddText(NewUI("HpText", content.transform), "0 / 0", 16, TextMain, TextAlignmentOptions.Center);
             SetHeight(hpText.gameObject, 20);
 
-            // 오버레이들
-            var orderRoot = NewUI("OrderBadge", card.transform);
+            // 오버레이들 (content 하위 — 미편성 시 캐릭터 내용과 함께 숨김)
+            var orderRoot = NewUI("OrderBadge", content.transform);
             AnchorTopLeft(Rt(orderRoot), 32, 32);
             AddImage(orderRoot, Accent, UISprite, sliced: true);
             orderRoot.AddComponent<LayoutElement>().ignoreLayout = true;
             var orderText = AddText(NewUI("Text", orderRoot.transform), "1", 18, Color.black, TextAlignmentOptions.Center);
             Stretch(orderText.gameObject);
 
-            var weaponGo = NewUI("Weapon", card.transform);
+            var weaponGo = NewUI("Weapon", content.transform);
             AnchorTopRight(Rt(weaponGo), 28, 28);
             var weapon = AddImage(weaponGo, TextSub);
             weaponGo.AddComponent<LayoutElement>().ignoreLayout = true;
 
-            var dead = NewUI("DeadText", card.transform);
+            var dead = NewUI("DeadText", content.transform);
             AnchorCenter(Rt(dead), 140, 30);
             var deadTxt = AddText(dead, "전투 불능", 20, Danger, TextAlignmentOptions.Center);
             deadTxt.raycastTarget = false;
             dead.AddComponent<LayoutElement>().ignoreLayout = true;
             dead.SetActive(false);
 
-            var selected = NewUI("Selected", card.transform);
+            var selected = NewUI("Selected", content.transform);
             Stretch(selected);
             var selImg = AddImage(selected, new Color(Accent.r, Accent.g, Accent.b, 0.10f));
             selImg.raycastTarget = false;
@@ -332,6 +342,20 @@ namespace UPlayGround.UI.Party.EditorTools
             selected.AddComponent<LayoutElement>().ignoreLayout = true;
             selected.transform.SetAsFirstSibling();
             selected.SetActive(false);
+
+            // ── 빈 슬롯 플레이스홀더 (미편성 슬롯에서만 표시) ──
+            var empty = NewUI("Empty", card.transform);
+            Stretch(empty);
+            empty.AddComponent<LayoutElement>().ignoreLayout = true;
+            var emptyBg = AddImage(empty, new Color(0f, 0f, 0f, 0.20f), UISprite, sliced: true);
+            emptyBg.raycastTarget = false; // 클릭은 뒤쪽 카드 버튼으로 통과(선택 없음)
+            AddOutline(empty, new Color(TextSub.r, TextSub.g, TextSub.b, 0.28f), new Vector2(2f, -2f));
+            var emptyLabelGo = NewUI("Label", empty.transform);
+            Stretch(emptyLabelGo);
+            var emptyLabel = AddText(emptyLabelGo, "+\n빈 슬롯", 22,
+                new Color(TextSub.r, TextSub.g, TextSub.b, 0.65f), TextAlignmentOptions.Center);
+            emptyLabel.raycastTarget = false;
+            empty.SetActive(false); // 기본은 비활성(런타임 Unbind에서 켬)
 
             var so = new SerializedObject(entry);
             SetRef(so, "_characterIcon",      portImg);
@@ -345,6 +369,8 @@ namespace UPlayGround.UI.Party.EditorTools
             SetRef(so, "_hpFill",             hpFill);
             SetRef(so, "_hpText",             hpText);
             SetRef(so, "_deadText",           dead);
+            SetRef(so, "_contentRoot",        content);
+            SetRef(so, "_emptyRoot",          empty);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             return entry;

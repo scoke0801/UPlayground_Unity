@@ -15,6 +15,10 @@ namespace UPlayGround.UI
     {
         [SerializeField] private Image _portrait;
         [SerializeField] private TextMeshProUGUI _nameText;
+        [SerializeField] private TextMeshProUGUI _indexText;
+        [SerializeField] private TextMeshProUGUI _levelText;
+        [SerializeField] private GameObject _activeBadge;
+        [SerializeField] private GameObject _lockedOverlay;
         [SerializeField] private GameObject _selectedHighlight;
 
         private CharacterActorType _type = CharacterActorType.None;
@@ -36,12 +40,29 @@ namespace UPlayGround.UI
                 _nameText.text = displayName;
 
             SetSelected(false);
+            SetLocked(false);
         }
 
         public void SetSelected(bool selected)
         {
             if (_selectedHighlight != null)
                 _selectedHighlight.SetActive(selected);
+        }
+
+        public void SetMeta(int index, int level, bool isActive)
+        {
+            if (_indexText != null)
+                _indexText.text = index.ToString();
+            if (_levelText != null)
+                _levelText.text = $"Lv.{Mathf.Max(1, level)}";
+            if (_activeBadge != null)
+                _activeBadge.SetActive(isActive);
+        }
+
+        public void SetLocked(bool locked)
+        {
+            if (_lockedOverlay != null)
+                _lockedOverlay.SetActive(locked);
         }
 
         public void OnPointerClick(PointerEventData eventData)

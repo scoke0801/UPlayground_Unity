@@ -47,6 +47,8 @@ namespace UPlayGround.UI.InputPrompt
         [Header("렌더 타깃")]
         [SerializeField] private Image              _iconImage;
         [SerializeField] private UI_InputPromptIcon _keyIcon;   // 키캡 글리프(디바이스 자동 전환)
+        [SerializeField] private TextMeshProUGUI    _labelText;
+        [SerializeField] private string             _defaultLabel;
         [SerializeField] private GameObject         _readyGlow;  // 콤보 다음 키 발광
         [SerializeField] private GameObject         _comboGlow;  // 콤보 다음 키 강조(추가 연출)
         
@@ -120,6 +122,9 @@ namespace UPlayGround.UI.InputPrompt
         /// <summary>아이콘/키캡/게이지 슬롯을 1회 설정한다(바인드 시 호출).</summary>
         public void Initialize()
         {
+            if (string.IsNullOrWhiteSpace(_defaultLabel) && _labelText != null)
+                _defaultLabel = _labelText.text;
+
             if (_iconImage != null)
             {
                 _iconImage.sprite  = _icon;
@@ -132,8 +137,20 @@ namespace UPlayGround.UI.InputPrompt
             ResolveGaugeSlot();
             CacheAvailableRootMembership();
             SetComboHint(false);
+            SetHintLabel(null);
             ClearGaugeState();
             ResetTweenState();   // 바인드/스왑 시 트윈 베이스라인 재설정(오발화 방지).
+        }
+
+        /// <summary>현재 입력으로 이어지는 Ability 라우트명을 표시하고, 힌트가 끝나면 기본 라벨로 복구한다.</summary>
+        public void SetHintLabel(string routeLabel)
+        {
+            if (_labelText == null)
+                return;
+
+            _labelText.text = string.IsNullOrWhiteSpace(routeLabel)
+                ? _defaultLabel
+                : routeLabel;
         }
 
         private bool TryResolveInputAction(out string map, out string action)
@@ -193,6 +210,14 @@ namespace UPlayGround.UI.InputPrompt
         {
             if (_dimGroup != null)
                 _dimGroup.alpha = (RequiresGauge && !ready) ? _dimAlpha : 1f;
+        }
+
+        /// <summary>Ability 슬롯 자체가 없거나 런타임 상태를 조회할 수 없을 때 명시적으로 비활성화한다.</summary>
+        public void SetUnavailable()
+        {
+            if (_dimGroup != null)
+                _dimGroup.alpha = _dimAlpha;
+            ClearGaugeState();
         }
 
         /// <summary>

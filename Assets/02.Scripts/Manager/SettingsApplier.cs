@@ -10,7 +10,7 @@ namespace UPlayGround.Manager
     /// </summary>
     public static class SettingsApplier
     {
-        private static readonly (int width, int height)[] SupportedResolutions =
+        private static readonly (int width, int height)[] LegacyResolutions =
         {
             (1920, 1080),
             (1280, 720),
@@ -27,14 +27,57 @@ namespace UPlayGround.Manager
         {
             Application.runInBackground = data.runInBackground;
 
-            if ((uint)data.resolutionIndex < (uint)SupportedResolutions.Length)
+            int width = data.resolutionWidth;
+            int height = data.resolutionHeight;
+            if (width <= 0 || height <= 0)
             {
-                var (w, h) = SupportedResolutions[data.resolutionIndex];
-                Screen.SetResolution(w, h, ToFullScreenMode(data));
+                int legacyIndex = Mathf.Clamp(data.resolutionIndex, 0, LegacyResolutions.Length - 1);
+                (width, height) = LegacyResolutions[legacyIndex];
             }
+            Screen.SetResolution(width, height, ToFullScreenMode(data));
 
-            QualitySettings.SetQualityLevel(data.qualityIndex, true);
+            ApplyQualityPreset(data.qualityIndex);
             ApplyFrameTiming(data);
+        }
+
+        private static void ApplyQualityPreset(int qualityIndex)
+        {
+            int preset = Mathf.Clamp(qualityIndex, 0, 3);
+
+            // 프로젝트의 기본 PC 렌더 파이프라인을 유지한 채 런타임 품질 차이를 적용한다.
+            // 현재 QualitySettings 에셋에는 PC 레벨 하나만 있으므로 SetQualityLevel만으로는
+            // 드롭다운의 낮음~최고 단계가 구분되지 않는다.
+            QualitySettings.globalTextureMipmapLimit = preset == 0 ? 1 : 0;
+            QualitySettings.anisotropicFiltering = preset switch
+            {
+                0 => AnisotropicFiltering.Disable,
+                1 => AnisotropicFiltering.Enable,
+                _ => AnisotropicFiltering.ForceEnable
+            };
+            QualitySettings.softParticles = preset >= 1;
+            QualitySettings.realtimeReflectionProbes = preset >= 2;
+            QualitySettings.shadowDistance = preset switch
+            {
+                0 => 20f,
+                1 => 40f,
+                2 => 60f,
+                _ => 100f
+            };
+            QualitySettings.shadows = preset == 0 ? ShadowQuality.HardOnly : ShadowQuality.All;
+            QualitySettings.shadowResolution = preset switch
+            {
+                0 => ShadowResolution.Low,
+                1 => ShadowResolution.Medium,
+                2 => ShadowResolution.High,
+                _ => ShadowResolution.VeryHigh
+            };
+            QualitySettings.antiAliasing = preset switch
+            {
+                0 => 0,
+                1 => 2,
+                2 => 4,
+                _ => 8
+            };
         }
 
         private static FullScreenMode ToFullScreenMode(SettingsData data)

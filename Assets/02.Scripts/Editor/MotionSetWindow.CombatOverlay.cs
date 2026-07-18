@@ -46,7 +46,7 @@ namespace UPlayGround.Animation.Editor
         //  컨트롤 바 (OnGUI에서 호출)
         // ─────────────────────────────────────────────────────────────────
         // 패널 GUI만 그린다. 트랙 갱신(RefreshCombatOverlayTracks)은 패널 접힘 여부와
-        // 무관하게 매 프레임 실행돼야 하므로 RunControlPanelSideEffects()로 분리했다.
+        // 무관하게 주기적으로 실행돼야 하므로 RunControlPanelSideEffects()로 분리했다.
         void DrawCombatOverlayPanel()
         {
             LoadCombatPrefsOnce();

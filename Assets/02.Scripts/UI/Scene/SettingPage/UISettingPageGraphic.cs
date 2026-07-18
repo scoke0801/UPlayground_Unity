@@ -5,13 +5,6 @@ namespace UPlayGround.UI
 {
     public class UISettingPageGraphic : UISettingPageBase
     {
-        private static readonly string[] ResolutionOptions =
-        {
-            "1920x1080",
-            "1280x720",
-            "2560x1440"
-        };
-
         private static readonly string[] WindowModeOptions =
         {
             "전체화면",
@@ -22,6 +15,7 @@ namespace UPlayGround.UI
         [Header("Controls")]
         [SerializeField] private UICommonDropdown _resolutionDropdown;
         [SerializeField] private UICommonDropdown _windowModeDropdown;
+        [SerializeField] private UICommonDropdown _qualityDropdown;
         [SerializeField] private UICommonSlider _frameRateSlider;
         [SerializeField] private UICommonSlider _brightnessSlider;
         private UISwitchButton[] _switches;
@@ -32,8 +26,10 @@ namespace UPlayGround.UI
 
             if (_resolutionDropdown != null)
             {
-                _resolutionDropdown.SetOptions(ResolutionOptions, settingsData.resolutionIndex);
-                _resolutionDropdown.OnIndexChanged += index => settingsData.resolutionIndex = index;
+                _resolutionDropdown.SetOptions(
+                    UISvc.Settings.ResolutionOptions,
+                    UISvc.Settings.GetCurrentResolutionOptionIndex());
+                _resolutionDropdown.OnIndexChanged += UISvc.Settings.SetResolutionOption;
             }
 
             if (_windowModeDropdown != null)
@@ -44,6 +40,12 @@ namespace UPlayGround.UI
                     settingsData.windowModeIndex = index;
                     settingsData.fullscreen = index != 2;
                 };
+            }
+
+            if (_qualityDropdown != null)
+            {
+                _qualityDropdown.SetOptions(UISvc.Settings.QualityOptions, settingsData.qualityIndex);
+                _qualityDropdown.OnIndexChanged += index => settingsData.qualityIndex = index;
             }
 
             if (_frameRateSlider != null) _frameRateSlider.OnValueChanged += value => settingsData.targetFrameRate = RoundToInt(value);
@@ -58,8 +60,9 @@ namespace UPlayGround.UI
         {
             CacheControls();
 
-            _resolutionDropdown?.SetIndexWithoutNotify(settingsData.resolutionIndex);
+            _resolutionDropdown?.SetIndexWithoutNotify(UISvc.Settings.GetCurrentResolutionOptionIndex());
             _windowModeDropdown?.SetIndexWithoutNotify(settingsData.windowModeIndex);
+            _qualityDropdown?.SetIndexWithoutNotify(settingsData.qualityIndex);
             _frameRateSlider?.SetValueWithoutNotify(settingsData.targetFrameRate);
             _brightnessSlider?.SetValueWithoutNotify(settingsData.brightness);
             GetAt(_switches, 0)?.SetValueWithoutNotify(settingsData.runInBackground);

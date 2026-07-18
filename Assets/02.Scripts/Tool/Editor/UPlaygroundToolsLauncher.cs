@@ -201,7 +201,7 @@ namespace UPlayGround.Editor
         private ToolbarToggle _favoritesToggle;
         private ToolbarToggle _recentToggle;
         private ToolbarSearchField _searchField;
-        private bool _isCompactLayout;
+        private bool? _isCompactLayout;
         private string _lastClickedMenuPath;
         private double _lastClickTime;
 
@@ -279,6 +279,11 @@ namespace UPlayGround.Editor
             root.RegisterCallback<GeometryChangedEvent>(evt =>
                 UpdateResponsiveLayout(evt.newRect.width));
 
+            // 도메인 리로드/재컴파일 후 CreateGUI가 다시 실행되면 _isCompactLayout이 초기화되므로,
+            // GeometryChangedEvent에만 의존하지 않고 실제 창 너비 기준으로 반응형 레이아웃을 즉시 강제 적용한다.
+            _isCompactLayout = null;
+            UpdateResponsiveLayout(position.width);
+
             RebuildToolList();
             RebuildDetailPanel();
             UpdateToolbarState();
@@ -353,7 +358,7 @@ namespace UPlayGround.Editor
         private void UpdateResponsiveLayout(float width)
         {
             bool compact = width < 720f;
-            if (compact == _isCompactLayout) return;
+            if (_isCompactLayout.HasValue && compact == _isCompactLayout.Value) return;
 
             _isCompactLayout = compact;
             _content.style.flexDirection = compact ? FlexDirection.Column : FlexDirection.Row;

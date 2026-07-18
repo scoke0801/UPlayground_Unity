@@ -1,0 +1,79 @@
+.up-editor-root {
+    --up-bg-0: rgb(14, 19, 26);
+    --up-bg-1: rgb(20, 26, 33);
+    --up-bg-2: rgb(28, 33, 41);
+    --up-border: rgb(56, 69, 82);
+    --up-accent: rgb(46, 133, 235);
+    --up-text: rgb(224, 230, 240);
+    --up-text-dim: rgb(160, 168, 180);
+    --up-space-1: 4px;
+    --up-space-2: 8px;
+    --up-space-3: 12px;
+    --up-radius: 4px;
+    --up-font-sm: 11px;
+    --up-font-md: 12px;
+    --up-track-montage: rgb(66, 135, 201);
+    --up-track-timing: rgb(214, 165, 62);
+    --up-track-notify: rgb(177, 96, 199);
+    --up-track-overlay: rgb(73, 171, 143);
+
+    flex-grow: 1;
+    min-width: 600px;
+    min-height: 400px;
+    color: var(--up-text);
+    background-color: var(--up-bg-0);
+}
+
+.up-theme-light {
+    --up-bg-0: rgb(224, 226, 230);
+    --up-bg-1: rgb(235, 237, 240);
+    --up-bg-2: rgb(207, 210, 215);
+    --up-border: rgb(150, 154, 160);
+    --up-text: rgb(35, 38, 43);
+    --up-text-dim: rgb(82, 87, 94);
+}
+
+.up-motion-toolbar,
+.up-motion-control-panels,
+.up-motion-preview-controls {
+    flex-shrink: 0;
+}
+
+.up-motion-main-split {
+    flex-grow: 1;
+    min-height: 260px;
+    border-top-width: 1px;
+    border-top-color: var(--up-border);
+}
+
+.up-motion-content-split {
+    flex-grow: 1;
+    min-width: 600px;
+}
+
+.up-motion-sidebar {
+    min-width: 280px;
+    background-color: var(--up-bg-1);
+}
+
+.up-motion-sidebar-imgui,
+.up-motion-body,
+.up-motion-body-imgui {
+    flex-grow: 1;
+}
+
+.up-motion-body {
+    min-width: 320px;
+    background-color: var(--up-bg-0);
+}
+
+.up-motion-inspector-pane {
+    min-width: 280px;
+    background-color: var(--up-bg-1);
+    border-left-width: 1px;
+    border-left-color: var(--up-border);
+}
+
+.up-hidden {
+    display: none;
+}

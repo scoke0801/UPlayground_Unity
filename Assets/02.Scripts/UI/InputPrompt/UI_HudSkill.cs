@@ -202,11 +202,13 @@ namespace UPlayGround.UI.InputPrompt
                 if (slot == null) continue;
                 if (_abilityReader != null
                     && slot.RequiresGauge
-                    && System.Enum.IsDefined(typeof(PlayerSkillSlot), slot.GaugeSlot)
-                    && _abilityReader.TryGetPlayerSlotState(
-                        (PlayerSkillSlot)slot.GaugeSlot, out AbilitySlotViewState abilityState))
+                    && System.Enum.IsDefined(typeof(PlayerSkillSlot), slot.GaugeSlot))
                 {
-                    _hasVisibleCooldown |= slot.SetAbilityState(abilityState);
+                    if (_abilityReader.TryGetPlayerSlotState(
+                        (PlayerSkillSlot)slot.GaugeSlot, out AbilitySlotViewState abilityState))
+                        _hasVisibleCooldown |= slot.SetAbilityState(abilityState);
+                    else
+                        slot.SetUnavailable();
                 }
                 else
                 {
@@ -245,22 +247,39 @@ namespace UPlayGround.UI.InputPrompt
             {
                 var slot = _slots[i];
                 if (slot == null) continue;
-                slot.SetComboHint(HasHintFor(slot.Token));
+                string hintLabel = GetHintLabel(slot.Token);
+                slot.SetComboHint(!string.IsNullOrEmpty(hintLabel));
+                slot.SetHintLabel(hintLabel);
             }
         }
 
-        private bool HasHintFor(ComboInputToken token)
+        private string GetHintLabel(ComboInputToken token)
         {
+            ComboRouteResolver.ComboRouteHint? best = null;
             for (int i = 0; i < _hints.Count; i++)
-                if (_hints[i].NextToken == token) return true;
-            return false;
+            {
+                var hint = _hints[i];
+                if (hint.NextToken != token)
+                    continue;
+
+                if (!best.HasValue
+                    || hint.MatchedLength > best.Value.MatchedLength
+                    || (hint.MatchedLength == best.Value.MatchedLength
+                        && hint.Route.priority > best.Value.Route.priority))
+                    best = hint;
+            }
+
+            return best?.Route?.DisplayLabel;
         }
 
         private void ClearComboHints()
         {
             _hints.Clear();
             for (int i = 0; i < _slots.Count; i++)
+            {
                 _slots[i]?.SetComboHint(false);
+                _slots[i]?.SetHintLabel(null);
+            }
         }
 
         private bool IsGrounded()

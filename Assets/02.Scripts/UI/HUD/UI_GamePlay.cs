@@ -19,6 +19,7 @@ namespace UPlayGround.UI
 
 
         private const string HudWorldClockKey = "HudWorldClock";
+        private const string HudQuickSlotKey = "HudQuickSlot";
 
         [SerializeField] Button _menuButton;
 
@@ -30,6 +31,7 @@ namespace UPlayGround.UI
         private UI_HudParty _hudParty;
         private UI_HudQuest _hudQuest;
         private UI_HudSkill _hudSkill;
+        private UI_HudQuickSlot _hudQuickSlot;
         private UPlayGround.UI.HUD.Notification.UI_Notification _notification;
 
         #region UI_Base
@@ -50,6 +52,12 @@ namespace UPlayGround.UI
             _hudQuest = UIMgr.ShowUI(UIKeyType.HudQuest)?.GetComponent<UI_HudQuest>();
 
             _hudSkill = UIMgr.ShowUI(UIKeyType.HudSkill)?.GetComponent<UI_HudSkill>();
+
+            if (UIMgr.GetUIPrefabEntry(HudQuickSlotKey) != null)
+            {
+                _hudQuickSlot = UIMgr.ShowUI(HudQuickSlotKey, CanvasLayer.HUD)
+                    ?.GetComponent<UI_HudQuickSlot>();
+            }
 
             if (UIMgr.GetUIPrefabEntry(UIKeyType.Notification.ToKey()) != null)
             {
@@ -86,6 +94,7 @@ namespace UPlayGround.UI
                 uiManager.HideUI(UIKeyType.HudParty);
                 uiManager.HideUI(UIKeyType.HudQuest);
                 uiManager.HideUI(UIKeyType.HudSkill);
+                uiManager.HideUI(HudQuickSlotKey);
                 uiManager.HideUI(UIKeyType.Notification);
                 uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
                 uiManager.HideUI(HudWorldClockKey);
@@ -100,6 +109,7 @@ namespace UPlayGround.UI
             _playerCombat = null;
             _playerActor = null;
             _hudPlayerInfo = null;
+            _hudQuickSlot = null;
             _notification = null;
         }
 

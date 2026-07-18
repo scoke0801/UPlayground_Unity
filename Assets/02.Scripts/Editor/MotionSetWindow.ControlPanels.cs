@@ -75,12 +75,13 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        // 패널 접힘 여부와 무관하게 매 프레임 실행돼야 하는 부작용을 모아둔다.
-        // (전투 오버레이 패널을 닫아도 타임라인 전투 트랙은 계속 갱신돼야 한다.)
+        // 패널 접힘 여부와 무관하게 주기적으로 실행돼야 하는 부작용을 모아둔다.
+        // UI Toolkit 셸의 스케줄러가 호출하므로 패널을 닫아도 전투 트랙은 계속 갱신된다.
         void RunControlPanelSideEffects()
         {
             LoadCombatPrefsOnce();
             RefreshCombatOverlayTracks();
+            _timelineView?.RefreshIfChanged();
         }
     }
 }

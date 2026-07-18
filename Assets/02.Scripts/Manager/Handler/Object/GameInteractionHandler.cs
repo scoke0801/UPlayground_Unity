@@ -65,9 +65,9 @@ namespace UPlayGround.Manager.Handler
                 _player = GameObjectManager.Instance.Player;
             }
             
-            if (_player == null
-                || _player.IsInCombat == true
-                || _player.IsInteractionBlockedByDrawnWeapon)
+            // 전투 상태(주변 어그로/최근 전투)나 무기를 뽑은 상태에서도 인터렉션을 허용한다.
+            // 인터렉션 진입 시 무기는 BeginInteractionEquipment로 자동 수납되고 종료 시 복원된다.
+            if (_player == null)
             {
                 ClearIdleInteractable();
                 RemoveIcon();

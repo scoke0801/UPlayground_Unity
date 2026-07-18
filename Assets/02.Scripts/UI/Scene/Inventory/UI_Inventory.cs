@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -33,6 +34,7 @@ namespace UPlayGround.UI
 
         [SerializeField] private UI_InventorySlot _itemPanelPrefab;
         [SerializeField] private Transform _content;
+        [SerializeField] private GridLayoutGroup _itemGrid;
         [SerializeField] private Image _imgWeightFill;
         [SerializeField] private TextMeshProUGUI _txtWeight;
 
@@ -52,6 +54,8 @@ namespace UPlayGround.UI
         [SerializeField] private UICommonButton _useButton;
         [SerializeField] private UICommonButton _equipButton;
         [SerializeField] private UICommonButton _dropButton;
+        [Tooltip("소비 아이템을 위/오른쪽/아래/왼쪽 퀵슬롯에 등록하는 버튼.")]
+        [SerializeField] private UICommonButton[] _quickSlotButtons;
 
         [Header("Category Tabs")]
         // 탭 하이라이트/단일 선택은 UITabGroup이 관리한다. 인덱스 순서는 TabCategories와 일치.
@@ -62,6 +66,9 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _txtGold;      // 골드
         [SerializeField] private TMP_Dropdown    _sortDropdown; // 정렬 드롭다운 (선택)
         [SerializeField] private UICommonButton  _sortButton;   // 하단 정렬 버튼 (선택, 클릭 시 순환)
+        [SerializeField] private TextMeshProUGUI _sortModeText; // "정렬 : 최근 획득순"
+        [SerializeField] private TextMeshProUGUI _txtPlayTime;
+        [SerializeField] private TextMeshProUGUI _footerHintText;
 
         [Header("Detail - Extended")]
         [SerializeField] private TextMeshProUGUI _selectedRarityText;
@@ -72,12 +79,25 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _statCritText;
         [SerializeField] private TextMeshProUGUI _statCritDmgText;
         [SerializeField] private TextMeshProUGUI _statAtkSpeedText;
+        [SerializeField] private GameObject _comparisonPanel;
+        [SerializeField] private TextMeshProUGUI _comparisonItemNameText;
 
         [Header("Party Equipment")]
         [SerializeField] private Transform _partySelectorContainer;                 // 파티원 선택 버튼 컨테이너
         [SerializeField] private UIPartyEquipSelectorEntry _partyEntryPrefab;       // 파티원 선택 버튼 프리팹
         [SerializeField] private UIEquipmentSlot[] _equipmentSlots;                 // 선택 캐릭터 장비 슬롯(주/보조 무기 + 방어구 5)
         [SerializeField] private TextMeshProUGUI _selectedCharacterNameText;        // 선택 캐릭터 이름
+
+        [Header("Selected Character Summary")]
+        [SerializeField] private Image _selectedCharacterPortrait;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterLevelText;
+        [SerializeField] private Image _selectedCharacterExpFill;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterExpText;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterCombatPowerText;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterHpText;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterAttackText;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterDefenseText;
+        [SerializeField] private TextMeshProUGUI _selectedCharacterCritText;
 
         [Header("Etc")]
         [SerializeField] private Button              _btnClose;
@@ -94,6 +114,11 @@ namespace UPlayGround.UI
         private int _selectedInventorySlotKey = -1;
         private ItemType? _categoryFilter = null;   // null = 전체
         private InventorySortMode _sortMode = InventorySortMode.Default;
+        private int _visibleItemCount;
+        private float _lastGridWidth = -1f;
+        private float _nextPlayTimeRefresh;
+        private IInputService _inputService;
+        private Coroutine _gridLayoutRefreshCoroutine;
 
         public GameObject _itemClickTap;
 
@@ -107,18 +132,32 @@ namespace UPlayGround.UI
             BindSortControls();
         }
 
+        protected override void Update()
+        {
+            base.Update();
+
+            if (!IsVisible || Time.unscaledTime < _nextPlayTimeRefresh)
+                return;
+
+            _nextPlayTimeRefresh = Time.unscaledTime + 1f;
+            RefreshPlayTime();
+        }
+
         // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
         protected override bool BlocksLowerInput => true;
 
         protected override void OnDispose()
         {
             base.OnDispose();
+            StopResponsiveGridRefresh();
 
             if (_tabGroup != null)
                 _tabGroup.SelectionChanged -= OnTabSelected;
 
             if (InventoryMgr != null)
                 InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
+
+            UnbindInputDeviceChanged();
         }
 
         protected override void OnShow()
@@ -126,6 +165,10 @@ namespace UPlayGround.UI
             _categoryFilter = null;
             _sortMode       = InventorySortMode.Default;
             if (_sortDropdown != null) _sortDropdown.SetValueWithoutNotify(0);
+            RefreshSortLabel();
+            BindInputDeviceChanged();
+            RefreshPlayTime();
+            _nextPlayTimeRefresh = Time.unscaledTime + 1f;
 
             // "전체" 탭(인덱스 0) 하이라이트만 갱신 (리스트 채우기는 아래에서 직접 수행하므로 notify:false)
             _tabGroup?.Select(0, notify: false);
@@ -138,6 +181,7 @@ namespace UPlayGround.UI
             }
 
             var items = RefreshDictItem();
+            RequestResponsiveGridRefresh();
             SetInventory();
             InitPlayerEquipmentSlot();
 
@@ -149,6 +193,57 @@ namespace UPlayGround.UI
 
             // 키보드/게임패드 네비게이션 시작점: 아이템이 있으면 첫 아이템 슬롯을 선택 상태로 둔다.
             SetInitialItemSlotFocus(items);
+        }
+
+        protected override void OnHide()
+        {
+            StopResponsiveGridRefresh();
+            UnbindInputDeviceChanged();
+            base.OnHide();
+        }
+
+        private void BindInputDeviceChanged()
+        {
+            UnbindInputDeviceChanged();
+            _inputService = Svc.Input;
+            if (_inputService != null)
+            {
+                _inputService.OnActiveDeviceChanged += OnActiveInputDeviceChanged;
+                RefreshFooterHint(_inputService.ActiveDevice);
+            }
+        }
+
+        private void UnbindInputDeviceChanged()
+        {
+            if (_inputService == null)
+                return;
+
+            _inputService.OnActiveDeviceChanged -= OnActiveInputDeviceChanged;
+            _inputService = null;
+        }
+
+        private void OnActiveInputDeviceChanged(ActiveInputDevice device)
+            => RefreshFooterHint(device);
+
+        private void RefreshFooterHint(ActiveInputDevice device)
+        {
+            if (_footerHintText == null)
+                return;
+
+            _footerHintText.text = device == ActiveInputDevice.Gamepad
+                ? "방향키 / 스틱  아이템 선택     퀵슬롯 버튼  선택 아이템 등록     B  닫기"
+                : "마우스  카테고리 / 정렬 선택     퀵슬롯 버튼  선택 아이템 등록";
+        }
+
+        private void RefreshPlayTime()
+        {
+            if (_txtPlayTime == null)
+                return;
+
+            string formatted = Svc.GameTime?.FormatPlayTime();
+            _txtPlayTime.text = string.IsNullOrWhiteSpace(formatted)
+                ? "플레이 시간  --:--:--"
+                : $"플레이 시간  {formatted}";
         }
 
         /// <summary> 인벤토리를 열 때 첫 아이템 슬롯을 EventSystem 포커스로 지정한다(네비게이션 시작점). </summary>
@@ -183,13 +278,13 @@ namespace UPlayGround.UI
 
             _imgWeightFill.fillAmount = InventoryMgr.GetTotalWeight() / InventoryMgr.MaxWeight;
             _txtWeight.text =
-                $"({InventoryMgr.GetTotalWeight():0.0}/{InventoryMgr.MaxWeight:0.0})";
+                $"{InventoryMgr.GetTotalWeight():0.0} / {InventoryMgr.MaxWeight:0.0} kg";
 
             if (_txtGold != null)
                 _txtGold.text = InventoryMgr.Gold.ToString("N0");
 
             if (_txtItemCount != null)
-                _txtItemCount.text = $"전체 {InventoryMgr.ItemDict.Count} / {InventoryMgr.MaxSlots}";
+                _txtItemCount.text = $"{GetCategoryLabel()}  {_visibleItemCount} / {InventoryMgr.MaxSlots}";
         }
 
 
@@ -236,19 +331,39 @@ namespace UPlayGround.UI
                 if (e != null) Destroy(e.gameObject);
             _partyEntries.Clear();
 
-            var roster = PartyMgr?.Roster;
+            IReadOnlyList<CharacterActorType> roster = PartyMgr?.Roster;
             var memberData = PartyMgr?.PartyMemberDataSO;
             if (roster == null) return;
 
-            foreach (var type in roster)
+            IReadOnlyList<CharacterActorType> displayed = PartyMgr?.BattleOrder;
+            if (displayed == null || displayed.Count == 0)
+                displayed = roster;
+
+            int maxBattleSize = Mathf.Max(1, PartyMgr?.MaxBattleSize ?? 4);
+            int createdCount = 0;
+            for (int i = 0; i < displayed.Count && createdCount < maxBattleSize; i++)
             {
+                var type = displayed[i];
                 if (type == CharacterActorType.None) continue;
 
                 var entry = Instantiate(_partyEntryPrefab, _partySelectorContainer);
                 Sprite portrait = memberData != null ? memberData.GetHeadSprite(type) : null;
                 string charName = memberData != null ? memberData.GetName(type) : type.ToString();
+                if (string.IsNullOrWhiteSpace(charName))
+                    charName = type.ToString();
                 entry.Bind(type, portrait, charName, SelectCharacter);
+                entry.SetMeta(createdCount + 1, PartyMgr?.GetLevel(type) ?? 1, type == PartyMgr?.ActiveCharacterType);
                 _partyEntries.Add(entry);
+                createdCount++;
+            }
+
+            for (int i = createdCount; i < maxBattleSize; i++)
+            {
+                var lockedEntry = Instantiate(_partyEntryPrefab, _partySelectorContainer);
+                lockedEntry.Bind(CharacterActorType.None, null, "빈 슬롯", null);
+                lockedEntry.SetMeta(i + 1, 1, false);
+                lockedEntry.SetLocked(true);
+                _partyEntries.Add(lockedEntry);
             }
         }
 
@@ -267,8 +382,62 @@ namespace UPlayGround.UI
             }
 
             RefreshEquipmentPanel();
+            RefreshSelectedCharacterSummary();
             RefreshActionButtons();
         }
+
+        private void RefreshSelectedCharacterSummary()
+        {
+            var party = PartyMgr;
+            var memberData = party?.PartyMemberDataSO;
+            if (party == null || _selectedCharacter == CharacterActorType.None)
+                return;
+
+            if (_selectedCharacterPortrait != null)
+            {
+                _selectedCharacterPortrait.sprite = memberData?.GetFullBodySprite(_selectedCharacter)
+                                                    ?? memberData?.GetHeadSprite(_selectedCharacter);
+                _selectedCharacterPortrait.enabled = _selectedCharacterPortrait.sprite != null;
+            }
+
+            int level = party.GetLevel(_selectedCharacter);
+            long exp = party.GetExp(_selectedCharacter);
+            long requiredExp = party.GetRequiredExp(_selectedCharacter);
+            if (_selectedCharacterLevelText != null)
+                _selectedCharacterLevelText.text = $"Lv.{level}";
+            if (_selectedCharacterExpFill != null)
+                _selectedCharacterExpFill.fillAmount = requiredExp > 0
+                    ? Mathf.Clamp01((float)exp / requiredExp)
+                    : 1f;
+            if (_selectedCharacterExpText != null)
+                _selectedCharacterExpText.text = $"{exp:N0} / {requiredExp:N0}";
+
+            PartyCombatPowerResult power = party.GetEffectiveCombatPower(_selectedCharacter);
+            if (_selectedCharacterCombatPowerText != null)
+                _selectedCharacterCombatPowerText.text = power.CombatPower.ToString("N0");
+
+            var stats = power.GrowthStats;
+            float maxHp = GetStat(stats, StatType.MaxHealth);
+            float currentHp = maxHp;
+            var player = UISvc.Actors?.Player;
+            if (player != null)
+                currentHp = player.GetHealthForCharacter(_selectedCharacter);
+
+            if (_selectedCharacterHpText != null)
+                _selectedCharacterHpText.text = $"{Mathf.RoundToInt(currentHp):N0} / {Mathf.RoundToInt(maxHp):N0}";
+            if (_selectedCharacterAttackText != null)
+                _selectedCharacterAttackText.text = StatDisplayFormatter.FormatValue(
+                    StatType.AttackPower, GetStat(stats, StatType.AttackPower));
+            if (_selectedCharacterDefenseText != null)
+                _selectedCharacterDefenseText.text = StatDisplayFormatter.FormatValue(
+                    StatType.Defense, GetStat(stats, StatType.Defense));
+            if (_selectedCharacterCritText != null)
+                _selectedCharacterCritText.text = StatDisplayFormatter.FormatValue(
+                    StatType.CritRate, GetStat(stats, StatType.CritRate));
+        }
+
+        private static float GetStat(IReadOnlyDictionary<StatType, float> stats, StatType type)
+            => stats != null && stats.TryGetValue(type, out float value) ? value : 0f;
 
         // 선택 캐릭터의 7개 장비 슬롯 아이콘을 레지스트리 값대로 갱신한다.
         private void RefreshEquipmentPanel()
@@ -335,8 +504,14 @@ namespace UPlayGround.UI
         {
             _itemClickTap.gameObject.SetActive(true);
             _itemClickTap.transform.SetParent(slot.transform);
-
-            _itemClickTap.transform.localPosition = Vector3.zero;
+            if (_itemClickTap.transform is RectTransform highlight)
+            {
+                highlight.anchorMin = Vector2.zero;
+                highlight.anchorMax = Vector2.one;
+                highlight.offsetMin = new Vector2(2f, 2f);
+                highlight.offsetMax = new Vector2(-2f, -2f);
+                highlight.localScale = Vector3.one;
+            }
         }
 
         public void OnSlotPointerExit()
@@ -352,6 +527,7 @@ namespace UPlayGround.UI
         private List<ItemInstance> RefreshDictItem()
         {
             var items = GetFilteredSortedItems();
+            _visibleItemCount = items.Count;
 
             int value = 0;
             foreach (var inst in items)
@@ -438,6 +614,7 @@ namespace UPlayGround.UI
         private void OnSortDropdownChanged(int index)
         {
             _sortMode = (InventorySortMode)Mathf.Clamp(index, 0, 3);
+            RefreshSortLabel();
             var items = RefreshDictItem();
             SetInventory();
             RefreshSelectionForItems(items);
@@ -447,10 +624,32 @@ namespace UPlayGround.UI
         {
             _sortMode = (InventorySortMode)(((int)_sortMode + 1) % 4);
             if (_sortDropdown != null) _sortDropdown.SetValueWithoutNotify((int)_sortMode);
+            RefreshSortLabel();
             var items = RefreshDictItem();
             SetInventory();
             RefreshSelectionForItems(items);
             return UICommonButtonClickResult.Success;
+        }
+
+        private void RefreshSortLabel()
+        {
+            if (_sortModeText == null)
+                return;
+
+            _sortModeText.text = _sortMode switch
+            {
+                InventorySortMode.Name => "정렬 : 이름순",
+                InventorySortMode.Rarity => "정렬 : 등급순",
+                InventorySortMode.Weight => "정렬 : 무게순",
+                _ => "정렬 : 최근 획득순",
+            };
+        }
+
+        private string GetCategoryLabel()
+        {
+            return _categoryFilter.HasValue
+                ? _categoryFilter.Value.ToDisplayString()
+                : "전체";
         }
 
         private void RefreshSelectionForItems(IReadOnlyList<ItemInstance> items)
@@ -495,6 +694,91 @@ namespace UPlayGround.UI
                     go.SetParent(this);
                 }
             }
+        }
+
+        private void RequestResponsiveGridRefresh()
+        {
+            StopResponsiveGridRefresh();
+
+            // 같은 프레임에도 가능한 한 먼저 맞추고, LayoutGroup/ScrollRect가 최종 폭을
+            // 확정하는 다음 프레임들에서 다시 계산해 첫 진입과 재진입 결과를 동일하게 만든다.
+            ForceRefreshResponsiveGrid();
+            _gridLayoutRefreshCoroutine = StartCoroutine(RefreshResponsiveGridAfterLayout());
+        }
+
+        private IEnumerator RefreshResponsiveGridAfterLayout()
+        {
+            const int stabilizationFrames = 2;
+            for (int i = 0; i < stabilizationFrames; i++)
+            {
+                yield return null;
+                ForceRefreshResponsiveGrid();
+            }
+
+            _gridLayoutRefreshCoroutine = null;
+        }
+
+        private void ForceRefreshResponsiveGrid()
+        {
+            Canvas.ForceUpdateCanvases();
+            if (_rectTransform != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(_rectTransform);
+
+            _lastGridWidth = -1f;
+            RefreshResponsiveGrid();
+        }
+
+        private void StopResponsiveGridRefresh()
+        {
+            if (_gridLayoutRefreshCoroutine == null)
+                return;
+
+            StopCoroutine(_gridLayoutRefreshCoroutine);
+            _gridLayoutRefreshCoroutine = null;
+        }
+
+        private void OnRectTransformDimensionsChange()
+        {
+            if (isActiveAndEnabled)
+                RefreshResponsiveGrid();
+        }
+
+        /// <summary>
+        /// 중앙 패널 폭에 따라 8~12열을 선택해 셀을 약 118px 수준으로 유지한다.
+        /// 남는 폭은 선택된 열 수로 다시 균등 분배해 우측에 큰 공백도 남기지 않는다.
+        /// </summary>
+        private void RefreshResponsiveGrid()
+        {
+            if (_itemGrid == null || _content == null)
+                return;
+
+            var contentRect = _content as RectTransform;
+            if (contentRect == null)
+                return;
+
+            // Content는 첫 활성화 프레임에 이전/기본 폭을 잠시 가질 수 있다.
+            // 실제 표시 폭의 소유자인 Viewport를 기준으로 계산해야 첫 진입도 안정적이다.
+            var viewportRect = contentRect.parent as RectTransform;
+            float width = viewportRect != null ? viewportRect.rect.width : contentRect.rect.width;
+            if (width <= 1f || Mathf.Approximately(width, _lastGridWidth))
+                return;
+
+            _lastGridWidth = width;
+            const float preferredCellSize = 118f;
+            const int minColumns = 8;
+            const int maxColumns = 12;
+
+            float horizontalPadding = _itemGrid.padding.left + _itemGrid.padding.right;
+            float usableWidth = Mathf.Max(0f, width - horizontalPadding);
+            int columns = Mathf.Clamp(
+                Mathf.FloorToInt((usableWidth + _itemGrid.spacing.x) /
+                                 (preferredCellSize + _itemGrid.spacing.x)),
+                minColumns,
+                maxColumns);
+            float horizontalSpacing = _itemGrid.spacing.x * (columns - 1);
+            float cellSize = Mathf.Max(72f, Mathf.Floor((usableWidth - horizontalSpacing) / columns));
+            _itemGrid.constraintCount = columns;
+            _itemGrid.cellSize = new Vector2(cellSize, cellSize);
         }
 
         public void ShowSelectedItemDetail(ItemSO itemData, int count, int inventorySlotKey = -1)
@@ -551,15 +835,18 @@ namespace UPlayGround.UI
             if (isEquip)
             {
                 RefreshSelectedEquipmentStats(equip, inst);
+                RefreshEquipmentComparison(equip);
             }
             else if (itemData is ConsumableSO consumable)
             {
                 RefreshSelectedConsumableStats(consumable);
+                SetComparisonPanelActive(false);
             }
             else
             {
                 if (_statPanel != null) _statPanel.SetActive(false);
                 ClearSelectedEquipmentStats();
+                SetComparisonPanelActive(false);
             }
 
             RefreshActionButtons();
@@ -582,6 +869,7 @@ namespace UPlayGround.UI
             if (_selectedWeightText != null)    _selectedWeightText.text = string.Empty;
             SetEquipSlotRowActive(false);
             if (_statPanel != null)             _statPanel.SetActive(false);
+            SetComparisonPanelActive(false);
             ClearSelectedEquipmentStats();
 
             _selectedItemPrefab.SetActive(false);
@@ -622,6 +910,41 @@ namespace UPlayGround.UI
             }
         }
 
+        private void RefreshEquipmentComparison(EquipmentSO selected)
+        {
+            if (selected == null ||
+                _selectedCharacter == CharacterActorType.None ||
+                selected.equipSlot == EquipPosition.None)
+            {
+                SetComparisonPanelActive(false);
+                return;
+            }
+
+            int equippedSlotKey = InventoryMgr.GetEquippedItem(_selectedCharacter, selected.equipSlot);
+            if (equippedSlotKey < 0 || equippedSlotKey == _selectedInventorySlotKey)
+            {
+                SetComparisonPanelActive(false);
+                return;
+            }
+
+            ItemSO equipped = InventoryMgr.GetInventoryItemBySlotKey(equippedSlotKey)?.data;
+            if (equipped == null)
+            {
+                SetComparisonPanelActive(false);
+                return;
+            }
+
+            SetComparisonPanelActive(true);
+            if (_comparisonItemNameText != null)
+                _comparisonItemNameText.text = equipped.itemName;
+        }
+
+        private void SetComparisonPanelActive(bool active)
+        {
+            if (_comparisonPanel != null)
+                _comparisonPanel.SetActive(active);
+        }
+
         private static string FormatGrowthAttributeRoll(EquipmentGrowthAttributeRoll roll)
         {
             string attributeName = roll.attributeType switch
@@ -633,7 +956,7 @@ namespace UPlayGround.UI
                 _ => "공격력",
             };
 
-            return $"랜덤 성장 · {attributeName} +{Mathf.Max(0, roll.rank)}랭크";
+            return $"랜덤 성장 - {attributeName} +{Mathf.Max(0, roll.rank)}랭크";
         }
 
         private void RefreshSelectedConsumableStats(ConsumableSO consumable)
@@ -784,6 +1107,15 @@ namespace UPlayGround.UI
             _useButton?.BindClickResult(OnClickUseSelectedItem);
             _equipButton?.BindClickResult(OnClickEquipSelectedItem);
             _dropButton?.BindClickResult(OnClickDropSelectedItem);
+            if (_quickSlotButtons != null)
+            {
+                for (int i = 0; i < _quickSlotButtons.Length; i++)
+                {
+                    int slotIndex = i;
+                    _quickSlotButtons[i]?.BindClickResult(
+                        () => OnClickAssignQuickSlot(slotIndex));
+                }
+            }
 
             _btnClose?.onClick.AddListener(Hide);
         }
@@ -798,6 +1130,23 @@ namespace UPlayGround.UI
             SetActionButtonActive(_useButton, hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE);
             SetActionButtonActive(_equipButton, canEquip);
             SetActionButtonActive(_dropButton, hasItem);
+            bool canAssignQuickSlot = hasItem && _selectedItemData.itemType == ItemType.CONSUMABLE;
+            if (_quickSlotButtons != null)
+            {
+                for (int i = 0; i < _quickSlotButtons.Length; i++)
+                    SetActionButtonActive(_quickSlotButtons[i], canAssignQuickSlot);
+            }
+        }
+
+        private UICommonButtonClickResult OnClickAssignQuickSlot(int slotIndex)
+        {
+            if (_selectedItemData == null
+                || _selectedItemData.itemType != ItemType.CONSUMABLE)
+                return UICommonButtonClickResult.Failed;
+
+            return UIQuickSlotAssignments.Assign(slotIndex, _selectedItemData)
+                ? UICommonButtonClickResult.Success
+                : UICommonButtonClickResult.Failed;
         }
 
         private static void SetActionButtonActive(UICommonButton button, bool active)

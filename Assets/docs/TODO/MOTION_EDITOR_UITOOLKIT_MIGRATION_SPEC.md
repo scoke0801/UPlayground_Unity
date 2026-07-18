@@ -3,7 +3,7 @@
 > 문서 버전: 1.0<br>
 > 기준일: 2026-07-18<br>
 > 대상 버전: Unity 6 (6000.0.60f1), 싱글플레이, URP<br>
-> 상태: 계획 수립 / 미착수<br>
+> 상태: Phase A~D 코드 구현 및 Unity 컴파일·창 오픈 스모크 완료 / 조작·프로파일러 수동 검증 대기<br>
 > 관련 문서: `GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `../guide/CAMERA_MODULE_PORTABILITY_GUIDE.md`
 
 ## 1. 목적
@@ -366,36 +366,46 @@ Assets/02.Scripts/Editor/UIToolkit/
 ## 13. Phase별 체크리스트
 
 ### Phase A — 셸 전환
-- [ ] `Styles/UPlayGroundEditor.uss` 신설, 팔레트 변수 정의
-- [ ] `MotionEditorShell.cs` 신설, `CreateGUI` 진입점 구성
-- [ ] `OnGUI` 제거, 툴바/탭/`TwoPaneSplitView` + 본문 `IMGUIContainer` 래핑
-- [ ] `RunControlPanelSideEffects()`를 `schedule.Execute`로 이전
-- [ ] 재생 단축키(Space/S) 이관 또는 과도기 유지
-- [ ] 전 기능 무손실 + 오버레이 트랙 갱신 유지 검증
+- [x] `Styles/UPlayGroundEditor.uss` 신설, 팔레트 변수 정의
+- [x] `MotionEditorShell.cs` 신설, `CreateGUI` 진입점 구성
+- [x] `OnGUI` 제거, 툴바/탭/`TwoPaneSplitView` + 본문 `IMGUIContainer` 래핑
+- [x] `RunControlPanelSideEffects()`를 `schedule.Execute`로 이전
+- [x] 재생 단축키(Space/S)를 루트 `KeyDownEvent`로 이관
+- [ ] 전 기능 무손실 + 오버레이 트랙 갱신 유지 Unity 수동 검증
 
 ### Phase B — 사이드바 · 인스펙터
-- [ ] `MotionListView.cs`(ListView 가상화 + 검색 + 그룹) 신설
-- [ ] `MotionEventInspectorView.cs`(`PropertyField` + `SerializedObject`) 신설
+- [x] `MotionListView.cs`(ListView 가상화 + 검색 + 그룹) 신설
+- [x] `MotionEventInspectorView.cs`(`PropertyField` + `SerializedObject`) 신설
 - [ ] `[SerializeReference]` 이벤트 편집·직렬화·Undo 검증
-- [ ] 리플렉션 인스펙터(`DrawObjectFieldsInspector` 등) 제거
-- [ ] 키보드 포커스 시맨틱 매핑 확인
+- [x] 리플렉션 인스펙터 활성 호출 경로 제거(잔여 비활성 메서드는 Phase D 정리)
+- [ ] ListView 검색·그룹 접기·키보드 포커스 시맨틱 Unity 수동 검증
 
 ### Phase C — 보조 패널 5종
-- [ ] 촬영 연동(파일럿)
-- [ ] 워프 베이크
-- [ ] 루트 모션 (SceneView 기즈모 유지)
-- [ ] 워프 타깃 (SceneView 핸들 유지)
-- [ ] 전투 오버레이 (주기 실행과 UI 분리)
+- [x] 촬영 연동(파일럿)
+- [x] 워프 베이크
+- [x] 루트 모션 (SceneView 기즈모 유지)
+- [x] 워프 타깃 (SceneView 핸들 유지)
+- [x] 전투 오버레이 (주기 실행과 UI 분리)
 - [ ] `EditorPrefs` 탭/도움말 상태 보존 검증
 
 ### Phase D — 타임라인 재작성
-- [ ] `TimelineView` / `TimelineTrackElement` / `TimelineManipulators` 신설
-- [ ] 룰러/몽타주/타이밍/노티파이/오버레이/커서 Painter2D 렌더
-- [ ] 클립 트림·이벤트·마커·커서·줌·스크롤 Manipulator 구현
-- [ ] splitter → `TwoPaneSplitView` 전환, 인스펙터도 새 타임라인 재사용
-- [ ] Undo 라벨 이식, 드래그 종료 방어(`PointerCaptureOut`)
+- [x] `TimelineView` / `TimelineTrackElement` / `TimelineManipulators` 신설
+- [x] 룰러/몽타주/타이밍/노티파이/오버레이/커서 Painter2D 렌더
+- [x] 클립 트림·이벤트·마커·커서·줌·스크롤 Manipulator 구현
+- [x] splitter → `TwoPaneSplitView` 전환, 인스펙터도 새 타임라인 재사용
+- [x] Undo 라벨 이식, 드래그 종료 방어(`PointerCaptureOut`)
 - [ ] 정지 시 유휴 0 / 재생 시에만 repaint 프로파일러 검증
-- [ ] IMGUI 타임라인 경로 제거
+- [x] IMGUI 타임라인 활성 호출 경로 제거
+
+### 자동 검증 기록 (2026-07-18)
+
+- [x] `Assembly-CSharp-Editor.csproj --no-restore` 컴파일 오류 0
+- [x] Unity Tundra `Assembly-CSharp-Editor` 컴파일 및 도메인 리로드 성공
+- [x] 메뉴 자동 실행 스모크로 `MotionSetEditorWindow.CreateGUI` 창 생성 성공, UI 예외 0
+- [x] 검증 과정에서 MotionSet/Ultimate 에셋 저장·일괄 재직렬화 없음
+- [x] ListView Up/Down/Home/End 키보드 이동 시맨틱 복구(그룹 헤더 건너뜀)
+- [x] 이벤트 바 이름·시작/끝 정보와 구체 이벤트 프로퍼티 표시 복구
+- [x] 타임라인 드래그를 `RegisterCompleteObjectUndo` 단일 그룹으로 기록해 `[SerializeReference]` 변경 Undo 복구
 
 ---
 

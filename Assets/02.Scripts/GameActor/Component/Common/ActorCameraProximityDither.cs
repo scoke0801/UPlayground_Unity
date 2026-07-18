@@ -56,6 +56,7 @@ namespace UPlayGround.Components
 
         private static Shader _baseCutoutShader;
         private static Texture2D _ditherTexture;
+        private static readonly Dictionary<int, Texture2D> ScaledDitherTextures = new();
 
         [Header("카메라 근접 디더")]
         [Tooltip("카메라가 KCC 캡슐 안쪽으로 들어온 뒤 렌더링을 중단할 깊이.")]
@@ -63,7 +64,9 @@ namespace UPlayGround.Components
         [SerializeField, Min(0.01f)] private float _maximumFadeDistance = 0.25f;
         [SerializeField, Min(0.02f)] private float _fadeStartDistance = 0.65f;
         [Tooltip("근접 상태의 최대 투명도")]
-        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.85f;
+        [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.8f;
+        [Tooltip("화면 픽셀 기준 디더 점 크기. Play Mode에서 변경하면 즉시 반영된다.")]
+        [SerializeField, Range(1, 4)] private int _ditherPixelScale = 2;
         [SerializeField, Min(0f)] private float _fadeSpeed = 8f;
 
         private readonly List<RendererInfo> _rendererInfos = new();
@@ -71,6 +74,7 @@ namespace UPlayGround.Components
         private Camera _camera;
         private CapsuleCollider _actorCapsule;
         private float _visibility = 1f;
+        private int _appliedDitherPixelScale;
         private bool _isCameraInside;
         private bool _runtimePrepared;
         private Coroutine _warmupCoroutine;
@@ -92,6 +96,8 @@ namespace UPlayGround.Components
         {
             if (_rendererInfos.Count == 0)
                 return;
+
+            UpdateDitherPixelScale();
 
             if (_camera == null || !_camera.isActiveAndEnabled)
                 ResolveCamera();
@@ -132,7 +138,7 @@ namespace UPlayGround.Components
             float fadeAmount = 1f - smoothDistance;
             fadeAmount *= fadeAmount;
             fadeAmount *= fadeAmount;
-            float maximumTransparency = Mathf.Clamp(_maximumTransparency, 0f, 0.5f);
+            float maximumTransparency = Mathf.Clamp(_maximumTransparency, 0f, 0.85f);
             float targetVisibility = 1f - maximumTransparency * fadeAmount;
             if (targetVisibility < 0.999f)
                 EnsureRuntimeMaterials();
@@ -336,7 +342,8 @@ namespace UPlayGround.Components
             if (_runtimePrepared)
                 return;
 
-            Texture2D ditherTexture = GetDitherTexture();
+            int pixelScale = Mathf.Clamp(_ditherPixelScale, 1, 4);
+            Texture2D ditherTexture = GetDitherTexture(pixelScale);
             if (ditherTexture == null)
             {
                 Debug.LogError(
@@ -347,6 +354,7 @@ namespace UPlayGround.Components
             }
 
             _runtimePrepared = true;
+            _appliedDitherPixelScale = pixelScale;
             var preparedBySource = new Dictionary<Material, RuntimeMaterialInfo>();
             foreach (RendererInfo info in _rendererInfos)
             {
@@ -622,15 +630,84 @@ namespace UPlayGround.Components
             material.shaderKeywords = Array.Empty<string>();
         }
 
-        private static Texture2D GetDitherTexture()
+        private void UpdateDitherPixelScale()
         {
-            if (_ditherTexture != null)
+            if (!_runtimePrepared)
+                return;
+
+            int pixelScale = Mathf.Clamp(_ditherPixelScale, 1, 4);
+            if (_appliedDitherPixelScale == pixelScale)
+                return;
+
+            Texture2D ditherTexture = GetDitherTexture(pixelScale);
+            if (ditherTexture == null)
+                return;
+
+            foreach (RuntimeMaterialInfo runtimeInfo in _runtimeMaterials)
+            {
+                if (runtimeInfo?.Material != null)
+                    runtimeInfo.Material.SetTexture(DitherTexID, ditherTexture);
+            }
+
+            _appliedDitherPixelScale = pixelScale;
+        }
+
+        private static Texture2D GetDitherTexture(int pixelScale)
+        {
+            pixelScale = Mathf.Clamp(pixelScale, 1, 4);
+            if (ScaledDitherTextures.TryGetValue(
+                    pixelScale,
+                    out Texture2D cachedTexture) &&
+                cachedTexture != null)
+                return cachedTexture;
+
+            if (_ditherTexture == null)
+                _ditherTexture =
+                    Resources.Load<Texture2D>(DitherResourcePath);
+
+            if (_ditherTexture == null)
+                return null;
+
+            if (pixelScale == 1)
+            {
+                ScaledDitherTextures[1] = _ditherTexture;
                 return _ditherTexture;
+            }
 
-            _ditherTexture =
-                Resources.Load<Texture2D>(DitherResourcePath);
+            Color32[] sourcePixels = _ditherTexture.GetPixels32();
+            int sourceWidth = _ditherTexture.width;
+            int sourceHeight = _ditherTexture.height;
+            int scaledWidth = sourceWidth * pixelScale;
+            int scaledHeight = sourceHeight * pixelScale;
+            var scaledPixels = new byte[scaledWidth * scaledHeight];
+            for (int y = 0; y < scaledHeight; y++)
+            {
+                int sourceY = y / pixelScale;
+                for (int x = 0; x < scaledWidth; x++)
+                {
+                    int sourceX = x / pixelScale;
+                    scaledPixels[y * scaledWidth + x] =
+                        sourcePixels[sourceY * sourceWidth + sourceX].r;
+                }
+            }
 
-            return _ditherTexture;
+            var scaledTexture = new Texture2D(
+                scaledWidth,
+                scaledHeight,
+                TextureFormat.R8,
+                false,
+                true)
+            {
+                name =
+                    $"{_ditherTexture.name} Pixel Scale {pixelScale}",
+                filterMode = FilterMode.Point,
+                wrapMode = TextureWrapMode.Repeat,
+                hideFlags = HideFlags.DontSave
+            };
+            scaledTexture.SetPixelData(scaledPixels, 0);
+            scaledTexture.Apply(false, true);
+            ScaledDitherTextures[pixelScale] = scaledTexture;
+            return scaledTexture;
         }
 
         private void RestoreOriginalMaterials()

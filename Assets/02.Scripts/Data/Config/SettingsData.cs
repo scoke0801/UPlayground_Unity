@@ -23,6 +23,10 @@ namespace UPlayGround.Data.Config
 
         [Header("그래픽")]
         public int resolutionIndex = 0;
+        [Tooltip("선택한 해상도 너비. resolutionIndex는 UI 표시용이며 실제 적용에는 이 값을 사용합니다.")]
+        public int resolutionWidth = 1920;
+        [Tooltip("선택한 해상도 높이. resolutionIndex는 UI 표시용이며 실제 적용에는 이 값을 사용합니다.")]
+        public int resolutionHeight = 1080;
         public int windowModeIndex = 1; // 0=전체화면, 1=경계없는 창, 2=창 화면
         public bool fullscreen = true;
         public int qualityIndex = 2; // 0=낮음 ~ 3=최고
@@ -53,7 +57,20 @@ namespace UPlayGround.Data.Config
         {
             string json = PlayerPrefs.GetString(PREFS_KEY, "");
             if (!string.IsNullOrEmpty(json))
+            {
                 JsonUtility.FromJsonOverwrite(json, this);
+
+                // 구버전 저장 데이터에는 실제 너비/높이가 없으므로 기존 인덱스를 한 번 변환한다.
+                if (!json.Contains("\"resolutionWidth\""))
+                {
+                    (resolutionWidth, resolutionHeight) = resolutionIndex switch
+                    {
+                        1 => (1280, 720),
+                        2 => (2560, 1440),
+                        _ => (1920, 1080)
+                    };
+                }
+            }
         }
 
         public void ResetToDefault()
@@ -61,7 +78,8 @@ namespace UPlayGround.Data.Config
             sensitivityX = 5; sensitivityY = 5; invertY = false;
             screenShake = true; aimAssist = true; languageIndex = 0;
             cameraShakeScale = 1f; combatCameraAutoCorrection = 1f; combatCameraSequenceIntensity = 1f;
-            resolutionIndex = 0; windowModeIndex = 1; fullscreen = true; qualityIndex = 2; targetFrameRate = 60; brightness = 5;
+            resolutionIndex = 0; resolutionWidth = 1920; resolutionHeight = 1080;
+            windowModeIndex = 1; fullscreen = true; qualityIndex = 2; targetFrameRate = 60; brightness = 5;
             runInBackground = false;
             masterVolume = 8; bgmVolume = 7; sfxVolume = 9; voiceVolume = 8;
             debugMotionWarpEnabled = true;
@@ -78,7 +96,8 @@ namespace UPlayGround.Data.Config
         public int sensitivityX, sensitivityY;
         public bool invertY, screenShake, aimAssist;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
-        public int languageIndex, resolutionIndex, windowModeIndex, qualityIndex, targetFrameRate, brightness;
+        public int languageIndex, resolutionIndex, resolutionWidth, resolutionHeight;
+        public int windowModeIndex, qualityIndex, targetFrameRate, brightness;
         public bool fullscreen, runInBackground;
         public int masterVolume, bgmVolume, sfxVolume, voiceVolume;
 
@@ -90,6 +109,7 @@ namespace UPlayGround.Data.Config
             combatCameraAutoCorrection = data.combatCameraAutoCorrection,
             combatCameraSequenceIntensity = data.combatCameraSequenceIntensity,
             languageIndex = data.languageIndex, resolutionIndex = data.resolutionIndex,
+            resolutionWidth = data.resolutionWidth, resolutionHeight = data.resolutionHeight,
             windowModeIndex = data.windowModeIndex, qualityIndex = data.qualityIndex,
             targetFrameRate = data.targetFrameRate, brightness = data.brightness,
             fullscreen = data.fullscreen,
@@ -106,6 +126,7 @@ namespace UPlayGround.Data.Config
             data.combatCameraAutoCorrection = combatCameraAutoCorrection;
             data.combatCameraSequenceIntensity = combatCameraSequenceIntensity;
             data.languageIndex = languageIndex; data.resolutionIndex = resolutionIndex;
+            data.resolutionWidth = resolutionWidth; data.resolutionHeight = resolutionHeight;
             data.windowModeIndex = windowModeIndex; data.qualityIndex = qualityIndex;
             data.targetFrameRate = targetFrameRate; data.brightness = brightness;
             data.fullscreen = fullscreen;

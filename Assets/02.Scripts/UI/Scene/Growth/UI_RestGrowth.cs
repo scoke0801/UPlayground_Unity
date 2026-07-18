@@ -54,6 +54,10 @@ namespace UPlayGround.UI
             _rectTransform.anchoredPosition = Vector2.zero;
             _rectTransform.offsetMin = Vector2.zero;
             _rectTransform.offsetMax = Vector2.zero;
+
+            // 이전 빌더로 생성된 프리팹도 재생성 없이 긴 장비 보정 문구를 수용한다.
+            for (int i = 0; i < _cards.Count; i++)
+                NormalizeCardLayout(_cards[i]);
         }
 
         protected override void OnInit()
@@ -172,6 +176,41 @@ namespace UPlayGround.UI
                 card.investButton.interactable = party.GetGrowthPoints(_targetType) > 0 && rank < Mathf.Max(1, rule.maxRank);
         }
 
+        private static void NormalizeCardLayout(GrowthCard card)
+        {
+            if (card == null) return;
+
+            SetPreferredWidth(card.nameText, 140f);
+            SetPreferredWidth(card.rankText, 240f);
+            SetPreferredWidth(card.effectText, 160f);
+
+            if (card.rankText != null)
+            {
+                card.rankText.enableAutoSizing = true;
+                card.rankText.fontSizeMin = 17f;
+                card.rankText.fontSizeMax = 23f;
+            }
+
+            SetSafeSingleLineOverflow(card.nameText);
+            SetSafeSingleLineOverflow(card.rankText);
+            SetSafeSingleLineOverflow(card.effectText);
+            SetSafeSingleLineOverflow(card.milestoneText);
+        }
+
+        private static void SetPreferredWidth(TextMeshProUGUI text, float width)
+        {
+            if (text == null || !text.TryGetComponent(out LayoutElement layout)) return;
+            layout.minWidth = width;
+            layout.preferredWidth = width;
+        }
+
+        private static void SetSafeSingleLineOverflow(TextMeshProUGUI text)
+        {
+            if (text == null) return;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
+            text.overflowMode = TextOverflowModes.Ellipsis;
+        }
+
         private static string GetDisplayName(GrowthAttributeType attribute) => attribute switch
         {
             GrowthAttributeType.Health => "체력",
@@ -201,7 +240,9 @@ namespace UPlayGround.UI
             }
             if (!next.HasValue) return "모든 마일스톤 해금 완료";
             string name = string.IsNullOrWhiteSpace(next.Value.displayName) ? next.Value.unlockId : next.Value.displayName;
-            return $"다음 해금: {next.Value.requiredRank}랭크 · {name}";
+            // 기본 TMP 폰트에 가운데점(·) 글리프가 없으면 네모(missing glyph)로 표시된다.
+            // 폰트 폴백 구성에 의존하지 않는 ASCII 구분자를 사용한다.
+            return $"다음 해금: {next.Value.requiredRank}랭크 - {name}";
         }
     }
 }

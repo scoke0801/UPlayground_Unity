@@ -11,8 +11,10 @@ using UPlayGround.MovementController;
 using UPlayGround.Components;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
+using UPlayGround.Animation.Editor.UIToolkit;
 using ActorAnimatorType = UPlayGround.Animation.ActorAnimator;
 using PlayerActorAnimatorType = UPlayGround.Animation.PlayerActorAnimator;
+using UnityEngine.UIElements;
 
 namespace UPlayGround.Animation.Editor
 {
@@ -29,6 +31,9 @@ namespace UPlayGround.Animation.Editor
         string          _actorMotionSearch = "";
         bool            _actorMotionListHasKeyboardFocus;
         bool            _scrollSelectedActorMotionIntoView;
+        MotionEditorShell _uiToolkitShell;
+        MotionListView _motionListView;
+        MotionEventInspectorView _eventInspectorView;
         
         // 테스트 씬 설정
         string          _testScenePath = "Assets/01.Scenes/Test/MotionTestMap.unity"; // 기본 경로
@@ -190,6 +195,13 @@ namespace UPlayGround.Animation.Editor
 
         void OnDisable()
         {
+            _uiToolkitShell?.Dispose();
+            _uiToolkitShell = null;
+            _motionListView = null;
+            _eventInspectorView = null;
+            _timelineView = null;
+            _motionAuthoringContainer = null;
+
             // ⑤ EditorPrefs 저장
             SaveEditorPrefs();
             SaveRootMotionPrefs();
@@ -662,7 +674,7 @@ namespace UPlayGround.Animation.Editor
                         // Freeze 중에도 커서 위치와 이벤트는 갱신
                         _drawer.cursorTime = _playbackTime;
                         ExecuteActiveEvents(currentSet);
-                        Repaint();
+                        _timelineView?.RefreshPlayback();
                         return;
                     }
                 }
@@ -729,7 +741,7 @@ namespace UPlayGround.Animation.Editor
 
                 _drawer.cursorTime = _playbackTime;
                 _previousTime      = _playbackTime;
-                Repaint();
+                _timelineView?.RefreshPlayback();
             }
         }
 
@@ -1007,6 +1019,10 @@ namespace UPlayGround.Animation.Editor
             };
             ConfigureMotionSetDrawer(_drawer);
             _drawer.SelectFirstMotionForAsset(_asset?.motionSet);
+            RefreshMotionListView();
+            RefreshEventInspectorView();
+            _timelineView?.RefreshData(true);
+            _motionAuthoringContainer?.MarkDirtyRepaint();
         }
 
         void ConfigureMotionSetDrawer(MotionSetDrawer drawer)
@@ -1019,6 +1035,60 @@ namespace UPlayGround.Animation.Editor
                 if (evt is SlashVFXEvent slashEvent)
                     DrawSlashVfxSceneTunePanel(GetCurrentMotionSet(), slashEvent);
             };
+            drawer.onSelectionChanged = QueueEventInspectorRefresh;
+        }
+
+        void QueueEventInspectorRefresh()
+        {
+            _timelineView?.RefreshData(true);
+            if (_eventInspectorView == null)
+                return;
+            _eventInspectorView.schedule.Execute(RefreshEventInspectorView).StartingIn(0);
+        }
+
+        void RefreshEventInspectorView()
+        {
+            _eventInspectorView?.Refresh(_asset, _drawer);
+        }
+
+        void RefreshMotionListView()
+        {
+            if (_motionListView == null)
+                return;
+
+            var items = new System.Collections.Generic.List<MotionListView.Item>();
+            if (_actorAnimationSet != null)
+            {
+                foreach (ActorMotionEntry entry in GetActorMotionEntries(_actorAnimationSet, true))
+                {
+                    string sourceText = entry.isOwn || entry.source == null
+                        ? string.Empty
+                        : $"상속: {entry.source.name}";
+                    string assetText = entry.asset != null ? entry.asset.name : "(MotionSet 없음)";
+                    items.Add(new MotionListView.Item
+                    {
+                        Group = GetActorKeyGroupLabel(entry.key),
+                        Title = entry.key.ToString(),
+                        Subtitle = string.IsNullOrEmpty(sourceText)
+                            ? assetText
+                            : $"{assetText} · {sourceText}",
+                        UserData = entry,
+                        IsSelected = entry.key == _selectedActorMotionKey && entry.asset == _asset,
+                    });
+                }
+            }
+
+            _motionListView.SetItems(items);
+        }
+
+        void SelectMotionListItem(MotionListView.Item item)
+        {
+            if (item?.UserData is not ActorMotionEntry entry)
+                return;
+
+            SelectActorMotionEntry(entry);
+            RefreshMotionListView();
+            RefreshEventInspectorView();
         }
 
         void OnSelectedMotionChanged(int previousIndex, int selectedIndex)
@@ -1063,6 +1133,8 @@ namespace UPlayGround.Animation.Editor
 
             _actorAnimationSet = actorSet;
             _useTemporarySet = false;
+            _uiToolkitShell?.SetSidebarVisible(_actorAnimationSet != null);
+            RefreshMotionListView();
 
             if (_actorAnimationSet == null)
             {
@@ -1326,36 +1398,46 @@ namespace UPlayGround.Animation.Editor
             return _asset?.motionSet;
         }
 
-        void OnGUI()
+        public void CreateGUI()
         {
-            HandlePlaybackShortcuts();
+            // UI Toolkit 셸은 도메인 리로드 후에도 이 진입점에서 전체 뷰를 재구성한다.
+            _uiToolkitShell?.Dispose();
+            _motionListView = new MotionListView(SelectMotionListItem, ShowAddActorMotionMenu);
+            _eventInspectorView = new MotionEventInspectorView(Repaint);
+            _uiToolkitShell = new MotionEditorShell(
+                rootVisualElement,
+                DrawToolbar,
+                BuildControlPanelsUIToolkit(),
+                DrawLegacyPreviewControls,
+                _motionListView,
+                BuildMotionEditorBodyUIToolkit(),
+                _eventInspectorView,
+                RunControlPanelSideEffects);
+            _uiToolkitShell.SetSidebarVisible(_actorAnimationSet != null);
+            RefreshMotionListView();
+            RefreshEventInspectorView();
+            rootVisualElement.UnregisterCallback<KeyDownEvent>(
+                HandlePlaybackShortcut,
+                TrickleDown.TrickleDown);
+            rootVisualElement.RegisterCallback<KeyDownEvent>(
+                HandlePlaybackShortcut,
+                TrickleDown.TrickleDown);
+        }
 
-            DrawToolbar();
+        void DrawLegacyPreviewControls()
+        {
             DrawActorAnimationSetBar();
             DrawTestActorRegistry();
             DrawPlaybackControls();
-            DrawControlPanelTabs();           // Phase 2: 보조 패널 탭(루트모션/워프/디버그/전투오버레이) — 한 번에 하나
-            RunControlPanelSideEffects();     // 패널 닫힘과 무관하게 실행돼야 하는 부작용
-
-            if (_actorAnimationSet != null)
-            {
-                DrawActorSetEditorLayout();
-                return;
-            }
-
-            DrawMotionSetEditorBody();
         }
 
-        void HandlePlaybackShortcuts()
+        void HandlePlaybackShortcut(KeyDownEvent evt)
         {
-            Event e = Event.current;
-            if (e == null || e.type != EventType.KeyDown)
+            if (EditorGUIUtility.editingTextField ||
+                evt.altKey || evt.ctrlKey || evt.commandKey)
                 return;
 
-            if (EditorGUIUtility.editingTextField || e.alt || e.control || e.command)
-                return;
-
-            switch (e.keyCode)
+            switch (evt.keyCode)
             {
                 case KeyCode.Space:
                     if (_isPaused)
@@ -1370,7 +1452,7 @@ namespace UPlayGround.Animation.Editor
                     {
                         StartPlayback();
                     }
-                    e.Use();
+                    evt.StopImmediatePropagation();
                     Repaint();
                     break;
 
@@ -1378,7 +1460,7 @@ namespace UPlayGround.Animation.Editor
                     if (_isPlaying || _isPaused)
                     {
                         StopPlayback();
-                        e.Use();
+                        evt.StopImmediatePropagation();
                         Repaint();
                     }
                     break;
@@ -1414,22 +1496,6 @@ namespace UPlayGround.Animation.Editor
             
             // 타임라인 클릭으로 재생 위치 조절 처리
             HandleTimelineScrubbing();
-        }
-
-        void DrawActorSetEditorLayout()
-        {
-            EditorGUILayout.BeginHorizontal();
-            {
-                DrawActorMotionSidebar();
-
-                EditorGUILayout.BeginVertical();
-                {
-                    DrawMotionSetEditorBody();
-                }
-                EditorGUILayout.EndVertical();
-            }
-            EditorGUILayout.EndHorizontal();
-
         }
 
         void DrawEventDebugControls()
@@ -3124,6 +3190,8 @@ namespace UPlayGround.Animation.Editor
             _asset = null;
             _drawer = new MotionSetDrawer(() => null, Repaint, OnSelectedMotionChanged);
             ConfigureMotionSetDrawer(_drawer);
+            _timelineView?.RefreshData(true);
+            _motionAuthoringContainer?.MarkDirtyRepaint();
             
             Debug.Log("임시 MotionSet이 생성되었습니다. 에셋으로 저장하려면 '새로 만들기'를 사용하세요.");
         }

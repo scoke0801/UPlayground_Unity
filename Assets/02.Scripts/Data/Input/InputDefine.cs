@@ -41,6 +41,11 @@
         public const string CharacterSwap_2 = "CharacterSwap_2";
         public const string CharacterSwap_3 = "CharacterSwap_3";
         public const string CharacterSwap_4 = "CharacterSwap_4";
+
+        public const string QuickSlot_Left = "QuickSlot_Left";
+        public const string QuickSlot_Right = "QuickSlot_Right";
+        public const string QuickSlot_Up = "QuickSlot_Up";
+        public const string QuickSlot_Down = "QuickSlot_Down";
     }
 
     public static class SystemAction

@@ -195,7 +195,10 @@ namespace UPlayGround.Animation.Editor
             }
 
             if (previousIndex != selectedMotionIndex)
+            {
                 _onSelectedMotionChanged?.Invoke(previousIndex, selectedMotionIndex);
+                onSelectionChanged?.Invoke();
+            }
         }
 
         void RequestScrollSelectedMotionIntoView()
@@ -231,6 +234,7 @@ namespace UPlayGround.Animation.Editor
         readonly Action _repaint;
         readonly Action<int, int> _onSelectedMotionChanged;
         public Action<MotionEventBase> onDrawEventToolPanel;
+        public Action onSelectionChanged;
 
         /// <param name="getTarget">Undo/Dirty 대상 오브젝트 반환</param>
         /// <param name="repaint">Repaint 요청 콜백</param>
@@ -260,7 +264,6 @@ namespace UPlayGround.Animation.Editor
         // ====================================================================
         public void DrawFullGUI(MotionSet set)
         {
-            HandleGlobalDragTermination();
             if (set == null) return;
 
             EditorGUILayout.Space(4);
@@ -269,29 +272,6 @@ namespace UPlayGround.Animation.Editor
 
             foldMotions = EditorGUILayout.Foldout(foldMotions, "애니메이션 리스트", true, EditorStyles.foldoutHeader);
             if (foldMotions) DrawMotionList(set);
-
-            EditorGUILayout.Space(4);
-
-            // ── 2단 레이아웃: 인스펙터(좌) | 타임라인(우) ──
-            foldTimeline = EditorGUILayout.Foldout(foldTimeline, "타임라인", true, EditorStyles.foldoutHeader);
-            if (foldTimeline && set.IsValid())
-            {
-                Rect splitterRect = GUILayoutUtility.GetRect(0, CalcTimelineAndInspectorHeight(set));
-                splitterRect.x    += 2;
-                splitterRect.width -= 4;
-
-                // 인스펙터 패널
-                Rect inspRect     = new Rect(splitterRect.x, splitterRect.y, INSPECTOR_WIDTH, splitterRect.height);
-                DrawInspectorPanel(inspRect, set);
-
-                // 타임라인 패널
-                Rect tlRect = new Rect(inspRect.xMax + 2, splitterRect.y,
-                    splitterRect.width - INSPECTOR_WIDTH - 2, splitterRect.height);
-                DrawTimeline(tlRect, set);
-            }
-
-            if (isDraggingCursor || _isDraggingStart || _isDraggingEnd || _isDraggingBody
-                || _clipHandleDraggingStart || _clipHandleDraggingEnd) Repaint();
         }
 
         public void DrawEventsGUI(MotionSet set)
@@ -666,12 +646,13 @@ namespace UPlayGround.Animation.Editor
 
                         GUI.backgroundColor = Color.white;
 
-                        EditorGUI.BeginChangeCheck();
-                        motion.motionName = EditorGUILayout.TextField(motion.motionName);
-                        motion.motionClip = (AnimationClip)EditorGUILayout.ObjectField(
-                            motion.motionClip, typeof(AnimationClip), false, GUILayout.Width(180));
-                        if (EditorGUI.EndChangeCheck())
-                            MarkDirty();
+                        EditorGUILayout.LabelField(
+                            string.IsNullOrEmpty(motion.motionName) ? $"Motion {i}" : motion.motionName,
+                            EditorStyles.boldLabel);
+                        EditorGUILayout.LabelField(
+                            motion.motionClip != null ? motion.motionClip.name : "(클립 없음)",
+                            EditorStyles.miniLabel,
+                            GUILayout.Width(180));
 
                         if (motion.IsValid())
                             EditorGUILayout.LabelField($"{motion.Duration:F2}s",
@@ -689,6 +670,7 @@ namespace UPlayGround.Animation.Editor
                             else if (selectedMotionIndex == i - 1) selectedMotionIndex = i;
                             RequestScrollSelectedMotionIntoView();
                             MarkDirty();
+                            onSelectionChanged?.Invoke();
                             break;
                         }
 
@@ -705,6 +687,7 @@ namespace UPlayGround.Animation.Editor
                             else if (selectedMotionIndex == i + 1) selectedMotionIndex = i;
                             RequestScrollSelectedMotionIntoView();
                             MarkDirty();
+                            onSelectionChanged?.Invoke();
                             break;
                         }
 
@@ -716,74 +699,11 @@ namespace UPlayGround.Animation.Editor
                             set.motions.RemoveAt(i);
                             if (selectedMotionIndex >= set.motions.Count) selectedMotionIndex = -1;
                             MarkDirty();
+                            onSelectionChanged?.Invoke();
                             break;
                         }
                     }
                     EditorGUILayout.EndHorizontal();
-
-                    // 재생 구간 & 속도 설정 행
-                    if (motion.IsValid())
-                    {
-                        float clipLen = motion.motionClip != null ? motion.motionClip.length : 0f;
-
-                        EditorGUILayout.BeginHorizontal();
-                        GUILayout.Space(30);
-
-                        // ── 시작 시간 ──
-                        EditorGUILayout.LabelField("시작", GUILayout.Width(50));
-                        float rawStart = motion.clipStartTime >= 0f ? motion.clipStartTime : 0f;
-                        float newStart = EditorGUILayout.FloatField(rawStart, GUILayout.Width(55));
-                        newStart = Mathf.Clamp(newStart, 0f, clipLen);
-
-                        // ── 종료 시간 ──
-                        EditorGUILayout.LabelField("종료", GUILayout.Width(50));
-                        float rawEnd = motion.clipEndTime >= 0f ? motion.clipEndTime : clipLen;
-                        float newEnd = EditorGUILayout.FloatField(rawEnd, GUILayout.Width(55));
-                        newEnd = Mathf.Clamp(newEnd, newStart + 0.001f, clipLen);
-
-                        if (!Mathf.Approximately(newStart, rawStart) || !Mathf.Approximately(newEnd, rawEnd))
-                        {
-                            RecordUndo("Change Motion Clip Range");
-                            // 전체 범위면 -1로 저장해 기본값 취급
-                            motion.clipStartTime = Mathf.Approximately(newStart, 0f) ? -1f : newStart;
-                            motion.clipEndTime = Mathf.Approximately(newEnd, clipLen) ? -1f : newEnd;
-                            MarkDirty();
-                        }
-
-                        // 초기화 버튼
-                        if (GUILayout.Button("초기화", GUILayout.Width(50)))
-                        {
-                            RecordUndo("Reset Motion Clip Range");
-                            motion.clipStartTime = -1f;
-                            motion.clipEndTime = -1f;
-                            MarkDirty();
-                        }
-
-                        GUILayout.Space(10);
-
-                        // ── 재생 속도 ──
-                        EditorGUILayout.LabelField("속도", GUILayout.Width(50));
-                        float newSpd = EditorGUILayout.FloatField(motion.playbackSpeed, GUILayout.Width(45));
-                        newSpd = Mathf.Max(0.01f, newSpd);
-                        if (!Mathf.Approximately(newSpd, motion.playbackSpeed))
-                        {
-                            RecordUndo("Change Motion Playback Speed");
-                            motion.playbackSpeed = newSpd;
-                            MarkDirty();
-                        }
-
-                        // 클립 정보 표시
-                        if (clipLen > 0f)
-                        {
-                            float shownStart = motion.clipStartTime >= 0f ? motion.clipStartTime : 0f;
-                            float shownEnd = motion.clipEndTime >= 0f ? motion.clipEndTime : clipLen;
-                            EditorGUILayout.LabelField(
-                                $"[{shownStart:F2}~{shownEnd:F2}] / {clipLen:F2}s → {motion.Duration:F2}s",
-                                EditorStyles.miniLabel, GUILayout.MinWidth(50));
-                        }
-
-                        EditorGUILayout.EndHorizontal();
-                    }
 
                 }
                 EditorGUILayout.EndVertical();
@@ -811,6 +731,7 @@ namespace UPlayGround.Animation.Editor
                     motionName = $"Motion_{set.motions.Count}",
                     events = new List<MotionEventBase>()
                 });
+                SelectMotionIndex(set, set.motions.Count - 1);
                 MarkDirty();
             }
 
@@ -904,8 +825,10 @@ namespace UPlayGround.Animation.Editor
                 if (!MatchesEventFilter(evt)) continue;
 
                 string foldKey = EventKey(motionIdx, i);
-                bool isOpen = GetEventFold(foldKey);
                 var visual = MotionEventStyle.Get(evt);
+                bool isSelected = !selectedEventIsSetEvent &&
+                                  selectedEventMotionIndex == motionIdx &&
+                                  selectedEventIndex == i;
 
                 EditorGUILayout.BeginVertical(GUI.skin.box);
                 {
@@ -917,28 +840,17 @@ namespace UPlayGround.Animation.Editor
                         EditorGUI.DrawRect(badgeRect, visual.color);
                         GUILayout.Space(4);
 
-                        // 접힘 토글 화살표 + 이름 (클릭 영역 전체)
-                        string arrow = isOpen ? "▼" : "▶";
                         var labelStyle = new GUIStyle(EditorStyles.boldLabel)
                         {
                             normal = { textColor = visual.color }
                         };
-                        if (GUILayout.Button($"{arrow} {visual.icon} {evt.GetDisplayName()}",
+                        if (GUILayout.Button($"{(isSelected ? "●" : "○")} {visual.icon} {evt.GetDisplayName()}",
                             labelStyle, GUILayout.MinWidth(120)))
                         {
-                            SetEventFold(foldKey, !isOpen);
+                            SelectEvent(motionIdx, i, false);
                         }
 
                         GUILayout.FlexibleSpace();
-
-                        GUILayout.Label("Start", GUILayout.Width(35));
-                        EditorGUI.BeginChangeCheck();
-                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(55));
-                        GUILayout.Space(4);
-                        GUILayout.Label("End", GUILayout.Width(30));
-                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(55));
-                        if (EditorGUI.EndChangeCheck())
-                            MarkDirty();
 
                         if (GUILayout.Button("⋮", GUILayout.Width(22)))
                             ShowEventContextMenu(motion.events, i, false, motionIdx);
@@ -959,13 +871,6 @@ namespace UPlayGround.Animation.Editor
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    // ── 프로퍼티 (펼쳐진 경우만) ──
-                    if (isOpen)
-                    {
-                        EditorGUI.indentLevel++;
-                        DrawEventProperties(evt);
-                        EditorGUI.indentLevel--;
-                    }
                 }
                 EditorGUILayout.EndVertical();
             }
@@ -985,6 +890,7 @@ namespace UPlayGround.Animation.Editor
                     {
                         // 새로 추가된 이벤트는 바로 펼쳐진 상태로
                         SetEventFold(EventKey(motionIdx, motion.events.Count - 1), true);
+                        SelectEvent(motionIdx, motion.events.Count - 1, false);
                         MarkDirty();
                         Repaint();
                     });
@@ -1067,6 +973,15 @@ namespace UPlayGround.Animation.Editor
             selectedEventMotionIndex = -1;
             selectedEventIndex = -1;
             selectedEventIsSetEvent = false;
+            onSelectionChanged?.Invoke();
+        }
+
+        public void SelectEvent(int motionIndex, int eventIndex, bool isSetEvent)
+        {
+            selectedEventMotionIndex = motionIndex;
+            selectedEventIndex = eventIndex;
+            selectedEventIsSetEvent = isSetEvent;
+            onSelectionChanged?.Invoke();
         }
 
         void DrawEventProperties(MotionEventBase evt)
@@ -1448,8 +1363,8 @@ namespace UPlayGround.Animation.Editor
                 if (!MatchesEventFilter(evt)) continue;
 
                 string foldKey = SetEventKey(i);
-                bool isOpen = GetEventFold(foldKey);
                 var visual = MotionEventStyle.Get(evt);
+                bool isSelected = selectedEventIsSetEvent && selectedEventIndex == i;
 
                 EditorGUILayout.BeginVertical(GUI.skin.box);
                 {
@@ -1459,27 +1374,17 @@ namespace UPlayGround.Animation.Editor
                         EditorGUI.DrawRect(badgeRect, visual.color);
                         GUILayout.Space(4);
 
-                        string arrow = isOpen ? "▼" : "▶";
                         var labelStyle = new GUIStyle(EditorStyles.boldLabel)
                         {
                             normal = { textColor = visual.color }
                         };
-                        if (GUILayout.Button($"{arrow} {visual.icon} {evt.GetDisplayName()}",
+                        if (GUILayout.Button($"{(isSelected ? "●" : "○")} {visual.icon} {evt.GetDisplayName()}",
                             labelStyle, GUILayout.MinWidth(120)))
                         {
-                            SetEventFold(foldKey, !isOpen);
+                            SelectEvent(-1, i, true);
                         }
 
                         GUILayout.FlexibleSpace();
-
-                        GUILayout.Label("Start", GUILayout.Width(35));
-                        EditorGUI.BeginChangeCheck();
-                        evt.startTime = EditorGUILayout.FloatField(evt.startTime, GUILayout.Width(55));
-                        GUILayout.Space(4);
-                        GUILayout.Label("End", GUILayout.Width(30));
-                        evt.endTime = EditorGUILayout.FloatField(evt.endTime, GUILayout.Width(55));
-                        if (EditorGUI.EndChangeCheck())
-                            MarkDirty();
 
                         if (GUILayout.Button("⋮", GUILayout.Width(22)))
                             ShowEventContextMenu(set.globalEvents, i, true, -1);
@@ -1500,12 +1405,6 @@ namespace UPlayGround.Animation.Editor
                     }
                     EditorGUILayout.EndHorizontal();
 
-                    if (isOpen)
-                    {
-                        EditorGUI.indentLevel++;
-                        DrawEventProperties(evt);
-                        EditorGUI.indentLevel--;
-                    }
                 }
                 EditorGUILayout.EndVertical();
             }
@@ -1524,6 +1423,7 @@ namespace UPlayGround.Animation.Editor
                     () =>
                     {
                         SetEventFold(SetEventKey(set.globalEvents.Count - 1), true);
+                        SelectEvent(-1, set.globalEvents.Count - 1, true);
                         MarkDirty();
                         Repaint();
                     });
@@ -2225,9 +2125,7 @@ namespace UPlayGround.Animation.Editor
                 // Shift 없이 클릭 시 선택 (Shift는 드래그용이므로 선택에서 제외)
                 if (!e.shift)
                 {
-                    selectedEventMotionIndex = motionIndex;
-                    selectedEventIndex       = eventIndex;
-                    selectedEventIsSetEvent  = isSetEvent;
+                    SelectEvent(motionIndex, eventIndex, isSetEvent);
                     Repaint();
                     // e.Use() 하지 않아 드래그 핸들러가 후속 처리 가능
                 }
@@ -2253,9 +2151,7 @@ namespace UPlayGround.Animation.Editor
 
                 menu.AddItem(new GUIContent("이벤트 선택"), false, () =>
                 {
-                    selectedEventMotionIndex = motionIndex;
-                    selectedEventIndex       = eventIndex;
-                    selectedEventIsSetEvent  = isSetEvent;
+                    SelectEvent(motionIndex, eventIndex, isSetEvent);
                     Repaint();
                 });
 

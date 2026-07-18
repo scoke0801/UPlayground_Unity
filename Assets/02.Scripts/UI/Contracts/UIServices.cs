@@ -190,6 +190,10 @@ namespace UPlayGround.UI
 
     public interface IUISettingsService : ISettingsService
     {
+        IReadOnlyList<string> ResolutionOptions { get; }
+        IReadOnlyList<string> QualityOptions { get; }
+        int GetCurrentResolutionOptionIndex();
+        void SetResolutionOption(int index);
         void ApplyCurrentSettings(AudioMixer mixerOverride = null);
     }
 

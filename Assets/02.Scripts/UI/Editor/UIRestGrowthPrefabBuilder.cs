@@ -190,11 +190,14 @@ namespace UPlayGround.UI.Growth.EditorTools
             layout.childAlignment = TextAnchor.MiddleLeft;
 
             TextMeshProUGUI name = AddText(NewUI("Name", card.transform), DisplayName(attribute), 27f, TextMain, TextAlignmentOptions.Left);
-            SetWidth(name.gameObject, 150f);
+            SetWidth(name.gameObject, 140f);
             TextMeshProUGUI rank = AddText(NewUI("Rank", card.transform), "0 / 20", 23f, Accent, TextAlignmentOptions.Center);
-            SetWidth(rank.gameObject, 120f);
+            SetWidth(rank.gameObject, 240f);
+            rank.enableAutoSizing = true;
+            rank.fontSizeMin = 17f;
+            rank.fontSizeMax = 23f;
             TextMeshProUGUI effect = AddText(NewUI("Effect", card.transform), "랭크당 증가", 20f, TextSub, TextAlignmentOptions.Left);
-            SetWidth(effect.gameObject, 190f);
+            SetWidth(effect.gameObject, 160f);
             TextMeshProUGUI milestone = AddText(NewUI("Milestone", card.transform), "다음 해금", 19f, Gold, TextAlignmentOptions.Left);
             AddFlexibleW(milestone.gameObject, 1f);
             Button button = MakeButton("InvestButton", card.transform, "강화", 130f, 54f);
@@ -295,7 +298,7 @@ namespace UPlayGround.UI.Growth.EditorTools
         private static void Stretch(GameObject go) { RectTransform rt = Rt(go); rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one; rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero; }
         private static void Center(RectTransform rt, float width, float height) { rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f); rt.sizeDelta = new Vector2(width, height); rt.anchoredPosition = Vector2.zero; }
         private static Image AddImage(GameObject go, Color color, Sprite sprite = null, bool sliced = false) { Image image = go.AddComponent<Image>(); image.color = color; if (sprite != null) { image.sprite = sprite; image.type = sliced ? Image.Type.Sliced : Image.Type.Simple; } return image; }
-        private static TextMeshProUGUI AddText(GameObject go, string text, float size, Color color, TextAlignmentOptions alignment) { TextMeshProUGUI label = go.AddComponent<TextMeshProUGUI>(); label.text = text; label.fontSize = size; label.color = color; label.alignment = alignment; label.enableWordWrapping = false; if (TMP_Settings.defaultFontAsset != null) label.font = TMP_Settings.defaultFontAsset; return label; }
+        private static TextMeshProUGUI AddText(GameObject go, string text, float size, Color color, TextAlignmentOptions alignment) { TextMeshProUGUI label = go.AddComponent<TextMeshProUGUI>(); label.text = text; label.fontSize = size; label.color = color; label.alignment = alignment; label.textWrappingMode = TextWrappingModes.NoWrap; label.overflowMode = TextOverflowModes.Ellipsis; if (TMP_Settings.defaultFontAsset != null) label.font = TMP_Settings.defaultFontAsset; return label; }
         private static Button MakeButton(string name, Transform parent, string text, float width, float height) { GameObject go = NewUI(name, parent); SetWidth(go, width); SetHeight(go, height); Image image = AddImage(go, ButtonBg, UISprite, true); Button button = go.AddComponent<Button>(); button.targetGraphic = image; TextMeshProUGUI label = AddText(NewUI("Label", go.transform), text, 22f, TextMain, TextAlignmentOptions.Center); label.raycastTarget = false; Stretch(label.gameObject); return button; }
         private static VerticalLayoutGroup AddVLG(GameObject go, float spacing, int pad) { VerticalLayoutGroup layout = go.AddComponent<VerticalLayoutGroup>(); layout.spacing = spacing; layout.padding = new RectOffset(pad, pad, pad, pad); layout.childControlWidth = true; layout.childControlHeight = true; layout.childForceExpandWidth = true; layout.childForceExpandHeight = false; return layout; }
         private static HorizontalLayoutGroup AddHLG(GameObject go, float spacing, int pad) { HorizontalLayoutGroup layout = go.AddComponent<HorizontalLayoutGroup>(); layout.spacing = spacing; layout.padding = new RectOffset(pad, pad, pad, pad); layout.childControlWidth = true; layout.childControlHeight = true; layout.childForceExpandWidth = false; layout.childForceExpandHeight = true; return layout; }

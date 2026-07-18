@@ -18,7 +18,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
     ///  - 게임플레이/오디오 페이지는 자식 컨트롤을 GetComponentsInChildren '순서'로 매핑한다.
     ///      게임플레이 슬라이더[0]=수평, [1]=수직 / 스위치[0]=Y반전, [1]=화면흔들림, [2]=타겟보정 / 드롭다운[0]=언어
     ///      오디오   슬라이더[0]=마스터, [1]=배경음악, [2]=효과음, [3]=음성
-    ///  - 그래픽 페이지는 명시적 [SerializeField] 참조(_resolutionDropdown/_windowModeDropdown/_frameRateSlider/_brightnessSlider) + 스위치[0]=백그라운드실행.
+    ///  - 그래픽 페이지는 명시적 [SerializeField] 참조(_resolutionDropdown/_windowModeDropdown/_qualityDropdown/_frameRateSlider/_brightnessSlider) + 스위치[0]=백그라운드실행.
     ///  - 게임플레이 언어 드롭다운은 페이지가 옵션을 세팅하지 않으므로 여기서 옵션을 authoring한다.
     ///  - _audioMixer 필드는 건드리지 않는다(기존 연결 유지).
     /// </summary>
@@ -201,6 +201,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             AddSectionHeader(root, "화면 설정");
             var res    = MakeDropdownRow(root, "해상도",   null, 0); // 옵션은 런타임에 페이지가 채움
             var win    = MakeDropdownRow(root, "창 모드",  null, 0); // 옵션은 런타임에 페이지가 채움
+            var quality = MakeDropdownRow(root, "그래픽 품질", null, 2); // 옵션은 런타임에 페이지가 채움
             var fps    = MakeSliderRow(root, "프레임 제한", 30, 144, 60);
             var bright = MakeSliderRow(root, "화면 밝기",   0, 10, 5);
 
@@ -210,6 +211,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             var gso = new SerializedObject(page);
             SetRef(gso, "_resolutionDropdown", res);
             SetRef(gso, "_windowModeDropdown", win);
+            SetRef(gso, "_qualityDropdown", quality);
             SetRef(gso, "_frameRateSlider",    fps);
             SetRef(gso, "_brightnessSlider",   bright);
             gso.ApplyModifiedPropertiesWithoutUndo();

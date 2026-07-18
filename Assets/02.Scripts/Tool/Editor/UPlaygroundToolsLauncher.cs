@@ -1,8 +1,9 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UPlayGround.Editor
 {
@@ -186,10 +187,7 @@ namespace UPlayGround.Editor
             }),
         };
 
-        private SearchField _searchField;
         private string _searchQuery = "";
-        private Vector2 _scroll;
-        private Vector2 _detailScroll;
         private readonly Dictionary<string, bool> _foldouts = new();
         private readonly HashSet<string> _favorites = new();
         private readonly List<string> _recentMenuPaths = new();
@@ -197,18 +195,19 @@ namespace UPlayGround.Editor
         private string _selectedCategory;
         private bool _favoritesOnly;
         private bool _recentOnly;
-        // 캐시된 GUIStyle은 EditorStyles에서 복사한 내장 텍스처(HideFlags.DontSaveInEditor)를 참조한다.
-        // 직렬화되어 도메인 리로드(재컴파일)를 넘어가면 텍스처가 무효화되어
-        // GUI.Label 호출 시 "kDontSaveInEditor" Assertion으로 UI가 깨진다.
-        // [NonSerialized]로 리로드 후 null이 되게 해 EnsureStyles에서 매번 새로 빌드한다.
-        [System.NonSerialized] private GUIStyle _selectedToolStyle;
-        [System.NonSerialized] private GUIStyle _toolRowStyle;
-        [System.NonSerialized] private GUIStyle _summaryStyle;
-        [System.NonSerialized] private GUIStyle _mutedWrapStyle;
-        [System.NonSerialized] private GUIStyle _sectionTitleStyle;
-        [System.NonSerialized] private GUIStyle _detailBoxStyle;
-        [System.NonSerialized] private GUIStyle _badgeStyle;
-        [System.NonSerialized] private GUIStyle _favoriteButtonStyle;
+
+        private VisualElement _content;
+        private VisualElement _listPane;
+        private VisualElement _detailPane;
+        private ScrollView _toolList;
+        private ToolbarToggle _favoritesToggle;
+        private ToolbarToggle _recentToggle;
+        private ToolbarSearchField _searchField;
+        private bool _isCompactLayout;
+        private string _lastClickedMenuPath;
+        private double _lastClickTime;
+
+        private const double DoubleClickInterval = 0.4d;
 
         private static ToolEntry Tool(string name, string menuPath, string summary, string detail) =>
             new ToolEntry(name, menuPath, summary, detail);
@@ -223,7 +222,6 @@ namespace UPlayGround.Editor
 
         private void OnEnable()
         {
-            _searchField = new SearchField();
             LoadUserState();
             foreach (var (cat, _) in s_categories)
                 if (!_foldouts.ContainsKey(cat)) _foldouts[cat] = true;
@@ -231,345 +229,394 @@ namespace UPlayGround.Editor
             SelectDefaultToolIfNeeded();
         }
 
-        private void OnGUI()
+        public void CreateGUI()
         {
-            // 컴파일/도메인 리로드 진행 중에는 EditorStyles 텍스처가 무효화될 수 있어
-            // 그리기를 건너뛴다(재컴파일 중 UI 깨짐 방지). 리로드 후 다시 정상 렌더한다.
-            if (EditorApplication.isCompiling || EditorApplication.isUpdating)
+            VisualElement root = rootVisualElement;
+            root.Clear();
+            root.style.flexDirection = FlexDirection.Column;
+
+            root.Add(BuildToolbar());
+
+            _searchField = new ToolbarSearchField
             {
-                EditorGUILayout.Space(8);
-                EditorGUILayout.LabelField("스크립트 컴파일 중...", EditorStyles.centeredGreyMiniLabel);
-                Repaint();
-                return;
+                value = _searchQuery,
+                tooltip = "이름, 메뉴 경로, 설명 또는 영향도로 검색"
+            };
+            _searchField.style.marginLeft = 6f;
+            _searchField.style.marginRight = 6f;
+            _searchField.style.marginTop = 4f;
+            _searchField.style.marginBottom = 4f;
+            _searchField.RegisterValueChangedCallback(evt =>
+            {
+                _searchQuery = evt.newValue ?? string.Empty;
+                RebuildToolList();
+            });
+            root.Add(_searchField);
+
+            _content = new VisualElement();
+            _content.style.flexGrow = 1f;
+            _content.style.flexDirection = FlexDirection.Row;
+            _content.style.minHeight = 0f;
+
+            _listPane = new VisualElement();
+            _listPane.style.width = 420f;
+            _listPane.style.minWidth = 300f;
+            _listPane.style.maxWidth = 520f;
+            _listPane.style.flexShrink = 0f;
+            _listPane.style.borderRightWidth = 1f;
+            _listPane.style.borderRightColor = EditorBorderColor();
+
+            _toolList = new ScrollView(ScrollViewMode.Vertical);
+            _toolList.style.flexGrow = 1f;
+            _listPane.Add(_toolList);
+
+            _detailPane = new ScrollView(ScrollViewMode.Vertical);
+            _detailPane.style.flexGrow = 1f;
+            _detailPane.style.minWidth = 0f;
+
+            _content.Add(_listPane);
+            _content.Add(_detailPane);
+            root.Add(_content);
+
+            root.RegisterCallback<GeometryChangedEvent>(evt =>
+                UpdateResponsiveLayout(evt.newRect.width));
+
+            RebuildToolList();
+            RebuildDetailPanel();
+            UpdateToolbarState();
+        }
+
+        private Toolbar BuildToolbar()
+        {
+            var toolbar = new Toolbar();
+
+            var title = new Label("UPlayGround Tools");
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            title.style.marginLeft = 6f;
+            title.style.marginRight = 8f;
+            toolbar.Add(title);
+
+            _favoritesToggle = new ToolbarToggle();
+            _favoritesToggle.SetValueWithoutNotify(_favoritesOnly);
+            _favoritesToggle.RegisterValueChangedCallback(evt =>
+            {
+                _favoritesOnly = evt.newValue;
+                if (_favoritesOnly)
+                {
+                    _recentOnly = false;
+                    _recentToggle?.SetValueWithoutNotify(false);
+                }
+
+                UpdateToolbarState();
+                RebuildToolList();
+            });
+            toolbar.Add(_favoritesToggle);
+
+            _recentToggle = new ToolbarToggle();
+            _recentToggle.SetValueWithoutNotify(_recentOnly);
+            _recentToggle.RegisterValueChangedCallback(evt =>
+            {
+                _recentOnly = evt.newValue;
+                if (_recentOnly)
+                {
+                    _favoritesOnly = false;
+                    _favoritesToggle?.SetValueWithoutNotify(false);
+                }
+
+                UpdateToolbarState();
+                RebuildToolList();
+            });
+            toolbar.Add(_recentToggle);
+
+            var spacer = new VisualElement();
+            spacer.style.flexGrow = 1f;
+            toolbar.Add(spacer);
+
+            toolbar.Add(new ToolbarButton(() => SetAllFoldouts(true)) { text = "모두 열기" });
+            toolbar.Add(new ToolbarButton(() => SetAllFoldouts(false)) { text = "모두 닫기" });
+            return toolbar;
+        }
+
+        private void UpdateToolbarState()
+        {
+            if (_favoritesToggle != null)
+            {
+                _favoritesToggle.text = $"즐겨찾기 {_favorites.Count}";
+                _favoritesToggle.SetValueWithoutNotify(_favoritesOnly);
             }
 
-            EnsureStyles();
-            DrawToolbar();
-            DrawSearchBar();
-
-            if (position.width >= 720f)
+            if (_recentToggle != null)
             {
-                EditorGUILayout.BeginHorizontal();
-                float listWidth = Mathf.Clamp(position.width * 0.44f, 340f, 520f);
-                DrawToolList(GUILayout.Width(listWidth));
-                DrawDetailPanel(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-                EditorGUILayout.EndHorizontal();
+                _recentToggle.text = $"최근 {_recentMenuPaths.Count}";
+                _recentToggle.SetValueWithoutNotify(_recentOnly);
+            }
+        }
+
+        private void UpdateResponsiveLayout(float width)
+        {
+            bool compact = width < 720f;
+            if (compact == _isCompactLayout) return;
+
+            _isCompactLayout = compact;
+            _content.style.flexDirection = compact ? FlexDirection.Column : FlexDirection.Row;
+            if (compact)
+            {
+                _listPane.style.width = StyleKeyword.Auto;
+                _listPane.style.maxWidth = StyleKeyword.None;
+                _listPane.style.minWidth = 0f;
+                _listPane.style.height = 280f;
             }
             else
             {
-                DrawToolList();
-                DrawDetailPanel();
+                _listPane.style.width = 420f;
+                _listPane.style.maxWidth = 520f;
+                _listPane.style.minWidth = 300f;
+                _listPane.style.height = StyleKeyword.Auto;
             }
+            _listPane.style.borderRightWidth = compact ? 0f : 1f;
+            _listPane.style.borderBottomWidth = compact ? 1f : 0f;
+            _listPane.style.borderBottomColor = EditorBorderColor();
         }
 
-        private void EnsureStyles()
+        private void RebuildToolList()
         {
-            if (_selectedToolStyle != null) return;
+            if (_toolList == null) return;
+            _toolList.Clear();
 
-            _selectedToolStyle = new GUIStyle(EditorStyles.miniButton)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                fontStyle = FontStyle.Bold
-            };
-
-            _toolRowStyle = new GUIStyle(EditorStyles.helpBox)
-            {
-                padding = new RectOffset(8, 8, 5, 5),
-                margin = new RectOffset(12, 4, 2, 2)
-            };
-
-            _summaryStyle = new GUIStyle(EditorStyles.wordWrappedLabel)
-            {
-                fontStyle = FontStyle.Bold,
-                wordWrap = true
-            };
-
-            _mutedWrapStyle = new GUIStyle(EditorStyles.wordWrappedMiniLabel)
-            {
-                wordWrap = true
-            };
-
-            _sectionTitleStyle = new GUIStyle(EditorStyles.boldLabel)
-            {
-                margin = new RectOffset(0, 0, 8, 2)
-            };
-
-            _detailBoxStyle = new GUIStyle(EditorStyles.helpBox)
-            {
-                padding = new RectOffset(12, 12, 10, 12),
-                margin = new RectOffset(8, 8, 4, 8)
-            };
-
-            _badgeStyle = new GUIStyle(EditorStyles.miniButton)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = 10,
-                padding = new RectOffset(4, 4, 1, 1)
-            };
-
-            _favoriteButtonStyle = new GUIStyle(EditorStyles.miniButton)
-            {
-                alignment = TextAnchor.MiddleCenter,
-                fontSize = 14,
-                fontStyle = FontStyle.Bold,
-                padding = new RectOffset(1, 1, 0, 1)
-            };
-        }
-
-        private void DrawToolbar()
-        {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("UPlayGround Tools", EditorStyles.boldLabel);
-            GUILayout.Space(8f);
-            Color previousBackground = GUI.backgroundColor;
-            Color previousContent = GUI.contentColor;
-            if (_favoritesOnly)
-            {
-                GUI.backgroundColor = new Color(0.95f, 0.68f, 0.18f);
-                GUI.contentColor = Color.white;
-            }
-            bool favoritesOnly = GUILayout.Toggle(
-                _favoritesOnly,
-                $"★ 즐겨찾기 {_favorites.Count}",
-                EditorStyles.toolbarButton,
-                GUILayout.Width(104f));
-            GUI.backgroundColor = previousBackground;
-            GUI.contentColor = previousContent;
-            if (favoritesOnly != _favoritesOnly)
-            {
-                _favoritesOnly = favoritesOnly;
-                if (_favoritesOnly)
-                    _recentOnly = false;
-            }
-
-            bool recentOnly = GUILayout.Toggle(
-                _recentOnly,
-                $"최근 {_recentMenuPaths.Count}",
-                EditorStyles.toolbarButton,
-                GUILayout.Width(72f));
-            if (recentOnly != _recentOnly)
-            {
-                _recentOnly = recentOnly;
-                if (_recentOnly)
-                    _favoritesOnly = false;
-            }
-
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("모두 열기",  EditorStyles.toolbarButton, GUILayout.MinWidth(60)))
-                SetAllFoldouts(true);
-            if (GUILayout.Button("모두 닫기", EditorStyles.toolbarButton, GUILayout.MinWidth(60)))
-                SetAllFoldouts(false);
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private void DrawSearchBar()
-        {
-            EditorGUILayout.Space(3);
-            var rect = EditorGUILayout.GetControlRect(false, 20f);
-            rect.x     += 4;
-            rect.width -= 8;
-            _searchQuery = _searchField.OnGUI(rect, _searchQuery);
-            EditorGUILayout.Space(3);
-        }
-
-        private void DrawToolList(params GUILayoutOption[] options)
-        {
-            EditorGUILayout.BeginVertical(options);
-            _scroll = EditorGUILayout.BeginScrollView(_scroll);
-            DrawCategories();
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawCategories()
-        {
             bool filtering = !string.IsNullOrWhiteSpace(_searchQuery);
-            string q = _searchQuery.ToLower();
+            string query = filtering ? _searchQuery.Trim().ToLowerInvariant() : string.Empty;
 
             foreach (var (category, tools) in s_categories)
             {
                 ToolEntry[] matches = System.Array.FindAll(
                     tools,
-                    tool => ShouldShowTool(category, tool, filtering, q));
+                    tool => ShouldShowTool(category, tool, filtering, query));
 
                 if (matches.Length == 0) continue;
 
+                VisualElement categoryContent;
                 if (filtering)
                 {
-                    EditorGUILayout.LabelField(category, EditorStyles.boldLabel);
+                    var categoryLabel = new Label(category);
+                    ApplyCategoryTitleStyle(categoryLabel);
+                    _toolList.Add(categoryLabel);
+                    categoryContent = _toolList;
                 }
                 else
                 {
-                    if (!_foldouts.TryGetValue(category, out bool open)) open = true;
-                    _foldouts[category] = EditorGUILayout.Foldout(open, category, true, EditorStyles.foldoutHeader);
-                    if (!_foldouts[category]) continue;
+                    if (!_foldouts.TryGetValue(category, out bool open))
+                        open = true;
+
+                    var foldout = new Foldout
+                    {
+                        text = category,
+                        value = open
+                    };
+                    foldout.style.marginLeft = 4f;
+                    foldout.style.marginRight = 4f;
+                    foldout.RegisterValueChangedCallback(evt => _foldouts[category] = evt.newValue);
+                    _toolList.Add(foldout);
+                    categoryContent = foldout;
                 }
 
-                EditorGUI.indentLevel++;
                 foreach (var tool in matches)
-                {
-                    DrawToolRow(category, tool);
-                }
-                EditorGUI.indentLevel--;
-                EditorGUILayout.Space(2);
+                    categoryContent.Add(BuildToolRow(category, tool));
+            }
+
+            if (_toolList.contentContainer.childCount == 0)
+            {
+                var empty = new Label("조건에 맞는 툴이 없습니다.");
+                empty.style.unityTextAlign = TextAnchor.MiddleCenter;
+                empty.style.color = MutedTextColor();
+                empty.style.marginTop = 24f;
+                _toolList.Add(empty);
             }
         }
 
-        private void DrawToolRow(string category, ToolEntry tool)
+        private VisualElement BuildToolRow(string category, ToolEntry tool)
         {
             bool selected = _selectedTool.HasValue && _selectedTool.Value.MenuPath == tool.MenuPath;
+            bool favorite = _favorites.Contains(tool.MenuPath);
 
-            EditorGUILayout.BeginVertical(_toolRowStyle);
-            Rect rowRect = GUILayoutUtility.GetRect(0f, selected ? 42f : 26f, GUILayout.ExpandWidth(true));
-            rowRect.x += EditorGUI.indentLevel * 8f;
-            rowRect.width -= EditorGUI.indentLevel * 8f;
+            var row = new VisualElement
+            {
+                tooltip = $"{tool.Summary}\n\n더블클릭하면 바로 엽니다."
+            };
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.marginLeft = 8f;
+            row.style.marginRight = 4f;
+            row.style.marginTop = 2f;
+            row.style.marginBottom = 2f;
+            row.style.paddingLeft = 8f;
+            row.style.paddingRight = 4f;
+            row.style.paddingTop = 5f;
+            row.style.paddingBottom = 5f;
+            row.style.borderLeftWidth = favorite ? 4f : 1f;
+            row.style.borderRightWidth = 1f;
+            row.style.borderTopWidth = 1f;
+            row.style.borderBottomWidth = 1f;
+            row.style.borderLeftColor = favorite ? FavoriteColor() : EditorBorderColor();
+            row.style.borderRightColor = EditorBorderColor();
+            row.style.borderTopColor = EditorBorderColor();
+            row.style.borderBottomColor = EditorBorderColor();
+            row.style.backgroundColor = selected ? SelectedBackgroundColor() : RowBackgroundColor();
+
+            row.RegisterCallback<ClickEvent>(evt =>
+            {
+                double clickTime = EditorApplication.timeSinceStartup;
+                bool doubleClick = evt.clickCount >= 2
+                                   || (_lastClickedMenuPath == tool.MenuPath
+                                       && clickTime - _lastClickTime <= DoubleClickInterval);
+
+                _lastClickedMenuPath = doubleClick ? null : tool.MenuPath;
+                _lastClickTime = doubleClick ? 0d : clickTime;
+
+                SelectTool(category, tool);
+                if (doubleClick)
+                    OpenSelectedTool();
+            });
+
+            var textColumn = new VisualElement();
+            textColumn.style.flexGrow = 1f;
+            textColumn.style.minWidth = 0f;
+
+            var title = new Label(tool.Name);
+            title.style.unityFontStyleAndWeight = selected ? FontStyle.Bold : FontStyle.Normal;
+            title.style.overflow = Overflow.Hidden;
+            title.style.textOverflow = TextOverflow.Ellipsis;
+            textColumn.Add(title);
 
             if (selected)
-                EditorGUI.DrawRect(new Rect(rowRect.x - 4f, rowRect.y - 2f, rowRect.width + 8f, rowRect.height + 4f), new Color(0.25f, 0.36f, 0.52f, 0.35f));
-
-            bool favorite = _favorites.Contains(tool.MenuPath);
-            if (favorite)
             {
-                EditorGUI.DrawRect(
-                    new Rect(rowRect.x - 5f, rowRect.y - 2f, 4f, rowRect.height + 4f),
-                    new Color(0.96f, 0.68f, 0.16f));
+                var summary = new Label(tool.Summary);
+                summary.style.fontSize = 10f;
+                summary.style.color = MutedTextColor();
+                summary.style.whiteSpace = WhiteSpace.Normal;
+                summary.style.marginTop = 2f;
+                textColumn.Add(summary);
             }
-
-            Rect favoriteRect = new Rect(rowRect.xMax - 30f, rowRect.y, 28f, 22f);
-            Rect clickRect = new Rect(rowRect.x, rowRect.y, rowRect.width - 34f, rowRect.height);
-            // GUI.Button은 MouseUp에 true를 반환하지만 clickCount는 MouseDown에서만 채워진다.
-            // 따라서 더블클릭은 raw MouseDown 이벤트에서 직접 감지해야 한다(MouseUp 기준 검사는 항상 실패).
-            Event evt = Event.current;
-            bool doubleClick = evt.type == EventType.MouseDown
-                               && evt.button == 0
-                               && evt.clickCount == 2
-                               && clickRect.Contains(evt.mousePosition);
-            if (GUI.Button(clickRect, GUIContent.none, GUIStyle.none) || doubleClick)
-            {
-                SelectTool(category, tool);
-
-                if (doubleClick)
-                {
-                    OpenSelectedTool();
-                    evt.Use();
-                }
-            }
+            row.Add(textColumn);
 
             ToolImpact impact = GetToolImpact(tool);
-            string badge = GetImpactLabel(impact);
-            float badgeWidth = impact == ToolImpact.Normal ? 0f : 58f;
-
-            Rect titleRect = new Rect(rowRect.x, rowRect.y, rowRect.width - badgeWidth - 38f, 18f);
-            GUI.Label(titleRect, tool.Name, selected ? EditorStyles.boldLabel : EditorStyles.label);
-
             if (impact != ToolImpact.Normal)
             {
-                Rect badgeRect = new Rect(rowRect.xMax - badgeWidth - 34f, rowRect.y + 1f, badgeWidth, 17f);
-                var prevColor = GUI.color;
-                GUI.color = GetImpactColor(impact);
-                GUI.Label(badgeRect, badge, _badgeStyle);
-                GUI.color = prevColor;
+                var badge = new Label(GetImpactLabel(impact));
+                badge.style.minWidth = 40f;
+                badge.style.unityTextAlign = TextAnchor.MiddleCenter;
+                badge.style.fontSize = 10f;
+                badge.style.color = GetImpactColor(impact);
+                badge.style.marginLeft = 4f;
+                badge.style.marginRight = 4f;
+                row.Add(badge);
             }
 
-            Color oldBackground = GUI.backgroundColor;
-            Color oldContent = GUI.contentColor;
-            GUI.backgroundColor = favorite
-                ? new Color(1f, 0.66f, 0.08f)
-                : new Color(0.52f, 0.52f, 0.52f);
-            GUI.contentColor = favorite
-                ? new Color(1f, 0.95f, 0.65f)
-                : new Color(0.76f, 0.76f, 0.76f);
-            if (GUI.Button(
-                    favoriteRect,
-                    new GUIContent(favorite ? "★" : "☆", favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"),
-                    _favoriteButtonStyle))
-                SetFavorite(tool.MenuPath, !favorite);
-            GUI.backgroundColor = oldBackground;
-            GUI.contentColor = oldContent;
-
-            if (selected)
+            var favoriteButton = new Button
             {
-                Rect summaryRect = new Rect(rowRect.x, rowRect.y + 19f, rowRect.width, 18f);
-                GUI.Label(summaryRect, tool.Summary, EditorStyles.miniLabel);
-            }
-            EditorGUILayout.EndVertical();
+                text = favorite ? "해제" : "추가",
+                tooltip = favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"
+            };
+            favoriteButton.style.width = 38f;
+            favoriteButton.style.height = 22f;
+            favoriteButton.style.fontSize = 10f;
+            favoriteButton.style.paddingLeft = 0f;
+            favoriteButton.style.paddingRight = 0f;
+            favoriteButton.style.color = favorite ? FavoriteColor() : MutedTextColor();
+            favoriteButton.RegisterCallback<ClickEvent>(evt =>
+            {
+                SetFavorite(tool.MenuPath, !favorite);
+                evt.StopPropagation();
+            });
+            row.Add(favoriteButton);
+
+            return row;
         }
 
         private void SelectTool(string category, ToolEntry tool)
         {
             _selectedCategory = category;
             _selectedTool = tool;
-            _detailScroll = Vector2.zero;
+            RebuildToolList();
+            RebuildDetailPanel();
         }
 
-        private void DrawDetailPanel(params GUILayoutOption[] options)
+        private void RebuildDetailPanel()
         {
-            EditorGUILayout.BeginVertical(_detailBoxStyle, options);
+            if (_detailPane == null) return;
+            _detailPane.Clear();
+            _detailPane.style.paddingLeft = 14f;
+            _detailPane.style.paddingRight = 14f;
+            _detailPane.style.paddingTop = 12f;
+            _detailPane.style.paddingBottom = 12f;
 
             if (!_selectedTool.HasValue)
             {
-                GUILayout.Label("툴을 선택하세요", EditorStyles.boldLabel);
-                GUILayout.Label("왼쪽 목록에서 툴을 클릭하면 기능 요약과 사용 상황을 확인할 수 있습니다.", _mutedWrapStyle);
-                EditorGUILayout.EndVertical();
+                _detailPane.Add(CreateSectionTitle("툴을 선택하세요"));
+                _detailPane.Add(CreateWrappedLabel(
+                    "목록에서 툴을 클릭하면 기능 요약과 사용 상황을 확인할 수 있습니다.",
+                    true));
                 return;
             }
 
             ToolEntry tool = _selectedTool.Value;
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.BeginVertical();
-            GUILayout.Label(tool.Name, EditorStyles.boldLabel);
-            GUILayout.Label(_selectedCategory, EditorStyles.miniLabel);
-            EditorGUILayout.EndVertical();
-            GUILayout.FlexibleSpace();
+            var header = new VisualElement();
+            header.style.flexDirection = FlexDirection.Row;
+            header.style.alignItems = Align.Center;
+
+            var heading = new VisualElement();
+            heading.style.flexGrow = 1f;
+            var toolName = new Label(tool.Name);
+            toolName.style.fontSize = 15f;
+            toolName.style.unityFontStyleAndWeight = FontStyle.Bold;
+            heading.Add(toolName);
+            var categoryLabel = new Label(_selectedCategory);
+            categoryLabel.style.fontSize = 10f;
+            categoryLabel.style.color = MutedTextColor();
+            heading.Add(categoryLabel);
+            header.Add(heading);
+
             bool favorite = _favorites.Contains(tool.MenuPath);
-            Color oldBackground = GUI.backgroundColor;
-            Color oldContent = GUI.contentColor;
-            GUI.backgroundColor = favorite
-                ? new Color(1f, 0.66f, 0.08f)
-                : new Color(0.52f, 0.52f, 0.52f);
-            GUI.contentColor = favorite
-                ? new Color(1f, 0.95f, 0.65f)
-                : new Color(0.76f, 0.76f, 0.76f);
-            if (GUILayout.Button(
-                    new GUIContent(favorite ? "★ 즐겨찾기" : "☆ 즐겨찾기", favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"),
-                    _favoriteButtonStyle,
-                    GUILayout.Width(84f),
-                    GUILayout.Height(24f)))
-                SetFavorite(tool.MenuPath, !favorite);
-            GUI.backgroundColor = oldBackground;
-            GUI.contentColor = oldContent;
-            if (GUILayout.Button("경로 복사", GUILayout.Width(82f), GUILayout.Height(24f)))
+            var favoriteButton = new Button(() => SetFavorite(tool.MenuPath, !favorite))
+            {
+                text = favorite ? "즐겨찾기 해제" : "즐겨찾기 추가",
+                tooltip = favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"
+            };
+            favoriteButton.style.color = favorite ? FavoriteColor() : MutedTextColor();
+            header.Add(favoriteButton);
+
+            var copyButton = new Button(() =>
             {
                 EditorGUIUtility.systemCopyBuffer = tool.MenuPath;
                 ShowNotification(new GUIContent("메뉴 경로를 복사했습니다."));
-            }
-            if (GUILayout.Button("열기", GUILayout.Width(88f), GUILayout.Height(24f)))
-                OpenSelectedTool();
-            EditorGUILayout.EndHorizontal();
+            }) { text = "경로 복사" };
+            header.Add(copyButton);
+
+            var openButton = new Button(OpenSelectedTool) { text = "열기" };
+            openButton.style.minWidth = 72f;
+            openButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+            header.Add(openButton);
+            _detailPane.Add(header);
 
             ToolImpact impact = GetToolImpact(tool);
             if (impact != ToolImpact.Normal)
             {
-                GUILayout.Space(6);
-                EditorGUILayout.HelpBox(GetImpactMessage(impact), GetImpactMessageType(impact));
+                var helpBox = new HelpBox(GetImpactMessage(impact), GetImpactMessageType(impact));
+                helpBox.style.marginTop = 10f;
+                _detailPane.Add(helpBox);
             }
 
-            GUILayout.Space(8);
-            GUILayout.Label("요약", _sectionTitleStyle);
-            GUILayout.Label(tool.Summary, _summaryStyle);
-            GUILayout.Space(4);
-            GUILayout.Label("상세", _sectionTitleStyle);
+            _detailPane.Add(CreateSectionTitle("요약"));
+            var summary = CreateWrappedLabel(tool.Summary, false);
+            summary.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _detailPane.Add(summary);
 
-            _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll, GUILayout.MinHeight(96f));
-            GUILayout.Label(tool.Detail, EditorStyles.wordWrappedLabel);
-            EditorGUILayout.EndScrollView();
+            _detailPane.Add(CreateSectionTitle("상세"));
+            _detailPane.Add(CreateWrappedLabel(tool.Detail, false));
 
-            GUILayout.Space(8);
-            GUILayout.Label("메뉴 경로", _sectionTitleStyle);
-            EditorGUILayout.TextField(tool.MenuPath);
-            GUILayout.Label("목록 더블클릭으로도 바로 열 수 있습니다.", _mutedWrapStyle);
-
-            EditorGUILayout.EndVertical();
+            _detailPane.Add(CreateSectionTitle("메뉴 경로"));
+            var pathField = new TextField { value = tool.MenuPath, isReadOnly = true };
+            _detailPane.Add(pathField);
+            _detailPane.Add(CreateWrappedLabel("목록 더블클릭으로도 바로 열 수 있습니다.", true));
         }
 
         private void OpenSelectedTool()
@@ -671,9 +718,11 @@ namespace UPlayGround.Editor
             };
         }
 
-        private static MessageType GetImpactMessageType(ToolImpact impact)
+        private static HelpBoxMessageType GetImpactMessageType(ToolImpact impact)
         {
-            return impact == ToolImpact.Destructive ? MessageType.Warning : MessageType.Info;
+            return impact == ToolImpact.Destructive
+                ? HelpBoxMessageType.Warning
+                : HelpBoxMessageType.Info;
         }
 
         private static Color GetImpactColor(ToolImpact impact)
@@ -685,6 +734,72 @@ namespace UPlayGround.Editor
                 ToolImpact.Destructive => new Color(1f, 0.62f, 0.55f, 1f),
                 _ => Color.white
             };
+        }
+
+        private static Label CreateSectionTitle(string text)
+        {
+            var label = new Label(text);
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            label.style.marginTop = 14f;
+            label.style.marginBottom = 4f;
+            return label;
+        }
+
+        private static Label CreateWrappedLabel(string text, bool muted)
+        {
+            var label = new Label(text);
+            label.style.whiteSpace = WhiteSpace.Normal;
+            if (muted)
+            {
+                label.style.fontSize = 10f;
+                label.style.color = MutedTextColor();
+            }
+
+            return label;
+        }
+
+        private static void ApplyCategoryTitleStyle(Label label)
+        {
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            label.style.marginLeft = 8f;
+            label.style.marginRight = 4f;
+            label.style.marginTop = 8f;
+            label.style.marginBottom = 3f;
+        }
+
+        private static Color EditorBorderColor()
+        {
+            return EditorGUIUtility.isProSkin
+                ? new Color(0.12f, 0.12f, 0.12f, 1f)
+                : new Color(0.66f, 0.66f, 0.66f, 1f);
+        }
+
+        private static Color RowBackgroundColor()
+        {
+            return EditorGUIUtility.isProSkin
+                ? new Color(0.24f, 0.24f, 0.24f, 1f)
+                : new Color(0.86f, 0.86f, 0.86f, 1f);
+        }
+
+        private static Color SelectedBackgroundColor()
+        {
+            return EditorGUIUtility.isProSkin
+                ? new Color(0.20f, 0.32f, 0.48f, 1f)
+                : new Color(0.58f, 0.72f, 0.90f, 1f);
+        }
+
+        private static Color MutedTextColor()
+        {
+            return EditorGUIUtility.isProSkin
+                ? new Color(0.68f, 0.68f, 0.68f, 1f)
+                : new Color(0.34f, 0.34f, 0.34f, 1f);
+        }
+
+        private static Color FavoriteColor()
+        {
+            return EditorGUIUtility.isProSkin
+                ? new Color(1f, 0.72f, 0.18f, 1f)
+                : new Color(0.82f, 0.46f, 0.02f, 1f);
         }
 
         private bool TryFindTool(string menuPath, out string category, out ToolEntry tool)
@@ -724,12 +839,16 @@ namespace UPlayGround.Editor
         private void OnFocus()
         {
             SelectDefaultToolIfNeeded();
+            UpdateToolbarState();
+            RebuildToolList();
+            RebuildDetailPanel();
         }
 
         private void SetAllFoldouts(bool value)
         {
             foreach (var (cat, _) in s_categories)
                 _foldouts[cat] = value;
+            RebuildToolList();
         }
 
         private void SetFavorite(string menuPath, bool favorite)
@@ -740,7 +859,9 @@ namespace UPlayGround.Editor
                 _favorites.Remove(menuPath);
 
             EditorPrefs.SetString(FavoritesPrefsKey, string.Join(PrefsSeparator.ToString(), _favorites));
-            Repaint();
+            UpdateToolbarState();
+            RebuildToolList();
+            RebuildDetailPanel();
         }
 
         private void AddRecent(string menuPath)
@@ -751,7 +872,8 @@ namespace UPlayGround.Editor
                 _recentMenuPaths.RemoveRange(MaxRecentTools, _recentMenuPaths.Count - MaxRecentTools);
 
             EditorPrefs.SetString(RecentPrefsKey, string.Join(PrefsSeparator.ToString(), _recentMenuPaths));
-            Repaint();
+            UpdateToolbarState();
+            RebuildToolList();
         }
 
         private void LoadUserState()

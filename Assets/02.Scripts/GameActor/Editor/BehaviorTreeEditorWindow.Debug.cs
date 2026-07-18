@@ -146,7 +146,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 if (_miniMapView != null && _miniMapToggle?.value == true)
                     _miniMapView.MarkDirtyRepaint();
                 if (_activeTab == PropertyTab.Variables)
-                    _blackboardView?.MarkDirtyRepaint();
+                    _blackboardView?.RefreshRuntimeValues();
                 if (_activeTab == PropertyTab.Timeline)
                     _timelineView?.RefreshIfNeeded();
             }

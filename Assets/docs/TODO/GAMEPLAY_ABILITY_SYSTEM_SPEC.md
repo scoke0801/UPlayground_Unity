@@ -1,7 +1,7 @@
 # Gameplay Ability / 스킬 시스템 구조 스펙
 
-> 문서 버전: 2.0<br>
-> 기준일: 2026-07-17<br>
+> 문서 버전: 2.1<br>
+> 기준일: 2026-07-18<br>
 > 대상 버전: Unity 6 (6000.0.60f1), 싱글플레이, URP<br>
 > 상태: 구현 전 구조 확정안<br>
 > 관련 문서: `../design/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md`, `../Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md`, `../guide/BALANCE_DESIGNER_TOOL_GUIDE.md`
@@ -87,6 +87,7 @@ Unity의 `ScriptableObject`는 여러 런타임 인스턴스가 공유하는 불
 | D-10 | 신규 다형 데이터는 V1에서 `[SerializeReference]`보다 `ScriptableObject` 서브에셋 참조를 우선한다 |
 | D-11 | 런타임 저장은 안정 ID와 값만 저장하며 SO 인스턴스, `object source`, 절대 종료 시각을 저장하지 않는다 |
 | D-12 | UI는 런타임 구현을 변경하지 않고 읽기 전용 상태만 소비한다 |
+| D-13 | 최종 Ability Core는 UPlayground 전용 타입 없이 외부 Unity 프로젝트로 분리 가능한 독립 모듈로 유지하고, 프로젝트 결합은 별도 Adapter 모듈이 담당한다 |
 
 ---
 
@@ -230,6 +231,171 @@ Editor asmdef
 - Camera Cue가 필요하면 Actor가 Camera 구현을 새로 직접 참조하지 않고 기존 카메라 계약을 사용한다.
 - Editor API는 Data/Editor 또는 GameActor/Editor asmdef 안에만 둔다.
 - 신규 Ability 기능을 위해 전역 `AbilityManager.Instance`를 만들지 않는다.
+
+### 7.3 모듈 분리의 정의
+
+이 문서에서 `모듈 분리`는 다음 두 수준을 구분한다.
+
+| 수준 | 정의 | 판정 |
+|------|------|------|
+| 프로젝트 내부 모듈화 | 기존 `Data`, `Contracts`, `Actor`, `UI` asmdef 경계를 지키는 상태 | UPlayground 저장소 내부에서만 모듈로 인정 |
+| 독립 재사용 모듈 | Ability 관련 폴더와 asmdef를 다른 Unity 프로젝트로 옮겨도 UPlayground 구현 없이 컴파일되고, 프로젝트 Adapter만 새로 작성하여 사용할 수 있는 상태 | 외부 재사용 가능한 별도 모듈로 인정 |
+
+단순히 `GameplayAbilitySO` 파일을 `UPlayGround.Data`에 배치한 것만으로는 독립 재사용 모듈로 간주하지 않는다.
+
+독립 모듈은 다음 타입을 직접 참조하면 안 된다.
+
+- `GameActor`, `PlayerActor`, `MonsterActor`
+- `PlayerSkillGauge`, `ActorStatContainer`
+- `PlayerAttackInfo`, `EnemyAttackInfo`, `AnimKey`
+- `PlayerSkillSlot`, `GrowthSkillType`
+- UPlayground 전용 `GameplayTagId`, `StatType`
+- Manager 구현, `Svc`, `ActorSvc`, `UISvc`
+- Camera, UI, MotionSet, 전투 파이프라인의 구체 구현
+
+### 7.4 목표 물리 구조
+
+독립 모듈화를 완료할 때의 목표 asmdef 구조는 다음과 같다.
+
+```text
+UPlayGround.Ability.Core
+├── Definition/
+│   ├── GameplayAbilitySO
+│   ├── GameplayEffectSO
+│   ├── AbilitySetSO
+│   └── 공용 ID·정책·저장 DTO
+├── Runtime/
+│   ├── AbilityExecution
+│   ├── CooldownRuntime
+│   ├── GameplayEffectRuntime
+│   └── Handle·Stack·수명주기
+└── Ports/
+    ├── IAbilityOwnerPort
+    ├── IAbilityExecutionPort
+    ├── IAbilityResourcePort
+    ├── IAbilityTagPort
+    ├── IAbilityStatPort
+    └── IAbilityClock
+
+UPlayGround.Ability.Editor
+├── 공용 Ability/Effect 저작 창
+├── ID·중첩·참조 순환 검증
+└── 프로젝트 비종속 데이터 마이그레이션 기반
+
+UPlayGround.Ability.UPlayGround
+├── GameActorAbilityAdapter
+├── MotionSetAbilityExecutionAdapter
+├── PlayerSkillGaugeResourceAdapter
+├── GameplayTagContainerAdapter
+├── ActorStatModifierAdapter
+└── UPlayground 전용 검증·마이그레이션 확장
+```
+
+의존 방향은 다음 단방향만 허용한다.
+
+```text
+UPlayGround.Ability.Editor ────────→ UPlayGround.Ability.Core
+UPlayGround.Ability.UPlayGround ──→ UPlayGround.Ability.Core
+UPlayGround.Actor / UI ────────────→ UPlayGround.Ability.UPlayGround
+
+UPlayGround.Ability.Core ──X──→ UPlayGround.Data / Actor / Contracts / UI / Camera / Manager
+```
+
+`UPlayGround.Ability.Core`가 Unity `ScriptableObject`, `Sprite`, `Color` 등 UnityEngine 데이터 타입을 사용하는 것은 허용한다. 단, 특정 게임의 액터·전투·입력·태그·스탯 타입을 참조하면 안 된다.
+
+### 7.5 Core와 Adapter 책임
+
+| 영역 | Ability Core | UPlayground Adapter |
+|------|--------------|---------------------|
+| Ability 정의 | 안정 ID, 활성화 규칙, 비용·쿨다운 정책 | UPlayground 실행 Payload 연결 |
+| 실행 | Prepare/Commit/End/Cancel 상태와 불변식 | KCC 상태 전환, MotionSet 재생 |
+| 자원 | 자원 ID와 비용 계산 | `PlayerSkillGauge` 읽기·소비 |
+| 태그 | 태그 ID와 핸들 소유권 | `GameplayTagContainer` 변환 |
+| 스탯 | Modifier 연산과 source token | `StatType`, `ActorStatContainer` 적용 |
+| Effect | Duration, Periodic, Stack, Remove | Heal, 전투 피해, 프로젝트 Cue 라우팅 |
+| 시간 | `IAbilityClock`을 통한 시간 소비 | Unity `Time` 기반 구현 |
+| UI | 읽기 전용 View State | HUD 슬롯·아이콘 바인딩 |
+| 저장 | 안정 ID와 남은 값 DTO | 캐릭터 저장소와 정의 에셋 탐색 |
+
+Core는 상태 전환이나 MotionSet 실행 성공 여부를 `IAbilityExecutionPort`의 결과값으로만 받아야 한다. Core가 `PlayerAttackState`, `EnemyAttackState`, `PlayerCombat`을 직접 호출하는 것은 금지한다.
+
+### 7.6 실행 Payload 분리
+
+공용 `GameplayAbilitySO`는 `PlayerAttackInfo` 또는 `AnimKey`를 직접 보관하지 않는다. 프로젝트별 실행 데이터는 Core가 정의한 추상 Payload 참조 또는 안정 실행 키로 연결한다.
+
+```csharp
+public abstract class AbilityExecutionPayloadSO : ScriptableObject
+{
+    public string executionId;
+}
+```
+
+```text
+GameplayAbilitySO
+└── Variant
+    ├── variantId
+    ├── priority
+    ├── 공용 조건
+    └── AbilityExecutionPayloadSO
+            │
+            ▼
+UPlayGroundMotionAbilityPayloadSO
+├── AnimKey
+└── PlayerAttackInfo
+```
+
+`UPlayGroundMotionAbilityPayloadSO`는 `UPlayGround.Ability.UPlayGround`에 둔다. 이를 통해 Core 데이터와 런타임은 Uplayground의 MotionSet 및 전투 데이터 구조를 알지 않는다.
+
+### 7.7 V1 전환기 예외
+
+V1 수직 슬라이스에서는 회귀 위험을 낮추기 위해 다음 임시 결합을 허용한다.
+
+- `AbilityVariantDefinition`의 `AnimKey`, `PlayerAttackInfo` 직접 참조
+- `ActorAbilitySystem`의 `GameActor`, `PlayerActor`, `PlayerSkillGauge` 직접 연결
+- Effect 런타임의 `ActorStatContainer`, `GameplayTagContainer` 직접 연결
+- `PlayerSkillSlot` 기반 플레이어 2슬롯 바인딩
+
+이 예외는 UPlayground 내부 V1 구현을 위한 것이며 독립 재사용 모듈 완료로 간주하지 않는다.
+
+V1 이후에는 다음 순서로 분리한다.
+
+1. 공용 ID, 정책, 저장 DTO, 실행 상태를 `UPlayGround.Ability.Core`로 이동한다.
+2. `AnimKey`와 공격 데이터를 `UPlayGroundMotionAbilityPayloadSO`로 이동한다.
+3. 자원·태그·스탯·시간 접근을 Port 인터페이스로 교체한다.
+4. 기존 `ActorAbilitySystem`을 UPlayground Adapter 또는 Adapter 조립 컴포넌트로 축소한다.
+5. 공용 에디터와 UPlayground 전용 MotionSet 검증 확장을 분리한다.
+
+### 7.8 독립 모듈 완료 조건
+
+다음 조건을 모두 만족해야 Ability 시스템을 외부 재사용 가능한 별도 모듈이라고 표기할 수 있다.
+
+- `UPlayGround.Ability.Core.asmdef`가 UPlayground의 Data, Contracts, Actor, UI, Camera, Manager asmdef를 참조하지 않는다.
+- Core 소스에서 UPlayground 전용 타입과 네임스페이스 참조가 0건이다.
+- Core 테스트가 `GameActor`, `PlayerCombat`, `PlayerSkillGauge`, MotionSet 없이 실행된다.
+- 샘플 Adapter만으로 일반 `MonoBehaviour` 소유자에서 Ability Prepare/Commit/Effect 만료가 동작한다.
+- UPlayground Adapter를 제거해도 Core와 공용 Editor가 컴파일된다.
+- 다른 Unity 프로젝트에서 자원·태그·스탯 Port의 대체 구현을 주입할 수 있다.
+- 실행 Payload를 교체해도 Core의 Ability/Effect 수명주기 코드를 수정하지 않는다.
+- 패키지 또는 독립 폴더 단위로 내보낼 때 UPlayground 에셋 GUID에 의존하지 않는다.
+
+### 7.9 구현 진행 상태 (2026-07-18)
+
+현재는 독립 모듈 전환 1단계까지 구현되었다.
+
+- `UPlayGround.Ability.Core` asmdef를 생성했고 UPlayground 프로젝트 asmdef 참조는 0건이다.
+- 실행 상태, 활성화 결과, UI View State, `IAbilityClock`, 자원·태그·스탯·실행 Port,
+  쿨다운 런타임, 추상 실행 Payload가 Core에 배치되었다.
+- `UPlayGround.Ability.UPlayGround` asmdef에 `UPlayGroundMotionAbilityPayloadSO`와
+  V1 Variant 호환 Resolver를 배치했다.
+- `ActorAbilitySystem`의 쿨다운은 Core 런타임을 사용하며, 자원·태그 접근은
+  `UPlayGroundAbilityOwnerPorts`를 거친다.
+- Effect의 중첩/갱신/교체 판정은 Core의 `AbilityEffectStackRuntime`을 사용한다.
+- 데이터 툴의 `Payload 변환`은 기존 Variant 공격 데이터를 Ability 에셋의 서브에셋으로
+  비파괴 복사한다. 변환 후에도 V1 필드는 롤백을 위해 유지한다.
+
+아직 `GameplayAbilitySO`, `GameplayEffectSO`, `AbilitySetSO` 정의 자체와 Effect 수명주기는
+`UPlayGround.Data`/Actor 호환 계층에 남아 있다. 따라서 현재 상태를 독립 재사용 모듈
+완료로 표기하면 안 되며, 7.8의 샘플 Adapter와 공용 Editor 분리까지 완료한 뒤 승격한다.
 
 ---
 
@@ -1203,6 +1369,7 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 - 잔류 공격이 비용, 쿨다운, 게이지 보상을 중복 적용하지 않는다.
 - 저장 데이터가 안정 ID와 남은 시간으로 복원된다.
 - ID, MotionSet, Effect, Tag 자동 검증 오류가 0이다.
+- 독립 모듈 완료를 선언하는 경우 `UPlayGround.Ability.Core`의 UPlayground 전용 타입·asmdef 의존이 0이다.
 - Unity 컴파일 오류 0, Missing Script 0, managed reference/VFX 누락 0이다.
 - Play Mode 서비스 경고·예외 0, Player Build 오류 0이다.
 

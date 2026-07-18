@@ -1,4 +1,6 @@
 using UnityEngine;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Components;
@@ -9,6 +11,9 @@ using UPlayGround.MovementController;
 using UPlayGround.Manager;
 using UPlayGround.InputDefine;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.Ability;
+using UPlayGround.Contracts.Ability;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.State
 {
@@ -54,6 +59,7 @@ namespace UPlayGround.State
         private bool _isEntryAttack;
         private bool _isSwapSpecialAttack;
         private readonly PlayerInterruptAction _forcedAttackAction;
+        private AbilityExecutionHandle _abilityExecutionHandle;
 
         private PlayerActorAnimator _playerActorAnimator;
 
@@ -203,10 +209,18 @@ namespace UPlayGround.State
 
             if ((forcedAttackAction & PlayerInterruptAction.Skill) != 0)
             {
-                var forcedSkillGauge = playerActor.SkillGauge;
                 for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
                 {
                     if (!controller.HasSkillInput(i)) continue;
+                    if (playerActor.Abilities != null
+                        && playerActor.Abilities.HasPlayerAbility((PlayerSkillSlot)i))
+                    {
+                        return TryPeekAbility(playerActor, controller, i, out AnimKey abilityKey)
+                            ? abilityKey
+                            : AnimKey.None;
+                    }
+
+                    var forcedSkillGauge = playerActor.SkillGauge;
                     if (forcedSkillGauge != null && !forcedSkillGauge.CanUseSkill(i)) continue;
 
                     return combat.PeekSkillAttackAnimKey(i);
@@ -220,6 +234,13 @@ namespace UPlayGround.State
             for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
             {
                 if (!controller.HasSkillInput(i)) continue;
+                if (playerActor.Abilities != null
+                    && playerActor.Abilities.HasPlayerAbility((PlayerSkillSlot)i))
+                {
+                    return TryPeekAbility(playerActor, controller, i, out AnimKey abilityKey)
+                        ? abilityKey
+                        : AnimKey.None;
+                }
                 if (skillGauge != null && !skillGauge.CanUseSkill(i)) continue;
 
                 return combat.PeekSkillAttackAnimKey(i);
@@ -229,6 +250,29 @@ namespace UPlayGround.State
             return isHeavyAttack
                 ? combat.PeekHeavyAttackAnimKey(false)
                 : combat.PeekNormalAttackAnimKey(false);
+        }
+
+        private static bool TryPeekAbility(
+            PlayerActor actor,
+            PlayerMovementController controller,
+            int skillSlot,
+            out AnimKey animKey)
+        {
+            animKey = AnimKey.None;
+            if (actor?.Abilities == null
+                || !System.Enum.IsDefined(typeof(PlayerSkillSlot), skillSlot)
+                || !actor.Abilities.HasPlayerAbility((PlayerSkillSlot)skillSlot))
+                return false;
+
+            bool grounded = controller?.Motor == null
+                            || controller.Motor.GroundingStatus.IsStableOnGround;
+            AbilityActivationResult result = actor.Abilities.EvaluatePlayerSlot(
+                (PlayerSkillSlot)skillSlot, grounded, null, out AbilityVariantDefinition variant);
+            if (result != AbilityActivationResult.Success || variant == null)
+                return false;
+            return UPlayGroundAbilityPayloadResolver.TryResolve(
+                       variant, out animKey, out _)
+                   && animKey != AnimKey.None;
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -365,6 +409,11 @@ namespace UPlayGround.State
             _isDodgeCounterAttack = false;
             _motionWarp?.ClearTarget();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
+            if (_abilityExecutionHandle.IsValid)
+            {
+                playerActor.Abilities?.CancelActivePlayerAbility();
+                _abilityExecutionHandle = default;
+            }
             base.OnExit(toState);
         }
 
@@ -459,6 +508,11 @@ namespace UPlayGround.State
 
         private void ChangeToNextState()
         {
+            if (_abilityExecutionHandle.IsValid)
+            {
+                playerActor.Abilities?.EndActivePlayerAbility(true);
+                _abilityExecutionHandle = default;
+            }
             _combat.ClearHitTargets();
             _attackTimer = 0f;
             _hasActiveHitFired = false;
@@ -603,6 +657,43 @@ namespace UPlayGround.State
             for (int i = 0; skillAllowed && i < PlayerSkillGauge.SkillSlotCount; i++)
             {
                 if (!playerController.HasSkillInput(i)) continue;
+
+                if (playerActor.Abilities != null
+                    && playerActor.Abilities.HasPlayerAbility((PlayerSkillSlot)i))
+                {
+                    bool grounded = playerController.Motor == null
+                                    || playerController.Motor.GroundingStatus.IsStableOnGround;
+                    AbilityActivationResult prepareResult =
+                        playerActor.Abilities.TryPreparePlayerSlot(
+                            (PlayerSkillSlot)i,
+                            grounded,
+                            null,
+                            out AbilityExecutionHandle prepared,
+                            out AbilityVariantDefinition variant);
+                    if (prepareResult != AbilityActivationResult.Success)
+                    {
+                        Debug.Log($"[PlayerAttackState] Ability {i + 1} 활성화 실패: {prepareResult}");
+                        continue;
+                    }
+
+                    _currentAttack = _combat.ExecuteAbilityAttack(variant);
+                    if (_currentAttack == null)
+                    {
+                        playerActor.Abilities.Abort(prepared);
+                        continue;
+                    }
+
+                    AbilityActivationResult commitResult = playerActor.Abilities.Commit(prepared);
+                    if (commitResult != AbilityActivationResult.Success)
+                    {
+                        playerActor.Abilities.Abort(prepared);
+                        _currentAttack = null;
+                        continue;
+                    }
+
+                    _abilityExecutionHandle = prepared;
+                    return _currentAttack.animKey;
+                }
 
                 // 자원 소비 가능 여부만 먼저 확인한다(아직 소비하지 않음).
                 if (skillGauge != null && !skillGauge.CanUseSkill(i))

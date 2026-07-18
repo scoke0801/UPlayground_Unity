@@ -1,19 +1,27 @@
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEngine;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
     [CustomEditor(typeof(BehaviorTreeAsset))]
     public class BehaviorTreeAssetEditor : UnityEditor.Editor
     {
-        public override void OnInspectorGUI()
+        public override VisualElement CreateInspectorGUI()
         {
-            DrawDefaultInspector();
+            var root = new VisualElement();
+            InspectorElement.FillDefaultInspector(root, serializedObject, this);
 
-            EditorGUILayout.Space();
-            if (GUILayout.Button("Behavior Tree Editor 열기"))
-                BehaviorTreeEditorWindow.Open(target as BehaviorTreeAsset);
+            var openButton = new Button(() => BehaviorTreeEditorWindow.Open(target as BehaviorTreeAsset))
+            {
+                text = "Behavior Tree Editor 열기"
+            };
+            openButton.style.marginTop = 8f;
+            openButton.style.height = 26f;
+            root.Add(openButton);
+
+            return root;
         }
     }
 }

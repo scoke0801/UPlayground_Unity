@@ -1,0 +1,158 @@
+/* SO 스프레드시트 UIToolkit 스타일.
+   창 스크립트가 자신의 위치를 기준으로 로드하므로 폴더째 옮겨도 동작한다. */
+
+.so-cell {
+    flex-direction: row;
+    align-items: center;
+    overflow: hidden;
+    flex-grow: 1;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+/* 셀 안의 PropertyField는 라벨 없이 값 컨트롤만 가로로 채운다.
+   최상위 라벨만 숨긴다 (Vector3의 X/Y/Z 하위 라벨은 유지). */
+.so-cell > .unity-property-field {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.so-cell .unity-property-field__label {
+    display: none;
+}
+
+/* [Header]/[Space] 데코레이터는 1줄 셀에서 세로 정렬을 깨므로 숨긴다.
+   (IMGUI 폴백 드로어의 데코레이터는 코드에서 topCut 마진으로 처리) */
+.so-cell .unity-decorator-drawers-container {
+    display: none;
+}
+
+.so-cell .unity-base-field {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* 리스트/중첩 데이터 요약 셀: "N Items" / {…} — 클릭하면 우측 상세 패널 */
+.so-summary-button {
+    flex-grow: 1;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    -unity-text-align: middle-center;
+    opacity: 0.55;
+}
+
+.so-summary-button:hover {
+    opacity: 1;
+    -unity-font-style: bold;
+}
+
+/* 결측/로드 실패 칸 "—" */
+.so-missing {
+    flex-grow: 1;
+    -unity-text-align: middle-center;
+    opacity: 0.35;
+}
+
+/* 에셋 이름 셀 */
+.so-ping-button {
+    width: 20px;
+    margin: 0 2px 0 0;
+    padding: 0;
+}
+
+.so-name-field {
+    flex-grow: 1;
+    margin: 0;
+}
+
+.so-name-field .unity-text-element {
+    -unity-font-style: bold;
+}
+
+/* 가운데 영역: 테이블 + 우측 상세 패널 */
+.so-content-row {
+    flex-grow: 1;
+    flex-direction: row;
+}
+
+/* 우측 상세 패널 (리스트/중첩 데이터 편집) */
+.so-detail-panel {
+    width: 360px;
+    min-width: 260px;
+    flex-shrink: 0;
+    border-left-width: 1px;
+    border-left-color: rgba(0, 0, 0, 0.5);
+}
+
+.so-detail-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 6px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.35);
+}
+
+.so-detail-title {
+    flex-grow: 1;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.so-detail-close {
+    width: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+.so-detail-body {
+    flex-grow: 1;
+    padding: 6px;
+}
+
+.so-detail-scroll {
+    flex-grow: 1;
+}
+
+/* 리스트는 자체 스크롤(ListView)이 패널 남은 높이를 전부 쓰도록 늘린다 */
+.so-detail-list {
+    flex-grow: 1;
+}
+
+.so-detail-list > .unity-list-view {
+    flex-grow: 1;
+}
+
+/* 테이블이 비었을 때의 안내 문구 */
+.so-placeholder {
+    flex-grow: 1;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    opacity: 0.6;
+}
+
+.so-table-host {
+    flex-grow: 1;
+}
+
+.so-toolbar-spacer {
+    flex-grow: 1;
+}
+
+.so-info-label {
+    -unity-text-align: middle-left;
+    margin-left: 12px;
+    opacity: 0.7;
+}
+
+.so-page-label {
+    -unity-text-align: middle-center;
+    min-width: 50px;
+    opacity: 0.8;
+}
+
+.so-scope-field {
+    width: 180px;
+    margin: 1px 2px;
+}

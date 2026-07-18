@@ -20,6 +20,7 @@ using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround
 {
@@ -50,6 +51,7 @@ namespace UPlayGround
         private readonly Dictionary<CharacterActorType, float> _characterHealthMap = new();
         private readonly Dictionary<CharacterActorType, float> _characterSkillMap  = new();
         private readonly Dictionary<CharacterActorType, float[]> _characterSkillCooldownMap = new();
+        private readonly Dictionary<CharacterActorType, AbilityRuntimeSaveData> _characterAbilityRuntimeMap = new();
         private readonly object _equipmentStatSource = new();
         private readonly List<StatModifier> _equipmentStatBuffer = new();
         private bool _hasInitializedCharacterRuntime;

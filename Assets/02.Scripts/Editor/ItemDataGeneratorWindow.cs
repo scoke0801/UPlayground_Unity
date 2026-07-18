@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
@@ -13,7 +15,7 @@ using UPlayGround.Tool.Editor;
 namespace UPlayGround.Data.Item.Editor
 {
     /// <summary>
-    /// ItemSO / EquipmentSO 에셋을 ID 대역 규칙에 따라 자동 발급하는 에디터 윈도우.
+    /// ItemSO / EquipmentSO 에셋을 ID 대역 규칙에 따라 자동 발급하는 에디터 윈도우 (UIToolkit).
     /// 메뉴: UPlayGround / Item / Item Data Generator
     /// </summary>
     public class ItemDataGeneratorWindow : EditorWindow
@@ -72,7 +74,23 @@ namespace UPlayGround.Data.Item.Editor
         private bool _generateItemEnum = true;
         private bool _selectCreatedAsset = true;
 
-        private Vector2 _scroll;
+        // ──── UI 요소 ────
+        private Label       _dbLabel;
+        private EnumField   _equipPositionField;
+        private EnumField   _weaponTypeField;
+        private Label       _weaponSlotLabel;
+        private ObjectField _equipPrefabField;
+        private VisualElement _consumableGroup;
+        private FloatField  _consumableAmountField;
+        private Label       _previewRangeLabel;
+        private Label       _previewIdLabel;
+        private Label       _previewPathLabel;
+        private Label       _previewTypeLabel;
+        private Label       _previewFileLabel;
+        private HelpBox     _duplicateWarning;
+        private HelpBox     _validationBox;
+        private Button      _createButton;
+
         private const string ITEM_ENUM_OUTPUT_PATH = "Assets/02.Scripts/Data/Item/ItemIdType.cs";
 
         private static readonly Dictionary<EquipPosition, ItemIdRange> ArmorRanges = new()
@@ -110,73 +128,241 @@ namespace UPlayGround.Data.Item.Editor
             win.Show();
         }
 
-        private void OnEnable()
+        // ──────────────────────────────────────────────────────────
+        #region UI 구성
+
+        private void CreateGUI()
         {
             LoadItemDatabase();
             RefreshPreviewID();
+
+            var root = rootVisualElement;
+            root.Clear();
+
+            root.Add(BuildToolbar());
+
+            var scroll = new ScrollView { style = { flexGrow = 1, paddingLeft = 6, paddingRight = 6, paddingTop = 6 } };
+            root.Add(scroll);
+
+            scroll.Add(BuildModeSection());
+            scroll.Add(BuildDataSection());
+            scroll.Add(BuildPreviewSection());
+            scroll.Add(BuildActionSection());
+
+            UpdateUI();
         }
 
-        private void OnGUI()
+        private Toolbar BuildToolbar()
         {
-            DrawToolbar();
+            var toolbar = new Toolbar();
 
-            _scroll = EditorGUILayout.BeginScrollView(_scroll);
-
-            DrawModeSection();
-            EditorGUILayout.Space(6);
-            DrawDataSection();
-            EditorGUILayout.Space(6);
-            DrawPreviewSection();
-            EditorGUILayout.Space(10);
-            DrawActionSection();
-
-            EditorGUILayout.EndScrollView();
-        }
-
-        private void DrawToolbar()
-        {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-            if (GUILayout.Button("새로고침", EditorStyles.toolbarButton, GUILayout.Width(70)))
+            toolbar.Add(new ToolbarButton(() =>
             {
                 LoadItemDatabase();
                 RefreshPreviewID();
-            }
+                UpdateUI();
+            }) { text = "새로고침" });
 
-            GUILayout.Space(8);
-            GUI.color = _itemDb == null ? Color.red : Color.white;
-            GUILayout.Label(_itemDb != null ? $"ItemDB: {_itemDb.name}" : "ItemDB 없음", EditorStyles.miniLabel);
-            GUI.color = Color.white;
+            _dbLabel = new Label { style = { fontSize = 10, unityTextAlign = TextAnchor.MiddleLeft, marginLeft = 8 } };
+            toolbar.Add(_dbLabel);
 
-            GUILayout.FlexibleSpace();
-            _refreshDatabase = GUILayout.Toggle(_refreshDatabase, "DB 갱신", EditorStyles.toolbarButton, GUILayout.Width(70));
-            _generateItemEnum = GUILayout.Toggle(_generateItemEnum, "ItemIdType 생성", EditorStyles.toolbarButton, GUILayout.Width(105));
-            _selectCreatedAsset = GUILayout.Toggle(_selectCreatedAsset, "생성 에셋 선택", EditorStyles.toolbarButton, GUILayout.Width(100));
+            toolbar.Add(new VisualElement { style = { flexGrow = 1 } });
 
-            EditorGUILayout.EndHorizontal();
+            var refreshToggle = new ToolbarToggle { text = "DB 갱신", value = _refreshDatabase };
+            refreshToggle.RegisterValueChangedCallback(evt => _refreshDatabase = evt.newValue);
+            toolbar.Add(refreshToggle);
+
+            var enumToggle = new ToolbarToggle { text = "ItemIdType 생성", value = _generateItemEnum };
+            enumToggle.RegisterValueChangedCallback(evt => _generateItemEnum = evt.newValue);
+            toolbar.Add(enumToggle);
+
+            var selectToggle = new ToolbarToggle { text = "생성 에셋 선택", value = _selectCreatedAsset };
+            selectToggle.RegisterValueChangedCallback(evt => _selectCreatedAsset = evt.newValue);
+            toolbar.Add(selectToggle);
+
+            return toolbar;
         }
 
-        private void DrawModeSection()
+        private VisualElement BuildModeSection()
         {
-            EditorGUILayout.BeginVertical("box");
-            GUILayout.Label("발급 카테고리", EditorStyles.boldLabel);
+            var section = MakeSection("발급 카테고리");
 
-            EditorGUI.BeginChangeCheck();
-            _issueMode = (IssueMode)EditorGUILayout.EnumPopup("발급 모드", _issueMode);
+            var modeField = new EnumField("발급 모드", _issueMode);
+            modeField.RegisterValueChangedCallback(evt =>
+            {
+                _issueMode = (IssueMode)evt.newValue;
+                ApplyModeSideEffects();
+                RefreshPreviewID();
+                UpdateUI();
+            });
+            section.Add(modeField);
 
+            _equipPositionField = new EnumField("장비 부위", _equipPosition);
+            _equipPositionField.RegisterValueChangedCallback(evt =>
+            {
+                _equipPosition = (EquipPosition)evt.newValue;
+                RefreshPreviewID();
+                UpdateUI();
+            });
+            section.Add(_equipPositionField);
+
+            _weaponTypeField = new EnumField("무기 타입", _weaponType);
+            _weaponTypeField.RegisterValueChangedCallback(evt =>
+            {
+                _weaponType = (WeaponType)evt.newValue;
+                _equipPosition = GetDefaultWeaponEquipPosition(_weaponType);
+                RefreshPreviewID();
+                UpdateUI();
+            });
+            section.Add(_weaponTypeField);
+
+            _weaponSlotLabel = new Label { style = { marginLeft = 4 } };
+            section.Add(_weaponSlotLabel);
+
+            var rarityField = new EnumField("희귀도", _itemRarity);
+            rarityField.RegisterValueChangedCallback(evt =>
+            {
+                _itemRarity = (ItemRarity)evt.newValue;
+                RefreshPreviewID();
+                UpdateUI();
+            });
+            section.Add(rarityField);
+
+            return section;
+        }
+
+        private VisualElement BuildDataSection()
+        {
+            var section = MakeSection("아이템 데이터");
+
+            var nameField = new TextField("표시 이름") { value = _itemName };
+            nameField.RegisterValueChangedCallback(evt =>
+            {
+                _itemName = evt.newValue;
+                UpdateUI();
+            });
+            section.Add(nameField);
+
+            var assetNameField = new TextField("파일명") { value = _assetName };
+            assetNameField.RegisterValueChangedCallback(evt =>
+            {
+                _assetName = evt.newValue;
+                UpdateUI();
+            });
+            section.Add(assetNameField);
+
+            var descField = new TextField("설명") { value = _itemDescription };
+            descField.RegisterValueChangedCallback(evt => _itemDescription = evt.newValue);
+            section.Add(descField);
+
+            var weightField = new FloatField("무게") { value = _weight };
+            weightField.RegisterValueChangedCallback(evt =>
+            {
+                float v = Mathf.Max(0f, evt.newValue);
+                weightField.SetValueWithoutNotify(v);
+                _weight = v;
+            });
+            section.Add(weightField);
+
+            var iconField = new ObjectField("아이콘") { objectType = typeof(Sprite), allowSceneObjects = false, value = _icon };
+            iconField.RegisterValueChangedCallback(evt => _icon = evt.newValue as Sprite);
+            section.Add(iconField);
+
+            _equipPrefabField = new ObjectField("장비 프리팹") { objectType = typeof(GameObject), allowSceneObjects = false, value = _equipmentPrefab };
+            _equipPrefabField.RegisterValueChangedCallback(evt => _equipmentPrefab = evt.newValue as GameObject);
+            section.Add(_equipPrefabField);
+
+            _consumableGroup = new VisualElement();
+            var effectField = new EnumField("효과 타입", _consumableEffect);
+            effectField.RegisterValueChangedCallback(evt =>
+            {
+                _consumableEffect = (ConsumableEffectType)evt.newValue;
+                UpdateUI();
+            });
+            _consumableGroup.Add(effectField);
+
+            _consumableAmountField = new FloatField("회복량") { value = _consumableAmount };
+            _consumableAmountField.RegisterValueChangedCallback(evt =>
+            {
+                float v = Mathf.Max(0f, evt.newValue);
+                _consumableAmountField.SetValueWithoutNotify(v);
+                _consumableAmount = v;
+            });
+            _consumableGroup.Add(_consumableAmountField);
+
+            var effectiveToggle = new Toggle("효과 없으면 소모 안 함") { value = _requireEffectiveUse };
+            effectiveToggle.RegisterValueChangedCallback(evt => _requireEffectiveUse = evt.newValue);
+            _consumableGroup.Add(effectiveToggle);
+            section.Add(_consumableGroup);
+
+            return section;
+        }
+
+        private VisualElement BuildPreviewSection()
+        {
+            var section = MakeSection("발급 미리보기");
+
+            _previewRangeLabel = MakePreviewLabel("ID 대역");
+            _previewIdLabel    = MakePreviewLabel("발급 ID");
+            _previewPathLabel  = MakePreviewLabel("저장 경로");
+            _previewTypeLabel  = MakePreviewLabel("SO 타입");
+            _previewFileLabel  = MakePreviewLabel("최종 파일명");
+            section.Add(_previewRangeLabel);
+            section.Add(_previewIdLabel);
+            section.Add(_previewPathLabel);
+            section.Add(_previewTypeLabel);
+            section.Add(_previewFileLabel);
+
+            _duplicateWarning = new HelpBox("", HelpBoxMessageType.Warning);
+            section.Add(_duplicateWarning);
+
+            return section;
+        }
+
+        private static Label MakePreviewLabel(string prefix)
+        {
+            var label = new Label { userData = prefix };
+            return label;
+        }
+
+        private static void SetPreview(Label label, string value)
+        {
+            label.text = $"{label.userData,-12}  {value}";
+        }
+
+        private VisualElement BuildActionSection()
+        {
+            var section = new VisualElement { style = { marginTop = 10, marginBottom = 10 } };
+
+            _validationBox = new HelpBox("", HelpBoxMessageType.Warning);
+            section.Add(_validationBox);
+
+            _createButton = new Button(() =>
+            {
+                CreateItemAsset();
+                UpdateUI();
+            }) { text = "아이템 데이터 생성", style = { height = 38 } };
+            section.Add(_createButton);
+
+            return section;
+        }
+
+        private void ApplyModeSideEffects()
+        {
             switch (_issueMode)
             {
                 case IssueMode.Armor:
                     _itemType = ItemType.EQUIPMENT;
-                    _equipPosition = (EquipPosition)EditorGUILayout.EnumPopup("장비 부위", _equipPosition);
                     _weaponType = WeaponType.NoWeapon;
                     break;
                 case IssueMode.Weapon:
                     _itemType = ItemType.EQUIPMENT;
+                    if (_weaponType == WeaponType.NoWeapon)
+                    {
+                        _weaponType = WeaponType.Sword;
+                        _weaponTypeField?.SetValueWithoutNotify(_weaponType);
+                    }
                     _equipPosition = GetDefaultWeaponEquipPosition(_weaponType);
-                    _weaponType = (WeaponType)EditorGUILayout.EnumPopup("무기 타입", _weaponType);
-                    _equipPosition = GetDefaultWeaponEquipPosition(_weaponType);
-                    EditorGUILayout.LabelField("장착 위치", _equipPosition.ToString());
                     break;
                 case IssueMode.Consumable:
                     _itemType = ItemType.CONSUMABLE;
@@ -188,79 +374,79 @@ namespace UPlayGround.Data.Item.Editor
                     _itemType = ItemType.NONE;
                     break;
             }
-
-            _itemRarity = (ItemRarity)EditorGUILayout.EnumPopup("희귀도", _itemRarity);
-
-            if (EditorGUI.EndChangeCheck())
-                RefreshPreviewID();
-
-            EditorGUILayout.EndVertical();
         }
 
-        private void DrawDataSection()
+        private void UpdateUI()
         {
-            EditorGUILayout.BeginVertical("box");
-            GUILayout.Label("아이템 데이터", EditorStyles.boldLabel);
+            // DB 라벨
+            _dbLabel.text = _itemDb != null ? $"ItemDB: {_itemDb.name}" : "ItemDB 없음";
+            _dbLabel.style.color = _itemDb == null ? (StyleColor)Color.red : StyleKeyword.Null;
 
-            _itemName = EditorGUILayout.TextField("표시 이름", _itemName);
-            _assetName = EditorGUILayout.TextField("파일명", _assetName);
-            _itemDescription = EditorGUILayout.TextField("설명", _itemDescription);
-            _weight = Mathf.Max(0f, EditorGUILayout.FloatField("무게", _weight));
-            _icon = (Sprite)EditorGUILayout.ObjectField("아이콘", _icon, typeof(Sprite), false);
+            // 모드별 조건부 필드
+            _equipPositionField.style.display = _issueMode == IssueMode.Armor ? DisplayStyle.Flex : DisplayStyle.None;
+            _weaponTypeField.style.display    = _issueMode == IssueMode.Weapon ? DisplayStyle.Flex : DisplayStyle.None;
+            _weaponSlotLabel.style.display    = _issueMode == IssueMode.Weapon ? DisplayStyle.Flex : DisplayStyle.None;
+            _weaponSlotLabel.text             = $"장착 위치      {_equipPosition}";
 
-            if (_itemType == ItemType.EQUIPMENT)
-                _equipmentPrefab = (GameObject)EditorGUILayout.ObjectField("장비 프리팹", _equipmentPrefab, typeof(GameObject), false);
+            _equipPrefabField.style.display = _itemType == ItemType.EQUIPMENT ? DisplayStyle.Flex : DisplayStyle.None;
+            _consumableGroup.style.display  = _itemType == ItemType.CONSUMABLE ? DisplayStyle.Flex : DisplayStyle.None;
+            _consumableAmountField.label =
+                _consumableEffect == ConsumableEffectType.HealPercent ? "회복 비율 (0~1)" : "회복량";
 
-            if (_itemType == ItemType.CONSUMABLE)
-            {
-                _consumableEffect = (ConsumableEffectType)EditorGUILayout.EnumPopup("효과 타입", _consumableEffect);
-                string amountLabel = _consumableEffect == ConsumableEffectType.HealPercent ? "회복 비율 (0~1)" : "회복량";
-                _consumableAmount = Mathf.Max(0f, EditorGUILayout.FloatField(amountLabel, _consumableAmount));
-                _requireEffectiveUse = EditorGUILayout.Toggle("효과 없으면 소모 안 함", _requireEffectiveUse);
-            }
-
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawPreviewSection()
-        {
+            // 미리보기
             ItemIdRange range = GetCurrentRange();
-
-            EditorGUILayout.BeginVertical("box");
-            GUILayout.Label("발급 미리보기", EditorStyles.boldLabel);
-
-            EditorGUILayout.LabelField("ID 대역", range.ToString());
-            EditorGUILayout.LabelField("발급 ID", _previewID > 0 ? _previewID.ToString() : "발급 가능 ID 없음");
-            EditorGUILayout.LabelField("저장 경로", range.SavePath);
-            EditorGUILayout.LabelField("SO 타입",
+            SetPreview(_previewRangeLabel, range.ToString());
+            SetPreview(_previewIdLabel, _previewID > 0 ? _previewID.ToString() : "발급 가능 ID 없음");
+            SetPreview(_previewPathLabel, range.SavePath);
+            SetPreview(_previewTypeLabel,
                 _itemType == ItemType.EQUIPMENT ? nameof(EquipmentSO)
                 : _itemType == ItemType.CONSUMABLE ? nameof(ConsumableSO)
                 : nameof(ItemSO));
-            EditorGUILayout.LabelField("최종 파일명", BuildAssetFileName(range));
+            SetPreview(_previewFileLabel, BuildAssetFileName(range));
 
+            // 중복 ID 경고
             if (_duplicateIDs.Count > 0)
             {
-                EditorGUILayout.HelpBox(
+                _duplicateWarning.text =
                     $"현재 ItemDatabase 기준 중복 ID가 있습니다: {string.Join(", ", _duplicateIDs.OrderBy(i => i))}\n" +
-                    "생성은 가능하지만 DB 조회에서 뒤 항목이 무시될 수 있으니 정리를 권장합니다.",
-                    MessageType.Warning);
+                    "생성은 가능하지만 DB 조회에서 뒤 항목이 무시될 수 있으니 정리를 권장합니다.";
+                _duplicateWarning.style.display = DisplayStyle.Flex;
             }
-
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawActionSection()
-        {
-            string validation = GetValidationMessage();
-            if (!string.IsNullOrEmpty(validation))
-                EditorGUILayout.HelpBox(validation, MessageType.Warning);
-
-            using (new EditorGUI.DisabledScope(!string.IsNullOrEmpty(validation)))
+            else
             {
-                if (GUILayout.Button("아이템 데이터 생성", GUILayout.Height(38)))
-                    CreateItemAsset();
+                _duplicateWarning.style.display = DisplayStyle.None;
             }
+
+            // 유효성 검사
+            string validation = GetValidationMessage();
+            _validationBox.text = validation;
+            _validationBox.style.display = string.IsNullOrEmpty(validation) ? DisplayStyle.None : DisplayStyle.Flex;
+            _createButton.SetEnabled(string.IsNullOrEmpty(validation));
         }
+
+        private static VisualElement MakeSection(string title)
+        {
+            var section = new VisualElement
+            {
+                style =
+                {
+                    marginBottom = 6, paddingLeft = 8, paddingRight = 8, paddingTop = 6, paddingBottom = 6,
+                    backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.08f),
+                    borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                    borderBottomLeftRadius = 3, borderBottomRightRadius = 3,
+                    borderLeftWidth = 1, borderRightWidth = 1, borderTopWidth = 1, borderBottomWidth = 1,
+                    borderLeftColor = new Color(0f, 0f, 0f, 0.25f), borderRightColor = new Color(0f, 0f, 0f, 0.25f),
+                    borderTopColor = new Color(0f, 0f, 0f, 0.25f), borderBottomColor = new Color(0f, 0f, 0f, 0.25f),
+                }
+            };
+            section.Add(new Label(title) { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 2 } });
+            return section;
+        }
+
+        #endregion
+
+        // ──────────────────────────────────────────────────────────
+        #region 데이터 로드 / 발급 로직
 
         private void LoadItemDatabase()
         {
@@ -453,6 +639,8 @@ namespace UPlayGround.Data.Item.Editor
                 name = name.Replace(invalid, '_');
             return string.IsNullOrWhiteSpace(name) ? "NewItem" : name;
         }
+
+        #endregion
     }
-    #endif
 }
+#endif

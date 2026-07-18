@@ -2,6 +2,7 @@
   "name": "UPlayGround.UI",
   "rootNamespace": "UPlayGround.UI",
   "references": [
+    "UPlayGround.Ability.Core",
     "UPlayGround.Data",
     "UPlayGround.Contracts",
     "UPlayGround.Core",

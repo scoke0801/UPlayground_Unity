@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Data.Ability;
 using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
@@ -306,6 +308,27 @@ namespace UPlayGround.Components
             ResetComboPreserveChains();
             _currentAttackData = ConvertToAttackData(resolved.AttackInfo, AttackKind.SkillAttack);
             _currentAttackData.animKey = resolved.AnimKey;
+            LastAttackTime = Time.time;
+            RefreshCombatState();
+            OnAttackStarted?.Invoke(_currentAttackData);
+            return _currentAttackData;
+        }
+
+        /// <summary>
+        /// GameplayAbilitySO가 해석한 Variant를 기존 MotionSet/HitPhase 공격 경로로 실행한다.
+        /// 비용과 쿨다운은 이 메서드가 아니라 ActorAbilitySystem.Commit이 소유한다.
+        /// </summary>
+        public AttackData ExecuteAbilityAttack(AbilityVariantDefinition variant)
+        {
+            ClearResidualAttackContext();
+            if (!UPlayGroundAbilityPayloadResolver.TryResolve(
+                    variant, out AnimKey animKey, out PlayerAttackInfo attackInfo))
+                return null;
+
+            _attackState = AttackState.SkillAttack;
+            ResetComboPreserveChains();
+            _currentAttackData = ConvertToAttackData(attackInfo, AttackKind.SkillAttack);
+            _currentAttackData.animKey = animKey;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);

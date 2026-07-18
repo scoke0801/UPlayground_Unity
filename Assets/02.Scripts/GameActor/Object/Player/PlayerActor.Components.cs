@@ -55,8 +55,12 @@ namespace UPlayGround
                 _characterHealthMap[_characterActorType] = _currentHealth;
                 _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
                 _characterSkillCooldownMap[_characterActorType] = _skillGauge.GetCooldownRemainingSnapshot();
+                if (Abilities != null)
+                    _characterAbilityRuntimeMap[_characterActorType] = Abilities.CaptureRuntimeState();
                 _combat?.SaveComboState(_characterActorType);
             }
+
+            Abilities?.HandleCharacterSwap();
 
             _characterActorType = data.characterType;
             _hasInitializedCharacterRuntime = true;
@@ -102,6 +106,11 @@ namespace UPlayGround
                 _characterSkillMap.TryGetValue(data.characterType, out var sg) ? sg : 0f);
             _skillGauge.SetCooldownRemainingSnapshot(
                 _characterSkillCooldownMap.TryGetValue(data.characterType, out var cooldowns) ? cooldowns : null);
+            Abilities?.SetAbilitySet(data.abilitySet);
+            Abilities?.RestoreRuntimeState(
+                _characterAbilityRuntimeMap.TryGetValue(data.characterType, out var abilityRuntime)
+                    ? abilityRuntime
+                    : null);
 
             _equipment?.SetWeaponType(data.defaultWeaponType);
             

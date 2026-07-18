@@ -2,6 +2,8 @@
   "name": "UPlayGround.Data.Editor",
   "rootNamespace": "UPlayGround.Data.Editor",
   "references": [
+    "UPlayGround.Ability.Core",
+    "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Data",
     "AYellowpaper.SerializedCollections",
     "AYellowpaper.SerializedCollections.Editor",

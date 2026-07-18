@@ -32,7 +32,7 @@ namespace UPlayGround.Data.Path
             serializedObject.Update();
             RebuildValidationCache();
 
-            DrawHeader();
+            DrawHeader_Custom();
             DrawToolbar();
             DrawValidationSummary();
 
@@ -42,7 +42,7 @@ namespace UPlayGround.Data.Path
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawHeader()
+        private void DrawHeader_Custom()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
             EditorGUILayout.BeginVertical();

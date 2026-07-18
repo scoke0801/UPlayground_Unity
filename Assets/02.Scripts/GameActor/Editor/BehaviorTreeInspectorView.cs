@@ -10,7 +10,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 {
     public class BehaviorTreeInspectorView : VisualElement
     {
-        private UnityEditor.Editor _editor;
+        private SerializedObject _serializedNode;
         private BTNode _node;
         private BehaviorTreeEditorGroup _group;
 
@@ -32,8 +32,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Clear();
             _node = null;
             _group = null;
-            if (_editor != null)
-                UnityEngine.Object.DestroyImmediate(_editor);
+            _serializedNode = null;
 
             var empty = new Label("노드 또는 그룹박스를 선택하세요.");
             empty.style.marginLeft = 12f;
@@ -47,8 +46,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Clear();
             _node = node;
             _group = null;
-            if (_editor != null)
-                UnityEngine.Object.DestroyImmediate(_editor);
+            _serializedNode = null;
 
             if (node == null)
             {
@@ -58,21 +56,30 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             Add(CreateIdentityHeader(node));
             Add(CreateInspectorSectionLabel("Properties"));
-            _editor = UnityEditor.Editor.CreateEditor(node);
+            _serializedNode = new SerializedObject(node);
             var propertyBox = CreatePropertyBox();
-            propertyBox.Add(new IMGUIContainer(() =>
+            var iterator = _serializedNode.GetIterator();
+            if (iterator.NextVisible(true))
             {
-                if (_editor == null)
+                do
+                {
+                    if (iterator.propertyPath == "m_Script")
+                        continue;
+
+                    propertyBox.Add(new PropertyField(iterator.Copy()));
+                } while (iterator.NextVisible(false));
+            }
+
+            propertyBox.Bind(_serializedNode);
+            // 바인딩된 필드 수정(Undo 포함)을 감지해 노드 뷰 요약 갱신을 트리거한다.
+            propertyBox.TrackSerializedObjectValue(_serializedNode, _ =>
+            {
+                if (_node == null)
                     return;
 
-                EditorGUI.BeginChangeCheck();
-                _editor.OnInspectorGUI();
-                if (EditorGUI.EndChangeCheck())
-                {
-                    EditorUtility.SetDirty(_node);
-                    OnNodeChanged?.Invoke(_node);
-                }
-            }));
+                EditorUtility.SetDirty(_node);
+                OnNodeChanged?.Invoke(_node);
+            });
             Add(propertyBox);
 
             if (node is BTCompositeNode)
@@ -154,8 +161,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Clear();
             _node = null;
             _group = group;
-            if (_editor != null)
-                UnityEngine.Object.DestroyImmediate(_editor);
+            _serializedNode = null;
 
             if (group == null)
             {

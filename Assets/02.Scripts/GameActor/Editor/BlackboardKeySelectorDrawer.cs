@@ -1,7 +1,9 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UPlayGround.AI.BehaviorTree.Editor
 {
@@ -10,11 +12,92 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     /// 필드를 보유한 노드가 속한 BehaviorTreeAsset의 Blackboard에서
     /// expectedType과 일치하는 키만 드롭다운으로 보여준다.
     /// 일치하는 키가 없거나 현재 키가 더 이상 존재하지 않으면 경고 색으로 표시한다.
+    /// UIToolkit 인스펙터에서는 CreatePropertyGUI, IMGUI 인스펙터에서는 OnGUI 폴백을 사용한다.
     /// </summary>
     [CustomPropertyDrawer(typeof(BlackboardKeySelector))]
     public class BlackboardKeySelectorDrawer : PropertyDrawer
     {
         private const string NoneLabel = "<none>";
+        private static readonly Color MismatchColor = new Color(1f, 0.55f, 0.55f);
+
+        public override VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            var keyProp = property.FindPropertyRelative("_key");
+            var typeProp = property.FindPropertyRelative("_expectedType");
+            if (keyProp == null || typeProp == null)
+                return new Label($"{property.displayName}: Invalid BlackboardKeySelector");
+
+            var dropdown = new DropdownField();
+            dropdown.AddToClassList(DropdownField.alignedFieldUssClassName);
+            dropdown.formatSelectedValueCallback = key => FormatChoice(property, key);
+            dropdown.formatListItemCallback = key => FormatChoice(property, key);
+
+            void Refresh()
+            {
+                if (property.serializedObject == null || property.serializedObject.targetObject == null)
+                    return;
+
+                var expectedType = (BlackboardValueType)typeProp.enumValueIndex;
+                dropdown.label = $"{property.displayName} ({expectedType})";
+
+                var currentKey = keyProp.stringValue;
+                var choices = CollectMatchingKeys(ResolveBlackboard(property), expectedType);
+                var hasMismatch = !string.IsNullOrWhiteSpace(currentKey) && !choices.Contains(currentKey);
+
+                choices.Insert(0, string.Empty);
+                if (hasMismatch)
+                    choices.Add(currentKey);
+
+                dropdown.choices = choices;
+                dropdown.SetValueWithoutNotify(string.IsNullOrWhiteSpace(currentKey) ? string.Empty : currentKey);
+
+                StyleColor labelColor = hasMismatch
+                    ? new StyleColor(MismatchColor)
+                    : new StyleColor(StyleKeyword.Null);
+                dropdown.labelElement.style.color = labelColor;
+                foreach (var text in dropdown.Query<TextElement>().ToList())
+                    text.style.color = labelColor;
+            }
+
+            dropdown.RegisterValueChangedCallback(evt =>
+            {
+                keyProp.stringValue = evt.newValue ?? string.Empty;
+                property.serializedObject.ApplyModifiedProperties();
+                Refresh();
+            });
+
+            // 다른 경로(Rename 툴, Undo 등)로 값이나 기대 타입이 바뀌면 표시를 동기화한다.
+            dropdown.TrackPropertyValue(keyProp, _ => Refresh());
+            dropdown.TrackPropertyValue(typeProp, _ => Refresh());
+            // Blackboard Key 목록은 외부(Blackboard 패널)에서 수시로 바뀌므로 드롭다운을 열기 직전에 갱신한다.
+            dropdown.RegisterCallback<PointerEnterEvent>(_ => Refresh());
+            dropdown.RegisterCallback<AttachToPanelEvent>(_ => Refresh());
+
+            return dropdown;
+        }
+
+        private static string FormatChoice(SerializedProperty property, string key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return NoneLabel;
+
+            var keyProp = property.serializedObject != null && property.serializedObject.targetObject != null
+                ? property.FindPropertyRelative("_key")
+                : null;
+            var typeProp = keyProp != null ? property.FindPropertyRelative("_expectedType") : null;
+            if (keyProp != null && typeProp != null &&
+                string.Equals(key, keyProp.stringValue, System.StringComparison.Ordinal))
+            {
+                var expectedType = (BlackboardValueType)typeProp.enumValueIndex;
+                var options = CollectMatchingKeys(ResolveBlackboard(property), expectedType);
+                if (!options.Contains(key))
+                    return $"{key} (missing)";
+            }
+
+            return BehaviorTreeDisplayNameRegistry.FormatWithRawName(
+                BehaviorTreeDisplayNameRegistry.GetBlackboardLabel(key),
+                key);
+        }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {

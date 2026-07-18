@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Cycle;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround.Components
 {
@@ -24,6 +25,9 @@ namespace UPlayGround.Components
 
         [Header("Combat")]
         public PlayerAttackDataSO attackData;
+
+        [Tooltip("신규 Gameplay Ability 데이터. 비어 있으면 기존 PlayerAttackDataSO 스킬 경로를 사용한다.")]
+        public AbilitySetSO abilitySet;
 
         [Header("Cycle Weight")]
         public CharacterWeightProfileSO weightProfile;

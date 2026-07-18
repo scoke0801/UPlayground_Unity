@@ -2,6 +2,8 @@
   "name": "UPlayGround.Actor",
   "rootNamespace": "UPlayGround",
   "references": [
+    "UPlayGround.Ability.Core",
+    "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Data",
     "UPlayGround.Contracts",
     "UPlayGround.Core",

@@ -10,6 +10,8 @@ using UPlayGround.Components;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Gameplay.Ability;
+using UPlayGround.Gameplay.Effect;
 
 namespace UPlayGround
 {
@@ -42,6 +44,12 @@ namespace UPlayGround
 
         /// <summary>런타임 스탯 컨테이너. ActorStatSO로 초기화하고 StatModifier로 버프/장비 효과를 적용한다.</summary>
         public ActorStatContainer Stats { get; private set; }
+
+        /// <summary>액터별 Ability 활성화/쿨다운 런타임.</summary>
+        public ActorAbilitySystem Abilities { get; private set; }
+
+        /// <summary>액터별 지속 Effect 런타임.</summary>
+        public GameplayEffectController Effects { get; private set; }
 
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)
@@ -136,6 +144,8 @@ namespace UPlayGround
         {
             Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
             Stats = gameObject.GetOrAddComponent<ActorStatContainer>();
+            Effects = gameObject.GetOrAddComponent<GameplayEffectController>();
+            Abilities = gameObject.GetOrAddComponent<ActorAbilitySystem>();
             ApplyBaseDefinition();
             MovementController = GetComponent<ActorMovementController>();
             _animator = GetComponentInChildren<ActorAnimator>();

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UPlayGround.Data.Crafting;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
@@ -12,7 +14,7 @@ using UPlayGround.Data.Item;
 namespace UPlayGround.Data.Crafting.Editor
 {
     /// <summary>
-    /// ItemDatabase의 ItemSO를 기준으로 RecipeDatabase에 제작 데이터를 발급하는 에디터 윈도우.
+    /// ItemDatabase의 ItemSO를 기준으로 RecipeDatabase에 제작 데이터를 발급하는 에디터 윈도우 (UIToolkit).
     /// 메뉴: UPlayGround / Crafting / Recipe Data Generator
     /// </summary>
     public class RecipeDataGeneratorWindow : EditorWindow
@@ -30,10 +32,9 @@ namespace UPlayGround.Data.Crafting.Editor
         private readonly List<IngredientDraft> _ingredients = new();
 
         private ItemSO _selectedResultItem;
+        private List<ItemSO> _filteredItems = new();
         private string _searchText = "";
         private ItemType? _filterType;
-        private Vector2 _itemScroll;
-        private Vector2 _detailScroll;
 
         private int _recipeID;
         private string _recipeName = "";
@@ -53,10 +54,17 @@ namespace UPlayGround.Data.Crafting.Editor
         private int _unlockConditionValue2 = 1;
         private string _unlockConditionStringValue = string.Empty;
 
-        private bool _showItemPicker;
-        private string _itemPickerSearch = "";
-        private System.Action<int> _itemPickerCallback;
-        private Vector2 _itemPickerScroll;
+        // ──── UI 요소 ────
+        private VisualElement _body;
+        private VisualElement _missingDbPane;
+        private Label _recipeDbLabel;
+        private Label _itemDbLabel;
+        private ListView _listView;
+        private VisualElement _generatorPane;
+        private VisualElement _itemPickerPopup;
+        private HelpBox _validationBox;
+        private Button _saveButton;
+        private readonly List<ToolbarToggle> _typeToggles = new();
 
         private const float LIST_WIDTH = 310f;
         private const string RECIPE_ENUM_OUTPUT_PATH = "Assets/02.Scripts/Data/Crafting/RecipeIdType.cs";
@@ -68,53 +76,217 @@ namespace UPlayGround.Data.Crafting.Editor
             win.Show();
         }
 
-        private void OnEnable()
+        // ──────────────────────────────────────────────────────────
+        #region UI 구성
+
+        private void CreateGUI()
         {
             LoadDatabases();
-        }
 
-        private void OnGUI()
-        {
-            DrawToolbar();
+            var root = rootVisualElement;
+            root.Clear();
 
-            if (_recipeDb == null || _itemDb == null)
+            root.Add(BuildToolbar());
+
+            _missingDbPane = new VisualElement
             {
-                DrawMissingDatabase();
-                return;
-            }
+                style = { flexGrow = 1, justifyContent = Justify.Center, paddingLeft = 20, paddingRight = 20 }
+            };
+            _missingDbPane.Add(new HelpBox(
+                "RecipeDatabase 또는 ItemDatabase를 찾을 수 없습니다.\n" +
+                "RecipeDatabase는 Create > UPlayGround > PathDatabase > Recipe로 생성하고, ItemDatabase는 기존 아이템 DB를 준비하세요.",
+                HelpBoxMessageType.Warning));
+            root.Add(_missingDbPane);
 
-            EditorGUILayout.BeginHorizontal();
-            DrawItemList();
-            GUILayout.Box(GUIContent.none, GUILayout.Width(2), GUILayout.ExpandHeight(true));
-            DrawGeneratorPanel();
-            EditorGUILayout.EndHorizontal();
+            _body = new VisualElement { style = { flexDirection = FlexDirection.Row, flexGrow = 1 } };
+            _body.Add(BuildItemListPanel());
+            _generatorPane = new VisualElement { style = { flexGrow = 1 } };
+            _body.Add(_generatorPane);
+            root.Add(_body);
 
-            if (_showItemPicker)
-                DrawItemPickerPopup();
+            RefreshAll();
         }
 
-        private void DrawToolbar()
+        private Toolbar BuildToolbar()
         {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            var toolbar = new Toolbar();
 
-            if (GUILayout.Button("새로고침", EditorStyles.toolbarButton, GUILayout.Width(70)))
+            toolbar.Add(new ToolbarButton(() =>
+            {
                 LoadDatabases();
+                RefreshAll();
+            }) { text = "새로고침" });
 
-            GUILayout.Space(8);
+            _recipeDbLabel = new Label { style = { fontSize = 10, unityTextAlign = TextAnchor.MiddleLeft, marginLeft = 8 } };
+            toolbar.Add(_recipeDbLabel);
+            _itemDbLabel = new Label { style = { fontSize = 10, unityTextAlign = TextAnchor.MiddleLeft, marginLeft = 8 } };
+            toolbar.Add(_itemDbLabel);
 
-            GUI.color = _recipeDb == null ? Color.red : Color.white;
-            GUILayout.Label(_recipeDb != null ? $"RecipeDB: {_recipeDb.name}" : "RecipeDB 없음", EditorStyles.miniLabel, GUILayout.Width(190));
-            GUI.color = _itemDb == null ? Color.red : Color.white;
-            GUILayout.Label(_itemDb != null ? $"ItemDB: {_itemDb.name}" : "ItemDB 없음", EditorStyles.miniLabel, GUILayout.Width(180));
-            GUI.color = Color.white;
+            toolbar.Add(new VisualElement { style = { flexGrow = 1 } });
 
-            GUILayout.FlexibleSpace();
+            var overwriteToggle = new ToolbarToggle { text = "기존 결과물 레시피 갱신", value = _overwriteExisting };
+            overwriteToggle.RegisterValueChangedCallback(evt =>
+            {
+                _overwriteExisting = evt.newValue;
+                UpdateValidation();
+            });
+            toolbar.Add(overwriteToggle);
 
-            _overwriteExisting = GUILayout.Toggle(_overwriteExisting, "기존 결과물 레시피 갱신", EditorStyles.toolbarButton, GUILayout.Width(135));
-            _generateRecipeEnum = GUILayout.Toggle(_generateRecipeEnum, "RecipeIdType 생성", EditorStyles.toolbarButton, GUILayout.Width(115));
+            var enumToggle = new ToolbarToggle { text = "RecipeIdType 생성", value = _generateRecipeEnum };
+            enumToggle.RegisterValueChangedCallback(evt => _generateRecipeEnum = evt.newValue);
+            toolbar.Add(enumToggle);
 
-            EditorGUILayout.EndHorizontal();
+            return toolbar;
         }
+
+        private VisualElement BuildItemListPanel()
+        {
+            var panel = new VisualElement
+            {
+                style =
+                {
+                    width = LIST_WIDTH,
+                    flexShrink = 0,
+                    borderRightWidth = 1,
+                    borderRightColor = new Color(0f, 0f, 0f, 0.35f),
+                }
+            };
+
+            // 타입 필터 탭
+            var tabBar = new Toolbar();
+            var filters = new (ItemType? type, string label)[]
+            {
+                (null, "전체"),
+                (ItemType.EQUIPMENT, "장비"),
+                (ItemType.CONSUMABLE, "소비"),
+                (ItemType.OTHERS, "기타"),
+            };
+            _typeToggles.Clear();
+            foreach (var (type, label) in filters)
+            {
+                var captured = type;
+                var toggle = new ToolbarToggle { text = label, value = _filterType == type, style = { flexGrow = 1 } };
+                toggle.RegisterValueChangedCallback(evt =>
+                {
+                    if (!evt.newValue)
+                    {
+                        toggle.SetValueWithoutNotify(_filterType == captured);
+                        return;
+                    }
+                    _filterType = captured;
+                    foreach (var t in _typeToggles)
+                        t.SetValueWithoutNotify(t == toggle);
+                    RefreshItemList();
+                });
+                _typeToggles.Add(toggle);
+                tabBar.Add(toggle);
+            }
+            panel.Add(tabBar);
+
+            // 검색
+            var searchBar = new Toolbar();
+            var search = new ToolbarSearchField { style = { flexGrow = 1 } };
+            search.RegisterValueChangedCallback(evt =>
+            {
+                _searchText = evt.newValue;
+                RefreshItemList();
+            });
+            searchBar.Add(search);
+            panel.Add(searchBar);
+
+            _listView = new ListView
+            {
+                fixedItemHeight = 46,
+                selectionType = SelectionType.Single,
+                style = { flexGrow = 1 },
+                makeItem = MakeItemRow,
+                bindItem = BindItemRow,
+            };
+            _listView.selectionChanged += _ =>
+            {
+                var item = _listView.selectedItem as ItemSO;
+                if (item != null)
+                    SelectResultItem(item);
+            };
+            panel.Add(_listView);
+
+            return panel;
+        }
+
+        private static VisualElement MakeItemRow()
+        {
+            var row = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, paddingLeft = 4, paddingRight = 4 }
+            };
+            row.Add(new Image
+            {
+                name = "icon",
+                scaleMode = ScaleMode.ScaleToFit,
+                style =
+                {
+                    width = 38, height = 38, flexShrink = 0, marginRight = 6,
+                    backgroundColor = new Color(0.25f, 0.25f, 0.25f, 0.6f),
+                }
+            });
+            var info = new VisualElement { style = { flexGrow = 1, justifyContent = Justify.Center } };
+            info.Add(new Label { name = "name", style = { unityFontStyleAndWeight = FontStyle.Bold } });
+            info.Add(new Label { name = "sub", style = { color = new Color(0.65f, 0.65f, 0.65f), fontSize = 10 } });
+            row.Add(info);
+            row.Add(new Label("R")
+            {
+                name = "recipe-badge",
+                style = { color = new Color(0.45f, 1f, 0.5f), unityFontStyleAndWeight = FontStyle.Bold, width = 14 }
+            });
+            return row;
+        }
+
+        private void BindItemRow(VisualElement row, int index)
+        {
+            if (index < 0 || index >= _filteredItems.Count) return;
+            var item = _filteredItems[index];
+
+            row.Q<Image>("icon").sprite = item.icon;
+            row.Q<Label>("name").text = string.IsNullOrEmpty(item.itemName) ? item.name : item.itemName;
+            row.Q<Label>("sub").text = $"ID: {item.itemId} | {item.itemType} | {item.itemRarity}";
+            row.Q<Label>("recipe-badge").style.display =
+                FindRecipeByResultItem(item.itemId) != null ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void RefreshAll()
+        {
+            if (_body == null) return;
+
+            bool hasDb = _recipeDb != null && _itemDb != null;
+            _recipeDbLabel.text = _recipeDb != null ? $"RecipeDB: {_recipeDb.name}" : "RecipeDB 없음";
+            _recipeDbLabel.style.color = _recipeDb == null ? (StyleColor)Color.red : StyleKeyword.Null;
+            _itemDbLabel.text = _itemDb != null ? $"ItemDB: {_itemDb.name}" : "ItemDB 없음";
+            _itemDbLabel.style.color = _itemDb == null ? (StyleColor)Color.red : StyleKeyword.Null;
+
+            _missingDbPane.style.display = hasDb ? DisplayStyle.None : DisplayStyle.Flex;
+            _body.style.display = hasDb ? DisplayStyle.Flex : DisplayStyle.None;
+
+            if (hasDb)
+            {
+                RefreshItemList();
+                RebuildGeneratorPane();
+            }
+        }
+
+        private void RefreshItemList()
+        {
+            _filteredItems = GetFilteredItems().ToList();
+            _listView.itemsSource = _filteredItems;
+            _listView.RefreshItems();
+
+            int idx = _selectedResultItem != null ? _filteredItems.IndexOf(_selectedResultItem) : -1;
+            _listView.SetSelectionWithoutNotify(idx >= 0 ? new[] { idx } : System.Array.Empty<int>());
+        }
+
+        #endregion
+
+        // ──────────────────────────────────────────────────────────
+        #region 데이터 로드
 
         private void LoadDatabases()
         {
@@ -148,53 +320,6 @@ namespace UPlayGround.Data.Crafting.Editor
             return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
 
-        private void DrawMissingDatabase()
-        {
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.HelpBox(
-                "RecipeDatabase 또는 ItemDatabase를 찾을 수 없습니다.\n" +
-                "RecipeDatabase는 Create > UPlayGround > PathDatabase > Recipe로 생성하고, ItemDatabase는 기존 아이템 DB를 준비하세요.",
-                MessageType.Warning);
-        }
-
-        private void DrawItemList()
-        {
-            EditorGUILayout.BeginVertical(GUILayout.Width(LIST_WIDTH));
-
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            DrawTypeFilter(null, "전체");
-            DrawTypeFilter(ItemType.EQUIPMENT, "장비");
-            DrawTypeFilter(ItemType.CONSUMABLE, "소비");
-            DrawTypeFilter(ItemType.OTHERS, "기타");
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("검색:", EditorStyles.miniLabel, GUILayout.Width(34));
-            _searchText = GUILayout.TextField(_searchText, EditorStyles.toolbarSearchField);
-            if (GUILayout.Button("x", EditorStyles.toolbarButton, GUILayout.Width(22)))
-            {
-                _searchText = "";
-                GUI.FocusControl(null);
-            }
-            EditorGUILayout.EndHorizontal();
-
-            _itemScroll = EditorGUILayout.BeginScrollView(_itemScroll);
-            foreach (var item in GetFilteredItems())
-                DrawItemRow(item);
-            EditorGUILayout.EndScrollView();
-
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawTypeFilter(ItemType? type, string label)
-        {
-            bool selected = _filterType == type;
-            GUI.color = selected ? new Color(0.55f, 0.8f, 1f) : Color.white;
-            if (GUILayout.Button(label, EditorStyles.toolbarButton))
-                _filterType = type;
-            GUI.color = Color.white;
-        }
-
         private IEnumerable<ItemSO> GetFilteredItems()
         {
             IEnumerable<ItemSO> query = _items;
@@ -213,47 +338,11 @@ namespace UPlayGround.Data.Crafting.Editor
             return query;
         }
 
-        private void DrawItemRow(ItemSO item)
-        {
-            bool selected = item == _selectedResultItem;
-            bool hasRecipe = FindRecipeByResultItem(item.itemId) != null;
-
-            Rect row = EditorGUILayout.BeginHorizontal(selected ? "selectionRect" : "helpBox", GUILayout.Height(46));
-            if (UnityEngine.Event.current.type == EventType.MouseDown && row.Contains(UnityEngine.Event.current.mousePosition))
-            {
-                SelectResultItem(item);
-                UnityEngine.Event.current.Use();
-            }
-
-            Texture2D preview = item.icon != null ? AssetPreview.GetAssetPreview(item.icon) : null;
-            if (preview != null)
-                GUILayout.Label(preview, GUILayout.Width(38), GUILayout.Height(38));
-            else
-                GUILayout.Label("□", GUILayout.Width(38), GUILayout.Height(38));
-
-            EditorGUILayout.BeginVertical();
-            GUILayout.Label(string.IsNullOrEmpty(item.itemName) ? item.name : item.itemName, EditorStyles.boldLabel);
-            GUI.color = new Color(0.65f, 0.65f, 0.65f);
-            GUILayout.Label($"ID: {item.itemId} | {item.itemType} | {item.itemRarity}", EditorStyles.miniLabel);
-            GUI.color = Color.white;
-            EditorGUILayout.EndVertical();
-
-            if (hasRecipe)
-            {
-                GUI.color = new Color(0.45f, 1f, 0.5f);
-                GUILayout.Label("R", EditorStyles.boldLabel, GUILayout.Width(14));
-                GUI.color = Color.white;
-            }
-
-            EditorGUILayout.EndHorizontal();
-            GUILayout.Space(1);
-        }
-
         private void SelectResultItem(ItemSO item)
         {
             _selectedResultItem = item;
             ApplyDefaultsFromItem(item);
-            Repaint();
+            RebuildGeneratorPane();
         }
 
         private void ApplyDefaultsFromItem(ItemSO item)
@@ -312,182 +401,424 @@ namespace UPlayGround.Data.Crafting.Editor
             FillSuggestedIngredients();
         }
 
-        private void DrawGeneratorPanel()
+        #endregion
+
+        // ──────────────────────────────────────────────────────────
+        #region 생성 패널 (우)
+
+        private void RebuildGeneratorPane()
         {
-            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+            CloseItemPicker();
+            _generatorPane.Clear();
 
             if (_selectedResultItem == null)
             {
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("좌측에서 제작 결과 아이템을 선택하세요.", EditorStyles.centeredGreyMiniLabel);
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                var hint = new VisualElement
+                {
+                    style = { flexGrow = 1, justifyContent = Justify.Center, alignItems = Align.Center }
+                };
+                hint.Add(new Label("좌측에서 제작 결과 아이템을 선택하세요.")
+                {
+                    style = { color = new Color(0.55f, 0.55f, 0.55f) }
+                });
+                _generatorPane.Add(hint);
                 return;
             }
 
-            _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll);
+            var scroll = new ScrollView { style = { flexGrow = 1, paddingLeft = 8, paddingRight = 8, paddingTop = 6 } };
+            _generatorPane.Add(scroll);
 
-            DrawResultHeader();
-            EditorGUILayout.Space(8);
-            DrawRecipeFields();
-            EditorGUILayout.Space(6);
-            DrawIngredientFields();
-            EditorGUILayout.Space(6);
-            DrawUnlockFields();
-            EditorGUILayout.Space(12);
-            DrawActionButtons();
+            scroll.Add(BuildResultHeader());
 
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
+            scroll.Add(BuildRecipeFieldsSection());
+
+            var ingrSection = MakeSection("필요 재료");
+            BuildIngredientRows(ingrSection);
+            scroll.Add(ingrSection);
+
+            var unlockSection = MakeSection("언락 조건");
+            BuildUnlockFields(unlockSection);
+            scroll.Add(unlockSection);
+
+            // 액션
+            var actionArea = new VisualElement { style = { marginTop = 12, marginBottom = 12 } };
+            _validationBox = new HelpBox("", HelpBoxMessageType.Warning);
+            actionArea.Add(_validationBox);
+
+            _saveButton = new Button(() =>
+            {
+                SaveRecipe();
+                RefreshItemList();
+                RebuildGeneratorPane();
+            }) { text = "선택 아이템 제작 데이터 생성/갱신", style = { height = 36 } };
+            actionArea.Add(_saveButton);
+
+            actionArea.Add(new Button(() =>
+            {
+                GenerateMissingRecipesForCurrentFilter();
+                RefreshItemList();
+                RebuildGeneratorPane();
+            }) { text = "현재 설정으로 같은 타입 누락 아이템 일괄 생성", style = { height = 26, marginTop = 4 } });
+
+            _generatorPane.Add(actionArea);
+
+            UpdateValidation();
         }
 
-        private void DrawResultHeader()
+        private VisualElement BuildResultHeader()
         {
-            EditorGUILayout.BeginHorizontal("helpBox");
+            var header = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row, alignItems = Align.Center,
+                    paddingLeft = 6, paddingRight = 6, paddingTop = 6, paddingBottom = 6,
+                    backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.1f),
+                    borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                    borderBottomLeftRadius = 3, borderBottomRightRadius = 3,
+                }
+            };
 
-            Texture2D preview = _selectedResultItem.icon != null ? AssetPreview.GetAssetPreview(_selectedResultItem.icon) : null;
-            if (preview != null)
-                GUILayout.Label(preview, GUILayout.Width(56), GUILayout.Height(56));
-            else
-                GUILayout.Label("□", GUILayout.Width(56), GUILayout.Height(56));
+            header.Add(new Image
+            {
+                scaleMode = ScaleMode.ScaleToFit,
+                sprite = _selectedResultItem.icon,
+                style =
+                {
+                    width = 56, height = 56, flexShrink = 0, marginRight = 8,
+                    backgroundColor = new Color(0.25f, 0.25f, 0.25f, 0.6f),
+                }
+            });
 
-            EditorGUILayout.BeginVertical();
-            GUILayout.Label(_selectedResultItem.itemName, EditorStyles.boldLabel);
-            GUILayout.Label($"ItemID: {_selectedResultItem.itemId} | {_selectedResultItem.itemType} | {_selectedResultItem.itemRarity}", EditorStyles.miniLabel);
+            var info = new VisualElement { style = { justifyContent = Justify.Center } };
+            info.Add(new Label(_selectedResultItem.itemName) { style = { unityFontStyleAndWeight = FontStyle.Bold } });
+            info.Add(new Label($"ItemID: {_selectedResultItem.itemId} | {_selectedResultItem.itemType} | {_selectedResultItem.itemRarity}")
+            {
+                style = { fontSize = 10 }
+            });
 
             var existing = FindRecipeByResultItem(_selectedResultItem.itemId);
             if (existing != null)
             {
-                GUI.color = new Color(0.4f, 1f, 0.5f);
-                GUILayout.Label($"기존 레시피 있음: #{existing.recipeID} {existing.recipeName}", EditorStyles.miniLabel);
-                GUI.color = Color.white;
+                info.Add(new Label($"기존 레시피 있음: #{existing.recipeID} {existing.recipeName}")
+                {
+                    style = { color = new Color(0.4f, 1f, 0.5f), fontSize = 10 }
+                });
             }
-            EditorGUILayout.EndVertical();
+            header.Add(info);
 
-            EditorGUILayout.EndHorizontal();
+            return header;
         }
 
-        private void DrawRecipeFields()
+        private VisualElement BuildRecipeFieldsSection()
         {
-            EditorGUILayout.BeginVertical("box");
-            GUILayout.Label("레시피 기본 데이터", EditorStyles.boldLabel);
+            var section = MakeSection("레시피 기본 데이터");
 
-            _recipeID = Mathf.Max(1, EditorGUILayout.IntField("레시피 ID", _recipeID));
-            _recipeName = EditorGUILayout.TextField("레시피 이름", _recipeName);
-            _description = EditorGUILayout.TextField("설명", _description);
-            _resultQuantity = Mathf.Max(1, EditorGUILayout.IntField("결과 수량", _resultQuantity));
-            _category = (CraftingCategory)EditorGUILayout.EnumPopup("카테고리", _category);
-            _costType = (CostType)EditorGUILayout.EnumPopup("비용 유형", _costType);
-            if (_costType == CostType.Gold)
-                _costAmount = Mathf.Max(0, EditorGUILayout.IntField("골드 비용", _costAmount));
-            else
-                _costAmount = 0;
-            _castTimeSeconds = Mathf.Max(0f, EditorGUILayout.FloatField("제작 시간", _castTimeSeconds));
-            _isDebugUnlocked = EditorGUILayout.Toggle("디버그 언락", _isDebugUnlocked);
+            var idField = new IntegerField("레시피 ID") { value = _recipeID };
+            idField.RegisterValueChangedCallback(evt =>
+            {
+                int v = Mathf.Max(1, evt.newValue);
+                idField.SetValueWithoutNotify(v);
+                _recipeID = v;
+                UpdateValidation();
+            });
+            section.Add(idField);
 
-            EditorGUILayout.EndVertical();
+            var nameField = new TextField("레시피 이름") { value = _recipeName };
+            nameField.RegisterValueChangedCallback(evt =>
+            {
+                _recipeName = evt.newValue;
+                UpdateValidation();
+            });
+            section.Add(nameField);
+
+            var descField = new TextField("설명") { value = _description };
+            descField.RegisterValueChangedCallback(evt => _description = evt.newValue);
+            section.Add(descField);
+
+            var qtyField = new IntegerField("결과 수량") { value = _resultQuantity };
+            qtyField.RegisterValueChangedCallback(evt =>
+            {
+                int v = Mathf.Max(1, evt.newValue);
+                qtyField.SetValueWithoutNotify(v);
+                _resultQuantity = v;
+            });
+            section.Add(qtyField);
+
+            var catField = new EnumField("카테고리", _category);
+            catField.RegisterValueChangedCallback(evt => _category = (CraftingCategory)evt.newValue);
+            section.Add(catField);
+
+            var goldField = new IntegerField("골드 비용") { value = _costAmount };
+            var costTypeField = new EnumField("비용 유형", _costType);
+            costTypeField.RegisterValueChangedCallback(evt =>
+            {
+                _costType = (CostType)evt.newValue;
+                if (_costType != CostType.Gold)
+                {
+                    _costAmount = 0;
+                    goldField.SetValueWithoutNotify(0);
+                }
+                goldField.style.display = _costType == CostType.Gold ? DisplayStyle.Flex : DisplayStyle.None;
+            });
+            section.Add(costTypeField);
+
+            goldField.RegisterValueChangedCallback(evt =>
+            {
+                int v = Mathf.Max(0, evt.newValue);
+                goldField.SetValueWithoutNotify(v);
+                _costAmount = v;
+            });
+            goldField.style.display = _costType == CostType.Gold ? DisplayStyle.Flex : DisplayStyle.None;
+            section.Add(goldField);
+
+            var castField = new FloatField("제작 시간") { value = _castTimeSeconds };
+            castField.RegisterValueChangedCallback(evt =>
+            {
+                float v = Mathf.Max(0f, evt.newValue);
+                castField.SetValueWithoutNotify(v);
+                _castTimeSeconds = v;
+            });
+            section.Add(castField);
+
+            var debugToggle = new Toggle("디버그 언락") { value = _isDebugUnlocked };
+            debugToggle.RegisterValueChangedCallback(evt => _isDebugUnlocked = evt.newValue);
+            section.Add(debugToggle);
+
+            return section;
         }
 
-        private void DrawIngredientFields()
+        private void BuildIngredientRows(VisualElement section)
         {
-            EditorGUILayout.BeginVertical("box");
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("필요 재료", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("추천 재료", GUILayout.Width(72)))
+            // 타이틀(첫 요소)만 남기고 재구축
+            while (section.childCount > 1)
+                section.RemoveAt(section.childCount - 1);
+
+            var buttonRow = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.FlexEnd } };
+            buttonRow.Add(new Button(() =>
+            {
                 FillSuggestedIngredients();
-            if (GUILayout.Button("+ 추가", GUILayout.Width(56)))
+                BuildIngredientRows(section);
+                UpdateValidation();
+            }) { text = "추천 재료" });
+            buttonRow.Add(new Button(() =>
+            {
                 _ingredients.Add(new IngredientDraft { quantity = 1 });
-            EditorGUILayout.EndHorizontal();
+                BuildIngredientRows(section);
+                UpdateValidation();
+            }) { text = "+ 추가" });
+            section.Add(buttonRow);
 
             if (_ingredients.Count == 0)
-                EditorGUILayout.HelpBox("재료가 없으면 비용만으로 제작 가능한 레시피가 됩니다.", MessageType.Info);
+                section.Add(new HelpBox("재료가 없으면 비용만으로 제작 가능한 레시피가 됩니다.", HelpBoxMessageType.Info));
 
             for (int i = 0; i < _ingredients.Count; i++)
             {
                 var ingredient = _ingredients[i];
-                EditorGUILayout.BeginHorizontal("helpBox");
-                GUILayout.Label($"{i + 1}", GUILayout.Width(18));
-                ingredient.itemID = EditorGUILayout.IntField("아이템 ID", ingredient.itemID);
-                if (GUILayout.Button("선택", GUILayout.Width(48)))
+
+                var row = new VisualElement
                 {
-                    var captured = ingredient;
-                    OpenItemPicker(id => captured.itemID = id);
+                    style =
+                    {
+                        flexDirection = FlexDirection.Row, alignItems = Align.Center, marginTop = 2,
+                        paddingLeft = 4, paddingRight = 4, paddingTop = 2, paddingBottom = 2,
+                        backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.1f),
+                    }
+                };
+                row.Add(new Label($"{i + 1}") { style = { width = 18 } });
+
+                var hint = new Label { style = { fontSize = 10, marginLeft = 24 } };
+
+                var idField = new IntegerField("아이템 ID") { value = ingredient.itemID, style = { flexGrow = 1 } };
+                idField.RegisterValueChangedCallback(evt =>
+                {
+                    ingredient.itemID = evt.newValue;
+                    UpdateItemHint(hint, evt.newValue);
+                    UpdateValidation();
+                });
+                row.Add(idField);
+
+                row.Add(new Button(() =>
+                {
+                    OpenItemPicker(id =>
+                    {
+                        ingredient.itemID = id;
+                        idField.SetValueWithoutNotify(id);
+                        UpdateItemHint(hint, id);
+                        UpdateValidation();
+                    });
+                }) { text = "선택", style = { width = 48 } });
+
+                var qtyField = new IntegerField("수량") { value = ingredient.quantity, style = { width = 120 } };
+                qtyField.RegisterValueChangedCallback(evt =>
+                {
+                    int v = Mathf.Max(1, evt.newValue);
+                    qtyField.SetValueWithoutNotify(v);
+                    ingredient.quantity = v;
+                });
+                row.Add(qtyField);
+
+                row.Add(new Button(() =>
+                {
+                    _ingredients.Remove(ingredient);
+                    BuildIngredientRows(section);
+                    UpdateValidation();
+                }) { text = "✕", style = { width = 24, color = new Color(1f, 0.55f, 0.55f) } });
+
+                section.Add(row);
+                section.Add(hint);
+                UpdateItemHint(hint, ingredient.itemID);
+            }
+        }
+
+        private void BuildUnlockFields(VisualElement section)
+        {
+            while (section.childCount > 1)
+                section.RemoveAt(section.childCount - 1);
+
+            var useToggle = new Toggle("언락 조건 사용") { value = _useUnlockCondition };
+            useToggle.RegisterValueChangedCallback(evt =>
+            {
+                _useUnlockCondition = evt.newValue;
+                BuildUnlockFields(section);
+            });
+            section.Add(useToggle);
+
+            if (!_useUnlockCondition)
+                return;
+
+            var typeField = new EnumField("조건 유형", _unlockConditionType);
+            typeField.RegisterValueChangedCallback(evt =>
+            {
+                _unlockConditionType = (UnlockConditionType)evt.newValue;
+                if (_unlockConditionType != UnlockConditionType.ItemCollect &&
+                    _unlockConditionType != UnlockConditionType.ItemHave &&
+                    _unlockConditionType != UnlockConditionType.RecipeCraft &&
+                    _unlockConditionType != UnlockConditionType.MonsterKill)
+                {
+                    _unlockConditionValue = 0;
+                    _unlockConditionValue2 = 1;
                 }
-                ingredient.quantity = Mathf.Max(1, EditorGUILayout.IntField("수량", ingredient.quantity, GUILayout.Width(120)));
-                GUI.color = new Color(1f, 0.55f, 0.55f);
-                if (GUILayout.Button("x", GUILayout.Width(24)))
+                BuildUnlockFields(section);
+            });
+            section.Add(typeField);
+
+            switch (_unlockConditionType)
+            {
+                case UnlockConditionType.ItemCollect:
+                case UnlockConditionType.ItemHave:
                 {
-                    _ingredients.RemoveAt(i);
-                    GUI.color = Color.white;
-                    EditorGUILayout.EndHorizontal();
+                    var hint = new Label { style = { fontSize = 10, marginLeft = 24 } };
+                    var idRow = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+                    var idField = new IntegerField("조건 아이템 ID") { value = _unlockConditionValue, style = { flexGrow = 1 } };
+                    idField.RegisterValueChangedCallback(evt =>
+                    {
+                        _unlockConditionValue = evt.newValue;
+                        UpdateItemHint(hint, evt.newValue);
+                    });
+                    idRow.Add(idField);
+                    idRow.Add(new Button(() =>
+                    {
+                        OpenItemPicker(id =>
+                        {
+                            _unlockConditionValue = id;
+                            idField.SetValueWithoutNotify(id);
+                            UpdateItemHint(hint, id);
+                        });
+                    }) { text = "선택", style = { width = 48 } });
+                    section.Add(idRow);
+                    section.Add(hint);
+                    UpdateItemHint(hint, _unlockConditionValue);
+
+                    section.Add(MakeMinClampedIntField("필요 수량", _unlockConditionValue2, 1, v => _unlockConditionValue2 = v));
                     break;
                 }
-                GUI.color = Color.white;
-                EditorGUILayout.EndHorizontal();
-
-                DrawItemHint(ingredient.itemID);
-            }
-
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawUnlockFields()
-        {
-            EditorGUILayout.BeginVertical("box");
-            _useUnlockCondition = EditorGUILayout.Toggle("언락 조건 사용", _useUnlockCondition);
-
-            if (_useUnlockCondition)
-            {
-                _unlockConditionType = (UnlockConditionType)EditorGUILayout.EnumPopup("조건 유형", _unlockConditionType);
-                switch (_unlockConditionType)
+                case UnlockConditionType.RecipeCraft:
+                    section.Add(MakeMinClampedIntField("조건 레시피 ID", _unlockConditionValue, 1, v => _unlockConditionValue = v));
+                    section.Add(MakeMinClampedIntField("제작 횟수", _unlockConditionValue2, 1, v => _unlockConditionValue2 = v));
+                    break;
+                case UnlockConditionType.MonsterKill:
                 {
-                    case UnlockConditionType.ItemCollect:
-                    case UnlockConditionType.ItemHave:
-                        EditorGUILayout.BeginHorizontal();
-                        _unlockConditionValue = EditorGUILayout.IntField("조건 아이템 ID", _unlockConditionValue);
-                        if (GUILayout.Button("선택", GUILayout.Width(48)))
-                            OpenItemPicker(id => _unlockConditionValue = id);
-                        EditorGUILayout.EndHorizontal();
-                        DrawItemHint(_unlockConditionValue);
-                        _unlockConditionValue2 = Mathf.Max(1, EditorGUILayout.IntField("필요 수량", _unlockConditionValue2));
-                        break;
-                    case UnlockConditionType.RecipeCraft:
-                        _unlockConditionValue = Mathf.Max(1, EditorGUILayout.IntField("조건 레시피 ID", _unlockConditionValue));
-                        _unlockConditionValue2 = Mathf.Max(1, EditorGUILayout.IntField("제작 횟수", _unlockConditionValue2));
-                        break;
-                    case UnlockConditionType.MonsterKill:
-                        _unlockConditionStringValue = EditorGUILayout.TextField("Actor ID", _unlockConditionStringValue);
-                        _unlockConditionValue = EditorGUILayout.IntField("레거시 숫자 ID", _unlockConditionValue);
-                        _unlockConditionValue2 = Mathf.Max(1, EditorGUILayout.IntField("처치 횟수", _unlockConditionValue2));
-                        break;
-                    default:
-                        _unlockConditionValue = 0;
-                        _unlockConditionValue2 = 1;
-                        break;
+                    var actorField = new TextField("Actor ID") { value = _unlockConditionStringValue };
+                    actorField.RegisterValueChangedCallback(evt => _unlockConditionStringValue = evt.newValue);
+                    section.Add(actorField);
+
+                    var legacyField = new IntegerField("레거시 숫자 ID") { value = _unlockConditionValue };
+                    legacyField.RegisterValueChangedCallback(evt => _unlockConditionValue = evt.newValue);
+                    section.Add(legacyField);
+
+                    section.Add(MakeMinClampedIntField("처치 횟수", _unlockConditionValue2, 1, v => _unlockConditionValue2 = v));
+                    break;
                 }
             }
-
-            EditorGUILayout.EndVertical();
         }
 
-        private void DrawActionButtons()
+        private static IntegerField MakeMinClampedIntField(string label, int value, int min, System.Action<int> setter)
         {
-            string validation = GetValidationMessage();
-            if (!string.IsNullOrEmpty(validation))
-                EditorGUILayout.HelpBox(validation, MessageType.Warning);
-
-            using (new EditorGUI.DisabledScope(!string.IsNullOrEmpty(validation)))
+            var field = new IntegerField(label) { value = value };
+            field.RegisterValueChangedCallback(evt =>
             {
-                if (GUILayout.Button("선택 아이템 제작 데이터 생성/갱신", GUILayout.Height(36)))
-                    SaveRecipe();
+                int v = Mathf.Max(min, evt.newValue);
+                field.SetValueWithoutNotify(v);
+                setter(v);
+            });
+            return field;
+        }
+
+        private void UpdateValidation()
+        {
+            if (_validationBox == null || _saveButton == null) return;
+
+            string validation = GetValidationMessage();
+            _validationBox.text = validation;
+            _validationBox.style.display = string.IsNullOrEmpty(validation) ? DisplayStyle.None : DisplayStyle.Flex;
+            _saveButton.SetEnabled(string.IsNullOrEmpty(validation));
+        }
+
+        private static VisualElement MakeSection(string title)
+        {
+            var section = new VisualElement
+            {
+                style =
+                {
+                    marginTop = 6, paddingLeft = 8, paddingRight = 8, paddingTop = 6, paddingBottom = 6,
+                    backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.08f),
+                    borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                    borderBottomLeftRadius = 3, borderBottomRightRadius = 3,
+                    borderLeftWidth = 1, borderRightWidth = 1, borderTopWidth = 1, borderBottomWidth = 1,
+                    borderLeftColor = new Color(0f, 0f, 0f, 0.25f), borderRightColor = new Color(0f, 0f, 0f, 0.25f),
+                    borderTopColor = new Color(0f, 0f, 0f, 0.25f), borderBottomColor = new Color(0f, 0f, 0f, 0.25f),
+                }
+            };
+            section.Add(new Label(title) { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 2 } });
+            return section;
+        }
+
+        private void UpdateItemHint(Label hint, int itemID)
+        {
+            if (itemID <= 0)
+            {
+                hint.style.display = DisplayStyle.None;
+                return;
             }
 
-            EditorGUILayout.Space(4);
-
-            if (GUILayout.Button("현재 설정으로 같은 타입 누락 아이템 일괄 생성", GUILayout.Height(26)))
-                GenerateMissingRecipesForCurrentFilter();
+            hint.style.display = DisplayStyle.Flex;
+            if (_itemCache.TryGetValue(itemID, out var item))
+            {
+                hint.text = $"→ {item.itemName} [{item.itemType}]";
+                hint.style.color = new Color(0.45f, 1f, 0.5f);
+            }
+            else
+            {
+                hint.text = $"등록된 아이템 없음: {itemID}";
+                hint.style.color = new Color(1f, 0.45f, 0.45f);
+            }
         }
+
+        #endregion
+
+        // ──────────────────────────────────────────────────────────
+        #region 저장 / 일괄 생성
 
         private string GetValidationMessage()
         {
@@ -650,6 +981,45 @@ namespace UPlayGround.Data.Crafting.Editor
             AssetDatabase.Refresh();
         }
 
+        private static RecipeData CloneRecipe(RecipeData src)
+        {
+            return new RecipeData
+            {
+                recipeID = src.recipeID,
+                recipeName = src.recipeName,
+                description = src.description,
+                resultItemID = src.resultItemID,
+                resultQuantity = src.resultQuantity,
+                costType = src.costType,
+                costAmount = src.costAmount,
+                castTimeSeconds = src.castTimeSeconds,
+                category = src.category,
+                isDebugUnlocked = src.isDebugUnlocked,
+            };
+        }
+
+        private static IngredientData CloneIngredient(IngredientData src)
+        {
+            return new IngredientData
+            {
+                recipeID = src.recipeID,
+                ingredientItemID = src.ingredientItemID,
+                requiredQuantity = src.requiredQuantity,
+            };
+        }
+
+        private static RecipeUnlockCondition CloneUnlock(RecipeUnlockCondition src)
+        {
+            return new RecipeUnlockCondition
+            {
+                recipeID = src.recipeID,
+                conditionType = src.conditionType,
+                conditionValue = src.conditionValue,
+                conditionValue2 = src.conditionValue2,
+                conditionStringValue = src.conditionStringValue,
+            };
+        }
+
         private static void GenerateRecipeIdType(IReadOnlyList<RecipeData> recipes)
         {
             var raw = recipes
@@ -671,6 +1041,11 @@ namespace UPlayGround.Data.Crafting.Editor
                 entries,
                 silent: true);
         }
+
+        #endregion
+
+        // ──────────────────────────────────────────────────────────
+        #region 추천 재료 / 조회 헬퍼
 
         private void FillSuggestedIngredients()
         {
@@ -763,134 +1138,101 @@ namespace UPlayGround.Data.Crafting.Editor
             };
         }
 
-        private void DrawItemHint(int itemID)
-        {
-            if (itemID <= 0)
-                return;
+        #endregion
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(24);
-            if (_itemCache.TryGetValue(itemID, out var item))
-            {
-                GUI.color = new Color(0.45f, 1f, 0.5f);
-                GUILayout.Label($"→ {item.itemName} [{item.itemType}]", EditorStyles.miniLabel);
-            }
-            else
-            {
-                GUI.color = new Color(1f, 0.45f, 0.45f);
-                GUILayout.Label($"등록된 아이템 없음: {itemID}", EditorStyles.miniLabel);
-            }
-            GUI.color = Color.white;
-            EditorGUILayout.EndHorizontal();
-        }
+        // ──────────────────────────────────────────────────────────
+        #region 아이템 피커 팝업
 
         private void OpenItemPicker(System.Action<int> callback)
         {
-            _showItemPicker = true;
-            _itemPickerSearch = "";
-            _itemPickerCallback = callback;
-            _itemPickerScroll = Vector2.zero;
-        }
+            CloseItemPicker();
 
-        private void DrawItemPickerPopup()
-        {
-            float width = 330f;
-            float height = 420f;
-            Rect rect = new Rect(position.width - width - 8f, 28f, width, height);
-
-            if (UnityEngine.Event.current.type == EventType.MouseDown && !rect.Contains(UnityEngine.Event.current.mousePosition))
+            var popup = new VisualElement
             {
-                _showItemPicker = false;
-                Repaint();
-                return;
-            }
-
-            GUI.Box(rect, GUIContent.none, "window");
-            GUILayout.BeginArea(rect);
-
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("아이템 선택", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("x", EditorStyles.toolbarButton, GUILayout.Width(22)))
-            {
-                _showItemPicker = false;
-                EditorGUILayout.EndHorizontal();
-                GUILayout.EndArea();
-                return;
-            }
-            EditorGUILayout.EndHorizontal();
-
-            _itemPickerSearch = EditorGUILayout.TextField(_itemPickerSearch, EditorStyles.toolbarSearchField);
-            _itemPickerScroll = EditorGUILayout.BeginScrollView(_itemPickerScroll);
-
-            foreach (var item in _items.Where(MatchesPickerSearch))
-            {
-                EditorGUILayout.BeginHorizontal("helpBox");
-                EditorGUILayout.BeginVertical();
-                GUILayout.Label(item.itemName, EditorStyles.boldLabel);
-                GUILayout.Label($"ID: {item.itemId} | {item.itemType}", EditorStyles.miniLabel);
-                EditorGUILayout.EndVertical();
-                if (GUILayout.Button("선택", GUILayout.Width(50), GUILayout.Height(30)))
+                style =
                 {
-                    _itemPickerCallback?.Invoke(item.itemId);
-                    _showItemPicker = false;
-                    Repaint();
+                    position = Position.Absolute, right = 8, top = 28, width = 330, height = 420,
+                    backgroundColor = EditorGUIUtility.isProSkin
+                        ? new Color(0.22f, 0.22f, 0.22f) : new Color(0.8f, 0.8f, 0.8f),
+                    borderLeftWidth = 1, borderRightWidth = 1, borderTopWidth = 1, borderBottomWidth = 1,
+                    borderLeftColor = Color.black, borderRightColor = Color.black,
+                    borderTopColor = Color.black, borderBottomColor = Color.black,
                 }
-                EditorGUILayout.EndHorizontal();
+            };
+
+            var header = new Toolbar();
+            header.Add(new Label("아이템 선택")
+            {
+                style = { unityFontStyleAndWeight = FontStyle.Bold, unityTextAlign = TextAnchor.MiddleLeft }
+            });
+            header.Add(new VisualElement { style = { flexGrow = 1 } });
+            header.Add(new ToolbarButton(CloseItemPicker) { text = "✕" });
+            popup.Add(header);
+
+            var search = new ToolbarSearchField { style = { width = Length.Percent(98) } };
+            popup.Add(search);
+
+            var pickerItems = new List<ItemSO>(_items);
+            var pickerList = new ListView
+            {
+                fixedItemHeight = 34,
+                selectionType = SelectionType.None,
+                style = { flexGrow = 1 },
+                itemsSource = pickerItems,
+                makeItem = () =>
+                {
+                    var row = new VisualElement
+                    {
+                        style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, paddingLeft = 4, paddingRight = 4 }
+                    };
+                    var info = new VisualElement { style = { flexGrow = 1, justifyContent = Justify.Center } };
+                    info.Add(new Label { name = "name", style = { unityFontStyleAndWeight = FontStyle.Bold } });
+                    info.Add(new Label { name = "sub", style = { fontSize = 10 } });
+                    row.Add(info);
+                    row.Add(new Button { name = "pick", text = "선택", style = { width = 50 } });
+                    return row;
+                },
+            };
+            pickerList.bindItem = (row, i) =>
+            {
+                if (i < 0 || i >= pickerItems.Count) return;
+                var item = pickerItems[i];
+                row.Q<Label>("name").text = item.itemName;
+                row.Q<Label>("sub").text = $"ID: {item.itemId} | {item.itemType}";
+                row.Q<Button>("pick").clickable = new Clickable(() =>
+                {
+                    callback?.Invoke(item.itemId);
+                    CloseItemPicker();
+                });
+            };
+            popup.Add(pickerList);
+
+            search.RegisterValueChangedCallback(evt =>
+            {
+                string s = (evt.newValue ?? "").ToLower();
+                pickerItems.Clear();
+                pickerItems.AddRange(_items.Where(i =>
+                    string.IsNullOrWhiteSpace(s)
+                    || i.itemId.ToString().Contains(s)
+                    || (!string.IsNullOrEmpty(i.itemName) && i.itemName.ToLower().Contains(s))));
+                pickerList.RefreshItems();
+            });
+
+            _itemPickerPopup = popup;
+            rootVisualElement.Add(popup);
+            search.Focus();
+        }
+
+        private void CloseItemPicker()
+        {
+            if (_itemPickerPopup != null)
+            {
+                _itemPickerPopup.RemoveFromHierarchy();
+                _itemPickerPopup = null;
             }
-
-            EditorGUILayout.EndScrollView();
-            GUILayout.EndArea();
         }
 
-        private bool MatchesPickerSearch(ItemSO item)
-        {
-            if (string.IsNullOrWhiteSpace(_itemPickerSearch))
-                return true;
-
-            string lower = _itemPickerSearch.ToLower();
-            return item.itemId.ToString().Contains(lower)
-                   || (!string.IsNullOrEmpty(item.itemName) && item.itemName.ToLower().Contains(lower));
-        }
-
-        private static RecipeData CloneRecipe(RecipeData src)
-        {
-            return new RecipeData
-            {
-                recipeID = src.recipeID,
-                recipeName = src.recipeName,
-                description = src.description,
-                resultItemID = src.resultItemID,
-                resultQuantity = src.resultQuantity,
-                costType = src.costType,
-                costAmount = src.costAmount,
-                castTimeSeconds = src.castTimeSeconds,
-                category = src.category,
-                isDebugUnlocked = src.isDebugUnlocked,
-            };
-        }
-
-        private static IngredientData CloneIngredient(IngredientData src)
-        {
-            return new IngredientData
-            {
-                recipeID = src.recipeID,
-                ingredientItemID = src.ingredientItemID,
-                requiredQuantity = src.requiredQuantity,
-            };
-        }
-
-        private static RecipeUnlockCondition CloneUnlock(RecipeUnlockCondition src)
-        {
-            return new RecipeUnlockCondition
-            {
-                recipeID = src.recipeID,
-                conditionType = src.conditionType,
-                conditionValue = src.conditionValue,
-                conditionValue2 = src.conditionValue2,
-                conditionStringValue = src.conditionStringValue,
-            };
-        }
+        #endregion
     }
-    #endif
 }
+#endif

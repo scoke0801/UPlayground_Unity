@@ -2,6 +2,7 @@
   "name": "UPlayGround.Data",
   "rootNamespace": "UPlayGround.Data",
   "references": [
+    "UPlayGround.Ability.Core",
     "UPlayGround.Core",
     "AYellowpaper.SerializedCollections"
   ],

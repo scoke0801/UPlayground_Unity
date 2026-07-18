@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UPlayGround.Data.Quest;
 using UPlayGround.Tool.Editor;
 using UPlayGround.Data.Item;
@@ -11,8 +13,8 @@ using UPlayGround.Data.Item;
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// 퀘스트 비주얼 에디터 윈도우.
-    /// 메뉴: UPlayGround / Quest / Quest Editor
+    /// 퀘스트 비주얼 에디터 윈도우 (UIToolkit).
+    /// 메뉴: UPlayGround / 게임플레이 / 퀘스트 / 퀘스트 에디터
     ///
     /// 기능:
     ///   - 좌우 2패널 레이아웃 (목록 / 상세 편집)
@@ -27,44 +29,34 @@ namespace UPlayGround.Editor
     {
         // ──── 데이터 ────
         private List<QuestSO>   _quests       = new List<QuestSO>();
+        private List<QuestSO>   _filtered     = new List<QuestSO>();
         private QuestDatabase   _questDb;
         private HashSet<string> _duplicateIds = new HashSet<string>();
+        private List<ItemSO>    _allItems     = new List<ItemSO>();
 
         // ──── 선택 / 필터 ────
-        private int     _selectedIndex = -1;
-        private string  _searchText    = "";
-        private int     _filterTab     = 0;  // 0=전체, 1=반복, 2=자동완료
+        private QuestSO _selected;
+        private string  _searchText = "";
+        private int     _filterTab  = 0;  // 0=전체, 1=반복, 2=자동완료
 
-        // ──── 스크롤 ────
-        private Vector2 _listScroll;
-        private Vector2 _detailScroll;
+        // ──── 생성 팝업 상태 ────
+        private string _newQuestId   = "quest_new";
+        private string _newQuestName = "새 퀘스트";
+        private string _newSavePath  = DEFAULT_QUEST_PATH;
 
-        // ──── 편집 대상 ────
-        private SerializedObject _serializedQuest;
-
-        // ──── 생성 팝업 ────
-        private bool   _showCreatePopup = false;
-        private string _newQuestId      = "quest_new";
-        private string _newQuestName    = "새 퀘스트";
-        private string _newSavePath     = "Assets/10.Datas/Quest";
-
-        // ──── 아이템 피커 ────
-        private bool         _showItemPicker    = false;
-        private int          _pickerRewardIndex = -1;
-        private string       _pickerSearch      = "";
-        private Vector2      _pickerScroll;
-        private List<ItemSO> _allItems          = new List<ItemSO>();
-
-        // ──── 스타일 캐시 ────
-        private bool     _stylesReady;
-        private GUIStyle _titleStyle;
-        private GUIStyle _subtitleStyle;
-        private GUIStyle _sectionStyle;
-        private GUIStyle _objectiveStyle;
-        private GUIStyle _badgeStyle;
+        // ──── UI 요소 ────
+        private ListView      _listView;
+        private Label         _countLabel;
+        private VisualElement _detailPane;
+        private VisualElement _createPopup;
+        private VisualElement _itemPickerPopup;
+        private ToolbarButton _duplicateButton;
+        private ToolbarButton _deleteButton;
+        private readonly List<ToolbarToggle> _filterToggles = new List<ToolbarToggle>();
+        private QuestSO _pendingSelect;
 
         // ──── 상수 ────
-        private const float LIST_PANEL_WIDTH  = 300f;
+        private const float  LIST_PANEL_WIDTH   = 300f;
         private const string DEFAULT_QUEST_PATH = "Assets/10.Datas/Quest";
 
         // ──── 목표 타입 메타 ────
@@ -113,14 +105,7 @@ namespace UPlayGround.Editor
         }
 
         // ──────────────────────────────────────────────────────────
-        #region 초기화
-
-        private void OnEnable()
-        {
-            LoadAllQuests();
-            LoadQuestDatabase();
-            LoadAllItems();
-        }
+        #region 데이터 로드
 
         private void LoadAllQuests()
         {
@@ -132,8 +117,6 @@ namespace UPlayGround.Editor
             }
             _quests = _quests.OrderBy(q => q.questId).ToList();
             RebuildDuplicateSet();
-            _selectedIndex   = -1;
-            _serializedQuest = null;
         }
 
         private void LoadQuestDatabase()
@@ -167,108 +150,96 @@ namespace UPlayGround.Editor
             }
         }
 
-        private void InitStyles()
-        {
-            if (_stylesReady) return;
-            _stylesReady = true;
-
-            _titleStyle = new GUIStyle(EditorStyles.boldLabel)
-                { fontSize = 13, alignment = TextAnchor.MiddleLeft };
-
-            _subtitleStyle = new GUIStyle(EditorStyles.miniLabel)
-                { normal = { textColor = new Color(0.55f, 0.55f, 0.55f) } };
-
-            _sectionStyle    = new GUIStyle("helpBox") { padding = new RectOffset(8, 8, 6, 6) };
-            _objectiveStyle  = new GUIStyle("box")
-                { padding = new RectOffset(8, 8, 6, 6), margin = new RectOffset(0, 0, 3, 3) };
-
-            _badgeStyle = new GUIStyle(EditorStyles.miniLabel)
-            {
-                fontStyle = FontStyle.Bold,
-                normal    = { textColor = Color.white },
-                alignment = TextAnchor.MiddleCenter,
-            };
-        }
-
         #endregion
 
         // ──────────────────────────────────────────────────────────
-        #region OnGUI
+        #region UI 구성
 
-        private void OnGUI()
+        private void CreateGUI()
         {
-            InitStyles();
-            DrawToolbar();
+            LoadAllQuests();
+            LoadQuestDatabase();
+            LoadAllItems();
 
-            EditorGUILayout.BeginHorizontal();
-            DrawListPanel();
-            DrawDetailPanel();
-            EditorGUILayout.EndHorizontal();
+            var root = rootVisualElement;
+            root.Clear();
 
-            if (_showCreatePopup) DrawCreatePopup();
-            if (_showItemPicker)  DrawItemPickerPopup();
-        }
+            root.Add(BuildToolbar());
 
-        #endregion
+            var body = new VisualElement { style = { flexDirection = FlexDirection.Row, flexGrow = 1 } };
+            body.Add(BuildListPanel());
+            _detailPane = new VisualElement { style = { flexGrow = 1 } };
+            body.Add(_detailPane);
+            root.Add(body);
 
-        // ──────────────────────────────────────────────────────────
-        #region 툴바
+            _createPopup = BuildCreatePopup();
+            root.Add(_createPopup);
 
-        private void DrawToolbar()
-        {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            RefreshList();
 
-            if (GUILayout.Button("+ 새 퀘스트", EditorStyles.toolbarButton, GUILayout.Width(80)))
-                _showCreatePopup = !_showCreatePopup;
-
-            GUILayout.Space(4);
-
-            var filtered = GetFilteredQuests();
-
-            GUI.enabled = _selectedIndex >= 0 && _selectedIndex < filtered.Count;
-            if (GUILayout.Button("복제", EditorStyles.toolbarButton, GUILayout.Width(48)))
-                DuplicateSelected();
-
-            GUI.color   = new Color(1f, 0.5f, 0.5f);
-            if (GUILayout.Button("삭제", EditorStyles.toolbarButton, GUILayout.Width(48)))
-                DeleteSelected();
-            GUI.color   = Color.white;
-            GUI.enabled = true;
-
-            GUILayout.Space(8);
-            DrawFilterTabs();
-            GUILayout.FlexibleSpace();
-
-            // 검색
-            GUILayout.Label("검색:", EditorStyles.miniLabel, GUILayout.Width(35));
-            string ns = GUILayout.TextField(_searchText, EditorStyles.toolbarSearchField, GUILayout.Width(160));
-            if (ns != _searchText) { _searchText = ns; _selectedIndex = -1; }
-            if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(20)) && _searchText.Length > 0)
+            if (_pendingSelect != null)
             {
-                _searchText = ""; _selectedIndex = -1; GUI.FocusControl(null);
+                SelectQuest(_pendingSelect);
+                _pendingSelect = null;
             }
-
-            GUILayout.Space(4);
-            if (GUILayout.Button("DB 갱신", EditorStyles.toolbarButton, GUILayout.Width(60)))
-                RefreshDatabase();
-            if (GUILayout.Button("Enum 생성", EditorStyles.toolbarButton, GUILayout.Width(70)))
-                GenerateQuestIdEnum();
-            if (GUILayout.Button("↺", EditorStyles.toolbarButton, GUILayout.Width(24)))
-                LoadAllQuests();
-
-            EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawFilterTabs()
+        private Toolbar BuildToolbar()
         {
+            var toolbar = new Toolbar();
+
+            toolbar.Add(new ToolbarButton(ToggleCreatePopup) { text = "+ 새 퀘스트" });
+
+            _duplicateButton = new ToolbarButton(DuplicateSelected) { text = "복제" };
+            toolbar.Add(_duplicateButton);
+
+            _deleteButton = new ToolbarButton(DeleteSelected) { text = "삭제" };
+            _deleteButton.style.color = new Color(1f, 0.5f, 0.5f);
+            toolbar.Add(_deleteButton);
+
+            toolbar.Add(new ToolbarSpacer());
+
             var tabs = new[] { "전체", "반복", "자동완료" };
+            _filterToggles.Clear();
             for (int i = 0; i < tabs.Length; i++)
             {
-                GUI.color = _filterTab == i ? new Color(0.6f, 0.85f, 1f) : Color.white;
-                if (GUILayout.Button(tabs[i], EditorStyles.toolbarButton, GUILayout.Width(52)))
-                { _filterTab = i; _selectedIndex = -1; }
+                int captured = i;
+                var toggle = new ToolbarToggle { text = tabs[i], value = _filterTab == i };
+                toggle.RegisterValueChangedCallback(evt =>
+                {
+                    if (!evt.newValue)
+                    {
+                        toggle.SetValueWithoutNotify(_filterTab == captured);
+                        return;
+                    }
+                    _filterTab = captured;
+                    foreach (var t in _filterToggles)
+                        t.SetValueWithoutNotify(t == toggle);
+                    RefreshList();
+                });
+                _filterToggles.Add(toggle);
+                toolbar.Add(toggle);
             }
-            GUI.color = Color.white;
+
+            toolbar.Add(new VisualElement { style = { flexGrow = 1 } });
+
+            var search = new ToolbarSearchField { style = { width = 180 } };
+            search.RegisterValueChangedCallback(evt =>
+            {
+                _searchText = evt.newValue;
+                RefreshList();
+            });
+            toolbar.Add(search);
+
+            toolbar.Add(new ToolbarButton(RefreshDatabase) { text = "DB 갱신" });
+            toolbar.Add(new ToolbarButton(GenerateQuestIdEnum) { text = "Enum 생성" });
+            toolbar.Add(new ToolbarButton(() =>
+            {
+                LoadAllQuests();
+                RefreshList();
+            }) { text = "↺" });
+
+            return toolbar;
         }
 
         #endregion
@@ -276,79 +247,114 @@ namespace UPlayGround.Editor
         // ──────────────────────────────────────────────────────────
         #region 목록 패널 (좌)
 
-        private void DrawListPanel()
+        private VisualElement BuildListPanel()
         {
-            EditorGUILayout.BeginVertical(GUILayout.Width(LIST_PANEL_WIDTH));
-
-            var filtered = GetFilteredQuests();
-
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label($"퀘스트  ({filtered.Count}/{_quests.Count})", EditorStyles.boldLabel);
-            EditorGUILayout.EndHorizontal();
-
-            _listScroll = EditorGUILayout.BeginScrollView(_listScroll,
-                GUILayout.Width(LIST_PANEL_WIDTH), GUILayout.ExpandHeight(true));
-
-            for (int i = 0; i < filtered.Count; i++)
+            var panel = new VisualElement
             {
-                var q = filtered[i];
-                if (q == null) continue;
-
-                bool isSelected  = _selectedIndex == i;
-                bool isDuplicate = _duplicateIds.Contains(q.questId);
-
-                var rowRect = EditorGUILayout.BeginHorizontal(
-                    isSelected ? "selectionRect" : "helpBox", GUILayout.Height(52));
-
-                if (Event.current.type == EventType.MouseDown && rowRect.Contains(Event.current.mousePosition))
-                { SelectIndex(i, q); Event.current.Use(); }
-
-                // 목표 수 뱃지
-                EditorGUILayout.BeginVertical(GUILayout.Width(30));
-                GUILayout.Space(8);
-                var badgeRect = GUILayoutUtility.GetRect(28, 22, GUILayout.Width(28), GUILayout.Height(22));
-                EditorGUI.DrawRect(badgeRect, new Color(0.3f, 0.3f, 0.3f));
-                GUI.Label(badgeRect, q.objectives?.Count.ToString() ?? "0", _badgeStyle);
-                EditorGUILayout.EndVertical();
-
-                EditorGUILayout.BeginVertical();
-                GUILayout.Space(4);
-
-                // 이름 + 중복 경고
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Label(string.IsNullOrEmpty(q.questName) ? "(이름 없음)" : q.questName,
-                    EditorStyles.boldLabel);
-                if (isDuplicate)
+                style =
                 {
-                    GUI.color = new Color(1f, 0.4f, 0.4f);
-                    GUILayout.Label("⚠ ID중복", EditorStyles.miniLabel, GUILayout.Width(52));
-                    GUI.color = Color.white;
+                    width = LIST_PANEL_WIDTH,
+                    flexShrink = 0,
+                    borderRightWidth = 1,
+                    borderRightColor = new Color(0f, 0f, 0f, 0.35f),
                 }
-                EditorGUILayout.EndHorizontal();
+            };
 
-                // ID + 태그
-                GUI.color = new Color(0.6f, 0.6f, 0.6f);
-                var tags = new List<string> { q.questId };
-                if (q.isRepeatable) tags.Add("반복");
-                if (q.autoComplete) tags.Add("자동완료");
-                if (q.requiredQuestIds?.Count > 0) tags.Add($"선행{q.requiredQuestIds.Count}");
-                if (q.autoAcceptNextQuestIds?.Count > 0) tags.Add($"연계{q.autoAcceptNextQuestIds.Count}");
-                GUILayout.Label(string.Join("  |  ", tags), EditorStyles.miniLabel);
-                GUI.color = Color.white;
+            var header = new Toolbar();
+            _countLabel = new Label { style = { unityFontStyleAndWeight = FontStyle.Bold, unityTextAlign = TextAnchor.MiddleLeft } };
+            header.Add(_countLabel);
+            panel.Add(header);
 
-                EditorGUILayout.EndVertical();
-                EditorGUILayout.EndHorizontal();
-                GUILayout.Space(1);
-            }
-
-            if (filtered.Count == 0)
+            _listView = new ListView
             {
-                GUILayout.Space(20);
-                GUILayout.Label("검색 결과 없음", EditorStyles.centeredGreyMiniLabel);
-            }
+                fixedItemHeight = 52,
+                selectionType = SelectionType.Single,
+                style = { flexGrow = 1 },
+                makeItem = MakeListRow,
+                bindItem = BindListRow,
+            };
+            _listView.selectionChanged += _ =>
+            {
+                _selected = _listView.selectedItem as QuestSO;
+                RebuildDetail();
+                UpdateSelectionButtons();
+            };
+            panel.Add(_listView);
 
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
+            return panel;
+        }
+
+        private static VisualElement MakeListRow()
+        {
+            var row = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, paddingLeft = 4, paddingRight = 4 }
+            };
+
+            // 목표 수 뱃지
+            row.Add(new Label
+            {
+                name = "badge",
+                style =
+                {
+                    width = 28, height = 22, flexShrink = 0, marginRight = 6,
+                    backgroundColor = new Color(0.3f, 0.3f, 0.3f),
+                    color = Color.white, unityFontStyleAndWeight = FontStyle.Bold,
+                    unityTextAlign = TextAnchor.MiddleCenter,
+                }
+            });
+
+            var info = new VisualElement { style = { flexGrow = 1, justifyContent = Justify.Center } };
+
+            var nameRow = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+            nameRow.Add(new Label { name = "name", style = { unityFontStyleAndWeight = FontStyle.Bold } });
+            nameRow.Add(new Label("⚠ ID중복")
+            {
+                name = "dup",
+                style = { color = new Color(1f, 0.4f, 0.4f), fontSize = 10, marginLeft = 4 }
+            });
+            info.Add(nameRow);
+
+            info.Add(new Label { name = "tags", style = { color = new Color(0.6f, 0.6f, 0.6f), fontSize = 10 } });
+            row.Add(info);
+
+            return row;
+        }
+
+        private void BindListRow(VisualElement row, int index)
+        {
+            if (index < 0 || index >= _filtered.Count) return;
+            var q = _filtered[index];
+            if (q == null) return;
+
+            row.Q<Label>("badge").text = q.objectives?.Count.ToString() ?? "0";
+            row.Q<Label>("name").text = string.IsNullOrEmpty(q.questName) ? "(이름 없음)" : q.questName;
+            row.Q<Label>("dup").style.display =
+                _duplicateIds.Contains(q.questId) ? DisplayStyle.Flex : DisplayStyle.None;
+
+            var tags = new List<string> { q.questId };
+            if (q.isRepeatable) tags.Add("반복");
+            if (q.autoComplete) tags.Add("자동완료");
+            if (q.requiredQuestIds?.Count > 0) tags.Add($"선행{q.requiredQuestIds.Count}");
+            if (q.autoAcceptNextQuestIds?.Count > 0) tags.Add($"연계{q.autoAcceptNextQuestIds.Count}");
+            row.Q<Label>("tags").text = string.Join("  |  ", tags);
+        }
+
+        private void RefreshList(bool rebuildDetail = true)
+        {
+            _filtered = GetFilteredQuests();
+            _listView.itemsSource = _filtered;
+            _listView.RefreshItems();
+            _countLabel.text = $"퀘스트  ({_filtered.Count}/{_quests.Count})";
+
+            int idx = _selected != null ? _filtered.IndexOf(_selected) : -1;
+            _listView.SetSelectionWithoutNotify(idx >= 0 ? new[] { idx } : System.Array.Empty<int>());
+            bool selectionCleared = _selected != null && idx < 0;
+            if (selectionCleared)
+                _selected = null;
+            if (rebuildDetail || selectionCleared)
+                RebuildDetail();
+            UpdateSelectionButtons();
         }
 
         private List<QuestSO> GetFilteredQuests()
@@ -370,18 +376,27 @@ namespace UPlayGround.Editor
             return result.ToList();
         }
 
-        private void SelectIndex(int index, QuestSO q)
-        {
-            _selectedIndex   = index;
-            _serializedQuest = new SerializedObject(q);
-            GUI.FocusControl(null);
-        }
-
         private void SelectQuest(QuestSO q)
         {
+            if (_listView == null)
+            {
+                _pendingSelect = q;
+                return;
+            }
+
             LoadAllQuests();
-            var idx = GetFilteredQuests().FindIndex(x => x == q);
-            if (idx >= 0) SelectIndex(idx, q);
+            _selected = q;
+            RefreshList();
+
+            int idx = _filtered.IndexOf(q);
+            if (idx >= 0) _listView.ScrollToItem(idx);
+        }
+
+        private void UpdateSelectionButtons()
+        {
+            bool has = _selected != null;
+            _duplicateButton?.SetEnabled(has);
+            _deleteButton?.SetEnabled(has);
         }
 
         #endregion
@@ -389,221 +404,306 @@ namespace UPlayGround.Editor
         // ──────────────────────────────────────────────────────────
         #region 상세 패널 (우)
 
-        private void DrawDetailPanel()
+        private void RebuildDetail()
         {
-            EditorGUILayout.BeginVertical();
+            CloseItemPicker();
+            _detailPane.Clear();
+            _detailPane.Unbind();
 
-            var filtered = GetFilteredQuests();
-            if (_selectedIndex < 0 || _selectedIndex >= filtered.Count || _serializedQuest == null)
+            if (_selected == null)
             {
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("← 퀘스트를 선택하세요", EditorStyles.centeredGreyMiniLabel);
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                _detailPane.Add(MakeCenteredHint("← 퀘스트를 선택하세요"));
                 return;
             }
 
-            var q = filtered[_selectedIndex];
-            if (q == null) { EditorGUILayout.EndVertical(); return; }
-            if (_serializedQuest.targetObject != q) _serializedQuest = new SerializedObject(q);
-
-            _serializedQuest.Update();
+            var q  = _selected;
+            var so = new SerializedObject(q);
 
             // ── 상단 헤더 ────────────────────────────────────────
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label($"  {q.questName}", _titleStyle);
-            GUILayout.FlexibleSpace();
-            GUILayout.Label(AssetDatabase.GetAssetPath(q), _subtitleStyle);
-            if (GUILayout.Button("↗ 에셋 열기", EditorStyles.toolbarButton, GUILayout.Width(80)))
-                EditorGUIUtility.PingObject(q);
-            EditorGUILayout.EndHorizontal();
+            var header = new Toolbar();
+            header.Add(new Label($"  {q.questName}")
+            {
+                name = "detail-title",
+                style = { fontSize = 13, unityFontStyleAndWeight = FontStyle.Bold, unityTextAlign = TextAnchor.MiddleLeft }
+            });
+            header.Add(new VisualElement { style = { flexGrow = 1 } });
+            header.Add(new Label(AssetDatabase.GetAssetPath(q))
+            {
+                style = { color = new Color(0.55f, 0.55f, 0.55f), fontSize = 10, unityTextAlign = TextAnchor.MiddleRight }
+            });
+            header.Add(new ToolbarButton(() => EditorGUIUtility.PingObject(q)) { text = "↗ 에셋 열기" });
+            _detailPane.Add(header);
 
-            _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll);
+            var scroll = new ScrollView { style = { flexGrow = 1, paddingLeft = 6, paddingRight = 6, paddingTop = 4 } };
+            _detailPane.Add(scroll);
 
             // ID 중복 경고
-            if (_duplicateIds.Contains(q.questId))
-                EditorGUILayout.HelpBox($"Quest ID '{q.questId}'가 다른 퀘스트와 중복됩니다.", MessageType.Error);
+            var dupWarning = new HelpBox("", HelpBoxMessageType.Error);
+            scroll.Add(dupWarning);
 
-            EditorGUILayout.Space(4);
-            DrawDetailBasicInfo();
-            EditorGUILayout.Space(4);
-            DrawDetailPrerequisites();
-            EditorGUILayout.Space(4);
-            DrawDetailAutoAcceptNextQuests();
-            EditorGUILayout.Space(4);
-            DrawDetailObjectives();
-            EditorGUILayout.Space(4);
-            DrawDetailReward();
-            EditorGUILayout.Space(4);
-            DrawDetailSettings();
-            EditorGUILayout.Space(8);
+            // ── 기본 정보 ────────────────────────────────────────
+            var basic = MakeSection("기본 정보");
+            basic.Add(new PropertyField { bindingPath = "questId",          label = "퀘스트 ID" });
+            basic.Add(new PropertyField { bindingPath = "questName",        label = "퀘스트 이름" });
+            basic.Add(new PropertyField { bindingPath = "questType",        label = "분류(메인/서브)" });
+            basic.Add(new PropertyField { bindingPath = "shortSummary",     label = "짧은 부제" });
+            basic.Add(new PropertyField { bindingPath = "questDescription", label = "설명" });
+            scroll.Add(basic);
 
-            if (_serializedQuest.ApplyModifiedProperties())
+            // ── 선행 조건 ────────────────────────────────────────
+            var prereq = MakeSection("선행 조건");
+            prereq.Add(new PropertyField { bindingPath = "requiredQuestIds",      label = "완료 필요 퀘스트 ID" });
+            prereq.Add(new PropertyField { bindingPath = "requiredStoryProgress", label = "필요 스토리 진행도" });
+            scroll.Add(prereq);
+
+            // ── 자동 연계 ────────────────────────────────────────
+            var autoLink = MakeSection("자동 연계");
+            autoLink.Add(new PropertyField { bindingPath = "autoAcceptOnNewGame",    label = "새 게임 시작 시 자동 수락" });
+            autoLink.Add(new PropertyField { bindingPath = "autoAcceptNextQuestIds", label = "완료 후 자동 수락 퀘스트 ID" });
+            scroll.Add(autoLink);
+
+            // ── 목표 ────────────────────────────────────────────
+            var objSection = MakeSection("목표");
+            var objHeader  = objSection.Q<Label>(className: "section-title");
+            var objList    = new VisualElement();
+            var objAddRow  = new VisualElement { style = { flexDirection = FlexDirection.Row, justifyContent = Justify.FlexEnd } };
+            objAddRow.Add(new Button(() =>
+            {
+                so.Update();
+                var objsProp = so.FindProperty("objectives");
+                AddNewObjective(objsProp);
+                so.ApplyModifiedProperties();
+                RebuildObjectiveCards(so, objList, objHeader);
+                _listView.RefreshItems();
+            }) { text = "+ 추가" });
+            objSection.Insert(1, objAddRow);
+            objSection.Add(objList);
+            scroll.Add(objSection);
+            RebuildObjectiveCards(so, objList, objHeader);
+
+            // ── 보상 ────────────────────────────────────────────
+            var rewardSection = MakeSection("보상");
+            rewardSection.Add(new PropertyField { bindingPath = "reward.gold", label = "골드" });
+            rewardSection.Add(new PropertyField { bindingPath = "reward.exp",  label = "경험치" });
+
+            var rewardHeaderRow = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, marginTop = 4 }
+            };
+            var rewardCountLabel = new Label { style = { unityFontStyleAndWeight = FontStyle.Bold } };
+            rewardHeaderRow.Add(rewardCountLabel);
+            rewardHeaderRow.Add(new VisualElement { style = { flexGrow = 1 } });
+            var rewardItemsList = new VisualElement();
+            rewardHeaderRow.Add(new Button(() =>
+            {
+                so.Update();
+                var itemsProp = so.FindProperty("reward.items");
+                itemsProp.InsertArrayElementAtIndex(itemsProp.arraySize);
+                var el = itemsProp.GetArrayElementAtIndex(itemsProp.arraySize - 1);
+                el.FindPropertyRelative("itemId").intValue = 0;
+                el.FindPropertyRelative("count").intValue  = 1;
+                so.ApplyModifiedProperties();
+                RebuildRewardItems(so, rewardItemsList, rewardCountLabel);
+            }) { text = "+ 추가" });
+            rewardSection.Add(rewardHeaderRow);
+            rewardSection.Add(rewardItemsList);
+            scroll.Add(rewardSection);
+            RebuildRewardItems(so, rewardItemsList, rewardCountLabel);
+
+            // ── 설정 ────────────────────────────────────────────
+            var settings = MakeSection("설정");
+            settings.Add(new PropertyField { bindingPath = "isRepeatable", label = "반복 퀘스트" });
+            settings.Add(new PropertyField { bindingPath = "autoComplete", label = "자동 완료" });
+            var autoCompleteInfo = new HelpBox("목표 모두 달성 즉시 자동 완료됩니다.", HelpBoxMessageType.Info);
+            settings.Add(autoCompleteInfo);
+            scroll.Add(settings);
+
+            var acProp = so.FindProperty("autoComplete");
+            void UpdateAcInfo(SerializedProperty p) =>
+                autoCompleteInfo.style.display = p.boolValue ? DisplayStyle.Flex : DisplayStyle.None;
+            UpdateAcInfo(acProp);
+            settings.TrackPropertyValue(acProp, UpdateAcInfo);
+
+            // 값 변경 추적: 중복 재계산 + 목록/헤더 갱신
+            void RefreshDupWarning()
+            {
+                bool dup = _duplicateIds.Contains(q.questId);
+                dupWarning.text = $"Quest ID '{q.questId}'가 다른 퀘스트와 중복됩니다.";
+                dupWarning.style.display = dup ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            RefreshDupWarning();
+
+            _detailPane.TrackSerializedObjectValue(so, _ =>
             {
                 RebuildDuplicateSet();
-                Repaint();
-            }
+                RefreshDupWarning();
+                _detailPane.Q<Label>("detail-title").text = $"  {q.questName}";
+                RefreshList(false);
+            });
 
-            EditorGUILayout.EndScrollView();
-            EditorGUILayout.EndVertical();
+            _detailPane.Bind(so);
         }
 
-        // ── 기본 정보 ────────────────────────────────────────────
+        // ── 목표 카드 ───────────────────────────────────────────
 
-        private void DrawDetailBasicInfo()
+        private void RebuildObjectiveCards(SerializedObject so, VisualElement objList, Label headerLabel)
         {
-            EditorGUILayout.BeginVertical(_sectionStyle);
-            GUILayout.Label("기본 정보", EditorStyles.boldLabel);
-            DrawProp("questId",          "퀘스트 ID");
-            DrawProp("questName",        "퀘스트 이름");
-            DrawProp("questType",        "분류(메인/서브)");
-            DrawProp("shortSummary",     "짧은 부제");
-            DrawProp("questDescription", "설명");
-            EditorGUILayout.EndVertical();
-        }
+            so.Update();
+            objList.Clear();
 
-        // ── 선행 조건 ────────────────────────────────────────────
-
-        private void DrawDetailPrerequisites()
-        {
-            EditorGUILayout.BeginVertical(_sectionStyle);
-            GUILayout.Label("선행 조건", EditorStyles.boldLabel);
-            DrawProp("requiredQuestIds",      "완료 필요 퀘스트 ID");
-            DrawProp("requiredStoryProgress", "필요 스토리 진행도");
-            EditorGUILayout.EndVertical();
-        }
-
-        private void DrawDetailAutoAcceptNextQuests()
-        {
-            EditorGUILayout.BeginVertical(_sectionStyle);
-            GUILayout.Label("자동 연계", EditorStyles.boldLabel);
-            DrawProp("autoAcceptOnNewGame", "새 게임 시작 시 자동 수락");
-            DrawProp("autoAcceptNextQuestIds", "완료 후 자동 수락 퀘스트 ID");
-            EditorGUILayout.EndVertical();
-        }
-
-        // ── 목표 ────────────────────────────────────────────────
-
-        private void DrawDetailObjectives()
-        {
-            var objsProp = _serializedQuest.FindProperty("objectives");
-
-            EditorGUILayout.BeginVertical(_sectionStyle);
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label($"목표  ({objsProp.arraySize}개)", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("+ 추가", EditorStyles.miniButton, GUILayout.Width(50)))
-                AddNewObjective(objsProp);
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Space(4);
-            int removeIdx = -1;
-            for (int i = 0; i < objsProp.arraySize; i++)
-                if (DrawObjectiveCard(objsProp, i)) removeIdx = i;
-
-            if (removeIdx >= 0) objsProp.DeleteArrayElementAtIndex(removeIdx);
+            var objsProp = so.FindProperty("objectives");
+            if (headerLabel != null)
+                headerLabel.text = $"목표  ({objsProp.arraySize}개)";
 
             if (objsProp.arraySize == 0)
-                EditorGUILayout.HelpBox("목표가 없습니다.", MessageType.Info);
+            {
+                objList.Add(new HelpBox("목표가 없습니다.", HelpBoxMessageType.Info));
+                return;
+            }
 
-            EditorGUILayout.EndVertical();
+            for (int i = 0; i < objsProp.arraySize; i++)
+                objList.Add(MakeObjectiveCard(so, objList, headerLabel, i));
+
+            objList.Bind(so);
         }
 
-        private bool DrawObjectiveCard(SerializedProperty objsProp, int index)
+        private VisualElement MakeObjectiveCard(SerializedObject so, VisualElement objList, Label headerLabel, int index)
         {
-            var elem    = objsProp.GetArrayElementAtIndex(index);
+            var objsProp = so.FindProperty("objectives");
+            var elem     = objsProp.GetArrayElementAtIndex(index);
+            string path  = elem.propertyPath;
             var typeProp = elem.FindPropertyRelative("type");
             int typeIdx  = typeProp.enumValueIndex;
-            var typeVal  = (QuestObjectiveType)typeIdx;
-            Color bg     = typeIdx < ObjColors.Length ? ObjColors[typeIdx] : Color.gray;
+            Color bg     = typeIdx >= 0 && typeIdx < ObjColors.Length ? ObjColors[typeIdx] : Color.gray;
 
-            // 카드 배경
-            var savedBg = GUI.backgroundColor;
-            GUI.backgroundColor = bg * 0.4f + Color.white * 0.6f;
-            EditorGUILayout.BeginVertical(_objectiveStyle);
-            GUI.backgroundColor = savedBg;
+            var card = new VisualElement
+            {
+                style =
+                {
+                    marginTop = 3, marginBottom = 3,
+                    paddingLeft = 8, paddingRight = 8, paddingTop = 6, paddingBottom = 6,
+                    backgroundColor = new Color(bg.r, bg.g, bg.b, 0.12f),
+                    borderLeftWidth = 3, borderLeftColor = bg,
+                    borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                    borderBottomLeftRadius = 3, borderBottomRightRadius = 3,
+                }
+            };
 
             // ── 헤더 행 ─────────────────────────────────────────
-            EditorGUILayout.BeginHorizontal();
+            var headerRow = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
 
-            var badgeRect = GUILayoutUtility.GetRect(72, 18, GUILayout.Width(72), GUILayout.Height(18));
-            EditorGUI.DrawRect(badgeRect, bg);
-            string lbl = typeIdx < ObjLabels.Length ? ObjLabels[typeIdx] : typeVal.ToString();
-            GUI.Label(badgeRect, lbl, _badgeStyle);
-            GUILayout.Space(4);
+            var badge = new Label(typeIdx >= 0 && typeIdx < ObjLabels.Length ? ObjLabels[typeIdx] : ((QuestObjectiveType)typeIdx).ToString())
+            {
+                style =
+                {
+                    width = 72, height = 18, backgroundColor = bg,
+                    color = Color.white, unityFontStyleAndWeight = FontStyle.Bold,
+                    unityTextAlign = TextAnchor.MiddleCenter, fontSize = 10, marginRight = 4,
+                }
+            };
+            headerRow.Add(badge);
 
-            var descProp = elem.FindPropertyRelative("description");
-            GUI.color    = new Color(0.75f, 0.75f, 0.75f);
-            GUILayout.Label(string.IsNullOrEmpty(descProp.stringValue) ? "—" : descProp.stringValue,
-                EditorStyles.miniLabel);
-            GUI.color = Color.white;
-            GUILayout.FlexibleSpace();
+            var descLabel = new Label { style = { color = new Color(0.75f, 0.75f, 0.75f), fontSize = 10 } };
+            var descProp  = elem.FindPropertyRelative("description");
+            descLabel.text = string.IsNullOrEmpty(descProp.stringValue) ? "—" : descProp.stringValue;
+            card.TrackPropertyValue(descProp, p =>
+                descLabel.text = string.IsNullOrEmpty(p.stringValue) ? "—" : p.stringValue);
+            headerRow.Add(descLabel);
 
-            // 위아래 이동
-            GUI.enabled = index > 0;
-            if (GUILayout.Button("▲", EditorStyles.miniButton, GUILayout.Width(20)))
-                objsProp.MoveArrayElement(index, index - 1);
-            GUI.enabled = index < objsProp.arraySize - 1;
-            if (GUILayout.Button("▼", EditorStyles.miniButton, GUILayout.Width(20)))
-                objsProp.MoveArrayElement(index, index + 1);
-            GUI.enabled = true;
+            headerRow.Add(new VisualElement { style = { flexGrow = 1 } });
 
-            GUI.color = new Color(1f, 0.5f, 0.5f);
-            bool remove = GUILayout.Button("✕", EditorStyles.miniButton, GUILayout.Width(20));
-            GUI.color   = Color.white;
-            EditorGUILayout.EndHorizontal();
+            void ApplyAndRebuild()
+            {
+                so.ApplyModifiedProperties();
+                RebuildObjectiveCards(so, objList, headerLabel);
+                _listView.RefreshItems();
+            }
 
-            EditorGUILayout.Space(3);
+            var upBtn = new Button(() =>
+            {
+                so.Update();
+                so.FindProperty("objectives").MoveArrayElement(index, index - 1);
+                ApplyAndRebuild();
+            }) { text = "▲", style = { width = 22 } };
+            upBtn.SetEnabled(index > 0);
+            headerRow.Add(upBtn);
+
+            var downBtn = new Button(() =>
+            {
+                so.Update();
+                so.FindProperty("objectives").MoveArrayElement(index, index + 1);
+                ApplyAndRebuild();
+            }) { text = "▼", style = { width = 22 } };
+            downBtn.SetEnabled(index < objsProp.arraySize - 1);
+            headerRow.Add(downBtn);
+
+            var removeBtn = new Button(() =>
+            {
+                so.Update();
+                so.FindProperty("objectives").DeleteArrayElementAtIndex(index);
+                ApplyAndRebuild();
+            }) { text = "✕", style = { width = 22, color = new Color(1f, 0.5f, 0.5f) } };
+            headerRow.Add(removeBtn);
+
+            card.Add(headerRow);
 
             // ── 편집 필드 ────────────────────────────────────────
-            EditorGUI.indentLevel++;
-            DrawElemProp(elem, "objectiveId", "목표 ID");
-            DrawElemProp(elem, "description", "설명");
-            DrawElemProp(elem, "type",        "타입");
+            card.Add(new PropertyField { bindingPath = $"{path}.objectiveId", label = "목표 ID" });
+            card.Add(new PropertyField { bindingPath = $"{path}.description", label = "설명" });
+            card.Add(new PropertyField { bindingPath = $"{path}.type",        label = "타입" });
 
-            // 타입 변경 반영
-            typeIdx = typeProp.enumValueIndex;
-            typeVal = (QuestObjectiveType)typeIdx;
+            // 타입별 조건부 필드
+            var conditional = new VisualElement();
+            card.Add(conditional);
+            BuildObjectiveConditionalFields(conditional, path, (QuestObjectiveType)typeIdx);
+            card.TrackPropertyValue(typeProp, _ =>
+            {
+                // 타입 변경 시 카드 전체(뱃지 색상 포함) 재구축 — 콜백 내 제거를 피하려고 지연 실행
+                objList.schedule.Execute(() => RebuildObjectiveCards(so, objList, headerLabel));
+            });
 
-            switch (typeVal)
+            // 연결 포인트 힌트
+            string hint = typeIdx >= 0 && typeIdx < ObjHints.Length ? ObjHints[typeIdx] : "";
+            card.Add(new Label($"▶ QuestManager.Instance.{hint}")
+            {
+                style = { color = new Color(0.55f, 0.55f, 0.55f), fontSize = 10, marginTop = 2 }
+            });
+
+            return card;
+        }
+
+        private static void BuildObjectiveConditionalFields(VisualElement container, string path, QuestObjectiveType type)
+        {
+            container.Clear();
+            switch (type)
             {
                 case QuestObjectiveType.ItemCollect:
                 case QuestObjectiveType.ItemUse:
                 case QuestObjectiveType.ItemEnhance:
-                    DrawElemProp(elem, "targetId",      "아이템 ID");
-                    DrawElemProp(elem, "requiredCount", "필요 수량");
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetId",      label = "아이템 ID" });
+                    container.Add(new PropertyField { bindingPath = $"{path}.requiredCount", label = "필요 수량" });
                     break;
                 case QuestObjectiveType.ItemDeliver:
-                    DrawElemProp(elem, "targetId",      "아이템 ID");
-                    DrawElemProp(elem, "npcId",         "NPC ID");
-                    DrawElemProp(elem, "requiredCount", "전달 수량");
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetId",      label = "아이템 ID" });
+                    container.Add(new PropertyField { bindingPath = $"{path}.npcId",         label = "NPC ID" });
+                    container.Add(new PropertyField { bindingPath = $"{path}.requiredCount", label = "전달 수량" });
                     break;
                 case QuestObjectiveType.MonsterKill:
-                    DrawElemProp(elem, "targetStringId", "Actor ID");
-                    DrawElemProp(elem, "targetId",       "레거시 숫자 ID");
-                    DrawElemProp(elem, "requiredCount", "처치 수");
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetStringId", label = "Actor ID" });
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetId",       label = "레거시 숫자 ID" });
+                    container.Add(new PropertyField { bindingPath = $"{path}.requiredCount",  label = "처치 수" });
                     break;
                 case QuestObjectiveType.StoryProgress:
-                    DrawElemProp(elem, "targetId", "필요 진행도");
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetId", label = "필요 진행도" });
                     break;
                 case QuestObjectiveType.ItemCraft:
-                    DrawElemProp(elem, "targetId",      "레시피 ID");
-                    DrawElemProp(elem, "requiredCount", "제작 횟수");
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetId",      label = "레시피 ID" });
+                    container.Add(new PropertyField { bindingPath = $"{path}.requiredCount", label = "제작 횟수" });
                     break;
                 case QuestObjectiveType.ReachLocation:
-                    DrawElemProp(elem, "targetStringId", "위치 ID");
+                    container.Add(new PropertyField { bindingPath = $"{path}.targetStringId", label = "위치 ID" });
                     break;
             }
-            EditorGUI.indentLevel--;
-
-            // 연결 포인트 힌트
-            string hint = typeIdx < ObjHints.Length ? ObjHints[typeIdx] : "";
-            GUI.color = new Color(0.55f, 0.55f, 0.55f);
-            GUILayout.Label($"▶ QuestManager.Instance.{hint}", EditorStyles.miniLabel);
-            GUI.color = Color.white;
-
-            EditorGUILayout.EndVertical();
-            return remove;
         }
 
         private void AddNewObjective(SerializedProperty objsProp)
@@ -619,107 +719,123 @@ namespace UPlayGround.Editor
             el.FindPropertyRelative("requiredCount").intValue     = 1;
         }
 
-        // ── 보상 ────────────────────────────────────────────────
+        // ── 보상 아이템 ─────────────────────────────────────────
 
-        private void DrawDetailReward()
+        private void RebuildRewardItems(SerializedObject so, VisualElement listRoot, Label countLabel)
         {
-            var rewardProp = _serializedQuest.FindProperty("reward");
-            var goldProp   = rewardProp.FindPropertyRelative("gold");
-            var expProp    = rewardProp.FindPropertyRelative("exp");
-            var itemsProp  = rewardProp.FindPropertyRelative("items");
+            so.Update();
+            listRoot.Clear();
 
-            EditorGUILayout.BeginVertical(_sectionStyle);
-            GUILayout.Label("보상", EditorStyles.boldLabel);
+            var itemsProp = so.FindProperty("reward.items");
+            countLabel.text = $"보상 아이템  ({itemsProp.arraySize}개)";
 
-            EditorGUILayout.PropertyField(goldProp, new GUIContent("골드"));
-            EditorGUILayout.PropertyField(expProp, new GUIContent("경험치"));
-
-            EditorGUILayout.Space(2);
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label($"보상 아이템  ({itemsProp.arraySize}개)", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("+ 추가", EditorStyles.miniButton, GUILayout.Width(50)))
-            {
-                itemsProp.InsertArrayElementAtIndex(itemsProp.arraySize);
-                var el = itemsProp.GetArrayElementAtIndex(itemsProp.arraySize - 1);
-                el.FindPropertyRelative("itemId").intValue = 0;
-                el.FindPropertyRelative("count").intValue  = 1;
-            }
-            EditorGUILayout.EndHorizontal();
-
-            int removeIdx = -1;
             for (int i = 0; i < itemsProp.arraySize; i++)
             {
-                var el      = itemsProp.GetArrayElementAtIndex(i);
-                var idProp  = el.FindPropertyRelative("itemId");
-                var cntProp = el.FindPropertyRelative("count");
-                var item    = _allItems.Find(x => x.itemId == idProp.intValue);
+                int captured = i;
+                var el       = itemsProp.GetArrayElementAtIndex(i);
+                var idProp   = el.FindPropertyRelative("itemId");
+                var item     = _allItems.Find(x => x.itemId == idProp.intValue);
 
-                EditorGUILayout.BeginHorizontal("box");
-
-                // 아이콘
-                if (item?.icon != null)
+                var row = new VisualElement
                 {
-                    var r = GUILayoutUtility.GetRect(24, 24, GUILayout.Width(24), GUILayout.Height(24));
-                    GUI.DrawTexture(r, item.icon.texture, ScaleMode.ScaleToFit);
-                }
+                    style =
+                    {
+                        flexDirection = FlexDirection.Row, alignItems = Align.Center,
+                        marginTop = 1, paddingLeft = 4, paddingRight = 4, paddingTop = 2, paddingBottom = 2,
+                        backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.1f),
+                    }
+                };
 
-                string itemLabel = item != null ? $"[{item.itemId}] {item.itemName}" : $"ID: {idProp.intValue}";
-                GUILayout.Label(itemLabel, GUILayout.MinWidth(120));
-
-                if (GUILayout.Button("선택", EditorStyles.miniButton, GUILayout.Width(36)))
+                var icon = new Image
                 {
-                    _pickerRewardIndex = i;
-                    _showItemPicker    = true;
-                    _pickerSearch      = "";
-                }
+                    scaleMode = ScaleMode.ScaleToFit,
+                    sprite = item != null ? item.icon : null,
+                    style = { width = 24, height = 24, flexShrink = 0, marginRight = 4 }
+                };
+                row.Add(icon);
 
-                GUILayout.Space(4);
-                GUILayout.Label("수량", GUILayout.Width(30));
-                cntProp.intValue = Mathf.Max(1, EditorGUILayout.IntField(cntProp.intValue, GUILayout.Width(50)));
-                GUILayout.FlexibleSpace();
+                row.Add(new Label(item != null ? $"[{item.itemId}] {item.itemName}" : $"ID: {idProp.intValue}")
+                {
+                    style = { minWidth = 120 }
+                });
 
-                GUI.color = new Color(1f, 0.5f, 0.5f);
-                if (GUILayout.Button("✕", EditorStyles.miniButton, GUILayout.Width(20)))
-                    removeIdx = i;
-                GUI.color = Color.white;
+                row.Add(new Button(() =>
+                {
+                    OpenItemPicker(pickedId =>
+                    {
+                        so.Update();
+                        var items = so.FindProperty("reward.items");
+                        if (captured < items.arraySize)
+                            items.GetArrayElementAtIndex(captured).FindPropertyRelative("itemId").intValue = pickedId;
+                        so.ApplyModifiedProperties();
+                        RebuildRewardItems(so, listRoot, countLabel);
+                    });
+                }) { text = "선택" });
 
-                EditorGUILayout.EndHorizontal();
+                row.Add(new Label("수량") { style = { marginLeft = 4, marginRight = 2 } });
+                var countField = new IntegerField { value = el.FindPropertyRelative("count").intValue, style = { width = 50 } };
+                countField.RegisterValueChangedCallback(evt =>
+                {
+                    int v = Mathf.Max(1, evt.newValue);
+                    countField.SetValueWithoutNotify(v);
+                    so.Update();
+                    var items = so.FindProperty("reward.items");
+                    if (captured < items.arraySize)
+                        items.GetArrayElementAtIndex(captured).FindPropertyRelative("count").intValue = v;
+                    so.ApplyModifiedProperties();
+                });
+                row.Add(countField);
+
+                row.Add(new VisualElement { style = { flexGrow = 1 } });
+
+                row.Add(new Button(() =>
+                {
+                    so.Update();
+                    var items = so.FindProperty("reward.items");
+                    if (captured < items.arraySize)
+                        items.DeleteArrayElementAtIndex(captured);
+                    so.ApplyModifiedProperties();
+                    RebuildRewardItems(so, listRoot, countLabel);
+                }) { text = "✕", style = { width = 22, color = new Color(1f, 0.5f, 0.5f) } });
+
+                listRoot.Add(row);
             }
-
-            if (removeIdx >= 0) itemsProp.DeleteArrayElementAtIndex(removeIdx);
-
-            EditorGUILayout.EndVertical();
         }
 
-        // ── 설정 ────────────────────────────────────────────────
+        #endregion
 
-        private void DrawDetailSettings()
+        // ──────────────────────────────────────────────────────────
+        #region 공통 UI 헬퍼
+
+        private static VisualElement MakeSection(string title)
         {
-            EditorGUILayout.BeginVertical(_sectionStyle);
-            GUILayout.Label("설정", EditorStyles.boldLabel);
-            DrawProp("isRepeatable", "반복 퀘스트");
-            DrawProp("autoComplete", "자동 완료");
-
-            var ac = _serializedQuest.FindProperty("autoComplete");
-            if (ac.boolValue)
-                EditorGUILayout.HelpBox("목표 모두 달성 즉시 자동 완료됩니다.", MessageType.Info);
-
-            EditorGUILayout.EndVertical();
+            var section = new VisualElement
+            {
+                style =
+                {
+                    marginTop = 4, paddingLeft = 8, paddingRight = 8, paddingTop = 6, paddingBottom = 6,
+                    backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.08f),
+                    borderTopLeftRadius = 3, borderTopRightRadius = 3,
+                    borderBottomLeftRadius = 3, borderBottomRightRadius = 3,
+                    borderLeftWidth = 1, borderRightWidth = 1, borderTopWidth = 1, borderBottomWidth = 1,
+                    borderLeftColor = new Color(0f, 0f, 0f, 0.25f), borderRightColor = new Color(0f, 0f, 0f, 0.25f),
+                    borderTopColor = new Color(0f, 0f, 0f, 0.25f), borderBottomColor = new Color(0f, 0f, 0f, 0.25f),
+                }
+            };
+            var titleLabel = new Label(title) { style = { unityFontStyleAndWeight = FontStyle.Bold, marginBottom = 2 } };
+            titleLabel.AddToClassList("section-title");
+            section.Add(titleLabel);
+            return section;
         }
 
-        // ── 공통 헬퍼 ───────────────────────────────────────────
-
-        private void DrawProp(string propName, string label)
+        private static VisualElement MakeCenteredHint(string text)
         {
-            var p = _serializedQuest.FindProperty(propName);
-            if (p != null) EditorGUILayout.PropertyField(p, new GUIContent(label));
-        }
-
-        private void DrawElemProp(SerializedProperty parent, string propName, string label)
-        {
-            var p = parent.FindPropertyRelative(propName);
-            if (p != null) EditorGUILayout.PropertyField(p, new GUIContent(label));
+            var hint = new VisualElement
+            {
+                style = { flexGrow = 1, justifyContent = Justify.Center, alignItems = Align.Center }
+            };
+            hint.Add(new Label(text) { style = { color = new Color(0.55f, 0.55f, 0.55f) } });
+            return hint;
         }
 
         #endregion
@@ -727,59 +843,89 @@ namespace UPlayGround.Editor
         // ──────────────────────────────────────────────────────────
         #region 생성 팝업
 
-        private void DrawCreatePopup()
+        private void ToggleCreatePopup()
         {
-            Rect popupRect = new Rect(4, 22, 340f, 162f);
-            GUI.Box(popupRect, GUIContent.none, "window");
-            GUILayout.BeginArea(popupRect);
+            _createPopup.style.display = _createPopup.style.display == DisplayStyle.None
+                ? DisplayStyle.Flex : DisplayStyle.None;
+        }
 
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            GUILayout.Label("새 퀘스트 생성", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("✕", EditorStyles.toolbarButton, GUILayout.Width(22)))
-            { _showCreatePopup = false; EditorGUILayout.EndHorizontal(); GUILayout.EndArea(); return; }
-            EditorGUILayout.EndHorizontal();
+        private VisualElement BuildCreatePopup()
+        {
+            var popup = new VisualElement
+            {
+                style =
+                {
+                    position = Position.Absolute, left = 4, top = 22, width = 360,
+                    display = DisplayStyle.None,
+                    backgroundColor = EditorGUIUtility.isProSkin
+                        ? new Color(0.22f, 0.22f, 0.22f) : new Color(0.8f, 0.8f, 0.8f),
+                    borderLeftWidth = 1, borderRightWidth = 1, borderTopWidth = 1, borderBottomWidth = 1,
+                    borderLeftColor = Color.black, borderRightColor = Color.black,
+                    borderTopColor = Color.black, borderBottomColor = Color.black,
+                    paddingBottom = 8,
+                }
+            };
 
-            EditorGUILayout.Space(4);
+            var header = new Toolbar();
+            header.Add(new Label("새 퀘스트 생성")
+            {
+                style = { unityFontStyleAndWeight = FontStyle.Bold, unityTextAlign = TextAnchor.MiddleLeft }
+            });
+            header.Add(new VisualElement { style = { flexGrow = 1 } });
+            header.Add(new ToolbarButton(() => popup.style.display = DisplayStyle.None) { text = "✕" });
+            popup.Add(header);
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Quest ID", GUILayout.Width(72));
-            _newQuestId = EditorGUILayout.TextField(_newQuestId);
-            EditorGUILayout.EndHorizontal();
+            var idField = new TextField("Quest ID") { value = _newQuestId, style = { marginTop = 4 } };
+            popup.Add(idField);
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("퀘스트 이름", GUILayout.Width(72));
-            _newQuestName = EditorGUILayout.TextField(_newQuestName);
-            EditorGUILayout.EndHorizontal();
+            var nameField = new TextField("퀘스트 이름") { value = _newQuestName };
+            popup.Add(nameField);
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("저장 경로", GUILayout.Width(72));
-            _newSavePath = EditorGUILayout.TextField(_newSavePath);
-            if (GUILayout.Button("...", GUILayout.Width(28)))
+            var pathRow = new VisualElement { style = { flexDirection = FlexDirection.Row } };
+            var pathField = new TextField("저장 경로") { value = _newSavePath, style = { flexGrow = 1 } };
+            pathRow.Add(pathField);
+            pathRow.Add(new Button(() =>
             {
                 string sel = EditorUtility.OpenFolderPanel("저장 폴더", _newSavePath, "");
                 if (!string.IsNullOrEmpty(sel))
                 {
                     string proj = Path.GetFullPath(Application.dataPath + "/..");
                     if (sel.StartsWith(proj))
-                        _newSavePath = "Assets" + sel.Substring(proj.Length).Replace('\\', '/');
+                        pathField.value = "Assets" + sel.Substring(proj.Length).Replace('\\', '/');
                 }
+            }) { text = "..." });
+            popup.Add(pathRow);
+
+            var dupWarning = new HelpBox("이미 존재하는 Quest ID입니다.", HelpBoxMessageType.Warning);
+            popup.Add(dupWarning);
+
+            var createBtn = new Button { text = "생성", style = { height = 24, marginTop = 4, marginLeft = 8, marginRight = 8 } };
+            popup.Add(createBtn);
+
+            void Validate()
+            {
+                _newQuestId   = idField.value;
+                _newQuestName = nameField.value;
+                _newSavePath  = pathField.value;
+
+                bool idDuplicate = _quests.Exists(x => x != null && x.questId == _newQuestId);
+                dupWarning.style.display = idDuplicate ? DisplayStyle.Flex : DisplayStyle.None;
+                createBtn.SetEnabled(!string.IsNullOrWhiteSpace(_newQuestId) &&
+                                     !string.IsNullOrWhiteSpace(_newQuestName) &&
+                                     !idDuplicate);
             }
-            EditorGUILayout.EndHorizontal();
+            idField.RegisterValueChangedCallback(_ => Validate());
+            nameField.RegisterValueChangedCallback(_ => Validate());
+            pathField.RegisterValueChangedCallback(_ => Validate());
+            Validate();
 
-            bool idDuplicate = _quests.Exists(q => q != null && q.questId == _newQuestId);
-            if (idDuplicate)
-                EditorGUILayout.HelpBox("이미 존재하는 Quest ID입니다.", MessageType.Warning);
+            createBtn.clicked += () =>
+            {
+                popup.style.display = DisplayStyle.None;
+                CreateNewQuest();
+            };
 
-            EditorGUILayout.Space(4);
-            bool valid = !string.IsNullOrWhiteSpace(_newQuestId) &&
-                         !string.IsNullOrWhiteSpace(_newQuestName) &&
-                         !idDuplicate;
-            GUI.enabled = valid;
-            if (GUILayout.Button("생성", GUILayout.Height(24))) CreateNewQuest();
-            GUI.enabled = true;
-
-            GUILayout.EndArea();
+            return popup;
         }
 
         private void CreateNewQuest()
@@ -797,11 +943,9 @@ namespace UPlayGround.Editor
             AssetDatabase.CreateAsset(q, assetPath);
             AssetDatabase.SaveAssets();
 
-            _showCreatePopup = false;
             LoadAllQuests();
-
-            int idx = GetFilteredQuests().FindIndex(x => x == q);
-            if (idx >= 0) SelectIndex(idx, q);
+            _selected = q;
+            RefreshList();
 
             EditorGUIUtility.PingObject(q);
             Debug.Log($"[QuestEditor] 생성 완료: {assetPath}");
@@ -814,13 +958,12 @@ namespace UPlayGround.Editor
 
         private void DuplicateSelected()
         {
-            var filtered = GetFilteredQuests();
-            if (_selectedIndex < 0 || _selectedIndex >= filtered.Count) return;
+            if (_selected == null) return;
 
-            var src     = filtered[_selectedIndex];
+            var src        = _selected;
             string srcPath = AssetDatabase.GetAssetPath(src);
-            string dir  = Path.GetDirectoryName(srcPath);
-            string copy = AssetDatabase.GenerateUniqueAssetPath(
+            string dir     = Path.GetDirectoryName(srcPath);
+            string copy    = AssetDatabase.GenerateUniqueAssetPath(
                 Path.Combine(dir, Path.GetFileName(srcPath)).Replace('\\', '/'));
 
             AssetDatabase.CopyAsset(srcPath, copy);
@@ -835,17 +978,16 @@ namespace UPlayGround.Editor
             }
 
             LoadAllQuests();
-            int idx = GetFilteredQuests().FindIndex(x => x == newQ);
-            if (idx >= 0) SelectIndex(idx, newQ);
+            _selected = newQ;
+            RefreshList();
             EditorGUIUtility.PingObject(newQ);
         }
 
         private void DeleteSelected()
         {
-            var filtered = GetFilteredQuests();
-            if (_selectedIndex < 0 || _selectedIndex >= filtered.Count) return;
+            if (_selected == null) return;
 
-            var q    = filtered[_selectedIndex];
+            var q       = _selected;
             string path = AssetDatabase.GetAssetPath(q);
 
             if (!EditorUtility.DisplayDialog("퀘스트 삭제",
@@ -853,11 +995,11 @@ namespace UPlayGround.Editor
                 "삭제", "취소"))
                 return;
 
-            _selectedIndex   = -1;
-            _serializedQuest = null;
+            _selected = null;
 
             AssetDatabase.DeleteAsset(path);
             LoadAllQuests();
+            RefreshList();
         }
 
         #endregion
@@ -876,6 +1018,7 @@ namespace UPlayGround.Editor
             }
             _questDb.RefreshDatabase(DEFAULT_QUEST_PATH);
             LoadAllQuests();
+            RefreshList();
         }
 
         /// <summary>
@@ -918,65 +1061,89 @@ namespace UPlayGround.Editor
         // ──────────────────────────────────────────────────────────
         #region 아이템 피커 팝업
 
-        private void DrawItemPickerPopup()
+        private void OpenItemPicker(System.Action<int> onPicked)
         {
-            // 보상 목록이 유효한지 확인
-            if (_serializedQuest == null) { _showItemPicker = false; return; }
-            var itemsProp = _serializedQuest.FindProperty("reward.items");
-            if (itemsProp == null || _pickerRewardIndex < 0 || _pickerRewardIndex >= itemsProp.arraySize)
-            { _showItemPicker = false; return; }
+            CloseItemPicker();
 
-            Rect pickerRect = new Rect(
-                LIST_PANEL_WIDTH + 4,
-                position.height - 250,
-                position.width - LIST_PANEL_WIDTH - 8,
-                240);
-
-            GUI.Box(pickerRect, GUIContent.none, "window");
-            GUILayout.BeginArea(new Rect(pickerRect.x + 4, pickerRect.y + 4,
-                pickerRect.width - 8, pickerRect.height - 8));
-
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("보상 아이템 선택", EditorStyles.boldLabel);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("✕", GUILayout.Width(20))) _showItemPicker = false;
-            EditorGUILayout.EndHorizontal();
-
-            _pickerSearch = EditorGUILayout.TextField(_pickerSearch, EditorStyles.toolbarSearchField);
-
-            _pickerScroll = EditorGUILayout.BeginScrollView(_pickerScroll, GUILayout.Height(170));
-            string lower = _pickerSearch.ToLower();
-
-            foreach (var item in _allItems)
+            var popup = new VisualElement
             {
-                if (!string.IsNullOrEmpty(_pickerSearch) &&
-                    !item.itemName.ToLower().Contains(lower) &&
-                    !item.itemId.ToString().Contains(_pickerSearch))
-                    continue;
+                style =
+                {
+                    position = Position.Absolute, right = 8, top = 28, width = 320, height = 400,
+                    backgroundColor = EditorGUIUtility.isProSkin
+                        ? new Color(0.22f, 0.22f, 0.22f) : new Color(0.8f, 0.8f, 0.8f),
+                    borderLeftWidth = 1, borderRightWidth = 1, borderTopWidth = 1, borderBottomWidth = 1,
+                    borderLeftColor = Color.black, borderRightColor = Color.black,
+                    borderTopColor = Color.black, borderBottomColor = Color.black,
+                }
+            };
 
-                EditorGUILayout.BeginHorizontal();
-                if (item.icon != null)
+            var header = new Toolbar();
+            header.Add(new Label("보상 아이템 선택")
+            {
+                style = { unityFontStyleAndWeight = FontStyle.Bold, unityTextAlign = TextAnchor.MiddleLeft }
+            });
+            header.Add(new VisualElement { style = { flexGrow = 1 } });
+            header.Add(new ToolbarButton(CloseItemPicker) { text = "✕" });
+            popup.Add(header);
+
+            var search = new ToolbarSearchField { style = { width = Length.Percent(98) } };
+            popup.Add(search);
+
+            var filteredItems = new List<ItemSO>(_allItems);
+            var pickerList = new ListView
+            {
+                fixedItemHeight = 24,
+                selectionType = SelectionType.None,
+                style = { flexGrow = 1 },
+                itemsSource = filteredItems,
+                makeItem = () =>
                 {
-                    var r = GUILayoutUtility.GetRect(18, 18, GUILayout.Width(18), GUILayout.Height(18));
-                    GUI.DrawTexture(r, item.icon.texture, ScaleMode.ScaleToFit);
-                }
-                if (GUILayout.Button($"[{item.itemId}] {item.itemName}", EditorStyles.miniButton))
+                    var row = new VisualElement { style = { flexDirection = FlexDirection.Row, alignItems = Align.Center } };
+                    row.Add(new Image { name = "icon", scaleMode = ScaleMode.ScaleToFit, style = { width = 18, height = 18, flexShrink = 0, marginLeft = 2 } });
+                    var btn = new Button { name = "pick", style = { flexGrow = 1, unityTextAlign = TextAnchor.MiddleLeft } };
+                    row.Add(btn);
+                    return row;
+                },
+            };
+            pickerList.bindItem = (row, i) =>
+            {
+                if (i < 0 || i >= filteredItems.Count) return;
+                var item = filteredItems[i];
+                row.Q<Image>("icon").sprite = item.icon;
+                var btn = row.Q<Button>("pick");
+                btn.text = $"[{item.itemId}] {item.itemName}";
+                btn.clickable = new Clickable(() =>
                 {
-                    _serializedQuest.Update();
-                    itemsProp.GetArrayElementAtIndex(_pickerRewardIndex)
-                        .FindPropertyRelative("itemId").intValue = item.itemId;
-                    _serializedQuest.ApplyModifiedProperties();
-                    _showItemPicker = false;
-                    Repaint();
-                }
-                EditorGUILayout.EndHorizontal();
+                    onPicked?.Invoke(item.itemId);
+                    CloseItemPicker();
+                });
+            };
+            popup.Add(pickerList);
+
+            search.RegisterValueChangedCallback(evt =>
+            {
+                string s = evt.newValue ?? "";
+                filteredItems.Clear();
+                filteredItems.AddRange(_allItems.Where(i =>
+                    string.IsNullOrEmpty(s)
+                    || i.itemName.IndexOf(s, System.StringComparison.CurrentCultureIgnoreCase) >= 0
+                    || i.itemId.ToString().Contains(s)));
+                pickerList.RefreshItems();
+            });
+
+            _itemPickerPopup = popup;
+            rootVisualElement.Add(popup);
+            search.Focus();
+        }
+
+        private void CloseItemPicker()
+        {
+            if (_itemPickerPopup != null)
+            {
+                _itemPickerPopup.RemoveFromHierarchy();
+                _itemPickerPopup = null;
             }
-
-            EditorGUILayout.EndScrollView();
-            GUILayout.EndArea();
-
-            if (Event.current.type == EventType.MouseDown && !pickerRect.Contains(Event.current.mousePosition))
-            { _showItemPicker = false; Repaint(); }
         }
 
         #endregion

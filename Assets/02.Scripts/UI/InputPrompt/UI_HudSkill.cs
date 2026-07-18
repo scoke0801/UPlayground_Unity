@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data.Combat;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Contracts.Ability;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround.UI.InputPrompt
 {
@@ -37,6 +40,7 @@ namespace UPlayGround.UI.InputPrompt
         private PlayerCombat     _combat;
         private PlayerSkillGauge _gauge;
         private PlayerMovementController _movement; // 대시 쿨타임 소스(이동 컨트롤러 소유)
+        private IAbilityRuntimeReader _abilityReader;
         private Func<ComboRouteEntry, bool> _resourceFilter; // 메서드그룹 delegate 캐시
 
         private IUIPartyService _partyManager;
@@ -99,11 +103,14 @@ namespace UPlayGround.UI.InputPrompt
             // 이전 대시 쿨타임 구독 해제
             if (_movement != null)
                 _movement.OnDashCooldownChanged -= OnDashCooldownChanged;
+            if (_abilityReader != null)
+                _abilityReader.StateChanged -= OnAbilityStateChanged;
 
             _player         = player;
             _combat         = player != null ? player.GetCombat() : null;
             _gauge          = player != null ? player.SkillGauge  : null;
             _movement       = player != null ? player.PlayerController : null;
+            _abilityReader  = player != null ? player.Abilities : null;
             _resourceFilter = _combat != null ? _combat.CanAffordRoute : null;
             _lastSignature  = NoSignature; // 콤보 힌트 강제 재계산
 
@@ -116,6 +123,8 @@ namespace UPlayGround.UI.InputPrompt
             WireDashCooldownSource();
             if (_movement != null)
                 _movement.OnDashCooldownChanged += OnDashCooldownChanged;
+            if (_abilityReader != null)
+                _abilityReader.StateChanged += OnAbilityStateChanged;
 
             if (_gauge != null)
             {
@@ -140,6 +149,12 @@ namespace UPlayGround.UI.InputPrompt
         }
 
         private void OnSkillCooldownChanged(int skillSlot, float remaining, float duration)
+        {
+            ApplyGaugeStates();
+            _lastSignature = NoSignature;
+        }
+
+        private void OnAbilityStateChanged()
         {
             ApplyGaugeStates();
             _lastSignature = NoSignature;
@@ -185,7 +200,18 @@ namespace UPlayGround.UI.InputPrompt
             {
                 var slot = _slots[i];
                 if (slot == null) continue;
-                _hasVisibleCooldown |= slot.SetGaugeState(_gauge);
+                if (_abilityReader != null
+                    && slot.RequiresGauge
+                    && System.Enum.IsDefined(typeof(PlayerSkillSlot), slot.GaugeSlot)
+                    && _abilityReader.TryGetPlayerSlotState(
+                        (PlayerSkillSlot)slot.GaugeSlot, out AbilitySlotViewState abilityState))
+                {
+                    _hasVisibleCooldown |= slot.SetAbilityState(abilityState);
+                }
+                else
+                {
+                    _hasVisibleCooldown |= slot.SetGaugeState(_gauge);
+                }
             }
         }
 

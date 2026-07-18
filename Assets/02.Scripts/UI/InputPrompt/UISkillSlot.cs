@@ -2,8 +2,10 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data.Combat;
+using UPlayGround.Contracts.Ability;
 
 namespace UPlayGround.UI.InputPrompt
 {
@@ -275,6 +277,62 @@ namespace UPlayGround.UI.InputPrompt
             // 상태 전이 트윈은 오버레이 SetActive 이후에 평가한다(팝-인 대상이 활성 상태여야 함).
             DriveTweens(ready, hasCooldown);
 
+            return showCooldown;
+        }
+
+        /// <summary>
+        /// 신규 Ability 런타임의 읽기 전용 상태를 표시한다.
+        /// UI는 비용/사용 가능 여부를 재계산하지 않고 전달된 값을 그대로 사용한다.
+        /// </summary>
+        public bool SetAbilityState(in AbilitySlotViewState state)
+        {
+            float cooldownRemaining = Mathf.Max(0f, state.CooldownRemaining);
+            float cooldownDuration = Mathf.Max(0f, state.CooldownDuration);
+            bool hasCooldown = cooldownRemaining > 0f;
+            bool showCooldown = _showCooldownUi && hasCooldown;
+            bool hasResourceCost = state.ResourceRequired > 0f;
+            float resourceRatio = hasResourceCost
+                ? Mathf.Clamp01(state.ResourceCurrent / state.ResourceRequired)
+                : 1f;
+
+            SetGaugeState(state.IsReady);
+            if (_availableRoot != null)
+                _availableRoot.SetActive(ShouldShowAvailableRoot(state.IsReady, showCooldown));
+
+            if (_gaugeFill != null)
+            {
+                bool showGauge = _showGaugeUi && hasResourceCost;
+                _gaugeFill.gameObject.SetActive(showGauge);
+                _gaugeFill.fillAmount = showGauge ? resourceRatio : 0f;
+            }
+
+            if (_gaugeText != null)
+            {
+                bool showGauge = _showGaugeUi && hasResourceCost;
+                _gaugeText.gameObject.SetActive(showGauge);
+                _gaugeText.text = showGauge
+                    ? $"{Mathf.FloorToInt(state.ResourceCurrent)}/{Mathf.FloorToInt(state.ResourceRequired)}"
+                    : string.Empty;
+            }
+
+            if (_cooldownRoot != null)
+                _cooldownRoot.SetActive(showCooldown);
+            if (_cooldownFill != null)
+            {
+                _cooldownFill.gameObject.SetActive(_showCooldownUi);
+                _cooldownFill.fillAmount = showCooldown && cooldownDuration > 0f
+                    ? Mathf.Clamp01(cooldownRemaining / cooldownDuration)
+                    : 0f;
+            }
+            if (_cooldownText != null)
+            {
+                _cooldownText.gameObject.SetActive(showCooldown);
+                _cooldownText.text = showCooldown
+                    ? cooldownRemaining.ToString(_cooldownTextFormat)
+                    : string.Empty;
+            }
+
+            DriveTweens(state.IsReady, hasCooldown);
             return showCooldown;
         }
 

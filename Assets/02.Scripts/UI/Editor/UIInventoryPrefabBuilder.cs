@@ -523,23 +523,36 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 15,
                 TextMain,
                 TextAlignmentOptions.Center);
+            ConfigureSlotOverlayText(cooldownText);
             Stretch(cooldownText.gameObject);
             cooldownText.raycastTarget = false;
             cooldown.SetActive(false);
 
             var enhance = NewUI("Enhance", content.transform);
-            AnchorBottomLeft(Rt(enhance), 34, 20);
-            var txtEnhance = AddText(enhance, "+5", 15, Accent, TextAlignmentOptions.BottomLeft);
+            AnchorBottomLeft(Rt(enhance), 38, 22);
+            AddSlotTextBackdrop(enhance);
+            var enhanceText = NewUI("Text", enhance.transform);
+            InsetStretch(Rt(enhanceText), 3f);
+            var txtEnhance = AddText(enhanceText, "+5", 15, Accent, TextAlignmentOptions.Center);
+            ConfigureSlotOverlayText(txtEnhance, Gold);
             txtEnhance.raycastTarget = false;
 
             var count = NewUI("Count", content.transform);
-            AnchorBottomRight(Rt(count), 34, 20);
-            var txtCount = AddText(count, "1", 15, TextMain, TextAlignmentOptions.BottomRight);
+            AnchorBottomRight(Rt(count), 38, 22);
+            AddSlotTextBackdrop(count);
+            var countText = NewUI("Text", count.transform);
+            InsetStretch(Rt(countText), 3f);
+            var txtCount = AddText(countText, "1", 15, TextMain, TextAlignmentOptions.Center);
+            ConfigureSlotOverlayText(txtCount);
             txtCount.raycastTarget = false;
 
             var weight = NewUI("Weight", content.transform);
-            AnchorTopLeft(Rt(weight), 38, 18);
-            var txtWeight = AddText(weight, "0.0", 12, TextSub, TextAlignmentOptions.TopLeft);
+            AnchorTopLeft(Rt(weight), 42, 22);
+            AddSlotTextBackdrop(weight);
+            var weightText = NewUI("Text", weight.transform);
+            InsetStretch(Rt(weightText), 3f);
+            var txtWeight = AddText(weightText, "0.0", 12, TextSub, TextAlignmentOptions.Center);
+            ConfigureSlotOverlayText(txtWeight);
             txtWeight.raycastTarget = false;
 
             // 장착 중인 파티원 초상 뱃지 — 우상단 (여러 명이면 첫 초상 + "+N")
@@ -562,6 +575,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
             SetRef(so, "_rootEmptySlot", empty);
             SetRef(so, "_txtCount",      txtCount);
             SetRef(so, "_txtWeight",     txtWeight);
+            SetRef(so, "_enhanceRoot",   enhance);
             SetRef(so, "_txtEnhance",    txtEnhance);
             SetRef(so, "_imgItem",       imgItem);
             SetRef(so, "_imgRarity",     imgRarity);
@@ -801,6 +815,27 @@ namespace UPlayGround.UI.Inventory.EditorTools
             t.alignment = align;
             if (TMP_Settings.defaultFontAsset != null) t.font = TMP_Settings.defaultFontAsset;
             return t;
+        }
+
+        private static void ConfigureSlotOverlayText(TextMeshProUGUI text, Color? color = null)
+        {
+            if (text == null)
+                return;
+
+            text.color = color ?? Color.white;
+            text.fontStyle = FontStyles.Bold;
+            text.outlineColor = new Color(0f, 0f, 0f, 0.96f);
+            text.outlineWidth = 0.28f;
+        }
+
+        private static void AddSlotTextBackdrop(GameObject target)
+        {
+            var backdrop = AddImage(
+                target,
+                new Color(0.015f, 0.025f, 0.04f, 0.84f),
+                UISprite,
+                sliced: true);
+            backdrop.raycastTarget = false;
         }
 
         private static Button MakeButton(string name, Transform parent, string label, out TextMeshProUGUI labelText, Color? bg = null)

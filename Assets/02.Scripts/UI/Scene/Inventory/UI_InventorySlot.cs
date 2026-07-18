@@ -23,6 +23,7 @@ namespace UPlayGround.UI
         [SerializeField] private GameObject _rootEmptySlot;
         [SerializeField] private TextMeshProUGUI _txtCount;
         [SerializeField] private TextMeshProUGUI _txtWeight;
+        [SerializeField] private GameObject _enhanceRoot;
         [SerializeField] private TextMeshProUGUI _txtEnhance;   // 강화 배지 "+N"
         [SerializeField] private Image _imgItem;
         [SerializeField] private Image _imgRarity;
@@ -97,8 +98,20 @@ namespace UPlayGround.UI
                 _txtCount.text = _itemCount.ToString();
                 _txtWeight.text = $"{_itemData.weight * _itemCount:0.0}";
 
+                bool hasEnhancement = _enhanceLevel > 0;
+                GameObject enhanceRoot = _enhanceRoot;
+                if (enhanceRoot == null
+                    && _txtEnhance != null
+                    && _txtEnhance.transform.parent != null
+                    && _txtEnhance.transform.parent.name == "Enhance")
+                {
+                    enhanceRoot = _txtEnhance.transform.parent.gameObject;
+                }
+
+                if (enhanceRoot != null)
+                    enhanceRoot.SetActive(hasEnhancement);
                 if (_txtEnhance != null)
-                    _txtEnhance.text = _enhanceLevel > 0 ? $"+{_enhanceLevel}" : string.Empty;
+                    _txtEnhance.text = hasEnhancement ? $"+{_enhanceLevel}" : string.Empty;
 
                 // 장착 중인 파티원 초상 뱃지. 프리팹에 뱃지 오브젝트가 없으면 무시.
                 RefreshEquippedBadge();

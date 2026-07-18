@@ -335,6 +335,7 @@ namespace UPlayGround.UI.HUD.EditorTools
                 Color.white,
                 TextAlignmentOptions.Center);
             Stretch(cooldownText.gameObject);
+            Rt(cooldownText.gameObject).localRotation = Quaternion.Euler(0f, 0f, -45f);
             cooldownText.raycastTarget = false;
             cooldown.SetActive(false);
 

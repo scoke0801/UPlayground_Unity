@@ -359,7 +359,8 @@ Assets/
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
-| [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability / 스킬 시스템 구조 스펙 — Ability·Effect·Tag·자원·쿨다운의 데이터 스키마, asmdef 경계, 실행 트랜잭션, 저장·교체·잔류 공격, 검증·텔레메트리·단계별 완료 조건 |
+| [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability / 스킬 시스템 구조 스펙 — Ability·Effect·Tag·자원·쿨다운의 데이터 스키마, asmdef 경계, 실행 트랜잭션, 저장·교체·잔류 공격, 검증·텔레메트리·단계별 완료 조건 |
+| [GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md](TODO/GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md) | GAS 기반 완전 마이그레이션 스펙 — 통합 AbilitySystemComponent, 런타임 디버거, Ability Task, Attribute Set, EffectSpec과 기존 Stat·Health·Poise·자원 권위 제거 계획 |
 | [PASSIVE_ABILITY_SYSTEM_SPEC.md](TODO/PASSIVE_ABILITY_SYSTEM_SPEC.md) | 캐릭터 패시브 어빌리티 적용 스펙 — 캐릭터별 무제한 보유, CharacterSelect 대표 2개 노출, 공격·쿨다운·방어 Trigger·아이템·제작·경험치·Effect 지속시간 보정 계약 |
 | [BUFF_DEBUFF_SYSTEM_SPEC.md](TODO/BUFF_DEBUFF_SYSTEM_SPEC.md) | 버프·디버프 시스템 및 HUD 표시 스펙 — GameplayEffect 표시 데이터·가시성 정책·읽기 계약, UI_HudPlayerInfo 아이콘 영역과 프리팹 빌더, 검증·테스트 기준 |
 | [EVENT_MANAGER_GUIDE.md](Complete/EVENT_MANAGER_GUIDE.md) | EventManager 타입 안전 이벤트 버스 — enum + IEventData 페어, 데이터/무데이터 오버로드, 씬 전환 자동 정리, 디버그 헬퍼 |

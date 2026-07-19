@@ -370,6 +370,86 @@
     border-radius: var(--up-radius);
 }
 
+.up-timeline-layer-row {
+    flex-direction: row;
+    flex-shrink: 0;
+    background-color: var(--up-bg-2);
+    border-left-width: 3px;
+    border-bottom-width: 1px;
+    border-bottom-color: var(--up-border-strong);
+}
+
+.up-timeline-layer-handle {
+    width: 20px;
+    min-width: 20px;
+    padding-top: 5px;
+    -unity-text-align: middle-center;
+    color: var(--up-text-faint);
+    flex-shrink: 0;
+}
+
+.up-timeline-layer-name {
+    width: 110px;
+    min-width: 76px;
+    height: 24px;
+    margin: 0;
+    padding-left: 4px;
+    padding-right: 4px;
+    -unity-text-align: middle-left;
+    -unity-font-style: bold;
+    color: var(--up-text);
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.up-timeline-layer-action {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: var(--up-text-dim);
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.up-timeline-layer-action:hover,
+.up-timeline-layer-name:hover {
+    background-color: var(--up-accent-soft);
+}
+
+.up-timeline-layer-add {
+    color: var(--up-accent);
+    -unity-font-style: bold;
+}
+
+.up-layer-hidden-state {
+    opacity: 0.48;
+}
+
+.up-layer-locked-state {
+    background-color: var(--up-bg-3);
+}
+
+.up-layer-locked-state > .up-timeline-layer-action {
+    color: var(--up-accent);
+}
+
+.up-timeline-corner-label {
+    padding-left: var(--up-space-2);
+    padding-top: 7px;
+    -unity-font-style: bold;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--up-text-faint);
+    background-color: var(--up-bg-0);
+    border-right-width: 1px;
+    border-right-color: var(--up-border-strong);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--up-border-strong);
+}
+
 .up-timeline-scroll {
     flex-grow: 1;
     min-height: 180px;
@@ -390,6 +470,114 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.up-motion-track-row {
+    flex-direction: row;
+    align-items: center;
+    padding-left: 4px;
+    padding-right: 3px;
+    background-color: var(--up-bg-1);
+    border-right-width: 1px;
+    border-right-color: var(--up-border);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(56, 69, 82, 0.55);
+}
+
+.up-motion-track-toggle {
+    width: 20px;
+    min-width: 20px;
+    height: 22px;
+    margin: 0;
+    padding-top: 3px;
+    -unity-text-align: middle-center;
+    color: var(--up-accent);
+}
+
+.up-motion-track-toggle > .unity-toggle__input {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.up-motion-track-badge {
+    width: 34px;
+    min-width: 34px;
+    height: 18px;
+    margin-right: 3px;
+    padding-top: 2px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 9px;
+    color: var(--up-accent);
+    background-color: var(--up-accent-soft);
+    border-radius: 3px;
+}
+
+.up-motion-track-name {
+    flex-grow: 1;
+    min-width: 58px;
+    height: 24px;
+    margin: 0;
+    padding-left: 4px;
+    padding-right: 3px;
+    -unity-text-align: middle-left;
+    color: var(--up-text);
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.up-motion-track-name:hover,
+.up-motion-track-action:hover {
+    background-color: var(--up-accent-soft);
+}
+
+.up-motion-track-count {
+    width: 20px;
+    min-width: 20px;
+    -unity-text-align: middle-center;
+    font-size: 9px;
+    color: var(--up-text-faint);
+}
+
+.up-motion-track-action {
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+    color: var(--up-text-dim);
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 0;
+}
+
+.up-motion-track-disabled {
+    opacity: 0.46;
+}
+
+.up-motion-clip-label {
+    padding-left: 2px;
+    padding-right: 2px;
+    -unity-text-align: middle-left;
+    font-size: 9px;
+    color: rgba(235, 242, 249, 0.92);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.up-motion-track-drop-hint {
+    padding-left: 6px;
+    padding-right: 6px;
+    -unity-text-align: middle-left;
+    font-size: 9px;
+    color: var(--up-text-faint);
+    background-color: rgba(62, 151, 232, 0.07);
+    border-left-width: 2px;
+    border-left-color: rgba(62, 151, 232, 0.38);
 }
 
 .up-timeline-group-label {

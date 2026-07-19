@@ -5,6 +5,150 @@ using UPlayGround.Data.Event;
 
 namespace UPlayGround.Animation
 {
+    public enum MotionLayerBlendMode
+    {
+        Override,
+        Additive,
+    }
+
+    [Serializable]
+    public class MotionLayer
+    {
+        public string layerName = "Animation Layer";
+        public bool enabled = true;
+        [Min(1)] public int animancerLayerIndex = 1;
+        public AvatarMask avatarMask;
+        public MotionLayerBlendMode blendMode = MotionLayerBlendMode.Override;
+        [Range(0f, 1f)] public float weight = 1f;
+        public bool holdLastFrame = true;
+        public List<Motion> motions = new List<Motion>();
+
+        [SerializeReference]
+        public List<MotionEventBase> globalEvents = new List<MotionEventBase>();
+
+        public float TotalDuration
+        {
+            get
+            {
+                float total = 0f;
+                if (motions == null) return total;
+                foreach (Motion motion in motions)
+                    if (motion != null)
+                        total += motion.Duration;
+                return total;
+            }
+        }
+
+        public bool IsValid()
+        {
+            if (!enabled || motions == null)
+                return false;
+            foreach (Motion motion in motions)
+                if (motion != null && motion.IsValid())
+                    return true;
+            return false;
+        }
+
+        public bool GetMotionAtTime(float time, out int motionIndex, out float localTime)
+        {
+            motionIndex = -1;
+            localTime = 0f;
+            if (motions == null)
+                return false;
+
+            float current = 0f;
+            for (int i = 0; i < motions.Count; i++)
+            {
+                Motion motion = motions[i];
+                if (motion == null || !motion.IsValid())
+                    continue;
+                float end = current + motion.Duration;
+                if (time >= current && time <= end)
+                {
+                    motionIndex = i;
+                    localTime = time - current;
+                    return true;
+                }
+                current = end;
+            }
+            return false;
+        }
+
+        public List<MotionEventBase> GetEventsInRange(float startTime, float endTime)
+        {
+            var results = new List<MotionEventBase>();
+            if (globalEvents != null)
+            {
+                foreach (MotionEventBase evt in globalEvents)
+                    if (evt != null && evt.startTime >= startTime && evt.startTime <= endTime)
+                        results.Add(evt);
+            }
+
+            float offset = 0f;
+            if (motions == null)
+                return results;
+            foreach (Motion motion in motions)
+            {
+                if (motion?.events != null)
+                {
+                    foreach (MotionEventBase evt in motion.events)
+                        if (evt != null &&
+                            offset + evt.startTime >= startTime &&
+                            offset + evt.startTime <= endTime)
+                            results.Add(evt);
+                }
+                offset += motion?.Duration ?? 0f;
+            }
+            return results;
+        }
+
+        public List<MotionEventBase> GetActiveEventsAt(float time)
+        {
+            var results = new List<MotionEventBase>();
+            if (globalEvents != null)
+                foreach (MotionEventBase evt in globalEvents)
+                    if (evt != null && evt.IsActiveAt(time))
+                        results.Add(evt);
+
+            float offset = 0f;
+            if (motions == null)
+                return results;
+            foreach (Motion motion in motions)
+            {
+                if (motion != null && time >= offset && time <= offset + motion.Duration)
+                    results.AddRange(motion.GetActiveEventsAt(time - offset));
+                offset += motion?.Duration ?? 0f;
+            }
+            return results;
+        }
+
+        public bool TryGetEventGlobalStart(MotionEventBase evt, out float globalStart)
+        {
+            globalStart = 0f;
+            if (evt == null)
+                return false;
+            if (globalEvents != null && globalEvents.Contains(evt))
+            {
+                globalStart = evt.startTime;
+                return true;
+            }
+
+            float offset = 0f;
+            if (motions == null)
+                return false;
+            foreach (Motion motion in motions)
+            {
+                if (motion?.events != null && motion.events.Contains(evt))
+                {
+                    globalStart = offset + evt.startTime;
+                    return true;
+                }
+                offset += motion?.Duration ?? 0f;
+            }
+            return false;
+        }
+    }
+
     [Serializable]
     public class Motion
     {
@@ -92,6 +236,10 @@ namespace UPlayGround.Animation
         // 모션 셋 전체 이벤트 (모든 모션에 걸쳐 적용되는 이벤트)
         [SerializeReference]
         public List<MotionEventBase> globalEvents = new List<MotionEventBase>();
+
+        // Base 모션 시퀀스와 같은 시간축에서 병렬 재생되는 Animancer 레이어.
+        // 비어 있으면 기존 단일 레이어 MotionSet과 완전히 동일하게 동작한다.
+        public List<MotionLayer> layers = new List<MotionLayer>();
         
         // 전체 재생 시간
         public float TotalDuration
@@ -99,19 +247,45 @@ namespace UPlayGround.Animation
             get
             {
                 float total = 0f;
-                if (motions == null) return total;
-                
-                foreach (var motion in motions)
+                if (motions != null)
+                    foreach (var motion in motions)
+                        if (motion != null)
+                            total += motion.Duration;
+                if (layers != null)
                 {
-                    if (motion != null)
-                        total += motion.Duration;
+                    foreach (MotionLayer layer in layers)
+                        if (layer != null && layer.enabled)
+                            total = Mathf.Max(total, layer.TotalDuration);
                 }
                 return total;
             }
         }
         
         // 유효성 검사
-        public bool IsValid() => motions != null && motions.Count > 0;
+        public bool IsValid()
+        {
+            if (motions != null)
+                foreach (Motion motion in motions)
+                    if (motion != null && motion.IsValid())
+                        return true;
+            if (layers != null)
+                foreach (MotionLayer layer in layers)
+                    if (layer != null && layer.IsValid())
+                        return true;
+            return false;
+        }
+
+        public bool HasPlaybackLayers
+        {
+            get
+            {
+                if (layers == null) return false;
+                foreach (MotionLayer layer in layers)
+                    if (layer != null && layer.IsValid())
+                        return true;
+                return false;
+            }
+        }
         
         /// <summary>
         /// 전체 타임라인에서 특정 시간에 활성화된 이벤트 반환
@@ -147,6 +321,16 @@ namespace UPlayGround.Animation
 
                     currentTime = motionEnd;
                     if (globalTime < currentTime) break;
+                }
+            }
+
+            if (layers != null)
+            {
+                foreach (MotionLayer layer in layers)
+                {
+                    if (layer == null || !layer.enabled)
+                        continue;
+                    activeEvents.AddRange(layer.GetActiveEventsAt(globalTime));
                 }
             }
 
@@ -197,6 +381,13 @@ namespace UPlayGround.Animation
                     if (startGlobalTime > accumulated) continue;
                 }
             }
+
+            if (layers != null)
+            {
+                foreach (MotionLayer layer in layers)
+                    if (layer != null && layer.enabled)
+                        results.AddRange(layer.GetEventsInRange(startGlobalTime, endGlobalTime));
+            }
             return results;
         }
 
@@ -215,18 +406,26 @@ namespace UPlayGround.Animation
                 return true;
             }
 
-            if (motions == null) return false;
-
             float accumulated = 0f;
-            foreach (var motion in motions)
+            if (motions != null)
             {
-                if (motion == null) continue;
-                if (motion.events != null && motion.events.Contains(evt))
+                foreach (var motion in motions)
                 {
-                    globalStart = accumulated + evt.startTime;
-                    return true;
+                    if (motion == null) continue;
+                    if (motion.events != null && motion.events.Contains(evt))
+                    {
+                        globalStart = accumulated + evt.startTime;
+                        return true;
+                    }
+                    accumulated += motion.Duration;
                 }
-                accumulated += motion.Duration;
+            }
+
+            if (layers != null)
+            {
+                foreach (MotionLayer layer in layers)
+                    if (layer != null && layer.TryGetEventGlobalStart(evt, out globalStart))
+                        return true;
             }
 
             return false;

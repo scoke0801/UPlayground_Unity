@@ -242,6 +242,31 @@ namespace UPlayGround.Animation
                     tOff += motion.Duration;
                 }
             }
+
+            if (_currentMotionSet.layers != null)
+            {
+                foreach (MotionLayer layer in _currentMotionSet.layers)
+                {
+                    if (layer == null || !layer.enabled)
+                        continue;
+                    if (layer.globalEvents != null)
+                        foreach (MotionEventBase evt in layer.globalEvents)
+                            if (evt != null && evt.startTime <= time)
+                                _executedEvents.Add(evt);
+
+                    float layerOffset = 0f;
+                    if (layer.motions == null)
+                        continue;
+                    foreach (Motion motion in layer.motions)
+                    {
+                        if (motion?.events != null)
+                            foreach (MotionEventBase evt in motion.events)
+                                if (evt != null && layerOffset + evt.startTime <= time)
+                                    _executedEvents.Add(evt);
+                        layerOffset += motion?.Duration ?? 0f;
+                    }
+                }
+            }
         }
         
         /// <summary>
@@ -278,6 +303,31 @@ namespace UPlayGround.Animation
                     }
                     // 다음 모션으로 넘어가기 전, 현재 모션의 길이를 누적합니다.
                     accumulatedTime += motion.Duration;
+                }
+            }
+
+            if (_currentMotionSet.layers != null)
+            {
+                foreach (MotionLayer layer in _currentMotionSet.layers)
+                {
+                    if (layer == null || !layer.enabled)
+                        continue;
+                    if (layer.globalEvents != null)
+                        foreach (MotionEventBase evt in layer.globalEvents)
+                            if (evt != null)
+                                evt.globalStartTimeOffset = 0f;
+
+                    float layerOffset = 0f;
+                    if (layer.motions == null)
+                        continue;
+                    foreach (Motion motion in layer.motions)
+                    {
+                        if (motion?.events != null)
+                            foreach (MotionEventBase evt in motion.events)
+                                if (evt != null)
+                                    evt.globalStartTimeOffset = layerOffset;
+                        layerOffset += motion?.Duration ?? 0f;
+                    }
                 }
             }
         }

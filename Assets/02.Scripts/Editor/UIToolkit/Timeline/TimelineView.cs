@@ -14,15 +14,16 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
     /// </summary>
     internal sealed class TimelineView : VisualElement
     {
-        const float LabelWidth = 160f;
+        const float LabelWidth = 210f;
         const float RulerHeight = 26f;
-        const float GroupHeight = 20f;
-        const float MotionHeight = 26f;
-        const float EventHeight = 22f;
+        const float GroupHeight = 26f;
+        const float MotionHeight = 28f;
+        const float EventHeight = 24f;
         const float RowGap = 1f;
         const float SectionGap = 5f;
         const float BasePixelsPerSecond = 80f;
         const float HandleHitWidth = 9f;
+        const string LayerPrefsPrefix = "MotionSetWindow_TimelineLayer_";
 
         static readonly Color Background = new(0.055f, 0.075f, 0.10f);
         static readonly Color Ruler = new(0.045f, 0.06f, 0.08f);
@@ -53,6 +54,9 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         readonly Toggle _frames;
         readonly IntegerField _fps;
         readonly List<HitRegion> _hitRegions = new();
+        readonly List<MotionTrackTarget> _motionTrackTargets = new();
+        readonly Dictionary<LayerKind, LayerState> _layerStates = new();
+        readonly Dictionary<LayerKind, LayerControlVisual> _layerControls = new();
 
         int _dataFingerprint;
         float _contentHeight = 200f;
@@ -71,6 +75,14 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             Marker,
         }
 
+        enum LayerKind
+        {
+            Motion,
+            Timing,
+            Event,
+            Overlay,
+        }
+
         enum DragOperation
         {
             None,
@@ -86,6 +98,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         struct HitRegion
         {
             public HitKind kind;
+            public LayerKind layer;
             public Rect rect;
             public Motion motion;
             public MotionEventBase motionEvent;
@@ -93,6 +106,88 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             public int eventIndex;
             public bool setEvent;
             public float motionOffset;
+        }
+
+        sealed class LayerState
+        {
+            public bool collapsed;
+            public bool visible = true;
+            public bool locked;
+        }
+
+        sealed class LayerControlVisual
+        {
+            public VisualElement root;
+            public Button collapseButton;
+            public Button visibilityButton;
+            public Button lockButton;
+            public string label;
+        }
+
+        sealed class MotionTrackTarget
+        {
+            public Rect rect;
+            public List<Motion> motions;
+            public MotionLayer layer;
+            public bool isBase;
+        }
+
+        sealed class LayerSettingsPopup : PopupWindowContent
+        {
+            readonly MotionLayer _layer;
+            readonly UnityEngine.Object _undoTarget;
+            readonly Action _onChanged;
+
+            public LayerSettingsPopup(
+                MotionLayer layer,
+                UnityEngine.Object undoTarget,
+                Action onChanged)
+            {
+                _layer = layer;
+                _undoTarget = undoTarget;
+                _onChanged = onChanged;
+            }
+
+            public override Vector2 GetWindowSize() => new(330f, 205f);
+
+            public override void OnGUI(Rect rect)
+            {
+                EditorGUILayout.LabelField("재생 레이어 설정", EditorStyles.boldLabel);
+                EditorGUILayout.Space(3f);
+
+                string layerName = EditorGUILayout.TextField("이름", _layer.layerName);
+                int layerIndex = Mathf.Max(1, EditorGUILayout.IntField("Animancer 레이어", _layer.animancerLayerIndex));
+                MotionLayerBlendMode blendMode = (MotionLayerBlendMode)EditorGUILayout.EnumPopup(
+                    "블렌드 방식",
+                    _layer.blendMode);
+                AvatarMask avatarMask = (AvatarMask)EditorGUILayout.ObjectField(
+                    "아바타 마스크",
+                    _layer.avatarMask,
+                    typeof(AvatarMask),
+                    false);
+                float weight = EditorGUILayout.Slider("가중치", _layer.weight, 0f, 1f);
+                bool hold = EditorGUILayout.Toggle("마지막 프레임 유지", _layer.holdLastFrame);
+
+                if (layerName == _layer.layerName &&
+                    layerIndex == _layer.animancerLayerIndex &&
+                    blendMode == _layer.blendMode &&
+                    avatarMask == _layer.avatarMask &&
+                    Mathf.Approximately(weight, _layer.weight) &&
+                    hold == _layer.holdLastFrame)
+                    return;
+
+                if (_undoTarget != null)
+                    Undo.RegisterCompleteObjectUndo(_undoTarget, "Edit Playback Layer");
+                _layer.layerName = layerName;
+                _layer.animancerLayerIndex = layerIndex;
+                _layer.blendMode = blendMode;
+                _layer.avatarMask = avatarMask;
+                _layer.weight = weight;
+                _layer.holdLastFrame = hold;
+                if (_undoTarget != null)
+                    EditorUtility.SetDirty(_undoTarget);
+                _onChanged?.Invoke();
+            }
         }
 
         public TimelineView(
@@ -107,6 +202,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             _getUndoTarget = getUndoTarget;
             _onChanged = onChanged;
             _onScrub = onScrub;
+            InitializeLayerStates();
 
             AddToClassList("up-timeline-view");
 
@@ -183,6 +279,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             _track = new TimelineTrackElement(this);
             _track.AddManipulator(new TimelinePointerManipulator(this));
             _track.RegisterCallback<GeometryChangedEvent>(_ => RefreshData(true));
+            _track.RegisterCallback<DragUpdatedEvent>(HandleAnimationDragUpdated);
+            _track.RegisterCallback<DragPerformEvent>(HandleAnimationDragPerform);
             scroll.Add(_track);
             Add(scroll);
 
@@ -190,6 +288,134 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             RegisterCallback<DetachFromPanelEvent>(_ => Undo.undoRedoPerformed -= HandleUndoRedo);
             RefreshData(true);
         }
+
+        void InitializeLayerStates()
+        {
+            foreach (LayerKind layer in Enum.GetValues(typeof(LayerKind)))
+            {
+                string prefix = LayerPrefsPrefix + layer;
+                _layerStates[layer] = new LayerState
+                {
+                    collapsed = EditorPrefs.GetBool(prefix + "_Collapsed", false),
+                    visible = EditorPrefs.GetBool(prefix + "_Visible", true),
+                    locked = EditorPrefs.GetBool(prefix + "_Locked", false),
+                };
+            }
+        }
+
+        void AddLayerHeader(
+            string label,
+            LayerKind layer,
+            float top,
+            Color accent,
+            Action addAction = null)
+        {
+            var root = new VisualElement();
+            root.AddToClassList("up-timeline-layer-row");
+            root.style.position = Position.Absolute;
+            root.style.left = 0f;
+            root.style.top = top;
+            root.style.width = LabelWidth;
+            root.style.height = GroupHeight;
+            root.style.borderLeftColor = accent;
+            root.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
+
+            var handle = new Label("≡");
+            handle.AddToClassList("up-timeline-layer-handle");
+            root.Add(handle);
+
+            var collapse = new Button(() => ToggleLayerCollapsed(layer));
+            collapse.AddToClassList("up-timeline-layer-name");
+            root.Add(collapse);
+
+            var visibility = new Button(() => ToggleLayerVisible(layer));
+            visibility.AddToClassList("up-timeline-layer-action");
+            root.Add(visibility);
+
+            var locked = new Button(() => ToggleLayerLocked(layer));
+            locked.AddToClassList("up-timeline-layer-action");
+            root.Add(locked);
+
+            if (addAction != null)
+            {
+                var add = new Button(addAction) { text = "+" };
+                add.tooltip = "새 병렬 재생 레이어 추가";
+                add.AddToClassList("up-timeline-layer-action");
+                add.AddToClassList("up-timeline-layer-add");
+                root.Add(add);
+            }
+
+            _layerControls[layer] = new LayerControlVisual
+            {
+                root = root,
+                collapseButton = collapse,
+                visibilityButton = visibility,
+                lockButton = locked,
+                label = label,
+            };
+            UpdateLayerControl(layer);
+            _track.Add(root);
+        }
+
+        void ToggleLayerCollapsed(LayerKind layer)
+        {
+            LayerState state = _layerStates[layer];
+            state.collapsed = !state.collapsed;
+            SaveLayerState(layer);
+            UpdateLayerControl(layer);
+            RefreshData(true);
+        }
+
+        void ToggleLayerVisible(LayerKind layer)
+        {
+            LayerState state = _layerStates[layer];
+            state.visible = !state.visible;
+            SaveLayerState(layer);
+            UpdateLayerControl(layer);
+            RefreshData(true);
+        }
+
+        void ToggleLayerLocked(LayerKind layer)
+        {
+            LayerState state = _layerStates[layer];
+            state.locked = !state.locked;
+            SaveLayerState(layer);
+            UpdateLayerControl(layer);
+            RefreshData(true);
+        }
+
+        void SaveLayerState(LayerKind layer)
+        {
+            LayerState state = _layerStates[layer];
+            string prefix = LayerPrefsPrefix + layer;
+            EditorPrefs.SetBool(prefix + "_Collapsed", state.collapsed);
+            EditorPrefs.SetBool(prefix + "_Visible", state.visible);
+            EditorPrefs.SetBool(prefix + "_Locked", state.locked);
+        }
+
+        void UpdateLayerControl(LayerKind layer)
+        {
+            LayerState state = _layerStates[layer];
+            LayerControlVisual control = _layerControls[layer];
+            control.collapseButton.text = $"{(state.collapsed ? "▶" : "▼")} {control.label}";
+            control.collapseButton.tooltip = state.collapsed
+                ? $"{control.label} 레이어 펼치기"
+                : $"{control.label} 레이어 접기";
+            control.visibilityButton.text = state.visible ? "●" : "○";
+            control.visibilityButton.tooltip = state.visible
+                ? $"{control.label} 레이어 숨기기"
+                : $"{control.label} 레이어 표시";
+            control.lockButton.text = state.locked ? "◆" : "◇";
+            control.lockButton.tooltip = state.locked
+                ? $"{control.label} 레이어 잠금 해제"
+                : $"{control.label} 레이어 편집 잠금";
+            control.root.EnableInClassList("up-layer-hidden-state", !state.visible);
+            control.root.EnableInClassList("up-layer-locked-state", state.locked);
+        }
+
+        bool IsLayerCollapsed(LayerKind layer) => _layerStates[layer].collapsed;
+        bool IsLayerVisible(LayerKind layer) => _layerStates[layer].visible;
+        bool IsLayerLocked(LayerKind layer) => _layerStates[layer].locked;
 
         public void RefreshData(bool force = false)
         {
@@ -232,53 +458,110 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         void RebuildLabels()
         {
             _track.Clear();
+            _layerControls.Clear();
+            _motionTrackTargets.Clear();
             MotionSet set = _getSet?.Invoke();
             AddRulerLabels(set);
+            AddLabel("TRACKS", 0f, RulerHeight, "up-timeline-corner-label");
             float y = RulerHeight;
 
-            AddLabel("몽타주", y, GroupHeight, "up-timeline-group-label");
+            AddLayerHeader(
+                "애니메이션 레이어",
+                LayerKind.Motion,
+                y,
+                new Color(0.35f, 0.70f, 0.42f),
+                AddPlaybackLayer);
             y += GroupHeight + RowGap;
-            if (set?.motions != null && set.motions.Count > 0)
+            if (!IsLayerCollapsed(LayerKind.Motion))
             {
-                for (int i = 0; i < set.motions.Count; i++)
+                bool hasRows = false;
+                if (set != null)
                 {
-                    Motion motion = set.motions[i];
-                    AddLabel(motion?.motionName ?? $"Motion {i}", y, MotionHeight, "up-timeline-track-label");
+                    set.motions ??= new List<Motion>();
+                    AddMotionTrackLabel("BASE", "Base Motion", null, set.motions, y, true);
+                    AddMotionClipLabels(set.motions, y);
+                    _motionTrackTargets.Add(new MotionTrackTarget
+                    {
+                        rect = new Rect(0f, y, float.MaxValue, MotionHeight),
+                        motions = set.motions,
+                        isBase = true,
+                    });
+                    y += MotionHeight + RowGap;
+                    hasRows = true;
+                }
+
+                if (set?.layers != null)
+                {
+                    foreach (MotionLayer layer in set.layers)
+                    {
+                        if (layer == null)
+                            continue;
+                        layer.motions ??= new List<Motion>();
+                        AddMotionTrackLabel(
+                            $"L{Mathf.Max(1, layer.animancerLayerIndex)}",
+                            layer.layerName,
+                            layer,
+                            layer.motions,
+                            y,
+                            false);
+                        AddMotionClipLabels(layer.motions, y);
+                        _motionTrackTargets.Add(new MotionTrackTarget
+                        {
+                            rect = new Rect(0f, y, float.MaxValue, MotionHeight),
+                            motions = layer.motions,
+                            layer = layer,
+                        });
+                        y += MotionHeight + RowGap;
+                        hasRows = true;
+                    }
+                }
+
+                if (!hasRows)
+                {
+                    AddLabel("(모션 없음)", y, MotionHeight, "up-timeline-track-label");
                     y += MotionHeight + RowGap;
                 }
             }
-            else
-            {
-                AddLabel("(모션 없음)", y, MotionHeight, "up-timeline-track-label");
-                y += MotionHeight + RowGap;
-            }
 
             y += SectionGap;
-            AddLabel("타이밍", y, GroupHeight, "up-timeline-group-label");
+            AddLayerHeader("타이밍", LayerKind.Timing, y, Marker);
             y += GroupHeight + RowGap;
-            AddLabel("전환점", y, EventHeight, "up-timeline-track-label");
-            y += EventHeight + RowGap + SectionGap;
+            if (!IsLayerCollapsed(LayerKind.Timing))
+            {
+                AddLabel("전환점", y, EventHeight, "up-timeline-track-label");
+                y += EventHeight + RowGap;
+            }
+            y += SectionGap;
 
-            AddLabel("노티파이", y, GroupHeight, "up-timeline-group-label");
+            AddLayerHeader("이벤트", LayerKind.Event, y, new Color(0.40f, 0.55f, 0.90f));
             y += GroupHeight + RowGap;
-            int eventRows = AddEventLabels(set, ref y);
-            if (eventRows == 0)
+            int eventRows = IsLayerCollapsed(LayerKind.Event) ? 0 : AddEventLabels(set, ref y);
+            if (!IsLayerCollapsed(LayerKind.Event) && eventRows == 0)
             {
                 AddLabel("(이벤트 없음)", y, EventHeight, "up-timeline-track-label");
                 y += EventHeight + RowGap;
             }
 
             MotionSetDrawer drawer = _getDrawer?.Invoke();
-            if (drawer?.overlayTracks != null && drawer.overlayTracks.Count > 0)
+            y += SectionGap;
+            AddLayerHeader(drawer?.overlayGroupTitle ?? "오버레이", LayerKind.Overlay,
+                y, new Color(0.95f, 0.55f, 0.25f));
+            y += GroupHeight + RowGap;
+            if (!IsLayerCollapsed(LayerKind.Overlay))
             {
-                y += SectionGap;
-                AddLabel(drawer.overlayGroupTitle, y, GroupHeight, "up-timeline-group-label");
-                y += GroupHeight + RowGap;
-                foreach (MotionSetDrawer.OverlayTrack overlay in drawer.overlayTracks)
+                if (drawer?.overlayTracks != null && drawer.overlayTracks.Count > 0)
                 {
-                    if (overlay == null)
-                        continue;
-                    AddLabel(overlay.label, y, EventHeight, "up-timeline-track-label");
+                    foreach (MotionSetDrawer.OverlayTrack overlay in drawer.overlayTracks)
+                    {
+                        if (overlay == null)
+                            continue;
+                        AddLabel(overlay.label, y, EventHeight, "up-timeline-track-label");
+                        y += EventHeight + RowGap;
+                    }
+                }
+                else
+                {
+                    AddLabel("(비어 있음)", y, EventHeight, "up-timeline-track-label");
                     y += EventHeight + RowGap;
                 }
             }
@@ -374,6 +657,301 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             _track.Add(label);
         }
 
+        void AddMotionTrackLabel(
+            string badgeText,
+            string trackName,
+            MotionLayer layer,
+            List<Motion> motions,
+            float top,
+            bool isBase)
+        {
+            var root = new VisualElement();
+            root.AddToClassList("up-motion-track-row");
+            root.style.position = Position.Absolute;
+            root.style.left = 0f;
+            root.style.top = top;
+            root.style.width = LabelWidth;
+            root.style.height = MotionHeight;
+            root.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
+
+            if (isBase)
+            {
+                var baseIcon = new Label("●");
+                baseIcon.tooltip = "Base 레이어는 항상 활성화됩니다.";
+                baseIcon.AddToClassList("up-motion-track-toggle");
+                root.Add(baseIcon);
+            }
+            else
+            {
+                var enabled = new Toggle { value = layer.enabled };
+                enabled.tooltip = layer.enabled ? "레이어 비활성화" : "레이어 활성화";
+                enabled.AddToClassList("up-motion-track-toggle");
+                enabled.RegisterValueChangedCallback(evt =>
+                    ApplyDataChange("Toggle Playback Layer", () => layer.enabled = evt.newValue));
+                root.Add(enabled);
+            }
+
+            var badge = new Label(badgeText);
+            badge.AddToClassList("up-motion-track-badge");
+            root.Add(badge);
+
+            var nameButton = new Button();
+            nameButton.text = string.IsNullOrEmpty(trackName) ? "이름 없음" : trackName;
+            nameButton.tooltip = isBase
+                ? "Base 클립 시퀀스"
+                : "클릭하여 레이어 이름·마스크·블렌드·가중치 설정";
+            nameButton.AddToClassList("up-motion-track-name");
+            if (!isBase)
+            {
+                nameButton.clicked += () =>
+                    UnityEditor.PopupWindow.Show(
+                        nameButton.worldBound,
+                        new LayerSettingsPopup(
+                            layer,
+                            _getUndoTarget?.Invoke(),
+                            () =>
+                            {
+                                RefreshData(true);
+                                _onChanged?.Invoke();
+                            }));
+            }
+            root.Add(nameButton);
+
+            var count = new Label((motions?.Count ?? 0).ToString());
+            count.tooltip = "클립 수";
+            count.AddToClassList("up-motion-track-count");
+            root.Add(count);
+
+            var add = new Button(() => ShowAddClipMenu(motions)) { text = "+" };
+            add.tooltip = "클립 추가 · Project에서 AnimationClip을 이 행으로 드래그할 수도 있습니다.";
+            add.AddToClassList("up-motion-track-action");
+            root.Add(add);
+
+            if (!isBase)
+            {
+                var menu = new Button(() => ShowLayerMenu(layer)) { text = "⋮" };
+                menu.tooltip = "레이어 메뉴";
+                menu.AddToClassList("up-motion-track-action");
+                root.Add(menu);
+            }
+
+            root.EnableInClassList("up-motion-track-disabled", layer != null && !layer.enabled);
+            _track.Add(root);
+        }
+
+        void AddMotionClipLabels(List<Motion> motions, float top)
+        {
+            MotionSetDrawer drawer = _getDrawer?.Invoke();
+            if (drawer == null || motions == null)
+                return;
+
+            if (motions.Count == 0)
+            {
+                var empty = new Label("AnimationClip을 이 트랙에 드롭");
+                empty.pickingMode = PickingMode.Ignore;
+                empty.AddToClassList("up-motion-track-drop-hint");
+                empty.style.position = Position.Absolute;
+                empty.style.left = LabelWidth + 9f;
+                empty.style.top = top + 4f;
+                empty.style.height = MotionHeight - 8f;
+                _track.Add(empty);
+                return;
+            }
+
+            float offset = 0f;
+            float pps = PixelsPerSecond(drawer);
+            float viewMax = Mathf.Max(LabelWidth, _track.contentRect.width);
+            foreach (Motion motion in motions)
+            {
+                float duration = motion?.Duration ?? 0f;
+                float x0 = Mathf.Max(LabelWidth + 5f, TimeToX(offset, drawer, pps) + 6f);
+                float x1 = Mathf.Min(viewMax - 3f, TimeToX(offset + duration, drawer, pps) - 5f);
+                if (x1 - x0 > 18f)
+                {
+                    var label = new Label(motion?.motionName ?? "(클립 미지정)");
+                    label.pickingMode = PickingMode.Ignore;
+                    label.tooltip = motion?.motionClip != null
+                        ? $"{motion.motionClip.name} · {duration:0.###}s"
+                        : "AnimationClip 미지정";
+                    label.AddToClassList("up-motion-clip-label");
+                    label.style.position = Position.Absolute;
+                    label.style.left = x0;
+                    label.style.top = top + 4f;
+                    label.style.width = x1 - x0;
+                    label.style.height = MotionHeight - 8f;
+                    _track.Add(label);
+                }
+                offset += duration;
+            }
+        }
+
+        void AddPlaybackLayer()
+        {
+            MotionSet set = _getSet?.Invoke();
+            if (set == null)
+                return;
+            ApplyDataChange("Add Playback Layer", () =>
+            {
+                set.layers ??= new List<MotionLayer>();
+                int nextIndex = 1;
+                foreach (MotionLayer existing in set.layers)
+                    if (existing != null)
+                        nextIndex = Mathf.Max(nextIndex, existing.animancerLayerIndex + 1);
+                set.layers.Add(new MotionLayer
+                {
+                    layerName = $"Animation Layer {nextIndex}",
+                    animancerLayerIndex = nextIndex,
+                });
+            });
+        }
+
+        void ShowAddClipMenu(List<Motion> motions)
+        {
+            if (motions == null)
+                return;
+            var menu = new GenericMenu();
+            if (UnityEditor.Selection.activeObject is AnimationClip selectedClip)
+                menu.AddItem(new GUIContent($"Project 선택 클립 추가/{selectedClip.name}"), false,
+                    () => AddClips(motions, motions.Count, new[] { selectedClip }));
+            else
+                menu.AddDisabledItem(new GUIContent("Project 선택 클립 추가/(AnimationClip을 먼저 선택)"));
+            menu.AddItem(new GUIContent("빈 클립 슬롯 추가"), false,
+                () => ApplyDataChange("Add Motion Slot", () =>
+                    motions.Add(new Motion { motionName = $"Clip {motions.Count + 1}" })));
+            menu.ShowAsContext();
+        }
+
+        void ShowLayerMenu(MotionLayer layer)
+        {
+            MotionSet set = _getSet?.Invoke();
+            if (set?.layers == null || layer == null)
+                return;
+            int index = set.layers.IndexOf(layer);
+            var menu = new GenericMenu();
+            if (index > 0)
+                menu.AddItem(new GUIContent("위로 이동"), false,
+                    () => ApplyDataChange("Move Playback Layer", () =>
+                    {
+                        set.layers.RemoveAt(index);
+                        set.layers.Insert(index - 1, layer);
+                    }));
+            else
+                menu.AddDisabledItem(new GUIContent("위로 이동"));
+            if (index >= 0 && index < set.layers.Count - 1)
+                menu.AddItem(new GUIContent("아래로 이동"), false,
+                    () => ApplyDataChange("Move Playback Layer", () =>
+                    {
+                        set.layers.RemoveAt(index);
+                        set.layers.Insert(index + 1, layer);
+                    }));
+            else
+                menu.AddDisabledItem(new GUIContent("아래로 이동"));
+            menu.AddSeparator("");
+            menu.AddItem(new GUIContent("레이어 삭제"), false,
+                () => ApplyDataChange("Remove Playback Layer", () => set.layers.Remove(layer)));
+            menu.ShowAsContext();
+        }
+
+        void ApplyDataChange(string undoName, Action change)
+        {
+            UnityEngine.Object target = _getUndoTarget?.Invoke();
+            if (target != null)
+                Undo.RegisterCompleteObjectUndo(target, undoName);
+            change?.Invoke();
+            if (target != null)
+                EditorUtility.SetDirty(target);
+            RefreshData(true);
+            _onChanged?.Invoke();
+        }
+
+        void HandleAnimationDragUpdated(DragUpdatedEvent evt)
+        {
+            MotionTrackTarget target = FindMotionTrackTarget(evt.localMousePosition);
+            if (target == null || !HasDraggedAnimationClips())
+                return;
+            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+            evt.StopPropagation();
+        }
+
+        void HandleAnimationDragPerform(DragPerformEvent evt)
+        {
+            MotionTrackTarget target = FindMotionTrackTarget(evt.localMousePosition);
+            if (target == null)
+                return;
+
+            var clips = new List<AnimationClip>();
+            foreach (UnityEngine.Object dragged in DragAndDrop.objectReferences)
+                if (dragged is AnimationClip clip)
+                    clips.Add(clip);
+            if (clips.Count == 0)
+                return;
+
+            MotionSetDrawer drawer = _getDrawer?.Invoke();
+            int insertIndex = GetMotionInsertIndex(
+                target.motions,
+                drawer != null ? Mathf.Max(0f, XToTime(evt.localMousePosition.x, drawer)) : float.MaxValue);
+            DragAndDrop.AcceptDrag();
+            AddClips(target.motions, insertIndex, clips);
+            evt.StopPropagation();
+        }
+
+        MotionTrackTarget FindMotionTrackTarget(Vector2 position)
+        {
+            if (position.x < LabelWidth || IsLayerCollapsed(LayerKind.Motion) || IsLayerLocked(LayerKind.Motion))
+                return null;
+            foreach (MotionTrackTarget target in _motionTrackTargets)
+                if (target.rect.Contains(position) &&
+                    (target.isBase || target.layer == null || target.layer.enabled))
+                    return target;
+            return null;
+        }
+
+        static bool HasDraggedAnimationClips()
+        {
+            foreach (UnityEngine.Object dragged in DragAndDrop.objectReferences)
+                if (dragged is AnimationClip)
+                    return true;
+            return false;
+        }
+
+        static int GetMotionInsertIndex(List<Motion> motions, float time)
+        {
+            if (motions == null)
+                return 0;
+            float offset = 0f;
+            for (int i = 0; i < motions.Count; i++)
+            {
+                float duration = motions[i]?.Duration ?? 0f;
+                if (time < offset + duration * 0.5f)
+                    return i;
+                offset += duration;
+            }
+            return motions.Count;
+        }
+
+        void AddClips(
+            List<Motion> motions,
+            int insertIndex,
+            IReadOnlyList<AnimationClip> clips)
+        {
+            if (motions == null || clips == null || clips.Count == 0)
+                return;
+            ApplyDataChange("Add Animation Clips", () =>
+            {
+                int index = Mathf.Clamp(insertIndex, 0, motions.Count);
+                foreach (AnimationClip clip in clips)
+                {
+                    if (clip == null)
+                        continue;
+                    motions.Insert(index++, new Motion
+                    {
+                        motionName = clip.name,
+                        motionClip = clip,
+                    });
+                }
+            });
+        }
+
         void AddEventBarLabel(MotionEventBase motionEvent, float offset, float top)
         {
             MotionSetDrawer drawer = _getDrawer?.Invoke();
@@ -438,32 +1016,68 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             DrawGroup(painter, y, width, new Color(0.35f, 0.70f, 0.42f));
             y += GroupHeight + RowGap;
             float offset = 0f;
-            if (set?.motions != null && set.motions.Count > 0)
+            if (!IsLayerCollapsed(LayerKind.Motion))
             {
-                for (int i = 0; i < set.motions.Count; i++)
+                bool hasRows = false;
+                if (set?.motions != null)
                 {
-                    Motion motion = set.motions[i];
-                    DrawMotionRow(painter, motion, i, offset, y, trackWidth, pixelsPerSecond, drawer);
-                    offset += motion?.Duration ?? 0f;
+                    for (int i = 0; i < set.motions.Count; i++)
+                    {
+                        Motion motion = set.motions[i];
+                        DrawMotionRow(painter, motion, i, offset, y, trackWidth, pixelsPerSecond, drawer,
+                            IsLayerVisible(LayerKind.Motion));
+                        offset += motion?.Duration ?? 0f;
+                    }
+                    y += MotionHeight + RowGap;
+                    hasRows = true;
+                }
+
+                if (set?.layers != null)
+                {
+                    for (int i = 0; i < set.layers.Count; i++)
+                    {
+                        DrawPlaybackLayerRow(
+                            painter,
+                            set.layers[i],
+                            i,
+                            y,
+                            trackWidth,
+                            pixelsPerSecond,
+                            drawer,
+                            IsLayerVisible(LayerKind.Motion));
+                        if (set.layers[i] != null)
+                        {
+                            y += MotionHeight + RowGap;
+                            hasRows = true;
+                        }
+                    }
+                }
+
+                if (!hasRows)
+                {
+                    DrawTrackBackground(painter, y, MotionHeight, trackWidth);
                     y += MotionHeight + RowGap;
                 }
-            }
-            else
-            {
-                DrawTrackBackground(painter, y, MotionHeight, trackWidth);
-                y += MotionHeight + RowGap;
             }
 
             y += SectionGap;
             DrawGroup(painter, y, width, Marker);
             y += GroupHeight + RowGap;
-            DrawTimingRow(painter, set, y, trackWidth, pixelsPerSecond, drawer);
-            y += EventHeight + RowGap + SectionGap;
+            if (!IsLayerCollapsed(LayerKind.Timing))
+            {
+                DrawTimingRow(painter, set, y, trackWidth, pixelsPerSecond, drawer,
+                    IsLayerVisible(LayerKind.Timing));
+                y += EventHeight + RowGap;
+            }
+            y += SectionGap;
 
             DrawGroup(painter, y, width, new Color(0.40f, 0.55f, 0.90f));
             y += GroupHeight + RowGap;
-            int rows = DrawEventRows(painter, set, y, trackWidth, pixelsPerSecond, drawer);
-            if (rows == 0)
+            int rows = IsLayerCollapsed(LayerKind.Event)
+                ? 0
+                : DrawEventRows(painter, set, y, trackWidth, pixelsPerSecond, drawer,
+                    IsLayerVisible(LayerKind.Event));
+            if (!IsLayerCollapsed(LayerKind.Event) && rows == 0)
             {
                 DrawTrackBackground(painter, y, EventHeight, trackWidth);
                 y += EventHeight + RowGap;
@@ -473,16 +1087,25 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 y += rows * (EventHeight + RowGap);
             }
 
-            if (drawer.overlayTracks != null && drawer.overlayTracks.Count > 0)
+            y += SectionGap;
+            DrawGroup(painter, y, width, new Color(0.95f, 0.55f, 0.25f));
+            y += GroupHeight + RowGap;
+            if (!IsLayerCollapsed(LayerKind.Overlay))
             {
-                y += SectionGap;
-                DrawGroup(painter, y, width, new Color(0.95f, 0.55f, 0.25f));
-                y += GroupHeight + RowGap;
-                foreach (MotionSetDrawer.OverlayTrack overlay in drawer.overlayTracks)
+                if (drawer.overlayTracks != null && drawer.overlayTracks.Count > 0)
                 {
-                    if (overlay == null)
-                        continue;
-                    DrawOverlayRow(painter, overlay, y, trackWidth, pixelsPerSecond, drawer);
+                    foreach (MotionSetDrawer.OverlayTrack overlay in drawer.overlayTracks)
+                    {
+                        if (overlay == null)
+                            continue;
+                        DrawOverlayRow(painter, overlay, y, trackWidth, pixelsPerSecond, drawer,
+                            IsLayerVisible(LayerKind.Overlay));
+                        y += EventHeight + RowGap;
+                    }
+                }
+                else
+                {
+                    DrawTrackBackground(painter, y, EventHeight, trackWidth);
                     y += EventHeight + RowGap;
                 }
             }
@@ -519,10 +1142,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             float y,
             float trackWidth,
             float pps,
-            MotionSetDrawer drawer)
+            MotionSetDrawer drawer,
+            bool visible)
         {
             DrawTrackBackground(painter, y, MotionHeight, trackWidth);
-            if (motion == null)
+            if (!visible || motion == null)
                 return;
 
             float x = TimeToX(offset, drawer, pps);
@@ -541,6 +1165,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _hitRegions.Add(new HitRegion
                 {
                     kind = HitKind.Clip,
+                    layer = LayerKind.Motion,
                     rect = new Rect(x - HandleHitWidth, y, HandleHitWidth * 2f, MotionHeight),
                     motion = motion,
                     motionIndex = index,
@@ -549,6 +1174,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _hitRegions.Add(new HitRegion
                 {
                     kind = HitKind.Clip,
+                    layer = LayerKind.Motion,
                     rect = new Rect(endX - HandleHitWidth, y, HandleHitWidth * 2f, MotionHeight),
                     motion = motion,
                     motionIndex = index,
@@ -558,16 +1184,52 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             }
         }
 
+        void DrawPlaybackLayerRow(
+            Painter2D painter,
+            MotionLayer layer,
+            int layerOrder,
+            float y,
+            float trackWidth,
+            float pps,
+            MotionSetDrawer drawer,
+            bool visible)
+        {
+            DrawTrackBackground(painter, y, MotionHeight, trackWidth);
+            if (!visible || layer == null || !layer.enabled || layer.motions == null)
+                return;
+
+            float offset = 0f;
+            for (int motionIndex = 0; motionIndex < layer.motions.Count; motionIndex++)
+            {
+                Motion motion = layer.motions[motionIndex];
+                if (motion == null)
+                    continue;
+
+                float x = TimeToX(offset, drawer, pps);
+                float endX = TimeToX(offset + motion.Duration, drawer, pps);
+                Rect bar = ClipToTrack(
+                    new Rect(x, y + 3f, Mathf.Max(4f, endX - x), MotionHeight - 6f),
+                    trackWidth);
+                if (bar.width > 0f)
+                {
+                    Color color = MotionColors[(layerOrder + motionIndex + 1) % MotionColors.Length];
+                    DrawRect(painter, bar, new Color(color.r, color.g, color.b, 0.82f));
+                }
+                offset += motion.Duration;
+            }
+        }
+
         void DrawTimingRow(
             Painter2D painter,
             MotionSet set,
             float y,
             float trackWidth,
             float pps,
-            MotionSetDrawer drawer)
+            MotionSetDrawer drawer,
+            bool visible)
         {
             DrawTrackBackground(painter, y, EventHeight, trackWidth);
-            if (set?.motions == null)
+            if (!visible || set?.motions == null)
                 return;
 
             float offset = 0f;
@@ -583,6 +1245,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _hitRegions.Add(new HitRegion
                 {
                     kind = HitKind.Marker,
+                    layer = LayerKind.Timing,
                     rect = new Rect(x - HandleHitWidth, y, HandleHitWidth * 2f, EventHeight),
                     motion = motion,
                     motionIndex = i,
@@ -597,7 +1260,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             float startY,
             float trackWidth,
             float pps,
-            MotionSetDrawer drawer)
+            MotionSetDrawer drawer,
+            bool visible)
         {
             int row = 0;
             if (set?.globalEvents != null)
@@ -608,7 +1272,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     if (motionEvent == null)
                         continue;
                     DrawEventRow(painter, motionEvent, -1, i, true, 0f,
-                        startY + row * (EventHeight + RowGap), trackWidth, pps, drawer);
+                        startY + row * (EventHeight + RowGap), trackWidth, pps, drawer, visible);
                     row++;
                 }
             }
@@ -627,7 +1291,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                         if (motionEvent == null)
                             continue;
                         DrawEventRow(painter, motionEvent, mi, ei, false, offset,
-                            startY + row * (EventHeight + RowGap), trackWidth, pps, drawer);
+                            startY + row * (EventHeight + RowGap), trackWidth, pps, drawer, visible);
                         row++;
                     }
                 }
@@ -646,9 +1310,12 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             float y,
             float trackWidth,
             float pps,
-            MotionSetDrawer drawer)
+            MotionSetDrawer drawer,
+            bool visible)
         {
             DrawTrackBackground(painter, y, EventHeight, trackWidth);
+            if (!visible)
+                return;
             float x0 = TimeToX(offset + motionEvent.startTime, drawer, pps);
             float x1 = TimeToX(offset + motionEvent.endTime, drawer, pps);
             Rect original = new(x0, y + 3f, Mathf.Max(4f, x1 - x0), EventHeight - 6f);
@@ -672,6 +1339,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             _hitRegions.Add(new HitRegion
             {
                 kind = HitKind.Event,
+                layer = LayerKind.Event,
                 rect = new Rect(x0 - HandleHitWidth, y, Mathf.Max(HandleHitWidth * 2f, x1 - x0 + HandleHitWidth * 2f), EventHeight),
                 motionEvent = motionEvent,
                 motionIndex = motionIndex,
@@ -687,9 +1355,12 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             float y,
             float trackWidth,
             float pps,
-            MotionSetDrawer drawer)
+            MotionSetDrawer drawer,
+            bool visible)
         {
             DrawTrackBackground(painter, y, EventHeight, trackWidth);
+            if (!visible)
+                return;
             foreach (MotionSetDrawer.OverlaySpan span in overlay.spans)
             {
                 if (span == null)
@@ -774,6 +1445,12 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 if (hit.kind == HitKind.Event)
                 {
                     drawer.SelectEvent(hit.motionIndex, hit.eventIndex, hit.setEvent);
+                    if (IsLayerLocked(hit.layer))
+                    {
+                        RefreshData(true);
+                        _onChanged?.Invoke();
+                        return false;
+                    }
                     float x0 = TimeToX(hit.motionOffset + hit.motionEvent.startTime, drawer, PixelsPerSecond(drawer));
                     float x1 = TimeToX(hit.motionOffset + hit.motionEvent.endTime, drawer, PixelsPerSecond(drawer));
                     if (Mathf.Abs(position.x - x0) <= HandleHitWidth)
@@ -801,6 +1478,9 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     }
                     return true;
                 }
+
+                if (IsLayerLocked(hit.layer))
+                    return false;
 
                 if (hit.kind == HitKind.Marker)
                 {
@@ -1012,6 +1692,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 MotionSet set = _getSet?.Invoke();
                 MotionSetDrawer drawer = _getDrawer?.Invoke();
                 hash = hash * 31 + (set?.motions?.Count ?? 0);
+                hash = hash * 31 + (set?.layers?.Count ?? 0);
                 hash = hash * 31 + (set?.globalEvents?.Count ?? 0);
                 if (set?.motions != null)
                 {
@@ -1026,6 +1707,24 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                         {
                             hash = hash * 31 + (motionEvent?.startTime.GetHashCode() ?? 0);
                             hash = hash * 31 + (motionEvent?.endTime.GetHashCode() ?? 0);
+                        }
+                    }
+                }
+                if (set?.layers != null)
+                {
+                    foreach (MotionLayer layer in set.layers)
+                    {
+                        hash = hash * 31 + (layer?.layerName?.GetHashCode() ?? 0);
+                        hash = hash * 31 + (layer?.enabled.GetHashCode() ?? 0);
+                        hash = hash * 31 + (layer?.animancerLayerIndex.GetHashCode() ?? 0);
+                        hash = hash * 31 + (layer?.weight.GetHashCode() ?? 0);
+                        hash = hash * 31 + (layer?.motions?.Count ?? 0);
+                        if (layer?.motions == null)
+                            continue;
+                        foreach (Motion motion in layer.motions)
+                        {
+                            hash = hash * 31 + (motion?.motionName?.GetHashCode() ?? 0);
+                            hash = hash * 31 + (motion?.Duration.GetHashCode() ?? 0);
                         }
                     }
                 }

@@ -305,7 +305,10 @@ namespace UPlayGround.Animation
                 // 실제 평가된 포즈 시간으로 판정한다. 그래프가 이미 이번 프레임 포즈를
                 // 만든 LateUpdate에서 _currentState.Time을 역산하므로, 히트스톱·타임스케일·
                 // 프레임 변동과 무관하게 이벤트가 항상 동일한 모션 시점에 발화한다.
-                _eventExecutor?.UpdateTime(GetPoseDrivenGlobalTime());
+                _eventExecutor?.UpdateTime(
+                    _currentMotionSet != null && _currentMotionSet.HasPlaybackLayers
+                        ? _globalTime
+                        : GetPoseDrivenGlobalTime());
 
                 // 이번 프레임 발화가 결정된 공간 샘플링 이벤트(SlashVFX 등)를 여기서 실행해,
                 // 블레이드 본을 항상 이번 프레임 최종 포즈로 샘플링한다.
@@ -372,6 +375,7 @@ namespace UPlayGround.Animation
 
             // 첫 번째 모션 재생
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
+            StartPlaybackLayers(fadeDuration);
 
             PlaySubAnimatorMotion(key, fadeDuration, layerIndex);
             return _currentState;
@@ -405,6 +409,7 @@ namespace UPlayGround.Animation
 
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
             PlayMotionAtIndex(0, fadeDuration, layerIndex);
+            StartPlaybackLayers(fadeDuration);
             return _currentState;
         }
 
@@ -631,6 +636,7 @@ namespace UPlayGround.Animation
 
             // 이벤트 강제 종료
             _eventExecutor?.Stop();
+            StopPlaybackLayers();
 
             _isPlayingMotionSet = false;
             _currentMotionSet = null;
@@ -761,6 +767,7 @@ namespace UPlayGround.Animation
             // ── Freeze 중이면 시간을 흘리지 않고 타이머만 소모 ──
             if (_isFrozen)
             {
+                SetPlaybackLayersPaused(true);
                 _freezeTimer -= deltaTime;
                 if (_freezeTimer <= 0f)
                 {
@@ -768,6 +775,7 @@ namespace UPlayGround.Animation
                     // Freeze 해제 시 애니메이션 속도 복원
                     if (_currentState != null)
                         _currentState.Speed = GetCurrentMotion()?.playbackSpeed ?? 1f;
+                    SetPlaybackLayersPaused(false);
                 }
                 // Freeze 중 이벤트 갱신은 LateUpdate에서 포즈 시간으로 수행된다.
                 // (Speed=0이므로 포즈가 멈춰 이벤트도 자연히 정지한다)
@@ -775,6 +783,7 @@ namespace UPlayGround.Animation
             }
 
             _globalTime += deltaTime * _motionTimelineSpeed;
+            UpdatePlaybackLayers(_globalTime);
 
             // MotionSet 종료 체크
             if (_globalTime >= _currentMotionSet.TotalDuration)
@@ -1161,6 +1170,7 @@ namespace UPlayGround.Animation
             }
 
             _eventExecutor?.SeekTo(_globalTime);
+            SeekPlaybackLayers(_globalTime);
         }
 
         private Motion GetCurrentMotion()
@@ -1215,6 +1225,190 @@ namespace UPlayGround.Animation
             // OnEnd 콜백 제거 — 종료/전환은 UpdateTimeline 이 globalTime 으로 판단
             _currentState.Events(this).OnEnd = null;
         }
+
+        private sealed class MotionLayerPlayback
+        {
+            public MotionLayer data;
+            public int animancerLayerIndex;
+            public int motionIndex = -1;
+            public AnimancerState state;
+            public bool completed;
+        }
+
+        private readonly List<MotionLayerPlayback> _motionLayerPlaybacks = new();
+        private readonly HashSet<int> _activeMotionLayerIndices = new();
+
+        private void StartPlaybackLayers(float fadeDuration)
+        {
+            StopPlaybackLayers();
+            if (_animator == null || _currentMotionSet?.layers == null)
+                return;
+
+            foreach (MotionLayer data in _currentMotionSet.layers)
+            {
+                if (data == null || !data.IsValid())
+                    continue;
+
+                int layerIndex = Mathf.Max(1, data.animancerLayerIndex);
+                if (layerIndex == _currentMotionLayerIndex)
+                {
+                    Debug.LogWarning(
+                        $"MotionSet '{_currentMotionSet.motionSetName}'의 '{data.layerName}' 레이어가 " +
+                        $"Base 재생 레이어 인덱스 {layerIndex}와 충돌하여 건너뜁니다.",
+                        this);
+                    continue;
+                }
+                if (!_activeMotionLayerIndices.Add(layerIndex))
+                {
+                    Debug.LogWarning(
+                        $"MotionSet '{_currentMotionSet.motionSetName}'의 재생 레이어 인덱스 {layerIndex}가 중복되어 " +
+                        $"'{data.layerName}' 레이어를 건너뜁니다.",
+                        this);
+                    continue;
+                }
+
+                AnimancerLayer animancerLayer = _animator.Layers[layerIndex];
+                animancerLayer.Mask = data.avatarMask;
+                animancerLayer.IsAdditive = data.blendMode == MotionLayerBlendMode.Additive;
+                animancerLayer.SetDebugName(string.IsNullOrEmpty(data.layerName)
+                    ? $"Motion Layer {layerIndex}"
+                    : data.layerName);
+                if (fadeDuration > 0f)
+                    animancerLayer.StartFade(Mathf.Clamp01(data.weight), fadeDuration);
+                else
+                    animancerLayer.Weight = Mathf.Clamp01(data.weight);
+
+                var playback = new MotionLayerPlayback
+                {
+                    data = data,
+                    animancerLayerIndex = layerIndex,
+                };
+                _motionLayerPlaybacks.Add(playback);
+                PlayLayerMotion(playback, 0, 0f);
+            }
+
+            UpdatePlaybackLayers(0f);
+        }
+
+        private void UpdatePlaybackLayers(float globalTime)
+        {
+            for (int i = 0; i < _motionLayerPlaybacks.Count; i++)
+            {
+                MotionLayerPlayback playback = _motionLayerPlaybacks[i];
+                if (playback.completed || playback.data == null)
+                    continue;
+
+                float duration = playback.data.TotalDuration;
+                if (duration <= 0f)
+                {
+                    CompletePlaybackLayer(playback);
+                    continue;
+                }
+
+                if (globalTime >= duration)
+                {
+                    if (playback.data.holdLastFrame)
+                        SamplePlaybackLayer(playback, Mathf.Max(0f, duration - 0.0001f), true);
+                    else
+                        CompletePlaybackLayer(playback);
+                    continue;
+                }
+
+                SamplePlaybackLayer(playback, Mathf.Max(0f, globalTime), false);
+            }
+        }
+
+        private void SamplePlaybackLayer(MotionLayerPlayback playback, float time, bool hold)
+        {
+            if (!playback.data.GetMotionAtTime(time, out int motionIndex, out float localTime))
+                return;
+            if (motionIndex != playback.motionIndex || playback.state == null)
+                PlayLayerMotion(playback, motionIndex, 0f);
+
+            Motion motion = playback.data.motions[motionIndex];
+            if (playback.state == null || motion == null)
+                return;
+
+            float speed = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+            playback.state.Time = motion.ClipStartTime + localTime * speed;
+            playback.state.Speed = hold ? 0f : motion.playbackSpeed;
+        }
+
+        private void PlayLayerMotion(MotionLayerPlayback playback, int motionIndex, float fadeDuration)
+        {
+            if (playback.data?.motions == null ||
+                motionIndex < 0 ||
+                motionIndex >= playback.data.motions.Count)
+                return;
+
+            Motion motion = playback.data.motions[motionIndex];
+            if (motion == null || !motion.IsValid())
+                return;
+
+            AnimancerLayer layer = _animator.Layers[playback.animancerLayerIndex];
+            playback.state = layer.Play(motion.motionClip, fadeDuration);
+            playback.state.Time = motion.ClipStartTime;
+            playback.state.Speed = motion.playbackSpeed;
+            playback.state.Events(this).OnEnd = null;
+            playback.motionIndex = motionIndex;
+        }
+
+        private void CompletePlaybackLayer(MotionLayerPlayback playback)
+        {
+            _animator.Layers[playback.animancerLayerIndex].Stop();
+            playback.state = null;
+            playback.completed = true;
+        }
+
+        private void SetPlaybackLayersPaused(bool paused)
+        {
+            foreach (MotionLayerPlayback playback in _motionLayerPlaybacks)
+            {
+                if (playback.state == null || playback.data?.motions == null ||
+                    playback.motionIndex < 0 || playback.motionIndex >= playback.data.motions.Count)
+                    continue;
+
+                Motion motion = playback.data.motions[playback.motionIndex];
+                playback.state.Speed = paused ? 0f : motion?.playbackSpeed ?? 1f;
+            }
+        }
+
+        private void SeekPlaybackLayers(float globalTime)
+        {
+            foreach (MotionLayerPlayback playback in _motionLayerPlaybacks)
+            {
+                float duration = playback.data?.TotalDuration ?? 0f;
+                playback.completed = false;
+
+                if (duration <= 0f || globalTime >= duration && !playback.data.holdLastFrame)
+                {
+                    CompletePlaybackLayer(playback);
+                    continue;
+                }
+
+                SamplePlaybackLayer(
+                    playback,
+                    Mathf.Clamp(globalTime, 0f, Mathf.Max(0f, duration - 0.0001f)),
+                    globalTime >= duration && playback.data.holdLastFrame);
+            }
+        }
+
+        private void StopPlaybackLayers()
+        {
+            if (_animator != null)
+            {
+                foreach (MotionLayerPlayback playback in _motionLayerPlaybacks)
+                {
+                    if (playback != null && playback.animancerLayerIndex > 0 &&
+                        playback.animancerLayerIndex < _animator.Layers.Count)
+                        _animator.Layers[playback.animancerLayerIndex].Stop();
+                }
+            }
+
+            _motionLayerPlaybacks.Clear();
+            _activeMotionLayerIndices.Clear();
+        }
+
         void OnDestroy()
         {
             if (_isPlayingMotionSet)

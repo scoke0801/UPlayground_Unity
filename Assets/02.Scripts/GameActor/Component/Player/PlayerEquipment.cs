@@ -1098,6 +1098,8 @@ namespace UPlayGround.Components
 
         private void CacheBuiltInWeaponSharedMaterials()
         {
+            var previousMaterials =
+                new Dictionary<Renderer, Material[]>(_builtInWeaponSharedMaterials);
             _builtInWeaponSharedMaterials.Clear();
             if (_weaponRoot == null) return;
 
@@ -1109,11 +1111,23 @@ namespace UPlayGround.Components
                 if (materials == null || materials.Length == 0) continue;
 
                 bool hasValidMaterial = false;
+                bool hasTransientRuntimeMaterial = false;
                 for (int i = 0; i < materials.Length; i++)
                 {
                     if (materials[i] == null) continue;
                     hasValidMaterial = true;
-                    break;
+                    if ((materials[i].hideFlags & HideFlags.DontSave) != 0)
+                        hasTransientRuntimeMaterial = true;
+                }
+
+                // 디더/디졸브가 만든 DontSave 머티리얼은 수명주기 소유자가
+                // 갱신 과정에서 파괴한다. 이를 무기 원본으로 캐시하면 이후 복원 시
+                // 파괴된 Material 참조가 들어가 마젠타로 렌더링된다.
+                if (hasTransientRuntimeMaterial)
+                {
+                    if (previousMaterials.TryGetValue(renderer, out Material[] previous))
+                        _builtInWeaponSharedMaterials[renderer] = previous;
+                    continue;
                 }
 
                 if (hasValidMaterial)

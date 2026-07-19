@@ -112,6 +112,7 @@ namespace UPlayGround.Animation.Editor
 
         // 섹션 접힘 상태
         public bool foldMotions = true;
+        public bool foldPlaybackLayers = false;
         public bool foldTimeline = true;
         public bool foldEvents = true;
 
@@ -270,8 +271,166 @@ namespace UPlayGround.Animation.Editor
             DrawHeader(set);
             EditorGUILayout.Space(2);
 
+            foldPlaybackLayers = EditorGUILayout.Foldout(
+                foldPlaybackLayers,
+                $"병렬 재생 레이어 ({set.layers?.Count ?? 0})",
+                true,
+                EditorStyles.foldoutHeader);
+            if (foldPlaybackLayers) DrawPlaybackLayers(set);
+
+            EditorGUILayout.Space(2);
             foldMotions = EditorGUILayout.Foldout(foldMotions, "애니메이션 리스트", true, EditorStyles.foldoutHeader);
             if (foldMotions) DrawMotionList(set);
+        }
+
+        void DrawPlaybackLayers(MotionSet set)
+        {
+            set.layers ??= new List<MotionLayer>();
+
+            EditorGUILayout.HelpBox(
+                "Base 모션과 같은 시간축에서 병렬 재생합니다. 레이어 인덱스 0은 Base 전용이므로 1 이상을 사용하세요.",
+                MessageType.Info);
+
+            for (int layerIndex = 0; layerIndex < set.layers.Count; layerIndex++)
+            {
+                MotionLayer layer = set.layers[layerIndex];
+                if (layer == null)
+                {
+                    RecordUndo("Create Playback Layer");
+                    layer = new MotionLayer
+                    {
+                        layerName = $"Layer {layerIndex + 1}",
+                        animancerLayerIndex = layerIndex + 1,
+                    };
+                    set.layers[layerIndex] = layer;
+                    MarkDirty();
+                }
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginHorizontal();
+                bool enabled = EditorGUILayout.Toggle(layer.enabled, GUILayout.Width(18));
+                string layerName = EditorGUILayout.TextField(layer.layerName, EditorStyles.boldLabel);
+                if (GUILayout.Button("삭제", GUILayout.Width(44)))
+                {
+                    RecordUndo("Remove Playback Layer");
+                    set.layers.RemoveAt(layerIndex);
+                    MarkDirty();
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+
+                int animancerLayerIndex = Mathf.Max(
+                    1,
+                    EditorGUILayout.IntField("Animancer 레이어", layer.animancerLayerIndex));
+                MotionLayerBlendMode blendMode = (MotionLayerBlendMode)EditorGUILayout.EnumPopup(
+                    "블렌드 방식",
+                    layer.blendMode);
+                AvatarMask avatarMask = (AvatarMask)EditorGUILayout.ObjectField(
+                    "아바타 마스크",
+                    layer.avatarMask,
+                    typeof(AvatarMask),
+                    false);
+                float weight = EditorGUILayout.Slider("가중치", layer.weight, 0f, 1f);
+                bool holdLastFrame = EditorGUILayout.Toggle("마지막 프레임 유지", layer.holdLastFrame);
+
+                if (enabled != layer.enabled ||
+                    layerName != layer.layerName ||
+                    animancerLayerIndex != layer.animancerLayerIndex ||
+                    blendMode != layer.blendMode ||
+                    avatarMask != layer.avatarMask ||
+                    !Mathf.Approximately(weight, layer.weight) ||
+                    holdLastFrame != layer.holdLastFrame)
+                {
+                    RecordUndo("Edit Playback Layer");
+                    layer.enabled = enabled;
+                    layer.layerName = layerName;
+                    layer.animancerLayerIndex = animancerLayerIndex;
+                    layer.blendMode = blendMode;
+                    layer.avatarMask = avatarMask;
+                    layer.weight = weight;
+                    layer.holdLastFrame = holdLastFrame;
+                    MarkDirty();
+                }
+
+                layer.motions ??= new List<Motion>();
+                EditorGUILayout.LabelField($"클립 시퀀스 ({layer.motions.Count})", EditorStyles.miniBoldLabel);
+                for (int motionIndex = 0; motionIndex < layer.motions.Count; motionIndex++)
+                {
+                    Motion motion = layer.motions[motionIndex] ?? new Motion();
+                    if (layer.motions[motionIndex] == null)
+                        layer.motions[motionIndex] = motion;
+
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                    EditorGUILayout.BeginHorizontal();
+                    string motionName = EditorGUILayout.TextField(
+                        string.IsNullOrEmpty(motion.motionName) ? $"Clip {motionIndex + 1}" : motion.motionName);
+                    if (GUILayout.Button("×", GUILayout.Width(24)))
+                    {
+                        RecordUndo("Remove Layer Motion");
+                        layer.motions.RemoveAt(motionIndex);
+                        MarkDirty();
+                        EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.EndVertical();
+                        break;
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    AnimationClip motionClip = (AnimationClip)EditorGUILayout.ObjectField(
+                        "Animation Clip",
+                        motion.motionClip,
+                        typeof(AnimationClip),
+                        false);
+                    float clipStartTime = EditorGUILayout.FloatField("시작 시간 (-1=처음)", motion.clipStartTime);
+                    float clipEndTime = EditorGUILayout.FloatField("종료 시간 (-1=끝)", motion.clipEndTime);
+                    float playbackSpeed = Mathf.Max(
+                        0.01f,
+                        EditorGUILayout.FloatField("재생 속도", motion.playbackSpeed));
+
+                    if (motionName != motion.motionName ||
+                        motionClip != motion.motionClip ||
+                        !Mathf.Approximately(clipStartTime, motion.clipStartTime) ||
+                        !Mathf.Approximately(clipEndTime, motion.clipEndTime) ||
+                        !Mathf.Approximately(playbackSpeed, motion.playbackSpeed))
+                    {
+                        RecordUndo("Edit Layer Motion");
+                        motion.motionName = motionName;
+                        motion.motionClip = motionClip;
+                        motion.clipStartTime = clipStartTime;
+                        motion.clipEndTime = clipEndTime;
+                        motion.playbackSpeed = playbackSpeed;
+                        MarkDirty();
+                    }
+                    EditorGUILayout.EndVertical();
+                }
+
+                if (GUILayout.Button("+ 레이어 클립 추가", GUILayout.Width(140)))
+                {
+                    RecordUndo("Add Layer Motion");
+                    layer.motions.Add(new Motion
+                    {
+                        motionName = $"Clip {layer.motions.Count + 1}",
+                    });
+                    MarkDirty();
+                }
+                EditorGUILayout.EndVertical();
+            }
+
+            if (GUILayout.Button("+ 병렬 재생 레이어 추가", GUILayout.Width(170)))
+            {
+                RecordUndo("Add Playback Layer");
+                int nextIndex = 1;
+                foreach (MotionLayer existing in set.layers)
+                    if (existing != null)
+                        nextIndex = Mathf.Max(nextIndex, existing.animancerLayerIndex + 1);
+                set.layers.Add(new MotionLayer
+                {
+                    layerName = $"Layer {nextIndex}",
+                    animancerLayerIndex = nextIndex,
+                });
+                MarkDirty();
+            }
         }
 
         public void DrawEventsGUI(MotionSet set)

@@ -310,13 +310,7 @@ namespace UPlayGround.Components
         /// </summary>
         public void RefreshRenderers()
         {
-            StopWarmup();
-            RestoreOriginalMaterials();
-            ReleaseRuntimeMaterials();
-            _rendererInfos.Clear();
-            _visibility = 1f;
-            _isCameraInside = false;
-            _runtimePrepared = false;
+            ResetRendererBindings();
 
             foreach (Renderer renderer in GetComponentsInChildren<Renderer>(true))
             {
@@ -337,6 +331,26 @@ namespace UPlayGround.Components
             }
 
             PrepareRuntimeMaterials();
+        }
+
+        /// <summary>
+        /// 캐릭터 스왑처럼 하위 렌더러 계층과 장비 캐시가 갱신되기 전에 호출한다.
+        /// 모든 디더용 임시 머티리얼을 즉시 원본으로 되돌리고 추적 목록을 비운다.
+        /// </summary>
+        public void RestoreOriginalMaterialsImmediately()
+        {
+            ResetRendererBindings();
+        }
+
+        private void ResetRendererBindings()
+        {
+            StopWarmup();
+            RestoreOriginalMaterials();
+            ReleaseRuntimeMaterials();
+            _rendererInfos.Clear();
+            _visibility = 1f;
+            _isCameraInside = false;
+            _runtimePrepared = false;
         }
 
         private void PrepareRuntimeMaterials()

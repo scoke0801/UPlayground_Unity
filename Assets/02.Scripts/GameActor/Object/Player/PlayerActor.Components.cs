@@ -46,6 +46,11 @@ namespace UPlayGround
             CharacterModelData data,
             ActorAnimator.MotionPlaybackSnapshot animationSnapshot = default)
         {
+            // 이전에 비활성화된 모델에도 카메라 디더용 런타임 머티리얼이 남아
+            // 있을 수 있다. 장비 컴포넌트가 이를 내장 무기 원본으로 캐시하기 전에
+            // 모든 렌더러를 에셋 원본 머티리얼로 되돌린다.
+            _cameraProximityDither?.RestoreOriginalMaterialsImmediately();
+
             CharacterActorType previousType = _characterActorType;
             float previousMaxHealth = _maxHealth;
             float previousCurrentHealth = _currentHealth;

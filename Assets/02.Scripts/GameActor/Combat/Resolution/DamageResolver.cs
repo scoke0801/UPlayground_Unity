@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Components;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.UI;
 
@@ -20,9 +21,11 @@ namespace UPlayGround.Combat
                 ? Mathf.Clamp01(target.Stats.Defense)
                 : 0f;
             float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(hit.CriticalMultiplier) : 1f;
+            float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
             float finalDamage = baseDamage
                                 * attackerPower
                                 * (1f - defenseRate)
+                                * elementMultiplier
                                 * criticalMultiplier;
 
             // 기본 피해가 있는 공격은 방어율이 높아도 최소 1은 들어가게 한다(칩 데미지 보장).
@@ -61,10 +64,12 @@ namespace UPlayGround.Combat
                 target != null ? target.CurrentReactionState : CombatReactionState.None,
                 breakExposedMultiplier);
             float criticalMultiplier = ResolveCriticalMultiplier(hit.CriticalMultiplier);
+            float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
             float finalDamage = baseDamage
                                 * attackerPower
                                 * (1f - defenseRate)
                                 * damageTakenMultiplier
+                                * elementMultiplier
                                 * criticalMultiplier;
 
             // 기본 피해가 있는 공격은 방어율이 높아도 최소 1은 들어가게 한다(칩 데미지 보장).
@@ -106,5 +111,18 @@ namespace UPlayGround.Combat
 
         private static float ResolveCriticalMultiplier(float multiplier)
             => multiplier > 1f ? multiplier : 1f;
+
+        private static float ResolveElementMultiplier(
+            GameActor attacker,
+            GameActor victim)
+        {
+            if (attacker == null || victim == null)
+                return 1f;
+
+            return CombatElementRules.ResolveDamageMultiplier(
+                attacker.CurrentElement,
+                victim.CurrentElement,
+                attacker.ElementalAdvantageMultiplier);
+        }
     }
 }

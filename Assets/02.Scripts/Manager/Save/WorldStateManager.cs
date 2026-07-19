@@ -17,8 +17,11 @@ namespace UPlayGround.Manager
     /// 분기 판정은 MonsterActor.NotifyWorldStateKill → MonsterRespawnManager.TryScheduleRespawn에서 한다.
     /// 구버전 세이브의 killedMonsters는 전부 영구 처치로 읽는다.
     /// </summary>
-    public class WorldStateManager : BaseManager<WorldStateManager>, IManager, ISaveable
+    public class WorldStateManager : BaseManager<WorldStateManager>, IManager, ISaveable,
+        IElementRandomSeedService
     {
+        public int NewGameElementSeed { get; private set; }
+
         // mapId → 영구 처치된 SceneEntityId GUID 집합
         private readonly Dictionary<string, HashSet<string>> _permanentKilled = new();
 
@@ -35,6 +38,7 @@ namespace UPlayGround.Manager
 
         public void Init()
         {
+            EnsureElementRandomSeed();
             SaveManager.Instance.RegisterSaveable(this);
         }
 
@@ -185,6 +189,7 @@ namespace UPlayGround.Manager
         {
             if (saveData == null) return;
             var world = saveData.world ??= new WorldStateSaveData();
+            world.elementRandomSeed = NewGameElementSeed;
 
             world.killedMonsters = new Dictionary<string, List<string>>(_permanentKilled.Count);
             foreach (var kv in _permanentKilled)
@@ -206,6 +211,8 @@ namespace UPlayGround.Manager
             _consumedInteractables.Clear();
 
             var world = saveData?.world;
+            NewGameElementSeed = world?.elementRandomSeed ?? 0;
+            EnsureElementRandomSeed();
             if (world == null) return;
 
             if (world.killedMonsters != null)
@@ -245,6 +252,23 @@ namespace UPlayGround.Manager
             _permanentKilled.Clear();
             _respawnStates.Clear();
             _consumedInteractables.Clear();
+            NewGameElementSeed = CreateElementRandomSeed();
+        }
+
+        private void EnsureElementRandomSeed()
+        {
+            if (NewGameElementSeed == 0)
+                NewGameElementSeed = CreateElementRandomSeed();
+        }
+
+        private static int CreateElementRandomSeed()
+        {
+            int seed;
+            do
+            {
+                seed = System.Guid.NewGuid().GetHashCode();
+            } while (seed == 0);
+            return seed;
         }
     }
 }

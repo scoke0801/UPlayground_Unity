@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
@@ -42,7 +43,7 @@ namespace UPlayGround.UI
         [SerializeField] private TextMeshProUGUI _rosterCountText;      // 보유 동료 수
         [SerializeField] private TextMeshProUGUI _battlePartyCountText; // 출전 파티 N / 최대 (중앙 헤더)
         [SerializeField] private TextMeshProUGUI _battleMemberCountText;// 출전 인원 N / 최대 (하단)
-        [SerializeField] private TextMeshProUGUI _partyWeightSummaryText; // 파티 무게 구성 (예: 경량1·표준1·중량1)
+        [SerializeField] private TextMeshProUGUI _partyWeightSummaryText; // 기존 프리팹 참조를 유지하며 파티 속성 구성 표시
 
         [Header("상세")]
         [SerializeField] private UI_PartyDetailPanel _detailPanel;
@@ -244,7 +245,7 @@ namespace UPlayGround.UI
             RefreshMenuEntries();
             RefreshPartyCombatPower();
             RefreshCounts();
-            RefreshWeightSummary();
+            RefreshElementSummary();
             RefreshDetail();
             (_assistPanel as IUIRefreshable)?.Refresh();
         }
@@ -329,27 +330,39 @@ namespace UPlayGround.UI
             _partyCombatPowerText.text = combatPower.ToString("#,0", CultureInfo.InvariantCulture);
         }
 
-        /// <summary>초안 출전 파티의 무게 클래스 구성 요약 (사이클 03 스펙 파생).</summary>
-        private void RefreshWeightSummary()
+        /// <summary>초안 출전 파티의 속성 구성 요약.</summary>
+        private void RefreshElementSummary()
         {
             if (_partyWeightSummaryText == null) return;
 
-            int light = 0, standard = 0, heavy = 0, unknown = 0;
+            int fire = 0, water = 0, nature = 0, light = 0, dark = 0, none = 0;
             foreach (var type in _pendingOrder)
             {
-                var profile = UIPartyWeightUtil.FindProfile(type);
-                if (profile == null) { unknown++; continue; }
-                switch (profile.weightClass)
+                switch (PartyMgr?.PartyMemberDataSO?.GetCombatElement(type) ?? CombatElement.None)
                 {
-                    case Data.Cycle.CharacterWeightClass.Light:  light++;    break;
-                    case Data.Cycle.CharacterWeightClass.Heavy:  heavy++;    break;
-                    default:                                     standard++; break;
+                    case CombatElement.Fire:   fire++;   break;
+                    case CombatElement.Water:  water++;  break;
+                    case CombatElement.Nature: nature++; break;
+                    case CombatElement.Light:  light++;  break;
+                    case CombatElement.Dark:   dark++;   break;
+                    default:                   none++;   break;
                 }
             }
 
-            string text = $"경량 {light} / 표준 {standard} / 중량 {heavy}";
-            if (unknown > 0) text += $" / 미분류 {unknown}";
-            _partyWeightSummaryText.text = text;
+            var parts = new List<string>(6);
+            AddElementCount(parts, CombatElement.Fire, fire);
+            AddElementCount(parts, CombatElement.Water, water);
+            AddElementCount(parts, CombatElement.Nature, nature);
+            AddElementCount(parts, CombatElement.Light, light);
+            AddElementCount(parts, CombatElement.Dark, dark);
+            AddElementCount(parts, CombatElement.None, none);
+            _partyWeightSummaryText.text = parts.Count > 0 ? string.Join(" / ", parts) : "속성 없음";
+        }
+
+        private static void AddElementCount(List<string> parts, CombatElement element, int count)
+        {
+            if (count > 0)
+                parts.Add($"{UICombatElementDisplay.Label(element)} {count}");
         }
     }
 }

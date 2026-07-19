@@ -80,6 +80,9 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class WorldStateSaveData
     {
+        /// <summary>Humanoid 속성을 새 게임 단위로 결정하는 저장 시드.</summary>
+        public int elementRandomSeed;
+
         // mapId → 영구 처치된 SceneEntityId GUID 목록 (보스/합류 몬스터 등 재스폰 제외 대상).
         // 구버전 세이브의 killedMonsters는 전부 영구 처치로 읽는다(호환).
         public Dictionary<string, List<string>> killedMonsters = new Dictionary<string, List<string>>();

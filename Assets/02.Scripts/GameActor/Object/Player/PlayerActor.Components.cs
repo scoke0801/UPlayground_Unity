@@ -68,6 +68,9 @@ namespace UPlayGround
             Abilities?.HandleCharacterSwap();
 
             _characterActorType = data.characterType;
+            SetCharacterBaseElement(
+                Svc.Party?.GetCombatElement(data.characterType)
+                ?? CombatElement.None);
             _hasInitializedCharacterRuntime = true;
 
             // 연계 토큰 스트림은 캐릭터 종속 — 교체 시 비운다(설계 §8).

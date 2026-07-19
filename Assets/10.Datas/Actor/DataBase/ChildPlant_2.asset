@@ -28,6 +28,8 @@ MonoBehaviour:
   monsterScaling: {fileID: 11400000, guid: 2e3a54ffe24bd56488a54fdb9153e160, type: 2}
   grade: 3
   level: 1
+  combatElement: 3
+  elementAssignmentMode: 0
   abilitySet: {fileID: 11400000, guid: 5cb74fa6b510f794a987a00a838bd08c, type: 2}
   combatDefensePolicy: {fileID: 0}
   combatReactionPolicy: {fileID: 0}

@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Group;
 
@@ -191,6 +192,11 @@ namespace UPlayGround.Manager
 
             // 정의 주입 (스탯, ID 등 재적용)
             actor.SetDefinition(definition);
+            if (actor.HasActorType(ActorType.Monster))
+            {
+                actor.ResolveDefinitionElement(
+                    Svc.ElementRandom?.NewGameElementSeed ?? 0);
+            }
 
             var info = new SpawnedActorInfo
             {
@@ -240,6 +246,12 @@ namespace UPlayGround.Manager
             if (actor.Definition == null && _database != null &&
                 _database.TryGetDefinition(id, out var def))
                 actor.SetDefinition(def);
+
+            if (actor.HasActorType(ActorType.Monster))
+            {
+                actor.ResolveDefinitionElement(
+                    Svc.ElementRandom?.NewGameElementSeed ?? 0);
+            }
 
             _spawnedActors[instanceId] = new SpawnedActorInfo
             {

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000005, type: 3}
   m_Name: CharacterPassiveDatabase
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   entries:
   - {fileID: 11403001}
   - {fileID: 11403002}
@@ -35,20 +35,23 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
   m_Name: GE_Passive_PerfectDodgeFocus
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   effectId: passive.perfect_dodge_focus
   schemaVersion: 1
   polarity: 1
   presentation:
-    displayName: 퍼펙트 회피 집중
-    description: 퍼펙트 회피 성공 후 공격력이 잠시 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
+    displayName: "\uD37C\uD399\uD2B8 \uD68C\uD53C \uC9D1\uC911"
+    description: "\uD37C\uD399\uD2B8 \uD68C\uD53C \uC131\uACF5 \uD6C4 \uACF5\uACA9\uB825\uC774
+      \uC7A0\uC2DC \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
     icon: {fileID: 0}
     showInHud: 1
     hudPriority: 10
     showRemainingTime: 1
     showStackCount: 1
+  grantedElement: 0
+  elementPriority: 0
   ignorePassiveDurationModifiers: 0
   durationType: 1
   durationSeconds: 5
@@ -61,7 +64,7 @@ MonoBehaviour:
     modifierType: 1
     value: 0.06
   resourceOperations: []
-  grantedTagIds: []
+  grantedTagIds: 
   removalPolicy: 0
   savePolicy: 0
 --- !u!114 &11401002
@@ -75,20 +78,23 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
   m_Name: GE_Passive_PerfectGuardFortify
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   effectId: passive.perfect_guard_fortify
   schemaVersion: 1
   polarity: 1
   presentation:
-    displayName: 퍼펙트 가드 강화
-    description: 퍼펙트 가드 성공 후 방어력이 잠시 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
+    displayName: "\uD37C\uD399\uD2B8 \uAC00\uB4DC \uAC15\uD654"
+    description: "\uD37C\uD399\uD2B8 \uAC00\uB4DC \uC131\uACF5 \uD6C4 \uBC29\uC5B4\uB825\uC774
+      \uC7A0\uC2DC \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
     icon: {fileID: 0}
     showInHud: 1
     hudPriority: 10
     showRemainingTime: 1
     showStackCount: 1
+  grantedElement: 0
+  elementPriority: 0
   ignorePassiveDurationModifiers: 0
   durationType: 1
   durationSeconds: 5
@@ -101,7 +107,7 @@ MonoBehaviour:
     modifierType: 0
     value: 0.05
   resourceOperations: []
-  grantedTagIds: []
+  grantedTagIds: 
   removalPolicy: 0
   savePolicy: 0
 --- !u!114 &11402001
@@ -115,19 +121,19 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_LightAttackDamage
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.light_attack_damage
   schemaVersion: 1
   presentation:
-    displayName: 가벼운 칼끝
-    description: 약공격 피해가 6% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uAC00\uBCBC\uC6B4 \uCE7C\uB05D"
+    description: "\uC57D\uACF5\uACA9 \uD53C\uD574\uAC00 6% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 50d067d6bee2d134db967a2b0c7d0279, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 약공격 피해가 강화된다.
+  characterSelectDescription: "\uC57D\uACF5\uACA9 \uD53C\uD574\uAC00 \uAC15\uD654\uB41C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -137,6 +143,7 @@ MonoBehaviour:
     value: 0.06
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -148,19 +155,19 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_HeavyAttackDamage
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.heavy_attack_damage
   schemaVersion: 1
   presentation:
-    displayName: 묵직한 일격
-    description: 강공격 피해가 7% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uBB35\uC9C1\uD55C \uC77C\uACA9"
+    description: "\uAC15\uACF5\uACA9 \uD53C\uD574\uAC00 7% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 5c40999e41b4fd54c86f957143ee4a19, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 강공격 피해가 강화된다.
+  characterSelectDescription: "\uAC15\uACF5\uACA9 \uD53C\uD574\uAC00 \uAC15\uD654\uB41C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -170,6 +177,7 @@ MonoBehaviour:
     value: 0.07
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,19 +189,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_SkillDamage
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.skill_damage
   schemaVersion: 1
   presentation:
-    displayName: 응축된 기예
-    description: 스킬 피해가 6% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uC751\uCD95\uB41C \uAE30\uC608"
+    description: "\uC2A4\uD0AC \uD53C\uD574\uAC00 6% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: dbab8e20d58ae174ca4ba8c00c38f805, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 스킬 공격의 피해가 강화된다.
+  characterSelectDescription: "\uC2A4\uD0AC \uACF5\uACA9\uC758 \uD53C\uD574\uAC00
+    \uAC15\uD654\uB41C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -203,6 +212,7 @@ MonoBehaviour:
     value: 0.06
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,19 +224,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_SkillCooldown
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.skill_cooldown
   schemaVersion: 1
   presentation:
-    displayName: 빠른 호흡
-    description: 일반 스킬 쿨타임이 8% 감소한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uBE60\uB978 \uD638\uD761"
+    description: "\uC77C\uBC18 \uC2A4\uD0AC \uCFE8\uD0C0\uC784\uC774 8% \uAC10\uC18C\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: bb1e3b51aa645e94193d94405509dd6c, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 일반 스킬의 재사용 대기시간이 감소한다.
+  characterSelectDescription: "\uC77C\uBC18 \uC2A4\uD0AC\uC758 \uC7AC\uC0AC\uC6A9
+    \uB300\uAE30\uC2DC\uAC04\uC774 \uAC10\uC18C\uD55C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -235,7 +246,9 @@ MonoBehaviour:
     operation: 1
     value: -0.08
     abilitySlotFilter: 1
-  triggeredEffects: []
+  triggeredEffects:
+  - {fileID: 0}
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402005
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247,19 +260,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_BreakDamage
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.break_damage
   schemaVersion: 1
   presentation:
-    displayName: 균형 파쇄
-    description: 적에게 주는 브레이크 수치가 10% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uADE0\uD615 \uD30C\uC1C4"
+    description: "\uC801\uC5D0\uAC8C \uC8FC\uB294 \uBE0C\uB808\uC774\uD06C \uC218\uCE58\uAC00
+      10% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: bb5d4d01c336a5945b7a88700721d54f, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 적에게 주는 브레이크 수치가 증가한다.
+  characterSelectDescription: "\uC801\uC5D0\uAC8C \uC8FC\uB294 \uBE0C\uB808\uC774\uD06C
+    \uC218\uCE58\uAC00 \uC99D\uAC00\uD55C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -269,6 +284,7 @@ MonoBehaviour:
     value: 0.1
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,19 +296,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_EquipmentLuck
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.equipment_luck
   schemaVersion: 1
   presentation:
-    displayName: 감별안
-    description: 장비 옵션 등급이 한 단계 오를 확률이 15% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uAC10\uBCC4\uC548"
+    description: "\uC7A5\uBE44 \uC635\uC158 \uB4F1\uAE09\uC774 \uD55C \uB2E8\uACC4
+      \uC624\uB97C \uD655\uB960\uC774 15% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 1131a8deae3f4324fada0ebe32bbedfc, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 장비에서 더 좋은 성장 옵션을 얻기 쉬워진다.
+  characterSelectDescription: "\uC7A5\uBE44\uC5D0\uC11C \uB354 \uC88B\uC740 \uC131\uC7A5
+    \uC635\uC158\uC744 \uC5BB\uAE30 \uC26C\uC6CC\uC9C4\uB2E4."
   activationType: 0
   scope: 2
   stackPolicy: 1
@@ -302,6 +320,7 @@ MonoBehaviour:
     value: 0.15
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -313,19 +332,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_ConsumableRecovery
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.consumable_recovery
   schemaVersion: 1
   presentation:
-    displayName: 약효 증폭
-    description: 소모품의 회복량이 10% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uC57D\uD6A8 \uC99D\uD3ED"
+    description: "\uC18C\uBAA8\uD488\uC758 \uD68C\uBCF5\uB7C9\uC774 10% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 9cc7ca4d2d66bd0458059c9c5d45438d, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 소모품의 회복 효과가 강화된다.
+  characterSelectDescription: "\uC18C\uBAA8\uD488\uC758 \uD68C\uBCF5 \uD6A8\uACFC\uAC00
+    \uAC15\uD654\uB41C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -335,6 +355,7 @@ MonoBehaviour:
     value: 0.1
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -346,19 +367,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_CraftIngredientCost
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.craft_ingredient_cost
   schemaVersion: 1
   presentation:
-    displayName: 절약 제작
-    description: 제작에 필요한 재료가 10% 감소한다. 최종 수량은 올림한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uC808\uC57D \uC81C\uC791"
+    description: "\uC81C\uC791\uC5D0 \uD544\uC694\uD55C \uC7AC\uB8CC\uAC00 10% \uAC10\uC18C\uD55C\uB2E4. "
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: bce8981be2abf964a82188cbb69c1e28, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 제작에 필요한 재료가 감소한다.
+  characterSelectDescription: "\uC81C\uC791\uC5D0 \uD544\uC694\uD55C \uC7AC\uB8CC\uAC00
+    \uAC10\uC18C\uD55C\uB2E4."
   activationType: 0
   scope: 2
   stackPolicy: 1
@@ -368,6 +390,7 @@ MonoBehaviour:
     value: -0.1
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,19 +402,20 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_ExperienceGain
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.experience_gain
   schemaVersion: 1
   presentation:
-    displayName: 빠른 습득
-    description: 획득 경험치가 8% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uBE60\uB978 \uC2B5\uB4DD"
+    description: "\uD68D\uB4DD \uACBD\uD5D8\uCE58\uAC00 8% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: f3cd99b47a991814b918c1dec8adb505, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 획득하는 경험치가 증가한다.
+  characterSelectDescription: "\uD68D\uB4DD\uD558\uB294 \uACBD\uD5D8\uCE58\uAC00
+    \uC99D\uAC00\uD55C\uB2E4."
   activationType: 0
   scope: 1
   stackPolicy: 0
@@ -401,30 +425,33 @@ MonoBehaviour:
     value: 0.08
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402010
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
-  m_GameObject: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_HarmfulEffectRecovery
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.harmful_effect_recovery
   schemaVersion: 1
   presentation:
-    displayName: 빠른 정화
-    description: 해로운 상태의 회복 속도가 15% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uBE60\uB978 \uC815\uD654"
+    description: "\uD574\uB85C\uC6B4 \uC0C1\uD0DC\uC758 \uD68C\uBCF5 \uC18D\uB3C4\uAC00
+      15% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 5c28cd76ad4a09f439e804750a6c26f2, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 해로운 상태에서 더 빠르게 회복한다.
+  characterSelectDescription: "\uD574\uB85C\uC6B4 \uC0C1\uD0DC\uC5D0\uC11C \uB354
+    \uBE60\uB974\uAC8C \uD68C\uBCF5\uD55C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -434,6 +461,7 @@ MonoBehaviour:
     value: 0.15
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,19 +473,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_BeneficialEffectDuration
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.beneficial_effect_duration
   schemaVersion: 1
   presentation:
-    displayName: 긴 여운
-    description: 이로운 상태의 지속시간이 15% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uAE34 \uC5EC\uC6B4"
+    description: "\uC774\uB85C\uC6B4 \uC0C1\uD0DC\uC758 \uC9C0\uC18D\uC2DC\uAC04\uC774
+      15% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: bb1e3b51aa645e94193d94405509dd6c, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 이로운 상태가 더 오래 유지된다.
+  characterSelectDescription: "\uC774\uB85C\uC6B4 \uC0C1\uD0DC\uAC00 \uB354 \uC624\uB798
+    \uC720\uC9C0\uB41C\uB2E4."
   activationType: 0
   scope: 0
   stackPolicy: 0
@@ -467,6 +497,7 @@ MonoBehaviour:
     value: 0.15
     abilitySlotFilter: 1
   triggeredEffects: []
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -478,25 +509,28 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_PerfectDodgeFocus
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.perfect_dodge_focus
   schemaVersion: 1
   presentation:
-    displayName: 찰나의 집중
-    description: 퍼펙트 회피 시 5초 동안 공격력이 6% 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uCC30\uB098\uC758 \uC9D1\uC911"
+    description: "\uD37C\uD399\uD2B8 \uD68C\uD53C \uC2DC 5\uCD08 \uB3D9\uC548 \uACF5\uACA9\uB825\uC774
+      6% \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: 395ad8500fa9af9409a8e41069e5985d, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 퍼펙트 회피 시 일시적으로 공격력이 강화된다.
+  characterSelectDescription: "\uD37C\uD399\uD2B8 \uD68C\uD53C \uC2DC \uC77C\uC2DC\uC801\uC73C\uB85C
+    \uACF5\uACA9\uB825\uC774 \uAC15\uD654\uB41C\uB2E4."
   activationType: 1
   scope: 0
   stackPolicy: 1
   modifiers: []
   triggeredEffects:
   - {fileID: 11401001}
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11402013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -508,25 +542,28 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000003, type: 3}
   m_Name: PA_PerfectGuardFortify
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   passiveId: passive.perfect_guard_fortify
   schemaVersion: 1
   presentation:
-    displayName: 철벽의 순간
-    description: 퍼펙트 가드 시 5초 동안 방어력이 5%p 증가한다.
-    nameLocalizationKey:
-    descriptionLocalizationKey:
-    icon: {fileID: 0}
+    displayName: "\uCCA0\uBCBD\uC758 \uC21C\uAC04"
+    description: "\uD37C\uD399\uD2B8 \uAC00\uB4DC \uC2DC 5\uCD08 \uB3D9\uC548 \uBC29\uC5B4\uB825\uC774
+      5%p \uC99D\uAC00\uD55C\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 21300000, guid: c6439727ec13e9a4a9d296d4cd2a7036, type: 3}
     hudColor: {r: 0.35, g: 0.8, b: 0.9, a: 1}
     category: 5
     ownerType: 0
-  characterSelectDescription: 퍼펙트 가드 시 일시적으로 방어력이 강화된다.
+  characterSelectDescription: "\uD37C\uD399\uD2B8 \uAC00\uB4DC \uC2DC \uC77C\uC2DC\uC801\uC73C\uB85C
+    \uBC29\uC5B4\uB825\uC774 \uAC15\uD654\uB41C\uB2E4."
   activationType: 2
   scope: 0
   stackPolicy: 1
   modifiers: []
   triggeredEffects:
   - {fileID: 11401002}
+  triggeredEffectHudVisibility: 0
 --- !u!114 &11403001
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -538,7 +575,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Bokusei
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 1
   passives:
   - {fileID: 11402001}
@@ -557,7 +594,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Honoka
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 2
   passives:
   - {fileID: 11402002}
@@ -576,7 +613,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Reine
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 3
   passives:
   - {fileID: 11402005}
@@ -595,7 +632,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_LianLian
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 4
   passives:
   - {fileID: 11402004}
@@ -614,7 +651,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Nenmir
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 5
   passives:
   - {fileID: 11402003}
@@ -633,7 +670,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Sera
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 6
   passives:
   - {fileID: 11402002}
@@ -652,7 +689,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Inori
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 7
   passives:
   - {fileID: 11402004}
@@ -665,13 +702,13 @@ MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
-  m_GameObject: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Hichi
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 8
   passives:
   - {fileID: 11402001}
@@ -684,13 +721,13 @@ MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
-  m_GameObject: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Siuha
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 9
   passives:
   - {fileID: 11402013}
@@ -703,13 +740,13 @@ MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
-  m_GameObject: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Komoe
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 10
   passives:
   - {fileID: 11402007}
@@ -722,13 +759,13 @@ MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
-  m_GameObject: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a1100000000000000000000000000004, type: 3}
   m_Name: PassiveSet_Lili
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   characterType: 11
   passives:
   - {fileID: 11402012}

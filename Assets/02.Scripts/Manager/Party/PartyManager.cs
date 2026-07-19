@@ -150,6 +150,10 @@ namespace UPlayGround.Manager
         public float                     ComboStateMaxCarryTime => _config != null ? Mathf.Max(0f, _config.comboStateMaxCarryTime) : 1.8f;
 
         public PartyMemberDataSO PartyMemberDataSO => _config?.partyMemberData;
+        public CombatElement GetCombatElement(CharacterActorType type) =>
+            _config?.partyMemberData != null
+                ? _config.partyMemberData.GetCombatElement(type)
+                : CombatElement.None;
 
         public CharacterPassiveSetSO GetPassiveSet(CharacterActorType type)
             => _config?.characterPassiveDatabase != null

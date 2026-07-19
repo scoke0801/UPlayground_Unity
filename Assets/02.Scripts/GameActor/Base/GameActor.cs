@@ -39,6 +39,22 @@ namespace UPlayGround
         protected ActorCameraProximityDither _cameraProximityDither;
 
         private float _localTimeScale = 1.0f;
+        private readonly System.Collections.Generic.Dictionary<ulong, ElementOverride>
+            _elementOverrides = new();
+        private CombatElement _currentElement;
+        private CombatElement? _runtimeBaseElement;
+
+        private readonly struct ElementOverride
+        {
+            public readonly CombatElement Element;
+            public readonly int Priority;
+
+            public ElementOverride(CombatElement element, int priority)
+            {
+                Element = element;
+                Priority = priority;
+            }
+        }
 
         /// <summary>런타임 태그 컨테이너. 상태 진입/이탈 시 태그를 추가/제거한다.</summary>
         public GameplayTagContainer Tags { get; private set; }
@@ -51,6 +67,17 @@ namespace UPlayGround
 
         /// <summary>액터별 지속 Effect 런타임.</summary>
         public GameplayEffectController Effects { get; private set; }
+
+        /// <summary>Definition 기본값과 활성 GameplayEffect를 합성한 현재 전투 속성.</summary>
+        public CombatElement CurrentElement => _currentElement;
+
+        /// <summary>유리한 속성 공격에 적용되는 Definition 기반 피해 배율.</summary>
+        public float ElementalAdvantageMultiplier =>
+            _definition != null
+                ? Mathf.Max(1f, _definition.elementalAdvantageMultiplier)
+                : CombatElementRules.DefaultAdvantageMultiplier;
+
+        public event Action<CombatElement> ElementChanged;
 
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)
@@ -137,6 +164,7 @@ namespace UPlayGround
         {
             _definition = definition;
             ApplyBaseDefinition();
+            RefreshCurrentElement();
         }
 
         public ActorMovementController ActorController => MovementController;
@@ -156,6 +184,7 @@ namespace UPlayGround
             _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
             _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
             _cameraProximityDither = gameObject.GetOrAddComponent<ActorCameraProximityDither>();
+            RefreshCurrentElement();
             
             // 매니저에 등록
             ActorSvc.Objects?.RegisterActor(this);
@@ -170,6 +199,69 @@ namespace UPlayGround
 
             _actorType = _definition.actorType;
             _characterActorType = _definition.characterType;
+        }
+
+        public void AddElementOverride(
+            ulong sourceId,
+            CombatElement element,
+            int priority = 0)
+        {
+            if (sourceId == 0 || element == CombatElement.None)
+                return;
+
+            _elementOverrides[sourceId] = new ElementOverride(element, priority);
+            RefreshCurrentElement();
+        }
+
+        public void RemoveElementOverride(ulong sourceId)
+        {
+            if (sourceId == 0 || !_elementOverrides.Remove(sourceId))
+                return;
+            RefreshCurrentElement();
+        }
+
+        public void ResolveDefinitionElement(int newGameSeed)
+        {
+            _runtimeBaseElement = _definition != null
+                ? _definition.ResolveCombatElement(newGameSeed)
+                : CombatElement.None;
+            RefreshCurrentElement();
+        }
+
+        protected void SetCharacterBaseElement(CombatElement element)
+        {
+            _runtimeBaseElement = element;
+            RefreshCurrentElement();
+        }
+
+        private void RefreshCurrentElement()
+        {
+            CombatElement resolved = _runtimeBaseElement
+                ?? (_definition != null
+                    ? _definition.combatElement
+                    : CombatElement.None);
+            int bestPriority = int.MinValue;
+            ulong bestSourceId = 0;
+
+            foreach (var pair in _elementOverrides)
+            {
+                ElementOverride candidate = pair.Value;
+                if (candidate.Priority < bestPriority
+                    || candidate.Priority == bestPriority
+                    && pair.Key <= bestSourceId)
+                {
+                    continue;
+                }
+
+                resolved = candidate.Element;
+                bestPriority = candidate.Priority;
+                bestSourceId = pair.Key;
+            }
+
+            if (_currentElement == resolved)
+                return;
+            _currentElement = resolved;
+            ElementChanged?.Invoke(resolved);
         }
 
         

@@ -88,6 +88,8 @@ namespace UPlayGround.Manager
         public static IVitalOrbService VitalOrb => Services.Get<IVitalOrbService>();
         public static ISettingsService Settings => Services.Get<ISettingsService>();
         public static IGameTimeService GameTime => Services.Get<IGameTimeService>();
+        public static IElementRandomSeedService ElementRandom =>
+            Services.Get<IElementRandomSeedService>();
         public static ICameraViewService Camera => Services.Get<ICameraViewService>();
         public static IAssetService Asset => Services.Get<IAssetService>();
         public static IActorQueryService ActorQuery => Services.Get<IActorQueryService>();

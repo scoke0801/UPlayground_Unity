@@ -90,6 +90,11 @@ namespace UPlayGround.Manager
         string FormatPlayTime();
     }
 
+    public interface IElementRandomSeedService : IGameService
+    {
+        int NewGameElementSeed { get; }
+    }
+
     public interface ICameraViewService : IGameService
     {
         CameraModeType CurrentCameraMode { get; }
@@ -183,6 +188,7 @@ namespace UPlayGround.Manager
         IReadOnlyDictionary<StatType, float> GetGrowthStats(CharacterActorType type);
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         int GetLevel(CharacterActorType type);
+        CombatElement GetCombatElement(CharacterActorType type);
         IReadOnlyDictionary<GrowthAttributeType, int> GetGrowthInvestments(CharacterActorType type);
     }
 

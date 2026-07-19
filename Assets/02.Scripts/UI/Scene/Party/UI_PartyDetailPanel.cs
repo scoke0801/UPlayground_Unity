@@ -3,9 +3,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
+using UnityEngine.Serialization;
 
 namespace UPlayGround.UI
 {
@@ -47,9 +50,14 @@ namespace UPlayGround.UI
         [SerializeField] private GameObject _roleBalanced;
         [SerializeField] private GameObject _roleMobility;
 
-        [Header("무게 클래스 (사이클)")]
-        [SerializeField] private TextMeshProUGUI _weightClassText;   // 경량/표준/중량
-        [SerializeField] private TextMeshProUGUI _weightDerivedText; // 이동/템포/피해/브레이크/회피 파생값
+        [Header("속성")]
+        [FormerlySerializedAs("_weightClassText")]
+        [SerializeField] private TextMeshProUGUI _elementText;
+        [FormerlySerializedAs("_weightDerivedText")]
+        [SerializeField] private TextMeshProUGUI _elementDescriptionText;
+
+        [Header("패시브")]
+        [SerializeField] private GameObject[] _passiveSlots;
 
         [Header("설정")]
         [SerializeField] private int _maxLevel = 40;
@@ -118,21 +126,103 @@ namespace UPlayGround.UI
             if (_roleBalanced != null) _roleBalanced.SetActive(role == PartyRole.Balanced);
             if (_roleMobility != null) _roleMobility.SetActive(role == PartyRole.Mobility);
 
-            // 무게 클래스 (사이클 03 스펙 파생값)
-            RefreshWeight(type);
+            RefreshElement(type, data);
+            RefreshPassives(type);
         }
 
-        private void RefreshWeight(CharacterActorType type)
+        private void RefreshElement(
+            CharacterActorType type,
+            PartyMemberDataSO data)
         {
-            var profile = UIPartyWeightUtil.FindProfile(type);
-            if (_weightClassText != null)
-                _weightClassText.text = profile != null ? UIPartyWeightUtil.ClassLabel(profile.weightClass) : "-";
-            if (_weightDerivedText != null)
-                _weightDerivedText.text = profile != null
-                    ? $"이동 x{profile.moveSpeedMultiplier:0.##} / 템포 x{profile.attackTempoMultiplier:0.##} / " +
-                      $"피해 x{profile.damageMultiplier:0.##} / 브레이크 x{profile.breakDamageMultiplier:0.##} / " +
-                      $"회피 무적 {profile.dodgeIFrameSeconds:0.##}초"
-                    : string.Empty;
+            var element = data.GetCombatElement(type);
+            if (_elementText != null)
+            {
+                _elementText.text = UICombatElementDisplay.Label(element);
+                _elementText.color = UICombatElementDisplay.Color(element);
+                TextMeshProUGUI title = _elementText.transform.parent != null
+                    ? _elementText.transform.parent.Find("WeightTitle")
+                        ?.GetComponent<TextMeshProUGUI>()
+                    : null;
+                if (title != null) title.text = "속성";
+            }
+            if (_elementDescriptionText != null)
+                _elementDescriptionText.text =
+                    element == CombatElement.None
+                        ? "속성 상성에 따른 추가 효과 없음"
+                        : "유리한 상성 공격 시 추가 피해";
+        }
+
+        private void RefreshPassives(CharacterActorType type)
+        {
+            EnsurePassiveSlots();
+            CharacterPassiveSetSO set = Svc.Passives?.GetPassiveSet(type);
+            for (int i = 0; i < _passiveSlots.Length; i++)
+            {
+                GameObject slot = _passiveSlots[i];
+                PassiveAbilitySO passive =
+                    set?.passives != null && i < set.passives.Count
+                        ? set.passives[i]
+                        : null;
+                if (slot == null) continue;
+                slot.SetActive(passive != null);
+                if (passive == null) continue;
+
+                TextMeshProUGUI label =
+                    slot.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (label != null)
+                    label.text = passive.presentation?.displayName ?? passive.name;
+
+                Transform iconTransform = FindDeepChild(slot.transform, "Icon");
+                Image icon = iconTransform != null
+                    ? iconTransform.GetComponent<Image>()
+                    : null;
+                if (icon != null)
+                {
+                    icon.sprite = passive.presentation?.icon;
+                    icon.enabled = icon.sprite != null;
+                }
+            }
+        }
+
+        private void EnsurePassiveSlots()
+        {
+            if (_passiveSlots != null && _passiveSlots.Length > 0)
+                return;
+
+            Transform skills = _root != null
+                ? FindDeepChild(_root.transform, "Skills")
+                : null;
+            if (skills == null)
+            {
+                _passiveSlots = System.Array.Empty<GameObject>();
+                return;
+            }
+
+            Transform title = FindDeepChild(skills, "SkillTitle");
+            TextMeshProUGUI titleText =
+                title != null ? title.GetComponent<TextMeshProUGUI>() : null;
+            if (titleText != null) titleText.text = "패시브";
+
+            var slots = new List<GameObject>();
+            for (int i = 1; i <= 4; i++)
+            {
+                Transform slot = skills.Find($"Skill{i}");
+                if (slot != null) slots.Add(slot.gameObject);
+            }
+            _passiveSlots = slots.ToArray();
+        }
+
+        private static Transform FindDeepChild(Transform root, string objectName)
+        {
+            if (root == null) return null;
+            for (int i = 0; i < root.childCount; i++)
+            {
+                Transform child = root.GetChild(i);
+                if (child.name == objectName) return child;
+                Transform nested = FindDeepChild(child, objectName);
+                if (nested != null) return nested;
+            }
+            return null;
         }
 
         private static float Stat(IReadOnlyDictionary<StatType, float> stats, StatType type)

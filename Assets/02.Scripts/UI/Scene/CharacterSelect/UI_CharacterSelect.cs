@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 using UPlayGround.Manager;
 
 namespace UPlayGround.UI
@@ -47,6 +48,7 @@ namespace UPlayGround.UI
         [SerializeField] private RectTransform _detailPanel;
         [SerializeField] private TextMeshProUGUI _detailNameText;
         [SerializeField] private TextMeshProUGUI _detailTaglineText;
+        [SerializeField] private TextMeshProUGUI _elementText;
         [SerializeField] private Image _weaponIcon;
         [SerializeField] private TextMeshProUGUI _weaponNameText;
         [SerializeField] private TextMeshProUGUI _weaponDescText;
@@ -100,6 +102,7 @@ namespace UPlayGround.UI
                 _characterPreview.texture = _previewRenderer.GetRenderTexture();
 
             HideLegacyWeaponSection();
+            EnsureElementText();
             EnsurePassiveRows();
             CacheDetailBase();
             BuildCards();
@@ -120,6 +123,33 @@ namespace UPlayGround.UI
                 ? _weaponDescText.transform.parent
                 : _detailPanel;
             content?.Find("EffectsHeader")?.gameObject.SetActive(false);
+        }
+
+        private void EnsureElementText()
+        {
+            if (_elementText != null)
+                return;
+
+            Transform parent = _detailTaglineText != null
+                ? _detailTaglineText.transform.parent
+                : _detailPanel;
+            if (parent == null)
+                return;
+
+            var elementObject = new GameObject(
+                "Element_Runtime",
+                typeof(RectTransform),
+                typeof(LayoutElement),
+                typeof(TextMeshProUGUI));
+            elementObject.transform.SetParent(parent, false);
+            elementObject.transform.SetSiblingIndex(
+                _detailTaglineText != null
+                    ? _detailTaglineText.transform.GetSiblingIndex() + 1
+                    : 0);
+            elementObject.GetComponent<LayoutElement>().preferredHeight = 30f;
+            _elementText = elementObject.GetComponent<TextMeshProUGUI>();
+            _elementText.fontSize = 20f;
+            _elementText.alignment = TextAlignmentOptions.Left;
         }
 
         private void EnsurePassiveRows()
@@ -318,6 +348,14 @@ namespace UPlayGround.UI
 
             if (_detailNameText != null) _detailNameText.text = ResolveDisplayName(entry);
             if (_detailTaglineText != null) _detailTaglineText.text = entry.tagline;
+            if (_elementText != null)
+            {
+                var element = _memberData != null
+                    ? _memberData.GetCombatElement(entry.characterType)
+                    : CombatElement.None;
+                _elementText.text = UICombatElementDisplay.RichLabel(element);
+                _elementText.color = UICombatElementDisplay.Color(element);
+            }
 
             if (_portraitLarge != null)
             {

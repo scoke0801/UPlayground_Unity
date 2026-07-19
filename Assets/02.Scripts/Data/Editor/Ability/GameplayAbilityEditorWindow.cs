@@ -16,6 +16,7 @@ namespace UPlayGround.Data.Editor.Ability
     {
         private readonly List<UnityEngine.Object> _assets = new();
         private readonly List<UnityEngine.Object> _filtered = new();
+        private readonly Dictionary<System.Type, int> _filteredGroupCounts = new();
         private readonly List<AbilitySetScope> _setScopes = new();
         private ListView _assetList;
         private VisualElement _detail;
@@ -247,7 +248,7 @@ namespace UPlayGround.Data.Editor.Ability
             "Assets/03.Prefabs/Characters/Enemy",
         };
 
-        [MenuItem("UPlayGround/Ability/Ability & Effect 데이터 툴")]
+        [MenuItem("UPlayGround/Ability/Ability에디터")]
         public static void Open()
         {
             GameplayAbilityEditorWindow window = GetWindow<GameplayAbilityEditorWindow>();
@@ -583,11 +584,30 @@ namespace UPlayGround.Data.Editor.Ability
 
         private VisualElement MakeAssetRow()
         {
+            var wrapper = new VisualElement();
+            wrapper.name = "wrapper";
+
+            // 타입 그룹의 첫 행에만 노출되는 헤더. 나머지 행에서는 display:none.
+            var groupHeader = new Label { name = "groupHeader" };
+            groupHeader.style.unityFontStyleAndWeight = FontStyle.Bold;
+            groupHeader.style.fontSize = 10f;
+            groupHeader.style.color = new Color(0.62f, 0.78f, 0.95f);
+            groupHeader.style.backgroundColor = new Color(0.13f, 0.16f, 0.21f);
+            groupHeader.style.paddingLeft = 8f;
+            groupHeader.style.paddingRight = 8f;
+            groupHeader.style.paddingTop = 4f;
+            groupHeader.style.paddingBottom = 4f;
+            groupHeader.style.borderTopColor = new Color(0.28f, 0.4f, 0.55f);
+            groupHeader.style.borderTopWidth = 1f;
+            wrapper.Add(groupHeader);
+
             var row = new VisualElement();
             row.style.flexDirection = FlexDirection.Row;
             row.style.alignItems = Align.Center;
             row.style.paddingLeft = 7f;
             row.style.paddingRight = 5f;
+            row.style.paddingTop = 4f;
+            row.style.paddingBottom = 4f;
             row.style.borderBottomColor = new Color(0.15f, 0.18f, 0.22f);
             row.style.borderBottomWidth = 1f;
 
@@ -612,21 +632,39 @@ namespace UPlayGround.Data.Editor.Ability
             badge.style.unityTextAlign = TextAnchor.MiddleCenter;
             badge.style.minWidth = 20f;
             row.Add(badge);
-            return row;
+
+            wrapper.Add(row);
+            return wrapper;
         }
 
-        private void BindAssetRow(VisualElement row, int index)
+        private void BindAssetRow(VisualElement wrapper, int index)
         {
             if ((uint)index >= (uint)_filtered.Count) return;
             UnityEngine.Object asset = _filtered[index];
-            row.Q<Label>("name").text = GetStableId(asset);
-            row.Q<Label>("type").text = asset.GetType().Name;
-            row.Q<Image>("icon").image = GetIcon(asset);
+
+            // 이 행이 속한 타입 그룹의 첫 항목일 때만 그룹 헤더를 노출한다.
+            var groupHeader = wrapper.Q<Label>("groupHeader");
+            bool isGroupStart = index == 0
+                || _filtered[index - 1].GetType() != asset.GetType();
+            if (isGroupStart)
+            {
+                _filteredGroupCounts.TryGetValue(asset.GetType(), out int count);
+                groupHeader.text = $"{AssetTypeGroupLabel(asset)}  ({count})";
+                groupHeader.style.display = DisplayStyle.Flex;
+            }
+            else
+            {
+                groupHeader.style.display = DisplayStyle.None;
+            }
+
+            wrapper.Q<Label>("name").text = GetStableId(asset);
+            wrapper.Q<Label>("type").text = asset.GetType().Name;
+            wrapper.Q<Image>("icon").image = GetIcon(asset);
 
             List<AbilityValidationIssue> issues = AbilityDataValidator.Validate(asset);
             int errors = issues.Count(x => x.Severity == AbilityValidationSeverity.Error);
             int warnings = issues.Count(x => x.Severity == AbilityValidationSeverity.Warning);
-            Label badge = row.Q<Label>("badge");
+            Label badge = wrapper.Q<Label>("badge");
             badge.text = errors > 0 ? $"✕ {errors}" : warnings > 0 ? $"⚠ {warnings}" : "✓";
             badge.style.color = errors > 0
                 ? new Color(1f, 0.35f, 0.35f)
@@ -817,7 +855,13 @@ namespace UPlayGround.Data.Editor.Ability
             LoadAssets<PassiveAbilitySO>();
             LoadAssets<GameplayEffectSO>();
             LoadAssets<AbilitySetSO>();
-            _assets.Sort((a, b) => string.Compare(GetStableId(a), GetStableId(b), StringComparison.Ordinal));
+            _assets.Sort((a, b) =>
+            {
+                int rankCompare = AssetTypeRank(a).CompareTo(AssetTypeRank(b));
+                return rankCompare != 0
+                    ? rankCompare
+                    : string.Compare(GetStableId(a), GetStableId(b), StringComparison.Ordinal);
+            });
             LoadAbilitySetScopes();
             RefreshSetScopeButton();
             ApplyFilter();
@@ -843,6 +887,13 @@ namespace UPlayGround.Data.Editor.Ability
                         query, StringComparison.OrdinalIgnoreCase) < 0)
                     continue;
                 _filtered.Add(asset);
+            }
+            _filteredGroupCounts.Clear();
+            for (int i = 0; i < _filtered.Count; i++)
+            {
+                System.Type type = _filtered[i].GetType();
+                _filteredGroupCounts.TryGetValue(type, out int count);
+                _filteredGroupCounts[type] = count + 1;
             }
             _assetList?.RefreshItems();
             RestoreListSelection();
@@ -1072,6 +1123,26 @@ namespace UPlayGround.Data.Editor.Ability
             "Effect" => asset is GameplayEffectSO,
             "Set" => asset is AbilitySetSO,
             _ => true,
+        };
+
+        // 목록을 에셋 타입별로 묶기 위한 정렬 순서. RefreshAssets 정렬과
+        // BindAssetRow의 그룹 헤더 노출 판정이 이 순서를 공유한다.
+        private static int AssetTypeRank(UnityEngine.Object asset) => asset switch
+        {
+            GameplayAbilitySO => 0,
+            PassiveAbilitySO => 1,
+            GameplayEffectSO => 2,
+            AbilitySetSO => 3,
+            _ => 4,
+        };
+
+        private static string AssetTypeGroupLabel(UnityEngine.Object asset) => asset switch
+        {
+            GameplayAbilitySO => "Ability · GameplayAbilitySO",
+            PassiveAbilitySO => "Passive · PassiveAbilitySO",
+            GameplayEffectSO => "Effect · GameplayEffectSO",
+            AbilitySetSO => "Set · AbilitySetSO",
+            _ => asset != null ? asset.GetType().Name : "기타",
         };
 
         private void LoadAssets<T>() where T : UnityEngine.Object

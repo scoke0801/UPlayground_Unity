@@ -11,7 +11,7 @@ namespace UPlayGround.UI.Party.EditorTools
     /// - 기존 UI_PartyMenu.prefab / UIPartyMenuEntry.prefab / UIPartyBattleEntry.prefab을 덮어쓴다(자식 재구성).
     /// - 3열(보유 동료 / 출전 파티 / 상세) + 하단 바 구성.
     /// - 배틀 슬롯 4개는 인라인 인스턴스.
-    /// - 스킬 4종·궁극기 게이지는 데이터 미연동 → 회색 플레이스홀더로만 배치(비배선).
+    /// - 상세 패널에 캐릭터 속성·패시브 4종을 생성하고 런타임 필드에 연결한다.
     /// - 재실행 가능(idempotent).
     /// </summary>
     public static class UIPartyMenuPrefabBuilder
@@ -135,10 +135,10 @@ namespace UPlayGround.UI.Party.EditorTools
                 for (int i = 0; i < 4; i++)
                     battleEntries[i] = BuildBattleCard(cardsRow.transform, $"BattleCard{i + 1}", i, addFlexibleWidth: true);
 
-                // 파티 무게 구성 요약 (사이클 03 스펙)
-                var weightSummary = AddText(NewUI("WeightSummary", center.transform),
-                    "경량 0 / 표준 0 / 중량 0", 18, TextSub, TextAlignmentOptions.Left);
-                SetHeight(weightSummary.gameObject, 26);
+                // 출전 파티 속성 구성 요약
+                var elementSummary = AddText(NewUI("ElementSummary", center.transform),
+                    "속성 없음", 18, TextSub, TextAlignmentOptions.Left);
+                SetHeight(elementSummary.gameObject, 26);
 
                 var battleBlank = NewUI("BattleBlank", center.transform);
                 AddFlexible(battleBlank, 1f);
@@ -174,7 +174,7 @@ namespace UPlayGround.UI.Party.EditorTools
                 SetRef(so, "_rosterCountText",       rosterCount);
                 SetRef(so, "_battlePartyCountText",  battleCount);
                 SetRef(so, "_battleMemberCountText", memText);
-                SetRef(so, "_partyWeightSummaryText", weightSummary);
+                SetRef(so, "_partyWeightSummaryText", elementSummary);
                 SetRef(so, "_detailPanel",           detailComp);
                 SetRef(so, "_assistPanel",           assistPanelComp);
                 so.ApplyModifiedPropertiesWithoutUndo();
@@ -559,33 +559,43 @@ namespace UPlayGround.UI.Party.EditorTools
             var roleBal   = BuildRoleTag(roleRow.transform, "균형");
             var roleMob   = BuildRoleTag(roleRow.transform, "기동");
 
-            // 무게 클래스 (사이클 03 스펙)
-            AddText(NewUI("WeightTitle", inspector.transform), "무게 클래스 (사이클)", 20, TextMain, TextAlignmentOptions.Left);
-            var weightBox = NewUI("Weight", inspector.transform);
-            AddImage(weightBox, FieldBg, UISprite, sliced: true);
-            AddVLG(weightBox, spacing: 2, pad: 8).childForceExpandHeight = false;
-            var weightClass = BuildStatRow(weightBox.transform, "분류", "-");
-            var weightDerived = AddText(NewUI("Derived", weightBox.transform), "-", 15, TextSub, TextAlignmentOptions.Left);
-            SetHeight(weightDerived.gameObject, 44);
+            // 속성
+            AddText(NewUI("ElementTitle", inspector.transform), "속성", 20, TextMain, TextAlignmentOptions.Left);
+            var elementBox = NewUI("Element", inspector.transform);
+            AddImage(elementBox, FieldBg, UISprite, sliced: true);
+            AddVLG(elementBox, spacing: 2, pad: 8).childForceExpandHeight = false;
+            var elementText = BuildStatRow(elementBox.transform, "속성", "-");
+            var elementDescription = AddText(NewUI("Description", elementBox.transform),
+                "-", 15, TextSub, TextAlignmentOptions.Left);
+            SetHeight(elementDescription.gameObject, 44);
 
-            // 스킬 / 궁극기 (플레이스홀더, 비배선)
-            AddText(NewUI("SkillTitle", inspector.transform), "스킬", 20, TextMain, TextAlignmentOptions.Left);
-            var skillRow = NewUI("Skills", inspector.transform);
-            SetHeight(skillRow, 64);
-            var skillLayout = AddHLG(skillRow, spacing: 8, pad: 0);
-            skillLayout.childForceExpandWidth = false;
-            skillLayout.childAlignment = TextAnchor.MiddleLeft;
+            // 패시브
+            AddText(NewUI("PassiveTitle", inspector.transform), "패시브", 20, TextMain, TextAlignmentOptions.Left);
+            var passiveRow = NewUI("Passives", inspector.transform);
+            SetHeight(passiveRow, 70);
+            var passiveLayout = AddHLG(passiveRow, spacing: 8, pad: 0);
+            passiveLayout.childForceExpandWidth = false;
+            passiveLayout.childAlignment = TextAnchor.MiddleLeft;
+            var passiveSlots = new GameObject[4];
             for (int i = 0; i < 4; i++)
             {
-                var sk = NewUI($"Skill{i + 1}", skillRow.transform);
-                SetWidth(sk, 54);
-                AddImage(sk, SlotBg, UISprite, sliced: true);
+                var slot = NewUI($"Passive{i + 1}", passiveRow.transform);
+                passiveSlots[i] = slot;
+                SetWidth(slot, 112);
+                AddImage(slot, SlotBg, UISprite, sliced: true);
+                AddHLG(slot, spacing: 5, pad: 5).childForceExpandWidth = false;
+
+                var iconGo = NewUI("Icon", slot.transform);
+                SetWidth(iconGo, 34);
+                var icon = AddImage(iconGo, TextSub, UISprite, sliced: true);
+                icon.preserveAspect = true;
+                icon.enabled = false;
+
+                var label = AddText(NewUI("Label", slot.transform), "-", 14,
+                    TextMain, TextAlignmentOptions.MidlineLeft);
+                AddFlexibleW(label.gameObject, 1f);
+                label.textWrappingMode = TextWrappingModes.Normal;
             }
-            var ultGo = NewUI("Ultimate", skillRow.transform);
-            SetWidth(ultGo, 62);
-            AddImage(ultGo, Gold, UISprite, sliced: true);
-            AddText(NewUI("Text", ultGo.transform), "100%", 14, Color.black, TextAlignmentOptions.Center).raycastTarget = false;
-            Stretch(ultGo.transform.GetChild(0).gameObject);
 
             var so = new SerializedObject(comp);
             SetRef(so, "_root",            detail);
@@ -609,8 +619,9 @@ namespace UPlayGround.UI.Party.EditorTools
             SetRef(so, "_roleMelee",    roleMelee);
             SetRef(so, "_roleBalanced", roleBal);
             SetRef(so, "_roleMobility", roleMob);
-            SetRef(so, "_weightClassText",   weightClass);
-            SetRef(so, "_weightDerivedText", weightDerived);
+            SetRef(so, "_elementText",            elementText);
+            SetRef(so, "_elementDescriptionText", elementDescription);
+            SetArray(so, "_passiveSlots",         passiveSlots);
             so.ApplyModifiedPropertiesWithoutUndo();
 
             return detail;

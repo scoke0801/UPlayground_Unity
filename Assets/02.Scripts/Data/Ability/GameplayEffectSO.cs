@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Combat;
 using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Ability
@@ -11,6 +12,11 @@ namespace UPlayGround.Data.Ability
         [Min(1)] public int schemaVersion = 1;
         public GameplayEffectPolarity polarity;
         public GameplayEffectPresentationDefinition presentation = new();
+        [Header("속성 부여")]
+        [Tooltip("Duration/Infinite Effect가 활성화된 동안 부여할 전투 속성. None이면 속성을 변경하지 않습니다.")]
+        public CombatElement grantedElement = CombatElement.None;
+        [Tooltip("여러 속성 Effect가 겹치면 높은 우선순위가 적용됩니다. 같으면 나중에 적용된 Effect가 우선합니다.")]
+        public int elementPriority;
         [Tooltip("패시브의 상태강화/상태이상 지속시간 배율을 적용하지 않습니다.")]
         public bool ignorePassiveDurationModifiers;
         public GameplayEffectDurationType durationType = GameplayEffectDurationType.Instant;

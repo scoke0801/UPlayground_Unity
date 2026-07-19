@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03a1c8df54d4f9e4aaa6ce0027847f50, type: 3}
+  m_Name: GE_ElementalImbue_Light
+  m_EditorClassIdentifier:
+  effectId: Effect.ElementalImbue.Light
+  schemaVersion: 1
+  polarity: 1
+  presentation:
+    displayName: "빛 속성 부여"
+    description: "15초 동안 공격 속성을 빛으로 변경합니다."
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    showInHud: 1
+    hudPriority: 100
+    showRemainingTime: 1
+    showStackCount: 0
+  grantedElement: 4
+  elementPriority: 100
+  ignorePassiveDurationModifiers: 0
+  durationType: 1
+  durationSeconds: 15
+  periodSeconds: 0
+  stackingKey: Effect.ElementalImbue
+  stackPolicy: 3
+  maxStackCount: 1
+  modifiers: []
+  resourceOperations: []
+  grantedTagIds: []
+  removalPolicy: 0
+  savePolicy: 0

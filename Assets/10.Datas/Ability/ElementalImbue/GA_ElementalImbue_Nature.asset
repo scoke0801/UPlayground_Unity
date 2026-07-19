@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_ElementalImbue_Nature
+  abilityId: Ability.ElementalImbue.Nature
+  schemaVersion: 1
+  presentation:
+    displayName: "자연 속성 부여"
+    description: "전용 모션을 재생하고 15초 동안 자연 속성을 부여합니다."
+    icon: {fileID: 0}
+    hudColor: {r: 0.25, g: 0.85, b: 0.35, a: 1}
+    category: 3
+    ownerType: 0
+  abilityTagIds: []
+  activation: {requiredTagIds: [], blockedTagIds: [], executionGrantedTagIds: [], groundCondition: 0, targetPolicy: 0, targetRelation: 0, minDistance: 0, maxDistance: 0}
+  cost: {resourceType: 0, policy: 0, value: 0}
+  cooldown: {durationSeconds: 10, cooldownGroupId: Ability.ElementalImbue}
+  concurrency: 2
+  variants:
+  - variantId: Default
+    priority: 0
+    condition: {groundCondition: 0, minResource: 0, requiresFullResource: 0, requiredTagIds: [], blockedTagIds: []}
+    executionPayload: {fileID: 11400001}
+    targetEffects: []
+    ownerEffects:
+    - {fileID: 11400000, guid: e3333333333343338333333333333333, type: 2}
+  commitEffects: []
+  endEffects: []
+  cues: {startCueId: '', failureCueId: '', endCueId: '', cooldownReadyCueId: ''}
+  persistence: {swapPolicy: 0, saveCooldown: 1}
+  balance: {expectedDamage: 0, expectedDuration: 15, roleTags: [ElementalImbue], designerNotes: ''}
+--- !u!114 &11400001
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Name: Payload_ElementalImbue_Nature
+  executionId: Ability.ElementalImbue.Nature
+  animKey: 520
+  attackInfo:
+    baseInfo: {animKey: 520, attackType: 0, hitPhases: []}
+    interruptActions: 0
+    moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 0
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 0

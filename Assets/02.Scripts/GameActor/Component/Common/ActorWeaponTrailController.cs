@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using INab.Common;
 using UnityEngine;
+using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Components
 {
@@ -19,13 +20,21 @@ namespace UPlayGround.Components
         [SerializeField] private bool _debugLog;
 
         private readonly List<WeaponTrailEffect> _trails = new List<WeaponTrailEffect>();
+        private static ElementalWeaponTrailLibrarySO _elementLibrary;
+        private GameActor _owner;
         private bool _isDirty = true;
         private float _lastStartTime = -999f;
         private Coroutine _pendingStopCoroutine;
 
         private void Awake()
         {
+            BindOwner();
             RefreshTrails();
+        }
+
+        private void OnEnable()
+        {
+            BindOwner();
         }
 
         private void OnDisable()
@@ -35,6 +44,7 @@ namespace UPlayGround.Components
             // Unity가 알아서 정지시키고, ForceStopTrailProperties가 VFX 상태를 직접 정리하므로
             // 코루틴 기반 StopTrail 경로는 건너뛴다.
             StopCachedAttackTrails(immediate: true, allowCoroutine: false);
+            UnbindOwner();
         }
 
         public static void StartAttackTrails(UnityEngine.Component owner)
@@ -95,6 +105,7 @@ namespace UPlayGround.Components
         private void PlayAttackTrails()
         {
             EnsureCache();
+            ApplyElementTrailPrefabs();
             CancelPendingStop();
             _lastStartTime = Time.unscaledTime;
 
@@ -283,6 +294,58 @@ namespace UPlayGround.Components
 
             trail._InstantiateTrailPrefab();
             SetTrailPrefabInstanceActive(trail, false);
+        }
+
+        private void BindOwner()
+        {
+            GameActor owner = GetComponent<GameActor>();
+            if (ReferenceEquals(_owner, owner))
+                return;
+
+            UnbindOwner();
+            _owner = owner;
+            if (_owner != null)
+                _owner.ElementChanged += OnElementChanged;
+        }
+
+        private void UnbindOwner()
+        {
+            if (_owner != null)
+                _owner.ElementChanged -= OnElementChanged;
+            _owner = null;
+        }
+
+        private void OnElementChanged(CombatElement _)
+        {
+            if (_trails.Count == 0)
+                return;
+
+            StopCachedAttackTrails(immediate: true);
+            ApplyElementTrailPrefabs();
+        }
+
+        private void ApplyElementTrailPrefabs()
+        {
+            BindOwner();
+            _elementLibrary ??= Resources.Load<ElementalWeaponTrailLibrarySO>(
+                ElementalWeaponTrailLibrarySO.ResourcesPath);
+            if (_owner == null || _elementLibrary == null)
+                return;
+
+            GameObject prefab = _elementLibrary.GetPrefab(_owner.CurrentElement);
+            if (prefab == null)
+                return;
+
+            for (int i = 0; i < _trails.Count; i++)
+            {
+                WeaponTrailEffect trail = _trails[i];
+                if (trail == null || trail.trailPrefab == prefab)
+                    continue;
+
+                StopTrailImmediate(trail);
+                trail.SetNewTrailPrefab(prefab);
+                SetTrailPrefabInstanceActive(trail, false);
+            }
         }
 
         private void EnsureCache()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Party
@@ -24,6 +25,8 @@ namespace UPlayGround.Data.Party
 
             [Tooltip("무기 이름 (예: 카타나)")]
             public string weaponName;
+            [Tooltip("플레이어블 캐릭터의 고유 전투 속성")]
+            public CombatElement combatElement;
             [Tooltip("등급(별 개수). 1~5")]
             [Range(1, 5)] public int rarity;
             [Tooltip("역할/특성 태그")]
@@ -98,6 +101,16 @@ namespace UPlayGround.Data.Party
                 return sprites[index].weaponName;
             }
             return string.Empty;
+        }
+
+        public CombatElement GetCombatElement(CharacterActorType type)
+        {
+            for (var index = 0; index < sprites.Count; index++)
+            {
+                if (sprites[index].type != type) continue;
+                return sprites[index].combatElement;
+            }
+            return CombatElement.None;
         }
 
         /// <summary> 등급(별 개수, 1~5). 미설정이면 1. </summary>

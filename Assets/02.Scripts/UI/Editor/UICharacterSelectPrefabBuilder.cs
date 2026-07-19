@@ -255,6 +255,8 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             SetHeight(nameText.gameObject, 48);
             var taglineText = AddText(NewUI("Tagline", detailContent.transform), "한 줄 소개", 20, TextSub, TextAlignmentOptions.Left);
             SetHeight(taglineText.gameObject, 30);
+            var elementText = AddText(NewUI("Element", detailContent.transform), "속성: 불", 20, Accent, TextAlignmentOptions.Left);
+            SetHeight(elementText.gameObject, 30);
 
             AddDivider(detailContent.transform);
 
@@ -320,6 +322,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             SetRef(so, "_detailPanel", drt);
             SetRef(so, "_detailNameText", nameText);
             SetRef(so, "_detailTaglineText", taglineText);
+            SetRef(so, "_elementText", elementText);
             SetArray(so, "_passiveRows", passiveRows);
             SetRef(so, "_passiveEmptyRoot", passiveEmpty);
             SetRef(so, "_confirmButton", confirmBtn);

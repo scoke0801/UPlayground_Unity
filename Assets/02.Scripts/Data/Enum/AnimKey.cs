@@ -99,6 +99,9 @@ namespace UPlayGround.Data.EnumType
         Skill_7,
         Skill_8,
         Skill_9,
+
+        // 속성 부여 Ability 전용 모션
+        ElementalImbue = 520,
         
         Counter_Attack_1 = 530,
         Counter_Attack_2,

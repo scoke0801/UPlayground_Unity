@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
 using UPlayGround.Manager;
@@ -112,6 +113,7 @@ namespace UPlayGround.Gameplay.Effect
 
             _active.Add(id, instance);
             _stackingKeys[key] = id;
+            AddGrantedElement(instance);
             AddGrantedTags(instance);
             RebuildModifiers(instance);
             if (definition.IsPeriodic && applyInitialPeriodic)
@@ -129,6 +131,8 @@ namespace UPlayGround.Gameplay.Effect
             if (_stackingKeys.TryGetValue(key, out ulong mapped) && mapped == handle.Value)
                 _stackingKeys.Remove(key);
 
+            if (instance.GrantsElement)
+                _owner?.RemoveElementOverride(instance.Handle.Value);
             for (int i = 0; i < instance.ModifierHandles.Count; i++)
                 _stats.RemoveModifier(instance.ModifierHandles[i]);
             instance.ModifierHandles.Clear();
@@ -374,6 +378,19 @@ namespace UPlayGround.Gameplay.Effect
                     instance.Handle.Value);
                 if (handle.IsValid) instance.TagHandles.Add(handle);
             }
+        }
+
+        private void AddGrantedElement(GameplayEffectInstance instance)
+        {
+            CombatElement element = instance.Definition.grantedElement;
+            if (element == CombatElement.None || _owner == null)
+                return;
+
+            _owner.AddElementOverride(
+                instance.Handle.Value,
+                element,
+                instance.Definition.elementPriority);
+            instance.GrantsElement = true;
         }
 
         private void RebuildModifiers(GameplayEffectInstance instance)

@@ -61,6 +61,18 @@ namespace UPlayGround.Data.Actor
         public int level = 1;
 
         [Header("전투/AI 데이터")]
+        [Tooltip("이 액터의 기본 전투 속성. GameplayEffect가 적용되면 런타임 동안 덮어쓸 수 있습니다.")]
+        public CombatElement combatElement = CombatElement.None;
+
+        [Tooltip("고정 속성 또는 새 게임마다 actorId 기반으로 다시 추첨할지 결정합니다.")]
+        public CombatElementAssignmentMode elementAssignmentMode =
+            CombatElementAssignmentMode.Fixed;
+
+        [Min(1f)]
+        [Tooltip("유리한 속성으로 공격할 때 적용할 피해 배율.")]
+        public float elementalAdvantageMultiplier =
+            CombatElementRules.DefaultAdvantageMultiplier;
+
         [Tooltip("액터에게 부여할 공용 AbilitySet. 몬스터 프로필에 값이 있으면 프로필 값이 우선합니다.")]
         public AbilitySetSO abilitySet;
 
@@ -108,6 +120,11 @@ namespace UPlayGround.Data.Actor
         public CharacterActorType EffectiveRecruitableAs => monsterProfile != null ? monsterProfile.recruitableAs : recruitableAs;
         public long EffectiveExpReward => monsterProfile != null ? System.Math.Max(0, monsterProfile.expReward) : System.Math.Max(0, expReward);
         public int EffectiveGoldReward => monsterProfile != null ? Mathf.Max(0, monsterProfile.goldReward) : goldReward;
+
+        public CombatElement ResolveCombatElement(int newGameSeed) =>
+            elementAssignmentMode == CombatElementAssignmentMode.RandomPerNewGame
+                ? CombatElementRules.ResolveRandomElement(newGameSeed, actorId)
+                : combatElement;
 
 #if UNITY_EDITOR
         private void OnValidate()

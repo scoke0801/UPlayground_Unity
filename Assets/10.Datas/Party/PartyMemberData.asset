@@ -18,6 +18,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 794cc84e5cf20d64c833fa0c75675e9e, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a6c4a7571c841b4b88759bf66d54d95, type: 3}
     name: "\uBCF4\uCFE0\uC138\uC774"
+    weaponName: "\uCE74\uD0C0\uB098"
+    combatElement: 4
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -26,6 +28,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 1bdbb5857ecc96d479a1cd4d9637a065, type: 3}
     weaponIcon: {fileID: 21300000, guid: 5baa22294cd25e347927bf1d8d0c3d5d, type: 3}
     name: "\uD638\uB178\uCE74"
+    weaponName: "\uC30D\uB3C4\uB07C"
+    combatElement: 1
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -34,6 +38,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 84e7e55ba594ac84487898b42e3c50d5, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0c74ad81526c59e458d3facf9a1df996, type: 3}
     name: "\uB80C\uB290"
+    weaponName: "\uCC3D"
+    combatElement: 2
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -42,6 +48,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 9973d69136e704d49855c651f3bd2269, type: 3}
     weaponIcon: {fileID: 21300000, guid: 1c826161274b46e45b76cd5efe67ef8c, type: 3}
     name: "\uB9AC\uC548"
+    weaponName: "\uCC44\uCC0D"
+    combatElement: 3
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -50,6 +58,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 627ec7e4920eda348a93d23c90eeedee, type: 3}
     weaponIcon: {fileID: 21300000, guid: 698eb91ec076e4c41abe80267c7b0721, type: 3}
     name: "\uB2C8\uC544"
+    weaponName: "\uD65C"
+    combatElement: 3
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -58,6 +68,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 69e61d78cd749ed4595ee45444c4824a, type: 3}
     weaponIcon: {fileID: 21300000, guid: cc03ad2620cff654e9de84a220b34512, type: 3}
     name: "\uC138\uB77C"
+    weaponName: "\uB300\uAC80"
+    combatElement: 5
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -66,6 +78,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 455eb83dc60c1d14c9284ea7c58c6f8f, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a2e351e1f31dbb4192d55a687030d83, type: 3}
     name: "\uC774\uB178\uB9AC"
+    weaponName: "\uC9C0\uD321\uC774"
+    combatElement: 2
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -74,6 +88,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 2bb3ef5108cd23f45926363273386675, type: 3}
     weaponIcon: {fileID: 21300000, guid: c637508c44e867f4bb84a47712c9513f, type: 3}
     name: "\uD788\uCE58"
+    weaponName: "\uC30D\uAC80"
+    combatElement: 5
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -82,6 +98,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: f72b9cad2c3707a4ebbd7a5b0919eb12, type: 3}
     weaponIcon: {fileID: 21300000, guid: e7563b6c6328bc74caa61b8645e5e8f0, type: 3}
     name: "\uC2DC\uC6B0\uD558"
+    weaponName: "\uAC80\uACFC \uBC29\uD328"
+    combatElement: 4
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -90,6 +108,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: 2018e3de6d6f0664fb6a2321f91f2e20, type: 3}
     weaponIcon: {fileID: 21300000, guid: 0a2e351e1f31dbb4192d55a687030d83, type: 3}
     name: "\uCF54\uBAA8\uC5D0"
+    weaponName: "\uC9C0\uD321\uC774"
+    combatElement: 3
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}
@@ -98,6 +118,8 @@ MonoBehaviour:
     headSprite: {fileID: 21300000, guid: dda91031f444b99468b9ed5e209e41b9, type: 3}
     weaponIcon: {fileID: 21300000, guid: cc03ad2620cff654e9de84a220b34512, type: 3}
     name: "\uB9B4\uB9AC"
+    weaponName: "\uB300\uAC80"
+    combatElement: 1
     angrySprite: {fileID: 0}
     happySprite: {fileID: 0}
     blueSprite: {fileID: 0}

@@ -431,7 +431,13 @@ namespace UPlayGround.State
             // 선입력 보존: 액티브 히트(캔슬 불가) 동안엔 입력 버퍼 만료를 정지해, 이 구간에 들어온
             // 캔슬/콤보 선입력이 0.24s 만료로 유실되지 않게 한다. 캔슬창이 열리면(콜리전 OFF) 정지가
             // 풀려 선입력이 살아있는 채로 아래 TryInterrupt/콤보 검사에 즉시 소비된다.
-            Svc.Input.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide);
+            //
+            // 추가: 공격 중 피격 히트스톱(LocalTimeScale freeze)은 애니메이션(=콤보 윈도우)만 얼리고
+            // InputBuffer는 실시간(Time.time) 기준으로 계속 만료된다. 공격 상태는 하이퍼아머라 피격에도
+            // 유지되므로, 콜리전 OFF 구간(콤보 윈도우)에서 프리즈가 걸리면 선입력한 다음 콤보가 프리즈
+            // 도중 만료돼 씹힌다. 프리즈 동안에도 만료를 정지해 보존한다(재개 시 정지 시간만큼 타임스탬프 보정).
+            bool hitStopFrozen = gameActor.LocalTimeScale < 1f;
+            Svc.Input.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide || hitStopFrozen);
 
             // 인터럽트(캔슬): 허용 액션·허용 구간을 ResolveCancelMask가 함께 산출한다.
             // 활성 CancelWindowEvent가 있으면 그 구간 마스크(maskOverride 교집합 포함)를, 없으면

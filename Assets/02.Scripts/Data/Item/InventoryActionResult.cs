@@ -11,6 +11,5 @@ namespace UPlayGround.Data.Item
         NoEffect,
         OnCooldown,
         Failed,
-        InvalidState,
     }
 }

@@ -348,7 +348,9 @@
       "Bash(grep -v \":0$\")",
       "Bash(awk -F'\\(' '{print $1}')",
       "WebFetch(domain:nenoso.gitbook.io)",
-      "Bash(echo \"EXIT grep: $?  \\(0=found, 1=none\\)\")"
+      "Bash(echo \"EXIT grep: $?  \\(0=found, 1=none\\)\")",
+      "Bash(grep -vi -E '\\\\.\\(cs|mat|md\\)$')",
+      "Bash(rg -n 'AssetManager|IAssetService|LoadAsset' Assets/02.Scripts/Manager/GameObjectManager.cs Assets/02.Scripts/Manager/PartyManager*.cs)"
     ]
   }
 }

@@ -489,12 +489,6 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.OnCooldown;
             }
 
-            var player = GameObjectManager.Instance?.Player;
-            if (player == null || !player.CanStartConsumableUse())
-            {
-                return InventoryActionResult.InvalidState;
-            }
-
             InventoryActionResult applyResult = TryApplyConsumable(consumableData);
             if (applyResult != InventoryActionResult.Success)
             {
@@ -508,7 +502,10 @@ namespace UPlayGround.Manager
 
             StartConsumableCooldown(itemId, consumableData.cooldownDuration);
 
-            if (!player.TryStartConsumableUse())
+            // 소모품 효과 적용과 Drink 모션 재생은 독립적이다.
+            // 전투 또는 다른 행동 중에는 사용만 완료하고, 비전투 Idle 상태에서만 모션을 시작한다.
+            var player = GameObjectManager.Instance?.Player;
+            if (player?.CanStartConsumableUse() == true && !player.TryStartConsumableUse())
             {
                 Debug.LogWarning(
                     $"[InventoryManager] 소모품 사용은 완료됐지만 Drink 상태 전환에 실패했습니다. itemId={itemId}",

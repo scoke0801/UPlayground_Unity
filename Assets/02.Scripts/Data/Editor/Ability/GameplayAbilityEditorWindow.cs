@@ -905,20 +905,28 @@ namespace UPlayGround.Data.Editor.Ability
                 _filteredGroupCounts.TryGetValue(type, out int count);
                 _filteredGroupCounts[type] = count + 1;
             }
-            _assetList?.RefreshItems();
-            // Set 범위/타입/검색이 바뀌면 목록 내용이 통째로 교체된다. ListView 내부
-            // ScrollView의 scrollOffset은 RefreshItems로 초기화되지 않으므로, 이전에
-            // 아래로 스크롤된 상태에서 더 짧은 목록으로 바뀌면 뷰포트가 콘텐츠 아래
-            // 빈 영역을 가리켜 항목이 전혀 보이지 않는다. 필터 변경 시 맨 위로 되돌린다.
-            ResetAssetListScroll();
+            // 같은 itemsSource를 제자리에서 교체한 뒤 RefreshItems만 호출하면
+            // DynamicHeight 가상화가 이전 항목의 높이/누적 위치 캐시를 유지할 수 있다.
+            // Set 전환은 항목 수와 그룹 헤더 높이가 함께 바뀌므로 구조 전체를 재구축한다.
+            _assetList?.Rebuild();
             RestoreListSelection();
+            ResetAssetListScroll();
         }
 
         private void ResetAssetListScroll()
         {
             ScrollView scrollView = _assetList?.Q<ScrollView>();
             if (scrollView == null) return;
+
             scrollView.scrollOffset = Vector2.zero;
+            // Rebuild의 가상화 레이아웃은 다음 패널 갱신에서 확정된다. 레이아웃 전의
+            // scrollOffset 지정이 이전 범위로 다시 보정되지 않도록 갱신 후 한 번 더 맞춘다.
+            _assetList.schedule.Execute(() =>
+            {
+                ScrollView rebuiltScrollView = _assetList?.Q<ScrollView>();
+                if (rebuiltScrollView != null)
+                    rebuiltScrollView.scrollOffset = Vector2.zero;
+            }).ExecuteLater(0);
         }
 
         private void RestoreListSelection()
@@ -942,7 +950,6 @@ namespace UPlayGround.Data.Editor.Ability
             }
 
             _assetList.SetSelection(selectedIndex);
-            _assetList.ScrollToItem(selectedIndex);
             UpdateSelectedHeader();
             RebuildDetail();
         }

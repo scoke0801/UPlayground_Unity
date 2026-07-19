@@ -60,10 +60,10 @@ namespace UPlayGround.Components
         private bool _interactionEquipmentActive;
         private bool _mainWeaponDrawnBeforeInteraction;
         private Coroutine _interactionEquipmentHideCo;
+        private Coroutine _cameraDitherRefreshCo;
         private GameObject _currentInteractionEquipmentObj;
         private bool _consumableUseEquipmentHidden;
-        private bool _mainWeaponDrawnBeforeConsumableUse;
-        private bool _subWeaponDrawnBeforeConsumableUse;
+        private readonly Dictionary<Renderer, bool> _consumableUseWeaponRendererStates = new();
 
         // 가지고 있는 무기
         private GameObject _currentMainWeaponObj = null;
@@ -127,6 +127,7 @@ namespace UPlayGround.Components
         private void OnDisable()
         {
             ResetInteractionEquipmentImmediate();
+            CancelCameraDitherRefresh();
 
             if (Svc.Events == null) return;
             Svc.Events.Unsubscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
@@ -275,6 +276,7 @@ namespace UPlayGround.Components
 
             ActorWeaponTrailController.RefreshAttackTrails(this);
             GetComponentInParent<UPlayGround.Combat.CombatHitboxSet>()?.Refresh();
+            RequestCameraDitherRefresh();
             return true;
         }
 
@@ -329,6 +331,7 @@ namespace UPlayGround.Components
                 ResetWeaponType(slot);
                 ActorWeaponTrailController.RefreshAttackTrails(this);
                 GetComponentInParent<UPlayGround.Combat.CombatHitboxSet>()?.Refresh();
+                RequestCameraDitherRefresh();
                 return;
             }
 
@@ -606,12 +609,8 @@ namespace UPlayGround.Components
             if (_consumableUseEquipmentHidden)
                 return;
 
-            CancelInteractionEquipmentHide();
-            HideAllInteractionEquipmentImmediate();
-
-            _mainWeaponDrawnBeforeConsumableUse = IsMainWeaponEquipped;
-            _subWeaponDrawnBeforeConsumableUse = IsSubWeaponEquipped;
-            ForceSyncMainWeaponState(false);
+            CompletePendingInteractionEquipmentBeforeConsumableUse();
+            CacheAndHideConsumableUseWeaponRenderers();
             _consumableUseEquipmentHidden = true;
         }
 
@@ -621,15 +620,7 @@ namespace UPlayGround.Components
                 return;
 
             _consumableUseEquipmentHidden = false;
-
-            // 숨길 때 런타임 무기 오브젝트가 해제될 수 있으므로 먼저 다시 생성한 뒤
-            // Drink 진입 전 손/등 장착 상태를 각각 복구한다.
-            RecreateWeapons();
-            ForceSyncWeaponState(EquipPosition.RightHand, _mainWeaponDrawnBeforeConsumableUse);
-            ForceSyncWeaponState(EquipPosition.LeftHand, _subWeaponDrawnBeforeConsumableUse);
-
-            _mainWeaponDrawnBeforeConsumableUse = false;
-            _subWeaponDrawnBeforeConsumableUse = false;
+            RestoreConsumableUseWeaponRenderers();
         }
 
         /// <summary>
@@ -640,11 +631,73 @@ namespace UPlayGround.Components
         {
             CancelInteractionEquipmentHide();
             HideAllInteractionEquipmentImmediate();
+            RestoreConsumableUseWeaponRenderers();
             _interactionEquipmentActive = false;
             _mainWeaponDrawnBeforeInteraction = false;
             _consumableUseEquipmentHidden = false;
-            _mainWeaponDrawnBeforeConsumableUse = false;
-            _subWeaponDrawnBeforeConsumableUse = false;
+        }
+
+        private void CompletePendingInteractionEquipmentBeforeConsumableUse()
+        {
+            bool hasPendingInteractionHide =
+                _interactionEquipmentHideCo != null || _currentInteractionEquipmentObj != null;
+            bool restoreMainWeaponDrawn = _mainWeaponDrawnBeforeInteraction;
+
+            CancelInteractionEquipmentHide();
+            HideAllInteractionEquipmentImmediate();
+
+            if (!hasPendingInteractionHide || _interactionEquipmentActive)
+                return;
+
+            // 상호작용 종료 지연 중 Drink가 시작되면 기존 코루틴의 무기 복구가 유실된다.
+            // 무기를 납도 위치로 재생성한 뒤 상호작용 전 발도 상태만 다시 적용한다.
+            RecreateWeapons();
+            if (restoreMainWeaponDrawn)
+            {
+                ForceSyncWeaponState(EquipPosition.RightHand, true);
+                if (WeaponAttachmentResolver.IsPairedWeaponType(_mainWeaponType, _weaponDefinitions))
+                    ForceSyncWeaponState(EquipPosition.LeftHand, true);
+            }
+
+            _mainWeaponDrawnBeforeInteraction = false;
+        }
+
+        private void CacheAndHideConsumableUseWeaponRenderers()
+        {
+            _consumableUseWeaponRendererStates.Clear();
+
+            CacheAndHideRenderers(_weaponRoot != null ? _weaponRoot.gameObject : null);
+            CacheAndHideRenderers(_currentMainWeaponObj);
+            CacheAndHideRenderers(_currentSubWeaponObj);
+            CacheAndHideRenderers(_mainWeaponConstraint != null ? _mainWeaponConstraint.gameObject : null);
+            CacheAndHideRenderers(_subWeaponConstraint != null ? _subWeaponConstraint.gameObject : null);
+        }
+
+        private void CacheAndHideRenderers(GameObject root)
+        {
+            if (root == null)
+                return;
+
+            foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>(true))
+            {
+                if (renderer == null || _consumableUseWeaponRendererStates.ContainsKey(renderer))
+                    continue;
+
+                _consumableUseWeaponRendererStates.Add(renderer, renderer.enabled);
+                renderer.enabled = false;
+            }
+        }
+
+        private void RestoreConsumableUseWeaponRenderers()
+        {
+            foreach (var pair in _consumableUseWeaponRendererStates)
+            {
+                if (pair.Key != null)
+                    pair.Key.enabled = pair.Value;
+            }
+
+            _consumableUseWeaponRendererStates.Clear();
+            RequestCameraDitherRefresh();
         }
 
         private GameObject GetInteractionEquipmentObject(InteractionObjectType interactionObjectType)
@@ -1033,6 +1086,39 @@ namespace UPlayGround.Components
             }
 
             ActorWeaponTrailController.RefreshAttackTrails(this);
+            RequestCameraDitherRefresh();
+        }
+
+        /// <summary>
+        /// 장비 스냅샷은 모델 갱신 뒤 코루틴에서 무기를 생성할 수 있다.
+        /// Destroy 예약 오브젝트가 계층에서 빠진 다음 프레임에 디더 대상을 다시 수집한다.
+        /// 같은 프레임의 주/보조 무기 변경 요청은 마지막 한 번으로 합친다.
+        /// </summary>
+        private void RequestCameraDitherRefresh()
+        {
+            if (!isActiveAndEnabled)
+                return;
+
+            CancelCameraDitherRefresh();
+            _cameraDitherRefreshCo = StartCoroutine(CoRefreshCameraDither());
+        }
+
+        private IEnumerator CoRefreshCameraDither()
+        {
+            yield return null;
+
+            GetComponentInParent<ActorCameraProximityDither>()
+                ?.RefreshRenderers();
+            _cameraDitherRefreshCo = null;
+        }
+
+        private void CancelCameraDitherRefresh()
+        {
+            if (_cameraDitherRefreshCo == null)
+                return;
+
+            StopCoroutine(_cameraDitherRefreshCo);
+            _cameraDitherRefreshCo = null;
         }
 
         private static bool IsTrailUnderWeaponSlot(WeaponTrailEffect trail, GameObject weaponObj, ParentConstraint constraint)

@@ -117,10 +117,10 @@ namespace UPlayGround.Editor
             // lilToonCutout 계열은 실제 렌더링을 이 공용 UsePass 셰이더에 위임한다.
             // 래퍼만 복원하면 빌드 최적화가 패스에서 디더/AlphaMask 코드를 제거할 수 있다.
             AddShader(shaders, CutoutPassShaderName);
-            // Multi는 별도 Cutout 셰이더로 교체하지 않고 동일 셰이더에서
-            // _TransparentMode를 전환하므로 Multi 자체의 디더 변형도 보존한다.
-            AddShader(shaders, MultiShaderName);
-            AddShader(shaders, MultiOutlineShaderName);
+            // Multi는 lil_replace_keywords.hlsl에서 LIL_IGNORE_SHADERSETTING을
+            // 선언하며 Resources의 전용 머티리얼/ShaderVariantCollection으로
+            // 필요한 변형을 보존한다. ApplyShaderSetting 대상으로 넘기면 빌드마다
+            // 패키지 셰이더만 불필요하게 다시 임포트한다.
 
             InvokeApplyShaderSetting(lilToonSettingType, shaderSetting, shaders);
         }

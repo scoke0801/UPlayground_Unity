@@ -11,7 +11,8 @@ namespace UPlayGround
     public class ItemActor : GameActor
     {
         [SerializeField] private float _arcHeight = 5.0f;
-        [SerializeField] private float _moveSpeed = 5.0f;
+        // 거리에 상관없이 아이템이 플레이어에게 도달하는 데 걸리는 고정 비행 시간(초)
+        [SerializeField] private float _flightDuration = 0.5f;
         
         [SerializeField] private GameObject _getParticle;
         
@@ -77,7 +78,8 @@ namespace UPlayGround
             {
                 endPosition = _player.position + new Vector3(0.0f, _playerColliderHeight, 0.0f);
 
-                journeyTime = Vector3.Distance(startPosition, endPosition) / _moveSpeed;
+                // 거리와 무관하게 고정된 시간 안에 도달하도록 한다.
+                journeyTime = _flightDuration;
                 elapsedTime = 0.0f;
 
                 while (elapsedTime < journeyTime)

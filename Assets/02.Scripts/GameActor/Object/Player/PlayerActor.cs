@@ -154,8 +154,8 @@ namespace UPlayGround
         public bool                        IsStaggerImmune       => Time.time <= _staggerImmuneEndTime;
 
         /// <summary>
-        /// 현재 활성 플레이어가 소모품 사용 모션을 시작할 수 있는지 확인한다.
-        /// 소모품은 정확히 Idle 상태일 때만 사용할 수 있으며, 캐릭터 MotionSet에 Drink가 없으면 사용하지 않는다.
+        /// 현재 활성 플레이어가 Drink 모션을 시작할 수 있는지 확인한다.
+        /// 소모품 사용 가능 여부와는 별개이며, 비전투 Idle 상태이고 Drink MotionSet이 있을 때만 true다.
         /// </summary>
         public bool CanStartConsumableUse()
         {

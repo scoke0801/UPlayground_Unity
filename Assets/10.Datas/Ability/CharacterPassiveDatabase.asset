@@ -39,6 +39,16 @@ MonoBehaviour:
   effectId: passive.perfect_dodge_focus
   schemaVersion: 1
   polarity: 1
+  presentation:
+    displayName: 퍼펙트 회피 집중
+    description: 퍼펙트 회피 성공 후 공격력이 잠시 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    showInHud: 1
+    hudPriority: 10
+    showRemainingTime: 1
+    showStackCount: 1
   ignorePassiveDurationModifiers: 0
   durationType: 1
   durationSeconds: 5
@@ -69,6 +79,16 @@ MonoBehaviour:
   effectId: passive.perfect_guard_fortify
   schemaVersion: 1
   polarity: 1
+  presentation:
+    displayName: 퍼펙트 가드 강화
+    description: 퍼펙트 가드 성공 후 방어력이 잠시 증가한다.
+    nameLocalizationKey:
+    descriptionLocalizationKey:
+    icon: {fileID: 0}
+    showInHud: 1
+    hudPriority: 10
+    showRemainingTime: 1
+    showStackCount: 1
   ignorePassiveDurationModifiers: 0
   durationType: 1
   durationSeconds: 5

@@ -20,6 +20,7 @@ namespace UPlayGround.Gameplay.Effect
         public float DurationSeconds;
         public float RemainingSeconds;
         public float NextPeriodSeconds;
+        public GameplayEffectHudVisibility HudVisibility;
         public readonly List<AbilityModifierHandle> ModifierHandles = new();
         public readonly List<AbilityTagHandle> TagHandles = new();
     }

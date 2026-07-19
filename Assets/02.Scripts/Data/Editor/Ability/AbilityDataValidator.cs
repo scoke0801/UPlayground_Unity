@@ -308,6 +308,39 @@ namespace UPlayGround.Data.Editor.Ability
             if (effect.stackPolicy != GameplayEffectStackPolicy.RejectNew
                 && string.IsNullOrWhiteSpace(effect.stackingKey))
                 Error(effect, "중첩 정책을 사용하는 Effect에는 stackingKey가 필요합니다.", issues);
+            if (effect.presentation == null)
+            {
+                Error(effect, "Effect 표시 데이터가 없습니다.", issues);
+            }
+            else
+            {
+                bool canRemainActive =
+                    effect.durationType != GameplayEffectDurationType.Instant;
+                if (canRemainActive
+                    && effect.presentation.showInHud
+                    && effect.presentation.icon == null)
+                {
+                    Warning(effect, "HUD 표시 Effect에 아이콘이 없어 fallback 아이콘을 사용합니다.", issues);
+                }
+
+                if (canRemainActive
+                    && effect.presentation.showInHud
+                    && string.IsNullOrWhiteSpace(effect.presentation.displayName)
+                    && string.IsNullOrWhiteSpace(effect.presentation.nameLocalizationKey))
+                {
+                    Warning(effect, "HUD 표시 Effect의 이름과 현지화 키가 모두 비어 있습니다.", issues);
+                }
+
+                if (!canRemainActive && effect.presentation.showInHud)
+                    Info(effect, "Instant Effect는 HUD 노출 설정과 관계없이 아이콘을 표시하지 않습니다.", issues);
+                if (effect.durationType == GameplayEffectDurationType.Infinite
+                    && effect.presentation.showRemainingTime)
+                {
+                    Info(effect, "Infinite Effect의 남은 시간 표시는 무시됩니다.", issues);
+                }
+                if (effect.maxStackCount == 1 && effect.presentation.showStackCount)
+                    Info(effect, "단일 스택 Effect의 스택 수 표시는 사용되지 않습니다.", issues);
+            }
             if (effect.durationType == GameplayEffectDurationType.Duration
                 && effect.removalPolicy == GameplayEffectRemovalPolicy.RemoveOnSwap)
                 Info(effect, "교체 시 제거되는 Duration Effect입니다.", issues);

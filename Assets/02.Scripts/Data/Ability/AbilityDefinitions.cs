@@ -91,6 +91,13 @@ namespace UPlayGround.Data.Ability
         Harmful,
     }
 
+    public enum GameplayEffectHudVisibility
+    {
+        UseDefinition,
+        ForceShow,
+        ForceHide,
+    }
+
     public enum GameplayEffectStackPolicy
     {
         RejectNew,
@@ -130,6 +137,33 @@ namespace UPlayGround.Data.Ability
         public Color hudColor = new(0.29f, 0.62f, 1f, 1f);
         public AbilityCategory category = AbilityCategory.Attack;
         public AbilityOwnerType ownerType = AbilityOwnerType.Actor;
+    }
+
+    [Serializable]
+    public sealed class GameplayEffectPresentationDefinition
+    {
+        public string displayName = "새 Effect";
+        [TextArea] public string description;
+        public string nameLocalizationKey;
+        public string descriptionLocalizationKey;
+        public Sprite icon;
+        [Tooltip("Duration/Infinite Effect를 HUD에 표시합니다.")]
+        public bool showInHud = true;
+        [Tooltip("값이 클수록 제한된 HUD 슬롯에서 먼저 표시됩니다.")]
+        public int hudPriority;
+        public bool showRemainingTime = true;
+        public bool showStackCount = true;
+    }
+
+    public readonly struct GameplayEffectApplicationOptions
+    {
+        public readonly GameplayEffectHudVisibility HudVisibility;
+
+        public GameplayEffectApplicationOptions(
+            GameplayEffectHudVisibility hudVisibility)
+        {
+            HudVisibility = hudVisibility;
+        }
     }
 
     [Serializable]
@@ -250,6 +284,7 @@ namespace UPlayGround.Data.Ability
         public float remainingSeconds;
         public int stackCount;
         public float capturedMagnitude;
+        public GameplayEffectHudVisibility hudVisibility;
     }
 
     [Serializable]

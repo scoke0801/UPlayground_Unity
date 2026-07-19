@@ -45,7 +45,13 @@ namespace UPlayGround.Gameplay.Passive
                 {
                     GameplayEffectSO effect = passive.triggeredEffects[j];
                     if (effect != null)
-                        _owner.Effects.ApplyEffect(effect, _owner);
+                    {
+                        _owner.Effects.ApplyEffect(
+                            effect,
+                            _owner,
+                            new GameplayEffectApplicationOptions(
+                                passive.triggeredEffectHudVisibility));
+                    }
                 }
             }
         }

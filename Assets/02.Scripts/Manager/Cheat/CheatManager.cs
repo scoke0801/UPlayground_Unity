@@ -14,6 +14,7 @@ namespace UPlayGround.Manager
         Party,
         Combat,
         Time,
+        Effect,
     }
 
     /// <summary>치트 실행 로그 1건.</summary>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
+using UPlayGround.Contracts.Ability;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
@@ -10,7 +11,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.Gameplay.Effect
 {
     /// <summary>액터별 Effect 수명주기. 정의 SO에는 런타임 값을 기록하지 않는다.</summary>
-    public sealed class GameplayEffectController : MonoBehaviour
+    public sealed class GameplayEffectController : MonoBehaviour, IGameplayEffectRuntimeReader
     {
         private readonly Dictionary<ulong, GameplayEffectInstance> _active = new();
         private readonly Dictionary<string, ulong> _stackingKeys = new(StringComparer.Ordinal);
@@ -44,15 +45,19 @@ namespace UPlayGround.Gameplay.Effect
             _stats = ports;
         }
 
-        public GameplayEffectHandle ApplyEffect(GameplayEffectSO definition, GameActor source = null)
+        public GameplayEffectHandle ApplyEffect(
+            GameplayEffectSO definition,
+            GameActor source = null,
+            GameplayEffectApplicationOptions options = default)
         {
-            return ApplyEffectInternal(definition, source, applyInitialPeriodic: true);
+            return ApplyEffectInternal(definition, source, true, options);
         }
 
         private GameplayEffectHandle ApplyEffectInternal(
             GameplayEffectSO definition,
             GameActor source,
-            bool applyInitialPeriodic)
+            bool applyInitialPeriodic,
+            GameplayEffectApplicationOptions options)
         {
             if (definition == null || string.IsNullOrWhiteSpace(definition.effectId))
                 return default;
@@ -81,6 +86,7 @@ namespace UPlayGround.Gameplay.Effect
                         existing.StackCount = stackResult.StackCount;
                         existing.DurationSeconds = effectiveDuration;
                         existing.RemainingSeconds = effectiveDuration;
+                        existing.HudVisibility = options.HudVisibility;
                         if (stackChanged)
                             RebuildModifiers(existing);
                         StateChanged?.Invoke();
@@ -101,6 +107,7 @@ namespace UPlayGround.Gameplay.Effect
                 DurationSeconds = effectiveDuration,
                 RemainingSeconds = effectiveDuration,
                 NextPeriodSeconds = definition.periodSeconds,
+                HudVisibility = options.HudVisibility,
             };
 
             _active.Add(id, instance);
@@ -180,6 +187,7 @@ namespace UPlayGround.Gameplay.Effect
                             : Mathf.Max(0f, instance.RemainingSeconds),
                     stackCount = Mathf.Clamp(
                         instance.StackCount, 1, Mathf.Max(1, definition.maxStackCount)),
+                    hudVisibility = instance.HudVisibility,
                 });
             }
         }
@@ -203,7 +211,10 @@ namespace UPlayGround.Gameplay.Effect
                     continue;
 
                 GameplayEffectHandle handle = ApplyEffectInternal(
-                    definition, source: null, applyInitialPeriodic: false);
+                    definition,
+                    null,
+                    false,
+                    new GameplayEffectApplicationOptions(entry.hudVisibility));
                 if (!handle.IsValid
                     || !_active.TryGetValue(handle.Value, out GameplayEffectInstance instance))
                     continue;
@@ -219,6 +230,83 @@ namespace UPlayGround.Gameplay.Effect
                 RebuildModifiers(instance);
             }
             StateChanged?.Invoke();
+        }
+
+        public void CopyVisibleEffects(List<GameplayEffectViewState> destination)
+        {
+            if (destination == null)
+                throw new ArgumentNullException(nameof(destination));
+
+            destination.Clear();
+            foreach (GameplayEffectInstance instance in _active.Values)
+            {
+                if (IsVisibleInHud(instance))
+                    destination.Add(ToViewState(instance));
+            }
+        }
+
+        public void CopyActiveEffects(List<GameplayEffectViewState> destination)
+        {
+            if (destination == null)
+                throw new ArgumentNullException(nameof(destination));
+
+            destination.Clear();
+            foreach (GameplayEffectInstance instance in _active.Values)
+                destination.Add(ToViewState(instance));
+        }
+
+        public bool RemoveEffectByRuntimeId(ulong runtimeId) =>
+            RemoveEffect(new GameplayEffectHandle(runtimeId));
+
+        public bool TryGetVisibleEffect(
+            ulong runtimeId,
+            out GameplayEffectViewState state)
+        {
+            if (_active.TryGetValue(runtimeId, out GameplayEffectInstance instance)
+                && IsVisibleInHud(instance))
+            {
+                state = ToViewState(instance);
+                return true;
+            }
+
+            state = default;
+            return false;
+        }
+
+        private static bool IsVisibleInHud(GameplayEffectInstance instance)
+        {
+            if (instance?.Definition == null
+                || instance.Definition.durationType == GameplayEffectDurationType.Instant)
+            {
+                return false;
+            }
+
+            return instance.HudVisibility switch
+            {
+                GameplayEffectHudVisibility.ForceShow => true,
+                GameplayEffectHudVisibility.ForceHide => false,
+                _ => instance.Definition.presentation?.showInHud ?? true,
+            };
+        }
+
+        private static GameplayEffectViewState ToViewState(
+            GameplayEffectInstance instance)
+        {
+            GameplayEffectSO definition = instance.Definition;
+            GameplayEffectPresentationDefinition presentation = definition.presentation;
+            return new GameplayEffectViewState(
+                instance.Handle.Value,
+                definition.effectId,
+                presentation?.displayName ?? definition.effectId,
+                presentation?.icon,
+                definition.polarity,
+                presentation?.hudPriority ?? 0,
+                instance.StackCount,
+                instance.DurationSeconds,
+                instance.RemainingSeconds,
+                definition.durationType == GameplayEffectDurationType.Infinite,
+                presentation?.showRemainingTime ?? true,
+                presentation?.showStackCount ?? true);
         }
 
         private float ResolveEffectiveDuration(GameplayEffectSO definition)

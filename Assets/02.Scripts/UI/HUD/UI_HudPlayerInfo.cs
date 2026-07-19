@@ -1,8 +1,11 @@
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround;
+using UPlayGround.Contracts.Ability;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
@@ -24,6 +27,14 @@ namespace UPlayGround.UI
         [SerializeField] private Image _expFill;
         [SerializeField] private TextMeshProUGUI _expText;
 
+        [Header("Buff / Debuff")]
+        [SerializeField] private RectTransform _effectArea;
+        [SerializeField] private RectTransform _effectIconRoot;
+        [SerializeField] private UIGameplayEffectIcon _effectIconTemplate;
+        [SerializeField] private TextMeshProUGUI _effectOverflowText;
+        [SerializeField] private Sprite _effectFallbackIcon;
+        [SerializeField, Min(1)] private int _maxVisibleEffects = 10;
+
         [Header("Animation Settings")]
         [SerializeField] private float _hpDecreaseDelayTime = 0.3f;
         [SerializeField] private float _hpFillSpeed         = 5.0f;
@@ -38,6 +49,11 @@ namespace UPlayGround.UI
         private Coroutine _levelPunchCoroutine;
         private Vector3?  _levelTextBaseScale;
         private PlayerActor _playerActor;
+        private IGameplayEffectRuntimeReader _effectReader;
+        private readonly List<GameplayEffectViewState> _effectViews = new();
+        private readonly List<GameplayEffectViewState> _selectedEffectViews = new();
+        private readonly List<UIGameplayEffectIcon> _effectIcons = new();
+        private int _activeEffectIconCount;
 
         private bool _isInCombat = false;
 
@@ -74,6 +90,7 @@ namespace UPlayGround.UI
 
             SetLevel(_playerActor);
             RefreshExp(_playerActor.CharacterType);
+            BindEffectReader(_playerActor.Effects);
         }
 
         protected override void OnHide()
@@ -92,10 +109,19 @@ namespace UPlayGround.UI
                 partyManager.OnExpChanged -= OnExpChanged;
                 partyManager.OnLevelUp -= OnLevelUp;
             }
+
+            UnbindEffectReader();
+            ReleaseAllEffectIcons();
         }
 
         protected override void OnClose() { }
         #endregion
+
+        protected override void Update()
+        {
+            base.Update();
+            RefreshEffectTimers();
+        }
 
         public void SetHp(float hp, float maxHp)
         {
@@ -185,6 +211,8 @@ namespace UPlayGround.UI
             SetSkillGaugeImmediate(gauge, maxGauge);
             SetLevel(player);
             RefreshExp(player.CharacterType);
+            BindEffectReader(player.Effects);
+            RefreshEffects();
         }
 
         private void OnPartyProgressionChanged(CharacterActorType type)
@@ -310,5 +338,158 @@ namespace UPlayGround.UI
             t.localScale = baseScale;
             _levelPunchCoroutine = null;
         }
+
+        // ── Buff / Debuff ───────────────────────────────────────────
+
+        private void BindEffectReader(IGameplayEffectRuntimeReader reader)
+        {
+            if (ReferenceEquals(_effectReader, reader))
+            {
+                RefreshEffects();
+                return;
+            }
+
+            UnbindEffectReader();
+            _effectReader = reader;
+            if (_effectReader != null)
+                _effectReader.StateChanged += RefreshEffects;
+            RefreshEffects();
+        }
+
+        private void UnbindEffectReader()
+        {
+            if (_effectReader != null)
+                _effectReader.StateChanged -= RefreshEffects;
+            _effectReader = null;
+        }
+
+        private void RefreshEffects()
+        {
+            _effectViews.Clear();
+            _selectedEffectViews.Clear();
+
+            if (_effectReader == null
+                || _effectIconRoot == null
+                || _effectIconTemplate == null)
+            {
+                ReleaseAllEffectIcons();
+                SetEffectOverflow(0);
+                return;
+            }
+
+            _effectReader.CopyVisibleEffects(_effectViews);
+            _effectViews.Sort(CompareSelectionPriority);
+
+            int maxVisible = Mathf.Max(1, _maxVisibleEffects);
+            int displayCount = Mathf.Min(maxVisible, _effectViews.Count);
+            for (int i = 0; i < displayCount; i++)
+                _selectedEffectViews.Add(_effectViews[i]);
+            _selectedEffectViews.Sort(CompareDisplayOrder);
+
+            EnsureEffectIconPool(displayCount);
+            for (int i = 0; i < displayCount; i++)
+                _effectIcons[i].Bind(_selectedEffectViews[i], _effectFallbackIcon);
+            for (int i = displayCount; i < _effectIcons.Count; i++)
+                _effectIcons[i].Release();
+
+            _activeEffectIconCount = displayCount;
+            SetEffectOverflow(_effectViews.Count - displayCount);
+        }
+
+        private void RefreshEffectTimers()
+        {
+            if (_effectReader == null || _activeEffectIconCount == 0)
+                return;
+
+            bool requiresFullRefresh = false;
+            for (int i = 0; i < _activeEffectIconCount; i++)
+            {
+                UIGameplayEffectIcon icon = _effectIcons[i];
+                if (_effectReader.TryGetVisibleEffect(
+                        icon.RuntimeId,
+                        out GameplayEffectViewState state))
+                {
+                    icon.Refresh(state);
+                }
+                else
+                {
+                    requiresFullRefresh = true;
+                    break;
+                }
+            }
+
+            if (requiresFullRefresh)
+                RefreshEffects();
+        }
+
+        private void EnsureEffectIconPool(int count)
+        {
+            while (_effectIcons.Count < count)
+            {
+                UIGameplayEffectIcon icon = Instantiate(
+                    _effectIconTemplate,
+                    _effectIconRoot,
+                    worldPositionStays: false);
+                icon.Release();
+                _effectIcons.Add(icon);
+            }
+        }
+
+        private void ReleaseAllEffectIcons()
+        {
+            for (int i = 0; i < _effectIcons.Count; i++)
+                _effectIcons[i].Release();
+            _activeEffectIconCount = 0;
+        }
+
+        private void SetEffectOverflow(int overflowCount)
+        {
+            if (_effectOverflowText == null)
+                return;
+            bool visible = overflowCount > 0;
+            _effectOverflowText.gameObject.SetActive(visible);
+            _effectOverflowText.text = visible ? $"+{overflowCount}" : string.Empty;
+        }
+
+        private static int CompareSelectionPriority(
+            GameplayEffectViewState left,
+            GameplayEffectViewState right)
+        {
+            int priority = right.HudPriority.CompareTo(left.HudPriority);
+            if (priority != 0) return priority;
+
+            int harmful = PolaritySelectionRank(right.Polarity)
+                .CompareTo(PolaritySelectionRank(left.Polarity));
+            if (harmful != 0) return harmful;
+
+            int remaining = left.RemainingSeconds.CompareTo(right.RemainingSeconds);
+            if (remaining != 0) return remaining;
+            return string.CompareOrdinal(left.EffectId, right.EffectId);
+        }
+
+        private static int CompareDisplayOrder(
+            GameplayEffectViewState left,
+            GameplayEffectViewState right)
+        {
+            int polarity = PolarityDisplayRank(left.Polarity)
+                .CompareTo(PolarityDisplayRank(right.Polarity));
+            if (polarity != 0) return polarity;
+
+            int priority = right.HudPriority.CompareTo(left.HudPriority);
+            if (priority != 0) return priority;
+            return string.CompareOrdinal(left.EffectId, right.EffectId);
+        }
+
+        private static int PolaritySelectionRank(GameplayEffectPolarity polarity) =>
+            polarity == GameplayEffectPolarity.Harmful ? 1 : 0;
+
+        private static int PolarityDisplayRank(GameplayEffectPolarity polarity) =>
+            polarity switch
+            {
+                GameplayEffectPolarity.Beneficial => 0,
+                GameplayEffectPolarity.Neutral => 1,
+                GameplayEffectPolarity.Harmful => 2,
+                _ => 1,
+            };
     }
 }

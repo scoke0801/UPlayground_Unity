@@ -1,9 +1,9 @@
 # 버프 / 디버프 시스템 및 HUD 표시 스펙
 
-> 문서 버전: 1.0  
+> 문서 버전: 1.1
 > 기준일: 2026-07-18  
 > 대상 버전: Unity 6 (6000.0.60f1), 싱글플레이, URP  
-> 상태: 구현 전 설계 확정  
+> 상태: 1차 구현 완료, PlayMode·해상도별 시각 검증 대기
 > 관련 문서: `../Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `PASSIVE_ABILITY_SYSTEM_SPEC.md`, `../onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`
 
 ## 1. 목적
@@ -708,6 +708,31 @@ presentation.showInHud: false
 | `Tests/PlayMode/Ability/` | Effect-HUD 수직 슬라이스 |
 
 ---
+
+## 16. 2026-07-18 구현 체크포인트
+
+완료:
+
+- `GameplayEffectSO.presentation`과 `UseDefinition / ForceShow / ForceHide` 적용 옵션 구현
+- `GameplayEffectController`의 표시 대상 읽기 계약, 상태 이벤트, 저장·복원 정책 구현
+- 상시 `Always` 패시브의 문맥형 Modifier는 Effect 목록에 넣지 않아 기본 미노출 유지
+- 퍼펙트 회피·가드 등 패시브 Trigger Effect는 `UseDefinition`을 기본값으로 적용해 기본 노출
+- `UI_HudPlayerInfo`의 아이콘 풀, 정렬, 최대 10개, `+N`, 스택·남은 시간 표시 구현
+- 버프 청록 테두리와 `+`, 디버프 빨간 테두리와 `−`, 중립 금색 표식 구현
+- 기존 프리팹 계층을 보존하는 멱등 빌더와 `EffectArea` 직렬화 배선 구현
+- `UI_HudPlayerInfo.prefab`에 빌더 결과 적용
+- 표시 정의 및 패시브 적용 문맥 검증 규칙 추가
+- 기본 표시, 강제 숨김, 강제 표시, 저장·복원 표시 정책 EditMode 테스트 추가
+- `UI_DevCheatPanel`에서 Duration/Infinite Effect 검색·발급, 활성 목록 조회,
+  개별 제거 및 전체 제거 기능 구현
+- Contracts, Actor, UI, UI Editor, Ability Tests 어셈블리 컴파일 오류 0 확인
+
+남은 수동 검증:
+
+- Unity Test Runner에서 EditMode 테스트 실행
+- 실제 퍼펙트 회피·가드 Trigger Effect를 연결한 PlayMode 수직 슬라이스
+- 16:9, 21:9, 2560×1440 Game View에서 아이콘 영역 겹침·잘림 확인
+- 밝은/어두운 배경에서 극성 테두리와 보조 표식 가독성 확인
 
 ## 16. 완료 조건
 

@@ -22,6 +22,10 @@ namespace UPlayGround.Data.Ability
         public PassiveStackPolicy stackPolicy = PassiveStackPolicy.Additive;
         public List<PassiveModifierDefinition> modifiers = new();
         public List<GameplayEffectSO> triggeredEffects = new();
+        [Header("Triggered Effect HUD")]
+        [Tooltip("패시브 조건으로 발생한 Effect는 기본적으로 Effect 정의의 HUD 노출 설정을 따릅니다.")]
+        public GameplayEffectHudVisibility triggeredEffectHudVisibility =
+            GameplayEffectHudVisibility.UseDefinition;
 
         public string CharacterSelectDescription =>
             string.IsNullOrWhiteSpace(characterSelectDescription)

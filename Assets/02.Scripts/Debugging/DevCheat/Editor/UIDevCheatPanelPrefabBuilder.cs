@@ -16,7 +16,7 @@ namespace UPlayGround.UI.DevCheat.EditorTools
     ///
     /// - 대상 프리팹이 없으면 새로 생성(Canvas/CanvasGroup/GraphicRaycaster/UI_DevCheatPanel 부착).
     ///   있으면 자식 계층만 재구성(멱등).
-    /// - 골격(헤더/좌측 탭 레일/탭 콘텐츠 컨테이너 7개/하단 로그 바)만 구성한다.
+    /// - 골격(헤더/좌측 탭 레일/탭 콘텐츠 컨테이너 8개/하단 로그 바)만 구성한다.
     ///   각 탭의 실제 콘텐츠는 UI_DevCheatPanel이 런타임에 코드로 채운다.
     /// - 완료 후 UIPrefabDatabase에 "DevCheatPanel" 키로 자동 등록한다.
     /// </summary>
@@ -25,7 +25,11 @@ namespace UPlayGround.UI.DevCheat.EditorTools
         private const string MainPrefabPath = "Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab";
         private const string DbKey = "DevCheatPanel";
 
-        private static readonly string[] TabLabels = { "기즈모", "아이템", "퀘스트", "플레이어 스텟", "파티원", "시간", "전투" };
+        private static readonly string[] TabLabels =
+        {
+            "기즈모", "아이템", "퀘스트", "플레이어 스텟",
+            "파티원", "시간", "전투", "버프 / 디버프",
+        };
 
         private static readonly Color Dim       = new(0f, 0f, 0f, 0.55f);
         private static readonly Color WindowBg  = new(0.07f, 0.09f, 0.12f, 0.98f);

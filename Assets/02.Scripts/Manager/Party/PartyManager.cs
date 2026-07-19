@@ -154,6 +154,8 @@ namespace UPlayGround.Manager
             _config?.partyMemberData != null
                 ? _config.partyMemberData.GetCombatElement(type)
                 : CombatElement.None;
+        public GameplayAbilitySO GetElementalImbueAbility(CharacterActorType type) =>
+            _config?.GetElementalImbueAbility(GetCombatElement(type));
 
         public CharacterPassiveSetSO GetPassiveSet(CharacterActorType type)
             => _config?.characterPassiveDatabase != null

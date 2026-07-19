@@ -61,6 +61,9 @@ namespace UPlayGround.Components
         private bool _mainWeaponDrawnBeforeInteraction;
         private Coroutine _interactionEquipmentHideCo;
         private GameObject _currentInteractionEquipmentObj;
+        private bool _consumableUseEquipmentHidden;
+        private bool _mainWeaponDrawnBeforeConsumableUse;
+        private bool _subWeaponDrawnBeforeConsumableUse;
 
         // 가지고 있는 무기
         private GameObject _currentMainWeaponObj = null;
@@ -595,6 +598,41 @@ namespace UPlayGround.Components
         }
 
         /// <summary>
+        /// 소모품 사용 모션 동안 무기와 생활 도구 외형을 즉시 숨긴다.
+        /// 종료 시 손/등 장착 위치를 포함한 기존 주·보조 무기 상태를 복구한다.
+        /// </summary>
+        public void BeginConsumableUseEquipment()
+        {
+            if (_consumableUseEquipmentHidden)
+                return;
+
+            CancelInteractionEquipmentHide();
+            HideAllInteractionEquipmentImmediate();
+
+            _mainWeaponDrawnBeforeConsumableUse = IsMainWeaponEquipped;
+            _subWeaponDrawnBeforeConsumableUse = IsSubWeaponEquipped;
+            ForceSyncMainWeaponState(false);
+            _consumableUseEquipmentHidden = true;
+        }
+
+        public void EndConsumableUseEquipment()
+        {
+            if (!_consumableUseEquipmentHidden)
+                return;
+
+            _consumableUseEquipmentHidden = false;
+
+            // 숨길 때 런타임 무기 오브젝트가 해제될 수 있으므로 먼저 다시 생성한 뒤
+            // Drink 진입 전 손/등 장착 상태를 각각 복구한다.
+            RecreateWeapons();
+            ForceSyncWeaponState(EquipPosition.RightHand, _mainWeaponDrawnBeforeConsumableUse);
+            ForceSyncWeaponState(EquipPosition.LeftHand, _subWeaponDrawnBeforeConsumableUse);
+
+            _mainWeaponDrawnBeforeConsumableUse = false;
+            _subWeaponDrawnBeforeConsumableUse = false;
+        }
+
+        /// <summary>
         /// 캐릭터 교체/모델 비활성화 시 인터렉션 장비 상태를 즉시 버린다.
         /// 대기 디졸브나 무기 복원 예약을 이어가지 않는다.
         /// </summary>
@@ -604,6 +642,9 @@ namespace UPlayGround.Components
             HideAllInteractionEquipmentImmediate();
             _interactionEquipmentActive = false;
             _mainWeaponDrawnBeforeInteraction = false;
+            _consumableUseEquipmentHidden = false;
+            _mainWeaponDrawnBeforeConsumableUse = false;
+            _subWeaponDrawnBeforeConsumableUse = false;
         }
 
         private GameObject GetInteractionEquipmentObject(InteractionObjectType interactionObjectType)

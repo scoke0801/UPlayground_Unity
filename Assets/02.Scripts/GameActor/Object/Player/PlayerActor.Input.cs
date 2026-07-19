@@ -47,6 +47,7 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled,   null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility,     null,                    OnInputPerformedSkill_1,     null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate,     null,                    OnInputPerformedSkill_2,     null,                    null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, null,                         OnInputPerformedElementalImbue, null,                  null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             null,            layer);
@@ -69,6 +70,7 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility,     null,                    OnInputPerformedSkill_1,     null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate,     null,                    OnInputPerformedSkill_2,     null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, null,                         OnInputPerformedElementalImbue, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard);
@@ -125,6 +127,8 @@ namespace UPlayGround
 
             _skillInputCondition[1] = InputCondition.Pressed;
         }
+        private void OnInputPerformedElementalImbue(InputAction.CallbackContext obj)
+            => _skillInputCondition[(int)PlayerSkillSlot.ElementalImbue] = InputCondition.Pressed;
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
         {
             _interactionInputCondition = InputCondition.Pressed;

@@ -70,7 +70,7 @@ namespace UPlayGround.Gameplay.Ability
         }
 
         public bool HasPlayerAbility(PlayerSkillSlot slot) =>
-            _abilitySet != null && _abilitySet.GetPlayerAbility(slot) != null;
+            ResolvePlayerAbility(slot) != null;
 
         public AbilityActivationResult EvaluatePlayerSlot(
             PlayerSkillSlot slot,
@@ -79,7 +79,7 @@ namespace UPlayGround.Gameplay.Ability
             out AbilityVariantDefinition variant)
         {
             variant = null;
-            GameplayAbilitySO definition = _abilitySet?.GetPlayerAbility(slot);
+            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
             if (definition == null) return AbilityActivationResult.NotGranted;
             return Evaluate(
                 definition,
@@ -95,7 +95,7 @@ namespace UPlayGround.Gameplay.Ability
             out AbilityVariantDefinition variant)
         {
             variant = null;
-            if (_abilitySet == null || !_abilitySet.Contains(definition))
+            if (!IsGrantedAbility(definition))
                 return AbilityActivationResult.NotGranted;
             return Evaluate(
                 definition,
@@ -113,7 +113,7 @@ namespace UPlayGround.Gameplay.Ability
         {
             handle = default;
             variant = null;
-            GameplayAbilitySO definition = _abilitySet?.GetPlayerAbility(slot);
+            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
             if (definition == null) return AbilityActivationResult.NotGranted;
 
             return TryPrepareAbility(
@@ -133,7 +133,7 @@ namespace UPlayGround.Gameplay.Ability
         {
             handle = default;
             variant = null;
-            if (_abilitySet == null || !_abilitySet.Contains(definition))
+            if (!IsGrantedAbility(definition))
                 return AbilityActivationResult.NotGranted;
 
             GameActor resolvedTarget = ResolveTarget(definition, target);
@@ -273,7 +273,7 @@ namespace UPlayGround.Gameplay.Ability
         public bool TryGetPlayerSlotState(PlayerSkillSlot slot, out AbilitySlotViewState state)
         {
             state = default;
-            GameplayAbilitySO definition = _abilitySet?.GetPlayerAbility(slot);
+            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
             if (definition == null) return false;
 
             bool grounded = true;
@@ -303,6 +303,21 @@ namespace UPlayGround.Gameplay.Ability
                 GetCooldownRemaining(group),
                 GetEffectiveCooldownDuration(definition, slot),
                 variant?.variantId);
+            return true;
+        }
+
+        public bool TryGetPlayerSlotPresentation(
+            PlayerSkillSlot slot,
+            out AbilitySlotPresentationState presentation)
+        {
+            presentation = default;
+            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
+            if (definition == null)
+                return false;
+
+            presentation = new AbilitySlotPresentationState(
+                definition.presentation?.displayName,
+                definition.presentation?.icon);
             return true;
         }
 
@@ -375,20 +390,33 @@ namespace UPlayGround.Gameplay.Ability
 
         private bool ShouldSaveCooldown(string groupId)
         {
-            if (_abilitySet == null || string.IsNullOrWhiteSpace(groupId))
+            if (string.IsNullOrWhiteSpace(groupId))
                 return false;
-            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            if (_abilitySet != null)
             {
-                if (ability == null
-                    || ability.persistence == null
-                    || !ability.persistence.saveCooldown)
-                    continue;
-                if (string.Equals(
-                        ability.cooldown.ResolveGroupId(ability.abilityId),
-                        groupId,
-                        StringComparison.Ordinal))
-                    return true;
+                foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+                {
+                    if (ability == null
+                        || ability.persistence == null
+                        || !ability.persistence.saveCooldown)
+                        continue;
+                    if (string.Equals(
+                            ability.cooldown.ResolveGroupId(ability.abilityId),
+                            groupId,
+                            StringComparison.Ordinal))
+                        return true;
+                }
             }
+
+            GameplayAbilitySO elementalImbue =
+                ResolvePlayerAbility(PlayerSkillSlot.ElementalImbue);
+            if (elementalImbue?.persistence?.saveCooldown == true
+                && string.Equals(
+                    elementalImbue.cooldown.ResolveGroupId(elementalImbue.abilityId),
+                    groupId,
+                    StringComparison.Ordinal))
+                return true;
+
             return false;
         }
 
@@ -526,14 +554,15 @@ namespace UPlayGround.Gameplay.Ability
         private bool IsUnlocked(GameplayAbilitySO definition)
         {
             if (_owner is not PlayerActor || Svc.Party == null) return true;
-            PlayerSkillSlot? slot = null;
-            for (int i = 0; i < _abilitySet.playerSlots.Count; i++)
-                if (_abilitySet.playerSlots[i]?.ability == definition)
-                    slot = _abilitySet.playerSlots[i].slot;
+            PlayerSkillSlot? slot = FindPlayerSlot(definition);
             if (!slot.HasValue) return true;
-            GrowthSkillType type = slot.Value == PlayerSkillSlot.Ability
-                ? GrowthSkillType.Ability
-                : GrowthSkillType.Ultimate;
+            GrowthSkillType type = slot.Value switch
+            {
+                PlayerSkillSlot.Ability => GrowthSkillType.Ability,
+                PlayerSkillSlot.Ultimate => GrowthSkillType.Ultimate,
+                PlayerSkillSlot.ElementalImbue => GrowthSkillType.ElementalImbue,
+                _ => GrowthSkillType.Ability,
+            };
             return Svc.Party.IsSkillUnlocked(Svc.Party.ActiveCharacterType, type);
         }
 
@@ -600,15 +629,43 @@ namespace UPlayGround.Gameplay.Ability
 
         private PlayerSkillSlot? FindPlayerSlot(GameplayAbilitySO definition)
         {
-            if (_abilitySet?.playerSlots == null || definition == null)
+            if (definition == null)
                 return null;
-            for (int i = 0; i < _abilitySet.playerSlots.Count; i++)
+            if (_abilitySet?.playerSlots != null)
             {
-                AbilitySetSO.PlayerSlotEntry entry = _abilitySet.playerSlots[i];
-                if (entry?.ability == definition)
-                    return entry.slot;
+                for (int i = 0; i < _abilitySet.playerSlots.Count; i++)
+                {
+                    AbilitySetSO.PlayerSlotEntry entry = _abilitySet.playerSlots[i];
+                    if (entry?.ability == definition)
+                        return entry.slot;
+                }
             }
+
+            if (ResolvePlayerAbility(PlayerSkillSlot.ElementalImbue) == definition)
+                return PlayerSkillSlot.ElementalImbue;
             return null;
+        }
+
+        private GameplayAbilitySO ResolvePlayerAbility(PlayerSkillSlot slot)
+        {
+            if (slot == PlayerSkillSlot.ElementalImbue)
+            {
+                CharacterActorType type = _owner is PlayerActor
+                    ? Svc.Party?.ActiveCharacterType ?? CharacterActorType.None
+                    : _owner != null ? _owner.CharacterType : CharacterActorType.None;
+                return Svc.Party?.GetElementalImbueAbility(type);
+            }
+
+            return _abilitySet?.GetPlayerAbility(slot);
+        }
+
+        private bool IsGrantedAbility(GameplayAbilitySO definition)
+        {
+            if (definition == null)
+                return false;
+            if (_abilitySet != null && _abilitySet.Contains(definition))
+                return true;
+            return ResolvePlayerAbility(PlayerSkillSlot.ElementalImbue) == definition;
         }
 
         private float GetEffectiveCooldownDuration(

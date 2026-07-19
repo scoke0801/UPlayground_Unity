@@ -97,6 +97,10 @@ namespace UPlayGround.Manager
         public static IGameEventPublisher EventPublisher => Services.Get<IGameEventPublisher>();
         public static IPartyService Party => Services.Get<IPartyService>();
         public static IPassiveModifierReader Passives => Services.Get<IPassiveModifierReader>();
+        public static IMonsterCodexService MonsterCodex =>
+            Services.Get<IMonsterCodexService>();
+        public static IMonsterCodexReader MonsterCodexReader =>
+            Services.Get<IMonsterCodexReader>();
         public static IInventoryService Inventory => Services.Get<IInventoryService>();
         public static IItemService Item => Services.Get<IItemService>();
         public static IDialogueService Dialogue => Services.Get<IDialogueService>();

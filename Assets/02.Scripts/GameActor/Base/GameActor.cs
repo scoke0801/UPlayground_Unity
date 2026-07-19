@@ -70,6 +70,7 @@ namespace UPlayGround
 
         /// <summary>Definition 기본값과 활성 GameplayEffect를 합성한 현재 전투 속성.</summary>
         public CombatElement CurrentElement => _currentElement;
+        public bool HasElementOverride => _elementOverrides.Count > 0;
 
         /// <summary>유리한 속성 공격에 적용되는 Definition 기반 피해 배율.</summary>
         public float ElementalAdvantageMultiplier =>
@@ -78,6 +79,7 @@ namespace UPlayGround
                 : CombatElementRules.DefaultAdvantageMultiplier;
 
         public event Action<CombatElement> ElementChanged;
+        public event Action ElementOverrideChanged;
 
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)
@@ -211,6 +213,7 @@ namespace UPlayGround
 
             _elementOverrides[sourceId] = new ElementOverride(element, priority);
             RefreshCurrentElement();
+            ElementOverrideChanged?.Invoke();
         }
 
         public void RemoveElementOverride(ulong sourceId)
@@ -218,6 +221,7 @@ namespace UPlayGround
             if (sourceId == 0 || !_elementOverrides.Remove(sourceId))
                 return;
             RefreshCurrentElement();
+            ElementOverrideChanged?.Invoke();
         }
 
         public void ResolveDefinitionElement(int newGameSeed)

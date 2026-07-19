@@ -639,6 +639,7 @@ namespace UPlayGround.Manager
             data.cycle ??= new CycleSaveData();
             data.cycle.assists ??= new UPlayGround.Data.Cycle.AssistProgressSaveData();
             data.cycle.history ??= new UPlayGround.Data.Cycle.CycleHistorySaveData();
+            data.monsterCodex ??= new List<MonsterCodexEntrySave>();
             data.saveVersion = CURRENT_SAVE_VERSION;
         }
 

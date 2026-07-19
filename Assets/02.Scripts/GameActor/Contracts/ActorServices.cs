@@ -186,6 +186,7 @@ namespace UPlayGround.Manager
         public static IMonsterLifecycleService MonsterLifecycle => Services.Get<IMonsterLifecycleService>();
         public static IQuestProgressService QuestProgress => Services.Get<IQuestProgressService>();
         public static IRecipeProgressService RecipeProgress => Services.Get<IRecipeProgressService>();
+        public static IMonsterCodexService MonsterCodex => Services.Get<IMonsterCodexService>();
         public static ICheatStateService CheatState => Services.Get<ICheatStateService>();
         public static ICycleExitService CycleExit => Services.Get<ICycleExitService>();
         public static ISceneTransitionService SceneTransition => Services.Get<ISceneTransitionService>();

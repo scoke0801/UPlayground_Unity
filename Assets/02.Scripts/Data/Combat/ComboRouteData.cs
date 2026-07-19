@@ -20,6 +20,7 @@ namespace UPlayGround.Data.Combat
         Skill2      = 5,   // [4] Ultimate
         Charge      = 6,   // 강공 홀드(차지) 완료
         Dash        = 7,   // 대시
+        ElementalImbue = 8, // 캐릭터 속성 부여 공통 어빌리티
     }
 
     /// <summary>입력 패턴 매칭 방식</summary>

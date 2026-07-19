@@ -46,6 +46,8 @@
         public const string QuickSlot_Right = "QuickSlot_Right";
         public const string QuickSlot_Up = "QuickSlot_Up";
         public const string QuickSlot_Down = "QuickSlot_Down";
+
+        public const string ElementBuff = "ElementBuff";
     }
 
     public static class SystemAction

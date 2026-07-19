@@ -22,6 +22,17 @@ namespace UPlayGround.Data.Save
         public WorldStateSaveData world = new WorldStateSaveData();
         public TimeSaveData time = new TimeSaveData();
         public CycleSaveData cycle = new CycleSaveData();
+        public List<MonsterCodexEntrySave> monsterCodex = new List<MonsterCodexEntrySave>();
+    }
+
+    /// <summary>현재 새 게임 범위에서 누적한 몬스터 종별 도감 기록.</summary>
+    [Serializable]
+    public sealed class MonsterCodexEntrySave
+    {
+        public string actorId;
+        public long killCount;
+        public bool discovered;
+        public int discoveredElement;
     }
 
     // ──────────────────────────────────────────────────────────

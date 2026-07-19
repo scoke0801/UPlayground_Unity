@@ -137,6 +137,7 @@ namespace UPlayGround.Manager
                     case InputDefine.PlayerAction.Dash: 
                     case InputDefine.PlayerAction.SkillAbility:
                     case InputDefine.PlayerAction.SkillUltimate:
+                    case InputDefine.PlayerAction.ElementBuff:
                     case InputDefine.PlayerAction.CharacterSwap_1:
                     case InputDefine.PlayerAction.CharacterSwap_2:
                     case InputDefine.PlayerAction.CharacterSwap_3:
@@ -219,6 +220,7 @@ namespace UPlayGround.Manager
                 InputDefine.PlayerAction.Dash => 0.12f,
                 InputDefine.PlayerAction.SkillAbility => 0.20f,
                 InputDefine.PlayerAction.SkillUltimate => 0.20f,
+                InputDefine.PlayerAction.ElementBuff => 0.20f,
                 InputDefine.PlayerAction.CharacterSwap_1 => 0.15f,
                 InputDefine.PlayerAction.CharacterSwap_2 => 0.15f,
                 InputDefine.PlayerAction.CharacterSwap_3 => 0.15f,

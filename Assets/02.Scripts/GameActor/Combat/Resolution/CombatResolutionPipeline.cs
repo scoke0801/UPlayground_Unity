@@ -75,7 +75,7 @@ namespace UPlayGround.Combat
             HitContext hit = HitContext.Create(request, victim);
             DamageResult damage = request.IsSpecialBreak
                 ? DamageResolver.ResolveSpecialBreakDamage(
-                    victim.MaxHealth,
+                    victim,
                     request.SpecialDamageByMaxHpRate,
                     request.SpecialFixedDamage,
                     request.SpecialMinReferenceHealth)

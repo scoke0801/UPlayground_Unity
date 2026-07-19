@@ -39,6 +39,7 @@ namespace UPlayGround.Data.Path
         SaveSlotMenu = 30,
         Notification = 31,
         GuidePopup = 32,
+        MonsterCodex = 33,
     }
 
     public static class UIKeyTypeExtensions
@@ -78,6 +79,7 @@ namespace UPlayGround.Data.Path
             UIKeyType.SaveSlotMenu => "SaveSlotMenu",
             UIKeyType.Notification => "Notification",
             UIKeyType.GuidePopup => "GuidePopup",
+            UIKeyType.MonsterCodex => "MonsterCodex",
             _ => string.Empty,
         };
     }

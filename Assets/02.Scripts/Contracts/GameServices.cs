@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Config;
+using UPlayGround.Data.Codex;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Party;
@@ -189,6 +190,7 @@ namespace UPlayGround.Manager
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         int GetLevel(CharacterActorType type);
         CombatElement GetCombatElement(CharacterActorType type);
+        GameplayAbilitySO GetElementalImbueAbility(CharacterActorType type);
         IReadOnlyDictionary<GrowthAttributeType, int> GetGrowthInvestments(CharacterActorType type);
     }
 
@@ -201,6 +203,22 @@ namespace UPlayGround.Manager
             CharacterActorType characterType,
             PassiveModifierType type);
         float GetBattlePartyMultiplier(PassiveModifierType type);
+    }
+
+    public interface IMonsterCodexReader : IGameService
+    {
+        float GetExpMultiplier(string actorId);
+        float GetDamageDealtMultiplier(string actorId);
+        float GetDamageTakenMultiplier(string actorId);
+    }
+
+    public interface IMonsterCodexService : IMonsterCodexReader
+    {
+        void RecordKill(string actorId, CombatElement element);
+        float GetRecordRatio(string actorId);
+        bool IsDiscovered(string actorId);
+        CombatElement GetDiscoveredElement(string actorId);
+        IReadOnlyList<MonsterCodexEntryView> GetAllEntries();
     }
 
     public interface IInventoryService : IGameService

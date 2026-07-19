@@ -12,9 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9a06f25b00d41e7a8b8db09cacbc2d4, type: 3}
   m_Name: ElementalWeaponTrailLibrary
   m_EditorClassIdentifier:
-  _none: {fileID: 100100000, guid: 8040df28df2739c438f4cfd0c1c7fc0a, type: 3}
-  _fire: {fileID: 100100000, guid: 9d81ebcab7936874cb184b4014f6a069, type: 3}
-  _water: {fileID: 100100000, guid: 8305f6acb8fa3f84296d070e62a8b04d, type: 3}
-  _nature: {fileID: 100100000, guid: 833bd2bfddf27ff4494b0bc4356e2a28, type: 3}
-  _light: {fileID: 100100000, guid: 7dd1d0016b35b5b4eb41078fe62ab4f2, type: 3}
-  _dark: {fileID: 100100000, guid: 9a1b2e700070e9140a1249cbf0ab8fc6, type: 3}
+  _fire: {fileID: 3278968933364624483, guid: 9d81ebcab7936874cb184b4014f6a069, type: 3}
+  _water: {fileID: 6307073716109815289, guid: 8305f6acb8fa3f84296d070e62a8b04d, type: 3}
+  _nature: {fileID: 1298082800965881913, guid: 833bd2bfddf27ff4494b0bc4356e2a28, type: 3}
+  _light: {fileID: 2318646775085140256, guid: 7dd1d0016b35b5b4eb41078fe62ab4f2, type: 3}
+  _dark: {fileID: 211711048654108181, guid: 9a1b2e700070e9140a1249cbf0ab8fc6, type: 3}

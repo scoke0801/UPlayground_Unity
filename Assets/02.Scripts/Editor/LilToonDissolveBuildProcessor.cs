@@ -16,10 +16,21 @@ namespace UPlayGround.Editor
     public sealed class LilToonDissolveBuildProcessor : IPreprocessBuildWithReport
     {
         private const string KeepAliveMaterialPath = "Assets/Resources/Rendering/LilToonDissolveKeepAlive.mat";
+        private const string MultiKeepAliveMaterialPath = "Assets/Resources/Rendering/LilToonMultiDitherKeepAlive.mat";
         private const string CutoutShaderName = "Hidden/lilToonCutout";
         private const string CutoutOutlineShaderName = "Hidden/lilToonCutoutOutline";
+        private const string CutoutPassShaderName = "Hidden/ltspass_cutout";
+        private const string MultiShaderName = "_lil/lilToonMulti";
+        private const string MultiOutlineShaderName = "Hidden/lilToonMultiOutline";
         private const string DissolveKeyword = "GEOM_TYPE_BRANCH_DETAIL";
+        private const string DitherKeyword = "ETC1_EXTERNAL_ALPHA";
+        private const string AlphaMaskKeyword = "_COLOROVERLAY_ON";
+        private const string MultiCutoutKeyword = "UNITY_UI_ALPHACLIP";
         private static readonly int DissolveParamsID = Shader.PropertyToID("_DissolveParams");
+        private static readonly int UseDitherID = Shader.PropertyToID("_UseDither");
+        private static readonly int AlphaMaskModeID = Shader.PropertyToID("_AlphaMaskMode");
+        private static readonly int AlphaMaskScaleID = Shader.PropertyToID("_AlphaMaskScale");
+        private static readonly int AlphaMaskValueID = Shader.PropertyToID("_AlphaMaskValue");
 
         public int callbackOrder => 101;
 
@@ -31,16 +42,50 @@ namespace UPlayGround.Editor
 
         private static void EnsureKeepAliveMaterial()
         {
-            var material = AssetDatabase.LoadAssetAtPath<Material>(KeepAliveMaterialPath);
+            ConfigureKeepAliveMaterial(KeepAliveMaterialPath);
+            ConfigureKeepAliveMaterial(MultiKeepAliveMaterialPath);
+        }
+
+        private static void ConfigureKeepAliveMaterial(string materialPath)
+        {
+            var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
             if (material == null)
             {
-                Debug.LogWarning($"[LilToonDissolveBuildProcessor] keep-alive 머티리얼을 찾을 수 없습니다. path={KeepAliveMaterialPath}");
+                Debug.LogWarning($"[LilToonDissolveBuildProcessor] keep-alive 머티리얼을 찾을 수 없습니다. path={materialPath}");
                 return;
             }
 
-            material.EnableKeyword(DissolveKeyword);
+            bool isMulti = material.shader != null &&
+                           (material.shader.name == MultiShaderName ||
+                            material.shader.name == MultiOutlineShaderName);
+            if (isMulti)
+            {
+                material.DisableKeyword(DissolveKeyword);
+                material.EnableKeyword(MultiCutoutKeyword);
+            }
+            else
+            {
+                material.EnableKeyword(DissolveKeyword);
+            }
+
+            material.EnableKeyword(DitherKeyword);
+            material.EnableKeyword(AlphaMaskKeyword);
             if (material.HasProperty(DissolveParamsID))
-                material.SetVector(DissolveParamsID, new Vector4(3f, 1f, 0f, 0.1f));
+            {
+                material.SetVector(
+                    DissolveParamsID,
+                    isMulti
+                        ? Vector4.zero
+                        : new Vector4(3f, 1f, 0f, 0.1f));
+            }
+            if (material.HasProperty(UseDitherID))
+                material.SetFloat(UseDitherID, 1f);
+            if (material.HasProperty(AlphaMaskModeID))
+                material.SetFloat(AlphaMaskModeID, 2f);
+            if (material.HasProperty(AlphaMaskScaleID))
+                material.SetFloat(AlphaMaskScaleID, 0f);
+            if (material.HasProperty(AlphaMaskValueID))
+                material.SetFloat(AlphaMaskValueID, 1f);
 
             EditorUtility.SetDirty(material);
             AssetDatabase.SaveAssetIfDirty(material);
@@ -69,6 +114,13 @@ namespace UPlayGround.Editor
             var shaders = new List<Shader>();
             AddShader(shaders, CutoutShaderName);
             AddShader(shaders, CutoutOutlineShaderName);
+            // lilToonCutout 계열은 실제 렌더링을 이 공용 UsePass 셰이더에 위임한다.
+            // 래퍼만 복원하면 빌드 최적화가 패스에서 디더/AlphaMask 코드를 제거할 수 있다.
+            AddShader(shaders, CutoutPassShaderName);
+            // Multi는 별도 Cutout 셰이더로 교체하지 않고 동일 셰이더에서
+            // _TransparentMode를 전환하므로 Multi 자체의 디더 변형도 보존한다.
+            AddShader(shaders, MultiShaderName);
+            AddShader(shaders, MultiOutlineShaderName);
 
             InvokeApplyShaderSetting(lilToonSettingType, shaderSetting, shaders);
         }

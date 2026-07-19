@@ -23,6 +23,7 @@ namespace UPlayGround.UI.HUD.EditorTools
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
         private const string QuickSlotKey = "HudQuickSlot";
         private const string GlyphDataPath = "Assets/10.Datas/UI/Input/InputGlyphData.asset";
+        private const string HudSlotSpritePath = "Assets/04.Images/UI/Img_HudSlot.png";
 
         private static readonly Color Navy = new(0.025f, 0.075f, 0.13f, 0.88f);
         private static readonly Color Cyan = new(0.12f, 0.68f, 1f, 0.95f);
@@ -61,10 +62,13 @@ namespace UPlayGround.UI.HUD.EditorTools
             {
                 MakeSkillSlot(root.transform, "Ultimate", ComboInputToken.Skill2, "얼티밋",
                     PlayerAction.SkillUltimate, LoadSprite("Assets/04.Images/UI/SkillIcon/Skill_Ultimate.png"),
-                    new Vector2(-180f, 186f), LabelSide.Right, glyphData, true),
+                    new Vector2(-304f, 200.8f), LabelSide.Right, glyphData, true),
                 MakeSkillSlot(root.transform, "Ability", ComboInputToken.Skill1, "어빌리티",
                     PlayerAction.SkillAbility, LoadSprite("Assets/04.Images/UI/SkillIcon/Skill_Ability.png"),
-                    new Vector2(-180f, 70f), LabelSide.Right, glyphData, true),
+                    new Vector2(-303f, 55f), LabelSide.Right, glyphData, true),
+                MakeSkillSlot(root.transform, "ElementalImbue", ComboInputToken.ElementalImbue, "속성",
+                    PlayerAction.ElementBuff, LoadSprite("Assets/04.Images/UI/EffectIcon/Buff_Icon_01.png"),
+                    new Vector2(-516f, 200.8f), LabelSide.Left, glyphData, true),
                 MakeSkillSlot(root.transform, "HeavyAttack", ComboInputToken.HeavyAttack, "강공격",
                     PlayerAction.HeavyAttack, LoadSprite("Assets/04.Images/UI/SkillIcon/HeavyAttack.png"),
                     new Vector2(-410f, 186f), LabelSide.Top, glyphData, false),
@@ -83,6 +87,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             var so = new SerializedObject(hud);
             SetObjectArray(so, "_slots", slots);
             SetBool(so, "_ensureDashSlot", false);
+            SetBool(so, "_ensureElementalImbueSlot", false);
             SetEnum(so, "_layer", (int)CanvasLayer.HUD);
             SetBool(so, "_canCloseWithEsc", false);
             so.ApplyModifiedPropertiesWithoutUndo();
@@ -106,7 +111,7 @@ namespace UPlayGround.UI.HUD.EditorTools
         {
             var go = NewUI($"UISkillSlot_{name}", parent);
             SetAnchored(Rt(go), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(.5f, .5f),
-                new Vector2(220f, 88f), position);
+                usesGauge ? new Vector2(240f, 100f) : new Vector2(220f, 88f), position);
             var slot = go.AddComponent<UISkillSlot>();
             var dimGroup = go.AddComponent<CanvasGroup>();
 
@@ -132,9 +137,10 @@ namespace UPlayGround.UI.HUD.EditorTools
                     ribbonRt.anchoredPosition = new Vector2(0f, -80f);
                     break;
             }
-            bool compactRightLabel = token == ComboInputToken.Dash && side == LabelSide.Right;
+            bool compactSideLabel =
+                token == ComboInputToken.Dash && side == LabelSide.Right;
             ribbonRt.sizeDelta = side is LabelSide.Left or LabelSide.Right
-                ? new Vector2(compactRightLabel ? 76f : 112f, 30f)
+                ? new Vector2(compactSideLabel ? 76f : 112f, 30f)
                 : new Vector2(92f, 28f);
             AddImage(ribbon, new Color(0.025f, 0.12f, 0.20f, .88f), UISprite, true).raycastTarget = false;
 
@@ -152,7 +158,10 @@ namespace UPlayGround.UI.HUD.EditorTools
             SetAnchored(Rt(diamond), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                 new Vector2(82f, 82f), Vector2.zero);
             Rt(diamond).localRotation = Quaternion.Euler(0f, 0f, 45f);
-            AddImage(diamond, usesGauge ? new Color(.08f, .14f, .20f, .94f) : Navy, UISprite, true)
+            AddImage(
+                    diamond,
+                    usesGauge ? new Color(.08f, .14f, .20f, .94f) : Navy,
+                    LoadSprite(HudSlotSpritePath))
                 .raycastTarget = false;
             AddOutline(diamond, usesGauge ? Gold : Cyan, 2f);
 
@@ -178,7 +187,10 @@ namespace UPlayGround.UI.HUD.EditorTools
             var cooldown = NewUI("Cooldown", content.transform);
             Stretch(cooldown);
             Rt(cooldown).localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var cooldownImage = AddImage(cooldown, new Color(0f, .02f, .05f, .78f), UISprite);
+            var cooldownImage = AddImage(
+                cooldown,
+                new Color(.1764706f, .1764706f, .1764706f, .47843137f),
+                UISprite);
             cooldownImage.type = Image.Type.Filled;
             cooldownImage.fillMethod = Image.FillMethod.Radial360;
             cooldownImage.fillOrigin = 2;
@@ -229,6 +241,8 @@ namespace UPlayGround.UI.HUD.EditorTools
 
             var slotSo = new SerializedObject(slot);
             SetEnum(slotSo, "_token", (int)token);
+            if (token == ComboInputToken.ElementalImbue)
+                SetInt(slotSo, "_gaugeSlotOverride", (int)PlayerSkillSlot.ElementalImbue);
             SetRef(slotSo, "_icon", icon);
             SetBool(slotSo, "_useGaugeFeature", usesGauge);
             SetBool(slotSo, "_showOnlyWhenGaugeFull", token == ComboInputToken.Skill2);
@@ -304,7 +318,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             SetAnchored(Rt(diamond), new Vector2(.5f, .5f), new Vector2(.5f, .5f), new Vector2(.5f, .5f),
                 new Vector2(82f, 82f), Vector2.zero);
             Rt(diamond).localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var background = AddImage(diamond, Navy, UISprite, true);
+            var background = AddImage(diamond, Color.white, LoadSprite(HudSlotSpritePath));
             var rarityOutline = AddOutline(diamond, Cyan, 2f);
 
             var content = NewUI("Content", diamond.transform);
@@ -322,7 +336,10 @@ namespace UPlayGround.UI.HUD.EditorTools
             var cooldown = NewUI("Cooldown", content.transform);
             Stretch(cooldown);
             Rt(cooldown).localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var cooldownFill = AddImage(cooldown, new Color(0f, .02f, .05f, .78f), UISprite);
+            var cooldownFill = AddImage(
+                cooldown,
+                new Color(.1764706f, .1764706f, .1764706f, .60784316f),
+                UISprite);
             cooldownFill.type = Image.Type.Filled;
             cooldownFill.fillMethod = Image.FillMethod.Radial360;
             cooldownFill.fillOrigin = 2;
@@ -388,7 +405,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             var empty = AddText(NewUI("Empty", content.transform), "+", 30f, TextSub,
                 TextAlignmentOptions.Center);
             Stretch(empty.gameObject);
-            empty.gameObject.SetActive(true);
+            empty.gameObject.SetActive(false);
 
             var button = go.AddComponent<Button>();
             button.targetGraphic = background;
@@ -538,6 +555,13 @@ namespace UPlayGround.UI.HUD.EditorTools
         }
 
         private static void SetEnum(SerializedObject so, string propertyName, int value)
+        {
+            SerializedProperty property = so.FindProperty(propertyName);
+            if (property != null)
+                property.intValue = value;
+        }
+
+        private static void SetInt(SerializedObject so, string propertyName, int value)
         {
             SerializedProperty property = so.FindProperty(propertyName);
             if (property != null)

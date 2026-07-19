@@ -23,6 +23,7 @@ namespace UPlayGround.UI
         [SerializeField] private Button _craftButton;
         [SerializeField] private Button _questButton;
         [SerializeField] private Button _partyButton;
+        [SerializeField] private Button _codexButton;
         [SerializeField] private Button _configButton;
         [SerializeField] private Button _exitButton;
 
@@ -64,6 +65,7 @@ namespace UPlayGround.UI
             _craftButton.onClick.AddListener(OnClickedCraftButton);
             _questButton.onClick.AddListener(OnClickedQuestButton);
             _partyButton.onClick.AddListener(OnClickedPartyButton);
+            if (_codexButton != null) _codexButton.onClick.AddListener(OnClickedCodexButton);
             _configButton.onClick.AddListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.AddListener(OnClickedExitButton);
         }
@@ -149,6 +151,7 @@ namespace UPlayGround.UI
             if (_craftButton != null) _craftButton.onClick.RemoveListener(OnClickedCraftButton);
             if (_questButton != null) _questButton.onClick.RemoveListener(OnClickedQuestButton);
             if (_partyButton != null) _partyButton.onClick.RemoveListener(OnClickedPartyButton);
+            if (_codexButton != null) _codexButton.onClick.RemoveListener(OnClickedCodexButton);
             if (_configButton != null) _configButton.onClick.RemoveListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.RemoveListener(OnClickedExitButton);
 
@@ -187,6 +190,11 @@ namespace UPlayGround.UI
         private void OnClickedPartyButton()
         {
             Toggle(UIKeyType.Party);
+        }
+
+        private void OnClickedCodexButton()
+        {
+            Toggle(UIKeyType.MonsterCodex);
         }
 
         private void OnClickedConfigButton()

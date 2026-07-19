@@ -91,6 +91,7 @@ namespace UPlayGround.UI.InputPrompt
         // 게이지/쿨타임 UI가 _availableRoot 하위인지 여부. UI 계층은 런타임에 불변이라 Initialize에서 1회 캐시한다.
         private bool _gaugeUiUnderAvailableRoot;
         private bool _cooldownUiUnderAvailableRoot;
+        private bool _locked;
 
         /// <summary>
         /// 게이지와 무관한 외부 쿨타임 소스(remaining, duration)를 샘플링한다. 예: 대시 쿨타임은
@@ -148,9 +149,32 @@ namespace UPlayGround.UI.InputPrompt
             if (_labelText == null)
                 return;
 
-            _labelText.text = string.IsNullOrWhiteSpace(routeLabel)
+            _labelText.text = _locked
+                ? "잠김"
+                : string.IsNullOrWhiteSpace(routeLabel)
                 ? _defaultLabel
                 : routeLabel;
+        }
+
+        public void SetLocked(bool locked)
+        {
+            _locked = locked;
+            SetHintLabel(null);
+        }
+
+        public void SetIcon(Sprite icon)
+        {
+            _icon = icon;
+            if (_iconImage == null)
+                return;
+            _iconImage.sprite = icon;
+            _iconImage.enabled = icon != null;
+        }
+
+        public void SetDefaultLabel(string label)
+        {
+            _defaultLabel = label;
+            SetHintLabel(null);
         }
 
         private bool TryResolveInputAction(out string map, out string action)
@@ -197,6 +221,10 @@ namespace UPlayGround.UI.InputPrompt
             {
                 case ComboInputToken.Skill1: RequiresGauge = true; GaugeSlot = 0; break;
                 case ComboInputToken.Skill2: RequiresGauge = true; GaugeSlot = 1; break;
+                case ComboInputToken.ElementalImbue:
+                    RequiresGauge = true;
+                    GaugeSlot = (int)PlayerSkillSlot.ElementalImbue;
+                    break;
                 default:                     RequiresGauge = false; GaugeSlot = -1; break;
             }
         }

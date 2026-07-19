@@ -102,6 +102,7 @@ namespace UPlayGround.Manager
 
             RegisterManager(WorldStateManager.Instance);  // 맵 월드 상태(몬스터 처치 영속)
             RegisterManager(ActorSpawnManager.Instance);
+            RegisterManager(MonsterCodexManager.Instance); // 종별 도감 기록/전투 보정
             RegisterManager(CycleRunManager.Instance); // 사이클 상태(Party/WorldState/ActorSpawn 준비 이후)
             RegisterManager(BossAssistManager.Instance); // 사이클 전용 보스 어시스트 입력/쿨다운
             RegisterManager(CycleRemainsManager.Instance); // 사이클 미정산 재료/유해/전멸 부활
@@ -135,7 +136,8 @@ namespace UPlayGround.Manager
                 InitializeAsyncManager(PartyManager.Instance, cancellationToken),
                 InitializeAsyncManager(ItemManager.Instance, cancellationToken),
                 InitializeAsyncManager(DialogueManager.Instance, cancellationToken),
-                InitializeAsyncManager(ActorSpawnManager.Instance, cancellationToken)
+                InitializeAsyncManager(ActorSpawnManager.Instance, cancellationToken),
+                InitializeAsyncManager(MonsterCodexManager.Instance, cancellationToken)
 #if UNITY_EDITOR
                 , InitializeAsyncManager(DebugGizmoManager.Instance, cancellationToken)
 #endif

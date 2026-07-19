@@ -16,9 +16,10 @@ namespace UPlayGround.Components
     /// </summary>
     public class PlayerSkillGauge : PlayerActorComponent
     {
-        public const int SkillSlotCount = 2;
+        public const int SkillSlotCount = 3;
         public const int AbilitySkillSlot = (int)PlayerSkillSlot.Ability;
         public const int UltimateSkillSlot = (int)PlayerSkillSlot.Ultimate;
+        public const int ElementalImbueSkillSlot = (int)PlayerSkillSlot.ElementalImbue;
 
         [Serializable]
         public struct ChargeTable
@@ -123,9 +124,13 @@ namespace UPlayGround.Components
         public bool CanUseSkill(int skillSlot)
         {
             if (!IsValidSkillSlot(skillSlot)) return false;
-            GrowthSkillType skillType = skillSlot == AbilitySkillSlot
-                ? GrowthSkillType.Ability
-                : GrowthSkillType.Ultimate;
+            GrowthSkillType skillType = skillSlot switch
+            {
+                AbilitySkillSlot => GrowthSkillType.Ability,
+                UltimateSkillSlot => GrowthSkillType.Ultimate,
+                ElementalImbueSkillSlot => GrowthSkillType.ElementalImbue,
+                _ => GrowthSkillType.Ability,
+            };
             if (Svc.Party != null
                 && !Svc.Party.IsSkillUnlocked(
                     Svc.Party.ActiveCharacterType,

@@ -343,6 +343,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ElementBuff"",
+                    ""type"": ""Button"",
+                    ""id"": ""6e7e161c-6073-4818-b87e-2f18177694eb"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -948,6 +957,28 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""QuickSlot_Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9d5a8912-7593-47e3-a8ba-00bb1abf7704"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementBuff"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c30731a1-01c7-47a4-8d22-9571421f7531"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ElementBuff"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1642,6 +1673,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_PlayerAction_QuickSlot_Down = m_PlayerAction.FindAction("QuickSlot_Down", throwIfNotFound: true);
         m_PlayerAction_QuickSlot_Right = m_PlayerAction.FindAction("QuickSlot_Right", throwIfNotFound: true);
         m_PlayerAction_QuickSlot_Up = m_PlayerAction.FindAction("QuickSlot_Up", throwIfNotFound: true);
+        m_PlayerAction_ElementBuff = m_PlayerAction.FindAction("ElementBuff", throwIfNotFound: true);
         // System
         m_System = asset.FindActionMap("System", throwIfNotFound: true);
         m_System_Back = m_System.FindAction("Back", throwIfNotFound: true);
@@ -1787,6 +1819,7 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerAction_QuickSlot_Down;
     private readonly InputAction m_PlayerAction_QuickSlot_Right;
     private readonly InputAction m_PlayerAction_QuickSlot_Up;
+    private readonly InputAction m_PlayerAction_ElementBuff;
     /// <summary>
     /// Provides access to input actions defined in input action map "PlayerAction".
     /// </summary>
@@ -1911,6 +1944,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @QuickSlot_Up => m_Wrapper.m_PlayerAction_QuickSlot_Up;
         /// <summary>
+        /// Provides access to the underlying input action "PlayerAction/ElementBuff".
+        /// </summary>
+        public InputAction @ElementBuff => m_Wrapper.m_PlayerAction_ElementBuff;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_PlayerAction; }
@@ -2020,6 +2057,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @QuickSlot_Up.started += instance.OnQuickSlot_Up;
             @QuickSlot_Up.performed += instance.OnQuickSlot_Up;
             @QuickSlot_Up.canceled += instance.OnQuickSlot_Up;
+            @ElementBuff.started += instance.OnElementBuff;
+            @ElementBuff.performed += instance.OnElementBuff;
+            @ElementBuff.canceled += instance.OnElementBuff;
         }
 
         /// <summary>
@@ -2115,6 +2155,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @QuickSlot_Up.started -= instance.OnQuickSlot_Up;
             @QuickSlot_Up.performed -= instance.OnQuickSlot_Up;
             @QuickSlot_Up.canceled -= instance.OnQuickSlot_Up;
+            @ElementBuff.started -= instance.OnElementBuff;
+            @ElementBuff.performed -= instance.OnElementBuff;
+            @ElementBuff.canceled -= instance.OnElementBuff;
         }
 
         /// <summary>
@@ -2927,6 +2970,13 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnQuickSlot_Up(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ElementBuff" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnElementBuff(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "System" which allows adding and removing callbacks.

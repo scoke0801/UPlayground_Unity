@@ -489,6 +489,12 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.OnCooldown;
             }
 
+            var player = GameObjectManager.Instance?.Player;
+            if (player == null || !player.CanStartConsumableUse())
+            {
+                return InventoryActionResult.InvalidState;
+            }
+
             InventoryActionResult applyResult = TryApplyConsumable(consumableData);
             if (applyResult != InventoryActionResult.Success)
             {
@@ -501,6 +507,14 @@ namespace UPlayGround.Manager
             }
 
             StartConsumableCooldown(itemId, consumableData.cooldownDuration);
+
+            if (!player.TryStartConsumableUse())
+            {
+                Debug.LogWarning(
+                    $"[InventoryManager] 소모품 사용은 완료됐지만 Drink 상태 전환에 실패했습니다. itemId={itemId}",
+                    player);
+            }
+
             return InventoryActionResult.Success;
         }
 

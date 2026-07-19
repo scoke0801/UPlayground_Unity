@@ -2,6 +2,7 @@ using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.UI;
 
 namespace UPlayGround.Combat
@@ -22,9 +23,13 @@ namespace UPlayGround.Combat
                 : 0f;
             float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(hit.CriticalMultiplier) : 1f;
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
+            float damageTakenMultiplier = hit.Attacker is MonsterActor monsterAttacker
+                ? Svc.MonsterCodexReader?.GetDamageTakenMultiplier(monsterAttacker.ActorId) ?? 1f
+                : 1f;
             float finalDamage = baseDamage
                                 * attackerPower
                                 * (1f - defenseRate)
+                                * damageTakenMultiplier
                                 * elementMultiplier
                                 * criticalMultiplier;
 
@@ -37,7 +42,7 @@ namespace UPlayGround.Combat
                 finalDamage,
                 attackerPower,
                 defenseRate,
-                damageTakenMultiplier: 1f,
+                damageTakenMultiplier,
                 criticalMultiplier,
                 criticalMultiplier > 1f,
                 FloatStyle.PlayerDamage);
@@ -63,6 +68,11 @@ namespace UPlayGround.Combat
                 target != null ? target.Grade : MonsterActorGrade.Normal,
                 target != null ? target.CurrentReactionState : CombatReactionState.None,
                 breakExposedMultiplier);
+            if (target != null && hit.Attacker is PlayerActor)
+            {
+                damageTakenMultiplier *=
+                    Svc.MonsterCodexReader?.GetDamageDealtMultiplier(target.ActorId) ?? 1f;
+            }
             float criticalMultiplier = ResolveCriticalMultiplier(hit.CriticalMultiplier);
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
             float finalDamage = baseDamage
@@ -107,6 +117,32 @@ namespace UPlayGround.Combat
                 criticalMultiplier: 1f,
                 isCritical: true,
                 FloatStyle.Critical);
+        }
+
+        public static DamageResult ResolveSpecialBreakDamage(
+            MonsterActor target,
+            float damageByMaxHpRate,
+            float fixedDamage,
+            float minReferenceHealth)
+        {
+            DamageResult baseResult = ResolveSpecialBreakDamage(
+                target != null ? target.MaxHealth : 0f,
+                damageByMaxHpRate,
+                fixedDamage,
+                minReferenceHealth);
+            float codexMultiplier = target != null
+                ? Svc.MonsterCodexReader?.GetDamageDealtMultiplier(target.ActorId) ?? 1f
+                : 1f;
+
+            return new DamageResult(
+                baseResult.BaseDamage,
+                baseResult.FinalDamage * codexMultiplier,
+                baseResult.AttackerPower,
+                baseResult.DefenseRate,
+                codexMultiplier,
+                baseResult.CriticalMultiplier,
+                baseResult.IsCritical,
+                baseResult.FloaterStyle);
         }
 
         private static float ResolveCriticalMultiplier(float multiplier)

@@ -87,6 +87,10 @@ namespace UPlayGround.Components
             _isDirty = false;
 
             StopCachedAttackTrails(immediate: true);
+            if (_owner == null || !_owner.HasElementOverride)
+                ClearElementTrailPrefabs();
+            else
+                ApplyElementTrailPrefabs();
 
             if (_debugLog)
                 Debug.Log($"[ActorWeaponTrailController] RefreshTrails owner={name}, count={_trails.Count}");
@@ -105,7 +109,11 @@ namespace UPlayGround.Components
         private void PlayAttackTrails()
         {
             EnsureCache();
-            ApplyElementTrailPrefabs();
+            if (!ApplyElementTrailPrefabs())
+            {
+                ClearElementTrailPrefabs();
+                return;
+            }
             CancelPendingStop();
             _lastStartTime = Time.unscaledTime;
 
@@ -305,13 +313,19 @@ namespace UPlayGround.Components
             UnbindOwner();
             _owner = owner;
             if (_owner != null)
+            {
                 _owner.ElementChanged += OnElementChanged;
+                _owner.ElementOverrideChanged += OnElementOverrideChanged;
+            }
         }
 
         private void UnbindOwner()
         {
             if (_owner != null)
+            {
                 _owner.ElementChanged -= OnElementChanged;
+                _owner.ElementOverrideChanged -= OnElementOverrideChanged;
+            }
             _owner = null;
         }
 
@@ -321,20 +335,34 @@ namespace UPlayGround.Components
                 return;
 
             StopCachedAttackTrails(immediate: true);
-            ApplyElementTrailPrefabs();
+            if (!ApplyElementTrailPrefabs())
+                ClearElementTrailPrefabs();
         }
 
-        private void ApplyElementTrailPrefabs()
+        private void OnElementOverrideChanged()
+        {
+            StopCachedAttackTrails(immediate: true);
+            if (_owner == null || !_owner.HasElementOverride)
+                ClearElementTrailPrefabs();
+            else
+                ApplyElementTrailPrefabs();
+        }
+
+        private bool ApplyElementTrailPrefabs()
         {
             BindOwner();
             _elementLibrary ??= Resources.Load<ElementalWeaponTrailLibrarySO>(
                 ElementalWeaponTrailLibrarySO.ResourcesPath);
-            if (_owner == null || _elementLibrary == null)
-                return;
+            if (_owner == null
+                || !_owner.HasElementOverride
+                || _elementLibrary == null)
+            {
+                return false;
+            }
 
             GameObject prefab = _elementLibrary.GetPrefab(_owner.CurrentElement);
             if (prefab == null)
-                return;
+                return false;
 
             for (int i = 0; i < _trails.Count; i++)
             {
@@ -345,6 +373,31 @@ namespace UPlayGround.Components
                 StopTrailImmediate(trail);
                 trail.SetNewTrailPrefab(prefab);
                 SetTrailPrefabInstanceActive(trail, false);
+            }
+
+            return true;
+        }
+
+        private void ClearElementTrailPrefabs()
+        {
+            for (int i = 0; i < _trails.Count; i++)
+            {
+                WeaponTrailEffect trail = _trails[i];
+                if (trail == null)
+                    continue;
+
+                StopTrailImmediate(trail);
+                if (trail.instantiatedTrailPrefab != null)
+                {
+                    GameObject instance = trail.instantiatedTrailPrefab;
+                    instance.SetActive(false);
+                    trail.instantiatedTrailPrefab = null;
+                    Destroy(instance);
+                }
+
+                trail.trailPrefab = null;
+                trail.vfxComponent = null;
+                trail.currentEffectState = WeaponTrailEffect.EffectState.Off;
             }
         }
 

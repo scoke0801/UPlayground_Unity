@@ -69,6 +69,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a4d18acdd71dc1b44bad4e5a08c3b6e2, type: 2}
   - {fileID: 11400000, guid: 7bd5c0c147c228949af790b02195f614, type: 2}
   - {fileID: 11400000, guid: b532f3b33a09cb64397526c8a37c6bad, type: 2}
+  elementalImbueAbilities:
+  - element: 1
+    ability: {fileID: 11400000, guid: a1111111111141118111111111111111, type: 2}
+  - element: 2
+    ability: {fileID: 11400000, guid: a2222222222242228222222222222222, type: 2}
+  - element: 3
+    ability: {fileID: 11400000, guid: a3333333333343338333333333333333, type: 2}
+  - element: 4
+    ability: {fileID: 11400000, guid: a4444444444444448444444444444444, type: 2}
+  - element: 5
+    ability: {fileID: 11400000, guid: a5555555555545558555555555555555, type: 2}
   characterPassiveDatabase: {fileID: 11400000, guid: e5500000000000000000000000000001, type: 2}
   defaultEntryAttackRange: 6
   entryAttackTargetLayer:

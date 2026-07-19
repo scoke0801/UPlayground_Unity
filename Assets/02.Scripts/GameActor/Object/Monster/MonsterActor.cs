@@ -526,6 +526,7 @@ namespace UPlayGround
             NotifyQuestMonsterKill();
             NotifyRecipeMonsterKill();
             NotifyWorldStateKill();
+            NotifyCodexKill();
             SpawnDropItems();
             GrantPartyExp();
             GrantGold();
@@ -565,6 +566,11 @@ namespace UPlayGround
             ActorSvc.MonsterLifecycle?.RecordDeath(this, guid);
         }
 
+        private void NotifyCodexKill()
+        {
+            ActorSvc.MonsterCodex?.RecordKill(ActorId, CurrentElement);
+        }
+
         private void TryRecruitToParty()
         {
             if (_recruitableAs == CharacterActorType.None) return;
@@ -575,7 +581,10 @@ namespace UPlayGround
         {
             long exp = _runtimeExpReward >= 0 ? _runtimeExpReward : _expReward;
             if (exp <= 0) return;
-            Svc.Party?.AwardBattleExp(exp);
+            float multiplier = Svc.MonsterCodexReader?.GetExpMultiplier(ActorId) ?? 1f;
+            double adjusted = Math.Round(exp * (double)multiplier, MidpointRounding.AwayFromZero);
+            long granted = adjusted >= long.MaxValue ? long.MaxValue : (long)Math.Max(0d, adjusted);
+            Svc.Party?.AwardBattleExp(granted);
         }
 
         private void GrantGold()

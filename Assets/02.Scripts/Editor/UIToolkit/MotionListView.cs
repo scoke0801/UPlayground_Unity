@@ -32,8 +32,14 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             _onSelected = onSelected;
             AddToClassList("up-motion-list-view");
 
-            var header = new Label("모션 목록");
-            header.AddToClassList("up-panel-title");
+            var header = new VisualElement();
+            header.AddToClassList("up-panel-header");
+            var kicker = new Label("MOTION SET");
+            kicker.AddToClassList("up-panel-kicker");
+            header.Add(kicker);
+            var title = new Label("모션 목록");
+            title.AddToClassList("up-panel-title");
+            header.Add(title);
             Add(header);
 
             _search = new ToolbarSearchField();

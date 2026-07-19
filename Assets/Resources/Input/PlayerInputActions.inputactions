@@ -257,6 +257,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ElementBuff",
+                    "type": "Button",
+                    "id": "6e7e161c-6073-4818-b87e-2f18177694eb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -862,6 +871,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "QuickSlot_Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9d5a8912-7593-47e3-a8ba-00bb1abf7704",
+                    "path": "<Keyboard>/t",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ElementBuff",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c30731a1-01c7-47a4-8d22-9571421f7531",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ElementBuff",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

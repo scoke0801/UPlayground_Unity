@@ -28,6 +28,9 @@ namespace UPlayGround.UI.InputPrompt
                 case ComboInputToken.Jump:        actionName = PlayerAction.Jump;          return true;
                 case ComboInputToken.Skill1:      actionName = PlayerAction.SkillAbility;  return true;
                 case ComboInputToken.Skill2:      actionName = PlayerAction.SkillUltimate; return true;
+                case ComboInputToken.ElementalImbue:
+                    actionName = PlayerAction.ElementBuff;
+                    return true;
                 default:                          actionName = null;                       return false;
             }
         }

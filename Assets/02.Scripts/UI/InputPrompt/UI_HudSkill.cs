@@ -36,6 +36,12 @@ namespace UPlayGround.UI.InputPrompt
         [SerializeField] private Sprite _dashIcon;
         [Tooltip("Dash 슬롯 삽입 위치(0=맨 앞).")]
         [SerializeField] private int _dashSlotIndex = 1;
+        [Tooltip("프리팹에 공통 속성 부여 슬롯이 없으면 런타임에 자동으로 추가한다.")]
+        [SerializeField] private bool _ensureElementalImbueSlot = true;
+        [Tooltip("공통 속성 부여 슬롯의 기본 아이콘. 실제 Ability 아이콘이 있으면 교체된다.")]
+        [SerializeField] private Sprite _elementalImbueIcon;
+        [SerializeField] private int _elementalImbueSlotIndex = 2;
+        [SerializeField] private Vector2 _elementalImbuePosition = new(-516f, 200.8f);
 
         private PlayerActor      _player;
         private PlayerCombat     _combat;
@@ -65,6 +71,7 @@ namespace UPlayGround.UI.InputPrompt
             RegisterSkillInput(input, PlayerAction.Dash, OnDash);
             RegisterSkillInput(input, PlayerAction.SkillAbility, OnAbility);
             RegisterSkillInput(input, PlayerAction.SkillUltimate, OnUltimate);
+            RegisterSkillInput(input, PlayerAction.ElementBuff, OnElementalImbue);
         }
 
         protected override void UnRegisterInputEvents()
@@ -79,6 +86,7 @@ namespace UPlayGround.UI.InputPrompt
             UnRegisterSkillInput(input, PlayerAction.Dash, OnDash);
             UnRegisterSkillInput(input, PlayerAction.SkillAbility, OnAbility);
             UnRegisterSkillInput(input, PlayerAction.SkillUltimate, OnUltimate);
+            UnRegisterSkillInput(input, PlayerAction.ElementBuff, OnElementalImbue);
         }
 
         protected override void OnShow()
@@ -91,6 +99,7 @@ namespace UPlayGround.UI.InputPrompt
             if (_partyManager != null)
             {
                 _partyManager.OnSwapCompleted += OnSwapCompleted;
+                _partyManager.OnPartyProgressionChanged += OnPartyProgressionChanged;
                 _subscribedSwap = true;
                 Bind(_partyManager.ActiveCharacter);
             }
@@ -113,13 +122,24 @@ namespace UPlayGround.UI.InputPrompt
         private void Teardown()
         {
             if (_subscribedSwap && _partyManager != null)
+            {
                 _partyManager.OnSwapCompleted -= OnSwapCompleted;
+                _partyManager.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+            }
             _subscribedSwap = false;
             _partyManager   = null;
             Bind(null);
         }
 
         private void OnSwapCompleted(PlayerActor newPlayer) => Bind(newPlayer);
+
+        private void OnPartyProgressionChanged(
+            UPlayGround.Data.EnumType.CharacterActorType characterType)
+        {
+            if (_partyManager != null
+                && characterType == _partyManager.ActiveCharacterType)
+                ApplyGaugeStates();
+        }
 
         private static void RegisterSkillInput(
             IInputService input,
@@ -168,6 +188,9 @@ namespace UPlayGround.UI.InputPrompt
         private void OnUltimate(InputAction.CallbackContext context) =>
             PlayUseFeedback(ComboInputToken.Skill2);
 
+        private void OnElementalImbue(InputAction.CallbackContext context) =>
+            PlayUseFeedback(ComboInputToken.ElementalImbue);
+
         private void PlayUseFeedback(ComboInputToken token)
         {
             for (int i = 0; i < _slots.Count; i++)
@@ -206,7 +229,10 @@ namespace UPlayGround.UI.InputPrompt
             // 슬롯 1회 초기화(아이콘/키캡/게이지 슬롯)
             EnsureSlotsBound();
             for (int i = 0; i < _slots.Count; i++)
+            {
                 _slots[i]?.Initialize();
+                ApplyAbilityPresentation(_slots[i]);
+            }
 
             // 대시 슬롯의 쿨타임 소스를 이동 컨트롤러에 배선(게이지와 무관).
             WireDashCooldownSource();
@@ -295,12 +321,19 @@ namespace UPlayGround.UI.InputPrompt
                 {
                     if (_abilityReader.TryGetPlayerSlotState(
                         (PlayerSkillSlot)slot.GaugeSlot, out AbilitySlotViewState abilityState))
+                    {
+                        slot.SetLocked(!abilityState.IsUnlocked);
                         _hasVisibleCooldown |= slot.SetAbilityState(abilityState);
+                    }
                     else
+                    {
+                        slot.SetLocked(false);
                         slot.SetUnavailable();
+                    }
                 }
                 else
                 {
+                    slot.SetLocked(false);
                     _hasVisibleCooldown |= slot.SetGaugeState(_gauge);
                 }
             }
@@ -397,6 +430,7 @@ namespace UPlayGround.UI.InputPrompt
             }
 
             EnsureDashSlot();
+            EnsureElementalImbueSlot();
         }
 
         private void EnsureDashSlot()
@@ -422,6 +456,52 @@ namespace UPlayGround.UI.InputPrompt
             int index = Mathf.Clamp(_dashSlotIndex, 0, _slots.Count);
             dashSlot.transform.SetSiblingIndex(index);
             _slots.Insert(index, dashSlot);
+        }
+
+        private void EnsureElementalImbueSlot()
+        {
+            if (!_ensureElementalImbueSlot || HasSlot(ComboInputToken.ElementalImbue))
+                return;
+
+            UISkillSlot template = FindSlotTemplate();
+            if (template == null)
+                return;
+
+            Transform parent = template.transform.parent != null ? template.transform.parent : transform;
+            UISkillSlot slot = Instantiate(template, parent);
+            slot.name = "UISkillSlot_ElementalImbue";
+            slot.Configure(
+                ComboInputToken.ElementalImbue,
+                _elementalImbueIcon,
+                PlayerAction.ElementBuff,
+                useGaugeFeature: true,
+                showGaugeUi: false,
+                showCooldownUi: true);
+            slot.SetDefaultLabel("속성");
+
+            if (slot.transform is RectTransform rect)
+            {
+                rect.sizeDelta = new Vector2(220f, 88f);
+                rect.anchoredPosition = _elementalImbuePosition;
+            }
+
+            int index = Mathf.Clamp(_elementalImbueSlotIndex, 0, _slots.Count);
+            slot.transform.SetSiblingIndex(index);
+            _slots.Insert(index, slot);
+        }
+
+        private void ApplyAbilityPresentation(UISkillSlot slot)
+        {
+            if (slot == null
+                || !slot.RequiresGauge
+                || _abilityReader == null
+                || !System.Enum.IsDefined(typeof(PlayerSkillSlot), slot.GaugeSlot))
+                return;
+
+            if (_abilityReader.TryGetPlayerSlotPresentation(
+                    (PlayerSkillSlot)slot.GaugeSlot,
+                    out AbilitySlotPresentationState presentation))
+                slot.SetIcon(presentation.Icon);
         }
 
         private bool HasSlot(ComboInputToken token)

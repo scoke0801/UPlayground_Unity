@@ -13,7 +13,9 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords:
+  - ETC1_EXTERNAL_ALPHA
   - GEOM_TYPE_BRANCH_DETAIL
+  - _COLOROVERLAY_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -257,9 +259,9 @@ Material:
     m_Floats:
     - _AAStrength: 1
     - _AlphaBoostFA: 10
-    - _AlphaMaskMode: 0
-    - _AlphaMaskScale: 1
-    - _AlphaMaskValue: 0
+    - _AlphaMaskMode: 2
+    - _AlphaMaskScale: 0
+    - _AlphaMaskValue: 1
     - _AlphaToMask: 1
     - _Anisotropy2MatCap: 0
     - _Anisotropy2MatCap2nd: 0
@@ -586,7 +588,7 @@ Material:
     - _UseBump2ndMap: 0
     - _UseBumpMap: 0
     - _UseClippingCanceller: 0
-    - _UseDither: 0
+    - _UseDither: 1
     - _UseEmission: 0
     - _UseEmission2nd: 0
     - _UseGlitter: 0

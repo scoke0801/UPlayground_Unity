@@ -37,7 +37,8 @@ namespace UPlayGround.Data.Party
     public enum GrowthSkillType
     {
         Ability,
-        Ultimate
+        Ultimate,
+        ElementalImbue
     }
 
     /// <summary>성장 데이터와 전투 코드가 공유하는 해금 식별자 규칙.</summary>
@@ -55,7 +56,7 @@ namespace UPlayGround.Data.Party
     {
         [Min(1)] public int requiredRank;
         public GrowthUnlockType unlockType;
-        [Tooltip("런타임 식별자. 예: Combo.Light.3, Combo.Heavy.2, Skill.Ability, Skill.Ultimate")]
+        [Tooltip("런타임 식별자. 예: Combo.Light.3, Combo.Heavy.2, Skill.Ability, Skill.Ultimate, Skill.ElementalImbue")]
         public string unlockId;
         public string displayName;
         [TextArea] public string description;

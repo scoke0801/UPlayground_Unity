@@ -3,9 +3,17 @@ using UnityEngine;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Data.Party
 {
+    [System.Serializable]
+    public struct ElementalImbueAbilityEntry
+    {
+        public CombatElement element;
+        public GameplayAbilitySO ability;
+    }
+
     /// <summary>
     /// 파티 구성 정보를 정의하는 ScriptableObject.
     /// Resources/Data/PartyConfig.asset 에 배치해 PartyManager가 로드한다.
@@ -166,6 +174,22 @@ namespace UPlayGround.Data.Party
         [Header("Growth")]
         [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]
         public List<PartyMemberGrowthSO> growthData = new();
+
+        [Header("Elemental Imbue Ability")]
+        [Tooltip("플레이어 캐릭터의 전투 속성별 공통 속성 부여 어빌리티.")]
+        public List<ElementalImbueAbilityEntry> elementalImbueAbilities = new();
+
+        public GameplayAbilitySO GetElementalImbueAbility(CombatElement element)
+        {
+            for (int i = 0; i < elementalImbueAbilities.Count; i++)
+            {
+                ElementalImbueAbilityEntry entry = elementalImbueAbilities[i];
+                if (entry.element == element)
+                    return entry.ability;
+            }
+
+            return null;
+        }
 
         [Header("Passive Ability")]
         [Tooltip("캐릭터별 패시브 목록과 CharacterSelect 대표 패시브의 단일 데이터베이스.")]

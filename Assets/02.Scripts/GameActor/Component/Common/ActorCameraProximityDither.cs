@@ -36,6 +36,8 @@ namespace UPlayGround.Components
         private const string DitherResourcePath = "Rendering/LDR_LLL1_0";
         private const string DitherKeyword = "ETC1_EXTERNAL_ALPHA";
         private const string AlphaMaskKeyword = "_COLOROVERLAY_ON";
+        private const string MultiCutoutKeyword = "UNITY_UI_ALPHACLIP";
+        private const string MultiTransparentKeyword = "UNITY_UI_CLIP_RECT";
 
         private static readonly int TransparentModeID = Shader.PropertyToID("_TransparentMode");
         private static readonly int CutoffID = Shader.PropertyToID("_Cutoff");
@@ -463,7 +465,7 @@ namespace UPlayGround.Components
             {
                 Shader shader = current.shader;
                 string shaderName = shader != null ? shader.name : string.Empty;
-                if (shaderName.IndexOf("lilToon", StringComparison.OrdinalIgnoreCase) < 0)
+                if (!IsSupportedLilToonShader(shaderName))
                     continue;
 
                 if (current.HasProperty(UseDitherID) &&
@@ -478,6 +480,44 @@ namespace UPlayGround.Components
             }
 
             return false;
+        }
+
+        private static bool IsSupportedLilToonShader(string shaderName)
+        {
+            if (string.Equals(shaderName, "lilToon", StringComparison.Ordinal))
+                return true;
+
+            if (IsLilToonMultiShader(shaderName))
+                return true;
+
+            if (!shaderName.StartsWith(
+                    "Hidden/lilToon",
+                    StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            // 아래 변형은 일반 lilToon Cutout과 패스/프로퍼티 구성이 다르다.
+            // 기본 Cutout으로 폴백하면 무기·특수 재질이 분홍색 또는 왜곡된 형태로
+            // 출력될 수 있으므로 명시적으로 변환 대상에서 제외한다.
+            return shaderName.IndexOf("Multi", StringComparison.OrdinalIgnoreCase) < 0 &&
+                   shaderName.IndexOf("Lite", StringComparison.OrdinalIgnoreCase) < 0 &&
+                   shaderName.IndexOf("Fur", StringComparison.OrdinalIgnoreCase) < 0 &&
+                   shaderName.IndexOf("Gem", StringComparison.OrdinalIgnoreCase) < 0 &&
+                   shaderName.IndexOf("Refraction", StringComparison.OrdinalIgnoreCase) < 0 &&
+                   shaderName.IndexOf("Tessellation", StringComparison.OrdinalIgnoreCase) < 0;
+        }
+
+        private static bool IsLilToonMultiShader(string shaderName)
+        {
+            return string.Equals(
+                       shaderName,
+                       "_lil/lilToonMulti",
+                       StringComparison.Ordinal) ||
+                   string.Equals(
+                       shaderName,
+                       "Hidden/lilToonMultiOutline",
+                       StringComparison.Ordinal);
         }
 
         private static RuntimeMaterialInfo CreateDitherMaterial(
@@ -527,6 +567,15 @@ namespace UPlayGround.Components
             material.SetFloat(AlphaMaskValueID, baseAlphaMaskValue);
             SetKeywordIfExists(material, DitherKeyword, true);
             SetKeywordIfExists(material, AlphaMaskKeyword, true);
+            if (IsLilToonMultiShader(material.shader.name))
+            {
+                // lilToonMulti의 렌더 모드는 프로퍼티만으로 바뀌지 않는다.
+                // UNITY_UI_ALPHACLIP이 lil_replace_keywords.hlsl에서
+                // LIL_RENDER 1(Cutout)로 치환되어야 디더 알파가 discard에 반영된다.
+                SetKeywordIfExists(material, MultiTransparentKeyword, false);
+                SetKeywordIfExists(material, MultiCutoutKeyword, true);
+            }
+
             return new RuntimeMaterialInfo
             {
                 Material = material,
@@ -553,6 +602,15 @@ namespace UPlayGround.Components
                 return null;
 
             string sourceName = sourceShader.name;
+            if (!IsSupportedLilToonShader(sourceName))
+                return null;
+
+            // Multi는 하나의 셰이더가 _TransparentMode에 따라 Opaque/Cutout/
+            // Transparent 패스를 전환한다. 일반 lilToonCutout으로 치환하면
+            // Multi 전용 프로퍼티 구성이 깨지므로 원래 셰이더를 유지한다.
+            if (IsLilToonMultiShader(sourceName))
+                return sourceShader;
+
             if (string.Equals(sourceName, "lilToon", StringComparison.Ordinal))
                 return ResolveBaseCutoutShader();
 
@@ -745,13 +803,30 @@ namespace UPlayGround.Components
             // 발생할 수 있다. 모델 초기화 직후 한 재질씩 GPU 패스를 준비해 비용을 분산한다.
             foreach (RuntimeMaterialInfo runtimeInfo in _runtimeMaterials)
             {
-                if (runtimeInfo?.Material != null)
+                if (runtimeInfo?.Material != null &&
+                    CanWarmupWithSetPass(runtimeInfo.Material.shader))
+                {
                     runtimeInfo.Material.SetPass(0);
+                }
 
                 yield return null;
             }
 
             _warmupCoroutine = null;
+        }
+
+        private static bool CanWarmupWithSetPass(Shader shader)
+        {
+            if (shader == null)
+                return false;
+
+            // Hidden/lilToonCutout 계열은 Hidden/ltspass_cutout을 UsePass로
+            // 공유한다. Unity 6에서 래퍼 Material.SetPass를 직접 호출하면 두
+            // 셰이더의 LocalKeywordSpace가 다르다는 엔진 Assert가 발생한다.
+            // 실제 렌더링 시에는 URP가 올바른 패스를 선택하므로 워밍업만 생략한다.
+            return !shader.name.StartsWith(
+                "Hidden/lilToonCutout",
+                StringComparison.Ordinal);
         }
 
         private void StopWarmup()

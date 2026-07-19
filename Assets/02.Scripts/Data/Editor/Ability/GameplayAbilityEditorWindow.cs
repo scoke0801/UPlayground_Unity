@@ -803,6 +803,16 @@ namespace UPlayGround.Data.Editor.Ability
             }
             else if (_selected is GameplayEffectSO effect)
             {
+                AddSummary("표시 이름", effect.presentation?.displayName);
+                AddSummary("극성", effect.polarity.ToString());
+                AddSummary(
+                    "HUD",
+                    effect.presentation?.showInHud == true ? "표시" : "숨김");
+                AddSummary(
+                    "아이콘",
+                    effect.presentation?.icon != null
+                        ? effect.presentation.icon.name
+                        : "미지정");
                 AddSummary("지속 타입", effect.durationType.ToString());
                 AddSummary("지속 시간", $"{effect.durationSeconds:0.##}s");
                 AddSummary("주기", effect.IsPeriodic ? $"{effect.periodSeconds:0.##}s" : "없음");
@@ -1406,8 +1416,28 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 return tab switch
                 {
-                    "기본 정보" => new[] { "effectId", "schemaVersion", "durationType", "durationSeconds", "periodSeconds" },
-                    "Effect" => new[] { "stackingKey", "stackPolicy", "maxStackCount", "modifiers", "resourceOperations", "grantedTagIds" },
+                    "기본 정보" => new[]
+                    {
+                        "effectId",
+                        "schemaVersion",
+                        "polarity",
+                        "presentation",
+                        "durationType",
+                        "durationSeconds",
+                        "periodSeconds",
+                    },
+                    "Effect" => new[]
+                    {
+                        "grantedElement",
+                        "elementPriority",
+                        "ignorePassiveDurationModifiers",
+                        "stackingKey",
+                        "stackPolicy",
+                        "maxStackCount",
+                        "modifiers",
+                        "resourceOperations",
+                        "grantedTagIds",
+                    },
                     "저장/교체 정책" => new[] { "removalPolicy", "savePolicy" },
                     _ => Array.Empty<string>(),
                 };
@@ -1464,6 +1494,7 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 GameplayAbilitySO ability => ability.presentation?.displayName,
                 PassiveAbilitySO passive => passive.presentation?.displayName,
+                GameplayEffectSO effect => effect.presentation?.displayName,
                 _ => null,
             };
             return $"{GetStableId(asset)} {asset?.name} {presentationName}";
@@ -1475,6 +1506,8 @@ namespace UPlayGround.Data.Editor.Ability
                 return ability.presentation.icon.texture;
             if (asset is PassiveAbilitySO passive && passive.presentation?.icon != null)
                 return passive.presentation.icon.texture;
+            if (asset is GameplayEffectSO effect && effect.presentation?.icon != null)
+                return effect.presentation.icon.texture;
             return AssetPreview.GetMiniThumbnail(asset);
         }
 
@@ -1511,6 +1544,7 @@ namespace UPlayGround.Data.Editor.Ability
             "passiveId" => "Passive ID",
             "effectId" => "Effect ID",
             "schemaVersion" => "스키마 버전",
+            "polarity" => "효과 극성",
             "presentation" => "표시 정보",
             "characterSelectDescription" => "캐릭터 선택 요약",
             "activationType" => "패시브 발동 조건",
@@ -1530,6 +1564,9 @@ namespace UPlayGround.Data.Editor.Ability
             "durationType" => "지속 방식",
             "durationSeconds" => "지속 시간(초)",
             "periodSeconds" => "주기(초)",
+            "grantedElement" => "부여 속성",
+            "elementPriority" => "속성 우선순위",
+            "ignorePassiveDurationModifiers" => "패시브 지속시간 보정 무시",
             "stackingKey" => "스택 그룹 키",
             "stackPolicy" => "스택 정책",
             "maxStackCount" => "최대 스택",
@@ -1550,7 +1587,8 @@ namespace UPlayGround.Data.Editor.Ability
         private static string GetPropertyHelp(string propertyName) => propertyName switch
         {
             "abilityId" or "passiveId" or "effectId" => "저장 파일명과 별개인 런타임 고유 식별자입니다.",
-            "presentation" => "이름, 설명, 아이콘, HUD 색상과 분류를 설정합니다.",
+            "presentation" => "표시 이름, 설명, 아이콘과 HUD 노출 정보를 설정합니다.",
+            "polarity" => "HUD에서 버프·디버프·중립 테두리 색상을 결정합니다.",
             "characterSelectDescription" => "UI_CharacterSelect에 표시할 수치 없는 요약 설명입니다.",
             "activationType" => "상시 적용 또는 퍼펙트 회피·가드 성공 시 발동하도록 설정합니다.",
             "scope" => "활성 캐릭터, 소유 캐릭터 또는 출전 파티 최고값 정책을 설정합니다.",
@@ -1563,6 +1601,9 @@ namespace UPlayGround.Data.Editor.Ability
             "variants" => "조건에 따라 선택할 실제 실행 Payload 목록입니다.",
             "commitEffects" => "Ability가 확정될 때 적용할 Effect입니다.",
             "endEffects" => "Ability 실행이 끝날 때 적용할 Effect입니다.",
+            "grantedElement" => "Duration 또는 Infinite Effect가 활성화된 동안 부여할 전투 속성입니다.",
+            "elementPriority" => "속성 Effect가 겹칠 때 높은 값이 우선합니다.",
+            "ignorePassiveDurationModifiers" => "활성화하면 상태강화·상태이상 지속시간 패시브 보정을 적용하지 않습니다.",
             "playerSlots" => "스킬 입력 슬롯과 Ability의 연결입니다.",
             "combatBindings" => "일반 공격 종류별 순차 Ability 목록입니다.",
             "additionalAbilities" => "입력 슬롯 또는 전투 슬롯과 무관하게 이 AbilitySet이 액터에게 부여할 Ability입니다. BT도 이 목록의 Ability를 활성화할 수 있습니다.",

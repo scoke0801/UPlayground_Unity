@@ -11,7 +11,6 @@ namespace UPlayGround.Data.Combat
         public const string ResourcesPath =
             "Combat/ElementalWeaponTrailLibrary";
 
-        [SerializeField] private GameObject _none;
         [SerializeField] private GameObject _fire;
         [SerializeField] private GameObject _water;
         [SerializeField] private GameObject _nature;
@@ -26,7 +25,7 @@ namespace UPlayGround.Data.Combat
                 CombatElement.Nature => _nature,
                 CombatElement.Light => _light,
                 CombatElement.Dark => _dark,
-                _ => _none,
+                _ => null,
             };
     }
 }

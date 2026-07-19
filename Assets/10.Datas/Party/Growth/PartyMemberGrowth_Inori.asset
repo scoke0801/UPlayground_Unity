@@ -70,4 +70,9 @@ MonoBehaviour:
       unlockId: Combo.Light.3
       displayName: "\uC57D\uACF5\uACA9 3\uC5F0\uACC4"
       description: "3\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
+    - requiredRank: 5
+      unlockType: 1
+      unlockId: Skill.ElementalImbue
+      displayName: "\uC18D\uC131 \uBD80\uC5EC"
+      description: "\uACF5\uACA9\uB825 5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
   growthRules: []

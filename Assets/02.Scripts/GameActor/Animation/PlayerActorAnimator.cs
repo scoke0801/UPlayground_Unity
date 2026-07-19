@@ -42,7 +42,8 @@ namespace UPlayGround.Animation
 
             if (checkWeapon == true)
             {
-                return _playerActorAnimationMotionSet.GetMotionSet(_playerEquipment.GetMainWeaponType(), key) != null;
+                WeaponType activeWeaponType = GetActiveWeaponTypeForMotion(key);
+                return _playerActorAnimationMotionSet.GetMotionSet(activeWeaponType, key) != null;
             }
 
             return (_playerActorAnimationMotionSet.GetMotionSet(WeaponType.NoWeapon, key) != null);

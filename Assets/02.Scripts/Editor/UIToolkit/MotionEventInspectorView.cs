@@ -19,9 +19,15 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             _requestRepaint = requestRepaint;
             AddToClassList("up-motion-inspector");
 
-            var title = new Label("인스펙터");
+            var header = new VisualElement();
+            header.AddToClassList("up-panel-header");
+            var kicker = new Label("SELECTION");
+            kicker.AddToClassList("up-panel-kicker");
+            header.Add(kicker);
+            var title = new Label("이벤트 인스펙터");
             title.AddToClassList("up-panel-title");
-            Add(title);
+            header.Add(title);
+            Add(header);
 
             _content = new ScrollView(ScrollViewMode.Vertical);
             _content.AddToClassList("up-motion-inspector-content");
@@ -74,23 +80,25 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             string eventName = selectedEvent?.GetDisplayName() ?? "이벤트";
             var label = new Label(eventName);
             label.AddToClassList("up-inspector-selection-title");
+            if (selectedEvent != null)
+            {
+                MotionEventStyle.EventVisual visual = MotionEventStyle.Get(selectedEvent);
+                label.text = $"{visual.icon}  {eventName}";
+                label.style.borderLeftColor = visual.color;
+            }
             _content.Add(label);
 
-            var timingTitle = new Label("TIMING");
-            timingTitle.AddToClassList("up-inspector-section-title");
-            _content.Add(timingTitle);
+            VisualElement timing = AddSection("TIMING", "이벤트 구간");
 
             SerializedProperty start = eventProperty.FindPropertyRelative("startTime");
             SerializedProperty end = eventProperty.FindPropertyRelative("endTime");
             if (start != null)
-                _content.Add(new PropertyField(start, "Start"));
+                timing.Add(new PropertyField(start, "Start"));
             if (end != null)
-                _content.Add(new PropertyField(end, "End"));
+                timing.Add(new PropertyField(end, "End"));
 
-            var propertiesTitle = new Label("PROPERTIES");
-            propertiesTitle.AddToClassList("up-inspector-section-title");
-            _content.Add(propertiesTitle);
-            AddConcreteEventProperties(eventProperty);
+            VisualElement properties = AddSection("PROPERTIES", "이벤트 속성");
+            AddConcreteEventProperties(eventProperty, properties);
 
             if (selectedEvent != null && _drawer.onDrawEventToolPanel != null)
             {
@@ -101,7 +109,29 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             }
         }
 
-        void AddConcreteEventProperties(SerializedProperty eventProperty)
+        VisualElement AddSection(string kickerText, string titleText)
+        {
+            var section = new VisualElement();
+            section.AddToClassList("up-inspector-section");
+
+            var heading = new VisualElement();
+            heading.AddToClassList("up-inspector-section-heading");
+            var kicker = new Label(kickerText);
+            kicker.AddToClassList("up-inspector-section-kicker");
+            heading.Add(kicker);
+            var title = new Label(titleText);
+            title.AddToClassList("up-inspector-section-title");
+            heading.Add(title);
+            section.Add(heading);
+
+            var body = new VisualElement();
+            body.AddToClassList("up-inspector-section-body");
+            section.Add(body);
+            _content.Add(section);
+            return body;
+        }
+
+        void AddConcreteEventProperties(SerializedProperty eventProperty, VisualElement container)
         {
             SerializedProperty iterator = eventProperty.Copy();
             SerializedProperty end = iterator.GetEndProperty();
@@ -118,12 +148,16 @@ namespace UPlayGround.Animation.Editor.UIToolkit
                 if (iterator.name is "startTime" or "endTime" or "globalStartTimeOffset")
                     continue;
 
-                _content.Add(new PropertyField(iterator.Copy()));
+                container.Add(new PropertyField(iterator.Copy()));
                 added = true;
             }
 
             if (!added)
-                AddHint("추가 속성이 없는 이벤트입니다.");
+            {
+                var hint = new Label("추가 속성이 없는 이벤트입니다.");
+                hint.AddToClassList("up-empty-hint");
+                container.Add(hint);
+            }
         }
 
         SerializedProperty FindSelectedEventProperty()

@@ -130,10 +130,10 @@ namespace UPlayGround
         private InputCondition _interactionInputCondition;
         private InputCondition _guardInputCondition;
 
-        // 직접 버튼이 연결된 스킬 슬롯만 보유 (Skill_1, Skill_2). 그 외 스킬은 연계로 발동.
+        // 직접 버튼이 연결된 스킬 슬롯(Ability, Ultimate, 공통 속성 부여).
         private List<InputCondition> _skillInputCondition = new List<InputCondition>
         {
-            InputCondition.None, InputCondition.None,
+            InputCondition.None, InputCondition.None, InputCondition.None,
         };
 
         public override ActorAnimator      Animator              => _playerActorAnimator;
@@ -152,5 +152,26 @@ namespace UPlayGround
         public bool                        IsSwapEvadeInvincible => Time.time <= _swapEvadeInvincibleEndTime;
         public bool                        IsSwapEvadeCounterAvailable => Time.time <= _swapEvadeCounterInputEndTime;
         public bool                        IsStaggerImmune       => Time.time <= _staggerImmuneEndTime;
+
+        /// <summary>
+        /// 현재 활성 플레이어가 소모품 사용 모션을 시작할 수 있는지 확인한다.
+        /// 소모품은 정확히 Idle 상태일 때만 사용할 수 있으며, 캐릭터 MotionSet에 Drink가 없으면 사용하지 않는다.
+        /// </summary>
+        public bool CanStartConsumableUse()
+        {
+            return IsAlive()
+                && PlayerMovementPlayerController?.CurrentState is PlayerIdleState
+                && Animator?.HasMotion(AnimKey.Drink, true) == true;
+        }
+
+        /// <summary>
+        /// Idle 상태에서 소모품 사용 전용 상태로 전환한다.
+        /// </summary>
+        public bool TryStartConsumableUse()
+        {
+            return CanStartConsumableUse()
+                && PlayerMovementPlayerController.TryTransitionToState(
+                    new PlayerDrinkState(PlayerMovementPlayerController));
+        }
     }
 }

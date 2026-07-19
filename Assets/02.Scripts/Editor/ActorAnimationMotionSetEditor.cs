@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -12,15 +13,22 @@ namespace UPlayGround.Data.Actor.Animation.Editor
     {
         static readonly (string label, int min, int max)[] KEY_RANGES =
         {
-            ("이동",       0,   29),
+            ("이동",       0,    99),
             ("공격",       100, 199),
             ("강공격",     200, 299),
             ("대시 공격",  300, 399),
             ("점프 공격",  400, 499),
             ("스킬",       500, 619),
-            ("특수 공격",620, 699),
-            ("피격",  700, 919),
-            ("기타",       920, int.MaxValue),
+            ("특수 공격",  620, 699),
+            ("피격",       700, 919),
+            ("잡기",       920, 999),
+            ("채집",       1000, 1699),
+            ("상호작용",   1700, 1999),
+            ("장비",       2000, 2999),
+            ("NPC",        3000, 4999),
+            ("정지/회전",  5000, 5999),
+            ("방향 이동",  6000, 6999),
+            ("기타",       7000, int.MaxValue),
         };
 
         static AnimKey[] _allKeys;
@@ -85,7 +93,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
 
             DrawDivider();
             if (GUILayout.Button("+ 모션 키 추가", GUILayout.Height(28)))
-                ShowAddKeyMenu(so);
+                ShowAddKeyPopup(so, GUILayoutUtility.GetLastRect());
 
             EditorGUILayout.Space(4);
             serializedObject.ApplyModifiedProperties();
@@ -270,28 +278,31 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             OpenInMotionEditor(so, key, asset);
         }
 
-        void ShowAddKeyMenu(ActorAnimationMotionSet so)
+        void ShowAddKeyPopup(ActorAnimationMotionSet so, Rect activatorRect)
         {
             var existing = so.motionSets?.Keys.ToHashSet() ?? new HashSet<AnimKey>();
-            var menu = new GenericMenu();
+            var available = AllKeys
+                .Where(key => key != AnimKey.None && !existing.Contains(key))
+                .OrderBy(key => (int)key)
+                .ToArray();
 
-            foreach (AnimKey key in AllKeys)
-            {
-                if (key == AnimKey.None || existing.Contains(key)) continue;
-                AnimKey captured = key;
-                menu.AddItem(new GUIContent(GroupLabel(key) + "/" + key), false, () =>
-                {
-                    serializedObject.Update();
-                    var listProp = GetSerializedList(serializedObject);
-                    listProp.InsertArrayElementAtIndex(listProp.arraySize);
-                    var newElem = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
-                    newElem.FindPropertyRelative("Key").intValue = (int)captured;
-                    newElem.FindPropertyRelative("Value").objectReferenceValue = null;
-                    serializedObject.ApplyModifiedProperties();
-                });
-            }
+            PopupWindow.Show(activatorRect, new AnimKeyAddPopup(available, AddKey));
+        }
 
-            menu.ShowAsContext();
+        void AddKey(AnimKey key)
+        {
+            if (target == null) return;
+
+            serializedObject.Update();
+            var listProp = GetSerializedList(serializedObject);
+            if (FindKeyIndex(listProp, key) >= 0) return;
+
+            listProp.InsertArrayElementAtIndex(listProp.arraySize);
+            var newElem = listProp.GetArrayElementAtIndex(listProp.arraySize - 1);
+            newElem.FindPropertyRelative("Key").intValue = (int)key;
+            newElem.FindPropertyRelative("Value").objectReferenceValue = null;
+            serializedObject.ApplyModifiedProperties();
+            Repaint();
         }
 
         static void OpenInMotionEditor(ActorAnimationMotionSet actorSet, AnimKey key, MotionSetAsset asset)
@@ -299,12 +310,140 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             UPlayGround.Animation.Editor.MotionSetEditorWindow.Open(actorSet, key, asset);
         }
 
-        string GroupLabel(AnimKey key)
+        static string GroupLabel(AnimKey key)
         {
             int v = (int)key;
             foreach (var (label, min, max) in KEY_RANGES)
                 if (v >= min && v <= max) return label;
             return "기타";
+        }
+
+        sealed class AnimKeyAddPopup : PopupWindowContent
+        {
+            const string SEARCH_CONTROL = "AnimKeySearch";
+
+            readonly AnimKey[] _keys;
+            readonly Action<AnimKey> _onSelected;
+            Vector2 _scroll;
+            string _search = string.Empty;
+            bool _focusSearch = true;
+
+            public AnimKeyAddPopup(AnimKey[] keys, Action<AnimKey> onSelected)
+            {
+                _keys = keys;
+                _onSelected = onSelected;
+            }
+
+            public override Vector2 GetWindowSize() => new(420f, 520f);
+
+            public override void OnGUI(Rect rect)
+            {
+                HandleKeyboard();
+                DrawSearch();
+
+                var filtered = FilteredKeys().ToArray();
+                EditorGUILayout.LabelField(
+                    string.IsNullOrWhiteSpace(_search)
+                        ? $"추가 가능한 키 {filtered.Length}개"
+                        : $"검색 결과 {filtered.Length}개",
+                    EditorStyles.miniLabel);
+
+                _scroll = EditorGUILayout.BeginScrollView(_scroll);
+                if (filtered.Length == 0)
+                {
+                    EditorGUILayout.HelpBox(
+                        _keys.Length == 0 ? "추가 가능한 키가 없습니다." : "일치하는 키가 없습니다.",
+                        MessageType.Info);
+                }
+                else
+                {
+                    foreach (var group in filtered.GroupBy(GroupLabel))
+                    {
+                        EditorGUILayout.LabelField(
+                            $"{group.Key}  ({group.Count()})",
+                            EditorStyles.boldLabel);
+
+                        foreach (AnimKey key in group)
+                        {
+                            if (!GUILayout.Button(key.ToString(), EditorStyles.miniButton, GUILayout.Height(21f)))
+                                continue;
+
+                            _onSelected?.Invoke(key);
+                            editorWindow.Close();
+                            GUIUtility.ExitGUI();
+                        }
+
+                        EditorGUILayout.Space(4f);
+                    }
+                }
+                EditorGUILayout.EndScrollView();
+
+                if (_focusSearch && UnityEngine.Event.current.type == EventType.Repaint)
+                {
+                    _focusSearch = false;
+                    EditorGUI.FocusTextInControl(SEARCH_CONTROL);
+                }
+            }
+
+            void DrawSearch()
+            {
+                EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+                GUI.SetNextControlName(SEARCH_CONTROL);
+                string nextSearch = GUILayout.TextField(
+                    _search,
+                    EditorStyles.toolbarSearchField,
+                    GUILayout.ExpandWidth(true));
+
+                if (nextSearch != _search)
+                {
+                    _search = nextSearch;
+                    _scroll = Vector2.zero;
+                }
+
+                EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(_search));
+                if (GUILayout.Button("×", EditorStyles.toolbarButton, GUILayout.Width(24f)))
+                {
+                    _search = string.Empty;
+                    _scroll = Vector2.zero;
+                    _focusSearch = true;
+                }
+                EditorGUI.EndDisabledGroup();
+                EditorGUILayout.EndHorizontal();
+            }
+
+            IEnumerable<AnimKey> FilteredKeys()
+            {
+                if (string.IsNullOrWhiteSpace(_search))
+                    return _keys;
+
+                string search = _search.Trim();
+                return _keys.Where(key =>
+                    key.ToString().IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    GroupLabel(key).IndexOf(search, StringComparison.OrdinalIgnoreCase) >= 0);
+            }
+
+            void HandleKeyboard()
+            {
+                UnityEngine.Event evt = UnityEngine.Event.current;
+                if (evt.type != EventType.KeyDown) return;
+
+                if (evt.keyCode == KeyCode.Escape)
+                {
+                    editorWindow.Close();
+                    evt.Use();
+                    return;
+                }
+
+                if (evt.keyCode != KeyCode.Return && evt.keyCode != KeyCode.KeypadEnter) return;
+
+                AnimKey[] filtered = FilteredKeys().Take(2).ToArray();
+                if (filtered.Length != 1) return;
+
+                _onSelected?.Invoke(filtered[0]);
+                editorWindow.Close();
+                evt.Use();
+                GUIUtility.ExitGUI();
+            }
         }
 
         static void DrawDivider()

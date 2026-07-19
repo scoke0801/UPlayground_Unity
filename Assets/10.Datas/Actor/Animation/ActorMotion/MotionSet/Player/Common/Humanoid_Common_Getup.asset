@@ -16,7 +16,7 @@ MonoBehaviour:
     motionSetName: Humanoid_SwordShield_Getup
     motions:
     - motionName: Frank_RPG_Warrior_Getup
-      motionClip: {fileID: 7400000, guid: 031e6ad4d266a4a4d91c4b61672ce4d5, type: 3}
+      motionClip: {fileID: 7400000, guid: f9264c0ec1a51684092963f1939e2bd4, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

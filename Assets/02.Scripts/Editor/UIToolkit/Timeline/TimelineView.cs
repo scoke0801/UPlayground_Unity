@@ -24,13 +24,13 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         const float BasePixelsPerSecond = 80f;
         const float HandleHitWidth = 9f;
 
-        static readonly Color Background = new(0.11f, 0.12f, 0.13f);
-        static readonly Color Ruler = new(0.10f, 0.11f, 0.12f);
-        static readonly Color Track = new(0.16f, 0.17f, 0.18f);
-        static readonly Color Header = new(0.14f, 0.15f, 0.17f);
-        static readonly Color Divider = new(0.22f, 0.24f, 0.28f);
-        static readonly Color RulerLine = new(0.40f, 0.42f, 0.46f);
-        static readonly Color Cursor = new(1f, 0.25f, 0.25f);
+        static readonly Color Background = new(0.055f, 0.075f, 0.10f);
+        static readonly Color Ruler = new(0.045f, 0.06f, 0.08f);
+        static readonly Color Track = new(0.09f, 0.115f, 0.145f);
+        static readonly Color Header = new(0.075f, 0.10f, 0.13f);
+        static readonly Color Divider = new(0.16f, 0.22f, 0.28f);
+        static readonly Color RulerLine = new(0.34f, 0.48f, 0.60f);
+        static readonly Color Cursor = new(1f, 0.32f, 0.34f);
         static readonly Color Marker = new(0.85f, 0.25f, 0.25f);
         static readonly Color Handle = new(1f, 0.85f, 0.2f);
         static readonly Color Selection = new(0.55f, 0.78f, 1f);
@@ -112,7 +112,21 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
 
             var toolbar = new Toolbar();
             toolbar.AddToClassList("up-timeline-toolbar");
-            toolbar.Add(new Label("타임라인"));
+
+            var titleBlock = new VisualElement();
+            titleBlock.AddToClassList("up-timeline-title-block");
+            var kicker = new Label("MOTION EVENT");
+            kicker.AddToClassList("up-timeline-kicker");
+            titleBlock.Add(kicker);
+            var title = new Label("타임라인");
+            title.AddToClassList("up-timeline-title");
+            titleBlock.Add(title);
+            toolbar.Add(titleBlock);
+
+            var titleDivider = new VisualElement();
+            titleDivider.AddToClassList("up-timeline-toolbar-divider");
+            toolbar.Add(titleDivider);
+
             _zoom = new Slider("줌", 0.2f, 10f) { showInputField = true };
             _zoom.AddToClassList("up-timeline-zoom");
             _zoom.RegisterValueChangedCallback(evt =>
@@ -126,7 +140,12 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             });
             toolbar.Add(_zoom);
 
+            var displayDivider = new VisualElement();
+            displayDivider.AddToClassList("up-timeline-toolbar-divider");
+            toolbar.Add(displayDivider);
+
             _frames = new Toggle("프레임");
+            _frames.AddToClassList("up-timeline-frames");
             _frames.RegisterValueChangedCallback(evt =>
             {
                 MotionSetDrawer drawer = _getDrawer?.Invoke();

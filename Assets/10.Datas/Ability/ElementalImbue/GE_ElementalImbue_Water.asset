@@ -20,7 +20,7 @@ MonoBehaviour:
     description: "15초 동안 공격 속성을 물로 변경합니다."
     nameLocalizationKey:
     descriptionLocalizationKey:
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: b3eefa94b16ef0f448d87617bc025c0b, type: 3}
     showInHud: 1
     hudPriority: 100
     showRemainingTime: 1

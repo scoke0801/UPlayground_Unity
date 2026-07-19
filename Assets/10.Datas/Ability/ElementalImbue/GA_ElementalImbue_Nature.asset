@@ -10,14 +10,14 @@ MonoBehaviour:
   presentation:
     displayName: "자연 속성 부여"
     description: "전용 모션을 재생하고 15초 동안 자연 속성을 부여합니다."
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: b3eefa94b16ef0f448d87617bc025c0b, type: 3}
     hudColor: {r: 0.25, g: 0.85, b: 0.35, a: 1}
     category: 3
     ownerType: 0
   abilityTagIds: []
-  activation: {requiredTagIds: [], blockedTagIds: [], executionGrantedTagIds: [], groundCondition: 0, targetPolicy: 0, targetRelation: 0, minDistance: 0, maxDistance: 0}
+  activation: {requiredTagIds: [], blockedTagIds: [], executionGrantedTagIds: [], groundCondition: 1, targetPolicy: 0, targetRelation: 0, minDistance: 0, maxDistance: 0}
   cost: {resourceType: 0, policy: 0, value: 0}
-  cooldown: {durationSeconds: 10, cooldownGroupId: Ability.ElementalImbue}
+  cooldown: {durationSeconds: 25, cooldownGroupId: Ability.ElementalImbue}
   concurrency: 2
   variants:
   - variantId: Default

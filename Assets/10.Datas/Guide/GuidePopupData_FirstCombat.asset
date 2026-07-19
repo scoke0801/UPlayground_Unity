@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: GuidePopupData_FirstCombat
   m_EditorClassIdentifier: 
   _pages:
-  - _mediaType: 0
+  - _mediaType: 1
     _image: {fileID: 0}
-    _video: {fileID: 0}
-    _loopVideo: 0
-    _title: "전투 가이드"
-    _body: "적의 공격을 회피하거나 가드하며 빈틈을 노리세요. 공격과 스킬을 조합하고, 위험할 때는 동료 교체로 전투 흐름을 바꿀 수 있습니다."
+    _video: {fileID: 32900000, guid: 435dab34a156b2d4e93c8a074957bbf7, type: 3}
+    _loopVideo: 1
+    _title: "\uC804\uD22C \uAC00\uC774\uB4DC"
+    _body: "\uC801\uC758 \uACF5\uACA9\uC744 \uD68C\uD53C\uD558\uAC70\uB098 \uAC00\uB4DC\uD558\uBA70
+      \uBE48\uD2C8\uC744 \uB178\uB9AC\uC138\uC694. \uACF5\uACA9\uACFC \uC2A4\uD0AC\uC744
+      \uC870\uD569\uD558\uACE0, \uC704\uD5D8\uD560 \uB54C\uB294 \uB3D9\uB8CC \uAD50\uCCB4\uB85C
+      \uC804\uD22C \uD750\uB984\uC744 \uBC14\uAFC0 \uC218 \uC788\uC2B5\uB2C8\uB2E4."

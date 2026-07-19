@@ -160,6 +160,7 @@ namespace UPlayGround
         public bool CanStartConsumableUse()
         {
             return IsAlive()
+                && !IsInCombat
                 && PlayerMovementPlayerController?.CurrentState is PlayerIdleState
                 && Animator?.HasMotion(AnimKey.Drink, true) == true;
         }

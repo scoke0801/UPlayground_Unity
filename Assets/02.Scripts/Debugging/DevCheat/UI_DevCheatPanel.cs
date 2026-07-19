@@ -16,12 +16,12 @@ namespace UPlayGround.UI.DevCheat
     /// 각 탭의 실제 콘텐츠(아이템 리스트/스탯 필드/파티 행 등)는 런타임에 코드로 생성한다.
     /// 이렇게 하면 프리팹 빌더와 런타임 스크립트의 결합이 최소화되고 유지보수가 쉬워진다.
     ///
-    /// 8개 탭: 기즈모 / 아이템 / 퀘스트 / 플레이어 스텟 / 파티원 / 시간 / 전투 / 버프·디버프.
+    /// 9개 탭: 기즈모 / 아이템 / 퀘스트 / 플레이어 스텟 / 파티원 / 시간 / 전투 / 버프·디버프 / 도감.
     /// 모든 조작은 <see cref="CheatManager"/> 파사드를 통해 실행되어 하단 실행 로그에 기록된다.
     /// </summary>
     public partial class UI_DevCheatPanel : UI_Base
     {
-        public enum CheatTab { Gizmo, Item, Quest, Stat, Party, Time, Combat, Effect }
+        public enum CheatTab { Gizmo, Item, Quest, Stat, Party, Time, Combat, Effect, Codex }
 
         [Header("Dev Cheat — 구조 참조 (프리팹 빌더가 연결)")]
         [SerializeField] private Button _closeButton;
@@ -32,7 +32,7 @@ namespace UPlayGround.UI.DevCheat
         [SerializeField] private Button _clearLogButton;
 
         private CheatTab _currentTab = CheatTab.Gizmo;
-        private readonly bool[] _tabBuilt = new bool[8];
+        private readonly bool[] _tabBuilt = new bool[Enum.GetValues(typeof(CheatTab)).Length];
 
         // ── 팔레트 ────────────────────────────────────────────────
         protected static readonly Color PanelBg   = new(0.10f, 0.13f, 0.17f, 1f);
@@ -147,6 +147,7 @@ namespace UPlayGround.UI.DevCheat
                 case CheatTab.Time:  BuildTimeTab(panel);  break;
                 case CheatTab.Combat: BuildCombatTab(panel); break;
                 case CheatTab.Effect: BuildEffectTab(panel); break;
+                case CheatTab.Codex: BuildCodexTab(panel); break;
             }
             _tabBuilt[idx] = true;
         }
@@ -163,6 +164,7 @@ namespace UPlayGround.UI.DevCheat
                 case CheatTab.Time:  RefreshTimeInfo();  break;
                 case CheatTab.Combat: RefreshCombatTab(); break;
                 case CheatTab.Effect: RefreshEffectTab(); break;
+                case CheatTab.Codex: RefreshCodexList(); break;
             }
         }
 
@@ -188,6 +190,7 @@ namespace UPlayGround.UI.DevCheat
                 CheatTab.Time  => "<b>시간</b>\n인게임 시간 스킵(+10분~+1일),\n특정 시각 이동, 시계 배속.",
                 CheatTab.Combat => "<b>전투</b>\n항상 패리 토글,\n주변 몬스터 즉시 처치(반경 지정).",
                 CheatTab.Effect => "<b>버프 / 디버프</b>\n활성 캐릭터에게 Effect 발급,\n활성 Effect 개별 또는 전체 제거.",
+                CheatTab.Codex => "<b>도감</b>\n몬스터 선택 후 도감 대상 등록(100% 기록)\n또는 기록 제거.",
                 _ => string.Empty,
             };
         }

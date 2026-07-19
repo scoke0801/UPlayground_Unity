@@ -25,6 +25,7 @@ MonoBehaviour:
       - rid: 889909809018306692
       - rid: 889910008326652092
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:

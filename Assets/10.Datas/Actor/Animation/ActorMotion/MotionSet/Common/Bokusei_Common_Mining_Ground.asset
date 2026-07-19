@@ -23,11 +23,12 @@ MonoBehaviour:
       events:
       - rid: 5341827903424561155
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 5341827903424561155
-      type: {class: InteractionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: InteractionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.3875
         endTime: 0.8875

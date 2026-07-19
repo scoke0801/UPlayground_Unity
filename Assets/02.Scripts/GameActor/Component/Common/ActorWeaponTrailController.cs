@@ -306,7 +306,10 @@ namespace UPlayGround.Components
 
         private void BindOwner()
         {
-            GameActor owner = GetComponent<GameActor>();
+            // 플레이어는 활성 캐릭터 모델 하위의 PlayerEquipment를 기준으로
+            // 컨트롤러가 생성되므로 GameActor가 같은 GameObject에 있지 않다.
+            // 몬스터 루트와 플레이어 모델 양쪽을 지원하도록 부모까지 탐색한다.
+            GameActor owner = GetComponentInParent<GameActor>();
             if (ReferenceEquals(_owner, owner))
                 return;
 

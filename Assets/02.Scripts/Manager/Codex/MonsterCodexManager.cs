@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UPlayGround.Contracts;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Codex;
 using UPlayGround.Data.Combat;
@@ -273,6 +274,35 @@ namespace UPlayGround.Manager
             _records.Add(actorId, record);
             return record;
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        /// <summary>치트: 도감 대상을 즉시 100% 기록(발견) 상태로 등록한다. 성공하면 true.</summary>
+        public bool CheatRegisterFull(string actorId)
+        {
+            if (!TryGetDefinition(actorId, out MonsterCodexEntrySO entry))
+                return false;
+
+            MonsterCodexEntrySave record = GetOrCreateRecord(actorId);
+            record.killCount = Math.Max(1, entry.fullRecordKillCount);
+            record.discovered = true;
+
+            // 랜덤 속성 몬스터는 현재 새 게임 시드로 확정 속성을 발견 처리한다.
+            ActorDefinitionSO definition =
+                ActorSpawnManager.Instance?.Database?.GetDefinition(actorId);
+            if (definition != null &&
+                definition.elementAssignmentMode == CombatElementAssignmentMode.RandomPerNewGame)
+            {
+                record.discoveredElement =
+                    (int)definition.ResolveCombatElement(Svc.ElementRandom?.NewGameElementSeed ?? 0);
+            }
+
+            return true;
+        }
+
+        /// <summary>치트: 도감 대상의 기록을 완전히 제거해 미발견 상태로 되돌린다. 실제 제거 시 true.</summary>
+        public bool CheatRemove(string actorId) =>
+            !string.IsNullOrWhiteSpace(actorId) && _records.Remove(actorId);
+#endif
 
         private void BuildRuntimeFallbackDatabase()
         {

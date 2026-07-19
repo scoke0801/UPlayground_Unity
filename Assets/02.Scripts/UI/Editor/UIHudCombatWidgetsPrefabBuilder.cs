@@ -66,8 +66,9 @@ namespace UPlayGround.UI.HUD.EditorTools
                 MakeSkillSlot(root.transform, "Ability", ComboInputToken.Skill1, "어빌리티",
                     PlayerAction.SkillAbility, LoadSprite("Assets/04.Images/UI/SkillIcon/Skill_Ability.png"),
                     new Vector2(-303f, 55f), LabelSide.Right, glyphData, true),
-                MakeSkillSlot(root.transform, "ElementalImbue", ComboInputToken.ElementalImbue, "속성",
-                    PlayerAction.ElementBuff, LoadSprite("Assets/04.Images/UI/EffectIcon/Buff_Icon_01.png"),
+                MakeSkillSlot(root.transform, "ElementalImbue", ComboInputToken.ElementalImbue, "속성 부여",
+                    PlayerAction.ElementBuff,
+                    LoadSprite("Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Component/IconMisc/IconSet_Stat_4.png"),
                     new Vector2(-516f, 200.8f), LabelSide.Left, glyphData, true),
                 MakeSkillSlot(root.transform, "HeavyAttack", ComboInputToken.HeavyAttack, "강공격",
                     PlayerAction.HeavyAttack, LoadSprite("Assets/04.Images/UI/SkillIcon/HeavyAttack.png"),
@@ -256,6 +257,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             SetRef(slotSo, "_comboGlow", glow);
             SetRef(slotSo, "_dimGroup", dimGroup);
             SetFloat(slotSo, "_dimAlpha", 0.32f);
+            SetBool(slotSo, "_hideIconWhenUnavailable", true);
             SetRef(slotSo, "_cooldownRoot", cooldown);
             SetRef(slotSo, "_cooldownFill", cooldownImage);
             SetRef(slotSo, "_cooldownText", cooldownText);

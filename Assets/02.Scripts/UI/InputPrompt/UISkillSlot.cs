@@ -55,6 +55,8 @@ namespace UPlayGround.UI.InputPrompt
         [Tooltip("게이지 부족 시 어둡게(선택). 없으면 무시.")]
         [SerializeField] private CanvasGroup        _dimGroup;
         [SerializeField] private float              _dimAlpha = 0.5f;
+        [Tooltip("Ability 미할당 상태일 때만 기본 프리팹 아이콘을 숨긴다. 잠금·쿨타임·자원 부족 중에는 아이콘을 유지한다(잠금은 dim/\"잠김\" 라벨로 표현).")]
+        [SerializeField] private bool               _hideIconWhenUnavailable = true;
         
         [SerializeField] private GameObject         _availableRoot;
         [SerializeField] private Image              _gaugeFill;
@@ -92,6 +94,7 @@ namespace UPlayGround.UI.InputPrompt
         private bool _gaugeUiUnderAvailableRoot;
         private bool _cooldownUiUnderAvailableRoot;
         private bool _locked;
+        private bool _unavailable;
 
         /// <summary>
         /// 게이지와 무관한 외부 쿨타임 소스(remaining, duration)를 샘플링한다. 예: 대시 쿨타임은
@@ -129,8 +132,9 @@ namespace UPlayGround.UI.InputPrompt
             if (_iconImage != null)
             {
                 _iconImage.sprite  = _icon;
-                _iconImage.enabled = _icon != null;
             }
+            _unavailable = false;
+            RefreshIconVisibility();
 
             if (_keyIcon != null && TryResolveInputAction(out string map, out string action))
                 _keyIcon.SetAction(map, action);
@@ -159,6 +163,7 @@ namespace UPlayGround.UI.InputPrompt
         public void SetLocked(bool locked)
         {
             _locked = locked;
+            RefreshIconVisibility();
             SetHintLabel(null);
         }
 
@@ -168,7 +173,7 @@ namespace UPlayGround.UI.InputPrompt
             if (_iconImage == null)
                 return;
             _iconImage.sprite = icon;
-            _iconImage.enabled = icon != null;
+            RefreshIconVisibility();
         }
 
         public void SetDefaultLabel(string label)
@@ -236,6 +241,9 @@ namespace UPlayGround.UI.InputPrompt
         /// </summary>
         public void SetGaugeState(bool ready)
         {
+            _unavailable = false;
+            RefreshIconVisibility();
+
             if (_dimGroup != null)
                 _dimGroup.alpha = (RequiresGauge && !ready) ? _dimAlpha : 1f;
         }
@@ -243,9 +251,24 @@ namespace UPlayGround.UI.InputPrompt
         /// <summary>Ability 슬롯 자체가 없거나 런타임 상태를 조회할 수 없을 때 명시적으로 비활성화한다.</summary>
         public void SetUnavailable()
         {
+            _unavailable = true;
+            RefreshIconVisibility();
+
             if (_dimGroup != null)
                 _dimGroup.alpha = _dimAlpha;
             ClearGaugeState();
+        }
+
+        private void RefreshIconVisibility()
+        {
+            if (_iconImage == null)
+                return;
+
+            // 잠금 상태에서도 아이콘은 노출한다(빈 슬롯이 어색해 보이는 문제).
+            // 잠금은 dim(_dimGroup)과 "잠김" 라벨로 표현하고, 아이콘 자체는 Ability 미할당일 때만 숨긴다.
+            bool hideForAvailability =
+                _hideIconWhenUnavailable && _unavailable;
+            _iconImage.enabled = _icon != null && !hideForAvailability;
         }
 
         /// <summary>

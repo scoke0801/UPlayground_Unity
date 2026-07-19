@@ -45,7 +45,7 @@ MonoBehaviour:
       \uC7A0\uC2DC \uC99D\uAC00\uD55C\uB2E4."
     nameLocalizationKey: 
     descriptionLocalizationKey: 
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 4b4f2c53d40dc0542aa13e0bed104741, type: 3}
     showInHud: 1
     hudPriority: 10
     showRemainingTime: 1
@@ -88,7 +88,7 @@ MonoBehaviour:
       \uC7A0\uC2DC \uC99D\uAC00\uD55C\uB2E4."
     nameLocalizationKey: 
     descriptionLocalizationKey: 
-    icon: {fileID: 0}
+    icon: {fileID: 21300000, guid: 4b4f2c53d40dc0542aa13e0bed104741, type: 3}
     showInHud: 1
     hudPriority: 10
     showRemainingTime: 1

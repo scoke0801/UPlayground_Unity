@@ -997,7 +997,7 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        void SetAsset(MotionSetAsset asset)
+        void SetAsset(MotionSetAsset asset, bool refreshMotionList = true)
         {
             if (_asset == asset) return;
 
@@ -1019,7 +1019,8 @@ namespace UPlayGround.Animation.Editor
             };
             ConfigureMotionSetDrawer(_drawer);
             _drawer.SelectFirstMotionForAsset(_asset?.motionSet);
-            RefreshMotionListView();
+            if (refreshMotionList)
+                RefreshMotionListView();
             RefreshEventInspectorView();
             _timelineView?.RefreshData(true);
             _motionAuthoringContainer?.MarkDirtyRepaint();
@@ -1086,8 +1087,9 @@ namespace UPlayGround.Animation.Editor
             if (item?.UserData is not ActorMotionEntry entry)
                 return;
 
-            SelectActorMotionEntry(entry);
-            RefreshMotionListView();
+            // MotionListView가 선택 스타일을 자체 갱신하므로 전체 목록 Rebuild는 생략한다.
+            // 키보드 연속 탐색에서 발생하던 이중 이동과 프레임 지연을 함께 방지한다.
+            SelectActorMotionEntry(entry, false, false);
             RefreshEventInspectorView();
         }
 
@@ -2271,10 +2273,13 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        void SelectActorMotionEntry(ActorMotionEntry entry, bool focusList = false)
+        void SelectActorMotionEntry(
+            ActorMotionEntry entry,
+            bool focusList = false,
+            bool refreshMotionList = true)
         {
             _selectedActorMotionKey = entry.key;
-            SetAsset(entry.asset);
+            SetAsset(entry.asset, refreshMotionList);
             _drawer?.SelectFirstMotionForAsset(_asset?.motionSet);
             _useTemporarySet = false;
             if (focusList)

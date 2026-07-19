@@ -13,9 +13,12 @@ MonoBehaviour:
   m_Name: GuidePopupData_FirstEquipment
   m_EditorClassIdentifier: 
   _pages:
-  - _mediaType: 0
+  - _mediaType: 1
     _image: {fileID: 0}
-    _video: {fileID: 0}
-    _loopVideo: 0
-    _title: "장비 획득"
-    _body: "새 장비를 획득했습니다. 인벤토리에서 장비의 능력치와 착용 가능 캐릭터를 확인한 뒤 원하는 파티원에게 장착하세요."
+    _video: {fileID: 32900000, guid: 474cc7c1840e33b42980d4d0681f586e, type: 3}
+    _loopVideo: 1
+    _title: "\uC7A5\uBE44 \uD68D\uB4DD"
+    _body: "\uC0C8 \uC7A5\uBE44\uB97C \uD68D\uB4DD\uD588\uC2B5\uB2C8\uB2E4. \uC778\uBCA4\uD1A0\uB9AC\uC5D0\uC11C
+      \uC7A5\uBE44\uC758 \uB2A5\uB825\uCE58\uC640 \uCC29\uC6A9 \uAC00\uB2A5 \uCE90\uB9AD\uD130\uB97C
+      \uD655\uC778\uD55C \uB4A4 \uC6D0\uD558\uB294 \uD30C\uD2F0\uC6D0\uC5D0\uAC8C
+      \uC7A5\uCC29\uD558\uC138\uC694."

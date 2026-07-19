@@ -28,11 +28,12 @@ MonoBehaviour:
       - rid: 889910008326652109
       - rid: 889910008326652176
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889910008326652109
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.244612
         endTime: 1.7446121
@@ -42,7 +43,7 @@ MonoBehaviour:
         volume: 1
         is3D: 1
     - rid: 889910008326652176
-      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.2821177
         endTime: 1.9516681
@@ -62,7 +63,7 @@ MonoBehaviour:
         destroyDelay: 2
         attachToActor: 1
     - rid: 5792125535029297270
-      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.43003654
         endTime: 0.4300365
@@ -71,7 +72,7 @@ MonoBehaviour:
         loopCount: 1
         freezeDuration: 3
     - rid: 5792125557290303606
-      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.4530412
         endTime: 0.4530412
@@ -80,7 +81,7 @@ MonoBehaviour:
         loopCount: 1
         freezeDuration: 3
     - rid: 5792125557290303607
-      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.4775
         endTime: 0.4775
@@ -89,10 +90,11 @@ MonoBehaviour:
         loopCount: 1
         freezeDuration: 3
     - rid: 7399917011524124806
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.2705625
         endTime: 1.6279955
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []

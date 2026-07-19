@@ -500,7 +500,8 @@ namespace UPlayGround.UI.InputPrompt
 
             if (_abilityReader.TryGetPlayerSlotPresentation(
                     (PlayerSkillSlot)slot.GaugeSlot,
-                    out AbilitySlotPresentationState presentation))
+                    out AbilitySlotPresentationState presentation)
+                && presentation.Icon != null)
                 slot.SetIcon(presentation.Icon);
         }
 

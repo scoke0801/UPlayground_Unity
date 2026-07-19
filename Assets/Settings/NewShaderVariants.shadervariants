@@ -20,3 +20,8 @@ ShaderVariantCollection:
   - first: {fileID: -6465566751694194690, guid: 47d4ccad5c33cb745a02a7d5a6badeac, type: 3}
     second:
       variants: []
+  - first: {fileID: 4800000, guid: 9294844b15dca184d914a632279b24e1, type: 3}
+    second:
+      variants:
+      - keywords: ETC1_EXTERNAL_ALPHA UNITY_UI_ALPHACLIP _COLOROVERLAY_ON
+        passType: 14

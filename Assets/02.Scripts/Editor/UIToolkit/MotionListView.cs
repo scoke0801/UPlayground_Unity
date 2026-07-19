@@ -26,6 +26,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit
         readonly ToolbarSearchField _search;
         readonly ListView _list;
         bool _suppressSelection;
+        bool _restoreKeyboardFocusAfterRebuild;
 
         public MotionListView(Action<Item> onSelected, Action onAdd)
         {
@@ -57,8 +58,15 @@ namespace UPlayGround.Animation.Editor.UIToolkit
                 bindItem = BindItem,
             };
             _list.AddToClassList("up-motion-list");
+            _list.focusable = true;
             _list.selectionChanged += HandleSelectionChanged;
             _list.RegisterCallback<KeyDownEvent>(HandleKeyDown, TrickleDown.TrickleDown);
+            _list.RegisterCallback<NavigationMoveEvent>(
+                HandleNavigationMove,
+                TrickleDown.TrickleDown);
+            _list.RegisterCallback<PointerDownEvent>(
+                _ => _list.schedule.Execute(() => _list.Focus()),
+                TrickleDown.TrickleDown);
             Add(_list);
 
             var addButton = new Button(() => onAdd?.Invoke()) { text = "+ 키/에셋 추가" };
@@ -117,38 +125,62 @@ namespace UPlayGround.Animation.Editor.UIToolkit
 
             if (item.IsHeader)
             {
+                _restoreKeyboardFocusAfterRebuild = true;
                 if (!_collapsedGroups.Add(item.Group))
                     _collapsedGroups.Remove(item.Group);
                 RebuildVisibleItems();
                 return;
             }
 
+            foreach (Item sourceItem in _source)
+                sourceItem.IsSelected = ReferenceEquals(sourceItem, item);
+            _list.RefreshItems();
             _onSelected?.Invoke(item);
         }
 
         void HandleKeyDown(KeyDownEvent evt)
         {
-            int direction;
             switch (evt.keyCode)
             {
-                case KeyCode.UpArrow:
-                    direction = -1;
-                    break;
-                case KeyCode.DownArrow:
-                    direction = 1;
-                    break;
                 case KeyCode.Home:
+                    _list.panel?.focusController?.IgnoreEvent(evt);
                     SelectBoundaryItem(true);
                     evt.StopImmediatePropagation();
                     return;
                 case KeyCode.End:
+                    _list.panel?.focusController?.IgnoreEvent(evt);
                     SelectBoundaryItem(false);
                     evt.StopImmediatePropagation();
                     return;
                 default:
                     return;
             }
+        }
 
+        void HandleNavigationMove(NavigationMoveEvent evt)
+        {
+            int direction;
+            switch (evt.direction)
+            {
+                case NavigationMoveEvent.Direction.Up:
+                    direction = -1;
+                    break;
+                case NavigationMoveEvent.Direction.Down:
+                    direction = 1;
+                    break;
+                default:
+                    return;
+            }
+
+            // Unity 6 ListView는 방향키를 NavigationMoveEvent로 변환한다.
+            // 이 이벤트 하나만 처리하고 ListView 기본 탐색은 무시해야 중복 이동하지 않는다.
+            _list.panel?.focusController?.IgnoreEvent(evt);
+            MoveSelection(direction);
+            evt.StopImmediatePropagation();
+        }
+
+        void MoveSelection(int direction)
+        {
             int current = _list.selectedIndex;
             if (current < 0)
                 current = _visible.FindIndex(item => !item.IsHeader && item.IsSelected);
@@ -159,9 +191,9 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             if (next < 0)
                 return;
 
+            _restoreKeyboardFocusAfterRebuild = true;
             _list.SetSelection(next);
             _list.ScrollToItem(next);
-            evt.StopImmediatePropagation();
         }
 
         void SelectBoundaryItem(bool first)
@@ -171,6 +203,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit
                 : _visible.FindLastIndex(item => !item.IsHeader);
             if (index < 0)
                 return;
+            _restoreKeyboardFocusAfterRebuild = true;
             _list.SetSelection(index);
             _list.ScrollToItem(index);
         }
@@ -189,6 +222,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit
 
         void RebuildVisibleItems()
         {
+            bool restoreKeyboardFocus =
+                _restoreKeyboardFocusAfterRebuild || HasListKeyboardFocus();
             _visible.Clear();
             string query = _search.value?.Trim() ?? string.Empty;
 
@@ -214,6 +249,25 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             else
                 _list.ClearSelection();
             _suppressSelection = false;
+
+            _restoreKeyboardFocusAfterRebuild = false;
+            if (restoreKeyboardFocus)
+            {
+                int indexToReveal = selectedIndex;
+                _list.schedule.Execute(() =>
+                {
+                    _list.Focus();
+                    if (indexToReveal >= 0)
+                        _list.ScrollToItem(indexToReveal);
+                });
+            }
+        }
+
+        bool HasListKeyboardFocus()
+        {
+            if (_list.panel?.focusController?.focusedElement is not VisualElement focused)
+                return false;
+            return focused == _list || _list.Contains(focused);
         }
 
         static bool Matches(Item item, string query)

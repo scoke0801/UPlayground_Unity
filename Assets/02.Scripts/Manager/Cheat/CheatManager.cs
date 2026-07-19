@@ -15,6 +15,7 @@ namespace UPlayGround.Manager
         Combat,
         Time,
         Effect,
+        Codex,
     }
 
     /// <summary>치트 실행 로그 1건.</summary>

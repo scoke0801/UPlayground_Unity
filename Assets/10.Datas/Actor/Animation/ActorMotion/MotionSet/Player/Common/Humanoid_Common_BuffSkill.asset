@@ -13,15 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_Common_BuffSkill
   m_EditorClassIdentifier: 
   motionSet:
-    motionSetName: Humanoid_SwordShield_Getup
+    motionSetName: Humanoid_Common_BuffSkill
     motions:
     - motionName: Frank_RPG_Warrior_Getup
-      motionClip: {fileID: 7400000, guid: 031e6ad4d266a4a4d91c4b61672ce4d5, type: 3}
+      motionClip: {fileID: 7400000, guid: f9264c0ec1a51684092963f1939e2bd4, type: 3}
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 5341828142411284623
     globalEvents: []
+    layers: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5341828142411284623
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.3875
+        endTime: 0.8875
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 1171190231128718, guid: 9fa6cd28cd97cc54eb5099893515d913, type: 3}
+        spawnPointName: 
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0

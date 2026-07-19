@@ -23,11 +23,12 @@ MonoBehaviour:
       events:
       - rid: 5341827992738070528
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 5341827992738070528
-      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: LoopEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.8
         endTime: 0.8

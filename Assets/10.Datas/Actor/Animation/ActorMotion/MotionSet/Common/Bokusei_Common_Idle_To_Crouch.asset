@@ -22,6 +22,7 @@ MonoBehaviour:
       playbackSpeed: 1
       events: []
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

@@ -67,14 +67,17 @@ namespace UPlayGround.UI
             int count = item != null
                 ? inventory.GetItemCount(itemId)
                 : 0;
+            // 등록 아이템을 모두 소비해 인벤토리에서 사라지면(item == null 또는 count == 0)
+            // 등록만 남아 아이콘·"+" 모두 없는 반쯤 채워진 버그 표시가 된다. 이 경우 빈 슬롯으로 취급한다.
+            bool hasItem = item?.data != null && count > 0;
 
             if (_iconImage != null)
             {
-                _iconImage.sprite = item?.data?.icon;
+                _iconImage.sprite = hasItem ? item.data.icon : null;
                 _iconImage.enabled = _iconImage.sprite != null;
             }
 
-            bool useRarityAccent = item?.data != null
+            bool useRarityAccent = hasItem
                 && item.data.itemRarity > ItemRarity.COMMON;
             Color rarityColor = useRarityAccent
                 ? item.data.itemRarity.ToColor()
@@ -93,17 +96,17 @@ namespace UPlayGround.UI
 
             if (_countText != null)
             {
-                _countText.text = count > 0 ? count.ToString() : string.Empty;
-                _countText.gameObject.SetActive(itemId > 0);
+                _countText.text = hasItem ? count.ToString() : string.Empty;
+                _countText.gameObject.SetActive(hasItem);
             }
             if (_countRoot != null)
-                _countRoot.SetActive(itemId > 0);
+                _countRoot.SetActive(hasItem);
 
             if (_emptyMark != null)
-                _emptyMark.SetActive(itemId <= 0);
+                _emptyMark.SetActive(!hasItem);
 
             if (_stateGroup != null)
-                _stateGroup.alpha = itemId <= 0 ? 1f : count > 0 ? 1f : 0.38f;
+                _stateGroup.alpha = 1f;
 
             _hasUsableCount = count > 0;
             RefreshCooldown(inventory);

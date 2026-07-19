@@ -20,8 +20,25 @@ MonoBehaviour:
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
-      events: []
+      events:
+      - rid: 5341828142411284622
     globalEvents: []
+    layers: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5341828142411284622
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0
+        endTime: 0.5
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 0}
+        spawnPointName: 
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 1
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0

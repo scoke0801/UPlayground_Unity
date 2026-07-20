@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using UPlayGround.Ability.Core;
@@ -9,6 +10,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Cue;
+using UPlayGround.Gameplay.Effect;
 using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Ability.Tests
@@ -109,6 +111,111 @@ namespace UPlayGround.Ability.Tests
             Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
             Assert.That(_actor.Stats.AttackPower, Is.EqualTo(before));
             Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void Effect_HUD표시는_정의값과_적용옵션을_따른다()
+        {
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.HudVisibility";
+            effect.durationType = GameplayEffectDurationType.Duration;
+            effect.durationSeconds = 10f;
+            effect.presentation.showInHud = true;
+
+            var views = new List<GameplayEffectViewState>();
+            GameplayEffectHandle shown = _actor.Effects.ApplyEffect(effect, _actor);
+            _actor.Effects.CopyVisibleEffects(views);
+            Assert.That(shown.IsValid, Is.True);
+            Assert.That(views, Has.Count.EqualTo(1));
+
+            _actor.Effects.RemoveEffect(shown);
+            _actor.Effects.ApplyEffect(
+                effect,
+                _actor,
+                new GameplayEffectApplicationOptions(
+                    GameplayEffectHudVisibility.ForceHide));
+            _actor.Effects.CopyVisibleEffects(views);
+            Assert.That(views, Is.Empty);
+
+            _actor.Effects.RemoveAll();
+            effect.presentation.showInHud = false;
+            _actor.Effects.ApplyEffect(
+                effect,
+                _actor,
+                new GameplayEffectApplicationOptions(
+                    GameplayEffectHudVisibility.ForceShow));
+            _actor.Effects.CopyVisibleEffects(views);
+            Assert.That(views, Has.Count.EqualTo(1));
+
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void 숨김_Effect도_활성목록에서_조회하고_RuntimeId로_제거할_수_있다()
+        {
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.CheatRemoval";
+            effect.durationType = GameplayEffectDurationType.Infinite;
+            effect.presentation.showInHud = false;
+
+            _actor.Effects.ApplyEffect(effect, _actor);
+            var active = new List<GameplayEffectViewState>();
+            _actor.Effects.CopyActiveEffects(active);
+
+            Assert.That(active, Has.Count.EqualTo(1));
+            Assert.That(
+                _actor.Effects.RemoveEffectByRuntimeId(active[0].RuntimeId),
+                Is.True);
+            _actor.Effects.CopyActiveEffects(active);
+            Assert.That(active, Is.Empty);
+
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void Effect_HUD강제표시정책은_저장후_복원해도_유지된다()
+        {
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.HudVisibilitySave";
+            effect.durationType = GameplayEffectDurationType.Duration;
+            effect.durationSeconds = 10f;
+            effect.savePolicy = GameplayEffectSavePolicy.SaveRemainingDuration;
+            effect.presentation.showInHud = false;
+
+            _actor.Effects.ApplyEffect(
+                effect,
+                _actor,
+                new GameplayEffectApplicationOptions(
+                    GameplayEffectHudVisibility.ForceShow));
+            var entries = new List<GameplayEffectSaveEntry>();
+            _actor.Effects.CaptureRuntimeState(entries, forCharacterSwap: false);
+            Assert.That(entries, Has.Count.EqualTo(1));
+            Assert.That(
+                entries[0].hudVisibility,
+                Is.EqualTo(GameplayEffectHudVisibility.ForceShow));
+
+            _actor.Effects.RemoveAll();
+            _actor.Effects.RestoreRuntimeState(
+                entries,
+                effectId => effectId == effect.effectId ? effect : null);
+            var views = new List<GameplayEffectViewState>();
+            _actor.Effects.CopyVisibleEffects(views);
+            Assert.That(views, Has.Count.EqualTo(1));
+
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void 패시브_TriggerEffect는_정의의_HUD노출을_따르는_것이_기본이다()
+        {
+            PassiveAbilitySO passive =
+                ScriptableObject.CreateInstance<PassiveAbilitySO>();
+
+            Assert.That(
+                passive.triggeredEffectHudVisibility,
+                Is.EqualTo(GameplayEffectHudVisibility.UseDefinition));
+
+            Object.DestroyImmediate(passive);
         }
 
         [Test]

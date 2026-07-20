@@ -71,6 +71,9 @@ namespace UPlayGround.Animation.Editor
         public float zoom = 1f;
         public bool isDraggingCursor;
         public int selectedMotionIndex = -1;
+        // 선택된 모션이 속한 병렬 재생 레이어 인덱스. -1 = BASE(set.motions).
+        // >=0 = set.layers[selectedLayerIndex].motions[selectedMotionIndex].
+        public int selectedLayerIndex = -1;
 
         // 사용자가 ruler/scrub으로 cursorTime을 변경한 직후 1프레임 동안 true.
         // 외부(Window)에서 이 플래그를 보고 Seek를 발화한 뒤 false로 리셋한다.
@@ -185,6 +188,9 @@ namespace UPlayGround.Animation.Editor
         void SelectMotionIndex(MotionSet set, int index)
         {
             int previousIndex = selectedMotionIndex;
+            // BASE 목록에서의 선택이므로 레이어 선택은 해제한다.
+            bool wasLayer = selectedLayerIndex >= 0;
+            selectedLayerIndex = -1;
             selectedMotionIndex = index;
             RequestScrollSelectedMotionIntoView();
 
@@ -195,11 +201,25 @@ namespace UPlayGround.Animation.Editor
                 ExpandMotionEvents(set.motions[selectedMotionIndex], selectedMotionIndex);
             }
 
-            if (previousIndex != selectedMotionIndex)
+            if (previousIndex != selectedMotionIndex || wasLayer)
             {
                 _onSelectedMotionChanged?.Invoke(previousIndex, selectedMotionIndex);
                 onSelectionChanged?.Invoke();
             }
+        }
+
+        // 타임라인에서 클립(모션)을 클릭해 선택할 때 사용한다.
+        // layerIndex < 0 이면 BASE 모션, >=0 이면 해당 병렬 재생 레이어의 모션을 선택한다.
+        // 모션 선택으로 전환하므로 이벤트 선택은 해제한다.
+        public void SelectClipMotion(int layerIndex, int motionIndex)
+        {
+            selectedLayerIndex = layerIndex < 0 ? -1 : layerIndex;
+            selectedMotionIndex = motionIndex;
+            selectedEventMotionIndex = -1;
+            selectedEventIndex = -1;
+            selectedEventIsSetEvent = false;
+            RequestScrollSelectedMotionIntoView();
+            onSelectionChanged?.Invoke();
         }
 
         void RequestScrollSelectedMotionIntoView()
@@ -221,6 +241,7 @@ namespace UPlayGround.Animation.Editor
             if (set?.motions == null || set.motions.Count == 0)
             {
                 selectedMotionIndex = -1;
+                selectedLayerIndex = -1;
                 return;
             }
 

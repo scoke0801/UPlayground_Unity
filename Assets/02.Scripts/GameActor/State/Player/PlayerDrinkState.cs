@@ -9,14 +9,21 @@ namespace UPlayGround.State
 {
     /// <summary>
     /// 소모품 사용 모션 상태.
-    /// Idle에서만 진입하며 Drink MotionSet 재생이 끝나면 다시 Idle로 돌아간다.
+    /// 상체(Drink 모션)는 상체 마스크 오버레이 레이어에 얹고, 하체는 Layer 0 로코모션(Idle/Walk)이
+    /// 담당한다. 덕분에 걷기 속도로 이동하면서 마실 수 있다. 상체 모션이 끝나면 Idle로 돌아간다.
     /// </summary>
     public sealed class PlayerDrinkState : PlayerActorState
     {
         public override string StateName => "Drink";
 
         protected override AnimKey? RequiredMotionKey => AnimKey.Drink;
+
+        private const float LegFadeDuration = 0.2f;
+        private const float OverlayFadeDuration = 0.15f;
+
         private PlayerEquipment _equipment;
+        private float _drinkRemaining;      // 상체 오버레이 남은 재생 시간(초)
+        private AnimKey _legAnimKey = AnimKey.None; // 현재 Layer 0에 올라간 로코모션 키
 
         public PlayerDrinkState(ActorMovementController controller) : base(controller)
         {
@@ -34,19 +41,21 @@ namespace UPlayGround.State
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.BeginConsumableUseEquipment();
 
-            var animState = gameActor.Animator.PlayMotion(AnimKey.Drink, 0.15f);
-            if (animState == null)
+            // 하체: 진입 시 이동 입력 여부에 따라 Idle/Walk 로코모션을 Layer 0에 재생
+            UpdateLegLocomotion();
+
+            // 상체: Drink 모션을 상체 마스크 오버레이 레이어에 1회 재생.
+            // 디렉터를 사용하지 않으므로 OnMotionSetCompleted 대신 재생 길이 타이머로 완료를 판정한다.
+            _drinkRemaining = gameActor.Animator.PlayUpperBodyOverlay(AnimKey.Drink, OverlayFadeDuration);
+            if (_drinkRemaining <= 0f)
             {
                 TransitionToIdle();
-                return;
             }
-
-            gameActor.Animator.OnMotionSetCompleted += TransitionToIdle;
         }
 
         public override void OnExit(GameActorState toState)
         {
-            gameActor.Animator.OnMotionSetCompleted -= TransitionToIdle;
+            gameActor.Animator.StopUpperBodyOverlay(OverlayFadeDuration);
             _equipment?.EndConsumableUseEquipment();
             _equipment = null;
             base.OnExit(toState);
@@ -54,6 +63,9 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            // 상체 오버레이 남은 시간 소모 (실제 종료는 아래 우선순위 처리 뒤 판정)
+            _drinkRemaining -= deltaTime;
+
             // 점프 입력은 자연 낙하 판정보다 먼저 처리한다.
             if (Svc.Input.InputBuffer.HasInput(PlayerAction.Jump))
             {
@@ -84,12 +96,6 @@ namespace UPlayGround.State
                     playerController.TransitionToState(new PlayerInteractionState(playerController));
                     return;
                 }
-            }
-
-            if (playerController.HasMoveInput())
-            {
-                playerController.TransitionToState(new PlayerGroundMoveState(playerController));
-                return;
             }
 
             if (Svc.Input.InputBuffer.HasInput(PlayerAction.Dodge))
@@ -151,11 +157,34 @@ namespace UPlayGround.State
             if (playerActor.IsInCombat)
             {
                 TransitionToIdle();
+                return;
+            }
+
+            // 이동 입력은 상태 전이를 유발하지 않는다. 대신 하체 로코모션만 갱신해
+            // 걷기 속도로 이동하면서 상체 마시기 모션을 유지한다.
+            UpdateLegLocomotion();
+
+            // 상체 모션이 끝났으면 Idle로 복귀한다.
+            if (_drinkRemaining <= 0f)
+            {
+                TransitionToIdle();
             }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            Vector3 lookDirection = playerController.LookInputVector;
+
+            if (lookDirection != Vector3.zero && controller.OrientationSharpness > 0f)
+            {
+                Vector3 smoothedLookInputDirection = Vector3.Slerp(
+                    motor.CharacterForward,
+                    lookDirection,
+                    1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
+
+                currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
+            }
+
             currentRotation = currentRotation.normalized;
         }
 
@@ -166,10 +195,38 @@ namespace UPlayGround.State
                 return;
             }
 
+            // 경사면 보정
+            currentVelocity = motor.GetDirectionTangentToSurface(
+                currentVelocity,
+                motor.GroundingStatus.GroundNormal) * currentVelocity.magnitude;
+
+            // 이동 입력을 지면 노멀 기준으로 재지향해 걷기 속도로 이동한다(마시는 중엔 걷기 속도로 제한).
+            Vector3 moveInputVector = playerController.MoveInputVector;
+            Vector3 inputRight = Vector3.Cross(moveInputVector, motor.CharacterUp);
+            Vector3 reorientedInput = Vector3.Cross(
+                motor.GroundingStatus.GroundNormal,
+                inputRight).normalized * moveInputVector.magnitude;
+
+            Vector3 targetMovementVelocity = reorientedInput * controller.MaxWalkMoveSpeed;
+
             currentVelocity = Vector3.Lerp(
                 currentVelocity,
-                Vector3.zero,
+                targetMovementVelocity,
                 1f - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+        }
+
+        /// <summary>
+        /// 이동 입력 여부에 따라 하체 로코모션(Layer 0)을 Idle/Walk로 전환한다.
+        /// 키가 바뀔 때만 재생하므로 매 프레임 호출해도 안전하다.
+        /// </summary>
+        private void UpdateLegLocomotion()
+        {
+            AnimKey desired = playerController.HasMoveInput() ? AnimKey.Walk : AnimKey.Idle;
+            if (desired == _legAnimKey)
+                return;
+
+            _legAnimKey = desired;
+            gameActor.Animator.PlayMotion(desired, LegFadeDuration);
         }
 
         private void TransitionToIdle()

@@ -49,6 +49,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         readonly Action _onChanged;
         readonly Action _onScrub;
         readonly TimelineTrackElement _track;
+        readonly VisualElement _cursorLine;
         readonly Label _cursorLabel;
         readonly Slider _zoom;
         readonly Toggle _frames;
@@ -72,6 +73,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         {
             Event,
             Clip,
+            ClipBody,
             Marker,
         }
 
@@ -106,6 +108,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             public int eventIndex;
             public bool setEvent;
             public float motionOffset;
+            // 클립이 속한 병렬 재생 레이어 인덱스. -1 = BASE(set.motions).
+            public int playbackLayerIndex;
         }
 
         sealed class LayerState
@@ -281,6 +285,20 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             _track.RegisterCallback<GeometryChangedEvent>(_ => RefreshData(true));
             _track.RegisterCallback<DragUpdatedEvent>(HandleAnimationDragUpdated);
             _track.RegisterCallback<DragPerformEvent>(HandleAnimationDragPerform);
+
+            // 재생 커서를 경량 오버레이 엘리먼트로 분리한다. 재생 중에는 커서만 움직이므로,
+            // 전체 타임라인 메시를 매 프레임 재생성(MarkDirtyRepaint)하지 않고 이 엘리먼트의
+            // 위치만 갱신한다(UpdateCursorLine). RebuildLabels가 _track.Clear()로 자식을
+            // 비우므로, 재구성 끝에서 다시 붙인다.
+            _cursorLine = new VisualElement();
+            _cursorLine.name = "motion-timeline-cursor";
+            _cursorLine.pickingMode = PickingMode.Ignore;
+            _cursorLine.style.position = Position.Absolute;
+            _cursorLine.style.top = 0f;
+            _cursorLine.style.width = 2f;
+            _cursorLine.style.backgroundColor = Cursor;
+            _cursorLine.style.display = DisplayStyle.None;
+
             scroll.Add(_track);
             Add(scroll);
 
@@ -445,8 +463,33 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
 
         public void RefreshPlayback()
         {
+            // 재생/스크럽 중에는 커서만 이동한다. 전체 메시 재생성(MarkDirtyRepaint)은
+            // 데이터/레이아웃이 바뀔 때만 필요하므로, 여기서는 커서 오버레이만 갱신한다.
             UpdateCursorLabel();
-            _track.MarkDirtyRepaint();
+            UpdateCursorLine();
+        }
+
+        // 재생 커서 오버레이 엘리먼트의 위치/표시 상태를 현재 cursorTime 기준으로 갱신한다.
+        void UpdateCursorLine()
+        {
+            if (_cursorLine == null)
+                return;
+            MotionSetDrawer drawer = _getDrawer?.Invoke();
+            float width = _track.contentRect.width;
+            if (drawer == null || width <= LabelWidth)
+            {
+                _cursorLine.style.display = DisplayStyle.None;
+                return;
+            }
+            float x = TimeToX(drawer.cursorTime, drawer, PixelsPerSecond(drawer));
+            if (x < LabelWidth || x > width)
+            {
+                _cursorLine.style.display = DisplayStyle.None;
+                return;
+            }
+            _cursorLine.style.display = DisplayStyle.Flex;
+            _cursorLine.style.left = x - 1f; // 2px 폭의 중심을 커서 시간에 맞춘다
+            _cursorLine.style.height = _contentHeight;
         }
 
         void HandleUndoRedo()
@@ -568,6 +611,10 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
 
             _contentHeight = Mathf.Max(200f, y + 8f);
             _track.style.height = _contentHeight;
+
+            // _track.Clear()로 제거됐으므로 커서 오버레이를 최상단(마지막 자식)으로 다시 붙인다.
+            _track.Add(_cursorLine);
+            UpdateCursorLine();
         }
 
         void AddRulerLabels(MotionSet set)
@@ -1111,7 +1158,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             }
 
             DrawPlayRange(painter, set?.TotalDuration ?? 0f, drawer, pixelsPerSecond, width);
-            DrawCursor(painter, drawer, pixelsPerSecond, width);
+            // 재생 커서는 painter가 아니라 별도 오버레이 엘리먼트(_cursorLine)로 그린다.
+            // 재생/스크럽 시 전체 메시 재생성을 피하기 위함. UpdateCursorLine() 참조.
         }
 
         void DrawRuler(Painter2D painter, float duration, float pps, float trackWidth, MotionSetDrawer drawer)
@@ -1156,32 +1204,65 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 return;
 
             DrawRect(painter, bar, MotionColors[index % MotionColors.Length]);
-            if (drawer.selectedMotionIndex == index)
+            if (drawer.selectedLayerIndex < 0 && drawer.selectedMotionIndex == index)
                 DrawOutline(painter, new Rect(LabelWidth, y, trackWidth, MotionHeight), Selection, 2f);
             if (motion.motionClip != null)
             {
                 DrawRect(painter, new Rect(bar.x, bar.y, Mathf.Min(5f, bar.width), bar.height), Handle);
                 DrawRect(painter, new Rect(Mathf.Max(bar.x, bar.xMax - 5f), bar.y, Mathf.Min(5f, bar.width), bar.height), Handle);
+            }
+
+            // 클립 본문 선택 영역(핸들보다 먼저 추가 → 히트 테스트에서 핸들이 우선).
+            AddClipHitRegions(motion, index, -1, offset, x, endX, y);
+        }
+
+        // 클립 본문(선택)과 시작/끝 핸들(드래그) 히트 영역을 등록한다.
+        // BASE와 병렬 재생 레이어가 동일한 상호작용을 갖도록 공유한다.
+        void AddClipHitRegions(
+            Motion motion, int motionIndex, int playbackLayerIndex,
+            float offset, float x, float endX, float y)
+        {
+            // 본문: 클립 전체 폭. 클릭 시 모션 선택(드래그 없음).
+            float bodyLeft = Mathf.Max(LabelWidth, x);
+            float bodyRight = Mathf.Min(LabelWidth + Mathf.Max(0f, _track.contentRect.width - LabelWidth), endX);
+            if (bodyRight > bodyLeft)
+            {
                 _hitRegions.Add(new HitRegion
                 {
-                    kind = HitKind.Clip,
+                    kind = HitKind.ClipBody,
                     layer = LayerKind.Motion,
-                    rect = new Rect(x - HandleHitWidth, y, HandleHitWidth * 2f, MotionHeight),
+                    rect = new Rect(bodyLeft, y, bodyRight - bodyLeft, MotionHeight),
                     motion = motion,
-                    motionIndex = index,
+                    motionIndex = motionIndex,
                     motionOffset = offset,
-                });
-                _hitRegions.Add(new HitRegion
-                {
-                    kind = HitKind.Clip,
-                    layer = LayerKind.Motion,
-                    rect = new Rect(endX - HandleHitWidth, y, HandleHitWidth * 2f, MotionHeight),
-                    motion = motion,
-                    motionIndex = index,
-                    motionOffset = offset,
-                    eventIndex = 1,
+                    playbackLayerIndex = playbackLayerIndex,
                 });
             }
+
+            // 시작/끝 핸들: 클립 길이(clipStart/End) 드래그. 클립이 지정된 경우만.
+            if (motion.motionClip == null)
+                return;
+            _hitRegions.Add(new HitRegion
+            {
+                kind = HitKind.Clip,
+                layer = LayerKind.Motion,
+                rect = new Rect(x - HandleHitWidth, y, HandleHitWidth * 2f, MotionHeight),
+                motion = motion,
+                motionIndex = motionIndex,
+                motionOffset = offset,
+                playbackLayerIndex = playbackLayerIndex,
+            });
+            _hitRegions.Add(new HitRegion
+            {
+                kind = HitKind.Clip,
+                layer = LayerKind.Motion,
+                rect = new Rect(endX - HandleHitWidth, y, HandleHitWidth * 2f, MotionHeight),
+                motion = motion,
+                motionIndex = motionIndex,
+                motionOffset = offset,
+                eventIndex = 1,
+                playbackLayerIndex = playbackLayerIndex,
+            });
         }
 
         void DrawPlaybackLayerRow(
@@ -1198,6 +1279,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             if (!visible || layer == null || !layer.enabled || layer.motions == null)
                 return;
 
+            bool selectedRow = drawer.selectedLayerIndex == layerOrder;
             float offset = 0f;
             for (int motionIndex = 0; motionIndex < layer.motions.Count; motionIndex++)
             {
@@ -1214,7 +1296,18 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 {
                     Color color = MotionColors[(layerOrder + motionIndex + 1) % MotionColors.Length];
                     DrawRect(painter, bar, new Color(color.r, color.g, color.b, 0.82f));
+                    if (motion.motionClip != null)
+                    {
+                        DrawRect(painter, new Rect(bar.x, bar.y, Mathf.Min(5f, bar.width), bar.height), Handle);
+                        DrawRect(painter, new Rect(Mathf.Max(bar.x, bar.xMax - 5f), bar.y, Mathf.Min(5f, bar.width), bar.height), Handle);
+                    }
+                    // BASE와 동일: 본문=선택, 시작/끝=드래그. playbackLayerIndex로 대상 레이어를 구분.
+                    AddClipHitRegions(motion, motionIndex, layerOrder, offset, x, endX, y);
                 }
+
+                if (selectedRow && drawer.selectedMotionIndex == motionIndex && bar.width > 0f)
+                    DrawOutline(painter, new Rect(LabelWidth, y, trackWidth, MotionHeight), Selection, 2f);
+
                 offset += motion.Duration;
             }
         }
@@ -1411,20 +1504,6 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             DrawLine(painter, new Vector2(x1, RulerHeight), new Vector2(x1, _contentHeight), new Color(0.3f, 1f, 0.3f, 0.5f), 2f);
         }
 
-        void DrawCursor(Painter2D painter, MotionSetDrawer drawer, float pps, float width)
-        {
-            float x = TimeToX(drawer.cursorTime, drawer, pps);
-            if (x < LabelWidth || x > width)
-                return;
-            DrawLine(painter, new Vector2(x, 0), new Vector2(x, _contentHeight), Cursor, 2f);
-            painter.fillColor = Cursor;
-            painter.BeginPath();
-            painter.MoveTo(new Vector2(x - 6f, 0));
-            painter.LineTo(new Vector2(x + 6f, 0));
-            painter.LineTo(new Vector2(x, 8f));
-            painter.ClosePath();
-            painter.Fill();
-        }
 
         internal bool BeginPointerOperation(Vector2 position, int button, bool shift)
         {
@@ -1479,6 +1558,16 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     return true;
                 }
 
+                // 클립 본문 클릭 = 모션 선택(BASE/레이어 공용). 드래그는 시작하지 않는다.
+                // 잠금 레이어에서도 선택(뷰)은 허용한다 — 이벤트 선택과 동일한 방침.
+                if (hit.kind == HitKind.ClipBody)
+                {
+                    drawer.SelectClipMotion(hit.playbackLayerIndex, hit.motionIndex);
+                    RefreshData(true);
+                    _onChanged?.Invoke();
+                    return false;
+                }
+
                 if (IsLayerLocked(hit.layer))
                     return false;
 
@@ -1489,8 +1578,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     return true;
                 }
 
+                // 클립 시작/끝 핸들 드래그. 잡는 즉시 해당 모션을 선택해 인스펙터를 연동한다.
+                drawer.SelectClipMotion(hit.playbackLayerIndex, hit.motionIndex);
                 _operation = hit.eventIndex == 0 ? DragOperation.ClipStart : DragOperation.ClipEnd;
                 RecordUndo(_operation == DragOperation.ClipStart ? "Drag Clip Start" : "Drag Clip End");
+                _onChanged?.Invoke();
                 return true;
             }
 
@@ -1595,7 +1687,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             drawer.cursorTime = Mathf.Clamp(SnapTime(XToTime(x, drawer), drawer), 0f, set.TotalDuration);
             drawer.cursorScrubRequested = true;
             UpdateCursorLabel();
-            _track.MarkDirtyRepaint();
+            UpdateCursorLine();
             _onScrub?.Invoke();
         }
 

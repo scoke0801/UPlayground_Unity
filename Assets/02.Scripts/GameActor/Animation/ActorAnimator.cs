@@ -15,7 +15,10 @@ namespace UPlayGround.Animation
         [SerializeField] private ActorAnimationMotionSet _motionSet;
 
         [SerializeField] protected AvatarMask _upperBodyMask;
-        
+
+        [Tooltip("상체 오버레이(이동하며 마시기 등)에 사용할 Animancer 레이어 인덱스. 이 레이어에 _upperBodyMask가 적용된다.")]
+        [SerializeField] protected int _upperBodyLayerIndex = 1;
+
         [Header("SubAnimator Setting")]
         [Tooltip("애니메이션에 종속적으로 실행되는 애니메이터, 무기 등")]
         [SerializeField] private ActorAnimator _subAnimator;
@@ -278,7 +281,7 @@ namespace UPlayGround.Animation
             animancer.Layers[0].ApplyAnimatorIK = true;
 
             if (_upperBodyMask != null)
-                animancer.Layers.SetMask(1, _upperBodyMask);
+                animancer.Layers.SetMask(Mathf.Max(1, _upperBodyLayerIndex), _upperBodyMask);
         }
 
 
@@ -418,6 +421,64 @@ namespace UPlayGround.Animation
             if (_subAnimator == null) return;
 
             _subAnimator.PlayMotion(key, fadeDuration, layerIndex);
+        }
+
+        // ── 상체 오버레이 레이어 ──
+        // 하체 로코모션(Layer 0 디렉터)을 그대로 유지한 채, 상체 마스크가 적용된 레이어에만
+        // 단발 모션을 얹는다. "이동하며 마시기"처럼 하체는 이동, 상체는 별도 동작이 필요할 때 사용한다.
+        // MotionSet 디렉터(_currentMotionSet/_globalTime/이벤트)를 건드리지 않으므로, 이벤트·타임라인이
+        // 없는 단순 단일 클립 모션(Drink 등) 전용이다. 완료 판정은 반환된 길이로 호출측이 타이머 처리한다.
+
+        /// <summary>
+        /// 상체 오버레이 레이어에 AnimKey의 첫 모션 클립을 1회 재생하고 실제 재생 길이(초)를 반환한다.
+        /// 재생에 실패하면 0을 반환한다. 디렉터를 사용하지 않으므로 OnMotionSetCompleted는 발화하지 않는다.
+        /// </summary>
+        public float PlayUpperBodyOverlay(AnimKey key, float fadeDuration = 0.15f)
+        {
+            if (_animator == null || _motionSet == null)
+                return 0f;
+
+            MotionSet set = _motionSet.GetMotionSet(key);
+            if (set == null || !set.IsValid())
+                return 0f;
+
+            Motion motion = (set.motions != null && set.motions.Count > 0) ? set.motions[0] : null;
+            if (motion == null || !motion.IsValid())
+                return 0f;
+
+            int layerIndex = Mathf.Max(1, _upperBodyLayerIndex);
+            AnimancerLayer layer = _animator.Layers[layerIndex];
+            if (layer.Mask == null)
+            {
+                Debug.LogWarning(
+                    $"[{name}] 상체 오버레이 레이어 {layerIndex}에 AvatarMask가 없어 전신을 덮습니다. " +
+                    "ActorAnimator의 Upper Body Mask를 할당하세요.", this);
+            }
+
+            layer.StartFade(1f, fadeDuration);
+            AnimancerState state = layer.Play(motion.motionClip, fadeDuration);
+            state.Time  = motion.ClipStartTime;
+            state.Speed = motion.playbackSpeed;
+            state.Events(this).OnEnd = null; // 종료/전환은 호출측 타이머로 판단
+
+            _subAnimator?.PlayUpperBodyOverlay(key, fadeDuration);
+
+            return motion.Duration; // 재생 구간·속도가 반영된 실제 재생 길이
+        }
+
+        /// <summary>
+        /// 상체 오버레이 레이어 가중치를 0으로 페이드해 하체(Layer 0) 포즈로 복귀시킨다.
+        /// </summary>
+        public void StopUpperBodyOverlay(float fadeDuration = 0.15f)
+        {
+            if (_animator == null)
+                return;
+
+            int layerIndex = Mathf.Max(1, _upperBodyLayerIndex);
+            if (layerIndex < _animator.Layers.Count)
+                _animator.Layers[layerIndex].StartFade(0f, fadeDuration);
+
+            _subAnimator?.StopUpperBodyOverlay(fadeDuration);
         }
 
         public MotionPlaybackSnapshot CapturePlaybackSnapshot()

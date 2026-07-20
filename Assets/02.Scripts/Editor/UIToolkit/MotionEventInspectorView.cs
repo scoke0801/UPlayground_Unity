@@ -64,7 +64,10 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             SerializedProperty selectedMotion = FindSelectedMotionProperty();
             if (selectedMotion != null)
             {
-                var label = new Label($"모션 #{drawer.selectedMotionIndex}");
+                string titleText = drawer.selectedLayerIndex >= 0
+                    ? $"L{drawer.selectedLayerIndex + 1} 모션 #{drawer.selectedMotionIndex}"
+                    : $"모션 #{drawer.selectedMotionIndex}";
+                var label = new Label(titleText);
                 label.AddToClassList("up-inspector-selection-title");
                 _content.Add(label);
                 _content.Add(new PropertyField(selectedMotion));
@@ -175,8 +178,10 @@ namespace UPlayGround.Animation.Editor.UIToolkit
         {
             if (_drawer.selectedMotionIndex < 0)
                 return null;
-            return _serializedObject.FindProperty(
-                $"motionSet.motions.Array.data[{_drawer.selectedMotionIndex}]");
+            string path = _drawer.selectedLayerIndex >= 0
+                ? $"motionSet.layers.Array.data[{_drawer.selectedLayerIndex}].motions.Array.data[{_drawer.selectedMotionIndex}]"
+                : $"motionSet.motions.Array.data[{_drawer.selectedMotionIndex}]";
+            return _serializedObject.FindProperty(path);
         }
 
         void HandlePropertyChanged(SerializedPropertyChangeEvent evt)

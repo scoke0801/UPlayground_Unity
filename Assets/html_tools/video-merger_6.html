@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>동영상 합치기</title>
+<style>
+  :root{
+    --bg:#15130f;
+    --panel:#1f1c17;
+    --line:#39332a;
+    --text:#f1ece0;
+    --sub:#a89f8f;
+    --accent:#e8823a;
+    --accent-dim:#5a3a20;
+    --ok:#7fae5c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:40px 20px; min-height:100vh;
+    background:var(--bg); color:var(--text);
+    font-family:'Segoe UI',system-ui,sans-serif;
+    display:flex; justify-content:center;
+  }
+  .app{width:100%; max-width:640px;}
+  h1{font-size:28px; margin:0 0 4px; letter-spacing:-0.5px;}
+  .lede{color:var(--sub); margin:0 0 28px; font-size:14px; line-height:1.5;}
+  .lede b{color:var(--accent); font-weight:600;}
+
+  .drop{
+    border:2px dashed var(--line); border-radius:12px;
+    padding:32px; text-align:center; cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .drop:hover, .drop.over{ border-color:var(--accent); background:#221e17; }
+  .drop p{margin:0; color:var(--sub); font-size:14px;}
+  .drop .big{color:var(--text); font-size:15px; margin-bottom:6px;}
+  input[type=file]{display:none;}
+
+  .list{margin:20px 0; display:flex; flex-direction:column; gap:8px;}
+  .item{
+    display:flex; align-items:center; gap:12px;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px;
+  }
+  .idx{
+    width:26px; height:26px; border-radius:50%; background:var(--accent-dim);
+    color:var(--accent); font-size:13px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .meta{flex:1; min-width:0;}
+  .fname{font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .fsize{font-size:12px; color:var(--sub);}
+  .item button{
+    background:none; border:none; color:var(--sub); cursor:pointer;
+    font-size:16px; padding:4px 8px; border-radius:6px; line-height:1;
+  }
+  .item button:hover{ color:var(--text); background:#2a251d; }
+  .item button:disabled{opacity:.3; cursor:default;}
+
+  .fmt-row{
+    display:flex; align-items:center; gap:16px; margin:4px 0 12px;
+    font-size:14px; color:var(--sub);
+  }
+  .fmt-row label{
+    display:flex; align-items:center; gap:6px; cursor:pointer; color:var(--text);
+  }
+  .fmt-row label.off{ opacity:.4; cursor:default; }
+  .fmt-row input{ accent-color:var(--accent); }
+
+  .merge-btn{
+    width:100%; padding:14px; margin-top:8px;
+    background:var(--accent); color:#1a1108; border:none; border-radius:10px;
+    font-size:15px; font-weight:700; cursor:pointer;
+  }
+  .merge-btn:disabled{ background:var(--accent-dim); color:var(--sub); cursor:default; }
+
+  .note{
+    margin-top:10px; font-size:12px; color:var(--sub); line-height:1.5;
+  }
+
+  .cmd-btn{
+    width:100%; padding:12px; margin-top:8px;
+    background:none; border:1px solid var(--accent); color:var(--accent);
+    border-radius:10px; font-size:14px; font-weight:700; cursor:pointer;
+  }
+  .cmd-btn:hover:not(:disabled){ background:var(--accent-dim); }
+  .cmd-btn:disabled{ border-color:var(--line); color:var(--sub); opacity:.5; cursor:default; }
+
+  .cmd-panel{margin-top:16px; display:none; flex-direction:column; gap:14px;}
+  .cmd-panel.show{display:flex;}
+  .cmd-step{
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:14px;
+  }
+  .cmd-step h3{margin:0 0 8px; font-size:14px; color:var(--accent);}
+  .cmd-step .desc{font-size:13px; color:var(--sub); margin:0 0 10px; line-height:1.5;}
+  .cmd-step pre{
+    margin:0; padding:10px 12px; background:#0f0d0a; border-radius:8px;
+    font-size:13px; line-height:1.6; overflow-x:auto; color:#d7f0c8;
+    font-family:Consolas,'Courier New',monospace; white-space:pre-wrap; word-break:break-all;
+  }
+  .cmd-actions{display:flex; gap:8px; margin-top:10px;}
+  .cmd-actions button, .cmd-actions a{
+    padding:6px 14px; font-size:13px; border-radius:8px; cursor:pointer;
+    background:#2a251d; border:1px solid var(--line); color:var(--text);
+    text-decoration:none;
+  }
+  .cmd-actions button:hover, .cmd-actions a:hover{ border-color:var(--accent); }
+
+  .progress-wrap{margin-top:18px; display:none;}
+  .progress-wrap.show{display:block;}
+  .bar-track{height:8px; background:var(--panel); border-radius:4px; overflow:hidden; border:1px solid var(--line);}
+  .bar-fill{height:100%; width:0%; background:var(--accent); transition:width .2s;}
+  .status{font-size:13px; color:var(--sub); margin-top:8px;}
+
+  .live{
+    margin-top:14px; display:none;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+  }
+  .live.show{display:block;}
+  .live canvas{width:100%; display:block; background:#000;}
+
+  .result{margin-top:24px; display:none;}
+  .result.show{display:block;}
+  .result video{width:100%; border-radius:10px; border:1px solid var(--line); background:#000;}
+  .dl{
+    display:block; text-align:center; margin-top:12px; padding:12px;
+    background:var(--ok); color:#0f1a0a; border-radius:10px;
+    text-decoration:none; font-weight:700; font-size:14px;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>동영상 합치기</h1>
+  <p class="lede">여러 영상을 원하는 순서로 이어붙입니다. 모든 처리는 <b>브라우저 안에서</b> 실행되며 파일이 어디에도 업로드되지 않습니다.</p>
+
+  <div class="drop" id="drop">
+    <p class="big">파일을 드래그하거나 클릭해서 선택</p>
+    <p>mp4, mov, webm 등 여러 파일 + SRT 자막 파일 함께 선택 가능</p>
+  </div>
+  <input type="file" id="fileInput" accept="video/*,.srt" multiple>
+
+  <div class="list" id="list"></div>
+
+  <div class="fmt-row">
+    <span>출력 형식</span>
+    <label><input type="radio" name="fmt" value="mp4" id="fmtMp4"> MP4</label>
+    <label><input type="radio" name="fmt" value="webm" id="fmtWebm"> WebM</label>
+  </div>
+  <div class="fmt-row">
+    <span>해상도</span>
+    <label><input type="radio" name="res" value="0" checked> 원본</label>
+    <label><input type="radio" name="res" value="1440"> 1440p</label>
+    <label><input type="radio" name="res" value="1080"> 1080p</label>
+    <label><input type="radio" name="res" value="720"> 720p</label>
+  </div>
+
+  <button class="merge-btn" id="mergeBtn" disabled>영상 합치기 (브라우저에서 처리)</button>
+  <button class="cmd-btn" id="cmdBtn" disabled>ffmpeg 명령어 생성 (무손실 · 로컬 처리용)</button>
+  <p class="note">영상을 실시간으로 재생하며 녹화하는 방식이라 <b>전체 영상 길이만큼</b> 시간이 걸리고, 처리 중에는 이 탭을 화면에 켜둔 상태로 유지해야 합니다. 화질 손실 없이 빠르게 처리하려면 아래의 ffmpeg 명령어 생성을 이용하세요 (PC에 ffmpeg 설치 필요).</p>
+
+  <div class="cmd-panel" id="cmdPanel"></div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
+    <div class="status" id="status">대기 중...</div>
+  </div>
+
+  <div class="live" id="live"><canvas id="canvas"></canvas></div>
+
+  <div class="result" id="result">
+    <video id="preview" controls></video>
+    <a class="dl" id="dlLink" download="merged.webm">결과 파일 다운로드 (.webm)</a>
+  </div>
+</div>
+
+<script>
+const drop = document.getElementById("drop");
+const fileInput = document.getElementById("fileInput");
+const listEl = document.getElementById("list");
+const mergeBtn = document.getElementById("mergeBtn");
+const progressWrap = document.getElementById("progressWrap");
+const barFill = document.getElementById("barFill");
+const statusEl = document.getElementById("status");
+const liveEl = document.getElementById("live");
+const canvas = document.getElementById("canvas");
+const resultEl = document.getElementById("result");
+const preview = document.getElementById("preview");
+const dlLink = document.getElementById("dlLink");
+
+const FPS = 30;
+let W = 1280, H = 720; // 실제 값은 합치기 시작 시 입력 영상 해상도에 맞춰 결정됨
+canvas.width = W; canvas.height = H;
+const ctx = canvas.getContext("2d");
+
+let items = []; // 합쳐질 순서대로 { file, srt(File|null), cues(파싱된 자막) }
+
+// ---- SRT 파싱 ----
+// 한국어 SRT는 EUC-KR 인코딩인 경우가 많아 UTF-8 실패 시 폴백
+async function readTextSmart(file) {
+  const buf = await file.arrayBuffer();
+  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(buf);
+  if (!utf8.includes("\uFFFD")) return utf8;
+  try { return new TextDecoder("euc-kr").decode(buf); } catch { return utf8; }
+}
+
+function parseSrtTime(t) { // "00:01:23,456" → 초
+  const m = t.trim().match(/(\d+):(\d+):(\d+)[,.](\d+)/);
+  return m ? (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) + (+m[4]) / 1000 : 0;
+}
+
+async function parseSrt(file) {
+  const text = (await readTextSmart(file)).replace(/^\uFEFF/, "");
+  const cues = [];
+  for (const block of text.split(/\r?\n\r?\n/)) {
+    const lines = block.split(/\r?\n/).filter(l => l.trim());
+    const tIdx = lines.findIndex(l => l.includes("-->"));
+    if (tIdx === -1) continue;
+    const [start, end] = lines[tIdx].split("-->").map(parseSrtTime);
+    const textLines = lines.slice(tIdx + 1).map(l => l.replace(/<[^>]+>/g, "").trim());
+    if (textLines.length) cues.push({ start, end, lines: textLines });
+  }
+  return cues;
+}
+
+// ---- 캔버스에 자막 그리기 ----
+function drawSubtitle(cues, time) {
+  const cue = cues.find(c => time >= c.start && time <= c.end);
+  if (!cue) return;
+  const fontSize = Math.round(H * 0.047); // 720p 기준 약 34px, 해상도에 비례
+  const lineH = fontSize * 1.3, pad = fontSize * 0.3;
+  ctx.font = `bold ${fontSize}px 'Malgun Gothic', sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  const baseY = H - Math.round(H * 0.042);
+  cue.lines.forEach((line, i) => {
+    const y = baseY - (cue.lines.length - 1 - i) * lineH;
+    const w = ctx.measureText(line).width;
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
+    ctx.fillRect(W / 2 - w / 2 - pad, y - fontSize - pad / 2, w + pad * 2, lineH + pad / 2);
+    ctx.fillStyle = "#fff";
+    ctx.fillText(line, W / 2, y);
+  });
+}
+
+// ---- 출력 형식: 브라우저 지원 여부 감지 ----
+const FORMATS = {
+  mp4: {
+    // avc1.640033 = High Profile Level 5.1 (4K까지 지원). Level 4.0(640028)은 1080p까지만 지원하므로 사용 금지
+    mimes: ["video/mp4;codecs=avc1.640033,mp4a.40.2", "video/mp4;codecs=avc1,mp4a.40.2", "video/mp4"],
+    ext: "mp4", blobType: "video/mp4",
+  },
+  webm: {
+    mimes: ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"],
+    ext: "webm", blobType: "video/webm",
+  },
+};
+function supportedMime(fmt) {
+  return FORMATS[fmt].mimes.find(m => MediaRecorder.isTypeSupported(m)) || null;
+}
+function initFormatUI() {
+  const mp4Radio = document.getElementById("fmtMp4");
+  const webmRadio = document.getElementById("fmtWebm");
+  const mp4OK = !!supportedMime("mp4");
+  if (!mp4OK) {
+    mp4Radio.disabled = true;
+    mp4Radio.parentElement.classList.add("off");
+    mp4Radio.parentElement.append(" (이 브라우저 미지원)");
+  }
+  (mp4OK ? mp4Radio : webmRadio).checked = true;
+}
+initFormatUI();
+function selectedFormat() {
+  return document.querySelector('input[name="fmt"]:checked').value;
+}
+
+// ---- 파일 선택 UI ----
+drop.addEventListener("click", () => fileInput.click());
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("over"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+drop.addEventListener("drop", e => {
+  e.preventDefault();
+  drop.classList.remove("over");
+  addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener("change", () => addFiles(fileInput.files));
+
+function addFiles(fileList) {
+  const srts = [];
+  for (const f of fileList) {
+    if (f.type.startsWith("video/")) items.push({ file: f, srt: null });
+    else if (f.name.toLowerCase().endsWith(".srt")) srts.push(f);
+  }
+  // SRT는 같은 이름의 영상에 자동 매칭, 없으면 마지막 영상에 첨부
+  for (const s of srts) {
+    const base = s.name.replace(/\.srt$/i, "");
+    const target = items.find(it => it.file.name.replace(/\.[^.]+$/, "") === base && !it.srt)
+                || items.filter(it => !it.srt).at(-1);
+    if (target) target.srt = s;
+  }
+  fileInput.value = "";
+  renderList();
+}
+
+function renderList() {
+  listEl.innerHTML = "";
+  items.forEach((it, i) => {
+    const row = document.createElement("div");
+    row.className = "item";
+    row.innerHTML = `
+      <div class="idx">${i + 1}</div>
+      <div class="meta">
+        <div class="fname">${it.file.name}</div>
+        <div class="fsize">${(it.file.size / 1024 / 1024).toFixed(1)} MB${it.srt ? ` · 자막: ${it.srt.name}` : ""}</div>
+      </div>
+      <button data-act="srt" title="SRT 자막 첨부">${it.srt ? "자막✓" : "자막"}</button>
+      <button data-act="up" ${i === 0 ? "disabled" : ""}>▲</button>
+      <button data-act="down" ${i === items.length - 1 ? "disabled" : ""}>▼</button>
+      <button data-act="del">✕</button>
+    `;
+    row.querySelector('[data-act="srt"]').onclick = () => {
+      if (it.srt) { it.srt = null; renderList(); return; } // 다시 누르면 자막 제거
+      const inp = document.createElement("input");
+      inp.type = "file"; inp.accept = ".srt";
+      inp.onchange = () => { if (inp.files[0]) { it.srt = inp.files[0]; renderList(); } };
+      inp.click();
+    };
+    row.querySelector('[data-act="up"]').onclick = () => moveFile(i, -1);
+    row.querySelector('[data-act="down"]').onclick = () => moveFile(i, 1);
+    row.querySelector('[data-act="del"]').onclick = () => { items.splice(i, 1); renderList(); };
+    listEl.appendChild(row);
+  });
+  updateMergeBtn();
+}
+
+function updateMergeBtn() {
+  // 영상 2개 이상 합치기, 또는 영상 1개 + 자막 입히기
+  const ok = items.length >= 2 || (items.length === 1 && items[0].srt);
+  mergeBtn.disabled = !ok;
+  cmdBtn.disabled = !ok;
+}
+
+function moveFile(i, dir) {
+  const j = i + dir;
+  [items[i], items[j]] = [items[j], items[i]];
+  renderList();
+}
+
+function setProgress(pct) {
+  barFill.style.width = `${Math.min(100, Math.max(0, pct)).toFixed(1)}%`;
+}
+
+// ---- 유틸: 파일 바이트에서 비디오 코덱 판별 ----
+const CODEC_TABLE = [
+  ["hvc1", "HEVC(H.265)"], ["hev1", "HEVC(H.265)"],
+  ["avc1", "H.264"], ["avc3", "H.264"],
+  ["av01", "AV1"], ["vp09", "VP9"], ["vp08", "VP8"], ["mp4v", "MPEG-4"],
+];
+async function sniffCodec(file) {
+  // moov 박스가 앞/뒤 어디에 있을지 모르므로 앞 8MB + 뒤 8MB를 검사
+  const CHUNK = 8 * 1024 * 1024;
+  const parts = file.size <= CHUNK * 2
+    ? [file]
+    : [file.slice(0, CHUNK), file.slice(file.size - CHUNK)];
+  const found = new Set();
+  for (const p of parts) {
+    const text = new TextDecoder("latin1").decode(new Uint8Array(await p.arrayBuffer()));
+    for (const [fourcc, label] of CODEC_TABLE) if (text.includes(fourcc)) found.add(label);
+  }
+  return [...found];
+}
+
+// ---- 유틸: 이 환경에서 영상 재생 자체가 가능한지 확인 (초소형 내장 H.264 영상) ----
+const ENV_TEST_VIDEO = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAWlbW9vdgAAAGxtdmhkAAAAAAAAAAAAAAAAAAAD6AAAAMgAAQAAAQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAoJ0cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAABAAAAAAAAAMgAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAEAAAABAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAADIAAAAAAABAAAAAAH6bWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAyAAAACgBVxAAAAAAALWhkbHIAAAAAAAAAAHZpZGUAAAAAAAAAAAAAAABWaWRlb0hhbmRsZXIAAAABpW1pbmYAAAAUdm1oZAAAAAEAAAAAAAAAAAAAACRkaW5mAAAAHGRyZWYAAAAAAAAAAQAAAAx1cmwgAAAAAQAAAWVzdGJsAAAAuXN0c2QAAAAAAAAAAQAAAKlhdmMxAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAEAAQABIAAAASAAAAAAAAAABFUxhdmM2MC4zMS4xMDIgbGlieDI2NAAAAAAAAAAAAAAAGP//AAAAL2F2Y0MBQsAK/+EAF2dCwArZBCbARAAAAwAEAAADAMg8SJkgAQAFaMuDyyAAAAAQcGFzcAAAAAEAAAABAAAAFGJ0cnQAAAAAAABsmAAAbJgAAAAYc3R0cwAAAAAAAAABAAAABQAAAgAAAAAUc3RzcwAAAAAAAAABAAAAAQAAADRzdHNjAAAAAAAAAAMAAAABAAAAAQAAAAEAAAACAAAAAwAAAAEAAAADAAAAAQAAAAEAAAAoc3RzegAAAAAAAAAAAAAABQAAAo8AAAAKAAAACgAAAAoAAAAKAAAAHHN0Y28AAAAAAAAAAwAABeoAAAh9AAAInwAAAk10cmFrAAAAXHRraGQAAAADAAAAAAAAAAAAAAACAAAAAAAAAMgAAAAAAAAAAAAAAAEBAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAADIAAAEAAABAAAAAAHFbWRpYQAAACBtZGhkAAAAAAAAAAAAAAAAAAAfQAAACkBVxAAAAAAALWhkbHIAAAAAAAAAAHNvdW4AAAAAAAAAAAAAAABTb3VuZEhhbmRsZXIAAAABcG1pbmYAAAAQc21oZAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAABNHN0YmwAAAB+c3RzZAAAAAAAAAABAAAAbm1wNGEAAAAAAAAAAQAAAAAAAAAAAAEAEAAAAAAfQAAAAAAANmVzZHMAAAAAA4CAgCUAAgAEgICAF0AVAAAAAAAfQAAAAsMFgICABRWIVuUABoCAgAECAAAAFGJ0cnQAAAAAAAAfQAAAAsMAAAAgc3R0cwAAAAAAAAACAAAAAgAABAAAAAABAAACQAAAABxzdHNjAAAAAAAAAAEAAAABAAAAAQAAAAEAAAAgc3RzegAAAAAAAAAAAAAAAwAAABUAAAAEAAAABAAAABxzdGNvAAAAAAAAAAMAAAXVAAAIeQAACJsAAAAac2dwZAEAAAByb2xsAAAAAgAAAAH//wAAABxzYmdwAAAAAHJvbGwAAAABAAAAAwAAAAEAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjYwLjE2LjEwMAAAAAhmcmVlAAAC3G1kYXTeAgBMYXZjNjAuMzEuMTAyAAIwQA4AAAJxBgX//23cRem95tlIt5Ys2CDZI+7veDI2NCAtIGNvcmUgMTY0IHIzMTA4IDMxZTE5ZjkgLSBILjI2NC9NUEVHLTQgQVZDIGNvZGVjIC0gQ29weWxlZnQgMjAwMy0yMDIzIC0gaHR0cDovL3d3dy52aWRlb2xhbi5vcmcveDI2NC5odG1sIC0gb3B0aW9uczogY2FiYWM9MCByZWY9MyBkZWJsb2NrPTE6MDowIGFuYWx5c2U9MHgxOjB4MTExIG1lPWhleCBzdWJtZT03IHBzeT0xIHBzeV9yZD0xLjAwOjAuMDAgbWl4ZWRfcmVmPTEgbWVfcmFuZ2U9MTYgY2hyb21hX21lPTEgdHJlbGxpcz0xIDh4OGRjdD0wIGNxbT0wIGRlYWR6b25lPTIxLDExIGZhc3RfcHNraXA9MSBjaHJvbWFfcXBfb2Zmc2V0PS0yIHRocmVhZHM9MSBsb29rYWhlYWRfdGhyZWFkcz0xIHNsaWNlZF90aHJlYWRzPTAgbnI9MCBkZWNpbWF0ZT0xIGludGVybGFjZWQ9MCBibHVyYXlfY29tcGF0PTAgY29uc3RyYWluZWRfaW50cmE9MCBiZnJhbWVzPTAgd2VpZ2h0cD0wIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2FoZWFkPTQwIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS40MCBhcT0xOjEuMDAAgAAAABZliIQM8mKAALC8nJyddddddddddddeARggBwAAAAZBmjgZ4RgAAAAGQZpUBfhGAAAABkGaYC/CMAEYIAcAAAAGQZqAK8Iw";
+let envPlayable = null;
+async function checkEnvPlayable() {
+  if (envPlayable !== null) return envPlayable;
+  try { await tryLoadVideo(ENV_TEST_VIDEO); envPlayable = true; }
+  catch { envPlayable = false; }
+  return envPlayable;
+}
+
+// ---- 유틸: 영상 메타데이터 로드 ----
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(new Error(`"${file.name}" 파일을 읽을 수 없습니다.`));
+    r.readAsDataURL(file);
+  });
+}
+
+function tryLoadVideo(src) {
+  return new Promise((resolve, reject) => {
+    const v = document.createElement("video");
+    v.preload = "auto";
+    v.playsInline = true;
+    v.src = src;
+    v.onloadedmetadata = () => resolve(v);
+    v.onerror = reject;
+  });
+}
+
+// Blob URL이 차단되는 환경(샌드박스 등)에서는 Data URL로 폴백
+async function loadVideo(file) {
+  try {
+    return await tryLoadVideo(URL.createObjectURL(file));
+  } catch {
+    statusEl.textContent = `"${file.name}" 다른 방식으로 읽는 중...`;
+    try {
+      return await tryLoadVideo(await fileToDataURL(file));
+    } catch {
+      // 원인 진단: 환경 문제인지 코덱 문제인지 구분
+      if (!(await checkEnvPlayable())) {
+        throw new Error("이 실행 환경이 영상 재생 자체를 차단하고 있습니다. HTML 파일을 다운로드해서 브라우저에서 직접 열면 정상 동작합니다.");
+      }
+      const codecs = await sniffCodec(file);
+      const codecMsg = codecs.length ? ` (감지된 코덱: ${codecs.join(", ")})` : "";
+      throw new Error(`"${file.name}" 파일을 열 수 없습니다. 브라우저가 지원하지 않는 코덱일 수 있습니다.${codecMsg}`);
+    }
+  }
+}
+
+// ---- ffmpeg 명령어 생성 (무손실 · 로컬 처리용) ----
+const cmdBtn = document.getElementById("cmdBtn");
+const cmdPanel = document.getElementById("cmdPanel");
+cmdBtn.addEventListener("click", generateCommands);
+
+const secToSrt = s => {
+  const ms = Math.max(0, Math.round(s * 1000));
+  const h = String(Math.floor(ms / 3600000)).padStart(2, "0");
+  const m = String(Math.floor(ms / 60000) % 60).padStart(2, "0");
+  const sec = String(Math.floor(ms / 1000) % 60).padStart(2, "0");
+  return `${h}:${m}:${sec},${String(ms % 1000).padStart(3, "0")}`;
+};
+
+function addStep(title, desc, code, downloads = []) {
+  const div = document.createElement("div");
+  div.className = "cmd-step";
+  const h = document.createElement("h3"); h.textContent = title;
+  const p = document.createElement("p"); p.className = "desc"; p.textContent = desc;
+  const pre = document.createElement("pre"); pre.textContent = code;
+  const actions = document.createElement("div"); actions.className = "cmd-actions";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.textContent = "복사";
+  copyBtn.onclick = async () => {
+    try { await navigator.clipboard.writeText(code); copyBtn.textContent = "복사됨!"; }
+    catch { // 클립보드가 막힌 환경이면 텍스트를 선택 상태로
+      const r = document.createRange(); r.selectNodeContents(pre);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      copyBtn.textContent = "선택됨 (Ctrl+C)";
+    }
+    setTimeout(() => copyBtn.textContent = "복사", 2000);
+  };
+  actions.appendChild(copyBtn);
+
+  for (const d of downloads) {
+    const a = document.createElement("a");
+    a.textContent = `${d.name} 다운로드`;
+    a.download = d.name;
+    a.href = "data:text/plain;charset=utf-8," + encodeURIComponent(d.text);
+    actions.appendChild(a);
+  }
+  div.append(h, p, pre, actions);
+  cmdPanel.appendChild(div);
+}
+
+async function generateCommands() {
+  cmdPanel.innerHTML = "";
+  cmdPanel.classList.add("show");
+  const vids = items.map(it => it.file.name);
+  const hasSrt = items.some(it => it.srt);
+  const multi = vids.length >= 2;
+  let step = 1;
+
+  if (multi) {
+    const listTxt = vids.map(n => `file '${n.replace(/'/g, "'\\''")}'`).join("\n") + "\n";
+    addStep(`${step++}. 영상 이어붙이기 (무손실, 재인코딩 없음)`,
+      "모든 영상 파일과 list.txt를 같은 폴더에 두고 그 폴더에서 실행하세요. 영상들의 코덱·해상도·프레임레이트가 모두 같아야 합니다.",
+      `ffmpeg -f concat -safe 0 -i list.txt -c copy merged.mp4`,
+      [{ name: "list.txt", text: listTxt }]);
+    addStep(`${step - 1}-대안. 코덱이 서로 다를 때 (재인코딩)`,
+      "위 명령이 오류가 나거나 결과가 깨질 때만 사용하세요. 화질 손실이 거의 없는 설정(crf 18)입니다.",
+      `ffmpeg -f concat -safe 0 -i list.txt -c:v libx264 -crf 18 -preset medium -c:a aac merged.mp4`);
+  }
+
+  if (hasSrt) {
+    const target = multi ? "merged.mp4" : `"${vids[0]}"`;
+    let srtName, downloads = [];
+
+    if (!multi) {
+      srtName = `"${items[0].srt.name}"`;
+    } else {
+      // 여러 영상에 붙은 자막들을 합쳐진 타임라인 기준으로 오프셋 조정한 merged.srt 생성
+      try {
+        statusEl.textContent = "자막 타임라인 계산을 위해 영상 길이를 읽는 중...";
+        progressWrap.classList.add("show");
+        let offset = 0, n = 1;
+        const blocks = [];
+        for (const it of items) {
+          const v = await loadVideo(it.file);
+          if (it.srt) {
+            for (const c of await parseSrt(it.srt)) {
+              blocks.push(`${n++}\n${secToSrt(c.start + offset)} --> ${secToSrt(c.end + offset)}\n${c.lines.join("\n")}`);
+            }
+          }
+          offset += v.duration;
+          URL.revokeObjectURL(v.src);
+        }
+        statusEl.textContent = "";
+        srtName = "merged.srt";
+        downloads.push({ name: "merged.srt", text: blocks.join("\n\n") + "\n" });
+      } catch (e) {
+        addStep(`${step++}. 자막 합치기 (수동 필요)`,
+          `영상 길이를 읽을 수 없어 자막 타임코드 오프셋을 자동 계산하지 못했습니다 (${e.message}). 각 SRT의 시간을 앞 영상들의 길이만큼 수동으로 밀어서 하나의 SRT로 합친 뒤 아래 명령을 사용하세요.`,
+          `ffmpeg -i merged.mp4 -i merged.srt -c copy -c:s mov_text output.mp4`);
+        return;
+      }
+    }
+
+    addStep(`${step++}. 자막 트랙 넣기 (무손실, 소프트섭)`,
+      "영상/오디오는 그대로 복사하고 자막 트랙만 추가합니다. 플레이어에서 자막을 켜고 끌 수 있습니다.",
+      `ffmpeg -i ${target} -i ${srtName} -c copy -c:s mov_text output.mp4`,
+      downloads);
+    addStep(`${step - 1}-대안. 자막 영상에 굽기 (하드섭, 재인코딩)`,
+      "자막을 끌 수 없는 플레이어(일부 TV 등)용. 픽셀에 직접 그리므로 재인코딩이 필요합니다.",
+      `ffmpeg -i ${target} -vf "subtitles=${srtName.replace(/"/g, "")}" -c:v libx264 -crf 18 -c:a copy output_hard.mp4`);
+  }
+
+  addStep("참고", "ffmpeg 설치: Windows는 winget install ffmpeg, macOS는 brew install ffmpeg. 명령은 파일들이 있는 폴더에서 실행하세요.", "cd 영상이_있는_폴더");
+}
+
+// ---- 합치기 실행 ----
+mergeBtn.addEventListener("click", async () => {
+  mergeBtn.disabled = true;
+  progressWrap.classList.add("show");
+  liveEl.classList.add("show");
+  resultEl.classList.remove("show");
+  setProgress(0);
+  statusEl.textContent = "영상 정보를 읽는 중...";
+
+  const cleanupUrls = [];
+  try {
+    // 1) 모든 영상 메타데이터 + 자막 파싱
+    const videos = [];
+    for (const it of items) {
+      const v = await loadVideo(it.file);
+      cleanupUrls.push(v.src);
+      it.cues = it.srt ? await parseSrt(it.srt) : null;
+      videos.push(v);
+    }
+    const totalDur = videos.reduce((s, v) => s + v.duration, 0);
+
+    // 1.5) 출력 해상도 결정: 입력 중 가장 큰 해상도 기준, 선택 시 상한 적용
+    const srcW = Math.max(...videos.map(v => v.videoWidth));
+    const srcH = Math.max(...videos.map(v => v.videoHeight));
+    const cap = +document.querySelector('input[name="res"]:checked').value; // 0 = 원본
+    const ratio = cap && srcH > cap ? cap / srcH : 1;
+    W = Math.round(srcW * ratio / 2) * 2; // 인코더 호환을 위해 짝수로
+    H = Math.round(srcH * ratio / 2) * 2;
+    canvas.width = W; canvas.height = H;
+    statusEl.textContent = `출력 해상도 ${W}×${H}로 녹화 준비 중...`;
+    // 해상도에 비례한 비트레이트 (720p≈5.5M, 1080p≈12M, 1440p≈22M)
+    const bitrate = Math.round(W * H * FPS * 0.2);
+
+    // 2) 캔버스 영상 + 오디오 스트림 구성
+    const audioCtx = new AudioContext();
+    await audioCtx.resume();
+    const audioDest = audioCtx.createMediaStreamDestination();
+
+    const stream = canvas.captureStream(FPS);
+    stream.addTrack(audioDest.stream.getAudioTracks()[0]);
+
+    // 3) MediaRecorder 준비 (선택한 형식의 지원 코덱 사용)
+    const fmt = FORMATS[selectedFormat()];
+    const mime = supportedMime(selectedFormat());
+    if (!mime) throw new Error("이 브라우저는 선택한 형식의 녹화를 지원하지 않습니다.");
+    const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: bitrate });
+    const chunks = [];
+    recorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    const recorded = new Promise(res => { recorder.onstop = res; });
+    recorder.start(500);
+
+    // 4) 영상을 순서대로 재생하며 캔버스에 그리기 (자막 포함)
+    let doneDur = 0;
+    for (let i = 0; i < videos.length; i++) {
+      const v = videos[i];
+      const cues = items[i].cues;
+      statusEl.textContent = `(${i + 1}/${videos.length}) "${items[i].file.name}" 처리 중...`;
+
+      // 오디오 연결 (오디오 트랙이 없어도 오류 없이 무음 처리됨)
+      const src = audioCtx.createMediaElementSource(v);
+      src.connect(audioDest);
+
+      // 비율 유지하며 캔버스에 맞추기 (letterbox)
+      const scale = Math.min(W / v.videoWidth, H / v.videoHeight);
+      const dw = v.videoWidth * scale, dh = v.videoHeight * scale;
+      const dx = (W - dw) / 2, dy = (H - dh) / 2;
+
+      await v.play();
+      await new Promise(resolve => {
+        let raf;
+        const draw = () => {
+          ctx.fillStyle = "#000";
+          ctx.fillRect(0, 0, W, H);
+          ctx.drawImage(v, dx, dy, dw, dh);
+          if (cues) drawSubtitle(cues, v.currentTime);
+          setProgress(((doneDur + v.currentTime) / totalDur) * 100);
+          if (v.ended) { cancelAnimationFrame(raf); resolve(); }
+          else raf = requestAnimationFrame(draw);
+        };
+        draw();
+      });
+      src.disconnect();
+      doneDur += v.duration;
+    }
+
+    // 5) 녹화 종료 및 결과 생성
+    recorder.stop();
+    await recorded;
+    audioCtx.close();
+
+    const blob = new Blob(chunks, { type: fmt.blobType });
+    const url = URL.createObjectURL(blob);
+    preview.src = url;
+    dlLink.href = url;
+    dlLink.download = `merged.${fmt.ext}`;
+    dlLink.textContent = `결과 파일 다운로드 (.${fmt.ext})`;
+    // Blob URL이 차단되는 환경이면 Data URL로 폴백
+    preview.onerror = async () => {
+      preview.onerror = null;
+      const dataURL = await fileToDataURL(blob);
+      preview.src = dataURL;
+      dlLink.href = dataURL;
+    };
+    resultEl.classList.add("show");
+    liveEl.classList.remove("show");
+    // 결과 파일의 실제 해상도를 읽어서 표시 (의도한 해상도와 다르면 바로 알 수 있도록)
+    preview.onloadedmetadata = () => {
+      statusEl.textContent = `완료! ${preview.videoWidth}×${preview.videoHeight}, ${(blob.size / 1024 / 1024).toFixed(1)} MB` +
+        (preview.videoWidth !== W ? ` ⚠ 목표 해상도(${W}×${H})와 다릅니다. 브라우저 인코더 제한일 수 있습니다.` : "");
+    };
+    statusEl.textContent = `완료! (${(blob.size / 1024 / 1024).toFixed(1)} MB)`;
+    setProgress(100);
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `오류 발생: ${err.message ?? err}`;
+    liveEl.classList.remove("show");
+  } finally {
+    cleanupUrls.forEach(u => URL.revokeObjectURL(u));
+    updateMergeBtn();
+  }
+});
+</script>
+</body>
+</html>

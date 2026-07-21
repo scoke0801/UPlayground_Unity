@@ -171,7 +171,9 @@ namespace UPlayGround.UI
                     ? $"{effectiveRank} (투자 {rank} + 장비 {equipmentRank})"
                     : $"{rank} / {Mathf.Max(1, rule.maxRank)}";
             if (card.effectText != null) card.effectText.text = $"랭크당 +{FormatEffect(rule)}";
-            if (card.milestoneText != null) card.milestoneText.text = GetNextMilestoneText(rule, effectiveRank);
+            if (card.milestoneText != null)
+                card.milestoneText.text = GetNextMilestoneText(
+                    party.GetGrowthUnlockMilestones(_targetType, card.attribute), effectiveRank);
             if (card.investButton != null)
                 card.investButton.interactable = party.GetGrowthPoints(_targetType) > 0 && rank < Mathf.Max(1, rule.maxRank);
         }
@@ -228,13 +230,13 @@ namespace UPlayGround.UI
                 ? $"{rule.flatPerRank * 100f:0.#}%"
                 : $"{rule.flatPerRank:0.#}";
 
-        private static string GetNextMilestoneText(GrowthInvestmentRule rule, int rank)
+        private static string GetNextMilestoneText(List<GrowthUnlockMilestone> milestones, int rank)
         {
-            if (rule.milestones == null || rule.milestones.Count == 0) return "마일스톤 없음";
+            if (milestones == null || milestones.Count == 0) return "마일스톤 없음";
             GrowthUnlockMilestone? next = null;
-            for (int i = 0; i < rule.milestones.Count; i++)
+            for (int i = 0; i < milestones.Count; i++)
             {
-                GrowthUnlockMilestone milestone = rule.milestones[i];
+                GrowthUnlockMilestone milestone = milestones[i];
                 if (milestone.requiredRank <= rank) continue;
                 if (!next.HasValue || milestone.requiredRank < next.Value.requiredRank) next = milestone;
             }

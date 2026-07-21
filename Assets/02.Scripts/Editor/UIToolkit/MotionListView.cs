@@ -27,6 +27,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit
         readonly ListView _list;
         bool _suppressSelection;
         bool _restoreKeyboardFocusAfterRebuild;
+        bool _rebuildScheduled;
 
         public MotionListView(Action<Item> onSelected, Action onAdd)
         {
@@ -221,6 +222,22 @@ namespace UPlayGround.Animation.Editor.UIToolkit
         }
 
         void RebuildVisibleItems()
+        {
+            if (_rebuildScheduled)
+                return;
+
+            // 이 목록은 IMGUIContainer의 레이아웃 계산 중에도 갱신 요청을 받을 수 있다.
+            // 그 시점에 ListView.Rebuild를 즉시 호출하면 VisualElement 계층 변경 예외가
+            // 발생하므로 다음 UI 업데이트로 합친다.
+            _rebuildScheduled = true;
+            _list.schedule.Execute(() =>
+            {
+                _rebuildScheduled = false;
+                RebuildVisibleItemsNow();
+            });
+        }
+
+        void RebuildVisibleItemsNow()
         {
             bool restoreKeyboardFocus =
                 _restoreKeyboardFocusAfterRebuild || HasListKeyboardFocus();

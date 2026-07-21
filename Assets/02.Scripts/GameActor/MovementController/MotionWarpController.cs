@@ -586,14 +586,16 @@ namespace UPlayGround.MovementController
             float remainingDist = toTarget.magnitude;
             if (!_feasibilityChecked)
             {
+                // 사거리(min/max) 밖이면 캔슬. "maxSpeed×duration 내 도달 불가"는 더 이상 캔슬 사유가 아니다:
+                // maxDistance 로 이미 상한이 걸려 있고, 도달 못 하는 거리라도 ClampHorizontal 의 maxSpeed 클램프로
+                // "붙을 수 있는 데까지 최대속도 접근" 하는 편이 워프를 통째로 죽이고 허공을 치는 것보다 낫다.
                 bool outOfRange = remainingDist < minDistance || remainingDist > maxDistance;
-                bool unreachable = totalDuration > 0f && remainingDist > maxSpeed * totalDuration;
 
-                if (outOfRange || unreachable)
+                if (outOfRange)
                 {
                     cancelWarp?.Invoke();
                     _isApplicable = false;
-                    _lastFailureReason = outOfRange ? "거리 범위 이탈" : "최대 속도로 도달 불가";
+                    _lastFailureReason = "거리 범위 이탈";
                     _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
                     return rootVelocity;
                 }
@@ -965,8 +967,9 @@ namespace UPlayGround.MovementController
             toTarget.y = 0f;
             float dist = toTarget.magnitude;
 
-            bool reachable = remainingTime <= 0.01f || dist <= maxSpeed * remainingTime;
-            if (dist < minDistance || dist > maxDistance || !reachable || toTarget.sqrMagnitude <= 0.01f)
+            // 도달 가능성(maxSpeed×remainingTime)은 회전 게이트에서 제외 — 이동 경로(EvaluateVelocity)와 일관되게,
+            // 사거리(min/max) 안이면 도달 못 하는 거리라도 타겟 방향으로 회전 호밍한다(허공 스윙 방지).
+            if (dist < minDistance || dist > maxDistance || toTarget.sqrMagnitude <= 0.01f)
                 return false;
 
             direction = toTarget.normalized;

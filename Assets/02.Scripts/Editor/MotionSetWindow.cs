@@ -52,6 +52,7 @@ namespace UPlayGround.Animation.Editor
         float           _startTime     = 0f;
         float           _endTime       = -1f; // -1 = 전체 길이 사용
         int             _currentMotionIndex = -1; // 현재 재생 중인 모션 인덱스 (전환 감지용)
+        double          _lastPlaybackGameTime;
         bool            _isMotionToolInputLocked;
         PlayerActor     _suppressedPlayerActor;
         bool            _allowCameraLookInPreview = false;
@@ -360,7 +361,6 @@ namespace UPlayGround.Animation.Editor
 
             ApplyPreviewWeaponState();
             _animancer.Play(_idleAnimation);
-            ApplyPreviewWeaponState();
             Debug.Log($"Idle 애니메이션 재생: {_idleAnimation.name}");
         }
 
@@ -425,7 +425,6 @@ namespace UPlayGround.Animation.Editor
         }
 
         // 프리뷰 무기 표시 토글 상태를 대상 플레이어에 적용.
-        // 재생 루프/클립 전환마다 반복 호출되므로 항상 토글 상태를 따라간다.
         // 생활 도구 표시 중에는 PlayerEquipment가 무기를 강제 납도한 상태이므로 건드리지 않는다.
         void ApplyPreviewWeaponState()
         {
@@ -435,8 +434,14 @@ namespace UPlayGround.Animation.Editor
             if (_cachedPlayerEquipment == null) return;
             if (_previewInteractionTool != InteractionObjectType.NONE) return;
 
-            _cachedPlayerEquipment.SetMainWeaponDrawn(_previewWeaponDrawn);
-            _cachedPlayerEquipment.SetSubWeaponDrawn(_previewWeaponDrawn);
+            // 내장 무기는 별도 장비 오브젝트가 없을 수 있다. 같은 상태를 매 프레임 다시
+            // 적용하면 PlayerEquipment가 무기 재생성 및 카메라 디더 머티리얼 갱신을
+            // 반복하므로 실제 상태가 변경된 경우에만 요청한다.
+            if (_cachedPlayerEquipment.IsMainWeaponEquipped != _previewWeaponDrawn)
+                _cachedPlayerEquipment.SetMainWeaponDrawn(_previewWeaponDrawn);
+
+            if (_cachedPlayerEquipment.IsSubWeaponEquipped != _previewWeaponDrawn)
+                _cachedPlayerEquipment.SetSubWeaponDrawn(_previewWeaponDrawn);
         }
 
         void SetPreviewWeaponDrawn(bool drawn)
@@ -648,12 +653,16 @@ namespace UPlayGround.Animation.Editor
 
             if (_isPlaying && !_isPaused && Application.isPlaying && _animancer != null)
             {
-                ApplyPreviewWeaponState();
-
                 var currentSet = GetCurrentMotionSet();
                 if (currentSet == null) return;
 
-                float deltaTime = Time.deltaTime * _playbackSpeed;
+                // EditorApplication.update는 한 PlayerLoop 프레임 안에서도 여러 번 호출될 수 있다.
+                // Time.deltaTime을 매 호출마다 더하면 동일한 델타를 중복 누적해 타임라인이 포즈보다
+                // 빠르게 건너뛴다. 실제 게임 시간이 증가한 만큼만 소비해 Animancer 평가와 맞춘다.
+                double currentGameTime = Time.timeAsDouble;
+                float deltaTime = (float)System.Math.Max(0d, currentGameTime - _lastPlaybackGameTime)
+                                  * _playbackSpeed;
+                _lastPlaybackGameTime = currentGameTime;
 
                 // ── Freeze 처리: 시간을 흘리지 않고 타이머만 소모 ──
                 if (_editorIsFrozen)
@@ -727,7 +736,6 @@ namespace UPlayGround.Animation.Editor
                 }
 
                 ExecuteActiveEvents(currentSet);
-                ApplyPreviewWeaponState();
 
                 // 회전 적용(TickRootMotionPreview) 전 = 런타임 투영 타이밍과 정합.
                 // 이 틱에서 FinishWarpBake 가 발동하면(StopPlayback 포함) 액터 위치가 시작점으로 복원되므로,
@@ -2633,6 +2641,7 @@ namespace UPlayGround.Animation.Editor
 
             _isPlaying = true;
             _isPaused  = false;
+            _lastPlaybackGameTime = Time.timeAsDouble;
             _currentMotionIndex = -1;
             _playbackTime = loopStart;
             _previousTime = loopStart - 0.001f;
@@ -2645,6 +2654,7 @@ namespace UPlayGround.Animation.Editor
             _eventLog.Clear();
             EnsureDebugOverlay();
             PublishEventDebugState();
+            ApplyPreviewWeaponState();
 
             // Animancer로 모션 셋 재생 시작
             if (motionSet.motions != null && motionSet.motions.Count > 0)
@@ -2681,6 +2691,7 @@ namespace UPlayGround.Animation.Editor
         void ResumePlayback()
         {
             _isPaused = false;
+            _lastPlaybackGameTime = Time.timeAsDouble;
             UpdateAnimancerPlaybackSpeed();
         }
         
@@ -2737,14 +2748,12 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || motion == null || !motion.IsValid()) return;
 
-            ApplyPreviewWeaponState();
             var state = _animancer.Play(motion.motionClip);
             state.Time  = motion.ClipStartTime;
             state.Speed = motion.playbackSpeed * _playbackSpeed;
-            ApplyPreviewWeaponState();
 
-            // Animancer 자체 OnEnd 완전 제거 — 에디터 타임라인이 종료를 관리
-            state.Events(this).OnEnd = null;
+            // 종료/전환은 에디터 타임라인이 관리한다.
+            // 런타임 ActorAnimator가 소유한 상태의 Events에는 접근하지 않는다.
         }
         // 재생 속도 업데이트 (글로벌 슬라이더 변경 시)
         void UpdateAnimancerPlaybackSpeed()
@@ -2830,7 +2839,6 @@ namespace UPlayGround.Animation.Editor
                         state.Time     = motion.ClipStartTime + localTime * spd;
                         // 재생 중이 아니거나 일시정지 상태면 그 프레임에서 멈춤(스크럽 프리뷰).
                         state.Speed    = (_isPaused || !_isPlaying) ? 0f : motion.playbackSpeed * _playbackSpeed;
-                        state.Events(this).OnEnd = null;
                     }
                 }
             }
@@ -3051,7 +3059,6 @@ namespace UPlayGround.Animation.Editor
             state.Time = motion.ClipStartTime + localTime * spd;
             state.Speed = (_isPaused || !_isPlaying) ? 0f : motion.playbackSpeed * _playbackSpeed;
             state.Weight = 1f;
-            state.Events(this).OnEnd = null;
 
             // 같은 레이어의 다른(빠져나가는) 상태들을 0으로 눌러 블렌드 잔재를 완전히 제거한다.
             AnimancerLayer layer = state.Layer;

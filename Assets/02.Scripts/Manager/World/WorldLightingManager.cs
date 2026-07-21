@@ -177,8 +177,11 @@ namespace UPlayGround.Manager
         {
             try
             {
-                _controllerPrefab = await AssetManager.Instance.LoadGlobalAsync<GameObject>(
+                _controllerPrefab = await AssetManager.Instance.TryLoadGlobalAsync<GameObject>(
                     ControllerPrefabKey, nameof(WorldLightingManager));
+
+                if (_controllerPrefab == null)
+                    Debug.Log("[WorldLightingManager] WorldLightingController 프리팹이 없어 절차 생성으로 동작합니다.");
             }
             catch (Exception)
             {

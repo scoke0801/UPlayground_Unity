@@ -29,9 +29,9 @@ namespace UPlayGround.Components
             public float BaseAlphaMaskScale;
             public float BaseAlphaMaskValue;
         }
-
         private const string LilToonCutoutShaderName = "Hidden/lilToonCutout";
         private const string LilToonCutoutOutlineShaderName = "Hidden/lilToonCutoutOutline";
+        private const string LilToonCutoutPassShaderName = "Hidden/ltspass_cutout";
         private const string KeepAliveResourcePath = "Rendering/LilToonDissolveKeepAlive";
         private const string MultiDitherKeepAliveResourcePath = "Rendering/LilToonMultiDitherKeepAlive";
         private const string DitherResourcePath = "Rendering/LDR_LLL1_0";
@@ -59,6 +59,7 @@ namespace UPlayGround.Components
 
         private static Shader _baseCutoutShader;
         private static Material _multiDitherTemplate;
+        private static Shader _baseCutoutPassShader;
         private static Texture2D _ditherTexture;
         private static readonly Dictionary<int, Texture2D> ScaledDitherTextures = new();
 
@@ -360,6 +361,11 @@ namespace UPlayGround.Components
             if (_runtimePrepared)
                 return;
 
+            // 카메라 근접 디더는 런타임 전용이다. Prefab/Inspector 프리뷰 같은
+            // 비재생 컨텍스트에서는 임시 머티리얼을 만들지 않는다.
+            if (!Application.isPlaying)
+                return;
+
             int pixelScale = Mathf.Clamp(_ditherPixelScale, 1, 4);
             Texture2D ditherTexture = GetDitherTexture(pixelScale);
             if (ditherTexture == null)
@@ -373,6 +379,7 @@ namespace UPlayGround.Components
 
             _runtimePrepared = true;
             _appliedDitherPixelScale = pixelScale;
+
             var preparedBySource = new Dictionary<Material, RuntimeMaterialInfo>();
             foreach (RendererInfo info in _rendererInfos)
             {
@@ -549,29 +556,41 @@ namespace UPlayGround.Components
             float baseAlphaMaskValue = source.GetFloat(AlphaMaskValueID);
             bool isMulti = IsLilToonMultiShader(cutoutShader.name);
             Material multiTemplate = isMulti ? ResolveMultiDitherTemplate() : null;
-            var material = new Material(multiTemplate != null ? multiTemplate : source)
-            {
-                name = $"{source.name} (Camera Dither)",
-                hideFlags = HideFlags.DontSave
-            };
 
-            // Multi는 Player 빌드에 실제 포함된 디더 머티리얼을 기반으로 생성한다.
-            // 원본 Opaque 머티리얼을 복제한 뒤 런타임에 로컬 키워드만 전환하면
-            // 빌드 스트리핑 결과에 따라 Opaque 변형으로 폴백할 수 있다.
-            // 프로퍼티만 복사하면 무기 외형은 유지하면서 디더 변형 선택은
-            // Resources 템플릿에 직렬화된 키워드 조합으로 고정된다.
+            Material material;
             if (multiTemplate != null)
+            {
+                // Multi는 Player 빌드에 실제 포함된 디더 keep-alive 머티리얼을 복제해
+                // 디더 변형 키워드 조합을 보존하고 외형 프로퍼티만 소스에서 복사한다.
+                // 소스 셰이더로 교체하면 Addressables 번들의 스트리핑된 변형으로
+                // 폴백할 수 있어 템플릿 셰이더를 그대로 유지한다. MultiOutline 소스도
+                // 디더 중에는 아웃라인 없이 템플릿 셰이더로 렌더링한다.
+                material = new Material(multiTemplate)
+                {
+                    name = $"{source.name} (Camera Dither)",
+                    hideFlags = HideFlags.DontSave
+                };
                 material.CopyMatchingPropertiesFromMaterial(source);
+                DetachMaterialVariant(material);
+            }
+            else
+            {
+                // Hidden/lilToonCutout은 Hidden/ltspass_cutout의 패스를 UsePass로
+                // 가져온다. Unity 6에서 래퍼 머티리얼을 복제하면 CreateWithMaterial의
+                // 패스 해시 계산 중 두 셰이더의 LocalKeywordSpace가 섞여
+                // IncompatibleKeywordSpace 어서션이 발생한다. 실제 패스 셰이더로
+                // 직접 만들면 머티리얼과 패스의 키워드 공간이 일치한다.
+                Shader passShader = ResolveBaseCutoutPassShader();
+                if (passShader == null)
+                    return null;
 
-            DetachMaterialVariant(material);
-            // Addressables 빌드에서는 소스 머티리얼이 참조하는 lilToonMulti가 번들에
-            // 복제된 별도 Shader 인스턴스다. 번들 복제본에는 디더 키워드 조합 변형이
-            // 스트리핑되어 있어 소스 셰이더로 교체하면 빌드에서만 디더가 무시된다.
-            // Multi는 keep-alive 템플릿이 참조하는 플레이어 데이터 셰이더(변형 보존
-            // 대상)를 그대로 유지한다. MultiOutline 소스도 디더 중에는 아웃라인 없이
-            // 템플릿 셰이더로 렌더링한다.
-            if (multiTemplate == null)
-                ChangeShaderClearingKeywords(material, cutoutShader);
+                material = new Material(passShader)
+                {
+                    name = $"{source.name} (Camera Dither)",
+                    hideFlags = HideFlags.DontSave
+                };
+                material.CopyMatchingPropertiesFromMaterial(source);
+            }
 
             material.SetOverrideTag("RenderType", "TransparentCutout");
             material.renderQueue = (int)RenderQueue.AlphaTest;
@@ -632,6 +651,14 @@ namespace UPlayGround.Components
             }
 
             return _multiDitherTemplate;
+        }
+
+        private static Shader ResolveBaseCutoutPassShader()
+        {
+            if (_baseCutoutPassShader == null)
+                _baseCutoutPassShader = Shader.Find(LilToonCutoutPassShaderName);
+
+            return _baseCutoutPassShader;
         }
 
         private static Shader ResolveCutoutShader(Material sourceMaterial)
@@ -718,29 +745,6 @@ namespace UPlayGround.Components
                 material.SetKeyword(keyword, enabled);
                 return;
             }
-        }
-
-        private static void ChangeShaderClearingKeywords(
-            Material material,
-            Shader shader)
-        {
-            // 참조 비교만으로는 부족하다. Addressables 빌드에서는 같은 이름의
-            // 셰이더가 번들마다 복제될 수 있고, 그 복제본은 이 머티리얼에 필요한
-            // 변형이 스트리핑되어 있을 수 있다. 이름이 같으면 현재 셰이더를 유지한다.
-            if (material.shader == shader ||
-                (material.shader != null && shader != null &&
-                 string.Equals(material.shader.name, shader.name, StringComparison.Ordinal)))
-                return;
-
-            // LocalKeyword는 생성된 셰이더에 귀속된다. 귀속 셰이더를 바꾼 뒤 제거하면
-            // Unity 6 렌더 스레드에서 IncompatibleKeywordSpace 오류가 발생할 수 있으므로
-            // 원래 셰이더가 연결된 상태에서 먼저 모두 해제한다.
-            LocalKeyword[] sourceKeywords = material.enabledKeywords;
-            foreach (LocalKeyword keyword in sourceKeywords)
-                material.SetKeyword(keyword, false);
-
-            material.shader = shader;
-            material.shaderKeywords = Array.Empty<string>();
         }
 
         private void UpdateDitherPixelScale()

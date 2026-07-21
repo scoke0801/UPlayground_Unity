@@ -27,11 +27,12 @@ MonoBehaviour:
       - rid: 889910008326651932
       - rid: 889910008326652147
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889910008326651932
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.28936356
         endTime: 0.7893632
@@ -41,7 +42,7 @@ MonoBehaviour:
         volume: 1
         is3D: 1
     - rid: 889910008326652147
-      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.34765702
         endTime: 0.8636307
@@ -61,7 +62,7 @@ MonoBehaviour:
         destroyDelay: 2
         attachToActor: 1
     - rid: 5351031836564258953
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.2875
@@ -99,9 +100,9 @@ MonoBehaviour:
         bakedLocalTotal: {x: -0.000038045284, y: 0, z: 0.09371229}
         bakedPathLen: 0.0937123
         bakedStartTime: 0
-        bakedEndTime: 0
+        bakedEndTime: 0.2875
     - rid: 7399917007448309760
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.32667384
         endTime: 0.42170623
@@ -110,7 +111,7 @@ MonoBehaviour:
         hitboxGroupId: MainWeapon
         additionalHitboxGroupIds: []
     - rid: 7399917007448310083
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.3232211
         endTime: 0.66172963

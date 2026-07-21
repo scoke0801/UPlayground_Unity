@@ -418,9 +418,16 @@ namespace UPlayGround.Components
             if (!CanToggleMainWeapon())
                 return;
 
-            // 발도 시: 무기 GameObject가 없거나 디졸브로 사라졌으면 플래그와 무관하게 항상 재생성
-            if (drawn && _currentMainWeaponObj == null)
-                RecreateWeapons();
+            if (drawn)
+            {
+                // 런타임 장착 무기는 납도 디졸브 뒤에도 인스턴스를 유지한다.
+                // 매 전투 진입마다 재생성하면 무기 생성과 액터 전체 디더 재구축이
+                // 공격 시작 프레임에 몰리므로 기존 인스턴스를 즉시 복원한다.
+                if (_currentMainWeaponObj != null)
+                    RestoreRuntimeWeapon(_currentMainWeaponObj);
+                else
+                    RecreateWeapons();
+            }
 
             if (IsMainWeaponEquipped == drawn)
                 return;
@@ -445,6 +452,9 @@ namespace UPlayGround.Components
             {
                 return;
             }
+
+            if (drawn && _currentSubWeaponObj != null)
+                RestoreRuntimeWeapon(_currentSubWeaponObj);
 
             SetWeaponDrawn(_subWeaponConstraint, drawn);
             IsSubWeaponEquipped = drawn;
@@ -877,28 +887,25 @@ namespace UPlayGround.Components
             }
         }
 
-        private void DissolveAndRelease(GameObject weaponObj)
+        private void DissolveAndRetain(GameObject weaponObj)
         {
             if (weaponObj == null) return;
-
-            weaponObj.transform.SetParent(null, true);
-
-            foreach (var col in weaponObj.GetComponentsInChildren<Collider>(true))
-                col.enabled = false;
 
             var dissolve = weaponObj.GetComponent<DissolveController>();
             if (dissolve == null)
                 dissolve = weaponObj.AddComponent<DissolveController>();
 
-            dissolve.StartDissolve(_weaponDissolveDuration);
+            dissolve.StartDissolve(
+                _weaponDissolveDuration,
+                destroyOnComplete: false,
+                onComplete: () => SetWeaponRenderersEnabled(weaponObj, false));
         }
 
         private void DissolveDrawnWeapons()
         {
             if (_currentMainWeaponObj != null)
             {
-                DissolveAndRelease(_currentMainWeaponObj);
-                _currentMainWeaponObj = null;
+                DissolveAndRetain(_currentMainWeaponObj);
             }
             else if (_mainWeaponConstraint != null)
             {
@@ -908,8 +915,7 @@ namespace UPlayGround.Components
 
             if (_currentSubWeaponObj != null)
             {
-                DissolveAndRelease(_currentSubWeaponObj);
-                _currentSubWeaponObj = null;
+                DissolveAndRetain(_currentSubWeaponObj);
                 IsSubWeaponEquipped = false;
             }
             else if (_subWeaponConstraint != null)
@@ -928,8 +934,7 @@ namespace UPlayGround.Components
         {
             if (_currentMainWeaponObj != null)
             {
-                CompleteHideAndRelease(_currentMainWeaponObj);
-                _currentMainWeaponObj = null;
+                CompleteHideAndRetain(_currentMainWeaponObj);
             }
             else if (_mainWeaponConstraint != null)
             {
@@ -939,8 +944,7 @@ namespace UPlayGround.Components
 
             if (_currentSubWeaponObj != null)
             {
-                CompleteHideAndRelease(_currentSubWeaponObj);
-                _currentSubWeaponObj = null;
+                CompleteHideAndRetain(_currentSubWeaponObj);
                 IsSubWeaponEquipped = false;
             }
             else if (_subWeaponConstraint != null)
@@ -954,20 +958,39 @@ namespace UPlayGround.Components
             }
         }
 
-        private void CompleteHideAndRelease(GameObject weaponObj)
+        private void CompleteHideAndRetain(GameObject weaponObj)
         {
             if (weaponObj == null) return;
-
-            weaponObj.transform.SetParent(null, true);
-
-            foreach (var col in weaponObj.GetComponentsInChildren<Collider>(true))
-                col.enabled = false;
 
             var dissolve = weaponObj.GetComponent<DissolveController>();
             if (dissolve == null)
                 dissolve = weaponObj.AddComponent<DissolveController>();
 
-            dissolve.CompleteDissolve();
+            dissolve.CompleteDissolve(
+                destroyOnComplete: false,
+                onComplete: () => SetWeaponRenderersEnabled(weaponObj, false));
+        }
+
+        private void RestoreRuntimeWeapon(GameObject weaponObj)
+        {
+            if (weaponObj == null) return;
+
+            var dissolve = weaponObj.GetComponent<DissolveController>();
+            if (dissolve != null)
+            {
+                dissolve.ResetDissolve();
+                Destroy(dissolve);
+            }
+
+            SetWeaponRenderersEnabled(weaponObj, true);
+        }
+
+        private static void SetWeaponRenderersEnabled(GameObject weaponObj, bool enabled)
+        {
+            if (weaponObj == null) return;
+
+            foreach (Renderer renderer in weaponObj.GetComponentsInChildren<Renderer>(true))
+                renderer.enabled = enabled;
         }
 
         private void CompleteHideBuiltInSubWeapons()
@@ -1047,6 +1070,8 @@ namespace UPlayGround.Components
 
         private void RecreateWeapons()
         {
+            bool rendererHierarchyChanged = false;
+
             if (MainWeaponKey != -1)
             {
                 var newMain = ActorSvc.Objects.CreateWeapon(MainWeaponKey);
@@ -1054,6 +1079,7 @@ namespace UPlayGround.Components
                 {
                     newMain.transform.SetParent(_mainWeaponConstraint.transform, false);
                     newMain.transform.localPosition = Vector3.zero;
+                    rendererHierarchyChanged = true;
                 }
                 _currentMainWeaponObj = newMain;
                 ForceSyncWeaponState(EquipPosition.RightHand, false);
@@ -1071,6 +1097,7 @@ namespace UPlayGround.Components
                 {
                     newSub.transform.SetParent(_subWeaponConstraint.transform, false);
                     newSub.transform.localPosition = Vector3.zero;
+                    rendererHierarchyChanged = true;
                 }
                 _currentSubWeaponObj = newSub;
                 ForceSyncWeaponState(EquipPosition.LeftHand, false);
@@ -1085,8 +1112,13 @@ namespace UPlayGround.Components
                 RestoreBuiltInSubWeapons();
             }
 
-            ActorWeaponTrailController.RefreshAttackTrails(this);
-            RequestCameraDitherRefresh();
+            // 내장 무기는 기존 렌더러/디더 머티리얼을 복원할 뿐 계층이 바뀌지 않는다.
+            // 이 경우 액터 전체 렌더러와 머티리얼을 다시 만드는 비용을 피한다.
+            if (rendererHierarchyChanged)
+            {
+                ActorWeaponTrailController.RefreshAttackTrails(this);
+                RequestCameraDitherRefresh();
+            }
         }
 
         /// <summary>

@@ -52,6 +52,8 @@ namespace UPlayGround.UI
         int GetGrowthPoints(CharacterActorType type);
         int GetGrowthRank(CharacterActorType type, GrowthAttributeType attribute);
         int GetEffectiveGrowthRank(CharacterActorType type, GrowthAttributeType attribute);
+        List<GrowthUnlockMilestone> GetGrowthUnlockMilestones(CharacterActorType type, GrowthAttributeType attribute);
+        bool IsComboRouteUnlocked(CharacterActorType type, string routeId);
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         PartyCombatPowerResult GetEffectiveCombatPower(CharacterActorType type);
         long GetPartyCombatPower(IReadOnlyList<CharacterActorType> order = null);

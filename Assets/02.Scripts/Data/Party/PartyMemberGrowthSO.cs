@@ -44,11 +44,17 @@ namespace UPlayGround.Data.Party
     /// <summary>성장 데이터와 전투 코드가 공유하는 해금 식별자 규칙.</summary>
     public static class GrowthUnlockIds
     {
+        public const string RoutePrefix = "Route.";
+
         public static string Combo(GrowthComboType comboType, int step)
             => $"Combo.{comboType}.{Mathf.Max(1, step)}";
 
         public static string Skill(GrowthSkillType skillType)
             => $"Skill.{skillType}";
+
+        /// <summary>약+강 조합(ComboRoute) 개별 해금 식별자. routeId를 그대로 감싼다.</summary>
+        public static string Route(string routeId)
+            => RoutePrefix + (string.IsNullOrEmpty(routeId) ? string.Empty : routeId);
     }
 
     [Serializable]

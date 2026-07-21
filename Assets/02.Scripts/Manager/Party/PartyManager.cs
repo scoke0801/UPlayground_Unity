@@ -51,6 +51,9 @@ namespace UPlayGround.Manager
         private readonly Dictionary<CharacterActorType, long> _exp = new();
         private readonly Dictionary<CharacterActorType, int> _growthPoints = new();
         private readonly Dictionary<CharacterActorType, Dictionary<GrowthAttributeType, int>> _growthInvestments = new();
+        // 컨텐츠 해금 조건을 새 게임 단위로 랜덤화하는 시드. 0이면 지연 생성.
+        // (WorldStateManager.NewGameElementSeed 패턴 미러링, 소유는 파티 진행 관심사)
+        private int _contentUnlockSeed;
 
         // growth.levelCurve가 없을 때 사용하는 폴백 곡선 파라미터.
         private const int   DefaultCurveBaseExp  = 100;
@@ -747,10 +750,7 @@ namespace UPlayGround.Manager
             OnGrowthPointsChanged?.Invoke(type, _growthPoints[type]);
             OnPartyProgressionChanged?.Invoke(type);
 
-            if (rule.milestones != null)
-                for (int i = 0; i < rule.milestones.Count; i++)
-                    if (rule.milestones[i].requiredRank == newRank)
-                        OnGrowthUnlock?.Invoke(type, rule.milestones[i]);
+            FireGrowthUnlocksForRankChange(type, attribute, oldRank, newRank);
             return true;
         }
 
@@ -789,51 +789,43 @@ namespace UPlayGround.Manager
             OnGrowthInvestmentChanged?.Invoke(type, attribute, newRank);
             OnPartyProgressionChanged?.Invoke(type);
 
-            if (newRank > oldRank && rule.milestones != null)
-            {
-                for (int i = 0; i < rule.milestones.Count; i++)
-                {
-                    GrowthUnlockMilestone milestone = rule.milestones[i];
-                    if (milestone.requiredRank > oldRank && milestone.requiredRank <= newRank)
-                        OnGrowthUnlock?.Invoke(type, milestone);
-                }
-            }
+            FireGrowthUnlocksForRankChange(type, attribute, oldRank, newRank);
             return true;
         }
 
-        public bool IsGrowthUnlockConfigured(CharacterActorType type, GrowthUnlockType unlockType, string unlockId)
+        /// <summary>새 게임 단위 컨텐츠 해금 시드. 0이면 생성해 보장한다.</summary>
+        public int ContentUnlockSeed
         {
-            PartyMemberGrowthSO growth = GetGrowthData(type);
-            if (growth == null || string.IsNullOrWhiteSpace(unlockId)) return false;
-            foreach (GrowthAttributeType attribute in Enum.GetValues(typeof(GrowthAttributeType)))
-            {
-                growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
-                if (rule.milestones == null) continue;
-                for (int i = 0; i < rule.milestones.Count; i++)
-                    if (rule.milestones[i].unlockType == unlockType && rule.milestones[i].unlockId == unlockId)
-                        return true;
-            }
-            return false;
+            get { EnsureContentUnlockSeed(); return _contentUnlockSeed; }
         }
 
+        private void EnsureContentUnlockSeed()
+        {
+            if (_contentUnlockSeed == 0)
+                _contentUnlockSeed = CreateContentUnlockSeed();
+        }
+
+        private static int CreateContentUnlockSeed()
+        {
+            int seed;
+            do { seed = Guid.NewGuid().GetHashCode(); } while (seed == 0);
+            return seed;
+        }
+
+        /// <summary>
+        /// 해당 콘텐츠가 현재 실효 성장 랭크로 해금됐는지.
+        /// 무료(약 5타/강 2타)면 항상 true, 아니면 시드로 결정된 속성의 요구 랭크 충족 여부.
+        /// 해금 조건(어느 속성인지)은 새 게임 시드마다 달라지되 요구 랭크(난이도)는 고정된다.
+        /// </summary>
         public bool IsGrowthUnlockAvailable(CharacterActorType type, GrowthUnlockType unlockType, string unlockId)
         {
-            PartyMemberGrowthSO growth = GetGrowthData(type);
-            if (growth == null || string.IsNullOrWhiteSpace(unlockId)) return true;
-            bool configured = false;
-            foreach (GrowthAttributeType attribute in Enum.GetValues(typeof(GrowthAttributeType)))
-            {
-                growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
-                if (rule.milestones == null) continue;
-                for (int i = 0; i < rule.milestones.Count; i++)
-                {
-                    GrowthUnlockMilestone milestone = rule.milestones[i];
-                    if (milestone.unlockType != unlockType || milestone.unlockId != unlockId) continue;
-                    configured = true;
-                    if (GetEffectiveGrowthRank(type, attribute) >= milestone.requiredRank) return true;
-                }
-            }
-            return !configured;
+            if (type == CharacterActorType.None || string.IsNullOrWhiteSpace(unlockId)) return true;
+            if (GrowthUnlockCatalog.IsFree(unlockType, unlockId)) return true;
+
+            EnsureContentUnlockSeed();
+            (GrowthAttributeType attribute, int requiredRank) =
+                GrowthUnlockCatalog.Resolve(_contentUnlockSeed, type, unlockType, unlockId);
+            return GetEffectiveGrowthRank(type, attribute) >= requiredRank;
         }
 
         public int GetUnlockedComboLength(
@@ -860,6 +852,104 @@ namespace UPlayGround.Manager
                 type,
                 GrowthUnlockType.Skill,
                 GrowthUnlockIds.Skill(skillType));
+        }
+
+        /// <summary>약+강 조합(ComboRoute)이 해금됐는지. routeId 단위 개별 게이팅.</summary>
+        public bool IsComboRouteUnlocked(CharacterActorType type, string routeId)
+        {
+            if (type == CharacterActorType.None || string.IsNullOrWhiteSpace(routeId)) return true;
+            return IsGrowthUnlockAvailable(
+                type,
+                GrowthUnlockType.Combo,
+                GrowthUnlockIds.Route(routeId));
+        }
+
+        /// <summary>
+        /// 해당 속성에 투자하면 해금되는 콘텐츠 목록을 마일스톤 형태로 반환한다(성장 UI 표시용).
+        /// 시드로 결정된 (속성, 요구 랭크)를 기존 GrowthUnlockMilestone struct로 투영한다.
+        /// </summary>
+        public List<GrowthUnlockMilestone> GetGrowthUnlockMilestones(
+            CharacterActorType type,
+            GrowthAttributeType attribute)
+        {
+            var result = new List<GrowthUnlockMilestone>();
+            if (type == CharacterActorType.None) return result;
+
+            EnsureContentUnlockSeed();
+            foreach ((GrowthUnlockType unlockType, string id, string display) in EnumerateGatedContent(type))
+            {
+                (GrowthAttributeType attr, int requiredRank) =
+                    GrowthUnlockCatalog.Resolve(_contentUnlockSeed, type, unlockType, id);
+                if (attr != attribute) continue;
+                result.Add(new GrowthUnlockMilestone
+                {
+                    requiredRank = requiredRank,
+                    unlockType = unlockType,
+                    unlockId = id,
+                    displayName = display,
+                    description = $"{requiredRank}랭크 달성 시 해금",
+                });
+            }
+            result.Sort((a, b) => a.requiredRank.CompareTo(b.requiredRank));
+            return result;
+        }
+
+        /// <summary>
+        /// 이 캐릭터가 시드 랜덤화로 게이팅하는 모든 콘텐츠(스킬/조합 스텝/ComboRoute)를 열거한다.
+        /// 무료 콘텐츠(약 5타/강 2타)는 제외한다.
+        /// </summary>
+        private IEnumerable<(GrowthUnlockType unlockType, string id, string display)> EnumerateGatedContent(
+            CharacterActorType type)
+        {
+            // 스킬 3종
+            yield return (GrowthUnlockType.Skill, GrowthUnlockIds.Skill(GrowthSkillType.Ability), "어빌리티 스킬");
+            yield return (GrowthUnlockType.Skill, GrowthUnlockIds.Skill(GrowthSkillType.ElementalImbue), "속성 스킬");
+            yield return (GrowthUnlockType.Skill, GrowthUnlockIds.Skill(GrowthSkillType.Ultimate), "궁극 스킬");
+
+            AbilitySetSO set = TryGetAbilitySet(type);
+            if (set == null) yield break;
+
+            int lightLen = set.GetCombatSequence(PlayerCombatAbilitySlot.LightCombo)?.Count ?? 0;
+            for (int step = GrowthUnlockCatalog.FreeLightSteps + 1; step <= lightLen; step++)
+                yield return (GrowthUnlockType.Combo, GrowthUnlockIds.Combo(GrowthComboType.Light, step), $"약공격 {step}연계");
+
+            int heavyLen = set.GetCombatSequence(PlayerCombatAbilitySlot.HeavyCombo)?.Count ?? 0;
+            for (int step = GrowthUnlockCatalog.FreeHeavySteps + 1; step <= heavyLen; step++)
+                yield return (GrowthUnlockType.Combo, GrowthUnlockIds.Combo(GrowthComboType.Heavy, step), $"강공격 {step}연계");
+
+            if (set.comboRoutes != null)
+            {
+                for (int i = 0; i < set.comboRoutes.Count; i++)
+                {
+                    AbilityComboRouteDefinition route = set.comboRoutes[i];
+                    if (route == null || string.IsNullOrWhiteSpace(route.routeId)) continue;
+                    string display = string.IsNullOrWhiteSpace(route.displayName) ? route.routeId : route.displayName;
+                    yield return (GrowthUnlockType.Combo, GrowthUnlockIds.Route(route.routeId), display);
+                }
+            }
+        }
+
+        private AbilitySetSO TryGetAbilitySet(CharacterActorType type)
+        {
+            var swap = _player != null ? _player.GetComponent<PlayerSwapBehaviour>() : null;
+            return swap != null ? swap.GetModelData(type)?.abilitySet : null;
+        }
+
+        /// <summary>랭크가 oldRank→newRank로 오르며 통과한 (attribute) 해금 마일스톤을 발행한다.</summary>
+        private void FireGrowthUnlocksForRankChange(
+            CharacterActorType type,
+            GrowthAttributeType attribute,
+            int oldRank,
+            int newRank)
+        {
+            if (newRank <= oldRank) return;
+            List<GrowthUnlockMilestone> milestones = GetGrowthUnlockMilestones(type, attribute);
+            for (int i = 0; i < milestones.Count; i++)
+            {
+                int required = milestones[i].requiredRank;
+                if (required > oldRank && required <= newRank)
+                    OnGrowthUnlock?.Invoke(type, milestones[i]);
+            }
         }
 
         private void EnsureGrowthState(CharacterActorType type)
@@ -1033,6 +1123,8 @@ namespace UPlayGround.Manager
                 party.battleOrder.Add(_battleOrder[i].ToString());
 
             party.activeIndex = _activeIndex;
+            EnsureContentUnlockSeed();
+            party.contentUnlockSeed = _contentUnlockSeed;
 
             party.members = new List<PartyMemberSaveEntry>(_levels.Count);
             foreach (var kv in _levels)
@@ -1131,6 +1223,8 @@ namespace UPlayGround.Manager
             _growthPoints.Clear();
             _growthInvestments.Clear();
             _swapCooldownEndTimes.Clear();
+            // 새 게임마다 해금 조건(투자 속성 배치)을 새로 랜덤화한다.
+            _contentUnlockSeed = CreateContentUnlockSeed();
         }
 
         /// <summary>
@@ -1172,6 +1266,9 @@ namespace UPlayGround.Manager
             if (_player == null) return;       // 아직 BuildPartyFromScene 전 → 보관 유지
 
             _pendingPartyLoad = null;
+
+            // 저장 시드 복원(0이면 지연 생성으로 발급됨 → 기존 세이브 호환).
+            _contentUnlockSeed = party.contentUnlockSeed;
 
             _roster.Clear();
             if (party.roster != null)

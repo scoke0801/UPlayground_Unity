@@ -181,6 +181,7 @@ namespace UPlayGround.Manager
         bool PreserveComboStatePerCharacter { get; }
         float ComboStateMaxCarryTime { get; }
         bool IsSkillUnlocked(CharacterActorType type, GrowthSkillType skillType);
+        bool IsComboRouteUnlocked(CharacterActorType type, string routeId);
         int GetUnlockedComboLength(CharacterActorType type, GrowthComboType comboType, int dataLength);
         bool UnlockCharacter(CharacterActorType type);
         void AwardBattleExp(long amount);

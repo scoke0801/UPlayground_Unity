@@ -139,6 +139,9 @@ namespace UPlayGround.Data.Save
         public List<string> battleOrder = new List<string>();
         public int activeIndex;
 
+        /// <summary>컨텐츠 해금 조건을 새 게임 단위로 결정하는 저장 시드(0=미발급).</summary>
+        public int contentUnlockSeed;
+
         /// <summary> 캐릭터별 현재 체력 (액티브/벤치 공통). </summary>
         public List<CharacterHpEntry> characterHealth = new List<CharacterHpEntry>();
         /// <summary> 캐릭터별 Ability 자원·쿨다운·지속 Effect 런타임. </summary>

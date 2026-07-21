@@ -74,7 +74,7 @@ MonoBehaviour:
         bakedLocalTotal: {x: -0.16002388, y: 0, z: 1.0471069}
         bakedPathLen: 2.50513
         bakedStartTime: 0
-        bakedEndTime: 0
+        bakedEndTime: 0.8870967
     - rid: 889910008326652111
       type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

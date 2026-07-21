@@ -103,6 +103,40 @@ namespace UPlayGround.Manager
                 cancellationToken);
         }
 
+        /// <summary>
+        /// Addressables 카탈로그에 키와 타입이 등록된 경우에만 전역 에셋을 로드한다.
+        /// 선택적 설정/프리팹이 등록되지 않은 것은 오류가 아니므로 null을 반환하며,
+        /// 위치가 존재한 뒤 발생한 실제 로드 실패는 호출자가 구분할 수 있도록 그대로 전파한다.
+        /// </summary>
+        public async UniTask<T> TryLoadGlobalAsync<T>(
+            string key,
+            string owner,
+            CancellationToken cancellationToken = default)
+            where T : UnityEngine.Object
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentException("Addressable 키가 비어 있습니다.", nameof(key));
+
+            AsyncOperationHandle<IList<UnityEngine.ResourceManagement.ResourceLocations.IResourceLocation>>
+                locationsHandle = Addressables.LoadResourceLocationsAsync(key, typeof(T));
+
+            try
+            {
+                IList<UnityEngine.ResourceManagement.ResourceLocations.IResourceLocation> locations =
+                    await locationsHandle.ToUniTask(cancellationToken: cancellationToken);
+
+                if (locations == null || locations.Count == 0)
+                    return null;
+            }
+            finally
+            {
+                if (locationsHandle.IsValid())
+                    Addressables.Release(locationsHandle);
+            }
+
+            return await LoadGlobalAsync<T>(key, owner, cancellationToken);
+        }
+
         public async UniTask<T> LoadSceneAsync<T>(
             string key,
             string owner,

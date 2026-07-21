@@ -74,7 +74,7 @@ MonoBehaviour:
         bakedLocalTotal: {x: 0.16399553, y: 0, z: 0.61848927}
         bakedPathLen: 1.3735641
         bakedStartTime: 0
-        bakedEndTime: 0
+        bakedEndTime: 0.5
     - rid: 889909850590150810
       type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
       data:

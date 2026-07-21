@@ -72,4 +72,4 @@ MonoBehaviour:
         bakedLocalTotal: {x: -0.010669399, y: 0, z: -0.03286791}
         bakedPathLen: 0.034594752
         bakedStartTime: 0
-        bakedEndTime: 0
+        bakedEndTime: 0.5

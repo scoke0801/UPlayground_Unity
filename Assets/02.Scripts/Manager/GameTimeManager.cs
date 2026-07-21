@@ -167,8 +167,14 @@ namespace UPlayGround.Manager
         {
             try
             {
-                Settings = await AssetManager.Instance.LoadGlobalAsync<WorldTimeSettingsSO>(
+                Settings = await AssetManager.Instance.TryLoadGlobalAsync<WorldTimeSettingsSO>(
                     SettingsKey, nameof(GameTimeManager));
+
+                if (Settings == null)
+                {
+                    Debug.Log("[GameTimeManager] WorldTimeSettings 에셋이 없어 기본값으로 동작합니다.");
+                    return;
+                }
 
                 // Init은 설정 로드 전에 코드 기본값(08:00)으로 시작 시각을 잡는다.
                 // 아직 새 게임/로드가 시각을 확정하지 않았다면 SO의 시작 시각으로 재적용한다.

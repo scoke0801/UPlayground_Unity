@@ -547,9 +547,15 @@ namespace UPlayGround.Manager
         {
             try
             {
-                var loaded = await AssetManager.Instance.LoadGlobalAsync<MonsterRespawnSettingsSO>(
+                var loaded = await AssetManager.Instance.TryLoadGlobalAsync<MonsterRespawnSettingsSO>(
                     SettingsKey, nameof(MonsterRespawnManager));
-                if (loaded != null) _settings = loaded;
+                if (loaded != null)
+                {
+                    _settings = loaded;
+                    return;
+                }
+
+                Debug.Log("[MonsterRespawnManager] MonsterRespawnSettings 에셋이 없어 기본값으로 동작합니다.");
             }
             catch (Exception)
             {

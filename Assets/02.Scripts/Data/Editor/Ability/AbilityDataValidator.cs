@@ -146,10 +146,10 @@ namespace UPlayGround.Data.Editor.Ability
                     if (ability?.variants == null) continue;
                     for (int j = 0; j < ability.variants.Count; j++)
                     {
-                        if (!UPlayGroundAbilityPayloadResolver.TryResolve(
-                                ability.variants[j],
-                                out _,
-                                out AbilityAttackInfo attackInfo)
+                        if (ability.variants[j]?.executionPayload
+                            is not UPlayGroundMotionAbilityPayloadSO payload
+                            || !payload.IsAttackExecutable
+                            || payload.attackInfo is not AbilityAttackInfo attackInfo
                             || !attackInfo.aiSelectable)
                             continue;
                         hasAiAttack = true;
@@ -240,10 +240,20 @@ namespace UPlayGround.Data.Editor.Ability
                 }
                 if (string.IsNullOrWhiteSpace(variant.variantId))
                     Error(ability, $"Variant {i}의 ID가 비어 있습니다.", issues);
-                bool executable = UPlayGroundAbilityPayloadResolver.TryResolveAnimKey(
-                    variant, out AnimKey animKey);
-                if (animKey == AnimKey.None)
-                    Error(ability, $"Variant '{variant.variantId}'의 AnimKey가 None입니다.", issues);
+                bool executable = UPlayGroundAbilityPayloadResolver.IsExecutable(variant);
+                if (variant.executionPayload is UPlayGroundMotionAbilityPayloadSO payload)
+                {
+                    var motionRef = payload.attackInfo?.baseInfo?.motionRef;
+                    if (motionRef != null && !motionRef.HasAnyMotion)
+                        Error(ability,
+                            $"Variant '{variant.variantId}'의 MotionReference가 비어 있습니다.", issues);
+                    if (motionRef == null)
+                        Error(ability,
+                            $"Variant '{variant.variantId}'의 모션 참조가 없습니다.", issues);
+                    if (payload.attackInfo?.baseInfo == null)
+                        Error(ability,
+                            $"Variant '{variant.variantId}'의 공격 정보가 없습니다.", issues);
+                }
                 if (!executable)
                     Error(ability, $"Variant '{variant.variantId}'의 실행 Payload가 없습니다.", issues);
                 if (executable) executableCount++;

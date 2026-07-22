@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: Lich_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -34,3 +35,23 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 1e49a969d0e52b44fa1f3d8456d372f8, type: 2}
     - Key: 501
       Value: {fileID: 11400000, guid: 4a1e4b4ee1e152043948e9d861f21c70, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: f463538b3e821834b96e9a862aa354e8, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: a39404c637ad0f344b259612a1268e65, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: a39404c637ad0f344b259612a1268e65, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: a39404c637ad0f344b259612a1268e65, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: d2aec78bbbedf3142b8cd0b5348d38e1, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: df31c1b9489b72c47956e48ec5b4b42b, type: 2}

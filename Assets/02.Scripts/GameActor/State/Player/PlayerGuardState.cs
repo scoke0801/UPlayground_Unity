@@ -48,7 +48,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             Debug.Log("Player Guard Started");
-            if (playerActor.Animator.HasMotion(AnimKey.Guard, true) == false)
+            if (playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, true) == false)
             {
                 TransitionToIdleOrMove();
                 return;
@@ -78,7 +78,7 @@ namespace UPlayGround.State
             _guardBlockRecoilDirection = Vector3.zero;
             _guardBlockRecoilTimer = 0f;
 
-            playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f);
+            playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.1f);
         }
         
         public override void OnExit(GameActorState toState)
@@ -180,12 +180,12 @@ namespace UPlayGround.State
             float timeSinceGuardStart = Time.time - _guardStartTime;
             bool isPerfectGuard = timeSinceGuardStart <= PERFECT_GUARD_WINDOW;
             
-            var blockAnimState = playerActor.Animator.PlayMotion(AnimKey.Block, 0.05f, 0);
+            var blockAnimState = playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Block, 0.05f, 0);
             BeginGuardBlockRecoil(incomingAttack, isPerfectGuard);
             
             blockAnimState.OwnedEvents.OnEnd = () =>
             {
-                playerActor.Animator.PlayMotion(AnimKey.Guard, 0.1f, 0);
+                playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.1f, 0);
             };
 
             if (isPerfectGuard)

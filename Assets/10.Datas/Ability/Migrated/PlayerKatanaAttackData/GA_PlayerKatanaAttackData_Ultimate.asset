@@ -81,10 +81,10 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerKatanaAttackData.Ultimate.Default
-  animKey: 501
+  motionRef: {fileID: 11400000, guid: 46365ab3f6a21654eb77be72e1f4d374, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 501
+      motionRef: {fileID: 11400000, guid: 46365ab3f6a21654eb77be72e1f4d374, type: 2}
       attackType: 0
       hitPhases:
       - damage: 28
@@ -1081,3 +1081,26 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

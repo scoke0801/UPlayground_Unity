@@ -107,8 +107,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 return 0;
 
             int added = 0;
-            if (set.motionSets != null)
-                foreach (MotionSetAsset asset in set.motionSets.Values)
+            if (set.motionSlots != null)
+                foreach (MotionSetAsset asset in set.motionSlots.Values)
                     // hitboxGroupId(충돌 이벤트)가 실제로 있는 MotionSet만 수집한다.
                     // Idle/Walk/Run 같은 비전투 모션이 목록을 도배하지 않도록.
                     if (asset != null && HasHitboxGroup(asset) && AddUnique(into, asset))

@@ -199,7 +199,7 @@ namespace UPlayGround.Components
                 hitStopDuration,
                 hitStopTimeScale,
                 showCharacterOnDamageFloater);
-            Debug.Log($"[ResidualAttack] Spawn request. sourceCharacter={sourceModel.characterType}, animKey={snapshot.PlaybackSnapshot.Key}, lifetime={maxLifetime}, minVisible={minVisibleLifetime}, fade={fadeOutDuration}, hitStop={allowHitStop}, rootMotion={useRootMotion}, maxCount={maxCount}");
+            Debug.Log($"[ResidualAttack] Spawn request. sourceCharacter={sourceModel.characterType}, motion={snapshot.PlaybackSnapshot.DisplayKey}, lifetime={maxLifetime}, minVisible={minVisibleLifetime}, fade={fadeOutDuration}, hitStop={allowHitStop}, rootMotion={useRootMotion}, maxCount={maxCount}");
             SwapResidualAttackRunner.Spawn(request, maxCount);
         }
 

@@ -79,7 +79,7 @@ namespace UPlayGround.State
             }
 
             // Run 애니를 빠른 속도로 재생 → 체감상 돌진처럼 보임
-            gameActor.Animator.PlayMotion(AnimKey.Run, 0.1f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Run, 0.1f);
         }
 
         public override void OnExit(GameActorState toState)

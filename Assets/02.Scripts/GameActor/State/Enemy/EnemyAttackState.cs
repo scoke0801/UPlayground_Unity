@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
@@ -74,7 +74,9 @@ namespace UPlayGround.State
 
             if (_currentSkill != null)
             {
-                var animState = gameActor.Animator.PlayMotion(_combat.CurrentAnimKey, 0.1f);
+                var animState = _combat.CurrentMotionAsset != null
+                    ? gameActor.Animator.PlayMotion(_combat.CurrentMotionAsset, 0.1f)
+                    : null;
                 if (!_currentSkill.useMotionEventTelegraph)
                     _combat.BeginCurrentSkillTelegraph();
 
@@ -82,7 +84,7 @@ namespace UPlayGround.State
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
                 else
                 {
-                    Debug.LogWarning($"[EnemyAttackState] 애니메이션을 찾을 수 없습니다: {_combat.CurrentAnimKey}");
+                    Debug.LogWarning("[EnemyAttackState] 공격 MotionReference를 찾을 수 없습니다.");
                     OnAttackAnimationEnd();
                 }
 

@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Animancer;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Animation
 {
@@ -38,7 +39,9 @@ namespace UPlayGround.Animation
         protected AnimancerState _currentState;
 
         // 애니메이션 전환 추적
-        protected AnimKey _lastPlayedKey;
+        protected GameplayTag _lastPlayedSlot;
+        protected MotionSetAsset _currentMotionAsset;
+        protected string _currentMotionDisplayKey = "-";
         protected bool _isPlayingMotionSet;
 
         // ── Loop/Freeze 상태 ──
@@ -62,34 +65,42 @@ namespace UPlayGround.Animation
         public readonly struct MotionPlaybackSnapshot
         {
             public readonly bool    IsValid;
-            public readonly AnimKey Key;
+            public readonly GameplayTag Slot;
+            public readonly MotionSetAsset SourceAsset;
+            public readonly string DisplayKey;
             public readonly float   NormalizedTime;
             public readonly int     LayerIndex;
             public readonly float   GraphSpeed;
 
             public MotionPlaybackSnapshot(
                 bool isValid,
-                AnimKey key,
+                GameplayTag slot,
+                MotionSetAsset sourceAsset,
+                string displayKey,
                 float normalizedTime,
                 int layerIndex,
                 float graphSpeed)
             {
                 IsValid        = isValid;
-                Key            = key;
+                Slot           = slot;
+                SourceAsset    = sourceAsset;
+                DisplayKey     = displayKey;
                 NormalizedTime = normalizedTime;
                 LayerIndex     = layerIndex;
                 GraphSpeed     = graphSpeed;
             }
 
             public static MotionPlaybackSnapshot Empty =>
-                new MotionPlaybackSnapshot(false, AnimKey.None, 0f, 0, 1f);
+                new MotionPlaybackSnapshot(false, default, null, "-", 0f, 0, 1f);
         }
 
         public readonly struct AnimationDebugSnapshot
         {
             public readonly bool IsValid;
             public readonly bool IsPlayingMotionSet;
-            public readonly AnimKey Key;
+            public readonly GameplayTag Slot;
+            public readonly MotionSetAsset SourceAsset;
+            public readonly string DisplayKey;
             public readonly string MotionSetName;
             public readonly int MotionIndex;
             public readonly int MotionCount;
@@ -111,7 +122,9 @@ namespace UPlayGround.Animation
             public AnimationDebugSnapshot(
                 bool isValid,
                 bool isPlayingMotionSet,
-                AnimKey key,
+                GameplayTag slot,
+                MotionSetAsset sourceAsset,
+                string displayKey,
                 string motionSetName,
                 int motionIndex,
                 int motionCount,
@@ -132,7 +145,9 @@ namespace UPlayGround.Animation
             {
                 IsValid = isValid;
                 IsPlayingMotionSet = isPlayingMotionSet;
-                Key = key;
+                Slot = slot;
+                SourceAsset = sourceAsset;
+                DisplayKey = displayKey;
                 MotionSetName = motionSetName;
                 MotionIndex = motionIndex;
                 MotionCount = motionCount;
@@ -153,7 +168,7 @@ namespace UPlayGround.Animation
             }
 
             public static AnimationDebugSnapshot Empty =>
-                new AnimationDebugSnapshot(false, false, AnimKey.None, "-", -1, 0, "-", "-", 0f, 0f, 0f, 0f, 0f, 0, 0f, 1f, false, false, -1, "-");
+                new AnimationDebugSnapshot(false, false, default, null, "-", "-", -1, 0, "-", "-", 0f, 0f, 0f, 0f, 0f, 0, 0f, 1f, false, false, -1, "-");
         }
         
         /// <summary>
@@ -195,6 +210,11 @@ namespace UPlayGround.Animation
         /// </summary>
         public bool HasFallbackMotionSet => _motionSet != null && _motionSet.fallbackMotionSet != null;
         public ActorAnimationMotionSet MotionSet => _motionSet;
+
+        // ── 에디터 프리뷰용 상체 오버레이 정보 접근자 ──
+        // 애니메이션 에디터가 지정 레이어 프리뷰 시 마스크/레이어 인덱스를 재현하는 데 사용한다.
+        public AvatarMask UpperBodyMask     => _upperBodyMask;
+        public int        UpperBodyLayerIndex => _upperBodyLayerIndex;
 
         // ── 모션워프 지연 캐싱 키 구성용 접근자 ──
         // delta-warp 가 윈도우 총 루트모션을 (motionSetName, motionIndex, window) 키로 캐시할 때 사용.
@@ -284,6 +304,38 @@ namespace UPlayGround.Animation
                 animancer.Layers.SetMask(Mathf.Max(1, _upperBodyLayerIndex), _upperBodyMask);
         }
 
+        /// <summary>
+        /// 재생할 Base 타임라인 레이어를 결정한다.
+        /// MotionSet에 baseLayerIndex가 지정돼 있으면(>0) 그 레이어를, 아니면 호출측이 요청한 레이어를 쓴다.
+        /// </summary>
+        protected int ResolveBaseLayerIndex(MotionSet motionSet, int requestedLayerIndex)
+            => motionSet != null && motionSet.baseLayerIndex > 0
+                ? motionSet.baseLayerIndex
+                : requestedLayerIndex;
+
+        /// <summary>
+        /// 오버레이 레이어(>0)에 마스크가 없으면 액터 상체 마스크를 재사용해, 마스크된 부위만 재생되도록 한다.
+        /// baseLayerIndex가 액터 상체 레이어와 달라도 같은 마스크를 적용한다.
+        /// </summary>
+        protected void EnsureOverlayMask(int layerIndex)
+        {
+            if (_animator == null || layerIndex <= 0 || _upperBodyMask == null)
+                return;
+            AnimancerLayer layer = _animator.Layers[layerIndex];
+            if (layer.Mask == null)
+                layer.Mask = _upperBodyMask;
+        }
+
+        /// <summary>
+        /// AnimKey에 해당하는 MotionSet을 해석한다.
+        /// 액터별로 모션 소스가 다르므로(플레이어는 무기별 세트) 하위 클래스가 재정의한다.
+        /// </summary>
+        protected virtual MotionSetAsset ResolveMotionSetAsset(GameplayTag slot)
+            => _motionSet != null ? _motionSet.GetMotionSetAsset(slot) : null;
+
+        protected virtual MotionSet ResolveMotionSet(GameplayTag slot)
+            => ResolveMotionSetAsset(slot)?.motionSet;
+
 
         public virtual void Init(GameActor actor)
         {
@@ -333,95 +385,113 @@ namespace UPlayGround.Animation
             return null;
         }
 
-        public virtual bool HasMotion(AnimKey key, bool checkWeapon = false)
+        public virtual bool HasMotion(GameplayTag slot, bool checkWeapon = false) =>
+            ResolveMotionSetAsset(slot) != null;
+
+        public bool HasMotion(MotionSetAsset asset) =>
+            asset != null && asset.motionSet != null && asset.motionSet.IsValid();
+
+        public virtual AnimancerState PlayMotion(GameplayTag slot, float fadeDuration = 0f, int layerIndex = 0)
         {
-            if ( _motionSet == null)
-            {
-                return false;
-            }
-            
-            return (_motionSet.GetMotionSet(key) != null);
-        }
-        public virtual AnimancerState PlayMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
-        {
-            if (_isPlayingMotionSet
-                && _lastPlayedKey == key)
-            {
-                return _currentState;
-            }
-
-            // 새 MotionSet 유효성을 먼저 확인. 무효라면 기존 재생을 끊지 않고 즉시 null 반환.
-            // (기존에는 StopMotionSet 후 무효를 발견해 재생 중이던 모션이 끊기는 버그가 있었다)
-            MotionSet nextMotionSet = _motionSet != null ? _motionSet.GetMotionSet(key) : null;
-            if (nextMotionSet == null || nextMotionSet.IsValid() == false)
-            {
-                return null;
-            }
-
-            // 기존 MotionSet이 재생 중이었다면 안전하게 정리
-            if (_isPlayingMotionSet && _currentMotionSet != null)
-            {
-                StopMotionSet();
-            }
-
-            _currentMotionSet = nextMotionSet;
-
-            _currentMotionIndex = 0;
-            _globalTime = 0f;
-            _lastLocalTime = -0.001f;
-            _isPlayingMotionSet = true;
-            _lastPlayedKey = key;
-            _infiniteLoopStageIndex = -1; // 새로운 MotionSet 시작 시에만 리셋
-
-            // 이벤트 실행기 초기화
-            _eventExecutor?.PlayMotionSet(_currentMotionSet);
-
-            // 첫 번째 모션 재생
-            PlayMotionAtIndex(0, fadeDuration, layerIndex);
-            StartPlaybackLayers(fadeDuration);
-
-            PlaySubAnimatorMotion(key, fadeDuration, layerIndex);
-            return _currentState;
+            MotionSetAsset asset = ResolveMotionSetAsset(slot);
+            AnimancerState state = PlayResolvedMotion(
+                asset,
+                asset != null ? asset.motionSet : null,
+                slot,
+                slot.TagName,
+                fadeDuration,
+                layerIndex,
+                out bool started);
+            if (started)
+                _subAnimator?.PlayMotion(slot, fadeDuration, _currentMotionLayerIndex);
+            return state;
         }
 
         /// <summary>
-        /// AnimKey 등록을 거치지 않고 외부 MotionSet 에셋을 직접 재생한다.
-        /// 궁극기/시네마틱처럼 일반 상태 모션 테이블과 생명주기가 다른 재생 단위에서 사용한다.
+        /// 의미 슬롯 등록을 거치지 않고 외부 MotionSet 에셋을 직접 재생한다.
+        /// Payload·궁극기·시네마틱처럼 일반 상태 모션 테이블과 생명주기가 다른 재생 단위에서 사용한다.
         /// </summary>
+        public AnimancerState PlayMotion(MotionSetAsset asset, float fadeDuration = 0f, int layerIndex = 0)
+        {
+            AnimancerState state = PlayResolvedMotion(
+                asset,
+                asset != null ? asset.motionSet : null,
+                default,
+                asset != null ? asset.name : "-",
+                fadeDuration,
+                layerIndex,
+                out bool started);
+            if (started)
+                _subAnimator?.PlayMotion(asset, fadeDuration, _currentMotionLayerIndex);
+            return state;
+        }
+
+        // 기존 외부 호출 호환용. 신규 코드는 PlayMotion(MotionSetAsset)을 사용한다.
         public AnimancerState PlayMotionSetAsset(MotionSetAsset asset, float fadeDuration = 0f, int layerIndex = 0)
         {
-            return PlayMotionSet(asset != null ? asset.motionSet : null, fadeDuration, layerIndex);
+            return PlayMotion(asset, fadeDuration, layerIndex);
         }
 
         public AnimancerState PlayMotionSet(MotionSet motionSet, float fadeDuration = 0f, int layerIndex = 0)
         {
+            return PlayResolvedMotion(
+                null,
+                motionSet,
+                default,
+                !string.IsNullOrEmpty(motionSet?.motionSetName) ? motionSet.motionSetName : "Direct MotionSet",
+                fadeDuration,
+                layerIndex,
+                out _);
+        }
+
+        /// <summary>
+        /// 태그 슬롯·에셋 직접 참조·런타임 MotionSet 재생이 공유하는 단일 시작 경로다.
+        /// </summary>
+        protected AnimancerState PlayResolvedMotion(
+            MotionSetAsset sourceAsset,
+            MotionSet motionSet,
+            GameplayTag slot,
+            string displayKey,
+            float fadeDuration,
+            int layerIndex,
+            out bool started)
+        {
+            started = false;
             if (motionSet == null || !motionSet.IsValid())
                 return null;
+
+            bool sameSource = sourceAsset != null
+                ? _currentMotionAsset == sourceAsset
+                : _currentMotionAsset == null && ReferenceEquals(_currentMotionSet, motionSet);
+            if (_isPlayingMotionSet
+                && sameSource
+                && _lastPlayedSlot == slot)
+                return _currentState;
 
             if (_isPlayingMotionSet && _currentMotionSet != null)
                 StopMotionSet();
 
+            _currentMotionAsset = sourceAsset;
             _currentMotionSet = motionSet;
             _currentMotionIndex = 0;
-            _currentMotionLayerIndex = layerIndex;
             _globalTime = 0f;
             _lastLocalTime = -0.001f;
             _isPlayingMotionSet = true;
-            _lastPlayedKey = AnimKey.None;
+            _lastPlayedSlot = slot;
+            _currentMotionDisplayKey = string.IsNullOrEmpty(displayKey) ? "-" : displayKey;
             _infiniteLoopStageIndex = -1;
 
+            int effectiveLayer = ResolveBaseLayerIndex(motionSet, layerIndex);
+            EnsureOverlayMask(effectiveLayer);
+            _currentMotionLayerIndex = effectiveLayer;
+
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
-            PlayMotionAtIndex(0, fadeDuration, layerIndex);
+            PlayMotionAtIndex(0, fadeDuration, effectiveLayer);
             StartPlaybackLayers(fadeDuration);
+            started = true;
             return _currentState;
         }
 
-        protected void PlaySubAnimatorMotion(AnimKey key, float fadeDuration = 0.0f, int layerIndex = 0)
-        {
-            if (_subAnimator == null) return;
-
-            _subAnimator.PlayMotion(key, fadeDuration, layerIndex);
-        }
 
         // ── 상체 오버레이 레이어 ──
         // 하체 로코모션(Layer 0 디렉터)을 그대로 유지한 채, 상체 마스크가 적용된 레이어에만
@@ -433,12 +503,19 @@ namespace UPlayGround.Animation
         /// 상체 오버레이 레이어에 AnimKey의 첫 모션 클립을 1회 재생하고 실제 재생 길이(초)를 반환한다.
         /// 재생에 실패하면 0을 반환한다. 디렉터를 사용하지 않으므로 OnMotionSetCompleted는 발화하지 않는다.
         /// </summary>
-        public float PlayUpperBodyOverlay(AnimKey key, float fadeDuration = 0.15f)
+        // 직전에 상체 오버레이를 재생한 레이어 인덱스. StopUpperBodyOverlay가 같은 레이어를 끄도록 기억한다.
+        private int _lastUpperBodyOverlayLayer = -1;
+
+        public float PlayUpperBodyOverlay(GameplayTag slot, float fadeDuration = 0.15f)
         {
-            if (_animator == null || _motionSet == null)
+            return PlayUpperBodyOverlay(ResolveMotionSet(slot), fadeDuration, slot);
+        }
+
+        private float PlayUpperBodyOverlay(MotionSet set, float fadeDuration, GameplayTag slot)
+        {
+            if (_animator == null)
                 return 0f;
 
-            MotionSet set = _motionSet.GetMotionSet(key);
             if (set == null || !set.IsValid())
                 return 0f;
 
@@ -446,14 +523,23 @@ namespace UPlayGround.Animation
             if (motion == null || !motion.IsValid())
                 return 0f;
 
-            int layerIndex = Mathf.Max(1, _upperBodyLayerIndex);
+            // MotionSet에 baseLayerIndex가 지정돼 있으면 그 레이어를, 아니면 액터 상체 레이어를 쓴다.
+            int layerIndex = set.baseLayerIndex > 0
+                ? set.baseLayerIndex
+                : Mathf.Max(1, _upperBodyLayerIndex);
+
             AnimancerLayer layer = _animator.Layers[layerIndex];
             if (layer.Mask == null)
             {
-                Debug.LogWarning(
-                    $"[{name}] 상체 오버레이 레이어 {layerIndex}에 AvatarMask가 없어 전신을 덮습니다. " +
-                    "ActorAnimator의 Upper Body Mask를 할당하세요.", this);
+                if (_upperBodyMask != null)
+                    layer.Mask = _upperBodyMask; // 지정 레이어에도 상체 마스크 재사용
+                else
+                    Debug.LogWarning(
+                        $"[{name}] 상체 오버레이 레이어 {layerIndex}에 AvatarMask가 없어 전신을 덮습니다. " +
+                        "ActorAnimator의 Upper Body Mask를 할당하세요.", this);
             }
+
+            _lastUpperBodyOverlayLayer = layerIndex;
 
             layer.StartFade(1f, fadeDuration);
             AnimancerState state = layer.Play(motion.motionClip, fadeDuration);
@@ -461,7 +547,10 @@ namespace UPlayGround.Animation
             state.Speed = motion.playbackSpeed;
             state.Events(this).OnEnd = null; // 종료/전환은 호출측 타이머로 판단
 
-            _subAnimator?.PlayUpperBodyOverlay(key, fadeDuration);
+            if (_subAnimator != null)
+            {
+                _subAnimator.PlayUpperBodyOverlay(slot, fadeDuration);
+            }
 
             return motion.Duration; // 재생 구간·속도가 반영된 실제 재생 길이
         }
@@ -474,7 +563,10 @@ namespace UPlayGround.Animation
             if (_animator == null)
                 return;
 
-            int layerIndex = Mathf.Max(1, _upperBodyLayerIndex);
+            // 재생 시 사용한 레이어를 끈다. 미재생/모름이면 액터 상체 레이어로 폴백.
+            int layerIndex = _lastUpperBodyOverlayLayer > 0
+                ? _lastUpperBodyOverlayLayer
+                : Mathf.Max(1, _upperBodyLayerIndex);
             if (layerIndex < _animator.Layers.Count)
                 _animator.Layers[layerIndex].StartFade(0f, fadeDuration);
 
@@ -483,7 +575,7 @@ namespace UPlayGround.Animation
 
         public MotionPlaybackSnapshot CapturePlaybackSnapshot()
         {
-            if (!_isPlayingMotionSet || _currentMotionSet == null || _lastPlayedKey == AnimKey.None)
+            if (!_isPlayingMotionSet || _currentMotionSet == null)
                 return MotionPlaybackSnapshot.Empty;
 
             float total = _currentMotionSet.TotalDuration;
@@ -493,7 +585,9 @@ namespace UPlayGround.Animation
 
             return new MotionPlaybackSnapshot(
                 true,
-                _lastPlayedKey,
+                _lastPlayedSlot,
+                _currentMotionAsset,
+                _currentMotionDisplayKey,
                 normalizedTime,
                 _currentMotionLayerIndex,
                 Speed);
@@ -513,7 +607,9 @@ namespace UPlayGround.Animation
                 return new AnimationDebugSnapshot(
                     state != null,
                     false,
-                    AnimKey.None,
+                    default,
+                    null,
+                    "Clip",
                     "-",
                     -1,
                     0,
@@ -548,7 +644,9 @@ namespace UPlayGround.Animation
             return new AnimationDebugSnapshot(
                 true,
                 true,
-                _lastPlayedKey,
+                _lastPlayedSlot,
+                _currentMotionAsset,
+                _currentMotionDisplayKey,
                 string.IsNullOrEmpty(_currentMotionSet.motionSetName) ? "-" : _currentMotionSet.motionSetName,
                 _currentMotionIndex,
                 _currentMotionSet.motions?.Count ?? 0,
@@ -589,90 +687,34 @@ namespace UPlayGround.Animation
 
         public MotionPlaybackSnapshot CaptureMovementPlaybackSnapshot()
         {
-            if (!IsMovementPlaybackKey(_lastPlayedKey))
+            if (!IsMovementPlaybackSlot(_lastPlayedSlot))
                 return MotionPlaybackSnapshot.Empty;
 
             return CapturePlaybackSnapshot();
         }
 
-        public static bool IsMovementPlaybackKey(AnimKey key)
+
+        public static bool IsMovementPlaybackSlot(GameplayTag slot)
         {
-            return key switch
-            {
-                AnimKey.Walk or
-                AnimKey.Run or
-                AnimKey.Sprint or
-                AnimKey.Dodge or
-                AnimKey.Dash or
-                AnimKey.Jump or
-                AnimKey.Fall or
-                AnimKey.Land or
-                AnimKey.DoubleJump or
-                AnimKey.Crouch_Idle or
-                AnimKey.Crouch_Walk or
-                AnimKey.Idle_To_Crouch or
-                AnimKey.Crouch_To_Idle or
-                AnimKey.Move_Stop_Walking or
-                AnimKey.Move_Stop_Running or
-                AnimKey.Move_Stop_Sprinting or
-                AnimKey.Move_Stop_Walking_L45 or
-                AnimKey.Move_Stop_Walking_R45 or
-                AnimKey.Move_Stop_Running_L45 or
-                AnimKey.Move_Stop_Running_R45 or
-                AnimKey.Move_Stop_Sprinting_L45 or
-                AnimKey.Move_Stop_Sprinting_R45 or
-                AnimKey.Stand_Idle_Turn_L45 or
-                AnimKey.Stand_Idle_Turn_R45 or
-                AnimKey.Stand_Idle_Turn_L90 or
-                AnimKey.Stand_Idle_Turn_R90 or
-                AnimKey.Stand_Idle_Turn_180 or
-                AnimKey.Walk_Turn_L45 or
-                AnimKey.Walk_Turn_R45 or
-                AnimKey.Walk_Turn_L90 or
-                AnimKey.Walk_Turn_R90 or
-                AnimKey.Walk_Turn_180 or
-                AnimKey.Run_Turn_L45 or
-                AnimKey.Run_Turn_R45 or
-                AnimKey.Run_Turn_L90 or
-                AnimKey.Run_Turn_R90 or
-                AnimKey.Run_Turn_180 or
-                AnimKey.Sprint_Turn_L45 or
-                AnimKey.Sprint_Turn_R45 or
-                AnimKey.Sprint_Turn_L90 or
-                AnimKey.Sprint_Turn_R90 or
-                AnimKey.Sprint_Turn_180 or
-                AnimKey.Walk_Slow or
-                AnimKey.Walk_Slow_B or
-                AnimKey.Walk_Slow_B_L45 or
-                AnimKey.Walk_Slow_B_R45 or
-                AnimKey.Walk_Slow_F_L45 or
-                AnimKey.Walk_Slow_F_R45 or
-                AnimKey.Walk_Slow_F_L90 or
-                AnimKey.Walk_Slow_F_R90 or
-                AnimKey.Walk_B or
-                AnimKey.Walk_B_L45 or
-                AnimKey.Walk_B_R45 or
-                AnimKey.Walk_F_L45 or
-                AnimKey.Walk_F_R45 or
-                AnimKey.Walk_F_L90 or
-                AnimKey.Walk_F_R90 or
-                AnimKey.Run_B or
-                AnimKey.Run_B_L45 or
-                AnimKey.Run_B_R45 or
-                AnimKey.Run_F_L45 or
-                AnimKey.Run_F_R45 or
-                AnimKey.Run_F_L90 or
-                AnimKey.Run_F_R90 => true,
-                _ => false,
-            };
+            return slot.IsChildOf(new GameplayTag("Motion.Locomotion"))
+                   || slot.IsChildOf(new GameplayTag("Motion.Stop"))
+                   || slot.IsChildOf(new GameplayTag("Motion.Turn"))
+                   || slot.IsChildOf(new GameplayTag("Motion.Air"))
+                   || slot.IsChildOf(new GameplayTag("Motion.Crouch"))
+                   || slot == UPlayGround.Data.Actor.Animation.MotionTags.Dodge
+                   || slot == UPlayGround.Data.Actor.Animation.MotionTags.Dash;
         }
 
         public bool RestorePlaybackSnapshot(MotionPlaybackSnapshot snapshot, float fadeDuration = 0f)
         {
-            if (!snapshot.IsValid || snapshot.Key == AnimKey.None)
+            if (!snapshot.IsValid
+                || (snapshot.SourceAsset == null
+                    && !snapshot.Slot.IsValid()))
                 return false;
 
-            var state = PlayMotion(snapshot.Key, fadeDuration, snapshot.LayerIndex);
+            AnimancerState state = snapshot.SourceAsset != null
+                ? PlayMotion(snapshot.SourceAsset, fadeDuration, snapshot.LayerIndex)
+                : PlayMotion(snapshot.Slot, fadeDuration, snapshot.LayerIndex);
             if (state == null || _currentMotionSet == null)
                 return false;
 
@@ -733,11 +775,8 @@ namespace UPlayGround.Animation
         /// <summary>
         /// MotionSet의 총 재생 시간 가져오기
         /// </summary>
-        public virtual float GetMotionSetDuration(AnimKey key)
-        {
-            var motionSet = _motionSet.GetMotionSet(key);
-            return motionSet?.TotalDuration ?? 0f;
-        }
+        public virtual float GetMotionSetDuration(GameplayTag slot) =>
+            ResolveMotionSetAsset(slot)?.motionSet?.TotalDuration ?? 0f;
         
         /// <summary>
         /// 현재 재생 중인 MotionSet 의 남은 시간.

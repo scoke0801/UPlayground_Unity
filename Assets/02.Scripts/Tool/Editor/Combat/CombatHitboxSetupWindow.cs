@@ -25,7 +25,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private readonly List<CombatHitboxSetupResult> _results = new();
         private readonly List<GameObject> _resultHitboxes = new();
 
-        [MenuItem("UPlayGround/게임플레이/전투/도구/HitBox 셋업", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 3)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/전투/도구/HitBox 셋업", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 3)]
         private static void Open()
         {
             GetWindow<CombatHitboxSetupWindow>("Combat HitBox Setup");

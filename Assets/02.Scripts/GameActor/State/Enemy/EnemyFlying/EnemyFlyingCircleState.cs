@@ -37,7 +37,7 @@ namespace UPlayGround.State
             _timer = 0f;
             _circleDir = Random.value > 0.5f ? 1f : -1f;
             _baseSpeed = controller.MaxRunMoveSpeed * 0.5f;
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)

@@ -165,7 +165,7 @@ namespace UPlayGround
             if (!restoredAnimation)
             {
                 PlayerMovementPlayerController?.TransitionToState(new PlayerIdleState(PlayerMovementPlayerController));
-                _playerActorAnimator?.PlayMotion(AnimKey.Idle, 0f);
+                _playerActorAnimator?.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0f);
             }
 
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);

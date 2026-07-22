@@ -7,6 +7,7 @@ using UPlayGround.Diagnostics;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -76,7 +77,7 @@ namespace UPlayGround.State
             if (recordToken && DebugLog)
                 RuntimeLog.Trace(
                     RuntimeLogCategory.Combat | RuntimeLogCategory.Input,
-                    $"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수={routes.Count} grounded={grounded} → {(result != null ? $"매칭 '{result.routeName}' animKey={result.attackInfo?.baseInfo?.animKey}" : "매칭없음")}");
+                    $"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수={routes.Count} grounded={grounded} → {(result != null ? $"매칭 '{result.routeName}' motion={result.attackInfo?.baseInfo?.motionRef?.name}" : "매칭없음")}");
 
             return result;
         }
@@ -94,7 +95,7 @@ namespace UPlayGround.State
 
         /// <summary>
         /// 라우트를 resolve → (매칭 시) 트래커 Clear + ExecuteComboRoute까지 수행한다.
-        /// 매칭 라우트가 없으면 null + animKey=None(호출자는 기존 로직으로 폴백).
+        /// 매칭 라우트가 없으면 null을 반환하여 호출자가 기본 로직을 수행하게 한다.
         /// </summary>
         public static AttackData TryExecuteRoute(
             PlayerActor playerActor,
@@ -102,9 +103,9 @@ namespace UPlayGround.State
             PlayerCombat combat,
             bool isHeavyAttack,
             PlayerInterruptAction forcedAttackAction,
-            out AnimKey animKey)
+            out MotionSetAsset motionAsset)
         {
-            animKey = AnimKey.None;
+            motionAsset = null;
 
             // 마무리 입력 간격은 ResolveRoute가 트래커에 push하기 '이전'에 캡처한다(push 후엔 0).
             float finishingInterval = playerActor != null
@@ -121,7 +122,7 @@ namespace UPlayGround.State
             // 연계 발동 → 윈도우를 비워 stale 접두 토큰의 재매칭을 방지(설계 §8).
             playerActor.ComboInputTracker.Clear();
             var attack = combat.ExecuteComboRoute(route, isPerfect);
-            animKey = attack?.animKey ?? AnimKey.None;
+            motionAsset = attack?.motionAsset;
             return attack;
         }
 

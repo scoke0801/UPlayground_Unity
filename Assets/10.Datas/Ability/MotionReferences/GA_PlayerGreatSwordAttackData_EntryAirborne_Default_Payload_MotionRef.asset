@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44e31f76c56d44c99680b04d89f8343a, type: 3}
+  m_Name: GA_PlayerGreatSwordAttackData_EntryAirborne_Default_Payload_MotionRef
+  m_EditorClassIdentifier: 
+  defaultMotion: {fileID: 0}
+  weaponOverrides:
+  - weaponType: 2
+    motion: {fileID: 11400000, guid: efaa63e1756af894cbffb64f720afa6f, type: 2}
+  - weaponType: 3
+    motion: {fileID: 11400000, guid: 7993f2313e245d446b4f098cfdd0d6f3, type: 2}
+  - weaponType: 4
+    motion: {fileID: 11400000, guid: dee12220a10af1848a068d5c367d00a6, type: 2}
+  - weaponType: 5
+    motion: {fileID: 11400000, guid: 46304a62aa6debd499a943bde2120bd8, type: 2}
+  - weaponType: 10
+    motion: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
+  - weaponType: 11
+    motion: {fileID: 11400000, guid: dfaf68c37a36b674286d5ec93715caca, type: 2}
+  - weaponType: 12
+    motion: {fileID: 11400000, guid: a2f022db5a3b0fe4b83fb96aa8ad8930, type: 2}
+  - weaponType: 13
+    motion: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+  - weaponType: 14
+    motion: {fileID: 11400000, guid: cf43faf58f7a84d44b48a4da5a521d4a, type: 2}

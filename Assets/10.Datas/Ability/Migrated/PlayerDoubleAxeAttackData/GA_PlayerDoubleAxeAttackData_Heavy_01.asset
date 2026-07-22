@@ -81,10 +81,10 @@ MonoBehaviour:
   m_Name: GA_PlayerDoubleAxeAttackData_Heavy_01_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_01.Default
-  animKey: 201
+  motionRef: {fileID: 11400000, guid: eecc372f1b8df014bb4208d178c7ef72, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 201
+      motionRef: {fileID: 11400000, guid: eecc372f1b8df014bb4208d178c7ef72, type: 2}
       attackType: 0
       hitPhases:
       - damage: 91
@@ -151,3 +151,26 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 221
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

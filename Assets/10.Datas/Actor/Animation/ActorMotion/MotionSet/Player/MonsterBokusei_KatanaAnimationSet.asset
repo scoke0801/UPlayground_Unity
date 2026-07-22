@@ -89,3 +89,50 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: c549305df2686ca4cad45ddc2431ae0e, type: 2}
     - Key: 2110
       Value: {fileID: 11400000, guid: c5b91c55bd7e5564c945c4d7c3d5e69c, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 8bf4152a88a97664d831af63abd5b677, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 4ce4fc9d3d76e824fbdd2ebaca274933, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: 91fb7bea70d856a47a930c10323651d2, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 7af40ca5d18169b42a4712b007ac2837, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: c2b0d702aeae0d643b45b2e20717bc43, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockback
+      Value: {fileID: 11400000, guid: e7c7826a13e49e74f8c0a5bd7c8e5856, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 773377a484c2a3e4692f3ace1330cf77, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 511cf6701fac26c42af06385edf62d00, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Block
+      Value: {fileID: 11400000, guid: 72d44880a7d43c340a95350cd9801b27, type: 2}
+    - Key:
+        _tagName: Motion.Equipment.Main.Unequip
+      Value: {fileID: 11400000, guid: 6593c7158d0f80044bd7146aa6e22a60, type: 2}
+    - Key:
+        _tagName: Motion.Air.DoubleJump
+      Value: {fileID: 11400000, guid: 962079e4e4195f442a5e0acb62d9d46f, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash
+      Value: {fileID: 11400000, guid: 864ea1742e795b245913b2f673c3fb35, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk
+      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}
+    - Key:
+        _tagName: Motion.Equipment.Main.Equip
+      Value: {fileID: 11400000, guid: c5b91c55bd7e5564c945c4d7c3d5e69c, type: 2}
+    - Key:
+        _tagName: Motion.Action.FinishAttack
+      Value: {fileID: 11400000, guid: c549305df2686ca4cad45ddc2431ae0e, type: 2}

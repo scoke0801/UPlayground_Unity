@@ -6,6 +6,9 @@ using Animancer;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
+using System.Linq;
+using System.Reflection;
 using UPlayGround.Debugging;
 using UPlayGround.MovementController;
 using UPlayGround.Components;
@@ -24,7 +27,7 @@ namespace UPlayGround.Animation.Editor
         ActorAnimationMotionSet _actorAnimationSet;
         PlayerActorAnimationMotionSet _playerActorAnimationSet;
         WeaponType      _selectedPlayerWeaponType = WeaponType.NoWeapon;
-        AnimKey         _selectedActorMotionKey = AnimKey.None;
+        GameplayTag         _selectedActorMotionKey = default;
         MotionSetDrawer _drawer;
         Vector2         _scrollPos;
         Vector2         _actorMotionListScroll;
@@ -52,6 +55,10 @@ namespace UPlayGround.Animation.Editor
         float           _startTime     = 0f;
         float           _endTime       = -1f; // -1 = 전체 길이 사용
         int             _currentMotionIndex = -1; // 현재 재생 중인 모션 인덱스 (전환 감지용)
+        // 프리뷰 재생 레이어. 0 = 전신(레이어0). N>0 = 언리얼 몽타주 슬롯 프리뷰처럼 레이어0에
+        // Idle(베이스 포즈)을 유지한 채 지정 레이어에 대상 클립을 덧입힌다. 지정 레이어에 AvatarMask가
+        // 있으면 마스크된 본만 움직이고 나머지는 베이스 포즈를 따른다. (병렬 다중 레이어 재생 아님)
+        int             _previewLayerIndex = 0;
         double          _lastPlaybackGameTime;
         bool            _isMotionToolInputLocked;
         PlayerActor     _suppressedPlayerActor;
@@ -105,7 +112,7 @@ namespace UPlayGround.Animation.Editor
         bool            _useTemporarySet;
         MotionSet       _temporarySet;
 
-        [MenuItem("UPlayGround/캐릭터/액터/애니메이션 에디터", priority = 101)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/캐릭터/액터/애니메이션 에디터", priority = 101)]
         static void OpenWindow()
         {
             var window = GetWindow<MotionSetEditorWindow>();
@@ -142,7 +149,7 @@ namespace UPlayGround.Animation.Editor
             window.SetPlayerActorAnimationSet(playerActorAnimationSet);
         }
 
-        public static void Open(ActorAnimationMotionSet actorAnimationSet, AnimKey key, MotionSetAsset asset)
+        public static void Open(ActorAnimationMotionSet actorAnimationSet, GameplayTag key, MotionSetAsset asset)
         {
             var window = GetWindow<MotionSetEditorWindow>();
             window.titleContent = new GUIContent("애니메이션 에디터");
@@ -172,6 +179,7 @@ namespace UPlayGround.Animation.Editor
         const string PREFS_PLAYER_WEAPON       = "MotionSetWindow_PlayerWeapon";
         const string PREFS_ALLOW_CAMERA_LOOK   = "MotionSetWindow_AllowCameraLook";
         const string PREFS_LOCK_PLAYER_INPUT   = "MotionSetWindow_LockPlayerInput";
+        const string PREFS_PREVIEW_LAYER       = "MotionSetWindow_PreviewLayer";
 
         void OnEnable()
         {
@@ -250,6 +258,7 @@ namespace UPlayGround.Animation.Editor
             EditorPrefs.SetInt(PREFS_PLAYER_WEAPON, (int)_selectedPlayerWeaponType);
             EditorPrefs.SetBool(PREFS_ALLOW_CAMERA_LOOK, _allowCameraLookInPreview);
             EditorPrefs.SetBool(PREFS_LOCK_PLAYER_INPUT, _lockPlayerInputInPreview);
+            EditorPrefs.SetInt(PREFS_PREVIEW_LAYER, _previewLayerIndex);
         }
 
         // ⑤ 상태 복원
@@ -279,6 +288,7 @@ namespace UPlayGround.Animation.Editor
             _selectedPlayerWeaponType = (WeaponType)EditorPrefs.GetInt(PREFS_PLAYER_WEAPON, (int)WeaponType.NoWeapon);
             _allowCameraLookInPreview = EditorPrefs.GetBool(PREFS_ALLOW_CAMERA_LOOK, false);
             _lockPlayerInputInPreview = EditorPrefs.GetBool(PREFS_LOCK_PLAYER_INPUT, true);
+            _previewLayerIndex = Mathf.Max(0, EditorPrefs.GetInt(PREFS_PREVIEW_LAYER, 0));
             if (_testActorMode == TestActorMode.Player && _playerActorAnimationSet != null)
                 SetActorAnimationSet(ResolveSelectedPlayerActorAnimationSet());
         }
@@ -360,6 +370,8 @@ namespace UPlayGround.Animation.Editor
             if (_animancer == null || _idleAnimation == null) return;
 
             ApplyPreviewWeaponState();
+            // 오버레이 레이어 프리뷰 잔재가 남아 있으면 Idle 위에 계속 덧입혀지므로 먼저 정리한다.
+            ClearOverlayPreviewLayers();
             _animancer.Play(_idleAnimation);
             Debug.Log($"Idle 애니메이션 재생: {_idleAnimation.name}");
         }
@@ -672,10 +684,12 @@ namespace UPlayGround.Animation.Editor
                     {
                         _editorIsFrozen = false;
                         // 애니메이션 속도 복원
-                        if (_animancer.States.Current != null)
+                        var frozenState = GetPreviewState();
+                        if (frozenState != null)
                         {
                             float motionSpd = GetMotionSpeedAtTime(currentSet, _playbackTime);
-                            _animancer.States.Current.Speed = motionSpd * _playbackSpeed;
+                            frozenState.Speed = motionSpd * _playbackSpeed;
+                            SyncOverlayBaseSpeed(_playbackSpeed);
                         }
                     }
                     else
@@ -802,11 +816,12 @@ namespace UPlayGround.Animation.Editor
             _editorLoopRemainingCount--;
 
             // Animancer 클립 시간도 되감기
-            if (_animancer != null && _animancer.States.Current != null)
+            var loopState = GetPreviewState();
+            if (_animancer != null && loopState != null)
             {
                 float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
                 float clipTime = motion.ClipStartTime + loopEvt.startTime * spd;
-                _animancer.States.Current.Time = clipTime;
+                loopState.Time = clipTime;
             }
         }
 
@@ -820,8 +835,10 @@ namespace UPlayGround.Animation.Editor
             _editorIsFrozen = true;
             _editorFreezeTimer = loopEvt.freezeDuration;
 
-            if (_animancer != null && _animancer.States.Current != null)
-                _animancer.States.Current.Speed = 0f;
+            var freezeState = GetPreviewState();
+            if (_animancer != null && freezeState != null)
+                freezeState.Speed = 0f;
+            SyncOverlayBaseSpeed(0f);
         }
 
         void HandleEditorInfiniteLoopMode(LoopEvent loopEvt, float localTime, Motion motion)
@@ -849,10 +866,11 @@ namespace UPlayGround.Animation.Editor
                 float loopDuration = loopEvt.endTime - loopEvt.startTime;
                 _playbackTime -= loopDuration;
 
-                if (_animancer != null && _animancer.States.Current != null)
+                var infLoopState = GetPreviewState();
+                if (_animancer != null && infLoopState != null)
                 {
                     float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
-                    _animancer.States.Current.Time = motion.ClipStartTime + loopEvt.startTime * spd;
+                    infLoopState.Time = motion.ClipStartTime + loopEvt.startTime * spd;
                 }
             }
         }
@@ -1148,7 +1166,7 @@ namespace UPlayGround.Animation.Editor
 
             if (_actorAnimationSet == null)
             {
-                _selectedActorMotionKey = AnimKey.None;
+                _selectedActorMotionKey = default;
                 return;
             }
 
@@ -1195,7 +1213,7 @@ namespace UPlayGround.Animation.Editor
             if (_playerActorAnimationSet == null) return;
 
             var sObj = new SerializedObject(_playerActorAnimationSet);
-            var listProp = sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
+            var listProp = sObj.FindProperty("motionSlots").FindPropertyRelative("_serializedList");
             int idx = FindPlayerWeaponTypeIndex(listProp, _selectedPlayerWeaponType);
 
             if (idx < 0)
@@ -1227,33 +1245,26 @@ namespace UPlayGround.Animation.Editor
 
         struct ActorMotionEntry
         {
-            public AnimKey key;
+            public GameplayTag key;
             public ActorAnimationMotionSet source;
             public MotionSetAsset asset;
             public bool isOwn;
         }
 
-        static readonly (string label, int min, int max)[] ACTOR_KEY_RANGES =
-        {
-            ("이동",       0,   29),
-            ("공격",       100, 199),
-            ("강공격",     200, 299),
-            ("대시 공격",  300, 399),
-            ("점프 공격",  400, 499),
-            ("스킬",       500, 619),
-            ("특수 공격",620, 699),
-            ("피격",  700, 919),
-            ("기타",       920, int.MaxValue),
-        };
-
-        static AnimKey[] _allAnimKeys;
-        static AnimKey[] AllAnimKeys => _allAnimKeys ??= (AnimKey[])System.Enum.GetValues(typeof(AnimKey));
+        static GameplayTag[] _allGameplayTags;
+        static GameplayTag[] AllGameplayTags => _allGameplayTags ??= typeof(MotionTags)
+            .GetFields(BindingFlags.Public | BindingFlags.Static)
+            .Where(field => field.FieldType == typeof(GameplayTag))
+            .Select(field => (GameplayTag)field.GetValue(null))
+            .Where(tag => tag.IsValid())
+            .OrderBy(tag => tag.TagName, System.StringComparer.Ordinal)
+            .ToArray();
 
         static System.Collections.Generic.List<ActorMotionEntry> GetActorMotionEntries(
             ActorAnimationMotionSet root, bool includeFallback)
         {
             var result = new System.Collections.Generic.List<ActorMotionEntry>();
-            var seen = new System.Collections.Generic.HashSet<AnimKey>();
+            var seen = new System.Collections.Generic.HashSet<GameplayTag>();
             var visited = new System.Collections.Generic.HashSet<ActorAnimationMotionSet>();
             var current = root;
 
@@ -1261,9 +1272,9 @@ namespace UPlayGround.Animation.Editor
             {
                 visited.Add(current);
 
-                if (current.motionSets != null)
+                if (current.motionSlots != null)
                 {
-                    foreach (var kv in current.motionSets)
+                    foreach (var kv in current.motionSlots)
                     {
                         if (!seen.Add(kv.Key)) continue;
                         result.Add(new ActorMotionEntry
@@ -1280,7 +1291,7 @@ namespace UPlayGround.Animation.Editor
                 current = current.fallbackMotionSet;
             }
 
-            result.Sort((a, b) => ((int)a.key).CompareTo((int)b.key));
+            result.Sort((a, b) => string.CompareOrdinal(a.key.TagName, b.key.TagName));
             return result;
         }
 
@@ -1302,19 +1313,19 @@ namespace UPlayGround.Animation.Editor
         {
             if (_actorAnimationSet == null) return;
 
-            var existing = new System.Collections.Generic.HashSet<AnimKey>();
-            if (_actorAnimationSet.motionSets != null)
+            var existing = new System.Collections.Generic.HashSet<GameplayTag>();
+            if (_actorAnimationSet.motionSlots != null)
             {
-                foreach (var key in _actorAnimationSet.motionSets.Keys)
+                foreach (var key in _actorAnimationSet.motionSlots.Keys)
                     existing.Add(key);
             }
 
             var menu = new GenericMenu();
-            foreach (var key in AllAnimKeys)
+            foreach (var key in AllGameplayTags)
             {
-                if (key == AnimKey.None || existing.Contains(key)) continue;
+                if (key == default || existing.Contains(key)) continue;
 
-                AnimKey captured = key;
+                GameplayTag captured = key;
                 menu.AddItem(new GUIContent(GetActorKeyGroupLabel(key) + "/" + key), false, () =>
                 {
                     var asset = CreateActorMotionSetAsset(captured);
@@ -1333,7 +1344,7 @@ namespace UPlayGround.Animation.Editor
             menu.ShowAsContext();
         }
 
-        MotionSetAsset CreateActorMotionSetAsset(AnimKey key)
+        MotionSetAsset CreateActorMotionSetAsset(GameplayTag key)
         {
             string actorSetPath = AssetDatabase.GetAssetPath(_actorAnimationSet);
             string dir = string.IsNullOrEmpty(actorSetPath)
@@ -1359,10 +1370,10 @@ namespace UPlayGround.Animation.Editor
             return asset;
         }
 
-        void AddOrAssignActorMotionAsset(AnimKey key, MotionSetAsset asset)
+        void AddOrAssignActorMotionAsset(GameplayTag key, MotionSetAsset asset)
         {
             var sObj = new SerializedObject(_actorAnimationSet);
-            var listProp = sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
+            var listProp = sObj.FindProperty("motionSlots").FindPropertyRelative("_serializedList");
             int idx = FindActorMotionKeyIndex(listProp, key);
 
             if (idx < 0)
@@ -1372,7 +1383,7 @@ namespace UPlayGround.Animation.Editor
             }
 
             var elem = listProp.GetArrayElementAtIndex(idx);
-            elem.FindPropertyRelative("Key").intValue = (int)key;
+            elem.FindPropertyRelative("Key").FindPropertyRelative("_tagName").stringValue = key.TagName;
             elem.FindPropertyRelative("Value").objectReferenceValue = asset;
 
             sObj.ApplyModifiedProperties();
@@ -1380,25 +1391,25 @@ namespace UPlayGround.Animation.Editor
             AssetDatabase.SaveAssets();
         }
 
-        static int FindActorMotionKeyIndex(SerializedProperty listProp, AnimKey key)
+        static int FindActorMotionKeyIndex(SerializedProperty listProp, GameplayTag key)
         {
             for (int i = 0; i < listProp.arraySize; i++)
             {
-                if ((AnimKey)listProp.GetArrayElementAtIndex(i).FindPropertyRelative("Key").intValue == key)
+                string tagName = listProp.GetArrayElementAtIndex(i)
+                    .FindPropertyRelative("Key")
+                    .FindPropertyRelative("_tagName")
+                    .stringValue;
+                if (string.Equals(tagName, key.TagName, System.StringComparison.Ordinal))
                     return i;
             }
             return -1;
         }
 
-        static string GetActorKeyGroupLabel(AnimKey key)
+        static string GetActorKeyGroupLabel(GameplayTag key)
         {
-            int value = (int)key;
-            foreach (var range in ACTOR_KEY_RANGES)
-            {
-                if (value >= range.min && value <= range.max)
-                    return range.label;
-            }
-            return "기타";
+            if (!key.IsValid()) return "기타";
+            string[] parts = key.TagName.Split('.');
+            return parts.Length > 1 ? parts[1] : parts[0];
         }
         
         MotionSet GetCurrentMotionSet()
@@ -2620,6 +2631,50 @@ namespace UPlayGround.Animation.Editor
             }
             EditorGUILayout.EndHorizontal();
 
+            // 재생 레이어 지정 (언리얼 몽타주 슬롯 프리뷰 방식)
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("재생 레이어",
+                        "0 = 전신(레이어0) 재생.\n" +
+                        "1 이상 = 언리얼 몽타주 슬롯 프리뷰처럼 레이어0에 Idle(베이스 포즈)을 유지한 채\n" +
+                        "지정 레이어에 클립을 덧입힌다. 지정 레이어에 AvatarMask가 있으면 마스크된 본만\n" +
+                        "움직이고 나머지(예: 하체)는 베이스 포즈를 따른다. (병렬 다중 레이어 재생 아님)"),
+                    GUILayout.Width(100));
+
+                int newLayer = Mathf.Max(0, EditorGUILayout.IntField(_previewLayerIndex, GUILayout.Width(60)));
+                if (newLayer != _previewLayerIndex)
+                {
+                    _previewLayerIndex = newLayer;
+                    // 레이어를 바꾸면 이전 오버레이 잔재가 남지 않도록 정리하고 베이스 포즈로 되돌린다.
+                    // (재생 중이면 다음 틱에서 새 레이어로 다시 재생된다)
+                    if (!_isPlaying && _animancer != null)
+                        PlayIdleAnimation();
+                }
+
+                int effLayer = EffectivePreviewLayer;
+                if (effLayer > 0)
+                {
+                    string maskInfo = "마스크 없음 → 전신 오버레이";
+                    if (_cachedActorAnimator != null && _cachedActorAnimator.UpperBodyMask != null)
+                        maskInfo = $"상체 마스크: {_cachedActorAnimator.UpperBodyMask.name}";
+
+                    // authored baseLayerIndex가 프리뷰를 구동 중이면 그 출처를 함께 표기.
+                    int authored = GetCurrentMotionSet()?.baseLayerIndex ?? 0;
+                    string src = (_previewLayerIndex <= 0 && authored > 0)
+                        ? $"(Base 재생 레이어 L{authored})" : "";
+
+                    EditorGUILayout.LabelField(
+                        $"L{effLayer} 오버레이 · 레이어0 Idle 위 · {maskInfo} {src}",
+                        EditorStyles.miniLabel);
+                }
+                else
+                {
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.LabelField("전신 재생", EditorStyles.miniLabel, GUILayout.Width(120));
+                }
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         void StartPlayback()
@@ -2681,11 +2736,13 @@ namespace UPlayGround.Animation.Editor
         void PausePlayback()
         {
             _isPaused = true;
-            
-            if (_animancer != null && _animancer.States.Current != null)
+
+            var current = GetPreviewState();
+            if (_animancer != null && current != null)
             {
-                _animancer.States.Current.Speed = 0f;
+                current.Speed = 0f;
             }
+            SyncOverlayBaseSpeed(0f);
         }
         
         void ResumePlayback()
@@ -2748,21 +2805,125 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || motion == null || !motion.IsValid()) return;
 
-            var state = _animancer.Play(motion.motionClip);
+            var state = PlayPreviewClip(motion.motionClip);
+            if (state == null) return;
             state.Time  = motion.ClipStartTime;
             state.Speed = motion.playbackSpeed * _playbackSpeed;
 
             // 종료/전환은 에디터 타임라인이 관리한다.
             // 런타임 ActorAnimator가 소유한 상태의 Events에는 접근하지 않는다.
         }
+
+        // ── 지정 레이어 프리뷰 ──
+        //
+        // _previewLayerIndex == 0 이면 기존과 동일하게 전신(레이어0)에 재생한다.
+        // _previewLayerIndex  > 0 이면 언리얼 Persona 몽타주 슬롯 프리뷰 방식을 재현한다:
+        //   레이어0에는 Idle(베이스 포즈)을 계속 재생해 두고, 지정 레이어에 대상 클립을 덧입힌다.
+        //   지정 레이어에 AvatarMask가 있으면 마스크된 본만 클립을 따르고, 마스크에서 제외된 부위
+        //   (예: 하체)는 바인드 포즈가 아니라 레이어0의 Idle 포즈를 따라간다.
+        //   (여러 레이어를 한꺼번에 구동하는 병렬 재생과는 무관하다.)
+        // 프리뷰 재생 레이어 = 사용자 수동 지정(_previewLayerIndex)과 현재 세트의 authored baseLayerIndex 중 큰 값.
+        // 에디터에서 "Base 재생 레이어"를 지정하면 별도 조작 없이 그 레이어에서 미리보기된다.
+        int EffectivePreviewLayer
+            => Mathf.Max(_previewLayerIndex, GetCurrentMotionSet()?.baseLayerIndex ?? 0);
+
+        AnimancerState PlayPreviewClip(AnimationClip clip, float fade = 0f)
+        {
+            if (_animancer == null || clip == null) return null;
+
+            int layerIndex = EffectivePreviewLayer;
+            if (layerIndex <= 0)
+                return _animancer.Play(clip, fade);
+
+            EnsureOverlayBaseLayer();
+
+            var layer = _animancer.Layers[layerIndex]; // 없으면 자동 생성
+            EnsureOverlayLayerMask(layer);
+            layer.Weight = 1f;
+            return layer.Play(clip, fade);
+        }
+
+        /// <summary>
+        /// 오버레이 레이어 프리뷰 시 레이어0(베이스)에 Idle을 재생해, 마스크에서 제외된 부위가
+        /// 바인드 포즈가 아니라 베이스 포즈(Idle)를 따르도록 한다(언리얼 Layered Blend Per Bone과 동일).
+        /// Idle이 이미 재생 중이면 진행 시간을 유지한다.
+        /// </summary>
+        void EnsureOverlayBaseLayer()
+        {
+            if (_animancer == null || _idleAnimation == null) return;
+
+            var baseLayer = _animancer.Layers[0];
+            baseLayer.Weight = 1f;
+            if (baseLayer.CurrentState == null || baseLayer.CurrentState.Clip != _idleAnimation)
+                baseLayer.Play(_idleAnimation);
+        }
+
+        /// <summary>
+        /// 지정 오버레이 레이어에 마스크가 없고, 그 레이어가 액터의 상체 오버레이 레이어와 일치하면
+        /// 액터의 AvatarMask를 적용한다. (런타임 ActorAnimator.ApplyAnimancerSetup과 동일 마스크)
+        /// 마스크가 없으면 전신 오버레이가 되어 베이스를 완전히 덮는데, 이는 언리얼에서 Layered Blend
+        /// 없이 슬롯만 두었을 때와 동일한 동작이다.
+        /// </summary>
+        void EnsureOverlayLayerMask(AnimancerLayer layer)
+        {
+            if (layer == null || layer.Mask != null) return;
+            if (_cachedActorAnimator == null) return;
+
+            // 런타임과 동일하게, 오버레이 레이어에는 액터 상체 마스크를 재사용한다(레이어 인덱스 무관).
+            var mask = _cachedActorAnimator.UpperBodyMask;
+            if (mask != null)
+                layer.Mask = mask;
+        }
+
+        /// <summary>
+        /// 오버레이 레이어 프리뷰로 재생 중이던 상태를 정리한다(재생 종료/Idle 복귀 시).
+        /// 레이어0(베이스)은 건드리지 않는다.
+        /// </summary>
+        void ClearOverlayPreviewLayers()
+        {
+            if (_animancer == null) return;
+            for (int i = 1; i < _animancer.Layers.Count; i++)
+            {
+                var layer = _animancer.Layers[i];
+                if (layer != null && layer.CurrentState != null)
+                    layer.Stop();
+            }
+        }
+
+        /// <summary>
+        /// 현재 프리뷰 재생 상태(속도/시간 제어 대상)를 반환한다.
+        /// 오버레이 레이어 프리뷰 중에는 그 레이어의 CurrentState를, 그 외에는 그래프의 Current를 쓴다.
+        /// </summary>
+        AnimancerState GetPreviewState()
+        {
+            if (_animancer == null) return null;
+            int layerIndex = EffectivePreviewLayer;
+            if (layerIndex > 0 && layerIndex < _animancer.Layers.Count)
+                return _animancer.Layers[layerIndex].CurrentState;
+            return _animancer.States.Current;
+        }
+
+        /// <summary>
+        /// 오버레이 프리뷰 시 레이어0에 깔아둔 Idle의 재생 속도를 오버레이 상태와 동일하게 맞춘다.
+        /// (일시정지 시 하체만 계속 움직이는 현상을 막고, 배속을 함께 반영한다.)
+        /// </summary>
+        void SyncOverlayBaseSpeed(float speed)
+        {
+            if (_animancer == null || EffectivePreviewLayer <= 0) return;
+            var baseState = _animancer.Layers[0].CurrentState;
+            if (baseState != null)
+                baseState.Speed = speed;
+        }
         // 재생 속도 업데이트 (글로벌 슬라이더 변경 시)
         void UpdateAnimancerPlaybackSpeed()
         {
-            if (_animancer == null || _animancer.States.Current == null) return;
+            var current = GetPreviewState();
+            if (_animancer == null || current == null) return;
 
             if (_isPaused)
             {
-                _animancer.States.Current.Speed = 0f;
+                current.Speed = 0f;
+                SyncOverlayBaseSpeed(0f);
                 return;
             }
 
@@ -2777,9 +2938,11 @@ namespace UPlayGround.Animation.Editor
                 if (m != null) motionSpd = m.playbackSpeed;
             }
 
-            _animancer.States.Current.Speed = motionSpd * _playbackSpeed;
+            current.Speed = motionSpd * _playbackSpeed;
+            // 베이스 Idle은 자체 루프 속도(1)에 전역 배속만 반영해 오버레이와 시간축을 맞춘다.
+            SyncOverlayBaseSpeed(_playbackSpeed);
         }
-            
+
         // 특정 시간으로 재생 위치 이동
         void SeekToTime(float time, bool executeEvents = true)
         {
@@ -2832,7 +2995,8 @@ namespace UPlayGround.Animation.Editor
                     var motion = motionSet.motions[motionIndex];
                     if (motion != null && motion.IsValid())
                     {
-                        var state = _animancer.Play(motion.motionClip);
+                        var state = PlayPreviewClip(motion.motionClip);
+                        if (state == null) return;
                         // localTime은 타임라인 상 이 모션 내 오프셋.
                         // 실제 클립 시간 = ClipStartTime + localTime * playbackSpeed
                         float spd      = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
@@ -3054,7 +3218,8 @@ namespace UPlayGround.Animation.Editor
             // fade 0 즉시 전환 + 대상 상태 weight=1 강제. 공격 진입 크로스페이드가 진행 중이면 outgoing
             // 상태가 잔여 weight로 Evaluate에서 블렌드돼, 같은 eventStart인데도 포즈가 라이브 시간에 따라
             // 흔들린다(블레이드가 호를 그림). 단일 상태로 격리해 eventStart의 순수 모션 포즈를 결정적으로 만든다.
-            var state = _animancer.Play(motion.motionClip, 0f);
+            var state = PlayPreviewClip(motion.motionClip, 0f);
+            if (state == null) return;
             float spd = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
             state.Time = motion.ClipStartTime + localTime * spd;
             state.Speed = (_isPaused || !_isPlaying) ? 0f : motion.playbackSpeed * _playbackSpeed;

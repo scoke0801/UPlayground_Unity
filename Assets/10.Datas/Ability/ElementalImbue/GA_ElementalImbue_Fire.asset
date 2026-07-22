@@ -69,10 +69,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: Payload_ElementalImbue_Fire
   executionId: Ability.ElementalImbue.Fire
-  animKey: 520
   attackInfo:
     baseInfo:
-      animKey: 520
+      motionRef: {fileID: 11400000, guid: 6f5a0b4d8e4f4fd2899c14b9fa2da152, type: 2}
       attackType: 0
       hitPhases: []
     interruptActions: 0

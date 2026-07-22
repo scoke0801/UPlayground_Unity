@@ -1,17 +1,18 @@
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Combat
 {
     public readonly struct CombatActionDefinition
     {
-        public readonly AnimKey AnimKey;
+        public readonly MotionSetAsset MotionAsset;
         public readonly AttackData LegacyAttackData;
         public readonly object SourceData;
 
-        public CombatActionDefinition(AnimKey animKey, AttackData legacyAttackData, object sourceData)
+        public CombatActionDefinition(MotionSetAsset motionAsset, AttackData legacyAttackData, object sourceData)
         {
-            AnimKey = animKey;
+            MotionAsset = motionAsset;
             LegacyAttackData = legacyAttackData;
             SourceData = sourceData;
         }

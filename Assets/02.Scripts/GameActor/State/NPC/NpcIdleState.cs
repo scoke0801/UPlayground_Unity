@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -29,7 +29,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _brain = npcActor.GetComponent<NpcBrain>();
             _wanderDelayTimer = 0f;
-            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)

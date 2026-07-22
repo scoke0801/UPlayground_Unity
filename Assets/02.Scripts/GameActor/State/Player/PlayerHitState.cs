@@ -203,42 +203,42 @@ namespace UPlayGround.State
             controller.TransitionToState(new PlayerIdleState(controller));
         }
 
-        private AnimKey GetHitAnimKey()
+        private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()
         {
-            // 공격별 전용 피격 애니(victimForcedAnimKey)가 지정돼 있고 보유 모션이면 최우선 사용.
+            // 공격별 전용 피격 애니(victimForcedMotionSlot)가 지정돼 있고 보유 모션이면 최우선 사용.
             if (_attackData != null &&
-                _attackData.victimForcedAnimKey != AnimKey.None &&
-                playerActor.Animator.HasMotion(_attackData.victimForcedAnimKey))
-                return _attackData.victimForcedAnimKey;
+                _attackData.victimForcedMotionSlot != default &&
+                playerActor.Animator.HasMotion(_attackData.victimForcedMotionSlot))
+                return _attackData.victimForcedMotionSlot;
 
             var reaction = _attackData?.reactionType ?? AttackReactionType.Hit;
 
             switch (reaction)
             {
                 case AttackReactionType.KnockBack:
-                    if (playerActor.Animator.HasMotion(AnimKey.Knockback, true))
-                        return AnimKey.Knockback;
+                    if (playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockback, true))
+                        return UPlayGround.Data.Actor.Animation.MotionTags.Knockback;
                     break;
 
                 case AttackReactionType.Knockdown:
-                    if (playerActor.Animator.HasMotion(AnimKey.Knockdown, true))
-                        return AnimKey.Knockdown;
+                    if (playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown, true))
+                        return UPlayGround.Data.Actor.Animation.MotionTags.Knockdown;
                     break;
 
                 case AttackReactionType.Airborne:
                 case AttackReactionType.Pull:
                     // 방향 무관하게 앞 경직
-                    return AnimKey.Hit_F;
+                    return UPlayGround.Data.Actor.Animation.MotionTags.Hit_F;
             }
 
-            if (_attackData == null) return AnimKey.Hit_F;
+            if (_attackData == null) return UPlayGround.Data.Actor.Animation.MotionTags.Hit_F;
 
             Vector3 localDir = playerActor.transform.InverseTransformDirection(_attackData.attackDirection);
 
             if (Mathf.Abs(localDir.x) > Mathf.Abs(localDir.z))
-                return localDir.x > 0 ? AnimKey.Hit_R : AnimKey.Hit_L;
+                return localDir.x > 0 ? UPlayGround.Data.Actor.Animation.MotionTags.Hit_R : UPlayGround.Data.Actor.Animation.MotionTags.Hit_L;
             else
-                return localDir.z > 0 ? AnimKey.Hit_F : AnimKey.Hit_B;
+                return localDir.z > 0 ? UPlayGround.Data.Actor.Animation.MotionTags.Hit_F : UPlayGround.Data.Actor.Animation.MotionTags.Hit_B;
         }
     }
 }

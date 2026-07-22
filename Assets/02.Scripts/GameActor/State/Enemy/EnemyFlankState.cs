@@ -29,7 +29,7 @@ namespace UPlayGround.State
         private float _flankTimer;
         private bool _hasReachedFlank;
         private bool _usesFormationSlot;
-        private AnimKey _lastLocoKey = AnimKey.None;
+        private UPlayGround.Gameplay.Tag.GameplayTag _lastLocoKey = default;
 
         private const float FLANK_SPEED_RATIO   = 1.1f;
         private const float ARRIVAL_THRESHOLD   = 1.2f;
@@ -64,8 +64,8 @@ namespace UPlayGround.State
                 _flankTarget = formationTarget;
                 _usesFormationSlot = true;
             }
-            _lastLocoKey = AnimKey.Run;
-            gameActor.Animator.PlayMotion(AnimKey.Run, 0.2f);
+            _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Run;
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Run, 0.2f);
         }
 
         public override void OnExit(GameActorState toState)

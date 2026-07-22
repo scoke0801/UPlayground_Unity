@@ -61,7 +61,7 @@ namespace UPlayGround.State
             if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Jump) == null)
             {
                 _remainingJumps -= 1;
-                gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fall, 0.2f);
                 _fallAnimPlayed = true;
             }
             else
@@ -220,7 +220,7 @@ namespace UPlayGround.State
                 float verticalSpeed = Vector3.Dot(currentVelocity, motor.CharacterUp);
                 if (verticalSpeed <= 0f)
                 {
-                    gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fall, 0.2f);
                     _fallAnimPlayed = true;
                 }
             }
@@ -303,12 +303,12 @@ namespace UPlayGround.State
             _remainingJumps  = 0;
             _timeSinceLastAbleToJump = 0f;
             
-            var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
+            var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Land, 0.2f);
             if (state != null)
             {
                 _landStarted = true;
                 _landTimer = 0f;
-                _landDuration = Mathf.Max(gameActor.Animator.GetMotionSetDuration(AnimKey.Land), 0.01f);
+                _landDuration = Mathf.Max(gameActor.Animator.GetMotionSetDuration(UPlayGround.Data.Actor.Animation.MotionTags.Land), 0.01f);
                 _dragSpeed = controller.LandDrag;
             }
             else
@@ -320,12 +320,12 @@ namespace UPlayGround.State
 
         private void PlayJumpAnimation(bool isFirstJump)
         {
-            AnimKey jumpKey = AnimKey.Jump;
+            UPlayGround.Gameplay.Tag.GameplayTag jumpKey = UPlayGround.Data.Actor.Animation.MotionTags.Jump;
 
-            if (gameActor.Animator.HasMotion(AnimKey.DoubleJump, true) == true
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.DoubleJump, true) == true
                 && isFirstJump == false)
             {
-                jumpKey = AnimKey.DoubleJump;
+                jumpKey = UPlayGround.Data.Actor.Animation.MotionTags.DoubleJump;
             }
 
             // 즉발 액션이므로 페이드를 짧게 — 0.2f는 도약 시작이 한 박자 늦어보임

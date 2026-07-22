@@ -265,7 +265,7 @@ namespace UPlayGround
                 const float breakMaxKnockbackSpeed = 12f;
                 const float breakDownDuration = 2.0f;
 
-                bool hasKnockdown = Animator != null && Animator.HasMotion(AnimKey.Knockdown, true);
+                bool hasKnockdown = Animator != null && Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown, true);
                 MovementController.TransitionToState(hasKnockdown
                     ? new EnemyKnockdownState(
                         MovementController,
@@ -279,7 +279,7 @@ namespace UPlayGround
 
             CombatReactionState state = MovementController != null
                                         && Animator != null
-                                        && Animator.HasMotion(AnimKey.Knockdown, true)
+                                        && Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown, true)
                 ? CombatReactionState.Knockdown
                 : CombatReactionState.Stun;
             return CombatResolutionPipeline.WithReaction(
@@ -504,7 +504,7 @@ namespace UPlayGround
             if (hit.ReactionType != AttackReactionType.Knockdown)
                 return false;
 
-            return Animator != null && Animator.HasMotion(AnimKey.Knockdown, true);
+            return Animator != null && Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown, true);
         }
 
         protected virtual void OnDeath()

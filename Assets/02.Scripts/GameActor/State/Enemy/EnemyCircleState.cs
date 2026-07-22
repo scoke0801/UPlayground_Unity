@@ -36,8 +36,8 @@ namespace UPlayGround.State
         // 방향 전환
         private float _directionChangeTimer;
         private float _nextDirectionChangeTime;
-        private AnimKey _lastLocoKey = AnimKey.None;
-        private AnimKey _pendingLocoKey = AnimKey.None;
+        private UPlayGround.Gameplay.Tag.GameplayTag _lastLocoKey = default;
+        private UPlayGround.Gameplay.Tag.GameplayTag _pendingLocoKey = default;
         private float _pendingLocoKeyTimer;
         private bool _usesFormationSlot;
         private bool _movingToFormationSlot;
@@ -93,11 +93,11 @@ namespace UPlayGround.State
             ScheduleNextDirectionChange();
 
             _stationaryAnimTimer = 0f;
-            _lastLocoKey = AnimKey.Idle;
-            _pendingLocoKey = AnimKey.None;
+            _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Idle;
+            _pendingLocoKey = default;
             _pendingLocoKeyTimer = 0f;
             _movingToFormationSlot = false;
-            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.15f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.15f);
             _usesFormationSlot = _context.TryGetFormationSlotPosition(_context.RetreatDistance, out _);
             _formationSlotAcquired = !_usesFormationSlot;
         }
@@ -160,11 +160,11 @@ namespace UPlayGround.State
             if (velocity.sqrMagnitude < EnemyLocomotionHelper.MIN_SPEED_SQ)
             {
                 _stationaryAnimTimer += deltaTime;
-                if (_stationaryAnimTimer >= STATIONARY_ANIM_DELAY && _lastLocoKey != AnimKey.Idle)
+                if (_stationaryAnimTimer >= STATIONARY_ANIM_DELAY && _lastLocoKey != UPlayGround.Data.Actor.Animation.MotionTags.Idle)
                 {
-                    gameActor.Animator.PlayMotion(AnimKey.Idle, 0.15f);
-                    _lastLocoKey = AnimKey.Idle;
-                    _pendingLocoKey = AnimKey.None;
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.15f);
+                    _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Idle;
+                    _pendingLocoKey = default;
                     _pendingLocoKeyTimer = 0f;
                 }
                 return;
@@ -179,7 +179,7 @@ namespace UPlayGround.State
             }
 
             float localAngle = 0f;
-            AnimKey nextKey;
+            UPlayGround.Gameplay.Tag.GameplayTag nextKey;
             if (gameActor.Animator.HasFallbackMotionSet)
             {
                 Vector3 localVelocity = gameActor.transform.InverseTransformDirection(velocity);
@@ -194,12 +194,12 @@ namespace UPlayGround.State
 
             if (nextKey == _lastLocoKey)
             {
-                _pendingLocoKey = AnimKey.None;
+                _pendingLocoKey = default;
                 _pendingLocoKeyTimer = 0f;
                 return;
             }
 
-            if (_lastLocoKey != AnimKey.None && _lastLocoKey != AnimKey.Idle)
+            if (_lastLocoKey != default && _lastLocoKey != UPlayGround.Data.Actor.Animation.MotionTags.Idle)
             {
                 if (nextKey != _pendingLocoKey)
                 {
@@ -215,23 +215,23 @@ namespace UPlayGround.State
 
             gameActor.Animator.PlayMotion(nextKey, 0.15f);
             _lastLocoKey = nextKey;
-            _pendingLocoKey = AnimKey.None;
+            _pendingLocoKey = default;
             _pendingLocoKeyTimer = 0f;
         }
 
         private void UpdateFormationMoveAnimation()
         {
-            const AnimKey nextKey = AnimKey.Walk;
+            UPlayGround.Gameplay.Tag.GameplayTag nextKey = UPlayGround.Data.Actor.Animation.MotionTags.Walk;
             if (_lastLocoKey == nextKey)
             {
-                _pendingLocoKey = AnimKey.None;
+                _pendingLocoKey = default;
                 _pendingLocoKeyTimer = 0f;
                 return;
             }
 
             gameActor.Animator.PlayMotion(nextKey, 0.15f);
             _lastLocoKey = nextKey;
-            _pendingLocoKey = AnimKey.None;
+            _pendingLocoKey = default;
             _pendingLocoKeyTimer = 0f;
         }
 
@@ -245,8 +245,8 @@ namespace UPlayGround.State
                     _isPaused = false;
                     _pauseTimer = 0f;
                     _stationaryAnimTimer = 0f;
-                    _lastLocoKey = AnimKey.None; // 재개 시 방향 재평가 강제
-                    _pendingLocoKey = AnimKey.None;
+                    _lastLocoKey = default; // 재개 시 방향 재평가 강제
+                    _pendingLocoKey = default;
                     _pendingLocoKeyTimer = 0f;
                     _movingToFormationSlot = false;
                     ScheduleNextPause();
@@ -261,9 +261,9 @@ namespace UPlayGround.State
                     _pauseTimer = 0f;
                     _stationaryAnimTimer = 0f;
                     _pauseDuration = Random.Range(0.3f, 0.8f);
-                    gameActor.Animator.PlayMotion(AnimKey.Idle, 0.2f);
-                    _lastLocoKey = AnimKey.Idle;
-                    _pendingLocoKey = AnimKey.None;
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.2f);
+                    _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Idle;
+                    _pendingLocoKey = default;
                     _pendingLocoKeyTimer = 0f;
                     _movingToFormationSlot = false;
                 }

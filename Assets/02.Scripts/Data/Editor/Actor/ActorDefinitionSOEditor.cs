@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Editor.Authoring;
 
 namespace UPlayGround.Tool.Editor.Actor
 {
@@ -23,7 +24,10 @@ namespace UPlayGround.Tool.Editor.Actor
         private SerializedProperty _monsterScaling;
         private SerializedProperty _grade;
         private SerializedProperty _level;
-        private SerializedProperty _attackData;
+        private SerializedProperty _combatElement;
+        private SerializedProperty _elementAssignmentMode;
+        private SerializedProperty _elementalAdvantageMultiplier;
+        private SerializedProperty _abilitySet;
         private SerializedProperty _combatDefensePolicy;
         private SerializedProperty _combatReactionPolicy;
         private SerializedProperty _behaviorData;
@@ -49,7 +53,10 @@ namespace UPlayGround.Tool.Editor.Actor
             _monsterScaling = serializedObject.FindProperty("monsterScaling");
             _grade = serializedObject.FindProperty("grade");
             _level = serializedObject.FindProperty("level");
-            _attackData = serializedObject.FindProperty("attackData");
+            _combatElement = serializedObject.FindProperty("combatElement");
+            _elementAssignmentMode = serializedObject.FindProperty("elementAssignmentMode");
+            _elementalAdvantageMultiplier = serializedObject.FindProperty("elementalAdvantageMultiplier");
+            _abilitySet = serializedObject.FindProperty("abilitySet");
             _combatDefensePolicy = serializedObject.FindProperty("combatDefensePolicy");
             _combatReactionPolicy = serializedObject.FindProperty("combatReactionPolicy");
             _behaviorData = serializedObject.FindProperty("behaviorData");
@@ -62,6 +69,10 @@ namespace UPlayGround.Tool.Editor.Actor
 
         public override void OnInspectorGUI()
         {
+            if (GUILayout.Button("데이터 저작 허브에서 열기", GUILayout.Height(26f)))
+                DataAuthoringHubWindow.Open(ActorDomainPanel.DomainKey, target);
+
+            EditorGUILayout.Space(4f);
             serializedObject.Update();
 
             ActorType actorType = (ActorType)_actorType.intValue;
@@ -145,7 +156,10 @@ namespace UPlayGround.Tool.Editor.Actor
         private void DrawMonsterCombatSection()
         {
             DrawHeader("전투/AI 데이터");
-            EditorGUILayout.PropertyField(_attackData);
+            EditorGUILayout.PropertyField(_combatElement);
+            EditorGUILayout.PropertyField(_elementAssignmentMode);
+            EditorGUILayout.PropertyField(_elementalAdvantageMultiplier);
+            EditorGUILayout.PropertyField(_abilitySet);
             EditorGUILayout.PropertyField(_combatDefensePolicy);
             EditorGUILayout.PropertyField(_combatReactionPolicy);
             EditorGUILayout.PropertyField(_behaviorData);

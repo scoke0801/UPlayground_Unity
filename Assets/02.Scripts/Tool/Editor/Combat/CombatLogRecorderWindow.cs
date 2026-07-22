@@ -13,7 +13,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private float _expectedDuration;
         private Vector2 _scroll;
 
-        [MenuItem("UPlayGround/게임플레이/전투/도구/전투 로그 기록기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 1)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/전투/도구/전투 로그 기록기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 1)]
         public static void Open()
         {
             GetWindow<CombatLogRecorderWindow>("Combat Log");
@@ -83,7 +83,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 string attacker = result.Attacker != null ? result.Attacker.ActorId : "";
                 string victim = result.Victim != null ? result.Victim.ActorId : "";
                 EditorGUILayout.LabelField(
-                    $"#{entry.Sequence} t={entry.CombatTime:0.###} {attacker} -> {victim} {result.Hit.AnimKey}[{result.Hit.HitPhaseIndex}] " +
+                    $"#{entry.Sequence} t={entry.CombatTime:0.###} {attacker} -> {victim} {(result.Hit.MotionAsset != null ? result.Hit.MotionAsset.name : "-")}[{result.Hit.HitPhaseIndex}] " +
                     $"raw={result.Hit.Damage:0.###} final={result.Damage.FinalDamage:0.###} def={result.Defense.Outcome} react={result.Reaction.TargetState}");
             }
             EditorGUILayout.EndScrollView();

@@ -38,15 +38,15 @@ namespace UPlayGround.State
             if (_attackedData?.attacker != null)
                 _attackedData.attacker.OnForcedMotionReleased += Escape;
 
-            // victimForcedAnimKey > Grabbed > Hit_F 순으로 폴백
-            AnimKey animKey;
-            if (_attackedData?.victimForcedAnimKey != AnimKey.None &&
-                gameActor.Animator.HasMotion(_attackedData.victimForcedAnimKey))
-                animKey = _attackedData.victimForcedAnimKey;
-            else if (gameActor.Animator.HasMotion(AnimKey.Grabbed))
-                animKey = AnimKey.Grabbed;
+            // victimForcedMotionSlot > Grabbed > Hit_F 순으로 폴백
+            UPlayGround.Gameplay.Tag.GameplayTag animKey;
+            if (_attackedData?.victimForcedMotionSlot != default &&
+                gameActor.Animator.HasMotion(_attackedData.victimForcedMotionSlot))
+                animKey = _attackedData.victimForcedMotionSlot;
+            else if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed))
+                animKey = UPlayGround.Data.Actor.Animation.MotionTags.Grabbed;
             else
-                animKey = AnimKey.Hit_F;
+                animKey = UPlayGround.Data.Actor.Animation.MotionTags.Hit_F;
 
             gameActor.Animator.PlayMotion(animKey, 0.1f);
         }
@@ -89,9 +89,9 @@ namespace UPlayGround.State
             if (_remainingDuration < -99f) return;
             _remainingDuration = float.MinValue;
 
-            if (gameActor.Animator.HasMotion(AnimKey.Grabbed_End))
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End))
             {
-                var state = gameActor.Animator.PlayMotion(AnimKey.Grabbed_End, 0.1f);
+                var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End, 0.1f);
                 if (state != null)
                     state.OwnedEvents.OnEnd = TransitionOut;
                 else

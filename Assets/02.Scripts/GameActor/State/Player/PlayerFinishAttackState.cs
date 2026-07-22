@@ -79,7 +79,8 @@ namespace UPlayGround.State
             }
 
             // FinishAttack 애니메이션 재생
-            var animState = gameActor.Animator.PlayMotion(AnimKey.FinishAttack, 0.15f);
+            var animState = gameActor.Animator.PlayMotion(
+                UPlayGround.Data.Actor.Animation.MotionTags.FinishAttack, 0.15f);
             if (animState != null)
             {
                 animState.OwnedEvents.OnEnd = OnFinishAttackEnd;

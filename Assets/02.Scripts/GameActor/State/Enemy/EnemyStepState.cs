@@ -18,7 +18,7 @@ namespace UPlayGround.State
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
-        private readonly AnimKey _motionKey;
+        private readonly UPlayGround.Gameplay.Tag.GameplayTag _motionKey;
 
         private Vector3 _stepDirection;
         private float _stepTimer;
@@ -36,7 +36,7 @@ namespace UPlayGround.State
             EnemyAIContext context,
             EnemyDetection detection,
             Vector3 stepDirection,
-            AnimKey motionKey) : base(controller)
+            UPlayGround.Gameplay.Tag.GameplayTag motionKey) : base(controller)
         {
             _context = context;
             _detection = detection;
@@ -53,10 +53,10 @@ namespace UPlayGround.State
         {
             var animator = actor?.Animator;
             if (animator == null) return false;
-            return animator.HasMotion(AnimKey.Dash_F)
-                || animator.HasMotion(AnimKey.Dash_B)
-                || animator.HasMotion(AnimKey.Dash_L)
-                || animator.HasMotion(AnimKey.Dash_R);
+            return animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dash_F)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dash_B)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dash_L)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dash_R);
         }
 
         public static bool TryResolveStepMotion(
@@ -65,16 +65,16 @@ namespace UPlayGround.State
             EnemyDetection detection,
             Vector3 actorPosition,
             out Vector3 stepDirection,
-            out AnimKey motionKey)
+            out UPlayGround.Gameplay.Tag.GameplayTag motionKey)
         {
             stepDirection = CalculateStepDirection(actor, context, detection, actorPosition);
             motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(
                 stepDirection,
                 actor.transform,
-                AnimKey.Dash_F,
-                AnimKey.Dash_B,
-                AnimKey.Dash_L,
-                AnimKey.Dash_R);
+                UPlayGround.Data.Actor.Animation.MotionTags.Dash_F,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dash_B,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dash_L,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dash_R);
 
             return actor.Animator != null && actor.Animator.HasMotion(motionKey);
         }
@@ -93,7 +93,7 @@ namespace UPlayGround.State
             _movementDuration = STEP_DURATION;
             _motionLockDuration = FALLBACK_STEP_LOCK_DURATION;
 
-            if (_motionKey != AnimKey.None)
+            if (_motionKey != default)
             {
                 var duration = gameActor.Animator.GetMotionSetDuration(_motionKey);
                 _motionLockDuration = duration > 0f

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: MotionSet_Npc_Female
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -19,4 +20,15 @@ MonoBehaviour:
     - Key: 2
       Value: {fileID: 11400000, guid: b1b1c3d24a0be18429c05ec32616d138, type: 2}
     - Key: 3000
+      Value: {fileID: 11400000, guid: df0b7df2b0090564cbebb090417cdce1, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: b54ec2311fd7542469a78df5159f20eb, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: b1b1c3d24a0be18429c05ec32616d138, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk
       Value: {fileID: 11400000, guid: df0b7df2b0090564cbebb090417cdce1, type: 2}

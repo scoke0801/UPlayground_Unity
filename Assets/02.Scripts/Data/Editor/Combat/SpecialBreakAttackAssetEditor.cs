@@ -1,14 +1,13 @@
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Combat;
-using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Editor
 {
     [CustomEditor(typeof(SpecialBreakAttackAsset))]
     public class SpecialBreakAttackAssetEditor : UnityEditor.Editor
     {
-        SerializedProperty _animKey;
+        SerializedProperty _motionSlot;
         SerializedProperty _duration;
         SerializedProperty _fallbackHitTime;
         SerializedProperty _cameraProfile;
@@ -33,7 +32,7 @@ namespace UPlayGround.Editor
 
         void OnEnable()
         {
-            _animKey = serializedObject.FindProperty("animKey");
+            _motionSlot = serializedObject.FindProperty("motionSlot");
             _duration = serializedObject.FindProperty("duration");
             _fallbackHitTime = serializedObject.FindProperty("fallbackHitTime");
             _cameraProfile = serializedObject.FindProperty("cameraProfile");
@@ -64,7 +63,7 @@ namespace UPlayGround.Editor
             DrawSection("모션", new Color(0.35f, 0.65f, 1f));
             using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
             {
-                EditorGUILayout.PropertyField(_animKey, new GUIContent("재생 AnimKey"));
+                EditorGUILayout.PropertyField(_motionSlot, new GUIContent("재생 Motion Slot"));
                 EditorGUILayout.PropertyField(_duration, new GUIContent("상태 지속시간"));
                 EditorGUILayout.PropertyField(_fallbackHitTime, new GUIContent("폴백 타격 시간"));
             }
@@ -118,11 +117,9 @@ namespace UPlayGround.Editor
 
         void DrawMotionWarnings()
         {
-            string animKeyName = _animKey.enumValueIndex >= 0 && _animKey.enumValueIndex < _animKey.enumNames.Length
-                ? _animKey.enumNames[_animKey.enumValueIndex]
-                : string.Empty;
-            if (animKeyName == nameof(AnimKey.None))
-                EditorGUILayout.HelpBox("AnimKey가 None이면 FinishAttack, Attack_1 순으로 폴백합니다.", MessageType.Info);
+            string slotName = _motionSlot?.FindPropertyRelative("_tagName")?.stringValue;
+            if (string.IsNullOrWhiteSpace(slotName))
+                EditorGUILayout.HelpBox("Motion Slot이 비어 있으면 기본 BreakAttack 슬롯을 사용합니다.", MessageType.Info);
 
             if (_fallbackHitTime.floatValue > _duration.floatValue)
                 EditorGUILayout.HelpBox("폴백 타격 시간이 상태 지속시간보다 깁니다. MotionEvent가 없으면 피해가 적용되지 않을 수 있습니다.", MessageType.Warning);

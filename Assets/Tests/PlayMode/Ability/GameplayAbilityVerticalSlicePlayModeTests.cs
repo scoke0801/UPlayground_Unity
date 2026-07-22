@@ -4,8 +4,10 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
@@ -41,10 +43,12 @@ namespace UPlayGround.Ability.PlayModeTests
 
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = "Execution.Test.PlayMode";
-            payload.animKey = AnimKey.Attack_1;
+            var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
+            var motionRef = ScriptableObject.CreateInstance<MotionReferenceSO>();
+            motionRef.defaultMotion = motionAsset;
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase { animKey = AnimKey.Attack_1 },
+                baseInfo = new AttackInfoBase { motionRef = motionRef },
             };
 
             GameplayAbilitySO ability = ScriptableObject.CreateInstance<GameplayAbilitySO>();
@@ -84,9 +88,9 @@ namespace UPlayGround.Ability.PlayModeTests
                 Assert.That(prepare, Is.EqualTo(AbilityActivationResult.Success));
                 Assert.That(
                     UPlayGroundAbilityPayloadResolver.TryResolve(
-                        variant, out AnimKey animKey, out AbilityAttackInfo attackInfo),
+                        variant, WeaponType.NoWeapon, out MotionSetAsset resolvedMotion, out AbilityAttackInfo attackInfo),
                     Is.True);
-                Assert.That(animKey, Is.EqualTo(AnimKey.Attack_1));
+                Assert.That(resolvedMotion, Is.SameAs(motionAsset));
                 Assert.That(attackInfo, Is.SameAs(payload.attackInfo));
 
                 // 실제 프로젝트에서는 이 사이에서 상태 전환과 MotionSet 시작 승인을 수행한다.
@@ -111,6 +115,8 @@ namespace UPlayGround.Ability.PlayModeTests
             {
                 Object.Destroy(ownerObject);
                 Object.Destroy(payload);
+                Object.Destroy(motionRef);
+                Object.Destroy(motionAsset);
                 Object.Destroy(ability);
                 Object.Destroy(set);
             }

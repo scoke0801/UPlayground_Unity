@@ -218,8 +218,8 @@ namespace UPlayGround.State
             if (_animPlayState != AnimPlayState.None)
                 return;
 
-            AnimKey animKey = _cachedData.interactionAnimKey;
-            if (animKey == AnimKey.None)
+            UPlayGround.Gameplay.Tag.GameplayTag animKey = _cachedData.interactionMotionSlot;
+            if (animKey == default)
                 return;
 
             AnimancerState state = gameActor.Animator.PlayMotion(animKey);
@@ -238,11 +238,11 @@ namespace UPlayGround.State
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    state = gameActor.Animator.PlayMotion(AnimKey.Fishing_Throw);
+                    state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fishing_Throw);
                     _animPlayState = AnimPlayState.Start;
                     break;
                 case AnimPlayState.Start:
-                    state = gameActor.Animator.PlayMotion(AnimKey.Fishing_Idle);
+                    state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fishing_Idle);
                     _animPlayState = AnimPlayState.Idle;
                     
                     ActorSvc.Objects.InteractionHandler?.SetWaitEvent(OnFishCatch);
@@ -257,7 +257,7 @@ namespace UPlayGround.State
 
         private void OnFishCatch()
         {
-            var state = gameActor.Animator.PlayMotion(AnimKey.Fishing_Catch);
+            var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fishing_Catch);
             if (state != null)
             {
                 state.OwnedEvents.OnEnd = () =>
@@ -273,7 +273,7 @@ namespace UPlayGround.State
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    gameActor.Animator.PlayMotion(AnimKey.Mining_Ground);
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Mining_Ground);
                     _animPlayState = AnimPlayState.Start;
                     break;
                 default: break;
@@ -285,7 +285,7 @@ namespace UPlayGround.State
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    gameActor.Animator.PlayMotion(AnimKey.HandGathering);
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.HandGathering);
                     _animPlayState = AnimPlayState.Start;
                     break;
                 default: break;
@@ -323,7 +323,7 @@ namespace UPlayGround.State
             switch (_animPlayState)
             {
                 case AnimPlayState.None:
-                    gameActor.Animator.PlayMotion(AnimKey.Woodcutting);
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Woodcutting);
                     _animPlayState = AnimPlayState.Start;
                     break;
                 default: break;

@@ -1,6 +1,8 @@
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Data.Combat
 {
@@ -8,7 +10,7 @@ namespace UPlayGround.Data.Combat
     public class SpecialBreakAttackAsset : ScriptableObject
     {
         [Header("Motion")]
-        public AnimKey animKey = AnimKey.BreakAttack;
+        public GameplayTag motionSlot = MotionTags.BreakAttack;
         [Min(0.1f)] public float duration = 1.2f;
         [Tooltip("SpecialBreakAttackEvent가 없는 임시 모션을 위한 백스톱 시각. 이벤트가 박힌 클립은 이 시각 전에 이벤트가 발화하므로, 임팩트 프레임보다 '늦게'(duration에 근접하게) 잡아 이벤트가 항상 우선되도록 한다. 이벤트가 끝내 없으면 이 시각에 한 번 적용된다.")]
         [Min(0f)] public float fallbackHitTime = 1.0f;

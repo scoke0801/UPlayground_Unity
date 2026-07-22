@@ -62,8 +62,8 @@ namespace UPlayGround.State
 
             IgnoreMonsterColliders();
 
-            AnimKey dashKey = ResolveDirectionalMotionKey(
-                AnimKey.Dash_F, AnimKey.Dash_B, AnimKey.Dash_L, AnimKey.Dash_R, AnimKey.Dash);
+            UPlayGround.Gameplay.Tag.GameplayTag dashKey = ResolveDirectionalMotionKey(
+                UPlayGround.Data.Actor.Animation.MotionTags.Dash_F, UPlayGround.Data.Actor.Animation.MotionTags.Dash_B, UPlayGround.Data.Actor.Animation.MotionTags.Dash_L, UPlayGround.Data.Actor.Animation.MotionTags.Dash_R, UPlayGround.Data.Actor.Animation.MotionTags.Dash);
             var animState = gameActor.Animator.PlayMotion(dashKey, 0.1f);
             if (animState != null)
             {

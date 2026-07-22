@@ -42,7 +42,7 @@ namespace UPlayGround.State
             {
                 return;
             }
-            var state = gameActor.Animator.PlayMotion(AnimKey.Die, 0.25f);
+            var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Die, 0.25f);
             if (state != null)
             {
                 state.OwnedEvents.OnEnd = () =>

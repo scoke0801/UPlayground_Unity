@@ -38,7 +38,7 @@ namespace UPlayGround.Tool.Editor.Combat
         private List<WeaponType> _availableWeaponTypes = new();
         [SerializeField] private WeaponType _weaponFilter;
 
-        [MenuItem("UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 4)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 4)]
         private static void OpenMenu() => Open(Selection.activeGameObject, null);
 
         public static void Open(GameObject hitboxRoot, CombatHitboxSetupProfileSO profile)

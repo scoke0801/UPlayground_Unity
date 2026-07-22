@@ -115,10 +115,10 @@ namespace UPlayGround.State
         }
 
         /// <summary>
-        /// 이동 타입과 부호 있는 각도(좌:음수, 우:양수)로 적절한 Turn AnimKey를 반환.
+        /// 이동 타입과 부호 있는 각도(좌:음수, 우:양수)로 적절한 Turn UPlayGround.Gameplay.Tag.GameplayTag를 반환.
         /// PlayerGroundMoveState의 HasMotion 체크에서도 사용한다.
         /// </summary>
-        internal static AnimKey GetTurnAnimKey(BaseMoveAnimType moveAnimType, float signedAngle)
+        internal static UPlayGround.Gameplay.Tag.GameplayTag GetTurnAnimKey(BaseMoveAnimType moveAnimType, float signedAngle)
         {
             float abs    = Mathf.Abs(signedAngle);
             bool  isRight = signedAngle > 0f;
@@ -126,19 +126,19 @@ namespace UPlayGround.State
             return moveAnimType switch
             {
                 BaseMoveAnimType.Walk =>
-                    abs < 67.5f ? (isRight ? AnimKey.Walk_Turn_R45 : AnimKey.Walk_Turn_L45) :
-                    abs < 135f  ? (isRight ? AnimKey.Walk_Turn_R90 : AnimKey.Walk_Turn_L90) :
-                                   AnimKey.Walk_Turn_180,
+                    abs < 67.5f ? (isRight ? UPlayGround.Data.Actor.Animation.MotionTags.Walk_Turn_R45 : UPlayGround.Data.Actor.Animation.MotionTags.Walk_Turn_L45) :
+                    abs < 135f  ? (isRight ? UPlayGround.Data.Actor.Animation.MotionTags.Walk_Turn_R90 : UPlayGround.Data.Actor.Animation.MotionTags.Walk_Turn_L90) :
+                                   UPlayGround.Data.Actor.Animation.MotionTags.Walk_Turn_180,
 
                 BaseMoveAnimType.Sprint =>
-                    abs < 67.5f ? (isRight ? AnimKey.Sprint_Turn_R45 : AnimKey.Sprint_Turn_L45) :
-                    abs < 135f  ? (isRight ? AnimKey.Sprint_Turn_R90 : AnimKey.Sprint_Turn_L90) :
-                                   AnimKey.Sprint_Turn_180,
+                    abs < 67.5f ? (isRight ? UPlayGround.Data.Actor.Animation.MotionTags.Sprint_Turn_R45 : UPlayGround.Data.Actor.Animation.MotionTags.Sprint_Turn_L45) :
+                    abs < 135f  ? (isRight ? UPlayGround.Data.Actor.Animation.MotionTags.Sprint_Turn_R90 : UPlayGround.Data.Actor.Animation.MotionTags.Sprint_Turn_L90) :
+                                   UPlayGround.Data.Actor.Animation.MotionTags.Sprint_Turn_180,
 
                 _ => // Run (기본)
-                    abs < 67.5f ? (isRight ? AnimKey.Run_Turn_R45 : AnimKey.Run_Turn_L45) :
-                    abs < 135f  ? (isRight ? AnimKey.Run_Turn_R90 : AnimKey.Run_Turn_L90) :
-                                   AnimKey.Run_Turn_180,
+                    abs < 67.5f ? (isRight ? UPlayGround.Data.Actor.Animation.MotionTags.Run_Turn_R45 : UPlayGround.Data.Actor.Animation.MotionTags.Run_Turn_L45) :
+                    abs < 135f  ? (isRight ? UPlayGround.Data.Actor.Animation.MotionTags.Run_Turn_R90 : UPlayGround.Data.Actor.Animation.MotionTags.Run_Turn_L90) :
+                                   UPlayGround.Data.Actor.Animation.MotionTags.Run_Turn_180,
             };
         }
     }

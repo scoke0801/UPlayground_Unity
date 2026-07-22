@@ -81,10 +81,10 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Jump_06_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerKatanaAttackData.Combat.Jump_06.Default
-  animKey: 406
+  motionRef: {fileID: 11400000, guid: b289cd3e78a26ee4a96e332a27b5a980, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 406
+      motionRef: {fileID: 11400000, guid: b289cd3e78a26ee4a96e332a27b5a980, type: 2}
       attackType: 0
       hitPhases:
       - damage: 76
@@ -151,3 +151,26 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 69
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

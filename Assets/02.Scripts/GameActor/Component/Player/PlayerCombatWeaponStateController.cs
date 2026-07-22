@@ -171,7 +171,7 @@ namespace UPlayGround.Components
             switch (stateName)
             {
                 case "Idle":
-                    _animator.PlayMotion(AnimKey.Idle, 0.1f);
+                    _animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.1f);
                     break;
                 case "GroundMove":
                     _animator.PlayMotion(GetMoveAnimKey(), 0.1f);
@@ -179,13 +179,13 @@ namespace UPlayGround.Components
             }
         }
 
-        private AnimKey GetMoveAnimKey()
+        private UPlayGround.Gameplay.Tag.GameplayTag GetMoveAnimKey()
         {
             return _player.MoveAnimType switch
             {
-                BaseMoveAnimType.Walk => AnimKey.Walk,
-                BaseMoveAnimType.Sprint => AnimKey.Sprint,
-                _ => AnimKey.Run,
+                BaseMoveAnimType.Walk => UPlayGround.Data.Actor.Animation.MotionTags.Walk,
+                BaseMoveAnimType.Sprint => UPlayGround.Data.Actor.Animation.MotionTags.Sprint,
+                _ => UPlayGround.Data.Actor.Animation.MotionTags.Run,
             };
         }
     }

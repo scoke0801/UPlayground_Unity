@@ -33,9 +33,9 @@ namespace UPlayGround.State
             _downTimer = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.0f;
             _invincibleTimer = 0.4f;
 
-            AnimKey animKey = playerActor.Animator.HasMotion(AnimKey.Knockdown, true)
-                ? AnimKey.Knockdown
-                : AnimKey.Knockback;
+            UPlayGround.Gameplay.Tag.GameplayTag animKey = playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown, true)
+                ? UPlayGround.Data.Actor.Animation.MotionTags.Knockdown
+                : UPlayGround.Data.Actor.Animation.MotionTags.Knockback;
             var state = playerActor.Animator.PlayMotion(animKey, 0.1f);
             if (state != null)
                 state.OwnedEvents.OnEnd = BeginGetup;
@@ -83,9 +83,9 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (playerActor.Animator.HasMotion(AnimKey.Knockdown_Getup, true))
+            if (playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown_Getup, true))
             {
-                var state = playerActor.Animator.PlayMotion(AnimKey.Knockdown_Getup, 0.1f);
+                var state = playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown_Getup, 0.1f);
                 if (state != null)
                 {
                     state.OwnedEvents.OnEnd = TransitionOut;

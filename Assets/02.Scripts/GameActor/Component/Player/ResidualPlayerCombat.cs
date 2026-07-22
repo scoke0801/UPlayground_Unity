@@ -87,7 +87,7 @@ namespace UPlayGround.Components
             _hitboxSet = gameObject.GetOrAddComponent<CombatHitboxSet>();
             _hitboxSet.Refresh();
 
-            Debug.Log($"[ResidualAttack] Combat initialized. owner={_ownerPlayer?.name}, character={_ownerType}, animKey={_attackData?.animKey}, kind={_attackData?.attackKind}, homingReach={_homingReachRange}/{_homingReachAngle}, targetLayer={_targetLayerMask.value}, hitPhaseCount={_hitPhases?.Count ?? 0}, hasInfoBase={_attackInfoBase != null}, allowHitStop={_allowHitStop}");
+            Debug.Log($"[ResidualAttack] Combat initialized. owner={_ownerPlayer?.name}, character={_ownerType}, motion={_attackData?.MotionId}, kind={_attackData?.attackKind}, homingReach={_homingReachRange}/{_homingReachAngle}, targetLayer={_targetLayerMask.value}, hitPhaseCount={_hitPhases?.Count ?? 0}, hasInfoBase={_attackInfoBase != null}, allowHitStop={_allowHitStop}");
         }
 
         private void Update()
@@ -114,7 +114,7 @@ namespace UPlayGround.Components
                 _requestedHitboxGroupIds = null;
             }
             _isCollisionEnabled = enabled;
-            Debug.Log($"[ResidualAttack] Combat collision {(enabled ? "ON" : "OFF")}. animKey={_attackData?.animKey}, group={_hitboxSet?.ActiveGroupId ?? "-"}, targetLayer={_targetLayerMask.value}");
+            Debug.Log($"[ResidualAttack] Combat collision {(enabled ? "ON" : "OFF")}. motion={_attackData?.MotionId}, group={_hitboxSet?.ActiveGroupId ?? "-"}, targetLayer={_targetLayerMask.value}");
         }
 
         public void SetTargetLayerMask(LayerMask targetLayerMask) => _targetLayerMask = targetLayerMask;
@@ -184,7 +184,7 @@ namespace UPlayGround.Components
             _attackData.airborneForce = phase.airborneForce;
             _attackData.knockbackForce = phase.knockBackForce;
             _attackData.knockbackDrag = phase.knockBackDrag;
-            _attackData.victimForcedAnimKey = phase.victimForcedAnimKey;
+            _attackData.victimForcedMotionSlot = phase.victimForcedMotionSlot;
             _attackData.guaranteedReaction = phase.guaranteedReaction;
             _attackData.reactionData = phase.reactionProfile?.Resolve();
 
@@ -285,7 +285,7 @@ namespace UPlayGround.Components
 
             return new AttackData
             {
-                animKey = source.animKey,
+                motionAsset = source.motionAsset,
                 damage = source.damage,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
@@ -312,7 +312,7 @@ namespace UPlayGround.Components
                 knockbackForce = source.knockbackForce,
                 knockbackDrag = source.knockbackDrag,
                 grabDuration = source.grabDuration,
-                victimForcedAnimKey = source.victimForcedAnimKey,
+                victimForcedMotionSlot = source.victimForcedMotionSlot,
                 guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
                 reactionData = source.reactionData,

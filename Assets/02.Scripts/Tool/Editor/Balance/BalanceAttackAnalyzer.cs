@@ -19,12 +19,7 @@ namespace UPlayGround.Tool.Editor.Balance
             if (skill.attackCategory is AbilityAttackCategory.Heavy or AbilityAttackCategory.Skill)
                 return true;
 
-            AnimKey key = skill.baseInfo != null ? skill.baseInfo.animKey : AnimKey.None;
-            int value = (int)key;
-            return key == AnimKey.Fly_Attack ||
-                   (value >= (int)AnimKey.HeavyAttack_1 && value <= (int)AnimKey.HeavyAttack_10) ||
-                   (value >= (int)AnimKey.Skill_1 && value <= (int)AnimKey.Skill_9) ||
-                   (value >= (int)AnimKey.Counter_Attack_1 && value <= (int)AnimKey.Counter_Attack_2);
+            return false;
         }
 
         public static float SumDamage(AttackInfoBase baseInfo)

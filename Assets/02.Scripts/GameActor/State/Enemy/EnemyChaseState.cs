@@ -18,7 +18,7 @@ namespace UPlayGround.State
 
         private float _chaseSpeed;
         private float _strafeSign; // +1 or -1, OnEnter마다 랜덤 결정
-        private AnimKey _lastLocoKey = AnimKey.None;
+        private UPlayGround.Gameplay.Tag.GameplayTag _lastLocoKey = default;
         private Collider[] _selfColliders;
         private Collider[] _targetColliders;
         private Transform _cachedTarget;
@@ -51,7 +51,7 @@ namespace UPlayGround.State
 
             _chaseSpeed = controller.MaxRunMoveSpeed * _context.ChaseSpeedMultiplier;
             _strafeSign = Random.value > 0.5f ? 1f : -1f;
-            _lastLocoKey = AnimKey.None;
+            _lastLocoKey = default;
             _targetContactTimer = 0f;
             _hasTargetContact = false;
             _nextContactCheckTime = 0f;
@@ -290,10 +290,10 @@ namespace UPlayGround.State
         {
             if (_hasTargetContact || IsWithinStopDistance())
             {
-                if (_lastLocoKey != AnimKey.Idle)
+                if (_lastLocoKey != UPlayGround.Data.Actor.Animation.MotionTags.Idle)
                 {
-                    gameActor.Animator.PlayMotion(AnimKey.Idle, crossfade);
-                    _lastLocoKey = AnimKey.Idle;
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, crossfade);
+                    _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Idle;
                 }
                 return;
             }
@@ -301,10 +301,10 @@ namespace UPlayGround.State
             EnemyLocomotionHelper.UpdateAnim(gameActor, motor, ref _lastLocoKey,
                 EnemyLocomotionHelper.LocoStyle.Run, crossfade);
 
-            if (_lastLocoKey == AnimKey.None)
+            if (_lastLocoKey == default)
             {
-                gameActor.Animator.PlayMotion(AnimKey.Run, crossfade);
-                _lastLocoKey = AnimKey.Run;
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Run, crossfade);
+                _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Run;
             }
         }
 

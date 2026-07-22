@@ -83,10 +83,10 @@ MonoBehaviour:
   m_Name: Payload_JumpAttack_5
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 404
+  motionRef: {fileID: 11400000, guid: 0fb9e0a96da1e694a924a9238578691e, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 404
+      motionRef: {fileID: 11400000, guid: 0fb9e0a96da1e694a924a9238578691e, type: 2}
       attackType: 0
       hitPhases:
       - damage: 12
@@ -105,7 +105,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

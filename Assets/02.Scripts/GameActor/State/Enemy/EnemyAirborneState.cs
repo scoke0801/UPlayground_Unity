@@ -37,9 +37,9 @@ namespace UPlayGround.State
             // 진입 시 수직 속도가 양수면 상승(점프), 음수면 낙하 애니메이션
             float verticalSpeed = Vector3.Dot(motor.Velocity, motor.CharacterUp);
             if (verticalSpeed > 0f)
-                gameActor.Animator.PlayMotion(AnimKey.Jump, 0.05f);
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Jump, 0.05f);
             else
-                gameActor.Animator.PlayMotion(AnimKey.Fall, 0.2f);
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fall, 0.2f);
         }
 
         public override void OnExit(GameActorState state)
@@ -100,7 +100,7 @@ namespace UPlayGround.State
 
         private void OnLanded()
         {
-            var state = gameActor.Animator.PlayMotion(AnimKey.Land, 0.2f);
+            var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Land, 0.2f);
             if (state != null)
             {
                 _landStarted = true;

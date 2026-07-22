@@ -109,3 +109,65 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 01019466c697aaa4396b6672253acaee, type: 2}
     - Key: 19
       Value: {fileID: 11400000, guid: cc07da57283b43c41811eb93fdc6c957, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 0417d5b4ad7c47842a1a14d1eb920aa7, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: 2ae00d3468435a142aa27620a74b6fae, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash
+      Value: {fileID: 11400000, guid: 004aed7472af44248923837686796b10, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: f22b60273ac7bd3438648e55e752cd63, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 7c6f5e89b3edb6e4eb14d085d717de66, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Getup
+      Value: {fileID: 11400000, guid: 7e82f3686f43a61439ccbdacdf778977, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 2a5b45fd8efa1654e889d39301f71f9d, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Block
+      Value: {fileID: 11400000, guid: eec2ef11418c80442afa77449d706d9a, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockback
+      Value: {fileID: 11400000, guid: 325175843035fc746a0f91aa1e230c59, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockdown
+      Value: {fileID: 11400000, guid: 9b82b2746f6d7f64296bb6a0a29cb080, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 18e580ebc31a73d4db936f7ef96a9f45, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 7434e4dc57ae35c4c8421ffd5efdf638, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.F
+      Value: {fileID: 11400000, guid: 2ae00d3468435a142aa27620a74b6fae, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.B
+      Value: {fileID: 11400000, guid: dee8b9b6fa779c640a9923a7f9ae4bce, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.L
+      Value: {fileID: 11400000, guid: 14f5d3b974bed5549a05dbe479d2f1a8, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge.R
+      Value: {fileID: 11400000, guid: 766750690f78d934fa0c379c12c34f88, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.F
+      Value: {fileID: 11400000, guid: 004aed7472af44248923837686796b10, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.B
+      Value: {fileID: 11400000, guid: 2f59bfcb27892be4e802db5b4e394118, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.L
+      Value: {fileID: 11400000, guid: 01019466c697aaa4396b6672253acaee, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash.R
+      Value: {fileID: 11400000, guid: cc07da57283b43c41811eb93fdc6c957, type: 2}

@@ -33,7 +33,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private float _tableViewportHeight;
         private bool _ensureCursorVisible;
 
-        [MenuItem("UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 2)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 2)]
         public static void Open()
         {
             var window = GetWindow<MonsterStatGeneratorWindow>();

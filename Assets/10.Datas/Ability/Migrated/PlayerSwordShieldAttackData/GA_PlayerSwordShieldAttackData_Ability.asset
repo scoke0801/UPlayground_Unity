@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Ability_Skill_4_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerSwordShieldAttackData.Ability.Skill_4
-  animKey: 503
+  motionRef: {fileID: 11400000, guid: 6df1da9a9da3be647b96420858590099, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 503
+      motionRef: {fileID: 11400000, guid: 6df1da9a9da3be647b96420858590099, type: 2}
       attackType: 0
       hitPhases:
       - damage: 125
@@ -35,7 +35,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -83,6 +84,29 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,10 +210,10 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerSwordShieldAttackData.Ability.Skill_3
-  animKey: 502
+  motionRef: {fileID: 11400000, guid: 4bc9048fcd4fc554d95663363189e09c, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 502
+      motionRef: {fileID: 11400000, guid: 4bc9048fcd4fc554d95663363189e09c, type: 2}
       attackType: 0
       hitPhases:
       - damage: 110
@@ -208,7 +232,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -256,6 +281,29 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
 --- !u!114 &3271550275956882979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,10 +317,10 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerSwordShieldAttackData.Ability.Default
-  animKey: 500
+  motionRef: {fileID: 11400000, guid: a8063ef8c4bff7e4e804dddc831f58ba, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 500
+      motionRef: {fileID: 11400000, guid: a8063ef8c4bff7e4e804dddc831f58ba, type: 2}
       attackType: 0
       hitPhases:
       - damage: 25
@@ -291,7 +339,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -353,7 +402,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -415,7 +465,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -477,7 +528,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -539,7 +591,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -601,7 +654,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -649,3 +703,26 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

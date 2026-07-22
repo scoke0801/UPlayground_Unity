@@ -142,13 +142,14 @@ namespace UPlayGround.Data.Combat
         }
 
         /// <summary>
-        /// 라우트가 실제 실행 가능한지(공격 정보·animKey 보유). 미설정 라우트가 매칭돼
+        /// 라우트가 실제 실행 가능한지(공격 정보·모션 참조 보유). 미설정 라우트가 매칭돼
         /// 입력이 먹통이 되는(dead input) 상황을 방지한다.
         /// </summary>
         public static bool IsExecutable(ComboRouteEntry route)
             => route != null
                && route.attackInfo?.baseInfo != null
-               && route.attackInfo.baseInfo.animKey != AnimKey.None;
+               && route.attackInfo.baseInfo.motionRef != null
+               && route.attackInfo.baseInfo.motionRef.HasAnyMotion;
 
         private static bool GroundOk(RouteGroundCondition condition, bool isGrounded) => condition switch
         {

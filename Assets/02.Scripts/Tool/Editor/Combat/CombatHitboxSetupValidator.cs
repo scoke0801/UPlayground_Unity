@@ -8,6 +8,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Combat
 {
@@ -154,20 +155,30 @@ namespace UPlayGround.Tool.Editor.Combat
             foreach (AbilitySetSO attackData in assets.OfType<AbilitySetSO>())
             {
                 int attackCount = 0;
-                foreach (AnimKey key in System.Enum.GetValues(typeof(AnimKey)))
+                var seen = new HashSet<AbilityAttackInfo>();
+                foreach (var entry in AbilityAttackEditorUtility.Collect(attackData, true))
                 {
-                    if (key == AnimKey.None)
+                    AbilityAttackInfo info = entry.AttackInfo;
+                    if (info?.baseInfo == null || !seen.Add(info))
                         continue;
 
-                    foreach (CombatTimelineUtility.ResolvedAttack attack in CombatTimelineUtility.ResolveAttacks(attackData, key))
+                    attackCount++;
+                    var attack = new CombatTimelineUtility.ResolvedAttack
                     {
-                        attackCount++;
-                        ValidateAttackPhases(attackData, attack, hitboxGroups, issues);
-                    }
+                        SourceName = entry.Ability != null
+                            ? entry.Ability.name
+                            : entry.Payload != null ? entry.Payload.name : "알 수 없는 Ability",
+                        MotionAsset = info.baseInfo.motionRef?.defaultMotion,
+                        HitPhases = info.baseInfo.hitPhases,
+                        InterruptActions = info.interruptActions,
+                        AttackInfo = info,
+                        Owner = entry.Payload,
+                    };
+                    ValidateAttackPhases(attackData, attack, hitboxGroups, issues);
                 }
 
                 if (attackCount == 0)
-                    issues.Add($"Warning: {attackData.name}에서 AnimKey가 지정된 공격 데이터를 찾지 못했습니다.");
+                    issues.Add($"Warning: {attackData.name}에서 모션이 지정된 공격 데이터를 찾지 못했습니다.");
             }
         }
 
@@ -179,7 +190,7 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             if (attack.HitPhases == null || attack.HitPhases.Count == 0)
             {
-                issues.Add($"Error: {owner.name}/{attack.SourceName}({attack.AnimKey})의 HitPhase가 비어 있습니다.");
+                issues.Add($"Error: {owner.name}/{attack.SourceName}({attack.MotionAsset?.name ?? "모션 없음"})의 HitPhase가 비어 있습니다.");
                 return;
             }
 

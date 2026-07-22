@@ -1,5 +1,7 @@
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data
 {
@@ -8,7 +10,8 @@ namespace UPlayGround.Data
     /// </summary>
     public class AttackData
     {
-        public AnimKey animKey;
+        public MotionSetAsset motionAsset;
+        public string MotionId => motionAsset != null ? motionAsset.name : "-";
         public float damage;
         public float poiseDamage = 30f;
         public float breakDamage = 10f;
@@ -55,7 +58,7 @@ namespace UPlayGround.Data
 
         public float grabDuration = 1.5f;
 
-        public AnimKey victimForcedAnimKey = AnimKey.None;
+        public GameplayTag victimForcedMotionSlot;
         public bool guaranteedReaction = false;
 
         public int hitPhaseIndex = 0;

@@ -44,7 +44,7 @@ namespace UPlayGround.Components
             public float LastAttackTime;
             public bool CanCombo;
             public AttackState AttackState;
-            public AnimKey LastAttackAnimKey;
+            public bool HadAttackMotion;
         }
 
         [FormerlySerializedAs("equipment")]
@@ -423,7 +423,7 @@ namespace UPlayGround.Components
             string stateName = _playerActor.PlayerController?.CurrentState?.StateName;
             if (!IsResidualAttackState(stateName))
             {
-                Debug.Log($"[ResidualAttack] Snapshot skipped: unsupported state. state={stateName}, animKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}");
+                Debug.Log($"[ResidualAttack] Snapshot skipped: unsupported state. state={stateName}, motion={_currentAttackData?.MotionId}, kind={_currentAttackData?.attackKind}");
                 return false;
             }
 
@@ -433,15 +433,16 @@ namespace UPlayGround.Components
             var playbackSnapshot = _actorAnimator != null
                 ? _actorAnimator.CapturePlaybackSnapshot()
                 : ActorAnimator.MotionPlaybackSnapshot.Empty;
-            if (!playbackSnapshot.IsValid || playbackSnapshot.Key == AnimKey.None)
+            if (!playbackSnapshot.IsValid)
             {
-                Debug.LogWarning($"[ResidualAttack] Snapshot failed: playback snapshot invalid. state={stateName}, attackAnimKey={_currentAttackData?.animKey}, animator={_actorAnimator != null}");
+                Debug.LogWarning($"[ResidualAttack] Snapshot failed: playback snapshot invalid. state={stateName}, attackMotion={_currentAttackData?.MotionId}, animator={_actorAnimator != null}");
                 return false;
             }
 
-            bool canUseCombatData = _currentAttackData != null && playbackSnapshot.Key == _currentAttackData.animKey;
+            bool canUseCombatData = _currentAttackData != null
+                                    && playbackSnapshot.SourceAsset == _currentAttackData.motionAsset;
             if (_currentAttackData != null && !canUseCombatData)
-                Debug.LogWarning($"[ResidualAttack] Snapshot will be visual-only: animation key mismatch. state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData.animKey}, kind={_currentAttackData.attackKind}");
+                Debug.LogWarning($"[ResidualAttack] Snapshot will be visual-only: motion mismatch. state={stateName}, playback={playbackSnapshot.DisplayKey}, attack={_currentAttackData.MotionId}, kind={_currentAttackData.attackKind}");
 
             snapshot = new PlayerResidualAttackSnapshot(
                 _playerActor,
@@ -463,7 +464,7 @@ namespace UPlayGround.Components
                 _homingReachAngle,
                 Mathf.Max(_homingReachRange, _warpMaxDistance));
 
-            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playbackKey={playbackSnapshot.Key}, attackAnimKey={_currentAttackData?.animKey}, kind={_currentAttackData?.attackKind}, visualOnly={!canUseCombatData}, homingReach={_homingReachRange}/{_homingReachAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
+            Debug.Log($"[ResidualAttack] Snapshot created. character={sourceModel.characterType}, state={stateName}, playback={playbackSnapshot.DisplayKey}, attack={_currentAttackData?.MotionId}, kind={_currentAttackData?.attackKind}, visualOnly={!canUseCombatData}, homingReach={_homingReachRange}/{_homingReachAngle}, hitPhase={_currentAttackData?.hitPhaseIndex}, hasInfoBase={_currentAttackInfoBase != null}, hitPhaseCount={_currentResidualHitPhases?.Count ?? 0}, finishTarget={_currentFinishTarget != null}, specialBreakTarget={_currentSpecialBreakTarget != null}");
             return true;
         }
 

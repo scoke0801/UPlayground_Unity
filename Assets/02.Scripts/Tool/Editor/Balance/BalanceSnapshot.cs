@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -69,7 +69,7 @@ namespace UPlayGround.Tool.Editor.Balance
         public sealed class SkillSnapshot
         {
             public int index;
-            public string animKey;
+            public string motion;
             public float selectionWeight;
             public float cooldown;
             public float minRange;
@@ -92,7 +92,7 @@ namespace UPlayGround.Tool.Editor.Balance
         public sealed class PlayerAttackEntry
         {
             public string slot;
-            public string animKey;
+            public string motion;
             public float totalDamage;
             public float totalPoiseDamage;
             public float totalBreakDamage;
@@ -209,7 +209,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     actor.skills.Add(new SkillSnapshot
                     {
                         index = i,
-                        animKey = skill.baseInfo.animKey.ToString(),
+                        motion = skill.baseInfo.motionRef != null ? skill.baseInfo.motionRef.name : "-",
                         selectionWeight = skill.selectionWeight,
                         cooldown = ability?.cooldown?.durationSeconds ?? 0f,
                         minRange = ability?.activation?.minDistance ?? 0f,
@@ -263,7 +263,7 @@ namespace UPlayGround.Tool.Editor.Balance
             snapshot.attacks.Add(new PlayerAttackEntry
             {
                 slot = slot,
-                animKey = info.baseInfo.animKey.ToString(),
+                motion = info.baseInfo.motionRef != null ? info.baseInfo.motionRef.name : "-",
                 totalDamage = BalanceAttackAnalyzer.SumDamage(info.baseInfo),
                 totalPoiseDamage = BalanceAttackAnalyzer.SumPoiseDamage(info.baseInfo),
                 totalBreakDamage = BalanceAttackAnalyzer.SumBreakDamage(info.baseInfo),
@@ -397,17 +397,17 @@ namespace UPlayGround.Tool.Editor.Balance
 
         private static void DiffSkills(List<DiffEntry> diffs, string owner, List<SkillSnapshot> oldSkills, List<SkillSnapshot> newSkills)
         {
-            // 스킬은 인덱스+animKey 조합으로 매칭한다. 순서가 바뀌면 Added/Removed로 표시된다.
+            // 스킬은 인덱스+motion 조합으로 매칭한다. 순서가 바뀌면 Added/Removed로 표시된다.
             var oldMap = new Dictionary<string, SkillSnapshot>();
             foreach (SkillSnapshot skill in oldSkills)
-                oldMap[$"{skill.index}:{skill.animKey}"] = skill;
+                oldMap[$"{skill.index}:{skill.motion}"] = skill;
 
             var seen = new HashSet<string>();
             foreach (SkillSnapshot cur in newSkills)
             {
-                string key = $"{cur.index}:{cur.animKey}";
+                string key = $"{cur.index}:{cur.motion}";
                 seen.Add(key);
-                string label = $"skills[{cur.index}]({cur.animKey})";
+                string label = $"skills[{cur.index}]({cur.motion})";
                 if (!oldMap.TryGetValue(key, out SkillSnapshot old))
                 {
                     diffs.Add(new DiffEntry { Kind = DiffKind.Added, Owner = owner, Field = label, Detail = $"damage {cur.totalDamage:0.###}" });
@@ -426,8 +426,8 @@ namespace UPlayGround.Tool.Editor.Balance
 
             foreach (SkillSnapshot old in oldSkills)
             {
-                if (!seen.Contains($"{old.index}:{old.animKey}"))
-                    diffs.Add(new DiffEntry { Kind = DiffKind.Removed, Owner = owner, Field = $"skills[{old.index}]({old.animKey})", Detail = $"damage {old.totalDamage:0.###}" });
+                if (!seen.Contains($"{old.index}:{old.motion}"))
+                    diffs.Add(new DiffEntry { Kind = DiffKind.Removed, Owner = owner, Field = $"skills[{old.index}]({old.motion})", Detail = $"damage {old.totalDamage:0.###}" });
             }
         }
 

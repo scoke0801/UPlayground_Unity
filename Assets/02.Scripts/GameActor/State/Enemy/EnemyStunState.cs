@@ -50,12 +50,12 @@ namespace UPlayGround.State
                 1f - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
         }
 
-        private AnimKey GetStunAnimKey()
+        private UPlayGround.Gameplay.Tag.GameplayTag GetStunAnimKey()
         {
-            if (gameActor.Animator.HasMotion(AnimKey.Stun, true)) return AnimKey.Stun;
-            if (gameActor.Animator.HasMotion(AnimKey.GuardBreak, true)) return AnimKey.GuardBreak;
-            if (gameActor.Animator.HasMotion(AnimKey.Hit_F, true)) return AnimKey.Hit_F;
-            return AnimKey.Idle;
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Stun, true)) return UPlayGround.Data.Actor.Animation.MotionTags.Stun;
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.GuardBreak, true)) return UPlayGround.Data.Actor.Animation.MotionTags.GuardBreak;
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Hit_F, true)) return UPlayGround.Data.Actor.Animation.MotionTags.Hit_F;
+            return UPlayGround.Data.Actor.Animation.MotionTags.Idle;
         }
     }
 }

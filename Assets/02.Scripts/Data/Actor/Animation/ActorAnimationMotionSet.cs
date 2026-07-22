@@ -1,7 +1,7 @@
 ﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Animation;
-using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Actor.Animation
 {
@@ -11,15 +11,22 @@ namespace UPlayGround.Data.Actor.Animation
         [Tooltip("이 SO에 없는 키는 여기서 탐색 (공용 휴머노이드 모션 등)")]
         public ActorAnimationMotionSet fallbackMotionSet;
 
-        public SerializedDictionary<AnimKey, MotionSetAsset> motionSets;
+        [Tooltip("액터 상태가 사용하는 의미 슬롯 매핑입니다.")]
+        public SerializedDictionary<GameplayTag, MotionSetAsset> motionSlots;
 
-        public MotionSet GetMotionSet(AnimKey key, int depth = 0)
+        public MotionSetAsset GetMotionSetAsset(GameplayTag slot, int depth = 0)
         {
-            if (depth > 8) return null;
-            if (motionSets != null && motionSets.TryGetValue(key, out MotionSetAsset result) && result != null)
-                return result.motionSet;
-            return fallbackMotionSet?.GetMotionSet(key, depth + 1);
+            if (depth > 8 || !slot.IsValid()) return null;
+            if (motionSlots != null
+                && motionSlots.TryGetValue(slot, out MotionSetAsset result)
+                && result != null)
+                return result;
+            return fallbackMotionSet?.GetMotionSetAsset(slot, depth + 1);
         }
+
+        public MotionSet GetMotionSet(GameplayTag slot, int depth = 0) =>
+            GetMotionSetAsset(slot, depth)?.motionSet;
+
     }
 }   
 

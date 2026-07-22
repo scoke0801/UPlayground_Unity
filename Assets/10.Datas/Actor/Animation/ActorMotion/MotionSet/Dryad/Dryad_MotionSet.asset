@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: Dryad_MotionSet
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -30,3 +31,23 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 2acadb8b7d6aeda4eb35a8cef2984269, type: 2}
     - Key: 501
       Value: {fileID: 11400000, guid: a76a6331583583442955353bb09c5d51, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: b1d39ab0014d0bc43890d656956810aa, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 1c7ae5f7aa39d5040b7b0253880979b3, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 1c7ae5f7aa39d5040b7b0253880979b3, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: 1c7ae5f7aa39d5040b7b0253880979b3, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 83be77405f3477c4290193ee1a7f1d1d, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 4d4c3962bfbd086409deb6acb34e82d3, type: 2}

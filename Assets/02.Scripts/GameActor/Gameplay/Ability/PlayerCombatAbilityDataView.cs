@@ -4,6 +4,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Gameplay.Ability
 {
@@ -31,7 +32,7 @@ namespace UPlayGround.Gameplay.Ability
         public AbilityAttackInfo entryAttackVsAirborne;
         public AbilityAttackInfo swapEvadeCounterAttack;
         public AbilityAttackInfo swapSpecialAttack;
-        public AnimKey chargeAnimKey;
+        public MotionReferenceSO chargeMotionRef;
         public PlayerInterruptAction chargeInterruptActions;
         public string fullChargeVfxKey;
         public ActorSocketType fullChargeVfxSocket;
@@ -80,8 +81,8 @@ namespace UPlayGround.Gameplay.Ability
                 {
                     AbilityAttackInfo attack = Resolve(set.charge.stages[i]);
                     if (attack?.baseInfo == null) continue;
-                    if (view.chargeAnimKey == AnimKey.None)
-                        view.chargeAnimKey = attack.baseInfo.animKey;
+                    if (view.chargeMotionRef == null)
+                        view.chargeMotionRef = attack.baseInfo.motionRef;
                     view.chargeStages.Add(new ChargeStageData
                     {
                         hitPhases = attack.baseInfo.hitPhases,
@@ -145,14 +146,13 @@ namespace UPlayGround.Gameplay.Ability
             for (int i = 0; i < ability.variants.Count; i++)
             {
                 AbilityVariantDefinition candidate = ability.variants[i];
-                if (!UPlayGroundAbilityPayloadResolver.TryResolve(
-                        candidate, out _, out _))
+                if (!UPlayGroundAbilityPayloadResolver.IsExecutable(candidate))
                     continue;
                 if (best == null || candidate.priority > best.priority)
                     best = candidate;
             }
-            return UPlayGroundAbilityPayloadResolver.TryResolve(
-                best, out _, out AbilityAttackInfo attack)
+            return UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                best, out AbilityAttackInfo attack)
                 ? attack
                 : null;
         }

@@ -4,6 +4,9 @@ using UnityEngine;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Animation;
+using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data
 {
@@ -178,8 +181,8 @@ namespace UPlayGround.Data
         public float grabDuration = 1.5f;
 
         [Header("Forced Motion")]
-        [Tooltip("피격자에게 강제할 리액션 애니메이션. Grab은 None일 때 AnimKey.Grabbed 폴백, 일반 Hit은 None일 때 reactionType/방향 기본 리액션 폴백.")]
-        public AnimKey victimForcedAnimKey = AnimKey.None;
+        [Tooltip("피격자에게 강제할 리액션 모션 슬롯. 비어 있으면 공격 반응 종류와 방향에 따른 기본 슬롯을 사용합니다.")]
+        public GameplayTag victimForcedMotionSlot;
         [Tooltip("true면 등급 리액션 정책(allowHit/requirePoiseBreak 등)을 무시하고 피격 리액션을 보장한다. 보스 등 강인한 적도 확실히 흔들린다.")]
         public bool guaranteedReaction = false;
 
@@ -195,8 +198,12 @@ namespace UPlayGround.Data
     public class AttackInfoBase
     {
         [Header("Basic Info")]
-        public AnimKey animKey = AnimKey.Attack_1;
+        [Tooltip("공격 콘텐츠 모션 참조입니다.")]
+        public MotionReferenceSO motionRef;
         public AttackType attackType = AttackType.Melee;
+
+        public MotionSetAsset ResolveMotion(WeaponType weaponType) =>
+            motionRef != null ? motionRef.Resolve(weaponType) : null;
 
         [Header("Hit Phases")]
         [Tooltip("히트 구간 별 데이터. BeginCollisionEvent의 hitPhaseIndex와 인덱스가 일치해야 한다.")]

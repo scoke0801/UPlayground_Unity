@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Payload_DashAttack_1
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 300
+  motionRef: {fileID: 11400000, guid: f03899452646e8647ad19b4d0723f4c3, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 300
+      motionRef: {fileID: 11400000, guid: f03899452646e8647ad19b4d0723f4c3, type: 2}
       attackType: 0
       hitPhases:
       - damage: 9
@@ -35,7 +35,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

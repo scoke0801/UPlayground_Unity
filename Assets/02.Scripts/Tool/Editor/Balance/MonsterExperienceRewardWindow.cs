@@ -39,7 +39,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private readonly List<ActorDefinitionSO> _allMonsters = new();
         private readonly List<ActorDefinitionSO> _visibleMonsters = new();
 
-        [MenuItem("UPlayGround/게임플레이/밸런스/몬스터 경험치 발급기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 4)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/밸런스/몬스터 경험치 발급기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 4)]
         public static void Open()
         {
             var window = GetWindow<MonsterExperienceRewardWindow>();

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
@@ -46,7 +46,7 @@ namespace UPlayGround.State
             _lastPosition = motor.TransientPosition;
 
             SetNewWanderPoint();
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -141,7 +141,7 @@ namespace UPlayGround.State
             _isWaiting  = true;
             _waitTimer  = 0f;
             _stuckTimer = 0f;
-            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
         private void ExitWait()
@@ -150,7 +150,7 @@ namespace UPlayGround.State
             _waitTimer  = 0f;
             _retryCount = 0;
             SetNewWanderPoint();
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
 
         private void CheckStuck()

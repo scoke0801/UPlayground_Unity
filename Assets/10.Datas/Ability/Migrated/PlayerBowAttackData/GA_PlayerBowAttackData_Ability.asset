@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Skill_4_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_4
-  animKey: 503
+  motionRef: {fileID: 11400000, guid: 79aec38708a5b534abea9ee77dd7c44c, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 503
+      motionRef: {fileID: 11400000, guid: 79aec38708a5b534abea9ee77dd7c44c, type: 2}
       attackType: 0
       hitPhases:
       - damage: 155
@@ -35,7 +35,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -83,6 +84,29 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -197,10 +221,10 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Default
-  animKey: 500
+  motionRef: {fileID: 11400000, guid: 226ed1c7e7d41e34d90fbaee6c5bb315, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 500
+      motionRef: {fileID: 11400000, guid: 226ed1c7e7d41e34d90fbaee6c5bb315, type: 2}
       attackType: 0
       hitPhases:
       - damage: 142
@@ -219,7 +243,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -267,6 +292,29 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
 --- !u!114 &3516406023466531942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,10 +328,10 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Skill_5_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_5
-  animKey: 504
+  motionRef: {fileID: 11400000, guid: d82cd120f4cebe84e959e3268a6c0215, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 504
+      motionRef: {fileID: 11400000, guid: d82cd120f4cebe84e959e3268a6c0215, type: 2}
       attackType: 0
       hitPhases:
       - damage: 210
@@ -302,7 +350,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -350,6 +399,29 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
 --- !u!114 &8589718301081052317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,10 +435,10 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Ability.Skill_3
-  animKey: 502
+  motionRef: {fileID: 11400000, guid: dcfb4f4e25545a14982879a1a43402c6, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 502
+      motionRef: {fileID: 11400000, guid: dcfb4f4e25545a14982879a1a43402c6, type: 2}
       attackType: 0
       hitPhases:
       - damage: 148
@@ -385,7 +457,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -433,3 +506,26 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 61
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

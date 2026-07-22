@@ -318,7 +318,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
                 result.SkillBreakdowns.Add(new BalanceSkillBreakdown
                 {
-                    Name = skill.baseInfo.animKey.ToString(),
+                    Name = skill.baseInfo.motionRef != null ? skill.baseInfo.motionRef.name : "-",
                     Damage = expectedDamage,
                     PoiseDamage = rawPoise,
                     Weight = skill.selectionWeight,
@@ -384,15 +384,6 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (skill.attackCategory is AbilityAttackCategory.Basic or AbilityAttackCategory.Heavy or AbilityAttackCategory.Skill)
                 return skill.attackCategory;
-
-            AnimKey key = skill.baseInfo != null ? skill.baseInfo.animKey : AnimKey.None;
-            int value = (int)key;
-            if (value >= (int)AnimKey.HeavyAttack_1 && value <= (int)AnimKey.HeavyAttack_10)
-                return AbilityAttackCategory.Heavy;
-            if (key == AnimKey.Fly_Attack ||
-                (value >= (int)AnimKey.Skill_1 && value <= (int)AnimKey.Skill_9) ||
-                (value >= (int)AnimKey.Counter_Attack_1 && value <= (int)AnimKey.Counter_Attack_2))
-                return AbilityAttackCategory.Skill;
 
             return AbilityAttackCategory.Basic;
         }

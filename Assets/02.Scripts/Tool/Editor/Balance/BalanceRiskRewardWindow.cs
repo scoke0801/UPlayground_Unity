@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -61,7 +61,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private readonly List<string> _excluded = new();
         private Vector2 _listScroll;
 
-        [MenuItem("UPlayGround/게임플레이/밸런스/리스크·리워드 산점도", priority = UPlaygroundMenuPriority.GameplayBalance + 3)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/밸런스/리스크·리워드 산점도", priority = UPlaygroundMenuPriority.GameplayBalance + 3)]
         public static void Open()
         {
             var window = GetWindow<BalanceRiskRewardWindow>();
@@ -137,7 +137,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (skill?.baseInfo == null || skill.skillType != SkillType.Attack)
                     continue;
 
-                string name = $"[{i}] {skill.baseInfo.animKey}";
+                string name = $"[{i}] {skill.baseInfo.motionRef?.name ?? "-"}";
                 float cooldown = Mathf.Max(
                     0.05f,
                     entries[i].Ability?.cooldown?.durationSeconds ?? 0f);
@@ -200,7 +200,7 @@ namespace UPlayGround.Tool.Editor.Balance
             if (damage <= 0f)
                 return;
 
-            string name = $"{slot} {info.baseInfo.animKey}";
+            string name = $"{slot} {info.baseInfo.motionRef?.name ?? "-"}";
 
             // 플레이어 공격에는 쿨다운 개념이 없어 쿨다운 축이면 프레임 축으로 대체 안내
             if (_riskAxis == RiskAxis.Cooldown)

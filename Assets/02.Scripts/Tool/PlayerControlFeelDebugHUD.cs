@@ -124,7 +124,7 @@ namespace UPlayGround.Tool.Debugging
                     .AppendLine();
                 Builder.Append("Phase: ").Append(combat.CurrentHitPhaseIndex)
                     .Append(" / ").Append(combat.LastHitPhaseIndex)
-                    .Append(" | CurrentAttack: ").Append(combat.CurrentAttackData != null ? combat.CurrentAttackData.animKey.ToString() : "None")
+                    .Append(" | CurrentAttack: ").Append(combat.CurrentAttackData != null ? combat.CurrentAttackData.MotionId : "None")
                     .AppendLine();
                 Builder.Append("PerfectDodge: ").Append(combat.IsPerfectDodgeWindow)
                     .Append(" | DodgeCounter: ").Append(combat.IsDodgeCounterAvailable)

@@ -29,7 +29,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             _equipment = playerActor.GetPlayerEquipment();
-            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -161,7 +161,7 @@ namespace UPlayGround.State
         {
             if(playerActor.GetPlayerEquipment().GetMainWeaponType() == WeaponType.NoWeapon)
             {
-                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_Weapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Equip_Weapon, 0.25f);
                 if (animState != null)
                 {
                     if (playerActor.CharacterType == CharacterActorType.Bokusei)
@@ -175,19 +175,19 @@ namespace UPlayGround.State
 
                     animState.OwnedEvents.OnEnd += () =>
                     {    
-                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
+                        gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.1f);
                     };
                 }
             }
             else
             {
-                var animState = gameActor.Animator.PlayMotion(AnimKey.UnEquip_Weapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.UnEquip_Weapon, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
                         playerActor.GetPlayerEquipment().SetWeaponType(WeaponType.NoWeapon);
-                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
+                        gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.1f);
                     };
                 }
             }
@@ -197,23 +197,23 @@ namespace UPlayGround.State
         {
             if (playerActor.IsEquippedLeftWeapon == false)
             {
-                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_LeftWeapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Equip_LeftWeapon, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
+                        gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.1f);
                     };
                 }
             }
             else
             {
-                var animState = gameActor.Animator.PlayMotion(AnimKey.Equip_LeftWeapon, 0.25f);
+                var animState = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Equip_LeftWeapon, 0.25f);
                 if (animState != null)
                 {
                     animState.OwnedEvents.OnEnd += () =>
                     {
-                        gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
+                        gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.1f);
                     };
                 }
             }

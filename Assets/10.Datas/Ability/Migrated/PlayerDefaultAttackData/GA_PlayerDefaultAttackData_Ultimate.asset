@@ -81,11 +81,34 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Ultimate.Default
-  animKey: 501
+  motionRef: {fileID: 11400000, guid: 3a313b3e6ba9370449632e59c8ec1bee, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 0
+      motionRef: {fileID: 11400000, guid: 3a313b3e6ba9370449632e59c8ec1bee, type: 2}
       attackType: 0
       hitPhases: []
     interruptActions: 0
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

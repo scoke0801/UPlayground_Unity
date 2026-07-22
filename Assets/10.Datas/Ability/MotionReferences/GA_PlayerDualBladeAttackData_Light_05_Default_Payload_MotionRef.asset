@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44e31f76c56d44c99680b04d89f8343a, type: 3}
+  m_Name: GA_PlayerDualBladeAttackData_Light_05_Default_Payload_MotionRef
+  m_EditorClassIdentifier: 
+  defaultMotion: {fileID: 0}
+  weaponOverrides:
+  - weaponType: 2
+    motion: {fileID: 11400000, guid: 3a3e7dd13478a1048a97229031926f5e, type: 2}
+  - weaponType: 3
+    motion: {fileID: 11400000, guid: 2edb38699b2b9524383dfcde4be704fa, type: 2}
+  - weaponType: 10
+    motion: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
+  - weaponType: 11
+    motion: {fileID: 11400000, guid: f15ecb7834ee67141a7b4ab70172f156, type: 2}
+  - weaponType: 12
+    motion: {fileID: 11400000, guid: 174e2502bf1b64742b10bf5fa91b0cf7, type: 2}
+  - weaponType: 13
+    motion: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+  - weaponType: 14
+    motion: {fileID: 11400000, guid: 277029f085d5b394f95d4005bcbd6218, type: 2}

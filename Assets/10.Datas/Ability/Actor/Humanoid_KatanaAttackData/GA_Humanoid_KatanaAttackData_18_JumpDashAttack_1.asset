@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Payload_JumpDashAttack_1
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 310
+  motionRef: {fileID: 11400000, guid: e43a6a5ef98c0f84d82f292778b6a965, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 310
+      motionRef: {fileID: 11400000, guid: e43a6a5ef98c0f84d82f292778b6a965, type: 2}
       attackType: 0
       hitPhases:
       - damage: 10
@@ -35,7 +35,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

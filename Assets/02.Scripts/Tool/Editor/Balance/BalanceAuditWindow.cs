@@ -48,7 +48,7 @@ namespace UPlayGround.Tool.Editor.Balance
             public bool Expanded;
         }
 
-        [MenuItem("UPlayGround/게임플레이/밸런스/밸런스 점검 (스냅샷·검증)", priority = UPlaygroundMenuPriority.GameplayBalance + 1)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/밸런스/밸런스 점검 (스냅샷·검증)", priority = UPlaygroundMenuPriority.GameplayBalance + 1)]
         public static void Open()
         {
             var window = GetWindow<BalanceAuditWindow>();

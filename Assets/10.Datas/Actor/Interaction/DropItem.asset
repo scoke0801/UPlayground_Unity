@@ -18,7 +18,9 @@ MonoBehaviour:
   interactionObjectType: 7
   hp: 1
   interactionCompleteDuration: 1.5
-  interactionAnimKey: 1700
+  legacyInteractionAnimKey: 1700
+  interactionMotionSlot:
+    _tagName: Motion.Interaction.ItemPickup
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0

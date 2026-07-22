@@ -59,47 +59,43 @@ namespace UPlayGround.Components
         // PlayerAttackState 진입 가능 여부 판정용. CurrentComboIndex / _attackState /
         // _currentAttackData 등 어떠한 상태도 변경하지 않는다.
 
-        /// <summary> 다음 일반 공격이 사용할 AnimKey를 미리 조회 (side effect 없음). </summary>
-        public AnimKey PeekNormalAttackAnimKey(bool isCombo)
+        /// <summary>다음 일반 공격 모션을 미리 조회한다.</summary>
+        public MotionSetAsset PeekNormalAttackMotion(bool isCombo)
         {
             if (_attackData == null || _attackData.liteComboAttackList == null
                 || _attackData.liteComboAttackList.Count == 0)
-                return AnimKey.None;
+                return null;
 
             int nextIndex = PeekNextComboIndex(AttackState.NormalAttack, isCombo);
-            return _attackData.liteComboAttackList[nextIndex]?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(_attackData.liteComboAttackList[nextIndex]);
         }
 
-        /// <summary> 다음 강 공격이 사용할 AnimKey를 미리 조회 (side effect 없음). </summary>
-        public AnimKey PeekHeavyAttackAnimKey(bool isCombo)
+        public MotionSetAsset PeekHeavyAttackMotion(bool isCombo)
         {
             if (_attackData == null || _attackData.heavyComboAttackList == null
                 || _attackData.heavyComboAttackList.Count == 0)
-                return AnimKey.None;
+                return null;
 
             int nextIndex = PeekNextComboIndex(AttackState.HeavyAttack, isCombo);
-            return _attackData.heavyComboAttackList[nextIndex]?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(_attackData.heavyComboAttackList[nextIndex]);
         }
 
-        /// <summary> 카운터 공격 AnimKey 조회 (ExecuteCounterAttack과 동일한 폴백 체인). </summary>
-        public AnimKey PeekCounterAttackAnimKey()
+        public MotionSetAsset PeekCounterAttackMotion()
         {
             var source = _attackData?.counterAttack?.baseInfo != null
                 ? _attackData.counterAttack
                 : (_attackData != null && _attackData.heavyComboAttackList.Count > 0
                     ? _attackData.heavyComboAttackList[0]
                     : null);
-            return source?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(source);
         }
 
-        /// <summary> 등장 공격 AnimKey 조회 (ExecuteEntryAttack과 동일한 변형/폴백 체인). </summary>
-        public AnimKey PeekEntryAttackAnimKey()
+        public MotionSetAsset PeekEntryAttackMotion()
         {
-            return SelectEntryAttackInfo()?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(SelectEntryAttackInfo());
         }
 
-        /// <summary> 스왑 회피 카운터 AnimKey 조회 (ExecuteSwapEvadeCounterAttack과 동일한 폴백 체인). </summary>
-        public AnimKey PeekSwapEvadeCounterAttackAnimKey()
+        public MotionSetAsset PeekSwapEvadeCounterAttackMotion()
         {
             var source = _attackData?.swapEvadeCounterAttack?.baseInfo != null
                 ? _attackData.swapEvadeCounterAttack
@@ -108,22 +104,20 @@ namespace UPlayGround.Components
                     : (_attackData != null && _attackData.liteComboAttackList.Count > 0
                         ? _attackData.liteComboAttackList[0]
                         : null));
-            return source?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(source);
         }
 
-        /// <summary> 풀 게이지 교체 특수 공격 AnimKey 조회 (ExecuteSwapSpecialAttack과 동일한 폴백 체인). </summary>
-        public AnimKey PeekSwapSpecialAttackAnimKey()
+        public MotionSetAsset PeekSwapSpecialAttackMotion()
         {
             var source = _attackData?.swapSpecialAttack?.baseInfo != null
                 ? _attackData.swapSpecialAttack
                 : (_attackData != null && _attackData.skillAttackList.Count > 0 && _attackData.skillAttackList[0]?.baseInfo != null
                     ? _attackData.skillAttackList[0]
                     : (_attackData?.entryAttack?.baseInfo != null ? _attackData.entryAttack : null));
-            return source?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(source);
         }
 
-        /// <summary> 패리 반격 AnimKey 조회 (ExecuteParryCounterAttack과 동일한 폴백 체인). </summary>
-        public AnimKey PeekParryCounterAttackAnimKey()
+        public MotionSetAsset PeekParryCounterAttackMotion()
         {
             var source = _attackData?.parryCounterAttack?.baseInfo != null
                 ? _attackData.parryCounterAttack
@@ -132,24 +126,21 @@ namespace UPlayGround.Components
                     : (_attackData != null && _attackData.heavyComboAttackList.Count > 0
                         ? _attackData.heavyComboAttackList[0]
                         : null));
-            return source?.baseInfo?.animKey ?? AnimKey.None;
+            return ResolveAttackMotion(source);
         }
 
-        /// <summary> 스킬 공격 AnimKey 조회. 인덱스가 범위 밖이면 None. </summary>
-        public AnimKey PeekSkillAttackAnimKey(int skillIndex)
+        public MotionSetAsset PeekSkillAttackMotion(int skillIndex)
         {
-            return TryResolveSkill(skillIndex, out _, out AnimKey animKey)
-                ? animKey
-                : AnimKey.None;
+            return TryResolveSkill(skillIndex, out _, out MotionSetAsset motion) ? motion : null;
         }
 
         private bool TryResolveSkill(
             int skillIndex,
             out AbilityAttackInfo attackInfo,
-            out AnimKey animKey)
+            out MotionSetAsset motionAsset)
         {
             attackInfo = null;
-            animKey = AnimKey.None;
+            motionAsset = null;
             if (!IsSkillUnlocked(skillIndex))
                 return false;
 
@@ -165,11 +156,18 @@ namespace UPlayGround.Components
             if (result != AbilityActivationResult.Success
                 || !UPlayGroundAbilityPayloadResolver.TryResolve(
                     variant,
-                    out animKey,
+                    _equipment != null ? _equipment.GetMainWeaponType() : WeaponType.NoWeapon,
+                    out motionAsset,
                     out attackInfo))
                 return false;
 
-            return attackInfo?.baseInfo != null && animKey != AnimKey.None;
+            return attackInfo?.baseInfo != null && motionAsset != null;
+        }
+
+        private MotionSetAsset ResolveAttackMotion(AbilityAttackInfo attackInfo)
+        {
+            return attackInfo?.baseInfo?.ResolveMotion(
+                _equipment != null ? _equipment.GetMainWeaponType() : WeaponType.NoWeapon);
         }
 
         private bool IsSkillUnlocked(int skillIndex)
@@ -233,7 +231,7 @@ namespace UPlayGround.Components
                 state.LastAttackTime,
                 state.CanCombo,
                 (int)state.AttackState,
-                state.LastAttackAnimKey));
+                state.HadAttackMotion));
             _comboCharacterType = characterType;
         }
 
@@ -309,7 +307,7 @@ namespace UPlayGround.Components
                 LastAttackTime = LastAttackTime,
                 CanCombo = CanCombo,
                 AttackState = _attackState,
-                LastAttackAnimKey = _currentAttackData != null ? _currentAttackData.animKey : AnimKey.None,
+                HadAttackMotion = _currentAttackData?.motionAsset != null,
             };
         }
 
@@ -330,7 +328,7 @@ namespace UPlayGround.Components
                 LastAttackTime = snapshot.LastAttackTime,
                 CanCombo = snapshot.CanCombo,
                 AttackState = (AttackState)snapshot.AttackState,
-                LastAttackAnimKey = snapshot.LastAnimKey,
+                HadAttackMotion = snapshot.HadAttackMotion,
             };
 
             _attackState = state.AttackState;
@@ -338,7 +336,7 @@ namespace UPlayGround.Components
             _normalComboIndex = Mathf.Clamp(state.NormalComboIndex, -1, GetComboLength(AttackState.NormalAttack) - 1);
             _heavyComboIndex  = Mathf.Clamp(state.HeavyComboIndex,  -1, GetComboLength(AttackState.HeavyAttack) - 1);
             LastAttackTime = state.LastAttackTime;
-            if (state.CanCombo || (state.LastAttackAnimKey != AnimKey.None && GetComboLength(_attackState) > 1))
+            if (state.CanCombo || (state.HadAttackMotion && GetComboLength(_attackState) > 1))
                 _comboController.OpenWindow();
             else
                 _comboController.CloseWindow();

@@ -26,9 +26,9 @@ namespace UPlayGround.State
             playerActor.GetCombat()?.RefreshCombatState();
             _remainingDuration = _attackData?.reactionDuration > 0f ? _attackData.reactionDuration : 1.2f;
 
-            AnimKey animKey = playerActor.Animator.HasMotion(AnimKey.GuardBreak, true)
-                ? AnimKey.GuardBreak
-                : AnimKey.Hit_F;
+            UPlayGround.Gameplay.Tag.GameplayTag animKey = playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.GuardBreak, true)
+                ? UPlayGround.Data.Actor.Animation.MotionTags.GuardBreak
+                : UPlayGround.Data.Actor.Animation.MotionTags.Hit_F;
             playerActor.Animator.PlayMotion(animKey, 0.15f);
         }
 

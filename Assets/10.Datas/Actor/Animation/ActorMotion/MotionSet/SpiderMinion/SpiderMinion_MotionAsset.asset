@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: SpiderMinion_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -28,3 +29,23 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 94ff052fd95675145bd51594357da4e0, type: 2}
     - Key: 100
       Value: {fileID: 11400000, guid: dd445430000983c4e907e33bee248602, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 9d1a3f13905768a43911c5a63372732d, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 9cff23db8edbcb349b114055aa413236, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 9cff23db8edbcb349b114055aa413236, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: 9cff23db8edbcb349b114055aa413236, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 083b85b5e82938a4e865e1727a61cc9a, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 94ff052fd95675145bd51594357da4e0, type: 2}

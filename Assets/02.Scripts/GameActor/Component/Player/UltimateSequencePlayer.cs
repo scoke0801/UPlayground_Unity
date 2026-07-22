@@ -403,7 +403,7 @@ namespace UPlayGround.Components
                 }
                 else
                 {
-                    _animator.PlayMotion(AnimKey.Idle, endedAsset.motionFadeDuration);
+                    _animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, endedAsset.motionFadeDuration);
                 }
             }
 

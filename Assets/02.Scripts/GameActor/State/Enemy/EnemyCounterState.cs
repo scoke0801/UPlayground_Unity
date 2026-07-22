@@ -69,7 +69,8 @@ namespace UPlayGround.State
                 return;
             }
 
-            var animState = gameActor.Animator.PlayMotion(_skill.baseInfo.animKey, 0.05f);
+            var motion = _skill.baseInfo.ResolveMotion(WeaponType.NoWeapon);
+            var animState = motion != null ? gameActor.Animator.PlayMotion(motion, 0.05f) : null;
             if (animState != null)
                 animState.OwnedEvents.OnEnd = OnCounterEnd;
             else

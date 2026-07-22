@@ -111,3 +111,113 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 59c08b55527c2da4fadc6735de5b40a4, type: 2}
     - Key: 3000
       Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: a27c64041d7c950499557675e25c68ca, type: 2}
+    - Key:
+        _tagName: Motion.Equipment.Right.Equip
+      Value: {fileID: 11400000, guid: fae624d244b7d0444974a30e16258ed4, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 7a2336fa5da044249b853a6d798bbf71, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 946f4169b435f154bb7ff95a61621439, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: 0b0c2a8dbe065fb42a6096de0a13ede1, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: 22e0f6249961612459ce98b243cc9cb8, type: 2}
+    - Key:
+        _tagName: Motion.Air.Jump
+      Value: {fileID: 11400000, guid: a2719b64174d2504c988c902d6a04633, type: 2}
+    - Key:
+        _tagName: Motion.Air.Fall
+      Value: {fileID: 11400000, guid: 5fb7d8de91f922140aa9a635a719352d, type: 2}
+    - Key:
+        _tagName: Motion.Air.Land
+      Value: {fileID: 11400000, guid: 206776368367597488ce270568cf5138, type: 2}
+    - Key:
+        _tagName: Motion.Equipment.Main.Equip
+      Value: {fileID: 11400000, guid: fae624d244b7d0444974a30e16258ed4, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Idle
+      Value: {fileID: 11400000, guid: bd714603682312c47afe07db7c9fdbf1, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockback
+      Value: {fileID: 11400000, guid: 9ddfce1cd2490b544b00427b5cb63754, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Walk
+      Value: {fileID: 11400000, guid: 68983e1fa75fb7f4b804c5099ee241b0, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Enter
+      Value: {fileID: 11400000, guid: 523e357954d52ce4e8dfaf9067cf3a71, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Exit
+      Value: {fileID: 11400000, guid: 4143423ff4751b849a5ef807f4496d40, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 8242f68a9672d964482dbf437a48e370, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.L
+      Value: {fileID: 11400000, guid: 4e272959ee1e25e49b7d0f1277fe8803, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.R
+      Value: {fileID: 11400000, guid: 09b1c84217490b74cbe09b15a22e267e, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.B
+      Value: {fileID: 11400000, guid: 192c19645f1452949b87ae7889fdb8d3, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 82f122eec5b453c41aa3160ae76d550a, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Gathering.Hand
+      Value: {fileID: 11400000, guid: 6f4ab411a51f8c245aba8b757c5c6675, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Woodcutting
+      Value: {fileID: 11400000, guid: f02560b0607d1334db5df728b0a9672b, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Mining.Ground
+      Value: {fileID: 11400000, guid: 5f8279a3d52c67244a0eb78f3290f674, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Mining.Wall
+      Value: {fileID: 11400000, guid: 869f6658fb1465041ad454d1a39c039d, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.GroundWork.Start
+      Value: {fileID: 11400000, guid: 430f374513fa1334e997f64599e14036, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.GroundWork.Loop
+      Value: {fileID: 11400000, guid: afbc766a65296e14089c996dc2defaae, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.GroundWork.End
+      Value: {fileID: 11400000, guid: f9e11337110409f4a9b114d2243ec7ea, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.Throw
+      Value: {fileID: 11400000, guid: cbba967c3e3fd8c469767349d1703b3d, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.Idle
+      Value: {fileID: 11400000, guid: 983a75aa07f18bd4c8250c6a92149432, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.End
+      Value: {fileID: 11400000, guid: 0bb0c744115b8974785eb792344f7f77, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.Catch.Start
+      Value: {fileID: 11400000, guid: bd8ad717b23779343b1ec4412ad0567e, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.Catch.Loop
+      Value: {fileID: 11400000, guid: 38dfc0122fed747469b0bc5d356cd5da, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.Catch.End
+      Value: {fileID: 11400000, guid: 9fb43eeb084b7684eaafdfce8ea29d10, type: 2}
+    - Key:
+        _tagName: Motion.Interaction.Fishing.Catch
+      Value: {fileID: 11400000, guid: 63b73c3f63f69c04fa7228d8a814ca01, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 59c08b55527c2da4fadc6735de5b40a4, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk
+      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}

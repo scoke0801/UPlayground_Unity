@@ -51,3 +51,8 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
     - Key: 531
       Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 5f51eec598005174d88c64d47c3e0f29, type: 2}

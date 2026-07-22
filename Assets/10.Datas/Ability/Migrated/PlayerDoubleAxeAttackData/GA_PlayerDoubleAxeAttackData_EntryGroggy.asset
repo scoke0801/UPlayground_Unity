@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: GA_PlayerDoubleAxeAttackData_EntryGroggy_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDoubleAxeAttackData.Combat.EntryGroggy.Default
-  animKey: 100
+  motionRef: {fileID: 11400000, guid: f5b0f9807e67a6a4c8a1e5621692f658, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 100
+      motionRef: {fileID: 11400000, guid: f5b0f9807e67a6a4c8a1e5621692f658, type: 2}
       attackType: 0
       hitPhases:
       - damage: 96
@@ -83,6 +83,29 @@ MonoBehaviour:
             fakeImpactDuration: 0
     interruptActions: 143
     moveCancelDelayAfterLastHit: 0
+    aiSelectable: 0
+    skillType: 1
+    attackCategory: 0
+    requiredLevel: 1
+    selectionWeight: 10
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

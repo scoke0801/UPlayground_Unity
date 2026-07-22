@@ -145,11 +145,11 @@ namespace UPlayGround.State
         }
 
         /// <summary>
-        /// 이동 방향 각도(±45° 이내 → F, 45°~135° → L45/R45)에 따라 Stop AnimKey 반환.
+        /// 이동 방향 각도(±45° 이내 → F, 45°~135° → L45/R45)에 따라 Stop UPlayGround.Gameplay.Tag.GameplayTag 반환.
         /// Sprint는 전방(F)과 ±45° 클립만 존재.
         /// PlayerGroundMoveState에서 HasMotion 체크에도 사용한다.
         /// </summary>
-        internal static AnimKey GetStopAnimKey(BaseMoveAnimType moveAnimType, float stopDirectionAngle)
+        internal static UPlayGround.Gameplay.Tag.GameplayTag GetStopAnimKey(BaseMoveAnimType moveAnimType, float stopDirectionAngle)
         {
             bool  isLeft = stopDirectionAngle < 0f;
             float abs    = Mathf.Abs(stopDirectionAngle);
@@ -159,19 +159,19 @@ namespace UPlayGround.State
 
             return moveAnimType switch
             {
-                BaseMoveAnimType.Walk   => isLeft ? AnimKey.Move_Stop_Walking_L45   : AnimKey.Move_Stop_Walking_R45,
-                BaseMoveAnimType.Sprint => isLeft ? AnimKey.Move_Stop_Sprinting_L45 : AnimKey.Move_Stop_Sprinting_R45,
-                _                       => isLeft ? AnimKey.Move_Stop_Running_L45   : AnimKey.Move_Stop_Running_R45,
+                BaseMoveAnimType.Walk   => isLeft ? UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Walking_L45   : UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Walking_R45,
+                BaseMoveAnimType.Sprint => isLeft ? UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Sprinting_L45 : UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Sprinting_R45,
+                _                       => isLeft ? UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Running_L45   : UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Running_R45,
             };
         }
 
-        internal static AnimKey GetStopAnimKeyForward(BaseMoveAnimType moveAnimType)
+        internal static UPlayGround.Gameplay.Tag.GameplayTag GetStopAnimKeyForward(BaseMoveAnimType moveAnimType)
         {
             return moveAnimType switch
             {
-                BaseMoveAnimType.Walk   => AnimKey.Move_Stop_Walking,
-                BaseMoveAnimType.Sprint => AnimKey.Move_Stop_Sprinting,
-                _                       => AnimKey.Move_Stop_Running,
+                BaseMoveAnimType.Walk   => UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Walking,
+                BaseMoveAnimType.Sprint => UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Sprinting,
+                _                       => UPlayGround.Data.Actor.Animation.MotionTags.Move_Stop_Running,
             };
         }
     }

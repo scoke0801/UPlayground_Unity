@@ -82,10 +82,10 @@ MonoBehaviour:
   m_Name: Payload_Fly_Move
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 26
+  motionRef: {fileID: 11400000, guid: c6e87887f948d6044b2d23786d562326, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 26
+      motionRef: {fileID: 11400000, guid: c6e87887f948d6044b2d23786d562326, type: 2}
       attackType: 0
       hitPhases:
       - damage: 50
@@ -104,7 +104,8 @@ MonoBehaviour:
         knockBackForce: 8
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

@@ -38,7 +38,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private List<BalanceDataExtractor.StatSummary> _playerStats;
         private List<BalanceDataExtractor.StatSummary> _monsterStats;
 
-        [MenuItem("UPlayGround/게임플레이/밸런스/밸런스 데이터 추출기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 1)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/밸런스/밸런스 데이터 추출기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance + 1)]
         public static void Open()
         {
             var window = GetWindow<BalanceDataExtractorWindow>();

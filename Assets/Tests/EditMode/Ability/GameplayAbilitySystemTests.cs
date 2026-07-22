@@ -3,9 +3,11 @@ using NUnit.Framework;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
@@ -480,10 +482,12 @@ namespace UPlayGround.Ability.Tests
             var payload =
                 ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = ability.abilityId;
-            payload.animKey = AnimKey.Attack_1;
+            var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
+            var motionRef = ScriptableObject.CreateInstance<MotionReferenceSO>();
+            motionRef.defaultMotion = motionAsset;
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase { animKey = AnimKey.Attack_1 },
+                baseInfo = new AttackInfoBase { motionRef = motionRef },
             };
             ability.variants.Add(new AbilityVariantDefinition
             {

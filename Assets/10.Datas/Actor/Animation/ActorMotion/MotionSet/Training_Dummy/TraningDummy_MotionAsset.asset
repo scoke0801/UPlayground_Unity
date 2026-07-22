@@ -12,9 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: TraningDummy_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 800
       Value: {fileID: 11400000, guid: 083b85b5e82938a4e865e1727a61cc9a, type: 2}
     - Key: 700
+      Value: {fileID: 11400000, guid: 94ff052fd95675145bd51594357da4e0, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 083b85b5e82938a4e865e1727a61cc9a, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
       Value: {fileID: 11400000, guid: 94ff052fd95675145bd51594357da4e0, type: 2}

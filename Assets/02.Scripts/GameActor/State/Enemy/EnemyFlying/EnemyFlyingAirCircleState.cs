@@ -89,7 +89,7 @@ namespace UPlayGround.State
             }
 
             motor.SetGroundSolvingActivation(false);
-            gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Move, 0.2f);
         }
 
         public override void OnExit(GameActorState toState)
@@ -227,7 +227,9 @@ namespace UPlayGround.State
                 return;
             _isAttacking = true;
 
-            var animState = gameActor.Animator.PlayMotion(_brain.Combat.CurrentAnimKey, 0.1f);
+            var animState = _brain.Combat.CurrentMotionAsset != null
+                ? gameActor.Animator.PlayMotion(_brain.Combat.CurrentMotionAsset, 0.1f)
+                    : null;
             if (animState != null)
             {
                 gameActor.Animator.OnMotionSetCompleted += OnAttackMotionEnd;
@@ -252,7 +254,7 @@ namespace UPlayGround.State
             _brain.Combat.CompleteCurrentAbility();
 
             // 선회 모션 복귀 + 방향 반전
-            gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.2f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Move, 0.2f);
             _orbitDirection *= -1f;
             _dirChangeTimer = 0f;
             _nextDirChangeTime = Random.Range(Cfg_DirChangeMin, Cfg_DirChangeMax);

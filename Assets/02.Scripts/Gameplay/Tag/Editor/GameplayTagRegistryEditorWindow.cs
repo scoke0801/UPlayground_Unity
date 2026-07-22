@@ -21,7 +21,7 @@ namespace UPlayGround.Gameplay.Tag.Editor
     {
         // ── 경로 상수 ─────────────────────────────────────────────────
         private const string GeneratedFilePath =
-            "Assets/02.Scripts/Gameplay/Tag/GameplayTagsGenerated.cs";
+            "Assets/02.Scripts/Data/Gameplay/GameplayTagsGenerated.cs";
         private const string DefaultRegistryPath =
             "Assets/02.Scripts/Gameplay/Tag/GameplayTagRegistry.asset";
 
@@ -54,7 +54,7 @@ namespace UPlayGround.Gameplay.Tag.Editor
         private const float SwatchW     = 14f;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/게임플레이/게임플레이 태그/태그 레지스트리 에디터")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/게임플레이 태그/태그 레지스트리 에디터")]
         public static void Open()
         {
             var w = GetWindow<GameplayTagRegistryEditorWindow>();
@@ -440,7 +440,31 @@ namespace UPlayGround.Gameplay.Tag.Editor
             ShowStatus($"코드 생성 완료 → {GeneratedFilePath}", true);
         }
 
-        private string BuildGeneratedCode(List<GameplayTagDefinition> defs)
+        public static void GenerateCodeAsset(GameplayTagRegistrySO registry)
+        {
+            if (registry?.tags == null || registry.tags.Count == 0)
+                throw new InvalidOperationException("GameplayTag Registry가 비어 있습니다.");
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (GameplayTagDefinition def in registry.tags)
+            {
+                if (!def.IsValid())
+                    throw new InvalidOperationException("tagName이 비어 있는 항목이 있습니다.");
+                string enumName = def.GetEffectiveEnumName();
+                if (!seen.Add(enumName))
+                    throw new InvalidOperationException($"중복된 enum 이름: {enumName}");
+            }
+
+            string fullPath = Path.Combine(
+                Path.GetDirectoryName(Application.dataPath)!,
+                GeneratedFilePath);
+            string dir = Path.GetDirectoryName(fullPath)!;
+            if (!Directory.Exists(dir)) Directory.CreateDirectory(dir);
+            File.WriteAllText(fullPath, BuildGeneratedCode(registry.tags), Encoding.UTF8);
+            AssetDatabase.ImportAsset(GeneratedFilePath, ImportAssetOptions.ForceUpdate);
+        }
+
+        public static string BuildGeneratedCode(List<GameplayTagDefinition> defs)
         {
             var sb = new StringBuilder();
             string date = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
@@ -525,6 +549,31 @@ namespace UPlayGround.Gameplay.Tag.Editor
             sb.AppendLine("        }");
             sb.AppendLine("    }");
             sb.AppendLine("}");
+
+            List<GameplayTagDefinition> motionDefs = defs.FindAll(
+                def => def.tagName.StartsWith("Motion.", StringComparison.Ordinal));
+            if (motionDefs.Count > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine("namespace UPlayGround.Data.Actor.Animation");
+                sb.AppendLine("{");
+                sb.AppendLine("    using UPlayGround.Gameplay.Tag;");
+                sb.AppendLine();
+                sb.AppendLine("    /// <summary>코드 생성된 공용 모션 의미 슬롯.</summary>");
+                sb.AppendLine("    public static class MotionTags");
+                sb.AppendLine("    {");
+                sb.AppendLine("        public static readonly GameplayTag None = default;");
+                foreach (GameplayTagDefinition def in motionDefs)
+                {
+                    string fieldName = def.GetEffectiveEnumName();
+                    if (fieldName.StartsWith("Motion_", StringComparison.Ordinal))
+                        fieldName = fieldName.Substring("Motion_".Length);
+                    sb.AppendLine(
+                        $"        public static readonly GameplayTag {fieldName} = \"{def.tagName}\";");
+                }
+                sb.AppendLine("    }");
+                sb.AppendLine("}");
+            }
 
             return sb.ToString();
         }

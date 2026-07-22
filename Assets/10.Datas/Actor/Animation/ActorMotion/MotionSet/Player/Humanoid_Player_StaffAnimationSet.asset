@@ -61,3 +61,32 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 002ae5b074816a34fa7708f78a3da754, type: 2}
     - Key: 840
       Value: {fileID: 11400000, guid: 4d8078692a3aacc4aa60d95c6f244756, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: b38b2d83303d877418e063ae607b3cd2, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: f143c3b476f3fd3438d60e3c97c02dea, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 45e5755c54d3b1b4482fee93cb25f453, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: 0b47e76103f3a03468368ac84355d521, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dash
+      Value: {fileID: 11400000, guid: 8b41b5ca6f1eea944986895c60439353, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 02243d7bd2837ac41918d63c74418f30, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 7e4144cb22646f044ba36672a411bbf9, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Block
+      Value: {fileID: 11400000, guid: 002ae5b074816a34fa7708f78a3da754, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 4d8078692a3aacc4aa60d95c6f244756, type: 2}

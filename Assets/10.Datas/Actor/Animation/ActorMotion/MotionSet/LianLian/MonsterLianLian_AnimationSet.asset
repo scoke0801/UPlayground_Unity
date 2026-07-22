@@ -83,3 +83,65 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 11d6ad9d45bad0944a6b42385d6eea8d, type: 2}
     - Key: 3000
       Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 7e23cd6de0c21054d8efcabe97340203, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 04700aefc43f2e74e8ed8cf6389db0d3, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 4cd83a8ca86be084dacb0b26f78edad7, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: 14891415769f8484b89f98bfec456cee, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: 22e0f6249961612459ce98b243cc9cb8, type: 2}
+    - Key:
+        _tagName: Motion.Air.Jump
+      Value: {fileID: 11400000, guid: 134c07794a0d73f42901035fc08a6a2d, type: 2}
+    - Key:
+        _tagName: Motion.Air.Fall
+      Value: {fileID: 11400000, guid: 1503d56af0f15d64db768d4309749709, type: 2}
+    - Key:
+        _tagName: Motion.Air.Land
+      Value: {fileID: 11400000, guid: 8193b395a36110b4dbcb3cf1ffe866cf, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Idle
+      Value: {fileID: 11400000, guid: bd714603682312c47afe07db7c9fdbf1, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockback
+      Value: {fileID: 11400000, guid: 9ddfce1cd2490b544b00427b5cb63754, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Walk
+      Value: {fileID: 11400000, guid: 68983e1fa75fb7f4b804c5099ee241b0, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Enter
+      Value: {fileID: 11400000, guid: 523e357954d52ce4e8dfaf9067cf3a71, type: 2}
+    - Key:
+        _tagName: Motion.Crouch.Exit
+      Value: {fileID: 11400000, guid: 4143423ff4751b849a5ef807f4496d40, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: cd0efaf63fc9d1b469c713a9fd97d65f, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.L
+      Value: {fileID: 11400000, guid: 4e272959ee1e25e49b7d0f1277fe8803, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.R
+      Value: {fileID: 11400000, guid: 09b1c84217490b74cbe09b15a22e267e, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.B
+      Value: {fileID: 11400000, guid: 192c19645f1452949b87ae7889fdb8d3, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: c93bf60a4667a96489252d2862e1d38d, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 11d6ad9d45bad0944a6b42385d6eea8d, type: 2}
+    - Key:
+        _tagName: Motion.Npc.Talk
+      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}

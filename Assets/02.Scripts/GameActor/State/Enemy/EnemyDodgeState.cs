@@ -19,7 +19,7 @@ namespace UPlayGround.State
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
-        private readonly AnimKey _motionKey;
+        private readonly UPlayGround.Gameplay.Tag.GameplayTag _motionKey;
 
         private Vector3 _dodgeDirection;
         private float _dodgeTimer;
@@ -39,11 +39,11 @@ namespace UPlayGround.State
         {
             var animator = actor?.Animator;
             if (animator == null) return false;
-            return animator.HasMotion(AnimKey.Dodge_F)
-                || animator.HasMotion(AnimKey.Dodge_B)
-                || animator.HasMotion(AnimKey.Dodge_L)
-                || animator.HasMotion(AnimKey.Dodge_R)
-                || animator.HasMotion(AnimKey.Dodge);
+            return animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dodge_F)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dodge_B)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dodge_L)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dodge_R)
+                || animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Dodge);
         }
 
         public static bool TryResolveDodgeMotion(
@@ -52,16 +52,16 @@ namespace UPlayGround.State
             EnemyDetection detection,
             Vector3 actorPosition,
             out Vector3 dodgeDirection,
-            out AnimKey motionKey)
+            out UPlayGround.Gameplay.Tag.GameplayTag motionKey)
         {
             dodgeDirection = CalculateDodgeDirection(actor, context, detection, actorPosition);
             motionKey = EnemyLocomotionHelper.ResolveDirectionalKey(
                 dodgeDirection,
                 actor.transform,
-                AnimKey.Dodge_F,
-                AnimKey.Dodge_B,
-                AnimKey.Dodge_L,
-                AnimKey.Dodge_R);
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_F,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_B,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_L,
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_R);
 
             if (actor.Animator == null)
                 return false;
@@ -69,7 +69,7 @@ namespace UPlayGround.State
             if (actor.Animator.HasMotion(motionKey))
                 return true;
 
-            motionKey = AnimKey.Dodge;
+            motionKey = UPlayGround.Data.Actor.Animation.MotionTags.Dodge;
             return actor.Animator.HasMotion(motionKey);
         }
 
@@ -78,7 +78,7 @@ namespace UPlayGround.State
             EnemyAIContext context,
             EnemyDetection detection,
             Vector3 dodgeDirection,
-            AnimKey motionKey) : base(controller)
+            UPlayGround.Gameplay.Tag.GameplayTag motionKey) : base(controller)
         {
             _context = context;
             _detection = detection;
@@ -102,7 +102,7 @@ namespace UPlayGround.State
             _movementDuration = DODGE_DURATION;
             _motionLockDuration = FALLBACK_DODGE_LOCK_DURATION;
 
-            if (_motionKey != AnimKey.None)
+            if (_motionKey != default)
             {
                 var duration = gameActor.Animator.GetMotionSetDuration(_motionKey);
                 _motionLockDuration = duration > 0f

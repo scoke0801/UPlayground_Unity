@@ -248,7 +248,7 @@ namespace UPlayGround.Data.Editor.Ability
             "Assets/03.Prefabs/Characters/Enemy",
         };
 
-        [MenuItem("UPlayGround/Ability/Ability에디터")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/Ability Editor")]
         public static void Open()
         {
             GameplayAbilityEditorWindow window = GetWindow<GameplayAbilityEditorWindow>();

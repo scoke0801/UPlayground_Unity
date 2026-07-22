@@ -15,7 +15,6 @@ namespace UPlayGround.Components
             HitPhaseData phase = attackInfo.baseInfo.GetHitPhase(0);
             return new AttackData
             {
-                animKey = attackInfo.baseInfo.animKey,
                 damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                 poiseDamage = phase.poiseDamage,
                 breakDamage = phase.breakDamage,
@@ -32,7 +31,7 @@ namespace UPlayGround.Components
                 airborneForce = phase.airborneForce,
                 hitPhaseIndex = 0,
                 attackKind = attackKind,
-                victimForcedAnimKey = phase.victimForcedAnimKey,
+                victimForcedMotionSlot = phase.victimForcedMotionSlot,
                 guaranteedReaction = phase.guaranteedReaction,
                 reactionData = phase.reactionProfile?.Resolve(),
             };
@@ -45,7 +44,7 @@ namespace UPlayGround.Components
 
             return new AttackData
             {
-                animKey = source.animKey,
+                motionAsset = source.motionAsset,
                 damage = source.damage,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,
@@ -74,7 +73,7 @@ namespace UPlayGround.Components
                 knockbackForce = source.knockbackForce,
                 knockbackDrag = source.knockbackDrag,
                 grabDuration = source.grabDuration,
-                victimForcedAnimKey = source.victimForcedAnimKey,
+                victimForcedMotionSlot = source.victimForcedMotionSlot,
                 guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,
                 reactionData = source.reactionData,

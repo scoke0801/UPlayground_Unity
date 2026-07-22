@@ -15,566 +15,905 @@ MonoBehaviour:
   entries:
   - clip: {fileID: 7400000, guid: ef893fcaaf145b9478ef0d624f7544f9, type: 3}
     clipDisplayName: Frank_RPG_Dual_4Way_Walk_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: e692fbc0bcf08cc4c8532e9027ee67a3, type: 3}
     clipDisplayName: Frank_RPG_Dual_4Way_Walk_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: e02dd117587faba4890b8ed11a1e34fa, type: 3}
     clipDisplayName: Frank_RPG_Dual_4Way_Walk_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 066ca90152fb26d44a60e30a80468b06, type: 3}
     clipDisplayName: Frank_RPG_Dual_4Way_Walk_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 1b5bf7807b9acc745a3217b1560aca57, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 9f524986525529849af21b3897184751, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_BL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 902edea944c34404e946966e0d0e1205, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_BR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 5af6f6199e39119419d4dc4903acabd1, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: e0d14abd4297177408e0c04a95f0d482, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_FL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2aaf57d15f926c543bd3e357f1a4d4a1, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_FR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b2fd13b7901666341ad17b6e853727c3, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 3f38455fb6caf7f48af876423d9e1682, type: 3}
     clipDisplayName: Frank_RPG_Dual_8Way_Run_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 870b903579163724984fad45befd5998, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_1
-    animKey: 400
+    legacyAnimKey: 400
+    motionSlot:
+      _tagName: 
+    contentGroup: JumpAttack_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 72bde23ade5b6144abed0807d0b3dd1a, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_1_ZeroHeight
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 211cf47e82d59c744a9e4cfb3b187d31, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_2
-    animKey: 401
+    legacyAnimKey: 401
+    motionSlot:
+      _tagName: 
+    contentGroup: JumpAttack_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 1343a044433d3e245a1f9b1c5cb927bb, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_2_ZeroHeight
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 034b1a6831021934b9769a70e448e729, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_3
-    animKey: 402
+    legacyAnimKey: 402
+    motionSlot:
+      _tagName: 
+    contentGroup: JumpAttack_3
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ac7e8d6528f1ab14b8a33de92ad3689b, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_3_ZeroHeight
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 6ee45fda5e691f24199cbb6f07d27ac1, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: ffec8b4bc132f704e8a246d13159b1b1, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 7fdf22ea023b4ec4caa287678de28029, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_Start
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 020ad099f1ab56e40811f8ee285d3393, type: 3}
     clipDisplayName: Frank_RPG_Dual_Air_Combo_Start_ZeroHeight
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d0f22d2acc817bf41b7814c0face36d6, type: 3}
     clipDisplayName: Frank_RPG_Dual_Block
-    animKey: 860
+    legacyAnimKey: 860
+    motionSlot:
+      _tagName: Motion.Reaction.Block
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: e26d1ba997c27c64c912e0094c5c0b7c, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo01_1
-    animKey: 100
+    legacyAnimKey: 100
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: e4d2b605c779b3048bce1e6c217b99ee, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo01_2
-    animKey: 101
+    legacyAnimKey: 101
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: faf634bb6f6df534badf14a51470ed8c, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo01_3
-    animKey: 102
+    legacyAnimKey: 102
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_3
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 1ba3c4c0058327f4d91c952f981e1317, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo01_4
-    animKey: 103
+    legacyAnimKey: 103
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_4
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d0ca9375a8385ae4c846ea830b6de89a, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo01_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: eadf4c9c84901d24f83b06253ece9d02, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo01_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: e93136ca55ff4a34f9afa35c4ab8ea66, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo02_1
-    animKey: 104
+    legacyAnimKey: 104
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_5
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ab3fa500e6dae504eba718ebaa95f424, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo02_2
-    animKey: 105
+    legacyAnimKey: 105
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_6
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ea2f438eb92cb9f4e921bc65e6bc4982, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo02_3
-    animKey: 106
+    legacyAnimKey: 106
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_7
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d4117d1ee462336429101720972e6fcf, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo02_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: f9949e203eeea244db7fae418b551fb1, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo02_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 94880fffb2557064fa95e87d6dfb1069, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo03_1
-    animKey: 107
+    legacyAnimKey: 107
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_8
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 3a87ea63304b38245a39b96d6d7f91a5, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo03_2
-    animKey: 108
+    legacyAnimKey: 108
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_9
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: df735bf2786f6414aaeca0f946e47fc8, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo03_3
-    animKey: 109
+    legacyAnimKey: 109
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_10
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 8e68d36ad228be341b78e99e04f6a5d3, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo03_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b4280797a212cf346ac9af7eddc98a43, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo03_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: e8df6be66c8c8c34fabac19d67499204, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo04_1
-    animKey: 200
+    legacyAnimKey: 200
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: a5f724ae6aa0f494bbbe6cae63cedc2f, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo04_2
-    animKey: 201
+    legacyAnimKey: 201
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f5bb15e643c72f94a949c39203709db8, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo04_3
-    animKey: 202
+    legacyAnimKey: 202
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_3
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 3e5fc59daf0d4cf4d8ca2695c7cf8692, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo04_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 8a2b669329a8f6b4c93d6c830e1c7e31, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo04_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d9ddb6f8cf80cbe40a6a46fff9887ec3, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo05_1
-    animKey: 203
+    legacyAnimKey: 203
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_4
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 345c117d3c0af5e478f077e616dcf076, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo05_2
-    animKey: 204
+    legacyAnimKey: 204
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_5
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 34b3d836c3af6554b8af171c3a0bbdcf, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo05_3
-    animKey: 205
+    legacyAnimKey: 205
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_6
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 51dfd8dc2fc294c45b44e98ad57d3c0c, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo05_4
-    animKey: 206
+    legacyAnimKey: 206
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_7
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: fe240b4639d968d459252df7181ebd52, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo05_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 87ef550a7ef88434d899bee882dd786b, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo05_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 8160677ffb6ed2f49bdfea79976d5364, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo06_1
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 22f2f37533551c4469a23ef3554c9bb8, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo06_2
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 0f985e1484f60ca4187c9c285f615511, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo06_3
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 6c91804de64a45843a3b5006bd016d5e, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo06_4
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 738fd2f04f4a5af49a09278046315930, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo06_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d1a37a64d3fb68a4183974b31ca86acb, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo06_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: ed845766f9328334184ae14d0dad9cd4, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo07_1
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d06c779f827a55d48829a18e24307fe3, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo07_2
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c98c4db371445fa4182be891c113283f, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo07_3
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 8f26f9edb6ea6684499a8cd9574131f2, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo07_4
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 45806efd88564b14696a737afdd2afdc, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo07_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 6dc49d46caacf044e9972ee0cedc91d3, type: 3}
     clipDisplayName: Frank_RPG_Dual_Combo07_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: c798ff9ac3ce92e4c8ceb4f987a08d84, type: 3}
     clipDisplayName: Frank_RPG_Dual_Die
-    animKey: 800
+    legacyAnimKey: 800
+    motionSlot:
+      _tagName: Motion.Reaction.Death
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 0c83714e1e640f74380dced02c903bda, type: 3}
     clipDisplayName: Frank_RPG_Dual_Equip
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 1ba1f40432212fb449eedccd26531de3, type: 3}
     clipDisplayName: Frank_RPG_Dual_Evade_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 88157121682bb004d9fa202c8ce24a75, type: 3}
     clipDisplayName: Frank_RPG_Dual_Evade_F
-    animKey: 10
+    legacyAnimKey: 10
+    motionSlot:
+      _tagName: Motion.Action.Dodge
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 8fbb980ea55e50b4c91e6a2f276eac55, type: 3}
     clipDisplayName: Frank_RPG_Dual_Evade_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c743b667a4c0ba04790146d0d5c6ed4c, type: 3}
     clipDisplayName: Frank_RPG_Dual_Evade_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 2b1aba6bb1dbee24693169fd5d4bdd02, type: 3}
     clipDisplayName: Frank_RPG_Dual_Getup
-    animKey: 820
+    legacyAnimKey: 820
+    motionSlot:
+      _tagName: Motion.Reaction.Getup
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 90d7fc2c0d85a2941a03156e060fd745, type: 3}
     clipDisplayName: Frank_RPG_Dual_Guard
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 9a4068f2e0e87924ca2eef98fa5fe0ff, type: 3}
     clipDisplayName: Frank_RPG_Dual_Hit_Knockback
-    animKey: 900
+    legacyAnimKey: 900
+    motionSlot:
+      _tagName: Motion.Reaction.Knockback
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: a2a501021895e894e9ac64e5d77146eb, type: 3}
     clipDisplayName: Frank_RPG_Dual_Hit_Knockdown
-    animKey: 901
+    legacyAnimKey: 901
+    motionSlot:
+      _tagName: Motion.Reaction.Knockdown
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5adbe4bb1f1c32149851f2745da1c82d, type: 3}
     clipDisplayName: Frank_RPG_Dual_Hit_Knockdown_Loop
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c365cd6b2832bf041b9b4ade5328a43a, type: 3}
     clipDisplayName: Frank_RPG_Dual_Hit01
-    animKey: 700
+    legacyAnimKey: 700
+    motionSlot:
+      _tagName: Motion.Reaction.Hit.F
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: bea1d457f0a24944882c6f9e7fcc79ce, type: 3}
     clipDisplayName: Frank_RPG_Dual_Hit02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: eb9338b12ce897349b572da67f3f4fae, type: 3}
     clipDisplayName: Frank_RPG_Dual_Hit03
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 9f9d4bcdfae668746830856d372115be, type: 3}
     clipDisplayName: Frank_RPG_Dual_Idle
-    animKey: 1
+    legacyAnimKey: 1
+    motionSlot:
+      _tagName: Motion.Locomotion.Idle
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: daa10a44d0fb6694b8a8c489b8ec5bfd, type: 3}
     clipDisplayName: Frank_RPG_Dual_Jump_01
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: bdf7b7319b5cf41499490b95f0a5fe4c, type: 3}
     clipDisplayName: Frank_RPG_Dual_Jump_02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 1be1ac8259090014c83f2cad668aa234, type: 3}
     clipDisplayName: Frank_RPG_Dual_Jump_ZeroHeight
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 36768e312d14f5c429b2a4ccede81975, type: 3}
     clipDisplayName: Frank_RPG_Dual_Run01
-    animKey: 3
+    legacyAnimKey: 3
+    motionSlot:
+      _tagName: Motion.Locomotion.Run
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: cae2c89459554ac4ab35d01d832402aa, type: 3}
     clipDisplayName: Frank_RPG_Dual_Run01_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 74df25fb6c143a9439cc3581c98d94e4, type: 3}
     clipDisplayName: Frank_RPG_Dual_Run02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 62c87055f4bf1d044afda4e1bd5e211f, type: 3}
     clipDisplayName: Frank_RPG_Dual_Run02_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 93cf8faea467e7a49b4d870ae0c09150, type: 3}
     clipDisplayName: Frank_RPG_Dual_Run03_Faster
-    animKey: 4
+    legacyAnimKey: 4
+    motionSlot:
+      _tagName: Motion.Locomotion.Sprint
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 17671c75aa83aa645860775181505eec, type: 3}
     clipDisplayName: Frank_RPG_Dual_Run03_Faster_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5d81fe3f2f632314983823e530c9a5e2, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill01_WhirlWind
-    animKey: 500
+    legacyAnimKey: 500
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 06122c3516cb60543b6372c95a70fc03, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill01_WhirlWind_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 50dfc57f34504224b834c230718fde29, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill02_Rolling
-    animKey: 501
+    legacyAnimKey: 501
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: bbe0bb2687f2a5340b22f6ba9332d669, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill02_Rolling_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f079a585a01bc2443a416ee4a03db3a5, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill03_PowerAttack
-    animKey: 530
+    legacyAnimKey: 530
+    motionSlot:
+      _tagName: 
+    contentGroup: Counter_Attack_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: fe25459f0095d5c4e8c9175b8414ca9a, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill03_PowerAttack_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: cefae232fc5af6746b008cbad572ba49, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill04_InfinitySlash
-    animKey: 531
+    legacyAnimKey: 531
+    motionSlot:
+      _tagName: 
+    contentGroup: Counter_Attack_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 6e5b3e0df5132944bb9c7734702093e5, type: 3}
     clipDisplayName: Frank_RPG_Dual_Skill04_InfinitySlash_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 0f5570405bf18cb44a7e039d507e67d0, type: 3}
     clipDisplayName: Frank_RPG_Dual_Step_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 4691cd54d76aeb440a2e0720bd20ad1d, type: 3}
     clipDisplayName: Frank_RPG_Dual_Step_F
-    animKey: 11
+    legacyAnimKey: 11
+    motionSlot:
+      _tagName: Motion.Action.Dash
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 6b632c9ebf01b9547be43aa485ed0517, type: 3}
     clipDisplayName: Frank_RPG_Dual_Step_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 425779e5a12ce054f95a22fe4310e791, type: 3}
     clipDisplayName: Frank_RPG_Dual_Step_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 16cc1e339045aa04ba7c40849a5d0e2d, type: 3}
     clipDisplayName: Frank_RPG_Dual_Unequip
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 274d1ea825e3ee4468022234e5fc881d, type: 3}
     clipDisplayName: Frank_RPG_Dual_Unequip_Idle
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f907c56e6f00cf04084a9b23c1c916b7, type: 3}
     clipDisplayName: Frank_RPG_Dual_Unequip_Run
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5a24ede34a1befd40a1c76ef12dba82a, type: 3}
     clipDisplayName: Frank_RPG_Dual_Unequip_Run_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 34829c62225bd854691ea358ef92cee7, type: 3}
     clipDisplayName: Frank_RPG_Dual_Walk
-    animKey: 2
+    legacyAnimKey: 2
+    motionSlot:
+      _tagName: Motion.Locomotion.Walk
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f85831908cdc48e428e5723ee1480058, type: 3}
     clipDisplayName: Frank_RPG_Dual_Walk_Faster_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 8746fa014d2b38342b972755972b0c83, type: 3}
     clipDisplayName: Frank_RPG_Dual_Walk_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 294531dadc0a76048a04bc63c02c418a, type: 3}
     clipDisplayName: Velocity_8Way_Run_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5de9094680186a245a6df2e7ba86fe0d, type: 3}
     clipDisplayName: Velocity_8Way_Run_BL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ca69daa173b626946a9e69d141337aed, type: 3}
     clipDisplayName: Velocity_8Way_Run_BR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f5e7d67c29659194cb34dbb43dc9c47a, type: 3}
     clipDisplayName: Velocity_8Way_Run_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 99f5458e5d4888d4ca28630589243cb7, type: 3}
     clipDisplayName: Velocity_8Way_Run_FL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c2a78249818010f44ab1012b57695473, type: 3}
     clipDisplayName: Velocity_8Way_Run_FR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 47167c3566ca1e14a9c83093363dd53f, type: 3}
     clipDisplayName: Velocity_8Way_Run_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: a6fce1659a990ce4eb12f87134d5873a, type: 3}
     clipDisplayName: Velocity_8Way_Run_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0

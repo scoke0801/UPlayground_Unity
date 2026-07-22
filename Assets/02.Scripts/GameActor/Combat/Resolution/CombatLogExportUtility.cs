@@ -24,7 +24,7 @@ namespace UPlayGround.Combat
                     .Append(Format(entry.UnscaledTime)).Append(',')
                     .Append(EscapeCsv(ActorName(result.Attacker))).Append(',')
                     .Append(EscapeCsv(ActorName(result.Victim))).Append(',')
-                    .Append(result.Hit.AnimKey).Append(',')
+                .Append(result.Hit.MotionAsset != null ? result.Hit.MotionAsset.name : "-").Append(',')
                     .Append(result.Hit.HitPhaseIndex).Append(',')
                     .Append(result.Hit.AttackKind).Append(',')
                     .Append(result.Hit.DefenseType).Append(',')
@@ -75,7 +75,7 @@ namespace UPlayGround.Combat
             AppendTopAnimKeys(builder, snapshot);
             builder.AppendLine();
 
-            builder.AppendLine("| # | Time | Attacker | Victim | AnimKey | Phase | Defense | Raw | Final | HP | Poise | Break | Reaction |");
+            builder.AppendLine("| # | Time | Attacker | Victim | Motion | Phase | Defense | Raw | Final | HP | Poise | Break | Reaction |");
             builder.AppendLine("|---|------|----------|--------|---------|-------|---------|-----|-------|----|-------|-------|----------|");
             foreach (CombatLogEntry entry in snapshot)
             {
@@ -85,7 +85,7 @@ namespace UPlayGround.Combat
                     .Append(" | ").Append(Format(entry.CombatTime))
                     .Append(" | ").Append(EscapeMarkdown(ActorName(result.Attacker)))
                     .Append(" | ").Append(EscapeMarkdown(ActorName(result.Victim)))
-                    .Append(" | ").Append(result.Hit.AnimKey)
+                .Append(" | ").Append(result.Hit.MotionAsset != null ? result.Hit.MotionAsset.name : "-")
                     .Append(" | ").Append(result.Hit.HitPhaseIndex)
                     .Append(" | ").Append(result.Defense.Outcome)
                     .Append(" | ").Append(Format(result.Hit.Damage))
@@ -102,13 +102,13 @@ namespace UPlayGround.Combat
 
         private static void AppendTopAnimKeys(StringBuilder builder, List<CombatLogEntry> snapshot)
         {
-            builder.AppendLine("## AnimKey Summary");
+            builder.AppendLine("## Motion Summary");
             builder.AppendLine();
-            builder.AppendLine("| AnimKey | Hits | Total Damage | Average Damage |");
+            builder.AppendLine("| Motion | Hits | Total Damage | Average Damage |");
             builder.AppendLine("|---------|------|--------------|----------------|");
 
             foreach (var group in snapshot
-                         .GroupBy(e => e.Result.Hit.AnimKey)
+                .GroupBy(e => e.Result.Hit.MotionAsset != null ? e.Result.Hit.MotionAsset.name : "-")
                          .OrderByDescending(g => g.Sum(e => e.Result.Damage.FinalDamage)))
             {
                 float totalDamage = group.Sum(e => e.Result.Damage.FinalDamage);

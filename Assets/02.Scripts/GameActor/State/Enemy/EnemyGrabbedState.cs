@@ -40,14 +40,14 @@ namespace UPlayGround.State
             if (_hit.Attacker != null)
                 _hit.Attacker.OnForcedMotionReleased += Escape;
 
-            AnimKey animKey;
-            if (_hit.VictimForcedAnimKey != AnimKey.None &&
-                gameActor.Animator.HasMotion(_hit.VictimForcedAnimKey))
-                animKey = _hit.VictimForcedAnimKey;
-            else if (gameActor.Animator.HasMotion(AnimKey.Grabbed))
-                animKey = AnimKey.Grabbed;
+            UPlayGround.Gameplay.Tag.GameplayTag animKey;
+            if (_hit.VictimForcedMotionSlot != default &&
+                gameActor.Animator.HasMotion(_hit.VictimForcedMotionSlot))
+                animKey = _hit.VictimForcedMotionSlot;
+            else if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed))
+                animKey = UPlayGround.Data.Actor.Animation.MotionTags.Grabbed;
             else
-                animKey = AnimKey.Hit_F;
+                animKey = UPlayGround.Data.Actor.Animation.MotionTags.Hit_F;
 
             gameActor.Animator.PlayMotion(animKey, 0.1f);
         }
@@ -88,9 +88,9 @@ namespace UPlayGround.State
             if (_remainingDuration < -99f) return;
             _remainingDuration = float.MinValue;
 
-            if (gameActor.Animator.HasMotion(AnimKey.Grabbed_End))
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End))
             {
-                var state = gameActor.Animator.PlayMotion(AnimKey.Grabbed_End, 0.1f);
+                var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End, 0.1f);
                 if (state != null)
                     state.OwnedEvents.OnEnd = TransitionOut;
                 else

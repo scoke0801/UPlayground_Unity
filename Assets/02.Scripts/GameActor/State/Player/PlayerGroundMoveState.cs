@@ -235,18 +235,18 @@ namespace UPlayGround.State
 
             return controller.MaxRunMoveSpeed;
         }
-        private AnimKey GetMoveAnimKey()
+        private UPlayGround.Gameplay.Tag.GameplayTag GetMoveAnimKey()
         {
             switch (gameActor.MoveAnimType)
             {
-                case BaseMoveAnimType.Walk: return AnimKey.Walk;
-                case BaseMoveAnimType.Sprint: return AnimKey.Sprint;
-                case BaseMoveAnimType.Run: return AnimKey.Run;          
+                case BaseMoveAnimType.Walk: return UPlayGround.Data.Actor.Animation.MotionTags.Walk;
+                case BaseMoveAnimType.Sprint: return UPlayGround.Data.Actor.Animation.MotionTags.Sprint;
+                case BaseMoveAnimType.Run: return UPlayGround.Data.Actor.Animation.MotionTags.Run;
                 default: break;
             }
 
             // 기본은 달리기
-            return AnimKey.Run;
+            return UPlayGround.Data.Actor.Animation.MotionTags.Run;
         }
     }
 }

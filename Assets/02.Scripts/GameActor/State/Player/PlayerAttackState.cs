@@ -85,7 +85,7 @@ namespace UPlayGround.State
 
         /// <summary>
         /// 진입 후 재생할 공격 모션이 실제로 존재하는지 side effect 없이 미리 판정한다.
-        /// GetAnimKey()와 동일한 우선순위 체인을 따라 다음 AnimKey를 미리 조회 후
+        /// GetMotion()와 동일한 우선순위 체인을 따라 다음 Motion를 미리 조회 후
         /// ActorAnimator.HasMotion으로 보유 여부만 확인한다.
         ///
         /// 호출자 측 입력 소비/콤보 인덱스/스킬 게이지 등은 변경하지 않으므로
@@ -115,10 +115,10 @@ namespace UPlayGround.State
             if (isHeavyPending && combat.FindFinishableTarget() != null)
                 return true;
 
-            AnimKey peekedKey = PeekNextAnimKey(playerActor, controller, combat, isHeavyPending, forcedAttackAction);
-            if (peekedKey == AnimKey.None) return false;
+            MotionSetAsset peekedKey = PeekNextMotion(playerActor, controller, combat, isHeavyPending, forcedAttackAction);
+            if (peekedKey == default) return false;
 
-            return animator.HasMotion(peekedKey, true);
+            return animator.HasMotion(peekedKey);
         }
 
         /// <summary>
@@ -156,10 +156,10 @@ namespace UPlayGround.State
         }
 
         /// <summary>
-        /// GetAnimKey()의 우선순위 그대로 다음 AnimKey를 미리 산출 (side effect 없음).
+        /// GetMotion()의 우선순위 그대로 다음 Motion를 미리 산출 (side effect 없음).
         /// 0순위: 패리 반격 → 카운터 → 등장 공격 → 스킬 → 강/약 콤보.
         /// </summary>
-        private static AnimKey PeekNextAnimKey(
+        private static MotionSetAsset PeekNextMotion(
             PlayerActor playerActor,
             PlayerMovementController controller,
             PlayerCombat combat,
@@ -172,40 +172,40 @@ namespace UPlayGround.State
             {
                 // 0순위: 패리 반격
                 if (combat.IsParryCounterAvailable)
-                    return combat.PeekParryCounterAttackAnimKey();
+                    return combat.PeekParryCounterAttackMotion();
 
                 // 1순위: 퍼펙트 가드 반격
                 bool isCounter = combat.IsPerfectGuardCounterAvailable
                                  || (playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
                 if (isCounter)
-                    return combat.PeekCounterAttackAnimKey();
+                    return combat.PeekCounterAttackMotion();
 
                 // 1순위: 회피 카운터 / 스왑 회피 카운터
                 if (combat.IsDodgeCounterAvailable || playerActor.IsSwapEvadeCounterAttackPending)
-                    return combat.PeekSwapEvadeCounterAttackAnimKey();
+                    return combat.PeekSwapEvadeCounterAttackMotion();
 
                 // 2순위: 풀 게이지 교체 특수 공격
                 if (playerActor.IsSwapSpecialAttackPending)
-                    return combat.PeekSwapSpecialAttackAnimKey();
+                    return combat.PeekSwapSpecialAttackMotion();
 
                 // 3순위: 교체 등장 공격
                 if (playerActor.IsEntryAttackPending)
-                    return combat.PeekEntryAttackAnimKey();
+                    return combat.PeekEntryAttackMotion();
             }
 
-            // ★ 연계 라우트 판정(side effect 없음). GetAnimKey의 실행 우선순위와 맞춘다.
+            // ★ 연계 라우트 판정(side effect 없음). GetMotion의 실행 우선순위와 맞춘다.
             {
                 var route = ComboRouteRunner.ResolveRoute(playerActor, controller, combat,
                     isHeavyAttack, forcedAttackAction, recordToken: false);
                 if (route != null)
-                    return route.attackInfo?.baseInfo?.animKey ?? AnimKey.None;
+                    return ResolveAttackMotion(playerActor, route.attackInfo);
             }
 
             if ((forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
-                return combat.PeekNormalAttackAnimKey(false);
+                return combat.PeekNormalAttackMotion(false);
 
             if ((forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
-                return combat.PeekHeavyAttackAnimKey(false);
+                return combat.PeekHeavyAttackMotion(false);
 
             if ((forcedAttackAction & PlayerInterruptAction.Skill) != 0)
             {
@@ -215,18 +215,18 @@ namespace UPlayGround.State
                     if (playerActor.Abilities != null
                         && playerActor.Abilities.HasPlayerAbility((PlayerSkillSlot)i))
                     {
-                        return TryPeekAbility(playerActor, controller, i, out AnimKey abilityKey)
+                        return TryPeekAbility(playerActor, controller, i, out MotionSetAsset abilityKey)
                             ? abilityKey
-                            : AnimKey.None;
+                            : default;
                     }
 
                     var forcedSkillGauge = playerActor.SkillGauge;
                     if (forcedSkillGauge != null && !forcedSkillGauge.CanUseSkill(i)) continue;
 
-                    return combat.PeekSkillAttackAnimKey(i);
+                    return combat.PeekSkillAttackMotion(i);
                 }
 
-                return AnimKey.None;
+                return default;
             }
 
             // 1순위: 숫자 키 스킬 (게이지 보유 여부만 확인하고 실제로 소비하지 않음)
@@ -237,28 +237,28 @@ namespace UPlayGround.State
                 if (playerActor.Abilities != null
                     && playerActor.Abilities.HasPlayerAbility((PlayerSkillSlot)i))
                 {
-                    return TryPeekAbility(playerActor, controller, i, out AnimKey abilityKey)
+                    return TryPeekAbility(playerActor, controller, i, out MotionSetAsset abilityKey)
                         ? abilityKey
-                        : AnimKey.None;
+                        : default;
                 }
                 if (skillGauge != null && !skillGauge.CanUseSkill(i)) continue;
 
-                return combat.PeekSkillAttackAnimKey(i);
+                return combat.PeekSkillAttackMotion(i);
             }
 
             // 2순위: 기본 약/강 콤보. 콤보 입력 없는 첫 진입이므로 isCombo=false.
             return isHeavyAttack
-                ? combat.PeekHeavyAttackAnimKey(false)
-                : combat.PeekNormalAttackAnimKey(false);
+                ? combat.PeekHeavyAttackMotion(false)
+                : combat.PeekNormalAttackMotion(false);
         }
 
         private static bool TryPeekAbility(
             PlayerActor actor,
             PlayerMovementController controller,
             int skillSlot,
-            out AnimKey animKey)
+            out MotionSetAsset motionAsset)
         {
-            animKey = AnimKey.None;
+            motionAsset = default;
             if (actor?.Abilities == null
                 || !System.Enum.IsDefined(typeof(PlayerSkillSlot), skillSlot)
                 || !actor.Abilities.HasPlayerAbility((PlayerSkillSlot)skillSlot))
@@ -270,9 +270,20 @@ namespace UPlayGround.State
                 (PlayerSkillSlot)skillSlot, grounded, null, out AbilityVariantDefinition variant);
             if (result != AbilityActivationResult.Success || variant == null)
                 return false;
+            PlayerEquipment equipment = actor.GetPlayerEquipment();
             return UPlayGroundAbilityPayloadResolver.TryResolve(
-                       variant, out animKey, out _)
-                   && animKey != AnimKey.None;
+                       variant,
+                       equipment != null ? equipment.GetMainWeaponType() : WeaponType.NoWeapon,
+                       out motionAsset,
+                       out _)
+                   && motionAsset != null;
+        }
+
+        private static MotionSetAsset ResolveAttackMotion(PlayerActor actor, AbilityAttackInfo attackInfo)
+        {
+            PlayerEquipment equipment = actor != null ? actor.GetPlayerEquipment() : null;
+            return attackInfo?.baseInfo?.ResolveMotion(
+                equipment != null ? equipment.GetMainWeaponType() : WeaponType.NoWeapon);
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -314,7 +325,7 @@ namespace UPlayGround.State
             // 퍼펙트 가드 반격은 카운터 윈도우가 1차 소스. ConsumePerfectGuardCounterWindow가
             // 윈도우를 닫으며 소비하므로 별도 Close 호출은 불필요하다.
             // 윈도우가 프레임 경계에서 만료된 경우에도 태그가 남아 있으면 반격을 성립시켜
-            // PeekNextAnimKey의 (윈도우 OR 태그) 판정과 실행 분기를 일치시킨다.
+            // PeekNextMotion의 (윈도우 OR 태그) 판정과 실행 분기를 일치시킨다.
             bool consumedPerfectGuardCounter = !hasForcedAttack
                                                && !_isParryCounter
                                                && _combat.ConsumePerfectGuardCounterWindow();
@@ -368,8 +379,8 @@ namespace UPlayGround.State
                 }
             }
 
-            var animKey   = GetAnimKey();
-            var animState = gameActor.Animator.PlayMotion(animKey, 0.25f);
+            var animKey   = GetMotion();
+            var animState = PlayCurrentAttackMotion(animKey, 0.25f);
             if (_isParryCounter)
                 Debug.Log($"[ParryCounter] PlayMotion({animKey}) → {(animState != null ? "성공" : "실패(모션셋 없음)")}");
 
@@ -555,12 +566,12 @@ namespace UPlayGround.State
                     playerActor, playerController, _combat,
                     _isHeavyAttack, PlayerInterruptAction.None, recordToken: false);
 
-                AnimKey peekedKey = peekRoute != null
-                    ? (peekRoute.attackInfo?.baseInfo?.animKey ?? AnimKey.None)
-                    : (_isHeavyAttack ? _combat.PeekHeavyAttackAnimKey(continueCombo)
-                                      : _combat.PeekNormalAttackAnimKey(continueCombo));
+                MotionSetAsset peekedKey = peekRoute != null
+                    ? ResolveAttackMotion(playerActor, peekRoute.attackInfo)
+                    : (_isHeavyAttack ? _combat.PeekHeavyAttackMotion(continueCombo)
+                                      : _combat.PeekNormalAttackMotion(continueCombo));
 
-                if (peekedKey == AnimKey.None || !gameActor.Animator.HasMotion(peekedKey, true))
+                if (peekedKey == null || !gameActor.Animator.HasMotion(peekedKey))
                 {
                     _comboInputted = false;
                     _combat.ResetCombo();
@@ -572,7 +583,8 @@ namespace UPlayGround.State
                 }
 
                 gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
-                var animState =  gameActor.Animator.PlayMotion(GetAnimKey(), 0.25f);
+                MotionSetAsset animKey = GetMotion();
+                var animState = PlayCurrentAttackMotion(animKey, 0.25f);
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
                 _playerActorAnimator.IsOpenedComboWindow = false;
@@ -592,41 +604,41 @@ namespace UPlayGround.State
             }
         }
 
-        private AnimKey GetAnimKey()
+        private MotionSetAsset GetMotion()
         {
             // 0순위: 패리 반격
             if (_isParryCounter)
             {
                 _currentAttack = _combat.ExecuteParryCounterAttack();
-                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+                return _currentAttack?.motionAsset ?? null;
             }
 
             // 1순위: 퍼펙트 가드 반격
             if (_isCounter)
             {
                 _currentAttack = _combat.ExecuteCounterAttack();
-                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+                return _currentAttack?.motionAsset ?? null;
             }
 
             // 1순위: 스왑 회피 카운터
             if (_isSwapEvadeCounterAttack)
             {
                 _currentAttack = _combat.ExecuteSwapEvadeCounterAttack();
-                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+                return _currentAttack?.motionAsset ?? null;
             }
 
             // 2순위: 풀 게이지 교체 특수 공격
             if (_isSwapSpecialAttack)
             {
                 _currentAttack = _combat.ExecuteSwapSpecialAttack();
-                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+                return _currentAttack?.motionAsset ?? null;
             }
 
             // 3순위: 교체 등장 공격
             if (_isEntryAttack)
             {
                 _currentAttack = _combat.ExecuteEntryAttack();
-                return _currentAttack?.animKey ?? AnimKey.Attack_1;
+                return _currentAttack?.motionAsset ?? null;
             }
 
             // ★ 연계 라우트 — forced/normal 공통 단일 판정점 (설계 §5.3, advisor #1).
@@ -635,24 +647,24 @@ namespace UPlayGround.State
             //   여기서 pending 토큰을 트래커에 1회 push(기록)하고, 매칭 시 라우트를 실행한다.
             {
                 var routeAttack = ComboRouteRunner.TryExecuteRoute(playerActor, playerController, _combat,
-                    _isHeavyAttack, _forcedAttackAction, out var routeAnimKey);
+                    _isHeavyAttack, _forcedAttackAction, out var routeMotion);
                 if (routeAttack != null)
                 {
                     _currentAttack = routeAttack;
-                    return routeAnimKey;
+                    return routeMotion;
                 }
             }
 
             if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
             {
                 _currentAttack = _combat.ExecuteAttack(false);
-                return _currentAttack?.animKey ?? AnimKey.None;
+                return _currentAttack?.motionAsset ?? default;
             }
 
             if ((_forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
             {
                 _currentAttack = _combat.ExecuteHeavyAttack(false);
-                return _currentAttack?.animKey ?? AnimKey.None;
+                return _currentAttack?.motionAsset ?? default;
             }
 
             var skillGauge = playerActor.SkillGauge;
@@ -700,7 +712,7 @@ namespace UPlayGround.State
                     }
 
                     _abilityExecutionHandle = prepared;
-                    return _currentAttack.animKey;
+                    return _currentAttack.motionAsset;
                 }
 
                 // 자원 소비 가능 여부만 먼저 확인한다(아직 소비하지 않음).
@@ -717,7 +729,7 @@ namespace UPlayGround.State
                 if (_currentAttack != null)
                     skillGauge?.ConsumeSkill(i);
 
-                return _currentAttack?.animKey ?? AnimKey.None;
+                return _currentAttack?.motionAsset ?? default;
             }
 
             // 2순위: 기본 약/강 콤보
@@ -726,7 +738,14 @@ namespace UPlayGround.State
                 ? _combat.ExecuteHeavyAttack(continueCombo && _comboInputted)
                 : _combat.ExecuteAttack(continueCombo && _comboInputted);
 
-            return _currentAttack?.animKey ?? AnimKey.None;
+            return _currentAttack?.motionAsset ?? default;
+        }
+
+        private Animancer.AnimancerState PlayCurrentAttackMotion(MotionSetAsset motionAsset, float fadeDuration)
+        {
+            return motionAsset != null
+                ? gameActor.Animator.PlayMotion(motionAsset, fadeDuration)
+                : null;
         }
 
         private bool IsMoveCancelDelayElapsed()

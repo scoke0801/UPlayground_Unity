@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// 차지 공격 상태
     ///
     /// 흐름:
-    ///   1. OnEnter: chargeAttackList[0]의 AnimKey로 MotionSet 재생
+    ///   1. OnEnter: chargeAttackList[0]의 UPlayGround.Gameplay.Tag.GameplayTag로 MotionSet 재생
     ///   2. MotionSet 내 첫 번째 InfiniteLoop 구간에서 차지 포즈 대기 (Stage 0)
     ///   3. InfiniteLoop 진입 시점부터 chargeRatio(0→1) 누적
     ///   4. chargeRatio가 StageThresholds[stageIndex]를 초과하면 BreakInfiniteLoop →
@@ -84,10 +84,10 @@ namespace UPlayGround.State
 
             playerActor.Animator.ApplyRootMotion(true);
 
-            // chargeAttackList[0]의 AnimKey로 애니메이션 재생
+            // chargeAttackList[0]의 UPlayGround.Gameplay.Tag.GameplayTag로 애니메이션 재생
             // 해당 애니메이션에는 반드시 InfiniteLoop LoopEvent가 포함되어야 함
-            var attackData = _combat.GetFirstChargeAttackAnimKey();
-            if (attackData == AnimKey.None)
+            var attackData = _combat.GetFirstChargeAttackMotion();
+            if (attackData == default)
             {
                 ExitToIdle();
                 return;

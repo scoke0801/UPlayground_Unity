@@ -20,7 +20,7 @@ namespace UPlayGround.State
         private float _patrolSpeed;
         private float _waitTimer;
         private bool _isWaiting;
-        private AnimKey _lastLocoKey = AnimKey.None;
+        private UPlayGround.Gameplay.Tag.GameplayTag _lastLocoKey = default;
         
         // 충돌/정체 감지
         private float _stuckTimer;
@@ -87,8 +87,8 @@ namespace UPlayGround.State
                     _isWaiting = false;
                     _waitTimer = 0f;
                     _retryCount = 0;
-                    _lastLocoKey = AnimKey.Walk_Slow;
-                    gameActor.Animator.PlayMotion(AnimKey.Walk_Slow, 0.25f);
+                    _lastLocoKey = UPlayGround.Data.Actor.Animation.MotionTags.Walk_Slow;
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk_Slow, 0.25f);
                 }
             }
             else
@@ -155,7 +155,7 @@ namespace UPlayGround.State
             _waitTimer = 0f;
             _stuckTimer = 0f;
             
-            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

@@ -79,7 +79,8 @@ namespace UPlayGround.Components
             return result;
         }
 
-        public AnimKey GetFirstChargeAttackAnimKey() => _attackData.chargeAnimKey;
+        public MotionSetAsset GetFirstChargeAttackMotion() => _attackData?.chargeMotionRef?.Resolve(
+            _equipment != null ? _equipment.GetMainWeaponType() : WeaponType.NoWeapon);
 
         /// <summary> 차지(홀드) 도중 캔슬 가능한 입력 액션 마스크. </summary>
         public PlayerInterruptAction GetChargeInterruptActions() => _attackData.chargeInterruptActions;
@@ -118,7 +119,7 @@ namespace UPlayGround.Components
 
             var data = new AttackData
             {
-                animKey          = _attackData.chargeAnimKey,
+                motionAsset      = GetFirstChargeAttackMotion(),
                 damage           = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
                 poiseDamage      = phase.poiseDamage,
                 breakDamage      = phase.breakDamage,
@@ -302,12 +303,12 @@ namespace UPlayGround.Components
         public AttackData ExecuteSkillAttack(int skillIndex)
         {
             ClearResidualAttackContext();
-            if (!TryResolveSkill(skillIndex, out AbilityAttackInfo attackInfo, out AnimKey animKey)) return null;
+            if (!TryResolveSkill(skillIndex, out AbilityAttackInfo attackInfo, out MotionSetAsset motionAsset)) return null;
 
             _attackState = AttackState.SkillAttack;
             ResetComboPreserveChains();
             _currentAttackData = ConvertToAttackData(attackInfo, AttackKind.SkillAttack);
-            _currentAttackData.animKey = animKey;
+            _currentAttackData.motionAsset = motionAsset;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -321,14 +322,20 @@ namespace UPlayGround.Components
         public AttackData ExecuteAbilityAttack(AbilityVariantDefinition variant)
         {
             ClearResidualAttackContext();
+            WeaponType weaponType = _equipment != null
+                ? _equipment.GetMainWeaponType()
+                : WeaponType.NoWeapon;
             if (!UPlayGroundAbilityPayloadResolver.TryResolve(
-                    variant, out AnimKey animKey, out AbilityAttackInfo attackInfo))
+                    variant,
+                    weaponType,
+                    out MotionSetAsset motionAsset,
+                    out AbilityAttackInfo attackInfo))
                 return null;
 
             _attackState = AttackState.SkillAttack;
             ResetComboPreserveChains();
             _currentAttackData = ConvertToAttackData(attackInfo, AttackKind.SkillAttack);
-            _currentAttackData.animKey = animKey;
+            _currentAttackData.motionAsset = motionAsset;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -459,7 +466,6 @@ namespace UPlayGround.Components
             ClearResidualAttackContext();
             if (_attackData.dashAttackList == null || _attackData.dashAttackList.Count == 0) return null;
             _currentAttackData = ConvertToAttackData(_attackData.dashAttackList[0], AttackKind.DashAttack);
-            _currentAttackData.animKey = AnimKey.JumpDashAttack_1;
             ResetCombo();
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -476,7 +482,6 @@ namespace UPlayGround.Components
                 : null;
             _currentAttackData     = new AttackData
             {
-                animKey          = AnimKey.FinishAttack,
                 damage           = 9999f,
                 poiseDamage      = 9999f,
                 breakDamage      = 0f,
@@ -508,7 +513,6 @@ namespace UPlayGround.Components
             _currentSpecialBreakMinReferenceHealth = Mathf.Max(0f, specialBreakAttack.minReferenceHealth);
             _currentAttackData = new AttackData
             {
-                animKey = ResolveSpecialBreakMotionKey(specialBreakAttack),
                 damage = _currentSpecialBreakFixedDamage,
                 poiseDamage = 0f,
                 breakDamage = 0f,
@@ -521,17 +525,6 @@ namespace UPlayGround.Components
             OnAttackStarted?.Invoke(_currentAttackData);
         }
 
-        private AnimKey ResolveSpecialBreakMotionKey(SpecialBreakAttackAsset specialBreakAttack)
-        {
-            if (specialBreakAttack.animKey != AnimKey.None)
-                return specialBreakAttack.animKey;
-
-            if (_actorAnimator != null && _actorAnimator.HasMotion(AnimKey.FinishAttack, true))
-                return AnimKey.FinishAttack;
-
-            return AnimKey.Attack_1;
-        }
-
         private AttackData ConvertToAttackData(AbilityAttackInfo attackInfo, AttackKind attackKind)
         {
             if (attackInfo?.baseInfo == null)
@@ -539,6 +532,13 @@ namespace UPlayGround.Components
             _currentAttackInfoBase = attackInfo.baseInfo;
             _currentResidualHitPhases = attackInfo.baseInfo.hitPhases;
             AttackData data = _attackController.Create(attackInfo, attackKind);
+            if (data != null)
+            {
+                WeaponType weaponType = _equipment != null
+                    ? _equipment.GetMainWeaponType()
+                    : WeaponType.NoWeapon;
+                data.motionAsset = attackInfo.baseInfo.ResolveMotion(weaponType);
+            }
             if (data != null && _playerActor != null)
             {
                 float attackMultiplier = attackKind switch

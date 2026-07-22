@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: Griffin_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -45,4 +46,48 @@ MonoBehaviour:
     - Key: 27
       Value: {fileID: 11400000, guid: f58e67104d1612a4eaf8039c7564972e, type: 2}
     - Key: 28
+      Value: {fileID: 11400000, guid: 581a04dccfcb5474181860bc4c439d7a, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: b2e462b6f67349744a3936b8b3e12bcb, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 08034e0538c84c4439ca82f90457d750, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: e77eef10346ce4a4183e064a628bfb97, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: e77eef10346ce4a4183e064a628bfb97, type: 2}
+    - Key:
+        _tagName: Motion.Air.Jump
+      Value: {fileID: 11400000, guid: c29339d2f7019954992a9fa3ea71417c, type: 2}
+    - Key:
+        _tagName: Motion.Air.Fall
+      Value: {fileID: 11400000, guid: 4a1f9267c6630b44b85e033e94d980bf, type: 2}
+    - Key:
+        _tagName: Motion.Air.Land
+      Value: {fileID: 11400000, guid: f58e67104d1612a4eaf8039c7564972e, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: c10329bde4040f943b528c8b32401fc1, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 15c4c68a28c77b74e9954cf609d380bd, type: 2}
+    - Key:
+        _tagName: Motion.Fly.Idle
+      Value: {fileID: 11400000, guid: 4a1f9267c6630b44b85e033e94d980bf, type: 2}
+    - Key:
+        _tagName: Motion.Fly.Start
+      Value: {fileID: 11400000, guid: c29339d2f7019954992a9fa3ea71417c, type: 2}
+    - Key:
+        _tagName: Motion.Fly.Move
+      Value: {fileID: 11400000, guid: 060a342ffec86fd4ba99226d0591e310, type: 2}
+    - Key:
+        _tagName: Motion.Fly.Landing
+      Value: {fileID: 11400000, guid: f58e67104d1612a4eaf8039c7564972e, type: 2}
+    - Key:
+        _tagName: Motion.Fly.Attack
       Value: {fileID: 11400000, guid: 581a04dccfcb5474181860bc4c439d7a, type: 2}

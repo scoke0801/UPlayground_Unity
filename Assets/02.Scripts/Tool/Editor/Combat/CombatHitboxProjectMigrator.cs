@@ -18,7 +18,7 @@ namespace UPlayGround.Tool.Editor.Combat
     {
         private const string WeaponRoot = "Assets/03.Prefabs/Weapon";
         private const string ActorRoot = "Assets/03.Prefabs/Actor";
-        [MenuItem("UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/전체 부착형 HitBox 생성", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 50)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/전체 부착형 HitBox 생성", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 50)]
         public static void MigrateAll()
         {
             if (!EditorUtility.DisplayDialog(
@@ -102,7 +102,7 @@ namespace UPlayGround.Tool.Editor.Combat
             }
         }
 
-        [MenuItem("UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/마이그레이션 결과 검증", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 51)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/마이그레이션 결과 검증", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayCombatTools + 51)]
         public static void ValidateMigrated()
         {
             int errors = 0;

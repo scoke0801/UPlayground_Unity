@@ -51,3 +51,23 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 59c08b55527c2da4fadc6735de5b40a4, type: 2}
     - Key: 900
       Value: {fileID: 11400000, guid: 9ddfce1cd2490b544b00427b5cb63754, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: a27c64041d7c950499557675e25c68ca, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 7a2336fa5da044249b853a6d798bbf71, type: 2}
+    - Key:
+        _tagName: Motion.Action.Dodge
+      Value: {fileID: 11400000, guid: 22e0f6249961612459ce98b243cc9cb8, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 8242f68a9672d964482dbf437a48e370, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Guard
+      Value: {fileID: 11400000, guid: 59c08b55527c2da4fadc6735de5b40a4, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Knockback
+      Value: {fileID: 11400000, guid: 9ddfce1cd2490b544b00427b5cb63754, type: 2}

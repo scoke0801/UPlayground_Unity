@@ -37,8 +37,8 @@ namespace UPlayGround.State
                 memory.NotifyTookDamage();
 
             // reactionType에 따라 경직 애니 선택
-            AnimKey hitAnim    = GetHitAnimKey();
-            float fadeDuration = hitAnim == AnimKey.Knockback ? 0.1f : 0.2f;
+            UPlayGround.Gameplay.Tag.GameplayTag hitAnim    = GetHitAnimKey();
+            float fadeDuration = hitAnim == UPlayGround.Data.Actor.Animation.MotionTags.Knockback ? 0.1f : 0.2f;
 
             var state = gameActor.Animator.PlayMotion(hitAnim, fadeDuration);
             if (state != null)
@@ -72,24 +72,24 @@ namespace UPlayGround.State
             controller.TransitionToState(new EnemyIdleState(controller));
         }
 
-        private AnimKey GetHitAnimKey()
+        private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()
         {
-            // 공격별 전용 피격 애니(victimForcedAnimKey)가 지정돼 있고 보유 모션이면 최우선 사용.
-            if (_hit.VictimForcedAnimKey != AnimKey.None &&
-                gameActor.Animator.HasMotion(_hit.VictimForcedAnimKey))
-                return _hit.VictimForcedAnimKey;
+            // 공격별 전용 피격 애니(victimForcedMotionSlot)가 지정돼 있고 보유 모션이면 최우선 사용.
+            if (_hit.VictimForcedMotionSlot != default &&
+                gameActor.Animator.HasMotion(_hit.VictimForcedMotionSlot))
+                return _hit.VictimForcedMotionSlot;
 
             return _hit.ReactionType switch
             {
-                AttackReactionType.KnockBack  => AnimKey.Knockback,
-                AttackReactionType.Pull       => AnimKey.Hit_F,
-                AttackReactionType.Airborne   => AnimKey.Hit_F,
-                AttackReactionType.Knockdown  => gameActor.Animator.HasMotion(AnimKey.Knockback, true)
-                                                    ? AnimKey.Knockback
-                                                    : AnimKey.Hit_F,
-                AttackReactionType.Grab       => AnimKey.Hit_F,        // 전용 State로 가지만 안전장치
-                AttackReactionType.Heavy      => AnimKey.Hit_F,
-                _                             => AnimKey.Hit_F,
+                AttackReactionType.KnockBack  => UPlayGround.Data.Actor.Animation.MotionTags.Knockback,
+                AttackReactionType.Pull       => UPlayGround.Data.Actor.Animation.MotionTags.Hit_F,
+                AttackReactionType.Airborne   => UPlayGround.Data.Actor.Animation.MotionTags.Hit_F,
+                AttackReactionType.Knockdown  => gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockback, true)
+                                                    ? UPlayGround.Data.Actor.Animation.MotionTags.Knockback
+                                                    : UPlayGround.Data.Actor.Animation.MotionTags.Hit_F,
+                AttackReactionType.Grab       => UPlayGround.Data.Actor.Animation.MotionTags.Hit_F,        // 전용 State로 가지만 안전장치
+                AttackReactionType.Heavy      => UPlayGround.Data.Actor.Animation.MotionTags.Hit_F,
+                _                             => UPlayGround.Data.Actor.Animation.MotionTags.Hit_F,
             };
         }
     }

@@ -38,7 +38,7 @@ namespace UPlayGround.State
             _stuckTimer = 0f;
             _lastPos = motor.TransientPosition;
             SetNewTarget();
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -62,7 +62,7 @@ namespace UPlayGround.State
                 {
                     _isWaiting = false;
                     SetNewTarget();
-                    gameActor.Animator.PlayMotion(AnimKey.Walk, 0.25f);
+                    gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.25f);
                 }
             }
             else
@@ -121,7 +121,7 @@ namespace UPlayGround.State
         {
             _isWaiting = true;
             _waitTimer = 0f;
-            gameActor.Animator.PlayMotion(AnimKey.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
         private void SetNewTarget()

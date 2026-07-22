@@ -53,7 +53,7 @@ namespace UPlayGround.State
             }
             
             _guardTimer = 0f;
-            gameActor.Animator.PlayMotion(AnimKey.Guard, 0.2f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.2f);
         }
 
         public override void OnExit(GameActorState toState)

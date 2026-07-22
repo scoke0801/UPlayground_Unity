@@ -521,7 +521,13 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 if (set != null)
                 {
                     set.motions ??= new List<Motion>();
-                    AddMotionTrackLabel("BASE", "Base Motion", null, set.motions, y, true);
+                    // Base 재생 레이어가 지정되면(>0) BASE 트랙을 L{n}로 표기해, Base 시퀀스가
+                    // 그 오버레이 레이어에서 재생됨을 시각적으로 드러낸다. (병렬 재생 레이어와 무관)
+                    string baseTag = set.baseLayerIndex > 0 ? $"L{set.baseLayerIndex}" : "BASE";
+                    string baseName = set.baseLayerIndex > 0
+                        ? $"Base Motion (Layer {set.baseLayerIndex})"
+                        : "Base Motion";
+                    AddMotionTrackLabel(baseTag, baseName, null, set.motions, y, true);
                     AddMotionClipLabels(set.motions, y);
                     _motionTrackTargets.Add(new MotionTrackTarget
                     {

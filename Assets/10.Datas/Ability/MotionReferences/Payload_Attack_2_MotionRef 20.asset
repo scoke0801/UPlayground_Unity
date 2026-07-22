@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44e31f76c56d44c99680b04d89f8343a, type: 3}
+  m_Name: Payload_Attack_2_MotionRef 20
+  m_EditorClassIdentifier: 
+  defaultMotion: {fileID: 0}
+  weaponOverrides:
+  - weaponType: 5
+    motion: {fileID: 11400000, guid: f0e38d36392e38f4c977553824d9696c, type: 2}
+  - weaponType: 3
+    motion: {fileID: 11400000, guid: e1a3c2d5843556541b82d1a97a9b4e9f, type: 2}
+  - weaponType: 10
+    motion: {fileID: 11400000, guid: 080a58acf516fa443a61faaa67a95bec, type: 2}
+  - weaponType: 13
+    motion: {fileID: 11400000, guid: f64606c692dd77d418eb416ba4f7837c, type: 2}
+  - weaponType: 2
+    motion: {fileID: 11400000, guid: 96a77e11ae629284ca66178100167d5e, type: 2}
+  - weaponType: 12
+    motion: {fileID: 11400000, guid: 1564ab7e2d8095a48ad3c1b52ebf7995, type: 2}
+  - weaponType: 11
+    motion: {fileID: 11400000, guid: 838e2889e0723394185f6b2810257f55, type: 2}
+  - weaponType: 14
+    motion: {fileID: 11400000, guid: 31215c927bd8781489908fb74dde2d91, type: 2}

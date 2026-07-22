@@ -136,9 +136,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             if (!string.IsNullOrEmpty(dir))
                 _targetFolder = AssetDatabase.LoadAssetAtPath<DefaultAsset>(dir);
 
-            if (_source.motionSets != null)
+            if (_source.motionSlots != null)
             {
-                foreach (var kv in _source.motionSets)
+                foreach (var kv in _source.motionSlots)
                 {
                     if (kv.Value != null) _previewAssets.Add(kv.Value);
                 }
@@ -319,9 +319,9 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             string folderPath,
             IDictionary<string, string> copiedPaths)
         {
-            if (sourceSet?.motionSets == null) return;
+            if (sourceSet?.motionSlots == null) return;
 
-            foreach (var kv in sourceSet.motionSets)
+            foreach (var kv in sourceSet.motionSlots)
             {
                 MotionSetAsset src = kv.Value;
                 if (src == null) continue;
@@ -344,7 +344,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             if (target == null || copiedPaths == null || copiedPaths.Count == 0) return 0;
 
             var sObj = new SerializedObject(target);
-            var listProp = sObj.FindProperty("motionSets")?.FindPropertyRelative("_serializedList");
+            var listProp = sObj.FindProperty("motionSlots")?.FindPropertyRelative("_serializedList");
             if (listProp == null) return 0;
 
             Undo.RecordObject(target, "Duplicate MotionSet References");

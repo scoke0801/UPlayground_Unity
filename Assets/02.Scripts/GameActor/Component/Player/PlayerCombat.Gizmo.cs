@@ -36,7 +36,7 @@ namespace UPlayGround.Components
                 owner = this,
                 category = Category,
                 position = transform.position,
-                text = $"attack={_currentAttackData.animKey} reach={_homingReachRange:F2} angle={_homingReachAngle:F0}",
+                    text = $"attack={_currentAttackData.MotionId} reach={_homingReachRange:F2} angle={_homingReachAngle:F0}",
             });
         }
 
@@ -49,7 +49,7 @@ namespace UPlayGround.Components
 
             context.DrawLabel(
                 transform.position + Vector3.up * 1.35f,
-                $"Combat: {_currentAttackData.animKey}\ngroup={_hitboxSet?.ActiveGroupId ?? "-"} phase={_currentAttackData.hitPhaseIndex}");
+                    $"Combat: {_currentAttackData.MotionId}\ngroup={_hitboxSet?.ActiveGroupId ?? "-"} phase={_currentAttackData.hitPhaseIndex}");
         }
 
         #endregion

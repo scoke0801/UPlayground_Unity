@@ -83,10 +83,10 @@ MonoBehaviour:
   m_Name: Payload_Counter_Attack_2
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 531
+  motionRef: {fileID: 11400000, guid: e04b21abcfcc59743ae2a2f56065ac93, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 531
+      motionRef: {fileID: 11400000, guid: e04b21abcfcc59743ae2a2f56065ac93, type: 2}
       attackType: 0
       hitPhases:
       - damage: 17
@@ -105,7 +105,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

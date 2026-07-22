@@ -23,11 +23,8 @@ namespace UPlayGround.State
 
         public PlayerJumpDashAttackState(ActorMovementController controller) : base(controller) { }
 
-        protected override AnimKey? RequiredMotionKey => AnimKey.JumpDashAttack_1;
-
         public override bool CanTransitionState(string stateName)
         {
-            if (HasRequiredMotion() == false) return false;
             if (stateName == "Hit") return false;
             return true;
         }
@@ -45,8 +42,9 @@ namespace UPlayGround.State
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
             _attackData      = _combat?.ExecuteJumpDashAttack();
 
-            AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpDashAttack_1;
-            var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
+            var state = _attackData?.motionAsset != null
+                ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.1f)
+                : null;
             if (state != null)
             {
                 _decelerationDuration = state.Duration;

@@ -141,7 +141,7 @@ namespace UPlayGround.Components
                 : AttackType.Melee;
 
             var actor = GetComponent<GameActor>();
-            _hasGuardMotion = actor?.Animator?.HasMotion(AnimKey.Guard) ?? false;
+            _hasGuardMotion = actor?.Animator?.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard) ?? false;
 
             RollNextActionDelay();
             EnsureBehaviorTreeRunner();

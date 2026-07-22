@@ -22,6 +22,7 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 5341828142411284622
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:

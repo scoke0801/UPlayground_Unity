@@ -1,10 +1,10 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
-using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Ability.Tests
 {
@@ -43,6 +43,7 @@ namespace UPlayGround.Ability.Tests
 
             Assert.That(sets, Is.Not.Empty);
             int validated = 0;
+            var issues = new List<string>();
             foreach (AbilitySetSO set in sets)
             {
                 foreach (GameplayAbilitySO ability in set.EnumerateAll().Distinct())
@@ -52,27 +53,34 @@ namespace UPlayGround.Ability.Tests
 
                     foreach (var variant in ability.variants)
                     {
-                        if (!UPlayGroundAbilityPayloadResolver.TryResolve(
+                        if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
                                 variant,
-                                out AnimKey animKey,
                                 out var attackInfo)
                             || !attackInfo.aiSelectable)
                             continue;
 
-                        Assert.That(
-                            animKey,
-                            Is.Not.EqualTo(AnimKey.None),
-                            $"{ability.name}: AnimKey 누락");
-                        Assert.That(
-                            attackInfo.baseInfo?.hitPhases,
-                            Is.Not.Null.And.Not.Empty,
-                            $"{ability.name}: HitPhase 누락");
+                        if (variant.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
+                        {
+                            issues.Add($"{ability.name}: UPlayGround 모션 Payload가 아닙니다.");
+                            continue;
+                        }
+
+                        if (payload.attackInfo?.baseInfo?.motionRef == null)
+                            issues.Add($"{ability.name}: MotionReference 누락");
+                        else if (!payload.attackInfo.baseInfo.motionRef.HasAnyMotion)
+                            issues.Add($"{ability.name}: 실행 가능한 MotionSetAsset 누락");
+                        if (attackInfo.baseInfo?.hitPhases == null
+                            || attackInfo.baseInfo.hitPhases.Count == 0)
+                        {
+                            issues.Add($"{ability.name}: HitPhase 누락");
+                        }
                         validated++;
                     }
                 }
             }
 
             Assert.That(validated, Is.GreaterThan(0));
+            Assert.That(issues, Is.Empty, string.Join("\n", issues));
         }
 
         [Test]
@@ -113,9 +121,8 @@ namespace UPlayGround.Ability.Tests
                 .Distinct()
                 .SelectMany(x => x.variants ?? Enumerable.Empty<AbilityVariantDefinition>())
                 .Count(variant =>
-                    UPlayGroundAbilityPayloadResolver.TryResolve(
+                    UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
                         variant,
-                        out _,
                         out var attackInfo)
                     && attackInfo.aiSelectable);
         }

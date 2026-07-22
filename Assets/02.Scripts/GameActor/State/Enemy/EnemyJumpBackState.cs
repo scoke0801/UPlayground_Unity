@@ -189,12 +189,12 @@ namespace UPlayGround.State
             return direction.sqrMagnitude > 0.01f ? direction : awayDir;
         }
 
-        private AnimKey ResolveMotionKey()
+        private UPlayGround.Gameplay.Tag.GameplayTag ResolveMotionKey()
         {
-            if (_canJumpBack && gameActor.Animator.HasMotion(AnimKey.Jump))
-                return AnimKey.Jump;
+            if (_canJumpBack && gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Jump))
+                return UPlayGround.Data.Actor.Animation.MotionTags.Jump;
 
-            return AnimKey.Dodge;
+            return UPlayGround.Data.Actor.Animation.MotionTags.Dodge;
         }
 
         private float ResolveMaxSafeTargetDistance()

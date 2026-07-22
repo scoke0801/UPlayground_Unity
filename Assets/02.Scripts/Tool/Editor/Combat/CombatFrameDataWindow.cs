@@ -26,7 +26,7 @@ namespace UPlayGround.Tool.Editor.Combat
     /// </summary>
     public class CombatFrameDataWindow : EditorWindow
     {
-        [MenuItem("UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블",
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블",
             priority = UPlaygroundMenuPriority.GameplayCombatTools + 2)]
         public static void Open()
         {
@@ -41,7 +41,7 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             public string ActorName;
             public string Source;
-            public AnimKey Key;
+            public string Motion;
             public float Duration;
             public float Startup;
             public float Active;
@@ -81,7 +81,7 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             ("액터",     95f),
             ("출처",     135f),
-            ("AnimKey",  150f),
+            ("Motion",   150f),
             ("길이",     52f),
             ("선딜",     52f),
             ("액티브",   52f),
@@ -242,32 +242,33 @@ namespace UPlayGround.Tool.Editor.Combat
                 actorName,
                 root,
                 data,
-                key => CombatTimelineUtility.ResolveAttacks(data, key));
+                motion => CombatTimelineUtility.ResolveAttacks(data, motion));
 
         void AppendRows(
             string actorName,
             ActorAnimationMotionSet root,
             UnityEngine.Object data,
-            System.Func<AnimKey, List<CombatTimelineUtility.ResolvedAttack>> resolve)
+            System.Func<MotionSetAsset, List<CombatTimelineUtility.ResolvedAttack>> resolve)
         {
-            var seen = new HashSet<AnimKey>();
+            var seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (ActorAnimationMotionSet set in CombatTimelineUtility.EnumerateMotionSets(root, _includeFallback))
             {
-                if (set?.motionSets == null) continue;
-                foreach (KeyValuePair<AnimKey, MotionSetAsset> pair in set.motionSets)
+                if (set?.motionSlots == null) continue;
+                foreach (var pair in set.motionSlots)
                 {
-                    if (!seen.Add(pair.Key)) continue;
+                    if (!seen.Add(pair.Key.TagName)) continue;
                     if (pair.Value == null || pair.Value.motionSet == null) continue;
 
-                    var resolved = resolve(pair.Key);
+                    var resolved = resolve(pair.Value);
                     foreach (CombatTimelineUtility.ResolvedAttack atk in resolved)
-                        _rows.Add(BuildRow(actorName, pair.Value, data, atk));
+                        _rows.Add(BuildRow(actorName, pair.Key.TagName, pair.Value, data, atk));
                 }
             }
         }
 
         Row BuildRow(
             string actorName,
+            string motionLabel,
             MotionSetAsset asset,
             UnityEngine.Object data,
             CombatTimelineUtility.ResolvedAttack atk)
@@ -318,7 +319,7 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 ActorName = actorName,
                 Source = atk.SourceName,
-                Key = atk.AnimKey,
+                Motion = motionLabel,
                 Duration = total,
                 Startup = startup,
                 Active = active,
@@ -390,7 +391,7 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 GUILayout.Label(row.ActorName, style, GUILayout.Width(COLUMNS[0].Width));
                 GUILayout.Label(row.Source, style, GUILayout.Width(COLUMNS[1].Width));
-                GUILayout.Label(row.Key.ToString(), style, GUILayout.Width(COLUMNS[2].Width));
+            GUILayout.Label(row.Motion, style, GUILayout.Width(COLUMNS[2].Width));
                 GUILayout.Label(FormatTime(row.Duration), style, GUILayout.Width(COLUMNS[3].Width));
                 GUILayout.Label(row.NoCollision ? "-" : FormatTime(row.Startup), style, GUILayout.Width(COLUMNS[4].Width));
                 GUILayout.Label(row.NoCollision ? "-" : FormatTime(row.Active), style, GUILayout.Width(COLUMNS[5].Width));
@@ -455,7 +456,7 @@ namespace UPlayGround.Tool.Editor.Combat
             {
                 case 0:  cmp = (a, b) => string.Compare(a.ActorName, b.ActorName, StringComparison.Ordinal); break;
                 case 1:  cmp = (a, b) => string.Compare(a.Source, b.Source, StringComparison.Ordinal); break;
-                case 2:  cmp = (a, b) => ((int)a.Key).CompareTo((int)b.Key); break;
+                case 2:  cmp = (a, b) => string.Compare(a.Motion, b.Motion, StringComparison.Ordinal); break;
                 case 3:  cmp = (a, b) => a.Duration.CompareTo(b.Duration); break;
                 case 4:  cmp = (a, b) => a.Startup.CompareTo(b.Startup); break;
                 case 5:  cmp = (a, b) => a.Active.CompareTo(b.Active); break;
@@ -482,11 +483,11 @@ namespace UPlayGround.Tool.Editor.Combat
             if (string.IsNullOrWhiteSpace(path)) return;
 
             var sb = new StringBuilder();
-            sb.AppendLine("Actor,Source,AnimKey,Duration,Startup,Active,Hits,Recovery,Cancel,ComboStart,Damage,Poise,Break,Reaction,TimelinePhases,DataPhases,Mismatch");
+            sb.AppendLine("Actor,Source,Motion,Duration,Startup,Active,Hits,Recovery,Cancel,ComboStart,Damage,Poise,Break,Reaction,TimelinePhases,DataPhases,Mismatch");
             foreach (Row row in _rows)
             {
                 sb.AppendLine(string.Join(",",
-                    Csv(row.ActorName), Csv(row.Source), row.Key,
+                    Csv(row.ActorName), Csv(row.Source), Csv(row.Motion),
                     row.Duration.ToString("0.###", CultureInfo.InvariantCulture),
                     row.Startup.ToString("0.###", CultureInfo.InvariantCulture),
                     row.Active.ToString("0.###", CultureInfo.InvariantCulture),

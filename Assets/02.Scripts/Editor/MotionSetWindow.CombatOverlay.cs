@@ -14,7 +14,7 @@ namespace UPlayGround.Animation.Editor
 {
     /// <summary>
     /// 애니메이션 에디터 전투 오버레이 확장.
-    /// 현재 모션(AnimKey)에 매칭되는 AbilitySetSO 공격 Payload를 찾아
+    /// 현재 MotionSetAsset에 매칭되는 AbilitySetSO 공격 Payload를 찾아
     /// ① 타임라인에 판정/캔슬/콤보/선후딜 트랙을 표시하고
     /// ② 씬 뷰에 히트박스 기즈모(+편집 핸들)를 그린다.
     /// </summary>
@@ -34,8 +34,8 @@ namespace UPlayGround.Animation.Editor
         bool _showCombatOverlay = true;
         bool _combatEditHitbox;
         int  _combatGizmoPhase = -1;          // -1 = 커서 시간 기준 자동
-        int  _combatAttackIndex;              // 같은 AnimKey를 쓰는 항목이 여럿일 때 선택
-        AnimKey _combatManualKey = AnimKey.None; // 액터 세트 미사용 시 수동 키
+        int  _combatAttackIndex;              // 같은 MotionSetAsset을 쓰는 항목이 여럿일 때 선택
+        MotionSetAsset _combatManualMotion;   // 현재 에셋이 없을 때 수동 지정
 
         // 자동 페어링을 컨텍스트(세트)당 1회만 시도
         UnityEngine.Object _combatPairingTriedFor;
@@ -103,14 +103,15 @@ namespace UPlayGround.Animation.Editor
 
         void DrawCombatStatusRow()
         {
-            AnimKey key = GetCombatAnimKey();
+            MotionSetAsset motionAsset = GetCombatMotionAsset();
 
             EditorGUILayout.BeginHorizontal();
             {
-                if (_selectedActorMotionKey == AnimKey.None)
+                if (_asset == null)
                 {
-                    EditorGUILayout.LabelField("AnimKey", GUILayout.Width(55));
-                    _combatManualKey = (AnimKey)EditorGUILayout.EnumPopup(_combatManualKey, GUILayout.Width(170));
+                    EditorGUILayout.LabelField("모션", GUILayout.Width(40));
+                    _combatManualMotion = (MotionSetAsset)EditorGUILayout.ObjectField(
+                        _combatManualMotion, typeof(MotionSetAsset), false, GUILayout.Width(190));
                 }
 
                 if (_combatAttackData == null)
@@ -120,15 +121,15 @@ namespace UPlayGround.Animation.Editor
                     return;
                 }
 
-                ResolveCombatAttacks(key);
+                ResolveCombatAttacks(motionAsset);
 
-                if (key == AnimKey.None)
+                if (motionAsset == null)
                 {
                     EditorGUILayout.LabelField("모션 키 미선택", EditorStyles.miniLabel);
                 }
                 else if (_combatResolved.Count == 0)
                 {
-                    EditorGUILayout.LabelField($"'{key}' 를 쓰는 공격 데이터가 없습니다.", EditorStyles.miniLabel);
+                    EditorGUILayout.LabelField($"'{motionAsset.name}'를 쓰는 공격 데이터가 없습니다.", EditorStyles.miniLabel);
                 }
                 else
                 {
@@ -198,9 +199,9 @@ namespace UPlayGround.Animation.Editor
         // ─────────────────────────────────────────────────────────────────
         //  데이터 연결
         // ─────────────────────────────────────────────────────────────────
-        AnimKey GetCombatAnimKey()
+        MotionSetAsset GetCombatMotionAsset()
         {
-            return _selectedActorMotionKey != AnimKey.None ? _selectedActorMotionKey : _combatManualKey;
+            return _asset != null ? _asset : _combatManualMotion;
         }
 
         UnityEngine.Object GetCombatPairingContext()
@@ -208,9 +209,9 @@ namespace UPlayGround.Animation.Editor
             return _actorAnimationSet != null ? (UnityEngine.Object)_actorAnimationSet : _asset;
         }
 
-        void ResolveCombatAttacks(AnimKey key)
+        void ResolveCombatAttacks(MotionSetAsset motionAsset)
         {
-            _combatResolved = CombatTimelineUtility.ResolveAttacks(_combatAttackData, key);
+            _combatResolved = CombatTimelineUtility.ResolveAttacks(_combatAttackData, motionAsset);
         }
 
         CombatTimelineUtility.ResolvedAttack GetCurrentCombatAttack()
@@ -281,7 +282,7 @@ namespace UPlayGround.Animation.Editor
                 return;
             }
 
-            ResolveCombatAttacks(GetCombatAnimKey());
+            ResolveCombatAttacks(GetCombatMotionAsset());
             var atk = GetCurrentCombatAttack();
             if (atk == null)
             {

@@ -22,7 +22,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             
             
-            gameActor.Animator.PlayMotion(AnimKey.Talk_1, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Talk_1, 0.25f);
         }
 
         public override void UpdateState(float deltaTime)

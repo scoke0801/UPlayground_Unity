@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
@@ -32,9 +32,9 @@ namespace UPlayGround.State
             _animFinished = false;
 
             // GuardBreak 전용 모션이 있으면 재생, 없으면 Knockback으로 폴백
-            AnimKey animKey = playerActor.Animator.HasMotion(AnimKey.GuardBreak, true)
-                ? AnimKey.GuardBreak
-                : AnimKey.Knockback;
+            UPlayGround.Gameplay.Tag.GameplayTag animKey = playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.GuardBreak, true)
+                ? UPlayGround.Data.Actor.Animation.MotionTags.GuardBreak
+                : UPlayGround.Data.Actor.Animation.MotionTags.Knockback;
 
             var animState = playerActor.Animator.PlayMotion(animKey, 0.1f, 0);
             if (animState != null)

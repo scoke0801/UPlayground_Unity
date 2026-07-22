@@ -6,6 +6,7 @@ using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Components;
 
@@ -180,12 +181,12 @@ namespace UPlayGround.Ability.Tests
                     Is.SameAs(ability));
                 Assert.That(ability.variants, Has.Count.EqualTo(1));
                 Assert.That(
-                    UPlayGroundAbilityPayloadResolver.TryResolveAnimKey(
-                        ability.variants[0], out var animKey),
+                    UPlayGroundAbilityPayloadResolver.TryResolve(
+                        ability.variants[0], WeaponType.NoWeapon, out var motionAsset, out _),
                     Is.True);
                 Assert.That(
-                    animKey,
-                    Is.EqualTo(global::UPlayGround.Data.EnumType.AnimKey.ElementalImbue));
+                    motionAsset,
+                    Is.Not.Null);
                 Assert.That(ability.variants[0].ownerEffects, Has.Count.EqualTo(1));
                 Assert.That(
                     ability.variants[0].ownerEffects[0].grantedElement,

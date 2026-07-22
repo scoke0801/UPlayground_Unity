@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: MainPlant_MotionSet
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -26,3 +27,14 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 6979481ad2edbc24e97f3400ae9eb3ea, type: 2}
     - Key: 501
       Value: {fileID: 11400000, guid: 559e06402a6eb70449a0b8f73c038677, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: c4ec0af23f73c054aa4da5fbf134ffdc, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: f8290ab00d50a194b97e4f1a03457f0b, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: 05fbcbe5e1abe634582fba56071396dc, type: 2}

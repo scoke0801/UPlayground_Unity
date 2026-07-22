@@ -16,14 +16,14 @@ namespace UPlayGround.State
     {
         public override string StateName => "Drink";
 
-        protected override AnimKey? RequiredMotionKey => AnimKey.Drink;
+        protected override UPlayGround.Gameplay.Tag.GameplayTag? RequiredMotionKey => UPlayGround.Data.Actor.Animation.MotionTags.Drink;
 
         private const float LegFadeDuration = 0.2f;
         private const float OverlayFadeDuration = 0.15f;
 
         private PlayerEquipment _equipment;
         private float _drinkRemaining;      // 상체 오버레이 남은 재생 시간(초)
-        private AnimKey _legAnimKey = AnimKey.None; // 현재 Layer 0에 올라간 로코모션 키
+        private UPlayGround.Gameplay.Tag.GameplayTag _legAnimKey = default; // 현재 Layer 0에 올라간 로코모션 키
 
         public PlayerDrinkState(ActorMovementController controller) : base(controller)
         {
@@ -46,7 +46,7 @@ namespace UPlayGround.State
 
             // 상체: Drink 모션을 상체 마스크 오버레이 레이어에 1회 재생.
             // 디렉터를 사용하지 않으므로 OnMotionSetCompleted 대신 재생 길이 타이머로 완료를 판정한다.
-            _drinkRemaining = gameActor.Animator.PlayUpperBodyOverlay(AnimKey.Drink, OverlayFadeDuration);
+            _drinkRemaining = gameActor.Animator.PlayUpperBodyOverlay(UPlayGround.Data.Actor.Animation.MotionTags.Drink, OverlayFadeDuration);
             if (_drinkRemaining <= 0f)
             {
                 TransitionToIdle();
@@ -221,7 +221,7 @@ namespace UPlayGround.State
         /// </summary>
         private void UpdateLegLocomotion()
         {
-            AnimKey desired = playerController.HasMoveInput() ? AnimKey.Walk : AnimKey.Idle;
+            UPlayGround.Gameplay.Tag.GameplayTag desired = playerController.HasMoveInput() ? UPlayGround.Data.Actor.Animation.MotionTags.Walk : UPlayGround.Data.Actor.Animation.MotionTags.Idle;
             if (desired == _legAnimKey)
                 return;
 

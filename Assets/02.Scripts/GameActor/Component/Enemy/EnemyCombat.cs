@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
@@ -106,7 +106,7 @@ namespace UPlayGround.Components
 
         private GameplayAbilitySO _currentAbility;
         private AbilityAttackInfo _currentSkill;
-        private AnimKey _currentAbilityAnimKey = AnimKey.None;
+        private MotionSetAsset _currentAbilityMotionAsset;
         private readonly HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private int _currentHitPhaseIndex = 0;
 
@@ -146,10 +146,10 @@ namespace UPlayGround.Components
         public AbilitySetSO      AbilitySet       => _abilitySet;
         public GameplayAbilitySO CurrentAbility   => _currentAbility;
         public AbilityAttackInfo CurrentSkill     => _currentSkill;
-        public AnimKey CurrentAnimKey =>
-            _currentAbilityAnimKey != AnimKey.None
-                ? _currentAbilityAnimKey
-                : _currentSkill?.baseInfo?.animKey ?? AnimKey.None;
+        public MotionSetAsset CurrentMotionAsset  =>
+            _currentAbilityMotionAsset != null
+                ? _currentAbilityMotionAsset
+                : _currentSkill?.baseInfo?.ResolveMotion(WeaponType.NoWeapon);
         public int               CurrentLevel     => _ownerActor != null ? _ownerActor.Level : 1;
         // P3 3차: 충돌 윈도우의 단일 소유는 CombatActionRunner의 instance. 자체 플래그를 두지 않고 runner를 읽는다.
         public bool              IsPossibleCollide => _actionRunner != null && _actionRunner.IsCollisionActive;
@@ -357,10 +357,8 @@ namespace UPlayGround.Components
                 ResolveAbilityTarget(),
                 out AbilityVariantDefinition variant);
             return result == AbilityActivationResult.Success
-                   && UPlayGroundAbilityPayloadResolver.TryResolve(
-                       variant,
-                       out _,
-                       out attackInfo);
+                   && UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                       variant, out attackInfo);
         }
 
         public bool CanActivateAbility(GameplayAbilitySO ability) =>
@@ -371,7 +369,7 @@ namespace UPlayGround.Components
             out AbilityAttackInfo attackInfo)
         {
             attackInfo = null;
-            _currentAbilityAnimKey = AnimKey.None;
+            _currentAbilityMotionAsset = null;
             if (ability == null || _abilitySystem == null)
                 return false;
 
@@ -389,10 +387,11 @@ namespace UPlayGround.Components
             {
                 if (UPlayGroundAbilityPayloadResolver.TryResolve(
                         variant,
-                        out AnimKey animKey,
+                        WeaponType.NoWeapon,
+                        out MotionSetAsset motionAsset,
                         out attackInfo))
                 {
-                    _currentAbilityAnimKey = animKey;
+                    _currentAbilityMotionAsset = motionAsset;
                     return true;
                 }
 
@@ -469,6 +468,7 @@ namespace UPlayGround.Components
                 for (int i = 0; i < ability.variants.Count; i++)
                     if (UPlayGroundAbilityPayloadResolver.TryResolve(
                             ability.variants[i],
+                            WeaponType.NoWeapon,
                             out _,
                             out AbilityAttackInfo attackInfo)
                         && attackInfo.aiSelectable
@@ -615,7 +615,7 @@ namespace UPlayGround.Components
                     knockbackDrag      = phase.knockBackDrag,
                     grabDuration          = phase.grabDuration,
                     attacker              = _ownerActor,
-                    victimForcedAnimKey   = phase.victimForcedAnimKey,
+                    victimForcedMotionSlot   = phase.victimForcedMotionSlot,
                     guaranteedReaction    = phase.guaranteedReaction,
                     defenseType           = _currentSkill != null ? _currentSkill.defenseType : AttackDefenseType.Parryable,
                     reactionData          = phase.reactionProfile?.Resolve(),
@@ -716,7 +716,7 @@ namespace UPlayGround.Components
             _actionRunner?.StartAction(new AttackData
             {
                 attacker = _ownerActor,
-                animKey = CurrentAnimKey,
+                motionAsset = CurrentMotionAsset,
                 hitPhaseIndex = _currentHitPhaseIndex,
                 defenseType = skill.defenseType,
             });

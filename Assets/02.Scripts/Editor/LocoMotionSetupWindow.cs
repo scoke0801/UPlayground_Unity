@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Animation.Editor
 {
@@ -15,79 +16,79 @@ namespace UPlayGround.Animation.Editor
     /// </summary>
     public class LocoMotionSetupWindow : EditorWindow
     {
-        // ── 파일명 패턴 → AnimKey 매핑 ──────────────────────────────────────────
+        // ── 파일명 패턴 → Motion Slot 매핑 ──────────────────────────────────────────
         // _InPlace 접미사는 스캔 시 자동으로 제거한 뒤 비교한다.
-        private static readonly Dictionary<string, AnimKey> PatternToKey = new()
+        private static readonly Dictionary<string, GameplayTag> PatternToKey = new()
         {
             // ── Base — Walk Slow (8방향) ──────────────────────────────────────
-            { "Walk_Slow_F",        AnimKey.Walk_Slow       },
-            { "Walk_Slow_B",        AnimKey.Walk_Slow_B     },
-            { "Walk_Slow_B_L45",    AnimKey.Walk_Slow_B_L45 },
-            { "Walk_Slow_B_R45",    AnimKey.Walk_Slow_B_R45 },
-            { "Walk_Slow_F_L45",    AnimKey.Walk_Slow_F_L45 },
-            { "Walk_Slow_F_R45",    AnimKey.Walk_Slow_F_R45 },
-            { "Walk_Slow_F_L90_A",  AnimKey.Walk_Slow_F_L90 },  // A 버전 우선
-            { "Walk_Slow_F_R90_A",  AnimKey.Walk_Slow_F_R90 },
+            { "Walk_Slow_F",        MotionTags.Walk_Slow       },
+            { "Walk_Slow_B",        MotionTags.Walk_Slow_B     },
+            { "Walk_Slow_B_L45",    MotionTags.Walk_Slow_B_L45 },
+            { "Walk_Slow_B_R45",    MotionTags.Walk_Slow_B_R45 },
+            { "Walk_Slow_F_L45",    MotionTags.Walk_Slow_F_L45 },
+            { "Walk_Slow_F_R45",    MotionTags.Walk_Slow_F_R45 },
+            { "Walk_Slow_F_L90_A",  MotionTags.Walk_Slow_F_L90 },  // A 버전 우선
+            { "Walk_Slow_F_R90_A",  MotionTags.Walk_Slow_F_R90 },
             // ── Base — Walk (8방향) ───────────────────────────────────────────
-            { "Walk_F",             AnimKey.Walk            },
-            { "Walk_B",             AnimKey.Walk_B          },
-            { "Walk_B_L45",         AnimKey.Walk_B_L45      },
-            { "Walk_B_R45",         AnimKey.Walk_B_R45      },
-            { "Walk_F_L45",         AnimKey.Walk_F_L45      },
-            { "Walk_F_R45",         AnimKey.Walk_F_R45      },
-            { "Walk_F_L90_A",       AnimKey.Walk_F_L90      },
-            { "Walk_F_R90_A",       AnimKey.Walk_F_R90      },
+            { "Walk_F",             MotionTags.Walk            },
+            { "Walk_B",             MotionTags.Walk_B          },
+            { "Walk_B_L45",         MotionTags.Walk_B_L45      },
+            { "Walk_B_R45",         MotionTags.Walk_B_R45      },
+            { "Walk_F_L45",         MotionTags.Walk_F_L45      },
+            { "Walk_F_R45",         MotionTags.Walk_F_R45      },
+            { "Walk_F_L90_A",       MotionTags.Walk_F_L90      },
+            { "Walk_F_R90_A",       MotionTags.Walk_F_R90      },
             // ── Base — Run (8방향) ────────────────────────────────────────────
-            { "Run_F",              AnimKey.Run             },
-            { "Run_B",              AnimKey.Run_B           },
-            { "Run_B_L45",          AnimKey.Run_B_L45       },
-            { "Run_B_R45",          AnimKey.Run_B_R45       },
-            { "Run_F_L45",          AnimKey.Run_F_L45       },
-            { "Run_F_R45",          AnimKey.Run_F_R45       },
-            { "Run_F_L90_A",        AnimKey.Run_F_L90       },
-            { "Run_F_R90_A",        AnimKey.Run_F_R90       },
+            { "Run_F",              MotionTags.Run             },
+            { "Run_B",              MotionTags.Run_B           },
+            { "Run_B_L45",          MotionTags.Run_B_L45       },
+            { "Run_B_R45",          MotionTags.Run_B_R45       },
+            { "Run_F_L45",          MotionTags.Run_F_L45       },
+            { "Run_F_R45",          MotionTags.Run_F_R45       },
+            { "Run_F_L90_A",        MotionTags.Run_F_L90       },
+            { "Run_F_R90_A",        MotionTags.Run_F_R90       },
             // ── Stop — Run ────────────────────────────────────────────────────
-            { "Run_F_To_Idle",     AnimKey.Move_Stop_Running     },
-            { "Run_F_L45_To_Idle", AnimKey.Move_Stop_Running_L45 },
-            { "Run_F_R45_To_Idle", AnimKey.Move_Stop_Running_R45 },
+            { "Run_F_To_Idle",     MotionTags.Move_Stop_Running     },
+            { "Run_F_L45_To_Idle", MotionTags.Move_Stop_Running_L45 },
+            { "Run_F_R45_To_Idle", MotionTags.Move_Stop_Running_R45 },
             // ── Stop — Walk ───────────────────────────────────────────────────
-            { "Walk_F_To_Idle",     AnimKey.Move_Stop_Walking     },
-            { "Walk_F_L45_To_Idle", AnimKey.Move_Stop_Walking_L45 },
-            { "Walk_F_R45_To_Idle", AnimKey.Move_Stop_Walking_R45 },
+            { "Walk_F_To_Idle",     MotionTags.Move_Stop_Walking     },
+            { "Walk_F_L45_To_Idle", MotionTags.Move_Stop_Walking_L45 },
+            { "Walk_F_R45_To_Idle", MotionTags.Move_Stop_Walking_R45 },
             // ── Stop — Sprint ─────────────────────────────────────────────────
-            { "Sprint_F_To_Idle",     AnimKey.Move_Stop_Sprinting     },
-            { "Sprint_F_L45_To_Idle", AnimKey.Move_Stop_Sprinting_L45 },
-            { "Sprint_F_R45_To_Idle", AnimKey.Move_Stop_Sprinting_R45 },
+            { "Sprint_F_To_Idle",     MotionTags.Move_Stop_Sprinting     },
+            { "Sprint_F_L45_To_Idle", MotionTags.Move_Stop_Sprinting_L45 },
+            { "Sprint_F_R45_To_Idle", MotionTags.Move_Stop_Sprinting_R45 },
             // ── TurnInPlace — Stand Idle ──────────────────────────────────────
-            { "Stand_Idle_Turn_L45", AnimKey.Stand_Idle_Turn_L45 },
-            { "Stand_Idle_Turn_R45", AnimKey.Stand_Idle_Turn_R45 },
-            { "Stand_Idle_Turn_L90", AnimKey.Stand_Idle_Turn_L90 },
-            { "Stand_Idle_Turn_R90", AnimKey.Stand_Idle_Turn_R90 },
-            { "Stand_Idle_Turn_180", AnimKey.Stand_Idle_Turn_180 },
+            { "Stand_Idle_Turn_L45", MotionTags.Stand_Idle_Turn_L45 },
+            { "Stand_Idle_Turn_R45", MotionTags.Stand_Idle_Turn_R45 },
+            { "Stand_Idle_Turn_L90", MotionTags.Stand_Idle_Turn_L90 },
+            { "Stand_Idle_Turn_R90", MotionTags.Stand_Idle_Turn_R90 },
+            { "Stand_Idle_Turn_180", MotionTags.Stand_Idle_Turn_180 },
             // ── Turn — Run (이동 중 방향 전환) ────────────────────────────────
-            { "Run_F_Turn_L45", AnimKey.Run_Turn_L45 },
-            { "Run_F_Turn_R45", AnimKey.Run_Turn_R45 },
-            { "Run_F_Turn_L90", AnimKey.Run_Turn_L90 },
-            { "Run_F_Turn_R90", AnimKey.Run_Turn_R90 },
-            { "Run_F_Turn_180", AnimKey.Run_Turn_180 },
+            { "Run_F_Turn_L45", MotionTags.Run_Turn_L45 },
+            { "Run_F_Turn_R45", MotionTags.Run_Turn_R45 },
+            { "Run_F_Turn_L90", MotionTags.Run_Turn_L90 },
+            { "Run_F_Turn_R90", MotionTags.Run_Turn_R90 },
+            { "Run_F_Turn_180", MotionTags.Run_Turn_180 },
             // ── Turn — Walk ───────────────────────────────────────────────────
-            { "Walk_F_Turn_L45", AnimKey.Walk_Turn_L45 },
-            { "Walk_F_Turn_R45", AnimKey.Walk_Turn_R45 },
-            { "Walk_F_Turn_L90", AnimKey.Walk_Turn_L90 },
-            { "Walk_F_Turn_R90", AnimKey.Walk_Turn_R90 },
-            { "Walk_F_Turn_180", AnimKey.Walk_Turn_180 },
+            { "Walk_F_Turn_L45", MotionTags.Walk_Turn_L45 },
+            { "Walk_F_Turn_R45", MotionTags.Walk_Turn_R45 },
+            { "Walk_F_Turn_L90", MotionTags.Walk_Turn_L90 },
+            { "Walk_F_Turn_R90", MotionTags.Walk_Turn_R90 },
+            { "Walk_F_Turn_180", MotionTags.Walk_Turn_180 },
             // ── Turn — Sprint ─────────────────────────────────────────────────
-            { "Sprint_F_Turn_L45", AnimKey.Sprint_Turn_L45 },
-            { "Sprint_F_Turn_R45", AnimKey.Sprint_Turn_R45 },
-            { "Sprint_F_Turn_L90", AnimKey.Sprint_Turn_L90 },
-            { "Sprint_F_Turn_R90", AnimKey.Sprint_Turn_R90 },
-            { "Sprint_F_Turn_180", AnimKey.Sprint_Turn_180 },
+            { "Sprint_F_Turn_L45", MotionTags.Sprint_Turn_L45 },
+            { "Sprint_F_Turn_R45", MotionTags.Sprint_Turn_R45 },
+            { "Sprint_F_Turn_L90", MotionTags.Sprint_Turn_L90 },
+            { "Sprint_F_Turn_R90", MotionTags.Sprint_Turn_R90 },
+            { "Sprint_F_Turn_180", MotionTags.Sprint_Turn_180 },
         };
 
         // ── 내부 데이터 ─────────────────────────────────────────────────────────
         private class MappingEntry
         {
-            public AnimKey        AnimKey;
+            public GameplayTag    MotionSlot;
             public string         FbxPath;       // Assets/ 상대경로
             public bool           IsInPlace;
             public AnimationClip  Clip;
@@ -241,7 +242,7 @@ namespace UPlayGround.Animation.Editor
                 new GUIContent("InPlace 버전 우선", "같은 이름의 일반/InPlace 클립이 모두 존재할 때 InPlace를 선택합니다."),
                 _preferInPlace);
             _overwrite = EditorGUILayout.Toggle(
-                new GUIContent("기존 항목 덮어쓰기", "대상 SO에 이미 등록된 AnimKey도 재생성합니다."),
+                new GUIContent("기존 항목 덮어쓰기", "대상 SO에 이미 등록된 Motion Slot도 재생성합니다."),
                 _overwrite);
         }
 
@@ -268,7 +269,7 @@ namespace UPlayGround.Animation.Editor
             {
                 GUILayout.Space(4);
                 EditorGUILayout.LabelField("✓",        GUILayout.Width(18));
-                EditorGUILayout.LabelField("AnimKey",  GUILayout.Width(220));
+                EditorGUILayout.LabelField("Motion Slot",  GUILayout.Width(220));
                 EditorGUILayout.LabelField("클립",      GUILayout.Width(170));
                 EditorGUILayout.LabelField("InPlace",  GUILayout.Width(55));
                 EditorGUILayout.LabelField("FBX 경로",  GUILayout.ExpandWidth(true));
@@ -289,7 +290,7 @@ namespace UPlayGround.Animation.Editor
 
                 GUILayout.Space(4);
                 e.Selected = EditorGUILayout.Toggle(e.Selected, GUILayout.Width(18));
-                EditorGUILayout.LabelField(e.AnimKey.ToString(), GUILayout.Width(220));
+                EditorGUILayout.LabelField(e.MotionSlot.ToString(), GUILayout.Width(220));
                 EditorGUILayout.ObjectField(e.Clip, typeof(AnimationClip), false, GUILayout.Width(170));
                 EditorGUILayout.LabelField(e.IsInPlace ? "✔" : "", GUILayout.Width(55));
                 EditorGUILayout.LabelField(e.FbxPath, EditorStyles.miniLabel, GUILayout.ExpandWidth(true));
@@ -345,8 +346,8 @@ namespace UPlayGround.Animation.Editor
                 return;
             }
 
-            // AnimKey별 후보 수집 (InPlace 선호 여부 반영)
-            var candidates = new Dictionary<AnimKey, (string path, bool inPlace, AnimationClip clip)>();
+            // Motion Slot별 후보 수집 (InPlace 선호 여부 반영)
+            var candidates = new Dictionary<GameplayTag, (string path, bool inPlace, AnimationClip clip)>();
 
             string[] guids = AssetDatabase.FindAssets("t:Model", new[] { _scanFolder });
             foreach (string guid in guids)
@@ -357,16 +358,16 @@ namespace UPlayGround.Animation.Editor
                 bool isInPlace  = fileName.EndsWith("_InPlace");
                 string baseName = isInPlace ? fileName[..^"_InPlace".Length] : fileName;
 
-                if (!PatternToKey.TryGetValue(baseName, out AnimKey animKey))
+                if (!PatternToKey.TryGetValue(baseName, out GameplayTag motionSlot))
                     continue;
 
                 AnimationClip clip = ExtractClip(path);
                 if (clip == null)
                     continue;
 
-                if (!candidates.TryGetValue(animKey, out var existing))
+                if (!candidates.TryGetValue(motionSlot, out var existing))
                 {
-                    candidates[animKey] = (path, isInPlace, clip);
+                    candidates[motionSlot] = (path, isInPlace, clip);
                 }
                 else
                 {
@@ -375,17 +376,17 @@ namespace UPlayGround.Animation.Editor
                     bool gotWanted       = wantInPlace ? existing.inPlace : !existing.inPlace;
                     bool candidateWanted = wantInPlace ? isInPlace : !isInPlace;
                     if (candidateWanted && !gotWanted)
-                        candidates[animKey] = (path, isInPlace, clip);
+                        candidates[motionSlot] = (path, isInPlace, clip);
                 }
             }
 
             // MappingEntry 변환
             foreach (var kv in candidates)
             {
-                bool exists = _targetSO != null && _targetSO.motionSets.ContainsKey(kv.Key);
+                bool exists = _targetSO != null && _targetSO.motionSlots.ContainsKey(kv.Key);
                 _entries.Add(new MappingEntry
                 {
-                    AnimKey   = kv.Key,
+                    MotionSlot = kv.Key,
                     FbxPath   = kv.Value.path,
                     IsInPlace = kv.Value.inPlace,
                     Clip      = kv.Value.clip,
@@ -394,7 +395,7 @@ namespace UPlayGround.Animation.Editor
                 });
             }
 
-            _entries.Sort((a, b) => a.AnimKey.CompareTo(b.AnimKey));
+            _entries.Sort((a, b) => string.CompareOrdinal(a.MotionSlot.TagName, b.MotionSlot.TagName));
             _statusMsg = $"스캔 완료: {candidates.Count}개 매핑 발견 (전체 FBX {guids.Length}개 검사)";
             Repaint();
         }
@@ -414,7 +415,7 @@ namespace UPlayGround.Animation.Editor
             // 각 항목의 저장 경로 미리 계산
             var pathMap = selected.ToDictionary(
                 e => e,
-                e => $"{_outputFolder}/{prefix}{e.AnimKey}.asset");
+                e => $"{_outputFolder}/{prefix}{e.MotionSlot}.asset");
 
             // ── Phase 1: MotionSetAsset 파일 생성/업데이트 ────────────────────
             // StartAssetEditing으로 묶어 CreateAsset 중간에 발생하는
@@ -431,7 +432,7 @@ namespace UPlayGround.Animation.Editor
                     if (isNew)
                     {
                         msa           = CreateInstance<MotionSetAsset>();
-                        msa.motionSet = new MotionSet { motionSetName = $"{prefix}{entry.AnimKey}" };
+                        msa.motionSet = new MotionSet { motionSetName = $"{prefix}{entry.MotionSlot}" };
                     }
 
                     if (msa.motionSet.motions.Count == 0)
@@ -465,7 +466,7 @@ namespace UPlayGround.Animation.Editor
             // ── Phase 2: import 완료된 에셋을 디스크에서 다시 로드하여 등록 ──
             // CreateInstance로 만든 객체는 import 후 무효화될 수 있으므로
             // 반드시 경로 기반으로 재로드한 참조를 딕셔너리에 넣는다.
-            Undo.RecordObject(_targetSO, "Locomotion Setup: Register AnimKeys");
+            Undo.RecordObject(_targetSO, "Locomotion Setup: Register Motion Slots");
 
             foreach (var entry in selected)
             {
@@ -477,13 +478,13 @@ namespace UPlayGround.Animation.Editor
                     continue;
                 }
 
-                if (_targetSO.motionSets.ContainsKey(entry.AnimKey))
-                    _targetSO.motionSets[entry.AnimKey] = msa;
+                if (_targetSO.motionSlots.ContainsKey(entry.MotionSlot))
+                    _targetSO.motionSlots[entry.MotionSlot] = msa;
                 else
-                    _targetSO.motionSets.Add(entry.AnimKey, msa);
+                    _targetSO.motionSlots.Add(entry.MotionSlot, msa);
             }
             
-            SyncSerializedDictionary(_targetSO.motionSets);
+            SyncSerializedDictionary(_targetSO.motionSlots);
             EditorUtility.SetDirty(_targetSO);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

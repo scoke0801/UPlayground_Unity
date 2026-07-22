@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
@@ -42,8 +42,8 @@ namespace UPlayGround.State
 
             gameActor.Animator.ApplyRootMotion(true);
 
-            AnimKey dodgeKey = ResolveDirectionalMotionKey(
-                AnimKey.Dodge_F, AnimKey.Dodge_B, AnimKey.Dodge_L, AnimKey.Dodge_R, AnimKey.Dodge);
+            UPlayGround.Gameplay.Tag.GameplayTag dodgeKey = ResolveDirectionalMotionKey(
+                UPlayGround.Data.Actor.Animation.MotionTags.Dodge_F, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_B, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_L, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_R, UPlayGround.Data.Actor.Animation.MotionTags.Dodge);
             var animState = gameActor.Animator.PlayMotion(dodgeKey, 0.25f);
             if (animState != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;

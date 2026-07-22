@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_
+  m_EditorClassIdentifier: 
+  graphId: 
+  nodes:
+  - rid: 5341828197982666927
+  - rid: 5341828197982666930
+  - rid: 5341828197982666931
+  - rid: 5341828197982666932
+  - rid: 5341828197982666933
+  - rid: 5341828197982666936
+  connections:
+  - fromNodeId: 0768440a64b244b7b9ba5ca4f08263f3
+    fromPort: Out
+    toNodeId: 8a0aae7ff58a480dab54ca0c2e4326e0
+    toPort: In
+  - fromNodeId: 8a0aae7ff58a480dab54ca0c2e4326e0
+    fromPort: Out
+    toNodeId: 0e0522c154a846f79b8831aa2e0ca9b1
+    toPort: In
+  - fromNodeId: 0e0522c154a846f79b8831aa2e0ca9b1
+    fromPort: True
+    toNodeId: c26f6980f1dd4f4482a4c6ae8efa474d
+    toPort: In
+  - fromNodeId: 0e0522c154a846f79b8831aa2e0ca9b1
+    fromPort: False
+    toNodeId: a8124b394b1d4eb795cdd5e942c27614
+    toPort: In
+  editorGroups: []
+  variables:
+  - name: test
+    type: 0
+    boolValue: 1
+    intValue: 0
+    floatValue: 0
+    stringValue: 
+  references:
+    version: 2
+    RefIds:
+    - rid: 5341828197982666927
+      type: {class: PlayDialogueNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 8a0aae7ff58a480dab54ca0c2e4326e0
+        editorPosition: {x: 320, y: -56}
+        breakpoint: 0
+        editorLabel: 
+        editorComment: 
+        dialogue: {fileID: 0}
+    - rid: 5341828197982666930
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 0768440a64b244b7b9ba5ca4f08263f3
+        editorPosition: {x: 111, y: -95}
+        breakpoint: 0
+        editorLabel: 
+        editorComment: 
+        entryId: 
+        repeatPolicy: 3
+        cooldownSeconds: 1
+    - rid: 5341828197982666931
+      type: {class: EvaluateTriggerConditionNode, ns: UPlayGround.TriggerSystem, asm: Assembly-CSharp}
+      data:
+        id: c26f6980f1dd4f4482a4c6ae8efa474d
+        editorPosition: {x: 346, y: 188}
+        breakpoint: 0
+        editorLabel: 
+        editorComment: 
+        condition: {fileID: 0}
+    - rid: 5341828197982666932
+      type: {class: SetFlagNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: a8124b394b1d4eb795cdd5e942c27614
+        editorPosition: {x: 360, y: 352}
+        breakpoint: 0
+        editorLabel: 
+        editorComment: 
+        flagKey: 
+        value: 1
+    - rid: 5341828197982666933
+      type: {class: CheckVariableNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 0e0522c154a846f79b8831aa2e0ca9b1
+        editorPosition: {x: 95, y: 111}
+        breakpoint: 0
+        editorLabel: 
+        editorComment: 
+        variableName: variable
+        expected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+    - rid: 5341828197982666936
+      type: {class: SubGraphNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 00fe5e6e89994744aa84da6dcf42739e
+        editorPosition: {x: 360, y: -244}
+        breakpoint: 0
+        editorLabel: 
+        editorComment: 
+        subGraph: {fileID: 0}
+        entryId: 
+        waitForCompletion: 1

@@ -161,8 +161,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 return;
             }
 
-            if (baseInfo.animKey == AnimKey.None)
-                AddIssue(issues, CombatValidationSeverity.Error, path, context, "animKey가 None입니다.");
+            if (baseInfo.motionRef == null || !baseInfo.motionRef.HasAnyMotion)
+                AddIssue(issues, CombatValidationSeverity.Error, path, context, "실행 가능한 MotionReference가 없습니다.");
 
             if (baseInfo.hitPhases == null || baseInfo.hitPhases.Count == 0)
             {
@@ -313,15 +313,26 @@ namespace UPlayGround.Tool.Editor.Combat
             ActorAnimationMotionSet motionSetRoot,
             AbilityAttackInfo enemyInfo)
         {
-            // animKey == None은 SO 기본 검증에서 이미 보고하므로 여기서는 건너뛴다.
-            if (baseInfo == null || baseInfo.animKey == AnimKey.None)
+            // 모션 참조 누락은 SO 기본 검증에서 이미 보고하므로 여기서는 건너뛴다.
+            if (baseInfo?.motionRef == null || !baseInfo.motionRef.HasAnyMotion)
                 return;
 
-            MotionSet motionSet = motionSetRoot.GetMotionSet(baseInfo.animKey);
+            MotionSetAsset motionAsset = baseInfo.motionRef.defaultMotion;
+            if (motionAsset == null && baseInfo.motionRef.weaponOverrides != null)
+            {
+                foreach (var weaponOverride in baseInfo.motionRef.weaponOverrides)
+                {
+                    if (weaponOverride.motion == null) continue;
+                    motionAsset = weaponOverride.motion;
+                    break;
+                }
+            }
+
+            MotionSet motionSet = motionAsset?.motionSet;
             if (motionSet == null)
             {
                 AddIssue(issues, CombatValidationSeverity.Error, path, context,
-                    $"animKey '{baseInfo.animKey}'에 해당하는 MotionSet을 (fallback 포함) 찾을 수 없습니다.");
+                    $"MotionReference '{baseInfo.motionRef.name}'에서 유효한 MotionSet을 찾을 수 없습니다.");
                 return;
             }
 
@@ -331,7 +342,7 @@ namespace UPlayGround.Tool.Editor.Combat
             if (baseInfo.attackType == AttackType.Melee && !events.HasCollision)
             {
                 AddIssue(issues, CombatValidationSeverity.Error, path, context,
-                    $"근접(Melee) 공격 '{baseInfo.animKey}'인데 MotionSet에 BeginCollisionEvent가 없습니다.");
+                    $"근접(Melee) 공격 '{motionAsset.name}'의 MotionSet에 BeginCollisionEvent가 없습니다.");
             }
 
             foreach (BeginCollisionEvent collision in events.Collisions)
@@ -340,7 +351,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 if (index < 0 || index >= phaseCount)
                 {
                     AddIssue(issues, CombatValidationSeverity.Error, path, context,
-                        $"BeginCollisionEvent.hitPhaseIndex={index}가 hitPhases 범위(0~{phaseCount - 1})를 벗어납니다. (animKey '{baseInfo.animKey}')");
+                        $"BeginCollisionEvent.hitPhaseIndex={index}가 hitPhases 범위(0~{phaseCount - 1})를 벗어납니다. (motion '{motionAsset.name}')");
                 }
             }
 

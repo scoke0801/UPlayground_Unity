@@ -119,12 +119,12 @@ namespace UPlayGround.Components
             runner.Initialize(request);
             if (runner._isCancelling)
             {
-                Debug.LogWarning($"[ResidualAttack] Runner spawn aborted. character={request.Snapshot.CharacterType}, animKey={request.Snapshot.PlaybackSnapshot.Key}");
+                Debug.LogWarning($"[ResidualAttack] Runner spawn aborted. character={request.Snapshot.CharacterType}, motion={request.Snapshot.PlaybackSnapshot.DisplayKey}");
                 return null;
             }
 
             ActiveRunners.Add(runner);
-            Debug.Log($"[ResidualAttack] Runner spawned. character={request.Snapshot.CharacterType}, animKey={request.Snapshot.PlaybackSnapshot.Key}, activeCount={ActiveRunners.Count}, position={request.Snapshot.Position}");
+            Debug.Log($"[ResidualAttack] Runner spawned. character={request.Snapshot.CharacterType}, motion={request.Snapshot.PlaybackSnapshot.DisplayKey}, activeCount={ActiveRunners.Count}, position={request.Snapshot.Position}");
             return runner;
         }
 
@@ -173,7 +173,10 @@ namespace UPlayGround.Components
             }
 
             _animator.Init(snapshot.OwnerPlayer);
-            Debug.Log($"[ResidualAttack] Residual animator initialized. animator={_animator.name}, owner={snapshot.OwnerPlayer.name}, hasMotion={_animator.HasMotion(snapshot.PlaybackSnapshot.Key, true)}");
+            bool hasMotion = snapshot.PlaybackSnapshot.SourceAsset != null
+                ? _animator.HasMotion(snapshot.PlaybackSnapshot.SourceAsset)
+                : _animator.HasMotion(snapshot.PlaybackSnapshot.Slot, true);
+            Debug.Log($"[ResidualAttack] Residual animator initialized. animator={_animator.name}, owner={snapshot.OwnerPlayer.name}, hasMotion={hasMotion}");
 
             var executor = _animator.GetComponent<MotionEventExecutor>();
             if (executor != null)
@@ -192,13 +195,13 @@ namespace UPlayGround.Components
             _animator.OnMotionSetCompleted += OnMotionSetCompleted;
             if (!_animator.RestorePlaybackSnapshot(snapshot.PlaybackSnapshot))
             {
-                Debug.LogWarning($"[ResidualAttack] Runner cancelled: restore playback failed. animKey={snapshot.PlaybackSnapshot.Key}");
+                Debug.LogWarning($"[ResidualAttack] Runner cancelled: restore playback failed. motion={snapshot.PlaybackSnapshot.DisplayKey}");
                 Cancel(SwapResidualAttackCancelReason.Cancelled);
             }
             else
             {
                 ActorWeaponTrailController.StartAttackTrails(_modelInstance.transform);
-                Debug.Log($"[ResidualAttack] Playback restored. animKey={snapshot.PlaybackSnapshot.Key}, lifetime={_maxLifetime}, rootMotion={request.UseRootMotion}");
+                Debug.Log($"[ResidualAttack] Playback restored. motion={snapshot.PlaybackSnapshot.DisplayKey}, lifetime={_maxLifetime}, rootMotion={request.UseRootMotion}");
             }
         }
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 using UPlayGround.Data.Item;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Actor
 {
@@ -19,9 +20,9 @@ namespace UPlayGround.Data.Actor
         [Tooltip("상호작용 입력 후 완료 처리까지 유지해야 하는 시간(초). 0이면 기존처럼 즉시 완료됩니다.")]
         [Min(0f)] public float interactionCompleteDuration = 0f;
 
-        [Tooltip("상호작용 시 플레이어가 재생할 모션. None이면 모션 없이 진행합니다. (현재 DROP_ITEM에서 사용)\n" +
+        [Tooltip("상호작용 시 플레이어가 재생할 모션 슬롯. 비어 있으면 모션 없이 진행합니다. (현재 DROP_ITEM에서 사용)\n" +
                  "interactionCompleteDuration이 있으면 모션 내 Loop 이벤트 구간에서 대기하고, 없으면 Loop 이벤트를 건너뛰고 끝까지 재생합니다.")]
-        public AnimKey interactionAnimKey = AnimKey.None;
+        public GameplayTag interactionMotionSlot;
 
         public List<ItemDropList> dropItems = new List<ItemDropList>();
 

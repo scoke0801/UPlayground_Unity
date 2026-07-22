@@ -797,6 +797,35 @@ namespace UPlayGround.Animation.Editor
                 EditorGUILayout.LabelField($"{set.TotalDuration:F2}s", EditorStyles.miniLabel, GUILayout.Width(50));
             }
             EditorGUILayout.EndHorizontal();
+
+            // Base 재생 레이어: Base 타임라인(motions) 전체를 지정 Animancer 레이어에서 재생한다.
+            // 0 = 레이어0(기존). 1 이상이면 상체 마스크가 적용된 오버레이 레이어로 재생돼, L0는 다른
+            // MotionSet(하체 로코모션 등)이 동시에 쓸 수 있다. 병렬 재생 레이어와는 별개다.
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent("Base 재생 레이어",
+                        "Base 타임라인(motions)을 재생할 Animancer 레이어 인덱스.\n" +
+                        "0 = 레이어0(디렉터, 기존과 동일).\n" +
+                        "1 이상 = Base 전체를 해당 레이어에 오버레이로 재생(액터 상체 마스크 적용).\n" +
+                        "L0는 다른 MotionSet(예: 하체 로코모션)이 동시에 사용 가능.\n" +
+                        "병렬 재생 레이어(layers)와는 무관 — Base 시퀀스 자체를 옮기는 것."),
+                    GUILayout.Width(100));
+                EditorGUI.BeginChangeCheck();
+                int newBaseLayer = Mathf.Max(0, EditorGUILayout.IntField(set.baseLayerIndex, GUILayout.Width(50)));
+                if (EditorGUI.EndChangeCheck() && newBaseLayer != set.baseLayerIndex)
+                {
+                    set.baseLayerIndex = newBaseLayer;
+                    MarkDirty();
+                }
+
+                EditorGUILayout.LabelField(
+                    set.baseLayerIndex > 0
+                        ? $"→ L{set.baseLayerIndex} 오버레이 재생 (상체 마스크)"
+                        : "→ L0 전신 재생",
+                    EditorStyles.miniLabel);
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         // ====================================================================

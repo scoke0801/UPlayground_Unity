@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: SpiderQueen_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -37,4 +38,24 @@ MonoBehaviour:
     - Key: 700
       Value: {fileID: 11400000, guid: 0252832e95119254195694890e655061, type: 2}
     - Key: 800
+      Value: {fileID: 11400000, guid: e80e3ec89cf23f9449532a2b904ef68d, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: 3ef9cd0c0404bc8499e01098f359ea21, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: 35d1800af0c6a4347941c949332a75c8, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: 35d1800af0c6a4347941c949332a75c8, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: 35d1800af0c6a4347941c949332a75c8, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
+      Value: {fileID: 11400000, guid: 0252832e95119254195694890e655061, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
       Value: {fileID: 11400000, guid: e80e3ec89cf23f9449532a2b904ef68d, type: 2}

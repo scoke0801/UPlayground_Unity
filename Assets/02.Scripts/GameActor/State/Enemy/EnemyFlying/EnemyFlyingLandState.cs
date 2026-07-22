@@ -46,7 +46,7 @@ namespace UPlayGround.State
             _descentSpeed = Cfg_DescentSpeed;
 
             // 착지 준비 모션
-            gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.2f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Landing, 0.2f);
 
             // GroundSolving을 켜야 지면 접촉을 감지할 수 있다
             motor.SetGroundSolvingActivation(true);

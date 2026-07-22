@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c61bf11921341aca44d36d106ffae16, type: 3}
   m_Name: Skeleton_Sword_MotionAsset
   m_EditorClassIdentifier: 
+  fallbackMotionSet: {fileID: 0}
   motionSets:
     _serializedList:
     - Key: 1
@@ -29,4 +30,24 @@ MonoBehaviour:
     - Key: 800
       Value: {fileID: 11400000, guid: dafbf005c0124564d8a1b6f747ccd62c, type: 2}
     - Key: 700
+      Value: {fileID: 11400000, guid: 0fab8905a485d88469903bbb79460dbb, type: 2}
+  motionSlots:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Idle
+      Value: {fileID: 11400000, guid: a4a4a7f53fb53ed40a9e422e52c77e24, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: {fileID: 11400000, guid: cfe87ff40beac004dbef7febdd6c8be9, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: {fileID: 11400000, guid: c9a7fca7da0b13c4c9cc0a2fa181cec2, type: 2}
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: {fileID: 11400000, guid: c9a7fca7da0b13c4c9cc0a2fa181cec2, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Death
+      Value: {fileID: 11400000, guid: dafbf005c0124564d8a1b6f747ccd62c, type: 2}
+    - Key:
+        _tagName: Motion.Reaction.Hit.F
       Value: {fileID: 11400000, guid: 0fab8905a485d88469903bbb79460dbb, type: 2}

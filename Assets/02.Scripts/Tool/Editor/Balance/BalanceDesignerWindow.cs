@@ -42,7 +42,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private float _playerAttackInterval = 1.2f;
         private float _minAttackOpportunities = 1f;
 
-        [MenuItem("UPlayGround/게임플레이/밸런스/밸런스 디자이너", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/밸런스/밸런스 디자이너", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.GameplayBalance)]
         public static void Open()
         {
             var window = GetWindow<BalanceDesignerWindow>();
@@ -516,7 +516,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             Rect header = GUILayoutUtility.GetRect(0f, 22f, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(header, new Color(0.13f, 0.13f, 0.15f));
-            DrawSkillCells(header, "AnimKey", "Category", "Chance", "Damage", "Poise", "CD", "DPS", "DPS%", "DR/Tele", true);
+                DrawSkillCells(header, "Motion", "Category", "Chance", "Damage", "Poise", "CD", "DPS", "DPS%", "DR/Tele", true);
 
             for (int i = 0; i < result.SkillBreakdowns.Count; i++)
             {

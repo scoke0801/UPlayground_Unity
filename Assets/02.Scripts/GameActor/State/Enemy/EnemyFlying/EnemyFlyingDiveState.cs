@@ -88,7 +88,7 @@ namespace UPlayGround.State
             else
             {
                 _phase = Phase.Approach;
-                gameActor.Animator.PlayMotion(AnimKey.Fly_Move, 0.15f);
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Move, 0.15f);
             }
         }
 
@@ -320,7 +320,7 @@ namespace UPlayGround.State
             _phaseTimer = 0f;
 
             if (IsAttackDive)
-                gameActor.Animator.PlayMotion(AnimKey.Fly_Landing, 0.1f);
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Landing, 0.1f);
         }
 
         private void EnterTelegraph()
@@ -329,7 +329,7 @@ namespace UPlayGround.State
             _phaseTimer = 0f;
 
             if (IsAttackDive)
-                gameActor.Animator.PlayMotion(AnimKey.Fly_Attack, 0.15f);
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Attack, 0.15f);
         }
 
         private void EnterDiving()
@@ -349,7 +349,7 @@ namespace UPlayGround.State
                 _diveTarget.y = GetGroundY(_diveTarget);
             }
 
-            gameActor.Animator.PlayMotion(AnimKey.Fall, 0.1f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fall, 0.1f);
         }
 
         private void OnImpact()

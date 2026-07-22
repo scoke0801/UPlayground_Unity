@@ -48,10 +48,8 @@ namespace UPlayGround.EditorTools
                 {
                     if (ability.variants[i]?.executionPayload
                             is not UPlayGroundMotionAbilityPayloadSO payload
-                        || !UPlayGroundAbilityPayloadResolver.TryResolve(
-                            ability.variants[i],
-                            out _,
-                            out AbilityAttackInfo attackInfo)
+                        || !payload.IsAttackExecutable
+                        || payload.attackInfo is not AbilityAttackInfo attackInfo
                         || attackInfo?.baseInfo == null
                         || (aiOnly && !attackInfo.aiSelectable))
                         continue;

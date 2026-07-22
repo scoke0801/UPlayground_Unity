@@ -232,7 +232,15 @@ namespace UPlayGround.Animation
     {
         public string motionSetName;
         public List<Motion> motions = new List<Motion>();
-        
+
+        // Base 타임라인(motions)을 재생할 Animancer 레이어 인덱스.
+        // 0 = 레이어0(디렉터, 기존과 동일). 1 이상이면 Base 타임라인 전체를 해당 레이어에
+        // 오버레이로 재생한다. 마스크(액터 _upperBodyMask)가 그 레이어에 있으면 마스크된 부위만
+        // 움직이고, L0는 다른 MotionSet(예: 하체 로코모션)이 동시에 사용할 수 있다.
+        // 병렬 재생 레이어(layers)와는 별개다: 이건 Base 시퀀스 자체를 옮기는 것이지,
+        // Base와 동시에 도는 추가 트랙이 아니다.
+        [Min(0)] public int baseLayerIndex = 0;
+
         // 모션 셋 전체 이벤트 (모든 모션에 걸쳐 적용되는 이벤트)
         [SerializeReference]
         public List<MotionEventBase> globalEvents = new List<MotionEventBase>();

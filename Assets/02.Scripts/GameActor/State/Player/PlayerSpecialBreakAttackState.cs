@@ -8,6 +8,8 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.State
 {
@@ -196,16 +198,10 @@ namespace UPlayGround.State
                 playerActor.transform.rotation = Quaternion.LookRotation(dir.normalized);
         }
 
-        private AnimKey GetMotionKey()
-        {
-            AnimKey configuredKey = _attackData != null ? _attackData.animKey : AnimKey.None;
-            if (configuredKey != AnimKey.None && playerActor.Animator.HasMotion(configuredKey, true))
-                return configuredKey;
-
-            return playerActor.Animator.HasMotion(AnimKey.BreakAttack, true)
-                ? AnimKey.BreakAttack
-                : AnimKey.Attack_1;
-        }
+        private GameplayTag GetMotionKey() =>
+            _attackData != null && _attackData.motionSlot.IsValid()
+                ? _attackData.motionSlot
+                : MotionTags.BreakAttack;
 
         private void PrepareSlideTarget()
         {

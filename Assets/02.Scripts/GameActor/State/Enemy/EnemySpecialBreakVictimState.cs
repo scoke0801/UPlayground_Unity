@@ -39,8 +39,8 @@ namespace UPlayGround.State
             _remainingDuration = _duration;
 
             // 타격 전 중립 홀드 — 피격(Grabbed/Hit_F) 모션을 미리 재생하지 않는다.
-            if (gameActor.Animator.HasMotion(AnimKey.Idle, true))
-                gameActor.Animator.PlayMotion(AnimKey.Idle, 0.1f);
+            if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, true))
+                gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.1f);
         }
 
         public override void UpdateState(float deltaTime)

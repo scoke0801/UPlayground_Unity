@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Actor.Animation
 {
@@ -26,24 +27,19 @@ namespace UPlayGround.Data.Actor.Animation
             return null;
         }
 
-        public MotionSet GetMotionSet(WeaponType weaponType, AnimKey key)
+        public MotionSetAsset GetMotionSetAsset(WeaponType weaponType, GameplayTag slot)
         {
             ActorAnimationMotionSet motionSet = GetActorAnimationMotionSet(weaponType);
-            if (motionSet != null)
-            {
-                var motion = motionSet.GetMotionSet(key);
-                if (motion != null)
-                {
-                    return motion;
-                }
-            }
+            MotionSetAsset motion = motionSet?.GetMotionSetAsset(slot);
+            if (motion != null)
+                return motion;
 
-            if (weaponType != WeaponType.NoWeapon)
-            {
-                motionSet = GetActorAnimationMotionSet(WeaponType.NoWeapon);
-                return motionSet?.GetMotionSet(key);
-            }
-            return null;
+            if (weaponType == WeaponType.NoWeapon)
+                return null;
+            return GetActorAnimationMotionSet(WeaponType.NoWeapon)?.GetMotionSetAsset(slot);
         }
+
+        public MotionSet GetMotionSet(WeaponType weaponType, GameplayTag slot) =>
+            GetMotionSetAsset(weaponType, slot)?.motionSet;
     }
 }

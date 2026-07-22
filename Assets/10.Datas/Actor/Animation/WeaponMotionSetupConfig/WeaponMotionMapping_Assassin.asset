@@ -15,831 +15,1329 @@ MonoBehaviour:
   entries:
   - clip: {fileID: 7400000, guid: 227ab89ed61ec1b469c578a05df7ee14, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 257d960dd83ca4d4eaa6bf58e5fd0f9a, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_BL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 5ab24698719d2084eb9e09e627d10309, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_BR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2513dd21ae211384dbf08043cf373991, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: e3b3f5df51646544a8b7228156d4f77b, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_FL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 915840f6b1970ae408d531005dc35bb6, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_FR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 6043a22e31ec05d45a23f0006e569bc9, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 31774dd75f6268947b219317c275ffaf, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Run_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 42a87f9fda91409488921d4b9e0d89ce, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 7fae45fe41c4f024983d35516457db21, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_BL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 738639f17f5992f4da0aae49daa282c4, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_BR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 8b11b56fcb9c49f4bb9de442865d10bc, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d19093e4cf2528f46a46f28dd6927b18, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_FL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 3ac86687910a62141a2d55afeecd2293, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_FR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 9a8fdd38e9cafa349a71462ca8dc27a8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2c0adfe6383611f4f85e768ff03a98e1, type: 3}
     clipDisplayName: Frank_RPG_Assassin_8Way_Walk_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 30e2838641e689e4780d9fdb79ead2ee, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack01
-    animKey: 109
+    legacyAnimKey: 109
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_10
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 34d0655a428c4a742a249f5c1b0496d0, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack01_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 104b4945285e9c647873bd8fb0722b2d, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack01_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 4706aee32983fa645b7787caeff9e7c0, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 68c1ccbd80e2e4d4abb1731500154646, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack02_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b82516cfc2b28cc4fb5d8a050d208124, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack02_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b67a2cac4e770ba4d95b321f05151e3a, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack03
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: b88936b686bb10b4d9def72d2a5c8085, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack03_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 02c73676cdf390446accdf98794f9242, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack03_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 0087d23ae47bf7a4b90d6cadc5c9368b, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack04
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: af39959abdafc9647a5e2e70651c8ab7, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack04_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 5d504380a3dee0c4e8fca5cb337683bf, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack04_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d26a2de39bf87344c95ada91c6d7d62e, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack05
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c2961a1a15be9fc409ba16170b792312, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack05_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: ec427a0279a7f3d4f9f95ab93383041d, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack05_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 73e7ac7365d411d4fbeef8008e19cd16, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack06
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: cddd5816dc214eb43aaeeeccda9f425b, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack06_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2452fd1ace8bc0f4bbf7159e20e3a51f, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack06_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 75fee3b7b023616498ad1b43d058dea2, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack07
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 7468887dc209a2e449197cb065553edb, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack07_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 230e02f7cba95b040abb3ac73083d511, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack07_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: bc59916b2e7aca540a32c075fceed238, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack08
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 722598ba1261f334a9efa3ec641c0a99, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack08_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: ae5da67e25cd89f469bcced4b939a95e, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Attack08_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d84159687ec99f04798a4d64e04225d8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Block
-    animKey: 860
+    legacyAnimKey: 860
+    motionSlot:
+      _tagName: Motion.Reaction.Block
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 406a1c466a4b7f043a43063ef9d013a3, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_1
-    animKey: 100
+    legacyAnimKey: 100
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 3015bd3b186f70a4c96655894f6a7998, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_1_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: dee43154e84011b4292b06ed9a730eb4, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_2
-    animKey: 101
+    legacyAnimKey: 101
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 1fd3e6e39ce32924da99676da94b97f4, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_2_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 1967cb0e1ffa9224ca5f2ef41f8a57ae, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_3
-    animKey: 102
+    legacyAnimKey: 102
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_3
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 56625b4bc38e7714ba54a05332d1d0f9, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_3_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: af4901ab4585d7847830f02d2481c2bc, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: ca4a9a4b623aeb7419a8b4a9c3e9a106, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b8a945e382aa8e7419d82b491a60f26f, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo01_All_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: a84180c8266e43448922c3047834a7f9, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_1
-    animKey: 103
+    legacyAnimKey: 103
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_4
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5aac49f5a103c764fb1dbed526aa67bd, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_1_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 35ff69c8947b28a41bf4047cbd197b82, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_2
-    animKey: 104
+    legacyAnimKey: 104
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_5
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ccf68dc8d24676143a374ac03a84e3e4, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_2_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 5180cadf73fc29446b3bb77b0384b25c, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_3
-    animKey: 105
+    legacyAnimKey: 105
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_6
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 2f2f6ff3739633e4f93a3dc5e001c0e7, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_3_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 1685a1856da6970478df7a785eeafda5, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: a185c1b964d730d44b2c38ade7140dd0, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b38e3e6d43b7ce24e8d518b0feb78fdb, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo02_All_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: add77593534eef44b898619031620e81, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_1
-    animKey: 106
+    legacyAnimKey: 106
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_7
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 7182e8127f025e340869f4a8c6a8c06d, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_1_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 61ec00ec0f5303842bc5f1ae92e778ab, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_2
-    animKey: 107
+    legacyAnimKey: 107
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_8
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f16bc7f5d7484784eb88c783357ffa80, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_2_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 895e02a4f3049da48b6356b937b91f66, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_3
-    animKey: 108
+    legacyAnimKey: 108
+    motionSlot:
+      _tagName: 
+    contentGroup: Attack_9
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5b9d5c197bea9e74bb92f7ede03adb0d, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_3_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 16d4571df84f5144894cf1a31699d0dd, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2125d22ce5f456645a4bc1bd26c7fd27, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: d72c9c100b70c9b4aa955d32df319658, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo03_All_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 8b5d6047a07ab954bb318bafaf6dc392, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_1
-    animKey: 200
+    legacyAnimKey: 200
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 8c983ee39d279d043a7a48a2891a2230, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_1_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b79c5f26e53dc4345afbeae76d77c813, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_2
-    animKey: 201
+    legacyAnimKey: 201
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 4f8b7d92e63b04a4fa98b3b470f2c8d8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_2_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 93be431be01c8de44b1520b99d84ccd2, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_3
-    animKey: 202
+    legacyAnimKey: 202
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_3
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 48d4472af1cdaa24b98576828e6ceedc, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_3_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: f9b9a1bd4f1e719489c0d0aed87509ca, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 925ec25bebb58b845a5d62595b6dcc8b, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 4a3e8d8283a8c5642a23dbf6b5c3a4d2, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo04_All_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 16f938592d50d3242b3cc5824c18cbbb, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_1
-    animKey: 203
+    legacyAnimKey: 203
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_4
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 69b78442d235c304b9a99157ade57c96, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_1_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 46aa0c207ecff394ca173285b3631aa8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_2
-    animKey: 204
+    legacyAnimKey: 204
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_5
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 34f4397644124ce47b48613735874288, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_2_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 3c98c8865ff939b47a7105ca8ad16b84, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_3
-    animKey: 205
+    legacyAnimKey: 205
+    motionSlot:
+      _tagName: 
+    contentGroup: HeavyAttack_6
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: be950b941218f1b4c9a9fe3ac2b7ede8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_3_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 21b08731575226d46b69d54d6974cc16, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_All
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 137791a1da2a3be4cb97dd59a287528f, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_All_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 51b0fe6026f3ca74d8416c39e23088dd, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Combo05_All_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 90c1a79ef07854e4bbc8c24eba5beada, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Die01
-    animKey: 800
+    legacyAnimKey: 800
+    motionSlot:
+      _tagName: Motion.Reaction.Death
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: b35fba869d790f048af1756330b39572, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Die02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 9b49ccca457c2f14083e286379099cde, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Equip
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 39660d90e9043d94ca913b06b0193235, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Equip_Idle
-    animKey: 1
+    legacyAnimKey: 1
+    motionSlot:
+      _tagName: Motion.Locomotion.Idle
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 220c42b1d3d1b8740ade35574aee4134, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f4b6a15d1ee30ee4bb1f0001b1aab1be, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_B_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: b51208d85a6c54e48b65909bb785d278, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_F
-    animKey: 10
+    legacyAnimKey: 10
+    motionSlot:
+      _tagName: Motion.Action.Dodge
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 1502532caf962b84f9f1767567190142, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_F_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 81975503730f66f4b9c0bae0321af392, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c2bdaa034589ccb4b80b2534e72bb9fe, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_L_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 9a388af6b1738954298b36a6c13fb41c, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 4f120cda2582977448803ff835fdcbd2, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Evade_R_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: de15d31e3a028ab42aff531dc7375c1c, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Getup01
-    animKey: 820
+    legacyAnimKey: 820
+    motionSlot:
+      _tagName: Motion.Reaction.Getup
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 8c1dc04e79a66104f9bed4dd928c26f6, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Getup02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 916014057f8c8ca44b114509b1c7a034, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Guard
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ddf3abe84f338c0438b1d3cc5b8f6164, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit_Knockback
-    animKey: 900
+    legacyAnimKey: 900
+    motionSlot:
+      _tagName: Motion.Reaction.Knockback
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 48cb33b2fd9d55a43a8015648ba77f6d, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit_Knockback_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ed7f92a4591657540ae9c95c614edcde, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit_Knockdown
-    animKey: 901
+    legacyAnimKey: 901
+    motionSlot:
+      _tagName: Motion.Reaction.Knockdown
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: b30ebf229cff8eb4a8bf9f34a2fd1879, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit_Knockdown_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: cca180eb483e45e4d8376566a770809a, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit_Knockdown_Loop
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 208dfb20183bdb340b06cb4331a9bc19, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit01
-    animKey: 700
+    legacyAnimKey: 700
+    motionSlot:
+      _tagName: Motion.Reaction.Hit.F
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 7e55793e53d845649bff1209fb9bbfa3, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ba5aa4855e968b64db6baec2812f20c9, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Hit03
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 527d907f455b65f468a09dddaec12aac, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Jump_01
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: b17c153896ee4044b9787451690050b3, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Jump_02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 652f58083305a404f83187750e93e4e3, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Jump_ZeroHeight
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: be5d0ec5236475f46b4d5c3abd633ed5, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Run01
-    animKey: 3
+    legacyAnimKey: 3
+    motionSlot:
+      _tagName: Motion.Locomotion.Run
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d52f4ae01aa4c3d4e8f8dd1b84f5e188, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Run01_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d27675e260080d245ad5c70cc5bb4cfc, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Run02
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: e76576c66f234104e870a20846c4c6fa, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Run02_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d993bfad613c3984185e548a8783c12c, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill01
-    animKey: 500
+    legacyAnimKey: 500
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_1
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ac3e41f35b51bec48b844ca6e64e0fc8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill01_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2bc141a5715454242bb7336e33ccf332, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill01_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 289a6f652d9995d45816a37e64c31987, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill02
-    animKey: 501
+    legacyAnimKey: 501
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_2
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 3ff7e3056e7897849a6795c3685e01a4, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill02_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 18f8241ab7fcf264fa2a74d0b9081bb9, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill02_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: a2d6b4d9cf4dee7489f3a06d906da0d7, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill03
-    animKey: 502
+    legacyAnimKey: 502
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_3
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: e1dbb95ab56104044b03e9ed42642055, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill03_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 2eefb28705b8e4d4f8f54f2406feb326, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill03_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: c69a40f8d888fe543bbff63e3d778ef8, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill04
-    animKey: 503
+    legacyAnimKey: 503
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_4
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 471176ada4014654fbf4a53d94256db5, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill04_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 9203c6c58f903dc47bf018f78d8874cc, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill04_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 1
   - clip: {fileID: 7400000, guid: 0ab85fdb42cdf6c458f8fb3f1afbf125, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill05
-    animKey: 504
+    legacyAnimKey: 504
+    motionSlot:
+      _tagName: 
+    contentGroup: Skill_5
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 4b66c7588502d6b4b8c3beeaaaf3bc78, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Skill05_Demo
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 7c5ddccfef450274d9aff8396ef98f82, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Step_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 989e226a054cb5544b142efae0b6eabd, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Step_B_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5355aae20ee3abe4b804d051e95391d2, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Step_F
-    animKey: 10
+    legacyAnimKey: 10
+    motionSlot:
+      _tagName: Motion.Action.Dodge
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5e3e9e6c5d2ea134b9196a97b6f865a3, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Step_F_IP
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5bafa45058e3b2541af75cc80a42e17e, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Step_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 56c7a7d9cf1bb53448b3e353c2871412, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Step_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 79a00175b4337d340953aca444d0e402, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Tumbling_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 136effee3ff2b814f98e59f7cc1ff25a, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Tumbling_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 93bb381454c6072449e03c48771ac757, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Tumbling_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: aa100a12d4993104bb15bbc19c672fbb, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Tumbling_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 6091b34ef8bb71a4cb6345f66186dfbe, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Unequip
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 2dc80f223c7249742b38649b6f5157b0, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Unequip_Idle
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: ce4f5732c4ffa27459a9204685fd0def, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Unequip_Run
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: f0de380333d6e9d4e9a1854af5c1acea, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Unequip_Run_Faster
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: c0c8f173a2f7eab40bb5c07cd813c3bf, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Unequip_Run_Faster_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 24701a389f3c1de4bb83187f57c9dc38, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Unequip_Run_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: d56238c2af009bd44b01354e0974918c, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Walk
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: 5c1dcd92d039f254fa8068748fdd4717, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Walk_Faster
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: a1057140233a4b846abd1c8c048e5d56, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Walk_Faster_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 7400000, guid: a4c14c017b0ba2b4ab64331760c9a360, type: 3}
     clipDisplayName: Frank_RPG_Assassin_Walk_Velocity
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: be205637cf7202341a88ccd900b4d506, type: 3}
     clipDisplayName: Velocity_8Way_Run_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: b28641144c0fe3a4496bc8ff69310355, type: 3}
     clipDisplayName: Velocity_8Way_Run_BL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: a13123b38cff76345867369c9c7ded33, type: 3}
     clipDisplayName: Velocity_8Way_Run_BR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 4fcfb42e5944b3446b8f044656c6777f, type: 3}
     clipDisplayName: Velocity_8Way_Run_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 80f80c1063e0dac4ebf42398d4504654, type: 3}
     clipDisplayName: Velocity_8Way_Run_FL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 3136072d7df42e34a84eff0cfec931e0, type: 3}
     clipDisplayName: Velocity_8Way_Run_FR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 582bb0fa2a2d6ff41a97a3604ba28318, type: 3}
     clipDisplayName: Velocity_8Way_Run_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 6f021c1010496334ebcc307dad199e26, type: 3}
     clipDisplayName: Velocity_8Way_Run_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 62244fd6b82195a4f8c00542e2464780, type: 3}
     clipDisplayName: Velocity_8Way_Walk_B
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 598f09d73a9fd51488ab54da5f073fdf, type: 3}
     clipDisplayName: Velocity_8Way_Walk_BL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 2b20c854ba4b2324f99b4bf3a5431527, type: 3}
     clipDisplayName: Velocity_8Way_Walk_BR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 411e31b0c4265b348948c22aba89b23c, type: 3}
     clipDisplayName: Velocity_8Way_Walk_F
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 85a317e4fb7e13345a13acf3d4bc1e6a, type: 3}
     clipDisplayName: Velocity_8Way_Walk_FL
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 022647b9578b23143abcfe4680a97d64, type: 3}
     clipDisplayName: Velocity_8Way_Walk_FR
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: 929dd50a0bd55c846bf18cdf0536e000, type: 3}
     clipDisplayName: Velocity_8Way_Walk_L
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0
   - clip: {fileID: 1827226128182048838, guid: dfadaef3151091f46bd9400c287bb4c5, type: 3}
     clipDisplayName: Velocity_8Way_Walk_R
-    animKey: 0
+    legacyAnimKey: 0
+    motionSlot:
+      _tagName: 
+    contentGroup: 
     orderInSet: 0
     skip: 0

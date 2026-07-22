@@ -8,17 +8,19 @@ using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
+using System.Reflection;
 
 namespace UPlayGround.Animation.Editor
 {
     /// <summary>
-    /// AnimationClip → AnimKey 매핑을 지정하고 MotionSetAsset을 일괄 생성하여
+    /// AnimationClip → GameplayTag 매핑을 지정하고 MotionSetAsset을 일괄 생성하여
     /// ActorAnimationMotionSet에 등록하는 에디터 창.
     ///
     /// 사용 흐름:
     ///   1. AnimClip 폴더 + 출력 폴더 + 대상 SO 설정
     ///   2. [폴더 스캔] — 클립 목록 표시
-    ///   3. 각 클립에 AnimKey 지정 (드롭다운)
+    ///   3. 각 클립에 GameplayTag 지정 (드롭다운)
     ///   4. [매핑 저장] — 다음 캐릭터에 재사용
     ///   5. [일괄 생성] — MotionSetAsset 생성 + AnimSet 등록
     /// </summary>
@@ -56,9 +58,11 @@ namespace UPlayGround.Animation.Editor
             public AnimationClip clip;
             // clip.name이 "Take 001"인 FBX 서브에셋의 경우 FBX 파일명으로 대체
             public string        displayName = "";
-            public AnimKey       animKey    = AnimKey.None;
+            public GameplayTag       motionSlot    = default;
+            public string        contentGroup = "";
             public int           orderInSet = 0;
             public bool          skip       = false;
+            public string GroupId => motionSlot.IsValid() ? motionSlot.TagName : contentGroup;
         }
 
         private List<RowEntry> _rows      = new();
@@ -67,13 +71,13 @@ namespace UPlayGround.Animation.Editor
         private string         _statusMsg = "";
 
         // ── 스태틱 캐시 ──────────────────────────────────────────────────────────
-        private static AnimKey[] s_AllKeys;
+        private static GameplayTag[] s_AllSlots;
         private static string[]  s_AllKeyNames;
         private GUIStyle         _headerStyle;
 
         // ────────────────────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/유틸/무기 모션 설정")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/무기 모션 설정")]
         public static void Open()
         {
             var w = GetWindow<WeaponMotionSetupWindow>("Weapon Motion Setup");
@@ -83,10 +87,16 @@ namespace UPlayGround.Animation.Editor
 
         private void OnEnable()
         {
-            if (s_AllKeys == null)
+            if (s_AllSlots == null)
             {
-                s_AllKeys     = (AnimKey[])Enum.GetValues(typeof(AnimKey));
-                s_AllKeyNames = s_AllKeys.Select(k => k.ToString()).ToArray();
+                s_AllSlots = typeof(MotionTags)
+                    .GetFields(BindingFlags.Public | BindingFlags.Static)
+                    .Where(field => field.FieldType == typeof(GameplayTag))
+                    .Select(field => (GameplayTag)field.GetValue(null))
+                    .Where(tag => tag.IsValid())
+                    .OrderBy(tag => tag.TagName, StringComparer.Ordinal)
+                    .ToArray();
+                s_AllKeyNames = s_AllSlots.Select(k => k.ToString()).ToArray();
             }
 
             ApplyDefaults(false);
@@ -101,7 +111,7 @@ namespace UPlayGround.Animation.Editor
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Weapon Motion Setup", _headerStyle);
             EditorGUILayout.LabelField(
-                "AnimationClip을 AnimKey에 매핑하고 MotionSetAsset을 일괄 생성 · 등록합니다.",
+                "AnimationClip을 GameplayTag에 매핑하고 MotionSetAsset을 일괄 생성 · 등록합니다.",
                 EditorStyles.wordWrappedMiniLabel);
             EditorGUILayout.Space(6);
 
@@ -204,16 +214,16 @@ namespace UPlayGround.Animation.Editor
             EditorGUI.DrawRect(hdr, new Color(0.18f, 0.18f, 0.18f, 0.8f));
             float hx = hdr.x + 4f, hy = hdr.y + 2f;
             GUI.Label(new Rect(hx,        hy, 220f, 16f), "AnimationClip", EditorStyles.boldLabel);
-            GUI.Label(new Rect(hx + 222f, hy, 190f, 16f), "AnimKey",       EditorStyles.boldLabel);
+            GUI.Label(new Rect(hx + 222f, hy, 190f, 16f), "GameplayTag",       EditorStyles.boldLabel);
             GUI.Label(new Rect(hx + 414f, hy,  44f, 16f), "순서",           EditorStyles.boldLabel);
             GUI.Label(new Rect(hx + 460f, hy,  50f, 16f), "건너뜀",         EditorStyles.boldLabel);
 
             DrawDivider();
 
-            // AnimKey → orderInSet 순으로 정렬 (None / skip은 하단)
+            // GameplayTag → orderInSet 순으로 정렬 (None / skip은 하단)
             var sorted = _rows
                 .OrderBy(r => r.skip ? 1 : 0)
-                .ThenBy(r => r.animKey == AnimKey.None ? int.MaxValue : (int)r.animKey)
+                .ThenBy(r => string.IsNullOrEmpty(r.GroupId) ? "\uffff" : r.GroupId, StringComparer.Ordinal)
                 .ThenBy(r => r.orderInSet)
                 .ToList();
 
@@ -225,7 +235,7 @@ namespace UPlayGround.Animation.Editor
             DrawDivider();
 
             // 요약
-            int unmapped = _rows.Count(r => !r.skip && r.animKey == AnimKey.None);
+            int unmapped = _rows.Count(r => !r.skip && string.IsNullOrEmpty(r.GroupId));
             int skipped  = _rows.Count(r =>  r.skip);
             EditorGUILayout.LabelField(
                 $"총 {_rows.Count}개  |  매핑됨: {_rows.Count - unmapped - skipped}  |  미매핑: {unmapped}  |  건너뜀: {skipped}",
@@ -236,7 +246,7 @@ namespace UPlayGround.Animation.Editor
         {
             Color bg;
             if      (row.skip)                   bg = new Color(0.12f, 0.12f, 0.12f, 0.4f);
-            else if (row.animKey == AnimKey.None) bg = new Color(0.50f, 0.13f, 0.13f, 0.4f);
+            else if (string.IsNullOrEmpty(row.GroupId)) bg = new Color(0.50f, 0.13f, 0.13f, 0.4f);
             else                                  bg = idx % 2 == 0 ? new Color(0.22f, 0.22f, 0.22f, 0.25f) : Color.clear;
 
             Rect r = EditorGUILayout.GetControlRect(false, 20f);
@@ -252,13 +262,15 @@ namespace UPlayGround.Animation.Editor
             GUI.Label(new Rect(x, y, 218f, 18f), label, nameStyle);
             x += 222f;
 
-            // AnimKey 선택 (애니메이션 에디터와 동일한 그룹 메뉴)
+            // GameplayTag 선택 (애니메이션 에디터와 동일한 그룹 메뉴)
             Rect keyRect = new Rect(x, y, 188f, 18f);
-            if (GUI.Button(keyRect, row.animKey.ToString(), EditorStyles.popup))
-                ShowAnimKeyMenu(row, keyRect);
+            string groupLabel = row.motionSlot.IsValid() ? row.motionSlot.ToString()
+                : !string.IsNullOrEmpty(row.contentGroup) ? $"[콘텐츠] {row.contentGroup}" : "(없음)";
+            if (GUI.Button(keyRect, groupLabel, EditorStyles.popup))
+                ShowGameplayTagMenu(row, keyRect);
             x += 192f;
 
-            // 순서 (같은 AnimKey에 여러 클립이 묶일 때 Motion 순서)
+            // 순서 (같은 GameplayTag에 여러 클립이 묶일 때 Motion 순서)
             row.orderInSet = EditorGUI.IntField(new Rect(x, y, 40f, 18f), row.orderInSet);
             x += 44f;
 
@@ -271,7 +283,7 @@ namespace UPlayGround.Animation.Editor
         private void DrawGenerateButton()
         {
             bool canGen = !string.IsNullOrEmpty(_outputFolder)
-                          && _rows.Any(r => !r.skip && r.animKey != AnimKey.None);
+                          && _rows.Any(r => !r.skip && r.motionSlot != default);
 
             EditorGUI.BeginDisabledGroup(!canGen);
             if (GUILayout.Button("MotionSetAsset 일괄 생성 & 등록", GUILayout.Height(32)))
@@ -292,7 +304,7 @@ namespace UPlayGround.Animation.Editor
 
             var clips = FindClipsInFolder(_scanFolder);
 
-            // 재스캔 시 기존 AnimKey 매핑 보존
+            // 재스캔 시 기존 GameplayTag 매핑 보존
             var prev = _rows.Where(r => r.clip != null).ToDictionary(r => r.clip);
             _rows = clips.Select(pair =>
             {
@@ -341,7 +353,8 @@ namespace UPlayGround.Animation.Editor
                 if (e == null) byName.TryGetValue(row.displayName, out e);
                 if (e == null) continue;
 
-                row.animKey    = e.animKey;
+                row.motionSlot    = e.motionSlot;
+                row.contentGroup = e.contentGroup;
                 row.orderInSet = e.orderInSet;
                 row.skip       = e.skip;
             }
@@ -358,7 +371,8 @@ namespace UPlayGround.Animation.Editor
                 {
                     clip            = r.clip,
                     clipDisplayName = r.displayName,
-                    animKey         = r.animKey,
+                    motionSlot         = r.motionSlot,
+                    contentGroup    = r.contentGroup,
                     orderInSet      = r.orderInSet,
                     skip            = r.skip,
                 })
@@ -387,27 +401,28 @@ namespace UPlayGround.Animation.Editor
                 _targetSO = EnsureTargetMotionSet();
 
             var groups = _rows
-                .Where(r => !r.skip && r.animKey != AnimKey.None && r.clip != null)
-                .GroupBy(r => r.animKey)
-                .OrderBy(g => (int)g.Key)
+                .Where(r => !r.skip && !string.IsNullOrEmpty(r.GroupId) && r.clip != null)
+                .GroupBy(r => r.GroupId)
+                .OrderBy(g => g.Key, StringComparer.Ordinal)
                 .ToList();
 
             if (groups.Count == 0)
             {
-                _statusMsg = "생성할 항목이 없습니다. AnimKey를 매핑해주세요.";
+                _statusMsg = "생성할 항목이 없습니다. GameplayTag를 매핑해주세요.";
                 return;
             }
 
             int created = 0, updated = 0, skipped = 0;
-            var toRegister = new List<(AnimKey key, MotionSetAsset asset)>();
+            var toRegister = new List<(GameplayTag key, MotionSetAsset asset)>();
 
             foreach (var group in groups)
             {
-                AnimKey key  = group.Key;
+                string groupId = group.Key;
+                GameplayTag key = group.Select(row => row.motionSlot).FirstOrDefault(slot => slot.IsValid());
                 var motions  = group.OrderBy(r => r.orderInSet).ToList();
 
                 string prefix    = string.IsNullOrEmpty(_filePrefix) ? "" : (_filePrefix + "_");
-                string fileName  = $"{prefix}{key}.asset";
+                string fileName  = $"{prefix}{groupId.Replace('.', '_')}.asset";
                 string assetPath = $"{_outputFolder}/{fileName}";
 
                 var existing = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(assetPath);
@@ -435,7 +450,8 @@ namespace UPlayGround.Animation.Editor
                     created++;
                 }
 
-                toRegister.Add((key, asset));
+                if (key.IsValid())
+                    toRegister.Add((key, asset));
             }
 
             AssetDatabase.SaveAssets();
@@ -467,24 +483,26 @@ namespace UPlayGround.Animation.Editor
 
         // ── 유틸 ────────────────────────────────────────────────────────────────
 
-        private void ShowAnimKeyMenu(RowEntry row, Rect dropdownRect)
+        private void ShowGameplayTagMenu(RowEntry row, Rect dropdownRect)
         {
             var menu = new GenericMenu();
 
-            menu.AddItem(new GUIContent("None"), row.animKey == AnimKey.None, () =>
+            menu.AddItem(new GUIContent("None"), row.motionSlot == default, () =>
             {
-                row.animKey = AnimKey.None;
+                row.motionSlot = default;
+                row.contentGroup = string.Empty;
                 Repaint();
             });
             menu.AddSeparator("");
 
-            foreach (AnimKey key in s_AllKeys)
+            foreach (GameplayTag key in s_AllSlots)
             {
-                if (key == AnimKey.None) continue;
-                AnimKey captured = key;
-                menu.AddItem(new GUIContent(GetKeyGroupLabel(key) + "/" + key), row.animKey == key, () =>
+                if (key == default) continue;
+                GameplayTag captured = key;
+                menu.AddItem(new GUIContent(GetKeyGroupLabel(key) + "/" + key), row.motionSlot == key, () =>
                 {
-                    row.animKey = captured;
+                    row.motionSlot = captured;
+                    row.contentGroup = string.Empty;
                     Repaint();
                 });
             }
@@ -492,46 +510,22 @@ namespace UPlayGround.Animation.Editor
             menu.DropDown(dropdownRect);
         }
 
-        private static string GetKeyGroupLabel(AnimKey key)
+        private static string GetKeyGroupLabel(GameplayTag key)
         {
-            int value = (int)key;
-            foreach (var range in KeyRanges)
-            {
-                if (value >= range.min && value <= range.max)
-                    return range.label;
-            }
+            string name = key.TagName ?? string.Empty;
+            if (name.StartsWith("Motion.Locomotion", StringComparison.Ordinal)) return "이동";
+            if (name.StartsWith("Motion.Reaction", StringComparison.Ordinal)) return "피격";
+            if (name.StartsWith("Motion.Air", StringComparison.Ordinal)) return "공중";
+            if (name.StartsWith("Motion.Action", StringComparison.Ordinal)) return "액션";
             return "기타";
         }
 
-        private static void AddOrAssignTargetMotionAsset(ActorAnimationMotionSet target, AnimKey key, MotionSetAsset asset)
+        private static void AddOrAssignTargetMotionAsset(ActorAnimationMotionSet target, GameplayTag key, MotionSetAsset asset)
         {
-            var sObj = new SerializedObject(target);
-            var listProp = sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
-            int idx = FindMotionKeyIndex(listProp, key);
-
-            if (idx < 0)
-            {
-                listProp.InsertArrayElementAtIndex(listProp.arraySize);
-                idx = listProp.arraySize - 1;
-            }
-
-            var elem = listProp.GetArrayElementAtIndex(idx);
-            elem.FindPropertyRelative("Key").intValue = (int)key;
-            elem.FindPropertyRelative("Value").objectReferenceValue = asset;
-
-            sObj.ApplyModifiedProperties();
+            target.motionSlots ??= new SerializedDictionary<GameplayTag, MotionSetAsset>();
+            target.motionSlots[key] = asset;
             EditorUtility.SetDirty(target);
             AssetDatabase.SaveAssetIfDirty(target);
-        }
-
-        private static int FindMotionKeyIndex(SerializedProperty listProp, AnimKey key)
-        {
-            for (int i = 0; i < listProp.arraySize; i++)
-            {
-                if ((AnimKey)listProp.GetArrayElementAtIndex(i).FindPropertyRelative("Key").intValue == key)
-                    return i;
-            }
-            return -1;
         }
 
         private void ApplyDefaults(bool force)
@@ -558,7 +552,7 @@ namespace UPlayGround.Animation.Editor
                 return null;
 
             target = CreateInstance<ActorAnimationMotionSet>();
-            target.motionSets = new SerializedDictionary<AnimKey, MotionSetAsset>();
+            target.motionSlots = new SerializedDictionary<GameplayTag, MotionSetAsset>();
             AssetDatabase.CreateAsset(target, DefaultTargetMotionSetPath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

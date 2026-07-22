@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_3
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 202
+  motionRef: {fileID: 11400000, guid: 20307516cd97d1e458eb10b7632578ae, type: 2}
   attackInfo:
     baseInfo:
-      animKey: 202
+      motionRef: {fileID: 11400000, guid: 20307516cd97d1e458eb10b7632578ae, type: 2}
       attackType: 0
       hitPhases:
       - damage: 12
@@ -35,7 +35,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

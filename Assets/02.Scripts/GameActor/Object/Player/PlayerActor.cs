@@ -162,7 +162,7 @@ namespace UPlayGround
             return IsAlive()
                 && !IsInCombat
                 && PlayerMovementPlayerController?.CurrentState is PlayerIdleState
-                && Animator?.HasMotion(AnimKey.Drink, true) == true;
+                && Animator?.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Drink, true) == true;
         }
 
         /// <summary>

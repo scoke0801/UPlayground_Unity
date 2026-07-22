@@ -48,7 +48,7 @@ namespace UPlayGround.State
 
             _targetHeight = motor.TransientPosition.y + _brain.AirHoverHeight;
 
-            var animState = gameActor.Animator.PlayMotion(AnimKey.Fly_Start, 0.15f);
+            var animState = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Fly_Start, 0.15f);
             if (animState != null)
                 gameActor.Animator.OnMotionSetCompleted += OnMotionEnd;
             else

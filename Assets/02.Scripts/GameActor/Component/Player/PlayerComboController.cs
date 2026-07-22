@@ -15,10 +15,10 @@ namespace UPlayGround.Components
             public readonly float LastAttackTime;
             public readonly bool CanCombo;
             public readonly int AttackState;
-            public readonly AnimKey LastAnimKey;
+            public readonly bool HadAttackMotion;
 
             public Snapshot(int currentIndex, int normalIndex, int heavyIndex, float lastAttackTime,
-                bool canCombo, int attackState, AnimKey lastAnimKey)
+                bool canCombo, int attackState, bool hadAttackMotion)
             {
                 CurrentIndex = currentIndex;
                 NormalIndex = normalIndex;
@@ -26,7 +26,7 @@ namespace UPlayGround.Components
                 LastAttackTime = lastAttackTime;
                 CanCombo = canCombo;
                 AttackState = attackState;
-                LastAnimKey = lastAnimKey;
+                HadAttackMotion = hadAttackMotion;
             }
         }
 

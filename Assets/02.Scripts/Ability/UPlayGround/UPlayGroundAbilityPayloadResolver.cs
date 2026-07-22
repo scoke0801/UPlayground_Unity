@@ -1,4 +1,5 @@
 using UPlayGround.Data.Ability;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 using AbilityAttackInfo = global::UPlayGround.Data.AbilityAttackInfo;
 
@@ -6,33 +7,33 @@ namespace UPlayGround.Ability.UPlayGround
 {
     public static class UPlayGroundAbilityPayloadResolver
     {
-        public static bool TryResolveAnimKey(
-            AbilityVariantDefinition variant,
-            out AnimKey animKey)
-        {
-            animKey = AnimKey.None;
-            if (variant?.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
-                return false;
+        public static bool IsExecutable(AbilityVariantDefinition variant) =>
+            variant?.executionPayload is UPlayGroundMotionAbilityPayloadSO payload
+            && payload.IsExecutable;
 
-            animKey = payload.ResolveAnimKey();
-            return animKey != AnimKey.None;
+        public static bool TryResolveAttackInfo(
+            AbilityVariantDefinition variant,
+            out AbilityAttackInfo attackInfo)
+        {
+            attackInfo = (variant?.executionPayload as UPlayGroundMotionAbilityPayloadSO)?.attackInfo;
+            return attackInfo?.baseInfo != null;
         }
 
         public static bool TryResolve(
             AbilityVariantDefinition variant,
-            out AnimKey animKey,
+            WeaponType weaponType,
+            out MotionSetAsset motionAsset,
             out AbilityAttackInfo attackInfo)
         {
-            animKey = AnimKey.None;
+            motionAsset = null;
             attackInfo = null;
-            if (variant == null) return false;
-
-            if (variant.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
+            if (variant?.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
                 return false;
 
-            animKey = payload.ResolveAnimKey();
+            motionAsset = payload.ResolveMotion(weaponType);
             attackInfo = payload.attackInfo;
-            return payload.IsAttackExecutable;
+            return attackInfo?.baseInfo != null && motionAsset != null;
         }
+
     }
 }

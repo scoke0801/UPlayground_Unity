@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: Payload_Attack_2
   m_EditorClassIdentifier: 
   executionId: 
-  animKey: 101
   attackInfo:
     baseInfo:
-      animKey: 101
       attackType: 0
       hitPhases:
       - damage: 45

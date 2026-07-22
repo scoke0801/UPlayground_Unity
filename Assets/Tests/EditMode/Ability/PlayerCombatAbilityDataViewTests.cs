@@ -7,6 +7,8 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Animation;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Ability.Tests
 {
@@ -26,11 +28,11 @@ namespace UPlayGround.Ability.Tests
         public void AbilitySet의_일반공격_차지_연계라우트를_전투뷰로_해석한다()
         {
             AbilitySetSO set = Create<AbilitySetSO>();
-            GameplayAbilitySO light0 = CreateAttack("Light0", AnimKey.Attack_1, 10f);
-            GameplayAbilitySO light1 = CreateAttack("Light1", AnimKey.Attack_2, 20f);
-            GameplayAbilitySO counter = CreateAttack("Counter", AnimKey.Counter_Attack_1, 30f);
-            GameplayAbilitySO charge = CreateAttack("Charge", AnimKey.HeavyAttack_1, 40f);
-            GameplayAbilitySO route = CreateAttack("Route", AnimKey.Skill_1, 50f);
+            GameplayAbilitySO light0 = CreateAttack("Light0", 10f);
+            GameplayAbilitySO light1 = CreateAttack("Light1", 20f);
+            GameplayAbilitySO counter = CreateAttack("Counter", 30f);
+            GameplayAbilitySO charge = CreateAttack("Charge", 40f);
+            GameplayAbilitySO route = CreateAttack("Route", 50f);
 
             set.combatBindings.Add(new PlayerCombatAbilityBinding
             {
@@ -57,10 +59,12 @@ namespace UPlayGround.Ability.Tests
             Assert.That(
                 view.liteComboAttackList[1].baseInfo.hitPhases[0].damage,
                 Is.EqualTo(20f));
-            Assert.That(view.counterAttack.baseInfo.animKey,
-                Is.EqualTo(AnimKey.Counter_Attack_1));
+            Assert.That(view.counterAttack.baseInfo.motionRef, Is.Not.Null);
             Assert.That(view.chargeStages, Has.Count.EqualTo(1));
-            Assert.That(view.chargeAnimKey, Is.EqualTo(AnimKey.HeavyAttack_1));
+            Assert.That(view.chargeMotionRef, Is.SameAs(charge.variants[0]
+                    .executionPayload is UPlayGroundMotionAbilityPayloadSO payload
+                        ? payload.attackInfo?.baseInfo?.motionRef
+                        : null));
             Assert.That(view.comboRoutes, Has.Count.EqualTo(1));
             Assert.That(
                 view.comboRoutes[0].attackInfo.baseInfo.hitPhases[0].damage,
@@ -69,7 +73,6 @@ namespace UPlayGround.Ability.Tests
 
         private GameplayAbilitySO CreateAttack(
             string id,
-            AnimKey animKey,
             float damage)
         {
             GameplayAbilitySO ability = Create<GameplayAbilitySO>();
@@ -78,12 +81,15 @@ namespace UPlayGround.Ability.Tests
             {
                 baseInfo = new AttackInfoBase(),
             };
-            attack.baseInfo.animKey = animKey;
             attack.baseInfo.hitPhases[0].damage = damage;
+            MotionSetAsset motion = Create<MotionSetAsset>();
+            motion.name = id + "Motion";
+            MotionReferenceSO motionRef = Create<MotionReferenceSO>();
+            motionRef.defaultMotion = motion;
+            attack.baseInfo.motionRef = motionRef;
             UPlayGroundMotionAbilityPayloadSO payload =
                 Create<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = id;
-            payload.animKey = animKey;
             payload.attackInfo = attack;
             ability.variants.Add(new AbilityVariantDefinition
             {

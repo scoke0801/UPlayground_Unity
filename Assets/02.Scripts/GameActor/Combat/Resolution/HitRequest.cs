@@ -1,6 +1,8 @@
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Combat
 {
@@ -17,7 +19,7 @@ namespace UPlayGround.Combat
     public readonly struct HitRequest
     {
         public readonly GameActor Attacker;
-        public readonly AnimKey AnimKey;
+        public readonly MotionSetAsset MotionAsset;
         public readonly int HitPhaseIndex;
         public readonly AttackKind AttackKind;
         public readonly AttackReactionType ReactionType;
@@ -41,7 +43,7 @@ namespace UPlayGround.Combat
         public readonly float KnockbackForce;
         public readonly float KnockbackDrag;
         public readonly float GrabDuration;
-        public readonly AnimKey VictimForcedAnimKey;
+        public readonly GameplayTag VictimForcedMotionSlot;
         public readonly bool GuaranteedReaction;
         public readonly AttackReactionData ReactionData;
         public readonly HitRequestType RequestType;
@@ -53,7 +55,7 @@ namespace UPlayGround.Combat
 
         public HitRequest(
             GameActor attacker,
-            AnimKey animKey,
+            MotionSetAsset motionAsset,
             int hitPhaseIndex,
             AttackKind attackKind,
             AttackReactionType reactionType,
@@ -77,7 +79,7 @@ namespace UPlayGround.Combat
             float knockbackForce,
             float knockbackDrag,
             float grabDuration,
-            AnimKey victimForcedAnimKey,
+            GameplayTag victimForcedMotionSlot,
             bool guaranteedReaction,
             AttackReactionData reactionData,
             HitRequestType requestType = HitRequestType.Standard,
@@ -86,7 +88,7 @@ namespace UPlayGround.Combat
             float specialMinReferenceHealth = 0f)
         {
             Attacker = attacker;
-            AnimKey = animKey;
+            MotionAsset = motionAsset;
             HitPhaseIndex = hitPhaseIndex;
             AttackKind = attackKind;
             ReactionType = reactionType;
@@ -110,7 +112,7 @@ namespace UPlayGround.Combat
             KnockbackForce = knockbackForce;
             KnockbackDrag = knockbackDrag;
             GrabDuration = grabDuration;
-            VictimForcedAnimKey = victimForcedAnimKey;
+            VictimForcedMotionSlot = victimForcedMotionSlot;
             GuaranteedReaction = guaranteedReaction;
             ReactionData = reactionData;
             RequestType = requestType;
@@ -128,7 +130,7 @@ namespace UPlayGround.Combat
 
             return new HitRequest(
                 data.attacker,
-                data.animKey,
+                data.motionAsset,
                 data.hitPhaseIndex,
                 data.attackKind,
                 data.reactionType,
@@ -152,7 +154,7 @@ namespace UPlayGround.Combat
                 data.knockbackForce,
                 data.knockbackDrag,
                 data.grabDuration,
-                data.victimForcedAnimKey,
+                data.victimForcedMotionSlot,
                 data.guaranteedReaction,
                 data.reactionData);
         }
@@ -195,7 +197,7 @@ namespace UPlayGround.Combat
                                     + effectiveHealth * Mathf.Max(0f, damageByMaxHpRate);
             return new HitRequest(
                 attacker,
-                AnimKey.None,
+                default,
                 0,
                 AttackKind.FinishAttack,
                 AttackReactionType.Knockdown,
@@ -219,7 +221,7 @@ namespace UPlayGround.Combat
                 0f,
                 0f,
                 0f,
-                AnimKey.None,
+                default,
                 true,
                 null,
                 HitRequestType.SpecialBreak,
@@ -237,7 +239,7 @@ namespace UPlayGround.Combat
             return new AttackData
             {
                 attacker = Attacker,
-                animKey = AnimKey,
+                motionAsset = MotionAsset,
                 hitPhaseIndex = HitPhaseIndex,
                 attackKind = AttackKind,
                 reactionType = ReactionType,
@@ -261,7 +263,7 @@ namespace UPlayGround.Combat
                 knockbackForce = KnockbackForce,
                 knockbackDrag = KnockbackDrag,
                 grabDuration = GrabDuration,
-                victimForcedAnimKey = VictimForcedAnimKey,
+                victimForcedMotionSlot = VictimForcedMotionSlot,
                 guaranteedReaction = GuaranteedReaction,
                 reactionData = ReactionData,
             };

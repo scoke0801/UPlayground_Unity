@@ -87,7 +87,7 @@ namespace UPlayGround.Combat
                 return;
 
             var definition = new CombatActionDefinition(
-                attackData.animKey,
+                attackData.motionAsset,
                 attackData,
                 attackData);
             CurrentAction = new CombatActionInstance(_owner, definition);

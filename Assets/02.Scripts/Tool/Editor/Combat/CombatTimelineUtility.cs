@@ -41,11 +41,11 @@ namespace UPlayGround.Tool.Editor.Combat
             public float Duration => Mathf.Max(0f, End - Start);
         }
 
-        /// <summary> AnimKey 하나에 대해 AbilitySet에서 찾은 공격 데이터 묶음. </summary>
+        /// <summary>MotionSetAsset 하나에 대해 AbilitySet에서 찾은 공격 데이터 묶음.</summary>
         public sealed class ResolvedAttack
         {
             public string SourceName;                  // 예: "약 공격 [2]", "차지 2단계"
-            public AnimKey AnimKey;
+            public MotionSetAsset MotionAsset;
             public List<HitPhaseData> HitPhases;
             public PlayerInterruptAction InterruptActions;
             public AbilityAttackInfo AttackInfo;        // nullable
@@ -194,47 +194,47 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         // ====================================================================
-        //  AbilitySet 역조회 (AnimKey → 공격 데이터)
+        //  AbilitySet 역조회 (MotionSetAsset → 공격 데이터)
         // ====================================================================
 
         /// <summary>
-        /// AbilitySet 안에서 해당 AnimKey를 쓰는 공격 데이터를 모두 찾는다.
+        /// AbilitySet 안에서 해당 MotionSetAsset을 쓰는 공격 데이터를 모두 찾는다.
         /// 차지 공격은 단계별로 1개씩 반환한다.
         /// </summary>
-        public static List<ResolvedAttack> ResolveAttacks(AbilitySetSO data, AnimKey key)
+        public static List<ResolvedAttack> ResolveAttacks(AbilitySetSO data, MotionSetAsset motionAsset)
         {
             var result = new List<ResolvedAttack>();
-            if (data == null || key == AnimKey.None)
+            if (data == null || motionAsset == null)
                 return result;
 
             PlayerCombatAbilityDataView view = PlayerCombatAbilityDataView.Build(data);
             if (view != null)
             {
-                AddPlayerList(result, data, view.liteComboAttackList, "약 공격", key);
-                AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", key);
-                AddPlayerList(result, data, view.jumpAttackList, "점프 공격", key);
-                AddPlayerList(result, data, view.dashAttackList, "대시 공격", key);
-                AddPlayerList(result, data, view.skillAttackList, "스킬", key);
-                AddPlayerInfo(result, data, view.counterAttack, "카운터", key);
-                AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", key);
-                AddPlayerInfo(result, data, view.entryAttack, "교체 등장", key);
-                AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", key);
-                AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", key);
-                AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", key);
-                AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", key);
+                AddPlayerList(result, data, view.liteComboAttackList, "약 공격", motionAsset);
+                AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", motionAsset);
+                AddPlayerList(result, data, view.jumpAttackList, "점프 공격", motionAsset);
+                AddPlayerList(result, data, view.dashAttackList, "대시 공격", motionAsset);
+                AddPlayerList(result, data, view.skillAttackList, "스킬", motionAsset);
+                AddPlayerInfo(result, data, view.counterAttack, "카운터", motionAsset);
+                AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", motionAsset);
+                AddPlayerInfo(result, data, view.entryAttack, "교체 등장", motionAsset);
+                AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", motionAsset);
+                AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", motionAsset);
+                AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", motionAsset);
+                AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", motionAsset);
             }
 
             var entries = AbilityAttackEditorUtility.Collect(data, true);
             for (int i = 0; i < entries.Count; i++)
             {
                 AbilityAttackInfo info = entries[i].AttackInfo;
-                if (info.baseInfo.animKey != key
+                if (!MatchesMotion(info.baseInfo.motionRef, motionAsset)
                     || result.Exists(x => ReferenceEquals(x.AttackInfo, info)))
                     continue;
                 result.Add(new ResolvedAttack
                 {
                     SourceName = entries[i].Ability.name,
-                    AnimKey = key,
+                    MotionAsset = motionAsset,
                     HitPhases = info.baseInfo.hitPhases,
                     InterruptActions = info.interruptActions,
                     AttackInfo = info,
@@ -246,22 +246,22 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         static void AddPlayerList(List<ResolvedAttack> result, AbilitySetSO data,
-            List<AbilityAttackInfo> list, string listName, AnimKey key)
+            List<AbilityAttackInfo> list, string listName, MotionSetAsset motionAsset)
         {
             if (list == null) return;
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i]?.baseInfo == null || list[i].baseInfo.animKey != key) continue;
-                AddPlayerInfo(result, data, list[i], $"{listName} [{i}]", key);
+                if (list[i]?.baseInfo == null || !MatchesMotion(list[i].baseInfo.motionRef, motionAsset)) continue;
+                AddPlayerInfo(result, data, list[i], $"{listName} [{i}]", motionAsset);
             }
         }
 
         static void AddPlayerInfo(List<ResolvedAttack> result, AbilitySetSO data,
-            AbilityAttackInfo info, string sourceName, AnimKey key)
+            AbilityAttackInfo info, string sourceName, MotionSetAsset motionAsset)
         {
             if (info?.baseInfo == null) return;
-            // 리스트 직접 매칭이 아닌 단일 슬롯(카운터 등)은 animKey 일치 시에만 추가
-            if (info.baseInfo.animKey != key) return;
+            // 리스트 직접 매칭이 아닌 단일 슬롯(카운터 등)도 실제 모션 참조로 비교한다.
+            if (!MatchesMotion(info.baseInfo.motionRef, motionAsset)) return;
             // 동일 인스턴스 중복 방지 (skillDefinitions가 리스트 항목을 공유하는 경우)
             foreach (ResolvedAttack existing in result)
                 if (ReferenceEquals(existing.AttackInfo, info)) return;
@@ -269,12 +269,24 @@ namespace UPlayGround.Tool.Editor.Combat
             result.Add(new ResolvedAttack
             {
                 SourceName = sourceName,
-                AnimKey = key,
+                MotionAsset = motionAsset,
                 HitPhases = info.baseInfo.hitPhases,
                 InterruptActions = info.interruptActions,
                 AttackInfo = info,
                 Owner = data,
             });
+        }
+
+        static bool MatchesMotion(MotionReferenceSO motionRef, MotionSetAsset motionAsset)
+        {
+            if (motionRef == null || motionAsset == null) return false;
+            if (motionRef.defaultMotion == motionAsset) return true;
+            if (motionRef.weaponOverrides == null) return false;
+
+            for (int i = 0; i < motionRef.weaponOverrides.Length; i++)
+                if (motionRef.weaponOverrides[i].motion == motionAsset)
+                    return true;
+            return false;
         }
 
         // ====================================================================

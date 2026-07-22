@@ -41,7 +41,9 @@ namespace UPlayGround.State
             _equipment?.SetMainWeaponDrawn(true);
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
 
-            var state = gameActor.Animator.PlayMotion(AnimKey.DashAttack_1, 0.1f);
+            var state = _attackData?.motionAsset != null
+                ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.1f)
+                : null;
             if (state != null)
             {
                 gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
@@ -94,11 +96,8 @@ namespace UPlayGround.State
             }
         }
         
-        protected override AnimKey? RequiredMotionKey => AnimKey.DashAttack_1;
-
         public override bool CanTransitionState(string stateName)
         {
-            if (HasRequiredMotion() == false) return false;
             if (stateName == "Hit") return false;
             return true;
         }

@@ -31,7 +31,7 @@ namespace UPlayGround.State
             motor.SetGroundSolvingActivation(true);
             _timer = 0f;
             _retreatSpeed = controller.MaxRunMoveSpeed * 0.65f;
-            gameActor.Animator.PlayMotion(AnimKey.Walk, 0.2f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Walk, 0.2f);
         }
 
         public override void UpdateState(float deltaTime)

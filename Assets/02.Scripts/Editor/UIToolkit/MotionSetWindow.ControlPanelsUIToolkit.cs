@@ -302,31 +302,36 @@ namespace UPlayGround.Animation.Editor
             buttons.Add(edit);
             panel.Add(buttons);
 
-            if (_selectedActorMotionKey == AnimKey.None)
+            if (_asset == null)
             {
-                var key = new EnumField("AnimKey", _combatManualKey);
-                key.RegisterValueChangedCallback(evt =>
+                var motionField = new ObjectField("모션")
                 {
-                    _combatManualKey = (AnimKey)evt.newValue;
+                    objectType = typeof(MotionSetAsset),
+                    allowSceneObjects = false,
+                    value = _combatManualMotion,
+                };
+                motionField.RegisterValueChangedCallback(evt =>
+                {
+                    _combatManualMotion = evt.newValue as MotionSetAsset;
                     RebuildControlPanelBody();
                 });
-                panel.Add(key);
+                panel.Add(motionField);
             }
 
-            ResolveCombatAttacks(GetCombatAnimKey());
+            ResolveCombatAttacks(GetCombatMotionAsset());
             panel.Add(new Label(BuildCombatStatusText()));
             return panel;
         }
 
         string BuildCombatStatusText()
         {
-            AnimKey key = GetCombatAnimKey();
+            MotionSetAsset motionAsset = GetCombatMotionAsset();
             if (_combatAttackData == null)
                 return "공격 데이터 없음 — AbilitySet을 지정하거나 자동 연결하세요.";
-            if (key == AnimKey.None)
+            if (motionAsset == null)
                 return "모션 키 미선택";
             if (_combatResolved.Count == 0)
-                return $"'{key}'를 사용하는 공격 Ability가 없습니다.";
+                return $"'{motionAsset.name}'를 사용하는 공격 Ability가 없습니다.";
             var attack = GetCurrentCombatAttack();
             int phaseCount = attack?.HitPhases?.Count ?? 0;
             return $"{attack?.SourceName ?? "-"} · Hit Phase {phaseCount}개";

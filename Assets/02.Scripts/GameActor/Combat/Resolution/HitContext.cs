@@ -1,6 +1,8 @@
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Combat
 {
@@ -12,7 +14,7 @@ namespace UPlayGround.Combat
     {
         public readonly GameActor Attacker;
         public readonly GameActor Victim;
-        public readonly AnimKey AnimKey;
+        public readonly MotionSetAsset MotionAsset;
         public readonly int HitPhaseIndex;
         public readonly AttackKind AttackKind;
         public readonly AttackReactionType ReactionType;
@@ -40,7 +42,7 @@ namespace UPlayGround.Combat
         public readonly float KnockbackForce;
         public readonly float KnockbackDrag;
         public readonly float GrabDuration;
-        public readonly AnimKey VictimForcedAnimKey;
+        public readonly GameplayTag VictimForcedMotionSlot;
         public readonly bool GuaranteedReaction;
         public readonly AttackReactionData ReactionData;
         public readonly HitRequestType RequestType;
@@ -50,7 +52,7 @@ namespace UPlayGround.Combat
         {
             Attacker = request.Attacker;
             Victim = victim;
-            AnimKey = request.AnimKey;
+            MotionAsset = request.MotionAsset;
             HitPhaseIndex = request.HitPhaseIndex;
             AttackKind = request.AttackKind;
             ReactionType = request.ReactionType;
@@ -74,7 +76,7 @@ namespace UPlayGround.Combat
             KnockbackForce = request.KnockbackForce;
             KnockbackDrag = request.KnockbackDrag;
             GrabDuration = request.GrabDuration;
-            VictimForcedAnimKey = request.VictimForcedAnimKey;
+            VictimForcedMotionSlot = request.VictimForcedMotionSlot;
             GuaranteedReaction = request.GuaranteedReaction;
             ReactionData = request.ReactionData;
             RequestType = request.RequestType;

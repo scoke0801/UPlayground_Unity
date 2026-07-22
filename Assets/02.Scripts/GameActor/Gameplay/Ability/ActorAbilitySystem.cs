@@ -530,8 +530,7 @@ namespace UPlayGround.Gameplay.Ability
             {
                 AbilityVariantDefinition candidate = definition.variants[i];
                 if (candidate == null
-                    || !UPlayGroundAbilityPayloadResolver.TryResolveAnimKey(
-                        candidate, out _))
+                    || !UPlayGroundAbilityPayloadResolver.IsExecutable(candidate))
                     continue;
                 AbilityVariantCondition condition = candidate.condition;
                 if (condition != null)

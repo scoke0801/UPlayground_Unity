@@ -1,9 +1,11 @@
-﻿// ============================================================
-// AUTO-GENERATED — GameplayTagRegistry Editor
+// ============================================================
+// AUTO-GENERATED — GameplayTagRegistry Editor (Motion 슬롯 포함)
 // UPlayGround/GameplayTag/Tag Registry Editor 에서 관리하세요.
 // 직접 편집하지 마세요. 저장 후 에디터에서 "코드 생성"을 눌러야 반영됩니다.
 // Generated: 2026-04-16 20:47
 // ============================================================
+
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Gameplay.Tag
 {
@@ -82,5 +84,158 @@ namespace UPlayGround.Gameplay.Tag
             int i = (int)id;
             return i >= 0 && i < s_TagNames.Length ? s_TagNames[i] : string.Empty;
         }
+    }
+}
+
+namespace UPlayGround.Data.Actor.Animation
+{
+    /// <summary>
+    /// 코드가 요구하는 공용 모션 의미 슬롯.
+    /// 콘텐츠 공격 모션은 이 목록에 추가하지 않고 MotionReferenceSO를 직접 사용한다.
+    /// </summary>
+    public static class MotionTags
+    {
+        public static readonly GameplayTag None = default;
+
+        public static readonly GameplayTag FinishAttack = "Motion.Action.FinishAttack";
+        public static readonly GameplayTag BreakAttack = "Motion.Action.BreakAttack";
+
+        public static readonly GameplayTag Idle = "Motion.Locomotion.Idle";
+        public static readonly GameplayTag Walk = "Motion.Locomotion.Walk";
+        public static readonly GameplayTag Run = "Motion.Locomotion.Run";
+        public static readonly GameplayTag Sprint = "Motion.Locomotion.Sprint";
+        public static readonly GameplayTag Walk_Slow = "Motion.Locomotion.Walk.Slow";
+
+        public static readonly GameplayTag Dodge = "Motion.Action.Dodge";
+        public static readonly GameplayTag Dodge_F = "Motion.Action.Dodge.F";
+        public static readonly GameplayTag Dodge_B = "Motion.Action.Dodge.B";
+        public static readonly GameplayTag Dodge_L = "Motion.Action.Dodge.L";
+        public static readonly GameplayTag Dodge_R = "Motion.Action.Dodge.R";
+        public static readonly GameplayTag Dash = "Motion.Action.Dash";
+        public static readonly GameplayTag Dash_F = "Motion.Action.Dash.F";
+        public static readonly GameplayTag Dash_B = "Motion.Action.Dash.B";
+        public static readonly GameplayTag Dash_L = "Motion.Action.Dash.L";
+        public static readonly GameplayTag Dash_R = "Motion.Action.Dash.R";
+        public static readonly GameplayTag Step_F = "Motion.Action.Step.F";
+        public static readonly GameplayTag Step_B = "Motion.Action.Step.B";
+        public static readonly GameplayTag Step_L = "Motion.Action.Step.L";
+        public static readonly GameplayTag Step_R = "Motion.Action.Step.R";
+
+        public static readonly GameplayTag Jump = "Motion.Air.Jump";
+        public static readonly GameplayTag Fall = "Motion.Air.Fall";
+        public static readonly GameplayTag Land = "Motion.Air.Land";
+        public static readonly GameplayTag DoubleJump = "Motion.Air.DoubleJump";
+        public static readonly GameplayTag Fly_Start = "Motion.Fly.Start";
+        public static readonly GameplayTag Fly_Move = "Motion.Fly.Move";
+        public static readonly GameplayTag Fly_Landing = "Motion.Fly.Landing";
+        public static readonly GameplayTag Fly_Attack = "Motion.Fly.Attack";
+        public static readonly GameplayTag Fly_Idle = "Motion.Fly.Idle";
+
+        public static readonly GameplayTag Crouch_Idle = "Motion.Crouch.Idle";
+        public static readonly GameplayTag Crouch_Walk = "Motion.Crouch.Walk";
+        public static readonly GameplayTag Idle_To_Crouch = "Motion.Crouch.Enter";
+        public static readonly GameplayTag Crouch_To_Idle = "Motion.Crouch.Exit";
+
+        public static readonly GameplayTag Hit_F = "Motion.Reaction.Hit.F";
+        public static readonly GameplayTag Hit_B = "Motion.Reaction.Hit.B";
+        public static readonly GameplayTag Hit_L = "Motion.Reaction.Hit.L";
+        public static readonly GameplayTag Hit_R = "Motion.Reaction.Hit.R";
+        public static readonly GameplayTag Die = "Motion.Reaction.Death";
+        public static readonly GameplayTag Getup = "Motion.Reaction.Getup";
+        public static readonly GameplayTag Guard = "Motion.Reaction.Guard";
+        public static readonly GameplayTag GuardBreak = "Motion.Reaction.Guard.Break";
+        public static readonly GameplayTag Stun = "Motion.Reaction.Stun";
+        public static readonly GameplayTag Block = "Motion.Reaction.Block";
+        public static readonly GameplayTag Knockback = "Motion.Reaction.Knockback";
+        public static readonly GameplayTag Knockdown = "Motion.Reaction.Knockdown";
+        public static readonly GameplayTag Knockdown_Getup = "Motion.Reaction.Knockdown.Getup";
+        public static readonly GameplayTag Grabbed = "Motion.Reaction.Grabbed";
+        public static readonly GameplayTag Grabbed_End = "Motion.Reaction.Grabbed.End";
+
+        public static readonly GameplayTag HandGathering = "Motion.Interaction.Gathering.Hand";
+        public static readonly GameplayTag Woodcutting = "Motion.Interaction.Woodcutting";
+        public static readonly GameplayTag Mining_Ground = "Motion.Interaction.Mining.Ground";
+        public static readonly GameplayTag Mining_Wall = "Motion.Interaction.Mining.Wall";
+        public static readonly GameplayTag ItemPickup = "Motion.Interaction.ItemPickup";
+        public static readonly GameplayTag Drink = "Motion.Interaction.Drink";
+        public static readonly GameplayTag GroundWork_Start = "Motion.Interaction.GroundWork.Start";
+        public static readonly GameplayTag GroundWork_Loop = "Motion.Interaction.GroundWork.Loop";
+        public static readonly GameplayTag GroundWork_End = "Motion.Interaction.GroundWork.End";
+        public static readonly GameplayTag Fishing_Throw = "Motion.Interaction.Fishing.Throw";
+        public static readonly GameplayTag Fishing_Idle = "Motion.Interaction.Fishing.Idle";
+        public static readonly GameplayTag Fishing_End = "Motion.Interaction.Fishing.End";
+        public static readonly GameplayTag Fishing_CatchStart = "Motion.Interaction.Fishing.Catch.Start";
+        public static readonly GameplayTag Fishing_CatchLoop = "Motion.Interaction.Fishing.Catch.Loop";
+        public static readonly GameplayTag Fishing_CatchEnd = "Motion.Interaction.Fishing.Catch.End";
+        public static readonly GameplayTag Fishing_Catch = "Motion.Interaction.Fishing.Catch";
+
+        public static readonly GameplayTag Equip_LeftWeapon = "Motion.Equipment.Left.Equip";
+        public static readonly GameplayTag Equip_RightWeapon = "Motion.Equipment.Right.Equip";
+        public static readonly GameplayTag Equip_Sword = "Motion.Equipment.Sword.Equip";
+        public static readonly GameplayTag Equip_Shield = "Motion.Equipment.Shield.Equip";
+        public static readonly GameplayTag Equip_GreatSword = "Motion.Equipment.GreatSword.Equip";
+        public static readonly GameplayTag Equip_Staff = "Motion.Equipment.Staff.Equip";
+        public static readonly GameplayTag Equip_Bow = "Motion.Equipment.Bow.Equip";
+        public static readonly GameplayTag Equip_Arrow = "Motion.Equipment.Arrow.Equip";
+        public static readonly GameplayTag Equip_Katana = "Motion.Equipment.Katana.Equip";
+        public static readonly GameplayTag UnEquip_Katana = "Motion.Equipment.Katana.Unequip";
+        public static readonly GameplayTag Equip_Weapon = "Motion.Equipment.Main.Equip";
+        public static readonly GameplayTag Equip_SubWeapon = "Motion.Equipment.Sub.Equip";
+        public static readonly GameplayTag UnEquip_Weapon = "Motion.Equipment.Main.Unequip";
+        public static readonly GameplayTag UnEquip_SubWeapon = "Motion.Equipment.Sub.Unequip";
+        public static readonly GameplayTag Talk_1 = "Motion.Npc.Talk";
+
+        public static readonly GameplayTag Move_Stop_Walking = "Motion.Stop.Walking.F";
+        public static readonly GameplayTag Move_Stop_Running = "Motion.Stop.Running.F";
+        public static readonly GameplayTag Move_Stop_Sprinting = "Motion.Stop.Sprinting.F";
+        public static readonly GameplayTag Move_Stop_Walking_L45 = "Motion.Stop.Walking.L45";
+        public static readonly GameplayTag Move_Stop_Walking_R45 = "Motion.Stop.Walking.R45";
+        public static readonly GameplayTag Move_Stop_Running_L45 = "Motion.Stop.Running.L45";
+        public static readonly GameplayTag Move_Stop_Running_R45 = "Motion.Stop.Running.R45";
+        public static readonly GameplayTag Move_Stop_Sprinting_L45 = "Motion.Stop.Sprinting.L45";
+        public static readonly GameplayTag Move_Stop_Sprinting_R45 = "Motion.Stop.Sprinting.R45";
+
+        public static readonly GameplayTag Stand_Idle_Turn_L45 = "Motion.Turn.Idle.L45";
+        public static readonly GameplayTag Stand_Idle_Turn_R45 = "Motion.Turn.Idle.R45";
+        public static readonly GameplayTag Stand_Idle_Turn_L90 = "Motion.Turn.Idle.L90";
+        public static readonly GameplayTag Stand_Idle_Turn_R90 = "Motion.Turn.Idle.R90";
+        public static readonly GameplayTag Stand_Idle_Turn_180 = "Motion.Turn.Idle.180";
+        public static readonly GameplayTag Walk_Turn_L45 = "Motion.Turn.Walk.L45";
+        public static readonly GameplayTag Walk_Turn_R45 = "Motion.Turn.Walk.R45";
+        public static readonly GameplayTag Walk_Turn_L90 = "Motion.Turn.Walk.L90";
+        public static readonly GameplayTag Walk_Turn_R90 = "Motion.Turn.Walk.R90";
+        public static readonly GameplayTag Walk_Turn_180 = "Motion.Turn.Walk.180";
+        public static readonly GameplayTag Run_Turn_L45 = "Motion.Turn.Run.L45";
+        public static readonly GameplayTag Run_Turn_R45 = "Motion.Turn.Run.R45";
+        public static readonly GameplayTag Run_Turn_L90 = "Motion.Turn.Run.L90";
+        public static readonly GameplayTag Run_Turn_R90 = "Motion.Turn.Run.R90";
+        public static readonly GameplayTag Run_Turn_180 = "Motion.Turn.Run.180";
+        public static readonly GameplayTag Sprint_Turn_L45 = "Motion.Turn.Sprint.L45";
+        public static readonly GameplayTag Sprint_Turn_R45 = "Motion.Turn.Sprint.R45";
+        public static readonly GameplayTag Sprint_Turn_L90 = "Motion.Turn.Sprint.L90";
+        public static readonly GameplayTag Sprint_Turn_R90 = "Motion.Turn.Sprint.R90";
+        public static readonly GameplayTag Sprint_Turn_180 = "Motion.Turn.Sprint.180";
+
+        public static readonly GameplayTag Walk_Slow_B = "Motion.Locomotion.Walk.Slow.B";
+        public static readonly GameplayTag Walk_Slow_B_L45 = "Motion.Locomotion.Walk.Slow.B.L45";
+        public static readonly GameplayTag Walk_Slow_B_R45 = "Motion.Locomotion.Walk.Slow.B.R45";
+        public static readonly GameplayTag Walk_Slow_F_L45 = "Motion.Locomotion.Walk.Slow.F.L45";
+        public static readonly GameplayTag Walk_Slow_F_R45 = "Motion.Locomotion.Walk.Slow.F.R45";
+        public static readonly GameplayTag Walk_Slow_F_L90 = "Motion.Locomotion.Walk.Slow.F.L90";
+        public static readonly GameplayTag Walk_Slow_F_R90 = "Motion.Locomotion.Walk.Slow.F.R90";
+        public static readonly GameplayTag Walk_B = "Motion.Locomotion.Walk.B";
+        public static readonly GameplayTag Walk_B_L45 = "Motion.Locomotion.Walk.B.L45";
+        public static readonly GameplayTag Walk_B_R45 = "Motion.Locomotion.Walk.B.R45";
+        public static readonly GameplayTag Walk_F_L45 = "Motion.Locomotion.Walk.F.L45";
+        public static readonly GameplayTag Walk_F_R45 = "Motion.Locomotion.Walk.F.R45";
+        public static readonly GameplayTag Walk_F_L90 = "Motion.Locomotion.Walk.F.L90";
+        public static readonly GameplayTag Walk_F_R90 = "Motion.Locomotion.Walk.F.R90";
+        public static readonly GameplayTag Run_B = "Motion.Locomotion.Run.B";
+        public static readonly GameplayTag Run_B_L45 = "Motion.Locomotion.Run.B.L45";
+        public static readonly GameplayTag Run_B_R45 = "Motion.Locomotion.Run.B.R45";
+        public static readonly GameplayTag Run_F_L45 = "Motion.Locomotion.Run.F.L45";
+        public static readonly GameplayTag Run_F_R45 = "Motion.Locomotion.Run.F.R45";
+        public static readonly GameplayTag Run_F_L90 = "Motion.Locomotion.Run.F.L90";
+        public static readonly GameplayTag Run_F_R90 = "Motion.Locomotion.Run.F.R90";
     }
 }

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44e31f76c56d44c99680b04d89f8343a, type: 3}
+  m_Name: GA_PlayerDefaultAttackData_Ability_Default_Payload_MotionRef
+  m_EditorClassIdentifier: 
+  defaultMotion: {fileID: 11400000, guid: db44fa6012cb0f44bb3739fb0de7fdd8, type: 2}
+  weaponOverrides:
+  - weaponType: 2
+    motion: {fileID: 11400000, guid: 9d44da7755b1b0543a1d89e9a3f68a91, type: 2}
+  - weaponType: 3
+    motion: {fileID: 11400000, guid: 65f7edc6c2057b9419a03a5b4e13b631, type: 2}
+  - weaponType: 4
+    motion: {fileID: 11400000, guid: d5c61b55305657f4aa6724958d7f26d8, type: 2}
+  - weaponType: 5
+    motion: {fileID: 11400000, guid: 18691b9cba07b1d44b097647a8cd7920, type: 2}
+  - weaponType: 10
+    motion: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
+  - weaponType: 11
+    motion: {fileID: 11400000, guid: 15c59b96bef361047a99a92350f7e14d, type: 2}
+  - weaponType: 12
+    motion: {fileID: 11400000, guid: 3208ea4248caff94fae178c27f1aaecb, type: 2}
+  - weaponType: 13
+    motion: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+  - weaponType: 14
+    motion: {fileID: 11400000, guid: 03bd6189c3216154db11a36d6fe009f1, type: 2}

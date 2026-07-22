@@ -56,8 +56,9 @@ namespace UPlayGround.State
                     ? _combat?.ExecuteJumpFinishAttack()
                     : _combat?.ExecuteJumpAttack(false);
 
-            AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpAttack_1;
-            var state = gameActor.Animator.PlayMotion(animKey, 0.25f);
+            var state = _attackData?.motionAsset != null
+                ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.25f)
+                : null;
             if (state != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
         }
@@ -70,11 +71,8 @@ namespace UPlayGround.State
             base.OnExit(toState);
         }
 
-        protected override AnimKey? RequiredMotionKey => AnimKey.JumpAttack_1;
-
         public override bool CanTransitionState(string stateName)
         {
-            if (HasRequiredMotion() == false) return false;
             if (stateName == "Hit") return false;
             return true;
         }
@@ -134,8 +132,9 @@ namespace UPlayGround.State
                     ? _combat?.ExecuteJumpFinishAttack()
                     : _combat?.ExecuteJumpAttack(true);
 
-                AnimKey animKey = _attackData?.animKey ?? AnimKey.JumpAttack_1;
-                var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
+                var state = _attackData?.motionAsset != null
+                    ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.1f)
+                    : null;
                 if (state == null)
                 {
                     _combat?.ResetCombo();

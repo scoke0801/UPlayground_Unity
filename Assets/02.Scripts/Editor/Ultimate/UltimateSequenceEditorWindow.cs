@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Editor
         private Vector2 _scroll;
         private CharacterActorType _newOwnerType = CharacterActorType.Bokusei;
 
-        [MenuItem("UPlayGround/캐릭터/궁극기/궁극기 시퀀스 에디터", priority = 140)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/캐릭터/궁극기/궁극기 시퀀스 에디터", priority = 140)]
         public static void Open()
         {
             GetWindow<UltimateSequenceEditorWindow>("궁극기 시퀀스");

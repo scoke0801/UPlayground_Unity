@@ -90,7 +90,7 @@ namespace UPlayGround.Tool.Editor.Animation
             }
         }
 
-        [MenuItem(MenuPath)]
+        [UPlayGround.EditorTools.UPlaygroundTool(MenuPath)]
         public static void Open()
         {
             var window = GetWindow<RootMotionImportSettingsBatchTool>("Root Motion Import Batch");

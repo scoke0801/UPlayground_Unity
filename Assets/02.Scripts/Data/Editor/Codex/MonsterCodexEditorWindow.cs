@@ -23,7 +23,7 @@ namespace UPlayGround.Data.Editor.Codex
         private ToolbarSearchField _search;
         private Label _summary;
 
-        [MenuItem("UPlayGround/도감/몬스터 도감 편집기")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/도감/몬스터 도감 편집기")]
         public static void Open()
         {
             MonsterCodexEditorWindow window = GetWindow<MonsterCodexEditorWindow>();

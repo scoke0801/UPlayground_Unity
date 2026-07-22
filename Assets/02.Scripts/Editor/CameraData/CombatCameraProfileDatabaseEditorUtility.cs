@@ -56,7 +56,7 @@ namespace UPlayGround.Data.Editor
             new() { intentType = CombatCameraIntentType.Kill, shakeKey = CameraShakeIdType.KillCam, priority = 4, requireVictimGrade = true, victimGrade = MonsterActorGrade.Boss, triggerChance = 1.00f, usePunch = false, fovDelta = 2.5f, zoomDistanceDelta = -0.25f, suffix = "Kill_Boss" },
         };
 
-        [MenuItem("UPlayGround/월드/카메라/전투 카메라 프로필 DB 생성", false, UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera + 2)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/카메라/전투 카메라 프로필 DB 생성", false, UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera + 2)]
         public static void CreateOrUpdateDefaultDatabase()
         {
             EnsureDirectory(DefaultRootPath);
@@ -106,7 +106,7 @@ namespace UPlayGround.Data.Editor
                 "확인");
         }
 
-        [MenuItem("UPlayGround/월드/카메라/전투 카메라 프로필 DB 검증", false, UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera + 3)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/카메라/전투 카메라 프로필 DB 검증", false, UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera + 3)]
         public static void ValidateDefaultDatabase()
         {
             CombatCameraProfileDatabaseSO database = AssetDatabase.LoadAssetAtPath<CombatCameraProfileDatabaseSO>(DefaultDatabasePath);

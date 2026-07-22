@@ -21,7 +21,7 @@ namespace UPlayGround.Tool.Editor.Validation
         private EditorValidationRunResult _lastResult;
         private string[] _domains = { "전체" };
 
-        [MenuItem("UPlayGround/유틸/데이터 검증 허브", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.UtilValidation)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/데이터 검증 허브", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.UtilValidation)]
         public static void Open()
         {
             var window = GetWindow<DataValidationHubWindow>("Data Validation");

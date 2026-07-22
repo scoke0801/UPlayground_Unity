@@ -18,7 +18,7 @@ namespace UPlayGround.Tool.Editor.Save
     /// </summary>
     public static class SceneEntityIdAssigner
     {
-        [MenuItem("UPlayGround/World/월드 상태 SceneEntityId 일괄 부여", priority = UPlaygroundMenuPriority.WorldMap)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/World/월드 상태 SceneEntityId 일괄 부여", priority = UPlaygroundMenuPriority.WorldMap)]
         private static void AssignToOpenScenes()
         {
             var targets = CollectTargets();

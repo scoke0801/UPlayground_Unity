@@ -45,7 +45,7 @@ namespace UPlayGround.Tool.Editor
         // 격리용 레이어
         private const int PREVIEW_LAYER = 31;
 
-        [MenuItem("UPlayGround/유틸/액터 스크린샷 도구")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/액터 스크린샷 도구")]
         public static void ShowWindow()
         {
             GetWindow<ActorScreenshotTool>("Actor Screenshot");

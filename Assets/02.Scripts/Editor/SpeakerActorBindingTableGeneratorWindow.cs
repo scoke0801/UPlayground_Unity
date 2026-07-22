@@ -28,7 +28,7 @@ namespace UPlayGround.Dialogue.Editor
         private Vector2 _scroll;
         private List<BindingPreview> _previews = new();
 
-        [MenuItem("UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.NarrativeDialogue + 1)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.NarrativeDialogue + 1)]
         public static void Open()
         {
             GetWindow<SpeakerActorBindingTableGeneratorWindow>("Speaker Actor Binding");

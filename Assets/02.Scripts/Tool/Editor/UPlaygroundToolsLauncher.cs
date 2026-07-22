@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UPlayGround.EditorTools;
 
 namespace UPlayGround.Editor
 {
@@ -44,29 +45,22 @@ namespace UPlayGround.Editor
             {
                 Tool("ID Enum 생성기",               "UPlayGround/생성 도구/ID Enum 생성기", "프로젝트 ID enum을 데이터 에셋 기준으로 생성/갱신합니다.", "FX, UI, Actor, Quest 등 문자열 ID를 코드에서 안전하게 참조할 수 있도록 enum 파일을 다시 만듭니다. 데이터 추가 후 enum 누락이 의심될 때 사용합니다."),
                 Tool("Enemy Blackboard Keys 생성",           "UPlayGround/생성 도구/Enemy Blackboard Keys 생성", "EnemyBlackboardKeys 생성 코드를 갱신합니다.", "Behavior Tree JSON/레지스트리 기준 blackboard key 식별자를 C# 상수로 생성합니다. AI 데이터 키를 추가하거나 이름을 변경한 뒤 사용합니다."),
-                Tool("아이템 데이터 생성기",             "UPlayGround/생성 도구/아이템 데이터 생성기", "아이템 데이터 에셋과 ID 구성을 생성합니다.", "ItemSO, EquipmentSO, ItemDatabase 계열 데이터를 일괄 생성하거나 누락 항목을 채우는 생성기입니다. 아이템 테이블 확장 후 데이터 정합성을 맞출 때 사용합니다."),
-                Tool("레시피 데이터 생성기",           "UPlayGround/생성 도구/레시피 데이터 생성기", "제작 레시피 데이터를 생성합니다.", "제작 시스템에서 사용할 Recipe 데이터와 관련 DB를 생성/갱신합니다. 신규 제작 항목을 대량으로 넣거나 테이블 기반 데이터를 반영할 때 사용합니다."),
-                Tool("스탯 데이터 생성기",             "UPlayGround/생성 도구/스탯 데이터 생성기", "액터 스탯 SO를 생성/갱신합니다.", "CharacterActorType, Monster ActorDefinition 등 액터 정의에 맞춰 ActorStatSO 누락분을 만들고 기본 스탯 프리셋을 적용하는 용도입니다."),
-                Tool("스탯 커버리지 검증",          "UPlayGround/생성 도구/스탯 데이터 커버리지 검증", "액터별 스탯 데이터 연결 누락을 검사합니다.", "ActorDefinitionSO와 ActorStatSO 연결 상태를 확인해 런타임 스탯 초기화가 빠지는 문제를 사전에 찾습니다."),
                 Tool("파티 성장 에디터",             "UPlayGround/생성 도구/파티 성장 에디터", "파티 캐릭터 성장 데이터를 편집합니다.", "CharacterActorType별 성장 곡선, 기본 스탯, 전투력 미리보기를 스프레드시트 형태로 확인하고 조정합니다."),
-                Tool("NPC 데이터 생성기",              "UPlayGround/생성 도구/NPC 데이터 생성기", "NPC용 ActorDefinition과 대화 데이터를 생성합니다.", "NPC Actor 정의, Talkable 플래그, NpcActorSO 연결을 빠르게 구성하는 생성기입니다."),
                 Tool("메인 스토리 생성기",            "UPlayGround/생성 도구/메인 스토리 생성기", "메인 스토리 데이터 묶음을 생성합니다.", "메인 스토리용 Quest, Dialogue, StoryEntry 데이터를 한 흐름으로 만들 때 사용합니다."),
                 Tool("서브 스토리 생성기",             "UPlayGround/생성 도구/서브 스토리 생성기", "서브 스토리 데이터 묶음을 생성합니다.", "서브 퀘스트와 관련 Dialogue/StoryEntry를 생성하고 기본 연결 구조를 잡습니다."),
                 Tool("로코모션 모션 설정",         "UPlayGround/생성 도구/로코모션 모션 설정", "이동 애니메이션 MotionSet을 일괄 구성합니다.", "FBX 클립을 기반으로 8방향/속도별 로코모션 MotionSetAsset을 생성하거나 등록합니다."),
                 Tool("카메라 흔들림 프리셋",            "UPlayGround/생성 도구/카메라 흔들림 프리셋", "기본 카메라 쉐이크 프리셋을 생성합니다.", "CameraShakeData 또는 카메라 효과 프리셋이 누락됐을 때 표준 전투 피드백 프리셋을 채웁니다."),
                 Tool("입력 글리프 데이터 생성·동기화",     "UPlayGround/입력/글리프 데이터 생성·동기화", "InputGlyphDataSO를 입력 액션 기준으로 생성/동기화합니다.", "PlayerInputActions 에셋의 controlPath 목록을 자동 추출해 InputGlyphDataSO를 만들고 키캡 글리프 항목을 동기화합니다. 입력 바인딩을 추가/변경한 뒤 프롬프트 UI 글리프 누락을 맞출 때 사용합니다."),
-                Tool("P09 Weapon EditPartData",         "Tools/P09 Builder/Generate Weapon EditPartData", "P09 무기 EditPartData를 생성/갱신합니다.", "P09 기본 프리팹의 무기 메시를 스캔해 WeaponEditPartData 카탈로그 에셋을 생성하거나 갱신합니다."),
             }),
             ("캐릭터 / 액터", new[]
             {
-                Tool("P09 캐릭터 프리팹 빌더",    "Tools/P09 Builder/Character Prefab Builder", "P09 모듈러 캐릭터 프리팹을 빌드합니다.", "성별, 외형 파츠, 무기, 스탯을 탭으로 구성하고 프리셋 저장/불러오기와 라이브 프리뷰를 통해 캐릭터 프리팹을 생성합니다."),
+                Tool("P09 캐릭터 프리팹 빌더",             "UPlayGround/캐릭터/P09/캐릭터 프리팹 빌더", "P09 모듈러 캐릭터 프리팹을 빌드합니다.", "성별, 외형 파츠, 무기, 스탯을 탭으로 구성하고 프리셋 저장/불러오기와 라이브 프리뷰를 통해 캐릭터 프리팹을 생성합니다."),
+                Tool("P09 무기 EditPartData 생성·갱신",    "UPlayGround/캐릭터/P09/무기 EditPartData 생성·갱신", "P09 무기 EditPartData를 생성/갱신합니다.", "P09 기본 프리팹의 무기 메시를 스캔해 WeaponEditPartData 카탈로그 에셋을 생성하거나 갱신합니다."),
                 Tool("액터 데이터베이스 에디터",           "UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", "ActorDefinitionSO 데이터베이스를 관리합니다.", "Actor ID, 표시 이름, 타입, 프리팹, 스탯/드랍/NPC 데이터 연결을 검색하고 편집합니다. 런타임 스폰 기준 데이터의 중심 편집기입니다."),
                 Tool("액터 런타임 모니터",           "UPlayGround/캐릭터/액터/액터 런타임 모니터", "현재 씬의 액터 등록 상태를 확인합니다.", "GameObjectManager/ActorSpawnManager에 등록된 액터, ActorType 필터, 런타임 상태를 점검하는 모니터입니다."),
                 Tool("Lossy Scale 검사기",           "UPlayGround/캐릭터/액터/Lossy Scale 검사기", "선택 오브젝트 계층의 스케일 문제를 검사합니다.", "캐릭터/무기/이펙트 하위 Transform의 lossyScale을 확인해 비정상 스케일 전파를 찾습니다."),
                 Tool("애니메이션 에디터",                 "UPlayGround/캐릭터/액터/애니메이션 에디터", "MotionSet 타임라인을 편집하고 테스트합니다.", "Animancer 기반 MotionSet, MotionEvent, 캐릭터 프리뷰를 다루는 핵심 애니메이션 편집기입니다."),
                 Tool("모션셋 복제기",                    "Tools/UPlayGround/Animation/모션셋 복제기 (참조 포함)", "MotionSet과 참조 에셋을 함께 복제합니다.", "ActorAnimationMotionSet 계열 에셋을 새 캐릭터/무기용으로 복제할 때 참조 관계까지 함께 정리하는 보조 도구입니다."),
-                Tool("몬스터 데이터 내보내기",             "UPlayGround/캐릭터/액터/데이터/몬스터 데이터 내보내기", "몬스터 데이터를 외부 파일로 내보냅니다.", "몬스터 ActorDefinition/스탯/행동 데이터 점검 또는 백업용으로 데이터를 export합니다."),
-                Tool("몬스터 데이터 가져오기",             "UPlayGround/캐릭터/액터/데이터/몬스터 데이터 가져오기", "외부 몬스터 데이터를 프로젝트 에셋으로 반영합니다.", "테이블이나 JSON 등으로 정리한 몬스터 데이터를 ActorDefinition/관련 SO에 다시 적용할 때 사용합니다."),
             }),
             ("캐릭터 / AI", new[]
             {
@@ -98,7 +92,13 @@ namespace UPlayGround.Editor
                 Tool("프레임 데이터 테이블",          "UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블", "전 공격의 선딜/액티브/후딜·데미지를 한 테이블로 봅니다.", "MotionSet의 Collision/ComboWindow 이벤트와 Ability Payload를 합산해 격투게임식 프레임 데이터를 만듭니다. 정렬/CSV 내보내기와 페이즈 불일치 하이라이트를 지원합니다."),
                 Tool("HitBox 셋업",                  "UPlayGround/게임플레이/전투/도구/HitBox 셋업", "부착형 Combat HitBox를 자동 생성하고 검증합니다.", "무기/캐릭터 계층을 분석해 HitBox를 생성하고, 통합 검증으로 HitBox 그룹과 AttackData/MotionSet 이벤트 연결 상태를 확인합니다."),
                 Tool("HitBox 그룹 ID 동기화",         "UPlayGround/게임플레이/전투/도구/HitBox 그룹 ID 동기화", "HitBox와 공격 데이터의 그룹 ID를 함께 변경합니다.", "CombatHitbox.groupId, HitPhaseData.hitboxGroupId, BeginCollisionEvent.hitboxGroupId를 같은 매핑으로 정리해 판정 누락을 방지합니다."),
+                Tool("전체 부착형 HitBox 생성", "UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/전체 부착형 HitBox 생성", "프로젝트 전투 프리팹에 부착형 HitBox를 일괄 생성합니다.", "전체 대상 프리팹을 변경하는 마이그레이션 도구입니다. 실행 전 버전 관리 상태와 적용 범위를 확인해야 합니다."),
+                Tool("HitBox 마이그레이션 검증", "UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/마이그레이션 결과 검증", "부착형 HitBox 마이그레이션 결과를 검증합니다.", "프로젝트의 HitBox 구성과 공격 데이터 연결 상태를 검사하고 누락을 보고합니다."),
                 Tool("기본 정책 에셋 생성",  "UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", "기본 전투 정책 에셋을 생성합니다.", "CombatPolicy 계열 기본 에셋이 누락됐을 때 표준 설정으로 생성합니다."),
+            }),
+            ("게임플레이 / 흐름", new[]
+            {
+                Tool("Flow Graph 에디터", "UPlayGround/Flow Graph Editor", "게임 흐름 그래프를 편집합니다.", "FlowGraphSO의 진입점, 조건, 액션과 연결을 노드 그래프로 저작하고 검증합니다."),
             }),
             ("게임플레이 / 밸런스", new[]
             {
@@ -106,30 +106,26 @@ namespace UPlayGround.Editor
                 Tool("밸런스 데이터 추출기",          "UPlayGround/게임플레이/밸런스/밸런스 데이터 추출기", "밸런스 데이터를 추출합니다.", "프로젝트의 스탯/전투 데이터를 분석 가능한 형태로 모아 밸런스 점검에 사용합니다."),
                 Tool("몬스터 스탯 생성기",          "UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기", "몬스터 스탯을 생성합니다.", "밸런스 기준과 몬스터 정의를 기반으로 EnemyStatsSO 또는 관련 스탯 데이터를 생성합니다."),
                 Tool("밸런스 점검 (스냅샷·검증)",     "UPlayGround/게임플레이/밸런스/밸런스 점검 (스냅샷·검증)", "스냅샷 diff와 일괄 검증으로 밸런스 변경을 점검합니다.", "베이스라인 JSON과 현재 에셋 수치를 비교해 의도치 않은 변경을 표시하고, 전체 몬스터 ActorDefinitionSO에 검증/추정을 실행합니다. 생성기 실행 전후 비교가 권장 워크플로입니다."),
-                Tool("밸런스 CSV 편집",              "UPlayGround/게임플레이/밸런스/밸런스 CSV 편집", "밸런스 수치를 CSV로 왕복 편집합니다.", "몬스터 스탯/적 스킬 데이터를 CSV로 내보내 외부 시트에서 일괄 수정한 뒤 다시 적용합니다. 가져오기 전 밸런스 점검에서 베이스라인을 저장하면 diff 검증이 가능합니다."),
                 Tool("리스크·리워드 산점도",          "UPlayGround/게임플레이/밸런스/리스크·리워드 산점도", "공격별 리스크 대비 리워드를 산점도로 봅니다.", "쿨다운/선후딜 리스크와 데미지/경직/브레이크 리워드를 사분면 산점도로 그려 '저리스크·고리워드' 지배적 공격을 시각적으로 드러냅니다."),
                 Tool("몬스터 경험치 발급기",          "UPlayGround/게임플레이/밸런스/몬스터 경험치 발급기", "몬스터 EXP 보상을 일괄 발급합니다.", "ActorDefinitionSO의 level/grade와 기준 플레이어 레벨 차이를 사용해 성장 설계 기반 expReward를 일괄 계산/적용합니다."),
             }),
+            ("게임플레이 / 데이터", new[]
+            {
+                Tool("데이터 저작 허브", "UPlayGround/게임플레이/데이터 저작 허브", "콘텐츠 데이터 편집 도메인을 한 창에서 전환합니다.", "액터, 아이템, 퀘스트, 제작, 드랍, NPC, 스탯, 사운드, 가이드 데이터를 공용 목록/상세 셸에서 저작하는 통합 진입점입니다. 생성기와 DB 동기화·검증도 각 도메인 작업 메뉴에서 실행할 수 있습니다."),
+            }),
             ("게임플레이 / 아이템", new[]
             {
-                Tool("아이템 에디터",                     "UPlayGround/게임플레이/아이템/아이템 에디터", "아이템 데이터를 검색/편집합니다.", "ItemSO와 장비 데이터의 기본 정보, 아이콘, 분류, 수치 연결을 관리합니다."),
-                Tool("드랍 테이블 에디터",               "UPlayGround/게임플레이/아이템/드랍 테이블 에디터", "드랍 테이블을 편집합니다.", "몬스터/상호작용 오브젝트가 사망 또는 채집 시 떨어뜨릴 아이템과 확률을 구성합니다."),
                 Tool("무기 정의 누락분 생성", "UPlayGround/게임플레이/아이템/무기 정의/누락 정의 생성", "누락된 무기 정의만 생성합니다.", "EquipmentSO 등에 존재하지만 WeaponDefinitionSO가 없는 항목만 추가합니다."),
                 Tool("무기 정의 전체 재생성",   "UPlayGround/게임플레이/아이템/무기 정의/전체 정의 재생성", "전체 무기 정의를 재생성합니다.", "현재 무기 데이터 기준으로 WeaponDefinitionSO 세트를 다시 만듭니다. 기존 수정값 덮어쓰기 가능성이 있어 사용 전 확인이 필요합니다."),
             }),
             ("게임플레이 / 제작", new[]
             {
-                Tool("레시피 에디터",                   "UPlayGround/게임플레이/제작/레시피 에디터", "제작 레시피를 편집합니다.", "재료, 결과 아이템, 언락 조건 등 제작 시스템의 실제 레시피 데이터를 관리합니다."),
                 Tool("레시피 데이터 가져오기",              "UPlayGround/게임플레이/제작/레시피 데이터 가져오기", "외부 레시피 데이터를 가져옵니다.", "테이블 기반 레시피 입력을 프로젝트 Recipe 데이터로 반영합니다."),
             }),
             ("게임플레이 / 스탯", new[]
             {
                 Tool("스탯 데이터베이스 에디터",            "UPlayGround/게임플레이/스탯/스탯 데이터베이스 에디터", "스탯 데이터베이스를 편집합니다.", "ActorStatSO, 스탯 타입, 성장/기본 수치 연결을 검색하고 관리합니다."),
                 Tool("스탯 런타임 모니터",            "UPlayGround/게임플레이/스탯/스탯 런타임 모니터", "런타임 스탯 값을 모니터링합니다.", "현재 액터의 ActorStatContainer 값과 modifier 적용 상태를 확인합니다."),
-            }),
-            ("게임플레이 / 퀘스트", new[]
-            {
-                Tool("퀘스트 에디터",                    "UPlayGround/게임플레이/퀘스트/퀘스트 에디터", "퀘스트 데이터를 편집합니다.", "QuestSO, 목표, 보상, 진행 조건, ID enum 생성을 관리하는 퀘스트 편집기입니다."),
             }),
             ("게임플레이 / 게임플레이 태그", new[]
             {
@@ -138,7 +134,10 @@ namespace UPlayGround.Editor
             ("월드 / 맵", new[]
             {
                 Tool("월드 배치 도구",              "UPlayGround/월드/맵/월드 배치 도구", "씬에 액터/상호작용/드랍 아이템을 배치합니다.", "ActorDefinition 기반 프리팹, 직접 프리팹, InteractableActorSO, ItemSO를 한 창에서 선택하고 씬 클릭으로 배치합니다. Interaction 탭은 프리팹이 없으면 기본 GameObject를 만들고 상호작용 데이터와 SceneEntityId를 자동 주입합니다."),
+                Tool("NPC 배치 도구", "UPlayGround/월드/맵/NPC 배치 도구", "씬에 NPC를 배치합니다.", "NPC 정의와 프리팹을 선택해 월드 배치 도구를 NPC 모드로 엽니다."),
+                Tool("씬 포탈 동기화", "UPlayGround/월드/맵/씬 포탈 → RegionInfo 동기화", "씬 포탈 정보를 RegionInfo 데이터와 동기화합니다.", "열린 씬의 포탈 연결 정보를 검사하고 월드 지역 데이터에 반영합니다."),
                 Tool("SceneEntityId 일괄 부여",      "UPlayGround/World/월드 상태 SceneEntityId 일괄 부여", "월드 상태 대상에 SceneEntityId/GUID를 일괄 부여합니다.", "열린 씬의 MonsterActor와 GatheringActor에 SceneEntityId를 부착하고 비었거나 중복된 GUID를 보정합니다. 몬스터 처치/채집 오브젝트 소모 영속화의 안정적 식별자를 발급하는 용도입니다."),
+                Tool("몬스터 재스폰 데이터 검증", "UPlayGround/월드/몬스터 재스폰 데이터 검증", "몬스터 재스폰 데이터의 정합성을 검증합니다.", "씬과 재스폰 설정의 누락 참조, 중복 식별자와 잘못된 설정을 검사합니다."),
             }),
             ("월드 / 미니맵", new[]
             {
@@ -154,12 +153,23 @@ namespace UPlayGround.Editor
             }),
             ("UI", new[]
             {
-                Tool("가이드 팝업 데이터 편집기", "UPlayGround/UI/가이드 팝업 데이터 편집기", "GuidePopupDataSO를 생성하고 페이지 내용을 편집합니다.", "가이드 팝업의 이미지/동영상 페이지, 제목, 본문, 반복 재생 여부를 한 창에서 설정합니다. 페이지 추가, 복제, 삭제, 순서 변경과 미디어 누락 검사를 지원합니다."),
+                Tool("UI 에디터", "UPlayGround/UI 에디터", "UI 프리팹 빌드와 유지보수 도구를 한 창에서 실행합니다.", "HUD, 화면 UI, 팝업 프리팹 빌더와 가이드 데이터 편집기, Scene UI 콘텐츠 바인더를 카테고리별로 검색하고 실행합니다."),
             }),
             ("내러티브 / 대화", new[]
             {
                 Tool("대화 그래프 에디터",           "UPlayGround/내러티브/대화/대화 그래프 에디터", "대화 그래프를 편집합니다.", "DialogueGraphSO와 노드 기반 대화 흐름을 편집하는 스토리/대화 도구입니다."),
                 Tool("화자 액터 바인딩 생성기",           "UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", "대화 화자와 액터 바인딩 테이블을 생성합니다.", "DialogueGraph의 speaker 정보를 씬/Actor 데이터와 연결하기 위한 바인딩 데이터를 만듭니다."),
+            }),
+            ("콘텐츠 / 도감", new[]
+            {
+                Tool("몬스터 도감 편집기", "UPlayGround/도감/몬스터 도감 편집기", "몬스터 도감 데이터를 편집합니다.", "도감 항목의 표시 정보, 해금 조건과 연결 데이터를 관리합니다."),
+                Tool("몬스터 도감 데이터 생성·갱신", "UPlayGround/도감/몬스터 도감 데이터 생성 또는 갱신", "Actor 데이터에서 몬스터 도감 데이터를 생성하거나 갱신합니다.", "기존 수동 편집값을 확인한 뒤 누락 항목과 연결 정보를 보완합니다."),
+                Tool("몬스터 도감 데이터 검증", "UPlayGround/도감/몬스터 도감 데이터 검증", "몬스터 도감 데이터 정합성을 검증합니다.", "중복 ID, 누락 Actor 연결과 표시 데이터 오류를 검사합니다."),
+            }),
+            ("콘텐츠 / 사이클", new[]
+            {
+                Tool("사이클 P0 설정 도우미", "UPlayGround/사이클/P0 설정 도우미", "현재 씬의 사이클 P0 구성을 설정합니다.", "CycleRun 관련 오브젝트와 필수 참조를 확인하며 초기 구성을 보조합니다."),
+                Tool("사이클 P0 현재 씬 검증", "UPlayGround/사이클/P0 현재 씬 검증", "현재 씬의 사이클 P0 구성을 검증합니다.", "필수 매니저, 런 포인트와 연결 데이터 누락을 검사합니다."),
             }),
             ("VFX", new[]
             {
@@ -168,6 +178,7 @@ namespace UPlayGround.Editor
             ("디버그", new[]
             {
                 Tool("디버그 기즈모 창",               "UPlayGround/Debug/Debug Gizmo Window", "런타임 디버그 기즈모 표시를 토글합니다.", "DebugGizmo 시스템의 카테고리별 기즈모 표시 여부를 제어하는 개발용 창입니다."),
+                Tool("C# 프로젝트 파일 재생성", "UPlayGround/Debug/Regenerate C# Project Files", "Unity C# 프로젝트 파일을 다시 생성합니다.", "IDE 프로젝트 참조나 생성된 csproj가 오래됐을 때 Unity의 프로젝트 파일 생성을 다시 요청합니다."),
             }),
             ("유틸", new[]
             {
@@ -178,7 +189,9 @@ namespace UPlayGround.Editor
                 Tool("액터 스크린샷 도구",           "UPlayGround/유틸/액터 스크린샷 도구", "액터 스크린샷을 촬영합니다.", "캐릭터/몬스터 프리뷰, 문서, UI 아이콘용 이미지를 캡처하는 보조 도구입니다."),
                 Tool("데이터 검증 허브",             "UPlayGround/유틸/데이터 검증 허브", "프로젝트 데이터 정합성을 통합 검증합니다.", "ActorDefinitionSO 중심 참조, ActorDatabase 등록 상태, 전투 데이터 검증 결과를 한 화면에서 확인하고 리포트를 저장합니다."),
                 Tool("PlayMode 변경값 프리팹 적용",   "UPlayGround/유틸/PlayMode 변경값 프리팹 적용", "PlayMode에서 조정한 값을 원본 프리팹에 저장합니다.", "Hierarchy에서 선택한 프리팹 인스턴스의 현재 PlayMode 직렬화 값을 프리팹 override로 기록한 뒤 원본 프리팹 에셋에 즉시 적용합니다."),
+                Tool("Runtime Transform 프리팹 반영", "UPlayGround/유틸/Runtime Transform 프리팹 반영", "PlayMode Transform 값을 원본 프리팹에 반영합니다.", "런타임에서 조정한 위치·회전·크기를 선택적으로 원본 프리팹에 적용합니다."),
                 Tool("URP 머티리얼 변환기",               "UPlayGround/유틸/변환기/URP 머티리얼 변환기", "머티리얼을 URP 호환으로 변환합니다.", "레거시/외부 에셋 머티리얼을 URP 프로젝트에서 사용할 수 있도록 변환합니다."),
+                Tool("3D 프리팹 아이콘 생성기", "UPlayGround/유틸/아이콘/3D 프리팹 아이콘 생성기", "3D 프리팹을 렌더링해 UI 아이콘을 생성합니다.", "프리팹 카메라 구도와 출력 설정을 조정해 투명 배경 아이콘 이미지를 만듭니다."),
                 Tool("SO 스프레드시트",               "UPlayGround/SO 스프레드시트", "ScriptableObject 에셋을 타입별 스프레드시트로 조회/편집합니다.", "프로젝트의 ScriptableObject 에셋을 타입별로 모아 행/열 테이블 형태로 확인하고 직렬화 필드를 직접 편집합니다. 대량 데이터 검토나 SO 값 비교가 필요할 때 사용합니다."),
                 Tool("JSON 테이블 뷰어",               "UPlayGround/유틸/뷰어/JSON 테이블 뷰어", "JSON 테이블 파일을 확인합니다.", "외부 데이터 테이블 내용을 Unity 에디터 안에서 빠르게 열람합니다."),
                 Tool("Missing Script 정리",             "UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체", "선택 오브젝트 하위 Missing Script를 제거합니다.", "프리팹/씬 오브젝트에 남은 깨진 MonoBehaviour 참조를 정리합니다. 선택 대상 전체에 적용되므로 실행 전 범위를 확인해야 합니다."),
@@ -186,24 +199,37 @@ namespace UPlayGround.Editor
         };
 
         private string _searchQuery = "";
-        private readonly Dictionary<string, bool> _foldouts = new();
         private readonly HashSet<string> _favorites = new();
         private readonly List<string> _recentMenuPaths = new();
+        private readonly List<(string Category, ToolEntry Tool)> _visibleTools = new();
         private ToolEntry? _selectedTool;
         private string _selectedCategory;
         private bool _favoritesOnly;
         private bool _recentOnly;
 
         private VisualElement _content;
+        private VisualElement _navigationPane;
+        private VisualElement _categoryRoot;
+        private ScrollView _categoryScroll;
         private VisualElement _listPane;
         private VisualElement _detailPane;
         private ScrollView _toolList;
         private ToolbarToggle _favoritesToggle;
         private ToolbarToggle _recentToggle;
         private ToolbarSearchField _searchField;
+        private ToolbarMenu _categoryMenu;
+        private Label _visibleCountLabel;
         private bool? _isCompactLayout;
+        private bool? _isWideLayout;
         private string _lastClickedMenuPath;
         private double _lastClickTime;
+        private string _categoryFilter = "전체";
+        private bool _revealSelectionAfterRebuild;
+        private bool _focusSelectionAfterRebuild;
+        private double _lastDirectionalNavigationTime;
+        private int _lastDirectionalNavigation;
+        private bool _revealCategoryAfterRebuild;
+        private bool _focusCategoryAfterRebuild;
 
         private const double DoubleClickInterval = 0.4d;
 
@@ -214,52 +240,76 @@ namespace UPlayGround.Editor
         public static void Open()
         {
             var win = GetWindow<UPlaygroundToolsLauncher>("툴 런처");
-            win.minSize = new Vector2(420f, 400f);
+            win.minSize = new Vector2(820f, 560f);
             win.Show();
         }
 
         private void OnEnable()
         {
             LoadUserState();
-            foreach (var (cat, _) in s_categories)
-                if (!_foldouts.ContainsKey(cat)) _foldouts[cat] = true;
-
             SelectDefaultToolIfNeeded();
         }
 
         public void CreateGUI()
         {
             VisualElement root = rootVisualElement;
+            root.UnregisterCallback<KeyDownEvent>(OnKeyDown, TrickleDown.TrickleDown);
+            root.UnregisterCallback<KeyDownEvent>(OnKeyDown);
+            root.UnregisterCallback<NavigationMoveEvent>(OnNavigationMove, TrickleDown.TrickleDown);
+            root.UnregisterCallback<NavigationMoveEvent>(OnNavigationMove);
             root.Clear();
+            root.focusable = true;
+            root.tabIndex = 0;
             root.style.flexDirection = FlexDirection.Column;
+            root.RegisterCallback<KeyDownEvent>(OnKeyDown, TrickleDown.TrickleDown);
+            root.RegisterCallback<KeyDownEvent>(OnKeyDown);
+            root.RegisterCallback<NavigationMoveEvent>(OnNavigationMove, TrickleDown.TrickleDown);
+            root.RegisterCallback<NavigationMoveEvent>(OnNavigationMove);
 
+            root.Add(BuildHeader());
             root.Add(BuildToolbar());
+
+            var searchRow = new VisualElement();
+            searchRow.style.flexDirection = FlexDirection.Row;
+            searchRow.style.alignItems = Align.Center;
+            searchRow.style.paddingLeft = 6f;
+            searchRow.style.paddingRight = 10f;
+            searchRow.style.paddingTop = 5f;
+            searchRow.style.paddingBottom = 5f;
 
             _searchField = new ToolbarSearchField
             {
                 value = _searchQuery,
-                tooltip = "이름, 메뉴 경로, 설명 또는 영향도로 검색"
+                tooltip = "이름, 도구 ID, 설명 또는 영향도로 검색"
             };
-            _searchField.style.marginLeft = 6f;
-            _searchField.style.marginRight = 6f;
-            _searchField.style.marginTop = 4f;
-            _searchField.style.marginBottom = 4f;
+            _searchField.style.flexGrow = 1f;
+            _searchField.style.marginRight = 10f;
             _searchField.RegisterValueChangedCallback(evt =>
             {
                 _searchQuery = evt.newValue ?? string.Empty;
                 RebuildToolList();
             });
-            root.Add(_searchField);
+            searchRow.Add(_searchField);
+
+            _visibleCountLabel = new Label();
+            _visibleCountLabel.style.minWidth = 58f;
+            _visibleCountLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+            _visibleCountLabel.style.fontSize = 10f;
+            _visibleCountLabel.style.color = MutedTextColor();
+            searchRow.Add(_visibleCountLabel);
+            root.Add(searchRow);
 
             _content = new VisualElement();
             _content.style.flexGrow = 1f;
             _content.style.flexDirection = FlexDirection.Row;
             _content.style.minHeight = 0f;
 
+            _navigationPane = BuildNavigationPane();
+
             _listPane = new VisualElement();
-            _listPane.style.width = 420f;
-            _listPane.style.minWidth = 300f;
-            _listPane.style.maxWidth = 520f;
+            _listPane.style.width = 340f;
+            _listPane.style.minWidth = 260f;
+            _listPane.style.maxWidth = 420f;
             _listPane.style.flexShrink = 0f;
             _listPane.style.borderRightWidth = 1f;
             _listPane.style.borderRightColor = EditorBorderColor();
@@ -272,6 +322,7 @@ namespace UPlayGround.Editor
             _detailPane.style.flexGrow = 1f;
             _detailPane.style.minWidth = 0f;
 
+            _content.Add(_navigationPane);
             _content.Add(_listPane);
             _content.Add(_detailPane);
             root.Add(_content);
@@ -282,22 +333,62 @@ namespace UPlayGround.Editor
             // 도메인 리로드/재컴파일 후 CreateGUI가 다시 실행되면 _isCompactLayout이 초기화되므로,
             // GeometryChangedEvent에만 의존하지 않고 실제 창 너비 기준으로 반응형 레이아웃을 즉시 강제 적용한다.
             _isCompactLayout = null;
+            _isWideLayout = null;
             UpdateResponsiveLayout(position.width);
 
+            _focusCategoryAfterRebuild = true;
+            RebuildCategoryNavigation();
             RebuildToolList();
             RebuildDetailPanel();
             UpdateToolbarState();
+            ScheduleKeyboardFocusIfNeeded();
+        }
+
+        private static VisualElement BuildHeader()
+        {
+            var header = new VisualElement();
+            header.style.height = 62f;
+            header.style.flexShrink = 0f;
+            header.style.justifyContent = Justify.Center;
+            header.style.paddingLeft = 14f;
+            header.style.backgroundColor = EditorGUIUtility.isProSkin
+                ? new Color(0.12f, 0.27f, 0.38f, 1f)
+                : new Color(0.34f, 0.58f, 0.72f, 1f);
+
+            var title = new Label("UPlayGround 툴 런처");
+            title.style.fontSize = 18f;
+            title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            header.Add(title);
+
+            var subtitle = new Label("프로젝트 에디터 도구를 검색하고 실행하는 단일 진입점");
+            subtitle.style.marginTop = 2f;
+            subtitle.style.fontSize = 10f;
+            subtitle.style.color = EditorGUIUtility.isProSkin
+                ? new Color(0.82f, 0.90f, 0.95f, 1f)
+                : new Color(0.12f, 0.20f, 0.25f, 1f);
+            header.Add(subtitle);
+            return header;
         }
 
         private Toolbar BuildToolbar()
         {
             var toolbar = new Toolbar();
 
-            var title = new Label("UPlayGround Tools");
-            title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.marginLeft = 6f;
-            title.style.marginRight = 8f;
-            toolbar.Add(title);
+            _categoryMenu = new ToolbarMenu
+            {
+                text = $"분류: {_categoryFilter}",
+                tooltip = "표시할 도구 분류 선택"
+            };
+            _categoryMenu.style.minWidth = 140f;
+            _categoryMenu.menu.AppendAction("전체", _ => SetCategoryFilter("전체"),
+                _ => _categoryFilter == "전체" ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+            foreach (var (category, _) in s_categories)
+            {
+                string captured = category;
+                _categoryMenu.menu.AppendAction(captured, _ => SetCategoryFilter(captured),
+                    _ => _categoryFilter == captured ? DropdownMenuAction.Status.Checked : DropdownMenuAction.Status.Normal);
+            }
+            toolbar.Add(_categoryMenu);
 
             _favoritesToggle = new ToolbarToggle();
             _favoritesToggle.SetValueWithoutNotify(_favoritesOnly);
@@ -335,9 +426,130 @@ namespace UPlayGround.Editor
             spacer.style.flexGrow = 1f;
             toolbar.Add(spacer);
 
-            toolbar.Add(new ToolbarButton(() => SetAllFoldouts(true)) { text = "모두 열기" });
-            toolbar.Add(new ToolbarButton(() => SetAllFoldouts(false)) { text = "모두 닫기" });
+            toolbar.Add(new ToolbarButton(ClearFilters) { text = "필터 초기화" });
             return toolbar;
+        }
+
+        private VisualElement BuildNavigationPane()
+        {
+            var navigation = new VisualElement();
+            navigation.style.width = 188f;
+            navigation.style.flexShrink = 0f;
+            navigation.style.paddingLeft = 8f;
+            navigation.style.paddingRight = 8f;
+            navigation.style.paddingTop = 12f;
+            navigation.style.backgroundColor = EditorGUIUtility.isProSkin
+                ? new Color(0.13f, 0.13f, 0.13f, 1f)
+                : new Color(0.80f, 0.80f, 0.80f, 1f);
+            navigation.style.borderRightWidth = 1f;
+            navigation.style.borderRightColor = EditorBorderColor();
+
+            var title = new Label("도구 분류");
+            title.style.marginLeft = 8f;
+            title.style.marginBottom = 8f;
+            title.style.fontSize = 11f;
+            title.style.color = MutedTextColor();
+            navigation.Add(title);
+
+            _categoryScroll = new ScrollView(ScrollViewMode.Vertical);
+            _categoryScroll.style.flexGrow = 1f;
+            _categoryRoot = new VisualElement();
+            _categoryScroll.Add(_categoryRoot);
+            navigation.Add(_categoryScroll);
+            return navigation;
+        }
+
+        private void RebuildCategoryNavigation()
+        {
+            if (_categoryRoot == null)
+                return;
+
+            _categoryRoot.Clear();
+            Button selectedButton = null;
+            Button allButton = BuildCategoryButton("전체", CountTools(null));
+            _categoryRoot.Add(allButton);
+            if (_categoryFilter == "전체")
+                selectedButton = allButton;
+            foreach (var (category, tools) in s_categories)
+            {
+                Button button = BuildCategoryButton(category, tools.Length);
+                _categoryRoot.Add(button);
+                if (_categoryFilter == category)
+                    selectedButton = button;
+            }
+
+            bool revealCategory = _revealCategoryAfterRebuild;
+            bool focusCategory = _focusCategoryAfterRebuild;
+            _revealCategoryAfterRebuild = false;
+            _focusCategoryAfterRebuild = false;
+            if (selectedButton != null && (revealCategory || focusCategory))
+            {
+                selectedButton.schedule.Execute(() =>
+                {
+                    if (revealCategory)
+                        _categoryScroll?.ScrollTo(selectedButton);
+                    if (focusCategory)
+                        selectedButton.Focus();
+                });
+            }
+        }
+
+        private Button BuildCategoryButton(string category, int count)
+        {
+            bool selected = _categoryFilter == category;
+            var button = new Button(() => SetCategoryFilter(category))
+            {
+                text = $"{category}   {count}",
+                tooltip = $"{category} 도구 {count}개",
+            };
+            button.style.height = 31f;
+            button.style.marginTop = 1f;
+            button.style.marginBottom = 1f;
+            button.style.paddingLeft = 10f;
+            button.style.unityTextAlign = TextAnchor.MiddleLeft;
+            button.style.unityFontStyleAndWeight = selected ? FontStyle.Bold : FontStyle.Normal;
+            button.style.borderLeftWidth = selected ? 3f : 0f;
+            button.style.borderRightWidth = 0f;
+            button.style.borderTopWidth = 0f;
+            button.style.borderBottomWidth = 0f;
+            button.style.borderLeftColor = selected ? FavoriteColor() : Color.clear;
+            button.style.backgroundColor = selected ? SelectedBackgroundColor() : Color.clear;
+            return button;
+        }
+
+        private static int CountTools(string category)
+        {
+            int count = 0;
+            foreach (var (candidate, tools) in s_categories)
+            {
+                if (category == null || candidate == category)
+                    count += tools.Length;
+            }
+            return count;
+        }
+
+        private void SetCategoryFilter(string category)
+        {
+            _categoryFilter = category;
+            _focusCategoryAfterRebuild = true;
+            if (_categoryMenu != null)
+                _categoryMenu.text = $"분류: {_categoryFilter}";
+            RebuildCategoryNavigation();
+            RebuildToolList();
+        }
+
+        private void ClearFilters()
+        {
+            _searchQuery = string.Empty;
+            _searchField?.SetValueWithoutNotify(string.Empty);
+            _favoritesOnly = false;
+            _recentOnly = false;
+            _categoryFilter = "전체";
+            UpdateToolbarState();
+            if (_categoryMenu != null)
+                _categoryMenu.text = "분류: 전체";
+            RebuildCategoryNavigation();
+            RebuildToolList();
         }
 
         private void UpdateToolbarState()
@@ -357,10 +569,16 @@ namespace UPlayGround.Editor
 
         private void UpdateResponsiveLayout(float width)
         {
-            bool compact = width < 720f;
-            if (_isCompactLayout.HasValue && compact == _isCompactLayout.Value) return;
+            bool compact = width < 780f;
+            bool wide = width >= 780f;
+            if (_isCompactLayout.HasValue && compact == _isCompactLayout.Value
+                && _isWideLayout.HasValue && wide == _isWideLayout.Value)
+                return;
 
             _isCompactLayout = compact;
+            _isWideLayout = wide;
+            _navigationPane.style.display = wide ? DisplayStyle.Flex : DisplayStyle.None;
+            _categoryMenu.style.display = wide ? DisplayStyle.None : DisplayStyle.Flex;
             _content.style.flexDirection = compact ? FlexDirection.Column : FlexDirection.Row;
             if (compact)
             {
@@ -371,9 +589,9 @@ namespace UPlayGround.Editor
             }
             else
             {
-                _listPane.style.width = 420f;
-                _listPane.style.maxWidth = 520f;
-                _listPane.style.minWidth = 300f;
+                _listPane.style.width = wide ? 340f : 420f;
+                _listPane.style.maxWidth = wide ? 420f : 520f;
+                _listPane.style.minWidth = 260f;
                 _listPane.style.height = StyleKeyword.Auto;
             }
             _listPane.style.borderRightWidth = compact ? 0f : 1f;
@@ -385,46 +603,44 @@ namespace UPlayGround.Editor
         {
             if (_toolList == null) return;
             _toolList.Clear();
+            _visibleTools.Clear();
 
             bool filtering = !string.IsNullOrWhiteSpace(_searchQuery);
             string query = filtering ? _searchQuery.Trim().ToLowerInvariant() : string.Empty;
 
+            int visibleCount = 0;
+            VisualElement selectedRow = null;
             foreach (var (category, tools) in s_categories)
             {
+                if (_categoryFilter != "전체" && category != _categoryFilter)
+                    continue;
+
                 ToolEntry[] matches = System.Array.FindAll(
                     tools,
                     tool => ShouldShowTool(category, tool, filtering, query));
 
                 if (matches.Length == 0) continue;
 
-                VisualElement categoryContent;
-                if (filtering)
+                if (_categoryFilter == "전체")
                 {
                     var categoryLabel = new Label(category);
                     ApplyCategoryTitleStyle(categoryLabel);
                     _toolList.Add(categoryLabel);
-                    categoryContent = _toolList;
-                }
-                else
-                {
-                    if (!_foldouts.TryGetValue(category, out bool open))
-                        open = true;
-
-                    var foldout = new Foldout
-                    {
-                        text = category,
-                        value = open
-                    };
-                    foldout.style.marginLeft = 4f;
-                    foldout.style.marginRight = 4f;
-                    foldout.RegisterValueChangedCallback(evt => _foldouts[category] = evt.newValue);
-                    _toolList.Add(foldout);
-                    categoryContent = foldout;
                 }
 
                 foreach (var tool in matches)
-                    categoryContent.Add(BuildToolRow(category, tool));
+                {
+                    _visibleTools.Add((category, tool));
+                    VisualElement row = BuildToolRow(category, tool);
+                    _toolList.Add(row);
+                    if (_selectedTool.HasValue && _selectedTool.Value.MenuPath == tool.MenuPath)
+                        selectedRow = row;
+                    visibleCount++;
+                }
             }
+
+            if (_visibleCountLabel != null)
+                _visibleCountLabel.text = $"{visibleCount}개 도구";
 
             if (_toolList.contentContainer.childCount == 0)
             {
@@ -433,6 +649,21 @@ namespace UPlayGround.Editor
                 empty.style.color = MutedTextColor();
                 empty.style.marginTop = 24f;
                 _toolList.Add(empty);
+            }
+
+            bool revealSelection = _revealSelectionAfterRebuild;
+            bool focusSelection = _focusSelectionAfterRebuild;
+            _revealSelectionAfterRebuild = false;
+            _focusSelectionAfterRebuild = false;
+            if (selectedRow != null && (revealSelection || focusSelection))
+            {
+                selectedRow.schedule.Execute(() =>
+                {
+                    if (revealSelection)
+                        _toolList?.ScrollTo(selectedRow);
+                    if (focusSelection)
+                        selectedRow.Focus();
+                });
             }
         }
 
@@ -443,7 +674,8 @@ namespace UPlayGround.Editor
 
             var row = new VisualElement
             {
-                tooltip = $"{tool.Summary}\n\n더블클릭하면 바로 엽니다."
+                tooltip = $"{tool.Summary}\n\n더블클릭하면 바로 엽니다.",
+                focusable = true,
             };
             row.style.flexDirection = FlexDirection.Row;
             row.style.alignItems = Align.Center;
@@ -464,6 +696,16 @@ namespace UPlayGround.Editor
             row.style.borderTopColor = EditorBorderColor();
             row.style.borderBottomColor = EditorBorderColor();
             row.style.backgroundColor = selected ? SelectedBackgroundColor() : RowBackgroundColor();
+            row.RegisterCallback<PointerEnterEvent>(_ =>
+            {
+                if (!selected)
+                    row.style.backgroundColor = HoverBackgroundColor();
+            });
+            row.RegisterCallback<PointerLeaveEvent>(_ =>
+            {
+                if (!selected)
+                    row.style.backgroundColor = RowBackgroundColor();
+            });
 
             row.RegisterCallback<ClickEvent>(evt =>
             {
@@ -475,7 +717,7 @@ namespace UPlayGround.Editor
                 _lastClickedMenuPath = doubleClick ? null : tool.MenuPath;
                 _lastClickTime = doubleClick ? 0d : clickTime;
 
-                SelectTool(category, tool);
+                SelectTool(category, tool, true, true);
                 if (doubleClick)
                     OpenSelectedTool();
             });
@@ -490,18 +732,19 @@ namespace UPlayGround.Editor
             title.style.textOverflow = TextOverflow.Ellipsis;
             textColumn.Add(title);
 
-            if (selected)
-            {
-                var summary = new Label(tool.Summary);
-                summary.style.fontSize = 10f;
-                summary.style.color = MutedTextColor();
-                summary.style.whiteSpace = WhiteSpace.Normal;
-                summary.style.marginTop = 2f;
-                textColumn.Add(summary);
-            }
             row.Add(textColumn);
 
             ToolImpact impact = GetToolImpact(tool);
+            if (!IsToolAvailable(tool))
+            {
+                var unavailable = new Label("사용 불가");
+                unavailable.style.fontSize = 10f;
+                unavailable.style.color = MutedTextColor();
+                unavailable.style.marginLeft = 4f;
+                unavailable.style.marginRight = 4f;
+                row.Add(unavailable);
+            }
+
             if (impact != ToolImpact.Normal)
             {
                 var badge = new Label(GetImpactLabel(impact));
@@ -516,10 +759,10 @@ namespace UPlayGround.Editor
 
             var favoriteButton = new Button
             {
-                text = favorite ? "해제" : "추가",
+                text = favorite ? "★" : "☆",
                 tooltip = favorite ? "즐겨찾기 해제" : "즐겨찾기에 추가"
             };
-            favoriteButton.style.width = 38f;
+            favoriteButton.style.width = 28f;
             favoriteButton.style.height = 22f;
             favoriteButton.style.fontSize = 10f;
             favoriteButton.style.paddingLeft = 0f;
@@ -535,12 +778,84 @@ namespace UPlayGround.Editor
             return row;
         }
 
-        private void SelectTool(string category, ToolEntry tool)
+        private void SelectTool(
+            string category,
+            ToolEntry tool,
+            bool focusSelection = false,
+            bool revealSelection = false)
         {
             _selectedCategory = category;
             _selectedTool = tool;
+            _focusSelectionAfterRebuild = focusSelection;
+            _revealSelectionAfterRebuild = revealSelection;
             RebuildToolList();
             RebuildDetailPanel();
+        }
+
+        private void OnKeyDown(KeyDownEvent evt)
+        {
+            int direction = evt.keyCode switch
+            {
+                KeyCode.UpArrow => -1,
+                KeyCode.DownArrow => 1,
+                _ => 0,
+            };
+            if (direction == 0 || evt.altKey || evt.ctrlKey || evt.commandKey)
+                return;
+
+            HandleDirectionalNavigation(direction);
+            evt.StopImmediatePropagation();
+        }
+
+        private void OnNavigationMove(NavigationMoveEvent evt)
+        {
+            int direction = evt.direction switch
+            {
+                NavigationMoveEvent.Direction.Up => -1,
+                NavigationMoveEvent.Direction.Down => 1,
+                _ => 0,
+            };
+            if (direction == 0)
+                return;
+
+            HandleDirectionalNavigation(direction);
+            evt.StopImmediatePropagation();
+        }
+
+        private void HandleDirectionalNavigation(int direction)
+        {
+            double now = EditorApplication.timeSinceStartup;
+            if (_lastDirectionalNavigation == direction
+                && now - _lastDirectionalNavigationTime < 0.03d)
+            {
+                return;
+            }
+
+            _lastDirectionalNavigation = direction;
+            _lastDirectionalNavigationTime = now;
+            MoveCategorySelection(direction);
+        }
+
+        private void MoveCategorySelection(int direction)
+        {
+            int currentIndex = 0;
+            for (int i = 0; i < s_categories.Length; i++)
+            {
+                if (s_categories[i].Category == _categoryFilter)
+                {
+                    currentIndex = i + 1;
+                    break;
+                }
+            }
+
+            int nextIndex = Mathf.Clamp(currentIndex + direction, 0, s_categories.Length);
+            string nextCategory = nextIndex == 0 ? "전체" : s_categories[nextIndex - 1].Category;
+            if (nextCategory == _categoryFilter)
+                return;
+
+            _revealCategoryAfterRebuild = true;
+            _focusCategoryAfterRebuild = true;
+            SetCategoryFilter(nextCategory);
         }
 
         private void RebuildDetailPanel()
@@ -590,13 +905,18 @@ namespace UPlayGround.Editor
             var copyButton = new Button(() =>
             {
                 EditorGUIUtility.systemCopyBuffer = tool.MenuPath;
-                ShowNotification(new GUIContent("메뉴 경로를 복사했습니다."));
-            }) { text = "경로 복사" };
+                ShowNotification(new GUIContent("도구 ID를 복사했습니다."));
+            }) { text = "ID 복사" };
             header.Add(copyButton);
 
             var openButton = new Button(OpenSelectedTool) { text = "열기" };
             openButton.style.minWidth = 72f;
             openButton.style.unityFontStyleAndWeight = FontStyle.Bold;
+            bool available = IsToolAvailable(tool);
+            openButton.SetEnabled(available);
+            openButton.tooltip = available
+                ? "선택한 도구를 실행합니다."
+                : "현재 선택이나 에디터 상태에서는 실행할 수 없습니다.";
             header.Add(openButton);
             _detailPane.Add(header);
 
@@ -616,10 +936,14 @@ namespace UPlayGround.Editor
             _detailPane.Add(CreateSectionTitle("상세"));
             _detailPane.Add(CreateWrappedLabel(tool.Detail, false));
 
-            _detailPane.Add(CreateSectionTitle("메뉴 경로"));
+            _detailPane.Add(CreateSectionTitle("도구 ID"));
             var pathField = new TextField { value = tool.MenuPath, isReadOnly = true };
             _detailPane.Add(pathField);
-            _detailPane.Add(CreateWrappedLabel("목록 더블클릭으로도 바로 열 수 있습니다.", true));
+            _detailPane.Add(CreateWrappedLabel(
+                available
+                    ? "실행 가능 · 목록 더블클릭으로도 바로 열 수 있습니다."
+                    : "현재 선택이나 에디터 상태에서는 실행할 수 없습니다.",
+                true));
         }
 
         private void OpenSelectedTool()
@@ -627,7 +951,13 @@ namespace UPlayGround.Editor
             if (!_selectedTool.HasValue) return;
 
             ToolEntry tool = _selectedTool.Value;
-            bool opened = EditorApplication.ExecuteMenuItem(tool.MenuPath);
+            bool opened;
+            string error = null;
+            if (UPlaygroundToolCatalog.Contains(tool.MenuPath))
+                opened = UPlaygroundToolCatalog.TryExecute(tool.MenuPath, out error);
+            else
+                opened = EditorApplication.ExecuteMenuItem(tool.MenuPath);
+
             if (opened)
             {
                 AddRecent(tool.MenuPath);
@@ -637,9 +967,15 @@ namespace UPlayGround.Editor
             {
                 EditorUtility.DisplayDialog(
                     "툴 실행 실패",
-                    $"메뉴 경로를 실행하지 못했습니다.\n\n{tool.MenuPath}\n\nMenuItem 경로가 변경됐거나 조건부 메뉴 검증에 실패했을 수 있습니다.",
+                    $"도구를 실행하지 못했습니다.\n\n{tool.MenuPath}\n\n{error ?? "등록 정보가 없거나 실행 조건을 충족하지 못했습니다."}",
                     "확인");
             }
+        }
+
+        private static bool IsToolAvailable(ToolEntry tool)
+        {
+            return !UPlaygroundToolCatalog.Contains(tool.MenuPath)
+                   || UPlaygroundToolCatalog.CanExecute(tool.MenuPath);
         }
 
         private static bool MatchesSearch(string category, ToolEntry tool, string normalizedQuery)
@@ -784,6 +1120,13 @@ namespace UPlayGround.Editor
                 : new Color(0.86f, 0.86f, 0.86f, 1f);
         }
 
+        private static Color HoverBackgroundColor()
+        {
+            return EditorGUIUtility.isProSkin
+                ? new Color(0.28f, 0.28f, 0.28f, 1f)
+                : new Color(0.91f, 0.91f, 0.91f, 1f);
+        }
+
         private static Color SelectedBackgroundColor()
         {
             return EditorGUIUtility.isProSkin
@@ -845,13 +1188,17 @@ namespace UPlayGround.Editor
             UpdateToolbarState();
             RebuildToolList();
             RebuildDetailPanel();
+            ScheduleKeyboardFocusIfNeeded();
         }
 
-        private void SetAllFoldouts(bool value)
+        private void ScheduleKeyboardFocusIfNeeded(bool force = false)
         {
-            foreach (var (cat, _) in s_categories)
-                _foldouts[cat] = value;
-            RebuildToolList();
+            VisualElement root = rootVisualElement;
+            root.schedule.Execute(() =>
+            {
+                if (force || root.panel?.focusController?.focusedElement == null)
+                    root.Focus();
+            });
         }
 
         private void SetFavorite(string menuPath, bool favorite)

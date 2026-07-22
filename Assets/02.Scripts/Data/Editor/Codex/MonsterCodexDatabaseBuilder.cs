@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Editor.Codex
         private const string Root = "Assets/10.Datas/Codex/Monster";
         private const string DatabasePath = Root + "/MonsterCodexDatabase.asset";
 
-        [MenuItem("UPlayGround/도감/몬스터 도감 데이터 생성 또는 갱신")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/도감/몬스터 도감 데이터 생성 또는 갱신")]
         public static void Build()
         {
             ActorDatabase actorDatabase = FindFirst<ActorDatabase>();
@@ -76,7 +76,7 @@ namespace UPlayGround.Data.Editor.Codex
             Debug.Log($"[MonsterCodexBuilder] 생성 {created}개, 전체 {database.Entries.Count}개");
         }
 
-        [MenuItem("UPlayGround/도감/몬스터 도감 데이터 검증")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/도감/몬스터 도감 데이터 검증")]
         public static void Validate()
         {
             ActorDatabase actors = FindFirst<ActorDatabase>();

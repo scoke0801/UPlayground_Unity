@@ -114,7 +114,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const string SourceRoot = "Assets/10.Datas/AI/BehaviorTree/SourceJson";
         private const string GeneratedRoot = "Assets/10.Datas/AI/BehaviorTree/Generated";
 
-        [MenuItem("UPlayGround/비헤이비어 트리/JSON/선택 JSON 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 4)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/비헤이비어 트리/JSON/선택 JSON 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 4)]
         public static void ImportSelectedJson()
         {
             var jsonPath = EditorUtility.OpenFilePanel("Monster Behavior Json Import", Application.dataPath, "json");
@@ -128,7 +128,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             BehaviorTreeEditorWindow.Open(tree);
         }
 
-        [MenuItem("UPlayGround/비헤이비어 트리/JSON/폴더 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 5)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/비헤이비어 트리/JSON/폴더 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 5)]
         public static void ImportFolder()
         {
             var absoluteFolder = EditorUtility.OpenFolderPanel("Monster Behavior Json Folder Import", Application.dataPath, "");
@@ -138,13 +138,13 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             ImportJsonFolder(absoluteFolder, "폴더");
         }
 
-        [MenuItem("UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 6)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 6)]
         public static void ImportSelectedProjectJsons()
         {
             ImportJsonFiles(GetSelectedJsonAssetPaths().Select(Path.GetFullPath), "선택 JSON");
         }
 
-        [MenuItem("UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", true, UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 6)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", true, UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 6)]
         public static bool CanImportSelectedProjectJsons()
         {
             return GetSelectedJsonAssetPaths().Count > 0;
@@ -162,7 +162,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return CanImportSelectedProjectJsons();
         }
 
-        [MenuItem("UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 7)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Json + 7)]
         public static void ImportAllSourceJson()
         {
             ImportJsonFolder(Path.GetFullPath(SourceRoot), "SourceJson 전체");

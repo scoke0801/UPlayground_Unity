@@ -97,7 +97,7 @@ namespace UPlayGround.Data.Editor
         private DialogueCameraRecordingSO _takePreviewRecording;
         private DialogueNodeSO _targetDialogueNode;
 
-        [MenuItem("UPlayGround/월드/카메라/대화 카메라 녹화", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/카메라/대화 카메라 녹화", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera)]
         public static void Open()
         {
             GetWindow<DialogueCameraRecorderWindow>("대화 카메라 녹화");

@@ -95,7 +95,7 @@ namespace UPlayGround.Dialogue.Editor
 
         // ── 메뉴 / 오픈 에셋 ─────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/내러티브/대화/대화 그래프 에디터", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.NarrativeDialogue)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/내러티브/대화/대화 그래프 에디터", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.NarrativeDialogue)]
         public static void Open() => GetWindow<DialogueGraphEditor>("Dialogue Editor");
 
         [UnityEditor.Callbacks.OnOpenAsset]

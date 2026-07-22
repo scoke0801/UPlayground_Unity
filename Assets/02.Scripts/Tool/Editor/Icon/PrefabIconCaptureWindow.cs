@@ -46,7 +46,7 @@ namespace UPlayGround.Tool.Editor.Icon
         private Rect _previewRect;
         private string _lastMessage;
 
-        [MenuItem("UPlayGround/유틸/아이콘/3D 프리팹 아이콘 생성기", priority = 120)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/아이콘/3D 프리팹 아이콘 생성기", priority = 120)]
         public static void Open()
         {
             var window = GetWindow<PrefabIconCaptureWindow>("Prefab Icon Capture");

@@ -1,0 +1,8 @@
+{
+  "name": "UPlayGround.EditorTools",
+  "rootNamespace": "UPlayGround.EditorTools",
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

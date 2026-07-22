@@ -15,7 +15,7 @@ namespace UPlayGround.Tool.EditorTools
     /// </summary>
     public static class MonsterRespawnDataValidator
     {
-        [MenuItem("UPlayGround/월드/몬스터 재스폰 데이터 검증")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/몬스터 재스폰 데이터 검증")]
         public static void Validate()
         {
             string[] guids = AssetDatabase.FindAssets("t:ActorDefinitionSO");

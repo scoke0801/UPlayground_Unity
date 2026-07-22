@@ -17,7 +17,7 @@ namespace UPlayGround.Data.Enemy.EditorTools
         private const float Epsilon = 0.0001f;
         private const string DefaultAssetPath = "Assets/10.Datas/AI/IntentWeights/IW_Default_Melee.asset";
 
-        [MenuItem("UPlayGround/적/의도 가중치/레거시 동등성 검사 (IW_Default_Melee)")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/적/의도 가중치/레거시 동등성 검사 (IW_Default_Melee)")]
         public static void Run()
         {
             var so = AssetDatabase.LoadAssetAtPath<EnemyIntentWeightsSO>(DefaultAssetPath);

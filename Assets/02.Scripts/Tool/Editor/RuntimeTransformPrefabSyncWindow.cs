@@ -22,7 +22,7 @@ namespace UPlayGround.Tool.Editor
         private readonly List<ToolTransformInfo> _detectedTransforms = new();
         private readonly List<ToolTransformInfo> _applyTargets = new();
 
-        [MenuItem("UPlayGround/유틸/Runtime Transform 프리팹 반영", priority = UPlaygroundMenuPriority.Util + 1)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/Runtime Transform 프리팹 반영", priority = UPlaygroundMenuPriority.Util + 1)]
         public static void Open()
         {
             var window = GetWindow<RuntimeTransformPrefabSyncWindow>("Runtime Transform Sync");

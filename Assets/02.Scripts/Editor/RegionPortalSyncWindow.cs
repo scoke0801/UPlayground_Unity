@@ -27,7 +27,7 @@ namespace UPlayGround.UI.Map.EditorTools
         private Vector2 _scroll;
         private readonly List<PortalActor> _found = new();
 
-        [MenuItem("UPlayGround/월드/맵/씬 포탈 → RegionInfo 동기화")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/맵/씬 포탈 → RegionInfo 동기화")]
         public static void Open()
         {
             var win = GetWindow<RegionPortalSyncWindow>("포탈 동기화");

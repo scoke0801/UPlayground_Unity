@@ -44,7 +44,7 @@ namespace UPlayGround.Cycle.Editor
         private Vector2 _scroll;
         private string _lastResult = "아직 실행한 작업이 없습니다.";
 
-        [MenuItem("UPlayGround/사이클/P0 설정 도우미")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/사이클/P0 설정 도우미")]
         public static void Open()
         {
             CycleEditorSetupWindow window = GetWindow<CycleEditorSetupWindow>("사이클 P0 설정");

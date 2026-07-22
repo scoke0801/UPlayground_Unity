@@ -19,7 +19,7 @@ namespace UPlayGround.Tool.Editor
 
         private const double RefreshInterval = 0.25;
 
-        [MenuItem("UPlayGround/유틸/PlayMode 변경값 프리팹 적용", priority = UPlaygroundMenuPriority.Util)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/PlayMode 변경값 프리팹 적용", priority = UPlaygroundMenuPriority.Util)]
         public static void Open()
         {
             var window = GetWindow<PlayModePrefabApplyWindow>("PlayMode Prefab Apply");

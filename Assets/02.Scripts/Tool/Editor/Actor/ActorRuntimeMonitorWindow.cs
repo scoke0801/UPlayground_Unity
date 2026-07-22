@@ -62,7 +62,7 @@ namespace UPlayGround.Actor.Editor
         private static readonly Color ColorWarpIdle   = new(0.55f, 0.55f, 0.55f);
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/캐릭터/액터/액터 런타임 모니터", priority = 101)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/캐릭터/액터/액터 런타임 모니터", priority = 101)]
         public static void Open()
         {
             var window = GetWindow<ActorRuntimeMonitorWindow>();
@@ -513,7 +513,7 @@ namespace UPlayGround.Actor.Editor
                     animationSummary = animationSummary,
                     animationTimeSummary = animationTimeSummary,
                     animationNormalizedTime = animSnapshot.NormalizedTime,
-                    animationKey = animSnapshot.Key.ToString(),
+                    animationKey = animSnapshot.DisplayKey,
                     motionSetName = animSnapshot.MotionSetName,
                     motionName = animSnapshot.MotionName,
                     clipName = animSnapshot.ClipName,
@@ -593,7 +593,7 @@ namespace UPlayGround.Actor.Editor
                 return "-";
 
             if (snapshot.IsPlayingMotionSet)
-                return $"{snapshot.Key} / {snapshot.MotionName} / {snapshot.ClipName}";
+                return $"{snapshot.DisplayKey} / {snapshot.MotionName} / {snapshot.ClipName}";
 
             return $"Clip / {snapshot.ClipName}";
         }

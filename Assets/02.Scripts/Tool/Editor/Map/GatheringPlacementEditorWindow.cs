@@ -176,13 +176,13 @@ namespace UPlayGround.Tool.Editor.Map
             }
         }
 
-        [MenuItem("UPlayGround/월드/맵/월드 배치 도구", priority = UPlaygroundMenuPriority.WorldMap)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/맵/월드 배치 도구", priority = UPlaygroundMenuPriority.WorldMap)]
         public static void Open()
         {
             Open(WorldPlacementMode.Actor);
         }
 
-        [MenuItem("UPlayGround/월드/맵/NPC 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/맵/NPC 배치 도구", priority = UPlaygroundMenuPriority.WorldMap + 1)]
         public static void OpenNpcPlacement()
         {
             var window = Open(WorldPlacementMode.Actor);

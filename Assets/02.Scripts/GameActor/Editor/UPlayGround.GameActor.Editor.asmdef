@@ -2,6 +2,7 @@
   "name": "UPlayGround.GameActor.Editor",
   "rootNamespace": "UPlayGround.Editor",
   "references": [
+    "UPlayGround.EditorTools",
     "UPlayGround.Actor",
     "UPlayGround.Data",
     "UPlayGround.Contracts",

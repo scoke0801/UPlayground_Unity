@@ -71,7 +71,7 @@ namespace UPlayGround.Tool.Editor
 
         // ─────────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/월드/미니맵/미니맵 캡처 에디터")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/미니맵/미니맵 캡처 에디터")]
         public static void ShowWindow()
         {
             var window = GetWindow<MinimapCaptureEditorWindow>("Minimap Capture");

@@ -12,7 +12,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private const string RegistryPath = "Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json";
         private const string OutputPath = "Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.generated.cs";
 
-        [MenuItem("UPlayGround/생성 도구/Enemy Blackboard Keys 생성", false, 11)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/생성 도구/Enemy Blackboard Keys 생성", false, 11)]
         public static void GenerateMenu()
         {
             Generate();

@@ -90,7 +90,7 @@ namespace UPlayGround.Tool.Editor
             { "_Cutoff",            "_Cutoff" },
         };
 
-        [MenuItem("UPlayGround/유틸/변환기/URP 머티리얼 변환기")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/변환기/URP 머티리얼 변환기")]
         public static void ShowWindow()
         {
             GetWindow<URPMaterialConverter>("URP 머티리얼 변환기");

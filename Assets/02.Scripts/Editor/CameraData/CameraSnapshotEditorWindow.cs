@@ -24,7 +24,7 @@ namespace UPlayGround.Data.Editor
         private float _freeCameraMoveSpeed = 6f;
         private float _freeCameraLookSensitivity = 0.12f;
 
-        [MenuItem("UPlayGround/월드/카메라/카메라 스냅샷 에디터", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/월드/카메라/카메라 스냅샷 에디터", priority = UPlayGround.Tool.Editor.UPlaygroundMenuPriority.WorldCamera)]
         public static void Open()
         {
             GetWindow<CameraSnapshotEditorWindow>("Camera Snapshot 에디터");

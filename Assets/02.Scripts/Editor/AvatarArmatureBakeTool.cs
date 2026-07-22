@@ -28,7 +28,7 @@ namespace UPlayGround.Editor
         private Vector2 _scroll;
         private string _status = "아바타와 헤어/의상 오브젝트를 지정하세요.";
 
-        [MenuItem("UPlayGround/유틸/아바타 Armature 베이크 도구")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/아바타 Armature 베이크 도구")]
         private static void Open()
         {
             var window = GetWindow<AvatarArmatureBakeTool>("Armature Bake");

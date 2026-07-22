@@ -39,7 +39,7 @@ namespace UPlayGround.Actor.Editor
         private const float Eps = 0.0001f;
 
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [MenuItem("UPlayGround/캐릭터/액터/Lossy Scale 검사기", priority =  101)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/캐릭터/액터/Lossy Scale 검사기", priority =  101)]
         public static void Open()
         {
             var window = GetWindow<LossyScaleInspectorWindow>();

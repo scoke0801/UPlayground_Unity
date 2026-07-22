@@ -9,7 +9,7 @@ namespace UPlayGround.Debugging.Editor
     {
         private Vector2 _scroll;
 
-        [MenuItem("UPlayGround/Debug/Debug Gizmo Window")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/Debug/Debug Gizmo Window")]
         public static void Open()
         {
             var window = GetWindow<DebugGizmoWindow>();

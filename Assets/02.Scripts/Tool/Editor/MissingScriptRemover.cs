@@ -6,7 +6,7 @@ namespace UPlayGround.Tool.Editor
 {
     public static class MissingScriptRemover
     {
-        [MenuItem("UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체")]
         private static void RemoveMissingScriptsFromSelection()
         {
             var selected = Selection.gameObjects;
@@ -53,7 +53,7 @@ namespace UPlayGround.Tool.Editor
             }
         }
 
-        [MenuItem("UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체", true)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/유틸/Missing Script 정리/선택 오브젝트 하위 전체", true)]
         private static bool ValidateRemoveMissingScripts()
         {
             return Selection.gameObjects != null && Selection.gameObjects.Length > 0;

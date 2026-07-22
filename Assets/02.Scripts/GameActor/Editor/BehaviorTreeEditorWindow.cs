@@ -65,7 +65,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Search
         }
 
-        [MenuItem("UPlayGround/비헤이비어 트리/에디터", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Editor)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/비헤이비어 트리/에디터", priority = UPlayGround.AI.Editor.BehaviorTreeMenuPriority.Editor)]
         public static void Open()
         {
             var window = GetWindow<BehaviorTreeEditorWindow>();

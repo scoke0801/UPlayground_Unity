@@ -7,7 +7,7 @@ namespace UPlayGround.Debugging.Editor
 {
     public static class DebugGizmoProjectFileUtility
     {
-        [MenuItem("UPlayGround/Debug/Regenerate C# Project Files")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/Debug/Regenerate C# Project Files")]
         public static void RegenerateProjectFiles()
         {
             AssetDatabase.Refresh();

@@ -30,7 +30,7 @@ namespace UPlayGround.Data.Crafting.Editor
         private string _csvUnlockPath;
         private string _outputAssetPath;
 
-        [MenuItem("UPlayGround/게임플레이/제작/레시피 데이터 가져오기")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/제작/레시피 데이터 가져오기")]
         public static void ShowWindow()
         {
             GetWindow<RecipeDataImporter>("Recipe Data Importer");

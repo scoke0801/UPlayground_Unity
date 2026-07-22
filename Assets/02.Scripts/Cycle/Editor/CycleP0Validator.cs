@@ -12,7 +12,7 @@ namespace UPlayGround.Cycle.Editor
 {
     public static class CycleP0Validator
     {
-        [MenuItem("UPlayGround/사이클/P0 현재 씬 검증")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/사이클/P0 현재 씬 검증")]
         public static void ValidateCurrentScene()
         {
             int errors = 0;

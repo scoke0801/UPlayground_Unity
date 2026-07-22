@@ -54,7 +54,7 @@ namespace UPlayGround.Tool.Editor.Stat
         };
 
         // ── 메뉴 ─────────────────────────────────────────────────
-        [MenuItem("UPlayGround/게임플레이/스탯/스탯 데이터베이스 에디터")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/게임플레이/스탯/스탯 데이터베이스 에디터")]
         public static void Open()
         {
             var window = GetWindow<StatDatabaseEditorWindow>();

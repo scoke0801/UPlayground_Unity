@@ -39,7 +39,7 @@ namespace UPlayGround.Editor.VFX
         private Vector2 scroll;
         private string statusMessage = "";
 
-        [MenuItem("UPlayGround/VFX/Weapon Slash Setup")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/VFX/Weapon Slash Setup")]
         public static void Open()
         {
             var window = GetWindow<WeaponSlashSetupWindow>("Weapon Slash Setup");

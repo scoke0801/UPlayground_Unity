@@ -128,11 +128,14 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AnimKey + AbilityAttackInfo
+→ AbilityAttackInfo.baseInfo.motionRef
+→ MotionReferenceSO.Resolve(WeaponType)
+→ MotionSetAsset
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 실제 실행에 필요한 `AnimKey`와 공용 `AbilityAttackInfo`를 소유한다.
+- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.baseInfo.motionRef`다. Payload 바깥에 중복 `motionRef`나 `AnimKey` 폴백을 다시 두지 않는다.
+- `MotionReferenceSO`는 기본 `MotionSetAsset`과 `WeaponType` override를 해석한다. 적의 실제 무기 타입을 제공하는 계약이 없는 상태에서 임의의 첫 override를 선택하지 않는다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 `AbilitySetSO`를 읽는다.
 - `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
 - 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
@@ -141,6 +144,15 @@ CharacterModelData.abilitySet
 - `UPlayGround.Ability.Core` 자체는 프로젝트 비의존 경계를 갖지만, `GameplayAbilitySO`/`GameplayEffectSO`/`AbilitySetSO` 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템을 외부 재사용 가능한 독립 패키지로 간주하지 않는다.
 
 2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 구조와 후속 독립 모듈 조건은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
+
+2026-07-22 MotionReference 정밀 검증 기준: Motion Payload 487개 중 중복 필드가 존재했던 478개의 참조는 모두 일치했고, Elemental Imbue 5종은 공통 MotionReference로 복구했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·MotionReference·HitPhase 누락을 모아서 보고해야 한다.
+
+### Editor 데이터 도구 안전 규칙
+
+- SO Spreadsheet import의 기존 에셋 식별은 GUID 정확 일치, path 정확 일치 순으로 처리한다. GUID/path가 제공됐는데 유효하지 않으면 이름으로 폴백하지 말고 import를 실패시킨다.
+- 이름 폴백은 GUID와 path가 둘 다 없을 때만 허용하며, 동일 이름 후보가 여러 개면 모호성 오류로 처리한다. ObjectReference export에는 GUID/path/name과 함께 assembly-qualified type을 보존한다.
+- import 중 예외가 발생하면 해당 Undo group 전체를 `Undo.RevertAllDownToGroup`으로 롤백하고 저장한다. 일부 적용 상태를 성공처럼 collapse하지 않는다.
+- P09 빌더는 기존 에셋을 삭제·교체하는 경로가 있어 현재 완전한 transaction으로 간주하지 않는다. 이 경로를 수정할 때는 임시 스테이징, 기존 에셋 백업/복구, 중간 단계 실패 테스트를 포함한 별도 설계를 먼저 수립한다.
 
 ### 데이터 아키텍처 (ScriptableObject)
 

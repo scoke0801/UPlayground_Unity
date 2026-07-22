@@ -350,7 +350,18 @@
       "WebFetch(domain:nenoso.gitbook.io)",
       "Bash(echo \"EXIT grep: $?  \\(0=found, 1=none\\)\")",
       "Bash(grep -vi -E '\\\\.\\(cs|mat|md\\)$')",
-      "Bash(rg -n 'AssetManager|IAssetService|LoadAsset' Assets/02.Scripts/Manager/GameObjectManager.cs Assets/02.Scripts/Manager/PartyManager*.cs)"
+      "Bash(rg -n 'AssetManager|IAssetService|LoadAsset' Assets/02.Scripts/Manager/GameObjectManager.cs Assets/02.Scripts/Manager/PartyManager*.cs)",
+      "Bash(grep -nB6 -A2 \"59e5b3cbadb2d50408665347985195ae\" \"Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Humanoid_Player_CommonAnimationSet.asset\")",
+      "Bash(sed 's/Tool\\(//')",
+      "Bash(grep -nA20 \"1d61fafcd57d4fef88ba43a50cbc3023\" \"Assets/03.Prefabs/Actor/Player/Player.prefab\")",
+      "WebFetch(domain:flowcanvas.paradoxnotion.com)",
+      "PowerShell(git status --porcelain | ForEach-Object { $_.Substring\\(0,2\\).Trim\\(\\) } | Group-Object | Sort-Object Count -Descending | Format-Table Name, Count -AutoSize)",
+      "PowerShell(git status --porcelain | ForEach-Object { $p = $_.Substring\\(3\\).Trim\\('\"'\\); if \\($p -match '->'\\) { $p = \\($p -split '->'\\)[1].Trim\\(\\) }; [System.IO.Path]::GetExtension\\($p\\) } | Group-Object | Sort-Object Count -Descending | Format-Table Name, Count -AutoSize)",
+      "PowerShell(git status --porcelain | ForEach-Object { $p = $_.Substring\\(3\\).Trim\\('\"'\\); if \\($p -match '->'\\) { $p = \\($p -split '->'\\)[1].Trim\\(\\) }; \\($p -split '/'\\)[0..2] -join '/' } | Group-Object | Sort-Object Count -Descending | Select-Object -First 40 | Format-Table Name, Count -AutoSize)",
+      "Bash(sed 's/^?? //')",
+      "Bash(awk '/^\\\\+\\\\+\\\\+ b\\\\//{f=$2} /^\\\\+.*UPlaygroundTool\\\\\\(/{print f}')",
+      "Bash(bash \"C:/Users/scoke/AppData/Local/Temp/claude/C--UsingProject-UnityProject-UPlayground/bf614e49-6723-4ab3-803c-46833a3afaf8/scratchpad/bucket.sh\")",
+      "Bash(grep -iE 'class |summary|///|namespace')"
     ]
   }
 }

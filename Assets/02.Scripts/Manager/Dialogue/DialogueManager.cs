@@ -69,8 +69,23 @@ namespace UPlayGround.Dialogue
 
         public void StartDialogue(DialogueGraphSO graph)
         {
-            var channel = graph.StartNode.channel;
-            _runners[channel].Enqueue(graph);
+            TryStartDialogueTracked(graph, null);
+        }
+
+        public IDisposable TryStartDialogueTracked(DialogueGraphSO graph, Action onCompleted)
+        {
+            if (graph == null || graph.StartNode == null)
+            {
+                Debug.LogWarning("[Dialogue] 시작할 그래프 또는 StartNode가 없습니다.");
+                return null;
+            }
+
+            DialogueChannel channel = graph.StartNode.channel;
+            if (!_runners.TryGetValue(channel, out DialogueRunner runner))
+                return null;
+
+            var request = new DialogueRequest(graph, onCompleted);
+            return runner.Enqueue(request) ? new DialogueRequestSubscription(request) : null;
         }
 
         public void Advance(DialogueChannel channel = DialogueChannel.Main)
@@ -273,13 +288,55 @@ namespace UPlayGround.Dialogue
     /// 단일 채널의 그래프 실행 FSM.
     /// enableQueue=true 이면 실행 중 요청된 그래프를 큐에 쌓아 순차 처리합니다.
     /// </summary>
+    internal sealed class DialogueRequest
+    {
+        private Action _onCompleted;
+
+        public DialogueRequest(DialogueGraphSO graph, Action onCompleted)
+        {
+            Graph = graph;
+            _onCompleted = onCompleted;
+        }
+
+        public DialogueGraphSO Graph { get; }
+
+        public void Complete()
+        {
+            Action callback = _onCompleted;
+            _onCompleted = null;
+            callback?.Invoke();
+        }
+
+        public void DetachCallback()
+        {
+            _onCompleted = null;
+        }
+    }
+
+    internal sealed class DialogueRequestSubscription : IDisposable
+    {
+        private DialogueRequest _request;
+
+        public DialogueRequestSubscription(DialogueRequest request)
+        {
+            _request = request;
+        }
+
+        public void Dispose()
+        {
+            _request?.DetachCallback();
+            _request = null;
+        }
+    }
+
     internal class DialogueRunner
     {
         private readonly DialogueChannel  _channel;
         private readonly DialogueManager  _manager;
         private readonly bool             _enableQueue;
-        private readonly Queue<DialogueGraphSO> _queue = new();
+        private readonly Queue<DialogueRequest> _queue = new();
 
+        private DialogueRequest _currentRequest;
         private DialogueGraphSO _currentGraph;
         private DialogueNodeSO  _currentNode;
         public  bool            IsRunning { get; private set; }
@@ -291,18 +348,23 @@ namespace UPlayGround.Dialogue
             _enableQueue = enableQueue;
         }
 
-        public void Enqueue(DialogueGraphSO graph)
+        public bool Enqueue(DialogueRequest request)
         {
             if (!IsRunning)
             {
-                Run(graph);
-                return;
+                Run(request);
+                return true;
             }
 
             if (_enableQueue)
-                _queue.Enqueue(graph);
+            {
+                _queue.Enqueue(request);
+                return true;
+            }
             else
-                Debug.LogWarning($"[Dialogue] {_channel} 채널 실행 중 — 새 그래프 무시됨: {graph.name}");
+                Debug.LogWarning($"[Dialogue] {_channel} 채널 실행 중 — 새 그래프 무시됨: {request.Graph.name}");
+
+            return false;
         }
 
         public void Advance()
@@ -323,17 +385,19 @@ namespace UPlayGround.Dialogue
         {
             _queue.Clear();
             IsRunning     = false;
+            _currentRequest = null;
             _currentGraph = null;
             _currentNode  = null;
         }
 
         // ── 내부 흐름 ───────────────────────────────────────────────
 
-        private void Run(DialogueGraphSO graph)
+        private void Run(DialogueRequest request)
         {
-            _currentGraph = graph;
+            _currentRequest = request;
+            _currentGraph = request.Graph;
             IsRunning     = true;
-            EnterNode(graph.StartNode);
+            EnterNode(request.Graph.StartNode);
         }
 
         private void MoveToNode(string nodeId)
@@ -387,9 +451,13 @@ namespace UPlayGround.Dialogue
 
         private void End()
         {
+            DialogueRequest completedRequest = _currentRequest;
             IsRunning     = false;
+            _currentRequest = null;
             _currentGraph = null;
             _currentNode  = null;
+
+            completedRequest?.Complete();
 
             // 큐에 다음 그래프가 있으면 이어서 실행, 없으면 채널 종료 알림
             if (_enableQueue && _queue.Count > 0)

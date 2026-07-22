@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UPlayGround.Manager;
 using UPlayGround.Data.Save;
 
 namespace UPlayGround.Dialogue
 {
     // 대화/퀘스트 플래그 단일 저장소
-    public class GlobalFlagManager : BaseManager<GlobalFlagManager>, IManager, ISaveable
+    public class GlobalFlagManager : BaseManager<GlobalFlagManager>, IManager, ISaveable, IGlobalFlagService
     {
         private readonly Dictionary<string, bool> _flags = new();
+
+        /// <summary>값이 실제로 변경될 때만 발화. 세이브 일괄 복원(LoadFlags)은 발화하지 않는다.</summary>
+        public event Action<string, bool> OnFlagChanged;
 
         #region IManager
         public void Init()
@@ -41,7 +45,14 @@ namespace UPlayGround.Dialogue
         #endregion
 
         public bool GetFlag(string key) => _flags.GetValueOrDefault(key, false);
-        public void SetFlag(string key, bool value) => _flags[key] = value;
+
+        public void SetFlag(string key, bool value)
+        {
+            bool changed = !_flags.TryGetValue(key, out bool prev) || prev != value;
+            _flags[key] = value;
+            if (changed)
+                OnFlagChanged?.Invoke(key, value);
+        }
 
         // 세이브 연동 시 이 메서드로 일괄 복원
         public void LoadFlags(Dictionary<string, bool> saved)

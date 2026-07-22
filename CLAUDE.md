@@ -15,7 +15,7 @@ Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP
 
 ## 빌드 & 실행
 
-Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0.60f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개가 있다.
+Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0.60f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개, FlowGraph에는 EditMode 3개(`Assets/Tests/EditMode/FlowGraph/`)와 PlayMode 수직 슬라이스 3개(`Assets/Tests/PlayMode/FlowGraph/`)가 있다.
 
 ## 아키텍처
 
@@ -31,7 +31,8 @@ Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0
 - `UPlayGround.Camera` — 카메라 런타임
 - `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
 - `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
-- `UPlayGround.Data.Editor`, `UPlayGround.GameActor.Editor`, `UPlayGround.UI.Editor` — Editor 전용 코드
+- `UPlayGround.FlowGraph` — 게임 흐름 노드 그래프 런타임 (`FlowGraphSO`/`FlowNode`/`FlowGraphRunner`/`FlowGraphManager`). `Svc`/Contracts만 참조하며, 노드는 `[SerializeReference]` 다형 + 단일 에셋 방식 (스펙: `Assets/docs/TODO/node-flow-graph-system.md`)
+- `UPlayGround.Data.Editor`, `UPlayGround.GameActor.Editor`, `UPlayGround.UI.Editor`, `UPlayGround.FlowGraph.Editor` — Editor 전용 코드
 
 모듈 경계의 상세 기준은 `Assets/docs/onboarding/PROJECT_ONBOARDING_GUIDE.html`,
 `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`,
@@ -54,7 +55,7 @@ Camera 모듈은 이식 가능한 런타임 경계를 위해 내부에서 `Svc.*
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager` 인터페이스를 구현. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
 
-매니저 목록 (GameManager 등록 순): SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, CycleRunManager, BossAssistManager, CycleRemainsManager, CycleTelemetrySession, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, GameGuideManager.
+매니저 목록 (GameManager 등록 순): SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, CycleRunManager, BossAssistManager, CycleRemainsManager, CycleTelemetrySession, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, FlowGraphManager, GameGuideManager.
 
 히트스톱·바이탈오브·방어성공 피드백·레벨업 피드백은 별도 매니저가 아니라 `GameCombatManager` 산하 핸들러(`Manager/Handler/Combat/`)로 재편됨.
 
@@ -119,11 +120,14 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AnimKey + AbilityAttackInfo
+→ AbilityAttackInfo.baseInfo.motionRef
+→ MotionReferenceSO.Resolve(WeaponType)
+→ MotionSetAsset
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 실행용 `AnimKey`와 공용 `AbilityAttackInfo`를 소유한다.
+- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.baseInfo.motionRef`다. Payload 바깥에 중복 `motionRef`나 `AnimKey` 폴백을 다시 두지 않는다.
+- `MotionReferenceSO`는 기본 `MotionSetAsset`과 `WeaponType` override를 해석한다. 적의 실제 무기 타입을 제공하는 계약이 없는 상태에서 임의의 첫 override를 선택하지 않는다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 Set을 소비한다.
 - `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
 - 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
@@ -132,6 +136,15 @@ CharacterModelData.abilitySet
 - Core asmdef는 프로젝트 비의존이지만 Ability/Effect/Set 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템은 아직 외부 재사용 가능한 독립 패키지가 아니다.
 
 2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 상세 기준은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+
+2026-07-22 MotionReference 정밀 검증 기준: Motion Payload 487개 중 중복 필드가 존재했던 478개의 참조는 모두 일치했고, Elemental Imbue 5종은 공통 MotionReference로 복구했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·MotionReference·HitPhase 누락을 모아서 보고해야 한다.
+
+### Editor 데이터 도구 안전 규칙
+
+- SO Spreadsheet import의 기존 에셋 식별은 GUID 정확 일치, path 정확 일치 순으로 처리한다. GUID/path가 제공됐는데 유효하지 않으면 이름으로 폴백하지 말고 import를 실패시킨다.
+- 이름 폴백은 GUID와 path가 둘 다 없을 때만 허용하며, 동일 이름 후보가 여러 개면 모호성 오류로 처리한다. ObjectReference export에는 GUID/path/name과 함께 assembly-qualified type을 보존한다.
+- import 중 예외가 발생하면 해당 Undo group 전체를 `Undo.RevertAllDownToGroup`으로 롤백하고 저장한다. 일부 적용 상태를 성공처럼 collapse하지 않는다.
+- P09 빌더는 기존 에셋을 삭제·교체하는 경로가 있어 현재 완전한 transaction으로 간주하지 않는다. 이 경로를 수정할 때는 임시 스테이징, 기존 에셋 백업/복구, 중간 단계 실패 테스트를 포함한 별도 설계를 먼저 수립한다.
 
 ### 데이터 아키텍처 (ScriptableObject)
 

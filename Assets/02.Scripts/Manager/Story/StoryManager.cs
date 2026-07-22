@@ -18,7 +18,7 @@ namespace UPlayGround.Story
     /// - TryTriggerStory: 완료 여부 + 진행도 조건을 확인 후 DialogueManager에 전달
     /// - SetProgress: 진행도 변경 (보스 처치, 구역 진입 등 외부에서 호출)
     /// </summary>
-    public class StoryManager : BaseManager<StoryManager>, IManager, ISaveable
+    public class StoryManager : BaseManager<StoryManager>, IManager, ISaveable, IStoryFlowService
     {
         [SerializeField] private int _currentProgress;
 

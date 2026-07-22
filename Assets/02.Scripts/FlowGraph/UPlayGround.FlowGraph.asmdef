@@ -1,0 +1,10 @@
+{
+  "name": "UPlayGround.FlowGraph",
+  "rootNamespace": "UPlayGround.FlowGraph",
+  "references": [
+    "UPlayGround.Core",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts"
+  ],
+  "autoReferenced": true
+}

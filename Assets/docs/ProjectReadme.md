@@ -341,6 +341,7 @@ Assets/
 | [ACTOR_MOTION_FALLBACK_GUIDE.md](Complete/ACTOR_MOTION_FALLBACK_GUIDE.md) | ActorAnimationMotionSet 공용 모션 — Fallback 체인으로 휴머노이드 클립 공유, 커스텀 인스펙터·Override 워크플로 |
 | [MOTION_EVENT_ROLE_GUIDE.md](guide/MOTION_EVENT_ROLE_GUIDE.md) | MotionEvent 역할 — 전투 판정, VFX/SFX, 카메라, 이동/시간, 유틸리티 이벤트별 실행 타이밍과 주의사항 |
 | [COMBAT_SYSTEM_GUIDE.md](guide/COMBAT_SYSTEM_GUIDE.md) | 전투 시스템 — PlayerCombat/EnemyCombat, 공격 데이터, 판정, 피해 적용, 가드·패리·Poise·Break 흐름 |
+| [FLOWGRAPH_SYSTEM_GUIDE.html](guide/FLOWGRAPH_SYSTEM_GUIDE.html) | FlowGraph — 게임 흐름 노드 그래프, 토큰 실행 모델, 노드 카탈로그, GraphView 에디터, SubGraph/Blackboard, TriggerComposer 변환 (md 병행: [FLOWGRAPH_SYSTEM_GUIDE.md](guide/FLOWGRAPH_SYSTEM_GUIDE.md)) |
 | [ATTACK_CANCEL_SYSTEM_GUIDE.md](guide/ATTACK_CANCEL_SYSTEM_GUIDE.md) | 공격 캔슬(인터럽트) 시스템 — PlayerInterruptAction 마스크, 캔슬 윈도우, 이동 후딜 캔슬 게이트(윈드업/멀티히트 제외), 마이그레이션 메뉴 |
 | [COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md](Complete/COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md) | 전투 시스템 구조 개선 계획 — DamageResolver, DefenseResolver, ReactionResolver, CombatActionRunner 단계별 리팩토링 |
 | [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](Complete/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |

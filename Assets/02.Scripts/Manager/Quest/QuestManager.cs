@@ -43,7 +43,8 @@ namespace UPlayGround.Manager
     /// </summary>
     public class QuestManager : BaseManager<QuestManager>, IManager, ISaveable, IAsyncInitializableManager,
         UPlayGround.UI.IUIQuestService,
-        IQuestProgressService
+        IQuestProgressService,
+        IQuestFlowService
     {
         private const string QUEST_DATABASE_KEY = "QuestDatabase";
         private const int MAX_AUTO_ACCEPT_CHAIN_DEPTH = 32;

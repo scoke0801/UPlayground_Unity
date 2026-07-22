@@ -1,0 +1,24 @@
+{
+  "name": "UPlayGround.FlowGraph.Tests",
+  "rootNamespace": "UPlayGround.FlowGraph.Tests",
+  "references": [
+    "UPlayGround.FlowGraph",
+    "UPlayGround.Core",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

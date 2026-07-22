@@ -118,6 +118,7 @@ namespace UPlayGround.Manager
             RegisterManager(CheatManager.Instance);
             RegisterManager(RecipeManager.Instance);
             RegisterManager(QuestManager.Instance);
+            RegisterManager(UPlayGround.FlowGraph.FlowGraphManager.Instance); // 게임 흐름 노드 그래프 (Flag/Quest/Story/Dialogue 이후)
             RegisterManager(GameGuideManager.Instance);
 
             var bootStopwatch = System.Diagnostics.Stopwatch.StartNew();

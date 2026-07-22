@@ -245,6 +245,7 @@ namespace UPlayGround.Manager
     {
         event Action OnDialogueEnd;
         void StartDialogue(DialogueGraphSO graph);
+        IDisposable TryStartDialogueTracked(DialogueGraphSO graph, Action onCompleted);
     }
 
     public interface ISoundService : IGameService

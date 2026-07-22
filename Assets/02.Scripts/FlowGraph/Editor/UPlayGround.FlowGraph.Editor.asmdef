@@ -1,0 +1,15 @@
+{
+  "name": "UPlayGround.FlowGraph.Editor",
+  "rootNamespace": "UPlayGround.FlowGraph.Editor",
+  "references": [
+    "UPlayGround.EditorTools",
+    "UPlayGround.FlowGraph",
+    "UPlayGround.Core",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

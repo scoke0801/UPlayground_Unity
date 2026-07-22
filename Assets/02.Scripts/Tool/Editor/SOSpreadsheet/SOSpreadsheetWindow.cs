@@ -22,8 +22,17 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
     /// </summary>
     public class SOSpreadsheetWindow : EditorWindow
     {
-        private const float RowHeight = 22f;
+        private const float DefaultRowHeight = 22f;
+        private const float IconRowHeight = 42f;
         private const string NameColumnId = "__asset";
+
+        private sealed class TableRow
+        {
+            public RowEntry row;
+            public bool isGroupHeader;
+            public string groupKey;
+            public int groupCount;
+        }
 
         private static readonly int[] FreezeValues = { 0, 1, 2, 3, 4, 5, 6 };
         private static readonly string[] FreezeLabels = { "없음", "1열", "2열", "3열", "4열", "5열", "6열" };
@@ -31,7 +40,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         // ── 상태 ─────────────────────────────────────────────────────
 
         private SOSpreadsheetModel _model;
-        private readonly List<RowEntry> _pageRows = new(); // 두 리스트뷰가 공유하는 현재 페이지 행
+        private readonly List<TableRow> _pageRows = new(); // 그룹 헤더를 포함해 두 리스트뷰가 공유하는 현재 페이지
         private readonly Dictionary<string, float> _savedWidths = new(); // propertyPath → 열 너비
         private readonly HashSet<string> _hiddenColumns = new();
         private float _nameColumnWidth = 180f;
@@ -54,18 +63,24 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         [SerializeField] private bool _excludeExternal = true;
         [SerializeField] private string _selectedTypeName;
         [SerializeField] private string _assetSearch = string.Empty;
-        [SerializeField] private bool _searchValues;
+        [SerializeField] private string _searchColumnPath = "__name";
         [SerializeField] private List<ColumnFilter> _filters = new();
         [SerializeField] private bool _showChildren = true;
         [SerializeField] private int _pageSizeIndex = 1; // 기본 50
         /// <summary>가로 스크롤과 무관하게 항상 표시할 왼쪽 열 개수 (엑셀 틀 고정).</summary>
         [SerializeField] private int _freezeCount = 1;
+        [SerializeField] private string _groupPropertyPath = string.Empty;
+        [SerializeField] private List<string> _collapsedGroups = new();
 
         // UI 참조
         private ToolbarButton _typeButton;
         private ToolbarButton _filterButton;
+        private ToolbarButton _searchScopeButton;
+        private ToolbarButton _groupButton;
         private VisualElement _filterBar;
         private ToolbarButton _newAssetButton;
+        private ToolbarButton _exportButton;
+        private ToolbarButton _importButton;
         private ToolbarButton _columnsButton;
         private ToolbarButton _widthButton;
         private ToolbarButton _freezeButton;
@@ -86,7 +101,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         // ── 메뉴 ─────────────────────────────────────────────────────
 
-        [MenuItem("UPlayGround/SO 스프레드시트")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/SO 스프레드시트")]
         public static void Open()
         {
             var win = GetWindow<SOSpreadsheetWindow>("SO 스프레드시트");
@@ -113,10 +128,11 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 scopeFolder = _scopeFolder,
                 excludeExternal = _excludeExternal,
                 assetSearch = _assetSearch,
-                searchValues = _searchValues,
+                searchColumnPath = _searchColumnPath,
                 filters = _filters, // 창이 직렬화하는 리스트를 그대로 공유
                 showChildren = _showChildren,
                 pageSizeIndex = _pageSizeIndex,
+                groupPropertyPath = _groupPropertyPath,
             };
 
             LoadStyleSheet();
@@ -184,6 +200,12 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
             toolbar.Add(new ToolbarButton(() => AssetDatabase.SaveAssets()) { text = "모두 저장" });
 
+            _exportButton = new ToolbarButton(ShowExportMenu) { text = "내보내기 ▾" };
+            toolbar.Add(_exportButton);
+
+            _importButton = new ToolbarButton(ImportData) { text = "불러오기" };
+            toolbar.Add(_importButton);
+
             toolbar.Add(new ToolbarSpacer());
 
             _columnsButton = new ToolbarButton(ShowColumnVisibilityMenu) { text = "열 표시 ▾" };
@@ -208,6 +230,9 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             _freezeButton = new ToolbarButton(ShowFreezeMenu);
             toolbar.Add(_freezeButton);
 
+            _groupButton = new ToolbarButton(ShowGroupMenu);
+            toolbar.Add(_groupButton);
+
             var toolbarSpacer = new VisualElement();
             toolbarSpacer.AddToClassList("so-toolbar-spacer");
             toolbar.Add(toolbarSpacer);
@@ -224,19 +249,11 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             });
             toolbar.Add(_searchField);
 
-            var valueSearchToggle = new ToolbarToggle
+            _searchScopeButton = new ToolbarButton(ShowSearchScopeMenu)
             {
-                text = "값 검색",
-                value = _searchValues,
-                tooltip = "켜면 에셋 이름뿐 아니라 셀 값(숫자/문자열/enum/참조 이름)에서도 검색합니다.",
+                tooltip = "검색 대상을 에셋명, 경로, 전체 값 또는 특정 열로 제한합니다.",
             };
-            valueSearchToggle.RegisterValueChangedCallback(evt =>
-            {
-                _searchValues = _model.searchValues = evt.newValue;
-                if (!string.IsNullOrEmpty(_assetSearch))
-                    ApplyFiltersAndRefresh();
-            });
-            toolbar.Add(valueSearchToggle);
+            toolbar.Add(_searchScopeButton);
 
             _filterButton = new ToolbarButton(ShowAddFilterMenu) { text = "필터 ▾" };
             toolbar.Add(_filterButton);
@@ -491,7 +508,12 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             // 도메인 리로드 후 같은 타입 복원 시에는 필터를 유지하고, 타입이 바뀔 때만 초기화
             bool typeChanged = _selectedTypeName != entry?.type.AssemblyQualifiedName;
             if (typeChanged)
+            {
                 _filters.Clear();
+                _groupPropertyPath = string.Empty;
+                _collapsedGroups.Clear();
+                _searchColumnPath = "__name";
+            }
 
             CloseDetailPanel();
             _model.SelectType(entry);
@@ -503,6 +525,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             if (entry != null)
             {
                 _model.BuildColumns();
+                _model.groupPropertyPath = _groupPropertyPath;
+                _model.searchColumnPath = _searchColumnPath;
                 AutoFitWidths();
                 _model.ApplyFilter();
             }
@@ -520,6 +544,11 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 return;
             _savedWidths.Clear();
             _model.BuildColumns();
+            if (_model.FindColumn(_groupPropertyPath) == null)
+                _groupPropertyPath = _model.groupPropertyPath = string.Empty;
+            if (_searchColumnPath != "__name" && _searchColumnPath != "__path" &&
+                _searchColumnPath != "__all" && _model.FindColumn(_searchColumnPath) == null)
+                _searchColumnPath = _model.searchColumnPath = "__name";
             AutoFitWidths();
             _model.ApplyFilter();
             RebuildFilterBar(); // 열 구성이 바뀌면 필터 칩의 열 참조도 다시 해석
@@ -624,9 +653,9 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         {
             var view = new MultiColumnListView
             {
-                fixedItemHeight = RowHeight,
+                fixedItemHeight = CurrentRowHeight(),
                 itemsSource = _pageRows,
-                selectionType = SelectionType.Single, // 행 클릭 하이라이트 (넓은 표에서 행 추적용)
+                selectionType = SelectionType.Multiple,
                 showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly,
                 sortingMode = ColumnSortingMode.Custom,
             };
@@ -655,7 +684,10 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             if (index < 0 || index >= _pageRows.Count)
                 return;
 
-            var row = _pageRows[index];
+            var tableRow = _pageRows[index];
+            if (tableRow.isGroupHeader || tableRow.row == null)
+                return;
+            var row = tableRow.row;
             if (_detailRow == row)
             {
                 CloseDetailPanel();
@@ -687,7 +719,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             Vector2 local = scroll.contentContainer.WorldToLocal(worldPosition);
             if (local.y < 0f)
                 return -1;
-            return (int)(local.y / RowHeight);
+            return (int)(local.y / CurrentRowHeight());
         }
 
         /// <summary>
@@ -785,7 +817,17 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             ping.AddToClassList("so-ping-button");
             ping.clicked += () =>
             {
-                if (cell.userData is RowEntry row && row.asset != null)
+                if (cell.userData is not TableRow tableRow)
+                    return;
+                if (tableRow.isGroupHeader)
+                {
+                    if (!_collapsedGroups.Remove(tableRow.groupKey))
+                        _collapsedGroups.Add(tableRow.groupKey);
+                    RefreshData();
+                    return;
+                }
+                var row = tableRow.row;
+                if (row?.asset != null)
                 {
                     EditorGUIUtility.PingObject(row.asset);
                     Selection.activeObject = row.asset;
@@ -797,8 +839,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             field.AddToClassList("so-name-field");
             field.RegisterValueChangedCallback(evt =>
             {
-                if (cell.userData is RowEntry row)
-                    RenameRow(row, evt.newValue, field);
+                if (cell.userData is TableRow { isGroupHeader: false, row: not null } tableRow)
+                    RenameRow(tableRow.row, evt.newValue, field);
             });
             cell.Add(field);
             return cell;
@@ -806,9 +848,25 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
 
         private void BindNameCell(VisualElement cell, int rowIndex)
         {
-            var row = _pageRows[rowIndex];
-            cell.userData = row;
+            var tableRow = _pageRows[rowIndex];
+            cell.userData = tableRow;
+            var ping = cell.Q<Button>();
             var field = cell.Q<TextField>();
+            if (tableRow.isGroupHeader)
+            {
+                bool collapsed = _collapsedGroups.Contains(tableRow.groupKey);
+                ping.text = collapsed ? "▶" : "▼";
+                ping.tooltip = collapsed ? "그룹 펼치기" : "그룹 접기";
+                field.SetEnabled(false);
+                field.SetValueWithoutNotify($"{tableRow.groupKey} ({tableRow.groupCount})");
+                cell.EnableInClassList("so-group-header", true);
+                return;
+            }
+
+            cell.EnableInClassList("so-group-header", false);
+            ping.text = "◎";
+            ping.tooltip = "프로젝트 창에서 선택";
+            var row = tableRow.row;
             var so = row.GetSerialized();
             field.SetEnabled(so != null);
             field.SetValueWithoutNotify(so != null ? row.DisplayName : $"(로드 실패) {row.path}");
@@ -861,7 +919,17 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         {
             cell.Unbind();
 
-            var row = _pageRows[rowIndex];
+            var tableRow = _pageRows[rowIndex];
+            if (tableRow.isGroupHeader || tableRow.row == null)
+            {
+                var blank = EnsureContent(cell, "group-blank", MakeMissingLabel);
+                blank.text = string.Empty;
+                cell.EnableInClassList("so-group-header", true);
+                return;
+            }
+
+            cell.EnableInClassList("so-group-header", false);
+            var row = tableRow.row;
             var so = row.GetSerialized();
             var prop = so != null ? row.GetProperty(info.propertyPath) : null;
             if (prop == null)
@@ -897,6 +965,14 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 return;
             }
 
+            if (info.isIcon && (prop.objectReferenceValue == null ||
+                                prop.objectReferenceValue is Sprite ||
+                                prop.objectReferenceValue is Texture))
+            {
+                BindIconCell(cell, info, prop);
+                return;
+            }
+
             // 커스텀 드로어가 없는 단순 타입은 PropertyField(내부 드로어 해석·재생성 비용)보다
             // 훨씬 가벼운 타입 전용 필드로 그린다 → 페이지 전환/스크롤 체감 성능의 핵심
             if (!info.hasCustomDrawer)
@@ -914,6 +990,43 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             // PropertyField 내부 구성은 바인딩 후에 만들어지므로 다음 틱에 드로어 보정
             if (info.hasCustomDrawer || info.topCut > 0f)
                 pf.schedule.Execute(() => FixupPropertyField(pf, info));
+        }
+
+        private static void BindIconCell(VisualElement cell, ColumnInfo info, SerializedProperty prop)
+        {
+            var content = EnsureContent(cell, "icon", () =>
+            {
+                var row = new VisualElement { name = "icon-content" };
+                row.AddToClassList("so-icon-content");
+
+                var preview = new Image { name = "icon-preview", scaleMode = ScaleMode.ScaleToFit };
+                preview.AddToClassList("so-icon-preview");
+                row.Add(preview);
+
+                var field = new ObjectField
+                {
+                    name = "icon-field",
+                    allowSceneObjects = false,
+                };
+                field.AddToClassList("so-icon-field");
+                field.RegisterValueChangedCallback(evt => SetIconPreview(preview, evt.newValue));
+                row.Add(field);
+                return row;
+            });
+
+            var objectField = content.Q<ObjectField>("icon-field");
+            objectField.objectType = info.objectType ?? typeof(UnityEngine.Object);
+            objectField.BindProperty(prop);
+            SetIconPreview(content.Q<Image>("icon-preview"), prop.objectReferenceValue);
+        }
+
+        private static void SetIconPreview(Image preview, UnityEngine.Object value)
+        {
+            if (preview == null)
+                return;
+            preview.sprite = value as Sprite;
+            preview.image = value as Texture;
+            preview.tooltip = value != null ? value.name : "Icon 없음";
         }
 
         /// <summary>
@@ -1065,8 +1178,44 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             _pageRows.Clear();
             int start = _model.PageStart;
             int count = _model.PageRowCount;
+            if (string.IsNullOrEmpty(_model.groupPropertyPath))
+            {
+                for (int i = 0; i < count; i++)
+                    _pageRows.Add(new TableRow { row = _model.view[start + i] });
+                return;
+            }
+
+            var groupCounts = _model.view
+                .GroupBy(_model.GetGroupKey)
+                .ToDictionary(g => g.Key, g => g.Count());
+            string previousGroup = null;
             for (int i = 0; i < count; i++)
-                _pageRows.Add(_model.view[start + i]);
+            {
+                var row = _model.view[start + i];
+                string group = _model.GetGroupKey(row);
+                if (!string.Equals(previousGroup, group, StringComparison.Ordinal))
+                {
+                    _pageRows.Add(new TableRow
+                    {
+                        isGroupHeader = true,
+                        groupKey = group,
+                        groupCount = groupCounts.TryGetValue(group, out int total) ? total : 0,
+                    });
+                    previousGroup = group;
+                }
+                if (!_collapsedGroups.Contains(group))
+                    _pageRows.Add(new TableRow { row = row, groupKey = group });
+            }
+        }
+
+        private float CurrentRowHeight()
+        {
+            foreach (int modelIndex in GetVisibleColumnIndices())
+            {
+                if (modelIndex > 0 && _model.columns[modelIndex - 1].isIcon)
+                    return IconRowHeight;
+            }
+            return DefaultRowHeight;
         }
 
         /// <summary>필터/정렬/페이지 결과를 리스트뷰에 반영한다 (열 구조는 그대로).</summary>
@@ -1091,9 +1240,16 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 ? $"{selected.type.Name} ({selected.assetPaths.Count}) ▾"
                 : "타입 선택… ▾";
             _newAssetButton.SetEnabled(selected != null);
+            _exportButton.SetEnabled(selected != null && _model.rows.Count > 0);
+            _importButton.SetEnabled(selected != null);
             _columnsButton.SetEnabled(selected != null && _model.columns.Count > 0);
             _widthButton.SetEnabled(selected != null && _model.columns.Count > 0);
             _freezeButton.text = $"고정: {FreezeLabels[Mathf.Clamp(_freezeCount, 0, FreezeLabels.Length - 1)]} ▾";
+            var groupColumn = _model.FindColumn(_groupPropertyPath);
+            _groupButton.text = groupColumn != null ? $"그룹: {groupColumn.displayName} ▾" : "그룹: 없음 ▾";
+            _groupButton.SetEnabled(selected != null && _model.columns.Any(SOSpreadsheetModel.IsGroupable));
+            _searchScopeButton.text = SearchScopeLabel();
+            _searchScopeButton.SetEnabled(selected != null);
             _pageSizeButton.text =
                 $"{SOSpreadsheetModel.PageSizeLabels[Mathf.Clamp(_pageSizeIndex, 0, SOSpreadsheetModel.PageSizeLabels.Length - 1)]} ▾";
 
@@ -1103,6 +1259,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 int activeFilters = _filters.Count(f => f.IsActive);
                 if (activeFilters > 0)
                     info += $" · 필터 {activeFilters}개";
+                if (groupColumn != null)
+                    info += $" · {groupColumn.displayName} 그룹";
                 if (_model.columnsTruncated)
                     info += " (열 일부 생략)";
                 _infoLabel.text = info;
@@ -1210,6 +1368,258 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             menu.DropDown(_pageSizeButton.worldBound);
         }
 
+        private void ShowSearchScopeMenu()
+        {
+            var menu = new GenericMenu();
+            AddSearchScopeItem(menu, "에셋 이름", "__name");
+            AddSearchScopeItem(menu, "에셋 경로", "__path");
+            AddSearchScopeItem(menu, "에셋 이름 + 모든 값", "__all");
+            menu.AddSeparator(string.Empty);
+            foreach (var column in _model.columns)
+            {
+                if (!IsSearchableColumn(column))
+                    continue;
+                AddSearchScopeItem(menu, $"열/{column.displayName.Replace("/", "∕")}", column.propertyPath);
+            }
+            menu.DropDown(_searchScopeButton.worldBound);
+        }
+
+        private void AddSearchScopeItem(GenericMenu menu, string label, string path)
+        {
+            menu.AddItem(new GUIContent(label), _searchColumnPath == path, () =>
+            {
+                _searchColumnPath = _model.searchColumnPath = path;
+                ApplyFiltersAndRefresh();
+                UpdateChrome();
+            });
+        }
+
+        private string SearchScopeLabel()
+        {
+            switch (_searchColumnPath)
+            {
+                case "__path": return "검색: 경로 ▾";
+                case "__all": return "검색: 모든 값 ▾";
+                case "__name": return "검색: 이름 ▾";
+                default:
+                    var column = _model.FindColumn(_searchColumnPath);
+                    return column != null ? $"검색: {column.displayName} ▾" : "검색: 이름 ▾";
+            }
+        }
+
+        private static bool IsSearchableColumn(ColumnInfo column)
+        {
+            switch (column.propType)
+            {
+                case SerializedPropertyType.Integer:
+                case SerializedPropertyType.Float:
+                case SerializedPropertyType.Boolean:
+                case SerializedPropertyType.String:
+                case SerializedPropertyType.Enum:
+                case SerializedPropertyType.ObjectReference:
+                case SerializedPropertyType.LayerMask:
+                case SerializedPropertyType.Character:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private void ShowGroupMenu()
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("그룹 없음"), string.IsNullOrEmpty(_groupPropertyPath), () =>
+            {
+                _groupPropertyPath = _model.groupPropertyPath = string.Empty;
+                _collapsedGroups.Clear();
+                _model.ApplyFilter();
+                RefreshData();
+            });
+            menu.AddSeparator(string.Empty);
+            foreach (var column in _model.columns)
+            {
+                if (!SOSpreadsheetModel.IsGroupable(column))
+                    continue;
+                string path = column.propertyPath;
+                string label = column.displayName.Replace("/", "∕");
+                menu.AddItem(new GUIContent(label), _groupPropertyPath == path, () =>
+                {
+                    _groupPropertyPath = _model.groupPropertyPath = path;
+                    _collapsedGroups.Clear();
+                    _model.pageIndex = 0;
+                    _model.ApplyFilter();
+                    RefreshData();
+                    ScrollToTop();
+                });
+            }
+            menu.DropDown(_groupButton.worldBound);
+        }
+
+        // ── JSON / CSV 가져오기·내보내기 ────────────────────────────
+
+        private void ShowExportMenu()
+        {
+            var menu = new GenericMenu();
+            AddExportItems(menu, "JSON", SOExchangeFormat.Json);
+            AddExportItems(menu, "CSV", SOExchangeFormat.Csv);
+            menu.DropDown(_exportButton.worldBound);
+        }
+
+        private void AddExportItems(GenericMenu menu, string formatLabel, SOExchangeFormat format)
+        {
+            menu.AddItem(new GUIContent($"{formatLabel}/전체 행"), false,
+                () => ExportData(format, _model.rows, "전체"));
+            menu.AddItem(new GUIContent($"{formatLabel}/필터 결과"), false,
+                () => ExportData(format, _model.view, "필터"));
+
+            var selectedRows = GetSelectedRows();
+            if (selectedRows.Count > 0)
+            {
+                menu.AddItem(new GUIContent($"{formatLabel}/선택 행 ({selectedRows.Count})"), false,
+                    () => ExportData(format, selectedRows, "선택"));
+            }
+            else
+            {
+                menu.AddDisabledItem(new GUIContent($"{formatLabel}/선택 행"));
+            }
+        }
+
+        private List<RowEntry> GetSelectedRows()
+        {
+            var indices = new HashSet<int>();
+            if (_leftView != null)
+            {
+                foreach (int index in _leftView.selectedIndices)
+                    indices.Add(index);
+            }
+            if (_rightView != null)
+            {
+                foreach (int index in _rightView.selectedIndices)
+                    indices.Add(index);
+            }
+
+            var rows = new List<RowEntry>();
+            foreach (int index in indices.OrderBy(i => i))
+            {
+                if (index < 0 || index >= _pageRows.Count)
+                    continue;
+                var tableRow = _pageRows[index];
+                if (!tableRow.isGroupHeader && tableRow.row != null)
+                    rows.Add(tableRow.row);
+            }
+            return rows;
+        }
+
+        private void ExportData(
+            SOExchangeFormat format, IReadOnlyList<RowEntry> rows, string scopeLabel)
+        {
+            if (_model.selected == null || rows == null || rows.Count == 0)
+            {
+                EditorUtility.DisplayDialog("SO 데이터 내보내기", "내보낼 행이 없습니다.", "확인");
+                return;
+            }
+
+            string extension = format == SOExchangeFormat.Json ? "json" : "csv";
+            string defaultName = $"{_model.selected.type.Name}_{scopeLabel}";
+            string path = EditorUtility.SaveFilePanel(
+                $"{_model.selected.type.Name} {extension.ToUpperInvariant()} 내보내기",
+                string.Empty,
+                defaultName,
+                extension);
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            try
+            {
+                string content = SODataExchange.BuildExportText(
+                    _model.selected, rows, _model.columns, format);
+                SODataExchange.WriteExport(path, content, format);
+                EditorUtility.RevealInFinder(path);
+                EditorUtility.DisplayDialog(
+                    "SO 데이터 내보내기",
+                    $"{rows.Count}개 행을 {extension.ToUpperInvariant()} 파일로 저장했습니다.\n\n{path}",
+                    "확인");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                EditorUtility.DisplayDialog("SO 데이터 내보내기 실패", ex.Message, "확인");
+            }
+        }
+
+        private void ImportData()
+        {
+            if (_model.selected == null)
+                return;
+
+            string path = EditorUtility.OpenFilePanelWithFilters(
+                $"{_model.selected.type.Name} 데이터 불러오기",
+                string.Empty,
+                new[] { "지원 파일", "json,csv", "JSON", "json", "CSV", "csv" });
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            try
+            {
+                var records = SODataExchange.ReadRecords(path);
+                if (records.Count == 0)
+                {
+                    EditorUtility.DisplayDialog("SO 데이터 불러오기", "파일에 데이터 행이 없습니다.", "확인");
+                    return;
+                }
+
+                var analysis = SODataExchange.Analyze(
+                    _model.selected, _model.rows, _model.columns, records);
+                string review =
+                    $"파일: {System.IO.Path.GetFileName(path)}\n" +
+                    $"레코드: {records.Count}개\n" +
+                    $"생성 예정: {analysis.creates}개\n" +
+                    $"갱신 예정: {analysis.updates}개\n" +
+                    $"매핑 필드: {analysis.mappedFields}개";
+                if (analysis.unmappedFields > 0)
+                    review += $"\n매핑되지 않은 필드: {analysis.unmappedFields}개 (건너뜀)";
+                review += "\n\nGUID 또는 경로가 있으면 정확히 일치해야 하며, 둘 다 없을 때만 고유한 에셋 이름을 사용합니다. 적용할까요?";
+
+                if (!EditorUtility.DisplayDialog("SO 데이터 불러오기 검토", review, "적용", "취소"))
+                    return;
+
+                string fallbackFolder = ResolveImportFolder();
+                var result = SODataExchange.Import(
+                    _model.selected, _model.rows, _model.columns, records, fallbackFolder);
+                Rescan();
+
+                string summary =
+                    $"생성: {result.created}개\n" +
+                    $"갱신: {result.updated}개\n" +
+                    $"건너뜀: {result.skipped}개\n" +
+                    $"경고: {result.warnings.Count}개";
+                if (result.warnings.Count > 0)
+                {
+                    foreach (string warning in result.warnings)
+                        Debug.LogWarning($"[SO 스프레드시트 Import] {warning}");
+                    summary += "\n\n경고 상세는 Console에서 확인하세요.";
+                }
+                EditorUtility.DisplayDialog("SO 데이터 불러오기 완료", summary, "확인");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                EditorUtility.DisplayDialog("SO 데이터 불러오기 실패", ex.Message, "확인");
+            }
+        }
+
+        private string ResolveImportFolder()
+        {
+            if (_model.selected?.assetPaths.Count > 0)
+            {
+                string folder = System.IO.Path.GetDirectoryName(_model.selected.assetPaths[0])
+                    ?.Replace('\\', '/');
+                if (!string.IsNullOrEmpty(folder) && AssetDatabase.IsValidFolder(folder))
+                    return folder;
+            }
+            return AssetDatabase.IsValidFolder(_model.scopeFolder) ? _model.scopeFolder : "Assets";
+        }
+
         // ── 열 필터 ──────────────────────────────────────────────────
 
         private void ApplyFiltersAndRefresh()
@@ -1304,6 +1714,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 if (col.propType == SerializedPropertyType.Enum ||
                     col.propType == SerializedPropertyType.Boolean)
                 {
+                    if (col.propType == SerializedPropertyType.Enum)
+                        chip.Add(MakeFilterOperatorButton(filter, col));
                     var valueButton = new Button { text = AllowedSummary(filter, col) };
                     valueButton.AddToClassList("so-filter-value-button");
                     valueButton.clicked += () => ShowAllowedValuesMenu(filter, col, valueButton);
@@ -1313,17 +1725,36 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 {
                     bool numeric = col.propType != SerializedPropertyType.String &&
                                    col.propType != SerializedPropertyType.ObjectReference;
-                    var textField = new TextField { value = filter.text, isDelayed = true };
-                    textField.AddToClassList("so-filter-text");
-                    textField.tooltip = numeric
-                        ? "비교식: 10 / >=10 / <5 / 3..8" + (col.isList ? " (요소 수 기준)" : string.Empty)
-                        : "포함 텍스트 (대소문자 무시)";
-                    textField.RegisterValueChangedCallback(evt =>
+                    chip.Add(MakeFilterOperatorButton(filter, col));
+                    bool valueFree = filter.filterOperator == ColumnFilterOperator.HasValue ||
+                                     filter.filterOperator == ColumnFilterOperator.IsEmpty;
+                    if (!valueFree)
                     {
-                        filter.text = evt.newValue;
-                        ApplyFiltersAndRefresh();
-                    });
-                    chip.Add(textField);
+                        var textField = new TextField { value = filter.text, isDelayed = true };
+                        textField.AddToClassList("so-filter-text");
+                        textField.tooltip = numeric
+                            ? "숫자를 입력하세요" + (col.isList ? " (요소 수 기준)" : string.Empty)
+                            : "비교할 텍스트 (대소문자 무시)";
+                        textField.RegisterValueChangedCallback(evt =>
+                        {
+                            filter.text = evt.newValue;
+                            ApplyFiltersAndRefresh();
+                        });
+                        chip.Add(textField);
+
+                        if (numeric && filter.filterOperator == ColumnFilterOperator.Range)
+                        {
+                            chip.Add(new Label("~"));
+                            var maxField = new TextField { value = filter.secondText, isDelayed = true };
+                            maxField.AddToClassList("so-filter-text");
+                            maxField.RegisterValueChangedCallback(evt =>
+                            {
+                                filter.secondText = evt.newValue;
+                                ApplyFiltersAndRefresh();
+                            });
+                            chip.Add(maxField);
+                        }
+                    }
                 }
             }
 
@@ -1336,6 +1767,98 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             remove.AddToClassList("so-filter-remove");
             chip.Add(remove);
             return chip;
+        }
+
+        private Button MakeFilterOperatorButton(ColumnFilter filter, ColumnInfo column)
+        {
+            var button = new Button { text = $"{FilterOperatorLabel(filter, column)} ▾" };
+            button.AddToClassList("so-filter-operator");
+            button.clicked += () => ShowFilterOperatorMenu(filter, column, button);
+            return button;
+        }
+
+        private void ShowFilterOperatorMenu(ColumnFilter filter, ColumnInfo column, Button anchor)
+        {
+            var menu = new GenericMenu();
+            foreach (var (value, label) in FilterOperators(column))
+            {
+                var captured = value;
+                menu.AddItem(new GUIContent(label), EffectiveOperator(filter, column) == value, () =>
+                {
+                    filter.filterOperator = captured;
+                    if (captured == ColumnFilterOperator.HasValue || captured == ColumnFilterOperator.IsEmpty)
+                        filter.text = string.Empty;
+                    RebuildFilterBar();
+                    ApplyFiltersAndRefresh();
+                });
+            }
+            menu.DropDown(anchor.worldBound);
+        }
+
+        private static IEnumerable<(ColumnFilterOperator value, string label)> FilterOperators(ColumnInfo column)
+        {
+            if (column.propType == SerializedPropertyType.Enum)
+            {
+                if (column.isFlagsEnum)
+                {
+                    yield return (ColumnFilterOperator.HasAny, "하나 이상 포함");
+                    yield return (ColumnFilterOperator.HasAll, "모두 포함");
+                    yield return (ColumnFilterOperator.HasNone, "모두 미포함");
+                    yield return (ColumnFilterOperator.Equals, "정확히 일치");
+                }
+                else
+                {
+                    yield return (ColumnFilterOperator.Equals, "다음 중 하나");
+                    yield return (ColumnFilterOperator.NotEquals, "다음 값 제외");
+                }
+                yield break;
+            }
+
+            bool numeric = column.propType != SerializedPropertyType.String &&
+                           column.propType != SerializedPropertyType.ObjectReference;
+            if (numeric)
+            {
+                yield return (ColumnFilterOperator.Equals, "=");
+                yield return (ColumnFilterOperator.NotEquals, "≠");
+                yield return (ColumnFilterOperator.Greater, ">");
+                yield return (ColumnFilterOperator.GreaterOrEqual, "≥");
+                yield return (ColumnFilterOperator.Less, "<");
+                yield return (ColumnFilterOperator.LessOrEqual, "≤");
+                yield return (ColumnFilterOperator.Range, "범위");
+                yield break;
+            }
+
+            if (column.propType == SerializedPropertyType.ObjectReference)
+            {
+                yield return (ColumnFilterOperator.HasValue, "값 있음");
+                yield return (ColumnFilterOperator.IsEmpty, "비어 있음");
+            }
+            yield return (ColumnFilterOperator.Contains, "포함");
+            yield return (ColumnFilterOperator.StartsWith, "시작 문자");
+            yield return (ColumnFilterOperator.Equals, "일치");
+            yield return (ColumnFilterOperator.NotEquals, "불일치");
+        }
+
+        private static ColumnFilterOperator EffectiveOperator(ColumnFilter filter, ColumnInfo column)
+        {
+            if (filter.filterOperator != ColumnFilterOperator.Default)
+                return filter.filterOperator;
+            if (column.propType == SerializedPropertyType.Enum)
+                return column.isFlagsEnum ? ColumnFilterOperator.HasAny : ColumnFilterOperator.Equals;
+            bool numeric = column.propType != SerializedPropertyType.String &&
+                           column.propType != SerializedPropertyType.ObjectReference;
+            return numeric ? ColumnFilterOperator.Equals : ColumnFilterOperator.Contains;
+        }
+
+        private static string FilterOperatorLabel(ColumnFilter filter, ColumnInfo column)
+        {
+            var current = EffectiveOperator(filter, column);
+            foreach (var (value, label) in FilterOperators(column))
+            {
+                if (value == current)
+                    return label;
+            }
+            return "조건";
         }
 
         private static string AllowedSummary(ColumnFilter filter, ColumnInfo col)

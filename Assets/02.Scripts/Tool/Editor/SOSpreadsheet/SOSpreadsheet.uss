@@ -10,6 +10,35 @@
     padding-right: 2px;
 }
 
+.so-group-header {
+    background-color: rgba(90, 130, 170, 0.22);
+}
+
+.so-group-header .so-name-field .unity-text-input {
+    -unity-font-style: bold;
+    color: rgb(190, 215, 240);
+}
+
+.so-icon-content {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    height: 38px;
+}
+
+.so-icon-preview {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    margin-right: 4px;
+    background-color: rgba(0, 0, 0, 0.18);
+}
+
+.so-icon-field {
+    flex-grow: 1;
+    margin: 0;
+}
+
 /* 셀 안의 PropertyField는 라벨 없이 값 컨트롤만 가로로 채운다.
    최상위 라벨만 숨긴다 (Vector3의 X/Y/Z 하위 라벨은 유지). */
 .so-cell > .unity-property-field {
@@ -104,6 +133,11 @@
 .so-filter-value-button {
     margin: 0;
     padding: 0 6px;
+}
+
+.so-filter-operator {
+    margin: 0 3px 0 0;
+    padding: 0 5px;
 }
 
 .so-filter-remove {

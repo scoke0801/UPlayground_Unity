@@ -85,6 +85,27 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         public string[] enumNames;
         /// <summary>Enum 열의 표시 이름 목록 (enumNames와 병렬).</summary>
         public string[] enumDisplayNames;
+        /// <summary>Sprite/Texture를 썸네일로 표시할 Icon 계열 ObjectReference 열인지.</summary>
+        public bool isIcon;
+    }
+
+    internal enum ColumnFilterOperator
+    {
+        Default,
+        Contains,
+        StartsWith,
+        Equals,
+        NotEquals,
+        Greater,
+        GreaterOrEqual,
+        Less,
+        LessOrEqual,
+        Range,
+        HasValue,
+        IsEmpty,
+        HasAny,
+        HasAll,
+        HasNone,
     }
 
     /// <summary>
@@ -97,10 +118,15 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         public string propertyPath;
         /// <summary>문자열/참조 열: 포함 텍스트. 숫자/리스트 열: 비교식("10", ">=10", "&lt;5", "3..8").</summary>
         public string text = string.Empty;
+        /// <summary>Range 연산자의 최댓값.</summary>
+        public string secondText = string.Empty;
+        public ColumnFilterOperator filterOperator;
         /// <summary>enum/bool 열: 허용할 값 목록 (enum은 원시 이름). 비어 있으면 전체 허용.</summary>
         public List<string> allowed = new();
 
-        public bool IsActive => !string.IsNullOrWhiteSpace(text) || allowed.Count > 0;
+        public bool IsActive => !string.IsNullOrWhiteSpace(text) || allowed.Count > 0 ||
+                                filterOperator == ColumnFilterOperator.HasValue ||
+                                filterOperator == ColumnFilterOperator.IsEmpty;
     }
 
     /// <summary>숫자 필터 비교식 파서. 잘못된 식은 valid=false → 전체 통과.</summary>
@@ -207,8 +233,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         public bool excludeExternal = true;
         public bool showChildren = true;
         public string assetSearch = string.Empty;
-        /// <summary>검색어를 에셋 이름뿐 아니라 셀 값에서도 찾을지 (전체 에셋 로드 필요).</summary>
-        public bool searchValues;
+        /// <summary>검색 범위. __name, __path, __all 또는 특정 propertyPath.</summary>
+        public string searchColumnPath = "__name";
         /// <summary>활성 열 필터 목록 (창이 소유·직렬화하는 리스트를 공유).</summary>
         public List<ColumnFilter> filters = new();
         public int pageSizeIndex = 1; // 기본 50
@@ -217,6 +243,8 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         /// <summary>정렬 열: -1 = 없음, 0 = 에셋 이름, n = 데이터 열 n-1.</summary>
         public int sortColumnIndex = -1;
         public bool sortAscending = true;
+        /// <summary>행 그룹화 열. enum/bool/string 열만 사용한다.</summary>
+        public string groupPropertyPath = string.Empty;
 
         // ── 상태 ─────────────────────────────────────────────────────
 
@@ -321,6 +349,13 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 {
                     if (it.propertyPath == "m_Script")
                         continue;
+
+                    // 타입에서 제거되거나 이름이 바뀐 필드의 YAML 데이터는 에셋을 다시 저장하기 전까지
+                    // SerializedObject 반복자에 남아 있을 수 있다. 기본 Inspector처럼 현재 선언된 필드만
+                    // 열로 만들지 않으면 마이그레이션 전 데이터가 유령 열로 함께 노출된다.
+                    if (ResolveFieldType(selected?.type, it.propertyPath) == null)
+                        continue;
+
                     AddColumnRecursive(it.Copy(), it.displayName, 0);
                 }
                 while (it.NextVisible(false));
@@ -430,7 +465,23 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 isFlagsEnum = isFlagsEnum,
                 enumNames = enumNames,
                 enumDisplayNames = enumDisplayNames,
+                isIcon = IsIconField(prop, objectType),
             });
+        }
+
+        private static bool IsIconField(SerializedProperty prop, Type objectType)
+        {
+            if (prop.propertyType != SerializedPropertyType.ObjectReference)
+                return false;
+
+            string fieldName = prop.name ?? string.Empty;
+            bool iconName = fieldName.IndexOf("icon", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                            fieldName.IndexOf("아이콘", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (!iconName)
+                return false;
+
+            return objectType == null || typeof(Sprite).IsAssignableFrom(objectType) ||
+                   typeof(Texture).IsAssignableFrom(objectType);
         }
 
         /// <summary>
@@ -493,6 +544,7 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             bool hasSearch = !string.IsNullOrEmpty(assetSearch);
             view = rows.Where(r => MatchesSearch(r, hasSearch) && MatchesFilters(r, active)).ToList();
             ApplySort();
+            ApplyGrouping();
             pageIndex = Mathf.Clamp(pageIndex, 0, Mathf.Max(0, PageCount - 1));
         }
 
@@ -510,20 +562,35 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
         {
             if (!hasSearch)
                 return true;
-            if (row.DisplayName.IndexOf(assetSearch, StringComparison.OrdinalIgnoreCase) >= 0)
-                return true;
-            if (!searchValues)
-                return false;
 
-            // 값 검색은 에셋 로드가 필요하므로 토글이 켜졌을 때만 수행 (로드 후에는 캐시됨)
+            string term = assetSearch.Trim();
+            if (searchColumnPath == "__name" || string.IsNullOrEmpty(searchColumnPath))
+                return row.DisplayName.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
+            if (searchColumnPath == "__path")
+                return row.path.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
+
+            // 값 검색은 에셋 로드가 필요하다 (로드 후에는 캐시됨).
             var so = row.GetSerialized();
             if (so == null)
                 return false;
+
+            if (searchColumnPath != "__all")
+            {
+                var column = FindColumn(searchColumnPath);
+                if (column == null)
+                    return false;
+                string value = GetValueText(column, row.GetProperty(column.propertyPath));
+                return !string.IsNullOrEmpty(value) &&
+                       value.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+
+            if (row.DisplayName.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
             foreach (var column in columns)
             {
-                string text = GetValueText(column, row.GetProperty(column.propertyPath));
-                if (!string.IsNullOrEmpty(text) &&
-                    text.IndexOf(assetSearch, StringComparison.OrdinalIgnoreCase) >= 0)
+                string value = GetValueText(column, row.GetProperty(column.propertyPath));
+                if (!string.IsNullOrEmpty(value) &&
+                    value.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
                     return true;
             }
             return false;
@@ -562,24 +629,71 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 case SerializedPropertyType.Integer:
                 case SerializedPropertyType.LayerMask:
                 case SerializedPropertyType.Character:
-                    return !range.valid || range.Contains(p.longValue);
+                    return NumericMatches(filter, range, p.longValue);
                 case SerializedPropertyType.Float:
-                    return !range.valid || range.Contains(p.doubleValue);
+                    return NumericMatches(filter, range, p.doubleValue);
                 case SerializedPropertyType.String:
-                    return string.IsNullOrWhiteSpace(filter.text) ||
-                           (p.stringValue ?? string.Empty)
-                               .IndexOf(filter.text.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+                    return TextMatches(filter, p.stringValue ?? string.Empty);
                 case SerializedPropertyType.ObjectReference:
                 {
+                    if (filter.filterOperator == ColumnFilterOperator.HasValue)
+                        return p.objectReferenceValue != null;
+                    if (filter.filterOperator == ColumnFilterOperator.IsEmpty)
+                        return p.objectReferenceValue == null;
                     string name = p.objectReferenceValue != null ? p.objectReferenceValue.name : "None";
-                    return string.IsNullOrWhiteSpace(filter.text) ||
-                           name.IndexOf(filter.text.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+                    return TextMatches(filter, name);
                 }
                 default:
                     // 리스트 요약 열은 요소 수로 숫자 필터
                     if (column.isList || p.isArray)
-                        return !range.valid || range.Contains(p.arraySize);
+                        return NumericMatches(filter, range, p.arraySize);
                     return true;
+            }
+        }
+
+        private static bool NumericMatches(ColumnFilter filter, NumericRange parsed, double value)
+        {
+            if (string.IsNullOrWhiteSpace(filter.text))
+                return true;
+            if (!double.TryParse(filter.text.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture,
+                    out double first))
+                return !parsed.valid || parsed.Contains(value);
+
+            switch (filter.filterOperator)
+            {
+                case ColumnFilterOperator.NotEquals: return !Mathf.Approximately((float)value, (float)first);
+                case ColumnFilterOperator.Greater: return value > first;
+                case ColumnFilterOperator.GreaterOrEqual: return value >= first;
+                case ColumnFilterOperator.Less: return value < first;
+                case ColumnFilterOperator.LessOrEqual: return value <= first;
+                case ColumnFilterOperator.Range:
+                    if (!double.TryParse(filter.secondText.Trim(), NumberStyles.Float,
+                            CultureInfo.InvariantCulture, out double second))
+                        return true;
+                    if (first > second) (first, second) = (second, first);
+                    return value >= first && value <= second;
+                case ColumnFilterOperator.Equals:
+                    return Math.Abs(value - first) <= double.Epsilon;
+                default:
+                    return !parsed.valid || parsed.Contains(value);
+            }
+        }
+
+        private static bool TextMatches(ColumnFilter filter, string value)
+        {
+            if (string.IsNullOrWhiteSpace(filter.text))
+                return true;
+            string term = filter.text.Trim();
+            switch (filter.filterOperator)
+            {
+                case ColumnFilterOperator.StartsWith:
+                    return value.StartsWith(term, StringComparison.OrdinalIgnoreCase);
+                case ColumnFilterOperator.Equals:
+                    return string.Equals(value, term, StringComparison.OrdinalIgnoreCase);
+                case ColumnFilterOperator.NotEquals:
+                    return !string.Equals(value, term, StringComparison.OrdinalIgnoreCase);
+                default:
+                    return value.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0;
             }
         }
 
@@ -588,10 +702,11 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
             if (filter.allowed.Count == 0)
                 return true;
 
-            // [Flags] enum은 선택 값과 비트가 겹치면 통과 (0 선택은 값 0만 매칭)
+            // [Flags] enum은 선택 모드에 따라 비트 조건을 적용한다.
             if (column.isFlagsEnum && column.enumType != null)
             {
                 long value = p.longValue;
+                long selected = 0;
                 foreach (string name in filter.allowed)
                 {
                     long bits;
@@ -603,17 +718,51 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                     {
                         continue;
                     }
-                    if (bits == 0 ? value == 0 : (value & bits) == bits)
-                        return true;
+                    selected |= bits;
                 }
-                return false;
+                switch (filter.filterOperator)
+                {
+                    case ColumnFilterOperator.HasAll: return (value & selected) == selected;
+                    case ColumnFilterOperator.HasNone: return (value & selected) == 0;
+                    case ColumnFilterOperator.Equals: return value == selected;
+                    default: return selected == 0 ? value == 0 : (value & selected) != 0;
+                }
             }
 
             int idx = p.enumValueIndex;
             string raw = column.enumNames != null && idx >= 0 && idx < column.enumNames.Length
                 ? column.enumNames[idx]
                 : p.intValue.ToString();
-            return filter.allowed.Contains(raw);
+            bool contains = filter.allowed.Contains(raw);
+            return filter.filterOperator == ColumnFilterOperator.NotEquals ? !contains : contains;
+        }
+
+        public static bool IsGroupable(ColumnInfo column)
+        {
+            return column != null && (column.propType == SerializedPropertyType.Enum ||
+                                      column.propType == SerializedPropertyType.Boolean ||
+                                      column.propType == SerializedPropertyType.String);
+        }
+
+        public string GetGroupKey(RowEntry row)
+        {
+            var column = FindColumn(groupPropertyPath);
+            if (!IsGroupable(column))
+                return string.Empty;
+            var so = row.GetSerialized();
+            if (so == null)
+                return "(로드 실패)";
+            string value = GetValueText(column, row.GetProperty(column.propertyPath));
+            return string.IsNullOrEmpty(value) ? "(비어 있음)" : value;
+        }
+
+        private void ApplyGrouping()
+        {
+            var column = FindColumn(groupPropertyPath);
+            if (!IsGroupable(column))
+                return;
+            // OrderBy는 안정 정렬이므로 그룹 안에서는 기존 사용자 정렬 순서를 보존한다.
+            view = view.OrderBy(GetGroupKey, StringComparer.OrdinalIgnoreCase).ToList();
         }
 
         /// <summary>값 검색용 셀 텍스트. 검색 의미가 없는 타입(벡터/색상 등)은 빈 문자열.</summary>

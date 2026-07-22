@@ -1,7 +1,9 @@
 {
     "name": "SOSpreadsheet.Editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "UPlayGround.EditorTools"
+    ],
     "includePlatforms": [
         "Editor"
     ],

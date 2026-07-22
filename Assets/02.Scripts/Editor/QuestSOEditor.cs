@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.Editor.Authoring;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Item;
+using UPlayGround.Editor.Authoring;
 
 namespace UPlayGround.Editor
 {
@@ -166,7 +168,7 @@ namespace UPlayGround.Editor
             GUILayout.Label($"  Quest  [{_questId.stringValue}]", EditorStyles.boldLabel);
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Quest Editor", EditorStyles.toolbarButton, GUILayout.Width(90)))
-                QuestEditorWindow.ShowWindow();
+                DataAuthoringHubWindow.Open(QuestDomainPanel.DomainKey);
             EditorGUILayout.EndHorizontal();
         }
 
@@ -461,7 +463,7 @@ namespace UPlayGround.Editor
         private void DrawFooter()
         {
             if (GUILayout.Button("Quest Editor에서 열기", GUILayout.Height(26)))
-                QuestEditorWindow.ShowAndSelect((QuestSO)target);
+                DataAuthoringHubWindow.Open(QuestDomainPanel.DomainKey, target);
         }
 
         // ── 아이템 피커 팝업 ──────────────────────────────────────

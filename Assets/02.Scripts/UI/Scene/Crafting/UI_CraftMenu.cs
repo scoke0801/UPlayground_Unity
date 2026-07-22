@@ -19,7 +19,7 @@ namespace UPlayGround.UI
     /// UIPrefabDatabase 키: "Craft" (UIKeyType.Craft)
     /// 호출 예: UISvc.UI.Toggle(UIKeyType.Craft);
     ///
-    /// 프리팹 초안은 에디터 툴 "UPlayGround/UI/제작 UI 프리팹 빌드"로 생성한다.
+    /// 프리팹 구조는 "UPlayGround/UI 에디터"의 제작 빌더로 생성하거나 갱신한다.
     /// </summary>
     public class UI_CraftMenu : UI_SceneBase
     {

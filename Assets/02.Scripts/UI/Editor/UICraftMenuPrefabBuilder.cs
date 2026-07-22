@@ -32,7 +32,6 @@ namespace UPlayGround.UI.Crafting.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/제작 (초안)")]
         public static void Build()
         {
             if (!System.IO.File.Exists(MainPrefabPath))

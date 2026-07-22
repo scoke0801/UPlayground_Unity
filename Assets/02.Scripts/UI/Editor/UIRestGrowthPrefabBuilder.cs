@@ -29,7 +29,6 @@ namespace UPlayGround.UI.Growth.EditorTools
         private static readonly Color Accent = new(0.48f, 0.82f, 1f, 1f);
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/휴식 성장 (초안)")]
         public static void Build()
         {
             EnsureFolder("Assets/03.Prefabs/UI/Scene/Growth");

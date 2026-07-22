@@ -2,6 +2,7 @@
   "name": "UPlayGround.UI.Editor",
   "rootNamespace": "UPlayGround.UI.Editor",
   "references": [
+    "UPlayGround.EditorTools",
     "UPlayGround.UI",
     "UPlayGround.Data",
     "UPlayGround.Contracts",

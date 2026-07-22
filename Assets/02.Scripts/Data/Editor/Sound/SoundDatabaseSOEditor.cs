@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.Editor.Authoring;
 
 namespace UPlayGround.Data.Sound.Editor
 {
@@ -51,6 +52,10 @@ namespace UPlayGround.Data.Sound.Editor
 
         public override void OnInspectorGUI()
         {
+            if (GUILayout.Button("데이터 저작 허브에서 사운드 열기", GUILayout.Height(26f)))
+                DataAuthoringHubWindow.Open(SoundDomainPanel.DomainKey);
+
+            EditorGUILayout.Space(4f);
             serializedObject.Update();
             RefreshValidation();
             BuildVisibleIndices();

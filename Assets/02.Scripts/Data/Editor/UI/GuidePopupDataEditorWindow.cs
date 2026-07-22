@@ -33,7 +33,6 @@ namespace UPlayGround.Data.UI.EditorTools
         private GUIStyle _pageHeaderStyle;
         private bool _stylesInitialized;
 
-        [MenuItem("UPlayGround/UI/편집기/가이드 팝업 데이터 편집기")]
         public static void Open()
         {
             var window = GetWindow<GuidePopupDataEditorWindow>();
@@ -48,18 +47,6 @@ namespace UPlayGround.Data.UI.EditorTools
             var window = GetWindow<GuidePopupDataEditorWindow>();
             window.RefreshAssetList();
             window.SelectAsset(data);
-        }
-
-        [MenuItem("Assets/UPlayGround/UI/가이드 팝업 데이터 편집", false, 2300)]
-        private static void OpenSelectedAsset()
-        {
-            Open(Selection.activeObject as GuidePopupDataSO);
-        }
-
-        [MenuItem("Assets/UPlayGround/UI/가이드 팝업 데이터 편집", true)]
-        private static bool CanOpenSelectedAsset()
-        {
-            return Selection.activeObject is GuidePopupDataSO;
         }
 
         private void OnEnable()
@@ -572,7 +559,12 @@ namespace UPlayGround.Data.UI.EditorTools
     {
         public override void OnInspectorGUI()
         {
-            if (GUILayout.Button("가이드 팝업 데이터 편집기 열기", GUILayout.Height(28f)))
+            if (GUILayout.Button("데이터 저작 허브에서 열기", GUILayout.Height(28f)))
+                UPlayGround.Data.Editor.Authoring.DataAuthoringHubWindow.Open(
+                    UPlayGround.Data.Editor.Authoring.GuidePopupDomainPanel.DomainKey,
+                    target);
+
+            if (GUILayout.Button("미디어 미리보기 편집기 열기", GUILayout.Height(24f)))
                 GuidePopupDataEditorWindow.Open((GuidePopupDataSO)target);
 
             EditorGUILayout.Space(4f);

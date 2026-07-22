@@ -40,7 +40,6 @@ namespace UPlayGround.UI.DevCheat.EditorTools
         private static readonly Color TextSub   = new(0.62f, 0.68f, 0.74f, 1f);
         private static readonly Color Accent    = new(0.35f, 0.80f, 0.90f, 1f);
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/개발 치트 패널 (초안)")]
         public static void Build()
         {
             EnsurePrefabExists();

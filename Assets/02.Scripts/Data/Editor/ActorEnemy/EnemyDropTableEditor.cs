@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.Editor.Authoring;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Item;
 
@@ -198,8 +199,8 @@ namespace UPlayGround.Editor
 
         private void DrawOpenEditorButton()
         {
-            if (GUILayout.Button("드랍 테이블 에디터 열기", GUILayout.Height(22)))
-                DropTableEditorWindow.ShowWindow();
+            if (GUILayout.Button("데이터 저작 허브에서 열기", GUILayout.Height(22)))
+                DataAuthoringHubWindow.Open(DropDomainPanel.DomainKey, target);
         }
 
         // ── 아이템 피커 팝업 ──────────────────────────────────────

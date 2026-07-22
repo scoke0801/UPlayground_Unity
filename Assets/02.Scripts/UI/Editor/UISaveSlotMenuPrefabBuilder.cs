@@ -34,7 +34,6 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/세이브 슬롯 메뉴 (초안)")]
         public static void Build()
         {
             if (!System.IO.File.Exists(MainPrefabPath))

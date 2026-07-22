@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.Editor.Authoring;
 using UPlayGround.Data.Quest;
+using UPlayGround.Editor.Authoring;
 using UPlayGround.Tool.Editor;
 
 namespace UPlayGround.Editor
@@ -51,7 +53,7 @@ namespace UPlayGround.Editor
                 GenerateEnum(db);
 
             if (GUILayout.Button("Quest Editor 열기", GUILayout.Height(24)))
-                QuestEditorWindow.ShowWindow();
+                DataAuthoringHubWindow.Open(QuestDomainPanel.DomainKey);
 
             EditorGUILayout.Space(4);
             EditorGUILayout.HelpBox(

@@ -35,10 +35,8 @@ namespace UPlayGround.UI.EditorTools
             "dim", "background", "bg", "overlay", "backdrop", "blocker", "raycast", "scrim"
         };
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/Scene UI 콘텐츠(_sceneContent) 연결")]
         public static void BindMissing() => Run(force: false);
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/Scene UI 콘텐츠(_sceneContent) 강제 재연결")]
         public static void BindForce() => Run(force: true);
 
         private static void Run(bool force)

@@ -39,7 +39,7 @@ namespace UPlayGround.UI.InputPrompt.EditorTools
             "rightStick", // <Gamepad>/rightStick — 시점 스틱 (Look)
         };
 
-        [MenuItem("UPlayGround/입력/글리프 데이터 생성·동기화")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/입력/글리프 데이터 생성·동기화")]
         public static void CreateOrSync()
         {
             var inputAsset = AssetDatabase.LoadAssetAtPath<InputActionAsset>(AssetPath);

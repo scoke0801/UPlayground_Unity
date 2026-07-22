@@ -23,7 +23,6 @@ namespace UPlayGround.UI.EditorTools
         private static readonly Color Slot = new(0.16f, 0.19f, 0.24f, 1f);
         private static readonly Color Text = new(0.9f, 0.92f, 0.95f, 1f);
 
-        [MenuItem("UPlayGround/UI/프리팹 빌드/몬스터 도감")]
         public static void Build()
         {
             EnsureFolder(RootFolder);

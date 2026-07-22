@@ -110,10 +110,15 @@ namespace UPlayGround.Editor.P09Builder
             var aiController = root.GetComponent<EnemyAIController>();
             var combat = root.GetComponent<EnemyCombat>();
 
-            var behavior = FindFirst<EnemyBehaviorSO>(generatedDescs)
-                           ?? (config?.Stats?.existingBehaviorSo as EnemyBehaviorSO);
+            var profile = config?.Stats?.monsterProfile;
+            var behavior = profile != null
+                ? profile.behaviorData
+                : FindFirst<EnemyBehaviorSO>(generatedDescs)
+                  ?? (config?.Stats?.existingBehaviorSo as EnemyBehaviorSO);
 
-            var abilitySet = config?.Stats?.abilitySet;
+            var abilitySet = profile != null && profile.abilitySet != null
+                ? profile.abilitySet
+                : config?.Stats?.abilitySet;
 
             var poiseData = FindFirst<PoiseSO>(generatedDescs)
                             ?? (config?.Stats?.existingPoiseSo as PoiseSO);
@@ -122,7 +127,10 @@ namespace UPlayGround.Editor.P09Builder
             // (런타임엔 MonsterActor.ApplyDefinitionData가 ActorDefinitionSO 값으로 덮어씀)
             if (actor != null && config?.Stats != null)
             {
-                ReflectionUtil.SetField(actor, "_grade", config.Stats.grade);
+                ReflectionUtil.SetField(actor, "_grade",
+                    config.Cycle != null && config.Cycle.isCycleBoss
+                        ? MonsterActorGrade.Boss
+                        : config.Stats.grade);
                 ReflectionUtil.SetField(actor, "_level", Mathf.Max(1, config.Stats.level));
             }
 

@@ -8,7 +8,7 @@ namespace UPlayGround.Editor.P09Builder
 {
     public static class P09WeaponEditPartDataGenerator
     {
-        private const string MenuPath = "Tools/P09 Builder/Generate Weapon EditPartData";
+        private const string MenuPath = "UPlayGround/캐릭터/P09/무기 EditPartData 생성·갱신";
 
         private sealed class WeaponTypeSpec
         {
@@ -33,7 +33,7 @@ namespace UPlayGround.Editor.P09Builder
             new("Whip", "WhipEditPartData", "Whip"),
         };
 
-        [MenuItem(MenuPath, priority = 1101)]
+        [UPlayGround.EditorTools.UPlaygroundTool(MenuPath, priority = 1101)]
         public static void Generate()
         {
             var generated = 0;

@@ -136,9 +136,15 @@ namespace UPlayGround.Editor.P09Builder
             definition.prefab = prefab;
             definition.poiseData = FindFirst<PoiseSO>(ctx.GeneratedDescs)
                                    ?? ctx.Config?.Stats?.existingPoiseSo as PoiseSO;
+            definition.monsterProfile = ctx.Config?.Stats?.monsterProfile;
+            definition.breakGaugeData = ctx.Config?.Stats?.breakGaugeData;
+            definition.monsterScaling = ctx.Config?.Stats?.monsterScaling;
             definition.abilitySet = ctx.Config?.Stats?.abilitySet;
+            definition.combatDefensePolicy = ctx.Config?.Stats?.combatDefensePolicy;
+            definition.combatReactionPolicy = ctx.Config?.Stats?.combatReactionPolicy;
             definition.behaviorData = FindFirst<EnemyBehaviorSO>(ctx.GeneratedDescs)
                                       ?? ctx.Config?.Stats?.existingBehaviorSo as EnemyBehaviorSO;
+            definition.dropTable = ctx.Config?.Stats?.dropTable;
             definition.recruitableAs = ctx.Config?.Stats != null && ctx.Config.Stats.recruitableOnDefeat
                 ? ctx.Config.Stats.recruitableAs
                 : CharacterActorType.None;
@@ -147,8 +153,15 @@ namespace UPlayGround.Editor.P09Builder
             // Stat Data Generator의 마이그레이션이 definition.grade를 읽어 등급 템플릿으로 statData를 발급한다.
             if (ctx.Config?.Stats != null)
             {
-                definition.grade = ctx.Config.Stats.grade;
+                definition.grade = ctx.Config.Cycle != null && ctx.Config.Cycle.isCycleBoss
+                    ? MonsterActorGrade.Boss
+                    : ctx.Config.Stats.grade;
                 definition.level = Mathf.Max(1, ctx.Config.Stats.level);
+                definition.combatElement = ctx.Config.Stats.combatElement;
+                definition.elementAssignmentMode = ctx.Config.Stats.elementAssignmentMode;
+                definition.elementalAdvantageMultiplier = Mathf.Max(1f, ctx.Config.Stats.elementalAdvantageMultiplier);
+                definition.expReward = System.Math.Max(0, ctx.Config.Stats.expReward);
+                definition.goldReward = Mathf.Max(0, ctx.Config.Stats.goldReward);
             }
 
             EnsureMonsterGrowthAndStat(definition, ctx);

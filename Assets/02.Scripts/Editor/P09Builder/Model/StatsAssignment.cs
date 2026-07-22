@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor;
+using UPlayGround.Data.Combat;
+using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Editor.P09Builder
@@ -34,6 +37,19 @@ namespace UPlayGround.Editor.P09Builder
 
         public AbilitySetSO abilitySet;
         public EnemyCombatStyle combatStyle = EnemyCombatStyle.Melee;
+
+        // ActorDefinitionSO / MonsterActorProfileSO 고도화 필드
+        public MonsterActorProfileSO monsterProfile;
+        public MonsterBreakGaugeSO breakGaugeData;
+        public MonsterScalingSO monsterScaling;
+        public CombatDefensePolicySO combatDefensePolicy;
+        public CombatReactionPolicySO combatReactionPolicy;
+        public EnemyDropTableSO dropTable;
+        public CombatElement combatElement = CombatElement.None;
+        public CombatElementAssignmentMode elementAssignmentMode = CombatElementAssignmentMode.Fixed;
+        public float elementalAdvantageMultiplier = CombatElementRules.DefaultAdvantageMultiplier;
+        public long expReward;
+        public int goldReward;
 
         public bool recruitableOnDefeat = false;
         public CharacterActorType recruitableAs = CharacterActorType.None;

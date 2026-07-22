@@ -50,6 +50,9 @@ namespace UPlayGround.Editor.P09Builder
         // ---------- Stats ----------
         public StatsAssignment Stats = new StatsAssignment();
 
+        // ---------- Cycle ----------
+        public CycleBuildSettings Cycle = new CycleBuildSettings();
+
         // ---------- Naming / Save ----------
         public bool UseManualName = false;
         public string ManualName = string.Empty;
@@ -85,6 +88,7 @@ namespace UPlayGround.Editor.P09Builder
             ShowArrows = false;
             UseMagicaCloth = true;
             Stats = new StatsAssignment();
+            Cycle = new CycleBuildSettings();
             UseManualName = false;
             ManualName = string.Empty;
             SaveBaseFolder = "Assets/03.Prefabs/Characters";
@@ -115,7 +119,27 @@ namespace UPlayGround.Editor.P09Builder
                     yield return "기존 Behavior SO를 선택해야 합니다.";
                 if (Stats.recruitableOnDefeat && Stats.recruitableAs == CharacterActorType.None)
                     yield return "회유 대상 캐릭터 타입이 None입니다.";
+
+                if (Cycle != null && Cycle.isCycleBoss)
+                {
+                    if (Cycle.worldConfig == null)
+                        yield return "Cycle 보스의 World Config가 비어있습니다.";
+                    if (!Cycle.registerAsOuterBoss && !Cycle.registerAsCentralBoss)
+                        yield return "Cycle 보스 풀(외곽/중앙)을 하나 이상 선택해야 합니다.";
+                    if (Stats.recruitableOnDefeat)
+                        yield return "Cycle 보스 영입은 BossAssist 경로입니다. '처치 시 파티 합류'를 해제하세요.";
+                    if (Cycle.createOrUpdateBossAssist && Cycle.assistDatabase == null)
+                        yield return "BossAssist 생성/갱신용 Database가 비어있습니다.";
+                    if (Cycle.createOrUpdateBossAssist && Cycle.assistPrefab == null && Cycle.healAmount <= 0f)
+                        yield return "효과 실행기가 필요한 BossAssist에는 전용 Assist Prefab을 지정해야 합니다.";
+                    if (Cycle.createOrUpdateBossAssist && Cycle.assistPrefab != null &&
+                        Cycle.assistPrefab.GetComponentInChildren<UPlayGround.MonsterActor>(true) != null)
+                        yield return "Assist Prefab에 MonsterActor가 남아있습니다. 비이동·비어그로 전용 프리팹을 사용하세요.";
+                }
             }
+
+            if (ActorKind != BuilderActorKind.Enemy && Cycle != null && Cycle.isCycleBoss)
+                yield return "Cycle 보스는 Enemy Actor만 지원합니다.";
         }
     }
 }

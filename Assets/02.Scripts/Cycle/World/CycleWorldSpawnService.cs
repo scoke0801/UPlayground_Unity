@@ -154,11 +154,13 @@ namespace UPlayGround.Cycle
             float hpDifficulty = difficulty?.healthMultiplier ?? 1f;
             int runtimeLevel = Mathf.Max(1, (_context.Config?.baseMonsterLevel ?? 1) + run.cycleIndex - 1);
             monster.ApplyRuntimeLevel(runtimeLevel, hpDifficulty);
-            if (monster.Stats != null && hpDifficulty > 0f)
+            if (monster.AbilitySystem != null && hpDifficulty > 0f)
             {
                 float attackDifficulty = difficulty?.attackMultiplier ?? 1f;
-                float currentAttack = monster.Stats.GetBase(StatType.AttackPower);
-                monster.Stats.SetBase(StatType.AttackPower, currentAttack * attackDifficulty / hpDifficulty);
+                monster.AbilitySystem.TryGetStat(
+                    StatType.AttackPower, current: false, out float currentAttack);
+                monster.AbilitySystem.SetStatBase(
+                    StatType.AttackPower, currentAttack * attackDifficulty / hpDifficulty);
             }
             float rewardMultiplier = difficulty?.rewardGrade switch { CycleRewardGrade.Rare => 1.35f, CycleRewardGrade.Heroic => 1.75f, _ => 1f };
             monster.SetRuntimeRewards((long)Math.Round(monster.BaseExpReward * rewardMultiplier), Mathf.RoundToInt(monster.BaseGoldReward * rewardMultiplier));

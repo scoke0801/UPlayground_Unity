@@ -3,12 +3,13 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround
 {
     public partial class PlayerActor
     {
-        private readonly object _cycleWeightModifierSource = new();
+        private ActiveGameplayEffectHandle _cycleWeightEffectHandle;
         private CharacterWeightProfileSO _weightProfile;
 
         public CharacterWeightProfileSO WeightProfile => _weightProfile;
@@ -36,7 +37,8 @@ namespace UPlayGround
 
         private void ApplyCharacterWeight(CharacterWeightProfileSO profile)
         {
-            Stats?.RemoveModifiersBySource(_cycleWeightModifierSource);
+            if (_cycleWeightEffectHandle.IsValid)
+                AbilitySystem.RemoveEffect(_cycleWeightEffectHandle);
             _weightProfile = profile;
             if (_weightProfile == null)
             {
@@ -52,11 +54,16 @@ namespace UPlayGround
                 return;
             }
 
-            Stats?.AddModifier(new StatModifier(
-                StatType.MoveSpeed,
-                ModifierType.Multiply,
-                _weightProfile.moveSpeedMultiplier,
-                _cycleWeightModifierSource));
+            _cycleWeightEffectHandle = AbilitySystem.ApplyLegacyStatEffect(
+                $"CycleWeight.{_characterActorType}",
+                new[]
+                {
+                    new StatModifier(
+                        StatType.MoveSpeed,
+                        ModifierType.Multiply,
+                        _weightProfile.moveSpeedMultiplier,
+                        _weightProfile),
+                });
         }
     }
 }

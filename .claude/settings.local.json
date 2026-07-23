@@ -361,7 +361,9 @@
       "Bash(sed 's/^?? //')",
       "Bash(awk '/^\\\\+\\\\+\\\\+ b\\\\//{f=$2} /^\\\\+.*UPlaygroundTool\\\\\\(/{print f}')",
       "Bash(bash \"C:/Users/scoke/AppData/Local/Temp/claude/C--UsingProject-UnityProject-UPlayground/bf614e49-6723-4ab3-803c-46833a3afaf8/scratchpad/bucket.sh\")",
-      "Bash(grep -iE 'class |summary|///|namespace')"
+      "Bash(grep -iE 'class |summary|///|namespace')",
+      "Bash(grep -v \"//\")",
+      "Bash(grep -n \"Editor.Ultimate\\\\|Editor\\\\\\\\\\\\\\\\Ultimate\\\\|UltimateSequenceEditorWindow\\\\|UltimateTimelineTrackView\\\\|UltimateEventClipboard\" Assembly-CSharp-Editor.csproj)"
     ]
   }
 }

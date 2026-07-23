@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Gameplay.Tag
 {
@@ -13,7 +15,10 @@ namespace UPlayGround.Gameplay.Tag
         private readonly HashSet<GameplayTag> _tags = new();
         private readonly Dictionary<GameplayTag, int> _ownedTagCounts = new();
         private readonly Dictionary<ulong, OwnedTag> _ownedTags = new();
+        private readonly Dictionary<GameplayTag, GameplayTagSourceHandle> _gasExplicit = new();
+        private readonly Dictionary<ulong, GameplayTagSourceHandle> _gasOwned = new();
         private ulong _nextHandleId = 1;
+        private AbilitySystemComponent _abilitySystem;
 
         private readonly struct OwnedTag
         {
@@ -30,6 +35,19 @@ namespace UPlayGround.Gameplay.Tag
         public event Action<GameplayTag> OnTagAdded;
         public event Action<GameplayTag> OnTagRemoved;
 
+        private void Awake()
+        {
+            EnsureAbilitySystem();
+        }
+
+        private AbilitySystemComponent EnsureAbilitySystem()
+        {
+            if (_abilitySystem == null)
+                _abilitySystem = GetComponent<AbilitySystemComponent>();
+            _abilitySystem?.EnsureInitialized();
+            return _abilitySystem;
+        }
+
         // ── 추가 / 제거 ────────────────────────────────────────────────
 
         public void AddTag(GameplayTag tag)
@@ -37,6 +55,13 @@ namespace UPlayGround.Gameplay.Tag
             if (!tag.IsValid()) return;
             bool wasPresent = HasTag(tag);
             _tags.Add(tag);
+            AbilitySystemComponent gas = EnsureAbilitySystem();
+            if (!_gasExplicit.ContainsKey(tag) && gas?.Tags != null)
+            {
+                GameplayTagSourceHandle handle = gas.Tags.Add(
+                    new AbilityTagId(tag.TagName), "LegacyExplicit", 0);
+                if (handle.IsValid) _gasExplicit[tag] = handle;
+            }
             if (!wasPresent) OnTagAdded?.Invoke(tag);
         }
 
@@ -49,6 +74,8 @@ namespace UPlayGround.Gameplay.Tag
         public void RemoveTag(GameplayTag tag)
         {
             if (!_tags.Remove(tag)) return;
+            if (_gasExplicit.Remove(tag, out GameplayTagSourceHandle gasHandle))
+                _abilitySystem?.Tags?.Remove(gasHandle);
             if (!HasTag(tag)) OnTagRemoved?.Invoke(tag);
         }
 
@@ -73,6 +100,13 @@ namespace UPlayGround.Gameplay.Tag
             if (handleId == 0) handleId = _nextHandleId++;
 
             _ownedTags[handleId] = new OwnedTag(tag, source);
+            AbilitySystemComponent gas = EnsureAbilitySystem();
+            if (gas?.Tags != null)
+            {
+                GameplayTagSourceHandle gasHandle = gas.Tags.Add(
+                    new AbilityTagId(tag.TagName), source.Type, source.InstanceId);
+                if (gasHandle.IsValid) _gasOwned[handleId] = gasHandle;
+            }
             _ownedTagCounts.TryGetValue(tag, out int count);
             _ownedTagCounts[tag] = count + 1;
             if (!wasPresent) OnTagAdded?.Invoke(tag);
@@ -83,6 +117,9 @@ namespace UPlayGround.Gameplay.Tag
         {
             if (!handle.IsValid || !_ownedTags.Remove(handle.Value, out OwnedTag owned))
                 return false;
+
+            if (_gasOwned.Remove(handle.Value, out GameplayTagSourceHandle gasHandle))
+                _abilitySystem?.Tags?.Remove(gasHandle);
 
             int count = _ownedTagCounts[owned.Tag] - 1;
             if (count <= 0)
@@ -119,7 +156,10 @@ namespace UPlayGround.Gameplay.Tag
 
         /// <summary>정확히 일치하는 태그 보유 여부</summary>
         public bool HasTag(GameplayTag tag) =>
-            _tags.Contains(tag) || _ownedTagCounts.ContainsKey(tag);
+            _tags.Contains(tag)
+            || _ownedTagCounts.ContainsKey(tag)
+            || (tag.IsValid()
+                && EnsureAbilitySystem()?.Tags?.Has(new AbilityTagId(tag.TagName), false) == true);
 
         /// <summary>enum 기반 태그 보유 여부 (GameplayTagId → GameplayTag 자동 변환)</summary>
         public bool HasTag(GameplayTagId id) => id != GameplayTagId.None && HasTag(id.ToTag());
@@ -155,6 +195,13 @@ namespace UPlayGround.Gameplay.Tag
                 var result = new HashSet<GameplayTag>(_tags);
                 foreach (GameplayTag tag in _ownedTagCounts.Keys)
                     result.Add(tag);
+                if (EnsureAbilitySystem()?.Tags != null)
+                {
+                    var gasTags = new List<AbilityTagId>();
+                    _abilitySystem.Tags.CopyTags(gasTags);
+                    for (int i = 0; i < gasTags.Count; i++)
+                        result.Add(new GameplayTag(gasTags[i].Value));
+                }
                 return result;
             }
         }

@@ -136,7 +136,7 @@ namespace UPlayGround.State
 
         private static bool HasAnySkillInput(PlayerMovementController controller)
         {
-            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+            for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (controller.HasSkillInput(i)) return true;
             }
@@ -150,7 +150,7 @@ namespace UPlayGround.State
         private static bool HasUsableSkillInput(PlayerMovementController controller, PlayerActor playerActor)
         {
             var gauge = playerActor != null ? playerActor.SkillGauge : null;
-            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+            for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (!controller.HasSkillInput(i)) continue;
                 if (gauge != null && !gauge.CanUseSkill(i)) continue;

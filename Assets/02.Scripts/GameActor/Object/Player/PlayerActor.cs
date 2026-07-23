@@ -21,6 +21,7 @@ using UPlayGround.UI;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
 using UPlayGround.Data.Ability;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround
 {
@@ -43,8 +44,14 @@ namespace UPlayGround
         [SerializeField] private float _interactionRadius;
         [SerializeField] private LayerMask _interactionLayer;
 
-        [SerializeField] private float _maxHealth     = 100f;
-        [SerializeField] private float _currentHealth = 100f;
+        private float _maxHealth =>
+            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.MaxHealth) ?? 0f;
+
+        private float _currentHealth
+        {
+            get => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.Health) ?? 0f;
+            set => AbilitySystem?.Attributes.SetBase(AttributeIds.Vital.Health, value);
+        }
         [SerializeField] private bool  _isInvincible  = false;
 
         // 교체 시 캐릭터별 체력·스킬 게이지 저장소
@@ -54,11 +61,12 @@ namespace UPlayGround
         private readonly Dictionary<CharacterActorType, AbilityRuntimeSaveData> _characterAbilityRuntimeMap = new();
         private readonly object _equipmentStatSource = new();
         private readonly List<StatModifier> _equipmentStatBuffer = new();
+        private ActiveGameplayEffectHandle _equipmentStatEffectHandle;
         private bool _hasInitializedCharacterRuntime;
 
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;
-        [SerializeField] private PlayerSkillGauge _skillGauge;
+        [SerializeField] private PlayerAbilityResourceView _skillGauge;
         [SerializeField] private PlayerCombatWeaponStateController _combatWeaponStateController;
         [SerializeField] private FootIKController _footIK;
         [SerializeField] private PlayerBehaviorPredictor _behaviorPredictor;
@@ -145,7 +153,7 @@ namespace UPlayGround
         public bool                        IsInCombat            => _combat?.IsInCombat ?? false;
         public float                       MaxHealth             => _maxHealth;
         public float                       CurrentHealth         => _currentHealth;
-        public PlayerSkillGauge            SkillGauge            => _skillGauge;
+        public PlayerAbilityResourceView            SkillGauge            => _skillGauge;
         public FootIKController            FootIK                => _footIK;
         public bool                        IsInputSuppressed     => _isInputSuppressed;
         public bool                        IsInvincible          => _isInvincible;

@@ -127,7 +127,8 @@ namespace UPlayGround.Manager
             try
             {
                 if (_activeExecutor != null) _activeExecutor.Execute(definition, player, target, CompleteExecution);
-                else if (definition.healAmount > 0f) player.Heal(definition.healAmount);
+                else if (definition.healAmount > 0f)
+                    player.ApplyHealingEffect(definition.healAmount);
             }
             catch (Exception exception)
             {

@@ -50,7 +50,8 @@ namespace UPlayGround.Data.Event
         /// 타격량 = 플레이어 채집력(GatheringPower). 계산식은 PlayerActor와 공유한다.
         /// </summary>
         private static int CalcHitAmount()
-            => PlayerActor.CalcGatheringHitAmount(ActorSvc.Objects?.Player?.Stats);
+            => PlayerActor.CalcGatheringHitAmount(
+                ActorSvc.Objects?.Player?.AbilitySystem);
 
         private static void ShowInteractionFx(IInteractable interactable)
         {

@@ -3,6 +3,7 @@ using UPlayGround.Data.EnumType;
 using UnityEngine;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Animation;
+using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Combat
 {
@@ -169,17 +170,22 @@ namespace UPlayGround.Combat
                 return data.criticalMultiplier;
 
             GameActor attacker = data.attacker;
-            if (attacker == null || attacker.Stats == null)
+            if (attacker?.AbilitySystem == null)
                 return 1f;
 
-            float critRate = Mathf.Clamp01(attacker.Stats.CritRate);
+            attacker.AbilitySystem.TryGetStat(
+                StatType.CritRate, current: true, out float rawCritRate);
+            float critRate = Mathf.Clamp01(rawCritRate);
             if (critRate <= 0f)
                 return 1f;
 
             if (Random.value > critRate)
                 return 1f;
 
-            return Mathf.Max(1f, attacker.Stats.CritMultiplier);
+            return attacker.AbilitySystem.TryGetStat(
+                StatType.CritMultiplier, current: true, out float multiplier)
+                ? Mathf.Max(1f, multiplier)
+                : 1f;
         }
 
         public static HitRequest CreateSpecialBreak(

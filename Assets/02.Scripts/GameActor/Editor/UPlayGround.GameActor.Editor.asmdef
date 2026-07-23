@@ -3,6 +3,7 @@
   "rootNamespace": "UPlayGround.Editor",
   "references": [
     "UPlayGround.EditorTools",
+    "UPlayGround.Ability.Core",
     "UPlayGround.Actor",
     "UPlayGround.Data",
     "UPlayGround.Contracts",

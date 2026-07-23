@@ -16,7 +16,7 @@ namespace UPlayGround.UI.InputPrompt
 {
     /// <summary>
     /// 고정 스킬바 HUD. Ability(Skill1) / Ultimate(Skill2) 슬롯(<see cref="UISkillSlot"/>)들을 호스팅하며 두 신호로 구동한다:
-    /// - <b>자원/Ready</b>: <see cref="PlayerSkillGauge.OnGaugeChanged"/> 이벤트 기반(핫패스 아님).
+    /// - <b>자원/Ready</b>: <see cref="PlayerAbilityResourceView.OnGaugeChanged"/> 이벤트 기반(핫패스 아님).
     /// - <b>콤보 다음 키 강조</b>: <see cref="ComboRouteResolver.CollectHints"/>를 입력 윈도우 변화 시에만 재계산.
     ///
     /// <see cref="UI_Base"/>를 상속해 UIManager 생명주기(Show/Hide)로 구동된다(다른 HUD와 동일).
@@ -45,7 +45,7 @@ namespace UPlayGround.UI.InputPrompt
 
         private PlayerActor      _player;
         private PlayerCombat     _combat;
-        private PlayerSkillGauge _gauge;
+        private PlayerAbilityResourceView _gauge;
         private PlayerMovementController _movement; // 대시 쿨타임 소스(이동 컨트롤러 소유)
         private IAbilityRuntimeReader _abilityReader;
         private Func<ComboRouteEntry, bool> _resourceFilter; // 메서드그룹 delegate 캐시

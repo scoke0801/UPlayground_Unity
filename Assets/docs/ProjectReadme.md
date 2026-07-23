@@ -379,6 +379,7 @@ Assets/
 | [CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md](design/CHARACTER_SWAP_RESIDUAL_ATTACK_SYSTEM_DESIGN.md) | 캐릭터 스왑 잔류 공격 시스템 설계 — 명조식 Intro/Outro 레퍼런스 기반 퇴장 모델 잔류 공격, 독립 히트 판정, 단계별 구현 계획 |
 | [TIME_HITSTOP_GUIDE.md](Complete/TIME_HITSTOP_GUIDE.md) | GameTime / HitStop — id 기반 timeScale 큐(최저값 적용), Pause 우선, HitStopIntensity 프리셋, Volume 페이드, 액터 Animator 슬로우 |
 | [INPUT_SYSTEM_GUIDE.md](Complete/INPUT_SYSTEM_GUIDE.md) | Input 시스템 — InputManager 콜백 라우팅, InputLayer 우선순위 차단, InputBuffer 선입력, 레이어 하락 시 Cancel 전파, 커서 스택 |
+| [GAMEPAD_UI_INPUT_REBINDING_SYSTEM_SPEC.md](TODO/GAMEPAD_UI_INPUT_REBINDING_SYSTEM_SPEC.md) | 게임패드 UI·입력 리바인딩 구현 스펙 — UI 포커스·내비게이션 일원화, 설정 메뉴 키 설정 하위 패널, 단일키·2키 조합 캡처, 조합 우선 중재, 충돌·저장·글리프·검증 계약 |
 | [CONTROL_FEEL_IMPROVEMENT_GUIDE.md](guide/CONTROL_FEEL_IMPROVEMENT_GUIDE.md) | 조작감 개선 종합 가이드 — 웹 레퍼런스 기반 입력 관용, 이동 반응성, 공격 캔슬, 회피·대시, 카메라·타격 피드백 개선 우선순위 |
 | [BALANCE_DESIGNER_TOOL_GUIDE.md](guide/BALANCE_DESIGNER_TOOL_GUIDE.md) | 밸런스 디자이너 툴 — ActorDefinitionSO, Motion 기반 공격 데이터, BT/리플레이를 연계한 N초 전투 가능성 분석 설계 |
 | [ANIME_AUTO_SHADING_GENERATOR_DESIGN.md](design/ANIME_AUTO_SHADING_GENERATOR_DESIGN.md) | 애니 캐릭터 자동 셰이딩 생성기 설계 — lilToon Flat 페이스 섀도우(무 아트 에셋)/Backlight/Rim/RimShade, 에디터 타임 비파괴 머티리얼 생성, 빌드 스트립 제약, 풀 SDF는 V2 보류 |

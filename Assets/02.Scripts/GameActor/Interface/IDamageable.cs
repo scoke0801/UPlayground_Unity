@@ -40,6 +40,6 @@ namespace UPlayGround
 
         float GetCurrentHealth();
 
-        void Heal(float healAmount);
+        void ApplyHealingEffect(float healAmount);
     }
 }

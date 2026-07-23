@@ -41,6 +41,7 @@ MonoBehaviour:
     durationSeconds: 25
     cooldownGroupId: Ability.ElementalImbue
   concurrency: 2
+  taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
   - variantId: Default
     priority: 0

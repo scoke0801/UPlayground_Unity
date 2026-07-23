@@ -15,6 +15,7 @@ using UPlayGround.State;
 using UPlayGround.UI;
 using UnityEngine.Serialization;
 using Random = System.Random;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround
 {
@@ -56,8 +57,14 @@ namespace UPlayGround
         [SerializeField] private EnemyFlyingAIController _flyingAIController;
         [SerializeField] private EnemyCombat _combat;
 
-        protected float _maxHealth = 0.0f;
-        protected float _currentHealth = 0.0f;
+        protected float _maxHealth =>
+            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.MaxHealth) ?? 0f;
+
+        protected float _currentHealth
+        {
+            get => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.Health) ?? 0f;
+            set => AbilitySystem?.Attributes.SetBase(AttributeIds.Vital.Health, value);
+        }
         protected bool _isDead = false;
         private int _externalHitReactionSuppressionCount;
         
@@ -96,7 +103,7 @@ namespace UPlayGround
             base.Awake();
             _actorType = ActorType.Monster | ActorType.Combat;
 
-            Stats.Init(null);
+            AbilitySystem.InitializeStats(null);
             ResetHealthFromStats();
 
             if (_detection == null) _detection = GetComponent<EnemyDetection>();
@@ -182,7 +189,7 @@ namespace UPlayGround
                     this);
             }
 
-            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
+            AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
 
             if (_uiHpBar == null) AttachHpUI();
 
@@ -208,7 +215,7 @@ namespace UPlayGround
 
         public void OnTakeFinishAttack(Vector3 attackDirection)
         {
-            _currentHealth = 0;
+            AbilitySystem.ApplyResolvedDamage(_currentHealth, null);
 
             if (_uiHpBar == null) AttachHpUI();
 
@@ -302,12 +309,12 @@ namespace UPlayGround
         
         #region Health Management
         
-        public void Heal(float amount)
+        public void ApplyHealingEffect(float amount)
         {
             if (!IsAlive()) return;
             
             float oldHealth   = _currentHealth;
-            _currentHealth    = Mathf.Min(_currentHealth + amount, _maxHealth);
+            AbilitySystem.ApplyHealing(amount);
             float actualHeal  = _currentHealth - oldHealth;
 
             if (actualHeal <= 0f) return;
@@ -654,12 +661,11 @@ namespace UPlayGround
             }
 
             var stats = MonsterStatCalculator.CalculateAtLevel(scaling, Definition, runtimeLevel, difficultyOverride);
-            foreach (var kv in stats)
-                Stats.SetBase(kv.Key, kv.Value);
+            AbilitySystem.SetStatBases(stats);
 
             _level = runtimeLevel;
 
-            // PoiseStat/BreakGauge는 ActorStatContainer를 직접 읽으므로 베이스 교체로 함께 반영된다.
+            // PoiseStat/BreakGauge는 LegacyActorStatMigrationFacade를 직접 읽으므로 베이스 교체로 함께 반영된다.
             ResetHealthFromStats();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
@@ -687,10 +693,10 @@ namespace UPlayGround
 
             // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
             if (definition.statData != null)
-                Stats.Init(definition.statData);
+                AbilitySystem.InitializeStats(definition.statData);
             else
             {
-                Stats.Init(null);
+                AbilitySystem.InitializeStats(null);
                 Debug.LogError($"[MonsterActor] {definition.name}에 statData가 없습니다. UPlayGround/Stat/Stat Data Generator의 전체 보정을 실행하세요.", definition);
             }
 
@@ -876,7 +882,6 @@ namespace UPlayGround
 
         private void ResetHealthFromStats()
         {
-            _maxHealth     = Stats.MaxHealth;
             _currentHealth = _maxHealth;
             _isDead        = false;
         }

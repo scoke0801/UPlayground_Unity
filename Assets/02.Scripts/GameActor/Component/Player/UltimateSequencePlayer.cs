@@ -186,7 +186,7 @@ namespace UPlayGround.Components
             if (!ignoreResource
                 && asset.consumeUltimateGauge
                 && (_caster.SkillGauge == null
-                    || !_caster.SkillGauge.CanUseSkill(PlayerSkillGauge.UltimateSkillSlot)))
+                    || !_caster.SkillGauge.CanUseSkill(PlayerAbilityResourceView.UltimateSkillSlot)))
             {
                 error = "궁극기 게이지가 부족하거나 쿨타임 중입니다.";
                 return false;
@@ -240,7 +240,7 @@ namespace UPlayGround.Components
 
             if (!ignoreResource
                 && asset.consumeUltimateGauge
-                && !_caster.SkillGauge.ConsumeSkill(PlayerSkillGauge.UltimateSkillSlot))
+                && !_caster.SkillGauge.ConsumeSkill(PlayerAbilityResourceView.UltimateSkillSlot))
             {
                 FailStart("궁극기 자원 소비에 실패했습니다.");
                 return false;

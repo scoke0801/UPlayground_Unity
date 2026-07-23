@@ -1433,14 +1433,14 @@ namespace UPlayGround.Manager
                     {
                         return InventoryActionResult.NoEffect;
                     }
-                    player.Heal(recoveryAmount);
+                    player.ApplyHealingEffect(recoveryAmount);
                     break;
                 case ConsumableEffectType.HealPercent:
                     if (consumableData.requireEffectiveUse && beforeHealth >= player.MaxHealth - 0.01f)
                     {
                         return InventoryActionResult.NoEffect;
                     }
-                    player.HealPercent(recoveryAmount);
+                    player.ApplyPercentHealingEffect(recoveryAmount);
                     break;
                 default:
                     return InventoryActionResult.NotUsable;

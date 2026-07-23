@@ -172,10 +172,10 @@ namespace UPlayGround.Components
 
         private bool IsSkillUnlocked(int skillIndex)
         {
-            if (!PlayerSkillGauge.IsValidSkillSlot(skillIndex) || Svc.Party == null)
+            if (!PlayerAbilityResourceView.IsValidSkillSlot(skillIndex) || Svc.Party == null)
                 return true;
 
-            GrowthSkillType skillType = skillIndex == PlayerSkillGauge.AbilitySkillSlot
+            GrowthSkillType skillType = skillIndex == PlayerAbilityResourceView.AbilitySkillSlot
                 ? GrowthSkillType.Ability
                 : GrowthSkillType.Ultimate;
             return Svc.Party.IsSkillUnlocked(

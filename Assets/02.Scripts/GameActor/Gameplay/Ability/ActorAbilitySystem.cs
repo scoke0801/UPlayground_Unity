@@ -54,7 +54,8 @@ namespace UPlayGround.Gameplay.Ability
 
             _owner = owner;
             _effects = GetComponent<GameplayEffectController>();
-            _cooldowns = new AbilityCooldownRuntime(new UnityAbilityClock());
+            _owner.AbilitySystem.EnsureInitialized();
+            _cooldowns = _owner.AbilitySystem.Runtime.Cooldowns;
             _cues = gameObject.GetOrAddComponent<GameplayCueDispatcher>();
             var ports = new UPlayGroundAbilityOwnerPorts(_owner);
             _resources = ports;
@@ -189,7 +190,7 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.PreparedExecutionExpired;
             }
 
-            if (!TryConsumeCost(execution.Definition.cost))
+            if (!TryConsumeCost(execution.Definition.cost, execution.Handle))
             {
                 Abort(handle);
                 DispatchCue(
@@ -209,6 +210,8 @@ namespace UPlayGround.Gameplay.Ability
             execution.StartTime = Time.time;
             execution.State = AbilityExecutionState.Active;
             _activeExecution = handle.Value;
+            if (execution.Definition.taskGraph?.Root != null)
+                _owner.AbilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
             DispatchCue(
                 execution.Definition,
                 execution.Variant,
@@ -229,6 +232,7 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (!handle.IsValid || !_executions.Remove(handle.Value, out AbilityExecution execution))
                 return;
+            _owner.AbilitySystem?.Runtime.Tasks.CancelParent(handle, "AbilityAborted");
             execution.State = AbilityExecutionState.Aborted;
             if (reason != AbilityActivationResult.Success)
             {
@@ -250,6 +254,9 @@ namespace UPlayGround.Gameplay.Ability
             }
 
             CleanupExecution(execution);
+            _owner.AbilitySystem?.Runtime.Tasks.CancelParent(
+                execution.Handle,
+                completed ? "AbilityEnded" : "AbilityCancelled");
             execution.State = completed
                 ? AbilityExecutionState.Ended
                 : AbilityExecutionState.Cancelled;
@@ -575,7 +582,9 @@ namespace UPlayGround.Gameplay.Ability
             return current >= required;
         }
 
-        private bool TryConsumeCost(AbilityCostDefinition cost)
+        private bool TryConsumeCost(
+            AbilityCostDefinition cost,
+            AbilityExecutionHandle abilityHandle)
         {
             if (!CanPayCost(cost)) return false;
             if (cost == null || cost.policy == AbilityCostPolicy.None) return true;
@@ -584,7 +593,8 @@ namespace UPlayGround.Gameplay.Ability
                 return false;
 
             float required = GetRequiredCost(cost);
-            return _resources.TrySet(resourceId, Mathf.Max(0f, current - required));
+            return _owner.AbilitySystem.TryApplyResourceCost(
+                cost.resourceType, required, abilityHandle);
         }
 
         private float GetRequiredCost(AbilityCostDefinition cost)
@@ -855,10 +865,5 @@ namespace UPlayGround.Gameplay.Ability
             _executions.Clear();
         }
 
-        private sealed class UnityAbilityClock : IAbilityClock
-        {
-            public float Time => UnityEngine.Time.time;
-            public int Frame => UnityEngine.Time.frameCount;
-        }
     }
 }

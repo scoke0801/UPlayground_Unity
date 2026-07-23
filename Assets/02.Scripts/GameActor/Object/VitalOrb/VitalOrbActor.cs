@@ -167,7 +167,7 @@ namespace UPlayGround
             if (player == null) return;
 
             if (_data.healAmount > 0f)
-                player.HealPercent(_data.healAmount * _healScale);
+            player.ApplyPercentHealingEffect(_data.healAmount * _healScale);
 
             if (player.SkillGauge != null)
                 player.SkillGauge.AddGauge(_data.gaugeAmount);

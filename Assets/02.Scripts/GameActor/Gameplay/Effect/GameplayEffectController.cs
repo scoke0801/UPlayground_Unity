@@ -7,6 +7,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Gameplay.Effect
@@ -18,9 +19,7 @@ namespace UPlayGround.Gameplay.Effect
         private readonly Dictionary<string, ulong> _stackingKeys = new(StringComparer.Ordinal);
         private GameActor _owner;
         private ulong _nextHandle = 1;
-        private IAbilityResourcePort _resources;
-        private IAbilityTagPort _tags;
-        private IAbilityStatPort _stats;
+        private AbilitySystemComponent _abilitySystem;
 
         public event Action StateChanged;
 
@@ -34,16 +33,14 @@ namespace UPlayGround.Gameplay.Effect
             if (owner == null)
                 throw new ArgumentNullException(nameof(owner));
             if (ReferenceEquals(_owner, owner)
-                && _resources != null
-                && _tags != null
-                && _stats != null)
+                && _abilitySystem != null)
                 return;
 
             _owner = owner;
-            var ports = new UPlayGroundAbilityOwnerPorts(_owner);
-            _resources = ports;
-            _tags = ports;
-            _stats = ports;
+            _abilitySystem = owner.AbilitySystem != null
+                ? owner.AbilitySystem
+                : owner.GetComponent<AbilitySystemComponent>();
+            _abilitySystem?.EnsureInitialized();
         }
 
         public GameplayEffectHandle ApplyEffect(
@@ -51,26 +48,30 @@ namespace UPlayGround.Gameplay.Effect
             GameActor source = null,
             GameplayEffectApplicationOptions options = default)
         {
-            return ApplyEffectInternal(definition, source, true, options);
+            return ApplyEffectInternal(definition, source, options, true);
         }
 
         private GameplayEffectHandle ApplyEffectInternal(
             GameplayEffectSO definition,
             GameActor source,
-            bool applyInitialPeriodic,
-            GameplayEffectApplicationOptions options)
+            GameplayEffectApplicationOptions options,
+            bool executePeriodicOnApplication)
         {
             if (definition == null || string.IsNullOrWhiteSpace(definition.effectId))
                 return default;
 
             if (definition.durationType == GameplayEffectDurationType.Instant)
             {
-                ApplyResourceOperations(definition, 1);
+                GameplayEffectApplyOutcome instantOutcome = ApplyGasSpec(
+                    definition, source, 0f, executePeriodicOnApplication);
+                if (!instantOutcome.Succeeded)
+                    ReportApplyFailure(definition, instantOutcome);
                 return default;
             }
 
             float effectiveDuration = ResolveEffectiveDuration(definition);
             string key = definition.EffectiveStackingKey;
+            GameplayEffectInstance replaceAfterSuccessfulApply = null;
             if (_stackingKeys.TryGetValue(key, out ulong existingId)
                 && _active.TryGetValue(existingId, out GameplayEffectInstance existing))
             {
@@ -83,17 +84,24 @@ namespace UPlayGround.Gameplay.Effect
                     case AbilityEffectStackAction.KeepExisting:
                         return existing.Handle;
                     case AbilityEffectStackAction.RefreshExisting:
-                        bool stackChanged = existing.StackCount != stackResult.StackCount;
+                        GameplayEffectApplyOutcome refreshed =
+                            ApplyGasSpec(definition, source, effectiveDuration,
+                                executePeriodicOnApplication);
+                        if (!refreshed.Succeeded)
+                        {
+                            ReportApplyFailure(definition, refreshed);
+                            return default;
+                        }
+                        if (refreshed.ActiveHandle.IsValid)
+                            existing.GasHandle = refreshed.ActiveHandle;
                         existing.StackCount = stackResult.StackCount;
                         existing.DurationSeconds = effectiveDuration;
                         existing.RemainingSeconds = effectiveDuration;
                         existing.HudVisibility = options.HudVisibility;
-                        if (stackChanged)
-                            RebuildModifiers(existing);
                         StateChanged?.Invoke();
                         return existing.Handle;
                     case AbilityEffectStackAction.ReplaceExisting:
-                        RemoveEffect(existing.Handle);
+                        replaceAfterSuccessfulApply = existing;
                         break;
                 }
             }
@@ -110,14 +118,22 @@ namespace UPlayGround.Gameplay.Effect
                 NextPeriodSeconds = definition.periodSeconds,
                 HudVisibility = options.HudVisibility,
             };
+            GameplayEffectApplyOutcome gasOutcome =
+                ApplyGasSpec(definition, source, effectiveDuration,
+                    executePeriodicOnApplication);
+            if (!gasOutcome.Succeeded)
+            {
+                ReportApplyFailure(definition, gasOutcome);
+                return default;
+            }
+            instance.GasHandle = gasOutcome.ActiveHandle;
+
+            if (replaceAfterSuccessfulApply != null)
+                RemoveEffect(replaceAfterSuccessfulApply.Handle);
 
             _active.Add(id, instance);
             _stackingKeys[key] = id;
             AddGrantedElement(instance);
-            AddGrantedTags(instance);
-            RebuildModifiers(instance);
-            if (definition.IsPeriodic && applyInitialPeriodic)
-                ApplyResourceOperations(definition, instance.StackCount);
             StateChanged?.Invoke();
             return instance.Handle;
         }
@@ -133,12 +149,8 @@ namespace UPlayGround.Gameplay.Effect
 
             if (instance.GrantsElement)
                 _owner?.RemoveElementOverride(instance.Handle.Value);
-            for (int i = 0; i < instance.ModifierHandles.Count; i++)
-                _stats.RemoveModifier(instance.ModifierHandles[i]);
-            instance.ModifierHandles.Clear();
-            for (int i = 0; i < instance.TagHandles.Count; i++)
-                _tags.Remove(instance.TagHandles[i]);
-            instance.TagHandles.Clear();
+            if (instance.GasHandle.IsValid)
+                _abilitySystem?.Effects?.Remove(instance.GasHandle);
             StateChanged?.Invoke();
             return true;
         }
@@ -217,21 +229,27 @@ namespace UPlayGround.Gameplay.Effect
                 GameplayEffectHandle handle = ApplyEffectInternal(
                     definition,
                     null,
-                    false,
-                    new GameplayEffectApplicationOptions(entry.hudVisibility));
+                    new GameplayEffectApplicationOptions(entry.hudVisibility),
+                    false);
                 if (!handle.IsValid
                     || !_active.TryGetValue(handle.Value, out GameplayEffectInstance instance))
                     continue;
 
                 instance.StackCount = Mathf.Clamp(
                     entry.stackCount, 1, Mathf.Max(1, definition.maxStackCount));
+                for (int stack = 1; stack < instance.StackCount; stack++)
+                {
+                    GameplayEffectApplyOutcome restoredStack = ApplyGasSpec(
+                        definition, null, ResolveEffectiveDuration(definition), false);
+                    if (restoredStack.ActiveHandle.IsValid)
+                        instance.GasHandle = restoredStack.ActiveHandle;
+                }
                 instance.RemainingSeconds =
                     definition.durationType == GameplayEffectDurationType.Infinite
                         ? 0f
                         : Mathf.Max(0f, entry.remainingSeconds);
                 instance.DurationSeconds = ResolveEffectiveDuration(definition);
                 instance.NextPeriodSeconds = definition.periodSeconds;
-                RebuildModifiers(instance);
             }
             StateChanged?.Invoke();
         }
@@ -346,16 +364,6 @@ namespace UPlayGround.Gameplay.Effect
             foreach (GameplayEffectInstance instance in _active.Values)
             {
                 GameplayEffectSO definition = instance.Definition;
-                if (definition.IsPeriodic)
-                {
-                    instance.NextPeriodSeconds -= delta;
-                    while (instance.NextPeriodSeconds <= 0f)
-                    {
-                        ApplyResourceOperations(definition, instance.StackCount);
-                        instance.NextPeriodSeconds += definition.periodSeconds;
-                    }
-                }
-
                 if (definition.durationType != GameplayEffectDurationType.Duration)
                     continue;
                 instance.RemainingSeconds -= delta;
@@ -365,19 +373,6 @@ namespace UPlayGround.Gameplay.Effect
 
             for (int i = 0; i < expired.Count; i++)
                 RemoveEffect(expired[i]);
-        }
-
-        private void AddGrantedTags(GameplayEffectInstance instance)
-        {
-            if (instance.Definition.grantedTagIds == null) return;
-            for (int i = 0; i < instance.Definition.grantedTagIds.Count; i++)
-            {
-                AbilityTagHandle handle = _tags.Add(
-                    instance.Definition.grantedTagIds[i].ToString(),
-                    "Effect",
-                    instance.Handle.Value);
-                if (handle.IsValid) instance.TagHandles.Add(handle);
-            }
         }
 
         private void AddGrantedElement(GameplayEffectInstance instance)
@@ -393,60 +388,161 @@ namespace UPlayGround.Gameplay.Effect
             instance.GrantsElement = true;
         }
 
-        private void RebuildModifiers(GameplayEffectInstance instance)
+        private GameplayEffectApplyOutcome ApplyGasSpec(
+            GameplayEffectSO sourceDefinition,
+            GameActor source,
+            float effectiveDuration,
+            bool executePeriodicOnApplication)
         {
-            for (int i = 0; i < instance.ModifierHandles.Count; i++)
-                _stats.RemoveModifier(instance.ModifierHandles[i]);
-            instance.ModifierHandles.Clear();
-            List<GameplayEffectModifierDefinition> modifiers = instance.Definition.modifiers;
-            if (modifiers == null) return;
+            if (_abilitySystem?.Runtime == null)
+                return new GameplayEffectApplyOutcome(
+                    GameplayEffectApplyResult.InvalidTarget,
+                    error: "대상 AbilitySystemComponent가 없습니다.");
 
-            for (int i = 0; i < modifiers.Count; i++)
+            GameplayEffectDurationPolicy durationPolicy = sourceDefinition.durationType switch
             {
-                GameplayEffectModifierDefinition definition = modifiers[i];
-                if (definition == null) continue;
-                AbilityModifierHandle handle = _stats.AddModifier(
-                    definition.statType.ToString(),
-                    ToCoreModifierOperation(definition.modifierType),
-                    definition.value * instance.StackCount,
-                    "Effect",
-                    instance.Handle.Value);
-                if (handle.IsValid) instance.ModifierHandles.Add(handle);
-            }
-        }
-
-        private void ApplyResourceOperations(GameplayEffectSO definition, int stackCount)
-        {
-            if (definition.resourceOperations == null) return;
-            for (int i = 0; i < definition.resourceOperations.Count; i++)
-            {
-                GameplayResourceOperation operation = definition.resourceOperations[i];
-                if (operation == null) continue;
-                float magnitude = operation.magnitude * stackCount;
-                string resourceId = operation.resourceType.ToString();
-                if (!_resources.TryGet(resourceId, out float current, out float maximum))
-                    continue;
-                float targetValue = operation.operation switch
-                {
-                    GameplayResourceOperationType.Add => current + magnitude,
-                    GameplayResourceOperationType.Set => magnitude,
-                    GameplayResourceOperationType.PercentOfMax =>
-                        current + maximum * magnitude,
-                    _ => current,
-                };
-                _resources.TrySet(resourceId, targetValue);
-            }
-        }
-
-        private static AbilityModifierOperation ToCoreModifierOperation(
-            ModifierType type) =>
-            type switch
-            {
-                ModifierType.Flat => AbilityModifierOperation.Add,
-                ModifierType.Percent => AbilityModifierOperation.Percent,
-                ModifierType.Multiply => AbilityModifierOperation.Multiply,
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+                GameplayEffectDurationType.Instant => GameplayEffectDurationPolicy.Instant,
+                GameplayEffectDurationType.Duration => GameplayEffectDurationPolicy.Duration,
+                GameplayEffectDurationType.Infinite => GameplayEffectDurationPolicy.Infinite,
+                _ => throw new ArgumentOutOfRangeException(),
             };
+            var modifiers = new List<GameplayEffectModifierSpecDefinition>();
+            if (durationPolicy != GameplayEffectDurationPolicy.Instant
+                && sourceDefinition.modifiers != null)
+            {
+                for (int i = 0; i < sourceDefinition.modifiers.Count; i++)
+                {
+                    GameplayEffectModifierDefinition modifier = sourceDefinition.modifiers[i];
+                    if (modifier == null
+                        || !UPlayGround.Ability.UPlayGround.UPlayGroundAttributeMapping.TryGetAttributeId(
+                            modifier.statType, out AttributeId attributeId))
+                        continue;
+                    modifiers.Add(new GameplayEffectModifierSpecDefinition(
+                        attributeId,
+                        modifier.modifierType switch
+                        {
+                            ModifierType.Flat => AttributeModifierOperation.Add,
+                            ModifierType.Percent => AttributeModifierOperation.Percent,
+                            ModifierType.Multiply => AttributeModifierOperation.Multiply,
+                            _ => throw new ArgumentOutOfRangeException(),
+                        },
+                        new FixedMagnitudeCalculation(modifier.value)));
+                }
+            }
+            var grantedTags = new List<AbilityTagId>();
+            if (sourceDefinition.grantedTagIds != null)
+            {
+                for (int i = 0; i < sourceDefinition.grantedTagIds.Count; i++)
+                {
+                    GameplayTagId tagId = sourceDefinition.grantedTagIds[i];
+                    if (tagId != GameplayTagId.None)
+                        grantedTags.Add(new AbilityTagId(tagId.ToTag().TagName));
+                }
+            }
+            var executions = new List<IGameplayEffectExecution>();
+            if ((durationPolicy == GameplayEffectDurationPolicy.Instant
+                 || sourceDefinition.IsPeriodic)
+                && sourceDefinition.resourceOperations != null)
+            {
+                for (int i = 0; i < sourceDefinition.resourceOperations.Count; i++)
+                {
+                    GameplayResourceOperation operation = sourceDefinition.resourceOperations[i];
+                    if (operation != null)
+                        executions.Add(new LegacyResourceOperationExecution(operation));
+                }
+            }
+            var definition = new GameplayEffectDefinition(
+                sourceDefinition.effectId,
+                durationPolicy,
+                modifiers: modifiers,
+                executions: executions,
+                duration: durationPolicy == GameplayEffectDurationPolicy.Duration
+                    ? new FixedMagnitudeCalculation(effectiveDuration)
+                    : null,
+                period: sourceDefinition.periodSeconds > 0f
+                    ? new FixedMagnitudeCalculation(sourceDefinition.periodSeconds)
+                    : null,
+                stackingKey: sourceDefinition.EffectiveStackingKey,
+                stackPolicy: ToCoreStackPolicy(sourceDefinition.stackPolicy),
+                maxStackCount: sourceDefinition.maxStackCount,
+                grantedTags: grantedTags,
+                saveActiveEffect: sourceDefinition.savePolicy
+                    == GameplayEffectSavePolicy.SaveRemainingDuration,
+                executePeriodicOnApplication:
+                    sourceDefinition.IsPeriodic && executePeriodicOnApplication);
+
+            AbilitySystemRuntime sourceRuntime = source?.AbilitySystem?.Runtime
+                                                ?? _abilitySystem.Runtime;
+            var context = new GameplayEffectContext(
+                sourceRuntime.Handle,
+                sourceRuntime.Handle,
+                _abilitySystem.Runtime.Handle,
+                sourceObjectId: sourceDefinition.effectId);
+            GameplayEffectSpec spec = sourceRuntime.EffectSpecs.Create(
+                definition, 1f, context, sourceRuntime);
+            spec.AddTrace("Legacy GameplayEffectSO bridge");
+            return _abilitySystem.Effects.Apply(spec, sourceRuntime);
+        }
+
+        private void ReportApplyFailure(
+            GameplayEffectSO definition,
+            GameplayEffectApplyOutcome outcome)
+        {
+            Debug.LogError(
+                $"[GameplayEffectController] EffectSpec 적용 실패: " +
+                $"{definition?.effectId ?? "<null>"}, {outcome.Result}, {outcome.Error}",
+                this);
+        }
+
+        private sealed class LegacyResourceOperationExecution : IGameplayEffectExecution
+        {
+            private readonly AbilityResourceType _resourceType;
+            private readonly GameplayResourceOperationType _operation;
+            private readonly float _magnitude;
+
+            public LegacyResourceOperationExecution(GameplayResourceOperation operation)
+            {
+                _resourceType = operation.resourceType;
+                _operation = operation.operation;
+                _magnitude = operation.magnitude;
+            }
+
+            public bool Execute(
+                in GameplayEffectExecutionInput input,
+                GameplayEffectExecutionOutput output,
+                out string error)
+            {
+                AttributeId currentId;
+                AttributeId maximumId;
+                switch (_resourceType)
+                {
+                    case AbilityResourceType.Health:
+                        currentId = AttributeIds.Vital.Health;
+                        maximumId = AttributeIds.Vital.MaxHealth;
+                        break;
+                    case AbilityResourceType.UltimateEnergy:
+                        currentId = AttributeIds.Resource.UltimateEnergy;
+                        maximumId = AttributeIds.Resource.MaxUltimateEnergy;
+                        break;
+                    default:
+                        error = string.Empty;
+                        return true;
+                }
+
+                float current = input.GetTarget(currentId);
+                float maximum = input.GetTarget(maximumId);
+                float delta = _operation switch
+                {
+                    GameplayResourceOperationType.Add => _magnitude,
+                    GameplayResourceOperationType.Set => _magnitude - current,
+                    GameplayResourceOperationType.PercentOfMax => maximum * _magnitude,
+                    _ => 0f,
+                };
+                output.AddBaseDelta(currentId, delta);
+                error = string.Empty;
+                return true;
+            }
+        }
 
         private static AbilityEffectStackPolicy ToCoreStackPolicy(
             GameplayEffectStackPolicy policy) =>

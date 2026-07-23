@@ -160,7 +160,7 @@ namespace UPlayGround.State
 
         private static int FirstSkillInput(PlayerMovementController controller)
         {
-            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+            for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
                 if (controller.HasSkillInput(i)) return i;
             return -1;
         }

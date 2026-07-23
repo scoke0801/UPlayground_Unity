@@ -140,8 +140,8 @@ namespace UPlayGround.State
                     return;
             }
 
-            PlayerSkillGauge skillGauge = playerActor.SkillGauge;
-            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+            PlayerAbilityResourceView skillGauge = playerActor.SkillGauge;
+            for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (skillGauge == null)
                     break;

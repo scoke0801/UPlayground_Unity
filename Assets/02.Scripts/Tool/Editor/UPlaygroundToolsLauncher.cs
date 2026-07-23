@@ -125,7 +125,7 @@ namespace UPlayGround.Editor
             ("게임플레이 / 스탯", new[]
             {
                 Tool("스탯 데이터베이스 에디터",            "UPlayGround/게임플레이/스탯/스탯 데이터베이스 에디터", "스탯 데이터베이스를 편집합니다.", "ActorStatSO, 스탯 타입, 성장/기본 수치 연결을 검색하고 관리합니다."),
-                Tool("스탯 런타임 모니터",            "UPlayGround/게임플레이/스탯/스탯 런타임 모니터", "런타임 스탯 값을 모니터링합니다.", "현재 액터의 ActorStatContainer 값과 modifier 적용 상태를 확인합니다."),
+            Tool("스탯 런타임 모니터",            "UPlayGround/게임플레이/스탯/스탯 런타임 모니터", "런타임 스탯 값을 모니터링합니다.", "현재 액터의 GAS Attribute와 활성 Effect를 확인합니다."),
             }),
             ("게임플레이 / 게임플레이 태그", new[]
             {

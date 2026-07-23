@@ -40,6 +40,9 @@ namespace UPlayGround.Ability.Core
             _endTimes[groupId.Trim()] = _clock.Time + remainingSeconds;
         }
 
+        public bool Remove(string groupId) =>
+            !string.IsNullOrWhiteSpace(groupId) && _endTimes.Remove(groupId.Trim());
+
         public void Clear() => _endTimes.Clear();
 
         public void Capture(List<AbilityCooldownSnapshot> destination)

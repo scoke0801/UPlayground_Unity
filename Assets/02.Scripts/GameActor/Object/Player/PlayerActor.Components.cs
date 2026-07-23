@@ -22,6 +22,7 @@ using UPlayGround.UI;
 using UPlayGround.Gameplay.Passive;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround
 {
@@ -71,6 +72,11 @@ namespace UPlayGround
             }
 
             Abilities?.HandleCharacterSwap();
+            if (_equipmentStatEffectHandle.IsValid)
+            {
+                AbilitySystem.RemoveEffect(_equipmentStatEffectHandle);
+                _equipmentStatEffectHandle = default;
+            }
 
             _characterActorType = data.characterType;
             SetCharacterBaseElement(
@@ -83,7 +89,7 @@ namespace UPlayGround
 
             // 성장 스탯 적용 후 장비 스탯까지 먼저 반영한다.
             // 체력 복원은 최종 MaxHealth 기준으로 처리해야 교체 시 장비 체력 보너스가 비율을 왜곡하지 않는다.
-            _maxHealth = ApplyCharacterStats(data);
+            ApplyCharacterStats(data);
             _animator            = GetComponentInChildren<ActorAnimator>();
             
             _playerActorAnimator = _animator as PlayerActorAnimator;
@@ -195,25 +201,27 @@ namespace UPlayGround
 
             if (growthStats != null && growthStats.Count > 0)
             {
-                Stats?.Init(null);
-                foreach (KeyValuePair<StatType, float> pair in growthStats)
-                    Stats?.SetBase(pair.Key, pair.Value);
-                return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : ActorStatSO.GetDefault(StatType.MaxHealth));
+                AbilitySystem.InitializeStats(null);
+                AbilitySystem.SetStatBases(growthStats);
+                return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
+                    AttributeIds.Vital.MaxHealth));
             }
 
             if (Definition != null && Definition.statData != null)
             {
-                Stats?.Init(Definition.statData);
-                return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : Definition.statData.GetBase(StatType.MaxHealth));
+                AbilitySystem.InitializeStats(Definition.statData);
+                return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
+                    AttributeIds.Vital.MaxHealth));
             }
 
-            Stats?.Init(null);
-            return Mathf.Max(1f, Stats != null ? Stats.MaxHealth : ActorStatSO.GetDefault(StatType.MaxHealth));
+            AbilitySystem.InitializeStats(null);
+            return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Vital.MaxHealth));
         }
 
         public void ApplyEquipmentStatsForActiveCharacter(bool preserveHealthRatio = true)
         {
-            if (Stats == null || _characterActorType == CharacterActorType.None)
+            if (AbilitySystem == null || _characterActorType == CharacterActorType.None)
                 return;
 
             float oldMax = Mathf.Max(1f, _maxHealth);
@@ -221,7 +229,8 @@ namespace UPlayGround
             bool wasFull = oldCurrent >= oldMax - 0.01f;
             float oldRatio = oldMax > 0f ? oldCurrent / oldMax : 1f;
 
-            Stats.RemoveModifiersBySource(_equipmentStatSource);
+            if (_equipmentStatEffectHandle.IsValid)
+                AbilitySystem.RemoveEffect(_equipmentStatEffectHandle);
             _equipmentStatBuffer.Clear();
 
             var equipment = Svc.Inventory?.GetEquippedEquipment(_characterActorType);
@@ -231,15 +240,17 @@ namespace UPlayGround
                     equipment[i]?.AddStatModifiersTo(_equipmentStatBuffer, _equipmentStatSource);
             }
 
-            for (int i = 0; i < _equipmentStatBuffer.Count; i++)
-                Stats.AddModifier(_equipmentStatBuffer[i]);
+            _equipmentStatEffectHandle = AbilitySystem.ApplyLegacyStatEffect(
+                $"Equipment.{_characterActorType}",
+                _equipmentStatBuffer);
 
-            _maxHealth = Mathf.Max(1f, Stats.MaxHealth);
+            float newMaxHealth = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
+                UPlayGround.Ability.Core.AttributeIds.Vital.MaxHealth));
             if (preserveHealthRatio)
             {
                 _currentHealth = wasFull
-                    ? _maxHealth
-                    : Mathf.Clamp(_maxHealth * oldRatio, 0f, _maxHealth);
+                    ? newMaxHealth
+                    : Mathf.Clamp(newMaxHealth * oldRatio, 0f, newMaxHealth);
                 OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             }
         }
@@ -285,11 +296,10 @@ namespace UPlayGround
             // 사망 중에는 스왑이 막혀 게임오버→리로드 시 ApplyCharacterStats가 커밋된 레벨로 스탯을 재구성하므로 손실 없음.
             if (!IsAlive()) return;
 
-            foreach (KeyValuePair<StatType, float> pair in growthStats)
-                Stats?.SetBase(pair.Key, pair.Value);   // Init() 미호출 → modifier 유지
+            AbilitySystem.SetStatBases(growthStats);   // 전체 Transaction, 활성 Effect 유지
 
-            _maxHealth     = Mathf.Max(1f, Stats != null ? Stats.MaxHealth : _maxHealth);
-            _currentHealth = _maxHealth;                // 풀 회복
+            _currentHealth = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Vital.MaxHealth));         // 풀 회복
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
             // Poise 풀 회복(브레이크 해제 포함). MaxPoise 성장은 SetBase가 이미 반영.
@@ -389,7 +399,7 @@ namespace UPlayGround
 
         /// <summary>
         /// 세이브 로드용: 지정 캐릭터의 스킬 게이지를 저장된 값으로 복원한다.
-        /// 액티브는 PlayerSkillGauge에, 벤치는 _characterSkillMap에 기록한다.
+        /// 액티브는 PlayerAbilityResourceView에, 벤치는 _characterSkillMap에 기록한다.
         /// </summary>
         public void RestoreCharacterSkillGauge(CharacterActorType type, float gauge)
         {
@@ -471,13 +481,13 @@ namespace UPlayGround
         }
 
         /// <summary>
-        /// 파티 HUD의 궁극기 "준비" 표시용 판정. 실제 발동은 비용(<see cref="PlayerSkillGauge.CanUseSkill"/>)으로
+        /// 파티 HUD의 궁극기 "준비" 표시용 판정. 실제 발동은 비용(<see cref="PlayerAbilityResourceView.CanUseSkill"/>)으로
         /// 게이트하지만, 글로우 같은 준비 연출은 게이지가 가득 찼을 때만 켠다
         /// (스킬바의 <c>UISkillSlot._showOnlyWhenGaugeFull</c>와 동일 의미). 쿨타임 중이면 false.
         /// </summary>
         public bool IsUltimateReadyForCharacter(CharacterActorType type)
             => IsSkillGaugeFullForCharacter(type)
-               && CanUseSkillForCharacter(type, PlayerSkillGauge.UltimateSkillSlot);
+               && CanUseSkillForCharacter(type, PlayerAbilityResourceView.UltimateSkillSlot);
 
         public void AddSkillGaugeForCharacter(CharacterActorType type, float amount)
         {
@@ -510,7 +520,7 @@ namespace UPlayGround
         {
             if (_combat     == null) _combat     = GetComponent<PlayerCombat>();
             if (_equipment  == null) _equipment  = GetComponentInChildren<PlayerEquipment>();
-            if (_skillGauge == null) _skillGauge = GetComponent<PlayerSkillGauge>();
+            if (_skillGauge == null) _skillGauge = GetComponent<PlayerAbilityResourceView>();
             if (_combatWeaponStateController == null)
                 _combatWeaponStateController = gameObject.GetOrAddComponent<PlayerCombatWeaponStateController>();
             if (_footIK     == null) _footIK     = GetComponent<FootIKController>();

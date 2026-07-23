@@ -50,10 +50,14 @@ namespace UPlayGround.Ability.Tests
                 new GameplayTagSource("Test", 2));
 
             Assert.That(tags.HasTag(GameplayTagId.State_Combat_Attack), Is.True);
+            Assert.That(_actor.AbilitySystem.Tags.Has(
+                new AbilityTagId(GameplayTagId.State_Combat_Attack.ToTag().TagName)), Is.True);
             Assert.That(tags.RemoveTag(first), Is.True);
             Assert.That(tags.HasTag(GameplayTagId.State_Combat_Attack), Is.True);
             Assert.That(tags.RemoveTag(second), Is.True);
             Assert.That(tags.HasTag(GameplayTagId.State_Combat_Attack), Is.False);
+            Assert.That(_actor.AbilitySystem.Tags.Has(
+                new AbilityTagId(GameplayTagId.State_Combat_Attack.ToTag().TagName)), Is.False);
         }
 
         [Test]
@@ -84,6 +88,10 @@ namespace UPlayGround.Ability.Tests
             Assert.That(_actor.Abilities.TryGetPlayerSlotState(
                 PlayerSkillSlot.Ability, out var afterCommit), Is.True);
             Assert.That(afterCommit.CooldownRemaining, Is.GreaterThan(0f));
+            string cooldownGroup = ability.cooldown.ResolveGroupId(ability.abilityId);
+            Assert.That(
+                _actor.AbilitySystem.Runtime.Cooldowns.GetRemaining(cooldownGroup),
+                Is.EqualTo(afterCommit.CooldownRemaining).Within(0.01f));
 
             Object.DestroyImmediate(ability);
             Object.DestroyImmediate(set);
@@ -104,14 +112,67 @@ namespace UPlayGround.Ability.Tests
                 value = 2f,
             });
 
-            float before = _actor.Stats.AttackPower;
+            float before = _actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower);
             var handle = _actor.Effects.ApplyEffect(effect, _actor);
+            Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(1));
             Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
-            Assert.That(_actor.Stats.AttackPower, Is.EqualTo(before + 2f));
+            Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(before + 2f));
 
             Assert.That(_actor.Effects.RemoveEffect(handle), Is.True);
+            Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(0));
             Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
-            Assert.That(_actor.Stats.AttackPower, Is.EqualTo(before));
+            Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(before));
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void Instant_자원_Effect는_EffectSpec_Execution으로_적용된다()
+        {
+            _actor.AbilitySystem.Attributes.SetBase(AttributeIds.Vital.Health, 50f);
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.InstantHeal";
+            effect.durationType = GameplayEffectDurationType.Instant;
+            effect.resourceOperations.Add(new GameplayResourceOperation
+            {
+                resourceType = AbilityResourceType.Health,
+                operation = GameplayResourceOperationType.Add,
+                magnitude = 10f,
+            });
+
+            _actor.Effects.ApplyEffect(effect, _actor);
+
+            Assert.That(
+                _actor.AbilitySystem.Attributes.GetCurrent(AttributeIds.Vital.Health),
+                Is.EqualTo(60f));
+            Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(0));
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void Periodic_자원_Effect는_적용시점_Tick을_한번_실행한다()
+        {
+            _actor.AbilitySystem.Attributes.SetBase(AttributeIds.Resource.UltimateEnergy, 0f);
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.PeriodicGauge";
+            effect.durationType = GameplayEffectDurationType.Duration;
+            effect.durationSeconds = 10f;
+            effect.periodSeconds = 1f;
+            effect.resourceOperations.Add(new GameplayResourceOperation
+            {
+                resourceType = AbilityResourceType.UltimateEnergy,
+                operation = GameplayResourceOperationType.Add,
+                magnitude = 5f,
+            });
+
+            GameplayEffectHandle handle = _actor.Effects.ApplyEffect(effect, _actor);
+
+            Assert.That(
+                _actor.AbilitySystem.Attributes.GetCurrent(AttributeIds.Resource.UltimateEnergy),
+                Is.EqualTo(5f));
+            Assert.That(_actor.Effects.RemoveEffect(handle), Is.True);
             Object.DestroyImmediate(effect);
         }
 
@@ -246,10 +307,12 @@ namespace UPlayGround.Ability.Tests
             set.additionalAbilities.Add(ability);
             _actor.Abilities.SetAbilitySet(set);
 
-            float before = _actor.Stats.AttackPower;
+            float before = _actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower);
             _actor.Effects.ApplyEffect(effect, _actor);
             _actor.Effects.ApplyEffect(effect, _actor);
-            Assert.That(_actor.Stats.AttackPower, Is.EqualTo(before + 6f));
+            Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(before + 6f));
 
             AbilityRuntimeSaveData snapshot =
                 _actor.Abilities.CaptureRuntimeState(forCharacterSwap: true);
@@ -258,11 +321,13 @@ namespace UPlayGround.Ability.Tests
 
             _actor.Abilities.HandleCharacterSwap();
             Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
-            Assert.That(_actor.Stats.AttackPower, Is.EqualTo(before));
+            Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(before));
 
             _actor.Abilities.RestoreRuntimeState(snapshot);
             Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
-            Assert.That(_actor.Stats.AttackPower, Is.EqualTo(before + 6f));
+            Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(before + 6f));
 
             Object.DestroyImmediate(effect);
             Object.DestroyImmediate(ability);
@@ -504,7 +569,7 @@ namespace UPlayGround.Ability.Tests
         public void InitializeForEditMode()
         {
             base.Awake();
-            Stats.Init(null);
+            AbilitySystem.InitializeStats(null);
             Effects.Initialize(this);
             Abilities.Initialize(this);
         }

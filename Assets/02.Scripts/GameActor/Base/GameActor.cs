@@ -59,14 +59,14 @@ namespace UPlayGround
         /// <summary>런타임 태그 컨테이너. 상태 진입/이탈 시 태그를 추가/제거한다.</summary>
         public GameplayTagContainer Tags { get; private set; }
 
-        /// <summary>런타임 스탯 컨테이너. ActorStatSO로 초기화하고 StatModifier로 버프/장비 효과를 적용한다.</summary>
-        public ActorStatContainer Stats { get; private set; }
-
         /// <summary>액터별 Ability 활성화/쿨다운 런타임.</summary>
         public ActorAbilitySystem Abilities { get; private set; }
 
         /// <summary>액터별 지속 Effect 런타임.</summary>
         public GameplayEffectController Effects { get; private set; }
+
+        /// <summary>GAS 기반 Ability/Effect/Tag/Attribute 단일 집합 루트.</summary>
+        public AbilitySystemComponent AbilitySystem { get; private set; }
 
         /// <summary>Definition 기본값과 활성 GameplayEffect를 합성한 현재 전투 속성.</summary>
         public CombatElement CurrentElement => _currentElement;
@@ -173,8 +173,8 @@ namespace UPlayGround
         
         protected virtual void Awake()
         {
+            AbilitySystem = gameObject.GetOrAddComponent<AbilitySystemComponent>();
             Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
-            Stats = gameObject.GetOrAddComponent<ActorStatContainer>();
             Effects = gameObject.GetOrAddComponent<GameplayEffectController>();
             Abilities = gameObject.GetOrAddComponent<ActorAbilitySystem>();
             ApplyBaseDefinition();

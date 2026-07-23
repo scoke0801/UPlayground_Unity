@@ -355,7 +355,7 @@ namespace UPlayGround.Components
         {
             if (route == null) return false;
             if (route.skillGaugeIndex < 0) return true;
-            if (!PlayerSkillGauge.IsValidSkillSlot(route.skillGaugeIndex)) return false;
+            if (!PlayerAbilityResourceView.IsValidSkillSlot(route.skillGaugeIndex)) return false;
             var gauge = _playerActor != null ? _playerActor.SkillGauge : null;
             return gauge == null || gauge.CanUseSkill(route.skillGaugeIndex);
         }

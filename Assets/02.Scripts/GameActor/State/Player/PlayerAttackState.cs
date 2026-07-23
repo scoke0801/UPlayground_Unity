@@ -12,6 +12,7 @@ using UPlayGround.Manager;
 using UPlayGround.InputDefine;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Stat;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Gameplay.Ability;
 
@@ -209,7 +210,7 @@ namespace UPlayGround.State
 
             if ((forcedAttackAction & PlayerInterruptAction.Skill) != 0)
             {
-                for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+                for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
                 {
                     if (!controller.HasSkillInput(i)) continue;
                     if (playerActor.Abilities != null
@@ -231,7 +232,7 @@ namespace UPlayGround.State
 
             // 1순위: 숫자 키 스킬 (게이지 보유 여부만 확인하고 실제로 소비하지 않음)
             var skillGauge = playerActor.SkillGauge;
-            for (int i = 0; i < PlayerSkillGauge.SkillSlotCount; i++)
+            for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (!controller.HasSkillInput(i)) continue;
                 if (playerActor.Abilities != null
@@ -672,7 +673,7 @@ namespace UPlayGround.State
             // 1순위: 숫자 키 스킬
             bool skillAllowed = _forcedAttackAction == PlayerInterruptAction.None
                                 || (_forcedAttackAction & PlayerInterruptAction.Skill) != 0;
-            for (int i = 0; skillAllowed && i < PlayerSkillGauge.SkillSlotCount; i++)
+            for (int i = 0; skillAllowed && i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (!playerController.HasSkillInput(i)) continue;
 
@@ -818,8 +819,12 @@ namespace UPlayGround.State
 
         private float GetAttackSpeed()
         {
-            return playerActor.Stats != null
-                ? Mathf.Clamp(playerActor.Stats.AttackSpeed, 0.1f, 5f)
+            return playerActor.AbilitySystem != null
+                   && playerActor.AbilitySystem.TryGetStat(
+                       StatType.AttackSpeed,
+                       current: true,
+                       out float attackSpeed)
+                ? Mathf.Clamp(attackSpeed, 0.1f, 5f)
                 : 1f;
         }
 

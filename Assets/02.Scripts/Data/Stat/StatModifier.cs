@@ -14,7 +14,7 @@ namespace UPlayGround.Data.Stat
     }
 
     /// <summary>
-    /// 스탯 변경 단위. ActorStatContainer.AddModifier로 등록하고 source로 식별해 제거한다.
+    /// 구 데이터 마이그레이션 입력 단위. 런타임에서는 GameplayEffectSpec Modifier로 변환한다.
     /// </summary>
     [Serializable]
     public struct StatModifier

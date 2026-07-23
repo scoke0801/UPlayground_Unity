@@ -4,12 +4,14 @@ using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
 using UPlayGround.UI;
+using UPlayGround.Ability.Core;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Components
 {
     /// <summary>
     /// Poise(강인도) 런타임 컴포넌트.
-    /// 수치(MaxPoise / 회복률 / 회복지연)는 <see cref="ActorStatContainer"/>(statData)를 단일 소스로 읽는다.
+    /// 수치(MaxPoise / 회복률 / 회복지연)는 ASC Attribute Runtime을 단일 소스로 읽는다.
     /// 등급/레벨 배율은 statData 생성 시점에 이미 반영되므로(MonsterScalingSO), 여기서는 별도 스케일링을 하지 않는다.
     /// PoiseSO(_data)는 더 이상 수치 소스가 아니며 hasHyperArmor 플래그 전달용으로만 유지한다.
     /// </summary>
@@ -22,8 +24,10 @@ namespace UPlayGround.Components
         private const float FallbackRecoveryRate  = 40f;
         private const float FallbackRecoveryDelay = 2f;
 
-        private ActorStatContainer _stats;
-        private float _currentPoise;
+        private AbilitySystemComponent AbilitySystem =>
+            GetComponent<GameActor>()?.AbilitySystem;
+        private float _currentPoise =>
+            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.Poise) ?? 0f;
         private float _recoveryTimer;
         private bool  _isBroken = false;
         private bool  _isHyperArmorActive;
@@ -36,28 +40,36 @@ namespace UPlayGround.Components
         public bool  IsPoiseBroken => _isBroken;
         public float CurrentPoise  => _currentPoise;
 
-        private ActorStatContainer Stats => _stats != null ? _stats : (_stats = GetComponent<ActorStatContainer>());
-
-        public  float MaxPoise      => Stats != null ? Mathf.Max(1f, Stats.MaxPoise) : FallbackMaxPoise;
-        private float RecoveryRate  => Stats != null ? Stats.PoiseRecoveryRate  : FallbackRecoveryRate;
-        private float RecoveryDelay => Stats != null ? Stats.PoiseRecoveryDelay : FallbackRecoveryDelay;
+        public float MaxPoise => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.MaxPoise)
+            ?? FallbackMaxPoise;
+        private float RecoveryRate => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.PoiseRecoveryRate)
+            ?? FallbackRecoveryRate;
+        private float RecoveryDelay => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.PoiseRecoveryDelay)
+            ?? FallbackRecoveryDelay;
 
         private void Awake()
         {
             // statData 주입 전이라도 합리적 기본값으로 시작. 권위 초기화는 Init()이 담당.
-            BindStats();
             InitFromStats();
         }
 
         private void OnEnable()
         {
-            BindStats();
+            if (AbilitySystem?.Attributes != null)
+                AbilitySystem.Attributes.AttributeChanged += OnAttributeChanged;
         }
 
         private void OnDisable()
         {
-            if (_stats != null)
-                _stats.OnStatChanged -= OnStatChanged;
+            if (AbilitySystem?.Attributes != null)
+                AbilitySystem.Attributes.AttributeChanged -= OnAttributeChanged;
+        }
+
+        private void OnAttributeChanged(AttributeChangedEvent change)
+        {
+            if (change.AttributeId == AttributeIds.Vital.Poise
+                || change.AttributeId == AttributeIds.Vital.MaxPoise)
+                _actorUIBar?.UpdatePoise(_currentPoise, MaxPoise);
         }
 
         /// <summary> 레거시/에디터 호환용. 하이퍼아머 플래그만 받고 수치는 statData에서 읽는다. </summary>
@@ -78,36 +90,10 @@ namespace UPlayGround.Components
 
         private void InitFromStats()
         {
-            BindStats();
-            _currentPoise  = MaxPoise;
+            AbilitySystem?.Attributes.SetBase(AttributeIds.Vital.Poise, MaxPoise);
             _lastMaxPoise  = MaxPoise;
             _isBroken      = false;
             _recoveryTimer = 0f;
-        }
-
-        private void BindStats()
-        {
-            ActorStatContainer stats = Stats;
-            if (stats == null) return;
-
-            stats.OnStatChanged -= OnStatChanged;
-            stats.OnStatChanged += OnStatChanged;
-            _lastMaxPoise = MaxPoise;
-        }
-
-        private void OnStatChanged(StatType type, float newValue)
-        {
-            if (type != StatType.MaxPoise) return;
-
-            float oldMax = Mathf.Max(1f, _lastMaxPoise);
-            float newMax = Mathf.Max(1f, newValue);
-            float ratio = oldMax > 0f ? Mathf.Clamp01(_currentPoise / oldMax) : 1f;
-
-            _currentPoise = _isBroken ? 0f : Mathf.Clamp(newMax * ratio, 0f, newMax);
-            _lastMaxPoise = newMax;
-
-            if (_actorUIBar != null)
-                _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
         }
 
         public void ConnectUiBar(IActorHpBarView actorUIBar)
@@ -123,7 +109,7 @@ namespace UPlayGround.Components
                 if (_recoveryTimer >= RecoveryDelay)
                 {
                     _isBroken      = false;
-                    _currentPoise  = MaxPoise;
+                    ApplyPoiseDelta(MaxPoise - _currentPoise, "GE_Poise.BreakRecovery");
                     _recoveryTimer = 0f;
 
                     if (_actorUIBar != null)
@@ -137,7 +123,9 @@ namespace UPlayGround.Components
                 _recoveryTimer += Time.deltaTime;
                 if (_recoveryTimer >= RecoveryDelay)
                 {
-                    _currentPoise = Mathf.Min(_currentPoise + RecoveryRate * Time.deltaTime, MaxPoise);
+                    ApplyPoiseDelta(
+                        Mathf.Min(RecoveryRate * Time.deltaTime, MaxPoise - _currentPoise),
+                        "GE_Poise.Recovery");
 
                     if (_actorUIBar != null)
                         _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
@@ -156,7 +144,7 @@ namespace UPlayGround.Components
             if (poiseDamage <= 0f) return false;
             if (_isBroken) return false;
 
-            _currentPoise -= poiseDamage;
+            AbilitySystem.ApplyPoiseDamage(poiseDamage);
             _recoveryTimer = 0f;
 
             if (_actorUIBar != null)
@@ -164,7 +152,6 @@ namespace UPlayGround.Components
 
             if (_currentPoise <= 0f)
             {
-                _currentPoise  = 0f;
                 _isBroken      = true;
                 _recoveryTimer = 0f;
                 return true;
@@ -179,7 +166,7 @@ namespace UPlayGround.Components
 
         public void ForcePoiseBreak()
         {
-            _currentPoise  = 0f;
+            ApplyPoiseDelta(-_currentPoise, "GE_Poise.ForceBreak");
             _isBroken      = true;
             _recoveryTimer = 0f;
 
@@ -191,12 +178,19 @@ namespace UPlayGround.Components
         public void RecoverFull()
         {
             _isBroken      = false;
-            _currentPoise  = MaxPoise;
+            ApplyPoiseDelta(MaxPoise - _currentPoise, "GE_Poise.RecoverFull");
             _lastMaxPoise  = MaxPoise;
             _recoveryTimer = 0f;
 
             if (_actorUIBar != null)
                 _actorUIBar.UpdatePoise(_currentPoise, MaxPoise);
+        }
+
+        private void ApplyPoiseDelta(float delta, string sourceId)
+        {
+            if (Mathf.Approximately(delta, 0f)) return;
+            AbilitySystem?.ApplyAttributeDelta(
+                AttributeIds.Vital.Poise, delta, sourceId);
         }
     }
 }

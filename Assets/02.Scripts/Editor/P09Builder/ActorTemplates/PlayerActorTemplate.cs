@@ -36,7 +36,7 @@ namespace UPlayGround.Editor.P09Builder
             var actor = GetOrAdd<PlayerActor>(root);
             GetOrAdd<PlayerCombat>(root);
             GetOrAdd<PlayerEquipment>(root);
-            GetOrAdd<PlayerSkillGauge>(root);
+            GetOrAdd<PlayerAbilityResourceView>(root);
 
             if (root.GetComponent<Animator>() == null)
                 Undo.AddComponent<Animator>(root);

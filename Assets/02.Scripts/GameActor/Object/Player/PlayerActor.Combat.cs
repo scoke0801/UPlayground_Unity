@@ -70,7 +70,7 @@ namespace UPlayGround
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
 
-            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
+            AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             _behaviorPredictor?.NotifyAction(PlayerActionToken.Hit);
 
@@ -103,11 +103,11 @@ namespace UPlayGround
                && !IsSwapEvadeInvincible
                && !MovementController.CurrentState.GrantsInvincibility;
 
-        public void Heal(float amount)
+        public void ApplyHealingEffect(float amount)
         {
             if (!IsAlive()) return;
             float old = _currentHealth;
-            _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+            AbilitySystem.ApplyHealing(amount);
             if (_currentHealth > old)
             {
                 OnHpChanged?.Invoke(_currentHealth, _maxHealth);
@@ -115,7 +115,17 @@ namespace UPlayGround
             }
         }
 
-        public void HealPercent(float ratio) => Heal(ratio * _maxHealth);
+        public void ApplyPercentHealingEffect(float ratio)
+        {
+            if (!IsAlive()) return;
+            float old = _currentHealth;
+            AbilitySystem.ApplyHealing(0f, ratio);
+            if (_currentHealth > old)
+            {
+                OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+                ActorSvc.UI.ShowDamageFloaterHeal(transform.position, _currentHealth - old);
+            }
+        }
 
         private PlayerDefenseQuery CreatePlayerDefenseQuery()
         {
@@ -249,7 +259,7 @@ namespace UPlayGround
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;
 
-            _currentHealth = MathF.Max(0, _currentHealth - finalDamage);
+            AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
             CombatFeedbackDispatcher.ShowDamageFloater(

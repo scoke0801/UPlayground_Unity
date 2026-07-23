@@ -5,11 +5,12 @@ using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround.Tool.Editor.Stat
 {
     /// <summary>
-    /// Play 모드 전용. 씬의 모든 GameActor의 ActorStatContainer 상태를 실시간 모니터링한다.
+    /// Play 모드 전용. 씬의 모든 GameActor의 GAS Attribute/Effect 상태를 실시간 모니터링한다.
     /// 메뉴: UPlayGround/Stat/Stat Runtime Monitor
     /// </summary>
     public class StatRuntimeMonitorWindow : EditorWindow
@@ -176,7 +177,7 @@ namespace UPlayGround.Tool.Editor.Stat
 
                 int instanceId = actor.GetInstanceID();
                 if (_expanded.Contains(instanceId))
-                    DrawModifierList(actor.Stats);
+                    DrawModifierList(actor);
             }
 
             EditorGUILayout.EndScrollView();
@@ -187,7 +188,7 @@ namespace UPlayGround.Tool.Editor.Stat
             var rect = GUILayoutUtility.GetRect(0, RowH, GUILayout.ExpandWidth(true));
             EditorGUI.DrawRect(rect, rowIndex % 2 == 0 ? ColorRowEven : ColorRowOdd);
 
-            var stats = actor.Stats;
+            var attributes = actor.AbilitySystem?.Attributes;
             int instanceId = actor.GetInstanceID();
             bool isExpanded = _expanded.Contains(instanceId);
 
@@ -211,10 +212,12 @@ namespace UPlayGround.Tool.Editor.Stat
             x += ColHp;
 
             // ATK / DEF
-            GUI.Label(new Rect(x, rect.y, ColAtk, rect.height), stats.AttackPower.ToString("0.##"));
+            GUI.Label(new Rect(x, rect.y, ColAtk, rect.height),
+                (attributes?.GetCurrent(AttributeIds.Combat.AttackPower) ?? 0f).ToString("0.##"));
             x += ColAtk;
 
-            GUI.Label(new Rect(x, rect.y, ColDef, rect.height), stats.Defense.ToString("0.##"));
+            GUI.Label(new Rect(x, rect.y, ColDef, rect.height),
+                (attributes?.GetCurrent(AttributeIds.Combat.Defense) ?? 0f).ToString("0.##"));
             x += ColDef;
 
             // Poise (PoiseStat이 있다면 그 값을, 없으면 컨테이너 MaxPoise만 표시)
@@ -222,7 +225,7 @@ namespace UPlayGround.Tool.Editor.Stat
             x += ColPoise;
 
             // 수정자 개수
-            int modCount = stats.ModifierCount;
+            int modCount = actor.AbilitySystem?.Effects?.Count ?? 0;
             var prevColor = GUI.color;
             if (modCount > 0) GUI.color = ColorModBuff;
             GUI.Label(new Rect(x, rect.y, ColMods, rect.height), modCount.ToString());
@@ -231,7 +234,8 @@ namespace UPlayGround.Tool.Editor.Stat
 
         private void DrawHpCell(GameActor actor, Rect rect)
         {
-            float max = actor.Stats.MaxHealth;
+            float max = actor.AbilitySystem?.Attributes.GetCurrent(
+                AttributeIds.Vital.MaxHealth) ?? 0f;
             float current = max;
             if (actor is IDamageable dmg)
             {
@@ -247,7 +251,8 @@ namespace UPlayGround.Tool.Editor.Stat
 
         private void DrawPoiseCell(GameActor actor, Rect rect)
         {
-            float max = actor.Stats.MaxPoise;
+            float max = actor.AbilitySystem?.Attributes.GetCurrent(
+                AttributeIds.Vital.MaxPoise) ?? 0f;
             // PoiseStat은 자체적으로 현재값을 보유하므로 이름 기반 폴백 표시만
             EditorGUI.DrawRect(rect, ColorBarBg);
             // 풀 바를 단색으로 채우고 최대치만 표시 (컨테이너에 현재 Poise 추적 미구현)
@@ -255,10 +260,11 @@ namespace UPlayGround.Tool.Editor.Stat
             GUI.Label(rect, $"  max {max:0}", _styleSubLabel);
         }
 
-        private void DrawModifierList(ActorStatContainer stats)
+        private void DrawModifierList(GameActor actor)
         {
-            var modifiers = stats.EditorGetModifiers();
-            if (modifiers == null || modifiers.Count == 0)
+            var effects = new List<ActiveGameplayEffect>();
+            actor.AbilitySystem?.Effects?.CopyActive(effects);
+            if (effects.Count == 0)
             {
                 var rect = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
                 EditorGUI.DrawRect(rect, new Color(0.16f, 0.16f, 0.18f));
@@ -266,27 +272,21 @@ namespace UPlayGround.Tool.Editor.Stat
                 return;
             }
 
-            foreach (var tm in modifiers)
+            foreach (ActiveGameplayEffect active in effects)
             {
-                var m = tm.Modifier;
                 var rect = GUILayoutUtility.GetRect(0, 18, GUILayout.ExpandWidth(true));
                 EditorGUI.DrawRect(rect, new Color(0.16f, 0.16f, 0.18f));
 
-                string srcName     = m.source?.ToString() ?? "(unknown)";
-                string sign        = m.value >= 0f ? "+" : "";
-                string modSymbol   = m.modifierType switch
-                {
-                    ModifierType.Flat     => "Flat",
-                    ModifierType.Percent  => "%",
-                    ModifierType.Multiply => "×",
-                    _ => "?",
-                };
-                string durationStr = m.IsPermanent ? "<color=#9CA0A8>영구</color>" : $"<color=#FFC34D>{tm.RemainingTime:F1}s</color>";
+                string durationStr = active.Spec.Definition.DurationPolicy
+                    == GameplayEffectDurationPolicy.Infinite
+                    ? "<color=#9CA0A8>영구</color>"
+                    : $"<color=#FFC34D>{active.RemainingSeconds:F1}s</color>";
 
-                Color barColor = m.value >= 0 ? ColorModBuff : ColorModDebuff;
+                Color barColor = ColorModBuff;
                 EditorGUI.DrawRect(new Rect(rect.x + 22, rect.y + 4, 3, rect.height - 8), barColor);
 
-                string text = $"<b>{srcName}</b>  ·  {m.statType}  {modSymbol} {sign}{m.value:0.##}  ·  {durationStr}";
+                string text = $"<b>{active.Spec.Definition.EffectId}</b>  ·  " +
+                              $"Stack {active.StackCount}  ·  {durationStr}";
                 GUI.Label(new Rect(rect.x + 30, rect.y, rect.width - 30, rect.height), text, _styleSubLabel);
             }
         }

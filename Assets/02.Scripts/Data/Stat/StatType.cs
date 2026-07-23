@@ -2,7 +2,7 @@ namespace UPlayGround.Data.Stat
 {
     /// <summary>
     /// 모든 GameActor가 보유 가능한 스탯의 종류.
-    /// ActorStatSO와 ActorStatContainer가 이 enum을 키로 사용한다.
+    /// ActorStatSO와 LegacyActorStatMigrationFacade가 이 enum을 키로 사용한다.
     /// 추가 시 ActorStatSO._defaults / ActorStatSOEditor의 카테고리/슬라이더 범위도 함께 업데이트할 것.
     /// </summary>
     public enum StatType

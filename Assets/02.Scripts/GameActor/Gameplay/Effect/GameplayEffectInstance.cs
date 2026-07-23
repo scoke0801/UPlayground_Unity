@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 
@@ -21,8 +20,7 @@ namespace UPlayGround.Gameplay.Effect
         public float RemainingSeconds;
         public float NextPeriodSeconds;
         public GameplayEffectHudVisibility HudVisibility;
+        public ActiveGameplayEffectHandle GasHandle;
         public bool GrantsElement;
-        public readonly List<AbilityModifierHandle> ModifierHandles = new();
-        public readonly List<AbilityTagHandle> TagHandles = new();
     }
 }

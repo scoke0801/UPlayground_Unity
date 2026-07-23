@@ -1,7 +1,9 @@
 using UnityEngine;
 using UPlayGround.Components;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
 using UPlayGround.UI;
 
@@ -16,26 +18,23 @@ namespace UPlayGround.Combat
         {
             float baseDamage = Mathf.Max(0f, hit.Damage);
             float attackerPower = hit.Attacker != null
-                ? hit.Attacker.Stats.AttackPower
+                ? GetStat(hit.Attacker, StatType.AttackPower, 1f)
                 : 1f;
             float defenseRate = target != null
-                ? Mathf.Clamp01(target.Stats.Defense)
+                ? Mathf.Clamp01(GetStat(target, StatType.Defense, 0f))
                 : 0f;
             float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(hit.CriticalMultiplier) : 1f;
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
             float damageTakenMultiplier = hit.Attacker is MonsterActor monsterAttacker
                 ? Svc.MonsterCodexReader?.GetDamageTakenMultiplier(monsterAttacker.ActorId) ?? 1f
                 : 1f;
-            float finalDamage = baseDamage
-                                * attackerPower
-                                * (1f - defenseRate)
-                                * damageTakenMultiplier
-                                * elementMultiplier
-                                * criticalMultiplier;
-
-            // 기본 피해가 있는 공격은 방어율이 높아도 최소 1은 들어가게 한다(칩 데미지 보장).
-            if (baseDamage > 0f)
-                finalDamage = Mathf.Max(1f, finalDamage);
+            float finalDamage = DamageExecution.Calculate(
+                baseDamage,
+                attackerPower,
+                defenseRate,
+                damageTakenMultiplier,
+                elementMultiplier,
+                criticalMultiplier);
 
             return new DamageResult(
                 baseDamage,
@@ -55,10 +54,10 @@ namespace UPlayGround.Combat
         {
             float baseDamage = Mathf.Max(0f, hit.Damage);
             float attackerPower = hit.Attacker != null
-                ? hit.Attacker.Stats.AttackPower
+                ? GetStat(hit.Attacker, StatType.AttackPower, 1f)
                 : 1f;
             float defenseRate = target != null
-                ? Mathf.Clamp01(target.Stats.Defense)
+                ? Mathf.Clamp01(GetStat(target, StatType.Defense, 0f))
                 : 0f;
             // 통합 취약 배율: 리액션 상태(Stun/Knockdown/Airborne/Grabbed) 배율과 Break 노출 배율을 단일 채널로 묶어
             // 동시 성립 시 더 큰 하나만 적용한다(max-wins).
@@ -75,16 +74,13 @@ namespace UPlayGround.Combat
             }
             float criticalMultiplier = ResolveCriticalMultiplier(hit.CriticalMultiplier);
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
-            float finalDamage = baseDamage
-                                * attackerPower
-                                * (1f - defenseRate)
-                                * damageTakenMultiplier
-                                * elementMultiplier
-                                * criticalMultiplier;
-
-            // 기본 피해가 있는 공격은 방어율이 높아도 최소 1은 들어가게 한다(칩 데미지 보장).
-            if (baseDamage > 0f)
-                finalDamage = Mathf.Max(1f, finalDamage);
+            float finalDamage = DamageExecution.Calculate(
+                baseDamage,
+                attackerPower,
+                defenseRate,
+                damageTakenMultiplier,
+                elementMultiplier,
+                criticalMultiplier);
 
             return new DamageResult(
                 baseDamage,
@@ -147,6 +143,18 @@ namespace UPlayGround.Combat
 
         private static float ResolveCriticalMultiplier(float multiplier)
             => multiplier > 1f ? multiplier : 1f;
+
+        private static float GetStat(
+            GameActor actor,
+            StatType statType,
+            float fallback)
+        {
+            return actor?.AbilitySystem != null
+                   && actor.AbilitySystem.TryGetStat(
+                       statType, current: true, out float value)
+                ? value
+                : fallback;
+        }
 
         private static float ResolveElementMultiplier(
             GameActor attacker,

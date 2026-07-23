@@ -143,16 +143,19 @@ namespace UPlayGround.Ability.PlayModeTests
                 value = 5f,
             });
 
-            float attackBefore = owner.Stats.AttackPower;
+            float attackBefore = owner.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower);
             owner.Effects.ApplyEffect(effect, owner);
 
             Assert.That(owner.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
-            Assert.That(owner.Stats.AttackPower, Is.EqualTo(attackBefore + 5f));
+            Assert.That(owner.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(attackBefore + 5f));
 
             yield return new WaitForSeconds(0.1f);
 
             Assert.That(owner.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
-            Assert.That(owner.Stats.AttackPower, Is.EqualTo(attackBefore));
+            Assert.That(owner.AbilitySystem.Attributes.GetCurrent(
+                AttributeIds.Combat.AttackPower), Is.EqualTo(attackBefore));
 
             Object.Destroy(ownerObject);
             Object.Destroy(effect);

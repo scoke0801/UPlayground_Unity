@@ -29,9 +29,10 @@ namespace UPlayGround.Manager
         public float GetPlayerStat(StatType type)
         {
             var player = PartyManager.Instance != null ? PartyManager.Instance.ActiveCharacter : null;
-            if (player == null || player.Stats == null)
+            if (player?.AbilitySystem == null)
                 return 0f;
-            return player.Stats.GetBase(type);
+            return player.AbilitySystem.TryGetStat(
+                type, current: false, out float value) ? value : 0f;
         }
 
         public bool AddGrowthPoints(CharacterActorType type, int amount)

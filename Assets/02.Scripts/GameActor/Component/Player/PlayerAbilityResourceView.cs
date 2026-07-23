@@ -1,10 +1,13 @@
 using System;
 using UnityEngine;
 using UPlayGround.Data;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Manager;
+using UPlayGround.Ability.Core;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Components
 {
@@ -14,7 +17,7 @@ namespace UPlayGround.Components
     /// - 스킬 사용 시 슬롯별 비용 소모
     /// - 스킬(SkillAttack)은 게이지를 충전하지 않음
     /// </summary>
-    public class PlayerSkillGauge : PlayerActorComponent
+    public class PlayerAbilityResourceView : PlayerActorComponent
     {
         public const int SkillSlotCount = 3;
         public const int AbilitySkillSlot = (int)PlayerSkillSlot.Ability;
@@ -32,9 +35,15 @@ namespace UPlayGround.Components
             public float chargeAttack;   // 차지 공격
         }
 
-        [Header("Gauge Settings")]
-        [SerializeField] private float _maxGauge = 100f;
-        [SerializeField] private float _currentGauge;
+        private AbilitySystemComponent AbilitySystem =>
+            GetComponent<PlayerActor>()?.AbilitySystem;
+        private float _maxGauge =>
+            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Resource.MaxUltimateEnergy) ?? 0f;
+        private float _currentGauge
+        {
+            get => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Resource.UltimateEnergy) ?? 0f;
+            set => AbilitySystem?.Attributes.SetBase(AttributeIds.Resource.UltimateEnergy, value);
+        }
 
         [Header("Charge Per Hit")]
         [SerializeField] private ChargeTable _chargeTable = new ChargeTable
@@ -62,7 +71,7 @@ namespace UPlayGround.Components
         public float GaugeRatio   => _maxGauge > 0f ? _currentGauge / _maxGauge : 0f;
 
         private PlayerCombat _combat;
-        private float[] _skillCooldownEndTimes;
+        private bool[] _cooldownWasActive;
 
         private void Awake()
         {
@@ -74,25 +83,38 @@ namespace UPlayGround.Components
         {
             if (_combat != null)
                 _combat.OnAttackHit += HandleAttackHit;
+            if (AbilitySystem?.Attributes != null)
+                AbilitySystem.Attributes.AttributeChanged += OnAttributeChanged;
         }
 
         private void OnDisable()
         {
             if (_combat != null)
                 _combat.OnAttackHit -= HandleAttackHit;
+            if (AbilitySystem?.Attributes != null)
+                AbilitySystem.Attributes.AttributeChanged -= OnAttributeChanged;
+        }
+
+        private void OnAttributeChanged(AttributeChangedEvent change)
+        {
+            if (change.AttributeId == AttributeIds.Resource.UltimateEnergy
+                || change.AttributeId == AttributeIds.Resource.MaxUltimateEnergy)
+                OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
         }
 
         private void Update()
         {
-            if (_skillCooldownEndTimes == null) return;
+            if (_cooldownWasActive == null || AbilitySystem?.Runtime == null) return;
 
-            float now = Time.time;
-            for (int i = 0; i < _skillCooldownEndTimes.Length; i++)
+            for (int i = 0; i < _cooldownWasActive.Length; i++)
             {
-                if (_skillCooldownEndTimes[i] <= 0f || _skillCooldownEndTimes[i] > now)
+                bool active = GetSkillCooldownRemaining(i) > 0f;
+                if (!_cooldownWasActive[i] || active)
+                {
+                    _cooldownWasActive[i] = active;
                     continue;
-
-                _skillCooldownEndTimes[i] = 0f;
+                }
+                _cooldownWasActive[i] = false;
                 OnCooldownChanged?.Invoke(i, 0f, GetSkillCooldownDuration(i));
             }
         }
@@ -151,8 +173,10 @@ namespace UPlayGround.Components
 
             if (UsesGaugeCost(skillSlot))
             {
-                _currentGauge = 0f;   // Ultimate는 가득 찼을 때만 발동하며, 발동 시 게이지를 전부 소비한다.
-                OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+                if (!AbilitySystem.TryApplyResourceCost(
+                        AbilityResourceType.UltimateEnergy,
+                        _currentGauge))
+                    return false;
             }
 
             StartCooldown(skillSlot);
@@ -161,8 +185,11 @@ namespace UPlayGround.Components
 
         public void AddGauge(float amount)
         {
-            _currentGauge = Mathf.Min(_currentGauge + amount, _maxGauge);
-            OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
+            if (amount <= 0f) return;
+            AbilitySystem?.ApplyResourceDelta(
+                AbilityResourceType.UltimateEnergy,
+                amount,
+                "GE_UltimateEnergy.Generation");
         }
 
         /// <summary>
@@ -171,13 +198,12 @@ namespace UPlayGround.Components
         public void SetGauge(float value)
         {
             _currentGauge = Mathf.Clamp(value, 0f, _maxGauge);
-            OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
         }
 
         public float[] GetCooldownRemainingSnapshot()
         {
             EnsureCooldownBuffer();
-            var snapshot = new float[_skillCooldownEndTimes.Length];
+            var snapshot = new float[_cooldownWasActive.Length];
             for (int i = 0; i < snapshot.Length; i++)
                 snapshot[i] = GetSkillCooldownRemaining(i);
             return snapshot;
@@ -186,15 +212,19 @@ namespace UPlayGround.Components
         public void SetCooldownRemainingSnapshot(float[] remainingTimes)
         {
             EnsureCooldownBuffer();
-            if (_skillCooldownEndTimes == null) return;
+            if (_cooldownWasActive == null || AbilitySystem?.Runtime == null) return;
 
-            for (int i = 0; i < _skillCooldownEndTimes.Length; i++)
+            for (int i = 0; i < _cooldownWasActive.Length; i++)
             {
                 float remaining = remainingTimes != null && i < remainingTimes.Length
                     ? Mathf.Max(0f, remainingTimes[i])
                     : 0f;
 
-                _skillCooldownEndTimes[i] = remaining > 0f ? Time.time + remaining : 0f;
+                if (remaining > 0f)
+                    AbilitySystem.Runtime.Cooldowns.Restore(GetCooldownGroupId(i), remaining);
+                else
+                    AbilitySystem.Runtime.Cooldowns.Remove(GetCooldownGroupId(i));
+                _cooldownWasActive[i] = remaining > 0f;
                 OnCooldownChanged?.Invoke(i, remaining, GetSkillCooldownDuration(i));
             }
         }
@@ -216,8 +246,10 @@ namespace UPlayGround.Components
         public float GetSkillCooldownRemaining(int skillSlot)
         {
             EnsureCooldownBuffer();
-            if (!IsValidSkillSlot(skillSlot) || _skillCooldownEndTimes == null || (uint)skillSlot >= (uint)_skillCooldownEndTimes.Length) return 0f;
-            return Mathf.Max(0f, _skillCooldownEndTimes[skillSlot] - Time.time);
+            if (!IsValidSkillSlot(skillSlot) || AbilitySystem?.Runtime == null)
+                return 0f;
+            return AbilitySystem.Runtime.Cooldowns.GetRemaining(
+                GetCooldownGroupId(skillSlot));
         }
 
         public bool IsSkillOnCooldown(int skillSlot) => GetSkillCooldownRemaining(skillSlot) > 0f;
@@ -230,9 +262,13 @@ namespace UPlayGround.Components
             if (duration <= 0f) return;
 
             EnsureCooldownBuffer();
-            if (_skillCooldownEndTimes == null || (uint)skillSlot >= (uint)_skillCooldownEndTimes.Length) return;
+            if (_cooldownWasActive == null
+                || (uint)skillSlot >= (uint)_cooldownWasActive.Length
+                || AbilitySystem?.Runtime == null)
+                return;
 
-            _skillCooldownEndTimes[skillSlot] = Time.time + duration;
+            AbilitySystem.Runtime.Cooldowns.Start(GetCooldownGroupId(skillSlot), duration);
+            _cooldownWasActive[skillSlot] = true;
             OnCooldownChanged?.Invoke(skillSlot, duration, duration);
         }
 
@@ -241,15 +277,18 @@ namespace UPlayGround.Components
             int count = SkillSlotCount;
             if (count <= 0)
             {
-                _skillCooldownEndTimes = Array.Empty<float>();
+                _cooldownWasActive = Array.Empty<bool>();
                 return;
             }
 
-            if (_skillCooldownEndTimes != null && _skillCooldownEndTimes.Length == count)
+            if (_cooldownWasActive != null && _cooldownWasActive.Length == count)
                 return;
 
-            _skillCooldownEndTimes = new float[count];
+            _cooldownWasActive = new bool[count];
         }
+
+        private static string GetCooldownGroupId(int skillSlot) =>
+            $"Legacy.SkillSlot.{skillSlot}";
 
         public static bool IsValidSkillSlot(int skillSlot)
             => skillSlot >= 0 && skillSlot < SkillSlotCount;

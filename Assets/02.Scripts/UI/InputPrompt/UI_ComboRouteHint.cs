@@ -30,7 +30,7 @@ namespace UPlayGround.UI.InputPrompt
 
         private PlayerActor _player;
         private PlayerCombat _combat;
-        private PlayerSkillGauge _gauge;
+        private PlayerAbilityResourceView _gauge;
         private Func<ComboRouteEntry, bool> _resourceFilter; // 메서드그룹 delegate 캐시(프레임 alloc 방지)
 
         private IUIPartyService _partyManager;

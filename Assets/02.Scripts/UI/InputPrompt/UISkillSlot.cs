@@ -275,7 +275,7 @@ namespace UPlayGround.UI.InputPrompt
         /// 이 슬롯에 연결된 자원/쿨타임 UI를 갱신한다. Ability는 쿨타임만, Ultimate는 게이지와 쿨타임을 표시한다.
         /// 반환값은 프레임 갱신이 필요한 쿨타임 표시 여부.
         /// </summary>
-        public bool SetGaugeState(PlayerSkillGauge gauge)
+        public bool SetGaugeState(PlayerAbilityResourceView gauge)
         {
             bool hasGauge = RequiresGauge && gauge != null;
 
@@ -304,7 +304,7 @@ namespace UPlayGround.UI.InputPrompt
             // ── 게이지(자원) 표시: 게이지 슬롯일 때만 유효. 외부 쿨타임 전용 슬롯은 0 처리. ──
             float current = hasGauge ? gauge.CurrentGauge : 0f;
             float max     = hasGauge ? gauge.MaxGauge : 0f;
-            bool usesGaugeCost = hasGauge && PlayerSkillGauge.UsesGaugeCost(GaugeSlot);
+            bool usesGaugeCost = hasGauge && PlayerAbilityResourceView.UsesGaugeCost(GaugeSlot);
             bool showGauge = _showGaugeUi && usesGaugeCost;
             float gaugeRatio = max > 0f ? Mathf.Clamp01(current / max) : 0f;
             bool isFullGauge = max > 0f && current >= max;
@@ -418,7 +418,7 @@ namespace UPlayGround.UI.InputPrompt
                 return true;
 
             bool containsGaugeUi = _showGaugeUi
-                                   && PlayerSkillGauge.UsesGaugeCost(GaugeSlot)
+                                   && PlayerAbilityResourceView.UsesGaugeCost(GaugeSlot)
                                    && _gaugeUiUnderAvailableRoot;
             bool containsCooldownUi = showCooldown && _cooldownUiUnderAvailableRoot;
 
@@ -443,7 +443,7 @@ namespace UPlayGround.UI.InputPrompt
         {
             bool showGauge = _showGaugeUi
                              && RequiresGauge
-                             && PlayerSkillGauge.UsesGaugeCost(GaugeSlot);
+                             && PlayerAbilityResourceView.UsesGaugeCost(GaugeSlot);
 
             if (_availableRoot != null)
                 _availableRoot.SetActive(false);

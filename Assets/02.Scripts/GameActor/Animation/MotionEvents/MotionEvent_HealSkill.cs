@@ -62,8 +62,8 @@ namespace UPlayGround.Data.Event
 
                 float healthBefore = skillTarget.GetCurrentHealth();
 
-                // 힐 실행 — MonsterActor.Heal() 내부에서 플로터 출력
-                skillTarget.Heal(actor.Combat.CurrentSkill.baseInfo.damage);
+            // 힐 실행 — 대상의 GameplayEffectSpec 경로에서 Attribute와 플로터를 갱신한다.
+            skillTarget.ApplyHealingEffect(actor.Combat.CurrentSkill.baseInfo.damage);
 
                 if (skillTarget.GetCurrentHealth() > healthBefore && !string.IsNullOrWhiteSpace(soundKey))
                     Svc.Sound?.PlaySfx(soundKey, vfxPosition);

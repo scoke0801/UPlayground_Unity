@@ -20,6 +20,7 @@ namespace UPlayGround.UI
 
         private const string HudWorldClockKey = "HudWorldClock";
         private const string HudQuickSlotKey = "HudQuickSlot";
+        private const string HudWorldMarkerKey = "HudWorldMarker";
 
         [SerializeField] Button _menuButton;
 
@@ -73,6 +74,12 @@ namespace UPlayGround.UI
 
             UIMgr.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
+            // 인게임 월드 마커 HUD (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
+            if (UIMgr.GetUIPrefabEntry(HudWorldMarkerKey) != null)
+            {
+                UIMgr.ShowUI(HudWorldMarkerKey, CanvasLayer.HUD);
+            }
+
             if (UISvc.Actors != null)
             {
                 _playerActor = UISvc.Actors.Player;
@@ -97,6 +104,7 @@ namespace UPlayGround.UI
                 uiManager.HideUI(HudQuickSlotKey);
                 uiManager.HideUI(UIKeyType.Notification);
                 uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
+                uiManager.HideUI(HudWorldMarkerKey);
                 uiManager.HideUI(HudWorldClockKey);
             }
 

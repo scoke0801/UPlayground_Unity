@@ -17,15 +17,16 @@ namespace UPlayGround.Gameplay.Ability
         IAbilityTagPort,
         IAbilityStatPort
     {
-        private readonly GameActor _owner;
+        private readonly AbilitySystemComponent _abilitySystem;
         private readonly Dictionary<ulong, GameplayTagSourceHandle> _tagHandles = new();
         private readonly Dictionary<ulong, AttributeModifierHandle> _modifierHandles = new();
         private ulong _nextTagHandle = 1;
         private ulong _nextModifierHandle = 1;
 
-        public UPlayGroundAbilityOwnerPorts(GameActor owner)
+        public UPlayGroundAbilityOwnerPorts(AbilitySystemComponent abilitySystem)
         {
-            _owner = owner;
+            _abilitySystem = abilitySystem
+                ?? throw new ArgumentNullException(nameof(abilitySystem));
         }
 
         public bool TryGet(string resourceId, out float current, out float maximum)
@@ -34,10 +35,10 @@ namespace UPlayGround.Gameplay.Ability
             maximum = 0f;
             if (TryGetResourceAttributeIds(
                     resourceId, out AttributeId currentId, out AttributeId maximumId)
-                && _owner?.AbilitySystem?.Attributes != null)
+                && _abilitySystem.Attributes != null)
             {
-                current = _owner.AbilitySystem.Attributes.GetCurrent(currentId);
-                maximum = _owner.AbilitySystem.Attributes.GetCurrent(maximumId);
+                current = _abilitySystem.Attributes.GetCurrent(currentId);
+                maximum = _abilitySystem.Attributes.GetCurrent(maximumId);
                 return true;
             }
             return false;
@@ -46,30 +47,29 @@ namespace UPlayGround.Gameplay.Ability
         public bool TrySet(string resourceId, float value)
         {
             if (!TryGet(resourceId, out float current, out float maximum)
-                || _owner?.AbilitySystem == null
                 || !Enum.TryParse(resourceId, out UPlayGround.Data.Ability.AbilityResourceType resourceType))
                 return false;
             float clamped = Mathf.Clamp(value, 0f, maximum);
-            return _owner.AbilitySystem.ApplyResourceDelta(
+            return _abilitySystem.ApplyResourceDelta(
                 resourceType,
                 clamped - current,
-                $"GE_LegacyResourcePort.{resourceType}").Succeeded;
+                $"GE_AbilityResourcePort.{resourceType}").Succeeded;
         }
 
         public bool Has(string tagId)
         {
             return TryParseTag(tagId, out GameplayTagId id)
-                   && (_owner?.AbilitySystem?.Tags?.Has(
+                   && (_abilitySystem.Tags?.Has(
                        new AbilityTagId(id.ToTag().TagName)) ?? false);
         }
 
         public AbilityTagHandle Add(string tagId, string sourceType, ulong sourceId)
         {
             if (!TryParseTag(tagId, out GameplayTagId id)
-                || _owner?.AbilitySystem?.Tags == null)
+                || _abilitySystem.Tags == null)
                 return default;
 
-            GameplayTagSourceHandle tagHandle = _owner.AbilitySystem.Tags.Add(
+            GameplayTagSourceHandle tagHandle = _abilitySystem.Tags.Add(
                 new AbilityTagId(id.ToTag().TagName), sourceType, sourceId);
             if (!tagHandle.IsValid) return default;
 
@@ -82,9 +82,9 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (!handle.IsValid
                 || !_tagHandles.Remove(handle.Value, out GameplayTagSourceHandle tagHandle)
-                || _owner?.AbilitySystem?.Tags == null)
+                || _abilitySystem.Tags == null)
                 return false;
-            return _owner.AbilitySystem.Tags.Remove(tagHandle);
+            return _abilitySystem.Tags.Remove(tagHandle);
         }
 
         public AbilityModifierHandle AddModifier(
@@ -94,12 +94,12 @@ namespace UPlayGround.Gameplay.Ability
             string sourceType,
             ulong sourceId)
         {
-            if (_owner?.AbilitySystem?.Attributes == null
-                || !Enum.TryParse(statId, out StatType statType))
+            var attributeId = new AttributeId(statId);
+            if (_abilitySystem.Attributes == null || !attributeId.IsValid)
                 return default;
             ulong value = _nextModifierHandle++;
-            AttributeModifierHandle attributeHandle = _owner.AbilitySystem.Attributes.AddModifier(
-                UPlayGroundAttributeMapping.GetAttributeId(statType),
+            AttributeModifierHandle attributeHandle = _abilitySystem.Attributes.AddModifier(
+                attributeId,
                 operation switch
                 {
                     AbilityModifierOperation.Add => AttributeModifierOperation.Add,
@@ -120,9 +120,9 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (!handle.IsValid
                 || !_modifierHandles.Remove(handle.Value, out AttributeModifierHandle attributeHandle)
-                || _owner?.AbilitySystem?.Attributes == null)
+                || _abilitySystem.Attributes == null)
                 return false;
-            return _owner.AbilitySystem.Attributes.RemoveModifier(attributeHandle);
+            return _abilitySystem.Attributes.RemoveModifier(attributeHandle);
         }
 
         private static bool TryParseTag(string tagId, out GameplayTagId id)

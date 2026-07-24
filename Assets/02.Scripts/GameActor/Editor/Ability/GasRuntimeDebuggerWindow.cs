@@ -87,7 +87,7 @@ namespace UPlayGround.Gameplay.Ability.Editor
         {
             EditorGUILayout.LabelField("ASC", _snapshot.AbilitySystemHandle.Value.ToString());
             if (_sources[_selectedSource] is AbilitySystemComponent component)
-                EditorGUILayout.LabelField("Authority", component.AuthorityMode.ToString());
+            EditorGUILayout.LabelField("Authority", "GasOnly");
             EditorGUILayout.LabelField("Attributes", _snapshot.Attributes.Count.ToString());
             EditorGUILayout.LabelField("Active Effects", _snapshot.Effects.Count.ToString());
             EditorGUILayout.LabelField("Active Tasks", _snapshot.Tasks.Count.ToString());

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
@@ -61,7 +62,7 @@ namespace UPlayGround.Tool.Editor.Balance
         [Serializable]
         public sealed class StatValue
         {
-            public string statType;
+            public string attributeId;
             public float value;
         }
 
@@ -174,14 +175,15 @@ namespace UPlayGround.Tool.Editor.Balance
                 grade = def.grade.ToString(),
             };
 
-            if (def.statData != null)
+            if (def.attributeProfile != null)
             {
-                foreach (ActorStatSO.StatEntry entry in def.statData.Entries)
+                foreach (AttributeProfileEntry entry in def.attributeProfile.Entries)
                 {
+                    if (entry == null) continue;
                     actor.stats.Add(new StatValue
                     {
-                        statType = entry.statType.ToString(),
-                        value = entry.baseValue,
+                        attributeId = entry.AttributeId.Value,
+                        value = entry.BaseValue,
                     });
                 }
             }
@@ -352,22 +354,22 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             var oldMap = new Dictionary<string, float>();
             foreach (StatValue stat in oldStats)
-                oldMap[stat.statType] = stat.value;
+                oldMap[stat.attributeId] = stat.value;
 
             var seen = new HashSet<string>();
             foreach (StatValue cur in newStats)
             {
-                seen.Add(cur.statType);
-                if (oldMap.TryGetValue(cur.statType, out float oldValue))
-                    CompareValue(diffs, owner, $"stats.{cur.statType}", oldValue, cur.value);
+                seen.Add(cur.attributeId);
+                if (oldMap.TryGetValue(cur.attributeId, out float oldValue))
+                    CompareValue(diffs, owner, $"attributes.{cur.attributeId}", oldValue, cur.value);
                 else
-                    diffs.Add(new DiffEntry { Kind = DiffKind.Added, Owner = owner, Field = $"stats.{cur.statType}", Detail = $"= {cur.value:0.###}" });
+                    diffs.Add(new DiffEntry { Kind = DiffKind.Added, Owner = owner, Field = $"attributes.{cur.attributeId}", Detail = $"= {cur.value:0.###}" });
             }
 
             foreach (StatValue old in oldStats)
             {
-                if (!seen.Contains(old.statType))
-                    diffs.Add(new DiffEntry { Kind = DiffKind.Removed, Owner = owner, Field = $"stats.{old.statType}", Detail = $"이전 값 {old.value:0.###}" });
+                if (!seen.Contains(old.attributeId))
+                    diffs.Add(new DiffEntry { Kind = DiffKind.Removed, Owner = owner, Field = $"attributes.{old.attributeId}", Detail = $"이전 값 {old.value:0.###}" });
             }
         }
 

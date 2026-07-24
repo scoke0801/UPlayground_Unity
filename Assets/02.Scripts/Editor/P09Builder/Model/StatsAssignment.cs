@@ -12,7 +12,7 @@ namespace UPlayGround.Editor.P09Builder
     public class StatsAssignment
     {
         // ---------- Enemy ----------
-        // 체력/방어 등 런타임 스탯(ActorStatSO)은 P09 빌드 말미에
+        // 체력/방어 등 런타임 Attribute Profile은 P09 빌드 말미에
         // MonsterScalingSO/등급/레벨/무기 프로필 기준으로 발급·갱신한다.
         public bool createNewPoise = true;
         public ScriptableObject existingPoiseSo;

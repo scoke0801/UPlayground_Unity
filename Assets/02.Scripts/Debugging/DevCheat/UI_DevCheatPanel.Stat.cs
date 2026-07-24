@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
@@ -14,21 +15,13 @@ namespace UPlayGround.UI.DevCheat
     /// <summary>UI_DevCheatPanel — 플레이어 스텟 탭(base 스탯 즉시 변경).</summary>
     public partial class UI_DevCheatPanel
     {
-        private readonly Dictionary<StatType, TMP_InputField> _statInputs = new();
+        private readonly Dictionary<AttributeId, TMP_InputField> _statInputs = new();
         private readonly Dictionary<GrowthAttributeType, TextMeshProUGUI> _growthRankTexts = new();
         private RectTransform _statContent;
         private TextMeshProUGUI _growthSummaryText;
 
-        private static readonly StatType[] EditableStats =
-        {
-            StatType.MaxHealth, StatType.HealthRegenRate,
-            StatType.AttackPower, StatType.Defense, StatType.CritRate, StatType.CritMultiplier,
-            StatType.AttackSpeed,
-            StatType.MoveSpeed, StatType.DashDistance,
-            StatType.MaxPoise, StatType.PoiseRecoveryRate, StatType.PoiseRecoveryDelay,
-            StatType.SkillGaugeRate, StatType.InvincibleDuration,
-            StatType.GatheringPower,
-        };
+        private static readonly AttributeId[] EditableAttributes =
+            UPlayGroundAttributeDefaults.All;
 
         private void BuildStatTab(RectTransform panel)
         {
@@ -52,23 +45,24 @@ namespace UPlayGround.UI.DevCheat
             var rawTitle = MakeText(_statContent, "기본 스탯 직접 변경 (비영구)", 18, Accent, TextAlignmentOptions.Left);
             SetSize(rawTitle.gameObject, minH: 32, prefH: 32);
 
-            foreach (StatType stat in EditableStats)
+            foreach (AttributeId attributeId in EditableAttributes)
             {
-                var row = NewRect("Row_" + stat, _statContent);
+                var row = NewRect("Row_" + attributeId.Value, _statContent);
                 SetSize(row.gameObject, minH: 46, prefH: 46);
                 AddImage(row.gameObject, RowBg);
                 var rh = AddHLG(row.gameObject, 8, 8);
                 rh.childForceExpandWidth = false;
 
-                var label = MakeText(row, stat.ToString(), 16, TextMain);
+                var label = MakeText(row, attributeId.Value, 16, TextMain);
                 SetSize(label.gameObject, flexW: 1);
 
                 var input = MakeInput(row, "0", null, TMP_InputField.ContentType.DecimalNumber);
                 SetSize(input.gameObject, minW: 130, prefW: 130, minH: 36, prefH: 36);
-                _statInputs[stat] = input;
+                _statInputs[attributeId] = input;
 
-                StatType captured = stat;
-                var apply = MakeButton(row, "적용", AccentBtn, () => ApplyStat(captured), 16);
+                AttributeId captured = attributeId;
+                var apply = MakeButton(
+                    row, "적용", AccentBtn, () => ApplyAttribute(captured), 16);
                 SetSize(apply.gameObject, minW: 76, prefW: 76);
             }
         }
@@ -81,19 +75,23 @@ namespace UPlayGround.UI.DevCheat
             foreach (var pair in _statInputs)
             {
                 if (pair.Value != null)
-                    pair.Value.SetTextWithoutNotify(cheat.GetPlayerStat(pair.Key).ToString("0.###", CultureInfo.InvariantCulture));
+                    pair.Value.SetTextWithoutNotify(
+                        cheat.GetPlayerAttribute(pair.Key)
+                            .ToString("0.###", CultureInfo.InvariantCulture));
             }
 
             RefreshGrowthCheatValues();
         }
 
-        private void ApplyStat(StatType stat)
+        private void ApplyAttribute(AttributeId attributeId)
         {
-            if (!_statInputs.TryGetValue(stat, out var input) || input == null) return;
+            if (!_statInputs.TryGetValue(attributeId, out var input)
+                || input == null)
+                return;
             if (!float.TryParse(input.text, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
                 return;
 
-            CheatManager.Instance?.SetPlayerStat(stat, value);
+            CheatManager.Instance?.SetPlayerAttribute(attributeId, value);
             RefreshStatValues();
         }
 

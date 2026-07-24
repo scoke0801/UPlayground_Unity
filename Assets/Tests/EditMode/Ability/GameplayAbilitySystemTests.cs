@@ -39,6 +39,68 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void AttributeProfile은_안정_ID_기본값을_원자적으로_적용한다()
+        {
+            AttributeProfileSO profile = ScriptableObject.CreateInstance<AttributeProfileSO>();
+            profile.EditorReplace(
+                "Test.Actor.Profile",
+                new[]
+                {
+                    new AttributeProfileEntry(AttributeIds.Vital.MaxHealth, 250f),
+                    new AttributeProfileEntry(AttributeIds.Combat.AttackPower, 17f),
+                });
+
+            try
+            {
+                Assert.That(
+                    _actor.AbilitySystem.InitializeAttributes(profile, out string error),
+                    Is.True,
+                    error);
+                Assert.That(
+                    _actor.AbilitySystem.Attributes.GetBase(AttributeIds.Vital.MaxHealth),
+                    Is.EqualTo(250f));
+                Assert.That(
+                    _actor.AbilitySystem.Attributes.GetBase(AttributeIds.Combat.AttackPower),
+                    Is.EqualTo(17f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(profile);
+            }
+        }
+
+        [Test]
+        public void AttributeProfile은_중복_ID를_적용하지_않는다()
+        {
+            float before = _actor.AbilitySystem.Attributes.GetBase(
+                AttributeIds.Combat.AttackPower);
+            AttributeProfileSO profile = ScriptableObject.CreateInstance<AttributeProfileSO>();
+            profile.EditorReplace(
+                "Test.Actor.InvalidProfile",
+                new[]
+                {
+                    new AttributeProfileEntry(AttributeIds.Combat.AttackPower, 10f),
+                    new AttributeProfileEntry(AttributeIds.Combat.AttackPower, 20f),
+                });
+
+            try
+            {
+                Assert.That(
+                    _actor.AbilitySystem.InitializeAttributes(profile, out string error),
+                    Is.False);
+                Assert.That(error, Does.Contain("중복"));
+                Assert.That(
+                    _actor.AbilitySystem.Attributes.GetBase(
+                        AttributeIds.Combat.AttackPower),
+                    Is.EqualTo(before));
+            }
+            finally
+            {
+                Object.DestroyImmediate(profile);
+            }
+        }
+
+        [Test]
         public void GrantedTag_두_소스_중_하나를_제거해도_남은_소유권을_보존한다()
         {
             GameplayTagContainer tags = _actor.Tags;
@@ -107,7 +169,7 @@ namespace UPlayGround.Ability.Tests
             effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
             effect.modifiers.Add(new GameplayEffectModifierDefinition
             {
-                statType = StatType.AttackPower,
+                attributeId = AttributeIds.Combat.AttackPower.Value,
                 modifierType = ModifierType.Flat,
                 value = 2f,
             });
@@ -129,51 +191,15 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void Instant_자원_Effect는_EffectSpec_Execution으로_적용된다()
+        public void Instant_회복은_EffectSpec_Execution으로_적용된다()
         {
             _actor.AbilitySystem.Attributes.SetBase(AttributeIds.Vital.Health, 50f);
-            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
-            effect.effectId = "Effect.Test.InstantHeal";
-            effect.durationType = GameplayEffectDurationType.Instant;
-            effect.resourceOperations.Add(new GameplayResourceOperation
-            {
-                resourceType = AbilityResourceType.Health,
-                operation = GameplayResourceOperationType.Add,
-                magnitude = 10f,
-            });
-
-            _actor.Effects.ApplyEffect(effect, _actor);
+            _actor.AbilitySystem.ApplyHealing(10f);
 
             Assert.That(
                 _actor.AbilitySystem.Attributes.GetCurrent(AttributeIds.Vital.Health),
                 Is.EqualTo(60f));
             Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(0));
-            Object.DestroyImmediate(effect);
-        }
-
-        [Test]
-        public void Periodic_자원_Effect는_적용시점_Tick을_한번_실행한다()
-        {
-            _actor.AbilitySystem.Attributes.SetBase(AttributeIds.Resource.UltimateEnergy, 0f);
-            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
-            effect.effectId = "Effect.Test.PeriodicGauge";
-            effect.durationType = GameplayEffectDurationType.Duration;
-            effect.durationSeconds = 10f;
-            effect.periodSeconds = 1f;
-            effect.resourceOperations.Add(new GameplayResourceOperation
-            {
-                resourceType = AbilityResourceType.UltimateEnergy,
-                operation = GameplayResourceOperationType.Add,
-                magnitude = 5f,
-            });
-
-            GameplayEffectHandle handle = _actor.Effects.ApplyEffect(effect, _actor);
-
-            Assert.That(
-                _actor.AbilitySystem.Attributes.GetCurrent(AttributeIds.Resource.UltimateEnergy),
-                Is.EqualTo(5f));
-            Assert.That(_actor.Effects.RemoveEffect(handle), Is.True);
-            Object.DestroyImmediate(effect);
         }
 
         [Test]
@@ -250,12 +276,12 @@ namespace UPlayGround.Ability.Tests
                 _actor,
                 new GameplayEffectApplicationOptions(
                     GameplayEffectHudVisibility.ForceShow));
-            var entries = new List<GameplayEffectSaveEntry>();
+            var entries = new List<ActiveEffectSaveEntry>();
             _actor.Effects.CaptureRuntimeState(entries, forCharacterSwap: false);
             Assert.That(entries, Has.Count.EqualTo(1));
             Assert.That(
                 entries[0].hudVisibility,
-                Is.EqualTo(GameplayEffectHudVisibility.ForceShow));
+                Is.EqualTo((int)GameplayEffectHudVisibility.ForceShow));
 
             _actor.Effects.RemoveAll();
             _actor.Effects.RestoreRuntimeState(
@@ -296,7 +322,7 @@ namespace UPlayGround.Ability.Tests
             effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
             effect.modifiers.Add(new GameplayEffectModifierDefinition
             {
-                statType = StatType.AttackPower,
+                attributeId = AttributeIds.Combat.AttackPower.Value,
                 modifierType = ModifierType.Flat,
                 value = 3f,
             });
@@ -314,8 +340,9 @@ namespace UPlayGround.Ability.Tests
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
                 AttributeIds.Combat.AttackPower), Is.EqualTo(before + 6f));
 
-            AbilityRuntimeSaveData snapshot =
-                _actor.Abilities.CaptureRuntimeState(forCharacterSwap: true);
+            AbilitySystemSaveData snapshot =
+                _actor.Abilities.CaptureAbilitySystemStateForCharacter(
+                    forCharacterSwap: true);
             Assert.That(snapshot.activeEffects, Has.Count.EqualTo(1));
             Assert.That(snapshot.activeEffects[0].stackCount, Is.EqualTo(2));
 
@@ -324,7 +351,7 @@ namespace UPlayGround.Ability.Tests
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
                 AttributeIds.Combat.AttackPower), Is.EqualTo(before));
 
-            _actor.Abilities.RestoreRuntimeState(snapshot);
+            _actor.Abilities.RestoreAbilitySystemStateForCharacter(snapshot);
             Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
                 AttributeIds.Combat.AttackPower), Is.EqualTo(before + 6f));
@@ -487,9 +514,15 @@ namespace UPlayGround.Ability.Tests
                 _actor.Abilities.Commit(handle),
                 Is.EqualTo(AbilityActivationResult.Success));
 
-            Assert.That(_actor.Abilities.CaptureRuntimeState().cooldowns, Is.Empty);
+            Assert.That(
+                _actor.Abilities.CaptureAbilitySystemStateForCharacter(
+                    forCharacterSwap: false).cooldowns,
+                Is.Empty);
             ability.persistence.saveCooldown = true;
-            Assert.That(_actor.Abilities.CaptureRuntimeState().cooldowns, Has.Count.EqualTo(1));
+            Assert.That(
+                _actor.Abilities.CaptureAbilitySystemStateForCharacter(
+                    forCharacterSwap: false).cooldowns,
+                Has.Count.EqualTo(1));
 
             _actor.Abilities.EndActivePlayerAbility(completed: true);
             Object.DestroyImmediate(ability);
@@ -497,20 +530,17 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void AbilityRuntimeSaveData는_안정값만_JSON으로_직렬화_복원한다()
+        public void AbilitySystemSaveData는_안정값만_JSON으로_직렬화_복원한다()
         {
-            var data = new AbilityRuntimeSaveData();
-            data.resources.Add(new AbilityResourceSaveEntry
+            var data = new AbilitySystemSaveData();
+            data.attributes.Add(new AttributeSaveEntry(
+                AttributeIds.Resource.UltimateEnergy.Value, 42f));
+            data.cooldowns.Add(new GasCooldownSaveEntry
             {
-                resourceType = AbilityResourceType.UltimateEnergy,
-                currentValue = 42f,
-            });
-            data.cooldowns.Add(new AbilityCooldownSaveEntry
-            {
-                cooldownGroupId = "Cooldown.Test",
+                groupId = "Cooldown.Test",
                 remainingSeconds = 1.5f,
             });
-            data.activeEffects.Add(new GameplayEffectSaveEntry
+            data.activeEffects.Add(new ActiveEffectSaveEntry
             {
                 effectId = "Effect.Test.Save",
                 sourceActorId = "Actor.Test",
@@ -519,12 +549,13 @@ namespace UPlayGround.Ability.Tests
             });
 
             string json = JsonUtility.ToJson(data);
-            AbilityRuntimeSaveData restored =
-                JsonUtility.FromJson<AbilityRuntimeSaveData>(json);
+            AbilitySystemSaveData restored =
+                JsonUtility.FromJson<AbilitySystemSaveData>(json);
 
-            Assert.That(restored.version, Is.EqualTo(1));
-            Assert.That(restored.resources[0].currentValue, Is.EqualTo(42f));
-            Assert.That(restored.cooldowns[0].cooldownGroupId, Is.EqualTo("Cooldown.Test"));
+            Assert.That(
+                restored.version, Is.EqualTo(AbilitySystemSaveData.CurrentVersion));
+            Assert.That(restored.attributes[0].baseValue, Is.EqualTo(42f));
+            Assert.That(restored.cooldowns[0].groupId, Is.EqualTo("Cooldown.Test"));
             Assert.That(restored.activeEffects[0].stackCount, Is.EqualTo(2));
         }
 
@@ -544,6 +575,9 @@ namespace UPlayGround.Ability.Tests
             GameplayAbilitySO ability = ScriptableObject.CreateInstance<GameplayAbilitySO>();
             ability.abilityId = "Ability.Test.Basic";
             ability.cooldown.durationSeconds = 2f;
+            var task = ScriptableObject.CreateInstance<WaitDelayTaskDefinitionSO>();
+            task.duration = 999f;
+            ability.taskGraph = AbilityTaskGraphSO.CreateTransient(task);
             var payload =
                 ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = ability.abilityId;
@@ -569,9 +603,7 @@ namespace UPlayGround.Ability.Tests
         public void InitializeForEditMode()
         {
             base.Awake();
-            AbilitySystem.InitializeStats(null);
-            Effects.Initialize(this);
-            Abilities.Initialize(this);
+            AbilitySystem.InitializeDefaultAttributes();
         }
 
         public void SetActorType(ActorType actorType)

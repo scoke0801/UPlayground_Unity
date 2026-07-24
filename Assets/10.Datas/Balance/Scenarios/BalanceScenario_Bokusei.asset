@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Bokusei
   m_EditorClassIdentifier: 
   playerCharacter: 1
-  playerStatData: {fileID: 11400000, guid: 4b9b7ee8642c9114282b8ec2757cb1b9, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: b028039de7a46cf49836bbb9faa42ee4, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: 1adb2f3750ccdd740b54c1b5a1ffad90, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

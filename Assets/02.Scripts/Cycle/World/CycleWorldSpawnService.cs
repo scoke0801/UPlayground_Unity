@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Manager;
 using UPlayGround.Data.Stat;
@@ -157,10 +158,13 @@ namespace UPlayGround.Cycle
             if (monster.AbilitySystem != null && hpDifficulty > 0f)
             {
                 float attackDifficulty = difficulty?.attackMultiplier ?? 1f;
-                monster.AbilitySystem.TryGetStat(
-                    StatType.AttackPower, current: false, out float currentAttack);
-                monster.AbilitySystem.SetStatBase(
-                    StatType.AttackPower, currentAttack * attackDifficulty / hpDifficulty);
+                monster.AbilitySystem.TryGetAttribute(
+                    AttributeIds.Combat.AttackPower,
+                    current: false,
+                    out float currentAttack);
+                monster.AbilitySystem.SetAttributeBase(
+                    AttributeIds.Combat.AttackPower,
+                    currentAttack * attackDifficulty / hpDifficulty);
             }
             float rewardMultiplier = difficulty?.rewardGrade switch { CycleRewardGrade.Rare => 1.35f, CycleRewardGrade.Heroic => 1.75f, _ => 1f };
             monster.SetRuntimeRewards((long)Math.Round(monster.BaseExpReward * rewardMultiplier), Mathf.RoundToInt(monster.BaseGoldReward * rewardMultiplier));

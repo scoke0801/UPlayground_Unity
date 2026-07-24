@@ -820,8 +820,8 @@ namespace UPlayGround.State
         private float GetAttackSpeed()
         {
             return playerActor.AbilitySystem != null
-                   && playerActor.AbilitySystem.TryGetStat(
-                       StatType.AttackSpeed,
+                && playerActor.AbilitySystem.TryGetAttribute(
+                    AttributeIds.Combat.AttackSpeed,
                        current: true,
                        out float attackSpeed)
                 ? Mathf.Clamp(attackSpeed, 0.1f, 5f)

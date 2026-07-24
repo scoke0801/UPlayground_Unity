@@ -168,7 +168,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (stats == null || stats.Count == 0)
             {
-                EditorGUILayout.HelpBox("해당 분류의 ActorStatSO를 찾지 못했습니다. (ActorDefinitionSO.statData 참조 기준으로 분류)", MessageType.Info);
+                EditorGUILayout.HelpBox("해당 분류의 Attribute Profile을 찾지 못했습니다. (ActorDefinition/PartyMemberGrowthSO 참조 기준)", MessageType.Info);
                 return;
             }
 

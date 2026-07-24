@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround;
+using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
@@ -449,7 +450,7 @@ namespace UPlayGround.UI
                 _selectedCharacterCombatPowerText.text = power.CombatPower.ToString("N0");
 
             var stats = power.GrowthStats;
-            float maxHp = GetStat(stats, StatType.MaxHealth);
+            float maxHp = GetAttribute(stats, AttributeIds.Vital.MaxHealth);
             float currentHp = maxHp;
             var player = UISvc.Actors?.Player;
             if (player != null)
@@ -459,17 +460,25 @@ namespace UPlayGround.UI
                 _selectedCharacterHpText.text = $"{Mathf.RoundToInt(currentHp):N0} / {Mathf.RoundToInt(maxHp):N0}";
             if (_selectedCharacterAttackText != null)
                 _selectedCharacterAttackText.text = StatDisplayFormatter.FormatValue(
-                    StatType.AttackPower, GetStat(stats, StatType.AttackPower));
+                    AttributeIds.Combat.AttackPower,
+                    GetAttribute(stats, AttributeIds.Combat.AttackPower));
             if (_selectedCharacterDefenseText != null)
                 _selectedCharacterDefenseText.text = StatDisplayFormatter.FormatValue(
-                    StatType.Defense, GetStat(stats, StatType.Defense));
+                    AttributeIds.Combat.Defense,
+                    GetAttribute(stats, AttributeIds.Combat.Defense));
             if (_selectedCharacterCritText != null)
                 _selectedCharacterCritText.text = StatDisplayFormatter.FormatValue(
-                    StatType.CritRate, GetStat(stats, StatType.CritRate));
+                    AttributeIds.Combat.CritRate,
+                    GetAttribute(stats, AttributeIds.Combat.CritRate));
         }
 
-        private static float GetStat(IReadOnlyDictionary<StatType, float> stats, StatType type)
-            => stats != null && stats.TryGetValue(type, out float value) ? value : 0f;
+        private static float GetAttribute(
+            IReadOnlyDictionary<AttributeId, float> attributes,
+            AttributeId attributeId)
+            => attributes != null
+               && attributes.TryGetValue(attributeId, out float value)
+                ? value
+                : UPlayGroundAttributeDefaults.Get(attributeId);
 
         // 선택 캐릭터의 7개 장비 슬롯 아이콘을 레지스트리 값대로 갱신한다.
         private void RefreshEquipmentPanel()
@@ -910,12 +919,19 @@ namespace UPlayGround.UI
 
         private void RefreshSelectedEquipmentStats(EquipmentSO equip, ItemInstance instance)
         {
-            var modifiers = new List<StatModifier>();
-            equip?.AddStatModifiersTo(modifiers, equip);
+            var modifiers = new List<AttributeModifierValue>();
+            equip?.AddAttributeModifiersTo(modifiers);
 
             var displayRows = new List<string>(modifiers.Count + (instance?.growthAttributeRolls?.Count ?? 0));
             for (int i = 0; i < modifiers.Count; i++)
-                displayRows.Add(StatDisplayFormatter.FormatModifier(modifiers[i]));
+            {
+                AttributeModifierValue modifier = modifiers[i];
+                if (modifier.AttributeId.IsValid)
+                    displayRows.Add(StatDisplayFormatter.FormatModifier(
+                        modifier.AttributeId,
+                        modifier.Operation,
+                        modifier.Value));
+            }
 
             if (instance?.growthAttributeRolls != null)
             {
@@ -999,11 +1015,12 @@ namespace UPlayGround.UI
         {
             var equippedValues = CollectModifierValues(equipped);
             var selectedValues = CollectModifierValues(selected);
-            var keys = new HashSet<(StatType stat, ModifierType modifier)>(equippedValues.Keys);
+            var keys = new HashSet<(AttributeId attribute, AttributeModifierOperation modifier)>(
+                equippedValues.Keys);
             keys.UnionWith(selectedValues.Keys);
 
             var orderedKeys = keys
-                .OrderBy(key => (int)key.stat)
+                .OrderBy(key => key.attribute.Value, StringComparer.Ordinal)
                 .ThenBy(key => (int)key.modifier);
             var rows = new List<string>();
 
@@ -1013,10 +1030,10 @@ namespace UPlayGround.UI
                 selectedValues.TryGetValue(key, out float next);
                 float delta = next - current;
                 rows.Add(
-                    $"{StatDisplayFormatter.GetDisplayName(key.stat)}  " +
-                    $"{FormatComparisonValue(key.stat, key.modifier, current)} → " +
-                    $"{FormatComparisonValue(key.stat, key.modifier, next)}  " +
-                    FormatComparisonDelta(key.stat, key.modifier, delta));
+                    $"{StatDisplayFormatter.GetDisplayName(key.attribute)}  " +
+                    $"{FormatComparisonValue(key.attribute, key.modifier, current)} → " +
+                    $"{FormatComparisonValue(key.attribute, key.modifier, next)}  " +
+                    FormatComparisonDelta(key.attribute, key.modifier, delta));
             }
 
             AppendGrowthComparisonRows(
@@ -1029,27 +1046,31 @@ namespace UPlayGround.UI
                 : "비교할 능력치가 없습니다.";
         }
 
-        private static Dictionary<(StatType stat, ModifierType modifier), float> CollectModifierValues(
+        private static Dictionary<(AttributeId attribute, AttributeModifierOperation modifier), float>
+            CollectModifierValues(
             EquipmentSO equipment)
         {
-            var modifiers = new List<StatModifier>();
-            equipment?.AddStatModifiersTo(modifiers, equipment);
-            var values = new Dictionary<(StatType, ModifierType), float>();
+            var modifiers = new List<AttributeModifierValue>();
+            equipment?.AddAttributeModifiersTo(modifiers);
+            var values =
+                new Dictionary<(AttributeId, AttributeModifierOperation), float>();
 
             for (int i = 0; i < modifiers.Count; i++)
             {
-                StatModifier modifier = modifiers[i];
-                var key = (modifier.statType, modifier.modifierType);
-                if (modifier.modifierType == ModifierType.Multiply)
+                AttributeModifierValue modifier = modifiers[i];
+                if (!modifier.AttributeId.IsValid)
+                    continue;
+                var key = (modifier.AttributeId, modifier.Operation);
+                if (modifier.Operation == AttributeModifierOperation.Multiply)
                 {
                     float previous = values.TryGetValue(key, out float value) ? value : 1f;
-                    values[key] = previous * modifier.value;
+                    values[key] = previous * modifier.Value;
                 }
                 else
                 {
                     values[key] = values.TryGetValue(key, out float value)
-                        ? value + modifier.value
-                        : modifier.value;
+                        ? value + modifier.Value
+                        : modifier.Value;
                 }
             }
 
@@ -1099,23 +1120,23 @@ namespace UPlayGround.UI
         }
 
         private static string FormatComparisonValue(
-            StatType stat,
-            ModifierType modifier,
+            AttributeId attributeId,
+            AttributeModifierOperation modifier,
             float value)
         {
             return modifier switch
             {
-                ModifierType.Percent => $"{value * 100f:0.#}%",
-                ModifierType.Multiply => $"x{value:0.##}",
-                _ when stat is StatType.Defense or StatType.CritRate or StatType.CritMultiplier =>
+                AttributeModifierOperation.Percent => $"{value * 100f:0.#}%",
+                AttributeModifierOperation.Multiply => $"x{value:0.##}",
+                _ when IsRatioAttribute(attributeId) =>
                     $"{value * 100f:0.#}%",
                 _ => $"{value:0.##}",
             };
         }
 
         private static string FormatComparisonDelta(
-            StatType stat,
-            ModifierType modifier,
+            AttributeId attributeId,
+            AttributeModifierOperation modifier,
             float delta)
         {
             if (Mathf.Approximately(delta, 0f))
@@ -1124,12 +1145,17 @@ namespace UPlayGround.UI
             string marker = delta > 0f ? "▲" : "▼";
             string color = delta > 0f ? "#78D86B" : "#F06B67";
             string sign = delta > 0f ? "+" : string.Empty;
-            string value = modifier == ModifierType.Percent ||
-                           stat is StatType.Defense or StatType.CritRate or StatType.CritMultiplier
+            string value = modifier == AttributeModifierOperation.Percent ||
+                           IsRatioAttribute(attributeId)
                 ? $"{sign}{delta * 100f:0.#}%"
                 : $"{sign}{delta:0.##}";
             return $"<color={color}>{marker} {value}</color>";
         }
+
+        private static bool IsRatioAttribute(AttributeId attributeId)
+            => attributeId == AttributeIds.Combat.Defense
+               || attributeId == AttributeIds.Combat.CritRate
+               || attributeId == AttributeIds.Combat.CritMultiplier;
 
         private static string GetGrowthAttributeName(GrowthAttributeType type)
         {

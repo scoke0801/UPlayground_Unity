@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 218bb7f9a9b80b24383c28aac4a26efa, type: 3}
   m_Name: MonsterScaling_Default
   m_EditorClassIdentifier: 
-  baseStat: {fileID: 0}
+  baseProfile: {fileID: 0}
   levelCap: 100
   growthRules:
-  - statType: 0
+  - attributeId: Vital.MaxHealth
     formula: 1
     flatPerLevel: 0
     percentPerLevel: 0.035
@@ -25,7 +25,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  - statType: 2
+  - attributeId: Combat.AttackPower
     formula: 1
     flatPerLevel: 0
     percentPerLevel: 0.03
@@ -35,7 +35,7 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  - statType: 8
+  - attributeId: Vital.MaxPoise
     formula: 1
     flatPerLevel: 0
     percentPerLevel: 0.018

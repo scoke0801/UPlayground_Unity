@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
@@ -1140,34 +1141,20 @@ namespace UPlayGround.Manager
                 });
             }
 
-            // 캐릭터별 현재 체력 (액티브=CurrentHealth, 벤치=_characterHealthMap, 미기록=풀피).
-            party.characterHealth = new List<CharacterHpEntry>(_roster.Count);
-            if (_player != null)
-            {
-                foreach (var type in _roster)
-                {
-                    party.characterHealth.Add(new CharacterHpEntry
-                    {
-                        type       = type.ToString(),
-                        currentHp  = _player.GetHealthForCharacter(type),
-                        skillGauge = _player.GetSkillGaugeForCharacter(type),
-                    });
-                }
-            }
-
-            party.characterAbilities = new List<CharacterAbilityRuntimeEntry>(_roster.Count);
+            party.abilitySystems =
+                new List<CharacterAbilitySystemSaveEntry>(_roster.Count);
             if (_player != null)
             {
                 foreach (CharacterActorType type in _roster)
                 {
-                    AbilityRuntimeSaveData runtime =
-                        _player.GetAbilityRuntimeForCharacter(type);
-                    if (runtime == null)
+                    AbilitySystemSaveData abilitySystem =
+                        _player.GetAbilitySystemForCharacter(type);
+                    if (abilitySystem == null)
                         continue;
-                    party.characterAbilities.Add(new CharacterAbilityRuntimeEntry
+                    party.abilitySystems.Add(new CharacterAbilitySystemSaveEntry
                     {
                         type = type.ToString(),
-                        runtime = runtime,
+                        abilitySystem = abilitySystem,
                     });
                 }
             }
@@ -1332,34 +1319,26 @@ namespace UPlayGround.Manager
                 OnPartyProgressionChanged?.Invoke(kv.Key);
 
             // 플레이어 위치/회전 복원 (저장 당시 위치). Respawn이 KCC motor 위치 설정 +
-            // Idle 전환 + 카메라 스냅을 처리한다. healPercent는 무시 — HP는 아래에서 정확히 덮어쓴다.
+            // Idle 전환 + 카메라 스냅을 처리한다. ASC 스냅샷은 아래에서 마지막으로 복원한다.
             if (party.hasLocation && _player != null)
             {
                 _player.Respawn(party.playerPos.ToVector3(), party.playerRot.ToQuaternion(), 1f);
             }
 
-            // ⚠️ 반드시 마지막 단계: RefreshGrowthStats와 Respawn이 모두 풀 회복하므로,
-            // 저장된 정확한 HP를 그 이후에 덮어써야 손실되지 않는다.
-            if (party.characterHealth != null && _player != null)
+            // 반드시 마지막 단계: RefreshGrowthStats와 Respawn 이후 ASC 스냅샷을 복원해야
+            // Health, UltimateEnergy, Cooldown, Active Effect가 손실되지 않는다.
+            if (party.abilitySystems != null && _player != null)
             {
-                foreach (var entry in party.characterHealth)
-                {
-                    if (!TryParseCharacter(entry.type, out var t)) continue;
-                    _player.RestoreCharacterHealth(t, entry.currentHp);
-                    _player.RestoreCharacterSkillGauge(t, entry.skillGauge);
-                }
-                OnPartyHealthRefreshed?.Invoke();   // HUD 벤치 엔트리 일괄 갱신
-            }
-
-            if (party.characterAbilities != null && _player != null)
-            {
-                foreach (CharacterAbilityRuntimeEntry entry in party.characterAbilities)
+                foreach (CharacterAbilitySystemSaveEntry entry in party.abilitySystems)
                 {
                     if (entry == null
-                        || !TryParseCharacter(entry.type, out CharacterActorType type))
+                        || !TryParseCharacter(
+                            entry.type, out CharacterActorType type))
                         continue;
-                    _player.RestoreCharacterAbilityRuntime(type, entry.runtime);
+                    _player.RestoreCharacterAbilitySystem(
+                        type, entry.abilitySystem);
                 }
+                OnPartyHealthRefreshed?.Invoke();
             }
         }
 
@@ -1392,7 +1371,7 @@ namespace UPlayGround.Manager
             return new PartyCombatPowerResult(type, Mathf.Max(1, level), combatPower, stats);
         }
 
-        public IReadOnlyDictionary<StatType, float> GetGrowthStats(CharacterActorType type)
+        public IReadOnlyDictionary<AttributeId, float> GetGrowthStats(CharacterActorType type)
             => GetCombatPower(type).GrowthStats;
 
         private List<GrowthInvestmentSaveEntry> BuildGrowthSaveEntries(CharacterActorType type)

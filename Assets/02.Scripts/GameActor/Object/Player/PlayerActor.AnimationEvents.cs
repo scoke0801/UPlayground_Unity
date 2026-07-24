@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Animation;
@@ -29,17 +30,18 @@ namespace UPlayGround
     {
         /// <summary>
         /// 채광/벌목/채집 1회 타격량. 채집력(GatheringPower) 스탯을 단일 소스로 사용하며 최소 1을 보장한다.
-        /// 레거시 애니메이션 이벤트(Hit)와 MotionEvent_Interaction 타임라인이 공유하는 유일한 계산식.
+        /// 애니메이션 Hit 이벤트와 MotionEvent_Interaction 타임라인이 공유하는 유일한 계산식.
         /// </summary>
         public static int CalcGatheringHitAmount(AbilitySystemComponent abilitySystem)
         {
             float power = abilitySystem != null
-                          && abilitySystem.TryGetStat(
-                              StatType.GatheringPower,
+                          && abilitySystem.TryGetAttribute(
+                              AttributeIds.Life.GatheringPower,
                               current: true,
                               out float value)
                 ? value
-                : ActorStatSO.GetDefault(StatType.GatheringPower);
+                : UPlayGroundAttributeDefaults.Get(
+                    AttributeIds.Life.GatheringPower);
 
             return Mathf.Max(1, Mathf.RoundToInt(power));
         }
@@ -52,11 +54,11 @@ namespace UPlayGround
             int hitAmount = CalcGatheringHitAmount(AbilitySystem);
             target.OnAnimationEvent(InteractionAnimEvent.OnHit, new PlayerInteractionEvent { value = hitAmount });
 
-            GameActor actor = target.GetActor();
-            if (actor == null) return;
+            Transform interactionTransform = target.GetInteractionTransform();
+            if (interactionTransform == null) return;
 
-            Vector3 pos = actor.transform.position;
-            var col = actor.GetComponent<Collider>();
+            Vector3 pos = interactionTransform.position;
+            var col = interactionTransform.GetComponent<Collider>();
             if (col != null) pos.y += col.bounds.extents.y * 0.5f;
             GameObjectMgr.ShowFX(FXKeyType.InteractionObjectHitFX, pos);
         }
@@ -68,9 +70,9 @@ namespace UPlayGround
 
             target.OnAnimationEvent(InteractionAnimEvent.CatchFish, new PlayerInteractionEvent { value = 0 });
 
-            GameActor actor = target.GetActor();
-            if (actor == null) return;
-            GameObjectMgr.ShowFX(FXKeyType.InteractionObjectHitFX, actor.transform.position);
+            Transform interactionTransform = target.GetInteractionTransform();
+            if (interactionTransform == null) return;
+            GameObjectMgr.ShowFX(FXKeyType.InteractionObjectHitFX, interactionTransform.position);
         }
     }
 }

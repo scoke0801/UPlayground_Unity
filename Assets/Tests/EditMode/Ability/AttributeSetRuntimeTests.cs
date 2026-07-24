@@ -7,7 +7,7 @@ namespace UPlayGround.Ability.Tests
     public sealed class AttributeSetRuntimeTests
     {
         [Test]
-        public void ModifierOrder_MatchesLegacyFormula_AndOverrideWins()
+        public void ModifierOrder_AppliesInDefinedOrder_AndOverrideWins()
         {
             var runtime = new AttributeSetRuntime();
             runtime.Register(new GameplayAttributeDefinition(AttributeIds.Combat.AttackPower, 100f));

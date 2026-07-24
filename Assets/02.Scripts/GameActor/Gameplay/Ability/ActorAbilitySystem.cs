@@ -17,16 +17,18 @@ using UPlayGround.Manager;
 namespace UPlayGround.Gameplay.Ability
 {
     /// <summary>
-    /// GameActor에 부착되는 Ability 런타임. 정의(SO)와 실행 상태를 분리하고
+    /// AbilitySystemComponent가 소유하는 프로젝트 Ability 런타임.
+    /// 정의(SO)와 실행 상태를 분리하고
     /// Prepare 이후 외부 상태 전환이 성공한 경우에만 비용/쿨다운을 Commit한다.
     /// </summary>
-    public sealed class ActorAbilitySystem : MonoBehaviour, IAbilityRuntimeReader
+    public sealed class ActorAbilitySystem : IAbilityRuntimeReader
     {
         private readonly Dictionary<ulong, AbilityExecution> _executions = new();
         private GameActor _owner;
         private AbilitySetSO _abilitySet;
         private ulong _nextHandle = 1;
         private ulong _activeExecution;
+        private AbilitySystemComponent _abilitySystem;
         private GameplayEffectController _effects;
         private AbilityCooldownRuntime _cooldowns;
         private IAbilityResourcePort _resources;
@@ -40,12 +42,16 @@ namespace UPlayGround.Gameplay.Ability
         public bool HasActiveAbility => _activeExecution != 0;
         public bool HasActivePlayerAbility => HasActiveAbility;
 
-        private void Awake()
+        internal ActorAbilitySystem(
+            GameActor owner,
+            AbilitySystemComponent abilitySystem)
         {
-            Initialize(GetComponent<GameActor>());
+            Initialize(owner, abilitySystem);
         }
 
-        public void Initialize(GameActor owner)
+        private void Initialize(
+            GameActor owner,
+            AbilitySystemComponent abilitySystem)
         {
             if (owner == null)
                 throw new ArgumentNullException(nameof(owner));
@@ -53,11 +59,13 @@ namespace UPlayGround.Gameplay.Ability
                 return;
 
             _owner = owner;
-            _effects = GetComponent<GameplayEffectController>();
-            _owner.AbilitySystem.EnsureInitialized();
-            _cooldowns = _owner.AbilitySystem.Runtime.Cooldowns;
-            _cues = gameObject.GetOrAddComponent<GameplayCueDispatcher>();
-            var ports = new UPlayGroundAbilityOwnerPorts(_owner);
+            _abilitySystem = abilitySystem
+                ?? throw new ArgumentNullException(nameof(abilitySystem));
+            _abilitySystem.EnsureInitialized();
+            _effects = _abilitySystem.ProjectEffects;
+            _cooldowns = _abilitySystem.Runtime.Cooldowns;
+            _cues = _owner.gameObject.GetOrAddComponent<GameplayCueDispatcher>();
+            var ports = new UPlayGroundAbilityOwnerPorts(_abilitySystem);
             _resources = ports;
             _tags = ports;
         }
@@ -211,7 +219,7 @@ namespace UPlayGround.Gameplay.Ability
             execution.State = AbilityExecutionState.Active;
             _activeExecution = handle.Value;
             if (execution.Definition.taskGraph?.Root != null)
-                _owner.AbilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
+                _abilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
             DispatchCue(
                 execution.Definition,
                 execution.Variant,
@@ -232,7 +240,7 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (!handle.IsValid || !_executions.Remove(handle.Value, out AbilityExecution execution))
                 return;
-            _owner.AbilitySystem?.Runtime.Tasks.CancelParent(handle, "AbilityAborted");
+            _abilitySystem.Runtime.Tasks.CancelParent(handle, "AbilityAborted");
             execution.State = AbilityExecutionState.Aborted;
             if (reason != AbilityActivationResult.Success)
             {
@@ -254,7 +262,7 @@ namespace UPlayGround.Gameplay.Ability
             }
 
             CleanupExecution(execution);
-            _owner.AbilitySystem?.Runtime.Tasks.CancelParent(
+            _abilitySystem.Runtime.Tasks.CancelParent(
                 execution.Handle,
                 completed ? "AbilityEnded" : "AbilityCancelled");
             execution.State = completed
@@ -328,67 +336,31 @@ namespace UPlayGround.Gameplay.Ability
             return true;
         }
 
-        public AbilityRuntimeSaveData CaptureRuntimeState(bool forCharacterSwap = false)
+        public AbilitySystemSaveData CaptureAbilitySystemStateForCharacter(
+            bool forCharacterSwap = true)
         {
-            var data = new AbilityRuntimeSaveData();
-            if (_resources.TryGet(
-                    AbilityResourceType.UltimateEnergy.ToString(),
-                    out float resourceCurrent,
-                    out _))
+            AbilitySystemSaveData data = _abilitySystem.Runtime.CaptureSaveData();
+            if (!forCharacterSwap)
             {
-                data.resources.Add(new AbilityResourceSaveEntry
-                {
-                    resourceType = AbilityResourceType.UltimateEnergy,
-                    currentValue = resourceCurrent,
-                });
+                data.cooldowns.RemoveAll(
+                    entry => entry == null || !ShouldSaveCooldown(entry.groupId));
             }
-
-            var snapshots = new List<AbilityCooldownSnapshot>();
-            _cooldowns.Capture(snapshots);
-            for (int i = 0; i < snapshots.Count; i++)
-            {
-                AbilityCooldownSnapshot cooldown = snapshots[i];
-                if (!forCharacterSwap && !ShouldSaveCooldown(cooldown.GroupId))
-                    continue;
-                data.cooldowns.Add(new AbilityCooldownSaveEntry
-                {
-                    cooldownGroupId = cooldown.GroupId,
-                    remainingSeconds = cooldown.RemainingSeconds,
-                });
-            }
+            data.activeEffects.Clear();
             _effects?.CaptureRuntimeState(data.activeEffects, forCharacterSwap);
             return data;
         }
 
-        public void RestoreRuntimeState(AbilityRuntimeSaveData data)
+        public void RestoreAbilitySystemStateForCharacter(AbilitySystemSaveData data)
         {
-            _cooldowns.Clear();
+            _abilitySystem.Runtime.RestoreSaveData(data);
             _trackedCooldownGroups.Clear();
-            if (data?.resources != null)
-            {
-                for (int i = 0; i < data.resources.Count; i++)
-                {
-                    AbilityResourceSaveEntry entry = data.resources[i];
-                    if (entry == null || entry.resourceType == AbilityResourceType.None)
-                        continue;
-                    _resources.TrySet(
-                        entry.resourceType.ToString(),
-                        Mathf.Max(0f, entry.currentValue));
-                }
-            }
             if (data?.cooldowns != null)
             {
                 for (int i = 0; i < data.cooldowns.Count; i++)
                 {
-                    AbilityCooldownSaveEntry entry = data.cooldowns[i];
-                    if (entry == null || string.IsNullOrWhiteSpace(entry.cooldownGroupId))
-                        continue;
-                    float remaining = Mathf.Max(0f, entry.remainingSeconds);
-                    if (remaining > 0f)
-                    {
-                        _cooldowns.Restore(entry.cooldownGroupId, remaining);
-                        _trackedCooldownGroups.Add(entry.cooldownGroupId.Trim());
-                    }
+                    GasCooldownSaveEntry entry = data.cooldowns[i];
+                    if (entry != null && !string.IsNullOrWhiteSpace(entry.groupId))
+                        _trackedCooldownGroups.Add(entry.groupId.Trim());
                 }
             }
             _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
@@ -496,6 +468,8 @@ namespace UPlayGround.Gameplay.Ability
             variant = null;
             if (definition == null || string.IsNullOrWhiteSpace(definition.abilityId))
                 return AbilityActivationResult.InvalidDefinition;
+            if (definition.taskGraph?.Root == null)
+                return AbilityActivationResult.MissingExecutionData;
             if (!IsUnlocked(definition))
                 return AbilityActivationResult.Locked;
 
@@ -593,7 +567,7 @@ namespace UPlayGround.Gameplay.Ability
                 return false;
 
             float required = GetRequiredCost(cost);
-            return _owner.AbilitySystem.TryApplyResourceCost(
+            return _abilitySystem.TryApplyResourceCost(
                 cost.resourceType, required, abilityHandle);
         }
 
@@ -825,7 +799,7 @@ namespace UPlayGround.Gameplay.Ability
             }
         }
 
-        private void Update()
+        internal void Tick()
         {
             List<string> readyGroups = null;
             foreach (string groupId in _trackedCooldownGroups)
@@ -848,7 +822,7 @@ namespace UPlayGround.Gameplay.Ability
             }
         }
 
-        private void LateUpdate()
+        internal void LateTick()
         {
             var stale = new List<AbilityExecutionHandle>();
             foreach (AbilityExecution execution in _executions.Values)
@@ -859,7 +833,7 @@ namespace UPlayGround.Gameplay.Ability
                 Abort(stale[i], AbilityActivationResult.PreparedExecutionExpired);
         }
 
-        private void OnDestroy()
+        internal void Dispose()
         {
             CancelActivePlayerAbility();
             _executions.Clear();

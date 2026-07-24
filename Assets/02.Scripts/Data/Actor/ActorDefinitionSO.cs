@@ -3,7 +3,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Enemy;
-using UPlayGround.Data.Stat;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround.Data.Actor
 {
@@ -35,8 +35,8 @@ namespace UPlayGround.Data.Actor
         public GameObject prefab;
 
         [Header("스탯 데이터")]
-        [Tooltip("통합 스탯 SO. 자동 생성기로 모든 ActorDefinitionSO에 연결되어 있어야 한다.")]
-        public ActorStatSO statData;
+        [Tooltip("GAS Attribute 기본값 Profile.")]
+        public AttributeProfileSO attributeProfile;
 
         [Tooltip("Poise 데이터. null이면 프리팹에 설정된 값 사용.")]
         public PoiseSO poiseData;

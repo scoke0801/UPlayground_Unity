@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
-using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Data.Enemy
 {
@@ -12,9 +12,6 @@ namespace UPlayGround.Data.Enemy
     /// 플레이어의 <see cref="PartyMemberGrowthSO"/>/<see cref="PartyPowerCalculator"/>를 미러하되,
     /// 플레이어에 없는 두 축(등급 배율, 난이도 배율)을 추가로 얹는다.
     /// 성장 규칙은 플레이어와 동일한 <see cref="StatGrowthRule"/>/<see cref="GrowthFormula"/>를 재사용한다.
-    ///
-    /// 몬스터는 런타임 레벨 스케일링을 하지 않으므로(MonsterActor가 statData를 직접 사용),
-    /// 이 SO는 에디터 배치 생성기가 각 ActorDefinitionSO.statData를 bake할 때 사용한다.
     /// </summary>
     [CreateAssetMenu(fileName = "MonsterScaling_", menuName = "UPlayGround/적/Scaling")]
     public class MonsterScalingSO : ScriptableObject
@@ -34,12 +31,12 @@ namespace UPlayGround.Data.Enemy
         }
 
         [Header("L1 기준값 (Normal 등급, 레벨 1)")]
-        [Tooltip("성장/등급 배율을 적용하기 전의 기준 스탯. 비워두면 StatType 기본값을 사용한다.")]
-        public ActorStatSO baseStat;
+        [Tooltip("성장/등급 배율을 적용하기 전의 기준 Profile. 비워두면 Attribute 기본값을 사용한다.")]
+        public AttributeProfileSO baseProfile;
 
         [Min(1)] public int levelCap = 100;
 
-        [Header("레벨 성장 규칙 (StatType별, 플레이어와 동일한 규칙 구조)")]
+        [Header("레벨 성장 규칙 (Attribute별, 플레이어와 동일한 규칙 구조)")]
         public List<StatGrowthRule> growthRules = new();
 
         [Header("등급 배율")]
@@ -66,11 +63,11 @@ namespace UPlayGround.Data.Enemy
             return false;
         }
 
-        public bool TryGetRule(StatType type, out StatGrowthRule rule)
+        public bool TryGetRule(AttributeId attributeId, out StatGrowthRule rule)
         {
             for (int i = 0; i < growthRules.Count; i++)
             {
-                if (growthRules[i].statType != type) continue;
+                if (growthRules[i].AttributeId != attributeId) continue;
                 rule = growthRules[i];
                 return true;
             }
@@ -110,9 +107,9 @@ namespace UPlayGround.Data.Enemy
 
             growthRules = new List<StatGrowthRule>
             {
-                new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
-                new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
-                new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
+                new() { attributeId = AttributeIds.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
+                new() { attributeId = AttributeIds.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                new() { attributeId = AttributeIds.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
             };
         }
 
@@ -126,9 +123,9 @@ namespace UPlayGround.Data.Enemy
             {
                 growthRules = new List<StatGrowthRule>
                 {
-                    new() { statType = StatType.MaxHealth,   formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
-                    new() { statType = StatType.AttackPower, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
-                    new() { statType = StatType.MaxPoise,    formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
+                    new() { attributeId = AttributeIds.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
+                    new() { attributeId = AttributeIds.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                    new() { attributeId = AttributeIds.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
                 };
             }
         }

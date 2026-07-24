@@ -1,16 +1,20 @@
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Stat;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Data.Item
 {
     [System.Serializable]
     public struct EquipmentStatEntry
     {
-        public StatType statType;
+        [Tooltip("런타임에서 사용하는 안정 Attribute ID")]
+        public string attributeId;
         public ModifierType modifierType;
         public float value;
+
+        public AttributeId AttributeId => new(attributeId);
     }
 
     // 장비 전용 SO
@@ -37,25 +41,12 @@ namespace UPlayGround.Data.Item
         [Tooltip("비어 있으면 모든 성장 능력치를 후보로 사용한다. 같은 능력치는 한 장비에 중복 추첨하지 않는다.")]
         public System.Collections.Generic.List<GrowthAttributeType> randomAttributePool = new();
 
-        [Header("Legacy Equipment Stats")]
-        [Tooltip("공격력")]              public float attackPower;
-        [Tooltip("치명타 확률 (%). 예: 6.2 = 6.2%")] public float critChance;
-        [Tooltip("치명타 피해 (%). 예: 115 = 115%")] public float critDamage = 100f;
-        [Tooltip("공격 속도. 예: 1.05")] public float attackSpeed = 1f;
-
         public System.Collections.Generic.IReadOnlyList<EquipmentStatEntry> StatModifiers => _statModifiers;
 
-        public bool HasAnyStatModifier()
-        {
-            if (_statModifiers != null && _statModifiers.Count > 0)
-                return true;
+        public bool HasAnyStatModifier() => _statModifiers is { Count: > 0 };
 
-            return !Mathf.Approximately(attackPower, 0f)
-                   || !Mathf.Approximately(critChance, 0f)
-                   || !Mathf.Approximately(critDamage, 100f);
-        }
-
-        public void AddStatModifiersTo(System.Collections.Generic.List<StatModifier> target, object source)
+        public void AddAttributeModifiersTo(
+            System.Collections.Generic.List<AttributeModifierValue> target)
         {
             if (target == null) return;
 
@@ -64,46 +55,29 @@ namespace UPlayGround.Data.Item
                 for (int i = 0; i < _statModifiers.Count; i++)
                 {
                     EquipmentStatEntry entry = _statModifiers[i];
-                    target.Add(new StatModifier(
-                        entry.statType,
-                        entry.modifierType,
-                        entry.value,
-                        source));
+                    if (!entry.AttributeId.IsValid)
+                    {
+                        Debug.LogError(
+                            $"[EquipmentSO] '{name}' 장비 Modifier {i}번의 Attribute ID가 비어 있습니다.",
+                            this);
+                        continue;
+                    }
+                    target.Add(new AttributeModifierValue(
+                        entry.AttributeId,
+                        ToAttributeOperation(entry.modifierType),
+                        entry.value));
                 }
             }
 
-            if (_statModifiers == null || _statModifiers.Count == 0)
-                AddLegacyStatModifiersTo(target, source);
         }
 
-        private void AddLegacyStatModifiersTo(System.Collections.Generic.List<StatModifier> target, object source)
-        {
-            if (!Mathf.Approximately(attackPower, 0f))
+        private static AttributeModifierOperation ToAttributeOperation(ModifierType type) =>
+            type switch
             {
-                target.Add(new StatModifier(
-                    StatType.AttackPower,
-                    ModifierType.Flat,
-                    attackPower,
-                    source));
-            }
-
-            if (!Mathf.Approximately(critChance, 0f))
-            {
-                target.Add(new StatModifier(
-                    StatType.CritRate,
-                    ModifierType.Flat,
-                    critChance * 0.01f,
-                    source));
-            }
-
-            if (!Mathf.Approximately(critDamage, 100f))
-            {
-                target.Add(new StatModifier(
-                    StatType.CritMultiplier,
-                    ModifierType.Flat,
-                    (critDamage - 100f) * 0.01f,
-                    source));
-            }
-        }
+                ModifierType.Flat => AttributeModifierOperation.Add,
+                ModifierType.Percent => AttributeModifierOperation.Percent,
+                ModifierType.Multiply => AttributeModifierOperation.Multiply,
+                _ => throw new System.ArgumentOutOfRangeException(nameof(type), type, null),
+            };
     }
 }

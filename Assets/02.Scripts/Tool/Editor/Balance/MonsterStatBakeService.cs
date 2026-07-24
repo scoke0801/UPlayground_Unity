@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
@@ -11,12 +13,12 @@ using UPlayGround.Data.Stat;
 namespace UPlayGround.Tool.Editor.Balance
 {
     /// <summary>
-    /// 몬스터 ActorDefinitionSO에서 ActorStatSO를 발급/갱신하는 단일 에디터 서비스.
+    /// 몬스터 ActorDefinitionSO에서 AttributeProfileSO를 발급/갱신하는 단일 에디터 서비스.
     /// 계산 공식은 MonsterStatCalculator에만 두고, 에셋 생성/연결/동기화 정책은 여기로 모은다.
     /// </summary>
     public static class MonsterStatBakeService
     {
-        public const string DefaultStatSavePath = "Assets/10.Datas/Stat/Generated";
+        public const string DefaultStatSavePath = "Assets/10.Datas/Ability/Attributes/Generated";
         public const string DefaultBreakGaugeSavePath = "Assets/10.Datas/Actor/Enemy/BreakGauge/Generated";
 
         public sealed class Options
@@ -40,7 +42,7 @@ namespace UPlayGround.Tool.Editor.Balance
         public readonly struct Result
         {
             public Result(
-                ActorStatSO stat,
+                AttributeProfileSO stat,
                 string statPath,
                 string breakGaugePath,
                 bool linkedScaling,
@@ -61,7 +63,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 SyncedBreakGauge = syncedBreakGauge;
             }
 
-            public ActorStatSO Stat { get; }
+            public AttributeProfileSO Stat { get; }
             public string StatPath { get; }
             public string BreakGaugePath { get; }
             public bool LinkedScaling { get; }
@@ -82,7 +84,7 @@ namespace UPlayGround.Tool.Editor.Balance
             BackfillGradeLevelFromPrefab(actor, options.RecordUndo);
 
             bool linkedScaling = EnsureScalingLinked(actor, options);
-            ActorStatSO stat = actor.statData;
+            AttributeProfileSO stat = actor.attributeProfile;
             string statPath = null;
             bool createdStat = false;
             bool updatedStat = false;
@@ -93,21 +95,20 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (shouldCreate || (shouldRegenerate && options.ReplaceExistingStatAsset))
             {
-                ActorStatSO previous = stat;
+                AttributeProfileSO previous = stat;
                 stat = options.UseStableStatAssetPath
-                    ? LoadStableStatAsset(actor, options.StatSavePath)
+                    ? LoadStableProfileAsset(actor, options.StatSavePath)
                     : null;
                 if (stat == null)
-                    stat = ScriptableObject.CreateInstance<ActorStatSO>();
+                    stat = ScriptableObject.CreateInstance<AttributeProfileSO>();
                 WriteMonsterStatValues(stat, actor, options);
-                stat.EditorFillMissing();
 
                 statPath = AssetDatabase.GetAssetPath(stat);
                 if (string.IsNullOrEmpty(statPath))
-                    statPath = CreateStatAsset(stat, actor, options.StatSavePath, options.UseStableStatAssetPath);
+                    statPath = CreateProfileAsset(stat, actor, options.StatSavePath, options.UseStableStatAssetPath);
                 else
                     EditorUtility.SetDirty(stat);
-                AssignStat(actor, stat, options.RecordUndo, options.UndoLabel);
+                AssignProfile(actor, stat, options.RecordUndo, options.UndoLabel);
                 createdStat = previous == null;
                 replacedStat = previous != null;
             }
@@ -116,20 +117,8 @@ namespace UPlayGround.Tool.Editor.Balance
                 if (options.RecordUndo)
                     Undo.RecordObject(stat, options.UndoLabel);
                 WriteMonsterStatValues(stat, actor, options);
-                stat.EditorFillMissing();
                 EditorUtility.SetDirty(stat);
                 updatedStat = true;
-            }
-            else if (stat != null)
-            {
-                if (HasMissingStats(stat))
-                {
-                    if (options.RecordUndo)
-                        Undo.RecordObject(stat, "Fill Missing Actor Stats");
-                    stat.EditorFillMissing();
-                    EditorUtility.SetDirty(stat);
-                    updatedStat = true;
-                }
             }
 
             if (stat != null && options.SyncGeneratedPoise)
@@ -159,7 +148,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 syncedBreakGauge);
         }
 
-        public static Dictionary<StatType, float> CalculatePlanned(
+        public static Dictionary<AttributeId, float> CalculatePlanned(
             ActorDefinitionSO actor,
             MonsterScalingSO preferredScaling = null,
             float difficultyOverride = 0f)
@@ -198,7 +187,7 @@ namespace UPlayGround.Tool.Editor.Balance
             return AssetDatabase.LoadAssetAtPath<MonsterScalingSO>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
 
-        public static void WriteMonsterStatValues(ActorStatSO stat, ActorDefinitionSO actor, Options options = null)
+        public static void WriteMonsterStatValues(AttributeProfileSO stat, ActorDefinitionSO actor, Options options = null)
         {
             if (stat == null || actor == null)
                 return;
@@ -207,13 +196,15 @@ namespace UPlayGround.Tool.Editor.Balance
             MonsterScalingSO scaling = actor.monsterScaling != null
                 ? actor.monsterScaling
                 : options.PreferredScaling;
-            Dictionary<StatType, float> values = MonsterStatCalculator.Calculate(
+            Dictionary<AttributeId, float> values = MonsterStatCalculator.Calculate(
                 scaling,
                 actor,
                 options.DifficultyOverride);
 
-            foreach (KeyValuePair<StatType, float> pair in values)
-                stat.EditorSet(pair.Key, pair.Value);
+            var entries = new List<AttributeProfileEntry>(values.Count);
+            foreach (KeyValuePair<AttributeId, float> pair in values)
+                entries.Add(new AttributeProfileEntry(pair.Key, pair.Value));
+            stat.EditorReplace($"actor.{SafeName(actor)}", entries);
         }
 
         private static bool EnsureScalingLinked(ActorDefinitionSO actor, Options options)
@@ -236,44 +227,47 @@ namespace UPlayGround.Tool.Editor.Balance
             return true;
         }
 
-        private static void AssignStat(ActorDefinitionSO actor, ActorStatSO stat, bool recordUndo, string undoLabel)
+        private static void AssignProfile(ActorDefinitionSO actor, AttributeProfileSO stat, bool recordUndo, string undoLabel)
         {
             if (recordUndo)
                 Undo.RecordObject(actor, undoLabel);
             var so = new SerializedObject(actor);
-            so.FindProperty("statData").objectReferenceValue = stat;
+            so.FindProperty("attributeProfile").objectReferenceValue = stat;
             so.ApplyModifiedProperties();
             EditorUtility.SetDirty(actor);
         }
 
-        private static ActorStatSO LoadStableStatAsset(ActorDefinitionSO actor, string savePath)
+        private static AttributeProfileSO LoadStableProfileAsset(ActorDefinitionSO actor, string savePath)
         {
-            string path = $"{savePath}/ActorStat_{SafeName(actor)}.asset";
-            return AssetDatabase.LoadAssetAtPath<ActorStatSO>(path);
+            string path = $"{savePath}/AttributeProfile_{SafeName(actor)}.asset";
+            return AssetDatabase.LoadAssetAtPath<AttributeProfileSO>(path);
         }
 
-        private static string CreateStatAsset(ActorStatSO stat, ActorDefinitionSO actor, string savePath, bool stablePath)
+        private static string CreateProfileAsset(AttributeProfileSO stat, ActorDefinitionSO actor, string savePath, bool stablePath)
         {
-            string rawPath = $"{savePath}/ActorStat_{SafeName(actor)}.asset";
+            string rawPath = $"{savePath}/AttributeProfile_{SafeName(actor)}.asset";
             string path = stablePath ? rawPath : AssetDatabase.GenerateUniqueAssetPath(rawPath);
             AssetDatabase.CreateAsset(stat, path);
             return path;
         }
 
-        private static void SyncPoiseFromStat(ActorDefinitionSO actor, ActorStatSO stat, bool recordUndo)
+        private static void SyncPoiseFromStat(ActorDefinitionSO actor, AttributeProfileSO stat, bool recordUndo)
         {
             if (actor == null || stat == null || actor.poiseData == null)
                 return;
 
             if (recordUndo)
                 Undo.RecordObject(actor.poiseData, "Sync Generated Poise");
-            actor.poiseData.maxPoise = Mathf.Max(1f, stat.GetBase(StatType.MaxPoise));
-            actor.poiseData.recoveryRate = stat.GetBase(StatType.PoiseRecoveryRate);
-            actor.poiseData.recoveryDelay = stat.GetBase(StatType.PoiseRecoveryDelay);
+            actor.poiseData.maxPoise = Mathf.Max(
+                1f, Get(stat, AttributeIds.Vital.MaxPoise));
+            actor.poiseData.recoveryRate =
+                Get(stat, AttributeIds.Vital.PoiseRecoveryRate);
+            actor.poiseData.recoveryDelay =
+                Get(stat, AttributeIds.Vital.PoiseRecoveryDelay);
             EditorUtility.SetDirty(actor.poiseData);
         }
 
-        private static string GenerateMissingBreakGauge(ActorDefinitionSO actor, ActorStatSO stat, Options options)
+        private static string GenerateMissingBreakGauge(ActorDefinitionSO actor, AttributeProfileSO stat, Options options)
         {
             if (actor == null || actor.breakGaugeData != null)
                 return null;
@@ -302,7 +296,7 @@ namespace UPlayGround.Tool.Editor.Balance
             return path;
         }
 
-        private static bool SyncExistingBreakGaugeMax(ActorDefinitionSO actor, ActorStatSO stat, bool recordUndo)
+        private static bool SyncExistingBreakGaugeMax(ActorDefinitionSO actor, AttributeProfileSO stat, bool recordUndo)
         {
             if (actor == null || stat == null)
                 return false;
@@ -320,13 +314,17 @@ namespace UPlayGround.Tool.Editor.Balance
             return true;
         }
 
-        private static float CalculateBreakGauge(ActorDefinitionSO actor, ActorStatSO stat)
+        private static float CalculateBreakGauge(ActorDefinitionSO actor, AttributeProfileSO stat)
         {
             if (stat != null)
-                return Mathf.Max(1f, Mathf.Round(stat.GetBase(StatType.MaxPoise)));
+                return Mathf.Max(
+                    1f,
+                    Mathf.Round(Get(stat, AttributeIds.Vital.MaxPoise)));
             if (actor?.poiseData != null)
                 return Mathf.Max(1f, Mathf.Round(actor.poiseData.maxPoise));
-            return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxPoise));
+            return Mathf.Max(
+                1f,
+                UPlayGroundAttributeDefaults.Get(AttributeIds.Vital.MaxPoise));
         }
 
         private static void BackfillGradeLevelFromPrefab(ActorDefinitionSO actor, bool recordUndo)
@@ -356,18 +354,14 @@ namespace UPlayGround.Tool.Editor.Balance
             EditorUtility.SetDirty(actor);
         }
 
-        private static bool HasMissingStats(ActorStatSO stat)
+        private static float Get(
+            AttributeProfileSO profile,
+            AttributeId attributeId)
         {
-            if (stat == null)
-                return true;
-
-            foreach (StatType type in Enum.GetValues(typeof(StatType)))
-            {
-                if (!stat.TryGetExplicit(type, out _))
-                    return true;
-            }
-
-            return false;
+            if (profile != null
+                && profile.TryGetBaseValue(attributeId, out float value))
+                return value;
+            return UPlayGroundAttributeDefaults.Get(attributeId);
         }
 
         private static bool IsMonster(ActorDefinitionSO actor)

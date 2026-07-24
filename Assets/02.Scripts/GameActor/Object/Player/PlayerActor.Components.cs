@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Animation;
@@ -22,7 +23,6 @@ using UPlayGround.UI;
 using UPlayGround.Gameplay.Passive;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
-using UPlayGround.Ability.Core;
 
 namespace UPlayGround
 {
@@ -62,12 +62,9 @@ namespace UPlayGround
             // 런타임에서 한 번 이상 정상 초기화된 뒤에만 이전 캐릭터 상태로 인정한다.
             if (_hasInitializedCharacterRuntime && _characterActorType != CharacterActorType.None)
             {
-                _characterHealthMap[_characterActorType] = _currentHealth;
-                _characterSkillMap[_characterActorType]  = _skillGauge.CurrentGauge;
-                _characterSkillCooldownMap[_characterActorType] = _skillGauge.GetCooldownRemainingSnapshot();
                 if (Abilities != null)
-                    _characterAbilityRuntimeMap[_characterActorType] =
-                        Abilities.CaptureRuntimeState(forCharacterSwap: true);
+                    _characterAbilitySystemMap[_characterActorType] =
+                        Abilities.CaptureAbilitySystemStateForCharacter();
                 _combat?.SaveComboState(_characterActorType);
             }
 
@@ -107,29 +104,22 @@ namespace UPlayGround
 
             ApplyEquipmentStatsForActiveCharacter(preserveHealthRatio: false);
 
-            if (_characterHealthMap.TryGetValue(data.characterType, out var hp))
+            Abilities?.SetAbilitySet(data.abilitySet);
+            if (_characterAbilitySystemMap.TryGetValue(
+                    data.characterType, out AbilitySystemSaveData savedState))
             {
-                // 이전 max 기준 풀피였다면 최종 max 기준 풀피로 유지한다.
-                _currentHealth = previousType == data.characterType && wasPreviousHealthFull
-                    ? _maxHealth
-                    : Mathf.Clamp(hp, 0f, _maxHealth);
+                Abilities?.RestoreAbilitySystemStateForCharacter(savedState);
+                if (previousType == data.characterType && wasPreviousHealthFull)
+                    _currentHealth = _maxHealth;
             }
             else
             {
                 _currentHealth = _maxHealth;
+                AbilitySystem.Attributes.SetBase(
+                    AttributeIds.Resource.UltimateEnergy, 0f);
+                AbilitySystem.Runtime.Cooldowns.Clear();
             }
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-
-            // 스킬 게이지 복원
-            _skillGauge.SetGauge(
-                _characterSkillMap.TryGetValue(data.characterType, out var sg) ? sg : 0f);
-            _skillGauge.SetCooldownRemainingSnapshot(
-                _characterSkillCooldownMap.TryGetValue(data.characterType, out var cooldowns) ? cooldowns : null);
-            Abilities?.SetAbilitySet(data.abilitySet);
-            Abilities?.RestoreRuntimeState(
-                _characterAbilityRuntimeMap.TryGetValue(data.characterType, out var abilityRuntime)
-                    ? abilityRuntime
-                    : null);
             _passiveAbilities?.RefreshForCharacter(data.characterType);
 
             _equipment?.SetWeaponType(data.defaultWeaponType);
@@ -197,24 +187,39 @@ namespace UPlayGround
         private float ApplyCharacterStats(CharacterModelData data)
         {
             CharacterActorType type = data != null ? data.characterType : _characterActorType;
-            IReadOnlyDictionary<StatType, float> growthStats = Svc.Party?.GetGrowthStats(type);
+            IReadOnlyDictionary<AttributeId, float> growthStats =
+                Svc.Party?.GetGrowthStats(type);
 
             if (growthStats != null && growthStats.Count > 0)
             {
-                AbilitySystem.InitializeStats(null);
-                AbilitySystem.SetStatBases(growthStats);
+                AbilitySystem.InitializeDefaultAttributes();
+                AbilitySystem.SetAttributeBases(growthStats);
                 return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
                     AttributeIds.Vital.MaxHealth));
             }
 
-            if (Definition != null && Definition.statData != null)
+            if (Definition != null && Definition.attributeProfile != null)
             {
-                AbilitySystem.InitializeStats(Definition.statData);
+                AbilitySystem.InitializeDefaultAttributes();
+                if (!AbilitySystem.InitializeAttributes(
+                        Definition.attributeProfile, out string profileError))
+                {
+                    Debug.LogError(
+                        $"[PlayerActor] {Definition.name} Attribute Profile 적용 실패: " +
+                        profileError,
+                        Definition.attributeProfile);
+                }
                 return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
                     AttributeIds.Vital.MaxHealth));
             }
 
-            AbilitySystem.InitializeStats(null);
+            AbilitySystem.InitializeDefaultAttributes();
+            if (Definition != null)
+            {
+                Debug.LogError(
+                    $"[PlayerActor] {Definition.name}에 Attribute Profile이 없습니다.",
+                    Definition);
+            }
             return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
                 AttributeIds.Vital.MaxHealth));
         }
@@ -237,10 +242,10 @@ namespace UPlayGround
             if (equipment != null)
             {
                 for (int i = 0; i < equipment.Count; i++)
-                    equipment[i]?.AddStatModifiersTo(_equipmentStatBuffer, _equipmentStatSource);
+                    equipment[i]?.AddAttributeModifiersTo(_equipmentStatBuffer);
             }
 
-            _equipmentStatEffectHandle = AbilitySystem.ApplyLegacyStatEffect(
+            _equipmentStatEffectHandle = AbilitySystem.ApplyAttributeEffect(
                 $"Equipment.{_characterActorType}",
                 _equipmentStatBuffer);
 
@@ -269,7 +274,8 @@ namespace UPlayGround
                 return;
             }
 
-            if (!_characterHealthMap.ContainsKey(type))
+            if (!TryGetStoredAttribute(
+                    type, AttributeIds.Vital.Health, out _))
                 return;
 
             float oldMax = Mathf.Max(1f, previousMaxHealth);
@@ -278,9 +284,10 @@ namespace UPlayGround
             float oldRatio = oldMax > 0f ? oldCurrent / oldMax : 1f;
             float newMax = GetMaxHealthForCharacter(type);
 
-            _characterHealthMap[type] = wasFull
-                ? newMax
-                : Mathf.Clamp(newMax * oldRatio, 0f, newMax);
+            SetStoredAttribute(
+                type,
+                AttributeIds.Vital.Health,
+                wasFull ? newMax : Mathf.Clamp(newMax * oldRatio, 0f, newMax));
         }
 
         /// <summary>
@@ -288,7 +295,8 @@ namespace UPlayGround
         /// 기둥 A: base 스탯만 교체(SetBase)하여 장비/버프 modifier를 보존한다. Init()을 호출하지 않는다.
         /// 레벨업 정책에 따라 HP/Poise는 풀 회복한다.
         /// </summary>
-        public void RefreshGrowthStatsLive(IReadOnlyDictionary<StatType, float> growthStats)
+        public void RefreshGrowthStatsLive(
+            IReadOnlyDictionary<AttributeId, float> growthStats)
         {
             if (growthStats == null || growthStats.Count == 0) return;
 
@@ -296,7 +304,7 @@ namespace UPlayGround
             // 사망 중에는 스왑이 막혀 게임오버→리로드 시 ApplyCharacterStats가 커밋된 레벨로 스탯을 재구성하므로 손실 없음.
             if (!IsAlive()) return;
 
-            AbilitySystem.SetStatBases(growthStats);   // 전체 Transaction, 활성 Effect 유지
+            AbilitySystem.SetAttributeBases(growthStats); // 전체 Transaction, 활성 Effect 유지
 
             _currentHealth = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
                 AttributeIds.Vital.MaxHealth));         // 풀 회복
@@ -310,17 +318,22 @@ namespace UPlayGround
         /// 벤치(대기 중) 캐릭터가 레벨업했을 때의 갱신. 화면에 모델이 없으므로 스탯 컨테이너는 건드리지 않고,
         /// 저장된 현재 HP만 새 최대치로 풀 회복한다(다음 스왑 시 풀 HP로 등장). 기둥 B.
         /// </summary>
-        public void UpdateBenchedGrowth(CharacterActorType type, IReadOnlyDictionary<StatType, float> growthStats)
+        public void UpdateBenchedGrowth(
+            CharacterActorType type,
+            IReadOnlyDictionary<AttributeId, float> growthStats)
         {
             if (type == CharacterActorType.None || type == _characterActorType) return;
             if (growthStats == null) return;
 
             // 기록이 없으면(한 번도 피해를 입지 않음) 이미 풀피로 취급되므로 손대지 않는다.
             // 다운된(HP 0) 멤버는 레벨업으로 부활시키지 않는다.
-            if (!_characterHealthMap.TryGetValue(type, out float stored) || stored <= 0f) return;
+            if (!TryGetStoredAttribute(
+                    type, AttributeIds.Vital.Health, out float stored)
+                || stored <= 0f)
+                return;
 
             float newMax = GetMaxHealthForCharacter(type);
-            _characterHealthMap[type] = newMax;          // 살아있는 대기 멤버만 풀 회복
+            SetStoredAttribute(type, AttributeIds.Vital.Health, newMax);
         }
 
         /// <summary>
@@ -329,11 +342,15 @@ namespace UPlayGround
         public float GetHealthForCharacter(CharacterActorType type)
         {
             if (type == _characterActorType) return _currentHealth;
-            return _characterHealthMap.TryGetValue(type, out var hp) ? hp : GetMaxHealthForCharacter(type);
+            return TryGetStoredAttribute(
+                type, AttributeIds.Vital.Health, out float hp)
+                    ? hp
+                    : GetMaxHealthForCharacter(type);
         }
 
         public bool HasHealthRecordForCharacter(CharacterActorType type)
-            => type == _characterActorType || _characterHealthMap.ContainsKey(type);
+            => type == _characterActorType
+               || TryGetStoredAttribute(type, AttributeIds.Vital.Health, out _);
 
         /// <summary>
         /// 지정 캐릭터의 최대 체력 반환. 현재 캐릭터가 아니면 PlayerSwapBehaviour의 모델 데이터에서 조회한다.
@@ -342,12 +359,16 @@ namespace UPlayGround
         {
             if (type == _characterActorType) return _maxHealth;
 
-            IReadOnlyDictionary<StatType, float> effectiveStats =
+            IReadOnlyDictionary<AttributeId, float> effectiveStats =
                 UPlayGround.Data.Party.CharacterEffectiveStatCalculator.Calculate(type);
-            if (effectiveStats != null && effectiveStats.TryGetValue(StatType.MaxHealth, out float maxHealth))
+            if (effectiveStats != null
+                && effectiveStats.TryGetValue(
+                    AttributeIds.Vital.MaxHealth, out float maxHealth))
                 return Mathf.Max(1f, maxHealth);
 
-            return Mathf.Max(1f, ActorStatSO.GetDefault(StatType.MaxHealth));
+            return Mathf.Max(
+                1f,
+                UPlayGroundAttributeDefaults.Get(AttributeIds.Vital.MaxHealth));
         }
 
         /// <summary>지정 캐릭터를 풀 회복. reviveDowned=true면 HP 0(다운) 멤버도 되살린다.</summary>
@@ -368,85 +389,61 @@ namespace UPlayGround
                 return;
             }
 
-            // 벤치: _characterHealthMap 직접 기록 (이벤트 안 나감 → HUD 별도 갱신 필요)
+            // 벤치: 캐릭터별 ASC 스냅샷에 기록한다.
             float max = GetMaxHealthForCharacter(type);
-            bool hasRecord = _characterHealthMap.TryGetValue(type, out float stored);
+            bool hasRecord = TryGetStoredAttribute(
+                type, AttributeIds.Vital.Health, out float stored);
             if (!hasRecord) return;                       // 기록 없음 = 이미 풀피
             if (!reviveDowned && stored <= 0f) return;    // 부활 비활성 시 다운 제외
-            _characterHealthMap[type] = max;
-        }
-
-        /// <summary>
-        /// 세이브 로드용: 지정 캐릭터의 현재 체력을 정확한 값으로 복원한다.
-        /// 풀 회복이 아니라 저장된 값을 그대로 반영하므로, 파티 로드의 풀 회복 단계 이후에 호출해야 한다.
-        /// hp 0 이하면 다운 상태로 복원한다(부활시키지 않음).
-        /// </summary>
-        public void RestoreCharacterHealth(CharacterActorType type, float hp)
-        {
-            if (type == CharacterActorType.None) return;
-
-            if (type == _characterActorType)
-            {
-                _currentHealth = Mathf.Clamp(hp, 0f, _maxHealth);
-                OnHpChanged?.Invoke(_currentHealth, _maxHealth);
-                return;
-            }
-
-            // 벤치: _characterHealthMap에 직접 기록 (이벤트 없음 → HUD는 PartyManager가 일괄 갱신)
-            float max = GetMaxHealthForCharacter(type);
-            _characterHealthMap[type] = Mathf.Clamp(hp, 0f, max);
-        }
-
-        /// <summary>
-        /// 세이브 로드용: 지정 캐릭터의 스킬 게이지를 저장된 값으로 복원한다.
-        /// 액티브는 PlayerAbilityResourceView에, 벤치는 _characterSkillMap에 기록한다.
-        /// </summary>
-        public void RestoreCharacterSkillGauge(CharacterActorType type, float gauge)
-        {
-            if (type == CharacterActorType.None) return;
-
-            float max = _skillGauge != null ? _skillGauge.MaxGauge : 1f;
-            float clamped = Mathf.Clamp(gauge, 0f, max);
-
-            if (type == _characterActorType)
-                _skillGauge?.SetGauge(clamped);
-            else
-                _characterSkillMap[type] = clamped;
+            SetStoredAttribute(type, AttributeIds.Vital.Health, max);
         }
 
         public float GetSkillGaugeForCharacter(CharacterActorType type)
         {
             if (type == _characterActorType) return _skillGauge != null ? _skillGauge.CurrentGauge : 0f;
-            return _characterSkillMap.TryGetValue(type, out var gauge) ? gauge : 0f;
+            return TryGetStoredAttribute(
+                type, AttributeIds.Resource.UltimateEnergy, out float gauge)
+                    ? gauge
+                    : 0f;
         }
 
-        public AbilityRuntimeSaveData GetAbilityRuntimeForCharacter(CharacterActorType type)
+        public AbilitySystemSaveData GetAbilitySystemForCharacter(CharacterActorType type)
         {
             if (type == CharacterActorType.None)
                 return null;
             if (type == _characterActorType)
-                return Abilities?.CaptureRuntimeState();
-            return _characterAbilityRuntimeMap.TryGetValue(type, out AbilityRuntimeSaveData data)
+                return Abilities?.CaptureAbilitySystemStateForCharacter(
+                    forCharacterSwap: false);
+            return _characterAbilitySystemMap.TryGetValue(
+                    type, out AbilitySystemSaveData data)
                 ? data
                 : null;
         }
 
-        public void RestoreCharacterAbilityRuntime(
+        public void RestoreCharacterAbilitySystem(
             CharacterActorType type,
-            AbilityRuntimeSaveData data)
+            AbilitySystemSaveData data)
         {
             if (type == CharacterActorType.None)
                 return;
             if (type == _characterActorType)
             {
-                Abilities?.RestoreRuntimeState(data);
+                Abilities?.RestoreAbilitySystemStateForCharacter(data);
                 return;
             }
 
             if (data == null)
-                _characterAbilityRuntimeMap.Remove(type);
+            {
+                _characterAbilitySystemMap.Remove(type);
+            }
             else
-                _characterAbilityRuntimeMap[type] = data;
+            {
+                data.version = AbilitySystemSaveData.CurrentVersion;
+                data.attributes ??= new List<AttributeSaveEntry>();
+                data.cooldowns ??= new List<GasCooldownSaveEntry>();
+                data.activeEffects ??= new List<ActiveEffectSaveEntry>();
+                _characterAbilitySystemMap[type] = data;
+            }
         }
 
         public float GetMaxSkillGaugeForCharacter(CharacterActorType type)
@@ -469,10 +466,9 @@ namespace UPlayGround
             if (float.IsInfinity(cost) || GetSkillGaugeForCharacter(type) < cost)
                 return false;
 
-            if (_characterSkillCooldownMap.TryGetValue(type, out var cooldowns)
-                && cooldowns != null
-                && (uint)skillSlot < (uint)cooldowns.Length
-                && cooldowns[skillSlot] > 0f)
+            if (GetStoredCooldownRemaining(
+                    type,
+                    PlayerAbilityResourceView.GetSkillSlotCooldownGroupId(skillSlot)) > 0f)
             {
                 return false;
             }
@@ -500,8 +496,11 @@ namespace UPlayGround
             }
 
             float max = _skillGauge.MaxGauge;
-            float current = _characterSkillMap.TryGetValue(type, out var gauge) ? gauge : 0f;
-            _characterSkillMap[type] = Mathf.Clamp(current + amount, 0f, max);
+            float current = GetSkillGaugeForCharacter(type);
+            SetStoredAttribute(
+                type,
+                AttributeIds.Resource.UltimateEnergy,
+                Mathf.Clamp(current + amount, 0f, max));
         }
 
         public bool ConsumeFullSkillGaugeForCharacter(CharacterActorType type)
@@ -511,9 +510,87 @@ namespace UPlayGround
             if (type == _characterActorType)
                 _skillGauge.SetGauge(0f);
             else
-                _characterSkillMap[type] = 0f;
+                SetStoredAttribute(
+                    type, AttributeIds.Resource.UltimateEnergy, 0f);
 
             return true;
+        }
+
+        private AbilitySystemSaveData GetOrCreateStoredState(CharacterActorType type)
+        {
+            if (!_characterAbilitySystemMap.TryGetValue(
+                    type, out AbilitySystemSaveData data))
+            {
+                data = new AbilitySystemSaveData();
+                _characterAbilitySystemMap[type] = data;
+            }
+            return data;
+        }
+
+        private bool TryGetStoredAttribute(
+            CharacterActorType type,
+            AttributeId attributeId,
+            out float value)
+        {
+            value = 0f;
+            if (!_characterAbilitySystemMap.TryGetValue(
+                    type, out AbilitySystemSaveData data)
+                || data?.attributes == null)
+                return false;
+
+            for (int i = 0; i < data.attributes.Count; i++)
+            {
+                AttributeSaveEntry entry = data.attributes[i];
+                if (entry == null
+                    || !string.Equals(
+                        entry.attributeId,
+                        attributeId.Value,
+                        StringComparison.Ordinal))
+                    continue;
+                value = entry.baseValue;
+                return true;
+            }
+            return false;
+        }
+
+        private void SetStoredAttribute(
+            CharacterActorType type,
+            AttributeId attributeId,
+            float value)
+        {
+            AbilitySystemSaveData data = GetOrCreateStoredState(type);
+            for (int i = 0; i < data.attributes.Count; i++)
+            {
+                AttributeSaveEntry entry = data.attributes[i];
+                if (entry == null
+                    || !string.Equals(
+                        entry.attributeId,
+                        attributeId.Value,
+                        StringComparison.Ordinal))
+                    continue;
+                entry.baseValue = value;
+                return;
+            }
+            data.attributes.Add(new AttributeSaveEntry(attributeId.Value, value));
+        }
+
+        private float GetStoredCooldownRemaining(
+            CharacterActorType type,
+            string groupId)
+        {
+            if (!_characterAbilitySystemMap.TryGetValue(
+                    type, out AbilitySystemSaveData data)
+                || data?.cooldowns == null)
+                return 0f;
+            for (int i = 0; i < data.cooldowns.Count; i++)
+            {
+                GasCooldownSaveEntry entry = data.cooldowns[i];
+                if (entry != null
+                    && string.Equals(
+                        entry.groupId, groupId, StringComparison.Ordinal))
+                    return Mathf.Max(0f, entry.remainingSeconds);
+            }
+            return 0f;
         }
 
         private void InitComponents()

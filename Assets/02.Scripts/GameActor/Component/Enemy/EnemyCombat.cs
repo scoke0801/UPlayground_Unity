@@ -169,7 +169,7 @@ namespace UPlayGround.Components
             _ownerDamageable = GetComponent<IDamageable>();
             _detection       = GetComponent<EnemyDetection>();
             _ownerActor      = GetComponent<MonsterActor>();
-            _abilitySystem   = GetComponent<ActorAbilitySystem>();
+            _abilitySystem   = _ownerActor?.Abilities;
             if (_ownerActor?.Definition != null)
                 Init(_ownerActor.Definition);
             else
@@ -191,7 +191,7 @@ namespace UPlayGround.Components
             if (abilitySet == null) return;
 
             _abilitySet = abilitySet;
-            _abilitySystem ??= GetComponent<ActorAbilitySystem>();
+            _abilitySystem ??= _ownerActor?.Abilities;
             if (_abilitySystem != null && _abilitySystem.AbilitySet != _abilitySet)
                 _abilitySystem.SetAbilitySet(_abilitySet);
         }

@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
@@ -63,9 +64,9 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             var result = new SimulationResult { Runs = Mathf.Max(1, runs) };
 
-            if (actor == null || actor.statData == null)
+            if (actor == null || actor.attributeProfile == null)
             {
-                result.Error = "statData가 없어 시뮬레이션할 수 없습니다.";
+                result.Error = "Attribute Profile이 없어 시뮬레이션할 수 없습니다.";
                 return result;
             }
 
@@ -75,9 +76,12 @@ namespace UPlayGround.Tool.Editor.Balance
             float assumedDistance = scenario != null ? scenario.assumedDistance : fallback.AssumedDistance;
 
             // 몬스터 측 파라미터
-            float monsterMaxHp = Mathf.Max(1f, actor.statData.GetBase(StatType.MaxHealth));
-            float monsterAtk = Mathf.Max(0f, actor.statData.GetBase(StatType.AttackPower));
-            float monsterDef = Mathf.Clamp01(actor.statData.GetBase(StatType.Defense));
+            float monsterMaxHp = Mathf.Max(1f,
+                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Vital.MaxHealth, 100f));
+            float monsterAtk = Mathf.Max(0f,
+                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.AttackPower, 1f));
+            float monsterDef = Mathf.Clamp01(
+                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.Defense));
 
             List<AbilityAttackInfo> usable = BalanceAttackAnalyzer.GetUsableEnemySkills(
                 actor.EffectiveAbilitySet,
@@ -86,11 +90,11 @@ namespace UPlayGround.Tool.Editor.Balance
             const float globalCooldown = 0.05f;
 
             // 플레이어 측 파라미터 (Estimator와 동일한 읽기 규칙)
-            float playerMaxHp = Mathf.Max(1f, ReadPlayerStat(scenario, StatType.MaxHealth));
-            float playerDef = Mathf.Clamp01(ReadPlayerStat(scenario, StatType.Defense));
+            float playerMaxHp = Mathf.Max(1f, ReadPlayerStat(scenario, AttributeIds.Vital.MaxHealth));
+            float playerDef = Mathf.Clamp01(ReadPlayerStat(scenario, AttributeIds.Combat.Defense));
             float playerAtkPower = ReadPlayerAttackPower(scenario, fallback);
-            float critRate = Mathf.Clamp01(ReadPlayerStat(scenario, StatType.CritRate));
-            float critMultiplier = Mathf.Max(1f, ReadPlayerStat(scenario, StatType.CritMultiplier));
+            float critRate = Mathf.Clamp01(ReadPlayerStat(scenario, AttributeIds.Combat.CritRate));
+            float critMultiplier = Mathf.Max(1f, ReadPlayerStat(scenario, AttributeIds.Combat.CritMultiplier));
             float attackInterval = Mathf.Max(0.05f, scenario != null ? scenario.playerAttackInterval : fallback.PlayerAttackInterval);
 
             List<(float damage, float breakDamage)> playerAttacks = BuildPlayerAttackPool(scenario);
@@ -384,17 +388,21 @@ namespace UPlayGround.Tool.Editor.Balance
             return sorted[index];
         }
 
-        private static float ReadPlayerStat(BalanceScenarioAsset scenario, StatType type)
+        private static float ReadPlayerStat(BalanceScenarioAsset scenario, AttributeId attributeId)
         {
-            if (scenario?.playerStatData != null)
-                return scenario.playerStatData.GetBase(type);
-            return ActorStatSO.GetDefault(type);
+            if (scenario?.playerAttributeProfile != null
+                && scenario.playerAttributeProfile.TryGetBaseValue(
+                    attributeId, out float value))
+                return value;
+            return UPlayGroundAttributeDefaults.Get(attributeId);
         }
 
         private static float ReadPlayerAttackPower(BalanceScenarioAsset scenario, BalanceScenarioInput fallback)
         {
-            if (scenario?.playerStatData != null)
-                return scenario.playerStatData.GetBase(StatType.AttackPower);
+            if (scenario?.playerAttributeProfile != null
+                && scenario.playerAttributeProfile.TryGetBaseValue(
+                    AttributeIds.Combat.AttackPower, out float attackPower))
+                return attackPower;
             if (scenario != null)
                 return scenario.manualPlayerAttackPower;
             return fallback.PlayerAttackPower;

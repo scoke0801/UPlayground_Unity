@@ -37,7 +37,7 @@ namespace UPlayGround.Editor.P09Builder
             EditorGUILayout.LabelField("Enemy Stats", EditorStyles.boldLabel);
 
             EditorGUILayout.HelpBox(
-                "빌드 시 ActorDefinitionSO에 MonsterScalingSO를 연결하고 ActorStatSO를 발급/갱신합니다.\n" +
+                "빌드 시 ActorDefinitionSO에 MonsterScalingSO를 연결하고 Attribute Profile을 발급/갱신합니다.\n" +
                 "Humanoid 몬스터는 무기 유형에 따라 탱커(SwordShield), 원거리(Bow/Staff), 기본 스탯 프로필이 적용됩니다.\n" +
                 "아래 등급/레벨/공격 설정은 정의(ActorDefinitionSO), 스탯, 공격 데이터 생성에 사용됩니다.",
                 MessageType.Info);

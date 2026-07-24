@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data;
 using UPlayGround.Data.Crafting;
 using UPlayGround.Data.EnumType;
@@ -436,17 +437,19 @@ namespace UPlayGround.Tool.Editor.Validation
 
                 if (growth.characterType == CharacterActorType.None)
                     Add(issues, EditorValidationSeverity.Warning, "Party", path, growth, "characterType", "성장 데이터 characterType이 None입니다.", "대상 캐릭터 타입을 지정하세요.");
-                if (growth.baseStat == null)
-                    Add(issues, EditorValidationSeverity.Error, "Party", path, growth, "baseStat", "성장 데이터 baseStat이 비어 있습니다.", "레벨 1 기준 ActorStatSO를 연결하세요.");
+                if (growth.baseProfile == null)
+                    Add(issues, EditorValidationSeverity.Error, "Party", path, growth, "baseProfile", "성장 데이터 baseProfile이 비어 있습니다.", "레벨 1 기준 Attribute Profile을 연결하세요.");
                 if (growth.initialLevel > growth.levelCap)
                     Add(issues, EditorValidationSeverity.Error, "Party", path, growth, "initialLevel", "initialLevel이 levelCap보다 큽니다.", "초기 레벨과 레벨 상한을 조정하세요.");
 
-                var statTypes = new HashSet<StatType>();
+                var attributeIds = new HashSet<AttributeId>();
                 for (int i = 0; i < growth.growthRules.Count; i++)
                 {
                     StatGrowthRule rule = growth.growthRules[i];
-                    if (!statTypes.Add(rule.statType))
-                        Add(issues, EditorValidationSeverity.Warning, "Party", path, growth, $"growthRules[{i}].statType", $"성장 규칙 StatType이 중복됩니다: {rule.statType}", "중복 규칙 중 첫 규칙만 조회됩니다.");
+                    if (!rule.AttributeId.IsValid)
+                        Add(issues, EditorValidationSeverity.Error, "Party", path, growth, $"growthRules[{i}].attributeId", "성장 규칙 Attribute ID가 비어 있습니다.", "안정 Attribute ID를 지정하세요.");
+                    else if (!attributeIds.Add(rule.AttributeId))
+                        Add(issues, EditorValidationSeverity.Warning, "Party", path, growth, $"growthRules[{i}].attributeId", $"성장 규칙 Attribute ID가 중복됩니다: {rule.AttributeId}", "중복 규칙 중 첫 규칙만 조회됩니다.");
                 }
             }
         }

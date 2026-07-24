@@ -15,7 +15,7 @@ namespace UPlayGround.Tool.Editor.Balance
             if (actor == null)
                 return false;
 
-            return actor.statData == null
+            return actor.attributeProfile == null
                    || actor.EffectiveAbilitySet == null
                    || actor.EffectiveBehaviorData == null;
         }

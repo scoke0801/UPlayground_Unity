@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Sera
   m_EditorClassIdentifier: 
   playerCharacter: 6
-  playerStatData: {fileID: 11400000, guid: 6f15447ef3e9a6740b96cbbb3104e3a3, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: baada9a406324229bde1568c1c91b989, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: d8ba648076392a24584efdb54dcd5e3e, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

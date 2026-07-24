@@ -5,16 +5,14 @@ namespace UPlayGround.Combat
     public sealed class CombatActionInstance
     {
         public readonly GameActor Owner;
-        public readonly CombatActionDefinition Definition;
         public readonly float StartedTime;
         public int CurrentPhaseIndex { get; private set; }
         public bool IsCollisionActive { get; private set; }
         public string ActiveHitboxGroupId { get; private set; }
 
-        public CombatActionInstance(GameActor owner, CombatActionDefinition definition)
+        public CombatActionInstance(GameActor owner)
         {
             Owner = owner;
-            Definition = definition;
             StartedTime = Time.time;
         }
 

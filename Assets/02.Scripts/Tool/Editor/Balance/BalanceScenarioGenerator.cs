@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
@@ -111,7 +112,8 @@ namespace UPlayGround.Tool.Editor.Balance
             EnsureFolder(ScenarioFolder);
 
             PartyMemberGrowthSO growth = FindGrowth(config, character);
-            ActorStatSO statData = growth != null ? growth.baseStat : null;
+            AttributeProfileSO profile =
+                growth != null ? growth.baseProfile : null;
             int level = growth != null ? Mathf.Max(1, growth.initialLevel) : 1;
 
             AbilitySetSO attackData = ResolveAttackData(character, attackMap, allAttackData, out string attackSource);
@@ -131,7 +133,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             // 플레이어 파생 4개 필드만 갱신. 인카운터/방어 가정값(targetDuration, hitReceiveRate 등)은 보존한다.
             asset.playerCharacter = character;
-            asset.playerStatData = statData;
+            asset.playerAttributeProfile = profile;
             asset.playerAbilitySet = attackData;
             asset.playerLevel = level;
 
@@ -145,10 +147,10 @@ namespace UPlayGround.Tool.Editor.Balance
                 Character = character,
                 Path = path,
                 Level = level,
-                HasStat = statData != null,
+                HasStat = profile != null,
                 HasAttack = attackData != null,
                 Created = created,
-                Note = BuildNote(growth, statData, attackSource),
+                Note = BuildNote(growth, profile, attackSource),
             };
         }
 
@@ -234,15 +236,18 @@ namespace UPlayGround.Tool.Editor.Balance
             return null;
         }
 
-        private static string BuildNote(PartyMemberGrowthSO growth, ActorStatSO statData, string attackSource)
+        private static string BuildNote(
+            PartyMemberGrowthSO growth,
+            AttributeProfileSO profile,
+            string attackSource)
         {
             var builder = new StringBuilder();
             if (growth == null)
                 builder.Append("성장 데이터 없음(레벨 1 가정) / ");
-            else if (statData == null)
-                builder.Append("growth.baseStat 없음(기본 스탯 가정) / ");
+            else if (profile == null)
+                builder.Append("growth.baseProfile 없음(Attribute 기본값 가정) / ");
             else
-                builder.Append($"Stat: {statData.name} / ");
+                builder.Append($"Profile: {profile.name} / ");
 
             builder.Append($"Attack: {attackSource}");
             return builder.ToString();

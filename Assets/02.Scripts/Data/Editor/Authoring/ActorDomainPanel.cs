@@ -147,8 +147,12 @@ namespace UPlayGround.Data.Editor.Authoring
             if (asset.prefab == null)
                 yield return Warning("런타임 스폰 프리팹이 연결되지 않았습니다.", asset);
 
-            if (asset.actorType.HasFlag(ActorType.Monster) && asset.statData == null)
-                yield return Error("몬스터 Actor의 Stat Data가 비어 있습니다.", asset);
+            if (asset.attributeProfile == null)
+            {
+                yield return Error(
+                    "Attribute Profile이 비어 있습니다.",
+                    asset);
+            }
 
             if (asset.actorType.HasFlag(ActorType.NPC) && asset.npcData == null)
                 yield return Warning("NPC Actor의 NPC Data가 비어 있습니다.", asset);
@@ -174,7 +178,7 @@ namespace UPlayGround.Data.Editor.Authoring
             detail.Add(basics);
 
             VisualElement stats = MakeSection("스탯");
-            AddLinkedProperty(stats, serializedObject, "statData", "Stat Data", StatDomainPanel.DomainKey);
+            AddProperty(stats, "attributeProfile", "Attribute Profile");
             AddProperty(stats, "poiseData", "Poise Data");
             detail.Add(stats);
 

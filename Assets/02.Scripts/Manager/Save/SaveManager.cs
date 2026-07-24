@@ -34,7 +34,7 @@ namespace UPlayGround.Manager
         public bool IsPreparingSceneLoad { get; private set; }
         private const string TEMP_FILE_EXTENSION = ".tmp";
         private const string BACKUP_FILE_EXTENSION = ".bak";
-        private const string CURRENT_SAVE_VERSION = "2.0";    // 1.0=평문 JSON, 2.0=AES 암호화
+        private const string CURRENT_SAVE_VERSION = "3.0";    // 1.0=평문 JSON, 2.0=AES 암호화, 3.0=ASC 단일 저장
 
         private static readonly Regex SaveFileRegex = new Regex(
             $"^{Regex.Escape(SAVE_FILE_PREFIX)}(?<slot>\\d+){Regex.Escape(SAVE_FILE_EXTENSION)}(?:{Regex.Escape(BACKUP_FILE_EXTENSION)})?$",
@@ -628,13 +628,14 @@ namespace UPlayGround.Manager
                 throw new InvalidDataException(
                     $"현재 빌드보다 새로운 세이브 버전입니다: {sourceVersion}");
 
-            // 1.x → 2.0: 암호화 포맷 전환. 데이터 필드는 기본 객체로 보정한다.
+            // 세이브 컨테이너의 누락 필드는 현재 스키마의 빈 객체로 보정한다.
             data.inventory ??= new InventorySaveData();
             data.story ??= new StorySaveData();
             data.flags ??= new FlagSaveData();
             data.recipe ??= new RecipeSaveData();
             data.quest ??= new QuestSaveData();
             data.party ??= new PartySaveData();
+            data.party.abilitySystems ??= new List<CharacterAbilitySystemSaveEntry>();
             data.world ??= new WorldStateSaveData();
             data.cycle ??= new CycleSaveData();
             data.cycle.assists ??= new UPlayGround.Data.Cycle.AssistProgressSaveData();

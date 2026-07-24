@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
@@ -71,7 +72,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
         public sealed class StatSummary
         {
-            public ActorStatSO Asset;
+            public AttributeProfileSO Asset;
             public string AssetName;
             public string Path;
             public StatOwner Owner;
@@ -209,10 +210,11 @@ namespace UPlayGround.Tool.Editor.Balance
 
         public static List<StatSummary> ExtractStats(StatOwner ownerFilter)
         {
-            Dictionary<ActorStatSO, StatOwner> ownership = BuildStatOwnership();
+            Dictionary<AttributeProfileSO, StatOwner> ownership =
+                BuildProfileOwnership();
             var result = new List<StatSummary>();
 
-            foreach (ActorStatSO asset in LoadAll<ActorStatSO>())
+            foreach (AttributeProfileSO asset in LoadAll<AttributeProfileSO>())
             {
                 StatOwner owner = ownership.TryGetValue(asset, out StatOwner o) ? o : StatOwner.Unknown;
                 if (ownerFilter != StatOwner.Unknown && owner != ownerFilter)
@@ -224,12 +226,12 @@ namespace UPlayGround.Tool.Editor.Balance
                     AssetName = asset.name,
                     Path = AssetDatabase.GetAssetPath(asset),
                     Owner = owner,
-                    MaxHealth = asset.GetBase(StatType.MaxHealth),
-                    AttackPower = asset.GetBase(StatType.AttackPower),
-                    Defense = asset.GetBase(StatType.Defense),
-                    MaxPoise = asset.GetBase(StatType.MaxPoise),
-                    MoveSpeed = asset.GetBase(StatType.MoveSpeed),
-                    CritRate = asset.GetBase(StatType.CritRate),
+                    MaxHealth = Get(asset, AttributeIds.Vital.MaxHealth),
+                    AttackPower = Get(asset, AttributeIds.Combat.AttackPower),
+                    Defense = Get(asset, AttributeIds.Combat.Defense),
+                    MaxPoise = Get(asset, AttributeIds.Vital.MaxPoise),
+                    MoveSpeed = Get(asset, AttributeIds.Movement.MoveSpeed),
+                    CritRate = Get(asset, AttributeIds.Combat.CritRate),
                 });
             }
 
@@ -242,48 +244,59 @@ namespace UPlayGround.Tool.Editor.Balance
         }
 
         /// <summary>
-        /// ActorDefinitionSO를 모두 스캔해 각 ActorStatSO가 플레이어/몬스터 중 누구에게 참조되는지 매핑한다.
-        /// 양쪽에서 참조되면 Player 우선. 어디에서도 참조되지 않으면 매핑에 없음(Unknown).
+        /// ActorDefinition과 성장 입력 Profile의 소유자를 매핑한다.
         /// </summary>
-        private static Dictionary<ActorStatSO, StatOwner> BuildStatOwnership()
+        private static Dictionary<AttributeProfileSO, StatOwner>
+            BuildProfileOwnership()
         {
-            var map = new Dictionary<ActorStatSO, StatOwner>();
+            var map = new Dictionary<AttributeProfileSO, StatOwner>();
 
-            // ActorDefinitionSO.statData → ActorType 기준 분류
-            foreach (ActorDefinitionSO def in LoadAll<ActorDefinitionSO>())
-            {
-                if (def.statData == null)
-                    continue;
-
-                if ((def.actorType & ActorType.Player) != 0)
-                    Assign(map, def.statData, StatOwner.Player);
-                else if ((def.actorType & ActorType.Monster) != 0)
-                    Assign(map, def.statData, StatOwner.Monster);
-            }
-
-            // PartyMemberGrowthSO.baseStat → 플레이어 캐릭터 스탯 (플레이어는 주로 이 경로로 참조됨)
+            // PartyMemberGrowthSO.baseProfile → 플레이어 캐릭터 Attribute
             foreach (PartyMemberGrowthSO growth in LoadAll<PartyMemberGrowthSO>())
             {
-                if (growth.baseStat != null)
-                    Assign(map, growth.baseStat, StatOwner.Player);
+                if (growth.baseProfile != null)
+                    Assign(map, growth.baseProfile, StatOwner.Player);
+            }
+
+            foreach (ActorDefinitionSO actor in LoadAll<ActorDefinitionSO>())
+            {
+                if (actor.attributeProfile == null)
+                    continue;
+                StatOwner owner = (actor.actorType & ActorType.Player) != 0
+                    ? StatOwner.Player
+                    : (actor.actorType & ActorType.Monster) != 0
+                        ? StatOwner.Monster
+                        : StatOwner.Unknown;
+                Assign(map, actor.attributeProfile, owner);
             }
 
             return map;
         }
 
         /// <summary>이미 매핑된 경우 Player를 우선 보존/승격한다.</summary>
-        private static void Assign(Dictionary<ActorStatSO, StatOwner> map, ActorStatSO stat, StatOwner owner)
+        private static void Assign(
+            Dictionary<AttributeProfileSO, StatOwner> map,
+            AttributeProfileSO profile,
+            StatOwner owner)
         {
-            if (map.TryGetValue(stat, out StatOwner existing))
+            if (map.TryGetValue(profile, out StatOwner existing))
             {
                 if (existing != StatOwner.Player && owner == StatOwner.Player)
-                    map[stat] = StatOwner.Player;
+                    map[profile] = StatOwner.Player;
             }
             else
             {
-                map[stat] = owner;
+                map[profile] = owner;
             }
         }
+
+        private static float Get(
+            AttributeProfileSO profile,
+            AttributeId attributeId)
+            => profile != null
+               && profile.TryGetBaseValue(attributeId, out float value)
+                ? value
+                : UPlayGroundAttributeDefaults.Get(attributeId);
 
         private static IEnumerable<T> LoadAll<T>() where T : UnityEngine.Object
         {

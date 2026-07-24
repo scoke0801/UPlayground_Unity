@@ -6,7 +6,7 @@ namespace UPlayGround.Ability.Core
     [Serializable]
     public sealed class AbilitySystemSaveData
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2;
         public int version = CurrentVersion;
         public List<AttributeSaveEntry> attributes = new();
         public List<GasCooldownSaveEntry> cooldowns = new();
@@ -38,8 +38,10 @@ namespace UPlayGround.Ability.Core
     public sealed class ActiveEffectSaveEntry
     {
         public string effectId;
+        public string sourceActorId;
         public float remainingSeconds;
         public int stackCount;
+        public int hudVisibility;
         public List<SetByCallerSaveEntry> setByCaller = new();
     }
 

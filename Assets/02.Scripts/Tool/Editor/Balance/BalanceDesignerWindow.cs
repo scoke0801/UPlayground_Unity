@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.AI.BehaviorTree.Editor;
 using UPlayGround.AI.BehaviorTree;
 using UPlayGround.Data.Actor;
@@ -325,9 +326,9 @@ namespace UPlayGround.Tool.Editor.Balance
                     }
                 }
 
-                string statSummary = _selectedActor.statData != null
-                    ? $"HP {_selectedActor.statData.GetBase(StatType.MaxHealth):F0} / ATK {_selectedActor.statData.GetBase(StatType.AttackPower):F2} / DEF {_selectedActor.statData.GetBase(StatType.Defense):F2}"
-                    : "statData 없음";
+                string statSummary = _selectedActor.attributeProfile != null
+                    ? $"HP {BalanceAttributeProfileUtility.Get(_selectedActor, AttributeIds.Vital.MaxHealth):F0} / ATK {BalanceAttributeProfileUtility.Get(_selectedActor, AttributeIds.Combat.AttackPower):F2} / DEF {BalanceAttributeProfileUtility.Get(_selectedActor, AttributeIds.Combat.Defense):F2}"
+                    : "Attribute Profile 없음";
                 string attackSummary = _selectedActor.EffectiveAbilitySet != null
                     ? $"Abilities {_selectedActor.EffectiveAbilitySet.additionalAbilities?.Count ?? 0}"
                     : "AbilitySet 없음";
@@ -589,7 +590,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     : "HP  플레이어 DPS가 0이라 역산 불가";
                 EditorGUILayout.LabelField(hpText, EditorStyles.miniLabel);
 
-                using (new EditorGUI.DisabledScope(!rec.CanSolveHealth || result.Actor.statData == null))
+                using (new EditorGUI.DisabledScope(!rec.CanSolveHealth || result.Actor.attributeProfile == null))
                 {
                     if (GUILayout.Button("Apply HP", GUILayout.Width(90f)) &&
                         ConfirmApply($"몬스터 HP를 {rec.CurrentHealth:F0} → {rec.RecommendedHealth:F0}으로 변경합니다.\n(Undo 가능)"))

@@ -1,7 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Cycle;
-using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
 using UPlayGround.Ability.Core;
 
@@ -54,15 +53,14 @@ namespace UPlayGround
                 return;
             }
 
-            _cycleWeightEffectHandle = AbilitySystem.ApplyLegacyStatEffect(
+            _cycleWeightEffectHandle = AbilitySystem.ApplyAttributeEffect(
                 $"CycleWeight.{_characterActorType}",
                 new[]
                 {
-                    new StatModifier(
-                        StatType.MoveSpeed,
-                        ModifierType.Multiply,
-                        _weightProfile.moveSpeedMultiplier,
-                        _weightProfile),
+                    new AttributeModifierValue(
+                        AttributeIds.Movement.MoveSpeed,
+                        AttributeModifierOperation.Multiply,
+                        _weightProfile.moveSpeedMultiplier),
                 });
         }
     }

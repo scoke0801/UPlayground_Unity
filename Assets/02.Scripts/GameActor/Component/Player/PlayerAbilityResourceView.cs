@@ -288,7 +288,10 @@ namespace UPlayGround.Components
         }
 
         private static string GetCooldownGroupId(int skillSlot) =>
-            $"Legacy.SkillSlot.{skillSlot}";
+            GetSkillSlotCooldownGroupId(skillSlot);
+
+        public static string GetSkillSlotCooldownGroupId(int skillSlot) =>
+            $"Ability.SkillSlot.{skillSlot}";
 
         public static bool IsValidSkillSlot(int skillSlot)
             => skillSlot >= 0 && skillSlot < SkillSlotCount;

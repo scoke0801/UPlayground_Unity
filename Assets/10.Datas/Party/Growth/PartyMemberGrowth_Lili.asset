@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PartyMemberGrowth_Lili
   m_EditorClassIdentifier: 
   characterType: 11
-  baseStat: {fileID: 11400000, guid: ad1ffd825c9414244aced5c4bc120d7e, type: 2}
+  baseProfile: {fileID: 11400000, guid: bdd5626b0c4b4010a5ea7a046f0a5380, type: 2}
   levelCurve: {fileID: 11400000, guid: d5a8ccffdeaa07b46a92429547dfdb75, type: 2}
   initialLevel: 1
   levelCap: 100
@@ -21,7 +21,7 @@ MonoBehaviour:
   growthPointsPerLevel: 1
   investmentRules:
   - attributeType: 0
-    statType: 0
+    attributeId: Vital.MaxHealth
     maxRank: 20
     flatPerRank: 20
     milestones:
@@ -31,7 +31,7 @@ MonoBehaviour:
       displayName: "\uAD81\uADF9 \uC2A4\uD0AC"
       description: "7\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
   - attributeType: 1
-    statType: 3
+    attributeId: Combat.Defense
     maxRank: 20
     flatPerRank: 0.02
     milestones:
@@ -41,7 +41,7 @@ MonoBehaviour:
       displayName: "\uAC15\uACF5\uACA9 3\uC5F0\uACC4"
       description: "5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
   - attributeType: 2
-    statType: 4
+    attributeId: Combat.CritRate
     maxRank: 20
     flatPerRank: 0.01
     milestones:
@@ -51,7 +51,7 @@ MonoBehaviour:
       displayName: "\uC5B4\uBE4C\uB9AC\uD2F0 \uC2A4\uD0AC"
       description: "5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
   - attributeType: 3
-    statType: 14
+    attributeId: Combat.AttackSpeed
     maxRank: 20
     flatPerRank: 0.03
     milestones:
@@ -61,7 +61,7 @@ MonoBehaviour:
       displayName: "\uAC15\uACF5\uACA9 2\uC5F0\uACC4"
       description: "3\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
   - attributeType: 4
-    statType: 2
+    attributeId: Combat.AttackPower
     maxRank: 20
     flatPerRank: 0.05
     milestones:

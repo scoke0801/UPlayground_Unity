@@ -1,6 +1,7 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
@@ -10,18 +11,20 @@ namespace UPlayGround.Data.Party
 {
     public static class CharacterEffectiveStatCalculator
     {
-        public static Dictionary<StatType, float> Calculate(
+        public static Dictionary<AttributeId, float> Calculate(
             CharacterActorType type,
             PartyMemberGrowthSO growthData,
             int level,
             IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
         {
-            Dictionary<StatType, float> stats = PartyPowerCalculator.CalculateGrowthStats(growthData, level, investments);
+            Dictionary<AttributeId, float> stats =
+                PartyPowerCalculator.CalculateGrowthStats(
+                    growthData, level, investments);
             ApplyEquipmentStats(type, growthData, stats);
             return stats;
         }
 
-        public static Dictionary<StatType, float> Calculate(CharacterActorType type)
+        public static Dictionary<AttributeId, float> Calculate(CharacterActorType type)
         {
             IPartyService party = Svc.Party;
             if (party == null)
@@ -33,7 +36,7 @@ namespace UPlayGround.Data.Party
         private static void ApplyEquipmentStats(
             CharacterActorType type,
             PartyMemberGrowthSO growthData,
-            Dictionary<StatType, float> stats)
+            Dictionary<AttributeId, float> stats)
         {
             if (type == CharacterActorType.None || stats == null)
                 return;
@@ -42,7 +45,7 @@ namespace UPlayGround.Data.Party
             if (inventory == null)
                 return;
 
-            List<StatModifier> modifiers = new();
+            List<AttributeModifierValue> modifiers = new();
             IReadOnlyList<ItemInstance> equipment = inventory.GetEquippedItemInstances(type);
             for (int i = 0; i < equipment.Count; i++)
             {
@@ -50,20 +53,23 @@ namespace UPlayGround.Data.Party
                 if (instance?.data is not EquipmentSO equipmentData)
                     continue;
 
-                equipmentData.AddStatModifiersTo(modifiers, instance);
+                equipmentData.AddAttributeModifiersTo(modifiers);
                 AddRandomGrowthModifiers(growthData, instance, modifiers);
             }
 
-            foreach (StatType statType in Enum.GetValues(typeof(StatType)))
-                stats[statType] = ComputeFinal(stats.TryGetValue(statType, out float baseValue)
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+                stats[attributeId] = ComputeFinal(
+                    stats.TryGetValue(attributeId, out float baseValue)
                     ? baseValue
-                    : ActorStatSO.GetDefault(statType), statType, modifiers);
+                    : UPlayGroundAttributeDefaults.Get(attributeId),
+                    attributeId,
+                    modifiers);
         }
 
         private static void AddRandomGrowthModifiers(
             PartyMemberGrowthSO growthData,
             ItemInstance instance,
-            List<StatModifier> modifiers)
+            List<AttributeModifierValue> modifiers)
         {
             if (growthData == null || instance?.growthAttributeRolls == null)
                 return;
@@ -72,36 +78,48 @@ namespace UPlayGround.Data.Party
             {
                 EquipmentGrowthAttributeRoll roll = instance.growthAttributeRolls[i];
                 growthData.TryGetInvestmentRule(roll.attributeType, out GrowthInvestmentRule rule);
-                modifiers.Add(new StatModifier(
-                    rule.statType,
-                    ModifierType.Flat,
-                    rule.flatPerRank * Mathf.Max(0, roll.rank),
-                    instance));
+                if (!rule.AttributeId.IsValid)
+                {
+                    Debug.LogError(
+                        $"[CharacterEffectiveStatCalculator] {growthData.name}의 " +
+                        $"{roll.attributeType} 성장 규칙에 Attribute ID가 없습니다.",
+                        growthData);
+                    continue;
+                }
+                modifiers.Add(new AttributeModifierValue(
+                    rule.AttributeId,
+                    AttributeModifierOperation.Add,
+                    rule.flatPerRank * Mathf.Max(0, roll.rank)));
             }
         }
 
-        private static float ComputeFinal(float baseValue, StatType type, List<StatModifier> modifiers)
+        private static float ComputeFinal(
+            float baseValue,
+            AttributeId attributeId,
+            List<AttributeModifierValue> modifiers)
         {
             float flat = 0f;
             float percent = 0f;
             float multiply = 1f;
-
             for (int i = 0; i < modifiers.Count; i++)
             {
-                StatModifier modifier = modifiers[i];
-                if (modifier.statType != type)
+                AttributeModifierValue modifier = modifiers[i];
+                if (modifier.AttributeId != attributeId)
                     continue;
 
-                switch (modifier.modifierType)
+                switch (modifier.Operation)
                 {
-                    case ModifierType.Flat:
-                        flat += modifier.value;
+                    case AttributeModifierOperation.Add:
+                        flat += modifier.Value;
                         break;
-                    case ModifierType.Percent:
-                        percent += modifier.value;
+                    case AttributeModifierOperation.Percent:
+                        percent += modifier.Value;
                         break;
-                    case ModifierType.Multiply:
-                        multiply *= modifier.value;
+                    case AttributeModifierOperation.Multiply:
+                        multiply *= modifier.Value;
+                        break;
+                    case AttributeModifierOperation.Override:
+                        baseValue = modifier.Value;
                         break;
                 }
             }
@@ -109,11 +127,12 @@ namespace UPlayGround.Data.Party
             return (baseValue + flat) * (1f + percent) * multiply;
         }
 
-        private static Dictionary<StatType, float> BuildDefaultStats()
+        private static Dictionary<AttributeId, float> BuildDefaultStats()
         {
-            Dictionary<StatType, float> stats = new();
-            foreach (StatType type in Enum.GetValues(typeof(StatType)))
-                stats[type] = ActorStatSO.GetDefault(type);
+            Dictionary<AttributeId, float> stats = new();
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+                stats[attributeId] =
+                    UPlayGroundAttributeDefaults.Get(attributeId);
             return stats;
         }
     }

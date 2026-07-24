@@ -15,7 +15,7 @@ namespace UPlayGround.Data.Ability
         public AbilityCostDefinition cost = new();
         public AbilityCooldownDefinition cooldown = new();
         public AbilityConcurrencyPolicy concurrency = AbilityConcurrencyPolicy.RejectNew;
-        [Tooltip("다중 프레임 실행의 단일 Task Graph. 비어 있으면 전환기 레거시 Payload 경로를 사용합니다.")]
+        [Tooltip("다중 프레임 실행의 필수 Task Graph.")]
         public UPlayGround.Ability.Core.AbilityTaskGraphSO taskGraph;
         public List<AbilityVariantDefinition> variants = new();
         public List<GameplayEffectSO> commitEffects = new();

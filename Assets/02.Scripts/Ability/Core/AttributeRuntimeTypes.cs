@@ -108,6 +108,27 @@ namespace UPlayGround.Ability.Core
         Override,
     }
 
+    /// <summary>
+    /// 데이터 소스와 런타임 Effect 생성 경계에서 사용하는 안정 Attribute 보정값.
+    /// 프로젝트 전용 enum이나 Unity 오브젝트 수명에 의존하지 않는다.
+    /// </summary>
+    public readonly struct AttributeModifierValue
+    {
+        public AttributeId AttributeId { get; }
+        public AttributeModifierOperation Operation { get; }
+        public float Value { get; }
+
+        public AttributeModifierValue(
+            AttributeId attributeId,
+            AttributeModifierOperation operation,
+            float value)
+        {
+            AttributeId = attributeId;
+            Operation = operation;
+            Value = value;
+        }
+    }
+
     [Serializable]
     public sealed class GameplayAttributeDefinition
     {

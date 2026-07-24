@@ -5,6 +5,8 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 
 namespace UPlayGround.Tool.Editor.Validation
 {
@@ -84,15 +86,16 @@ namespace UPlayGround.Tool.Editor.Validation
                     "플레이어블 확장 또는 영입 대상이라면 ActorType 플래그 의도를 확인하세요.");
             }
 
-            if (definition.statData == null)
+            if (definition.attributeProfile != null)
             {
-                Add(issues, EditorValidationSeverity.Error, path, definition, "statData",
-                    "statData가 비어 있습니다.",
-                    "Stat Data Generator에서 누락 스탯을 생성/연결하세요.");
+                ValidateAttributeProfile(
+                    issues, definition, path, definition.attributeProfile);
             }
             else
             {
-                ValidateStatCoverage(issues, definition, path, definition.statData);
+                Add(issues, EditorValidationSeverity.Error, path, definition, "attributeProfile",
+                    "Attribute Profile이 비어 있습니다.",
+                    "Actor Stat → Attribute Preview에서 Profile을 생성/연결하세요.");
             }
 
             if (isMonster)
@@ -134,20 +137,30 @@ namespace UPlayGround.Tool.Editor.Validation
             }
         }
 
-        private static void ValidateStatCoverage(
+        private static void ValidateAttributeProfile(
             List<EditorValidationIssue> issues,
             ActorDefinitionSO definition,
             string actorPath,
-            ActorStatSO stat)
+            AttributeProfileSO profile)
         {
-            foreach (StatType type in System.Enum.GetValues(typeof(StatType)))
+            var values = new Dictionary<AttributeId, float>();
+            if (!profile.TryCopyBaseValues(values, out string error))
             {
-                if (stat.TryGetExplicit(type, out _))
-                    continue;
+                Add(issues, EditorValidationSeverity.Error, actorPath, definition,
+                    "attributeProfile", error,
+                    "중복·빈 ID·비유한 값을 수정하세요.");
+                return;
+            }
 
-                Add(issues, EditorValidationSeverity.Warning, actorPath, definition, $"statData.{type}",
-                    $"statData에 {type} 항목이 명시되어 있지 않습니다.",
-                    $"{stat.name}은 기본값 폴백으로 동작하지만, 밸런스/검증 툴 기준에서는 명시값을 권장합니다.");
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+            {
+                if (!values.ContainsKey(attributeId))
+                {
+                    Add(issues, EditorValidationSeverity.Error, actorPath, definition,
+                        $"attributeProfile.{attributeId.Value}",
+                        $"{attributeId.Value} 기본값이 없습니다.",
+                        "Profile 생성기에서 기본값을 다시 채우세요.");
+                }
             }
         }
 

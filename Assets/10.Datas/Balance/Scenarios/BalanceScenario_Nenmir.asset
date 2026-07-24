@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Nenmir
   m_EditorClassIdentifier: 
   playerCharacter: 5
-  playerStatData: {fileID: 11400000, guid: 9ae7de3c071038c47afcebe388a606ed, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: d5be4a7f884c4087b5d27c09736b4433, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: 9a3ef024f671d5c46b33becaa025c81e, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

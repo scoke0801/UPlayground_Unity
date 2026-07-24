@@ -17,7 +17,7 @@ namespace UPlayGround.Tool.Editor.Actor
         private SerializedProperty _characterType;
         private SerializedProperty _targetLayerMask;
         private SerializedProperty _prefab;
-        private SerializedProperty _statData;
+        private SerializedProperty _attributeProfile;
         private SerializedProperty _poiseData;
         private SerializedProperty _monsterProfile;
         private SerializedProperty _breakGaugeData;
@@ -46,7 +46,7 @@ namespace UPlayGround.Tool.Editor.Actor
             _characterType = serializedObject.FindProperty("characterType");
             _targetLayerMask = serializedObject.FindProperty("targetLayerMask");
             _prefab = serializedObject.FindProperty("prefab");
-            _statData = serializedObject.FindProperty("statData");
+            _attributeProfile = serializedObject.FindProperty("attributeProfile");
             _poiseData = serializedObject.FindProperty("poiseData");
             _monsterProfile = serializedObject.FindProperty("monsterProfile");
             _breakGaugeData = serializedObject.FindProperty("breakGaugeData");
@@ -131,11 +131,17 @@ namespace UPlayGround.Tool.Editor.Actor
             if (playerFallback)
             {
                 EditorGUILayout.HelpBox(
-                    "PlayerActor는 PartyConfigSO의 성장/파티 데이터가 런타임 권위입니다. Stat Data는 PartyManager 없이 단독 실행할 때의 폴백입니다.",
+                    "PlayerActor는 PartyConfigSO의 성장/파티 데이터와 Attribute Profile을 GAS Attribute 기본값으로 사용합니다.",
                     MessageType.Info);
             }
 
-            EditorGUILayout.PropertyField(_statData);
+            EditorGUILayout.PropertyField(_attributeProfile);
+            if (_attributeProfile.objectReferenceValue == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "Attribute Profile이 필요합니다.",
+                    required ? MessageType.Error : MessageType.Warning);
+            }
             EditorGUILayout.PropertyField(_poiseData);
         }
 

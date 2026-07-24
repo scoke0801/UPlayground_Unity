@@ -1,4 +1,5 @@
 using UPlayGround.Data;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UnityEngine;
 using UPlayGround.Gameplay.Tag;
@@ -173,8 +174,10 @@ namespace UPlayGround.Combat
             if (attacker?.AbilitySystem == null)
                 return 1f;
 
-            attacker.AbilitySystem.TryGetStat(
-                StatType.CritRate, current: true, out float rawCritRate);
+            attacker.AbilitySystem.TryGetAttribute(
+                AttributeIds.Combat.CritRate,
+                current: true,
+                out float rawCritRate);
             float critRate = Mathf.Clamp01(rawCritRate);
             if (critRate <= 0f)
                 return 1f;
@@ -182,8 +185,10 @@ namespace UPlayGround.Combat
             if (Random.value > critRate)
                 return 1f;
 
-            return attacker.AbilitySystem.TryGetStat(
-                StatType.CritMultiplier, current: true, out float multiplier)
+            return attacker.AbilitySystem.TryGetAttribute(
+                AttributeIds.Combat.CritMultiplier,
+                current: true,
+                out float multiplier)
                 ? Mathf.Max(1f, multiplier)
                 : 1f;
         }

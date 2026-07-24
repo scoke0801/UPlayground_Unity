@@ -41,6 +41,10 @@ namespace UPlayGround.Ability.PlayModeTests
             var owner = ownerObject.AddComponent<AbilityPlayModeTestActor>();
             owner.SetActorType(ActorType.Player);
 
+            Assert.That(owner.Abilities, Is.SameAs(owner.AbilitySystem.ProjectAbilities));
+            Assert.That(owner.Effects, Is.SameAs(owner.AbilitySystem.ProjectEffects));
+            Assert.That(owner.Tags, Is.SameAs(owner.AbilitySystem.ProjectTags));
+
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.executionId = "Execution.Test.PlayMode";
             var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
@@ -53,6 +57,9 @@ namespace UPlayGround.Ability.PlayModeTests
 
             GameplayAbilitySO ability = ScriptableObject.CreateInstance<GameplayAbilitySO>();
             ability.abilityId = "Ability.Test.PlayMode.VerticalSlice";
+            var task = ScriptableObject.CreateInstance<WaitDelayTaskDefinitionSO>();
+            task.duration = 999f;
+            ability.taskGraph = AbilityTaskGraphSO.CreateTransient(task);
             ability.activation.targetRelation = AbilityTargetRelation.Self;
             ability.activation.executionGrantedTagIds.Add(GameplayTagId.State_Combat_Attack);
             ability.cooldown.durationSeconds = 0.1f;
@@ -138,7 +145,7 @@ namespace UPlayGround.Ability.PlayModeTests
             effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
             effect.modifiers.Add(new GameplayEffectModifierDefinition
             {
-                statType = global::UPlayGround.Data.Stat.StatType.AttackPower,
+                attributeId = AttributeIds.Combat.AttackPower.Value,
                 modifierType = global::UPlayGround.Data.Stat.ModifierType.Flat,
                 value = 5f,
             });

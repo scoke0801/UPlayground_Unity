@@ -119,13 +119,6 @@ namespace UPlayGround.Data.Ability
         SaveRemainingDuration,
     }
 
-    public enum GameplayResourceOperationType
-    {
-        Add,
-        Set,
-        PercentOfMax,
-    }
-
     [Serializable]
     public sealed class AbilityPresentationDefinition
     {
@@ -249,50 +242,12 @@ namespace UPlayGround.Data.Ability
     [Serializable]
     public sealed class GameplayEffectModifierDefinition
     {
-        public StatType statType = StatType.AttackPower;
+        [Tooltip("런타임 권위 Attribute ID.")]
+        public string attributeId;
         public ModifierType modifierType = ModifierType.Percent;
         public float value;
+
+        public AttributeId AttributeId => new(attributeId);
     }
 
-    [Serializable]
-    public sealed class GameplayResourceOperation
-    {
-        public AbilityResourceType resourceType = AbilityResourceType.Health;
-        public GameplayResourceOperationType operation = GameplayResourceOperationType.Add;
-        public float magnitude;
-    }
-
-    [Serializable]
-    public sealed class AbilityResourceSaveEntry
-    {
-        public AbilityResourceType resourceType;
-        public float currentValue;
-    }
-
-    [Serializable]
-    public sealed class AbilityCooldownSaveEntry
-    {
-        public string cooldownGroupId;
-        public float remainingSeconds;
-    }
-
-    [Serializable]
-    public sealed class GameplayEffectSaveEntry
-    {
-        public string effectId;
-        public string sourceActorId;
-        public float remainingSeconds;
-        public int stackCount;
-        public float capturedMagnitude;
-        public GameplayEffectHudVisibility hudVisibility;
-    }
-
-    [Serializable]
-    public sealed class AbilityRuntimeSaveData
-    {
-        public int version = 1;
-        public List<AbilityResourceSaveEntry> resources = new();
-        public List<AbilityCooldownSaveEntry> cooldowns = new();
-        public List<GameplayEffectSaveEntry> activeEffects = new();
-    }
 }

@@ -89,7 +89,7 @@ namespace UPlayGround.Editor.P09Builder
 
         public IEnumerable<IDescDef> GetDescDefs(CharacterBuildConfig config)
         {
-            // 런타임 전투 스탯(ActorStatSO)은 SyncActorDatabaseStep에서
+            // 런타임 전투 Attribute Profile은 SyncActorDatabaseStep에서
             // ActorDefinitionSO의 monsterScaling/등급/레벨/무기 프로필 기준으로 발급·갱신한다.
 
             // Poise: createNewPoise=true일 때만 생성

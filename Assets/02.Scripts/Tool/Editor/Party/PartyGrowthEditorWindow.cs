@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
@@ -21,13 +22,14 @@ namespace UPlayGround.Tool.Editor.Party
         private Vector2 _scroll;
         private Vector2 _horizontalScroll;
         private string _growthSavePath = DefaultGrowthPath;
-        private string _statSavePath = DefaultStatPath;
+        private string _profileSavePath = DefaultProfilePath;
         private string _statCategory = "전투";
         private int _previewLevel = 1;
         private bool _showH09;
 
         private const string DefaultGrowthPath = "Assets/10.Datas/Party/Growth";
-        private const string DefaultStatPath = "Assets/10.Datas/Stat/Player";
+        private const string DefaultProfilePath =
+            "Assets/10.Datas/Ability/Attributes/Migrated";
         private const float RowHeight = 24f;
         private const float ColType = 110f;
         private const float ColObject = 180f;
@@ -42,15 +44,15 @@ namespace UPlayGround.Tool.Editor.Party
         private static readonly Color ColorRowOdd = new(0.23f, 0.23f, 0.25f);
         private static readonly Color ColorMissing = new(0.85f, 0.55f, 0.15f);
 
-        private static readonly (string label, StatType[] types)[] Categories =
+        private static readonly (string label, AttributeId[] attributes)[] Categories =
         {
-            ("생존",  new[] { StatType.MaxHealth, StatType.HealthRegenRate }),
-            ("전투",  new[] { StatType.AttackPower, StatType.Defense, StatType.CritRate, StatType.CritMultiplier }),
-            ("이동",  new[] { StatType.MoveSpeed, StatType.DashDistance }),
-            ("강인도", new[] { StatType.MaxPoise, StatType.PoiseRecoveryRate, StatType.PoiseRecoveryDelay }),
-            ("스킬",  new[] { StatType.SkillGaugeRate, StatType.InvincibleDuration }),
-            ("생활",  new[] { StatType.GatheringPower }),
-            ("전체",  (StatType[])Enum.GetValues(typeof(StatType))),
+            ("생존",  new[] { AttributeIds.Vital.MaxHealth, AttributeIds.Vital.HealthRegenRate }),
+            ("전투",  new[] { AttributeIds.Combat.AttackPower, AttributeIds.Combat.Defense, AttributeIds.Combat.CritRate, AttributeIds.Combat.CritMultiplier }),
+            ("이동",  new[] { AttributeIds.Movement.MoveSpeed, AttributeIds.Movement.DashDistance }),
+            ("강인도", new[] { AttributeIds.Vital.MaxPoise, AttributeIds.Vital.PoiseRecoveryRate, AttributeIds.Vital.PoiseRecoveryDelay }),
+            ("스킬",  new[] { AttributeIds.Resource.GenerationMultiplier, AttributeIds.Combat.InvincibleDurationMultiplier }),
+            ("생활",  new[] { AttributeIds.Life.GatheringPower }),
+            ("전체",  UPlayGroundAttributeDefaults.All),
         };
 
         public static void Open()
@@ -130,21 +132,21 @@ namespace UPlayGround.Tool.Editor.Party
             if (GUILayout.Button("...", GUILayout.Width(28)))
                 BrowseSavePath(ref _growthSavePath);
 
-            GUILayout.Label("BaseStat 저장 경로", GUILayout.Width(105));
-            _statSavePath = EditorGUILayout.TextField(_statSavePath);
+            GUILayout.Label("Profile 저장 경로", GUILayout.Width(105));
+            _profileSavePath = EditorGUILayout.TextField(_profileSavePath);
             if (GUILayout.Button("...", GUILayout.Width(28)))
-                BrowseSavePath(ref _statSavePath);
+                BrowseSavePath(ref _profileSavePath);
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
         }
 
         private void DrawTable()
         {
-            var statTypes = GetVisibleStatTypes();
+            AttributeId[] attributeIds = GetVisibleAttributeIds();
 
             _horizontalScroll = EditorGUILayout.BeginScrollView(_horizontalScroll, false, true);
-            float width = ColType + ColObject * 2f + ColSmall * 2f + ColPower + statTypes.Length * (ColStatBase + ColFormula + ColGrowth * 2f);
-            DrawHeader(width, statTypes);
+            float width = ColType + ColObject * 2f + ColSmall * 2f + ColPower + attributeIds.Length * (ColStatBase + ColFormula + ColGrowth * 2f);
+            DrawHeader(width, attributeIds);
 
             _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.ExpandHeight(true), GUILayout.MinWidth(width));
             int rowIndex = 0;
@@ -152,13 +154,13 @@ namespace UPlayGround.Tool.Editor.Party
             {
                 if (type == CharacterActorType.None) continue;
                 if (!_showH09 && type == CharacterActorType.H09) continue;
-                DrawRow(type, rowIndex++, width, statTypes);
+                DrawRow(type, rowIndex++, width, attributeIds);
             }
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawHeader(float width, StatType[] statTypes)
+        private void DrawHeader(float width, AttributeId[] attributeIds)
         {
             Rect rect = GUILayoutUtility.GetRect(width, RowHeight);
             EditorGUI.DrawRect(rect, ColorHeader);
@@ -166,14 +168,14 @@ namespace UPlayGround.Tool.Editor.Party
             float x = rect.x;
             DrawHeaderCell("Character", ref x, ColType, rect);
             DrawHeaderCell("GrowthData", ref x, ColObject, rect);
-            DrawHeaderCell("BaseStat", ref x, ColObject, rect);
+            DrawHeaderCell("BaseProfile", ref x, ColObject, rect);
             DrawHeaderCell("InitLv", ref x, ColSmall, rect);
             DrawHeaderCell("Cap", ref x, ColSmall, rect);
             DrawHeaderCell("Power", ref x, ColPower, rect);
 
-            for (int i = 0; i < statTypes.Length; i++)
+            for (int i = 0; i < attributeIds.Length; i++)
             {
-                string name = statTypes[i].ToString();
+                string name = attributeIds[i].Value;
                 DrawHeaderCell($"{name} Base", ref x, ColStatBase, rect);
                 DrawHeaderCell("Formula", ref x, ColFormula, rect);
                 DrawHeaderCell("Flat/Lv", ref x, ColGrowth, rect);
@@ -187,7 +189,7 @@ namespace UPlayGround.Tool.Editor.Party
             x += width;
         }
 
-        private void DrawRow(CharacterActorType type, int rowIndex, float width, StatType[] statTypes)
+        private void DrawRow(CharacterActorType type, int rowIndex, float width, AttributeId[] attributeIds)
         {
             Rect rect = GUILayoutUtility.GetRect(width, RowHeight);
             EditorGUI.DrawRect(rect, rowIndex % 2 == 0 ? ColorRowEven : ColorRowOdd);
@@ -199,7 +201,7 @@ namespace UPlayGround.Tool.Editor.Party
             x += ColType;
 
             DrawGrowthCell(type, ref x, rect, growth);
-            DrawBaseStatCell(type, ref x, rect, growth);
+            DrawBaseProfileCell(type, ref x, rect, growth);
 
             if (growth == null)
             {
@@ -210,8 +212,8 @@ namespace UPlayGround.Tool.Editor.Party
             DrawLevelFields(growth, ref x, rect);
             DrawPowerPreview(type, growth, ref x, rect);
 
-            for (int i = 0; i < statTypes.Length; i++)
-                DrawStatCells(growth, statTypes[i], ref x, rect);
+            for (int i = 0; i < attributeIds.Length; i++)
+                DrawAttributeCells(growth, attributeIds[i], ref x, rect);
         }
 
         private void DrawGrowthCell(CharacterActorType type, ref float x, Rect rect, PartyMemberGrowthSO growth)
@@ -236,22 +238,26 @@ namespace UPlayGround.Tool.Editor.Party
             x += ColObject;
         }
 
-        private void DrawBaseStatCell(CharacterActorType type, ref float x, Rect rect, PartyMemberGrowthSO growth)
+        private void DrawBaseProfileCell(CharacterActorType type, ref float x, Rect rect, PartyMemberGrowthSO growth)
         {
             using (new EditorGUI.DisabledScope(growth == null))
             {
                 Rect objectRect = new(x + 2, rect.y + 2, ColObject - 58, rect.height - 4);
                 EditorGUI.BeginChangeCheck();
-                var newStat = (ActorStatSO)EditorGUI.ObjectField(objectRect, growth != null ? growth.baseStat : null, typeof(ActorStatSO), false);
+                var newProfile = (AttributeProfileSO)EditorGUI.ObjectField(
+                    objectRect,
+                    growth != null ? growth.baseProfile : null,
+                    typeof(AttributeProfileSO),
+                    false);
                 if (EditorGUI.EndChangeCheck() && growth != null)
                 {
-                    Undo.RecordObject(growth, "Set Growth BaseStat");
-                    growth.baseStat = newStat;
+                    Undo.RecordObject(growth, "Set Growth Base Profile");
+                    growth.baseProfile = newProfile;
                     EditorUtility.SetDirty(growth);
                 }
 
                 if (GUI.Button(new Rect(x + ColObject - 32, rect.y + 2, 30, rect.height - 4), "생성") && growth != null)
-                    CreateBaseStatAsset(type, growth);
+                    CreateBaseProfileAsset(type, growth);
             }
 
             x += ColObject;
@@ -282,25 +288,33 @@ namespace UPlayGround.Tool.Editor.Party
             x += ColPower;
         }
 
-        private void DrawStatCells(PartyMemberGrowthSO growth, StatType statType, ref float x, Rect rect)
+        private void DrawAttributeCells(
+            PartyMemberGrowthSO growth,
+            AttributeId attributeId,
+            ref float x,
+            Rect rect)
         {
-            ActorStatSO baseStat = growth.baseStat;
-            bool hasBase = baseStat != null;
-            float baseValue = hasBase ? baseStat.GetBase(statType) : ActorStatSO.GetDefault(statType);
+            AttributeProfileSO baseProfile = growth.baseProfile;
+            bool hasBase = baseProfile != null;
+            float baseValue = hasBase
+                              && baseProfile.TryGetBaseValue(
+                                  attributeId, out float profileValue)
+                ? profileValue
+                : UPlayGroundAttributeDefaults.Get(attributeId);
 
             EditorGUI.BeginDisabledGroup(!hasBase);
             EditorGUI.BeginChangeCheck();
             float newBase = EditorGUI.FloatField(new Rect(x + 2, rect.y + 2, ColStatBase - 4, rect.height - 4), baseValue);
             if (EditorGUI.EndChangeCheck() && hasBase)
             {
-                Undo.RecordObject(baseStat, "Edit Growth Base Stat");
-                baseStat.EditorSet(statType, newBase);
-                EditorUtility.SetDirty(baseStat);
+                Undo.RecordObject(baseProfile, "Edit Growth Base Attribute");
+                baseProfile.EditorSetBaseValue(attributeId, newBase);
+                EditorUtility.SetDirty(baseProfile);
             }
             EditorGUI.EndDisabledGroup();
             x += ColStatBase;
 
-            StatGrowthRule rule = GetOrDefaultRule(growth, statType);
+            StatGrowthRule rule = GetOrDefaultRule(growth, attributeId);
             EditorGUI.BeginChangeCheck();
             GrowthFormula formula = (GrowthFormula)EditorGUI.EnumPopup(new Rect(x + 2, rect.y + 2, ColFormula - 4, rect.height - 4), rule.formula);
             x += ColFormula;
@@ -312,7 +326,7 @@ namespace UPlayGround.Tool.Editor.Party
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(growth, "Edit Growth Rule");
-                rule.statType = statType;
+                rule.attributeId = attributeId.Value;
                 rule.formula = formula;
                 rule.flatPerLevel = flat;
                 rule.percentPerLevel = percent;
@@ -419,33 +433,41 @@ namespace UPlayGround.Tool.Editor.Party
             RefreshLookup();
         }
 
-        private void CreateBaseStatAsset(CharacterActorType type, PartyMemberGrowthSO growth)
+        private void CreateBaseProfileAsset(CharacterActorType type, PartyMemberGrowthSO growth)
         {
             if (growth == null) return;
-            EnsureFolder(_statSavePath);
+            EnsureFolder(_profileSavePath);
 
-            var stat = CreateInstance<ActorStatSO>();
-            stat.EditorFillMissing();
+            var profile = CreateInstance<AttributeProfileSO>();
+            var entries = new List<AttributeProfileEntry>();
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+                entries.Add(new AttributeProfileEntry(
+                    attributeId,
+                    UPlayGroundAttributeDefaults.Get(attributeId)));
+            profile.EditorReplace($"player.{type}", entries);
 
-            string path = AssetDatabase.GenerateUniqueAssetPath($"{_statSavePath}/ActorStat_Player_{type}.asset");
-            AssetDatabase.CreateAsset(stat, path);
+            string path = AssetDatabase.GenerateUniqueAssetPath(
+                $"{_profileSavePath}/AttributeProfile_Player_{type}.asset");
+            AssetDatabase.CreateAsset(profile, path);
 
-            Undo.RecordObject(growth, "Create Growth Base Stat");
-            growth.baseStat = stat;
+            Undo.RecordObject(growth, "Create Growth Base Profile");
+            growth.baseProfile = profile;
             EditorUtility.SetDirty(growth);
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
 
-        private static StatGrowthRule GetOrDefaultRule(PartyMemberGrowthSO growth, StatType statType)
+        private static StatGrowthRule GetOrDefaultRule(
+            PartyMemberGrowthSO growth,
+            AttributeId attributeId)
         {
-            if (growth != null && growth.TryGetRule(statType, out var rule))
+            if (growth != null && growth.TryGetRule(attributeId, out var rule))
                 return rule;
 
             return new StatGrowthRule
             {
-                statType = statType,
+                attributeId = attributeId.Value,
                 formula = GrowthFormula.Flat,
                 flatPerLevel = 0f,
                 percentPerLevel = 0f,
@@ -457,7 +479,7 @@ namespace UPlayGround.Tool.Editor.Party
         {
             for (int i = 0; i < growth.growthRules.Count; i++)
             {
-                if (growth.growthRules[i].statType != rule.statType) continue;
+                if (growth.growthRules[i].AttributeId != rule.AttributeId) continue;
                 growth.growthRules[i] = rule;
                 return;
             }
@@ -465,15 +487,15 @@ namespace UPlayGround.Tool.Editor.Party
             growth.growthRules.Add(rule);
         }
 
-        private StatType[] GetVisibleStatTypes()
+        private AttributeId[] GetVisibleAttributeIds()
         {
             for (int i = 0; i < Categories.Length; i++)
             {
                 if (Categories[i].label == _statCategory)
-                    return Categories[i].types;
+                    return Categories[i].attributes;
             }
 
-            return Categories[1].types;
+            return Categories[1].attributes;
         }
 
         private static string[] GetCategoryNames()

@@ -12,6 +12,7 @@ namespace UPlayGround.Dialogue
 
         /// <summary>값이 실제로 변경될 때만 발화. 세이브 일괄 복원(LoadFlags)은 발화하지 않는다.</summary>
         public event Action<string, bool> OnFlagChanged;
+        public event Action OnFlagsReloaded;
 
         #region IManager
         public void Init()
@@ -59,6 +60,7 @@ namespace UPlayGround.Dialogue
         {
             _flags.Clear();
             foreach (var kv in saved) _flags[kv.Key] = kv.Value;
+            OnFlagsReloaded?.Invoke();
         }
 
         public Dictionary<string, bool> GetAllFlags() => new(_flags);
@@ -78,6 +80,7 @@ namespace UPlayGround.Dialogue
         public void ResetForNewGame()
         {
             _flags.Clear();
+            OnFlagsReloaded?.Invoke();
         }
 
         #endregion

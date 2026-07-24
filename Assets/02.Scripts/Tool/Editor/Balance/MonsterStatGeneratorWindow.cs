@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
@@ -10,15 +11,15 @@ using UPlayGround.Data.Stat;
 namespace UPlayGround.Tool.Editor.Balance
 {
     /// <summary>
-    /// MonsterScalingSO 커브로 ActorDatabase의 몬스터 statData를 (레벨 × 등급 × 난이도) 일괄 산출하는 창.
-    /// - Generate Missing (All): statData가 없는 몬스터만 신규 생성(기존 값 보호).
-    /// - Apply Selected: 체크한 몬스터를 재생성. 기존 statData는 제자리 덮어쓰기(확인 다이얼로그 + Undo).
+    /// MonsterScalingSO 커브로 ActorDatabase의 몬스터 Attribute Profile을 일괄 산출하는 창.
+    /// - Generate Missing (All): Profile이 없는 몬스터만 신규 생성(기존 값 보호).
+    /// - Apply Selected: 체크한 몬스터의 기존 Profile을 제자리 갱신한다(확인 다이얼로그 + Undo).
     ///   기존 로스터를 레벨/난이도에 맞춰 재조정할 때 사용. 보스 등은 체크 해제로 보호한다.
     /// 메뉴: UPlayGround/게임플레이/밸런스/몬스터 스탯 생성기
     /// </summary>
     public sealed class MonsterStatGeneratorWindow : EditorWindow
     {
-        private const string StatSavePath = "Assets/10.Datas/Stat/Generated";
+        private const string StatSavePath = MonsterStatBakeService.DefaultStatSavePath;
 
         private MonsterScalingSO _scaling;
         private ActorDatabase _database;
@@ -216,7 +217,7 @@ namespace UPlayGround.Tool.Editor.Balance
         private void DrawRow(ActorDefinitionSO actor, int index)
         {
             Rect row = GUILayoutUtility.GetRect(0f, 22f, GUILayout.ExpandWidth(true));
-            bool missing = actor.statData == null;
+            bool missing = actor.attributeProfile == null;
 
             if (Event.current.type == EventType.Repaint)
             {
@@ -230,7 +231,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             float x = row.x + 4f;
 
-            // 모든 몬스터 선택 가능 — 체크한 액터는 기존 statData가 있어도 덮어쓴다(보스는 체크 해제로 보호).
+            // 모든 몬스터 선택 가능 — 체크한 액터는 기존 Profile이 있어도 덮어쓴다(보스는 체크 해제로 보호).
             _selected.TryGetValue(actor, out bool sel);
             bool newSel = GUI.Toggle(new Rect(x, row.y + 3f, 18f, 16f), sel, GUIContent.none);
             if (newSel != sel)
@@ -244,15 +245,15 @@ namespace UPlayGround.Tool.Editor.Balance
             Label(ref x, row, 72f, actor.monsterScaling != null ? "연결" : "누락");
             Label(ref x, row, 58f, MonsterStatCalculator.GetHumanoidWeaponProfileName(actor));
 
-            Dictionary<StatType, float> planned = MonsterStatCalculator.Calculate(ResolveScaling(actor), actor, _difficultyOverride);
-            float pHp = planned[StatType.MaxHealth];
-            float pAtk = planned[StatType.AttackPower];
-            float pDef = planned[StatType.Defense];
-            float pPoise = planned[StatType.MaxPoise];
+            Dictionary<AttributeId, float> planned = MonsterStatCalculator.Calculate(ResolveScaling(actor), actor, _difficultyOverride);
+            float pHp = planned[AttributeIds.Vital.MaxHealth];
+            float pAtk = planned[AttributeIds.Combat.AttackPower];
+            float pDef = planned[AttributeIds.Combat.Defense];
+            float pPoise = planned[AttributeIds.Vital.MaxPoise];
 
             string current = missing
                 ? "-"
-                : $"{actor.statData.GetBase(StatType.MaxHealth):F0}/{actor.statData.GetBase(StatType.AttackPower):F2}/{actor.statData.GetBase(StatType.Defense):F2}";
+                : $"{BalanceAttributeProfileUtility.Get(actor, AttributeIds.Vital.MaxHealth):F0}/{BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.AttackPower):F2}/{BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.Defense):F2}";
             Label(ref x, row, 150f, $"현재 {current}");
             Label(ref x, row, 220f, $"예정 HP{pHp:F0} ATK{pAtk:F2} DEF{pDef:F2} Poise{pPoise:F0}");
 
@@ -272,14 +273,14 @@ namespace UPlayGround.Tool.Editor.Balance
             LabelStyled(ref x, header, 150f, "actorId");
             LabelStyled(ref x, header, 40f, "Lv");
             LabelStyled(ref x, header, 60f, "Grade");
-            LabelStyled(ref x, header, 64f, "statData");
+            LabelStyled(ref x, header, 64f, "Profile");
             LabelStyled(ref x, header, 72f, "Growth");
             LabelStyled(ref x, header, 58f, "유형");
             LabelStyled(ref x, header, 150f, "현재(HP/ATK/DEF)");
             LabelStyled(ref x, header, 220f, "예정(레벨×등급×난이도)");
         }
 
-        /// <summary>statData가 없는 몬스터만 새로 생성한다(기존 값 보호).</summary>
+        /// <summary>Attribute Profile이 없는 몬스터만 새로 생성한다(기존 값 보호).</summary>
         private void GenerateMissing()
         {
             if (_scaling == null || _database == null)
@@ -294,7 +295,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 ActorDefinitionSO actor = actors[i];
                 if (actor == null || (actor.actorType & ActorType.Monster) == 0)
                     continue;
-                if (actor.statData != null) // 누락만 생성 — 기존 값 보호
+                if (actor.attributeProfile != null) // 누락만 생성 — 기존 값 보호
                     continue;
 
                 MonsterStatBakeService.Result result = MonsterStatBakeService.Bake(actor, new MonsterStatBakeService.Options
@@ -316,10 +317,10 @@ namespace UPlayGround.Tool.Editor.Balance
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("Monster Stat Generator", $"생성된 statData: {created}개\nGrowth 연결: {linked}개\n(기존 statData가 있는 몬스터는 건너뜀)", "확인");
+            EditorUtility.DisplayDialog("Monster Stat Generator", $"생성된 Attribute Profile: {created}개\nGrowth 연결: {linked}개\n(기존 Profile이 있는 몬스터는 건너뜀)", "확인");
         }
 
-        /// <summary>체크한 몬스터를 재생성한다. 기존 statData가 있으면 제자리 덮어쓰기(Undo 가능).</summary>
+        /// <summary>체크한 몬스터를 재생성한다. 기존 Profile이 있으면 제자리 덮어쓰기(Undo 가능).</summary>
         private void ApplySelected()
         {
             if (_scaling == null || _database == null)
@@ -337,7 +338,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     continue;
 
                 targets.Add(actor);
-                if (actor.statData != null)
+                if (actor.attributeProfile != null)
                     overwriteCount++;
             }
 
@@ -349,7 +350,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             bool proceed = EditorUtility.DisplayDialog(
                 "선택 몬스터 재생성",
-                $"선택 {targets.Count}개를 커브로 재생성합니다.\n그중 {overwriteCount}개는 기존 statData를 덮어씁니다.\n공유 statData 에셋이면 같은 에셋을 참조하는 다른 몬스터도 함께 변경됩니다.\n(Undo로 되돌릴 수 있습니다)\n계속하시겠습니까?",
+                $"선택 {targets.Count}개를 커브로 재생성합니다.\n그중 {overwriteCount}개는 기존 Attribute Profile을 덮어씁니다.\n공유 Profile이면 같은 에셋을 참조하는 다른 몬스터도 함께 변경됩니다.\n(Undo로 되돌릴 수 있습니다)\n계속하시겠습니까?",
                 "재생성",
                 "취소");
             if (!proceed)
@@ -415,7 +416,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 "Monster Scaling 프리셋 적용",
                 "현재 MonsterScalingSO에 액션 전투 기준 프리셋을 적용합니다.\n" +
                 "Weak/Normal/Elite/Boss HP와 성장률이 낮아지고, 생성기 미리보기/재생성 결과가 바뀝니다.\n" +
-                "기존 몬스터 statData는 Apply Selected를 실행하기 전까지 변경되지 않습니다.\n" +
+                "기존 몬스터 Attribute Profile은 Apply Selected를 실행하기 전까지 변경되지 않습니다.\n" +
                 "(Undo로 되돌릴 수 있습니다)\n계속하시겠습니까?",
                 "적용",
                 "취소");

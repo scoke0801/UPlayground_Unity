@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Inori
   m_EditorClassIdentifier: 
   playerCharacter: 7
-  playerStatData: {fileID: 11400000, guid: 05e3fdf46f74d734882ad545b67322b6, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: 6bfe413c76da493686a858e5a706ae1b, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: 79e1c4a3850ab2c48aafd3919075531a, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

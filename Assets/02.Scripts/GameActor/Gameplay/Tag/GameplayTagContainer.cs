@@ -7,10 +7,10 @@ using UPlayGround.Gameplay.Ability;
 namespace UPlayGround.Gameplay.Tag
 {
     /// <summary>
-    /// GameActor에 부착되어 런타임 태그 집합을 관리하는 컴포넌트.
+    /// AbilitySystemComponent가 소유하는 프로젝트 태그 API.
     /// 상태 머신 상태가 OnEnter / OnExit 에서 태그를 추가 / 제거한다.
     /// </summary>
-    public class GameplayTagContainer : MonoBehaviour, IGameplayTagReader
+    public sealed class GameplayTagContainer : IGameplayTagReader
     {
         private readonly HashSet<GameplayTag> _tags = new();
         private readonly Dictionary<GameplayTag, int> _ownedTagCounts = new();
@@ -35,15 +35,15 @@ namespace UPlayGround.Gameplay.Tag
         public event Action<GameplayTag> OnTagAdded;
         public event Action<GameplayTag> OnTagRemoved;
 
-        private void Awake()
+        internal GameplayTagContainer(AbilitySystemComponent abilitySystem)
         {
-            EnsureAbilitySystem();
+            _abilitySystem = abilitySystem
+                ?? throw new ArgumentNullException(nameof(abilitySystem));
+            _abilitySystem.EnsureInitialized();
         }
 
         private AbilitySystemComponent EnsureAbilitySystem()
         {
-            if (_abilitySystem == null)
-                _abilitySystem = GetComponent<AbilitySystemComponent>();
             _abilitySystem?.EnsureInitialized();
             return _abilitySystem;
         }
@@ -59,7 +59,7 @@ namespace UPlayGround.Gameplay.Tag
             if (!_gasExplicit.ContainsKey(tag) && gas?.Tags != null)
             {
                 GameplayTagSourceHandle handle = gas.Tags.Add(
-                    new AbilityTagId(tag.TagName), "LegacyExplicit", 0);
+                    new AbilityTagId(tag.TagName), "ExplicitTag", 0);
                 if (handle.IsValid) _gasExplicit[tag] = handle;
             }
             if (!wasPresent) OnTagAdded?.Invoke(tag);
@@ -216,6 +216,8 @@ namespace UPlayGround.Gameplay.Tag
             foreach (GameplayTagHandle handle in handles)
                 RemoveTag(handle);
         }
+
+        internal void Dispose() => Clear();
 
         public override string ToString() => string.Join(", ", _tags);
     }

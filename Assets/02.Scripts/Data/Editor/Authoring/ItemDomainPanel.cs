@@ -240,9 +240,6 @@ namespace UPlayGround.Data.Editor.Authoring
 
             var statSection = MakeSection("장비 능력치");
             AddProperty(statSection, "_statModifiers", "능력치 수정자");
-            var legacyHint = new Label("레거시 능력치는 수정자 목록이 비어 있을 때만 적용됩니다.");
-            legacyHint.style.fontSize = 10f;
-            statSection.Add(legacyHint);
             AddProperty(statSection, "attackPower", "공격력");
             AddProperty(statSection, "critChance", "치명타 확률 (%)");
             AddProperty(statSection, "critDamage", "치명타 피해 (%)");

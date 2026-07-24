@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
@@ -34,7 +35,7 @@ namespace UPlayGround.Tool.Editor.Balance
             result.Messages.AddRange(BalanceActorDataValidator.Validate(actor, scenario, assumedDistance, monsterLevel));
 
             if (actor == null
-                || actor.statData == null
+                || actor.attributeProfile == null
                 || actor.EffectiveAbilitySet == null
                 || result.HasError)
             {
@@ -43,15 +44,18 @@ namespace UPlayGround.Tool.Editor.Balance
                 return result;
             }
 
-            float monsterHealth = Mathf.Max(1f, actor.statData.GetBase(StatType.MaxHealth));
-            float monsterAttackPower = Mathf.Max(0f, actor.statData.GetBase(StatType.AttackPower));
-            float monsterDefense = Mathf.Clamp01(actor.statData.GetBase(StatType.Defense));
+            float monsterHealth = Mathf.Max(1f,
+                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Vital.MaxHealth, 100f));
+            float monsterAttackPower = Mathf.Max(0f,
+                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.AttackPower, 1f));
+            float monsterDefense = Mathf.Clamp01(
+                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.Defense));
 
-            float playerHealth = Mathf.Max(1f, ReadPlayerStat(scenario, StatType.MaxHealth));
+            float playerHealth = Mathf.Max(1f, ReadPlayerStat(scenario, AttributeIds.Vital.MaxHealth));
             float playerAttackPower = Mathf.Max(0f, ReadPlayerAttackPower(scenario, fallbackInput));
-            float playerDefense = Mathf.Clamp01(ReadPlayerStat(scenario, StatType.Defense));
-            float playerMaxPoise = Mathf.Max(0f, ReadPlayerStat(scenario, StatType.MaxPoise));
-            float playerPoiseRecovery = Mathf.Max(0f, ReadPlayerStat(scenario, StatType.PoiseRecoveryRate));
+            float playerDefense = Mathf.Clamp01(ReadPlayerStat(scenario, AttributeIds.Combat.Defense));
+            float playerMaxPoise = Mathf.Max(0f, ReadPlayerStat(scenario, AttributeIds.Vital.MaxPoise));
+            float playerPoiseRecovery = Mathf.Max(0f, ReadPlayerStat(scenario, AttributeIds.Vital.PoiseRecoveryRate));
             result.MonsterHealth = monsterHealth;
             result.PlayerHealth = playerHealth;
             result.PlayerAttackPower = playerAttackPower;
@@ -388,18 +392,21 @@ namespace UPlayGround.Tool.Editor.Balance
             return AbilityAttackCategory.Basic;
         }
 
-        private static float ReadPlayerStat(BalanceScenarioAsset scenario, StatType type)
+        private static float ReadPlayerStat(BalanceScenarioAsset scenario, AttributeId attributeId)
         {
-            if (scenario?.playerStatData != null)
-                return scenario.playerStatData.GetBase(type);
-
-            return ActorStatSO.GetDefault(type);
+            if (scenario?.playerAttributeProfile != null
+                && scenario.playerAttributeProfile.TryGetBaseValue(
+                    attributeId, out float value))
+                return value;
+            return UPlayGroundAttributeDefaults.Get(attributeId);
         }
 
         private static float ReadPlayerAttackPower(BalanceScenarioAsset scenario, BalanceScenarioInput fallbackInput)
         {
-            if (scenario?.playerStatData != null)
-                return scenario.playerStatData.GetBase(StatType.AttackPower);
+            if (scenario?.playerAttributeProfile != null
+                && scenario.playerAttributeProfile.TryGetBaseValue(
+                    AttributeIds.Combat.AttackPower, out float attackPower))
+                return attackPower;
 
             if (scenario != null)
                 return scenario.manualPlayerAttackPower;

@@ -174,9 +174,10 @@ namespace UPlayGround
         protected virtual void Awake()
         {
             AbilitySystem = gameObject.GetOrAddComponent<AbilitySystemComponent>();
-            Tags = gameObject.GetOrAddComponent<GameplayTagContainer>();
-            Effects = gameObject.GetOrAddComponent<GameplayEffectController>();
-            Abilities = gameObject.GetOrAddComponent<ActorAbilitySystem>();
+            AbilitySystem.EnsureInitialized();
+            Tags = AbilitySystem.ProjectTags;
+            Effects = AbilitySystem.ProjectEffects;
+            Abilities = AbilitySystem.ProjectAbilities;
             ApplyBaseDefinition();
             MovementController = GetComponent<ActorMovementController>();
             _animator = GetComponentInChildren<ActorAnimator>();

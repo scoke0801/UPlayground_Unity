@@ -5,7 +5,7 @@ namespace UPlayGround.Combat
     /// <summary>
     /// 전투 결과(<see cref="CombatResult"/>)를 인메모리 링버퍼에 기록하는 최소 로그 (P1.5).
     /// 피드백과 "같은 결과 객체"를 읽는 소비처를 제공해 P1 완료 기준을 충족하고,
-    /// P3 cutover(legacy/runner 결과 일치 검증)와 이후 회귀 확인의 관측 수단이 된다.
+    /// 전투 Runner 결과와 이후 회귀 확인의 관측 수단이 된다.
     ///
     /// damage-applied 경로에서만 호출할 것 — 가드/무적으로 막힌 히트를 피해로 기록하지 않는다.
     /// </summary>

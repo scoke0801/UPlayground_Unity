@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UPlayGround.Data.Ability;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Item;
 
@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "2.0";
+        public string saveVersion = "3.0";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public StorySaveData story = new StorySaveData();
@@ -142,11 +142,9 @@ namespace UPlayGround.Data.Save
         /// <summary>컨텐츠 해금 조건을 새 게임 단위로 결정하는 저장 시드(0=미발급).</summary>
         public int contentUnlockSeed;
 
-        /// <summary> 캐릭터별 현재 체력 (액티브/벤치 공통). </summary>
-        public List<CharacterHpEntry> characterHealth = new List<CharacterHpEntry>();
-        /// <summary> 캐릭터별 Ability 자원·쿨다운·지속 Effect 런타임. </summary>
-        public List<CharacterAbilityRuntimeEntry> characterAbilities =
-            new List<CharacterAbilityRuntimeEntry>();
+        /// <summary> 캐릭터별 Attribute·쿨다운·지속 Effect ASC 스냅샷. </summary>
+        public List<CharacterAbilitySystemSaveEntry> abilitySystems =
+            new List<CharacterAbilitySystemSaveEntry>();
 
         // ── 위치/씬 정보 ──
         /// <summary> 로드 시 진입할 씬 에셋명 (SceneName). </summary>
@@ -178,18 +176,10 @@ namespace UPlayGround.Data.Save
     }
 
     [Serializable]
-    public class CharacterHpEntry
+    public sealed class CharacterAbilitySystemSaveEntry
     {
         public string type;
-        public float currentHp;
-        public float skillGauge;
-    }
-
-    [Serializable]
-    public sealed class CharacterAbilityRuntimeEntry
-    {
-        public string type;
-        public AbilityRuntimeSaveData runtime = new AbilityRuntimeSaveData();
+        public AbilitySystemSaveData abilitySystem = new AbilitySystemSaveData();
     }
 
     [Serializable]

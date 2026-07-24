@@ -86,11 +86,7 @@ namespace UPlayGround.Combat
             if (attackData == null)
                 return;
 
-            var definition = new CombatActionDefinition(
-                attackData.motionAsset,
-                attackData,
-                attackData);
-            CurrentAction = new CombatActionInstance(_owner, definition);
+            CurrentAction = new CombatActionInstance(_owner);
             HandleTimelineEvent(CombatTimelineEventType.ActionStarted, attackData.hitPhaseIndex);
         }
 

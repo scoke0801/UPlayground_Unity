@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!114 &11400000
 MonoBehaviour:
@@ -23,13 +23,9 @@ MonoBehaviour:
   equipmentPrefab: {fileID: 3988488165111841622, guid: 8d3cee83fd272b546ba2294e15d4e02c, type: 3}
   weaponType: 1
   _statModifiers:
-  - statType: 2
+  - attributeId: Combat.AttackPower
     modifierType: 0
     value: 0.05
-  - statType: 4
+  - attributeId: Combat.CritRate
     modifierType: 0
     value: 0.05
-  attackPower: 0
-  critChance: 0
-  critDamage: 100
-  attackSpeed: 1

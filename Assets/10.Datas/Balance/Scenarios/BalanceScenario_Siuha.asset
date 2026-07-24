@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Siuha
   m_EditorClassIdentifier: 
   playerCharacter: 9
-  playerStatData: {fileID: 11400000, guid: 176559ca445bd7c49a712f81e9810103, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: 9bc11fd4856a430f9557b859f52bed99, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: df85c370ac078ca49aac7b821b0af6e0, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

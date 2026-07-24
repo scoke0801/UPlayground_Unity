@@ -54,13 +54,10 @@ namespace UPlayGround
         }
         [SerializeField] private bool  _isInvincible  = false;
 
-        // 교체 시 캐릭터별 체력·스킬 게이지 저장소
-        private readonly Dictionary<CharacterActorType, float> _characterHealthMap = new();
-        private readonly Dictionary<CharacterActorType, float> _characterSkillMap  = new();
-        private readonly Dictionary<CharacterActorType, float[]> _characterSkillCooldownMap = new();
-        private readonly Dictionary<CharacterActorType, AbilityRuntimeSaveData> _characterAbilityRuntimeMap = new();
-        private readonly object _equipmentStatSource = new();
-        private readonly List<StatModifier> _equipmentStatBuffer = new();
+        // 캐릭터별 Health/Gauge/Cooldown/Effect를 하나의 ASC 저장 스냅샷으로 보관한다.
+        private readonly Dictionary<CharacterActorType, AbilitySystemSaveData>
+            _characterAbilitySystemMap = new();
+        private readonly List<AttributeModifierValue> _equipmentStatBuffer = new();
         private ActiveGameplayEffectHandle _equipmentStatEffectHandle;
         private bool _hasInitializedCharacterRuntime;
 

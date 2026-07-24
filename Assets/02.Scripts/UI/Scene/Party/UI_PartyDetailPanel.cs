@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
@@ -107,18 +108,20 @@ namespace UPlayGround.UI
             // HP (현재/최대) — 액티브/벤치 공통 조회
             var player = UISvc.Actors?.Player;
             float curHp = player != null ? player.GetHealthForCharacter(type) : 0f;
-            float maxHp = player != null ? player.GetMaxHealthForCharacter(type) : Stat(cp.GrowthStats, StatType.MaxHealth);
+            float maxHp = player != null
+                ? player.GetMaxHealthForCharacter(type)
+                : Attribute(cp.GrowthStats, AttributeIds.Vital.MaxHealth);
             if (_hpText != null) _hpText.text = $"{Mathf.RoundToInt(curHp):N0} / {Mathf.RoundToInt(maxHp):N0}";
             if (_hpFill != null) _hpFill.fillAmount = maxHp > 0f ? Mathf.Clamp01(curHp / maxHp) : 0f;
 
             // 능력치
             var s = cp.GrowthStats;
-            if (_statAttackText != null)   _statAttackText.text   = StatDisplayFormatter.FormatValue(StatType.AttackPower, Stat(s, StatType.AttackPower));
-            if (_statDefenseText != null)  _statDefenseText.text  = StatDisplayFormatter.FormatValue(StatType.Defense, Stat(s, StatType.Defense));
-            if (_statHealthText != null)   _statHealthText.text   = StatDisplayFormatter.FormatValue(StatType.MaxHealth, Stat(s, StatType.MaxHealth));
-            if (_statCritRateText != null) _statCritRateText.text = StatDisplayFormatter.FormatValue(StatType.CritRate, Stat(s, StatType.CritRate));
-            if (_statCritDmgText != null)  _statCritDmgText.text  = StatDisplayFormatter.FormatValue(StatType.CritMultiplier, Stat(s, StatType.CritMultiplier));
-            if (_statAtkSpeedText != null) _statAtkSpeedText.text = StatDisplayFormatter.FormatValue(StatType.AttackSpeed, Stat(s, StatType.AttackSpeed));
+            if (_statAttackText != null) _statAttackText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.AttackPower, Attribute(s, AttributeIds.Combat.AttackPower));
+            if (_statDefenseText != null) _statDefenseText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.Defense, Attribute(s, AttributeIds.Combat.Defense));
+            if (_statHealthText != null) _statHealthText.text = StatDisplayFormatter.FormatValue(AttributeIds.Vital.MaxHealth, Attribute(s, AttributeIds.Vital.MaxHealth));
+            if (_statCritRateText != null) _statCritRateText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.CritRate, Attribute(s, AttributeIds.Combat.CritRate));
+            if (_statCritDmgText != null) _statCritDmgText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.CritMultiplier, Attribute(s, AttributeIds.Combat.CritMultiplier));
+            if (_statAtkSpeedText != null) _statAtkSpeedText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.AttackSpeed, Attribute(s, AttributeIds.Combat.AttackSpeed));
 
             // 역할 하이라이트
             var role = data.GetRole(type);
@@ -225,7 +228,12 @@ namespace UPlayGround.UI
             return null;
         }
 
-        private static float Stat(IReadOnlyDictionary<StatType, float> stats, StatType type)
-            => stats != null && stats.TryGetValue(type, out var v) ? v : 0f;
+        private static float Attribute(
+            IReadOnlyDictionary<AttributeId, float> attributes,
+            AttributeId attributeId)
+            => attributes != null
+               && attributes.TryGetValue(attributeId, out float value)
+                ? value
+                : UPlayGroundAttributeDefaults.Get(attributeId);
     }
 }

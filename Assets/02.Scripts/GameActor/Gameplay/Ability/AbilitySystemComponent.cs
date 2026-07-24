@@ -7,19 +7,13 @@ using UPlayGround.Components;
 using UPlayGround.Data.Stat;
 using UPlayGround.Data.Ability;
 using System.Collections.Generic;
+using UPlayGround.Gameplay.Effect;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Gameplay.Ability
 {
-    public enum AbilitySystemAuthorityMode
-    {
-        LegacyAuthorityShadow,
-        GasAuthorityMirror,
-        GasOnly,
-    }
-
     /// <summary>
     /// 액터의 Ability/Effect/Tag/Attribute 상태를 소유하는 단일 Unity 집합 루트.
-    /// 현재는 Attribute별 권위 전환을 위해 레거시 Stat Shadow도 지원한다.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class AbilitySystemComponent : MonoBehaviour, IAbilitySystemDebugSource
@@ -45,8 +39,9 @@ namespace UPlayGround.Gameplay.Ability
         public AttributeSetRuntime Attributes => Runtime?.Attributes;
         public GameplayTagAggregator Tags => Runtime?.Tags;
         public ActiveGameplayEffectContainer Effects => Runtime?.Effects;
-        public AbilitySystemAuthorityMode AuthorityMode => AbilitySystemAuthorityMode.GasOnly;
-
+        public ActorAbilitySystem ProjectAbilities { get; private set; }
+        public GameplayEffectController ProjectEffects { get; private set; }
+        public GameplayTagContainer ProjectTags { get; private set; }
         private void Awake()
         {
             EnsureInitialized();
@@ -56,7 +51,16 @@ namespace UPlayGround.Gameplay.Ability
         {
             Runtime?.Effects.Tick();
             Runtime?.Tasks.Tick();
-            Runtime?.Cooldowns.RemoveExpired();
+            ProjectEffects?.Tick();
+            if (ProjectAbilities != null)
+                ProjectAbilities.Tick();
+            else
+                Runtime?.Cooldowns.RemoveExpired();
+        }
+
+        private void LateUpdate()
+        {
+            ProjectAbilities?.LateTick();
         }
 
         public void EnsureInitialized()
@@ -80,8 +84,19 @@ namespace UPlayGround.Gameplay.Ability
                 new UnityAbilityClock(),
                 enableDebug);
             RegisterStandardAttributes();
+            InitializeProjectRuntime(owner);
             Instances[handle.Value] = new WeakReference<AbilitySystemComponent>(this);
             AbilitySystemDebugRegistry.Register(handle, this);
+        }
+
+        private void InitializeProjectRuntime(GameActor owner)
+        {
+            if (owner == null || ProjectAbilities != null)
+                return;
+
+            ProjectTags = new GameplayTagContainer(this);
+            ProjectEffects = new GameplayEffectController(owner, this);
+            ProjectAbilities = new ActorAbilitySystem(owner, this);
         }
 
         public static bool TryResolve(
@@ -140,94 +155,103 @@ namespace UPlayGround.Gameplay.Ability
                 maximumAttributeId: AttributeIds.Resource.MaxUltimateEnergy,
                 saveBaseValue: true));
 
-            foreach (StatType statType in Enum.GetValues(typeof(StatType)))
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
             {
-                if (!UPlayGroundAttributeMapping.TryGetAttributeId(
-                        statType, out AttributeId attributeId)
-                    || Attributes.Contains(attributeId))
+                if (Attributes.Contains(attributeId))
                     continue;
                 Attributes.Register(new GameplayAttributeDefinition(
                     attributeId,
-                    ActorStatSO.GetDefault(statType)));
+                    UPlayGroundAttributeDefaults.Get(attributeId)));
             }
         }
 
-        public bool TryGetStat(StatType statType, bool current, out float value)
+        public bool TryGetAttribute(AttributeId attributeId, bool current, out float value)
         {
             value = 0f;
-            if (!UPlayGroundAttributeMapping.TryGetAttributeId(statType, out AttributeId id)
-                || !Attributes.Contains(id))
+            if (!attributeId.IsValid || !Attributes.Contains(attributeId))
                 return false;
-            value = current ? Attributes.GetCurrent(id) : Attributes.GetBase(id);
+            value = current
+                ? Attributes.GetCurrent(attributeId)
+                : Attributes.GetBase(attributeId);
             return true;
         }
 
-        public void SetStatBase(StatType statType, float value)
+        public void SetAttributeBase(AttributeId attributeId, float value)
         {
-            if (!UPlayGroundAttributeMapping.TryGetAttributeId(statType, out AttributeId id))
+            if (!attributeId.IsValid)
                 return;
-            if (!Attributes.Contains(id))
-                Attributes.Register(new GameplayAttributeDefinition(id, value), value);
+            if (!Attributes.Contains(attributeId))
+                Attributes.Register(
+                    new GameplayAttributeDefinition(attributeId, value), value);
             else
-                Attributes.SetBase(id, value);
+                Attributes.SetBase(attributeId, value);
         }
 
-        public bool SetStatBases(IReadOnlyDictionary<StatType, float> values)
+        public bool SetAttributeBases(IReadOnlyDictionary<AttributeId, float> values)
         {
             EnsureInitialized();
             if (values == null) return false;
 
-            foreach (KeyValuePair<StatType, float> pair in values)
+            foreach (KeyValuePair<AttributeId, float> pair in values)
             {
-                if (!UPlayGroundAttributeMapping.TryGetAttributeId(
-                        pair.Key, out AttributeId id))
+                if (!pair.Key.IsValid)
                     continue;
-                if (!Attributes.Contains(id))
-                    Attributes.Register(new GameplayAttributeDefinition(id, pair.Value), pair.Value);
+                if (!Attributes.Contains(pair.Key))
+                    Attributes.Register(
+                        new GameplayAttributeDefinition(pair.Key, pair.Value),
+                        pair.Value);
             }
 
             using AttributeSetRuntime.Transaction transaction = Attributes.BeginTransaction();
-            foreach (KeyValuePair<StatType, float> pair in values)
-            {
-                if (UPlayGroundAttributeMapping.TryGetAttributeId(
-                        pair.Key, out AttributeId id))
-                    transaction.SetBase(id, pair.Value);
-            }
+            foreach (KeyValuePair<AttributeId, float> pair in values)
+                if (pair.Key.IsValid)
+                    transaction.SetBase(pair.Key, pair.Value);
             return transaction.Commit();
         }
 
-        public bool InitializeStats(ActorStatSO profile)
+        public bool InitializeDefaultAttributes()
         {
-            var values = new Dictionary<StatType, float>();
-            foreach (StatType statType in Enum.GetValues(typeof(StatType)))
-            {
-                values[statType] = profile != null
-                    ? profile.GetBase(statType)
-                    : ActorStatSO.GetDefault(statType);
-            }
-            return SetStatBases(values);
+            var values = new Dictionary<AttributeId, float>();
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+                values[attributeId] =
+                    UPlayGroundAttributeDefaults.Get(attributeId);
+            return SetAttributeBases(values);
         }
 
-        public AttributeModifierHandle AddStatModifier(
-            StatModifier modifier,
-            string sourceType,
-            ulong sourceId = 0)
+        public bool InitializeAttributes(
+            AttributeProfileSO profile,
+            out string error)
         {
-            if (!UPlayGroundAttributeMapping.TryGetAttributeId(
-                    modifier.statType, out AttributeId attributeId))
-                return default;
-            if (!Attributes.Contains(attributeId))
-                Attributes.Register(new GameplayAttributeDefinition(
-                    attributeId, ActorStatSO.GetDefault(modifier.statType)));
-            AttributeModifierOperation operation = modifier.modifierType switch
+            EnsureInitialized();
+            if (profile == null)
             {
-                ModifierType.Flat => AttributeModifierOperation.Add,
-                ModifierType.Percent => AttributeModifierOperation.Percent,
-                ModifierType.Multiply => AttributeModifierOperation.Multiply,
-                _ => throw new ArgumentOutOfRangeException(),
-            };
-            return Attributes.AddModifier(
-                attributeId, operation, modifier.value, sourceType, sourceId);
+                error = "Attribute Profile이 없습니다.";
+                return false;
+            }
+
+            var values = new Dictionary<AttributeId, float>();
+            if (!profile.TryCopyBaseValues(values, out error))
+                return false;
+
+            foreach (KeyValuePair<AttributeId, float> pair in values)
+            {
+                if (Attributes.Contains(pair.Key))
+                    continue;
+                error = $"{profile.name}: 등록되지 않은 Attribute ID입니다: {pair.Key}";
+                return false;
+            }
+
+            using AttributeSetRuntime.Transaction transaction = Attributes.BeginTransaction();
+            foreach (KeyValuePair<AttributeId, float> pair in values)
+                transaction.SetBase(pair.Key, pair.Value);
+            if (transaction.Commit())
+            {
+                error = string.Empty;
+                return true;
+            }
+
+            error = $"{profile.name}: Attribute Transaction 커밋에 실패했습니다.";
+            return false;
         }
 
         public GameplayEffectApplyOutcome ApplyResolvedDamage(
@@ -375,9 +399,9 @@ namespace UPlayGround.Gameplay.Ability
             return Effects.Apply(spec, sourceRuntime);
         }
 
-        public ActiveGameplayEffectHandle ApplyLegacyStatEffect(
+        public ActiveGameplayEffectHandle ApplyAttributeEffect(
             string effectId,
-            IReadOnlyList<StatModifier> modifiers)
+            IReadOnlyList<AttributeModifierValue> modifiers)
         {
             EnsureInitialized();
             var gasModifiers = new List<GameplayEffectModifierSpecDefinition>();
@@ -385,21 +409,15 @@ namespace UPlayGround.Gameplay.Ability
             {
                 for (int i = 0; i < modifiers.Count; i++)
                 {
-                    StatModifier modifier = modifiers[i];
-                    if (!UPlayGroundAttributeMapping.TryGetAttributeId(
-                            modifier.statType, out AttributeId attributeId))
-                        continue;
-                    AttributeModifierOperation operation = modifier.modifierType switch
-                    {
-                        ModifierType.Flat => AttributeModifierOperation.Add,
-                        ModifierType.Percent => AttributeModifierOperation.Percent,
-                        ModifierType.Multiply => AttributeModifierOperation.Multiply,
-                        _ => throw new ArgumentOutOfRangeException(),
-                    };
+                    AttributeModifierValue modifier = modifiers[i];
+                    if (!modifier.AttributeId.IsValid)
+                        throw new ArgumentException(
+                            $"Effect '{effectId}' Modifier {i}번의 Attribute ID가 비어 있습니다.",
+                            nameof(modifiers));
                     gasModifiers.Add(new GameplayEffectModifierSpecDefinition(
-                        attributeId,
-                        operation,
-                        new FixedMagnitudeCalculation(modifier.value)));
+                        modifier.AttributeId,
+                        modifier.Operation,
+                        new FixedMagnitudeCalculation(modifier.Value)));
                 }
             }
 
@@ -426,6 +444,12 @@ namespace UPlayGround.Gameplay.Ability
         private void OnDestroy()
         {
             if (Runtime == null) return;
+            ProjectAbilities?.Dispose();
+            ProjectEffects?.Dispose();
+            ProjectTags?.Dispose();
+            ProjectAbilities = null;
+            ProjectEffects = null;
+            ProjectTags = null;
             AbilitySystemDebugRegistry.Unregister(Runtime.Handle);
             Instances.Remove(Runtime.Handle.Value);
             Runtime.Dispose();

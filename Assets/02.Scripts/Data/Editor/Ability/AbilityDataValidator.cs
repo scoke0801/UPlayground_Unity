@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
@@ -202,6 +203,8 @@ namespace UPlayGround.Data.Editor.Ability
                 Error(ability, "비용은 음수일 수 없습니다.", issues);
             if (ability.cooldown != null && ability.cooldown.durationSeconds < 0f)
                 Error(ability, "쿨다운은 음수일 수 없습니다.", issues);
+            if (ability.taskGraph?.Root == null)
+                Error(ability, "실행 Task Graph 또는 Root Task가 없습니다.", issues);
             if (ability.activation != null)
             {
                 if (ability.activation.maxDistance > 0f
@@ -354,34 +357,25 @@ namespace UPlayGround.Data.Editor.Ability
             if (effect.durationType == GameplayEffectDurationType.Duration
                 && effect.removalPolicy == GameplayEffectRemovalPolicy.RemoveOnSwap)
                 Info(effect, "교체 시 제거되는 Duration Effect입니다.", issues);
-            if (effect.resourceOperations != null)
-            {
-                for (int i = 0; i < effect.resourceOperations.Count; i++)
-                {
-                    GameplayResourceOperation operation = effect.resourceOperations[i];
-                    if (operation == null) continue;
-                    if (operation.resourceType == AbilityResourceType.Health
-                        && operation.magnitude < 0f)
-                    {
-                        Error(
-                            effect,
-                            $"Health 자원 연산 {i}번의 음수 값은 사용할 수 없습니다. "
-                            + "피해는 방어·사망·텔레메트리를 보존하는 Combat Damage Effect로 정의해야 합니다.",
-                            issues);
-                    }
-                }
-            }
             if (effect.modifiers != null)
             {
                 for (int i = 0; i < effect.modifiers.Count; i++)
-                    if (effect.modifiers[i] == null)
+                {
+                    GameplayEffectModifierDefinition modifier = effect.modifiers[i];
+                    if (modifier == null)
+                    {
                         Error(effect, $"Modifier {i}번이 null입니다.", issues);
-            }
-            if (effect.resourceOperations != null)
-            {
-                for (int i = 0; i < effect.resourceOperations.Count; i++)
-                    if (effect.resourceOperations[i] == null)
-                        Error(effect, $"자원 연산 {i}번이 null입니다.", issues);
+                        continue;
+                    }
+                    if (!modifier.AttributeId.IsValid)
+                    {
+                        Error(
+                            effect,
+                            $"Modifier {i}번 Attribute ID가 비어 있습니다.",
+                            issues);
+                        continue;
+                    }
+                }
             }
             ValidateTagList(effect.grantedTagIds, effect, "Granted", issues);
         }

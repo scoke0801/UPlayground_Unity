@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
@@ -86,15 +87,18 @@ namespace UPlayGround.Tool.Editor.Balance
                 targetTime);
         }
 
-        /// <summary>권장 HP를 몬스터 statData.MaxHealth에 적용한다(Undo 가능).</summary>
+        /// <summary>권장 HP를 몬스터 Attribute Profile의 Vital.MaxHealth에 적용한다.</summary>
         public static bool ApplyHealth(ActorDefinitionSO actor, float recommendedHealth)
         {
-            if (actor == null || actor.statData == null)
+            if (actor == null || actor.attributeProfile == null)
                 return false;
 
-            Undo.RecordObject(actor.statData, "Apply Recommended Monster HP");
-            actor.statData.EditorSet(StatType.MaxHealth, Mathf.Max(1f, Mathf.Round(recommendedHealth)));
-            EditorUtility.SetDirty(actor.statData);
+            if (!BalanceAttributeProfileUtility.Set(
+                    actor,
+                    AttributeIds.Vital.MaxHealth,
+                    Mathf.Max(1f, Mathf.Round(recommendedHealth)),
+                    "Apply Recommended Monster HP"))
+                return false;
             AssetDatabase.SaveAssets();
             return true;
         }

@@ -12,12 +12,12 @@ namespace UPlayGround.Components
     /// <summary>
     /// Poise(강인도) 런타임 컴포넌트.
     /// 수치(MaxPoise / 회복률 / 회복지연)는 ASC Attribute Runtime을 단일 소스로 읽는다.
-    /// 등급/레벨 배율은 statData 생성 시점에 이미 반영되므로(MonsterScalingSO), 여기서는 별도 스케일링을 하지 않는다.
+    /// 등급/레벨 배율은 Attribute Profile 생성 시점에 이미 반영되므로(MonsterScalingSO), 여기서는 별도 스케일링을 하지 않는다.
     /// PoiseSO(_data)는 더 이상 수치 소스가 아니며 hasHyperArmor 플래그 전달용으로만 유지한다.
     /// </summary>
     public class PoiseStat : MonoBehaviour
     {
-        // 하이퍼아머 플래그 전용. maxPoise/recovery* 수치는 런타임에서 읽지 않는다(statData 단일 소스).
+        // 하이퍼아머 플래그 전용. maxPoise/recovery* 수치는 런타임에서 읽지 않는다(Attribute 단일 소스).
         [HideInInspector, SerializeField] private PoiseSO _data;
 
         private const float FallbackMaxPoise      = 100f;
@@ -49,7 +49,7 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
-            // statData 주입 전이라도 합리적 기본값으로 시작. 권위 초기화는 Init()이 담당.
+            // Profile 주입 전이라도 합리적 기본값으로 시작. 권위 초기화는 Init()이 담당.
             InitFromStats();
         }
 
@@ -79,7 +79,7 @@ namespace UPlayGround.Components
             InitFromStats();
         }
 
-        /// <summary> MonsterActor.ApplyDefinitionData에서 statData 주입(Stats.Init) 직후 호출하는 권위 초기화. </summary>
+        /// <summary>MonsterActor.ApplyDefinitionData에서 Attribute Profile 적용 직후 호출하는 권위 초기화.</summary>
         public void Init(ActorDefinitionSO definition)
         {
             // hasHyperArmor 단일 읽기 경로(_data). 정의에 PoiseSO가 있으면 그것을, 없으면 프리팹 기본값을 유지.

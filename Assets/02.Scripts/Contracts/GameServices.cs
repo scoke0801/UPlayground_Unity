@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Config;
@@ -24,6 +25,8 @@ namespace UPlayGround.Manager
     public interface IInputService : IGameService
     {
         event Action<ActiveInputDevice> OnActiveDeviceChanged;
+        event Action OnBindingsChanged;
+        event Action<InputRebindCaptureState> OnRebindCaptureChanged;
         InputLayer CurrentLayer { get; }
         InputBuffer InputBuffer { get; }
         ActiveInputDevice ActiveDevice { get; }
@@ -31,6 +34,19 @@ namespace UPlayGround.Manager
         bool IsPlayerActionInputSuppressed { get; }
         InputAction GetAction(string mapName, string actionName);
         bool GetAction(string mapName, string actionName, out InputAction action);
+        IReadOnlyList<InputBindingDescriptor> GetBindingDescriptors(InputBindingDeviceGroup deviceGroup);
+        string CaptureBindingProfileSnapshot();
+        bool RestoreBindingProfileSnapshot(string json);
+        void SaveBindingProfile();
+        bool TryApplyBinding(
+            InputRebindCaptureResult capture,
+            bool replaceConflict,
+            out InputBindingConflictInfo conflict);
+        void ResetBinding(InputBindingTarget target);
+        void ResetBindings(InputBindingDeviceGroup? deviceGroup = null);
+        UniTask<InputRebindCaptureResult> CaptureBindingAsync(
+            InputBindingTarget target,
+            CancellationToken cancellationToken = default);
         void ShowCursor(bool isShow, bool isForce = false);
         void RefreshInputLayer();
         void SuppressPlayerActionInputBriefly(float seconds = 0.05f, int frameCount = 1);
@@ -187,7 +203,7 @@ namespace UPlayGround.Manager
         void AwardBattleExp(long amount);
         void HealAllParty(bool reviveDowned);
         bool TrySwitchToNextAliveAfterActiveDeath();
-        IReadOnlyDictionary<StatType, float> GetGrowthStats(CharacterActorType type);
+        IReadOnlyDictionary<AttributeId, float> GetGrowthStats(CharacterActorType type);
         PartyMemberGrowthSO GetGrowthData(CharacterActorType type);
         int GetLevel(CharacterActorType type);
         CombatElement GetCombatElement(CharacterActorType type);

@@ -12,8 +12,11 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Gameplay.Effect
 {
-    /// <summary>액터별 Effect 수명주기. 정의 SO에는 런타임 값을 기록하지 않는다.</summary>
-    public sealed class GameplayEffectController : MonoBehaviour, IGameplayEffectRuntimeReader
+    /// <summary>
+    /// AbilitySystemComponent가 소유하는 프로젝트 Effect 수명주기.
+    /// 정의 SO에는 런타임 값을 기록하지 않는다.
+    /// </summary>
+    public sealed class GameplayEffectController : IGameplayEffectRuntimeReader
     {
         private readonly Dictionary<ulong, GameplayEffectInstance> _active = new();
         private readonly Dictionary<string, ulong> _stackingKeys = new(StringComparer.Ordinal);
@@ -23,12 +26,16 @@ namespace UPlayGround.Gameplay.Effect
 
         public event Action StateChanged;
 
-        private void Awake()
+        internal GameplayEffectController(
+            GameActor owner,
+            AbilitySystemComponent abilitySystem)
         {
-            Initialize(GetComponent<GameActor>());
+            Initialize(owner, abilitySystem);
         }
 
-        public void Initialize(GameActor owner)
+        private void Initialize(
+            GameActor owner,
+            AbilitySystemComponent abilitySystem)
         {
             if (owner == null)
                 throw new ArgumentNullException(nameof(owner));
@@ -37,9 +44,7 @@ namespace UPlayGround.Gameplay.Effect
                 return;
 
             _owner = owner;
-            _abilitySystem = owner.AbilitySystem != null
-                ? owner.AbilitySystem
-                : owner.GetComponent<AbilitySystemComponent>();
+            _abilitySystem = abilitySystem;
             _abilitySystem?.EnsureInitialized();
         }
 
@@ -177,7 +182,7 @@ namespace UPlayGround.Gameplay.Effect
         }
 
         public void CaptureRuntimeState(
-            List<GameplayEffectSaveEntry> destination,
+            List<ActiveEffectSaveEntry> destination,
             bool forCharacterSwap)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
@@ -191,7 +196,7 @@ namespace UPlayGround.Gameplay.Effect
                       == GameplayEffectSavePolicy.SaveRemainingDuration;
                 if (!shouldCapture) continue;
 
-                destination.Add(new GameplayEffectSaveEntry
+                destination.Add(new ActiveEffectSaveEntry
                 {
                     effectId = definition.effectId,
                     sourceActorId = instance.Source != null
@@ -203,19 +208,19 @@ namespace UPlayGround.Gameplay.Effect
                             : Mathf.Max(0f, instance.RemainingSeconds),
                     stackCount = Mathf.Clamp(
                         instance.StackCount, 1, Mathf.Max(1, definition.maxStackCount)),
-                    hudVisibility = instance.HudVisibility,
+                    hudVisibility = (int)instance.HudVisibility,
                 });
             }
         }
 
         public void RestoreRuntimeState(
-            List<GameplayEffectSaveEntry> entries,
+            List<ActiveEffectSaveEntry> entries,
             Func<string, GameplayEffectSO> definitionResolver)
         {
             if (entries == null || definitionResolver == null) return;
             for (int i = 0; i < entries.Count; i++)
             {
-                GameplayEffectSaveEntry entry = entries[i];
+                ActiveEffectSaveEntry entry = entries[i];
                 if (entry == null || string.IsNullOrWhiteSpace(entry.effectId))
                     continue;
 
@@ -229,7 +234,12 @@ namespace UPlayGround.Gameplay.Effect
                 GameplayEffectHandle handle = ApplyEffectInternal(
                     definition,
                     null,
-                    new GameplayEffectApplicationOptions(entry.hudVisibility),
+                    new GameplayEffectApplicationOptions(
+                        Enum.IsDefined(
+                            typeof(GameplayEffectHudVisibility),
+                            entry.hudVisibility)
+                                ? (GameplayEffectHudVisibility)entry.hudVisibility
+                                : GameplayEffectHudVisibility.UseDefinition),
                     false);
                 if (!handle.IsValid
                     || !_active.TryGetValue(handle.Value, out GameplayEffectInstance instance))
@@ -355,7 +365,7 @@ namespace UPlayGround.Gameplay.Effect
                 duration, definition.polarity, multiplier);
         }
 
-        private void Update()
+        internal void Tick()
         {
             if (_active.Count == 0) return;
 
@@ -413,10 +423,16 @@ namespace UPlayGround.Gameplay.Effect
                 for (int i = 0; i < sourceDefinition.modifiers.Count; i++)
                 {
                     GameplayEffectModifierDefinition modifier = sourceDefinition.modifiers[i];
-                    if (modifier == null
-                        || !UPlayGround.Ability.UPlayGround.UPlayGroundAttributeMapping.TryGetAttributeId(
-                            modifier.statType, out AttributeId attributeId))
+                    if (modifier == null)
                         continue;
+                    AttributeId attributeId = modifier.AttributeId;
+                    if (!attributeId.IsValid)
+                    {
+                        return new GameplayEffectApplyOutcome(
+                            GameplayEffectApplyResult.MissingAttribute,
+                            error:
+                            $"{sourceDefinition.effectId}: Modifier {i}번 Attribute ID가 없습니다.");
+                    }
                     modifiers.Add(new GameplayEffectModifierSpecDefinition(
                         attributeId,
                         modifier.modifierType switch
@@ -439,23 +455,10 @@ namespace UPlayGround.Gameplay.Effect
                         grantedTags.Add(new AbilityTagId(tagId.ToTag().TagName));
                 }
             }
-            var executions = new List<IGameplayEffectExecution>();
-            if ((durationPolicy == GameplayEffectDurationPolicy.Instant
-                 || sourceDefinition.IsPeriodic)
-                && sourceDefinition.resourceOperations != null)
-            {
-                for (int i = 0; i < sourceDefinition.resourceOperations.Count; i++)
-                {
-                    GameplayResourceOperation operation = sourceDefinition.resourceOperations[i];
-                    if (operation != null)
-                        executions.Add(new LegacyResourceOperationExecution(operation));
-                }
-            }
             var definition = new GameplayEffectDefinition(
                 sourceDefinition.effectId,
                 durationPolicy,
                 modifiers: modifiers,
-                executions: executions,
                 duration: durationPolicy == GameplayEffectDurationPolicy.Duration
                     ? new FixedMagnitudeCalculation(effectiveDuration)
                     : null,
@@ -480,7 +483,7 @@ namespace UPlayGround.Gameplay.Effect
                 sourceObjectId: sourceDefinition.effectId);
             GameplayEffectSpec spec = sourceRuntime.EffectSpecs.Create(
                 definition, 1f, context, sourceRuntime);
-            spec.AddTrace("Legacy GameplayEffectSO bridge");
+            spec.AddTrace("GameplayEffectSO Spec");
             return _abilitySystem.Effects.Apply(spec, sourceRuntime);
         }
 
@@ -491,57 +494,7 @@ namespace UPlayGround.Gameplay.Effect
             Debug.LogError(
                 $"[GameplayEffectController] EffectSpec 적용 실패: " +
                 $"{definition?.effectId ?? "<null>"}, {outcome.Result}, {outcome.Error}",
-                this);
-        }
-
-        private sealed class LegacyResourceOperationExecution : IGameplayEffectExecution
-        {
-            private readonly AbilityResourceType _resourceType;
-            private readonly GameplayResourceOperationType _operation;
-            private readonly float _magnitude;
-
-            public LegacyResourceOperationExecution(GameplayResourceOperation operation)
-            {
-                _resourceType = operation.resourceType;
-                _operation = operation.operation;
-                _magnitude = operation.magnitude;
-            }
-
-            public bool Execute(
-                in GameplayEffectExecutionInput input,
-                GameplayEffectExecutionOutput output,
-                out string error)
-            {
-                AttributeId currentId;
-                AttributeId maximumId;
-                switch (_resourceType)
-                {
-                    case AbilityResourceType.Health:
-                        currentId = AttributeIds.Vital.Health;
-                        maximumId = AttributeIds.Vital.MaxHealth;
-                        break;
-                    case AbilityResourceType.UltimateEnergy:
-                        currentId = AttributeIds.Resource.UltimateEnergy;
-                        maximumId = AttributeIds.Resource.MaxUltimateEnergy;
-                        break;
-                    default:
-                        error = string.Empty;
-                        return true;
-                }
-
-                float current = input.GetTarget(currentId);
-                float maximum = input.GetTarget(maximumId);
-                float delta = _operation switch
-                {
-                    GameplayResourceOperationType.Add => _magnitude,
-                    GameplayResourceOperationType.Set => _magnitude - current,
-                    GameplayResourceOperationType.PercentOfMax => maximum * _magnitude,
-                    _ => 0f,
-                };
-                output.AddBaseDelta(currentId, delta);
-                error = string.Empty;
-                return true;
-            }
+                _owner);
         }
 
         private static AbilityEffectStackPolicy ToCoreStackPolicy(
@@ -559,6 +512,6 @@ namespace UPlayGround.Gameplay.Effect
                 _ => throw new ArgumentOutOfRangeException(nameof(policy), policy, null),
             };
 
-        private void OnDestroy() => RemoveAll();
+        internal void Dispose() => RemoveAll();
     }
 }

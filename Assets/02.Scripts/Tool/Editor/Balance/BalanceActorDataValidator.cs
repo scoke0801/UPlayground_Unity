@@ -1,14 +1,58 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using UnityEditor;
+using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Stat;
 using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Balance
 {
+    /// <summary>
+    /// 밸런스 도구가 ActorDefinition의 Attribute Profile을 단일 수치 원본으로 읽고 수정하게 한다.
+    /// 밸런스 도구가 안정 Attribute ID로 Profile 값을 조회·수정하도록 돕는다.
+    /// </summary>
+    internal static class BalanceAttributeProfileUtility
+    {
+        public static bool TryGet(
+            ActorDefinitionSO actor,
+            AttributeId attributeId,
+            out float value)
+        {
+            value = 0f;
+            return actor != null
+                   && actor.attributeProfile != null
+                   && actor.attributeProfile.TryGetBaseValue(attributeId, out value);
+        }
+
+        public static float Get(
+            ActorDefinitionSO actor,
+            AttributeId attributeId,
+            float fallback = 0f) =>
+            TryGet(actor, attributeId, out float value) ? value : fallback;
+
+        public static bool Set(
+            ActorDefinitionSO actor,
+            AttributeId attributeId,
+            float value,
+            string undoName)
+        {
+            if (actor?.attributeProfile == null || !attributeId.IsValid)
+                return false;
+
+            Undo.RecordObject(actor.attributeProfile, undoName);
+            if (!actor.attributeProfile.EditorSetBaseValue(attributeId, value))
+                return false;
+            EditorUtility.SetDirty(actor.attributeProfile);
+            return true;
+        }
+    }
+
     public static class BalanceActorDataValidator
     {
         public static List<BalanceValidationMessage> Validate(
@@ -33,8 +77,8 @@ namespace UPlayGround.Tool.Editor.Balance
             bool isMonster = (actor.actorType & ActorType.Monster) != 0;
             if (isMonster)
             {
-                if (actor.statData == null)
-                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 statData가 비어 있습니다."));
+                if (actor.attributeProfile == null)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "몬스터 ActorDefinitionSO인데 Attribute Profile이 비어 있습니다."));
 
                 if (actor.EffectiveMonsterScaling == null)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "monsterScaling이 비어 있어 몬스터 Growth 기준을 명시적으로 추적할 수 없습니다."));
@@ -61,8 +105,8 @@ namespace UPlayGround.Tool.Editor.Balance
                 messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "BalanceScenarioAsset이 없어 창의 임시 입력값으로 분석합니다."));
             else
             {
-                if (scenario.playerStatData == null)
-                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "플레이어 statData가 비어 있어 기본 스탯으로 계산합니다."));
+                if (scenario.playerAttributeProfile == null)
+                    messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Warning, "플레이어 Attribute Profile이 비어 있어 기본값으로 계산합니다."));
             if (scenario.playerAbilitySet == null && scenario.manualPlayerDps <= 0f)
                     messages.Add(new BalanceValidationMessage(BalanceValidationLevel.Error, "플레이어 공격 데이터가 없고 manualPlayerDps도 0 이하입니다."));
             }

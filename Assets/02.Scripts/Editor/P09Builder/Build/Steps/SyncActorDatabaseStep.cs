@@ -174,7 +174,7 @@ namespace UPlayGround.Editor.P09Builder
 
             MonsterStatBakeService.Result result = MonsterStatBakeService.Bake(definition, new MonsterStatBakeService.Options
             {
-                StatSavePath = GeneratedStatPath,
+                StatSavePath = MonsterStatBakeService.DefaultStatSavePath,
                 CreateMissingStat = true,
                 ForceRegenerate = true,
                 ReplaceExistingStatAsset = false,

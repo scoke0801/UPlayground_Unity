@@ -103,7 +103,7 @@ namespace UPlayGround
             base.Awake();
             _actorType = ActorType.Monster | ActorType.Combat;
 
-            AbilitySystem.InitializeStats(null);
+            AbilitySystem.InitializeDefaultAttributes();
             ResetHealthFromStats();
 
             if (_detection == null) _detection = GetComponent<EnemyDetection>();
@@ -661,11 +661,11 @@ namespace UPlayGround
             }
 
             var stats = MonsterStatCalculator.CalculateAtLevel(scaling, Definition, runtimeLevel, difficultyOverride);
-            AbilitySystem.SetStatBases(stats);
+            AbilitySystem.SetAttributeBases(stats);
 
             _level = runtimeLevel;
 
-            // PoiseStat/BreakGauge는 LegacyActorStatMigrationFacade를 직접 읽으므로 베이스 교체로 함께 반영된다.
+            // Health/Poise/Break는 ASC Attribute 기본값 교체 결과를 각 런타임 뷰가 읽는다.
             ResetHealthFromStats();
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         }
@@ -691,13 +691,25 @@ namespace UPlayGround
             _expReward = definition.EffectiveExpReward;
             _goldReward = definition.EffectiveGoldReward;
 
-            // statData는 자동 생성기로 보장한다. 누락 시 기본 스탯으로 초기화하고 오류를 남긴다.
-            if (definition.statData != null)
-                AbilitySystem.InitializeStats(definition.statData);
+            // ActorDefinition의 런타임 Attribute 기본값은 Profile만 권위로 사용한다.
+            if (definition.attributeProfile != null)
+            {
+                AbilitySystem.InitializeDefaultAttributes();
+                if (!AbilitySystem.InitializeAttributes(
+                        definition.attributeProfile, out string profileError))
+                {
+                    Debug.LogError(
+                        $"[MonsterActor] {definition.name} Attribute Profile 적용 실패: " +
+                        profileError,
+                        definition.attributeProfile);
+                }
+            }
             else
             {
-                AbilitySystem.InitializeStats(null);
-                Debug.LogError($"[MonsterActor] {definition.name}에 statData가 없습니다. UPlayGround/Stat/Stat Data Generator의 전체 보정을 실행하세요.", definition);
+                AbilitySystem.InitializeDefaultAttributes();
+                Debug.LogError(
+                    $"[MonsterActor] {definition.name}에 Attribute Profile이 없습니다.",
+                    definition);
             }
 
             ResetHealthFromStats();

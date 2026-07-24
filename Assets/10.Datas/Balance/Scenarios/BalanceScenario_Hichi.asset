@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Hichi
   m_EditorClassIdentifier: 
   playerCharacter: 8
-  playerStatData: {fileID: 11400000, guid: 734a47fd154e4f84f9f1df896212c2d2, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: 249a6b69b0034f1f85a602f122b04930, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: 9633ede2f9b3f684284c143c4c924569, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

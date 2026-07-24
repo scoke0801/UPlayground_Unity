@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UPlayGround.Data.Actor;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Stat;
@@ -18,13 +19,13 @@ namespace UPlayGround.Data.Enemy
         /// 등급/레벨/난이도를 반영한 전체 스탯 딕셔너리를 계산한다.
         /// difficultyOverride가 0보다 크면 SO의 difficultyMultiplier 대신 사용한다(미리보기용).
         /// </summary>
-        public static Dictionary<StatType, float> Calculate(
+        public static Dictionary<AttributeId, float> Calculate(
             MonsterScalingSO scaling,
             MonsterActorGrade grade,
             int level,
             float difficultyOverride = 0f)
         {
-            var stats = new Dictionary<StatType, float>();
+            var stats = new Dictionary<AttributeId, float>();
             int cap = scaling != null ? Mathf.Max(1, scaling.levelCap) : 100;
             int clampedLevel = Mathf.Clamp(Mathf.Max(1, level), 1, cap);
 
@@ -36,20 +37,25 @@ namespace UPlayGround.Data.Enemy
             if (scaling != null && scaling.TryGetGrade(grade, out MonsterScalingSO.GradeScaling gradeScaling))
                 grade01 = gradeScaling;
 
-            foreach (StatType type in Enum.GetValues(typeof(StatType)))
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
             {
-                float baseValue = scaling != null && scaling.baseStat != null
-                    ? scaling.baseStat.GetBase(type)
-                    : GetDefaultMonsterBase(type);
+                float baseValue = scaling != null
+                                  && scaling.baseProfile != null
+                                  && scaling.baseProfile.TryGetBaseValue(
+                                      attributeId, out float profileValue)
+                    ? profileValue
+                    : GetDefaultMonsterBase(attributeId);
 
-                float leveled = ApplyGrowth(scaling, type, baseValue, clampedLevel, cap);
-                stats[type] = ApplyGradeAndDifficulty(type, leveled, grade01, difficulty);
+                float leveled = ApplyGrowth(
+                    scaling, attributeId, baseValue, clampedLevel, cap);
+                stats[attributeId] = ApplyGradeAndDifficulty(
+                    attributeId, leveled, grade01, difficulty);
             }
 
             return stats;
         }
 
-        public static Dictionary<StatType, float> Calculate(
+        public static Dictionary<AttributeId, float> Calculate(
             MonsterScalingSO scaling,
             ActorDefinitionSO actor,
             float difficultyOverride = 0f)
@@ -62,13 +68,13 @@ namespace UPlayGround.Data.Enemy
         /// 휴머노이드 무기 편차 등 정의 기반 보정을 동일하게 적용한다.
         /// Calculate 오버로드로 두지 않는 이유: int 리터럴 난이도 인자가 조용히 레벨로 바인딩되는 것을 막기 위함.
         /// </summary>
-        public static Dictionary<StatType, float> CalculateAtLevel(
+        public static Dictionary<AttributeId, float> CalculateAtLevel(
             MonsterScalingSO scaling,
             ActorDefinitionSO actor,
             int levelOverride,
             float difficultyOverride = 0f)
         {
-            Dictionary<StatType, float> stats = Calculate(
+            Dictionary<AttributeId, float> stats = Calculate(
                 scaling,
                 actor != null ? actor.grade : MonsterActorGrade.Normal,
                 levelOverride,
@@ -78,9 +84,15 @@ namespace UPlayGround.Data.Enemy
             return stats;
         }
 
-        private static float ApplyGrowth(MonsterScalingSO scaling, StatType type, float baseValue, int level, int cap)
+        private static float ApplyGrowth(
+            MonsterScalingSO scaling,
+            AttributeId attributeId,
+            float baseValue,
+            int level,
+            int cap)
         {
-            if (scaling == null || !scaling.TryGetRule(type, out StatGrowthRule rule))
+            if (scaling == null
+                || !scaling.TryGetRule(attributeId, out StatGrowthRule rule))
                 return baseValue;
 
             int levelDelta = Mathf.Max(0, level - 1);
@@ -101,57 +113,58 @@ namespace UPlayGround.Data.Enemy
         }
 
         private static float ApplyGradeAndDifficulty(
-            StatType type,
+            AttributeId attributeId,
             float value,
             MonsterScalingSO.GradeScaling? grade,
             float difficulty)
         {
-            switch (type)
+            if (attributeId == AttributeIds.Vital.MaxHealth)
             {
-                case StatType.MaxHealth:
-                    if (grade.HasValue) value *= NonZero(grade.Value.healthMultiplier);
-                    return value * difficulty;
-
-                case StatType.AttackPower:
-                    if (grade.HasValue) value *= NonZero(grade.Value.attackMultiplier);
-                    return value * difficulty;
-
-                case StatType.MaxPoise:
-                    if (grade.HasValue) value *= NonZero(grade.Value.poiseMultiplier);
-                    return value;
-
-                case StatType.MoveSpeed:
-                    if (grade.HasValue) value *= NonZero(grade.Value.moveSpeedMultiplier);
-                    return value;
-
-                case StatType.Defense:
-                    if (grade.HasValue) value = Mathf.Clamp01(value + grade.Value.defenseAdd);
-                    return value;
-
-                default:
-                    return value;
+                if (grade.HasValue) value *= NonZero(grade.Value.healthMultiplier);
+                return value * difficulty;
             }
+            if (attributeId == AttributeIds.Combat.AttackPower)
+            {
+                if (grade.HasValue) value *= NonZero(grade.Value.attackMultiplier);
+                return value * difficulty;
+            }
+            if (attributeId == AttributeIds.Vital.MaxPoise)
+            {
+                if (grade.HasValue) value *= NonZero(grade.Value.poiseMultiplier);
+                return value;
+            }
+            if (attributeId == AttributeIds.Movement.MoveSpeed)
+            {
+                if (grade.HasValue) value *= NonZero(grade.Value.moveSpeedMultiplier);
+                return value;
+            }
+            if (attributeId == AttributeIds.Combat.Defense)
+            {
+                if (grade.HasValue)
+                    value = Mathf.Clamp01(value + grade.Value.defenseAdd);
+                return value;
+            }
+            return value;
         }
 
         /// <summary>배율이 0(미설정 기본값)이면 1로 본다 — 0 배율로 스탯이 사라지는 사고 방지.</summary>
         private static float NonZero(float multiplier) => multiplier > 0f ? multiplier : 1f;
 
-        private static float GetDefaultMonsterBase(StatType type)
+        private static float GetDefaultMonsterBase(AttributeId attributeId)
         {
-            return type switch
-            {
-                StatType.MaxHealth => 160f,
-                StatType.AttackPower => 1f,
-                StatType.Defense => 0f,
-                StatType.MaxPoise => 90f,
-                StatType.PoiseRecoveryRate => 30f,
-                StatType.PoiseRecoveryDelay => 2f,
-                StatType.MoveSpeed => 1f,
-                _ => ActorStatSO.GetDefault(type),
-            };
+            if (attributeId == AttributeIds.Vital.MaxHealth) return 160f;
+            if (attributeId == AttributeIds.Combat.AttackPower) return 1f;
+            if (attributeId == AttributeIds.Combat.Defense) return 0f;
+            if (attributeId == AttributeIds.Vital.MaxPoise) return 90f;
+            if (attributeId == AttributeIds.Vital.PoiseRecoveryRate) return 30f;
+            if (attributeId == AttributeIds.Vital.PoiseRecoveryDelay) return 2f;
+            if (attributeId == AttributeIds.Movement.MoveSpeed) return 1f;
+            return UPlayGroundAttributeDefaults.Get(attributeId);
         }
 
-        private static void ApplyHumanoidWeaponVariation(Dictionary<StatType, float> stats, ActorDefinitionSO actor)
+        private static void ApplyHumanoidWeaponVariation(
+            Dictionary<AttributeId, float> stats,
+            ActorDefinitionSO actor)
         {
             if (stats == null || !IsHumanoidMonster(actor))
                 return;
@@ -160,20 +173,20 @@ namespace UPlayGround.Data.Enemy
             switch (weapon)
             {
                 case WeaponType.SwordShield:
-                    Multiply(stats, StatType.MaxHealth, 1.25f);
-                    AddClamped01(stats, StatType.Defense, 0.08f);
-                    Multiply(stats, StatType.MaxPoise, 1.35f);
-                    Multiply(stats, StatType.AttackPower, 0.90f);
-                    Multiply(stats, StatType.MoveSpeed, 0.92f);
+                    Multiply(stats, AttributeIds.Vital.MaxHealth, 1.25f);
+                    AddClamped01(stats, AttributeIds.Combat.Defense, 0.08f);
+                    Multiply(stats, AttributeIds.Vital.MaxPoise, 1.35f);
+                    Multiply(stats, AttributeIds.Combat.AttackPower, 0.90f);
+                    Multiply(stats, AttributeIds.Movement.MoveSpeed, 0.92f);
                     break;
 
                 case WeaponType.Bow:
                 case WeaponType.Staff:
-                    Multiply(stats, StatType.MaxHealth, 0.82f);
-                    AddClamped01(stats, StatType.Defense, -0.03f);
-                    Multiply(stats, StatType.MaxPoise, 0.75f);
-                    Multiply(stats, StatType.AttackPower, 1.08f);
-                    Multiply(stats, StatType.MoveSpeed, 1.06f);
+                    Multiply(stats, AttributeIds.Vital.MaxHealth, 0.82f);
+                    AddClamped01(stats, AttributeIds.Combat.Defense, -0.03f);
+                    Multiply(stats, AttributeIds.Vital.MaxPoise, 0.75f);
+                    Multiply(stats, AttributeIds.Combat.AttackPower, 1.08f);
+                    Multiply(stats, AttributeIds.Movement.MoveSpeed, 1.06f);
                     break;
             }
         }
@@ -227,16 +240,22 @@ namespace UPlayGround.Data.Enemy
             return $"{actor.actorId} {actor.displayName} {actor.name} {abilitySetName}";
         }
 
-        private static void Multiply(Dictionary<StatType, float> stats, StatType type, float multiplier)
+        private static void Multiply(
+            Dictionary<AttributeId, float> stats,
+            AttributeId attributeId,
+            float multiplier)
         {
-            if (stats.TryGetValue(type, out float value))
-                stats[type] = value * multiplier;
+            if (stats.TryGetValue(attributeId, out float value))
+                stats[attributeId] = value * multiplier;
         }
 
-        private static void AddClamped01(Dictionary<StatType, float> stats, StatType type, float add)
+        private static void AddClamped01(
+            Dictionary<AttributeId, float> stats,
+            AttributeId attributeId,
+            float add)
         {
-            if (stats.TryGetValue(type, out float value))
-                stats[type] = Mathf.Clamp01(value + add);
+            if (stats.TryGetValue(attributeId, out float value))
+                stats[attributeId] = Mathf.Clamp01(value + add);
         }
     }
 }

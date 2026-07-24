@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BalanceScenario_Reine
   m_EditorClassIdentifier: 
   playerCharacter: 3
-  playerStatData: {fileID: 11400000, guid: 5b60ca64fde426f4ca67208d33f49fc4, type: 2}
+  playerAttributeProfile: {fileID: 11400000, guid: 84de3974a0184688aa1f009fbdf3bb54, type: 2}
   playerAbilitySet: {fileID: 11400000, guid: 79e1c4a3850ab2c48aafd3919075531a, type: 2}
   playerLevel: 1
   manualPlayerAttackPower: 1

@@ -26,7 +26,6 @@ namespace UPlayGround.Data.Ability
         public GameplayEffectStackPolicy stackPolicy = GameplayEffectStackPolicy.RejectNew;
         [Min(1)] public int maxStackCount = 1;
         public List<GameplayEffectModifierDefinition> modifiers = new();
-        public List<GameplayResourceOperation> resourceOperations = new();
         public List<GameplayTagId> grantedTagIds = new();
         public GameplayEffectRemovalPolicy removalPolicy = GameplayEffectRemovalPolicy.RemoveOnSwap;
         public GameplayEffectSavePolicy savePolicy = GameplayEffectSavePolicy.DoNotSave;

@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
 using UPlayGround.Manager;
@@ -223,10 +224,10 @@ namespace UPlayGround.UI
         };
 
         private static string FormatEffect(GrowthInvestmentRule rule)
-            => rule.statType is UPlayGround.Data.Stat.StatType.Defense
-                or UPlayGround.Data.Stat.StatType.CritRate
-                or UPlayGround.Data.Stat.StatType.AttackSpeed
-                or UPlayGround.Data.Stat.StatType.AttackPower
+            => rule.AttributeId == AttributeIds.Combat.Defense
+                || rule.AttributeId == AttributeIds.Combat.CritRate
+                || rule.AttributeId == AttributeIds.Combat.AttackSpeed
+                || rule.AttributeId == AttributeIds.Combat.AttackPower
                 ? $"{rule.flatPerRank * 100f:0.#}%"
                 : $"{rule.flatPerRank:0.#}";
 

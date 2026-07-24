@@ -158,6 +158,10 @@ namespace UPlayGround.UI.Map.EditorTools
             {
                 if (!IsEligible(p)) continue;
 
+#if UNITY_EDITOR
+                p.EditorEnsureActivationId();
+#endif
+
                 string arrivalId = p.TargetArrivalId;
                 if (string.IsNullOrEmpty(arrivalId) && _preserveArrivalIds)
                     oldArrival.TryGetValue(p.MapLabel, out arrivalId);
@@ -168,6 +172,9 @@ namespace UPlayGround.UI.Map.EditorTools
                     worldPosition   = p.transform.position,
                     targetSceneName = p.Type == PortalType.SceneTransition ? p.TargetSceneName : string.Empty,
                     arrivalId       = arrivalId,
+                    activationId    = p.ActivationId,
+                    requiresActivation = p.RequiresActivation,
+                    startsActivated = p.StartsActivated,
                 });
             }
 

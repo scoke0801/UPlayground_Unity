@@ -15,6 +15,7 @@ namespace UPlayGround.Cycle
         public void StopInteract() { }
         public bool CanInteract() => !string.IsNullOrEmpty(_remainsId);
         public bool IsInteracting() => false;
+        public Transform GetInteractionTransform() => transform;
         public GameActor GetActor() => this;
         public InteractableActorSO GetData() => null;
         public void OnAnimationEvent<TData>(InteractionAnimEvent animEvent, TData data) where TData : IEventData { }

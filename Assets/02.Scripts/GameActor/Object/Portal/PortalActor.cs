@@ -1,6 +1,10 @@
 using System.Collections;
+using System.Text;
 using UnityEngine;
+using UnityEngine.Events;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.Manager;
 using UPlayGround.State;
 
@@ -16,7 +20,7 @@ namespace UPlayGround
     /// 플레이어가 트리거 영역에 진입하면 씬 전환 또는 맵 내 텔레포트를 수행하는 포탈.
     /// </summary>
     [RequireComponent(typeof(Collider))]
-    public class PortalActor : MonoBehaviour
+    public class PortalActor : MonoBehaviour, IInteractable
     {
         [SerializeField] private PortalType _portalType = PortalType.SceneTransition;
 
@@ -38,6 +42,24 @@ namespace UPlayGround
         [Tooltip("중앙 보스 처치 후 활성화되고, 진입 시 사이클 정산을 먼저 요청하는 탈출 포탈.")]
         [SerializeField] private bool _isCycleExitPortal;
 
+        [Header("방문 활성화")]
+        [Tooltip("활성화 전에는 이용할 수 없으며, 플레이어가 현장에서 상호작용해야 해금된다. 사이클 탈출 포탈은 적용하지 않는다.")]
+        [SerializeField] private bool _requiresActivation = true;
+
+        [Tooltip("새 게임에서도 처음부터 활성화된 포탈. 시작 거점처럼 방문 절차를 생략할 포탈에 사용한다.")]
+        [SerializeField] private bool _startsActivated;
+
+        [Tooltip("세이브에 기록되는 포탈 고유 ID. 비우면 씬/계층 경로로 임시 ID를 만들지만, 배치 변경에도 해금을 유지하려면 명시적으로 입력한다.")]
+        [SerializeField] private string _activationId;
+
+        [Tooltip("활성화 상태일 때 켤 오브젝트(VFX, 라이트 등).")]
+        [SerializeField] private GameObject[] _activeVisuals;
+
+        [Tooltip("비활성화 상태일 때 켤 오브젝트(봉인 VFX, 꺼진 장치 등).")]
+        [SerializeField] private GameObject[] _inactiveVisuals;
+
+        [SerializeField] private UnityEvent<bool> _onActivationChanged;
+
         [Header("맵 UI 동기화")]
         [Tooltip("이 포탈을 맵(RegionInfo)에 동기화할지 여부. 숨김 포탈은 false.")]
         [SerializeField] private bool _showOnMap = true;
@@ -49,6 +71,13 @@ namespace UPlayGround
         [SerializeField] private string _mapLabel;
 
         private bool _isActivating;
+        private bool _sessionActivated;
+        private int _originalLayer;
+        private string _cachedActivationId;
+        private bool _hasPresentedActivationState;
+        private bool _presentedActivated;
+        private IGlobalFlagService _boundFlags;
+        private Coroutine _bindFlagsCoroutine;
 
         // ── 맵 UI 동기화용 읽기 전용 접근자 ──────────────────────
         public PortalType Type            => _portalType;
@@ -57,15 +86,42 @@ namespace UPlayGround
         public bool       ShowOnMap       => _showOnMap;
         public string     MapLabel        => string.IsNullOrEmpty(_mapLabel) ? gameObject.name : _mapLabel;
         public bool       IsCycleExitPortal => _isCycleExitPortal;
+        public bool       RequiresActivation => _requiresActivation && !_isCycleExitPortal;
+        public bool       StartsActivated => _startsActivated;
+        public string     ActivationId => _cachedActivationId ??= ResolveActivationId();
+        public bool       IsActivated =>
+            !RequiresActivation
+            || _startsActivated
+            || _sessionActivated
+            || PortalActivationState.IsActivated(ActivationId);
 
         private void Awake()
         {
+            _originalLayer = gameObject.layer;
             GetComponent<Collider>().isTrigger = true;
+            RefreshActivationPresentation(false);
+        }
+
+        private void OnEnable()
+        {
+            if (!TryBindFlagService())
+                _bindFlagsCoroutine = StartCoroutine(BindFlagServiceWhenAvailable());
+        }
+
+        private void OnDisable()
+        {
+            if (_bindFlagsCoroutine != null)
+            {
+                StopCoroutine(_bindFlagsCoroutine);
+                _bindFlagsCoroutine = null;
+            }
+
+            UnbindFlagService();
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!_isActive || _isActivating) return;
+            if (!CanUsePortal() || _isActivating) return;
 
             var actor = other.GetComponent<GameActor>();
             if (actor == null || !actor.HasActorType(ActorType.Player)) return;
@@ -83,6 +139,52 @@ namespace UPlayGround
                     ActivateInMapTeleport(actor);
                     break;
             }
+        }
+
+        // ── IInteractable ─────────────────────────────────────────
+
+        public bool CanInteract()
+        {
+            return _isActive
+                   && !_isActivating
+                   && RequiresActivation
+                   && !IsActivated
+                   && !string.IsNullOrEmpty(ActivationId);
+        }
+
+        public bool IsInteracting() => false;
+
+        public Transform GetInteractionTransform() => transform;
+
+        public GameActor GetActor() => null;
+
+        public InteractableActorSO GetData() => null;
+
+        public void Interact(GameActor interactor)
+        {
+            if (!CanInteract())
+                return;
+
+            if (!PortalActivationState.Activate(ActivationId))
+            {
+                Debug.LogWarning(
+                    $"[{nameof(PortalActor)}] 전역 플래그 서비스를 사용할 수 없어 '{MapLabel}' 포탈을 활성화하지 못했습니다.",
+                    this);
+                return;
+            }
+
+            _sessionActivated = true;
+            RefreshActivationPresentation(true);
+            Debug.Log($"[{nameof(PortalActor)}] 포탈 활성화: {MapLabel} ({ActivationId})", this);
+        }
+
+        public void StopInteract()
+        {
+        }
+
+        public void OnAnimationEvent<TData>(InteractionAnimEvent animEvent, TData data)
+            where TData : IEventData
+        {
         }
 
         private void ActivateSceneTransition()
@@ -138,6 +240,7 @@ namespace UPlayGround
         public void SetPortalActive(bool active)
         {
             _isActive = active;
+            RefreshActivationPresentation(false);
         }
 
         /// <summary>
@@ -145,6 +248,12 @@ namespace UPlayGround
         /// </summary>
         public void TeleportPlayerHere(GameActor actor)
         {
+            if (!CanUsePortal() || actor == null)
+            {
+                Debug.LogWarning($"[{nameof(PortalActor)}] 활성화되지 않은 포탈로의 이동을 거부했습니다.", this);
+                return;
+            }
+
             _isActivating = true;
 
             Vector3    targetPos = _mapArrivalPoint != null ? _mapArrivalPoint.position : transform.position;
@@ -161,5 +270,132 @@ namespace UPlayGround
 
             StartCoroutine(ResetActivatingAfterDelay());
         }
+
+        private bool CanUsePortal()
+        {
+            return _isActive && IsActivated;
+        }
+
+        private IEnumerator BindFlagServiceWhenAvailable()
+        {
+            while (isActiveAndEnabled && !TryBindFlagService())
+                yield return null;
+
+            _bindFlagsCoroutine = null;
+        }
+
+        private bool TryBindFlagService()
+        {
+            IGlobalFlagService flags = Svc.Flags;
+            if (flags == null)
+                return false;
+            if (ReferenceEquals(_boundFlags, flags))
+                return true;
+
+            UnbindFlagService();
+            _boundFlags = flags;
+            _boundFlags.OnFlagChanged += OnFlagChanged;
+            _boundFlags.OnFlagsReloaded += OnFlagsReloaded;
+
+            // 서비스 등록 전 Awake에서 표시한 임시 상태를 실제 저장 플래그로 다시 맞춘다.
+            _sessionActivated = false;
+            RefreshActivationPresentation(true);
+            return true;
+        }
+
+        private void UnbindFlagService()
+        {
+            if (_boundFlags == null)
+                return;
+
+            _boundFlags.OnFlagChanged -= OnFlagChanged;
+            _boundFlags.OnFlagsReloaded -= OnFlagsReloaded;
+            _boundFlags = null;
+        }
+
+        private void OnFlagChanged(string key, bool value)
+        {
+            if (key != PortalActivationState.GetFlagKey(ActivationId))
+                return;
+
+            _sessionActivated = value;
+            RefreshActivationPresentation(true);
+        }
+
+        private void OnFlagsReloaded()
+        {
+            _sessionActivated = false;
+            RefreshActivationPresentation(true);
+        }
+
+        private void RefreshActivationPresentation(bool notify)
+        {
+            bool activated = IsActivated;
+            bool changed = !_hasPresentedActivationState || _presentedActivated != activated;
+
+            SetVisuals(_activeVisuals, activated);
+            SetVisuals(_inactiveVisuals, !activated);
+
+            int interactableLayer = LayerMask.NameToLayer("InteractableObject");
+            if (interactableLayer >= 0)
+                gameObject.layer = CanInteract() ? interactableLayer : _originalLayer;
+
+            _hasPresentedActivationState = true;
+            _presentedActivated = activated;
+
+            if (notify && changed)
+                _onActivationChanged?.Invoke(activated);
+        }
+
+        private static void SetVisuals(GameObject[] targets, bool active)
+        {
+            if (targets == null)
+                return;
+
+            foreach (GameObject target in targets)
+                if (target != null)
+                    target.SetActive(active);
+        }
+
+        private string ResolveActivationId()
+        {
+            if (!string.IsNullOrWhiteSpace(_activationId))
+                return _activationId.Trim();
+
+            if (!gameObject.scene.IsValid())
+                return string.Empty;
+
+            var path = new StringBuilder(gameObject.scene.name);
+            var hierarchy = new System.Collections.Generic.Stack<Transform>();
+            Transform current = transform;
+            while (current != null)
+            {
+                hierarchy.Push(current);
+                current = current.parent;
+            }
+
+            while (hierarchy.Count > 0)
+            {
+                Transform item = hierarchy.Pop();
+                path.Append('/').Append(item.name).Append('[').Append(item.GetSiblingIndex()).Append(']');
+            }
+
+            return path.ToString();
+        }
+
+#if UNITY_EDITOR
+        public void EditorEnsureActivationId()
+        {
+            if (!string.IsNullOrWhiteSpace(_activationId))
+                return;
+
+            UnityEditor.Undo.RecordObject(this, "포탈 활성화 ID 생성");
+            _activationId = System.Guid.NewGuid().ToString("N");
+            _cachedActivationId = _activationId;
+            UnityEditor.EditorUtility.SetDirty(this);
+            if (gameObject.scene.IsValid())
+                UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(gameObject.scene);
+        }
+#endif
     }
 }

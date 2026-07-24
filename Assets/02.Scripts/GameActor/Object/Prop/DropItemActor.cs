@@ -105,6 +105,11 @@ namespace UPlayGround
             return _isInteracting;
         }
 
+        public Transform GetInteractionTransform()
+        {
+            return transform;
+        }
+
         public GameActor GetActor()
         {
             return this;

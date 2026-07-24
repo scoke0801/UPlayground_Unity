@@ -31,6 +31,15 @@ namespace UPlayGround.Data.UI
 
             [Tooltip("도착 지점 식별자. 대상 씬의 SceneArrivalPoint.Id 와 일치. 비우면 씬 기본 스폰.")]
             public string arrivalId;
+
+            [Tooltip("PortalActor의 영구 활성화 ID. 비어 있으면 안전을 위해 지도 파스트트래블에 노출하지 않는다.")]
+            public string activationId;
+
+            [Tooltip("현장에서 상호작용해 활성화한 뒤에만 지도 파스트트래블 대상으로 노출한다.")]
+            public bool requiresActivation;
+
+            [Tooltip("새 게임에서도 처음부터 활성화된 포탈.")]
+            public bool startsActivated;
         }
 
         [Header("이름")]

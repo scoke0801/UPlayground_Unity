@@ -55,12 +55,12 @@ namespace UPlayGround.Data.Event
 
         private static void ShowInteractionFx(IInteractable interactable)
         {
-            GameActor actor = interactable.GetActor();
-            if (actor == null)
+            Transform interactionTransform = interactable.GetInteractionTransform();
+            if (interactionTransform == null)
                 return;
 
-            Vector3 position = actor.transform.position;
-            var collider = actor.GetComponent<Collider>();
+            Vector3 position = interactionTransform.position;
+            var collider = interactionTransform.GetComponent<Collider>();
             if (collider != null)
                 position.y += collider.bounds.extents.y * 0.5f;
 

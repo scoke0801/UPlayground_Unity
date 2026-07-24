@@ -124,6 +124,11 @@ namespace UPlayGround
             return _isGathering;
         }
 
+        public Transform GetInteractionTransform()
+        {
+            return transform;
+        }
+
         public GameActor GetActor()
         {
             return _this;

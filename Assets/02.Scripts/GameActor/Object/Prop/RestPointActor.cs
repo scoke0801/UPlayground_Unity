@@ -77,6 +77,7 @@ namespace UPlayGround
         public bool CanInteract()   => true;     // 무제한 재사용 → 항상 가능
         public bool IsInteracting() => _isInteracting;
 
+        public Transform GetInteractionTransform() => transform;
         public GameActor GetActor()          => _this;
         public InteractableActorSO GetData() => _data;
 

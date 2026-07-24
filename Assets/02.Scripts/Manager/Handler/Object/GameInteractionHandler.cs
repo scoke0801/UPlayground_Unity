@@ -80,7 +80,11 @@ namespace UPlayGround.Manager.Handler
             if (_currentClosestInteractable != null
                 && (_currentClosestInteractable.CanInteract() || _currentClosestInteractable.IsInteracting()))
             {
-                ShowIcon(_currentClosestInteractable.GetActor().transform);
+                Transform interactionTransform = _currentClosestInteractable.GetInteractionTransform();
+                if (interactionTransform != null)
+                    ShowIcon(interactionTransform);
+                else
+                    RemoveIcon();
             }
             else
             {

@@ -175,6 +175,16 @@ namespace UPlayGround.UI
             var entry = _config.GetStaticMarkerEntry(MinimapMarkerType.Portal);
             foreach (var portal in _regionInfo.portals)
             {
+                // 레거시/미동기화 데이터는 활성화 ID가 없어 월드 포탈과 대조할 수 없다.
+                // 잠금 우회를 막기 위해 노출하지 않고, 포탈 동기화 툴로 ID를 채운 항목만 사용한다.
+                if (string.IsNullOrWhiteSpace(portal.activationId))
+                    continue;
+
+                if (portal.requiresActivation
+                    && !portal.startsActivated
+                    && !PortalActivationState.IsActivated(portal.activationId))
+                    continue;
+
                 string name = string.IsNullOrEmpty(portal.label) ? "Portal" : portal.label;
                 var icon = MinimapEntityIcon.CreateStatic(_iconContainer, name, entry);
 
@@ -210,6 +220,15 @@ namespace UPlayGround.UI
 
         private void OnBrowsePortalClicked(MapRegionInfoSO.PortalEntry portal)
         {
+            if (string.IsNullOrWhiteSpace(portal.activationId)
+                || (portal.requiresActivation
+                    && !portal.startsActivated
+                    && !PortalActivationState.IsActivated(portal.activationId)))
+            {
+                Debug.LogWarning("[UI_Map] 현장에서 활성화하지 않은 포탈의 이동 요청을 거부했습니다.");
+                return;
+            }
+
             // 대상 씬: 포탈에 targetSceneName이 명시돼 있으면 그 씬(인터맵 연결),
             // 없으면 현재 보고 있는 지역 자신(웨이포인트 이동).
             string destScene = string.IsNullOrEmpty(portal.targetSceneName) ? _viewRegionMapId : portal.targetSceneName;

@@ -27,6 +27,8 @@ namespace UPlayGround
 
         public bool IsInteracting() => _isInteracting;
 
+        public Transform GetInteractionTransform() => transform;
+
         public GameActor GetActor() => this;
 
         public InteractableActorSO GetData() => _data;

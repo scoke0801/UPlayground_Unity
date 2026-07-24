@@ -40,6 +40,7 @@ namespace UPlayGround.Manager
             if (_deviceDetectionInitialized) return;
 
             InputSystem.onEvent += OnInputSystemEvent;
+            InputSystem.onDeviceChange += OnInputDeviceChange;
             _deviceDetectionInitialized = true;
         }
 
@@ -48,8 +49,41 @@ namespace UPlayGround.Manager
             if (!_deviceDetectionInitialized) return;
 
             InputSystem.onEvent -= OnInputSystemEvent;
+            InputSystem.onDeviceChange -= OnInputDeviceChange;
             OnActiveDeviceChanged = null;
             _deviceDetectionInitialized = false;
+        }
+
+        private void OnInputDeviceChange(InputDevice device, InputDeviceChange change)
+        {
+            if (device is not Gamepad disconnected
+                || _activeDevice != ActiveInputDevice.Gamepad
+                || change is not (InputDeviceChange.Disconnected or InputDeviceChange.Removed))
+            {
+                return;
+            }
+
+            Gamepad fallback = null;
+            foreach (Gamepad gamepad in Gamepad.all)
+            {
+                if (gamepad != null && gamepad != disconnected && gamepad.added)
+                {
+                    fallback = gamepad;
+                    break;
+                }
+            }
+
+            if (fallback != null)
+            {
+                _gamepadBrand = DetectBrand(fallback);
+                OnActiveDeviceChanged?.Invoke(ActiveInputDevice.Gamepad);
+                return;
+            }
+
+            _activeDevice = ActiveInputDevice.KeyboardMouse;
+            _isGamepadActive = false;
+            RefreshCursorState();
+            OnActiveDeviceChanged?.Invoke(_activeDevice);
         }
 
         // InputSystem.onEvent: 모든 입력 이벤트를 본다. 연결/해제(onDeviceChange)와 달리

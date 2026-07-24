@@ -52,6 +52,7 @@ namespace UPlayGround.Manager
         private Dictionary<InputCallbackKey, List<InputCallbackData>> startCallbackDict = new();
         private Dictionary<InputCallbackKey, List<InputCallbackData>> performCallbackDict = new();
         private Dictionary<InputCallbackKey, List<InputCallbackData>> cancelCallbackDict = new();
+        private readonly HashSet<InputAction> _syntheticallyCanceledActions = new();
 
         public void RegisterInputEvent(string mapName, string actionName,
             Action<InputAction.CallbackContext> started,
@@ -106,7 +107,13 @@ namespace UPlayGround.Manager
 
         private void OnInputEventStarted(InputAction.CallbackContext context)
         {
+            if (_rebindCaptureActive)
+                return;
+
             if (ShouldSuppressPlayerActionInput(context))
+                return;
+
+            if (ShouldSuppressSingleBecauseActiveChord(context))
                 return;
 
             if (ShouldBlockPointerPlayerActionOverUI(context))
@@ -117,11 +124,19 @@ namespace UPlayGround.Manager
 
         private void OnInputEventPerformed(InputAction.CallbackContext context)
         {
+            if (_rebindCaptureActive)
+                return;
+
             if (ShouldSuppressPlayerActionInput(context))
+                return;
+
+            if (ShouldSuppressSingleBecauseActiveChord(context))
                 return;
 
             if (ShouldBlockPointerPlayerActionOverUI(context))
                 return;
+
+            CancelActiveChordModifierActions(context);
 
             // 전투 관련 입력은 Level_0(HUD)일 때만 버퍼에 추가
             if (CurrentLayer == InputLayer.Level_0
@@ -231,10 +246,242 @@ namespace UPlayGround.Manager
 
         private void OnInputEventCanceled(InputAction.CallbackContext context)
         {
+            // 조합 성립 시 이미 전달한 Modifier cancel은 실제 버튼 release에서 중복 전달하지 않는다.
+            if (_syntheticallyCanceledActions.Remove(context.action))
+                return;
+
+            if (_rebindCaptureActive)
+                return;
+
             if (ShouldSuppressPlayerActionInput(context))
                 return;
 
+            if (ShouldSuppressSingleBecauseActiveChord(context))
+                return;
+
             ExecuteCallbacks(context, cancelCallbackDict);
+        }
+
+        /// <summary>
+        /// Unity Input System은 OneModifier composite가 성립해도 같은 Trigger에 바인딩된
+        /// 단일 액션을 자동 소비하지 않는다. 같은 맵의 더 구체적인 조합이 활성 상태면
+        /// 구성 단일 액션을 라우터 진입점에서 차단한다.
+        /// </summary>
+        private bool ShouldSuppressSingleBecauseActiveChord(InputAction.CallbackContext context)
+        {
+            InputAction currentAction = context.action;
+            InputControl triggerControl = context.control;
+            InputActionMap map = currentAction?.actionMap;
+            if (map == null || triggerControl == null)
+                return false;
+
+            foreach (InputAction candidate in map.actions)
+            {
+                if (candidate == currentAction || !candidate.enabled)
+                    continue;
+
+                if (TryFindActiveChord(
+                        candidate,
+                        triggerControl,
+                        out _,
+                        out _))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 조합 액션이 성립하면 Modifier를 단일 Hold 액션으로 사용하던 상태를 취소한다.
+        /// 예: Guard(LB) 유지 중 LB+D-pad 퀵슬롯이 성립하면 Guard canceled 콜백을 1회 호출.
+        /// </summary>
+        private void CancelActiveChordModifierActions(InputAction.CallbackContext context)
+        {
+            InputAction chordAction = context.action;
+            InputControl triggerControl = context.control;
+            InputActionMap map = chordAction?.actionMap;
+            if (map == null || triggerControl == null)
+                return;
+
+            if (!TryFindActiveChord(
+                    chordAction,
+                    triggerControl,
+                    out string modifierPath,
+                    out InputControl modifierControl))
+            {
+                return;
+            }
+
+            foreach (InputAction candidate in map.actions)
+            {
+                if (candidate == chordAction)
+                    continue;
+                if (!ActionHasSimpleBindingForControl(candidate, modifierControl, modifierPath))
+                    continue;
+                if (!_syntheticallyCanceledActions.Add(candidate))
+                    continue;
+
+                ExecuteCallbacksForAction(
+                    context,
+                    cancelCallbackDict,
+                    map.name,
+                    candidate.name);
+                _inputBuffer?.ConsumeInput(candidate.name);
+            }
+        }
+
+        private static bool TryFindActiveChord(
+            InputAction action,
+            InputControl triggerControl,
+            out string modifierPath,
+            out InputControl modifierControl)
+        {
+            modifierPath = null;
+            modifierControl = null;
+
+            var bindings = action.bindings;
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                InputBinding root = bindings[i];
+                if (!root.isComposite || string.IsNullOrWhiteSpace(root.effectivePath))
+                    continue;
+
+                string modifier = null;
+                string trigger = null;
+                for (int p = i + 1;
+                     p < bindings.Count && bindings[p].isPartOfComposite;
+                     p++)
+                {
+                    if (string.Equals(bindings[p].name, "modifier", StringComparison.OrdinalIgnoreCase))
+                        modifier = bindings[p].effectivePath;
+                    else if (string.Equals(bindings[p].name, "binding", StringComparison.OrdinalIgnoreCase))
+                        trigger = bindings[p].effectivePath;
+                }
+
+                if (string.IsNullOrWhiteSpace(modifier)
+                    || string.IsNullOrWhiteSpace(trigger)
+                    || !ControlMatchesBindingPath(triggerControl, trigger))
+                {
+                    continue;
+                }
+
+                InputControl foundModifier = FindControlOnDevice(triggerControl.device, modifier);
+                if (foundModifier is not UnityEngine.InputSystem.Controls.ButtonControl button
+                    || !button.isPressed)
+                {
+                    continue;
+                }
+
+                modifierPath = modifier;
+                modifierControl = foundModifier;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool ActionHasSimpleBindingForControl(
+            InputAction action,
+            InputControl control,
+            string expectedPath)
+        {
+            if (control == null)
+                return false;
+
+            foreach (InputBinding binding in action.bindings)
+            {
+                if (binding.isComposite
+                    || binding.isPartOfComposite
+                    || string.IsNullOrWhiteSpace(binding.effectivePath))
+                {
+                    continue;
+                }
+
+                if (ControlMatchesBindingPath(control, binding.effectivePath)
+                    || string.Equals(
+                        NormalizeBindingPath(binding.effectivePath),
+                        NormalizeBindingPath(expectedPath),
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static InputControl FindControlOnDevice(InputDevice device, string bindingPath)
+        {
+            if (device == null || string.IsNullOrWhiteSpace(bindingPath))
+                return null;
+
+            string relative = ToRelativeControlPath(bindingPath);
+            foreach (InputControl control in device.allControls)
+            {
+                if (string.Equals(
+                        ToRelativeControlPath(control.path),
+                        relative,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    return control;
+                }
+            }
+
+            return null;
+        }
+
+        private static bool ControlMatchesBindingPath(InputControl control, string bindingPath)
+        {
+            if (control == null || string.IsNullOrWhiteSpace(bindingPath))
+                return false;
+
+            return string.Equals(
+                ToRelativeControlPath(control.path),
+                ToRelativeControlPath(bindingPath),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string ToRelativeControlPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                return string.Empty;
+
+            int layoutEnd = path.IndexOf(">/", StringComparison.Ordinal);
+            if (layoutEnd >= 0)
+                return path.Substring(layoutEnd + 2).Trim('/').ToLowerInvariant();
+
+            string normalized = path.Trim('/').ToLowerInvariant();
+            int slash = normalized.IndexOf('/');
+            return slash >= 0 ? normalized.Substring(slash + 1) : normalized;
+        }
+
+        private static string NormalizeBindingPath(string path) =>
+            string.IsNullOrWhiteSpace(path)
+                ? string.Empty
+                : path.Trim().ToLowerInvariant();
+
+        private void ExecuteCallbacksForAction(
+            InputAction.CallbackContext context,
+            Dictionary<InputCallbackKey, List<InputCallbackData>> dict,
+            string mapName,
+            string actionName)
+        {
+            var key = new InputCallbackKey(mapName, actionName);
+            if (!dict.TryGetValue(key, out List<InputCallbackData> callbackList))
+                return;
+
+            for (int i = 0; i < callbackList.Count; i++)
+            {
+                InputCallbackData data = callbackList[i];
+                if (data.Layer != InputLayer.None && data.Layer < CurrentLayer)
+                    continue;
+                if (data.CheckFunc != null && !data.CheckFunc.Invoke())
+                    continue;
+
+                data.Callback?.Invoke(context);
+            }
         }
 
         // PlayerAction 액션맵에 한해 차단. UI/메뉴 등 다른 맵은 통과시켜 모션 툴 사용 중에도 메뉴 조작이 가능해야 한다.

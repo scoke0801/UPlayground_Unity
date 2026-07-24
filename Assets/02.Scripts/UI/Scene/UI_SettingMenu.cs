@@ -36,6 +36,7 @@ namespace UPlayGround.UI
         private SettingsData _settingsData;
 
         private SettingsSnapshot _snapshot;
+        private string _inputBindingSnapshot;
 
         private UISettingPageBase _currentPage;
         // SyncUIFromData() 중 콜백이 data를 다시 덮어쓰는 것을 방지
@@ -91,6 +92,7 @@ namespace UPlayGround.UI
                 return;
 
             _snapshot = SettingsSnapshot.From(_settingsData);
+            _inputBindingSnapshot = Svc.Input?.CaptureBindingProfileSnapshot();
 
             // 게임플레이 탭(인덱스 0)을 선택 상태로 시작 → SelectionChanged → ShowTab/SyncUIFromData
             if (_tabGroup != null)
@@ -167,19 +169,32 @@ namespace UPlayGround.UI
             // 오디오가 즉시 반영되며, 그래픽도 이 시점에 적용된다.
             UISvc.Settings.ApplyCurrentSettings(_audioMixer);
             _settingsData.Save();
+            Svc.Input?.SaveBindingProfile();
             Hide();
         }
 
         private void OnCancel()
         {
             _snapshot.ApplyTo(_settingsData);
+            if (!string.IsNullOrWhiteSpace(_inputBindingSnapshot))
+                Svc.Input?.RestoreBindingProfileSnapshot(_inputBindingSnapshot);
             Hide();
         }
 
         private void OnReset()
         {
             _settingsData.ResetToDefault();
+            Svc.Input?.ResetBindings();
             SyncUIFromData();
+        }
+
+        public override bool PerformBackFunction()
+        {
+            if (_panelKeys != null && _panelKeys.TryHandleBack())
+                return false;
+
+            OnCancel();
+            return false;
         }
 
         // ---- Data → UI 동기화 ----

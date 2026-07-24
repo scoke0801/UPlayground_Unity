@@ -18,6 +18,20 @@
 > - `Assets/Resources/Input/PlayerInputActions.inputactions`
 > - `Assets/03.Prefabs/UI/UIRoot.prefab`
 
+## 구현 진행 상태 (2026-07-23)
+
+현재 1차 수직 슬라이스가 구현되었다.
+
+- 완료: 기본 게임패드 충돌 정리, Gamepad Control Scheme, 프로젝트 UI 액션 연결
+- 완료: 공통 `UIFocusScope`, 전역 UI Cancel, 장치 연결 해제 시 fallback
+- 완료: 최상위 Focus Scope 전용 Selectable/레이캐스트 잠금과 Cancel 관통 방지
+- 완료: Primary/Secondary 단일키·2키 조합 캡처, 충돌 대체·취소, 필수 UI 키 보호
+- 완료: 설정 메뉴 키 설정 하위 패널, 장치/카테고리 필터, 액션/장치/전체 초기화
+- 완료: 임시 편집 후 Apply/Cancel, PlayerPrefs JSON 저장·로드, 글리프 변경 이벤트
+- 검증 완료: Unity 스크립트 컴파일, Data/Contracts/UI/Assembly-CSharp 보조 컴파일
+- 후속: 단일키 grace를 포함한 완전한 chord arbiter, GUID 기반 프로필 마이그레이션,
+  ScrollRect 자동 추적, EditMode/PlayMode 자동 테스트, 실제 패드 3종과 Player Build 스모크
+
 ---
 
 ## 1. 목적
@@ -941,20 +955,20 @@ P1:
 ### Phase 0 — 액션 에셋 정리
 
 - [ ] 현재 물리 키 중복·빈 바인딩 자동 검사 작성
-- [ ] RT, D-pad, Keyboard R 충돌 제거
-- [ ] Gamepad/R2 오바인딩 수정
-- [ ] Keyboard&Mouse / Gamepad Control Scheme 완성
-- [ ] 프로젝트 `UI` 표준 액션 완성
-- [ ] `UIRoot`의 `InputSystemUIInputModule`을 동일 액션 에셋에 연결
-- [ ] `AssignDefaultActions()` fallback 제거 또는 프로젝트 액션 명시 할당으로 변경
+- [x] RT, D-pad, Keyboard R 충돌 제거
+- [x] Gamepad/R2 오바인딩 수정
+- [x] Keyboard&Mouse / Gamepad Control Scheme 완성
+- [x] 프로젝트 `UI` 표준 액션 완성
+- [x] `UIRoot`의 `InputSystemUIInputModule`을 동일 액션 에셋에 연결
+- [x] `AssignDefaultActions()` fallback 제거 또는 프로젝트 액션 명시 할당으로 변경
 
 ### Phase 1 — 전 UI 게임패드 내비게이션
 
-- [ ] `UIFocusCoordinator`, `UIFocusScope` 구현
-- [ ] P0 화면 기본 포커스 연결
-- [ ] UI Cancel → 전역 Back 경로 일원화
-- [ ] 팝업 중첩 포커스 push/pop/restore
-- [ ] 장치 전환 시 null 포커스 자동 복구
+- [x] 공통 `UIFocusScope` 구현
+- [x] 공통 fallback 기반 P0 화면 기본 포커스 연결
+- [x] UI Cancel → 전역 Back 경로 일원화
+- [x] 팝업 중첩 포커스 push/pop/restore
+- [x] 장치 전환 시 null 포커스 자동 복구
 - [ ] 주요 복잡 화면 explicit navigation 구축
 
 ### Phase 2 — 입력 컨텍스트와 조합 중재
@@ -969,28 +983,28 @@ P1:
 
 - [ ] `InputBindingCatalogSO`
 - [ ] 고정 Single/Composite 슬롯과 binding GUID 규약
-- [ ] Rebinding Session 상태 머신
-- [ ] 단일키·조합키 캡처
-- [ ] 충돌 검사와 교환·대체·취소
-- [ ] 필수 UI 바인딩 보호
+- [x] Rebinding Session 상태 머신
+- [x] 단일키·조합키 캡처
+- [x] 충돌 검사와 대체·취소
+- [x] 필수 UI 바인딩 보호
 
 ### Phase 4 — 설정 메뉴 키 설정 하위 패널
 
-- [ ] `UISettingPageKeyBinding` 구현
-- [ ] 장치·카테고리 탭
-- [ ] `UIKeyBindingRow` 풀링
-- [ ] `UIKeyCapturePanel`
-- [ ] `UIKeyConflictPopup`
+- [x] `UISettingPageKeyBinding` 구현
+- [x] 장치·카테고리 탭
+- [x] `UIKeyBindingRow` 풀링
+- [x] 캡처 오버레이
+- [x] 충돌 오버레이
 - [ ] ScrollRect 자동 추적과 explicit navigation
-- [ ] Apply / Cancel / Reset Action / Reset Device / Reset All
+- [x] Apply / Cancel / Reset Action / Reset Device / Reset All
 
 ### Phase 5 — 저장·글리프·장치 복구
 
-- [ ] override JSON 저장·로드
+- [x] override JSON 저장·로드
 - [ ] profileVersion 마이그레이션
-- [ ] `OnBindingsChanged`
-- [ ] HUD·프롬프트 즉시 갱신
-- [ ] 연결 해제·재연결 처리
+- [x] `OnBindingsChanged`
+- [x] 공용 입력 프롬프트 즉시 갱신
+- [x] 연결 해제·재연결 처리
 - [ ] 브랜드별 글리프 검증
 
 ### Phase 6 — 검증과 문서 동기화
@@ -1121,4 +1135,3 @@ Switch는 `buttonSouth`의 표시 문자가 Xbox와 다르므로 “논리 Submi
 - 게임패드 햅틱 패턴 시스템 본 구현
 
 햅틱은 `IInputService` 또는 별도 피드백 계약으로 확장할 수 있지만 본 스펙에서는 진동 사용 여부·강도 설정과 연결 해제 시 정지만 다룬다.
-

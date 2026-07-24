@@ -25,6 +25,7 @@ namespace UPlayGround.UI
         [Header("Sound")]
         [SerializeField] private bool _playDefaultButtonSound = true;
         private readonly List<Button> _soundBoundButtons = new();
+        private UIFocusScope _focusScope;
 
         #endregion
 
@@ -190,6 +191,14 @@ namespace UPlayGround.UI
             RegisterInputEvents();
 
             OnShow();
+
+            if (BlocksLowerInput || RequiresCursorVisible)
+            {
+                _focusScope ??= GetComponent<UIFocusScope>();
+                if (_focusScope == null)
+                    _focusScope = gameObject.AddComponent<UIFocusScope>();
+                _focusScope.ActivateScope();
+            }
         }
 
         /// <summary>
@@ -231,6 +240,7 @@ namespace UPlayGround.UI
 
             UnRegisterInputEvents();
 
+            _focusScope?.DeactivateScope();
             OnHide();
             if(this.gameObject != null)
             {

@@ -64,10 +64,13 @@ namespace UPlayGround.Manager
             Debug.Log("[InputManager] 정리 시작");
 
             DisposeDeviceDetection();
+            OnBindingsChanged = null;
+            OnRebindCaptureChanged = null;
 
             startCallbackDict.Clear();
             performCallbackDict.Clear();
             cancelCallbackDict.Clear();
+            _syntheticallyCanceledActions.Clear();
             
             Debug.Log("[InputManager] 정리 완료");
         }

@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GamepadCore DLL을 Unity에서 사용하는 방법과 전체 API 예제">
+  <title>GamepadCore × Unity API 가이드</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090d16;
+      --panel: #111827;
+      --panel-2: #162033;
+      --line: #27344d;
+      --text: #edf2ff;
+      --muted: #9cabc6;
+      --accent: #72e7cb;
+      --accent-2: #75a7ff;
+      --warning: #ffc66d;
+      --danger: #ff8b9c;
+      --code: #080c14;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 12% 4%, rgba(117, 167, 255, .13), transparent 29rem),
+        radial-gradient(circle at 90% 18%, rgba(114, 231, 203, .10), transparent 25rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.72;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "Cascadia Code", Consolas, monospace; }
+    .layout {
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 44px;
+      padding: 28px 32px 80px;
+    }
+    aside {
+      position: sticky;
+      top: 24px;
+      height: calc(100vh - 48px);
+      overflow: auto;
+      padding: 24px 20px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(17, 24, 39, .86);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 22px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+    .logo {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      color: #06120f;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 24px rgba(114, 231, 203, .18);
+    }
+    nav a {
+      display: block;
+      padding: 7px 10px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    nav a:hover, nav a.active {
+      color: var(--text);
+      text-decoration: none;
+      background: var(--panel-2);
+    }
+    main { min-width: 0; }
+    .hero {
+      padding: 54px 52px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background:
+        linear-gradient(130deg, rgba(117, 167, 255, .15), transparent 48%),
+        linear-gradient(310deg, rgba(114, 231, 203, .10), transparent 44%),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 820px;
+      margin: 12px 0 14px;
+      font-size: clamp(38px, 6vw, 70px);
+      line-height: 1.05;
+      letter-spacing: -.055em;
+    }
+    .lead {
+      max-width: 820px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 26px;
+    }
+    .badge {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #cbd8ef;
+      background: rgba(8, 12, 20, .48);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    section { padding-top: 58px; }
+    h2 {
+      margin: 0 0 18px;
+      font-size: 30px;
+      line-height: 1.25;
+      letter-spacing: -.035em;
+    }
+    h3 { margin: 26px 0 12px; font-size: 20px; letter-spacing: -.02em; }
+    p { margin: 0 0 14px; }
+    .muted { color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card, .callout {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(17, 24, 39, .88);
+    }
+    .card { padding: 22px; }
+    .card h3 { margin-top: 0; }
+    .callout {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent-2);
+    }
+    .callout.warning { border-left-color: var(--warning); }
+    .callout.danger { border-left-color: var(--danger); }
+    .steps { counter-reset: steps; display: grid; gap: 12px; }
+    .step {
+      position: relative;
+      padding: 19px 20px 19px 66px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+    .step::before {
+      counter-increment: steps;
+      content: counter(steps);
+      position: absolute;
+      left: 18px;
+      top: 17px;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      color: #07130f;
+      background: var(--accent);
+      font-weight: 900;
+    }
+    .step strong { display: block; margin-bottom: 3px; }
+    .code-wrap {
+      position: relative;
+      margin: 14px 0 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--code);
+    }
+    .code-title {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      background: #0e1421;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    pre {
+      margin: 0;
+      padding: 18px;
+      overflow: auto;
+      color: #dce7ff;
+      font-size: 13px;
+      line-height: 1.65;
+      tab-size: 4;
+    }
+    .copy {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      background: var(--panel-2);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--panel);
+      font-size: 14px;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--accent); background: var(--panel-2); }
+    tr:last-child td { border-bottom: 0; }
+    .check { color: var(--accent); font-weight: 900; }
+    .limited { color: var(--warning); font-weight: 800; }
+    .api td:first-child { white-space: nowrap; color: #c6d7ff; font-family: "Cascadia Code", Consolas, monospace; }
+    footer {
+      margin-top: 64px;
+      padding: 22px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; padding: 18px 18px 60px; }
+      aside { position: static; height: auto; }
+      nav { display: grid; grid-template-columns: repeat(2, 1fr); }
+      .hero { padding: 38px 26px; }
+      .grid { grid-template-columns: 1fr; }
+      .table-wrap { overflow-x: auto; }
+    }
+    @media print {
+      :root { color-scheme: light; --bg: white; --panel: white; --panel-2: #f2f5fa; --line: #ccd4df; --text: #111827; --muted: #4b5563; --code: #f5f7fa; }
+      body { background: white; }
+      aside, .copy { display: none; }
+      .layout { display: block; max-width: 100%; padding: 0; }
+      .hero, .card, .callout, .step { box-shadow: none; break-inside: avoid; }
+      pre { color: #111827; white-space: pre-wrap; }
+      section { padding-top: 34px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand"><span class="logo">GC</span><span>GamepadCore Guide</span></div>
+      <nav aria-label="문서 목차">
+        <a href="#overview">개요</a>
+        <a href="#install">설치</a>
+        <a href="#lifecycle">수명주기</a>
+        <a href="#input">입력·기울기</a>
+        <a href="#rumble">일반 진동</a>
+        <a href="#pcm">PCM 햅틱</a>
+        <a href="#trigger">적응형 트리거</a>
+        <a href="#light">라이트·LED</a>
+        <a href="#reset">초기화</a>
+        <a href="#sample">통합 예제</a>
+        <a href="#reference">API 요약</a>
+        <a href="#trouble">문제 해결</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero" id="overview">
+        <div class="eyebrow">Unity Native Plugin · Windows x86_64</div>
+        <h1>GamepadCore<br>Unity API 가이드</h1>
+        <p class="lead">DualSense, DualSense Edge, DualShock 4의 PCM 햅틱, 일반 진동, 적응형 트리거, 라이트, 터치, 자이로·가속도·기울기를 Unity C#에서 제어하는 방법입니다.</p>
+        <div class="badges">
+          <span class="badge">42 Native Exports</span>
+          <span class="badge">USB + Bluetooth</span>
+          <span class="badge">Blittable Input State</span>
+          <span class="badge">Automatic Lifecycle</span>
+        </div>
+      </header>
+
+      <section>
+        <h2>지원 범위</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>기능</th><th>DualSense / Edge</th><th>DualShock 4</th><th>비고</th></tr></thead>
+            <tbody>
+              <tr><td>버튼·스틱·트리거 입력</td><td class="check">지원</td><td class="check">지원</td><td>매 프레임 상태 스냅샷</td></tr>
+              <tr><td>자이로·가속도·기울기</td><td class="check">지원</td><td class="check">지원</td><td>사용 전 Motion 활성화</td></tr>
+              <tr><td>일반 진동</td><td class="check">지원</td><td class="check">지원</td><td>좌·우 모터 독립 제어</td></tr>
+              <tr><td>PCM 오디오 햅틱</td><td class="check">USB 지원</td><td>—</td><td>48 kHz / 16-bit / Stereo</td></tr>
+              <tr><td>Bluetooth 햅틱</td><td class="limited">인코딩 패킷</td><td>—</td><td>64-byte 컨트롤러 형식</td></tr>
+              <tr><td>적응형 트리거</td><td class="check">지원</td><td>—</td><td>좌·우·양쪽 및 커스텀</td></tr>
+              <tr><td>라이트바</td><td class="check">지원</td><td class="check">지원</td><td>점멸은 DS4 중심</td></tr>
+              <tr><td>플레이어·마이크 LED</td><td class="check">지원</td><td>—</td><td>장치별 지원 범위 적용</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="install">
+        <h2>1. Unity 프로젝트에 설치</h2>
+        <div class="steps">
+          <div class="step"><strong>네이티브 DLL 복사</strong><code>GamepadCore.dll</code>을 Unity 프로젝트의 <code>Assets/Plugins/x86_64/</code>에 넣습니다.</div>
+          <div class="step"><strong>C# 래퍼 복사</strong><code>GamepadCoreApi.cs</code>를 <code>Assets/02.Scripts/Input/GamepadCore/</code>에 넣습니다.</div>
+          <div class="step"><strong>Plugin Import Settings 확인</strong>Unity Inspector에서 DLL의 플랫폼을 <code>Editor</code>와 <code>Standalone / Windows / x86_64</code>로 설정합니다.</div>
+          <div class="step"><strong>자동 드라이버 추가</strong>빈 GameObject에 <code>GamepadCoreBehaviour</code> 컴포넌트를 추가합니다.</div>
+        </div>
+        <div class="callout warning"><strong>중요:</strong> Unity Editor와 빌드 타깃이 모두 64비트여야 합니다. DLL 이름은 바꾸지 말고 <code>GamepadCore.dll</code>로 유지하세요.</div>
+        <div class="grid">
+          <div class="card">
+            <h3>제공 파일</h3>
+            <p><a href="../../Plugins/GamepadCore/GamepadCore.dll">Release GamepadCore.dll</a></p>
+            <p><a href="../../02.Scripts/Input/GamepadCore/GamepadCoreApi.cs">GamepadCoreApi.cs</a></p>
+          </div>
+          <div class="card">
+            <h3>권장 Unity 구조</h3>
+            <pre>Assets/
+├─ Plugins/x86_64/GamepadCore.dll
+└─ 02.Scripts/Input/GamepadCore/GamepadCoreApi.cs</pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="lifecycle">
+        <h2>2. 초기화와 매 프레임 업데이트</h2>
+        <p><code>GamepadCoreBehaviour</code>를 사용하면 초기화, 프레임 업데이트, 종료가 자동 처리됩니다. 프로젝트에 드라이버가 하나만 존재하도록 하세요.</p>
+        <div class="code-wrap">
+          <div class="code-title">권장 — 자동 수명주기</div><button class="copy">복사</button>
+          <pre><code>// 빈 GameObject에 GamepadCoreBehaviour 컴포넌트를 추가하면 끝입니다.
+// Awake      → GamepadCoreApi.Initialize()
+// Update     → GamepadCoreApi.Update(Time.unscaledDeltaTime)
+// App Quit   → GamepadCoreApi.Shutdown()</code></pre>
+        </div>
+        <p>직접 관리해야 하는 경우에는 다음 순서를 지킵니다.</p>
+        <div class="code-wrap">
+          <div class="code-title">수동 수명주기</div><button class="copy">복사</button>
+          <pre><code>private void Awake()
+{
+    if (!GamepadCoreApi.Initialize())
+        Debug.LogError(GamepadCoreApi.LastError);
+}
+
+private void Update()
+{
+    GamepadCoreApi.Update(Time.unscaledDeltaTime);
+}
+
+private void OnApplicationQuit()
+{
+    GamepadCoreApi.Shutdown();
+}</code></pre>
+        </div>
+        <div class="callout"><code>GamepadCoreApi.Update()</code>는 연결 감지와 함께 각 패드의 HID 입력 및 USB/Bluetooth 햅틱 큐를 처리합니다.</div>
+      </section>
+
+      <section id="input">
+        <h2>3. 입력, 자이로와 기울기</h2>
+        <p>모션과 터치 데이터는 명시적으로 활성화해야 합니다. 버튼, 스틱, 트리거 값은 <code>TryGetState()</code>로 한 번에 가져옵니다.</p>
+        <div class="code-wrap">
+          <div class="code-title">입력 및 기울기 읽기</div><button class="copy">복사</button>
+          <pre><code>using GamepadCore.Unity;
+using UnityEngine;
+
+public class PadInputExample : MonoBehaviour
+{
+    public int padIndex;
+
+    private void Start()
+    {
+        GamepadCoreApi.EnableMotion(padIndex, true);
+        GamepadCoreApi.EnableTouch(padIndex, true, gesture: true);
+        GamepadCoreApi.ResetMotionOrientation(padIndex);
+    }
+
+    private void Update()
+    {
+        if (!GamepadCoreApi.TryGetState(padIndex, out GamepadState state))
+            return;
+
+        Vector2 move = state.LeftStick;
+        Vector3 tiltDegrees = state.Tilt;
+        Vector3 gyroDegreesPerSecond = state.Gyroscope;
+        Vector3 accelerationG = state.Accelerometer;
+
+        if (state.IsPressed(GamepadButtons.Cross))
+            Debug.Log("Cross pressed");
+    }
+}</code></pre>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>Tilt</h3><p class="muted">가속도 기반 X/Y 기울기(도). <code>ResetMotionOrientation()</code> 호출 시 현재 자세를 영점으로 사용합니다.</p></div>
+          <div class="card"><h3>Gyroscope</h3><p class="muted">보정된 각속도. 빠른 회전 반응이나 카메라 조준에 적합합니다.</p></div>
+          <div class="card"><h3>Accelerometer</h3><p class="muted">보정된 G 단위 가속도. <code>Gravity</code>는 m/s² 값입니다.</p></div>
+          <div class="card"><h3>Touch</h3><p class="muted">접촉 여부, 좌표, 상대 좌표, 손가락 수와 터치 ID를 제공합니다.</p></div>
+        </div>
+      </section>
+
+      <section id="rumble">
+        <h2>4. 일반 진동</h2>
+        <p>세기는 <code>0.0f</code>에서 <code>1.0f</code> 범위입니다. 좌측과 우측 모터를 독립적으로 제어합니다.</p>
+        <div class="code-wrap">
+          <div class="code-title">일반 진동</div><button class="copy">복사</button>
+          <pre><code>// 강한 왼쪽, 약한 오른쪽
+GamepadCoreApi.SetVibration(0, left: 1.0f, right: 0.3f);
+
+// 정지
+GamepadCoreApi.SetVibration(0, 0f, 0f);</code></pre>
+        </div>
+        <div class="callout warning">PCM 햅틱 재생 후 일반 진동을 사용하면 내부 진동 모드가 기본 Rumble 모드로 전환됩니다.</div>
+      </section>
+
+      <section id="pcm">
+        <h2>5. PCM 오디오 햅틱</h2>
+        <p>DualSense USB 오디오 햅틱은 <strong>48 kHz, signed 16-bit, interleaved stereo</strong> PCM을 사용합니다. 배열은 <code>L, R, L, R...</code> 순서입니다.</p>
+        <div class="code-wrap">
+          <div class="code-title">PCM 전체 재생</div><button class="copy">복사</button>
+          <pre><code>short[] pcm48kStereo = LoadOrConvertPcm();
+int result = GamepadCoreApi.PlayPcm16(0, pcm48kStereo);
+
+if (result != 1)
+    Debug.LogError($"PCM haptics failed: {result}");</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">실시간 Unity 오디오 스트림</div><button class="copy">복사</button>
+          <pre><code>private void OnAudioFilterRead(float[] data, int channels)
+{
+    if (channels != 2)
+        return;
+
+    int frameCount = data.Length / channels;
+    GamepadCoreApi.ProcessUnityAudio(0, data, frameCount);
+}</code></pre>
+        </div>
+        <div class="callout danger"><strong>오디오 스레드 주의:</strong> <code>OnAudioFilterRead</code>는 Unity 메인 스레드가 아닙니다. 연결 검사나 Unity API 호출을 이 콜백에 추가하지 마세요.</div>
+        <div class="callout warning"><strong>Bluetooth:</strong> 임의 PCM 배열을 직접 보내는 방식이 아닙니다. <code>QueueBluetoothHapticPacket()</code>에는 DualSense 형식으로 인코딩된 정확히 64바이트 패킷이 필요합니다.</div>
+      </section>
+
+      <section id="trigger">
+        <h2>6. DualSense 적응형 트리거</h2>
+        <p><code>GamepadHand.Left</code>, <code>Right</code>, <code>Both</code>를 사용할 수 있습니다. 효과의 바이트 인자는 컨트롤러 프로토콜 범위이므로 작은 값부터 조정하세요.</p>
+        <div class="code-wrap">
+          <div class="code-title">저항, 활, 기관총 효과</div><button class="copy">복사</button>
+          <pre><code>// 기본 저항
+GamepadCoreApi.SetTriggerResistance(
+    0, startZone: 80, strength: 180, GamepadHand.Right);
+
+// 활 당김
+GamepadCoreApi.SetTriggerBow(
+    0, startZone: 40, snapBack: 150, GamepadHand.Both);
+
+// 기관총
+GamepadCoreApi.SetTriggerMachineGun(
+    0, startZone: 30, behavior: 1,
+    amplitude: 2, frequency: 25, GamepadHand.Right);
+
+// 효과 해제
+GamepadCoreApi.StopTrigger(0, GamepadHand.Both);</code></pre>
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">커스텀 10바이트 트리거 리포트</div><button class="copy">복사</button>
+          <pre><code>byte[] triggerReport =
+{
+    0x21, 0x50, 0xA0, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+GamepadCoreApi.SetTriggerCustom(
+    0, GamepadHand.Right, triggerReport);</code></pre>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>제공 효과</h3><p>Resistance, GameCube, Bow, Galloping, Weapon, MachineGun, Machine, Custom</p></div>
+          <div class="card"><h3>안전한 해제</h3><p>씬 전환이나 일시 정지 시 <code>StopTrigger(...Both)</code> 또는 <code>ResetGamepad()</code>를 호출하세요.</p></div>
+        </div>
+      </section>
+
+      <section id="light">
+        <h2>7. 라이트바와 LED</h2>
+        <div class="code-wrap">
+          <div class="code-title">라이트 제어</div><button class="copy">복사</button>
+          <pre><code>// Unity Color 사용
+GamepadCoreApi.SetLightbar(0, new Color(0.1f, 0.7f, 1.0f));
+
+// DS4 라이트바 점멸 — 시간 단위는 초, 최대 2.5초
+GamepadCoreApi.SetLightbarFlash(
+    0, Color.red, brightSeconds: 0.2f, darkSeconds: 0.35f);
+
+// DualSense 5-bit 플레이어 LED 마스크
+GamepadCoreApi.SetPlayerLed(0, mask: 0x04, brightness: 255);
+
+GamepadCoreApi.SetMicrophoneLed(0, enabled: true);
+GamepadCoreApi.ResetLights(0);</code></pre>
+        </div>
+      </section>
+
+      <section id="reset">
+        <h2>8. 초기화와 정리</h2>
+        <div class="code-wrap">
+          <div class="code-title">게임패드 상태 초기화</div><button class="copy">복사</button>
+          <pre><code>// 한 대: 진동, 트리거, 라이트, PCM, 모션 영점 초기화
+bool reset = GamepadCoreApi.ResetGamepad(0);
+
+// 연결된 모든 패드
+GamepadCoreApi.ResetAllGamepads();</code></pre>
+        </div>
+        <p><code>ResetGamepad()</code>는 진동을 정지하고 트리거 효과를 해제하며 기본 라이트, 기본 Rumble 모드, 모션 영점 상태로 되돌립니다. 라이브러리 자체 종료는 <code>Shutdown()</code>을 사용합니다.</p>
+      </section>
+
+      <section id="sample">
+        <h2>9. 통합 사용 예제</h2>
+        <div class="code-wrap">
+          <div class="code-title">GamepadGameplayExample.cs</div><button class="copy">복사</button>
+          <pre><code>using GamepadCore.Unity;
+using UnityEngine;
+
+public sealed class GamepadGameplayExample : MonoBehaviour
+{
+    [SerializeField] private int padIndex;
+
+    private void Start()
+    {
+        GamepadCoreApi.EnableMotion(padIndex, true);
+        GamepadCoreApi.EnableTouch(padIndex, true);
+        GamepadCoreApi.ResetMotionOrientation(padIndex);
+        GamepadCoreApi.SetLightbar(padIndex, Color.cyan);
+    }
+
+    private void Update()
+    {
+        if (!GamepadCoreApi.TryGetState(padIndex, out var state))
+            return;
+
+        transform.Rotate(
+            state.Tilt.y * Time.deltaTime,
+            -state.Tilt.x * Time.deltaTime,
+            0f);
+
+        if (state.IsPressed(GamepadButtons.Cross))
+        {
+            GamepadCoreApi.SetVibration(padIndex, 0.8f, 0.45f);
+            GamepadCoreApi.SetTriggerResistance(
+                padIndex, 60, 180, GamepadHand.Both);
+        }
+        else
+        {
+            GamepadCoreApi.SetVibration(padIndex, 0f, 0f);
+            GamepadCoreApi.StopTrigger(padIndex, GamepadHand.Both);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (GamepadCoreApi.IsConnected(padIndex))
+            GamepadCoreApi.ResetGamepad(padIndex);
+    }
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="reference">
+        <h2>10. 주요 C# API 요약</h2>
+        <div class="table-wrap">
+          <table class="api">
+            <thead><tr><th>API</th><th>용도</th></tr></thead>
+            <tbody>
+              <tr><td>Initialize / Shutdown</td><td>네이티브 라이브러리 시작과 종료</td></tr>
+              <tr><td>Update</td><td>연결 감지, 입력 및 햅틱 큐 처리</td></tr>
+              <tr><td>TryGetState</td><td>입력·모션·터치 전체 스냅샷</td></tr>
+              <tr><td>IsConnected / IsWireless</td><td>연결 상태와 USB/Bluetooth 구분</td></tr>
+              <tr><td>GetDeviceType / GetBatteryLevel</td><td>패드 종류와 0~1 배터리 값</td></tr>
+              <tr><td>SetVibration</td><td>좌·우 일반 진동</td></tr>
+              <tr><td>PlayPcm16 / ProcessUnityAudio</td><td>USB PCM 햅틱</td></tr>
+              <tr><td>QueueBluetoothHapticPacket</td><td>64바이트 BT 햅틱 패킷</td></tr>
+              <tr><td>SetTrigger*</td><td>DualSense 적응형 트리거 전체 효과</td></tr>
+              <tr><td>SetLightbar / SetPlayerLed</td><td>라이트와 플레이어 표시</td></tr>
+              <tr><td>EnableMotion / EnableTouch</td><td>센서와 터치 데이터 활성화</td></tr>
+              <tr><td>ResetMotionOrientation</td><td>현재 자세를 기울기 영점으로 설정</td></tr>
+              <tr><td>ResetGamepad / ResetAllGamepads</td><td>출력·햅틱·모션 상태 초기화</td></tr>
+              <tr><td>ConfigureDualSense</td><td>오디오 라우팅, 볼륨, 진동·트리거 감소 설정</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="trouble">
+        <h2>11. 문제 해결</h2>
+        <div class="grid">
+          <div class="card"><h3>DllNotFoundException</h3><p class="muted">DLL이 <code>Assets/Plugins/x86_64</code>에 있는지, Unity와 빌드 타깃이 x86_64인지 확인합니다.</p></div>
+          <div class="card"><h3>연결 수가 0</h3><p class="muted"><code>Update()</code>가 매 프레임 호출되는지 확인하고 1초 이상 기다립니다. Steam Input 등 독점 접근 프로그램도 종료해 봅니다.</p></div>
+          <div class="card"><h3>기울기가 0</h3><p class="muted"><code>EnableMotion(index, true)</code>를 먼저 호출하고 <code>GamepadCoreApi.Update()</code>가 실행 중인지 확인합니다.</p></div>
+          <div class="card"><h3>PCM이 동작하지 않음</h3><p class="muted">DualSense가 USB인지, 데이터가 48 kHz / 16-bit / Stereo인지 확인합니다.</p></div>
+          <div class="card"><h3>트리거가 동작하지 않음</h3><p class="muted">DualSense/Edge 장치인지 확인합니다. DS4에는 적응형 트리거 하드웨어가 없습니다.</p></div>
+          <div class="card"><h3>종료 후 출력이 남음</h3><p class="muted">씬 종료 전 <code>ResetAllGamepads()</code>, 앱 종료 시 <code>Shutdown()</code>을 호출합니다.</p></div>
+        </div>
+      </section>
+
+      <footer>
+        GamepadCore Unity API Guide · 오프라인 사용 가능 · 브라우저 인쇄에서 PDF로 저장할 수 있습니다.
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll(".copy").forEach(button => {
+      button.addEventListener("click", async () => {
+        const code = button.closest(".code-wrap").querySelector("code").innerText;
+        try {
+          await navigator.clipboard.writeText(code);
+          const previous = button.textContent;
+          button.textContent = "복사됨";
+          setTimeout(() => button.textContent = previous, 1200);
+        } catch {
+          button.textContent = "선택 후 복사";
+        }
+      });
+    });
+
+    const links = [...document.querySelectorAll("nav a")];
+    const targets = links
+      .map(link => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      links.forEach(link => {
+        link.classList.toggle(
+          "active",
+          link.getAttribute("href") === "#" + visible.target.id);
+      });
+    }, { rootMargin: "-10% 0px -70% 0px", threshold: [0, .2, .6] });
+    targets.forEach(target => observer.observe(target));
+  </script>
+</body>
+</html>

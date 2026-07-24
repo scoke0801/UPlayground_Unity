@@ -55,6 +55,7 @@ namespace UPlayGround.UI.InputPrompt
             if (_inputManager != null)
             {
                 _inputManager.OnActiveDeviceChanged += OnDeviceChanged;
+                _inputManager.OnBindingsChanged += Refresh;
                 Refresh();
             }
         }
@@ -64,6 +65,7 @@ namespace UPlayGround.UI.InputPrompt
             if (_inputManager != null)
             {
                 _inputManager.OnActiveDeviceChanged -= OnDeviceChanged;
+                _inputManager.OnBindingsChanged -= Refresh;
                 _inputManager = null;
             }
         }

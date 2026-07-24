@@ -38,6 +38,7 @@ namespace UPlayGround.Manager
 
         private GameObject  _uiRootInstance;
         private EventSystem _eventSystem;
+        private readonly List<InputActionReference> _uiInputActionReferences = new();
 
         private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
 
@@ -98,6 +99,13 @@ namespace UPlayGround.Manager
 
             _uiRootInstance = null;
             _eventSystem    = null;
+
+            foreach (InputActionReference reference in _uiInputActionReferences)
+            {
+                if (reference != null)
+                    Destroy(reference);
+            }
+            _uiInputActionReferences.Clear();
 
             _uiPrefabDatabase = null;
             _floaterConfig = null;
@@ -293,19 +301,58 @@ namespace UPlayGround.Manager
                 eventSystemObj.transform.SetParent(_uiRootInstance != null ? _uiRootInstance.transform : transform);
 
                 _eventSystem = eventSystemObj.AddComponent<EventSystem>();
-                InputSystemUIInputModule inputModule = eventSystemObj.AddComponent<InputSystemUIInputModule>();
-                inputModule.AssignDefaultActions();
+                eventSystemObj.AddComponent<InputSystemUIInputModule>();
             }
 
             _eventSystem.gameObject.SetActive(true);
 
             if (_eventSystem.GetComponent<BaseInputModule>() == null)
             {
-                InputSystemUIInputModule inputModule = _eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-                inputModule.AssignDefaultActions();
+                _eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
             }
 
+            ConfigureProjectUIInputActions();
             RemoveDuplicateEventSystems();
+        }
+
+        private void ConfigureProjectUIInputActions()
+        {
+            if (_eventSystem == null || Svc.Input == null)
+                return;
+
+            InputSystemUIInputModule module = _eventSystem.GetComponent<InputSystemUIInputModule>();
+            if (module == null)
+                return;
+
+            foreach (InputActionReference reference in _uiInputActionReferences)
+            {
+                if (reference != null)
+                    Destroy(reference);
+            }
+            _uiInputActionReferences.Clear();
+
+            module.point = CreateUIActionReference(UIAction.Point);
+            module.move = CreateUIActionReference(UIAction.Navigate);
+            module.submit = CreateUIActionReference(UIAction.Submit);
+            module.cancel = CreateUIActionReference(UIAction.Cancel);
+            module.leftClick = CreateUIActionReference(UIAction.Click);
+            module.rightClick = CreateUIActionReference(UIAction.RightClick);
+            module.middleClick = CreateUIActionReference(UIAction.MiddleClick);
+            module.scrollWheel = CreateUIActionReference(UIAction.ScrollWheel);
+        }
+
+        private InputActionReference CreateUIActionReference(string actionName)
+        {
+            InputAction action = Svc.Input.GetAction(InputMapNames.UI, actionName);
+            if (action == null)
+            {
+                Debug.LogError($"[UIManager] UI 입력 액션을 찾을 수 없습니다: {actionName}");
+                return null;
+            }
+
+            InputActionReference reference = InputActionReference.Create(action);
+            _uiInputActionReferences.Add(reference);
+            return reference;
         }
 
         private void RemoveDuplicateEventSystems()
@@ -672,21 +719,20 @@ namespace UPlayGround.Manager
 
         private void RegisterInputEvents()
         {
-            Svc.Input.RegisterInputEvent(InputMapNames.System, SystemAction.Back,
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.Cancel,
                 null, OnPerformedBack, null, null, null, InputLayer.None);
         }
 
         private void UnRegisterInputEvents()
         {
             if (Svc.Input == null) return;
-            Svc.Input.UnRegisterInputEvent(InputMapNames.System, SystemAction.Back,
+            Svc.Input.UnRegisterInputEvent(InputMapNames.UI, UIAction.Cancel,
                 null, OnPerformedBack, null);
         }
 
         private void OnPerformedBack(InputAction.CallbackContext obj)
         {
             var layers = (CanvasLayer[])System.Enum.GetValues(typeof(CanvasLayer));
-            bool handled = false;
 
             for (int i = layers.Length - 1; i >= 0; i--)
             {
@@ -695,15 +741,24 @@ namespace UPlayGround.Manager
                 for (int c = canvas.transform.childCount - 1; c >= 0; c--)
                 {
                     var uiBase = canvas.transform.GetChild(c).GetComponentInChildren<UI_Base>();
-                    if (uiBase == null || !uiBase.IsVisible || !uiBase.IsCanCloseWithEsc) continue;
+                    if (uiBase == null || !uiBase.IsVisible)
+                        continue;
 
-                    if (!uiBase.PerformBackFunction()) return;
-                    handled = true;
+                    if (uiBase.IsCanCloseWithEsc)
+                    {
+                        uiBase.PerformBackFunction();
+                        return;
+                    }
+
+                    // 닫기 불가 차단 모달은 Cancel을 소비하고,
+                    // 비차단 HUD/알림은 건너뛰어 상위 메뉴 또는 Pause 토글까지 전달한다.
+                    if (uiBase.BlocksInput)
+                        return;
                 }
             }
 
             // 열린 UI가 없을 때만 PauseMenu 토글
-            if (!handled && UISvc.Scene?.CurrentSceneType == SceneType.GamePlay)
+            if (UISvc.Scene?.CurrentSceneType == SceneType.GamePlay)
             {
                 UI_Base ui = GetActiveUI(UIKeyType.PauseMenu)?.GetComponent<UI_Base>();
                 if (ui == null || !ui.IsVisible) ShowUI(UIKeyType.PauseMenu);

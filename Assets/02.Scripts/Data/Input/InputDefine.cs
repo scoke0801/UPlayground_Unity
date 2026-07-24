@@ -58,6 +58,7 @@
     
     public static class UIAction
     {   
+        public const string Navigate = "Navigate";
         public const string Inventory = "Inventory";
         public const string EquipInventory = "EquipInventory";
         public const string Map = "Map";
@@ -67,6 +68,11 @@
         
         public const string Submit = "Submit";
         public const string Cancel = "Cancel";
+        public const string Point = "Point";
+        public const string Click = "Click";
+        public const string RightClick = "RightClick";
+        public const string MiddleClick = "MiddleClick";
+        public const string ScrollWheel = "ScrollWheel";
         public const string DialogueNext = "DialogueNext";
         
     }

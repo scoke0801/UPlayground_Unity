@@ -234,10 +234,160 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
         private static UISettingPageKeyBinding BuildKeysPanel(Transform content)
         {
             var page = NewPagePanel<UISettingPageKeyBinding>("Panel_Keys", content);
-            AddSectionHeader(page.transform, "키 설정");
-            var note = AddText(NewUI("Note", page.transform), "키 리바인딩은 준비 중입니다.", 22, TextSub, TextAlignmentOptions.Left);
-            SetHeight(note.gameObject, 40);
+            Transform root = page.transform;
+            AddSectionHeader(root, "키 설정");
+
+            var toolbar = NewUI("DeviceToolbar", root);
+            SetHeight(toolbar, 60);
+            AddHLG(toolbar, spacing: 10, pad: 0).childAlignment = TextAnchor.MiddleLeft;
+            Button keyboardButton = MakeSimpleButton(
+                "KeyboardMouseButton", toolbar.transform, "키보드/마우스",
+                TabActive, TextMain, width: 230, fontSize: 22);
+            Button gamepadButton = MakeSimpleButton(
+                "GamepadButton", toolbar.transform, "게임패드",
+                TabBg, TextMain, width: 180, fontSize: 22);
+            AddFlexibleW(NewUI("ToolbarSpacer", toolbar.transform), 1f);
+
+            GameObject categoryObject = InstantiateControl(DropdownPrefabPath, toolbar.transform);
+            SetWidth(categoryObject, 260);
+            TMP_Dropdown categoryDropdown = categoryObject.GetComponent<TMP_Dropdown>();
+
+            var scrollObject = NewUI("BindingScroll", root);
+            AddFlexibleH(scrollObject, 1f);
+            AddImage(scrollObject, NavBg, UISprite, sliced: true);
+            ScrollRect scrollRect = scrollObject.AddComponent<ScrollRect>();
+            scrollRect.horizontal = false;
+            scrollRect.vertical = true;
+            scrollRect.movementType = ScrollRect.MovementType.Clamped;
+            scrollRect.scrollSensitivity = 42f;
+
+            var viewport = NewUI("Viewport", scrollObject.transform);
+            StretchMargin(viewport, 8, 8, 8, 8);
+            Image viewportImage = AddImage(viewport, new Color(0f, 0f, 0f, 0.001f));
+            viewportImage.raycastTarget = true;
+            viewport.AddComponent<Mask>().showMaskGraphic = false;
+
+            var bindingContent = NewUI("Content", viewport.transform);
+            RectTransform bindingContentRect = Rt(bindingContent);
+            bindingContentRect.anchorMin = new Vector2(0f, 1f);
+            bindingContentRect.anchorMax = new Vector2(1f, 1f);
+            bindingContentRect.pivot = new Vector2(0.5f, 1f);
+            bindingContentRect.offsetMin = Vector2.zero;
+            bindingContentRect.offsetMax = Vector2.zero;
+            AddVLG(bindingContent, spacing: 8, pad: 4);
+            var fitter = bindingContent.AddComponent<ContentSizeFitter>();
+            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            scrollRect.viewport = Rt(viewport);
+            scrollRect.content = bindingContentRect;
+
+            UIKeyBindingRow rowTemplate = MakeKeyBindingRow(bindingContent.transform);
+            rowTemplate.gameObject.name = "BindingRowTemplate";
+            rowTemplate.gameObject.SetActive(false);
+
+            var resetBar = NewUI("ResetBar", root);
+            SetHeight(resetBar, 56);
+            AddHLG(resetBar, spacing: 10, pad: 0).childAlignment = TextAnchor.MiddleRight;
+            AddFlexibleW(NewUI("ResetSpacer", resetBar.transform), 1f);
+            Button resetDeviceButton = MakeSimpleButton(
+                "ResetDeviceButton", resetBar.transform, "현재 장치 초기화",
+                ResetBg, TextMain, width: 230, fontSize: 21);
+
+            GameObject captureOverlay = MakeOverlay(root, "CaptureOverlay");
+            TextMeshProUGUI captureTitle = AddText(
+                NewUI("Title", captureOverlay.transform),
+                "입력 변경", 30, TextGold, TextAlignmentOptions.Center);
+            SetHeight(captureTitle.gameObject, 52);
+            TextMeshProUGUI captureMessage = AddText(
+                NewUI("Message", captureOverlay.transform),
+                "새 키를 입력하세요.", 24, TextMain, TextAlignmentOptions.Center);
+            SetHeight(captureMessage.gameObject, 100);
+            captureOverlay.SetActive(false);
+
+            GameObject conflictOverlay = MakeOverlay(root, "ConflictOverlay");
+            TextMeshProUGUI conflictMessage = AddText(
+                NewUI("Message", conflictOverlay.transform),
+                "이미 사용 중인 입력입니다.", 24, TextMain, TextAlignmentOptions.Center);
+            SetHeight(conflictMessage.gameObject, 110);
+            var conflictButtons = NewUI("Buttons", conflictOverlay.transform);
+            SetHeight(conflictButtons, 58);
+            AddHLG(conflictButtons, spacing: 12, pad: 0).childAlignment = TextAnchor.MiddleCenter;
+            Button replaceButton = MakeSimpleButton(
+                "ReplaceButton", conflictButtons.transform, "기존 해제 후 적용",
+                ApplyBg, TextMain, width: 250, fontSize: 21);
+            Button conflictCancelButton = MakeSimpleButton(
+                "CancelButton", conflictButtons.transform, "취소",
+                CancelBg, TextMain, width: 160, fontSize: 21);
+            conflictOverlay.SetActive(false);
+
+            var so = new SerializedObject(page);
+            SetRef(so, "_keyboardMouseButton", keyboardButton);
+            SetRef(so, "_gamepadButton", gamepadButton);
+            SetRef(so, "_categoryDropdown", categoryDropdown);
+            SetRef(so, "_content", bindingContentRect);
+            SetRef(so, "_rowTemplate", rowTemplate);
+            SetRef(so, "_resetDeviceButton", resetDeviceButton);
+            SetRef(so, "_captureOverlay", captureOverlay);
+            SetRef(so, "_captureTitle", captureTitle);
+            SetRef(so, "_captureMessage", captureMessage);
+            SetRef(so, "_conflictOverlay", conflictOverlay);
+            SetRef(so, "_conflictMessage", conflictMessage);
+            SetRef(so, "_replaceButton", replaceButton);
+            SetRef(so, "_conflictCancelButton", conflictCancelButton);
+            so.ApplyModifiedPropertiesWithoutUndo();
             return page;
+        }
+
+        private static UIKeyBindingRow MakeKeyBindingRow(Transform parent)
+        {
+            var row = NewUI("BindingRow", parent);
+            SetHeight(row, 64);
+            AddImage(row, RowBg, UISprite, sliced: true);
+            AddHLG(row, spacing: 10, pad: 10).childAlignment = TextAnchor.MiddleLeft;
+
+            TextMeshProUGUI actionLabel = AddText(
+                NewUI("ActionLabel", row.transform),
+                "액션", 22, TextSub, TextAlignmentOptions.Left);
+            SetWidth(actionLabel.gameObject, 220);
+
+            Button primaryButton = MakeSimpleButton(
+                "PrimaryButton", row.transform, "Primary",
+                TabActive, TextMain, width: 230, fontSize: 20);
+            TextMeshProUGUI primaryLabel = primaryButton.GetComponentInChildren<TextMeshProUGUI>(true);
+
+            Button secondaryButton = MakeSimpleButton(
+                "SecondaryButton", row.transform, "미지정",
+                TabBg, TextMain, width: 230, fontSize: 20);
+            TextMeshProUGUI secondaryLabel = secondaryButton.GetComponentInChildren<TextMeshProUGUI>(true);
+
+            Button resetButton = MakeSimpleButton(
+                "ResetButton", row.transform, "초기화",
+                CancelBg, TextSub, width: 110, fontSize: 18);
+
+            UIKeyBindingRow component = row.AddComponent<UIKeyBindingRow>();
+            var so = new SerializedObject(component);
+            SetRef(so, "_actionLabel", actionLabel);
+            SetRef(so, "_primaryButton", primaryButton);
+            SetRef(so, "_primaryLabel", primaryLabel);
+            SetRef(so, "_secondaryButton", secondaryButton);
+            SetRef(so, "_secondaryLabel", secondaryLabel);
+            SetRef(so, "_resetButton", resetButton);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return component;
+        }
+
+        private static GameObject MakeOverlay(Transform parent, string name)
+        {
+            var overlay = NewUI(name, parent);
+            StretchMargin(overlay, 80, 100, 80, 100);
+            AddImage(overlay, new Color(0.025f, 0.035f, 0.05f, 0.98f), UISprite, sliced: true);
+            VerticalLayoutGroup layout = AddVLG(overlay, spacing: 16, pad: 32);
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childForceExpandHeight = false;
+
+            LayoutElement element = overlay.AddComponent<LayoutElement>();
+            element.ignoreLayout = true;
+            overlay.transform.SetAsLastSibling();
+            return overlay;
         }
 
         #endregion

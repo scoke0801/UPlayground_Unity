@@ -1422,33 +1422,21 @@ namespace UPlayGround.Manager
                 return InventoryActionResult.Failed;
             }
 
-            float beforeHealth = player.CurrentHealth;
             float recoveryMultiplier = Svc.Passives?.GetActiveMultiplier(
                 PassiveModifierType.ConsumableRecovery) ?? 1f;
             float recoveryAmount = consumableData.amount * Mathf.Max(0f, recoveryMultiplier);
+            // 체력이 가득 차 있어도 소모품을 사용할 수 있도록 full-HP/무효과 게이트를 두지 않는다.
+            // (회복량이 없어도 소비·모션은 정상 진행)
             switch (consumableData.effectType)
             {
                 case ConsumableEffectType.HealFlat:
-                    if (consumableData.requireEffectiveUse && beforeHealth >= player.MaxHealth - 0.01f)
-                    {
-                        return InventoryActionResult.NoEffect;
-                    }
                     player.ApplyHealingEffect(recoveryAmount);
                     break;
                 case ConsumableEffectType.HealPercent:
-                    if (consumableData.requireEffectiveUse && beforeHealth >= player.MaxHealth - 0.01f)
-                    {
-                        return InventoryActionResult.NoEffect;
-                    }
                     player.ApplyPercentHealingEffect(recoveryAmount);
                     break;
                 default:
                     return InventoryActionResult.NotUsable;
-            }
-
-            if (consumableData.requireEffectiveUse && player.CurrentHealth <= beforeHealth)
-            {
-                return InventoryActionResult.NoEffect;
             }
 
             return InventoryActionResult.Success;

@@ -29,18 +29,19 @@ namespace UPlayGround.UI
         [Tooltip("Assets/10.Datas/UI/Input/InputGlyphData.asset. 비어 있으면 텍스트 키캡으로 표시된다.")]
         [SerializeField] private InputGlyphDataSO _glyphData;
 
-        private static readonly Color ListBg = new(0.09f, 0.11f, 0.15f, 0.95f);
-        private static readonly Color RailBg = new(0.07f, 0.09f, 0.12f, 0.95f);
-        private static readonly Color RailItemOn = new(0.16f, 0.29f, 0.45f, 1f);
+        private static readonly Color ListBg = new(0.055f, 0.075f, 0.105f, 0.98f);
+        private static readonly Color RailBg = new(0.04f, 0.06f, 0.085f, 0.98f);
+        private static readonly Color RailItemOn = new(0.13f, 0.24f, 0.42f, 1f);
         private static readonly Color RailItemOff = new(1f, 1f, 1f, 0f);
+        private static readonly Color RailAccent = new(0.32f, 0.58f, 1f, 1f);
         private static readonly Color SectionText = new(0.92f, 0.95f, 1f, 1f);
-        private static readonly Color HeaderText = new(0.62f, 0.68f, 0.76f, 1f);
+        private static readonly Color HeaderText = new(0.66f, 0.72f, 0.82f, 1f);
         private static readonly Color TextMain = new(0.85f, 0.89f, 0.95f, 1f);
-        private static readonly Color Divider = new(0.20f, 0.24f, 0.30f, 1f);
-        private static readonly Color DangerBg = new(0.42f, 0.16f, 0.18f, 1f);
+        private static readonly Color Divider = new(0.16f, 0.21f, 0.29f, 1f);
+        private static readonly Color ResetBg = new(0.08f, 0.11f, 0.16f, 1f);
 
-        private const float RailWidth = 200f;
-        private const float DetailWidth = 380f;
+        private const float RailWidth = 280f;
+        private const float DetailWidth = 440f;
 
         /// <summary>액션 1개에 대한 두 장치·두 슬롯 서술자 묶음.</summary>
         private readonly struct MergedBinding
@@ -83,14 +84,21 @@ namespace UPlayGround.UI
 
         private readonly List<Button> _railButtons = new();
         private readonly List<Image> _railBackgrounds = new();
+        private readonly List<Image> _railAccents = new();
+        private readonly List<TextMeshProUGUI> _railLabels = new();
         private readonly List<InputBindingCategory?> _railCategories = new();
         private readonly List<UIKeyBindingRow> _rows = new();
         private readonly List<MergedBinding> _merged = new();
+        private readonly Dictionary<InputBindingTarget, InputRebindCaptureResult> _pendingCaptures = new();
+        private readonly HashSet<InputBindingTarget> _pendingClears = new();
+        private readonly HashSet<string> _pendingActionResets = new();
+        private readonly HashSet<InputBindingTarget> _replaceApprovedTargets = new();
 
         private UIKeyBindingRow _selectedRow;
         private string _selectedMap;
         private string _selectedAction;
         private bool _capturing;
+        private bool _resetAllPending;
         private InputRebindCaptureResult _pendingConflictCapture;
 
         protected override void BindControls(SettingsData settingsData)
@@ -104,6 +112,92 @@ namespace UPlayGround.UI
             BuildLayout();
             BindInputService();
             RefreshRows();
+        }
+
+        /// <summary>설정 메뉴를 열 때 이전 편집 대기열을 비운다.</summary>
+        public void BeginEditSession()
+        {
+            DiscardPendingChanges();
+            if (_built)
+                RefreshRows();
+        }
+
+        /// <summary>
+        /// 대기 중인 입력 변경을 한 번에 반영한다. 실패하면 입력 프로필 전체를 롤백한다.
+        /// 충돌이 있으면 상세 패널에서 대체 여부를 정한 뒤 하단 적용을 다시 눌러야 한다.
+        /// </summary>
+        public bool ApplyPendingChanges()
+        {
+            if (_inputService == null)
+                return false;
+
+            if (!_resetAllPending
+                && _pendingActionResets.Count == 0
+                && _pendingCaptures.Count == 0
+                && _pendingClears.Count == 0)
+            {
+                return true;
+            }
+
+            string snapshot = _inputService.CaptureBindingProfileSnapshot();
+
+            if (_resetAllPending)
+                _inputService.ResetBindings();
+            else
+            {
+                foreach (string actionKey in _pendingActionResets)
+                {
+                    SplitActionKey(actionKey, out string mapName, out string actionName);
+                    _inputService.ResetBindingsForAction(mapName, actionName);
+                }
+            }
+
+            foreach (InputBindingTarget target in _pendingClears)
+            {
+                if (_inputService.ClearBinding(target))
+                    continue;
+
+                _inputService.RestoreBindingProfileSnapshot(snapshot);
+                _detail?.SetConflictMessage(
+                    "필수 액션의 기본 바인딩은 제거할 수 없습니다.",
+                    allowReplace: false);
+                return false;
+            }
+
+            foreach (KeyValuePair<InputBindingTarget, InputRebindCaptureResult> pair in _pendingCaptures)
+            {
+                bool replace = _replaceApprovedTargets.Contains(pair.Key);
+                if (_inputService.TryApplyBinding(pair.Value, replace, out InputBindingConflictInfo conflict))
+                    continue;
+
+                _inputService.RestoreBindingProfileSnapshot(snapshot);
+                _pendingConflictCapture = pair.Value;
+                ShowConflict(conflict);
+                return false;
+            }
+
+            DiscardPendingChanges();
+            return true;
+        }
+
+        public void DiscardPendingChanges()
+        {
+            _pendingCaptures.Clear();
+            _pendingClears.Clear();
+            _pendingActionResets.Clear();
+            _replaceApprovedTargets.Clear();
+            _pendingConflictCapture = default;
+            _resetAllPending = false;
+        }
+
+        public void StageResetAll()
+        {
+            DiscardPendingChanges();
+            _resetAllPending = true;
+            _detail?.SetCaptureState(
+                false,
+                "전체 키 설정 초기화가 대기 중입니다. 하단 적용을 눌러 확정하세요.",
+                null);
         }
 
         /// <summary>
@@ -143,7 +237,7 @@ namespace UPlayGround.UI
                 existing.enabled = false;
 
             RectTransform host = UGuiFactory.NewStretched("KeyBindingLayout", transform);
-            HorizontalLayoutGroup root = UGuiFactory.AddHLG(host.gameObject, spacing: 12f, padding: 0);
+            HorizontalLayoutGroup root = UGuiFactory.AddHLG(host.gameObject, spacing: 16f, padding: 0);
             root.childForceExpandWidth = false;
             root.childAlignment = TextAnchor.UpperLeft;
 
@@ -159,8 +253,13 @@ namespace UPlayGround.UI
             UGuiFactory.SetSize(rail.gameObject, minW: RailWidth, prefW: RailWidth, flexH: 1f);
 
             _railContent = UGuiFactory.NewStretched("Items", rail);
-            VerticalLayoutGroup layout = UGuiFactory.AddVLG(_railContent.gameObject, spacing: 4f, padding: 8);
+            VerticalLayoutGroup layout = UGuiFactory.AddVLG(_railContent.gameObject, spacing: 4f, padding: 12);
             layout.childForceExpandHeight = false;
+
+            TextMeshProUGUI title = UGuiFactory.MakeText(
+                _railContent, "카테고리", 15f, HeaderText,
+                TextAlignmentOptions.Left, FontStyles.Bold);
+            UGuiFactory.SetSize(title.gameObject, minH: 38f, prefH: 38f, flexH: 0f);
 
             AddRailItem("모든", null);
             foreach (InputBindingCategory category in Enum.GetValues(typeof(InputBindingCategory)))
@@ -172,14 +271,25 @@ namespace UPlayGround.UI
             Button button = UGuiFactory.MakeButton(
                 _railContent, label, 17f, RailItemOff, TextMain, out TextMeshProUGUI text);
             text.alignment = TextAlignmentOptions.Left;
+            text.fontStyle = FontStyles.Bold;
             button.transition = Selectable.Transition.None;
-            UGuiFactory.SetSize(button.gameObject, minH: 46f, prefH: 46f);
+            UGuiFactory.SetSize(button.gameObject, minH: 54f, prefH: 54f, flexH: 0f);
+
+            RectTransform accentRect = UGuiFactory.NewRect("SelectedAccent", button.transform);
+            accentRect.anchorMin = new Vector2(0f, 0f);
+            accentRect.anchorMax = new Vector2(0f, 1f);
+            accentRect.pivot = new Vector2(0f, 0.5f);
+            accentRect.sizeDelta = new Vector2(4f, 0f);
+            Image accent = UGuiFactory.AddImage(accentRect.gameObject, RailAccent);
+            accent.raycastTarget = false;
 
             InputBindingCategory? captured = category;
             button.onClick.AddListener(() => SelectCategory(captured));
 
             _railButtons.Add(button);
             _railBackgrounds.Add(button.targetGraphic as Image);
+            _railAccents.Add(accent);
+            _railLabels.Add(text);
             _railCategories.Add(category);
             RefreshRailVisual();
         }
@@ -188,7 +298,7 @@ namespace UPlayGround.UI
         {
             RectTransform panel = UGuiFactory.NewRect("BindingList", parent);
             UGuiFactory.AddImage(panel.gameObject, ListBg);
-            UGuiFactory.SetSize(panel.gameObject, flexW: 1f, flexH: 1f);
+            UGuiFactory.SetSize(panel.gameObject, minW: 760f, flexW: 1f, flexH: 1f);
 
             VerticalLayoutGroup layout = UGuiFactory.AddVLG(panel.gameObject, spacing: 0f, padding: 0);
             layout.childForceExpandHeight = false;
@@ -207,7 +317,7 @@ namespace UPlayGround.UI
             RectTransform header = UGuiFactory.NewRect("ColumnHeader", parent);
             HorizontalLayoutGroup layout = UGuiFactory.AddHLG(header.gameObject, spacing: 8f, padding: 0);
             layout.padding = new RectOffset(18, 18, 0, 0);
-            UGuiFactory.SetSize(header.gameObject, minH: 38f, prefH: 38f);
+            UGuiFactory.SetSize(header.gameObject, minH: 50f, prefH: 50f, flexH: 0f);
 
             TextMeshProUGUI spacer = UGuiFactory.MakeText(header, string.Empty, 14f, HeaderText);
             UGuiFactory.SetSize(spacer.gameObject, flexW: 1f);
@@ -237,8 +347,8 @@ namespace UPlayGround.UI
             _detail.Build(RequestCapture, OnConflictDecision);
 
             Button resetDevice = UGuiFactory.MakeButton(
-                panel, "이 액션 기본값 복원", 14f, DangerBg, TextMain, out _);
-            UGuiFactory.SetSize(resetDevice.gameObject, minH: 34f, prefH: 34f);
+                panel, "선택 액션 기본값 복원", 14f, ResetBg, HeaderText, out _);
+            UGuiFactory.SetSize(resetDevice.gameObject, minH: 42f, prefH: 42f, flexH: 0f);
             resetDevice.onClick.AddListener(ResetSelectedAction);
         }
 
@@ -284,6 +394,8 @@ namespace UPlayGround.UI
             _category = category;
             RefreshRailVisual();
             RefreshRows();
+            if (_listScroll != null)
+                _listScroll.verticalNormalizedPosition = 1f;
         }
 
         private void RefreshRailVisual()
@@ -293,8 +405,10 @@ namespace UPlayGround.UI
                 if (_railBackgrounds[i] == null)
                     continue;
 
-                _railBackgrounds[i].color =
-                    _railCategories[i].Equals(_category) ? RailItemOn : RailItemOff;
+                bool selected = _railCategories[i].Equals(_category);
+                _railBackgrounds[i].color = selected ? RailItemOn : RailItemOff;
+                _railAccents[i].enabled = selected;
+                _railLabels[i].color = selected ? SectionText : TextMain;
             }
         }
 
@@ -343,6 +457,7 @@ namespace UPlayGround.UI
             }
 
             RestoreSelection();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_listContent);
         }
 
         /// <summary>
@@ -419,7 +534,7 @@ namespace UPlayGround.UI
         private void AddSectionHeader(string title)
         {
             RectTransform host = UGuiFactory.NewRect("Section_" + title, _listContent);
-            UGuiFactory.SetSize(host.gameObject, minH: 40f, prefH: 40f);
+            UGuiFactory.SetSize(host.gameObject, minH: 46f, prefH: 46f, flexH: 0f);
 
             TextMeshProUGUI label = UGuiFactory.MakeText(
                 host, title, 18f, SectionText, TextAlignmentOptions.Left, FontStyles.Bold);
@@ -443,11 +558,19 @@ namespace UPlayGround.UI
                 OnRowSelected);
 
             row.SetKeyboardParts(
-                ResolveParts(item.MapName, item.ActionName, ActiveInputDevice.KeyboardMouse),
-                item.KeyboardPrimary.BindingDisplay);
+                ResolveParts(
+                    item.MapName,
+                    item.ActionName,
+                    ActiveInputDevice.KeyboardMouse,
+                    InputBindingSlot.Primary),
+                ResolveDisplay(item.KeyboardPrimary));
             row.SetGamepadParts(
-                ResolveParts(item.MapName, item.ActionName, ActiveInputDevice.Gamepad),
-                item.GamepadPrimary.BindingDisplay);
+                ResolveParts(
+                    item.MapName,
+                    item.ActionName,
+                    ActiveInputDevice.Gamepad,
+                    InputBindingSlot.Primary),
+                ResolveDisplay(item.GamepadPrimary));
 
             _rows.Add(row);
         }
@@ -458,7 +581,8 @@ namespace UPlayGround.UI
         private IReadOnlyList<GlyphPart> ResolveParts(
             string mapName,
             string actionName,
-            ActiveInputDevice device)
+            ActiveInputDevice device,
+            InputBindingSlot slot)
         {
             if (_glyphData == null)
                 return null;
@@ -467,9 +591,40 @@ namespace UPlayGround.UI
                 ? _inputService.GamepadBrand
                 : GamepadBrand.Generic;
 
+            InputBindingDeviceGroup deviceGroup = device == ActiveInputDevice.Gamepad
+                ? InputBindingDeviceGroup.Gamepad
+                : InputBindingDeviceGroup.KeyboardMouse;
+            var target = new InputBindingTarget(mapName, actionName, deviceGroup, slot);
+
+            if (_pendingClears.Contains(target))
+                return Array.Empty<GlyphPart>();
+
+            if (_pendingCaptures.TryGetValue(target, out InputRebindCaptureResult capture))
+            {
+                InputGlyphResult pending = InputGlyphResolver.ResolvePaths(
+                    capture.ModifierPath,
+                    capture.ControlPath,
+                    capture.DisplayString,
+                    device,
+                    brand,
+                    _glyphData);
+                return pending.IsValid ? pending.Parts : null;
+            }
+
             InputGlyphResult result =
                 InputGlyphResolver.Resolve(mapName, actionName, device, brand, _glyphData);
             return result.IsValid ? result.Parts : null;
+        }
+
+        private string ResolveDisplay(InputBindingDescriptor descriptor)
+        {
+            if (_pendingClears.Contains(descriptor.Target))
+                return "-";
+            return _pendingCaptures.TryGetValue(
+                descriptor.Target,
+                out InputRebindCaptureResult capture)
+                ? capture.DisplayString
+                : descriptor.BindingDisplay;
         }
 
         #endregion
@@ -536,12 +691,20 @@ namespace UPlayGround.UI
             _detail.SetSelection(new KeyBindingSelection(
                 item.DisplayName,
                 item.Description,
-                ResolveParts(item.MapName, item.ActionName, ActiveInputDevice.KeyboardMouse),
-                ResolveParts(item.MapName, item.ActionName, ActiveInputDevice.Gamepad),
-                item.KeyboardPrimary.BindingDisplay,
-                item.GamepadPrimary.BindingDisplay,
-                item.KeyboardSecondary.BindingDisplay,
-                item.GamepadSecondary.BindingDisplay));
+                ResolveParts(
+                    item.MapName,
+                    item.ActionName,
+                    ActiveInputDevice.KeyboardMouse,
+                    InputBindingSlot.Primary),
+                ResolveParts(
+                    item.MapName,
+                    item.ActionName,
+                    ActiveInputDevice.Gamepad,
+                    InputBindingSlot.Primary),
+                ResolveDisplay(item.KeyboardPrimary),
+                ResolveDisplay(item.GamepadPrimary),
+                ResolveDisplay(item.KeyboardSecondary),
+                ResolveDisplay(item.GamepadSecondary)));
         }
 
         private bool TryGetSelected(out MergedBinding result)
@@ -583,27 +746,33 @@ namespace UPlayGround.UI
                     target,
                     this.GetCancellationTokenOnDestroy());
 
+                if (result.IsRemovalRequested)
+                {
+                    _pendingCaptures.Remove(target);
+                    _replaceApprovedTargets.Remove(target);
+                    _pendingClears.Add(target);
+                    _detail?.SetCaptureState(
+                        false,
+                        "바인딩 제거가 대기 중입니다. 하단 적용을 눌러 확정하세요.",
+                        null);
+                    RefreshRows();
+                    return;
+                }
+
                 if (!result.IsCompleted)
                 {
                     _detail?.SetCaptureState(false, null, null);
                     return;
                 }
 
-                if (_inputService.TryApplyBinding(result, false, out InputBindingConflictInfo conflict))
-                {
-                    _detail?.SetCaptureState(false, null, null);
-                    RefreshRows();
-                    return;
-                }
-
-                if (!conflict.HasConflict)
-                {
-                    _detail?.SetCaptureState(false, null, null);
-                    return;
-                }
-
-                _pendingConflictCapture = result;
-                ShowConflict(conflict);
+                _pendingClears.Remove(target);
+                _replaceApprovedTargets.Remove(target);
+                _pendingCaptures[target] = result;
+                _detail?.SetCaptureState(
+                    false,
+                    "변경사항이 대기 중입니다. 하단 적용을 눌러 확정하세요.",
+                    result.DisplayString);
+                RefreshRows();
             }
             finally
             {
@@ -649,16 +818,25 @@ namespace UPlayGround.UI
                 return;
             }
 
-            _inputService.TryApplyBinding(_pendingConflictCapture, true, out _);
+            _replaceApprovedTargets.Add(_pendingConflictCapture.Target);
             _pendingConflictCapture = default;
-            _detail?.SetCaptureState(false, null, null);
+            _detail?.SetCaptureState(
+                false,
+                "충돌 대체가 승인되었습니다. 하단 적용을 다시 눌러 확정하세요.",
+                null);
             RefreshRows();
         }
 
         private void CancelConflict()
         {
+            if (_pendingConflictCapture.IsCompleted)
+            {
+                _pendingCaptures.Remove(_pendingConflictCapture.Target);
+                _replaceApprovedTargets.Remove(_pendingConflictCapture.Target);
+            }
             _pendingConflictCapture = default;
             _detail?.SetCaptureState(false, null, null);
+            RefreshRows();
         }
 
         private void ResetSelectedAction()
@@ -666,10 +844,49 @@ namespace UPlayGround.UI
             if (_inputService == null || string.IsNullOrEmpty(_selectedAction))
                 return;
 
-            _inputService.ResetBindingsForAction(_selectedMap, _selectedAction);
+            string actionKey = MakeActionKey(_selectedMap, _selectedAction);
+            _pendingActionResets.Add(actionKey);
+
+            RemovePendingForAction(_selectedMap, _selectedAction);
+            _detail?.SetCaptureState(
+                false,
+                "선택 액션 초기화가 대기 중입니다. 하단 적용을 눌러 확정하세요.",
+                null);
         }
 
         #endregion
+
+        private static string MakeActionKey(string mapName, string actionName) =>
+            $"{mapName}\n{actionName}";
+
+        private static void SplitActionKey(
+            string key,
+            out string mapName,
+            out string actionName)
+        {
+            int separator = key?.IndexOf('\n') ?? -1;
+            mapName = separator >= 0 ? key.Substring(0, separator) : key ?? string.Empty;
+            actionName = separator >= 0 ? key.Substring(separator + 1) : string.Empty;
+        }
+
+        private void RemovePendingForAction(string mapName, string actionName)
+        {
+            var targets = new List<InputBindingTarget>();
+            foreach (InputBindingTarget target in _pendingCaptures.Keys)
+            {
+                if (target.mapName == mapName && target.actionName == actionName)
+                    targets.Add(target);
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                _pendingCaptures.Remove(targets[i]);
+                _replaceApprovedTargets.Remove(targets[i]);
+            }
+
+            _pendingClears.RemoveWhere(target =>
+                target.mapName == mapName && target.actionName == actionName);
+        }
 
         private static readonly HashSet<string> WarnedMessages = new();
 

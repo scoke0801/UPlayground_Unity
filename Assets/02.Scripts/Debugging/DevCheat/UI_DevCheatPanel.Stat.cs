@@ -16,7 +16,7 @@ namespace UPlayGround.UI.DevCheat
     public partial class UI_DevCheatPanel
     {
         private readonly Dictionary<AttributeId, TMP_InputField> _statInputs = new();
-        private readonly Dictionary<GrowthAttributeType, TextMeshProUGUI> _growthRankTexts = new();
+        private readonly Dictionary<AttributeId, TextMeshProUGUI> _growthRankTexts = new();
         private RectTransform _statContent;
         private TextMeshProUGUI _growthSummaryText;
 
@@ -118,7 +118,7 @@ namespace UPlayGround.UI.DevCheat
             MakeGrowthButton(pointRow, "+10", () => ChangeGrowthPoints(10));
             MakeGrowthButton(pointRow, "초기화", ResetGrowthPoints);
 
-            foreach (GrowthAttributeType attribute in Enum.GetValues(typeof(GrowthAttributeType)))
+            foreach (AttributeId attribute in GrowthAttributeCatalog.LegacyOrderedIds)
             {
                 var row = NewRect("Growth_" + attribute, _statContent);
                 SetSize(row.gameObject, minH: 48, prefH: 48);
@@ -133,7 +133,7 @@ namespace UPlayGround.UI.DevCheat
                 SetSize(rankText.gameObject, flexW: 1);
                 _growthRankTexts[attribute] = rankText;
 
-                GrowthAttributeType captured = attribute;
+                AttributeId captured = attribute;
                 MakeGrowthButton(row, "-1", () => ChangeGrowthRank(captured, -1));
                 MakeGrowthButton(row, "+1", () => ChangeGrowthRank(captured, 1));
                 MakeGrowthButton(row, "MAX", () => MaxGrowthRank(captured));
@@ -191,7 +191,7 @@ namespace UPlayGround.UI.DevCheat
             RefreshStatValues();
         }
 
-        private void ChangeGrowthRank(GrowthAttributeType attribute, int delta)
+        private void ChangeGrowthRank(AttributeId attribute, int delta)
         {
             PartyManager pm = PartyManager.Instance;
             if (pm == null) return;
@@ -200,7 +200,7 @@ namespace UPlayGround.UI.DevCheat
             RefreshStatValues();
         }
 
-        private void MaxGrowthRank(GrowthAttributeType attribute)
+        private void MaxGrowthRank(AttributeId attribute)
         {
             PartyManager pm = PartyManager.Instance;
             if (pm == null) return;
@@ -217,15 +217,8 @@ namespace UPlayGround.UI.DevCheat
             SetSize(button.gameObject, minW: 62, prefW: 72);
         }
 
-        private static string GetGrowthAttributeName(GrowthAttributeType attribute) => attribute switch
-        {
-            GrowthAttributeType.Health => "체력",
-            GrowthAttributeType.Defense => "방어력",
-            GrowthAttributeType.Critical => "크리티컬",
-            GrowthAttributeType.AttackSpeed => "공격속도",
-            GrowthAttributeType.AttackPower => "공격력",
-            _ => attribute.ToString(),
-        };
+        private static string GetGrowthAttributeName(AttributeId attribute) =>
+            GrowthAttributeCatalog.GetDisplayName(attribute);
     }
 }
 #endif

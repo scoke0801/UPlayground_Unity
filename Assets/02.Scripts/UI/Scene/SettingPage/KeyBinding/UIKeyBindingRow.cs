@@ -19,16 +19,18 @@ namespace UPlayGround.UI
     public sealed class UIKeyBindingRow : MonoBehaviour, ISelectHandler, IPointerEnterHandler
     {
         /// <summary>헤더와 행의 컬럼 폭은 반드시 같은 상수를 쓴다.</summary>
-        public const float KeyboardColumnWidth = 210f;
-        public const float GamepadColumnWidth = 150f;
-        public const float RowHeight = 44f;
+        public const float KeyboardColumnWidth = 220f;
+        public const float GamepadColumnWidth = 220f;
+        public const float RowHeight = 54f;
 
         private static readonly Color RowNormal = new(1f, 1f, 1f, 0f);
-        private static readonly Color RowSelected = new(0.22f, 0.35f, 0.55f, 0.85f);
+        private static readonly Color RowSelected = new(0.13f, 0.24f, 0.42f, 0.95f);
+        private static readonly Color SelectionAccent = new(0.32f, 0.58f, 1f, 1f);
         private static readonly Color NameText = new(0.85f, 0.89f, 0.95f, 1f);
         private static readonly Color NameTextUnbound = new(0.55f, 0.59f, 0.66f, 1f);
 
         private Image _background;
+        private Image _selectionAccent;
         private TextMeshProUGUI _nameLabel;
         private UIKeyCapStrip _keyboardStrip;
         private UIKeyCapStrip _gamepadStrip;
@@ -51,7 +53,18 @@ namespace UPlayGround.UI
             _button.onClick.AddListener(NotifySelected);
 
             HorizontalLayoutGroup layout = UGuiFactory.AddHLG(gameObject, spacing: 8f, padding: 0);
-            layout.padding = new RectOffset(18, 18, 0, 0);
+            layout.padding = new RectOffset(22, 18, 0, 0);
+
+            RectTransform accentRect = UGuiFactory.NewRect("SelectionAccent", transform);
+            accentRect.anchorMin = new Vector2(0f, 0f);
+            accentRect.anchorMax = new Vector2(0f, 1f);
+            accentRect.pivot = new Vector2(0f, 0.5f);
+            accentRect.sizeDelta = new Vector2(4f, 0f);
+            var accentLayout = accentRect.gameObject.AddComponent<LayoutElement>();
+            accentLayout.ignoreLayout = true;
+            _selectionAccent = UGuiFactory.AddImage(accentRect.gameObject, SelectionAccent);
+            _selectionAccent.raycastTarget = false;
+            _selectionAccent.enabled = false;
 
             _nameLabel = UGuiFactory.MakeText(transform, string.Empty, 17f, NameText);
             UGuiFactory.SetSize(_nameLabel.gameObject, flexW: 1f);
@@ -59,7 +72,7 @@ namespace UPlayGround.UI
             _keyboardStrip = MakeStrip("KeyboardStrip", KeyboardColumnWidth);
             _gamepadStrip = MakeStrip("GamepadStrip", GamepadColumnWidth);
 
-            UGuiFactory.SetSize(gameObject, minH: RowHeight, prefH: RowHeight);
+            UGuiFactory.SetSize(gameObject, minH: RowHeight, prefH: RowHeight, flexH: 0f);
         }
 
         private UIKeyCapStrip MakeStrip(string name, float width)
@@ -118,6 +131,8 @@ namespace UPlayGround.UI
         {
             if (_background != null)
                 _background.color = selected ? RowSelected : RowNormal;
+            if (_selectionAccent != null)
+                _selectionAccent.enabled = selected;
         }
 
         // 게임패드 내비게이션으로 들어온 선택도 상세 패널에 반영한다.

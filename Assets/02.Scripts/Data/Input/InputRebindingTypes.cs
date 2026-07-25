@@ -210,24 +210,30 @@ namespace UPlayGround.InputDefine
         public readonly string ModifierPath;
         public readonly string ControlPath;
         public readonly string DisplayString;
+        public readonly bool RemovalRequested;
 
         public InputRebindCaptureResult(
             InputBindingTarget target,
             InputRebindCapturePhase phase,
             string modifierPath,
             string controlPath,
-            string displayString)
+            string displayString,
+            bool removalRequested = false)
         {
             Target = target;
             Phase = phase;
             ModifierPath = modifierPath;
             ControlPath = controlPath;
             DisplayString = displayString;
+            RemovalRequested = removalRequested;
         }
 
         public bool IsCompleted =>
             Phase == InputRebindCapturePhase.Completed
             && !string.IsNullOrWhiteSpace(ControlPath);
+
+        public bool IsRemovalRequested =>
+            Phase == InputRebindCapturePhase.Completed && RemovalRequested;
 
         public bool IsComposite => !string.IsNullOrWhiteSpace(ModifierPath);
     }

@@ -46,7 +46,10 @@ namespace UPlayGround.Manager
             return ok;
         }
 
-        public bool SetGrowthRank(CharacterActorType type, GrowthAttributeType attribute, int rank)
+        public bool SetGrowthRank(
+            CharacterActorType type,
+            AttributeId attribute,
+            int rank)
         {
             bool ok = PartyManager.Instance != null
                       && PartyManager.Instance.SetGrowthRankForDebug(type, attribute, rank);

@@ -42,6 +42,7 @@ namespace UPlayGround.Manager
             InputRebindCaptureResult capture,
             bool replaceConflict,
             out InputBindingConflictInfo conflict);
+        bool ClearBinding(InputBindingTarget target);
         void ResetBinding(InputBindingTarget target);
         void ResetBindingsForAction(string mapName, string actionName);
         void ResetBindings(InputBindingDeviceGroup? deviceGroup = null);
@@ -209,7 +210,7 @@ namespace UPlayGround.Manager
         int GetLevel(CharacterActorType type);
         CombatElement GetCombatElement(CharacterActorType type);
         GameplayAbilitySO GetElementalImbueAbility(CharacterActorType type);
-        IReadOnlyDictionary<GrowthAttributeType, int> GetGrowthInvestments(CharacterActorType type);
+        IReadOnlyDictionary<AttributeId, int> GetGrowthInvestments(CharacterActorType type);
     }
 
     public interface IPassiveModifierReader : IGameService

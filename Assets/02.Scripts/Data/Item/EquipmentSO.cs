@@ -39,8 +39,8 @@ namespace UPlayGround.Data.Item
         [Min(1)] public int randomAttributeCountMax = 1;
         [Min(1)] public int randomRankMin = 1;
         [Min(1)] public int randomRankMax = 3;
-        [Tooltip("비어 있으면 모든 성장 능력치를 후보로 사용한다. 같은 능력치는 한 장비에 중복 추첨하지 않는다.")]
-        public System.Collections.Generic.List<GrowthAttributeType> randomAttributePool = new();
+        [Tooltip("비어 있으면 활성 캐릭터의 성장 규칙을 후보로 사용한다. 같은 능력치는 한 장비에 중복 추첨하지 않는다.")]
+        public System.Collections.Generic.List<AttributeReference> randomAttributePool = new();
 
         public System.Collections.Generic.IReadOnlyList<EquipmentStatEntry> StatModifiers => _statModifiers;
 

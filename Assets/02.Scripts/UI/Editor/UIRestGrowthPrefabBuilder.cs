@@ -132,17 +132,10 @@ namespace UPlayGround.UI.Growth.EditorTools
             VerticalLayoutGroup cardLayout = AddVLG(cardRoot, 10f, 0);
             cardLayout.childForceExpandHeight = false;
 
-            GrowthAttributeType[] attributes =
-            {
-                GrowthAttributeType.Health,
-                GrowthAttributeType.Defense,
-                GrowthAttributeType.Critical,
-                GrowthAttributeType.AttackSpeed,
-                GrowthAttributeType.AttackPower,
-            };
+            List<string> attributes = LoadGrowthAttributeIds();
 
-            var cardRefs = new List<CardRefs>(attributes.Length);
-            for (int i = 0; i < attributes.Length; i++)
+            var cardRefs = new List<CardRefs>(attributes.Count);
+            for (int i = 0; i < attributes.Count; i++)
                 cardRefs.Add(BuildCard(cardRoot.transform, attributes[i]));
 
             TextMeshProUGUI unlock = AddText(NewUI("UnlockMessage", panel.transform), string.Empty, 25f, Gold, TextAlignmentOptions.Center);
@@ -161,17 +154,19 @@ namespace UPlayGround.UI.Growth.EditorTools
 
         private readonly struct CardRefs
         {
-            public readonly GrowthAttributeType Attribute;
+            public readonly GameObject Root;
+            public readonly string AttributeId;
             public readonly TextMeshProUGUI Name;
             public readonly TextMeshProUGUI Rank;
             public readonly TextMeshProUGUI Effect;
             public readonly TextMeshProUGUI Milestone;
             public readonly Button Button;
 
-            public CardRefs(GrowthAttributeType attribute, TextMeshProUGUI name, TextMeshProUGUI rank,
+            public CardRefs(GameObject root, string attributeId, TextMeshProUGUI name, TextMeshProUGUI rank,
                 TextMeshProUGUI effect, TextMeshProUGUI milestone, Button button)
             {
-                Attribute = attribute;
+                Root = root;
+                AttributeId = attributeId;
                 Name = name;
                 Rank = rank;
                 Effect = effect;
@@ -180,15 +175,15 @@ namespace UPlayGround.UI.Growth.EditorTools
             }
         }
 
-        private static CardRefs BuildCard(Transform parent, GrowthAttributeType attribute)
+        private static CardRefs BuildCard(Transform parent, string attributeId)
         {
-            GameObject card = NewUI(attribute + "Card", parent);
+            GameObject card = NewUI(attributeId.Replace('.', '_') + "Card", parent);
             SetHeight(card, 112f);
             AddImage(card, CardBg, UISprite, true);
             HorizontalLayoutGroup layout = AddHLG(card, 18f, 18);
             layout.childAlignment = TextAnchor.MiddleLeft;
 
-            TextMeshProUGUI name = AddText(NewUI("Name", card.transform), DisplayName(attribute), 27f, TextMain, TextAlignmentOptions.Left);
+            TextMeshProUGUI name = AddText(NewUI("Name", card.transform), DisplayName(attributeId), 27f, TextMain, TextAlignmentOptions.Left);
             SetWidth(name.gameObject, 140f);
             TextMeshProUGUI rank = AddText(NewUI("Rank", card.transform), "0 / 20", 23f, Accent, TextAlignmentOptions.Center);
             SetWidth(rank.gameObject, 240f);
@@ -200,12 +195,15 @@ namespace UPlayGround.UI.Growth.EditorTools
             TextMeshProUGUI milestone = AddText(NewUI("Milestone", card.transform), "다음 해금", 19f, Gold, TextAlignmentOptions.Left);
             AddFlexibleW(milestone.gameObject, 1f);
             Button button = MakeButton("InvestButton", card.transform, "강화", 130f, 54f);
-            return new CardRefs(attribute, name, rank, effect, milestone, button);
+            return new CardRefs(card, attributeId, name, rank, effect, milestone, button);
         }
 
         private static void BindCard(SerializedProperty property, CardRefs card)
         {
-            property.FindPropertyRelative("attribute").enumValueIndex = (int)card.Attribute;
+            property.FindPropertyRelative("root").objectReferenceValue =
+                card.Root;
+            property.FindPropertyRelative("attributeId").stringValue =
+                card.AttributeId;
             property.FindPropertyRelative("nameText").objectReferenceValue = card.Name;
             property.FindPropertyRelative("rankText").objectReferenceValue = card.Rank;
             property.FindPropertyRelative("effectText").objectReferenceValue = card.Effect;
@@ -246,10 +244,10 @@ namespace UPlayGround.UI.Growth.EditorTools
             {
                 PartyMemberGrowthSO growth = AssetDatabase.LoadAssetAtPath<PartyMemberGrowthSO>(AssetDatabase.GUIDToAssetPath(guid));
                 if (growth == null || growth.investmentRules.Count > 0) continue;
-                foreach (GrowthAttributeType attribute in System.Enum.GetValues(typeof(GrowthAttributeType)))
+                foreach (string attributeId in GrowthAttributeCatalog.LegacyOrderedIdValues)
                 {
-                    GrowthInvestmentRule rule = PartyMemberGrowthSO.GetDefaultInvestmentRule(attribute);
-                    rule.milestones = RecommendedMilestones(attribute);
+                    GrowthInvestmentRule rule = CreateDefaultRule(attributeId);
+                    rule.milestones = RecommendedMilestones(attributeId);
                     growth.investmentRules.Add(rule);
                 }
                 growth.useAutomaticLevelGrowth = false;
@@ -258,17 +256,49 @@ namespace UPlayGround.UI.Growth.EditorTools
             }
         }
 
-        private static List<GrowthUnlockMilestone> RecommendedMilestones(GrowthAttributeType attribute)
+        private static List<string> LoadGrowthAttributeIds()
+        {
+            var result = new List<string>();
+            foreach (string guid in AssetDatabase.FindAssets(
+                         "t:PartyMemberGrowthSO"))
+            {
+                PartyMemberGrowthSO growth =
+                    AssetDatabase.LoadAssetAtPath<PartyMemberGrowthSO>(
+                        AssetDatabase.GUIDToAssetPath(guid));
+                if (growth?.investmentRules == null)
+                    continue;
+
+                for (int i = 0; i < growth.investmentRules.Count; i++)
+                {
+                    string attributeId =
+                        growth.investmentRules[i].attributeId?.Trim();
+                    if (!string.IsNullOrEmpty(attributeId)
+                        && !result.Contains(attributeId))
+                    {
+                        result.Add(attributeId);
+                    }
+                }
+            }
+
+            if (result.Count == 0)
+                result.AddRange(GrowthAttributeCatalog.LegacyOrderedIdValues);
+            return result;
+        }
+
+        private static List<GrowthUnlockMilestone> RecommendedMilestones(
+            string attributeId)
         {
             var result = new List<GrowthUnlockMilestone>();
-            switch (attribute)
-            {
-                case GrowthAttributeType.AttackPower: result.Add(Milestone(3, GrowthUnlockType.Combo, "Combo.Light.3", "약공격 3연계")); break;
-                case GrowthAttributeType.AttackSpeed: result.Add(Milestone(3, GrowthUnlockType.Combo, "Combo.Heavy.2", "강공격 2연계")); break;
-                case GrowthAttributeType.Defense: result.Add(Milestone(5, GrowthUnlockType.Combo, "Combo.Heavy.3", "강공격 3연계")); break;
-                case GrowthAttributeType.Critical: result.Add(Milestone(5, GrowthUnlockType.Skill, "Skill.Ability", "어빌리티 스킬")); break;
-                case GrowthAttributeType.Health: result.Add(Milestone(7, GrowthUnlockType.Skill, "Skill.Ultimate", "궁극 스킬")); break;
-            }
+            if (attributeId == GrowthAttributeCatalog.AttackPowerId)
+                result.Add(Milestone(3, GrowthUnlockType.Combo, "Combo.Light.3", "약공격 3연계"));
+            else if (attributeId == GrowthAttributeCatalog.AttackSpeedId)
+                result.Add(Milestone(3, GrowthUnlockType.Combo, "Combo.Heavy.2", "강공격 2연계"));
+            else if (attributeId == GrowthAttributeCatalog.DefenseId)
+                result.Add(Milestone(5, GrowthUnlockType.Combo, "Combo.Heavy.3", "강공격 3연계"));
+            else if (attributeId == GrowthAttributeCatalog.CriticalId)
+                result.Add(Milestone(5, GrowthUnlockType.Skill, "Skill.Ability", "어빌리티 스킬"));
+            else if (attributeId == GrowthAttributeCatalog.HealthId)
+                result.Add(Milestone(7, GrowthUnlockType.Skill, "Skill.Ultimate", "궁극 스킬"));
             return result;
         }
 
@@ -277,14 +307,36 @@ namespace UPlayGround.UI.Growth.EditorTools
             requiredRank = rank, unlockType = type, unlockId = id, displayName = name, description = $"{rank}랭크 달성 보상"
         };
 
-        private static string DisplayName(GrowthAttributeType attribute) => attribute switch
+        private static GrowthInvestmentRule CreateDefaultRule(
+            string attributeId)
         {
-            GrowthAttributeType.Health => "체력",
-            GrowthAttributeType.Defense => "방어력",
-            GrowthAttributeType.Critical => "크리티컬",
-            GrowthAttributeType.AttackSpeed => "공격속도",
-            _ => "공격력",
-        };
+            float flatPerRank =
+                attributeId == GrowthAttributeCatalog.HealthId ? 20f :
+                attributeId == GrowthAttributeCatalog.DefenseId ? 0.02f :
+                attributeId == GrowthAttributeCatalog.CriticalId ? 0.01f :
+                attributeId == GrowthAttributeCatalog.AttackSpeedId ? 0.03f :
+                0.05f;
+            return new GrowthInvestmentRule
+            {
+                attributeId = attributeId,
+                maxRank = 20,
+                flatPerRank = flatPerRank,
+                milestones = new List<GrowthUnlockMilestone>(),
+            };
+        }
+
+        private static string DisplayName(string attributeId)
+        {
+            return attributeId switch
+            {
+                GrowthAttributeCatalog.HealthId => "최대 체력",
+                GrowthAttributeCatalog.DefenseId => "방어력",
+                GrowthAttributeCatalog.CriticalId => "치명타 확률",
+                GrowthAttributeCatalog.AttackSpeedId => "공격 속도",
+                GrowthAttributeCatalog.AttackPowerId => "공격력",
+                _ => attributeId,
+            };
+        }
 
         private static GameObject NewUI(string name, Transform parent)
         {

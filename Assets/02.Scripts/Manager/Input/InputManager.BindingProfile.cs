@@ -329,6 +329,26 @@ namespace UPlayGround.Manager
             return true;
         }
 
+        /// <summary>
+        /// 사용자 슬롯을 비운다. 필수 액션의 Primary 슬롯은 제거하지 않는다.
+        /// 기본 바인딩이 있는 Primary는 disabled 프로필 항목으로 저장해야 재시작 후에도
+        /// 비활성 상태가 유지된다.
+        /// </summary>
+        public bool ClearBinding(InputBindingTarget target)
+        {
+            BindingDefinition? definition = FindDefinition(target.mapName, target.actionName);
+            if (!definition.HasValue
+                || definition.Value.Required && target.slot == InputBindingSlot.Primary)
+            {
+                return false;
+            }
+
+            DisableBinding(target);
+            ApplyBindingProfile();
+            OnBindingsChanged?.Invoke();
+            return true;
+        }
+
         public void ResetBinding(InputBindingTarget target)
         {
             int removed = _bindingProfile.entries.RemoveAll(entry =>
@@ -461,7 +481,12 @@ namespace UPlayGround.Manager
                 else
                 {
                     action.ApplyBindingOverride(singleIndex, entry.controlPath);
-                    action.ApplyBindingOverride(compositeIndex, string.Empty);
+
+                    // composite 루트의 path는 컴포지트 타입 이름("OneModifier")이다.
+                    // 빈 문자열로 덮으면 InstantiateBindingComposite가
+                    // "No binding composite with name '' has been registered"로 던진다.
+                    // 루트는 원본으로 되돌리고, part만 비워 무력화한다.
+                    action.RemoveBindingOverride(compositeIndex);
                     action.ApplyBindingOverride(modifierIndex, string.Empty);
                     action.ApplyBindingOverride(triggerIndex, string.Empty);
                 }
@@ -473,15 +498,7 @@ namespace UPlayGround.Manager
             }
         }
 
-        /// <summary>
-        /// 사용자 바인딩 슬롯 전체를 빈 override로 덮어 무력화한다.
-        ///
-        /// composite 슬롯은 루트에만 그룹이 붙고 part(modifier/binding)에는 그룹이 없다.
-        /// 루트만 비우면 part의 플레이스홀더 경로(&lt;Keyboard&gt;/leftCtrl 등)가 effectivePath로
-        /// 남아, 기본 바인딩이 없는 액션(Walk·Crouching 등)에서 InputGlyphResolver가
-        /// 이 플레이스홀더를 실제 바인딩으로 잡아 "Ctrl + Space"처럼 잘못 표시한다.
-        /// 그래서 part까지 함께 비운다.
-        /// </summary>
+        /// <summary>사용자 바인딩 슬롯 전체를 무력화한다.</summary>
         private static void DisableRuntimeUserBindings(InputActionMap map)
         {
             foreach (InputAction action in map.actions)
@@ -489,18 +506,40 @@ namespace UPlayGround.Manager
                 var bindings = action.bindings;
                 for (int i = 0; i < bindings.Count; i++)
                 {
-                    if (!IsUserBinding(bindings[i]))
-                        continue;
-
-                    action.ApplyBindingOverride(i, string.Empty);
-
-                    if (!bindings[i].isComposite)
-                        continue;
-
-                    for (int p = i + 1; p < bindings.Count && bindings[p].isPartOfComposite; p++)
-                        action.ApplyBindingOverride(p, string.Empty);
+                    if (IsUserBinding(bindings[i]))
+                        DisableBindingAt(action, i);
                 }
             }
+        }
+
+        /// <summary>
+        /// 바인딩 하나를 무력화한다. 단일 바인딩은 경로를 비우고,
+        /// composite는 <b>루트를 건드리지 않고</b> part만 비운다.
+        ///
+        /// composite 루트의 path는 컨트롤 경로가 아니라 컴포지트 타입 이름("OneModifier",
+        /// "2DVector")이다. 이를 빈 문자열로 override하면 바인딩 재해석 중
+        /// InstantiateBindingComposite가 "No binding composite with name '' has been registered"로
+        /// 던진다. 그 예외는 InputBindingResolver.StartWithPreviousResolve가 state.maps를 null로
+        /// 만든 뒤 ClaimDataFrom이 복구하기 전에 발생하므로, InputActionState가 maps=null인 채로
+        /// 영구히 남는다. 이후 모든 action.controls 접근이 매 프레임
+        /// ArgumentNullException(FetchMapIndices)으로 죽는다.
+        ///
+        /// part를 전부 비우면 해석되는 컨트롤이 0개가 되어 composite는 그대로 불활성이 된다.
+        /// </summary>
+        private static void DisableBindingAt(InputAction action, int index)
+        {
+            var bindings = action.bindings;
+            if (index < 0 || index >= bindings.Count)
+                return;
+
+            if (!bindings[index].isComposite)
+            {
+                action.ApplyBindingOverride(index, string.Empty);
+                return;
+            }
+
+            for (int p = index + 1; p < bindings.Count && bindings[p].isPartOfComposite; p++)
+                action.ApplyBindingOverride(p, string.Empty);
         }
 
         private static void DisableDefaultBindings(
@@ -514,8 +553,10 @@ namespace UPlayGround.Manager
                 if (binding.isPartOfComposite || IsUserBinding(binding))
                     continue;
 
+                // 기본 바인딩에도 composite가 있다(Dodge의 LB+East 조합 등).
+                // 루트를 비우면 안 되므로 DisableBindingAt을 거친다.
                 if (RootBindingMatchesDevice(bindings, i, deviceGroup))
-                    action.ApplyBindingOverride(i, string.Empty);
+                    DisableBindingAt(action, i);
             }
         }
 

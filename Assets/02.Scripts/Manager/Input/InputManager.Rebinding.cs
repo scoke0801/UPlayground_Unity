@@ -58,13 +58,23 @@ namespace UPlayGround.Manager
                 using IDisposable subscription = InputSystem.onAnyButtonPress.Call(button =>
                 {
                     if (queuedButton != null
-                        || button == null
-                        || !ControlMatchesDeviceGroup(button, target.deviceGroup))
+                        || button == null)
                     {
                         return;
                     }
 
-                    queuedButton = button as ButtonControl;
+                    ButtonControl candidate = button as ButtonControl;
+                    if (candidate == null)
+                        return;
+
+                    // 취소/삭제는 캡처 대상 장치와 무관한 UI 명령이다. 먼저 큐에 넣어야
+                    // 게임패드 슬롯 캡처 중 Esc/Backspace, 키보드 슬롯 캡처 중 B가 동작한다.
+                    if (IsCaptureCancel(candidate)
+                        || IsCaptureRemove(candidate)
+                        || ControlMatchesDeviceGroup(candidate, target.deviceGroup))
+                    {
+                        queuedButton = candidate;
+                    }
                 });
 
                 ButtonControl first = null;
@@ -78,6 +88,8 @@ namespace UPlayGround.Manager
                         queuedButton = null;
                         if (IsCaptureCancel(candidate))
                             return CanceledCapture(target);
+                        if (IsCaptureRemove(candidate))
+                            return RemovedCapture(target);
 
                         first = candidate;
                         break;
@@ -116,6 +128,8 @@ namespace UPlayGround.Manager
 
                         if (IsCaptureCancel(second))
                             return CanceledCapture(target);
+                        if (IsCaptureRemove(second))
+                            return RemovedCapture(target);
                         if (second == first)
                             continue;
 
@@ -243,6 +257,14 @@ namespace UPlayGround.Manager
             return false;
         }
 
+        private static bool IsCaptureRemove(ButtonControl button)
+        {
+            if (button?.device is not Keyboard keyboard)
+                return false;
+
+            return button == keyboard.backspaceKey || button == keyboard.deleteKey;
+        }
+
         private static string ToBindingPath(InputControl control)
         {
             if (control?.device == null)
@@ -322,6 +344,23 @@ namespace UPlayGround.Manager
                 null,
                 null,
                 null);
+        }
+
+        private InputRebindCaptureResult RemovedCapture(InputBindingTarget target)
+        {
+            const string message = "바인딩 제거를 요청했습니다.";
+            PublishCaptureState(
+                InputRebindCapturePhase.Completed,
+                null,
+                0f,
+                message);
+            return new InputRebindCaptureResult(
+                target,
+                InputRebindCapturePhase.Completed,
+                null,
+                null,
+                message,
+                removalRequested: true);
         }
 
         private InputRebindCaptureResult FailedCapture(

@@ -29,6 +29,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 2d9053eb9447cab4fa35f70225db5c5e, type: 3}
   - controlPath: z
     sprite: {fileID: 21300000, guid: 3079b4fa226369c4a818ee695bfa775f, type: 3}
+  - controlPath: g
+    sprite: {fileID: 21300000, guid: d0afd106e7a11e74088a34986f24dd0a, type: 3}
   - controlPath: middleButton
     sprite: {fileID: 21300000, guid: 90c30d4bb5144424a84f3f98c397adef, type: 3}
   - controlPath: v
@@ -45,6 +47,18 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 1c1a7bd44e2773b49aaf9e61f4f3862a, type: 3}
   - controlPath: tab
     sprite: {fileID: 21300000, guid: d1a3a02396b0fc948aaacd16c8d60b6d, type: 3}
+  - controlPath: q
+    sprite: {fileID: 21300000, guid: a1d478649230ad849b2937ddeef337c9, type: 3}
+  - controlPath: f4
+    sprite: {fileID: 21300000, guid: 42c94a6964fa0444a80630a437acef14, type: 3}
+  - controlPath: f3
+    sprite: {fileID: 21300000, guid: 9145e0142c967e74e90d0b8c24e9b9b4, type: 3}
+  - controlPath: f2
+    sprite: {fileID: 21300000, guid: 491e1f51200581444ad3d9ab620024e0, type: 3}
+  - controlPath: f1
+    sprite: {fileID: 21300000, guid: 8a1979655803a714a828545463212b0d, type: 3}
+  - controlPath: t
+    sprite: {fileID: 21300000, guid: 2b372c58ed3fd0642946da17178f1de2, type: 3}
   - controlPath: escape
     sprite: {fileID: 21300000, guid: b38678271a7f3384bb1308df4332634a, type: 3}
   - controlPath: alt
@@ -62,7 +76,7 @@ MonoBehaviour:
   - controlPath: backquote
     sprite: {fileID: 21300000, guid: d75a12d2150e5c9429f4491fb3fb5838, type: 3}
   - controlPath: f11
-    sprite: {fileID: 0}
+    sprite: {fileID: 21300000, guid: 9158fb0d774406e499fc40efaeaf2a3a, type: 3}
   _gamepadGlyphs:
   - controlPath: buttonSouth
     sprite: {fileID: 21300000, guid: 259423a89efe85c418fc586eadcc21b9, type: 3}
@@ -70,20 +84,18 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 1beb244070afd9f4183c7025928b53d9, type: 3}
   - controlPath: buttonNorth
     sprite: {fileID: 21300000, guid: 619a325fede99ae40a9170940eb8b05e, type: 3}
-  - controlPath: buttonEast
-    sprite: {fileID: 21300000, guid: da2f165aaee4a1b4f8fae8bcb3375812, type: 3}
-  - controlPath: leftTrigger
-    sprite: {fileID: 21300000, guid: 2e8076ecb1052b546ad433d03fb5e93e, type: 3}
   - controlPath: rightTrigger
     sprite: {fileID: 21300000, guid: 8cc3cecb8a2b8bd4c81bc2f583661266, type: 3}
+  - controlPath: leftTrigger
+    sprite: {fileID: 21300000, guid: 2e8076ecb1052b546ad433d03fb5e93e, type: 3}
   - controlPath: leftStickPress
     sprite: {fileID: 21300000, guid: 0d7619fbac644f24094569fe819519fb, type: 3}
   - controlPath: rightStickPress
     sprite: {fileID: 21300000, guid: 6dd5954830096b0478ed44c6b96f76dd, type: 3}
   - controlPath: leftShoulder
     sprite: {fileID: 21300000, guid: b489fb8a0828d064cbc5da2347b15ed4, type: 3}
-  - controlPath: rightShoulder
-    sprite: {fileID: 21300000, guid: 4387dda71995e024bae674d310f99975, type: 3}
+  - controlPath: buttonEast
+    sprite: {fileID: 21300000, guid: da2f165aaee4a1b4f8fae8bcb3375812, type: 3}
   - controlPath: dpad/up
     sprite: {fileID: 21300000, guid: 6596d807b61936c478843ab4f5636091, type: 3}
   - controlPath: dpad/right
@@ -96,9 +108,49 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: aeba5ea410377c642bdb98ab3b7fd165, type: 3}
   - controlPath: rightStick/left
     sprite: {fileID: 21300000, guid: f9291e867b343e94884ee644b1d4a5b7, type: 3}
+  - controlPath: select
+    sprite: {fileID: 21300000, guid: e2089730e96ec114baf38ea353e967fd, type: 3}
+  - controlPath: rightShoulder
+    sprite: {fileID: 21300000, guid: 4387dda71995e024bae674d310f99975, type: 3}
   - controlPath: start
-    sprite: {fileID: 0}
-  _xboxGlyphs: []
+    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}
+  _xboxGlyphs:
+  - controlPath: buttonSouth
+    sprite: {fileID: 21300000, guid: 259423a89efe85c418fc586eadcc21b9, type: 3}
+  - controlPath: buttonWest
+    sprite: {fileID: 21300000, guid: 1beb244070afd9f4183c7025928b53d9, type: 3}
+  - controlPath: buttonNorth
+    sprite: {fileID: 21300000, guid: 619a325fede99ae40a9170940eb8b05e, type: 3}
+  - controlPath: rightTrigger
+    sprite: {fileID: 21300000, guid: 8cc3cecb8a2b8bd4c81bc2f583661266, type: 3}
+  - controlPath: leftTrigger
+    sprite: {fileID: 21300000, guid: 2e8076ecb1052b546ad433d03fb5e93e, type: 3}
+  - controlPath: leftStickPress
+    sprite: {fileID: 21300000, guid: 0d7619fbac644f24094569fe819519fb, type: 3}
+  - controlPath: rightStickPress
+    sprite: {fileID: 21300000, guid: 6dd5954830096b0478ed44c6b96f76dd, type: 3}
+  - controlPath: leftShoulder
+    sprite: {fileID: 21300000, guid: b489fb8a0828d064cbc5da2347b15ed4, type: 3}
+  - controlPath: buttonEast
+    sprite: {fileID: 21300000, guid: da2f165aaee4a1b4f8fae8bcb3375812, type: 3}
+  - controlPath: dpad/up
+    sprite: {fileID: 21300000, guid: 6596d807b61936c478843ab4f5636091, type: 3}
+  - controlPath: dpad/right
+    sprite: {fileID: 21300000, guid: c7d947a55512ad745a5e7ac7c7d3446a, type: 3}
+  - controlPath: dpad/down
+    sprite: {fileID: 21300000, guid: 1dc17bda7c7929347850f3d31f64009a, type: 3}
+  - controlPath: dpad/left
+    sprite: {fileID: 21300000, guid: efa01bbae83c1c941a667d8a0c2220c7, type: 3}
+  - controlPath: rightStick/right
+    sprite: {fileID: 21300000, guid: aeba5ea410377c642bdb98ab3b7fd165, type: 3}
+  - controlPath: rightStick/left
+    sprite: {fileID: 21300000, guid: f9291e867b343e94884ee644b1d4a5b7, type: 3}
+  - controlPath: select
+    sprite: {fileID: 21300000, guid: e2089730e96ec114baf38ea353e967fd, type: 3}
+  - controlPath: rightShoulder
+    sprite: {fileID: 21300000, guid: 4387dda71995e024bae674d310f99975, type: 3}
+  - controlPath: start
+    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}
   _playStationGlyphs:
   - controlPath: buttonSouth
     sprite: {fileID: 21300000, guid: f7865bfd05e0d3541943b62c5cd587f5, type: 3}
@@ -106,20 +158,18 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 7b4f1fc13e646f547a196063e5f675b0, type: 3}
   - controlPath: buttonNorth
     sprite: {fileID: 21300000, guid: 04ece147b1c093c4b98e3bb82e853d84, type: 3}
-  - controlPath: buttonEast
-    sprite: {fileID: 21300000, guid: 4dfe4945bcf5fb844bd94632f702df78, type: 3}
-  - controlPath: leftTrigger
-    sprite: {fileID: 21300000, guid: 122b92a2f68c3f340ad8775439d84fa4, type: 3}
   - controlPath: rightTrigger
     sprite: {fileID: 21300000, guid: 3f754a2c3ecb7e249bf4628e90f51169, type: 3}
+  - controlPath: leftTrigger
+    sprite: {fileID: 21300000, guid: 122b92a2f68c3f340ad8775439d84fa4, type: 3}
   - controlPath: leftStickPress
     sprite: {fileID: 21300000, guid: d295d132b0e818c4d921273353eecd2e, type: 3}
   - controlPath: rightStickPress
     sprite: {fileID: 21300000, guid: 598529c14b143a545b4d8ba9954e0837, type: 3}
   - controlPath: leftShoulder
     sprite: {fileID: 21300000, guid: 1ac057f199b501c49af9039ececbe549, type: 3}
-  - controlPath: rightShoulder
-    sprite: {fileID: 21300000, guid: 9e5b15df529cbc94c9b1baf797d70ee4, type: 3}
+  - controlPath: buttonEast
+    sprite: {fileID: 21300000, guid: 4dfe4945bcf5fb844bd94632f702df78, type: 3}
   - controlPath: dpad/up
     sprite: {fileID: 21300000, guid: 8381cacfbee17b84dba87656def0a79e, type: 3}
   - controlPath: dpad/right
@@ -134,6 +184,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 5c2fc93b769623a488abfd06af4026a9, type: 3}
   - controlPath: select
     sprite: {fileID: 21300000, guid: eae8eaddc2a7f1a479becd15bccdaf2b, type: 3}
-  - controlPath: Share
-    sprite: {fileID: 21300000, guid: eae8eaddc2a7f1a479becd15bccdaf2b, type: 3}
+  - controlPath: rightShoulder
+    sprite: {fileID: 21300000, guid: 9e5b15df529cbc94c9b1baf797d70ee4, type: 3}
+  - controlPath: start
+    sprite: {fileID: 21300000, guid: 9c60aef7b23623842b69d0e0147b7329, type: 3}
   _switchGlyphs: []

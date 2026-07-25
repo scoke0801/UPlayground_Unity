@@ -25,9 +25,9 @@ MonoBehaviour:
     ownerType: 0
   abilityTagIds: 
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -49,8 +49,8 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: 8608882898345183971}
     targetEffects: []
     ownerEffects: []

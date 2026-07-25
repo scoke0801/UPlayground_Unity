@@ -3,6 +3,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using UPlayGround.UI.InputPrompt;
 
 namespace UPlayGround.UI.SettingMenu.EditorTools
 {
@@ -28,16 +29,17 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
         private const string SliderPrefabPath   = "Assets/03.Prefabs/UI/Common/UICommonSlider.prefab";
         private const string SwitchPrefabPath   = "Assets/03.Prefabs/UI/Common/UISwitcherButton.prefab";
         private const string DropdownPrefabPath = "Assets/03.Prefabs/UI/Common/UICommonDropDown.prefab";
+        private const string InputGlyphDataPath = "Assets/10.Datas/UI/Input/InputGlyphData.asset";
 
-        private static readonly Color Dim       = new Color(0f, 0f, 0f, 0.65f);
-        private static readonly Color PanelBg   = new Color(0.05f, 0.07f, 0.10f, 0.98f);
-        private static readonly Color NavBg     = new Color(0.07f, 0.10f, 0.14f, 1f);
-        private static readonly Color TabBg     = new Color(0.09f, 0.12f, 0.16f, 1f);
-        private static readonly Color TabActive = new Color(0.10f, 0.20f, 0.26f, 1f);
-        private static readonly Color RowBg     = new Color(0.08f, 0.11f, 0.15f, 1f);
-        private static readonly Color ApplyBg   = new Color(0.10f, 0.28f, 0.34f, 1f);
-        private static readonly Color CancelBg  = new Color(0.10f, 0.13f, 0.17f, 1f);
-        private static readonly Color ResetBg   = new Color(0.28f, 0.10f, 0.12f, 1f);
+        private static readonly Color Dim       = new Color(0.01f, 0.025f, 0.04f, 0.92f);
+        private static readonly Color PanelBg   = new Color(0.035f, 0.055f, 0.08f, 0.99f);
+        private static readonly Color NavBg     = new Color(0.055f, 0.075f, 0.105f, 1f);
+        private static readonly Color TabBg     = new Color(1f, 1f, 1f, 0f);
+        private static readonly Color TabActive = new Color(0.14f, 0.27f, 0.48f, 0.82f);
+        private static readonly Color RowBg     = new Color(0.065f, 0.09f, 0.125f, 1f);
+        private static readonly Color ApplyBg   = new Color(0.15f, 0.35f, 0.68f, 1f);
+        private static readonly Color CancelBg  = new Color(0.065f, 0.09f, 0.125f, 1f);
+        private static readonly Color ResetBg   = new Color(0.075f, 0.105f, 0.145f, 1f);
         private static readonly Color TextMain  = new Color(0.90f, 0.92f, 0.95f, 1f);
         private static readonly Color TextGold  = new Color(0.86f, 0.80f, 0.62f, 1f);
         private static readonly Color TextSub   = new Color(0.72f, 0.78f, 0.84f, 1f);
@@ -73,45 +75,49 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 Stretch(dim);
                 AddImage(dim, Dim);
 
-                // 설정은 전체 화면을 덮는 형태. 패널을 화면 전체로 스트레치한다(여백 없음).
+                // 상단 탭 → 본문 → 하단 액션의 시각 계층을 가진 전체 화면 패널.
                 var panel = NewUI("Panel", root.transform);
                 Stretch(panel);
                 AddImage(panel, PanelBg, UISprite, sliced: true);
-                var panelV = AddVLG(panel, spacing: 12, pad: 20);
+                var panelV = AddVLG(panel, spacing: 14, pad: 30);
                 panelV.childForceExpandHeight = false;
 
-                // ── 헤더(제목 + X) ──
+                // ── 헤더(제목 + 가로 탭 + 닫기) ──
                 var header = NewUI("Header", panel.transform);
-                SetHeight(header, 60);
-                AddHLG(header, spacing: 10, pad: 0).childAlignment = TextAnchor.MiddleCenter;
-                var title = AddText(NewUI("Title", header.transform), "설정", 38, TextGold, TextAlignmentOptions.Center);
-                AddFlexibleW(title.gameObject, 1f);
-                var btnClose = MakeSimpleButton("CloseButton", header.transform, "X", CancelBg, TextMain, width: 60, fontSize: 30);
+                SetHeight(header, 64);
+                AddHLG(header, spacing: 8, pad: 0).childAlignment = TextAnchor.MiddleLeft;
 
-                // ── 본문(좌측 탭 + 우측 콘텐츠) ──
-                var body = NewUI("Body", panel.transform);
-                AddFlexibleH(body, 1f);
-                AddHLG(body, spacing: 16, pad: 0).childForceExpandHeight = true;
+                var title = AddText(
+                    NewUI("Title", header.transform), "설정", 32, TextMain, TextAlignmentOptions.Left);
+                title.fontStyle = FontStyles.Bold;
+                SetWidth(title.gameObject, 260);
 
-                // 좌측 탭 내비
-                var nav = NewUI("TabNav", body.transform);
-                SetWidth(nav, 300);
-                AddImage(nav, NavBg, UISprite, sliced: true);
-                var navV = AddVLG(nav, spacing: 10, pad: 16);
-                navV.childForceExpandHeight = false;
-                navV.childAlignment = TextAnchor.UpperCenter;
-                var tabGameplay = MakeTabButton(nav.transform, "게임플레이");
-                var tabGraphic  = MakeTabButton(nav.transform, "그래픽");
-                var tabAudio    = MakeTabButton(nav.transform, "오디오");
-                var tabKeys     = MakeTabButton(nav.transform, "키 설정");
+                var tabGameplay = MakeTopTabButton(header.transform, "게임플레이");
+                var tabGraphic  = MakeTopTabButton(header.transform, "그래픽");
+                var tabAudio    = MakeTopTabButton(header.transform, "사운드");
+                var tabKeys     = MakeTopTabButton(header.transform, "키 설정");
 
-                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_SettingMenu의 페이지 인덱스와 일치
-                var tabGroup = nav.AddComponent<UITabGroup>();
+                // 탭 그룹의 순서는 UI_SettingMenu의 페이지 인덱스와 일치해야 한다.
+                var tabGroup = header.AddComponent<UITabGroup>();
                 tabGroup.SetTabs(new[] { tabGameplay, tabGraphic, tabAudio, tabKeys });
 
-                // 우측 콘텐츠 컨테이너(패널들이 겹쳐 stretch, 활성 탭만 표시)
+                AddFlexibleW(NewUI("HeaderSpacer", header.transform), 1f);
+                var btnClose = MakeSimpleButton(
+                    "CloseButton", header.transform, "ESC  닫기",
+                    CancelBg, TextSub, width: 132, fontSize: 18);
+
+                var headerLine = NewUI("HeaderLine", panel.transform);
+                SetHeight(headerLine, 1);
+                AddImage(headerLine, new Color(0.22f, 0.29f, 0.38f, 0.75f));
+
+                // ── 본문 ──
+                var body = NewUI("Body", panel.transform);
+                AddFlexibleH(body, 1f);
+                AddImage(body, new Color(0.02f, 0.035f, 0.055f, 0.36f), UISprite, sliced: true);
+
+                // 콘텐츠 패널들이 겹쳐 stretch되고 활성 탭만 표시된다.
                 var content = NewUI("Content", body.transform);
-                AddFlexibleW(content, 1f);
+                Stretch(content);
 
                 // 각 페이지 패널 빌드
                 var gameplayPage = BuildGameplayPanel(content.transform);
@@ -124,15 +130,26 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 audioPage.gameObject.SetActive(false);
                 keysPage.gameObject.SetActive(false);
 
-                // ── 푸터(초기화/취소/적용) ──
+                // ── 푸터(단축키 힌트 + 초기화/취소/적용) ──
                 var footer = NewUI("Footer", panel.transform);
-                SetHeight(footer, 68);
-                AddHLG(footer, spacing: 16, pad: 0).childAlignment = TextAnchor.MiddleCenter;
-                AddFlexibleW(NewUI("FooterSpacerL", footer.transform), 1f);
-                var btnReset  = MakeSimpleButton("ResetButton",  footer.transform, "초기화", ResetBg,  TextMain, width: 240, fontSize: 26);
-                var btnCancel = MakeSimpleButton("CancelButton", footer.transform, "취소",  CancelBg, TextMain, width: 240, fontSize: 26);
-                var btnApply  = MakeSimpleButton("ApplyButton",  footer.transform, "적용",  ApplyBg,  TextMain, width: 240, fontSize: 26);
-                AddFlexibleW(NewUI("FooterSpacerR", footer.transform), 1f);
+                SetHeight(footer, 62);
+                AddHLG(footer, spacing: 12, pad: 0).childAlignment = TextAnchor.MiddleCenter;
+
+                var footerHint = AddText(
+                    NewUI("FooterHint", footer.transform),
+                    "방향키  이동     Enter  선택     Esc  취소",
+                    15, TextSub, TextAlignmentOptions.Left);
+                AddFlexibleW(footerHint.gameObject, 1f);
+
+                var btnReset = MakeSimpleButton(
+                    "ResetButton", footer.transform, "R  기본값 복원",
+                    ResetBg, TextSub, width: 190, fontSize: 17);
+                var btnCancel = MakeSimpleButton(
+                    "CancelButton", footer.transform, "ESC  취소",
+                    CancelBg, TextMain, width: 170, fontSize: 18);
+                var btnApply = MakeSimpleButton(
+                    "ApplyButton", footer.transform, "적용",
+                    ApplyBg, TextMain, width: 210, fontSize: 20);
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);
@@ -233,106 +250,23 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
 
         private static UISettingPageKeyBinding BuildKeysPanel(Transform content)
         {
-            var page = NewPagePanel<UISettingPageKeyBinding>("Panel_Keys", content);
-            Transform root = page.transform;
-            AddSectionHeader(root, "키 설정");
+            // 액션 수에 따라 런타임에 3분할 계층을 만든다. 구형 정적 자식과
+            // LayoutElement가 크기 계산에 개입하지 않도록 깨끗한 호스트만 둔다.
+            var panel = NewUI("Panel_Keys", content);
+            Stretch(panel);
+            var page = panel.AddComponent<UISettingPageKeyBinding>();
 
-            var toolbar = NewUI("DeviceToolbar", root);
-            SetHeight(toolbar, 60);
-            AddHLG(toolbar, spacing: 10, pad: 0).childAlignment = TextAnchor.MiddleLeft;
-            Button keyboardButton = MakeSimpleButton(
-                "KeyboardMouseButton", toolbar.transform, "키보드/마우스",
-                TabActive, TextMain, width: 230, fontSize: 22);
-            Button gamepadButton = MakeSimpleButton(
-                "GamepadButton", toolbar.transform, "게임패드",
-                TabBg, TextMain, width: 180, fontSize: 22);
-            AddFlexibleW(NewUI("ToolbarSpacer", toolbar.transform), 1f);
-
-            GameObject categoryObject = InstantiateControl(DropdownPrefabPath, toolbar.transform);
-            SetWidth(categoryObject, 260);
-            TMP_Dropdown categoryDropdown = categoryObject.GetComponent<TMP_Dropdown>();
-
-            var scrollObject = NewUI("BindingScroll", root);
-            AddFlexibleH(scrollObject, 1f);
-            AddImage(scrollObject, NavBg, UISprite, sliced: true);
-            ScrollRect scrollRect = scrollObject.AddComponent<ScrollRect>();
-            scrollRect.horizontal = false;
-            scrollRect.vertical = true;
-            scrollRect.movementType = ScrollRect.MovementType.Clamped;
-            scrollRect.scrollSensitivity = 42f;
-
-            var viewport = NewUI("Viewport", scrollObject.transform);
-            StretchMargin(viewport, 8, 8, 8, 8);
-            Image viewportImage = AddImage(viewport, new Color(0f, 0f, 0f, 0.001f));
-            viewportImage.raycastTarget = true;
-            viewport.AddComponent<Mask>().showMaskGraphic = false;
-
-            var bindingContent = NewUI("Content", viewport.transform);
-            RectTransform bindingContentRect = Rt(bindingContent);
-            bindingContentRect.anchorMin = new Vector2(0f, 1f);
-            bindingContentRect.anchorMax = new Vector2(1f, 1f);
-            bindingContentRect.pivot = new Vector2(0.5f, 1f);
-            bindingContentRect.offsetMin = Vector2.zero;
-            bindingContentRect.offsetMax = Vector2.zero;
-            AddVLG(bindingContent, spacing: 8, pad: 4);
-            var fitter = bindingContent.AddComponent<ContentSizeFitter>();
-            fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            scrollRect.viewport = Rt(viewport);
-            scrollRect.content = bindingContentRect;
-
-            UIKeyBindingRow rowTemplate = MakeKeyBindingRow(bindingContent.transform);
-            rowTemplate.gameObject.name = "BindingRowTemplate";
-            rowTemplate.gameObject.SetActive(false);
-
-            var resetBar = NewUI("ResetBar", root);
-            SetHeight(resetBar, 56);
-            AddHLG(resetBar, spacing: 10, pad: 0).childAlignment = TextAnchor.MiddleRight;
-            AddFlexibleW(NewUI("ResetSpacer", resetBar.transform), 1f);
-            Button resetDeviceButton = MakeSimpleButton(
-                "ResetDeviceButton", resetBar.transform, "현재 장치 초기화",
-                ResetBg, TextMain, width: 230, fontSize: 21);
-
-            GameObject captureOverlay = MakeOverlay(root, "CaptureOverlay");
-            TextMeshProUGUI captureTitle = AddText(
-                NewUI("Title", captureOverlay.transform),
-                "입력 변경", 30, TextGold, TextAlignmentOptions.Center);
-            SetHeight(captureTitle.gameObject, 52);
-            TextMeshProUGUI captureMessage = AddText(
-                NewUI("Message", captureOverlay.transform),
-                "새 키를 입력하세요.", 24, TextMain, TextAlignmentOptions.Center);
-            SetHeight(captureMessage.gameObject, 100);
-            captureOverlay.SetActive(false);
-
-            GameObject conflictOverlay = MakeOverlay(root, "ConflictOverlay");
-            TextMeshProUGUI conflictMessage = AddText(
-                NewUI("Message", conflictOverlay.transform),
-                "이미 사용 중인 입력입니다.", 24, TextMain, TextAlignmentOptions.Center);
-            SetHeight(conflictMessage.gameObject, 110);
-            var conflictButtons = NewUI("Buttons", conflictOverlay.transform);
-            SetHeight(conflictButtons, 58);
-            AddHLG(conflictButtons, spacing: 12, pad: 0).childAlignment = TextAnchor.MiddleCenter;
-            Button replaceButton = MakeSimpleButton(
-                "ReplaceButton", conflictButtons.transform, "기존 해제 후 적용",
-                ApplyBg, TextMain, width: 250, fontSize: 21);
-            Button conflictCancelButton = MakeSimpleButton(
-                "CancelButton", conflictButtons.transform, "취소",
-                CancelBg, TextMain, width: 160, fontSize: 21);
-            conflictOverlay.SetActive(false);
+            InputGlyphDataSO glyphData =
+                AssetDatabase.LoadAssetAtPath<InputGlyphDataSO>(InputGlyphDataPath);
+            if (glyphData == null)
+            {
+                Debug.LogWarning(
+                    $"[SettingBuilder] 입력 글리프 데이터를 찾을 수 없습니다: {InputGlyphDataPath}");
+                return page;
+            }
 
             var so = new SerializedObject(page);
-            SetRef(so, "_keyboardMouseButton", keyboardButton);
-            SetRef(so, "_gamepadButton", gamepadButton);
-            SetRef(so, "_categoryDropdown", categoryDropdown);
-            SetRef(so, "_content", bindingContentRect);
-            SetRef(so, "_rowTemplate", rowTemplate);
-            SetRef(so, "_resetDeviceButton", resetDeviceButton);
-            SetRef(so, "_captureOverlay", captureOverlay);
-            SetRef(so, "_captureTitle", captureTitle);
-            SetRef(so, "_captureMessage", captureMessage);
-            SetRef(so, "_conflictOverlay", conflictOverlay);
-            SetRef(so, "_conflictMessage", conflictMessage);
-            SetRef(so, "_replaceButton", replaceButton);
-            SetRef(so, "_conflictCancelButton", conflictCancelButton);
+            SetRef(so, "_glyphData", glyphData);
             so.ApplyModifiedPropertiesWithoutUndo();
             return page;
         }
@@ -531,25 +465,18 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             return btn;
         }
 
-        private static UITabButton MakeTabButton(Transform parent, string label)
+        private static UITabButton MakeTopTabButton(Transform parent, string label)
         {
             var go = NewUI("Tab_" + label, parent);
-            SetHeight(go, 88);
+            SetWidth(go, 152);
             var img = AddImage(go, TabBg, UISprite, sliced: true);
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = img;
-            AddHLG(go, spacing: 14, pad: 16).childAlignment = TextAnchor.MiddleLeft;
-
-            var icon = NewUI("Icon", go.transform);
-            SetWidth(icon, 40);
-            var iconImg = AddImage(icon, IconTint, UISprite, sliced: true);
-            iconImg.raycastTarget = false;
-
-            var lbl = AddText(NewUI("Label", go.transform), label, 26, TextMain, TextAlignmentOptions.Left);
-            AddFlexibleW(lbl.gameObject, 1f);
+            var lbl = AddText(
+                NewUI("Label", go.transform), label, 20, TextMain, TextAlignmentOptions.Center);
+            Stretch(lbl.gameObject);
             lbl.raycastTarget = false;
 
-            // 선택 시 배경=TabActive/라벨=TextMain, 비선택 시 배경=TabBg/라벨=TextSub
             var tab = go.AddComponent<UITabButton>();
             tab.Configure(
                 btn, img, lbl,

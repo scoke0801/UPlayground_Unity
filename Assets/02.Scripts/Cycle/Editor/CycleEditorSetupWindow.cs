@@ -173,9 +173,9 @@ namespace UPlayGround.Cycle.Editor
             SerializedObject run = new(_runConfig);
             SerializedProperty difficulties = run.FindProperty("difficultyByCycle");
             difficulties.arraySize = 3;
-            SetDifficulty(difficulties.GetArrayElementAtIndex(0), 1, 1f, 1f, CycleRewardGrade.Common);
-            SetDifficulty(difficulties.GetArrayElementAtIndex(1), 2, 1.35f, 1.18f, CycleRewardGrade.Rare);
-            SetDifficulty(difficulties.GetArrayElementAtIndex(2), 3, 1.75f, 1.38f, CycleRewardGrade.Heroic);
+            SetDifficulty(difficulties.GetArrayElementAtIndex(0), 1, 1f, 1f, 1f);
+            SetDifficulty(difficulties.GetArrayElementAtIndex(1), 2, 1.35f, 1.18f, 1.35f);
+            SetDifficulty(difficulties.GetArrayElementAtIndex(2), 3, 1.75f, 1.38f, 1.75f);
             run.FindProperty("expLossRate").floatValue = 0.30f;
             run.FindProperty("dropUnsettledMaterials").boolValue = true;
             run.FindProperty("enableEquipmentFragmentLoss").boolValue = false;
@@ -499,12 +499,17 @@ namespace UPlayGround.Cycle.Editor
             return profile;
         }
 
-        private static void SetDifficulty(SerializedProperty entry, int index, float hp, float attack, CycleRewardGrade grade)
+        private static void SetDifficulty(
+            SerializedProperty entry,
+            int index,
+            float hp,
+            float attack,
+            float reward)
         {
             entry.FindPropertyRelative("cycleIndex").intValue = index;
             entry.FindPropertyRelative("healthMultiplier").floatValue = hp;
             entry.FindPropertyRelative("attackMultiplier").floatValue = attack;
-            entry.FindPropertyRelative("rewardGrade").enumValueIndex = (int)grade;
+            entry.FindPropertyRelative("rewardMultiplier").floatValue = reward;
         }
 
         private static T GetOrCreateAsset<T>(string path) where T : ScriptableObject

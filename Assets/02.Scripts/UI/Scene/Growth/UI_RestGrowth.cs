@@ -16,12 +16,25 @@ namespace UPlayGround.UI
         [Serializable]
         private sealed class GrowthCard
         {
-            public GrowthAttributeType attribute;
+            public GameObject root;
+            [AttributeIdSelector]
+            public string attributeId;
             public TextMeshProUGUI nameText;
             public TextMeshProUGUI rankText;
             public TextMeshProUGUI effectText;
             public TextMeshProUGUI milestoneText;
             public Button investButton;
+
+            public AttributeId AttributeId => new(attributeId);
+
+            public GameObject Root =>
+                root != null
+                    ? root
+                    : investButton != null
+                        ? investButton.transform.parent.gameObject
+                        : nameText != null
+                            ? nameText.transform.parent.gameObject
+                            : null;
         }
 
         [Header("헤더")]
@@ -69,7 +82,7 @@ namespace UPlayGround.UI
             {
                 GrowthCard card = _cards[i];
                 if (card?.investButton == null) continue;
-                GrowthAttributeType attribute = card.attribute;
+                AttributeId attribute = card.AttributeId;
                 UnityAction action = () => Invest(attribute);
                 _investActions[card.investButton] = action;
                 card.investButton.onClick.AddListener(action);
@@ -112,7 +125,7 @@ namespace UPlayGround.UI
             base.OnDispose();
         }
 
-        private void Invest(GrowthAttributeType attribute)
+        private void Invest(AttributeId attribute)
         {
             if (UISvc.Party?.TryInvestGrowthPoint(_targetType, attribute) == true)
                 RefreshView();
@@ -161,12 +174,30 @@ namespace UPlayGround.UI
             if (card == null) return;
             IUIPartyService party = UISvc.Party;
             PartyMemberGrowthSO growth = party.GetGrowthData(_targetType);
-            if (growth == null) return;
-            growth.TryGetInvestmentRule(card.attribute, out GrowthInvestmentRule rule);
-            int rank = party.GetGrowthRank(_targetType, card.attribute);
-            int effectiveRank = party.GetEffectiveGrowthRank(_targetType, card.attribute);
+            if (growth == null)
+            {
+                SetCardVisible(card, false);
+                return;
+            }
+
+            AttributeId attributeId = card.AttributeId;
+            if (!attributeId.IsValid
+                || !growth.TryGetInvestmentRule(
+                    attributeId,
+                    out GrowthInvestmentRule rule))
+            {
+                SetCardVisible(card, false);
+                return;
+            }
+
+            SetCardVisible(card, true);
+            int rank = party.GetGrowthRank(_targetType, attributeId);
+            int effectiveRank =
+                party.GetEffectiveGrowthRank(_targetType, attributeId);
             int equipmentRank = Mathf.Max(0, effectiveRank - rank);
-            if (card.nameText != null) card.nameText.text = GetDisplayName(card.attribute);
+            if (card.nameText != null)
+                card.nameText.text =
+                    GrowthAttributeCatalog.GetDisplayName(attributeId);
             if (card.rankText != null)
                 card.rankText.text = equipmentRank > 0
                     ? $"{effectiveRank} (투자 {rank} + 장비 {equipmentRank})"
@@ -174,9 +205,21 @@ namespace UPlayGround.UI
             if (card.effectText != null) card.effectText.text = $"랭크당 +{FormatEffect(rule)}";
             if (card.milestoneText != null)
                 card.milestoneText.text = GetNextMilestoneText(
-                    party.GetGrowthUnlockMilestones(_targetType, card.attribute), effectiveRank);
+                    party.GetGrowthUnlockMilestones(
+                        _targetType,
+                        attributeId),
+                    effectiveRank);
             if (card.investButton != null)
                 card.investButton.interactable = party.GetGrowthPoints(_targetType) > 0 && rank < Mathf.Max(1, rule.maxRank);
+        }
+
+        private static void SetCardVisible(GrowthCard card, bool visible)
+        {
+            GameObject root = card?.Root;
+            if (root != null && root.activeSelf != visible)
+                root.SetActive(visible);
+            if (!visible && card?.investButton != null)
+                card.investButton.interactable = false;
         }
 
         private static void NormalizeCardLayout(GrowthCard card)
@@ -213,15 +256,6 @@ namespace UPlayGround.UI
             text.textWrappingMode = TextWrappingModes.NoWrap;
             text.overflowMode = TextOverflowModes.Ellipsis;
         }
-
-        private static string GetDisplayName(GrowthAttributeType attribute) => attribute switch
-        {
-            GrowthAttributeType.Health => "체력",
-            GrowthAttributeType.Defense => "방어력",
-            GrowthAttributeType.Critical => "크리티컬",
-            GrowthAttributeType.AttackSpeed => "공격속도",
-            _ => "공격력",
-        };
 
         private static string FormatEffect(GrowthInvestmentRule rule)
             => rule.AttributeId == global::UPlayGround.Data.Stat.Attributes.Combat.Defense

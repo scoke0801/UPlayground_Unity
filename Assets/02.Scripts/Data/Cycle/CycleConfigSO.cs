@@ -4,20 +4,13 @@ using UnityEngine;
 
 namespace UPlayGround.Data.Cycle
 {
-    public enum CycleRewardGrade
-    {
-        Common,
-        Rare,
-        Heroic,
-    }
-
     [Serializable]
     public sealed class CycleDifficultyEntry
     {
         [Min(1)] public int cycleIndex = 1;
         [Min(0.01f)] public float healthMultiplier = 1f;
         [Min(0.01f)] public float attackMultiplier = 1f;
-        public CycleRewardGrade rewardGrade = CycleRewardGrade.Common;
+        [Min(0f)] public float rewardMultiplier = 1f;
     }
 
     /// <summary>P0 사이클 공통 튜닝값.</summary>
@@ -75,6 +68,12 @@ namespace UPlayGround.Data.Cycle
                     error = $"사이클 {cycleIndex} 배율은 0보다 커야 합니다.";
                     return false;
                 }
+
+                if (entry.rewardMultiplier < 0f)
+                {
+                    error = $"사이클 {cycleIndex} 보상 배율은 0 이상이어야 합니다.";
+                    return false;
+                }
             }
 
             error = null;
@@ -93,9 +92,9 @@ namespace UPlayGround.Data.Cycle
         {
             return new List<CycleDifficultyEntry>
             {
-                new() { cycleIndex = 1, healthMultiplier = 1.00f, attackMultiplier = 1.00f, rewardGrade = CycleRewardGrade.Common },
-                new() { cycleIndex = 2, healthMultiplier = 1.35f, attackMultiplier = 1.18f, rewardGrade = CycleRewardGrade.Rare },
-                new() { cycleIndex = 3, healthMultiplier = 1.75f, attackMultiplier = 1.38f, rewardGrade = CycleRewardGrade.Heroic },
+                new() { cycleIndex = 1, healthMultiplier = 1.00f, attackMultiplier = 1.00f, rewardMultiplier = 1.00f },
+                new() { cycleIndex = 2, healthMultiplier = 1.35f, attackMultiplier = 1.18f, rewardMultiplier = 1.35f },
+                new() { cycleIndex = 3, healthMultiplier = 1.75f, attackMultiplier = 1.38f, rewardMultiplier = 1.75f },
             };
         }
     }

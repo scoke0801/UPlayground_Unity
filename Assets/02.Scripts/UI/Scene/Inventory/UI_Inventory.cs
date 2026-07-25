@@ -1084,10 +1084,10 @@ namespace UPlayGround.UI
         {
             var currentRanks = CollectGrowthRanks(equippedRolls);
             var selectedRanks = CollectGrowthRanks(selectedRolls);
-            var types = new HashSet<GrowthAttributeType>(currentRanks.Keys);
+            var types = new HashSet<AttributeId>(currentRanks.Keys);
             types.UnionWith(selectedRanks.Keys);
 
-            foreach (GrowthAttributeType type in types.OrderBy(value => (int)value))
+            foreach (AttributeId type in types.OrderBy(value => value.Value))
             {
                 currentRanks.TryGetValue(type, out int current);
                 selectedRanks.TryGetValue(type, out int next);
@@ -1101,17 +1101,19 @@ namespace UPlayGround.UI
             }
         }
 
-        private static Dictionary<GrowthAttributeType, int> CollectGrowthRanks(
+        private static Dictionary<AttributeId, int> CollectGrowthRanks(
             IReadOnlyList<EquipmentGrowthAttributeRoll> rolls)
         {
-            var ranks = new Dictionary<GrowthAttributeType, int>();
+            var ranks = new Dictionary<AttributeId, int>();
             if (rolls == null)
                 return ranks;
 
             for (int i = 0; i < rolls.Count; i++)
             {
                 EquipmentGrowthAttributeRoll roll = rolls[i];
-                ranks[roll.attributeType] = ranks.TryGetValue(roll.attributeType, out int rank)
+                if (!roll.AttributeId.IsValid)
+                    continue;
+                ranks[roll.AttributeId] = ranks.TryGetValue(roll.AttributeId, out int rank)
                     ? rank + Mathf.Max(0, roll.rank)
                     : Mathf.Max(0, roll.rank);
             }
@@ -1157,21 +1159,12 @@ namespace UPlayGround.UI
                || attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.CritRate
                || attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier;
 
-        private static string GetGrowthAttributeName(GrowthAttributeType type)
-        {
-            return type switch
-            {
-                GrowthAttributeType.Health => "체력",
-                GrowthAttributeType.Defense => "방어력",
-                GrowthAttributeType.Critical => "크리티컬",
-                GrowthAttributeType.AttackSpeed => "공격 속도",
-                _ => "공격력",
-            };
-        }
+        private static string GetGrowthAttributeName(AttributeId type) =>
+            GrowthAttributeCatalog.GetDisplayName(type);
 
         private static string FormatGrowthAttributeRoll(EquipmentGrowthAttributeRoll roll)
         {
-            return $"랜덤 성장 - {GetGrowthAttributeName(roll.attributeType)} +{Mathf.Max(0, roll.rank)}랭크";
+            return $"랜덤 성장 - {GetGrowthAttributeName(roll.AttributeId)} +{Mathf.Max(0, roll.rank)}랭크";
         }
 
         private void RefreshSelectedConsumableStats(ConsumableSO consumable)

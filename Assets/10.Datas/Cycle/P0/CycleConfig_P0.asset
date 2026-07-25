@@ -18,15 +18,15 @@ MonoBehaviour:
   - cycleIndex: 1
     healthMultiplier: 1
     attackMultiplier: 1
-    rewardGrade: 0
+    rewardMultiplier: 1
   - cycleIndex: 2
     healthMultiplier: 1.35
     attackMultiplier: 1.18
-    rewardGrade: 1
+    rewardMultiplier: 1.35
   - cycleIndex: 3
     healthMultiplier: 1.75
     attackMultiplier: 1.38
-    rewardGrade: 2
+    rewardMultiplier: 1.75
   expLossRate: 0.3
   dropUnsettledMaterials: 1
   enableEquipmentFragmentLoss: 0

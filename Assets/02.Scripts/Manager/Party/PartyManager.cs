@@ -51,7 +51,7 @@ namespace UPlayGround.Manager
         // 현재 레벨 내 누적 경험치 (다음 레벨까지의 진행분). 레벨업 시 차감 후 캐리오버.
         private readonly Dictionary<CharacterActorType, long> _exp = new();
         private readonly Dictionary<CharacterActorType, int> _growthPoints = new();
-        private readonly Dictionary<CharacterActorType, Dictionary<GrowthAttributeType, int>> _growthInvestments = new();
+        private readonly Dictionary<CharacterActorType, Dictionary<AttributeId, int>> _growthInvestments = new();
         // 컨텐츠 해금 조건을 새 게임 단위로 랜덤화하는 시드. 0이면 지연 생성.
         // (WorldStateManager.NewGameElementSeed 패턴 미러링, 소유는 파티 진행 관심사)
         private int _contentUnlockSeed;
@@ -95,7 +95,7 @@ namespace UPlayGround.Manager
         public event Action<CharacterActorType, long, long> OnExpChanged;  // (type, currentExp, requiredExp)
         public event Action<CharacterActorType, int>        OnLevelUp;     // (type, newLevel)
         public event Action<CharacterActorType, int>        OnGrowthPointsChanged;
-        public event Action<CharacterActorType, GrowthAttributeType, int> OnGrowthInvestmentChanged;
+        public event Action<CharacterActorType, AttributeId, int> OnGrowthInvestmentChanged;
         public event Action<CharacterActorType, GrowthUnlockMilestone> OnGrowthUnlock;
         public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
         public event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
@@ -694,19 +694,19 @@ namespace UPlayGround.Manager
         public int GetGrowthPoints(CharacterActorType type)
             => _growthPoints.TryGetValue(type, out int points) ? Mathf.Max(0, points) : 0;
 
-        public IReadOnlyDictionary<GrowthAttributeType, int> GetGrowthInvestments(CharacterActorType type)
+        public IReadOnlyDictionary<AttributeId, int> GetGrowthInvestments(CharacterActorType type)
         {
             EnsureGrowthState(type);
             return _growthInvestments.TryGetValue(type, out var values) ? values : null;
         }
 
-        public int GetGrowthRank(CharacterActorType type, GrowthAttributeType attribute)
+        public int GetGrowthRank(CharacterActorType type, AttributeId attribute)
             => _growthInvestments.TryGetValue(type, out var values) && values.TryGetValue(attribute, out int rank)
                 ? Mathf.Max(0, rank)
                 : 0;
 
         /// <summary>투자 랭크와 현재 장착 장비의 랜덤 성장 랭크를 합친 실효 랭크.</summary>
-        public int GetEffectiveGrowthRank(CharacterActorType type, GrowthAttributeType attribute)
+        public int GetEffectiveGrowthRank(CharacterActorType type, AttributeId attribute)
         {
             int rank = GetGrowthRank(type, attribute);
             InventoryManager inventory = InventoryManager.Instance;
@@ -719,7 +719,7 @@ namespace UPlayGround.Manager
                 List<EquipmentGrowthAttributeRoll> rolls = equipment[i]?.growthAttributeRolls;
                 if (rolls == null) continue;
                 for (int j = 0; j < rolls.Count; j++)
-                    if (rolls[j].attributeType == attribute)
+                    if (rolls[j].AttributeId == attribute)
                         rank += Mathf.Max(0, rolls[j].rank);
             }
             return rank;
@@ -732,14 +732,15 @@ namespace UPlayGround.Manager
                 OnPartyProgressionChanged?.Invoke(type);
         }
 
-        public bool TryInvestGrowthPoint(CharacterActorType type, GrowthAttributeType attribute)
+        public bool TryInvestGrowthPoint(CharacterActorType type, AttributeId attribute)
         {
             if (type == CharacterActorType.None || GetGrowthPoints(type) <= 0) return false;
             PartyMemberGrowthSO growth = GetGrowthData(type);
             if (growth == null) return false;
 
             EnsureGrowthState(type);
-            growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
+            if (!growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule))
+                return false;
             int oldRank = GetGrowthRank(type, attribute);
             if (oldRank >= Mathf.Max(1, rule.maxRank)) return false;
 
@@ -772,7 +773,7 @@ namespace UPlayGround.Manager
         /// </summary>
         public bool SetGrowthRankForDebug(
             CharacterActorType type,
-            GrowthAttributeType attribute,
+            AttributeId attribute,
             int rank)
         {
             if (type == CharacterActorType.None) return false;
@@ -780,7 +781,8 @@ namespace UPlayGround.Manager
             if (growth == null) return false;
 
             EnsureGrowthState(type);
-            growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule);
+            if (!growth.TryGetInvestmentRule(attribute, out GrowthInvestmentRule rule))
+                return false;
             int oldRank = GetGrowthRank(type, attribute);
             int newRank = Mathf.Clamp(rank, 0, Mathf.Max(1, rule.maxRank));
             if (oldRank == newRank) return true;
@@ -824,8 +826,14 @@ namespace UPlayGround.Manager
             if (GrowthUnlockCatalog.IsFree(unlockType, unlockId)) return true;
 
             EnsureContentUnlockSeed();
-            (GrowthAttributeType attribute, int requiredRank) =
-                GrowthUnlockCatalog.Resolve(_contentUnlockSeed, type, unlockType, unlockId);
+            PartyMemberGrowthSO growth = GetGrowthData(type);
+            (AttributeId attribute, int requiredRank) =
+                GrowthUnlockCatalog.Resolve(
+                    _contentUnlockSeed,
+                    type,
+                    unlockType,
+                    unlockId,
+                    growth?.investmentRules);
             return GetEffectiveGrowthRank(type, attribute) >= requiredRank;
         }
 
@@ -871,16 +879,22 @@ namespace UPlayGround.Manager
         /// </summary>
         public List<GrowthUnlockMilestone> GetGrowthUnlockMilestones(
             CharacterActorType type,
-            GrowthAttributeType attribute)
+            AttributeId attribute)
         {
             var result = new List<GrowthUnlockMilestone>();
             if (type == CharacterActorType.None) return result;
 
             EnsureContentUnlockSeed();
+            PartyMemberGrowthSO growth = GetGrowthData(type);
             foreach ((GrowthUnlockType unlockType, string id, string display) in EnumerateGatedContent(type))
             {
-                (GrowthAttributeType attr, int requiredRank) =
-                    GrowthUnlockCatalog.Resolve(_contentUnlockSeed, type, unlockType, id);
+                (AttributeId attr, int requiredRank) =
+                    GrowthUnlockCatalog.Resolve(
+                        _contentUnlockSeed,
+                        type,
+                        unlockType,
+                        id,
+                        growth?.investmentRules);
                 if (attr != attribute) continue;
                 result.Add(new GrowthUnlockMilestone
                 {
@@ -939,7 +953,7 @@ namespace UPlayGround.Manager
         /// <summary>랭크가 oldRank→newRank로 오르며 통과한 (attribute) 해금 마일스톤을 발행한다.</summary>
         private void FireGrowthUnlocksForRankChange(
             CharacterActorType type,
-            GrowthAttributeType attribute,
+            AttributeId attribute,
             int oldRank,
             int newRank)
         {
@@ -958,7 +972,7 @@ namespace UPlayGround.Manager
             if (type == CharacterActorType.None) return;
             if (!_growthPoints.ContainsKey(type)) _growthPoints[type] = 0;
             if (!_growthInvestments.ContainsKey(type))
-                _growthInvestments[type] = new Dictionary<GrowthAttributeType, int>();
+                _growthInvestments[type] = new Dictionary<AttributeId, int>();
         }
 
         public bool SetLevelForDebug(CharacterActorType type, int level)
@@ -1289,7 +1303,9 @@ namespace UPlayGround.Manager
                         : Mathf.Max(0, _levels[t] - initialLevel) * pointsPerLevel;
                     if (m.growthInvestments != null)
                         foreach (var investment in m.growthInvestments)
-                            if (Enum.TryParse(investment.attribute, out GrowthAttributeType attribute))
+                            if (GrowthAttributeCatalog.TryResolveLegacy(
+                                    investment.attribute,
+                                    out AttributeId attribute))
                                 _growthInvestments[t][attribute] = Mathf.Max(0, investment.rank);
                 }
             }

@@ -38,6 +38,7 @@ namespace UPlayGround.UI
             _layout = UGuiFactory.AddHLG(gameObject, spacing: 4f, padding: 0);
             _layout.childAlignment = TextAnchor.MiddleCenter;
             _layout.childForceExpandWidth = false;
+            _layout.childForceExpandHeight = false;
         }
 
         public void Clear()
@@ -54,7 +55,7 @@ namespace UPlayGround.UI
             TextMeshProUGUI dash = UGuiFactory.MakeText(
                 transform, "-", 16f, EmptyText, TextAlignmentOptions.Center);
             UGuiFactory.SetSize(dash.gameObject, minW: CapMinWidth, prefW: CapMinWidth,
-                minH: CapHeight, prefH: CapHeight);
+                minH: CapHeight, prefH: CapHeight, flexH: 0f);
         }
 
         public void SetParts(IReadOnlyList<GlyphPart> parts)
@@ -109,7 +110,7 @@ namespace UPlayGround.UI
             TextMeshProUGUI plus = UGuiFactory.MakeText(
                 transform, "+", 14f, PlusText, TextAlignmentOptions.Center);
             UGuiFactory.SetSize(plus.gameObject, minW: 10f, prefW: 10f,
-                minH: CapHeight, prefH: CapHeight);
+                minH: CapHeight, prefH: CapHeight, flexH: 0f);
         }
 
         private void AddCap(GlyphPart part)
@@ -123,7 +124,8 @@ namespace UPlayGround.UI
                 icon.type = Image.Type.Simple;
                 icon.preserveAspect = true;
                 UGuiFactory.SetSize(cap.gameObject,
-                    minW: CapHeight, prefW: CapHeight, minH: CapHeight, prefH: CapHeight);
+                    minW: CapHeight, prefW: CapHeight,
+                    minH: CapHeight, prefH: CapHeight, flexH: 0f);
                 return;
             }
 
@@ -142,7 +144,8 @@ namespace UPlayGround.UI
             // 글자 수에 비례해 폭을 잡는다. 스프라이트 없이도 W와 Space가 같은 높이로 정렬된다.
             float width = Mathf.Max(CapMinWidth, text.Length * 9f + CapPaddingX * 2f);
             UGuiFactory.SetSize(cap.gameObject,
-                minW: width, prefW: width, minH: CapHeight, prefH: CapHeight);
+                minW: width, prefW: width,
+                minH: CapHeight, prefH: CapHeight, flexH: 0f);
         }
 
         // 스프라이트 에셋 없이 테두리를 만든다. 얇은 Image 4장이면 충분하다.

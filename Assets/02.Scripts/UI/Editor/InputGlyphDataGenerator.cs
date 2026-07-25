@@ -239,23 +239,28 @@ namespace UPlayGround.UI.InputPrompt.EditorTools
                     break;
             }
 
-            // 2) controlPath → Kenney 파일명 → 에셋 경로
+            // 2) 폴더의 파일명을 명명 규칙으로 파싱해 controlPath → 에셋 경로 표를 만든다.
+            //    Kenney 명명 규칙을 따르는 새 PNG가 폴더에 추가되면 코드 수정 없이 이 표에 자동 반영된다.
             var byBasename = ScanTextures(folder);
+            bool isPlayStation = target == AutoLinkTarget.PlayStation;
+            var inferred = isKeyboardMouse
+                ? InferKeyboardMouseIcons(byBasename)
+                : InferGamepadIcons(byBasename, isPlayStation);
+
             var cpToPath = new Dictionary<string, string>();
             var texturePaths = new HashSet<string>();
             var unmatched = new List<string>();
 
             foreach (var cp in controlPaths)
             {
-                string basename = isKeyboardMouse ? MapKeyboardMouse(cp) : MapGamepad(target, cp);
-                if (basename != null && byBasename.TryGetValue(basename.ToLowerInvariant(), out var assetPath))
+                if (inferred.TryGetValue(cp, out var assetPath))
                 {
                     cpToPath[cp] = assetPath;
                     texturePaths.Add(assetPath);
                 }
                 else
                 {
-                    unmatched.Add(basename != null ? $"{cp}(\"{basename}\")" : cp);
+                    unmatched.Add(cp);
                 }
             }
 
@@ -315,65 +320,144 @@ namespace UPlayGround.UI.InputPrompt.EditorTools
             return converted;
         }
 
-        // controlPath → Kenney 키보드/마우스 파일명.
-        private static string MapKeyboardMouse(string controlPath)
+        // ─────────────────────── 파일명 → controlPath 추론 규칙 ───────────────────────
+        // Kenney 아이콘은 "{디바이스}_{토큰}.png" 형태로 명명된다. 디바이스 접두사를 뗀
+        // 토큰을 아래 표로 controlPath에 매핑한다. 폴더에 새 PNG가 추가돼도 토큰이
+        // 이미 표에 있으면(또는 규칙에 맞으면) 코드 수정 없이 자동으로 연결된다.
+        // 버튼의 의미(A ↔ 크로스 등)는 디바이스 고유 지식이라 표로만 표현 가능하다.
+        // 같은 controlPath에 여러 토큰이 매핑될 경우 선언 순서가 우선순위다(먼저 나온 표준 표기 우선).
+        private static readonly Dictionary<string, string> GamepadTokenToControlPath = new()
         {
-            switch (controlPath)
+            ["button_a"] = "buttonSouth", ["button_cross"] = "buttonSouth",
+            ["button_b"] = "buttonEast", ["button_circle"] = "buttonEast",
+            ["button_x"] = "buttonWest", ["button_square"] = "buttonWest",
+            ["button_y"] = "buttonNorth", ["button_triangle"] = "buttonNorth",
+            ["dpad_up"] = "dpad/up", ["dpad_down"] = "dpad/down",
+            ["dpad_left"] = "dpad/left", ["dpad_right"] = "dpad/right",
+            ["lb"] = "leftShoulder", ["trigger_l1"] = "leftShoulder",
+            ["rb"] = "rightShoulder", ["trigger_r1"] = "rightShoulder",
+            ["lt"] = "leftTrigger", ["trigger_l2"] = "leftTrigger",
+            ["rt"] = "rightTrigger", ["trigger_r2"] = "rightTrigger",
+            ["stick_l_press"] = "leftStickPress", ["button_l3"] = "leftStickPress",
+            ["stick_r_press"] = "rightStickPress", ["button_r3"] = "rightStickPress",
+            ["stick_r_right"] = "rightStick/right",
+            ["stick_r_left"] = "rightStick/left",
+        };
+
+        // keyboard_/mouse_ 토큰 중 InputSystem controlPath 이름과 다른 예외만 등록한다.
+        // 나머지(space/shift/ctrl/tab/escape/alt/enter/a~z/0~9 등)는 Kenney 토큰이 곧
+        // controlPath라 표가 필요 없다 — 새 단일 키 아이콘이 추가돼도 자동 인식된다.
+        private static readonly Dictionary<string, string> KeyboardTokenAlias = new()
+        {
+            ["tilde"] = "backquote",
+            ["arrow_up"] = "upArrow",
+            ["arrow_down"] = "downArrow",
+            ["arrow_left"] = "leftArrow",
+            ["arrow_right"] = "rightArrow",
+        };
+
+        private static readonly Dictionary<string, string> MouseTokenToControlPath = new()
+        {
+            ["left"] = "leftButton",
+            ["right"] = "rightButton",
+            ["middle"] = "middleButton",
+            ["scroll"] = "middleButton",
+        };
+
+        /// <summary>
+        /// 폴더 스캔 결과(파일명(소문자) → 에셋 경로)에서 키보드/마우스 controlPath를 추론한다.
+        /// </summary>
+        private static Dictionary<string, string> InferKeyboardMouseIcons(Dictionary<string, string> byBasename)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (var kv in byBasename)
             {
-                case "space": return "keyboard_space";
-                case "shift": return "keyboard_shift";
-                case "ctrl": return "keyboard_ctrl";
-                case "tab": return "keyboard_tab";
-                case "escape": return "keyboard_escape";
-                case "alt": return "keyboard_alt";
-                case "enter": return "keyboard_enter";
-                case "backquote": return "keyboard_tilde";
-                case "leftButton": return "mouse_left";
-                case "rightButton": return "mouse_right";
-                case "middleButton": return "mouse_scroll";
+                string cp = InferKeyboardMouseControlPath(kv.Key);
+                if (cp == null || result.ContainsKey(cp))
+                    continue; // 충돌 시 먼저 발견된(사전순) 파일 유지
+                result[cp] = kv.Value;
             }
-            if (controlPath.Length == 1 && char.IsLetterOrDigit(controlPath[0]))
-                return "keyboard_" + controlPath.ToLowerInvariant();
+            return result;
+        }
+
+        private static string InferKeyboardMouseControlPath(string basenameLower)
+        {
+            if (basenameLower.StartsWith("mouse_", StringComparison.Ordinal))
+            {
+                string token = basenameLower.Substring("mouse_".Length);
+                return MouseTokenToControlPath.TryGetValue(token, out var cp) ? cp : null;
+            }
+
+            if (basenameLower.StartsWith("keyboard_", StringComparison.Ordinal))
+            {
+                string token = basenameLower.Substring("keyboard_".Length);
+                if (KeyboardTokenAlias.TryGetValue(token, out var alias))
+                    return alias;
+                if (token.Length == 1 && char.IsLetterOrDigit(token[0]))
+                    return token;
+                if (token.IndexOf('_') < 0)
+                    return token; // 단일 토큰(space, shift, ctrl 등)은 Kenney 이름 = controlPath
+                return null; // arrows_all, backspace_icon_alternative 등 장식/변형 아이콘은 규칙 밖
+            }
+
             return null;
         }
 
-        // controlPath → Kenney 게임패드 파일명. PlayStation은 PS 표기, 그 외(Xbox/제네릭)는 Xbox 표기.
-        private static string MapGamepad(AutoLinkTarget target, string controlPath)
+        /// <summary>
+        /// 폴더 스캔 결과에서 게임패드 controlPath를 추론한다. 같은 controlPath에 여러 후보
+        /// 파일이 있으면 GamepadTokenToControlPath의 선언 순서를 우선순위로 사용한다.
+        /// </summary>
+        private static Dictionary<string, string> InferGamepadIcons(Dictionary<string, string> byBasename, bool isPlayStation)
         {
-            bool ps = target == AutoLinkTarget.PlayStation;
-            switch (controlPath)
+            string prefix = isPlayStation ? "playstation_" : "xbox_";
+
+            var tokenPriority = new Dictionary<string, int>();
+            int priorityIndex = 0;
+            foreach (var token in GamepadTokenToControlPath.Keys)
+                tokenPriority[token] = priorityIndex++;
+
+            var best = new Dictionary<string, (string path, int priority)>();
+            foreach (var kv in byBasename)
             {
-                case "buttonSouth": return ps ? "playstation_button_cross" : "xbox_button_a";
-                case "buttonEast": return ps ? "playstation_button_circle" : "xbox_button_b";
-                case "buttonWest": return ps ? "playstation_button_square" : "xbox_button_x";
-                case "buttonNorth": return ps ? "playstation_button_triangle" : "xbox_button_y";
-                case "dpad/up": return ps ? "playstation_dpad_up" : "xbox_dpad_up";
-                case "dpad/down": return ps ? "playstation_dpad_down" : "xbox_dpad_down";
-                case "dpad/left": return ps ? "playstation_dpad_left" : "xbox_dpad_left";
-                case "dpad/right": return ps ? "playstation_dpad_right" : "xbox_dpad_right";
-                case "leftShoulder": return ps ? "playstation_trigger_l1" : "xbox_lb";
-                case "rightShoulder": return ps ? "playstation_trigger_r1" : "xbox_rb";
-                case "leftTrigger": return ps ? "playstation_trigger_l2" : "xbox_lt";
-                case "rightTrigger": return ps ? "playstation_trigger_r2" : "xbox_rt";
-                case "leftStickPress": return ps ? "playstation_button_l3" : "xbox_stick_l_press";
-                case "rightStickPress": return ps ? "playstation_button_r3" : "xbox_stick_r_press";
-                case "rightStick/right": return ps ? "playstation_stick_r_right" : "xbox_stick_r_right";
-                case "rightStick/left": return ps ? "playstation_stick_r_left" : "xbox_stick_r_left";
+                if (!kv.Key.StartsWith(prefix, StringComparison.Ordinal))
+                    continue;
+
+                string token = kv.Key.Substring(prefix.Length);
+                if (!GamepadTokenToControlPath.TryGetValue(token, out var cp))
+                    continue;
+
+                int priority = tokenPriority[token];
+                if (!best.TryGetValue(cp, out var existing) || priority < existing.priority)
+                    best[cp] = (kv.Value, priority);
             }
-            return null;
+
+            var result = new Dictionary<string, string>();
+            foreach (var kv in best)
+                result[kv.Key] = kv.Value.path;
+            return result;
         }
     }
 
     [CustomEditor(typeof(InputGlyphDataSO))]
     public class InputGlyphDataSOEditor : UnityEditor.Editor
     {
+        private static readonly (string field, string label)[] Categories =
+        {
+            ("_keyboardMouseGlyphs", "키보드 / 마우스"),
+            ("_gamepadGlyphs", "게임패드 (제네릭)"),
+            ("_xboxGlyphs", "Xbox 오버라이드"),
+            ("_playStationGlyphs", "PlayStation 오버라이드"),
+            ("_switchGlyphs", "Switch 오버라이드"),
+        };
+
         private bool _overwriteExisting;
+        private readonly Dictionary<string, bool> _foldouts = new();
 
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
                 "PlayerInputActions 에셋에서 controlPath를 자동 추출하고, InputIcon 폴더의 " +
-                "Kenney 스프라이트를 controlPath에 맞춰 자동 연결합니다. " +
+                "Kenney 스프라이트를 파일명 규칙으로 파싱해 controlPath에 자동 연결합니다. " +
                 "기존 스프라이트 할당은 controlPath 기준으로 보존됩니다.",
                 MessageType.Info);
 
@@ -419,7 +503,66 @@ namespace UPlayGround.UI.InputPrompt.EditorTools
             }
 
             EditorGUILayout.Space();
-            DrawDefaultInspector();
+            EditorGUILayout.LabelField("controlPath ↔ 아이콘 매핑", EditorStyles.boldLabel);
+
+            serializedObject.Update();
+            foreach (var (field, label) in Categories)
+                DrawGlyphCategory(field, label);
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        // controlPath와 실제 연결된 스프라이트 썸네일을 나란히 보여준다.
+        // 목록만으로는 어떤 InputAction에 어떤 아이콘이 매핑됐는지 눈으로 확인하기 어려워 추가.
+        private void DrawGlyphCategory(string fieldName, string label)
+        {
+            var listProp = serializedObject.FindProperty(fieldName);
+            if (listProp == null || listProp.arraySize == 0)
+                return;
+
+            if (!_foldouts.TryGetValue(fieldName, out bool open))
+                open = fieldName == "_keyboardMouseGlyphs";
+
+            open = EditorGUILayout.Foldout(open, $"{label} ({listProp.arraySize})", true);
+            _foldouts[fieldName] = open;
+            if (!open)
+                return;
+
+            EditorGUI.indentLevel++;
+            for (int i = 0; i < listProp.arraySize; i++)
+            {
+                var element = listProp.GetArrayElementAtIndex(i);
+                var controlPathProp = element.FindPropertyRelative("controlPath");
+                var spriteProp = element.FindPropertyRelative("sprite");
+
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    DrawSpriteThumbnail(spriteProp.objectReferenceValue as Sprite);
+                    EditorGUILayout.LabelField(controlPathProp.stringValue, GUILayout.Width(150));
+                    EditorGUILayout.PropertyField(spriteProp, GUIContent.none);
+                }
+            }
+            EditorGUI.indentLevel--;
+        }
+
+        private void DrawSpriteThumbnail(Sprite sprite)
+        {
+            var rect = GUILayoutUtility.GetRect(28, 28, GUILayout.Width(28));
+            if (sprite == null)
+            {
+                EditorGUI.DrawRect(rect, new Color(0f, 0f, 0f, 0.15f));
+                return;
+            }
+
+            var preview = AssetPreview.GetAssetPreview(sprite);
+            if (preview == null)
+            {
+                if (AssetPreview.IsLoadingAssetPreview(sprite.GetInstanceID()))
+                    Repaint(); // 프리뷰가 비동기로 준비되면 다시 그려서 채운다
+                preview = AssetPreview.GetMiniThumbnail(sprite);
+            }
+
+            if (preview != null)
+                GUI.DrawTexture(rect, preview, ScaleMode.ScaleToFit);
         }
     }
 }

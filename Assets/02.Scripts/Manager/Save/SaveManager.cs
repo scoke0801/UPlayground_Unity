@@ -4,7 +4,9 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.Save;
 using UPlayGround.Data.World;
 
@@ -582,6 +584,7 @@ namespace UPlayGround.Manager
                     ? Encoding.UTF8.GetString(bytes)
                     : SaveCrypto.Decrypt(bytes);
 
+                json = MigrateLegacyGrowthRollJson(json);
                 data = JsonConvert.DeserializeObject<GameSaveData>(json);
                 if (data == null)
                     throw new InvalidDataException("역직렬화 결과가 null입니다.");
@@ -642,6 +645,56 @@ namespace UPlayGround.Manager
             data.cycle.history ??= new UPlayGround.Data.Cycle.CycleHistorySaveData();
             data.monsterCodex ??= new List<MonsterCodexEntrySave>();
             data.saveVersion = CURRENT_SAVE_VERSION;
+        }
+
+        /// <summary>
+        /// enum 정수로 저장되던 장비 성장 옵션을 안정 Attribute ID로 옮긴다.
+        /// 타입 역직렬화 전에 처리해야 제거된 attributeType 값을 보존할 수 있다.
+        /// </summary>
+        private static string MigrateLegacyGrowthRollJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)
+                || !json.Contains("\"attributeType\""))
+            {
+                return json;
+            }
+
+            JObject root = JObject.Parse(json);
+            bool changed = false;
+            if (root["inventory"]?["items"] is not JArray items)
+                return json;
+
+            foreach (JToken item in items)
+            {
+                if (item?["growthAttributeRolls"] is not JArray rolls)
+                    continue;
+
+                foreach (JToken token in rolls)
+                {
+                    if (token is not JObject roll
+                        || roll["attributeId"] != null
+                        || roll["attributeType"]?.Type != JTokenType.Integer)
+                    {
+                        continue;
+                    }
+
+                    int legacyValue = roll["attributeType"].Value<int>();
+                    if (!GrowthAttributeCatalog.TryResolveLegacy(
+                            legacyValue,
+                            out global::UPlayGround.Ability.Core.AttributeId attributeId))
+                    {
+                        continue;
+                    }
+
+                    roll["attributeId"] = attributeId.Value;
+                    roll.Remove("attributeType");
+                    changed = true;
+                }
+            }
+
+            return changed
+                ? root.ToString(Formatting.None)
+                : json;
         }
 
         private void TryRestoreBackup(int slot)

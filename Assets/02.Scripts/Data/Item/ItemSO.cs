@@ -1,6 +1,6 @@
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
-using UPlayGround.Data.Party;
 
 namespace UPlayGround.Data.Item
 {
@@ -22,8 +22,12 @@ namespace UPlayGround.Data.Item
     [System.Serializable]
     public struct EquipmentGrowthAttributeRoll
     {
-        public GrowthAttributeType attributeType;
+        [Tooltip("장비 획득 시 확정된 안정 Attribute ID")]
+        [AttributeIdSelector]
+        public string attributeId;
         [Min(1)] public int rank;
+
+        public AttributeId AttributeId => new(attributeId);
     }
 
     [System.Serializable]

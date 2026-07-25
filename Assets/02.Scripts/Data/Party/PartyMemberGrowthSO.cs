@@ -13,13 +13,99 @@ namespace UPlayGround.Data.Party
         Curve
     }
 
-    public enum GrowthAttributeType
+    /// <summary>
+    /// 기존 enum 기반 성장 데이터를 안정 Attribute ID로 변환하는 호환·표시 도우미.
+    /// 신규 성장 후보의 단일 원본은 각 PartyMemberGrowthSO.investmentRules다.
+    /// </summary>
+    public static class GrowthAttributeCatalog
     {
-        Health,
-        Defense,
-        Critical,
-        AttackSpeed,
-        AttackPower
+        public const string HealthId = "Vital.MaxHealth";
+        public const string DefenseId = "Combat.Defense";
+        public const string CriticalId = "Combat.CritRate";
+        public const string AttackSpeedId = "Combat.AttackSpeed";
+        public const string AttackPowerId = "Combat.AttackPower";
+
+        public static readonly AttributeId Health =
+            new(HealthId);
+        public static readonly AttributeId Defense =
+            new(DefenseId);
+        public static readonly AttributeId Critical =
+            new(CriticalId);
+        public static readonly AttributeId AttackSpeed =
+            new(AttackSpeedId);
+        public static readonly AttributeId AttackPower =
+            new(AttackPowerId);
+
+        public static readonly AttributeId[] LegacyOrderedIds =
+        {
+            Health,
+            Defense,
+            Critical,
+            AttackSpeed,
+            AttackPower,
+        };
+
+        public static readonly string[] LegacyOrderedIdValues =
+        {
+            HealthId,
+            DefenseId,
+            CriticalId,
+            AttackSpeedId,
+            AttackPowerId,
+        };
+
+        public static bool TryResolveLegacy(
+            string value,
+            out AttributeId attributeId)
+        {
+            if (global::UPlayGround.Data.Stat.AttributeRegistry.TryResolve(
+                    value,
+                    out global::UPlayGround.Data.Stat.AttributeReference reference))
+            {
+                attributeId = reference.ToCoreId();
+                return true;
+            }
+
+            attributeId = value switch
+            {
+                "Health" => Health,
+                "Defense" => Defense,
+                "Critical" => Critical,
+                "AttackSpeed" => AttackSpeed,
+                "AttackPower" => AttackPower,
+                _ => default,
+            };
+            return attributeId.IsValid;
+        }
+
+        public static bool TryResolveLegacy(
+            int legacyValue,
+            out AttributeId attributeId)
+        {
+            if (legacyValue >= 0
+                && legacyValue < LegacyOrderedIds.Length)
+            {
+                attributeId = LegacyOrderedIds[legacyValue];
+                return true;
+            }
+
+            attributeId = default;
+            return false;
+        }
+
+        public static string GetDisplayName(AttributeId attributeId)
+        {
+            return global::UPlayGround.Data.Stat.AttributeRegistry
+                .TryGetDefinition(
+                    attributeId,
+                    out global::UPlayGround.Data.Stat.AttributeRegistryEntry entry)
+                && !string.IsNullOrWhiteSpace(entry.displayName)
+                    ? entry.displayName
+                    : attributeId.Value;
+        }
+
+        public static string GetDisplayName(string attributeId) =>
+            GetDisplayName(new AttributeId(attributeId));
     }
 
     public enum GrowthUnlockType
@@ -71,7 +157,6 @@ namespace UPlayGround.Data.Party
     [Serializable]
     public struct GrowthInvestmentRule
     {
-        public GrowthAttributeType attributeType;
         [Tooltip("런타임에서 사용하는 안정 Attribute ID")]
         [AttributeIdSelector]
         public string attributeId;
@@ -134,26 +219,41 @@ namespace UPlayGround.Data.Party
             return false;
         }
 
-        public bool TryGetInvestmentRule(GrowthAttributeType type, out GrowthInvestmentRule rule)
+        public bool TryGetInvestmentRule(
+            AttributeId attributeId,
+            out GrowthInvestmentRule rule)
         {
             for (int i = 0; i < investmentRules.Count; i++)
             {
-                if (investmentRules[i].attributeType != type) continue;
+                if (investmentRules[i].AttributeId != attributeId) continue;
                 rule = investmentRules[i];
                 return true;
             }
 
-            rule = GetDefaultInvestmentRule(type);
-            return true;
+            rule = default;
+            return false;
         }
 
-        public static GrowthInvestmentRule GetDefaultInvestmentRule(GrowthAttributeType type) => type switch
+        public static GrowthInvestmentRule GetDefaultInvestmentRule(
+            AttributeId attributeId)
         {
-            GrowthAttributeType.Health => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, maxRank = 20, flatPerRank = 20f, milestones = new List<GrowthUnlockMilestone>() },
-            GrowthAttributeType.Defense => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.Defense.Value, maxRank = 20, flatPerRank = 0.02f, milestones = new List<GrowthUnlockMilestone>() },
-            GrowthAttributeType.Critical => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.CritRate.Value, maxRank = 20, flatPerRank = 0.01f, milestones = new List<GrowthUnlockMilestone>() },
-            GrowthAttributeType.AttackSpeed => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed.Value, maxRank = 20, flatPerRank = 0.03f, milestones = new List<GrowthUnlockMilestone>() },
-            _ => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, maxRank = 20, flatPerRank = 0.05f, milestones = new List<GrowthUnlockMilestone>() },
-        };
+            float flatPerRank =
+                attributeId == GrowthAttributeCatalog.Health ? 20f :
+                attributeId == GrowthAttributeCatalog.Defense ? 0.02f :
+                attributeId == GrowthAttributeCatalog.Critical ? 0.01f :
+                attributeId == GrowthAttributeCatalog.AttackSpeed ? 0.03f :
+                0.05f;
+            return new GrowthInvestmentRule
+            {
+                attributeId = attributeId.Value,
+                maxRank = 20,
+                flatPerRank = flatPerRank,
+                milestones = new List<GrowthUnlockMilestone>(),
+            };
+        }
+
+        public static GrowthInvestmentRule GetDefaultInvestmentRule(
+            string attributeId) =>
+            GetDefaultInvestmentRule(new AttributeId(attributeId));
     }
 }

@@ -14,20 +14,16 @@ namespace UPlayGround.Manager
     public sealed class GameGuideManager : BaseManager<GameGuideManager>,
         IManager, ISaveable, IUpdatableManager, IGameEventObserver<GameMilestoneEvent>
     {
-        private enum GuideType
-        {
-            Combat,
-            Companion,
-            Equipment,
-        }
+        private const string LegacyCombatGuideId = "Guide.Combat";
+        private const string LegacyCompanionGuideId = "Guide.Companion";
+        private const string LegacyEquipmentGuideId = "Guide.Equipment";
 
-        private readonly Queue<GuideType> _pendingGuides = new();
+        private readonly Queue<FirstTimeGuideEntry> _pendingGuides = new();
+        private readonly HashSet<string> _shownGuideIds =
+            new(StringComparer.Ordinal);
         private readonly List<IDisposable> _subscriptions = new();
         private FirstTimeGuideConfigSO _config;
         private IGameEventObservable _events;
-        private bool _combatGuideShown;
-        private bool _companionGuideShown;
-        private bool _equipmentGuideShown;
 
         public void Init()
         {
@@ -38,10 +34,28 @@ namespace UPlayGround.Manager
         {
             _config = QuestManager.Instance.FirstTimeGuideConfig;
             _events = EventManager.Instance;
+            SubscribeConfiguredMilestones();
+        }
 
-            Observe(GameMilestoneEvent.CombatStarted);
-            Observe(GameMilestoneEvent.CharacterUnlocked);
-            Observe(GameMilestoneEvent.EquipmentAcquired);
+        private void SubscribeConfiguredMilestones()
+        {
+            for (int i = 0; i < _subscriptions.Count; i++)
+                _subscriptions[i]?.Dispose();
+            _subscriptions.Clear();
+
+            if (_config?.Entries == null)
+                return;
+
+            var observed = new HashSet<GameMilestoneEvent>();
+            for (int i = 0; i < _config.Entries.Count; i++)
+            {
+                FirstTimeGuideEntry entry = _config.Entries[i];
+                if (entry?.IsValid == true
+                    && observed.Add(entry.MilestoneEvent))
+                {
+                    Observe(entry.MilestoneEvent);
+                }
+            }
         }
 
         public void Dispose()
@@ -68,16 +82,11 @@ namespace UPlayGround.Manager
 
         public void OnEvent(GameMilestoneEvent eventType)
         {
-            GuideType? guideType = eventType switch
+            if (_config != null
+                && _config.TryGet(eventType, out FirstTimeGuideEntry entry))
             {
-                GameMilestoneEvent.CombatStarted => GuideType.Combat,
-                GameMilestoneEvent.CharacterUnlocked => GuideType.Companion,
-                GameMilestoneEvent.EquipmentAcquired => GuideType.Equipment,
-                _ => null,
-            };
-
-            if (guideType.HasValue)
-                EnqueueOnce(guideType.Value);
+                EnqueueOnce(entry);
+            }
         }
 
         public void OnUpdate()
@@ -85,8 +94,8 @@ namespace UPlayGround.Manager
             if (_pendingGuides.Count == 0 || GuidePopupRuntime.IsOpen())
                 return;
 
-            GuideType type = _pendingGuides.Peek();
-            GuidePopupDataSO data = GetGuideData(type);
+            FirstTimeGuideEntry entry = _pendingGuides.Peek();
+            GuidePopupDataSO data = entry?.Popup;
             if (data == null)
             {
                 _pendingGuides.Dequeue();
@@ -97,70 +106,80 @@ namespace UPlayGround.Manager
                 return;
 
             _pendingGuides.Dequeue();
-            MarkShown(type);
+            _shownGuideIds.Add(entry.GuideId);
         }
 
         public void OnFixedUpdate() { }
         public void OnLateUpdate() { }
-        public void OnSceneChanged(string sceneType) { }
-
-        private void EnqueueOnce(GuideType type)
+        public void OnSceneChanged(string sceneType)
         {
-            if (IsShown(type) || _pendingGuides.Contains(type))
-                return;
-
-            _pendingGuides.Enqueue(type);
+            SubscribeConfiguredMilestones();
         }
 
-        private GuidePopupDataSO GetGuideData(GuideType type) => type switch
+        private void EnqueueOnce(FirstTimeGuideEntry entry)
         {
-            GuideType.Combat => _config?.CombatGuide,
-            GuideType.Companion => _config?.CompanionGuide,
-            GuideType.Equipment => _config?.EquipmentGuide,
-            _ => null,
-        };
-
-        private bool IsShown(GuideType type) => type switch
-        {
-            GuideType.Combat => _combatGuideShown,
-            GuideType.Companion => _companionGuideShown,
-            GuideType.Equipment => _equipmentGuideShown,
-            _ => true,
-        };
-
-        private void MarkShown(GuideType type)
-        {
-            switch (type)
+            if (entry?.IsValid != true
+                || _shownGuideIds.Contains(entry.GuideId)
+                || ContainsPending(entry.GuideId))
             {
-                case GuideType.Combat: _combatGuideShown = true; break;
-                case GuideType.Companion: _companionGuideShown = true; break;
-                case GuideType.Equipment: _equipmentGuideShown = true; break;
+                return;
             }
+
+            _pendingGuides.Enqueue(entry);
+        }
+
+        private bool ContainsPending(string guideId)
+        {
+            foreach (FirstTimeGuideEntry pending in _pendingGuides)
+            {
+                if (string.Equals(
+                        pending?.GuideId,
+                        guideId,
+                        StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void ExportSaveData(GameSaveData saveData)
         {
             saveData.firstTimeGuide ??= new FirstTimeGuideSaveData();
-            saveData.firstTimeGuide.combatGuideShown = _combatGuideShown;
-            saveData.firstTimeGuide.companionGuideShown = _companionGuideShown;
-            saveData.firstTimeGuide.equipmentGuideShown = _equipmentGuideShown;
+            saveData.firstTimeGuide.shownGuideIds =
+                new List<string>(_shownGuideIds);
         }
 
         public void ImportSaveData(GameSaveData saveData)
         {
             _pendingGuides.Clear();
+            _shownGuideIds.Clear();
             FirstTimeGuideSaveData data = saveData?.firstTimeGuide;
-            _combatGuideShown = data?.combatGuideShown ?? false;
-            _companionGuideShown = data?.companionGuideShown ?? false;
-            _equipmentGuideShown = data?.equipmentGuideShown ?? false;
+            if (data?.shownGuideIds is { Count: > 0 })
+            {
+                for (int i = 0; i < data.shownGuideIds.Count; i++)
+                {
+                    string guideId = data.shownGuideIds[i]?.Trim();
+                    if (!string.IsNullOrEmpty(guideId))
+                        _shownGuideIds.Add(guideId);
+                }
+                return;
+            }
+
+            // 구 세이브의 개별 bool을 안정 ID 목록으로 1회 호환한다.
+            if (data?.combatGuideShown == true)
+                _shownGuideIds.Add(LegacyCombatGuideId);
+            if (data?.companionGuideShown == true)
+                _shownGuideIds.Add(LegacyCompanionGuideId);
+            if (data?.equipmentGuideShown == true)
+                _shownGuideIds.Add(LegacyEquipmentGuideId);
         }
 
         public void ResetForNewGame()
         {
             _pendingGuides.Clear();
-            _combatGuideShown = false;
-            _companionGuideShown = false;
-            _equipmentGuideShown = false;
+            _shownGuideIds.Clear();
         }
     }
 }

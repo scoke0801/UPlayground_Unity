@@ -20,8 +20,7 @@ MonoBehaviour:
   useAutomaticLevelGrowth: 0
   growthPointsPerLevel: 1
   investmentRules:
-  - attributeType: 0
-    attributeId: Vital.MaxHealth
+  - attributeId: Vital.MaxHealth
     maxRank: 20
     flatPerRank: 20
     milestones:
@@ -30,8 +29,7 @@ MonoBehaviour:
       unlockId: Skill.Ultimate
       displayName: "\uAD81\uADF9 \uC2A4\uD0AC"
       description: "7\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
-  - attributeType: 1
-    attributeId: Combat.Defense
+  - attributeId: Combat.Defense
     maxRank: 20
     flatPerRank: 0.02
     milestones:
@@ -40,8 +38,7 @@ MonoBehaviour:
       unlockId: Combo.Heavy.3
       displayName: "\uAC15\uACF5\uACA9 3\uC5F0\uACC4"
       description: "5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
-  - attributeType: 2
-    attributeId: Combat.CritRate
+  - attributeId: Combat.CritRate
     maxRank: 20
     flatPerRank: 0.01
     milestones:
@@ -50,8 +47,7 @@ MonoBehaviour:
       unlockId: Skill.Ability
       displayName: "\uC5B4\uBE4C\uB9AC\uD2F0 \uC2A4\uD0AC"
       description: "5\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
-  - attributeType: 3
-    attributeId: Combat.AttackSpeed
+  - attributeId: Combat.AttackSpeed
     maxRank: 20
     flatPerRank: 0.03
     milestones:
@@ -60,8 +56,7 @@ MonoBehaviour:
       unlockId: Combo.Heavy.2
       displayName: "\uAC15\uACF5\uACA9 2\uC5F0\uACC4"
       description: "3\uB7AD\uD06C \uB2EC\uC131 \uBCF4\uC0C1"
-  - attributeType: 4
-    attributeId: Combat.AttackPower
+  - attributeId: Combat.AttackPower
     maxRank: 20
     flatPerRank: 0.05
     milestones:

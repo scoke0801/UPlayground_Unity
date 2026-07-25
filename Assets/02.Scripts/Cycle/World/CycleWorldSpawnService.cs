@@ -166,7 +166,9 @@ namespace UPlayGround.Cycle
                     global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
                     currentAttack * attackDifficulty / hpDifficulty);
             }
-            float rewardMultiplier = difficulty?.rewardGrade switch { CycleRewardGrade.Rare => 1.35f, CycleRewardGrade.Heroic => 1.75f, _ => 1f };
+            float rewardMultiplier = difficulty != null
+                ? Mathf.Max(0f, difficulty.rewardMultiplier)
+                : 1f;
             monster.SetRuntimeRewards((long)Math.Round(monster.BaseExpReward * rewardMultiplier), Mathf.RoundToInt(monster.BaseGoldReward * rewardMultiplier));
             CycleBossRuntimeHandle handle = monster.gameObject.AddComponent<CycleBossRuntimeHandle>();
             handle.Initialize(monster, placement);

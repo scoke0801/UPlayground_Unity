@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Party
@@ -35,16 +37,6 @@ namespace UPlayGround.Data.Party
         public const int EasyRequiredRank = 3;
         public const int MediumRequiredRank = 6;
         public const int HardRequiredRank = 12;
-
-        // 속성 후보(순서 고정 — 해시 인덱스 안정성). GrowthAttributeType 전체.
-        private static readonly GrowthAttributeType[] Attributes =
-        {
-            GrowthAttributeType.Health,
-            GrowthAttributeType.Defense,
-            GrowthAttributeType.Critical,
-            GrowthAttributeType.AttackSpeed,
-            GrowthAttributeType.AttackPower,
-        };
 
         /// <summary>해당 콤보 스텝이 투자 없이 기본 해금인지.</summary>
         public static bool IsComboStepFree(GrowthComboType comboType, int step)
@@ -94,20 +86,80 @@ namespace UPlayGround.Data.Party
         /// (seed, characterType, unlockId) → 해금에 필요한 (속성, 요구 랭크).
         /// 속성은 시드 해시로 셔플되고, 요구 랭크는 티어로 고정된다.
         /// </summary>
-        public static (GrowthAttributeType attribute, int requiredRank) Resolve(
+        public static (AttributeId attribute, int requiredRank) Resolve(
             int seed,
             CharacterActorType type,
             GrowthUnlockType unlockType,
-            string unlockId)
+            string unlockId,
+            IReadOnlyList<GrowthInvestmentRule> investmentRules)
         {
             GrowthUnlockTier tier = TierFor(unlockType, unlockId);
             int requiredRank = TierRequiredRank(tier);
             if (tier == GrowthUnlockTier.Free)
-                return (GrowthAttributeType.AttackPower, 0);
+                return (GrowthAttributeCatalog.AttackPower, 0);
 
+            List<AttributeId> candidates = BuildCandidates(investmentRules);
             uint hash = Fnv1a(seed, (int)type, unlockId);
-            GrowthAttributeType attribute = Attributes[hash % (uint)Attributes.Length];
+            AttributeId attribute =
+                candidates[(int)(hash % (uint)candidates.Count)];
             return (attribute, requiredRank);
+        }
+
+        private static List<AttributeId> BuildCandidates(
+            IReadOnlyList<GrowthInvestmentRule> investmentRules)
+        {
+            var candidates = new List<AttributeId>();
+            if (investmentRules != null)
+            {
+                for (int i = 0; i < investmentRules.Count; i++)
+                {
+                    AttributeId attributeId = investmentRules[i].AttributeId;
+                    if (attributeId.IsValid && !candidates.Contains(attributeId))
+                        candidates.Add(attributeId);
+                }
+            }
+
+            if (candidates.Count == 0)
+                candidates.Add(GrowthAttributeCatalog.AttackPower);
+
+            // ScriptableObject의 리스트 순서는 Inspector 정리만으로도 바뀔 수 있다.
+            // 저장 데이터에는 해석 결과가 아니라 시드만 남으므로 후보 순서가 흔들리면
+            // 같은 세이브에서도 콤보·스킬의 요구 속성이 달라진다.
+            // 기존 5종은 종전 enum 순서를 유지하고, 확장 속성은 안정 ID로 정렬한다.
+            candidates.Sort(CompareCandidateOrder);
+            return candidates;
+        }
+
+        private static int CompareCandidateOrder(
+            AttributeId left,
+            AttributeId right)
+        {
+            int leftLegacyIndex = FindLegacyIndex(left);
+            int rightLegacyIndex = FindLegacyIndex(right);
+            bool leftIsLegacy = leftLegacyIndex >= 0;
+            bool rightIsLegacy = rightLegacyIndex >= 0;
+
+            if (leftIsLegacy && rightIsLegacy)
+                return leftLegacyIndex.CompareTo(rightLegacyIndex);
+            if (leftIsLegacy)
+                return -1;
+            if (rightIsLegacy)
+                return 1;
+
+            return StringComparer.Ordinal.Compare(left.Value, right.Value);
+        }
+
+        private static int FindLegacyIndex(AttributeId attributeId)
+        {
+            for (int i = 0;
+                 i < GrowthAttributeCatalog.LegacyOrderedIds.Length;
+                 i++)
+            {
+                if (GrowthAttributeCatalog.LegacyOrderedIds[i] == attributeId)
+                    return i;
+            }
+
+            return -1;
         }
 
         /// <summary>"Combo.Light.3" 형태의 unlockId를 (comboType, step)으로 파싱.</summary>

@@ -276,6 +276,9 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class FirstTimeGuideSaveData
     {
+        public List<string> shownGuideIds = new List<string>();
+
+        // 3.0 이하 세이브 호환용. 신규 저장에서는 사용하지 않는다.
         public bool combatGuideShown;
         public bool companionGuideShown;
         public bool equipmentGuideShown;

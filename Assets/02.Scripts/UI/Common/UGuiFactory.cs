@@ -196,7 +196,7 @@ namespace UPlayGround.UI
             RectTransform rect = NewRect("Separator", parent);
             Image image = AddImage(rect.gameObject, color);
             image.raycastTarget = false;
-            SetSize(rect.gameObject, minH: thickness, prefH: thickness);
+            SetSize(rect.gameObject, minH: thickness, prefH: thickness, flexH: 0f);
             return image;
         }
     }

@@ -93,6 +93,7 @@ namespace UPlayGround.UI
 
             _snapshot = SettingsSnapshot.From(_settingsData);
             _inputBindingSnapshot = Svc.Input?.CaptureBindingProfileSnapshot();
+            _panelKeys?.BeginEditSession();
 
             // 게임플레이 탭(인덱스 0)을 선택 상태로 시작 → SelectionChanged → ShowTab/SyncUIFromData
             if (_tabGroup != null)
@@ -165,6 +166,9 @@ namespace UPlayGround.UI
 
         private void OnApply()
         {
+            if (_panelKeys != null && !_panelKeys.ApplyPendingChanges())
+                return;
+
             // 적용은 SettingsManager에 위임한다. 믹서 미연결 시에도 ResolveMixer() 폴백으로
             // 오디오가 즉시 반영되며, 그래픽도 이 시점에 적용된다.
             UISvc.Settings.ApplyCurrentSettings(_audioMixer);
@@ -175,6 +179,7 @@ namespace UPlayGround.UI
 
         private void OnCancel()
         {
+            _panelKeys?.DiscardPendingChanges();
             _snapshot.ApplyTo(_settingsData);
             if (!string.IsNullOrWhiteSpace(_inputBindingSnapshot))
                 Svc.Input?.RestoreBindingProfileSnapshot(_inputBindingSnapshot);
@@ -184,7 +189,7 @@ namespace UPlayGround.UI
         private void OnReset()
         {
             _settingsData.ResetToDefault();
-            Svc.Input?.ResetBindings();
+            _panelKeys?.StageResetAll();
             SyncUIFromData();
         }
 

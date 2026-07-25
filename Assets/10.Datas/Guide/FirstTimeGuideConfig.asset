@@ -12,6 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a11fce24d8214f67b48f8d0067a11001, type: 3}
   m_Name: FirstTimeGuideConfig
   m_EditorClassIdentifier: 
-  _combatGuide: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33001, type: 2}
-  _companionGuide: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33002, type: 2}
-  _equipmentGuide: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33003, type: 2}
+  _entries:
+  - _guideId: Guide.Combat
+    _milestoneEvent: 0
+    _popup: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33001, type: 2}
+  - _guideId: Guide.Companion
+    _milestoneEvent: 1
+    _popup: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33002, type: 2}
+  - _guideId: Guide.Equipment
+    _milestoneEvent: 2
+    _popup: {fileID: 11400000, guid: c33fce24d8214f67b48f8d0067a33003, type: 2}

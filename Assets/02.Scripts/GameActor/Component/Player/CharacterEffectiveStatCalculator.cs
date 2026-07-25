@@ -15,7 +15,7 @@ namespace UPlayGround.Data.Party
             CharacterActorType type,
             PartyMemberGrowthSO growthData,
             int level,
-            IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
+            IReadOnlyDictionary<AttributeId, int> investments = null)
         {
             Dictionary<AttributeId, float> stats =
                 PartyPowerCalculator.CalculateGrowthStats(
@@ -77,12 +77,14 @@ namespace UPlayGround.Data.Party
             for (int i = 0; i < instance.growthAttributeRolls.Count; i++)
             {
                 EquipmentGrowthAttributeRoll roll = instance.growthAttributeRolls[i];
-                growthData.TryGetInvestmentRule(roll.attributeType, out GrowthInvestmentRule rule);
-                if (!rule.AttributeId.IsValid)
+                if (!roll.AttributeId.IsValid
+                    || !growthData.TryGetInvestmentRule(
+                        roll.AttributeId,
+                        out GrowthInvestmentRule rule))
                 {
                     Debug.LogError(
                         $"[CharacterEffectiveStatCalculator] {growthData.name}의 " +
-                        $"{roll.attributeType} 성장 규칙에 Attribute ID가 없습니다.",
+                        $"{roll.attributeId} 성장 규칙이 없습니다.",
                         growthData);
                     continue;
                 }

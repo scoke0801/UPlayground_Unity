@@ -4,6 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
+using UPlayGround.Ability.Core;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
@@ -1259,17 +1260,37 @@ namespace UPlayGround.Manager
             if (equipment == null || !equipment.grantRandomGrowthAttributes)
                 return result;
 
-            var pool = new List<GrowthAttributeType>();
+            var pool = new List<AttributeId>();
             if (equipment.randomAttributePool != null && equipment.randomAttributePool.Count > 0)
             {
                 for (int i = 0; i < equipment.randomAttributePool.Count; i++)
-                    if (!pool.Contains(equipment.randomAttributePool[i]))
-                        pool.Add(equipment.randomAttributePool[i]);
+                {
+                    AttributeId attributeId =
+                        equipment.randomAttributePool[i].ToCoreId();
+                    if (attributeId.IsValid && !pool.Contains(attributeId))
+                        pool.Add(attributeId);
+                }
             }
             else
             {
-                foreach (GrowthAttributeType type in Enum.GetValues(typeof(GrowthAttributeType)))
-                    pool.Add(type);
+                IPartyService party = Svc.Party;
+                PartyMemberGrowthSO growth = party?.GetGrowthData(
+                    party.ActiveCharacterType);
+                if (growth?.investmentRules != null)
+                {
+                    for (int i = 0; i < growth.investmentRules.Count; i++)
+                    {
+                        AttributeId attributeId =
+                            growth.investmentRules[i].AttributeId;
+                        if (attributeId.IsValid && !pool.Contains(attributeId))
+                            pool.Add(attributeId);
+                    }
+                }
+            }
+
+            if (pool.Count == 0)
+            {
+                pool.AddRange(GrowthAttributeCatalog.LegacyOrderedIds);
             }
 
             int minCount = Mathf.Clamp(equipment.randomAttributeCountMin, 1, pool.Count);
@@ -1289,7 +1310,7 @@ namespace UPlayGround.Manager
                     rank++;
                 result.Add(new EquipmentGrowthAttributeRoll
                 {
-                    attributeType = pool[index],
+                    attributeId = pool[index].Value,
                     rank = rank
                 });
                 pool.RemoveAt(index);

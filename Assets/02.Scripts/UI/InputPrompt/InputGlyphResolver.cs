@@ -76,6 +76,39 @@ namespace UPlayGround.UI.InputPrompt
             => Resolve(mapName, actionName, device, GamepadBrand.Generic, glyphData);
 
         /// <summary>
+        /// 아직 InputAction에 적용하지 않은 캡처 경로를 글리프로 변환한다.
+        /// 키 설정 화면의 적용 전 미리보기처럼 raw control path만 있는 경우에 사용한다.
+        /// </summary>
+        public static InputGlyphResult ResolvePaths(
+            string modifierPath,
+            string controlPath,
+            string displayString,
+            ActiveInputDevice device,
+            GamepadBrand brand,
+            InputGlyphDataSO glyphData)
+        {
+            if (string.IsNullOrWhiteSpace(controlPath))
+                return InputGlyphResult.Missing("-");
+
+            string[] displays = string.IsNullOrWhiteSpace(displayString)
+                ? Array.Empty<string>()
+                : displayString.Split('+');
+            var parts = new List<GlyphPart>(string.IsNullOrWhiteSpace(modifierPath) ? 1 : 2);
+
+            if (!string.IsNullOrWhiteSpace(modifierPath))
+                parts.Add(MakePathPart(modifierPath, DisplayAt(displays, 0), device, brand, glyphData));
+
+            int controlDisplayIndex = string.IsNullOrWhiteSpace(modifierPath) ? 0 : 1;
+            parts.Add(MakePathPart(
+                controlPath,
+                DisplayAt(displays, controlDisplayIndex),
+                device,
+                brand,
+                glyphData));
+            return InputGlyphResult.Of(parts);
+        }
+
+        /// <summary>
         /// IInputService(런타임 씬) 없이 <see cref="InputAction"/>을 직접 받아 해석한다.
         /// 에디터 미리보기 등 액션을 외부에서 확보한 경우에 쓴다. 바인딩 메타데이터만 읽으므로
         /// 액션이 Enable 상태가 아니어도 동작한다.
@@ -133,6 +166,26 @@ namespace UPlayGround.UI.InputPrompt
             // 매핑되지 않은 키는 회색 박스가 아니라 원문 텍스트로 노출해 누락을 가시화.
             return GlyphPart.TextOnly(display);
         }
+
+        private static GlyphPart MakePathPart(
+            string path,
+            string display,
+            ActiveInputDevice device,
+            GamepadBrand brand,
+            InputGlyphDataSO glyphData)
+        {
+            string lookupKey = ToControlPathSegment(path);
+            string fallback = string.IsNullOrWhiteSpace(display) ? lookupKey : display.Trim();
+            return glyphData != null
+                   && glyphData.TryResolve(device, brand, lookupKey, out Sprite sprite)
+                ? GlyphPart.Of(sprite, fallback)
+                : GlyphPart.TextOnly(fallback);
+        }
+
+        private static string DisplayAt(IReadOnlyList<string> displays, int index) =>
+            displays != null && index >= 0 && index < displays.Count
+                ? displays[index]
+                : string.Empty;
 
         // "<Keyboard>/1" → "1", "<Gamepad>/dpad/up" → "dpad/up", "<Gamepad>/select" → "select"
         // InputGlyphDataGenerator.ToControlPathSegment와 동일 규칙(디바이스 prefix 제거). 키 일관성을 위해 한 규칙을 양쪽에서 쓴다.

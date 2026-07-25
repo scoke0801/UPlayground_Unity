@@ -36,7 +36,7 @@ namespace UPlayGround.Data.Party
         public static Dictionary<AttributeId, float> CalculateGrowthStats(
             PartyMemberGrowthSO growthData,
             int level,
-            IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
+            IReadOnlyDictionary<AttributeId, int> investments = null)
         {
             var attributes = new Dictionary<AttributeId, float>();
             int clampedLevel = growthData != null
@@ -60,11 +60,12 @@ namespace UPlayGround.Data.Party
 
             if (growthData != null && investments != null)
             {
-                foreach (KeyValuePair<GrowthAttributeType, int> investment in investments)
+                foreach (KeyValuePair<AttributeId, int> investment in investments)
                 {
-                    growthData.TryGetInvestmentRule(
-                        investment.Key, out GrowthInvestmentRule rule);
-                    if (!rule.AttributeId.IsValid)
+                    if (!growthData.TryGetInvestmentRule(
+                            investment.Key,
+                            out GrowthInvestmentRule rule)
+                        || !rule.AttributeId.IsValid)
                         continue;
                     int rank = Mathf.Clamp(
                         investment.Value, 0, Mathf.Max(1, rule.maxRank));
@@ -123,7 +124,7 @@ namespace UPlayGround.Data.Party
             CharacterActorType characterType,
             PartyMemberGrowthSO growthData,
             int level,
-            IReadOnlyDictionary<GrowthAttributeType, int> investments = null)
+            IReadOnlyDictionary<AttributeId, int> investments = null)
         {
             Dictionary<AttributeId, float> attributes =
                 CalculateGrowthStats(growthData, level, investments);

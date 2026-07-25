@@ -52,10 +52,38 @@
 - 검증 완료: Data/Contracts/UI/Assembly-CSharp/Input.Tests 보조 컴파일 오류 0,
   중재기·마이그레이션 로직 44개 단언 전부 통과(구현 소스 직접 실행).
 
+### 3차 (2026-07-25)
+
+- 완료: 전역 `UIFocusIndicator`를 레거시 fallback으로 축소하고
+  `IUIFocusPresentation` 계약을 추가했다. 인벤토리 슬롯, 키 바인딩 행,
+  일시정지 메뉴, 탭, 캐릭터 선택 카드처럼 자체 선택 연출이 있는 UI는
+  공통 파란 테두리를 억제한다.
+- 완료: `UIFocusNavigation` 공통 유틸리티로 유효한 Selectable만 연결하는
+  수직·수평·그리드 explicit navigation을 제공한다.
+- 완료: CharacterSelect는 게임패드 포커스 이동 즉시 캐릭터 프리뷰와 기존 카드
+  선택 연출을 갱신하고, 잠긴 카드를 제외한 카드↔시작/취소 경계를 명시한다.
+- 완료: Title, MenuPanel, Pause, SaveSlot, CommonPopup, Respawn, Setting,
+  Inventory, Map, Party, Craft, Quest, MonsterCodex, RestGrowth의 초기 포커스와
+  주요 영역 간 explicit navigation을 연결했다.
+- 완료: Craft/Quest/Codex 동적 슬롯은 `OnSelect`만으로 상세가 갱신된다.
+  Party는 포커스의 상세 선택과 Submit의 편성 변경을 분리했다.
+- 완료: 지도 내부 확인/지역 상세 패널은 열기 전 포커스를 보존하고 닫을 때 복원한다.
+- 완료: 빈 배경 클릭으로 포커스를 지우지 않으며 UI 이동 반복을
+  0.35초 지연/0.09초 간격으로 조정했다.
+- 완료: 설정의 적용 버튼은 변경을 저장한 뒤 화면을 유지하고, 적용 시점을 새 취소
+  기준점으로 갱신한다. 이후 추가 편집을 취소해도 이미 적용한 키는 보존된다.
+- 추가: `UIFocusNavigationTests` 3개(비활성 항목 건너뛰기, 수평 순환,
+  그리드 이웃)를 EditMode 테스트 어셈블리에 등록했다.
+- 검증 완료: `UPlayGround.UI.csproj --no-restore` 오류 0,
+  Unity Editor 스크립트 리로드 오류 0.
+
 ### 남은 작업
 
 - §19.2 PlayMode 수직 슬라이스 8종. 타이틀/일시정지/설정 씬과 프리팹 부트스트랩이 필요해
   Unity 에디터에서 씬 기준을 확정한 뒤 작성한다.
+- 새 `UPlayGround.UI.Tests` EditMode 3개는 Unity Test Runner에서 실행해 결과를 확정한다.
+- 지도 패닝/줌의 전용 스틱 정책과 탭 LB/RB 단축키는 UI Navigate와의 충돌 정책을
+  정한 뒤 별도 입력 액션으로 추가한다.
 - §20 실제 패드 3종(Xbox / DualSense / Switch Pro) 수동 스모크와 Player Build 검증.
 - §20에 걸린 미결정 사항: Switch의 Submit/Cancel 물리 위치 정책을 옵션화할지
   출시 플랫폼 정책으로 고정할지.
@@ -1007,7 +1035,7 @@ P1:
 - [x] UI Cancel → 전역 Back 경로 일원화
 - [x] 팝업 중첩 포커스 push/pop/restore
 - [x] 장치 전환 시 null 포커스 자동 복구
-- [ ] 주요 복잡 화면 explicit navigation 구축
+- [x] 주요 복잡 화면 explicit navigation 구축
 
 ### Phase 2 — 입력 컨텍스트와 조합 중재
 
@@ -1033,7 +1061,7 @@ P1:
 - [x] `UIKeyBindingRow` 풀링
 - [x] 캡처 오버레이
 - [x] 충돌 오버레이
-- [ ] ScrollRect 자동 추적과 explicit navigation
+- [x] ScrollRect 자동 추적과 explicit navigation
 - [x] Apply / Cancel / Reset Action / Reset Device / Reset All
 
 ### Phase 5 — 저장·글리프·장치 복구

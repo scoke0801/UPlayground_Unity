@@ -23,6 +23,51 @@
 > - `Assets/Tests/EditMode/Ability/`
 > - `Assets/Tests/PlayMode/Ability/`
 
+## 구현 진행 상태 (2026-07-25)
+
+### Phase 1~5 구현
+
+다음 제작 파이프라인을 구현했다.
+
+- Phase 1: 결정적 Plan, 경로·ID 충돌 검사, Ability/Payload 생성, Undo/롤백
+- Phase 2: 초기 필수 레시피 6종, Player Slot/Combat Sequence/Additional 바인딩,
+  Effect 신규 생성 또는 기존 공유
+- Phase 3: 기본 Motion 분석, Collision HitPhase/Projectile/Telegraph 분류,
+  부족한 HitPhase만 선택 적용, Ability/Payload 안전 Fork, 공유 역참조 Preview
+- Phase 4: 안정 Issue 코드, TaskGraph Root/null/cycle/eventTag 검증,
+  Issue 에셋 이동, 실제 `ActorAbilitySystem` Prepare→Commit→End Play Mode 샌드박스
+- Phase 5: HitPhase 피해·Motion 길이·쿨다운 정적 요약, 수동 실측 비교,
+  Encounter Replay 비교와 CSV, 전체 Ability Balance Snapshot 전후 비교
+
+진입점:
+
+- `UPlayGround/게임플레이/Ability Production Wizard`
+- `UPlayGround/게임플레이/Ability Production Dashboard`
+- `UPlayGround/게임플레이/Ability Runtime Sandbox`
+
+자동 검증:
+
+- `UPlayGround.Data.Editor`, `UPlayGround.GameActor.Editor`,
+  `UPlayGround.Ability.Tests` 보조 컴파일 오류 0
+- `AbilityProductionPlannerTests` 13개가 Unity 테스트 어셈블리에 포함됨
+- 최초 실행에서 기존 7개와 신규 3개가 통과했고 신규 테스트 3개가
+  테스트 초기화/분석 경계 문제를 찾아 수정됨
+- 최종 소스는 보조 컴파일 오류 0이며 Unity Editor의 다음 Asset Refresh 후
+  13개 재실행 확인이 필요하다
+- 전체 회귀의 기존 데이터 실패는 계속 별도다.
+  - `AttributeProfile_100005.asset`: 필수 Attribute 누락
+  - Dryad 공격 3개와 Training Dummy 공격 1개: MotionReference 누락
+
+운영 한계:
+
+- 샌드박스는 실제 ASC 수명주기를 실행하지만 Motion 재생, 상태 머신, 실제 히트 판정은
+  선택 프리팹과 게임 부트스트랩에 의존하므로 전체 게임 Play Mode 스모크를 대체하지 않는다.
+- 근거가 없는 Dryad 3개와 Training Dummy 1개의 Motion은 자동 보정하지 않는다.
+- 레시피는 일반 구조를 생산한다. Projectile/AOE/Telegraph 이벤트 자체를 자동 삽입하지
+  않으며 Dashboard에서 선택 Motion의 근거를 검증한다.
+
+---
+
 ## 1. 목적
 
 현재 Ability 런타임은 Ability, Task, Effect, Tag, Attribute, Cooldown을
@@ -1065,4 +1110,3 @@ Validation:
 
 미결정 사항은 임의 기본값으로 숨기지 않는다. Phase별 구현 PR 또는 작업 기록에서 결정
 근거와 테스트 결과를 남긴다.
-

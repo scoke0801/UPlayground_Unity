@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Counter_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerBowAttackData.Combat.Counter.Default
-  motionRef: {fileID: 11400000, guid: 7f4a75ce1903c0248b89294bbd1db724, type: 2}
   attackInfo:
     baseInfo:
       motionRef: {fileID: 11400000, guid: 7f4a75ce1903c0248b89294bbd1db724, type: 2}
@@ -35,7 +34,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName:
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -129,7 +129,7 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: 00000000
   activation:
     requiredTagIds: 
     blockedTagIds: 

@@ -43,11 +43,10 @@ namespace UPlayGround.Ability.Tests
         {
             AttributeProfileSO profile = ScriptableObject.CreateInstance<AttributeProfileSO>();
             profile.EditorReplace(
-                "Test.Actor.Profile",
                 new[]
                 {
-                    new AttributeProfileEntry(AttributeIds.Vital.MaxHealth, 250f),
-                    new AttributeProfileEntry(AttributeIds.Combat.AttackPower, 17f),
+                    new AttributeProfileEntry(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, 250f),
+                    new AttributeProfileEntry(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 17f),
                 });
 
             try
@@ -57,10 +56,10 @@ namespace UPlayGround.Ability.Tests
                     Is.True,
                     error);
                 Assert.That(
-                    _actor.AbilitySystem.Attributes.GetBase(AttributeIds.Vital.MaxHealth),
+                    _actor.AbilitySystem.Attributes.GetBase(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth),
                     Is.EqualTo(250f));
                 Assert.That(
-                    _actor.AbilitySystem.Attributes.GetBase(AttributeIds.Combat.AttackPower),
+                    _actor.AbilitySystem.Attributes.GetBase(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower),
                     Is.EqualTo(17f));
             }
             finally
@@ -73,14 +72,13 @@ namespace UPlayGround.Ability.Tests
         public void AttributeProfile은_중복_ID를_적용하지_않는다()
         {
             float before = _actor.AbilitySystem.Attributes.GetBase(
-                AttributeIds.Combat.AttackPower);
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower);
             AttributeProfileSO profile = ScriptableObject.CreateInstance<AttributeProfileSO>();
             profile.EditorReplace(
-                "Test.Actor.InvalidProfile",
                 new[]
                 {
-                    new AttributeProfileEntry(AttributeIds.Combat.AttackPower, 10f),
-                    new AttributeProfileEntry(AttributeIds.Combat.AttackPower, 20f),
+                    new AttributeProfileEntry(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 10f),
+                    new AttributeProfileEntry(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 20f),
                 });
 
             try
@@ -91,7 +89,7 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(error, Does.Contain("중복"));
                 Assert.That(
                     _actor.AbilitySystem.Attributes.GetBase(
-                        AttributeIds.Combat.AttackPower),
+                        global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower),
                     Is.EqualTo(before));
             }
             finally
@@ -105,21 +103,21 @@ namespace UPlayGround.Ability.Tests
         {
             GameplayTagContainer tags = _actor.Tags;
             GameplayTagHandle first = tags.AddTag(
-                GameplayTagId.State_Combat_Attack,
+                GameplayTags.State_Combat_Attack,
                 new GameplayTagSource("Test", 1));
             GameplayTagHandle second = tags.AddTag(
-                GameplayTagId.State_Combat_Attack,
+                GameplayTags.State_Combat_Attack,
                 new GameplayTagSource("Test", 2));
 
-            Assert.That(tags.HasTag(GameplayTagId.State_Combat_Attack), Is.True);
+            Assert.That(tags.HasTag(GameplayTags.State_Combat_Attack), Is.True);
             Assert.That(_actor.AbilitySystem.Tags.Has(
-                new AbilityTagId(GameplayTagId.State_Combat_Attack.ToTag().TagName)), Is.True);
+                new AbilityTagId(GameplayTags.State_Combat_Attack.TagName)), Is.True);
             Assert.That(tags.RemoveTag(first), Is.True);
-            Assert.That(tags.HasTag(GameplayTagId.State_Combat_Attack), Is.True);
+            Assert.That(tags.HasTag(GameplayTags.State_Combat_Attack), Is.True);
             Assert.That(tags.RemoveTag(second), Is.True);
-            Assert.That(tags.HasTag(GameplayTagId.State_Combat_Attack), Is.False);
+            Assert.That(tags.HasTag(GameplayTags.State_Combat_Attack), Is.False);
             Assert.That(_actor.AbilitySystem.Tags.Has(
-                new AbilityTagId(GameplayTagId.State_Combat_Attack.ToTag().TagName)), Is.False);
+                new AbilityTagId(GameplayTags.State_Combat_Attack.TagName)), Is.False);
         }
 
         [Test]
@@ -166,38 +164,38 @@ namespace UPlayGround.Ability.Tests
             effect.effectId = "Effect.Test.AttackUp";
             effect.durationType = GameplayEffectDurationType.Duration;
             effect.durationSeconds = 10f;
-            effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
+            effect.grantedTagIds.Add(GameplayTags.State_Combat_Charge);
             effect.modifiers.Add(new GameplayEffectModifierDefinition
             {
-                attributeId = AttributeIds.Combat.AttackPower.Value,
+                attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value,
                 modifierType = ModifierType.Flat,
                 value = 2f,
             });
 
             float before = _actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower);
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower);
             var handle = _actor.Effects.ApplyEffect(effect, _actor);
             Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(1));
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.True);
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(before + 2f));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(before + 2f));
 
             Assert.That(_actor.Effects.RemoveEffect(handle), Is.True);
             Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(0));
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.False);
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(before));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(before));
             Object.DestroyImmediate(effect);
         }
 
         [Test]
         public void Instant_회복은_EffectSpec_Execution으로_적용된다()
         {
-            _actor.AbilitySystem.Attributes.SetBase(AttributeIds.Vital.Health, 50f);
+            _actor.AbilitySystem.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health, 50f);
             _actor.AbilitySystem.ApplyHealing(10f);
 
             Assert.That(
-                _actor.AbilitySystem.Attributes.GetCurrent(AttributeIds.Vital.Health),
+                _actor.AbilitySystem.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Health),
                 Is.EqualTo(60f));
             Assert.That(_actor.AbilitySystem.Effects.Count, Is.EqualTo(0));
         }
@@ -319,10 +317,10 @@ namespace UPlayGround.Ability.Tests
             effect.maxStackCount = 2;
             effect.removalPolicy = GameplayEffectRemovalPolicy.PersistPerCharacter;
             effect.savePolicy = GameplayEffectSavePolicy.SaveRemainingDuration;
-            effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
+            effect.grantedTagIds.Add(GameplayTags.State_Combat_Charge);
             effect.modifiers.Add(new GameplayEffectModifierDefinition
             {
-                attributeId = AttributeIds.Combat.AttackPower.Value,
+                attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value,
                 modifierType = ModifierType.Flat,
                 value = 3f,
             });
@@ -334,11 +332,11 @@ namespace UPlayGround.Ability.Tests
             _actor.Abilities.SetAbilitySet(set);
 
             float before = _actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower);
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower);
             _actor.Effects.ApplyEffect(effect, _actor);
             _actor.Effects.ApplyEffect(effect, _actor);
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(before + 6f));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(before + 6f));
 
             AbilitySystemSaveData snapshot =
                 _actor.Abilities.CaptureAbilitySystemStateForCharacter(
@@ -347,14 +345,14 @@ namespace UPlayGround.Ability.Tests
             Assert.That(snapshot.activeEffects[0].stackCount, Is.EqualTo(2));
 
             _actor.Abilities.HandleCharacterSwap();
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.False);
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(before));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(before));
 
             _actor.Abilities.RestoreAbilitySystemStateForCharacter(snapshot);
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.True);
             Assert.That(_actor.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(before + 6f));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(before + 6f));
 
             Object.DestroyImmediate(effect);
             Object.DestroyImmediate(ability);
@@ -367,14 +365,14 @@ namespace UPlayGround.Ability.Tests
             GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
             effect.effectId = "Effect.Test.DeathCleanup";
             effect.durationType = GameplayEffectDurationType.Infinite;
-            effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
+            effect.grantedTagIds.Add(GameplayTags.State_Combat_Charge);
 
             _actor.Effects.ApplyEffect(effect, _actor);
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.True);
 
             _actor.Abilities.HandleOwnerDeath();
 
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.False);
             Object.DestroyImmediate(effect);
         }
 
@@ -384,7 +382,7 @@ namespace UPlayGround.Ability.Tests
             GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
             effect.effectId = "Effect.Test.SelfTarget";
             effect.durationType = GameplayEffectDurationType.Infinite;
-            effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
+            effect.grantedTagIds.Add(GameplayTags.State_Combat_Charge);
 
             GameplayAbilitySO ability = MakeAbility();
             ability.activation.targetPolicy = AbilityTargetPolicy.Required;
@@ -402,7 +400,7 @@ namespace UPlayGround.Ability.Tests
 
             Assert.That(prepared, Is.EqualTo(AbilityActivationResult.Success));
             Assert.That(_actor.Abilities.Commit(handle), Is.EqualTo(AbilityActivationResult.Success));
-            Assert.That(_actor.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.True);
 
             Object.DestroyImmediate(effect);
             Object.DestroyImmediate(ability);
@@ -449,7 +447,7 @@ namespace UPlayGround.Ability.Tests
         public void Cue는_실패_시작_종료를_계산과_분리된_이벤트로_전달한다()
         {
             GameplayAbilitySO ability = MakeAbility();
-            ability.activation.requiredTagIds.Add(GameplayTagId.State_Combat_Charge);
+            ability.activation.requiredTagIds.Add(GameplayTags.State_Combat_Charge);
             ability.cues.failureCueId = "Cue.Test.Failed";
             ability.cues.startCueId = "Cue.Test.Started";
             ability.cues.endCueId = "Cue.Test.Ended";
@@ -467,7 +465,7 @@ namespace UPlayGround.Ability.Tests
                 Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
 
             _actor.Tags.AddTag(
-                GameplayTagId.State_Combat_Charge,
+                GameplayTags.State_Combat_Charge,
                 new GameplayTagSource("Test", 10));
             Assert.That(
                 _actor.Abilities.TryPreparePlayerSlot(
@@ -534,7 +532,7 @@ namespace UPlayGround.Ability.Tests
         {
             var data = new AbilitySystemSaveData();
             data.attributes.Add(new AttributeSaveEntry(
-                AttributeIds.Resource.UltimateEnergy.Value, 42f));
+                global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy.Value, 42f));
             data.cooldowns.Add(new GasCooldownSaveEntry
             {
                 groupId = "Cooldown.Test",

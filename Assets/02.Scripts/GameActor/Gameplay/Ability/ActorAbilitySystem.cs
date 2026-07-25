@@ -671,12 +671,15 @@ namespace UPlayGround.Gameplay.Ability
 
         private void AddExecutionTags(AbilityExecution execution)
         {
-            List<GameplayTagId> tags = execution.Definition.activation?.executionGrantedTagIds;
+            List<GameplayTag> tags =
+                execution.Definition.activation?.executionGrantedTagIds;
             if (tags == null) return;
             for (int i = 0; i < tags.Count; i++)
             {
+                EnsureRegisteredOrEmpty(tags[i], "executionGrantedTagIds", i);
+                if (string.IsNullOrEmpty(tags[i].TagName)) continue;
                 AbilityTagHandle handle = _tags.Add(
-                    tags[i].ToString(), "Ability", execution.Handle.Value);
+                    tags[i].TagName, "Ability", execution.Handle.Value);
                 if (handle.IsValid) execution.GrantedTagHandles.Add(handle);
             }
         }
@@ -696,22 +699,41 @@ namespace UPlayGround.Gameplay.Ability
                     target.Effects.ApplyEffect(effects[i], _owner);
         }
 
-        private bool HasAllTags(List<GameplayTagId> tags)
+        private bool HasAllTags(List<GameplayTag> tags)
         {
             if (tags == null) return true;
             for (int i = 0; i < tags.Count; i++)
-                if (tags[i] != GameplayTagId.None && !_tags.Has(tags[i].ToString()))
+            {
+                EnsureRegisteredOrEmpty(tags[i], "requiredTagIds", i);
+                if (!string.IsNullOrEmpty(tags[i].TagName)
+                    && !_tags.Has(tags[i].TagName))
                     return false;
+            }
             return true;
         }
 
-        private bool HasAnyTag(List<GameplayTagId> tags)
+        private bool HasAnyTag(List<GameplayTag> tags)
         {
             if (tags == null) return false;
             for (int i = 0; i < tags.Count; i++)
-                if (tags[i] != GameplayTagId.None && _tags.Has(tags[i].ToString()))
+            {
+                EnsureRegisteredOrEmpty(tags[i], "blockedTagIds", i);
+                if (!string.IsNullOrEmpty(tags[i].TagName)
+                    && _tags.Has(tags[i].TagName))
                     return true;
+            }
             return false;
+        }
+
+        private static void EnsureRegisteredOrEmpty(
+            GameplayTag tag,
+            string fieldName,
+            int index)
+        {
+            if (string.IsNullOrEmpty(tag.TagName) || tag.IsValid()) return;
+            throw new InvalidOperationException(
+                $"{fieldName}[{index}]에 Registry 미등록 GameplayTag가 있습니다: "
+                + $"'{tag.TagName}'");
         }
 
         private bool MatchesDistance(AbilityActivationRules activation, GameActor target)

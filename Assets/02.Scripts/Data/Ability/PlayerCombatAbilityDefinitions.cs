@@ -48,8 +48,8 @@ namespace UPlayGround.Data.Ability
         public string displayName;
         public List<ComboInputToken> inputPattern = new();
         public ComboMatchMode matchMode = ComboMatchMode.Suffix;
-        public List<GameplayTagId> requiredTagIds = new();
-        public List<GameplayTagId> blockedTagIds = new();
+        public List<GameplayTag> requiredTagIds = new();
+        public List<GameplayTag> blockedTagIds = new();
         public RouteGroundCondition groundCondition = RouteGroundCondition.Any;
         public int skillGaugeIndex = -1;
         public GameplayAbilitySO ability;
@@ -58,7 +58,7 @@ namespace UPlayGround.Data.Ability
         public GameplayAbilitySO enhancedAbility;
         [Min(0f)] public float enhancedDamageMultiplier = 1.15f;
         [Min(0f)] public float enhancedPoiseMultiplier = 1.15f;
-        public GameplayTagId enhancedGrantTagId = GameplayTagId.None;
+        public GameplayTag enhancedGrantTagId;
 
         public string DisplayLabel =>
             string.IsNullOrWhiteSpace(displayName) ? routeId : displayName;

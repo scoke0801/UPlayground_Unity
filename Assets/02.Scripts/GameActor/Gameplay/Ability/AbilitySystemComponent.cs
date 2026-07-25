@@ -20,13 +20,28 @@ namespace UPlayGround.Gameplay.Ability
     {
         private static readonly GameplayEffectDefinition DamageEffect =
             new("GE_Damage", GameplayEffectDurationPolicy.Instant,
-                executions: new IGameplayEffectExecution[] { new DamageExecution() });
+                executions: new IGameplayEffectExecution[]
+                {
+                    new DamageExecution(
+                        global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
+                        global::UPlayGround.Data.Stat.Attributes.Combat.Defense,
+                        global::UPlayGround.Data.Stat.Attributes.Vital.Health),
+                });
         private static readonly GameplayEffectDefinition HealingEffect =
             new("GE_Healing", GameplayEffectDurationPolicy.Instant,
-                executions: new IGameplayEffectExecution[] { new HealingExecution() });
+                executions: new IGameplayEffectExecution[]
+                {
+                    new HealingExecution(
+                        global::UPlayGround.Data.Stat.Attributes.Vital.Health,
+                        global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth),
+                });
         private static readonly GameplayEffectDefinition PoiseDamageEffect =
             new("GE_PoiseDamage", GameplayEffectDurationPolicy.Instant,
-                executions: new IGameplayEffectExecution[] { new PoiseDamageExecution() });
+                executions: new IGameplayEffectExecution[]
+                {
+                    new PoiseDamageExecution(
+                        global::UPlayGround.Data.Stat.Attributes.Vital.Poise),
+                });
         private sealed class UnityAbilityClock : IAbilityClock
         {
             public float Time => UnityEngine.Time.time;
@@ -82,7 +97,8 @@ namespace UPlayGround.Gameplay.Ability
                     ? owner.ActorId
                     : gameObject.name,
                 new UnityAbilityClock(),
-                enableDebug);
+                enableDebug,
+                attributeResolver: AttributeRegistry.Resolver);
             RegisterStandardAttributes();
             InitializeProjectRuntime(owner);
             Instances[handle.Value] = new WeakReference<AbilitySystemComponent>(this);
@@ -118,51 +134,10 @@ namespace UPlayGround.Gameplay.Ability
 
         private void RegisterStandardAttributes()
         {
-            Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.MaxHealth,
-                100f,
-                dependentResourceId: AttributeIds.Vital.Health,
-                maxChangePolicy: AttributeMaxChangePolicy.PreserveRatio));
-            Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.Health,
-                100f,
-                AttributeClampPolicy.AttributeRange,
-                fixedMinimum: 0f,
-                maximumAttributeId: AttributeIds.Vital.MaxHealth,
-                saveBaseValue: true));
-            Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.MaxPoise,
-                100f,
-                dependentResourceId: AttributeIds.Vital.Poise,
-                maxChangePolicy: AttributeMaxChangePolicy.PreserveRatio));
-            Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.Poise,
-                100f,
-                AttributeClampPolicy.AttributeRange,
-                fixedMinimum: 0f,
-                maximumAttributeId: AttributeIds.Vital.MaxPoise,
-                saveBaseValue: true));
-            Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Resource.MaxUltimateEnergy,
-                100f,
-                dependentResourceId: AttributeIds.Resource.UltimateEnergy,
-                maxChangePolicy: AttributeMaxChangePolicy.Clamp));
-            Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Resource.UltimateEnergy,
-                0f,
-                AttributeClampPolicy.AttributeRange,
-                fixedMinimum: 0f,
-                maximumAttributeId: AttributeIds.Resource.MaxUltimateEnergy,
-                saveBaseValue: true));
-
-            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
-            {
-                if (Attributes.Contains(attributeId))
-                    continue;
-                Attributes.Register(new GameplayAttributeDefinition(
-                    attributeId,
-                    UPlayGroundAttributeDefaults.Get(attributeId)));
-            }
+            IReadOnlyList<AttributeRegistryEntry> definitions =
+                AttributeRegistry.Definitions;
+            for (int i = 0; i < definitions.Count; i++)
+                Attributes.Register(definitions[i].ToRuntimeDefinition());
         }
 
         public bool TryGetAttribute(AttributeId attributeId, bool current, out float value)
@@ -180,9 +155,14 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (!attributeId.IsValid)
                 return;
+            if (!AttributeRegistry.IsRegistered(attributeId.Value))
+                throw new ArgumentException(
+                    $"미등록 Attribute ID입니다: {attributeId}",
+                    nameof(attributeId));
             if (!Attributes.Contains(attributeId))
                 Attributes.Register(
-                    new GameplayAttributeDefinition(attributeId, value), value);
+                    AttributeRegistry.CreateRuntimeDefinition(attributeId),
+                    value);
             else
                 Attributes.SetBase(attributeId, value);
         }
@@ -196,9 +176,11 @@ namespace UPlayGround.Gameplay.Ability
             {
                 if (!pair.Key.IsValid)
                     continue;
+                if (!AttributeRegistry.IsRegistered(pair.Key.Value))
+                    return false;
                 if (!Attributes.Contains(pair.Key))
                     Attributes.Register(
-                        new GameplayAttributeDefinition(pair.Key, pair.Value),
+                        AttributeRegistry.CreateRuntimeDefinition(pair.Key),
                         pair.Value);
             }
 
@@ -315,8 +297,8 @@ namespace UPlayGround.Gameplay.Ability
             if (amount <= 0f) return true;
             AttributeId attributeId = resourceType switch
             {
-                AbilityResourceType.Health => AttributeIds.Vital.Health,
-                AbilityResourceType.UltimateEnergy => AttributeIds.Resource.UltimateEnergy,
+                AbilityResourceType.Health => global::UPlayGround.Data.Stat.Attributes.Vital.Health,
+                AbilityResourceType.UltimateEnergy => global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy,
                 _ => default,
             };
             if (!attributeId.IsValid || !Attributes.Contains(attributeId)
@@ -352,8 +334,8 @@ namespace UPlayGround.Gameplay.Ability
             EnsureInitialized();
             AttributeId attributeId = resourceType switch
             {
-                AbilityResourceType.Health => AttributeIds.Vital.Health,
-                AbilityResourceType.UltimateEnergy => AttributeIds.Resource.UltimateEnergy,
+                AbilityResourceType.Health => global::UPlayGround.Data.Stat.Attributes.Vital.Health,
+                AbilityResourceType.UltimateEnergy => global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy,
                 _ => default,
             };
             if (!attributeId.IsValid || !Attributes.Contains(attributeId))

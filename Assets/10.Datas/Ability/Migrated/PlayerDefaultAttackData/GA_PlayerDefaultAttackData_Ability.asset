@@ -82,7 +82,6 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Ability.Default
-  motionRef: {fileID: 11400000, guid: a9aa3fb244f3a604ca411fe4db5db7f6, type: 2}
   attackInfo:
     baseInfo:
       motionRef: {fileID: 11400000, guid: a9aa3fb244f3a604ca411fe4db5db7f6, type: 2}

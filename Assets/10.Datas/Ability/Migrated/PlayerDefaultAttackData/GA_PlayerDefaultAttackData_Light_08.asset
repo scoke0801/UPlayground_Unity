@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Light_08_Default_Payload
   m_EditorClassIdentifier: 
   executionId: Ability.Player.PlayerDefaultAttackData.Combat.Light_08.Default
-  motionRef: {fileID: 11400000, guid: 7d44c3b4a14be90408c876bf181d4a84, type: 2}
   attackInfo:
     baseInfo:
       motionRef: {fileID: 11400000, guid: 7d44c3b4a14be90408c876bf181d4a84, type: 2}
@@ -35,7 +34,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 0
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName:
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

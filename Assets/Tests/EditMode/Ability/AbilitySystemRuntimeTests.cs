@@ -62,7 +62,7 @@ namespace UPlayGround.Ability.Tests
             using var source = new AbilitySystemRuntime(
                 new AbilitySystemHandle(1), "Source", sourceClock);
             source.Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Combat.AttackPower, 10f));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 10f));
             GameplayEffectDefinition definition = CreateSavedDurationEffect();
             GameplayEffectSpec sourceSpec = source.EffectSpecs.Create(
                 definition,
@@ -84,7 +84,7 @@ namespace UPlayGround.Ability.Tests
             using var target = new AbilitySystemRuntime(
                 new AbilitySystemHandle(2), "Target", targetClock);
             target.Attributes.Register(new GameplayAttributeDefinition(
-                AttributeIds.Combat.AttackPower, 10f));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 10f));
             GameplayEffectSpec staleSpec = target.EffectSpecs.Create(
                 definition,
                 1f,
@@ -100,7 +100,7 @@ namespace UPlayGround.Ability.Tests
             Assert.That(active, Has.Count.EqualTo(1));
             Assert.That(active[0].RemainingSeconds, Is.EqualTo(6f));
             Assert.That(active[0].StackCount, Is.EqualTo(2));
-            Assert.That(target.Attributes.GetCurrent(AttributeIds.Combat.AttackPower), Is.EqualTo(20f));
+            Assert.That(target.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(20f));
         }
 
         private static GameplayEffectDefinition CreateSavedDurationEffect() =>
@@ -110,7 +110,7 @@ namespace UPlayGround.Ability.Tests
                 modifiers: new[]
                 {
                     new GameplayEffectModifierSpecDefinition(
-                        AttributeIds.Combat.AttackPower,
+                        global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
                         AttributeModifierOperation.Add,
                         new FixedMagnitudeCalculation(5f)),
                 },

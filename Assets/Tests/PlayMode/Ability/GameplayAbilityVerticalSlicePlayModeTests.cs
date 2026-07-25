@@ -61,7 +61,7 @@ namespace UPlayGround.Ability.PlayModeTests
             task.duration = 999f;
             ability.taskGraph = AbilityTaskGraphSO.CreateTransient(task);
             ability.activation.targetRelation = AbilityTargetRelation.Self;
-            ability.activation.executionGrantedTagIds.Add(GameplayTagId.State_Combat_Attack);
+            ability.activation.executionGrantedTagIds.Add(GameplayTags.State_Combat_Attack);
             ability.cooldown.durationSeconds = 0.1f;
             ability.cues.startCueId = "Cue.Test.PlayMode.Start";
             ability.cues.endCueId = "Cue.Test.PlayMode.End";
@@ -107,14 +107,14 @@ namespace UPlayGround.Ability.PlayModeTests
                     owner.Abilities.Commit(handle),
                     Is.EqualTo(AbilityActivationResult.Success));
                 Assert.That(owner.Abilities.HasActivePlayerAbility, Is.True);
-                Assert.That(owner.Tags.HasTag(GameplayTagId.State_Combat_Attack), Is.True);
+                Assert.That(owner.Tags.HasTag(GameplayTags.State_Combat_Attack), Is.True);
                 Assert.That(cues, Has.Count.EqualTo(1));
                 Assert.That(cues[0].EventType, Is.EqualTo(AbilityCueEventType.Started));
 
                 owner.Abilities.EndActivePlayerAbility(completed: true);
 
                 Assert.That(owner.Abilities.HasActivePlayerAbility, Is.False);
-                Assert.That(owner.Tags.HasTag(GameplayTagId.State_Combat_Attack), Is.False);
+                Assert.That(owner.Tags.HasTag(GameplayTags.State_Combat_Attack), Is.False);
                 Assert.That(cues, Has.Count.EqualTo(2));
                 Assert.That(cues[1].EventType, Is.EqualTo(AbilityCueEventType.Ended));
             }
@@ -142,27 +142,27 @@ namespace UPlayGround.Ability.PlayModeTests
             effect.effectId = "Effect.Test.PlayMode.Duration";
             effect.durationType = GameplayEffectDurationType.Duration;
             effect.durationSeconds = 0.05f;
-            effect.grantedTagIds.Add(GameplayTagId.State_Combat_Charge);
+            effect.grantedTagIds.Add(GameplayTags.State_Combat_Charge);
             effect.modifiers.Add(new GameplayEffectModifierDefinition
             {
-                attributeId = AttributeIds.Combat.AttackPower.Value,
+                attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value,
                 modifierType = global::UPlayGround.Data.Stat.ModifierType.Flat,
                 value = 5f,
             });
 
             float attackBefore = owner.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower);
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower);
             owner.Effects.ApplyEffect(effect, owner);
 
-            Assert.That(owner.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.True);
+            Assert.That(owner.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.True);
             Assert.That(owner.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(attackBefore + 5f));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(attackBefore + 5f));
 
             yield return new WaitForSeconds(0.1f);
 
-            Assert.That(owner.Tags.HasTag(GameplayTagId.State_Combat_Charge), Is.False);
+            Assert.That(owner.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.False);
             Assert.That(owner.AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Combat.AttackPower), Is.EqualTo(attackBefore));
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(attackBefore));
 
             Object.Destroy(ownerObject);
             Object.Destroy(effect);

@@ -73,7 +73,7 @@ namespace UPlayGround.Data.Editor.Authoring
                                 id,
                                 UPlayGroundAttributeDefaults.Get(id)));
                         }
-                        profile.EditorReplace("profile.new", entries);
+                        profile.EditorReplace(entries);
                     },
                     "Attribute Profile 생성");
             EditorGUIUtility.PingObject(created);
@@ -108,14 +108,6 @@ namespace UPlayGround.Data.Editor.Authoring
             AttributeProfileSO asset)
         {
             var detail = new VisualElement();
-            detail.Add(new Label(asset.ProfileId)
-            {
-                style =
-                {
-                    unityFontStyleAndWeight = FontStyle.Bold,
-                    marginBottom = 8f,
-                },
-            });
 
             foreach (AttributeProfileEntry entry in asset.Entries)
             {

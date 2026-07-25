@@ -8,19 +8,22 @@ namespace UPlayGround.Ability.Core
     {
         private readonly IAbilityClock _clock;
         private readonly string _ownerId;
+        private readonly IAttributeResolver _attributeResolver;
 
         public AbilitySystemRuntime(
             AbilitySystemHandle handle,
             string ownerId,
             IAbilityClock clock,
             bool enableDebug = false,
-            int debugCapacity = 512)
+            int debugCapacity = 512,
+            IAttributeResolver attributeResolver = null)
         {
             if (!handle.IsValid) throw new ArgumentException("유효한 ASC Handle이 필요합니다.", nameof(handle));
             Handle = handle;
             _ownerId = ownerId ?? string.Empty;
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            Attributes = new AttributeSetRuntime();
+            _attributeResolver = attributeResolver;
+            Attributes = new AttributeSetRuntime(attributeResolver);
             Tags = new GameplayTagAggregator();
             Events = new GameplayEventRouter();
             Cooldowns = new AbilityCooldownRuntime(clock);
@@ -145,10 +148,32 @@ namespace UPlayGround.Ability.Core
                 for (int i = 0; i < data.attributes.Count; i++)
                 {
                     AttributeSaveEntry entry = data.attributes[i];
-                    if (entry != null) transaction.SetBase(new AttributeId(entry.attributeId), entry.baseValue);
+                    if (entry == null) continue;
+                    string attributeId = entry.attributeId;
+                    if (_attributeResolver != null)
+                    {
+                        if (!_attributeResolver.TryResolve(
+                                attributeId,
+                                out AttributeHandle handle)
+                            || !_attributeResolver.TryGetMetadata(
+                                handle,
+                                out AttributeMetadata metadata))
+                        {
+                            UnityEngine.Debug.LogWarning(
+                                $"[AbilitySystem] 세이브의 미등록 Attribute "
+                                + $"'{attributeId}'를 기본값으로 유지합니다.");
+                            continue;
+                        }
+                        attributeId = metadata.AttributeId;
+                        entry.attributeId = attributeId;
+                    }
+                    transaction.SetBase(
+                        new AttributeId(attributeId),
+                        entry.baseValue);
                 }
                 transaction.Commit();
             }
+            data.version = AbilitySystemSaveData.CurrentVersion;
             Cooldowns.Clear();
             for (int i = 0; i < data.cooldowns.Count; i++)
             {

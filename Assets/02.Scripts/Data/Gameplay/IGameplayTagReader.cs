@@ -6,6 +6,5 @@ namespace UPlayGround.Gameplay.Tag
     public interface IGameplayTagReader
     {
         bool HasTag(GameplayTag tag);
-        bool HasTag(GameplayTagId id);
     }
 }

@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace UPlayGround.Ability.Core
 {
+    /// <summary>
+    /// 프로젝트 어댑터가 직렬화 문자열에 Attribute 선택 UI를 제공할 수 있게 하는
+    /// Core 비의존 에디터 힌트.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Field)]
+    public sealed class AttributeIdSelectorAttribute : PropertyAttribute
+    {
+    }
+
     [Serializable]
     public readonly struct AttributeId : IEquatable<AttributeId>, IComparable<AttributeId>
     {
@@ -30,58 +39,32 @@ namespace UPlayGround.Ability.Core
         public static implicit operator AttributeId(string value) => new(value);
     }
 
-    public static class AttributeIds
+    /// <summary>
+    /// 런타임 세션 안에서만 유효한 Attribute 인터닝 핸들.
+    /// 직렬화나 세이브에는 저장하지 않는다.
+    /// </summary>
+    public readonly struct AttributeHandle : IEquatable<AttributeHandle>
     {
-        public static class Vital
-        {
-            public static readonly AttributeId Health = new("Vital.Health");
-            public static readonly AttributeId MaxHealth = new("Vital.MaxHealth");
-            public static readonly AttributeId HealthRegenRate = new("Vital.HealthRegenRate");
-            public static readonly AttributeId Poise = new("Vital.Poise");
-            public static readonly AttributeId MaxPoise = new("Vital.MaxPoise");
-            public static readonly AttributeId PoiseRecoveryRate = new("Vital.PoiseRecoveryRate");
-            public static readonly AttributeId PoiseRecoveryDelay = new("Vital.PoiseRecoveryDelay");
-        }
+        public int Index { get; }
+        public bool IsValid => Index > 0;
 
-        public static class Combat
-        {
-            public static readonly AttributeId AttackPower = new("Combat.AttackPower");
-            public static readonly AttributeId Defense = new("Combat.Defense");
-            public static readonly AttributeId CritRate = new("Combat.CritRate");
-            public static readonly AttributeId CritMultiplier = new("Combat.CritMultiplier");
-            public static readonly AttributeId AttackSpeed = new("Combat.AttackSpeed");
-            public static readonly AttributeId DamageTakenMultiplier = new("Combat.DamageTakenMultiplier");
-            public static readonly AttributeId InvincibleDurationMultiplier = new("Combat.InvincibleDurationMultiplier");
-        }
+        public AttributeHandle(int index) => Index = index;
+        public bool Equals(AttributeHandle other) => Index == other.Index;
+        public override bool Equals(object obj) =>
+            obj is AttributeHandle other && Equals(other);
+        public override int GetHashCode() => Index;
+        public static bool operator ==(
+            AttributeHandle left,
+            AttributeHandle right) => left.Equals(right);
+        public static bool operator !=(
+            AttributeHandle left,
+            AttributeHandle right) => !left.Equals(right);
+    }
 
-        public static class Movement
-        {
-            public static readonly AttributeId MoveSpeed = new("Movement.MoveSpeed");
-            public static readonly AttributeId DashDistance = new("Movement.DashDistance");
-        }
-
-        public static class Resource
-        {
-            public static readonly AttributeId UltimateEnergy = new("Resource.UltimateEnergy");
-            public static readonly AttributeId MaxUltimateEnergy = new("Resource.MaxUltimateEnergy");
-            public static readonly AttributeId GenerationMultiplier = new("Resource.GenerationMultiplier");
-            public static readonly AttributeId Forte = new("Resource.Forte");
-            public static readonly AttributeId Concerto = new("Resource.Concerto");
-            public static readonly AttributeId SkillCharge = new("Resource.SkillCharge");
-        }
-
-        public static class Life
-        {
-            public static readonly AttributeId GatheringPower = new("Life.GatheringPower");
-        }
-
-        public static class Meta
-        {
-            public static readonly AttributeId IncomingDamage = new("Meta.IncomingDamage");
-            public static readonly AttributeId IncomingHealing = new("Meta.IncomingHealing");
-            public static readonly AttributeId IncomingPoiseDamage = new("Meta.IncomingPoiseDamage");
-            public static readonly AttributeId IncomingBreakDamage = new("Meta.IncomingBreakDamage");
-        }
+    public enum AttributeValueFormat
+    {
+        Flat,
+        Percent01,
     }
 
     public enum AttributeClampPolicy
@@ -109,6 +92,71 @@ namespace UPlayGround.Ability.Core
     }
 
     /// <summary>
+    /// 프로젝트 레지스트리가 Core에 전달하는 불변 Attribute 메타데이터.
+    /// Core는 이 타입을 통해 Data/Resources 구현을 알지 않는다.
+    /// </summary>
+    public readonly struct AttributeMetadata
+    {
+        public string AttributeId { get; }
+        public string DisplayName { get; }
+        public AttributeValueFormat Format { get; }
+        public string Unit { get; }
+        public float DefaultBaseValue { get; }
+        public AttributeClampPolicy ClampPolicy { get; }
+        public float FixedMinimum { get; }
+        public float FixedMaximum { get; }
+        public string MinimumAttributeId { get; }
+        public string MaximumAttributeId { get; }
+        public string DependentResourceId { get; }
+        public AttributeMaxChangePolicy MaxChangePolicy { get; }
+        public bool SaveBaseValue { get; }
+        public bool IsMetaAttribute { get; }
+
+        public AttributeMetadata(
+            string attributeId,
+            string displayName,
+            AttributeValueFormat format,
+            string unit,
+            float defaultBaseValue,
+            AttributeClampPolicy clampPolicy,
+            float fixedMinimum,
+            float fixedMaximum,
+            string minimumAttributeId,
+            string maximumAttributeId,
+            string dependentResourceId,
+            AttributeMaxChangePolicy maxChangePolicy,
+            bool saveBaseValue,
+            bool isMetaAttribute)
+        {
+            AttributeId = attributeId ?? string.Empty;
+            DisplayName = displayName ?? string.Empty;
+            Format = format;
+            Unit = unit ?? string.Empty;
+            DefaultBaseValue = defaultBaseValue;
+            ClampPolicy = clampPolicy;
+            FixedMinimum = fixedMinimum;
+            FixedMaximum = fixedMaximum;
+            MinimumAttributeId = minimumAttributeId ?? string.Empty;
+            MaximumAttributeId = maximumAttributeId ?? string.Empty;
+            DependentResourceId = dependentResourceId ?? string.Empty;
+            MaxChangePolicy = maxChangePolicy;
+            SaveBaseValue = saveBaseValue;
+            IsMetaAttribute = isMetaAttribute;
+        }
+    }
+
+    /// <summary>
+    /// 프로젝트 비의존 Core와 프로젝트 Attribute 레지스트리 사이의 포트.
+    /// </summary>
+    public interface IAttributeResolver
+    {
+        bool TryResolve(string attributeIdOrAlias, out AttributeHandle handle);
+        bool TryGetMetadata(
+            AttributeHandle handle,
+            out AttributeMetadata metadata);
+    }
+
+    /// <summary>
     /// 데이터 소스와 런타임 Effect 생성 경계에서 사용하는 안정 Attribute 보정값.
     /// 프로젝트 전용 enum이나 Unity 오브젝트 수명에 의존하지 않는다.
     /// </summary>
@@ -132,14 +180,14 @@ namespace UPlayGround.Ability.Core
     [Serializable]
     public sealed class GameplayAttributeDefinition
     {
-        [SerializeField] private string _attributeId;
+        [SerializeField, AttributeIdSelector] private string _attributeId;
         [SerializeField] private float _defaultBaseValue;
         [SerializeField] private AttributeClampPolicy _clampPolicy;
         [SerializeField] private float _fixedMinimum;
         [SerializeField] private float _fixedMaximum;
-        [SerializeField] private string _minimumAttributeId;
-        [SerializeField] private string _maximumAttributeId;
-        [SerializeField] private string _dependentResourceId;
+        [SerializeField, AttributeIdSelector] private string _minimumAttributeId;
+        [SerializeField, AttributeIdSelector] private string _maximumAttributeId;
+        [SerializeField, AttributeIdSelector] private string _dependentResourceId;
         [SerializeField] private AttributeMaxChangePolicy _maxChangePolicy = AttributeMaxChangePolicy.Clamp;
         [SerializeField] private bool _saveBaseValue;
         [SerializeField] private bool _isMetaAttribute;

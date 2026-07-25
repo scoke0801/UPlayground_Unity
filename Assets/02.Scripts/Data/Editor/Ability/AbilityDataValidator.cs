@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -547,15 +547,18 @@ namespace UPlayGround.Data.Editor.Ability
         }
 
         private static void ValidateTagList(
-            List<GameplayTagId> tags,
+            List<GameplayTag> tags,
             UnityEngine.Object context,
             string label,
             List<AbilityValidationIssue> issues)
         {
             if (tags == null) return;
             for (int i = 0; i < tags.Count; i++)
-                if (tags[i] == GameplayTagId.None)
-                    Warning(context, $"{label} 태그 목록 {i}번이 None입니다.", issues);
+                if (!tags[i].IsValid())
+                    Warning(
+                        context,
+                        $"{label} 태그 목록 {i}번이 비어 있거나 Registry에 없습니다.",
+                        issues);
         }
 
         private static void ValidateUniqueId(

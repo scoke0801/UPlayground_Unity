@@ -10,7 +10,7 @@ namespace UPlayGround.Data.Ability
         public string abilityId;
         [Min(1)] public int schemaVersion = 1;
         public AbilityPresentationDefinition presentation = new();
-        public List<GameplayTagId> abilityTagIds = new();
+        public List<GameplayTag> abilityTagIds = new();
         public AbilityActivationRules activation = new();
         public AbilityCostDefinition cost = new();
         public AbilityCooldownDefinition cooldown = new();

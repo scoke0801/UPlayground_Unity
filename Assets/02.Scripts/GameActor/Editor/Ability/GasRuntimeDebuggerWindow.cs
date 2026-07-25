@@ -93,9 +93,9 @@ namespace UPlayGround.Gameplay.Ability.Editor
             EditorGUILayout.LabelField("Active Tasks", _snapshot.Tasks.Count.ToString());
             EditorGUILayout.LabelField("Owned Tags", _snapshot.Tags.Count.ToString());
             EditorGUILayout.LabelField("Recorded Events", _snapshot.Events.Count.ToString());
-            DrawVital(AttributeIds.Vital.Health, AttributeIds.Vital.MaxHealth);
-            DrawVital(AttributeIds.Vital.Poise, AttributeIds.Vital.MaxPoise);
-            DrawVital(AttributeIds.Resource.UltimateEnergy, AttributeIds.Resource.MaxUltimateEnergy);
+            DrawVital(global::UPlayGround.Data.Stat.Attributes.Vital.Health, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth);
+            DrawVital(global::UPlayGround.Data.Stat.Attributes.Vital.Poise, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise);
+            DrawVital(global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy, global::UPlayGround.Data.Stat.Attributes.Resource.MaxUltimateEnergy);
         }
 
         private void DrawTasks()

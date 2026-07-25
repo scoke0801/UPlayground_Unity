@@ -6,7 +6,7 @@ namespace UPlayGround.Ability.Core
     [Serializable]
     public sealed class AbilitySystemSaveData
     {
-        public const int CurrentVersion = 2;
+        public const int CurrentVersion = 3;
         public int version = CurrentVersion;
         public List<AttributeSaveEntry> attributes = new();
         public List<GasCooldownSaveEntry> cooldowns = new();

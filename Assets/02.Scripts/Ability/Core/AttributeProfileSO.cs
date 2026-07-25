@@ -7,7 +7,7 @@ namespace UPlayGround.Ability.Core
     [Serializable]
     public sealed class AttributeProfileEntry
     {
-        [SerializeField] private string _attributeId;
+        [SerializeField, AttributeIdSelector] private string _attributeId;
         [SerializeField] private float _baseValue;
 
         public AttributeId AttributeId => new(_attributeId);
@@ -29,10 +29,8 @@ namespace UPlayGround.Ability.Core
         menuName = "UPlayGround/Ability/Attribute Profile")]
     public sealed class AttributeProfileSO : ScriptableObject
     {
-        [SerializeField] private string _profileId;
         [SerializeField] private List<AttributeProfileEntry> _entries = new();
 
-        public string ProfileId => _profileId?.Trim() ?? string.Empty;
         public IReadOnlyList<AttributeProfileEntry> Entries => _entries;
 
         public bool TryGetBaseValue(AttributeId attributeId, out float value)
@@ -88,11 +86,8 @@ namespace UPlayGround.Ability.Core
         }
 
 #if UNITY_EDITOR
-        public void EditorReplace(
-            string profileId,
-            IEnumerable<AttributeProfileEntry> entries)
+        public void EditorReplace(IEnumerable<AttributeProfileEntry> entries)
         {
-            _profileId = profileId?.Trim() ?? string.Empty;
             _entries.Clear();
             if (entries != null)
                 _entries.AddRange(entries);

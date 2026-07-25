@@ -162,9 +162,9 @@ namespace UPlayGround.Data.Ability
     [Serializable]
     public sealed class AbilityActivationRules
     {
-        public List<GameplayTagId> requiredTagIds = new();
-        public List<GameplayTagId> blockedTagIds = new();
-        public List<GameplayTagId> executionGrantedTagIds = new();
+        public List<GameplayTag> requiredTagIds = new();
+        public List<GameplayTag> blockedTagIds = new();
+        public List<GameplayTag> executionGrantedTagIds = new();
         public AbilityGroundCondition groundCondition = AbilityGroundCondition.Any;
         public AbilityTargetPolicy targetPolicy = AbilityTargetPolicy.None;
         public AbilityTargetRelation targetRelation = AbilityTargetRelation.Enemy;
@@ -196,8 +196,8 @@ namespace UPlayGround.Data.Ability
         public AbilityGroundCondition groundCondition = AbilityGroundCondition.Any;
         [Min(0f)] public float minResource;
         public bool requiresFullResource;
-        public List<GameplayTagId> requiredTagIds = new();
-        public List<GameplayTagId> blockedTagIds = new();
+        public List<GameplayTag> requiredTagIds = new();
+        public List<GameplayTag> blockedTagIds = new();
     }
 
     [Serializable]
@@ -243,6 +243,7 @@ namespace UPlayGround.Data.Ability
     public sealed class GameplayEffectModifierDefinition
     {
         [Tooltip("런타임 권위 Attribute ID.")]
+        [AttributeIdSelector]
         public string attributeId;
         public ModifierType modifierType = ModifierType.Percent;
         public float value;

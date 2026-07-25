@@ -10,26 +10,26 @@ namespace UPlayGround.Ability.Tests
         public void ModifierOrder_AppliesInDefinedOrder_AndOverrideWins()
         {
             var runtime = new AttributeSetRuntime();
-            runtime.Register(new GameplayAttributeDefinition(AttributeIds.Combat.AttackPower, 100f));
+            runtime.Register(new GameplayAttributeDefinition(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 100f));
 
-            runtime.AddModifier(AttributeIds.Combat.AttackPower, AttributeModifierOperation.Add, 20f, "Test", 1);
-            runtime.AddModifier(AttributeIds.Combat.AttackPower, AttributeModifierOperation.Percent, 0.5f, "Test", 2);
-            runtime.AddModifier(AttributeIds.Combat.AttackPower, AttributeModifierOperation.Multiply, 2f, "Test", 3);
+            runtime.AddModifier(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, AttributeModifierOperation.Add, 20f, "Test", 1);
+            runtime.AddModifier(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, AttributeModifierOperation.Percent, 0.5f, "Test", 2);
+            runtime.AddModifier(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, AttributeModifierOperation.Multiply, 2f, "Test", 3);
 
-            Assert.That(runtime.GetCurrent(AttributeIds.Combat.AttackPower), Is.EqualTo(360f));
+            Assert.That(runtime.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(360f));
 
-            runtime.AddModifier(AttributeIds.Combat.AttackPower, AttributeModifierOperation.Override, 7f, "Test", 4);
+            runtime.AddModifier(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, AttributeModifierOperation.Override, 7f, "Test", 4);
             AttributeModifierHandle higher = runtime.AddModifier(
-                AttributeIds.Combat.AttackPower,
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
                 AttributeModifierOperation.Override,
                 9f,
                 "Test",
                 5,
                 priority: 1);
-            Assert.That(runtime.GetCurrent(AttributeIds.Combat.AttackPower), Is.EqualTo(9f));
+            Assert.That(runtime.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(9f));
 
             runtime.RemoveModifier(higher);
-            Assert.That(runtime.GetCurrent(AttributeIds.Combat.AttackPower), Is.EqualTo(7f));
+            Assert.That(runtime.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(7f));
         }
 
         [Test]
@@ -60,22 +60,22 @@ namespace UPlayGround.Ability.Tests
         {
             var runtime = new AttributeSetRuntime();
             runtime.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.MaxHealth,
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth,
                 100f,
-                dependentResourceId: AttributeIds.Vital.Health,
+                dependentResourceId: global::UPlayGround.Data.Stat.Attributes.Vital.Health,
                 maxChangePolicy: AttributeMaxChangePolicy.PreserveRatio));
             runtime.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.Health,
+                global::UPlayGround.Data.Stat.Attributes.Vital.Health,
                 50f,
                 AttributeClampPolicy.AttributeRange,
                 minimumAttributeId: default,
-                maximumAttributeId: AttributeIds.Vital.MaxHealth,
+                maximumAttributeId: global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth,
                 saveBaseValue: true));
 
-            runtime.SetBase(AttributeIds.Vital.MaxHealth, 200f);
+            runtime.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, 200f);
 
-            Assert.That(runtime.GetBase(AttributeIds.Vital.Health), Is.EqualTo(100f));
-            Assert.That(runtime.GetCurrent(AttributeIds.Vital.Health), Is.EqualTo(100f));
+            Assert.That(runtime.GetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health), Is.EqualTo(100f));
+            Assert.That(runtime.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Health), Is.EqualTo(100f));
         }
 
         [Test]
@@ -83,22 +83,22 @@ namespace UPlayGround.Ability.Tests
         {
             var runtime = new AttributeSetRuntime();
             runtime.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.MaxHealth,
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth,
                 100f));
             runtime.Register(new GameplayAttributeDefinition(
-                AttributeIds.Vital.Health,
+                global::UPlayGround.Data.Stat.Attributes.Vital.Health,
                 50f,
                 AttributeClampPolicy.AttributeRange,
                 fixedMinimum: 0f,
-                maximumAttributeId: AttributeIds.Vital.MaxHealth));
+                maximumAttributeId: global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
 
-            runtime.SetBase(AttributeIds.Vital.Health, -25f);
-            Assert.That(runtime.GetBase(AttributeIds.Vital.Health), Is.EqualTo(0f));
-            Assert.That(runtime.GetCurrent(AttributeIds.Vital.Health), Is.EqualTo(0f));
+            runtime.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health, -25f);
+            Assert.That(runtime.GetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health), Is.EqualTo(0f));
+            Assert.That(runtime.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Health), Is.EqualTo(0f));
 
-            runtime.SetBase(AttributeIds.Vital.Health, 125f);
-            Assert.That(runtime.GetBase(AttributeIds.Vital.Health), Is.EqualTo(100f));
-            Assert.That(runtime.GetCurrent(AttributeIds.Vital.Health), Is.EqualTo(100f));
+            runtime.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health, 125f);
+            Assert.That(runtime.GetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health), Is.EqualTo(100f));
+            Assert.That(runtime.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Health), Is.EqualTo(100f));
         }
 
         [Test]

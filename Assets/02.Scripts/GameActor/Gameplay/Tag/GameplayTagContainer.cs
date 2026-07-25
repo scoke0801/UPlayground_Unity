@@ -52,6 +52,7 @@ namespace UPlayGround.Gameplay.Tag
 
         public void AddTag(GameplayTag tag)
         {
+            EnsureRegisteredOrEmpty(tag, nameof(tag));
             if (!tag.IsValid()) return;
             bool wasPresent = HasTag(tag);
             _tags.Add(tag);
@@ -65,34 +66,22 @@ namespace UPlayGround.Gameplay.Tag
             if (!wasPresent) OnTagAdded?.Invoke(tag);
         }
 
-        /// <summary>enum 기반 AddTag 오버로드</summary>
-        public void AddTag(GameplayTagId id)
-        {
-            if (id != GameplayTagId.None) AddTag(id.ToTag());
-        }
-
         public void RemoveTag(GameplayTag tag)
         {
+            EnsureRegisteredOrEmpty(tag, nameof(tag));
             if (!_tags.Remove(tag)) return;
             if (_gasExplicit.Remove(tag, out GameplayTagSourceHandle gasHandle))
                 _abilitySystem?.Tags?.Remove(gasHandle);
             if (!HasTag(tag)) OnTagRemoved?.Invoke(tag);
         }
 
-        /// <summary>enum 기반 RemoveTag 오버로드</summary>
-        public void RemoveTag(GameplayTagId id)
-        {
-            if (id != GameplayTagId.None) RemoveTag(id.ToTag());
-        }
-
         /// <summary>
         /// Ability/Effect가 소유하는 태그를 추가한다. 반환 핸들만 제거할 수 있어
         /// 동일 태그를 부여한 다른 소스의 소유권을 보존한다.
         /// </summary>
-        public GameplayTagHandle AddTag(GameplayTagId id, GameplayTagSource source)
+        public GameplayTagHandle AddTag(GameplayTag tag, GameplayTagSource source)
         {
-            if (id == GameplayTagId.None) return default;
-            GameplayTag tag = id.ToTag();
+            EnsureRegisteredOrEmpty(tag, nameof(tag));
             if (!tag.IsValid()) return default;
 
             bool wasPresent = HasTag(tag);
@@ -146,6 +135,8 @@ namespace UPlayGround.Gameplay.Tag
         /// <summary>parent의 자식 태그 전부를 한 번에 제거한다.</summary>
         public void RemoveTagsWithParent(GameplayTag parent)
         {
+            EnsureRegisteredOrEmpty(parent, nameof(parent));
+            if (!parent.IsValid()) return;
             var toRemove = new List<GameplayTag>();
             foreach (var t in _tags)
                 if (t.IsChildOf(parent)) toRemove.Add(t);
@@ -155,18 +146,21 @@ namespace UPlayGround.Gameplay.Tag
         // ── 쿼리 ───────────────────────────────────────────────────────
 
         /// <summary>정확히 일치하는 태그 보유 여부</summary>
-        public bool HasTag(GameplayTag tag) =>
-            _tags.Contains(tag)
-            || _ownedTagCounts.ContainsKey(tag)
-            || (tag.IsValid()
-                && EnsureAbilitySystem()?.Tags?.Has(new AbilityTagId(tag.TagName), false) == true);
-
-        /// <summary>enum 기반 태그 보유 여부 (GameplayTagId → GameplayTag 자동 변환)</summary>
-        public bool HasTag(GameplayTagId id) => id != GameplayTagId.None && HasTag(id.ToTag());
+        public bool HasTag(GameplayTag tag)
+        {
+            EnsureRegisteredOrEmpty(tag, nameof(tag));
+            return _tags.Contains(tag)
+                   || _ownedTagCounts.ContainsKey(tag)
+                   || (tag.IsValid()
+                       && EnsureAbilitySystem()?.Tags?.Has(
+                           new AbilityTagId(tag.TagName), false) == true);
+        }
 
         /// <summary>parent 계층 아래 임의의 태그를 보유하는지 확인</summary>
         public bool HasTagInHierarchy(GameplayTag parent)
         {
+            EnsureRegisteredOrEmpty(parent, nameof(parent));
+            if (!parent.IsValid()) return false;
             foreach (var t in AllTags)
                 if (t.IsChildOf(parent)) return true;
             return false;
@@ -200,10 +194,20 @@ namespace UPlayGround.Gameplay.Tag
                     var gasTags = new List<AbilityTagId>();
                     _abilitySystem.Tags.CopyTags(gasTags);
                     for (int i = 0; i < gasTags.Count; i++)
-                        result.Add(new GameplayTag(gasTags[i].Value));
+                        result.Add(GameplayTagRegistry.GetRequired(gasTags[i].Value));
                 }
                 return result;
             }
+        }
+
+        private static void EnsureRegisteredOrEmpty(
+            GameplayTag tag,
+            string parameterName)
+        {
+            if (string.IsNullOrEmpty(tag.TagName) || tag.IsValid()) return;
+            throw new ArgumentException(
+                $"GameplayTagRegistry에 등록되지 않은 태그입니다: '{tag.TagName}'",
+                parameterName);
         }
 
         public void Clear()

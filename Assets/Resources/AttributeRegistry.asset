@@ -1,0 +1,474 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3b112ae23e245ad8bbdb93228910134, type: 3}
+  m_Name: AttributeRegistry
+  m_EditorClassIdentifier:
+  attributes:
+  - attributeId: Vital.Health
+    stableId: 1383df6a5a3748e6a84fe3a047d5b1f1
+    aliases: []
+    displayName: "\uCCB4\uB825"
+    category: Vital
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 2
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId: Vital.MaxHealth
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 1
+    isMetaAttribute: 0
+  - attributeId: Vital.MaxHealth
+    stableId: 6061f6a8565e43f0a89dbc86c28aa38d
+    aliases: []
+    displayName: "\uCD5C\uB300 \uCCB4\uB825"
+    category: Vital
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId: Vital.Health
+    maxChangePolicy: 1
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Vital.HealthRegenRate
+    stableId: c91396548003470ba9a73c0bdc261ef6
+    aliases: []
+    displayName: "\uCCB4\uB825 \uD68C\uBCF5"
+    category: Vital
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Vital.Poise
+    stableId: 483db75de8084caa818bd254e4eac293
+    aliases: []
+    displayName: "\uAC15\uC778\uB3C4"
+    category: Vital
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 2
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId: Vital.MaxPoise
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 1
+    isMetaAttribute: 0
+  - attributeId: Vital.MaxPoise
+    stableId: 59eb106240d944e6a238259ab96021a2
+    aliases: []
+    displayName: "\uCD5C\uB300 \uAC15\uC778\uB3C4"
+    category: Vital
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId: Vital.Poise
+    maxChangePolicy: 1
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Vital.PoiseRecoveryRate
+    stableId: a0f4d182643b4db092125e943ed2647e
+    aliases: []
+    displayName: "\uAC15\uC778\uB3C4 \uD68C\uBCF5"
+    category: Vital
+    defaultBaseValue: 40
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Vital.PoiseRecoveryDelay
+    stableId: de1616a9c7e1430da30a7f3e13ea4139
+    aliases: []
+    displayName: "\uAC15\uC778\uB3C4 \uD68C\uBCF5 \uB300\uAE30"
+    category: Vital
+    defaultBaseValue: 2
+    format: 0
+    unit: s
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.AttackPower
+    stableId: e023479ec2df47059d2cc72f5884faad
+    aliases: []
+    displayName: "\uACF5\uACA9\uB825"
+    category: Combat
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.Defense
+    stableId: 59c9d2afd3b147759f5e5db0b645075a
+    aliases: []
+    displayName: "\uBC29\uC5B4\uB825"
+    category: Combat
+    defaultBaseValue: 0
+    format: 1
+    unit: "%"
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.CritRate
+    stableId: d8cb8db39c4c450c857fbc746c2c1848
+    aliases: []
+    displayName: "\uCE58\uBA85\uD0C0 \uD655\uB960"
+    category: Combat
+    defaultBaseValue: 0
+    format: 1
+    unit: "%"
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.CritMultiplier
+    stableId: 778727e95d414c8a91c4807222da92c8
+    aliases: []
+    displayName: "\uCE58\uBA85\uD0C0 \uD53C\uD574"
+    category: Combat
+    defaultBaseValue: 1.5
+    format: 1
+    unit: "%"
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.AttackSpeed
+    stableId: 3d6d0ca64bf54d12a66bc244a4e7319b
+    aliases: []
+    displayName: "\uACF5\uACA9 \uC18D\uB3C4"
+    category: Combat
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.DamageTakenMultiplier
+    stableId: b2135026680c4993ae07908548ef517b
+    aliases: []
+    displayName: "\uBC1B\uB294 \uD53C\uD574 \uBC30\uC728"
+    category: Combat
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Combat.InvincibleDurationMultiplier
+    stableId: 6b755d16ecf54cd0ae7b295a835e4e61
+    aliases: []
+    displayName: "\uBB34\uC801 \uC2DC\uAC04"
+    category: Combat
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Movement.MoveSpeed
+    stableId: f67b27bd630a405e857293e288c51341
+    aliases: []
+    displayName: "\uC774\uB3D9 \uC18D\uB3C4"
+    category: Movement
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Movement.DashDistance
+    stableId: 1726662c8fcd471a9378933472e59f58
+    aliases: []
+    displayName: "\uB300\uC2DC \uAC70\uB9AC"
+    category: Movement
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Resource.UltimateEnergy
+    stableId: 04da7080b5db4a7880d0d5942036bce8
+    aliases: []
+    displayName: "\uAD81\uADF9\uAE30 \uC5D0\uB108\uC9C0"
+    category: Resource
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 2
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId: Resource.MaxUltimateEnergy
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 1
+    isMetaAttribute: 0
+  - attributeId: Resource.MaxUltimateEnergy
+    stableId: 2b64063e607d49839bb828a5f83a1679
+    aliases: []
+    displayName: "\uCD5C\uB300 \uAD81\uADF9\uAE30 \uC5D0\uB108\uC9C0"
+    category: Resource
+    defaultBaseValue: 100
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId: Resource.UltimateEnergy
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Resource.GenerationMultiplier
+    stableId: d952cd55102148d49f3890c86b11cd6a
+    aliases: []
+    displayName: "\uC2A4\uD0AC \uAC8C\uC774\uC9C0"
+    category: Resource
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Resource.Forte
+    stableId: 6c2f134802de4ed98da95462a050de01
+    aliases: []
+    displayName: Forte
+    category: Resource
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Resource.Concerto
+    stableId: 8cdb5ffb706c4c8c8ae87285e061c343
+    aliases: []
+    displayName: Concerto
+    category: Resource
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Resource.SkillCharge
+    stableId: 2a3d345b4dce42e58b01b5d8214bb56f
+    aliases: []
+    displayName: Skill Charge
+    category: Resource
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Life.GatheringPower
+    stableId: 0859d8755f254046bcc1506b3926fb94
+    aliases: []
+    displayName: "\uCC44\uC9D1\uB825"
+    category: Life
+    defaultBaseValue: 1
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 0
+  - attributeId: Meta.IncomingDamage
+    stableId: b36ea3f5640c47fcaa31d7ce5bdeed88
+    aliases: []
+    displayName: Incoming Damage
+    category: Meta
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 1
+  - attributeId: Meta.IncomingHealing
+    stableId: 58bd8a8a15c74cbab9fd9c385620ee7f
+    aliases: []
+    displayName: Incoming Healing
+    category: Meta
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 1
+  - attributeId: Meta.IncomingPoiseDamage
+    stableId: f2af28b906ff431798e50d2194282cc5
+    aliases: []
+    displayName: Incoming Poise Damage
+    category: Meta
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 1
+  - attributeId: Meta.IncomingBreakDamage
+    stableId: 05056bd292dd402c84c0c46cc34a81cd
+    aliases: []
+    displayName: Incoming Break Damage
+    category: Meta
+    defaultBaseValue: 0
+    format: 0
+    unit:
+    clampPolicy: 0
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId:
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 0
+    isMetaAttribute: 1

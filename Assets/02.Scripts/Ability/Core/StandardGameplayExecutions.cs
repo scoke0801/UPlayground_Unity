@@ -17,6 +17,32 @@ namespace UPlayGround.Ability.Core
 
     public sealed class DamageExecution : IGameplayEffectExecution
     {
+        private readonly AttributeId _attackPower;
+        private readonly AttributeId _defense;
+        private readonly AttributeId _health;
+
+        public DamageExecution(
+            AttributeId attackPower,
+            AttributeId defense,
+            AttributeId health)
+        {
+            if (!attackPower.IsValid)
+                throw new ArgumentException(
+                    "공격력 Attribute ID가 필요합니다.",
+                    nameof(attackPower));
+            if (!defense.IsValid)
+                throw new ArgumentException(
+                    "방어력 Attribute ID가 필요합니다.",
+                    nameof(defense));
+            if (!health.IsValid)
+                throw new ArgumentException(
+                    "체력 Attribute ID가 필요합니다.",
+                    nameof(health));
+            _attackPower = attackPower;
+            _defense = defense;
+            _health = health;
+        }
+
         public bool Execute(
             in GameplayEffectExecutionInput input,
             GameplayEffectExecutionOutput output,
@@ -34,9 +60,11 @@ namespace UPlayGround.Ability.Core
                     error = $"필수 SetByCaller 누락: {GameplayDataTags.Damage}";
                     return false;
                 }
-                float attackPower = input.GetSource(AttributeIds.Combat.AttackPower);
+                float attackPower = input.GetSource(_attackPower);
                 if (attackPower <= 0f) attackPower = 1f;
-                float defense = Math.Min(Math.Max(input.GetTarget(AttributeIds.Combat.Defense), 0f), 1f);
+                float defense = Math.Min(
+                    Math.Max(input.GetTarget(_defense), 0f),
+                    1f);
                 float damageTaken = GetOptional(input, GameplayDataTags.DamageTakenMultiplier, 1f);
                 float element = GetOptional(input, GameplayDataTags.ElementMultiplier, 1f);
                 float critical = Math.Max(1f, GetOptional(input, GameplayDataTags.CriticalMultiplier, 1f));
@@ -44,7 +72,7 @@ namespace UPlayGround.Ability.Core
                     baseDamage, attackPower, defense, damageTaken, element, critical);
             }
 
-            output.AddBaseDelta(AttributeIds.Vital.Health, -finalDamage);
+            output.AddBaseDelta(_health, -finalDamage);
             error = string.Empty;
             return true;
         }
@@ -75,6 +103,25 @@ namespace UPlayGround.Ability.Core
 
     public sealed class HealingExecution : IGameplayEffectExecution
     {
+        private readonly AttributeId _health;
+        private readonly AttributeId _maxHealth;
+
+        public HealingExecution(
+            AttributeId health,
+            AttributeId maxHealth)
+        {
+            if (!health.IsValid)
+                throw new ArgumentException(
+                    "체력 Attribute ID가 필요합니다.",
+                    nameof(health));
+            if (!maxHealth.IsValid)
+                throw new ArgumentException(
+                    "최대 체력 Attribute ID가 필요합니다.",
+                    nameof(maxHealth));
+            _health = health;
+            _maxHealth = maxHealth;
+        }
+
         public bool Execute(
             in GameplayEffectExecutionInput input,
             GameplayEffectExecutionOutput output,
@@ -88,8 +135,8 @@ namespace UPlayGround.Ability.Core
                 return false;
             }
             float amount = Math.Max(0f, flat)
-                + Math.Max(0f, percent) * input.GetTarget(AttributeIds.Vital.MaxHealth);
-            output.AddBaseDelta(AttributeIds.Vital.Health, amount);
+                + Math.Max(0f, percent) * input.GetTarget(_maxHealth);
+            output.AddBaseDelta(_health, amount);
             error = string.Empty;
             return true;
         }
@@ -97,6 +144,17 @@ namespace UPlayGround.Ability.Core
 
     public sealed class PoiseDamageExecution : IGameplayEffectExecution
     {
+        private readonly AttributeId _poise;
+
+        public PoiseDamageExecution(AttributeId poise)
+        {
+            if (!poise.IsValid)
+                throw new ArgumentException(
+                    "강인도 Attribute ID가 필요합니다.",
+                    nameof(poise));
+            _poise = poise;
+        }
+
         public bool Execute(
             in GameplayEffectExecutionInput input,
             GameplayEffectExecutionOutput output,
@@ -107,7 +165,7 @@ namespace UPlayGround.Ability.Core
                 error = $"필수 SetByCaller 누락: {GameplayDataTags.PoiseDamage}";
                 return false;
             }
-            output.AddBaseDelta(AttributeIds.Vital.Poise, -Math.Max(0f, damage));
+            output.AddBaseDelta(_poise, -Math.Max(0f, damage));
             error = string.Empty;
             return true;
         }

@@ -360,6 +360,8 @@ Assets/
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
+| [GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md](TODO/GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md) | GameplayTag 데이터화 마이그레이션 스펙 — 태그가 검증 안 되는 단일 string이라 오타·리네임·삭제에 취약, 레지스트리 단일 소스 + 인터닝 핸들 + 검증 드로어(옵션 C), Core 비의존 리졸버 경계, Phase 0~6 단계·하위호환·GAS B1/C3 연계 |
+| [GAS_SYSTEM_GUIDE.html](guide/GAS_SYSTEM_GUIDE.html) | Gameplay Ability(GAS) 사용 가이드 — Core/Adapter/Data/Actor 4계층, 데이터 흐름(AbilitySet→Ability→Variant→Payload→Motion), Prepare/Commit 실행 생명주기, Attribute·Effect, 셋업·사용 예시·에디터 도구·확장 포인트 |
 | [GAMEPLAY_ABILITY_SYSTEM_SPEC.md](Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md) | Gameplay Ability / 스킬 시스템 구조 스펙 — Ability·Effect·Tag·자원·쿨다운의 데이터 스키마, asmdef 경계, 실행 트랜잭션, 저장·교체·잔류 공격, 검증·텔레메트리·단계별 완료 조건 |
 | [GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md](TODO/GAMEPLAY_ABILITY_GAS_FULL_MIGRATION_SPEC.md) | GAS 기반 완전 마이그레이션 스펙 — 통합 AbilitySystemComponent, 런타임 디버거, Ability Task, Attribute Set, EffectSpec과 기존 Stat·Health·Poise·자원 권위 제거 계획 |
 | [PASSIVE_ABILITY_SYSTEM_SPEC.md](TODO/PASSIVE_ABILITY_SYSTEM_SPEC.md) | 캐릭터 패시브 어빌리티 적용 스펙 — 캐릭터별 무제한 보유, CharacterSelect 대표 2개 노출, 공격·쿨다운·방어 Trigger·아이템·제작·경험치·Effect 지속시간 보정 계약 |

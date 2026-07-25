@@ -58,19 +58,19 @@ namespace UPlayGround.Gameplay.Ability
 
         public bool Has(string tagId)
         {
-            return TryParseTag(tagId, out GameplayTagId id)
+            return GameplayTagRegistry.TryResolve(tagId, out GameplayTag tag)
                    && (_abilitySystem.Tags?.Has(
-                       new AbilityTagId(id.ToTag().TagName)) ?? false);
+                       new AbilityTagId(tag.TagName)) ?? false);
         }
 
         public AbilityTagHandle Add(string tagId, string sourceType, ulong sourceId)
         {
-            if (!TryParseTag(tagId, out GameplayTagId id)
+            if (!GameplayTagRegistry.TryResolve(tagId, out GameplayTag tag)
                 || _abilitySystem.Tags == null)
                 return default;
 
             GameplayTagSourceHandle tagHandle = _abilitySystem.Tags.Add(
-                new AbilityTagId(id.ToTag().TagName), sourceType, sourceId);
+                new AbilityTagId(tag.TagName), sourceType, sourceId);
             if (!tagHandle.IsValid) return default;
 
             ulong value = _nextTagHandle++;
@@ -94,9 +94,12 @@ namespace UPlayGround.Gameplay.Ability
             string sourceType,
             ulong sourceId)
         {
-            var attributeId = new AttributeId(statId);
-            if (_abilitySystem.Attributes == null || !attributeId.IsValid)
+            if (!AttributeRegistry.TryResolve(
+                    statId,
+                    out AttributeReference reference)
+                || _abilitySystem.Attributes == null)
                 return default;
+            AttributeId attributeId = reference.ToCoreId();
             ulong value = _nextModifierHandle++;
             AttributeModifierHandle attributeHandle = _abilitySystem.Attributes.AddModifier(
                 attributeId,
@@ -125,18 +128,6 @@ namespace UPlayGround.Gameplay.Ability
             return _abilitySystem.Attributes.RemoveModifier(attributeHandle);
         }
 
-        private static bool TryParseTag(string tagId, out GameplayTagId id)
-        {
-            if (string.IsNullOrWhiteSpace(tagId)
-                || !Enum.TryParse(tagId, out id)
-                || id == GameplayTagId.None)
-            {
-                id = GameplayTagId.None;
-                return false;
-            }
-            return true;
-        }
-
         private static bool TryGetResourceAttributeIds(
             string resourceId,
             out AttributeId currentId,
@@ -147,8 +138,8 @@ namespace UPlayGround.Gameplay.Ability
                     UPlayGround.Data.Ability.AbilityResourceType.Health.ToString(),
                     StringComparison.Ordinal))
             {
-                currentId = AttributeIds.Vital.Health;
-                maximumId = AttributeIds.Vital.MaxHealth;
+                currentId = global::UPlayGround.Data.Stat.Attributes.Vital.Health;
+                maximumId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth;
                 return true;
             }
             if (string.Equals(
@@ -156,8 +147,8 @@ namespace UPlayGround.Gameplay.Ability
                     UPlayGround.Data.Ability.AbilityResourceType.UltimateEnergy.ToString(),
                     StringComparison.Ordinal))
             {
-                currentId = AttributeIds.Resource.UltimateEnergy;
-                maximumId = AttributeIds.Resource.MaxUltimateEnergy;
+                currentId = global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy;
+                maximumId = global::UPlayGround.Data.Stat.Attributes.Resource.MaxUltimateEnergy;
                 return true;
             }
             currentId = default;

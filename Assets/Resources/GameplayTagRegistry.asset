@@ -1,0 +1,483 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2d6660b4509bb2429cd82e631496167, type: 3}
+  m_Name: GameplayTagRegistry
+  m_EditorClassIdentifier: 
+  tags:
+  - tagName: State.Move
+    description: "\uC774\uB3D9 \uC911"
+    color: {r: 0.4, g: 0.9, b: 0.4, a: 1}
+  - tagName: State.Sprint
+    description: "\uC804\uB825 \uC9C8\uC8FC \uC911"
+    color: {r: 0.2, g: 1, b: 0.2, a: 1}
+  - tagName: State.Dash
+    description: "\uB300\uC2DC \uC911"
+    color: {r: 0.3, g: 0.7, b: 1, a: 1}
+  - tagName: State.Jump
+    description: "\uC810\uD504 \uC785\uB825 \uC9C4\uC785"
+    color: {r: 0.5, g: 0.8, b: 1, a: 1}
+  - tagName: State.Airborne
+    description: "\uACF5\uC911 \uC0C1\uD0DC"
+    color: {r: 0.6, g: 0.9, b: 1, a: 1}
+  - tagName: State.Crouching
+    description: "\uC6C5\uD06C\uB9AC\uB294 \uC911"
+    color: {r: 0.8, g: 0.7, b: 0.3, a: 1}
+  - tagName: State.Dodge
+    description: "\uD68C\uD53C \uC911"
+    color: {r: 0.9, g: 0.6, b: 0.2, a: 1}
+  - tagName: State.Combat
+    description: "\uC804\uD22C \uC0C1\uD0DC (\uBD80\uBAA8)"
+    color: {r: 1, g: 0.4, b: 0.4, a: 1}
+  - tagName: State.Combat.Attack
+    description: "\uACF5\uACA9 \uC911"
+    color: {r: 1, g: 0.3, b: 0.3, a: 1}
+  - tagName: State.Combat.Guard
+    description: "\uAC00\uB4DC \uC911"
+    color: {r: 0.9, g: 0.5, b: 0.2, a: 1}
+  - tagName: State.Combat.Charge
+    description: "\uCC28\uC9C0 \uC911"
+    color: {r: 1, g: 0.8, b: 0.1, a: 1}
+  - tagName: State.Combat.DashAttack
+    description: "\uB300\uC2DC \uACF5\uACA9 \uC911"
+    color: {r: 1, g: 0.5, b: 0.5, a: 1}
+  - tagName: State.Combat.JumpAttack
+    description: "\uC810\uD504 \uACF5\uACA9 \uC911"
+    color: {r: 1, g: 0.5, b: 0.7, a: 1}
+  - tagName: State.Hit
+    description: "\uD53C\uACA9 \uC911"
+    color: {r: 1, g: 0.2, b: 0.2, a: 1}
+  - tagName: State.Death
+    description: "\uC0AC\uB9DD"
+    color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  - tagName: State.Grabbed
+    description: "\uC7A1\uD78C \uC0C1\uD0DC"
+    color: {r: 0.7, g: 0.3, b: 0.7, a: 1}
+  - tagName: State.Interaction
+    description: "\uC0C1\uD638\uC791\uC6A9 \uC911"
+    color: {r: 0.4, g: 0.9, b: 0.7, a: 1}
+  - tagName: Combo.Light
+    description: "\uCF64\uBCF4: \uC57D \uACF5\uACA9 \uC785\uB825\uB428"
+    color: {r: 0.3, g: 0.6, b: 1, a: 1}
+  - tagName: Combo.Heavy
+    description: "\uCF64\uBCF4: \uAC15 \uACF5\uACA9 \uC785\uB825\uB428"
+    color: {r: 1, g: 0.5, b: 0.2, a: 1}
+  - tagName: State.Combat.Counter
+    description: 
+    color: {r: 0.4, g: 0.8, b: 1, a: 1}
+  - tagName: Motion.Action.Dash
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dash.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dash.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash_F"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dash.L
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash_L"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dash.R
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash_R"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dodge
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dodge"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dodge.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dodge_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dodge.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dodge_F"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dodge.L
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dodge_L"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Dodge.R
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dodge_R"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Step.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Step_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Step.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Step_F"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Step.L
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Step_L"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.Step.R
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Step_R"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Air.DoubleJump
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: DoubleJump"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Air.Fall
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fall"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Air.Jump
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Jump"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Air.Land
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Land"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Crouch.Enter
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Idle_To_Crouch"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Crouch.Exit
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Crouch_To_Idle"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Crouch.Idle
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Crouch_Idle"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Crouch.Walk
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Crouch_Walk"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Arrow.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Arrow"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Bow.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Bow"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.GreatSword.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_GreatSword"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Katana.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Katana"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Katana.Unequip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: UnEquip_Katana"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Left.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_LeftWeapon"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Main.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Weapon"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Main.Unequip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: UnEquip_Weapon"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Right.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_RightWeapon"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Shield.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Shield"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Staff.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Staff"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Sub.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_SubWeapon"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Sub.Unequip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: UnEquip_SubWeapon"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Equipment.Sword.Equip
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Equip_Sword"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Fly.Attack
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fly_Attack"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Fly.Idle
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fly_Idle"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Fly.Landing
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fly_Landing"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Fly.Move
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fly_Move"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Fly.Start
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fly_Start"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Drink
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Drink"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.Catch
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_Catch"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.Catch.End
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_CatchEnd"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.Catch.Loop
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_CatchLoop"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.Catch.Start
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_CatchStart"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.End
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_End"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.Idle
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_Idle"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Fishing.Throw
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Fishing_Throw"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Gathering.Hand
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: HandGathering"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.GroundWork.End
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: GroundWork_End"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.GroundWork.Loop
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: GroundWork_Loop"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.GroundWork.Start
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: GroundWork_Start"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.ItemPickup
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: ItemPickup"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Mining.Ground
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Mining_Ground"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Mining.Wall
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Mining_Wall"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Interaction.Woodcutting
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Woodcutting"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Idle
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Idle"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.B.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_B_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.B.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_B_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.F.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_F_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.F.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_F_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.F.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_F_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Run.F.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_F_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Sprint
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Sprint"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.B.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_B_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.B.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_B_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.F.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_F_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.F.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_F_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.F.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_F_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.F.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_F_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.B.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_B_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.B.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_B_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.F.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_F_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.F.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_F_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.F.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_F_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion.Walk.Slow.F.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Slow_F_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Npc.Talk
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Talk_1"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Block
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Block"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Death
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Die"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Getup
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Getup"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Grabbed
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Grabbed"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Grabbed.End
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Grabbed_End"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Guard
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Guard"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Guard.Break
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: GuardBreak"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Hit.B
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Hit_B"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Hit.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Hit_F"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Hit.L
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Hit_L"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Hit.R
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Hit_R"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Knockback
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Knockback"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Knockdown
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Knockdown"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Knockdown.Getup
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Knockdown_Getup"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Reaction.Stun
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Stun"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Running.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Running"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Running.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Running_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Running.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Running_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Sprinting.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Sprinting"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Sprinting.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Sprinting_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Sprinting.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Sprinting_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Walking.F
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Walking"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Walking.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Walking_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Stop.Walking.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Move_Stop_Walking_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Idle.180
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Stand_Idle_Turn_180"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Idle.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Stand_Idle_Turn_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Idle.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Stand_Idle_Turn_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Idle.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Stand_Idle_Turn_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Idle.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Stand_Idle_Turn_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Run.180
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_Turn_180"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Run.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_Turn_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Run.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_Turn_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Run.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_Turn_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Run.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Run_Turn_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Sprint.180
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Sprint_Turn_180"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Sprint.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Sprint_Turn_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Sprint.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Sprint_Turn_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Sprint.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Sprint_Turn_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Sprint.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Sprint_Turn_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Walk.180
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Turn_180"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Walk.L45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Turn_L45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Walk.L90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Turn_L90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Walk.R45
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Turn_R45"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Turn.Walk.R90
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Walk_Turn_R90"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.BreakAttack
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: BreakAttack"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Action.FinishAttack
+    description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: FinishAttack"
+    color: {r: 0.35, g: 0.7, b: 1, a: 1}
+  - tagName: Motion.Locomotion
+    description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uC774\uB3D9"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Stop
+    description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uC815\uC9C0"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Turn
+    description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uD68C\uC804"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Air
+    description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uACF5\uC911"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Crouch
+    description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uC6C5\uD06C\uB9BC"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: Motion.Equipment
+    description: "\uBAA8\uC158 \uACC4\uCE35 \uCFFC\uB9AC: \uC7A5\uBE44"
+    color: {r: 0.25, g: 0.6, b: 0.9, a: 1}

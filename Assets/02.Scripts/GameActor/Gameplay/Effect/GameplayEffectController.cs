@@ -450,9 +450,18 @@ namespace UPlayGround.Gameplay.Effect
             {
                 for (int i = 0; i < sourceDefinition.grantedTagIds.Count; i++)
                 {
-                    GameplayTagId tagId = sourceDefinition.grantedTagIds[i];
-                    if (tagId != GameplayTagId.None)
-                        grantedTags.Add(new AbilityTagId(tagId.ToTag().TagName));
+                    GameplayTag tag = sourceDefinition.grantedTagIds[i];
+                    if (string.IsNullOrEmpty(tag.TagName))
+                        continue;
+                    if (!tag.IsValid())
+                    {
+                        return new GameplayEffectApplyOutcome(
+                            GameplayEffectApplyResult.InvalidDefinition,
+                            error:
+                            $"{sourceDefinition.effectId}: grantedTagIds[{i}]에 "
+                            + $"Registry 미등록 태그가 있습니다: '{tag.TagName}'");
+                    }
+                    grantedTags.Add(new AbilityTagId(tag.TagName));
                 }
             }
             var definition = new GameplayEffectDefinition(

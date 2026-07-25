@@ -48,7 +48,7 @@ namespace UPlayGround.Animation
             if (_playerEquipment == null)
                 return WeaponType.NoWeapon;
 
-            if (slot.IsChildOf(new GameplayTag("Motion.Equipment")))
+            if (slot.IsChildOf(MotionTags.Equipment))
                 return _playerEquipment.GetMainWeaponType();
 
             return _playerEquipment.IsMainWeaponEquipped

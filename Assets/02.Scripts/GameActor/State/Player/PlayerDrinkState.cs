@@ -173,6 +173,14 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            // 이동 입력이 있을 때만 이동 방향으로 회전한다. 정지 중에는 현재 방향을 유지해
+            // stale한 LookInputVector(마지막 이동 방향)로 갑자기 튀는 것을 막는다.
+            if (!playerController.HasMoveInput())
+            {
+                currentRotation = currentRotation.normalized;
+                return;
+            }
+
             Vector3 lookDirection = playerController.LookInputVector;
 
             if (lookDirection != Vector3.zero && controller.OrientationSharpness > 0f)

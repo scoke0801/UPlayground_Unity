@@ -67,10 +67,10 @@ namespace UPlayGround.Data.Combat
 
         [Header("조건 (GameplayTag)")]
         [Tooltip("이 라우트를 쓰려면 Actor가 보유해야 하는 태그 (AND).")]
-        public List<GameplayTagId> requiredTagIds = new();
+        public List<GameplayTag> requiredTagIds = new();
 
         [Tooltip("이 중 하나라도 보유하면 사용 불가 (블록).")]
-        public List<GameplayTagId> blockedTagIds = new();
+        public List<GameplayTag> blockedTagIds = new();
 
         [Header("상태/물리 조건")]
         [Tooltip("이 라우트가 성립하려면 플레이어가 지상/공중 중 어느 쪽이어야 하는지")]
@@ -101,7 +101,7 @@ namespace UPlayGround.Data.Combat
         [Min(0f)] public float enhancedPoiseMultiplier = 1.15f;
 
         [Tooltip("강화 발동 시 플레이어에게 부여할 태그(연계 보상/후속 분기용). None이면 없음.")]
-        public GameplayTagId enhancedGrantTagId = GameplayTagId.None;
+        public GameplayTag enhancedGrantTagId;
 
         public bool IsEmpty => inputPattern == null || inputPattern.Count == 0;
 
@@ -131,19 +131,19 @@ namespace UPlayGround.Data.Combat
 
             if (requiredTagIds != null)
             {
-                foreach (var id in requiredTagIds)
+                foreach (GameplayTag tag in requiredTagIds)
                 {
-                    if (id == GameplayTagId.None) continue;
-                    if (!container.HasTag(id)) return false;
+                    if (!tag.IsValid()) continue;
+                    if (!container.HasTag(tag)) return false;
                 }
             }
 
             if (blockedTagIds != null)
             {
-                foreach (var id in blockedTagIds)
+                foreach (GameplayTag tag in blockedTagIds)
                 {
-                    if (id == GameplayTagId.None) continue;
-                    if (container.HasTag(id)) return false;
+                    if (!tag.IsValid()) continue;
+                    if (container.HasTag(tag)) return false;
                 }
             }
 

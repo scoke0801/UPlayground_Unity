@@ -177,7 +177,7 @@ namespace UPlayGround.State
 
                 // 1순위: 퍼펙트 가드 반격
                 bool isCounter = combat.IsPerfectGuardCounterAvailable
-                                 || (playerActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
+                                 || (playerActor.Tags?.HasTag(GameplayTags.State_Combat_Counter) ?? false);
                 if (isCounter)
                     return combat.PeekCounterAttackMotion();
 
@@ -290,7 +290,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            gameActor.Tags?.AddTag(GameplayTagId.State_Combat_Attack);
+            gameActor.Tags?.AddTag(GameplayTags.State_Combat_Attack);
 
             ApplyAttackSpeed(1f);
 
@@ -319,9 +319,9 @@ namespace UPlayGround.State
             }
 
             bool hasPerfectGuardCounterTag = !hasForcedAttack
-                                             && (gameActor.Tags?.HasTag(GameplayTagId.State_Combat_Counter) ?? false);
+                                             && (gameActor.Tags?.HasTag(GameplayTags.State_Combat_Counter) ?? false);
             if (hasPerfectGuardCounterTag)
-                gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
+                gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Counter);
 
             // 퍼펙트 가드 반격은 카운터 윈도우가 1차 소스. ConsumePerfectGuardCounterWindow가
             // 윈도우를 닫으며 소비하므로 별도 Close 호출은 불필요하다.
@@ -405,7 +405,7 @@ namespace UPlayGround.State
             // 상태를 빠져나갈 때 만료 정지를 반드시 해제(콜리전 ON 도중 전환되어도 버퍼가 멈춘 채 남지 않도록).
             Svc.Input.InputBuffer.SetExpiryPaused(false);
 
-            gameActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Attack);
+            gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Attack);
 
             // 공격 종료 시 열린 채 남은 캔슬 윈도우 정리(다음 상태로 누수 방지).
             _combat.ResetCancelWindows();
@@ -821,7 +821,7 @@ namespace UPlayGround.State
         {
             return playerActor.AbilitySystem != null
                 && playerActor.AbilitySystem.TryGetAttribute(
-                    AttributeIds.Combat.AttackSpeed,
+                    global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed,
                        current: true,
                        out float attackSpeed)
                 ? Mathf.Clamp(attackSpeed, 0.1f, 5f)

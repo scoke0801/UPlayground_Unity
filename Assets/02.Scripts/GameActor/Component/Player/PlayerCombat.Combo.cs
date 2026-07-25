@@ -388,15 +388,15 @@ namespace UPlayGround.Components
 
         private void ApplyComboTags()
         {
-            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Light);
-            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Heavy);
+            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Light);
+            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Heavy);
 
             if (CurrentComboIndex <= 0) return;
 
             if (_attackState == AttackState.NormalAttack)
-                _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
+                _playerActor.Tags?.AddTag(GameplayTags.Combo_Light);
             else if (_attackState == AttackState.HeavyAttack)
-                _playerActor.Tags?.AddTag(GameplayTagId.Combo_Heavy);
+                _playerActor.Tags?.AddTag(GameplayTags.Combo_Heavy);
         }
         #endregion
     }

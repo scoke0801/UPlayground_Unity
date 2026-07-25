@@ -35,8 +35,8 @@ namespace UPlayGround.Components
             CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             _normalComboIndex = CurrentComboIndex;                 // 약 체인 저장
             // 태그 상호배타: ResetCombo(반대태그 제거)가 사라졌으므로 직접 반대태그 제거 후 추가.
-            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Heavy);
-            _playerActor.Tags?.AddTag(GameplayTagId.Combo_Light);
+            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Heavy);
+            _playerActor.Tags?.AddTag(GameplayTags.Combo_Light);
             _currentAttackData = ConvertToAttackData(_attackData.liteComboAttackList[CurrentComboIndex], AttackKind.NormalAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -53,8 +53,8 @@ namespace UPlayGround.Components
             _comboController?.CloseWindow();                       // stale 콤보 윈도우 닫기(ExecuteAttack과 동일)
             CurrentComboIndex = (CurrentComboIndex >= 0 && isCombo && CanContinueCombo()) ? CurrentComboIndex + 1 : 0;
             _heavyComboIndex  = CurrentComboIndex;                 // 강 체인 저장
-            _playerActor.Tags?.RemoveTag(GameplayTagId.Combo_Light);
-            _playerActor.Tags?.AddTag(GameplayTagId.Combo_Heavy);
+            _playerActor.Tags?.RemoveTag(GameplayTags.Combo_Light);
+            _playerActor.Tags?.AddTag(GameplayTags.Combo_Heavy);
             _currentAttackData = ConvertToAttackData(_attackData.heavyComboAttackList[CurrentComboIndex], AttackKind.HeavyAttack);
             LastAttackTime = Time.time;
             RefreshCombatState();
@@ -401,7 +401,7 @@ namespace UPlayGround.Components
                 _currentAttackData.breakDamage *= enhancedPoiseMultiplier;
             }
 
-            if (isPerfect && route.enhancedGrantTagId != GameplayTagId.None)
+            if (isPerfect && route.enhancedGrantTagId.IsValid())
                 _playerActor?.Tags?.AddTag(route.enhancedGrantTagId);
 
             LastAttackTime = Time.time;

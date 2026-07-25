@@ -52,7 +52,7 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            gameActor.Tags?.AddTag(GameplayTagId.State_Dash);
+            gameActor.Tags?.AddTag(GameplayTags.State_Dash);
             playerActor?.ComboInputTracker.Push(ComboInputToken.Dash);
             playerController.StartDashCooldown();
 
@@ -75,7 +75,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            gameActor.Tags?.RemoveTag(GameplayTagId.State_Dash);
+            gameActor.Tags?.RemoveTag(GameplayTags.State_Dash);
             RestoreAndResolvePenetration();
 
             gameActor.Animator.OnMotionSetCompleted -= OnAnimationEnd;

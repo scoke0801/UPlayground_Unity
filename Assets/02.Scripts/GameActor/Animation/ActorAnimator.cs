@@ -696,13 +696,13 @@ namespace UPlayGround.Animation
 
         public static bool IsMovementPlaybackSlot(GameplayTag slot)
         {
-            return slot.IsChildOf(new GameplayTag("Motion.Locomotion"))
-                   || slot.IsChildOf(new GameplayTag("Motion.Stop"))
-                   || slot.IsChildOf(new GameplayTag("Motion.Turn"))
-                   || slot.IsChildOf(new GameplayTag("Motion.Air"))
-                   || slot.IsChildOf(new GameplayTag("Motion.Crouch"))
-                   || slot == UPlayGround.Data.Actor.Animation.MotionTags.Dodge
-                   || slot == UPlayGround.Data.Actor.Animation.MotionTags.Dash;
+            return slot.IsChildOf(MotionTags.Locomotion)
+                   || slot.IsChildOf(MotionTags.Stop)
+                   || slot.IsChildOf(MotionTags.Turn)
+                   || slot.IsChildOf(MotionTags.Air)
+                   || slot.IsChildOf(MotionTags.Crouch)
+                   || slot == MotionTags.Dodge
+                   || slot == MotionTags.Dash;
         }
 
         public bool RestorePlaybackSnapshot(MotionPlaybackSnapshot snapshot, float fadeDuration = 0f)

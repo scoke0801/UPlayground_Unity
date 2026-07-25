@@ -105,7 +105,7 @@ namespace UPlayGround.State
             if (_combat.IsPerfectGuardCounterAvailable &&
                 Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
             {
-                playerActor.Tags?.AddTag(GameplayTagId.State_Combat_Counter);
+                playerActor.Tags?.AddTag(GameplayTags.State_Combat_Counter);
                 if (PlayerAttackState.TryEnter(playerController))
                 {
                     Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
@@ -113,7 +113,7 @@ namespace UPlayGround.State
                     return;
                 }
                 // 진입 실패: 추가했던 카운터 태그를 원복.
-                playerActor.Tags?.RemoveTag(GameplayTagId.State_Combat_Counter);
+                playerActor.Tags?.RemoveTag(GameplayTags.State_Combat_Counter);
             }
 
             // Guard 입력을 떼면 Idle/Move로 복귀.

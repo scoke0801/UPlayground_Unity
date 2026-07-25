@@ -175,6 +175,15 @@ public sealed class DialoguePaletteSO : ScriptableObject
 | `UI_DialogueBacklog` | `UI/Dialogue/` | 이력 스크롤 패널 |
 | `UI_DialogueControlBar` | `UI/Dialogue/` | ⏸/자동/스킵/💬 버튼. 컨트롤러 상태 구독·명령 |
 
+**프리팹 초안 생성(프로젝트 관례 준수).** 신규 UI(`UI_DialogueControlBar`, `UI_DialogueBacklog`)의 프리팹 초안은 다른 대형 UI(`UISettingMenuPrefabBuilder`, `UIPauseMenuPrefabBuilder` 등, `UI/Editor/*PrefabBuilder.cs`)와 동일하게 에디터 빌더 스크립트로 계층·앵커·컴포넌트 배선을 코드 생성한다. 이에 따라 아래 에디터 전용 컴포넌트를 추가한다.
+
+| 이름 | 위치(제안) | 책임 |
+|------|-----------|------|
+| `UIDialogueControlBarPrefabBuilder` | `UI/Editor/` | 컨트롤 바 프리팹 초안 생성(버튼 4종·레이아웃·`UI_DialogueControlBar` 배선) |
+| `UIDialogueBacklogPrefabBuilder` | `UI/Editor/` | 이력 패널 프리팹 초안 생성(ScrollRect·로그 엔트리 템플릿·`UI_DialogueBacklog` 배선) |
+
+빌더는 초안 생성용이며, 최종 비주얼 튜닝은 생성된 프리팹에서 수작업으로 마감한다.
+
 ### 4.2 계약(인터페이스) 확장
 
 `IUIDialogueService`(UI 소비)에 재생 제어를 추가한다. UI는 이 계약만 참조하고 매니저 싱글톤을 직접 참조하지 않는다(모듈 경계 준수).
@@ -224,12 +233,12 @@ public interface IUIDialogueService : IGameService
 **Phase 2 — 재생 제어(정지·자동·스킵)**
 5. `DialoguePlaybackController` 신설, 매니저에 연결. `IUIDialogueService` 확장.
 6. `DialogueRunner.SkipToBreak()` + 순환/상한 가드.
-7. `UI_DialogueControlBar` 작성, 버튼 배선. 입력 액션 추가.
+7. `UI_DialogueControlBar`와 입력 액션 작성·컴파일 → `UIDialogueControlBarPrefabBuilder` 작성·실행으로 프리팹 초안 생성 → 버튼 배선과 비주얼 마감.
    - 검증: 정지 중 진행 정지, 자동은 선택지에서 정지, 스킵은 이벤트 액션 보존하며 선택지/끝에서 정지.
 
 **Phase 3 — 대화 이력**
 8. 화자/초상화 해석 공용화 → `DialogueLogEntry` 기록.
-9. `UI_DialogueBacklog` 스크롤 패널, 열림 시 정지 연동.
+9. `UI_DialogueBacklog` 작성·컴파일 → `UIDialogueBacklogPrefabBuilder` 작성·실행으로 스크롤 패널 초안 생성 → 열림 시 정지 연동과 비주얼 마감.
    - 검증: 지나간 대사 색상 포함 재확인, 상한 초과 시 오래된 항목 폐기.
 
 **Phase 4 — 설정·게임패드 정합**

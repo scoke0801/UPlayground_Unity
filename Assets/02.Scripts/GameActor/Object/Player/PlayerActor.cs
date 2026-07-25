@@ -45,12 +45,12 @@ namespace UPlayGround
         [SerializeField] private LayerMask _interactionLayer;
 
         private float _maxHealth =>
-            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.MaxHealth) ?? 0f;
+            AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth) ?? 0f;
 
         private float _currentHealth
         {
-            get => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.Health) ?? 0f;
-            set => AbilitySystem?.Attributes.SetBase(AttributeIds.Vital.Health, value);
+            get => AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Health) ?? 0f;
+            set => AbilitySystem?.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health, value);
         }
         [SerializeField] private bool  _isInvincible  = false;
 

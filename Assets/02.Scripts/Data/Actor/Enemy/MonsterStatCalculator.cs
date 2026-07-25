@@ -118,27 +118,27 @@ namespace UPlayGround.Data.Enemy
             MonsterScalingSO.GradeScaling? grade,
             float difficulty)
         {
-            if (attributeId == AttributeIds.Vital.MaxHealth)
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth)
             {
                 if (grade.HasValue) value *= NonZero(grade.Value.healthMultiplier);
                 return value * difficulty;
             }
-            if (attributeId == AttributeIds.Combat.AttackPower)
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower)
             {
                 if (grade.HasValue) value *= NonZero(grade.Value.attackMultiplier);
                 return value * difficulty;
             }
-            if (attributeId == AttributeIds.Vital.MaxPoise)
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise)
             {
                 if (grade.HasValue) value *= NonZero(grade.Value.poiseMultiplier);
                 return value;
             }
-            if (attributeId == AttributeIds.Movement.MoveSpeed)
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed)
             {
                 if (grade.HasValue) value *= NonZero(grade.Value.moveSpeedMultiplier);
                 return value;
             }
-            if (attributeId == AttributeIds.Combat.Defense)
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.Defense)
             {
                 if (grade.HasValue)
                     value = Mathf.Clamp01(value + grade.Value.defenseAdd);
@@ -152,13 +152,13 @@ namespace UPlayGround.Data.Enemy
 
         private static float GetDefaultMonsterBase(AttributeId attributeId)
         {
-            if (attributeId == AttributeIds.Vital.MaxHealth) return 160f;
-            if (attributeId == AttributeIds.Combat.AttackPower) return 1f;
-            if (attributeId == AttributeIds.Combat.Defense) return 0f;
-            if (attributeId == AttributeIds.Vital.MaxPoise) return 90f;
-            if (attributeId == AttributeIds.Vital.PoiseRecoveryRate) return 30f;
-            if (attributeId == AttributeIds.Vital.PoiseRecoveryDelay) return 2f;
-            if (attributeId == AttributeIds.Movement.MoveSpeed) return 1f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth) return 160f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower) return 1f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.Defense) return 0f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise) return 90f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryRate) return 30f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryDelay) return 2f;
+            if (attributeId == global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed) return 1f;
             return UPlayGroundAttributeDefaults.Get(attributeId);
         }
 
@@ -173,20 +173,20 @@ namespace UPlayGround.Data.Enemy
             switch (weapon)
             {
                 case WeaponType.SwordShield:
-                    Multiply(stats, AttributeIds.Vital.MaxHealth, 1.25f);
-                    AddClamped01(stats, AttributeIds.Combat.Defense, 0.08f);
-                    Multiply(stats, AttributeIds.Vital.MaxPoise, 1.35f);
-                    Multiply(stats, AttributeIds.Combat.AttackPower, 0.90f);
-                    Multiply(stats, AttributeIds.Movement.MoveSpeed, 0.92f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, 1.25f);
+                    AddClamped01(stats, global::UPlayGround.Data.Stat.Attributes.Combat.Defense, 0.08f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise, 1.35f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 0.90f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed, 0.92f);
                     break;
 
                 case WeaponType.Bow:
                 case WeaponType.Staff:
-                    Multiply(stats, AttributeIds.Vital.MaxHealth, 0.82f);
-                    AddClamped01(stats, AttributeIds.Combat.Defense, -0.03f);
-                    Multiply(stats, AttributeIds.Vital.MaxPoise, 0.75f);
-                    Multiply(stats, AttributeIds.Combat.AttackPower, 1.08f);
-                    Multiply(stats, AttributeIds.Movement.MoveSpeed, 1.06f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, 0.82f);
+                    AddClamped01(stats, global::UPlayGround.Data.Stat.Attributes.Combat.Defense, -0.03f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise, 0.75f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 1.08f);
+                    Multiply(stats, global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed, 1.06f);
                     break;
             }
         }

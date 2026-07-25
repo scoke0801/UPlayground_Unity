@@ -36,12 +36,12 @@ namespace UPlayGround
         {
             float power = abilitySystem != null
                           && abilitySystem.TryGetAttribute(
-                              AttributeIds.Life.GatheringPower,
+                              global::UPlayGround.Data.Stat.Attributes.Life.GatheringPower,
                               current: true,
                               out float value)
                 ? value
                 : UPlayGroundAttributeDefaults.Get(
-                    AttributeIds.Life.GatheringPower);
+                    global::UPlayGround.Data.Stat.Attributes.Life.GatheringPower);
 
             return Mathf.Max(1, Mathf.RoundToInt(power));
         }

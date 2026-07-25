@@ -84,23 +84,23 @@ namespace UPlayGround.Data.Party
             if (attributes == null) return 0L;
 
             float maxHealth = Mathf.Max(
-                0f, Get(attributes, AttributeIds.Vital.MaxHealth));
+                0f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
             float attackPower = Mathf.Max(
-                0f, Get(attributes, AttributeIds.Combat.AttackPower));
+                0f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower));
             float defense = Mathf.Clamp01(
-                Get(attributes, AttributeIds.Combat.Defense));
+                Get(attributes, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
             float critRate = Mathf.Clamp01(
-                Get(attributes, AttributeIds.Combat.CritRate));
+                Get(attributes, global::UPlayGround.Data.Stat.Attributes.Combat.CritRate));
             float critMultiplier = Mathf.Max(
-                1f, Get(attributes, AttributeIds.Combat.CritMultiplier));
+                1f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier));
             float attackSpeed = Mathf.Max(
-                0.1f, Get(attributes, AttributeIds.Combat.AttackSpeed));
+                0.1f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed));
             float maxPoise = Mathf.Max(
-                0f, Get(attributes, AttributeIds.Vital.MaxPoise));
+                0f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise));
             float generation = Mathf.Max(
-                0f, Get(attributes, AttributeIds.Resource.GenerationMultiplier));
+                0f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Resource.GenerationMultiplier));
             float moveSpeed = Mathf.Max(
-                0f, Get(attributes, AttributeIds.Movement.MoveSpeed));
+                0f, Get(attributes, global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed));
 
             float effectiveAttack = attackPower
                                     * (1f + critRate * Mathf.Max(0f, critMultiplier - 1f))

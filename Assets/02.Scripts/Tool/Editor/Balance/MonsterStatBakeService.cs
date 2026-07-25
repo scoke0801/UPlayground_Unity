@@ -204,7 +204,7 @@ namespace UPlayGround.Tool.Editor.Balance
             var entries = new List<AttributeProfileEntry>(values.Count);
             foreach (KeyValuePair<AttributeId, float> pair in values)
                 entries.Add(new AttributeProfileEntry(pair.Key, pair.Value));
-            stat.EditorReplace($"actor.{SafeName(actor)}", entries);
+            stat.EditorReplace(entries);
         }
 
         private static bool EnsureScalingLinked(ActorDefinitionSO actor, Options options)
@@ -259,11 +259,11 @@ namespace UPlayGround.Tool.Editor.Balance
             if (recordUndo)
                 Undo.RecordObject(actor.poiseData, "Sync Generated Poise");
             actor.poiseData.maxPoise = Mathf.Max(
-                1f, Get(stat, AttributeIds.Vital.MaxPoise));
+                1f, Get(stat, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise));
             actor.poiseData.recoveryRate =
-                Get(stat, AttributeIds.Vital.PoiseRecoveryRate);
+                Get(stat, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryRate);
             actor.poiseData.recoveryDelay =
-                Get(stat, AttributeIds.Vital.PoiseRecoveryDelay);
+                Get(stat, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryDelay);
             EditorUtility.SetDirty(actor.poiseData);
         }
 
@@ -319,12 +319,12 @@ namespace UPlayGround.Tool.Editor.Balance
             if (stat != null)
                 return Mathf.Max(
                     1f,
-                    Mathf.Round(Get(stat, AttributeIds.Vital.MaxPoise)));
+                    Mathf.Round(Get(stat, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise)));
             if (actor?.poiseData != null)
                 return Mathf.Max(1f, Mathf.Round(actor.poiseData.maxPoise));
             return Mathf.Max(
                 1f,
-                UPlayGroundAttributeDefaults.Get(AttributeIds.Vital.MaxPoise));
+                UPlayGroundAttributeDefaults.Get(global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise));
         }
 
         private static void BackfillGradeLevelFromPrefab(ActorDefinitionSO actor, bool recordUndo)

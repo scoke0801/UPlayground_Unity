@@ -213,11 +213,11 @@ namespace UPlayGround.Tool.Editor.Stat
 
             // ATK / DEF
             GUI.Label(new Rect(x, rect.y, ColAtk, rect.height),
-                (attributes?.GetCurrent(AttributeIds.Combat.AttackPower) ?? 0f).ToString("0.##"));
+                (attributes?.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower) ?? 0f).ToString("0.##"));
             x += ColAtk;
 
             GUI.Label(new Rect(x, rect.y, ColDef, rect.height),
-                (attributes?.GetCurrent(AttributeIds.Combat.Defense) ?? 0f).ToString("0.##"));
+                (attributes?.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.Defense) ?? 0f).ToString("0.##"));
             x += ColDef;
 
             // Poise (PoiseStat이 있다면 그 값을, 없으면 컨테이너 MaxPoise만 표시)
@@ -235,7 +235,7 @@ namespace UPlayGround.Tool.Editor.Stat
         private void DrawHpCell(GameActor actor, Rect rect)
         {
             float max = actor.AbilitySystem?.Attributes.GetCurrent(
-                AttributeIds.Vital.MaxHealth) ?? 0f;
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth) ?? 0f;
             float current = max;
             if (actor is IDamageable dmg)
             {
@@ -252,7 +252,7 @@ namespace UPlayGround.Tool.Editor.Stat
         private void DrawPoiseCell(GameActor actor, Rect rect)
         {
             float max = actor.AbilitySystem?.Attributes.GetCurrent(
-                AttributeIds.Vital.MaxPoise) ?? 0f;
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise) ?? 0f;
             // PoiseStat은 자체적으로 현재값을 보유하므로 이름 기반 폴백 표시만
             EditorGUI.DrawRect(rect, ColorBarBg);
             // 풀 바를 단색으로 채우고 최대치만 표시 (컨테이너에 현재 Poise 추적 미구현)

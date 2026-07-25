@@ -159,11 +159,11 @@ namespace UPlayGround.Cycle
             {
                 float attackDifficulty = difficulty?.attackMultiplier ?? 1f;
                 monster.AbilitySystem.TryGetAttribute(
-                    AttributeIds.Combat.AttackPower,
+                    global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
                     current: false,
                     out float currentAttack);
                 monster.AbilitySystem.SetAttributeBase(
-                    AttributeIds.Combat.AttackPower,
+                    global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
                     currentAttack * attackDifficulty / hpDifficulty);
             }
             float rewardMultiplier = difficulty?.rewardGrade switch { CycleRewardGrade.Rare => 1.35f, CycleRewardGrade.Heroic => 1.75f, _ => 1f };

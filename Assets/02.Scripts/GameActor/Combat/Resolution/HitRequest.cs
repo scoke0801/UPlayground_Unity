@@ -175,7 +175,7 @@ namespace UPlayGround.Combat
                 return 1f;
 
             attacker.AbilitySystem.TryGetAttribute(
-                AttributeIds.Combat.CritRate,
+                global::UPlayGround.Data.Stat.Attributes.Combat.CritRate,
                 current: true,
                 out float rawCritRate);
             float critRate = Mathf.Clamp01(rawCritRate);
@@ -186,7 +186,7 @@ namespace UPlayGround.Combat
                 return 1f;
 
             return attacker.AbilitySystem.TryGetAttribute(
-                AttributeIds.Combat.CritMultiplier,
+                global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier,
                 current: true,
                 out float multiplier)
                 ? Mathf.Max(1f, multiplier)

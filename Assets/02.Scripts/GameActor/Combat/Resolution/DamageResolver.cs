@@ -18,10 +18,10 @@ namespace UPlayGround.Combat
         {
             float baseDamage = Mathf.Max(0f, hit.Damage);
             float attackerPower = hit.Attacker != null
-                ? GetAttribute(hit.Attacker, AttributeIds.Combat.AttackPower, 1f)
+                ? GetAttribute(hit.Attacker, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 1f)
                 : 1f;
             float defenseRate = target != null
-                ? Mathf.Clamp01(GetAttribute(target, AttributeIds.Combat.Defense, 0f))
+                ? Mathf.Clamp01(GetAttribute(target, global::UPlayGround.Data.Stat.Attributes.Combat.Defense, 0f))
                 : 0f;
             float criticalMultiplier = includeCritical ? ResolveCriticalMultiplier(hit.CriticalMultiplier) : 1f;
             float elementMultiplier = ResolveElementMultiplier(hit.Attacker, target);
@@ -54,10 +54,10 @@ namespace UPlayGround.Combat
         {
             float baseDamage = Mathf.Max(0f, hit.Damage);
             float attackerPower = hit.Attacker != null
-                ? GetAttribute(hit.Attacker, AttributeIds.Combat.AttackPower, 1f)
+                ? GetAttribute(hit.Attacker, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 1f)
                 : 1f;
             float defenseRate = target != null
-                ? Mathf.Clamp01(GetAttribute(target, AttributeIds.Combat.Defense, 0f))
+                ? Mathf.Clamp01(GetAttribute(target, global::UPlayGround.Data.Stat.Attributes.Combat.Defense, 0f))
                 : 0f;
             // 통합 취약 배율: 리액션 상태(Stun/Knockdown/Airborne/Grabbed) 배율과 Break 노출 배율을 단일 채널로 묶어
             // 동시 성립 시 더 큰 하나만 적용한다(max-wins).

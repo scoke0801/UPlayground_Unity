@@ -10,6 +10,7 @@ namespace UPlayGround.Data.Item
     public struct EquipmentStatEntry
     {
         [Tooltip("런타임에서 사용하는 안정 Attribute ID")]
+        [AttributeIdSelector]
         public string attributeId;
         public ModifierType modifierType;
         public float value;

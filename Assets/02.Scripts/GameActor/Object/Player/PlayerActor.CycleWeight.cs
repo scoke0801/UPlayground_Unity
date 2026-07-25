@@ -58,7 +58,7 @@ namespace UPlayGround
                 new[]
                 {
                     new AttributeModifierValue(
-                        AttributeIds.Movement.MoveSpeed,
+                        global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed,
                         AttributeModifierOperation.Multiply,
                         _weightProfile.moveSpeedMultiplier),
                 });

@@ -77,11 +77,11 @@ namespace UPlayGround.Tool.Editor.Balance
 
             // 몬스터 측 파라미터
             float monsterMaxHp = Mathf.Max(1f,
-                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Vital.MaxHealth, 100f));
+                BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, 100f));
             float monsterAtk = Mathf.Max(0f,
-                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.AttackPower, 1f));
+                BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 1f));
             float monsterDef = Mathf.Clamp01(
-                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.Defense));
+                BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
 
             List<AbilityAttackInfo> usable = BalanceAttackAnalyzer.GetUsableEnemySkills(
                 actor.EffectiveAbilitySet,
@@ -90,11 +90,11 @@ namespace UPlayGround.Tool.Editor.Balance
             const float globalCooldown = 0.05f;
 
             // 플레이어 측 파라미터 (Estimator와 동일한 읽기 규칙)
-            float playerMaxHp = Mathf.Max(1f, ReadPlayerStat(scenario, AttributeIds.Vital.MaxHealth));
-            float playerDef = Mathf.Clamp01(ReadPlayerStat(scenario, AttributeIds.Combat.Defense));
+            float playerMaxHp = Mathf.Max(1f, ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
+            float playerDef = Mathf.Clamp01(ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
             float playerAtkPower = ReadPlayerAttackPower(scenario, fallback);
-            float critRate = Mathf.Clamp01(ReadPlayerStat(scenario, AttributeIds.Combat.CritRate));
-            float critMultiplier = Mathf.Max(1f, ReadPlayerStat(scenario, AttributeIds.Combat.CritMultiplier));
+            float critRate = Mathf.Clamp01(ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Combat.CritRate));
+            float critMultiplier = Mathf.Max(1f, ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier));
             float attackInterval = Mathf.Max(0.05f, scenario != null ? scenario.playerAttackInterval : fallback.PlayerAttackInterval);
 
             List<(float damage, float breakDamage)> playerAttacks = BuildPlayerAttackPool(scenario);
@@ -401,7 +401,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (scenario?.playerAttributeProfile != null
                 && scenario.playerAttributeProfile.TryGetBaseValue(
-                    AttributeIds.Combat.AttackPower, out float attackPower))
+                    global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, out float attackPower))
                 return attackPower;
             if (scenario != null)
                 return scenario.manualPlayerAttackPower;

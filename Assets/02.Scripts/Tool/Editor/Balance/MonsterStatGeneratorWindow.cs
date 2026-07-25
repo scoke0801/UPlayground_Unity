@@ -246,14 +246,14 @@ namespace UPlayGround.Tool.Editor.Balance
             Label(ref x, row, 58f, MonsterStatCalculator.GetHumanoidWeaponProfileName(actor));
 
             Dictionary<AttributeId, float> planned = MonsterStatCalculator.Calculate(ResolveScaling(actor), actor, _difficultyOverride);
-            float pHp = planned[AttributeIds.Vital.MaxHealth];
-            float pAtk = planned[AttributeIds.Combat.AttackPower];
-            float pDef = planned[AttributeIds.Combat.Defense];
-            float pPoise = planned[AttributeIds.Vital.MaxPoise];
+            float pHp = planned[global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth];
+            float pAtk = planned[global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower];
+            float pDef = planned[global::UPlayGround.Data.Stat.Attributes.Combat.Defense];
+            float pPoise = planned[global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise];
 
             string current = missing
                 ? "-"
-                : $"{BalanceAttributeProfileUtility.Get(actor, AttributeIds.Vital.MaxHealth):F0}/{BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.AttackPower):F2}/{BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.Defense):F2}";
+                : $"{BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth):F0}/{BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower):F2}/{BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Combat.Defense):F2}";
             Label(ref x, row, 150f, $"현재 {current}");
             Label(ref x, row, 220f, $"예정 HP{pHp:F0} ATK{pAtk:F2} DEF{pDef:F2} Poise{pPoise:F0}");
 

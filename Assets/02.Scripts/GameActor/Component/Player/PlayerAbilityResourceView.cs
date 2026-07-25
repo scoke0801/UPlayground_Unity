@@ -38,11 +38,11 @@ namespace UPlayGround.Components
         private AbilitySystemComponent AbilitySystem =>
             GetComponent<PlayerActor>()?.AbilitySystem;
         private float _maxGauge =>
-            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Resource.MaxUltimateEnergy) ?? 0f;
+            AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Resource.MaxUltimateEnergy) ?? 0f;
         private float _currentGauge
         {
-            get => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Resource.UltimateEnergy) ?? 0f;
-            set => AbilitySystem?.Attributes.SetBase(AttributeIds.Resource.UltimateEnergy, value);
+            get => AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy) ?? 0f;
+            set => AbilitySystem?.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy, value);
         }
 
         [Header("Charge Per Hit")]
@@ -97,8 +97,8 @@ namespace UPlayGround.Components
 
         private void OnAttributeChanged(AttributeChangedEvent change)
         {
-            if (change.AttributeId == AttributeIds.Resource.UltimateEnergy
-                || change.AttributeId == AttributeIds.Resource.MaxUltimateEnergy)
+            if (change.AttributeId == global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy
+                || change.AttributeId == global::UPlayGround.Data.Stat.Attributes.Resource.MaxUltimateEnergy)
                 OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
         }
 

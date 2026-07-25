@@ -116,7 +116,7 @@ namespace UPlayGround
             {
                 _currentHealth = _maxHealth;
                 AbilitySystem.Attributes.SetBase(
-                    AttributeIds.Resource.UltimateEnergy, 0f);
+                    global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy, 0f);
                 AbilitySystem.Runtime.Cooldowns.Clear();
             }
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
@@ -195,7 +195,7 @@ namespace UPlayGround
                 AbilitySystem.InitializeDefaultAttributes();
                 AbilitySystem.SetAttributeBases(growthStats);
                 return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
-                    AttributeIds.Vital.MaxHealth));
+                    global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
             }
 
             if (Definition != null && Definition.attributeProfile != null)
@@ -210,7 +210,7 @@ namespace UPlayGround
                         Definition.attributeProfile);
                 }
                 return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
-                    AttributeIds.Vital.MaxHealth));
+                    global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
             }
 
             AbilitySystem.InitializeDefaultAttributes();
@@ -221,7 +221,7 @@ namespace UPlayGround
                     Definition);
             }
             return Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Vital.MaxHealth));
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
         }
 
         public void ApplyEquipmentStatsForActiveCharacter(bool preserveHealthRatio = true)
@@ -250,7 +250,7 @@ namespace UPlayGround
                 _equipmentStatBuffer);
 
             float newMaxHealth = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
-                UPlayGround.Ability.Core.AttributeIds.Vital.MaxHealth));
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
             if (preserveHealthRatio)
             {
                 _currentHealth = wasFull
@@ -275,7 +275,7 @@ namespace UPlayGround
             }
 
             if (!TryGetStoredAttribute(
-                    type, AttributeIds.Vital.Health, out _))
+                    type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, out _))
                 return;
 
             float oldMax = Mathf.Max(1f, previousMaxHealth);
@@ -286,7 +286,7 @@ namespace UPlayGround
 
             SetStoredAttribute(
                 type,
-                AttributeIds.Vital.Health,
+                global::UPlayGround.Data.Stat.Attributes.Vital.Health,
                 wasFull ? newMax : Mathf.Clamp(newMax * oldRatio, 0f, newMax));
         }
 
@@ -307,7 +307,7 @@ namespace UPlayGround
             AbilitySystem.SetAttributeBases(growthStats); // 전체 Transaction, 활성 Effect 유지
 
             _currentHealth = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
-                AttributeIds.Vital.MaxHealth));         // 풀 회복
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));         // 풀 회복
             OnHpChanged?.Invoke(_currentHealth, _maxHealth);
 
             // Poise 풀 회복(브레이크 해제 포함). MaxPoise 성장은 SetBase가 이미 반영.
@@ -328,12 +328,12 @@ namespace UPlayGround
             // 기록이 없으면(한 번도 피해를 입지 않음) 이미 풀피로 취급되므로 손대지 않는다.
             // 다운된(HP 0) 멤버는 레벨업으로 부활시키지 않는다.
             if (!TryGetStoredAttribute(
-                    type, AttributeIds.Vital.Health, out float stored)
+                    type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, out float stored)
                 || stored <= 0f)
                 return;
 
             float newMax = GetMaxHealthForCharacter(type);
-            SetStoredAttribute(type, AttributeIds.Vital.Health, newMax);
+            SetStoredAttribute(type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, newMax);
         }
 
         /// <summary>
@@ -343,14 +343,14 @@ namespace UPlayGround
         {
             if (type == _characterActorType) return _currentHealth;
             return TryGetStoredAttribute(
-                type, AttributeIds.Vital.Health, out float hp)
+                type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, out float hp)
                     ? hp
                     : GetMaxHealthForCharacter(type);
         }
 
         public bool HasHealthRecordForCharacter(CharacterActorType type)
             => type == _characterActorType
-               || TryGetStoredAttribute(type, AttributeIds.Vital.Health, out _);
+               || TryGetStoredAttribute(type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, out _);
 
         /// <summary>
         /// 지정 캐릭터의 최대 체력 반환. 현재 캐릭터가 아니면 PlayerSwapBehaviour의 모델 데이터에서 조회한다.
@@ -363,12 +363,12 @@ namespace UPlayGround
                 UPlayGround.Data.Party.CharacterEffectiveStatCalculator.Calculate(type);
             if (effectiveStats != null
                 && effectiveStats.TryGetValue(
-                    AttributeIds.Vital.MaxHealth, out float maxHealth))
+                    global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, out float maxHealth))
                 return Mathf.Max(1f, maxHealth);
 
             return Mathf.Max(
                 1f,
-                UPlayGroundAttributeDefaults.Get(AttributeIds.Vital.MaxHealth));
+                UPlayGroundAttributeDefaults.Get(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
         }
 
         /// <summary>지정 캐릭터를 풀 회복. reviveDowned=true면 HP 0(다운) 멤버도 되살린다.</summary>
@@ -392,17 +392,17 @@ namespace UPlayGround
             // 벤치: 캐릭터별 ASC 스냅샷에 기록한다.
             float max = GetMaxHealthForCharacter(type);
             bool hasRecord = TryGetStoredAttribute(
-                type, AttributeIds.Vital.Health, out float stored);
+                type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, out float stored);
             if (!hasRecord) return;                       // 기록 없음 = 이미 풀피
             if (!reviveDowned && stored <= 0f) return;    // 부활 비활성 시 다운 제외
-            SetStoredAttribute(type, AttributeIds.Vital.Health, max);
+            SetStoredAttribute(type, global::UPlayGround.Data.Stat.Attributes.Vital.Health, max);
         }
 
         public float GetSkillGaugeForCharacter(CharacterActorType type)
         {
             if (type == _characterActorType) return _skillGauge != null ? _skillGauge.CurrentGauge : 0f;
             return TryGetStoredAttribute(
-                type, AttributeIds.Resource.UltimateEnergy, out float gauge)
+                type, global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy, out float gauge)
                     ? gauge
                     : 0f;
         }
@@ -499,7 +499,7 @@ namespace UPlayGround
             float current = GetSkillGaugeForCharacter(type);
             SetStoredAttribute(
                 type,
-                AttributeIds.Resource.UltimateEnergy,
+                global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy,
                 Mathf.Clamp(current + amount, 0f, max));
         }
 
@@ -511,7 +511,7 @@ namespace UPlayGround
                 _skillGauge.SetGauge(0f);
             else
                 SetStoredAttribute(
-                    type, AttributeIds.Resource.UltimateEnergy, 0f);
+                    type, global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy, 0f);
 
             return true;
         }

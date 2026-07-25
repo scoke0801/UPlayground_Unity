@@ -95,7 +95,7 @@ namespace UPlayGround.Tool.Editor.Balance
 
             if (!BalanceAttributeProfileUtility.Set(
                     actor,
-                    AttributeIds.Vital.MaxHealth,
+                    global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth,
                     Mathf.Max(1f, Mathf.Round(recommendedHealth)),
                     "Apply Recommended Monster HP"))
                 return false;

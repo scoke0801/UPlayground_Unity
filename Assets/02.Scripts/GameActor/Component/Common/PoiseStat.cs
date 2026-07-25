@@ -27,7 +27,7 @@ namespace UPlayGround.Components
         private AbilitySystemComponent AbilitySystem =>
             GetComponent<GameActor>()?.AbilitySystem;
         private float _currentPoise =>
-            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.Poise) ?? 0f;
+            AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Poise) ?? 0f;
         private float _recoveryTimer;
         private bool  _isBroken = false;
         private bool  _isHyperArmorActive;
@@ -40,11 +40,11 @@ namespace UPlayGround.Components
         public bool  IsPoiseBroken => _isBroken;
         public float CurrentPoise  => _currentPoise;
 
-        public float MaxPoise => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.MaxPoise)
+        public float MaxPoise => AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise)
             ?? FallbackMaxPoise;
-        private float RecoveryRate => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.PoiseRecoveryRate)
+        private float RecoveryRate => AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryRate)
             ?? FallbackRecoveryRate;
-        private float RecoveryDelay => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.PoiseRecoveryDelay)
+        private float RecoveryDelay => AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryDelay)
             ?? FallbackRecoveryDelay;
 
         private void Awake()
@@ -67,8 +67,8 @@ namespace UPlayGround.Components
 
         private void OnAttributeChanged(AttributeChangedEvent change)
         {
-            if (change.AttributeId == AttributeIds.Vital.Poise
-                || change.AttributeId == AttributeIds.Vital.MaxPoise)
+            if (change.AttributeId == global::UPlayGround.Data.Stat.Attributes.Vital.Poise
+                || change.AttributeId == global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise)
                 _actorUIBar?.UpdatePoise(_currentPoise, MaxPoise);
         }
 
@@ -90,7 +90,7 @@ namespace UPlayGround.Components
 
         private void InitFromStats()
         {
-            AbilitySystem?.Attributes.SetBase(AttributeIds.Vital.Poise, MaxPoise);
+            AbilitySystem?.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Poise, MaxPoise);
             _lastMaxPoise  = MaxPoise;
             _isBroken      = false;
             _recoveryTimer = 0f;
@@ -190,7 +190,7 @@ namespace UPlayGround.Components
         {
             if (Mathf.Approximately(delta, 0f)) return;
             AbilitySystem?.ApplyAttributeDelta(
-                AttributeIds.Vital.Poise, delta, sourceId);
+                global::UPlayGround.Data.Stat.Attributes.Vital.Poise, delta, sourceId);
         }
     }
 }

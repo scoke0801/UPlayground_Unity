@@ -226,12 +226,12 @@ namespace UPlayGround.Tool.Editor.Balance
                     AssetName = asset.name,
                     Path = AssetDatabase.GetAssetPath(asset),
                     Owner = owner,
-                    MaxHealth = Get(asset, AttributeIds.Vital.MaxHealth),
-                    AttackPower = Get(asset, AttributeIds.Combat.AttackPower),
-                    Defense = Get(asset, AttributeIds.Combat.Defense),
-                    MaxPoise = Get(asset, AttributeIds.Vital.MaxPoise),
-                    MoveSpeed = Get(asset, AttributeIds.Movement.MoveSpeed),
-                    CritRate = Get(asset, AttributeIds.Combat.CritRate),
+                    MaxHealth = Get(asset, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth),
+                    AttackPower = Get(asset, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower),
+                    Defense = Get(asset, global::UPlayGround.Data.Stat.Attributes.Combat.Defense),
+                    MaxPoise = Get(asset, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise),
+                    MoveSpeed = Get(asset, global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed),
+                    CritRate = Get(asset, global::UPlayGround.Data.Stat.Attributes.Combat.CritRate),
                 });
             }
 

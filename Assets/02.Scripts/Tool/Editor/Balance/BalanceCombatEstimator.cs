@@ -45,17 +45,17 @@ namespace UPlayGround.Tool.Editor.Balance
             }
 
             float monsterHealth = Mathf.Max(1f,
-                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Vital.MaxHealth, 100f));
+                BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, 100f));
             float monsterAttackPower = Mathf.Max(0f,
-                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.AttackPower, 1f));
+                BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, 1f));
             float monsterDefense = Mathf.Clamp01(
-                BalanceAttributeProfileUtility.Get(actor, AttributeIds.Combat.Defense));
+                BalanceAttributeProfileUtility.Get(actor, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
 
-            float playerHealth = Mathf.Max(1f, ReadPlayerStat(scenario, AttributeIds.Vital.MaxHealth));
+            float playerHealth = Mathf.Max(1f, ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
             float playerAttackPower = Mathf.Max(0f, ReadPlayerAttackPower(scenario, fallbackInput));
-            float playerDefense = Mathf.Clamp01(ReadPlayerStat(scenario, AttributeIds.Combat.Defense));
-            float playerMaxPoise = Mathf.Max(0f, ReadPlayerStat(scenario, AttributeIds.Vital.MaxPoise));
-            float playerPoiseRecovery = Mathf.Max(0f, ReadPlayerStat(scenario, AttributeIds.Vital.PoiseRecoveryRate));
+            float playerDefense = Mathf.Clamp01(ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
+            float playerMaxPoise = Mathf.Max(0f, ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise));
+            float playerPoiseRecovery = Mathf.Max(0f, ReadPlayerStat(scenario, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryRate));
             result.MonsterHealth = monsterHealth;
             result.PlayerHealth = playerHealth;
             result.PlayerAttackPower = playerAttackPower;
@@ -405,7 +405,7 @@ namespace UPlayGround.Tool.Editor.Balance
         {
             if (scenario?.playerAttributeProfile != null
                 && scenario.playerAttributeProfile.TryGetBaseValue(
-                    AttributeIds.Combat.AttackPower, out float attackPower))
+                    global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, out float attackPower))
                 return attackPower;
 
             if (scenario != null)

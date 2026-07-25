@@ -107,9 +107,9 @@ namespace UPlayGround.Data.Enemy
 
             growthRules = new List<StatGrowthRule>
             {
-                new() { attributeId = AttributeIds.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
-                new() { attributeId = AttributeIds.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
-                new() { attributeId = AttributeIds.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
+                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
+                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
             };
         }
 
@@ -123,9 +123,9 @@ namespace UPlayGround.Data.Enemy
             {
                 growthRules = new List<StatGrowthRule>
                 {
-                    new() { attributeId = AttributeIds.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
-                    new() { attributeId = AttributeIds.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
-                    new() { attributeId = AttributeIds.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
+                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.035f },
+                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.03f },
+                    new() { attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise.Value, formula = GrowthFormula.Percent, percentPerLevel = 0.018f },
                 };
             }
         }

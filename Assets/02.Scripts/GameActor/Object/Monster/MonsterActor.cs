@@ -58,12 +58,12 @@ namespace UPlayGround
         [SerializeField] private EnemyCombat _combat;
 
         protected float _maxHealth =>
-            AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.MaxHealth) ?? 0f;
+            AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth) ?? 0f;
 
         protected float _currentHealth
         {
-            get => AbilitySystem?.Attributes.GetCurrent(AttributeIds.Vital.Health) ?? 0f;
-            set => AbilitySystem?.Attributes.SetBase(AttributeIds.Vital.Health, value);
+            get => AbilitySystem?.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Vital.Health) ?? 0f;
+            set => AbilitySystem?.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health, value);
         }
         protected bool _isDead = false;
         private int _externalHitReactionSuppressionCount;

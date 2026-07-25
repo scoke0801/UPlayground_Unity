@@ -73,6 +73,7 @@ namespace UPlayGround.Data.Party
     {
         public GrowthAttributeType attributeType;
         [Tooltip("런타임에서 사용하는 안정 Attribute ID")]
+        [AttributeIdSelector]
         public string attributeId;
         [Min(1)] public int maxRank;
         [Tooltip("랭크 1당 기본 스탯에 더할 값. 체력 20, 방어 0.02, 크리티컬 0.01, 공속 0.03, 공격력 0.05 권장.")]
@@ -86,6 +87,7 @@ namespace UPlayGround.Data.Party
     public struct StatGrowthRule
     {
         [Tooltip("성장 대상 안정 Attribute ID")]
+        [AttributeIdSelector]
         public string attributeId;
         public GrowthFormula formula;
         public float flatPerLevel;
@@ -147,11 +149,11 @@ namespace UPlayGround.Data.Party
 
         public static GrowthInvestmentRule GetDefaultInvestmentRule(GrowthAttributeType type) => type switch
         {
-            GrowthAttributeType.Health => new GrowthInvestmentRule { attributeType = type, attributeId = AttributeIds.Vital.MaxHealth.Value, maxRank = 20, flatPerRank = 20f, milestones = new List<GrowthUnlockMilestone>() },
-            GrowthAttributeType.Defense => new GrowthInvestmentRule { attributeType = type, attributeId = AttributeIds.Combat.Defense.Value, maxRank = 20, flatPerRank = 0.02f, milestones = new List<GrowthUnlockMilestone>() },
-            GrowthAttributeType.Critical => new GrowthInvestmentRule { attributeType = type, attributeId = AttributeIds.Combat.CritRate.Value, maxRank = 20, flatPerRank = 0.01f, milestones = new List<GrowthUnlockMilestone>() },
-            GrowthAttributeType.AttackSpeed => new GrowthInvestmentRule { attributeType = type, attributeId = AttributeIds.Combat.AttackSpeed.Value, maxRank = 20, flatPerRank = 0.03f, milestones = new List<GrowthUnlockMilestone>() },
-            _ => new GrowthInvestmentRule { attributeType = type, attributeId = AttributeIds.Combat.AttackPower.Value, maxRank = 20, flatPerRank = 0.05f, milestones = new List<GrowthUnlockMilestone>() },
+            GrowthAttributeType.Health => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth.Value, maxRank = 20, flatPerRank = 20f, milestones = new List<GrowthUnlockMilestone>() },
+            GrowthAttributeType.Defense => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.Defense.Value, maxRank = 20, flatPerRank = 0.02f, milestones = new List<GrowthUnlockMilestone>() },
+            GrowthAttributeType.Critical => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.CritRate.Value, maxRank = 20, flatPerRank = 0.01f, milestones = new List<GrowthUnlockMilestone>() },
+            GrowthAttributeType.AttackSpeed => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed.Value, maxRank = 20, flatPerRank = 0.03f, milestones = new List<GrowthUnlockMilestone>() },
+            _ => new GrowthInvestmentRule { attributeType = type, attributeId = global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower.Value, maxRank = 20, flatPerRank = 0.05f, milestones = new List<GrowthUnlockMilestone>() },
         };
     }
 }

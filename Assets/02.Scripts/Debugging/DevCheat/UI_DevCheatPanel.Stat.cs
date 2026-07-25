@@ -20,8 +20,14 @@ namespace UPlayGround.UI.DevCheat
         private RectTransform _statContent;
         private TextMeshProUGUI _growthSummaryText;
 
-        private static readonly AttributeId[] EditableAttributes =
-            UPlayGroundAttributeDefaults.All;
+        // static 필드 초기화로 두면 안 된다. static 생성자는 이 타입을 처음 건드리는 시점,
+        // 즉 MonoBehaviour 역직렬화/생성 중에 실행되고 그 시점의 Resources.Load는
+        // UnityException("Load is not allowed to be called from a MonoBehaviour constructor")로 막힌다.
+        // (UPlayGroundAttributeDefaults.All → AttributeRegistry.Registry → Resources.Load)
+        // 프로퍼티로 두면 첫 사용 시점(BuildStatTab, Awake 이후)에 평가된다.
+        // 캐시하지 않는 이유: 탭을 열 때 1회만 쓰이고, 도메인 리로드를 끈 환경에서
+        // static 캐시가 레지스트리 변경 뒤에도 낡은 값을 붙들고 있는 문제를 피한다.
+        private static AttributeId[] EditableAttributes => UPlayGroundAttributeDefaults.All;
 
         private void BuildStatTab(RectTransform panel)
         {

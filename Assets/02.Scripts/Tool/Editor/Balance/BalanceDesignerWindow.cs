@@ -327,7 +327,7 @@ namespace UPlayGround.Tool.Editor.Balance
                 }
 
                 string statSummary = _selectedActor.attributeProfile != null
-                    ? $"HP {BalanceAttributeProfileUtility.Get(_selectedActor, AttributeIds.Vital.MaxHealth):F0} / ATK {BalanceAttributeProfileUtility.Get(_selectedActor, AttributeIds.Combat.AttackPower):F2} / DEF {BalanceAttributeProfileUtility.Get(_selectedActor, AttributeIds.Combat.Defense):F2}"
+                    ? $"HP {BalanceAttributeProfileUtility.Get(_selectedActor, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth):F0} / ATK {BalanceAttributeProfileUtility.Get(_selectedActor, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower):F2} / DEF {BalanceAttributeProfileUtility.Get(_selectedActor, global::UPlayGround.Data.Stat.Attributes.Combat.Defense):F2}"
                     : "Attribute Profile 없음";
                 string attackSummary = _selectedActor.EffectiveAbilitySet != null
                     ? $"Abilities {_selectedActor.EffectiveAbilitySet.additionalAbilities?.Count ?? 0}"

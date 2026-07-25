@@ -46,12 +46,12 @@ namespace UPlayGround.Tool.Editor.Party
 
         private static readonly (string label, AttributeId[] attributes)[] Categories =
         {
-            ("생존",  new[] { AttributeIds.Vital.MaxHealth, AttributeIds.Vital.HealthRegenRate }),
-            ("전투",  new[] { AttributeIds.Combat.AttackPower, AttributeIds.Combat.Defense, AttributeIds.Combat.CritRate, AttributeIds.Combat.CritMultiplier }),
-            ("이동",  new[] { AttributeIds.Movement.MoveSpeed, AttributeIds.Movement.DashDistance }),
-            ("강인도", new[] { AttributeIds.Vital.MaxPoise, AttributeIds.Vital.PoiseRecoveryRate, AttributeIds.Vital.PoiseRecoveryDelay }),
-            ("스킬",  new[] { AttributeIds.Resource.GenerationMultiplier, AttributeIds.Combat.InvincibleDurationMultiplier }),
-            ("생활",  new[] { AttributeIds.Life.GatheringPower }),
+            ("생존",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, global::UPlayGround.Data.Stat.Attributes.Vital.HealthRegenRate }),
+            ("전투",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, global::UPlayGround.Data.Stat.Attributes.Combat.Defense, global::UPlayGround.Data.Stat.Attributes.Combat.CritRate, global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier }),
+            ("이동",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Movement.MoveSpeed, global::UPlayGround.Data.Stat.Attributes.Movement.DashDistance }),
+            ("강인도", new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryRate, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryDelay }),
+            ("스킬",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Resource.GenerationMultiplier, global::UPlayGround.Data.Stat.Attributes.Combat.InvincibleDurationMultiplier }),
+            ("생활",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Life.GatheringPower }),
             ("전체",  UPlayGroundAttributeDefaults.All),
         };
 
@@ -444,7 +444,7 @@ namespace UPlayGround.Tool.Editor.Party
                 entries.Add(new AttributeProfileEntry(
                     attributeId,
                     UPlayGroundAttributeDefaults.Get(attributeId)));
-            profile.EditorReplace($"player.{type}", entries);
+            profile.EditorReplace(entries);
 
             string path = AssetDatabase.GenerateUniqueAssetPath(
                 $"{_profileSavePath}/AttributeProfile_Player_{type}.asset");

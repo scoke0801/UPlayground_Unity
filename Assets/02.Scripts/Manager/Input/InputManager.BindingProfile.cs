@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 
 namespace UPlayGround.Manager
 {
-    public partial class InputManager
+    public partial class InputManager : IInputActionIdentityLookup
     {
         private const string BindingProfilePrefsKey = "InputBindings_v1";
         private const string UserBindingGroupPrefix = "__UserBinding__";
@@ -21,6 +21,7 @@ namespace UPlayGround.Manager
             public readonly string Map;
             public readonly string Action;
             public readonly string DisplayName;
+            public readonly string Description;
             public readonly InputBindingCategory Category;
             public readonly bool Required;
 
@@ -28,55 +29,90 @@ namespace UPlayGround.Manager
                 string map,
                 string action,
                 string displayName,
+                string description,
                 InputBindingCategory category,
                 bool required = false)
             {
                 Map = map;
                 Action = action;
                 DisplayName = displayName;
+                Description = description;
                 Category = category;
                 Required = required;
             }
         }
 
+        // 표시 순서 = 배열 순서. 카테고리별로 묶여 있어야 목록의 섹션 헤더가 자연스럽게 나온다.
         private static readonly BindingDefinition[] RebindableDefinitions =
         {
-            new(InputMapNames.PlayerAction, PlayerAction.Jump, "점프", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Sprint, "전력 질주", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Walk, "걷기 전환", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Dash, "대시", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Dodge, "회피", InputBindingCategory.Movement),
-            new(InputMapNames.PlayerAction, PlayerAction.Crouching, "웅크리기", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Jump, "점프",
+                "제자리 또는 이동 중 도약합니다.", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Sprint, "전력 질주",
+                "유지하는 동안 이동 속도가 빨라집니다.", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Walk, "걷기 전환",
+                "걷기와 달리기를 번갈아 바꿉니다.", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Dash, "대시",
+                "바라보는 방향으로 짧게 돌진합니다. 쿨타임이 있습니다.", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Dodge, "회피",
+                "무적 판정으로 공격을 흘립니다. 정확한 타이밍에 반격 기회가 열립니다.", InputBindingCategory.Movement),
+            new(InputMapNames.PlayerAction, PlayerAction.Crouching, "웅크리기",
+                "자세를 낮춰 좁은 공간을 지나갑니다.", InputBindingCategory.Movement),
 
-            new(InputMapNames.PlayerAction, PlayerAction.Attack, "일반 공격", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, "강공격", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.Guard, "가드", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.SkillAbility, "스킬", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, "궁극기", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.ElementBuff, "원소 버프", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.LockOn, "락온", InputBindingCategory.Combat),
-            new(InputMapNames.PlayerAction, PlayerAction.BossAssist, "보스 어시스트", InputBindingCategory.Combat),
+            new(InputMapNames.PlayerAction, PlayerAction.Attack, "일반 공격",
+                "무기를 사용해 적을 공격합니다. 연속 입력으로 콤보가 이어집니다.", InputBindingCategory.Combat),
+            new(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, "강공격",
+                "느리지만 강한 일격입니다. 적의 강인도를 크게 깎습니다.", InputBindingCategory.Combat),
+            new(InputMapNames.PlayerAction, PlayerAction.Guard, "가드",
+                "유지하는 동안 피해를 줄입니다. 피격 직전에 눌러 저스트 가드가 됩니다.", InputBindingCategory.Combat),
+            new(InputMapNames.PlayerAction, PlayerAction.LockOn, "락온",
+                "가장 가까운 적을 시야에 고정합니다.", InputBindingCategory.Combat),
+            new(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft, "락온 대상 왼쪽",
+                "고정 대상을 왼쪽 적으로 바꿉니다.", InputBindingCategory.Combat),
+            new(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight, "락온 대상 오른쪽",
+                "고정 대상을 오른쪽 적으로 바꿉니다.", InputBindingCategory.Combat),
 
-            new(InputMapNames.PlayerAction, PlayerAction.Interact, "상호작용", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.Equip, "무기 장착", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_1, "캐릭터 교체 1", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_2, "캐릭터 교체 2", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_3, "캐릭터 교체 3", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_4, "캐릭터 교체 4", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Up, "퀵슬롯 위", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Right, "퀵슬롯 오른쪽", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Down, "퀵슬롯 아래", InputBindingCategory.Interaction),
-            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Left, "퀵슬롯 왼쪽", InputBindingCategory.Interaction),
+            new(InputMapNames.PlayerAction, PlayerAction.SkillAbility, "스킬",
+                "장착한 캐릭터 스킬을 사용합니다. 스킬 게이지를 소모합니다.", InputBindingCategory.Skill),
+            new(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, "궁극기",
+                "게이지를 모두 소모해 최대 위력의 기술을 사용합니다.", InputBindingCategory.Skill),
+            new(InputMapNames.PlayerAction, PlayerAction.ElementBuff, "원소 버프",
+                "무기에 원소를 부여해 속성 피해를 더합니다.", InputBindingCategory.Skill),
+            new(InputMapNames.PlayerAction, PlayerAction.BossAssist, "보스 어시스트",
+                "영입한 보스를 불러 지정 스킬을 1회 사용합니다.", InputBindingCategory.Skill),
 
-            new(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchLeft, "락온 대상 왼쪽", InputBindingCategory.Camera),
-            new(InputMapNames.PlayerAction, PlayerAction.LockOnSwitchRight, "락온 대상 오른쪽", InputBindingCategory.Camera),
+            new(InputMapNames.PlayerAction, PlayerAction.Interact, "상호작용",
+                "대화, 채집, 장치 조작 등 상황에 맞는 행동을 합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.Equip, "무기 장착",
+                "무기를 뽑거나 집어넣습니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_1, "캐릭터 교체 1",
+                "파티 1번 캐릭터로 즉시 교체합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_2, "캐릭터 교체 2",
+                "파티 2번 캐릭터로 즉시 교체합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_3, "캐릭터 교체 3",
+                "파티 3번 캐릭터로 즉시 교체합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.CharacterSwap_4, "캐릭터 교체 4",
+                "파티 4번 캐릭터로 즉시 교체합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Up, "퀵슬롯 위",
+                "위쪽 퀵슬롯에 등록한 아이템을 사용합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Right, "퀵슬롯 오른쪽",
+                "오른쪽 퀵슬롯에 등록한 아이템을 사용합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Down, "퀵슬롯 아래",
+                "아래쪽 퀵슬롯에 등록한 아이템을 사용합니다.", InputBindingCategory.System),
+            new(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Left, "퀵슬롯 왼쪽",
+                "왼쪽 퀵슬롯에 등록한 아이템을 사용합니다.", InputBindingCategory.System),
 
-            new(InputMapNames.UI, UIAction.Inventory, "인벤토리", InputBindingCategory.UI),
-            new(InputMapNames.UI, UIAction.Map, "지도", InputBindingCategory.UI),
-            new(InputMapNames.UI, UIAction.Party, "파티", InputBindingCategory.UI),
-            new(InputMapNames.UI, UIAction.MenuPanel, "메뉴", InputBindingCategory.UI, true),
-            new(InputMapNames.UI, UIAction.Submit, "UI 확인", InputBindingCategory.UI, true),
-            new(InputMapNames.UI, UIAction.Cancel, "UI 취소", InputBindingCategory.UI, true),
+            new(InputMapNames.UI, UIAction.Inventory, "인벤토리",
+                "소지품 창을 엽니다.", InputBindingCategory.UI),
+            new(InputMapNames.UI, UIAction.Map, "지도",
+                "지도를 엽니다.", InputBindingCategory.UI),
+            new(InputMapNames.UI, UIAction.Party, "파티",
+                "파티 구성 창을 엽니다.", InputBindingCategory.UI),
+            new(InputMapNames.UI, UIAction.MenuPanel, "메뉴",
+                "메인 메뉴를 엽니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
+            new(InputMapNames.UI, UIAction.Submit, "UI 확인",
+                "선택한 항목을 확정합니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
+            new(InputMapNames.UI, UIAction.Cancel, "UI 취소",
+                "창을 닫거나 이전으로 돌아갑니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
         };
 
         private void LoadInputBindingProfile()
@@ -94,6 +130,7 @@ namespace UPlayGround.Manager
                 _bindingProfile = JsonUtility.FromJson<InputBindingProfileData>(json)
                                   ?? new InputBindingProfileData();
                 _bindingProfile.entries ??= new List<InputBindingOverrideEntry>();
+                MigrateBindingProfile(_bindingProfile);
                 ApplyBindingProfile();
             }
             catch (Exception exception)
@@ -102,6 +139,65 @@ namespace UPlayGround.Manager
                 _bindingProfile = new InputBindingProfileData();
                 ApplyBindingProfile();
             }
+        }
+
+        /// <summary>
+        /// 액션 GUID 우선 식별으로 프로필을 현재 액션 에셋에 맞춰 이전한다(스펙 §13.4).
+        /// 실패한 슬롯만 기본값으로 되돌리고 프로필 전체는 유지한다.
+        /// </summary>
+        private void MigrateBindingProfile(InputBindingProfileData profile)
+        {
+            InputBindingMigrationReport report =
+                InputBindingProfileMigration.Migrate(profile, this);
+
+            if (report.HasChanges)
+                Debug.Log($"[InputManager] 입력 바인딩 프로필 마이그레이션: {report}");
+        }
+
+        bool IInputActionIdentityLookup.TryResolveById(
+            string actionId,
+            out string mapName,
+            out string actionName)
+        {
+            mapName = null;
+            actionName = null;
+            if (string.IsNullOrWhiteSpace(actionId)
+                || !Guid.TryParse(actionId, out Guid guid))
+            {
+                return false;
+            }
+
+            foreach (InputAction action in actionCache.Values)
+            {
+                if (action.id != guid)
+                    continue;
+
+                mapName = action.actionMap?.name;
+                actionName = action.name;
+                return !string.IsNullOrEmpty(mapName);
+            }
+
+            return false;
+        }
+
+        bool IInputActionIdentityLookup.TryResolveByName(
+            string mapName,
+            string actionName,
+            out string actionId)
+        {
+            actionId = null;
+            InputAction action = GetAction(mapName, actionName);
+            if (action == null)
+                return false;
+
+            actionId = action.id.ToString();
+            return true;
+        }
+
+        private string ResolveActionId(string mapName, string actionName)
+        {
+            InputAction action = GetAction(mapName, actionName);
+            return action == null ? null : action.id.ToString();
         }
 
         public IReadOnlyList<InputBindingDescriptor> GetBindingDescriptors(
@@ -136,6 +232,7 @@ namespace UPlayGround.Manager
                     result.Add(new InputBindingDescriptor(
                         target,
                         definition.DisplayName,
+                        definition.Description,
                         definition.Category,
                         display,
                         isComposite,
@@ -162,6 +259,7 @@ namespace UPlayGround.Manager
                     return false;
 
                 restored.entries ??= new List<InputBindingOverrideEntry>();
+                MigrateBindingProfile(restored);
                 _bindingProfile = restored;
                 ApplyBindingProfile();
                 OnBindingsChanged?.Invoke();
@@ -215,6 +313,7 @@ namespace UPlayGround.Manager
 
             UpsertProfileEntry(new InputBindingOverrideEntry
             {
+                actionId = ResolveActionId(capture.Target.mapName, capture.Target.actionName),
                 mapName = capture.Target.mapName,
                 actionName = capture.Target.actionName,
                 deviceGroup = capture.Target.deviceGroup,
@@ -232,8 +331,32 @@ namespace UPlayGround.Manager
 
         public void ResetBinding(InputBindingTarget target)
         {
-            _bindingProfile.entries.RemoveAll(entry =>
+            int removed = _bindingProfile.entries.RemoveAll(entry =>
                 entry != null && entry.Target.Equals(target));
+            if (removed == 0)
+                return;
+
+            ApplyBindingProfile();
+            OnBindingsChanged?.Invoke();
+        }
+
+        /// <summary>
+        /// 한 액션의 모든 장치·슬롯을 기본값으로 되돌린다.
+        /// ResetBinding을 4번 부르면 ApplyBindingProfile이 4번 돌아 액션 맵을
+        /// 한 프레임에 네 번 Disable/Enable하게 되므로 한 번에 처리한다.
+        /// </summary>
+        public void ResetBindingsForAction(string mapName, string actionName)
+        {
+            if (string.IsNullOrEmpty(mapName) || string.IsNullOrEmpty(actionName))
+                return;
+
+            int removed = _bindingProfile.entries.RemoveAll(entry =>
+                entry != null
+                && entry.mapName == mapName
+                && entry.actionName == actionName);
+            if (removed == 0)
+                return;
+
             ApplyBindingProfile();
             OnBindingsChanged?.Invoke();
         }
@@ -272,7 +395,10 @@ namespace UPlayGround.Manager
             }
 
             if (_bindingProfile?.entries == null)
+            {
+                RebuildChordCatalog();
                 return;
+            }
 
             foreach (InputBindingOverrideEntry entry in _bindingProfile.entries)
             {
@@ -281,6 +407,9 @@ namespace UPlayGround.Manager
 
                 ApplyProfileEntry(entry);
             }
+
+            // effective binding이 바뀌었으므로 조합 카탈로그와 진행 중 중재 상태를 다시 만든다.
+            RebuildChordCatalog();
         }
 
         private void ApplyProfileEntry(InputBindingOverrideEntry entry)
@@ -302,14 +431,25 @@ namespace UPlayGround.Manager
                 if (entry.disabled)
                     return;
 
-                EnsureUserBindingSlot(
-                    action,
-                    entry.deviceGroup,
-                    entry.slot,
-                    out int singleIndex,
-                    out int compositeIndex,
-                    out int modifierIndex,
-                    out int triggerIndex);
+                if (!TryGetUserBindingSlot(
+                        action,
+                        entry.deviceGroup,
+                        entry.slot,
+                        out int singleIndex,
+                        out int compositeIndex,
+                        out int modifierIndex,
+                        out int triggerIndex))
+                {
+                    // 슬롯은 Init에서 전부 만들어져 있어야 한다. 여기서 추가하면 에셋 구조가
+                    // 바뀌어 InputActionState가 재생성되고, PlayerInputActions/UI 액션을 참조하는
+                    // InputSystemUIInputModule의 캐시가 무효화된다(EventSystem.Update에서
+                    // FetchMapIndices의 maps가 null이 되며 ArgumentNullException).
+                    Debug.LogError(
+                        $"[InputManager] 사용자 바인딩 슬롯이 없습니다: " +
+                        $"{entry.mapName}/{entry.actionName}/{entry.deviceGroup}/{entry.slot}. " +
+                        "EnsureAllUserBindingSlots가 Init에서 실행됐는지 확인하세요.");
+                    return;
+                }
 
                 if (entry.isComposite)
                 {
@@ -333,14 +473,32 @@ namespace UPlayGround.Manager
             }
         }
 
+        /// <summary>
+        /// 사용자 바인딩 슬롯 전체를 빈 override로 덮어 무력화한다.
+        ///
+        /// composite 슬롯은 루트에만 그룹이 붙고 part(modifier/binding)에는 그룹이 없다.
+        /// 루트만 비우면 part의 플레이스홀더 경로(&lt;Keyboard&gt;/leftCtrl 등)가 effectivePath로
+        /// 남아, 기본 바인딩이 없는 액션(Walk·Crouching 등)에서 InputGlyphResolver가
+        /// 이 플레이스홀더를 실제 바인딩으로 잡아 "Ctrl + Space"처럼 잘못 표시한다.
+        /// 그래서 part까지 함께 비운다.
+        /// </summary>
         private static void DisableRuntimeUserBindings(InputActionMap map)
         {
             foreach (InputAction action in map.actions)
             {
-                for (int i = 0; i < action.bindings.Count; i++)
+                var bindings = action.bindings;
+                for (int i = 0; i < bindings.Count; i++)
                 {
-                    if (IsUserBinding(action.bindings[i]))
-                        action.ApplyBindingOverride(i, string.Empty);
+                    if (!IsUserBinding(bindings[i]))
+                        continue;
+
+                    action.ApplyBindingOverride(i, string.Empty);
+
+                    if (!bindings[i].isComposite)
+                        continue;
+
+                    for (int p = i + 1; p < bindings.Count && bindings[p].isPartOfComposite; p++)
+                        action.ApplyBindingOverride(p, string.Empty);
                 }
             }
         }
@@ -381,7 +539,79 @@ namespace UPlayGround.Manager
             return false;
         }
 
-        private static void EnsureUserBindingSlot(
+        /// <summary>
+        /// 모든 리바인딩 대상 액션에 사용자 바인딩 슬롯(단일 + 조합)을 미리 만든다.
+        ///
+        /// 반드시 Init에서 Action Map을 Enable하기 전에 1회만 호출한다.
+        /// 런타임에 AddBinding/AddCompositeBinding으로 슬롯을 만들면 에셋 구조가 바뀌어
+        /// InputActionState가 재생성되는데, PlayerInputActions/UI 액션을 직접 참조하는
+        /// InputSystemUIInputModule은 그 사실을 모른다. 다음 EventSystem.Update의
+        /// PurgeStalePointers에서 FetchMapIndices의 maps가 null이 되어
+        /// ArgumentNullException으로 죽는다.
+        ///
+        /// 슬롯을 미리 다 깔아두면 이후 리바인딩은 ApplyBindingOverride만 쓰므로
+        /// 구조 변경이 전혀 발생하지 않는다.
+        /// </summary>
+        private void EnsureAllUserBindingSlots()
+        {
+            foreach (BindingDefinition definition in RebindableDefinitions)
+            {
+                InputAction action = GetAction(definition.Map, definition.Action);
+                if (action == null)
+                    continue;
+
+                InputActionMap map = action.actionMap;
+                if (map != null && map.enabled)
+                {
+                    Debug.LogError(
+                        $"[InputManager] {map.name}이 이미 Enable 상태입니다. " +
+                        "사용자 바인딩 슬롯은 Enable 전에 만들어야 합니다.");
+                    continue;
+                }
+
+                foreach (InputBindingDeviceGroup device in
+                         Enum.GetValues(typeof(InputBindingDeviceGroup)))
+                {
+                    foreach (InputBindingSlot slot in Enum.GetValues(typeof(InputBindingSlot)))
+                        CreateUserBindingSlot(action, device, slot);
+                }
+            }
+        }
+
+        private static void CreateUserBindingSlot(
+            InputAction action,
+            InputBindingDeviceGroup deviceGroup,
+            InputBindingSlot slot)
+        {
+            string baseGroup = BuildUserGroup(deviceGroup, slot);
+            string singleGroup = baseGroup + "_Single";
+            string chordGroup = baseGroup + "_Chord";
+
+            // 플레이스홀더는 즉시 빈 override로 덮으므로 실제로 입력을 받지 않는다.
+            // 그래도 유효한 경로여야 바인딩 추가가 성립한다.
+            string placeholder = deviceGroup == InputBindingDeviceGroup.Gamepad
+                ? "<Gamepad>/buttonSouth"
+                : "<Keyboard>/space";
+            string modifierPlaceholder = deviceGroup == InputBindingDeviceGroup.Gamepad
+                ? "<Gamepad>/leftShoulder"
+                : "<Keyboard>/leftCtrl";
+
+            if (FindBindingByGroup(action, singleGroup, composite: false) < 0)
+                action.AddBinding(placeholder, groups: singleGroup);
+
+            if (FindBindingByGroup(action, chordGroup, composite: true) < 0)
+            {
+                var chordComposite = action.AddCompositeBinding("OneModifier")
+                    .With("modifier", modifierPlaceholder)
+                    .With("binding", placeholder);
+                action.ChangeBinding(chordComposite.bindingIndex).WithGroup(chordGroup);
+            }
+        }
+
+        /// <summary>
+        /// 미리 만들어둔 사용자 바인딩 슬롯의 인덱스를 찾는다. 구조를 바꾸지 않는다.
+        /// </summary>
+        private static bool TryGetUserBindingSlot(
             InputAction action,
             InputBindingDeviceGroup deviceGroup,
             InputBindingSlot slot,
@@ -391,36 +621,14 @@ namespace UPlayGround.Manager
             out int triggerIndex)
         {
             string baseGroup = BuildUserGroup(deviceGroup, slot);
-            string singleGroup = baseGroup + "_Single";
-            string chordGroup = baseGroup + "_Chord";
-
-            singleIndex = FindBindingByGroup(action, singleGroup, composite: false);
-            compositeIndex = FindBindingByGroup(action, chordGroup, composite: true);
-
-            string placeholder = deviceGroup == InputBindingDeviceGroup.Gamepad
-                ? "<Gamepad>/buttonSouth"
-                : "<Keyboard>/space";
-            string modifierPlaceholder = deviceGroup == InputBindingDeviceGroup.Gamepad
-                ? "<Gamepad>/leftShoulder"
-                : "<Keyboard>/leftCtrl";
-
-            if (singleIndex < 0)
-            {
-                action.AddBinding(placeholder, groups: singleGroup);
-                singleIndex = FindBindingByGroup(action, singleGroup, composite: false);
-            }
-
-            if (compositeIndex < 0)
-            {
-                var chordComposite = action.AddCompositeBinding("OneModifier")
-                    .With("modifier", modifierPlaceholder)
-                    .With("binding", placeholder);
-                action.ChangeBinding(chordComposite.bindingIndex).WithGroup(chordGroup);
-                compositeIndex = FindBindingByGroup(action, chordGroup, composite: true);
-            }
-
+            singleIndex = FindBindingByGroup(action, baseGroup + "_Single", composite: false);
+            compositeIndex = FindBindingByGroup(action, baseGroup + "_Chord", composite: true);
             modifierIndex = -1;
             triggerIndex = -1;
+
+            if (singleIndex < 0 || compositeIndex < 0)
+                return false;
+
             for (int i = compositeIndex + 1;
                  i < action.bindings.Count && action.bindings[i].isPartOfComposite;
                  i++)
@@ -431,8 +639,7 @@ namespace UPlayGround.Manager
                     triggerIndex = i;
             }
 
-            if (singleIndex < 0 || compositeIndex < 0 || modifierIndex < 0 || triggerIndex < 0)
-                throw new InvalidOperationException($"사용자 바인딩 슬롯 생성 실패: {action.actionMap?.name}/{action.name}");
+            return modifierIndex >= 0 && triggerIndex >= 0;
         }
 
         private static int FindBindingByGroup(
@@ -588,6 +795,7 @@ namespace UPlayGround.Manager
         {
             UpsertProfileEntry(new InputBindingOverrideEntry
             {
+                actionId = ResolveActionId(target.mapName, target.actionName),
                 mapName = target.mapName,
                 actionName = target.actionName,
                 deviceGroup = target.deviceGroup,

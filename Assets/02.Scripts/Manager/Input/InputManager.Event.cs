@@ -52,7 +52,6 @@ namespace UPlayGround.Manager
         private Dictionary<InputCallbackKey, List<InputCallbackData>> startCallbackDict = new();
         private Dictionary<InputCallbackKey, List<InputCallbackData>> performCallbackDict = new();
         private Dictionary<InputCallbackKey, List<InputCallbackData>> cancelCallbackDict = new();
-        private readonly HashSet<InputAction> _syntheticallyCanceledActions = new();
 
         public void RegisterInputEvent(string mapName, string actionName,
             Action<InputAction.CallbackContext> started,
@@ -105,64 +104,38 @@ namespace UPlayGround.Manager
             if (canceled != null) RemoveFromDict(cancelCallbackDict, key, canceled);
         }
 
+        // 세 진입점 모두 게이트를 통과한 뒤에는 조합 중재기(InputManager.Chord.cs)를 거친다.
+        // 콜백 디스패치와 전투 버퍼 적재는 중재 결과가 확정된 시점에만 일어난다.
         private void OnInputEventStarted(InputAction.CallbackContext context)
         {
-            if (_rebindCaptureActive)
+            if (!PassesInputGates(context))
                 return;
 
-            if (ShouldSuppressPlayerActionInput(context))
-                return;
-
-            if (ShouldSuppressSingleBecauseActiveChord(context))
-                return;
-
-            if (ShouldBlockPointerPlayerActionOverUI(context))
-                return;
-
-            ExecuteCallbacks(context, startCallbackDict);
+            SubmitToChordArbiter(context, InputArbiterPhase.Started);
         }
 
         private void OnInputEventPerformed(InputAction.CallbackContext context)
         {
-            if (_rebindCaptureActive)
+            if (!PassesInputGates(context))
                 return;
+
+            SubmitToChordArbiter(context, InputArbiterPhase.Performed);
+        }
+
+        private bool PassesInputGates(
+            InputAction.CallbackContext context,
+            bool applyPointerGate = true)
+        {
+            if (_rebindCaptureActive)
+                return false;
 
             if (ShouldSuppressPlayerActionInput(context))
-                return;
+                return false;
 
-            if (ShouldSuppressSingleBecauseActiveChord(context))
-                return;
+            if (applyPointerGate && ShouldBlockPointerPlayerActionOverUI(context))
+                return false;
 
-            if (ShouldBlockPointerPlayerActionOverUI(context))
-                return;
-
-            CancelActiveChordModifierActions(context);
-
-            // 전투 관련 입력은 Level_0(HUD)일 때만 버퍼에 추가
-            if (CurrentLayer == InputLayer.Level_0
-                && context.action.actionMap?.name == InputMapNames.PlayerAction)
-            {
-                string actionName = context.action.name;
-                switch (actionName)
-                {
-                    case InputDefine.PlayerAction.Attack:
-                    case InputDefine.PlayerAction.HeavyAttack:
-                    case InputDefine.PlayerAction.Dodge:
-                    case InputDefine.PlayerAction.Jump:
-                    case InputDefine.PlayerAction.Dash: 
-                    case InputDefine.PlayerAction.SkillAbility:
-                    case InputDefine.PlayerAction.SkillUltimate:
-                    case InputDefine.PlayerAction.ElementBuff:
-                    case InputDefine.PlayerAction.CharacterSwap_1:
-                    case InputDefine.PlayerAction.CharacterSwap_2:
-                    case InputDefine.PlayerAction.CharacterSwap_3:
-                    case InputDefine.PlayerAction.CharacterSwap_4:
-                        _inputBuffer.AddInput(actionName, bufferTime: GetPlayerActionBufferTime(actionName));
-                        break;
-                }
-            }
-
-            ExecuteCallbacks(context, performCallbackDict);
+            return true;
         }
 
         private PointerEventData _uiPointerEventData;
@@ -244,172 +217,14 @@ namespace UPlayGround.Manager
             };
         }
 
+        // Canceled는 포인터-오버-UI 게이트를 적용하지 않는다.
+        // 눌러둔 채 커서가 UI 위로 올라간 상태에서 떼면 release가 유실돼 hold가 영구히 남는다.
         private void OnInputEventCanceled(InputAction.CallbackContext context)
         {
-            // 조합 성립 시 이미 전달한 Modifier cancel은 실제 버튼 release에서 중복 전달하지 않는다.
-            if (_syntheticallyCanceledActions.Remove(context.action))
+            if (!PassesInputGates(context, applyPointerGate: false))
                 return;
 
-            if (_rebindCaptureActive)
-                return;
-
-            if (ShouldSuppressPlayerActionInput(context))
-                return;
-
-            if (ShouldSuppressSingleBecauseActiveChord(context))
-                return;
-
-            ExecuteCallbacks(context, cancelCallbackDict);
-        }
-
-        /// <summary>
-        /// Unity Input System은 OneModifier composite가 성립해도 같은 Trigger에 바인딩된
-        /// 단일 액션을 자동 소비하지 않는다. 같은 맵의 더 구체적인 조합이 활성 상태면
-        /// 구성 단일 액션을 라우터 진입점에서 차단한다.
-        /// </summary>
-        private bool ShouldSuppressSingleBecauseActiveChord(InputAction.CallbackContext context)
-        {
-            InputAction currentAction = context.action;
-            InputControl triggerControl = context.control;
-            InputActionMap map = currentAction?.actionMap;
-            if (map == null || triggerControl == null)
-                return false;
-
-            foreach (InputAction candidate in map.actions)
-            {
-                if (candidate == currentAction || !candidate.enabled)
-                    continue;
-
-                if (TryFindActiveChord(
-                        candidate,
-                        triggerControl,
-                        out _,
-                        out _))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// 조합 액션이 성립하면 Modifier를 단일 Hold 액션으로 사용하던 상태를 취소한다.
-        /// 예: Guard(LB) 유지 중 LB+D-pad 퀵슬롯이 성립하면 Guard canceled 콜백을 1회 호출.
-        /// </summary>
-        private void CancelActiveChordModifierActions(InputAction.CallbackContext context)
-        {
-            InputAction chordAction = context.action;
-            InputControl triggerControl = context.control;
-            InputActionMap map = chordAction?.actionMap;
-            if (map == null || triggerControl == null)
-                return;
-
-            if (!TryFindActiveChord(
-                    chordAction,
-                    triggerControl,
-                    out string modifierPath,
-                    out InputControl modifierControl))
-            {
-                return;
-            }
-
-            foreach (InputAction candidate in map.actions)
-            {
-                if (candidate == chordAction)
-                    continue;
-                if (!ActionHasSimpleBindingForControl(candidate, modifierControl, modifierPath))
-                    continue;
-                if (!_syntheticallyCanceledActions.Add(candidate))
-                    continue;
-
-                ExecuteCallbacksForAction(
-                    context,
-                    cancelCallbackDict,
-                    map.name,
-                    candidate.name);
-                _inputBuffer?.ConsumeInput(candidate.name);
-            }
-        }
-
-        private static bool TryFindActiveChord(
-            InputAction action,
-            InputControl triggerControl,
-            out string modifierPath,
-            out InputControl modifierControl)
-        {
-            modifierPath = null;
-            modifierControl = null;
-
-            var bindings = action.bindings;
-            for (int i = 0; i < bindings.Count; i++)
-            {
-                InputBinding root = bindings[i];
-                if (!root.isComposite || string.IsNullOrWhiteSpace(root.effectivePath))
-                    continue;
-
-                string modifier = null;
-                string trigger = null;
-                for (int p = i + 1;
-                     p < bindings.Count && bindings[p].isPartOfComposite;
-                     p++)
-                {
-                    if (string.Equals(bindings[p].name, "modifier", StringComparison.OrdinalIgnoreCase))
-                        modifier = bindings[p].effectivePath;
-                    else if (string.Equals(bindings[p].name, "binding", StringComparison.OrdinalIgnoreCase))
-                        trigger = bindings[p].effectivePath;
-                }
-
-                if (string.IsNullOrWhiteSpace(modifier)
-                    || string.IsNullOrWhiteSpace(trigger)
-                    || !ControlMatchesBindingPath(triggerControl, trigger))
-                {
-                    continue;
-                }
-
-                InputControl foundModifier = FindControlOnDevice(triggerControl.device, modifier);
-                if (foundModifier is not UnityEngine.InputSystem.Controls.ButtonControl button
-                    || !button.isPressed)
-                {
-                    continue;
-                }
-
-                modifierPath = modifier;
-                modifierControl = foundModifier;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool ActionHasSimpleBindingForControl(
-            InputAction action,
-            InputControl control,
-            string expectedPath)
-        {
-            if (control == null)
-                return false;
-
-            foreach (InputBinding binding in action.bindings)
-            {
-                if (binding.isComposite
-                    || binding.isPartOfComposite
-                    || string.IsNullOrWhiteSpace(binding.effectivePath))
-                {
-                    continue;
-                }
-
-                if (ControlMatchesBindingPath(control, binding.effectivePath)
-                    || string.Equals(
-                        NormalizeBindingPath(binding.effectivePath),
-                        NormalizeBindingPath(expectedPath),
-                        StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            SubmitToChordArbiter(context, InputArbiterPhase.Canceled);
         }
 
         private static InputControl FindControlOnDevice(InputDevice device, string bindingPath)
@@ -432,17 +247,6 @@ namespace UPlayGround.Manager
             return null;
         }
 
-        private static bool ControlMatchesBindingPath(InputControl control, string bindingPath)
-        {
-            if (control == null || string.IsNullOrWhiteSpace(bindingPath))
-                return false;
-
-            return string.Equals(
-                ToRelativeControlPath(control.path),
-                ToRelativeControlPath(bindingPath),
-                StringComparison.OrdinalIgnoreCase);
-        }
-
         private static string ToRelativeControlPath(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -457,11 +261,6 @@ namespace UPlayGround.Manager
             return slash >= 0 ? normalized.Substring(slash + 1) : normalized;
         }
 
-        private static string NormalizeBindingPath(string path) =>
-            string.IsNullOrWhiteSpace(path)
-                ? string.Empty
-                : path.Trim().ToLowerInvariant();
-
         private void ExecuteCallbacksForAction(
             InputAction.CallbackContext context,
             Dictionary<InputCallbackKey, List<InputCallbackData>> dict,
@@ -475,12 +274,23 @@ namespace UPlayGround.Manager
             for (int i = 0; i < callbackList.Count; i++)
             {
                 InputCallbackData data = callbackList[i];
+
+                // 레이어 검사: 등록된 레이어가 현재 활성화된 레이어보다 낮으면 실행하지 않음
                 if (data.Layer != InputLayer.None && data.Layer < CurrentLayer)
                     continue;
+
+                // 조건 함수 검사: checkFunc가 등록되어 있다면 실행 결과 확인
                 if (data.CheckFunc != null && !data.CheckFunc.Invoke())
                     continue;
 
+                // 실행 전 현재 레이어 캐싱
+                InputLayer cachedLayer = CurrentLayer;
+
                 data.Callback?.Invoke(context);
+
+                // 실행 결과로 인해 레이어가 변경되었다면 후속 이벤트 중단
+                if (cachedLayer != CurrentLayer)
+                    break;
             }
         }
 
@@ -507,46 +317,6 @@ namespace UPlayGround.Manager
 
         // 다른 시스템에서 InputBuffer에 접근할 수 있도록 하는 프로퍼티
         public InputBuffer InputBuffer => _inputBuffer;
-
-        // 공통 실행 로직
-        private void ExecuteCallbacks(InputAction.CallbackContext context,
-            Dictionary<InputCallbackKey, List<InputCallbackData>> dict)
-        {
-            var key = new InputCallbackKey(context.action.actionMap.name, context.action.name);
-            if (!dict.TryGetValue(key, out var callbackList))
-            {
-                return;
-            }
-
-            for (int i = 0; i < callbackList.Count; ++i)
-            {
-                var data = callbackList[i];
-
-                // 레이어 검사: 등록된 레이어가 현재 활성화된 레이어보다 낮으면 실행하지 않음
-                if (data.Layer != InputLayer.None && data.Layer < CurrentLayer)
-                {
-                    continue;
-                }
-
-                // 조건 함수 검사: checkFunc가 등록되어 있다면 실행 결과 확인
-                if (data.CheckFunc != null && !data.CheckFunc.Invoke())
-                {
-                    continue;
-                }
-
-                // 실행 전 현재 레이어 캐싱
-                InputLayer cachedLayer = CurrentLayer;
-
-                // 콜백 실행
-                data.Callback?.Invoke(context);
-
-                // 실행 결과로 인해 레이어가 변경되었다면 후속 이벤트 중단
-                if (cachedLayer != CurrentLayer)
-                {
-                    break;
-                }
-            }
-        }
 
         private void RemoveFromDict(Dictionary<InputCallbackKey, List<InputCallbackData>> dict,
             InputCallbackKey key, Action<InputAction.CallbackContext> callback)

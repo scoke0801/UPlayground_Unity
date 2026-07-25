@@ -18,9 +18,11 @@
 > - `Assets/Resources/Input/PlayerInputActions.inputactions`
 > - `Assets/03.Prefabs/UI/UIRoot.prefab`
 
-## 구현 진행 상태 (2026-07-23)
+## 구현 진행 상태 (2026-07-25)
 
-현재 1차 수직 슬라이스가 구현되었다.
+1차 수직 슬라이스에 이어 2차 작업(중재·마이그레이션·포커스 추적·EditMode 테스트)까지 구현되었다.
+
+### 1차 (2026-07-23)
 
 - 완료: 기본 게임패드 충돌 정리, Gamepad Control Scheme, 프로젝트 UI 액션 연결
 - 완료: 공통 `UIFocusScope`, 전역 UI Cancel, 장치 연결 해제 시 fallback
@@ -28,9 +30,37 @@
 - 완료: Primary/Secondary 단일키·2키 조합 캡처, 충돌 대체·취소, 필수 UI 키 보호
 - 완료: 설정 메뉴 키 설정 하위 패널, 장치/카테고리 필터, 액션/장치/전체 초기화
 - 완료: 임시 편집 후 Apply/Cancel, PlayerPrefs JSON 저장·로드, 글리프 변경 이벤트
-- 검증 완료: Unity 스크립트 컴파일, Data/Contracts/UI/Assembly-CSharp 보조 컴파일
-- 후속: 단일키 grace를 포함한 완전한 chord arbiter, GUID 기반 프로필 마이그레이션,
-  ScrollRect 자동 추적, EditMode/PlayMode 자동 테스트, 실제 패드 3종과 Player Build 스모크
+
+### 2차 (2026-07-25)
+
+- 완료 §9: 단일키 grace를 포함한 완전한 chord arbiter
+  (`Data/Input/InputChordArbiter.cs`, `Manager/Input/InputManager.Chord.cs`).
+  Unity Input System 타입을 참조하지 않는 순수 로직이라 EditMode에서 단독 검증한다.
+  `InputManager`의 세 콜백 진입점은 이제 중재기를 거친 뒤에만 콜백을 디스패치한다.
+- 완료 §9.3: `InputBuffer.AddInput`에 `timestamp` 인자 추가.
+  grace 지연분을 되돌려 만료 기준을 원래 물리 입력 시각으로 맞춘다.
+- 완료 §9.4: 레이어 변경·입력 억제 시 `InputChordArbiter.Reset`으로 보류 입력과
+  provisional hold를 폐기한다.
+- 완료 §13.4: 액션 GUID 우선 프로필 마이그레이션
+  (`Data/Input/InputBindingProfileMigration.cs`). `InputBindingOverrideEntry.actionId` 신설,
+  profileVersion 1→2. 실패·모호한 슬롯만 기본값 복구하고 프로필 전체는 유지한다.
+- 완료 §15.3: `UIFocusScope`의 ScrollRect 자동 추적. 선택 항목이 뷰포트 밖이면
+  최소 이동량만큼 스크롤을 따라간다(여백·보간 속도 인스펙터 노출).
+- 완료 §19.1: EditMode 테스트 `Assets/Tests/EditMode/Input/`
+  (`InputChordArbiterTests` 14개, `InputBindingProfileMigrationTests` 8개).
+  §19.1의 필수 조합 시나리오 6종을 모두 포함한다.
+- 검증 완료: Data/Contracts/UI/Assembly-CSharp/Input.Tests 보조 컴파일 오류 0,
+  중재기·마이그레이션 로직 44개 단언 전부 통과(구현 소스 직접 실행).
+
+### 남은 작업
+
+- §19.2 PlayMode 수직 슬라이스 8종. 타이틀/일시정지/설정 씬과 프리팹 부트스트랩이 필요해
+  Unity 에디터에서 씬 기준을 확정한 뒤 작성한다.
+- §20 실제 패드 3종(Xbox / DualSense / Switch Pro) 수동 스모크와 Player Build 검증.
+- §20에 걸린 미결정 사항: Switch의 Submit/Cancel 물리 위치 정책을 옵션화할지
+  출시 플랫폼 정책으로 고정할지.
+- Unity 에디터에서 Play Mode 실기 확인. 특히 grace 0.12초가 대시·회피 조작감을
+  해치지 않는지 체감 검증이 필요하다(수치는 `InputChordArbiter.GraceSeconds`에서 조정).
 
 ---
 
@@ -800,12 +830,20 @@ InputManager.Init
 
 ### 13.4 버전 마이그레이션
 
-액션 이름보다 binding GUID를 우선 식별자로 사용한다.
+액션 이름보다 GUID를 우선 식별자로 사용한다.
 
 - GUID가 유지되면 이름 변경에도 override 유지
 - GUID가 사라지면 `(map, action, deviceGroup, slot)` 보조 키로 이전 시도
 - 후보가 없거나 둘 이상이면 해당 슬롯만 기본값 복구
 - 프로필 전체를 무조건 폐기하지 않는다.
+
+구현 시 binding GUID가 아니라 **액션 GUID**(`InputAction.id`)를 사용한다.
+사용자 슬롯 바인딩은 `EnsureUserBindingSlot`이 런타임에 생성하므로 binding GUID가 세션 간
+안정적이지 않은 반면, 액션 GUID는 `.inputactions` 에셋에 저장돼 이름 변경에도 유지된다.
+슬롯 식별의 나머지 축은 `deviceGroup`/`slot`이 그대로 담당한다.
+
+`profileVersion`은 1(이름만 저장) → 2(`actionId` 추가)로 올린다.
+PlayerPrefs 키 `InputBindings_v1`은 저장 슬롯 이름이며 profileVersion과 별개로 유지한다.
 
 ---
 

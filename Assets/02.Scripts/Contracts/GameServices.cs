@@ -43,6 +43,7 @@ namespace UPlayGround.Manager
             bool replaceConflict,
             out InputBindingConflictInfo conflict);
         void ResetBinding(InputBindingTarget target);
+        void ResetBindingsForAction(string mapName, string actionName);
         void ResetBindings(InputBindingDeviceGroup? deviceGroup = null);
         UniTask<InputRebindCaptureResult> CaptureBindingAsync(
             InputBindingTarget target,

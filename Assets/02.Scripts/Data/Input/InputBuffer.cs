@@ -52,9 +52,16 @@ namespace UPlayGround.Input
         }
 
         /// <summary>
-        /// 입력 추가
+        /// 입력 추가.
+        /// <paramref name="timestamp"/>를 지정하면 만료 기준 시각을 직접 준다.
+        /// 조합키 중재(grace) 때문에 디스패치가 늦어져도 버퍼 유효 시간이 줄지 않도록
+        /// 호출자가 원래 물리 입력 시각을 넘기는 용도다(스펙 §9.3).
         /// </summary>
-        public void AddInput(string inputName, object data = null, float? bufferTime = null)
+        public void AddInput(
+            string inputName,
+            object data = null,
+            float? bufferTime = null,
+            float? timestamp = null)
         {
             // 버퍼 크기 제한
             while (_buffer.Count >= _maxBufferSize)
@@ -63,7 +70,9 @@ namespace UPlayGround.Input
             }
 
             float duration = Mathf.Max(0f, bufferTime ?? _bufferTime);
-            _buffer.Enqueue(new BufferedInput(inputName, Time.time, duration, data));
+            // 미래 타임스탬프는 만료를 늘려버리므로 현재 시각으로 잘라낸다.
+            float time = Mathf.Min(timestamp ?? Time.time, Time.time);
+            _buffer.Enqueue(new BufferedInput(inputName, time, duration, data));
         }
 
         /// <summary>

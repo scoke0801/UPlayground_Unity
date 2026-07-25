@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlayerInputActions 키매핑 레퍼런스</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1a1d21; --muted: #5d666f; --line: #e2e6ea;
+    --head: #f4f6f8; --accent: #3d6fd6; --warn-bg: #fff6e5; --warn-fg: #8a5a00;
+    --kbd-bg: #eef1f4; --kbd-fg: #23272b; --pad-bg: #e8f0fb; --pad-fg: #1f4b96;
+    --none: #b0b6bc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171a; --fg: #e6e9ec; --muted: #97a0a8; --line: #2b3136;
+      --head: #1c2126; --accent: #7aa4f0; --warn-bg: #3a2f16; --warn-fg: #e5c07b;
+      --kbd-bg: #262c32; --kbd-fg: #e6e9ec; --pad-bg: #1e2c42; --pad-fg: #9dc0f5;
+      --none: #666e75;
+    }
+  }
+  body {
+    margin: 0; padding: 2.2rem 1.4rem 5rem; background: var(--bg); color: var(--fg);
+    font-family: "Pretendard", "Malgun Gothic", -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.65; font-size: 15px;
+  }
+  main { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.85rem; margin: 0 0 .4rem; letter-spacing: -.02em; }
+  h2 {
+    font-size: 1.25rem; margin: 2.8rem 0 .9rem; padding-bottom: .45rem;
+    border-bottom: 2px solid var(--line);
+  }
+  h3 { font-size: 1rem; margin: 1.8rem 0 .6rem; color: var(--accent); }
+  .sub { color: var(--muted); font-size: .9rem; margin: 0 0 1.6rem; }
+  .meta { list-style: none; padding: 0; margin: 0 0 2rem; font-size: .88rem; color: var(--muted); }
+  .meta li { padding: .15rem 0; }
+  .meta code { color: var(--fg); }
+  code {
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: .86em;
+    background: var(--head); padding: .1em .38em; border-radius: 4px;
+  }
+  .scroll { overflow-x: auto; margin: 0 0 1rem; }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .9rem; }
+  th, td { text-align: left; padding: .5rem .7rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--head); font-weight: 600; white-space: nowrap; }
+  tbody tr:hover { background: color-mix(in srgb, var(--head) 60%, transparent); }
+  .kbd, .pad {
+    display: inline-block; font-family: "Cascadia Mono", Consolas, monospace;
+    font-size: .8rem; padding: .12em .5em; border-radius: 5px; margin: 1px 2px 1px 0;
+    white-space: nowrap;
+  }
+  .kbd { background: var(--kbd-bg); color: var(--kbd-fg); border: 1px solid var(--line); }
+  .pad { background: var(--pad-bg); color: var(--pad-fg); }
+  .none { color: var(--none); }
+  .tag {
+    display: inline-block; font-size: .72rem; padding: .08em .45em; border-radius: 3px;
+    background: var(--warn-bg); color: var(--warn-fg); font-weight: 600;
+  }
+  .note { color: var(--muted); font-size: .84rem; }
+  .callout {
+    background: var(--head); border-left: 3px solid var(--accent);
+    padding: .8rem 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-size: .9rem;
+  }
+</style>
+</head>
+<body>
+<main>
+
+<h1>PlayerInputActions 키매핑 레퍼런스</h1>
+<p class="sub">UPlayGround 입력 액션 · 바인딩 전수 목록 (기준일 2026-07-25)</p>
+
+<ul class="meta">
+  <li>에셋 — <code>Assets/Resources/Input/PlayerInputActions.inputactions</code></li>
+  <li>상수 정의 — <code>Assets/02.Scripts/Data/Input/InputDefine.cs</code></li>
+  <li>런타임 — <code>Assets/02.Scripts/Manager/Input/InputManager*.cs</code> (조합 중재는 <code>InputManager.Chord.cs</code>)</li>
+</ul>
+
+<h2>컨트롤 스킴 &amp; 액션 맵</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>스킴</th><th>디바이스</th></tr></thead>
+  <tbody>
+    <tr><td>Keyboard&amp;Mouse</td><td><code>&lt;Keyboard&gt;</code>, <code>&lt;Mouse&gt;</code></td></tr>
+    <tr><td>Gamepad</td><td><code>&lt;Gamepad&gt;</code></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="note">대부분의 바인딩은 스킴 그룹이 비어 있어 두 디바이스 모두에서 활성이다. 그룹이 <code>Gamepad</code>로 명시된 것은 조합(chord) 바인딩과 <code>BossAssist</code>의 게임패드 바인딩뿐이다.</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>맵</th><th>상수</th><th>액션 수</th><th>용도</th></tr></thead>
+  <tbody>
+    <tr><td><code>PlayerAction</code></td><td><code>InputMapNames.PlayerAction</code></td><td>29</td><td>인게임 이동·전투</td></tr>
+    <tr><td><code>System</code></td><td><code>InputMapNames.System</code></td><td>4</td><td>시스템 공통 (ESC/커서)</td></tr>
+    <tr><td><code>UI</code></td><td><code>InputMapNames.UI</code></td><td>13</td><td>UI 패널·네비게이션</td></tr>
+    <tr><td><code>Gamepad</code></td><td><code>InputMapNames.Gamepad</code></td><td>11</td><td>물리 버튼 원시 참조</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>InputLayer 우선순위</h3>
+<div class="scroll">
+<table>
+  <thead><tr><th>값</th><th>이름</th><th>대응</th></tr></thead>
+  <tbody>
+    <tr><td>-1</td><td><code>None</code></td><td>—</td></tr>
+    <tr><td>0</td><td><code>Level_0</code></td><td>HUD</td></tr>
+    <tr><td>1000</td><td><code>Level_1</code></td><td>Scene</td></tr>
+    <tr><td>2000</td><td><code>Level_2</code></td><td>Popup</td></tr>
+    <tr><td>3000</td><td><code>Level_3</code></td><td>System</td></tr>
+    <tr><td>10000</td><td><code>Level_Top</code></td><td>어디서든 입력 가능</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>PlayerAction 맵</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>액션</th><th>타입</th><th>키보드 / 마우스</th><th>게임패드</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><code>Move</code></td><td>Value (Vector2)</td><td><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span></td><td><span class="pad">좌스틱</span></td><td>2DVector 컴포짓</td></tr>
+    <tr><td><code>Look</code></td><td>Value (Vector2)</td><td><span class="kbd">마우스 이동</span></td><td><span class="pad">우스틱</span></td><td></td></tr>
+    <tr><td><code>Zoom</code></td><td>Value (Vector2)</td><td><span class="kbd">마우스 휠</span></td><td class="none">—</td><td><span class="tag">게임패드 미바인딩</span></td></tr>
+    <tr><td><code>Jump</code></td><td>Button</td><td><span class="kbd">Space</span></td><td><span class="pad">A</span></td><td></td></tr>
+    <tr><td><code>Sprint</code></td><td>Button</td><td><span class="kbd">Z</span></td><td><span class="pad">L3</span></td><td></td></tr>
+    <tr><td><code>Walk</code></td><td>Button</td><td class="none">—</td><td class="none">—</td><td><span class="tag">바인딩 없음</span></td></tr>
+    <tr><td><code>Dodge</code></td><td>Button</td><td><span class="kbd">Ctrl</span></td><td><span class="pad">LB</span> + <span class="pad">RB</span></td><td>OneModifier 컴포짓</td></tr>
+    <tr><td><code>Attack</code></td><td>Button</td><td><span class="kbd">좌클릭</span></td><td><span class="pad">X</span></td><td></td></tr>
+    <tr><td><code>HeavyAttack</code></td><td>Button</td><td><span class="kbd">우클릭</span></td><td><span class="pad">Y</span></td><td></td></tr>
+    <tr><td><code>Crouching</code></td><td>Button</td><td class="none">—</td><td class="none">—</td><td><span class="tag">바인딩 없음</span></td></tr>
+    <tr><td><code>Interact</code></td><td>Button</td><td><span class="kbd">F</span></td><td><span class="pad">RT</span></td><td></td></tr>
+    <tr><td><code>SkillAbility</code></td><td>Button</td><td><span class="kbd">E</span></td><td><span class="pad">LT</span></td><td></td></tr>
+    <tr><td><code>SkillUltimate</code></td><td>Button</td><td><span class="kbd">R</span></td><td><span class="pad">LB</span> + <span class="pad">RT</span></td><td><code>UltimateChord</code></td></tr>
+    <tr><td><code>Equip</code></td><td>Button</td><td><span class="kbd">G</span></td><td class="none">—</td><td><span class="tag">게임패드 미바인딩</span></td></tr>
+    <tr><td><code>LockOn</code></td><td>Button</td><td><span class="kbd">휠 클릭</span></td><td><span class="pad">R3</span></td><td></td></tr>
+    <tr><td><code>Guard</code></td><td>Button</td><td><span class="kbd">V</span></td><td><span class="pad">LB</span></td><td></td></tr>
+    <tr><td><code>Dash</code></td><td>Button</td><td><span class="kbd">Shift</span></td><td><span class="pad">B</span></td><td>빈 path 바인딩 1개 잔존</td></tr>
+    <tr><td><code>CharacterSwap_1</code></td><td>Button</td><td><span class="kbd">1</span></td><td><span class="pad">D-Pad ↑</span></td><td></td></tr>
+    <tr><td><code>CharacterSwap_2</code></td><td>Button</td><td><span class="kbd">2</span></td><td><span class="pad">D-Pad →</span></td><td></td></tr>
+    <tr><td><code>CharacterSwap_3</code></td><td>Button</td><td><span class="kbd">3</span></td><td><span class="pad">D-Pad ↓</span></td><td></td></tr>
+    <tr><td><code>CharacterSwap_4</code></td><td>Button</td><td><span class="kbd">4</span></td><td><span class="pad">D-Pad ←</span></td><td></td></tr>
+    <tr><td><code>LockOnSwitchRight</code></td><td>Button</td><td><span class="kbd">Tab</span></td><td><span class="pad">우스틱 →</span></td><td></td></tr>
+    <tr><td><code>LockOnSwitchLeft</code></td><td>Button</td><td class="none">—</td><td><span class="pad">우스틱 ←</span></td><td><span class="tag">키보드 미바인딩</span></td></tr>
+    <tr><td><code>BossAssist</code></td><td>Button</td><td><span class="kbd">Q</span></td><td><span class="pad">Select</span></td><td>그룹 <code>Gamepad</code></td></tr>
+    <tr><td><code>QuickSlot_Up</code></td><td>Button</td><td><span class="kbd">F1</span></td><td><span class="pad">LB</span> + <span class="pad">D-Pad ↑</span></td><td><code>QuickSlotUpChord</code></td></tr>
+    <tr><td><code>QuickSlot_Right</code></td><td>Button</td><td><span class="kbd">F2</span></td><td><span class="pad">LB</span> + <span class="pad">D-Pad →</span></td><td><code>QuickSlotRightChord</code></td></tr>
+    <tr><td><code>QuickSlot_Down</code></td><td>Button</td><td><span class="kbd">F3</span></td><td><span class="pad">LB</span> + <span class="pad">D-Pad ↓</span></td><td><code>QuickSlotDownChord</code></td></tr>
+    <tr><td><code>QuickSlot_Left</code></td><td>Button</td><td><span class="kbd">F4</span></td><td><span class="pad">LB</span> + <span class="pad">D-Pad ←</span></td><td><code>QuickSlotLeftChord</code></td></tr>
+    <tr><td><code>ElementBuff</code></td><td>Button</td><td><span class="kbd">T</span></td><td><span class="pad">RB</span></td><td></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>System 맵</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>액션</th><th>타입</th><th>키보드 / 마우스</th><th>게임패드</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><code>Back</code></td><td>Button</td><td><span class="kbd">Esc</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>ShowCursor</code></td><td>Button</td><td><span class="kbd">Alt</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>Submit</code></td><td>Button</td><td class="none">—</td><td class="none">—</td><td><span class="tag">바인딩 없음</span></td></tr>
+    <tr><td><code>Cancel</code></td><td>Button</td><td class="none">—</td><td class="none">—</td><td><span class="tag">바인딩 없음</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>UI 맵</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>액션</th><th>타입</th><th>키보드 / 마우스</th><th>게임패드</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><code>Navigate</code></td><td>PassThrough (Vector2)</td><td><span class="kbd">W</span><span class="kbd">A</span><span class="kbd">S</span><span class="kbd">D</span></td><td class="none">—</td><td>2DVector 컴포짓</td></tr>
+    <tr><td><code>Submit</code></td><td>Button</td><td><span class="kbd">Enter</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>Cancel</code></td><td>Button</td><td><span class="kbd">Esc</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>Point</code></td><td>PassThrough (Vector2)</td><td><span class="kbd">마우스 위치</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>CursorClick</code></td><td>Button</td><td class="none">—</td><td><span class="pad">A</span></td><td>가상 커서 클릭</td></tr>
+    <tr><td><code>CursorMove</code></td><td>Value (Vector2)</td><td class="none">—</td><td><span class="pad">좌스틱</span></td><td>가상 커서 이동</td></tr>
+    <tr><td><code>Inventory</code></td><td>Button</td><td><span class="kbd">I</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>EquipInventory</code></td><td>Button</td><td><span class="kbd">O</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>DialogueNext</code></td><td>Button</td><td><span class="kbd">Space</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>Map</code></td><td>Button</td><td><span class="kbd">M</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>Party</code></td><td>Button</td><td><span class="kbd">P</span></td><td class="none">—</td><td></td></tr>
+    <tr><td><code>MenuPanel</code></td><td>Button</td><td><span class="kbd">`</span></td><td><span class="pad">Start</span></td><td></td></tr>
+    <tr><td><code>CheatPanel</code></td><td>Button</td><td><span class="kbd">F11</span></td><td class="none">—</td><td>치트 패널</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Gamepad 맵 (원시 버튼)</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>액션</th><th>경로</th><th>통칭</th></tr></thead>
+  <tbody>
+    <tr><td><code>L1</code></td><td><code>&lt;Gamepad&gt;/leftShoulder</code></td><td>LB</td></tr>
+    <tr><td><code>L2</code></td><td><code>&lt;Gamepad&gt;/leftTrigger</code></td><td>LT</td></tr>
+    <tr><td><code>R1</code></td><td><code>&lt;Gamepad&gt;/rightShoulder</code></td><td>RB</td></tr>
+    <tr><td><code>R2</code></td><td><code>&lt;Gamepad&gt;/rightTrigger</code></td><td>RT</td></tr>
+    <tr><td><code>Up</code></td><td><code>&lt;Gamepad&gt;/dpad/up</code></td><td>D-Pad ↑</td></tr>
+    <tr><td><code>Down</code></td><td><code>&lt;Gamepad&gt;/dpad/down</code></td><td>D-Pad ↓</td></tr>
+    <tr><td><code>Left</code></td><td><code>&lt;Gamepad&gt;/dpad/left</code></td><td>D-Pad ←</td></tr>
+    <tr><td><code>Right</code></td><td><code>&lt;Gamepad&gt;/dpad/right</code></td><td>D-Pad →</td></tr>
+    <tr><td><code>Select</code></td><td><code>&lt;Gamepad&gt;/select</code></td><td>View / Share</td></tr>
+    <tr><td><code>Start</code></td><td><code>&lt;Gamepad&gt;/start</code></td><td>Menu / Options</td></tr>
+    <tr><td><code>Touchpad</code></td><td><code>&lt;DualShockGamepad&gt;/touchpadButton</code></td><td>DualShock 전용</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>조합(Chord) 구조</h2>
+<div class="callout">
+  게임패드의 <strong>LB(<code>leftShoulder</code>)</strong> 가 modifier 겸 단독 액션으로 다중 사용된다.
+  <code>InputManager.Chord.cs</code>의 <code>RebuildChordCatalog</code> / <code>SubmitToChordArbiter</code>가
+  modifier 조합과 단독 입력의 우선순위를 중재한다.
+</div>
+<div class="scroll">
+<table>
+  <thead><tr><th>조합</th><th>액션</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pad">LB</span> 단독</td><td><code>Guard</code></td></tr>
+    <tr><td><span class="pad">LB</span> + <span class="pad">RB</span></td><td><code>Dodge</code></td></tr>
+    <tr><td><span class="pad">LB</span> + <span class="pad">RT</span></td><td><code>SkillUltimate</code></td></tr>
+    <tr><td><span class="pad">LB</span> + <span class="pad">D-Pad</span></td><td><code>QuickSlot_Up / Right / Down / Left</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>파생 충돌 지점</h3>
+<div class="scroll">
+<table>
+  <thead><tr><th>버튼</th><th>단독</th><th>LB 조합</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pad">RB</span></td><td><code>ElementBuff</code></td><td><code>Dodge</code></td></tr>
+    <tr><td><span class="pad">RT</span></td><td><code>Interact</code></td><td><code>SkillUltimate</code></td></tr>
+    <tr><td><span class="pad">D-Pad</span></td><td><code>CharacterSwap_1~4</code></td><td><code>QuickSlot_*</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>미해결 / 정리 대상</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>항목</th><th>내용</th></tr></thead>
+  <tbody>
+    <tr><td>바인딩 없는 액션</td><td><code>PlayerAction/Walk</code>, <code>PlayerAction/Crouching</code>, <code>System/Submit</code>, <code>System/Cancel</code></td></tr>
+    <tr><td>한쪽 디바이스만 존재</td><td><code>Zoom</code>·<code>Equip</code> (게임패드 없음), <code>LockOnSwitchLeft</code> (키보드 없음)</td></tr>
+    <tr><td>잔여 데이터</td><td><code>Dash</code>에 path가 빈 바인딩 1개</td></tr>
+    <tr><td>상수만 존재, 액션 없음</td><td><code>GamepadAction.L3/R3/North/South/East/West</code>, <code>UIAction.Click/RightClick/MiddleClick/ScrollWheel</code></td></tr>
+    <tr><td>액션만 존재, 상수 없음</td><td><code>UI/CursorClick</code>, <code>UI/CursorMove</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+</main>
+</body>
+</html>

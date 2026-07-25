@@ -36,8 +36,16 @@ namespace UPlayGround.Manager
             // Actions 초기화
             InitializeActions();
 
+            // 사용자 바인딩 슬롯은 Enable 전에 전부 만들어 둔다.
+            // 이후 리바인딩은 override만 쓰므로 런타임에 에셋 구조가 바뀌지 않는다.
+            // (구조가 바뀌면 UI 액션을 참조하는 InputSystemUIInputModule의 캐시가 깨진다)
+            EnsureAllUserBindingSlots();
+
             // 사용자 바인딩은 Action Map을 Enable하기 전에 적용한다.
             LoadInputBindingProfile();
+
+            // 조합 카탈로그는 effective binding이 확정된 뒤에 만든다.
+            InitChordArbiter();
 
             foreach (var inputActionMap in actionMapCache.Values)
             {

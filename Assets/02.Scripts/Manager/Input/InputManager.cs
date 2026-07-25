@@ -9,7 +9,10 @@ namespace UPlayGround.Manager
     /// <summary>
     /// 입력 시스템 관리 매니저
     /// </summary>
-    public partial class InputManager : BaseManager<InputManager>, IManager, IInputService
+    // IUpdatableManager를 붙여야 GameManager의 틱 목록에 등록된다.
+    // IManager.OnUpdate 선언만으로는 호출되지 않는다(조합 grace 만료 처리에 필요).
+    public partial class InputManager
+        : BaseManager<InputManager>, IManager, IUpdatableManager, IInputService
     {
         private int _cursorVisibleStack = 0;
         private InputBuffer _inputBuffer; // InputBuffer 선언
@@ -37,7 +40,7 @@ namespace UPlayGround.Manager
             Vector2 hotspot = new Vector2(cursorTexture.width * 0.27f, 0f);
             Cursor.SetCursor(cursorTexture, hotspot, CursorMode.Auto);
 
-            // Actions 초기화
+            // Actions 초기화 (내부에서 바인딩 프로필 적용 → 조합 카탈로그 구축까지 수행)
             InitInputAction();
 
             // Look 액션 참조 캐시 — 입력 콜백마다 actionCache lookup 회피.
@@ -70,13 +73,18 @@ namespace UPlayGround.Manager
             startCallbackDict.Clear();
             performCallbackDict.Clear();
             cancelCallbackDict.Clear();
-            _syntheticallyCanceledActions.Clear();
-            
+            _chordArbiter.ClearCatalog();
+            _chordArbiter.Reset();
+            _arbiterDispatch.Clear();
+
+
             Debug.Log("[InputManager] 정리 완료");
         }
 
         public void OnUpdate()
         {
+            // grace가 만료된 보류 입력을 확정한다.
+            TickChordArbiter();
         }
 
         public void OnFixedUpdate()
@@ -171,6 +179,10 @@ namespace UPlayGround.Manager
 
             CurrentLayer = layer;
 
+            // 스펙 §9.4: 컨텍스트가 바뀌면 대기 중 단일키 후보와 provisional hold를 폐기한다.
+            // 외부에는 아래 InvokeCancelEvents의 cancelCallback 1회로만 통지한다.
+            _chordArbiter.Reset();
+
             InvokeCancelEvents(layer);
         }
 
@@ -178,7 +190,10 @@ namespace UPlayGround.Manager
         {
             _isPlayerActionInputSuppressed = suppressed;
             if (suppressed)
+            {
                 _inputBuffer?.Clear();
+                _chordArbiter.Reset();
+            }
         }
 
         public bool IsPlayerActionInputSuppressed => _isPlayerActionInputSuppressed;

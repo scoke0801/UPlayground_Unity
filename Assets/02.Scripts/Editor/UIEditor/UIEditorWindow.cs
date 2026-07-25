@@ -535,6 +535,9 @@ namespace UPlayGround.Editor.UI
                 UPlayGround.UI.HUD.EditorTools.UIHudWorldClockPrefabBuilder.Build);
             Add("HUD", "알림", "Notification과 알림 항목 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.HUD.Notification.EditorTools.UINotificationPrefabBuilder.Build);
+            Add("HUD", "월드 마커", "인게임 월드 마커 HUD 패널과 마커 아이콘 프리팹 초안을 생성합니다.",
+                UPlayGround.UI.EditorTools.WorldMarkerUIBuilder.Build,
+                requiresConfirmation: false);
 
             Add("화면 UI", "신규 게임 캐릭터 선택", "캐릭터 선택 카드와 메인 UI 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.CharacterSelect.EditorTools.UICharacterSelectPrefabBuilder.Build);

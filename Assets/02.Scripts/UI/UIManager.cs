@@ -187,6 +187,37 @@ namespace UPlayGround.Manager
                     _worldSpaceHudLayer.Init(canvas);
                 }
             }
+
+            EnsureFocusIndicator();
+        }
+
+        /// <summary>
+        /// 게임패드 선택 표시기를 최상위 스크린 캔버스에 1개만 만든다.
+        /// 프리팹마다 Selectable ColorBlock을 손보지 않고 전역으로 해결하기 위한 것이다.
+        /// </summary>
+        private void EnsureFocusIndicator()
+        {
+            if (!_canvasDictionary.TryGetValue(CanvasLayer.System, out Canvas systemCanvas)
+                || systemCanvas == null)
+            {
+                return;
+            }
+
+            if (systemCanvas.GetComponentInChildren<UIFocusIndicator>(true) != null)
+                return;
+
+            var indicatorObject = new GameObject(
+                "UIFocusIndicator",
+                typeof(RectTransform),
+                typeof(UIFocusIndicator));
+            var rect = (RectTransform)indicatorObject.transform;
+            rect.SetParent(systemCanvas.transform, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            // 다른 UI가 나중에 추가돼도 테두리가 가려지지 않게 항상 맨 위로 둔다.
+            rect.SetAsLastSibling();
         }
 
         private void RegisterCanvasLayersFromPrefab()

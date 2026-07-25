@@ -110,18 +110,18 @@ namespace UPlayGround.UI
             float curHp = player != null ? player.GetHealthForCharacter(type) : 0f;
             float maxHp = player != null
                 ? player.GetMaxHealthForCharacter(type)
-                : Attribute(cp.GrowthStats, AttributeIds.Vital.MaxHealth);
+                : Attribute(cp.GrowthStats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth);
             if (_hpText != null) _hpText.text = $"{Mathf.RoundToInt(curHp):N0} / {Mathf.RoundToInt(maxHp):N0}";
             if (_hpFill != null) _hpFill.fillAmount = maxHp > 0f ? Mathf.Clamp01(curHp / maxHp) : 0f;
 
             // 능력치
             var s = cp.GrowthStats;
-            if (_statAttackText != null) _statAttackText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.AttackPower, Attribute(s, AttributeIds.Combat.AttackPower));
-            if (_statDefenseText != null) _statDefenseText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.Defense, Attribute(s, AttributeIds.Combat.Defense));
-            if (_statHealthText != null) _statHealthText.text = StatDisplayFormatter.FormatValue(AttributeIds.Vital.MaxHealth, Attribute(s, AttributeIds.Vital.MaxHealth));
-            if (_statCritRateText != null) _statCritRateText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.CritRate, Attribute(s, AttributeIds.Combat.CritRate));
-            if (_statCritDmgText != null) _statCritDmgText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.CritMultiplier, Attribute(s, AttributeIds.Combat.CritMultiplier));
-            if (_statAtkSpeedText != null) _statAtkSpeedText.text = StatDisplayFormatter.FormatValue(AttributeIds.Combat.AttackSpeed, Attribute(s, AttributeIds.Combat.AttackSpeed));
+            if (_statAttackText != null) _statAttackText.text = StatDisplayFormatter.FormatValue(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower, Attribute(s, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower));
+            if (_statDefenseText != null) _statDefenseText.text = StatDisplayFormatter.FormatValue(global::UPlayGround.Data.Stat.Attributes.Combat.Defense, Attribute(s, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
+            if (_statHealthText != null) _statHealthText.text = StatDisplayFormatter.FormatValue(global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth, Attribute(s, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
+            if (_statCritRateText != null) _statCritRateText.text = StatDisplayFormatter.FormatValue(global::UPlayGround.Data.Stat.Attributes.Combat.CritRate, Attribute(s, global::UPlayGround.Data.Stat.Attributes.Combat.CritRate));
+            if (_statCritDmgText != null) _statCritDmgText.text = StatDisplayFormatter.FormatValue(global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier, Attribute(s, global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier));
+            if (_statAtkSpeedText != null) _statAtkSpeedText.text = StatDisplayFormatter.FormatValue(global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed, Attribute(s, global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed));
 
             // 역할 하이라이트
             var role = data.GetRole(type);

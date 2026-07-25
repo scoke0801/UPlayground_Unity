@@ -35,7 +35,8 @@ namespace UPlayGround.UI.EditorTools
 
         private static Sprite UISprite => AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
-        [MenuItem("UPlayGround/UI/Build World Marker UI (Draft)")]
+        // 진입점: UI 에디터 창(UPlayGround/UI 에디터)의 "HUD ▸ 월드 마커" 항목에서 호출한다.
+        // 별도 최상위 메뉴(UPlayGround/UI/...)로 노출하지 않는다.
         public static void Build()
         {
             bool iconExists  = File.Exists(IconPath);

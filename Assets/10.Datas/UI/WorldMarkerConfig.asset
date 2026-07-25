@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84fe1c3e7979be1499b4897e09488875, type: 3}
+  m_Name: WorldMarkerConfig
+  m_EditorClassIdentifier: 
+  maxDistance: 0
+  worldHeightOffset: 2
+  showDistanceLabel: 1
+  distanceFormat: '{0}m'
+  hideDistanceLabelWithin: 3
+  baseScale: 1
+  scaleByDistance: 0
+  scaleFalloffDistance: 60
+  minScale: 0.5
+  clampToScreenEdge: 1
+  edgeMargin: 60

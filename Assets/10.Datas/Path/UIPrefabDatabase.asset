@@ -173,3 +173,8 @@ MonoBehaviour:
     defaultLayer: 0
     description: "\uC88C\uD558\uB2E8 \uC18C\uBE44 \uC544\uC774\uD15C \uD035\uC2AC\uB86F
       HUD"
+  - key: HudWorldMarker
+    prefab: {fileID: 4931348754994991194, guid: 1af3a7da3c009f4458946ca8baa0595f, type: 3}
+    defaultLayer: 0
+    description: "\uC778\uAC8C\uC784 \uC6D4\uB4DC \uB9C8\uCEE4 HUD (\uC6D0\uC2E0\uC2DD
+      \uC6E8\uC774\uD3EC\uC778\uD2B8)"

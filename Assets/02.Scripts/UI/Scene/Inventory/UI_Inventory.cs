@@ -450,7 +450,7 @@ namespace UPlayGround.UI
                 _selectedCharacterCombatPowerText.text = power.CombatPower.ToString("N0");
 
             var stats = power.GrowthStats;
-            float maxHp = GetAttribute(stats, AttributeIds.Vital.MaxHealth);
+            float maxHp = GetAttribute(stats, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth);
             float currentHp = maxHp;
             var player = UISvc.Actors?.Player;
             if (player != null)
@@ -460,16 +460,16 @@ namespace UPlayGround.UI
                 _selectedCharacterHpText.text = $"{Mathf.RoundToInt(currentHp):N0} / {Mathf.RoundToInt(maxHp):N0}";
             if (_selectedCharacterAttackText != null)
                 _selectedCharacterAttackText.text = StatDisplayFormatter.FormatValue(
-                    AttributeIds.Combat.AttackPower,
-                    GetAttribute(stats, AttributeIds.Combat.AttackPower));
+                    global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower,
+                    GetAttribute(stats, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower));
             if (_selectedCharacterDefenseText != null)
                 _selectedCharacterDefenseText.text = StatDisplayFormatter.FormatValue(
-                    AttributeIds.Combat.Defense,
-                    GetAttribute(stats, AttributeIds.Combat.Defense));
+                    global::UPlayGround.Data.Stat.Attributes.Combat.Defense,
+                    GetAttribute(stats, global::UPlayGround.Data.Stat.Attributes.Combat.Defense));
             if (_selectedCharacterCritText != null)
                 _selectedCharacterCritText.text = StatDisplayFormatter.FormatValue(
-                    AttributeIds.Combat.CritRate,
-                    GetAttribute(stats, AttributeIds.Combat.CritRate));
+                    global::UPlayGround.Data.Stat.Attributes.Combat.CritRate,
+                    GetAttribute(stats, global::UPlayGround.Data.Stat.Attributes.Combat.CritRate));
         }
 
         private static float GetAttribute(
@@ -1153,9 +1153,9 @@ namespace UPlayGround.UI
         }
 
         private static bool IsRatioAttribute(AttributeId attributeId)
-            => attributeId == AttributeIds.Combat.Defense
-               || attributeId == AttributeIds.Combat.CritRate
-               || attributeId == AttributeIds.Combat.CritMultiplier;
+            => attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.Defense
+               || attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.CritRate
+               || attributeId == global::UPlayGround.Data.Stat.Attributes.Combat.CritMultiplier;
 
         private static string GetGrowthAttributeName(GrowthAttributeType type)
         {

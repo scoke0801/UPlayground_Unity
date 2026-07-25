@@ -224,10 +224,10 @@ namespace UPlayGround.UI
         };
 
         private static string FormatEffect(GrowthInvestmentRule rule)
-            => rule.AttributeId == AttributeIds.Combat.Defense
-                || rule.AttributeId == AttributeIds.Combat.CritRate
-                || rule.AttributeId == AttributeIds.Combat.AttackSpeed
-                || rule.AttributeId == AttributeIds.Combat.AttackPower
+            => rule.AttributeId == global::UPlayGround.Data.Stat.Attributes.Combat.Defense
+                || rule.AttributeId == global::UPlayGround.Data.Stat.Attributes.Combat.CritRate
+                || rule.AttributeId == global::UPlayGround.Data.Stat.Attributes.Combat.AttackSpeed
+                || rule.AttributeId == global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower
                 ? $"{rule.flatPerRank * 100f:0.#}%"
                 : $"{rule.flatPerRank:0.#}";
 

@@ -385,6 +385,68 @@ namespace UPlayGround.Data.Editor.Ability
             List<AbilityValidationIssue> issues)
         {
             if (set == null) return;
+            if (set.HasInheritanceCycle())
+                Error(set, "AbilitySet의 Base Set 참조에 순환이 있습니다.", issues);
+            if (ReferenceEquals(set.baseSet, set))
+                Error(set, "AbilitySet은 자기 자신을 Base Set으로 사용할 수 없습니다.", issues);
+
+            var seenOverrideSources = new HashSet<GameplayAbilitySO>();
+            for (int i = 0; i < (set.abilityOverrides?.Count ?? 0); i++)
+            {
+                AbilitySetSO.AbilityOverrideEntry entry =
+                    set.abilityOverrides[i];
+                if (entry == null)
+                {
+                    Error(set, $"Ability Override {i}가 null입니다.", issues);
+                    continue;
+                }
+                if (set.baseSet == null)
+                    Error(set, "Base Set이 없지만 Ability Override가 정의되어 있습니다.", issues);
+                if (entry.sourceAbility == null)
+                {
+                    Error(set, $"Ability Override {i}의 원본 Ability가 없습니다.", issues);
+                    continue;
+                }
+                if (!seenOverrideSources.Add(entry.sourceAbility))
+                    Error(
+                        set,
+                        $"'{entry.sourceAbility.name}' 원본에 Override가 중복 선언되었습니다.",
+                        issues);
+                if (set.baseSet != null
+                    && !set.baseSet.Contains(entry.sourceAbility))
+                {
+                    Error(
+                        set,
+                        $"Override 원본 '{entry.sourceAbility.name}'은 Base Set의 유효 Ability가 아닙니다.",
+                        issues);
+                }
+                if (entry.operation == AbilitySetOverrideOperation.Replace
+                    && entry.replacementAbility == null)
+                {
+                    Error(
+                        set,
+                        $"'{entry.sourceAbility.name}' Replace 대상이 없습니다.",
+                        issues);
+                }
+                if (entry.operation == AbilitySetOverrideOperation.Remove
+                    && entry.replacementAbility != null)
+                {
+                    Warning(
+                        set,
+                        $"'{entry.sourceAbility.name}' Remove의 replacementAbility는 사용되지 않습니다.",
+                        issues);
+                }
+                if (ReferenceEquals(
+                        entry.sourceAbility,
+                        entry.replacementAbility))
+                {
+                    Warning(
+                        set,
+                        $"'{entry.sourceAbility.name}'을 같은 Ability로 교체하고 있습니다.",
+                        issues);
+                }
+            }
+
             var seenSlots = new HashSet<Data.Combat.PlayerSkillSlot>();
             for (int i = 0; i < (set.playerSlots?.Count ?? 0); i++)
             {
@@ -417,20 +479,25 @@ namespace UPlayGround.Data.Editor.Ability
                             Error(set, $"전투 슬롯 '{binding.slot}' {j}번 참조가 없습니다.", issues);
             }
 
-            int stageCount = set.charge?.stages?.Count ?? 0;
-            int thresholdCount = set.charge?.stageThresholds?.Count ?? 0;
+            PlayerChargeAbilitySettings effectiveCharge =
+                set.GetEffectiveCharge();
+            int stageCount = effectiveCharge?.stages?.Count ?? 0;
+            int thresholdCount =
+                effectiveCharge?.stageThresholds?.Count ?? 0;
             if (thresholdCount > 0 && thresholdCount != Mathf.Max(0, stageCount - 1))
                 Error(
                     set,
                     $"차지 임계값 수({thresholdCount})는 단계 수 - 1({Mathf.Max(0, stageCount - 1)})이어야 합니다.",
                     issues);
             for (int i = 0; i < stageCount; i++)
-                if (set.charge.stages[i] == null)
+                if (effectiveCharge.stages[i] == null)
                     Error(set, $"차지 단계 {i}의 Ability 참조가 없습니다.", issues);
 
-            for (int i = 0; i < (set.comboRoutes?.Count ?? 0); i++)
+            IReadOnlyList<AbilityComboRouteDefinition> effectiveRoutes =
+                set.GetEffectiveComboRoutes();
+            for (int i = 0; i < effectiveRoutes.Count; i++)
             {
-                AbilityComboRouteDefinition route = set.comboRoutes[i];
+                AbilityComboRouteDefinition route = effectiveRoutes[i];
                 if (route == null)
                     Error(set, $"연계 라우트 {i}가 null입니다.", issues);
                 else if (route.ability == null)

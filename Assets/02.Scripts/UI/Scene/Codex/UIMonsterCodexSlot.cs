@@ -1,13 +1,15 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.Codex;
 
 namespace UPlayGround.UI
 {
     [RequireComponent(typeof(Button))]
-    public sealed class UIMonsterCodexSlot : MonoBehaviour
+    public sealed class UIMonsterCodexSlot : MonoBehaviour, ISelectHandler,
+        IUIFocusPresentation
     {
         [SerializeField] private Image _portrait;
         [SerializeField] private TextMeshProUGUI _name;
@@ -20,6 +22,9 @@ namespace UPlayGround.UI
         private Button _button;
 
         public string ActorId => _view?.actorId;
+        public Selectable Selectable => _button;
+        public bool SuppressGlobalFocusIndicator => _selection != null;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         private void Awake()
         {
@@ -66,6 +71,11 @@ namespace UPlayGround.UI
         {
             if (_view != null)
                 _onClick?.Invoke(_view);
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            InvokeClick();
         }
     }
 }

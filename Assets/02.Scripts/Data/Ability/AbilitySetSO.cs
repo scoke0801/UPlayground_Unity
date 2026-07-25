@@ -4,6 +4,12 @@ using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Data.Ability
 {
+    public enum AbilitySetOverrideOperation
+    {
+        Replace,
+        Remove,
+    }
+
     [CreateAssetMenu(fileName = "AbilitySet_", menuName = "UPlayGround/Ability/Ability Set")]
     public sealed class AbilitySetSO : ScriptableObject
     {
@@ -14,36 +20,98 @@ namespace UPlayGround.Data.Ability
             public GameplayAbilitySO ability;
         }
 
+        [System.Serializable]
+        public sealed class AbilityOverrideEntry
+        {
+            [Tooltip("Base Set의 유효 Ability 중 교체하거나 제거할 대상입니다.")]
+            public GameplayAbilitySO sourceAbility;
+            public AbilitySetOverrideOperation operation;
+            [Tooltip("Replace일 때 사용할 파생 Ability입니다. Remove에서는 비워둡니다.")]
+            public GameplayAbilitySO replacementAbility;
+        }
+
+        [Header("공용 Set 합성")]
+        [Tooltip("동일 타입 몬스터 등이 공유하는 공용 AbilitySet입니다. 비어 있으면 독립 Set입니다.")]
+        public AbilitySetSO baseSet;
+        [Tooltip("Base Set에서 상속한 Ability에만 적용되는 교체·제거 목록입니다.")]
+        public List<AbilityOverrideEntry> abilityOverrides = new();
+
+        [Header("로컬 구성")]
         public List<PlayerSlotEntry> playerSlots = new();
         public List<GameplayAbilitySO> additionalAbilities = new();
         [Header("Player Combat Loadout")]
         public List<PlayerCombatAbilityBinding> combatBindings = new();
+        [Tooltip("켜면 Base Set의 차지 구성을 로컬 charge로 대체합니다.")]
+        public bool overrideCharge;
         public PlayerChargeAbilitySettings charge = new();
+        [Tooltip("켜면 Base Set의 콤보 라우트를 로컬 comboRoutes로 대체합니다.")]
+        public bool overrideComboRoutes;
         public List<AbilityComboRouteDefinition> comboRoutes = new();
+        [Tooltip("켜면 Base Set의 콤보 연결 시간을 로컬 값으로 대체합니다.")]
+        public bool overrideComboLinkWindow;
         [Min(0.05f)] public float comboLinkWindow = 1f;
 
         public GameplayAbilitySO GetPlayerAbility(PlayerSkillSlot slot)
         {
-            for (int i = 0; i < playerSlots.Count; i++)
+            return GetPlayerAbility(slot, new HashSet<AbilitySetSO>());
+        }
+
+        private GameplayAbilitySO GetPlayerAbility(
+            PlayerSkillSlot slot,
+            HashSet<AbilitySetSO> visited)
+        {
+            if (!visited.Add(this))
+                return null;
+            for (int i = 0; i < (playerSlots?.Count ?? 0); i++)
             {
                 PlayerSlotEntry entry = playerSlots[i];
                 if (entry != null && entry.slot == slot)
                     return entry.ability;
             }
 
-            return null;
+            GameplayAbilitySO inherited =
+                baseSet != null
+                    ? baseSet.GetPlayerAbility(slot, visited)
+                    : null;
+            return ResolveInheritedAbility(inherited);
         }
 
         public IReadOnlyList<GameplayAbilitySO> GetCombatSequence(
             PlayerCombatAbilitySlot slot)
         {
-            for (int i = 0; i < combatBindings.Count; i++)
+            return GetCombatSequence(slot, new HashSet<AbilitySetSO>());
+        }
+
+        private IReadOnlyList<GameplayAbilitySO> GetCombatSequence(
+            PlayerCombatAbilitySlot slot,
+            HashSet<AbilitySetSO> visited)
+        {
+            if (!visited.Add(this))
+                return System.Array.Empty<GameplayAbilitySO>();
+            for (int i = 0; i < (combatBindings?.Count ?? 0); i++)
             {
                 PlayerCombatAbilityBinding binding = combatBindings[i];
                 if (binding != null && binding.slot == slot)
-                    return binding.abilities;
+                    return binding.abilities
+                        ?? (IReadOnlyList<GameplayAbilitySO>)
+                            System.Array.Empty<GameplayAbilitySO>();
             }
-            return System.Array.Empty<GameplayAbilitySO>();
+
+            IReadOnlyList<GameplayAbilitySO> inherited =
+                baseSet != null
+                    ? baseSet.GetCombatSequence(slot, visited)
+                    : System.Array.Empty<GameplayAbilitySO>();
+            if (inherited.Count == 0)
+                return inherited;
+            var resolved = new List<GameplayAbilitySO>(inherited.Count);
+            for (int i = 0; i < inherited.Count; i++)
+            {
+                GameplayAbilitySO ability =
+                    ResolveInheritedAbility(inherited[i]);
+                if (ability != null)
+                    resolved.Add(ability);
+            }
+            return resolved;
         }
 
         public GameplayAbilitySO GetCombatAbility(
@@ -56,30 +124,223 @@ namespace UPlayGround.Data.Ability
 
         public IEnumerable<GameplayAbilitySO> EnumerateAll()
         {
-            for (int i = 0; i < playerSlots.Count; i++)
-                if (playerSlots[i]?.ability != null)
-                    yield return playerSlots[i].ability;
-            for (int i = 0; i < additionalAbilities.Count; i++)
+            var yielded = new HashSet<GameplayAbilitySO>();
+
+            foreach (PlayerSkillSlot slot in
+                     System.Enum.GetValues(typeof(PlayerSkillSlot)))
+            {
+                GameplayAbilitySO ability = GetPlayerAbility(slot);
+                if (ability != null && yielded.Add(ability))
+                    yield return ability;
+            }
+
+            foreach (PlayerCombatAbilitySlot slot in
+                     System.Enum.GetValues(typeof(PlayerCombatAbilitySlot)))
+            {
+                IReadOnlyList<GameplayAbilitySO> sequence =
+                    GetCombatSequence(slot);
+                for (int i = 0; i < sequence.Count; i++)
+                    if (sequence[i] != null && yielded.Add(sequence[i]))
+                        yield return sequence[i];
+            }
+
+            foreach (GameplayAbilitySO ability in
+                     EnumerateEffectiveAdditional(
+                         new HashSet<AbilitySetSO>()))
+            {
+                if (ability != null && yielded.Add(ability))
+                    yield return ability;
+            }
+
+            PlayerChargeAbilitySettings effectiveCharge = GetEffectiveCharge();
+            if (effectiveCharge?.stages != null)
+                for (int i = 0; i < effectiveCharge.stages.Count; i++)
+                {
+                    GameplayAbilitySO ability =
+                        ResolveEffectiveChargeAbility(effectiveCharge.stages[i]);
+                    if (ability != null && yielded.Add(ability))
+                        yield return ability;
+                }
+
+            IReadOnlyList<AbilityComboRouteDefinition> routes =
+                GetEffectiveComboRoutes();
+            for (int i = 0; i < routes.Count; i++)
+            {
+                AbilityComboRouteDefinition route = routes[i];
+                GameplayAbilitySO ability =
+                    ResolveEffectiveComboRouteAbility(route?.ability);
+                GameplayAbilitySO enhanced =
+                    ResolveEffectiveComboRouteAbility(route?.enhancedAbility);
+                if (ability != null && yielded.Add(ability))
+                    yield return ability;
+                if (enhanced != null && yielded.Add(enhanced))
+                    yield return enhanced;
+            }
+        }
+
+        private IEnumerable<GameplayAbilitySO> EnumerateEffectiveAdditional(
+            HashSet<AbilitySetSO> visited)
+        {
+            if (!visited.Add(this))
+                yield break;
+            if (baseSet != null)
+            {
+                foreach (GameplayAbilitySO inherited in
+                         baseSet.EnumerateEffectiveAdditional(visited))
+                {
+                    GameplayAbilitySO resolved =
+                        ResolveInheritedAbility(inherited);
+                    if (resolved != null)
+                        yield return resolved;
+                }
+            }
+            for (int i = 0; i < (additionalAbilities?.Count ?? 0); i++)
                 if (additionalAbilities[i] != null)
                     yield return additionalAbilities[i];
-            for (int i = 0; i < combatBindings.Count; i++)
+        }
+
+        public GameplayAbilitySO ResolveInheritedAbility(
+            GameplayAbilitySO inherited)
+        {
+            if (inherited == null)
+                return null;
+            for (int i = 0; i < (abilityOverrides?.Count ?? 0); i++)
             {
-                List<GameplayAbilitySO> abilities = combatBindings[i]?.abilities;
-                if (abilities == null) continue;
-                for (int j = 0; j < abilities.Count; j++)
-                    if (abilities[j] != null)
-                        yield return abilities[j];
+                AbilityOverrideEntry entry = abilityOverrides[i];
+                if (entry?.sourceAbility != inherited)
+                    continue;
+                return entry.operation == AbilitySetOverrideOperation.Remove
+                    ? null
+                    : entry.replacementAbility;
             }
-            if (charge?.stages != null)
-                for (int i = 0; i < charge.stages.Count; i++)
-                    if (charge.stages[i] != null)
-                        yield return charge.stages[i];
-            for (int i = 0; i < comboRoutes.Count; i++)
+            return inherited;
+        }
+
+        public PlayerChargeAbilitySettings GetEffectiveCharge()
+        {
+            AbilitySetSO owner =
+                GetEffectiveChargeOwner(new HashSet<AbilitySetSO>());
+            return owner?.charge;
+        }
+
+        private AbilitySetSO GetEffectiveChargeOwner(
+            HashSet<AbilitySetSO> visited)
+        {
+            if (!visited.Add(this))
+                return null;
+            if (baseSet == null || overrideCharge)
+                return this;
+            return baseSet.GetEffectiveChargeOwner(visited);
+        }
+
+        public GameplayAbilitySO ResolveEffectiveChargeAbility(
+            GameplayAbilitySO ability)
+        {
+            AbilitySetSO owner =
+                GetEffectiveChargeOwner(new HashSet<AbilitySetSO>());
+            return ResolveFromAncestor(owner, ability);
+        }
+
+        public IReadOnlyList<AbilityComboRouteDefinition>
+            GetEffectiveComboRoutes()
+        {
+            AbilitySetSO owner =
+                GetEffectiveComboRouteOwner(new HashSet<AbilitySetSO>());
+            return owner?.comboRoutes
+                ?? (IReadOnlyList<AbilityComboRouteDefinition>)
+                    System.Array.Empty<AbilityComboRouteDefinition>();
+        }
+
+        private AbilitySetSO GetEffectiveComboRouteOwner(
+            HashSet<AbilitySetSO> visited)
+        {
+            if (!visited.Add(this))
+                return null;
+            if (baseSet == null || overrideComboRoutes)
+                return this;
+            return baseSet.GetEffectiveComboRouteOwner(visited);
+        }
+
+        public GameplayAbilitySO ResolveEffectiveComboRouteAbility(
+            GameplayAbilitySO ability)
+        {
+            AbilitySetSO owner =
+                GetEffectiveComboRouteOwner(new HashSet<AbilitySetSO>());
+            return ResolveFromAncestor(owner, ability);
+        }
+
+        public float GetEffectiveComboLinkWindow()
+        {
+            return GetEffectiveComboLinkWindow(new HashSet<AbilitySetSO>());
+        }
+
+        private float GetEffectiveComboLinkWindow(
+            HashSet<AbilitySetSO> visited)
+        {
+            if (!visited.Add(this))
+                return comboLinkWindow;
+            if (baseSet == null || overrideComboLinkWindow)
+                return comboLinkWindow;
+            return baseSet.GetEffectiveComboLinkWindow(visited);
+        }
+
+        private GameplayAbilitySO ResolveFromAncestor(
+            AbilitySetSO ancestor,
+            GameplayAbilitySO ability)
+        {
+            if (ancestor == null || ability == null)
+                return null;
+            if (ReferenceEquals(this, ancestor))
+                return ability;
+            GameplayAbilitySO inherited =
+                baseSet != null
+                    ? baseSet.ResolveFromAncestor(ancestor, ability)
+                    : ability;
+            return ResolveInheritedAbility(inherited);
+        }
+
+        public bool TryGetPlayerSlot(
+            GameplayAbilitySO ability,
+            out PlayerSkillSlot slot)
+        {
+            foreach (PlayerSkillSlot candidate in
+                     System.Enum.GetValues(typeof(PlayerSkillSlot)))
             {
-                AbilityComboRouteDefinition route = comboRoutes[i];
-                if (route?.ability != null) yield return route.ability;
-                if (route?.enhancedAbility != null) yield return route.enhancedAbility;
+                if (GetPlayerAbility(candidate) != ability)
+                    continue;
+                slot = candidate;
+                return true;
             }
+            slot = default;
+            return false;
+        }
+
+        public bool HasInheritanceCycle()
+        {
+            var visited = new HashSet<AbilitySetSO>();
+            AbilitySetSO current = this;
+            while (current != null)
+            {
+                if (!visited.Add(current))
+                    return true;
+                current = current.baseSet;
+            }
+            return false;
+        }
+
+        public bool IsDerivedFrom(AbilitySetSO ancestor)
+        {
+            if (ancestor == null)
+                return false;
+            var visited = new HashSet<AbilitySetSO>();
+            AbilitySetSO current = baseSet;
+            while (current != null && visited.Add(current))
+            {
+                if (ReferenceEquals(current, ancestor))
+                    return true;
+                current = current.baseSet;
+            }
+            return false;
         }
 
         public bool Contains(GameplayAbilitySO ability)

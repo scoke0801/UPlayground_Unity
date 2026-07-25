@@ -48,6 +48,7 @@ namespace UPlayGround.UI
 
             // 페이드 인 효과
             FadeIn(0.2f);
+            RebuildNavigation();
         }
 
         protected override void OnHide()
@@ -105,6 +106,23 @@ namespace UPlayGround.UI
             {
                 _cancelButton.gameObject.SetActive(onCancel != null);
             }
+
+            RebuildNavigation();
+        }
+
+        private void RebuildNavigation()
+        {
+            UIFocusNavigation.ConfigureHorizontal(new Selectable[]
+            {
+                _confirmButton,
+                _cancelButton,
+                _closeButton
+            });
+            SetDefaultFocus(UIFocusNavigation.FirstNavigable(
+                _confirmButton,
+                _cancelButton,
+                _closeButton),
+                IsVisible);
         }
 
         #endregion

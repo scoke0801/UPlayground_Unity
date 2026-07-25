@@ -14,16 +14,15 @@ namespace UPlayGround.UI
     /// <summary>
     /// DialogueManager 이벤트를 구독해 UI를 그리는 역할만 담당합니다.
     /// 대화 흐름 제어는 DialogueManager에게 위임합니다.
+    /// 타이핑은 DialogueTypewriter(maxVisibleCharacters)에 위임해 리치 텍스트 태그가 노출되지 않게 합니다.
     /// </summary>
     public class UI_Dialogue : UI_Base
     {
-        private const string PlayerSpeakerId = "당신";
-        private const string PlayerActorId = "Player";
-
         [Header("대화 패널")]
         [SerializeField] private GameObject dialoguePanel;
         [SerializeField] private TextMeshProUGUI speakerNameText;
         [SerializeField] private TextMeshProUGUI dialogueBodyText;
+        [SerializeField] private DialogueTypewriter typewriter;
         [SerializeField] private Image portraitImage;
         [SerializeField] private Vector2 portraitMaxSize = new(160f, 160f);
         [SerializeField] private Button advanceButton;
@@ -34,12 +33,14 @@ namespace UPlayGround.UI
         [SerializeField] private Transform choiceContainer;
 
         private readonly List<UI_DialogueChoiceButton> _choiceButtons = new();
-        private Coroutine _typingCoroutine;
+        private Coroutine _autoAdvanceCoroutine;
+        private DialogueNodeSO _currentNode;
 
         protected override void Awake()
         {
             base.Awake();
-            advanceButton.onClick.AddListener(() => UISvc.Dialogue.Advance());
+            advanceButton.onClick.AddListener(OnAdvanceRequested);
+            EnsureTypewriter();
         }
 
         // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -50,6 +51,8 @@ namespace UPlayGround.UI
             UISvc.Dialogue.OnMainNodeEnter   += HandleNodeEnter;
             UISvc.Dialogue.OnChoicePresented += HandleChoicePresented;
             UISvc.Dialogue.OnDialogueEnd     += HandleDialogueEnd;
+            UISvc.Dialogue.OnTypingCompleteRequested += HandleTypingCompleteRequested;
+            UISvc.Dialogue.OnAutoChanged     += HandleAutoChanged;
 
             Svc.Input.RegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputDialogueNext, null, null, null, InputLayer.Level_1);
@@ -64,16 +67,24 @@ namespace UPlayGround.UI
                 dialogue.OnMainNodeEnter   -= HandleNodeEnter;
                 dialogue.OnChoicePresented -= HandleChoicePresented;
                 dialogue.OnDialogueEnd     -= HandleDialogueEnd;
+                dialogue.OnTypingCompleteRequested -= HandleTypingCompleteRequested;
+                dialogue.OnAutoChanged     -= HandleAutoChanged;
             }
 
             Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, UIAction.DialogueNext,
                 null, OnInputDialogueNext, null);
+
+            StopAutoAdvance();
         }
 
         // ── 이벤트 핸들러 ───────────────────────────────────────────────
 
         private void HandleNodeEnter(DialogueNodeSO node)
         {
+            _currentNode = node;
+            _typingComplete = false;
+            StopAutoAdvance();
+
             if (choicePanel != null)
             {
                 choicePanel.SetActive(false);
@@ -81,16 +92,18 @@ namespace UPlayGround.UI
 
             dialoguePanel?.SetActive(true);
 
-            Sprite portrait = ResolvePortrait(node);
             speakerNameText.text = ResolveSpeakerName(node);
-            ApplyPortrait(portrait);
+            ApplyPortrait(ResolvePortrait(node));
 
-            if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
-            _typingCoroutine = StartCoroutine(TypeText(node.dialogueText, node.typingSpeed));
+            advanceButton.gameObject.SetActive(false);
+            EnsureTypewriter()?.Play(node.dialogueText, UISvc.Dialogue?.Palette, node.typingSpeed);
         }
 
         private void HandleChoicePresented(List<ChoiceData> choices)
         {
+            // 선택은 플레이어 몫이므로 자동 재생은 여기서 멈춘다.
+            StopAutoAdvance();
+
             choicePanel.SetActive(true);
             advanceButton.gameObject.SetActive(false);
 
@@ -111,7 +124,11 @@ namespace UPlayGround.UI
 
         private void HandleDialogueEnd()
         {
-            if (_typingCoroutine != null) StopCoroutine(_typingCoroutine);
+            StopAutoAdvance();
+            _currentNode = null;
+            _typingComplete = false;
+
+            EnsureTypewriter()?.Clear();
             dialoguePanel.SetActive(false);
 
             if (choicePanel != null)
@@ -120,34 +137,28 @@ namespace UPlayGround.UI
             }
         }
 
+        // 컨트롤 바/전용 입력이 요청한 타이핑 스킵(약).
+        private void HandleTypingCompleteRequested()
+        {
+            EnsureTypewriter()?.CompleteTyping();
+        }
+
         private static string ResolveSpeakerName(DialogueNodeSO node)
         {
-            if (!IsPlayerSpeaker(node))
-            {
-                return node.speakerId;
-            }
-
             var party = UISvc.Party;
-            var memberData = party != null ? party.PartyMemberDataSO : null;
-            CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
-            string activeName = memberData != null ? memberData.GetName(activeType) : string.Empty;
-
-            return string.IsNullOrEmpty(activeName) ? node.speakerId : activeName;
+            return DialogueSpeakerResolver.ResolveSpeakerName(
+                node,
+                party != null ? party.PartyMemberDataSO : null,
+                party != null ? party.ActiveCharacterType : CharacterActorType.None);
         }
 
         private static Sprite ResolvePortrait(DialogueNodeSO node)
         {
-            if (!IsPlayerSpeaker(node))
-            {
-                return node.portrait;
-            }
-
             var party = UISvc.Party;
-            var memberData = party != null ? party.PartyMemberDataSO : null;
-            CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
-            Sprite activePortrait = memberData != null ? memberData.GetFullBodySprite(activeType) : null;
-
-            return activePortrait != null ? activePortrait : node.portrait;
+            return DialogueSpeakerResolver.ResolvePortrait(
+                node,
+                party != null ? party.PartyMemberDataSO : null,
+                party != null ? party.ActiveCharacterType : CharacterActorType.None);
         }
 
         private void ApplyPortrait(Sprite portrait)
@@ -176,31 +187,136 @@ namespace UPlayGround.UI
             portraitImage.rectTransform.sizeDelta = new Vector2(width * scale, height * scale);
         }
 
-        private static bool IsPlayerSpeaker(DialogueNodeSO node)
+        // ── 타이핑 / 자동 진행 ───────────────────────────────────────────
+
+        private DialogueTypewriter EnsureTypewriter()
         {
-            return node != null && (node.speakerId == PlayerSpeakerId || node.speakerId == PlayerActorId);
-        }
-
-        // ── 타이핑 이펙트 ────────────────────────────────────────────────
-
-        private IEnumerator TypeText(string text, float speed)
-        {
-            advanceButton.gameObject.SetActive(false);
-            dialogueBodyText.text = "";
-
-            foreach (char c in text)
+            if (typewriter == null && dialogueBodyText != null)
             {
-                dialogueBodyText.text += c;
-                yield return new WaitForSeconds(speed);
+                typewriter = dialogueBodyText.GetComponent<DialogueTypewriter>();
+                if (typewriter == null)
+                    typewriter = dialogueBodyText.gameObject.AddComponent<DialogueTypewriter>();
             }
 
-            advanceButton.gameObject.SetActive(true);
+            if (typewriter != null && !_typingCompletedBound)
+            {
+                typewriter.OnCompleted += HandleTypingCompleted;
+                _typingCompletedBound = true;
+            }
+
+            return typewriter;
         }
 
-        private void OnInputDialogueNext(InputAction.CallbackContext obj)
+        private bool _typingCompletedBound;
+        private bool _typingComplete;
+
+        private void HandleTypingCompleted()
         {
-            UISvc.Dialogue.Advance();
+            _typingComplete = true;
+
+            // 선택지 노드는 선택 UI가 진행을 담당하므로 진행 버튼을 띄우지 않는다.
+            bool isChoice = _currentNode != null && _currentNode.nodeType == NodeType.Choice;
+            advanceButton.gameObject.SetActive(!isChoice);
+
+            StartAutoAdvanceIfNeeded();
         }
 
+        // 컨트롤 바에서 자동 재생을 켰을 때, 이미 타이핑이 끝나 대기 중이면 즉시 카운트다운을 시작한다.
+        // (이 처리가 없으면 토글이 다음 노드부터 적용돼 '자동이 안 걸리는' 것처럼 보인다.)
+        private void HandleAutoChanged(bool auto)
+        {
+            if (auto)
+                StartAutoAdvanceIfNeeded();
+        }
+
+        private void StartAutoAdvanceIfNeeded()
+        {
+            StopAutoAdvance();
+
+            var dialogue = UISvc.Dialogue;
+            if (dialogue == null || _currentNode == null || !_typingComplete || !isActiveAndEnabled)
+                return;
+
+            // 선택은 플레이어 몫이므로 선택지 노드에서는 자동 진행하지 않는다.
+            if (_currentNode.nodeType == NodeType.Choice)
+                return;
+
+            if (ResolveAutoDelay(dialogue) <= 0f)
+                return;
+
+            _autoAdvanceCoroutine = StartCoroutine(AutoAdvanceRoutine());
+        }
+
+        private void StopAutoAdvance()
+        {
+            if (_autoAdvanceCoroutine == null)
+                return;
+
+            StopCoroutine(_autoAdvanceCoroutine);
+            _autoAdvanceCoroutine = null;
+        }
+
+        // 노드 개별 딜레이는 하한이며, 자동 재생 토글이 켜져 있으면 전역 딜레이와 max로 결합한다.
+        private float ResolveAutoDelay(IUIDialogueService dialogue)
+        {
+            float delay = _currentNode != null ? _currentNode.autoAdvanceDuration : 0f;
+            if (dialogue.IsAuto)
+                delay = Mathf.Max(delay, dialogue.AutoAdvanceDelay);
+
+            return delay;
+        }
+
+        private IEnumerator AutoAdvanceRoutine()
+        {
+            float elapsed = 0f;
+
+            while (true)
+            {
+                var dialogue = UISvc.Dialogue;
+                if (dialogue == null || _currentNode == null)
+                {
+                    _autoAdvanceCoroutine = null;
+                    yield break;
+                }
+
+                // 대기 중 자동이 꺼지면(그리고 노드 자체 딜레이도 없으면) 진행하지 않고 중단한다.
+                float delay = ResolveAutoDelay(dialogue);
+                if (delay <= 0f)
+                {
+                    _autoAdvanceCoroutine = null;
+                    yield break;
+                }
+
+                // 정지 중에는 카운트다운이 멈춘다.
+                if (!dialogue.IsPaused)
+                    elapsed += Time.unscaledDeltaTime;
+
+                if (elapsed >= delay)
+                    break;
+
+                yield return null;
+            }
+
+            _autoAdvanceCoroutine = null;
+            UISvc.Dialogue?.Advance();
+        }
+
+        // ── 입력 ────────────────────────────────────────────────────────
+
+        private void OnInputDialogueNext(InputAction.CallbackContext obj) => OnAdvanceRequested();
+
+        // 타이핑 중이면 완성만 하고, 완성 상태면 다음 노드로 진행한다.
+        private void OnAdvanceRequested()
+        {
+            var dialogue = UISvc.Dialogue;
+            if (dialogue == null || dialogue.IsPaused)
+                return;
+
+            if (EnsureTypewriter()?.CompleteTyping() == true)
+                return;
+
+            StopAutoAdvance();
+            dialogue.Advance();
+        }
     }
 }

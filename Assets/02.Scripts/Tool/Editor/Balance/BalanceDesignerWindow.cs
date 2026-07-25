@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -330,7 +331,7 @@ namespace UPlayGround.Tool.Editor.Balance
                     ? $"HP {BalanceAttributeProfileUtility.Get(_selectedActor, global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth):F0} / ATK {BalanceAttributeProfileUtility.Get(_selectedActor, global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower):F2} / DEF {BalanceAttributeProfileUtility.Get(_selectedActor, global::UPlayGround.Data.Stat.Attributes.Combat.Defense):F2}"
                     : "Attribute Profile 없음";
                 string attackSummary = _selectedActor.EffectiveAbilitySet != null
-                    ? $"Abilities {_selectedActor.EffectiveAbilitySet.additionalAbilities?.Count ?? 0}"
+                    ? $"Abilities {_selectedActor.EffectiveAbilitySet.EnumerateAll().Count()}"
                     : "AbilitySet 없음";
 
                 EditorGUILayout.LabelField($"{statSummary}  |  {attackSummary}", EditorStyles.miniLabel);

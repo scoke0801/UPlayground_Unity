@@ -216,6 +216,7 @@ namespace UPlayGround.UI
             PopulateRegionList();
             HideConfirm();
             HideRegionDetail();
+            RebuildGamepadNavigation();
 
             // 초기 줌으로 플레이어 위치를 중심으로 열기
             _currentZoom = _initialZoom;

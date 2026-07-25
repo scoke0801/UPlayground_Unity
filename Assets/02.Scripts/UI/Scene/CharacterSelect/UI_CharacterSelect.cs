@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -256,6 +257,7 @@ namespace UPlayGround.UI
             }
 
             SelectIndex(first, false);
+            FocusCard(first);
         }
 
         protected override void OnHide()
@@ -282,6 +284,20 @@ namespace UPlayGround.UI
             SelectIndex(index, true);
         }
 
+        /// <summary>
+        /// 키보드/게임패드 내비게이션으로 카드에 포커스가 들어오면
+        /// 클릭과 동일하게 프리뷰·상세·선택 연출을 갱신한다.
+        /// </summary>
+        public void OnCardFocused(int index)
+        {
+            if (index < 0 || index >= _cards.Count)
+                return;
+            if (_cards[index] == null || _cards[index].IsLocked || index == _selectedIndex)
+                return;
+
+            SelectIndex(index, true);
+        }
+
         /// <summary> 카드를 선택 상태로 만들고 상세를 갱신한다. (기본 선택/클릭 공용) </summary>
         private void SelectIndex(int index, bool animate)
         {
@@ -298,6 +314,82 @@ namespace UPlayGround.UI
             ShowDetail(true, animate);
 
             if (_confirmButton != null) _confirmButton.interactable = true;
+
+            RebuildCardNavigation(index);
+        }
+
+        private void FocusCard(int index)
+        {
+            if (index < 0 || index >= _cards.Count)
+                return;
+
+            Selectable selectable = _cards[index]?.Selectable;
+            if (selectable == null || !selectable.IsInteractable() || EventSystem.current == null)
+                return;
+
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(selectable.gameObject);
+        }
+
+        /// <summary>
+        /// 동적으로 생성되는 카드 중 잠긴 항목을 제외하고 좌우 이웃을 명시한다.
+        /// 카드 위쪽은 시작 버튼으로, 하단 버튼의 아래쪽은 현재 카드로 연결한다.
+        /// </summary>
+        private void RebuildCardNavigation(int selectedIndex)
+        {
+            var available = new List<Selectable>();
+            for (int i = 0; i < _cards.Count; i++)
+            {
+                Selectable selectable = _cards[i]?.Selectable;
+                if (_cards[i] != null && !_cards[i].IsLocked
+                    && selectable != null && selectable.IsInteractable())
+                {
+                    available.Add(selectable);
+                }
+            }
+
+            for (int i = 0; i < available.Count; i++)
+            {
+                Navigation navigation = available[i].navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnLeft = i > 0 ? available[i - 1] : null;
+                navigation.selectOnRight = i + 1 < available.Count ? available[i + 1] : null;
+                navigation.selectOnUp = _confirmButton != null && _confirmButton.interactable
+                    ? _confirmButton
+                    : _cancelButton;
+                navigation.selectOnDown = null;
+                available[i].navigation = navigation;
+            }
+
+            Selectable selectedCard = selectedIndex >= 0 && selectedIndex < _cards.Count
+                ? _cards[selectedIndex]?.Selectable
+                : null;
+            ConfigureFooterNavigation(selectedCard);
+        }
+
+        private void ConfigureFooterNavigation(Selectable selectedCard)
+        {
+            if (_cancelButton != null)
+            {
+                Navigation navigation = _cancelButton.navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnLeft = null;
+                navigation.selectOnRight = _confirmButton;
+                navigation.selectOnUp = null;
+                navigation.selectOnDown = selectedCard;
+                _cancelButton.navigation = navigation;
+            }
+
+            if (_confirmButton != null)
+            {
+                Navigation navigation = _confirmButton.navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnLeft = _cancelButton;
+                navigation.selectOnRight = null;
+                navigation.selectOnUp = null;
+                navigation.selectOnDown = selectedCard;
+                _confirmButton.navigation = navigation;
+            }
         }
 
         public void Cancel()

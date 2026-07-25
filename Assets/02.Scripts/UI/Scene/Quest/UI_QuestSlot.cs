@@ -10,7 +10,8 @@ namespace UPlayGround.UI
     /// 퀘스트 메뉴 — 좌측 리스트 슬롯 1개.
     /// UI_QuestMenu의 리스트에서 Instantiate해 사용한다.
     /// </summary>
-    public class UI_QuestSlot : MonoBehaviour, IPointerClickHandler
+    public class UI_QuestSlot : MonoBehaviour, IPointerClickHandler, ISelectHandler,
+        IUIFocusPresentation
     {
         [SerializeField] private Image           _imgIcon;          // 메인/서브 구분 아이콘
         [SerializeField] private TextMeshProUGUI _txtName;
@@ -30,9 +31,13 @@ namespace UPlayGround.UI
         private string       _questId;
         private QuestStatus  _status;
         private UI_QuestMenu _parent;
+        private Selectable _selectable;
 
         public string      QuestId => _questId;
         public QuestStatus Status  => _status;
+        public Selectable Selectable => _selectable ??= GetComponent<Selectable>();
+        public bool SuppressGlobalFocusIndicator => _selectOverlay != null;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         public void Init(QuestSO so, QuestStatus status, bool tracked, UI_QuestMenu parent)
         {
@@ -78,6 +83,11 @@ namespace UPlayGround.UI
         }
 
         public void OnPointerClick(PointerEventData eventData)
+        {
+            _parent?.OnQuestSlotClicked(_questId, _status);
+        }
+
+        public void OnSelect(BaseEventData eventData)
         {
             _parent?.OnQuestSlotClicked(_questId, _status);
         }

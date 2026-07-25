@@ -127,7 +127,33 @@ namespace UPlayGround.UI
             else
                 SetDetailVisible(false);
 
+            RebuildNavigation();
             RebuildLayout();
+        }
+
+        private void RebuildNavigation()
+        {
+            var slots = new List<Selectable>();
+            foreach (UIMonsterCodexSlot slot in _spawned)
+            {
+                if (slot != null && slot.Selectable != null)
+                    slots.Add(slot.Selectable);
+            }
+            UIFocusNavigation.ConfigureVertical(slots);
+
+            var filters = new Selectable[] { _gradeFilter, _elementFilter, _closeButton };
+            UIFocusNavigation.ConfigureHorizontal(filters);
+            Selectable firstFilter = UIFocusNavigation.FirstNavigable(filters);
+
+            foreach (Selectable slot in slots)
+            {
+                Navigation navigation = slot.navigation;
+                navigation.selectOnUp ??= firstFilter;
+                slot.navigation = navigation;
+            }
+
+            Selectable initial = slots.Count > 0 ? slots[0] : firstFilter;
+            SetDefaultFocus(initial, IsVisible);
         }
 
         private void RebuildLayout()
@@ -240,7 +266,11 @@ namespace UPlayGround.UI
         private void ClearSlots()
         {
             foreach (UIMonsterCodexSlot slot in _spawned)
-                if (slot != null) Destroy(slot.gameObject);
+            {
+                if (slot == null) continue;
+                slot.gameObject.SetActive(false);
+                Destroy(slot.gameObject);
+            }
             _spawned.Clear();
         }
     }

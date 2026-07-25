@@ -11,7 +11,12 @@ namespace UPlayGround.UI
     /// 제작 UI — 레시피 리스트 슬롯 1개
     /// UI_Crafting의 레시피 ScrollView에서 Instantiate해 사용한다.
     /// </summary>
-    public class UI_CraftingRecipeSlot : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+    public class UI_CraftingRecipeSlot : MonoBehaviour,
+        IPointerClickHandler,
+        IPointerEnterHandler,
+        IPointerExitHandler,
+        ISelectHandler,
+        IUIFocusPresentation
     {
         [SerializeField] private Image            _imgResultIcon;
         [SerializeField] private TextMeshProUGUI  _txtRecipeName;
@@ -27,6 +32,11 @@ namespace UPlayGround.UI
 
         private int        _recipeID;
         private UI_CraftMenu _parent;
+        private Selectable _selectable;
+
+        public Selectable Selectable => _selectable ??= GetComponent<Selectable>();
+        public bool SuppressGlobalFocusIndicator => _selectOverlay != null;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         // ──────────────────────────────────────────
 
@@ -128,6 +138,11 @@ namespace UPlayGround.UI
         }
 
         public void OnPointerExit(PointerEventData eventData) { }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            _parent?.OnRecipeSlotClicked(_recipeID);
+        }
 
         #endregion
     }

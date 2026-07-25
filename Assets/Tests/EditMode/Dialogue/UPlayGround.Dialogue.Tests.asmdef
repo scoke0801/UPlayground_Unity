@@ -1,0 +1,14 @@
+{
+  "name": "UPlayGround.Dialogue.Tests",
+  "rootNamespace": "UPlayGround.Dialogue.Tests",
+  "references": [
+    "UPlayGround.Data"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

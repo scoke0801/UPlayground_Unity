@@ -18,6 +18,8 @@ namespace UPlayGround.UI
             var screenShake = GetAt(_switches, 1);
             var aimAssist = GetAt(_switches, 2);
             var language = GetAt(_dropdowns, 0);
+            var dialogueTypingSpeed = GetAt(_dropdowns, 1);
+            var dialogueAutoDelay = GetAt(_dropdowns, 2);
 
             if (sensitivityX != null) sensitivityX.OnValueChanged += value => settingsData.sensitivityX = RoundToInt(value);
             if (sensitivityY != null) sensitivityY.OnValueChanged += value => settingsData.sensitivityY = RoundToInt(value);
@@ -25,6 +27,10 @@ namespace UPlayGround.UI
             if (screenShake != null) screenShake.OnValueChanged += value => settingsData.screenShake = value;
             if (aimAssist != null) aimAssist.OnValueChanged += value => settingsData.aimAssist = value;
             if (language != null) language.OnIndexChanged += index => settingsData.languageIndex = index;
+            if (dialogueTypingSpeed != null)
+                dialogueTypingSpeed.OnIndexChanged += index => settingsData.dialogueTypingSpeedIndex = index;
+            if (dialogueAutoDelay != null)
+                dialogueAutoDelay.OnIndexChanged += index => settingsData.dialogueAutoDelayIndex = index;
         }
 
         public override void SyncUIFromData(SettingsData settingsData)
@@ -37,6 +43,8 @@ namespace UPlayGround.UI
             GetAt(_switches, 1)?.SetValueWithoutNotify(settingsData.screenShake);
             GetAt(_switches, 2)?.SetValueWithoutNotify(settingsData.aimAssist);
             GetAt(_dropdowns, 0)?.SetIndexWithoutNotify(settingsData.languageIndex);
+            GetAt(_dropdowns, 1)?.SetIndexWithoutNotify(settingsData.dialogueTypingSpeedIndex);
+            GetAt(_dropdowns, 2)?.SetIndexWithoutNotify(settingsData.dialogueAutoDelayIndex);
         }
 
         private void CacheControls()

@@ -189,6 +189,7 @@ namespace UPlayGround.Manager
             }
 
             EnsureFocusIndicator();
+            EnsureCursorClickEffect();
         }
 
         /// <summary>
@@ -218,6 +219,34 @@ namespace UPlayGround.Manager
             rect.offsetMax = Vector2.zero;
             // 다른 UI가 나중에 추가돼도 테두리가 가려지지 않게 항상 맨 위로 둔다.
             rect.SetAsLastSibling();
+        }
+
+        /// <summary>
+        /// 커서가 표시된 동안 모든 마우스 클릭 위치에 전역 리플 FX를 표시한다.
+        /// </summary>
+        private void EnsureCursorClickEffect()
+        {
+            if (!_canvasDictionary.TryGetValue(CanvasLayer.System, out Canvas systemCanvas)
+                || systemCanvas == null)
+            {
+                return;
+            }
+
+            if (systemCanvas.GetComponentInChildren<UICursorClickEffect>(true) != null)
+                return;
+
+            var effectObject = new GameObject(
+                "UICursorClickEffect",
+                typeof(RectTransform));
+            var rect = (RectTransform)effectObject.transform;
+            rect.SetParent(systemCanvas.transform, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.SetAsLastSibling();
+
+            effectObject.AddComponent<UICursorClickEffect>();
         }
 
         private void RegisterCanvasLayersFromPrefab()
@@ -370,6 +399,11 @@ namespace UPlayGround.Manager
             module.rightClick = CreateUIActionReference(UIAction.RightClick);
             module.middleClick = CreateUIActionReference(UIAction.MiddleClick);
             module.scrollWheel = CreateUIActionReference(UIAction.ScrollWheel);
+            // 빈 배경 클릭으로 게임패드 포커스가 유실되지 않게 유지한다.
+            // 마우스 사용 중에는 UIFocusIndicator가 숨으므로 시각 충돌도 없다.
+            module.deselectOnBackgroundClick = false;
+            module.moveRepeatDelay = 0.35f;
+            module.moveRepeatRate = 0.09f;
         }
 
         private InputActionReference CreateUIActionReference(string actionName)

@@ -96,6 +96,9 @@
 | `Party` | Button | P | — | |
 | `MenuPanel` | Button | ` (backquote) | Start | |
 | `CheatPanel` | Button | F11 | — | 치트 패널 |
+| `DialogueSkip` | Button | Ctrl | RT (`rightTrigger`) | 대화 스킵(선택지·End까지 빨리감기) |
+| `DialogueToggleAuto` | Button | F2 | Y (`buttonNorth`) | 대화 자동 재생 토글 |
+| `DialogueBacklog` | Button | Tab | LB (`leftShoulder`) | 이전 대화내역 열기/닫기 |
 
 ## Gamepad 맵 (원시 버튼)
 

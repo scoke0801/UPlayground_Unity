@@ -115,10 +115,10 @@ namespace UPlayGround.UI
         }
 
         /// <summary>설정 메뉴를 열 때 이전 편집 대기열을 비운다.</summary>
-        public void BeginEditSession()
+        public void BeginEditSession(bool refreshRows = true)
         {
             DiscardPendingChanges();
-            if (_built)
+            if (refreshRows && _built)
                 RefreshRows();
         }
 
@@ -141,39 +141,44 @@ namespace UPlayGround.UI
 
             string snapshot = _inputService.CaptureBindingProfileSnapshot();
 
-            if (_resetAllPending)
-                _inputService.ResetBindings();
-            else
+            // 개별 API는 단독 호출 시 즉시 반영되지만, 설정 화면에서는 모든 변경을
+            // 한 번의 액션 맵 재적용과 OnBindingsChanged 알림으로 합친다.
+            using (_inputService.BeginBindingProfileUpdate())
             {
-                foreach (string actionKey in _pendingActionResets)
+                if (_resetAllPending)
+                    _inputService.ResetBindings();
+                else
                 {
-                    SplitActionKey(actionKey, out string mapName, out string actionName);
-                    _inputService.ResetBindingsForAction(mapName, actionName);
+                    foreach (string actionKey in _pendingActionResets)
+                    {
+                        SplitActionKey(actionKey, out string mapName, out string actionName);
+                        _inputService.ResetBindingsForAction(mapName, actionName);
+                    }
                 }
-            }
 
-            foreach (InputBindingTarget target in _pendingClears)
-            {
-                if (_inputService.ClearBinding(target))
-                    continue;
+                foreach (InputBindingTarget target in _pendingClears)
+                {
+                    if (_inputService.ClearBinding(target))
+                        continue;
 
-                _inputService.RestoreBindingProfileSnapshot(snapshot);
-                _detail?.SetConflictMessage(
-                    "필수 액션의 기본 바인딩은 제거할 수 없습니다.",
-                    allowReplace: false);
-                return false;
-            }
+                    _inputService.RestoreBindingProfileSnapshot(snapshot);
+                    _detail?.SetConflictMessage(
+                        "필수 액션의 기본 바인딩은 제거할 수 없습니다.",
+                        allowReplace: false);
+                    return false;
+                }
 
-            foreach (KeyValuePair<InputBindingTarget, InputRebindCaptureResult> pair in _pendingCaptures)
-            {
-                bool replace = _replaceApprovedTargets.Contains(pair.Key);
-                if (_inputService.TryApplyBinding(pair.Value, replace, out InputBindingConflictInfo conflict))
-                    continue;
+                foreach (KeyValuePair<InputBindingTarget, InputRebindCaptureResult> pair in _pendingCaptures)
+                {
+                    bool replace = _replaceApprovedTargets.Contains(pair.Key);
+                    if (_inputService.TryApplyBinding(pair.Value, replace, out InputBindingConflictInfo conflict))
+                        continue;
 
-                _inputService.RestoreBindingProfileSnapshot(snapshot);
-                _pendingConflictCapture = pair.Value;
-                ShowConflict(conflict);
-                return false;
+                    _inputService.RestoreBindingProfileSnapshot(snapshot);
+                    _pendingConflictCapture = pair.Value;
+                    ShowConflict(conflict);
+                    return false;
+                }
             }
 
             DiscardPendingChanges();
@@ -825,6 +830,7 @@ namespace UPlayGround.UI
                 "충돌 대체가 승인되었습니다. 하단 적용을 다시 눌러 확정하세요.",
                 null);
             RefreshRows();
+            RestoreKeyPageFocus();
         }
 
         private void CancelConflict()
@@ -837,6 +843,24 @@ namespace UPlayGround.UI
             _pendingConflictCapture = default;
             _detail?.SetCaptureState(false, null, null);
             RefreshRows();
+            RestoreKeyPageFocus();
+        }
+
+        /// <summary>
+        /// 충돌 버튼을 숨기면 비활성화된 취소/대체 버튼에서 포커스가 빠진다.
+        /// EventSystem의 기본 복구 대상(첫 게임플레이 탭) 대신 현재 키 행으로 돌린다.
+        /// </summary>
+        private void RestoreKeyPageFocus()
+        {
+            Selectable selectable = _selectedRow?.Selectable;
+            if (selectable == null
+                || !selectable.IsInteractable()
+                || EventSystem.current == null)
+            {
+                return;
+            }
+
+            EventSystem.current.SetSelectedGameObject(selectable.gameObject);
         }
 
         private void ResetSelectedAction()

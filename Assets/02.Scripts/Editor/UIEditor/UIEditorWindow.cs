@@ -558,6 +558,14 @@ namespace UPlayGround.Editor.UI
             Add("화면 UI", "몬스터 도감", "몬스터 도감 슬롯과 메인 UI 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.EditorTools.UIMonsterCodexPrefabBuilder.Build);
 
+            Add("화면 UI", "대화 고도화 일괄 셋업",
+                "팔레트 SO·Addressables·컨트롤 바/이력 프리팹·UIPrefabDatabase 등록·UIKeyType 재생성·타이프라이터 배선·설정 메뉴까지 한 번에 처리합니다.",
+                UPlayGround.Dialogue.EditorTools.DialogueAdvancementSetupTool.RunAll, "일괄 셋업");
+            Add("화면 UI", "대화 컨트롤 바", "대화 재생 컨트롤 바(정지·자동·스킵·이력) 프리팹 초안을 생성합니다.",
+                UPlayGround.UI.EditorTools.UIDialogueControlBarPrefabBuilder.Build);
+            Add("화면 UI", "대화 이력", "이전 대화내역 패널과 로그 엔트리 프리팹 초안을 생성합니다.",
+                UPlayGround.UI.EditorTools.UIDialogueBacklogPrefabBuilder.Build);
+
             Add("팝업 · 시스템", "가이드 팝업", "가이드 팝업 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.Guide.EditorTools.UIGuidePopupPrefabBuilder.Build);
             Add("팝업 · 시스템", "부활 팝업", "부활 팝업 프리팹의 계층과 직렬화 참조를 갱신합니다.",

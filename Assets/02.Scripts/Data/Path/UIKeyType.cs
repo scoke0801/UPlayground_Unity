@@ -1,6 +1,6 @@
 // 자동 생성 파일입니다. 직접 수정하지 마세요.
 // UPlayGround/ID Enum Generator 창에서 재생성하세요.
-// Generated: 2026-06-15 21:59
+// Generated: 2026-07-25 17:43
 namespace UPlayGround.Data.Path
 {
     /// <summary>UIKeyType — UI Prefab 키 열거형 (자동 생성)</summary>
@@ -35,11 +35,20 @@ namespace UPlayGround.Data.Path
         OffscreenThreatIndicator = 26,
         DangerRing = 27,
         BreakInteraction = 28,
-        HudSkill = 29,
-        SaveSlotMenu = 30,
-        Notification = 31,
-        GuidePopup = 32,
-        MonsterCodex = 33,
+        SaveSlotMenu = 29,
+        Notification = 30,
+        DevCheatPanel = 31,
+        HudWorldClock = 32,
+        WorldRespawnNotice = 33,
+        CharacterSelect = 34,
+        RestGrowth = 35,
+        GuidePopup = 36,
+        MonsterCodex = 37,
+        HudSkill = 38,
+        HudQuickSlot = 39,
+        HudWorldMarker = 40,
+        DialogueControlBar = 41,
+        DialogueBacklog = 42,
     }
 
     public static class UIKeyTypeExtensions
@@ -75,11 +84,20 @@ namespace UPlayGround.Data.Path
             UIKeyType.OffscreenThreatIndicator => "OffscreenThreatIndicator",
             UIKeyType.DangerRing => "DangerRing",
             UIKeyType.BreakInteraction => "BreakInteraction",
-            UIKeyType.HudSkill => "HudSkill",
             UIKeyType.SaveSlotMenu => "SaveSlotMenu",
             UIKeyType.Notification => "Notification",
+            UIKeyType.DevCheatPanel => "DevCheatPanel",
+            UIKeyType.HudWorldClock => "HudWorldClock",
+            UIKeyType.WorldRespawnNotice => "WorldRespawnNotice",
+            UIKeyType.CharacterSelect => "CharacterSelect",
+            UIKeyType.RestGrowth => "RestGrowth",
             UIKeyType.GuidePopup => "GuidePopup",
             UIKeyType.MonsterCodex => "MonsterCodex",
+            UIKeyType.HudSkill => "HudSkill",
+            UIKeyType.HudQuickSlot => "HudQuickSlot",
+            UIKeyType.HudWorldMarker => "HudWorldMarker",
+            UIKeyType.DialogueControlBar => "DialogueControlBar",
+            UIKeyType.DialogueBacklog => "DialogueBacklog",
             _ => string.Empty,
         };
     }

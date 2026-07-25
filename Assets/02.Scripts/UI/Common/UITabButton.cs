@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UPlayGround.UI
@@ -18,7 +19,7 @@ namespace UPlayGround.UI
     /// UI_Base 파생이 아니므로 접두사 규약상 UITabButton으로 명명.
     /// </summary>
     [RequireComponent(typeof(Button))]
-    public class UITabButton : MonoBehaviour
+    public class UITabButton : MonoBehaviour, ISelectHandler, IUIFocusPresentation
     {
         [SerializeField] private Button           _button;
         [SerializeField] private Image            _background;         // 선택 시 색이 바뀌는 배경(보통 Button.targetGraphic)
@@ -37,6 +38,8 @@ namespace UPlayGround.UI
 
         public Button Button      => _button;
         public bool   IsSelected  { get; private set; }
+        public bool SuppressGlobalFocusIndicator => true;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         /// <summary> 버튼이 클릭됐을 때 발생. </summary>
         public event Action Clicked;
@@ -62,6 +65,16 @@ namespace UPlayGround.UI
         }
 
         private void OnButtonClicked() => Clicked?.Invoke();
+
+        /// <summary>
+        /// 게임패드로 탭을 훑을 때 별도 Submit 없이 해당 페이지를 즉시 미리 본다.
+        /// 선택 탭 자체가 포커스 표현도 겸하므로 전역 테두리는 사용하지 않는다.
+        /// </summary>
+        public void OnSelect(BaseEventData eventData)
+        {
+            if (!IsSelected)
+                Clicked?.Invoke();
+        }
 
         /// <summary> 선택 상태를 설정하고 시각을 갱신한다. </summary>
         public void SetSelected(bool selected)

@@ -8,6 +8,7 @@ using UnityEngine.UIElements;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Editor.Ability.Production;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Editor.Ability
@@ -28,6 +29,10 @@ namespace UPlayGround.Data.Editor.Ability
         private Label _nameLabel;
         private Label _pathLabel;
         private Button _pingButton;
+        private Button _composeSetButton;
+        private Button _duplicateButton;
+        private Button _copyTabButton;
+        private Button _pasteTabButton;
         private UnityEngine.Object _selected;
         private string _filter = "전체";
         private AbilitySetSO _activeSet;
@@ -38,6 +43,9 @@ namespace UPlayGround.Data.Editor.Ability
         private VisualElement _toolbarRow;
         private VisualElement _tabsRow;
         private readonly Dictionary<string, Button> _tabButtons = new();
+        private ScriptableObject _tabClipboard;
+        private Type _tabClipboardType;
+        private string _tabClipboardTab;
 
         private sealed class AbilitySetScope
         {
@@ -264,6 +272,8 @@ namespace UPlayGround.Data.Editor.Ability
         private void OnDisable()
         {
             Undo.undoRedoPerformed -= HandleUndoRedo;
+            if (_tabClipboard != null)
+                DestroyImmediate(_tabClipboard);
         }
 
         public void CreateGUI()
@@ -275,89 +285,149 @@ namespace UPlayGround.Data.Editor.Ability
             BuildTabs();
             BuildMain();
             rootVisualElement.RegisterCallback<GeometryChangedEvent>(OnRootGeometryChanged);
+            rootVisualElement.RegisterCallback<KeyDownEvent>(OnEditorShortcut);
             RefreshAssets();
         }
 
         private void BuildToolbar()
         {
             var toolbar = new VisualElement();
-            toolbar.style.height = 58f;
+            toolbar.style.height = 62f;
             toolbar.style.flexShrink = 0f;
             toolbar.style.backgroundColor = Bg2;
             toolbar.style.borderBottomColor = Border;
             toolbar.style.borderBottomWidth = 1f;
 
-            var firstRowScroll = new ScrollView(ScrollViewMode.Horizontal);
-            firstRowScroll.style.height = 31f;
-            firstRowScroll.horizontalScrollerVisibility = ScrollerVisibility.Auto;
-            firstRowScroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
-            firstRowScroll.style.flexShrink = 0f;
-
-            var firstRow = new Toolbar();
-            _toolbarRow = firstRow;
+            var firstRow = new VisualElement();
             firstRow.style.height = 30f;
             firstRow.style.flexShrink = 0f;
+            firstRow.style.flexDirection = FlexDirection.Row;
+            firstRow.style.alignItems = Align.Center;
+            firstRow.style.paddingLeft = 8f;
+            firstRow.style.paddingRight = 8f;
 
             var title = new Label("선택 에셋");
             title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.marginLeft = 8f;
+            title.style.flexShrink = 0f;
             title.style.color = new Color(0.55f, 0.6f, 0.68f);
             firstRow.Add(title);
 
             _nameLabel = new Label("에셋을 선택하세요");
             _nameLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             _nameLabel.style.marginLeft = 10f;
+            _nameLabel.style.width = 330f;
             _nameLabel.style.minWidth = 180f;
-            _nameLabel.style.flexGrow = 1f;
+            _nameLabel.style.flexShrink = 1f;
+            _nameLabel.style.overflow = Overflow.Hidden;
+            _nameLabel.style.textOverflow = TextOverflow.Ellipsis;
             firstRow.Add(_nameLabel);
-
-            firstRow.Add(MakeToolbarButton("새 Ability", () => CreateAsset<GameplayAbilitySO>("GA_")));
-            firstRow.Add(MakeToolbarButton("새 Passive", () => CreateAsset<PassiveAbilitySO>("PA_")));
-            firstRow.Add(MakeToolbarButton("새 Effect", () => CreateAsset<GameplayEffectSO>("GE_")));
-            firstRow.Add(MakeToolbarButton("새 Set", () => CreateAsset<AbilitySetSO>("AbilitySet_")));
-            firstRow.Add(MakeToolbarButton("전체 검증", ValidateAll));
-
-            var delete = MakeToolbarButton("선택 삭제", DeleteSelected);
-            delete.style.backgroundColor = new Color(0.45f, 0.12f, 0.12f);
-            delete.style.color = new Color(1f, 0.82f, 0.82f);
-            firstRow.Add(delete);
-
-            var save = MakeToolbarButton("저장", SaveSelected);
-            save.style.backgroundColor = Accent;
-            save.style.color = Color.white;
-            firstRow.Add(save);
-            firstRowScroll.Add(firstRow);
-            toolbar.Add(firstRowScroll);
-
-            var secondRow = new VisualElement();
-            secondRow.style.height = 26f;
-            secondRow.style.flexDirection = FlexDirection.Row;
-            secondRow.style.alignItems = Align.Center;
-            secondRow.style.paddingLeft = 8f;
-            secondRow.style.paddingRight = 6f;
 
             var fileLabel = new Label("파일");
             fileLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             fileLabel.style.color = new Color(0.55f, 0.6f, 0.68f);
-            secondRow.Add(fileLabel);
+            fileLabel.style.marginLeft = 14f;
+            fileLabel.style.flexShrink = 0f;
+            firstRow.Add(fileLabel);
 
             _pathLabel = new Label("-");
             _pathLabel.style.color = new Color(0.68f, 0.72f, 0.78f);
-            _pathLabel.style.marginLeft = 10f;
+            _pathLabel.style.marginLeft = 8f;
             _pathLabel.style.flexGrow = 1f;
+            _pathLabel.style.minWidth = 0f;
             _pathLabel.style.overflow = Overflow.Hidden;
             _pathLabel.style.textOverflow = TextOverflow.Ellipsis;
-            secondRow.Add(_pathLabel);
+            firstRow.Add(_pathLabel);
+            toolbar.Add(firstRow);
 
-            _pingButton = new Button(PingSelectedAsset) { text = "Project에서 찾기" };
-            _pingButton.tooltip = "선택한 에셋을 Project 창에서 선택하고 강조 표시합니다.";
-            _pingButton.style.height = 21f;
-            _pingButton.style.flexShrink = 0f;
-            _pingButton.SetEnabled(false);
-            secondRow.Add(_pingButton);
+            var actionScroll = new ScrollView(ScrollViewMode.Horizontal);
+            actionScroll.style.height = 31f;
+            actionScroll.horizontalScrollerVisibility = ScrollerVisibility.Auto;
+            actionScroll.verticalScrollerVisibility = ScrollerVisibility.Hidden;
+            actionScroll.style.flexShrink = 0f;
 
-            toolbar.Add(secondRow);
+            var actions = new Toolbar();
+            _toolbarRow = actions;
+            actions.style.height = 30f;
+            actions.style.flexShrink = 0f;
+            actions.style.paddingLeft = 5f;
+            actions.style.paddingRight = 5f;
+
+            ToolbarMenu createMenu = MakeToolbarMenu(
+                "＋ 생성",
+                "새 에셋 생성과 Ability 양산화 도구를 엽니다.");
+            createMenu.menu.AppendAction(
+                "Gameplay Ability",
+                _ => CreateAsset<GameplayAbilitySO>("GA_"));
+            createMenu.menu.AppendAction(
+                "Passive Ability",
+                _ => CreateAsset<PassiveAbilitySO>("PA_"));
+            createMenu.menu.AppendAction(
+                "Gameplay Effect",
+                _ => CreateAsset<GameplayEffectSO>("GE_"));
+            createMenu.menu.AppendAction(
+                "Ability Set",
+                _ => CreateAsset<AbilitySetSO>("AbilitySet_"));
+            createMenu.menu.AppendSeparator();
+            createMenu.menu.AppendAction(
+                "공용/파생 Set 구성…",
+                _ => OpenSetCompositionForSelection());
+            createMenu.menu.AppendAction(
+                "레시피로 신규 Ability 생성…",
+                _ => GameplayAbilityProductionWizardWindow.Open());
+            actions.Add(createMenu);
+
+            _composeSetButton =
+                MakeToolbarButton("Set 구성", OpenSetCompositionForSelection);
+            _composeSetButton.tooltip =
+                "현재 선택한 Ability들로 공용 Set을 만들거나 Base Set의 파생 Set을 구성합니다.";
+            actions.Add(_composeSetButton);
+
+            _duplicateButton = MakeToolbarButton("복제", DuplicateSelected);
+            _duplicateButton.tooltip =
+                "선택 에셋 전체를 새 파일과 새 안정 ID로 복제합니다. (Ctrl/Cmd+D)";
+            actions.Add(_duplicateButton);
+
+            _copyTabButton = MakeToolbarButton("탭 복사", CopyActiveTab);
+            _copyTabButton.tooltip =
+                "현재 탭에 표시된 값만 복사합니다. (Ctrl/Cmd+Shift+C)";
+            actions.Add(_copyTabButton);
+
+            _pasteTabButton = MakeToolbarButton("붙여넣기", PasteActiveTab);
+            _pasteTabButton.tooltip =
+                "같은 에셋 타입의 같은 탭에 복사한 값을 붙여넣습니다. (Ctrl/Cmd+Shift+V)";
+            actions.Add(_pasteTabButton);
+
+            var spacer = new VisualElement();
+            spacer.style.flexGrow = 1f;
+            spacer.style.minWidth = 10f;
+            actions.Add(spacer);
+
+            _pingButton = MakeToolbarButton("찾기", PingSelectedAsset);
+            _pingButton.tooltip =
+                "선택한 에셋을 Project 창에서 선택하고 강조 표시합니다.";
+            actions.Add(_pingButton);
+
+            actions.Add(MakeToolbarButton("전체 검증", ValidateAll));
+
+            var save = MakeToolbarButton("저장", SaveSelected);
+            save.style.backgroundColor = Accent;
+            save.style.color = Color.white;
+            actions.Add(save);
+
+            ToolbarMenu moreMenu = MakeToolbarMenu(
+                "⋯",
+                "낮은 빈도 또는 주의가 필요한 작업입니다.");
+            moreMenu.menu.AppendAction(
+                "선택 에셋 삭제…",
+                _ => DeleteSelected(),
+                _ => _selected != null
+                    ? DropdownMenuAction.Status.Normal
+                    : DropdownMenuAction.Status.Disabled);
+            actions.Add(moreMenu);
+            actionScroll.Add(actions);
+            toolbar.Add(actionScroll);
             rootVisualElement.Add(toolbar);
+            RefreshQuickActionStates();
         }
 
         private void BuildTabs()
@@ -391,6 +461,7 @@ namespace UPlayGround.Data.Editor.Ability
                     _activeTab = tab;
                     UpdateTabStyles();
                     RebuildDetail();
+                    RefreshQuickActionStates();
                 }) { text = tab };
                 button.tooltip = GetTabGeneralHelp(tab);
                 // 클릭 후 파란 포커스 테두리가 선택 표시처럼 남지 않게 한다.
@@ -558,8 +629,8 @@ namespace UPlayGround.Data.Editor.Ability
             _assetList.selectionChanged += OnSelectionChanged;
             column.Add(_assetList);
 
-            var selectionHint = new Label("Ctrl/Shift로 여러 개 선택 · Delete는 상단 '선택 삭제'");
-            selectionHint.tooltip = "다중 선택 후 선택 삭제를 누르면 선택한 에셋을 한 번에 삭제합니다.";
+            var selectionHint = new Label("Ctrl/Shift로 여러 개 선택 · 삭제는 상단 '⋯' 메뉴");
+            selectionHint.tooltip = "다중 선택 후 상단 더보기 메뉴에서 선택 에셋 삭제를 실행합니다.";
             selectionHint.style.fontSize = 10f;
             selectionHint.style.color = new Color(0.55f, 0.6f, 0.68f);
             selectionHint.style.paddingLeft = 8f;
@@ -580,6 +651,41 @@ namespace UPlayGround.Data.Editor.Ability
                 _toolbarRow.style.minWidth = width;
             if (_tabsRow != null)
                 _tabsRow.style.minWidth = width;
+        }
+
+        private void OnEditorShortcut(KeyDownEvent evt)
+        {
+            bool action = evt.ctrlKey || evt.commandKey;
+            if (!action)
+                return;
+
+            if (evt.keyCode == KeyCode.S)
+            {
+                SaveSelected();
+            }
+            else if (evt.keyCode == KeyCode.D && CanDuplicateSelected())
+            {
+                DuplicateSelected();
+            }
+            else if (evt.shiftKey
+                     && evt.keyCode == KeyCode.C
+                     && CanCopyActiveTab())
+            {
+                CopyActiveTab();
+            }
+            else if (evt.shiftKey
+                     && evt.keyCode == KeyCode.V
+                     && CanPasteActiveTab())
+            {
+                PasteActiveTab();
+            }
+            else
+            {
+                return;
+            }
+
+            evt.StopPropagation();
+            evt.PreventDefault();
         }
 
         private VisualElement MakeAssetRow()
@@ -691,6 +797,7 @@ namespace UPlayGround.Data.Editor.Ability
                 _pathLabel.text = "-";
                 _pathLabel.tooltip = string.Empty;
                 _pingButton?.SetEnabled(false);
+                RefreshQuickActionStates();
                 return;
             }
 
@@ -702,6 +809,7 @@ namespace UPlayGround.Data.Editor.Ability
             _pathLabel.text = path;
             _pathLabel.tooltip = path;
             _pingButton?.SetEnabled(!string.IsNullOrWhiteSpace(path));
+            RefreshQuickActionStates();
         }
 
         private void PingSelectedAsset()
@@ -820,10 +928,17 @@ namespace UPlayGround.Data.Editor.Ability
             }
             else if (_selected is AbilitySetSO set)
             {
+                AddSummary("Base Set", set.baseSet != null ? set.baseSet.name : "독립 Set");
+                AddSummary("Override", (set.abilityOverrides?.Count ?? 0).ToString());
                 AddSummary("스킬 슬롯", (set.playerSlots?.Count ?? 0).ToString());
                 AddSummary("전투 슬롯", (set.combatBindings?.Count ?? 0).ToString());
-                AddSummary("차지 단계", (set.charge?.stages?.Count ?? 0).ToString());
-                AddSummary("연계 라우트", (set.comboRoutes?.Count ?? 0).ToString());
+                AddSummary(
+                    "차지 단계",
+                    (set.GetEffectiveCharge()?.stages?.Count ?? 0).ToString());
+                AddSummary(
+                    "연계 라우트",
+                    set.GetEffectiveComboRoutes().Count.ToString());
+                AddSummary("유효 Ability", set.EnumerateAll().Count().ToString());
             }
 
             _summary.Add(SectionHeader(
@@ -1242,6 +1357,216 @@ namespace UPlayGround.Data.Editor.Ability
             ShowNotification(new GUIContent("저장 및 검증 완료"));
         }
 
+        private void OpenSetCompositionForSelection()
+        {
+            List<UnityEngine.Object> selected = _assetList?.selectedItems
+                .OfType<UnityEngine.Object>()
+                .Distinct()
+                .ToList()
+                ?? new List<UnityEngine.Object>();
+            if (selected.Count == 0 && _selected != null)
+                selected.Add(_selected);
+            GameplayAbilityProductionWizardWindow.OpenForSelection(selected);
+        }
+
+        private void DuplicateSelected()
+        {
+            if (_selected is not ScriptableObject source)
+            {
+                ShowNotification(new GUIContent("복제할 에셋을 하나 선택하세요."));
+                return;
+            }
+
+            string sourcePath = AssetDatabase.GetAssetPath(source);
+            if (string.IsNullOrWhiteSpace(sourcePath)
+                || !AssetDatabase.IsMainAsset(source))
+            {
+                EditorUtility.DisplayDialog(
+                    "복제할 수 없음",
+                    "Project의 메인 에셋만 복제할 수 있습니다. 데이터베이스 내부 "
+                    + "서브에셋은 해당 데이터베이스에서 관리하세요.",
+                    "확인");
+                return;
+            }
+
+            string directory = System.IO.Path.GetDirectoryName(sourcePath)
+                ?.Replace('\\', '/') ?? "Assets/10.Datas/Ability";
+            string defaultName =
+                $"{System.IO.Path.GetFileNameWithoutExtension(sourcePath)}_Copy";
+            string destination = EditorUtility.SaveFilePanelInProject(
+                $"{source.GetType().Name} 복제",
+                defaultName,
+                "asset",
+                "복제본을 저장할 위치를 선택하세요.",
+                directory);
+            if (string.IsNullOrWhiteSpace(destination))
+                return;
+            destination = AssetDatabase.GenerateUniqueAssetPath(destination);
+
+            if (!AssetDatabase.CopyAsset(sourcePath, destination))
+            {
+                EditorUtility.DisplayDialog(
+                    "복제 실패",
+                    $"에셋을 복제하지 못했습니다.\n{destination}",
+                    "확인");
+                return;
+            }
+
+            AssetDatabase.ImportAsset(destination);
+            ScriptableObject clone =
+                AssetDatabase.LoadAssetAtPath<ScriptableObject>(destination);
+            if (clone == null)
+            {
+                EditorUtility.DisplayDialog(
+                    "복제 실패",
+                    "복제본을 다시 불러오지 못했습니다.",
+                    "확인");
+                return;
+            }
+
+            SerializedObject serialized = new(clone);
+            string idPropertyName = clone switch
+            {
+                GameplayAbilitySO => "abilityId",
+                PassiveAbilitySO => "passiveId",
+                GameplayEffectSO => "effectId",
+                _ => null,
+            };
+            if (idPropertyName != null)
+            {
+                SerializedProperty id = serialized.FindProperty(idPropertyName);
+                if (id != null)
+                    id.stringValue = CreateUniqueStableId(GetStableId(source));
+            }
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(clone);
+            AssetDatabase.SaveAssets();
+
+            RefreshAssets();
+            _selected = clone;
+            Selection.activeObject = clone;
+            int cloneIndex = _filtered.IndexOf(clone);
+            if (cloneIndex >= 0)
+                _assetList?.SetSelection(new[] { cloneIndex });
+            UpdateSelectedHeader();
+            RebuildDetail();
+            EditorGUIUtility.PingObject(clone);
+            ShowNotification(new GUIContent($"'{clone.name}' 복제 완료"));
+        }
+
+        private string CreateUniqueStableId(string sourceId)
+        {
+            string root = string.IsNullOrWhiteSpace(sourceId)
+                ? "Ability.Copy"
+                : $"{sourceId}.Copy";
+            string candidate = root;
+            int suffix = 2;
+            var existing = new HashSet<string>(
+                _assets.Select(GetStableId),
+                StringComparer.Ordinal);
+            while (existing.Contains(candidate))
+                candidate = $"{root}{suffix++}";
+            return candidate;
+        }
+
+        private void CopyActiveTab()
+        {
+            if (_selected is not ScriptableObject source)
+            {
+                ShowNotification(new GUIContent("복사할 에셋을 선택하세요."));
+                return;
+            }
+
+            string[] properties = GetPropertiesForTab(source, _activeTab);
+            if (properties.Length == 0)
+            {
+                ShowNotification(new GUIContent("현재 탭에는 복사할 값이 없습니다."));
+                return;
+            }
+
+            if (_tabClipboard != null)
+                DestroyImmediate(_tabClipboard);
+            _tabClipboard = Instantiate(source);
+            _tabClipboard.hideFlags = HideFlags.HideAndDontSave;
+            _tabClipboardType = source.GetType();
+            _tabClipboardTab = _activeTab;
+            RefreshQuickActionStates();
+            ShowNotification(new GUIContent(
+                $"{source.name} · {_activeTab} 값 복사 완료"));
+        }
+
+        private bool CanCopyActiveTab() =>
+            _selected is ScriptableObject source
+            && GetPropertiesForTab(source, _activeTab).Length > 0;
+
+        private bool CanDuplicateSelected() =>
+            _selected is ScriptableObject;
+
+        private bool CanPasteActiveTab() =>
+            _selected is ScriptableObject target
+            && _tabClipboard != null
+            && target.GetType() == _tabClipboardType
+            && string.Equals(
+                _activeTab,
+                _tabClipboardTab,
+                StringComparison.Ordinal);
+
+        private void RefreshQuickActionStates()
+        {
+            _composeSetButton?.SetEnabled(_selected != null);
+            _duplicateButton?.SetEnabled(CanDuplicateSelected());
+            _copyTabButton?.SetEnabled(CanCopyActiveTab());
+            _pasteTabButton?.SetEnabled(CanPasteActiveTab());
+            _pingButton?.SetEnabled(_selected != null
+                && !string.IsNullOrWhiteSpace(
+                    AssetDatabase.GetAssetPath(_selected)));
+        }
+
+        private void PasteActiveTab()
+        {
+            if (_selected is not ScriptableObject target
+                || _tabClipboard == null)
+            {
+                ShowNotification(new GUIContent("복사된 탭 값이 없습니다."));
+                return;
+            }
+            if (target.GetType() != _tabClipboardType
+                || !string.Equals(
+                    _activeTab,
+                    _tabClipboardTab,
+                    StringComparison.Ordinal))
+            {
+                EditorUtility.DisplayDialog(
+                    "붙여넣을 수 없음",
+                    "탭 값은 같은 에셋 타입의 같은 탭에만 붙여넣을 수 있습니다.\n"
+                    + $"복사 원본: {_tabClipboardType?.Name} / {_tabClipboardTab}\n"
+                    + $"현재 대상: {target.GetType().Name} / {_activeTab}",
+                    "확인");
+                return;
+            }
+
+            string[] properties = GetPropertiesForTab(target, _activeTab);
+            SerializedObject sourceSerialized = new(_tabClipboard);
+            SerializedObject targetSerialized = new(target);
+            Undo.RecordObject(target, $"{_activeTab} 값 붙여넣기");
+            int copied = 0;
+            for (int i = 0; i < properties.Length; i++)
+            {
+                SerializedProperty sourceProperty =
+                    sourceSerialized.FindProperty(properties[i]);
+                if (sourceProperty == null
+                    || targetSerialized.FindProperty(properties[i]) == null)
+                    continue;
+                targetSerialized.CopyFromSerializedProperty(sourceProperty);
+                copied++;
+            }
+            targetSerialized.ApplyModifiedProperties();
+            EditorUtility.SetDirty(target);
+            RebuildDetail();
+            ShowNotification(new GUIContent(
+                $"{_activeTab} 값 {copied}개 붙여넣기 완료"));
+        }
+
         private void DeleteSelected()
         {
             List<UnityEngine.Object> selected = _assetList?.selectedItems
@@ -1482,16 +1807,20 @@ namespace UPlayGround.Data.Editor.Ability
                 {
                     "기본 정보" => new[]
                     {
+                        "baseSet",
+                        "abilityOverrides",
                         "playerSlots",
                         "combatBindings",
                         "additionalAbilities",
                     },
                     "활성화 조건" => new[]
                     {
+                        "overrideComboRoutes",
                         "comboRoutes",
+                        "overrideComboLinkWindow",
                         "comboLinkWindow",
                     },
-                    "Variant" => new[] { "charge" },
+                    "Variant" => new[] { "overrideCharge", "charge" },
                     _ => Array.Empty<string>(),
                 };
             }
@@ -1543,18 +1872,70 @@ namespace UPlayGround.Data.Editor.Ability
             _ => "현재 탭의 데이터를 편집합니다.",
         };
 
-        private static string GetTabHelp(UnityEngine.Object target, string tab)
-        {
-            string typeGuide = target switch
+        private static string GetTabHelp(UnityEngine.Object target, string tab) =>
+            (target, tab) switch
             {
-                AbilitySetSO => "AbilitySet은 한 캐릭터의 슬롯, 일반 공격, 차지, 콤보 구성을 묶습니다. ",
-                GameplayAbilitySO => "Ability는 입력 한 번으로 실행되는 행동과 그 조건·비용을 정의합니다. ",
-                PassiveAbilitySO => "Passive는 상시 Modifier 또는 조건부 Effect를 정의합니다. ",
-                GameplayEffectSO => "Effect는 지속 시간, 스택, 자원·스탯 변화를 정의합니다. ",
-                _ => string.Empty,
+                (GameplayAbilitySO, "기본 정보") =>
+                    "런타임 고유 ID, 표시 이름·아이콘, 분류 태그와 동시 실행 정책을 편집합니다. "
+                    + "ID는 저장 파일명과 별개이며 프로젝트 전체에서 중복되면 안 됩니다.",
+                (GameplayAbilitySO, "활성화 조건") =>
+                    "필요 태그, 차단 태그, 지상 여부 등 Prepare 전에 검사할 발동 조건을 설정합니다. "
+                    + "조건 실패 시 비용과 쿨다운은 소비되지 않습니다.",
+                (GameplayAbilitySO, "비용/쿨다운") =>
+                    "Commit 시 소비할 자원과 재사용 대기시간·공유 쿨다운 그룹을 설정합니다. "
+                    + "같은 그룹 ID를 쓰는 Ability는 쿨다운을 공유합니다.",
+                (GameplayAbilitySO, "Variant") =>
+                    "상황 조건에 따라 실제로 실행할 Payload를 우선순위 순으로 구성합니다. "
+                    + "공격 Motion의 단일 소스는 각 Motion Payload의 attackInfo.baseInfo.motionRef입니다.",
+                (GameplayAbilitySO, "Effect") =>
+                    "Commit 직후와 실행 종료 시 적용할 GameplayEffect를 연결합니다. "
+                    + "Variant 내부의 Owner/Target Effect와 적용 시점이 다르므로 중복 적용을 확인하세요.",
+                (GameplayAbilitySO, "Cue") =>
+                    "Started·Failed·Ended 등 Ability 생명주기에서 발행할 연출 식별자를 설정합니다. "
+                    + "전투 수치나 Motion 참조는 Cue에 저장하지 않습니다.",
+                (GameplayAbilitySO, "저장/교체 정책") =>
+                    "캐릭터 교체·저장·런 종료 시 실행 상태를 유지하거나 종료할 정책을 설정합니다. "
+                    + "Effect 자체의 저장 정책과 함께 검토해야 합니다.",
+                (GameplayAbilitySO, "정적 밸런스") =>
+                    "제작·밸런스 도구가 기대 피해와 역할을 비교할 때 쓰는 메타데이터입니다. "
+                    + "실제 공격 수치는 Payload의 HitPhase가 권위 소스입니다.",
+                (GameplayAbilitySO, "검증 결과") =>
+                    "Ability ID, TaskGraph, Variant/Payload, MotionReference와 HitPhase 연결 오류를 확인합니다. "
+                    + "오류 항목을 먼저 해결한 뒤 에셋을 양산하거나 저장하세요.",
+
+                (AbilitySetSO, "기본 정보") =>
+                    "액터에게 부여할 스킬 슬롯, 일반 공격 시퀀스와 추가 Ability를 구성합니다. "
+                    + "몬스터 BT는 이 Set 안에서 aiSelectable인 Ability만 선택합니다.",
+                (AbilitySetSO, "활성화 조건") =>
+                    "선행 공격 이후 허용할 콤보 경로와 입력 연결 시간을 설정합니다. "
+                    + "Ability 자체의 발동 조건과 별도로 Set 수준의 연결 순서를 정의합니다.",
+                (AbilitySetSO, "Variant") =>
+                    "차지 시간 단계별로 실행할 Ability를 연결합니다. "
+                    + "여기서 Variant는 GameplayAbilitySO 내부 실행 Variant가 아니라 Set의 차지 분기입니다.",
+                (AbilitySetSO, "검증 결과") =>
+                    "슬롯 중복, null 참조, 콤보·차지 연결과 포함 Ability의 정합성을 확인합니다.",
+
+                (GameplayEffectSO, "기본 정보") =>
+                    "Effect 고유 ID, HUD 표시, 극성, 지속 방식과 주기를 설정합니다. "
+                    + "Duration 시간과 Period 값은 런타임 Effect 수명주기에 직접 사용됩니다.",
+                (GameplayEffectSO, "Effect") =>
+                    "속성 부여, 스택 그룹·정책, 최대 스택, 스탯 Modifier와 부여 태그를 설정합니다. "
+                    + "공유 Effect 수정 전에는 역참조 소비자를 확인하세요.",
+                (GameplayEffectSO, "저장/교체 정책") =>
+                    "Ability 종료·캐릭터 교체 때의 제거 정책과 세이브 데이터 포함 여부를 설정합니다.",
+                (GameplayEffectSO, "검증 결과") =>
+                    "지속시간·주기·스택 범위, Modifier Attribute와 저장 정책 조합을 확인합니다.",
+
+                (PassiveAbilitySO, "기본 정보") =>
+                    "Passive 고유 ID, 표시 정보와 캐릭터 선택 화면 요약을 편집합니다.",
+                (PassiveAbilitySO, "활성화 조건") =>
+                    "상시 적용인지 회피·가드 성공 같은 사건 기반 발동인지, 어느 캐릭터 범위에 적용할지 설정합니다.",
+                (PassiveAbilitySO, "Effect") =>
+                    "상시 Modifier와 조건 충족 시 적용할 GameplayEffect, 중첩 정책을 구성합니다.",
+                (PassiveAbilitySO, "검증 결과") =>
+                    "Passive ID, 발동 범위, Modifier와 조건부 Effect 참조의 정합성을 확인합니다.",
+                _ => GetTabGeneralHelp(tab),
             };
-            return typeGuide + GetTabGeneralHelp(tab);
-        }
 
         private static string GetPropertyLabel(string propertyName) => propertyName switch
         {
@@ -1593,8 +1974,13 @@ namespace UPlayGround.Data.Editor.Ability
             "removalPolicy" => "제거 정책",
             "savePolicy" => "저장 정책",
             "playerSlots" => "스킬 슬롯",
+            "baseSet" => "공용 Base Set",
+            "abilityOverrides" => "Ability 교체·제거",
             "combatBindings" => "일반 공격 슬롯",
             "additionalAbilities" => "공용 Ability",
+            "overrideCharge" => "차지 구성 재정의",
+            "overrideComboRoutes" => "콤보 라우트 재정의",
+            "overrideComboLinkWindow" => "콤보 입력 시간 재정의",
             "comboRoutes" => "콤보 연계",
             "comboLinkWindow" => "콤보 입력 허용 시간",
             "charge" => "차지 단계",
@@ -1622,8 +2008,13 @@ namespace UPlayGround.Data.Editor.Ability
             "elementPriority" => "속성 Effect가 겹칠 때 높은 값이 우선합니다.",
             "ignorePassiveDurationModifiers" => "활성화하면 상태강화·상태이상 지속시간 패시브 보정을 적용하지 않습니다.",
             "playerSlots" => "스킬 입력 슬롯과 Ability의 연결입니다.",
+            "baseSet" => "동일 타입 몬스터 등이 공유하는 공용 Set입니다. 파생 Set은 Base를 직접 수정하지 않고 Override만 소유합니다.",
+            "abilityOverrides" => "Base Set의 유효 Ability를 다른 Ability로 교체하거나 파생 Set에서 제거합니다.",
             "combatBindings" => "일반 공격 종류별 순차 Ability 목록입니다.",
             "additionalAbilities" => "입력 슬롯 또는 전투 슬롯과 무관하게 이 AbilitySet이 액터에게 부여할 Ability입니다. BT도 이 목록의 Ability를 활성화할 수 있습니다.",
+            "overrideCharge" => "켜면 Base Set의 차지 단계를 상속하지 않고 이 Set의 charge를 사용합니다.",
+            "overrideComboRoutes" => "켜면 Base Set의 콤보 라우트를 상속하지 않고 이 Set의 목록을 사용합니다.",
+            "overrideComboLinkWindow" => "켜면 Base Set의 콤보 입력 허용 시간을 이 Set의 값으로 교체합니다.",
             "comboRoutes" => "선행 공격 이후 연결 가능한 후속 Ability를 설정합니다.",
             "charge" => "차지 시간 단계별로 실행할 Ability를 설정합니다.",
             _ => "값을 변경하면 오른쪽 검증 상태가 자동으로 갱신됩니다.",
@@ -1634,6 +2025,20 @@ namespace UPlayGround.Data.Editor.Ability
             var button = new ToolbarButton(action) { text = text };
             button.style.marginLeft = 3f;
             return button;
+        }
+
+        private static ToolbarMenu MakeToolbarMenu(
+            string text,
+            string tooltip)
+        {
+            var menu = new ToolbarMenu
+            {
+                text = text,
+                tooltip = tooltip,
+            };
+            menu.style.marginLeft = 3f;
+            menu.style.flexShrink = 0f;
+            return menu;
         }
 
         private static VisualElement SectionHeader(string text, string tooltip = null)

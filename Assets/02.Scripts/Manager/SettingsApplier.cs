@@ -17,6 +17,27 @@ namespace UPlayGround.Manager
             (2560, 1440),
         };
 
+        // 마지막으로 적용한 '요청값'. 값이 그대로면 Screen/QualitySettings를 다시 건드리지 않는다.
+        // Screen.SetResolution은 스왑체인을, 품질 프리셋은 그림자·AA 렌더 타깃을 다시 만들기 때문에
+        // 변경이 없는데도 매번 호출하면 설정 적용 시 눈에 띄는 프리즈가 생긴다.
+        // (에디터에서는 Screen.width/height가 Game 뷰 크기라 실제 화면값 비교가 무의미하므로 요청값을 캐시한다.)
+        private static int _appliedWidth = -1;
+        private static int _appliedHeight = -1;
+        private static FullScreenMode? _appliedFullScreenMode;
+        private static int _appliedQualityPreset = -1;
+
+        /// <summary>
+        /// 적용 캐시를 비운다. 다음 적용에서 값이 같아도 강제로 다시 반영된다.
+        /// 세션이 끝나 SettingsManager가 정리될 때 호출한다.
+        /// </summary>
+        public static void ResetAppliedCache()
+        {
+            _appliedWidth = -1;
+            _appliedHeight = -1;
+            _appliedFullScreenMode = null;
+            _appliedQualityPreset = -1;
+        }
+
         public static void ApplyAll(SettingsData data, AudioMixer mixer = null)
         {
             ApplyGraphics(data);
@@ -34,7 +55,17 @@ namespace UPlayGround.Manager
                 int legacyIndex = Mathf.Clamp(data.resolutionIndex, 0, LegacyResolutions.Length - 1);
                 (width, height) = LegacyResolutions[legacyIndex];
             }
-            Screen.SetResolution(width, height, ToFullScreenMode(data));
+
+            FullScreenMode fullScreenMode = ToFullScreenMode(data);
+            if (width != _appliedWidth
+                || height != _appliedHeight
+                || fullScreenMode != _appliedFullScreenMode)
+            {
+                Screen.SetResolution(width, height, fullScreenMode);
+                _appliedWidth = width;
+                _appliedHeight = height;
+                _appliedFullScreenMode = fullScreenMode;
+            }
 
             ApplyQualityPreset(data.qualityIndex);
             ApplyFrameTiming(data);
@@ -43,6 +74,10 @@ namespace UPlayGround.Manager
         private static void ApplyQualityPreset(int qualityIndex)
         {
             int preset = Mathf.Clamp(qualityIndex, 0, 3);
+            if (preset == _appliedQualityPreset)
+                return;
+
+            _appliedQualityPreset = preset;
 
             // 프로젝트의 기본 PC 렌더 파이프라인을 유지한 채 런타임 품질 차이를 적용한다.
             // 현재 QualitySettings 에셋에는 PC 레벨 하나만 있으므로 SetQualityLevel만으로는
@@ -93,6 +128,9 @@ namespace UPlayGround.Manager
 
         private static void ApplyFrameTiming(SettingsData data)
         {
+            // 단순 대입이라 비용이 없으므로 가드하지 않는다.
+            // 특히 vSyncCount는 GameManager와 에디터 프레임 리미터도 쓰기 때문에,
+            // 값이 같다고 건너뛰면 외부에서 켠 vSync가 복구되지 않는다.
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = Mathf.Clamp(data.targetFrameRate, 30, 144);
         }

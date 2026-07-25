@@ -43,7 +43,8 @@ namespace UPlayGround.UI
             var table = UISvc.Dialogue.ColorTable;
             messageText.color = table != null ? table.GetColor(node.speakerId) : Color.white;
 
-            messageText.text = node.dialogueText;
+            // System 채널은 타이핑이 없지만 인라인 색상 마크업은 동일하게 해석한다.
+            messageText.text = DialogueMarkup.ToRichText(node.dialogueText, UISvc.Dialogue.Palette);
 
             if (autoHideDuration > 0f)
             {

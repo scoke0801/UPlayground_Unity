@@ -13,7 +13,7 @@ namespace UPlayGround.UI
     /// 표시/닫기 트윈(Dim 페이드 + Panel 스케일 팝인/아웃)은 UI_PopupBase가 담당한다.
     /// 인스펙터에서 UI_PopupBase의 _dim(CanvasGroup)/_panel(RectTransform)을 연결해야 트윈이 재생된다.
     /// </summary>
-    public class UI_PauseMenu : UI_PopupBase
+    public class UI_PauseMenu : UI_PopupBase, IUIFocusPresentation
     {
         private static readonly Color DefaultButtonColor = new Color(0.10f, 0.13f, 0.17f, 1f);
         private static readonly Color DefaultSelectedButtonColor = new Color(0.10f, 0.30f, 0.36f, 1f);
@@ -38,6 +38,9 @@ namespace UPlayGround.UI
         private Color _normalButtonColor = DefaultButtonColor;
         private Color _selectedButtonColor = DefaultSelectedButtonColor;
         private Color _dangerButtonColor = DefaultDangerButtonColor;
+
+        public bool SuppressGlobalFocusIndicator => true;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         protected override void Awake()
         {

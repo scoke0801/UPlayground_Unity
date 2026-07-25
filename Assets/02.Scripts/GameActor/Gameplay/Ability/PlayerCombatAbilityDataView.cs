@@ -44,7 +44,7 @@ namespace UPlayGround.Gameplay.Ability
             if (set == null) return null;
             var view = new PlayerCombatAbilityDataView
             {
-                comboLinkWindow = set.comboLinkWindow,
+                comboLinkWindow = set.GetEffectiveComboLinkWindow(),
             };
             AddSequence(set, PlayerCombatAbilitySlot.LightCombo, view.liteComboAttackList);
             AddSequence(set, PlayerCombatAbilitySlot.HeavyCombo, view.heavyComboAttackList);
@@ -70,16 +70,18 @@ namespace UPlayGround.Gameplay.Ability
             view.swapSpecialAttack = Resolve(
                 set.GetCombatAbility(PlayerCombatAbilitySlot.SwapSpecialAttack));
 
-            if (set.charge != null)
+            PlayerChargeAbilitySettings charge = set.GetEffectiveCharge();
+            if (charge != null)
             {
-                view.chargeStageThresholds.AddRange(set.charge.stageThresholds);
-                view.chargeInterruptActions = set.charge.interruptActions;
-                view.fullChargeVfxKey = set.charge.fullChargeVfxKey;
-                view.fullChargeVfxSocket = set.charge.fullChargeVfxSocket;
-                view.fullChargeVfxOffset = set.charge.fullChargeVfxOffset;
-                for (int i = 0; i < set.charge.stages.Count; i++)
+                view.chargeStageThresholds.AddRange(charge.stageThresholds);
+                view.chargeInterruptActions = charge.interruptActions;
+                view.fullChargeVfxKey = charge.fullChargeVfxKey;
+                view.fullChargeVfxSocket = charge.fullChargeVfxSocket;
+                view.fullChargeVfxOffset = charge.fullChargeVfxOffset;
+                for (int i = 0; i < charge.stages.Count; i++)
                 {
-                    AbilityAttackInfo attack = Resolve(set.charge.stages[i]);
+                    AbilityAttackInfo attack = Resolve(
+                        set.ResolveEffectiveChargeAbility(charge.stages[i]));
                     if (attack?.baseInfo == null) continue;
                     if (view.chargeMotionRef == null)
                         view.chargeMotionRef = attack.baseInfo.motionRef;
@@ -91,9 +93,11 @@ namespace UPlayGround.Gameplay.Ability
                 }
             }
 
-            for (int i = 0; i < set.comboRoutes.Count; i++)
+            IReadOnlyList<AbilityComboRouteDefinition> routes =
+                set.GetEffectiveComboRoutes();
+            for (int i = 0; i < routes.Count; i++)
             {
-                AbilityComboRouteDefinition source = set.comboRoutes[i];
+                AbilityComboRouteDefinition source = routes[i];
                 if (source == null) continue;
                 view.comboRoutes.Add(new ComboRouteEntry
                 {
@@ -105,10 +109,13 @@ namespace UPlayGround.Gameplay.Ability
                     blockedTagIds = source.blockedTagIds,
                     groundCondition = source.groundCondition,
                     skillGaugeIndex = source.skillGaugeIndex,
-                    attackInfo = Resolve(source.ability),
+                    attackInfo = Resolve(
+                        set.ResolveEffectiveComboRouteAbility(source.ability)),
                     priority = source.priority,
                     perfectWindow = source.perfectWindow,
-                    enhancedAttackInfo = Resolve(source.enhancedAbility),
+                    enhancedAttackInfo = Resolve(
+                        set.ResolveEffectiveComboRouteAbility(
+                            source.enhancedAbility)),
                     enhancedDamageMultiplier = source.enhancedDamageMultiplier,
                     enhancedPoiseMultiplier = source.enhancedPoiseMultiplier,
                     enhancedGrantTagId = source.enhancedGrantTagId,

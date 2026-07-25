@@ -17,7 +17,7 @@ namespace UPlayGround.UI
     /// focus를 받으려면 슬롯 루트에 Selectable이 있어야 한다(프리팹 빌더에서 부착).
     /// </summary>
     public class UI_InventorySlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler,
-                                    ISelectHandler, IDeselectHandler
+                                    ISelectHandler, IDeselectHandler, IUIFocusPresentation
     {
         [SerializeField] private GameObject _rootContent;
         [SerializeField] private GameObject _rootEmptySlot;
@@ -41,8 +41,12 @@ namespace UPlayGround.UI
         private int _inventorySlotKey = -1;
 
         private UI_Inventory _parent;
+        private Selectable _selectable;
 
         public bool HasItem => _itemData != null;
+        public Selectable Selectable => _selectable ??= GetComponent<Selectable>();
+        public bool SuppressGlobalFocusIndicator => _focusHighlight != null;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         private void OnEnable()
         {
@@ -82,6 +86,9 @@ namespace UPlayGround.UI
 
         public void RefreshUI()
         {
+            if (Selectable != null)
+                Selectable.interactable = _itemData != null;
+
             if (_itemData == null)
             {
                 _rootContent.SetActive(false);

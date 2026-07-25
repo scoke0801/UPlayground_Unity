@@ -21,6 +21,32 @@ namespace UPlayGround.Data.Config
         [Header("게임플레이 - 언어")]
         public int languageIndex = 0; // 0=한국어, 1=English, 2=日本語
 
+        [Header("게임플레이 - 대화")]
+        [Tooltip("대화 타이핑 속도. 0=느림, 1=보통, 2=빠름")]
+        [Range(0, 2)] public int dialogueTypingSpeedIndex = 1;
+        [Tooltip("자동 재생 시 다음 대사까지 대기 시간. 0=느림, 1=보통, 2=빠름")]
+        [Range(0, 2)] public int dialogueAutoDelayIndex = 1;
+
+        /// <summary>
+        /// 노드별 typingSpeed에 곱할 전역 배율. 값이 클수록 느리게 찍힙니다.
+        /// </summary>
+        public float DialogueTypingSpeedScale => dialogueTypingSpeedIndex switch
+        {
+            0 => 1.8f,
+            2 => 0.45f,
+            _ => 1f
+        };
+
+        /// <summary>
+        /// 자동 재생 전역 대기 시간(초). 노드의 autoAdvanceDuration과 max로 결합됩니다.
+        /// </summary>
+        public float DialogueAutoAdvanceDelay => dialogueAutoDelayIndex switch
+        {
+            0 => 2.5f,
+            2 => 0.7f,
+            _ => 1.4f
+        };
+
         [Header("그래픽")]
         public int resolutionIndex = 0;
         [Tooltip("선택한 해상도 너비. resolutionIndex는 UI 표시용이며 실제 적용에는 이 값을 사용합니다.")]
@@ -47,10 +73,11 @@ namespace UPlayGround.Data.Config
 
         private const string PREFS_KEY = "GameSettings_v1";
 
-        public void Save()
+        public void Save(bool flushPlayerPrefs = true)
         {
             PlayerPrefs.SetString(PREFS_KEY, JsonUtility.ToJson(this));
-            PlayerPrefs.Save();
+            if (flushPlayerPrefs)
+                PlayerPrefs.Save();
         }
 
         public void Load()
@@ -77,6 +104,7 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = 5; sensitivityY = 5; invertY = false;
             screenShake = true; aimAssist = true; languageIndex = 0;
+            dialogueTypingSpeedIndex = 1; dialogueAutoDelayIndex = 1;
             cameraShakeScale = 1f; combatCameraAutoCorrection = 1f; combatCameraSequenceIntensity = 1f;
             resolutionIndex = 0; resolutionWidth = 1920; resolutionHeight = 1080;
             windowModeIndex = 1; fullscreen = true; qualityIndex = 2; targetFrameRate = 60; brightness = 5;
@@ -97,6 +125,7 @@ namespace UPlayGround.Data.Config
         public bool invertY, screenShake, aimAssist;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
         public int languageIndex, resolutionIndex, resolutionWidth, resolutionHeight;
+        public int dialogueTypingSpeedIndex, dialogueAutoDelayIndex;
         public int windowModeIndex, qualityIndex, targetFrameRate, brightness;
         public bool fullscreen, runInBackground;
         public int masterVolume, bgmVolume, sfxVolume, voiceVolume;
@@ -109,6 +138,8 @@ namespace UPlayGround.Data.Config
             combatCameraAutoCorrection = data.combatCameraAutoCorrection,
             combatCameraSequenceIntensity = data.combatCameraSequenceIntensity,
             languageIndex = data.languageIndex, resolutionIndex = data.resolutionIndex,
+            dialogueTypingSpeedIndex = data.dialogueTypingSpeedIndex,
+            dialogueAutoDelayIndex = data.dialogueAutoDelayIndex,
             resolutionWidth = data.resolutionWidth, resolutionHeight = data.resolutionHeight,
             windowModeIndex = data.windowModeIndex, qualityIndex = data.qualityIndex,
             targetFrameRate = data.targetFrameRate, brightness = data.brightness,
@@ -126,6 +157,8 @@ namespace UPlayGround.Data.Config
             data.combatCameraAutoCorrection = combatCameraAutoCorrection;
             data.combatCameraSequenceIntensity = combatCameraSequenceIntensity;
             data.languageIndex = languageIndex; data.resolutionIndex = resolutionIndex;
+            data.dialogueTypingSpeedIndex = dialogueTypingSpeedIndex;
+            data.dialogueAutoDelayIndex = dialogueAutoDelayIndex;
             data.resolutionWidth = resolutionWidth; data.resolutionHeight = resolutionHeight;
             data.windowModeIndex = windowModeIndex; data.qualityIndex = qualityIndex;
             data.targetFrameRate = targetFrameRate; data.brightness = brightness;

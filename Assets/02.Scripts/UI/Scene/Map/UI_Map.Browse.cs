@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.Path;
 using UPlayGround.Data.UI;
@@ -58,6 +59,8 @@ namespace UPlayGround.UI
         private readonly List<BrowsePortalIcon> _browsePortalIcons = new();
         private readonly List<RegionButton>     _regionButtons     = new();
         private Action _pendingConfirm;
+        private GameObject _focusBeforeConfirm;
+        private GameObject _focusBeforeRegionDetail;
 
         // ── 초기화 ──────────────────────────────────────────────────
 
@@ -111,6 +114,7 @@ namespace UPlayGround.UI
             }
 
             RefreshRegionListSelection();
+            RebuildGamepadNavigation();
         }
 
         /// <summary>현재 표시 지역 버튼은 비활성(interactable=false)으로 "보는 중" 표시.</summary>
@@ -163,6 +167,7 @@ namespace UPlayGround.UI
 
             RefreshRegionInfo();
             RefreshRegionListSelection();
+            RebuildGamepadNavigation();
         }
 
         // ── 브라우즈 포탈 (데이터 기반) ──────────────────────────────
@@ -263,15 +268,26 @@ namespace UPlayGround.UI
 
         private void ShowConfirm(string message, Action onYes)
         {
+            _focusBeforeConfirm = EventSystem.current?.currentSelectedGameObject;
             _pendingConfirm = onYes;
             if (_confirmMessageText != null) _confirmMessageText.text = message;
             if (_confirmPanel != null) _confirmPanel.SetActive(true);
+            UIFocusNavigation.ConfigureHorizontal(new Selectable[]
+            {
+                _confirmNoButton,
+                _confirmYesButton
+            });
+            SelectGameObject(_confirmNoButton != null ? _confirmNoButton : _confirmYesButton);
         }
 
         private void HideConfirm()
         {
             _pendingConfirm = null;
+            bool restoreFocus = IsCurrentSelectionInside(_confirmPanel);
             if (_confirmPanel != null) _confirmPanel.SetActive(false);
+            if (restoreFocus)
+                RestoreOverlayFocus(_focusBeforeConfirm);
+            _focusBeforeConfirm = null;
         }
 
         private void OnConfirmYes()
@@ -286,6 +302,7 @@ namespace UPlayGround.UI
         /// <summary>현재 표시 중인 지역의 상세 정보(대륙·권장레벨·설명)를 팝업으로 보여준다.</summary>
         private void ShowRegionDetail()
         {
+            _focusBeforeRegionDetail = EventSystem.current?.currentSelectedGameObject;
             if (_regionDetailTitle != null) _regionDetailTitle.text = _viewRegionMapId;
 
             if (_regionDetailBody != null)
@@ -308,11 +325,112 @@ namespace UPlayGround.UI
             }
 
             if (_regionDetailPanel != null) _regionDetailPanel.SetActive(true);
+            SelectGameObject(_regionDetailCloseButton);
         }
 
         private void HideRegionDetail()
         {
+            bool restoreFocus = IsCurrentSelectionInside(_regionDetailPanel);
             if (_regionDetailPanel != null) _regionDetailPanel.SetActive(false);
+            if (restoreFocus)
+                RestoreOverlayFocus(_focusBeforeRegionDetail);
+            _focusBeforeRegionDetail = null;
+        }
+
+        private void RebuildGamepadNavigation()
+        {
+            var regions = new List<Selectable>();
+            foreach (RegionButton region in _regionButtons)
+            {
+                if (UIFocusNavigation.IsNavigable(region.btn))
+                    regions.Add(region.btn);
+            }
+            UIFocusNavigation.ConfigureVertical(regions);
+
+            var filters = new Selectable[]
+            {
+                _togglePlayer,
+                _toggleQuest,
+                _toggleEnemy,
+                _toggleNpc,
+                _toggleStatic,
+                _clearAllButton
+            };
+            UIFocusNavigation.ConfigureVertical(filters);
+
+            var tools = new Selectable[]
+            {
+                _zoomOutButton,
+                _zoomSlider,
+                _zoomInButton,
+                _findMeButton,
+                _regionInfoButton,
+                _closeButton
+            };
+            UIFocusNavigation.ConfigureHorizontal(tools);
+
+            Selectable firstRegion = regions.Count > 0 ? regions[0] : null;
+            Selectable firstFilter = UIFocusNavigation.FirstNavigable(filters);
+            Selectable firstTool = UIFocusNavigation.FirstNavigable(tools);
+
+            foreach (Selectable region in regions)
+            {
+                Navigation navigation = region.navigation;
+                navigation.selectOnRight = firstFilter ?? firstTool;
+                region.navigation = navigation;
+            }
+
+            foreach (Selectable filter in filters)
+            {
+                if (filter == null)
+                    continue;
+                Navigation navigation = filter.navigation;
+                navigation.selectOnLeft = firstRegion;
+                navigation.selectOnRight = firstTool;
+                filter.navigation = navigation;
+            }
+
+            foreach (Selectable tool in tools)
+            {
+                if (tool == null)
+                    continue;
+                Navigation navigation = tool.navigation;
+                navigation.selectOnDown = firstRegion ?? firstFilter;
+                tool.navigation = navigation;
+            }
+
+            SetDefaultFocus(_findMeButton != null
+                ? _findMeButton
+                : firstRegion ?? firstFilter ?? firstTool,
+                IsVisible);
+        }
+
+        private static bool IsCurrentSelectionInside(GameObject root)
+        {
+            GameObject current = EventSystem.current?.currentSelectedGameObject;
+            return root != null
+                   && current != null
+                   && (current == root || current.transform.IsChildOf(root.transform));
+        }
+
+        private static void SelectGameObject(Selectable selectable)
+        {
+            if (!UIFocusNavigation.IsNavigable(selectable) || EventSystem.current == null)
+                return;
+
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(selectable.gameObject);
+        }
+
+        private void RestoreOverlayFocus(GameObject previous)
+        {
+            if (previous != null && previous.activeInHierarchy)
+            {
+                EventSystem.current?.SetSelectedGameObject(previous);
+                return;
+            }
+
+            RebuildGamepadNavigation();
         }
     }
 }

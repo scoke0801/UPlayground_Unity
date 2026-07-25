@@ -39,7 +39,55 @@
 - Phase 5: HitPhase 피해·Motion 길이·쿨다운 정적 요약, 수동 실측 비교,
   Encounter Replay 비교와 CSV, 전체 Ability Balance Snapshot 전후 비교
 
+### 2026-07-25 사용성·공용화 재검토
+
+- `GameplayAbilityEditorWindow`
+  - 선택 메인 에셋 안전 복제
+  - 같은 에셋 타입·같은 탭에 한정한 탭 값 복사/붙여넣기
+  - 에셋 타입과 현재 탭 조합별 문맥 도움말
+- Production Wizard, Dashboard, Runtime Sandbox의 화면 구현을 C# 기반
+  UI Toolkit으로 전환
+- 동일 타입 몬스터의 데이터 공용화는 새 Ability를 반복 생성하는 방식보다
+  `MonsterActorProfileSO.abilitySet`을 타입 공용 Base Set으로 사용하고,
+  특수 몬스터만 파생 `AbilitySetSO`에서 일부 Ability를 교체하는 방식으로
+  재설계하기로 결정
+
+2026-07-25 후속 구현에서 `AbilitySetSO.baseSet`과 Replace/Remove, 로컬 Add,
+슬롯·차지·콤보 재정의 정책을 런타임에 반영했다. Wizard의 기본 작업 흐름도
+`레시피 → 신규 Ability 생성`에서 다음 구성 흐름으로 변경했다.
+
+```text
+선택 ActorDefinition / MonsterProfile / AbilitySet 분석
+→ 동일 타입 후보와 중복 Ability 비교
+→ 공용 Base AbilitySet 승격 Preview
+→ 특수 몬스터별 파생 Set 생성
+→ 교체·추가·제거 Override만 기록
+→ 런타임 유효 Set과 BT 선택 풀 검증
+```
+
+구현된 핵심 API:
+
+- `AbilitySetSO.GetPlayerAbility`
+- `AbilitySetSO.GetCombatSequence`
+- `AbilitySetSO.GetEffectiveCharge`
+- `AbilitySetSO.GetEffectiveComboRoutes`
+- `AbilitySetSO.GetEffectiveComboLinkWindow`
+- `AbilitySetSO.EnumerateAll`
+- `AbilitySetSO.HasInheritanceCycle`
+
+모든 API는 Base 순환을 방어하며 기존 독립 Set은 이전과 같은 결과를 반환한다.
+`ActorDefinitionSO.EffectiveAbilitySet`은 기존 Profile 우선 계약을 유지하되,
+Definition의 Set이 Profile Set에서 명시적으로 파생된 경우에만 특수 Set을 사용한다.
+
 진입점:
+
+- Unity 상단 메뉴 `UPlayGround > 툴 런처`
+- 런처 분류 `게임플레이 / 전투`
+  - `Ability 양산화 Wizard`
+  - `Ability 제작 검증 대시보드`
+  - `Ability Runtime Sandbox`
+
+각 도구의 내부 등록 ID는 다음과 같으며 Unity 상단 메뉴에 직접 노출되지는 않는다.
 
 - `UPlayGround/게임플레이/Ability Production Wizard`
 - `UPlayGround/게임플레이/Ability Production Dashboard`
@@ -233,6 +281,40 @@ MotionEvent, 모션 길이, AnimKey 이름에서 추출한 값은 추천값이�
 신뢰도를 보여주고 사용자가 확정한 뒤 생성한다.
 
 근거를 찾지 못한 값은 임의의 첫 번째 후보로 채우지 않는다.
+
+### 5.6 몬스터 타입 공용 Set과 특수 개체 Override
+
+동일 타입 몬스터는 `MonsterActorProfileSO.abilitySet` 하나를 공유한다.
+특수·엘리트·보스 변형을 만들기 위해 공용 Ability/Payload를 통째로 복제하지 않는다.
+
+파생 Set은 선택적인 `baseSet`과 명시적인 Override 및 로컬 추가 Ability만 소유한다.
+
+| Override 종류 | 의미 |
+|---|---|
+| Replace | Base Set의 특정 Ability를 다른 Ability로 교체 |
+| Add | Base에 없는 특수 Ability 추가 |
+| Remove | Base의 특정 Ability를 해당 파생 Set에서 제외 |
+| Slot Override | Player/Combat/Charge처럼 순서 의미가 있는 슬롯 전체를 명시적으로 대체 |
+
+런타임 소비자는 Base와 Override를 직접 순회하지 않고 `AbilitySetSO`의 유효 해석 API만
+사용해야 한다. 해석 우선순위는 `특수 파생 Set → 타입 공용 Base Set`이다.
+
+필수 안전 규칙:
+
+- `baseSet` 순환 참조는 저장 전 오류로 차단한다.
+- Replace 원본이 Base 유효 Set에 없으면 오류다.
+- 같은 원본에 Replace와 Remove를 동시에 선언할 수 없다.
+- Override가 없는 파생 Set은 공용 Set과 동일한 유효 결과를 내야 한다.
+- 공용 Ability의 수치 일부를 바꾸려면 Ability/Payload 안전 Fork 후 Replace한다.
+  공유 SO 인스턴스의 필드를 개체별로 런타임 변경하지 않는다.
+- 유효 Set 해석 결과의 중복 Ability는 안정 ID 기준으로 오류 또는 명시적 중복 정책을
+  요구한다.
+
+`MonsterActorProfileSO.abilitySet`은 타입 공용 Set, 여기서 파생된
+`ActorDefinitionSO.abilitySet`은 특수 개체 Set이다. 서로 무관한 Definition Set과
+Profile Set이 동시에 존재하는 기존 데이터는 이전처럼 Profile Set을 우선해 의도치 않은
+행동 변경을 막는다. `ActorAbilitySystem`, `EnemyCombat`, BT는
+`EnumerateAll`/슬롯 해석 API를 통해 합성된 유효 풀을 소비한다.
 
 ---
 

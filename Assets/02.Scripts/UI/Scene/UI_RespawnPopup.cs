@@ -61,6 +61,7 @@ namespace UPlayGround.UI
             FadeIn(0.3f);
             RefreshItemCount();
             RefreshHealTexts();
+            RebuildNavigation();
         }
 
         private void RefreshHealTexts()
@@ -103,6 +104,20 @@ namespace UPlayGround.UI
                 _spotReviveLabel.color = count > 0
                     ? Color.white
                     : new Color(0.5f, 0.5f, 0.5f, 1f);
+
+            RebuildNavigation();
+        }
+
+        private void RebuildNavigation()
+        {
+            UIFocusNavigation.ConfigureHorizontal(new Selectable[]
+            {
+                _spotReviveButton,
+                _portalReviveButton
+            });
+            SetDefaultFocus(UIFocusNavigation.FirstNavigable(
+                _spotReviveButton,
+                _portalReviveButton));
         }
 
         private void OnSpotReviveClicked()

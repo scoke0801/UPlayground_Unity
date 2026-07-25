@@ -17,7 +17,8 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
     ///
     /// 연동 규약(중요):
     ///  - 게임플레이/오디오 페이지는 자식 컨트롤을 GetComponentsInChildren '순서'로 매핑한다.
-    ///      게임플레이 슬라이더[0]=수평, [1]=수직 / 스위치[0]=Y반전, [1]=화면흔들림, [2]=타겟보정 / 드롭다운[0]=언어
+    ///      게임플레이 슬라이더[0]=수평, [1]=수직 / 스위치[0]=Y반전, [1]=화면흔들림, [2]=타겟보정
+    ///      게임플레이 드롭다운[0]=언어, [1]=대화 타이핑 속도, [2]=대화 자동 재생 간격
     ///      오디오   슬라이더[0]=마스터, [1]=배경음악, [2]=효과음, [3]=음성
     ///  - 그래픽 페이지는 명시적 [SerializeField] 참조(_resolutionDropdown/_windowModeDropdown/_qualityDropdown/_frameRateSlider/_brightnessSlider) + 스위치[0]=백그라운드실행.
     ///  - 게임플레이 언어 드롭다운은 페이지가 옵션을 세팅하지 않으므로 여기서 옵션을 authoring한다.
@@ -191,6 +192,9 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             return panel.AddComponent<T>();
         }
 
+        // 대화 타이핑 속도·자동 재생 간격 공통 옵션. SettingsData의 인덱스 의미(0=느림,1=보통,2=빠름)와 순서를 맞춘다.
+        private static readonly string[] DialogueSpeedOptions = { "느림", "보통", "빠름" };
+
         private static UISettingPageGamePlay BuildGameplayPanel(Transform content)
         {
             var page = NewPagePanel<UISettingPageGamePlay>("Panel_Gameplay", content);
@@ -207,6 +211,10 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
 
             AddSectionHeader(root, "언어 설정");
             MakeDropdownRow(root, "언어", new[] { "한국어", "English", "日本語" }, 0); // dropdowns[0]
+
+            AddSectionHeader(root, "대화 설정");
+            MakeDropdownRow(root, "타이핑 속도", DialogueSpeedOptions, 1); // dropdowns[1]
+            MakeDropdownRow(root, "자동 재생 간격", DialogueSpeedOptions, 1); // dropdowns[2]
             return page;
         }
 

@@ -1313,6 +1313,33 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DialogueSkip"",
+                    ""type"": ""Button"",
+                    ""id"": ""f538abaa-67a4-4942-a3a3-626d53d0914f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DialogueToggleAuto"",
+                    ""type"": ""Button"",
+                    ""id"": ""ba680b91-a25c-4f8e-9a79-e7b4184e98e2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""DialogueBacklog"",
+                    ""type"": ""Button"",
+                    ""id"": ""3952ff73-f828-4c79-a1a2-ee849b84dcc5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1511,6 +1538,72 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""CheatPanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""083b765b-298f-4562-890f-f3204e4e6c05"",
+                    ""path"": ""<Keyboard>/ctrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueSkip"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""52272561-59ae-4e77-aa3f-181f346dbb05"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueSkip"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""df1c2983-451e-4b27-a22f-1e762c8e3a96"",
+                    ""path"": ""<Keyboard>/f2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueToggleAuto"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""17fd4da1-e67e-4b5d-9774-7ea896eb6c3a"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueToggleAuto"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bf043060-651a-4fd4-b611-528ead4d719f"",
+                    ""path"": ""<Keyboard>/tab"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueBacklog"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""668c1b92-dd20-48ed-b50f-c628dc91c136"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""DialogueBacklog"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1827,6 +1920,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_Party = m_UI.FindAction("Party", throwIfNotFound: true);
         m_UI_MenuPanel = m_UI.FindAction("MenuPanel", throwIfNotFound: true);
         m_UI_CheatPanel = m_UI.FindAction("CheatPanel", throwIfNotFound: true);
+        m_UI_DialogueSkip = m_UI.FindAction("DialogueSkip", throwIfNotFound: true);
+        m_UI_DialogueToggleAuto = m_UI.FindAction("DialogueToggleAuto", throwIfNotFound: true);
+        m_UI_DialogueBacklog = m_UI.FindAction("DialogueBacklog", throwIfNotFound: true);
         // Gamepad
         m_Gamepad = asset.FindActionMap("Gamepad", throwIfNotFound: true);
         m_Gamepad_L1 = m_Gamepad.FindAction("L1", throwIfNotFound: true);
@@ -2469,6 +2565,9 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_Party;
     private readonly InputAction m_UI_MenuPanel;
     private readonly InputAction m_UI_CheatPanel;
+    private readonly InputAction m_UI_DialogueSkip;
+    private readonly InputAction m_UI_DialogueToggleAuto;
+    private readonly InputAction m_UI_DialogueBacklog;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -2532,6 +2631,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "UI/CheatPanel".
         /// </summary>
         public InputAction @CheatPanel => m_Wrapper.m_UI_CheatPanel;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/DialogueSkip".
+        /// </summary>
+        public InputAction @DialogueSkip => m_Wrapper.m_UI_DialogueSkip;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/DialogueToggleAuto".
+        /// </summary>
+        public InputAction @DialogueToggleAuto => m_Wrapper.m_UI_DialogueToggleAuto;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/DialogueBacklog".
+        /// </summary>
+        public InputAction @DialogueBacklog => m_Wrapper.m_UI_DialogueBacklog;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -2597,6 +2708,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @CheatPanel.started += instance.OnCheatPanel;
             @CheatPanel.performed += instance.OnCheatPanel;
             @CheatPanel.canceled += instance.OnCheatPanel;
+            @DialogueSkip.started += instance.OnDialogueSkip;
+            @DialogueSkip.performed += instance.OnDialogueSkip;
+            @DialogueSkip.canceled += instance.OnDialogueSkip;
+            @DialogueToggleAuto.started += instance.OnDialogueToggleAuto;
+            @DialogueToggleAuto.performed += instance.OnDialogueToggleAuto;
+            @DialogueToggleAuto.canceled += instance.OnDialogueToggleAuto;
+            @DialogueBacklog.started += instance.OnDialogueBacklog;
+            @DialogueBacklog.performed += instance.OnDialogueBacklog;
+            @DialogueBacklog.canceled += instance.OnDialogueBacklog;
         }
 
         /// <summary>
@@ -2647,6 +2767,15 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @CheatPanel.started -= instance.OnCheatPanel;
             @CheatPanel.performed -= instance.OnCheatPanel;
             @CheatPanel.canceled -= instance.OnCheatPanel;
+            @DialogueSkip.started -= instance.OnDialogueSkip;
+            @DialogueSkip.performed -= instance.OnDialogueSkip;
+            @DialogueSkip.canceled -= instance.OnDialogueSkip;
+            @DialogueToggleAuto.started -= instance.OnDialogueToggleAuto;
+            @DialogueToggleAuto.performed -= instance.OnDialogueToggleAuto;
+            @DialogueToggleAuto.canceled -= instance.OnDialogueToggleAuto;
+            @DialogueBacklog.started -= instance.OnDialogueBacklog;
+            @DialogueBacklog.performed -= instance.OnDialogueBacklog;
+            @DialogueBacklog.canceled -= instance.OnDialogueBacklog;
         }
 
         /// <summary>
@@ -3257,6 +3386,27 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnCheatPanel(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DialogueSkip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDialogueSkip(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DialogueToggleAuto" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDialogueToggleAuto(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DialogueBacklog" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDialogueBacklog(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gamepad" which allows adding and removing callbacks.

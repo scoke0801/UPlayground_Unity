@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UnityEngine;
@@ -42,6 +43,13 @@ namespace UPlayGround.UI
 
         public bool IsTopmost =>
             ActiveScopes.Count > 0 && ActiveScopes[^1] == this;
+
+        public void SetDefaultSelectable(Selectable selectable, bool ensureSelection = false)
+        {
+            _defaultSelectable = selectable;
+            if (ensureSelection)
+                EnsureSelection();
+        }
 
         public void ActivateScope()
         {
@@ -374,5 +382,101 @@ namespace UPlayGround.UI
             RefreshScopeLocks();
             UnbindInputService();
         }
+    }
+
+    /// <summary>
+    /// 화면 구조가 명확한 메뉴에서 Unity Automatic Navigation 대신
+    /// 유효한 Selectable만 연결하는 공통 explicit navigation 유틸리티.
+    /// 동적 목록은 재구축 직후 다시 호출한다.
+    /// </summary>
+    public static class UIFocusNavigation
+    {
+        public static void ConfigureVertical(IEnumerable<Selectable> source, bool wrap = false) =>
+            ConfigureLinear(source, vertical: true, wrap);
+
+        public static void ConfigureHorizontal(IEnumerable<Selectable> source, bool wrap = false) =>
+            ConfigureLinear(source, vertical: false, wrap);
+
+        public static void ConfigureGrid(IEnumerable<Selectable> source, int columns)
+        {
+            if (source == null)
+                return;
+
+            List<Selectable> items = source
+                .Where(IsNavigable)
+                .Distinct()
+                .ToList();
+            int safeColumns = Mathf.Max(1, columns);
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                int column = i % safeColumns;
+                Navigation navigation = items[i].navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnLeft = column > 0 ? items[i - 1] : null;
+                navigation.selectOnRight = column + 1 < safeColumns && i + 1 < items.Count
+                    ? items[i + 1]
+                    : null;
+                navigation.selectOnUp = i - safeColumns >= 0
+                    ? items[i - safeColumns]
+                    : null;
+                navigation.selectOnDown = i + safeColumns < items.Count
+                    ? items[i + safeColumns]
+                    : null;
+                items[i].navigation = navigation;
+            }
+        }
+
+        private static void ConfigureLinear(
+            IEnumerable<Selectable> source,
+            bool vertical,
+            bool wrap)
+        {
+            if (source == null)
+                return;
+
+            List<Selectable> items = source
+                .Where(IsNavigable)
+                .Distinct()
+                .ToList();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                Selectable previous = i > 0
+                    ? items[i - 1]
+                    : wrap && items.Count > 1 ? items[^1] : null;
+                Selectable next = i + 1 < items.Count
+                    ? items[i + 1]
+                    : wrap && items.Count > 1 ? items[0] : null;
+
+                Navigation navigation = items[i].navigation;
+                navigation.mode = Navigation.Mode.Explicit;
+                navigation.selectOnUp = vertical ? previous : null;
+                navigation.selectOnDown = vertical ? next : null;
+                navigation.selectOnLeft = vertical ? null : previous;
+                navigation.selectOnRight = vertical ? null : next;
+                items[i].navigation = navigation;
+            }
+        }
+
+        public static Selectable FirstNavigable(params Selectable[] items)
+        {
+            if (items == null)
+                return null;
+
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (IsNavigable(items[i]))
+                    return items[i];
+            }
+
+            return null;
+        }
+
+        public static bool IsNavigable(Selectable selectable) =>
+            selectable != null
+            && selectable.gameObject.activeInHierarchy
+            && selectable.IsActive()
+            && selectable.IsInteractable();
     }
 }

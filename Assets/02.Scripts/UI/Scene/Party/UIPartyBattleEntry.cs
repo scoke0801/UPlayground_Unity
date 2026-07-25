@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -11,7 +12,7 @@ namespace UPlayGround.UI
     /// <summary>
     /// 파티 편성 화면의 전투 슬롯 엔트리 — BattleOrder에 배치된 캐릭터만 표시.
     /// </summary>
-    public class UIPartyBattleEntry : MonoBehaviour
+    public class UIPartyBattleEntry : MonoBehaviour, ISelectHandler
     {
         [SerializeField] private Image              _characterIcon;
         [SerializeField] private TextMeshProUGUI    _characterNameText;
@@ -38,6 +39,7 @@ namespace UPlayGround.UI
         private CharacterActorType _boundType = CharacterActorType.None;
 
         public CharacterActorType BoundType => _boundType;
+        public Selectable Selectable => _slotButton;
 
         private void Awake()
         {
@@ -107,6 +109,12 @@ namespace UPlayGround.UI
         }
 
         private void OnSlotButtonClicked()
+        {
+            if (_boundType != CharacterActorType.None)
+                OnSelectRequested?.Invoke(_boundType);
+        }
+
+        public void OnSelect(BaseEventData eventData)
         {
             if (_boundType != CharacterActorType.None)
                 OnSelectRequested?.Invoke(_boundType);

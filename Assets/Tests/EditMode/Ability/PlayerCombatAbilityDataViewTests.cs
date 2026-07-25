@@ -71,6 +71,47 @@ namespace UPlayGround.Ability.Tests
                 Is.EqualTo(50f));
         }
 
+        [Test]
+        public void 파생AbilitySet의_교체Ability를_전투뷰전체에적용한다()
+        {
+            AbilitySetSO common = Create<AbilitySetSO>();
+            GameplayAbilitySO commonAttack = CreateAttack("Common", 10f);
+            GameplayAbilitySO eliteAttack = CreateAttack("Elite", 99f);
+            common.combatBindings.Add(new PlayerCombatAbilityBinding
+            {
+                slot = PlayerCombatAbilitySlot.LightCombo,
+                abilities = new List<GameplayAbilitySO> { commonAttack },
+            });
+            common.charge.stages.Add(commonAttack);
+            common.comboRoutes.Add(new AbilityComboRouteDefinition
+            {
+                routeId = "Route",
+                ability = commonAttack,
+            });
+            AbilitySetSO derived = Create<AbilitySetSO>();
+            derived.baseSet = common;
+            derived.abilityOverrides.Add(
+                new AbilitySetSO.AbilityOverrideEntry
+                {
+                    sourceAbility = commonAttack,
+                    operation = AbilitySetOverrideOperation.Replace,
+                    replacementAbility = eliteAttack,
+                });
+
+            PlayerCombatAbilityDataView view =
+                PlayerCombatAbilityDataView.Build(derived);
+
+            Assert.That(
+                view.liteComboAttackList[0].baseInfo.hitPhases[0].damage,
+                Is.EqualTo(99f));
+            Assert.That(
+                view.chargeStages[0].hitPhases[0].damage,
+                Is.EqualTo(99f));
+            Assert.That(
+                view.comboRoutes[0].attackInfo.baseInfo.hitPhases[0].damage,
+                Is.EqualTo(99f));
+        }
+
         private GameplayAbilitySO CreateAttack(
             string id,
             float damage)

@@ -47,6 +47,24 @@ namespace UPlayGround.UI
             {
                 optionButton.onClick.AddListener(OnClickOptionButton);
             }
+
+            UIFocusNavigation.ConfigureVertical(new Selectable[]
+            {
+                continueButton,
+                loadButton,
+                newGameButton,
+                optionButton
+            });
+        }
+
+        protected override void OnShow()
+        {
+            base.OnShow();
+            SetDefaultFocus(UIFocusNavigation.FirstNavigable(
+                continueButton,
+                loadButton,
+                newGameButton,
+                optionButton));
         }
 
         private void OnClickContinueButton()

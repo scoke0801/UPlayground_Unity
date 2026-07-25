@@ -5,6 +5,7 @@
     "UPlayGround.Ability.Core",
     "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Data",
+    "UPlayGround.Data.Editor",
     "UPlayGround.Contracts",
     "UPlayGround.Actor"
   ],

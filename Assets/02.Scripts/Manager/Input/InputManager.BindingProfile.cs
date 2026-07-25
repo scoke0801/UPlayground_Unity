@@ -13,8 +13,63 @@ namespace UPlayGround.Manager
         private const string UserBindingGroupPrefix = "__UserBinding__";
 
         private InputBindingProfileData _bindingProfile = new();
+        private int _bindingProfileUpdateDepth;
+        private bool _bindingProfileUpdatePending;
 
         public event Action OnBindingsChanged;
+
+        /// <summary>
+        /// 여러 프로필 변경을 하나의 액션 맵 재적용과 변경 알림으로 묶는다.
+        /// 설정 화면의 일괄 적용처럼 여러 슬롯을 동시에 바꿀 때 사용한다.
+        /// </summary>
+        public IDisposable BeginBindingProfileUpdate()
+        {
+            _bindingProfileUpdateDepth++;
+            return new BindingProfileUpdateScope(this);
+        }
+
+        private sealed class BindingProfileUpdateScope : IDisposable
+        {
+            private InputManager _owner;
+
+            public BindingProfileUpdateScope(InputManager owner) => _owner = owner;
+
+            public void Dispose()
+            {
+                InputManager owner = _owner;
+                if (owner == null)
+                    return;
+
+                _owner = null;
+                owner.EndBindingProfileUpdate();
+            }
+        }
+
+        private void EndBindingProfileUpdate()
+        {
+            if (_bindingProfileUpdateDepth <= 0)
+                return;
+
+            _bindingProfileUpdateDepth--;
+            if (_bindingProfileUpdateDepth == 0 && _bindingProfileUpdatePending)
+            {
+                _bindingProfileUpdatePending = false;
+                ApplyBindingProfile();
+                OnBindingsChanged?.Invoke();
+            }
+        }
+
+        private void CommitBindingProfileChange()
+        {
+            if (_bindingProfileUpdateDepth > 0)
+            {
+                _bindingProfileUpdatePending = true;
+                return;
+            }
+
+            ApplyBindingProfile();
+            OnBindingsChanged?.Invoke();
+        }
 
         private readonly struct BindingDefinition
         {
@@ -252,6 +307,13 @@ namespace UPlayGround.Manager
             if (string.IsNullOrWhiteSpace(json))
                 return false;
 
+            // 스냅샷이 현재 상태와 같으면 아무 작업도 하지 않는다.
+            // 설정 창을 열었다가 그냥 닫는 가장 흔한 경우에도 전체 액션 맵 재적용과
+            // OnBindingsChanged 연쇄(프롬프트 아이콘 갱신 + 키 목록 전체 재생성)가
+            // 통째로 실행돼 창을 닫을 때 눈에 띄는 지연이 생겼다.
+            if (string.Equals(json, CaptureBindingProfileSnapshot(), StringComparison.Ordinal))
+                return true;
+
             try
             {
                 var restored = JsonUtility.FromJson<InputBindingProfileData>(json);
@@ -261,8 +323,7 @@ namespace UPlayGround.Manager
                 restored.entries ??= new List<InputBindingOverrideEntry>();
                 MigrateBindingProfile(restored);
                 _bindingProfile = restored;
-                ApplyBindingProfile();
-                OnBindingsChanged?.Invoke();
+                CommitBindingProfileChange();
                 return true;
             }
             catch (Exception exception)
@@ -272,11 +333,12 @@ namespace UPlayGround.Manager
             }
         }
 
-        public void SaveBindingProfile()
+        public void SaveBindingProfile(bool flushPlayerPrefs = true)
         {
             string json = JsonUtility.ToJson(_bindingProfile ?? new InputBindingProfileData());
             PlayerPrefs.SetString(BindingProfilePrefsKey, json);
-            PlayerPrefs.Save();
+            if (flushPlayerPrefs)
+                PlayerPrefs.Save();
         }
 
         public bool TryApplyBinding(
@@ -324,8 +386,7 @@ namespace UPlayGround.Manager
                 controlPath = capture.ControlPath,
             });
 
-            ApplyBindingProfile();
-            OnBindingsChanged?.Invoke();
+            CommitBindingProfileChange();
             return true;
         }
 
@@ -344,8 +405,7 @@ namespace UPlayGround.Manager
             }
 
             DisableBinding(target);
-            ApplyBindingProfile();
-            OnBindingsChanged?.Invoke();
+            CommitBindingProfileChange();
             return true;
         }
 
@@ -356,8 +416,7 @@ namespace UPlayGround.Manager
             if (removed == 0)
                 return;
 
-            ApplyBindingProfile();
-            OnBindingsChanged?.Invoke();
+            CommitBindingProfileChange();
         }
 
         /// <summary>
@@ -377,8 +436,7 @@ namespace UPlayGround.Manager
             if (removed == 0)
                 return;
 
-            ApplyBindingProfile();
-            OnBindingsChanged?.Invoke();
+            CommitBindingProfileChange();
         }
 
         public void ResetBindings(InputBindingDeviceGroup? deviceGroup = null)
@@ -393,39 +451,57 @@ namespace UPlayGround.Manager
                 _bindingProfile.entries.Clear();
             }
 
-            ApplyBindingProfile();
-            OnBindingsChanged?.Invoke();
+            CommitBindingProfileChange();
         }
 
+        /// <summary>
+        /// 프로필 전체를 액션 에셋에 반영한다.
+        ///
+        /// 맵을 껐다 켤 때마다 InputActionState가 전부 다시 해석되므로,
+        /// 초기화와 엔트리 적용을 <b>하나의 disable 구간</b>으로 묶어 맵당 1회만 토글한다.
+        /// 예전에는 ApplyProfileEntry가 엔트리마다 자기 맵을 껐다 켜서
+        /// 재해석이 엔트리 수만큼 반복됐고, 설정 창을 닫을 때 지연으로 체감됐다.
+        ///
+        /// ApplyProfileEntry는 map.enabled가 false면 스스로 토글하지 않으므로
+        /// 이 구간 안에서는 override 적용만 수행한다. 구조(AddBinding)는 건드리지 않는다.
+        /// </summary>
         private void ApplyBindingProfile()
         {
-            foreach (InputActionMap map in actionMapCache.Values)
+            var reEnableTargets = new List<InputActionMap>();
+
+            try
             {
-                bool wasEnabled = map.enabled;
-                if (wasEnabled)
-                    map.Disable();
+                foreach (InputActionMap map in actionMapCache.Values)
+                {
+                    // 원래 켜져 있던 맵만 기억했다가 끝에서 되돌린다.
+                    if (map.enabled)
+                    {
+                        map.Disable();
+                        reEnableTargets.Add(map);
+                    }
 
-                foreach (InputAction action in map.actions)
-                    action.RemoveAllBindingOverrides();
+                    foreach (InputAction action in map.actions)
+                        action.RemoveAllBindingOverrides();
 
-                DisableRuntimeUserBindings(map);
+                    DisableRuntimeUserBindings(map);
+                }
 
-                if (wasEnabled)
-                    map.Enable();
+                if (_bindingProfile?.entries != null)
+                {
+                    foreach (InputBindingOverrideEntry entry in _bindingProfile.entries)
+                    {
+                        if (entry == null)
+                            continue;
+
+                        ApplyProfileEntry(entry);
+                    }
+                }
             }
-
-            if (_bindingProfile?.entries == null)
+            finally
             {
-                RebuildChordCatalog();
-                return;
-            }
-
-            foreach (InputBindingOverrideEntry entry in _bindingProfile.entries)
-            {
-                if (entry == null)
-                    continue;
-
-                ApplyProfileEntry(entry);
+                // 엔트리 적용 중 예외가 나도 입력이 죽지 않도록 반드시 되돌린다.
+                for (int i = 0; i < reEnableTargets.Count; i++)
+                    reEnableTargets[i].Enable();
             }
 
             // effective binding이 바뀌었으므로 조합 카탈로그와 진행 중 중재 상태를 다시 만든다.

@@ -210,7 +210,9 @@ namespace UPlayGround.UI
             // 기존 슬롯 제거
             foreach (var slot in _spawnedRecipeSlots)
             {
-                if (slot != null) Destroy(slot.gameObject);
+                if (slot == null) continue;
+                slot.gameObject.SetActive(false);
+                Destroy(slot.gameObject);
             }
             _spawnedRecipeSlots.Clear();
 
@@ -246,6 +248,8 @@ namespace UPlayGround.UI
             // 현재 선택이 목록에 없으면(최초 진입/카테고리 전환 등) 첫 번째 레시피를 자동 선택한다.
             if (!selectionStillVisible && _spawnedRecipeSlots.Count > 0)
                 OnRecipeSlotClicked(_spawnedRecipeSlots[0].RecipeID);
+
+            RebuildNavigation();
         }
 
         private void RefreshAllSlotCraftability()
@@ -278,6 +282,59 @@ namespace UPlayGround.UI
 
             ShowRecipeDetail(recipeID);
             RefreshCraftButton();
+        }
+
+        private void RebuildNavigation()
+        {
+            var recipeSelectables = new List<Selectable>();
+            foreach (UI_CraftingRecipeSlot slot in _spawnedRecipeSlots)
+            {
+                if (slot != null && slot.Selectable != null)
+                    recipeSelectables.Add(slot.Selectable);
+            }
+            UIFocusNavigation.ConfigureVertical(recipeSelectables);
+
+            var actionSelectables = new Selectable[]
+            {
+                _btnQtyMinus,
+                _btnQtyPlus,
+                _btnQtyMax,
+                _btnCraft,
+                _btnClose
+            };
+            UIFocusNavigation.ConfigureHorizontal(actionSelectables);
+
+            Selectable firstAction = UIFocusNavigation.FirstNavigable(actionSelectables);
+            for (int i = 0; i < recipeSelectables.Count; i++)
+            {
+                Navigation navigation = recipeSelectables[i].navigation;
+                navigation.selectOnRight = firstAction;
+                recipeSelectables[i].navigation = navigation;
+            }
+
+            Selectable selectedRecipe = null;
+            foreach (UI_CraftingRecipeSlot slot in _spawnedRecipeSlots)
+            {
+                if (slot != null && slot.RecipeID == _selectedRecipeID)
+                {
+                    selectedRecipe = slot.Selectable;
+                    break;
+                }
+            }
+
+            foreach (Selectable action in actionSelectables)
+            {
+                if (action == null)
+                    continue;
+                Navigation navigation = action.navigation;
+                navigation.selectOnLeft ??= selectedRecipe;
+                action.navigation = navigation;
+            }
+
+            Selectable initial = recipeSelectables.Count > 0
+                ? recipeSelectables[0]
+                : firstAction;
+            SetDefaultFocus(initial, IsVisible);
         }
 
         private void ShowRecipeDetail(int recipeID)

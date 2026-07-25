@@ -110,9 +110,24 @@ namespace UPlayGround.Data.Actor
         public MonsterScalingSO EffectiveMonsterScaling => monsterProfile != null ? monsterProfile.monsterScaling : monsterScaling;
         public MonsterActorGrade EffectiveGrade => monsterProfile != null ? monsterProfile.grade : grade;
         public int EffectiveLevel => monsterProfile != null ? Mathf.Max(1, monsterProfile.level) : Mathf.Max(1, level);
-        public AbilitySetSO EffectiveAbilitySet => monsterProfile != null && monsterProfile.abilitySet != null
-            ? monsterProfile.abilitySet
-            : abilitySet;
+        public AbilitySetSO EffectiveAbilitySet
+        {
+            get
+            {
+                AbilitySetSO shared = monsterProfile?.abilitySet;
+                if (shared == null)
+                    return abilitySet;
+                if (abilitySet == null)
+                    return shared;
+                // 기존 데이터는 Profile Set 우선 계약을 보존한다.
+                // Definition Set이 명시적으로 Profile Set에서 파생된 경우에만
+                // 특수 몬스터용 합성 Set으로 사용한다.
+                return ReferenceEquals(abilitySet, shared)
+                       || abilitySet.IsDerivedFrom(shared)
+                    ? abilitySet
+                    : shared;
+            }
+        }
         public CombatDefensePolicySO EffectiveCombatDefensePolicy => monsterProfile != null ? monsterProfile.combatDefensePolicy : combatDefensePolicy;
         public CombatReactionPolicySO EffectiveCombatReactionPolicy => monsterProfile != null ? monsterProfile.combatReactionPolicy : combatReactionPolicy;
         public EnemyBehaviorSO EffectiveBehaviorData => monsterProfile != null ? monsterProfile.behaviorData : behaviorData;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
@@ -13,7 +14,7 @@ namespace UPlayGround.UI
     /// 파티 편성 화면의 보유 캐릭터 목록 엔트리.
     /// 클릭 시 OnToggleRequested 이벤트를 발행하고, UI_PartyMenu가 초안 상태를 관리한다.
     /// </summary>
-    public class UIPartyMenuEntry : MonoBehaviour
+    public class UIPartyMenuEntry : MonoBehaviour, ISelectHandler, IUIFocusPresentation
     {
         [SerializeField] private Image              _characterIcon;
         [SerializeField] private TextMeshProUGUI    _characterNameText;
@@ -26,10 +27,14 @@ namespace UPlayGround.UI
         [SerializeField] private Image              _weaponIcon;
 
         public event Action<CharacterActorType> OnToggleRequested;
+        public event Action<CharacterActorType> OnFocusRequested;
 
         private CharacterActorType _type = CharacterActorType.None;
 
         public CharacterActorType Type => _type;
+        public Selectable Selectable => _button;
+        public bool SuppressGlobalFocusIndicator => _selectedImage != null;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         private void Awake()
         {
@@ -104,6 +109,13 @@ namespace UPlayGround.UI
             if (pm == null || !pm.Roster.Contains(_type)) return;
 
             OnToggleRequested?.Invoke(_type);
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            var pm = UISvc.Party;
+            if (pm != null && pm.Roster.Contains(_type))
+                OnFocusRequested?.Invoke(_type);
         }
     }
 }

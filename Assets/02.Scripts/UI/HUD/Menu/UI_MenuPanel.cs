@@ -68,6 +68,18 @@ namespace UPlayGround.UI
             if (_codexButton != null) _codexButton.onClick.AddListener(OnClickedCodexButton);
             _configButton.onClick.AddListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.AddListener(OnClickedExitButton);
+
+            UIFocusNavigation.ConfigureVertical(new Selectable[]
+            {
+                _mapButton,
+                _bagButton,
+                _craftButton,
+                _questButton,
+                _partyButton,
+                _codexButton,
+                _configButton,
+                _exitButton
+            });
         }
 
         // 메뉴가 열려 있는 동안 게임플레이 입력을 차단한다.
@@ -76,8 +88,18 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
             _openedFrame = Time.frameCount;
             PlayOpenTween();
+            SetDefaultFocus(UIFocusNavigation.FirstNavigable(
+                _mapButton,
+                _bagButton,
+                _craftButton,
+                _questButton,
+                _partyButton,
+                _codexButton,
+                _configButton,
+                _exitButton));
         }
 
         /// <summary>

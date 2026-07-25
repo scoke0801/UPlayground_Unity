@@ -393,7 +393,28 @@
       "Bash(echo \"NEW DIFF EXIT: $?\")",
       "Bash(sort -o g1_delete_sorted.txt)",
       "Bash(sort D_all.txt -o D_all_sorted.txt)",
-      "Bash(echo \"DEL DIFF EXIT: $?\")"
+      "Bash(echo \"DEL DIFF EXIT: $?\")",
+      "Bash(git diff *)",
+      "Read(//c/Users/scoke/AppData/Local/Temp/claude/**)",
+      "WebFetch(domain:doc.photonengine.com)",
+      "Bash(grep -o \"Data\\\\\\\\\\\\\\\\Dialogue\\\\\\\\\\\\\\\\[A-Za-z]*\\\\.cs\" UPlayGround.Data.csproj)",
+      "Bash(grep -oE \"Dialogue[/\\\\\\\\\\\\\\\\][A-Za-z]+\\\\.cs\" UPlayGround.Data.csproj)",
+      "Bash(:)",
+      "Bash(grep -oE \"Dialogue[/\\\\\\\\\\\\\\\\][A-Za-z_]+\\\\.cs\" UPlayGround.UI.csproj)",
+      "Bash(grep -c \"uB300\\\\\\\\\\\\\\\\uD654\" Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab)",
+      "Bash(grep -c 'uD55C\\\\\\\\uAD6D\\\\\\\\uC5B4' Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab)",
+      "Bash(grep -n -A 14 \"guid: $\\(grep -m1 -oP '\\(?<=guid: \\)\\\\w+' Assets/02.Scripts/UI/Dialogue/UI_DialogueControlBar.cs.meta\\)\" Assets/03.Prefabs/UI/Dialogue/UI_DialogueControlBar.prefab)",
+      "Bash(awk '/void EnsureSelection/,/^        \\\\}/' Assets/02.Scripts/UI/Focus/UIFocusScope.cs)",
+      "Bash(awk '/GameObject ResolveDefaultSelection/,/^ \\\\}/' Assets/02.Scripts/UI/Focus/UIFocusScope.cs)",
+      "Bash(awk '/void BindInputService/,/^        \\\\}/' Assets/02.Scripts/UI/Focus/UIFocusScope.cs)",
+      "Bash(grep -oE \"Production[/\\\\\\\\\\\\\\\\][A-Za-z]+\\\\.cs\" UPlayGround.Data.Editor.csproj)",
+      "Bash(cp UPlayGround.Data.Editor.csproj /tmp/dataeditor.bak)",
+      "Bash(cp UPlayGround.Data.Editor.csproj __TRACKED_VAR__/dataeditor.bak)",
+      "Bash(awk '/public void RestoreBindingProfileSnapshot/,/^        \\\\}/' Assets/02.Scripts/Manager/Input/InputManager.BindingProfile.cs)",
+      "Bash(awk '/void Refresh\\\\\\(\\\\\\)/,/^        \\\\}/' Assets/02.Scripts/UI/InputPrompt/UI_InputPromptIcon.cs)",
+      "Bash(awk '/void RefreshRows/,/^        \\\\}/' Assets/02.Scripts/UI/Scene/SettingPage/UISettingPageKeyBinding.cs)",
+      "Bash(awk '/public bool ApplyPendingChanges/,/^        \\\\}/' Assets/02.Scripts/UI/Scene/SettingPage/UISettingPageKeyBinding.cs)",
+      "Bash(awk '/private static void DisableDefaultBindings/,/^        \\\\}/' Assets/02.Scripts/Manager/Input/InputManager.BindingProfile.cs)"
     ]
   }
 }

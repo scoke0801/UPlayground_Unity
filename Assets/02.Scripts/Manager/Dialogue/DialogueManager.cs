@@ -8,6 +8,7 @@ using UPlayGround.CameraSystem;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Party;
 
 namespace UPlayGround.Dialogue
 {
@@ -28,8 +29,12 @@ namespace UPlayGround.Dialogue
 
         private readonly Dictionary<DialogueChannel, DialogueRunner> _runners = new();
 
+        // 정지·자동·스킵 상태와 대화 이력의 단일 소유자. UI는 IUIDialogueService로만 접근한다.
+        private readonly DialoguePlaybackController _playback = new();
+
         // UI가 직접 참조하는 색상 테이블 — 로드 완료 전에는 null
         public SpeakerColorTableSO ColorTable { get; private set; }
+        public DialoguePaletteSO Palette { get; private set; }
         public SpeakerActorBindingTableSO SpeakerActorBindings { get; private set; }
 
         #region IManager
@@ -44,8 +49,9 @@ namespace UPlayGround.Dialogue
         public async UniTask InitializeAsync(CancellationToken cancellationToken)
         {
             UniTask colorTableTask = LoadColorTableAsync(cancellationToken);
+            UniTask paletteTask = LoadPaletteAsync(cancellationToken);
             UniTask speakerBindingsTask = LoadSpeakerActorBindingsAsync(cancellationToken);
-            await UniTask.WhenAll(colorTableTask, speakerBindingsTask);
+            await UniTask.WhenAll(colorTableTask, paletteTask, speakerBindingsTask);
         }
 
         public void AfterInit()  { }
@@ -54,7 +60,11 @@ namespace UPlayGround.Dialogue
         {
             foreach (var r in _runners.Values) r.Clear();
 
+            _playback.SetPaused(false);
+            _playback.ClearHistory();
+
             ColorTable = null;
+            Palette = null;
             SpeakerActorBindings = null;
         }
 
@@ -90,13 +100,68 @@ namespace UPlayGround.Dialogue
 
         public void Advance(DialogueChannel channel = DialogueChannel.Main)
         {
+            // 정지의 의미를 명확히 하기 위해 정지 중에는 진행 요청 자체를 무시한다.
+            if (_playback.IsPaused) return;
+
             _runners[channel].Advance();
         }
 
         public void SelectChoice(int index)
         {
+            if (_playback.IsPaused) return;
+
             _runners[DialogueChannel.Main].SelectChoice(index);
         }
+
+        // ── 재생 제어 (IUIDialogueService) ───────────────────────────
+
+        public bool IsPaused => _playback.IsPaused;
+        public bool IsAuto => _playback.IsAuto;
+        public float AutoAdvanceDelay => _playback.AutoAdvanceDelay;
+        public float TypingSpeedScale => _playback.TypingSpeedScale;
+        public IReadOnlyList<DialogueLogEntry> History => _playback.History;
+
+        public event Action<bool> OnPauseChanged
+        {
+            add    => _playback.OnPauseChanged += value;
+            remove => _playback.OnPauseChanged -= value;
+        }
+
+        public event Action<bool> OnAutoChanged
+        {
+            add    => _playback.OnAutoChanged += value;
+            remove => _playback.OnAutoChanged -= value;
+        }
+
+        public event Action OnHistoryChanged
+        {
+            add    => _playback.OnHistoryChanged += value;
+            remove => _playback.OnHistoryChanged -= value;
+        }
+
+        public event Action OnTypingCompleteRequested
+        {
+            add    => _playback.OnTypingCompleteRequested += value;
+            remove => _playback.OnTypingCompleteRequested -= value;
+        }
+
+        public void SetPaused(bool paused) => _playback.SetPaused(paused);
+
+        public void SetAuto(bool auto) => _playback.SetAuto(auto);
+
+        public void CompleteTyping() => _playback.RequestTypingComplete();
+
+        public void RequestSkip(DialogueChannel channel = DialogueChannel.Main)
+        {
+            if (!_runners.TryGetValue(channel, out DialogueRunner runner))
+                return;
+
+            // 스킵은 정지 상태와 모순되므로 먼저 정지를 푼다.
+            _playback.SetPaused(false);
+            runner.SkipToBreak();
+        }
+
+        public void ClearHistory() => _playback.ClearHistory();
 
         // ── Runner 이벤트 중계 ────────────────────────────────────────
 
@@ -122,7 +187,30 @@ namespace UPlayGround.Dialogue
             if (channel == DialogueChannel.Main)
                 CameraManager.Instance?.PopCameraMode();
 
+            // 정지 상태가 다음 대화로 새지 않도록 세션 종료 시 해제한다(자동 토글은 유지).
+            _playback.ResetForSessionEnd();
+
             OnDialogueEnd?.Invoke();
+        }
+
+        /// <summary>
+        /// Talk/Choice 노드 진입을 대화 이력에 기록합니다.
+        /// 화자명·초상화는 뷰(UI_Dialogue)와 같은 해석 규칙을 쓰도록 DialogueSpeakerResolver로 공용화했습니다.
+        /// </summary>
+        internal void RecordNodeHistory(DialogueChannel channel, DialogueNodeSO node)
+        {
+            if (node == null || string.IsNullOrEmpty(node.dialogueText))
+                return;
+
+            var party = PartyManager.Instance;
+            PartyMemberDataSO memberData = party != null ? party.PartyMemberDataSO : null;
+            CharacterActorType activeType = party != null ? party.ActiveCharacterType : CharacterActorType.None;
+
+            _playback.RecordHistory(new DialogueLogEntry(
+                DialogueSpeakerResolver.ResolveSpeakerName(node, memberData, activeType),
+                DialogueMarkup.ToRichText(node.dialogueText, Palette),
+                channel,
+                DialogueSpeakerResolver.ResolvePortrait(node, memberData, activeType)));
         }
 
         // ── Addressables 로드 ─────────────────────────────────────────
@@ -146,6 +234,28 @@ namespace UPlayGround.Dialogue
             {
                 Debug.LogError($"[DialogueManager] SpeakerColorTable 로드 실패: {e.Message}");
                 throw;
+            }
+        }
+
+        private async UniTask LoadPaletteAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                Palette = await AssetManager.Instance.LoadGlobalAsync<DialoguePaletteSO>(
+                    DialoguePaletteSO.AddressableKey,
+                    nameof(DialogueManager),
+                    cancellationToken);
+
+                Debug.Log("[DialogueManager] DialoguePalette 로드 완료");
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception e)
+            {
+                // 팔레트는 선택 기능이다. 없으면 [c:key]가 흰색으로 폴백될 뿐 대화는 정상 동작한다.
+                Debug.LogWarning($"[DialogueManager] DialoguePalette 로드 실패 또는 미등록: {e.Message}");
             }
         }
 
@@ -262,24 +372,49 @@ namespace UPlayGround.Dialogue
 
         private static void OpenUIForChannel(DialogueChannel channel)
         {
-            string key = ChannelToUIKey(channel);
-            if (!UIManager.Instance.IsUIActive(key))
-                UIManager.Instance.ShowUI(key);
+            ShowIfHidden(ChannelToUIKey(channel));
+
+            // 재생 컨트롤 바는 플레이어가 진행을 제어하는 채널에서만 띄운다(System은 알림형이라 제외).
+            if (HasControlBar(channel))
+                ShowIfHidden(DialogueUIKeys.DialogueControlBar);
         }
 
         private static void HideUIForChannel(DialogueChannel channel)
         {
-            string key = ChannelToUIKey(channel);
+            HideIfActive(ChannelToUIKey(channel));
+
+            if (HasControlBar(channel))
+            {
+                HideIfActive(DialogueUIKeys.DialogueBacklog);
+                HideIfActive(DialogueUIKeys.DialogueControlBar);
+            }
+        }
+
+        private static bool HasControlBar(DialogueChannel channel) =>
+            channel == DialogueChannel.Main || channel == DialogueChannel.Monologue;
+
+        private static void ShowIfHidden(string key)
+        {
+            // 컨트롤 바·이력은 프로젝트에 아직 등록되지 않았을 수 있으므로 없으면 조용히 건너뛴다.
+            if (UIManager.Instance.GetUIPrefabEntry(key) == null)
+                return;
+
+            if (!UIManager.Instance.IsUIActive(key))
+                UIManager.Instance.ShowUI(key);
+        }
+
+        private static void HideIfActive(string key)
+        {
             if (UIManager.Instance.IsUIActive(key))
                 UIManager.Instance.HideUI(key);
         }
 
         private static string ChannelToUIKey(DialogueChannel channel) => channel switch
         {
-            DialogueChannel.Main      => "MainDialogue",
-            DialogueChannel.System    => "SystemDialogue",
-            DialogueChannel.Monologue => "MonologueDialogue",
-            _                         => "MainDialogue"
+            DialogueChannel.Main      => DialogueUIKeys.MainDialogue,
+            DialogueChannel.System    => DialogueUIKeys.SystemDialogue,
+            DialogueChannel.Monologue => DialogueUIKeys.MonologueDialogue,
+            _                         => DialogueUIKeys.MainDialogue
         };
     }
 
@@ -336,6 +471,12 @@ namespace UPlayGround.Dialogue
         private readonly bool             _enableQueue;
         private readonly Queue<DialogueRequest> _queue = new();
 
+        // 스킵 안전장치 — 순환 그래프에서 무한 루프를 막는 전이 횟수 상한
+        private const int MaxSkipTransitions = 512;
+
+        private readonly HashSet<string> _skipVisitedNodeIds = new();
+        private bool _isSkipping;
+
         private DialogueRequest _currentRequest;
         private DialogueGraphSO _currentGraph;
         private DialogueNodeSO  _currentNode;
@@ -374,6 +515,60 @@ namespace UPlayGround.Dialogue
             MoveToNode(_currentNode.nextNodeId);
         }
 
+        /// <summary>
+        /// 대화 스킵(강) — 선택지(Choice) 또는 종료(End)를 만날 때까지 노드를 연속 진행합니다.
+        /// 통과하는 노드의 eventActions(플래그·퀘스트)는 정상 실행되므로 진행 상태 부작용이 보존됩니다.
+        /// 순환 그래프에서 멈추지 않는 것을 막기 위해 전이 횟수 상한과 방문 감지를 둡니다.
+        /// </summary>
+        public void SkipToBreak()
+        {
+            if (!IsRunning || _currentNode == null) return;
+
+            // 이미 선택지에 서 있으면 스킵할 대상이 없다.
+            if (_currentNode.nodeType == NodeType.Choice) return;
+
+            _isSkipping = true;
+            try
+            {
+                _skipVisitedNodeIds.Clear();
+
+                int transitions = 0;
+                while (IsRunning && _currentNode != null && _currentNode.nodeType != NodeType.Choice)
+                {
+                    if (++transitions > MaxSkipTransitions)
+                    {
+                        Debug.LogWarning(
+                            $"[Dialogue] {_channel} 스킵 전이 상한({MaxSkipTransitions}) 초과 — 순환 그래프 의심. 중단합니다.");
+                        break;
+                    }
+
+                    if (!string.IsNullOrEmpty(_currentNode.nodeId) &&
+                        !_skipVisitedNodeIds.Add(_currentNode.nodeId))
+                    {
+                        Debug.LogWarning(
+                            $"[Dialogue] {_channel} 스킵 중 노드 순환 감지: {_currentNode.nodeId} — 중단합니다.");
+                        break;
+                    }
+
+                    DialogueNodeSO before = _currentNode;
+                    Advance();
+
+                    // Advance가 아무 전이도 일으키지 못하면(라우팅 누락 등) 무한 루프가 되므로 빠져나온다.
+                    if (IsRunning && ReferenceEquals(before, _currentNode))
+                        break;
+                }
+            }
+            finally
+            {
+                _isSkipping = false;
+                _skipVisitedNodeIds.Clear();
+            }
+
+            // 스킵 중 억제했던 UI 통지를 최종 착지 노드에 대해 한 번만 발행한다.
+            if (IsRunning && _currentNode != null)
+                NotifyEnterForCurrentNode();
+        }
+
         public void SelectChoice(int index)
         {
             if (_currentNode?.nodeType != NodeType.Choice) return;
@@ -384,6 +579,8 @@ namespace UPlayGround.Dialogue
         public void Clear()
         {
             _queue.Clear();
+            _skipVisitedNodeIds.Clear();
+            _isSkipping   = false;
             IsRunning     = false;
             _currentRequest = null;
             _currentGraph = null;
@@ -424,12 +621,13 @@ namespace UPlayGround.Dialogue
             switch (node.nodeType)
             {
                 case NodeType.Talk:
-                    _manager.NotifyNodeEnter(_channel, node);
-                    break;
-
                 case NodeType.Choice:
-                    _manager.NotifyNodeEnter(_channel, node);
-                    _manager.NotifyChoicePresented(GetVisibleChoices(node));
+                    // 스킵으로 지나친 대사도 되짚어 볼 수 있어야 하므로 이력은 항상 남긴다.
+                    _manager.RecordNodeHistory(_channel, node);
+
+                    // 스킵 중에는 통과 노드마다 타이핑을 시작하지 않고, 착지 노드에서 한 번만 통지한다.
+                    if (!_isSkipping)
+                        NotifyEnterForCurrentNode();
                     break;
 
                 case NodeType.Condition:
@@ -447,6 +645,18 @@ namespace UPlayGround.Dialogue
                     End();
                     break;
             }
+        }
+
+        // 현재 노드 기준으로 UI 통지를 발행한다. 스킵 착지 시 재사용한다.
+        private void NotifyEnterForCurrentNode()
+        {
+            DialogueNodeSO node = _currentNode;
+            if (node == null) return;
+
+            _manager.NotifyNodeEnter(_channel, node);
+
+            if (node.nodeType == NodeType.Choice)
+                _manager.NotifyChoicePresented(GetVisibleChoices(node));
         }
 
         private void End()

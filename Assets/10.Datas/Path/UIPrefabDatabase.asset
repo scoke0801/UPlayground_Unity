@@ -178,3 +178,11 @@ MonoBehaviour:
     defaultLayer: 0
     description: "\uC778\uAC8C\uC784 \uC6D4\uB4DC \uB9C8\uCEE4 HUD (\uC6D0\uC2E0\uC2DD
       \uC6E8\uC774\uD3EC\uC778\uD2B8)"
+  - key: DialogueControlBar
+    prefab: {fileID: 5877604072919214437, guid: 5c2db0926a785804e90c9a34d53505b7, type: 3}
+    defaultLayer: 1000
+    description: "\uB300\uD654 \uC7AC\uC0DD \uCEE8\uD2B8\uB864 \uBC14(\uC815\uC9C0\xB7\uC790\uB3D9\xB7\uC2A4\uD0B5\xB7\uC774\uB825)"
+  - key: DialogueBacklog
+    prefab: {fileID: 4984459925082130239, guid: 0a73b652db21b21458ebd4237d2a6395, type: 3}
+    defaultLayer: 2000
+    description: "\uC774\uC804 \uB300\uD654\uB0B4\uC5ED \uD328\uB110"

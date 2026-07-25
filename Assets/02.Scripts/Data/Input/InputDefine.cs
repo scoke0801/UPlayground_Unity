@@ -74,7 +74,10 @@
         public const string MiddleClick = "MiddleClick";
         public const string ScrollWheel = "ScrollWheel";
         public const string DialogueNext = "DialogueNext";
-        
+        public const string DialogueSkip = "DialogueSkip";
+        public const string DialogueToggleAuto = "DialogueToggleAuto";
+        public const string DialogueBacklog = "DialogueBacklog";
+
     }
 
     public static class GamepadAction

@@ -86,8 +86,30 @@ namespace UPlayGround.UI
         event Action<List<ChoiceData>> OnChoicePresented;
         event Action OnDialogueEnd;
         SpeakerColorTableSO ColorTable { get; }
+        DialoguePaletteSO Palette { get; }
         void Advance(DialogueChannel channel = DialogueChannel.Main);
         void SelectChoice(int index);
+
+        // ── 재생 제어 ──
+        bool IsPaused { get; }
+        bool IsAuto { get; }
+        /// <summary>전역 자동 재생 대기 시간(초). 노드의 autoAdvanceDuration과 max로 결합한다.</summary>
+        float AutoAdvanceDelay { get; }
+        /// <summary>전역 타이핑 속도 배율. 클수록 느리게 찍힌다.</summary>
+        float TypingSpeedScale { get; }
+        void SetPaused(bool paused);
+        void SetAuto(bool auto);
+        /// <summary>대화 스킵(강) — 선택지 또는 End를 만날 때까지 노드를 연속 진행한다.</summary>
+        void RequestSkip(DialogueChannel channel = DialogueChannel.Main);
+        /// <summary>타이핑 스킵(약) — 진행 중인 타이핑만 즉시 완성한다.</summary>
+        void CompleteTyping();
+        event Action<bool> OnPauseChanged;
+        event Action<bool> OnAutoChanged;
+        event Action OnTypingCompleteRequested;
+
+        // ── 이력 ──
+        IReadOnlyList<DialogueLogEntry> History { get; }
+        event Action OnHistoryChanged;
     }
 
     public interface IUIQuestService : IGameService

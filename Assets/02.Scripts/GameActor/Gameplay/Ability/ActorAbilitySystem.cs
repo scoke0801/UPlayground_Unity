@@ -614,15 +614,9 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (definition == null)
                 return null;
-            if (_abilitySet?.playerSlots != null)
-            {
-                for (int i = 0; i < _abilitySet.playerSlots.Count; i++)
-                {
-                    AbilitySetSO.PlayerSlotEntry entry = _abilitySet.playerSlots[i];
-                    if (entry?.ability == definition)
-                        return entry.slot;
-                }
-            }
+            if (_abilitySet != null
+                && _abilitySet.TryGetPlayerSlot(definition, out PlayerSkillSlot slot))
+                return slot;
 
             if (ResolvePlayerAbility(PlayerSkillSlot.ElementalImbue) == definition)
                 return PlayerSkillSlot.ElementalImbue;

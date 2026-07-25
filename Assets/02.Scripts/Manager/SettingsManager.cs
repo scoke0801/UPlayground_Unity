@@ -48,6 +48,9 @@ namespace UPlayGround.Manager
         public void AfterInit() { }
         public void Dispose()
         {
+            // 세션이 끝나면 적용 캐시를 비워, 다음 세션에서 같은 값이어도 다시 반영되게 한다.
+            SettingsApplier.ResetAppliedCache();
+
             Data = null;
             IsLoaded = false;
         }

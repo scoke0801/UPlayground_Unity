@@ -37,7 +37,8 @@ namespace UPlayGround.Manager
         IReadOnlyList<InputBindingDescriptor> GetBindingDescriptors(InputBindingDeviceGroup deviceGroup);
         string CaptureBindingProfileSnapshot();
         bool RestoreBindingProfileSnapshot(string json);
-        void SaveBindingProfile();
+        IDisposable BeginBindingProfileUpdate();
+        void SaveBindingProfile(bool flushPlayerPrefs = true);
         bool TryApplyBinding(
             InputRebindCaptureResult capture,
             bool replaceConflict,

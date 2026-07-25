@@ -16,7 +16,8 @@ namespace UPlayGround.UI
     /// <c>UIFocusIndicator</c>가 그대로 동작한다. 클릭·확정은 즉시 캡처가 아니라
     /// "선택"이며, 실제 키 변경은 우측 상세 패널에서 처리한다(목업 흐름).
     /// </summary>
-    public sealed class UIKeyBindingRow : MonoBehaviour, ISelectHandler, IPointerEnterHandler
+    public sealed class UIKeyBindingRow : MonoBehaviour, ISelectHandler, IPointerEnterHandler,
+        IUIFocusPresentation
     {
         /// <summary>헤더와 행의 컬럼 폭은 반드시 같은 상수를 쓴다.</summary>
         public const float KeyboardColumnWidth = 220f;
@@ -43,6 +44,8 @@ namespace UPlayGround.UI
         public string ActionName { get; private set; }
 
         public Selectable Selectable => _button;
+        public bool SuppressGlobalFocusIndicator => true;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         public void Build()
         {

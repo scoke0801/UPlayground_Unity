@@ -91,6 +91,7 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
             _pausedByThisPopup = false;
             if (Svc.GameTime != null && !Svc.GameTime.IsPaused)
             {
@@ -167,6 +168,21 @@ namespace UPlayGround.UI
             if (_characterNameText != null) _characterNameText.text = $"{_targetType} 성장";
             if (_pointText != null) _pointText.text = $"사용 가능 포인트  {party.GetGrowthPoints(_targetType)}";
             for (int i = 0; i < _cards.Count; i++) RefreshCard(_cards[i]);
+            RebuildNavigation();
+        }
+
+        private void RebuildNavigation()
+        {
+            var buttons = new List<Selectable>();
+            for (int i = 0; i < _cards.Count; i++)
+            {
+                Button button = _cards[i]?.investButton;
+                if (button != null)
+                    buttons.Add(button);
+            }
+            buttons.Add(_closeButton);
+            UIFocusNavigation.ConfigureVertical(buttons);
+            SetDefaultFocus(UIFocusNavigation.FirstNavigable(buttons.ToArray()), IsVisible);
         }
 
         private void RefreshCard(GrowthCard card)

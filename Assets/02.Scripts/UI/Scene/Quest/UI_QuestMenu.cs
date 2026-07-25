@@ -212,6 +212,8 @@ namespace UPlayGround.UI
                 else
                     SetDetailVisible(false);
             }
+
+            RebuildNavigation();
         }
 
         private void AddSlot(QuestSO so, QuestStatus status)
@@ -238,6 +240,58 @@ namespace UPlayGround.UI
                 slot.SetSelected(slot.QuestId == questId);
 
             ShowDetail(questId, status);
+        }
+
+        private void RebuildNavigation()
+        {
+            var slotSelectables = new List<Selectable>();
+            foreach (UI_QuestSlot slot in _spawnedSlots)
+            {
+                if (slot != null && slot.Selectable != null)
+                    slotSelectables.Add(slot.Selectable);
+            }
+            UIFocusNavigation.ConfigureVertical(slotSelectables);
+
+            var actions = new Selectable[]
+            {
+                _btnTrack,
+                _btnComplete,
+                _btnAbandon,
+                _btnClose
+            };
+            UIFocusNavigation.ConfigureVertical(actions);
+            Selectable firstAction = UIFocusNavigation.FirstNavigable(actions);
+
+            foreach (Selectable slot in slotSelectables)
+            {
+                Navigation navigation = slot.navigation;
+                navigation.selectOnRight = firstAction;
+                slot.navigation = navigation;
+            }
+
+            Selectable selectedSlot = null;
+            foreach (UI_QuestSlot slot in _spawnedSlots)
+            {
+                if (slot != null && slot.QuestId == _selectedQuestId)
+                {
+                    selectedSlot = slot.Selectable;
+                    break;
+                }
+            }
+
+            foreach (Selectable action in actions)
+            {
+                if (action == null)
+                    continue;
+                Navigation navigation = action.navigation;
+                navigation.selectOnLeft = selectedSlot;
+                action.navigation = navigation;
+            }
+
+            Selectable initial = slotSelectables.Count > 0
+                ? slotSelectables[0]
+                : firstAction;
+            SetDefaultFocus(initial, IsVisible);
         }
 
         private void ShowDetail(string questId, QuestStatus status)
@@ -397,7 +451,11 @@ namespace UPlayGround.UI
         private void ClearSlots()
         {
             foreach (var s in _spawnedSlots)
-                if (s != null) Destroy(s.gameObject);
+            {
+                if (s == null) continue;
+                s.gameObject.SetActive(false);
+                Destroy(s.gameObject);
+            }
             _spawnedSlots.Clear();
         }
 

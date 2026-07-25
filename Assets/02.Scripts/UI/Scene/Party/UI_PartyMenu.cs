@@ -147,7 +147,10 @@ namespace UPlayGround.UI
                 InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
 
             foreach (var entry in _menuEntries)
+            {
                 entry.OnToggleRequested -= OnEntryToggleRequested;
+                entry.OnFocusRequested -= OnEntryFocused;
+            }
 
             foreach (var battleEntry in _partyBattleEntries)
                 battleEntry.OnSelectRequested -= OnBattleEntrySelected;
@@ -195,6 +198,15 @@ namespace UPlayGround.UI
                 _pendingOrder.Add(type);
             }
 
+            Refresh();
+        }
+
+        private void OnEntryFocused(CharacterActorType type)
+        {
+            if (_selectedType == type)
+                return;
+
+            _selectedType = type;
             Refresh();
         }
 
@@ -248,6 +260,7 @@ namespace UPlayGround.UI
             RefreshElementSummary();
             RefreshDetail();
             (_assistPanel as IUIRefreshable)?.Refresh();
+            RebuildNavigation();
         }
 
         /// <summary>
@@ -263,6 +276,8 @@ namespace UPlayGround.UI
             {
                 if (entry == null) continue;
                 entry.OnToggleRequested -= OnEntryToggleRequested;
+                entry.OnFocusRequested -= OnEntryFocused;
+                entry.gameObject.SetActive(false);
                 Destroy(entry.gameObject);
             }
             _menuEntries.Clear();
@@ -274,8 +289,80 @@ namespace UPlayGround.UI
 
                 entry.Init(type);
                 entry.OnToggleRequested += OnEntryToggleRequested;
+                entry.OnFocusRequested += OnEntryFocused;
                 _menuEntries.Add(entry);
             }
+        }
+
+        private void RebuildNavigation()
+        {
+            var menu = new List<Selectable>();
+            foreach (UIPartyMenuEntry entry in _menuEntries)
+            {
+                if (entry != null && entry.Selectable != null)
+                    menu.Add(entry.Selectable);
+            }
+            UIFocusNavigation.ConfigureVertical(menu);
+
+            var battle = new List<Selectable>();
+            foreach (UIPartyBattleEntry entry in _partyBattleEntries)
+            {
+                if (entry != null
+                    && entry.BoundType != CharacterActorType.None
+                    && entry.Selectable != null)
+                {
+                    battle.Add(entry.Selectable);
+                }
+            }
+            UIFocusNavigation.ConfigureHorizontal(battle);
+
+            var actions = new Selectable[]
+            {
+                _autoOrganizationButton,
+                _disbandBattleButton,
+                _disbandPartyButton,
+                _saveButton,
+                _closeButton
+            };
+            UIFocusNavigation.ConfigureHorizontal(actions);
+
+            Selectable firstBattle = battle.Count > 0 ? battle[0] : null;
+            Selectable firstAction = UIFocusNavigation.FirstNavigable(actions);
+            foreach (Selectable entry in menu)
+            {
+                Navigation navigation = entry.navigation;
+                navigation.selectOnRight = firstBattle ?? firstAction;
+                entry.navigation = navigation;
+            }
+
+            foreach (Selectable entry in battle)
+            {
+                Navigation navigation = entry.navigation;
+                navigation.selectOnLeft = menu.Count > 0 ? menu[0] : null;
+                navigation.selectOnDown = firstAction;
+                entry.navigation = navigation;
+            }
+
+            foreach (Selectable action in actions)
+            {
+                if (action == null)
+                    continue;
+                Navigation navigation = action.navigation;
+                navigation.selectOnUp = firstBattle ?? (menu.Count > 0 ? menu[0] : null);
+                action.navigation = navigation;
+            }
+
+            Selectable initial = null;
+            foreach (UIPartyMenuEntry entry in _menuEntries)
+            {
+                if (entry != null && entry.Type == _selectedType)
+                {
+                    initial = entry.Selectable;
+                    break;
+                }
+            }
+            initial ??= menu.Count > 0 ? menu[0] : firstBattle ?? firstAction;
+            SetDefaultFocus(initial, IsVisible);
         }
 
         private void RefreshCounts()

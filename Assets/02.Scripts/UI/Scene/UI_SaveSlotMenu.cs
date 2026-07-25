@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.UI;
 using UPlayGround.Manager;
@@ -195,6 +196,8 @@ namespace UPlayGround.UI
                 if (row.deleteButton != null)
                     row.deleteButton.gameObject.SetActive(hasSave);
             }
+
+            RebuildNavigation();
         }
 
         /// <summary>
@@ -260,6 +263,61 @@ namespace UPlayGround.UI
 
                 UpdateStaticSlotLabels(row, slot);
             }
+        }
+
+        private void RebuildNavigation()
+        {
+            var primaryButtons = new List<Selectable>();
+            for (int i = 0; i < _activeRows.Count; i++)
+            {
+                SlotRow row = _activeRows[i];
+                if (row?.selectButton != null && row.selectButton.IsInteractable())
+                    primaryButtons.Add(row.selectButton);
+            }
+
+            UIFocusNavigation.ConfigureVertical(primaryButtons);
+
+            for (int i = 0; i < _activeRows.Count; i++)
+            {
+                SlotRow row = _activeRows[i];
+                if (row == null || row.selectButton == null || !row.selectButton.IsInteractable())
+                    continue;
+
+                Button delete = row.deleteButton;
+                if (delete != null && delete.gameObject.activeInHierarchy && delete.IsInteractable())
+                {
+                    Navigation selectNavigation = row.selectButton.navigation;
+                    selectNavigation.selectOnRight = delete;
+                    row.selectButton.navigation = selectNavigation;
+
+                    Navigation deleteNavigation = delete.navigation;
+                    deleteNavigation.mode = Navigation.Mode.Explicit;
+                    deleteNavigation.selectOnLeft = row.selectButton;
+                    deleteNavigation.selectOnRight = null;
+                    deleteNavigation.selectOnUp = FindDeleteButton(i, -1);
+                    deleteNavigation.selectOnDown = FindDeleteButton(i, 1);
+                    delete.navigation = deleteNavigation;
+                }
+            }
+
+            Selectable first = primaryButtons.Count > 0
+                ? primaryButtons[0]
+                : UIFocusNavigation.FirstNavigable(_closeButtonAlt, _closeButton);
+            SetDefaultFocus(first, IsVisible);
+        }
+
+        private Selectable FindDeleteButton(int startIndex, int direction)
+        {
+            for (int i = startIndex + direction;
+                 i >= 0 && i < _activeRows.Count;
+                 i += direction)
+            {
+                Button candidate = _activeRows[i]?.deleteButton;
+                if (UIFocusNavigation.IsNavigable(candidate))
+                    return candidate;
+            }
+
+            return null;
         }
 
         private void ResolveTemplate()

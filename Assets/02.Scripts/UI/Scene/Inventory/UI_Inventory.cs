@@ -289,10 +289,88 @@ namespace UPlayGround.UI
             var first = _uiSlots[0];
             if (first == null || !first.HasItem) return;
 
+            RebuildItemNavigation();
+            SetDefaultFocus(first.Selectable);
+
             // 같은 슬롯이 이전 선택으로 남아 있으면 OnSelect가 다시 호출되지 않을 수 있어 한 번 해제 후 지정한다.
             EventSystem.current.SetSelectedGameObject(null);
             EventSystem.current.SetSelectedGameObject(first.gameObject);
             first.SetFocus(true);
+        }
+
+        private void RebuildItemNavigation()
+        {
+            int columns = _itemGrid != null
+                ? Mathf.Max(1, _itemGrid.constraintCount)
+                : 1;
+            List<Selectable> selectables = _uiSlots
+                .Where(slot => slot != null && slot.HasItem && slot.Selectable != null)
+                .Select(slot => slot.Selectable)
+                .ToList();
+            UIFocusNavigation.ConfigureGrid(selectables, columns);
+
+            var tabs = new List<Selectable>();
+            if (_tabGroup != null)
+            {
+                for (int i = 0; i < _tabGroup.TabCount; i++)
+                {
+                    Button button = _tabGroup.GetTab(i)?.Button;
+                    if (button != null)
+                        tabs.Add(button);
+                }
+                UIFocusNavigation.ConfigureHorizontal(tabs);
+            }
+
+            var actions = new List<Selectable>
+            {
+                _useButton?.Button,
+                _equipButton?.Button,
+                _dropButton?.Button,
+                _sortDropdown,
+                _sortButton?.Button,
+                _btnClose
+            };
+            if (_quickSlotButtons != null)
+            {
+                foreach (UICommonButton button in _quickSlotButtons)
+                    if (button?.Button != null)
+                        actions.Add(button.Button);
+            }
+            UIFocusNavigation.ConfigureVertical(actions);
+
+            Selectable firstItem = selectables.Count > 0 ? selectables[0] : null;
+            Selectable firstTab = tabs.Count > 0 ? tabs[0] : null;
+            Selectable firstAction = UIFocusNavigation.FirstNavigable(actions.ToArray());
+
+            foreach (Selectable tab in tabs)
+            {
+                Navigation navigation = tab.navigation;
+                navigation.selectOnDown = firstItem ?? firstAction;
+                tab.navigation = navigation;
+            }
+
+            for (int i = 0; i < selectables.Count; i++)
+            {
+                Navigation navigation = selectables[i].navigation;
+                if (i < columns)
+                    navigation.selectOnUp = firstTab;
+                if (navigation.selectOnRight == null)
+                    navigation.selectOnRight = firstAction;
+                if (navigation.selectOnDown == null)
+                    navigation.selectOnDown = firstAction;
+                selectables[i].navigation = navigation;
+            }
+
+            foreach (Selectable action in actions)
+            {
+                if (action == null)
+                    continue;
+                Navigation navigation = action.navigation;
+                navigation.selectOnLeft = firstItem;
+                action.navigation = navigation;
+            }
+
+            SetDefaultFocus(firstItem ?? firstTab ?? firstAction, IsVisible);
         }
 
         public override bool PerformBackFunction()
@@ -698,6 +776,7 @@ namespace UPlayGround.UI
             if (items == null || items.Count == 0)
             {
                 ClearSelectedItemDetail();
+                RebuildItemNavigation();
                 return;
             }
 
@@ -716,12 +795,14 @@ namespace UPlayGround.UI
                         continue;
 
                     ShowSelectedItemDetail(inst.data, inst.count, inst.inventorySlotKey);
+                    RebuildItemNavigation();
                     return;
                 }
             }
 
             var first = items[0];
             ShowSelectedItemDetail(first.data, first.count, first.inventorySlotKey);
+            RebuildItemNavigation();
         }
 
         private void AddSlot(int count)
@@ -820,6 +901,7 @@ namespace UPlayGround.UI
             float cellSize = Mathf.Max(72f, Mathf.Floor((usableWidth - horizontalSpacing) / columns));
             _itemGrid.constraintCount = columns;
             _itemGrid.cellSize = new Vector2(cellSize, cellSize);
+            RebuildItemNavigation();
         }
 
         public void ShowSelectedItemDetail(ItemSO itemData, int count, int inventorySlotKey = -1)

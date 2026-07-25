@@ -87,6 +87,9 @@ namespace UPlayGround.Editor
             ("게임플레이 / 전투", new[]
             {
                 Tool("Ability 에디터",                    "UPlayGround/게임플레이/Ability Editor", "플레이어 AbilitySet과 Ability를 편집합니다.", "플레이어 공격·스킬·차지·교체 공격 데이터를 AbilitySetSO 중심으로 조정하고 검증합니다."),
+                Tool("Ability 양산화 Wizard",             "UPlayGround/게임플레이/Ability Production Wizard", "공용 Base Set과 특수 파생 Set을 구성합니다.", "선택 Ability를 공용 AbilitySet으로 묶고 특수 몬스터의 Replace·Add·Remove Override를 Preview 후 생성합니다. 신규 Ability가 필요하면 6종 레시피 보조 흐름을 사용합니다."),
+                Tool("Ability 제작 검증 대시보드",       "UPlayGround/게임플레이/Ability Production Dashboard", "Motion·복제·검증·밸런스 피드백을 한 창에서 확인합니다.", "MotionEvent와 HitPhase 비교, 안전 Fork, 공유 영향 분석, TaskGraph 검증, 정적·실측·Replay·Snapshot 비교를 제공합니다."),
+                Tool("Ability Runtime Sandbox",           "UPlayGround/게임플레이/Ability Runtime Sandbox", "선택 Ability의 ASC 수직 슬라이스를 Play Mode에서 실행합니다.", "실제 Actor 프리팹을 임시 생성해 ActorAbilitySystem Prepare, Commit, End 경로와 종료 후 Task/Effect 잔류 상태를 확인합니다."),
                 Tool("전투 데이터 검증기",           "UPlayGround/게임플레이/전투/도구/데이터 검증기", "전투 데이터 정합성을 검사합니다.", "공격 데이터, 충돌 이벤트, 전투 정책 등 전투 관련 에셋 연결 누락과 위험값을 검증합니다."),
                 Tool("전투 로그 기록기",             "UPlayGround/게임플레이/전투/도구/전투 로그 기록기", "전투 로그를 기록/확인합니다.", "플레이 중 전투 판정과 의사결정 로그를 수집해 밸런스와 버그 재현에 사용합니다."),
                 Tool("프레임 데이터 테이블",          "UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블", "전 공격의 선딜/액티브/후딜·데미지를 한 테이블로 봅니다.", "MotionSet의 Collision/ComboWindow 이벤트와 Ability Payload를 합산해 격투게임식 프레임 데이터를 만듭니다. 정렬/CSV 내보내기와 페이즈 불일치 하이라이트를 지원합니다."),
@@ -158,6 +161,7 @@ namespace UPlayGround.Editor
             ("내러티브 / 대화", new[]
             {
                 Tool("대화 그래프 에디터",           "UPlayGround/내러티브/대화/대화 그래프 에디터", "대화 그래프를 편집합니다.", "DialogueGraphSO와 노드 기반 대화 흐름을 편집하는 스토리/대화 도구입니다."),
+                Tool("대화 고도화 셋업",           "UPlayGround/내러티브/대화/대화 고도화 셋업", "대화 재생 제어·이력·인라인 색상 배선을 일괄 처리합니다.", "DialoguePalette SO 생성과 Addressables 등록, 컨트롤 바/이력 프리팹 초안 생성, UIPrefabDatabase 키 등록, UIKeyType 재생성, 기존 대화 프리팹의 DialogueTypewriter 배선, 설정 메뉴 재생성을 한 번에 수행합니다. 재실행 가능합니다."),
                 Tool("화자 액터 바인딩 생성기",           "UPlayGround/내러티브/대화/화자 액터 바인딩 생성기", "대화 화자와 액터 바인딩 테이블을 생성합니다.", "DialogueGraph의 speaker 정보를 씬/Actor 데이터와 연결하기 위한 바인딩 데이터를 만듭니다."),
             }),
             ("콘텐츠 / 도감", new[]

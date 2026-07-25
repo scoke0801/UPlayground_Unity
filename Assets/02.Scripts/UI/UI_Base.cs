@@ -194,11 +194,29 @@ namespace UPlayGround.UI
 
             if (BlocksLowerInput || RequiresCursorVisible)
             {
-                _focusScope ??= GetComponent<UIFocusScope>();
-                if (_focusScope == null)
-                    _focusScope = gameObject.AddComponent<UIFocusScope>();
+                EnsureFocusScope();
                 _focusScope.ActivateScope();
             }
+        }
+
+        /// <summary>
+        /// 파생 UI가 화면 의미에 맞는 초기 포커스를 명시한다.
+        /// Show의 OnShow 단계에서 호출해도 이후 ActivateScope가 이 값을 사용한다.
+        /// </summary>
+        protected void SetDefaultFocus(Selectable selectable, bool ensureSelection = false)
+        {
+            if (selectable == null)
+                return;
+
+            EnsureFocusScope();
+            _focusScope.SetDefaultSelectable(selectable, ensureSelection);
+        }
+
+        private void EnsureFocusScope()
+        {
+            _focusScope ??= GetComponent<UIFocusScope>();
+            if (_focusScope == null)
+                _focusScope = gameObject.AddComponent<UIFocusScope>();
         }
 
         /// <summary>

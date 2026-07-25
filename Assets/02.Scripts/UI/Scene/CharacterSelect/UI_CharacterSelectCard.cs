@@ -1,6 +1,7 @@
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
 
@@ -10,7 +11,10 @@ namespace UPlayGround.UI
     /// 신규 게임 캐릭터 선택 화면의 캐릭터 카드.
     /// 선택/비선택 상태를 DOTween 트윈(스케일·이동·글로우 프레임·dim)으로 표현한다.
     /// </summary>
-    public class UI_CharacterSelectCard : MonoBehaviour
+    public class UI_CharacterSelectCard : MonoBehaviour,
+        ISelectHandler,
+        IDeselectHandler,
+        IUIFocusPresentation
     {
         [Header("References")]
         [SerializeField] private Button _button;
@@ -38,6 +42,9 @@ namespace UPlayGround.UI
         public CharacterActorType CharacterType => _characterType;
         public int Index => _index;
         public bool IsLocked => _locked;
+        public Selectable Selectable => _button;
+        public bool SuppressGlobalFocusIndicator => true;
+        public RectTransform GlobalFocusIndicatorTarget => null;
 
         private void Awake()
         {
@@ -147,6 +154,20 @@ namespace UPlayGround.UI
         {
             if (_locked) return;
             _parent?.OnCardClicked(_index);
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            if (_locked)
+                return;
+
+            _parent?.OnCardFocused(_index);
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            // 선택 캐릭터는 시작 버튼으로 이동한 뒤에도 유지돼야 한다.
+            // 다른 카드로 포커스가 이동하면 부모의 SelectIndex가 기존 카드를 해제한다.
         }
 
         private void OnDestroy()

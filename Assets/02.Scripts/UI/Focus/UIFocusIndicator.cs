@@ -7,6 +7,24 @@ using UnityEngine.UI;
 namespace UPlayGround.UI
 {
     /// <summary>
+    /// EventSystem 포커스의 시각 표현을 각 UI가 소유할 수 있게 하는 계약.
+    /// 구현이 없으면 <see cref="UIFocusIndicator"/>의 공통 fallback 테두리를 사용한다.
+    /// </summary>
+    public interface IUIFocusPresentation
+    {
+        /// <summary>
+        /// true이면 UI 자체의 OnSelect/OnDeselect 표현을 사용하고 전역 테두리는 숨긴다.
+        /// </summary>
+        bool SuppressGlobalFocusIndicator { get; }
+
+        /// <summary>
+        /// 전역 fallback을 유지하면서 다른 RectTransform을 감싸야 할 때 지정한다.
+        /// null이면 EventSystem이 선택한 RectTransform을 그대로 사용한다.
+        /// </summary>
+        RectTransform GlobalFocusIndicatorTarget { get; }
+    }
+
+    /// <summary>
     /// 게임패드로 현재 무엇이 선택돼 있는지 보여주는 전역 포커스 표시기.
     ///
     /// 왜 필요한가: 프로젝트 UI 버튼은 Unity 기본 ColorBlock을 그대로 쓰고 있어
@@ -42,6 +60,9 @@ namespace UPlayGround.UI
         private CanvasGroup _group;
         private GameObject _tracked;
         private bool _hasPose;
+        private GameObject _presentationSelection;
+        private bool _suppressForPresentation;
+        private RectTransform _presentationTarget;
 
         private void Awake()
         {
@@ -162,7 +183,44 @@ namespace UPlayGround.UI
             if (selectable != null && !selectable.IsInteractable())
                 return null;
 
-            return selected.transform as RectTransform;
+            ResolvePresentation(selected);
+            if (_suppressForPresentation)
+                return null;
+
+            return _presentationTarget != null
+                ? _presentationTarget
+                : selected.transform as RectTransform;
+        }
+
+        /// <summary>
+        /// 선택 오브젝트 또는 부모가 자체 포커스 표현을 제공하면 그 정책을 따른다.
+        /// 같은 선택을 추적하는 동안에는 컴포넌트 탐색 결과를 재사용한다.
+        /// </summary>
+        private void ResolvePresentation(GameObject selected)
+        {
+            if (_presentationSelection == selected)
+                return;
+
+            _presentationSelection = selected;
+            _suppressForPresentation = false;
+            _presentationTarget = null;
+
+            Transform current = selected.transform;
+            while (current != null)
+            {
+                MonoBehaviour[] behaviours = current.GetComponents<MonoBehaviour>();
+                for (int i = 0; i < behaviours.Length; i++)
+                {
+                    if (behaviours[i] is not IUIFocusPresentation presentation)
+                        continue;
+
+                    _suppressForPresentation = presentation.SuppressGlobalFocusIndicator;
+                    _presentationTarget = presentation.GlobalFocusIndicatorTarget;
+                    return;
+                }
+
+                current = current.parent;
+            }
         }
 
         /// <summary>선택 대상의 rect를 표시기 부모 좌표계로 옮긴다.</summary>

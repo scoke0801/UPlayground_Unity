@@ -68,6 +68,7 @@ namespace UPlayGround.Manager
 
             DisposeDeviceDetection();
             OnBindingsChanged = null;
+            OnBindingStructureChanged = null;
             OnRebindCaptureChanged = null;
 
             startCallbackDict.Clear();

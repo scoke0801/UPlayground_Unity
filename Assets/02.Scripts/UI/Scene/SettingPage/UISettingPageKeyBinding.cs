@@ -79,6 +79,7 @@ namespace UPlayGround.UI
 
         private RectTransform _railContent;
         private RectTransform _listContent;
+        private RectTransform _detailPanel;
         private UIKeyBindingDetail _detail;
         private ScrollRect _listScroll;
 
@@ -93,6 +94,14 @@ namespace UPlayGround.UI
         private readonly HashSet<InputBindingTarget> _pendingClears = new();
         private readonly HashSet<string> _pendingActionResets = new();
         private readonly HashSet<InputBindingTarget> _replaceApprovedTargets = new();
+
+        // 게임패드 내비게이션 배선용. 열마다 세로 체인을 만들고 좌우로 열을 넘나든다.
+        private readonly List<Selectable> _navRail = new();
+        private readonly List<Selectable> _navRows = new();
+        private readonly List<Selectable> _navDetail = new();
+        private Selectable _navUpNeighbor;
+        private Selectable _navDownNeighbor;
+        private bool _navConfigured;
 
         private UIKeyBindingRow _selectedRow;
         private string _selectedMap;
@@ -342,6 +351,7 @@ namespace UPlayGround.UI
         {
             RectTransform panel = UGuiFactory.NewRect("Detail", parent);
             UGuiFactory.SetSize(panel.gameObject, minW: DetailWidth, prefW: DetailWidth, flexH: 1f);
+            _detailPanel = panel;
 
             VerticalLayoutGroup layout = UGuiFactory.AddVLG(panel.gameObject, spacing: 10f, padding: 0);
             layout.childForceExpandHeight = false;
@@ -392,6 +402,148 @@ namespace UPlayGround.UI
 
         #endregion
 
+        #region 게임패드 내비게이션
+
+        /// <summary>
+        /// 카테고리 레일 · 바인딩 목록 · 상세 패널을 각각 세로 체인으로 묶고,
+        /// 좌우 입력으로 열 사이를 넘어가게 배선한다. 계층 순서를 그대로 한 줄로 이으면
+        /// 레일 끝에서 목록 첫 행으로 떨어져 세 패널을 오갈 수 없다.
+        /// </summary>
+        public override bool TryConfigureNavigation(
+            Selectable upNeighbor,
+            Selectable downNeighbor,
+            out Selectable entry,
+            out Selectable exit)
+        {
+            entry = null;
+            exit = null;
+            if (!_built)
+                return false;
+
+            _navUpNeighbor = upNeighbor;
+            _navDownNeighbor = downNeighbor;
+            _navConfigured = true;
+            RebuildPageNavigation();
+
+            // 탭에서 내려오면 레일로 들어오고, 하단 버튼에서 올라가면 목록으로 돌아간다.
+            entry = FirstOf(_navRail) ?? FirstOf(_navRows) ?? FirstOf(_navDetail);
+            exit = SelectedRowSelectable() ?? FirstOf(_navRows) ?? entry;
+            return entry != null;
+        }
+
+        private void RebuildPageNavigation()
+        {
+            if (!_navConfigured)
+                return;
+
+            CollectColumn(_navRail, _railButtons);
+
+            _navRows.Clear();
+            for (int i = 0; i < _rows.Count; i++)
+            {
+                Selectable selectable = _rows[i] != null ? _rows[i].Selectable : null;
+                if (UIFocusNavigation.IsNavigable(selectable))
+                    _navRows.Add(selectable);
+            }
+
+            _navDetail.Clear();
+            if (_detailPanel != null)
+                CollectColumn(_navDetail, _detailPanel.GetComponentsInChildren<Selectable>(false));
+
+            UIFocusNavigation.ConfigureVertical(_navRail);
+            UIFocusNavigation.ConfigureVertical(_navRows);
+            UIFocusNavigation.ConfigureVertical(_navDetail);
+
+            LinkColumnEnds(_navRail);
+            LinkColumnEnds(_navRows);
+            LinkColumnEnds(_navDetail);
+
+            RefreshCrossColumnNavigation();
+        }
+
+        private static void CollectColumn<T>(List<Selectable> target, IReadOnlyList<T> source)
+            where T : Selectable
+        {
+            target.Clear();
+            for (int i = 0; i < source.Count; i++)
+            {
+                if (UIFocusNavigation.IsNavigable(source[i]))
+                    target.Add(source[i]);
+            }
+        }
+
+        // 열의 위/아래 끝은 페이지 바깥(탭, 하단 버튼)으로 이어 붙인다.
+        private void LinkColumnEnds(List<Selectable> column)
+        {
+            if (column.Count == 0)
+                return;
+
+            Navigation first = column[0].navigation;
+            first.selectOnUp = _navUpNeighbor;
+            column[0].navigation = first;
+
+            Navigation last = column[^1].navigation;
+            last.selectOnDown = _navDownNeighbor;
+            column[^1].navigation = last;
+        }
+
+        /// <summary>
+        /// 열 사이 좌우 연결만 갱신한다. 선택된 행/카테고리가 바뀔 때마다 호출해
+        /// 열을 넘어갈 때 "지금 보고 있던 위치"로 들어가게 한다.
+        /// </summary>
+        private void RefreshCrossColumnNavigation()
+        {
+            if (!_navConfigured)
+                return;
+
+            Selectable railTarget = SelectedRailSelectable() ?? FirstOf(_navRail);
+            Selectable rowTarget = SelectedRowSelectable() ?? FirstOf(_navRows);
+            Selectable detailTarget = FirstOf(_navDetail);
+
+            SetHorizontalTargets(_navRail, null, rowTarget ?? detailTarget);
+            SetHorizontalTargets(_navRows, railTarget, detailTarget);
+            SetHorizontalTargets(_navDetail, rowTarget ?? railTarget, null);
+        }
+
+        private static void SetHorizontalTargets(
+            List<Selectable> column,
+            Selectable left,
+            Selectable right)
+        {
+            for (int i = 0; i < column.Count; i++)
+            {
+                Navigation navigation = column[i].navigation;
+                navigation.selectOnLeft = left;
+                navigation.selectOnRight = right;
+                column[i].navigation = navigation;
+            }
+        }
+
+        private Selectable SelectedRowSelectable()
+        {
+            Selectable selectable = _selectedRow != null ? _selectedRow.Selectable : null;
+            return UIFocusNavigation.IsNavigable(selectable) ? selectable : null;
+        }
+
+        private Selectable SelectedRailSelectable()
+        {
+            for (int i = 0; i < _railCategories.Count && i < _railButtons.Count; i++)
+            {
+                if (_railCategories[i].Equals(_category)
+                    && UIFocusNavigation.IsNavigable(_railButtons[i]))
+                {
+                    return _railButtons[i];
+                }
+            }
+
+            return null;
+        }
+
+        private static Selectable FirstOf(List<Selectable> column) =>
+            column.Count > 0 ? column[0] : null;
+
+        #endregion
+
         #region 목록 갱신
 
         private void SelectCategory(InputBindingCategory? category)
@@ -435,6 +587,10 @@ namespace UPlayGround.UI
             if (TryRefreshExistingRows())
             {
                 PushSelectionToDetail();
+
+                // 행 구조는 그대로지만 상세 패널의 본문·충돌 버튼이 켜지고 꺼지므로
+                // 상세 열은 매번 다시 수집한다.
+                RebuildPageNavigation();
                 return;
             }
 
@@ -470,6 +626,9 @@ namespace UPlayGround.UI
 
             RestoreSelection();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_listContent);
+
+            // 행 인스턴스가 통째로 바뀌었으므로 내비게이션 참조도 다시 잡아야 한다.
+            RebuildPageNavigation();
         }
 
         private bool TryRefreshExistingRows()
@@ -701,6 +860,9 @@ namespace UPlayGround.UI
             row.SetSelectedVisual(true);
 
             PushSelectionToDetail();
+
+            // 상세/레일에서 목록으로 되돌아올 때 방금 고른 행으로 들어오게 한다.
+            RefreshCrossColumnNavigation();
         }
 
         private void RestoreSelection()
@@ -857,12 +1019,16 @@ namespace UPlayGround.UI
                 _detail?.SetConflictMessage(
                     $"“{conflict.ExistingDisplayName}”은 필수 키라 대체할 수 없습니다.{subset}",
                     allowReplace: false);
+                RebuildPageNavigation();
                 return;
             }
 
             _detail?.SetConflictMessage(
                 $"이미 “{conflict.ExistingDisplayName}”에서 사용 중입니다.{subset} 대체할까요?",
                 allowReplace: true);
+
+            // 대체/취소 버튼이 나타나 상세 열의 구성이 바뀌었다.
+            RebuildPageNavigation();
         }
 
         /// <summary>상세 패널의 대체/취소 선택을 처리한다.</summary>
@@ -881,6 +1047,7 @@ namespace UPlayGround.UI
                 "충돌 대체가 승인되었습니다. 하단 적용을 다시 눌러 확정하세요.",
                 null);
             RefreshRows();
+            RebuildPageNavigation();
             RestoreKeyPageFocus();
         }
 
@@ -894,6 +1061,7 @@ namespace UPlayGround.UI
             _pendingConflictCapture = default;
             _detail?.SetCaptureState(false, null, null);
             RefreshRows();
+            RebuildPageNavigation();
             RestoreKeyPageFocus();
         }
 

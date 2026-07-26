@@ -134,47 +134,62 @@ namespace UPlayGround.UI
             }
             UIFocusNavigation.ConfigureHorizontal(tabs);
 
-            Selectable[] pageControls = _currentPage != null
-                ? _currentPage.GetComponentsInChildren<Selectable>(false)
-                : System.Array.Empty<Selectable>();
-            UIFocusNavigation.ConfigureVertical(pageControls);
-
             var footer = new Selectable[] { _btnReset, _btnCancel, _btnApply, _btnClose };
             UIFocusNavigation.ConfigureHorizontal(footer);
-
-            Selectable firstPage = UIFocusNavigation.FirstNavigable(pageControls);
             Selectable firstFooter = UIFocusNavigation.FirstNavigable(footer);
+
+            Selectable selectedTab = selectedTabIndex >= 0 && selectedTabIndex < tabs.Count
+                ? tabs[selectedTabIndex]
+                : tabs.Count > 0 ? tabs[0] : null;
+
+            // 키 설정처럼 여러 열로 나뉜 페이지는 계층 순서의 단일 세로 체인으로 배선할 수
+            // 없으므로 페이지 스스로 배선하게 하고, 여기서는 진입/복귀 지점만 받는다.
+            Selectable firstPage;
+            Selectable lastPage;
+            if (_currentPage != null
+                && _currentPage.TryConfigureNavigation(
+                    selectedTab, firstFooter, out Selectable entry, out Selectable exit))
+            {
+                firstPage = entry;
+                lastPage = exit;
+            }
+            else
+            {
+                Selectable[] pageControls = _currentPage != null
+                    ? _currentPage.GetComponentsInChildren<Selectable>(false)
+                    : System.Array.Empty<Selectable>();
+                UIFocusNavigation.ConfigureVertical(pageControls);
+
+                firstPage = UIFocusNavigation.FirstNavigable(pageControls);
+                lastPage = null;
+                for (int i = pageControls.Length - 1; i >= 0; i--)
+                {
+                    if (UIFocusNavigation.IsNavigable(pageControls[i]))
+                    {
+                        lastPage = pageControls[i];
+                        break;
+                    }
+                }
+
+                if (firstPage != null)
+                {
+                    Navigation navigation = firstPage.navigation;
+                    navigation.selectOnUp = selectedTab;
+                    firstPage.navigation = navigation;
+                }
+                if (lastPage != null)
+                {
+                    Navigation navigation = lastPage.navigation;
+                    navigation.selectOnDown = firstFooter;
+                    lastPage.navigation = navigation;
+                }
+            }
+
             foreach (Selectable tab in tabs)
             {
                 Navigation navigation = tab.navigation;
                 navigation.selectOnDown = firstPage ?? firstFooter;
                 tab.navigation = navigation;
-            }
-
-            Selectable selectedTab = selectedTabIndex >= 0 && selectedTabIndex < tabs.Count
-                ? tabs[selectedTabIndex]
-                : tabs.Count > 0 ? tabs[0] : null;
-            Selectable lastPage = null;
-            for (int i = pageControls.Length - 1; i >= 0; i--)
-            {
-                if (UIFocusNavigation.IsNavigable(pageControls[i]))
-                {
-                    lastPage = pageControls[i];
-                    break;
-                }
-            }
-
-            if (firstPage != null)
-            {
-                Navigation navigation = firstPage.navigation;
-                navigation.selectOnUp = selectedTab;
-                firstPage.navigation = navigation;
-            }
-            if (lastPage != null)
-            {
-                Navigation navigation = lastPage.navigation;
-                navigation.selectOnDown = firstFooter;
-                lastPage.navigation = navigation;
             }
 
             foreach (Selectable button in footer)

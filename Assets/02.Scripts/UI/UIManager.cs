@@ -39,6 +39,7 @@ namespace UPlayGround.Manager
         private GameObject  _uiRootInstance;
         private EventSystem _eventSystem;
         private readonly List<InputActionReference> _uiInputActionReferences = new();
+        private bool _bindingStructureSubscribed;
 
         private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
 
@@ -88,6 +89,8 @@ namespace UPlayGround.Manager
             {
                 if (ui != null) Destroy(ui);
             }
+
+            UnsubscribeBindingStructureChanged();
 
             _activeUIObjects.Clear();
             _activeUIComponents.Clear();
@@ -372,7 +375,32 @@ namespace UPlayGround.Manager
             }
 
             ConfigureProjectUIInputActions();
+            SubscribeBindingStructureChanged();
             RemoveDuplicateEventSystems();
+        }
+
+        /// <summary>
+        /// 바인딩 구조가 바뀌면 InputActionState가 재생성되고, InputSystemUIInputModule이
+        /// 캐시한 액션 참조가 무효화된다(EventSystem.Update의 FetchMapIndices에서 maps가
+        /// null이 되며 ArgumentNullException). 구조 변경 알림을 받아 다시 붙인다.
+        /// </summary>
+        private void SubscribeBindingStructureChanged()
+        {
+            if (_bindingStructureSubscribed || Svc.Input == null)
+                return;
+
+            Svc.Input.OnBindingStructureChanged += ConfigureProjectUIInputActions;
+            _bindingStructureSubscribed = true;
+        }
+
+        private void UnsubscribeBindingStructureChanged()
+        {
+            if (!_bindingStructureSubscribed)
+                return;
+
+            if (Svc.Input != null)
+                Svc.Input.OnBindingStructureChanged -= ConfigureProjectUIInputActions;
+            _bindingStructureSubscribed = false;
         }
 
         private void ConfigureProjectUIInputActions()

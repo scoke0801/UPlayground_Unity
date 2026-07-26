@@ -24,7 +24,23 @@ namespace UPlayGround.Manager
         // 마지막으로 실제 반영한 프로필의 직렬화 결과. 같은 내용이면 재적용을 통째로 건너뛴다.
         private string _appliedProfileJson;
 
+        // 이번 ApplyBindingProfile에서 조합 슬롯이 새로 만들어졌는지.
+        private bool _bindingStructureChanged;
+
         public event Action OnBindingsChanged;
+
+        /// <summary>
+        /// 바인딩 <b>구조</b>가 바뀌었을 때 발생한다(조합 슬롯 신규 생성).
+        ///
+        /// 구조가 바뀌면 InputActionState가 재생성되므로, <c>InputAction</c>이나
+        /// <c>InputActionReference</c>를 캐시하는 쪽은 반드시 다시 붙어야 한다.
+        /// 대표적으로 <c>InputSystemUIInputModule</c>이 그렇고, 다시 붙지 않으면
+        /// 다음 EventSystem.Update의 FetchMapIndices에서 maps가 null이 되어
+        /// ArgumentNullException으로 죽는다.
+        ///
+        /// 새로 InputAction 참조를 캐시하는 컴포넌트를 만들면 여기에 반드시 구독한다.
+        /// </summary>
+        public event Action OnBindingStructureChanged;
 
         /// <summary>
         /// 여러 프로필 변경을 하나의 액션 맵 재적용과 변경 알림으로 묶는다.
@@ -524,6 +540,7 @@ namespace UPlayGround.Manager
             // 그대로 갖고 있다. 이때만 에셋 전체를 훑어 모든 슬롯을 무력화한다.
             bool sweepAll = !_bindingProfileEverApplied;
 
+            _bindingStructureChanged = false;
             var reEnableTargets = new List<InputActionMap>();
 
             try
@@ -574,6 +591,13 @@ namespace UPlayGround.Manager
 
             // effective binding이 바뀌었으므로 조합 카탈로그와 진행 중 중재 상태를 다시 만든다.
             RebuildChordCatalog();
+
+            // 구조가 바뀐 경우에만 알린다. 액션 참조를 캐시한 쪽이 다시 붙어야 한다.
+            if (_bindingStructureChanged)
+            {
+                _bindingStructureChanged = false;
+                OnBindingStructureChanged?.Invoke();
+            }
         }
 
         private void ApplyProfileEntry(InputBindingOverrideEntry entry)
@@ -595,21 +619,12 @@ namespace UPlayGround.Manager
                 if (entry.disabled)
                     return;
 
-                if (!TryGetUserBindingSlot(
-                        action,
-                        entry.deviceGroup,
-                        entry.slot,
-                        out int singleIndex,
-                        out int compositeIndex,
-                        out int modifierIndex,
-                        out int triggerIndex))
+                int singleIndex = FindUserSingleSlot(action, entry.deviceGroup, entry.slot);
+                if (singleIndex < 0)
                 {
-                    // 슬롯은 Init에서 전부 만들어져 있어야 한다. 여기서 추가하면 에셋 구조가
-                    // 바뀌어 InputActionState가 재생성되고, PlayerInputActions/UI 액션을 참조하는
-                    // InputSystemUIInputModule의 캐시가 무효화된다(EventSystem.Update에서
-                    // FetchMapIndices의 maps가 null이 되며 ArgumentNullException).
+                    // 단일 슬롯은 Init에서 전부 만들어져 있어야 한다.
                     Debug.LogError(
-                        $"[InputManager] 사용자 바인딩 슬롯이 없습니다: " +
+                        $"[InputManager] 사용자 단일 바인딩 슬롯이 없습니다: " +
                         $"{entry.mapName}/{entry.actionName}/{entry.deviceGroup}/{entry.slot}. " +
                         "EnsureAllUserBindingSlots가 Init에서 실행됐는지 확인하세요.");
                     return;
@@ -617,6 +632,25 @@ namespace UPlayGround.Manager
 
                 if (entry.isComposite)
                 {
+                    // 조합 슬롯은 실제로 조합키가 지정될 때만 만든다. 이 시점은
+                    // ApplyBindingProfile의 disable 구간 안이므로 구조 변경이 안전하다.
+                    if (EnsureChordSlot(action, entry.deviceGroup, entry.slot))
+                        _bindingStructureChanged = true;
+
+                    if (!TryGetUserChordSlot(
+                            action,
+                            entry.deviceGroup,
+                            entry.slot,
+                            out int compositeIndex,
+                            out int modifierIndex,
+                            out int triggerIndex))
+                    {
+                        Debug.LogError(
+                            $"[InputManager] 조합 바인딩 슬롯 생성에 실패했습니다: " +
+                            $"{entry.mapName}/{entry.actionName}/{entry.deviceGroup}/{entry.slot}.");
+                        return;
+                    }
+
                     action.ApplyBindingOverride(singleIndex, string.Empty);
                     action.RemoveBindingOverride(compositeIndex);
                     action.ApplyBindingOverride(modifierIndex, entry.modifierPath);
@@ -626,13 +660,23 @@ namespace UPlayGround.Manager
                 {
                     action.ApplyBindingOverride(singleIndex, entry.controlPath);
 
+                    // 조합 슬롯이 아직 없으면 비울 것도 없다. 있으면 무력화한다.
                     // composite 루트의 path는 컴포지트 타입 이름("OneModifier")이다.
                     // 빈 문자열로 덮으면 InstantiateBindingComposite가
                     // "No binding composite with name '' has been registered"로 던진다.
                     // 루트는 원본으로 되돌리고, part만 비워 무력화한다.
-                    action.RemoveBindingOverride(compositeIndex);
-                    action.ApplyBindingOverride(modifierIndex, string.Empty);
-                    action.ApplyBindingOverride(triggerIndex, string.Empty);
+                    if (TryGetUserChordSlot(
+                            action,
+                            entry.deviceGroup,
+                            entry.slot,
+                            out int compositeIndex,
+                            out int modifierIndex,
+                            out int triggerIndex))
+                    {
+                        action.RemoveBindingOverride(compositeIndex);
+                        action.ApplyBindingOverride(modifierIndex, string.Empty);
+                        action.ApplyBindingOverride(triggerIndex, string.Empty);
+                    }
                 }
             }
             finally
@@ -722,17 +766,15 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 모든 리바인딩 대상 액션에 사용자 바인딩 슬롯(단일 + 조합)을 미리 만든다.
-        ///
+        /// 모든 리바인딩 대상 액션에 <b>단일 키 슬롯</b>을 미리 만든다.
         /// 반드시 Init에서 Action Map을 Enable하기 전에 1회만 호출한다.
-        /// 런타임에 AddBinding/AddCompositeBinding으로 슬롯을 만들면 에셋 구조가 바뀌어
-        /// InputActionState가 재생성되는데, PlayerInputActions/UI 액션을 직접 참조하는
-        /// InputSystemUIInputModule은 그 사실을 모른다. 다음 EventSystem.Update의
-        /// PurgeStalePointers에서 FetchMapIndices의 maps가 null이 되어
-        /// ArgumentNullException으로 죽는다.
         ///
-        /// 슬롯을 미리 다 깔아두면 이후 리바인딩은 ApplyBindingOverride만 쓰므로
-        /// 구조 변경이 전혀 발생하지 않는다.
+        /// 조합 슬롯(OneModifier 컴포지트)은 여기서 만들지 않는다. 슬롯 하나당 컴포지트가
+        /// 루트+파트 3개를 차지해 전체 바인딩의 3/4을 먹는데, 조합키 할당은 드물기 때문이다.
+        /// 실제로 조합키가 지정될 때 <see cref="EnsureChordSlot"/>이 그 슬롯만 만든다.
+        ///
+        /// 덕분에 단일 키 리바인딩(대부분의 사용자가 하는 유일한 조작)은 override만 쓰고
+        /// 구조 변경을 전혀 일으키지 않는다.
         /// </summary>
         private void EnsureAllUserBindingSlots()
         {
@@ -755,60 +797,79 @@ namespace UPlayGround.Manager
                          Enum.GetValues(typeof(InputBindingDeviceGroup)))
                 {
                     foreach (InputBindingSlot slot in Enum.GetValues(typeof(InputBindingSlot)))
-                        CreateUserBindingSlot(action, device, slot);
+                        CreateUserSingleSlot(action, device, slot);
                 }
             }
         }
 
-        private static void CreateUserBindingSlot(
+        // 플레이스홀더는 슬롯 생성 직후 빈 override로 덮으므로 실제로 입력을 받지 않는다.
+        // 그래도 AddBinding이 성립하려면 유효한 경로여야 한다.
+        private static string SinglePlaceholder(InputBindingDeviceGroup deviceGroup) =>
+            deviceGroup == InputBindingDeviceGroup.Gamepad
+                ? "<Gamepad>/buttonSouth"
+                : "<Keyboard>/space";
+
+        private static string ModifierPlaceholder(InputBindingDeviceGroup deviceGroup) =>
+            deviceGroup == InputBindingDeviceGroup.Gamepad
+                ? "<Gamepad>/leftShoulder"
+                : "<Keyboard>/leftCtrl";
+
+        private static void CreateUserSingleSlot(
             InputAction action,
             InputBindingDeviceGroup deviceGroup,
             InputBindingSlot slot)
         {
-            string baseGroup = BuildUserGroup(deviceGroup, slot);
-            string singleGroup = baseGroup + "_Single";
-            string chordGroup = baseGroup + "_Chord";
-
-            // 플레이스홀더는 즉시 빈 override로 덮으므로 실제로 입력을 받지 않는다.
-            // 그래도 유효한 경로여야 바인딩 추가가 성립한다.
-            string placeholder = deviceGroup == InputBindingDeviceGroup.Gamepad
-                ? "<Gamepad>/buttonSouth"
-                : "<Keyboard>/space";
-            string modifierPlaceholder = deviceGroup == InputBindingDeviceGroup.Gamepad
-                ? "<Gamepad>/leftShoulder"
-                : "<Keyboard>/leftCtrl";
-
+            string singleGroup = BuildUserGroup(deviceGroup, slot) + "_Single";
             if (FindBindingByGroup(action, singleGroup, composite: false) < 0)
-                action.AddBinding(placeholder, groups: singleGroup);
-
-            if (FindBindingByGroup(action, chordGroup, composite: true) < 0)
-            {
-                var chordComposite = action.AddCompositeBinding("OneModifier")
-                    .With("modifier", modifierPlaceholder)
-                    .With("binding", placeholder);
-                action.ChangeBinding(chordComposite.bindingIndex).WithGroup(chordGroup);
-            }
+                action.AddBinding(SinglePlaceholder(deviceGroup), groups: singleGroup);
         }
 
         /// <summary>
-        /// 미리 만들어둔 사용자 바인딩 슬롯의 인덱스를 찾는다. 구조를 바꾸지 않는다.
+        /// 조합 슬롯을 필요할 때 만든다. 구조 변경이므로 <b>반드시 맵이 Disable된 구간에서만</b>
+        /// 호출한다(<see cref="ApplyBindingProfile"/>의 disable 구간).
         /// </summary>
-        private static bool TryGetUserBindingSlot(
+        /// <returns>이번 호출로 실제 구조가 바뀌었으면 true.</returns>
+        private static bool EnsureChordSlot(
+            InputAction action,
+            InputBindingDeviceGroup deviceGroup,
+            InputBindingSlot slot)
+        {
+            string chordGroup = BuildUserGroup(deviceGroup, slot) + "_Chord";
+            if (FindBindingByGroup(action, chordGroup, composite: true) >= 0)
+                return false;
+
+            var chordComposite = action.AddCompositeBinding("OneModifier")
+                .With("modifier", ModifierPlaceholder(deviceGroup))
+                .With("binding", SinglePlaceholder(deviceGroup));
+            action.ChangeBinding(chordComposite.bindingIndex).WithGroup(chordGroup);
+            return true;
+        }
+
+        /// <summary>단일 키 슬롯의 인덱스를 찾는다. 구조를 바꾸지 않는다.</summary>
+        private static int FindUserSingleSlot(
+            InputAction action,
+            InputBindingDeviceGroup deviceGroup,
+            InputBindingSlot slot)
+            => FindBindingByGroup(
+                action, BuildUserGroup(deviceGroup, slot) + "_Single", composite: false);
+
+        /// <summary>
+        /// 조합 슬롯의 인덱스를 찾는다. 구조를 바꾸지 않으므로 아직 만들어지지 않았으면 false.
+        /// </summary>
+        private static bool TryGetUserChordSlot(
             InputAction action,
             InputBindingDeviceGroup deviceGroup,
             InputBindingSlot slot,
-            out int singleIndex,
             out int compositeIndex,
             out int modifierIndex,
             out int triggerIndex)
         {
-            string baseGroup = BuildUserGroup(deviceGroup, slot);
-            singleIndex = FindBindingByGroup(action, baseGroup + "_Single", composite: false);
-            compositeIndex = FindBindingByGroup(action, baseGroup + "_Chord", composite: true);
+            compositeIndex = FindBindingByGroup(
+                action, BuildUserGroup(deviceGroup, slot) + "_Chord", composite: true);
             modifierIndex = -1;
             triggerIndex = -1;
 
-            if (singleIndex < 0 || compositeIndex < 0)
+            if (compositeIndex < 0)
                 return false;
 
             for (int i = compositeIndex + 1;

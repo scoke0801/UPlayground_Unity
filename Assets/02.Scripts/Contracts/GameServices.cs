@@ -36,6 +36,12 @@ namespace UPlayGround.Manager
     {
         event Action<ActiveInputDevice> OnActiveDeviceChanged;
         event Action OnBindingsChanged;
+
+        /// <summary>
+        /// 바인딩 구조가 바뀌어 InputActionState가 재생성됐다.
+        /// InputAction/InputActionReference를 캐시하는 쪽은 여기서 다시 붙어야 한다.
+        /// </summary>
+        event Action OnBindingStructureChanged;
         event Action<InputRebindCaptureState> OnRebindCaptureChanged;
         InputLayer CurrentLayer { get; }
         InputBuffer InputBuffer { get; }

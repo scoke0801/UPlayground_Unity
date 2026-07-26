@@ -15,9 +15,11 @@ namespace UPlayGround.UI
     /// 행 자체가 <see cref="Selectable"/>이라 게임패드 내비게이션과
     /// <c>UIFocusIndicator</c>가 그대로 동작한다. 클릭·확정은 즉시 캡처가 아니라
     /// "선택"이며, 실제 키 변경은 우측 상세 패널에서 처리한다(목업 흐름).
+    ///
+    /// 마우스는 hover가 아니라 클릭에만 반응한다. 커서가 목록을 지나가는 것만으로
+    /// 상세 패널과 선택 하이라이트가 따라오면 키 캡처 대상이 의도치 않게 바뀐다.
     /// </summary>
-    public sealed class UIKeyBindingRow : MonoBehaviour, ISelectHandler, IPointerEnterHandler,
-        IUIFocusPresentation
+    public sealed class UIKeyBindingRow : MonoBehaviour, ISelectHandler, IUIFocusPresentation
     {
         /// <summary>헤더와 행의 컬럼 폭은 반드시 같은 상수를 쓴다.</summary>
         public const float KeyboardColumnWidth = 220f;
@@ -139,10 +141,8 @@ namespace UPlayGround.UI
         }
 
         // 게임패드 내비게이션으로 들어온 선택도 상세 패널에 반영한다.
+        // 마우스 클릭은 Selectable이 먼저 EventSystem 선택을 옮기므로 같은 경로를 탄다.
         public void OnSelect(BaseEventData eventData) => NotifySelected();
-
-        // 마우스로 훑을 때도 상세가 따라오면 목업의 정보 밀도를 유지할 수 있다.
-        public void OnPointerEnter(PointerEventData eventData) => NotifySelected();
 
         private void NotifySelected() => _onSelected?.Invoke(this);
 

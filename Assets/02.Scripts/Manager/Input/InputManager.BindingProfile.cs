@@ -16,6 +16,14 @@ namespace UPlayGround.Manager
         private int _bindingProfileUpdateDepth;
         private bool _bindingProfileUpdatePending;
 
+        // 직전 ApplyBindingProfile이 override를 씌운 (맵, 액션) 집합.
+        // 다음 적용에서 되돌려야 할 액션을 이 집합으로 좁힌다.
+        private readonly HashSet<(string map, string action)> _profileAppliedActions = new();
+        private bool _bindingProfileEverApplied;
+
+        // 마지막으로 실제 반영한 프로필의 직렬화 결과. 같은 내용이면 재적용을 통째로 건너뛴다.
+        private string _appliedProfileJson;
+
         public event Action OnBindingsChanged;
 
         /// <summary>
@@ -54,8 +62,7 @@ namespace UPlayGround.Manager
             if (_bindingProfileUpdateDepth == 0 && _bindingProfileUpdatePending)
             {
                 _bindingProfileUpdatePending = false;
-                ApplyBindingProfile();
-                OnBindingsChanged?.Invoke();
+                ApplyAndNotifyBindingProfile();
             }
         }
 
@@ -64,6 +71,23 @@ namespace UPlayGround.Manager
             if (_bindingProfileUpdateDepth > 0)
             {
                 _bindingProfileUpdatePending = true;
+                return;
+            }
+
+            ApplyAndNotifyBindingProfile();
+        }
+
+        /// <summary>
+        /// 프로필을 반영하고 변경을 알린다. 마지막으로 반영한 내용과 같으면 아무것도 하지 않는다.
+        /// 액션 맵 재적용은 에셋 전체 바인딩 재해석을 동반하고, 알림은 키 목록·프롬프트 아이콘
+        /// 갱신 연쇄를 부르므로 무의미한 재적용을 여기서 끊는다.
+        /// </summary>
+        private void ApplyAndNotifyBindingProfile()
+        {
+            string json = JsonUtility.ToJson(_bindingProfile ?? new InputBindingProfileData());
+            if (_bindingProfileEverApplied
+                && string.Equals(json, _appliedProfileJson, StringComparison.Ordinal))
+            {
                 return;
             }
 
@@ -472,9 +496,34 @@ namespace UPlayGround.Manager
         ///
         /// ApplyProfileEntry는 map.enabled가 false면 스스로 토글하지 않으므로
         /// 이 구간 안에서는 override 적용만 수행한다. 구조(AddBinding)는 건드리지 않는다.
+        ///
+        /// 초기화 대상은 <b>이번에 상태가 달라질 수 있는 액션</b>으로 한정한다. 리바인딩 슬롯은
+        /// 액션당 16개(장치 2 × 슬롯 2 × (단일 1 + 조합 3))라 에셋 전체를 훑으면 키 하나를
+        /// 바꿔도 600번 넘는 override 쓰기가 발생한다. 직전 적용에서 건드린 액션과 새 프로필이
+        /// 지정한 액션만 되돌리면 나머지 액션의 override 상태는 이미 정답이므로 건너뛸 수 있다.
         /// </summary>
         private void ApplyBindingProfile()
         {
+            var dirtyActions = new HashSet<(string, string)>(_profileAppliedActions);
+            var nextAppliedActions = new HashSet<(string, string)>();
+
+            if (_bindingProfile?.entries != null)
+            {
+                foreach (InputBindingOverrideEntry entry in _bindingProfile.entries)
+                {
+                    if (entry == null)
+                        continue;
+
+                    var key = (entry.mapName, entry.actionName);
+                    nextAppliedActions.Add(key);
+                    dirtyActions.Add(key);
+                }
+            }
+
+            // 첫 적용에서는 사용자 슬롯이 아직 플레이스홀더 경로("<Keyboard>/space" 등)를
+            // 그대로 갖고 있다. 이때만 에셋 전체를 훑어 모든 슬롯을 무력화한다.
+            bool sweepAll = !_bindingProfileEverApplied;
+
             var reEnableTargets = new List<InputActionMap>();
 
             try
@@ -489,9 +538,13 @@ namespace UPlayGround.Manager
                     }
 
                     foreach (InputAction action in map.actions)
-                        action.RemoveAllBindingOverrides();
+                    {
+                        if (!sweepAll && !dirtyActions.Contains((map.name, action.name)))
+                            continue;
 
-                    DisableRuntimeUserBindings(map);
+                        action.RemoveAllBindingOverrides();
+                        DisableRuntimeUserBindings(action);
+                    }
                 }
 
                 if (_bindingProfile?.entries != null)
@@ -511,6 +564,13 @@ namespace UPlayGround.Manager
                 for (int i = 0; i < reEnableTargets.Count; i++)
                     reEnableTargets[i].Enable();
             }
+
+            _profileAppliedActions.Clear();
+            foreach ((string, string) key in nextAppliedActions)
+                _profileAppliedActions.Add(key);
+            _bindingProfileEverApplied = true;
+            _appliedProfileJson =
+                JsonUtility.ToJson(_bindingProfile ?? new InputBindingProfileData());
 
             // effective binding이 바뀌었으므로 조합 카탈로그와 진행 중 중재 상태를 다시 만든다.
             RebuildChordCatalog();
@@ -582,17 +642,14 @@ namespace UPlayGround.Manager
             }
         }
 
-        /// <summary>사용자 바인딩 슬롯 전체를 무력화한다.</summary>
-        private static void DisableRuntimeUserBindings(InputActionMap map)
+        /// <summary>한 액션의 사용자 바인딩 슬롯을 전부 무력화한다.</summary>
+        private static void DisableRuntimeUserBindings(InputAction action)
         {
-            foreach (InputAction action in map.actions)
+            var bindings = action.bindings;
+            for (int i = 0; i < bindings.Count; i++)
             {
-                var bindings = action.bindings;
-                for (int i = 0; i < bindings.Count; i++)
-                {
-                    if (IsUserBinding(bindings[i]))
-                        DisableBindingAt(action, i);
-                }
+                if (IsUserBinding(bindings[i]))
+                    DisableBindingAt(action, i);
             }
         }
 
@@ -990,15 +1047,32 @@ namespace UPlayGround.Manager
             return $"{ToHumanReadable(modifierPath)} + {control}";
         }
 
+        // InputControlPath.ToHumanReadableString은 호출마다 InputControlLayout 캐시를 잡았다
+        // 놓기 때문에(마지막 참조가 풀리면 캐시가 통째로 비워진다) 레이아웃을 매번 다시 만든다.
+        // 키 목록 한 번 갱신에 수백 번 호출되므로 이 한 줄이 적용 지연의 주범이었다.
+        // 결과는 path에만 의존하므로 경로별로 캐시하고, 장치 구성이 바뀔 때만 비운다.
+        private static readonly Dictionary<string, string> HumanReadableCache = new();
+
         private static string ToHumanReadable(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
                 return "미지정";
 
-            return InputControlPath.ToHumanReadableString(
+            if (HumanReadableCache.TryGetValue(path, out string cached))
+                return cached;
+
+            string display = InputControlPath.ToHumanReadableString(
                 path,
                 InputControlPath.HumanReadableStringOptions.OmitDevice);
+            HumanReadableCache[path] = display;
+            return display;
         }
+
+        /// <summary>
+        /// 표시 문자열 캐시를 비운다. 장치가 연결/해제되면 같은 경로라도 사람이 읽는 이름이
+        /// 달라질 수 있으므로(패드 브랜드별 버튼 명칭) 그때 호출한다.
+        /// </summary>
+        internal static void ClearBindingDisplayCache() => HumanReadableCache.Clear();
 
         private static string NormalizePath(string path) =>
             string.IsNullOrWhiteSpace(path)

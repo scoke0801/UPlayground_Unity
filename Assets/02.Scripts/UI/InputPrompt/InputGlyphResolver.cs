@@ -152,8 +152,7 @@ namespace UPlayGround.UI.InputPrompt
             ActiveInputDevice device, GamepadBrand brand, InputGlyphDataSO glyphData)
         {
             // 표시 텍스트는 디바이스별 명칭(예: PS의 "Share")을 반영하도록 표준 API를 쓴다.
-            string display = action.GetBindingDisplayString(bindingIndex,
-                out string _ /*deviceLayout*/, out string _ /*controlPath*/);
+            string display = GetCachedDisplayString(action, bindingIndex, device, brand);
 
             // 조회 키는 GetBindingDisplayString의 out controlPath가 아니라 바인딩 effectivePath에서 뽑는다.
             // out controlPath는 연결된 실제 디바이스에 해석되어 select 같은 버튼은 생성기 키("select")와 어긋날 수 있다.
@@ -165,6 +164,57 @@ namespace UPlayGround.UI.InputPrompt
 
             // 매핑되지 않은 키는 회색 박스가 아니라 원문 텍스트로 노출해 누락을 가시화.
             return GlyphPart.TextOnly(display);
+        }
+
+        // GetBindingDisplayString은 내부에서 InputControlPath.ToHumanReadableString을 거치는데,
+        // 이 API는 호출마다 InputControlLayout 캐시를 잡았다 놓기 때문에(마지막 참조가 풀리면
+        // 캐시가 통째로 비워진다) 레이아웃을 매번 다시 만든다. 키 설정 목록은 한 번 갱신에
+        // 행 수 × 장치 수만큼 호출하므로 이 비용이 그대로 적용 지연으로 나타났다.
+        //
+        // 결과는 (effectivePath, 장치, 브랜드)에만 의존한다. 리바인딩은 경로만 바꾸므로
+        // 캐시를 무효화할 필요가 없고, 장치 연결/해제 때만 비운다.
+        private static readonly Dictionary<(string, ActiveInputDevice, GamepadBrand), string>
+            DisplayStringCache = new();
+
+        private static bool _deviceChangeHooked;
+
+        private static string GetCachedDisplayString(InputAction action, int bindingIndex,
+            ActiveInputDevice device, GamepadBrand brand)
+        {
+            EnsureDeviceChangeHook();
+
+            string effectivePath = action.bindings[bindingIndex].effectivePath;
+            var key = (effectivePath ?? string.Empty, device, brand);
+            if (DisplayStringCache.TryGetValue(key, out string cached))
+                return cached;
+
+            string display = action.GetBindingDisplayString(bindingIndex,
+                out string _ /*deviceLayout*/, out string _ /*controlPath*/);
+            DisplayStringCache[key] = display;
+            return display;
+        }
+
+        private static void EnsureDeviceChangeHook()
+        {
+            if (_deviceChangeHooked)
+                return;
+
+            _deviceChangeHooked = true;
+
+            // 도메인 리로드를 끈 설정에서 중복 구독이 쌓이지 않도록 먼저 떼고 붙인다.
+            InputSystem.onDeviceChange -= OnDeviceChanged;
+            InputSystem.onDeviceChange += OnDeviceChanged;
+        }
+
+        private static void OnDeviceChanged(InputDevice device, InputDeviceChange change)
+            => DisplayStringCache.Clear();
+
+        // 도메인 리로드를 끈 에디터 설정에서도 플레이 시작마다 깨끗한 상태로 시작한다.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticState()
+        {
+            DisplayStringCache.Clear();
+            _deviceChangeHooked = false;
         }
 
         private static GlyphPart MakePathPart(

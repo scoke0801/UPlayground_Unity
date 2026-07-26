@@ -12,10 +12,7 @@ namespace UPlayGround.Animation
             // 초기화
             if (motionSet == null)
             {
-                motionSet = new MotionSet
-                {
-                    motionSetName = name
-                };
+                motionSet = MotionSet.CreateAuthored(name);
             }
         }
     }

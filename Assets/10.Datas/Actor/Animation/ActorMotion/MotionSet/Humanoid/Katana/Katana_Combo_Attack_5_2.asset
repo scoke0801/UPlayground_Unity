@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Katana_Combo_Attack_5_2
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_c11004a6fc9dc9844861c454ade6f290
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 7400000, guid: 7223b938de6e6004b94062c41e22f041, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -24,46 +46,100 @@ MonoBehaviour:
       - rid: 5792125035945394307
       - rid: 5792125035945394308
       - rid: 5351031959771152518
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 5351031959771152518
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.43937403
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 0
         modifierType: 0
         targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
         translationWeight: 1
         rotationWeight: 1
         ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
         overrideDistance: 0
         minDistance: 0.3
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
+        bakedValid: 0
+        bakedLocalTotal: {x: 0, y: 0, z: 0}
+        bakedPathLen: 0
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 5792125035945394307
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.43749997
         endTime: 0.55
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 5792125035945394308
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.1
         endTime: 1.2375
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 1
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []

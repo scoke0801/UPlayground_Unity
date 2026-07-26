@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_GreatSwordAnimationSet_Attack_1
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_GreatSwordAnimationSet_Attack_1
+    sections:
+    - id: section_7993f2313e245d446b4f098cfdd0d6f3
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Motion_0
+    - id: 
+      motionName: Motion_0
       motionClip: {fileID: 7400000, guid: 53c1ebcb5a04b6145bfbf2aa98487046, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -26,15 +48,28 @@ MonoBehaviour:
       - rid: 7432452529509105903
       - rid: 889909850590150656
       - rid: 889910011055833088
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889909850590150656
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.57397693
         endTime: 2.1301343
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 1294101409476956, guid: 231e3be01ac50c047bb16d07fd8d2ba5, type: 3}
         spawnPointName: Line Tip
@@ -46,20 +81,42 @@ MonoBehaviour:
         destroyOnFinish: 0
         particleLifeTime: 0
     - rid: 889910011055833088
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.5698301
         endTime: 1.06983
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: GreatSword_Attack_Light
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
     - rid: 7432452529509105901
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.5
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 1
         modifierType: 0
@@ -96,17 +153,39 @@ MonoBehaviour:
         bakedStartTime: 0
         bakedEndTime: 0.5
     - rid: 7432452529509105902
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.57202154
         endTime: 0.7197266
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
         additionalHitboxGroupIds: []
     - rid: 7432452529509105903
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.7307129
         endTime: 0.9807129
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

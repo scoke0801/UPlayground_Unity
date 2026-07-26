@@ -13,31 +13,78 @@ MonoBehaviour:
   m_Name: JumpAttack_2
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: JumpAttack_2
+    sections:
+    - id: section_63456a4964c56984f8234ce5e048c83d
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Air_Combo_2
+    - id: 
+      motionName: Frank_RPG_Dual_Air_Combo_2
       motionClip: {fileID: 7400000, guid: 211cf47e82d59c744a9e4cfb3b187d31, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 7432452542259527871
       - rid: 7432452542259527872
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 7432452542259527871
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.21816406
         endTime: 0.36816406
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 7432452542259527872
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.3842773
         endTime: 0.63427734
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

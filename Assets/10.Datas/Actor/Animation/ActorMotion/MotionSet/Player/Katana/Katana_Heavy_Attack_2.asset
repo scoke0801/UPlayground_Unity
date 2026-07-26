@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Katana_Heavy_Attack_2
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_6d9b2593147114440bfce1730f74d4ce
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 7400000, guid: 16c2dad8186eebb499101f1141883587, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -26,25 +48,49 @@ MonoBehaviour:
       - rid: 5351032001949073409
       - rid: 889910008326652085
       - rid: 889910008326652163
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889910008326652085
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.29284987
         endTime: 0.7928498
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: Katana_Attack_Heavy
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
     - rid: 889910008326652163
-      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.31340653
         endTime: 0.794913
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
@@ -61,10 +107,21 @@ MonoBehaviour:
         destroyDelay: 2
         attachToActor: 1
     - rid: 5351032001949073409
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.30073753
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 2
         modifierType: 0
@@ -101,17 +158,39 @@ MonoBehaviour:
         bakedStartTime: 0
         bakedEndTime: 0.30073753
     - rid: 7399917011524124807
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.31742674
         endTime: 0.53033495
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
         additionalHitboxGroupIds: []
     - rid: 7399917011524124809
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.3212978
         endTime: 1.3006755
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

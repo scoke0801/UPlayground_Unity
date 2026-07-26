@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_HeavyAttack_4
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_HeavyAttack_4
+    sections:
+    - id: section_655dfe0379309e049a873c3608ce8ba6
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Combo05_1
+    - id: 
+      motionName: Frank_RPG_Warrior_Combo05_1
       motionClip: {fileID: 7400000, guid: bb855748509c7984ab293e337e010fa1, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -25,46 +47,117 @@ MonoBehaviour:
       - rid: 7432452546447015947
       - rid: 7432452546447015948
       - rid: 7432452546447015949
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 7432452546447015946
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.2764656
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 2
         modifierType: 0
         targetPolicy: 0
+        resolverPolicy: 0
+        targetKey: primary
+        predictionFactor: 0.5
         translationWeight: 1
         rotationWeight: 1
         ignoreY: 1
+        yPolicy: 0
+        rotationCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
         overrideDistance: 0
         minDistance: 0.3
         maxDistance: 4
         maxSpeed: 18
         targetOffset: {x: 0, y: 0, z: 0}
+        amplifyEnabled: 0
+        amplifyGainCurve:
+          serializedVersion: 2
+          m_Curve: []
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        amplifyMaxSpeed: 25
+        bakedValid: 0
+        bakedLocalTotal: {x: 0, y: 0, z: 0}
+        bakedPathLen: 0
+        bakedStartTime: 0
+        bakedEndTime: 0
     - rid: 7432452546447015947
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.28153464
         endTime: 0.43153465
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 7432452546447015948
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.7396439
         endTime: 0.9896438
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
     - rid: 7432452546447015949
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.6245457
         endTime: 0.71448034
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 1
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []

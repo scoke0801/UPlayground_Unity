@@ -13,15 +13,38 @@ MonoBehaviour:
   m_Name: Bokusei_Common_Mining_Ground
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_5f8279a3d52c67244a0eb78f3290f674
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 3094330708855449807, guid: 9debf8d00fcb33d45913ee37b75fbe34, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 5341827903424561155
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -32,6 +55,17 @@ MonoBehaviour:
       data:
         startTime: 0.3875
         endTime: 0.8875
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         interactionEvent: 0
         showHitFx: 1

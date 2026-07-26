@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Bow_Dodge_F
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_a9a65f67a4dff8e47b56313c3f2ccf11
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Motion_0
+    - id: 
+      motionName: Motion_0
       motionClip: {fileID: 2175205117164791901, guid: 9a9d4d1a19f17664485ba1a7d75bd051, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

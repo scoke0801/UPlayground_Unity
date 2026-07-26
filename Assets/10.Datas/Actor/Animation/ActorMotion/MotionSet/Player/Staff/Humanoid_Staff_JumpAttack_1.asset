@@ -13,31 +13,78 @@ MonoBehaviour:
   m_Name: Humanoid_Staff_JumpAttack_1
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_a9b7e573723bd604393f1b2cd65c007c
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Motion_0
+    - id: 
+      motionName: Motion_0
       motionClip: {fileID: 1827226128182048838, guid: 3f7563f720807e245a50c17bb5893199, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 7432452707298836620
       - rid: 7432452707298836621
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 7432452707298836620
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.1
         endTime: 0.17522898
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 7432452707298836621
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.17059937
         endTime: 0.32307842
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

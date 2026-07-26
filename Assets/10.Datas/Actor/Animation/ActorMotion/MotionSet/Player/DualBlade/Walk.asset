@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Walk
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_e27ee4d9a172c99448edc0b1d1ef5f6b
+      displayName: Loop
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Walk
+    - id: 
+      motionName: Frank_RPG_Dual_Walk
       motionClip: {fileID: 7400000, guid: e692fbc0bcf08cc4c8532e9027ee67a3, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

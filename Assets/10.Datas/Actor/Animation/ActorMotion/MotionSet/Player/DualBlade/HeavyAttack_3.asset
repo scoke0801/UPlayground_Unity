@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: HeavyAttack_3
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: HeavyAttack_3
+    sections:
+    - id: section_790e53aaf3a363a428565eb6ad5b0a04
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Combo04_3
+    - id: 
+      motionName: Frank_RPG_Dual_Combo04_3
       motionClip: {fileID: 7400000, guid: f5bb15e643c72f94a949c39203709db8, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -24,31 +46,67 @@ MonoBehaviour:
       - rid: 7432452542259527854
       - rid: 7432452542259527855
       - rid: 889910219224383535
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889910219224383535
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.3646913
         endTime: 0.86469126
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: DualBlade_Attack_Heavy
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
     - rid: 7432452542259527854
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.38198245
         endTime: 0.5319824
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 7432452542259527855
-      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: ComboWindowEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.5722656
         endTime: 0.8222656
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

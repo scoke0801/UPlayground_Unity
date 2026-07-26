@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_AssassinAnimationSet_Step_B
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_AssassinAnimationSet_Dodge
+    sections:
+    - id: section_b2a2d9f751f407d4f9d25afb06408fad
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Assassin_Evade_F
+    - id: 
+      motionName: Frank_RPG_Assassin_Evade_F
       motionClip: {fileID: 7400000, guid: 7c5ddccfef450274d9aff8396ef98f82, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

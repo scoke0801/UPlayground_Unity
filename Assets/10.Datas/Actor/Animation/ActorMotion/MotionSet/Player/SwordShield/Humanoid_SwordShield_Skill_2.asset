@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_Skill_2
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_Skill_2
+    sections:
+    - id: section_eb6f3c73dabd96544a8cf6c0ff323a94
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_ShieldSkill02
+    - id: 
+      motionName: Frank_RPG_Warrior_ShieldSkill02
       motionClip: {fileID: 7400000, guid: 323c23268b429794990135c96b378665, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -24,25 +46,49 @@ MonoBehaviour:
       - rid: 7432452529509105890
       - rid: 7432452529509105891
       - rid: 889910219224383513
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889910219224383513
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.757874
         endTime: 1.257874
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: SwordShield_Attack_Light
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
     - rid: 7432452529509105890
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.5
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 0
         modifierType: 0
@@ -79,10 +125,22 @@ MonoBehaviour:
         bakedStartTime: 0
         bakedEndTime: 0.5
     - rid: 7432452529509105891
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.7725343
         endTime: 0.97817296
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: SubWeapon
+        additionalHitboxGroupIds: []

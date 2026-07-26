@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Run_Turn_L45
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Run_Turn_L45
+    sections:
+    - id: section_e336c41fff185254396f1216e6def4b1
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Run_F_Turn_L45_InPlace
+    - id: 
+      motionName: Run_F_Turn_L45_InPlace
       motionClip: {fileID: 453525753795343490, guid: 55f2918255472b4459e07ca9621950fd, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

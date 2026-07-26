@@ -13,14 +13,37 @@ MonoBehaviour:
   m_Name: Bokusei_Common_Jump
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_a2719b64174d2504c988c902d6a04633
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: -3989899929696636710, guid: fc9c129024a7a4b4b817e7d32d6dbc44, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:

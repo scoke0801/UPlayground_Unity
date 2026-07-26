@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Bokusei_Common_Attack_Test
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_8f0b1dc0c09a9b44cb104a41516af04b
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 1827226128182048838, guid: 42ebfa6c9a5a19442a7f9ee7d011d82a, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

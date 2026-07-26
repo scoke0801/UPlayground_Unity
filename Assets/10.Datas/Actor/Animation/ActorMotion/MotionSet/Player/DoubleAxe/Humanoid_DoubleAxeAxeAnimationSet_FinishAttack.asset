@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_DoubleAxeAxeAnimationSet_FinishAttack
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_2e96a07e8c3dc514e94ed03127688d54
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 7400000, guid: fb14fa234e735414080e259fae996858, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -27,15 +49,28 @@ MonoBehaviour:
       - rid: 889909689146671290
       - rid: 889910008326652143
       - rid: 889910008326652144
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889909689146671290
-      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.5
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 0
         modifierType: 3
@@ -72,30 +107,63 @@ MonoBehaviour:
         bakedStartTime: 0
         bakedEndTime: 0.5
     - rid: 889910008326652143
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.88900864
         endTime: 1.3890089
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: DoubleAxe_Attack_Finish
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
     - rid: 889910008326652144
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.3637678
         endTime: 0.86376804
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: DoubleAxe_Attack_Finish
         audioClip: {fileID: 0}
         volume: 1
         is3D: 1
     - rid: 7399917265539825775
-      type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: FinishSideViewEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.5
         endTime: 2.1611114
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         sideAngleOffset: 90
         pitchOverride: 10
@@ -104,18 +172,40 @@ MonoBehaviour:
         transitionDuration: 0.25
         editorTestTarget: {fileID: 0}
     - rid: 7399917265539825788
-      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.8777777
         endTime: 1.4277776
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         effectDataList:
         - {fileID: 11400000, guid: 5d0f8d29468236d499bb343687126285, type: 2}
         lockCameraInput: 0
         ignoreWhenEnemy: 1
     - rid: 7399917266253643776
-      type: {class: FinishAttackEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: FinishAttackEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.8972223
         endTime: 1.397222
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

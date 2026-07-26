@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Die
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Die
+    sections:
+    - id: section_4f4bcf4db57c9034d972951ce56a5e29
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Die
+    - id: 
+      motionName: Frank_RPG_Dual_Die
       motionClip: {fileID: 7400000, guid: c798ff9ac3ce92e4c8ceb4f987a08d84, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

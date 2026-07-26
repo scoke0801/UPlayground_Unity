@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Bokusei_Sprint_Turn_180
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Bokusei_Sprint_Turn_180
+    sections:
+    - id: section_1df1577cc84f38d4dab5d6f01e62a8d6
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Sprint_F_Turn_180
+    - id: 
+      motionName: Sprint_F_Turn_180
       motionClip: {fileID: 1966838644964822750, guid: 794d0b1a52d49f6489bf2f473d7c5e7e, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

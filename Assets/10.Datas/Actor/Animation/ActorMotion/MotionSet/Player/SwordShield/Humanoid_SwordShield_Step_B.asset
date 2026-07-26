@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_Step_B
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_Dash
+    sections:
+    - id: section_a8a1e51df05ae834d8e62f43719e76d0
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Step_F
+    - id: 
+      motionName: Frank_RPG_Warrior_Step_F
       motionClip: {fileID: 7400000, guid: 0357a2d8dc7756c4fa93a20815c4ae06, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -24,15 +46,28 @@ MonoBehaviour:
       - rid: 889909668156276756
       - rid: 889909668156276757
       - rid: 889910008326651911
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 889909668156276756
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.41376427
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 3407818901819470167, guid: 5ec11d5f65720104aa6fd71464c513b3, type: 3}
         spawnPointName: 
@@ -44,10 +79,21 @@ MonoBehaviour:
         destroyOnFinish: 0
         particleLifeTime: 0
     - rid: 889909668156276757
-      type: {class: AfterimageEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: AfterimageEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.4243827
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         targetObjectName: 
         alpha: 0.24
@@ -60,10 +106,21 @@ MonoBehaviour:
         offset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
     - rid: 889910008326651911
-      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: PlaySoundEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 0.5
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: Player_Dash
         audioClip: {fileID: 0}

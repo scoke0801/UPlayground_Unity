@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Bokuse_Katana_JumpAttack_5
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Bokusei_Move_Stop_Sprinting_R45
+    sections:
+    - id: section_4d78233644281664eb15486dd2cd5510
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Sprint_F_R45_To_Idle
+    - id: 
+      motionName: Sprint_F_R45_To_Idle
       motionClip: {fileID: 7400000, guid: d6f1038bb2ad0da479bcfa7b10d537fe, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -24,6 +46,7 @@ MonoBehaviour:
       - rid: 5351032134217498883
       - rid: 5351032134217498884
       - rid: 889910008326652102
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -34,6 +57,17 @@ MonoBehaviour:
       data:
         startTime: 0.22661003
         endTime: 0.72660995
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: Katana_Attack_Light
         audioClip: {fileID: 0}
@@ -44,6 +78,17 @@ MonoBehaviour:
       data:
         startTime: 0.24558836
         endTime: 0.32577342
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
@@ -53,4 +98,15 @@ MonoBehaviour:
       data:
         startTime: 0.35833713
         endTime: 0.5434983
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

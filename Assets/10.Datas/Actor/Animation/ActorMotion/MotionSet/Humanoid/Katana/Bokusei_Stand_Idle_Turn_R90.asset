@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Bokusei_Stand_Idle_Turn_R90
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Bokusei_Stand_Idle_Turn_R90
+    sections:
+    - id: section_7462585693c20464ba7315e9693a0d38
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Stand_Idle_Turn_R90
+    - id: 
+      motionName: Stand_Idle_Turn_R90
       motionClip: {fileID: 347784599178136013, guid: c0278ff119f31a649b48a8afd0ba9899, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

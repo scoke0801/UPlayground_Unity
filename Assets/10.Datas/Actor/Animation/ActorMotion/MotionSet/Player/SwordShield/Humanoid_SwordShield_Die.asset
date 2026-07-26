@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_Die
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_Die
+    sections:
+    - id: section_f9d55659991f7024e93cd39355230362
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Die01
+    - id: 
+      motionName: Frank_RPG_Warrior_Die01
       motionClip: {fileID: 7400000, guid: 09c8bc72089a9bf43b609d3ee3963cd2, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

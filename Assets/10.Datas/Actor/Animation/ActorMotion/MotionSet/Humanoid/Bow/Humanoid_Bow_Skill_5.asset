@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_Bow_Skill_5
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_7bd3854894ddbf24b8875c5a4f5aa0dc
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Motion_0
+    - id: 
+      motionName: Motion_0
       motionClip: {fileID: 2545695514493902899, guid: c217a6693aedbe94d81612ead15185f8, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -25,22 +47,52 @@ MonoBehaviour:
       - rid: 7432452679253098646
       - rid: 7432452679253098645
       - rid: 7432452679253098647
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
+    - rid: 5341828300924256451
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
+    - rid: 5341828300924256452
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
+    - rid: 5341828300924256453
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
+    - rid: 5341828300924256454
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
     - rid: 7432452679253098644
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.5448526
         endTime: 1.0448525
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256451
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 10
+        barrelBlendTime: 0
         targetMode: 0
         targetOffset: {x: 0, y: 0, z: 0}
         projectTargetToGround: 0
@@ -51,22 +103,40 @@ MonoBehaviour:
         groundProbeDistance: 20
         speed: 10
         duration: 3
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 0
         hitParticleName: 
     - rid: 7432452679253098645
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.1424432
         endTime: 1.6424433
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256453
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 10
+        barrelBlendTime: 0
         targetMode: 0
         targetOffset: {x: 0, y: 0, z: 0}
         projectTargetToGround: 0
@@ -77,22 +147,40 @@ MonoBehaviour:
         groundProbeDistance: 20
         speed: 10
         duration: 3
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 0
         hitParticleName: 
     - rid: 7432452679253098646
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.8357924
         endTime: 1.3357923
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256452
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 10
+        barrelBlendTime: 0
         targetMode: 0
         targetOffset: {x: 0, y: 0, z: 0}
         projectTargetToGround: 0
@@ -103,22 +191,40 @@ MonoBehaviour:
         groundProbeDistance: 20
         speed: 10
         duration: 3
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 0
         hitParticleName: 
     - rid: 7432452679253098647
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.0631123
         endTime: 2.5631127
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256454
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 10
+        barrelBlendTime: 0
         targetMode: 0
         targetOffset: {x: 0, y: 0, z: 0}
         projectTargetToGround: 0
@@ -129,6 +235,8 @@ MonoBehaviour:
         groundProbeDistance: 20
         speed: 10
         duration: 3
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 0

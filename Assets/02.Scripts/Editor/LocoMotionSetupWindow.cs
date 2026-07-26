@@ -432,7 +432,13 @@ namespace UPlayGround.Animation.Editor
                     if (isNew)
                     {
                         msa           = CreateInstance<MotionSetAsset>();
-                        msa.motionSet = new MotionSet { motionSetName = $"{prefix}{entry.MotionSlot}" };
+                        MotionSectionEndPolicy endPolicy =
+                            entry.MotionSlot.IsChildOf(MotionTags.Locomotion)
+                                ? MotionSectionEndPolicy.LoopSelf
+                                : MotionSectionEndPolicy.Stop;
+                        msa.motionSet = MotionSet.CreateAuthored(
+                            $"{prefix}{entry.MotionSlot}",
+                            endPolicy);
                     }
 
                     if (msa.motionSet.motions.Count == 0)

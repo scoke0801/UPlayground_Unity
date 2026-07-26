@@ -13,14 +13,37 @@ MonoBehaviour:
   m_Name: Bokusei_Common_FIshing_Throw
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_cbba967c3e3fd8c469767349d1703b3d
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 3094330708855449807, guid: b03777f3df4fbe649a0b5370ad92164a, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:

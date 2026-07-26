@@ -45,6 +45,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 return;
             }
 
+            if (set.schemaVersion != MotionSet.CurrentSchemaVersion)
+                Add(results, MotionValidationSeverity.Error, "SCHEMA_UNSUPPORTED",
+                    $"지원하지 않는 MotionSet 스키마입니다: {set.schemaVersion} " +
+                    $"(필요: {MotionSet.CurrentSchemaVersion})");
+
             var motionIds = new HashSet<string>();
             ValidateMotions(set.motions, "Base", motionIds, results);
             if (set.layers != null)
@@ -217,10 +222,16 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
 
         static void ValidateSections(MotionSet set, List<MotionValidationIssue> results)
         {
-            if (set.sections == null)
+            if (set.sections == null || set.sections.Count == 0)
+            {
+                Add(results, MotionValidationSeverity.Error, "SECTION_REQUIRED",
+                    "재생 가능한 MotionSet에는 최소 1개의 Section이 필요합니다.");
                 return;
+            }
             var ids = new HashSet<string>();
+            var startTimes = new HashSet<float>();
             float previous = -1f;
+            bool hasStartSection = false;
             foreach (MotionSection section in set.sections)
             {
                 if (section == null)
@@ -234,14 +245,31 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 else if (!ids.Add(section.id))
                     Add(results, MotionValidationSeverity.Error, "SECTION_ID_DUPLICATE",
                         $"Section ID '{section.id}'가 중복됩니다.");
-                if (section.startTime < 0f || section.startTime >= set.TotalDuration)
+                if (float.IsNaN(section.startTime) ||
+                    float.IsInfinity(section.startTime) ||
+                    section.startTime < 0f ||
+                    section.startTime >= set.TotalDuration)
                     Add(results, MotionValidationSeverity.Error, "SECTION_RANGE",
                         $"Section '{section.displayName}' 시작 시간이 범위를 벗어났습니다.");
+                else
+                {
+                    float canonicalStartTime =
+                        Mathf.Round(section.startTime * 10000f) / 10000f;
+                    if (!startTimes.Add(canonicalStartTime))
+                        Add(results, MotionValidationSeverity.Error, "SECTION_TIME_DUPLICATE",
+                            $"같은 시작 시간({section.startTime:0.####}초)의 Section이 중복됩니다.");
+                }
+                if (Mathf.Abs(section.startTime) <= 0.0001f)
+                    hasStartSection = true;
                 if (section.startTime < previous)
                     Add(results, MotionValidationSeverity.Warning, "SECTION_ORDER",
                         "Section 목록이 시작 시간 순서가 아닙니다.");
                 previous = section.startTime;
             }
+
+            if (!hasStartSection)
+                Add(results, MotionValidationSeverity.Error, "SECTION_START_REQUIRED",
+                    "첫 Section은 MotionSet 시작 시간 0초에서 시작해야 합니다.");
 
             foreach (MotionSection section in set.sections)
             {

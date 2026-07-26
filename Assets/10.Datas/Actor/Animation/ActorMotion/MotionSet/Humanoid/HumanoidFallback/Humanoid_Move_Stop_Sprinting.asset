@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Move_Stop_Sprinting
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Move_Stop_Sprinting
+    sections:
+    - id: section_09dfc7265e4b34b4d8425f81daedd200
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Sprint_F_To_Idle_InPlace
+    - id: 
+      motionName: Sprint_F_To_Idle_InPlace
       motionClip: {fileID: 5495570677938246794, guid: dea0bdf3f1845844a9fba3e1ce906ae2, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

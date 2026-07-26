@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Humanoid_Common_Step_R
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_00cccc6334cc9294fa722416ab2414a4
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 7400000, guid: 56c7a7d9cf1bb53448b3e353c2871412, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -24,6 +46,7 @@ MonoBehaviour:
       - rid: 889909669330157574
       - rid: 889909669330157575
       - rid: 5341827826791743690
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -34,6 +57,17 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 0.41376427
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 3407818901819470167, guid: 037a7979a37f3f54d8b7e75d52568846, type: 3}
         spawnPointName: 
@@ -49,6 +83,17 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 0.4243827
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         targetObjectName: 
         alpha: 0.24
@@ -65,6 +110,17 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 0.5
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: Player_Dash
         audioClip: {fileID: 0}

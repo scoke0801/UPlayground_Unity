@@ -13,15 +13,38 @@ MonoBehaviour:
   m_Name: Humanoid_Common_Interaction_ItemGet
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_20e72c6d1d048234a90fc820d1fe240b
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 8278757103432640669, guid: 952adf5766fbc274bb22c50023c33eea, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 5341827992738070528
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -32,6 +55,17 @@ MonoBehaviour:
       data:
         startTime: 0.8
         endTime: 0.8
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         mode: 2
         loopCount: 1

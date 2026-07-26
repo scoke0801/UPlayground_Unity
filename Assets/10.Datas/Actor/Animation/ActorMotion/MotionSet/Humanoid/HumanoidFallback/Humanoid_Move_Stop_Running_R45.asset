@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Move_Stop_Running_R45
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Move_Stop_Running_R45
+    sections:
+    - id: section_76c691f0e57a2bb4b899bf4d9d7a3bfb
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Run_F_R45_To_Idle_InPlace
+    - id: 
+      motionName: Run_F_R45_To_Idle_InPlace
       motionClip: {fileID: -558230928307163937, guid: c9b074aeebd53bc4db38ad05d9a8bcc2, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

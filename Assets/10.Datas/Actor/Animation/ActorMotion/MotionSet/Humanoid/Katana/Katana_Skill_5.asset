@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Katana_Skill_5
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_a497ed3fda5a5b44fa1574bb9ac7f8da
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 1827226128182048838, guid: 4a5b2ab7591526144b6b32c41155fd2a, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: 3
       playbackSpeed: 0.7
@@ -39,15 +61,40 @@ MonoBehaviour:
       - rid: 5792125172764901511
       - rid: 5792125186540306552
       - rid: 5792125186540306578
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
+    - rid: 5341828300924256463
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
+    - rid: 5341828300924256464
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
+    - rid: 5341828300924256465
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
+    - rid: 5341828300924256466
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
     - rid: 5792125102988197888
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.8577261
         endTime: 2.607726
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
         spawnPointName: VFX_Pivot
@@ -59,10 +106,21 @@ MonoBehaviour:
         destroyOnFinish: 1
         particleLifeTime: 0
     - rid: 5792125102988197889
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.079369
         endTime: 2.829369
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
         spawnPointName: VFX_Pivot
@@ -74,10 +132,21 @@ MonoBehaviour:
         destroyOnFinish: 1
         particleLifeTime: 0
     - rid: 5792125102988197890
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.273178
         endTime: 3.023178
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
         spawnPointName: VFX_Pivot
@@ -89,10 +158,21 @@ MonoBehaviour:
         destroyOnFinish: 1
         particleLifeTime: 0
     - rid: 5792125102988197891
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 3.2231443
         endTime: 3.9731443
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 8587560481101609250, guid: 2204f06b178af014986bf95a7bda8e6e, type: 3}
         spawnPointName: VFX_Pivot
@@ -104,126 +184,277 @@ MonoBehaviour:
         destroyOnFinish: 1
         particleLifeTime: 0
     - rid: 5792125102988197892
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.875
         endTime: 1.9396745
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 5792125102988197893
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.074008
         endTime: 2.165163
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 1
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 5792125102988197894
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.2755084
         endTime: 2.371461
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 2
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 5792125102988197895
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 3.220641
         endTime: 3.3665934
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 128
         hitPhaseIndex: 3
         hitboxGroupId: MainWeapon
+        additionalHitboxGroupIds: []
     - rid: 5792125102988197896
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 1.8758723
         endTime: 1.9684602
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: bc1d59efae6882644962b7b108c04261, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256463
         spawnPointName: VFX_Pivot
         spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 20
+        barrelBlendTime: 0
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 128
         hitParticleName: 
     - rid: 5792125102988197897
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.0788057
         endTime: 2.1843534
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: bc1d59efae6882644962b7b108c04261, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256464
         spawnPointName: VFX_Pivot
         spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 20
+        barrelBlendTime: 0
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 128
         hitParticleName: 
     - rid: 5792125102988197898
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 3.2254386
         endTime: 3.3254385
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: bc1d59efae6882644962b7b108c04261, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256466
         spawnPointName: VFX_Pivot
         spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 20
+        barrelBlendTime: 0
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 128
         hitParticleName: 
     - rid: 5792125102988197899
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.2803059
         endTime: 2.442675
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: bc1d59efae6882644962b7b108c04261, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256465
         spawnPointName: VFX_Pivot
         spawnOffset: {x: 0, y: 0, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 20
+        barrelBlendTime: 0
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 15
         duration: 1
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 128
         hitParticleName: 
     - rid: 5792125170122752144
-      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 4.117647
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 1586059801500780, guid: 883c04b4795669b468dac641ea3fb3a3, type: 3}
         spawnPointName: 
@@ -235,20 +466,43 @@ MonoBehaviour:
         destroyOnFinish: 0
         particleLifeTime: 6
     - rid: 5792125172636713075
-      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: CameraEffectEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 4.1375
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         effectDataList:
         - {fileID: 11400000, guid: 9158df7728ef2c04e9dbd02249f365ac, type: 2}
         - {fileID: 11400000, guid: 29d6e75b485771a43b316bbae267959e, type: 2}
         lockCameraInput: 1
+        ignoreWhenEnemy: 1
     - rid: 5792125172764901500
-      type: {class: CameraLookAtSocketEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: CameraLookAtSocketEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 4.125
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         socketType: 3
         offset: {x: 0, y: 0, z: 0}
@@ -266,22 +520,55 @@ MonoBehaviour:
         restoreDuration: 0.3
         lockCameraInput: 1
     - rid: 5792125172764901511
-      type: {class: InvincibilityEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: InvincibilityEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 4.125
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
     - rid: 5792125186540306552
-      type: {class: TimeScaleEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: TimeScaleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.23750001
         endTime: 2.0375
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         targetTimeScale: 0.3
         blendDuration: 0.05
     - rid: 5792125186540306578
-      type: {class: FreezeEnemyEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: FreezeEnemyEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0
         endTime: 4.1375
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

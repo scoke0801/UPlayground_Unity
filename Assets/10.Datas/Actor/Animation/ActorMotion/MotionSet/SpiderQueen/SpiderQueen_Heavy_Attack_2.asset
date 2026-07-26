@@ -13,22 +13,60 @@ MonoBehaviour:
   m_Name: SpiderQueen_Heavy_Attack_2
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_a48ea328697de4a419488038b33420d8
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: -7159147207538092535, guid: 9840c213eb7a16743a49342c908707ec, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917010493636621
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 7399917010493636621
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
-        hitboxGroupId: Default
         startTime: 0.42221898
         endTime: 0.744858
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+        hitboxGroupId: Default
+        additionalHitboxGroupIds: []

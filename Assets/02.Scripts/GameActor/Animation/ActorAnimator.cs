@@ -389,11 +389,20 @@ namespace UPlayGround.Animation
             return null;
         }
 
-        public virtual bool HasMotion(GameplayTag slot, bool checkWeapon = false) =>
-            ResolveMotionSetAsset(slot) != null;
+        public virtual bool HasMotion(GameplayTag slot, bool checkWeapon = false)
+        {
+            MotionSetAsset asset = ResolveMotionSetAsset(slot);
+            return asset != null &&
+                   asset.motionSet != null &&
+                   asset.motionSet.IsValid() &&
+                   MotionTimelineResolver.TryValidateSectionLayout(asset.motionSet, out _);
+        }
 
         public bool HasMotion(MotionSetAsset asset) =>
-            asset != null && asset.motionSet != null && asset.motionSet.IsValid();
+            asset != null &&
+            asset.motionSet != null &&
+            asset.motionSet.IsValid() &&
+            MotionTimelineResolver.TryValidateSectionLayout(asset.motionSet, out _);
 
         public virtual AnimancerState PlayMotion(GameplayTag slot, float fadeDuration = 0f, int layerIndex = 0)
         {
@@ -463,6 +472,13 @@ namespace UPlayGround.Animation
             started = false;
             if (motionSet == null || !motionSet.IsValid())
                 return null;
+            if (!MotionTimelineResolver.TryValidateSectionLayout(motionSet, out string sectionError))
+            {
+                Debug.LogError(
+                    $"[{name}] MotionSet '{displayKey}' 재생 거부: {sectionError}",
+                    sourceAsset != null ? sourceAsset : this);
+                return null;
+            }
 
             bool sameSource = sourceAsset != null
                 ? _currentMotionAsset == sourceAsset
@@ -491,9 +507,7 @@ namespace UPlayGround.Animation
             EnsureOverlayMask(effectiveLayer);
             _currentMotionLayerIndex = effectiveLayer;
 
-            float resolvedFade = fadeDuration > 0f
-                ? fadeDuration
-                : Mathf.Max(0f, motionSet.blend?.blendInDuration ?? 0f);
+            float resolvedFade = Mathf.Max(0f, fadeDuration);
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
             PlayMotionAtIndex(0, resolvedFade, effectiveLayer);
             StartPlaybackLayers(resolvedFade);
@@ -507,9 +521,7 @@ namespace UPlayGround.Animation
             if (request.asset?.motionSet == null)
                 return false;
 
-            float blendIn = request.blendInOverride ??
-                            request.asset.motionSet.blend?.blendInDuration ??
-                            0f;
+            float blendIn = request.blendInOverride ?? 0f;
             AnimancerState state = PlayMotion(request.asset, blendIn);
             if (state == null)
                 return false;
@@ -808,20 +820,18 @@ namespace UPlayGround.Animation
 
             MotionSet endedMotionSet = _currentMotionSet;
             bool completed = reason == MotionSetEndReason.Completed;
-            float blendOut = blendOutOverride ?? (reason == MotionSetEndReason.Interrupted
-                ? endedMotionSet?.blend?.interruptedBlendOutDuration ?? 0f
-                : endedMotionSet?.blend?.blendOutDuration ?? 0f);
-            bool holdPose = completed &&
-                            endedMotionSet?.blend != null &&
-                            (!endedMotionSet.blend.autoBlendOut || endedMotionSet.blend.holdLastPose);
+            float blendOut = Mathf.Max(0f, blendOutOverride ?? 0f);
 
             // 이벤트 강제 종료
             _eventExecutor?.Stop();
-            if (!holdPose)
-            {
+            // 정상 완료는 상태 전환이 다음 모션을 재생할 때까지 마지막 Base 포즈를 유지한다.
+            // 명시적 Hold Section은 재생 상태 자체를 유지하므로 이 경로에 들어오지 않는다.
+            if (!completed)
                 FadeOrStopLayer(_currentMotionLayerIndex, blendOut);
-                StopPlaybackLayers(blendOut);
-            }
+
+            // Base 마지막 포즈를 유지하더라도 병렬 레이어까지 남겨 두면 다음 상태를 덮는다.
+            // 완료 포즈 유지와 추가 트랙 수명은 분리해서 처리한다.
+            StopPlaybackLayers(blendOut);
 
             _isPlayingMotionSet = false;
             _currentMotionSet = null;

@@ -13,23 +13,59 @@ MonoBehaviour:
   m_Name: Katana_Dodge_F
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Dodge_F
+    sections:
+    - id: section_5195b78d34ad60144a58aaae58a27c62
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 7400000, guid: bb507e2a35ad106448957c6f9c22f452, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 5792125049417236645
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 5792125049417236645
-      type: {class: AddForceEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: AddForceEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 0.13749999
         endTime: 0.6374999
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
         direction: {x: 0, y: 0, z: 1}
         force: 30

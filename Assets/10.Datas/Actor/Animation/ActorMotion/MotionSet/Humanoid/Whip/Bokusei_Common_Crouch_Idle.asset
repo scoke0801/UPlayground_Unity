@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Bokusei_Common_Crouch_Idle
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_fac195f608e2b4e4994a98f3ac25ebd7
+      displayName: Loop
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 4659165650557470915, guid: 904f0e11cda6e23419d771e0d02fe4b2, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

@@ -23,7 +23,14 @@ namespace UPlayGround.Animation.Editor
             authoring.AddToClassList("up-motion-authoring-foldout");
             _motionAuthoringContainer = new IMGUIContainer(DrawMotionAuthoringBody);
             _motionAuthoringContainer.AddToClassList("up-motion-authoring-imgui");
-            authoring.Add(_motionAuthoringContainer);
+            var authoringScroll = new ScrollView(ScrollViewMode.Vertical)
+            {
+                verticalScrollerVisibility = ScrollerVisibility.Auto,
+                horizontalScrollerVisibility = ScrollerVisibility.Hidden,
+            };
+            authoringScroll.AddToClassList("up-motion-authoring-scroll");
+            authoringScroll.Add(_motionAuthoringContainer);
+            authoring.Add(authoringScroll);
             root.Add(authoring);
 
             _timelineView = new TimelineView(

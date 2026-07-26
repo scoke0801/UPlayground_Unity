@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Walk_Turn_L90
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Walk_Turn_L90
+    sections:
+    - id: section_949479749e4d95a4e8b5ec741ca16b99
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Walk_F_Turn_L90_InPlace
+    - id: 
+      motionName: Walk_F_Turn_L90_InPlace
       motionClip: {fileID: -4871473933056038789, guid: f478e272ad16e504c992d141de78aa8c, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

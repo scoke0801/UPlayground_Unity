@@ -13,22 +13,60 @@ MonoBehaviour:
   m_Name: SpirderMinion_Attack
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_dd445430000983c4e907e33bee248602
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 6720303635017113406, guid: d4b8529bfd68c8e44b22f44051dc61b2, type: 3}
+      markers: []
+      clipStartTime: -1
+      clipEndTime: -1
+      playbackSpeed: 1
       events:
       - rid: 7399917010493636622
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
     - rid: 7399917010493636622
-      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: BeginCollisionEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
-        hitboxGroupId: Default
         startTime: 0.20629796
         endTime: 0.38381016
-        targetLayers:
-          serializedVersion: 2
-          m_Bits: 64
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        hitPhaseIndex: 0
+        hitboxGroupId: Default
+        additionalHitboxGroupIds: []

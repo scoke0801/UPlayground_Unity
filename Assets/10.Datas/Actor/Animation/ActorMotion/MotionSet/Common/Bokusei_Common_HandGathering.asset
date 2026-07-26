@@ -13,15 +13,38 @@ MonoBehaviour:
   m_Name: Bokusei_Common_HandGathering
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_6f4ab411a51f8c245aba8b757c5c6675
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 3094330708855449807, guid: f09eaec882904a44b84523a123d8f503, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 5341827903424561157
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -32,6 +55,17 @@ MonoBehaviour:
       data:
         startTime: 0.45000002
         endTime: 0.95
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         interactionEvent: 0
         showHitFx: 1

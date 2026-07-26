@@ -6,10 +6,87 @@ namespace UPlayGround.Animation
 {
     /// <summary>
     /// MotionSet의 Section과 이벤트 시간을 해석한다.
-    /// 기존 schemaVersion 0 에셋은 저장 없이 기존 startTime/endTime 규칙으로 읽는다.
     /// </summary>
     public static class MotionTimelineResolver
     {
+        public static bool TryValidateSectionLayout(MotionSet set, out string error)
+        {
+            if (set == null)
+            {
+                error = "MotionSet 데이터가 없습니다.";
+                return false;
+            }
+            if (set.schemaVersion != MotionSet.CurrentSchemaVersion)
+            {
+                error =
+                    $"지원하지 않는 MotionSet 스키마입니다: {set.schemaVersion} " +
+                    $"(필요: {MotionSet.CurrentSchemaVersion})";
+                return false;
+            }
+            if (set.TotalDuration <= 0f)
+            {
+                error = "MotionSet 재생 시간이 0입니다.";
+                return false;
+            }
+            if (set.sections == null || set.sections.Count == 0)
+            {
+                error = "Section이 없습니다.";
+                return false;
+            }
+
+            var ids = new HashSet<string>();
+            var startTimes = new HashSet<float>();
+            bool startsAtZero = false;
+            foreach (MotionSection section in set.sections)
+            {
+                if (section == null)
+                {
+                    error = "null Section이 있습니다.";
+                    return false;
+                }
+                if (string.IsNullOrEmpty(section.id) || !ids.Add(section.id))
+                {
+                    error = $"Section ID가 없거나 중복됩니다: '{section.displayName}'";
+                    return false;
+                }
+                if (float.IsNaN(section.startTime) ||
+                    float.IsInfinity(section.startTime) ||
+                    section.startTime < 0f ||
+                    section.startTime >= set.TotalDuration)
+                {
+                    error = $"Section 시작 시간이 범위를 벗어납니다: '{section.displayName}'";
+                    return false;
+                }
+                float canonicalStartTime = Mathf.Round(section.startTime * 10000f) / 10000f;
+                if (!startTimes.Add(canonicalStartTime))
+                {
+                    error = $"같은 시작 시간의 Section이 중복됩니다: {section.startTime:0.####}초";
+                    return false;
+                }
+                if (Mathf.Abs(section.startTime) <= 0.0001f)
+                    startsAtZero = true;
+            }
+
+            if (!startsAtZero)
+            {
+                error = "0초에서 시작하는 Section이 없습니다.";
+                return false;
+            }
+
+            foreach (MotionSection section in set.sections)
+            {
+                if (!string.IsNullOrEmpty(section.defaultNextId) &&
+                    !ids.Contains(section.defaultNextId))
+                {
+                    error = $"다음 Section을 찾을 수 없습니다: '{section.defaultNextId}'";
+                    return false;
+                }
+            }
+
+            error = null;
+            return true;
+        }
+
         public static bool TryGetSection(
             MotionSet set,
             string sectionId,

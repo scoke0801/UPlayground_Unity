@@ -13,15 +13,38 @@ MonoBehaviour:
   m_Name: Humanoid_Common_BuffSkill
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Common_BuffSkill
+    sections:
+    - id: section_f04126ec625ae8044b73767614a22456
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Getup
+    - id: 
+      motionName: Frank_RPG_Warrior_Getup
       motionClip: {fileID: 7400000, guid: f9264c0ec1a51684092963f1939e2bd4, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 5341828142411284623
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -32,6 +55,17 @@ MonoBehaviour:
       data:
         startTime: 0.3875
         endTime: 0.8875
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         particlePrefab: {fileID: 1171190231128718, guid: 9fa6cd28cd97cc54eb5099893515d913, type: 3}
         spawnPointName: 

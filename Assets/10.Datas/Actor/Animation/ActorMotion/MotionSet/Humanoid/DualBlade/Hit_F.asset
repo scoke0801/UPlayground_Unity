@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Hit_F
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Hit_F
+    sections:
+    - id: section_9fc9eff0c87f454428d806b95f2acffe
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Hit01
+    - id: 
+      motionName: Frank_RPG_Dual_Hit01
       motionClip: {fileID: 7400000, guid: c365cd6b2832bf041b9b4ade5328a43a, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Step_F
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Dodge
+    sections:
+    - id: section_5307172a894839f4ca822c74fc793d17
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Evade_F
+    - id: 
+      motionName: Frank_RPG_Dual_Evade_F
       motionClip: {fileID: 7400000, guid: 4691cd54d76aeb440a2e0720bd20ad1d, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

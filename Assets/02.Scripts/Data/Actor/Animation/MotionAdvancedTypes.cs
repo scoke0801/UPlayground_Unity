@@ -82,18 +82,6 @@ namespace UPlayGround.Animation
     }
 
     [Serializable]
-    public sealed class MotionSetBlendSettings
-    {
-        [Min(0f)] public float blendInDuration;
-        public AnimationCurve blendInCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-        [Min(0f)] public float blendOutDuration;
-        public AnimationCurve blendOutCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-        [Min(0f)] public float interruptedBlendOutDuration;
-        public bool autoBlendOut = true;
-        public bool holdLastPose;
-    }
-
-    [Serializable]
     public sealed class MotionCurveTrack
     {
         public string id;

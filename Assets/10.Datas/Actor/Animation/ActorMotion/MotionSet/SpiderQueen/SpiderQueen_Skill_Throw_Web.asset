@@ -13,33 +13,86 @@ MonoBehaviour:
   m_Name: SpiderQueen_Skill_Throw_Web
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: 
+    sections:
+    - id: section_67d468390c036d24d9e80f36442d6545
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 5385136767152346346, guid: acad9c63569c5d14a8c87d9cb2ffb9ec, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 7399917153617182831
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds:
+    - rid: 5341828300924256458
+      type: {class: SingleShotPattern, ns: UPlayGround.Data.Projectile, asm: UPlayGround.Data}
+      data: 
     - rid: 7399917153617182831
-      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: Assembly-CSharp}
+      type: {class: SpawnProjectileEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:
         startTime: 2.2875001
         endTime: 5.975
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         projectilePrefab: {fileID: 3907672296152656769, guid: 7c25bede9fc1884478447b1078111753, type: 3}
+        projectileDefinition: {fileID: 0}
+        spawnPattern:
+          rid: 5341828300924256458
         spawnPointName: 
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
+        hitPhaseIndex: -1
         damage: 10
+        barrelBlendTime: 0
+        targetMode: 0
+        targetOffset: {x: 0, y: 0, z: 0}
+        projectTargetToGround: 0
+        groundLayerMask:
+          serializedVersion: 2
+          m_Bits: 4294967295
+        groundProbeHeight: 10
+        groundProbeDistance: 20
         speed: 5
         duration: 5
+        overrideDefinitionSpeed: 0
+        overrideDefinitionDuration: 0
         targetHitLayer:
           serializedVersion: 2
           m_Bits: 64

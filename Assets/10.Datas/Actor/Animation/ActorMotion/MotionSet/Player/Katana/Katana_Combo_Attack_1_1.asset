@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Katana_Combo_Attack_1_1
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Katana_combo_Attack_1_1
+    sections:
+    - id: section_a13cb1965ed9b664f9c6927ff6420463
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Katana_combo_Attack_1_1
+    - id: 
+      motionName: Katana_combo_Attack_1_1
       motionClip: {fileID: 7400000, guid: 9cdbfd5fbd2ccf24897ec6c2d0cd4ae9, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
@@ -26,6 +48,7 @@ MonoBehaviour:
       - rid: 5351031836564258953
       - rid: 889910008326651932
       - rid: 889910008326652147
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -36,6 +59,17 @@ MonoBehaviour:
       data:
         startTime: 0.28936356
         endTime: 0.7893632
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         soundKey: Katana_Attack_Light
         audioClip: {fileID: 0}
@@ -46,6 +80,17 @@ MonoBehaviour:
       data:
         startTime: 0.34765702
         endTime: 0.8636307
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         useSpawnerSettings: 1
         overrideSpawnerTransform: 1
@@ -66,6 +111,17 @@ MonoBehaviour:
       data:
         startTime: 0
         endTime: 0.2875
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         preset: 1
         modifierType: 0
@@ -106,6 +162,17 @@ MonoBehaviour:
       data:
         startTime: 0.32667384
         endTime: 0.42170623
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         hitPhaseIndex: 0
         hitboxGroupId: MainWeapon
@@ -115,4 +182,15 @@ MonoBehaviour:
       data:
         startTime: 0.3232211
         endTime: 0.66172963
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0

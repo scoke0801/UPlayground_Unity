@@ -278,8 +278,14 @@
     border-bottom-color: var(--up-border-strong);
 }
 
-.up-motion-authoring-imgui {
+.up-motion-authoring-scroll {
     max-height: 330px;
+    min-height: 0;
+    flex-shrink: 1;
+}
+
+.up-motion-authoring-imgui {
+    flex-shrink: 0;
 }
 
 .up-timeline-view {

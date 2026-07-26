@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Run_Turn_R90
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Run_Turn_R90
+    sections:
+    - id: section_88b18ee7f8c186441a97bdd8b5a77ffc
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Run_F_Turn_R90_InPlace
+    - id: 
+      motionName: Run_F_Turn_R90_InPlace
       motionClip: {fileID: 3520608466874056668, guid: 06170a3c2cc9a864f9fc530c3984071c, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

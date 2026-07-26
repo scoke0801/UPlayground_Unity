@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Spear_Skill_3
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Spear_Skill_3
+    sections:
+    - id: section_609179b809b21e74eb27d55c09aa3faf
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Spear_Skill03
+    - id: 
+      motionName: Frank_RPG_Spear_Skill03
       motionClip: {fileID: 7400000, guid: 97deb850ae1016d45b92f153e7b6dee7, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_Block
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_Block
+    sections:
+    - id: section_95e556ac1d00b2c479169b99a2324b12
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Block
+    - id: 
+      motionName: Frank_RPG_Warrior_Block
       motionClip: {fileID: 7400000, guid: f1ae3bddf712ca64a9289b5c4ceed9f7, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

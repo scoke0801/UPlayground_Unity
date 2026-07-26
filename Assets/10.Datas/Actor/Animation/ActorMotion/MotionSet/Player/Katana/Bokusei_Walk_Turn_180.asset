@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Bokusei_Walk_Turn_180
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Bokusei_Walk_Turn_180
+    sections:
+    - id: section_c63261533d1944341b2da4f3841022ce
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Walk_F_Turn_180
+    - id: 
+      motionName: Walk_F_Turn_180
       motionClip: {fileID: -2739926332153840584, guid: 9a3a0ecafe95be94282cbbecfe210ab3, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

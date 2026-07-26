@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_Step_B
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_Dash
+    sections:
+    - id: section_2f59bfcb27892be4e802db5b4e394118
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Step_F
+    - id: 
+      motionName: Frank_RPG_Warrior_Step_F
       motionClip: {fileID: 7400000, guid: 0357a2d8dc7756c4fa93a20815c4ae06, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

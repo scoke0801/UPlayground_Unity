@@ -109,7 +109,7 @@ namespace UPlayGround.Animation.Editor
                 return;
 
             Undo.RecordObject(asset, "Init MotionSet");
-            asset.motionSet = new MotionSet { motionSetName = asset.name };
+            asset.motionSet = MotionSet.CreateAuthored(asset.name);
             EditorUtility.SetDirty(asset);
         }
 

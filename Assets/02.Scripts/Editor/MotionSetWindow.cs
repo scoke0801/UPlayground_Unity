@@ -3342,7 +3342,8 @@ namespace UPlayGround.Animation.Editor
             if (string.IsNullOrEmpty(path)) return;
 
             var asset = CreateInstance<MotionSetAsset>();
-            asset.motionSet = new MotionSet { motionSetName = System.IO.Path.GetFileNameWithoutExtension(path) };
+            asset.motionSet = MotionSet.CreateAuthored(
+                System.IO.Path.GetFileNameWithoutExtension(path));
 
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.SaveAssets();

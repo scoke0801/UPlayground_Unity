@@ -143,7 +143,7 @@ UI Toolkit 타임라인은 다음 기능을 이미 구현했다. 이후 단계�
 | Notify Trigger Weight | 블렌드 가중치 임계값 이상에서 발화 | 없음 | 선택 도입 |
 | Notify Tick Type | Queued 또는 정확한 Branching Point | 즉시 실행 + 일부 LateUpdate 지연 | 이름·계약 정리 |
 | Timing Track | Section/Notify의 실행 순서를 번호와 색으로 표시 | 전환점·오버레이는 있으나 통합 실행 순서 없음 | 도입 |
-| Blend In/Out | Asset 진입·종료 블렌드, Blend Profile, 중단 처리 | 호출자 `fadeDuration` 중심 | **핵심 도입** |
+| Blend In/Out | Asset 진입·종료 블렌드, Blend Profile, 중단 처리 | 호출자 `fadeDuration`과 Animancer 페이드 | 호출자 정책 유지 |
 | Time Stretch Curve | 목표 재생 시간 변화 시 어느 구간을 더 압축할지 곡선으로 지정 | 모션별 균일 `playbackSpeed` | 후순위 도입 |
 | Sync Group / Marker | Leader/Follower와 공통 마커로 서로 다른 길이의 모션 동기화 | 병렬 레이어가 동일 글로벌 초를 공유 | 후순위 도입 |
 | Root Motion 정책 | Montage/모든 애니메이션 추출 정책, Notify State로 일부 구간 비활성화 | 별도 루트 모션 도구 + MotionWarp | 프로젝트식 확장 |
@@ -222,7 +222,6 @@ public class MotionSet
 {
     public int schemaVersion;
     public string motionSetName;
-    public MotionSetBlendSettings blend;
     public List<MotionSection> sections;
     public List<MotionSyncMarker> syncMarkers;
     // 기존 필드 유지
@@ -314,29 +313,23 @@ public enum MotionEventReentryPolicy
 
 기본값은 기존 동작을 보존하는 `OncePerPlayback`이다.
 
-### 5.4 블렌드
+### 5.4 재생 전환 정책
 
-```csharp
-[Serializable]
-public sealed class MotionSetBlendSettings
-{
-    public float blendInDuration;
-    public AnimationCurve blendInCurve;
-    public float blendOutDuration;
-    public AnimationCurve blendOutCurve;
-    public float interruptedBlendOutDuration;
-    public bool autoBlendOut = true;
-    public bool holdLastPose;
-}
-```
+MotionSet 에셋은 Blend 설정을 소유하지 않는다. 진입 페이드는 `PlayMotion`의
+`fadeDuration` 또는 `MotionPlaybackRequest.blendInOverride`가 Animancer에 전달한다.
+명시적 정지는 `StopMotionSet(blendOutDuration)` 호출자가 페이드 시간을 결정하며,
+override가 없으면 즉시 정리한다.
 
-1차 구현은 Animancer가 제공하는 레이어·상태 페이드를 사용한다.
+정상 완료의 동작은 Section이 단일 소스다.
 
-- Asset 설정이 없으면 호출자 `fadeDuration`을 그대로 사용한다.
-- 호출자 override > Asset 설정 > 기존 기본값 순으로 해석한다.
-- 정상 종료와 중단 종료를 구분한다.
-- 본별 Blend Profile은 Animancer/KCC 구조와 비용을 검토한 뒤 후속 과제로 둔다.
-- 개별 `Motion` 사이 전환 블렌드는 Section/Asset 블렌드 안정화 후 도입한다.
+- `Stop`: 완료 콜백을 발생시키고 다음 모션이 재생될 때까지 마지막 Base 포즈를 유지한다.
+- `Hold`: 재생 상태와 마지막 포즈를 유지하며 외부 Section 점프를 기다린다.
+- `LoopSelf`: 현재 Section을 반복한다.
+- `Continue`: `Default Next ID` 또는 시간상 다음 Section으로 진행한다.
+
+기존 1,156개 에셋의 Blend 값은 모두 `0/0/0`, Auto Blend Out `true`,
+Hold Last Pose `true`로 동일했으므로 `MotionSetBlendSettings`와 직렬화 블록을
+제거하고 위 런타임 기본 정책으로 동작을 보존했다.
 
 ### 5.5 의미 재생 채널
 
@@ -734,7 +727,7 @@ Unreal Child Montage의 장점 중 “클립을 바꿔도 기존 구간을 유�
 - Absolute/Relative/Proportional 시간 링크 변환
 - 클립 트림·속도 변경 후 링크 보존
 - stable ID 생성·중복 검출
-- 정상/중단 Blend Out 선택
+- 호출자 진입/정지 페이드 전달과 Section 종료 정책 분리
 - Tick 이벤트 Enter/Tick/Exit 순서
 - 같은 프레임 Exact 이벤트 정렬
 - 딥클론 시 Unity Object 참조와 SerializeReference 파생 필드 보존
@@ -840,10 +833,10 @@ Unreal Child Montage의 장점 중 “클립을 바꿔도 기존 구간을 유�
 - Section 점프·루프·강제 중단에도 정리 순서가 결정적이다.
 - Collision과 공간 VFX의 실행 시점 회귀가 없다.
 
-### Phase 5 — 블렌드와 의미 채널
+### Phase 5 — 의미 채널과 재생 전환
 
-- [ ] Asset Blend In/Out/Interrupted 설정
-- [ ] 자동 Blend Out·Hold Last Pose
+- [x] Asset Blend 설정 제거 및 호출자/Animancer 페이드로 단일화
+- [x] Stop/Hold/LoopSelf/Continue를 Section 종료 정책으로 단일화
 - [ ] `channelId`, concurrency group, interruption policy
 - [ ] LayerWeight 곡선
 - [ ] 채널 충돌 검증
@@ -851,7 +844,7 @@ Unreal Child Montage의 장점 중 “클립을 바꿔도 기존 구간을 유�
 
 완료 기준:
 
-- 호출부마다 흩어진 기본 fade 값을 Asset 정책으로 통일할 수 있다.
+- 페이드는 호출자가 의도를 명시하고, 에셋의 흐름과 완료 의미는 Section만 소유한다.
 - UpperBody 액션 중단과 FullBody 액션 우선순위가 데이터에서 드러난다.
 
 ### Phase 6 — Curve와 상황 프리뷰
@@ -895,17 +888,23 @@ Unreal Child Montage의 장점 중 “클립을 바꿔도 기존 구간을 유�
 5. 업그레이드는 `Undo` 또는 백업 가능한 명시적 명령으로만 실행한다.
 6. 컴파일 오류나 missing managed reference가 있으면 저장·일괄 재직렬화를 금지한다.
 
-### 9.2 schemaVersion 0 해석
+### 9.2 Section 전면 마이그레이션
 
-| 기존 데이터 | 신규 해석 |
-|-------------|-----------|
-| Section 없음 | 암시적 `Default` Section, 0초부터 끝까지 Continue |
-| `Motion.events[]` | Relative 링크 |
-| `MotionSet.globalEvents[]` | Absolute 링크 |
-| `MotionLayer.weight` | 곡선 없는 고정 weight |
-| 호출자 fadeDuration | Asset blend 미지정 시 그대로 사용 |
-| `LoopEvent` | 기존 ActorAnimator 특수 처리 유지 |
-| `RequiresPostEvaluation` | PostAnimationEvaluation 단계 |
+Section이 없는 MotionSet을 런타임에서 암시적으로 해석하지 않는다. 전체 에셋을 명시적
+Section으로 변환한 뒤 런타임과 에디터 검증기가 Section 누락을 오류로 처리한다.
+
+| 기존 데이터 | 마이그레이션 결과 |
+|-------------|-------------------|
+| 지속 GameplayTag 슬롯 | 0초 단일 Section, `LoopSelf` |
+| 단발 GameplayTag 슬롯 | 0초 단일 Section, `Stop` |
+| `MotionReferenceSO` 직접 참조 | 0초 단일 Section, `Stop` |
+| 기존 `LoopEvent` | 이벤트는 유지하고 바깥 Section은 `Stop` |
+| 미참조·공유 충돌 | 자동 적용 전 Review 대상으로 차단 |
+| 기존 정상 완료 | `OnEnd`를 유지하고 마지막 Base 포즈를 보존 |
+
+분류는 이름 추측이 아니라 실제 `ActorAnimationMotionSet` 슬롯과 `MotionReferenceSO`
+참조를 우선 근거로 사용한다. `AnimationClip.isLooping`은 Review 보조 근거일 뿐 자동
+판정 근거로 사용하지 않는다.
 
 ### 9.3 stable ID
 
@@ -944,7 +943,7 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 | 위험 | 영향 | 대응 |
 |------|------|------|
 | Section이 상태 머신을 침범 | 흐름 권위 이중화 | 조건은 외부, Section은 범위·기본 next만 소유 |
-| 시간 링크 추가로 기존 시간이 변함 | 전투 타이밍 회귀 | schema 0 호환 해석 + 스냅샷 테스트 |
+| 시간 링크 추가로 기존 시간이 변함 | 전투 타이밍 회귀 | 전체 Section 마이그레이션 + 스냅샷 테스트 |
 | Section 점프 중 이벤트 누수 | 무적·Collision·카메라 잠금 잔류 | Exit 역순 보장 + PlayMode 중단 테스트 |
 | Tick 이벤트 남용 | CPU 증가 | 활성 이벤트만 순회, 채널 제한, 프로파일링 기준 |
 | 채널과 Animancer 인덱스 불일치 | 잘못된 본 레이어 재생 | 프로젝트 채널 설정 검증 + 명시적 fallback |
@@ -958,13 +957,13 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 
 ## 12. 전체 완료 조건
 
-- [ ] 기존 MotionSet 에셋의 재생 시간과 이벤트 발화가 호환 모드에서 동일하다.
+- [x] 기존 MotionSet 1,156개가 명시적 Section으로 마이그레이션되고 재실행이 멱등적이다.
 - [ ] Section 시작·점프·다음 예약·루프가 결정적으로 동작한다.
 - [ ] Section 점프·중단·정지 후 활성 MotionEvent 누수가 없다.
 - [ ] Absolute/Relative/Proportional/Marker 링크가 편집 후 의도대로 유지된다.
 - [ ] 다중 선택·그룹·클립보드·의미 스냅이 Undo/Redo와 함께 동작한다.
 - [ ] Enter/Tick/Exit 이벤트와 실행 정확도·평가 단계가 검증된다.
-- [ ] Blend In/Out/Interrupted와 의미 채널 중단 정책이 동작한다.
+- [ ] 호출자 페이드와 의미 채널 중단 정책이 동작한다.
 - [ ] Curve Track과 Preview Adapter가 런타임 부수효과 없이 결과를 보여준다.
 - [ ] HitPhase·VFX·Camera·Warp·Projectile 관계 오류가 에디터에서 드러난다.
 - [ ] Unity 컴파일 오류 0.
@@ -993,9 +992,9 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 ## 14. 2026-07-26 구현 결과
 
 이 절은 위 설계를 실제 코드에 반영한 결과와 아직 콘텐츠 검증이 필요한 항목을 구분한다.
-기존 MotionSet 에셋은 자동 저장하거나 일괄 재직렬화하지 않았다. `schemaVersion == 0`은
-계속 기존 `startTime/endTime` 규칙으로 읽으며, 안정 ID와 schemaVersion 보정은 에디터의
-명시적 **안정 ID 보정** 동작을 실행할 때만 Undo와 함께 기록된다.
+초기 구현에서는 기존 MotionSet을 자동 저장하지 않았으나, 인게임 로코모션이 1회 완료 후
+정지하는 회귀가 확인되어 2026-07-26에 전체 Section 마이그레이션을 수행했다. 이제
+`schemaVersion == 0` 또는 Section 누락을 런타임 호환 코드로 읽지 않는다.
 
 ### 14.1 완료된 기반
 
@@ -1008,7 +1007,7 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 - [x] 이벤트 Enter/Tick/Exit, 재진입 정책, 실행 순서, Queued/Exact, 평가 단계
 - [x] Section 점프·중단·한 프레임 내 전체 구간 통과 시 Exit 보장
 - [x] 외부 Signal begin/end 포트와 부수효과 없는 preview adapter 계약
-- [x] Asset Blend In/Out/Interrupted, Auto Blend Out, Hold Last Pose
+- [x] Asset Blend 제거, 호출자 페이드와 Section 종료 정책으로 책임 분리
 - [x] 의미 채널, 동시성 그룹, 중단 정책, Layer Weight Curve
 - [x] PlaybackRate/LayerWeight/TimeStretch 타입 지정 Curve Track
 - [x] Sync Group/Role, 공통 Marker 보간, normalized fallback, follower 이벤트 억제
@@ -1023,29 +1022,48 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 
 ### 14.2 자동 검증
 
-- Unity 실제 스크립트 컴파일: 구현 스냅샷 기준 Data, Actor, Ability Tests,
-  Assembly-CSharp-Editor 오류 0. 최종 전체 재컴파일은 작업 범위 밖에서 동시에 변경된
-  `FlowGraph/FlowVariables.cs`의 CS0177 오류 때문에 중단되었다.
-- CLI 보조 컴파일: 최종 Motion Editor 변경을 포함한 Data/Actor 및
-  `Assembly-CSharp-Editor` 대상 단독 컴파일(`BuildProjectReferences=false`) 오류 0.
-  전체 의존성 컴파일은 위 FlowGraph 오류와 동일하게 차단되었다.
-- 신규 `MotionTimelineResolverTests`: 6/6 통과
+- Unity 실제 스크립트 컴파일: Section 마이그레이터를 포함한 Data.Editor, Actor,
+  Ability Tests 오류 0.
+- CLI 보조 컴파일: Data.Editor, Actor, Ability Tests 오류 0.
+- 신규 `MotionTimelineResolverTests`: 9/9 통과
   - 기존 순차 오프셋
   - Marker 시간 링크
   - Section 범위/default next
   - 공통 Marker follower 동기화
   - Impact 보호 Time Stretch
   - Enter/Tick/Exit와 Signal
-- 전체 Ability EditMode: 122개 중 116 통과, 6 실패
-  - 신규 MotionTimeline 테스트는 모두 통과했다.
+- 신규 `MotionSetSectionMigrationTests`: 17/17 통과
+- 전체 Ability EditMode: 141개 중 135 통과, 6 실패
+  - 신규 MotionTimeline/Section 마이그레이션 테스트 26개는 모두 통과했다.
   - 실패 6건은 기존/동시 작업의 AttributeProfile 필수값, Ability composition,
     Dryad·Training Dummy MotionReference, Projectile visualPrefab 데이터 문제이며
     이번 MotionSet 변경 범위에서 에셋을 임의 수정하지 않았다.
-- `Assets/10.Datas/`, `Assets/03.Prefabs/` 자동 변경 없음
+- `Assets/03.Prefabs/` 자동 변경 없음
 
-### 14.3 콘텐츠 수직 슬라이스에서 남은 검증
+### 14.3 Section 전면 마이그레이션 결과
 
-- [ ] 대표 근접·다단 콤보·홀드/Release 에셋에 Section을 실제 저작하고 Play Mode 검증
+- Advisor 정밀 검토 후 지속/단발 판정 정책과 완료 콜백 보존 정책을 확정했다.
+- Dry Run: 전체 1,156개, `LoopSelf` 168개, `Stop` 988개, Review 0, Invalid 0.
+- Apply 전 모든 원본 YAML과 SHA-256을
+  `Temp/MotionSetMigration/20260726_161625/manifest.tsv`에 기록하고 백업했다.
+- Apply 후 전수 검사: `schemaVersion: 1`, 0초 Section, `holdLastPose: 1` 각각
+  1,156/1,156개, 정책 개수 불일치 0.
+- 재실행 Dry Run: Existing 1,156개, 신규 적용 대상 0으로 멱등성을 확인했다.
+- 기존 managed reference 타입 22종의 항목 수는 감소하지 않았고,
+  `Assembly-CSharp` 타입은 현재 `UPlayGround.Actor` 어셈블리로 정상 재직렬화됐다.
+- 기존 managed reference 3,280개는 모두 보존됐고, 기존 47개
+  `SpawnProjectileEvent`의 암시적 기본값이 현재 스키마의 `SingleShotPattern` 47개로
+  1:1 명시 직렬화되어 총 3,327개가 됐다. 이는 런타임 의미 변화가 아니다.
+- 런타임은 Section 누락·중복 ID·범위 오류·0초 Section 누락·잘못된 next ID를 재생 전에
+  거부한다. 현재 schema가 아니거나 Section 시작 시간이 중복되거나 NaN/Infinity인
+  데이터도 거부하며, 새 에셋 생성 경로는 처음부터 유효한 단일 Section을 만든다.
+- 완료 시 Base 마지막 포즈를 유지하더라도 병렬 재생 레이어는 반드시 정리하여 다음
+  상태의 포즈를 덮지 않도록 했다.
+
+### 14.4 콘텐츠 수직 슬라이스에서 남은 검증
+
+- [x] 전체 기존 MotionSet에 기본 Section 저작
+- [ ] 대표 플레이어·몬스터의 Idle/Walk/Run/Fall 반복과 공격 완료를 Play Mode 검증
 - [ ] FullBody/UpperBody/AdditiveReaction 대표 에셋으로 채널 충돌·중단 정책 검증
 - [ ] MotionWarp·Camera·VFX 표준 Curve 소비 어댑터 연결
 - [ ] 공격자·표적 프리셋, A/B 고스트와 Root Motion/Hitbox 통합 Scene 뷰 프리뷰

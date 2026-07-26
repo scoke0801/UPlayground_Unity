@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_AssassinAnimationSet_HeavyAttack_2
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_AssassinAnimationSet_HeavyAttack_2
+    sections:
+    - id: section_324057a268d88a643b4478bcc817b661
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Assassin_Combo04_2
+    - id: 
+      motionName: Frank_RPG_Assassin_Combo04_2
       motionClip: {fileID: 7400000, guid: b79c5f26e53dc4345afbeae76d77c813, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

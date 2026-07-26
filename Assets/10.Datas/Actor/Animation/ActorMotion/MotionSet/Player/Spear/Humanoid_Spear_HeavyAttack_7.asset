@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Spear_HeavyAttack_7
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Spear_HeavyAttack_7
+    sections:
+    - id: section_62cb3a46df3f78e40b6e03c19bd82978
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Spear_Attack04
+    - id: 
+      motionName: Frank_RPG_Spear_Attack04
       motionClip: {fileID: 7400000, guid: 710bcab4c75a34b4cac9e87299e398d7, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

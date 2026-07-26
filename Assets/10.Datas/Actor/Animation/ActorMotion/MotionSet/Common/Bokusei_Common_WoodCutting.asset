@@ -13,15 +13,38 @@ MonoBehaviour:
   m_Name: Bokusei_Common_WoodCutting
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Walk
+    sections:
+    - id: section_f02560b0607d1334db5df728b0a9672b
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 4266098687975125023, guid: 1f80dfbf2e2e7904195c7dcbf7cdfd55, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events:
       - rid: 5341827903424561156
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:
@@ -32,6 +55,17 @@ MonoBehaviour:
       data:
         startTime: 0.3125
         endTime: 0.8125
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
         globalStartTimeOffset: 0
         interactionEvent: 0
         showHitFx: 1

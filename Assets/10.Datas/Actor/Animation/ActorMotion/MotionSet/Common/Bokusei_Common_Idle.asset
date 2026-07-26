@@ -13,10 +13,32 @@ MonoBehaviour:
   m_Name: Bokusei_Common_Idle
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Idle
+    sections:
+    - id: section_68e508f578320314fa36b7bb3e77ff2a
+      displayName: Loop
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: 
+    - id: 
+      motionName: 
       motionClip: {fileID: 6842057716766215316, guid: 7f92d44b0cd53e346ab6eb5983cc4b03, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1

@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Block
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Block
+    sections:
+    - id: section_e52edb7e838378244a793de700842202
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Dual_Block
+    - id: 
+      motionName: Frank_RPG_Dual_Block
       motionClip: {fileID: 7400000, guid: d0f22d2acc817bf41b7814c0face36d6, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

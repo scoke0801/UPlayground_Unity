@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_Run_F_R90
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Run_F_R90
+    sections:
+    - id: section_dea660616a46118438264061d336e349
+      displayName: Loop
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 3
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Run_F_R90_A_InPlace
+    - id: 
+      motionName: Run_F_R90_A_InPlace
       motionClip: {fileID: 7215847392092640172, guid: eb8896a6bf15f9344b298d7d8c542dd8, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

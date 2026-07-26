@@ -295,7 +295,7 @@ namespace UPlayGround.Animation.Editor
 
             foldAdvanced = EditorGUILayout.Foldout(
                 foldAdvanced,
-                "Section · Blend · Curve · Sync",
+                "Section",
                 true,
                 EditorStyles.foldoutHeader);
             if (foldAdvanced) DrawAdvancedSettings(set);
@@ -315,45 +315,17 @@ namespace UPlayGround.Animation.Editor
 
         void DrawAdvancedSettings(MotionSet set)
         {
-            set.blend ??= new MotionSetBlendSettings();
             set.sync ??= new MotionSyncSettings();
             set.timeStretch ??= new MotionTimeStretchSettings();
             set.sections ??= new List<MotionSection>();
             set.curves ??= new List<MotionCurveTrack>();
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            EditorGUILayout.LabelField("Asset Blend", EditorStyles.boldLabel);
-            float blendIn = Mathf.Max(0f, EditorGUILayout.FloatField("Blend In", set.blend.blendInDuration));
-            AnimationCurve blendInCurve = EditorGUILayout.CurveField("Blend In Curve", set.blend.blendInCurve);
-            float blendOut = Mathf.Max(0f, EditorGUILayout.FloatField("Blend Out", set.blend.blendOutDuration));
-            AnimationCurve blendOutCurve = EditorGUILayout.CurveField("Blend Out Curve", set.blend.blendOutCurve);
-            float interrupted = Mathf.Max(
-                0f,
-                EditorGUILayout.FloatField("Interrupted Blend Out", set.blend.interruptedBlendOutDuration));
-            bool autoBlendOut = EditorGUILayout.Toggle("Auto Blend Out", set.blend.autoBlendOut);
-            bool holdLastPose = EditorGUILayout.Toggle("Hold Last Pose", set.blend.holdLastPose);
-            if (!Mathf.Approximately(blendIn, set.blend.blendInDuration) ||
-                blendInCurve != set.blend.blendInCurve ||
-                !Mathf.Approximately(blendOut, set.blend.blendOutDuration) ||
-                blendOutCurve != set.blend.blendOutCurve ||
-                !Mathf.Approximately(interrupted, set.blend.interruptedBlendOutDuration) ||
-                autoBlendOut != set.blend.autoBlendOut ||
-                holdLastPose != set.blend.holdLastPose)
-            {
-                RecordUndo("Edit MotionSet Blend");
-                set.blend.blendInDuration = blendIn;
-                set.blend.blendInCurve = blendInCurve;
-                set.blend.blendOutDuration = blendOut;
-                set.blend.blendOutCurve = blendOutCurve;
-                set.blend.interruptedBlendOutDuration = interrupted;
-                set.blend.autoBlendOut = autoBlendOut;
-                set.blend.holdLastPose = holdLastPose;
-                MarkDirty();
-            }
-            EditorGUILayout.EndVertical();
-
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.LabelField($"Sections ({set.sections.Count})", EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                "Section은 타임라인의 이름 있는 재생 구간입니다. 시작 시각부터 다음 Section까지를 " +
+                "담당하며, 끝에서 Continue·Stop·Hold·LoopSelf 정책과 Default Next ID를 적용합니다.",
+                MessageType.Info);
             for (int i = 0; i < set.sections.Count; i++)
             {
                 MotionSection section = set.sections[i] ?? new MotionSection

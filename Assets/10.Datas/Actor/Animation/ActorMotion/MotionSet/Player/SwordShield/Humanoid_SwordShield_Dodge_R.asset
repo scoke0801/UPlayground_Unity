@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_SwordShield_Dodge_R
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_SwordShield_Dodge
+    sections:
+    - id: section_bcba0f0c8175f8444858ae73d4ad166f
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Warrior_Evade_F
+    - id: 
+      motionName: Frank_RPG_Warrior_Evade_F
       motionClip: {fileID: 7400000, guid: 73734a5e1ed317748a5510bc5b9df28c, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

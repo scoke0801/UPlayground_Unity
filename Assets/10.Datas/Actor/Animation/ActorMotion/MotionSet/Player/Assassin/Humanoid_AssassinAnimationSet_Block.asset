@@ -13,15 +13,39 @@ MonoBehaviour:
   m_Name: Humanoid_AssassinAnimationSet_Block
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_AssassinAnimationSet_Block
+    sections:
+    - id: section_e6aa2bc258bc661439d7e9288db0eb82
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Frank_RPG_Assassin_Block
+    - id: 
+      motionName: Frank_RPG_Assassin_Block
       motionClip: {fileID: 7400000, guid: d84159687ec99f04798a4d64e04225d8, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
+    layers: []
   references:
     version: 2
     RefIds: []

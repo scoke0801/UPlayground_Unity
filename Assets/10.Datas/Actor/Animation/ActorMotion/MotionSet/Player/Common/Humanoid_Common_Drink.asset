@@ -13,14 +13,37 @@ MonoBehaviour:
   m_Name: Humanoid_Common_Drink
   m_EditorClassIdentifier: 
   motionSet:
+    schemaVersion: 1
     motionSetName: Humanoid_Common_Drink
+    sections:
+    - id: section_59e5b3cbadb2d50408665347985195ae
+      displayName: Main
+      startTime: 0
+      defaultNextId: 
+      endPolicy: 1
+    curves: []
+    sync:
+      groupId: 
+      role: 0
+      fallback: 1
+      triggerFollowerEvents: 0
+    timeStretch:
+      enabled: 0
+      protectImpact: 1
+      protectionBefore: 0.03
+      protectionAfter: 0.05
+      minimumRate: 0.1
+      maximumRate: 4
     motions:
-    - motionName: Item_Drink
+    - id: 
+      motionName: Item_Drink
       motionClip: {fileID: 7546443363919980256, guid: 4325e3d2347708144abcb983879cc869, type: 3}
+      markers: []
       clipStartTime: -1
       clipEndTime: -1
       playbackSpeed: 1
       events: []
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:

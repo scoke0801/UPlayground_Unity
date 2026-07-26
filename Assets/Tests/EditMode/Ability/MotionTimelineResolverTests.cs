@@ -11,6 +11,73 @@ namespace UPlayGround.Ability.Tests
     public sealed class MotionTimelineResolverTests
     {
         [Test]
+        public void SectionLayout_Section이_없으면_거부한다()
+        {
+            var set = new MotionSet
+            {
+                schemaVersion = MotionSet.CurrentSchemaVersion,
+                motions = new List<Motion> { CreateMotion("base", 1f) },
+            };
+
+            Assert.That(
+                MotionTimelineResolver.TryValidateSectionLayout(set, out string error),
+                Is.False);
+            Assert.That(error, Does.Contain("Section"));
+        }
+
+        [Test]
+        public void SectionLayout_0초_Section과_유일_ID를_요구한다()
+        {
+            var set = new MotionSet
+            {
+                schemaVersion = MotionSet.CurrentSchemaVersion,
+                motions = new List<Motion> { CreateMotion("base", 1f) },
+                sections = new List<MotionSection>
+                {
+                    new() { id = "main", startTime = 0f, endPolicy = MotionSectionEndPolicy.Stop },
+                },
+            };
+
+            Assert.That(
+                MotionTimelineResolver.TryValidateSectionLayout(set, out string error),
+                Is.True,
+                error);
+        }
+
+        [Test]
+        public void SectionLayout_레거시_스키마와_중복_시작시간을_거부한다()
+        {
+            var set = new MotionSet
+            {
+                schemaVersion = 0,
+                motions = new List<Motion> { CreateMotion("base", 1f) },
+                sections = new List<MotionSection>
+                {
+                    new() { id = "main", startTime = 0f },
+                },
+            };
+
+            Assert.That(
+                MotionTimelineResolver.TryValidateSectionLayout(set, out string schemaError),
+                Is.False);
+            Assert.That(schemaError, Does.Contain("스키마"));
+
+            set.schemaVersion = MotionSet.CurrentSchemaVersion;
+            set.sections.Add(new MotionSection { id = "duplicate", startTime = 0f });
+
+            Assert.That(
+                MotionTimelineResolver.TryValidateSectionLayout(set, out string timeError),
+                Is.False);
+            Assert.That(timeError, Does.Contain("시작 시간"));
+
+            set.sections[1].startTime = float.NaN;
+            Assert.That(
+                MotionTimelineResolver.TryValidateSectionLayout(set, out string rangeError),
+                Is.False);
+            Assert.That(rangeError, Does.Contain("범위"));
+        }
+
+        [Test]
         public void LegacyEvent_UsesSequentialMotionOffset()
         {
             Motion first = CreateMotion("first", 1f);

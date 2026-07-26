@@ -239,9 +239,31 @@ namespace UPlayGround.Animation
     {
         public const int CurrentSchemaVersion = 1;
 
+        public static MotionSet CreateAuthored(
+            string name,
+            MotionSectionEndPolicy endPolicy = MotionSectionEndPolicy.Stop)
+        {
+            return new MotionSet
+            {
+                schemaVersion = CurrentSchemaVersion,
+                motionSetName = name,
+                sections = new List<MotionSection>
+                {
+                    new()
+                    {
+                        id = $"section_{Guid.NewGuid():N}",
+                        displayName = endPolicy == MotionSectionEndPolicy.LoopSelf
+                            ? "Loop"
+                            : "Main",
+                        startTime = 0f,
+                        endPolicy = endPolicy,
+                    },
+                },
+            };
+        }
+
         [Min(0)] public int schemaVersion;
         public string motionSetName;
-        public MotionSetBlendSettings blend = new MotionSetBlendSettings();
         public List<MotionSection> sections = new List<MotionSection>();
         public List<MotionCurveTrack> curves = new List<MotionCurveTrack>();
         public MotionSyncSettings sync = new MotionSyncSettings();

@@ -34,6 +34,31 @@ namespace UPlayGround.Data.Ability
         Health,
     }
 
+    public enum AbilityResourceTrigger
+    {
+        AbilityCommitted,
+        AttackHit,
+        GameplayEvent,
+        EffectExpired,
+    }
+
+    [Serializable]
+    public sealed class AbilityResourceRule
+    {
+        public AbilityResourceTrigger trigger;
+        public AbilityResourceType resourceType;
+        public GameplayTag requiredTag;
+        public float delta;
+    }
+
+    [CreateAssetMenu(
+        fileName = "AbilityResourceRules_",
+        menuName = "UPlayGround/Ability/Resource Rules")]
+    public sealed class AbilityResourceRuleSO : ScriptableObject
+    {
+        public List<AbilityResourceRule> rules = new();
+    }
+
     public enum AbilityCostPolicy
     {
         None,
@@ -65,9 +90,11 @@ namespace UPlayGround.Data.Ability
 
     public enum AbilityConcurrencyPolicy
     {
+        [Obsolete("동시 실행 안전성이 없는 레거시 값입니다. Background를 사용하세요.")]
         Allow,
         CancelExisting,
         RejectNew,
+        Background,
     }
 
     public enum AbilitySwapPolicy
@@ -185,9 +212,28 @@ namespace UPlayGround.Data.Ability
     {
         [Min(0f)] public float durationSeconds;
         public string cooldownGroupId;
+        [Min(1)] public int maxCharges = 1;
+        [Min(0f)] public float globalLockSeconds;
 
         public string ResolveGroupId(string abilityId) =>
             string.IsNullOrWhiteSpace(cooldownGroupId) ? abilityId : cooldownGroupId.Trim();
+    }
+
+    public enum AbilityTargetingMode
+    {
+        None,
+        AutoTarget,
+        GroundIndicator,
+        Aimed,
+    }
+
+    [Serializable]
+    public sealed class AbilityTargetingDefinition
+    {
+        public AbilityTargetingMode mode;
+        [Min(0f)] public float indicatorRadius;
+        [Min(0f)] public float maximumAimDistance;
+        public bool clampToGround = true;
     }
 
     [Serializable]
@@ -223,6 +269,8 @@ namespace UPlayGround.Data.Ability
     {
         public AbilitySwapPolicy swapPolicy = AbilitySwapPolicy.CancelOnSwap;
         public bool saveCooldown = true;
+        [Tooltip("Background 실행의 안전 종료 시간. 0이면 Background로 실행할 수 없습니다.")]
+        [Min(0f)] public float backgroundMaxDurationSeconds;
     }
 
     [Serializable]

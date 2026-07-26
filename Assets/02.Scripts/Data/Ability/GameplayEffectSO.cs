@@ -29,6 +29,15 @@ namespace UPlayGround.Data.Ability
         [Min(1)] public int maxStackCount = 1;
         public List<GameplayEffectModifierDefinition> modifiers = new();
         public List<GameplayTag> grantedTagIds = new();
+        [Header("적용 조건")]
+        [Range(0f, 1f)] public float applicationChance = 1f;
+        public List<GameplayTag> requiredTagIds = new();
+        public List<GameplayTag> blockedTagIds = new();
+        public List<GameplayTag> immunityTags = new();
+        [Tooltip("적용 성공 시 이 태그를 부여하는 활성 Effect를 해제합니다.")]
+        public List<GameplayTag> dispelTags = new();
+        [Tooltip("Effect가 유지되는 동안 한시적으로 부여할 Ability입니다.")]
+        public List<GameplayAbilitySO> grantedAbilities = new();
         public GameplayEffectRemovalPolicy removalPolicy = GameplayEffectRemovalPolicy.RemoveOnSwap;
         public GameplayEffectSavePolicy savePolicy = GameplayEffectSavePolicy.DoNotSave;
 

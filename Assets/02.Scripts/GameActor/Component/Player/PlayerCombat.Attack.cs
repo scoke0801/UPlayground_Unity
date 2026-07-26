@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
@@ -356,8 +357,10 @@ namespace UPlayGround.Components
             if (route == null) return false;
             if (route.skillGaugeIndex < 0) return true;
             if (!PlayerAbilityResourceView.IsValidSkillSlot(route.skillGaugeIndex)) return false;
-            var gauge = _playerActor != null ? _playerActor.SkillGauge : null;
-            return gauge == null || gauge.CanUseSkill(route.skillGaugeIndex);
+            return _playerActor?.Abilities?.EvaluatePlayerSlot(
+                       (PlayerSkillSlot)route.skillGaugeIndex,
+                       out _)
+                   == AbilityActivationResult.Success;
         }
 
         /// <summary>
@@ -369,10 +372,6 @@ namespace UPlayGround.Components
         {
             if (route == null || route.attackInfo?.baseInfo == null) return null;
             ClearResidualAttackContext();
-
-            // Resolve 단계에서 CanAffordRoute로 가용 확인됨 — 여기서 실제 소비.
-            if (route.skillGaugeIndex >= 0)
-                _playerActor?.SkillGauge?.ConsumeSkill(route.skillGaugeIndex);
 
             AttackKind kind = RouteAttackKind(route.LastToken);
             _attackState = kind == AttackKind.HeavyAttack ? AttackState.HeavyAttack

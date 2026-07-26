@@ -14,6 +14,7 @@ namespace UPlayGround.Data.Ability
         public AbilityPresentationDefinition presentation = new();
         public List<GameplayTag> abilityTagIds = new();
         public AbilityActivationRules activation = new();
+        public AbilityTargetingDefinition targeting = new();
         public AbilityCostDefinition cost = new();
         public AbilityCooldownDefinition cooldown = new();
         public AbilityConcurrencyPolicy concurrency = AbilityConcurrencyPolicy.RejectNew;

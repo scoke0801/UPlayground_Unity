@@ -344,12 +344,29 @@ MonoBehaviour:
     defaultBaseValue: 0
     format: 0
     unit:
+    clampPolicy: 2
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId: Resource.MaxForte
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 1
+    isMetaAttribute: 0
+  - attributeId: Resource.MaxForte
+    stableId: f35d80c7c1f647f2a7c9dc0798caf005
+    aliases: []
+    displayName: Max Forte
+    category: Resource
+    defaultBaseValue: 100
+    format: 0
+    unit:
     clampPolicy: 0
     fixedMinimum: 0
     fixedMaximum: 3.4028235e+38
     minimumAttributeId:
     maximumAttributeId:
-    dependentResourceId:
+    dependentResourceId: Resource.Forte
     maxChangePolicy: 0
     saveBaseValue: 0
     isMetaAttribute: 0
@@ -361,12 +378,29 @@ MonoBehaviour:
     defaultBaseValue: 0
     format: 0
     unit:
+    clampPolicy: 2
+    fixedMinimum: 0
+    fixedMaximum: 3.4028235e+38
+    minimumAttributeId:
+    maximumAttributeId: Resource.MaxConcerto
+    dependentResourceId:
+    maxChangePolicy: 0
+    saveBaseValue: 1
+    isMetaAttribute: 0
+  - attributeId: Resource.MaxConcerto
+    stableId: 2c347d8954064626a1356a2b5612342a
+    aliases: []
+    displayName: Max Concerto
+    category: Resource
+    defaultBaseValue: 100
+    format: 0
+    unit:
     clampPolicy: 0
     fixedMinimum: 0
     fixedMaximum: 3.4028235e+38
     minimumAttributeId:
     maximumAttributeId:
-    dependentResourceId:
+    dependentResourceId: Resource.Concerto
     maxChangePolicy: 0
     saveBaseValue: 0
     isMetaAttribute: 0

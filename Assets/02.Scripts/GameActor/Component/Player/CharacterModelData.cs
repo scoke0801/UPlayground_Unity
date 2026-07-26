@@ -25,6 +25,8 @@ namespace UPlayGround.Components
         [Header("Combat")]
         [Tooltip("캐릭터의 일반 공격, 스킬, 차지, 연계 라우트를 포함하는 단일 전투 데이터입니다.")]
         public AbilitySetSO abilitySet;
+        [Tooltip("Forte/Concerto 등 캐릭터별 Ability 자원 축적 규칙입니다.")]
+        public AbilityResourceRuleSO abilityResourceRules;
 
         [Header("Cycle Weight")]
         public CharacterWeightProfileSO weightProfile;

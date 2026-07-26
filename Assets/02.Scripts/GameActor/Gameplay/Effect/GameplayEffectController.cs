@@ -53,17 +53,35 @@ namespace UPlayGround.Gameplay.Effect
             GameActor source = null,
             GameplayEffectApplicationOptions options = default)
         {
-            return ApplyEffectInternal(definition, source, options, true);
+            return ApplyEffectInternal(
+                definition, source, options, true, true, out _);
+        }
+
+        public bool TryApplyEffect(
+            GameplayEffectSO definition,
+            GameActor source,
+            out GameplayEffectHandle handle,
+            GameplayEffectApplicationOptions options = default)
+        {
+            handle = ApplyEffectInternal(
+                definition, source, options, true, true, out bool succeeded);
+            return succeeded;
         }
 
         private GameplayEffectHandle ApplyEffectInternal(
             GameplayEffectSO definition,
             GameActor source,
             GameplayEffectApplicationOptions options,
-            bool executePeriodicOnApplication)
+            bool executePeriodicOnApplication,
+            bool enforceApplicationRules,
+            out bool succeeded)
         {
+            succeeded = false;
             if (definition == null || string.IsNullOrWhiteSpace(definition.effectId))
                 return default;
+            if (enforceApplicationRules && !CanApply(definition))
+                return default;
+            DispelMatchingEffects(definition.dispelTags);
 
             if (definition.durationType == GameplayEffectDurationType.Instant)
             {
@@ -71,6 +89,7 @@ namespace UPlayGround.Gameplay.Effect
                     definition, source, 0f, executePeriodicOnApplication);
                 if (!instantOutcome.Succeeded)
                     ReportApplyFailure(definition, instantOutcome);
+                succeeded = instantOutcome.Succeeded;
                 return default;
             }
 
@@ -87,6 +106,7 @@ namespace UPlayGround.Gameplay.Effect
                 switch (stackResult.Action)
                 {
                     case AbilityEffectStackAction.KeepExisting:
+                        succeeded = true;
                         return existing.Handle;
                     case AbilityEffectStackAction.RefreshExisting:
                         GameplayEffectApplyOutcome refreshed =
@@ -104,6 +124,7 @@ namespace UPlayGround.Gameplay.Effect
                         existing.RemainingSeconds = effectiveDuration;
                         existing.HudVisibility = options.HudVisibility;
                         StateChanged?.Invoke();
+                        succeeded = true;
                         return existing.Handle;
                     case AbilityEffectStackAction.ReplaceExisting:
                         replaceAfterSuccessfulApply = existing;
@@ -138,8 +159,11 @@ namespace UPlayGround.Gameplay.Effect
 
             _active.Add(id, instance);
             _stackingKeys[key] = id;
+            _owner?.Abilities?.GrantTemporaryAbilities(
+                definition.grantedAbilities);
             AddGrantedElement(instance);
             StateChanged?.Invoke();
+            succeeded = true;
             return instance.Handle;
         }
 
@@ -156,6 +180,8 @@ namespace UPlayGround.Gameplay.Effect
                 _owner?.RemoveElementOverride(instance.Handle.Value);
             if (instance.GasHandle.IsValid)
                 _abilitySystem?.Effects?.Remove(instance.GasHandle);
+            _owner?.Abilities?.RevokeTemporaryAbilities(
+                instance.Definition.grantedAbilities);
             StateChanged?.Invoke();
             return true;
         }
@@ -240,7 +266,9 @@ namespace UPlayGround.Gameplay.Effect
                             entry.hudVisibility)
                                 ? (GameplayEffectHudVisibility)entry.hudVisibility
                                 : GameplayEffectHudVisibility.UseDefinition),
-                    false);
+                    false,
+                    false,
+                    out _);
                 if (!handle.IsValid
                     || !_active.TryGetValue(handle.Value, out GameplayEffectInstance instance))
                     continue;
@@ -289,6 +317,86 @@ namespace UPlayGround.Gameplay.Effect
 
         public bool RemoveEffectByRuntimeId(ulong runtimeId) =>
             RemoveEffect(new GameplayEffectHandle(runtimeId));
+
+        public int RemoveEffectsByDefinition(GameplayEffectSO definition)
+        {
+            if (definition == null)
+                return 0;
+            var handles = new List<GameplayEffectHandle>();
+            foreach (GameplayEffectInstance instance in _active.Values)
+                if (instance.Definition == definition)
+                    handles.Add(instance.Handle);
+            for (int i = 0; i < handles.Count; i++)
+                RemoveEffect(handles[i]);
+            return handles.Count;
+        }
+
+        private bool CanApply(GameplayEffectSO definition)
+        {
+            float chance = Mathf.Clamp01(definition.applicationChance);
+            if (chance <= 0f)
+                return false;
+            if (chance < 1f && UnityEngine.Random.value >= chance)
+                return false;
+            return HasAllTags(definition.requiredTagIds)
+                   && !HasAnyTag(definition.blockedTagIds)
+                   && !HasAnyTag(definition.immunityTags);
+        }
+
+        private bool HasAllTags(IReadOnlyList<GameplayTag> tags)
+        {
+            if (tags == null)
+                return true;
+            for (int i = 0; i < tags.Count; i++)
+                if (!string.IsNullOrEmpty(tags[i].TagName)
+                    && !(_abilitySystem?.Tags?.Has(
+                        new AbilityTagId(tags[i].TagName)) ?? false))
+                    return false;
+            return true;
+        }
+
+        private bool HasAnyTag(IReadOnlyList<GameplayTag> tags)
+        {
+            if (tags == null)
+                return false;
+            for (int i = 0; i < tags.Count; i++)
+                if (!string.IsNullOrEmpty(tags[i].TagName)
+                    && (_abilitySystem?.Tags?.Has(
+                        new AbilityTagId(tags[i].TagName)) ?? false))
+                    return true;
+            return false;
+        }
+
+        private void DispelMatchingEffects(
+            IReadOnlyList<GameplayTag> dispelTags)
+        {
+            if (dispelTags == null || dispelTags.Count == 0)
+                return;
+
+            var remove = new List<GameplayEffectHandle>();
+            foreach (GameplayEffectInstance instance in _active.Values)
+            {
+                List<GameplayTag> granted = instance.Definition?.grantedTagIds;
+                if (granted == null)
+                    continue;
+                bool matched = false;
+                for (int i = 0; i < dispelTags.Count && !matched; i++)
+                    for (int j = 0; j < granted.Count; j++)
+                        if (!string.IsNullOrEmpty(dispelTags[i].TagName)
+                            && string.Equals(
+                                dispelTags[i].TagName,
+                                granted[j].TagName,
+                                StringComparison.Ordinal))
+                        {
+                            matched = true;
+                            break;
+                        }
+                if (matched)
+                    remove.Add(instance.Handle);
+            }
+            for (int i = 0; i < remove.Count; i++)
+                RemoveEffect(remove[i]);
+        }
 
         public bool TryGetVisibleEffect(
             ulong runtimeId,

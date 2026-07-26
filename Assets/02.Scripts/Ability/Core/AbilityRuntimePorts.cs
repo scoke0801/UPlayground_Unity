@@ -12,6 +12,19 @@ namespace UPlayGround.Ability.Core
         bool TrySet(string resourceId, float value);
     }
 
+    public enum AbilityInputState
+    {
+        None,
+        Pressed,
+        Held,
+        Released,
+    }
+
+    public interface IAbilityInputPort
+    {
+        AbilityInputState GetSlotState(int slot);
+    }
+
     public readonly struct AbilityTagHandle
     {
         public ulong Value { get; }

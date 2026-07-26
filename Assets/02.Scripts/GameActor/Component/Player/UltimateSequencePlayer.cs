@@ -7,6 +7,9 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.State;
 using UnityEngine.SceneManagement;
+using UPlayGround.Ability.Core;
+using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Components
 {
@@ -41,6 +44,7 @@ namespace UPlayGround.Components
         private readonly UltimatePlacementContext _placementContext = new();
         private UltimateRuntimeContext _runtimeContext;
         private Coroutine _startRoutine;
+        private AbilityExecutionHandle _abilityExecution;
         private readonly HashSet<UltimateTimelineEvent> _executedTimelineEvents = new();
         private readonly HashSet<UltimateTimelineEvent> _activeTimelineEvents = new();
 
@@ -232,6 +236,28 @@ namespace UPlayGround.Components
                 return false;
             }
 
+            if (!ignoreResource && asset.consumeUltimateGauge)
+            {
+                GameActor abilityTarget = _runtimeContext.PrimaryTarget != null
+                    ? _runtimeContext.PrimaryTarget.GetComponentInParent<GameActor>()
+                    : null;
+                bool grounded = _caster.PlayerController?.Motor == null
+                                || _caster.PlayerController.Motor.GroundingStatus
+                                    .IsStableOnGround;
+                AbilityActivationResult prepare =
+                    _caster.Abilities.TryPreparePlayerSlot(
+                        PlayerSkillSlot.Ultimate,
+                        grounded,
+                        abilityTarget,
+                        out _abilityExecution,
+                        out _);
+                if (prepare != AbilityActivationResult.Success)
+                {
+                    FailStart($"궁극기 준비에 실패했습니다: {prepare}");
+                    return false;
+                }
+            }
+
             _lockContext.Acquire(
                 _caster,
                 _caster.GetCombat(),
@@ -240,7 +266,8 @@ namespace UPlayGround.Components
 
             if (!ignoreResource
                 && asset.consumeUltimateGauge
-                && !_caster.SkillGauge.ConsumeSkill(PlayerAbilityResourceView.UltimateSkillSlot))
+                && _caster.Abilities.Commit(_abilityExecution)
+                != AbilityActivationResult.Success)
             {
                 FailStart("궁극기 자원 소비에 실패했습니다.");
                 return false;
@@ -386,6 +413,13 @@ namespace UPlayGround.Components
 
             _lockContext.Release();
             _placementContext.Restore();
+            if (_abilityExecution.IsValid)
+            {
+                _caster?.Abilities?.EndAbility(
+                    _abilityExecution,
+                    reason == UltimateSequenceEndReason.Completed);
+                _abilityExecution = default;
+            }
             if (_runtimeContext != null)
                 _runtimeContext.IsInterrupted = reason != UltimateSequenceEndReason.Completed;
             _runtimeContext = null;

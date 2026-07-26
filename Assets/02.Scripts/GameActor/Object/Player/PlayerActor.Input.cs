@@ -45,9 +45,9 @@ namespace UPlayGround
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled,   null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility,     null,                    OnInputPerformedSkill_1,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate,     null,                    OnInputPerformedSkill_2,     null,                    null,             null,            layer);
-            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, null,                         OnInputPerformedElementalImbue, null,                  null,             null,            layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1, null, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2, null, null, layer);
+            I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue, null, null, layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null,                    null,             null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null,                    CanInputInteract, null,            layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard,    null,             null,            layer);
@@ -68,9 +68,9 @@ namespace UPlayGround
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Dash,        null,                    OnInputPerformedDash,        null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Attack,      null,                    OnInputPerformedAttack,      null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.HeavyAttack, OnHeavyAttackStarted,    OnInputPerformedHeavyAttack, OnHeavyAttackCanceled);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility,     null,                    OnInputPerformedSkill_1,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate,     null,                    OnInputPerformedSkill_2,     null);
-            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, null,                         OnInputPerformedElementalImbue, null);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillAbility, OnInputStartedSkill_1, OnInputPerformedSkill_1, OnInputCanceledSkill_1);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.SkillUltimate, OnInputStartedSkill_2, OnInputPerformedSkill_2, OnInputCanceledSkill_2);
+            I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.ElementBuff, OnInputStartedElementalImbue, OnInputPerformedElementalImbue, OnInputCanceledElementalImbue);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Equip,       null,                    OnInputPerformedEquipWeapon, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Interact,    null,                    OnInputPerformedInteraction, null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guard,       OnInputStartedGuard,     null,                        OnInputFinishedGuard);
@@ -117,7 +117,10 @@ namespace UPlayGround
         }
         private void OnInputPerformedAttack(InputAction.CallbackContext obj)       => _attackInputCondition   = InputCondition.Pressed;
         private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition    = InputCondition.Pressed;
+        private void OnInputStartedSkill_1(InputAction.CallbackContext obj) => SetSkillHeld(0, true);
         private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0] = InputCondition.Pressed;
+        private void OnInputCanceledSkill_1(InputAction.CallbackContext obj) => SetSkillReleased(0);
+        private void OnInputStartedSkill_2(InputAction.CallbackContext obj) => SetSkillHeld(1, true);
         private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)
         {
             // 궁극기 시퀀스 에셋이 연결돼 있으면 전용 실행기를 우선 사용한다.
@@ -127,8 +130,28 @@ namespace UPlayGround
 
             _skillInputCondition[1] = InputCondition.Pressed;
         }
+        private void OnInputCanceledSkill_2(InputAction.CallbackContext obj) => SetSkillReleased(1);
+        private void OnInputStartedElementalImbue(InputAction.CallbackContext obj)
+            => SetSkillHeld((int)PlayerSkillSlot.ElementalImbue, true);
         private void OnInputPerformedElementalImbue(InputAction.CallbackContext obj)
             => _skillInputCondition[(int)PlayerSkillSlot.ElementalImbue] = InputCondition.Pressed;
+        private void OnInputCanceledElementalImbue(InputAction.CallbackContext obj)
+            => SetSkillReleased((int)PlayerSkillSlot.ElementalImbue);
+
+        private void SetSkillHeld(int slot, bool held)
+        {
+            if ((uint)slot >= (uint)_skillInputHeld.Count)
+                return;
+            _skillInputHeld[slot] = held;
+        }
+
+        private void SetSkillReleased(int slot)
+        {
+            if ((uint)slot >= (uint)_skillInputHeld.Count)
+                return;
+            _skillInputHeld[slot] = false;
+            _skillInputCondition[slot] = InputCondition.Canceled;
+        }
         private void OnInputPerformedInteraction(InputAction.CallbackContext obj)
         {
             _interactionInputCondition = InputCondition.Pressed;

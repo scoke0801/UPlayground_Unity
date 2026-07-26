@@ -22,11 +22,18 @@ namespace UPlayGround.Gameplay.Ability
     /// </summary>
     public sealed class ActorAbilitySystem : IAbilityRuntimeReader
     {
+        private const string GlobalCooldownGroupId = "Ability.Global";
         private readonly Dictionary<ulong, AbilityExecution> _executions = new();
+        private readonly HashSet<ulong> _backgroundExecutions = new();
+        private readonly Dictionary<GameplayAbilitySO, int> _temporaryAbilities =
+            new();
+        private readonly Dictionary<AbilityActivationResult, int>
+            _activationFailureCounts = new();
         private GameActor _owner;
         private AbilitySetSO _abilitySet;
+        private AbilityResourceRuleSO _resourceRules;
         private ulong _nextHandle = 1;
-        private ulong _activeExecution;
+        private ulong _primaryExecution;
         private AbilitySystemComponent _abilitySystem;
         private GameplayEffectController _effects;
         private AbilityCooldownRuntime _cooldowns;
@@ -35,8 +42,9 @@ namespace UPlayGround.Gameplay.Ability
 
         public event Action StateChanged;
         public AbilitySetSO AbilitySet => _abilitySet;
-        public bool HasActiveAbility => _activeExecution != 0;
-        public bool HasActivePlayerAbility => HasActiveAbility;
+        public bool HasActiveAbility =>
+            _primaryExecution != 0 || _backgroundExecutions.Count > 0;
+        public bool HasActivePlayerAbility => _primaryExecution != 0;
 
         internal ActorAbilitySystem(
             GameActor owner,
@@ -63,13 +71,32 @@ namespace UPlayGround.Gameplay.Ability
             var ports = new UPlayGroundAbilityOwnerPorts(_abilitySystem);
             _resources = ports;
             _tags = ports;
+            _abilitySystem.Runtime.SetInputPort(
+                owner is PlayerActor player
+                    ? new PlayerAbilityInputPort(player)
+                    : null);
         }
 
         public void SetAbilitySet(AbilitySetSO abilitySet)
         {
-            CancelActiveAbility();
+            CancelAllAbilities();
             _abilitySet = abilitySet;
+            _abilitySet?.RebuildRuntimeIndex();
             StateChanged?.Invoke();
+        }
+
+        public void SetResourceRules(AbilityResourceRuleSO resourceRules) =>
+            _resourceRules = resourceRules;
+
+        public void CopyActivationFailureCounts(
+            IDictionary<AbilityActivationResult, int> destination)
+        {
+            if (destination == null)
+                throw new ArgumentNullException(nameof(destination));
+            destination.Clear();
+            foreach (KeyValuePair<AbilityActivationResult, int> pair
+                     in _activationFailureCounts)
+                destination[pair.Key] = pair.Value;
         }
 
         public bool HasPlayerAbility(PlayerSkillSlot slot) =>
@@ -83,12 +110,29 @@ namespace UPlayGround.Gameplay.Ability
         {
             variant = null;
             GameplayAbilitySO definition = ResolvePlayerAbility(slot);
-            if (definition == null) return AbilityActivationResult.NotGranted;
-            return Evaluate(
+            if (definition == null)
+            {
+                RecordActivationResult(AbilityActivationResult.NotGranted);
+                return AbilityActivationResult.NotGranted;
+            }
+            AbilityActivationResult result = Evaluate(
                 definition,
                 isGrounded,
                 ResolveTarget(definition, target),
                 out variant);
+            RecordActivationResult(result);
+            return result;
+        }
+
+        public AbilityActivationResult EvaluatePlayerSlot(
+            PlayerSkillSlot slot,
+            out AbilityVariantDefinition variant)
+        {
+            bool grounded = _owner is not PlayerActor player
+                            || player.PlayerController?.Motor == null
+                            || player.PlayerController.Motor.GroundingStatus
+                                .IsStableOnGround;
+            return EvaluatePlayerSlot(slot, grounded, null, out variant);
         }
 
         public AbilityActivationResult EvaluateAbility(
@@ -100,11 +144,13 @@ namespace UPlayGround.Gameplay.Ability
             variant = null;
             if (!IsGrantedAbility(definition))
                 return AbilityActivationResult.NotGranted;
-            return Evaluate(
+            AbilityActivationResult result = Evaluate(
                 definition,
                 isGrounded,
                 ResolveTarget(definition, target),
                 out variant);
+            RecordActivationResult(result);
+            return result;
         }
 
         public AbilityActivationResult TryPreparePlayerSlot(
@@ -143,9 +189,13 @@ namespace UPlayGround.Gameplay.Ability
             AbilityActivationResult result =
                 Evaluate(definition, isGrounded, resolvedTarget, out variant);
             if (result != AbilityActivationResult.Success)
+            {
+                RecordActivationResult(result);
                 return result;
+            }
 
-            if (_activeExecution != 0)
+            if (_primaryExecution != 0
+                && definition.concurrency != AbilityConcurrencyPolicy.Background)
             {
                 if (definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
                     return AbilityActivationResult.ConflictingAbility;
@@ -184,10 +234,21 @@ namespace UPlayGround.Gameplay.Ability
             ApplyEffects(execution.Definition.commitEffects, _owner);
             ApplyEffects(execution.Variant.ownerEffects, _owner);
             ApplyEffects(execution.Variant.targetEffects, execution.Target);
+            ApplyResourceRules(
+                AbilityResourceTrigger.AbilityCommitted,
+                execution.Definition.abilityTagIds);
 
             execution.StartTime = Time.time;
             execution.State = AbilityExecutionState.Active;
-            _activeExecution = handle.Value;
+            if (execution.Definition.concurrency
+                == AbilityConcurrencyPolicy.Background)
+            {
+                _backgroundExecutions.Add(handle.Value);
+            }
+            else
+            {
+                _primaryExecution = handle.Value;
+            }
             if (execution.Definition.taskGraph?.Root != null)
                 _abilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
             StateChanged?.Invoke();
@@ -200,27 +261,23 @@ namespace UPlayGround.Gameplay.Ability
                 return;
             _abilitySystem.Runtime.Tasks.CancelParent(handle, "AbilityAborted");
             execution.State = AbilityExecutionState.Aborted;
+            _backgroundExecutions.Remove(handle.Value);
+            if (_primaryExecution == handle.Value)
+                _primaryExecution = 0;
         }
 
         public void EndActiveAbility(bool completed)
         {
-            if (_activeExecution == 0
-                || !_executions.Remove(_activeExecution, out AbilityExecution execution))
+            if (_primaryExecution == 0
+                || !_executions.TryGetValue(_primaryExecution, out AbilityExecution execution))
             {
-                _activeExecution = 0;
+                _primaryExecution = 0;
                 return;
             }
-
-            CleanupExecution(execution);
-            _abilitySystem.Runtime.Tasks.CancelParent(
+            EndExecution(
                 execution.Handle,
+                completed,
                 completed ? "AbilityEnded" : "AbilityCancelled");
-            execution.State = completed
-                ? AbilityExecutionState.Ended
-                : AbilityExecutionState.Cancelled;
-            if (completed)
-                ApplyEffects(execution.Definition.endEffects, _owner);
-            _activeExecution = 0;
             StateChanged?.Invoke();
         }
 
@@ -229,6 +286,75 @@ namespace UPlayGround.Gameplay.Ability
         public void CancelActiveAbility() => EndActiveAbility(false);
 
         public void CancelActivePlayerAbility() => CancelActiveAbility();
+
+        public void EndAbility(AbilityExecutionHandle handle, bool completed)
+        {
+            EndExecution(
+                handle,
+                completed,
+                completed ? "AbilityEnded" : "AbilityCancelled");
+            StateChanged?.Invoke();
+        }
+
+        public void CancelAllAbilities()
+        {
+            if (_executions.Count == 0)
+            {
+                _primaryExecution = 0;
+                _backgroundExecutions.Clear();
+                return;
+            }
+
+            var handles = new List<AbilityExecutionHandle>(_executions.Count);
+            foreach (AbilityExecution execution in _executions.Values)
+                handles.Add(execution.Handle);
+            for (int i = 0; i < handles.Count; i++)
+                EndExecution(handles[i], false, "AbilityCancelled");
+            _primaryExecution = 0;
+            _backgroundExecutions.Clear();
+            StateChanged?.Invoke();
+        }
+
+        public bool TryGetTargetReservation(
+            AbilityExecutionHandle handle,
+            out AbilityTargetReservation reservation)
+        {
+            if (handle.IsValid
+                && _executions.TryGetValue(handle.Value, out AbilityExecution execution))
+            {
+                reservation = execution.TargetReservation;
+                return true;
+            }
+            reservation = default;
+            return false;
+        }
+
+        public bool TryGetPrimaryTargetReservation(
+            out AbilityTargetReservation reservation) =>
+            TryGetTargetReservation(
+                new AbilityExecutionHandle(_primaryExecution),
+                out reservation);
+
+        public string GetPlayerSlotCooldownGroupId(PlayerSkillSlot slot)
+        {
+            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
+            return definition?.cooldown?.ResolveGroupId(definition.abilityId)
+                   ?? string.Empty;
+        }
+
+        public void RestorePlayerSlotCooldown(
+            PlayerSkillSlot slot,
+            float remainingSeconds)
+        {
+            string group = GetPlayerSlotCooldownGroupId(slot);
+            if (string.IsNullOrEmpty(group))
+                return;
+            if (remainingSeconds > 0f)
+                _cooldowns.Restore(group, remainingSeconds);
+            else
+                _cooldowns.Remove(group);
+            StateChanged?.Invoke();
+        }
 
         public bool TryGetPlayerSlotState(PlayerSkillSlot slot, out AbilitySlotViewState state)
         {
@@ -297,9 +423,35 @@ namespace UPlayGround.Gameplay.Ability
 
         public void RestoreAbilitySystemStateForCharacter(AbilitySystemSaveData data)
         {
+            MigrateLegacySlotCooldowns(data);
             _abilitySystem.Runtime.RestoreSaveData(data);
             _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
             StateChanged?.Invoke();
+        }
+
+        private void MigrateLegacySlotCooldowns(AbilitySystemSaveData data)
+        {
+            if (data?.cooldowns == null)
+                return;
+            for (int i = 0; i < data.cooldowns.Count; i++)
+            {
+                GasCooldownSaveEntry entry = data.cooldowns[i];
+                if (entry == null
+                    || string.IsNullOrEmpty(entry.groupId)
+                    || !entry.groupId.StartsWith(
+                        "Ability.SkillSlot.",
+                        StringComparison.Ordinal)
+                    || !int.TryParse(
+                        entry.groupId.Substring("Ability.SkillSlot.".Length),
+                        out int slotIndex)
+                    || !Enum.IsDefined(typeof(PlayerSkillSlot), slotIndex))
+                    continue;
+
+                string migrated = GetPlayerSlotCooldownGroupId(
+                    (PlayerSkillSlot)slotIndex);
+                if (!string.IsNullOrEmpty(migrated))
+                    entry.groupId = migrated;
+            }
         }
 
         private bool ShouldSaveCooldown(string groupId)
@@ -336,13 +488,20 @@ namespace UPlayGround.Gameplay.Ability
 
         public void HandleCharacterSwap()
         {
-            CancelActivePlayerAbility();
+            var cancelled = new List<AbilityExecutionHandle>();
+            foreach (AbilityExecution execution in _executions.Values)
+                if (execution.Definition?.persistence?.swapPolicy
+                    == AbilitySwapPolicy.CancelOnSwap)
+                    cancelled.Add(execution.Handle);
+            for (int i = 0; i < cancelled.Count; i++)
+                EndExecution(cancelled[i], false, "CharacterSwap");
             _effects?.RemoveForSwap();
+            StateChanged?.Invoke();
         }
 
         public void HandleOwnerDeath()
         {
-            CancelActivePlayerAbility();
+            CancelAllAbilities();
             _effects?.RemoveAll();
         }
 
@@ -403,6 +562,11 @@ namespace UPlayGround.Gameplay.Ability
             variant = null;
             if (definition == null || string.IsNullOrWhiteSpace(definition.abilityId))
                 return AbilityActivationResult.InvalidDefinition;
+            if (definition.concurrency == AbilityConcurrencyPolicy.Allow)
+                return AbilityActivationResult.InvalidDefinition;
+            if (definition.concurrency == AbilityConcurrencyPolicy.Background
+                && (definition.persistence?.backgroundMaxDurationSeconds ?? 0f) <= 0f)
+                return AbilityActivationResult.InvalidDefinition;
             if (definition.taskGraph?.Root == null)
                 return AbilityActivationResult.MissingExecutionData;
             if (!IsUnlocked(definition))
@@ -426,7 +590,10 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.InsufficientResource;
             if (GetCooldownRemaining(definition.cooldown.ResolveGroupId(definition.abilityId)) > 0f)
                 return AbilityActivationResult.CooldownActive;
-            if (_activeExecution != 0
+            if ((definition.cooldown?.globalLockSeconds ?? 0f) > 0f
+                && GetCooldownRemaining(GlobalCooldownGroupId) > 0f)
+                return AbilityActivationResult.CooldownActive;
+            if (_primaryExecution != 0
                 && definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
                 return AbilityActivationResult.ConflictingAbility;
 
@@ -539,9 +706,16 @@ namespace UPlayGround.Gameplay.Ability
             float duration = GetEffectiveCooldownDuration(
                 definition,
                 FindPlayerSlot(definition));
-            if (duration <= 0f) return;
             string group = definition.cooldown.ResolveGroupId(definition.abilityId);
-            _cooldowns.Start(group, duration);
+            _cooldowns.TryConsumeCharge(
+                group,
+                duration,
+                Mathf.Max(1, definition.cooldown.maxCharges));
+            float globalLock = Mathf.Max(
+                0f,
+                definition.cooldown.globalLockSeconds);
+            if (globalLock > 0f)
+                _cooldowns.Start(GlobalCooldownGroupId, globalLock);
         }
 
         private PlayerSkillSlot? FindPlayerSlot(GameplayAbilitySO definition)
@@ -574,9 +748,47 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (definition == null)
                 return false;
+            if (_temporaryAbilities.TryGetValue(definition, out int count)
+                && count > 0)
+                return true;
             if (_abilitySet != null && _abilitySet.Contains(definition))
                 return true;
             return ResolvePlayerAbility(PlayerSkillSlot.ElementalImbue) == definition;
+        }
+
+        public void GrantTemporaryAbilities(
+            IReadOnlyList<GameplayAbilitySO> abilities)
+        {
+            if (abilities == null)
+                return;
+            for (int i = 0; i < abilities.Count; i++)
+            {
+                GameplayAbilitySO ability = abilities[i];
+                if (ability == null)
+                    continue;
+                _temporaryAbilities.TryGetValue(ability, out int count);
+                _temporaryAbilities[ability] = count + 1;
+            }
+            StateChanged?.Invoke();
+        }
+
+        public void RevokeTemporaryAbilities(
+            IReadOnlyList<GameplayAbilitySO> abilities)
+        {
+            if (abilities == null)
+                return;
+            for (int i = 0; i < abilities.Count; i++)
+            {
+                GameplayAbilitySO ability = abilities[i];
+                if (ability == null
+                    || !_temporaryAbilities.TryGetValue(ability, out int count))
+                    continue;
+                if (count <= 1)
+                    _temporaryAbilities.Remove(ability);
+                else
+                    _temporaryAbilities[ability] = count - 1;
+            }
+            StateChanged?.Invoke();
         }
 
         private float GetEffectiveCooldownDuration(
@@ -589,7 +801,8 @@ namespace UPlayGround.Gameplay.Ability
 
             float multiplier =
                 Svc.Passives?.GetActiveSkillCooldownMultiplier(slot.Value) ?? 1f;
-            return duration * Mathf.Max(0f, multiplier);
+            float haste = AbilityCooldownHaste.FromLegacyMultiplier(multiplier);
+            return AbilityCooldownHaste.Apply(duration, haste);
         }
 
         private float GetCooldownRemaining(string group)
@@ -625,6 +838,46 @@ namespace UPlayGround.Gameplay.Ability
             for (int i = 0; i < effects.Count; i++)
                 if (effects[i] != null)
                     target.Effects.ApplyEffect(effects[i], _owner);
+        }
+
+        public void ApplyResourceRules(
+            AbilityResourceTrigger trigger,
+            IReadOnlyList<GameplayTag> eventTags = null)
+        {
+            if (_resourceRules?.rules == null)
+                return;
+            for (int i = 0; i < _resourceRules.rules.Count; i++)
+            {
+                AbilityResourceRule rule = _resourceRules.rules[i];
+                if (rule == null
+                    || rule.trigger != trigger
+                    || rule.resourceType is AbilityResourceType.None
+                        or AbilityResourceType.SkillCharge
+                    || Mathf.Approximately(rule.delta, 0f)
+                    || !MatchesRuleTag(rule.requiredTag, eventTags))
+                    continue;
+                _abilitySystem.ApplyResourceDelta(
+                    rule.resourceType,
+                    rule.delta,
+                    $"GE_AbilityResourceRule.{trigger}");
+            }
+        }
+
+        private static bool MatchesRuleTag(
+            GameplayTag required,
+            IReadOnlyList<GameplayTag> eventTags)
+        {
+            if (string.IsNullOrEmpty(required.TagName))
+                return true;
+            if (eventTags == null)
+                return false;
+            for (int i = 0; i < eventTags.Count; i++)
+                if (string.Equals(
+                        required.TagName,
+                        eventTags[i].TagName,
+                        StringComparison.Ordinal))
+                    return true;
+            return false;
         }
 
         private bool HasAllTags(List<GameplayTag> tags)
@@ -710,6 +963,53 @@ namespace UPlayGround.Gameplay.Ability
         {
             if (_cooldowns.RemoveExpired())
                 StateChanged?.Invoke();
+
+            if (_backgroundExecutions.Count == 0)
+                return;
+            var completed =
+                new List<(AbilityExecutionHandle Handle, bool Succeeded, string Reason)>();
+            foreach (ulong value in _backgroundExecutions)
+            {
+                if (!_executions.TryGetValue(value, out AbilityExecution execution))
+                {
+                    completed.Add((
+                        new AbilityExecutionHandle(value),
+                        false,
+                        "BackgroundExecutionMissing"));
+                    continue;
+                }
+                float maximumDuration =
+                    execution.Definition.persistence.backgroundMaxDurationSeconds;
+                if (_abilitySystem.Runtime.Tasks.TryConsumeParentCompletion(
+                        execution.Handle,
+                        out AbilityTaskState taskState,
+                        out string taskReason))
+                {
+                    bool succeeded = taskState == AbilityTaskState.Succeeded;
+                    completed.Add((
+                        execution.Handle,
+                        succeeded,
+                        string.IsNullOrEmpty(taskReason)
+                            ? succeeded ? "BackgroundCompleted" : "BackgroundTaskFailed"
+                            : taskReason));
+                }
+                else if (maximumDuration > 0f
+                         && Time.time >= execution.StartTime + maximumDuration)
+                {
+                    completed.Add((execution.Handle, false, "BackgroundTimeout"));
+                }
+                else if (execution.Definition.taskGraph?.Root == null)
+                {
+                    completed.Add((execution.Handle, true, "BackgroundCompleted"));
+                }
+            }
+            for (int i = 0; i < completed.Count; i++)
+                EndExecution(
+                    completed[i].Handle,
+                    completed[i].Succeeded,
+                    completed[i].Reason);
+            if (completed.Count > 0)
+                StateChanged?.Invoke();
         }
 
         internal void LateTick()
@@ -725,8 +1025,68 @@ namespace UPlayGround.Gameplay.Ability
 
         internal void Dispose()
         {
-            CancelActivePlayerAbility();
+            CancelAllAbilities();
             _executions.Clear();
+            _temporaryAbilities.Clear();
+        }
+
+        private void EndExecution(
+            AbilityExecutionHandle handle,
+            bool completed,
+            string reason)
+        {
+            if (!handle.IsValid
+                || !_executions.Remove(handle.Value, out AbilityExecution execution))
+            {
+                _backgroundExecutions.Remove(handle.Value);
+                if (_primaryExecution == handle.Value)
+                    _primaryExecution = 0;
+                return;
+            }
+
+            CleanupExecution(execution);
+            _abilitySystem.Runtime.Tasks.CancelParent(handle, reason);
+            _abilitySystem.Runtime.Tasks.DiscardParentCompletion(handle);
+            execution.State = completed
+                ? AbilityExecutionState.Ended
+                : AbilityExecutionState.Cancelled;
+            if (completed)
+                ApplyEffects(execution.Definition.endEffects, _owner);
+            _backgroundExecutions.Remove(handle.Value);
+            if (_primaryExecution == handle.Value)
+                _primaryExecution = 0;
+        }
+
+        private void RecordActivationResult(AbilityActivationResult result)
+        {
+            if (result == AbilityActivationResult.Success)
+                return;
+            _activationFailureCounts.TryGetValue(result, out int count);
+            _activationFailureCounts[result] = count + 1;
+        }
+
+        private sealed class PlayerAbilityInputPort : IAbilityInputPort
+        {
+            private readonly PlayerActor _player;
+
+            public PlayerAbilityInputPort(PlayerActor player) => _player = player;
+
+            public AbilityInputState GetSlotState(int slot)
+            {
+                global::UPlayGround.Input.InputCondition state =
+                    _player?.PlayerController?.GetSkillInput(slot)
+                    ?? global::UPlayGround.Input.InputCondition.None;
+                return state switch
+                {
+                    global::UPlayGround.Input.InputCondition.Pressed =>
+                        AbilityInputState.Pressed,
+                    global::UPlayGround.Input.InputCondition.Handled =>
+                        AbilityInputState.Held,
+                    global::UPlayGround.Input.InputCondition.Canceled =>
+                        AbilityInputState.Released,
+                    _ => AbilityInputState.None,
+                };
+            }
         }
 
     }

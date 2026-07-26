@@ -59,6 +59,7 @@ namespace UPlayGround.Ability.Core
         public AbilityExecutionHandle ParentAbility => Context.ParentAbility;
         public AbilityTaskState State { get; private set; } = AbilityTaskState.Created;
         public string EndReason { get; private set; } = string.Empty;
+        internal bool FailParentOnFailure { get; set; } = true;
         public event Action<AbilityTaskInstance> Completed;
 
         public void Activate()
@@ -144,6 +145,14 @@ namespace UPlayGround.Ability.Core
     {
         public bool failParentOnFailure = true;
         public abstract AbilityTaskInstance CreateRuntime(AbilityTaskContext context);
+
+        internal AbilityTaskInstance CreateRuntimeWithPolicy(AbilityTaskContext context)
+        {
+            AbilityTaskInstance task = CreateRuntime(context);
+            if (task != null)
+                task.FailParentOnFailure = failParentOnFailure;
+            return task;
+        }
     }
 
     public sealed class WaitDelayTaskDefinitionSO : AbilityTaskDefinitionSO
@@ -161,6 +170,45 @@ namespace UPlayGround.Ability.Core
             new WaitGameplayEventTask(context, new AbilityTagId(eventTag), matchHierarchy);
     }
 
+    public sealed class WaitTagTaskDefinitionSO : AbilityTaskDefinitionSO
+    {
+        public string tag;
+        public bool waitForAdded = true;
+
+        public override AbilityTaskInstance CreateRuntime(AbilityTaskContext context) =>
+            new WaitTagTask(context, new AbilityTagId(tag), waitForAdded);
+    }
+
+    public enum AbilityAttributeThresholdComparison
+    {
+        GreaterOrEqual,
+        LessOrEqual,
+    }
+
+    public sealed class WaitAttributeThresholdTaskDefinitionSO
+        : AbilityTaskDefinitionSO
+    {
+        [AttributeIdSelector] public string attributeId;
+        public AbilityAttributeThresholdComparison comparison;
+        public float threshold;
+
+        public override AbilityTaskInstance CreateRuntime(AbilityTaskContext context) =>
+            new WaitAttributeThresholdTask(
+                context,
+                new AttributeId(attributeId),
+                comparison,
+                threshold);
+    }
+
+    public sealed class WaitInputTaskDefinitionSO : AbilityTaskDefinitionSO
+    {
+        [Min(0)] public int slot;
+        public bool waitForRelease = true;
+
+        public override AbilityTaskInstance CreateRuntime(AbilityTaskContext context) =>
+            new WaitInputTask(context, slot, waitForRelease);
+    }
+
     public sealed class SequenceAbilityTaskDefinitionSO : AbilityTaskDefinitionSO
     {
         [SerializeField] private List<AbilityTaskDefinitionSO> _children = new();
@@ -172,7 +220,8 @@ namespace UPlayGround.Ability.Core
             for (int i = 0; i < _children.Count; i++)
             {
                 AbilityTaskDefinitionSO child = _children[i];
-                factories.Add(item => child != null ? child.CreateRuntime(item) : null);
+                factories.Add(item =>
+                    child != null ? child.CreateRuntimeWithPolicy(item) : null);
             }
             return new SequenceAbilityTask(context, factories);
         }
@@ -191,10 +240,43 @@ namespace UPlayGround.Ability.Core
             for (int i = 0; i < _children.Count; i++)
             {
                 AbilityTaskDefinitionSO child = _children[i];
-                factories.Add(item => child != null ? child.CreateRuntime(item) : null);
+                factories.Add(item =>
+                    child != null ? child.CreateRuntimeWithPolicy(item) : null);
             }
             return new ParallelAbilityTask(context, factories, _completeOnAny);
         }
+    }
+
+    public sealed class SelectBranchTaskDefinitionSO : AbilityTaskDefinitionSO
+    {
+        public string conditionTag;
+        public AbilityTaskDefinitionSO whenPresent;
+        public AbilityTaskDefinitionSO whenAbsent;
+
+        public override AbilityTaskInstance CreateRuntime(AbilityTaskContext context)
+        {
+            AbilityTaskDefinitionSO selected =
+                context.Owner.Tags.Has(new AbilityTagId(conditionTag))
+                    ? whenPresent
+                    : whenAbsent;
+            return new SelectBranchTask(
+                context,
+                selected != null ? selected.CreateRuntimeWithPolicy(context) : null);
+        }
+    }
+
+    public sealed class LoopAbilityTaskDefinitionSO : AbilityTaskDefinitionSO
+    {
+        [Min(1)] public int maxIterations = 1;
+        [Min(0f)] public float maxDuration;
+        public AbilityTaskDefinitionSO child;
+
+        public override AbilityTaskInstance CreateRuntime(AbilityTaskContext context) =>
+            new LoopAbilityTask(
+                context,
+                item => child != null ? child.CreateRuntimeWithPolicy(item) : null,
+                maxIterations,
+                maxDuration);
     }
 
     public sealed class AbilityTaskContainer : IDisposable
@@ -203,6 +285,8 @@ namespace UPlayGround.Ability.Core
         private readonly IAbilityClock _clock;
         private readonly Dictionary<ulong, AbilityTaskInstance> _active = new();
         private readonly Dictionary<ulong, HashSet<ulong>> _byParent = new();
+        private readonly Dictionary<ulong, (AbilityTaskState State, string Reason)>
+            _completedByParent = new();
         private ulong _nextHandle = 1;
 
         public AbilityTaskContainer(AbilitySystemRuntime owner, IAbilityClock clock)
@@ -220,7 +304,7 @@ namespace UPlayGround.Ability.Core
         {
             if (!parent.IsValid || definition == null) return default;
             var context = new AbilityTaskContext(_owner, parent, _clock, resolver);
-            return Start(parent, definition.CreateRuntime(context));
+            return Start(parent, definition.CreateRuntimeWithPolicy(context));
         }
 
         public AbilityTaskHandle Start(
@@ -265,6 +349,35 @@ namespace UPlayGround.Ability.Core
             return tasks.Count;
         }
 
+        public bool HasActiveForParent(AbilityExecutionHandle parent) =>
+            parent.IsValid
+            && _byParent.TryGetValue(parent.Value, out HashSet<ulong> ids)
+            && ids.Count > 0;
+
+        public bool TryConsumeParentCompletion(
+            AbilityExecutionHandle parent,
+            out AbilityTaskState state,
+            out string reason)
+        {
+            state = default;
+            reason = string.Empty;
+            if (!parent.IsValid
+                || HasActiveForParent(parent)
+                || !_completedByParent.Remove(
+                    parent.Value,
+                    out (AbilityTaskState State, string Reason) completion))
+                return false;
+            state = completion.State;
+            reason = completion.Reason;
+            return true;
+        }
+
+        public void DiscardParentCompletion(AbilityExecutionHandle parent)
+        {
+            if (parent.IsValid)
+                _completedByParent.Remove(parent.Value);
+        }
+
         public void CopyActive(ICollection<AbilityTaskInstance> destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
@@ -283,13 +396,46 @@ namespace UPlayGround.Ability.Core
         {
             task.Completed -= OnTaskCompleted;
             _active.Remove(task.Handle.Value);
+            AbilityTaskState parentState =
+                task.State == AbilityTaskState.Failed
+                && !task.FailParentOnFailure
+                    ? AbilityTaskState.Succeeded
+                    : task.State;
+            AggregateParentCompletion(
+                task.ParentAbility.Value,
+                parentState,
+                task.EndReason);
             if (_byParent.TryGetValue(task.ParentAbility.Value, out HashSet<ulong> ids))
             {
                 ids.Remove(task.Handle.Value);
-                if (ids.Count == 0) _byParent.Remove(task.ParentAbility.Value);
+                if (ids.Count == 0)
+                    _byParent.Remove(task.ParentAbility.Value);
             }
             Record(task.State.ToString(), task);
         }
+
+        private void AggregateParentCompletion(
+            ulong parent,
+            AbilityTaskState state,
+            string reason)
+        {
+            if (!_completedByParent.TryGetValue(
+                    parent,
+                    out (AbilityTaskState State, string Reason) current)
+                || CompletionPriority(state) > CompletionPriority(current.State))
+            {
+                _completedByParent[parent] = (state, reason ?? string.Empty);
+            }
+        }
+
+        private static int CompletionPriority(AbilityTaskState state) =>
+            state switch
+            {
+                AbilityTaskState.Failed => 3,
+                AbilityTaskState.Cancelled => 2,
+                AbilityTaskState.Succeeded or AbilityTaskState.Ended => 1,
+                _ => 0,
+            };
 
         private void Record(string eventType, AbilityTaskInstance task) =>
             _owner.Debug.Record(
@@ -361,6 +507,137 @@ namespace UPlayGround.Ability.Core
         }
     }
 
+    public sealed class WaitTagTask : AbilityTaskInstance
+    {
+        private readonly AbilityTagId _tag;
+        private readonly bool _waitForAdded;
+
+        public WaitTagTask(
+            AbilityTaskContext context,
+            AbilityTagId tag,
+            bool waitForAdded) : base(context)
+        {
+            _tag = tag;
+            _waitForAdded = waitForAdded;
+        }
+
+        protected override void OnActivate()
+        {
+            if (!_tag.IsValid)
+            {
+                Fail("Tag가 유효하지 않습니다.");
+                return;
+            }
+            Context.Owner.Tags.TagAdded += OnTagAdded;
+            Context.Owner.Tags.TagRemoved += OnTagRemoved;
+            if (Context.Owner.Tags.Has(_tag) == _waitForAdded)
+                Succeed(_tag.Value);
+        }
+
+        protected override void OnEnd()
+        {
+            Context.Owner.Tags.TagAdded -= OnTagAdded;
+            Context.Owner.Tags.TagRemoved -= OnTagRemoved;
+        }
+
+        private void OnTagAdded(AbilityTagId tag)
+        {
+            if (_waitForAdded && tag.Equals(_tag))
+                Succeed(tag.Value);
+        }
+
+        private void OnTagRemoved(AbilityTagId tag)
+        {
+            if (!_waitForAdded && tag.Equals(_tag))
+                Succeed(tag.Value);
+        }
+    }
+
+    public sealed class WaitAttributeThresholdTask : AbilityTaskInstance
+    {
+        private readonly AttributeId _attributeId;
+        private readonly AbilityAttributeThresholdComparison _comparison;
+        private readonly float _threshold;
+
+        public WaitAttributeThresholdTask(
+            AbilityTaskContext context,
+            AttributeId attributeId,
+            AbilityAttributeThresholdComparison comparison,
+            float threshold) : base(context)
+        {
+            _attributeId = attributeId;
+            _comparison = comparison;
+            _threshold = threshold;
+        }
+
+        protected override void OnActivate()
+        {
+            if (!_attributeId.IsValid)
+            {
+                Fail("Attribute ID가 유효하지 않습니다.");
+                return;
+            }
+            Context.Owner.Attributes.AttributeChanged += OnAttributeChanged;
+            EvaluateCurrent();
+        }
+
+        protected override void OnEnd() =>
+            Context.Owner.Attributes.AttributeChanged -= OnAttributeChanged;
+
+        private void OnAttributeChanged(AttributeChangedEvent change)
+        {
+            if (change.AttributeId == _attributeId)
+                Evaluate(change.NewCurrent);
+        }
+
+        private void EvaluateCurrent()
+        {
+            if (Context.Owner.Attributes.TryGet(
+                    _attributeId,
+                    out GameplayAttributeValue value))
+                Evaluate(value.CurrentValue);
+        }
+
+        private void Evaluate(float value)
+        {
+            bool reached =
+                _comparison == AbilityAttributeThresholdComparison.GreaterOrEqual
+                    ? value >= _threshold
+                    : value <= _threshold;
+            if (reached)
+                Succeed(_attributeId.Value);
+        }
+    }
+
+    public sealed class WaitInputTask : AbilityTaskInstance
+    {
+        private readonly int _slot;
+        private readonly bool _waitForRelease;
+
+        public WaitInputTask(
+            AbilityTaskContext context,
+            int slot,
+            bool waitForRelease) : base(context)
+        {
+            _slot = Math.Max(0, slot);
+            _waitForRelease = waitForRelease;
+        }
+
+        protected override void OnActivate()
+        {
+            if (Context.Owner.Input == null)
+                Fail("IAbilityInputPort가 연결되지 않았습니다.");
+        }
+
+        protected override void OnTick()
+        {
+            AbilityInputState state = Context.Owner.Input.GetSlotState(_slot);
+            if ((_waitForRelease && state == AbilityInputState.Released)
+                || (!_waitForRelease && state == AbilityInputState.Pressed))
+                Succeed(state.ToString());
+        }
+    }
+
     public sealed class ApplyGameplayEffectTask : AbilityTaskInstance
     {
         private readonly GameplayEffectSpec _spec;
@@ -386,6 +663,137 @@ namespace UPlayGround.Ability.Core
             Outcome = _target.Effects.Apply(_spec, Context.Owner);
             if (Outcome.Succeeded) Succeed();
             else Fail($"{Outcome.Result}: {Outcome.Error}");
+        }
+    }
+
+    public sealed class SelectBranchTask : AbilityTaskInstance
+    {
+        private readonly AbilityTaskInstance _selected;
+
+        public SelectBranchTask(
+            AbilityTaskContext context,
+            AbilityTaskInstance selected) : base(context) =>
+            _selected = selected;
+
+        protected override void OnActivate()
+        {
+            if (_selected == null)
+            {
+                Fail("선택된 Branch Task가 없습니다.");
+                return;
+            }
+            _selected.Completed += OnCompleted;
+            _selected.Activate();
+        }
+
+        protected override void OnTick() => _selected?.Tick();
+
+        protected override void OnEnd()
+        {
+            if (_selected == null)
+                return;
+            _selected.Completed -= OnCompleted;
+            if (!AbilityTaskInstance.IsTerminal(_selected.State))
+                _selected.Cancel("BranchEnded");
+        }
+
+        private void OnCompleted(AbilityTaskInstance child)
+        {
+            child.Completed -= OnCompleted;
+            if (child.State == AbilityTaskState.Succeeded)
+                Succeed(child.EndReason);
+            else if (child.State == AbilityTaskState.Cancelled)
+                Cancel(child.EndReason);
+            else if (!child.FailParentOnFailure)
+                Succeed(child.EndReason);
+            else
+                Fail(child.EndReason);
+        }
+    }
+
+    public sealed class LoopAbilityTask : AbilityTaskInstance
+    {
+        private readonly Func<AbilityTaskContext, AbilityTaskInstance> _factory;
+        private readonly int _maxIterations;
+        private readonly float _maxDuration;
+        private AbilityTaskInstance _current;
+        private int _completedIterations;
+        private float _endTime;
+
+        public LoopAbilityTask(
+            AbilityTaskContext context,
+            Func<AbilityTaskContext, AbilityTaskInstance> factory,
+            int maxIterations,
+            float maxDuration) : base(context)
+        {
+            _factory = factory;
+            _maxIterations = Math.Max(1, maxIterations);
+            _maxDuration = Math.Max(0f, maxDuration);
+        }
+
+        protected override void OnActivate()
+        {
+            _endTime = _maxDuration > 0f
+                ? Context.Clock.Time + _maxDuration
+                : float.PositiveInfinity;
+            StartNext();
+        }
+
+        protected override void OnTick()
+        {
+            if (Context.Clock.Time >= _endTime)
+            {
+                Succeed("LoopDurationReached");
+                return;
+            }
+            _current?.Tick();
+        }
+
+        protected override void OnEnd()
+        {
+            if (_current == null)
+                return;
+            _current.Completed -= OnChildCompleted;
+            if (!AbilityTaskInstance.IsTerminal(_current.State))
+                _current.Cancel("LoopEnded");
+        }
+
+        private void StartNext()
+        {
+            if (_completedIterations >= _maxIterations
+                || Context.Clock.Time >= _endTime)
+            {
+                Succeed();
+                return;
+            }
+            _current = _factory?.Invoke(Context);
+            if (_current == null)
+            {
+                Fail("Loop Task 생성 실패");
+                return;
+            }
+            _current.Completed += OnChildCompleted;
+            _current.Activate();
+        }
+
+        private void OnChildCompleted(AbilityTaskInstance child)
+        {
+            child.Completed -= OnChildCompleted;
+            if (child.State != AbilityTaskState.Succeeded)
+            {
+                if (child.State == AbilityTaskState.Cancelled)
+                    Cancel(child.EndReason);
+                else if (!child.FailParentOnFailure)
+                {
+                    _completedIterations++;
+                    StartNext();
+                }
+                else
+                    Fail(child.EndReason);
+                return;
+            }
+            _completedIterations++;
+            StartNext();
         }
     }
 
@@ -433,7 +841,10 @@ namespace UPlayGround.Ability.Core
         private void OnChildCompleted(AbilityTaskInstance child)
         {
             child.Completed -= OnChildCompleted;
-            if (child.State == AbilityTaskState.Succeeded) StartNext();
+            if (child.State == AbilityTaskState.Succeeded
+                || (child.State == AbilityTaskState.Failed
+                    && !child.FailParentOnFailure))
+                StartNext();
             else if (child.State == AbilityTaskState.Cancelled) Cancel(child.EndReason);
             else Fail(child.EndReason);
         }
@@ -503,7 +914,17 @@ namespace UPlayGround.Ability.Core
             child.Completed -= OnChildCompleted;
             if (child.State != AbilityTaskState.Succeeded)
             {
-                Fail(child.EndReason);
+                if (child.State == AbilityTaskState.Failed
+                    && !child.FailParentOnFailure)
+                {
+                    _succeeded++;
+                    if (_completeOnAny || _succeeded == _children.Count) Succeed();
+                    return;
+                }
+                if (child.State == AbilityTaskState.Cancelled)
+                    Cancel(child.EndReason);
+                else
+                    Fail(child.EndReason);
                 return;
             }
             _succeeded++;

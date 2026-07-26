@@ -132,7 +132,7 @@ namespace UPlayGround
                 DashInput        = _dashInputCondition,
                 ChargeAttackHeld = _chargeAttackHeld && _chargeHoldTime >= ChargeThreshold,
                 ChargeHoldTime   = _chargeHoldTime,
-                SkillInput = new List<InputCondition>(_skillInputCondition),
+                SkillInput = CreateSkillInputSnapshot(),
             });
 
             _dodgeInputCondition       = InputCondition.None;
@@ -143,6 +143,20 @@ namespace UPlayGround
             _interactionInputCondition = InputCondition.None;
             for (int i = 0; i < _skillInputCondition.Count; ++i)
                 _skillInputCondition[i] = InputCondition.None;
+        }
+
+        private List<InputCondition> CreateSkillInputSnapshot()
+        {
+            var snapshot = new List<InputCondition>(_skillInputCondition.Count);
+            for (int i = 0; i < _skillInputCondition.Count; i++)
+            {
+                InputCondition state = _skillInputCondition[i];
+                snapshot.Add(
+                    state == InputCondition.None && _skillInputHeld[i]
+                        ? InputCondition.Handled
+                        : state);
+            }
+            return snapshot;
         }
 
         #endregion

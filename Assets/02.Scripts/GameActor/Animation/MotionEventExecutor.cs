@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using UnityEngine;
 using UPlayGround.Data.Event;
 
@@ -13,6 +14,7 @@ namespace UPlayGround.Animation
     /// </summary>
     public class MotionEventExecutor : MonoBehaviour
     {
+        public event Action<MotionEventBase> EventExecuted;
         [SerializeField] GameObject _targetObject;
 
         private MotionSet _currentMotionSet;
@@ -168,6 +170,7 @@ namespace UPlayGround.Animation
             if (evt == null) return;
 
             evt.Execute(TargetObject, subFrameFraction);
+            EventExecuted?.Invoke(evt);
             MotionSetEventDebugOverlay.RecordEvent(
                 $"Start {evt.GetShortLabel()} @{_currentTime:F2}s");
         }

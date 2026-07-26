@@ -13,6 +13,10 @@ namespace UPlayGround.Data.Ability
     [CreateAssetMenu(fileName = "AbilitySet_", menuName = "UPlayGround/Ability/Ability Set")]
     public sealed class AbilitySetSO : ScriptableObject
     {
+        [System.NonSerialized] private HashSet<GameplayAbilitySO> _runtimeIndex;
+        [System.NonSerialized]
+        private Dictionary<GameplayAbilitySO, PlayerSkillSlot> _runtimePlayerSlots;
+        [System.NonSerialized] private List<GameplayAbilitySO> _runtimeAbilities;
         [System.Serializable]
         public sealed class PlayerSlotEntry
         {
@@ -307,6 +311,18 @@ namespace UPlayGround.Data.Ability
             GameplayAbilitySO ability,
             out PlayerSkillSlot slot)
         {
+            EnsureRuntimeIndex();
+            if (ability != null
+                && _runtimePlayerSlots.TryGetValue(ability, out slot))
+                return true;
+            slot = default;
+            return false;
+        }
+
+        private bool TryGetPlayerSlotSlow(
+            GameplayAbilitySO ability,
+            out PlayerSkillSlot slot)
+        {
             foreach (PlayerSkillSlot candidate in
                      System.Enum.GetValues(typeof(PlayerSkillSlot)))
             {
@@ -349,11 +365,62 @@ namespace UPlayGround.Data.Ability
 
         public bool Contains(GameplayAbilitySO ability)
         {
-            if (ability == null) return false;
-            foreach (GameplayAbilitySO candidate in EnumerateAll())
-                if (candidate == ability)
-                    return true;
-            return false;
+            if (ability == null)
+                return false;
+            EnsureRuntimeIndex();
+            return _runtimeIndex.Contains(ability);
+        }
+
+        public IReadOnlyList<GameplayAbilitySO> GetRuntimeAbilities()
+        {
+            EnsureRuntimeIndex();
+            return _runtimeAbilities;
+        }
+
+        public void EnsureRuntimeIndex()
+        {
+            if (_runtimeIndex != null)
+                return;
+
+            _runtimeIndex = new HashSet<GameplayAbilitySO>();
+            _runtimePlayerSlots =
+                new Dictionary<GameplayAbilitySO, PlayerSkillSlot>();
+            _runtimeAbilities = new List<GameplayAbilitySO>();
+            foreach (GameplayAbilitySO ability in EnumerateAll())
+            {
+                if (ability == null || !_runtimeIndex.Add(ability))
+                    continue;
+                _runtimeAbilities.Add(ability);
+                if (TryGetPlayerSlotSlow(ability, out PlayerSkillSlot slot))
+                    _runtimePlayerSlots[ability] = slot;
+            }
+        }
+
+        /// <summary>
+        /// 런타임에 AbilitySet 구성을 바꾼 뒤 인덱스를 즉시 다시 구축합니다.
+        /// 일반 에셋은 OnEnable/OnValidate에서 자동 처리됩니다.
+        /// </summary>
+        public void RebuildRuntimeIndex()
+        {
+            InvalidateRuntimeIndex();
+            EnsureRuntimeIndex();
+        }
+
+        private void OnEnable()
+        {
+            InvalidateRuntimeIndex();
+            EnsureRuntimeIndex();
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate() => InvalidateRuntimeIndex();
+#endif
+
+        private void InvalidateRuntimeIndex()
+        {
+            _runtimeIndex = null;
+            _runtimePlayerSlots = null;
+            _runtimeAbilities = null;
         }
     }
 }

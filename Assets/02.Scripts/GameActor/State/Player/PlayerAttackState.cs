@@ -221,17 +221,13 @@ namespace UPlayGround.State
                             : default;
                     }
 
-                    var forcedSkillGauge = playerActor.SkillGauge;
-                    if (forcedSkillGauge != null && !forcedSkillGauge.CanUseSkill(i)) continue;
-
-                    return combat.PeekSkillAttackMotion(i);
+                    continue;
                 }
 
                 return default;
             }
 
-            // 1순위: 숫자 키 스킬 (게이지 보유 여부만 확인하고 실제로 소비하지 않음)
-            var skillGauge = playerActor.SkillGauge;
+            // 1순위: 숫자 키 스킬. 판정 권위는 GameplayAbility에 있다.
             for (int i = 0; i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (!controller.HasSkillInput(i)) continue;
@@ -242,9 +238,7 @@ namespace UPlayGround.State
                         ? abilityKey
                         : default;
                 }
-                if (skillGauge != null && !skillGauge.CanUseSkill(i)) continue;
-
-                return combat.PeekSkillAttackMotion(i);
+                continue;
             }
 
             // 2순위: 기본 약/강 콤보. 콤보 입력 없는 첫 진입이므로 isCombo=false.
@@ -668,8 +662,6 @@ namespace UPlayGround.State
                 return _currentAttack?.motionAsset ?? default;
             }
 
-            var skillGauge = playerActor.SkillGauge;
-
             // 1순위: 숫자 키 스킬
             bool skillAllowed = _forcedAttackAction == PlayerInterruptAction.None
                                 || (_forcedAttackAction & PlayerInterruptAction.Skill) != 0;
@@ -714,21 +706,9 @@ namespace UPlayGround.State
                     return _currentAttack.motionAsset;
                 }
 
-                // 자원 소비 가능 여부만 먼저 확인한다(아직 소비하지 않음).
-                if (skillGauge != null && !skillGauge.CanUseSkill(i))
-                {
-                    Debug.Log($"[PlayerAttackState] Skill {i + 1} 게이지 부족");
-                    continue;
-                }
-
-                // resolve(ExecuteSkillAttack)가 실패하면 자원을 소비하지 않는다.
-                // 정의 우선 정책상 정의가 있어도 Variant 조건이 모두 실패하면 null이 반환될 수 있어,
-                // 소비를 발동 확정 이후로 미뤄 Ultimate 게이지/쿨다운이 헛소비되는 것을 막는다.
-                _currentAttack = _combat.ExecuteSkillAttack(i);
-                if (_currentAttack != null)
-                    skillGauge?.ConsumeSkill(i);
-
-                return _currentAttack?.motionAsset ?? default;
+                Debug.LogWarning(
+                    $"[PlayerAttackState] 슬롯 {i}에 GameplayAbility가 없습니다.");
+                continue;
             }
 
             // 2순위: 기본 약/강 콤보

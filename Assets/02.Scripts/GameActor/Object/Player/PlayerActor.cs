@@ -140,6 +140,10 @@ namespace UPlayGround
         {
             InputCondition.None, InputCondition.None, InputCondition.None,
         };
+        private readonly List<bool> _skillInputHeld = new()
+        {
+            false, false, false,
+        };
 
         public override ActorAnimator      Animator              => _playerActorAnimator;
         public PlayerMovementController    PlayerController       => PlayerMovementPlayerController;

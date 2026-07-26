@@ -47,6 +47,9 @@ namespace UPlayGround.Ability.Core
         public ActiveGameplayEffectContainer Effects { get; }
         public AbilityTaskContainer Tasks { get; }
         public AbilityDebugRecorder Debug { get; }
+        public IAbilityInputPort Input { get; private set; }
+
+        public void SetInputPort(IAbilityInputPort input) => Input = input;
 
         public AbilitySystemDebugSnapshot CaptureDebugSnapshot(AbilityDebugCaptureOptions options)
         {
@@ -114,6 +117,10 @@ namespace UPlayGround.Ability.Core
                 {
                     groupId = cooldowns[i].GroupId,
                     remainingSeconds = cooldowns[i].RemainingSeconds,
+                    availableCharges = cooldowns[i].AvailableCharges,
+                    maxCharges = cooldowns[i].MaxCharges,
+                    rechargeDurationSeconds =
+                        cooldowns[i].RechargeDurationSeconds,
                 });
             }
 
@@ -141,6 +148,7 @@ namespace UPlayGround.Ability.Core
             Func<string, GameplayEffectDefinition> effectResolver = null)
         {
             if (data == null) return;
+            int sourceVersion = data.version;
             if (effectResolver != null)
                 Effects.Clear();
             using (AttributeSetRuntime.Transaction transaction = Attributes.BeginTransaction())
@@ -178,7 +186,22 @@ namespace UPlayGround.Ability.Core
             for (int i = 0; i < data.cooldowns.Count; i++)
             {
                 GasCooldownSaveEntry entry = data.cooldowns[i];
-                if (entry != null) Cooldowns.Restore(entry.groupId, entry.remainingSeconds);
+                if (entry == null) continue;
+                if (sourceVersion >= 4)
+                {
+                    Cooldowns.Restore(
+                        entry.groupId,
+                        entry.remainingSeconds,
+                        entry.availableCharges,
+                        entry.maxCharges,
+                        entry.rechargeDurationSeconds);
+                }
+                else
+                {
+                    Cooldowns.Restore(
+                        entry.groupId,
+                        entry.remainingSeconds);
+                }
             }
             if (effectResolver == null) return;
             for (int i = 0; i < data.activeEffects.Count; i++)

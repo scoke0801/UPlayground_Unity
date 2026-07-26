@@ -151,6 +151,24 @@ namespace UPlayGround.Gameplay.Ability
                 maximumId = global::UPlayGround.Data.Stat.Attributes.Resource.MaxUltimateEnergy;
                 return true;
             }
+            if (string.Equals(
+                    resourceId,
+                    UPlayGround.Data.Ability.AbilityResourceType.Forte.ToString(),
+                    StringComparison.Ordinal))
+            {
+                currentId = global::UPlayGround.Data.Stat.Attributes.Resource.Forte;
+                maximumId = global::UPlayGround.Data.Stat.Attributes.Resource.MaxForte;
+                return true;
+            }
+            if (string.Equals(
+                    resourceId,
+                    UPlayGround.Data.Ability.AbilityResourceType.Concerto.ToString(),
+                    StringComparison.Ordinal))
+            {
+                currentId = global::UPlayGround.Data.Stat.Attributes.Resource.Concerto;
+                maximumId = global::UPlayGround.Data.Stat.Attributes.Resource.MaxConcerto;
+                return true;
+            }
             currentId = default;
             maximumId = default;
             return false;

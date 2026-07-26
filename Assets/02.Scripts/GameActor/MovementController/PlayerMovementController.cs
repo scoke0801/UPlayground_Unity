@@ -262,6 +262,15 @@ namespace UPlayGround.MovementController
             return _inputState.SkillInput[index] == InputCondition.Pressed;
         }
 
+        public InputCondition GetSkillInput(int index)
+        {
+            if (_inputState.SkillInput == null
+                || index < 0
+                || _inputState.SkillInput.Count <= index)
+                return InputCondition.None;
+            return _inputState.SkillInput[index];
+        }
+
     }
 
     public partial class PlayerMovementController : ActorMovementController

@@ -132,8 +132,12 @@ namespace UPlayGround.Data.Stat
                     "Resource.GenerationMultiplier");
             public static readonly AttributeReference Forte =
                 AttributeReference.CreateCodeDefined("Resource.Forte");
+            public static readonly AttributeReference MaxForte =
+                AttributeReference.CreateCodeDefined("Resource.MaxForte");
             public static readonly AttributeReference Concerto =
                 AttributeReference.CreateCodeDefined("Resource.Concerto");
+            public static readonly AttributeReference MaxConcerto =
+                AttributeReference.CreateCodeDefined("Resource.MaxConcerto");
             public static readonly AttributeReference SkillCharge =
                 AttributeReference.CreateCodeDefined("Resource.SkillCharge");
         }

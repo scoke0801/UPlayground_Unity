@@ -299,6 +299,8 @@ namespace UPlayGround.Gameplay.Ability
             {
                 AbilityResourceType.Health => global::UPlayGround.Data.Stat.Attributes.Vital.Health,
                 AbilityResourceType.UltimateEnergy => global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy,
+                AbilityResourceType.Forte => global::UPlayGround.Data.Stat.Attributes.Resource.Forte,
+                AbilityResourceType.Concerto => global::UPlayGround.Data.Stat.Attributes.Resource.Concerto,
                 _ => default,
             };
             if (!attributeId.IsValid || !Attributes.Contains(attributeId)
@@ -336,6 +338,8 @@ namespace UPlayGround.Gameplay.Ability
             {
                 AbilityResourceType.Health => global::UPlayGround.Data.Stat.Attributes.Vital.Health,
                 AbilityResourceType.UltimateEnergy => global::UPlayGround.Data.Stat.Attributes.Resource.UltimateEnergy,
+                AbilityResourceType.Forte => global::UPlayGround.Data.Stat.Attributes.Resource.Forte,
+                AbilityResourceType.Concerto => global::UPlayGround.Data.Stat.Attributes.Resource.Concerto,
                 _ => default,
             };
             if (!attributeId.IsValid || !Attributes.Contains(attributeId))

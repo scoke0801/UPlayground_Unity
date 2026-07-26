@@ -43,6 +43,40 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void Cooldown_Charges_RechargeSequentially()
+        {
+            var clock = new FakeClock();
+            var runtime = new AbilityCooldownRuntime(clock);
+
+            Assert.That(runtime.TryConsumeCharge("Dash", 3f, 2), Is.True);
+            Assert.That(runtime.TryConsumeCharge("Dash", 3f, 2), Is.True);
+            Assert.That(runtime.TryConsumeCharge("Dash", 3f, 2), Is.False);
+            Assert.That(runtime.GetAvailableCharges("Dash", 2), Is.Zero);
+
+            clock.TimeValue = 3f;
+            Assert.That(runtime.GetAvailableCharges("Dash", 2), Is.EqualTo(1));
+            Assert.That(runtime.GetRemaining("Dash"), Is.Zero);
+            Assert.That(runtime.GetNextChargeRemaining("Dash"), Is.EqualTo(3f));
+
+            clock.TimeValue = 6f;
+            Assert.That(runtime.GetAvailableCharges("Dash", 2), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Cooldown_Haste_ConvergesWithoutReachingZero()
+        {
+            Assert.That(
+                AbilityCooldownHaste.Apply(10f, 100f),
+                Is.EqualTo(5f));
+            Assert.That(
+                AbilityCooldownHaste.Apply(10f, 10000f),
+                Is.GreaterThan(0f));
+            Assert.That(
+                AbilityCooldownHaste.Apply(10f, 10000f),
+                Is.LessThan(0.1f));
+        }
+
+        [Test]
         public void EffectStack_AddAndRefresh_ClampsToMaximum()
         {
             AbilityEffectStackResult result = AbilityEffectStackRuntime.Resolve(

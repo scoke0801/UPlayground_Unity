@@ -105,6 +105,7 @@ namespace UPlayGround
             ApplyEquipmentStatsForActiveCharacter(preserveHealthRatio: false);
 
             Abilities?.SetAbilitySet(data.abilitySet);
+            Abilities?.SetResourceRules(data.abilityResourceRules);
             if (_characterAbilitySystemMap.TryGetValue(
                     data.characterType, out AbilitySystemSaveData savedState))
             {
@@ -462,13 +463,33 @@ namespace UPlayGround
             if (type == _characterActorType)
                 return _skillGauge.CanUseSkill(skillSlot);
 
-            float cost = _skillGauge.GetSkillCost(skillSlot);
-            if (float.IsInfinity(cost) || GetSkillGaugeForCharacter(type) < cost)
+            CharacterModelData model = _swapBehaviour?.GetModelData(type);
+            GameplayAbilitySO ability = skillSlot
+                == PlayerAbilityResourceView.ElementalImbueSkillSlot
+                    ? Svc.Party?.GetElementalImbueAbility(type)
+                    : model?.abilitySet?.GetPlayerAbility(
+                        (PlayerSkillSlot)skillSlot);
+            if (ability == null)
+                return false;
+
+            float required = ability.cost?.policy switch
+            {
+                AbilityCostPolicy.None => 0f,
+                AbilityCostPolicy.Fixed => Mathf.Max(0f, ability.cost.value),
+                AbilityCostPolicy.All => GetSkillGaugeForCharacter(type),
+                AbilityCostPolicy.PercentOfMax =>
+                    Mathf.Max(
+                        0f,
+                        GetMaxSkillGaugeForCharacter(type)
+                        * ability.cost.value),
+                _ => 0f,
+            };
+            if (GetSkillGaugeForCharacter(type) < required)
                 return false;
 
             if (GetStoredCooldownRemaining(
                     type,
-                    PlayerAbilityResourceView.GetSkillSlotCooldownGroupId(skillSlot)) > 0f)
+                    ability.cooldown.ResolveGroupId(ability.abilityId)) > 0f)
             {
                 return false;
             }

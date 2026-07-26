@@ -322,7 +322,7 @@ namespace UPlayGround.Components
                 return _abilityCandidates;
 
             SkillConditionContext context = CreateContext(distanceToTarget);
-            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            foreach (GameplayAbilitySO ability in _abilitySet.GetRuntimeAbilities())
             {
                 if (ability == null || !_visitedAbilities.Add(ability))
                     continue;
@@ -454,7 +454,7 @@ namespace UPlayGround.Components
             if (_abilitySet == null)
                 return maxRange;
 
-            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            foreach (GameplayAbilitySO ability in _abilitySet.GetRuntimeAbilities())
             {
                 if (ability?.activation == null)
                     continue;
@@ -468,7 +468,7 @@ namespace UPlayGround.Components
             if (_abilitySet == null)
                 return false;
 
-            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
+            foreach (GameplayAbilitySO ability in _abilitySet.GetRuntimeAbilities())
             {
                 if (ability?.variants == null)
                     continue;

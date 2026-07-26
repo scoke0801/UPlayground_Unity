@@ -160,6 +160,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return;
 
             var keys = new Dictionary<string, int>();
+            var stableIds = new Dictionary<string, int>();
             for (var i = 0; i < entries.Count; i++)
             {
                 var entry = entries[i];
@@ -177,6 +178,24 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                 if (!keys.TryAdd(entry.Key, i))
                     messages.Add(new BehaviorTreeValidationMessage(BehaviorTreeValidationLevel.Error, $"Blackboard Key '{entry.Key}'가 중복됩니다. 첫 위치: {keys[entry.Key]}, 중복 위치: {i}"));
+
+                if (!BlackboardKeyRegistry.TryResolve(entry.KeyReference, out _, out BlackboardKeyDefinition definition))
+                {
+                    messages.Add(new BehaviorTreeValidationMessage(
+                        BehaviorTreeValidationLevel.Error,
+                        $"Blackboard[{i}] Key '{entry.Key}'의 stableId/이름을 Registry에서 해석할 수 없습니다."));
+                    continue;
+                }
+
+                if (definition.ValueType != entry.ValueType)
+                    messages.Add(new BehaviorTreeValidationMessage(
+                        BehaviorTreeValidationLevel.Error,
+                        $"Blackboard Key '{entry.Key}' 타입이 Registry와 다릅니다. Registry: {definition.ValueType}, Entry: {entry.ValueType}"));
+
+                if (!stableIds.TryAdd(definition.StableId, i))
+                    messages.Add(new BehaviorTreeValidationMessage(
+                        BehaviorTreeValidationLevel.Error,
+                        $"Blackboard stableId '{definition.StableId}'가 중복됩니다. 첫 위치: {stableIds[definition.StableId]}, 중복 위치: {i}"));
             }
         }
 
@@ -209,7 +228,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 return;
             }
 
-            var entry = tree.Blackboard?.FindEntry(selector.Key);
+            if (!BlackboardKeyRegistry.TryResolve(
+                    selector.Reference,
+                    out _,
+                    out BlackboardKeyDefinition definition))
+            {
+                messages.Add(new BehaviorTreeValidationMessage(
+                    BehaviorTreeValidationLevel.Error,
+                    $"{FormatNode(node)}: Blackboard selector '{fieldName}'의 stableId/이름을 Registry에서 해석할 수 없습니다.",
+                    node));
+                return;
+            }
+
+            var entry = tree.Blackboard?.FindEntry(selector.Reference);
             if (entry == null)
             {
                 messages.Add(new BehaviorTreeValidationMessage(BehaviorTreeValidationLevel.Error, $"{FormatNode(node)}: Blackboard Key '{selector.Key}'를 찾을 수 없습니다. Field: {fieldName}", node));
@@ -218,6 +249,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             if (entry.ValueType != selector.ExpectedType)
                 messages.Add(new BehaviorTreeValidationMessage(BehaviorTreeValidationLevel.Error, $"{FormatNode(node)}: Blackboard Key '{selector.Key}' 타입이 맞지 않습니다. 필요: {selector.ExpectedType}, 실제: {entry.ValueType}", node));
+            else if (definition.ValueType != selector.ExpectedType)
+                messages.Add(new BehaviorTreeValidationMessage(
+                    BehaviorTreeValidationLevel.Error,
+                    $"{FormatNode(node)}: Blackboard Key '{selector.Key}'의 Registry 타입이 맞지 않습니다. 필요: {selector.ExpectedType}, Registry: {definition.ValueType}",
+                    node));
         }
 
         private static void ValidateLegacyStringKey(

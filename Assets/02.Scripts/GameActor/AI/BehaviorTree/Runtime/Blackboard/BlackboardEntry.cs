@@ -6,6 +6,7 @@ namespace UPlayGround.AI.BehaviorTree
     [Serializable]
     public class BlackboardEntry
     {
+        [SerializeField] private string _stableId;
         [SerializeField] private string _key;
         [SerializeField] private BlackboardValueType _valueType;
         [SerializeField] private bool _boolValue;
@@ -18,7 +19,22 @@ namespace UPlayGround.AI.BehaviorTree
         public string Key
         {
             get => _key;
-            set => _key = value;
+            set
+            {
+                _key = value;
+                if (BlackboardKeyRegistry.TryResolve(value, out BlackboardKeyReference reference))
+                    _stableId = reference.StableId;
+            }
+        }
+
+        public string StableId => _stableId ?? string.Empty;
+        public BlackboardKeyReference KeyReference =>
+            BlackboardKeyReference.CreateResolved(_stableId, _key);
+
+        public void SetKeyReference(BlackboardKeyReference reference)
+        {
+            _stableId = reference.StableId;
+            _key = reference.KeyName;
         }
 
         public BlackboardValueType ValueType
@@ -67,6 +83,7 @@ namespace UPlayGround.AI.BehaviorTree
         {
             return new BlackboardEntry
             {
+                _stableId = _stableId,
                 _key = _key,
                 _valueType = _valueType,
                 _boolValue = _boolValue,

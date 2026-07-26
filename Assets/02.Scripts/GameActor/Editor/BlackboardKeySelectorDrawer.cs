@@ -23,8 +23,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             var keyProp = property.FindPropertyRelative("_key");
+            var stableIdProp = property.FindPropertyRelative("_stableId");
             var typeProp = property.FindPropertyRelative("_expectedType");
-            if (keyProp == null || typeProp == null)
+            if (keyProp == null || stableIdProp == null || typeProp == null)
                 return new Label($"{property.displayName}: Invalid BlackboardKeySelector");
 
             var dropdown = new DropdownField();
@@ -62,6 +63,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             dropdown.RegisterValueChangedCallback(evt =>
             {
                 keyProp.stringValue = evt.newValue ?? string.Empty;
+                stableIdProp.stringValue = ResolveStableId(evt.newValue);
                 property.serializedObject.ApplyModifiedProperties();
                 Refresh();
             });
@@ -102,8 +104,9 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             var keyProp = property.FindPropertyRelative("_key");
+            var stableIdProp = property.FindPropertyRelative("_stableId");
             var typeProp = property.FindPropertyRelative("_expectedType");
-            if (keyProp == null || typeProp == null)
+            if (keyProp == null || stableIdProp == null || typeProp == null)
             {
                 EditorGUI.LabelField(position, label.text, "Invalid BlackboardKeySelector");
                 return;
@@ -156,12 +159,27 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (selected != currentIndex)
             {
                 if (selected <= 0)
+                {
                     keyProp.stringValue = string.Empty;
+                    stableIdProp.stringValue = string.Empty;
+                }
                 else if (!options[selected].EndsWith("(missing)"))
+                {
                     keyProp.stringValue = options[selected];
+                    stableIdProp.stringValue = ResolveStableId(options[selected]);
+                }
             }
 
             EditorGUI.EndProperty();
+        }
+
+        private static string ResolveStableId(string key)
+        {
+            return BlackboardKeyRegistry.TryResolve(
+                key,
+                out BlackboardKeyReference reference)
+                ? reference.StableId
+                : string.Empty;
         }
 
         private static List<string> CollectMatchingKeys(Blackboard blackboard, BlackboardValueType expectedType)

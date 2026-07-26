@@ -392,7 +392,8 @@ MonoBehaviour:
   - {fileID: -1199066395566882638}
   _blackboard:
     _entries:
-    - _key: HasTarget
+    - _stableId: 5781b5627bde4bc41af9760a43197545
+      _key: Target.Has
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -400,7 +401,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Target
+    - _stableId: a2198e67f2a81e30d15f204487f6cb73
+      _key: Target.Object
       _valueType: 5
       _boolValue: 0
       _intValue: 0
@@ -408,7 +410,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: DistanceToTarget
+    - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+      _key: Target.Distance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -416,7 +419,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CurrentState
+    - _stableId: c267193029326664a07556e0eb8276cd
+      _key: Self.StateId
       _valueType: 3
       _boolValue: 0
       _intValue: 0

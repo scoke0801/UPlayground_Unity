@@ -10,7 +10,44 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     internal static class EnemyBlackboardKeysGenerator
     {
         private const string RegistryPath = "Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json";
-        private const string OutputPath = "Assets/02.Scripts/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.generated.cs";
+        private const string OutputPath = "Assets/02.Scripts/GameActor/AI/BehaviorTree/Runtime/EnemyBlackboardKeys.generated.cs";
+        private const string BlackboardKeyRegistryAssetPath =
+            "Assets/Resources/BlackboardKeyRegistry.asset";
+
+        [InitializeOnLoadMethod]
+        private static void ScheduleInitialRegistryMigration()
+        {
+            EditorApplication.delayCall += RunInitialRegistryMigration;
+        }
+
+        private static void RunInitialRegistryMigration()
+        {
+            // Registry 에셋이 없는 최초 도입 시에만 안전한 사전검증과 마이그레이션을 수행한다.
+            try
+            {
+                if (AssetDatabase.LoadAssetAtPath<BlackboardKeyRegistrySO>(
+                        BlackboardKeyRegistryAssetPath) != null)
+                {
+                    BlackboardKeyRegistryGenerator.ValidateProjectOrThrow();
+                    return;
+                }
+
+                BlackboardKeyRegistryGenerator.GenerateAndMigrateMenu();
+            }
+            catch (InvalidDataException)
+            {
+                // Registry는 있으나 중첩 Selector 등 stableId 마이그레이션이 덜 된 경우
+                // 동일한 사전검증 경로로 안전하게 재실행한다.
+                BlackboardKeyRegistryGenerator.GenerateAndMigrateMenu();
+            }
+            catch (Exception exception)
+            {
+                UnityEngine.Debug.LogError(
+                    "[BlackboardKeyRegistry] 초기 마이그레이션 실패. "
+                    + "프로젝트 데이터는 저장 전 사전검증 단계에서 중단되었습니다.\n"
+                    + exception);
+            }
+        }
 
         [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/생성 도구/Enemy Blackboard Keys 생성", false, 11)]
         public static void GenerateMenu()

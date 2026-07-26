@@ -20,6 +20,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             public const string DistanceGreater = "DistanceGreater";
             public const string ActionDelayElapsed = "ActionDelayElapsed";
             public const string CanUseSkill = "CanUseSkill";
+            public const string HasAttackInRange = "HasAttackInRange";
+            public const string HasLineOfSight = "HasLineOfSight";
             public const string IsPlayerAttacking = "IsPlayerAttacking";
             public const string IsPlayerGuarding = "IsPlayerGuarding";
             public const string IsPlayerStaggered = "IsPlayerStaggered";

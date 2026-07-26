@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
   m_Name: NonCombat_NoTarget
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   _guid: seq_non_combat
   _displayName: NonCombat_NoTarget
   _comment: "\uD0C0\uAC9F\uC774 \uC5C6\uC73C\uBA74 \uC21C\uCC30 \uAC00\uB2A5 \uC5EC\uBD80\uB97C
@@ -64,7 +64,7 @@ MonoBehaviour:
   _breakpoint: 0
   _targetState: 0
   _skipIfAlreadyInState: 1
-  _cooldownId: 
+  _cooldownId:
   _cooldownDuration: 0
 --- !u!114 &-7237856785145920875
 MonoBehaviour:
@@ -87,10 +87,6 @@ MonoBehaviour:
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _hasTargetKey: HasTarget
-  _targetKey: Target
-  _distanceKey: DistanceToTarget
-  _stateKey: CurrentState
 --- !u!114 &-7220265995912769975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,6 +156,10 @@ MonoBehaviour:
   _children: []
   _disabled: 0
   _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
 --- !u!114 &-4050355533861311950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,7 +380,8 @@ MonoBehaviour:
   - {fileID: -7641094778895640308}
   _blackboard:
     _entries:
-    - _key: HasTarget
+    - _stableId: 5781b5627bde4bc41af9760a43197545
+      _key: Target.Has
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -388,7 +389,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Target
+    - _stableId: a2198e67f2a81e30d15f204487f6cb73
+      _key: Target.Object
       _valueType: 5
       _boolValue: 0
       _intValue: 0
@@ -396,7 +398,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: DistanceToTarget
+    - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+      _key: Target.Distance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -404,7 +407,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CurrentState
+    - _stableId: c267193029326664a07556e0eb8276cd
+      _key: Self.StateId
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -453,8 +457,8 @@ MonoBehaviour:
     \uC2AC\uB86F \uC18C\uC9C4) Idle \uB300\uC2E0 \uC11C\uD074\uB9C1\uC73C\uB85C \uCC28\uB840\uB97C
     \uAE30\uB2E4\uB9B0\uB2E4. \uC808\uB300 \uC81C\uC790\uB9AC\uC5D0 \uBA48\uCD94\uC9C0
     \uC54A\uACE0(NeverIdle), \uD3EC\uBA54\uC774\uC158 \uC2AC\uB86F\uC73C\uB85C \uAC01\uB3C4\uB3C4
-    \uBD84\uC0B0\uB41C\uB2E4. \uC2AC\uB86F\uC774 \uD480\uB9AC\uBA74 \uC0C1\uC704 \uACF5\uACA9
-    \uBD84\uAE30\uAC00 abort\uB85C \uAC00\uB85C\uCC44 \uC989\uC2DC \uC9C4\uC785."
+    \uBD84\uC0B0\uB41C\uB2E4. \uC2AC\uB86F\uC774 \uD480\uB9AC\uBA74 \uC0C1\uC704
+    \uACF5\uACA9 \uBD84\uAE30\uAC00 abort\uB85C \uAC00\uB85C\uCC44 \uC989\uC2DC \uC9C4\uC785."
   _editorPosition: {x: 1449.9999, y: 1476.4381}
   _children: []
   _disabled: 0

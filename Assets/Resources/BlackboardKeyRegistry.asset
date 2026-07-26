@@ -1,0 +1,802 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24f5949ab09b48c08c7282a42b744b0d, type: 3}
+  m_Name: BlackboardKeyRegistry
+  m_EditorClassIdentifier: 
+  _definitions:
+  - _stableId: 5781b5627bde4bc41af9760a43197545
+    _keyName: Target.Has
+    _aliases:
+    - HasTarget
+    _displayName: "\uD0C0\uAC9F \uC788\uC74C"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: a2198e67f2a81e30d15f204487f6cb73
+    _keyName: Target.Object
+    _aliases:
+    - Target
+    _displayName: "\uD0C0\uAC9F \uC624\uBE0C\uC81D\uD2B8"
+    _description: 
+    _valueType: 5
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+    _keyName: Target.Distance
+    _aliases:
+    - DistanceToTarget
+    _displayName: "\uD0C0\uAC9F \uAC70\uB9AC"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: c267193029326664a07556e0eb8276cd
+    _keyName: Self.StateId
+    _aliases:
+    - CurrentState
+    _displayName: "\uD604\uC7AC \uC0C1\uD0DC ID"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: ba65e72172cd2949ed0793d64fa68900
+    _keyName: Self.StateTags
+    _aliases: []
+    _displayName: "\uD604\uC7AC \uC0C1\uD0DC \uD0DC\uADF8"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4d29b28b55a3573558bf8d114388a961
+    _keyName: Self.HpPercent
+    _aliases:
+    - HpPercent
+    _displayName: "\uC790\uC2E0 \uCCB4\uB825 \uBE44\uC728"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 0ba9639c7d468d29ef1a29788656d4b6
+    _keyName: Self.PhaseName
+    _aliases:
+    - CurrentPhaseName
+    _displayName: "\uD604\uC7AC \uD398\uC774\uC988 \uC774\uB984"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4d9c42c262abcb96e297c12ff671ebca
+    _keyName: Self.PhaseIndex
+    _aliases:
+    - PhaseIndex
+    _displayName: "\uD604\uC7AC \uD398\uC774\uC988 \uC778\uB371\uC2A4"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4bb6dde0766a600114ed378b50c15151
+    _keyName: AllowCharge
+    _aliases: []
+    _displayName: "\uCC28\uC9C0 \uD5C8\uC6A9"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 66da08b5ea9352746a92aa0ee08a78ed
+    _keyName: AllowFlank
+    _aliases: []
+    _displayName: "\uCE21\uBA74 \uC774\uB3D9 \uD5C8\uC6A9"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: df2e2e457b77240240f29dc713de7ac5
+    _keyName: MaxConsecutiveAttacks
+    _aliases: []
+    _displayName: "\uCD5C\uB300 \uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 1a5993ca6cb9f6fec05ec96c179de555
+    _keyName: ContinueAttackChance
+    _aliases: []
+    _displayName: "\uC5F0\uC18D \uACF5\uACA9 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: d7312e7b5c3bdd556052c33a1992e06b
+    _keyName: GuardChance
+    _aliases: []
+    _displayName: "\uAC00\uB4DC \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: fdbbf52cada5784b77a80a955a49a969
+    _keyName: RetreatChance
+    _aliases: []
+    _displayName: "\uD6C4\uD1F4 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: e0e3cda40977a44880582146b03c86a7
+    _keyName: CanUseSkill
+    _aliases: []
+    _displayName: "\uC2A4\uD0AC \uC0AC\uC6A9 \uAC00\uB2A5"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: a8d1e7822db794aa32d5bc06c83a4281
+    _keyName: HasAttackSlot
+    _aliases: []
+    _displayName: "\uACF5\uACA9 \uC2AC\uB86F \uD655\uBCF4"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 04b0c32959e04147e135598dcecaaa10
+    _keyName: NextActionAllowedTime
+    _aliases: []
+    _displayName: "\uB2E4\uC74C \uD589\uB3D9 \uD5C8\uC6A9 \uC2DC\uAC04"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: a688f1973d81dfea923676791b931bfa
+    _keyName: AI.Aggression
+    _aliases: []
+    _displayName: "AI \uACF5\uACA9\uC131"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: fdf4c744a2f037999dca40e216b0fb09
+    _keyName: AI.ReactionChance
+    _aliases: []
+    _displayName: "AI \uBC18\uC751 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: c2372327c4799314973df7d1ac53af33
+    _keyName: AI.CounterChance
+    _aliases: []
+    _displayName: "AI \uBC18\uACA9 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: cee5457458677a6c909122963036219c
+    _keyName: AI.DodgeChance
+    _aliases: []
+    _displayName: "AI \uD68C\uD53C \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 1c9054e628479cf2c84124bf34954e72
+    _keyName: AI.PunishRecoveryChance
+    _aliases: []
+    _displayName: "AI \uD6C4\uB51C \uC751\uC9D5 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 973e0b4c239f19b9958087af2ed6c358
+    _keyName: AI.AntiGuardChance
+    _aliases: []
+    _displayName: "AI \uAC00\uB4DC \uB300\uC751 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 084727bfac14b29257bf312fc8f9915a
+    _keyName: AI.MinRetreatCooldown
+    _aliases: []
+    _displayName: "AI \uCD5C\uC18C \uD6C4\uD1F4 \uCFE8\uB2E4\uC6B4"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 17e2a542c6c0c2b1c9645721bae158e6
+    _keyName: AI.MaxComboPressureCount
+    _aliases: []
+    _displayName: "AI \uCD5C\uB300 \uC5F0\uC18D \uC555\uBC15 \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 99dd5d143fd31aa5ae07cee9014db863
+    _keyName: AI.PreferredRange
+    _aliases: []
+    _displayName: "AI \uC120\uD638 \uAD50\uC804 \uAC70\uB9AC"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 53813c0d6b35a8f1c6017d5ea2b0b367
+    _keyName: hitReactionLockTime
+    _aliases: []
+    _displayName: "\uD53C\uACA9 \uBC18\uC751 \uC7A0\uAE08 \uC2DC\uAC04"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 530316a62f9b8bc51e86899326ffab61
+    _keyName: revengeChance
+    _aliases: []
+    _displayName: "\uBCF4\uBCF5 \uD655\uB960"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 71a0e3db2de9e0bb1c03f02ceb6600d4
+    _keyName: Memory.Player.IsAttacking
+    _aliases:
+    - IsPlayerAttacking
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uACF5\uACA9 \uC911"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: dc494469f28d6456972a3c312ea9ef11
+    _keyName: Memory.Player.IsGuarding
+    _aliases:
+    - IsPlayerGuarding
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uAC00\uB4DC \uC911"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 1d6da88b09dfae9deb969f8b0941a1ec
+    _keyName: Memory.Player.IsStaggered
+    _aliases:
+    - IsPlayerStaggered
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uACBD\uC9C1 \uC911"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: fd6cec70ce99f63971e1ba08aa364881
+    _keyName: Memory.Player.IsRecovering
+    _aliases:
+    - IsPlayerRecovering
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5/\uD6C4\uB51C \uC911"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 3f67d5343a8dc36ea2cb2e3711f686ab
+    _keyName: Memory.Player.IsDodgingFrequently
+    _aliases:
+    - IsPlayerDodgingFrequently
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uC7A6\uC740 \uD68C\uD53C"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 623d24284639769d131d2617d2639952
+    _keyName: Memory.Player.IsAttackingFrequently
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uC7A6\uC740 \uACF5\uACA9"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 6497e6d12dea170589a09ccf1f428dfe
+    _keyName: Memory.Player.IsGuardingFrequently
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uC7A6\uC740 \uAC00\uB4DC"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: bb441b2348054e8293036c057a32a298
+    _keyName: Memory.Player.IsRecoveringFrequently
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uC7A6\uC740 \uD68C\uBCF5/\uB300\uAE30"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 978e0b53daceddd0e28286a69260c1fc
+    _keyName: Memory.Player.DodgeCount
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uD68C\uD53C \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 22f0397e29f5ac4cc0c3f9c8300e80bf
+    _keyName: Memory.Player.GuardCount
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uAC00\uB4DC \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 7767e3769868855cde2512b284a83dc2
+    _keyName: Memory.Player.AttackCount
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uACF5\uACA9 \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: d026d5f1289eb769bb1d69be99db4f8b
+    _keyName: Memory.Player.RecoverCount
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uD68C\uBCF5/\uB300\uAE30 \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4427c8788baefcf909442b095daca73c
+    _keyName: Prediction.Player.NextAction
+    _aliases: []
+    _displayName: "\uC608\uCE21\uB41C \uB2E4\uC74C \uD50C\uB808\uC774\uC5B4 \uD589\uB3D9"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: c2637b355332536d0ce1b61c7b4120d1
+    _keyName: Prediction.Confidence
+    _aliases: []
+    _displayName: "\uD50C\uB808\uC774\uC5B4 \uD589\uB3D9 \uC608\uCE21 \uC2E0\uB8B0\uB3C4"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: fdb9d43293ddb400e25463681e821de6
+    _keyName: Prediction.Player.LastToken
+    _aliases: []
+    _displayName: "\uB9C8\uC9C0\uB9C9 \uD50C\uB808\uC774\uC5B4 \uD589\uB3D9 \uD1A0\uD070"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 60ea5b460c2332ef4d4170a6bba7ce39
+    _keyName: Prediction.Player.TimeSinceLast
+    _aliases: []
+    _displayName: "\uB9C8\uC9C0\uB9C9 \uD50C\uB808\uC774\uC5B4 \uD589\uB3D9 \uACBD\uACFC
+      \uC2DC\uAC04"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: b14f5f413ea0c52b4859749b8f5e86e8
+    _keyName: Memory.Hit.RecentlyByPlayer
+    _aliases: []
+    _displayName: "\uCD5C\uADFC \uD53C\uACA9\uB428"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: c62cbc8bb2f90a6444e5884666fde541
+    _keyName: Memory.Hit.RecentCount
+    _aliases: []
+    _displayName: "\uCD5C\uADFC \uD53C\uACA9 \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 6019fb5d20545135b413b7df267fa2f6
+    _keyName: Memory.Hit.LastReactionType
+    _aliases: []
+    _displayName: "\uB9C8\uC9C0\uB9C9 \uD53C\uACA9 \uBC18\uC751 \uD0C0\uC785"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 8474bf1cbe4a0d58c1c3e1d276badb41
+    _keyName: Self.PoiseRatio
+    _aliases: []
+    _displayName: "\uAC15\uC778\uB3C4 \uBE44\uC728"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 7f5e141aa2dbde02cff27048e7053fb7
+    _keyName: Self.IsPoiseBroken
+    _aliases: []
+    _displayName: "\uAC15\uC778\uB3C4 \uBD95\uAD34\uB428"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: c56fefdbd42906ddebf58b1893bafa4f
+    _keyName: EnemyAIRole
+    _aliases: []
+    _displayName: "\uBAAC\uC2A4\uD130 AI \uC5ED\uD560"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: f9071d38b536b4776bcd22941576e540
+    _keyName: IntentWeight_Attack
+    _aliases: []
+    _displayName: "\uACF5\uACA9 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 700c2ffc15cf4e7395a75e2691dda77d
+    _keyName: IntentWeight_Punish
+    _aliases: []
+    _displayName: "\uC751\uC9D5 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 75c9ec9152a8b260edc20453584b67e0
+    _keyName: IntentWeight_Counter
+    _aliases: []
+    _displayName: "\uBC18\uACA9 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: d981dbded0fd354adacf8b0e7179f79b
+    _keyName: IntentWeight_Pressure
+    _aliases: []
+    _displayName: "\uC555\uBC15 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 1bc1729e42e436e9139c9aa655ed0bbc
+    _keyName: IntentWeight_Chase
+    _aliases: []
+    _displayName: "\uCD94\uACA9 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 1b3b53aa91a2d54f2a3cfbecc19d03eb
+    _keyName: IntentWeight_Retreat
+    _aliases: []
+    _displayName: "\uD6C4\uD1F4 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 72f28aad6c49dcb7052450243b066825
+    _keyName: IntentWeight_KeepDistance
+    _aliases: []
+    _displayName: "\uAC70\uB9AC \uC720\uC9C0 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: e2bfdc6ebda5db94e9770656f62776cc
+    _keyName: IntentWeight_Defend
+    _aliases: []
+    _displayName: "\uBC29\uC5B4 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 2c0cb8011d255689ea226b40030d8d2d
+    _keyName: IntentWeight_Recover
+    _aliases: []
+    _displayName: "\uD68C\uBCF5 \uC758\uB3C4 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 560e12de4d42f754b6c3749a3f5bc5be
+    _keyName: Decision.SelectedIntent
+    _aliases: []
+    _displayName: "\uC120\uD0DD\uB41C \uC804\uD22C \uC758\uB3C4"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 929854a5fbad1f466dd2820cd2aeeb00
+    _keyName: Decision.LastIntent
+    _aliases: []
+    _displayName: "\uB9C8\uC9C0\uB9C9 \uC804\uD22C \uC758\uB3C4"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4eafbd2b6b3738a156e51d764fd0143e
+    _keyName: Decision.ConsecutiveIntentCount
+    _aliases: []
+    _displayName: "\uC5F0\uC18D \uC758\uB3C4 \uD69F\uC218"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: a27468919f90c5007e27c569335ab1f8
+    _keyName: Decision.IntentScore.Attack
+    _aliases: []
+    _displayName: "\uACF5\uACA9 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 57bb47e02803b867dcd192195d68bc9f
+    _keyName: Decision.IntentScore.Punish
+    _aliases: []
+    _displayName: "\uC751\uC9D5 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 18c998a394f0fc61f8beca6eb9ca3f68
+    _keyName: Decision.IntentScore.Counter
+    _aliases: []
+    _displayName: "\uBC18\uACA9 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 577697e66b14ca9b795174e58ebd75a8
+    _keyName: Decision.IntentScore.Pressure
+    _aliases: []
+    _displayName: "\uC555\uBC15 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: e2734bb2ead9c3f43f42527b8a0bca72
+    _keyName: Decision.IntentScore.Chase
+    _aliases: []
+    _displayName: "\uCD94\uACA9 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 423a124f1f57c28469cac342ceed9607
+    _keyName: Decision.IntentScore.Retreat
+    _aliases: []
+    _displayName: "\uD6C4\uD1F4 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 801e05eb18b9fb648562bb7a3b1259c9
+    _keyName: Decision.IntentScore.KeepDistance
+    _aliases: []
+    _displayName: "\uAC70\uB9AC \uC720\uC9C0 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: f713be6fecc141d177b35c90feef130d
+    _keyName: Decision.IntentScore.Defend
+    _aliases: []
+    _displayName: "\uBC29\uC5B4 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 2c531284fca3e4de664be3f60dbc8179
+    _keyName: Decision.IntentScore.Recover
+    _aliases: []
+    _displayName: "\uD68C\uBCF5 \uC758\uB3C4 \uC810\uC218"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 2cff7f3399dc459d2245862125e9d208
+    _keyName: Decision.CombatRhythmPhase
+    _aliases: []
+    _displayName: "\uC804\uD22C \uB9AC\uB4EC \uB2E8\uACC4"
+    _description: 
+    _valueType: 3
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: f6a3b8b4deab25be3abf6eccf7fd21f7
+    _keyName: enablePatrol
+    _aliases: []
+    _displayName: "\uC21C\uCC30 \uD65C\uC131\uD654"
+    _description: 
+    _valueType: 0
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 7f030ee865b7ac16098e47b095888f88
+    _keyName: optimalCombatDistance
+    _aliases: []
+    _displayName: "\uCD5C\uC801 \uAD50\uC804 \uAC70\uB9AC"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 7af0b8aed3953cbd0c650d940ee05dc5
+    _keyName: minCombatDistance
+    _aliases: []
+    _displayName: "\uCD5C\uC18C \uAD50\uC804 \uAC70\uB9AC"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 0294fbe5d15a50a7cdd9186ad398affc
+    _keyName: personalSpaceDistance
+    _aliases: []
+    _displayName: "\uAC1C\uC778 \uACF5\uAC04 \uAC70\uB9AC"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 56bcce467e75e2e499f0efb68e924e40
+    _keyName: circleWeight
+    _aliases: []
+    _displayName: "\uC6D0\uD615 \uC774\uB3D9 \uAC00\uC911\uCE58"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: a2a01c6cf2438d24a130295c042cacc6
+    _keyName: Group.Intent.AttackMultiplier
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uACF5\uACA9 \uC758\uB3C4 \uBC30\uC728"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: edbf19294a835c83461e607cc7d515f2
+    _keyName: Group.Intent.PunishMultiplier
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uC751\uC9D5 \uC758\uB3C4 \uBC30\uC728"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 92e11f4b958146ea80da1be88285e272
+    _keyName: Group.Intent.CounterMultiplier
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uBC18\uACA9 \uC758\uB3C4 \uBC30\uC728"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4c44dcd3b362c7cdecbde4e286f0b4bb
+    _keyName: Group.Intent.PressureBonus
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uC555\uBC15 \uC758\uB3C4 \uBCF4\uB108\uC2A4"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: fafa09bff84d8c07eab0a3bee175ebb7
+    _keyName: Group.Intent.KeepDistanceBonus
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uAC70\uB9AC \uC720\uC9C0 \uC758\uB3C4 \uBCF4\uB108\uC2A4"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 0ef4ca38bcee7249c8a208a223e2e283
+    _keyName: Group.Intent.RetreatBonus
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uD6C4\uD1F4 \uC758\uB3C4 \uBCF4\uB108\uC2A4"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: 4dad0204ba875dbf7d39f1336e79fb1b
+    _keyName: Group.BreatherRemainingTime
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uBE0C\uB9AC\uB354 \uC794\uC5EC \uC2DC\uAC04"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: f352e38f71e6fc23991c183f3c71d922
+    _keyName: Group.FormationSlotIndex
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uD3EC\uBA54\uC774\uC158 \uC2AC\uB86F \uC778\uB371\uC2A4"
+    _description: 
+    _valueType: 1
+    _scope: 3
+    _writePolicy: 0
+    _required: 0
+  - _stableId: fe544b363314b90edeec5e5321f224ed
+    _keyName: Group.AggroFitness
+    _aliases: []
+    _displayName: "\uADF8\uB8F9 \uC5B4\uADF8\uB85C \uC801\uD569\uB3C4"
+    _description: 
+    _valueType: 2
+    _scope: 3
+    _writePolicy: 0
+    _required: 0

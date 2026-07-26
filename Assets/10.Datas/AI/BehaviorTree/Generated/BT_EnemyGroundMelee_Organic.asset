@@ -970,7 +970,8 @@ MonoBehaviour:
   - {fileID: -3287711848714418053}
   _blackboard:
     _entries:
-    - _key: HasTarget
+    - _stableId: 5781b5627bde4bc41af9760a43197545
+      _key: Target.Has
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -978,7 +979,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Target
+    - _stableId: a2198e67f2a81e30d15f204487f6cb73
+      _key: Target.Object
       _valueType: 5
       _boolValue: 0
       _intValue: 0
@@ -986,7 +988,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: DistanceToTarget
+    - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+      _key: Target.Distance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -994,7 +997,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CurrentState
+    - _stableId: c267193029326664a07556e0eb8276cd
+      _key: Self.StateId
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -1002,7 +1006,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: HpPercent
+    - _stableId: 4d29b28b55a3573558bf8d114388a961
+      _key: Self.HpPercent
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -1010,7 +1015,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CurrentPhaseName
+    - _stableId: 0ba9639c7d468d29ef1a29788656d4b6
+      _key: Self.PhaseName
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -1018,7 +1024,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: PhaseIndex
+    - _stableId: 4d9c42c262abcb96e297c12ff671ebca
+      _key: Self.PhaseIndex
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -1026,7 +1033,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AllowCharge
+    - _stableId: 4bb6dde0766a600114ed378b50c15151
+      _key: AllowCharge
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1034,7 +1042,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AllowFlank
+    - _stableId: 66da08b5ea9352746a92aa0ee08a78ed
+      _key: AllowFlank
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1042,7 +1051,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: MaxConsecutiveAttacks
+    - _stableId: df2e2e457b77240240f29dc713de7ac5
+      _key: MaxConsecutiveAttacks
       _valueType: 1
       _boolValue: 0
       _intValue: 3
@@ -1050,7 +1060,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: ContinueAttackChance
+    - _stableId: 1a5993ca6cb9f6fec05ec96c179de555
+      _key: ContinueAttackChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -1058,7 +1069,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: GuardChance
+    - _stableId: d7312e7b5c3bdd556052c33a1992e06b
+      _key: GuardChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -1066,7 +1078,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: RetreatChance
+    - _stableId: fdbbf52cada5784b77a80a955a49a969
+      _key: RetreatChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -1074,7 +1087,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IsPlayerAttacking
+    - _stableId: 71a0e3db2de9e0bb1c03f02ceb6600d4
+      _key: Memory.Player.IsAttacking
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1082,7 +1096,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IsPlayerGuarding
+    - _stableId: dc494469f28d6456972a3c312ea9ef11
+      _key: Memory.Player.IsGuarding
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1090,7 +1105,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IsPlayerStaggered
+    - _stableId: 1d6da88b09dfae9deb969f8b0941a1ec
+      _key: Memory.Player.IsStaggered
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1098,7 +1114,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IsPlayerRecovering
+    - _stableId: fd6cec70ce99f63971e1ba08aa364881
+      _key: Memory.Player.IsRecovering
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1106,7 +1123,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IsPlayerDodgingFrequently
+    - _stableId: 3f67d5343a8dc36ea2cb2e3711f686ab
+      _key: Memory.Player.IsDodgingFrequently
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1114,7 +1132,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CanUseSkill
+    - _stableId: e0e3cda40977a44880582146b03c86a7
+      _key: CanUseSkill
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1122,7 +1141,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: HasAttackSlot
+    - _stableId: a8d1e7822db794aa32d5bc06c83a4281
+      _key: HasAttackSlot
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1130,7 +1150,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: NextActionAllowedTime
+    - _stableId: 04b0c32959e04147e135598dcecaaa10
+      _key: NextActionAllowedTime
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -1786,6 +1807,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &8128934203123022770

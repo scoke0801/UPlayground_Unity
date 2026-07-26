@@ -37,6 +37,17 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (string.Equals(oldKey, newKey, StringComparison.Ordinal))
                 return default;
 
+            if (!BlackboardKeyRegistry.TryResolve(oldKey, out BlackboardKeyReference oldReference)
+                || !BlackboardKeyRegistry.TryResolve(newKey, out BlackboardKeyReference newReference)
+                || oldReference.StableId != newReference.StableId)
+            {
+                EditorUtility.DisplayDialog(
+                    "Blackboard Key 변경 실패",
+                    "Registry에서 동일 stableId의 canonical name/alias로 먼저 변경해야 합니다.",
+                    "확인");
+                return default;
+            }
+
             var entry = tree.Blackboard?.FindEntry(oldKey);
             if (entry == null)
                 return default;
@@ -51,7 +62,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             Undo.SetCurrentGroupName($"Rename Blackboard Key '{oldKey}' → '{newKey}'");
 
             Undo.RecordObject(tree, "Rename Blackboard Key");
-            entry.Key = newKey;
+            entry.SetKeyReference(newReference);
 
             var touchedNodes = 0;
             var updatedSelectors = 0;
@@ -77,7 +88,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                             nodeTouched = true;
                         }
 
-                        var replaced = new BlackboardKeySelector(newKey, selector.ExpectedType);
+                        var replaced = new BlackboardKeySelector(newReference, selector.ExpectedType);
                         field.SetValue(node, replaced);
                         updatedSelectors++;
                     }

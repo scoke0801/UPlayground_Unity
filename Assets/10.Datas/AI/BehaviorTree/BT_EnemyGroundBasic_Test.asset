@@ -182,6 +182,8 @@ MonoBehaviour:
   _breakpoint: 0
   _targetState: 0
   _skipIfAlreadyInState: 1
+  _cooldownId:
+  _cooldownDuration: 0
 --- !u!114 &-5582742193570285327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271,6 +273,8 @@ MonoBehaviour:
   _breakpoint: 0
   _targetState: 0
   _skipIfAlreadyInState: 1
+  _cooldownId:
+  _cooldownDuration: 0
 --- !u!114 &-1447044142275293137
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,6 +296,8 @@ MonoBehaviour:
   _breakpoint: 0
   _targetState: 2
   _skipIfAlreadyInState: 1
+  _cooldownId:
+  _cooldownDuration: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -330,7 +336,8 @@ MonoBehaviour:
   - {fileID: -6045076224233173580}
   _blackboard:
     _entries:
-    - _key: HasTarget
+    - _stableId: 5781b5627bde4bc41af9760a43197545
+      _key: Target.Has
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -338,7 +345,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Target
+    - _stableId: a2198e67f2a81e30d15f204487f6cb73
+      _key: Target.Object
       _valueType: 5
       _boolValue: 0
       _intValue: 0
@@ -346,7 +354,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: DistanceToTarget
+    - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+      _key: Target.Distance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -354,7 +363,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CurrentState
+    - _stableId: c267193029326664a07556e0eb8276cd
+      _key: Self.StateId
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -408,6 +418,7 @@ MonoBehaviour:
   _children: []
   _disabled: 0
   _breakpoint: 0
+  _attackCategory: 0
 --- !u!114 &1935700992621298330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -429,6 +440,8 @@ MonoBehaviour:
   _breakpoint: 0
   _targetState: 4
   _skipIfAlreadyInState: 1
+  _cooldownId:
+  _cooldownDuration: 0
 --- !u!114 &3733683966285172647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,6 +507,8 @@ MonoBehaviour:
   _breakpoint: 0
   _targetState: 1
   _skipIfAlreadyInState: 1
+  _cooldownId:
+  _cooldownDuration: 0
 --- !u!114 &6501233541862946105
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -562,7 +577,3 @@ MonoBehaviour:
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _hasTargetKey: HasTarget
-  _targetKey: Target
-  _distanceKey: DistanceToTarget
-  _stateKey: CurrentState

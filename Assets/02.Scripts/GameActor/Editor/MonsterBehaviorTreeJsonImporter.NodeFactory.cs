@@ -60,6 +60,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Conditions.DistanceGreater] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, source, blackboard, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.ActionDelayElapsed] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyActionDelayElapsedNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.CanUseSkill] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<CanUseEnemySkillNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackInRange] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyAttackInRangeNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.HasLineOfSight] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyLineOfSightNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerAttacking] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerGuarding] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerStaggered] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),

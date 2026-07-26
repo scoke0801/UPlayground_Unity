@@ -1,160 +1,2136 @@
 {
-  "nodeLabels": [
-    { "key": "IsPlayerLowHealth", "label": "플레이어 체력 낮음" },
-    { "key": "IsSelfLowHealth", "label": "자신 체력 낮음" },
-    { "key": "HasLineOfSight", "label": "시야 확보" },
-    { "key": "IsTargetBehind", "label": "타겟이 후방에 있음" },
-    { "key": "IsTargetCastingOrCharging", "label": "타겟이 시전/차지 중" },
-    { "key": "RecentlyHitByPlayer", "label": "최근 피격됨" },
-    { "key": "RecentlyGuardBroken", "label": "최근 가드 깨짐" },
-    { "key": "AllyNearby", "label": "근처 아군 있음" },
-    { "key": "AllyCountNearby", "label": "근처 아군 수 조건" },
-    { "key": "HasAttackSlot", "label": "공격 슬롯 확보" },
-    { "key": "CooldownReady", "label": "쿨다운 준비됨" },
-    { "key": "WasLastHitHeavy", "label": "마지막 피격이 강함" },
-    { "key": "IsPoiseBroken", "label": "강인도 붕괴됨" },
-    { "key": "RecentHitCountGreaterOrEqual", "label": "최근 피격 횟수 이상" },
-    { "key": "ConsecutiveAttackCountLessThan", "label": "연속 공격 횟수 미만" },
-    { "key": "ConsecutiveAttackCountGreaterOrEqual", "label": "연속 공격 횟수 이상" },
-    { "key": "CanIgnoreLightHit", "label": "약경직 무시 가능" },
-    { "key": "CanRevengeAfterHit", "label": "피격 후 보복 가능" },
-    { "key": "SelectedIntent", "label": "선택 의도 조건" },
-    { "key": "BlackboardCompare", "label": "블랙보드 비교" },
-    { "key": "HasStateTag", "label": "상태 태그 조건" },
-    { "key": "IsPlayerAttackingFrequently", "label": "플레이어 잦은 공격" },
-    { "key": "IsPlayerGuardingFrequently", "label": "플레이어 잦은 가드" },
-    { "key": "IsPlayerRecoveringFrequently", "label": "플레이어 잦은 회복/대기" },
-    { "key": "IsHitFromBehind", "label": "후방 피격됨" },
-    { "key": "BlackboardCompareNode", "label": "블랙보드 비교" },
-    { "key": "HasStateTagNode", "label": "상태 태그 조건" },
-    { "key": "IsSelfLowHealthNode", "label": "자신 체력 낮음" },
-    { "key": "CooldownReadyNode", "label": "쿨다운 준비됨" },
-    { "key": "IsPoiseBrokenNode", "label": "강인도 붕괴됨" },
-    { "key": "RecentHitCountGreaterOrEqualNode", "label": "최근 피격 횟수 이상" },
-    { "key": "ConsecutiveAttackCountNode", "label": "연속 공격 횟수 조건" },
-    { "key": "CanIgnoreLightHitNode", "label": "약경직 무시 가능" },
-    { "key": "CanRevengeAfterHitNode", "label": "피격 후 보복 가능" },
-    { "key": "WasLastHitHeavyNode", "label": "마지막 피격이 강함" },
-    { "key": "IsBlockedEnemyStateNode", "label": "차단 상태" },
-    { "key": "HasEnemyActionDelayElapsedNode", "label": "행동 딜레이 경과" },
-    { "key": "CanUseEnemySkillNode", "label": "스킬 사용 가능" },
-    { "key": "IsFlyingAirStateNode", "label": "비행: 공중 상태" },
-    { "key": "IsFlyingGroundCombatStateNode", "label": "비행: 지상 전투 상태" },
-    { "key": "IsAirAttackLimitReachedNode", "label": "공중 공격 한계 도달" },
-    { "key": "ShouldFlyingTakeOffNode", "label": "이륙 필요" },
-    { "key": "FlyingCanUseSkillNode", "label": "비행: 스킬 사용 가능" },
-    { "key": "HasDiveSkillAvailableNode", "label": "다이브 스킬 사용 가능" },
-    { "key": "RollDiveChanceNode", "label": "다이브 확률 판정" },
-    { "key": "KeepCurrentStateNode", "label": "현재 상태 유지" },
-    { "key": "RequestEnemyAttackSlotNode", "label": "공격 슬롯 요청" },
-    { "key": "ResetFlyingCountersNode", "label": "비행 카운터 리셋" },
-    { "key": "ResetFlyingAirCountersNode", "label": "공중 카운터 리셋" },
-    { "key": "DescendFlyingNode", "label": "하강" },
-    { "key": "RequestFlyingAttackSlotNode", "label": "비행 공격 슬롯 요청" },
-    { "key": "SelectFlyingDiveSkillNode", "label": "다이브 스킬 선택" },
-    { "key": "WaitNode", "label": "대기" }
-  ],
-  "blackboardConditionAliases": [
-    { "condition": "IsPlayerAttacking", "key": "Memory.Player.IsAttacking", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerGuarding", "key": "Memory.Player.IsGuarding", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerStaggered", "key": "Memory.Player.IsStaggered", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerRecovering", "key": "Memory.Player.IsRecovering", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerDodgingFrequently", "key": "Memory.Player.IsDodgingFrequently", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerAttackingFrequently", "key": "Memory.Player.IsAttackingFrequently", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerGuardingFrequently", "key": "Memory.Player.IsGuardingFrequently", "comparison": 0, "value": "true" },
-    { "condition": "IsPlayerRecoveringFrequently", "key": "Memory.Player.IsRecoveringFrequently", "comparison": 0, "value": "true" },
-    { "condition": "RecentlyHitByPlayer", "key": "Memory.Hit.RecentlyByPlayer", "comparison": 0, "value": "true" },
-    { "condition": "HasAttackSlot", "key": "HasAttackSlot", "comparison": 0, "value": "true" },
-    { "condition": "IsPoiseBroken", "key": "Self.IsPoiseBroken", "comparison": 0, "value": "true" },
-    { "condition": "RecentHitCountGreaterOrEqual", "key": "Memory.Hit.RecentCount", "comparison": 5, "value": "1" },
-    { "condition": "SelectedIntent", "key": "Decision.SelectedIntent", "comparison": 0, "value": "" }
-  ],
-  "enemyBlackboardDefaults": [
-    { "key": "Target.Has", "type": 0, "label": "타겟 있음" },
-    { "key": "Target.Object", "type": 5, "label": "타겟 오브젝트" },
-    { "key": "Target.Distance", "type": 2, "label": "타겟 거리", "floatValue": 3.40282347E+38 },
-    { "key": "Self.StateId", "type": 3, "label": "현재 상태 ID" },
-    { "key": "Self.StateTags", "type": 1, "label": "현재 상태 태그" },
-    { "key": "Self.HpPercent", "type": 2, "label": "자신 체력 비율", "floatValue": 1.0 },
-    { "key": "Self.PhaseName", "type": 3, "label": "현재 페이즈 이름" },
-    { "key": "Self.PhaseIndex", "type": 1, "label": "현재 페이즈 인덱스", "intValue": -1 },
-    { "key": "AllowCharge", "type": 0, "label": "차지 허용" },
-    { "key": "AllowFlank", "type": 0, "label": "측면 이동 허용" },
-    { "key": "MaxConsecutiveAttacks", "type": 1, "label": "최대 연속 공격 횟수", "intValue": 3 },
-    { "key": "ContinueAttackChance", "type": 2, "label": "연속 공격 확률", "floatValue": 0.3 },
-    { "key": "GuardChance", "type": 2, "label": "가드 확률", "floatValue": 0.25 },
-    { "key": "RetreatChance", "type": 2, "label": "후퇴 확률", "floatValue": 0.2 },
-    { "key": "CanUseSkill", "type": 0, "label": "스킬 사용 가능" },
-    { "key": "HasAttackSlot", "type": 0, "label": "공격 슬롯 확보" },
-    { "key": "NextActionAllowedTime", "type": 2, "label": "다음 행동 허용 시간" },
-    { "key": "AI.Aggression", "type": 2, "label": "AI 공격성" },
-    { "key": "AI.ReactionChance", "type": 2, "label": "AI 반응 확률" },
-    { "key": "AI.CounterChance", "type": 2, "label": "AI 반격 확률" },
-    { "key": "AI.DodgeChance", "type": 2, "label": "AI 회피 확률" },
-    { "key": "AI.PunishRecoveryChance", "type": 2, "label": "AI 후딜 응징 확률" },
-    { "key": "AI.AntiGuardChance", "type": 2, "label": "AI 가드 대응 확률" },
-    { "key": "AI.MinRetreatCooldown", "type": 2, "label": "AI 최소 후퇴 쿨다운" },
-    { "key": "AI.MaxComboPressureCount", "type": 1, "label": "AI 최대 연속 압박 횟수" },
-    { "key": "AI.PreferredRange", "type": 2, "label": "AI 선호 교전 거리" },
-    { "key": "hitReactionLockTime", "type": 2, "label": "피격 반응 잠금 시간" },
-    { "key": "revengeChance", "type": 2, "label": "보복 확률" },
-    { "key": "Memory.Player.IsAttacking", "type": 0, "label": "플레이어 공격 중" },
-    { "key": "Memory.Player.IsGuarding", "type": 0, "label": "플레이어 가드 중" },
-    { "key": "Memory.Player.IsStaggered", "type": 0, "label": "플레이어 경직 중" },
-    { "key": "Memory.Player.IsRecovering", "type": 0, "label": "플레이어 회복/후딜 중" },
-    { "key": "Memory.Player.IsDodgingFrequently", "type": 0, "label": "플레이어 잦은 회피" },
-    { "key": "Memory.Player.IsAttackingFrequently", "type": 0, "label": "플레이어 잦은 공격" },
-    { "key": "Memory.Player.IsGuardingFrequently", "type": 0, "label": "플레이어 잦은 가드" },
-    { "key": "Memory.Player.IsRecoveringFrequently", "type": 0, "label": "플레이어 잦은 회복/대기" },
-    { "key": "Memory.Player.DodgeCount", "type": 1, "label": "플레이어 회피 횟수" },
-    { "key": "Memory.Player.GuardCount", "type": 1, "label": "플레이어 가드 횟수" },
-    { "key": "Memory.Player.AttackCount", "type": 1, "label": "플레이어 공격 횟수" },
-    { "key": "Memory.Player.RecoverCount", "type": 1, "label": "플레이어 회복/대기 횟수" },
-    { "key": "Prediction.Player.NextAction", "type": 3, "label": "예측된 다음 플레이어 행동", "stringValue": "None" },
-    { "key": "Prediction.Confidence", "type": 2, "label": "플레이어 행동 예측 신뢰도" },
-    { "key": "Prediction.Player.LastToken", "type": 3, "label": "마지막 플레이어 행동 토큰", "stringValue": "None" },
-    { "key": "Prediction.Player.TimeSinceLast", "type": 2, "label": "마지막 플레이어 행동 경과 시간" },
-    { "key": "Memory.Hit.RecentlyByPlayer", "type": 0, "label": "최근 피격됨" },
-    { "key": "Memory.Hit.RecentCount", "type": 1, "label": "최근 피격 횟수" },
-    { "key": "Memory.Hit.LastReactionType", "type": 3, "label": "마지막 피격 반응 타입" },
-    { "key": "Self.PoiseRatio", "type": 2, "label": "강인도 비율", "floatValue": 1.0 },
-    { "key": "Self.IsPoiseBroken", "type": 0, "label": "강인도 붕괴됨" },
-    { "key": "EnemyAIRole", "type": 3, "label": "몬스터 AI 역할", "stringValue": "Melee" },
-    { "key": "IntentWeight_Attack", "type": 2, "label": "공격 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Punish", "type": 2, "label": "응징 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Counter", "type": 2, "label": "반격 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Pressure", "type": 2, "label": "압박 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Chase", "type": 2, "label": "추격 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Retreat", "type": 2, "label": "후퇴 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_KeepDistance", "type": 2, "label": "거리 유지 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Defend", "type": 2, "label": "방어 의도 가중치", "floatValue": 1.0 },
-    { "key": "IntentWeight_Recover", "type": 2, "label": "회복 의도 가중치", "floatValue": 1.0 },
-    { "key": "Decision.SelectedIntent", "type": 3, "label": "선택된 전투 의도" },
-    { "key": "Decision.LastIntent", "type": 3, "label": "마지막 전투 의도" },
-    { "key": "Decision.ConsecutiveIntentCount", "type": 1, "label": "연속 의도 횟수" },
-    { "key": "Decision.IntentScore.Attack", "type": 2, "label": "공격 의도 점수" },
-    { "key": "Decision.IntentScore.Punish", "type": 2, "label": "응징 의도 점수" },
-    { "key": "Decision.IntentScore.Counter", "type": 2, "label": "반격 의도 점수" },
-    { "key": "Decision.IntentScore.Pressure", "type": 2, "label": "압박 의도 점수" },
-    { "key": "Decision.IntentScore.Chase", "type": 2, "label": "추격 의도 점수" },
-    { "key": "Decision.IntentScore.Retreat", "type": 2, "label": "후퇴 의도 점수" },
-    { "key": "Decision.IntentScore.KeepDistance", "type": 2, "label": "거리 유지 의도 점수" },
-    { "key": "Decision.IntentScore.Defend", "type": 2, "label": "방어 의도 점수" },
-    { "key": "Decision.IntentScore.Recover", "type": 2, "label": "회복 의도 점수" },
-    { "key": "Decision.CombatRhythmPhase", "type": 3, "label": "전투 리듬 단계" },
-    { "key": "enablePatrol", "type": 0, "label": "순찰 활성화" },
-    { "key": "optimalCombatDistance", "type": 2, "label": "최적 교전 거리", "floatValue": 2.5 },
-    { "key": "minCombatDistance", "type": 2, "label": "최소 교전 거리", "floatValue": 1.5 },
-    { "key": "personalSpaceDistance", "type": 2, "label": "개인 공간 거리", "floatValue": 0.8 },
-    { "key": "circleWeight", "type": 2, "label": "원형 이동 가중치" },
-    { "key": "Group.Intent.AttackMultiplier", "type": 2, "label": "그룹 공격 의도 배율", "floatValue": 1.0 },
-    { "key": "Group.Intent.PunishMultiplier", "type": 2, "label": "그룹 응징 의도 배율", "floatValue": 1.0 },
-    { "key": "Group.Intent.CounterMultiplier", "type": 2, "label": "그룹 반격 의도 배율", "floatValue": 1.0 },
-    { "key": "Group.Intent.PressureBonus", "type": 2, "label": "그룹 압박 의도 보너스" },
-    { "key": "Group.Intent.KeepDistanceBonus", "type": 2, "label": "그룹 거리 유지 의도 보너스" },
-    { "key": "Group.Intent.RetreatBonus", "type": 2, "label": "그룹 후퇴 의도 보너스" },
-    { "key": "Group.BreatherRemainingTime", "type": 2, "label": "그룹 브리더 잔여 시간" },
-    { "key": "Group.FormationSlotIndex", "type": 1, "label": "그룹 포메이션 슬롯 인덱스", "intValue": -1 },
-    { "key": "Group.AggroFitness", "type": 2, "label": "그룹 어그로 적합도" }
-  ]
+    "nodeLabels": [
+        {
+            "key": "IsPlayerLowHealth",
+            "label": "플레이어 체력 낮음"
+        },
+        {
+            "key": "IsSelfLowHealth",
+            "label": "자신 체력 낮음"
+        },
+        {
+            "key": "HasLineOfSight",
+            "label": "시야 확보"
+        },
+        {
+            "key": "IsTargetBehind",
+            "label": "타겟이 후방에 있음"
+        },
+        {
+            "key": "IsTargetCastingOrCharging",
+            "label": "타겟이 시전/차지 중"
+        },
+        {
+            "key": "RecentlyHitByPlayer",
+            "label": "최근 피격됨"
+        },
+        {
+            "key": "RecentlyGuardBroken",
+            "label": "최근 가드 깨짐"
+        },
+        {
+            "key": "AllyNearby",
+            "label": "근처 아군 있음"
+        },
+        {
+            "key": "AllyCountNearby",
+            "label": "근처 아군 수 조건"
+        },
+        {
+            "key": "HasAttackSlot",
+            "label": "공격 슬롯 확보"
+        },
+        {
+            "key": "CooldownReady",
+            "label": "쿨다운 준비됨"
+        },
+        {
+            "key": "WasLastHitHeavy",
+            "label": "마지막 피격이 강함"
+        },
+        {
+            "key": "IsPoiseBroken",
+            "label": "강인도 붕괴됨"
+        },
+        {
+            "key": "RecentHitCountGreaterOrEqual",
+            "label": "최근 피격 횟수 이상"
+        },
+        {
+            "key": "ConsecutiveAttackCountLessThan",
+            "label": "연속 공격 횟수 미만"
+        },
+        {
+            "key": "ConsecutiveAttackCountGreaterOrEqual",
+            "label": "연속 공격 횟수 이상"
+        },
+        {
+            "key": "CanIgnoreLightHit",
+            "label": "약경직 무시 가능"
+        },
+        {
+            "key": "CanRevengeAfterHit",
+            "label": "피격 후 보복 가능"
+        },
+        {
+            "key": "SelectedIntent",
+            "label": "선택 의도 조건"
+        },
+        {
+            "key": "BlackboardCompare",
+            "label": "블랙보드 비교"
+        },
+        {
+            "key": "HasStateTag",
+            "label": "상태 태그 조건"
+        },
+        {
+            "key": "IsPlayerAttackingFrequently",
+            "label": "플레이어 잦은 공격"
+        },
+        {
+            "key": "IsPlayerGuardingFrequently",
+            "label": "플레이어 잦은 가드"
+        },
+        {
+            "key": "IsPlayerRecoveringFrequently",
+            "label": "플레이어 잦은 회복/대기"
+        },
+        {
+            "key": "IsHitFromBehind",
+            "label": "후방 피격됨"
+        },
+        {
+            "key": "BlackboardCompareNode",
+            "label": "블랙보드 비교"
+        },
+        {
+            "key": "HasStateTagNode",
+            "label": "상태 태그 조건"
+        },
+        {
+            "key": "IsSelfLowHealthNode",
+            "label": "자신 체력 낮음"
+        },
+        {
+            "key": "CooldownReadyNode",
+            "label": "쿨다운 준비됨"
+        },
+        {
+            "key": "IsPoiseBrokenNode",
+            "label": "강인도 붕괴됨"
+        },
+        {
+            "key": "RecentHitCountGreaterOrEqualNode",
+            "label": "최근 피격 횟수 이상"
+        },
+        {
+            "key": "ConsecutiveAttackCountNode",
+            "label": "연속 공격 횟수 조건"
+        },
+        {
+            "key": "CanIgnoreLightHitNode",
+            "label": "약경직 무시 가능"
+        },
+        {
+            "key": "CanRevengeAfterHitNode",
+            "label": "피격 후 보복 가능"
+        },
+        {
+            "key": "WasLastHitHeavyNode",
+            "label": "마지막 피격이 강함"
+        },
+        {
+            "key": "IsBlockedEnemyStateNode",
+            "label": "차단 상태"
+        },
+        {
+            "key": "HasEnemyActionDelayElapsedNode",
+            "label": "행동 딜레이 경과"
+        },
+        {
+            "key": "CanUseEnemySkillNode",
+            "label": "스킬 사용 가능"
+        },
+        {
+            "key": "HasEnemyAttackInRangeNode",
+            "label": "공격 사거리 커버"
+        },
+        {
+            "key": "HasEnemyLineOfSightNode",
+            "label": "타깃 시야 확보"
+        },
+        {
+            "key": "IsFlyingAirStateNode",
+            "label": "비행: 공중 상태"
+        },
+        {
+            "key": "IsFlyingGroundCombatStateNode",
+            "label": "비행: 지상 전투 상태"
+        },
+        {
+            "key": "IsAirAttackLimitReachedNode",
+            "label": "공중 공격 한계 도달"
+        },
+        {
+            "key": "ShouldFlyingTakeOffNode",
+            "label": "이륙 필요"
+        },
+        {
+            "key": "FlyingCanUseSkillNode",
+            "label": "비행: 스킬 사용 가능"
+        },
+        {
+            "key": "HasDiveSkillAvailableNode",
+            "label": "다이브 스킬 사용 가능"
+        },
+        {
+            "key": "RollDiveChanceNode",
+            "label": "다이브 확률 판정"
+        },
+        {
+            "key": "KeepCurrentStateNode",
+            "label": "현재 상태 유지"
+        },
+        {
+            "key": "RequestEnemyAttackSlotNode",
+            "label": "공격 슬롯 요청"
+        },
+        {
+            "key": "ResetFlyingCountersNode",
+            "label": "비행 카운터 리셋"
+        },
+        {
+            "key": "ResetFlyingAirCountersNode",
+            "label": "공중 카운터 리셋"
+        },
+        {
+            "key": "DescendFlyingNode",
+            "label": "하강"
+        },
+        {
+            "key": "RequestFlyingAttackSlotNode",
+            "label": "비행 공격 슬롯 요청"
+        },
+        {
+            "key": "SelectFlyingDiveSkillNode",
+            "label": "다이브 스킬 선택"
+        },
+        {
+            "key": "WaitNode",
+            "label": "대기"
+        }
+    ],
+    "enemyBlackboardDefaults": [
+        {
+            "stableId": "5781b5627bde4bc41af9760a43197545",
+            "key": "Target.Has",
+            "identifier": "",
+            "aliases": [
+                "HasTarget"
+            ],
+            "type": 0,
+            "label": "타겟 있음",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "a2198e67f2a81e30d15f204487f6cb73",
+            "key": "Target.Object",
+            "identifier": "",
+            "aliases": [
+                "Target"
+            ],
+            "type": 5,
+            "label": "타겟 오브젝트",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "5023d372c7e3934097a85cb2fd05af4a",
+            "key": "Target.Distance",
+            "identifier": "",
+            "aliases": [
+                "DistanceToTarget"
+            ],
+            "type": 2,
+            "label": "타겟 거리",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 3.4028234663852887e38,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "c267193029326664a07556e0eb8276cd",
+            "key": "Self.StateId",
+            "identifier": "",
+            "aliases": [
+                "CurrentState"
+            ],
+            "type": 3,
+            "label": "현재 상태 ID",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "ba65e72172cd2949ed0793d64fa68900",
+            "key": "Self.StateTags",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "현재 상태 태그",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4d29b28b55a3573558bf8d114388a961",
+            "key": "Self.HpPercent",
+            "identifier": "",
+            "aliases": [
+                "HpPercent"
+            ],
+            "type": 2,
+            "label": "자신 체력 비율",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "0ba9639c7d468d29ef1a29788656d4b6",
+            "key": "Self.PhaseName",
+            "identifier": "",
+            "aliases": [
+                "CurrentPhaseName"
+            ],
+            "type": 3,
+            "label": "현재 페이즈 이름",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4d9c42c262abcb96e297c12ff671ebca",
+            "key": "Self.PhaseIndex",
+            "identifier": "",
+            "aliases": [
+                "PhaseIndex"
+            ],
+            "type": 1,
+            "label": "현재 페이즈 인덱스",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": -1,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4bb6dde0766a600114ed378b50c15151",
+            "key": "AllowCharge",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "차지 허용",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "66da08b5ea9352746a92aa0ee08a78ed",
+            "key": "AllowFlank",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "측면 이동 허용",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "df2e2e457b77240240f29dc713de7ac5",
+            "key": "MaxConsecutiveAttacks",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "최대 연속 공격 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 3,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "1a5993ca6cb9f6fec05ec96c179de555",
+            "key": "ContinueAttackChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "연속 공격 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.30000001192092898,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "d7312e7b5c3bdd556052c33a1992e06b",
+            "key": "GuardChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "가드 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.25,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "fdbbf52cada5784b77a80a955a49a969",
+            "key": "RetreatChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "후퇴 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.20000000298023225,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "e0e3cda40977a44880582146b03c86a7",
+            "key": "CanUseSkill",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "스킬 사용 가능",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "a8d1e7822db794aa32d5bc06c83a4281",
+            "key": "HasAttackSlot",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "공격 슬롯 확보",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "04b0c32959e04147e135598dcecaaa10",
+            "key": "NextActionAllowedTime",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "다음 행동 허용 시간",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "a688f1973d81dfea923676791b931bfa",
+            "key": "AI.Aggression",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 공격성",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "fdf4c744a2f037999dca40e216b0fb09",
+            "key": "AI.ReactionChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 반응 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "c2372327c4799314973df7d1ac53af33",
+            "key": "AI.CounterChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 반격 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "cee5457458677a6c909122963036219c",
+            "key": "AI.DodgeChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 회피 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "1c9054e628479cf2c84124bf34954e72",
+            "key": "AI.PunishRecoveryChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 후딜 응징 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "973e0b4c239f19b9958087af2ed6c358",
+            "key": "AI.AntiGuardChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 가드 대응 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "084727bfac14b29257bf312fc8f9915a",
+            "key": "AI.MinRetreatCooldown",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 최소 후퇴 쿨다운",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "17e2a542c6c0c2b1c9645721bae158e6",
+            "key": "AI.MaxComboPressureCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "AI 최대 연속 압박 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "99dd5d143fd31aa5ae07cee9014db863",
+            "key": "AI.PreferredRange",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "AI 선호 교전 거리",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "53813c0d6b35a8f1c6017d5ea2b0b367",
+            "key": "hitReactionLockTime",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "피격 반응 잠금 시간",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "530316a62f9b8bc51e86899326ffab61",
+            "key": "revengeChance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "보복 확률",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "71a0e3db2de9e0bb1c03f02ceb6600d4",
+            "key": "Memory.Player.IsAttacking",
+            "identifier": "",
+            "aliases": [
+                "IsPlayerAttacking"
+            ],
+            "type": 0,
+            "label": "플레이어 공격 중",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "dc494469f28d6456972a3c312ea9ef11",
+            "key": "Memory.Player.IsGuarding",
+            "identifier": "",
+            "aliases": [
+                "IsPlayerGuarding"
+            ],
+            "type": 0,
+            "label": "플레이어 가드 중",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "1d6da88b09dfae9deb969f8b0941a1ec",
+            "key": "Memory.Player.IsStaggered",
+            "identifier": "",
+            "aliases": [
+                "IsPlayerStaggered"
+            ],
+            "type": 0,
+            "label": "플레이어 경직 중",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "fd6cec70ce99f63971e1ba08aa364881",
+            "key": "Memory.Player.IsRecovering",
+            "identifier": "",
+            "aliases": [
+                "IsPlayerRecovering"
+            ],
+            "type": 0,
+            "label": "플레이어 회복/후딜 중",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "3f67d5343a8dc36ea2cb2e3711f686ab",
+            "key": "Memory.Player.IsDodgingFrequently",
+            "identifier": "",
+            "aliases": [
+                "IsPlayerDodgingFrequently"
+            ],
+            "type": 0,
+            "label": "플레이어 잦은 회피",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "623d24284639769d131d2617d2639952",
+            "key": "Memory.Player.IsAttackingFrequently",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "플레이어 잦은 공격",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "6497e6d12dea170589a09ccf1f428dfe",
+            "key": "Memory.Player.IsGuardingFrequently",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "플레이어 잦은 가드",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "bb441b2348054e8293036c057a32a298",
+            "key": "Memory.Player.IsRecoveringFrequently",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "플레이어 잦은 회복/대기",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "978e0b53daceddd0e28286a69260c1fc",
+            "key": "Memory.Player.DodgeCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "플레이어 회피 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "22f0397e29f5ac4cc0c3f9c8300e80bf",
+            "key": "Memory.Player.GuardCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "플레이어 가드 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "7767e3769868855cde2512b284a83dc2",
+            "key": "Memory.Player.AttackCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "플레이어 공격 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "d026d5f1289eb769bb1d69be99db4f8b",
+            "key": "Memory.Player.RecoverCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "플레이어 회복/대기 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4427c8788baefcf909442b095daca73c",
+            "key": "Prediction.Player.NextAction",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "예측된 다음 플레이어 행동",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "None",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "c2637b355332536d0ce1b61c7b4120d1",
+            "key": "Prediction.Confidence",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "플레이어 행동 예측 신뢰도",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "fdb9d43293ddb400e25463681e821de6",
+            "key": "Prediction.Player.LastToken",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "마지막 플레이어 행동 토큰",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "None",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "60ea5b460c2332ef4d4170a6bba7ce39",
+            "key": "Prediction.Player.TimeSinceLast",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "마지막 플레이어 행동 경과 시간",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "b14f5f413ea0c52b4859749b8f5e86e8",
+            "key": "Memory.Hit.RecentlyByPlayer",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "최근 피격됨",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "c62cbc8bb2f90a6444e5884666fde541",
+            "key": "Memory.Hit.RecentCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "최근 피격 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "6019fb5d20545135b413b7df267fa2f6",
+            "key": "Memory.Hit.LastReactionType",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "마지막 피격 반응 타입",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "8474bf1cbe4a0d58c1c3e1d276badb41",
+            "key": "Self.PoiseRatio",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "강인도 비율",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "7f5e141aa2dbde02cff27048e7053fb7",
+            "key": "Self.IsPoiseBroken",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "강인도 붕괴됨",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "c56fefdbd42906ddebf58b1893bafa4f",
+            "key": "EnemyAIRole",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "몬스터 AI 역할",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "Melee",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "f9071d38b536b4776bcd22941576e540",
+            "key": "IntentWeight_Attack",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "공격 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "700c2ffc15cf4e7395a75e2691dda77d",
+            "key": "IntentWeight_Punish",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "응징 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "75c9ec9152a8b260edc20453584b67e0",
+            "key": "IntentWeight_Counter",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "반격 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "d981dbded0fd354adacf8b0e7179f79b",
+            "key": "IntentWeight_Pressure",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "압박 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "1bc1729e42e436e9139c9aa655ed0bbc",
+            "key": "IntentWeight_Chase",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "추격 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "1b3b53aa91a2d54f2a3cfbecc19d03eb",
+            "key": "IntentWeight_Retreat",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "후퇴 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "72f28aad6c49dcb7052450243b066825",
+            "key": "IntentWeight_KeepDistance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "거리 유지 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "e2bfdc6ebda5db94e9770656f62776cc",
+            "key": "IntentWeight_Defend",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "방어 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "2c0cb8011d255689ea226b40030d8d2d",
+            "key": "IntentWeight_Recover",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "회복 의도 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "560e12de4d42f754b6c3749a3f5bc5be",
+            "key": "Decision.SelectedIntent",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "선택된 전투 의도",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "929854a5fbad1f466dd2820cd2aeeb00",
+            "key": "Decision.LastIntent",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "마지막 전투 의도",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4eafbd2b6b3738a156e51d764fd0143e",
+            "key": "Decision.ConsecutiveIntentCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "연속 의도 횟수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "a27468919f90c5007e27c569335ab1f8",
+            "key": "Decision.IntentScore.Attack",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "공격 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "57bb47e02803b867dcd192195d68bc9f",
+            "key": "Decision.IntentScore.Punish",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "응징 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "18c998a394f0fc61f8beca6eb9ca3f68",
+            "key": "Decision.IntentScore.Counter",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "반격 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "577697e66b14ca9b795174e58ebd75a8",
+            "key": "Decision.IntentScore.Pressure",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "압박 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "e2734bb2ead9c3f43f42527b8a0bca72",
+            "key": "Decision.IntentScore.Chase",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "추격 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "423a124f1f57c28469cac342ceed9607",
+            "key": "Decision.IntentScore.Retreat",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "후퇴 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "801e05eb18b9fb648562bb7a3b1259c9",
+            "key": "Decision.IntentScore.KeepDistance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "거리 유지 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "f713be6fecc141d177b35c90feef130d",
+            "key": "Decision.IntentScore.Defend",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "방어 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "2c531284fca3e4de664be3f60dbc8179",
+            "key": "Decision.IntentScore.Recover",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "회복 의도 점수",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "2cff7f3399dc459d2245862125e9d208",
+            "key": "Decision.CombatRhythmPhase",
+            "identifier": "",
+            "aliases": [],
+            "type": 3,
+            "label": "전투 리듬 단계",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "f6a3b8b4deab25be3abf6eccf7fd21f7",
+            "key": "enablePatrol",
+            "identifier": "",
+            "aliases": [],
+            "type": 0,
+            "label": "순찰 활성화",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "7f030ee865b7ac16098e47b095888f88",
+            "key": "optimalCombatDistance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "최적 교전 거리",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 2.5,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "7af0b8aed3953cbd0c650d940ee05dc5",
+            "key": "minCombatDistance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "최소 교전 거리",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.5,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "0294fbe5d15a50a7cdd9186ad398affc",
+            "key": "personalSpaceDistance",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "개인 공간 거리",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.800000011920929,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "56bcce467e75e2e499f0efb68e924e40",
+            "key": "circleWeight",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "원형 이동 가중치",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "a2a01c6cf2438d24a130295c042cacc6",
+            "key": "Group.Intent.AttackMultiplier",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 공격 의도 배율",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "edbf19294a835c83461e607cc7d515f2",
+            "key": "Group.Intent.PunishMultiplier",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 응징 의도 배율",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "92e11f4b958146ea80da1be88285e272",
+            "key": "Group.Intent.CounterMultiplier",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 반격 의도 배율",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 1.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4c44dcd3b362c7cdecbde4e286f0b4bb",
+            "key": "Group.Intent.PressureBonus",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 압박 의도 보너스",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "fafa09bff84d8c07eab0a3bee175ebb7",
+            "key": "Group.Intent.KeepDistanceBonus",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 거리 유지 의도 보너스",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "0ef4ca38bcee7249c8a208a223e2e283",
+            "key": "Group.Intent.RetreatBonus",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 후퇴 의도 보너스",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "4dad0204ba875dbf7d39f1336e79fb1b",
+            "key": "Group.BreatherRemainingTime",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 브리더 잔여 시간",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "f352e38f71e6fc23991c183f3c71d922",
+            "key": "Group.FormationSlotIndex",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "그룹 포메이션 슬롯 인덱스",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": -1,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "fe544b363314b90edeec5e5321f224ed",
+            "key": "Group.AggroFitness",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "그룹 어그로 적합도",
+            "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        }
+    ],
+    "blackboardConditionAliases": [
+        {
+            "condition": "IsPlayerAttacking",
+            "key": "Memory.Player.IsAttacking",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerGuarding",
+            "key": "Memory.Player.IsGuarding",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerStaggered",
+            "key": "Memory.Player.IsStaggered",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerRecovering",
+            "key": "Memory.Player.IsRecovering",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerDodgingFrequently",
+            "key": "Memory.Player.IsDodgingFrequently",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerAttackingFrequently",
+            "key": "Memory.Player.IsAttackingFrequently",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerGuardingFrequently",
+            "key": "Memory.Player.IsGuardingFrequently",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPlayerRecoveringFrequently",
+            "key": "Memory.Player.IsRecoveringFrequently",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "RecentlyHitByPlayer",
+            "key": "Memory.Hit.RecentlyByPlayer",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "HasAttackSlot",
+            "key": "HasAttackSlot",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "IsPoiseBroken",
+            "key": "Self.IsPoiseBroken",
+            "comparison": 0,
+            "value": "true"
+        },
+        {
+            "condition": "RecentHitCountGreaterOrEqual",
+            "key": "Memory.Hit.RecentCount",
+            "comparison": 5,
+            "value": "1"
+        },
+        {
+            "condition": "SelectedIntent",
+            "key": "Decision.SelectedIntent",
+            "comparison": 0,
+            "value": ""
+        }
+    ]
 }

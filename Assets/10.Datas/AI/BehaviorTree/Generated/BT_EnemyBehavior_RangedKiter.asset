@@ -279,6 +279,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &-7765071910220100989
@@ -395,6 +396,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &-6969926529747350312
@@ -991,6 +993,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &-3622716133916854062
@@ -1958,7 +1961,8 @@ MonoBehaviour:
   - {fileID: -2577403244167039611}
   _blackboard:
     _entries:
-    - _key: Target.Has
+    - _stableId: 5781b5627bde4bc41af9760a43197545
+      _key: Target.Has
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -1966,7 +1970,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Target.Object
+    - _stableId: a2198e67f2a81e30d15f204487f6cb73
+      _key: Target.Object
       _valueType: 5
       _boolValue: 0
       _intValue: 0
@@ -1974,7 +1979,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Target.Distance
+    - _stableId: 5023d372c7e3934097a85cb2fd05af4a
+      _key: Target.Distance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -1982,7 +1988,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.StateId
+    - _stableId: c267193029326664a07556e0eb8276cd
+      _key: Self.StateId
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -1990,7 +1997,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.StateTags
+    - _stableId: ba65e72172cd2949ed0793d64fa68900
+      _key: Self.StateTags
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -1998,7 +2006,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.HpPercent
+    - _stableId: 4d29b28b55a3573558bf8d114388a961
+      _key: Self.HpPercent
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2006,7 +2015,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.PhaseName
+    - _stableId: 0ba9639c7d468d29ef1a29788656d4b6
+      _key: Self.PhaseName
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2014,7 +2024,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.PhaseIndex
+    - _stableId: 4d9c42c262abcb96e297c12ff671ebca
+      _key: Self.PhaseIndex
       _valueType: 1
       _boolValue: 0
       _intValue: -1
@@ -2022,7 +2033,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AllowCharge
+    - _stableId: 4bb6dde0766a600114ed378b50c15151
+      _key: AllowCharge
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2030,7 +2042,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AllowFlank
+    - _stableId: 66da08b5ea9352746a92aa0ee08a78ed
+      _key: AllowFlank
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2038,7 +2051,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: MaxConsecutiveAttacks
+    - _stableId: df2e2e457b77240240f29dc713de7ac5
+      _key: MaxConsecutiveAttacks
       _valueType: 1
       _boolValue: 0
       _intValue: 3
@@ -2046,7 +2060,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: ContinueAttackChance
+    - _stableId: 1a5993ca6cb9f6fec05ec96c179de555
+      _key: ContinueAttackChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2054,7 +2069,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: GuardChance
+    - _stableId: d7312e7b5c3bdd556052c33a1992e06b
+      _key: GuardChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2062,7 +2078,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: RetreatChance
+    - _stableId: fdbbf52cada5784b77a80a955a49a969
+      _key: RetreatChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2070,7 +2087,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: CanUseSkill
+    - _stableId: e0e3cda40977a44880582146b03c86a7
+      _key: CanUseSkill
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2078,7 +2096,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: HasAttackSlot
+    - _stableId: a8d1e7822db794aa32d5bc06c83a4281
+      _key: HasAttackSlot
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2086,7 +2105,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: NextActionAllowedTime
+    - _stableId: 04b0c32959e04147e135598dcecaaa10
+      _key: NextActionAllowedTime
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2094,7 +2114,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.Aggression
+    - _stableId: a688f1973d81dfea923676791b931bfa
+      _key: AI.Aggression
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2102,7 +2123,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.ReactionChance
+    - _stableId: fdf4c744a2f037999dca40e216b0fb09
+      _key: AI.ReactionChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2110,7 +2132,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.CounterChance
+    - _stableId: c2372327c4799314973df7d1ac53af33
+      _key: AI.CounterChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2118,7 +2141,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.DodgeChance
+    - _stableId: cee5457458677a6c909122963036219c
+      _key: AI.DodgeChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2126,7 +2150,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.PunishRecoveryChance
+    - _stableId: 1c9054e628479cf2c84124bf34954e72
+      _key: AI.PunishRecoveryChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2134,7 +2159,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.AntiGuardChance
+    - _stableId: 973e0b4c239f19b9958087af2ed6c358
+      _key: AI.AntiGuardChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2142,7 +2168,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.MinRetreatCooldown
+    - _stableId: 084727bfac14b29257bf312fc8f9915a
+      _key: AI.MinRetreatCooldown
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2150,7 +2177,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.MaxComboPressureCount
+    - _stableId: 17e2a542c6c0c2b1c9645721bae158e6
+      _key: AI.MaxComboPressureCount
       _valueType: 1
       _boolValue: 0
       _intValue: 2
@@ -2158,7 +2186,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: AI.PreferredRange
+    - _stableId: 99dd5d143fd31aa5ae07cee9014db863
+      _key: AI.PreferredRange
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2166,7 +2195,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: hitReactionLockTime
+    - _stableId: 53813c0d6b35a8f1c6017d5ea2b0b367
+      _key: hitReactionLockTime
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2174,7 +2204,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: revengeChance
+    - _stableId: 530316a62f9b8bc51e86899326ffab61
+      _key: revengeChance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2182,7 +2213,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsAttacking
+    - _stableId: 71a0e3db2de9e0bb1c03f02ceb6600d4
+      _key: Memory.Player.IsAttacking
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2190,7 +2222,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsGuarding
+    - _stableId: dc494469f28d6456972a3c312ea9ef11
+      _key: Memory.Player.IsGuarding
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2198,7 +2231,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsStaggered
+    - _stableId: 1d6da88b09dfae9deb969f8b0941a1ec
+      _key: Memory.Player.IsStaggered
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2206,7 +2240,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsRecovering
+    - _stableId: fd6cec70ce99f63971e1ba08aa364881
+      _key: Memory.Player.IsRecovering
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2214,7 +2249,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsDodgingFrequently
+    - _stableId: 3f67d5343a8dc36ea2cb2e3711f686ab
+      _key: Memory.Player.IsDodgingFrequently
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2222,7 +2258,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsAttackingFrequently
+    - _stableId: 623d24284639769d131d2617d2639952
+      _key: Memory.Player.IsAttackingFrequently
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2230,7 +2267,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsGuardingFrequently
+    - _stableId: 6497e6d12dea170589a09ccf1f428dfe
+      _key: Memory.Player.IsGuardingFrequently
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2238,7 +2276,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.IsRecoveringFrequently
+    - _stableId: bb441b2348054e8293036c057a32a298
+      _key: Memory.Player.IsRecoveringFrequently
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2246,7 +2285,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.DodgeCount
+    - _stableId: 978e0b53daceddd0e28286a69260c1fc
+      _key: Memory.Player.DodgeCount
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -2254,7 +2294,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.GuardCount
+    - _stableId: 22f0397e29f5ac4cc0c3f9c8300e80bf
+      _key: Memory.Player.GuardCount
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -2262,7 +2303,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.AttackCount
+    - _stableId: 7767e3769868855cde2512b284a83dc2
+      _key: Memory.Player.AttackCount
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -2270,7 +2312,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Player.RecoverCount
+    - _stableId: d026d5f1289eb769bb1d69be99db4f8b
+      _key: Memory.Player.RecoverCount
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -2278,7 +2321,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Prediction.Player.NextAction
+    - _stableId: 4427c8788baefcf909442b095daca73c
+      _key: Prediction.Player.NextAction
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2286,7 +2330,8 @@ MonoBehaviour:
       _stringValue: None
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Prediction.Confidence
+    - _stableId: c2637b355332536d0ce1b61c7b4120d1
+      _key: Prediction.Confidence
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2294,7 +2339,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Prediction.Player.LastToken
+    - _stableId: fdb9d43293ddb400e25463681e821de6
+      _key: Prediction.Player.LastToken
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2302,7 +2348,8 @@ MonoBehaviour:
       _stringValue: None
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Prediction.Player.TimeSinceLast
+    - _stableId: 60ea5b460c2332ef4d4170a6bba7ce39
+      _key: Prediction.Player.TimeSinceLast
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2310,7 +2357,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Hit.RecentlyByPlayer
+    - _stableId: b14f5f413ea0c52b4859749b8f5e86e8
+      _key: Memory.Hit.RecentlyByPlayer
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2318,7 +2366,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Hit.RecentCount
+    - _stableId: c62cbc8bb2f90a6444e5884666fde541
+      _key: Memory.Hit.RecentCount
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -2326,7 +2375,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Memory.Hit.LastReactionType
+    - _stableId: 6019fb5d20545135b413b7df267fa2f6
+      _key: Memory.Hit.LastReactionType
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2334,7 +2384,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.PoiseRatio
+    - _stableId: 8474bf1cbe4a0d58c1c3e1d276badb41
+      _key: Self.PoiseRatio
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2342,7 +2393,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Self.IsPoiseBroken
+    - _stableId: 7f5e141aa2dbde02cff27048e7053fb7
+      _key: Self.IsPoiseBroken
       _valueType: 0
       _boolValue: 0
       _intValue: 0
@@ -2350,7 +2402,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: EnemyAIRole
+    - _stableId: c56fefdbd42906ddebf58b1893bafa4f
+      _key: EnemyAIRole
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2358,7 +2411,8 @@ MonoBehaviour:
       _stringValue: Melee
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Attack
+    - _stableId: f9071d38b536b4776bcd22941576e540
+      _key: IntentWeight_Attack
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2366,7 +2420,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Punish
+    - _stableId: 700c2ffc15cf4e7395a75e2691dda77d
+      _key: IntentWeight_Punish
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2374,7 +2429,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Counter
+    - _stableId: 75c9ec9152a8b260edc20453584b67e0
+      _key: IntentWeight_Counter
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2382,7 +2438,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Pressure
+    - _stableId: d981dbded0fd354adacf8b0e7179f79b
+      _key: IntentWeight_Pressure
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2390,7 +2447,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Chase
+    - _stableId: 1bc1729e42e436e9139c9aa655ed0bbc
+      _key: IntentWeight_Chase
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2398,7 +2456,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Retreat
+    - _stableId: 1b3b53aa91a2d54f2a3cfbecc19d03eb
+      _key: IntentWeight_Retreat
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2406,7 +2465,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_KeepDistance
+    - _stableId: 72f28aad6c49dcb7052450243b066825
+      _key: IntentWeight_KeepDistance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2414,7 +2474,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Defend
+    - _stableId: e2bfdc6ebda5db94e9770656f62776cc
+      _key: IntentWeight_Defend
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2422,7 +2483,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: IntentWeight_Recover
+    - _stableId: 2c0cb8011d255689ea226b40030d8d2d
+      _key: IntentWeight_Recover
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2430,7 +2492,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.SelectedIntent
+    - _stableId: 560e12de4d42f754b6c3749a3f5bc5be
+      _key: Decision.SelectedIntent
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2438,7 +2501,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.LastIntent
+    - _stableId: 929854a5fbad1f466dd2820cd2aeeb00
+      _key: Decision.LastIntent
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2446,7 +2510,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.ConsecutiveIntentCount
+    - _stableId: 4eafbd2b6b3738a156e51d764fd0143e
+      _key: Decision.ConsecutiveIntentCount
       _valueType: 1
       _boolValue: 0
       _intValue: 0
@@ -2454,7 +2519,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Attack
+    - _stableId: a27468919f90c5007e27c569335ab1f8
+      _key: Decision.IntentScore.Attack
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2462,7 +2528,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Punish
+    - _stableId: 57bb47e02803b867dcd192195d68bc9f
+      _key: Decision.IntentScore.Punish
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2470,7 +2537,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Counter
+    - _stableId: 18c998a394f0fc61f8beca6eb9ca3f68
+      _key: Decision.IntentScore.Counter
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2478,7 +2546,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Pressure
+    - _stableId: 577697e66b14ca9b795174e58ebd75a8
+      _key: Decision.IntentScore.Pressure
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2486,7 +2555,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Chase
+    - _stableId: e2734bb2ead9c3f43f42527b8a0bca72
+      _key: Decision.IntentScore.Chase
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2494,7 +2564,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Retreat
+    - _stableId: 423a124f1f57c28469cac342ceed9607
+      _key: Decision.IntentScore.Retreat
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2502,7 +2573,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.KeepDistance
+    - _stableId: 801e05eb18b9fb648562bb7a3b1259c9
+      _key: Decision.IntentScore.KeepDistance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2510,7 +2582,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Defend
+    - _stableId: f713be6fecc141d177b35c90feef130d
+      _key: Decision.IntentScore.Defend
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2518,7 +2591,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.IntentScore.Recover
+    - _stableId: 2c531284fca3e4de664be3f60dbc8179
+      _key: Decision.IntentScore.Recover
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2526,7 +2600,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Decision.CombatRhythmPhase
+    - _stableId: 2cff7f3399dc459d2245862125e9d208
+      _key: Decision.CombatRhythmPhase
       _valueType: 3
       _boolValue: 0
       _intValue: 0
@@ -2534,7 +2609,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: enablePatrol
+    - _stableId: f6a3b8b4deab25be3abf6eccf7fd21f7
+      _key: enablePatrol
       _valueType: 0
       _boolValue: 1
       _intValue: 0
@@ -2542,7 +2618,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: optimalCombatDistance
+    - _stableId: 7f030ee865b7ac16098e47b095888f88
+      _key: optimalCombatDistance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2550,7 +2627,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: minCombatDistance
+    - _stableId: 7af0b8aed3953cbd0c650d940ee05dc5
+      _key: minCombatDistance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2558,7 +2636,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: personalSpaceDistance
+    - _stableId: 0294fbe5d15a50a7cdd9186ad398affc
+      _key: personalSpaceDistance
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2566,7 +2645,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: circleWeight
+    - _stableId: 56bcce467e75e2e499f0efb68e924e40
+      _key: circleWeight
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2574,7 +2654,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.Intent.AttackMultiplier
+    - _stableId: a2a01c6cf2438d24a130295c042cacc6
+      _key: Group.Intent.AttackMultiplier
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2582,7 +2663,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.Intent.PunishMultiplier
+    - _stableId: edbf19294a835c83461e607cc7d515f2
+      _key: Group.Intent.PunishMultiplier
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2590,7 +2672,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.Intent.CounterMultiplier
+    - _stableId: 92e11f4b958146ea80da1be88285e272
+      _key: Group.Intent.CounterMultiplier
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2598,7 +2681,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.Intent.PressureBonus
+    - _stableId: 4c44dcd3b362c7cdecbde4e286f0b4bb
+      _key: Group.Intent.PressureBonus
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2606,7 +2690,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.Intent.KeepDistanceBonus
+    - _stableId: fafa09bff84d8c07eab0a3bee175ebb7
+      _key: Group.Intent.KeepDistanceBonus
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2614,7 +2699,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.Intent.RetreatBonus
+    - _stableId: 0ef4ca38bcee7249c8a208a223e2e283
+      _key: Group.Intent.RetreatBonus
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2622,7 +2708,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.BreatherRemainingTime
+    - _stableId: 4dad0204ba875dbf7d39f1336e79fb1b
+      _key: Group.BreatherRemainingTime
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2630,7 +2717,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.FormationSlotIndex
+    - _stableId: f352e38f71e6fc23991c183f3c71d922
+      _key: Group.FormationSlotIndex
       _valueType: 1
       _boolValue: 0
       _intValue: -1
@@ -2638,7 +2726,8 @@ MonoBehaviour:
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
-    - _key: Group.AggroFitness
+    - _stableId: fe544b363314b90edeec5e5321f224ed
+      _key: Group.AggroFitness
       _valueType: 2
       _boolValue: 0
       _intValue: 0
@@ -2786,6 +2875,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &1088484744237395053
@@ -3542,6 +3632,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &4743001017872031172
@@ -3799,6 +3890,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &5794155492495869686
@@ -4216,6 +4308,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &8779814892081532065

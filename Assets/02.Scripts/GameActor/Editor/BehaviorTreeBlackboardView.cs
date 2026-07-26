@@ -171,7 +171,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var keyRow = new VisualElement();
             keyRow.style.flexDirection = FlexDirection.Row;
 
-            var keyField = new TextField { isDelayed = true };
+            var keyField = new TextField { isDelayed = true, isReadOnly = true };
             keyField.style.flexGrow = 1;
             keyField.BindProperty(keyProp);
             keyRow.Add(keyField);
@@ -182,6 +182,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 tooltip = $"'{currentKey}' Key를 참조하는 모든 노드를 함께 변경합니다."
             };
             renameButton.style.width = 64f;
+            renameButton.SetEnabled(false);
+            renameButton.tooltip = "Key 이름은 BlackboardKeyRegistry에서 변경하고 alias로 이전 이름을 유지하세요.";
             keyRow.Add(renameButton);
 
             var capturedIndex = index;
@@ -440,7 +442,22 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static void AddNewEntry(SerializedProperty entries)
         {
-            AddEntry(entries, "NewKey", BlackboardValueType.Bool);
+            foreach (EnemyBlackboardDefaultEntry definition
+                     in EnemyBlackboardDefaultEntryRegistry.Entries)
+            {
+                if (HasAssetEntry(entries, definition.Key))
+                    continue;
+
+                AddEntry(
+                    entries,
+                    definition.Key,
+                    definition.Type,
+                    definition.BoolValue,
+                    definition.IntValue,
+                    definition.FloatValue,
+                    definition.StringValue);
+                return;
+            }
         }
 
         private static void AddEntry(
@@ -455,6 +472,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             entries.InsertArrayElementAtIndex(entries.arraySize);
             var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
             entry.FindPropertyRelative("_key").stringValue = key;
+            entry.FindPropertyRelative("_stableId").stringValue =
+                BlackboardKeyRegistry.TryResolve(
+                    key,
+                    out BlackboardKeyReference reference)
+                    ? reference.StableId
+                    : string.Empty;
             entry.FindPropertyRelative("_valueType").enumValueIndex = (int)type;
             entry.FindPropertyRelative("_boolValue").boolValue = boolValue;
             entry.FindPropertyRelative("_intValue").intValue = intValue;
@@ -582,6 +605,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
     internal readonly struct EnemyBlackboardDefaultEntry
     {
+        public readonly string StableId;
         public readonly string Key;
         public readonly BlackboardValueType Type;
         public readonly string Label;
@@ -591,6 +615,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public readonly string StringValue;
 
         public EnemyBlackboardDefaultEntry(
+            string stableId,
             string key,
             BlackboardValueType type,
             string label,
@@ -599,6 +624,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             float floatValue = 0f,
             string stringValue = "")
         {
+            StableId = stableId;
             Key = key;
             Type = type;
             Label = label;
@@ -640,6 +666,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         {
             entries.InsertArrayElementAtIndex(entries.arraySize);
             var entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
+            entry.FindPropertyRelative("_stableId").stringValue = definition.StableId;
             entry.FindPropertyRelative("_key").stringValue = definition.Key;
             entry.FindPropertyRelative("_valueType").enumValueIndex = (int)definition.Type;
             entry.FindPropertyRelative("_boolValue").boolValue = definition.BoolValue;

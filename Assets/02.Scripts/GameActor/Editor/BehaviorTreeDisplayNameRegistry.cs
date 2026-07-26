@@ -178,10 +178,16 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     [Serializable]
     internal sealed class EnemyBlackboardDefaultEntryDefinition
     {
+        public string stableId;
         public string key;
         public string identifier;
+        public List<string> aliases = new();
         public BlackboardValueType type;
         public string label;
+        public string description;
+        public BlackboardKeyScope scope = BlackboardKeyScope.AgentRuntime;
+        public BlackboardWritePolicy writePolicy = BlackboardWritePolicy.ReadWrite;
+        public bool required;
         public bool boolValue;
         public int intValue;
         public float floatValue;
@@ -190,6 +196,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         public EnemyBlackboardDefaultEntry ToEntry()
             => new(
+                stableId,
                 key,
                 type,
                 label,

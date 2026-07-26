@@ -279,43 +279,9 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             return page;
         }
 
-        private static UIKeyBindingRow MakeKeyBindingRow(Transform parent)
-        {
-            var row = NewUI("BindingRow", parent);
-            SetHeight(row, 64);
-            AddImage(row, RowBg, UISprite, sliced: true);
-            AddHLG(row, spacing: 10, pad: 10).childAlignment = TextAnchor.MiddleLeft;
-
-            TextMeshProUGUI actionLabel = AddText(
-                NewUI("ActionLabel", row.transform),
-                "액션", 22, TextSub, TextAlignmentOptions.Left);
-            SetWidth(actionLabel.gameObject, 220);
-
-            Button primaryButton = MakeSimpleButton(
-                "PrimaryButton", row.transform, "Primary",
-                TabActive, TextMain, width: 230, fontSize: 20);
-            TextMeshProUGUI primaryLabel = primaryButton.GetComponentInChildren<TextMeshProUGUI>(true);
-
-            Button secondaryButton = MakeSimpleButton(
-                "SecondaryButton", row.transform, "미지정",
-                TabBg, TextMain, width: 230, fontSize: 20);
-            TextMeshProUGUI secondaryLabel = secondaryButton.GetComponentInChildren<TextMeshProUGUI>(true);
-
-            Button resetButton = MakeSimpleButton(
-                "ResetButton", row.transform, "초기화",
-                CancelBg, TextSub, width: 110, fontSize: 18);
-
-            UIKeyBindingRow component = row.AddComponent<UIKeyBindingRow>();
-            var so = new SerializedObject(component);
-            SetRef(so, "_actionLabel", actionLabel);
-            SetRef(so, "_primaryButton", primaryButton);
-            SetRef(so, "_primaryLabel", primaryLabel);
-            SetRef(so, "_secondaryButton", secondaryButton);
-            SetRef(so, "_secondaryLabel", secondaryLabel);
-            SetRef(so, "_resetButton", resetButton);
-            so.ApplyModifiedPropertiesWithoutUndo();
-            return component;
-        }
+        // 키 바인딩 행은 UIKeyBindingRow.Build()가 런타임에 직접 구성한다.
+        // 프리팹의 Panel_Keys도 자식 없이 UISettingPageKeyBinding만 갖고 있으므로
+        // 여기서 정적 BindingRow를 만들던 MakeKeyBindingRow는 제거했다.
 
         private static GameObject MakeOverlay(Transform parent, string name)
         {

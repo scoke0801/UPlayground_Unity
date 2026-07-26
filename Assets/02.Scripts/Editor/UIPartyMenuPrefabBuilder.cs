@@ -66,8 +66,9 @@ namespace UPlayGround.UI.Party.EditorTools
                 Stretch(dim);
                 AddImage(dim, Dim);
 
+                // 윈도우는 전체 화면을 채운다.
                 var window = NewUI("Window", root.transform);
-                Center(Rt(window), 1760, 980);
+                Stretch(window);
                 AddImage(window, WindowBg, UISprite, sliced: true);
 
                 var contentRoot = NewUI("Content", window.transform);

@@ -14,7 +14,7 @@ namespace UPlayGround.UI.Respawn.EditorTools
     /// </summary>
     public static class UIRespawnPopupPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/UI_RespawnPopup.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Popup/UI_RespawnPopup.prefab";
 
         private static readonly Color Dim      = new Color(0f, 0f, 0f, 0.7f);
         private static readonly Color WindowBg = new Color(0.06f, 0.06f, 0.08f, 0.98f);

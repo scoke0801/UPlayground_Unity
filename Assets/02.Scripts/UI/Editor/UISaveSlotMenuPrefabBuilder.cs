@@ -60,9 +60,9 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
                 Stretch(dim);
                 AddImage(dim, Dim);
 
-                // 중앙 패널
+                // 전체 화면 패널
                 var panel = NewUI("Panel", root.transform);
-                Center(Rt(panel), 1500, 860);
+                Stretch(panel);
                 AddImage(panel, PanelBg, UISprite, sliced: true);
                 AddVLG(panel, spacing: 16, pad: 32).childForceExpandHeight = false;
 

@@ -62,8 +62,9 @@ namespace UPlayGround.UI.Quest.EditorTools
                 Stretch(dim);
                 AddImage(dim, Dim);
 
+                // 윈도우는 전체 화면을 채운다.
                 var window = NewUI("Window", root.transform);
-                Center(Rt(window), 1600, 880);
+                Stretch(window);
                 AddImage(window, WindowBg, UISprite, sliced: true);
                 AddVLG(window, spacing: 8, pad: 16).childForceExpandHeight = false;
 

@@ -63,9 +63,9 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 Stretch(dim);
                 AddImage(dim, Dim);
 
-                // ── 윈도우 ──
+                // ── 윈도우 (전체 화면) ──
                 var window = NewUI("Window", root.transform);
-                Center(Rt(window), 1600, 880);
+                Stretch(window);
                 AddImage(window, WindowBg, UISprite, sliced: true);
                 var winV = AddVLG(window, spacing: 8, pad: 16);
                 winV.childForceExpandHeight = false;

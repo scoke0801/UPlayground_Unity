@@ -11,7 +11,7 @@ namespace UPlayGround.UI.HUD.EditorTools
     /// 인게임 시계 HUD(UI_HudWorldClock) 프리팹을 코드로 생성/재구성하는 에디터 툴.
     ///
     /// - 프리팹이 없으면 새로 만들고, 있으면 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성한다.
-    /// - 좌상단 미니맵(240x240) 바로 아래에 배치: 시간대 색상 점 + HH:MM + "N일차 · 시간대".
+    /// - 좌상단 미니맵(240x240) 바로 아래에 배치: HH:MM + "N일차 · 시간대".
     /// - 빌드 후 UIPrefabDatabase에 Key "HudWorldClock" / Default Layer "HUD"로 수동 등록해야 한다.
     /// </summary>
     public static class UIHudWorldClockPrefabBuilder
@@ -52,29 +52,18 @@ namespace UPlayGround.UI.HUD.EditorTools
 
                 ClearChildren(root.transform);
 
-                // 패널: 좌상단, 미니맵(약 y 25~265) 바로 아래
+                // 패널: 좌상단, 미니맵(약 y 25~265) 바로 아래.
+                // 루트가 화면 중앙 기준 100x100이라 좌상단 좌표는 루트 기준 오프셋으로 들어간다.
                 var panel = NewUI("Panel", root.transform);
                 var panelRt = panel.GetComponent<RectTransform>();
                 panelRt.anchorMin = new Vector2(0f, 1f);
                 panelRt.anchorMax = new Vector2(0f, 1f);
                 panelRt.pivot = new Vector2(0f, 1f);
-                panelRt.anchoredPosition = new Vector2(24f, -280f);
+                panelRt.anchoredPosition = new Vector2(-951f, 642f);
                 panelRt.sizeDelta = new Vector2(238f, 56f);
                 var panelImage = panel.AddComponent<Image>();
                 panelImage.color = PanelBg;
                 panelImage.raycastTarget = false;
-
-                // 시간대 색상 점
-                var icon = NewUI("PeriodIcon", panel.transform);
-                var iconRt = icon.GetComponent<RectTransform>();
-                iconRt.anchorMin = new Vector2(0f, 0.5f);
-                iconRt.anchorMax = new Vector2(0f, 0.5f);
-                iconRt.pivot = new Vector2(0f, 0.5f);
-                iconRt.anchoredPosition = new Vector2(14f, 0f);
-                iconRt.sizeDelta = new Vector2(14f, 14f);
-                var iconImage = icon.AddComponent<Image>();
-                iconImage.color = new Color(1f, 0.92f, 0.55f, 1f);
-                iconImage.raycastTarget = false;
 
                 // 시각 (HH:MM)
                 var timeGo = NewUI("TimeText", panel.transform);
@@ -110,7 +99,6 @@ namespace UPlayGround.UI.HUD.EditorTools
                 var so = new SerializedObject(clock);
                 SetRef(so, "_timeText", timeText);
                 SetRef(so, "_dayText", dayText);
-                SetRef(so, "_periodIcon", iconImage);
                 SetEnum(so, "_layer", (int)CanvasLayer.HUD);
                 SetBool(so, "_canCloseWithEsc", false);
                 so.ApplyModifiedPropertiesWithoutUndo();

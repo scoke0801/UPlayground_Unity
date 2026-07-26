@@ -109,10 +109,25 @@ namespace UPlayGround.State
             bool hasSkillInput = (mask & PlayerInterruptAction.Skill) != 0 && HasAnySkillInput(controller);
             bool skill = hasSkillInput && HasUsableSkillInput(controller, playerActor);
 
-            if (heavy && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.HeavyAttack))
-                return true;
-            if (light && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.LightAttack))
-                return true;
+            // 약/강이 둘 다 버퍼에 있으면 타입 우선순위가 아니라 "더 최근 입력"이 이긴다.
+            // 강을 무조건 먼저 검사하면, 액티브 히트 구간(만료 정지)에서 살아남은 오래된 강 입력이
+            // 방금 누른 약 입력을 이겨 강공격이 나가버린다.
+            bool heavyFirst = !light || !heavy || PlayerAttackInputArbiter.IsHeavyPreferred();
+
+            if (heavyFirst)
+            {
+                if (heavy && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.HeavyAttack))
+                    return true;
+                if (light && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.LightAttack))
+                    return true;
+            }
+            else
+            {
+                if (light && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.LightAttack))
+                    return true;
+                if (heavy && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.HeavyAttack))
+                    return true;
+            }
             if (skill && PlayerAttackState.TryEnter(controller, PlayerInterruptAction.Skill))
                 return true;
 

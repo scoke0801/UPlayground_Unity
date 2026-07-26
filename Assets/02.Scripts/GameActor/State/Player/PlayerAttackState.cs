@@ -112,7 +112,7 @@ namespace UPlayGround.State
             bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
             bool isHeavyPending = hasForcedAttack
                 ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
-                : Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+                : PlayerAttackInputArbiter.IsHeavyPreferred();
             if (isHeavyPending && combat.FindFinishableTarget() != null)
                 return true;
 
@@ -138,7 +138,7 @@ namespace UPlayGround.State
             bool hasForcedAttack = forcedAttackAction != PlayerInterruptAction.None;
             bool isHeavyPending = hasForcedAttack
                 ? (forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0
-                : Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack);
+                : PlayerAttackInputArbiter.IsHeavyPreferred();
             if (isHeavyPending && combat != null)
             {
                 Transform finishTarget = combat.FindFinishableTarget();
@@ -289,8 +289,11 @@ namespace UPlayGround.State
             ApplyAttackSpeed(1f);
 
             bool hasForcedAttack = _forcedAttackAction != PlayerInterruptAction.None;
+            // 약/강 선입력이 둘 다 남아 있으면 "더 최근에 누른 쪽"이 이긴다.
+            // (예전엔 강을 무조건 먼저 소비해, 버퍼에 남은 오래된 강 입력이 방금 누른 약 입력을 이겼다)
             _isHeavyAttack = !hasForcedAttack
-                             && Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+                             && PlayerAttackInputArbiter.TryConsumeAttackInput(out bool consumedHeavy)
+                             && consumedHeavy;
 
             playerActor.Animator.ApplyRootMotion(true);
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
@@ -464,18 +467,12 @@ namespace UPlayGround.State
 
             if (_combat.CanCombo)
             {
-                if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+                // 약/강이 둘 다 버퍼에 있으면 더 최근 입력을 콤보 타입으로 채택한다.
+                if (PlayerAttackInputArbiter.TryConsumeAttackInput(out bool comboIsHeavy))
                 {
                     _comboInputted = true;
-                    _comboContinuesSameType = !_isHeavyAttack;
-                    _isHeavyAttack = false;
-                    _combat.CloseComboWindow();
-                }
-                else if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null)
-                {
-                    _comboInputted = true;
-                    _comboContinuesSameType = _isHeavyAttack;
-                    _isHeavyAttack = true;
+                    _comboContinuesSameType = comboIsHeavy == _isHeavyAttack;
+                    _isHeavyAttack = comboIsHeavy;
                     _combat.CloseComboWindow();
                 }
             }
@@ -535,8 +532,10 @@ namespace UPlayGround.State
             _lastActiveHitEndTime = -1f;
             _wasActiveHit = false;
 
+            // 강 입력이 승자일 때만 소비한다. 약이 승자면 아래 else 분기로 Idle/Move에 넘어가고
+            // 거기서 약 입력이 다시 평가되므로, 여기서 약을 소비하면 그 입력이 유실된다.
             if (!_comboInputted)
-                _isHeavyAttack = Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+                _isHeavyAttack = PlayerAttackInputArbiter.TryConsumeHeavyIfPreferred();
 
             if (_isHeavyAttack)
             {

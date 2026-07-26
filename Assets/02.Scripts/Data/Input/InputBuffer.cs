@@ -92,6 +92,23 @@ namespace UPlayGround.Input
         }
 
         /// <summary>
+        /// 특정 입력을 소비하지 않고 조회한다. ConsumeInput과 동일한 대상(가장 오래된 매칭)을 돌려주므로
+        /// 두 입력의 Timestamp를 비교해 "어느 쪽을 실제로 먼저/나중에 눌렀는지" 판정하는 데 쓸 수 있다.
+        /// </summary>
+        public BufferedInput PeekInput(string inputName)
+        {
+            CleanExpiredInputs();
+
+            foreach (var input in _buffer)
+            {
+                if (input.InputName == inputName)
+                    return input;
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// 특정 입력 소비 (가져오고 제거)
         /// </summary>
         public BufferedInput ConsumeInput(string inputName)

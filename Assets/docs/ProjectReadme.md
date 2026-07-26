@@ -359,6 +359,7 @@ Assets/
 | [BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md](Complete/BEHAVIOR_TREE_IMPROVEMENT_PLAN_GUIDE.md) | Behavior Tree 개선 방안 — Behavior Designer Pro 3 레퍼런스 기반 자체 BT 개선 로드맵 |
 | [BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md](Complete/BEHAVIOR_TREE_EDITOR_IMPROVEMENT_EXECUTION_PLAN.md) | Behavior Tree 에디터 개선 실행 계획 — 노드 검색, Blackboard 검증, Trace/제작 UX 보강 순서 |
 | [MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md](Complete/MONSTER_AI_BT_APPLICATION_PLAN_GUIDE.md) | 몬스터 AI BT 적용 평가 및 작업 계획 — 현재 구조 유지 판단, Intent/Utility 계층 추가, 단계별 적용 로드맵 |
+| [BEHAVIOR_TREE_BLACKBOARD_AND_MONSTER_AI_ADVANCEMENT_SPEC.md](TODO/BEHAVIOR_TREE_BLACKBOARD_AND_MONSTER_AI_ADVANCEMENT_SPEC.md) | BT Blackboard·몬스터 AI 고도화 — 안정 ID Registry/Reference/Handle, Subtree Key 계약, 최신 AbilitySet·GAS 권위 기반 Intent→Ability 선택·실행 재정렬 |
 | [GAMEPLAY_TAG_SYSTEM_GUIDE.md](Complete/GAMEPLAY_TAG_SYSTEM_GUIDE.md) | GameplayTag 시스템 — 계층형 태그, GameplayTagRegistrySO + 자동 enum 생성, GameplayTagContainer 런타임 부착, 상태 머신 통합 |
 | [GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md](TODO/GAMEPLAY_TAG_DATA_MIGRATION_SPEC.md) | GameplayTag 데이터화 마이그레이션 스펙 — 태그가 검증 안 되는 단일 string이라 오타·리네임·삭제에 취약, 레지스트리 단일 소스 + 인터닝 핸들 + 검증 드로어(옵션 C), Core 비의존 리졸버 경계, Phase 0~6 단계·하위호환·GAS B1/C3 연계 |
 | [GAS_SYSTEM_GUIDE.html](guide/GAS_SYSTEM_GUIDE.html) | Gameplay Ability(GAS) 사용 가이드 — Core/Adapter/Data/Actor 4계층, 데이터 흐름(AbilitySet→Ability→Variant→Payload→Motion), Prepare/Commit 실행 생명주기, Attribute·Effect, 셋업·사용 예시·에디터 도구·확장 포인트 |

@@ -2,7 +2,7 @@
 
 > 작성일: 2026-07-26
 >
-> 상태: 설계 확정 전 TODO
+> 상태: P0/P1 기반 구현 완료, Play Mode·Player Build 수직 검증 대기
 >
 > 대상: `UPlayGround.AI.BehaviorTree`, 몬스터 전투 의사결정, Ability 연동 데이터
 >
@@ -849,7 +849,60 @@ Undo/백업 복구하고 일부 적용 상태를 성공으로 취급하지 않�
 
 ---
 
-## 13. 참고 자료
+## 13. 2026-07-26 구현 결과
+
+### 완료
+
+- `BlackboardKeyRegistrySO` 단일 에셋과 86개 Key 정의 생성
+- 이름과 분리된 결정적 stable ID, alias, 타입, Scope, 쓰기 정책 도입
+- `BlackboardKeyReference`와 generation 검증 `BlackboardKeyHandle` 도입
+- 미등록 문자열 Key 자동 생성 차단, 타입/ReadOnly 쓰기 검증
+- 구형 Key 12개를 의미가 같은 정식 Key alias로 보존
+- BT 에셋 13개의 Entry와 중첩 Selector를 stable ID로 마이그레이션
+- 중복으로 생성되던 `EnemyBlackboardKeys.generated.cs` 출력 경로를
+  `UPlayGround.Actor`로 통일
+- Registry 검색, 타입·Scope·stable ID·BT 사용량을 표시하는 전용 Inspector
+- BT Blackboard의 자유 이름 편집을 잠그고 Registry 선택 방식으로 통일
+- 빌드 전 Registry 단일성, ID/이름/alias, 모든 BT 참조와 타입을 검사하는
+  `BlackboardKeyRegistryBuildValidator`
+- `AbilityAttackInfo.aiSelectable`을 몬스터 자동 선택의 필수 게이트로 적용
+- 후보 필터와 가중 선택을 분리하고 RejectReason, ActivationResult, Score 진단 추가
+- Seed 주입형 선택기로 동일 seed/후보 순서의 Replay 재현 기반 마련
+- `EnemyCombatStrategySO`와 페이즈 Strategy/AbilitySet override 추가
+- 선호/차단 Ability Tag, 반복 감점·최대 연속 사용 정책 반영
+- 후보 검사는 `EvaluateAbility`만 사용하고, 선택된 Ability만 Prepare/Commit
+- Motion/Payload 사전검증을 기존 Ability 취소 전에 수행하는 원자적 Prepare 추가
+- 후보 없음 진단을 BT DebugTrace와 ResolverFailureReason에 연결
+- Blackboard Registry와 Ability 선택 정책 EditMode 테스트 어셈블리 추가
+
+### 데이터 검증 결과
+
+```text
+Registry definitions        86
+Migrated BT assets          13
+Legacy aliases              12
+Empty serialized stableId    0
+Actor compile errors         0
+GameActor.Editor errors      0
+AI.Tests compile errors      0
+Unity latest compile errors  0
+```
+
+`Dryad` 3건과 `Training Dummy` 1건의 근거 없는 MotionReference는 기존
+프로젝트 원칙대로 자동 연결하지 않았다.
+
+### 남은 실행 환경 검증
+
+- Unity Test Runner에서 신규 EditMode 테스트 실제 실행
+- 대표 지상 근접/원거리/비행/Elite/Boss Play Mode 수직 슬라이스
+- Player Build와 Missing Script/managed reference/VFX 전체 회귀 검사
+
+이 항목들은 코드·데이터 마이그레이션 미완료가 아니라, 실제 Unity 실행 환경에서
+확인해야 하는 릴리스 게이트다.
+
+---
+
+## 14. 참고 자료
 
 - [Unity Behavior 1.0 — 기능과 모듈형 Subgraph, 실시간 Debug](https://docs.unity3d.com/Packages/com.unity.behavior%401.0/manual/behavior-features.html)
 - [Unity Behavior — Editor UI](https://docs.unity3d.com/Packages/com.unity.behavior%401.0/manual/user-interface.html)

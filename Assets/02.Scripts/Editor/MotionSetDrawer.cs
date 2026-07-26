@@ -116,6 +116,7 @@ namespace UPlayGround.Animation.Editor
         // 섹션 접힘 상태
         public bool foldMotions = true;
         public bool foldPlaybackLayers = false;
+        public bool foldAdvanced = false;
         public bool foldTimeline = true;
         public bool foldEvents = true;
 
@@ -292,6 +293,14 @@ namespace UPlayGround.Animation.Editor
             DrawHeader(set);
             EditorGUILayout.Space(2);
 
+            foldAdvanced = EditorGUILayout.Foldout(
+                foldAdvanced,
+                "Section · Blend · Curve · Sync",
+                true,
+                EditorStyles.foldoutHeader);
+            if (foldAdvanced) DrawAdvancedSettings(set);
+
+            EditorGUILayout.Space(2);
             foldPlaybackLayers = EditorGUILayout.Foldout(
                 foldPlaybackLayers,
                 $"병렬 재생 레이어 ({set.layers?.Count ?? 0})",
@@ -302,6 +311,185 @@ namespace UPlayGround.Animation.Editor
             EditorGUILayout.Space(2);
             foldMotions = EditorGUILayout.Foldout(foldMotions, "애니메이션 리스트", true, EditorStyles.foldoutHeader);
             if (foldMotions) DrawMotionList(set);
+        }
+
+        void DrawAdvancedSettings(MotionSet set)
+        {
+            set.blend ??= new MotionSetBlendSettings();
+            set.sync ??= new MotionSyncSettings();
+            set.timeStretch ??= new MotionTimeStretchSettings();
+            set.sections ??= new List<MotionSection>();
+            set.curves ??= new List<MotionCurveTrack>();
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Asset Blend", EditorStyles.boldLabel);
+            float blendIn = Mathf.Max(0f, EditorGUILayout.FloatField("Blend In", set.blend.blendInDuration));
+            AnimationCurve blendInCurve = EditorGUILayout.CurveField("Blend In Curve", set.blend.blendInCurve);
+            float blendOut = Mathf.Max(0f, EditorGUILayout.FloatField("Blend Out", set.blend.blendOutDuration));
+            AnimationCurve blendOutCurve = EditorGUILayout.CurveField("Blend Out Curve", set.blend.blendOutCurve);
+            float interrupted = Mathf.Max(
+                0f,
+                EditorGUILayout.FloatField("Interrupted Blend Out", set.blend.interruptedBlendOutDuration));
+            bool autoBlendOut = EditorGUILayout.Toggle("Auto Blend Out", set.blend.autoBlendOut);
+            bool holdLastPose = EditorGUILayout.Toggle("Hold Last Pose", set.blend.holdLastPose);
+            if (!Mathf.Approximately(blendIn, set.blend.blendInDuration) ||
+                blendInCurve != set.blend.blendInCurve ||
+                !Mathf.Approximately(blendOut, set.blend.blendOutDuration) ||
+                blendOutCurve != set.blend.blendOutCurve ||
+                !Mathf.Approximately(interrupted, set.blend.interruptedBlendOutDuration) ||
+                autoBlendOut != set.blend.autoBlendOut ||
+                holdLastPose != set.blend.holdLastPose)
+            {
+                RecordUndo("Edit MotionSet Blend");
+                set.blend.blendInDuration = blendIn;
+                set.blend.blendInCurve = blendInCurve;
+                set.blend.blendOutDuration = blendOut;
+                set.blend.blendOutCurve = blendOutCurve;
+                set.blend.interruptedBlendOutDuration = interrupted;
+                set.blend.autoBlendOut = autoBlendOut;
+                set.blend.holdLastPose = holdLastPose;
+                MarkDirty();
+            }
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField($"Sections ({set.sections.Count})", EditorStyles.boldLabel);
+            for (int i = 0; i < set.sections.Count; i++)
+            {
+                MotionSection section = set.sections[i] ?? new MotionSection
+                {
+                    id = $"section_{Guid.NewGuid():N}",
+                    displayName = $"Section {i + 1}",
+                };
+                set.sections[i] = section;
+                EditorGUILayout.BeginHorizontal();
+                string displayName = EditorGUILayout.TextField(section.displayName);
+                float start = Mathf.Max(0f, EditorGUILayout.FloatField(section.startTime, GUILayout.Width(70)));
+                MotionSectionEndPolicy endPolicy = (MotionSectionEndPolicy)EditorGUILayout.EnumPopup(
+                    section.endPolicy,
+                    GUILayout.Width(90));
+                if (GUILayout.Button("×", GUILayout.Width(24)))
+                {
+                    RecordUndo("Remove Motion Section");
+                    set.sections.RemoveAt(i);
+                    MarkDirty();
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+                string id = EditorGUILayout.TextField("ID", section.id);
+                string nextId = EditorGUILayout.TextField("Default Next ID", section.defaultNextId);
+                if (displayName != section.displayName ||
+                    !Mathf.Approximately(start, section.startTime) ||
+                    endPolicy != section.endPolicy ||
+                    id != section.id ||
+                    nextId != section.defaultNextId)
+                {
+                    RecordUndo("Edit Motion Section");
+                    section.displayName = displayName;
+                    section.startTime = start;
+                    section.endPolicy = endPolicy;
+                    section.id = id;
+                    section.defaultNextId = nextId;
+                    MarkDirty();
+                }
+            }
+            if (GUILayout.Button("+ Section", GUILayout.Width(100)))
+            {
+                RecordUndo("Add Motion Section");
+                set.sections.Add(new MotionSection
+                {
+                    id = $"section_{Guid.NewGuid():N}",
+                    displayName = $"Section {set.sections.Count + 1}",
+                });
+                MarkDirty();
+            }
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField($"Curve Tracks ({set.curves.Count})", EditorStyles.boldLabel);
+            for (int i = 0; i < set.curves.Count; i++)
+            {
+                MotionCurveTrack track = set.curves[i] ?? new MotionCurveTrack
+                {
+                    id = $"curve_{Guid.NewGuid():N}",
+                };
+                set.curves[i] = track;
+                EditorGUILayout.BeginHorizontal();
+                bool enabled = EditorGUILayout.Toggle(track.enabled, GUILayout.Width(18));
+                string displayName = EditorGUILayout.TextField(track.displayName);
+                if (GUILayout.Button("×", GUILayout.Width(24)))
+                {
+                    RecordUndo("Remove Motion Curve");
+                    set.curves.RemoveAt(i);
+                    MarkDirty();
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+                EditorGUILayout.EndHorizontal();
+                MotionCurveChannel channel = (MotionCurveChannel)EditorGUILayout.EnumPopup("Channel", track.channel);
+                string targetId = EditorGUILayout.TextField("Target ID", track.targetId);
+                AnimationCurve curve = EditorGUILayout.CurveField("Curve", track.curve);
+                if (enabled != track.enabled ||
+                    displayName != track.displayName ||
+                    channel != track.channel ||
+                    targetId != track.targetId ||
+                    curve != track.curve)
+                {
+                    RecordUndo("Edit Motion Curve");
+                    track.enabled = enabled;
+                    track.displayName = displayName;
+                    track.channel = channel;
+                    track.targetId = targetId;
+                    track.curve = curve;
+                    MarkDirty();
+                }
+            }
+            if (GUILayout.Button("+ Curve Track", GUILayout.Width(120)))
+            {
+                RecordUndo("Add Motion Curve");
+                set.curves.Add(new MotionCurveTrack
+                {
+                    id = $"curve_{Guid.NewGuid():N}",
+                    displayName = $"Curve {set.curves.Count + 1}",
+                });
+                MarkDirty();
+            }
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField("Sync / Time Stretch", EditorStyles.boldLabel);
+            string groupId = EditorGUILayout.TextField("Sync Group", set.sync.groupId);
+            MotionSyncRole role = (MotionSyncRole)EditorGUILayout.EnumPopup("Sync Role", set.sync.role);
+            MotionSyncFallback fallback =
+                (MotionSyncFallback)EditorGUILayout.EnumPopup("Sync Fallback", set.sync.fallback);
+            bool stretchEnabled = EditorGUILayout.Toggle("Time Stretch", set.timeStretch.enabled);
+            bool protectImpact = EditorGUILayout.Toggle("Protect Impact", set.timeStretch.protectImpact);
+            float before = Mathf.Max(0f, EditorGUILayout.FloatField(
+                "Impact Before",
+                set.timeStretch.protectionBefore));
+            float after = Mathf.Max(0f, EditorGUILayout.FloatField(
+                "Impact After",
+                set.timeStretch.protectionAfter));
+            if (groupId != set.sync.groupId ||
+                role != set.sync.role ||
+                fallback != set.sync.fallback ||
+                stretchEnabled != set.timeStretch.enabled ||
+                protectImpact != set.timeStretch.protectImpact ||
+                !Mathf.Approximately(before, set.timeStretch.protectionBefore) ||
+                !Mathf.Approximately(after, set.timeStretch.protectionAfter))
+            {
+                RecordUndo("Edit Motion Sync");
+                set.sync.groupId = groupId;
+                set.sync.role = role;
+                set.sync.fallback = fallback;
+                set.timeStretch.enabled = stretchEnabled;
+                set.timeStretch.protectImpact = protectImpact;
+                set.timeStretch.protectionBefore = before;
+                set.timeStretch.protectionAfter = after;
+                MarkDirty();
+            }
+            EditorGUILayout.EndVertical();
         }
 
         void DrawPlaybackLayers(MotionSet set)
@@ -355,6 +543,17 @@ namespace UPlayGround.Animation.Editor
                     false);
                 float weight = EditorGUILayout.Slider("가중치", layer.weight, 0f, 1f);
                 bool holdLastFrame = EditorGUILayout.Toggle("마지막 프레임 유지", layer.holdLastFrame);
+                string channelId = EditorGUILayout.TextField("채널 ID", layer.channelId);
+                string concurrencyGroupId = EditorGUILayout.TextField("동시성 그룹", layer.concurrencyGroupId);
+                MotionInterruptionPolicy interruptionPolicy =
+                    (MotionInterruptionPolicy)EditorGUILayout.EnumPopup("중단 정책", layer.interruptionPolicy);
+                AnimationCurve weightCurve = EditorGUILayout.CurveField("가중치 커브", layer.weightCurve);
+                layer.sync ??= new MotionSyncSettings();
+                string syncGroupId = EditorGUILayout.TextField("Sync Group", layer.sync.groupId);
+                MotionSyncRole syncRole = (MotionSyncRole)EditorGUILayout.EnumPopup("Sync Role", layer.sync.role);
+                bool followerEvents = EditorGUILayout.Toggle(
+                    "Follower 이벤트 발화",
+                    layer.sync.triggerFollowerEvents);
 
                 if (enabled != layer.enabled ||
                     layerName != layer.layerName ||
@@ -362,7 +561,14 @@ namespace UPlayGround.Animation.Editor
                     blendMode != layer.blendMode ||
                     avatarMask != layer.avatarMask ||
                     !Mathf.Approximately(weight, layer.weight) ||
-                    holdLastFrame != layer.holdLastFrame)
+                    holdLastFrame != layer.holdLastFrame ||
+                    channelId != layer.channelId ||
+                    concurrencyGroupId != layer.concurrencyGroupId ||
+                    interruptionPolicy != layer.interruptionPolicy ||
+                    weightCurve != layer.weightCurve ||
+                    syncGroupId != layer.sync.groupId ||
+                    syncRole != layer.sync.role ||
+                    followerEvents != layer.sync.triggerFollowerEvents)
                 {
                     RecordUndo("Edit Playback Layer");
                     layer.enabled = enabled;
@@ -372,6 +578,13 @@ namespace UPlayGround.Animation.Editor
                     layer.avatarMask = avatarMask;
                     layer.weight = weight;
                     layer.holdLastFrame = holdLastFrame;
+                    layer.channelId = channelId;
+                    layer.concurrencyGroupId = concurrencyGroupId;
+                    layer.interruptionPolicy = interruptionPolicy;
+                    layer.weightCurve = weightCurve;
+                    layer.sync.groupId = syncGroupId;
+                    layer.sync.role = syncRole;
+                    layer.sync.triggerFollowerEvents = followerEvents;
                     MarkDirty();
                 }
 
@@ -431,6 +644,7 @@ namespace UPlayGround.Animation.Editor
                     RecordUndo("Add Layer Motion");
                     layer.motions.Add(new Motion
                     {
+                        id = $"motion_{Guid.NewGuid():N}",
                         motionName = $"Clip {layer.motions.Count + 1}",
                     });
                     MarkDirty();
@@ -914,6 +1128,72 @@ namespace UPlayGround.Animation.Editor
                     }
                     EditorGUILayout.EndHorizontal();
 
+                    if (selectedMotionIndex == i)
+                    {
+                        string motionId = EditorGUILayout.TextField("Stable ID", motion.id);
+                        if (motionId != motion.id)
+                        {
+                            RecordUndo("Edit Motion Stable ID");
+                            motion.id = motionId;
+                            MarkDirty();
+                        }
+
+                        motion.markers ??= new List<MotionMarker>();
+                        EditorGUILayout.LabelField(
+                            $"Markers ({motion.markers.Count})",
+                            EditorStyles.miniBoldLabel);
+                        for (int markerIndex = 0; markerIndex < motion.markers.Count; markerIndex++)
+                        {
+                            MotionMarker marker = motion.markers[markerIndex] ?? new MotionMarker
+                            {
+                                id = $"marker_{Guid.NewGuid():N}",
+                                displayName = $"Marker {markerIndex + 1}",
+                            };
+                            motion.markers[markerIndex] = marker;
+                            EditorGUILayout.BeginHorizontal();
+                            string markerName = EditorGUILayout.TextField(marker.displayName);
+                            float normalizedTime = EditorGUILayout.Slider(
+                                marker.normalizedTime,
+                                0f,
+                                1f);
+                            MotionMarkerKind kind = (MotionMarkerKind)EditorGUILayout.EnumPopup(
+                                marker.kind,
+                                GUILayout.Width(90));
+                            if (GUILayout.Button("×", GUILayout.Width(24)))
+                            {
+                                RecordUndo("Remove Motion Marker");
+                                motion.markers.RemoveAt(markerIndex);
+                                MarkDirty();
+                                EditorGUILayout.EndHorizontal();
+                                break;
+                            }
+                            EditorGUILayout.EndHorizontal();
+                            string markerId = EditorGUILayout.TextField("Marker ID", marker.id);
+                            if (markerName != marker.displayName ||
+                                !Mathf.Approximately(normalizedTime, marker.normalizedTime) ||
+                                kind != marker.kind ||
+                                markerId != marker.id)
+                            {
+                                RecordUndo("Edit Motion Marker");
+                                marker.displayName = markerName;
+                                marker.normalizedTime = normalizedTime;
+                                marker.kind = kind;
+                                marker.id = markerId;
+                                MarkDirty();
+                            }
+                        }
+                        if (GUILayout.Button("+ Marker", GUILayout.Width(90)))
+                        {
+                            RecordUndo("Add Motion Marker");
+                            motion.markers.Add(new MotionMarker
+                            {
+                                id = $"marker_{Guid.NewGuid():N}",
+                                displayName = $"Marker {motion.markers.Count + 1}",
+                            });
+                            MarkDirty();
+                        }
+                    }
+
                 }
                 EditorGUILayout.EndVertical();
 
@@ -937,6 +1217,7 @@ namespace UPlayGround.Animation.Editor
                 RecordUndo("Add Motion");
                 set.motions.Add(new Motion
                 {
+                    id = $"motion_{Guid.NewGuid():N}",
                     motionName = $"Motion_{set.motions.Count}",
                     events = new List<MotionEventBase>()
                 });
@@ -1170,11 +1451,7 @@ namespace UPlayGround.Animation.Editor
 
         MotionEventBase CloneEvent(MotionEventBase src)
         {
-            // JSON 직렬화를 통한 딥 클론
-            string json = JsonUtility.ToJson(src);
-            var clone = (MotionEventBase)Activator.CreateInstance(src.GetType());
-            JsonUtility.FromJsonOverwrite(json, clone);
-            return clone;
+            return MotionEventSerializationUtility.Clone(src);
         }
 
         void ClearEventSelection()
@@ -1459,6 +1736,8 @@ namespace UPlayGround.Animation.Editor
             }
             else if (fieldType == typeof(AnimationCurve))
                 newValue = EditorGUILayout.CurveField(label, (AnimationCurve)value);
+            else if (fieldType == typeof(MotionEventTimeLink))
+                newValue = DrawTimeLinkField(label, (MotionEventTimeLink)value);
             else if (fieldType == typeof(LayerMask))
             {
                 newValue = (LayerMask)EditorGUILayout.MaskField(label, ((LayerMask)value).value,
@@ -1477,6 +1756,30 @@ namespace UPlayGround.Animation.Editor
             {
                 onValueChanged?.Invoke(newValue);
             }
+        }
+
+        static MotionEventTimeLink DrawTimeLinkField(
+            string label,
+            MotionEventTimeLink link)
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            link.enabled = EditorGUILayout.Toggle($"{label} 사용", link.enabled);
+            if (link.enabled)
+            {
+                link.mode = (MotionEventLinkMode)EditorGUILayout.EnumPopup("기준", link.mode);
+                if (link.mode != MotionEventLinkMode.Absolute)
+                    link.linkedMotionId = EditorGUILayout.TextField("Motion ID", link.linkedMotionId);
+                if (link.mode == MotionEventLinkMode.Marker)
+                    link.markerId = EditorGUILayout.TextField("Marker ID", link.markerId);
+                link.startValue = EditorGUILayout.FloatField(
+                    link.mode == MotionEventLinkMode.Marker ? "Start Offset" : "Start",
+                    link.startValue);
+                link.endValue = EditorGUILayout.FloatField(
+                    link.mode == MotionEventLinkMode.Marker ? "End Offset" : "End",
+                    link.endValue);
+            }
+            EditorGUILayout.EndVertical();
+            return link;
         }
 
         static Vector3 DrawLocalOffsetField(string label, Vector3 value)

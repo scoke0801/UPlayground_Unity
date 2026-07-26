@@ -15,12 +15,17 @@ namespace UPlayGround.Animation
     public class MotionLayer
     {
         public string layerName = "Animation Layer";
+        public string channelId;
+        public string concurrencyGroupId;
+        public MotionInterruptionPolicy interruptionPolicy = MotionInterruptionPolicy.InterruptSameGroup;
         public bool enabled = true;
         [Min(1)] public int animancerLayerIndex = 1;
         public AvatarMask avatarMask;
         public MotionLayerBlendMode blendMode = MotionLayerBlendMode.Override;
         [Range(0f, 1f)] public float weight = 1f;
+        public AnimationCurve weightCurve;
         public bool holdLastFrame = true;
+        public MotionSyncSettings sync = new MotionSyncSettings();
         public List<Motion> motions = new List<Motion>();
 
         [SerializeReference]
@@ -152,8 +157,10 @@ namespace UPlayGround.Animation
     [Serializable]
     public class Motion
     {
+        public string id;
         public string motionName;
         public AnimationClip motionClip;
+        public List<MotionMarker> markers = new List<MotionMarker>();
 
         // ── 재생 구간 (클립 로컬 시간 기준) ──
         // -1이면 클립 전체 시작/끝을 사용
@@ -230,7 +237,15 @@ namespace UPlayGround.Animation
     [Serializable]
     public class MotionSet
     {
+        public const int CurrentSchemaVersion = 1;
+
+        [Min(0)] public int schemaVersion;
         public string motionSetName;
+        public MotionSetBlendSettings blend = new MotionSetBlendSettings();
+        public List<MotionSection> sections = new List<MotionSection>();
+        public List<MotionCurveTrack> curves = new List<MotionCurveTrack>();
+        public MotionSyncSettings sync = new MotionSyncSettings();
+        public MotionTimeStretchSettings timeStretch = new MotionTimeStretchSettings();
         public List<Motion> motions = new List<Motion>();
 
         // Base 타임라인(motions)을 재생할 Animancer 레이어 인덱스.

@@ -987,3 +987,71 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 - [Play Montage — Completed, Blend Out, Interrupted, Notify Begin/End 콜백](https://dev.epicgames.com/documentation/unreal-engine/BlueprintAPI/Animation/Montage/PlayMontage?lang=en-US)
 - [Blend Masks and Blend Profiles — 본별 블렌드 속도](https://dev.epicgames.com/documentation/unreal-engine/blend-masks-and-blend-profiles-in-unreal-engine?lang=en-US)
 - [FTimeStretchCurve — 재생 속도 변화에서 구간별 시간 압축](https://dev.epicgames.com/documentation/unreal-engine/API/Runtime/Engine/Animation/FTimeStretchCurve?application_version=5.5)
+
+---
+
+## 14. 2026-07-26 구현 결과
+
+이 절은 위 설계를 실제 코드에 반영한 결과와 아직 콘텐츠 검증이 필요한 항목을 구분한다.
+기존 MotionSet 에셋은 자동 저장하거나 일괄 재직렬화하지 않았다. `schemaVersion == 0`은
+계속 기존 `startTime/endTime` 규칙으로 읽으며, 안정 ID와 schemaVersion 보정은 에디터의
+명시적 **안정 ID 보정** 동작을 실행할 때만 Undo와 함께 기록된다.
+
+### 14.1 완료된 기반
+
+- [x] `schemaVersion`, 읽기 전용 구조 검증, 오류/경고 pill
+- [x] Motion/Marker/Section stable ID와 명시적 보정
+- [x] Section 범위, default next, Stop/Hold/LoopSelf, 시작·점프·다음 Section API
+- [x] `MotionSetEndReason`과 정상/중단/정지/무효 종료 구분
+- [x] Absolute/Relative/Proportional/Marker 이벤트 시간 링크
+- [x] 이름 있는 Marker 생성·이동·편집과 시간 링크 관계선
+- [x] 이벤트 Enter/Tick/Exit, 재진입 정책, 실행 순서, Queued/Exact, 평가 단계
+- [x] Section 점프·중단·한 프레임 내 전체 구간 통과 시 Exit 보장
+- [x] 외부 Signal begin/end 포트와 부수효과 없는 preview adapter 계약
+- [x] Asset Blend In/Out/Interrupted, Auto Blend Out, Hold Last Pose
+- [x] 의미 채널, 동시성 그룹, 중단 정책, Layer Weight Curve
+- [x] PlaybackRate/LayerWeight/TimeStretch 타입 지정 Curve Track
+- [x] Sync Group/Role, 공통 Marker 보간, normalized fallback, follower 이벤트 억제
+- [x] Impact 보호 구간을 적용하는 Time Stretch
+- [x] 다중 선택, Shift 마퀴, 그룹 이동·리사이즈, 단일 Undo group
+- [x] 에셋 간 복사/붙여넣기와 커서 기준 배치
+- [x] 프리셋/복제를 `SerializeReference` 안전 직렬화 경로로 교체
+- [x] Section/Motion/Marker/프레임 의미 스냅
+- [x] 클립 교체 시 초 단위/정규화 위치 보존 선택
+- [x] Section·Blend·Curve·Sync·Time Stretch 고급 편집 패널
+- [x] 프레임당 이벤트 수집·Tick·동기화 계산에서 임시 List/LINQ 생성 제거
+
+### 14.2 자동 검증
+
+- Unity 실제 스크립트 컴파일: 구현 스냅샷 기준 Data, Actor, Ability Tests,
+  Assembly-CSharp-Editor 오류 0. 최종 전체 재컴파일은 작업 범위 밖에서 동시에 변경된
+  `FlowGraph/FlowVariables.cs`의 CS0177 오류 때문에 중단되었다.
+- CLI 보조 컴파일: 최종 Motion Editor 변경을 포함한 Data/Actor 및
+  `Assembly-CSharp-Editor` 대상 단독 컴파일(`BuildProjectReferences=false`) 오류 0.
+  전체 의존성 컴파일은 위 FlowGraph 오류와 동일하게 차단되었다.
+- 신규 `MotionTimelineResolverTests`: 6/6 통과
+  - 기존 순차 오프셋
+  - Marker 시간 링크
+  - Section 범위/default next
+  - 공통 Marker follower 동기화
+  - Impact 보호 Time Stretch
+  - Enter/Tick/Exit와 Signal
+- 전체 Ability EditMode: 122개 중 116 통과, 6 실패
+  - 신규 MotionTimeline 테스트는 모두 통과했다.
+  - 실패 6건은 기존/동시 작업의 AttributeProfile 필수값, Ability composition,
+    Dryad·Training Dummy MotionReference, Projectile visualPrefab 데이터 문제이며
+    이번 MotionSet 변경 범위에서 에셋을 임의 수정하지 않았다.
+- `Assets/10.Datas/`, `Assets/03.Prefabs/` 자동 변경 없음
+
+### 14.3 콘텐츠 수직 슬라이스에서 남은 검증
+
+- [ ] 대표 근접·다단 콤보·홀드/Release 에셋에 Section을 실제 저작하고 Play Mode 검증
+- [ ] FullBody/UpperBody/AdditiveReaction 대표 에셋으로 채널 충돌·중단 정책 검증
+- [ ] MotionWarp·Camera·VFX 표준 Curve 소비 어댑터 연결
+- [ ] 공격자·표적 프리셋, A/B 고스트와 Root Motion/Hitbox 통합 Scene 뷰 프리뷰
+- [ ] Ability HitPhase stable ID 도입 후 인덱스 대신 관계선 연결
+- [ ] 전체 MotionSet/Ultimate managed reference·VFX 전수 재검증
+- [ ] StandaloneWindows64 Development Player Build와 대표 Play Mode 스모크
+
+위 항목은 실제 프로젝트 에셋을 수정하거나 장면·Player Build를 실행해야 하므로, 코드 기반
+Phase 0~7 구현과 분리해 콘텐츠 검증 체크포인트로 유지한다.

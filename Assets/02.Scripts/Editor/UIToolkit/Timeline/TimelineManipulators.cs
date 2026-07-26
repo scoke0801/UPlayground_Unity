@@ -34,7 +34,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
 
         void OnPointerDown(PointerDownEvent evt)
         {
-            if (_owner.BeginPointerOperation(evt.localPosition, evt.button, evt.shiftKey))
+            if (_owner.BeginPointerOperation(
+                    evt.localPosition,
+                    evt.button,
+                    evt.shiftKey,
+                    evt.ctrlKey || evt.commandKey))
             {
                 target.CapturePointer(evt.pointerId);
                 evt.StopImmediatePropagation();

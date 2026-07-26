@@ -54,10 +54,14 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         readonly Slider _zoom;
         readonly Toggle _frames;
         readonly IntegerField _fps;
+        readonly Button _validationButton;
+        readonly List<MotionValidationIssue> _validationIssues = new();
         readonly List<HitRegion> _hitRegions = new();
         readonly List<MotionTrackTarget> _motionTrackTargets = new();
         readonly Dictionary<LayerKind, LayerState> _layerStates = new();
         readonly Dictionary<LayerKind, LayerControlVisual> _layerControls = new();
+        readonly HashSet<MotionEventBase> _selectedEvents = new();
+        readonly Dictionary<MotionEventBase, Vector2> _eventDragOrigins = new();
 
         int _dataFingerprint;
         float _contentHeight = 200f;
@@ -68,6 +72,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         int _undoGroup = -1;
         UnityEngine.Object _undoTarget;
         bool _operationChanged;
+        Vector2 _marqueeStart;
+        Rect _marqueeRect;
 
         enum HitKind
         {
@@ -75,6 +81,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             Clip,
             ClipBody,
             Marker,
+            Section,
+            NamedMarker,
         }
 
         enum LayerKind
@@ -95,6 +103,9 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             ClipStart,
             ClipEnd,
             Marker,
+            Section,
+            NamedMarker,
+            Marquee,
         }
 
         struct HitRegion
@@ -103,6 +114,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             public LayerKind layer;
             public Rect rect;
             public Motion motion;
+            public MotionSection section;
+            public MotionMarker namedMarker;
             public MotionEventBase motionEvent;
             public int motionIndex;
             public int eventIndex;
@@ -152,7 +165,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _onChanged = onChanged;
             }
 
-            public override Vector2 GetWindowSize() => new(330f, 205f);
+            public override Vector2 GetWindowSize() => new(360f, 305f);
 
             public override void OnGUI(Rect rect)
             {
@@ -171,13 +184,28 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     false);
                 float weight = EditorGUILayout.Slider("가중치", _layer.weight, 0f, 1f);
                 bool hold = EditorGUILayout.Toggle("마지막 프레임 유지", _layer.holdLastFrame);
+                string channelId = EditorGUILayout.TextField("채널 ID", _layer.channelId);
+                string concurrencyGroupId = EditorGUILayout.TextField(
+                    "동시성 그룹",
+                    _layer.concurrencyGroupId);
+                MotionInterruptionPolicy interruptionPolicy =
+                    (MotionInterruptionPolicy)EditorGUILayout.EnumPopup(
+                        "중단 정책",
+                        _layer.interruptionPolicy);
+                AnimationCurve weightCurve = EditorGUILayout.CurveField(
+                    "가중치 커브",
+                    _layer.weightCurve);
 
                 if (layerName == _layer.layerName &&
                     layerIndex == _layer.animancerLayerIndex &&
                     blendMode == _layer.blendMode &&
                     avatarMask == _layer.avatarMask &&
                     Mathf.Approximately(weight, _layer.weight) &&
-                    hold == _layer.holdLastFrame)
+                    hold == _layer.holdLastFrame &&
+                    channelId == _layer.channelId &&
+                    concurrencyGroupId == _layer.concurrencyGroupId &&
+                    interruptionPolicy == _layer.interruptionPolicy &&
+                    weightCurve == _layer.weightCurve)
                     return;
 
                 if (_undoTarget != null)
@@ -188,6 +216,10 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _layer.avatarMask = avatarMask;
                 _layer.weight = weight;
                 _layer.holdLastFrame = hold;
+                _layer.channelId = channelId;
+                _layer.concurrencyGroupId = concurrencyGroupId;
+                _layer.interruptionPolicy = interruptionPolicy;
+                _layer.weightCurve = weightCurve;
                 if (_undoTarget != null)
                     EditorUtility.SetDirty(_undoTarget);
                 _onChanged?.Invoke();
@@ -207,6 +239,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             _onChanged = onChanged;
             _onScrub = onScrub;
             InitializeLayerStates();
+            focusable = true;
+            tabIndex = 0;
 
             AddToClassList("up-timeline-view");
 
@@ -270,6 +304,20 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             });
             toolbar.Add(_fps);
 
+            var advancedButton = new ToolbarButton(ShowAdvancedAddMenu)
+            {
+                text = "+ 표현",
+                tooltip = "Section, Marker, Curve Track 추가",
+            };
+            toolbar.Add(advancedButton);
+
+            _validationButton = new ToolbarButton(ShowValidationDialog)
+            {
+                text = "검증",
+                tooltip = "현재 MotionSet 구조 검사",
+            };
+            toolbar.Add(_validationButton);
+
             var spacer = new VisualElement();
             spacer.AddToClassList("up-flex-spacer");
             toolbar.Add(spacer);
@@ -304,6 +352,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
 
             RegisterCallback<AttachToPanelEvent>(_ => Undo.undoRedoPerformed += HandleUndoRedo);
             RegisterCallback<DetachFromPanelEvent>(_ => Undo.undoRedoPerformed -= HandleUndoRedo);
+            RegisterCallback<KeyDownEvent>(HandleKeyDown);
             RefreshData(true);
         }
 
@@ -446,6 +495,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _fps.EnableInClassList("up-hidden", !drawer.showFrames);
             }
 
+            UpdateValidationStatus();
+
             int fingerprint = CalculateFingerprint();
             if (!force && fingerprint == _dataFingerprint)
                 return;
@@ -454,6 +505,203 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             RebuildLabels();
             UpdateCursorLabel();
             _track.MarkDirtyRepaint();
+        }
+
+        void UpdateValidationStatus()
+        {
+            MotionSetValidation.Collect(_getSet?.Invoke(), _validationIssues);
+            int errors = 0;
+            int warnings = 0;
+            foreach (MotionValidationIssue issue in _validationIssues)
+            {
+                if (issue.severity == MotionValidationSeverity.Error)
+                    errors++;
+                else if (issue.severity == MotionValidationSeverity.Warning)
+                    warnings++;
+            }
+            _validationButton.text = errors > 0
+                ? $"오류 {errors}"
+                : warnings > 0 ? $"경고 {warnings}" : "검증 ✓";
+            _validationButton.tooltip = errors > 0 || warnings > 0
+                ? $"오류 {errors}, 경고 {warnings}"
+                : "구조 오류가 없습니다.";
+        }
+
+        void ShowValidationDialog()
+        {
+            UpdateValidationStatus();
+            var lines = new List<string>();
+            int visibleCount = Mathf.Min(12, _validationIssues.Count);
+            for (int i = 0; i < visibleCount; i++)
+            {
+                MotionValidationIssue issue = _validationIssues[i];
+                lines.Add($"[{issue.severity}] {issue.code}: {issue.message}");
+            }
+            if (_validationIssues.Count > visibleCount)
+                lines.Add($"… 외 {_validationIssues.Count - visibleCount}건");
+
+            string message = lines.Count == 0
+                ? "현재 MotionSet에서 구조 오류를 찾지 못했습니다."
+                : string.Join("\n", lines);
+            bool repair = EditorUtility.DisplayDialog(
+                "MotionSet 검증",
+                message,
+                "안정 ID 보정",
+                "닫기");
+            if (!repair)
+                return;
+
+            int repaired = MotionSetValidation.RepairStableIds(
+                _getSet?.Invoke(),
+                _getUndoTarget?.Invoke());
+            if (repaired > 0)
+            {
+                RefreshData(true);
+                _onChanged?.Invoke();
+            }
+            EditorUtility.DisplayDialog("MotionSet 보정", $"{repaired}개 항목을 보정했습니다.", "확인");
+        }
+
+        void ShowAdvancedAddMenu()
+        {
+            MotionSet set = _getSet?.Invoke();
+            MotionSetDrawer drawer = _getDrawer?.Invoke();
+            if (set == null)
+                return;
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Section/현재 커서에 추가"), false, () =>
+            {
+                RecordImmediateUndo("Add Motion Section");
+                set.sections ??= new List<MotionSection>();
+                set.sections.Add(new MotionSection
+                {
+                    id = $"section_{Guid.NewGuid():N}",
+                    displayName = $"Section {set.sections.Count + 1}",
+                    startTime = Mathf.Clamp(drawer?.cursorTime ?? 0f, 0f, Mathf.Max(0f, set.TotalDuration - 0.001f)),
+                });
+                set.sections.Sort((left, right) => left.startTime.CompareTo(right.startTime));
+                CommitImmediateChange();
+            });
+
+            Motion selectedMotion = GetSelectedMotion(set, drawer);
+            if (selectedMotion != null)
+            {
+                menu.AddItem(new GUIContent("Marker/선택 모션에 추가"), false, () =>
+                {
+                    RecordImmediateUndo("Add Motion Marker");
+                    selectedMotion.markers ??= new List<MotionMarker>();
+                    float localTime = Mathf.Max(0f, (drawer?.cursorTime ?? 0f) - GetMotionOffset(set, selectedMotion));
+                    selectedMotion.markers.Add(new MotionMarker
+                    {
+                        id = $"marker_{Guid.NewGuid():N}",
+                        displayName = $"Marker {selectedMotion.markers.Count + 1}",
+                        normalizedTime = selectedMotion.Duration > 0f
+                            ? Mathf.Clamp01(localTime / selectedMotion.Duration)
+                            : 0f,
+                    });
+                    CommitImmediateChange();
+                });
+
+                if (UnityEditor.Selection.activeObject is AnimationClip replacementClip)
+                {
+                    menu.AddItem(
+                        new GUIContent($"Clip 교체/초 단위 유지/{replacementClip.name}"),
+                        false,
+                        () => ReplaceSelectedClip(selectedMotion, replacementClip, false));
+                    menu.AddItem(
+                        new GUIContent($"Clip 교체/정규화 위치 유지/{replacementClip.name}"),
+                        false,
+                        () => ReplaceSelectedClip(selectedMotion, replacementClip, true));
+                }
+                else
+                {
+                    menu.AddDisabledItem(new GUIContent("Clip 교체/(Project에서 AnimationClip 선택)"));
+                }
+            }
+            else
+            {
+                menu.AddDisabledItem(new GUIContent("Marker/선택 모션에 추가"));
+            }
+
+            menu.AddItem(new GUIContent("Curve/Playback Rate"), false,
+                () => AddCurveTrack(set, MotionCurveChannel.PlaybackRate));
+            menu.AddItem(new GUIContent("Curve/Layer Weight"), false,
+                () => AddCurveTrack(set, MotionCurveChannel.LayerWeight));
+            menu.ShowAsContext();
+        }
+
+        void AddCurveTrack(MotionSet set, MotionCurveChannel channel)
+        {
+            RecordImmediateUndo("Add Motion Curve Track");
+            set.curves ??= new List<MotionCurveTrack>();
+            set.curves.Add(new MotionCurveTrack
+            {
+                id = $"curve_{Guid.NewGuid():N}",
+                displayName = channel.ToString(),
+                channel = channel,
+            });
+            CommitImmediateChange();
+        }
+
+        void ReplaceSelectedClip(
+            Motion motion,
+            AnimationClip replacement,
+            bool preserveNormalizedTime)
+        {
+            if (motion == null || replacement == null)
+                return;
+            float previousDuration = Mathf.Max(0.0001f, motion.Duration);
+            var normalizedRanges = new List<Vector2>();
+            if (preserveNormalizedTime && motion.events != null)
+                foreach (MotionEventBase motionEvent in motion.events)
+                    normalizedRanges.Add(motionEvent == null
+                        ? Vector2.zero
+                        : new Vector2(
+                            motionEvent.startTime / previousDuration,
+                            motionEvent.endTime / previousDuration));
+
+            RecordImmediateUndo("Replace Motion Clip");
+            motion.motionClip = replacement;
+            motion.motionName = replacement.name;
+            motion.clipStartTime = -1f;
+            motion.clipEndTime = -1f;
+            if (preserveNormalizedTime && motion.events != null)
+            {
+                float duration = motion.Duration;
+                for (int i = 0; i < motion.events.Count && i < normalizedRanges.Count; i++)
+                {
+                    MotionEventBase motionEvent = motion.events[i];
+                    if (motionEvent == null || motionEvent.timeLink.enabled)
+                        continue;
+                    motionEvent.startTime = Mathf.Clamp(
+                        Mathf.Clamp01(normalizedRanges[i].x) * duration,
+                        0f,
+                        Mathf.Max(0f, duration - 0.01f));
+                    motionEvent.endTime = Mathf.Clamp(
+                        Mathf.Max(
+                            motionEvent.startTime + 0.01f,
+                            Mathf.Clamp01(normalizedRanges[i].y) * duration),
+                        motionEvent.startTime + 0.01f,
+                        duration);
+                }
+            }
+            CommitImmediateChange();
+        }
+
+        void RecordImmediateUndo(string name)
+        {
+            UnityEngine.Object target = _getUndoTarget?.Invoke();
+            if (target != null)
+                Undo.RegisterCompleteObjectUndo(target, name);
+        }
+
+        void CommitImmediateChange()
+        {
+            UnityEngine.Object target = _getUndoTarget?.Invoke();
+            if (target != null)
+                EditorUtility.SetDirty(target);
+            RefreshData(true);
+            _onChanged?.Invoke();
         }
 
         public void RefreshIfChanged()
@@ -577,7 +825,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             y += GroupHeight + RowGap;
             if (!IsLayerCollapsed(LayerKind.Timing))
             {
-                AddLabel("전환점", y, EventHeight, "up-timeline-track-label");
+                AddLabel("Section / Marker", y, EventHeight, "up-timeline-track-label");
                 y += EventHeight + RowGap;
             }
             y += SectionGap;
@@ -870,7 +1118,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 menu.AddDisabledItem(new GUIContent("Project 선택 클립 추가/(AnimationClip을 먼저 선택)"));
             menu.AddItem(new GUIContent("빈 클립 슬롯 추가"), false,
                 () => ApplyDataChange("Add Motion Slot", () =>
-                    motions.Add(new Motion { motionName = $"Clip {motions.Count + 1}" })));
+                    motions.Add(new Motion
+                    {
+                        id = $"motion_{Guid.NewGuid():N}",
+                        motionName = $"Clip {motions.Count + 1}",
+                    })));
             menu.ShowAsContext();
         }
 
@@ -998,6 +1250,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                         continue;
                     motions.Insert(index++, new Motion
                     {
+                        id = $"motion_{Guid.NewGuid():N}",
                         motionName = clip.name,
                         motionClip = clip,
                     });
@@ -1012,8 +1265,9 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 return;
 
             float pps = PixelsPerSecond(drawer);
-            float x0 = TimeToX(offset + motionEvent.startTime, drawer, pps);
-            float x1 = TimeToX(offset + motionEvent.endTime, drawer, pps);
+            GetEventRange(motionEvent, offset, out float globalStart, out float globalEnd);
+            float x0 = TimeToX(globalStart, drawer, pps);
+            float x1 = TimeToX(globalEnd, drawer, pps);
             float viewMax = Mathf.Max(LabelWidth, _track.contentRect.width);
             float left = Mathf.Max(LabelWidth + 5f, x0 + 5f);
             float right = Mathf.Min(viewMax - 3f, x1 - 3f);
@@ -1023,8 +1277,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             string shortLabel = motionEvent.GetShortLabel();
             if (string.IsNullOrEmpty(shortLabel))
                 shortLabel = motionEvent.GetDisplayName();
-            string start = FormatTimelineTime(motionEvent.startTime, drawer);
-            string end = FormatTimelineTime(motionEvent.endTime, drawer);
+            string start = FormatTimelineTime(globalStart, drawer);
+            string end = FormatTimelineTime(globalEnd, drawer);
 
             var label = new Label($"{shortLabel}  {start}–{end}")
             {
@@ -1164,6 +1418,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             }
 
             DrawPlayRange(painter, set?.TotalDuration ?? 0f, drawer, pixelsPerSecond, width);
+            if (_operation == DragOperation.Marquee && _marqueeRect.width > 0f && _marqueeRect.height > 0f)
+            {
+                DrawRect(painter, _marqueeRect, new Color(0.35f, 0.65f, 1f, 0.15f));
+                DrawOutline(painter, _marqueeRect, Selection, 1f);
+            }
             // 재생 커서는 painter가 아니라 별도 오버레이 엘리먼트(_cursorLine)로 그린다.
             // 재생/스크럽 시 전체 메시 재생성을 피하기 위함. UpdateCursorLine() 참조.
         }
@@ -1328,14 +1587,67 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             bool visible)
         {
             DrawTrackBackground(painter, y, EventHeight, trackWidth);
-            if (!visible || set?.motions == null)
+            if (!visible || set == null)
                 return;
 
+            if (set.sections != null)
+            {
+                foreach (MotionSection section in set.sections)
+                {
+                    if (section == null)
+                        continue;
+                    float start = Mathf.Clamp(section.startTime, 0f, set.TotalDuration);
+                    float end = set.TotalDuration;
+                    foreach (MotionSection candidate in set.sections)
+                        if (candidate != null && candidate.startTime > start && candidate.startTime < end)
+                            end = candidate.startTime;
+                    float x0 = TimeToX(start, drawer, pps);
+                    float x1 = TimeToX(end, drawer, pps);
+                    Rect sectionBar = ClipToTrack(
+                        new Rect(x0, y + 2f, Mathf.Max(3f, x1 - x0), 7f),
+                        trackWidth);
+                    DrawRect(painter, sectionBar, new Color(0.32f, 0.70f, 0.95f, 0.75f));
+                    _hitRegions.Add(new HitRegion
+                    {
+                        kind = HitKind.Section,
+                        layer = LayerKind.Timing,
+                        rect = new Rect(x0 - HandleHitWidth, y, HandleHitWidth * 2f, EventHeight),
+                        section = section,
+                    });
+                }
+            }
+
+            if (set.motions == null)
+                return;
             float offset = 0f;
-            for (int i = 0; i < set.motions.Count - 1; i++)
+            for (int i = 0; i < set.motions.Count; i++)
             {
                 Motion motion = set.motions[i];
+                if (motion?.markers != null)
+                {
+                    foreach (MotionMarker namedMarker in motion.markers)
+                    {
+                        if (namedMarker == null)
+                            continue;
+                        float markerTime = offset + namedMarker.normalizedTime * motion.Duration;
+                        float markerX = TimeToX(markerTime, drawer, pps);
+                        Rect markerRect = new(markerX - 5f, y + 12f, 10f, 10f);
+                        DrawDiamond(painter, markerRect, new Color(0.95f, 0.65f, 0.22f));
+                        _hitRegions.Add(new HitRegion
+                        {
+                            kind = HitKind.NamedMarker,
+                            layer = LayerKind.Timing,
+                            rect = new Rect(markerX - HandleHitWidth, y, HandleHitWidth * 2f, EventHeight),
+                            motion = motion,
+                            namedMarker = namedMarker,
+                            motionIndex = i,
+                            motionOffset = offset,
+                        });
+                    }
+                }
                 offset += motion?.Duration ?? 0f;
+                if (i >= set.motions.Count - 1)
+                    continue;
                 float x = TimeToX(offset, drawer, pps);
                 if (x < LabelWidth - 10f || x > LabelWidth + trackWidth + 10f)
                     continue;
@@ -1415,20 +1727,36 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             DrawTrackBackground(painter, y, EventHeight, trackWidth);
             if (!visible)
                 return;
-            float x0 = TimeToX(offset + motionEvent.startTime, drawer, pps);
-            float x1 = TimeToX(offset + motionEvent.endTime, drawer, pps);
+            GetEventRange(motionEvent, offset, out float globalStart, out float globalEnd);
+            float x0 = TimeToX(globalStart, drawer, pps);
+            float x1 = TimeToX(globalEnd, drawer, pps);
             Rect original = new(x0, y + 3f, Mathf.Max(4f, x1 - x0), EventHeight - 6f);
             Rect bar = ClipToTrack(original, trackWidth);
             MotionEventStyle.EventVisual visual = MotionEventStyle.Get(motionEvent);
+            if (motionEvent.timeLink.enabled &&
+                TryGetLinkAnchor(motionEvent, globalStart, out float anchorTime))
+            {
+                float anchorX = TimeToX(anchorTime, drawer, pps);
+                DrawLine(
+                    painter,
+                    new Vector2(anchorX, y + EventHeight * 0.5f),
+                    new Vector2(x0, y + EventHeight * 0.5f),
+                    new Color(0.70f, 0.82f, 1f, 0.55f),
+                    1f);
+                DrawDiamond(
+                    painter,
+                    new Rect(anchorX - 3f, y + EventHeight * 0.5f - 3f, 6f, 6f),
+                    new Color(0.70f, 0.82f, 1f));
+            }
             if (bar.width > 0f)
             {
                 DrawRect(painter, bar, visual.dimmed);
                 DrawRect(painter, new Rect(bar.x, bar.y, bar.width, 2f), visual.color);
-                bool selected = setEvent
+                bool selected = _selectedEvents.Contains(motionEvent) || (setEvent
                     ? drawer.selectedEventIsSetEvent && drawer.selectedEventIndex == eventIndex
                     : !drawer.selectedEventIsSetEvent &&
                       drawer.selectedEventMotionIndex == motionIndex &&
-                      drawer.selectedEventIndex == eventIndex;
+                      drawer.selectedEventIndex == eventIndex);
                 if (selected)
                     DrawOutline(painter, bar, Color.white, 1.5f);
                 DrawDiamond(painter, new Rect(x0 - 4f, y + EventHeight * 0.5f - 4f, 8f, 8f), visual.color);
@@ -1446,6 +1774,35 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 setEvent = setEvent,
                 motionOffset = offset,
             });
+        }
+
+        bool TryGetLinkAnchor(
+            MotionEventBase motionEvent,
+            float globalStart,
+            out float anchorTime)
+        {
+            MotionEventTimeLink link = motionEvent.timeLink;
+            if (!link.enabled || link.mode == MotionEventLinkMode.Absolute)
+            {
+                anchorTime = 0f;
+                return false;
+            }
+            if (link.mode == MotionEventLinkMode.Marker)
+            {
+                anchorTime = globalStart - link.startValue;
+                return true;
+            }
+            MotionSet set = _getSet?.Invoke();
+            if (set != null &&
+                !string.IsNullOrEmpty(link.linkedMotionId) &&
+                MotionTimelineResolver.TryFindMotion(
+                    set,
+                    link.linkedMotionId,
+                    out _,
+                    out anchorTime))
+                return true;
+            anchorTime = 0f;
+            return false;
         }
 
         void DrawOverlayRow(
@@ -1511,10 +1868,11 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         }
 
 
-        internal bool BeginPointerOperation(Vector2 position, int button, bool shift)
+        internal bool BeginPointerOperation(Vector2 position, int button, bool shift, bool actionKey)
         {
             if (button != 0)
                 return false;
+            Focus();
             MotionSet set = _getSet?.Invoke();
             MotionSetDrawer drawer = _getDrawer?.Invoke();
             if (set == null || drawer == null)
@@ -1529,6 +1887,16 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 _activeHit = hit;
                 if (hit.kind == HitKind.Event)
                 {
+                    if (actionKey)
+                    {
+                        if (!_selectedEvents.Add(hit.motionEvent))
+                            _selectedEvents.Remove(hit.motionEvent);
+                    }
+                    else if (!_selectedEvents.Contains(hit.motionEvent) || !shift)
+                    {
+                        _selectedEvents.Clear();
+                        _selectedEvents.Add(hit.motionEvent);
+                    }
                     drawer.SelectEvent(hit.motionIndex, hit.eventIndex, hit.setEvent);
                     if (IsLayerLocked(hit.layer))
                     {
@@ -1536,8 +1904,19 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                         _onChanged?.Invoke();
                         return false;
                     }
-                    float x0 = TimeToX(hit.motionOffset + hit.motionEvent.startTime, drawer, PixelsPerSecond(drawer));
-                    float x1 = TimeToX(hit.motionOffset + hit.motionEvent.endTime, drawer, PixelsPerSecond(drawer));
+                    GetEventRange(
+                        hit.motionEvent,
+                        hit.motionOffset,
+                        out float eventGlobalStart,
+                        out float eventGlobalEnd);
+                    float x0 = TimeToX(eventGlobalStart, drawer, PixelsPerSecond(drawer));
+                    float x1 = TimeToX(eventGlobalEnd, drawer, PixelsPerSecond(drawer));
+                    _eventDragOrigins.Clear();
+                    foreach (MotionEventBase selectedEvent in _selectedEvents)
+                    {
+                        GetEventRange(selectedEvent, 0f, out float selectedStart, out float selectedEnd);
+                        _eventDragOrigins[selectedEvent] = new Vector2(selectedStart, selectedEnd);
+                    }
                     if (Mathf.Abs(position.x - x0) <= HandleHitWidth)
                     {
                         _operation = DragOperation.EventStart;
@@ -1551,8 +1930,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     else if (shift)
                     {
                         _operation = DragOperation.EventBody;
-                        _eventDuration = hit.motionEvent.endTime - hit.motionEvent.startTime;
-                        _eventPointerOffset = XToTime(position.x, drawer) - hit.motionOffset - hit.motionEvent.startTime;
+                        _eventDuration = eventGlobalEnd - eventGlobalStart;
+                        _eventPointerOffset = XToTime(position.x, drawer) - eventGlobalStart;
                         RecordUndo("Move Event");
                     }
                     else
@@ -1583,6 +1962,18 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                     RecordUndo("Drag Timing Marker");
                     return true;
                 }
+                if (hit.kind == HitKind.Section)
+                {
+                    _operation = DragOperation.Section;
+                    RecordUndo("Drag Motion Section");
+                    return true;
+                }
+                if (hit.kind == HitKind.NamedMarker)
+                {
+                    _operation = DragOperation.NamedMarker;
+                    RecordUndo("Drag Motion Marker");
+                    return true;
+                }
 
                 // 클립 시작/끝 핸들 드래그. 잡는 즉시 해당 모션을 선택해 인스펙터를 연동한다.
                 drawer.SelectClipMotion(hit.playbackLayerIndex, hit.motionIndex);
@@ -1598,6 +1989,15 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 UpdateCursor(position.x);
                 return true;
             }
+            if (shift && position.x >= LabelWidth)
+            {
+                _selectedEvents.Clear();
+                _marqueeStart = position;
+                _marqueeRect = new Rect(position, Vector2.zero);
+                _operation = DragOperation.Marquee;
+                _track.MarkDirtyRepaint();
+                return true;
+            }
             return false;
         }
 
@@ -1610,27 +2010,82 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 UpdateCursor(position.x);
                 return true;
             }
+            if (_operation == DragOperation.Marquee)
+            {
+                float xMin = Mathf.Min(_marqueeStart.x, position.x);
+                float xMax = Mathf.Max(_marqueeStart.x, position.x);
+                float yMin = Mathf.Min(_marqueeStart.y, position.y);
+                float yMax = Mathf.Max(_marqueeStart.y, position.y);
+                _marqueeRect = Rect.MinMaxRect(xMin, yMin, xMax, yMax);
+                _selectedEvents.Clear();
+                foreach (HitRegion region in _hitRegions)
+                    if (region.kind == HitKind.Event &&
+                        region.motionEvent != null &&
+                        region.rect.Overlaps(_marqueeRect))
+                        _selectedEvents.Add(region.motionEvent);
+                _track.MarkDirtyRepaint();
+                return true;
+            }
 
             MotionSetDrawer drawer = _getDrawer?.Invoke();
             if (drawer == null)
                 return false;
             float time = XToTime(position.x, drawer);
             float localTime = SnapTime(Mathf.Max(0f, time - _activeHit.motionOffset), drawer);
+            float globalTime = SnapTime(Mathf.Max(0f, time), drawer);
 
             switch (_operation)
             {
                 case DragOperation.EventStart:
-                    _activeHit.motionEvent.startTime = Mathf.Clamp(
-                        localTime, 0f, _activeHit.motionEvent.endTime - 0.01f);
+                    GetEventRange(_activeHit.motionEvent, _activeHit.motionOffset, out _, out float currentEnd);
+                    float resizedStart = Mathf.Clamp(globalTime, 0f, currentEnd - 0.01f);
+                    if (_eventDragOrigins.Count > 1 &&
+                        _eventDragOrigins.TryGetValue(_activeHit.motionEvent, out Vector2 startOrigin))
+                    {
+                        float delta = resizedStart - startOrigin.x;
+                        foreach (KeyValuePair<MotionEventBase, Vector2> pair in _eventDragOrigins)
+                            SetEventGlobalRange(
+                                pair.Key,
+                                Mathf.Clamp(pair.Value.x + delta, 0f, pair.Value.y - 0.01f),
+                                pair.Value.y);
+                    }
+                    else
+                        SetEventGlobalRange(_activeHit.motionEvent, resizedStart, currentEnd);
                     break;
                 case DragOperation.EventEnd:
-                    _activeHit.motionEvent.endTime = Mathf.Max(
-                        _activeHit.motionEvent.startTime + 0.01f, localTime);
+                    GetEventRange(_activeHit.motionEvent, _activeHit.motionOffset, out float currentStart, out _);
+                    float resizedEnd = Mathf.Max(currentStart + 0.01f, globalTime);
+                    if (_eventDragOrigins.Count > 1 &&
+                        _eventDragOrigins.TryGetValue(_activeHit.motionEvent, out Vector2 endOrigin))
+                    {
+                        float delta = resizedEnd - endOrigin.y;
+                        foreach (KeyValuePair<MotionEventBase, Vector2> pair in _eventDragOrigins)
+                            SetEventGlobalRange(
+                                pair.Key,
+                                pair.Value.x,
+                                Mathf.Max(pair.Value.x + 0.01f, pair.Value.y + delta));
+                    }
+                    else
+                        SetEventGlobalRange(_activeHit.motionEvent, currentStart, resizedEnd);
                     break;
                 case DragOperation.EventBody:
-                    float start = Mathf.Max(0f, SnapTime(localTime - _eventPointerOffset, drawer));
-                    _activeHit.motionEvent.startTime = start;
-                    _activeHit.motionEvent.endTime = start + _eventDuration;
+                    float start = Mathf.Max(0f, SnapTime(globalTime - _eventPointerOffset, drawer));
+                    if (_eventDragOrigins.TryGetValue(_activeHit.motionEvent, out Vector2 activeOrigin))
+                    {
+                        float delta = start - activeOrigin.x;
+                        foreach (KeyValuePair<MotionEventBase, Vector2> pair in _eventDragOrigins)
+                        {
+                            float movedStart = Mathf.Max(0f, pair.Value.x + delta);
+                            SetEventGlobalRange(
+                                pair.Key,
+                                movedStart,
+                                movedStart + (pair.Value.y - pair.Value.x));
+                        }
+                    }
+                    else
+                    {
+                        SetEventGlobalRange(_activeHit.motionEvent, start, start + _eventDuration);
+                    }
                     break;
                 case DragOperation.ClipStart:
                     UpdateClipStart(localTime);
@@ -1638,6 +2093,17 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 case DragOperation.ClipEnd:
                 case DragOperation.Marker:
                     UpdateClipEnd(localTime);
+                    break;
+                case DragOperation.Section:
+                    _activeHit.section.startTime = Mathf.Clamp(
+                        SnapTime(Mathf.Max(0f, time), drawer),
+                        0f,
+                        Mathf.Max(0f, _getSet().TotalDuration - 0.001f));
+                    break;
+                case DragOperation.NamedMarker:
+                    _activeHit.namedMarker.normalizedTime = _activeHit.motion.Duration > 0f
+                        ? Mathf.Clamp01(localTime / _activeHit.motion.Duration)
+                        : 0f;
                     break;
             }
 
@@ -1651,8 +2117,281 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 return false;
             CommitPointerOperation();
             _operation = DragOperation.None;
+            _eventDragOrigins.Clear();
+            _marqueeRect = default;
             RefreshData(true);
             return true;
+        }
+
+        void HandleKeyDown(KeyDownEvent evt)
+        {
+            bool actionKey = evt.ctrlKey || evt.commandKey;
+            if (actionKey && evt.keyCode == KeyCode.C)
+            {
+                MotionEventClipboard.Copy(_selectedEvents);
+                evt.StopImmediatePropagation();
+                return;
+            }
+            if (actionKey && evt.keyCode == KeyCode.V)
+            {
+                PasteEventsAtCursor();
+                evt.StopImmediatePropagation();
+                return;
+            }
+            if (evt.keyCode is KeyCode.Delete or KeyCode.Backspace)
+            {
+                DeleteSelectedEvents();
+                evt.StopImmediatePropagation();
+            }
+        }
+
+        void PasteEventsAtCursor()
+        {
+            List<MotionEventBase> pasted = MotionEventClipboard.Paste();
+            if (pasted.Count == 0)
+                return;
+            MotionSet set = _getSet?.Invoke();
+            MotionSetDrawer drawer = _getDrawer?.Invoke();
+            List<MotionEventBase> target = GetActiveEventList(set);
+            if (target == null)
+                return;
+
+            RecordImmediateUndo("Paste Motion Events");
+            _selectedEvents.Clear();
+            foreach (MotionEventBase motionEvent in pasted)
+            {
+                target.Add(motionEvent);
+                _selectedEvents.Add(motionEvent);
+            }
+            float earliest = float.MaxValue;
+            foreach (MotionEventBase motionEvent in pasted)
+            {
+                GetEventRange(motionEvent, _activeHit.motionOffset, out float start, out _);
+                earliest = Mathf.Min(earliest, start);
+            }
+            float destination = Mathf.Max(0f, drawer?.cursorTime ?? 0f);
+            float delta = destination - earliest;
+            foreach (MotionEventBase motionEvent in pasted)
+            {
+                GetEventRange(motionEvent, _activeHit.motionOffset, out float start, out float end);
+                SetEventGlobalRange(
+                    motionEvent,
+                    Mathf.Max(0f, start + delta),
+                    Mathf.Max(0.01f, end + delta));
+            }
+            CommitImmediateChange();
+        }
+
+        void DeleteSelectedEvents()
+        {
+            if (_selectedEvents.Count == 0)
+                return;
+            MotionSet set = _getSet?.Invoke();
+            if (set == null)
+                return;
+            RecordImmediateUndo("Delete Motion Events");
+            RemoveSelected(set.globalEvents);
+            RemoveSelectedFromMotions(set.motions);
+            if (set.layers != null)
+            {
+                foreach (MotionLayer layer in set.layers)
+                {
+                    RemoveSelected(layer?.globalEvents);
+                    RemoveSelectedFromMotions(layer?.motions);
+                }
+            }
+            _selectedEvents.Clear();
+            CommitImmediateChange();
+        }
+
+        void RemoveSelectedFromMotions(List<Motion> motions)
+        {
+            if (motions == null)
+                return;
+            foreach (Motion motion in motions)
+                RemoveSelected(motion?.events);
+        }
+
+        void RemoveSelected(List<MotionEventBase> events)
+        {
+            if (events == null)
+                return;
+            events.RemoveAll(motionEvent => motionEvent != null && _selectedEvents.Contains(motionEvent));
+        }
+
+        List<MotionEventBase> GetActiveEventList(MotionSet set)
+        {
+            if (set == null)
+                return null;
+            if (_activeHit.setEvent || _activeHit.motionIndex < 0)
+                return set.globalEvents ??= new List<MotionEventBase>();
+            if (set.motions == null || _activeHit.motionIndex >= set.motions.Count)
+                return null;
+            Motion motion = set.motions[_activeHit.motionIndex];
+            return motion == null ? null : motion.events ??= new List<MotionEventBase>();
+        }
+
+        static Motion GetSelectedMotion(MotionSet set, MotionSetDrawer drawer)
+        {
+            if (set == null || drawer == null || drawer.selectedMotionIndex < 0)
+                return null;
+            List<Motion> source = drawer.selectedLayerIndex < 0
+                ? set.motions
+                : set.layers != null && drawer.selectedLayerIndex < set.layers.Count
+                    ? set.layers[drawer.selectedLayerIndex]?.motions
+                    : null;
+            return source != null && drawer.selectedMotionIndex < source.Count
+                ? source[drawer.selectedMotionIndex]
+                : null;
+        }
+
+        static float GetMotionOffset(MotionSet set, Motion target)
+        {
+            float offset = FindMotionOffset(set?.motions, target);
+            if (offset >= 0f)
+                return offset;
+            if (set?.layers != null)
+                foreach (MotionLayer layer in set.layers)
+                {
+                    offset = FindMotionOffset(layer?.motions, target);
+                    if (offset >= 0f)
+                        return offset;
+                }
+            return 0f;
+        }
+
+        static float FindMotionOffset(List<Motion> motions, Motion target)
+        {
+            if (motions == null)
+                return -1f;
+            float offset = 0f;
+            foreach (Motion motion in motions)
+            {
+                if (ReferenceEquals(motion, target))
+                    return offset;
+                offset += motion?.Duration ?? 0f;
+            }
+            return -1f;
+        }
+
+        void GetEventRange(
+            MotionEventBase motionEvent,
+            float fallbackOffset,
+            out float globalStart,
+            out float globalEnd)
+        {
+            MotionSet set = _getSet?.Invoke();
+            if (set != null &&
+                MotionTimelineResolver.TryGetEventGlobalRange(
+                    set,
+                    motionEvent,
+                    out globalStart,
+                    out globalEnd))
+                return;
+            globalStart = fallbackOffset + motionEvent.startTime;
+            globalEnd = fallbackOffset + motionEvent.endTime;
+        }
+
+        void SetEventGlobalRange(MotionEventBase motionEvent, float globalStart, float globalEnd)
+        {
+            MotionSet set = _getSet?.Invoke();
+            if (set == null || motionEvent == null)
+                return;
+            globalEnd = Mathf.Max(globalStart + 0.01f, globalEnd);
+            FindEventContext(set, motionEvent, out Motion owner, out float ownerOffset);
+
+            MotionEventTimeLink link = motionEvent.timeLink;
+            if (!link.enabled)
+            {
+                motionEvent.startTime = Mathf.Max(0f, globalStart - ownerOffset);
+                motionEvent.endTime = Mathf.Max(motionEvent.startTime + 0.01f, globalEnd - ownerOffset);
+                return;
+            }
+
+            Motion linkedMotion = owner;
+            float linkedOffset = ownerOffset;
+            if (!string.IsNullOrEmpty(link.linkedMotionId))
+                MotionTimelineResolver.TryFindMotion(
+                    set,
+                    link.linkedMotionId,
+                    out linkedMotion,
+                    out linkedOffset);
+
+            switch (link.mode)
+            {
+                case MotionEventLinkMode.Absolute:
+                    link.startValue = globalStart;
+                    link.endValue = globalEnd;
+                    break;
+                case MotionEventLinkMode.Relative:
+                    link.startValue = globalStart - linkedOffset;
+                    link.endValue = globalEnd - linkedOffset;
+                    break;
+                case MotionEventLinkMode.Proportional:
+                    float duration = linkedMotion != null
+                        ? linkedMotion.Duration
+                        : Mathf.Max(0.0001f, set.TotalDuration);
+                    link.startValue = Mathf.Clamp01((globalStart - linkedOffset) / duration);
+                    link.endValue = Mathf.Clamp01((globalEnd - linkedOffset) / duration);
+                    break;
+                case MotionEventLinkMode.Marker:
+                    GetEventRange(motionEvent, ownerOffset, out float oldStart, out _);
+                    float markerGlobalTime = oldStart - link.startValue;
+                    link.startValue = globalStart - markerGlobalTime;
+                    link.endValue = globalEnd - markerGlobalTime;
+                    break;
+            }
+            motionEvent.timeLink = link;
+        }
+
+        static bool FindEventContext(
+            MotionSet set,
+            MotionEventBase target,
+            out Motion owner,
+            out float ownerOffset)
+        {
+            owner = null;
+            ownerOffset = 0f;
+            if (set.globalEvents != null && set.globalEvents.Contains(target))
+                return true;
+            if (FindEventContext(set.motions, target, out owner, out ownerOffset))
+                return true;
+            if (set.layers == null)
+                return false;
+            foreach (MotionLayer layer in set.layers)
+            {
+                if (layer?.globalEvents != null && layer.globalEvents.Contains(target))
+                {
+                    owner = null;
+                    ownerOffset = 0f;
+                    return true;
+                }
+                if (FindEventContext(layer?.motions, target, out owner, out ownerOffset))
+                    return true;
+            }
+            return false;
+        }
+
+        static bool FindEventContext(
+            List<Motion> motions,
+            MotionEventBase target,
+            out Motion owner,
+            out float ownerOffset)
+        {
+            ownerOffset = 0f;
+            if (motions != null)
+                foreach (Motion motion in motions)
+                {
+                    if (motion?.events != null && motion.events.Contains(target))
+                    {
+                        owner = motion;
+                        return true;
+                    }
+                    ownerOffset += motion?.Duration ?? 0f;
+                }
+            owner = null;
+            ownerOffset = 0f;
+            return false;
         }
 
         internal void CancelPointerOperation()
@@ -1660,6 +2399,7 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
             if (_operation != DragOperation.None)
                 CommitPointerOperation();
             _operation = DragOperation.None;
+            _marqueeRect = default;
         }
 
         internal bool HandleWheel(float delta, bool zoom, bool horizontal, Vector2 position)
@@ -1792,6 +2532,15 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                 hash = hash * 31 + (set?.motions?.Count ?? 0);
                 hash = hash * 31 + (set?.layers?.Count ?? 0);
                 hash = hash * 31 + (set?.globalEvents?.Count ?? 0);
+                hash = hash * 31 + (set?.sections?.Count ?? 0);
+                hash = hash * 31 + (set?.curves?.Count ?? 0);
+                if (set?.sections != null)
+                    foreach (MotionSection section in set.sections)
+                    {
+                        hash = hash * 31 + (section?.id?.GetHashCode() ?? 0);
+                        hash = hash * 31 + (section?.startTime.GetHashCode() ?? 0);
+                        hash = hash * 31 + (section?.defaultNextId?.GetHashCode() ?? 0);
+                    }
                 if (set?.motions != null)
                 {
                     foreach (Motion motion in set.motions)
@@ -1799,12 +2548,21 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
                         hash = hash * 31 + (motion?.motionName?.GetHashCode() ?? 0);
                         hash = hash * 31 + (motion?.Duration.GetHashCode() ?? 0);
                         hash = hash * 31 + (motion?.events?.Count ?? 0);
+                        hash = hash * 31 + (motion?.markers?.Count ?? 0);
+                        if (motion?.markers != null)
+                            foreach (MotionMarker marker in motion.markers)
+                            {
+                                hash = hash * 31 + (marker?.id?.GetHashCode() ?? 0);
+                                hash = hash * 31 + (marker?.normalizedTime.GetHashCode() ?? 0);
+                            }
                         if (motion?.events == null)
                             continue;
                         foreach (MotionEventBase motionEvent in motion.events)
                         {
                             hash = hash * 31 + (motionEvent?.startTime.GetHashCode() ?? 0);
                             hash = hash * 31 + (motionEvent?.endTime.GetHashCode() ?? 0);
+                            hash = hash * 31 + (motionEvent?.timeLink.startValue.GetHashCode() ?? 0);
+                            hash = hash * 31 + (motionEvent?.timeLink.endValue.GetHashCode() ?? 0);
                         }
                     }
                 }
@@ -1862,12 +2620,48 @@ namespace UPlayGround.Animation.Editor.UIToolkit.Timeline
         static float XToTime(float x, MotionSetDrawer drawer) =>
             (x - LabelWidth + drawer.scrollX) / PixelsPerSecond(drawer);
 
-        static float SnapTime(float value, MotionSetDrawer drawer)
+        float SnapTime(float value, MotionSetDrawer drawer)
         {
-            if (!drawer.showFrames)
-                return value;
-            float frame = 1f / Mathf.Max(1, drawer.fps);
-            return Mathf.Round(value / frame) * frame;
+            float snapped = value;
+            float bestDistance = float.MaxValue;
+            if (drawer.showFrames)
+            {
+                float frame = 1f / Mathf.Max(1, drawer.fps);
+                snapped = Mathf.Round(value / frame) * frame;
+                bestDistance = Mathf.Abs(snapped - value);
+            }
+
+            MotionSet set = _getSet?.Invoke();
+            float threshold = 8f / Mathf.Max(1f, PixelsPerSecond(drawer));
+            void Consider(float candidate)
+            {
+                float distance = Mathf.Abs(candidate - value);
+                if (distance <= threshold && distance < bestDistance)
+                {
+                    snapped = candidate;
+                    bestDistance = distance;
+                }
+            }
+
+            if (set?.sections != null)
+                foreach (MotionSection section in set.sections)
+                    if (section != null)
+                        Consider(section.startTime);
+            float offset = 0f;
+            if (set?.motions != null)
+            {
+                foreach (Motion motion in set.motions)
+                {
+                    Consider(offset);
+                    if (motion?.markers != null)
+                        foreach (MotionMarker marker in motion.markers)
+                            if (marker != null)
+                                Consider(offset + marker.normalizedTime * motion.Duration);
+                    offset += motion?.Duration ?? 0f;
+                    Consider(offset);
+                }
+            }
+            return snapped;
         }
 
         static float GetRulerStep(float pps)

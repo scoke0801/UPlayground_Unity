@@ -75,19 +75,9 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
-        // 주의: JsonUtility 는 [SerializeReference] 폴리모픽 중첩 필드를 보존하지 못한다.
-        // 현재 MotionEvent 구현은 단순 값 필드만 가지므로 안전하지만, 폴리모픽 필드가 추가되면 별도 클론 경로가 필요하다.
         static MotionEventBase CloneEvent(MotionEventBase evt)
         {
-            if (evt == null)
-                return null;
-
-            var clone = Activator.CreateInstance(evt.GetType()) as MotionEventBase;
-            if (clone == null)
-                return null;
-
-            JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(evt), clone);
-            return clone;
+            return MotionEventSerializationUtility.Clone(evt);
         }
     }
 

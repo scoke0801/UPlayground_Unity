@@ -56,9 +56,12 @@ namespace UPlayGround.Animation
         private int _infiniteLoopStageIndex = -1; // 현재까지 진입한 InfiniteLoop 순번 (0-based, 미진입 시 -1)
         private bool _suppressLoopEvents; // 현재 MotionSet의 Loop/Freeze 이벤트를 전부 무시 (다음 재생 시 자동 해제)
         private float _motionTimelineSpeed = 1f;
+        private string _currentSectionId;
+        private string _nextSectionOverrideId;
         
         public event Action OnMotionSetCompleted;
         public event Action<MotionSet, bool> OnMotionSetEnded;
+        public event Action<MotionSet, MotionSetEndReason> OnMotionSetEndedWithReason;
         public AnimancerComponent GetAnimancerComponent() => _animator;
         public Animator GetAnimator => _animator.Animator;
 
@@ -223,6 +226,7 @@ namespace UPlayGround.Animation
         public float CurrentMotionSetTime => _globalTime;
         public int    CurrentMotionIndex   => _currentMotionIndex;
         public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
+        public string CurrentSectionId => _currentSectionId;
 
         /// <summary>
         /// 현재 재생 중인 타임라인에서 현재 시점(_globalTime) 이후 처음으로 시작되는 T 이벤트까지
@@ -469,7 +473,7 @@ namespace UPlayGround.Animation
                 return _currentState;
 
             if (_isPlayingMotionSet && _currentMotionSet != null)
-                StopMotionSet();
+                StopMotionSet(MotionSetEndReason.Interrupted);
 
             _currentMotionAsset = sourceAsset;
             _currentMotionSet = motionSet;
@@ -480,16 +484,73 @@ namespace UPlayGround.Animation
             _lastPlayedSlot = slot;
             _currentMotionDisplayKey = string.IsNullOrEmpty(displayKey) ? "-" : displayKey;
             _infiniteLoopStageIndex = -1;
+            _currentSectionId = null;
+            _nextSectionOverrideId = null;
 
             int effectiveLayer = ResolveBaseLayerIndex(motionSet, layerIndex);
             EnsureOverlayMask(effectiveLayer);
             _currentMotionLayerIndex = effectiveLayer;
 
+            float resolvedFade = fadeDuration > 0f
+                ? fadeDuration
+                : Mathf.Max(0f, motionSet.blend?.blendInDuration ?? 0f);
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
-            PlayMotionAtIndex(0, fadeDuration, effectiveLayer);
-            StartPlaybackLayers(fadeDuration);
+            PlayMotionAtIndex(0, resolvedFade, effectiveLayer);
+            StartPlaybackLayers(resolvedFade);
+            UpdateCurrentSection(0f, true);
             started = true;
             return _currentState;
+        }
+
+        public bool TryPlay(in MotionPlaybackRequest request)
+        {
+            if (request.asset?.motionSet == null)
+                return false;
+
+            float blendIn = request.blendInOverride ??
+                            request.asset.motionSet.blend?.blendInDuration ??
+                            0f;
+            AnimancerState state = PlayMotion(request.asset, blendIn);
+            if (state == null)
+                return false;
+
+            _motionTimelineSpeed = request.playRate > 0f ? request.playRate : 1f;
+            if (string.IsNullOrEmpty(request.startSectionId) ||
+                TryJumpToSection(request.startSectionId))
+                return true;
+
+            StopMotionSet(MotionSetEndReason.Invalidated);
+            return false;
+        }
+
+        public bool TryGetCurrentSection(out string sectionId)
+        {
+            sectionId = _currentSectionId;
+            return !string.IsNullOrEmpty(sectionId);
+        }
+
+        public bool TrySetNextSection(string fromSectionId, string nextSectionId)
+        {
+            if (_currentMotionSet == null ||
+                _currentSectionId != fromSectionId ||
+                !MotionTimelineResolver.TryGetSection(_currentMotionSet, nextSectionId, out _))
+                return false;
+            _nextSectionOverrideId = nextSectionId;
+            return true;
+        }
+
+        public bool TryJumpToSection(string sectionId)
+        {
+            if (!_isPlayingMotionSet ||
+                !MotionTimelineResolver.TryGetSection(_currentMotionSet, sectionId, out MotionSectionRange range))
+                return false;
+
+            _eventExecutor?.ExitActiveEvents();
+            SeekCurrentMotionSetTime(range.startTime, _currentMotionLayerIndex);
+            _currentSectionId = sectionId;
+            _nextSectionOverrideId = null;
+            _eventExecutor?.EnterSection();
+            return true;
         }
 
 
@@ -728,24 +789,47 @@ namespace UPlayGround.Animation
         /// </summary>
         public void StopMotionSet()
         {
-            StopMotionSet(false);
+            StopMotionSet(MotionSetEndReason.Stopped);
         }
 
-        private void StopMotionSet(bool completed)
+        public void StopMotionSet(float blendOutDuration)
+        {
+            StopMotionSet(MotionSetEndReason.Stopped, blendOutDuration);
+        }
+
+        public void StopMotionSet(float? blendOutOverride)
+        {
+            StopMotionSet(MotionSetEndReason.Stopped, blendOutOverride);
+        }
+
+        private void StopMotionSet(MotionSetEndReason reason, float? blendOutOverride = null)
         {
             if (!_isPlayingMotionSet) return;
 
             MotionSet endedMotionSet = _currentMotionSet;
+            bool completed = reason == MotionSetEndReason.Completed;
+            float blendOut = blendOutOverride ?? (reason == MotionSetEndReason.Interrupted
+                ? endedMotionSet?.blend?.interruptedBlendOutDuration ?? 0f
+                : endedMotionSet?.blend?.blendOutDuration ?? 0f);
+            bool holdPose = completed &&
+                            endedMotionSet?.blend != null &&
+                            (!endedMotionSet.blend.autoBlendOut || endedMotionSet.blend.holdLastPose);
 
             // 이벤트 강제 종료
             _eventExecutor?.Stop();
-            StopPlaybackLayers();
+            if (!holdPose)
+            {
+                FadeOrStopLayer(_currentMotionLayerIndex, blendOut);
+                StopPlaybackLayers(blendOut);
+            }
 
             _isPlayingMotionSet = false;
             _currentMotionSet = null;
             _currentState = null;
             _globalTime = 0f;
             _currentMotionIndex = 0;
+            _currentSectionId = null;
+            _nextSectionOverrideId = null;
             ResetLoopState();
             
             if (_subAnimator != null)
@@ -754,6 +838,7 @@ namespace UPlayGround.Animation
             }
 
             OnMotionSetEnded?.Invoke(endedMotionSet, completed);
+            OnMotionSetEndedWithReason?.Invoke(endedMotionSet, reason);
         }
         
         /// <summary>
@@ -882,14 +967,35 @@ namespace UPlayGround.Animation
                 return;
             }
 
-            _globalTime += deltaTime * _motionTimelineSpeed;
+            float timelineNormalized = _currentMotionSet.TotalDuration > 0f
+                ? Mathf.Clamp01(_globalTime / _currentMotionSet.TotalDuration)
+                : 0f;
+            float playbackRateCurve = EvaluateCurve(
+                MotionCurveChannel.PlaybackRate,
+                null,
+                timelineNormalized,
+                1f);
+            float stretchRate = MotionTimelineResolver.EvaluateTimeStretchRate(
+                _currentMotionSet,
+                _globalTime,
+                _motionTimelineSpeed);
+            float stretchCurve = EvaluateCurve(
+                MotionCurveChannel.TimeStretch,
+                null,
+                timelineNormalized,
+                1f);
+            _globalTime += deltaTime *
+                           stretchRate *
+                           Mathf.Max(0f, playbackRateCurve) *
+                           Mathf.Max(0f, stretchCurve);
+            if (HandleSectionBoundary())
+                return;
             UpdatePlaybackLayers(_globalTime);
 
             // MotionSet 종료 체크
             if (_globalTime >= _currentMotionSet.TotalDuration)
             {
-                StopMotionSet(true);
-                OnMotionSetCompleted?.Invoke();
+                CompleteMotionSet();
                 return;
             }
 
@@ -924,6 +1030,77 @@ namespace UPlayGround.Animation
             }
 
             // 이벤트 발화는 LateUpdate에서 실제 포즈 시간으로 판정한다(디렉터/포즈 클럭 분리).
+        }
+
+        bool HandleSectionBoundary()
+        {
+            if (string.IsNullOrEmpty(_currentSectionId) ||
+                !MotionTimelineResolver.TryGetSection(
+                    _currentMotionSet,
+                    _currentSectionId,
+                    out MotionSectionRange range) ||
+                _globalTime < range.endTime)
+                return false;
+
+            MotionSection section = range.section;
+            switch (section.endPolicy)
+            {
+                case MotionSectionEndPolicy.Stop:
+                    CompleteMotionSet();
+                    return true;
+
+                case MotionSectionEndPolicy.Hold:
+                    _globalTime = Mathf.Max(range.startTime, range.endTime - 0.001f);
+                    if (_currentState != null)
+                        _currentState.Speed = 0f;
+                    SetPlaybackLayersPaused(true);
+                    return true;
+
+                case MotionSectionEndPolicy.LoopSelf:
+                    return TryJumpToSection(section.id);
+            }
+
+            string nextId = !string.IsNullOrEmpty(_nextSectionOverrideId)
+                ? _nextSectionOverrideId
+                : MotionTimelineResolver.ResolveDefaultNextSectionId(_currentMotionSet, section);
+            _nextSectionOverrideId = null;
+            if (string.IsNullOrEmpty(nextId) ||
+                !MotionTimelineResolver.TryGetSection(
+                    _currentMotionSet,
+                    nextId,
+                    out MotionSectionRange nextRange))
+                return false;
+
+            if (Mathf.Abs(nextRange.startTime - range.endTime) <= 0.001f)
+            {
+                _currentSectionId = nextId;
+                _eventExecutor?.EnterSection();
+                return false;
+            }
+            return TryJumpToSection(nextId);
+        }
+
+        void CompleteMotionSet()
+        {
+            StopMotionSet(MotionSetEndReason.Completed);
+            OnMotionSetCompleted?.Invoke();
+        }
+
+        void UpdateCurrentSection(float time, bool enter)
+        {
+            if (MotionTimelineResolver.TryGetSectionAtTime(
+                    _currentMotionSet,
+                    time,
+                    out MotionSectionRange range))
+            {
+                _currentSectionId = range.section.id;
+                if (enter)
+                    _eventExecutor?.EnterSection();
+            }
+            else
+            {
+                _currentSectionId = null;
+            }
         }
 
         /// <summary>
@@ -1251,7 +1428,19 @@ namespace UPlayGround.Animation
             if (totalDuration <= 0f)
                 return;
 
-            _globalTime = Mathf.Clamp(normalizedTime * totalDuration, 0f, Mathf.Max(0f, totalDuration - 0.001f));
+            SeekCurrentMotionSetTime(normalizedTime * totalDuration, layerIndex);
+        }
+
+        private void SeekCurrentMotionSetTime(float time, int layerIndex)
+        {
+            if (!_isPlayingMotionSet || _currentMotionSet == null)
+                return;
+
+            float totalDuration = _currentMotionSet.TotalDuration;
+            if (totalDuration <= 0f)
+                return;
+
+            _globalTime = Mathf.Clamp(time, 0f, Mathf.Max(0f, totalDuration - 0.001f));
             ResetLoopState();
 
             if (_currentMotionSet.GetMotionAtTime(_globalTime, out int motionIndex, out float localTime))
@@ -1349,6 +1538,21 @@ namespace UPlayGround.Animation
                 if (data == null || !data.IsValid())
                     continue;
 
+                MotionLayerPlayback conflicting = FindConcurrencyConflict(data);
+                if (conflicting != null)
+                {
+                    if (data.interruptionPolicy == MotionInterruptionPolicy.RejectWhilePlaying)
+                    {
+                        Debug.LogWarning(
+                            $"MotionSet '{_currentMotionSet.motionSetName}'의 동시성 그룹 " +
+                            $"'{data.concurrencyGroupId}'이 이미 재생 중이어서 '{data.layerName}'을 건너뜁니다.",
+                            this);
+                        continue;
+                    }
+                    if (data.interruptionPolicy == MotionInterruptionPolicy.InterruptSameGroup)
+                        CompletePlaybackLayer(conflicting);
+                }
+
                 int layerIndex = Mathf.Max(1, data.animancerLayerIndex);
                 if (layerIndex == _currentMotionLayerIndex)
                 {
@@ -1405,7 +1609,11 @@ namespace UPlayGround.Animation
                     continue;
                 }
 
-                if (globalTime >= duration)
+                float synchronizedTime = MotionTimelineResolver.ResolveSynchronizedTime(
+                    _currentMotionSet,
+                    playback.data,
+                    globalTime);
+                if (synchronizedTime >= duration)
                 {
                     if (playback.data.holdLastFrame)
                         SamplePlaybackLayer(playback, Mathf.Max(0f, duration - 0.0001f), true);
@@ -1414,8 +1622,52 @@ namespace UPlayGround.Animation
                     continue;
                 }
 
-                SamplePlaybackLayer(playback, Mathf.Max(0f, globalTime), false);
+                float normalizedTime = Mathf.Clamp01(synchronizedTime / duration);
+                float weight = playback.data.weightCurve != null
+                    ? playback.data.weightCurve.Evaluate(normalizedTime)
+                    : EvaluateCurve(
+                        MotionCurveChannel.LayerWeight,
+                        playback.data.channelId,
+                        normalizedTime,
+                        playback.data.weight);
+                _animator.Layers[playback.animancerLayerIndex].Weight = Mathf.Clamp01(weight);
+                SamplePlaybackLayer(playback, Mathf.Max(0f, synchronizedTime), false);
             }
+        }
+
+        MotionLayerPlayback FindConcurrencyConflict(MotionLayer candidate)
+        {
+            if (candidate == null || string.IsNullOrEmpty(candidate.concurrencyGroupId))
+                return null;
+            foreach (MotionLayerPlayback playback in _motionLayerPlaybacks)
+                if (!playback.completed &&
+                    playback.data != null &&
+                    string.Equals(
+                        playback.data.concurrencyGroupId,
+                        candidate.concurrencyGroupId,
+                        StringComparison.Ordinal))
+                    return playback;
+            return null;
+        }
+
+        float EvaluateCurve(
+            MotionCurveChannel channel,
+            string targetId,
+            float normalizedTime,
+            float fallback)
+        {
+            if (_currentMotionSet?.curves == null)
+                return fallback;
+            foreach (MotionCurveTrack track in _currentMotionSet.curves)
+            {
+                if (track == null ||
+                    !track.enabled ||
+                    track.channel != channel ||
+                    !string.Equals(track.targetId, targetId, StringComparison.Ordinal))
+                    continue;
+                return track.Evaluate(normalizedTime, fallback);
+            }
+            return fallback;
         }
 
         private void SamplePlaybackLayer(MotionLayerPlayback playback, float time, bool hold)
@@ -1493,7 +1745,17 @@ namespace UPlayGround.Animation
             }
         }
 
-        private void StopPlaybackLayers()
+        private void FadeOrStopLayer(int layerIndex, float fadeDuration)
+        {
+            if (_animator == null || layerIndex < 0 || layerIndex >= _animator.Layers.Count)
+                return;
+            if (fadeDuration > 0f)
+                _animator.Layers[layerIndex].StartFade(0f, fadeDuration);
+            else
+                _animator.Layers[layerIndex].Stop();
+        }
+
+        private void StopPlaybackLayers(float fadeDuration = 0f)
         {
             if (_animator != null)
             {
@@ -1501,7 +1763,7 @@ namespace UPlayGround.Animation
                 {
                     if (playback != null && playback.animancerLayerIndex > 0 &&
                         playback.animancerLayerIndex < _animator.Layers.Count)
-                        _animator.Layers[playback.animancerLayerIndex].Stop();
+                        FadeOrStopLayer(playback.animancerLayerIndex, fadeDuration);
                 }
             }
 

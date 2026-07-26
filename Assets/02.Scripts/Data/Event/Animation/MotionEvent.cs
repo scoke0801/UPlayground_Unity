@@ -3,6 +3,61 @@ using UnityEngine;
 
 namespace UPlayGround.Data.Event
 {
+    public enum MotionEventLinkMode
+    {
+        Absolute,
+        Relative,
+        Proportional,
+        Marker,
+    }
+
+    public enum MotionEventReentryPolicy
+    {
+        OncePerPlayback,
+        OncePerSectionEntry,
+        EveryCrossing,
+    }
+
+    public enum MotionEventDispatchMode
+    {
+        Queued,
+        Exact,
+    }
+
+    public enum MotionEventEvaluationPhase
+    {
+        Update,
+        PostAnimationEvaluation,
+    }
+
+    [Serializable]
+    public struct MotionEventTimeLink
+    {
+        public bool enabled;
+        public MotionEventLinkMode mode;
+        public string linkedMotionId;
+        public string markerId;
+        public float startValue;
+        public float endValue;
+    }
+
+    public interface IMotionEventTick
+    {
+        void Tick(GameObject target, float normalizedTime, float deltaTime);
+    }
+
+    public interface IMotionEventSignal
+    {
+        string SignalId { get; }
+    }
+
+    public interface IMotionEventPreviewAdapter
+    {
+        void Enter(MotionEventBase motionEvent, float globalTime);
+        void Tick(MotionEventBase motionEvent, float normalizedTime, float deltaTime);
+        void Exit(MotionEventBase motionEvent, float globalTime);
+    }
+
     /// <summary>
     /// 모션 이벤트 기본 추상 클래스
     /// 모든 모션 이벤트는 이 클래스를 상속받아야 함
@@ -12,6 +67,11 @@ namespace UPlayGround.Data.Event
     {
         public float startTime;
         public float endTime;
+        public MotionEventTimeLink timeLink;
+        public MotionEventReentryPolicy reentryPolicy;
+        public int executionOrder;
+        public MotionEventDispatchMode dispatchMode;
+        public MotionEventEvaluationPhase evaluationPhase;
             
         // 이전 모션들의 누적 시간 (글로벌 타임라인에서의 오프셋)
         [HideInInspector] public float globalStartTimeOffset = 0f;
@@ -54,7 +114,8 @@ namespace UPlayGround.Data.Event
         /// 프레임 타이밍에 따라 흔들리므로 반드시 본 평가 후에 샘플링해야 한다.
         /// 콜리전/워프/Freeze 등 타이밍이 민감한 이벤트는 false를 유지해 기존 Update 타이밍을 보존한다.
         /// </summary>
-        public virtual bool RequiresPostEvaluation => false;
+        public virtual bool RequiresPostEvaluation =>
+            evaluationPhase == MotionEventEvaluationPhase.PostAnimationEvaluation;
 
         /// <summary>
         /// 이벤트 실행 (런타임)

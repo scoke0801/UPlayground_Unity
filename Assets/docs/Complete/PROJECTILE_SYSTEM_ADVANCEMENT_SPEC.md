@@ -2,7 +2,7 @@
 
 > 작성일: 2026-07-25
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 상태: 설계 (미구현)
+> 상태: 구현 완료 (Phase 0~3, 선택 Phase 4는 착수 조건 미충족)
 > 관련 문서: `Assets/docs/guide/TARGETED_PROJECTILE_AOE_GUIDE.md`, `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `Assets/docs/TODO/HIT_REACTION_ADVANCEMENT_DESIGN.md`
 
 ---
@@ -219,6 +219,14 @@ public struct ProjectileSpawnRequest
 - D11: `Invoke` 제거.
 - 산출물: 원거리 공격이 넉백/다운/강인도 피해를 낼 수 있음. 히트스톱 중 투사체 정지.
 
+**구현 상태 (2026-07-26):** 코드 반영 완료. 기존 이벤트 호환을 위해
+`hitPhaseIndex = -1`은 레거시 `damage` 폴백으로 유지하며, 0 이상이면 플레이어/몬스터의 현재
+`AbilityAttackInfo`에서 지정 `HitPhaseData`와 `defenseType`을 독립 스냅샷으로 전달한다.
+투사체 시간축은 살아 있는 소유자의 `GameActor.DeltaTime`을 상속하고, 소유자 사망/소멸 후에는
+전역 시간축으로 복귀한다. `ArcingProjectile`은 거리/속도로 비행 시간을 계산하며,
+`AOEProjectile`의 문자열 `Invoke`는 로컬 시간축 기반 명시적 만료 타이머로 교체했다.
+자동화 범위 밖의 히트스톱 체감·원거리 리액션·가드 판정은 콘텐츠별 수동 스모크 항목으로 남긴다.
+
 ### Phase 1 — 런타임 통합과 풀링
 
 - `ProjectileRuntime` + `IProjectileMotion` 도입, 기존 3클래스를 `Linear/Arc/Stationary` 전략으로 이관.
@@ -227,11 +235,25 @@ public struct ProjectileSpawnRequest
 - 기존 프리팹은 Definition 참조로 마이그레이션(에디터 도구 1회성 스크립트, 실행 후 삭제).
 - 산출물: 스폰 GC 0, 동시 100발 안정.
 
+**구현 상태 (2026-07-26):** 완료. `ProjectileDefinitionSO`, 조합형 Motion 데이터,
+`ProjectileRuntime`, `ProjectileManager`, `IProjectileService`/`Svc.Projectile`를 추가했다.
+Definition별 `ObjectPool`, 프리워밍, 일괄 틱, 활성 256발 상한, 씬 전환 전량 회수,
+트레일 지연 반환과 완전 리셋 계약을 적용했다. 기존 투사체 프리팹은 managed reference와
+MonoScript GUID를 보존하기 위해 일괄 재직렬화하지 않고, 최초 사용 시 저장되지 않는
+Definition으로 변환해 같은 풀 런타임을 사용한다. 기존 파생 컴포넌트는 프리팹 호환 저작 셸로만
+유지되며 풀 인스턴스에서는 비활성화된다.
+
 ### Phase 2 — 동작 모듈
 
 - `IProjectileBehavior` + 온히트 파이프라인 + `Pierce/Bounce/Split/Detonate/AreaTick`.
 - `AOEProjectile`의 틱 피해·감쇠·지면 부착을 `AreaTickBehavior`/`StationaryMotion`으로 완전 흡수 후 클래스 제거.
 - 산출물: 관통 화살, 튕기는 마법탄, 분열 폭탄을 코드 추가 없이 저작.
+
+**구현 상태 (2026-07-26):** 완료. `Pierce`, `Bounce`, `Split`, `Detonate`,
+`AreaTick`, `Attach`, `Reflectable` 동작 데이터를 구현하고 고정 온히트 순서와 분열 세대 상한을
+적용했다. 다중 히트 중 대상 중복 피해를 막고, 임팩트 피드백은 투사체당 최초 1회만 발생한다.
+기존 AOE의 활성 지연·반경 확장·대상별 쿨다운·감쇠·지면 부착을
+`StationaryProjectileMotion`/`AreaTickProjectileBehavior` 호환 변환에 포함했다.
 
 ### Phase 3 — 상호작용과 패턴
 
@@ -240,12 +262,22 @@ public struct ProjectileSpawnRequest
 - 디버그 채널 + 텔레메트리 + MotionSetEditor 궤적 프리뷰.
 - 산출물: 보스 탄막 패턴, 되받아치기 상호작용.
 
+**구현 상태 (2026-07-26):** 완료. `Homing`, `Orbit`, `Hitscan` 이동과 패리 반사 시
+소유권·공격자·타깃 레이어 전환을 구현했다. `Single/Fan/Ring/Burst/MultiTarget` 패턴,
+총구→논리 경로 보간, Definition 속도/수명 override, MotionSetEditor 궤적 프리뷰,
+DebugGizmo `Projectile` 채널, 사이클 발사/명중/만료/평균 비행 시간/최대 활성 텔레메트리를
+연결했다.
+
 ### Phase 4 — 성능 티어 (선택)
 
 동시 활성 수가 300발을 넘는 콘텐츠가 실제로 생겼을 때만 착수한다.
 
 - 이동·스윕을 `RaycastCommand` + Job/Burst 배치로 전환.
 - 비주얼을 GameObject에서 인스턴싱 렌더로 분리(시뮬/렌더 분리는 Phase 1 구조가 이미 허용).
+
+**판정 (2026-07-26):** 착수하지 않음. 현재 콘텐츠에서 동시 활성 300발 초과 근거가 없고,
+Phase 1의 일괄 틱·NonAlloc 물리 쿼리·256발 안전 상한이 먼저 적용되었다. 텔레메트리의
+최대 동시 활성 값이 300발 이상인 콘텐츠가 확정되면 별도 성능 작업으로 재개한다.
 
 ---
 
@@ -313,6 +345,42 @@ public struct ProjectileSpawnRequest
 
 ---
 
+## 10. 구현 검증 결과
+
+2026-07-26 기준 검증 결과는 다음과 같다.
+
+- Unity 6 에디터 실제 임포트/Tundra 스크립트 컴파일 성공, 컴파일 오류 0.
+- `Assembly-CSharp`, `UPlayGround.Ability.Tests`, `Assembly-CSharp-Editor` 보조 CLI 컴파일 오류 0.
+- 신규 투사체 EditMode 테스트 8/8 실행 통과: 공격 스냅샷, Definition 조합 검증,
+  Burst 지연, 풀 반환 리셋, 프로젝트 Definition 전수 검증. 에디터 고도화에서 추가한
+  정지형/충돌 이동 조합, 중복 Behavior/Split 자기 참조 테스트 2개도 CLI 컴파일 오류 0을 확인했다.
+- Ability EditMode 전체 110개 중 105개 통과. 실패 5개는 투사체 테스트가 아니라
+  AttributeProfile 필수값, Ability 생산/상속 조합, 기존 Dryad 3종/Training Dummy 1종
+  MotionReference 데이터 항목이다.
+- 기존 Ability PlayMode 수직 슬라이스 2/2 통과.
+- `Assets/10.Datas/`와 `Assets/03.Prefabs/`는 본 구현에서 저장하거나 재직렬화하지 않았다.
+
+### 10.1 UI Toolkit 투사체 에디터
+
+후속 저작 단계로 `UPlayGround/게임플레이/투사체 에디터`를 추가했다. 프로젝트 공통
+`UPlayGroundEditor.uss` 팔레트를 재사용하며 다음 흐름을 제공한다.
+
+- 검색 가능한 Definition 가상화 목록과 새 에셋 생성·복제
+- Undo/Redo 가능한 Motion 전략 선택과 SerializeReference 세부 편집
+- Behavior 카드 추가·삭제·순서 변경
+- 잘못된 조합, 중복 Behavior, Split 누락·자기 참조 즉시 검증
+- 이동 거리·풀 크기·분열 트리 최대 생성량 분석과 전략별 2D 궤적 프리뷰
+- 프로젝트 전체 Definition 검증과 Ability/MotionSet 사용처 검색
+- `UPlayGround/툴 런처`의 `게임플레이 / 전투` 카테고리에서 실행
+
+UI는 Unity 6 권장 방식인 `SerializedObject`/`SerializedProperty`/`PropertyField` 바인딩을
+사용하며, 데이터 타입을 리플렉션으로 직접 수정하지 않는다.
+
+자동 테스트가 대체하지 못하는 타겟 모드 5종, 히트스톱 체감, 반사 방향, 고속 투사체 30fps,
+100발 프로파일링은 실제 전투 콘텐츠를 사용한 수동 Play Mode 스모크/Profiler 항목으로 유지한다.
+
+---
+
 ## 참고 자료
 
 - [Fusion 2 – Projectiles (Photon Engine)](https://doc.photonengine.com/fusion/current/technical-samples/projectiles-advanced/projectiles)
@@ -323,3 +391,6 @@ public struct ProjectileSpawnRequest
 - [Projectile – Path of Exile Wiki (pierce → chain → split)](https://pathofexile.fandom.com/wiki/Projectile)
 - [Unity Batch Raycasting](https://github.com/unitycoder/Unity-Batch-Raycasting)
 - [Instancing Pool Demo (DrawMeshInstanced projectiles)](https://github.com/ShilohGames/InstancingPoolDemo)
+- [Unity 6 Manual – Create a custom Editor window](https://docs.unity3d.com/ja/6000.0/Manual/UIE-HowTo-CreateEditorWindow.html)
+- [Unity 6 Manual – Create a custom inspector](https://docs.unity3d.com/kr/current/Manual/UIE-HowTo-CreateCustomInspector.html)
+- [Unity 6 Manual – PropertyField](https://docs.unity3d.com/cn/6000.0/Manual/UIE-uxml-element-PropertyField.html)

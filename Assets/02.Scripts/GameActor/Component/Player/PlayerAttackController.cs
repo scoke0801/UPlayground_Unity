@@ -8,33 +8,54 @@ namespace UPlayGround.Components
     public sealed class PlayerAttackController
     {
         public AttackData Create(AbilityAttackInfo attackInfo, AttackKind attackKind)
+            => CreateFromAbility(attackInfo, attackKind, 0);
+
+        public static AttackData CreateFromAbility(
+            AbilityAttackInfo attackInfo,
+            AttackKind attackKind,
+            int hitPhaseIndex)
         {
             if (attackInfo?.baseInfo == null)
                 return null;
 
-            HitPhaseData phase = attackInfo.baseInfo.GetHitPhase(0);
-            return new AttackData
+            var data = new AttackData
             {
-                damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
-                poiseDamage = phase.poiseDamage,
-                breakDamage = phase.breakDamage,
-                reactionDuration = phase.reactionDuration,
-                forceReaction = phase.forceReaction,
-                forceBreakExpose = phase.forceBreakExpose,
                 interruptActions = attackInfo.interruptActions,
                 moveCancelDelayAfterLastHit = Mathf.Max(0f, attackInfo.moveCancelDelayAfterLastHit),
-                reactionType = phase.reactionType,
-                hitParticleName = phase.hitParticleName,
-                pullForce = phase.pullForce,
-                knockbackForce = phase.knockBackForce,
-                knockbackDrag = phase.knockBackDrag,
-                airborneForce = phase.airborneForce,
-                hitPhaseIndex = 0,
                 attackKind = attackKind,
-                victimForcedMotionSlot = phase.victimForcedMotionSlot,
-                guaranteedReaction = phase.guaranteedReaction,
-                reactionData = phase.reactionProfile?.Resolve(),
+                defenseType = attackInfo.defenseType,
+                criticalMultiplier = 1f,
             };
+
+            ApplyHitPhase(data, attackInfo.baseInfo.GetHitPhase(hitPhaseIndex), hitPhaseIndex);
+            return data;
+        }
+
+        public static void ApplyHitPhase(AttackData data, HitPhaseData phase, int hitPhaseIndex)
+        {
+            if (data == null || phase == null)
+                return;
+
+            data.hitPhaseIndex = hitPhaseIndex;
+            data.damage = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f)
+                          * data.damageMultiplier;
+            data.poiseDamage = phase.poiseDamage * data.poiseMultiplier;
+            data.breakDamage = phase.breakDamage
+                               * data.poiseMultiplier
+                               * data.breakDamageMultiplier;
+            data.reactionDuration = phase.reactionDuration;
+            data.forceReaction = phase.forceReaction;
+            data.forceBreakExpose = phase.forceBreakExpose;
+            data.reactionType = phase.reactionType;
+            data.hitParticleName = phase.hitParticleName;
+            data.pullForce = phase.pullForce;
+            data.airborneForce = phase.airborneForce;
+            data.knockbackForce = phase.knockBackForce;
+            data.knockbackDrag = phase.knockBackDrag;
+            data.grabDuration = phase.grabDuration;
+            data.victimForcedMotionSlot = phase.victimForcedMotionSlot;
+            data.guaranteedReaction = phase.guaranteedReaction;
+            data.reactionData = phase.reactionProfile?.Resolve();
         }
 
         public static AttackData Copy(AttackData source)
@@ -65,6 +86,7 @@ namespace UPlayGround.Components
                 isCounterAttack = source.isCounterAttack,
                 useCounterHitFeedback = source.useCounterHitFeedback,
                 isProjectile = source.isProjectile,
+                isReflectableProjectile = source.isReflectableProjectile,
                 attackDirection = source.attackDirection,
                 hitParticleName = source.hitParticleName,
                 defenseType = source.defenseType,

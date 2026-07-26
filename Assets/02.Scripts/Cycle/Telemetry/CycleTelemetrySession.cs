@@ -98,6 +98,11 @@ namespace UPlayGround.Cycle
         public List<RemainsRecord> remainsEvents = new();
         public List<MarkerSelectionRecord> markerSelections = new();
         public List<CycleSettlementTelemetryRecord> settlements = new();
+        public int projectileSpawnCount;
+        public int projectileHitCount;
+        public int projectileExpireCount;
+        public int projectilePeakActive;
+        public float projectileFlightSeconds;
     }
 
     public sealed class CycleTelemetrySession : BaseManager<CycleTelemetrySession>, IManager, IUpdatableManager
@@ -181,6 +186,26 @@ namespace UPlayGround.Cycle
                 playerPosition = playerPosition,
                 distance = Vector3.Distance(playerPosition, worldPosition),
             });
+        }
+
+        public void RecordProjectileSpawn(int activeCount)
+        {
+            if (_record == null) return;
+            _record.projectileSpawnCount++;
+            _record.projectilePeakActive = Mathf.Max(_record.projectilePeakActive, activeCount);
+        }
+
+        public void RecordProjectileHit()
+        {
+            if (_record != null)
+                _record.projectileHitCount++;
+        }
+
+        public void RecordProjectileExpire(float flightSeconds)
+        {
+            if (_record == null) return;
+            _record.projectileExpireCount++;
+            _record.projectileFlightSeconds += Mathf.Max(0f, flightSeconds);
         }
 
         private void StartSession(int _) => CreateSession(CycleRunManager.Instance.Current);

@@ -8,6 +8,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Projectile;
 using UPlayGround.Tool.Editor.Combat;
 
 namespace UPlayGround.Animation.Editor
@@ -439,6 +440,7 @@ namespace UPlayGround.Animation.Editor
 
             HitPhaseData phase = atk.GetHitPhase(phaseIndex);
             if (phase == null) return;
+            DrawProjectileTrajectory(phase);
 
             string attachedGroupId = !string.IsNullOrWhiteSpace(eventHitboxGroupId)
                 ? eventHitboxGroupId
@@ -462,6 +464,61 @@ namespace UPlayGround.Animation.Editor
                         true);
                 }
             }
+        }
+
+        void DrawProjectileTrajectory(HitPhaseData phase)
+        {
+            ProjectileDefinitionSO definition = phase?.projectileDefinition;
+            if (definition == null || definition.motion == null || _targetActor == null)
+                return;
+
+            Vector3 origin = _targetActor.transform.position + Vector3.up;
+            Vector3 forward = _targetActor.transform.forward.normalized;
+            Handles.color = new Color(0.2f, 0.85f, 1f, 0.9f);
+
+            switch (definition.motion)
+            {
+                case ArcProjectileMotion arc:
+                    float distance = Mathf.Max(1f, arc.speed * definition.lifetime);
+                    Vector3 previous = origin;
+                    for (int i = 1; i <= 24; i++)
+                    {
+                        float t = i / 24f;
+                        float curved = arc.progressCurve.Evaluate(t);
+                        Vector3 point = origin + forward * (distance * curved)
+                                        + Vector3.up * (4f * curved * (1f - curved) * arc.arcHeight);
+                        Handles.DrawLine(previous, point);
+                        previous = point;
+                    }
+                    break;
+
+                case HitscanProjectileMotion hitscan:
+                    Handles.DrawAAPolyLine(3f, origin, origin + forward * hitscan.range);
+                    break;
+
+                case StationaryProjectileMotion:
+                    Handles.DrawWireDisc(origin, Vector3.up, definition.collisionRadius);
+                    break;
+
+                case OrbitProjectileMotion orbit:
+                    Handles.DrawWireDisc(origin, Vector3.up, orbit.radius);
+                    break;
+
+                case HomingProjectileMotion homing:
+                    Handles.DrawDottedLine(
+                        origin,
+                        origin + forward * (homing.speed * definition.lifetime),
+                        4f);
+                    break;
+
+                case LinearProjectileMotion linear:
+                    Handles.DrawLine(
+                        origin,
+                        origin + forward * (linear.speed * definition.lifetime));
+                    break;
+            }
+
+            Handles.Label(origin + Vector3.up * 0.25f, $"Projectile: {definition.name}");
         }
 
         bool DrawAttachedCombatHitboxes(

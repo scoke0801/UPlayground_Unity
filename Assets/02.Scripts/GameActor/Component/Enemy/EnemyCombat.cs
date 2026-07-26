@@ -11,6 +11,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Projectile;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Ability;
@@ -966,6 +967,31 @@ namespace UPlayGround.Components
             _currentHitPhaseIndex = index;
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
         }
+
+        /// <summary>
+        /// 현재 Ability의 지정 히트 페이즈를 투사체용 공격 데이터로 스냅샷한다.
+        /// </summary>
+        public AttackData CreateProjectileAttackData(int hitPhaseIndex)
+        {
+            if (_currentSkill?.baseInfo == null)
+                return null;
+
+            AttackData data = PlayerAttackController.CreateFromAbility(
+                _currentSkill,
+                AttackKind.SkillAttack,
+                hitPhaseIndex);
+            if (data == null)
+                return null;
+
+            data.motionAsset = _currentAbilityMotionAsset;
+            data.criticalMultiplier = 1f;
+            data.attacker = _ownerActor;
+            data.isProjectile = true;
+            return data;
+        }
+
+        public ProjectileDefinitionSO GetProjectileDefinition(int hitPhaseIndex) =>
+            _currentSkill?.baseInfo?.GetHitPhase(hitPhaseIndex)?.projectileDefinition;
 
         private void BeginHitboxWindow()
         {

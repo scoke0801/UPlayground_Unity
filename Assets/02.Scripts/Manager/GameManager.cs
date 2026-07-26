@@ -90,6 +90,7 @@ namespace UPlayGround.Manager
             CameraRuntimeServices.Configure(new UPlayGroundCameraRuntimeAdapter());
             RegisterManager(CameraManager.Instance); // 카메라 시스템
             RegisterManager(GameObjectManager.Instance);
+            RegisterManager(ProjectileManager.Instance); // 조합형 투사체 풀/일괄 틱
             RegisterManager(PartyManager.Instance);
             RegisterManager(ItemManager.Instance);
             RegisterManager(InventoryManager.Instance);

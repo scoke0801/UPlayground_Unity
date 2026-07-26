@@ -3,6 +3,10 @@ using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.Components;
 using UPlayGround.Manager;
+using UPlayGround.Data.Projectile;
+using UPlayGround.Data.Ability;
+using UPlayGround.Gameplay.Ability;
+using System.Collections.Generic;
 
 namespace UPlayGround.Data.Event
 {
@@ -22,13 +26,21 @@ namespace UPlayGround.Data.Event
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
     public class SpawnProjectileEvent : MotionEventBase
     {
+        private static readonly List<ProjectilePatternShot> PatternShots = new(16);
+
         [Header("Projectile Setting")]
         public BaseProjectile projectilePrefab;
+        public ProjectileDefinitionSO projectileDefinition;
+        [SerializeReference] public ProjectileSpawnPattern spawnPattern = new SingleShotPattern();
         public string spawnPointName;             // 스폰 기준 본/트랜스폼 이름
         public Vector3 spawnOffset;               // 위치 보정 (로컬)
         public Vector3 rotationOffset;            // 방향 보정 오일러 각도
         public bool useSpawnRotation = true;      // 스폰 포인트 회전을 기준으로 할지
+        [Tooltip("AbilityAttackInfo.hitPhases 인덱스. -1이면 레거시 damage 값을 사용합니다.")]
+        public int hitPhaseIndex = -1;
+        [Tooltip("레거시 폴백 전용. 신규 투사체는 hitPhaseIndex로 Ability 히트 페이즈를 사용하세요.")]
         public float damage = 10f;
+        [Min(0f)] public float barrelBlendTime;
 
         [Header("Targeting Setting")]
         public ProjectileTargetMode targetMode = ProjectileTargetMode.Forward;
@@ -41,6 +53,8 @@ namespace UPlayGround.Data.Event
         [Header("Move Setting")]
         public float speed = 10f;
         public float duration = 3f;
+        public bool overrideDefinitionSpeed;
+        public bool overrideDefinitionDuration;
 
         [Header("Hit Setting")]
         [Tooltip("Player/Monster 오너는 ActorDefinition 또는 ActorType 기본 규칙으로 자동 결정한다. 그 외 액터의 fallback 값으로 사용한다.")]
@@ -51,6 +65,8 @@ namespace UPlayGround.Data.Event
 
         public override string GetShortLabel()
         {
+            if (projectileDefinition != null)
+                return $"Spawn: {projectileDefinition.name}";
             if (projectilePrefab != null)
                 return $"Spawn: {projectilePrefab.name}";
             return "Projectile: (None)";
@@ -58,10 +74,16 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
-            if (projectilePrefab == null) return;
-
             var actor = target.GetComponent<GameActor>();
             if (actor == null) return;
+            ProjectileDefinitionSO resolvedDefinition = ResolveDefinition(actor);
+            bool usesLegacyCompatibility = false;
+            if (resolvedDefinition == null && projectilePrefab != null && Svc.Projectile != null)
+            {
+                resolvedDefinition = LegacyProjectileDefinitionCache.GetOrCreate(projectilePrefab);
+                usesLegacyCompatibility = resolvedDefinition != null;
+            }
+            if (resolvedDefinition == null && projectilePrefab == null) return;
 
             // 스폰 기준점 (무기 본/트랜스폼)
             Transform spawnPoint = string.IsNullOrEmpty(spawnPointName)
@@ -104,18 +126,45 @@ namespace UPlayGround.Data.Event
                         projectedUp = Vector3.up;
                 }
 
-                if (projectilePrefab is AOEProjectile)
+                if (projectilePrefab is AOEProjectile
+                    || resolvedDefinition?.motion is StationaryProjectileMotion)
                     worldPos = targetPosition;
             }
 
             Quaternion finalRot = Quaternion.LookRotation(flyDirection, projectedUp);
+
+            if (resolvedDefinition != null && Svc.Projectile != null)
+            {
+                SpawnDefinitionProjectiles(
+                    actor,
+                    resolvedDefinition,
+                    worldPos,
+                    flyDirection,
+                    hasTargetPosition,
+                    targetPosition,
+                    usesLegacyCompatibility);
+                if (actor is MonsterActor definitionMonster)
+                    definitionMonster.Combat?.CompleteDangerRing();
+                return;
+            }
+
             var instance = GameObject.Instantiate(projectilePrefab, worldPos, finalRot);
             var projectile = instance.GetComponent<BaseProjectile>();
 
             if (projectile != null)
             {
                 LayerMask hitLayer = ResolveTargetHitLayer(actor);
-                projectile.Initialize(worldPos, flyDirection, damage, speed, actor, duration, hitLayer, hitParticleName);
+                AttackData attackTemplate = ResolveProjectileAttackData(actor);
+                projectile.Initialize(
+                    worldPos,
+                    flyDirection,
+                    damage,
+                    speed,
+                    actor,
+                    duration,
+                    hitLayer,
+                    hitParticleName,
+                    attackTemplate);
 
                 if (hasTargetPosition && projectile is AOEProjectile aoeProjectile)
                     aoeProjectile.SetCenterPosition(targetPosition);
@@ -134,6 +183,136 @@ namespace UPlayGround.Data.Event
 
             LayerMask actorTargetLayer = actor.GetAttackTargetLayerMask();
             return actorTargetLayer.value != 0 ? actorTargetLayer : targetHitLayer;
+        }
+
+        private ProjectileDefinitionSO ResolveDefinition(GameActor actor)
+        {
+            if (projectileDefinition != null)
+                return projectileDefinition;
+            if (hitPhaseIndex < 0)
+                return null;
+            if (actor is PlayerActor player)
+                return player.GetCombat()?.GetProjectileDefinition(hitPhaseIndex);
+            return actor.GetComponent<EnemyCombat>()?.GetProjectileDefinition(hitPhaseIndex);
+        }
+
+        private void SpawnDefinitionProjectiles(
+            GameActor actor,
+            ProjectileDefinitionSO definition,
+            Vector3 origin,
+            Vector3 forward,
+            bool hasTargetPosition,
+            Vector3 targetPosition,
+            bool usesLegacyCompatibility)
+        {
+            LayerMask hitLayer = ResolveTargetHitLayer(actor);
+            Transform targetTransform = ResolveTargetTransform(actor);
+
+            if (actor.Abilities != null
+                && actor.Abilities.TryGetPrimaryTargetReservation(
+                    out AbilityTargetReservation reservation)
+                && reservation.IsConfirmed
+                && reservation.Mode != AbilityTargetingMode.None)
+            {
+                forward = reservation.Direction;
+                hasTargetPosition = true;
+                targetPosition = reservation.Position;
+                targetTransform = reservation.Target != null
+                    ? reservation.Target.transform
+                    : null;
+            }
+
+            if (spawnPattern is MultiTargetShotPattern multiTarget
+                && actor.GetComponent<EnemyCombat>() is { } enemyCombat
+                && enemyCombat.SkillTargetList != null
+                && enemyCombat.SkillTargetList.Count > 0)
+            {
+                int count = Mathf.Min(multiTarget.maxTargets, enemyCombat.SkillTargetList.Count);
+                for (int i = 0; i < count; i++)
+                {
+                    Transform multiTransform = enemyCombat.SkillTargetList[i]?.GetTransform();
+                    if (multiTransform == null) continue;
+                    Vector3 multiDirection = (multiTransform.position - origin).normalized;
+                    SpawnRequest(
+                        actor, definition, origin, multiDirection, hitLayer,
+                        true, multiTransform.position, multiTransform, 0f,
+                        usesLegacyCompatibility);
+                }
+                return;
+            }
+
+            PatternShots.Clear();
+            (spawnPattern ?? new SingleShotPattern()).Build(forward, PatternShots);
+            for (int i = 0; i < PatternShots.Count; i++)
+            {
+                ProjectilePatternShot shot = PatternShots[i];
+                SpawnRequest(
+                    actor, definition, origin, shot.Direction, hitLayer,
+                    hasTargetPosition, targetPosition, targetTransform, shot.Delay,
+                    usesLegacyCompatibility);
+            }
+        }
+
+        private void SpawnRequest(
+            GameActor actor,
+            ProjectileDefinitionSO definition,
+            Vector3 origin,
+            Vector3 shotDirection,
+            LayerMask hitLayer,
+            bool hasTargetPosition,
+            Vector3 targetPosition,
+            Transform targetTransform,
+            float delay,
+            bool usesLegacyCompatibility)
+        {
+            Svc.Projectile.Spawn(new ProjectileSpawnRequest
+            {
+                definition = definition,
+                owner = actor.gameObject,
+                origin = origin,
+                logicalOrigin = actor.transform.position,
+                barrelBlendTime = barrelBlendTime,
+                direction = shotDirection,
+                hasTargetPosition = hasTargetPosition,
+                targetPosition = targetPosition,
+                targetTransform = targetTransform,
+                orbitCenter = actor.transform,
+                hitPhaseIndex = hitPhaseIndex,
+                hitLayers = hitLayer,
+                damageScale = 1f,
+                generation = 0,
+                delay = delay,
+                legacyDamage = damage,
+                speedOverride = usesLegacyCompatibility || overrideDefinitionSpeed ? speed : 0f,
+                durationOverride = usesLegacyCompatibility || overrideDefinitionDuration ? duration : 0f,
+                hitEffectOverride = hitParticleName,
+            });
+        }
+
+        private Transform ResolveTargetTransform(GameActor actor)
+        {
+            if (targetMode == ProjectileTargetMode.LockOnTarget)
+                return CameraManager.Instance != null ? CameraManager.Instance.GetLockOnTarget() : null;
+            EnemyCombat combat = actor != null ? actor.GetComponent<EnemyCombat>() : null;
+            if (combat?.SkillTargetList != null && combat.SkillTargetList.Count > 0)
+                return combat.SkillTargetList[0]?.GetTransform();
+            return targetMode == ProjectileTargetMode.TargetPosition && CameraManager.Instance != null
+                ? CameraManager.Instance.GetLockOnTarget()
+                : null;
+        }
+
+        private AttackData ResolveProjectileAttackData(GameActor actor)
+        {
+            if (actor == null || hitPhaseIndex < 0)
+                return null;
+
+            if (actor is PlayerActor playerActor)
+                return playerActor.GetCombat()?.CreateProjectileAttackData(hitPhaseIndex);
+
+            EnemyCombat enemyCombat = actor.GetComponent<EnemyCombat>();
+            return enemyCombat != null
+                ? enemyCombat.CreateProjectileAttackData(hitPhaseIndex)
+                : null;
         }
 
         private bool TryResolveTargetPosition(GameActor actor, Vector3 spawnPosition, Vector3 fallbackDirection, out Vector3 position)

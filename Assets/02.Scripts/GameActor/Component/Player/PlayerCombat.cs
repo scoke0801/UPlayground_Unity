@@ -8,6 +8,7 @@ using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Projectile;
 using UPlayGround.Manager;
 using UPlayGround.UI;
 using UPlayGround.Input;
@@ -369,6 +370,27 @@ namespace UPlayGround.Components
         public void CloseAssistParryWindow() => _defenseController?.CloseAssistParry();
 
         public AttackData CurrentAttackData => _currentAttackData;
+
+        /// <summary>
+        /// 현재 Ability의 지정 히트 페이즈를 독립적인 투사체 공격 스냅샷으로 만든다.
+        /// 원본 공격 상태는 변경하지 않는다.
+        /// </summary>
+        public AttackData CreateProjectileAttackData(int hitPhaseIndex)
+        {
+            if (_currentAttackData == null || _currentAttackInfoBase == null)
+                return null;
+
+            AttackData snapshot = PlayerAttackController.Copy(_currentAttackData);
+            PlayerAttackController.ApplyHitPhase(
+                snapshot,
+                _currentAttackInfoBase.GetHitPhase(hitPhaseIndex),
+                hitPhaseIndex);
+            snapshot.isProjectile = true;
+            return snapshot;
+        }
+
+        public ProjectileDefinitionSO GetProjectileDefinition(int hitPhaseIndex) =>
+            _currentAttackInfoBase?.GetHitPhase(hitPhaseIndex)?.projectileDefinition;
         public int        CurrentComboIndex { get; private set; }
         public float      LastAttackTime    { get; private set; }
         public bool       CanCombo          => _comboController != null && _comboController.IsWindowOpen;
@@ -743,22 +765,7 @@ namespace UPlayGround.Components
                 ? _currentAttackInfoBase.GetHitPhase(index)
                 : GetHitPhase(_currentResidualHitPhases, index);
             if (phase == null) return;
-            _currentAttackData.hitPhaseIndex   = index;
-            _currentAttackData.damage          = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f) * _currentAttackData.damageMultiplier;
-            _currentAttackData.poiseDamage     = phase.poiseDamage * _currentAttackData.poiseMultiplier;
-            _currentAttackData.breakDamage     = phase.breakDamage
-                                                 * _currentAttackData.poiseMultiplier
-                                                 * _currentAttackData.breakDamageMultiplier;
-            _currentAttackData.reactionDuration = phase.reactionDuration;
-            _currentAttackData.forceReaction   = phase.forceReaction;
-            _currentAttackData.forceBreakExpose = phase.forceBreakExpose;
-            _currentAttackData.reactionType    = phase.reactionType;
-            _currentAttackData.hitParticleName = phase.hitParticleName;
-            _currentAttackData.pullForce       = phase.pullForce;
-            _currentAttackData.airborneForce   = phase.airborneForce;
-            _currentAttackData.knockbackForce  = phase.knockBackForce;
-            _currentAttackData.knockbackDrag   = phase.knockBackDrag;
-            _currentAttackData.reactionData     = phase.reactionProfile?.Resolve();
+            PlayerAttackController.ApplyHitPhase(_currentAttackData, phase, index);
             _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.HitPhaseChanged, index);
         }
 

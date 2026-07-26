@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Projectile;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -30,9 +31,10 @@ namespace UPlayGround
             _projectileType = ProjectileType.LinearProjectile;
         }
         
-        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed, GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
+        public override void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed, GameActor ownerObject,
+            float duration, LayerMask layer, string hitParticleName, UPlayGround.Data.AttackData attackTemplate = null)
         {
-            base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
+            base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName, attackTemplate);
             _previousPosition = startPos;
             _currentSpeed = speed > 0f ? speed : _speed;
             _elapsedTime = 0f;
@@ -43,19 +45,34 @@ namespace UPlayGround
         {
             
         }
+
+        public override ProjectileDefinitionSO CreateCompatibilityDefinition()
+        {
+            ProjectileDefinitionSO definition = base.CreateCompatibilityDefinition();
+            definition.motion = new LinearProjectileMotion
+            {
+                speed = Mathf.Max(0f, _speed),
+                acceleration = _acceleration,
+                maxSpeed = Mathf.Max(0f, _maxSpeed),
+                speedCurve = speedCurve,
+            };
+            definition.collisionRadius = Mathf.Max(0.01f, collisionRadius);
+            return definition;
+        }
         
         protected override void UpdateMovement()
         {
-            _elapsedTime += Time.deltaTime;
+            float deltaTime = DeltaTime;
+            _elapsedTime += deltaTime;
             _previousPosition = transform.position;
 
             // 가속도 적용 (선형 가속 + 커브 배율)
-            _currentSpeed += _acceleration * Time.deltaTime;
+            _currentSpeed += _acceleration * deltaTime;
             _currentSpeed = Mathf.Min(_currentSpeed, _maxSpeed);
             float finalSpeed = _currentSpeed * speedCurve.Evaluate(_elapsedTime / lifeTime);
 
             // 위치 업데이트
-            transform.position += finalSpeed * Time.deltaTime * direction;
+            transform.position += finalSpeed * deltaTime * direction;
 
             if (useSizeCurve)
             {
@@ -64,7 +81,7 @@ namespace UPlayGround
             }
             
             // 회전 효과
-            transform.Rotate(_rotationSpeed * Time.deltaTime, Space.Self);
+            transform.Rotate(_rotationSpeed * deltaTime, Space.Self);
             
             CheckCollision();
         }

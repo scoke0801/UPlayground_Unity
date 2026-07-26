@@ -5,6 +5,7 @@ using UPlayGround.Data;
 using UPlayGround.Manager;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Projectile;
 
 namespace UPlayGround
 {
@@ -37,27 +38,60 @@ namespace UPlayGround
         
         public bool IsActive => isActive;
         public ProjectileType ProjectileType => _projectileType;
+
+        /// <summary>
+        /// 기존 프리팹의 직렬화 값을 새 ProjectileRuntime이 소비할 임시 Definition으로 변환한다.
+        /// 프리팹의 MonoScript GUID를 보존하기 위한 호환 저작 셸이며 실제 런타임 Update는 실행하지 않는다.
+        /// </summary>
+        public virtual ProjectileDefinitionSO CreateCompatibilityDefinition()
+        {
+            ProjectileDefinitionSO definition = ScriptableObject.CreateInstance<ProjectileDefinitionSO>();
+            definition.name = $"{name}_Compatibility";
+            definition.hideFlags = HideFlags.HideAndDontSave;
+            definition.visualPrefab = gameObject;
+            definition.hitEffectKey = string.Empty;
+            definition.detachTrailOnReturn = trailEffect != null;
+            definition.motion = new StationaryProjectileMotion();
+            definition.lifetime = Mathf.Max(0.01f, lifeTime);
+            definition.collisionRadius = 0.25f;
+            definition.destroyOnHit = destroyOnHit;
+            definition.inheritOwnerTimeScale = true;
+            definition.prewarmCount = 4;
+            definition.maxPoolSize = 64;
+            return definition;
+        }
+        protected float DeltaTime
+        {
+            get
+            {
+                if (owner == null)
+                    return Time.deltaTime;
+                if (owner is IDamageable damageableOwner && !damageableOwner.IsAlive())
+                    return Time.deltaTime;
+                return owner.DeltaTime;
+            }
+        }
         
         public virtual void Initialize(Vector3 startPos, Vector3 dir, float dmg, float speed,
-            GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
+            GameActor ownerObject, float duration, LayerMask layer, string hitParticleName,
+            AttackData attackTemplate = null)
         {
             transform.position = startPos;
             direction = dir.normalized;
             owner = ownerObject;
             
-            // AttackData 구성
-            // TODO(DangerRing): defenseType이 기본 Parryable로 들어간다. 원거리 Unblockable 공격을 만들려면
-            //   Initialize에 defenseType을 인자로 받아 스킬(AbilityAttackInfo.defenseType)에서 전달할 것.
-            //   (근접은 EnemyCombat.CheckMeleeAttackHit에서 이미 복사 중)
-            // isProjectile=true: 투사체/AOE는 패리·카운터가 성립하지 않는다(가드·퍼펙트 도지는 유지).
-            attackData = new AttackData
-            {
-                damage = dmg,
-                attackDirection = direction,
-                reactionType = AttackReactionType.Hit,
-                isProjectile = true
-            };
-            // P4: 설정된 히트 FX가 attacker-side 연출(ShowExternalHitFeedback)에 반영되도록 복사. 비우면 기본 FX 사용.
+            // 신규 저작은 Ability 히트 페이즈에서 만든 스냅샷을 사용한다.
+            // 레거시 이벤트(hitPhaseIndex < 0)는 기존 damage/Hit 기본값을 유지한다.
+            attackData = attackTemplate != null
+                ? PlayerAttackController.Copy(attackTemplate)
+                : new AttackData
+                {
+                    damage = dmg,
+                    reactionType = AttackReactionType.Hit,
+                };
+            attackData.attackDirection = direction;
+            attackData.isProjectile = true;
+
             if (!string.IsNullOrWhiteSpace(hitParticleName))
                 attackData.hitParticleName = hitParticleName;
 
@@ -66,7 +100,7 @@ namespace UPlayGround
             lifeTime = duration;
             isActive = true;
             _hitTargets.Clear();
-            hitEffectKey = hitParticleName;
+            hitEffectKey = attackData.hitParticleName;
             _ownerPlayerCombat = null;
             
             if (trailEffect != null)
@@ -107,15 +141,12 @@ namespace UPlayGround
             if (!isActive)
                 return;
 
-            currentLifeTime += Time.deltaTime;
-            
-            if (currentLifeTime >= lifeTime)
-            {
-                OnExpire();
-                return;
-            }
-
+            currentLifeTime += DeltaTime;
             UpdateMovement();
+
+            // 마지막 이동 프레임의 스윕/착탄 판정을 수행한 뒤 만료한다.
+            if (isActive && currentLifeTime >= lifeTime)
+                OnExpire();
         }
 
         /// <summary>

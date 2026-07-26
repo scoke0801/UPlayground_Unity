@@ -19,9 +19,19 @@ using UPlayGround.Dialogue;
 using UPlayGround.Input;
 using UPlayGround.InputDefine;
 using UPlayGround.CameraSystem;
+using UPlayGround.Data.Projectile;
 
 namespace UPlayGround.Manager
 {
+    public interface IProjectileService : IGameService
+    {
+        int CountActive { get; }
+        int CountAll { get; }
+        int CountInactive { get; }
+        void Spawn(ProjectileSpawnRequest request);
+        bool TryReflect(GameObject projectileObject, GameObject newOwner, Vector3 direction);
+    }
+
     public interface IInputService : IGameService
     {
         event Action<ActiveInputDevice> OnActiveDeviceChanged;

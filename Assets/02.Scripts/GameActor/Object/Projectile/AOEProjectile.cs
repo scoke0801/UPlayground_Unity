@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Projectile;
 
 namespace UPlayGround
 {
@@ -31,6 +32,7 @@ namespace UPlayGround
         private bool hasTriggered;
         private float spawnTimer;
         private float baseDamage;
+        private float _expireDelay = -1f;
         private bool _impactFeedbackApplied; // P4: 임팩트 연출은 AOE당 1회만(틱 히트스톱 스팸 방지)
         private readonly List<IDamageable> _damageCooldownKeys = new List<IDamageable>(32);
 
@@ -40,15 +42,17 @@ namespace UPlayGround
         }
 
         public override void Initialize(Vector3 startPos, Vector3 dir, float dmg,float speed,
-            GameActor ownerObject, float duration, LayerMask layer, string hitParticleName)
+            GameActor ownerObject, float duration, LayerMask layer, string hitParticleName,
+            UPlayGround.Data.AttackData attackTemplate = null)
         {
-            base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName);
+            base.Initialize(startPos, dir, dmg, speed, ownerObject, duration, layer, hitParticleName, attackTemplate);
             
             currentRadius = 0f;
             hasTriggered = false;
             spawnTimer = 0f;
             baseDamage = attackData.damage;
             _impactFeedbackApplied = false;
+            _expireDelay = -1f;
 
             _damageCooldowns.Clear();
             
@@ -61,6 +65,28 @@ namespace UPlayGround
         public void InitAOEProjectile()
         {
             
+        }
+
+        public override ProjectileDefinitionSO CreateCompatibilityDefinition()
+        {
+            ProjectileDefinitionSO definition = base.CreateCompatibilityDefinition();
+            definition.motion = new StationaryProjectileMotion
+            {
+                attachToGround = attachToGround,
+                groundLayers = _groundLayerMask,
+            };
+            definition.collisionRadius = Mathf.Max(0.01f, aoeRadius);
+            definition.behaviors.Add(new AreaTickProjectileBehavior
+            {
+                radius = Mathf.Max(0.01f, aoeRadius),
+                interval = Mathf.Max(0.01f, damageCooldown),
+                activationDelay = Mathf.Max(0f, spawnDelay),
+                applyOnce = !expandOverTime,
+                expandOverTime = expandOverTime,
+                expansionSpeed = Mathf.Max(0f, expansionSpeed),
+                damageFalloff = damageFalloff,
+            });
+            return definition;
         }
 
         public void SetCenterPosition(Vector3 centerPosition)
@@ -113,7 +139,7 @@ namespace UPlayGround
 
             foreach (var key in _damageCooldownKeys)
             {
-                _damageCooldowns[key] -= Time.deltaTime;
+                _damageCooldowns[key] -= DeltaTime;
                 if (_damageCooldowns[key] <= 0f)
                 {
                     _damageCooldowns.Remove(key);
@@ -123,10 +149,18 @@ namespace UPlayGround
         
         protected override void UpdateMovement()
         {
+            if (_expireDelay >= 0f)
+            {
+                _expireDelay -= DeltaTime;
+                if (_expireDelay <= 0f)
+                    OnExpire();
+                return;
+            }
+
             // 생성 딜레이
             if (spawnTimer < spawnDelay)
             {
-                spawnTimer += Time.deltaTime;
+                spawnTimer += DeltaTime;
                 return;
             }
 
@@ -138,7 +172,7 @@ namespace UPlayGround
 
             if (expandOverTime && currentRadius < aoeRadius)
             {
-                currentRadius += expansionSpeed * Time.deltaTime;
+                currentRadius += expansionSpeed * DeltaTime;
                 currentRadius = Mathf.Min(currentRadius, aoeRadius);
                 
                 // 확장되는 AOE는 지속적으로 체크
@@ -160,7 +194,7 @@ namespace UPlayGround
                 // 즉시 폭발 타입은 바로 종료
                 if (destroyOnHit)
                 {
-                    Invoke(nameof(OnExpire), 0.5f);
+                    _expireDelay = 0.5f;
                 }
             }
 

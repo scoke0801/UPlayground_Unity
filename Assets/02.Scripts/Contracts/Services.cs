@@ -105,6 +105,7 @@ namespace UPlayGround.Manager
         public static IItemService Item => Services.Get<IItemService>();
         public static IDialogueService Dialogue => Services.Get<IDialogueService>();
         public static ISoundService Sound => Services.Get<ISoundService>();
+        public static IProjectileService Projectile => Services.Get<IProjectileService>();
         public static IGlobalFlagService Flags => Services.Get<IGlobalFlagService>();
         public static IQuestFlowService QuestFlow => Services.Get<IQuestFlowService>();
         public static IStoryFlowService StoryFlow => Services.Get<IStoryFlowService>();

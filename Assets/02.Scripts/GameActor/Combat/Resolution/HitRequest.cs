@@ -36,6 +36,7 @@ namespace UPlayGround.Combat
         public readonly bool IsCounterAttack;
         public readonly bool UseCounterHitFeedback;
         public readonly bool IsProjectile;
+        public readonly bool IsReflectableProjectile;
         public readonly Vector3 HitPoint;
         public readonly Vector3 AttackDirection;
         public readonly GameObject HitTarget;
@@ -87,7 +88,8 @@ namespace UPlayGround.Combat
             HitRequestType requestType = HitRequestType.Standard,
             float specialDamageByMaxHpRate = 0f,
             float specialFixedDamage = 0f,
-            float specialMinReferenceHealth = 0f)
+            float specialMinReferenceHealth = 0f,
+            bool isReflectableProjectile = false)
         {
             Attacker = attacker;
             MotionAsset = motionAsset;
@@ -105,6 +107,7 @@ namespace UPlayGround.Combat
             IsCounterAttack = isCounterAttack;
             UseCounterHitFeedback = useCounterHitFeedback;
             IsProjectile = isProjectile;
+            IsReflectableProjectile = isReflectableProjectile;
             HitPoint = hitPoint;
             AttackDirection = attackDirection;
             HitTarget = hitTarget;
@@ -158,7 +161,8 @@ namespace UPlayGround.Combat
                 data.grabDuration,
                 data.victimForcedMotionSlot,
                 data.guaranteedReaction,
-                data.reactionData);
+                data.reactionData,
+                isReflectableProjectile: data.isReflectableProjectile);
         }
 
         private static float ResolveCriticalMultiplier(AttackData data)
@@ -265,6 +269,7 @@ namespace UPlayGround.Combat
                 isCounterAttack = IsCounterAttack,
                 useCounterHitFeedback = UseCounterHitFeedback,
                 isProjectile = IsProjectile,
+                isReflectableProjectile = IsReflectableProjectile,
                 hitPoint = HitPoint,
                 attackDirection = AttackDirection,
                 hitTarget = HitTarget,

@@ -7,6 +7,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Animation;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.Projectile;
 
 namespace UPlayGround.Data
 {
@@ -147,6 +148,8 @@ namespace UPlayGround.Data
         public float poiseDamage = 30f;
         [Tooltip("몬스터 Break Gauge 잔량을 깎는 양. 0이면 Break 피해 없음")]
         public float breakDamage = 10f;
+        [Tooltip("이 히트 페이즈가 발사할 조합형 투사체 정의. 비어 있으면 레거시 투사체 경로를 사용한다.")]
+        public ProjectileDefinitionSO projectileDefinition;
         public AttackReactionType reactionType = AttackReactionType.Hit;
         [Tooltip("0이면 상태/애니메이션 기본 지속시간을 사용한다.")]
         public float reactionDuration = 0f;

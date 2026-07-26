@@ -123,13 +123,31 @@
   `UPlayGround.UI` 보조 컴파일 오류 0, `UPlayGround.UI.Tests` 보조 컴파일 오류 0,
   Unity Editor 전체 스크립트 컴파일 오류 0.
 
+### 6차 (2026-07-26, 지도 공간 UI 가상 커서)
+
+- `UI/VirtualCursorMove` 의미 액션을 추가하고 기본값을 Gamepad Right Stick으로 연결했다.
+  전체 축은 리바인딩 캡처 대상에서 제외한다는 기존 정책을 유지한다.
+- `UIVirtualCursorController`를 공용 컴포넌트로 추가했다. 오른쪽 스틱이 데드존을
+  넘을 때만 가상 커서 모드로 진입하고, A(`UI/Submit`)로 지도 마커의 포인터 클릭을
+  발생시킨다. 실제 OS 마우스 위치는 변경하지 않는다.
+- 지도 패널·필터·하단 버튼은 기존 Left Stick/D-Pad UINavigation을 유지한다.
+  가상 커서 중 Navigate 입력이 들어오면 커서를 숨기고 직전 선택으로 복귀한다.
+  `UIFocusScope`는 가상 커서 동안 기본 선택 자동 복원을 중지해 Submit 이중 실행을 막는다.
+- 커서가 `MapViewport` 가장자리에서 바깥 방향으로 입력되면 해당 방향으로 뷰를
+  자동 패닝한다. 확인 팝업이 열릴 때는 UINavigation 모드로 먼저 복귀한다.
+- `UIMapPanelsBuilder`가 `MapViewport/VirtualCursor`와 공용 컨트롤러 참조를 생성하도록
+  수정했으며, Builder를 실행해 `UI_Map.prefab`에도 반영했다.
+- 검증 완료: `UPlayGround.UI`와 `UPlayGround.UI.Editor` 보조 컴파일 오류 0,
+  Builder 완료 로그와 프리팹 직렬화 참조 확인. 전체 Editor 컴파일은 동시 작업 중인
+  `UPlayGround.FlowGraph.Editor`의 `FlowPortDef.Name` 오류로 별도 차단돼 있다.
+
 ### 남은 작업
 
 - §19.2 PlayMode 수직 슬라이스 8종. 타이틀/일시정지/설정 씬과 프리팹 부트스트랩이 필요해
   Unity 에디터에서 씬 기준을 확정한 뒤 작성한다.
 - 새 `UPlayGround.UI.Tests` EditMode 3개는 Unity Test Runner에서 실행해 결과를 확정한다.
-- 지도 패닝/줌의 전용 스틱 정책은 UI Navigate와의 충돌 정책을 정한 뒤 별도 입력 액션으로
-  추가한다. 탭 LB/RB와 페이지 LT/RT는 5차에서 의미 액션으로 분리 완료했다.
+- 지도 가상 커서의 이동 속도·데드존·가장자리 패닝 속도를 실제 패드별로 체감 조정한다.
+  줌은 현재 UINavigation으로 접근 가능한 확대/축소 버튼과 슬라이더 정책을 유지한다.
 - §20 실제 패드 3종(Xbox / DualSense / Switch Pro) 수동 스모크와 Player Build 검증.
 - §20에 걸린 미결정 사항: Switch의 Submit/Cancel 물리 위치 정책을 옵션화할지
   출시 플랫폼 정책으로 고정할지.

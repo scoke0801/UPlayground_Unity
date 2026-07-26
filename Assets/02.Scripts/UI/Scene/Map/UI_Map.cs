@@ -62,6 +62,7 @@ namespace UPlayGround.UI
         [SerializeField] private RectTransform _iconContainer;  // 적·NPC 마커 부모
         [SerializeField] private RectTransform _questContainer; // 퀘스트 마커 부모
         [SerializeField] private RectTransform _playerIcon;     // 플레이어 위치 마커
+        [SerializeField] private UIVirtualCursorController _virtualCursor;
 
         [Header("버튼")]
         [SerializeField] private Button _closeButton;
@@ -101,6 +102,7 @@ namespace UPlayGround.UI
         [SerializeField] private float _maxZoom          = 4f;
         [SerializeField] private float _zoomStep         = 0.5f;
         [SerializeField] private float _scrollZoomSpeed  = 0.1f;
+        [SerializeField] private float _gamepadEdgePanSpeed = 700f;
 
         [Header("표시 옵션")]
         [Tooltip("미니맵 설정과 무관하게 맵에서 모든 적 표시")]
@@ -176,6 +178,9 @@ namespace UPlayGround.UI
                     _inputReceiver.OnRightClickEvent += OnMapRightClick;
                 }
             }
+
+            if (_virtualCursor != null)
+                _virtualCursor.OnEdgeMoveRequested += OnVirtualCursorEdgeMove;
         }
 
         // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
@@ -222,6 +227,7 @@ namespace UPlayGround.UI
             // 초기 줌으로 플레이어 위치를 중심으로 열기
             _currentZoom = _initialZoom;
             CenterOnPlayer();
+            _virtualCursor?.Activate(InputLayer.Level_1);
 
             var gom = UISvc.Actors;
             if (gom != null)
@@ -248,6 +254,7 @@ namespace UPlayGround.UI
 
         protected override void OnHide()
         {
+            _virtualCursor?.Deactivate();
             base.OnHide();
 
             // 커서 숨김·입력 레이어 복원도 UI_Base가 짝 맞춰 처리한다.
@@ -491,8 +498,19 @@ namespace UPlayGround.UI
         {
             // e.delta는 스크린 픽셀 단위 → Canvas scaleFactor로 나눠 UI 좌표계로 변환
             float scaleFactor = _canvas != null ? _canvas.scaleFactor : 1f;
-            _panOffset += e.delta / scaleFactor;
-            _panOffset  = ClampPan(_panOffset);
+            PanMap(e.delta / scaleFactor);
+        }
+
+        private void OnVirtualCursorEdgeMove(Vector2 direction)
+        {
+            // 스틱 방향은 카메라가 살펴볼 방향이므로 맵 콘텐츠는 반대로 이동한다.
+            PanMap(-direction * (_gamepadEdgePanSpeed * Time.unscaledDeltaTime));
+        }
+
+        private void PanMap(Vector2 delta)
+        {
+            _panOffset += delta;
+            _panOffset = ClampPan(_panOffset);
             ApplyLayout();
         }
 

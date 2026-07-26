@@ -40,6 +40,7 @@ namespace UPlayGround.UI
         private bool _inputLocked;
         private bool _interactableBeforeLock;
         private bool _blocksRaycastsBeforeLock;
+        private bool _virtualPointerActive;
 
         public bool IsTopmost =>
             ActiveScopes.Count > 0 && ActiveScopes[^1] == this;
@@ -48,6 +49,17 @@ namespace UPlayGround.UI
         {
             _defaultSelectable = selectable;
             if (ensureSelection)
+                EnsureSelection();
+        }
+
+        /// <summary>
+        /// 가상 커서가 공간 UI를 조작하는 동안 선택 자동 복원을 중지한다.
+        /// UINavigation으로 돌아오면 마지막/기본 선택을 즉시 복원한다.
+        /// </summary>
+        public void SetVirtualPointerActive(bool active)
+        {
+            _virtualPointerActive = active;
+            if (!active)
                 EnsureSelection();
         }
 
@@ -94,6 +106,9 @@ namespace UPlayGround.UI
 
         public void EnsureSelection()
         {
+            if (_virtualPointerActive)
+                return;
+
             EventSystem eventSystem = EventSystem.current;
             if (eventSystem == null || !isActiveAndEnabled || !IsTopmost)
                 return;
@@ -121,6 +136,9 @@ namespace UPlayGround.UI
 
             // 외부 코드나 포인터가 하위 UI를 선택하더라도 같은 프레임의 마지막에
             // 최상위 스코프로 복귀시켜 다음 Submit/Navigate가 하위 UI로 전달되지 않게 한다.
+            if (_virtualPointerActive)
+                return;
+
             EnsureSelection();
 
             TrackSelectionIntoView();
@@ -259,6 +277,7 @@ namespace UPlayGround.UI
         {
             if (device != ActiveInputDevice.Gamepad
                 || !_autoFocusWhenGamepadActivated
+                || _virtualPointerActive
                 || !IsTopmost)
             {
                 return;

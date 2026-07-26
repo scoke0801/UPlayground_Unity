@@ -51,6 +51,43 @@ namespace UPlayGround.UI.Map.EditorTools
 
                 var so = new SerializedObject(map);
 
+                // ── 지도 전용 가상 커서 ──
+                // 오른쪽 스틱으로 MapViewport 안의 마커를 직접 가리킨다.
+                // 일반 버튼/필터는 기존 UINavigation을 유지하므로 커서는 뷰포트 안에만 둔다.
+                var viewport = root.transform.Find("MapViewport") as RectTransform;
+                if (viewport != null)
+                {
+                    var oldCursor = viewport.Find("VirtualCursor");
+                    if (oldCursor != null)
+                        UnityEngine.Object.DestroyImmediate(oldCursor.gameObject);
+
+                    var cursorGo = NewUI("VirtualCursor", viewport);
+                    var cursorRt = Rt(cursorGo);
+                    SetAnchored(
+                        cursorRt,
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(0.5f, 0.5f),
+                        new Vector2(32f, 32f),
+                        Vector2.zero);
+                    var cursorImage = AddImage(cursorGo, Gold, UISprite, sliced: true);
+                    cursorImage.raycastTarget = false;
+                    var outline = cursorGo.AddComponent<Outline>();
+                    outline.effectColor = new Color(0.02f, 0.04f, 0.06f, 0.95f);
+                    outline.effectDistance = new Vector2(3f, -3f);
+                    cursorGo.SetActive(false);
+
+                    var virtualCursor = root.GetComponent<UIVirtualCursorController>();
+                    if (virtualCursor == null)
+                        virtualCursor = root.AddComponent<UIVirtualCursorController>();
+                    virtualCursor.Configure(cursorRt, viewport, root.GetComponent<Canvas>());
+                    SetRef(so, "_virtualCursor", virtualCursor);
+                }
+                else
+                {
+                    Debug.LogWarning("[MapBuilder] MapViewport를 찾지 못해 가상 커서를 생성하지 않았습니다.");
+                }
+
                 // UI_Map은 전체 화면 맵 스캐폴드 위에 코너 패널을 얹는 구조라 슬라이드시킬 단일 창이 없다.
                 // 따라서 UI_SceneBase._sceneContent는 의도적으로 비워 두고 루트 CanvasGroup 페이드만 사용한다.
 

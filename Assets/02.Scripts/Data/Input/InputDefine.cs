@@ -81,6 +81,7 @@
         public const string MainTabNext = "MainTabNext";
         public const string SubTabPrevious = "SubTabPrevious";
         public const string SubTabNext = "SubTabNext";
+        public const string VirtualCursorMove = "VirtualCursorMove";
 
     }
 

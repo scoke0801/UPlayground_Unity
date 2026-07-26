@@ -129,6 +129,7 @@ namespace UPlayGround.Manager
             EnsureUiAction(uiMap, UIAction.RightClick, InputActionType.PassThrough, "<Mouse>/rightButton", "Keyboard&Mouse");
             EnsureUiAction(uiMap, UIAction.MiddleClick, InputActionType.PassThrough, "<Mouse>/middleButton", "Keyboard&Mouse");
             EnsureUiAction(uiMap, UIAction.ScrollWheel, InputActionType.PassThrough, "<Mouse>/scroll", "Keyboard&Mouse");
+            EnsureUiAction(uiMap, UIAction.VirtualCursorMove, InputActionType.PassThrough, "<Gamepad>/rightStick", "Gamepad");
         }
 
         private static InputAction EnsureUiAction(

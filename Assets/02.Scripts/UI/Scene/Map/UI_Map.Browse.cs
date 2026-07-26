@@ -268,6 +268,7 @@ namespace UPlayGround.UI
 
         private void ShowConfirm(string message, Action onYes)
         {
+            _virtualCursor?.ReturnToNavigation();
             _focusBeforeConfirm = EventSystem.current?.currentSelectedGameObject;
             _pendingConfirm = onYes;
             if (_confirmMessageText != null) _confirmMessageText.text = message;

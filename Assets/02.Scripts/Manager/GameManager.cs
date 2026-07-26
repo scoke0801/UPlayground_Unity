@@ -120,6 +120,8 @@ namespace UPlayGround.Manager
             RegisterManager(RecipeManager.Instance);
             RegisterManager(QuestManager.Instance);
             RegisterManager(UPlayGround.FlowGraph.FlowGraphManager.Instance); // 게임 흐름 노드 그래프 (Flag/Quest/Story/Dialogue 이후)
+            // FlowGraph 진행 기록은 매니저가 아닌 static 저장소라 별도 참여자로 세이브에 등록한다.
+            SaveManager.Instance.RegisterSaveable(FlowProgressSaveable.Instance);
             RegisterManager(GameGuideManager.Instance);
 
             var bootStopwatch = System.Diagnostics.Stopwatch.StartNew();

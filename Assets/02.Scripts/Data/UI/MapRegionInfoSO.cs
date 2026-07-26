@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Flow;
 
 namespace UPlayGround.Data.UI
 {
@@ -56,6 +57,11 @@ namespace UPlayGround.Data.UI
 
         [Header("설명")]
         [TextArea] public string description;
+
+        [Header("게임 흐름 (FlowGraph)")]
+        [Tooltip("이 지역(맵) 진입 시 자동으로 러너를 생성해 실행할 FlowGraph 목록. " +
+                 "씬에 FlowGraphRunner를 직접 배치할 필요가 없어지며, 지역을 떠나면 자동 해제된다.")]
+        public List<FlowGraphAssetBase> flowGraphs = new();
 
         [Header("파스트트래블 포탈 (브라우즈 모드)")]
         [Tooltip("이 지역 지도에 표시할 포탈 목록. 지역 선택 후 아이콘 클릭 시 해당 씬으로 이동.")]

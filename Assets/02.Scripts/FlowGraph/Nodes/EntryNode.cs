@@ -14,6 +14,12 @@ namespace UPlayGround.FlowGraph
         /// <summary>cooldownSeconds 간격 제한.</summary>
         Cooldown = 2,
         Always = 3,
+
+        /// <summary>
+        /// 세이브 진행 기록 기준 1회 (그래프ID+노드ID). 저장/로드 후에도 유지되므로
+        /// 이어하기에서 다시 재생되면 안 되는 1회성 연출·해금 흐름에 사용한다.
+        /// </summary>
+        OncePerSave = 4,
     }
 
     /// <summary>

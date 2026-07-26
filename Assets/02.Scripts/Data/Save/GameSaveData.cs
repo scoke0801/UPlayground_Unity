@@ -22,6 +22,7 @@ namespace UPlayGround.Data.Save
         public WorldStateSaveData world = new WorldStateSaveData();
         public TimeSaveData time = new TimeSaveData();
         public CycleSaveData cycle = new CycleSaveData();
+        public FlowProgressSaveData flow = new FlowProgressSaveData();
         public List<MonsterCodexEntrySave> monsterCodex = new List<MonsterCodexEntrySave>();
     }
 

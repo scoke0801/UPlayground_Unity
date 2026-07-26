@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
+using UPlayGround.Data.UI;
+using UPlayGround.FlowGraph;
 using UPlayGround.Manager;
 
 namespace UPlayGround
@@ -14,6 +16,13 @@ namespace UPlayGround
 
         [Tooltip("미니맵·전체맵 Config를 조회할 맵 식별자 (MapConfigDatabaseSO의 mapId와 일치해야 함)")]
         public string MapID;
+
+        [Header("게임 흐름 (FlowGraph)")]
+        [Tooltip("MapID로 지역 정보를 조회할 데이터베이스. 지역 정보의 FlowGraph 목록이 씬 진입 시 자동 적용된다.")]
+        [SerializeField] private MapConfigDatabaseSO _mapConfigDB;
+
+        [Tooltip("데이터베이스 조회를 건너뛰고 이 지역 정보를 직접 사용한다(테스트/특수 씬용). 비워두면 DB 조회.")]
+        [SerializeField] private MapRegionInfoSO _regionInfoOverride;
 
         private IEnumerator Start()
         {
@@ -31,6 +40,29 @@ namespace UPlayGround
             }
 
             SceneManager.Instance.NotifySceneContextReady(this);
+
+            // 씬 전환 통보(매니저 레퍼런스 재수집) 이후에 지역 흐름을 무장한다.
+            ApplyRegionFlowGraphs();
+        }
+
+        /// <summary>
+        /// 지역 정보(MapRegionInfoSO)에 등록된 FlowGraph를 자동 적용한다.
+        /// 지역 정보나 DB가 없으면 빈 목록으로 호출해 이전 지역의 러너를 해제만 한다
+        /// (타이틀 등 흐름이 없는 씬으로 이동할 때 이전 지역 흐름이 남지 않게 한다).
+        /// </summary>
+        private void ApplyRegionFlowGraphs()
+        {
+            var flowGraphManager = FlowGraphManager.Instance;
+            if (flowGraphManager == null)
+                return;
+
+            MapRegionInfoSO regionInfo = _regionInfoOverride != null
+                ? _regionInfoOverride
+                : _mapConfigDB != null
+                    ? _mapConfigDB.GetRegionInfo(MapID)
+                    : null;
+
+            flowGraphManager.ApplyMapFlowGraphs(MapID, regionInfo != null ? regionInfo.flowGraphs : null);
         }
 
         /// <summary>

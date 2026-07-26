@@ -13,59 +13,101 @@ MonoBehaviour:
   m_Name: MapRegionInfo_LakeOfLife
   m_EditorClassIdentifier: 
   continentName: "\uC0DD\uBA85\uC758 \uD638\uC218"
+  showContinentName: 1
   recommendedLevelMin: 1
   recommendedLevelMax: 30
   description: 
+  flowGraphs:
+  - {fileID: 11400000, guid: 34a97b44b4a488648aa02e4564e311cd, type: 2}
   portals:
   - label: Portal_01
     worldPosition: {x: 1639.5197, y: 64.822205, z: 499.86496}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 947.5258, y: 76.56681, z: 444.03918}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 1116.3812, y: 71.41959, z: 738.9872}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 763.2708, y: 101.828156, z: 1076.2883}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 881.0054, y: 149.34584, z: 1340.4099}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 634.3325, y: 114.03013, z: 1096.4324}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 974.89386, y: 91.65813, z: 1088.2264}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 1075.2759, y: 56.256706, z: 359.86636}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 733.7911, y: 99.65, z: 603.7995}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 1006.3206, y: 62.91, z: 370.05905}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 988.2931, y: 62.91, z: 421.7128}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal_01
     worldPosition: {x: 1016.9524, y: 22.314684, z: 234.63628}
     targetSceneName: 
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0
   - label: Portal
     worldPosition: {x: 962.35126, y: 39.48, z: 150.49313}
     targetSceneName: ForgottenWatchpost
     arrivalId: 
+    activationId: 
+    requiresActivation: 0
+    startsActivated: 0

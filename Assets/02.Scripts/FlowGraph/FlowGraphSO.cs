@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.Flow;
 
 namespace UPlayGround.FlowGraph
 {
@@ -28,7 +29,7 @@ namespace UPlayGround.FlowGraph
     /// (BT/Dialogue의 SO-서브에셋 방식과 달리 고아 서브에셋·에셋 diff 복잡도를 피한다).
     /// </summary>
     [CreateAssetMenu(menuName = "UPlayGround/FlowGraph/Graph", fileName = "FLOW_")]
-    public sealed class FlowGraphSO : ScriptableObject
+    public sealed class FlowGraphSO : FlowGraphAssetBase
     {
         [Tooltip("FlowGraphManager 등록·조회용 식별자. 비우면 에셋 이름을 사용한다.")]
         public string graphId;
@@ -103,6 +104,8 @@ namespace UPlayGround.FlowGraph
         }
 
         public string ResolvedGraphId => string.IsNullOrEmpty(graphId) ? name : graphId;
+
+        public override string GraphId => ResolvedGraphId;
 
         public FlowNode GetNode(string nodeId)
         {

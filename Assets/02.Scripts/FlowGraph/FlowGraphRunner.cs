@@ -226,6 +226,7 @@ namespace UPlayGround.FlowGraph
             }
             configure?.Invoke(context);
             _activeContexts.Add(context);
+            FlowProgressState.MarkEntryStarted(graph.ResolvedGraphId, entry.id);
             RecordTrace(FlowTraceKind.Entry, context, graph, entry);
             StartCoroutine(TokenRoutine(context, graph, entry));
             return context;
@@ -276,7 +277,13 @@ namespace UPlayGround.FlowGraph
                     break;
 
                 case FlowRepeatPolicy.OncePerSession:
-                    if (!FlowSessionState.TryMarkFired($"{graph.ResolvedGraphId}:{entry.id}"))
+                    if (!FlowProgressState.TryMarkFired($"{graph.ResolvedGraphId}:{entry.id}"))
+                        return false;
+                    break;
+
+                case FlowRepeatPolicy.OncePerSave:
+                    if (!FlowProgressState.TryMarkFiredPersistent(
+                            $"entry:{graph.ResolvedGraphId}:{entry.id}"))
                         return false;
                     break;
 
@@ -427,8 +434,13 @@ namespace UPlayGround.FlowGraph
                 RecordTrace(FlowTraceKind.NodeEnd, context, graph, node);
 
                 // 노드 Execute 중에 후속 토큰이 먼저 증가하므로, 0이면 이 플로우는 완주된 것이다.
-                if (context.ActiveTokenCount <= 0)
-                    _activeContexts.Remove(context);
+                if (context.ActiveTokenCount <= 0 && _activeContexts.Remove(context) && !context.Cancelled)
+                {
+                    // 취소(러너 비활성/씬 전환)는 완주가 아니다 — 완주 기록만 진행도로 남긴다.
+                    FlowProgressState.MarkEntryCompleted(
+                        (context.Graph != null ? context.Graph : graph).ResolvedGraphId,
+                        context.Entry != null ? context.Entry.id : null);
+                }
             }
         }
 
@@ -640,22 +652,5 @@ namespace UPlayGround.FlowGraph
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// OncePerSession 발화 기록. 도메인 리로드 비활성화 환경에서도 매 플레이 진입 시 리셋되도록
-    /// SubsystemRegistration에서 초기화한다 (ManagerLifecycle 패턴 계승).
-    /// </summary>
-    internal static class FlowSessionState
-    {
-        private static readonly HashSet<string> FiredKeys = new();
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void ResetOnEnterPlayMode()
-        {
-            FiredKeys.Clear();
-        }
-
-        public static bool TryMarkFired(string key) => FiredKeys.Add(key);
     }
 }

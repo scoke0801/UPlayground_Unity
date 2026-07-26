@@ -330,9 +330,15 @@ namespace UPlayGround.FlowGraph
             {
                 case FlowRepeatPolicy.Once:
                 case FlowRepeatPolicy.OncePerSession:
-                    if (!FlowSessionState.TryMarkFired(policy == FlowRepeatPolicy.Once
+                    if (!FlowProgressState.TryMarkFired(policy == FlowRepeatPolicy.Once
                             ? key
                             : $"gate:{token.Graph.ResolvedGraphId}:{id}"))
+                        yield break;
+                    break;
+
+                case FlowRepeatPolicy.OncePerSave:
+                    if (!FlowProgressState.TryMarkFiredPersistent(
+                            $"gate:{token.Graph.ResolvedGraphId}:{id}"))
                         yield break;
                     break;
 

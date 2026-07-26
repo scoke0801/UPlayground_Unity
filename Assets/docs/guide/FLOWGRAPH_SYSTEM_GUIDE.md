@@ -52,14 +52,15 @@ Assets/02.Scripts/FlowGraph/
 ├── FlowGraphSO.cs              # 그래프 에셋 + FlowConnection + Validate
 ├── FlowNode.cs                 # 노드 베이스 + FlowPortDef + FlowNodeMenu 어트리뷰트
 ├── FlowContext.cs              # 실행 컨텍스트 + FlowToken
-├── FlowGraphRunner.cs          # 토큰 실행기 + FlowSessionState
+├── FlowGraphRunner.cs          # 토큰 실행기
+├── FlowProgressState.cs        # 진행 기록 저장소 (세션/세이브 스코프)
 ├── FlowGraphManager.cs         # 매니저 (IFlowGraphService)
 ├── FlowGraphTriggerVolume.cs   # 씬 콜라이더 프록시 + OnTriggerVolumeEntryNode
 ├── Nodes/
 │   ├── EntryNode.cs            # EntryNode 베이스 + ManualEntryNode + FlowRepeatPolicy
 │   ├── CoreNodes.cs            # Sequence/Branch/Wait/Join/Gate/Log
 │   ├── SubGraphNode.cs         # 중첩 그래프 호출
-│   ├── FlowConditions.cs       # FlagCondition/QuestStatusCondition/StoryProgressAtLeastCondition
+│   ├── FlowConditions.cs       # Flag/QuestStatus/StoryProgress/FlowProgress 조건
 │   ├── FlagNodes.cs            # OnFlagChangedEntry/SetFlag/CheckFlag
 │   ├── GameEventNodes.cs       # OnGameEventEntry/Publish/WaitForGameEvent + GameEventRef
 │   ├── DialogueNodes.cs        # PlayDialogue
@@ -128,13 +129,45 @@ public IReadOnlyDictionary<string, int> ActiveNodeCounts;    // 디버그 뷰 �
 | 정책 | 의미 |
 |------|------|
 | `Once` | 러너 인스턴스 수명 동안 1회 (씬 재로드 시 리셋) |
-| `OncePerSession` | 플레이 세션 동안 1회 (`FlowSessionState`, 씬 재로드에도 유지) |
+| `OncePerSession` | 플레이 세션 동안 1회 (`FlowProgressState` 세션 스코프, 씬 재로드에도 유지) |
 | `Cooldown` | `cooldownSeconds` 간격 제한 |
 | `Always` | 무제한 |
+| `OncePerSave` | 세이브 진행 기록 기준 1회. 저장/로드 후에도 유지된다 |
 
-발화 상태는 러너가 노드 id 기준으로 소유한다(에셋 오염 방지). `Once`는 세이브에 영속되지 않는다 — 영속 1회가 필요하면 플래그 게이트(`CheckFlag`→`SetFlag`)를 그래프에 넣을 것.
+발화 상태는 러너가 노드 id 기준으로 소유한다(에셋 오염 방지). `Once`/`OncePerSession`은 세이브에 영속되지 않는다 — 이어하기에서 다시 재생되면 안 되는 1회성 흐름은 `OncePerSave`를 쓰거나 플래그 게이트(`CheckFlag`→`SetFlag`)를 넣는다. `GateNode`도 같은 정책 집합을 사용한다.
 
 ---
+
+## 지역(맵) 자동 적용
+
+씬마다 `FlowGraphRunner`를 손으로 배치하는 대신, 지역 데이터에 그래프를 등록하면 진입 시 자동 실행된다.
+
+```
+MapRegionInfoSO.flowGraphs (List<FlowGraphAssetBase>)
+→ SceneContext (MapID → MapConfigDatabaseSO.GetRegionInfo)
+→ FlowGraphManager.ApplyMapFlowGraphs(mapId, graphs)
+→ 매니저 하위에 러너 GameObject 생성 → OnEnable에서 진입점 무장·등록
+```
+
+- `MapRegionInfoSO`는 `UPlayGround.Data`에 있어 `UPlayGround.FlowGraph`를 참조할 수 없다. 그래서 Data 쪽 추상 베이스 `FlowGraphAssetBase`(`Data/Flow/`)를 두고 `FlowGraphSO`가 이를 상속한다. 인스펙터 참조는 데이터가, 실행 해석은 FlowGraph 모듈이 담당한다.
+- 씬 배치는 `SceneContext`의 `_mapConfigDB`(MapID로 지역 조회) 또는 `_regionInfoOverride`(DB 조회를 건너뛰는 직접 지정) 중 하나면 된다. 둘 다 비면 자동 적용 없이 이전 지역 러너 **해제만** 수행한다(타이틀 등으로 이동할 때 흐름이 남지 않게).
+- 러너는 매니저(DontDestroyOnLoad) 하위에 생성되므로 씬 로드 타이밍에 파괴되지 않는다. 대신 지역이 바뀌거나 같은 지역을 다시 진입하면 **항상 새로 만든다** — `Once`(러너 수명) 정책이 "지역 진입 1회"로 일관되게 동작한다.
+- 같은 `graphId`의 러너가 이미 씬에 직접 배치돼 있으면 이중 발화를 막기 위해 자동 적용을 건너뛰고 경고한다.
+
+## 세이브/로드 (진행 기록)
+
+`FlowProgressState`(static)가 진행 기록을 보관하고, `FlowProgressSaveable`(Assembly-CSharp)이 `SaveManager`에 참여자로 등록돼 `GameSaveData.flow`로 저장한다. `FlowGraphManager`는 FlowGraph asmdef에 있어 `ISaveable`을 직접 구현할 수 없으므로 얇은 어댑터를 둔 것이다.
+
+| 기록 | 스코프 | 내용 |
+|------|--------|------|
+| 세션 발화 키 | 플레이 세션 | `OncePerSession` 진입점/게이트. 저장하지 않는다 |
+| 세이브 발화 키 | 세이브 파일 | `OncePerSave` 진입점(`entry:graphId:nodeId`)/게이트(`gate:graphId:nodeId`) |
+| 진입점 진행도 | 세이브 파일 | 진입점별 발화 횟수·완주 횟수 |
+
+- **실행 중인 토큰 위치는 저장하지 않는다.** 노드 실행은 대사·컷신·스폰 등 외부 부수효과를 동반해 중간부터 안전하게 재현할 수 없다. 발화/완주 단위로만 기록해 "로드 후 1회성 흐름 재생"을 막는 것이 목적이다.
+- 완주 판정은 컨텍스트의 활성 토큰이 0이 된 시점이며, 취소(러너 비활성·씬 전환)는 완주로 세지 않는다. 따라서 "발화됐지만 완주 기록 없음"이 곧 진행 중/중단 상태다.
+- 그래프에서 조회하려면 `FlowProgressCondition`(Branch/Wait 조건)을 쓴다: 대상 `graphId`(비우면 현재 그래프) + 진입점 `entryNodeId` + `Started`/`Completed`/`InProgress`.
+- 새 게임은 `ResetForNewGame`에서 세션·세이브 기록을 모두 비운다. 구버전 세이브에 `flow` 항목이 없으면 빈 기록으로 복원한다.
 
 ## 노드 카탈로그
 
@@ -165,7 +198,7 @@ public IReadOnlyDictionary<string, int> ActiveNodeCounts;    // 디버그 뷰 �
 
 1. **그래프 에셋 생성** — 에디터 창 툴바 `새 그래프` 버튼(시작 노드 자동 포함) 또는 Project 창 우클릭 → `Create > UPlayGround > FlowGraph > Graph`. `graphId` 지정(비우면 에셋명). 빈 그래프를 열면 `▶ start` Manual 진입점이 자동 생성된다.
 2. **저작** — 에셋 더블클릭(또는 메뉴 `UPlayGround > Flow Graph Editor`)으로 창 열기. 툴바 `열기 ▾` 드롭다운으로 프로젝트의 다른 그래프로 즉시 전환. 좌측 노드 라이브러리 클릭 또는 빈 곳 우클릭 검색창으로 노드 생성, 포트 드래그로 연결. 우측 패널에서 선택 노드 속성 편집. 하단 검증 패널이 진입점 부재·고아 엣지·도달 불가 노드를 상시 표시하며, 행 클릭 시 해당 노드로 포커스된다. Play Mode에서는 우측 패널 하단 Blackboard 섹션에 실행 중 플로우별 블랙보드가 표시된다.
-3. **씬 배치** — 빈 GameObject에 `FlowGraphRunner` 추가, `_graph`에 에셋 연결. 활성화 시 진입점이 자동 무장된다.
+3. **씬 배치** — 빈 GameObject에 `FlowGraphRunner` 추가, `_graph`에 에셋 연결. 활성화 시 진입점이 자동 무장된다. 지역 전체에 적용할 그래프라면 배치 대신 `MapRegionInfoSO.flowGraphs`에 등록한다(지역(맵) 자동 적용 참고).
 4. **(콜라이더 진입점 사용 시)** 트리거 콜라이더 오브젝트에 `FlowGraphTriggerVolume` 추가 → `_runner` 연결, `_volumeId`를 그래프의 `OnTriggerVolumeEntryNode.volumeId`와 일치시킨다. `_actorFilter` 기본값은 Player.
 5. **(코드 발화)** `Svc.FlowGraph.StartGraph("graphId", "entryId")` — `FlowGraphManager`는 GameManager가 QuestManager 다음 순서로 자동 등록한다.
 

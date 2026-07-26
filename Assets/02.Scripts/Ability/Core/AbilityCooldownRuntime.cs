@@ -3,23 +3,6 @@ using System.Collections.Generic;
 
 namespace UPlayGround.Ability.Core
 {
-    public static class AbilityCooldownHaste
-    {
-        public static float Apply(float baseDurationSeconds, float haste)
-        {
-            float duration = Math.Max(0f, baseDurationSeconds);
-            float normalizedHaste = Math.Max(0f, haste);
-            return duration * 100f / (100f + normalizedHaste);
-        }
-
-        public static float FromLegacyMultiplier(float multiplier)
-        {
-            float normalized = Math.Max(0.0001f, Math.Min(1f, multiplier));
-            float reduction = 1f - normalized;
-            return 100f * reduction / Math.Max(0.0001f, 1f - reduction);
-        }
-    }
-
     /// <summary>
     /// Unity 및 프로젝트 타입에 의존하지 않는 쿨다운 상태 저장소.
     /// 시간 공급자를 외부에서 주입해 런타임과 테스트에서 동일하게 사용한다.

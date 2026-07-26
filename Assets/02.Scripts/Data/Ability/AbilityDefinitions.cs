@@ -90,11 +90,9 @@ namespace UPlayGround.Data.Ability
 
     public enum AbilityConcurrencyPolicy
     {
-        [Obsolete("동시 실행 안전성이 없는 레거시 값입니다. Background를 사용하세요.")]
-        Allow,
-        CancelExisting,
-        RejectNew,
-        Background,
+        CancelExisting = 1,
+        RejectNew = 2,
+        Background = 3,
     }
 
     public enum AbilitySwapPolicy

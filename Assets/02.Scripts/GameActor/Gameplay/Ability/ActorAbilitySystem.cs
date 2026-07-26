@@ -335,27 +335,6 @@ namespace UPlayGround.Gameplay.Ability
                 new AbilityExecutionHandle(_primaryExecution),
                 out reservation);
 
-        public string GetPlayerSlotCooldownGroupId(PlayerSkillSlot slot)
-        {
-            GameplayAbilitySO definition = ResolvePlayerAbility(slot);
-            return definition?.cooldown?.ResolveGroupId(definition.abilityId)
-                   ?? string.Empty;
-        }
-
-        public void RestorePlayerSlotCooldown(
-            PlayerSkillSlot slot,
-            float remainingSeconds)
-        {
-            string group = GetPlayerSlotCooldownGroupId(slot);
-            if (string.IsNullOrEmpty(group))
-                return;
-            if (remainingSeconds > 0f)
-                _cooldowns.Restore(group, remainingSeconds);
-            else
-                _cooldowns.Remove(group);
-            StateChanged?.Invoke();
-        }
-
         public bool TryGetPlayerSlotState(PlayerSkillSlot slot, out AbilitySlotViewState state)
         {
             state = default;
@@ -423,35 +402,9 @@ namespace UPlayGround.Gameplay.Ability
 
         public void RestoreAbilitySystemStateForCharacter(AbilitySystemSaveData data)
         {
-            MigrateLegacySlotCooldowns(data);
             _abilitySystem.Runtime.RestoreSaveData(data);
             _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
             StateChanged?.Invoke();
-        }
-
-        private void MigrateLegacySlotCooldowns(AbilitySystemSaveData data)
-        {
-            if (data?.cooldowns == null)
-                return;
-            for (int i = 0; i < data.cooldowns.Count; i++)
-            {
-                GasCooldownSaveEntry entry = data.cooldowns[i];
-                if (entry == null
-                    || string.IsNullOrEmpty(entry.groupId)
-                    || !entry.groupId.StartsWith(
-                        "Ability.SkillSlot.",
-                        StringComparison.Ordinal)
-                    || !int.TryParse(
-                        entry.groupId.Substring("Ability.SkillSlot.".Length),
-                        out int slotIndex)
-                    || !Enum.IsDefined(typeof(PlayerSkillSlot), slotIndex))
-                    continue;
-
-                string migrated = GetPlayerSlotCooldownGroupId(
-                    (PlayerSkillSlot)slotIndex);
-                if (!string.IsNullOrEmpty(migrated))
-                    entry.groupId = migrated;
-            }
         }
 
         private bool ShouldSaveCooldown(string groupId)
@@ -561,8 +514,6 @@ namespace UPlayGround.Gameplay.Ability
         {
             variant = null;
             if (definition == null || string.IsNullOrWhiteSpace(definition.abilityId))
-                return AbilityActivationResult.InvalidDefinition;
-            if (definition.concurrency == AbilityConcurrencyPolicy.Allow)
                 return AbilityActivationResult.InvalidDefinition;
             if (definition.concurrency == AbilityConcurrencyPolicy.Background
                 && (definition.persistence?.backgroundMaxDurationSeconds ?? 0f) <= 0f)
@@ -801,8 +752,7 @@ namespace UPlayGround.Gameplay.Ability
 
             float multiplier =
                 Svc.Passives?.GetActiveSkillCooldownMultiplier(slot.Value) ?? 1f;
-            float haste = AbilityCooldownHaste.FromLegacyMultiplier(multiplier);
-            return AbilityCooldownHaste.Apply(duration, haste);
+            return duration * Mathf.Clamp(multiplier, 0.0001f, 1f);
         }
 
         private float GetCooldownRemaining(string group)

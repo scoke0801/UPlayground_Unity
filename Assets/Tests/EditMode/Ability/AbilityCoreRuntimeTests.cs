@@ -63,20 +63,6 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void Cooldown_Haste_ConvergesWithoutReachingZero()
-        {
-            Assert.That(
-                AbilityCooldownHaste.Apply(10f, 100f),
-                Is.EqualTo(5f));
-            Assert.That(
-                AbilityCooldownHaste.Apply(10f, 10000f),
-                Is.GreaterThan(0f));
-            Assert.That(
-                AbilityCooldownHaste.Apply(10f, 10000f),
-                Is.LessThan(0.1f));
-        }
-
-        [Test]
         public void EffectStack_AddAndRefresh_ClampsToMaximum()
         {
             AbilityEffectStackResult result = AbilityEffectStackRuntime.Resolve(

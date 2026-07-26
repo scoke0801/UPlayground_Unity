@@ -139,12 +139,6 @@ namespace UPlayGround.Components
                    && state.IsReady;
         }
 
-        [Obsolete("비용과 쿨다운은 ActorAbilitySystem.Commit에서만 소비합니다.")]
-        public bool ConsumeSkill(int skillSlot)
-        {
-            return false;
-        }
-
         public void AddGauge(float amount)
         {
             if (amount <= 0f) return;
@@ -160,46 +154,6 @@ namespace UPlayGround.Components
         public void SetGauge(float value)
         {
             _currentGauge = Mathf.Clamp(value, 0f, _maxGauge);
-        }
-
-        public float[] GetCooldownRemainingSnapshot()
-        {
-            EnsureCooldownBuffer();
-            var snapshot = new float[_cooldownWasActive.Length];
-            for (int i = 0; i < snapshot.Length; i++)
-                snapshot[i] = GetSkillCooldownRemaining(i);
-            return snapshot;
-        }
-
-        public void SetCooldownRemainingSnapshot(float[] remainingTimes)
-        {
-            EnsureCooldownBuffer();
-            if (_cooldownWasActive == null || AbilitySystem?.Runtime == null) return;
-
-            for (int i = 0; i < _cooldownWasActive.Length; i++)
-            {
-                float remaining = remainingTimes != null && i < remainingTimes.Length
-                    ? Mathf.Max(0f, remainingTimes[i])
-                    : 0f;
-
-                if (remaining > 0f)
-                    AbilitySystem.ProjectAbilities.RestorePlayerSlotCooldown(
-                        (PlayerSkillSlot)i,
-                        remaining);
-                else
-                    AbilitySystem.ProjectAbilities.RestorePlayerSlotCooldown(
-                        (PlayerSkillSlot)i,
-                        0f);
-                _cooldownWasActive[i] = remaining > 0f;
-                OnCooldownChanged?.Invoke(i, remaining, GetSkillCooldownDuration(i));
-            }
-        }
-
-        public float GetSkillCost(int skillSlot)
-        {
-            return TryGetSlotState(skillSlot, out AbilitySlotViewState state)
-                ? state.ResourceRequired
-                : float.PositiveInfinity;
         }
 
         public float GetSkillCooldownDuration(int skillSlot)
@@ -219,8 +173,6 @@ namespace UPlayGround.Components
                 : 0f;
         }
 
-        public bool IsSkillOnCooldown(int skillSlot) => GetSkillCooldownRemaining(skillSlot) > 0f;
-
         private void EnsureCooldownBuffer()
         {
             int count = SkillSlotCount;
@@ -235,10 +187,6 @@ namespace UPlayGround.Components
 
             _cooldownWasActive = new bool[count];
         }
-
-        [Obsolete("슬롯 키는 폐기되었습니다. ActorAbilitySystem.GetPlayerSlotCooldownGroupId를 사용하세요.")]
-        public static string GetSkillSlotCooldownGroupId(int skillSlot) =>
-            $"Ability.SkillSlot.{skillSlot}";
 
         public static bool IsValidSkillSlot(int skillSlot)
             => skillSlot >= 0 && skillSlot < SkillSlotCount;

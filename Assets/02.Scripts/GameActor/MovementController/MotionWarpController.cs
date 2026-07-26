@@ -33,6 +33,16 @@ namespace UPlayGround.MovementController
             => key != null && _targets.TryGetValue(key, out var t) ? t : MotionWarpTarget.None;
         // ──────────────────────────────────────────────────────────────
 
+        // ── 공격 1회 스코프 타겟 잠금 ────────────────────────────────────
+        // 한 공격 모션 안에서 워프 타겟이 다른 액터로 갈아타면 회전이 여러 번 튀어 조작감이 어색해진다.
+        // BeginTargetLock ~ EndTargetLock 구간에서는 키별로 "처음 잡힌 타겟"만 유지하고,
+        // 이후 다른 anchor 로의 SetTarget(모션 타임라인의 MotionEvent_MotionWarp 재결정 등)은 무시한다.
+        // 잠긴 타겟이 파괴/무효화되면 잠금이 풀려 다음 SetTarget 이 다시 채운다.
+        // targetKey 가 다른 윈도우(도약-착지 등)는 저작 의도이므로 키 단위로 각각 잠근다.
+        private readonly HashSet<string> _lockedTargetKeys = new();
+        private bool _targetLockActive;
+        // ──────────────────────────────────────────────────────────────
+
         private bool _feasibilityChecked;
         private bool _isApplicable;
         private float _blendWeight;
@@ -396,12 +406,50 @@ namespace UPlayGround.MovementController
             _prevWarpK = 1f;
         }
 
+        /// <summary>
+        /// 공격 1회 스코프의 타겟 잠금을 시작한다. 공격 상태 진입 / 콤보 이어치기처럼
+        /// "새 공격이 시작되는" 시점에 호출하면, 그 모션 안에서는 키별 첫 타겟만 유지된다.
+        /// 재호출은 이전 스코프를 버리고 새로 시작하는 의미다(콤보 각 타격은 다시 타겟팅 허용).
+        /// </summary>
+        public void BeginTargetLock()
+        {
+            _targetLockActive = true;
+            _lockedTargetKeys.Clear();
+        }
+
+        /// <summary>
+        /// 타겟 잠금 해제. 공격 상태 이탈 시 호출한다.
+        /// </summary>
+        public void EndTargetLock()
+        {
+            _targetLockActive = false;
+            _lockedTargetKeys.Clear();
+        }
+
+        /// <summary>
+        /// 잠금 스코프에서 이 키의 타겟 전환을 막아야 하는가.
+        /// 아직 잠기지 않았거나(첫 타겟), 잠긴 타겟이 무효/파괴됐거나, 같은 anchor 재설정이면 허용.
+        /// </summary>
+        private bool IsTargetSwitchLocked(string key, Transform newAnchor)
+        {
+            if (!_targetLockActive || newAnchor == null) return false;
+            if (!_lockedTargetKeys.Contains(key)) return false;
+
+            MotionWarpTarget locked = GetTarget(key);
+            if (!locked.IsValid) return false;          // 잠긴 타겟이 사라짐 → 재설정 허용
+            return locked.anchor != newAnchor;          // 다른 액터로의 전환만 차단
+        }
+
         public void SetTarget(Transform target, bool useSnapshot = true)
             => SetTarget(DefaultTargetKey, target, useSnapshot);
 
         public void SetTarget(string key, Transform target, bool useSnapshot = true)
         {
             string useKey = string.IsNullOrEmpty(key) ? DefaultTargetKey : key;
+            if (IsTargetSwitchLocked(useKey, target)) return;
+            if (_targetLockActive && target != null)
+                _lockedTargetKeys.Add(useKey);
+
             var t = new MotionWarpTarget
             {
                 anchor = target,
@@ -432,6 +480,10 @@ namespace UPlayGround.MovementController
         public void SetTarget(string key, MotionWarpTarget target)
         {
             string useKey = string.IsNullOrEmpty(key) ? DefaultTargetKey : key;
+            if (IsTargetSwitchLocked(useKey, target.anchor)) return;
+            if (_targetLockActive && target.anchor != null)
+                _lockedTargetKeys.Add(useKey);
+
             _targets[useKey] = target;
             if (useKey == _activeKey)
             {
@@ -455,6 +507,7 @@ namespace UPlayGround.MovementController
             bool wasWarping = _warpRemainingTime > 0f;
 
             _targets.Clear();
+            _lockedTargetKeys.Clear(); // 전면 리셋 — 다음 SetTarget 이 새 첫 타겟이 된다
             _activeTarget = MotionWarpTarget.None;
             _snapshotPosition = Vector3.zero;
             _feasibilityChecked = false;
@@ -478,6 +531,7 @@ namespace UPlayGround.MovementController
         {
             if (string.IsNullOrEmpty(key)) return;
             _targets.Remove(key);
+            _lockedTargetKeys.Remove(key);
             if (key == _activeKey)
             {
                 bool wasWarping = _warpRemainingTime > 0f;

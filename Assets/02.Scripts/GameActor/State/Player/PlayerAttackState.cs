@@ -387,6 +387,9 @@ namespace UPlayGround.State
                 return;
             }
 
+            // 이 공격 모션 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정해
+            // 한 타격 안에서 회전이 여러 번 튀는 것을 막는다. 다음 타겟팅은 다음 타격에서 다시 열린다.
+            _motionWarp.BeginTargetLock();
             _homingTarget = FindHomingTarget();
             _motionWarp.SetTarget(_homingTarget);
 
@@ -413,6 +416,7 @@ namespace UPlayGround.State
             _homingTarget = null;
             _dodgeCounterTarget = null;
             _isDodgeCounterAttack = false;
+            _motionWarp?.EndTargetLock();
             _motionWarp?.ClearTarget();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             if (_abilityExecutionHandle.IsValid)
@@ -586,6 +590,8 @@ namespace UPlayGround.State
                 _combat.CloseComboWindow();
                 _comboInputted = false;
                 _comboContinuesSameType = true;
+                // 콤보 다음 타격 = 새 공격 스코프. 여기서만 타겟을 다시 잡는다.
+                _motionWarp.BeginTargetLock();
                 _homingTarget = FindHomingTarget();
                 _motionWarp.SetTarget(_homingTarget);
             }

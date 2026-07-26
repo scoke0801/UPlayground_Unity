@@ -16,6 +16,7 @@ namespace UPlayGround.State
 
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;
+        private MotionWarpController _motionWarp;
         private AttackData   _attackData;
         private float        _timer;
         private bool         _comboInputted;
@@ -43,6 +44,10 @@ namespace UPlayGround.State
             _changingState = false;
 
             _combat = playerActor.GetCombat();
+            _motionWarp = controller.MotionWarp;
+            // 이 공격 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정하는 것을 막는다.
+            // (JumpAttack 자체는 타겟을 지정하지 않으므로, 모션 이벤트가 처음 잡은 타겟이 잠금 대상이 된다.)
+            _motionWarp?.BeginTargetLock();
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);
             ActorWeaponTrailController.StartAttackTrails(_equipment != null ? _equipment : playerActor);
@@ -68,6 +73,7 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _combat?.ClearHitTargets();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
+            _motionWarp?.EndTargetLock();
             base.OnExit(toState);
         }
 
@@ -128,6 +134,8 @@ namespace UPlayGround.State
 
             if (_comboInputted)
             {
+                // 콤보 다음 타격 = 새 공격 스코프. 여기서만 타겟을 다시 잡는다.
+                _motionWarp?.BeginTargetLock();
                 _attackData = _comboIsFinish
                     ? _combat?.ExecuteJumpFinishAttack()
                     : _combat?.ExecuteJumpAttack(true);

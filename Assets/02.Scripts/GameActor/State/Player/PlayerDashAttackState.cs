@@ -33,6 +33,9 @@ namespace UPlayGround.State
             _motionWarp = controller.MotionWarp;
             _combat = playerActor.GetCombat();
             _attackData = _combat?.ExecuteDashAttack();
+            // 이 공격 동안엔 첫 타겟만 유지 — 타임라인 워프 이벤트가 다른 적으로 재결정해
+            // 한 타격 안에서 방향이 여러 번 튀는 것을 막는다.
+            _motionWarp?.BeginTargetLock();
             _homingTarget = FindHomingTarget();
             SnapToTarget(_homingTarget);
             _motionWarp?.SetTarget(_homingTarget, useSnapshot: false);
@@ -54,6 +57,7 @@ namespace UPlayGround.State
         {
             gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
+            _motionWarp?.EndTargetLock();
             _motionWarp?.ClearTarget();
             _combat?.ClearHitTargets();
             gameActor.Animator.Speed = gameActor.LocalTimeScale;

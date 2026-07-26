@@ -2,7 +2,7 @@
 
 > 작성일: 2026-07-26  
 > 대상: `UPlayGround.FlowGraph`, `UPlayGround.FlowGraph.Editor`  
-> 상태: 제안/백로그. 구현 완료 항목은 본 문서에서 제거하거나 완료 표기한다.  
+> 상태: M1~M4 기반 구현 완료. Unity Play Mode 실행 검증과 실제 콘텐츠 적용은 후속 확인 필요.
 > 기준 문서: `Assets/docs/guide/FLOWGRAPH_SYSTEM_GUIDE.md`  
 > 레퍼런스 우선순위: NodeCanvas → Unreal Engine Blueprint
 
@@ -599,3 +599,64 @@ SubGraph Parameter
 그다음은 **SubGraph 공개 Parameter와 ValueRef**다. 이 단계가 FlowGraph의 표현성을 실질적으로 확장한다. 값의 출처와 그래프 경계를 명시함으로써 복잡한 연출을 재사용 가능한 단위로 나눌 수 있다.
 
 마지막으로 데이터 핀과 함수/매크로를 검토한다. Blueprint의 강점은 핀 수 자체가 아니라, 타입·탐색·캡슐화·디버깅이 하나의 일관된 언어를 이룬다는 점이다. FlowGraph도 같은 순서로 기반을 쌓아야 하며, 프로젝트에서 필요한 이벤트 기반 오케스트레이션 범위를 넘는 기능은 실제 수직 슬라이스가 요구할 때만 추가하는 것이 적절하다.
+
+---
+
+## 13. 구현 결과 (2026-07-26)
+
+본 문서의 우선순위를 기능 단위로 순차 구현했다. 아래 표는 제안이 아니라 현재 코드 상태다.
+
+| 단위 | 구현 결과 |
+|---|---|
+| M1 포트/검증 | 실행·데이터 Kind, 타입, Single/Multi 용량, 안정 Port ID를 모델에 추가. 없는 포트·타입 불일치·중복 Edge·용량 초과·중복 Node ID를 검출하고 일부 오류는 Problems 패널에서 빠르게 수정 |
+| M1 검색/배선 | 노드 Summary/Keyword, 즐겨찾기/최근 사용, 포트 문맥 호환 후보 필터, Alt 연결 해제, Edge 더블클릭/메뉴를 통한 노드 삽입, 정렬/분배 추가 |
+| M1 Explorer | 프로젝트 전체 Graph/Node/변수/메모/SubGraph 참조 검색, 중복 graphId 표시, 결과에서 그래프와 노드로 직접 이동 |
+| M2 디버그 | Runner 선택/고정, Context ID가 포함된 512개 Ring Trace, 실행/Emit/Blackboard/Cancel/Exception 기록, Problems·Execution Trace·Watches 탭, Continue/Step/Stop 추가 |
+| M2 Breakpoint | 활성/일시 비활성, N회 도달, Blackboard 값 조건을 지원. Unity 전역 `Debug.Break()` 대신 FlowGraph Runner 내부 토큰 게이트로 일시 정지 |
+| M3 안정 참조 | 변수와 공개 Parameter에 stable ID 추가. 기존 이름은 마이그레이션 호환/표시 캐시로 유지 |
+| M3 SubGraph 계약 | In/Out/InOut Parameter, 부모 Blackboard Binding, 필수/타입/Entry/출력 대기 정책 검증, 부모→자식 입력 및 자식→부모 출력 반영 |
+| M3 추출 | 연결된 선택 영역을 새 SubGraph 에셋으로 옮기고 단일 입출력 경계를 재배선. 사용 변수는 InOut Parameter/Binding으로 생성하며 Undo와 실패 롤백 적용 |
+| M4 데이터 포트 | Pull 평가 방식의 `FlowDataNode`, 컨텍스트 단위 순환 가드, `Context Actor → Is Actor Type → Branch (Data)` 수직 슬라이스 추가 |
+| 탐색 이력 | SubGraph breadcrumb에 뒤로/앞으로 이동 이력을 추가 |
+| 자동 검증 | EditMode에 포트/ID/Typed Data/NodeOutput 검증 추가. PlayMode에 `Manual Entry → SetVariable → Trace` 수직 슬라이스 테스트 어셈블리 추가 |
+
+### 구현된 주요 파일
+
+- 런타임 모델: `FlowNode.cs`, `FlowGraphSO.cs`, `FlowContext.cs`, `FlowVariables.cs`
+- 실행/디버그: `FlowGraphRunner.cs`
+- SubGraph 계약: `Nodes/SubGraphNode.cs`
+- Typed Data 수직 슬라이스: `Nodes/CoreNodes.cs`
+- 편집기: `Editor/FlowGraphEditorWindow.cs`, `FlowGraphView.cs`, `FlowGraphExplorerWindow.cs`
+- 검증: `Editor/FlowGraphValidator.cs`
+- 테스트: `Assets/Tests/EditMode/FlowGraph/FlowGraphSerializationTests.cs`, `Assets/Tests/PlayMode/FlowGraph/FlowGraphVerticalSliceTests.cs`
+
+### 검증 결과
+
+- `UPlayGround.FlowGraph.csproj`: 컴파일 오류 0
+- `UPlayGround.FlowGraph.Editor.csproj`: 컴파일 오류 0
+- `UPlayGround.FlowGraph.Tests.csproj`: 컴파일 오류 0
+- `UPlayGround.FlowGraph.PlayModeTests.csproj`: 컴파일 오류 0
+- 런타임 asmdef 참조는 기존 `Core/Data/Contracts` 경계를 유지
+
+CLI 컴파일은 Unity Test Runner의 실제 실행을 대체하지 않는다. 완료 판정 전 Unity 6에서 EditMode/PlayMode 테스트 실행, 기존 `FLOW_*.asset` managed reference 확인, 실제 퀘스트 또는 보스 연출 1건 적용, Player Build 재검증이 필요하다.
+
+### 의도적으로 후속 수요까지 보류한 범위
+
+- 범용 Reflection Call, 배열/맵/제네릭 데이터 포트
+- 임의 자동 타입 변환. 현재는 정확 타입/상속 호환만 허용
+- 별도 Flow Macro 언어와 Graph Compiler/IR
+- 무제한 Play Mode 구조 Live Edit
+
+이는 구현 누락이 아니라 본 문서의 비목표와 P2 도입 조건에 따른 경계다. 현재 SubGraph는 명시적 Parameter와 Trace 문맥을 가진 Function 성격의 재사용 단위로 운용한다.
+
+### 미사용·레거시 정리 감사
+
+2026-07-26 코드/에셋 참조 감사를 수행해 다음을 정리했다.
+
+- 실제 노드 필드에서 사용되지 않고 Typed Data Port와 역할이 겹치던 `FlowValueSource`/`FlowValueRef` 제거
+- 사용처가 없던 `FlowPortDef.Name` 호환 별칭 제거. 영속 포트 식별자는 `Id`만 사용
+- 생성 시 기록만 하고 소비되지 않던 `FlowContext.StartedTime` 제거
+- 노드 클래스는 코드에서 직접 생성되지 않더라도 `TypeCache` 카탈로그와 `[SerializeReference]` 에셋이 소비하므로 단순 참조 횟수만으로 제거하지 않음
+- Trigger Action/Condition 브릿지는 Composer 변환기와 기존 `FLOW_.asset`에서 사용하므로 유지
+
+이름 기반 `variableName`, `parameterName`, `parentVariableName` fallback은 아직 레거시 제거 대상이 아니다. 현재 기존 `Assets/10.Datas/Test/FLOW_.asset`이 stable ID 이전 형식이므로, Unity에서 에셋을 마이그레이션·저장하고 ID 누락 0을 확인하기 전에는 제거하면 참조가 끊어진다.

@@ -11,7 +11,7 @@ namespace UPlayGround.FlowGraph
     /// DialogueManager에 대화 재생을 위임하고 종료까지 대기한다.
     /// 대화 내부 분기는 Dialogue 그래프가, 대화 전후 매크로 흐름은 FlowGraph가 담당(대체 아님).
     /// </summary>
-    [FlowNodeMenu("대화/PlayDialogue")]
+    [FlowNodeMenu("대화/PlayDialogue", Summary = "대화 그래프를 재생하고 종료까지 대기합니다.", Keywords = new[] { "dialogue", "conversation", "대사" })]
     [Serializable]
     public sealed class PlayDialogueNode : FlowNode
     {

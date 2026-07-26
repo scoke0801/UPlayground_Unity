@@ -27,6 +27,7 @@ namespace UPlayGround.FlowGraph
     [Serializable]
     public sealed class FlowVariableDef
     {
+        [HideInInspector] public string id = Guid.NewGuid().ToString("N");
         public string name;
         public FlowVariableType type = FlowVariableType.Bool;
 
@@ -46,6 +47,63 @@ namespace UPlayGround.FlowGraph
                 _ => null,
             };
         }
+    }
+
+    public enum FlowParameterDirection
+    {
+        In,
+        Out,
+        InOut,
+    }
+
+    /// <summary>SubGraph 호출 경계에 공개되는 타입 안전 파라미터 선언.</summary>
+    [Serializable]
+    public sealed class FlowGraphParameterDef
+    {
+        [HideInInspector] public string id = Guid.NewGuid().ToString("N");
+        public string name = "parameter";
+        public FlowParameterDirection direction = FlowParameterDirection.In;
+        public FlowVariableType type;
+        public bool required;
+        public FlowVariableValue defaultValue = new();
+
+        public bool AllowsInput =>
+            direction == FlowParameterDirection.In || direction == FlowParameterDirection.InOut;
+
+        public bool AllowsOutput =>
+            direction == FlowParameterDirection.Out || direction == FlowParameterDirection.InOut;
+
+        public object GetDefaultValue()
+        {
+            if (defaultValue == null)
+                return type switch
+                {
+                    FlowVariableType.Bool => false,
+                    FlowVariableType.Int => 0,
+                    FlowVariableType.Float => 0f,
+                    FlowVariableType.String => string.Empty,
+                    _ => null,
+                };
+
+            return type switch
+            {
+                FlowVariableType.Bool => defaultValue.boolValue,
+                FlowVariableType.Int => defaultValue.intValue,
+                FlowVariableType.Float => defaultValue.floatValue,
+                FlowVariableType.String => defaultValue.stringValue ?? string.Empty,
+                _ => null,
+            };
+        }
+    }
+
+    /// <summary>하위 그래프 공개 파라미터와 부모 Blackboard 변수의 매핑.</summary>
+    [Serializable]
+    public sealed class FlowParameterBinding
+    {
+        [HideInInspector] public string parameterId;
+        public string parameterName;
+        [HideInInspector] public string parentVariableId;
+        public string parentVariableName;
     }
 
     /// <summary>변수 노드가 공유하는 타입별 값 필드 세트 (비교/대입 값 저작용).</summary>

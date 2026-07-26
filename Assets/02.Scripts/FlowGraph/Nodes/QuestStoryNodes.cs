@@ -8,7 +8,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.FlowGraph
 {
     /// <summary>퀘스트를 수락한다.</summary>
-    [FlowNodeMenu("퀘스트/StartQuest")]
+    [FlowNodeMenu("퀘스트/StartQuest", Summary = "지정 퀘스트를 시작합니다.", Keywords = new[] { "quest", "start", "퀘스트" })]
     [Serializable]
     public sealed class StartQuestNode : FlowNode
     {
@@ -34,7 +34,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>퀘스트를 완료 처리한다.</summary>
-    [FlowNodeMenu("퀘스트/CompleteQuest")]
+    [FlowNodeMenu("퀘스트/CompleteQuest", Summary = "지정 퀘스트를 완료 처리합니다.", Keywords = new[] { "quest", "complete", "finish" })]
     [Serializable]
     public sealed class CompleteQuestNode : FlowNode
     {
@@ -60,7 +60,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>퀘스트 상태로 True/False 분기.</summary>
-    [FlowNodeMenu("퀘스트/CheckQuestStatus (Branch)")]
+    [FlowNodeMenu("퀘스트/CheckQuestStatus (Branch)", Summary = "퀘스트 상태를 비교해 분기합니다.", Keywords = new[] { "quest", "status", "if", "조건" })]
     [Serializable]
     public sealed class CheckQuestStatusNode : FlowNode
     {
@@ -89,7 +89,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>스토리 진행도를 설정한다. (현재 값보다 낮으면 매니저 정책에 따름)</summary>
-    [FlowNodeMenu("스토리/SetStoryProgress")]
+    [FlowNodeMenu("스토리/SetStoryProgress", Summary = "스토리 진행도를 설정합니다.", Keywords = new[] { "story", "progress", "진행도" })]
     [Serializable]
     public sealed class SetStoryProgressNode : FlowNode
     {

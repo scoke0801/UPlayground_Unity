@@ -11,20 +11,89 @@ namespace UPlayGround.FlowGraph
         Output,
     }
 
-    /// <summary>노드가 스스로 선언하는 실행(흐름) 포트 정의. 데이터 포트는 1차 범위에서 지원하지 않는다.</summary>
+    /// <summary>포트가 실행 펄스인지 타입이 있는 데이터인지 구분한다.</summary>
+    public enum FlowPortKind
+    {
+        Execution,
+        Data,
+    }
+
+    /// <summary>한 포트가 허용하는 연결 수. 기존 실행 포트는 호환성을 위해 Multi가 기본이다.</summary>
+    public enum FlowPortCapacity
+    {
+        Single,
+        Multi,
+    }
+
+    /// <summary>
+    /// 노드가 스스로 선언하는 포트 스키마.
+    /// Id는 에셋에 저장되는 안정 식별자이고 DisplayName은 에디터 표시용이므로 서로 분리한다.
+    /// </summary>
     public readonly struct FlowPortDef
     {
-        public FlowPortDef(string name, FlowPortDirection direction)
+        public FlowPortDef(
+            string id,
+            FlowPortDirection direction,
+            string displayName = null,
+            FlowPortKind kind = FlowPortKind.Execution,
+            FlowPortCapacity capacity = FlowPortCapacity.Multi,
+            Type valueType = null)
         {
-            Name = name;
+            Id = id;
             Direction = direction;
+            DisplayName = string.IsNullOrEmpty(displayName) ? id : displayName;
+            Kind = kind;
+            Capacity = capacity;
+            ValueType = kind == FlowPortKind.Data ? valueType ?? typeof(object) : null;
         }
 
-        public string Name { get; }
-        public FlowPortDirection Direction { get; }
+        /// <summary>연결 데이터에 저장되는 안정 식별자.</summary>
+        public string Id { get; }
 
-        public static FlowPortDef Input(string name = FlowPort.In) => new(name, FlowPortDirection.Input);
-        public static FlowPortDef Output(string name = FlowPort.Out) => new(name, FlowPortDirection.Output);
+        public string DisplayName { get; }
+        public FlowPortDirection Direction { get; }
+        public FlowPortKind Kind { get; }
+        public FlowPortCapacity Capacity { get; }
+        public Type ValueType { get; }
+
+        public static FlowPortDef Input(
+            string id = FlowPort.In,
+            FlowPortCapacity capacity = FlowPortCapacity.Multi,
+            string displayName = null) =>
+            new(id, FlowPortDirection.Input, displayName, FlowPortKind.Execution, capacity);
+
+        public static FlowPortDef Output(
+            string id = FlowPort.Out,
+            FlowPortCapacity capacity = FlowPortCapacity.Multi,
+            string displayName = null) =>
+            new(id, FlowPortDirection.Output, displayName, FlowPortKind.Execution, capacity);
+
+        public static FlowPortDef DataInput<T>(
+            string id,
+            FlowPortCapacity capacity = FlowPortCapacity.Single,
+            string displayName = null) =>
+            new(id, FlowPortDirection.Input, displayName, FlowPortKind.Data, capacity, typeof(T));
+
+        public static FlowPortDef DataOutput<T>(
+            string id,
+            FlowPortCapacity capacity = FlowPortCapacity.Multi,
+            string displayName = null) =>
+            new(id, FlowPortDirection.Output, displayName, FlowPortKind.Data, capacity, typeof(T));
+
+        public static bool AreCompatible(FlowPortDef first, FlowPortDef second)
+        {
+            if (first.Direction == second.Direction || first.Kind != second.Kind)
+                return false;
+
+            FlowPortDef output = first.Direction == FlowPortDirection.Output ? first : second;
+            FlowPortDef input = first.Direction == FlowPortDirection.Input ? first : second;
+            if (output.Kind == FlowPortKind.Execution)
+                return true;
+
+            return input.ValueType != null
+                   && output.ValueType != null
+                   && input.ValueType.IsAssignableFrom(output.ValueType);
+        }
     }
 
     /// <summary>공용 포트 이름 상수.</summary>
@@ -48,6 +117,12 @@ namespace UPlayGround.FlowGraph
         }
 
         public string Path { get; }
+
+        /// <summary>노드 검색 결과와 툴팁에 표시할 한 문장 설명.</summary>
+        public string Summary { get; set; }
+
+        /// <summary>표시명과 다른 용어로도 찾을 수 있게 하는 검색 별칭.</summary>
+        public string[] Keywords { get; set; }
     }
 
     /// <summary>
@@ -99,6 +174,17 @@ namespace UPlayGround.FlowGraph
         /// <summary>에디터 전용 브레이크포인트 — 토큰 도착 시 에디터를 일시정지한다 (FlowCanvas 참조).</summary>
         [HideInInspector] public bool breakpoint;
 
+        /// <summary>설정을 지우지 않고 브레이크포인트를 일시 비활성화한다.</summary>
+        [HideInInspector] public bool breakpointDisabled;
+
+        /// <summary>0이면 매번, 양수면 해당 실행 횟수 이상에서 중단한다.</summary>
+        [HideInInspector] public int breakpointAfterHits;
+
+        /// <summary>비어 있지 않으면 Blackboard 값이 expected와 일치할 때만 중단한다.</summary>
+        [HideInInspector] public string breakpointVariable;
+
+        [HideInInspector] public FlowVariableValue breakpointExpected;
+
         [Tooltip("노드 타이틀로 표시할 사용자 라벨. 비우면 타입 기본 이름(DisplayName)을 쓴다.")]
         public string editorLabel;
 
@@ -107,6 +193,25 @@ namespace UPlayGround.FlowGraph
 
         /// <summary>노드가 소유한 실행 포트 목록.</summary>
         public abstract IEnumerable<FlowPortDef> Ports { get; }
+
+        public bool TryGetPort(
+            string portId,
+            FlowPortDirection direction,
+            out FlowPortDef result)
+        {
+            foreach (FlowPortDef port in Ports)
+            {
+                if (port.Direction == direction
+                    && string.Equals(port.Id, portId, StringComparison.Ordinal))
+                {
+                    result = port;
+                    return true;
+                }
+            }
+
+            result = default;
+            return false;
+        }
 
         /// <summary>에디터 노드 타이틀. 기본은 타입명에서 "Node" 접미사 제거.</summary>
         public virtual string DisplayName
@@ -125,5 +230,24 @@ namespace UPlayGround.FlowGraph
         /// 동기 노드는 Emit 후 즉시 yield break, 대기 노드는 yield로 보류한다.
         /// </summary>
         public abstract IEnumerator Execute(FlowToken token);
+    }
+
+    /// <summary>
+    /// 실행 토큰 없이 요청 시점에 값을 계산하는 순수 데이터 노드.
+    /// 결과 캐시는 두지 않는다. Blackboard나 Context가 바뀌면 다음 소비자가 최신 값을 다시 평가한다.
+    /// </summary>
+    [Serializable]
+    public abstract class FlowDataNode : FlowNode
+    {
+        public sealed override IEnumerator Execute(FlowToken token)
+        {
+            yield break;
+        }
+
+        public abstract bool TryEvaluate(
+            FlowContext context,
+            FlowGraphSO graph,
+            string outputPortId,
+            out object value);
     }
 }

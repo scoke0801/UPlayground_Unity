@@ -12,6 +12,7 @@ namespace UPlayGround.FlowGraph
     {
         private Dictionary<string, object> _blackboard;
         private Dictionary<string, object> _nodeStates;
+        private HashSet<string> _dataEvaluationStack;
         private int _executionBudgetFrame = -1;
         private int _executionsThisFrame;
 
@@ -19,12 +20,13 @@ namespace UPlayGround.FlowGraph
         {
             Runner = runner;
             Entry = entry;
-            StartedTime = Time.time;
         }
 
         public FlowGraphRunner Runner { get; }
         public EntryNode Entry { get; }
-        public float StartedTime { get; }
+        public FlowGraphSO Graph { get; internal set; }
+        public long ContextId { get; internal set; }
+        public long ParentContextId { get; internal set; }
 
         /// <summary>발화 원인(있다면). 트리거 볼륨 진입 등에서 채워진다.</summary>
         public Collider Collider { get; set; }
@@ -89,6 +91,7 @@ namespace UPlayGround.FlowGraph
         {
             _blackboard ??= new Dictionary<string, object>();
             _blackboard[key] = value;
+            Runner.RecordBlackboardChange(this, key, value);
         }
 
         public bool TryGet<T>(string key, out T value)
@@ -115,6 +118,19 @@ namespace UPlayGround.FlowGraph
                 _nodeStates[node.id] = typed;
             }
             return typed;
+        }
+
+        internal bool TryBeginDataEvaluation(FlowGraphSO graph, string nodeId, string portId)
+        {
+            _dataEvaluationStack ??= new HashSet<string>();
+            return _dataEvaluationStack.Add(
+                $"{graph.GetInstanceID()}\u001f{nodeId}\u001f{portId}");
+        }
+
+        internal void EndDataEvaluation(FlowGraphSO graph, string nodeId, string portId)
+        {
+            _dataEvaluationStack?.Remove(
+                $"{graph.GetInstanceID()}\u001f{nodeId}\u001f{portId}");
         }
     }
 

@@ -1,6 +1,8 @@
+using System;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using System.Linq;
 
 namespace UPlayGround.FlowGraph.Editor
 {
@@ -10,21 +12,62 @@ namespace UPlayGround.FlowGraph.Editor
     /// </summary>
     public sealed class FlowPortView : Port
     {
-        private FlowPortView(Orientation orientation, Direction direction, Capacity capacity)
-            : base(orientation, direction, capacity, typeof(bool))
+        private FlowPortView(
+            Orientation orientation,
+            Direction direction,
+            Capacity capacity,
+            Type portType)
+            : base(orientation, direction, capacity, portType)
         {
         }
 
+        public FlowPortDef Definition { get; private set; }
+
         public static FlowPortView Create(
-            Direction direction,
+            FlowPortDef definition,
             IEdgeConnectorListener connectorListener)
         {
-            var port = new FlowPortView(Orientation.Horizontal, direction, Capacity.Multi)
+            Direction direction = definition.Direction == FlowPortDirection.Input
+                ? Direction.Input
+                : Direction.Output;
+            Capacity capacity = definition.Capacity == FlowPortCapacity.Single
+                ? Capacity.Single
+                : Capacity.Multi;
+            Type portType = definition.Kind == FlowPortKind.Data
+                ? definition.ValueType ?? typeof(object)
+                : typeof(FlowExecutionPort);
+
+            var port = new FlowPortView(Orientation.Horizontal, direction, capacity, portType)
             {
+                Definition = definition,
                 m_EdgeConnector = new EdgeConnector<Edge>(connectorListener),
             };
             port.AddManipulator(port.m_EdgeConnector);
+            port.RegisterCallback<MouseDownEvent>(evt =>
+            {
+                if (evt.button != 0 || !evt.altKey || !port.connected)
+                    return;
+
+                FlowGraphView graphView = port.GetFirstAncestorOfType<FlowGraphView>();
+                graphView?.DeleteElements(port.connections.ToList());
+                evt.StopImmediatePropagation();
+            });
+            port.RegisterCallback<ContextualMenuPopulateEvent>(evt =>
+            {
+                if (!port.connected)
+                    return;
+                evt.menu.AppendAction(
+                    "모든 연결 해제",
+                    _ => port.GetFirstAncestorOfType<FlowGraphView>()
+                        ?.DeleteElements(port.connections.ToList()));
+                evt.menu.AppendSeparator();
+            });
             return port;
+        }
+
+        /// <summary>GraphView의 타입 비교에서 실행 포트를 데이터 포트와 확실히 분리하는 마커.</summary>
+        private sealed class FlowExecutionPort
+        {
         }
     }
 

@@ -2,11 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 
 namespace UPlayGround.FlowGraph
 {
     /// <summary>출력 포트들("1".."N")로 토큰을 순서대로 즉시 방출한다. 하나의 Out에 다중 연결해도 병렬 방출이 되므로, 순서가 중요할 때 사용.</summary>
-    [FlowNodeMenu("코어/Sequence")]
+    [FlowNodeMenu("코어/Sequence", Summary = "여러 출력 흐름을 번호 순서로 방출합니다.", Keywords = new[] { "순서", "sequence", "fan out" })]
     [Serializable]
     public sealed class SequenceNode : FlowNode
     {
@@ -31,7 +33,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>조건 평가 후 True/False 포트 중 하나로 분기.</summary>
-    [FlowNodeMenu("코어/Branch")]
+    [FlowNodeMenu("코어/Branch", Summary = "조건 결과에 따라 True 또는 False로 분기합니다.", Keywords = new[] { "조건", "if", "분기" })]
     [Serializable]
     public sealed class BranchNode : FlowNode
     {
@@ -50,6 +52,103 @@ namespace UPlayGround.FlowGraph
         public override IEnumerator Execute(FlowToken token)
         {
             bool result = condition != null && condition.Evaluate(token.Context);
+            token.Emit(result ? FlowPort.True : FlowPort.False);
+            yield break;
+        }
+    }
+
+    /// <summary>Context의 발화 액터를 데이터 포트로 제공한다.</summary>
+    [FlowNodeMenu("데이터/Context Actor", Summary = "현재 실행을 발화한 Actor를 제공합니다.", Keywords = new[] { "actor", "context", "대상", "액터" })]
+    [Serializable]
+    public sealed class ContextActorNode : FlowDataNode
+    {
+        public const string ActorPort = "Actor";
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get { yield return FlowPortDef.DataOutput<IWorldActor>(ActorPort, displayName: "Actor"); }
+        }
+
+        public override bool TryEvaluate(
+            FlowContext context,
+            FlowGraphSO graph,
+            string outputPortId,
+            out object value)
+        {
+            value = context.Actor;
+            return outputPortId == ActorPort;
+        }
+    }
+
+    /// <summary>입력 Actor가 지정 플래그를 모두 포함하는지 Bool로 평가한다.</summary>
+    [FlowNodeMenu("데이터/Is Actor Type", Summary = "Actor의 타입 플래그를 비교해 Bool 값을 만듭니다.", Keywords = new[] { "actor type", "플레이어", "몬스터", "bool", "비교" })]
+    [Serializable]
+    public sealed class IsActorTypeNode : FlowDataNode
+    {
+        public const string ActorPort = "Actor";
+        public const string ResultPort = "Result";
+
+        public ActorType actorType = ActorType.Player;
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get
+            {
+                yield return FlowPortDef.DataInput<IWorldActor>(ActorPort, displayName: "Actor");
+                yield return FlowPortDef.DataOutput<bool>(ResultPort, displayName: "Result");
+            }
+        }
+
+        public override bool TryEvaluate(
+            FlowContext context,
+            FlowGraphSO graph,
+            string outputPortId,
+            out object value)
+        {
+            value = false;
+            if (outputPortId != ResultPort
+                || !graph.TryEvaluateDataInput(
+                    context,
+                    this,
+                    ActorPort,
+                    out IWorldActor actor)
+                || actor == null)
+                return outputPortId == ResultPort;
+
+            value = actorType != ActorType.None
+                    && (actor.ActorType & actorType) == actorType;
+            return true;
+        }
+    }
+
+    /// <summary>Bool 데이터 입력을 소비하는 실행 분기. 미연결 또는 평가 실패 시 fallbackValue를 사용한다.</summary>
+    [FlowNodeMenu("코어/Branch (Data)", Summary = "Bool 데이터 포트 값에 따라 실행 흐름을 분기합니다.", Keywords = new[] { "if", "bool", "data", "조건", "분기" })]
+    [Serializable]
+    public sealed class DataBranchNode : FlowNode
+    {
+        public const string ConditionPort = "Condition";
+        public bool fallbackValue;
+
+        public override IEnumerable<FlowPortDef> Ports
+        {
+            get
+            {
+                yield return FlowPortDef.Input();
+                yield return FlowPortDef.DataInput<bool>(ConditionPort, displayName: "Condition");
+                yield return FlowPortDef.Output(FlowPort.True);
+                yield return FlowPortDef.Output(FlowPort.False);
+            }
+        }
+
+        public override IEnumerator Execute(FlowToken token)
+        {
+            bool result = token.Graph.TryEvaluateDataInput(
+                token.Context,
+                this,
+                ConditionPort,
+                out bool evaluated)
+                ? evaluated
+                : fallbackValue;
             token.Emit(result ? FlowPort.True : FlowPort.False);
             yield break;
         }
@@ -75,7 +174,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>지정 시간만큼 토큰을 보류한 뒤 통과.</summary>
-    [FlowNodeMenu("코어/Wait (Time)")]
+    [FlowNodeMenu("코어/Wait (Time)", Summary = "지정한 시간 동안 실행을 대기합니다.", Keywords = new[] { "delay", "시간", "타이머" })]
     [Serializable]
     public sealed class WaitTimeNode : FlowNode
     {
@@ -108,7 +207,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>조건이 충족될 때까지 폴링 대기 후 통과.</summary>
-    [FlowNodeMenu("코어/Wait (Condition)")]
+    [FlowNodeMenu("코어/Wait (Condition)", Summary = "조건이 참이 될 때까지 실행을 대기합니다.", Keywords = new[] { "until", "조건", "대기" })]
     [Serializable]
     public sealed class WaitConditionNode : FlowNode
     {
@@ -154,7 +253,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>Parallel(다중 방출)로 갈라진 토큰을 합류시킨다. 같은 FlowContext 내에서만 합류한다.</summary>
-    [FlowNodeMenu("코어/Join")]
+    [FlowNodeMenu("코어/Join", Summary = "여러 실행 흐름을 하나로 합류시킵니다.", Keywords = new[] { "merge", "합류", "all", "any" })]
     [Serializable]
     public sealed class JoinNode : FlowNode
     {
@@ -205,7 +304,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>재진입 정책 게이트. 진입점이 아닌 그래프 중간에서 통과 횟수를 제한한다. (컨텍스트 단위가 아닌 러너 수명 단위)</summary>
-    [FlowNodeMenu("코어/Gate (RepeatPolicy)")]
+    [FlowNodeMenu("코어/Gate (RepeatPolicy)", Summary = "반복 정책에 따라 실행 통과를 제한합니다.", Keywords = new[] { "gate", "cooldown", "once", "반복" })]
     [Serializable]
     public sealed class GateNode : FlowNode
     {
@@ -255,7 +354,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>디버그/테스트용 로그 출력.</summary>
-    [FlowNodeMenu("코어/Log")]
+    [FlowNodeMenu("코어/Log", Summary = "Console에 디버그 메시지를 출력합니다.", Keywords = new[] { "debug", "print", "로그" })]
     [Serializable]
     public sealed class LogNode : FlowNode
     {

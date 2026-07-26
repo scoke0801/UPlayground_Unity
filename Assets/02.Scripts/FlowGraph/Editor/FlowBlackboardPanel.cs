@@ -77,6 +77,13 @@ namespace UPlayGround.FlowGraph.Editor
                 style = { height = 22 },
             };
             header.Add(addButton);
+            var addParameterButton = new Button(AddParameter)
+            {
+                text = "+ 인자",
+                tooltip = "SubGraph 공개 입출력 인자 추가",
+                style = { height = 22 },
+            };
+            header.Add(addParameterButton);
             Add(header);
 
             var searchRow = new VisualElement
@@ -150,6 +157,24 @@ namespace UPlayGround.FlowGraph.Editor
             Rebuild(added);
         }
 
+        private void AddParameter()
+        {
+            if (_graph == null)
+                return;
+
+            RecordUndo("FlowGraph 공개 인자 추가");
+            string baseName = "parameter";
+            string name = baseName;
+            int suffix = 1;
+            while (HasParameterName(name) || _graph.HasVariable(name))
+                name = $"{baseName}{suffix++}";
+
+            _graph.parameters.Add(new FlowGraphParameterDef { name = name });
+            MarkChanged();
+            _searchField.SetValueWithoutNotify(string.Empty);
+            Rebuild();
+        }
+
         /// <summary>Play Mode에서 첫 실행 컨텍스트의 값을 선언 옆에 표시한다.</summary>
         public void UpdateRuntimeValues(FlowGraphRunner runner)
         {
@@ -176,7 +201,10 @@ namespace UPlayGround.FlowGraph.Editor
             _rows.Clear();
             _runtimeLabels.Clear();
             int variableCount = _graph?.variables?.Count ?? 0;
-            _countLabel.text = variableCount > 0 ? variableCount.ToString() : string.Empty;
+            int parameterCount = _graph?.parameters?.Count ?? 0;
+            _countLabel.text = variableCount > 0 || parameterCount > 0
+                ? $"V {variableCount} · P {parameterCount}"
+                : string.Empty;
 
             if (_graph == null)
             {
@@ -196,10 +224,168 @@ namespace UPlayGround.FlowGraph.Editor
                 _rows.Add(CreateRow(def, def == focus));
             }
 
-            if (variableCount == 0)
+            if (parameterCount > 0)
+            {
+                _rows.Add(new Label("Parameters")
+                {
+                    style =
+                    {
+                        unityFontStyleAndWeight = FontStyle.Bold,
+                        paddingLeft = 8,
+                        paddingTop = 5,
+                        paddingBottom = 3,
+                    },
+                });
+                foreach (FlowGraphParameterDef parameter in _graph.parameters)
+                {
+                    if (parameter != null
+                        && (string.IsNullOrEmpty(query)
+                            || parameter.name.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0
+                            || parameter.type.ToString().IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0))
+                    {
+                        _rows.Add(CreateParameterRow(parameter));
+                    }
+                }
+            }
+
+            if (variableCount == 0 && parameterCount == 0)
                 AddEmptyState("아직 변수가 없습니다. ‘+ 변수’로 추가하세요.");
-            else if (visibleCount == 0)
+            else if (visibleCount == 0 && parameterCount == 0)
                 AddEmptyState("검색 결과가 없습니다.");
+        }
+
+        private VisualElement CreateParameterRow(FlowGraphParameterDef parameter)
+        {
+            var card = new VisualElement
+            {
+                style =
+                {
+                    marginLeft = 5,
+                    marginRight = 5,
+                    marginBottom = 4,
+                    paddingLeft = 5,
+                    paddingRight = 4,
+                    paddingTop = 4,
+                    paddingBottom = 4,
+                    backgroundColor = CardColor,
+                },
+            };
+
+            var top = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, alignItems = Align.Center },
+            };
+            var name = new TextField { value = parameter.name, style = { flexGrow = 1 } };
+            name.RegisterCallback<FocusOutEvent>(_ =>
+            {
+                string next = name.value?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(next)
+                    || (next != parameter.name && (HasParameterName(next) || _graph.HasVariable(next))))
+                {
+                    name.SetValueWithoutNotify(parameter.name);
+                    return;
+                }
+                if (next == parameter.name)
+                    return;
+                RecordUndo("FlowGraph 공개 인자 이름 변경");
+                parameter.name = next;
+                MarkChanged();
+                Rebuild();
+            });
+            top.Add(name);
+            var delete = new Button(() =>
+            {
+                RecordUndo("FlowGraph 공개 인자 삭제");
+                _graph.parameters.Remove(parameter);
+                MarkChanged();
+                Rebuild();
+            }) { text = "×", tooltip = "공개 인자 삭제" };
+            top.Add(delete);
+            card.Add(top);
+
+            var options = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, alignItems = Align.Center },
+            };
+            var direction = new EnumField(parameter.direction) { style = { flexGrow = 1 } };
+            direction.RegisterValueChangedCallback(evt =>
+            {
+                RecordUndo("FlowGraph 공개 인자 방향 변경");
+                parameter.direction = (FlowParameterDirection)evt.newValue;
+                MarkChanged();
+            });
+            options.Add(direction);
+            var type = new EnumField(parameter.type) { style = { flexGrow = 1 } };
+            type.RegisterValueChangedCallback(evt =>
+            {
+                RecordUndo("FlowGraph 공개 인자 타입 변경");
+                parameter.type = (FlowVariableType)evt.newValue;
+                parameter.defaultValue ??= new FlowVariableValue();
+                parameter.defaultValue.type = parameter.type;
+                MarkChanged();
+                Rebuild();
+            });
+            options.Add(type);
+            var required = new Toggle("필수") { value = parameter.required };
+            required.RegisterValueChangedCallback(evt =>
+            {
+                RecordUndo("FlowGraph 공개 인자 필수 변경");
+                parameter.required = evt.newValue;
+                MarkChanged();
+            });
+            options.Add(required);
+            card.Add(options);
+
+            parameter.defaultValue ??= new FlowVariableValue();
+            parameter.defaultValue.type = parameter.type;
+            card.Add(CreateParameterValueField(parameter));
+            return card;
+        }
+
+        private VisualElement CreateParameterValueField(FlowGraphParameterDef parameter)
+        {
+            FlowVariableValue value = parameter.defaultValue;
+            switch (parameter.type)
+            {
+                case FlowVariableType.Bool:
+                {
+                    var field = new Toggle("기본값") { value = value.boolValue };
+                    field.RegisterValueChangedCallback(evt =>
+                        ChangeDefaultValue(() => value.boolValue = evt.newValue));
+                    return field;
+                }
+                case FlowVariableType.Int:
+                {
+                    var field = new IntegerField("기본값") { value = value.intValue };
+                    field.RegisterValueChangedCallback(evt =>
+                        ChangeDefaultValue(() => value.intValue = evt.newValue));
+                    return field;
+                }
+                case FlowVariableType.Float:
+                {
+                    var field = new FloatField("기본값") { value = value.floatValue };
+                    field.RegisterValueChangedCallback(evt =>
+                        ChangeDefaultValue(() => value.floatValue = evt.newValue));
+                    return field;
+                }
+                default:
+                {
+                    var field = new TextField("기본값") { value = value.stringValue };
+                    field.RegisterValueChangedCallback(evt =>
+                        ChangeDefaultValue(() => value.stringValue = evt.newValue));
+                    return field;
+                }
+            }
+        }
+
+        private bool HasParameterName(string name)
+        {
+            foreach (FlowGraphParameterDef parameter in _graph.parameters)
+            {
+                if (parameter != null && parameter.name == name)
+                    return true;
+            }
+            return false;
         }
 
         private void AddEmptyState(string message)
@@ -495,15 +681,18 @@ namespace UPlayGround.FlowGraph.Editor
 
         private void RenameUsages(string oldName, string newName)
         {
+            FlowVariableDef definition = _graph.GetVariable(null, oldName);
             foreach (VariableUsage usage in FindUsages(oldName))
             {
                 switch (usage.Node)
                 {
                     case SetVariableNode set when set.variableName == oldName:
                         set.variableName = newName;
+                        set.variableId = definition?.id;
                         break;
                     case CheckVariableNode check when check.variableName == oldName:
                         check.variableName = newName;
+                        check.variableId = definition?.id;
                         break;
                 }
 
@@ -514,7 +703,10 @@ namespace UPlayGround.FlowGraph.Editor
                     _ => null,
                 };
                 if (condition is VariableCondition variable && variable.variableName == oldName)
+                {
                     variable.variableName = newName;
+                    variable.variableId = definition?.id;
+                }
             }
         }
 

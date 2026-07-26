@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -61,6 +62,7 @@ namespace UPlayGround.FlowGraph.Editor
         internal FlowEdgeConnectorListener ConnectorListener { get; }
 
         private Port _pendingConnectOrigin;
+        private FlowEdgeView _pendingInsertEdge;
 
         public void SetupSearchWindow(EditorWindow hostWindow)
         {
@@ -72,6 +74,7 @@ namespace UPlayGround.FlowGraph.Editor
                 if (_graph == null)
                     return;
                 _pendingConnectOrigin = null; // 우클릭 생성은 자동 연결 없음
+                _pendingInsertEdge = null;
                 SearchWindow.Open(new SearchWindowContext(context.screenMousePosition), _searchWindow);
             };
         }
@@ -109,7 +112,7 @@ namespace UPlayGround.FlowGraph.Editor
                 if (fromPort == null || toPort == null)
                     continue;
 
-                AddElement(fromPort.ConnectTo(toPort));
+                AddElement(CreateEdgeView(fromPort, toPort));
             }
 
             // 그룹 복원 (멤버 추가는 데이터 역기록 없이)
@@ -187,9 +190,9 @@ namespace UPlayGround.FlowGraph.Editor
                         _graph.connections.Add(new FlowConnection
                         {
                             fromNodeId = fromView.FlowNode.id,
-                            fromPort = edge.output.portName,
+                            fromPort = GetPortId(edge.output),
                             toNodeId = toView.FlowNode.id,
-                            toPort = edge.input.portName,
+                            toPort = GetPortId(edge.input),
                         });
                         dirty = true;
                     }
@@ -238,9 +241,9 @@ namespace UPlayGround.FlowGraph.Editor
 
             _graph.connections.RemoveAll(c =>
                 c.fromNodeId == fromView.FlowNode.id
-                && c.fromPort == edge.output.portName
+                && c.fromPort == GetPortId(edge.output)
                 && c.toNodeId == toView.FlowNode.id
-                && c.toPort == edge.input.portName);
+                && c.toPort == GetPortId(edge.input));
         }
 
         private void RecordUndo(string label)
@@ -273,12 +276,16 @@ namespace UPlayGround.FlowGraph.Editor
                 return;
 
             _pendingConnectOrigin = null;
+            _pendingInsertEdge = null;
             Vector2 worldCenter = this.LocalToWorld(new Vector2(layout.width * 0.5f, layout.height * 0.5f));
             CreateNode(nodeType, contentViewContainer.WorldToLocal(worldCenter));
         }
 
         private void CreateNode(Type nodeType, Vector2 graphPosition)
         {
+            int undoGroup = Undo.GetCurrentGroup();
+            Undo.SetCurrentGroupName(
+                _pendingInsertEdge != null ? "FlowGraph 연결 사이에 노드 삽입" : "FlowGraph 노드 생성");
             RecordUndo("FlowGraph 노드 생성");
             var node = (FlowNode)Activator.CreateInstance(nodeType);
             node.editorPosition = graphPosition;
@@ -290,18 +297,34 @@ namespace UPlayGround.FlowGraph.Editor
                 view.SetCompact(true);
             AddElement(view);
 
+            // 기존 연결 중간에 생성했다면 원본 Edge를 두 연결로 교체한다.
+            if (_pendingInsertEdge != null)
+            {
+                FlowEdgeView oldEdge = _pendingInsertEdge;
+                _pendingInsertEdge = null;
+                Port upstream = oldEdge.output;
+                Port downstream = oldEdge.input;
+                DeleteElements(new List<GraphElement> { oldEdge });
+
+                Port nodeInput = view.FindCompatiblePort(upstream);
+                Port nodeOutput = view.FindCompatiblePort(downstream);
+                ConnectPorts(upstream, nodeInput);
+                ConnectPorts(nodeOutput, downstream);
+            }
             // 포트 드래그로 생성했다면 원점 포트와 자동 연결 (FlowCanvas 참조)
-            if (_pendingConnectOrigin != null)
+            else if (_pendingConnectOrigin != null)
             {
                 Port origin = _pendingConnectOrigin;
                 _pendingConnectOrigin = null;
+                Port compatible = view.FindCompatiblePort(origin);
                 if (origin.direction == Direction.Output)
-                    ConnectPorts(origin, view.FirstPort(Direction.Input));
+                    ConnectPorts(origin, compatible);
                 else
-                    ConnectPorts(view.FirstPort(Direction.Output), origin);
+                    ConnectPorts(compatible, origin);
             }
 
             GraphMutated?.Invoke();
+            Undo.CollapseUndoOperations(undoGroup);
         }
 
         /// <summary>포트 간 연결을 모델·뷰에 함께 반영한다 (중복 연결은 무시).</summary>
@@ -311,24 +334,36 @@ namespace UPlayGround.FlowGraph.Editor
                 return;
             if (output.node is not FlowNodeView fromView || input.node is not FlowNodeView toView)
                 return;
+            if (output is not FlowPortView outputView
+                || input is not FlowPortView inputView
+                || !FlowPortDef.AreCompatible(outputView.Definition, inputView.Definition))
+                return;
+
+            string outputId = GetPortId(output);
+            string inputId = GetPortId(input);
 
             bool exists = _graph.connections.Exists(c =>
                 c.fromNodeId == fromView.FlowNode.id
-                && c.fromPort == output.portName
+                && c.fromPort == outputId
                 && c.toNodeId == toView.FlowNode.id
-                && c.toPort == input.portName);
+                && c.toPort == inputId);
             if (exists)
                 return;
+
+            if (output.capacity == Port.Capacity.Single)
+                DeleteElements(output.connections.ToList());
+            if (input.capacity == Port.Capacity.Single)
+                DeleteElements(input.connections.ToList());
 
             RecordUndo("FlowGraph 연결 생성");
             _graph.connections.Add(new FlowConnection
             {
                 fromNodeId = fromView.FlowNode.id,
-                fromPort = output.portName,
+                fromPort = outputId,
                 toNodeId = toView.FlowNode.id,
-                toPort = input.portName,
+                toPort = inputId,
             });
-            AddElement(output.ConnectTo(input));
+            AddElement(CreateEdgeView(output, input));
             EditorUtility.SetDirty(_graph);
             GraphMutated?.Invoke();
         }
@@ -340,9 +375,49 @@ namespace UPlayGround.FlowGraph.Editor
                 return;
 
             _pendingConnectOrigin = edge.output ?? edge.input;
+            _pendingInsertEdge = null;
             SearchWindow.Open(
                 new SearchWindowContext(GUIUtility.GUIToScreenPoint(position)),
                 _searchWindow);
+        }
+
+        internal bool CanCreateForPendingConnection(Type nodeType)
+        {
+            if (_pendingInsertEdge?.output is FlowPortView upstream
+                && _pendingInsertEdge.input is FlowPortView downstream)
+            {
+                return FlowNodeCatalog.CanBridge(
+                    nodeType,
+                    upstream.Definition,
+                    downstream.Definition);
+            }
+            if (_pendingConnectOrigin is not FlowPortView origin)
+                return true;
+            return FlowNodeCatalog.HasCompatiblePort(nodeType, origin.Definition);
+        }
+
+        internal void OpenInsertSearch(FlowEdgeView edge, Vector2 panelPosition)
+        {
+            if (_graph == null || _searchWindow == null || edge?.output == null || edge.input == null)
+                return;
+
+            _pendingConnectOrigin = null;
+            _pendingInsertEdge = edge;
+            SearchWindow.Open(
+                new SearchWindowContext(GUIUtility.GUIToScreenPoint(panelPosition)),
+                _searchWindow);
+        }
+
+        private FlowEdgeView CreateEdgeView(Port output, Port input)
+        {
+            var edge = new FlowEdgeView(this)
+            {
+                output = output,
+                input = input,
+            };
+            output.Connect(edge);
+            input.Connect(edge);
+            return edge;
         }
 
         /// <summary>서브그래프 노드 더블클릭 → 창이 브레드크럼과 함께 하위 그래프를 연다.</summary>
@@ -490,6 +565,17 @@ namespace UPlayGround.FlowGraph.Editor
             EditorUtility.SetDirty(_graph);
         }
 
+        internal void SetBreakpointDisabled(FlowNodeView nodeView, bool disabled)
+        {
+            if (_graph == null || nodeView?.FlowNode == null || !nodeView.FlowNode.breakpoint)
+                return;
+
+            RecordUndo(disabled ? "브레이크포인트 비활성화" : "브레이크포인트 활성화");
+            nodeView.FlowNode.breakpointDisabled = disabled;
+            nodeView.RefreshBreakpointMarker();
+            EditorUtility.SetDirty(_graph);
+        }
+
         /// <summary>캔버스 우클릭 메뉴 — 선택 노드로 그룹 생성 (FlowCanvas Groups 참조).</summary>
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
@@ -503,6 +589,330 @@ namespace UPlayGround.FlowGraph.Editor
                 selection.Count > 0
                     ? DropdownMenuAction.Status.Normal
                     : DropdownMenuAction.Status.Disabled);
+            evt.menu.AppendAction("정렬/왼쪽 맞춤", _ => AlignSelectedNodes(horizontal: true),
+                SelectedNodeCount > 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
+            evt.menu.AppendAction("정렬/위쪽 맞춤", _ => AlignSelectedNodes(horizontal: false),
+                SelectedNodeCount > 1 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
+            evt.menu.AppendAction("정렬/가로 간격 균등", _ => DistributeSelectedNodes(),
+                SelectedNodeCount > 2 ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
+            evt.menu.AppendAction(
+                "선택을 SubGraph로 추출",
+                _ => ExtractSelectionToSubGraph(),
+                SelectedNodeCount > 0
+                    ? DropdownMenuAction.Status.Normal
+                    : DropdownMenuAction.Status.Disabled);
+        }
+
+        private int SelectedNodeCount => selection.Count(item => item is FlowNodeView);
+
+        private List<FlowNodeView> GetSelectedNodeViews()
+        {
+            return selection.OfType<FlowNodeView>().ToList();
+        }
+
+        private void AlignSelectedNodes(bool horizontal)
+        {
+            List<FlowNodeView> selected = GetSelectedNodeViews();
+            if (selected.Count < 2)
+                return;
+
+            RecordUndo(horizontal ? "FlowGraph 왼쪽 맞춤" : "FlowGraph 위쪽 맞춤");
+            float target = horizontal
+                ? selected.Min(view => view.GetPosition().xMin)
+                : selected.Min(view => view.GetPosition().yMin);
+            foreach (FlowNodeView view in selected)
+            {
+                Rect rect = view.GetPosition();
+                if (horizontal) rect.x = target;
+                else rect.y = target;
+                view.SetPosition(rect);
+                view.FlowNode.editorPosition = rect.position;
+            }
+            EditorUtility.SetDirty(_graph);
+            GraphMutated?.Invoke();
+        }
+
+        private void DistributeSelectedNodes()
+        {
+            List<FlowNodeView> selected = GetSelectedNodeViews()
+                .OrderBy(view => view.GetPosition().center.x)
+                .ToList();
+            if (selected.Count < 3)
+                return;
+
+            RecordUndo("FlowGraph 가로 간격 균등");
+            float first = selected[0].GetPosition().center.x;
+            float last = selected[^1].GetPosition().center.x;
+            float step = (last - first) / (selected.Count - 1);
+            for (int i = 1; i < selected.Count - 1; i++)
+            {
+                Rect rect = selected[i].GetPosition();
+                rect.center = new Vector2(first + step * i, rect.center.y);
+                selected[i].SetPosition(rect);
+                selected[i].FlowNode.editorPosition = rect.position;
+            }
+            EditorUtility.SetDirty(_graph);
+            GraphMutated?.Invoke();
+        }
+
+        private void ExtractSelectionToSubGraph()
+        {
+            List<FlowNodeView> selectedViews = GetSelectedNodeViews();
+            if (selectedViews.Count == 0 || _graph == null)
+                return;
+
+            var selectedIds = new HashSet<string>(
+                selectedViews.Select(view => view.FlowNode.id));
+            if (selectedViews.Any(view => view.FlowNode is EntryNode))
+            {
+                EditorUtility.DisplayDialog(
+                    "SubGraph 추출 불가",
+                    "진입점 노드는 선택 영역에 포함할 수 없습니다.",
+                    "확인");
+                return;
+            }
+
+            List<FlowConnection> incoming = _graph.connections
+                .Where(connection =>
+                    connection != null
+                    && !selectedIds.Contains(connection.fromNodeId)
+                    && selectedIds.Contains(connection.toNodeId))
+                .ToList();
+            List<FlowConnection> outgoing = _graph.connections
+                .Where(connection =>
+                    connection != null
+                    && selectedIds.Contains(connection.fromNodeId)
+                    && !selectedIds.Contains(connection.toNodeId))
+                .ToList();
+            List<FlowConnection> internalConnections = _graph.connections
+                .Where(connection =>
+                    connection != null
+                    && selectedIds.Contains(connection.fromNodeId)
+                    && selectedIds.Contains(connection.toNodeId))
+                .ToList();
+
+            if (incoming.Count != 1 || outgoing.Count != 1)
+            {
+                EditorUtility.DisplayDialog(
+                    "SubGraph 추출 불가",
+                    $"1차 안전 추출은 실행 입력/출력이 각각 하나여야 합니다.\n" +
+                    $"현재 입력 {incoming.Count}개, 출력 {outgoing.Count}개입니다.",
+                    "확인");
+                return;
+            }
+
+            if (!IsConnectedSelection(incoming[0].toNodeId, selectedIds, internalConnections)
+                || HasHiddenTerminal(selectedViews, internalConnections, outgoing[0]))
+            {
+                EditorUtility.DisplayDialog(
+                    "SubGraph 추출 불가",
+                    "선택 영역이 하나로 연결되어 있지 않거나 외부 출력 외의 종료 경로가 있습니다.\n" +
+                    "의미 보존을 위해 선택 범위를 조정하세요.",
+                    "확인");
+                return;
+            }
+
+            string parentPath = AssetDatabase.GetAssetPath(_graph);
+            string directory = string.IsNullOrEmpty(parentPath)
+                ? "Assets"
+                : Path.GetDirectoryName(parentPath)?.Replace('\\', '/') ?? "Assets";
+            string path = EditorUtility.SaveFilePanelInProject(
+                "SubGraph 에셋 생성",
+                $"{_graph.name}_SubGraph",
+                "asset",
+                "선택 영역을 저장할 FlowGraph 에셋을 선택하세요.",
+                directory);
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            FlowGraphSO child = null;
+            int undoGroup = Undo.GetCurrentGroup();
+            try
+            {
+                Undo.SetCurrentGroupName("FlowGraph SubGraph 추출");
+                Undo.RegisterCompleteObjectUndo(_graph, "FlowGraph SubGraph 추출");
+
+                child = ScriptableObject.CreateInstance<FlowGraphSO>();
+                child.graphId = Path.GetFileNameWithoutExtension(path);
+                var entry = new ManualEntryNode
+                {
+                    entryId = "start",
+                    editorPosition = selectedViews
+                        .Select(view => view.FlowNode.editorPosition)
+                        .Aggregate(Vector2.zero, (sum, position) => sum + position)
+                        / selectedViews.Count - new Vector2(220f, 0f),
+                };
+                child.nodes.Add(entry);
+                foreach (FlowNodeView view in selectedViews)
+                    child.nodes.Add(view.FlowNode);
+                child.connections.Add(new FlowConnection
+                {
+                    fromNodeId = entry.id,
+                    fromPort = FlowPort.Out,
+                    toNodeId = incoming[0].toNodeId,
+                    toPort = incoming[0].toPort,
+                });
+                child.connections.AddRange(internalConnections);
+
+                var subNode = new SubGraphNode
+                {
+                    subGraph = child,
+                    entryId = "start",
+                    waitForCompletion = true,
+                    editorPosition = selectedViews
+                        .Select(view => view.FlowNode.editorPosition)
+                        .Aggregate(Vector2.zero, (sum, position) => sum + position)
+                        / selectedViews.Count,
+                };
+                AddExtractedVariableParameters(selectedViews, child, subNode);
+
+                _graph.nodes.RemoveAll(node => node != null && selectedIds.Contains(node.id));
+                _graph.nodes.Add(subNode);
+                _graph.connections.RemoveAll(connection =>
+                    connection != null
+                    && (selectedIds.Contains(connection.fromNodeId)
+                        || selectedIds.Contains(connection.toNodeId)));
+                _graph.connections.Add(new FlowConnection
+                {
+                    fromNodeId = incoming[0].fromNodeId,
+                    fromPort = incoming[0].fromPort,
+                    toNodeId = subNode.id,
+                    toPort = FlowPort.In,
+                });
+                _graph.connections.Add(new FlowConnection
+                {
+                    fromNodeId = subNode.id,
+                    fromPort = FlowPort.Out,
+                    toNodeId = outgoing[0].toNodeId,
+                    toPort = outgoing[0].toPort,
+                });
+                foreach (FlowGraphGroup group in _graph.editorGroups)
+                    group?.nodeIds?.RemoveAll(selectedIds.Contains);
+                _graph.editorGroups.RemoveAll(group =>
+                    group == null || group.nodeIds == null || group.nodeIds.Count == 0);
+
+                AssetDatabase.CreateAsset(child, path);
+                Undo.RegisterCreatedObjectUndo(child, "FlowGraph SubGraph 에셋 생성");
+                EditorUtility.SetDirty(child);
+                EditorUtility.SetDirty(_graph);
+                AssetDatabase.SaveAssetIfDirty(child);
+                PopulateView(_graph);
+                SelectAndFrame(subNode.id);
+                GraphMutated?.Invoke();
+                Undo.CollapseUndoOperations(undoGroup);
+            }
+            catch (Exception exception)
+            {
+                if (child != null && AssetDatabase.Contains(child))
+                    AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(child));
+                Undo.RevertAllDownToGroup(undoGroup);
+                Debug.LogException(exception);
+                EditorUtility.DisplayDialog(
+                    "SubGraph 추출 실패",
+                    "변경을 완료하지 못해 부모 그래프와 생성 에셋을 원복했습니다.",
+                    "확인");
+            }
+        }
+
+        private static bool IsConnectedSelection(
+            string startNodeId,
+            HashSet<string> selectedIds,
+            List<FlowConnection> internalConnections)
+        {
+            var reached = new HashSet<string> { startNodeId };
+            var queue = new Queue<string>();
+            queue.Enqueue(startNodeId);
+            while (queue.Count > 0)
+            {
+                string current = queue.Dequeue();
+                foreach (FlowConnection connection in internalConnections)
+                {
+                    if (connection.fromNodeId != current || !reached.Add(connection.toNodeId))
+                        continue;
+                    queue.Enqueue(connection.toNodeId);
+                }
+            }
+            return reached.SetEquals(selectedIds);
+        }
+
+        private static bool HasHiddenTerminal(
+            List<FlowNodeView> selectedViews,
+            List<FlowConnection> internalConnections,
+            FlowConnection boundaryOutput)
+        {
+            foreach (FlowNodeView view in selectedViews)
+            {
+                foreach (FlowPortDef port in view.FlowNode.Ports)
+                {
+                    if (port.Direction != FlowPortDirection.Output
+                        || port.Kind != FlowPortKind.Execution)
+                        continue;
+
+                    bool connectedInside = internalConnections.Any(connection =>
+                        connection.fromNodeId == view.FlowNode.id
+                        && connection.fromPort == port.Id);
+                    bool isBoundary = boundaryOutput.fromNodeId == view.FlowNode.id
+                                      && boundaryOutput.fromPort == port.Id;
+                    if (!connectedInside && !isBoundary)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        private void AddExtractedVariableParameters(
+            List<FlowNodeView> selectedViews,
+            FlowGraphSO child,
+            SubGraphNode subNode)
+        {
+            var names = new HashSet<string>();
+            foreach (FlowNodeView view in selectedViews)
+            {
+                switch (view.FlowNode)
+                {
+                    case SetVariableNode set when !string.IsNullOrEmpty(set.variableName):
+                        names.Add(set.variableName);
+                        break;
+                    case CheckVariableNode check when !string.IsNullOrEmpty(check.variableName):
+                        names.Add(check.variableName);
+                        break;
+                    case BranchNode branch when branch.condition is VariableCondition variable:
+                        names.Add(variable.variableName);
+                        break;
+                    case WaitConditionNode wait when wait.condition is VariableCondition variable:
+                        names.Add(variable.variableName);
+                        break;
+                }
+            }
+
+            foreach (string name in names)
+            {
+                FlowVariableDef parentVariable = _graph.GetVariable(null, name);
+                if (parentVariable == null)
+                    continue;
+                var parameter = new FlowGraphParameterDef
+                {
+                    name = parentVariable.name,
+                    type = parentVariable.type,
+                    direction = FlowParameterDirection.InOut,
+                    defaultValue = new FlowVariableValue
+                    {
+                        type = parentVariable.type,
+                        boolValue = parentVariable.boolValue,
+                        intValue = parentVariable.intValue,
+                        floatValue = parentVariable.floatValue,
+                        stringValue = parentVariable.stringValue,
+                    },
+                };
+                child.parameters.Add(parameter);
+                subNode.parameterBindings.Add(new FlowParameterBinding
+                {
+                    parameterId = parameter.id,
+                    parameterName = parameter.name,
+                    parentVariableId = parentVariable.id,
+                    parentVariableName = parentVariable.name,
+                });
+            }
         }
 
         private void CreateGroup(Vector2 graphPosition)
@@ -537,8 +947,17 @@ namespace UPlayGround.FlowGraph.Editor
         public override List<Port> GetCompatiblePorts(Port startPort, NodeAdapter nodeAdapter)
         {
             return ports
-                .Where(port => port.direction != startPort.direction && port.node != startPort.node)
+                .Where(port =>
+                    port.node != startPort.node
+                    && port is FlowPortView candidate
+                    && startPort is FlowPortView start
+                    && FlowPortDef.AreCompatible(start.Definition, candidate.Definition))
                 .ToList();
+        }
+
+        internal static string GetPortId(Port port)
+        {
+            return port?.userData as string ?? port?.portName;
         }
 
         #endregion
@@ -610,7 +1029,7 @@ namespace UPlayGround.FlowGraph.Editor
                 if (edge.output?.node is not FlowNodeView fromView || edge.input?.node is not FlowNodeView toView)
                     continue;
 
-                string key = $"{fromView.FlowNode.id}:{edge.output.portName}:{toView.FlowNode.id}";
+                string key = $"{fromView.FlowNode.id}:{GetPortId(edge.output)}:{toView.FlowNode.id}";
                 bool glowing = runner.LastEdgeEmitTimes.TryGetValue(key, out float emitTime)
                     && now - emitTime <= AfterglowDuration;
 
@@ -714,5 +1133,41 @@ namespace UPlayGround.FlowGraph.Editor
         #endregion
 
         #endregion
+    }
+
+    /// <summary>연결 해제와 중간 노드 삽입 동작을 제공하는 FlowGraph 전용 Edge.</summary>
+    internal sealed class FlowEdgeView : Edge
+    {
+        private readonly FlowGraphView _owner;
+
+        public FlowEdgeView(FlowGraphView owner)
+        {
+            _owner = owner;
+            RegisterCallback<MouseDownEvent>(evt =>
+            {
+                if (evt.button == 0 && evt.altKey)
+                {
+                    _owner.DeleteElements(new List<GraphElement> { this });
+                    evt.StopImmediatePropagation();
+                    return;
+                }
+
+                if (evt.button == 0 && evt.clickCount == 2)
+                {
+                    _owner.OpenInsertSearch(this, evt.mousePosition);
+                    evt.StopImmediatePropagation();
+                }
+            });
+            RegisterCallback<ContextualMenuPopulateEvent>(evt =>
+            {
+                evt.menu.AppendAction(
+                    "연결 사이에 노드 삽입",
+                    _ => _owner.OpenInsertSearch(this, evt.mousePosition));
+                evt.menu.AppendAction(
+                    "연결 해제",
+                    _ => _owner.DeleteElements(new List<GraphElement> { this }));
+                evt.menu.AppendSeparator();
+            });
+        }
     }
 }

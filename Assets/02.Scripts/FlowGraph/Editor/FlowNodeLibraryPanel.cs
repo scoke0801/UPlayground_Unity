@@ -55,6 +55,9 @@ namespace UPlayGround.FlowGraph.Editor
         {
             _listView.Clear();
 
+            AddQuickSection("★ 즐겨찾기", FlowNodeUsageStore.GetFavorites());
+            AddQuickSection("최근 사용", FlowNodeUsageStore.GetRecents());
+
             foreach (var pair in FlowNodeCatalog.GetNodeTypesByCategory())
             {
                 var matching = new List<Type>();
@@ -78,6 +81,18 @@ namespace UPlayGround.FlowGraph.Editor
                     foldout.Add(CreateItem(type));
                 _listView.Add(foldout);
             }
+        }
+
+        private void AddQuickSection(string title, List<Type> types)
+        {
+            if (types.Count == 0 || !string.IsNullOrEmpty(_filter))
+                return;
+
+            var foldout = new Foldout { text = title, value = true };
+            foldout.style.marginLeft = 2;
+            foreach (Type type in types)
+                foldout.Add(CreateItem(type));
+            _listView.Add(foldout);
         }
 
         private VisualElement CreateItem(Type nodeType)
@@ -122,13 +137,32 @@ namespace UPlayGround.FlowGraph.Editor
                     },
                 });
             }
-            row.Add(new Label(FlowNodeCatalog.GetLabel(nodeType)));
+            var label = new Label(FlowNodeCatalog.GetLabel(nodeType))
+            {
+                tooltip = FlowNodeCatalog.GetSummary(nodeType),
+            };
+            row.Add(label);
+            if (FlowNodeUsageStore.IsFavorite(nodeType))
+            {
+                row.Add(new Label("★")
+                {
+                    tooltip = "즐겨찾기",
+                    style = { marginLeft = 4, color = new Color(0.95f, 0.76f, 0.20f) },
+                });
+            }
 
             row.RegisterCallback<MouseDownEvent>(evt =>
             {
                 if (evt.button == 0)
                 {
+                    FlowNodeUsageStore.RecordRecent(nodeType);
                     _onCreateNode?.Invoke(nodeType);
+                    evt.StopPropagation();
+                }
+                else if (evt.button == 1)
+                {
+                    FlowNodeUsageStore.ToggleFavorite(nodeType);
+                    Rebuild();
                     evt.StopPropagation();
                 }
             });

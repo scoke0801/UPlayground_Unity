@@ -9,7 +9,7 @@ namespace UPlayGround.FlowGraph
     /// 다른 FlowGraphSO의 Manual 진입점을 중첩 실행한다. 하위 그래프의 모든 토큰이 소진되면 Out으로 통과.
     /// 하위 컨텍스트는 발화 원인(Collider/Actor)을 상속하고, 진입점의 재진입 정책은 그대로 존중된다.
     /// </summary>
-    [FlowNodeMenu("코어/SubGraph")]
+    [FlowNodeMenu("코어/SubGraph", Summary = "다른 FlowGraph를 호출하고 선택적으로 완료까지 대기합니다.", Keywords = new[] { "subgraph", "function", "호출", "재사용" })]
     [Serializable]
     public sealed class SubGraphNode : FlowNode
     {
@@ -22,6 +22,8 @@ namespace UPlayGround.FlowGraph
 
         [Tooltip("true면 하위 그래프의 모든 토큰이 끝날 때까지 대기 후 Out, false면 발화 직후 통과.")]
         public bool waitForCompletion = true;
+
+        public List<FlowParameterBinding> parameterBindings = new();
 
         public override string DisplayName =>
             subGraph != null ? $"SubGraph [{subGraph.name}]" : "SubGraph";
@@ -58,7 +60,11 @@ namespace UPlayGround.FlowGraph
                     && (string.IsNullOrEmpty(entryId) || entry.entryId == entryId))
                 {
                     FlowContext child = token.Context.Runner
-                        .FireEntryInGraph(subGraph, entry, token.Context);
+                        .FireEntryInGraph(
+                            subGraph,
+                            entry,
+                            token.Context,
+                            context => ApplyInputs(token, context));
                     if (child != null)
                         children.Add(child);
                 }
@@ -88,7 +94,44 @@ namespace UPlayGround.FlowGraph
                 }
             }
 
+            if (waitForCompletion && children.Count == 1)
+                ApplyOutputs(token, children[0]);
+
             token.Emit(FlowPort.Out);
+        }
+
+        private void ApplyInputs(FlowToken token, FlowContext child)
+        {
+            foreach (FlowParameterBinding binding in parameterBindings)
+            {
+                if (binding == null)
+                    continue;
+                FlowGraphParameterDef parameter =
+                    subGraph.GetParameter(binding.parameterId, binding.parameterName);
+                FlowVariableDef parentVariable =
+                    token.Graph.GetVariable(binding.parentVariableId, binding.parentVariableName);
+                if (parameter == null || !parameter.AllowsInput || parentVariable == null)
+                    continue;
+                if (token.Context.TryGet(parentVariable.name, out object value))
+                    child.Set(parameter.name, value);
+            }
+        }
+
+        private void ApplyOutputs(FlowToken token, FlowContext child)
+        {
+            foreach (FlowParameterBinding binding in parameterBindings)
+            {
+                if (binding == null)
+                    continue;
+                FlowGraphParameterDef parameter =
+                    subGraph.GetParameter(binding.parameterId, binding.parameterName);
+                FlowVariableDef parentVariable =
+                    token.Graph.GetVariable(binding.parentVariableId, binding.parentVariableName);
+                if (parameter == null || !parameter.AllowsOutput || parentVariable == null)
+                    continue;
+                if (child.TryGet(parameter.name, out object value))
+                    token.Context.Set(parentVariable.name, value);
+            }
         }
     }
 }

@@ -121,7 +121,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>특정 게임 이벤트 발행 시 발화하는 진입점.</summary>
-    [FlowNodeMenu("진입점/OnGameEvent")]
+    [FlowNodeMenu("진입점/OnGameEvent", Summary = "지정 GameEvent가 발행될 때 시작합니다.", Keywords = new[] { "event", "entry", "subscribe" })]
     [Serializable]
     public sealed class OnGameEventEntryNode : EntryNode
     {
@@ -140,7 +140,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>게임 이벤트를 발행한다.</summary>
-    [FlowNodeMenu("이벤트/PublishGameEvent")]
+    [FlowNodeMenu("이벤트/PublishGameEvent", Summary = "EventManager에 GameEvent를 발행합니다.", Keywords = new[] { "event", "publish", "send", "발행" })]
     [Serializable]
     public sealed class PublishGameEventNode : FlowNode
     {
@@ -166,7 +166,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>게임 이벤트가 발행될 때까지 토큰을 보류한다.</summary>
-    [FlowNodeMenu("이벤트/WaitForGameEvent")]
+    [FlowNodeMenu("이벤트/WaitForGameEvent", Summary = "지정 GameEvent가 발행될 때까지 대기합니다.", Keywords = new[] { "event", "wait", "listen", "대기" })]
     [Serializable]
     public sealed class WaitForGameEventNode : FlowNode
     {

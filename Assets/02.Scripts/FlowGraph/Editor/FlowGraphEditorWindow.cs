@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -25,18 +26,51 @@ namespace UPlayGround.FlowGraph.Editor
         private Label _statusLabel;
         private Label _countsLabel;
         private ListView _validationList;
+        private ListView _traceList;
+        private ListView _watchList;
+        private ToolbarButton _debugRunnerButton;
+        private ToolbarButton _continueButton;
+        private ToolbarButton _stepButton;
+        private ToolbarButton _stopButton;
 
         private readonly List<FlowValidationIssue> _issues = new();
+        private readonly List<FlowTraceEvent> _traceItems = new();
+        private readonly List<WatchRow> _watchRows = new();
+        private readonly HashSet<string> _watchedVariables = new();
         private readonly List<FlowGraphSO> _breadcrumbs = new();
+        private readonly List<FlowGraphSO> _forwardGraphs = new();
         private ToolbarButton _backButton;
+        private ToolbarButton _forwardButton;
         private FlowNodeView _selectedNodeView;
         private FlowGraphRunner _debugRunner;
+        private bool _debugRunnerPinned;
+        private int _lastTraceVersion = -1;
         private double _nextDebugPollTime;
+
+        private sealed class WatchRow
+        {
+            public string Name;
+            public string Value;
+            public long ContextId;
+            public float Realtime;
+        }
 
         [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/Flow Graph Editor")]
         public static void Open()
         {
             GetWindow<FlowGraphEditorWindow>("Flow Graph");
+        }
+
+        public static void OpenGraph(FlowGraphSO graph, string nodeId = null)
+        {
+            FlowGraphEditorWindow window = GetWindow<FlowGraphEditorWindow>("Flow Graph");
+            window.Show();
+            window.rootVisualElement.schedule.Execute(() =>
+            {
+                window.LoadGraph(graph);
+                if (!string.IsNullOrEmpty(nodeId))
+                    window._graphView?.SelectAndFrame(nodeId);
+            });
         }
 
         [OnOpenAsset]
@@ -88,6 +122,13 @@ namespace UPlayGround.FlowGraph.Editor
                 style = { display = DisplayStyle.None },
             };
             toolbar.Add(_backButton);
+            _forwardButton = new ToolbarButton(GoForwardGraph)
+            {
+                text = "→",
+                tooltip = "다음 그래프로 이동",
+                style = { display = DisplayStyle.None },
+            };
+            toolbar.Add(_forwardButton);
 
             _graphNameLabel = new Label("(그래프 없음)")
             {
@@ -114,7 +155,28 @@ namespace UPlayGround.FlowGraph.Editor
             toolbar.Add(new ToolbarButton(CreateNewGraph) { text = "새 그래프" });
             toolbar.Add(new ToolbarButton(SaveGraph) { text = "저장" });
             toolbar.Add(new ToolbarButton(RefreshValidation) { text = "검증" });
+            toolbar.Add(new ToolbarButton(FlowGraphExplorerWindow.Open) { text = "탐색" });
             toolbar.Add(new ToolbarButton(RunGraph) { text = "▶ 실행" });
+            _debugRunnerButton = new ToolbarButton(ShowDebugRunnerMenu) { text = "Runner: 자동" };
+            toolbar.Add(_debugRunnerButton);
+            _continueButton = new ToolbarButton(() => _debugRunner?.DebugContinue())
+            {
+                text = "계속",
+                tooltip = "브레이크포인트에서 실행 계속",
+            };
+            _stepButton = new ToolbarButton(() => _debugRunner?.DebugStep())
+            {
+                text = "Step",
+                tooltip = "현재 노드를 실행하고 다음 노드 앞에서 중단",
+            };
+            _stopButton = new ToolbarButton(() => _debugRunner?.DebugStop())
+            {
+                text = "중단",
+                tooltip = "선택 Runner의 모든 FlowContext 취소",
+            };
+            toolbar.Add(_continueButton);
+            toolbar.Add(_stepButton);
+            toolbar.Add(_stopButton);
             var compactToggle = new ToolbarToggle { text = "컴팩트", tooltip = "노드 본문 요약 일괄 숨김" };
             compactToggle.RegisterValueChangedCallback(evt => _graphView?.SetCompactMode(evt.newValue));
             toolbar.Add(compactToggle);
@@ -207,6 +269,21 @@ namespace UPlayGround.FlowGraph.Editor
             statusBar.Add(_countsLabel);
             rootVisualElement.Add(statusBar);
 
+            var bottomTabs = new Toolbar();
+            bottomTabs.Add(new ToolbarButton(() => SetBottomPanel("problems")) { text = "Problems" });
+            bottomTabs.Add(new ToolbarButton(() => SetBottomPanel("trace")) { text = "Execution Trace" });
+            bottomTabs.Add(new ToolbarButton(() => SetBottomPanel("watch")) { text = "Watches" });
+            bottomTabs.Add(new ToolbarButton(ShowWatchMenu) { text = "Watch +" });
+            bottomTabs.Add(new ToolbarButton(() =>
+            {
+                _debugRunner?.ClearTrace();
+                _traceItems.Clear();
+                _watchRows.Clear();
+                _traceList?.RefreshItems();
+                _watchList?.RefreshItems();
+            }) { text = "Trace 지우기" });
+            rootVisualElement.Add(bottomTabs);
+
             // 검증 패널 (시안: Validation 탭 — 행 클릭 시 해당 노드 포커스)
             _validationList = new ListView(_issues, 20, MakeIssueRow, BindIssueRow)
             {
@@ -229,16 +306,59 @@ namespace UPlayGround.FlowGraph.Editor
                 }
             };
             rootVisualElement.Add(_validationList);
+
+            _traceList = new ListView(_traceItems, 20, MakeTraceRow, BindTraceRow)
+            {
+                style =
+                {
+                    height = 140,
+                    minHeight = 40,
+                    backgroundColor = new Color(0.18f, 0.18f, 0.18f),
+                    display = DisplayStyle.None,
+                },
+                selectionType = SelectionType.Single,
+            };
+            _traceList.selectionChanged += _ =>
+            {
+                int index = _traceList.selectedIndex;
+                if (index >= 0
+                    && index < _traceItems.Count
+                    && !string.IsNullOrEmpty(_traceItems[index].nodeId))
+                {
+                    _graphView.SelectAndFrame(_traceItems[index].nodeId);
+                }
+            };
+            rootVisualElement.Add(_traceList);
+
+            _watchList = new ListView(_watchRows, 20, MakeWatchRow, BindWatchRow)
+            {
+                style =
+                {
+                    height = 120,
+                    minHeight = 40,
+                    backgroundColor = new Color(0.18f, 0.18f, 0.18f),
+                    display = DisplayStyle.None,
+                },
+                selectionType = SelectionType.None,
+            };
+            rootVisualElement.Add(_watchList);
         }
 
-        private static VisualElement MakeIssueRow()
+        private VisualElement MakeIssueRow()
         {
             var row = new VisualElement
             {
                 style = { flexDirection = FlexDirection.Row, alignItems = Align.Center, paddingLeft = 6 },
             };
             row.Add(new Label { name = "severity", style = { width = 64, unityFontStyleAndWeight = FontStyle.Bold } });
-            row.Add(new Label { name = "message" });
+            row.Add(new Label { name = "message", style = { flexGrow = 1 } });
+            var fix = new Button { name = "fix", text = "빠른 수정" };
+            fix.clicked += () =>
+            {
+                if (row.userData is FlowValidationIssue issue)
+                    ApplyQuickFix(issue);
+            };
+            row.Add(fix);
             return row;
         }
 
@@ -250,6 +370,8 @@ namespace UPlayGround.FlowGraph.Editor
             FlowValidationIssue issue = _issues[index];
             var severity = row.Q<Label>("severity");
             var message = row.Q<Label>("message");
+            var fix = row.Q<Button>("fix");
+            row.userData = issue;
 
             (string text, Color color) = issue.Severity switch
             {
@@ -260,6 +382,159 @@ namespace UPlayGround.FlowGraph.Editor
             severity.text = text;
             severity.style.color = color;
             message.text = issue.Message;
+            fix.style.display = issue.QuickFix == FlowQuickFix.None
+                ? DisplayStyle.None
+                : DisplayStyle.Flex;
+        }
+
+        private static VisualElement MakeTraceRow()
+        {
+            return new Label
+            {
+                style =
+                {
+                    paddingLeft = 6,
+                    unityTextAlign = TextAnchor.MiddleLeft,
+                },
+            };
+        }
+
+        private void BindTraceRow(VisualElement row, int index)
+        {
+            if (index < 0 || index >= _traceItems.Count)
+                return;
+            FlowTraceEvent trace = _traceItems[index];
+            string target = !string.IsNullOrEmpty(trace.nodeName)
+                ? trace.nodeName
+                : trace.graphId;
+            string detail = trace.kind switch
+            {
+                FlowTraceKind.Emit => $" [{trace.port}] → {trace.valueSummary}",
+                FlowTraceKind.BlackboardWrite => $" {trace.valueName} = {trace.valueSummary}",
+                FlowTraceKind.Exception => $" {trace.valueSummary}",
+                _ => string.Empty,
+            };
+            ((Label)row).text =
+                $"{trace.sequence,5}  f{trace.frame,-5}  ctx:{trace.contextId,-3}  " +
+                $"{trace.kind,-15}  {target}{detail}";
+        }
+
+        private static VisualElement MakeWatchRow()
+        {
+            return new Label
+            {
+                style =
+                {
+                    paddingLeft = 6,
+                    unityTextAlign = TextAnchor.MiddleLeft,
+                },
+            };
+        }
+
+        private void BindWatchRow(VisualElement row, int index)
+        {
+            if (index < 0 || index >= _watchRows.Count)
+                return;
+            WatchRow watch = _watchRows[index];
+            ((Label)row).text =
+                $"{watch.Name} = {watch.Value}  ·  ctx:{watch.ContextId}  ·  t:{watch.Realtime:0.000}";
+        }
+
+        private void SetBottomPanel(string panel)
+        {
+            if (_validationList == null || _traceList == null || _watchList == null)
+                return;
+            _validationList.style.display = panel == "problems"
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+            _traceList.style.display = panel == "trace"
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+            _watchList.style.display = panel == "watch"
+                ? DisplayStyle.Flex
+                : DisplayStyle.None;
+        }
+
+        private void ShowWatchMenu()
+        {
+            var menu = new GenericMenu();
+            if (_graph == null || _graph.variables.Count == 0)
+            {
+                menu.AddDisabledItem(new GUIContent("(Blackboard 변수 없음)"));
+            }
+            else
+            {
+                foreach (FlowVariableDef variable in _graph.variables)
+                {
+                    if (variable == null || string.IsNullOrEmpty(variable.name))
+                        continue;
+                    string variableName = variable.name;
+                    menu.AddItem(
+                        new GUIContent($"{variable.type}/{variableName}"),
+                        _watchedVariables.Contains(variableName),
+                        () =>
+                        {
+                            if (!_watchedVariables.Add(variableName))
+                                _watchedVariables.Remove(variableName);
+                            RebuildWatchRows();
+                        });
+                }
+            }
+            menu.ShowAsContext();
+        }
+
+        private void ShowDebugRunnerMenu()
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("자동 선택"), !_debugRunnerPinned, () =>
+            {
+                _debugRunnerPinned = false;
+                _debugRunner = FindRunnerForGraph();
+                RefreshDebugRunnerLabel();
+            });
+            menu.AddSeparator(string.Empty);
+
+            bool found = false;
+            foreach (FlowGraphRunner runner in FindObjectsByType<FlowGraphRunner>(FindObjectsSortMode.None))
+            {
+                if (runner == null || runner.Graph != _graph)
+                    continue;
+                found = true;
+                FlowGraphRunner captured = runner;
+                string path = GetTransformPath(runner.transform);
+                menu.AddItem(new GUIContent(path), _debugRunnerPinned && _debugRunner == runner, () =>
+                {
+                    _debugRunnerPinned = true;
+                    _debugRunner = captured;
+                    _lastTraceVersion = -1;
+                    RefreshDebugRunnerLabel();
+                });
+            }
+            if (!found)
+                menu.AddDisabledItem(new GUIContent("(실행 중 Runner 없음)"));
+            menu.ShowAsContext();
+        }
+
+        private static string GetTransformPath(Transform transform)
+        {
+            if (transform == null)
+                return "(Missing)";
+            string path = transform.name;
+            while (transform.parent != null)
+            {
+                transform = transform.parent;
+                path = $"{transform.name}/{path}";
+            }
+            return path;
+        }
+
+        private void RefreshDebugRunnerLabel()
+        {
+            if (_debugRunnerButton == null)
+                return;
+            _debugRunnerButton.text = _debugRunner == null
+                ? "Runner: 없음"
+                : $"Runner: {GetTransformPath(_debugRunner.transform)}";
         }
 
         #endregion
@@ -267,7 +542,11 @@ namespace UPlayGround.FlowGraph.Editor
         // ──────────────────────────────────────────────────────────
         #region 그래프 로드/저장/실행
 
-        private void LoadGraph(FlowGraphSO graph) => LoadGraph(graph, keepBreadcrumbs: false);
+        private void LoadGraph(FlowGraphSO graph)
+        {
+            _forwardGraphs.Clear();
+            LoadGraph(graph, keepBreadcrumbs: false);
+        }
 
         private void LoadGraph(FlowGraphSO graph, bool keepBreadcrumbs)
         {
@@ -277,12 +556,18 @@ namespace UPlayGround.FlowGraph.Editor
             _graph = graph;
             _selectedNodeView = null;
             _debugRunner = null;
+            _debugRunnerPinned = false;
+            _lastTraceVersion = -1;
+            _traceItems.Clear();
+            _watchRows.Clear();
+            _watchedVariables.Clear();
 
             SeedStartNodeIfEmpty(graph);
 
             if (_graphField != null)
                 _graphField.SetValueWithoutNotify(graph);
             RefreshBreadcrumbLabel();
+            RefreshDebugRunnerLabel();
             _graphView?.PopulateView(graph);
             _blackboardPanel?.SetGraph(graph);
             RefreshValidation();
@@ -296,6 +581,7 @@ namespace UPlayGround.FlowGraph.Editor
 
             if (_graph != null)
                 _breadcrumbs.Add(_graph);
+            _forwardGraphs.Clear();
             LoadGraph(subGraph, keepBreadcrumbs: true);
         }
 
@@ -306,7 +592,21 @@ namespace UPlayGround.FlowGraph.Editor
 
             FlowGraphSO parent = _breadcrumbs[^1];
             _breadcrumbs.RemoveAt(_breadcrumbs.Count - 1);
+            if (_graph != null)
+                _forwardGraphs.Add(_graph);
             LoadGraph(parent, keepBreadcrumbs: true);
+        }
+
+        private void GoForwardGraph()
+        {
+            if (_forwardGraphs.Count == 0)
+                return;
+
+            FlowGraphSO next = _forwardGraphs[^1];
+            _forwardGraphs.RemoveAt(_forwardGraphs.Count - 1);
+            if (_graph != null)
+                _breadcrumbs.Add(_graph);
+            LoadGraph(next, keepBreadcrumbs: true);
         }
 
         private void RefreshBreadcrumbLabel()
@@ -335,6 +635,11 @@ namespace UPlayGround.FlowGraph.Editor
             {
                 _backButton.style.display =
                     _breadcrumbs.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+            if (_forwardButton != null)
+            {
+                _forwardButton.style.display =
+                    _forwardGraphs.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 
@@ -493,6 +798,74 @@ namespace UPlayGround.FlowGraph.Editor
             UpdateNodeBadges();
         }
 
+        private void ApplyQuickFix(FlowValidationIssue issue)
+        {
+            if (_graph == null || issue.QuickFix == FlowQuickFix.None)
+                return;
+
+            Undo.RegisterCompleteObjectUndo(_graph, "FlowGraph 빠른 수정");
+            switch (issue.QuickFix)
+            {
+                case FlowQuickFix.RemoveInvalidConnections:
+                    RemoveInvalidConnections(_graph);
+                    break;
+
+                case FlowQuickFix.CreateDefaultEntry:
+                    SeedStartNodeIfEmpty(_graph);
+                    if (_graph.nodes.TrueForAll(node => node is not EntryNode))
+                    {
+                        _graph.nodes.Add(new ManualEntryNode
+                        {
+                            entryId = "start",
+                            editorPosition = new Vector2(100, 150),
+                        });
+                    }
+                    break;
+
+                case FlowQuickFix.RemoveUnusedVariable:
+                    _graph.variables.RemoveAll(variable =>
+                        variable != null && variable.name == issue.Target);
+                    break;
+            }
+
+            EditorUtility.SetDirty(_graph);
+            _selectedNodeView = null;
+            _graphView.PopulateView(_graph);
+            _blackboardPanel.SetGraph(_graph);
+            RefreshValidation();
+        }
+
+        private static void RemoveInvalidConnections(FlowGraphSO graph)
+        {
+            var seen = new HashSet<string>();
+            graph.connections.RemoveAll(connection =>
+            {
+                if (connection == null)
+                    return true;
+                FlowNode from = graph.GetNode(connection.fromNodeId);
+                FlowNode to = graph.GetNode(connection.toNodeId);
+                if (from == null || to == null)
+                    return true;
+                if (!from.TryGetPort(
+                        connection.fromPort,
+                        FlowPortDirection.Output,
+                        out FlowPortDef output)
+                    || !to.TryGetPort(
+                        connection.toPort,
+                        FlowPortDirection.Input,
+                        out FlowPortDef input)
+                    || !FlowPortDef.AreCompatible(output, input))
+                {
+                    return true;
+                }
+
+                string key =
+                    $"{connection.fromNodeId}\u001f{connection.fromPort}\u001f" +
+                    $"{connection.toNodeId}\u001f{connection.toPort}";
+                return !seen.Add(key);
+            });
+        }
+
         /// <summary>검증 결과를 노드 우상단 배지로도 표시 — 캔버스만 보고 문제 노드를 찾을 수 있게.</summary>
         private void UpdateNodeBadges()
         {
@@ -587,6 +960,8 @@ namespace UPlayGround.FlowGraph.Editor
                 RefreshValidation();
             }
 
+            DrawBreakpointSettings(node);
+
             // 디버그 (시안: Debug 섹션 — Play Mode에서 활성 토큰 수)
             if (Application.isPlaying && _debugRunner != null)
             {
@@ -595,6 +970,88 @@ namespace UPlayGround.FlowGraph.Editor
                 _debugRunner.ActiveNodeCounts.TryGetValue(node.id, out int activeCount);
                 EditorGUILayout.LabelField("Active Tokens", activeCount.ToString());
             }
+        }
+
+        private void DrawBreakpointSettings(FlowNode node)
+        {
+            EditorGUILayout.Space(6);
+            EditorGUILayout.LabelField("Breakpoint", EditorStyles.boldLabel);
+
+            bool enabled = node.breakpoint;
+            bool disabled = node.breakpointDisabled;
+            int afterHits = node.breakpointAfterHits;
+            string variableName = node.breakpointVariable ?? string.Empty;
+            FlowVariableValue currentExpected = node.breakpointExpected ?? new FlowVariableValue();
+            FlowVariableType expectedType = currentExpected.type;
+            bool boolValue = currentExpected.boolValue;
+            int intValue = currentExpected.intValue;
+            float floatValue = currentExpected.floatValue;
+            string stringValue = currentExpected.stringValue;
+
+            var variableOptions = new List<string> { "(조건 없음)" };
+            foreach (FlowVariableDef variable in _graph.variables)
+            {
+                if (variable != null && !string.IsNullOrEmpty(variable.name))
+                    variableOptions.Add(variable.name);
+            }
+            int variableIndex = Math.Max(0, variableOptions.IndexOf(variableName));
+
+            EditorGUI.BeginChangeCheck();
+            enabled = EditorGUILayout.Toggle("설정", enabled);
+            using (new EditorGUI.DisabledScope(!enabled))
+            {
+                disabled = EditorGUILayout.Toggle("일시 비활성", disabled);
+                afterHits = Math.Max(0, EditorGUILayout.IntField("N번째 실행부터", afterHits));
+                variableIndex = EditorGUILayout.Popup("조건 변수", variableIndex, variableOptions.ToArray());
+                variableName = variableIndex <= 0 ? string.Empty : variableOptions[variableIndex];
+
+                FlowVariableDef definition = null;
+                foreach (FlowVariableDef variable in _graph.variables)
+                {
+                    if (variable != null && variable.name == variableName)
+                    {
+                        definition = variable;
+                        expectedType = variable.type;
+                        break;
+                    }
+                }
+
+                if (definition != null)
+                {
+                    switch (expectedType)
+                    {
+                        case FlowVariableType.Bool:
+                            boolValue = EditorGUILayout.Toggle("기대값", boolValue);
+                            break;
+                        case FlowVariableType.Int:
+                            intValue = EditorGUILayout.IntField("기대값", intValue);
+                            break;
+                        case FlowVariableType.Float:
+                            floatValue = EditorGUILayout.FloatField("기대값", floatValue);
+                            break;
+                        case FlowVariableType.String:
+                            stringValue = EditorGUILayout.TextField("기대값", stringValue);
+                            break;
+                    }
+                }
+            }
+
+            if (!EditorGUI.EndChangeCheck())
+                return;
+
+            Undo.RegisterCompleteObjectUndo(_graph, "FlowGraph 브레이크포인트 설정");
+            node.breakpoint = enabled;
+            node.breakpointDisabled = disabled;
+            node.breakpointAfterHits = afterHits;
+            node.breakpointVariable = variableName;
+            node.breakpointExpected ??= new FlowVariableValue();
+            node.breakpointExpected.type = expectedType;
+            node.breakpointExpected.boolValue = boolValue;
+            node.breakpointExpected.intValue = intValue;
+            node.breakpointExpected.floatValue = floatValue;
+            node.breakpointExpected.stringValue = stringValue;
+            EditorUtility.SetDirty(_graph);
+            _selectedNodeView.RefreshBreakpointMarker();
         }
 
         /// <summary>실행 중 플로우 컨텍스트의 블랙보드를 표시한다. 블랙보드는 발화 스코프 런타임 데이터다.</summary>
@@ -656,7 +1113,11 @@ namespace UPlayGround.FlowGraph.Editor
             if (state == PlayModeStateChange.ExitingPlayMode)
             {
                 _debugRunner = null;
+                _debugRunnerPinned = false;
+                _traceItems.Clear();
+                _watchRows.Clear();
                 _graphView?.ClearDebugHighlight();
+                RefreshDebugRunnerLabel();
             }
         }
 
@@ -669,12 +1130,82 @@ namespace UPlayGround.FlowGraph.Editor
                 return;
             _nextDebugPollTime = EditorApplication.timeSinceStartup + DebugPollInterval;
 
-            if (_debugRunner == null || _debugRunner.Graph != _graph)
+            if (!_debugRunnerPinned && (_debugRunner == null || _debugRunner.Graph != _graph))
                 _debugRunner = FindRunnerForGraph();
+            else if (_debugRunnerPinned && (_debugRunner == null || _debugRunner.Graph != _graph))
+                _debugRunner = null;
 
             _graphView.UpdateDebugHighlight(_debugRunner);
             _blackboardPanel?.UpdateRuntimeValues(_debugRunner);
+            RefreshTraceAndWatches();
+            RefreshDebugRunnerLabel();
+            bool paused = _debugRunner != null && _debugRunner.IsDebugPaused;
+            _continueButton?.SetEnabled(paused);
+            _stepButton?.SetEnabled(paused);
+            _stopButton?.SetEnabled(_debugRunner != null && _debugRunner.ActiveContexts.Count > 0);
+            if (paused && !string.IsNullOrEmpty(_debugRunner.PausedNodeId))
+                _graphView.SelectAndFrame(_debugRunner.PausedNodeId);
             _inspector?.MarkDirtyRepaint(); // 블랙보드/토큰 수 실시간 갱신
+        }
+
+        private void RefreshTraceAndWatches()
+        {
+            if (_debugRunner == null)
+            {
+                if (_traceItems.Count > 0 || _watchRows.Count > 0)
+                {
+                    _traceItems.Clear();
+                    _watchRows.Clear();
+                    _traceList?.RefreshItems();
+                    _watchList?.RefreshItems();
+                }
+                _lastTraceVersion = -1;
+                return;
+            }
+            if (_lastTraceVersion == _debugRunner.TraceVersion)
+                return;
+
+            _lastTraceVersion = _debugRunner.TraceVersion;
+            _debugRunner.GetTraceSnapshot(_traceItems);
+            _traceList?.RefreshItems();
+            RebuildWatchRows();
+        }
+
+        private void RebuildWatchRows()
+        {
+            _watchRows.Clear();
+            var latest = new Dictionary<string, FlowTraceEvent>();
+            foreach (FlowTraceEvent trace in _traceItems)
+            {
+                if (trace.kind == FlowTraceKind.BlackboardWrite
+                    && !string.IsNullOrEmpty(trace.valueName)
+                    && _watchedVariables.Contains(trace.valueName))
+                {
+                    latest[trace.valueName] = trace;
+                }
+            }
+            foreach (string variableName in _watchedVariables)
+            {
+                if (latest.TryGetValue(variableName, out FlowTraceEvent trace))
+                {
+                    _watchRows.Add(new WatchRow
+                    {
+                        Name = variableName,
+                        Value = trace.valueSummary,
+                        ContextId = trace.contextId,
+                        Realtime = trace.realtime,
+                    });
+                }
+                else
+                {
+                    _watchRows.Add(new WatchRow
+                    {
+                        Name = variableName,
+                        Value = "(아직 기록 없음)",
+                    });
+                }
+            }
+            _watchList?.RefreshItems();
         }
 
         private FlowGraphRunner FindRunnerForGraph()

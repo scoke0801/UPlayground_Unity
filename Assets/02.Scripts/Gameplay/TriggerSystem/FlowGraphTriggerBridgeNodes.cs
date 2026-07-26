@@ -12,7 +12,7 @@ namespace UPlayGround.TriggerSystem
     /// 주의: Composer/Source 없이 발화되므로 TriggerContext의 해당 필드는 null이다 —
     /// Composer에 의존하는 액션은 전용 노드로 승격할 것.
     /// </summary>
-    [FlowNodeMenu("트리거 브릿지/RunTriggerAction")]
+    [FlowNodeMenu("트리거 브릿지/RunTriggerAction", Summary = "기존 TriggerActionSO를 실행합니다.", Keywords = new[] { "trigger", "action", "bridge", "액션" })]
     [Serializable]
     public sealed class RunTriggerActionNode : FlowNode
     {
@@ -51,7 +51,7 @@ namespace UPlayGround.TriggerSystem
     }
 
     /// <summary>기존 TriggerConditionSO 에셋으로 True/False 분기하는 범용 노드.</summary>
-    [FlowNodeMenu("트리거 브릿지/EvaluateTriggerCondition (Branch)")]
+    [FlowNodeMenu("트리거 브릿지/EvaluateTriggerCondition (Branch)", Summary = "기존 TriggerConditionSO를 평가해 분기합니다.", Keywords = new[] { "trigger", "condition", "bridge", "조건" })]
     [Serializable]
     public sealed class EvaluateTriggerConditionNode : FlowNode
     {

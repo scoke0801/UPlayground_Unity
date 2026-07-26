@@ -43,16 +43,13 @@ namespace UPlayGround.FlowGraph.Editor
             };
 
             var byCategory = new SortedDictionary<string, List<(string label, Type type)>>();
-            foreach (Type type in TypeCache.GetTypesDerivedFrom<FlowNode>())
+            foreach (Type type in FlowNodeCatalog.GetNodeTypes())
             {
-                if (type.IsAbstract)
+                if (!_graphView.CanCreateForPendingConnection(type))
                     continue;
 
-                var menu = type.GetCustomAttribute<FlowNodeMenuAttribute>();
-                string path = menu?.Path ?? $"기타/{type.Name}";
-                int slash = path.LastIndexOf('/');
-                string category = slash > 0 ? path.Substring(0, slash) : "기타";
-                string label = slash > 0 ? path.Substring(slash + 1) : path;
+                string category = FlowNodeCatalog.GetCategory(type);
+                string label = FlowNodeCatalog.GetSearchLabel(type);
 
                 if (!byCategory.TryGetValue(category, out var list))
                 {
@@ -83,6 +80,7 @@ namespace UPlayGround.FlowGraph.Editor
         {
             if (entry.userData is not Type type)
                 return false;
+            FlowNodeUsageStore.RecordRecent(type);
             _graphView.CreateNodeAtScreenPosition(type, context.screenMousePosition);
             return true;
         }

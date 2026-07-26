@@ -5,6 +5,35 @@ using UnityEngine;
 
 namespace UPlayGround.FlowGraph
 {
+    public enum FlowTraceKind
+    {
+        Entry,
+        NodeBegin,
+        NodeEnd,
+        Emit,
+        BlackboardWrite,
+        Breakpoint,
+        Cancel,
+        Exception,
+    }
+
+    [Serializable]
+    public sealed class FlowTraceEvent
+    {
+        public long sequence;
+        public int frame;
+        public float realtime;
+        public long contextId;
+        public long parentContextId;
+        public string graphId;
+        public string nodeId;
+        public string nodeName;
+        public FlowTraceKind kind;
+        public string port;
+        public string valueName;
+        public string valueSummary;
+    }
+
     /// <summary>
     /// FlowGraphSO 하나를 로드해 진입점을 무장(Arm)하고, 발화 시 토큰을 흘려보내는 실행기.
     /// 씬에 배치하며, 비활성화 시 실행 중 코루틴·구독을 모두 정리한다
@@ -13,6 +42,7 @@ namespace UPlayGround.FlowGraph
     public sealed class FlowGraphRunner : MonoBehaviour
     {
         private const int MaxImmediateNodeExecutionsPerFrame = 256;
+        private const int TraceCapacity = 512;
 
         [SerializeField] private FlowGraphSO _graph;
 
@@ -32,8 +62,14 @@ namespace UPlayGround.FlowGraph
         private readonly Dictionary<string, int> _activeNodeCounts = new();
         private readonly List<FlowContext> _activeContexts = new();
         private readonly HashSet<IDisposable> _activeNodeRoutines = new();
+        private readonly Dictionary<string, int> _breakpointHitCounts = new();
+        private readonly FlowTraceEvent[] _traceBuffer = new FlowTraceEvent[TraceCapacity];
 
         private bool _armed;
+        private int _traceHead;
+        private int _traceCount;
+        private long _traceSequence;
+        private long _nextContextId;
 
         public FlowGraphSO Graph => _graph;
 
@@ -45,6 +81,13 @@ namespace UPlayGround.FlowGraph
 
         /// <summary>활성 노드 집합이 바뀔 때마다 증가 — 디버그 뷰의 증분 diff 게이트.</summary>
         public int DebugVersion { get; private set; }
+        public int TraceVersion { get; private set; }
+
+#if UNITY_EDITOR
+        public bool IsDebugPaused { get; private set; }
+        public string PausedNodeId { get; private set; }
+        private bool _pauseBeforeNextNode;
+#endif
 
 #if UNITY_EDITOR
         // 에디터 디버그 트레이스 — "최근 실행" 잔광/엣지 흐름 하이라이트용 (빌드 제외)
@@ -159,12 +202,21 @@ namespace UPlayGround.FlowGraph
                 return null;
 
             var context = new FlowContext(this, entry);
+            context.Graph = graph;
+            context.ContextId = ++_nextContextId;
+            context.ParentContextId = parent?.ContextId ?? 0;
             // 그래프 선언 변수를 기본값으로 초기화 (발화마다 독립 사본)
             for (int i = 0; i < graph.variables.Count; i++)
             {
                 FlowVariableDef def = graph.variables[i];
                 if (def != null && !string.IsNullOrEmpty(def.name))
                     context.Set(def.name, def.GetDefaultValue());
+            }
+            for (int i = 0; i < graph.parameters.Count; i++)
+            {
+                FlowGraphParameterDef parameter = graph.parameters[i];
+                if (parameter != null && !string.IsNullOrEmpty(parameter.name))
+                    context.Set(parameter.name, parameter.GetDefaultValue());
             }
             if (parent != null)
             {
@@ -174,6 +226,7 @@ namespace UPlayGround.FlowGraph
             }
             configure?.Invoke(context);
             _activeContexts.Add(context);
+            RecordTrace(FlowTraceKind.Entry, context, graph, entry);
             StartCoroutine(TokenRoutine(context, graph, entry));
             return context;
         }
@@ -265,6 +318,13 @@ namespace UPlayGround.FlowGraph
 #if UNITY_EDITOR
                 _lastEdgeEmitTimes[$"{from.id}:{port}:{connections[i].toNodeId}"] = Time.realtimeSinceStartup;
 #endif
+                RecordTrace(
+                    FlowTraceKind.Emit,
+                    context,
+                    graph,
+                    from,
+                    port: port,
+                    valueSummary: target.DisplayName);
                 StartCoroutine(TokenRoutine(context, graph, target));
             }
         }
@@ -285,13 +345,19 @@ namespace UPlayGround.FlowGraph
 
             IncrementActive(node);
             context.ActiveTokenCount++;
+            RecordTrace(FlowTraceKind.NodeBegin, context, graph, node);
 
 #if UNITY_EDITOR
             _lastNodeExecuteTimes[node.id] = Time.realtimeSinceStartup;
-            if (node.breakpoint)
+            bool pauseHere = _pauseBeforeNextNode || ShouldPauseAtBreakpoint(node, context);
+            if (pauseHere)
             {
-                Debug.Log($"[FlowGraph] 브레이크포인트: {graph.name}/{node.DisplayName}", this);
-                Debug.Break();
+                _pauseBeforeNextNode = false;
+                IsDebugPaused = true;
+                PausedNodeId = node.id;
+                RecordTrace(FlowTraceKind.Breakpoint, context, graph, node);
+                while (IsDebugPaused && !context.Cancelled && isActiveAndEnabled)
+                    yield return null;
             }
 #endif
 
@@ -309,6 +375,12 @@ namespace UPlayGround.FlowGraph
                 }
                 catch (Exception e)
                 {
+                    RecordTrace(
+                        FlowTraceKind.Exception,
+                        context,
+                        graph,
+                        node,
+                        valueSummary: e.Message);
                     Debug.LogError($"[FlowGraph] {graph.name}/{node.DisplayName} 실행 예외: {e}", this);
                 }
 
@@ -321,6 +393,12 @@ namespace UPlayGround.FlowGraph
                     }
                     catch (Exception e)
                     {
+                        RecordTrace(
+                            FlowTraceKind.Exception,
+                            context,
+                            graph,
+                            node,
+                            valueSummary: e.Message);
                         Debug.LogError($"[FlowGraph] {graph.name}/{node.DisplayName} 실행 예외: {e}", this);
                         break;
                     }
@@ -346,6 +424,7 @@ namespace UPlayGround.FlowGraph
 
                 context.ActiveTokenCount--;
                 DecrementActive(node);
+                RecordTrace(FlowTraceKind.NodeEnd, context, graph, node);
 
                 // 노드 Execute 중에 후속 토큰이 먼저 증가하므로, 0이면 이 플로우는 완주된 것이다.
                 if (context.ActiveTokenCount <= 0)
@@ -372,7 +451,14 @@ namespace UPlayGround.FlowGraph
         public void CancelAll()
         {
             for (int i = 0; i < _activeContexts.Count; i++)
+            {
+                RecordTrace(
+                    FlowTraceKind.Cancel,
+                    _activeContexts[i],
+                    _graph,
+                    _activeContexts[i].Entry);
                 _activeContexts[i].Cancelled = true;
+            }
             _activeContexts.Clear();
 
             if (_activeNodeRoutines.Count > 0)
@@ -400,7 +486,139 @@ namespace UPlayGround.FlowGraph
             _lastEdgeEmitTimes.Clear();
 #endif
             DebugVersion++;
+#if UNITY_EDITOR
+            IsDebugPaused = false;
+            PausedNodeId = null;
+            _pauseBeforeNextNode = false;
+#endif
         }
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
+        private void RecordTrace(
+            FlowTraceKind kind,
+            FlowContext context,
+            FlowGraphSO graph,
+            FlowNode node,
+            string port = null,
+            string valueName = null,
+            string valueSummary = null)
+        {
+            var trace = new FlowTraceEvent
+            {
+                sequence = ++_traceSequence,
+                frame = Time.frameCount,
+                realtime = Time.realtimeSinceStartup,
+                contextId = context?.ContextId ?? 0,
+                parentContextId = context?.ParentContextId ?? 0,
+                graphId = graph != null ? graph.ResolvedGraphId : string.Empty,
+                nodeId = node?.id,
+                nodeName = node?.DisplayName,
+                kind = kind,
+                port = port,
+                valueName = valueName,
+                valueSummary = valueSummary,
+            };
+
+            int writeIndex = (_traceHead + _traceCount) % TraceCapacity;
+            if (_traceCount == TraceCapacity)
+            {
+                writeIndex = _traceHead;
+                _traceHead = (_traceHead + 1) % TraceCapacity;
+            }
+            else
+            {
+                _traceCount++;
+            }
+            _traceBuffer[writeIndex] = trace;
+            TraceVersion++;
+        }
+
+        internal void RecordBlackboardChange(FlowContext context, string key, object value)
+        {
+            RecordTrace(
+                FlowTraceKind.BlackboardWrite,
+                context,
+                context?.Graph ?? _graph,
+                null,
+                valueName: key,
+                valueSummary: FormatTraceValue(value));
+        }
+
+        public void GetTraceSnapshot(List<FlowTraceEvent> results)
+        {
+            if (results == null)
+                return;
+            results.Clear();
+            for (int i = 0; i < _traceCount; i++)
+            {
+                FlowTraceEvent trace = _traceBuffer[(_traceHead + i) % TraceCapacity];
+                if (trace != null)
+                    results.Add(trace);
+            }
+        }
+
+        public void ClearTrace()
+        {
+            Array.Clear(_traceBuffer, 0, _traceBuffer.Length);
+            _traceHead = 0;
+            _traceCount = 0;
+            TraceVersion++;
+        }
+
+        private static string FormatTraceValue(object value)
+        {
+            if (value == null)
+                return "null";
+            string text = value.ToString();
+            return text.Length <= 160 ? text : text.Substring(0, 157) + "...";
+        }
+
+#if UNITY_EDITOR
+        private bool ShouldPauseAtBreakpoint(FlowNode node, FlowContext context)
+        {
+            if (!node.breakpoint || node.breakpointDisabled)
+                return false;
+
+            _breakpointHitCounts.TryGetValue(node.id, out int hits);
+            hits++;
+            _breakpointHitCounts[node.id] = hits;
+            if (node.breakpointAfterHits > 0 && hits < node.breakpointAfterHits)
+                return false;
+
+            if (!string.IsNullOrEmpty(node.breakpointVariable))
+            {
+                if (node.breakpointExpected == null
+                    || !context.TryGet<object>(node.breakpointVariable, out object value)
+                    || !node.breakpointExpected.Matches(value))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public void DebugContinue()
+        {
+            IsDebugPaused = false;
+            PausedNodeId = null;
+            _pauseBeforeNextNode = false;
+        }
+
+        public void DebugStep()
+        {
+            if (!IsDebugPaused)
+                return;
+            _pauseBeforeNextNode = true;
+            IsDebugPaused = false;
+            PausedNodeId = null;
+        }
+
+        public void DebugStop()
+        {
+            CancelAll();
+        }
+#endif
 
         private void IncrementActive(FlowNode node)
         {

@@ -49,7 +49,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>코드/치트/트리거 볼륨 등 외부 API로만 발화되는 진입점.</summary>
-    [FlowNodeMenu("진입점/Manual")]
+    [FlowNodeMenu("진입점/Manual", Summary = "코드나 에디터에서 직접 발화하는 시작점입니다.", Keywords = new[] { "entry", "start", "수동", "시작" })]
     [System.Serializable]
     public sealed class ManualEntryNode : EntryNode
     {

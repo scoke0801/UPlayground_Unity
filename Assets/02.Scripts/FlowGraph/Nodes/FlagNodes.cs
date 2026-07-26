@@ -7,7 +7,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.FlowGraph
 {
     /// <summary>전역 플래그가 특정 값으로 변경될 때 발화하는 진입점.</summary>
-    [FlowNodeMenu("진입점/OnFlagChanged")]
+    [FlowNodeMenu("진입점/OnFlagChanged", Summary = "Global Flag가 지정 값으로 바뀔 때 시작합니다.", Keywords = new[] { "flag", "entry", "변경" })]
     [Serializable]
     public sealed class OnFlagChangedEntryNode : EntryNode
     {
@@ -36,7 +36,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>전역 플래그를 설정한다.</summary>
-    [FlowNodeMenu("플래그/SetFlag")]
+    [FlowNodeMenu("플래그/SetFlag", Summary = "Global Flag 값을 설정합니다.", Keywords = new[] { "flag", "bool", "설정" })]
     [Serializable]
     public sealed class SetFlagNode : FlowNode
     {
@@ -63,7 +63,7 @@ namespace UPlayGround.FlowGraph
     }
 
     /// <summary>플래그 값으로 True/False 분기. (BranchNode + FlagCondition의 단축형)</summary>
-    [FlowNodeMenu("플래그/CheckFlag (Branch)")]
+    [FlowNodeMenu("플래그/CheckFlag (Branch)", Summary = "Global Flag 값을 비교해 분기합니다.", Keywords = new[] { "flag", "if", "조건", "비교" })]
     [Serializable]
     public sealed class CheckFlagNode : FlowNode
     {

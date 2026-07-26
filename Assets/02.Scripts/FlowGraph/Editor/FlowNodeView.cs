@@ -37,15 +37,14 @@ namespace UPlayGround.FlowGraph.Editor
 
             foreach (FlowPortDef def in node.Ports)
             {
-                Port port = FlowPortView.Create(
-                    def.Direction == FlowPortDirection.Input ? Direction.Input : Direction.Output,
-                    owner.ConnectorListener);
-                port.portName = def.Name;
+                Port port = FlowPortView.Create(def, owner.ConnectorListener);
+                port.portName = def.DisplayName;
+                port.userData = def.Id;
 
                 // 분기 포트 색 구분 — 엣지가 포트 색을 상속해 와이어도 함께 구분된다
-                if (def.Name == FlowPort.True)
+                if (def.Id == FlowPort.True)
                     port.portColor = TruePortColor;
-                else if (def.Name == FlowPort.False)
+                else if (def.Id == FlowPort.False)
                     port.portColor = FalsePortColor;
 
                 if (def.Direction == FlowPortDirection.Input)
@@ -210,12 +209,12 @@ namespace UPlayGround.FlowGraph.Editor
 
         public FlowNode FlowNode { get; }
 
-        public Port FindPort(Direction direction, string portName)
+        public Port FindPort(Direction direction, string portId)
         {
             VisualElement container = direction == Direction.Input ? inputContainer : outputContainer;
             foreach (VisualElement child in container.Children())
             {
-                if (child is Port port && port.portName == portName)
+                if (child is Port port && FlowGraphView.GetPortId(port) == portId)
                     return port;
             }
             return null;
@@ -229,6 +228,23 @@ namespace UPlayGround.FlowGraph.Editor
             {
                 if (child is Port port)
                     return port;
+            }
+            return null;
+        }
+
+        public Port FindCompatiblePort(Port origin)
+        {
+            if (origin is not FlowPortView originView)
+                return null;
+
+            VisualElement container = origin.direction == Direction.Output ? inputContainer : outputContainer;
+            foreach (VisualElement child in container.Children())
+            {
+                if (child is FlowPortView candidate
+                    && FlowPortDef.AreCompatible(originView.Definition, candidate.Definition))
+                {
+                    return candidate;
+                }
             }
             return null;
         }
@@ -403,6 +419,7 @@ namespace UPlayGround.FlowGraph.Editor
         {
             _breakpointMarker.style.display =
                 FlowNode.breakpoint ? DisplayStyle.Flex : DisplayStyle.None;
+            _breakpointMarker.style.opacity = FlowNode.breakpointDisabled ? 0.35f : 1f;
         }
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
@@ -410,6 +427,12 @@ namespace UPlayGround.FlowGraph.Editor
             evt.menu.AppendAction(
                 FlowNode.breakpoint ? "브레이크포인트 해제" : "브레이크포인트 설정",
                 _ => _owner.ToggleBreakpoint(this));
+            if (FlowNode.breakpoint)
+            {
+                evt.menu.AppendAction(
+                    FlowNode.breakpointDisabled ? "브레이크포인트 활성화" : "브레이크포인트 비활성화",
+                    _ => _owner.SetBreakpointDisabled(this, !FlowNode.breakpointDisabled));
+            }
             evt.menu.AppendSeparator();
             base.BuildContextualMenu(evt);
         }

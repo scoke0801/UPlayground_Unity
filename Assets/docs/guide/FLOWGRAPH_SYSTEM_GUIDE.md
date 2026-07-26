@@ -10,6 +10,9 @@
 - **시스템 브릿지** — 노드는 기존 매니저를 `Svc` 계약(`IGlobalFlagService`/`IQuestFlowService`/`IStoryFlowService`/`IDialogueService`)으로 호출만 한다. 매니저 재작성 없음.
 - **단일 에셋 직렬화** — 노드는 SO-서브에셋이 아닌 `[SerializeReference]` 다형 리스트. 노드 타입 추가가 클래스 하나로 끝난다.
 - **비파괴 병존** — `TriggerComposer`는 그대로 유지. 2~3스텝 단순 반응은 Composer, 다단계 연출/분기/대기는 FlowGraph.
+- **계약 기반 재사용** — SubGraph는 stable ID 기반 In/Out/InOut Parameter와 부모 Blackboard Binding을 사용한다.
+- **선택적 데이터 흐름** — 실행선과 타입 데이터선을 구분하며 Pure Data 노드는 소비 실행 노드가 필요할 때 Pull 평가한다.
+- **실행 설명성** — Runner별 고정 용량 Trace, Watch, 조건부 Breakpoint와 Continue/Step/Stop을 제공한다.
 
 ---
 
@@ -20,7 +23,9 @@ UPlayGround.FlowGraph (runtime asmdef — Core/Data/Contracts만 참조)
 ┌─────────────────────────────────────────────────────────┐
 │ FlowGraphSO (에셋)                                       │
 │   ├─ [SerializeReference] List<FlowNode> nodes           │
-│   └─ List<FlowConnection> connections                    │
+│   ├─ List<FlowConnection> connections                    │
+│   ├─ List<FlowVariableDef> variables                     │
+│   └─ List<FlowGraphParameterDef> parameters              │
 │                                                          │
 │ FlowGraphRunner (씬 MonoBehaviour)                       │
 │   ├─ EntryNode.Arm() ── 외부 신호 구독 (플래그/이벤트)     │
@@ -37,7 +42,7 @@ UPlayGround.FlowGraph (runtime asmdef — Core/Data/Contracts만 참조)
 └──────────────────────┘    └────────────────────────────┘
 ```
 
-실행 모델: `Entry ─▶ [노드] ─▶ [노드] ...` 토큰이 출력 포트를 따라 전파. Branch는 True/False 중 하나, Sequence는 "1..N" 순서 방출, Join은 합류(All/Any), SubGraph는 하위 그래프 중첩 실행.
+실행 모델: `Entry ─▶ [노드] ─▶ [노드] ...` 토큰이 실행 포트를 따라 전파한다. Branch는 True/False 중 하나, Sequence는 "1..N" 순서 방출, Join은 합류(All/Any), SubGraph는 하위 그래프 중첩 실행이다. 데이터 포트는 토큰을 만들지 않으며 `FlowDataNode`를 소비 시점에 평가한다.
 
 ### 파일 구조
 
@@ -82,12 +87,15 @@ Assets/Tests/EditMode/FlowGraph/ · Assets/Tests/PlayMode/FlowGraph/       # 자
 |------|------|
 | `graphId` | 매니저 등록·조회 식별자. 비우면 에셋 이름 사용 (`ResolvedGraphId`) |
 | `nodes` | `[SerializeReference]` 다형 노드 리스트 |
-| `connections` | `fromNodeId.fromPort → toNodeId.toPort` 엣지 |
+| `connections` | 안정 Port ID를 사용하는 `fromNodeId.fromPort → toNodeId.toPort` 실행/데이터 엣지 |
+| `variables` | stable ID와 기본값을 가진 그래프 로컬 Blackboard 선언 |
+| `parameters` | SubGraph 외부에 공개하는 In/Out/InOut 계약 |
 
 ```csharp
 public FlowNode GetNode(string nodeId);
 public void GetConnectionsFrom(string nodeId, string port, List<FlowConnection> results);
-public bool Validate(List<string> errors);   // null 노드·고아 엣지 검출
+public bool Validate(List<string> errors);   // ID/포트/타입/용량/고아·중복 엣지 검출
+public bool TryEvaluateDataInput<T>(...);    // 연결된 Pure Data 출력을 Pull 평가
 ```
 
 ### FlowNode
@@ -98,6 +106,8 @@ public bool Validate(List<string> errors);   // null 노드·고아 엣지 검�
 public abstract IEnumerable<FlowPortDef> Ports { get; }     // 노드가 자기 포트 선언
 public abstract IEnumerator Execute(FlowToken token);       // 완료 시 token.Emit(포트명)
 ```
+
+`FlowPortDef`는 영속 `Id`, 표시명, 실행/데이터 Kind, 방향, 용량, 데이터 타입을 선언한다. 표시명 변경은 저장된 연결을 끊지 않는다. Pure Data 노드는 `FlowDataNode.TryEvaluate`를 구현하고 런타임 가변 상태나 side effect를 두지 않는다.
 
 새 노드 타입은 `[FlowNodeMenu("카테고리/이름")]` + `[Serializable]`을 붙이면 검색창에 자동 노출된다(TypeCache 스캔 — 등록 절차 없음).
 

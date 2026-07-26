@@ -154,7 +154,7 @@ Unity의 `ScriptableObject`는 여러 런타임 인스턴스가 공유하는 불
 └─ 리액션                             │
         └──────────────┬──────────────┘
                        ▼
-             Cue / UI View / Telemetry
+                UI View / Telemetry
 ```
 
 ### 6.1 책임표
@@ -187,7 +187,6 @@ UPlayGround.Data
     ├── AbilityCooldownDefinition.cs
     ├── GameplayEffectSO.cs
     ├── GameplayEffectModifierDefinition.cs
-    ├── AbilityCueDefinition.cs
     └── AbilitySaveData.cs
 
 UPlayGround.Contracts
@@ -202,12 +201,10 @@ UPlayGround.Actor
     │   ├── AbilityExecutionHandle.cs
     │   ├── AbilityActivationResult.cs
     │   └── PlayerCombatAbilityDataView.cs
-    ├── Effect/
-    │   ├── GameplayEffectController.cs
-    │   ├── GameplayEffectInstance.cs
-    │   └── GameplayEffectHandle.cs
-    └── Cue/
-        └── GameplayCueDispatcher.cs
+    └── Effect/
+        ├── GameplayEffectController.cs
+        ├── GameplayEffectInstance.cs
+        └── GameplayEffectHandle.cs
 
 UPlayGround.UI
 └── UI/InputPrompt/
@@ -227,7 +224,7 @@ Editor asmdef
 - Data는 Manager, Actor, Camera, UI 구현을 참조하면 안 된다.
 - Actor 런타임은 Data와 Contracts를 참조한다.
 - UI는 `IAbilityRuntimeReader` 또는 UI 소비자 계약을 통해 상태를 읽는다.
-- Camera Cue가 필요하면 Actor가 Camera 구현을 새로 직접 참조하지 않고 기존 카메라 계약을 사용한다.
+- Ability 연출에 카메라가 필요하면 Actor가 Camera 구현을 새로 직접 참조하지 않고 기존 카메라 계약을 사용한다.
 - Editor API는 Data/Editor 또는 GameActor/Editor asmdef 안에만 둔다.
 - 신규 Ability 기능을 위해 전역 `AbilityManager.Instance`를 만들지 않는다.
 
@@ -311,7 +308,7 @@ UPlayGround.Ability.Core ──X──→ UPlayGround.Data / Actor / Contracts /
 | 자원 | 자원 ID와 비용 계산 | `PlayerSkillGauge` 읽기·소비 |
 | 태그 | 태그 ID와 핸들 소유권 | `GameplayTagContainer` 변환 |
 | 스탯 | Modifier 연산과 source token | `StatType`, `ActorStatContainer` 적용 |
-| Effect | Duration, Periodic, Stack, Remove | Heal, 전투 피해, 프로젝트 Cue 라우팅 |
+| Effect | Duration, Periodic, Stack, Remove | Heal, 전투 피해 |
 | 시간 | `IAbilityClock`을 통한 시간 소비 | Unity `Time` 기반 구현 |
 | UI | 읽기 전용 View State | HUD 슬롯·아이콘 바인딩 |
 | 저장 | 안정 ID와 남은 값 DTO | 캐릭터 저장소와 정의 에셋 탐색 |
@@ -399,7 +396,6 @@ UPlayground V1 수직 슬라이스, 실제 데이터 전환, 레거시 제거와
 - 플레이어 캐릭터 교체와 사망 시 Ability/Effect 정리 정책을 연결했고,
   캐릭터별 쿨다운·저장 허용 Effect·자원 DTO를 실제 파티 세이브에 연결했다.
 - `Self`/`Ally`/`Enemy` 대상 관계와 Self 자동 대상 해석을 런타임에 적용했다.
-- `GameplayCueDispatcher`가 시작·실패·종료·쿨다운 준비 신호를 액터 로컬 이벤트로 제공한다.
   - UI Toolkit Ability Editor는 생성·저장·참조 검사 기반 안전 삭제·전체 검증을 제공한다.
   - 2026-07-18 실제 프로젝트 데이터 일괄 변환을 완료했다.
     - 8개 캐릭터 전투 Set에 일반 공격·반격·교체 공격·차지·연계 라우트를 포함한
@@ -428,7 +424,6 @@ UPlayground V1 수직 슬라이스, 실제 데이터 전환, 레거시 제거와
 | Variant | 하나의 Ability 입력이 상황에 따라 선택하는 실행 변형 |
 | Execution | 한 번 활성화된 Ability의 런타임 인스턴스 |
 | Effect | 스탯, 현재 자원, 태그를 즉시 또는 일정 시간 변경하는 데이터 |
-| Cue | 계산과 분리된 VFX, SFX, 카메라, UI 표현 신호 |
 | Spec | 적용 순간 캡처한 Source, Target, Level, Magnitude 데이터 |
 | Handle | 실행 또는 Effect 인스턴스를 정확히 종료·제거하기 위한 런타임 키 |
 
@@ -474,7 +469,6 @@ public sealed class GameplayAbilitySO : ScriptableObject
     public List<AbilityVariantDefinition> variants;
     public List<GameplayEffectSO> commitEffects;
     public List<GameplayEffectSO> endEffects;
-    public AbilityCueDefinition cues;
     public AbilityPersistencePolicy persistence;
     public AbilityBalanceMetadata balance;
 }
@@ -497,7 +491,6 @@ public sealed class GameplayAbilitySO : ScriptableObject
 | 실행 | `variants` | 조건과 우선순위에 따라 실제 실행 데이터 선택 |
 | Effect | `commitEffects` | 실행 커밋 직후 적용 |
 | Effect | `endEffects` | 정상 종료 시 적용 |
-| Cue | `cues` | 시작·실패·종료 표현 |
 | 지속성 | `persistence` | 교체, 사망, 저장 시 처리 |
 | 분석 | `balance` | 예상 피해, 지속시간, 역할 태그 |
 
@@ -1039,22 +1032,36 @@ UI 규칙:
 
 ---
 
-## 20. Cue와 표현
+## 20. 표현 라우팅 (Cue 제거됨)
 
-Cue는 전투 계산과 분리된 표현 신호다.
+2026-07-26에 Gameplay Cue 계층(`AbilityCueDefinition`, `GameplayCueDispatcher`,
+`ActorAbilitySystem.DispatchCue`, Ability Editor "Cue" 탭)을 **전면 제거했다.**
 
-| 이벤트 | Cue 예 |
-|--------|--------|
-| Ability 시작 | 캐스팅 VFX, SFX, 카메라 프리셋 |
-| 활성화 실패 | 자원 부족 SFX, 쿨다운 HUD 펀치 |
-| Effect 적용 | 버프 아이콘, 오라 VFX |
-| Effect 제거 | 오라 종료, 아이콘 제거 |
-| Cooldown Ready | 슬롯 Ready 글로우 |
+제거 근거:
 
-V1 원칙:
+- 언리얼 GAS에서 `GameplayCue`의 핵심 존재 이유는 네트워크 복제와 로컬 예측이다.
+  본 프로젝트는 싱글플레이이므로 그 이유의 대부분이 성립하지 않는다
+  (`SKILL_SYSTEM_ADVANCEMENT_SPEC.md`도 GameplayCue 전면 이식을 비목표로 판정했다).
+- 배선은 완성되어 있었으나 구독자가 테스트뿐이었고, Ability 에셋 482개의
+  cue ID 4개 필드가 전부 비어 있어 실제로 한 번도 발화하지 않았다.
+- 연출 경로가 MotionEvent와 `CombatFeedbackDispatcher` 둘로 이미 충분했고,
+  세 번째 경로는 신규 연출마다 배치 판정 비용만 추가했다.
 
-- 기존 `CombatFeedbackDispatcher`, MotionEvent VFX/SFX, 카메라 Intent를 유지한다.
-- Cue는 계산 코드를 대체하지 않고 표현 라우팅을 점진적으로 통합한다.
+현재 표현 라우팅의 권위 경로:
+
+| 계층 | 담당 | 타이밍 소스 |
+|------|------|-------------|
+| MotionEvent | 타격 VFX, 휘두르기 SFX, 궤적 — 프레임 정확 | 애니메이션 타임라인 |
+| `CombatFeedbackDispatcher` | 피격 반응(히트스톱, 카메라 셰이크, 데미지 플로터) | 실제 피해 적용 순간 |
+| UI 계층 | 쿨다운 표시·회복 알림, 발동 실패 피드백 | `IAbilityRuntimeReader.StateChanged` |
+
+Cue가 담당할 예정이었던 "쿨다운 회복 알림"과 "발동 실패 피드백"은 Ability 데이터가 아니라
+UI 계층의 책임으로 재배치한다. Ability 에셋에 문자열 ID를 심고 Dispatcher와 DB를 경유하는
+3단 우회 없이, 입력 거절 지점에서 HUD를 직접 갱신한다.
+
+원칙:
+
+- Ability 실행 코드에 표현 라우팅을 다시 도입하지 않는다.
 - Camera 모듈에 Ability 구체 타입 의존을 추가하지 않는다.
 
 ---
@@ -1153,9 +1160,8 @@ Player 재빌드 필요:
 5. Variant와 우선순위
 6. MotionSet/AnimKey 연결
 7. owner/target Effect
-8. Cue
-9. 저장·교체 정책
-10. 정적 예상 피해와 지속시간
+8. 저장·교체 정책
+9. 정적 예상 피해와 지속시간
 
 ### 23.2 데이터 생성
 
@@ -1378,17 +1384,18 @@ Balance Designer는 정적 예상값과 실제 로그를 비교해야 한다.
 
 - 기존 공격 빈도와 선택 분포가 허용 오차 안에서 유지된다.
 
-### Phase F — Cue, Addressables, 밸런스 루프
+### Phase F — Addressables, 밸런스 루프
 
 목표:
 
-- 표현 라우팅과 데이터 운영 완성
+- 데이터 운영 완성
 
 작업:
 
-1. Cue를 기존 피드백 시스템과 연결한다.
-2. Ability Data Extractor와 Replay Comparator를 구현한다.
-3. 필요할 때만 Addressables 콘텐츠 업데이트를 도입한다.
+1. Ability Data Extractor와 Replay Comparator를 구현한다.
+2. 필요할 때만 Addressables 콘텐츠 업데이트를 도입한다.
+
+Cue 연결 작업은 §20의 근거에 따라 폐기했다.
 
 ---
 

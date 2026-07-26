@@ -5,6 +5,7 @@ using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
@@ -130,6 +131,8 @@ namespace UPlayGround.Data.Editor.Ability
         {
             string[] profileGuids = AssetDatabase.FindAssets(
                 $"t:{nameof(MonsterActorProfileSO)}");
+            // AbilitySet은 여러 프로필이 공유하므로 같은 모션 해석 결함이 중복 보고되지 않게 막는다.
+            var reportedMotionIssues = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < profileGuids.Length; i++)
             {
                 MonsterActorProfileSO profile =
@@ -148,19 +151,89 @@ namespace UPlayGround.Data.Editor.Ability
                     for (int j = 0; j < ability.variants.Count; j++)
                     {
                         if (ability.variants[j]?.executionPayload
-                            is not UPlayGroundMotionAbilityPayloadSO payload
-                            || !payload.IsAttackExecutable
+                            is not UPlayGroundMotionAbilityPayloadSO payload)
+                            continue;
+
+                        ValidateMonsterMotionResolution(
+                            profile, ability, payload, reportedMotionIssues, issues);
+
+                        // EnemyCombat.GetAvailableAbilities와 같은 술어를 쓴다.
+                        if (!payload.IsAttackExecutable
                             || payload.attackInfo is not AbilityAttackInfo attackInfo
-                            || !attackInfo.aiSelectable)
+                            || attackInfo.baseInfo?.HasHitPhases != true)
                             continue;
                         hasAiAttack = true;
-                        break;
                     }
                 }
 
                 if (!hasAiAttack)
                     Error(profile, "BT가 선택할 공격 Ability가 없습니다.", issues);
             }
+        }
+
+        /// <summary>
+        /// 히트 페이즈 유무와 Ability 분류가 어긋나는지 본다.
+        /// HasHitPhases가 "공격인가"의 권위 술어이므로(런타임 BT 선택도 이 값을 쓴다)
+        /// 분류와 불일치하면 실행되지 않거나 의도 없이 피해를 주는 Ability가 된다.
+        /// </summary>
+        private static void ValidateHitPhaseCategoryConsistency(
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
+            UPlayGroundMotionAbilityPayloadSO payload,
+            List<AbilityValidationIssue> issues)
+        {
+            AttackInfoBase baseInfo = payload.attackInfo?.baseInfo;
+            if (baseInfo == null) return;
+
+            AbilityCategory category =
+                ability.presentation?.category ?? AbilityCategory.Attack;
+            bool hasPhases = baseInfo.HasHitPhases;
+
+            if (!hasPhases
+                && category is AbilityCategory.Attack or AbilityCategory.Ultimate)
+            {
+                Error(ability,
+                    $"분류가 {category}인데 Variant '{variant.variantId}'에 HitPhase가 없습니다. "
+                    + "히트 판정이 발생하지 않고 몬스터 BT의 공격 선택 대상에서도 제외됩니다. "
+                    + "HitPhase를 추가하거나 분류를 Support로 바꾸세요.",
+                    issues);
+                return;
+            }
+
+            if (hasPhases
+                && category is AbilityCategory.Support or AbilityCategory.Passive)
+            {
+                Warning(ability,
+                    $"분류가 {category}인데 Variant '{variant.variantId}'에 HitPhase가 "
+                    + $"{baseInfo.hitPhases.Count}개 있습니다. 모션에 히트 이벤트가 있으면 피해를 줍니다.",
+                    issues);
+            }
+        }
+
+        /// <summary>
+        /// 몬스터는 무기 타입 계약이 없어 EnemyCombat이 항상 WeaponType.NoWeapon으로 모션을 해석한다.
+        /// MotionReference가 무기 override만 가지고 defaultMotion이 없으면 HasAnyMotion은 true라서
+        /// Payload 검증과 Variant 해석은 통과하지만 실행 시점에만 해석이 실패한다.
+        /// </summary>
+        private static void ValidateMonsterMotionResolution(
+            MonsterActorProfileSO profile,
+            GameplayAbilitySO ability,
+            UPlayGroundMotionAbilityPayloadSO payload,
+            HashSet<string> reported,
+            List<AbilityValidationIssue> issues)
+        {
+            MotionReferenceSO motionRef = payload.attackInfo?.baseInfo?.motionRef;
+            if (motionRef == null || !motionRef.HasAnyMotion) return;
+            if (payload.ResolveMotion(WeaponType.NoWeapon) != null) return;
+            if (!reported.Add($"{ability.abilityId}|{motionRef.name}")) return;
+
+            Error(profile,
+                $"'{ability.abilityId}'의 MotionReference '{motionRef.name}'는 무기 override만 있고 "
+                + "defaultMotion이 없어 몬스터(NoWeapon)에서 해석되지 않습니다. "
+                + "EnemyCombat은 항상 NoWeapon으로 해석하므로 이 공격은 실행되지 않습니다. "
+                + "defaultMotion을 지정하거나 NoWeapon override를 추가하세요. "
+                + "(같은 AbilitySet을 공유하는 다른 프로필도 동일 문제)",
+                issues);
         }
 
         public static List<AbilityValidationIssue> Validate(UnityEngine.Object target)
@@ -197,8 +270,6 @@ namespace UPlayGround.Data.Editor.Ability
             if (ability == null) return;
             if (string.IsNullOrWhiteSpace(ability.abilityId))
                 Error(ability, "abilityId가 비어 있습니다.", issues);
-            if (ability.schemaVersion < 1)
-                Error(ability, "schemaVersion은 1 이상이어야 합니다.", issues);
             if (ability.cost != null && ability.cost.value < 0f)
                 Error(ability, "비용은 음수일 수 없습니다.", issues);
             if (ability.cooldown != null && ability.cooldown.durationSeconds < 0f)
@@ -256,6 +327,7 @@ namespace UPlayGround.Data.Editor.Ability
                     if (payload.attackInfo?.baseInfo == null)
                         Error(ability,
                             $"Variant '{variant.variantId}'의 공격 정보가 없습니다.", issues);
+                    ValidateHitPhaseCategoryConsistency(ability, variant, payload, issues);
                 }
                 if (!executable)
                     Error(ability, $"Variant '{variant.variantId}'의 실행 Payload가 없습니다.", issues);
@@ -283,6 +355,25 @@ namespace UPlayGround.Data.Editor.Ability
                             issues);
                     }
                 }
+
+                // ResolveVariant는 조건을 통과한 후보 중 priority 최댓값만 고른다.
+                // 조건이 완전히 같고 priority가 더 높은 Variant가 있으면 이 Variant는 영원히 선택되지 않는다.
+                for (int j = 0; j < ability.variants.Count; j++)
+                {
+                    if (j == i) continue;
+                    AbilityVariantDefinition other = ability.variants[j];
+                    if (other == null
+                        || other.priority <= variant.priority
+                        || !ConditionsEqual(variant.condition, other.condition))
+                        continue;
+
+                    Warning(ability,
+                        $"Variant '{variant.variantId}'(priority {variant.priority})는 "
+                        + $"조건이 같고 우선순위가 높은 '{other.variantId}'(priority {other.priority})에 "
+                        + "항상 밀려 선택되지 않습니다. 조건을 구분하거나 별도 Ability로 분리하세요.",
+                        issues);
+                    break;
+                }
             }
 
             if (executableCount == 0)
@@ -307,8 +398,6 @@ namespace UPlayGround.Data.Editor.Ability
             if (effect == null) return;
             if (string.IsNullOrWhiteSpace(effect.effectId))
                 Error(effect, "effectId가 비어 있습니다.", issues);
-            if (effect.schemaVersion < 1)
-                Error(effect, "schemaVersion은 1 이상이어야 합니다.", issues);
             if (effect.durationSeconds < 0f || effect.periodSeconds < 0f)
                 Error(effect, "지속/주기 시간은 음수일 수 없습니다.", issues);
             if (effect.durationType == GameplayEffectDurationType.Duration
@@ -514,8 +603,6 @@ namespace UPlayGround.Data.Editor.Ability
             if (passive == null) return;
             if (string.IsNullOrWhiteSpace(passive.passiveId))
                 Error(passive, "passiveId가 비어 있습니다.", issues);
-            if (passive.schemaVersion < 1)
-                Error(passive, "schemaVersion은 1 이상이어야 합니다.", issues);
             if (passive.presentation == null
                 || passive.presentation.category != AbilityCategory.Passive)
             {

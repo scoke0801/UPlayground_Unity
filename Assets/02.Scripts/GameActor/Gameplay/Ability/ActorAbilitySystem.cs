@@ -9,7 +9,6 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
-using UPlayGround.Gameplay.Cue;
 using UPlayGround.Gameplay.Effect;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
@@ -33,9 +32,6 @@ namespace UPlayGround.Gameplay.Ability
         private AbilityCooldownRuntime _cooldowns;
         private IAbilityResourcePort _resources;
         private IAbilityTagPort _tags;
-        private GameplayCueDispatcher _cues;
-        private readonly HashSet<string> _trackedCooldownGroups =
-            new(StringComparer.Ordinal);
 
         public event Action StateChanged;
         public AbilitySetSO AbilitySet => _abilitySet;
@@ -64,7 +60,6 @@ namespace UPlayGround.Gameplay.Ability
             _abilitySystem.EnsureInitialized();
             _effects = _abilitySystem.ProjectEffects;
             _cooldowns = _abilitySystem.Runtime.Cooldowns;
-            _cues = _owner.gameObject.GetOrAddComponent<GameplayCueDispatcher>();
             var ports = new UPlayGroundAbilityOwnerPorts(_abilitySystem);
             _resources = ports;
             _tags = ports;
@@ -74,7 +69,6 @@ namespace UPlayGround.Gameplay.Ability
         {
             CancelActiveAbility();
             _abilitySet = abilitySet;
-            _trackedCooldownGroups.Clear();
             StateChanged?.Invoke();
         }
 
@@ -149,26 +143,12 @@ namespace UPlayGround.Gameplay.Ability
             AbilityActivationResult result =
                 Evaluate(definition, isGrounded, resolvedTarget, out variant);
             if (result != AbilityActivationResult.Success)
-            {
-                DispatchCue(
-                    definition,
-                    variant,
-                    AbilityCueEventType.Failed,
-                    result);
                 return result;
-            }
 
             if (_activeExecution != 0)
             {
                 if (definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
-                {
-                    DispatchCue(
-                        definition,
-                        variant,
-                        AbilityCueEventType.Failed,
-                        AbilityActivationResult.ConflictingAbility);
                     return AbilityActivationResult.ConflictingAbility;
-                }
                 if (definition.concurrency == AbilityConcurrencyPolicy.CancelExisting)
                     CancelActiveAbility();
             }
@@ -190,22 +170,12 @@ namespace UPlayGround.Gameplay.Ability
             if (Time.frameCount > execution.PreparedFrame + 1)
             {
                 Abort(handle);
-                DispatchCue(
-                    execution.Definition,
-                    execution.Variant,
-                    AbilityCueEventType.Failed,
-                    AbilityActivationResult.PreparedExecutionExpired);
                 return AbilityActivationResult.PreparedExecutionExpired;
             }
 
             if (!TryConsumeCost(execution.Definition.cost, execution.Handle))
             {
                 Abort(handle);
-                DispatchCue(
-                    execution.Definition,
-                    execution.Variant,
-                    AbilityCueEventType.Failed,
-                    AbilityActivationResult.InsufficientResource);
                 return AbilityActivationResult.InsufficientResource;
             }
 
@@ -220,36 +190,16 @@ namespace UPlayGround.Gameplay.Ability
             _activeExecution = handle.Value;
             if (execution.Definition.taskGraph?.Root != null)
                 _abilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
-            DispatchCue(
-                execution.Definition,
-                execution.Variant,
-                AbilityCueEventType.Started,
-                AbilityActivationResult.Success);
             StateChanged?.Invoke();
             return AbilityActivationResult.Success;
         }
 
         public void Abort(AbilityExecutionHandle handle)
         {
-            Abort(handle, AbilityActivationResult.Success);
-        }
-
-        public void Abort(
-            AbilityExecutionHandle handle,
-            AbilityActivationResult reason)
-        {
             if (!handle.IsValid || !_executions.Remove(handle.Value, out AbilityExecution execution))
                 return;
             _abilitySystem.Runtime.Tasks.CancelParent(handle, "AbilityAborted");
             execution.State = AbilityExecutionState.Aborted;
-            if (reason != AbilityActivationResult.Success)
-            {
-                DispatchCue(
-                    execution.Definition,
-                    execution.Variant,
-                    AbilityCueEventType.Failed,
-                    reason);
-            }
         }
 
         public void EndActiveAbility(bool completed)
@@ -270,11 +220,6 @@ namespace UPlayGround.Gameplay.Ability
                 : AbilityExecutionState.Cancelled;
             if (completed)
                 ApplyEffects(execution.Definition.endEffects, _owner);
-            DispatchCue(
-                execution.Definition,
-                execution.Variant,
-                AbilityCueEventType.Ended,
-                AbilityActivationResult.Success);
             _activeExecution = 0;
             StateChanged?.Invoke();
         }
@@ -353,16 +298,6 @@ namespace UPlayGround.Gameplay.Ability
         public void RestoreAbilitySystemStateForCharacter(AbilitySystemSaveData data)
         {
             _abilitySystem.Runtime.RestoreSaveData(data);
-            _trackedCooldownGroups.Clear();
-            if (data?.cooldowns != null)
-            {
-                for (int i = 0; i < data.cooldowns.Count; i++)
-                {
-                    GasCooldownSaveEntry entry = data.cooldowns[i];
-                    if (entry != null && !string.IsNullOrWhiteSpace(entry.groupId))
-                        _trackedCooldownGroups.Add(entry.groupId.Trim());
-                }
-            }
             _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
             StateChanged?.Invoke();
         }
@@ -607,7 +542,6 @@ namespace UPlayGround.Gameplay.Ability
             if (duration <= 0f) return;
             string group = definition.cooldown.ResolveGroupId(definition.abilityId);
             _cooldowns.Start(group, duration);
-            _trackedCooldownGroups.Add(group);
         }
 
         private PlayerSkillSlot? FindPlayerSlot(GameplayAbilitySO definition)
@@ -772,70 +706,10 @@ namespace UPlayGround.Gameplay.Ability
             || (condition == AbilityGroundCondition.Grounded && grounded)
             || (condition == AbilityGroundCondition.Airborne && !grounded);
 
-        private void DispatchCue(
-            GameplayAbilitySO definition,
-            AbilityVariantDefinition variant,
-            AbilityCueEventType eventType,
-            AbilityActivationResult result)
-        {
-            AbilityCueDefinition cues = definition?.cues;
-            string cueId = eventType switch
-            {
-                AbilityCueEventType.Started => cues?.startCueId,
-                AbilityCueEventType.Failed => cues?.failureCueId,
-                AbilityCueEventType.Ended => cues?.endCueId,
-                AbilityCueEventType.CooldownReady => cues?.cooldownReadyCueId,
-                _ => null,
-            };
-            _cues?.Dispatch(new AbilityCueEvent(
-                cueId,
-                eventType,
-                definition?.abilityId,
-                variant?.variantId,
-                result));
-        }
-
-        private void DispatchCooldownReady(string groupId)
-        {
-            if (_abilitySet == null)
-                return;
-            foreach (GameplayAbilitySO ability in _abilitySet.EnumerateAll())
-            {
-                if (ability == null
-                    || !string.Equals(
-                        ability.cooldown.ResolveGroupId(ability.abilityId),
-                        groupId,
-                        StringComparison.Ordinal))
-                    continue;
-                DispatchCue(
-                    ability,
-                    null,
-                    AbilityCueEventType.CooldownReady,
-                    AbilityActivationResult.Success);
-            }
-        }
-
         internal void Tick()
         {
-            List<string> readyGroups = null;
-            foreach (string groupId in _trackedCooldownGroups)
-            {
-                if (_cooldowns.GetRemaining(groupId) > 0f)
-                    continue;
-                readyGroups ??= new List<string>();
-                readyGroups.Add(groupId);
-            }
-
             if (_cooldowns.RemoveExpired())
                 StateChanged?.Invoke();
-            if (readyGroups == null)
-                return;
-            for (int i = 0; i < readyGroups.Count; i++)
-            {
-                string groupId = readyGroups[i];
-                _trackedCooldownGroups.Remove(groupId);
-                DispatchCooldownReady(groupId);
-            }
         }
 
         internal void LateTick()
@@ -846,7 +720,7 @@ namespace UPlayGround.Gameplay.Ability
                     && Time.frameCount > execution.PreparedFrame + 1)
                     stale.Add(execution.Handle);
             for (int i = 0; i < stale.Count; i++)
-                Abort(stale[i], AbilityActivationResult.PreparedExecutionExpired);
+                Abort(stale[i]);
         }
 
         internal void Dispose()

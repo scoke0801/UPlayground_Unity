@@ -160,7 +160,6 @@ namespace UPlayGround.Data.Editor.Ability.Production
         {
             AbilityRecipeDefinition recipe = request.Recipe;
             ability.abilityId = request.AbilityId.Trim();
-            ability.schemaVersion = 1;
             ability.presentation = new AbilityPresentationDefinition
             {
                 displayName = request.DisplayName.Trim(),
@@ -196,7 +195,6 @@ namespace UPlayGround.Data.Editor.Ability.Production
             ability.endEffects = request.EndEffect == null
                 ? new List<GameplayEffectSO>()
                 : new List<GameplayEffectSO> { request.EndEffect };
-            ability.cues = new AbilityCueDefinition();
             ability.persistence = new AbilityPersistencePolicy();
             ability.balance = new AbilityBalanceMetadata();
         }
@@ -206,7 +204,6 @@ namespace UPlayGround.Data.Editor.Ability.Production
             AbilityCreationRequest request)
         {
             effect.effectId = request.EffectId.Trim();
-            effect.schemaVersion = 1;
             effect.polarity = request.EffectPolarity;
             effect.presentation = new GameplayEffectPresentationDefinition();
             effect.durationType = request.EffectDurationType;

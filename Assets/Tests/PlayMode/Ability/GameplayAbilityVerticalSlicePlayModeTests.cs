@@ -12,7 +12,6 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
-using UPlayGround.Gameplay.Cue;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 
@@ -46,7 +45,6 @@ namespace UPlayGround.Ability.PlayModeTests
             Assert.That(owner.Tags, Is.SameAs(owner.AbilitySystem.ProjectTags));
 
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
-            payload.executionId = "Execution.Test.PlayMode";
             var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
             var motionRef = ScriptableObject.CreateInstance<MotionReferenceSO>();
             motionRef.defaultMotion = motionAsset;
@@ -63,8 +61,6 @@ namespace UPlayGround.Ability.PlayModeTests
             ability.activation.targetRelation = AbilityTargetRelation.Self;
             ability.activation.executionGrantedTagIds.Add(GameplayTags.State_Combat_Attack);
             ability.cooldown.durationSeconds = 0.1f;
-            ability.cues.startCueId = "Cue.Test.PlayMode.Start";
-            ability.cues.endCueId = "Cue.Test.PlayMode.End";
             ability.variants.Add(new AbilityVariantDefinition
             {
                 variantId = "Ground",
@@ -79,9 +75,6 @@ namespace UPlayGround.Ability.PlayModeTests
                 ability = ability,
             });
             owner.Abilities.SetAbilitySet(set);
-
-            var cues = new System.Collections.Generic.List<AbilityCueEvent>();
-            ownerObject.GetComponent<GameplayCueDispatcher>().CueDispatched += cue => cues.Add(cue);
 
             try
             {
@@ -108,15 +101,11 @@ namespace UPlayGround.Ability.PlayModeTests
                     Is.EqualTo(AbilityActivationResult.Success));
                 Assert.That(owner.Abilities.HasActivePlayerAbility, Is.True);
                 Assert.That(owner.Tags.HasTag(GameplayTags.State_Combat_Attack), Is.True);
-                Assert.That(cues, Has.Count.EqualTo(1));
-                Assert.That(cues[0].EventType, Is.EqualTo(AbilityCueEventType.Started));
 
                 owner.Abilities.EndActivePlayerAbility(completed: true);
 
                 Assert.That(owner.Abilities.HasActivePlayerAbility, Is.False);
                 Assert.That(owner.Tags.HasTag(GameplayTags.State_Combat_Attack), Is.False);
-                Assert.That(cues, Has.Count.EqualTo(2));
-                Assert.That(cues[1].EventType, Is.EqualTo(AbilityCueEventType.Ended));
             }
             finally
             {

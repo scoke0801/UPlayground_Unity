@@ -328,7 +328,9 @@ namespace UPlayGround.Components
                     continue;
                 if (!TryEvaluateAbility(ability, out AbilityAttackInfo attackInfo))
                     continue;
-                if (!attackInfo.aiSelectable
+                // 공격 선택 대상은 "히트 페이즈가 있는 Ability"로 판정한다. AbilitySet 멤버십이
+                // 이미 "이 몬스터가 쓸 수 있는 것"을 의미하므로 별도 aiSelectable 게이트는 두지 않는다.
+                if (!attackInfo.baseInfo.HasHitPhases
                     || attackInfo.isAerialSkill != aerialOnly
                     || (diveOnly && !attackInfo.isDiveAttack)
                     || (!diveOnly && aerialOnly && attackInfo.isDiveAttack)
@@ -382,25 +384,30 @@ namespace UPlayGround.Components
             if (prepare != AbilityActivationResult.Success)
                 return false;
 
-            AbilityActivationResult commit = _abilitySystem.Commit(handle);
-            if (commit == AbilityActivationResult.Success)
+            // 모션 해석은 Commit보다 먼저 한다. 몬스터는 항상 WeaponType.NoWeapon으로 해석하므로
+            // MotionReference가 무기 override만 가진 경우 해석에 실패하는데, Commit을 먼저 하면
+            // 비용과 쿨다운만 소모하고 공격이 불발된다. (플레이어 경로도 같은 순서다)
+            if (!UPlayGroundAbilityPayloadResolver.TryResolve(
+                    variant,
+                    WeaponType.NoWeapon,
+                    out MotionSetAsset motionAsset,
+                    out attackInfo))
             {
-                if (UPlayGroundAbilityPayloadResolver.TryResolve(
-                        variant,
-                        WeaponType.NoWeapon,
-                        out MotionSetAsset motionAsset,
-                        out attackInfo))
-                {
-                    _currentAbilityMotionAsset = motionAsset;
-                    return true;
-                }
-
-                _abilitySystem.EndActiveAbility(false);
+                attackInfo = null;
+                _abilitySystem.Abort(handle);
                 return false;
             }
 
-            _abilitySystem.Abort(handle, commit);
-            return false;
+            AbilityActivationResult commit = _abilitySystem.Commit(handle);
+            if (commit != AbilityActivationResult.Success)
+            {
+                attackInfo = null;
+                _abilitySystem.Abort(handle);
+                return false;
+            }
+
+            _currentAbilityMotionAsset = motionAsset;
+            return true;
         }
 
         private bool IsGrounded()
@@ -471,7 +478,7 @@ namespace UPlayGround.Components
                             WeaponType.NoWeapon,
                             out _,
                             out AbilityAttackInfo attackInfo)
-                        && attackInfo.aiSelectable
+                        && attackInfo.baseInfo.HasHitPhases
                         && attackInfo.baseInfo.attackType == attackType)
                         return true;
             }

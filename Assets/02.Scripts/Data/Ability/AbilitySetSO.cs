@@ -30,6 +30,10 @@ namespace UPlayGround.Data.Ability
             public GameplayAbilitySO replacementAbility;
         }
 
+        [TextArea]
+        [Tooltip("에디터 전용 메모. 입력하면 Ability Editor 목록에 함께 표시됩니다.")]
+        public string editorMemo;
+
         [Header("공용 Set 합성")]
         [Tooltip("동일 타입 몬스터 등이 공유하는 공용 AbilitySet입니다. 비어 있으면 독립 Set입니다.")]
         public AbilitySetSO baseSet;

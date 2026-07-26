@@ -8,7 +8,9 @@ namespace UPlayGround.Data.Ability
     public sealed class GameplayAbilitySO : ScriptableObject
     {
         public string abilityId;
-        [Min(1)] public int schemaVersion = 1;
+        [TextArea]
+        [Tooltip("에디터 전용 메모. 입력하면 Ability Editor 목록에 함께 표시됩니다.")]
+        public string editorMemo;
         public AbilityPresentationDefinition presentation = new();
         public List<GameplayTag> abilityTagIds = new();
         public AbilityActivationRules activation = new();
@@ -20,7 +22,6 @@ namespace UPlayGround.Data.Ability
         public List<AbilityVariantDefinition> variants = new();
         public List<GameplayEffectSO> commitEffects = new();
         public List<GameplayEffectSO> endEffects = new();
-        public AbilityCueDefinition cues = new();
         public AbilityPersistencePolicy persistence = new();
         public AbilityBalanceMetadata balance = new();
     }

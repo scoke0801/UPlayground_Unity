@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Dash_01
   m_EditorClassIdentifier: 
   abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Dash_01
-  schemaVersion: 1
+  editorMemo: 
   presentation:
     displayName: PlayerKatanaAttackData Dash_01
     description: 
@@ -23,11 +23,11 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: []
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -49,18 +49,13 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: 4840543914076266074}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
   endEffects: []
-  cues:
-    startCueId: 
-    failureCueId: 
-    endCueId: 
-    cooldownReadyCueId: 
   persistence:
     swapPolicy: 0
     saveCooldown: 1
@@ -81,8 +76,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Dash_01_Default_Payload
   m_EditorClassIdentifier: 
-  executionId: Ability.Player.PlayerKatanaAttackData.Combat.Dash_01.Default
-  motionRef: {fileID: 11400000, guid: 65b6e1aeb6da9f3409d7096f74116665, type: 2}
   attackInfo:
     baseInfo:
       motionRef: {fileID: 11400000, guid: 65b6e1aeb6da9f3409d7096f74116665, type: 2}
@@ -104,7 +97,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1

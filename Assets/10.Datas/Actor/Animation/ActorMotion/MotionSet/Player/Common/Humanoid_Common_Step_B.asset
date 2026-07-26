@@ -24,6 +24,7 @@ MonoBehaviour:
       - rid: 889909669330157570
       - rid: 889909669330157571
       - rid: 5341827826791743688
+    baseLayerIndex: 0
     globalEvents: []
     layers: []
   references:

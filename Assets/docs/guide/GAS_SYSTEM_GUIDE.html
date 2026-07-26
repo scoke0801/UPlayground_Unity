@@ -295,7 +295,6 @@
       <tr><td><code>taskGraph</code></td><td>AbilityTaskGraphSO</td><td>다중 프레임 실행 그래프</td></tr>
       <tr><td><code>variants</code></td><td>List&lt;AbilityVariantDefinition&gt;</td><td>조건별 분기. 각 Variant가 <code>executionPayload</code> 소유</td></tr>
       <tr><td><code>commitEffects / endEffects</code></td><td>List&lt;GameplayEffectSO&gt;</td><td>Commit 시 / 정상 종료 시 적용할 Effect</td></tr>
-      <tr><td><code>cues</code></td><td>AbilityCueDefinition</td><td>시작/실패/종료/쿨다운완료 큐 ID (VFX·SFX)</td></tr>
       <tr><td><code>persistence</code></td><td>AbilityPersistencePolicy</td><td>스왑 정책, 쿨다운 저장 여부</td></tr>
     </table>
     </div>
@@ -443,7 +442,7 @@ return false;</code></pre>
       <li><strong>새 Effect 실행자</strong> — <code>IGameplayEffectExecution</code>을 구현하고 <code>GameplayEffectDefinition.executions</code>에 넣어 커스텀 계산(예: 방어 관통, 흡혈)을 추가한다.</li>
       <li><strong>새 Attribute</strong> — <code>UPlayGroundAttributeDefaults</code>에 기본값을 등록하면 <code>AbilitySystemComponent</code>가 자동으로 표준 등록한다.</li>
       <li><strong>다중 프레임 로직</strong> — <code>AbilityTaskGraphSO</code>로 대기/분기/이벤트 대기 등 실행 그래프를 저작한다(<code>WaitMotionSetEndAbilityTask</code> 참고).</li>
-      <li><strong>큐(VFX/SFX)</strong> — <code>AbilityCueDefinition</code>의 큐 ID를 채우면 <code>GameplayCueDispatcher</code>가 시작/실패/종료 시점에 발화한다.</li>
+      <li><strong>연출(VFX/SFX)</strong> — MotionSet 타임라인의 MotionEvent(프레임 정확)와 <code>CombatFeedbackDispatcher</code>(피격 반응)로 저작한다. Ability 데이터에는 연출 식별자를 두지 않는다(Cue 계층은 2026-07-26 제거).</li>
       <li><strong>저장 연동</strong> — Effect에 <code>SaveActiveEffect</code>를 켜면 세이브/로드와 캐릭터 스왑 시 지속 효과가 보존된다.</li>
     </ul>
 

@@ -211,16 +211,11 @@ namespace UPlayGround.Data.Ability
         public List<GameplayEffectSO> targetEffects = new();
         public List<GameplayEffectSO> ownerEffects = new();
 
-        public bool IsExecutable => executionPayload != null;
-    }
-
-    [Serializable]
-    public sealed class AbilityCueDefinition
-    {
-        public string startCueId;
-        public string failureCueId;
-        public string endCueId;
-        public string cooldownReadyCueId;
+        /// <summary>
+        /// Payload 참조 유무만 본다. 실제 실행 가능 여부는 Payload 내용까지 확인해야 하므로
+        /// 프로젝트 어댑터의 <c>UPlayGroundAbilityPayloadResolver.IsExecutable</c>을 사용한다.
+        /// </summary>
+        public bool HasPayload => executionPayload != null;
     }
 
     [Serializable]

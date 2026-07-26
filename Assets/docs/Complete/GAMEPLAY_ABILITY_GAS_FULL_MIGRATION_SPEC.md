@@ -7,6 +7,12 @@
 > 선행 문서: `../Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `../Complete/PASSIVE_ABILITY_SYSTEM_SPEC.md`, `../guide/STAT_SYSTEM_GUIDE.md`  
 > 완료 후 처리: 구현과 전체 데이터 전환이 끝나면 `Assets/docs/Complete/`로 이동하고 기존 Stat 가이드를 폐기 또는 리다이렉트한다.
 
+> **2026-07-26 갱신 — Cue 관련 항목 전면 폐기.**
+> 본 문서가 제안하는 `GameplayCueRouter`, `IGameplayCuePort`, `UPlayGroundCueAdapter`와
+> Cue 관련 수용 기준은 채택하지 않는다. 기존 Cue 계층(`AbilityCueDefinition`,
+> `GameplayCueDispatcher`)도 같은 날 제거했다. 근거와 대체 경로는
+> `GAMEPLAY_ABILITY_SYSTEM_SPEC.md` §20을 따른다.
+
 ---
 
 ## 1. 목적

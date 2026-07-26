@@ -10,7 +10,7 @@
 
 ## 1. 개요
 
-Gameplay Ability 시스템 V1은 이미 구현·마이그레이션이 끝났다(AbilitySet 34개 / Ability 482개 / Variant·Payload 493개). `GameplayAbilitySO`가 활성화 규칙·비용·쿨다운·Variant·Effect·Cue·저장 정책을 소유하고, `ActorAbilitySystem`이 Prepare/Commit/End 트랜잭션을 담당하며, 플레이어와 몬스터가 같은 구조를 공유한다.
+Gameplay Ability 시스템 V1은 이미 구현·마이그레이션이 끝났다(AbilitySet 34개 / Ability 482개 / Variant·Payload 493개). `GameplayAbilitySO`가 활성화 규칙·비용·쿨다운·Variant·Effect·저장 정책을 소유하고, `ActorAbilitySystem`이 Prepare/Commit/End 트랜잭션을 담당하며, 플레이어와 몬스터가 같은 구조를 공유한다.
 
 따라서 이 문서는 **새 프레임워크 제안이 아니라, V1 이후 남은 구조적 간극을 메우는 설계**다. 코드 감사 결과 간극은 크게 네 부류다.
 

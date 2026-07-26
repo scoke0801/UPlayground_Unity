@@ -9,7 +9,9 @@ namespace UPlayGround.Data.Ability
     public sealed class PassiveAbilitySO : ScriptableObject
     {
         public string passiveId;
-        [Min(1)] public int schemaVersion = 1;
+        [TextArea]
+        [Tooltip("에디터 전용 메모. 입력하면 Ability Editor 목록에 함께 표시됩니다.")]
+        public string editorMemo;
         public AbilityPresentationDefinition presentation = new()
         {
             category = AbilityCategory.Passive,

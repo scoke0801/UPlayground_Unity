@@ -698,9 +698,7 @@ namespace UPlayGround.State
                     _currentAttack = _combat.ExecuteAbilityAttack(variant);
                     if (_currentAttack == null)
                     {
-                        playerActor.Abilities.Abort(
-                            prepared,
-                            AbilityActivationResult.MissingExecutionData);
+                        playerActor.Abilities.Abort(prepared);
                         continue;
                     }
 

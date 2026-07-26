@@ -188,6 +188,19 @@ namespace UPlayGround.Data
 
         [Header("Auto Reaction")]
         public AttackReactionProfile reactionProfile = new AttackReactionProfile();
+
+        /// <summary>
+        /// 히트 페이즈가 없는 모션 전용 Ability용 무피해 페이즈.
+        /// 기본 생성자는 damage 10 / poise 30 / break 10을 가지므로, 페이즈 부재를
+        /// 기본 인스턴스로 대체하면 의도하지 않은 유령 피해가 발생한다.
+        /// 텔레그래프·위협 UI가 쓰는 impactOffset/targetingRange는 기본값을 유지한다.
+        /// </summary>
+        public static HitPhaseData CreateNonDamaging() => new()
+        {
+            damage = 0f,
+            poiseDamage = 0f,
+            breakDamage = 0f,
+        };
     }
 
     /// <summary>
@@ -209,10 +222,20 @@ namespace UPlayGround.Data
         [Tooltip("히트 구간 별 데이터. BeginCollisionEvent의 hitPhaseIndex와 인덱스가 일치해야 한다.")]
         public List<HitPhaseData> hitPhases = new List<HitPhaseData> { new HitPhaseData() };
 
-        /// <summary> 인덱스가 범위를 벗어나면 마지막 Phase를 반환 (안전 폴백) </summary>
+        /// <summary>
+        /// 히트 페이즈가 하나라도 있는지. 공격 Ability와 모션 전용 Ability를 구분하는 파생 술어로,
+        /// 손으로 켜는 플래그보다 이쪽이 권위 있다. 런타임 BT 공격 선택도 이 값을 쓴다.
+        /// </summary>
+        public bool HasHitPhases => hitPhases != null && hitPhases.Count > 0;
+
+        /// <summary>
+        /// 인덱스가 범위를 벗어나면 마지막 Phase를 반환 (안전 폴백).
+        /// 페이즈가 아예 없으면 무피해 페이즈를 반환한다 — 부재를 알리지 않고 값을 만들어
+        /// 주므로, 공격 여부 판정에는 이 메서드가 아니라 <see cref="HasHitPhases"/>를 쓴다.
+        /// </summary>
         public HitPhaseData GetHitPhase(int index)
         {
-            if (hitPhases == null || hitPhases.Count == 0) return new HitPhaseData();
+            if (!HasHitPhases) return HitPhaseData.CreateNonDamaging();
             return hitPhases[Mathf.Clamp(index, 0, hitPhases.Count - 1)];
         }
 
@@ -239,9 +262,12 @@ namespace UPlayGround.Data
         [Tooltip("공격 중 캔슬 가능한 입력 액션 마스크 (None이면 캔슬 불가).\n허용 구간은 캔슬 윈도우(콜리전 비활성 구간)가 결정 — 액티브 히트 중엔 캔슬 불가.\n공격타입(Light/Heavy/Skill)은 '다른 타입'으로의 전환용. 같은 타입 연계는 ComboWindow 사용.")]
         public PlayerInterruptAction interruptActions = PlayerInterruptAction.None;
 
+        public bool HasHitPhases => hitPhases != null && hitPhases.Count > 0;
+
+        /// <summary>페이즈가 없으면 무피해 페이즈를 반환한다. 근거는 AttackInfoBase.GetHitPhase와 같다.</summary>
         public HitPhaseData GetHitPhase(int index)
         {
-            if (hitPhases == null || hitPhases.Count == 0) return new HitPhaseData();
+            if (!HasHitPhases) return HitPhaseData.CreateNonDamaging();
             return hitPhases[Mathf.Clamp(index, 0, hitPhases.Count - 1)];
         }
     }
@@ -262,6 +288,9 @@ namespace UPlayGround.Data
         public float moveCancelDelayAfterLastHit = 0f;
 
         [Header("AI Selection")]
+        [Tooltip("런타임 BT 선택 게이트가 아니다 — 그쪽은 baseInfo.HasHitPhases로 판정한다.\n"
+                 + "현재 이 값의 실제 용도는 에디터·밸런스 툴이 '몬스터 소유 Ability'를 걸러내는 것뿐이며\n"
+                 + "(몬스터 272개 전부 true, 플레이어 전부 false), AbilitySetSO에 소유자 필드가 생기면 제거 대상이다.")]
         public bool aiSelectable;
         public SkillType skillType = SkillType.Attack;
         [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. None이면 모든 요청에 포함된다.")]

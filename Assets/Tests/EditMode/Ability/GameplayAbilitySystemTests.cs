@@ -11,7 +11,6 @@ using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
-using UPlayGround.Gameplay.Cue;
 using UPlayGround.Gameplay.Effect;
 using UPlayGround.Gameplay.Tag;
 
@@ -444,59 +443,6 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void Cue는_실패_시작_종료를_계산과_분리된_이벤트로_전달한다()
-        {
-            GameplayAbilitySO ability = MakeAbility();
-            ability.activation.requiredTagIds.Add(GameplayTags.State_Combat_Charge);
-            ability.cues.failureCueId = "Cue.Test.Failed";
-            ability.cues.startCueId = "Cue.Test.Started";
-            ability.cues.endCueId = "Cue.Test.Ended";
-            AbilitySetSO set = MakeSet(ability);
-            _actor.Abilities.SetAbilitySet(set);
-
-            var received = new System.Collections.Generic.List<AbilityCueEvent>();
-            GameplayCueDispatcher dispatcher =
-                _gameObject.GetComponent<GameplayCueDispatcher>();
-            dispatcher.CueDispatched += cue => received.Add(cue);
-
-            Assert.That(
-                _actor.Abilities.TryPreparePlayerSlot(
-                    PlayerSkillSlot.Ability, true, null, out _, out _),
-                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
-
-            _actor.Tags.AddTag(
-                GameplayTags.State_Combat_Charge,
-                new GameplayTagSource("Test", 10));
-            Assert.That(
-                _actor.Abilities.TryPreparePlayerSlot(
-                    PlayerSkillSlot.Ability, true, null, out var rejected, out _),
-                Is.EqualTo(AbilityActivationResult.Success));
-            _actor.Abilities.Abort(
-                rejected,
-                AbilityActivationResult.MissingExecutionData);
-
-            Assert.That(
-                _actor.Abilities.TryPreparePlayerSlot(
-                    PlayerSkillSlot.Ability, true, null, out var handle, out _),
-                Is.EqualTo(AbilityActivationResult.Success));
-            Assert.That(
-                _actor.Abilities.Commit(handle),
-                Is.EqualTo(AbilityActivationResult.Success));
-            _actor.Abilities.EndActivePlayerAbility(completed: true);
-
-            Assert.That(received, Has.Count.EqualTo(4));
-            Assert.That(received[0].EventType, Is.EqualTo(AbilityCueEventType.Failed));
-            Assert.That(received[0].Result, Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
-            Assert.That(received[1].EventType, Is.EqualTo(AbilityCueEventType.Failed));
-            Assert.That(received[1].Result, Is.EqualTo(AbilityActivationResult.MissingExecutionData));
-            Assert.That(received[2].EventType, Is.EqualTo(AbilityCueEventType.Started));
-            Assert.That(received[3].EventType, Is.EqualTo(AbilityCueEventType.Ended));
-
-            Object.DestroyImmediate(ability);
-            Object.DestroyImmediate(set);
-        }
-
-        [Test]
         public void 저장정책이_허용한_쿨다운만_RuntimeSaveData에_포함한다()
         {
             GameplayAbilitySO ability = MakeAbility();
@@ -578,7 +524,6 @@ namespace UPlayGround.Ability.Tests
             ability.taskGraph = AbilityTaskGraphSO.CreateTransient(task);
             var payload =
                 ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
-            payload.executionId = ability.abilityId;
             var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
             var motionRef = ScriptableObject.CreateInstance<MotionReferenceSO>();
             motionRef.defaultMotion = motionAsset;

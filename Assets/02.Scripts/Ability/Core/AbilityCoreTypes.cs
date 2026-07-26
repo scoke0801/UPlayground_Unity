@@ -87,10 +87,9 @@ namespace UPlayGround.Ability.Core
     /// <summary>
     /// 프로젝트 전용 애니메이션, 공격 정보 등을 Core 정의에 연결하는 확장 지점.
     /// Core는 구체 Payload 타입을 알지 않는다.
+    /// Payload 식별은 Variant의 직접 참조로 해결하므로 별도 실행 ID를 두지 않는다.
     /// </summary>
     public abstract class AbilityExecutionPayloadSO : ScriptableObject
     {
-        [Tooltip("Adapter가 실행기를 찾을 때 사용하는 안정 ID")]
-        public string executionId;
     }
 }

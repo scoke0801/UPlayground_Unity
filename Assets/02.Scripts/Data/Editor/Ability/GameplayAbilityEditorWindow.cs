@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UPlayGround.Ability.Core;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
@@ -46,6 +47,9 @@ namespace UPlayGround.Data.Editor.Ability
         private ScriptableObject _tabClipboard;
         private Type _tabClipboardType;
         private string _tabClipboardTab;
+        private VisualElement _variantPayloadSection;
+        private string _variantPayloadSignature;
+        private readonly Dictionary<string, bool> _payloadFoldoutStates = new();
 
         private sealed class AbilitySetScope
         {
@@ -451,7 +455,7 @@ namespace UPlayGround.Data.Editor.Ability
             string[] labels =
             {
                 "기본 정보", "활성화 조건", "비용/쿨다운", "Variant",
-                "Effect", "Cue", "저장/교체 정책", "정적 밸런스", "검증 결과",
+                "Effect", "저장/교체 정책", "정적 밸런스", "검증 결과",
             };
             for (int i = 0; i < labels.Length; i++)
             {
@@ -728,10 +732,14 @@ namespace UPlayGround.Data.Editor.Ability
             var name = new Label { name = "name" };
             name.style.unityFontStyleAndWeight = FontStyle.Bold;
             labels.Add(name);
-            var type = new Label { name = "type" };
-            type.style.fontSize = 10f;
-            type.style.color = new Color(0.55f, 0.6f, 0.68f);
-            labels.Add(type);
+            // 에셋 타입 대신 메모를 노출한다. 메모가 없으면 이 줄 자체를 감춘다.
+            var memo = new Label { name = "memo" };
+            memo.style.fontSize = 10f;
+            memo.style.color = new Color(0.55f, 0.6f, 0.68f);
+            memo.style.whiteSpace = WhiteSpace.NoWrap;
+            memo.style.overflow = Overflow.Hidden;
+            memo.style.textOverflow = TextOverflow.Ellipsis;
+            labels.Add(memo);
             row.Add(labels);
 
             var badge = new Label { name = "badge" };
@@ -764,7 +772,23 @@ namespace UPlayGround.Data.Editor.Ability
             }
 
             wrapper.Q<Label>("name").text = GetStableId(asset);
-            wrapper.Q<Label>("type").text = asset.GetType().Name;
+
+            Label memo = wrapper.Q<Label>("memo");
+            string memoText = GetEditorMemo(asset);
+            if (string.IsNullOrWhiteSpace(memoText))
+            {
+                memo.text = string.Empty;
+                memo.tooltip = string.Empty;
+                memo.style.display = DisplayStyle.None;
+            }
+            else
+            {
+                // 목록 행은 한 줄이므로 개행은 공백으로 접어 표시한다.
+                memo.text = memoText.Replace("\r", " ").Replace("\n", " ").Trim();
+                memo.tooltip = memoText;
+                memo.style.display = DisplayStyle.Flex;
+            }
+
             wrapper.Q<Image>("icon").image = GetIcon(asset);
 
             List<AbilityValidationIssue> issues = AbilityDataValidator.Validate(asset);
@@ -873,15 +897,338 @@ namespace UPlayGround.Data.Editor.Ability
                 bindingRoot.Add(field);
             }
 
+            _variantPayloadSection = null;
+            _variantPayloadSignature = null;
+            if (_selected is GameplayAbilitySO variantAbility && _activeTab == "Variant")
+            {
+                _variantPayloadSection = new VisualElement();
+                _variantPayloadSection.style.marginTop = 14f;
+                bindingRoot.Add(_variantPayloadSection);
+                RebuildVariantPayloadSection(variantAbility);
+            }
+
             bindingRoot.TrackSerializedObjectValue(serialized, _ =>
             {
                 EditorUtility.SetDirty(_selected);
                 RebuildSummary();
                 RebuildValidation();
+                RefreshVariantPayloadSection();
                 _assetList?.RefreshItems();
             });
             RebuildSummary();
             RebuildValidation();
+        }
+
+        /// <summary>
+        /// Variant 목록의 Payload 구성이 바뀐 경우에만 Payload 편집 영역을 다시 만든다.
+        /// 값 변경마다 재생성하면 편집 중인 필드의 포커스가 끊긴다.
+        /// </summary>
+        private void RefreshVariantPayloadSection()
+        {
+            if (_variantPayloadSection == null
+                || _selected is not GameplayAbilitySO ability)
+                return;
+            if (string.Equals(
+                    BuildVariantPayloadSignature(ability),
+                    _variantPayloadSignature,
+                    StringComparison.Ordinal))
+                return;
+            RebuildVariantPayloadSection(ability);
+        }
+
+        private static string BuildVariantPayloadSignature(GameplayAbilitySO ability)
+        {
+            if (ability?.variants == null) return string.Empty;
+
+            var builder = new System.Text.StringBuilder();
+            for (int i = 0; i < ability.variants.Count; i++)
+            {
+                AbilityVariantDefinition variant = ability.variants[i];
+                builder.Append(variant?.variantId).Append('|');
+                builder.Append(
+                    variant?.executionPayload != null
+                        ? variant.executionPayload.GetInstanceID()
+                        : 0);
+                builder.Append(';');
+            }
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Variant가 참조하는 Execution Payload 에셋을 이 창에서 직접 편집할 수 있게 그린다.
+        /// 공격 Motion과 HitPhase의 권위 소스가 Payload이므로 Ability와 같은 화면에서 편집한다.
+        /// </summary>
+        private void RebuildVariantPayloadSection(GameplayAbilitySO ability)
+        {
+            if (_variantPayloadSection == null) return;
+
+            _variantPayloadSection.Clear();
+            _variantPayloadSignature = BuildVariantPayloadSignature(ability);
+            _variantPayloadSection.Add(SectionHeader(
+                "Execution Payload 편집",
+                "각 Variant가 참조하는 Payload 에셋을 여기서 직접 편집합니다. "
+                + "공격 Motion의 단일 소스는 attackInfo.baseInfo.motionRef입니다."));
+
+            List<AbilityVariantDefinition> variants = ability?.variants;
+            if (variants == null || variants.Count == 0)
+            {
+                _variantPayloadSection.Add(new HelpBox(
+                    "실행 Variant가 없습니다. 위 목록에 Variant를 추가하세요.",
+                    HelpBoxMessageType.Info));
+                return;
+            }
+
+            for (int i = 0; i < variants.Count; i++)
+            {
+                AbilityVariantDefinition variant = variants[i];
+                if (variant == null) continue;
+
+                string variantId = string.IsNullOrWhiteSpace(variant.variantId)
+                    ? $"Variant {i}"
+                    : variant.variantId;
+                _variantPayloadSection.Add(
+                    BuildPayloadFoldout(i, variantId, variant.executionPayload));
+            }
+        }
+
+        private const string AttackInfoPropertyName = "attackInfo";
+
+        /// <summary>
+        /// AbilityAttackInfo는 실행·플레이어 조작·AI 선택·연출·방어가 한 구조체에 모여 있어
+        /// 한 번에 펼치면 필드 벽이 된다. 소비자 기준으로 묶어 기본 접힘 상태로 보여준다.
+        /// Fields는 AbilityAttackInfo의 직렬화 필드명과 정확히 일치해야 한다.
+        /// </summary>
+        private static readonly (string Title, string[] Fields, bool DefaultOpen)[]
+            AttackInfoGroups =
+            {
+                ("실행 · 모션과 히트 페이즈", new[] { "baseInfo" }, true),
+                ("플레이어 조작 · 캔슬",
+                    new[] { "interruptActions", "moveCancelDelayAfterLastHit" }, true),
+                ("방어 대응", new[] { "defenseType" }, true),
+                ("AI 선택 (BT 전용)",
+                    new[]
+                    {
+                        "aiSelectable", "skillType", "attackCategory",
+                        "requiredLevel", "selectionWeight", "conditionGroup",
+                    },
+                    false),
+                ("공중 · 급강하",
+                    new[]
+                    {
+                        "isAerialSkill", "isDiveAttack",
+                        "diveDescentSpeed", "aerialSkillWeight",
+                    },
+                    false),
+                ("연출 · 텔레그래프와 Danger Ring",
+                    new[]
+                    {
+                        "useTelegraph", "telegraphShape", "telegraphRadiusScale",
+                        "telegraphFXKey", "useMotionEventTelegraph",
+                        "telegraphAnchorType", "useTelegraphPositionForHit",
+                        "useDangerRing", "dangerRingDuration", "dangerRingPrefabKey",
+                    },
+                    false),
+            };
+
+        /// <summary>
+        /// attackInfo의 하위 필드를 관심사 그룹 Foldout으로 그린다.
+        /// 그룹 표에 없는 필드는 "기타"로 모아 어떤 필드도 화면에서 사라지지 않게 한다.
+        /// </summary>
+        private bool BuildAttackInfoGroups(
+            VisualElement parent,
+            SerializedObject payloadSerialized,
+            SerializedProperty attackInfo,
+            string stateKey)
+        {
+            var remaining = new List<string>();
+            SerializedProperty child = attackInfo.Copy();
+            SerializedProperty end = attackInfo.GetEndProperty();
+            bool enterChildren = true;
+            while (child.NextVisible(enterChildren)
+                   && !SerializedProperty.EqualContents(child, end))
+            {
+                enterChildren = false;
+                remaining.Add(child.name);
+            }
+            if (remaining.Count == 0) return false;
+
+            bool aiSelectable =
+                attackInfo.FindPropertyRelative("aiSelectable")?.boolValue ?? false;
+
+            for (int i = 0; i < AttackInfoGroups.Length; i++)
+            {
+                (string title, string[] fields, bool defaultOpen) = AttackInfoGroups[i];
+                var present = new List<SerializedProperty>();
+                for (int f = 0; f < fields.Length; f++)
+                {
+                    SerializedProperty property =
+                        attackInfo.FindPropertyRelative(fields[f]);
+                    if (property == null) continue;
+                    present.Add(property.Copy());
+                    remaining.Remove(fields[f]);
+                }
+                if (present.Count == 0) continue;
+
+                bool isAiGroup = title.StartsWith("AI 선택", StringComparison.Ordinal);
+                VisualElement group = BuildAttackInfoGroup(
+                    payloadSerialized,
+                    $"{stateKey}#{title}",
+                    title,
+                    present,
+                    defaultOpen,
+                    isAiGroup && !aiSelectable
+                        ? "Ai Selectable이 꺼져 있어 이 그룹은 AI 선택에 사용되지 않습니다. "
+                          + "(플레이어 Ability에서는 항상 비활성)"
+                        : null);
+                parent.Add(group);
+            }
+
+            if (remaining.Count > 0)
+            {
+                var leftovers = new List<SerializedProperty>();
+                for (int i = 0; i < remaining.Count; i++)
+                {
+                    SerializedProperty property =
+                        attackInfo.FindPropertyRelative(remaining[i]);
+                    if (property != null) leftovers.Add(property.Copy());
+                }
+                if (leftovers.Count > 0)
+                {
+                    parent.Add(BuildAttackInfoGroup(
+                        payloadSerialized,
+                        $"{stateKey}#기타",
+                        "기타 (그룹 미지정)",
+                        leftovers,
+                        true,
+                        "AttackInfoGroups 표에 없는 필드입니다. 필드를 추가했다면 표에도 반영하세요."));
+                }
+            }
+
+            return true;
+        }
+
+        private VisualElement BuildAttackInfoGroup(
+            SerializedObject payloadSerialized,
+            string stateKey,
+            string title,
+            List<SerializedProperty> properties,
+            bool defaultOpen,
+            string hint)
+        {
+            var group = new Foldout
+            {
+                text = title,
+                value = !_payloadFoldoutStates.TryGetValue(stateKey, out bool expanded)
+                    ? defaultOpen
+                    : expanded,
+            };
+            group.style.marginTop = 4f;
+            group.style.marginLeft = 6f;
+            group.RegisterValueChangedCallback(evt =>
+            {
+                if (evt.target == group)
+                    _payloadFoldoutStates[stateKey] = evt.newValue;
+            });
+
+            if (!string.IsNullOrEmpty(hint))
+                group.Add(new HelpBox(hint, HelpBoxMessageType.Info));
+
+            for (int i = 0; i < properties.Count; i++)
+            {
+                var field = new PropertyField(properties[i]);
+                field.style.marginTop = 2f;
+                field.Bind(payloadSerialized);
+                group.Add(field);
+            }
+            return group;
+        }
+
+        private VisualElement BuildPayloadFoldout(
+            int index,
+            string variantId,
+            AbilityExecutionPayloadSO payload)
+        {
+            string stateKey = $"{index}:{variantId}";
+            var foldout = new Foldout
+            {
+                text = payload != null
+                    ? $"{variantId} · {payload.name}"
+                    : $"{variantId} · Payload 미지정",
+                value = !_payloadFoldoutStates.TryGetValue(stateKey, out bool expanded)
+                    || expanded,
+            };
+            foldout.style.marginTop = 6f;
+            foldout.RegisterValueChangedCallback(evt =>
+            {
+                if (evt.target == foldout)
+                    _payloadFoldoutStates[stateKey] = evt.newValue;
+            });
+
+            if (payload == null)
+            {
+                foldout.Add(new HelpBox(
+                    "이 Variant에는 Execution Payload가 지정되지 않아 실행할 수 없습니다. "
+                    + "위 Variant 목록에서 Payload를 지정하세요.",
+                    HelpBoxMessageType.Warning));
+                return foldout;
+            }
+
+            var header = new VisualElement
+            {
+                style = { flexDirection = FlexDirection.Row, marginBottom = 4f },
+            };
+            var pathLabel = new Label(AssetDatabase.GetAssetPath(payload))
+            {
+                tooltip = payload.GetType().Name,
+            };
+            pathLabel.style.flexGrow = 1f;
+            pathLabel.style.color = new Color(0.55f, 0.6f, 0.68f);
+            pathLabel.style.overflow = Overflow.Hidden;
+            header.Add(pathLabel);
+            var pingButton = new Button(() =>
+            {
+                Selection.activeObject = payload;
+                EditorGUIUtility.PingObject(payload);
+            })
+            {
+                text = "Project에서 보기",
+            };
+            pingButton.style.flexShrink = 0f;
+            header.Add(pingButton);
+            foldout.Add(header);
+
+            var payloadSerialized = new SerializedObject(payload);
+            SerializedProperty attackInfo =
+                payloadSerialized.FindProperty(AttackInfoPropertyName);
+            bool grouped = false;
+            if (attackInfo != null)
+                grouped = BuildAttackInfoGroups(
+                    foldout, payloadSerialized, attackInfo, stateKey);
+
+            SerializedProperty iterator = payloadSerialized.GetIterator();
+            bool enterChildren = true;
+            while (iterator.NextVisible(enterChildren))
+            {
+                enterChildren = false;
+                if (iterator.propertyPath == "m_Script") continue;
+                // attackInfo는 위에서 관심사별 그룹으로 이미 그렸다.
+                if (grouped && iterator.propertyPath == AttackInfoPropertyName) continue;
+
+                var field = new PropertyField(iterator.Copy());
+                field.style.marginTop = 4f;
+                field.Bind(payloadSerialized);
+                foldout.Add(field);
+            }
+
+            // TrackSerializedObjectValue는 요소당 SerializedObject 하나만 추적하므로
+            // Payload마다 별도의 Foldout 요소에 등록한다.
+            foldout.TrackSerializedObjectValue(payloadSerialized, _ =>
+            {
+                if (payload == null) return;
+                EditorUtility.SetDirty(payload);
+                RebuildValidation();
+            });
+            return foldout;
         }
 
         private void RebuildSummary()
@@ -1745,12 +2092,11 @@ namespace UPlayGround.Data.Editor.Ability
             {
                 return tab switch
                 {
-                    "기본 정보" => new[] { "abilityId", "schemaVersion", "presentation", "abilityTagIds", "concurrency" },
+                    "기본 정보" => new[] { "abilityId", "editorMemo", "presentation", "abilityTagIds", "concurrency" },
                     "활성화 조건" => new[] { "activation" },
                     "비용/쿨다운" => new[] { "cost", "cooldown" },
                     "Variant" => new[] { "variants" },
                     "Effect" => new[] { "commitEffects", "endEffects" },
-                    "Cue" => new[] { "cues" },
                     "저장/교체 정책" => new[] { "persistence" },
                     "정적 밸런스" => new[] { "balance" },
                     _ => Array.Empty<string>(),
@@ -1763,7 +2109,7 @@ namespace UPlayGround.Data.Editor.Ability
                     "기본 정보" => new[]
                     {
                         "effectId",
-                        "schemaVersion",
+                        "editorMemo",
                         "polarity",
                         "presentation",
                         "durationType",
@@ -1792,7 +2138,7 @@ namespace UPlayGround.Data.Editor.Ability
                     "기본 정보" => new[]
                     {
                         "passiveId",
-                        "schemaVersion",
+                        "editorMemo",
                         "presentation",
                         "characterSelectDescription",
                     },
@@ -1807,6 +2153,7 @@ namespace UPlayGround.Data.Editor.Ability
                 {
                     "기본 정보" => new[]
                     {
+                        "editorMemo",
                         "baseSet",
                         "abilityOverrides",
                         "playerSlots",
@@ -1835,6 +2182,15 @@ namespace UPlayGround.Data.Editor.Ability
             _ => asset != null ? asset.name : "-",
         };
 
+        private static string GetEditorMemo(UnityEngine.Object asset) => asset switch
+        {
+            GameplayAbilitySO ability => ability.editorMemo,
+            PassiveAbilitySO passive => passive.editorMemo,
+            GameplayEffectSO effect => effect.editorMemo,
+            AbilitySetSO set => set.editorMemo,
+            _ => null,
+        };
+
         private static string GetSearchText(UnityEngine.Object asset)
         {
             string presentationName = asset switch
@@ -1844,7 +2200,7 @@ namespace UPlayGround.Data.Editor.Ability
                 GameplayEffectSO effect => effect.presentation?.displayName,
                 _ => null,
             };
-            return $"{GetStableId(asset)} {asset?.name} {presentationName}";
+            return $"{GetStableId(asset)} {asset?.name} {presentationName} {GetEditorMemo(asset)}";
         }
 
         private static Texture GetIcon(UnityEngine.Object asset)
@@ -1865,7 +2221,6 @@ namespace UPlayGround.Data.Editor.Ability
             "비용/쿨다운" => "자원 소모 시점과 재사용 대기시간을 설정합니다.",
             "Variant" => "상황별 실행 Variant 또는 차지 단계별 Ability를 구성합니다.",
             "Effect" => "발동·종료 Effect와 Effect가 적용할 수치 변화를 설정합니다.",
-            "Cue" => "Ability 실행 시 사용할 시각·청각 피드백 식별자를 설정합니다.",
             "저장/교체 정책" => "캐릭터 교체, 저장, 종료 시 유지하거나 제거할 범위를 설정합니다.",
             "정적 밸런스" => "밸런스 도구가 사용하는 기대 피해량과 메타데이터를 설정합니다.",
             "검증 결과" => "현재 에셋의 오류와 경고를 확인합니다.",
@@ -1890,9 +2245,6 @@ namespace UPlayGround.Data.Editor.Ability
                 (GameplayAbilitySO, "Effect") =>
                     "Commit 직후와 실행 종료 시 적용할 GameplayEffect를 연결합니다. "
                     + "Variant 내부의 Owner/Target Effect와 적용 시점이 다르므로 중복 적용을 확인하세요.",
-                (GameplayAbilitySO, "Cue") =>
-                    "Started·Failed·Ended 등 Ability 생명주기에서 발행할 연출 식별자를 설정합니다. "
-                    + "전투 수치나 Motion 참조는 Cue에 저장하지 않습니다.",
                 (GameplayAbilitySO, "저장/교체 정책") =>
                     "캐릭터 교체·저장·런 종료 시 실행 상태를 유지하거나 종료할 정책을 설정합니다. "
                     + "Effect 자체의 저장 정책과 함께 검토해야 합니다.",
@@ -1942,7 +2294,7 @@ namespace UPlayGround.Data.Editor.Ability
             "abilityId" => "Ability ID",
             "passiveId" => "Passive ID",
             "effectId" => "Effect ID",
-            "schemaVersion" => "스키마 버전",
+            "editorMemo" => "메모",
             "polarity" => "효과 극성",
             "presentation" => "표시 정보",
             "characterSelectDescription" => "캐릭터 선택 요약",
@@ -1957,7 +2309,6 @@ namespace UPlayGround.Data.Editor.Ability
             "variants" => "실행 Variant",
             "commitEffects" => "발동 시 Effect",
             "endEffects" => "종료 시 Effect",
-            "cues" => "연출 Cue",
             "persistence" => "저장·교체 정책",
             "balance" => "정적 밸런스",
             "durationType" => "지속 방식",

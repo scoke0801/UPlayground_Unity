@@ -9,7 +9,9 @@ namespace UPlayGround.Data.Ability
     public sealed class GameplayEffectSO : ScriptableObject
     {
         public string effectId;
-        [Min(1)] public int schemaVersion = 1;
+        [TextArea]
+        [Tooltip("에디터 전용 메모. 입력하면 Ability Editor 목록에 함께 표시됩니다.")]
+        public string editorMemo;
         public GameplayEffectPolarity polarity;
         public GameplayEffectPresentationDefinition presentation = new();
         [Header("속성 부여")]

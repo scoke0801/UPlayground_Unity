@@ -130,7 +130,6 @@ namespace UPlayGround.Ability.Tests
             attack.baseInfo.motionRef = motionRef;
             UPlayGroundMotionAbilityPayloadSO payload =
                 Create<UPlayGroundMotionAbilityPayloadSO>();
-            payload.executionId = id;
             payload.attackInfo = attack;
             ability.variants.Add(new AbilityVariantDefinition
             {

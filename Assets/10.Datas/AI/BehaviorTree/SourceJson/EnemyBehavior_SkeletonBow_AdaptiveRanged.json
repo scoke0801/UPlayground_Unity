@@ -1,0 +1,552 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_SkeletonBow_AdaptiveRanged",
+    "displayName": "Skeleton Bow Adaptive Ranged",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_skeleton_bow.asset",
+    "blackboard": {
+        "tickInterval": 0.08,
+        "enablePatrol": true,
+        "optimalCombatDistance": 5.5,
+        "minCombatDistance": 1.6,
+        "personalSpaceDistance": 1.1,
+        "preferredRange": 8.0,
+        "aggression": 0.5,
+        "reactionChance": 0.65,
+        "counterChance": 0.2,
+        "guardChance": 0.05,
+        "dodgeChance": 0.55,
+        "retreatChance": 0.6,
+        "punishRecoveryChance": 0.7,
+        "antiGuardChance": 0.25,
+        "revengeChance": 0.3,
+        "circleWeight": 0.65,
+        "maxComboPressureCount": 2,
+        "minRetreatCooldown": 1.25
+    },
+    "groups": [
+        {
+            "name": "00 Survival And Target",
+            "priority": 1000,
+            "rules": [
+                {
+                    "name": "BlockedStateKeep",
+                    "priority": 1000,
+                    "when": [
+                        { "condition": "IsBlockedEnemyState" }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "NoTargetPatrol",
+                    "priority": 990,
+                    "when": [
+                        { "condition": "HasTarget", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "PatrolOrIdle" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "10 Emergency Escape",
+            "priority": 960,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PoiseBreakMakeSpace",
+                    "priority": 960,
+                    "when": [
+                        { "condition": "IsPoiseBroken" },
+                        { "condition": "CooldownReady", "value": "BowPoiseEscape" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.65,
+                            "action": "RequestAction",
+                            "intent": "Evade",
+                            "style": "JumpBack",
+                            "cooldownId": "BowPoiseEscape",
+                            "cooldownDuration": 2.4
+                        },
+                        {
+                            "weight": 0.35,
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "style": "Step",
+                            "cooldownId": "BowPoiseEscape",
+                            "cooldownDuration": 2.4
+                        }
+                    ]
+                },
+                {
+                    "name": "RepeatedHitDisengage",
+                    "priority": 950,
+                    "when": [
+                        { "condition": "RecentHitCountGreaterOrEqual", "value": "3" },
+                        { "condition": "CooldownReady", "value": "BowRepeatedHitEscape" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.6,
+                            "action": "RequestAction",
+                            "intent": "Evade",
+                            "style": "JumpBack",
+                            "cooldownId": "BowRepeatedHitEscape",
+                            "cooldownDuration": 2.8
+                        },
+                        {
+                            "weight": 0.4,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowRepeatedHitEscape",
+                            "cooldownDuration": 2.2
+                        }
+                    ]
+                },
+                {
+                    "name": "ReadClosePlayerAttack",
+                    "priority": 940,
+                    "when": [
+                        { "condition": "IsPlayerAttacking" },
+                        { "condition": "DistanceLessOrEqual", "value": "2.2" },
+                        { "condition": "CooldownReady", "value": "BowCloseAttackRead" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.5,
+                            "action": "RequestAction",
+                            "intent": "Evade",
+                            "style": "Dodge",
+                            "cooldownId": "BowCloseAttackRead",
+                            "cooldownDuration": 1.5
+                        },
+                        {
+                            "weight": 0.3,
+                            "action": "RequestAction",
+                            "intent": "Evade",
+                            "style": "JumpBack",
+                            "cooldownId": "BowCloseAttackRead",
+                            "cooldownDuration": 1.5
+                        },
+                        {
+                            "weight": 0.2,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowCloseAttackRead",
+                            "cooldownDuration": 1.3
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "20 Adaptive Spacing",
+            "priority": 930,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PersonalSpaceEmergency",
+                    "priority": 930,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" },
+                        { "condition": "CooldownReady", "value": "BowPersonalSpace" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.7,
+                            "action": "RequestAction",
+                            "intent": "Evade",
+                            "style": "JumpBack",
+                            "cooldownId": "BowPersonalSpace",
+                            "cooldownDuration": 1.1
+                        },
+                        {
+                            "weight": 0.3,
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "style": "Step",
+                            "cooldownId": "BowPersonalSpace",
+                            "cooldownDuration": 1.1
+                        }
+                    ]
+                },
+                {
+                    "name": "InsideMinimumRangeKite",
+                    "priority": 920,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "minCombatDistance" },
+                        { "condition": "CooldownReady", "value": "BowMinimumRange" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.45,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowMinimumRange",
+                            "cooldownDuration": 1.2
+                        },
+                        {
+                            "weight": 0.35,
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "style": "Step",
+                            "cooldownId": "BowMinimumRange",
+                            "cooldownDuration": 1.2
+                        },
+                        {
+                            "weight": 0.2,
+                            "action": "RequestAction",
+                            "intent": "Evade",
+                            "style": "Dodge",
+                            "cooldownId": "BowMinimumRange",
+                            "cooldownDuration": 1.2
+                        }
+                    ]
+                },
+                {
+                    "name": "BeyondTacticalRangeApproach",
+                    "priority": 910,
+                    "when": [
+                        { "condition": "DistanceGreater", "value": "preferredRange" }
+                    ],
+                    "do": [
+                        { "action": "RequestAction", "intent": "Chase" }
+                    ]
+                },
+                {
+                    "name": "BlockedShotReposition",
+                    "priority": 905,
+                    "when": [
+                        { "condition": "HasLineOfSight", "invert": true },
+                        { "condition": "CooldownReady", "value": "BowLineOfSightReposition" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.65,
+                            "action": "RequestAction",
+                            "intent": "Pressure",
+                            "style": "Flank",
+                            "cooldownId": "BowLineOfSightReposition",
+                            "cooldownDuration": 1.4
+                        },
+                        {
+                            "weight": 0.35,
+                            "action": "RequestAction",
+                            "intent": "Chase",
+                            "cooldownId": "BowLineOfSightReposition",
+                            "cooldownDuration": 1.2
+                        }
+                    ]
+                },
+                {
+                    "name": "NoAttackInRangeApproach",
+                    "priority": 900,
+                    "when": [
+                        { "condition": "HasAttackInRange", "invert": true },
+                        { "condition": "DistanceGreater", "value": "minCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "RequestAction", "intent": "Chase" }
+                    ]
+                },
+                {
+                    "name": "InRangeButNotReadyReposition",
+                    "priority": 890,
+                    "when": [
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "CanUseSkill", "invert": true },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "CooldownReady", "value": "BowReadyWait" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.7,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowReadyWait",
+                            "cooldownDuration": 0.9
+                        },
+                        {
+                            "weight": 0.3,
+                            "action": "RequestAction",
+                            "intent": "Recover",
+                            "style": "Idle",
+                            "cooldownId": "BowReadyWait",
+                            "cooldownDuration": 0.7
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "30 Read And Punish",
+            "priority": 880,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PunishPlayerStagger",
+                    "priority": 880,
+                    "when": [
+                        { "condition": "IsPlayerStaggered" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack" }
+                    ]
+                },
+                {
+                    "name": "PunishPlayerRecovery",
+                    "priority": 870,
+                    "when": [
+                        { "condition": "IsPlayerRecovering" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack" }
+                    ]
+                },
+                {
+                    "name": "DelayAgainstFrequentDodge",
+                    "priority": 860,
+                    "when": [
+                        { "condition": "IsPlayerDodgingFrequently" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "CooldownReady", "value": "BowDodgeRead" }
+                    ],
+                    "do": [
+                        { "action": "Wait", "duration": 0.32 },
+                        {
+                            "action": "RequestAction",
+                            "intent": "Recover",
+                            "style": "Idle",
+                            "cooldownId": "BowDodgeRead",
+                            "cooldownDuration": 1.4
+                        }
+                    ]
+                },
+                {
+                    "name": "FlankFrequentGuard",
+                    "priority": 850,
+                    "when": [
+                        { "condition": "IsPlayerGuardingFrequently" },
+                        { "condition": "CooldownReady", "value": "BowGuardRead" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.65,
+                            "action": "RequestAction",
+                            "intent": "Pressure",
+                            "style": "Flank",
+                            "cooldownId": "BowGuardRead",
+                            "cooldownDuration": 2.0
+                        },
+                        {
+                            "weight": 0.35,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowGuardRead",
+                            "cooldownDuration": 1.8
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "40 Intent Execution",
+            "priority": 830,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "IntentPunishShot",
+                    "priority": 830,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Punish" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack" }
+                    ]
+                },
+                {
+                    "name": "IntentAttackShot",
+                    "priority": 820,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack" }
+                    ]
+                },
+                {
+                    "name": "IntentAttackApproach",
+                    "priority": 810,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "RequestAction", "intent": "Chase" }
+                    ]
+                },
+                {
+                    "name": "IntentKeepDistance",
+                    "priority": 800,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "KeepDistance" },
+                        { "condition": "CooldownReady", "value": "BowIntentSpacing" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.6,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowIntentSpacing",
+                            "cooldownDuration": 1.6
+                        },
+                        {
+                            "weight": 0.4,
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "style": "Step",
+                            "cooldownId": "BowIntentSpacing",
+                            "cooldownDuration": 1.8
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentDefendOrRetreat",
+                    "priority": 790,
+                    "when": [
+                        {
+                            "condition": "BlackboardCompare",
+                            "key": "Decision.SelectedIntent",
+                            "op": "NotEqual",
+                            "value": "Attack"
+                        },
+                        {
+                            "condition": "BlackboardCompare",
+                            "key": "Decision.SelectedIntent",
+                            "op": "NotEqual",
+                            "value": "Punish"
+                        },
+                        { "condition": "DistanceLessOrEqual", "value": "minCombatDistance" },
+                        { "condition": "CooldownReady", "value": "BowIntentDisengage" }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Retreat",
+                            "style": "Step",
+                            "cooldownId": "BowIntentDisengage",
+                            "cooldownDuration": 1.8
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "50 Default Ranged Rhythm",
+            "priority": 760,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "DefaultAvailableShot",
+                    "priority": 760,
+                    "when": [
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "DistanceGreater", "value": "minCombatDistance" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack" }
+                    ]
+                },
+                {
+                    "name": "DefaultApproachUntilAttackInRange",
+                    "priority": 750,
+                    "when": [
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "RequestAction", "intent": "Chase" }
+                    ]
+                },
+                {
+                    "name": "DefaultCircleBetweenShots",
+                    "priority": 740,
+                    "when": [
+                        { "condition": "CooldownReady", "value": "BowRhythmCircle" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.65,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowRhythmCircle",
+                            "cooldownDuration": 1.4
+                        },
+                        {
+                            "weight": 0.35,
+                            "action": "RequestAction",
+                            "intent": "Recover",
+                            "style": "Idle",
+                            "cooldownId": "BowRhythmCircle",
+                            "cooldownDuration": 1.4
+                        }
+                    ]
+                },
+                {
+                    "name": "DefaultKeep",
+                    "priority": 700,
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                }
+            ]
+        }
+    ],
+    "rules": []
+}

@@ -1,18 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "auto",
-    "deny": [
-      "Bash(rm -rf *)",
-      "Bash(git push --force*)",
-      "Bash(git push -f*)",
-      "Bash(git reset --hard*)",
-      "Bash(git clean -fd*)",
-      "Bash(git filter-branch*)",
-      "Bash(git rebase*)",
-      "Bash(npm publish*)",
-      "Bash(curl * | sh*)",
-      "Bash(curl * | bash*)"
-    ],
     "allow": [
       "Write(C:\\UsingProject\\UnityProject\\UPlayground\\.claude\\skills\\generate-bt-json-workspace\\**)",
       "Edit(C:\\UsingProject\\UnityProject\\UPlayground\\.claude\\skills\\generate-bt-json-workspace\\**)",
@@ -447,7 +434,24 @@
       "PowerShell(git status --short | ForEach-Object { $p = $_.Substring\\(3\\).Trim\\('\"'\\); \\($p -split '/'\\)[0..2] -join '/' } | Group-Object | Sort-Object Count -Descending | Select-Object Count,Name -First 40 | Format-Table -AutoSize | Out-String -Width 200)",
       "Skill(update-config)",
       "PowerShell(git status --short | Where-Object { $_ -match 'Assets/10.Datas/Actor' } | ForEach-Object { $s=$_.Substring\\(0,2\\).Trim\\(\\); $p=$_.Substring\\(3\\).Trim\\('\"'\\); \"$s|\" + \\(\\($p -split '/'\\)[0..4] -join '/'\\) } | Group-Object | Sort-Object Count -Descending | Select-Object Count,Name -First 30 | Format-Table -AutoSize | Out-String -Width 200)",
-      "PowerShell(git diff --stat -- Assets/10.Datas/Actor/Animation/ActorMotion | Select-Object -Last 3; echo \"--- sample ---\"; git diff -- \\(git status --short | Where-Object {$_ -match 'ActorMotion'} | Select-Object -First 1 | ForEach-Object { $_.Substring\\(3\\).Trim\\('\"'\\) }\\))"
-    ]
+      "PowerShell(git diff --stat -- Assets/10.Datas/Actor/Animation/ActorMotion | Select-Object -Last 3; echo \"--- sample ---\"; git diff -- \\(git status --short | Where-Object {$_ -match 'ActorMotion'} | Select-Object -First 1 | ForEach-Object { $_.Substring\\(3\\).Trim\\('\"'\\) }\\))",
+      "Bash(sed 's/.*GameObject //')",
+      "Bash(sed 's/ | anchorMin.*//')",
+      "PowerShell(git diff *)",
+      "PowerShell(Get-ChildItem -Recurse -File Assets/Tests/EditMode/AI | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\\",\"\"\\) })"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -fd*)",
+      "Bash(git filter-branch*)",
+      "Bash(git rebase*)",
+      "Bash(npm publish*)",
+      "Bash(curl * | sh*)",
+      "Bash(curl * | bash*)"
+    ],
+    "defaultMode": "auto"
   }
 }

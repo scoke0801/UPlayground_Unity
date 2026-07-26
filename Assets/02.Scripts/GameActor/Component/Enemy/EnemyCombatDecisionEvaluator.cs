@@ -250,8 +250,12 @@ namespace UPlayGround.Components
 
         private static EnemyIntentWeightsSO ResolveIntentWeights(BehaviorPhase phase, EnemyBehaviorSO behavior)
         {
+            if (phase?.combatStrategyOverride?.intentWeights != null)
+                return phase.combatStrategyOverride.intentWeights;
             if (phase != null && phase.intentWeightsOverride != null)
                 return phase.intentWeightsOverride;
+            if (behavior?.combatStrategy?.intentWeights != null)
+                return behavior.combatStrategy.intentWeights;
             return behavior != null ? behavior.intentWeights : null;
         }
 

@@ -1,8 +1,36 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Gameplay.Tag;
 using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Enemy
 {
+    [CreateAssetMenu(
+        fileName = "EnemyCombatStrategy",
+        menuName = "UPlayGround/적/Combat Strategy")]
+    public sealed class EnemyCombatStrategySO : ScriptableObject
+    {
+        [Header("Intent")]
+        [Tooltip("이 전략의 Intent 점수 프로파일. null이면 EnemyBehaviorSO.intentWeights를 사용합니다.")]
+        public EnemyIntentWeightsSO intentWeights;
+
+        [Header("Ability Tactical Tags")]
+        [Tooltip("후보 점수에 가산할 GameplayAbilitySO.abilityTagIds")]
+        public List<GameplayTag> preferredAbilityTags = new();
+        [Tooltip("후보에서 제외할 GameplayAbilitySO.abilityTagIds")]
+        public List<GameplayTag> blockedAbilityTags = new();
+        [Min(0f)] public float preferredTagScoreBonus = 2f;
+
+        [Header("반복·Commitment")]
+        [Range(0f, 1f)] public float repeatedAbilityScoreMultiplier = 0.45f;
+        [Min(0)] public int maxConsecutiveSameAbility = 2;
+        [Min(0f)] public float minimumCommitmentSeconds = 0.15f;
+
+        [Header("그룹")]
+        [Range(0f, 2f)] public float groupPressureMultiplier = 1f;
+        [Range(0f, 2f)] public float groupBreatherMultiplier = 1f;
+    }
+
     /// <summary>
     /// 지상형 EnemyAIController의 행동 설정 전체를 담는 SO.
     /// 기본 전투 수치 + 페이즈 배열을 포함한다.
@@ -21,6 +49,10 @@ namespace UPlayGround.Data.Enemy
         [Header("Intent Weights")]
         [Tooltip("Intent 점수 계산에 사용할 가중치 SO. null이면 레거시 하드코딩 경로로 폴백 (기존 동작 유지)")]
         public EnemyIntentWeightsSO intentWeights;
+
+        [Header("Combat Strategy")]
+        [Tooltip("Intent 성향과 Ability 전술 태그·반복 정책. null이면 기존 설정으로 동작합니다.")]
+        public EnemyCombatStrategySO combatStrategy;
 
         [Header("전투 거리")]
         public float optimalCombatDistance  = 2.5f;

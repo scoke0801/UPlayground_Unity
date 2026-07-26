@@ -180,6 +180,27 @@ namespace UPlayGround.Gameplay.Ability
             out AbilityExecutionHandle handle,
             out AbilityVariantDefinition variant)
         {
+            return TryPrepareAbility(
+                definition,
+                isGrounded,
+                target,
+                null,
+                out handle,
+                out variant);
+        }
+
+        /// <summary>
+        /// Variant 실행 데이터를 검증한 뒤에만 기존 주 실행을 취소하고 Prepared 상태를 만든다.
+        /// 모션/페이로드 해석 실패가 현재 실행 중인 Ability를 끊지 않게 하는 원자적 준비 경로다.
+        /// </summary>
+        public AbilityActivationResult TryPrepareAbility(
+            GameplayAbilitySO definition,
+            bool isGrounded,
+            GameActor target,
+            Func<AbilityVariantDefinition, bool> validateExecutionData,
+            out AbilityExecutionHandle handle,
+            out AbilityVariantDefinition variant)
+        {
             handle = default;
             variant = null;
             if (!IsGrantedAbility(definition))
@@ -190,6 +211,13 @@ namespace UPlayGround.Gameplay.Ability
                 Evaluate(definition, isGrounded, resolvedTarget, out variant);
             if (result != AbilityActivationResult.Success)
             {
+                RecordActivationResult(result);
+                return result;
+            }
+
+            if (validateExecutionData != null && !validateExecutionData(variant))
+            {
+                result = AbilityActivationResult.MissingExecutionData;
                 RecordActivationResult(result);
                 return result;
             }

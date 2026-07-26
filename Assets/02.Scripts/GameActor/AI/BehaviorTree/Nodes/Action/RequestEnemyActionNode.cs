@@ -126,7 +126,19 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (!combat.HasAvailableSkillAtDistance(detection.DistanceToTarget, _attackCategory))
             {
-                Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, $"현재 거리에서 사용 가능한 공격이 없습니다. distance={detection.DistanceToTarget:0.00}, category={_attackCategory}");
+                string detail =
+                    $"현재 거리에서 사용 가능한 공격이 없습니다. "
+                    + $"distance={detection.DistanceToTarget:0.00}, "
+                    + $"category={_attackCategory}; "
+                    + combat.BuildAbilitySelectionDiagnosticSummary();
+                Context?.Blackboard?.SetString(
+                    EnemyBlackboardKeys.ResolverFailureReason,
+                    detail);
+                Context?.DebugTrace?.Record(
+                    this,
+                    "AbilitySelectionRejected",
+                    BTStatus.Failure,
+                    detail);
                 return BTStatus.Failure;
             }
 

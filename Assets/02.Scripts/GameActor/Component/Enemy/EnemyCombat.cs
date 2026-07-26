@@ -9,6 +9,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Projectile;
@@ -19,6 +20,136 @@ using UPlayGround.UI;
 
 namespace UPlayGround.Components
 {
+    public readonly struct EnemyAbilitySelectionDiagnostic
+    {
+        public EnemyAbilitySelectionDiagnostic(
+            string abilityName,
+            EnemyAbilityRejectReason rejectReason,
+            float score,
+            AbilityActivationResult activationResult = AbilityActivationResult.Success)
+        {
+            AbilityName = abilityName ?? string.Empty;
+            RejectReason = rejectReason;
+            Score = score;
+            ActivationResult = activationResult;
+        }
+
+        public string AbilityName { get; }
+        public EnemyAbilityRejectReason RejectReason { get; }
+        public float Score { get; }
+        public AbilityActivationResult ActivationResult { get; }
+        public bool Accepted => RejectReason == EnemyAbilityRejectReason.None;
+    }
+
+    [Flags]
+    public enum EnemyAbilityRejectReason
+    {
+        None = 0,
+        MissingAttackInfo = 1 << 0,
+        NotAISelectable = 1 << 1,
+        MissingHitPhase = 1 << 2,
+        AerialMismatch = 1 << 3,
+        DiveMismatch = 1 << 4,
+        LevelLocked = 1 << 5,
+        ConditionFailed = 1 << 6,
+        CategoryMismatch = 1 << 7,
+        ActivationRejected = 1 << 8,
+        BlockedByStrategy = 1 << 9,
+        RepetitionLimit = 1 << 10
+    }
+
+    public interface IEnemyAbilityRandomSource
+    {
+        float Next01();
+        int NextIndex(int count);
+    }
+
+    public sealed class UnityEnemyAbilityRandomSource : IEnemyAbilityRandomSource
+    {
+        public static readonly UnityEnemyAbilityRandomSource Instance = new();
+
+        public float Next01() => UnityEngine.Random.value;
+        public int NextIndex(int count) => UnityEngine.Random.Range(0, count);
+    }
+
+    /// <summary>동일 seed와 후보 순서에서 동일 결과를 만드는 Replay/테스트용 난수원.</summary>
+    public sealed class SeededEnemyAbilityRandomSource : IEnemyAbilityRandomSource
+    {
+        private readonly System.Random _random;
+
+        public SeededEnemyAbilityRandomSource(int seed)
+        {
+            _random = new System.Random(seed);
+        }
+
+        public float Next01() => (float)_random.NextDouble();
+        public int NextIndex(int count) => count > 0 ? _random.Next(count) : -1;
+    }
+
+    public static class EnemyAbilitySelectionPolicy
+    {
+        public static bool IsAISelectableAttack(AbilityAttackInfo attackInfo) =>
+            attackInfo?.aiSelectable == true
+            && attackInfo.baseInfo?.HasHitPhases == true;
+
+        public static EnemyAbilityRejectReason Evaluate(
+            AbilityAttackInfo attackInfo,
+            in SkillConditionContext context,
+            AbilityAttackCategory attackCategory,
+            bool aerialOnly,
+            bool diveOnly)
+        {
+            if (attackInfo == null)
+                return EnemyAbilityRejectReason.MissingAttackInfo;
+
+            EnemyAbilityRejectReason reasons = EnemyAbilityRejectReason.None;
+            if (!attackInfo.aiSelectable)
+                reasons |= EnemyAbilityRejectReason.NotAISelectable;
+            if (attackInfo.baseInfo?.HasHitPhases != true)
+                reasons |= EnemyAbilityRejectReason.MissingHitPhase;
+            if (attackInfo.isAerialSkill != aerialOnly)
+                reasons |= EnemyAbilityRejectReason.AerialMismatch;
+            if (diveOnly && !attackInfo.isDiveAttack
+                || !diveOnly && aerialOnly && attackInfo.isDiveAttack)
+                reasons |= EnemyAbilityRejectReason.DiveMismatch;
+            if (!attackInfo.IsUnlockedForLevel(context.CurrentLevel))
+                reasons |= EnemyAbilityRejectReason.LevelLocked;
+            if (!attackInfo.CheckCondition(context))
+                reasons |= EnemyAbilityRejectReason.ConditionFailed;
+            if (attackCategory != AbilityAttackCategory.None
+                && attackInfo.attackCategory != attackCategory
+                && attackInfo.attackCategory != AbilityAttackCategory.None)
+                reasons |= EnemyAbilityRejectReason.CategoryMismatch;
+            return reasons;
+        }
+
+        public static int SelectWeightedIndex(
+            IReadOnlyList<float> weights,
+            IEnemyAbilityRandomSource randomSource)
+        {
+            if (weights == null || weights.Count == 0)
+                return -1;
+
+            randomSource ??= UnityEnemyAbilityRandomSource.Instance;
+            float total = 0f;
+            for (var i = 0; i < weights.Count; i++)
+                total += Mathf.Max(0f, weights[i]);
+
+            if (total <= 0f)
+                return randomSource.NextIndex(weights.Count);
+
+            float roll = Mathf.Clamp01(randomSource.Next01()) * total;
+            for (var i = 0; i < weights.Count; i++)
+            {
+                roll -= Mathf.Max(0f, weights[i]);
+                if (roll <= 0f)
+                    return i;
+            }
+
+            return weights.Count - 1;
+        }
+    }
+
     public readonly struct EnemyAttackThreat
     {
         public readonly MonsterActor Source;
@@ -90,18 +221,22 @@ namespace UPlayGround.Components
         private ActorAbilitySystem _abilitySystem;
         private IDamageable _ownerDamageable;
         private EnemyDetection _detection;
+        private EnemyAIContext _aiContext;
 
         private readonly struct AbilityCandidate
         {
             public readonly GameplayAbilitySO Ability;
             public readonly AbilityAttackInfo AttackInfo;
+            public readonly float Score;
 
             public AbilityCandidate(
                 GameplayAbilitySO ability,
-                AbilityAttackInfo attackInfo)
+                AbilityAttackInfo attackInfo,
+                float score)
             {
                 Ability = ability;
                 AttackInfo = attackInfo;
+                Score = score;
             }
         }
 
@@ -117,7 +252,13 @@ namespace UPlayGround.Components
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
         private readonly List<AbilityCandidate> _abilityCandidates = new();
+        private readonly List<float> _abilitySelectionWeights = new();
+        private readonly List<EnemyAbilitySelectionDiagnostic> _abilitySelectionDiagnostics = new();
         private readonly HashSet<GameplayAbilitySO> _visitedAbilities = new();
+        private IEnemyAbilityRandomSource _abilityRandomSource =
+            UnityEnemyAbilityRandomSource.Instance;
+        private GameplayAbilitySO _lastSelectedAbility;
+        private int _consecutiveAbilitySelections;
         private readonly List<TelegraphInstance> _telegraphInstances = new List<TelegraphInstance>();
         private readonly List<CombatHit> _detectedMeleeHits = new List<CombatHit>(32);
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
@@ -158,6 +299,32 @@ namespace UPlayGround.Components
         public AbilityAttackCategory ReservedAttackCategory => _reservedAttackCategory;
         public List<IDamageable> SkillTargetList  => _skillTargets;
         public bool              IsGuarding { get; set; } = false;
+        public IReadOnlyList<EnemyAbilitySelectionDiagnostic> LastAbilitySelectionDiagnostics =>
+            _abilitySelectionDiagnostics;
+
+        public string BuildAbilitySelectionDiagnosticSummary()
+        {
+            if (_abilitySelectionDiagnostics.Count == 0)
+                return "후보 평가 기록 없음";
+
+            var parts = new string[_abilitySelectionDiagnostics.Count];
+            for (var i = 0; i < _abilitySelectionDiagnostics.Count; i++)
+            {
+                EnemyAbilitySelectionDiagnostic diagnostic =
+                    _abilitySelectionDiagnostics[i];
+                parts[i] = diagnostic.Accepted
+                    ? $"{diagnostic.AbilityName}:Eligible({diagnostic.Score:0.##})"
+                    : $"{diagnostic.AbilityName}:{diagnostic.RejectReason}"
+                      + $"/{diagnostic.ActivationResult}";
+            }
+
+            return string.Join(", ", parts);
+        }
+
+        public void SetAbilityRandomSource(IEnemyAbilityRandomSource randomSource)
+        {
+            _abilityRandomSource = randomSource ?? UnityEnemyAbilityRandomSource.Instance;
+        }
 
         /// <summary> 현재 AttackState에서 히트한 대상 수 </summary>
         public int LastHitCount => _hitTargets.Count;
@@ -169,6 +336,7 @@ namespace UPlayGround.Components
 
             _ownerDamageable = GetComponent<IDamageable>();
             _detection       = GetComponent<EnemyDetection>();
+            _aiContext       = GetComponent<EnemyAIContext>();
             _ownerActor      = GetComponent<MonsterActor>();
             _abilitySystem   = _ownerActor?.Abilities;
             if (_ownerActor?.Definition != null)
@@ -303,7 +471,7 @@ namespace UPlayGround.Components
             if (available.Count == 0)
                 return null;
 
-            AbilityCandidate selected = SelectWeighted(available, false);
+            AbilityCandidate selected = SelectWeighted(available);
             if (!SetCurrentAbility(selected.Ability))
                 return null;
 
@@ -318,6 +486,7 @@ namespace UPlayGround.Components
             bool diveOnly)
         {
             _abilityCandidates.Clear();
+            _abilitySelectionDiagnostics.Clear();
             _visitedAbilities.Clear();
             if (_abilitySet == null || _abilitySystem == null)
                 return _abilityCandidates;
@@ -327,45 +496,144 @@ namespace UPlayGround.Components
             {
                 if (ability == null || !_visitedAbilities.Add(ability))
                     continue;
-                if (!TryEvaluateAbility(ability, out AbilityAttackInfo attackInfo))
+                if (!TryEvaluateAbility(
+                        ability,
+                        out AbilityAttackInfo attackInfo,
+                        out AbilityActivationResult activationResult))
+                {
+                    _abilitySelectionDiagnostics.Add(new EnemyAbilitySelectionDiagnostic(
+                        ability.name,
+                        EnemyAbilityRejectReason.ActivationRejected,
+                        0f,
+                        activationResult));
                     continue;
-                // 공격 선택 대상은 "히트 페이즈가 있는 Ability"로 판정한다. AbilitySet 멤버십이
-                // 이미 "이 몬스터가 쓸 수 있는 것"을 의미하므로 별도 aiSelectable 게이트는 두지 않는다.
-                if (!attackInfo.baseInfo.HasHitPhases
-                    || attackInfo.isAerialSkill != aerialOnly
-                    || (diveOnly && !attackInfo.isDiveAttack)
-                    || (!diveOnly && aerialOnly && attackInfo.isDiveAttack)
-                    || !attackInfo.IsUnlockedForLevel(context.CurrentLevel)
-                    || !attackInfo.CheckCondition(context)
-                    || !MatchesAttackCategory(attackInfo, attackCategory))
-                    continue;
+                }
 
-                _abilityCandidates.Add(new AbilityCandidate(ability, attackInfo));
+                EnemyAbilityRejectReason rejectReason =
+                    EnemyAbilitySelectionPolicy.Evaluate(
+                        attackInfo,
+                        in context,
+                        attackCategory,
+                        aerialOnly,
+                        diveOnly);
+                if (rejectReason != EnemyAbilityRejectReason.None)
+                {
+                    _abilitySelectionDiagnostics.Add(new EnemyAbilitySelectionDiagnostic(
+                        ability.name,
+                        rejectReason,
+                        0f));
+                    continue;
+                }
+
+                EnemyCombatStrategySO strategy = ResolveCombatStrategy();
+                float selectionScore = aerialOnly
+                    ? attackInfo.aerialSkillWeight
+                    : attackInfo.selectionWeight;
+                EnemyAbilityRejectReason strategyRejectReason =
+                    EvaluateStrategy(ability, strategy, ref selectionScore);
+                if (strategyRejectReason != EnemyAbilityRejectReason.None)
+                {
+                    _abilitySelectionDiagnostics.Add(new EnemyAbilitySelectionDiagnostic(
+                        ability.name,
+                        strategyRejectReason,
+                        0f));
+                    continue;
+                }
+
+                _abilityCandidates.Add(new AbilityCandidate(
+                    ability,
+                    attackInfo,
+                    Mathf.Max(0f, selectionScore)));
+                _abilitySelectionDiagnostics.Add(new EnemyAbilitySelectionDiagnostic(
+                    ability.name,
+                    EnemyAbilityRejectReason.None,
+                    Mathf.Max(0f, selectionScore)));
             }
 
             return _abilityCandidates;
         }
 
+        private EnemyCombatStrategySO ResolveCombatStrategy() =>
+            _aiContext?.CurrentPhase?.combatStrategyOverride
+            ?? _aiContext?.BehaviorData?.combatStrategy;
+
+        private EnemyAbilityRejectReason EvaluateStrategy(
+            GameplayAbilitySO ability,
+            EnemyCombatStrategySO strategy,
+            ref float score)
+        {
+            if (strategy == null || ability == null)
+                return EnemyAbilityRejectReason.None;
+
+            if (HasAnyAbilityTag(ability, strategy.blockedAbilityTags))
+                return EnemyAbilityRejectReason.BlockedByStrategy;
+
+            if (HasAnyAbilityTag(ability, strategy.preferredAbilityTags))
+                score += Mathf.Max(0f, strategy.preferredTagScoreBonus);
+
+            if (ability != _lastSelectedAbility)
+                return EnemyAbilityRejectReason.None;
+
+            if (strategy.maxConsecutiveSameAbility > 0
+                && _consecutiveAbilitySelections >= strategy.maxConsecutiveSameAbility)
+                return EnemyAbilityRejectReason.RepetitionLimit;
+
+            score *= Mathf.Clamp01(strategy.repeatedAbilityScoreMultiplier);
+            return EnemyAbilityRejectReason.None;
+        }
+
+        private static bool HasAnyAbilityTag(
+            GameplayAbilitySO ability,
+            IReadOnlyList<UPlayGround.Gameplay.Tag.GameplayTag> requestedTags)
+        {
+            if (ability?.abilityTagIds == null
+                || requestedTags == null
+                || requestedTags.Count == 0)
+                return false;
+
+            for (var requestedIndex = 0; requestedIndex < requestedTags.Count; requestedIndex++)
+            {
+                for (var abilityIndex = 0; abilityIndex < ability.abilityTagIds.Count; abilityIndex++)
+                {
+                    if (ability.abilityTagIds[abilityIndex] == requestedTags[requestedIndex])
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool TryEvaluateAbility(
             GameplayAbilitySO ability,
-            out AbilityAttackInfo attackInfo)
+            out AbilityAttackInfo attackInfo,
+            out AbilityActivationResult activationResult)
         {
             attackInfo = null;
             if (ability == null || _abilitySystem == null)
+            {
+                activationResult = AbilityActivationResult.InvalidDefinition;
                 return false;
+            }
 
-            AbilityActivationResult result = _abilitySystem.EvaluateAbility(
+            activationResult = _abilitySystem.EvaluateAbility(
                 ability,
                 IsGrounded(),
                 ResolveAbilityTarget(),
                 out AbilityVariantDefinition variant);
-            return result == AbilityActivationResult.Success
-                   && UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
-                       variant, out attackInfo);
+            if (activationResult != AbilityActivationResult.Success)
+                return false;
+
+            if (UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                    variant,
+                    out attackInfo))
+                return true;
+
+            activationResult = AbilityActivationResult.MissingExecutionData;
+            return false;
         }
 
         public bool CanActivateAbility(GameplayAbilitySO ability) =>
-            TryEvaluateAbility(ability, out _);
+            TryEvaluateAbility(ability, out _, out _);
 
         private bool TryActivateAbility(
             GameplayAbilitySO ability,
@@ -376,28 +644,25 @@ namespace UPlayGround.Components
             if (ability == null || _abilitySystem == null)
                 return false;
 
+            MotionSetAsset resolvedMotionAsset = null;
+            AbilityAttackInfo resolvedAttackInfo = null;
             AbilityActivationResult prepare = _abilitySystem.TryPrepareAbility(
                 ability,
                 IsGrounded(),
                 ResolveAbilityTarget(),
+                candidateVariant => UPlayGroundAbilityPayloadResolver.TryResolve(
+                    candidateVariant,
+                    WeaponType.NoWeapon,
+                    out resolvedMotionAsset,
+                    out resolvedAttackInfo),
                 out AbilityExecutionHandle handle,
                 out AbilityVariantDefinition variant);
             if (prepare != AbilityActivationResult.Success)
                 return false;
 
-            // 모션 해석은 Commit보다 먼저 한다. 몬스터는 항상 WeaponType.NoWeapon으로 해석하므로
-            // MotionReference가 무기 override만 가진 경우 해석에 실패하는데, Commit을 먼저 하면
-            // 비용과 쿨다운만 소모하고 공격이 불발된다. (플레이어 경로도 같은 순서다)
-            if (!UPlayGroundAbilityPayloadResolver.TryResolve(
-                    variant,
-                    WeaponType.NoWeapon,
-                    out MotionSetAsset motionAsset,
-                    out attackInfo))
-            {
-                attackInfo = null;
-                _abilitySystem.Abort(handle);
-                return false;
-            }
+            // 실행 데이터 사전검증은 TryPrepareAbility 내부에서 기존 Ability 취소 전에 끝난다.
+            // 따라서 모션 누락은 현재 행동을 끊거나 비용/쿨다운을 소모하지 않는다.
+            attackInfo = resolvedAttackInfo;
 
             AbilityActivationResult commit = _abilitySystem.Commit(handle);
             if (commit != AbilityActivationResult.Success)
@@ -407,7 +672,7 @@ namespace UPlayGround.Components
                 return false;
             }
 
-            _currentAbilityMotionAsset = motionAsset;
+            _currentAbilityMotionAsset = resolvedMotionAsset;
             return true;
         }
 
@@ -457,7 +722,7 @@ namespace UPlayGround.Components
 
             foreach (GameplayAbilitySO ability in _abilitySet.GetRuntimeAbilities())
             {
-                if (ability?.activation == null)
+                if (ability?.activation == null || !HasAISelectableVariant(ability))
                     continue;
                 maxRange = Mathf.Max(maxRange, ability.activation.maxDistance);
             }
@@ -479,10 +744,27 @@ namespace UPlayGround.Components
                             WeaponType.NoWeapon,
                             out _,
                             out AbilityAttackInfo attackInfo)
-                        && attackInfo.baseInfo.HasHitPhases
+                        && EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo)
                         && attackInfo.baseInfo.attackType == attackType)
                         return true;
             }
+            return false;
+        }
+
+        private static bool HasAISelectableVariant(GameplayAbilitySO ability)
+        {
+            if (ability?.variants == null)
+                return false;
+
+            for (var i = 0; i < ability.variants.Count; i++)
+            {
+                if (UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                        ability.variants[i],
+                        out AbilityAttackInfo attackInfo)
+                    && EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo))
+                    return true;
+            }
+
             return false;
         }
 
@@ -496,17 +778,6 @@ namespace UPlayGround.Components
             var category = _reservedAttackCategory;
             _reservedAttackCategory = AbilityAttackCategory.None;
             return category;
-        }
-
-        private static bool MatchesAttackCategory(
-            AbilityAttackInfo skill,
-            AbilityAttackCategory attackCategory)
-        {
-            if (attackCategory == AbilityAttackCategory.None)
-                return true;
-
-            return skill != null
-                   && (skill.attackCategory == attackCategory || skill.attackCategory == AbilityAttackCategory.None);
         }
 
         private void ExecuteSkill(AbilityAttackInfo skill)
@@ -652,7 +923,7 @@ namespace UPlayGround.Components
             if (available.Count == 0)
                 return false;
 
-            ability = SelectWeighted(available, true).Ability;
+            ability = SelectWeighted(available).Ability;
             return ability != null;
         }
 
@@ -683,34 +954,27 @@ namespace UPlayGround.Components
             return true;
         }
 
-        private static AbilityCandidate SelectWeighted(
-            List<AbilityCandidate> candidates,
-            bool useAerialWeight)
+        private AbilityCandidate SelectWeighted(
+            List<AbilityCandidate> candidates)
         {
-            float total = 0f;
+            _abilitySelectionWeights.Clear();
             for (int i = 0; i < candidates.Count; i++)
+                _abilitySelectionWeights.Add(candidates[i].Score);
+
+            int selectedIndex = EnemyAbilitySelectionPolicy.SelectWeightedIndex(
+                _abilitySelectionWeights,
+                _abilityRandomSource);
+            AbilityCandidate selected =
+                candidates[Mathf.Clamp(selectedIndex, 0, candidates.Count - 1)];
+            if (selected.Ability == _lastSelectedAbility)
+                _consecutiveAbilitySelections++;
+            else
             {
-                AbilityAttackInfo info = candidates[i].AttackInfo;
-                total += Mathf.Max(
-                    0f,
-                    useAerialWeight ? info.aerialSkillWeight : info.selectionWeight);
+                _lastSelectedAbility = selected.Ability;
+                _consecutiveAbilitySelections = 1;
             }
 
-            if (total <= 0f)
-                return candidates[UnityEngine.Random.Range(0, candidates.Count)];
-
-            float roll = UnityEngine.Random.Range(0f, total);
-            for (int i = 0; i < candidates.Count; i++)
-            {
-                AbilityAttackInfo info = candidates[i].AttackInfo;
-                roll -= Mathf.Max(
-                    0f,
-                    useAerialWeight ? info.aerialSkillWeight : info.selectionWeight);
-                if (roll <= 0f)
-                    return candidates[i];
-            }
-
-            return candidates[candidates.Count - 1];
+            return selected;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround.Data.Enemy
 {
@@ -44,6 +45,12 @@ namespace UPlayGround.Data.Enemy
         [Header("Intent Weights SO 오버라이드")]
         [Tooltip("이 페이즈에서 사용할 Intent 가중치 SO. null이면 EnemyBehaviorSO.intentWeights 또는 레거시 하드코딩 사용")]
         public EnemyIntentWeightsSO intentWeightsOverride;
+
+        [Header("Combat Strategy 오버라이드")]
+        [Tooltip("이 페이즈에서 사용할 전투 전략. null이면 EnemyBehaviorSO.combatStrategy를 사용")]
+        public EnemyCombatStrategySO combatStrategyOverride;
+        [Tooltip("이 페이즈에서만 교체할 AbilitySet. null이면 액터 기본 AbilitySet 유지")]
+        public AbilitySetSO abilitySetOverride;
 
         [Header("공중 행동 오버라이드 (AerialBehaviorSO 값을 덮어씀)")]
         [Tooltip("true = 아래 공중 수치를 이 페이즈에서 오버라이드")]

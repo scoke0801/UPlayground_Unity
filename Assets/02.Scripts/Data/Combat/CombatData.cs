@@ -291,9 +291,8 @@ namespace UPlayGround.Data
         public float moveCancelDelayAfterLastHit = 0f;
 
         [Header("AI Selection")]
-        [Tooltip("런타임 BT 선택 게이트가 아니다 — 그쪽은 baseInfo.HasHitPhases로 판정한다.\n"
-                 + "현재 이 값의 실제 용도는 에디터·밸런스 툴이 '몬스터 소유 Ability'를 걸러내는 것뿐이며\n"
-                 + "(몬스터 272개 전부 true, 플레이어 전부 false), AbilitySetSO에 소유자 필드가 생기면 제거 대상이다.")]
+        [Tooltip("몬스터 AI가 AbilitySet 후보 중 이 공격을 자동 선택할 수 있는지 지정합니다.\n"
+                 + "false인 Ability는 연출·명시 실행에는 사용할 수 있지만 BT/Intent 자동 선택 후보에서는 제외됩니다.")]
         public bool aiSelectable;
         public SkillType skillType = SkillType.Attack;
         [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. None이면 모든 요청에 포함된다.")]

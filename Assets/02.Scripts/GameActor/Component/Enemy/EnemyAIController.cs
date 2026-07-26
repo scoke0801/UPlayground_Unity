@@ -215,6 +215,14 @@ namespace UPlayGround.Components
         private void OnPhaseEntered(BehaviorPhase phase)
         {
             Debug.Log($"[EnemyAIController] {gameObject.name} 페이즈 전환 → {phase.phaseName}");
+            if (phase.abilitySetOverride != null && _combat != null)
+            {
+                _combat.Init(phase.abilitySetOverride);
+                _maxAttackRange = _combat.GetMaxAttackRange();
+                if (_maxAttackRange > 0f)
+                    _effectiveOptimalCombatDistance =
+                        Mathf.Min(data?.optimalCombatDistance ?? 2.5f, _maxAttackRange);
+            }
             _memory?.ResetAttackCount();
             _consecutiveDefensiveCount = 0;
             RollNextActionDelay(); // 페이즈 전환 시 즉시 행동 템포 리셋

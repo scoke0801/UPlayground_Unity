@@ -191,6 +191,15 @@ namespace UPlayGround.Components
             return false;
         }
 
+        /// <summary>
+        /// 현재 타깃까지 탐지와 동일한 장애물 기준으로 시야가 열려 있는지 반환한다.
+        /// 외부 경보로 주입된 타깃은 최초 탐지 시야 검사를 거치지 않으므로 공격 직전에도 사용한다.
+        /// </summary>
+        public bool HasLineOfSightToCurrentTarget()
+        {
+            return HasTarget && !IsObstructed(_currentTarget);
+        }
+
         private void LostTarget()
         {
             Debug.Log($"[EnemyDetection] 타겟 상실: {_currentTarget?.name}");

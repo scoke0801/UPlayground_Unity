@@ -146,10 +146,6 @@ MonoBehaviour:
     prefab: {fileID: 1783118673345676083, guid: fcf69e1f7ef533949978044f94508c6e, type: 3}
     defaultLayer: 0
     description: "\uBAAC\uC2A4\uD130 \uC7AC\uC2A4\uD3F0 \uC548\uB0B4"
-  - key: CharacterSelect
-    prefab: {fileID: 8065138479794686207, guid: fda1e2a8012a2a94d915d22b119c42bc, type: 3}
-    defaultLayer: 1000
-    description: "\uC2E0\uADDC \uAC8C\uC784 \uCE90\uB9AD\uD130 \uC120\uD0DD \uD654\uBA74"
   - key: RestGrowth
     prefab: {fileID: 3289338467361294954, guid: e8d18ef7b733f7b4bb2582c072f12a6d, type: 3}
     defaultLayer: 2000
@@ -186,3 +182,7 @@ MonoBehaviour:
     prefab: {fileID: 4984459925082130239, guid: 0a73b652db21b21458ebd4237d2a6395, type: 3}
     defaultLayer: 2000
     description: "\uC774\uC804 \uB300\uD654\uB0B4\uC5ED \uD328\uB110"
+  - key: CharacterSelect
+    prefab: {fileID: 8065138479794686207, guid: fda1e2a8012a2a94d915d22b119c42bc, type: 3}
+    defaultLayer: 1000
+    description: "\uC2E0\uADDC \uAC8C\uC784 \uCE90\uB9AD\uD130 \uC120\uD0DD \uD654\uBA74"

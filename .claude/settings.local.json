@@ -1,5 +1,18 @@
 {
   "permissions": {
+    "defaultMode": "auto",
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -fd*)",
+      "Bash(git filter-branch*)",
+      "Bash(git rebase*)",
+      "Bash(npm publish*)",
+      "Bash(curl * | sh*)",
+      "Bash(curl * | bash*)"
+    ],
     "allow": [
       "Write(C:\\UsingProject\\UnityProject\\UPlayground\\.claude\\skills\\generate-bt-json-workspace\\**)",
       "Edit(C:\\UsingProject\\UnityProject\\UPlayground\\.claude\\skills\\generate-bt-json-workspace\\**)",
@@ -425,7 +438,16 @@
       "PowerShell(Set-Location *)",
       "PowerShell(Set-Location 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground'; if\\(Test-Path 'GameActorVerify.csproj'\\){ Remove-Item 'GameActorVerify.csproj' -Force; \"임시 csproj 제거\" } else { \"임시 csproj 이미 제거됨\" }; git status --short | Select-String -Pattern 'GameActorVerify'; \"--- 원본 csproj 빌드: 오류 종류 집계 ---\"; $out=dotnet build UPlayGround.GameActor.csproj --no-restore -v q --nologo 2>&1; \\($out | Select-String -Pattern ': error \\(CS\\\\d+\\)' -AllMatches | ForEach-Object { $_.Matches.Groups[1].Value }\\) | Group-Object | ForEach-Object { \"$\\($_.Name\\) x $\\($_.Count\\)\" })",
       "PowerShell(Set-Location 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\10.Datas\\\\Ability'; $f=\\(Get-ChildItem . -Recurse -Filter 'GA_ElementalImbue_Fire.asset' | Select-Object -First 1\\).FullName; \"=== GA_ElementalImbue_Fire : attackInfo 영역 ===\"; $lines=Get-Content $f; $start=\\($lines | Select-String -Pattern 'attackInfo:' | Select-Object -First 1\\).LineNumber; $lines[\\($start-1\\)..\\([Math]::Min\\($start+40,$lines.Count-1\\)\\)] | ForEach-Object { $_ })",
-      "PowerShell(Set-Location 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground'; foreach\\($p in @\\('UPlayGround.Data.csproj','UPlayGround.Data.Editor.csproj','UPlayGround.Ability.UPlayGround.csproj','UPlayGround.Ability.Tests.csproj','UPlayGround.Ability.PlayModeTests.csproj','UPlayGround.EditorTools.csproj','UPlayGround.GameActor.Editor.csproj'\\)\\){ $out=dotnet build $p --no-restore -v q --nologo 2>&1; $errs=$out | Select-String -Pattern ': error '; if\\($errs\\){ \"### $p : 오류 $\\($errs.Count\\)\"; $errs | Select-Object -First 8 | ForEach-Object { \"   \" + $_.Line.Trim\\(\\) } } else { \"### $p : OK\" } }; \"--- GameActor \\(누락 파일 CS2001 제외\\) ---\"; $out=dotnet build UPlayGround.GameActor.csproj --no-restore -v q --nologo 2>&1; \\($out | Select-String -Pattern ': error \\(CS\\\\d+\\)' -AllMatches | ForEach-Object { $_.Matches.Groups[1].Value }\\) | Group-Object | ForEach-Object { \"  $\\($_.Name\\) x $\\($_.Count\\)\" })"
+      "PowerShell(Set-Location 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground'; foreach\\($p in @\\('UPlayGround.Data.csproj','UPlayGround.Data.Editor.csproj','UPlayGround.Ability.UPlayGround.csproj','UPlayGround.Ability.Tests.csproj','UPlayGround.Ability.PlayModeTests.csproj','UPlayGround.EditorTools.csproj','UPlayGround.GameActor.Editor.csproj'\\)\\){ $out=dotnet build $p --no-restore -v q --nologo 2>&1; $errs=$out | Select-String -Pattern ': error '; if\\($errs\\){ \"### $p : 오류 $\\($errs.Count\\)\"; $errs | Select-Object -First 8 | ForEach-Object { \"   \" + $_.Line.Trim\\(\\) } } else { \"### $p : OK\" } }; \"--- GameActor \\(누락 파일 CS2001 제외\\) ---\"; $out=dotnet build UPlayGround.GameActor.csproj --no-restore -v q --nologo 2>&1; \\($out | Select-String -Pattern ': error \\(CS\\\\d+\\)' -AllMatches | ForEach-Object { $_.Matches.Groups[1].Value }\\) | Group-Object | ForEach-Object { \"  $\\($_.Name\\) x $\\($_.Count\\)\" })",
+      "Bash(cp PlayerInputActions.inputactions __TRACKED_VAR__/PlayerInputActions.backup)",
+      "Bash(cp PlayerInputActions.inputactions /c/Users/scoke/AppData/Local/Temp/claude/C--UsingProject-UnityProject-UPlayground/b63f9832-bafc-4c24-9975-9189536f2aed/scratchpad/PlayerInputActions.backup)",
+      "PowerShell(foreach \\($p in @\\(\"UPlayGround.UI\",\"UPlayGround.Contracts\",\"UPlayGround.Input.Tests\",\"UPlayGround.UI.Tests\"\\)\\) { Write-Host \"=== $p ===\"; dotnet build \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\$p.csproj\" --no-restore -v q -nologo -p:BuildProjectReferences=false 2>&1 | Select-String -Pattern \"error CS|오류\" | Select-Object -First 10 })",
+      "PowerShell(foreach \\($p in @\\(\"Assembly-CSharp\",\"UPlayGround.UI\",\"UPlayGround.Contracts\",\"UPlayGround.Input.Tests\"\\)\\) { Write-Host \"=== $p ===\"; dotnet build \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\$p.csproj\" --no-restore -v q -nologo -p:BuildProjectReferences=false 2>&1 | Select-String -Pattern \"error CS|오류\" | Select-Object -First 8 })",
+      "PowerShell($s = git status --short; \"TOTAL: $\\($s.Count\\)\"; $s | Where-Object { $_ -notmatch '\\\\.meta$' } | Out-String -Width 300)",
+      "PowerShell(git status --short | ForEach-Object { $p = $_.Substring\\(3\\).Trim\\('\"'\\); \\($p -split '/'\\)[0..2] -join '/' } | Group-Object | Sort-Object Count -Descending | Select-Object Count,Name -First 40 | Format-Table -AutoSize | Out-String -Width 200)",
+      "Skill(update-config)",
+      "PowerShell(git status --short | Where-Object { $_ -match 'Assets/10.Datas/Actor' } | ForEach-Object { $s=$_.Substring\\(0,2\\).Trim\\(\\); $p=$_.Substring\\(3\\).Trim\\('\"'\\); \"$s|\" + \\(\\($p -split '/'\\)[0..4] -join '/'\\) } | Group-Object | Sort-Object Count -Descending | Select-Object Count,Name -First 30 | Format-Table -AutoSize | Out-String -Width 200)",
+      "PowerShell(git diff --stat -- Assets/10.Datas/Actor/Animation/ActorMotion | Select-Object -Last 3; echo \"--- sample ---\"; git diff -- \\(git status --short | Where-Object {$_ -match 'ActorMotion'} | Select-Object -First 1 | ForEach-Object { $_.Substring\\(3\\).Trim\\('\"'\\) }\\))"
     ]
   }
 }

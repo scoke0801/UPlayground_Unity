@@ -1340,6 +1340,42 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MainTabPrevious"",
+                    ""type"": ""Button"",
+                    ""id"": ""40e9b9a7-13e1-47ef-9f48-0bc25c61da01"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MainTabNext"",
+                    ""type"": ""Button"",
+                    ""id"": ""8d5d3a98-3b73-4f16-92d9-60fdccab9d02"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SubTabPrevious"",
+                    ""type"": ""Button"",
+                    ""id"": ""3d3bbf82-8db6-4c6b-8a07-86592bbd3603"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SubTabNext"",
+                    ""type"": ""Button"",
+                    ""id"": ""0ed6ef43-a6cf-45f9-a699-a13c1b08ca04"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1604,6 +1640,50 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""DialogueBacklog"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""65b51ef8-6bbc-4031-8aae-91f2c7119905"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""MainTabPrevious"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""38bb8b0b-ad55-4a29-885d-89df25e00506"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""MainTabNext"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b714fcd0-6fd0-4aea-94c1-37da06a3c307"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""SubTabPrevious"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""97977991-9737-43d0-9de7-81e4d3099708"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""SubTabNext"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1923,6 +2003,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         m_UI_DialogueSkip = m_UI.FindAction("DialogueSkip", throwIfNotFound: true);
         m_UI_DialogueToggleAuto = m_UI.FindAction("DialogueToggleAuto", throwIfNotFound: true);
         m_UI_DialogueBacklog = m_UI.FindAction("DialogueBacklog", throwIfNotFound: true);
+        m_UI_MainTabPrevious = m_UI.FindAction("MainTabPrevious", throwIfNotFound: true);
+        m_UI_MainTabNext = m_UI.FindAction("MainTabNext", throwIfNotFound: true);
+        m_UI_SubTabPrevious = m_UI.FindAction("SubTabPrevious", throwIfNotFound: true);
+        m_UI_SubTabNext = m_UI.FindAction("SubTabNext", throwIfNotFound: true);
         // Gamepad
         m_Gamepad = asset.FindActionMap("Gamepad", throwIfNotFound: true);
         m_Gamepad_L1 = m_Gamepad.FindAction("L1", throwIfNotFound: true);
@@ -2568,6 +2652,10 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_UI_DialogueSkip;
     private readonly InputAction m_UI_DialogueToggleAuto;
     private readonly InputAction m_UI_DialogueBacklog;
+    private readonly InputAction m_UI_MainTabPrevious;
+    private readonly InputAction m_UI_MainTabNext;
+    private readonly InputAction m_UI_SubTabPrevious;
+    private readonly InputAction m_UI_SubTabNext;
     /// <summary>
     /// Provides access to input actions defined in input action map "UI".
     /// </summary>
@@ -2644,6 +2732,22 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @DialogueBacklog => m_Wrapper.m_UI_DialogueBacklog;
         /// <summary>
+        /// Provides access to the underlying input action "UI/MainTabPrevious".
+        /// </summary>
+        public InputAction @MainTabPrevious => m_Wrapper.m_UI_MainTabPrevious;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/MainTabNext".
+        /// </summary>
+        public InputAction @MainTabNext => m_Wrapper.m_UI_MainTabNext;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/SubTabPrevious".
+        /// </summary>
+        public InputAction @SubTabPrevious => m_Wrapper.m_UI_SubTabPrevious;
+        /// <summary>
+        /// Provides access to the underlying input action "UI/SubTabNext".
+        /// </summary>
+        public InputAction @SubTabNext => m_Wrapper.m_UI_SubTabNext;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_UI; }
@@ -2717,6 +2821,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @DialogueBacklog.started += instance.OnDialogueBacklog;
             @DialogueBacklog.performed += instance.OnDialogueBacklog;
             @DialogueBacklog.canceled += instance.OnDialogueBacklog;
+            @MainTabPrevious.started += instance.OnMainTabPrevious;
+            @MainTabPrevious.performed += instance.OnMainTabPrevious;
+            @MainTabPrevious.canceled += instance.OnMainTabPrevious;
+            @MainTabNext.started += instance.OnMainTabNext;
+            @MainTabNext.performed += instance.OnMainTabNext;
+            @MainTabNext.canceled += instance.OnMainTabNext;
+            @SubTabPrevious.started += instance.OnSubTabPrevious;
+            @SubTabPrevious.performed += instance.OnSubTabPrevious;
+            @SubTabPrevious.canceled += instance.OnSubTabPrevious;
+            @SubTabNext.started += instance.OnSubTabNext;
+            @SubTabNext.performed += instance.OnSubTabNext;
+            @SubTabNext.canceled += instance.OnSubTabNext;
         }
 
         /// <summary>
@@ -2776,6 +2892,18 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
             @DialogueBacklog.started -= instance.OnDialogueBacklog;
             @DialogueBacklog.performed -= instance.OnDialogueBacklog;
             @DialogueBacklog.canceled -= instance.OnDialogueBacklog;
+            @MainTabPrevious.started -= instance.OnMainTabPrevious;
+            @MainTabPrevious.performed -= instance.OnMainTabPrevious;
+            @MainTabPrevious.canceled -= instance.OnMainTabPrevious;
+            @MainTabNext.started -= instance.OnMainTabNext;
+            @MainTabNext.performed -= instance.OnMainTabNext;
+            @MainTabNext.canceled -= instance.OnMainTabNext;
+            @SubTabPrevious.started -= instance.OnSubTabPrevious;
+            @SubTabPrevious.performed -= instance.OnSubTabPrevious;
+            @SubTabPrevious.canceled -= instance.OnSubTabPrevious;
+            @SubTabNext.started -= instance.OnSubTabNext;
+            @SubTabNext.performed -= instance.OnSubTabNext;
+            @SubTabNext.canceled -= instance.OnSubTabNext;
         }
 
         /// <summary>
@@ -3407,6 +3535,34 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDialogueBacklog(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MainTabPrevious" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMainTabPrevious(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MainTabNext" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMainTabNext(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SubTabPrevious" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSubTabPrevious(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SubTabNext" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSubTabNext(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Gamepad" which allows adding and removing callbacks.

@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using TMPro;
 using UPlayGround.Data.Config;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 namespace UPlayGround.UI
@@ -60,6 +61,8 @@ namespace UPlayGround.UI
             if (_tabGroup != null)
                 _tabGroup.SelectionChanged += OnTabSelected;
 
+            ConfigureTabShortcuts(subTabs: _tabGroup);
+            ConfigureMainPageShortcut(UIKeyType.Config);
             BindFooterButtons();
         }
 
@@ -391,6 +394,14 @@ namespace UPlayGround.UI
 
             OnCancel();
             return false;
+        }
+
+        protected override bool TryCloseForMainPageSwitch()
+        {
+            if (_isApplying || Svc.Input?.IsRebindCaptureActive == true)
+                return false;
+            OnCancel();
+            return true;
         }
 
         // ---- Data → UI 동기화 ----

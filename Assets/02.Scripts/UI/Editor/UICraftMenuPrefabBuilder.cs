@@ -76,6 +76,10 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 var headerTitle = NewUI("Title", header.transform);
                 Stretch(headerTitle);
                 AddText(headerTitle, "제작", 34, TextMain, TextAlignmentOptions.Center);
+                var navigationHint = NewUI("NavigationHint", header.transform);
+                Stretch(navigationHint);
+                AddText(navigationHint, "LT / RT  메뉴 전환     LB / RB  분류 전환",
+                    15, TextSub, TextAlignmentOptions.Left);
                 var btnClose = MakeButton("BtnClose", header.transform, "X", out _);
                 AnchorTopRight(Rt(btnClose.gameObject), 48, 48);
 

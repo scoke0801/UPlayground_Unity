@@ -81,6 +81,27 @@ namespace UPlayGround.UI.Tests
             Assert.That(buttons[4].navigation.selectOnRight, Is.Null);
         }
 
+        [Test]
+        public void SelectRelative_비활성탭을건너뛰고순환한다()
+        {
+            UITabButton first = CreateTab("First");
+            UITabButton disabled = CreateTab("Disabled");
+            UITabButton last = CreateTab("Last");
+            disabled.Button.interactable = false;
+
+            var groupObject = new GameObject("Group", typeof(RectTransform), typeof(UITabGroup));
+            _objects.Add(groupObject);
+            UITabGroup group = groupObject.GetComponent<UITabGroup>();
+            group.SetTabs(new[] { first, disabled, last });
+            group.Select(0, notify: false);
+
+            Assert.That(group.SelectRelative(1), Is.True);
+            Assert.That(group.SelectedIndex, Is.EqualTo(2));
+
+            Assert.That(group.SelectRelative(1), Is.True);
+            Assert.That(group.SelectedIndex, Is.EqualTo(0));
+        }
+
         private Button CreateButton(string name)
         {
             var gameObject = new GameObject(
@@ -91,6 +112,17 @@ namespace UPlayGround.UI.Tests
                 typeof(Button));
             _objects.Add(gameObject);
             return gameObject.GetComponent<Button>();
+        }
+
+        private UITabButton CreateTab(string name)
+        {
+            Button button = CreateButton(name);
+            UITabButton tab = button.gameObject.AddComponent<UITabButton>();
+            typeof(UITabButton)
+                .GetField("_button", System.Reflection.BindingFlags.Instance
+                                     | System.Reflection.BindingFlags.NonPublic)
+                ?.SetValue(tab, button);
+            return tab;
         }
     }
 }

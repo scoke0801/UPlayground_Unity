@@ -42,6 +42,7 @@ namespace UPlayGround.Manager
         ActiveInputDevice ActiveDevice { get; }
         GamepadBrand GamepadBrand { get; }
         bool IsPlayerActionInputSuppressed { get; }
+        bool IsRebindCaptureActive { get; }
         InputAction GetAction(string mapName, string actionName);
         bool GetAction(string mapName, string actionName, out InputAction action);
         IReadOnlyList<InputBindingDescriptor> GetBindingDescriptors(InputBindingDeviceGroup deviceGroup);

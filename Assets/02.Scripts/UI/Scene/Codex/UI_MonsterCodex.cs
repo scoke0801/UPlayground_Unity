@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UPlayGround.Data.Codex;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.Manager;
 
 namespace UPlayGround.UI
@@ -40,6 +41,7 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
+            ConfigureMainPageShortcut(UIKeyType.MonsterCodex);
             NormalizeFullScreenLayout();
             _gradeFilter?.onValueChanged.AddListener(_ => RefreshList());
             _elementFilter?.onValueChanged.AddListener(_ => RefreshList());

@@ -13,6 +13,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Party;
+using UPlayGround.Data.Path;
 using UPlayGround.Data.Sound;
 using UPlayGround.Data.Stat;
 using UPlayGround.InputDefine;
@@ -143,6 +144,8 @@ namespace UPlayGround.UI
             BindActionButtons();
             BindCategoryTabs();
             BindSortControls();
+            ConfigureTabShortcuts(subTabs: _tabGroup);
+            ConfigureMainPageShortcut(UIKeyType.Inventory);
         }
 
         protected override void Update()
@@ -318,7 +321,8 @@ namespace UPlayGround.UI
                     if (button != null)
                         tabs.Add(button);
                 }
-                UIFocusNavigation.ConfigureHorizontal(tabs);
+                // 왼쪽 레일은 시각 배치와 동일하게 상/하로 이동한다.
+                UIFocusNavigation.ConfigureVertical(tabs, wrap: true);
             }
 
             var actions = new List<Selectable>
@@ -340,12 +344,13 @@ namespace UPlayGround.UI
 
             Selectable firstItem = selectables.Count > 0 ? selectables[0] : null;
             Selectable firstTab = tabs.Count > 0 ? tabs[0] : null;
+            Selectable selectedTab = _tabGroup?.GetTab(_tabGroup.SelectedIndex)?.Button;
             Selectable firstAction = UIFocusNavigation.FirstNavigable(actions.ToArray());
 
             foreach (Selectable tab in tabs)
             {
                 Navigation navigation = tab.navigation;
-                navigation.selectOnDown = firstItem ?? firstAction;
+                navigation.selectOnRight = firstItem ?? firstAction;
                 tab.navigation = navigation;
             }
 
@@ -354,6 +359,8 @@ namespace UPlayGround.UI
                 Navigation navigation = selectables[i].navigation;
                 if (i < columns)
                     navigation.selectOnUp = firstTab;
+                if (i % columns == 0)
+                    navigation.selectOnLeft = selectedTab ?? firstTab;
                 if (navigation.selectOnRight == null)
                     navigation.selectOnRight = firstAction;
                 if (navigation.selectOnDown == null)

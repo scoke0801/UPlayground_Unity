@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using TMPro;
 using UPlayGround.UI.InputPrompt;
 using UnityEngine;
@@ -29,6 +30,7 @@ namespace UPlayGround.UI
         private static readonly Color EmptyText = new(0.42f, 0.47f, 0.55f, 1f);
 
         private HorizontalLayoutGroup _layout;
+        private string _contentKey;
 
         private void EnsureLayout()
         {
@@ -43,15 +45,30 @@ namespace UPlayGround.UI
 
         public void Clear()
         {
+            _contentKey = null;
+            ClearChildren();
+        }
+
+        private void ClearChildren()
+        {
             for (int i = transform.childCount - 1; i >= 0; i--)
-                Destroy(transform.GetChild(i).gameObject);
+            {
+                Transform child = transform.GetChild(i);
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
+            }
         }
 
         /// <summary>바인딩이 없을 때의 표시("-").</summary>
         public void SetEmpty()
         {
+            const string key = "E";
+            if (_contentKey == key)
+                return;
+
             EnsureLayout();
-            Clear();
+            _contentKey = key;
+            ClearChildren();
             TextMeshProUGUI dash = UGuiFactory.MakeText(
                 transform, "-", 16f, EmptyText, TextAlignmentOptions.Center);
             UGuiFactory.SetSize(dash.gameObject, minW: CapMinWidth, prefW: CapMinWidth,
@@ -60,14 +77,19 @@ namespace UPlayGround.UI
 
         public void SetParts(IReadOnlyList<GlyphPart> parts)
         {
-            EnsureLayout();
-            Clear();
-
             if (parts == null || parts.Count == 0)
             {
                 SetEmpty();
                 return;
             }
+
+            string key = BuildPartsKey(parts);
+            if (_contentKey == key)
+                return;
+
+            EnsureLayout();
+            _contentKey = key;
+            ClearChildren();
 
             for (int i = 0; i < parts.Count; i++)
             {
@@ -81,14 +103,19 @@ namespace UPlayGround.UI
         /// <summary>글리프 해석에 실패했을 때 사람이 읽는 문자열을 그대로 칩으로 만든다.</summary>
         public void SetText(string display)
         {
-            EnsureLayout();
-            Clear();
-
             if (string.IsNullOrWhiteSpace(display) || display == "미지정")
             {
                 SetEmpty();
                 return;
             }
+
+            string key = "T:" + display;
+            if (_contentKey == key)
+                return;
+
+            EnsureLayout();
+            _contentKey = key;
+            ClearChildren();
 
             // "LB + East" 같은 문자열은 파트로 쪼개 조합키처럼 보이게 한다.
             string[] tokens = display.Split('+');
@@ -103,6 +130,22 @@ namespace UPlayGround.UI
 
                 AddCap(GlyphPart.TextOnly(token));
             }
+        }
+
+        private static string BuildPartsKey(IReadOnlyList<GlyphPart> parts)
+        {
+            var builder = new StringBuilder(parts.Count * 16);
+            builder.Append("P:");
+            for (int i = 0; i < parts.Count; i++)
+            {
+                GlyphPart part = parts[i];
+                builder.Append(part.Sprite != null ? part.Sprite.GetInstanceID() : 0);
+                builder.Append(':');
+                builder.Append(part.Text);
+                builder.Append('|');
+            }
+
+            return builder.ToString();
         }
 
         private void AddPlus()

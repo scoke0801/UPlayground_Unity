@@ -160,7 +160,7 @@ namespace UPlayGround.UI
 
             TextMeshProUGUI hints = UGuiFactory.MakeText(
                 parent,
-                "Esc / 게임패드 B 취소     Backspace / Delete 제거 (게임패드 슬롯 포함)",
+                "길게 누르기: Esc / 게임패드 B 취소     Backspace / Delete 제거",
                 13f, TextSub);
             UGuiFactory.SetSize(hints.gameObject, minH: 22f, prefH: 22f, flexH: 0f);
 

@@ -73,6 +73,10 @@ namespace UPlayGround.UI.Quest.EditorTools
                 var title = NewUI("Title", header.transform);
                 Stretch(title);
                 AddText(title, "퀘스트", 34, TextMain, TextAlignmentOptions.Center);
+                var navigationHint = NewUI("NavigationHint", header.transform);
+                Stretch(navigationHint);
+                AddText(navigationHint, "LT / RT  메뉴 전환     LB / RB  상태 전환",
+                    15, TextSub, TextAlignmentOptions.Left);
                 var btnClose = MakeButton("BtnClose", header.transform, "X", out _);
                 AnchorTopRight(Rt(btnClose.gameObject), 48, 48);
 

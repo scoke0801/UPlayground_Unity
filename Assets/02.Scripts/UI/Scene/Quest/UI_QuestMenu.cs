@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.Quest;
+using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
@@ -87,6 +88,8 @@ namespace UPlayGround.UI
             _btnComplete?.onClick.AddListener(OnClickComplete);
             _btnAbandon?.onClick.AddListener(OnClickAbandon);
             _btnClose?.onClick.AddListener(Hide);
+            ConfigureTabShortcuts(subTabs: _tabGroup);
+            ConfigureMainPageShortcut(UIKeyType.Quest);
         }
 
         protected override bool BlocksLowerInput => true;
@@ -244,6 +247,18 @@ namespace UPlayGround.UI
 
         private void RebuildNavigation()
         {
+            var tabs = new List<Selectable>();
+            if (_tabGroup != null)
+            {
+                for (int i = 0; i < _tabGroup.TabCount; i++)
+                {
+                    Button button = _tabGroup.GetTab(i)?.Button;
+                    if (button != null)
+                        tabs.Add(button);
+                }
+            }
+            UIFocusNavigation.ConfigureHorizontal(tabs, wrap: true);
+
             var slotSelectables = new List<Selectable>();
             foreach (UI_QuestSlot slot in _spawnedSlots)
             {
@@ -261,10 +276,21 @@ namespace UPlayGround.UI
             };
             UIFocusNavigation.ConfigureVertical(actions);
             Selectable firstAction = UIFocusNavigation.FirstNavigable(actions);
-
-            foreach (Selectable slot in slotSelectables)
+            Selectable firstSlot = slotSelectables.Count > 0 ? slotSelectables[0] : null;
+            Selectable selectedTab = _tabGroup?.GetTab(_tabGroup.SelectedIndex)?.Button;
+            foreach (Selectable tab in tabs)
             {
+                Navigation navigation = tab.navigation;
+                navigation.selectOnDown = firstSlot ?? firstAction;
+                tab.navigation = navigation;
+            }
+
+            for (int i = 0; i < slotSelectables.Count; i++)
+            {
+                Selectable slot = slotSelectables[i];
                 Navigation navigation = slot.navigation;
+                if (i == 0)
+                    navigation.selectOnUp = selectedTab ?? (tabs.Count > 0 ? tabs[0] : null);
                 navigation.selectOnRight = firstAction;
                 slot.navigation = navigation;
             }
@@ -288,9 +314,8 @@ namespace UPlayGround.UI
                 action.navigation = navigation;
             }
 
-            Selectable initial = slotSelectables.Count > 0
-                ? slotSelectables[0]
-                : firstAction;
+            Selectable initial = firstSlot
+                ?? (tabs.Count > 0 ? tabs[0] : firstAction);
             SetDefaultFocus(initial, IsVisible);
         }
 

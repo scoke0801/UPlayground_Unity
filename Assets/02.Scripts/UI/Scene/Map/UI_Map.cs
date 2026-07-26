@@ -135,6 +135,7 @@ namespace UPlayGround.UI
         {
             base.Awake();
 
+            ConfigureMainPageShortcut(UIKeyType.Map);
             _canvas = GetComponent<Canvas>();
 
             if (_closeButton   != null) _closeButton.onClick.AddListener(OnCloseClicked);

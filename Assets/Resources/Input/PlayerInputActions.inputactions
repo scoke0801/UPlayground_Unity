@@ -1254,6 +1254,42 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MainTabPrevious",
+                    "type": "Button",
+                    "id": "40e9b9a7-13e1-47ef-9f48-0bc25c61da01",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "MainTabNext",
+                    "type": "Button",
+                    "id": "8d5d3a98-3b73-4f16-92d9-60fdccab9d02",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SubTabPrevious",
+                    "type": "Button",
+                    "id": "3d3bbf82-8db6-4c6b-8a07-86592bbd3603",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SubTabNext",
+                    "type": "Button",
+                    "id": "0ed6ef43-a6cf-45f9-a699-a13c1b08ca04",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -1518,6 +1554,50 @@
                     "processors": "",
                     "groups": "",
                     "action": "DialogueBacklog",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "65b51ef8-6bbc-4031-8aae-91f2c7119905",
+                    "path": "<Gamepad>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "MainTabPrevious",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "38bb8b0b-ad55-4a29-885d-89df25e00506",
+                    "path": "<Gamepad>/rightTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "MainTabNext",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b714fcd0-6fd0-4aea-94c1-37da06a3c307",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "SubTabPrevious",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "97977991-9737-43d0-9de7-81e4d3099708",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "SubTabNext",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

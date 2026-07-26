@@ -216,7 +216,7 @@ namespace UPlayGround.UI
                 return true;
             }
 
-            // 캡처 중 Escape/B는 InputManager가 raw 입력으로 소비한다.
+            // 캡처 중 Escape/B 길게 누르기는 InputManager가 raw 입력으로 소비한다.
             return _capturing;
         }
 
@@ -429,8 +429,15 @@ namespace UPlayGround.UI
 
             BuildMergedBindings();
 
-            // 섹션 헤더 + 행을 매번 다시 만든다. 34개 규모라 재구축 비용이 무시할 만하고,
-            // 카테고리 필터에 따라 섹션 구성 자체가 바뀌어 재사용이 오히려 복잡하다.
+            // 바인딩 저장은 행의 구조를 바꾸지 않는다. 이 경우 기존 행을 재사용해야
+            // 수백 개의 uGUI 오브젝트 Destroy/Create와 즉시 레이아웃 재계산을 피할 수 있다.
+            // 카테고리 전환이나 액션 목록 변경처럼 실제 구조가 달라진 경우에만 재구축한다.
+            if (TryRefreshExistingRows())
+            {
+                PushSelectionToDetail();
+                return;
+            }
+
             ClearListContent();
             _rows.Clear();
 
@@ -463,6 +470,46 @@ namespace UPlayGround.UI
 
             RestoreSelection();
             LayoutRebuilder.ForceRebuildLayoutImmediate(_listContent);
+        }
+
+        private bool TryRefreshExistingRows()
+        {
+            int rowIndex = 0;
+
+            // 먼저 구조만 검증한다. 중간까지 갱신한 뒤 불일치를 발견해 전체 재구축하는
+            // 이중 작업을 만들지 않는다.
+            for (int i = 0; i < _merged.Count; i++)
+            {
+                MergedBinding item = _merged[i];
+                if (_category.HasValue && item.Category != _category.Value)
+                    continue;
+
+                if (rowIndex >= _rows.Count
+                    || _rows[rowIndex] == null
+                    || _rows[rowIndex].MapName != item.MapName
+                    || _rows[rowIndex].ActionName != item.ActionName)
+                {
+                    return false;
+                }
+
+                rowIndex++;
+            }
+
+            if (rowIndex != _rows.Count)
+                return false;
+
+            rowIndex = 0;
+            for (int i = 0; i < _merged.Count; i++)
+            {
+                MergedBinding item = _merged[i];
+                if (_category.HasValue && item.Category != _category.Value)
+                    continue;
+
+                ConfigureRow(_rows[rowIndex], item);
+                rowIndex++;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -555,6 +602,12 @@ namespace UPlayGround.UI
             RectTransform host = UGuiFactory.NewRect($"Row_{item.ActionName}", _listContent);
             var row = host.gameObject.AddComponent<UIKeyBindingRow>();
             row.Build();
+            ConfigureRow(row, item);
+            _rows.Add(row);
+        }
+
+        private void ConfigureRow(UIKeyBindingRow row, MergedBinding item)
+        {
             row.Configure(
                 item.MapName,
                 item.ActionName,
@@ -576,8 +629,6 @@ namespace UPlayGround.UI
                     ActiveInputDevice.Gamepad,
                     InputBindingSlot.Primary),
                 ResolveDisplay(item.GamepadPrimary));
-
-            _rows.Add(row);
         }
 
         /// <summary>

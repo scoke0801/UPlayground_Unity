@@ -138,7 +138,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
 
                 var footerHint = AddText(
                     NewUI("FooterHint", footer.transform),
-                    "방향키  이동     Enter  선택     Esc  취소",
+                    "LT / RT  메뉴     LB / RB  설정 탭     방향키  이동     A  선택     B  취소",
                     15, TextSub, TextAlignmentOptions.Left);
                 AddFlexibleW(footerHint.gameObject, 1f);
 

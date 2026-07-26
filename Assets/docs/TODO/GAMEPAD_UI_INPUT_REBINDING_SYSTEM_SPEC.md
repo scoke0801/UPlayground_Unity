@@ -77,13 +77,59 @@
 - 검증 완료: `UPlayGround.UI.csproj --no-restore` 오류 0,
   Unity Editor 스크립트 리로드 오류 0.
 
+### 4차 (2026-07-26, 웹 레퍼런스 재검토)
+
+- Unity Input System의 `PerformInteractiveRebinding`/`RebindingOperation`과
+  binding override 저장 권장 패턴을 재검토했다. 현재 시스템은 적용 전 임시 프로필과
+  2키 조합 캡처가 필요하므로 단일 바인딩 중심의 샘플 컴포넌트로 교체하지 않고,
+  `InputAction` binding override를 최종 반영하는 기존 경계를 유지한다.
+- Xbox Accessibility Guideline의 전체 입력 재매핑 권고에 맞춰 Escape, Gamepad East,
+  Backspace, Delete를 완전 예약 키에서 해제했다. 짧게 누르면 일반 바인딩, 0.75초 이상
+  길게 누르면 각각 캡처 취소/바인딩 제거로 동작한다.
+- 캡처 시작 시 대상 장치가 없거나 캡처 중 마지막 대상 장치가 분리되면 즉시 취소하고
+  입력 억제를 복구한다.
+- 저장 후 키 목록 갱신은 행 구조가 같으면 기존 `UIKeyBindingRow`를 재사용한다.
+  키캡도 표시 내용 키를 캐시해 변경되지 않은 글리프의 자식 오브젝트를 다시 만들지 않는다.
+  카테고리 전환이나 액션 구성 변경으로 행 구조가 달라진 경우에만 전체 목록을 재구축한다.
+
+### 5차 (2026-07-26, 메뉴 계층 내비게이션)
+
+- Xbox Accessibility Guideline 112의 일관된 메뉴 예시를 기준으로 입력 계층을 확정했다.
+  **LT/RT는 전체 화면 메인 페이지**, **LB/RB는 현재 화면의 서브 탭**을 순환한다.
+  참고:
+  [XAG 112 UI navigation](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/112),
+  [XAG 113 UI focus handling](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/113),
+  [XAG 107 Input](https://learn.microsoft.com/en-us/xbox/accessibility/xbox-accessibility-guidelines/107),
+  [Unity Input System UI support](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.14/manual/UISupport.html).
+- `UI/MainTabPrevious`, `UI/MainTabNext`, `UI/SubTabPrevious`, `UI/SubTabNext`
+  의미 액션을 추가했다. 물리 기본값은 각각 Left Trigger, Right Trigger,
+  Left Shoulder, Right Shoulder이며 키 설정 UI의 UI 카테고리에서도 변경할 수 있다.
+- `UI_Base`가 의미 단축키 등록/해제를 공통 소유한다. 개별 화면은
+  `ConfigureMainPageShortcut`과 `ConfigureTabShortcuts`로 구조만 선언한다.
+  이로써 파생 클래스가 `RegisterInputEvents`의 `base` 호출을 빠뜨려도 공통 탭 입력이
+  누락되지 않는다.
+- 메인 페이지 순서는 지도 → 인벤토리 → 제작 → 퀘스트 → 파티 → 도감 → 설정이다.
+  닫힘 트윈이 끝나기 전에 다음 페이지를 열어 중복 콜백이 발생하지 않도록, 전환 시작 시
+  의미 단축키를 먼저 해제하고 현재 UI가 실제로 숨겨진 다음 목표 페이지를 연다.
+- `UITabGroup.SelectRelative`는 비활성/상호작용 불가 탭을 건너뛰고 순환한다.
+  단축키 전환은 EventSystem 포커스를 탭 버튼으로 옮기지 않으므로, 목록/그리드에서
+  작업하던 위치를 유지한 채 분류만 바뀐다.
+- 설정·인벤토리·제작·퀘스트의 서브 탭을 LB/RB에 연결했다. 인벤토리의 좌측 탭 레일은
+  시각 배치와 동일한 상/하 Navigation으로 수정했고, 제작/퀘스트는 탭↔목록↔하단 동작
+  버튼을 explicit Navigation으로 연결해 방향키만으로도 모든 버튼에 도달한다.
+- 네 Builder에는 LT/RT·LB/RB·확인·취소의 화면 문맥 힌트를 반영했다.
+  Builder 재실행 시 프리팹에도 같은 디자인 규칙이 생성된다.
+- 검증 완료: Input Action JSON 파싱 및 4개 액션/바인딩 1:1 검사,
+  `UPlayGround.UI` 보조 컴파일 오류 0, `UPlayGround.UI.Tests` 보조 컴파일 오류 0,
+  Unity Editor 전체 스크립트 컴파일 오류 0.
+
 ### 남은 작업
 
 - §19.2 PlayMode 수직 슬라이스 8종. 타이틀/일시정지/설정 씬과 프리팹 부트스트랩이 필요해
   Unity 에디터에서 씬 기준을 확정한 뒤 작성한다.
 - 새 `UPlayGround.UI.Tests` EditMode 3개는 Unity Test Runner에서 실행해 결과를 확정한다.
-- 지도 패닝/줌의 전용 스틱 정책과 탭 LB/RB 단축키는 UI Navigate와의 충돌 정책을
-  정한 뒤 별도 입력 액션으로 추가한다.
+- 지도 패닝/줌의 전용 스틱 정책은 UI Navigate와의 충돌 정책을 정한 뒤 별도 입력 액션으로
+  추가한다. 탭 LB/RB와 페이지 LT/RT는 5차에서 의미 액션으로 분리 완료했다.
 - §20 실제 패드 3종(Xbox / DualSense / Switch Pro) 수동 스모크와 Player Build 검증.
 - §20에 걸린 미결정 사항: Switch의 Submit/Cancel 물리 위치 정책을 옵션화할지
   출시 플랫폼 정책으로 고정할지.
@@ -211,7 +257,7 @@ Unity Input System의 `OneModifier` composite만으로는 구성 단일 액션�
 ### 3.5 안전하게 빠져나올 수 있는 설정
 
 - UI Cancel과 설정 메뉴 진입에 필요한 최소 바인딩은 동시에 모두 제거할 수 없다.
-- 리바인딩 도중에는 Escape 또는 Gamepad East로 항상 취소할 수 있다.
+- 리바인딩 도중에는 Escape 또는 Gamepad East를 길게 눌러 항상 취소할 수 있다.
 - 모든 변경은 적용 전 임시 프로필에 기록하며, 취소 시 원상 복원한다.
 - 잘못된 프로필 로드 시 기본 바인딩으로 복구하고 경고를 남긴다.
 
@@ -665,7 +711,7 @@ Automatic Navigation에만 의존하지 않는다. 행 재생성 후 `UIExplicit
 ```text
 새 키를 입력하세요
 한 개만 누르면 단일키, 첫 키를 누른 상태에서 다른 키를 누르면 조합키가 됩니다.
-[Esc / B] 취소
+[Esc / B 길게] 취소
 ```
 
 첫 번째 키 입력 후:
@@ -744,12 +790,11 @@ Validate
 
 ### 11.6 예약 키
 
-- Escape / Gamepad East는 캡처 취소로 우선 사용한다.
+- Escape / Gamepad East는 0.75초 이상 유지하면 캡처 취소로 사용한다.
+- Backspace / Delete는 0.75초 이상 유지하면 현재 슬롯 바인딩 제거로 사용한다.
 - 이 키 자체를 `UI/Cancel`에 매핑하는 기본 구성은 유지할 수 있다.
-- 다른 액션에 이 키를 할당하려면 캡처 패널의 “취소 키도 바인딩” 보조 버튼을 먼저 활성화하는 복잡한 UX는 V1에서 제공하지 않는다.
-- 대신 Escape/East는 다른 액션의 Trigger로 캡처 가능하되, 짧게 누르면 캡처 취소가 먼저 되므로 **Modifier를 먼저 누른 조합의 두 번째 키**로만 허용한다.
-
-이 정책은 구현 난도가 높으면 V1에서 Escape/East를 완전 예약하고 후속 버전으로 미룬다.
+- 네 키 모두 짧게 눌렀다 놓으면 단일키 또는 조합의 구성 키로 캡처할 수 있다.
+- 캡처 UI는 “짧게 놓으면 할당, 계속 누르면 취소/제거”를 실시간으로 표시한다.
 
 ---
 

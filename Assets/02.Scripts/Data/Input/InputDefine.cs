@@ -77,6 +77,10 @@
         public const string DialogueSkip = "DialogueSkip";
         public const string DialogueToggleAuto = "DialogueToggleAuto";
         public const string DialogueBacklog = "DialogueBacklog";
+        public const string MainTabPrevious = "MainTabPrevious";
+        public const string MainTabNext = "MainTabNext";
+        public const string SubTabPrevious = "SubTabPrevious";
+        public const string SubTabNext = "SubTabNext";
 
     }
 

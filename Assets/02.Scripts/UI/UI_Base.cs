@@ -4,7 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Manager;
 using UPlayGround.Data.Sound;
+using UPlayGround.Data.Path;
+using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
+using UnityEngine.InputSystem;
+using Cysharp.Threading.Tasks;
 
 namespace UPlayGround.UI
 {
@@ -26,6 +30,28 @@ namespace UPlayGround.UI
         [SerializeField] private bool _playDefaultButtonSound = true;
         private readonly List<Button> _soundBoundButtons = new();
         private UIFocusScope _focusScope;
+        private UITabGroup _mainTabGroup;
+        private UITabGroup _subTabGroup;
+        private UIKeyType _mainPageKey;
+        private bool _navigationShortcutsRegistered;
+        private bool _mainPageSwitching;
+        // Data 어셈블리의 UIAction 상수와 같은 액션 이름. UI asmdef 단독 보조 컴파일 시
+        // 생성된 Data dll이 아직 갱신되지 않아도 이 파일을 검증할 수 있도록 로컬에 둔다.
+        private const string MainTabPreviousAction = "MainTabPrevious";
+        private const string MainTabNextAction = "MainTabNext";
+        private const string SubTabPreviousAction = "SubTabPrevious";
+        private const string SubTabNextAction = "SubTabNext";
+
+        private static readonly UIKeyType[] MainPageOrder =
+        {
+            UIKeyType.Map,
+            UIKeyType.Inventory,
+            UIKeyType.Craft,
+            UIKeyType.Quest,
+            UIKeyType.Party,
+            UIKeyType.MonsterCodex,
+            UIKeyType.Config,
+        };
 
         #endregion
 
@@ -169,6 +195,7 @@ namespace UPlayGround.UI
             if (IsVisible)
                 return;
 
+            _mainPageSwitching = false;
             gameObject.SetActive(true);
             IsVisible = true;
 
@@ -188,6 +215,7 @@ namespace UPlayGround.UI
                 Svc.Input?.RefreshInputLayer();
             }
 
+            RegisterNavigationShortcutEvents();
             RegisterInputEvents();
 
             OnShow();
@@ -256,6 +284,7 @@ namespace UPlayGround.UI
                 }
             }
 
+            UnRegisterNavigationShortcutEvents();
             UnRegisterInputEvents();
 
             _focusScope?.DeactivateScope();
@@ -291,6 +320,147 @@ namespace UPlayGround.UI
         protected virtual void UnRegisterInputEvents()
         {
 
+        }
+
+        /// <summary>
+        /// 화면 구조에 따른 게임패드 탭 단축키를 선언한다.
+        /// 메인 탭은 LT/RT, 서브 탭은 LB/RB 의미 액션으로 전환된다.
+        /// </summary>
+        protected void ConfigureTabShortcuts(
+            UITabGroup mainTabs = null,
+            UITabGroup subTabs = null)
+        {
+            _mainTabGroup = mainTabs;
+            _subTabGroup = subTabs;
+        }
+
+        /// <summary>
+        /// 전체 화면 메뉴의 LT/RT 페이지 순환 대상을 선언한다.
+        /// 같은 화면 안의 메인 탭이 있으면 그 탭이 페이지 순환보다 우선한다.
+        /// </summary>
+        protected void ConfigureMainPageShortcut(UIKeyType pageKey)
+        {
+            _mainPageKey = pageKey;
+        }
+
+        private void RegisterNavigationShortcutEvents()
+        {
+            if (_navigationShortcutsRegistered
+                || Svc.Input == null
+                || (_mainTabGroup == null
+                    && _subTabGroup == null
+                    && _mainPageKey == UIKeyType.None))
+            {
+                return;
+            }
+
+            InputLayer layer = (InputLayer)(int)_layer;
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, MainTabPreviousAction,
+                null, OnMainTabPrevious, null, null, null, layer);
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, MainTabNextAction,
+                null, OnMainTabNext, null, null, null, layer);
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, SubTabPreviousAction,
+                null, OnSubTabPrevious, null, null, null, layer);
+            Svc.Input.RegisterInputEvent(InputMapNames.UI, SubTabNextAction,
+                null, OnSubTabNext, null, null, null, layer);
+            _navigationShortcutsRegistered = true;
+        }
+
+        private void UnRegisterNavigationShortcutEvents()
+        {
+            if (!_navigationShortcutsRegistered)
+                return;
+
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, MainTabPreviousAction,
+                null, OnMainTabPrevious, null);
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, MainTabNextAction,
+                null, OnMainTabNext, null);
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, SubTabPreviousAction,
+                null, OnSubTabPrevious, null);
+            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, SubTabNextAction,
+                null, OnSubTabNext, null);
+            _navigationShortcutsRegistered = false;
+        }
+
+        private void OnMainTabPrevious(InputAction.CallbackContext context)
+        {
+            if (Svc.Input?.IsRebindCaptureActive == true)
+                return;
+            if (_mainTabGroup != null)
+                _mainTabGroup.SelectRelative(-1);
+            else
+                SwitchMainPage(-1);
+        }
+
+        private void OnMainTabNext(InputAction.CallbackContext context)
+        {
+            if (Svc.Input?.IsRebindCaptureActive == true)
+                return;
+            if (_mainTabGroup != null)
+                _mainTabGroup.SelectRelative(1);
+            else
+                SwitchMainPage(1);
+        }
+
+        private void OnSubTabPrevious(InputAction.CallbackContext context)
+        {
+            if (Svc.Input?.IsRebindCaptureActive != true)
+                _subTabGroup?.SelectRelative(-1);
+        }
+
+        private void OnSubTabNext(InputAction.CallbackContext context)
+        {
+            if (Svc.Input?.IsRebindCaptureActive != true)
+                _subTabGroup?.SelectRelative(1);
+        }
+
+        private void SwitchMainPage(int direction)
+        {
+            if (_mainPageSwitching
+                || _mainPageKey == UIKeyType.None
+                || UISvc.Scene?.CurrentSceneType != SceneType.GamePlay
+                || direction == 0)
+            {
+                return;
+            }
+
+            int current = System.Array.IndexOf(MainPageOrder, _mainPageKey);
+            if (current < 0)
+                return;
+
+            int next = (current + (direction < 0 ? -1 : 1) + MainPageOrder.Length)
+                       % MainPageOrder.Length;
+            SwitchMainPageAsync(MainPageOrder[next]).Forget();
+        }
+
+        private async UniTaskVoid SwitchMainPageAsync(UIKeyType target)
+        {
+            _mainPageSwitching = true;
+
+            // 닫힘 트윈 중 같은 입력을 다시 받거나 새 화면까지 같은 프레임 콜백 목록에
+            // 들어오는 것을 막기 위해 의미 단축키만 먼저 해제한다.
+            UnRegisterNavigationShortcutEvents();
+            if (!TryCloseForMainPageSwitch())
+            {
+                _mainPageSwitching = false;
+                RegisterNavigationShortcutEvents();
+                return;
+            }
+
+            await UniTask.WaitUntil(() => this == null || !IsVisible);
+            if (this == null)
+                return;
+
+            UISvc.UI?.ShowUI(target);
+        }
+
+        /// <summary>
+        /// 메인 페이지 전환 전에 파생 UI가 저장/취소 처리하거나 전환을 거부할 수 있다.
+        /// </summary>
+        protected virtual bool TryCloseForMainPageSwitch()
+        {
+            Hide();
+            return true;
         }
 
         public virtual bool PerformBackFunction()

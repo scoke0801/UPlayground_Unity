@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.Crafting;
+using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
@@ -87,6 +88,9 @@ namespace UPlayGround.UI
 
             if (_tabGroup != null)
                 _tabGroup.SelectionChanged += OnTabSelected;
+
+            ConfigureTabShortcuts(subTabs: _tabGroup);
+            ConfigureMainPageShortcut(UIKeyType.Craft);
         }
 
         // 탭 인덱스 → 카테고리 필터 (프리팹의 탭 배치 순서와 반드시 일치, null = 전체)
@@ -286,6 +290,18 @@ namespace UPlayGround.UI
 
         private void RebuildNavigation()
         {
+            var tabs = new List<Selectable>();
+            if (_tabGroup != null)
+            {
+                for (int i = 0; i < _tabGroup.TabCount; i++)
+                {
+                    Button button = _tabGroup.GetTab(i)?.Button;
+                    if (button != null)
+                        tabs.Add(button);
+                }
+            }
+            UIFocusNavigation.ConfigureHorizontal(tabs, wrap: true);
+
             var recipeSelectables = new List<Selectable>();
             foreach (UI_CraftingRecipeSlot slot in _spawnedRecipeSlots)
             {
@@ -305,9 +321,19 @@ namespace UPlayGround.UI
             UIFocusNavigation.ConfigureHorizontal(actionSelectables);
 
             Selectable firstAction = UIFocusNavigation.FirstNavigable(actionSelectables);
+            Selectable firstRecipe = recipeSelectables.Count > 0 ? recipeSelectables[0] : null;
+            Selectable selectedTab = _tabGroup?.GetTab(_tabGroup.SelectedIndex)?.Button;
+            foreach (Selectable tab in tabs)
+            {
+                Navigation navigation = tab.navigation;
+                navigation.selectOnDown = firstRecipe ?? firstAction;
+                tab.navigation = navigation;
+            }
             for (int i = 0; i < recipeSelectables.Count; i++)
             {
                 Navigation navigation = recipeSelectables[i].navigation;
+                if (i == 0)
+                    navigation.selectOnUp = selectedTab ?? (tabs.Count > 0 ? tabs[0] : null);
                 navigation.selectOnRight = firstAction;
                 recipeSelectables[i].navigation = navigation;
             }
@@ -331,9 +357,8 @@ namespace UPlayGround.UI
                 action.navigation = navigation;
             }
 
-            Selectable initial = recipeSelectables.Count > 0
-                ? recipeSelectables[0]
-                : firstAction;
+            Selectable initial = firstRecipe
+                ?? (tabs.Count > 0 ? tabs[0] : firstAction);
             SetDefaultFocus(initial, IsVisible);
         }
 

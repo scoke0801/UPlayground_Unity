@@ -168,6 +168,14 @@ namespace UPlayGround.Manager
                 "선택한 항목을 확정합니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
             new(InputMapNames.UI, UIAction.Cancel, "UI 취소",
                 "창을 닫거나 이전으로 돌아갑니다. 필수 키라 비울 수 없습니다.", InputBindingCategory.UI, true),
+            new(InputMapNames.UI, UIAction.MainTabPrevious, "이전 메인 메뉴",
+                "전체 화면 메뉴의 이전 페이지로 이동합니다.", InputBindingCategory.UI),
+            new(InputMapNames.UI, UIAction.MainTabNext, "다음 메인 메뉴",
+                "전체 화면 메뉴의 다음 페이지로 이동합니다.", InputBindingCategory.UI),
+            new(InputMapNames.UI, UIAction.SubTabPrevious, "이전 서브 탭",
+                "현재 화면 안의 이전 분류 또는 설정 탭으로 이동합니다.", InputBindingCategory.UI),
+            new(InputMapNames.UI, UIAction.SubTabNext, "다음 서브 탭",
+                "현재 화면 안의 다음 분류 또는 설정 탭으로 이동합니다.", InputBindingCategory.UI),
         };
 
         private void LoadInputBindingProfile()

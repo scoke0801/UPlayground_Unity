@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UPlayGround;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
@@ -66,6 +67,7 @@ namespace UPlayGround.UI
         protected override void OnInit()
         {
             base.OnInit();
+            ConfigureMainPageShortcut(UIKeyType.Party);
 
             foreach (var battleEntry in _partyBattleEntries)
                 battleEntry.OnSelectRequested += OnBattleEntrySelected;

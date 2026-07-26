@@ -52,6 +52,51 @@ namespace UPlayGround.UI
         public UITabButton GetTab(int index)
             => (index >= 0 && index < _tabs.Count) ? _tabs[index] : null;
 
+        /// <summary>
+        /// 현재 탭을 기준으로 이전/다음 활성 탭을 순환 선택한다.
+        /// 숄더 버튼 전환은 EventSystem 포커스를 탭으로 빼앗지 않고 콘텐츠 포커스를 유지한다.
+        /// </summary>
+        public bool SelectRelative(int direction, bool wrap = true)
+        {
+            if (_tabs.Count == 0 || direction == 0)
+                return false;
+
+            int step = direction < 0 ? -1 : 1;
+            int start = SelectedIndex >= 0 && SelectedIndex < _tabs.Count
+                ? SelectedIndex
+                : step > 0 ? -1 : _tabs.Count;
+
+            for (int offset = 1; offset <= _tabs.Count; offset++)
+            {
+                int candidate = start + step * offset;
+                if (wrap)
+                {
+                    candidate %= _tabs.Count;
+                    if (candidate < 0)
+                        candidate += _tabs.Count;
+                }
+                else if (candidate < 0 || candidate >= _tabs.Count)
+                {
+                    return false;
+                }
+
+                UITabButton tab = _tabs[candidate];
+                if (tab == null
+                    || tab.Button == null
+                    || !tab.Button.gameObject.activeInHierarchy
+                    || !tab.Button.IsActive()
+                    || !tab.Button.IsInteractable())
+                {
+                    continue;
+                }
+
+                Select(candidate);
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary> 빌더/에디터에서 탭 목록을 주입할 때 사용. </summary>
         public void SetTabs(IEnumerable<UITabButton> tabs)
         {

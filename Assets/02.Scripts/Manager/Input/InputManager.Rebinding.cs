@@ -14,8 +14,17 @@ namespace UPlayGround.Manager
         private const float RebindCaptureTimeout = 10f;
         private const float RebindSecondControlTimeout = 1.25f;
         private const float RebindSingleConfirmDelay = 0.35f;
+        private const float RebindCommandHoldDuration = 0.75f;
+
+        private enum CaptureButtonDisposition
+        {
+            Binding,
+            Cancel,
+            Remove,
+        }
 
         private bool _rebindCaptureActive;
+        public bool IsRebindCaptureActive => _rebindCaptureActive;
 
         public event Action<InputRebindCaptureState> OnRebindCaptureChanged;
 
@@ -30,9 +39,23 @@ namespace UPlayGround.Manager
 
             _rebindCaptureActive = true;
             SetPlayerActionInputSuppressed(true);
+            InputActionMap uiActionMap =
+                inputActions?.FindActionMap(InputMapNames.UI, false);
+            bool restoreUiActionMap = uiActionMap?.enabled == true;
+            if (restoreUiActionMap)
+                uiActionMap.Disable();
 
             try
             {
+                if (!IsCaptureDeviceAvailable(target.deviceGroup))
+                {
+                    return FailedCapture(
+                        target,
+                        target.deviceGroup == InputBindingDeviceGroup.Gamepad
+                            ? "연결된 게임패드가 없습니다."
+                            : "사용할 수 있는 키보드 또는 마우스가 없습니다.");
+                }
+
                 PublishCaptureState(
                     InputRebindCapturePhase.WaitingForNeutral,
                     null,
@@ -43,6 +66,8 @@ namespace UPlayGround.Manager
                 while (!IsDeviceGroupNeutral(target.deviceGroup))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    if (!IsCaptureDeviceAvailable(target.deviceGroup))
+                        return CaptureDeviceDisconnected(target);
                     if (Time.unscaledTime - captureStartedAt >= RebindCaptureTimeout)
                         return TimedOutCapture(target);
                     await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
@@ -67,8 +92,9 @@ namespace UPlayGround.Manager
                     if (candidate == null)
                         return;
 
-                    // 취소/삭제는 캡처 대상 장치와 무관한 UI 명령이다. 먼저 큐에 넣어야
-                    // 게임패드 슬롯 캡처 중 Esc/Backspace, 키보드 슬롯 캡처 중 B가 동작한다.
+                    // 취소/삭제 명령 후보는 캡처 대상 장치와 무관하게 먼저 큐에 넣는다.
+                    // 짧게 놓으면 일반 바인딩으로 해석하고, 길게 누른 경우에만 명령으로
+                    // 확정한다. 따라서 Esc/East/Backspace/Delete도 실제 키로 할당할 수 있다.
                     if (IsCaptureCancel(candidate)
                         || IsCaptureRemove(candidate)
                         || ControlMatchesDeviceGroup(candidate, target.deviceGroup))
@@ -81,15 +107,26 @@ namespace UPlayGround.Manager
                 while (first == null)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    if (!IsCaptureDeviceAvailable(target.deviceGroup))
+                        return CaptureDeviceDisconnected(target);
 
                     if (queuedButton != null)
                     {
                         ButtonControl candidate = queuedButton;
                         queuedButton = null;
-                        if (IsCaptureCancel(candidate))
+
+                        CaptureButtonDisposition disposition =
+                            await ResolveCaptureButtonDispositionAsync(
+                                candidate,
+                                InputRebindCapturePhase.WaitingForFirstControl,
+                                null,
+                                cancellationToken);
+                        if (disposition == CaptureButtonDisposition.Cancel)
                             return CanceledCapture(target);
-                        if (IsCaptureRemove(candidate))
+                        if (disposition == CaptureButtonDisposition.Remove)
                             return RemovedCapture(target);
+                        if (!ControlMatchesDeviceGroup(candidate, target.deviceGroup))
+                            continue;
 
                         first = candidate;
                         break;
@@ -120,16 +157,26 @@ namespace UPlayGround.Manager
                 while (true)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
+                    if (!IsCaptureDeviceAvailable(target.deviceGroup))
+                        return CaptureDeviceDisconnected(target);
 
                     if (queuedButton != null)
                     {
                         ButtonControl second = queuedButton;
                         queuedButton = null;
 
-                        if (IsCaptureCancel(second))
+                        CaptureButtonDisposition disposition =
+                            await ResolveCaptureButtonDispositionAsync(
+                                second,
+                                InputRebindCapturePhase.WaitingForSecondControl,
+                                firstDisplay,
+                                cancellationToken);
+                        if (disposition == CaptureButtonDisposition.Cancel)
                             return CanceledCapture(target);
-                        if (IsCaptureRemove(second))
+                        if (disposition == CaptureButtonDisposition.Remove)
                             return RemovedCapture(target);
+                        if (!ControlMatchesDeviceGroup(second, target.deviceGroup))
+                            continue;
                         if (second == first)
                             continue;
 
@@ -209,11 +256,19 @@ namespace UPlayGround.Manager
             }
             finally
             {
+                while (!AreUiInputButtonsNeutral())
+                    await UniTask.Yield(PlayerLoopTiming.Update);
+                if (restoreUiActionMap && uiActionMap != null)
+                    uiActionMap.Enable();
                 _rebindCaptureActive = false;
                 SetPlayerActionInputSuppressed(false);
                 SuppressPlayerActionInputBriefly();
             }
         }
+
+        private static bool AreUiInputButtonsNeutral() =>
+            IsDeviceGroupNeutral(InputBindingDeviceGroup.KeyboardMouse)
+            && IsDeviceGroupNeutral(InputBindingDeviceGroup.Gamepad);
 
         private static bool IsDeviceGroupNeutral(InputBindingDeviceGroup deviceGroup)
         {
@@ -230,6 +285,17 @@ namespace UPlayGround.Manager
             }
 
             return true;
+        }
+
+        private static bool IsCaptureDeviceAvailable(InputBindingDeviceGroup deviceGroup)
+        {
+            foreach (InputDevice device in InputSystem.devices)
+            {
+                if (DeviceMatchesGroup(device, deviceGroup))
+                    return true;
+            }
+
+            return false;
         }
 
         private static bool ControlMatchesDeviceGroup(
@@ -263,6 +329,49 @@ namespace UPlayGround.Manager
                 return false;
 
             return button == keyboard.backspaceKey || button == keyboard.deleteKey;
+        }
+
+        /// <summary>
+        /// 예약 버튼을 짧게 누르면 바인딩으로, 일정 시간 유지하면 캡처 명령으로 해석한다.
+        /// 모든 물리 버튼을 재할당할 수 있게 하면서도 마우스 없이 캡처를 빠져나갈 경로를
+        /// 보장한다.
+        /// </summary>
+        private async UniTask<CaptureButtonDisposition> ResolveCaptureButtonDispositionAsync(
+            ButtonControl button,
+            InputRebindCapturePhase phase,
+            string firstControlDisplay,
+            CancellationToken cancellationToken)
+        {
+            bool cancelCandidate = IsCaptureCancel(button);
+            bool removeCandidate = IsCaptureRemove(button);
+            if (!cancelCandidate && !removeCandidate)
+                return CaptureButtonDisposition.Binding;
+
+            string display = GetControlDisplay(button);
+            string command = cancelCandidate ? "취소" : "바인딩 제거";
+            float holdStartedAt = Time.unscaledTime;
+
+            while (button.isPressed)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                float elapsed = Time.unscaledTime - holdStartedAt;
+                if (elapsed >= RebindCommandHoldDuration)
+                {
+                    return cancelCandidate
+                        ? CaptureButtonDisposition.Cancel
+                        : CaptureButtonDisposition.Remove;
+                }
+
+                PublishCaptureState(
+                    phase,
+                    firstControlDisplay,
+                    RebindCommandHoldDuration - elapsed,
+                    $"{display}: 짧게 놓으면 할당, 계속 누르면 {command}");
+                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+            }
+
+            return CaptureButtonDisposition.Binding;
         }
 
         private static string ToBindingPath(InputControl control)
@@ -344,6 +453,22 @@ namespace UPlayGround.Manager
                 null,
                 null,
                 null);
+        }
+
+        private InputRebindCaptureResult CaptureDeviceDisconnected(InputBindingTarget target)
+        {
+            const string message = "캡처 대상 장치의 연결이 끊어졌습니다.";
+            PublishCaptureState(
+                InputRebindCapturePhase.Canceled,
+                null,
+                0f,
+                message);
+            return new InputRebindCaptureResult(
+                target,
+                InputRebindCapturePhase.Canceled,
+                null,
+                null,
+                message);
         }
 
         private InputRebindCaptureResult RemovedCapture(InputBindingTarget target)

@@ -87,7 +87,6 @@ namespace UPlayGround.Editor
             ("게임플레이 / 전투", new[]
             {
                 Tool("Ability 에디터",                    "UPlayGround/게임플레이/Ability Editor", "플레이어 AbilitySet과 Ability를 편집합니다.", "플레이어 공격·스킬·차지·교체 공격 데이터를 AbilitySetSO 중심으로 조정하고 검증합니다."),
-                Tool("투사체 에디터",                     "UPlayGround/게임플레이/투사체 에디터", "투사체 Definition과 조합형 동작을 편집합니다.", "ProjectileDefinitionSO의 이동 전략과 Behavior를 구성하고, 조합 검증·사용처 검색·풀 및 분열 비용 분석·2D 궤적 프리뷰를 한 창에서 수행합니다."),
                 Tool("Ability 양산화 Wizard",             "UPlayGround/게임플레이/Ability Production Wizard", "공용 Base Set과 특수 파생 Set을 구성합니다.", "선택 Ability를 공용 AbilitySet으로 묶고 특수 몬스터의 Replace·Add·Remove Override를 Preview 후 생성합니다. 신규 Ability가 필요하면 6종 레시피 보조 흐름을 사용합니다."),
                 Tool("Ability 제작 검증 대시보드",       "UPlayGround/게임플레이/Ability Production Dashboard", "Motion·복제·검증·밸런스 피드백을 한 창에서 확인합니다.", "MotionEvent와 HitPhase 비교, 안전 Fork, 공유 영향 분석, TaskGraph 검증, 정적·실측·Replay·Snapshot 비교를 제공합니다."),
                 Tool("Ability Runtime Sandbox",           "UPlayGround/게임플레이/Ability Runtime Sandbox", "선택 Ability의 ASC 수직 슬라이스를 Play Mode에서 실행합니다.", "실제 Actor 프리팹을 임시 생성해 ActorAbilitySystem Prepare, Commit, End 경로와 종료 후 Task/Effect 잔류 상태를 확인합니다."),
@@ -115,7 +114,7 @@ namespace UPlayGround.Editor
             }),
             ("게임플레이 / 데이터", new[]
             {
-                Tool("데이터 저작 허브", "UPlayGround/게임플레이/데이터 저작 허브", "콘텐츠 데이터 편집 도메인을 한 창에서 전환합니다.", "액터, 아이템, 퀘스트, 제작, 드랍, NPC, 스탯, 사운드, 가이드 데이터를 공용 목록/상세 셸에서 저작하는 통합 진입점입니다. 생성기와 DB 동기화·검증도 각 도메인 작업 메뉴에서 실행할 수 있습니다."),
+                Tool("데이터 저작 허브", "UPlayGround/게임플레이/데이터 저작 허브", "콘텐츠 데이터 편집 도메인을 한 창에서 전환합니다.", "액터, 투사체, 아이템, 퀘스트, 제작, 드랍, NPC, 스탯, 사운드, 가이드 데이터를 공용 목록/상세 셸에서 저작하는 통합 진입점입니다. 생성기와 DB 동기화·검증도 각 도메인 작업 메뉴에서 실행할 수 있습니다."),
             }),
             ("게임플레이 / 아이템", new[]
             {

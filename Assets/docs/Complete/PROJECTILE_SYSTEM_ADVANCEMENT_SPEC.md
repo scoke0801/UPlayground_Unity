@@ -362,8 +362,8 @@ Phase 1의 일괄 틱·NonAlloc 물리 쿼리·256발 안전 상한이 먼저 �
 
 ### 10.1 UI Toolkit 투사체 에디터
 
-후속 저작 단계로 `UPlayGround/게임플레이/투사체 에디터`를 추가했다. 프로젝트 공통
-`UPlayGroundEditor.uss` 팔레트를 재사용하며 다음 흐름을 제공한다.
+후속 저작 단계로 데이터 저작 허브의 `투사체` 도메인을 추가했다. 투사체 저작 기능은
+별도 창으로 분리하지 않고 허브의 공통 목록/상세 흐름 안에서 다음 기능을 모두 제공한다.
 
 - 검색 가능한 Definition 가상화 목록과 새 에셋 생성·복제
 - Undo/Redo 가능한 Motion 전략 선택과 SerializeReference 세부 편집
@@ -371,7 +371,9 @@ Phase 1의 일괄 틱·NonAlloc 물리 쿼리·256발 안전 상한이 먼저 �
 - 잘못된 조합, 중복 Behavior, Split 누락·자기 참조 즉시 검증
 - 이동 거리·풀 크기·분열 트리 최대 생성량 분석과 전략별 2D 궤적 프리뷰
 - 프로젝트 전체 Definition 검증과 Ability/MotionSet 사용처 검색
-- `UPlayGround/툴 런처`의 `게임플레이 / 전투` 카테고리에서 실행
+- `UPlayGround/툴 런처 → 데이터 저작 허브 → 투사체`에서 전체 저작·검증
+- 같은 상세 패널에서 궤적·사용처·조합 비용 분석 실행
+- 독립 투사체 EditorWindow, Tool Catalog 등록과 전용 USS는 제거
 
 UI는 Unity 6 권장 방식인 `SerializedObject`/`SerializedProperty`/`PropertyField` 바인딩을
 사용하며, 데이터 타입을 리플렉션으로 직접 수정하지 않는다.

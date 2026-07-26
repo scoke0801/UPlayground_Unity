@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using UPlayGround.Data.Projectile;
 
-namespace UPlayGround.Editor.Projectile
+namespace UPlayGround.Data.Editor.Authoring
 {
     /// <summary>
     /// Definition의 이동 전략을 정규화된 2D 궤적으로 표현한다.

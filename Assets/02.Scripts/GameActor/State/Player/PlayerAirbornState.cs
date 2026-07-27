@@ -14,7 +14,7 @@ namespace UPlayGround.State
     public class PlayerAirborneState : PlayerActorState
     {
         public override string StateName => "Airborne";
-        public override bool AdjustGravity => false;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
         
         private int _remainingJumps;
         private bool _hasLanded = false;

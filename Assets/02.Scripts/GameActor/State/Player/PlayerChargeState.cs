@@ -82,7 +82,6 @@ namespace UPlayGround.State
             _releasedBeforeLoop = false;
             _stageThresholds    = _combat.GetChargeStageThresholds();
 
-            playerActor.Animator.ApplyRootMotion(true);
 
             // chargeAttackList[0]의 UPlayGround.Gameplay.Tag.GameplayTag로 애니메이션 재생
             // 해당 애니메이션에는 반드시 InfiniteLoop LoopEvent가 포함되어야 함
@@ -119,7 +118,6 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
 
-            playerActor.Animator.ApplyRootMotion(false);
             _softRotationTarget = null;
             base.OnExit(toState);
         }
@@ -259,7 +257,10 @@ namespace UPlayGround.State
                 return;
             }
 
-            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                gameActor.Animator.GetRootMotionStepVelocity(deltaTime),
+                currentVelocity,
+                motor.CharacterUp);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

@@ -13,7 +13,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Flying_TakeOff";
         public override bool BlocksBehaviorTree => true;
-        public override bool AdjustGravity => false; // 이륙 중 중력 무시
+        public override GravityOwnership GravityOwner => GravityOwnership.None; // 이륙 중 중력 무시
 
         private readonly EnemyFlyingAIContext _brain;
         private float _timer;

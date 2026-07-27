@@ -24,6 +24,7 @@ namespace UPlayGround.State
 
         public override string StateName => StateNameValue;
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private EnemyCombat    _combat;
         private EnemyAIContext _context;
@@ -178,7 +179,7 @@ namespace UPlayGround.State
                     : 1f;
                 gameActor.Animator.Speed = playbackScale * gameActor.LocalTimeScale;
 
-                Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+                Vector3 rootVelocity = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
                 currentVelocity = _motionWarp.EvaluateVelocity(
                     rootVelocity,
                     motor.TransientPosition,

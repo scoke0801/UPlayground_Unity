@@ -33,6 +33,23 @@ namespace UPlayGround.State
     public class PlayerAttackState : PlayerActorState
     {
         public override string StateName => "Attack";
+        public override bool AllowsSameTypeReentry => true;
+        public override bool CanReenterFrom(GameActorState currentState)
+        {
+            if (currentState is not PlayerAttackState currentAttack)
+                return false;
+
+            PlayerInterruptAction requestedType = _forcedAttackAction &
+                (PlayerInterruptAction.LightAttack |
+                 PlayerInterruptAction.HeavyAttack |
+                 PlayerInterruptAction.Skill);
+
+            // 공격 중 재진입은 같은 입력 타입만 허용한다.
+            // 다른 타입 입력은 소비하지 않고 남겨 모션 완료/정식 콤보 창에서 처리한다.
+            return requestedType != PlayerInterruptAction.None
+                   && requestedType == currentAttack.GetCurrentAttackInputType();
+        }
+
         // 후딜(리커버리) 꼬리 구간에선 Combat에 Recovery를 합성해 적 AI가 Punish 기회로 인식하게 한다.
         protected override ActorStateTag StateTagsCore
             => IsInRecoveryTail() ? (ActorStateTag.Combat | ActorStateTag.Recovery) : ActorStateTag.Combat;
@@ -150,9 +167,19 @@ namespace UPlayGround.State
                 }
             }
 
-            controller.TransitionToState(hasForcedAttack
+            var nextAttackState = hasForcedAttack
                 ? new PlayerAttackState(controller, forcedAttackAction)
-                : new PlayerAttackState(controller));
+                : new PlayerAttackState(controller);
+
+            // 공용 상태 머신이 재진입을 거절하는 경우를 성공으로 보고하지 않는다.
+            // false를 반환해야 인터럽트 해석기가 입력을 삼키지 않고 정식 콤보 처리로 넘길 수 있다.
+            if (controller.CurrentState is PlayerAttackState currentAttack
+                && !nextAttackState.CanReenterFrom(currentAttack))
+            {
+                return false;
+            }
+
+            controller.TransitionToState(nextAttackState);
             return true;
         }
 
@@ -281,6 +308,26 @@ namespace UPlayGround.State
                 equipment != null ? equipment.GetMainWeaponType() : WeaponType.NoWeapon);
         }
 
+        private PlayerInterruptAction GetCurrentAttackInputType()
+        {
+            if (_isCounter
+                || _isParryCounter
+                || _isSwapEvadeCounterAttack
+                || _isDodgeCounterAttack
+                || _isEntryAttack
+                || _isSwapSpecialAttack)
+            {
+                return PlayerInterruptAction.None;
+            }
+
+            if (_abilityExecutionHandle.IsValid)
+                return PlayerInterruptAction.Skill;
+
+            return _isHeavyAttack
+                ? PlayerInterruptAction.HeavyAttack
+                : PlayerInterruptAction.LightAttack;
+        }
+
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
@@ -295,7 +342,6 @@ namespace UPlayGround.State
                              && PlayerAttackInputArbiter.TryConsumeAttackInput(out bool consumedHeavy)
                              && consumedHeavy;
 
-            playerActor.Animator.ApplyRootMotion(true);
             _playerActorAnimator = playerActor.Animator as PlayerActorAnimator;
             _motionWarp = controller.MotionWarp;
 
@@ -412,7 +458,6 @@ namespace UPlayGround.State
             _combat.ClearHitTargets();
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
             _playerActorAnimator.IsOpenedComboWindow = false;
-            playerActor.Animator.ApplyRootMotion(false);
             gameActor.Animator.MotionTimelineSpeed = 1f;
             gameActor.Animator.Speed = gameActor.LocalTimeScale;
             // 공격 진입 시 끄지 않으므로 여기서 다시 켤 필요도 없음 (IK는 계속 활성 유지).
@@ -774,6 +819,7 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
+            Vector3 authoritativeVelocity = currentVelocity;
 
             // 워프 구간에서 클립 재생 속도를 타겟 거리 비율로 보정해 풋슬라이딩 감소.
             float playbackScale = _combat.IsMotionWarping
@@ -781,7 +827,7 @@ namespace UPlayGround.State
                 : 1f;
             ApplyAttackSpeed(playbackScale);
 
-            Vector3 rootVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            Vector3 rootVelocity = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
             currentVelocity = _motionWarp.EvaluateVelocity(
                 rootVelocity,
                 motor.TransientPosition,
@@ -798,6 +844,13 @@ namespace UPlayGround.State
                 currentVelocity,
                 motor.TransientPosition,
                 deltaTime);
+
+            // 지상 공격의 애니메이션/워프 Y는 KCC 탄도를 소유하지 않는다.
+            // 착지 직후 클립의 Root Y가 상승 속도로 변환되는 현상을 차단한다.
+            currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                currentVelocity,
+                authoritativeVelocity,
+                motor.CharacterUp);
         }
 
         private float GetAttackSpeed()
@@ -848,7 +901,7 @@ namespace UPlayGround.State
             }
             else
             {
-                currentRotation *= gameActor.Animator.DeltaRotation;
+                currentRotation *= gameActor.Animator.RootMotionStepDeltaRotation;
             }
 
             currentRotation = currentRotation.normalized;

@@ -15,6 +15,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Dash";
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;

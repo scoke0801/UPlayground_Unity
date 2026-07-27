@@ -25,6 +25,9 @@ namespace UPlayGround.Components
                 attackKind = attackKind,
                 defenseType = attackInfo.defenseType,
                 criticalMultiplier = 1f,
+                isDiveAttack = attackInfo.isDiveAttack,
+                diveDescentSpeed = Mathf.Max(0f, attackInfo.diveDescentSpeed),
+                aerialMovement = attackInfo.aerialMovement,
             };
 
             ApplyHitPhase(data, attackInfo.baseInfo.GetHitPhase(hitPhaseIndex), hitPhaseIndex);
@@ -95,6 +98,9 @@ namespace UPlayGround.Components
                 knockbackForce = source.knockbackForce,
                 knockbackDrag = source.knockbackDrag,
                 grabDuration = source.grabDuration,
+                isDiveAttack = source.isDiveAttack,
+                diveDescentSpeed = source.diveDescentSpeed,
+                aerialMovement = source.aerialMovement,
                 victimForcedMotionSlot = source.victimForcedMotionSlot,
                 guaranteedReaction = source.guaranteedReaction,
                 hitPhaseIndex = source.hitPhaseIndex,

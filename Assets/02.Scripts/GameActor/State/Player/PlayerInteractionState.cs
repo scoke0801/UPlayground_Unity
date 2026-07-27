@@ -12,6 +12,8 @@ namespace UPlayGround.State
 {
     public class PlayerInteractionState : PlayerActorState
     {
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
+
         private enum AnimPlayState
         {
             None = 0,

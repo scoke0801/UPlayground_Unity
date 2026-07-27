@@ -17,7 +17,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Flying_Dive";
         public override bool BlocksBehaviorTree => true;
-        public override bool AdjustGravity => false;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyFlyingAIContext _brain;
 

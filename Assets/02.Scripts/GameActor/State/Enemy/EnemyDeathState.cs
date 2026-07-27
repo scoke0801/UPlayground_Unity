@@ -17,6 +17,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Death";
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
         
         private bool _isDestoryCalled = false;
         private PlayerEquipment _equipment;

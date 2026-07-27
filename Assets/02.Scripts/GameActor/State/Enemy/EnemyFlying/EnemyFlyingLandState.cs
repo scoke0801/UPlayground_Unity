@@ -13,7 +13,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Flying_Land";
         public override bool BlocksBehaviorTree => true;
-        public override bool AdjustGravity => false;
+        public override GravityOwnership GravityOwner => GravityOwnership.None;
 
         private readonly EnemyFlyingAIContext _brain;
 

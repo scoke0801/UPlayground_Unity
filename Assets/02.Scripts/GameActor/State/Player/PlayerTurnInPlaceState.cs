@@ -31,7 +31,6 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
-            gameActor.Animator.ApplyRootMotion(true);
 
             float signedAngle = Vector3.SignedAngle(
                 motor.CharacterForward, _targetDirection, motor.CharacterUp);
@@ -51,7 +50,6 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            gameActor.Animator.ApplyRootMotion(false);
             gameActor.Animator.OnMotionSetCompleted -= OnTurnComplete;
             base.OnExit(toState);
         }
@@ -97,13 +95,16 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             // 루트모션 델타 회전을 누적 적용
-            currentRotation = currentRotation * gameActor.Animator.DeltaRotation;
+            currentRotation = currentRotation * gameActor.Animator.RootMotionStepDeltaRotation;
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             // 루트모션 델타 위치로 속도 결정 (DodgeState와 동일한 패턴)
-            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                gameActor.Animator.GetRootMotionStepVelocity(deltaTime),
+                currentVelocity,
+                motor.CharacterUp);
         }
 
         private void OnTurnComplete()

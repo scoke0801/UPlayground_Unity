@@ -12,7 +12,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Airborne";
         public override bool BlocksBehaviorTree => true;
-        public override bool AdjustGravity => false;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
         private bool _landStarted = false;
         private bool _hasLeftGround;
         private float _dragSpeed = 0.1f;
@@ -35,7 +35,7 @@ namespace UPlayGround.State
             _dragSpeed = controller.Drag;
 
             // 진입 시 수직 속도가 양수면 상승(점프), 음수면 낙하 애니메이션
-            float verticalSpeed = Vector3.Dot(motor.Velocity, motor.CharacterUp);
+            float verticalSpeed = Vector3.Dot(controller.PredictedVelocity, motor.CharacterUp);
             if (verticalSpeed > 0f)
                 gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Jump, 0.05f);
             else

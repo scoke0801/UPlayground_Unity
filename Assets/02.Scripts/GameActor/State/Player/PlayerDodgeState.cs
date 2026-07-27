@@ -40,7 +40,6 @@ namespace UPlayGround.State
 
             IgnoreMonsterColliders();
 
-            gameActor.Animator.ApplyRootMotion(true);
 
             UPlayGround.Gameplay.Tag.GameplayTag dodgeKey = ResolveDirectionalMotionKey(
                 UPlayGround.Data.Actor.Animation.MotionTags.Dodge_F, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_B, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_L, UPlayGround.Data.Actor.Animation.MotionTags.Dodge_R, UPlayGround.Data.Actor.Animation.MotionTags.Dodge);
@@ -53,7 +52,6 @@ namespace UPlayGround.State
         {
             RestoreAndResolvePenetration();
             
-            gameActor.Animator.ApplyRootMotion(false);
             
             gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
 
@@ -62,7 +60,10 @@ namespace UPlayGround.State
         
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+            currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                gameActor.Animator.GetRootMotionStepVelocity(deltaTime),
+                currentVelocity,
+                motor.CharacterUp);
         }
         private void ChangeToNextState()
         {

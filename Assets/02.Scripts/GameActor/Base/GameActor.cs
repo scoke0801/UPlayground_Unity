@@ -89,7 +89,9 @@ namespace UPlayGround
             get => _localTimeScale;
             set
             {
-                _localTimeScale = value;
+                _localTimeScale = float.IsNaN(value) || float.IsInfinity(value)
+                    ? 1f
+                    : Mathf.Max(0.001f, value);
                 if (_animator != null)
                 {
                     _animator.Speed = _localTimeScale;

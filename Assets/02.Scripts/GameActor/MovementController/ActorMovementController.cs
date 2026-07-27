@@ -42,12 +42,8 @@ namespace UPlayGround.MovementController
 
         protected List<Collider> IgnoredColliders = new List<Collider>();
         protected Vector3 _internalVelocityAdd = Vector3.zero;
-
-        // Impulse (넉백/Launch 전용)
-        // _internalVelocityAdd 와 분리: Impulse는 매 프레임 drag로 감속
-        private Vector3 _impulseVelocity  = Vector3.zero;
-        private float   _impulseDrag      = 10f;   // 감속 강도 (높을수록 빨리 멈춤)
-        private bool    _hasImpulse       = false;
+        private Vector3 _pendingImpulseVelocity;
+        private readonly List<DirectionalVelocityDamper> _impulseDampers = new();
 
         /// <summary>
         /// 물리 충격량 부여. 넉백/Launch 등 감속이 필요한 외부 힘에 사용.
@@ -55,23 +51,54 @@ namespace UPlayGround.MovementController
         /// </summary>
         public void AddImpulse(Vector3 velocity, float drag = 8f)
         {
-            _impulseVelocity += velocity;
-            _impulseDrag      = drag;
-            _hasImpulse       = true;
+            _pendingImpulseVelocity += velocity;
 
-            // 위쪽 성분이 있으면 KCC 지면 판정 강제 해제 (Launch 필수)
-            if (velocity.y > 0f)
+            Vector3 up = Motor != null ? Motor.CharacterUp : Vector3.up;
+            float upwardSpeed = Vector3.Dot(velocity, up);
+            Vector3 planarVelocity = velocity - up * upwardSpeed;
+            if (planarVelocity.sqrMagnitude > 0.0001f && drag > 0f)
+            {
+                _impulseDampers.Add(new DirectionalVelocityDamper(planarVelocity, drag));
+                _impulseDampers.Sort(CompareImpulseDampers);
+            }
+
+            if (upwardSpeed > 0f && Motor != null)
                 Motor.ForceUnground();
         }
 
         public void ClearImpulse()
         {
-            _impulseVelocity = Vector3.zero;
-            _hasImpulse      = false;
+            _pendingImpulseVelocity = Vector3.zero;
+            _impulseDampers.Clear();
         }
 
         /// <summary> 현재 Impulse가 활성화 중인지 (EnemyAirborneState tumble 판정용) </summary>
-        public bool HasImpulse => _hasImpulse;
+        public bool HasImpulse =>
+            _pendingImpulseVelocity.sqrMagnitude > 0.0001f || _impulseDampers.Count > 0;
+
+        /// <summary>현재 KCC 권위 속도에 아직 소비되지 않은 1회성 delta-v를 합친 예측값.</summary>
+        public Vector3 PredictedVelocity =>
+            (Motor != null ? Motor.Velocity : Vector3.zero)
+            + _internalVelocityAdd
+            + _pendingImpulseVelocity;
+
+        private static int CompareImpulseDampers(
+            DirectionalVelocityDamper left,
+            DirectionalVelocityDamper right)
+        {
+            int result = left.Direction.x.CompareTo(right.Direction.x);
+            if (result != 0) return result;
+            result = left.Direction.y.CompareTo(right.Direction.y);
+            if (result != 0) return result;
+            result = left.Direction.z.CompareTo(right.Direction.z);
+            if (result != 0) return result;
+            result = left.Drag.CompareTo(right.Drag);
+            if (result != 0) return result;
+            // List.Sort는 불안정 정렬이므로 여기서 0을 돌려주면 방향/Drag가 같고
+            // 잔여 속도만 다른 damper의 적용 순서가 프레임마다 뒤집힐 수 있다.
+            // Apply는 availableSpeed 클램프 때문에 순서에 의존하므로 완전 순서를 만든다.
+            return left.RemainingSpeed.CompareTo(right.RemainingSpeed);
+        }
 
         public KinematicCharacterMotor Motor { get; private set; }
         public Vector3 CameraVelocity => Motor != null ? Motor.Velocity : Vector3.zero;
@@ -169,8 +196,12 @@ namespace UPlayGround.MovementController
                 return;
             }
             
-            // 같은 타입의 상태로 전환 방지
-            if (_currentState != null && _currentState.GetType() == newState.GetType())
+            // 대부분의 상태는 같은 타입 중복 전환을 막는다.
+            // 공격 캔슬처럼 새 실행 컨텍스트로 재진입해야 하는 상태는 명시적으로 허용한다.
+            if (_currentState != null
+                && _currentState.GetType() == newState.GetType()
+                && (!newState.AllowsSameTypeReentry
+                    || !newState.CanReenterFrom(_currentState)))
             {
                 return;
             }
@@ -192,6 +223,7 @@ namespace UPlayGround.MovementController
             
             // 이전 상태 종료
             _currentState?.OnExit(newState);
+            Actor?.Animator?.FlushRootMotion();
             
             // 새 상태 설정
             _currentState = newState;
@@ -213,55 +245,58 @@ namespace UPlayGround.MovementController
 
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
-            // ── impulse 분리 ──────────────────────────────────
-            // KCC가 넘겨주는 currentVelocity에는 이전 프레임의 impulse가 합산되어 있다.
-            // State에게는 impulse를 제외한 순수 stateVelocity만 넘겨야
-            // impulse 성분이 stateVelocity에 영구 주입되는 버그를 방지한다.
-            Vector3 stateVelocity = currentVelocity - _impulseVelocity;
-            _currentState?.UpdateVelocity(ref stateVelocity, deltaTime);
+            // currentVelocity는 KCC 충돌 해결을 거친 유일한 권위 값이다.
+            // 이전 프레임 impulse를 역산하지 않고 상태, 감쇠, 신규 delta를 순서대로 합성한다.
+            _currentState?.UpdateVelocity(ref currentVelocity, deltaTime);
 
             if (!Motor.GroundingStatus.IsStableOnGround)
             {
-                if (_currentState is { AdjustGravity: true })
+                if (_currentState is { GravityOwner: GravityOwnership.Controller })
                 {
-                    float verticalSpeed     = Vector3.Dot(stateVelocity, Motor.CharacterUp);
-                    float gravityMultiplier = verticalSpeed < 0f ? FallGravityMultiplier : RiseGravityMultiplier;
-                    stateVelocity += gravityMultiplier * deltaTime * Gravity;
+                    float verticalSpeed = Vector3.Dot(currentVelocity, Motor.CharacterUp);
+                    float gravityMultiplier = _currentState.GetGravityMultiplier(verticalSpeed);
+                    currentVelocity += gravityMultiplier * deltaTime * Gravity;
                 }
+            }
+
+            _currentState?.ConstrainVelocityAfterGravity(ref currentVelocity, deltaTime);
+
+            for (int i = _impulseDampers.Count - 1; i >= 0; i--)
+            {
+                var damper = _impulseDampers[i];
+                damper.Apply(ref currentVelocity, deltaTime);
+                if (damper.IsActive)
+                    _impulseDampers[i] = damper;
+                else
+                    _impulseDampers.RemoveAt(i);
             }
 
             if (_internalVelocityAdd.sqrMagnitude > 0f)
             {
-                if (_internalVelocityAdd.y > 0f)
+                if (Vector3.Dot(_internalVelocityAdd, Motor.CharacterUp) > 0f)
                     Motor.ForceUnground();
 
-                stateVelocity       += _internalVelocityAdd;
+                currentVelocity += _internalVelocityAdd;
                 _internalVelocityAdd  = Vector3.zero;
             }
 
-            // ── impulse 감속 + 재합산 ──────────────────────────
-            if (_hasImpulse)
+            if (_pendingImpulseVelocity.sqrMagnitude > 0f)
             {
-                _impulseVelocity = Vector3.Lerp(
-                    _impulseVelocity,
-                    Vector3.zero,
-                    1f - Mathf.Exp(-_impulseDrag * deltaTime));
-
-                if (_impulseVelocity.sqrMagnitude < 0.01f)
-                    ClearImpulse();
+                currentVelocity += _pendingImpulseVelocity;
+                _pendingImpulseVelocity = Vector3.zero;
             }
-
-            currentVelocity = stateVelocity + _impulseVelocity;
         }
 
         public virtual void BeforeCharacterUpdate(float deltaTime)
         {
+            Actor?.Animator?.BeginRootMotionStep();
             _currentState?.BeforeCharacterUpdate(deltaTime);
         }
 
         public virtual void AfterCharacterUpdate(float deltaTime)
         {
             _currentState?.AfterCharacterUpdate(deltaTime);
+            Actor?.Animator?.EndRootMotionStep();
         }
 
         public virtual void PostGroundingUpdate(float deltaTime)
@@ -275,7 +310,7 @@ namespace UPlayGround.MovementController
         /// </summary>
         public virtual bool IsColliderValidForCollisions(Collider coll)
         {
-            return true;
+            return coll != null && !IgnoredColliders.Contains(coll);
         }
         
         /// <summary>

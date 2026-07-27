@@ -59,6 +59,10 @@ namespace UPlayGround.Data
 
         public float grabDuration = 1.5f;
 
+        public bool isDiveAttack;
+        public float diveDescentSpeed = 15f;
+        public AerialMovementProfile aerialMovement;
+
         public GameplayTag victimForcedMotionSlot;
         public bool guaranteedReaction = false;
 

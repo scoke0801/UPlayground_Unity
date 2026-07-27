@@ -189,9 +189,6 @@ namespace UPlayGround.Components
                 Debug.LogWarning($"[ResidualAttack] MotionEventExecutor missing on animator. animator={_animator.name}");
             }
 
-            // 수동 루트모션/잔류 워프(ApplyRootMotionDelta)가 DeltaPosition을 읽으려면 applyRootMotion=true 필요.
-            // ActorAnimator가 OnAnimatorMove를 구현하므로 Unity가 자동 적용하지 않고 델타만 노출한다.
-            _animator.ApplyRootMotion(true);
             _animator.OnMotionSetCompleted += OnMotionSetCompleted;
             if (!_animator.RestorePlaybackSnapshot(snapshot.PlaybackSnapshot))
             {
@@ -229,7 +226,7 @@ namespace UPlayGround.Components
             if (_animator == null)
                 return;
 
-            Vector3 delta = _animator.DeltaPosition;
+            _animator.ConsumePendingRootMotion(out Vector3 delta, out _);
             bool isWarping = _motionWarp != null && _motionWarp.IsMotionWarping;
             bool hasWarpTarget = _motionWarp != null && _motionWarp.HasTarget;
             if (!_useRootMotion && !isWarping)

@@ -16,6 +16,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Counter";
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyCombat _combat;
         private readonly EnemyAIContext _context;
@@ -125,7 +126,7 @@ namespace UPlayGround.State
             {
                 // 루트모션 또는 정지
                 currentVelocity = _skill != null
-                    ? gameActor.Animator.DeltaPosition / deltaTime
+                    ? gameActor.Animator.GetRootMotionStepVelocity(deltaTime)
                     : Vector3.zero;
             }
 

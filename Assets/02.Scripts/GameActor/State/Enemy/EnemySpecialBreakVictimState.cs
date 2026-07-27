@@ -13,6 +13,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "SpecialBreakVictim";
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly float _duration;
         private float _remainingDuration;

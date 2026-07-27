@@ -15,6 +15,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Flying_GroundAttack";
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyFlyingAIContext _brain;
         private EnemyCombat _combat;
@@ -128,7 +129,7 @@ namespace UPlayGround.State
             if (_currentSkill != null && _currentSkill.baseInfo.attackType == AttackType.Ranged)
                 currentVelocity = Vector3.zero;
             else
-                currentVelocity = gameActor.Animator.DeltaPosition / deltaTime;
+                currentVelocity = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
 
             currentVelocity.y = lastY;
 

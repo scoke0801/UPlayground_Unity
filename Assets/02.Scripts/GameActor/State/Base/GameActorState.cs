@@ -19,6 +19,13 @@ namespace UPlayGround.State
         Recovery = 1 << 5
     }
 
+    public enum GravityOwnership
+    {
+        Controller,
+        State,
+        None
+    }
+
     /// <summary>
     /// 모든 Actor 이동 상태의 베이스 클래스
     /// </summary>
@@ -28,7 +35,12 @@ namespace UPlayGround.State
         protected ActorMovementController controller;
         protected KinematicCharacterMotor motor;
 
-        public virtual bool AdjustGravity { get; protected set; } = true;
+        public virtual GravityOwnership GravityOwner => GravityOwnership.Controller;
+
+        public virtual float GetGravityMultiplier(float verticalSpeed)
+            => verticalSpeed < 0f
+                ? controller.FallGravityMultiplier
+                : controller.RiseGravityMultiplier;
 
         /// <summary>
         /// true이면 이 상태 동안 피격 무적. PlayerActor.CanTakeDamage()에서 참조.
@@ -50,6 +62,18 @@ namespace UPlayGround.State
         /// true이면 BT가 이 상태를 중간에 다른 판단으로 덮지 않고 상태 자체의 종료 로직을 기다린다.
         /// </summary>
         public virtual bool BlocksBehaviorTree => false;
+
+        /// <summary>
+        /// 같은 구체 상태 타입의 새 인스턴스로 재진입할 수 있는지 여부.
+        /// 기본 상태는 중복 전환을 막고, 입력에 따라 실행 컨텍스트를 새로 만들어야 하는 상태만 허용한다.
+        /// </summary>
+        public virtual bool AllowsSameTypeReentry => false;
+
+        /// <summary>
+        /// 동일 타입 재진입이 허용된 상태에서 현재 실행 컨텍스트를 새 인스턴스로 교체할 수 있는지 판정한다.
+        /// 공격 타입처럼 인스턴스별 실행 종류가 다른 상태가 교차 전환을 제한할 때 재정의한다.
+        /// </summary>
+        public virtual bool CanReenterFrom(GameActorState currentState) => AllowsSameTypeReentry;
 
         /// <summary>
         /// 서브클래스가 켤 추가 상태 태그. InterruptLocked는 BlocksBehaviorTree로부터 자동 합성되므로
@@ -110,6 +134,11 @@ namespace UPlayGround.State
         /// 캐릭터 속도 업데이트
         /// </summary>
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+        {
+        }
+
+        /// <summary>컨트롤러 중력 적분 뒤 상태별 종단 속도 같은 최종 제약을 적용한다.</summary>
+        public virtual void ConstrainVelocityAfterGravity(ref Vector3 currentVelocity, float deltaTime)
         {
         }
         

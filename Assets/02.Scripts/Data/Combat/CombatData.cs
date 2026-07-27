@@ -275,6 +275,30 @@ namespace UPlayGround.Data
         }
     }
 
+    [Serializable]
+    public class AerialMovementProfile
+    {
+        [Tooltip("진입 순간 상승 속도가 이 값보다 작으면 보정한다. 0이면 기존 탄도를 그대로 보존한다.")]
+        [Min(0f)] public float minimumEntryUpwardSpeed;
+
+        [Tooltip("공격 시작 구간의 중력 배율 보정")]
+        [Min(0f)] public float startupGravityScale = 1f;
+        [Min(0f)] public float startupDuration = 0.1f;
+
+        [Tooltip("정점 부근의 중력 배율 보정")]
+        [Min(0f)] public float apexGravityScale = 1f;
+        [Min(0f)] public float apexVelocityThreshold;
+        [Min(0f)] public float maximumApexDuration;
+
+        [Tooltip("시작/정점 구간 이후 중력 배율 보정")]
+        [Min(0f)] public float recoveryGravityScale = 1f;
+        [Tooltip("0이면 종단 낙하 속도를 제한하지 않는다.")]
+        [Min(0f)] public float terminalFallSpeed;
+
+        [Tooltip("공중 공격 중 수평 루트모션 반영률. 수직 루트모션은 항상 물리 탄도에서 제외한다.")]
+        [Range(0f, 1f)] public float horizontalRootMotionInfluence;
+    }
+
     /// <summary>
     /// 캐릭터 공격 정보, 에디터 타임 사전 설정
     /// </summary>
@@ -322,6 +346,7 @@ namespace UPlayGround.Data
         public bool isDiveAttack;
         public float diveDescentSpeed = 15f;
         public float aerialSkillWeight = 1f;
+        public AerialMovementProfile aerialMovement = new();
 
         [Header("AI Conditions")]
         public SkillConditionGroup conditionGroup = new();

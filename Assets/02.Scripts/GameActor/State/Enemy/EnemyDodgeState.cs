@@ -16,6 +16,7 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
         public override bool GrantsInvincibility => true;
         public override bool SuppressesHitReaction => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;

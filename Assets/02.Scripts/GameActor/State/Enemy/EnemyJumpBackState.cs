@@ -15,7 +15,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "JumpBack";
         public override bool BlocksBehaviorTree => true;
-        public override bool AdjustGravity => false;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyAIContext _context;
         private readonly EnemyDetection _detection;
@@ -26,6 +26,7 @@ namespace UPlayGround.State
         private bool _hasLeftGround;
         private bool _canJumpBack;
         private bool _launchStarted;
+        private bool _usesMotionFallback;
         private AnimancerState _motionState;
         private float _maxSafeTargetDistance;
 
@@ -38,6 +39,8 @@ namespace UPlayGround.State
         private const float MIN_RETREAT_ROOM = 0.35f;
         private const float MIN_HORIZONTAL_LAUNCH_SPEED = 1.2f;
         private const float HORIZONTAL_DAMPING = 2.2f;
+        private const float FALLBACK_RETREAT_DURATION = 0.38f;
+        private const float FALLBACK_SPEED_RATIO = 1.25f;
 
         public EnemyJumpBackState(
             ActorMovementController controller,
@@ -62,6 +65,7 @@ namespace UPlayGround.State
             _timer = 0f;
             _hasLeftGround = false;
             _launchStarted = false;
+            _usesMotionFallback = false;
             _jumpDirection = CalculateJumpDirection();
             _maxSafeTargetDistance = ResolveMaxSafeTargetDistance();
             _canJumpBack = HasRetreatRoom();
@@ -74,7 +78,14 @@ namespace UPlayGround.State
             if (_motionState != null)
                 _motionState.OwnedEvents.OnEnd = ChangeToNextState;
             else
-                ChangeToNextState();
+            {
+                // Jump/Dodge 모션이 없는 몬스터도 상태 전환 성공 직후 Idle로 끝나지 않고
+                // 짧은 물리 후퇴를 수행한다. 원거리 몬스터의 최소 거리 확보를 보장한다.
+                _usesMotionFallback = true;
+                gameActor.Animator.PlayMotion(
+                    UPlayGround.Data.Actor.Animation.MotionTags.Idle,
+                    0.05f);
+            }
         }
 
         public override void OnExit(GameActorState toState)
@@ -91,6 +102,9 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             _timer += deltaTime;
+
+            if (_usesMotionFallback && _timer >= FALLBACK_RETREAT_DURATION)
+                ChangeToNextState();
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -118,6 +132,28 @@ namespace UPlayGround.State
                     currentVelocity,
                     Vector3.zero,
                     1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                return;
+            }
+
+            if (_usesMotionFallback)
+            {
+                if (!motor.GroundingStatus.IsStableOnGround)
+                {
+                    currentVelocity += controller.Gravity * deltaTime;
+                    return;
+                }
+
+                float fallbackScale = 1f - Mathf.Clamp01(_timer / FALLBACK_RETREAT_DURATION);
+                var fallbackVelocity =
+                    _jumpDirection
+                    * (controller.MaxRunMoveSpeed * FALLBACK_SPEED_RATIO * fallbackScale);
+                fallbackVelocity = motor.GetDirectionTangentToSurface(
+                    fallbackVelocity,
+                    motor.GroundingStatus.GroundNormal) * fallbackVelocity.magnitude;
+
+                var fallbackVerticalVelocity = currentVelocity.y;
+                currentVelocity = fallbackVelocity;
+                currentVelocity.y = fallbackVerticalVelocity;
                 return;
             }
 

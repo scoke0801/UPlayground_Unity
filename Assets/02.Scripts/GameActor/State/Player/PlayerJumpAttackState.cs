@@ -12,7 +12,6 @@ namespace UPlayGround.State
     {
         public override string StateName => "JumpAttack";
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
-        public override bool AdjustGravity => true;
 
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;
@@ -24,6 +23,11 @@ namespace UPlayGround.State
         private bool         _changingState;
         private readonly bool _startAsFinish;  // 공중에서 강공격으로 진입 시 true
         private readonly PlayerInterruptAction _forcedAttackAction; // 공중 연계 라우트 진입 시 입력 종류(예: Skill)
+        private AerialMovementProfile _aerialMovement;
+        private float _physicsElapsed;
+        private float _apexElapsed;
+        private float _gravityScale = 1f;
+        private bool _entryVelocityApplied;
 
         public PlayerJumpAttackState(
             ActorMovementController controller,
@@ -42,6 +46,10 @@ namespace UPlayGround.State
             _comboInputted = false;
             _comboIsFinish = false;
             _changingState = false;
+            _physicsElapsed = 0f;
+            _apexElapsed = 0f;
+            _gravityScale = 1f;
+            _entryVelocityApplied = false;
 
             _combat = playerActor.GetCombat();
             _motionWarp = controller.MotionWarp;
@@ -60,12 +68,18 @@ namespace UPlayGround.State
                 _attackData = _startAsFinish
                     ? _combat?.ExecuteJumpFinishAttack()
                     : _combat?.ExecuteJumpAttack(false);
+            ConfigureAerialMovement();
 
             var state = _attackData?.motionAsset != null
                 ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.25f)
                 : null;
             if (state != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
+            else
+            {
+                _combat?.ResetCombo();
+                TransitionAfterAerialAttack();
+            }
         }
 
         public override void OnExit(GameActorState toState)
@@ -139,6 +153,7 @@ namespace UPlayGround.State
                 _attackData = _comboIsFinish
                     ? _combat?.ExecuteJumpFinishAttack()
                     : _combat?.ExecuteJumpAttack(true);
+                ConfigureAerialMovement();
 
                 var state = _attackData?.motionAsset != null
                     ? gameActor.Animator.PlayMotion(_attackData.motionAsset, 0.1f)
@@ -146,10 +161,7 @@ namespace UPlayGround.State
                 if (state == null)
                 {
                     _combat?.ResetCombo();
-                    if (playerController.HasMoveInput())
-                        controller.TransitionToState(new PlayerGroundMoveState(controller));
-                    else
-                        controller.TransitionToState(new PlayerIdleState(controller));
+                    TransitionAfterAerialAttack();
                     return;
                 }
                 _comboInputted = false;
@@ -160,23 +172,105 @@ namespace UPlayGround.State
             else
             {
                 _combat?.ResetCombo();
-                if (playerController.HasMoveInput())
-                    controller.TransitionToState(new PlayerGroundMoveState(controller));
-                else
-                    controller.TransitionToState(new PlayerIdleState(controller));
+                TransitionAfterAerialAttack();
             }
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            currentRotation *= gameActor.Animator.DeltaRotation;
+            currentRotation *= gameActor.Animator.RootMotionStepDeltaRotation;
             currentRotation = currentRotation.normalized;
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
-            currentVelocity = motor.CharacterUp * -15f;
+            _physicsElapsed += deltaTime;
+
+            Vector3 up = motor.CharacterUp;
+            float verticalSpeed = Vector3.Dot(currentVelocity, up);
+            Vector3 planarVelocity = Vector3.ProjectOnPlane(currentVelocity, up);
+
+            if (!_entryVelocityApplied)
+            {
+                if (_attackData?.isDiveAttack == true)
+                    verticalSpeed = -Mathf.Max(0f, _attackData.diveDescentSpeed);
+                else if (_aerialMovement.minimumEntryUpwardSpeed > 0f)
+                    verticalSpeed = Mathf.Max(verticalSpeed, _aerialMovement.minimumEntryUpwardSpeed);
+
+                _entryVelocityApplied = true;
+            }
+
+            float rootInfluence = Mathf.Clamp01(_aerialMovement.horizontalRootMotionInfluence);
+            if (rootInfluence > 0f)
+            {
+                Vector3 rootVelocity = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
+                Vector3 rootPlanarVelocity = Vector3.ProjectOnPlane(rootVelocity, up);
+                planarVelocity = Vector3.Lerp(planarVelocity, rootPlanarVelocity, rootInfluence);
+            }
+
+            if (_attackData?.isDiveAttack == true)
+            {
+                _gravityScale = 1f;
+            }
+            else if (_physicsElapsed <= _aerialMovement.startupDuration)
+            {
+                _gravityScale = _aerialMovement.startupGravityScale;
+            }
+            else if (Mathf.Abs(verticalSpeed) <= _aerialMovement.apexVelocityThreshold
+                     && _apexElapsed < _aerialMovement.maximumApexDuration)
+            {
+                _apexElapsed += deltaTime;
+                _gravityScale = _aerialMovement.apexGravityScale;
+            }
+            else
+            {
+                _gravityScale = _aerialMovement.recoveryGravityScale;
+            }
+
+            currentVelocity = planarVelocity + up * verticalSpeed;
+        }
+
+        public override float GetGravityMultiplier(float verticalSpeed)
+            => base.GetGravityMultiplier(verticalSpeed) * Mathf.Max(0f, _gravityScale);
+
+        public override void ConstrainVelocityAfterGravity(
+            ref Vector3 currentVelocity,
+            float deltaTime)
+        {
+            float terminalFallSpeed = _aerialMovement.terminalFallSpeed;
+            if (terminalFallSpeed <= 0f)
+                return;
+
+            Vector3 up = motor.CharacterUp;
+            float verticalSpeed = Vector3.Dot(currentVelocity, up);
+            if (verticalSpeed >= -terminalFallSpeed)
+                return;
+
+            currentVelocity += up * (-terminalFallSpeed - verticalSpeed);
+        }
+
+        private void ConfigureAerialMovement()
+        {
+            _aerialMovement = _attackData?.aerialMovement ?? new AerialMovementProfile();
+            _physicsElapsed = 0f;
+            _apexElapsed = 0f;
+            _gravityScale = 1f;
+            _entryVelocityApplied = false;
+        }
+
+        private void TransitionAfterAerialAttack()
+        {
+            if (!motor.GroundingStatus.IsStableOnGround)
+            {
+                controller.TransitionToState(new PlayerAirborneState(playerController));
+                return;
+            }
+
+            if (playerController.HasMoveInput())
+                controller.TransitionToState(new PlayerGroundMoveState(controller));
+            else
+                controller.TransitionToState(new PlayerIdleState(controller));
         }
 
         private void OnLanded()

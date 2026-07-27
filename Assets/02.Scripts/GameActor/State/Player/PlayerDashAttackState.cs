@@ -138,7 +138,7 @@ namespace UPlayGround.State
             }
             
 
-            Vector3 rootMotionVel = gameActor.Animator.DeltaPosition / deltaTime;
+            Vector3 rootMotionVel = gameActor.Animator.GetRootMotionStepVelocity(deltaTime);
             if (_motionWarp != null && _homingTarget != null)
             {
                 float playbackScale = _combat != null && _combat.IsMotionWarping
@@ -164,7 +164,7 @@ namespace UPlayGround.State
                     deltaTime);
             }
 
-            currentVelocity += rootMotionVel;
+            currentVelocity += ActorVelocityUtility.Planar(rootMotionVel, motor.CharacterUp);
         }
     }
 }

@@ -206,7 +206,13 @@ namespace UPlayGround.Animation
         }
 
         public Vector3 DeltaPosition { get; private set; }
-        public Quaternion DeltaRotation { get; private set; }
+        public Quaternion DeltaRotation { get; private set; } = Quaternion.identity;
+
+        // Animator(Update)와 KCC(FixedUpdate)의 서로 다른 시간축을 잇는 누적 버퍼.
+        // OnAnimatorMove가 여러 번 호출돼도 다음 KCC 스텝에서 정확히 한 번 소비한다.
+        private RootMotionStepBuffer _rootMotionBuffer = RootMotionStepBuffer.Create();
+        public Vector3 RootMotionStepDeltaPosition => _rootMotionBuffer.StepPosition;
+        public Quaternion RootMotionStepDeltaRotation => _rootMotionBuffer.StepRotation;
 
         /// <summary>
         /// fallbackMotionSet이 연결되어 있으면 공통 Humanoid 모션(8방향 등)을 사용할 수 있음.
@@ -301,6 +307,9 @@ namespace UPlayGround.Animation
         /// </summary>
         protected void ApplyAnimancerSetup(AnimancerComponent animancer)
         {
+            if (animancer.Animator != null)
+                animancer.Animator.applyRootMotion = true;
+
             animancer.Layers[0].ApplyFootIK    = true;
             animancer.Layers[0].ApplyAnimatorIK = true;
 
@@ -945,12 +954,38 @@ namespace UPlayGround.Animation
             // _animator.Parameters.SetValue(key, value);
         }
 
-        public void ApplyRootMotion(bool enable)
+        // applyRootMotion은 ApplyAnimancerSetup에서 상시 true로 고정한다.
+        // 상태별로 껐다 켜던 ApplyRootMotion(bool)은 제거됐다 — 런타임에 이걸 끄면
+        // OnAnimatorMove가 델타를 내놓지 않아 루트모션 기반 상태 전체가 조용히 정지한다.
+
+        /// <summary>KCC 물리 스텝이 시작될 때 누적된 루트모션을 소비 스냅샷으로 옮긴다.</summary>
+        public void BeginRootMotionStep()
         {
-            if (_animator?.Animator != null)
-            {
-                _animator.Animator.applyRootMotion = enable;
-            }
+            _rootMotionBuffer.BeginStep();
+        }
+
+        /// <summary>KCC를 사용하지 않는 잔류 애니메이터가 누적 델타를 한 번만 꺼낸다.</summary>
+        public void ConsumePendingRootMotion(out Vector3 position, out Quaternion rotation)
+        {
+            _rootMotionBuffer.ConsumePending(out position, out rotation);
+        }
+
+        /// <summary>KCC 물리 스텝 종료 후 같은 델타가 재사용되지 않도록 비운다.</summary>
+        public void EndRootMotionStep()
+        {
+            _rootMotionBuffer.EndStep();
+        }
+
+        public Vector3 GetRootMotionStepVelocity(float deltaTime)
+            => deltaTime > 0.000001f
+                ? RootMotionStepDeltaPosition / deltaTime
+                : Vector3.zero;
+
+        public void FlushRootMotion()
+        {
+            DeltaPosition = Vector3.zero;
+            DeltaRotation = Quaternion.identity;
+            _rootMotionBuffer.Flush();
         }
 
         private void UpdateTimeline()
@@ -1481,9 +1516,13 @@ namespace UPlayGround.Animation
         
         private void OnAnimatorMove()
         {
-            // 루트모션 델타 저장
+            if (_animator?.Animator == null)
+                return;
+
+            // 원본 델타는 프리뷰/비물리 소비자 호환을 위해 유지한다.
             DeltaPosition = _animator.Animator.deltaPosition;
             DeltaRotation = _animator.Animator.deltaRotation;
+            _rootMotionBuffer.Accumulate(DeltaPosition, DeltaRotation);
         }
         
         /// <summary>
@@ -1783,6 +1822,7 @@ namespace UPlayGround.Animation
 
         void OnDestroy()
         {
+            FlushRootMotion();
             if (_isPlayingMotionSet)
             {
                 StopMotionSet();
@@ -1793,6 +1833,7 @@ namespace UPlayGround.Animation
         /// </summary>
         void OnDisable()
         {
+            FlushRootMotion();
             if (_isPlayingMotionSet)
             {
                 StopMotionSet();

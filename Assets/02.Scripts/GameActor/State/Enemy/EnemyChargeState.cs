@@ -18,6 +18,7 @@ namespace UPlayGround.State
     {
         public override string StateName => "Charge";
         public override bool BlocksBehaviorTree => true;
+        public override GravityOwnership GravityOwner => GravityOwnership.State;
 
         private readonly EnemyCombat _combat;
         private readonly EnemyAIContext _context;

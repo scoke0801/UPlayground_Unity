@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Editor.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround;
 using UPlayGround.Tool.Editor;
@@ -10,74 +14,77 @@ using UPlayGround.Tool.Editor;
 namespace UPlayGround.Actor.Editor
 {
     /// <summary>
-    /// ActorDatabase에 등록된 ActorDefinitionSO를 관리하는 에디터 창.
-    /// 메뉴: UPlayGround/Actor/Actor Database Editor
+    /// ActorDatabase에 등록된 ActorDefinitionSO를 관리하는 UI Toolkit 에디터 창.
+    /// 메뉴: UPlayGround/캐릭터/액터/액터 데이터베이스 에디터
+    ///
+    /// 목록/상세 분할선은 드래그로 폭을 조절할 수 있고, 조절한 폭은 EditorPrefs에 유지된다.
+    /// 목록은 ↑/↓ (및 Home/End) 키로 선택을 이동할 수 있다.
     /// </summary>
     public class ActorDatabaseEditorWindow : EditorWindow
     {
         // ── 참조 ─────────────────────────────────────────────────────
         private ActorDatabase _database;
 
-        // ── UI 상태 ───────────────────────────────────────────────────
+        // ── 선택 상태 ─────────────────────────────────────────────────
         private ActorDefinitionSO _selected;
         private SerializedObject  _selectedSO;
-        private Vector2 _listScroll;
-        private Vector2 _detailScroll;
-        private string   _searchFilter    = "";
-        private ActorType _filterActorType = ActorType.None;
-        private bool     _hasUnsavedChanges;
+        private bool _hasUnsavedChanges;
 
-        // ── 드래그 순서 변경 ──────────────────────────────────────────
-        private int _dragIndex       = -1;
-        private int _dropTargetIndex = -1;
-        private readonly List<float> _itemTopYs = new();
-        private readonly List<float> _itemMidYs = new();
+        /// <summary>목록에 표시 중인 항목. 필터가 없을 때는 Database 인덱스와 1:1 대응하며 Missing(null)도 포함한다.</summary>
+        private readonly List<ActorDefinitionSO> _visible = new();
 
-        // ── 스타일 캐시 ───────────────────────────────────────────────
-        private GUIStyle _styleHeader;
-        private GUIStyle _styleListItem;
-        private GUIStyle _styleListItemSelected;
-        private bool     _stylesInitialized;
+        /// <summary>필터가 없어 드래그 순서 변경이 가능한 상태인지.</summary>
+        private bool _canReorder = true;
+
+        // ── UI 요소 ───────────────────────────────────────────────────
+        private ObjectField    _databaseField;
+        private ToolbarButton  _newActorButton;
+        private ToolbarButton  _syncButton;
+        private ToolbarButton  _enumButton;
+        private ToolbarButton  _prefabSyncButton;
+        private ToolbarButton  _cleanupButton;
+        private ToolbarButton  _saveButton;
+
+        private VisualElement  _bodyRoot;
+        private HelpBox        _noDatabaseHelp;
+        private TwoPaneSplitView _split;
+        private VisualElement  _listPane;
+        private ToolbarSearchField _searchField;
+        private EnumFlagsField _typeFilterField;
+        private Label          _countLabel;
+        private ListView       _listView;
+
+        private Label          _headerLabel;
+        private ScrollView     _detailScroll;
+        private Button         _detailOpenInspectorButton;
+        private Button         _detailSaveButton;
 
         // ── 아이콘 캐시 ───────────────────────────────────────────────
         private Texture2D _iconSO;
 
         // ── 색상 ─────────────────────────────────────────────────────
-        private static readonly Color ColorHeader    = new(0.15f, 0.15f, 0.20f);
-        private static readonly Color ColorSelected  = new(0.22f, 0.44f, 0.72f);
-        private static readonly Color ColorSeparator = new(0.25f, 0.25f, 0.28f);
-        private static readonly Color ColorUnsaved   = new(0.85f, 0.60f, 0.10f);
-        private static readonly Color ColorDragLine  = new(0.35f, 0.65f, 1.00f);
+        private static readonly Color ColorHeader   = new(0.15f, 0.15f, 0.20f);
+        private static readonly Color ColorUnsaved  = new(0.85f, 0.60f, 0.10f);
+        private static readonly Color ColorMissing  = new(0.90f, 0.35f, 0.35f);
 
         // ── 레이아웃 상수 ────────────────────────────────────────────
-        private const float ListWidth    = 240f;
-        private const float ItemHeight   = 36f;
-        private const float DividerWidth = 2f;
-        private const float ToolbarHeight = 21f;
+        private const float ItemHeight       = 40f;
+        private const float DefaultListWidth = 280f;
+        private const float MinListWidth     = 190f;
+        private const float MaxListWidth     = 900f;
+        private const float MinDetailWidth   = 320f;
+
+        private const string PrefKeyListWidth  = "UPlayGround.ActorDatabaseEditor.ListWidth";
         private const string DefaultSavePath   = "Assets/10.Datas/Actor/DataBase";
         private const string EnumOutputPath    = "Assets/02.Scripts/Data/Actor/ActorIdType.cs";
 
-        private readonly struct VisibleActorEntry
-        {
-            public readonly int Index;
-            public readonly ActorDefinitionSO Definition;
-            public readonly string Label;
-
-            public VisibleActorEntry(int index, ActorDefinitionSO definition, string label)
-            {
-                Index      = index;
-                Definition = definition;
-                Label      = label;
-            }
-        }
-
         // ── 메뉴 ─────────────────────────────────────────────────────
-        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", priority =  101)]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", priority = 101)]
         public static void Open()
         {
             var window = GetWindow<ActorDatabaseEditorWindow>();
             window.titleContent = new GUIContent("Actor Database", EditorGUIUtility.IconContent("d_ScriptableObject Icon").image);
-            window.minSize = new Vector2(640f, 420f);
+            window.minSize = new Vector2(720f, 440f);
             window.Show();
         }
 
@@ -85,407 +92,560 @@ namespace UPlayGround.Actor.Editor
         private void OnEnable()
         {
             _iconSO = EditorGUIUtility.IconContent("d_ScriptableObject Icon").image as Texture2D;
+        }
+
+        public void CreateGUI()
+        {
+            rootVisualElement.Clear();
+            rootVisualElement.style.flexDirection = FlexDirection.Column;
+
+            BuildToolbar();
+            BuildBody();
+
+            // Ctrl+S 저장 — 어떤 필드에 포커스가 있어도 동작하도록 캡처 단계에서 처리
+            rootVisualElement.RegisterCallback<KeyDownEvent>(OnRootKeyDown, TrickleDown.TrickleDown);
+
             TryAutoLoadDatabase();
+            RefreshAll();
         }
 
-        private void OnGUI()
+        private void OnFocus()
         {
-            InitStyles();
-            HandleKeyboardShortcuts();
-
-            // 스크롤 영역 밖에서 마우스를 놓은 경우 드래그 확정
-            if (_dragIndex >= 0 && Event.current.type == EventType.MouseUp)
-            {
-                ApplyReorder();
-                Repaint();
-            }
-
-            var toolbarRect = new Rect(0f, 0f, position.width, ToolbarHeight);
-            GUILayout.BeginArea(toolbarRect);
-            DrawToolbar();
-            GUILayout.EndArea();
-
-            var contentRect = new Rect(
-                0f,
-                toolbarRect.yMax,
-                position.width,
-                Mathf.Max(0f, position.height - toolbarRect.yMax));
-
-            if (_database == null)
-            {
-                GUILayout.BeginArea(contentRect);
-                DrawNoDatabaseMessage();
-                GUILayout.EndArea();
-                return;
-            }
-
-            var listRect = new Rect(contentRect.x, contentRect.y, ListWidth, contentRect.height);
-            var dividerRect = new Rect(listRect.xMax, contentRect.y, DividerWidth, contentRect.height);
-            var detailRect = new Rect(
-                dividerRect.xMax,
-                contentRect.y,
-                Mathf.Max(0f, contentRect.width - ListWidth - DividerWidth),
-                contentRect.height);
-
-            DrawListPanel(listRect);
-            DrawDivider(dividerRect);
-
-            GUILayout.BeginArea(detailRect);
-            DrawDetailPanel();
-            GUILayout.EndArea();
-        }
-
-        private void HandleKeyboardShortcuts()
-        {
-            var e = Event.current;
-            if (e.type == EventType.KeyDown && (e.control || e.command) && e.keyCode == KeyCode.S)
-            {
-                SaveAll();
-                e.Use();
-            }
+            // 외부(Project 창 등)에서 에셋이 바뀌었을 수 있으므로 목록 라벨을 갱신한다.
+            if (_listView != null)
+                RefreshList();
         }
 
         // ── 툴바 ─────────────────────────────────────────────────────
-        private void DrawToolbar()
+        private void BuildToolbar()
         {
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            var toolbar = new Toolbar();
 
-            EditorGUI.BeginChangeCheck();
-            var newDb = (ActorDatabase)EditorGUILayout.ObjectField(
-                _database, typeof(ActorDatabase), false,
-                GUILayout.Width(200));
-            if (EditorGUI.EndChangeCheck())
-                SetDatabase(newDb);
-
-            if (GUILayout.Button("새 Database 생성", EditorStyles.toolbarButton, GUILayout.Width(110)))
-                CreateNewDatabase();
-
-            GUILayout.FlexibleSpace();
-
-            if (_database != null && GUILayout.Button("새 Actor 추가", EditorStyles.toolbarButton, GUILayout.Width(100)))
-                CreateNewDefinition();
-
-            if (_database != null && GUILayout.Button("SO 자동 동기화", EditorStyles.toolbarButton, GUILayout.Width(100)))
-                SyncActorDefinitionsFromProject();
-
-            if (_database != null && GUILayout.Button("Enum 생성", EditorStyles.toolbarButton, GUILayout.Width(76)))
-                GenerateActorIdEnum();
-
-            if (_database != null && GUILayout.Button("프리팹 ID 동기화", EditorStyles.toolbarButton, GUILayout.Width(100)))
-                SyncPrefabActorIds();
-
-            if (_database != null && GUILayout.Button(GetMissingCleanupButtonLabel(), EditorStyles.toolbarButton, GUILayout.Width(96)))
-                CleanupMissingDefinitions();
-
-            // 저장 버튼 — 미저장 변경이 있을 때 주황색 강조
-            if (_hasUnsavedChanges)
+            _databaseField = new ObjectField
             {
-                var prevBg = GUI.backgroundColor;
-                GUI.backgroundColor = ColorUnsaved;
-                if (GUILayout.Button("● 저장  Ctrl+S", EditorStyles.toolbarButton, GUILayout.Width(108)))
-                    SaveAll();
-                GUI.backgroundColor = prevBg;
-            }
-            else
+                objectType = typeof(ActorDatabase),
+                allowSceneObjects = false,
+                tooltip = "편집할 ActorDatabase 에셋",
+            };
+            _databaseField.style.width = 220f;
+            _databaseField.style.marginRight = 4f;
+            _databaseField.RegisterValueChangedCallback(evt =>
             {
-                using (new EditorGUI.DisabledScope(true))
-                    GUILayout.Button("저장  Ctrl+S", EditorStyles.toolbarButton, GUILayout.Width(108));
-            }
+                if (evt.newValue as ActorDatabase == _database) return;
+                SetDatabase(evt.newValue as ActorDatabase);
+                RefreshAll();
+            });
+            toolbar.Add(_databaseField);
 
-            EditorGUILayout.EndHorizontal();
+            toolbar.Add(new ToolbarButton(CreateNewDatabase) { text = "새 Database 생성" });
+
+            toolbar.Add(new ToolbarSpacer { flex = true });
+
+            _newActorButton = new ToolbarButton(CreateNewDefinition) { text = "새 Actor 추가" };
+            _syncButton = new ToolbarButton(SyncActorDefinitionsFromProject)
+            {
+                text = "SO 자동 동기화",
+                tooltip = "프로젝트의 모든 ActorDefinitionSO 중 미등록 항목을 Database에 추가합니다.",
+            };
+            _enumButton = new ToolbarButton(GenerateActorIdEnum)
+            {
+                text = "Enum 생성",
+                tooltip = EnumOutputPath + " 를 덮어씁니다.",
+            };
+            _prefabSyncButton = new ToolbarButton(SyncPrefabActorIds)
+            {
+                text = "프리팹 ID 동기화",
+                tooltip = "각 actorId를 연결된 프리팹의 GameActor._actorId에 반영합니다.",
+            };
+            _cleanupButton = new ToolbarButton(CleanupMissingDefinitions) { text = "Missing 정리" };
+
+            toolbar.Add(_newActorButton);
+            toolbar.Add(_syncButton);
+            toolbar.Add(_enumButton);
+            toolbar.Add(_prefabSyncButton);
+            toolbar.Add(_cleanupButton);
+
+            _saveButton = new ToolbarButton(SaveAll) { text = "저장  Ctrl+S" };
+            _saveButton.style.width = 100f;
+            _saveButton.style.unityTextAlign = TextAnchor.MiddleCenter;
+            toolbar.Add(_saveButton);
+
+            rootVisualElement.Add(toolbar);
         }
 
-        // ── 목록 패널 ─────────────────────────────────────────────────
-        private void DrawListPanel(Rect panelRect)
+        // ── 본문 ─────────────────────────────────────────────────────
+        private void BuildBody()
         {
-            var searchRect = new Rect(panelRect.x, panelRect.y, panelRect.width, ToolbarHeight);
-            var typeRect = new Rect(panelRect.x, searchRect.yMax, panelRect.width, ToolbarHeight);
-            var scrollRect = new Rect(
-                panelRect.x,
-                typeRect.yMax,
-                panelRect.width,
-                Mathf.Max(0f, panelRect.yMax - typeRect.yMax));
+            _bodyRoot = new VisualElement();
+            _bodyRoot.style.flexGrow = 1f;
+            _bodyRoot.style.flexDirection = FlexDirection.Column;
+            rootVisualElement.Add(_bodyRoot);
 
-            DrawListSearchRow(searchRect);
-            DrawListTypeFilterRow(typeRect);
+            _noDatabaseHelp = new HelpBox(
+                "ActorDatabase가 선택되지 않았습니다.\n툴바에서 기존 Database를 연결하거나 새로 생성하세요.",
+                HelpBoxMessageType.Info);
+            _noDatabaseHelp.style.marginLeft = 8f;
+            _noDatabaseHelp.style.marginRight = 8f;
+            _noDatabaseHelp.style.marginTop = 8f;
+            _bodyRoot.Add(_noDatabaseHelp);
 
-            // 필터 없을 때만 드래그 순서 변경 허용
-            bool canReorder = string.IsNullOrEmpty(_searchFilter) && _filterActorType == ActorType.None;
+            float initialWidth = Mathf.Clamp(
+                EditorPrefs.GetFloat(PrefKeyListWidth, DefaultListWidth),
+                MinListWidth, MaxListWidth);
 
-            _itemTopYs.Clear();
-            _itemMidYs.Clear();
+            _split = new TwoPaneSplitView(0, initialWidth, TwoPaneSplitViewOrientation.Horizontal);
+            _split.style.flexGrow = 1f;
+            _bodyRoot.Add(_split);
 
-            var all = _database.All;
-            var visibleEntries = new List<VisibleActorEntry>();
-            for (int i = 0; i < all.Count; i++)
-            {
-                var def = all[i];
-                if (def == null) continue;
-
-                string label = string.IsNullOrEmpty(def.displayName) ? def.actorId : def.displayName;
-
-                // 텍스트 필터
-                if (!string.IsNullOrEmpty(_searchFilter) &&
-                    label.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0 &&
-                    def.actorId.IndexOf(_searchFilter, System.StringComparison.OrdinalIgnoreCase) < 0)
-                    continue;
-
-                // ActorType 필터 (None = 전체 표시, 복합 Flags 조합 지원)
-                if (_filterActorType != ActorType.None && (def.actorType & _filterActorType) == 0)
-                    continue;
-
-                visibleEntries.Add(new VisibleActorEntry(i, def, label));
-            }
-
-            float scrollbarWidth = GUI.skin.verticalScrollbar.fixedWidth;
-            float contentWidth = Mathf.Max(1f, scrollRect.width - scrollbarWidth - 4f);
-            float contentHeight = Mathf.Max(scrollRect.height + 1f, visibleEntries.Count * ItemHeight);
-            var viewRect = new Rect(0f, 0f, contentWidth, contentHeight);
-
-            HandleListScrollWheel(scrollRect, contentHeight);
-            _listScroll = GUI.BeginScrollView(scrollRect, _listScroll, viewRect, false, true);
-
-            for (int entryIndex = 0; entryIndex < visibleEntries.Count; entryIndex++)
-            {
-                var entry = visibleEntries[entryIndex];
-                int i = entry.Index;
-                var def = entry.Definition;
-                string label = entry.Label;
-                bool isSelected = _selected == def;
-
-                Rect itemRect = new Rect(0f, entryIndex * ItemHeight, contentWidth, ItemHeight);
-
-                if (canReorder)
-                {
-                    _itemTopYs.Add(itemRect.y);
-                    _itemMidYs.Add(itemRect.center.y);
-                }
-
-                // 배경
-                if (_dragIndex == i)
-                    EditorGUI.DrawRect(itemRect, new Color(ColorSelected.r, ColorSelected.g, ColorSelected.b, 0.35f));
-                else if (isSelected)
-                    EditorGUI.DrawRect(itemRect, ColorSelected);
-
-                // 드래그 핸들 (필터 없을 때만)
-                if (canReorder)
-                {
-                    var handleRect = new Rect(itemRect.x + 2, itemRect.y, 14, itemRect.height);
-                    GUI.Label(handleRect, "≡", EditorStyles.centeredGreyMiniLabel);
-
-                    if (Event.current.type == EventType.MouseDown &&
-                        handleRect.Contains(Event.current.mousePosition))
-                    {
-                        _dragIndex       = i;
-                        _dropTargetIndex = i;
-                        Event.current.Use();
-                    }
-                }
-
-                float lx = canReorder ? itemRect.x + 18 : itemRect.x + 8;
-                float lw = canReorder ? itemRect.width - 118 : itemRect.width - 108;
-
-                GUI.Label(new Rect(lx, itemRect.y + 4, lw, 16), label, EditorStyles.boldLabel);
-                GUI.Label(new Rect(lx, itemRect.y + 20, lw, 14), def.actorId, EditorStyles.miniLabel);
-
-                // 복제 버튼
-                var dupRect = new Rect(itemRect.xMax - 104, itemRect.y + 8, 48, 20);
-                if (GUI.Button(dupRect, "복제", EditorStyles.miniButton))
-                {
-                    DuplicateDefinition(def);
-                    GUIUtility.ExitGUI();
-                    return;
-                }
-
-                // 삭제 버튼
-                var delRect = new Rect(itemRect.xMax - 52, itemRect.y + 8, 48, 20);
-                if (GUI.Button(delRect, "삭제", EditorStyles.miniButton))
-                {
-                    if (EditorUtility.DisplayDialog("삭제 확인",
-                        $"'{def.actorId}' 를 Database에서 제거하시겠습니까?\n(에셋 파일은 삭제되지 않습니다)", "제거", "취소"))
-                    {
-                        _database.RemoveDefinition(def);
-                        if (_selected == def) ClearSelection();
-                        _dragIndex = -1;
-                        GUIUtility.ExitGUI();
-                        return;
-                    }
-                }
-
-                // 클릭으로 선택 (드래그 핸들 영역 제외)
-                if (Event.current.type == EventType.MouseDown &&
-                    itemRect.Contains(Event.current.mousePosition))
-                {
-                    SelectDefinition(def);
-                    Event.current.Use();
-                }
-            }
-
-            if (visibleEntries.Count == 0)
-                GUI.Label(new Rect(0f, 4f, contentWidth, 20f), "항목 없음", EditorStyles.centeredGreyMiniLabel);
-
-            // ── 드래그 드롭 위치 표시 ──────────────────────────────────
-            if (_dragIndex >= 0 && canReorder && _itemMidYs.Count > 0)
-            {
-                // MouseDrag에서만 삽입 위치 계산
-                // Repaint/Layout은 mousePosition이 스크롤 콘텐츠 좌표로 변환되지 않아 항상 마지막 위치로 계산됨
-                if (Event.current.type == EventType.MouseDrag)
-                {
-                    float mouseY = Event.current.mousePosition.y;
-                    _dropTargetIndex = _itemMidYs.Count; // 기본: 맨 뒤
-                    for (int j = 0; j < _itemMidYs.Count; j++)
-                    {
-                        if (mouseY < _itemMidYs[j])
-                        {
-                            _dropTargetIndex = j;
-                            break;
-                        }
-                    }
-                    Repaint();
-                }
-
-                // 삽입 위치 구분선은 Repaint에서만 그림
-                if (Event.current.type == EventType.Repaint &&
-                    _dropTargetIndex >= 0 && _dropTargetIndex <= _itemTopYs.Count)
-                {
-                    float lineY = _dropTargetIndex < _itemTopYs.Count
-                        ? _itemTopYs[_dropTargetIndex]
-                        : _itemTopYs[_itemTopYs.Count - 1] + ItemHeight;
-                    EditorGUI.DrawRect(new Rect(2, lineY - 1, ListWidth - 8, 2), ColorDragLine);
-                }
-            }
-
-            GUI.EndScrollView();
+            _split.Add(BuildListPane());
+            _split.Add(BuildDetailPane());
         }
 
-        private void DrawListSearchRow(Rect rect)
+        private VisualElement BuildListPane()
         {
-            GUI.Box(rect, GUIContent.none, EditorStyles.toolbar);
+            _listPane = new VisualElement();
+            _listPane.style.flexDirection = FlexDirection.Column;
+            _listPane.style.minWidth = MinListWidth;
 
-            var labelRect = new Rect(rect.x, rect.y, 36f, rect.height);
-            var clearRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
-            var fieldRect = new Rect(labelRect.xMax, rect.y + 2f, Mathf.Max(1f, rect.width - 56f), rect.height - 4f);
+            // 분할선 드래그로 바뀐 폭을 유지한다.
+            _listPane.RegisterCallback<GeometryChangedEvent>(evt =>
+            {
+                float width = evt.newRect.width;
+                if (width > 1f)
+                    EditorPrefs.SetFloat(PrefKeyListWidth, width);
+            });
 
-            GUI.Label(labelRect, "검색", EditorStyles.toolbarButton);
-            _searchFilter = EditorGUI.TextField(fieldRect, _searchFilter, EditorStyles.toolbarSearchField);
-            if (GUI.Button(clearRect, "✕", EditorStyles.toolbarButton))
-                _searchFilter = "";
+            // 검색 행
+            var searchRow = new Toolbar();
+            _searchField = new ToolbarSearchField { tooltip = "표시 이름 또는 actorId로 검색" };
+            _searchField.style.flexGrow = 1f;
+            _searchField.RegisterValueChangedCallback(_ => RefreshList());
+            searchRow.Add(_searchField);
+            _listPane.Add(searchRow);
+
+            // 타입 필터 행
+            var filterRow = new Toolbar();
+            _typeFilterField = new EnumFlagsField(ActorType.None) { tooltip = "ActorType 필터 (Nothing = 전체 표시)" };
+            _typeFilterField.style.flexGrow = 1f;
+            _typeFilterField.RegisterValueChangedCallback(_ => RefreshList());
+            filterRow.Add(_typeFilterField);
+            filterRow.Add(new ToolbarButton(() =>
+            {
+                _searchField.value = string.Empty;
+                _typeFilterField.value = ActorType.None;
+                RefreshList();
+            })
+            { text = "✕", tooltip = "검색·타입 필터 초기화" });
+            _listPane.Add(filterRow);
+
+            _countLabel = new Label();
+            _countLabel.style.fontSize = 10f;
+            _countLabel.style.opacity = 0.65f;
+            _countLabel.style.paddingLeft = 6f;
+            _countLabel.style.paddingTop = 3f;
+            _countLabel.style.paddingBottom = 3f;
+            _listPane.Add(_countLabel);
+
+            _listView = new ListView
+            {
+                selectionType = SelectionType.Single,
+                virtualizationMethod = CollectionVirtualizationMethod.FixedHeight,
+                fixedItemHeight = ItemHeight,
+                reorderMode = ListViewReorderMode.Animated,
+                showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly,
+                itemsSource = _visible,
+                makeItem = MakeListItem,
+                bindItem = BindListItem,
+            };
+            _listView.style.flexGrow = 1f;
+            _listView.selectionChanged += objs => SelectDefinition(objs.FirstOrDefault() as ActorDefinitionSO);
+            _listView.itemIndexChanged += OnItemIndexChanged;
+            _listPane.Add(_listView);
+
+            // ↑/↓ 로 목록 선택 이동. 검색창에 포커스가 있어도 동작하도록 캡처 단계에서 가로챈다.
+            _listPane.RegisterCallback<KeyDownEvent>(OnListKeyDown, TrickleDown.TrickleDown);
+
+            return _listPane;
         }
 
-        private void DrawListTypeFilterRow(Rect rect)
+        private VisualElement BuildDetailPane()
         {
-            GUI.Box(rect, GUIContent.none, EditorStyles.toolbar);
+            var detailPane = new VisualElement();
+            detailPane.style.flexDirection = FlexDirection.Column;
+            detailPane.style.minWidth = MinDetailWidth;
 
-            var labelRect = new Rect(rect.x, rect.y, 36f, rect.height);
-            var clearRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
-            var fieldRect = new Rect(labelRect.xMax, rect.y + 1f, Mathf.Max(1f, rect.width - 56f), rect.height - 2f);
+            _headerLabel = new Label();
+            _headerLabel.style.backgroundColor = ColorHeader;
+            _headerLabel.style.color = Color.white;
+            _headerLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            _headerLabel.style.fontSize = 13f;
+            _headerLabel.style.paddingLeft = 10f;
+            _headerLabel.style.paddingTop = 6f;
+            _headerLabel.style.paddingBottom = 6f;
+            detailPane.Add(_headerLabel);
 
-            GUI.Label(labelRect, "타입", EditorStyles.toolbarButton);
-            _filterActorType = (ActorType)EditorGUI.EnumFlagsField(fieldRect, _filterActorType, EditorStyles.toolbarPopup);
-            if (GUI.Button(clearRect, "✕", EditorStyles.toolbarButton))
-                _filterActorType = ActorType.None;
+            _detailScroll = new ScrollView();
+            _detailScroll.style.flexGrow = 1f;
+            _detailScroll.style.paddingLeft = 6f;
+            _detailScroll.style.paddingRight = 6f;
+            _detailScroll.style.paddingTop = 4f;
+            detailPane.Add(_detailScroll);
+
+            var footer = new VisualElement();
+            footer.style.flexDirection = FlexDirection.Row;
+            footer.style.paddingLeft = 6f;
+            footer.style.paddingRight = 6f;
+            footer.style.paddingTop = 4f;
+            footer.style.paddingBottom = 6f;
+
+            _detailOpenInspectorButton = new Button(() =>
+            {
+                if (_selected == null) return;
+                Selection.activeObject = _selected;
+                EditorGUIUtility.PingObject(_selected);
+            })
+            { text = "Inspector에서 열기" };
+            _detailOpenInspectorButton.style.flexGrow = 1f;
+            _detailOpenInspectorButton.style.height = 24f;
+            footer.Add(_detailOpenInspectorButton);
+
+            _detailSaveButton = new Button(SaveAll) { text = "저장  Ctrl+S" };
+            _detailSaveButton.style.width = 130f;
+            _detailSaveButton.style.height = 24f;
+            footer.Add(_detailSaveButton);
+
+            detailPane.Add(footer);
+            return detailPane;
         }
 
-        private void HandleListScrollWheel(Rect scrollRect, float contentHeight)
+        // ── 목록 아이템 ───────────────────────────────────────────────
+        private VisualElement MakeListItem()
         {
-            var e = Event.current;
-            if (e.type != EventType.ScrollWheel || !scrollRect.Contains(e.mousePosition))
+            var row = new VisualElement();
+            row.style.flexDirection = FlexDirection.Row;
+            row.style.alignItems = Align.Center;
+            row.style.paddingLeft = 4f;
+            row.style.paddingRight = 4f;
+
+            var texts = new VisualElement { name = "texts" };
+            texts.style.flexDirection = FlexDirection.Column;
+            texts.style.flexGrow = 1f;
+            texts.style.overflow = Overflow.Hidden;
+
+            var nameLabel = new Label { name = "display-name" };
+            nameLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            texts.Add(nameLabel);
+
+            var idLabel = new Label { name = "actor-id" };
+            idLabel.style.fontSize = 10f;
+            idLabel.style.opacity = 0.65f;
+            texts.Add(idLabel);
+
+            row.Add(texts);
+
+            var typeLabel = new Label { name = "actor-type" };
+            typeLabel.style.fontSize = 10f;
+            typeLabel.style.opacity = 0.55f;
+            typeLabel.style.marginRight = 4f;
+            typeLabel.style.unityTextAlign = TextAnchor.MiddleRight;
+            row.Add(typeLabel);
+
+            var duplicateButton = new Button { name = "duplicate", text = "복제", tooltip = "이 정의를 복제해 새 에셋으로 저장" };
+            duplicateButton.style.width = 42f;
+            duplicateButton.clicked += () =>
+            {
+                var def = ResolveRowDefinition(duplicateButton);
+                if (def != null) DuplicateDefinition(def);
+            };
+            row.Add(duplicateButton);
+
+            var removeButton = new Button { name = "remove", text = "삭제", tooltip = "Database 목록에서 제거 (에셋 파일은 삭제되지 않음)" };
+            removeButton.style.width = 42f;
+            removeButton.clicked += () =>
+            {
+                var def = ResolveRowDefinition(removeButton);
+                if (def != null) RemoveDefinition(def);
+            };
+            row.Add(removeButton);
+
+            return row;
+        }
+
+        private void BindListItem(VisualElement element, int index)
+        {
+            element.userData = index;
+
+            var def = index >= 0 && index < _visible.Count ? _visible[index] : null;
+
+            var nameLabel = element.Q<Label>("display-name");
+            var idLabel   = element.Q<Label>("actor-id");
+            var typeLabel = element.Q<Label>("actor-type");
+            var duplicateButton = element.Q<Button>("duplicate");
+            var removeButton    = element.Q<Button>("remove");
+
+            if (def == null)
+            {
+                nameLabel.text = "(Missing)";
+                nameLabel.style.color = ColorMissing;
+                idLabel.text = "툴바의 'Missing 정리'로 제거할 수 있습니다.";
+                typeLabel.text = string.Empty;
+                duplicateButton.SetEnabled(false);
+                removeButton.SetEnabled(false);
+                return;
+            }
+
+            nameLabel.text = string.IsNullOrEmpty(def.displayName) ? def.actorId : def.displayName;
+            nameLabel.style.color = StyleKeyword.Null;
+            idLabel.text = def.actorId;
+            typeLabel.text = def.actorType == ActorType.None ? string.Empty : def.actorType.ToString();
+            duplicateButton.SetEnabled(true);
+            removeButton.SetEnabled(true);
+        }
+
+        /// <summary>목록 행의 버튼에서 해당 행이 가리키는 정의를 역추적한다.</summary>
+        private ActorDefinitionSO ResolveRowDefinition(VisualElement rowChild)
+        {
+            for (VisualElement e = rowChild; e != null; e = e.parent)
+            {
+                if (e.userData is int index)
+                    return index >= 0 && index < _visible.Count ? _visible[index] : null;
+            }
+            return null;
+        }
+
+        // ── 키보드 ───────────────────────────────────────────────────
+        private void OnRootKeyDown(KeyDownEvent evt)
+        {
+            if (!(evt.ctrlKey || evt.commandKey) || evt.keyCode != KeyCode.S)
                 return;
 
-            float maxScrollY = Mathf.Max(0f, contentHeight - scrollRect.height);
-            _listScroll.y = Mathf.Clamp(_listScroll.y + e.delta.y * ItemHeight * 0.5f, 0f, maxScrollY);
-            e.Use();
-            Repaint();
+            SaveAll();
+            evt.StopPropagation();
         }
 
-        // ── 구분선 ────────────────────────────────────────────────────
-        private void DrawDivider(Rect rect)
+        private void OnListKeyDown(KeyDownEvent evt)
         {
-            EditorGUI.DrawRect(rect, ColorSeparator);
+            int count = _visible.Count;
+            if (count == 0) return;
+
+            // ListView가 포커스를 가지고 있으면 내장 내비게이션이 처리한다.
+            // 내장 내비게이션은 KeyDownEvent가 아닌 NavigationMoveEvent로 동작해서
+            // StopPropagation으로 막을 수 없다. 여기서 함께 처리하면 두 칸씩 이동한다.
+            if (IsListFocused()) return;
+
+            int current = _listView.selectedIndex;
+            int next;
+
+            switch (evt.keyCode)
+            {
+                case KeyCode.UpArrow:   next = current < 0 ? count - 1 : current - 1; break;
+                case KeyCode.DownArrow: next = current < 0 ? 0         : current + 1; break;
+                case KeyCode.Home:      next = 0; break;
+                case KeyCode.End:       next = count - 1; break;
+                default: return;
+            }
+
+            next = Mathf.Clamp(next, 0, count - 1);
+            evt.StopPropagation();
+
+            if (next == current) return;
+
+            _listView.SetSelection(next);
+            _listView.ScrollToItem(next);
         }
 
-        // ── 상세 패널 ─────────────────────────────────────────────────
-        private void DrawDetailPanel()
+        /// <summary>ListView 또는 그 하위 요소가 현재 포커스를 가지고 있는지.</summary>
+        private bool IsListFocused()
         {
-            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
+            var focused = _listView?.panel?.focusController?.focusedElement as VisualElement;
+            if (focused == null) return false;
+            return focused == _listView || _listView.Contains(focused);
+        }
+
+        // ── 순서 변경 ─────────────────────────────────────────────────
+        private void OnItemIndexChanged(int fromIndex, int toIndex)
+        {
+            if (_database == null || !_canReorder || fromIndex == toIndex)
+                return;
+
+            var dbSO = new SerializedObject(_database);
+            var actorsProp = dbSO.FindProperty("_actors");
+            if (actorsProp == null || !actorsProp.isArray)
+            {
+                Debug.LogError("[ActorDatabase] _actors 배열을 찾을 수 없어 순서 변경을 적용하지 못했습니다.");
+                RefreshList();
+                return;
+            }
+
+            // 필터가 없을 때 _visible은 Database 인덱스와 1:1이므로 인덱스를 그대로 사용한다.
+            actorsProp.MoveArrayElement(fromIndex, toIndex);
+            dbSO.ApplyModifiedProperties();
+
+            _database.InvalidateLookup();
+            EditorUtility.SetDirty(_database);
+            MarkUnsaved();
+            RefreshList();
+        }
+
+        // ── 갱신 ─────────────────────────────────────────────────────
+        private void RefreshAll()
+        {
+            _databaseField.SetValueWithoutNotify(_database);
+            UpdateToolbarState();
+            RefreshList();
+            RefreshDetail();
+        }
+
+        private void RefreshList()
+        {
+            _visible.Clear();
+
+            string search = _searchField != null ? _searchField.value : string.Empty;
+            var typeFilter = _typeFilterField != null ? (ActorType)_typeFilterField.value : ActorType.None;
+            _canReorder = string.IsNullOrEmpty(search) && typeFilter == ActorType.None;
+
+            int total = 0;
+            if (_database != null)
+            {
+                var all = _database.All;
+                total = all.Count;
+
+                for (int i = 0; i < all.Count; i++)
+                {
+                    var def = all[i];
+
+                    // 필터가 없을 때는 Missing까지 그대로 노출해 인덱스를 Database와 일치시킨다.
+                    if (_canReorder)
+                    {
+                        _visible.Add(def);
+                        continue;
+                    }
+
+                    if (def == null) continue;
+
+                    string label = string.IsNullOrEmpty(def.displayName) ? def.actorId : def.displayName;
+                    if (!string.IsNullOrEmpty(search) &&
+                        label.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) < 0 &&
+                        (def.actorId == null || def.actorId.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) < 0))
+                        continue;
+
+                    if (typeFilter != ActorType.None && (def.actorType & typeFilter) == 0)
+                        continue;
+
+                    _visible.Add(def);
+                }
+            }
+
+            _listView.reorderable = _canReorder;
+            _listView.itemsSource = _visible;
+            _listView.Rebuild();
+
+            int selectedIndex = _selected != null ? _visible.IndexOf(_selected) : -1;
+            _listView.SetSelectionWithoutNotify(selectedIndex >= 0 ? new[] { selectedIndex } : System.Array.Empty<int>());
+
+            _countLabel.text = _canReorder
+                ? $"{total}개 · 드래그로 순서 변경, ↑/↓로 이동"
+                : $"{_visible.Count} / {total}개 (필터 적용 중 — 순서 변경 불가)";
+
+            UpdateToolbarState();
+        }
+
+        private void RefreshDetail()
+        {
+            _detailScroll.Clear();
 
             if (_selected == null || _selectedSO == null)
             {
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("← 좌측에서 Actor를 선택하세요", EditorStyles.centeredGreyMiniLabel);
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndVertical();
+                _headerLabel.text = "선택 없음";
+                var hint = new Label("← 좌측에서 Actor를 선택하세요");
+                hint.style.opacity = 0.6f;
+                hint.style.marginTop = 12f;
+                hint.style.unityTextAlign = TextAnchor.MiddleCenter;
+                _detailScroll.Add(hint);
+                _detailOpenInspectorButton.SetEnabled(false);
                 return;
             }
 
-            _selectedSO.Update();
+            _detailOpenInspectorButton.SetEnabled(true);
+            UpdateDetailHeader();
 
-            // 헤더
-            DrawColorBox(ColorHeader, 28);
-            Rect headerRect = GUILayoutUtility.GetLastRect();
-            GUI.Label(new Rect(headerRect.x + 10, headerRect.y + 5, headerRect.width, 18),
-                $"  {_selected.displayName}  [{_selected.actorId}]", _styleHeader);
-
-            _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll, GUILayout.ExpandHeight(true));
-            EditorGUILayout.Space(4);
-
-            // SerializedObject 기반 인스펙터
-            var iterator = _selectedSO.GetIterator();
-            bool enterChildren = true;
-            while (iterator.NextVisible(enterChildren))
+            // 섹션 구성·디자인은 ActorDefinitionDetailView가 단일 소스다.
+            // Inspector, 데이터 저작 허브와 동일한 화면을 공유한다.
+            // TrackSerializedObjectValue는 요소당 SerializedObject 하나만 추적하므로 매번 새 컨테이너에 붙인다.
+            var container = new VisualElement();
+            container.Add(ActorDefinitionDetailView.Build(_selectedSO, new ActorDefinitionDetailOptions
             {
-                enterChildren = false;
-                if (iterator.propertyPath == "m_Script") continue;
-                EditorGUILayout.PropertyField(iterator, true);
-            }
+                ShowOpenHubButton = true,
+                ShowAssetHeader   = false,
+                ShowHubLinks      = true,
+            }));
+            container.TrackSerializedObjectValue(_selectedSO, _ => OnSelectedDefinitionChanged());
+            _detailScroll.Add(container);
+        }
 
-            EditorGUILayout.EndScrollView();
+        private void UpdateDetailHeader()
+        {
+            if (_selected == null) return;
+            string name = string.IsNullOrEmpty(_selected.displayName) ? _selected.actorId : _selected.displayName;
+            _headerLabel.text = $"{name}  [{_selected.actorId}]";
+        }
 
-            // 변경 감지 후 적용 (디스크 저장은 SaveAll에서)
-            if (_selectedSO.hasModifiedProperties)
-            {
-                _selectedSO.ApplyModifiedProperties();
-                _database.InvalidateLookup();
-                MarkUnsaved();
-            }
+        private void OnSelectedDefinitionChanged()
+        {
+            if (_selected == null) return;
 
-            EditorGUILayout.Space(4);
+            _database?.InvalidateLookup();
+            MarkUnsaved();
+            UpdateDetailHeader();
 
-            // 하단 버튼 행
-            EditorGUILayout.BeginHorizontal();
+            int index = _visible.IndexOf(_selected);
+            if (index >= 0)
+                _listView.RefreshItem(index);
+        }
 
-            if (GUILayout.Button("Inspector에서 열기", GUILayout.Height(24)))
-                Selection.activeObject = _selected;
+        private void UpdateToolbarState()
+        {
+            bool hasDatabase = _database != null;
 
-            var prevBg = GUI.backgroundColor;
-            if (_hasUnsavedChanges)
-            {
-                GUI.backgroundColor = ColorUnsaved;
-                if (GUILayout.Button("● 저장  Ctrl+S", GUILayout.Height(24), GUILayout.Width(130)))
-                    SaveAll();
-                GUI.backgroundColor = prevBg;
-            }
-            else
-            {
-                using (new EditorGUI.DisabledScope(true))
-                    GUILayout.Button("저장  Ctrl+S", GUILayout.Height(24), GUILayout.Width(130));
-            }
+            _noDatabaseHelp.style.display = hasDatabase ? DisplayStyle.None : DisplayStyle.Flex;
+            _split.style.display = hasDatabase ? DisplayStyle.Flex : DisplayStyle.None;
 
-            EditorGUILayout.EndHorizontal();
+            _newActorButton.SetEnabled(hasDatabase);
+            _syncButton.SetEnabled(hasDatabase);
+            _enumButton.SetEnabled(hasDatabase);
+            _prefabSyncButton.SetEnabled(hasDatabase);
 
-            EditorGUILayout.EndVertical();
+            int missingCount = CountMissingDefinitions();
+            _cleanupButton.SetEnabled(hasDatabase);
+            _cleanupButton.text = missingCount > 0 ? $"Missing 정리 ({missingCount})" : "Missing 정리";
+
+            UpdateSaveButtons();
+        }
+
+        private void UpdateSaveButtons()
+        {
+            if (_saveButton == null) return;
+
+            _saveButton.text = _hasUnsavedChanges ? "● 저장  Ctrl+S" : "저장  Ctrl+S";
+            _saveButton.SetEnabled(_hasUnsavedChanges);
+            _saveButton.style.backgroundColor = _hasUnsavedChanges ? ColorUnsaved : StyleKeyword.Null;
+
+            if (_detailSaveButton == null) return;
+
+            _detailSaveButton.text = _hasUnsavedChanges ? "● 저장  Ctrl+S" : "저장  Ctrl+S";
+            _detailSaveButton.SetEnabled(_hasUnsavedChanges);
+            _detailSaveButton.style.backgroundColor = _hasUnsavedChanges ? ColorUnsaved : StyleKeyword.Null;
         }
 
         // ── 저장 ─────────────────────────────────────────────────────
 
-        /// <summary>
-        /// 미저장 에셋을 모두 디스크에 기록하고 dirty 상태를 해제한다.
-        /// </summary>
+        /// <summary>미저장 에셋을 모두 디스크에 기록하고 dirty 상태를 해제한다.</summary>
         private void SaveAll()
         {
             AssetDatabase.SaveAssets();
             _hasUnsavedChanges = false;
             UpdateTitle();
+            UpdateSaveButtons();
         }
 
         private void MarkUnsaved()
@@ -493,6 +653,7 @@ namespace UPlayGround.Actor.Editor
             if (_hasUnsavedChanges) return;
             _hasUnsavedChanges = true;
             UpdateTitle();
+            UpdateSaveButtons();
         }
 
         private void UpdateTitle()
@@ -502,7 +663,7 @@ namespace UPlayGround.Actor.Editor
                 _iconSO);
         }
 
-        // ── 헬퍼 ─────────────────────────────────────────────────────
+        // ── 선택/데이터베이스 ─────────────────────────────────────────
         private void TryAutoLoadDatabase()
         {
             if (_database != null) return;
@@ -524,6 +685,7 @@ namespace UPlayGround.Actor.Editor
         {
             _selected   = def;
             _selectedSO = def != null ? new SerializedObject(def) : null;
+            RefreshDetail();
         }
 
         private void ClearSelection()
@@ -532,6 +694,7 @@ namespace UPlayGround.Actor.Editor
             _selectedSO = null;
         }
 
+        // ── CRUD ─────────────────────────────────────────────────────
         private void CreateNewDatabase()
         {
             EnsureSavePath(DefaultSavePath);
@@ -544,10 +707,13 @@ namespace UPlayGround.Actor.Editor
             AssetDatabase.CreateAsset(db, path);
             AssetDatabase.SaveAssets();
             SetDatabase(db);
+            RefreshAll();
         }
 
         private void CreateNewDefinition()
         {
+            if (_database == null) return;
+
             EnsureSavePath(DefaultSavePath);
             string path = EditorUtility.SaveFilePanelInProject(
                 "ActorDefinition 저장", "ActorDef_New", "asset",
@@ -564,6 +730,51 @@ namespace UPlayGround.Actor.Editor
             _database.AddDefinition(def);
             SelectDefinition(def);
             MarkUnsaved();
+            RefreshList();
+        }
+
+        private void DuplicateDefinition(ActorDefinitionSO source)
+        {
+            if (_database == null || source == null) return;
+
+            EnsureSavePath(DefaultSavePath);
+            string sourcePath = AssetDatabase.GetAssetPath(source);
+            string path = EditorUtility.SaveFilePanelInProject(
+                "ActorDefinition 복제", source.actorId + "_Copy", "asset",
+                "저장할 위치를 선택하세요", DefaultSavePath);
+            if (string.IsNullOrEmpty(path)) return;
+
+            AssetDatabase.CopyAsset(sourcePath, path);
+
+            var copy = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
+            copy.actorId     = Path.GetFileNameWithoutExtension(path);
+            copy.displayName = copy.actorId;
+            EditorUtility.SetDirty(copy);
+            AssetDatabase.SaveAssets();
+
+            _database.AddDefinition(copy);
+            SelectDefinition(copy);
+            MarkUnsaved();
+            RefreshList();
+        }
+
+        private void RemoveDefinition(ActorDefinitionSO def)
+        {
+            if (_database == null || def == null) return;
+
+            if (!EditorUtility.DisplayDialog("삭제 확인",
+                $"'{def.actorId}' 를 Database에서 제거하시겠습니까?\n(에셋 파일은 삭제되지 않습니다)", "제거", "취소"))
+                return;
+
+            _database.RemoveDefinition(def);
+            if (_selected == def)
+            {
+                ClearSelection();
+                RefreshDetail();
+            }
+
+            MarkUnsaved();
+            RefreshList();
         }
 
         private void SyncActorDefinitionsFromProject()
@@ -620,7 +831,7 @@ namespace UPlayGround.Actor.Editor
                 _database.InvalidateLookup();
                 EditorUtility.SetDirty(_database);
                 MarkUnsaved();
-                Repaint();
+                RefreshList();
             }
 
             string message = $"ActorDefinitionSO 자동 동기화 완료\n추가: {added}개";
@@ -633,23 +844,7 @@ namespace UPlayGround.Actor.Editor
             Debug.Log($"[ActorDatabase] ActorDefinitionSO 자동 동기화 완료: 추가 {added}개, actorId 설정 {filledEmptyId}개, 중복 건너뜀 {skippedDuplicateId}개");
         }
 
-        private void ApplyReorder()
-        {
-            if (_dragIndex >= 0 && _dropTargetIndex >= 0)
-            {
-                if (_database.MoveDefinition(_dragIndex, _dropTargetIndex))
-                    MarkUnsaved();
-            }
-            _dragIndex       = -1;
-            _dropTargetIndex = -1;
-        }
-
-        private string GetMissingCleanupButtonLabel()
-        {
-            int missingCount = CountMissingDefinitions();
-            return missingCount > 0 ? $"Missing 정리 ({missingCount})" : "Missing 정리";
-        }
-
+        // ── Missing 정리 ─────────────────────────────────────────────
         private int CountMissingDefinitions()
         {
             if (_database == null) return 0;
@@ -665,6 +860,8 @@ namespace UPlayGround.Actor.Editor
 
         private void CleanupMissingDefinitions()
         {
+            if (_database == null) return;
+
             int missingCount = CountMissingDefinitions();
             if (missingCount == 0)
             {
@@ -707,36 +904,11 @@ namespace UPlayGround.Actor.Editor
             _database.InvalidateLookup();
             EditorUtility.SetDirty(_database);
 
-            if (_selected == null)
-                ClearSelection();
-
             MarkUnsaved();
-            Repaint();
+            RefreshList();
 
             Debug.Log($"[ActorDatabase] Missing 항목 정리 완료: {removed}개 제거");
             EditorUtility.DisplayDialog("Missing 정리 완료", $"{removed}개 Missing 항목을 제거했습니다.", "확인");
-        }
-
-        private void DuplicateDefinition(ActorDefinitionSO source)
-        {
-            EnsureSavePath(DefaultSavePath);
-            string sourcePath = AssetDatabase.GetAssetPath(source);
-            string path = EditorUtility.SaveFilePanelInProject(
-                "ActorDefinition 복제", source.actorId + "_Copy", "asset",
-                "저장할 위치를 선택하세요", DefaultSavePath);
-            if (string.IsNullOrEmpty(path)) return;
-
-            AssetDatabase.CopyAsset(sourcePath, path);
-
-            var copy = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(path);
-            copy.actorId     = Path.GetFileNameWithoutExtension(path);
-            copy.displayName = copy.actorId;
-            EditorUtility.SetDirty(copy);
-            AssetDatabase.SaveAssets();
-
-            _database.AddDefinition(copy);
-            SelectDefinition(copy);
-            MarkUnsaved();
         }
 
         private static void EnsureSavePath(string path)
@@ -755,22 +927,6 @@ namespace UPlayGround.Actor.Editor
             }
         }
 
-        private void DrawColorBox(Color color, float height)
-        {
-            var rect = GUILayoutUtility.GetRect(0, height, GUILayout.ExpandWidth(true));
-            EditorGUI.DrawRect(rect, color);
-        }
-
-        private void DrawNoDatabaseMessage()
-        {
-            GUILayout.FlexibleSpace();
-            EditorGUILayout.BeginVertical();
-            GUILayout.Label("ActorDatabase가 선택되지 않았습니다.", EditorStyles.centeredGreyMiniLabel);
-            GUILayout.Label("툴바에서 기존 Database를 연결하거나 새로 생성하세요.", EditorStyles.centeredGreyMiniLabel);
-            EditorGUILayout.EndVertical();
-            GUILayout.FlexibleSpace();
-        }
-
         // ── 프리팹 ID 동기화 ──────────────────────────────────────────
 
         /// <summary>
@@ -778,6 +934,8 @@ namespace UPlayGround.Actor.Editor
         /// </summary>
         private void SyncPrefabActorIds()
         {
+            if (_database == null) return;
+
             var all = _database.All;
 
             int synced  = 0;
@@ -873,6 +1031,8 @@ namespace UPlayGround.Actor.Editor
         /// </summary>
         private void GenerateActorIdEnum()
         {
+            if (_database == null) return;
+
             var raw = new List<(string, string)>();
             bool hasDuplicate = false;
 
@@ -911,30 +1071,6 @@ namespace UPlayGround.Actor.Editor
                     $"{entries.Count}개 항목으로 ActorIdType.cs가 생성되었습니다.\n{EnumOutputPath}",
                     "확인");
             }
-        }
-
-        private void InitStyles()
-        {
-            if (_stylesInitialized) return;
-            _stylesInitialized = true;
-
-            _styleHeader = new GUIStyle(EditorStyles.boldLabel)
-            {
-                fontSize  = 13,
-                alignment = TextAnchor.MiddleLeft,
-                normal    = { textColor = Color.white },
-            };
-
-            _styleListItem = new GUIStyle(GUI.skin.label)
-            {
-                alignment = TextAnchor.MiddleLeft,
-                padding   = new RectOffset(8, 4, 4, 4),
-            };
-
-            _styleListItemSelected = new GUIStyle(_styleListItem)
-            {
-                normal = { textColor = Color.white },
-            };
         }
     }
 }

@@ -160,110 +160,21 @@ namespace UPlayGround.Data.Editor.Authoring
 
         protected override VisualElement BuildDetail(ActorDefinitionSO asset)
         {
-            var detail = new VisualElement();
             var serializedObject = new SerializedObject(asset);
-            detail.Add(BuildHeader(asset));
 
-            VisualElement identity = MakeSection("식별");
-            AddProperty(identity, "actorId", "Actor ID");
-            AddProperty(identity, "displayName", "표시 이름");
-            AddProperty(identity, "description", "설명");
-            detail.Add(identity);
+            // 섹션 구성·디자인은 ActorDefinitionDetailView가 단일 소스다.
+            // Inspector, 액터 데이터베이스 에디터와 동일한 화면을 공유한다.
+            VisualElement detail = UPlayGround.Data.Editor.Actor.ActorDefinitionDetailView.Build(
+                serializedObject,
+                new UPlayGround.Data.Editor.Actor.ActorDefinitionDetailOptions
+                {
+                    ShowOpenHubButton = false,
+                    ShowAssetHeader   = true,
+                    ShowHubLinks      = true,
+                });
 
-            VisualElement basics = MakeSection("Actor 기본 정보");
-            AddProperty(basics, "actorType", "Actor 타입");
-            AddProperty(basics, "characterType", "캐릭터 타입");
-            AddProperty(basics, "targetLayerMask", "공격 대상 레이어");
-            AddProperty(basics, "prefab", "런타임 프리팹");
-            detail.Add(basics);
-
-            VisualElement stats = MakeSection("스탯");
-            AddProperty(stats, "attributeProfile", "Attribute Profile");
-            AddProperty(stats, "poiseData", "Poise Data");
-            detail.Add(stats);
-
-            VisualElement monster = MakeSection("몬스터 프로필 · 전투 · AI");
-            AddProperty(monster, "monsterProfile", "몬스터 프로필");
-            AddProperty(monster, "breakGaugeData", "브레이크 게이지 (레거시)");
-            AddProperty(monster, "monsterScaling", "스케일링 (레거시)");
-            AddProperty(monster, "grade", "등급");
-            AddProperty(monster, "level", "레벨");
-            AddProperty(monster, "combatElement", "전투 속성");
-            AddProperty(monster, "elementAssignmentMode", "속성 할당 방식");
-            AddProperty(monster, "elementalAdvantageMultiplier", "속성 우위 배율");
-            AddProperty(monster, "abilitySet", "Ability Set");
-            AddProperty(monster, "combatDefensePolicy", "방어 정책");
-            AddProperty(monster, "combatReactionPolicy", "리액션 정책");
-            AddProperty(monster, "behaviorData", "AI 행동 데이터");
-            AddLinkedProperty(monster, serializedObject, "dropTable", "드랍 테이블", DropDomainPanel.DomainKey);
-            AddProperty(monster, "recruitableAs", "처치 시 해금 캐릭터");
-            AddProperty(monster, "expReward", "경험치 보상");
-            AddProperty(monster, "goldReward", "골드 보상");
-            detail.Add(monster);
-
-            VisualElement npc = MakeSection("NPC 연결");
-            AddLinkedProperty(npc, serializedObject, "npcData", "NPC Data", NpcDomainPanel.DomainKey);
-            detail.Add(npc);
-
-            SerializedProperty actorType = serializedObject.FindProperty("actorType");
-            void UpdateConditionalSections()
-            {
-                var value = (ActorType)actorType.intValue;
-                monster.style.display = value.HasFlag(ActorType.Monster) ? DisplayStyle.Flex : DisplayStyle.None;
-                npc.style.display = value.HasFlag(ActorType.NPC) ? DisplayStyle.Flex : DisplayStyle.None;
-            }
-
-            UpdateConditionalSections();
-            detail.TrackPropertyValue(actorType, _ => UpdateConditionalSections());
             detail.TrackSerializedObjectValue(serializedObject, _ => NotifyAssetChanged(asset));
-            detail.Bind(serializedObject);
             return detail;
-
-            void AddProperty(VisualElement parent, string path, string label)
-            {
-                SerializedProperty property = serializedObject.FindProperty(path);
-                if (property != null)
-                    parent.Add(new PropertyField(property, label));
-            }
-        }
-
-        private static Toolbar BuildHeader(ActorDefinitionSO asset)
-        {
-            var header = new Toolbar();
-            var title = new Label(string.IsNullOrWhiteSpace(asset.displayName) ? asset.name : asset.displayName);
-            title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            header.Add(title);
-            var spacer = new VisualElement();
-            spacer.style.flexGrow = 1f;
-            header.Add(spacer);
-            header.Add(new ToolbarButton(() => EditorGUIUtility.PingObject(asset)) { text = "Project에서 열기" });
-            return header;
-        }
-
-        private static void AddLinkedProperty(
-            VisualElement parent,
-            SerializedObject serializedObject,
-            string path,
-            string label,
-            string domainId)
-        {
-            SerializedProperty property = serializedObject.FindProperty(path);
-            if (property == null)
-                return;
-
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            var field = new PropertyField(property, label);
-            field.style.flexGrow = 1f;
-            row.Add(field);
-            var open = new Button(() =>
-            {
-                serializedObject.Update();
-                DataAuthoringHubWindow.Open(domainId, serializedObject.FindProperty(path).objectReferenceValue);
-            }) { text = "허브에서 열기" };
-            open.style.width = 92f;
-            row.Add(open);
-            parent.Add(row);
         }
 
         private void SyncDatabase()
@@ -317,22 +228,6 @@ namespace UPlayGround.Data.Editor.Authoring
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Select(AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>)
                 .Where(definition => definition != null);
-        }
-
-        private static VisualElement MakeSection(string title)
-        {
-            var section = new VisualElement();
-            section.style.marginTop = 10f;
-            section.style.paddingLeft = 8f;
-            section.style.paddingRight = 8f;
-            section.style.paddingTop = 7f;
-            section.style.paddingBottom = 7f;
-            section.style.backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.08f);
-            var heading = new Label(title);
-            heading.style.unityFontStyleAndWeight = FontStyle.Bold;
-            heading.style.marginBottom = 5f;
-            section.Add(heading);
-            return section;
         }
 
         private static string ActorTypeLabel(ActorType type)

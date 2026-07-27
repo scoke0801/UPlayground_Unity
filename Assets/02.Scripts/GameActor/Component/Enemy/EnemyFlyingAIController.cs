@@ -142,7 +142,12 @@ namespace UPlayGround.Components
 
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
             _behaviorTreeRunner ??= gameObject.AddComponent<BehaviorTreeRunner>();
-            _behaviorTreeRunner.SetTreeAsset(_behaviorTree, restartIfRunning: false);
+            _behaviorTreeRunner.SetTreeAsset(
+                _behaviorTree,
+                // EnemyAIController와 동일 규칙: Runner.OnEnable이 프리팹에 직렬화된 구형 BT를
+                // 먼저 시작했더라도 여기서 지정한 BT가 런타임의 단일 소스가 되어야 한다.
+                // 실행 중 재시작을 막으면 SourceTree만 교체되고 RuntimeTree는 구형 복제본으로 남는다.
+                restartIfRunning: true);
 
             if (isActiveAndEnabled && !_behaviorTreeRunner.IsRunning && !_behaviorTreeRunner.IsPaused)
                 _behaviorTreeRunner.StartTree();

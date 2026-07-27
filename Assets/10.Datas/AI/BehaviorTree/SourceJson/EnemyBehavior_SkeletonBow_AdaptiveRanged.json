@@ -7,9 +7,9 @@
     "blackboard": {
         "tickInterval": 0.08,
         "enablePatrol": true,
-        "optimalCombatDistance": 5.5,
-        "minCombatDistance": 1.6,
-        "personalSpaceDistance": 1.1,
+        "optimalCombatDistance": 8.0,
+        "minCombatDistance": 4.0,
+        "personalSpaceDistance": 2.5,
         "preferredRange": 8.0,
         "aggression": 0.5,
         "reactionChance": 0.65,
@@ -79,7 +79,6 @@
                             "weight": 0.35,
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "style": "Step",
                             "cooldownId": "BowPoiseEscape",
                             "cooldownDuration": 2.4
                         }
@@ -178,7 +177,6 @@
                             "weight": 0.3,
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "style": "Step",
                             "cooldownId": "BowPersonalSpace",
                             "cooldownDuration": 1.1
                         }
@@ -205,7 +203,6 @@
                             "weight": 0.35,
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "style": "Step",
                             "cooldownId": "BowMinimumRange",
                             "cooldownDuration": 1.2
                         },
@@ -388,6 +385,41 @@
             ],
             "rules": [
                 {
+                    "name": "RangedCombatBeat",
+                    "priority": 840,
+                    "when": [
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "DistanceGreater", "value": "minCombatDistance" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        {
+                            "weight": 0.55,
+                            "action": "RequestAction",
+                            "intent": "Attack"
+                        },
+                        {
+                            "weight": 0.3,
+                            "action": "RequestAction",
+                            "intent": "KeepDistance",
+                            "style": "Circle",
+                            "cooldownId": "BowCombatBeatMove",
+                            "cooldownDuration": 1.6
+                        },
+                        {
+                            "weight": 0.15,
+                            "action": "RequestAction",
+                            "intent": "Pressure",
+                            "style": "Flank",
+                            "cooldownId": "BowCombatBeatMove",
+                            "cooldownDuration": 1.6
+                        }
+                    ]
+                },
+                {
                     "name": "IntentPunishShot",
                     "priority": 830,
                     "when": [
@@ -445,7 +477,6 @@
                             "weight": 0.4,
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "style": "Step",
                             "cooldownId": "BowIntentSpacing",
                             "cooldownDuration": 1.8
                         }
@@ -474,7 +505,6 @@
                         {
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "style": "Step",
                             "cooldownId": "BowIntentDisengage",
                             "cooldownDuration": 1.8
                         }

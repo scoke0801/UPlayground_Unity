@@ -12,21 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: Enemy_Random_F_Bow_002_Behavior
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 385b53f865ca24345bcfc732215a8c51, type: 2}
   aiRole: 2
   intentWeights: {fileID: 11400000, guid: b9ad27919c1308e4eb3f0b00a4a629a8, type: 2}
-  optimalCombatDistance: 2.5
-  minCombatDistance: 1.5
+  combatStrategy: {fileID: 0}
+  optimalCombatDistance: 8
+  minCombatDistance: 4
   maintainDistance: 1
-  chaseStopDistance: 2
-  personalSpaceDistance: 0.8
+  chaseStopDistance: 7
+  personalSpaceDistance: 2.5
   continueAttackChance: 0.3
   guardChance: 0.25
   retreatChance: 0.2
   chaseSpeedMultiplier: 1.2
   circleDuration: 2.5
   guardDuration: 1.5
-  retreatDistance: 3
+  retreatDistance: 8
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

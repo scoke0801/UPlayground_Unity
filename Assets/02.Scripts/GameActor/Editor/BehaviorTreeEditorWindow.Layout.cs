@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Linq;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -49,6 +50,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             operationsToolbar.Add(CreateToolbarButton("Export", BehaviorTreeJsonUtility.ExportSelected, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Validate", ValidateTree, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarButton("Fit All", () => _graphView?.FrameAllNodes(), ToolbarButtonStyle.Ghost));
+            operationsToolbar.Add(CreateToolbarButton("Compact Layout", ApplyCompactLayout, ToolbarButtonStyle.Ghost));
             operationsToolbar.Add(CreateToolbarSeparator());
             operationsToolbar.Add(CreateToolbarButton("Clean Nulls", CleanNullReferences, ToolbarButtonStyle.Danger));
 
@@ -133,6 +135,24 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             RefreshGraphTitle();
             RefreshDebugState();
             ValidateTree();
+        }
+
+        private void ApplyCompactLayout()
+        {
+            if (_tree == null)
+                return;
+
+            var undoTargets = new[] { _tree as UnityEngine.Object }
+                .Concat(_tree.Nodes
+                    .Where(node => node != null)
+                    .Cast<UnityEngine.Object>())
+                .ToArray();
+            Undo.RecordObjects(undoTargets, "Compact Behavior Tree Layout");
+
+            MonsterBehaviorTreeJsonImporter.ApplyReadableLayout(_tree);
+            _graphView?.PopulateView(_tree);
+            SaveTree();
+            _graphView?.schedule.Execute(() => _graphView.FrameAllNodes()).ExecuteLater(1);
         }
 
         private static VisualElement CreateSidePanel()

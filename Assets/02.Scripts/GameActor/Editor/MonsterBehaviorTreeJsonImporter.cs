@@ -289,7 +289,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                 AddJsonDefinedChildren(tree, root, data, sourceBehavior);
 
-                ApplyTopDownLayout(tree);
+                ApplyReadableLayout(tree);
 
                 PersistGeneratedAsset(tree, outputAssetPath);
                 persistedOutputAsset = true;

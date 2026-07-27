@@ -188,4 +188,40 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 9e5b15df529cbc94c9b1baf797d70ee4, type: 3}
   - controlPath: start
     sprite: {fileID: 21300000, guid: 9c60aef7b23623842b69d0e0147b7329, type: 3}
-  _switchGlyphs: []
+  _switchGlyphs:
+  - controlPath: buttonSouth
+    sprite: {fileID: 21300000, guid: da2f165aaee4a1b4f8fae8bcb3375812, type: 3}
+  - controlPath: buttonWest
+    sprite: {fileID: 21300000, guid: 619a325fede99ae40a9170940eb8b05e, type: 3}
+  - controlPath: buttonNorth
+    sprite: {fileID: 21300000, guid: 1beb244070afd9f4183c7025928b53d9, type: 3}
+  - controlPath: rightTrigger
+    sprite: {fileID: 21300000, guid: 8cc3cecb8a2b8bd4c81bc2f583661266, type: 3}
+  - controlPath: leftTrigger
+    sprite: {fileID: 21300000, guid: 2e8076ecb1052b546ad433d03fb5e93e, type: 3}
+  - controlPath: leftStickPress
+    sprite: {fileID: 21300000, guid: 0d7619fbac644f24094569fe819519fb, type: 3}
+  - controlPath: rightStickPress
+    sprite: {fileID: 21300000, guid: 6dd5954830096b0478ed44c6b96f76dd, type: 3}
+  - controlPath: leftShoulder
+    sprite: {fileID: 21300000, guid: b489fb8a0828d064cbc5da2347b15ed4, type: 3}
+  - controlPath: buttonEast
+    sprite: {fileID: 21300000, guid: 259423a89efe85c418fc586eadcc21b9, type: 3}
+  - controlPath: dpad/up
+    sprite: {fileID: 21300000, guid: 6596d807b61936c478843ab4f5636091, type: 3}
+  - controlPath: dpad/right
+    sprite: {fileID: 21300000, guid: c7d947a55512ad745a5e7ac7c7d3446a, type: 3}
+  - controlPath: dpad/down
+    sprite: {fileID: 21300000, guid: 1dc17bda7c7929347850f3d31f64009a, type: 3}
+  - controlPath: dpad/left
+    sprite: {fileID: 21300000, guid: efa01bbae83c1c941a667d8a0c2220c7, type: 3}
+  - controlPath: rightStick/right
+    sprite: {fileID: 21300000, guid: aeba5ea410377c642bdb98ab3b7fd165, type: 3}
+  - controlPath: rightStick/left
+    sprite: {fileID: 21300000, guid: f9291e867b343e94884ee644b1d4a5b7, type: 3}
+  - controlPath: select
+    sprite: {fileID: 21300000, guid: e2089730e96ec114baf38ea353e967fd, type: 3}
+  - controlPath: rightShoulder
+    sprite: {fileID: 21300000, guid: 4387dda71995e024bae674d310f99975, type: 3}
+  - controlPath: start
+    sprite: {fileID: 21300000, guid: 6738de4f4a21a3b4bb5834a9e34a5d7c, type: 3}

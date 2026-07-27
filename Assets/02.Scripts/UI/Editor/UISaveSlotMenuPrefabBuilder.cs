@@ -117,8 +117,8 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
                 var spacer = NewUI("Spacer", footer.transform);
                 AddFlexibleW(spacer, 1f);
                 var closeAlt = MakeButton("CloseButtonAlt", footer.transform, "닫기", CloseBg, TextMain, width: 180, fontSize: 26);
-                var esc = AddText(NewUI("EscHint", footer.transform), "Esc", 22, TextFaint, TextAlignmentOptions.Center);
-                SetWidth(esc.gameObject, 70);
+                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
+                    .AddSubmitCancelBar(footer.transform, "선택", "닫기");
 
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);

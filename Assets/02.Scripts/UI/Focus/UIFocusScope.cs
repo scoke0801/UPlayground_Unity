@@ -35,6 +35,10 @@ namespace UPlayGround.UI
         private GameObject _selectionBeforeShow;
         private GameObject _lastSelection;
         private GameObject _lastTrackedSelection;
+        private ScrollRect _trackedScrollRect;
+        private Vector2 _scrollTargetNormalized;
+        private Vector2 _lastAppliedScrollNormalized;
+        private bool _hasScrollTarget;
         private IInputService _inputService;
         private CanvasGroup _scopeCanvasGroup;
         private bool _inputLocked;
@@ -72,6 +76,7 @@ namespace UPlayGround.UI
             ActiveScopes.Remove(this);
             ActiveScopes.Add(this);
             RefreshScopeLocks();
+            ResetScrollTracking();
 
             BindInputService();
             EnsureSelection();
@@ -87,6 +92,7 @@ namespace UPlayGround.UI
             }
 
             ActiveScopes.Remove(this);
+            ResetScrollTracking();
             UnbindInputService();
             SetInputLocked(false);
             RefreshScopeLocks();
@@ -152,41 +158,90 @@ namespace UPlayGround.UI
         private void TrackSelectionIntoView()
         {
             if (!_autoScrollToSelection)
+            {
+                ResetScrollTracking();
                 return;
+            }
 
             EventSystem eventSystem = EventSystem.current;
             GameObject selection = eventSystem != null ? eventSystem.currentSelectedGameObject : null;
             if (selection == null || !IsSelectionInside(selection))
             {
-                _lastTrackedSelection = null;
+                ResetScrollTracking();
                 return;
             }
 
             bool selectionChanged = selection != _lastTrackedSelection;
-            _lastTrackedSelection = selection;
-
-            ScrollRect scrollRect = selection.GetComponentInParent<ScrollRect>();
-            if (scrollRect == null || scrollRect.content == null || scrollRect.viewport == null)
-                return;
-
-            // 선택이 바뀐 프레임에만 목표를 새로 잡고, 이후 프레임은 보간만 이어간다.
-            if (!selectionChanged && _scrollLerpSpeed <= 0f)
-                return;
-
-            var target = selection.transform as RectTransform;
-            if (target == null)
-                return;
-
-            Vector2 normalized = CalculateNormalizedPositionFor(scrollRect, target, _scrollPadding);
-            if (_scrollLerpSpeed <= 0f)
+            if (selectionChanged)
             {
-                ApplyNormalizedPosition(scrollRect, normalized);
+                _lastTrackedSelection = selection;
+                ClearScrollTarget();
+
+                ScrollRect scrollRect = selection.GetComponentInParent<ScrollRect>();
+                var target = selection.transform as RectTransform;
+                if (scrollRect == null
+                    || scrollRect.content == null
+                    || scrollRect.viewport == null
+                    || target == null)
+                {
+                    return;
+                }
+
+                Vector2 normalized = CalculateNormalizedPositionFor(
+                    scrollRect,
+                    target,
+                    _scrollPadding);
+                if (_scrollLerpSpeed <= 0f)
+                {
+                    ApplyNormalizedPosition(scrollRect, normalized);
+                    return;
+                }
+
+                Vector2 current = scrollRect.normalizedPosition;
+                if ((current - normalized).sqrMagnitude <= 0.000001f)
+                    return;
+
+                _trackedScrollRect = scrollRect;
+                _scrollTargetNormalized = normalized;
+                _lastAppliedScrollNormalized = current;
+                _hasScrollTarget = true;
+            }
+
+            if (!_hasScrollTarget || _trackedScrollRect == null)
+                return;
+
+            Vector2 currentPosition = _trackedScrollRect.normalizedPosition;
+            // 자동 보간 중 사용자가 휠/드래그로 위치를 바꾸면 사용자 입력을 우선한다.
+            if ((currentPosition - _lastAppliedScrollNormalized).sqrMagnitude > 0.000004f)
+            {
+                ClearScrollTarget();
                 return;
             }
 
             float t = Mathf.Clamp01(Time.unscaledDeltaTime * _scrollLerpSpeed);
-            Vector2 current = scrollRect.normalizedPosition;
-            ApplyNormalizedPosition(scrollRect, Vector2.Lerp(current, normalized, t));
+            Vector2 next = Vector2.Lerp(currentPosition, _scrollTargetNormalized, t);
+            if ((next - _scrollTargetNormalized).sqrMagnitude <= 0.000001f)
+            {
+                next = _scrollTargetNormalized;
+                ApplyNormalizedPosition(_trackedScrollRect, next);
+                ClearScrollTarget();
+                return;
+            }
+
+            ApplyNormalizedPosition(_trackedScrollRect, next);
+            _lastAppliedScrollNormalized = next;
+        }
+
+        private void ResetScrollTracking()
+        {
+            _lastTrackedSelection = null;
+            ClearScrollTarget();
+        }
+
+        private void ClearScrollTarget()
+        {
+            _trackedScrollRect = null;
+            _hasScrollTarget = false;
         }
 
         private static void ApplyNormalizedPosition(ScrollRect scrollRect, Vector2 normalized)
@@ -201,7 +256,7 @@ namespace UPlayGround.UI
         /// 항목이 뷰포트 안(여백 포함)에 들어오는 최소 이동량만큼만 스크롤 목표를 계산한다.
         /// 이미 보이는 항목은 현재 위치를 그대로 돌려준다.
         /// </summary>
-        private static Vector2 CalculateNormalizedPositionFor(
+        public static Vector2 CalculateNormalizedPositionFor(
             ScrollRect scrollRect,
             RectTransform target,
             float padding)
@@ -236,9 +291,9 @@ namespace UPlayGround.UI
                 if (bottom < 0f) deltaY = bottom;
                 else if (top > 0f) deltaY = top;
 
-                // verticalNormalizedPosition이 커질수록 항목은 뷰포트 위쪽으로 올라간다.
-                // 가로(x)와 부호가 반대이므로 여기서만 뺀다.
-                result.y = Mathf.Clamp01(result.y - deltaY / scrollableY);
+                // 항목이 위로 벗어나면 normalizedPosition을 올려 Content를 아래로,
+                // 아래로 벗어나면 내려 Content를 위로 이동한다.
+                result.y = Mathf.Clamp01(result.y + deltaY / scrollableY);
             }
 
             return result;
@@ -497,5 +552,18 @@ namespace UPlayGround.UI
             && selectable.gameObject.activeInHierarchy
             && selectable.IsActive()
             && selectable.IsInteractable();
+
+        /// <summary>
+        /// 동적 ContentSizeFitter가 높이를 갱신한 뒤에도 목록 진입 시작점을 최상단으로 고정한다.
+        /// 관성 속도까지 제거해 이전 프레임의 드래그/포커스 추적이 위치를 다시 밀지 않게 한다.
+        /// </summary>
+        public static void ResetScrollToTop(ScrollRect scrollRect)
+        {
+            if (scrollRect == null || !scrollRect.vertical)
+                return;
+
+            scrollRect.StopMovement();
+            scrollRect.verticalNormalizedPosition = 1f;
+        }
     }
 }

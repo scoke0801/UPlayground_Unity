@@ -104,7 +104,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
 
                 AddFlexibleW(NewUI("HeaderSpacer", header.transform), 1f);
                 var btnClose = MakeSimpleButton(
-                    "CloseButton", header.transform, "ESC  닫기",
+                    "CloseButton", header.transform, "닫기",
                     CancelBg, TextSub, width: 132, fontSize: 18);
 
                 var headerLine = NewUI("HeaderLine", panel.transform);
@@ -136,17 +136,14 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 SetHeight(footer, 62);
                 AddHLG(footer, spacing: 12, pad: 0).childAlignment = TextAnchor.MiddleCenter;
 
-                var footerHint = AddText(
-                    NewUI("FooterHint", footer.transform),
-                    "LT / RT  메뉴     LB / RB  설정 탭     방향키  이동     A  선택     B  취소",
-                    15, TextSub, TextAlignmentOptions.Left);
-                AddFlexibleW(footerHint.gameObject, 1f);
+                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
+                    .AddMainAndSubNavigationBar(footer.transform, "이전 설정 탭", "다음 설정 탭");
 
                 var btnReset = MakeSimpleButton(
                     "ResetButton", footer.transform, "R  기본값 복원",
                     ResetBg, TextSub, width: 190, fontSize: 17);
                 var btnCancel = MakeSimpleButton(
-                    "CancelButton", footer.transform, "ESC  취소",
+                    "CancelButton", footer.transform, "취소",
                     CancelBg, TextMain, width: 170, fontSize: 18);
                 var btnApply = MakeSimpleButton(
                     "ApplyButton", footer.transform, "적용",

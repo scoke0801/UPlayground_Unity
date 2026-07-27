@@ -47,6 +47,7 @@ namespace UPlayGround.UI
         [SerializeField] private UI_InventorySlot _itemPanelPrefab;
         [SerializeField] private Transform _content;
         [SerializeField] private GridLayoutGroup _itemGrid;
+        [SerializeField] private ScrollRect _itemScrollRect;
         [SerializeField] private Image _imgWeightFill;
         [SerializeField] private TextMeshProUGUI _txtWeight;
 
@@ -266,7 +267,7 @@ namespace UPlayGround.UI
                     _inputService?.GamepadBrand ?? GamepadBrand.Generic,
                     null);
                 label.text = result.Count > 0
-                    ? result.Primary.Text
+                    ? result.GetDisplayText(" + ")
                     : QuickSlotActionNames[i];
             }
         }
@@ -832,6 +833,7 @@ namespace UPlayGround.UI
             // 같은 프레임에도 가능한 한 먼저 맞추고, LayoutGroup/ScrollRect가 최종 폭을
             // 확정하는 다음 프레임들에서 다시 계산해 첫 진입과 재진입 결과를 동일하게 만든다.
             ForceRefreshResponsiveGrid();
+            ResetItemScrollToTop();
             _gridLayoutRefreshCoroutine = StartCoroutine(RefreshResponsiveGridAfterLayout());
         }
 
@@ -842,9 +844,18 @@ namespace UPlayGround.UI
             {
                 yield return null;
                 ForceRefreshResponsiveGrid();
+                ResetItemScrollToTop();
             }
 
             _gridLayoutRefreshCoroutine = null;
+        }
+
+        private void ResetItemScrollToTop()
+        {
+            if (_itemScrollRect == null && _content != null)
+                _itemScrollRect = _content.GetComponentInParent<ScrollRect>();
+
+            UIFocusNavigation.ResetScrollToTop(_itemScrollRect);
         }
 
         private void ForceRefreshResponsiveGrid()

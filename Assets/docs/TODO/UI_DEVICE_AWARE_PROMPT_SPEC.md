@@ -4,6 +4,29 @@
 (이 문서는 그 스펙의 "남은 작업" 중 UI 표시 계층만 다룬다. 액션 에셋·리바인딩·컨텍스트
 스택 규약은 선행 문서를 따르고 여기서 다시 정의하지 않는다.)
 
+## 구현 진행 상태 (2026-07-26)
+
+- [x] `InputPromptAvailability`와 `InputGlyphResolver.HasBindingForAction` 경량 판정 경로
+- [x] `UI_InputPromptIcon`의 미바인딩 숨김 및 `Any`/`GamepadOnly`/`KeyboardMouseOnly` 게이트
+- [x] 장치 전환 후 다시 나타날 수 있도록 컴포넌트 자기 오브젝트가 아닌 표시 루트만 숨기는 처리
+- [x] `(map, action, label)` 목록을 렌더링하는 `UI_InputPromptBar`
+- [x] `OnActiveDeviceChanged` / `OnBindingsChanged` 즉시 반영
+- [x] `UI_Base`가 실제 탭 그룹이 있을 때만 `SubTab*`을 등록하도록 F7 정리
+- [x] 프리팹 빌더 공용 `UIInputPromptBarBuilderUtility`
+- [x] Inventory, Craft, Quest, Setting, SaveSlot의 하드코딩 장치 문구 제거
+- [x] Map, MonsterCodex, CharacterSelect, Pause, RestGrowth 빌더에 공용 프롬프트 추가
+- [x] 장치군·복합·빈 override 판정 EditMode 테스트 추가
+- [x] 11개 실제 프리팹 마이그레이션 및 직렬화 계약 검증
+- [x] 별도 빌더가 없는 `UI_PartyMenu` 프리팹 연결
+- [x] Xbox / PlayStation / Switch 브랜드별 얼굴 버튼 글리프 데이터 검증
+- [x] Unity Test Runner EditMode 9개 통과
+- [ ] Xbox / DualSense / Switch Pro 실기 장치 전환 확인
+
+`UI_PartySelect`는 현재 독립 프리팹이 없으며 `UI_PartyMenu`가 실제 등록 데이터다.
+프리팹 폴더는 저장소 `.gitignore` 대상이지만 로컬 Unity 프로젝트의 11개 실제 프리팹에는
+마이그레이션이 반영됐다. `Tools/UI/Input Prompt/전체 계약 검증`에서 액션·글리프·프리팹
+직렬화·Missing Script를 함께 검사한다.
+
 ---
 
 ## 1. 문제 정의
@@ -206,11 +229,11 @@ bool HasBindingFor(string map, string action, ActiveInputDevice device)
 
 | 단계 | 내용 | 산출물 |
 | --- | --- | --- |
-| 1 | `UI_InputPromptIcon` 장치 게이트 + `InputPromptAvailability` | 코드 2개. F6 해소 |
-| 2 | `UI_InputPromptBar` 구현 | 코드 1개 |
-| 3 | `UI_Base` 탭 프롬프트 자동 부착 + F7 정리 | `UI_Base.cs` 수정 |
-| 4 | 프리팹 빌더 수정 — 하드코딩 힌트 제거, 하단 바 삽입 | 빌더 7~10개 |
-| 5 | 프리팹 재생성 후 Play Mode에서 장치 전환 확인 | 수동 검증 |
+| 1 | `UI_InputPromptIcon` 장치 게이트 + `InputPromptAvailability` | 완료. F6 해소 |
+| 2 | `UI_InputPromptBar` 구현 | 완료 |
+| 3 | `UI_Base` F7 정리 | 완료. 탭 프롬프트 저작은 공용 빌더 유틸리티가 담당 |
+| 4 | 프리팹 빌더 수정 — 하드코딩 힌트 제거, 공용 바 삽입 | 10개 빌더 + Party 프리팹 마이그레이션 완료 |
+| 5 | 실제 프리팹 반영 및 자동 검증 | 11개 완료. 실기 패드 전환만 남음 |
 
 1~3단계는 코드만이라 컴파일 검증까지 가능하다. 4단계는 프리팹 재생성이 필요하고,
 5단계는 Unity 에디터에서 실기 확인이 필요하다.

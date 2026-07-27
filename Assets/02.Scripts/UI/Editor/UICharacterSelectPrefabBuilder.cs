@@ -281,6 +281,14 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             cfrt.pivot = new Vector2(1f, 0f);
             cfrt.sizeDelta = new Vector2(210, 62);
             cfrt.anchoredPosition = new Vector2(-40, 350);
+
+            var promptBar = UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
+                .AddSubmitCancelBar(root.transform, "시작", "취소");
+            var promptRect = (RectTransform)promptBar.transform;
+            promptRect.anchorMin = promptRect.anchorMax = new Vector2(0.5f, 0f);
+            promptRect.pivot = new Vector2(0.5f, 0f);
+            promptRect.sizeDelta = new Vector2(520f, 46f);
+            promptRect.anchoredPosition = new Vector2(0f, 18f);
             confirmBtn.interactable = false;
 
             // 카드 행 (하단 중앙, 가로 배치 + 콘텐츠 크기 맞춤)

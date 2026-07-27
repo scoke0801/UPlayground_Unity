@@ -2,7 +2,10 @@
   "name": "UPlayGround.UI.Tests",
   "rootNamespace": "UPlayGround.UI.Tests",
   "references": [
-    "UPlayGround.UI"
+    "UPlayGround.UI",
+    "UPlayGround.UI.Editor",
+    "UPlayGround.Data",
+    "Unity.InputSystem"
   ],
   "includePlatforms": [
     "Editor"

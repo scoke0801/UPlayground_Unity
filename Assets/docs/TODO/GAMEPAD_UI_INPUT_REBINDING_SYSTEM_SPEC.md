@@ -18,7 +18,7 @@
 > - `Assets/Resources/Input/PlayerInputActions.inputactions`
 > - `Assets/03.Prefabs/UI/UIRoot.prefab`
 
-## 구현 진행 상태 (2026-07-25)
+## 구현 진행 상태 (2026-07-26)
 
 1차 수직 슬라이스에 이어 2차 작업(중재·마이그레이션·포커스 추적·EditMode 테스트)까지 구현되었다.
 
@@ -143,6 +143,15 @@
 
 ### 남은 작업
 
+- 장치별 UI 프롬프트 표시 계층은 `UI_DEVICE_AWARE_PROMPT_SPEC.md`에 따라 코드,
+  10개 프리팹 빌더, 실제 프리팹 11개까지 반영했다. `UI_PartySelect`는 독립 프리팹이
+  없고 현재 등록 데이터는 `UI_PartyMenu`다.
+- 토큰 기반 Input Context Stack은 아직 미구현이다. 현재 런타임은 `InputLayer`와
+  리바인딩 캡처 게이트를 병행한다. 기존 UI 전환 경로를 한 번에 교체하지 않고 별도
+  수직 슬라이스와 누수 검증을 마련한 뒤 도입한다.
+- `InputBindingCatalogSO`는 아직 도입하지 않았고, 현재 카탈로그 메타데이터는
+  `InputManager.BindingProfile.cs`의 정적 목록이 제공한다. 실제 바인딩 권위는 계속
+  InputAction effective binding과 binding GUID다.
 - §19.2 PlayMode 수직 슬라이스 8종. 타이틀/일시정지/설정 씬과 프리팹 부트스트랩이 필요해
   Unity 에디터에서 씬 기준을 확정한 뒤 작성한다.
 - 새 `UPlayGround.UI.Tests` EditMode 3개는 Unity Test Runner에서 실행해 결과를 확정한다.
@@ -1083,7 +1092,7 @@ P1:
 
 ### Phase 0 — 액션 에셋 정리
 
-- [ ] 현재 물리 키 중복·빈 바인딩 자동 검사 작성
+- [x] 현재 물리 키 중복·빈 바인딩 자동 검사 작성
 - [x] RT, D-pad, Keyboard R 충돌 제거
 - [x] Gamepad/R2 오바인딩 수정
 - [x] Keyboard&Mouse / Gamepad Control Scheme 완성
@@ -1103,15 +1112,15 @@ P1:
 ### Phase 2 — 입력 컨텍스트와 조합 중재
 
 - [ ] 토큰 기반 Input Context Stack
-- [ ] `InputManager.Chord.cs` 구현
-- [ ] 긴 조합 우선, 단일키 grace, provisional hold 처리
-- [ ] InputBuffer 확정 시점 연동
-- [ ] 컨텍스트 변경 시 pending 상태 일괄 취소
+- [x] `InputManager.Chord.cs` 구현
+- [x] 긴 조합 우선, 단일키 grace, provisional hold 처리
+- [x] InputBuffer 확정 시점 연동
+- [x] 레이어 변경·입력 억제 시 pending 상태 일괄 취소
 
 ### Phase 3 — 리바인딩 런타임
 
 - [ ] `InputBindingCatalogSO`
-- [ ] 고정 Single/Composite 슬롯과 binding GUID 규약
+- [x] 고정 Single/Composite 슬롯과 binding GUID 규약
 - [x] Rebinding Session 상태 머신
 - [x] 단일키·조합키 캡처
 - [x] 충돌 검사와 대체·취소
@@ -1130,19 +1139,19 @@ P1:
 ### Phase 5 — 저장·글리프·장치 복구
 
 - [x] override JSON 저장·로드
-- [ ] profileVersion 마이그레이션
+- [x] profileVersion 마이그레이션
 - [x] `OnBindingsChanged`
 - [x] 공용 입력 프롬프트 즉시 갱신
 - [x] 연결 해제·재연결 처리
-- [ ] 브랜드별 글리프 검증
+- [x] 브랜드별 글리프 검증
 
 ### Phase 6 — 검증과 문서 동기화
 
-- [ ] EditMode 테스트
+- [x] EditMode 입력 로직 테스트
 - [ ] PlayMode UI 수직 슬라이스 테스트
 - [ ] Xbox / DualSense / Switch Pro 수동 스모크
-- [ ] `INPUT_SYSTEM_GUIDE.md`를 실제 partial 파일·API 기준으로 갱신
-- [ ] `GAMEPLAY_GUIDE.md` 기본 조작표 갱신
+- [x] `INPUT_SYSTEM_GUIDE.md`를 실제 partial 파일·API 기준으로 갱신
+- [x] `GAMEPLAY_GUIDE.md` 기본 조작표 갱신
 
 ---
 
@@ -1218,12 +1227,12 @@ Switch는 `buttonSouth`의 표시 문자가 Xbox와 다르므로 “논리 Submi
 
 ### 구조
 
-- [ ] EventSystem과 프로젝트 입력 라우터가 동일 UI Action Asset 사용
-- [ ] UI 모듈에 신규 Manager 싱글톤 직접 의존 0
-- [ ] InputManager에 신규 구체 UI 구현 의존 0
-- [ ] Data 모듈이 Manager/UI 구현 참조 0
-- [ ] 사용자 프로필이 binding GUID 기반으로 저장됨
-- [ ] 조합 중재가 InputBuffer 이전에 적용됨
+- [x] EventSystem과 프로젝트 입력 라우터가 동일 UI Action Asset 사용
+- [x] UI 모듈에 신규 Manager 싱글톤 직접 의존 0
+- [x] InputManager에 신규 구체 UI 구현 의존 0
+- [x] Data 모듈이 Manager/UI 구현 참조 0
+- [x] 사용자 프로필이 binding GUID 기반으로 저장됨
+- [x] 조합 중재가 InputBuffer 이전에 적용됨
 
 ### 검증
 

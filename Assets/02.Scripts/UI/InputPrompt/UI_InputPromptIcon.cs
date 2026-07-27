@@ -8,12 +8,19 @@ using UPlayGround.UI.InputPrompt;
 
 namespace UPlayGround.UI.InputPrompt
 {
+    public enum DevicePromptFilter
+    {
+        Any,
+        GamepadOnly,
+        KeyboardMouseOnly,
+    }
+
     /// <summary>
     /// 한 액션의 입력 키를 키캡 글리프(또는 폴백 텍스트)로 표시하는 위젯.
     ///
     /// - 단일 키(대부분): 인스펙터의 Image(+선택적 폴백 Label)에 그린다. 무설정 동작.
     /// - 콤보(복합 바인딩, 예: Dodge = L1+R1): 콤보 컨테이너/템플릿이 지정돼 있으면 파트별로
-    ///   "L1 + R1"처럼 여러 글리프를 그린다. 미지정 시 첫 파트만 표시(공백 대신 degraded).
+    ///   "L1 + R1"처럼 여러 글리프를 그린다. 미지정 시 전체 조합을 폴백 텍스트로 표시한다.
     ///
     /// 활성 디바이스(키보드+마우스 ↔ 게임패드) 또는 게임패드 브랜드 전환 시
     /// IInputService.OnActiveDeviceChanged를 받아 자동으로 글리프를 교체한다. (요구사항 1·2 + Phase 3)
@@ -37,9 +44,17 @@ namespace UPlayGround.UI.InputPrompt
         [Tooltip("파트 1개를 표시하는 템플릿. 비활성 자식으로 두면 복제해 사용한다.")]
         [SerializeField] private UI_InputPromptGlyphItem _comboItemTemplate;
 
+        [Header("표시 조건")]
+        [Tooltip("활성 장치에 이 액션의 바인딩이 없으면 표시 루트를 숨긴다.")]
+        [SerializeField] private bool _hideWhenUnbound = true;
+        [SerializeField] private DevicePromptFilter _deviceFilter = DevicePromptFilter.Any;
+        [Tooltip("비워 두면 렌더 타깃만 숨긴다. 자기 오브젝트가 아닌 별도 자식을 권장한다.")]
+        [SerializeField] private GameObject _visibilityRoot;
+
         // OnDisable에서 안전하게 구독 해제하기 위해 캐시. (Instance getter는 null이면 새로 생성하므로 직접 호출 금지)
         private IInputService _inputManager;
         private readonly List<UI_InputPromptGlyphItem> _comboPool = new();
+        public bool IsVisible { get; private set; }
 
         private void Awake()
         {
@@ -82,7 +97,16 @@ namespace UPlayGround.UI.InputPrompt
             Refresh();
         }
 
-        private void Refresh()
+        public void SetDisplayCondition(
+            DevicePromptFilter deviceFilter,
+            bool hideWhenUnbound = true)
+        {
+            _deviceFilter = deviceFilter;
+            _hideWhenUnbound = hideWhenUnbound;
+            Refresh();
+        }
+
+        public void Refresh()
         {
             if (_inputManager == null)
                 _inputManager = Svc.Input;
@@ -93,12 +117,38 @@ namespace UPlayGround.UI.InputPrompt
             var device = _inputManager.ActiveDevice;
             var brand = _inputManager.GamepadBrand;
             var result = InputGlyphResolver.Resolve(_mapName, _actionName, device, brand, _glyphData);
+            bool matchesDevice = UI_InputPromptBar.MatchesFilter(_deviceFilter, device);
+            bool visible = matchesDevice && (result.IsValid || !_hideWhenUnbound);
+            SetVisible(visible);
+            if (!visible)
+                return;
 
             bool canRenderCombo = result.Count > 1 && _comboContainer != null && _comboItemTemplate != null;
             if (canRenderCombo)
                 RenderCombo(result.Parts);
+            else if (result.Count > 1 && _fallbackLabel != null)
+                RenderComboFallback(result);
             else
                 RenderSingle(result.Count > 0 ? result.Primary : GlyphPart.TextOnly(_actionName));
+        }
+
+        private void SetVisible(bool visible)
+        {
+            IsVisible = visible;
+
+            // 자기 오브젝트를 끄면 장치 변경 이벤트를 받지 못해 다시 나타날 수 없다.
+            if (_visibilityRoot != null && _visibilityRoot != gameObject)
+            {
+                _visibilityRoot.SetActive(visible);
+                return;
+            }
+
+            if (!visible)
+            {
+                if (_iconImage != null) _iconImage.enabled = false;
+                if (_fallbackLabel != null) _fallbackLabel.enabled = false;
+                if (_comboContainer != null) _comboContainer.gameObject.SetActive(false);
+            }
         }
 
         private void RenderSingle(in GlyphPart part)
@@ -144,6 +194,17 @@ namespace UPlayGround.UI.InputPrompt
                     _comboPool[i].gameObject.SetActive(false);
                 }
             }
+        }
+
+        private void RenderComboFallback(in InputGlyphResult result)
+        {
+            if (_comboContainer != null)
+                _comboContainer.gameObject.SetActive(false);
+            if (_iconImage != null)
+                _iconImage.enabled = false;
+
+            _fallbackLabel.enabled = true;
+            _fallbackLabel.text = result.GetDisplayText(" + ");
         }
 
         private void EnsurePool(int count)

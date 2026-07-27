@@ -44,6 +44,21 @@ namespace UPlayGround.UI.InputPrompt
         public int Count => Parts?.Count ?? 0;
         public GlyphPart Primary => Count > 0 ? Parts[0] : default;
 
+        /// <summary>
+        /// 콤보 렌더 템플릿이 없는 작은 버튼에서도 모든 바인딩 파트를
+        /// 누락 없이 표시할 수 있도록 폴백 문자열을 만든다.
+        /// </summary>
+        public string GetDisplayText(string separator = " + ")
+        {
+            if (Count == 0)
+                return string.Empty;
+
+            var labels = new string[Count];
+            for (int i = 0; i < Count; i++)
+                labels[i] = Parts[i].Text ?? string.Empty;
+            return string.Join(separator, labels);
+        }
+
         public static InputGlyphResult Of(IReadOnlyList<GlyphPart> parts) => new(true, parts);
         public static InputGlyphResult Missing(string actionName) =>
             new(false, new[] { GlyphPart.TextOnly(actionName) });
@@ -59,6 +74,14 @@ namespace UPlayGround.UI.InputPrompt
     /// </summary>
     public static class InputGlyphResolver
     {
+        /// <summary>
+        /// 표시 문자열이나 스프라이트를 만들지 않고 해당 장치용 바인딩 존재 여부만 확인한다.
+        /// </summary>
+        public static bool HasBindingForAction(
+            InputAction action,
+            ActiveInputDevice device)
+            => action != null && FindBindingIndexForDevice(action, device) >= 0;
+
         public static InputGlyphResult Resolve(string mapName, string actionName,
             ActiveInputDevice device, GamepadBrand brand, InputGlyphDataSO glyphData)
         {

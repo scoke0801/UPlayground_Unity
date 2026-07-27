@@ -96,6 +96,9 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
                 SetHeight(status, 28);
                 var statusText = AddText(status, "게임이 일시정지되었습니다", 18, TextSub, TextAlignmentOptions.Center);
 
+                UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
+                    .AddSubmitCancelBar(panel.transform, "선택", "재개");
+
                 // ── 필드 연결 ──
                 var so = new SerializedObject(menu);
                 SetRef(so, "resumeButton",    resumeBtn);

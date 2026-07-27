@@ -355,14 +355,21 @@ namespace UPlayGround.UI
             }
 
             InputLayer layer = (InputLayer)(int)_layer;
-            Svc.Input.RegisterInputEvent(InputMapNames.UI, MainTabPreviousAction,
-                null, OnMainTabPrevious, null, null, null, layer);
-            Svc.Input.RegisterInputEvent(InputMapNames.UI, MainTabNextAction,
-                null, OnMainTabNext, null, null, null, layer);
-            Svc.Input.RegisterInputEvent(InputMapNames.UI, SubTabPreviousAction,
-                null, OnSubTabPrevious, null, null, null, layer);
-            Svc.Input.RegisterInputEvent(InputMapNames.UI, SubTabNextAction,
-                null, OnSubTabNext, null, null, null, layer);
+            if (_mainTabGroup != null || _mainPageKey != UIKeyType.None)
+            {
+                Svc.Input.RegisterInputEvent(InputMapNames.UI, MainTabPreviousAction,
+                    null, OnMainTabPrevious, null, null, null, layer);
+                Svc.Input.RegisterInputEvent(InputMapNames.UI, MainTabNextAction,
+                    null, OnMainTabNext, null, null, null, layer);
+            }
+
+            if (_subTabGroup != null)
+            {
+                Svc.Input.RegisterInputEvent(InputMapNames.UI, SubTabPreviousAction,
+                    null, OnSubTabPrevious, null, null, null, layer);
+                Svc.Input.RegisterInputEvent(InputMapNames.UI, SubTabNextAction,
+                    null, OnSubTabNext, null, null, null, layer);
+            }
             _navigationShortcutsRegistered = true;
         }
 
@@ -371,14 +378,21 @@ namespace UPlayGround.UI
             if (!_navigationShortcutsRegistered)
                 return;
 
-            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, MainTabPreviousAction,
-                null, OnMainTabPrevious, null);
-            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, MainTabNextAction,
-                null, OnMainTabNext, null);
-            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, SubTabPreviousAction,
-                null, OnSubTabPrevious, null);
-            Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, SubTabNextAction,
-                null, OnSubTabNext, null);
+            if (_mainTabGroup != null || _mainPageKey != UIKeyType.None)
+            {
+                Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, MainTabPreviousAction,
+                    null, OnMainTabPrevious, null);
+                Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, MainTabNextAction,
+                    null, OnMainTabNext, null);
+            }
+
+            if (_subTabGroup != null)
+            {
+                Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, SubTabPreviousAction,
+                    null, OnSubTabPrevious, null);
+                Svc.Input?.UnRegisterInputEvent(InputMapNames.UI, SubTabNextAction,
+                    null, OnSubTabNext, null);
+            }
             _navigationShortcutsRegistered = false;
         }
 

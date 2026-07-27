@@ -2,17 +2,25 @@
 
 ## 개요
 
-Unity Input System(`InputActionAsset`) 위에 **레이어 우선순위** + **이벤트 라우팅** + **선입력 버퍼** + **커서 스택**을 더한 입력 매니저입니다. 모든 게임 입력은 `InputManager.RegisterInputEvent` 한 진입점을 통해 등록되고, `CurrentLayer` 보다 낮은 레이어 콜백은 자동 차단됩니다.
+Unity Input System(`InputActionAsset`) 위에 **레이어 우선순위** + **이벤트 라우팅** +
+**조합 중재** + **선입력 버퍼** + **장치 감지** + **리바인딩 프로필**을 더한 입력
+매니저입니다. 공용 소비자는 `Svc.Input`의 `IInputService`를 사용하며, `CurrentLayer`보다
+낮은 레이어 콜백은 자동 차단됩니다.
 
 핵심 특징:
 
-- **partial class 3 파일** — `InputManager.cs`(라이프사이클/커서/레이어), `.Action.cs`(InputActionAsset 캐싱), `.Event.cs`(콜백 라우팅 + 버퍼)
+- **partial class 7 파일** — 생명주기, 액션 캐시, 이벤트 라우팅, 장치 추적, 조합 중재,
+  바인딩 프로필, 리바인딩 캡처를 기능별로 분리
 - **레이어 우선순위 차단** — `CurrentLayer` 가 등록 콜백의 `Layer` 보다 높으면 콜백 비활성화 (UI 진입 시 게임 입력 자동 차단)
 - **레이어 변경 시 진행 중 입력 자동 Cancel** — `cancelCallback` 등록자에게 Cancel 알림 전파
 - **InputBuffer 선입력** — Attack, Dodge, Skill 등 전투 입력은 0.15초 동안 버퍼에 보관 → 프레임 손실/타이밍 가드 우회
 - **콜백 실행 중 레이어 변경 감지** — 한 콜백이 레이어를 바꾸면 같은 이벤트의 후속 콜백 자동 중단
 - **커서 가시성 스택** — 여러 시스템이 동시에 커서 표시를 요청 가능, 모두 해제 시 자동 잠금
 - **게임패드 활성 시 커서 자동 잠금** — 마우스/패드 혼용 UX
+- **장치·브랜드 추적** — `ActiveDevice`, `GamepadBrand`, `OnActiveDeviceChanged`
+- **리바인딩 프로필** — Primary/Secondary 단일·2키 조합, 충돌 처리, GUID 기반 저장·이전
+- **장치별 UI 글리프** — 활성 장치와 바인딩 변경을 `UI_InputPromptIcon`과
+  `UI_InputPromptBar`가 즉시 반영
 
 ---
 
@@ -23,7 +31,7 @@ InputActionAsset (Resources: "Input/PlayerInputActions")
    │
    │  InputManager.InitInputAction (Init 단계)
    ▼
-InputManager (BaseManager<T>, IManager) ── partial 3 파일
+InputManager (BaseManager<T>, IManager, IInputService) ── partial 7 파일
 │
 ├── actionCache    : Dictionary<(map, name), InputAction>
 ├── actionMapCache : Dictionary<map, InputActionMap>
@@ -38,7 +46,7 @@ InputManager (BaseManager<T>, IManager) ── partial 3 파일
 ├── _cursorVisibleStack : int  (커서 표시 요청 스택)
 │
 ├── CurrentLayer : InputLayer
-│   └── SetInputLayer(layer) → InvokeCancelEvents (레이어 하락한 콜백의 cancelCallback 발화)
+│   └── RefreshInputLayer() → UIManager 차단 UI 기준 재계산 + Cancel 전파
 │
 └── ShowCursor / RefreshCursorState (게임패드 활성 시 자동 잠금)
 
@@ -49,7 +57,11 @@ InputManager (BaseManager<T>, IManager) ── partial 3 파일
         ▼
   InputManager.OnInputEventStarted/Performed/Canceled
         │
-        ├── (Performed + Level_0) 전투 액션이면 → _inputBuffer.AddInput
+        ├── 입력 억제/포인터/리바인딩 게이트
+        ▼
+  InputChordArbiter
+        │  긴 조합 우선 및 단일키 grace 확정
+        ├── 확정된 전투 입력만 timestamp와 함께 InputBuffer 적재
         │
         ▼
   ExecuteCallbacks(dict)
@@ -65,13 +77,26 @@ InputManager (BaseManager<T>, IManager) ── partial 3 파일
 ```
 Assets/02.Scripts/
 ├── Manager/Input/
-│   ├── InputManager.cs              라이프사이클 + 커서 + SetInputLayer + ShowCursor
+│   ├── InputManager.cs              라이프사이클 + 커서 + 레이어 재계산 + ShowCursor
 │   ├── InputManager.Action.cs       InputActionAsset 캐싱 + Enable/Disable
-│   └── InputManager.Event.cs        Register/Unregister + ExecuteCallbacks + Buffer 적재
+│   ├── InputManager.Event.cs        Register/Unregister + 게이트 + 콜백 실행
+│   ├── InputManager.Device.cs       활성 장치/게임패드 브랜드/연결 해제
+│   ├── InputManager.Chord.cs        조합 우선 중재 + InputBuffer 확정 적재
+│   ├── InputManager.BindingProfile.cs GUID 기반 override 저장·로드·적용
+│   └── InputManager.Rebinding.cs    단일키·2키 조합 캡처 세션
 │
-└── Input/
-    ├── InputDefine.cs               InputMapNames / PlayerAction / SystemAction / UIAction / GamepadAction / InputLayer
-    └── InputBuffer.cs               BufferedInput + InputBuffer (선입력 큐)
+├── Data/Input/
+│   ├── InputDefine.cs               맵/액션/레이어 상수
+│   ├── InputBuffer.cs               timestamp 지원 선입력 큐
+│   ├── InputChordArbiter.cs         Input System 비의존 조합 판정
+│   ├── InputBindingProfileMigration.cs
+│   └── InputRebindingTypes.cs
+│
+└── UI/InputPrompt/
+    ├── InputGlyphResolver.cs
+    ├── InputPromptAvailability.cs
+    ├── UI_InputPromptIcon.cs
+    └── UI_InputPromptBar.cs
 
 Assets/Resources/Input/
 └── PlayerInputActions.inputactions  Unity Input System 설정
@@ -144,9 +169,12 @@ public void UnRegisterInputEvent(
 | API | 용도 |
 |-----|------|
 | `CurrentLayer` | 현재 활성 입력 레이어 |
-| `SetInputLayer(InputLayer)` | 레이어 변경. `None` 전달 시 `UIManager.GetTopCanvasLayer().ToInputLayer()` 자동 적용. 변경 시 `InvokeCancelEvents` 호출 |
+| `RefreshInputLayer()` | 열린 차단 UI를 기준으로 레이어 재계산. 변경 시 pending 조합 초기화와 Cancel 전파 |
 | `ShowCursor(bool show, bool isForce=false)` | 가시성 스택 push/pop. `isForce`이면 스택 초기화 |
 | `InputBuffer` | InputBuffer 인스턴스 직접 접근 |
+| `ActiveDevice` / `GamepadBrand` | 현재 입력 장치군과 게임패드 브랜드 |
+| `OnActiveDeviceChanged` | 키보드·마우스/게임패드 전환 알림 |
+| `OnBindingsChanged` | effective binding 변경 알림 |
 
 #### Action 직접 접근
 
@@ -155,13 +183,25 @@ public void UnRegisterInputEvent(
 | `GetAction(map, name)` | InputAction 인스턴스 |
 | `SetActionEnabled(map, name, enabled)` | 개별 Action 토글 |
 
+#### 리바인딩
+
+| API | 용도 |
+|-----|------|
+| `GetBindingDescriptors(deviceGroup)` | 설정 화면의 액션·슬롯 목록 |
+| `CaptureBindingAsync(target)` | 단일키 또는 2키 조합 캡처 |
+| `TryApplyBinding(capture, replaceConflict, out conflict)` | 충돌 검사 후 임시 프로필 반영 |
+| `CaptureBindingProfileSnapshot()` / `RestoreBindingProfileSnapshot(json)` | 설정 Apply/Cancel 기준점 |
+| `SaveBindingProfile()` | PlayerPrefs JSON 영구 저장 |
+| `ResetBinding*` / `ClearBinding` | 슬롯·액션·장치·전체 초기화 |
+
 ### 자동 버퍼 적재 액션
 
 `OnInputEventPerformed`에서 `CurrentLayer == Level_0` 일 때 다음 액션은 자동으로 InputBuffer에 적재된다:
 
 ```
-Attack / HeavyAttack / Dodge / Jump / Dash / PlayerSwap
-Skill_1 / Skill_2 / Skill_3 / Skill_4
+Attack / HeavyAttack / Dodge / Jump / Dash
+SkillAbility / SkillUltimate / ElementBuff
+CharacterSwap_1 / CharacterSwap_2 / CharacterSwap_3 / CharacterSwap_4
 ```
 
 소비는 호출자(예: `PlayerAttackState`, `PlayerGuardState`)가 `InputBuffer.ConsumeInput("Attack")` 으로.
@@ -234,7 +274,7 @@ foreach (var data in 모든 콜백)
 ```csharp
 private void OnEnable()
 {
-    InputManager.Instance.RegisterInputEvent(
+    Svc.Input.RegisterInputEvent(
         InputMapNames.PlayerAction, PlayerAction.Attack,
         started:        null,
         performed:      OnAttackPerformed,
@@ -246,7 +286,7 @@ private void OnEnable()
 
 private void OnDisable()
 {
-    InputManager.Instance.UnRegisterInputEvent(
+    Svc.Input.UnRegisterInputEvent(
         InputMapNames.PlayerAction, PlayerAction.Attack,
         null, OnAttackPerformed, null);
 }
@@ -256,25 +296,25 @@ private void OnDisable()
 
 ```csharp
 // 커서 토글 — Level_Top 이라 UI / 시스템 메뉴 위에서도 동작
-InputManager.Instance.RegisterInputEvent(
+Svc.Input.RegisterInputEvent(
     InputMapNames.System, SystemAction.ShowCursor,
     OnStartedShowCursor, null, OnCanceledShowCursor,
     null, null, InputLayer.Level_Top);
 ```
 
-### 3. UI 열 때 레이어 변경
+### 3. UI 열기/닫기
 
 ```csharp
 public override void Show()
 {
+    // UI_Base가 표시 상태를 반영한 뒤 InputManager.RefreshInputLayer를 호출한다.
     base.Show();
-    InputManager.Instance.SetInputLayer(InputLayer.Level_2);  // Popup
 }
 
 public override void Hide()
 {
+    // 중첩 UI가 있으면 그 UI의 레이어가 유지된다.
     base.Hide();
-    InputManager.Instance.SetInputLayer(InputLayer.None);     // 자동 — UIManager의 최상위 캔버스 기준
 }
 ```
 
@@ -282,7 +322,7 @@ public override void Hide()
 
 ```csharp
 // PlayerAttackState : 콤보 윈도우 안에서 다음 공격 입력이 있으면 콤보 진행
-if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+if (Svc.Input?.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
 {
     _combat.ExecuteAttack(isCombo: true);
 }
@@ -291,20 +331,20 @@ if (InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
 ```csharp
 // PlayerGuardState : 퍼펙트 가드 카운터 창에서 Attack 입력 검사
 if (_combat.IsPerfectGuardCounterAvailable &&
-    InputManager.Instance.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+    Svc.Input?.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
 {
     // 반격 전환
 }
 ```
 
-### 5. 액션 토글 (특정 입력 임시 비활성화)
+### 5. 플레이어 액션 임시 억제
 
 ```csharp
-// 컷씬 중 점프 비활성
-InputManager.Instance.SetActionEnabled(InputMapNames.PlayerAction, PlayerAction.Jump, false);
+// 컷씬/리바인딩 전환처럼 게임플레이 입력 전체를 막아야 하는 구간
+Svc.Input?.SetPlayerActionInputSuppressed(true);
 
 // 컷씬 종료
-InputManager.Instance.SetActionEnabled(InputMapNames.PlayerAction, PlayerAction.Jump, true);
+Svc.Input?.SetPlayerActionInputSuppressed(false);
 ```
 
 ### 6. 커서 표시 (인벤토리)
@@ -313,13 +353,13 @@ InputManager.Instance.SetActionEnabled(InputMapNames.PlayerAction, PlayerAction.
 public override void Show()
 {
     base.Show();
-    InputManager.Instance.ShowCursor(true);   // 스택 +1
+    Svc.Input?.ShowCursor(true);   // 스택 +1
 }
 
 public override void Hide()
 {
     base.Hide();
-    InputManager.Instance.ShowCursor(false);  // 스택 -1
+    Svc.Input?.ShowCursor(false);  // 스택 -1
 }
 ```
 
@@ -340,7 +380,24 @@ public override void Hide()
 4. **UIManager 연동**
    - `UIManager.GetTopCanvasLayer().ToInputLayer()` 가 동작하려면 UIManager에 캔버스 레이어 정보가 정확히 반영되어야 함
 5. **버퍼 시간 / 액션 추가 (선택)**
-   - 새 전투 액션을 자동 버퍼링 대상에 추가하려면 `InputManager.OnInputEventPerformed`의 switch에 case 추가
+   - 새 전투 액션을 자동 버퍼링 대상에 추가하려면
+     `InputManager.Chord.cs`의 `TryBufferPlayerAction`과
+     `InputManager.Event.cs`의 `GetPlayerActionBufferTime`을 함께 갱신
+
+### 입력 프롬프트 Editor 도구
+
+메뉴 `Tools/UI/Input Prompt/` 아래에서 다음 도구를 사용한다.
+
+| 메뉴 | 동작 |
+|-----|------|
+| `프리팹 마이그레이션` | 11개 전체 화면 UI 프리팹에 장치 반응형 프롬프트를 반복 적용 |
+| `전체 계약 검증` | 액션 GUID·빈 경로·물리 경로 충돌·브랜드 글리프·프리팹 직렬화·Missing Script 검사 |
+| `EditMode 테스트 실행` | `UPlayGround.UI.Tests` 실행 후 `Temp/UIInputPromptTestResults.xml` 저장 |
+
+프리팹 마이그레이션은 `PrefabUtility.LoadPrefabContents`를 사용하며 기존 루트와 직렬화
+참조를 유지한다. 입력 에셋에서 동일 물리 경로를 공유해야 하는 조합·문맥 액션은
+`UIInputPromptPrefabTool.AllowedPhysicalPathSharing`에 정확한 액션 집합을 선언해야 한다.
+새로운 의도하지 않은 중복이나 빈 binding path는 EditMode 계약 테스트를 실패시킨다.
 
 ---
 
@@ -349,11 +406,14 @@ public override void Hide()
 - **Register/Unregister 페어링 필수.** `OnEnable`에서 등록했다면 `OnDisable`에서 반드시 해제. 미해제 시 destroyed 콜백이 남아 NRE 위험.
 - **CheckFunc은 매 호출.** 콜백 실행마다 평가되므로 가벼워야 함. 무거운 검사는 캐시.
 - **Layer < CurrentLayer 만 차단.** `data.Layer == InputLayer.None` 은 차단되지 않는다 (어디서든 통과). `Level_Top`이 아닌 일반 `None` 사용은 의도하지 않은 항상-동작 입력을 만들 수 있음에 주의.
-- **레이어 변경은 한 번에 한 곳에서.** UI Show/Hide마다 SetInputLayer를 호출하면 빠르게 토글되며 cancelCallback이 의도치 않게 발화될 수 있다. UIManager 단에서 일원화 권장.
+- **레이어 변경은 공용 경로로.** UI는 `UI_Base.Show/Hide`를 사용하고,
+  `InputManager.RefreshInputLayer`가 `UIManager.GetTopBlockingInputLayer()` 결과를 반영한다.
 - **InputBuffer는 단일 인스턴스.** 멀티 플레이어/스플릿스크린 도입 시 플레이어별 버퍼로 분리 필요.
 - **버퍼 적재 조건은 `Level_0` 한정.** UI 위에서 들어오는 전투 키는 버퍼에 들어가지 않음. 의도된 설계 — 인벤토리 보면서 누른 공격 키가 닫자마자 발화하는 것을 방지.
-- **레이어 변경 중 콜백 내 변경.** 콜백이 `SetInputLayer`를 호출하면 `cachedLayer != CurrentLayer` 가 감지되어 같은 이벤트의 후속 콜백은 즉시 중단된다. 의도하지 않은 동작이 일어나면 이 룰을 점검.
-- **게임패드 자동 잠금.** `_isGamepadActive == true`일 때는 ShowCursor(true)도 잠금 상태가 유지된다. 패드 사용자에게는 마우스 커서를 노출하지 않는 정책. 패드 활성 갱신 코드는 외부에서 `_isGamepadActive`를 변경하는 진입점이 별도 존재해야 한다 (현재 코드상 set 진입점 미공개 — 확장 포인트 참조).
+- **콜백 실행 중 UI 전환.** 콜백이 UI를 열어 `CurrentLayer`가 바뀌면
+  `cachedLayer != CurrentLayer`가 감지되어 같은 이벤트의 후속 콜백은 즉시 중단된다.
+- **게임패드 자동 잠금.** `InputManager.Device.cs`가 `InputSystem.onEvent`와 장치 변경을
+  추적해 `_isGamepadActive`를 갱신한다. 별도 외부 setter를 추가하지 않는다.
 - **InputAction 예외.** `inputActions == null` 시 Init이 에러 로그 후 조기 반환. 빌드된 환경에서 Resources 경로가 정확한지 반드시 확인.
 
 ---
@@ -368,15 +428,18 @@ public override void Hide()
 
 ### 자동 버퍼 대상 변경
 
-`InputManager.Event.cs`의 `OnInputEventPerformed` switch에 case 추가/제거. 또는 더 일반화된 화이트리스트(HashSet) 기반으로 리팩토링.
+`InputManager.Chord.cs`의 `TryBufferPlayerAction` switch와
+`InputManager.Event.cs`의 `GetPlayerActionBufferTime`을 함께 갱신한다.
 
 ### 레이어 추가 / 정책 변경
 
 `InputLayer` enum에 새 레벨 추가. CanvasLayer 매핑 헬퍼(`ToInputLayer`)도 함께 갱신.
 
-### 게임패드 활성 토글 진입점
+### 입력 컨텍스트 스택
 
-`_isGamepadActive` 외부 set이 필요. `Input.deviceChange` 이벤트 또는 InputUser API를 구독해 자동 갱신하는 보조 코드를 추가하면 좋다.
+현재 입력 문맥 권위는 `InputLayer`와 리바인딩 캡처 게이트다. 토큰 기반 Input Context
+Stack은 스펙에 남아 있지만 아직 런타임 계약에 추가하지 않았다. UI 소비자가 임의의 별도
+문맥 스택을 만들지 말고, 도입 전까지 `UI_Base`/`RefreshInputLayer` 경로를 사용한다.
 
 ### 멀티 콜백 우선순위
 

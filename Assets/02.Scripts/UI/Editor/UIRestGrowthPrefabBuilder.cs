@@ -141,6 +141,9 @@ namespace UPlayGround.UI.Growth.EditorTools
             TextMeshProUGUI unlock = AddText(NewUI("UnlockMessage", panel.transform), string.Empty, 25f, Gold, TextAlignmentOptions.Center);
             SetHeight(unlock.gameObject, 44f);
 
+            UPlayGround.UI.EditorTools.UIInputPromptBarBuilderUtility
+                .AddSubmitCancelBar(panel.transform, "성장", "닫기");
+
             var so = new SerializedObject(ui);
             SetRef(so, "_characterNameText", characterName);
             SetRef(so, "_pointText", points);

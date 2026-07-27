@@ -667,17 +667,6 @@
                 },
                 {
                     "name": "",
-                    "id": "317b0681-8150-4f2e-a91c-dd4d50184b5e",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "75c83444-ba75-4332-82ae-b0c85915ec2b",
                     "path": "<Keyboard>/1",
                     "interactions": "",
@@ -1080,28 +1069,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "ShowCursor",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "86f51422-94c5-4bd7-9318-1deffa5594de",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Submit",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "cabc08cf-4175-44d3-9917-9e2df80c2a7b",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

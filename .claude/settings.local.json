@@ -438,7 +438,8 @@
       "Bash(sed 's/.*GameObject //')",
       "Bash(sed 's/ | anchorMin.*//')",
       "PowerShell(git diff *)",
-      "PowerShell(Get-ChildItem -Recurse -File Assets/Tests/EditMode/AI | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\\",\"\"\\) })"
+      "PowerShell(Get-ChildItem -Recurse -File Assets/Tests/EditMode/AI | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\\",\"\"\\) })",
+      "Bash(sort -u -t: -k2 -g)"
     ],
     "deny": [
       "Bash(rm -rf *)",

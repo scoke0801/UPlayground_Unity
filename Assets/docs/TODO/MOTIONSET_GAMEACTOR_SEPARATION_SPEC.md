@@ -219,13 +219,13 @@ Animancer가 사설 레지스트리나 git URL로 해석되지 않는 설치 환
 
 - `GameActor`, `PlayerActor`, `MonsterActor`
 - `ActorAnimator`, `ActorMovementController`
-- `UPlayGround.Data`, `UPlayGround.Manager`, `UPlayGround.Contracts`
+- `UPlayGround.Data` 어셈블리와 Actor/Combat 등 그 프로젝트 타입, `UPlayGround.Manager`, `UPlayGround.Contracts`
 - `GameplayTag`, `WeaponType`, `CharacterActorType`
 - `Svc`, `ActorSvc`, `UISvc`, 구체 Manager singleton
 - UPlayground Camera/Combat/Ability 구현
 - `Assets/10.Datas`, `Assets/03.Prefabs` 등 프로젝트 고정 경로
 
-namespace를 `UPlayGround.Animation`으로 유지하는 것은 허용한다. namespace 이름이 아니라 어셈블리·소스 의존 방향이 독립성 판정 기준이다.
+기존 공개 API 호환을 위해 `UPlayGround.Animation`과 `UPlayGround.Data.Event` namespace를 유지하는 것은 허용한다. 후자는 이름에 `Data`가 들어가지만 `UPlayGround.Data` asmdef 참조를 뜻하지 않는다. 독립성 판정은 namespace 문자열이 아니라 asmdef 참조와 실제 타입 의존 방향을 기준으로 한다. namespace 정리는 기존 소비자 전체를 깨는 별도 major-version 과제로 둔다.
 
 ---
 
@@ -756,15 +756,41 @@ AbilitySetSO
 - Player/UI 프리팹 Missing Script 0
 - 검증 전후 `Assets/10.Datas`, `Assets/03.Prefabs` diff 검사
 
+### 12.5 독립 설치 계약 테스트
+
+검증 매트릭스:
+
+| 환경 | Animancer | KCC | 기대 결과 |
+|---|---:|---:|---|
+| UPlayground 본 프로젝트 | 설치 | 설치 | 기존 Actor/KCC 통합 포함 전체 통과 |
+| 빈 Unity 6 프로젝트 | 설치 | 미설치 | Core/Animancer/Editor/Sample 컴파일·재생 성공 |
+| 빈 Unity 6 + KCC 프로젝트 | 설치 | 설치 | 기본 패키지 동작 동일, 선택 KCC 통합이 있으면 추가 통과 |
+| Animancer 미설치 프로젝트 | 미설치 | 무관 | 설치 문서의 명시적 선행 조건으로 처리 |
+
+자동 검사:
+
+- 패키지 C#과 asmdef에서 UPlayground 금지 타입/어셈블리 참조 검색 결과 0
+- 호환 namespace인 `UPlayGround.Animation`, `UPlayGround.Data.Event`는 정적 검사 허용 목록에 둔다.
+- 패키지 파일에서 `Assets/` 절대/상대 고정 경로 사용 0
+- Samples를 제외한 Runtime/Editor에서 샘플 에셋 GUID 참조 0
+- 패키지 밖에 정의한 `MotionEventBase` 파생 타입의 TypeCache 발견 성공
+- read-only package 설치 상태에서 에셋 편집기는 소비 프로젝트의 Assets에만 데이터를 저장
+
 ---
 
 ## 13. 수용 기준
 
 분리 완료는 다음을 모두 만족할 때 선언한다.
 
-- `UPlayGround.MotionSet.Core`에 Actor/Data/Contracts/Camera/UI/Manager 참조가 없다.
-- `UPlayGround.MotionSet.Animancer`에 Actor/Data/KCC 참조가 없다.
+- `com.uplayground.motionset`가 독립 UPM package 구조를 갖는다.
+- `UPlayGround.MotionSet.Core`에 UPlayground Core/Actor/Data/Contracts/Camera/UI/Manager 참조가 없다.
+- `UPlayGround.MotionSet.Animancer`에 UPlayground Actor/Data/Contracts/Camera/UI/Manager 참조가 없다.
+- `UPlayGround.MotionSet.Animancer`의 외부 런타임 의존은 문서화된 Animancer 의존으로 제한된다.
+- 기본 패키지는 KCC 없이 컴파일되며, KCC 통합을 제공할 경우 별도 companion package 또는 명시적 통합 asmdef로 격리된다.
+- 범용 MotionSet Inspector/Timeline/Event 추가 UI가 외부 프로젝트에서 동작한다.
 - GameActor 없이 MotionSet을 재생하는 PlayMode 테스트가 있다.
+- 빈 Unity 6 + Animancer 검증 프로젝트에서 BasicPlayback sample이 성공한다.
+- 외부 프로젝트가 정의한 사용자 MotionEvent가 코드 수정 없이 카탈로그에 나타난다.
 - 기존 `ActorAnimator` 공개 경로가 호환된다.
 - Ability의 MotionReference 단일 소스 경로가 유지된다.
 - 구체 MotionEvent의 어셈블리 이동이 없다.
@@ -785,20 +811,25 @@ AbilitySetSO
 | Editor 전체 동시 분리 | 툴 사용 중단 | Runtime 먼저, Editor는 Provider 전환 후 |
 | Data가 Animancer를 참조 | 하위 모듈 오염 | Core/Animancer asmdef 분리 |
 | 이벤트 시계 변경 | 타격/VFX 프레임 오차 | 포즈 기반 LateUpdate 판정 유지 |
+| Animancer가 일반 registry에서 자동 해석되지 않음 | 외부 설치 실패 | 선행 설치 문서와 검증된 설치 순서 제공 |
+| 패키지에 UPlayground 경로/타입이 잔존 | 본 프로젝트 밖 컴파일 실패 | 금지 의존 자동 검색 + 빈 프로젝트 설치 게이트 |
+| 범용 Editor가 Actor 이벤트를 직접 참조 | Editor asmdef 역의존 | Descriptor/Provider/Extension 계약으로 역전 |
 
 ---
 
 ## 15. 구현 시작 권고
 
-첫 구현 PR/작업 단위는 **Phase 1만** 권장한다.
+첫 구현 PR/작업 단위는 **Phase 1의 embedded package + Core 이동만** 권장한다.
 
 이 단계에서는:
 
-- 새 Core asmdef 생성
-- 직렬화 안전 타입만 이동
+- `Packages/com.uplayground.motionset` 골격 생성
+- 패키지 안에 새 Core asmdef 생성
+- 직렬화 안전 타입만 `.meta`와 함께 패키지로 이동
 - 참조 갱신
 - 테스트/에셋 무손실 검증
+- 패키지 금지 의존 정적 검사
 
 만 수행한다.
 
-`ActorAnimator`, LoopEvent, RootMotion, MotionSetWindow는 건드리지 않는다. 이 기준으로 Core 경계를 먼저 실제 컴파일러가 강제하게 만든 뒤 Executor와 재생 커널을 후속 단계로 옮기는 것이 가장 안전하다.
+`ActorAnimator`, LoopEvent, RootMotion, MotionSetWindow는 건드리지 않는다. 이 기준으로 package Core 경계를 먼저 실제 컴파일러가 강제하게 만든 뒤 Executor와 재생 커널을 후속 단계로 옮기는 것이 가장 안전하다.

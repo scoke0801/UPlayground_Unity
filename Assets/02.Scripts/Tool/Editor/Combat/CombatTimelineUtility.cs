@@ -312,10 +312,17 @@ namespace UPlayGround.Tool.Editor.Combat
         /// 플레이어 세트는 ActorDefinitionSO에 연결되지 않으므로 찾지 못한다(수동 지정 + 캐시 사용).
         /// </summary>
         public static AbilitySetSO FindAbilitySetForMotionSet(
-            ActorAnimationMotionSet motionSet, out ActorDefinitionSO owner)
+            ActorAnimationMotionSet motionSet,
+            out ActorDefinitionSO owner,
+            out bool ambiguous,
+            out string candidateSummary)
         {
             owner = null;
+            ambiguous = false;
+            candidateSummary = string.Empty;
             if (motionSet == null) return null;
+
+            var candidates = new Dictionary<AbilitySetSO, List<ActorDefinitionSO>>();
 
             foreach (string guid in AssetDatabase.FindAssets("t:ActorDefinitionSO"))
             {
@@ -328,11 +335,42 @@ namespace UPlayGround.Tool.Editor.Combat
                 foreach (ActorAnimationMotionSet set in EnumerateMotionSets(animator.MotionSet, true))
                 {
                     if (set != motionSet) continue;
-                    owner = actor;
-                    return actor.EffectiveAbilitySet;
+
+                    if (!candidates.TryGetValue(
+                            actor.EffectiveAbilitySet,
+                            out List<ActorDefinitionSO> owners))
+                    {
+                        owners = new List<ActorDefinitionSO>();
+                        candidates.Add(actor.EffectiveAbilitySet, owners);
+                    }
+                    owners.Add(actor);
+                    break;
                 }
             }
-            return null;
+
+            if (candidates.Count == 0)
+                return null;
+
+            var descriptions = new List<string>();
+            foreach (KeyValuePair<AbilitySetSO, List<ActorDefinitionSO>> candidate in candidates)
+            {
+                string actorNames = string.Join(
+                    ", ",
+                    candidate.Value.Select(candidateOwner => candidateOwner.name));
+                descriptions.Add($"{candidate.Key.name} ({actorNames})");
+            }
+            descriptions.Sort(StringComparer.Ordinal);
+            candidateSummary = string.Join("; ", descriptions);
+
+            if (candidates.Count > 1)
+            {
+                ambiguous = true;
+                return null;
+            }
+
+            KeyValuePair<AbilitySetSO, List<ActorDefinitionSO>> unique = candidates.First();
+            owner = unique.Value[0];
+            return unique.Key;
         }
 
         // ── MotionSet GUID → AbilitySet GUID 수동 매핑 캐시 (플레이어 세트용) ──
@@ -340,6 +378,17 @@ namespace UPlayGround.Tool.Editor.Combat
 
         public static void SaveAttackDataPairing(UnityEngine.Object motionSetAsset, AbilitySetSO attackData)
         {
+            if (motionSetAsset is ActorAnimationMotionSet actorMotionSet)
+            {
+                if (actorMotionSet.attackAbilitySet != attackData)
+                {
+                    Undo.RecordObject(actorMotionSet, "Connect Attack Ability Set");
+                    actorMotionSet.attackAbilitySet = attackData;
+                    EditorUtility.SetDirty(actorMotionSet);
+                    AssetDatabase.SaveAssetIfDirty(actorMotionSet);
+                }
+            }
+
             string setGuid = GetAssetGuid(motionSetAsset);
             if (string.IsNullOrEmpty(setGuid)) return;
 
@@ -352,6 +401,10 @@ namespace UPlayGround.Tool.Editor.Combat
 
         public static AbilitySetSO LoadAttackDataPairing(UnityEngine.Object motionSetAsset)
         {
+            if (motionSetAsset is ActorAnimationMotionSet actorMotionSet
+                && actorMotionSet.attackAbilitySet != null)
+                return actorMotionSet.attackAbilitySet;
+
             string setGuid = GetAssetGuid(motionSetAsset);
             if (string.IsNullOrEmpty(setGuid)) return null;
 

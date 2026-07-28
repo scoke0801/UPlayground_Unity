@@ -4,6 +4,7 @@
   "references": [
     "UPlayGround.Ability.Core",
     "UPlayGround.Core",
+    "UPlayGround.MotionSet.Core",
     "AYellowpaper.SerializedCollections"
   ],
   "autoReferenced": true

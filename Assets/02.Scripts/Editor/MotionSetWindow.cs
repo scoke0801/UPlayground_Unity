@@ -3,7 +3,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Animations;
 using Animancer;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Event;
+using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
@@ -28,6 +30,7 @@ namespace UPlayGround.Animation.Editor
         PlayerActorAnimationMotionSet _playerActorAnimationSet;
         WeaponType      _selectedPlayerWeaponType = WeaponType.NoWeapon;
         GameplayTag         _selectedActorMotionKey = default;
+        string              _selectedActorMotionId;
         MotionSetDrawer _drawer;
         Vector2         _scrollPos;
         Vector2         _actorMotionListScroll;
@@ -71,6 +74,7 @@ namespace UPlayGround.Animation.Editor
         GameObject       _cachedActorKey;
         PlayerActor      _cachedPlayerActor;
         PlayerEquipment  _cachedPlayerEquipment;
+        ActorAnimatorType _previewOwnedActorAnimator;
 
         // 프리뷰 무기/생활도구 표시 상태 (플레이모드 전용)
         bool _previewWeaponDrawn = true;
@@ -407,8 +411,43 @@ namespace UPlayGround.Animation.Editor
             var modelData = _playerSwapBehaviour.GetModelData(_selectedCharacterType);
             if (modelData?.AnimancerComponent != null)
                 _animancer = modelData.AnimancerComponent;
+            if (_isPlaying)
+                AcquireAnimationPreviewOwnership();
             ApplyPreviewWeaponState();
             RefreshRootMotionCache();
+        }
+
+        void AcquireAnimationPreviewOwnership()
+        {
+            ActorAnimatorType nextOwner = null;
+            if (_targetActor != null && _animancer != null)
+            {
+                foreach (ActorAnimatorType candidate
+                         in _targetActor.GetComponentsInChildren<ActorAnimatorType>(true))
+                {
+                    if (candidate != null && candidate.GetAnimancerComponent() == _animancer)
+                    {
+                        nextOwner = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (_previewOwnedActorAnimator == nextOwner)
+                return;
+
+            ReleaseAnimationPreviewOwnership();
+            _previewOwnedActorAnimator = nextOwner;
+            _previewOwnedActorAnimator?.BeginExternalPreview();
+        }
+
+        void ReleaseAnimationPreviewOwnership()
+        {
+            if (_previewOwnedActorAnimator == null)
+                return;
+
+            _previewOwnedActorAnimator.EndExternalPreview();
+            _previewOwnedActorAnimator = null;
         }
 
         void RefreshTargetActorCache()
@@ -744,6 +783,29 @@ namespace UPlayGround.Animation.Editor
                         if (newIdx >= 0 && newIdx < currentSet.motions.Count)
                             PlayMotionClip(currentSet.motions[newIdx]);
                     }
+                    else if (newIdx >= 0 && newIdx < currentSet.motions.Count)
+                    {
+                        // 런타임 상태나 다른 컴포넌트가 같은 Animancer 그래프를 직접 재생하면
+                        // 에디터 타임라인은 계속 흐르지만 화면의 공격 모션만 Idle 등으로 끊겨 보인다.
+                        // 기대 클립이 아니면 현재 타임라인 위치로 즉시 소유권을 복구한다.
+                        Motion expectedMotion = currentSet.motions[newIdx];
+                        AnimancerState previewState = GetPreviewState();
+                        if (expectedMotion != null
+                            && expectedMotion.IsValid()
+                            && (previewState == null || previewState.Clip != expectedMotion.motionClip))
+                        {
+                            PlayMotionClip(expectedMotion);
+                            previewState = GetPreviewState();
+                            if (previewState != null)
+                            {
+                                float motionSpeed = expectedMotion.playbackSpeed > 0f
+                                    ? expectedMotion.playbackSpeed
+                                    : 1f;
+                                previewState.Time =
+                                    expectedMotion.ClipStartTime + localTime * motionSpeed;
+                            }
+                        }
+                    }
 
                     // ── Loop/Freeze 이벤트 처리 ──
                     ProcessEditorLoopEvents(currentSet, newIdx, localTime);
@@ -1029,6 +1091,10 @@ namespace UPlayGround.Animation.Editor
 
             ResetPlaybackStateForMotionChange(true);
             _asset  = asset;
+            // 재생 구간은 MotionSet마다 길이가 다르다. 이전 에셋의 부분 구간을 유지하면
+            // 더 긴 공격 모션이 그 시점에서 잘려 보이므로, 에셋 전환 시 전체 구간으로 복원한다.
+            _startTime = 0f;
+            _endTime = -1f;
 
             // 모션 전환 시 zoom/scroll/표시 옵션은 보존
             float prevZoom       = _drawer != null ? _drawer.zoom       : 1f;
@@ -1045,6 +1111,8 @@ namespace UPlayGround.Animation.Editor
             };
             ConfigureMotionSetDrawer(_drawer);
             _drawer.SelectFirstMotionForAsset(_asset?.motionSet);
+            _drawer.playRangeStart = _startTime;
+            _drawer.playRangeEnd = _endTime;
             if (refreshMotionList)
                 RefreshMotionListView();
             RefreshEventInspectorView();
@@ -1094,13 +1162,14 @@ namespace UPlayGround.Animation.Editor
                     string assetText = entry.asset != null ? entry.asset.name : "(MotionSet 없음)";
                     items.Add(new MotionListView.Item
                     {
-                        Group = GetActorKeyGroupLabel(entry.key),
-                        Title = entry.key.ToString(),
+                        Group = entry.group,
+                        Title = entry.title,
                         Subtitle = string.IsNullOrEmpty(sourceText)
                             ? assetText
                             : $"{assetText} · {sourceText}",
                         UserData = entry,
-                        IsSelected = entry.key == _selectedActorMotionKey && entry.asset == _asset,
+                        IsSelected = entry.selectionId == _selectedActorMotionId
+                            && entry.asset == _asset,
                     });
                 }
             }
@@ -1153,6 +1222,7 @@ namespace UPlayGround.Animation.Editor
 
             if (hadPlaybackState && playIdle && Application.isPlaying && _animancer != null)
                 PlayIdleAnimation();
+            ReleaseAnimationPreviewOwnership();
         }
 
         void SetActorAnimationSet(ActorAnimationMotionSet actorSet)
@@ -1167,6 +1237,7 @@ namespace UPlayGround.Animation.Editor
             if (_actorAnimationSet == null)
             {
                 _selectedActorMotionKey = default;
+                _selectedActorMotionId = null;
                 return;
             }
 
@@ -1177,6 +1248,7 @@ namespace UPlayGround.Animation.Editor
                 .Find(e => e.asset != null);
 
             _selectedActorMotionKey = first.key;
+            _selectedActorMotionId = first.selectionId;
             SetAsset(first.asset);
         }
 
@@ -1213,7 +1285,7 @@ namespace UPlayGround.Animation.Editor
             if (_playerActorAnimationSet == null) return;
 
             var sObj = new SerializedObject(_playerActorAnimationSet);
-            var listProp = sObj.FindProperty("motionSlots").FindPropertyRelative("_serializedList");
+            var listProp = sObj.FindProperty("motionSets").FindPropertyRelative("_serializedList");
             int idx = FindPlayerWeaponTypeIndex(listProp, _selectedPlayerWeaponType);
 
             if (idx < 0)
@@ -1246,9 +1318,13 @@ namespace UPlayGround.Animation.Editor
         struct ActorMotionEntry
         {
             public GameplayTag key;
+            public string selectionId;
+            public string group;
+            public string title;
             public ActorAnimationMotionSet source;
             public MotionSetAsset asset;
             public bool isOwn;
+            public bool isAttack;
         }
 
         static GameplayTag[] _allGameplayTags;
@@ -1265,6 +1341,8 @@ namespace UPlayGround.Animation.Editor
         {
             var result = new System.Collections.Generic.List<ActorMotionEntry>();
             var seen = new System.Collections.Generic.HashSet<GameplayTag>();
+            var seenAttackEntries = new System.Collections.Generic.HashSet<string>(
+                System.StringComparer.Ordinal);
             var visited = new System.Collections.Generic.HashSet<ActorAnimationMotionSet>();
             var current = root;
 
@@ -1280,19 +1358,116 @@ namespace UPlayGround.Animation.Editor
                         result.Add(new ActorMotionEntry
                         {
                             key = kv.Key,
+                            selectionId = $"Slot:{kv.Key.TagName}",
+                            group = GetActorKeyGroupLabel(kv.Key),
+                            title = kv.Key.ToString(),
                             source = current,
                             asset = kv.Value,
-                            isOwn = current == root
+                            isOwn = current == root,
+                            isAttack = false,
                         });
                     }
                 }
+
+                AddAttackMotionEntries(
+                    current,
+                    current == root,
+                    result,
+                    seenAttackEntries);
 
                 if (!includeFallback) break;
                 current = current.fallbackMotionSet;
             }
 
-            result.Sort((a, b) => string.CompareOrdinal(a.key.TagName, b.key.TagName));
+            result.Sort((a, b) =>
+            {
+                int groupOrder = string.CompareOrdinal(a.group, b.group);
+                return groupOrder != 0
+                    ? groupOrder
+                    : string.CompareOrdinal(a.title, b.title);
+            });
             return result;
+        }
+
+        static void AddAttackMotionEntries(
+            ActorAnimationMotionSet source,
+            bool isOwn,
+            System.Collections.Generic.List<ActorMotionEntry> result,
+            System.Collections.Generic.HashSet<string> seen)
+        {
+            AbilitySetSO abilitySet = source?.attackAbilitySet;
+            if (abilitySet == null)
+                return;
+
+            foreach (GameplayAbilitySO ability in abilitySet.EnumerateAll())
+            {
+                if (ability?.variants == null)
+                    continue;
+
+                for (int variantIndex = 0; variantIndex < ability.variants.Count; variantIndex++)
+                {
+                    AbilityVariantDefinition variant = ability.variants[variantIndex];
+                    if (variant?.executionPayload
+                        is not UPlayGroundMotionAbilityPayloadSO payload)
+                        continue;
+
+                    MotionReferenceSO motionRef =
+                        payload.attackInfo?.baseInfo?.motionRef;
+                    if (motionRef == null)
+                        continue;
+
+                    string abilityName = string.IsNullOrWhiteSpace(ability.abilityId)
+                        ? ability.name
+                        : ability.abilityId;
+                    string variantName = string.IsNullOrWhiteSpace(variant.variantId)
+                        ? $"Variant {variantIndex}"
+                        : variant.variantId;
+                    string title = ability.variants.Count > 1
+                        ? $"{abilityName} · {variantName}"
+                        : abilityName;
+                    string entryPrefix =
+                        $"Attack:{ability.GetInstanceID()}:{variantIndex}";
+
+                    // ActorMotionSet은 자신의 무기 컨텍스트 하나만 표시한다.
+                    // 모든 override를 펼치면 DoubleAxe 세트에 Bow/GreatSword 모션까지 섞여
+                    // 보이고, 실제 런타임 Resolve 결과와도 달라진다.
+                    AddAttackMotionEntry(
+                        source,
+                        isOwn,
+                        result,
+                        seen,
+                        $"{entryPrefix}:Resolved:{source.attackWeaponType}",
+                        "공격",
+                        title,
+                        motionRef.Resolve(source.attackWeaponType));
+                }
+            }
+        }
+
+        static void AddAttackMotionEntry(
+            ActorAnimationMotionSet source,
+            bool isOwn,
+            System.Collections.Generic.List<ActorMotionEntry> result,
+            System.Collections.Generic.HashSet<string> seen,
+            string selectionId,
+            string group,
+            string title,
+            MotionSetAsset asset)
+        {
+            if (asset == null || !seen.Add(selectionId))
+                return;
+
+            result.Add(new ActorMotionEntry
+            {
+                key = default,
+                selectionId = selectionId,
+                group = group,
+                title = title,
+                source = source,
+                asset = asset,
+                isOwn = isOwn,
+                isAttack = true,
+            });
         }
 
         bool SelectActorMotionKeyForAsset(MotionSetAsset asset)
@@ -1304,6 +1479,7 @@ namespace UPlayGround.Animation.Editor
             {
                 if (entry.asset != asset) continue;
                 _selectedActorMotionKey = entry.key;
+                _selectedActorMotionId = entry.selectionId;
                 return true;
             }
             return false;
@@ -1333,6 +1509,7 @@ namespace UPlayGround.Animation.Editor
 
                     AddOrAssignActorMotionAsset(captured, asset);
                     _selectedActorMotionKey = captured;
+                    _selectedActorMotionId = $"Slot:{captured.TagName}";
                     SetAsset(asset);
                     _useTemporarySet = false;
                     Selection.activeObject = _actorAnimationSet;
@@ -1570,7 +1747,7 @@ namespace UPlayGround.Animation.Editor
             if (!force && !_autoAttachDebugOverlay) return;
 
             if (_targetActor.GetComponent<MotionSetEventDebugOverlay>() == null)
-                _targetActor.AddComponent<MotionSetEventDebugOverlay>();
+                _targetActor.AddComponent<ActorMotionSetDebugOverlay>();
         }
 
         void RecordEventLog(string message)
@@ -2158,7 +2335,7 @@ namespace UPlayGround.Animation.Editor
                     string currentGroup = null;
                     foreach (var entry in visibleEntries)
                     {
-                        string group = GetActorKeyGroupLabel(entry.key);
+                        string group = entry.group;
                         if (group != currentGroup)
                         {
                             currentGroup = group;
@@ -2188,7 +2365,7 @@ namespace UPlayGround.Animation.Editor
             if (EditorGUIUtility.editingTextField) return;
 
             int currentIndex = visibleEntries.FindIndex(entry =>
-                entry.key == _selectedActorMotionKey && entry.asset == _asset);
+                entry.selectionId == _selectedActorMotionId && entry.asset == _asset);
             if (currentIndex < 0) currentIndex = 0;
 
             int nextIndex = currentIndex;
@@ -2221,7 +2398,7 @@ namespace UPlayGround.Animation.Editor
             if (string.IsNullOrWhiteSpace(_actorMotionSearch)) return true;
 
             string search = _actorMotionSearch.Trim();
-            if (entry.key.ToString().IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
+            if (entry.title.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
                 return true;
 
             if (entry.asset != null && entry.asset.name.IndexOf(search, System.StringComparison.OrdinalIgnoreCase) >= 0)
@@ -2242,7 +2419,8 @@ namespace UPlayGround.Animation.Editor
 
         void DrawActorMotionListRow(ActorMotionEntry entry)
         {
-            bool selected = entry.key == _selectedActorMotionKey && entry.asset == _asset;
+            bool selected = entry.selectionId == _selectedActorMotionId
+                && entry.asset == _asset;
             Rect row = EditorGUILayout.GetControlRect(false, 36f);
 
             Color bg = selected
@@ -2257,7 +2435,7 @@ namespace UPlayGround.Animation.Editor
             if (GUI.Button(buttonRect, GUIContent.none, GUIStyle.none))
                 SelectActorMotionEntry(entry, true);
 
-            string keyText = entry.key.ToString();
+            string keyText = entry.title;
             string assetText = entry.asset != null ? entry.asset.name : "(MotionSet 없음)";
             string sourceText = entry.isOwn ? "" : $"상속: {entry.source.name}";
 
@@ -2298,6 +2476,7 @@ namespace UPlayGround.Animation.Editor
             bool refreshMotionList = true)
         {
             _selectedActorMotionKey = entry.key;
+            _selectedActorMotionId = entry.selectionId;
             SetAsset(entry.asset, refreshMotionList);
             _drawer?.SelectFirstMotionForAsset(_asset?.motionSet);
             _useTemporarySet = false;
@@ -2681,6 +2860,7 @@ namespace UPlayGround.Animation.Editor
         {
             if (_animancer == null || GetCurrentMotionSet() == null) return;
             DestroySlashVfxPreview();
+            AcquireAnimationPreviewOwnership();
 
             var motionSet = GetCurrentMotionSet();
             // 입력 잠금 수명은 UpdatePlayerPreviewLock(매 프레임)이 단독 관리하므로 여기서 직접
@@ -2778,6 +2958,7 @@ namespace UPlayGround.Animation.Editor
                 // MotionSet 재생 중지 후 Idle로 전환
                 PlayIdleAnimation();
             }
+            ReleaseAnimationPreviewOwnership();
 
             MotionSetEventDebugOverlay.Clear();
         }

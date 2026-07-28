@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_WhipAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 12
+  attackAbilitySet: {fileID: 11400000, guid: 0939954bac6f72a468045bd152e7bc9c, type: 2}
   motionSets:
     _serializedList:
     - Key: 1

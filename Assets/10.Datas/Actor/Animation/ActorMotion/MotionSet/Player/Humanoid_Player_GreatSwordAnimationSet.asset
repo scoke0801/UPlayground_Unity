@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_GreatSwordAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 3
+  attackAbilitySet: {fileID: 11400000, guid: d8ba648076392a24584efdb54dcd5e3e, type: 2}
   motionSets:
     _serializedList:
     - Key: 100

@@ -1,0 +1,14 @@
+{
+  "name": "UPlayGround.MotionSet.Core.Tests",
+  "rootNamespace": "UPlayGround.MotionSet.Tests",
+  "references": [
+    "UPlayGround.MotionSet.Core"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

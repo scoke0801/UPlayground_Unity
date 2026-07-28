@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_KatanaAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 10
+  attackAbilitySet: {fileID: 11400000, guid: 1adb2f3750ccdd740b54c1b5a1ffad90, type: 2}
   motionSets:
     _serializedList:
     - Key: 1

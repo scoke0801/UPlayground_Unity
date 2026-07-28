@@ -1,6 +1,8 @@
 ﻿using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Data.Ability;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Actor.Animation
@@ -11,6 +13,14 @@ namespace UPlayGround.Data.Actor.Animation
         [Tooltip("이 SO에 없는 키는 여기서 탐색 (공용 휴머노이드 모션 등)")]
         public ActorAnimationMotionSet fallbackMotionSet;
 
+        [Header("공격 모션")]
+        [Tooltip("공격 MotionReference를 해석할 무기 타입입니다. 다른 무기의 override를 이 ActorMotionSet에 노출하지 않습니다.")]
+        public WeaponType attackWeaponType = WeaponType.NoWeapon;
+
+        [Tooltip("이 액터 모션 세트에서 함께 저작할 공격 Ability 모음입니다. 공격 실행의 단일 소스는 Ability Payload의 MotionReference이며, 애니메이션 에디터는 이 연결을 통해 공격 MotionSet을 표시합니다.")]
+        public AbilitySetSO attackAbilitySet;
+
+        [Header("상태 모션")]
         [Tooltip("액터 상태가 사용하는 의미 슬롯 매핑입니다.")]
         public SerializedDictionary<GameplayTag, MotionSetAsset> motionSlots;
 

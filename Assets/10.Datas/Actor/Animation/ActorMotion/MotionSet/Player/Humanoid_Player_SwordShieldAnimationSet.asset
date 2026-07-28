@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_SwordShieldAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 2
+  attackAbilitySet: {fileID: 11400000, guid: df85c370ac078ca49aac7b821b0af6e0, type: 2}
   motionSets:
     _serializedList:
     - Key: 1

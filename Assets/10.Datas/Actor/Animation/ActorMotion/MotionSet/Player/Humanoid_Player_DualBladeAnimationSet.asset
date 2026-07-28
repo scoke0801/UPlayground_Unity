@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_DualBladeAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 14
+  attackAbilitySet: {fileID: 11400000, guid: 9633ede2f9b3f684284c143c4c924569, type: 2}
   motionSets:
     _serializedList:
     - Key: 100

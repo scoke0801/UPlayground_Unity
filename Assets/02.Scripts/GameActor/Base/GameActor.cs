@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Event;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Components;
@@ -15,7 +16,7 @@ using UPlayGround.Gameplay.Effect;
 
 namespace UPlayGround
 {
-    public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider
+    public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider, IMotionEventTargetProvider
     {
         private const string PlayerDefaultTargetLayerName = "Enemy";
         private const string MonsterDefaultTargetLayerName = "Player";
@@ -80,6 +81,8 @@ namespace UPlayGround
 
         public event Action<CombatElement> ElementChanged;
         public event Action ElementOverrideChanged;
+
+        GameObject IMotionEventTargetProvider.MotionEventTarget => gameObject;
 
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)

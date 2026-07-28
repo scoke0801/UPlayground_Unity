@@ -6,6 +6,7 @@
     "UPlayGround.Data",
     "UPlayGround.Contracts",
     "UPlayGround.Core",
+    "UPlayGround.MotionSet.Core",
     "UPlayGround.Camera",
     "UPlayGround.Actor",
     "UniTask",

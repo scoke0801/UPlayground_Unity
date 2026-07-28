@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_CommonAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 11400000, guid: 79e1c4a3850ab2c48aafd3919075531a, type: 2}
   motionSets:
     _serializedList:
     - Key: 1

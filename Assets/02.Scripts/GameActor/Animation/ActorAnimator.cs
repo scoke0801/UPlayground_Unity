@@ -43,6 +43,7 @@ namespace UPlayGround.Animation
         protected MotionSetAsset _currentMotionAsset;
         protected string _currentMotionDisplayKey = "-";
         protected bool _isPlayingMotionSet;
+        private int _externalPreviewLockCount;
 
         // ── Loop/Freeze 상태 ──
         private float _lastLocalTime; // 이전 프레임의 로컬 타임
@@ -56,6 +57,8 @@ namespace UPlayGround.Animation
         private int _infiniteLoopStageIndex = -1; // 현재까지 진입한 InfiniteLoop 순번 (0-based, 미진입 시 -1)
         private bool _suppressLoopEvents; // 현재 MotionSet의 Loop/Freeze 이벤트를 전부 무시 (다음 재생 시 자동 해제)
         private float _motionTimelineSpeed = 1f;
+        private float _effectiveTimelineRate = 1f;
+        private bool _completeAfterLateUpdate;
         private string _currentSectionId;
         private string _nextSectionOverrideId;
         
@@ -232,6 +235,7 @@ namespace UPlayGround.Animation
         public float CurrentMotionSetTime => _globalTime;
         public int    CurrentMotionIndex   => _currentMotionIndex;
         public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
+        public bool   IsExternalPreviewActive => _externalPreviewLockCount > 0;
         public string CurrentSectionId => _currentSectionId;
 
         /// <summary>
@@ -357,6 +361,9 @@ namespace UPlayGround.Animation
 
         private void Update()
         {
+            if (IsExternalPreviewActive)
+                return;
+
             // 타임라인 업데이트 (MotionSet 재생 중일 때만)
             if (_isPlayingMotionSet)
             {
@@ -366,6 +373,9 @@ namespace UPlayGround.Animation
 
         private void LateUpdate()
         {
+            if (IsExternalPreviewActive)
+                return;
+
             // Animancer(본) 평가가 끝난 이후 시점.
             if (_isPlayingMotionSet)
             {
@@ -374,13 +384,18 @@ namespace UPlayGround.Animation
                 // 만든 LateUpdate에서 _currentState.Time을 역산하므로, 히트스톱·타임스케일·
                 // 프레임 변동과 무관하게 이벤트가 항상 동일한 모션 시점에 발화한다.
                 _eventExecutor?.UpdateTime(
-                    _currentMotionSet != null && _currentMotionSet.HasPlaybackLayers
+                    _completeAfterLateUpdate
+                        ? _globalTime
+                        : _currentMotionSet != null && _currentMotionSet.HasPlaybackLayers
                         ? _globalTime
                         : GetPoseDrivenGlobalTime());
 
                 // 이번 프레임 발화가 결정된 공간 샘플링 이벤트(SlashVFX 등)를 여기서 실행해,
                 // 블레이드 본을 항상 이번 프레임 최종 포즈로 샘플링한다.
                 _eventExecutor?.FlushDeferredEvents();
+
+                if (_completeAfterLateUpdate && _isPlayingMotionSet)
+                    CompleteMotionSet();
             }
         }
 
@@ -479,6 +494,8 @@ namespace UPlayGround.Animation
             out bool started)
         {
             started = false;
+            if (IsExternalPreviewActive)
+                return null;
             if (motionSet == null || !motionSet.IsValid())
                 return null;
             if (!MotionTimelineResolver.TryValidateSectionLayout(motionSet, out string sectionError))
@@ -495,17 +512,19 @@ namespace UPlayGround.Animation
             if (_isPlayingMotionSet
                 && sameSource
                 && _lastPlayedSlot == slot)
-                return _currentState;
+                return GetRepresentativePlaybackState();
 
             if (_isPlayingMotionSet && _currentMotionSet != null)
                 StopMotionSet(MotionSetEndReason.Interrupted);
 
             _currentMotionAsset = sourceAsset;
             _currentMotionSet = motionSet;
-            _currentMotionIndex = 0;
+            _currentMotionIndex = -1;
             _globalTime = 0f;
             _lastLocalTime = -0.001f;
             _isPlayingMotionSet = true;
+            _completeAfterLateUpdate = false;
+            _effectiveTimelineRate = 1f;
             _lastPlayedSlot = slot;
             _currentMotionDisplayKey = string.IsNullOrEmpty(displayKey) ? "-" : displayKey;
             _infiniteLoopStageIndex = -1;
@@ -518,11 +537,37 @@ namespace UPlayGround.Animation
 
             float resolvedFade = Mathf.Max(0f, fadeDuration);
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
-            PlayMotionAtIndex(0, resolvedFade, effectiveLayer);
+            if (motionSet.GetMotionAtTime(0f, out int initialIndex, out _))
+                PlayMotionAtIndex(initialIndex, resolvedFade, effectiveLayer);
             StartPlaybackLayers(resolvedFade);
+            if (_currentState == null && _motionLayerPlaybacks.Count == 0)
+            {
+                StopMotionSet(MotionSetEndReason.Invalidated);
+                return null;
+            }
+
             UpdateCurrentSection(0f, true);
             started = true;
-            return _currentState;
+            return GetRepresentativePlaybackState();
+        }
+
+        /// <summary>
+        /// 외부 저작 도구가 같은 Animancer 그래프를 직접 제어하는 동안 런타임 모션 재생을 막는다.
+        /// 중첩 호출을 허용하며 마지막 소유자가 해제할 때 정상 런타임 제어로 돌아간다.
+        /// </summary>
+        public void BeginExternalPreview()
+        {
+            _externalPreviewLockCount++;
+            if (_externalPreviewLockCount != 1)
+                return;
+
+            if (_isPlayingMotionSet)
+                StopMotionSet(MotionSetEndReason.Interrupted);
+        }
+
+        public void EndExternalPreview()
+        {
+            _externalPreviewLockCount = Mathf.Max(0, _externalPreviewLockCount - 1);
         }
 
         public bool TryPlay(in MotionPlaybackRequest request)
@@ -590,6 +635,9 @@ namespace UPlayGround.Animation
 
         public float PlayUpperBodyOverlay(GameplayTag slot, float fadeDuration = 0.15f)
         {
+            if (IsExternalPreviewActive)
+                return 0f;
+
             return PlayUpperBodyOverlay(ResolveMotionSet(slot), fadeDuration, slot);
         }
 
@@ -642,6 +690,9 @@ namespace UPlayGround.Animation
         /// </summary>
         public void StopUpperBodyOverlay(float fadeDuration = 0.15f)
         {
+            if (IsExternalPreviewActive)
+                return;
+
             if (_animator == null)
                 return;
 
@@ -849,6 +900,8 @@ namespace UPlayGround.Animation
             _currentMotionIndex = 0;
             _currentSectionId = null;
             _nextSectionOverrideId = null;
+            _completeAfterLateUpdate = false;
+            _effectiveTimelineRate = 1f;
             ResetLoopState();
             
             if (_subAnimator != null)
@@ -990,7 +1043,10 @@ namespace UPlayGround.Animation
 
         private void UpdateTimeline()
         {
-            if (!_isPlayingMotionSet || _currentMotionSet == null) return;
+            if (!_isPlayingMotionSet ||
+                _currentMotionSet == null ||
+                _completeAfterLateUpdate)
+                return;
 
             float deltaTime = _actor != null ? _actor.DeltaTime : Time.deltaTime;
 
@@ -1003,8 +1059,7 @@ namespace UPlayGround.Animation
                 {
                     _isFrozen = false;
                     // Freeze 해제 시 애니메이션 속도 복원
-                    if (_currentState != null)
-                        _currentState.Speed = GetCurrentMotion()?.playbackSpeed ?? 1f;
+                    ApplyCurrentPlaybackSpeed();
                     SetPlaybackLayersPaused(false);
                 }
                 // Freeze 중 이벤트 갱신은 LateUpdate에서 포즈 시간으로 수행된다.
@@ -1029,20 +1084,21 @@ namespace UPlayGround.Animation
                 null,
                 timelineNormalized,
                 1f);
-            _globalTime += deltaTime *
-                           stretchRate *
-                           Mathf.Max(0f, playbackRateCurve) *
-                           Mathf.Max(0f, stretchCurve);
+            _effectiveTimelineRate = stretchRate *
+                                     Mathf.Max(0f, playbackRateCurve) *
+                                     Mathf.Max(0f, stretchCurve);
+            ApplyCurrentPlaybackSpeed();
+            _globalTime += deltaTime * _effectiveTimelineRate;
             if (HandleSectionBoundary())
                 return;
-            UpdatePlaybackLayers(_globalTime);
 
             // MotionSet 종료 체크
             if (_globalTime >= _currentMotionSet.TotalDuration)
             {
-                CompleteMotionSet();
+                ScheduleCompletion(_currentMotionSet.TotalDuration);
                 return;
             }
+            UpdatePlaybackLayers(_globalTime);
 
             // 현재 모션 인덱스 계산
             if (_currentMotionSet.GetMotionAtTime(_globalTime, out int newIndex, out float localTime))
@@ -1058,6 +1114,7 @@ namespace UPlayGround.Animation
 
                     _currentMotionIndex = newIndex;
                     PlayMotionAtIndex(_currentMotionIndex, 0f, _currentMotionLayerIndex);
+                    ApplyCurrentPlaybackSpeed();
                     
                     // 새 모션의 localTime 재계산 및 시작점 초기화
                     _currentMotionSet.GetMotionAtTime(_globalTime, out _, out localTime);
@@ -1091,7 +1148,7 @@ namespace UPlayGround.Animation
             switch (section.endPolicy)
             {
                 case MotionSectionEndPolicy.Stop:
-                    CompleteMotionSet();
+                    ScheduleCompletion(range.endTime);
                     return true;
 
                 case MotionSectionEndPolicy.Hold:
@@ -1129,6 +1186,41 @@ namespace UPlayGround.Animation
         {
             StopMotionSet(MotionSetEndReason.Completed);
             OnMotionSetCompleted?.Invoke();
+        }
+
+        void ScheduleCompletion(float boundaryTime)
+        {
+            if (_currentMotionSet == null || _completeAfterLateUpdate)
+                return;
+
+            _globalTime = Mathf.Clamp(
+                boundaryTime,
+                0f,
+                Mathf.Max(0f, _currentMotionSet.TotalDuration));
+            float sampleTime = Mathf.Max(0f, _globalTime - 0.0001f);
+            SampleBasePose(sampleTime);
+            UpdatePlaybackLayers(sampleTime);
+            SetPlaybackLayersPaused(true);
+            _completeAfterLateUpdate = true;
+        }
+
+        void SampleBasePose(float globalTime)
+        {
+            if (!_currentMotionSet.GetMotionAtTime(
+                    globalTime,
+                    out int motionIndex,
+                    out float localTime))
+                return;
+            if (_currentState == null || motionIndex != _currentMotionIndex)
+                PlayMotionAtIndex(motionIndex, 0f, _currentMotionLayerIndex);
+
+            Motion motion = GetCurrentMotion();
+            if (_currentState == null || motion == null)
+                return;
+
+            float speed = motion.playbackSpeed > 0f ? motion.playbackSpeed : 1f;
+            _currentState.Time = motion.ClipStartTime + localTime * speed;
+            _currentState.Speed = 0f;
         }
 
         void UpdateCurrentSection(float time, bool enter)
@@ -1564,6 +1656,26 @@ namespace UPlayGround.Animation
             _currentState.Events(this).OnEnd = null;
         }
 
+        private void ApplyCurrentPlaybackSpeed()
+        {
+            if (_currentState == null)
+                return;
+
+            float motionSpeed = GetCurrentMotion()?.playbackSpeed ?? 1f;
+            _currentState.Speed = motionSpeed * _effectiveTimelineRate;
+        }
+
+        private AnimancerState GetRepresentativePlaybackState()
+        {
+            if (_currentState != null)
+                return _currentState;
+
+            foreach (MotionLayerPlayback playback in _motionLayerPlaybacks)
+                if (playback?.state != null)
+                    return playback.state;
+            return null;
+        }
+
         private sealed class MotionLayerPlayback
         {
             public MotionLayer data;
@@ -1707,13 +1819,23 @@ namespace UPlayGround.Animation
         {
             if (_currentMotionSet?.curves == null)
                 return fallback;
+
+            // 빈 targetId는 전역 트랙 규약이다. 직렬화된 문자열은 null이 아니라 ""이므로
+            // Ordinal 비교만 쓰면 인스펙터에서 저작한 전역 커브가 영원히 매칭되지 않는다.
+            bool wantsGlobal = string.IsNullOrEmpty(targetId);
             foreach (MotionCurveTrack track in _currentMotionSet.curves)
             {
                 if (track == null ||
                     !track.enabled ||
-                    track.channel != channel ||
-                    !string.Equals(track.targetId, targetId, StringComparison.Ordinal))
+                    track.channel != channel)
                     continue;
+
+                bool matched = wantsGlobal
+                    ? string.IsNullOrEmpty(track.targetId)
+                    : string.Equals(track.targetId, targetId, StringComparison.Ordinal);
+                if (!matched)
+                    continue;
+
                 return track.Evaluate(normalizedTime, fallback);
             }
             return fallback;

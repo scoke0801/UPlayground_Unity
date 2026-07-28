@@ -1,0 +1,11 @@
+{
+  "name": "UPlayGround.MotionSet.Editor",
+  "rootNamespace": "UPlayGround.Animation.Editor",
+  "references": [
+    "UPlayGround.MotionSet.Core"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

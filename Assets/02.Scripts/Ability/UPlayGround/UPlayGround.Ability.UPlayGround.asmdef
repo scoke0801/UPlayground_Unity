@@ -3,6 +3,7 @@
   "rootNamespace": "UPlayGround.Ability.UPlayGround",
   "references": [
     "UPlayGround.Ability.Core",
+    "UPlayGround.MotionSet.Core",
     "UPlayGround.Data"
   ],
   "autoReferenced": true

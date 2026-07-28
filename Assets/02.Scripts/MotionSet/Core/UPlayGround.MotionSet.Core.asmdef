@@ -1,0 +1,6 @@
+{
+  "name": "UPlayGround.MotionSet.Core",
+  "rootNamespace": "UPlayGround.Animation",
+  "references": [],
+  "autoReferenced": true
+}

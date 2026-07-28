@@ -71,6 +71,7 @@ namespace UPlayGround.Animation.Editor
                     {
                         _combatAttackData = newData;
                         SaveCombatPairing();
+                        RefreshMotionListView();
                     }
 
                     if (GUILayout.Button("자동 연결", GUILayout.Width(64)))
@@ -235,12 +236,25 @@ namespace UPlayGround.Animation.Editor
 
             if (_actorAnimationSet != null)
             {
-                var found = CombatTimelineUtility.FindAbilitySetForMotionSet(_actorAnimationSet, out var owner);
+                var found = CombatTimelineUtility.FindAbilitySetForMotionSet(
+                    _actorAnimationSet,
+                    out var owner,
+                    out bool ambiguous,
+                    out string candidateSummary);
                 if (found != null)
                 {
                     _combatAttackData = found;
                     SaveCombatPairing();
+                    RefreshMotionListView();
                     ShowNotification(new GUIContent($"연결: {owner.name} → {found.name}"));
+                    return;
+                }
+                if (ambiguous)
+                {
+                    ShowNotification(
+                        new GUIContent(
+                            $"자동 연결 후보가 모호합니다.\n{candidateSummary}\n"
+                            + "AbilitySet을 직접 선택해 주세요."));
                     return;
                 }
             }
@@ -249,6 +263,7 @@ namespace UPlayGround.Animation.Editor
             if (cached != null)
             {
                 _combatAttackData = cached;
+                RefreshMotionListView();
                 ShowNotification(new GUIContent($"저장된 페어링 복원: {cached.name}"));
                 return;
             }

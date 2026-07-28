@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Humanoid_Player_DoubleAxeAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
+  attackWeaponType: 11
+  attackAbilitySet: {fileID: 11400000, guid: 3f8c98e9982e0d14882846fcb776b4c8, type: 2}
   motionSets:
     _serializedList:
     - Key: 1

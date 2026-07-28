@@ -6,6 +6,7 @@
     "UPlayGround.Ability.Core",
     "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Data",
+    "UPlayGround.MotionSet.Core",
     "AYellowpaper.SerializedCollections",
     "AYellowpaper.SerializedCollections.Editor",
     "Kybernetik.Animancer",

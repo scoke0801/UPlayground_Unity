@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
+using UPlayGround.Animation;
 
 namespace UPlayGround.Data.Event
 {
@@ -18,7 +19,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
-    public class LoopEvent : MotionEventBase
+    public class LoopEvent : MotionEventBase, IMotionTimelineControlEvent
     {
         public LoopEventMode mode = LoopEventMode.Loop;
 
@@ -27,6 +28,16 @@ namespace UPlayGround.Data.Event
 
         [Tooltip("Freeze: 정지 시간(초). startTime 시점에서 이 시간만큼 멈춘다.")]
         public float freezeDuration = 0.5f;
+
+        MotionTimelineControlMode IMotionTimelineControlEvent.Mode => mode switch
+        {
+            LoopEventMode.Freeze => MotionTimelineControlMode.Freeze,
+            LoopEventMode.InfiniteLoop => MotionTimelineControlMode.InfiniteLoop,
+            _ => MotionTimelineControlMode.Loop,
+        };
+
+        int IMotionTimelineControlEvent.LoopCount => loopCount;
+        float IMotionTimelineControlEvent.FreezeDuration => freezeDuration;
 
         public override string GetDisplayName() => mode switch
         {

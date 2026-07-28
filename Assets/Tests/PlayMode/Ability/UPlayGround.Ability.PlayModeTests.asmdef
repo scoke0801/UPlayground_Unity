@@ -6,6 +6,7 @@
     "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Contracts",
     "UPlayGround.Data",
+    "UPlayGround.MotionSet.Core",
     "UPlayGround.Actor"
   ],
   "autoReferenced": false,

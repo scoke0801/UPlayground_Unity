@@ -1,5 +1,7 @@
 using UnityEditor;
 using UnityEngine;
+using UPlayGround.Data.Ability;
+using UPlayGround.Tool.Editor.Combat;
 
 namespace UPlayGround.Data.Actor.Animation.Editor
 {
@@ -7,11 +9,15 @@ namespace UPlayGround.Data.Actor.Animation.Editor
     public sealed class ActorAnimationMotionSetEditor : UnityEditor.Editor
     {
         private SerializedProperty _fallbackMotionSet;
+        private SerializedProperty _attackWeaponType;
+        private SerializedProperty _attackAbilitySet;
         private SerializedProperty _motionSlots;
 
         private void OnEnable()
         {
             _fallbackMotionSet = serializedObject.FindProperty("fallbackMotionSet");
+            _attackWeaponType = serializedObject.FindProperty("attackWeaponType");
+            _attackAbilitySet = serializedObject.FindProperty("attackAbilitySet");
             _motionSlots = serializedObject.FindProperty("motionSlots");
         }
 
@@ -23,6 +29,61 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             EditorGUILayout.PropertyField(
                 _fallbackMotionSet,
                 new GUIContent("Fallback MotionSet", "현재 SO에 없는 Motion Slot을 Fallback 체인에서 찾습니다."));
+
+            EditorGUILayout.Space(6f);
+            EditorGUILayout.LabelField("공격 모션", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(
+                _attackWeaponType,
+                new GUIContent(
+                    "Attack Weapon Type",
+                    "MotionReference에서 이 무기 타입의 override만 해석합니다. 해당 override가 없으면 Default Motion을 사용합니다."));
+            EditorGUILayout.PropertyField(
+                _attackAbilitySet,
+                new GUIContent(
+                    "Attack Ability Set",
+                    "애니메이션 에디터에서 함께 표시할 공격 Ability와 MotionReference의 단일 소스입니다."));
+
+            if (_attackAbilitySet.objectReferenceValue == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "공격 AbilitySet을 연결하면 애니메이션 에디터의 공격 그룹에서 모든 공격 MotionSet을 바로 편집할 수 있습니다.",
+                    MessageType.Info);
+
+                if (GUILayout.Button("몬스터 ActorDefinition에서 자동 연결"))
+                {
+                    var actorSet = (ActorAnimationMotionSet)target;
+                    AbilitySetSO found =
+                        CombatTimelineUtility.FindAbilitySetForMotionSet(
+                            actorSet,
+                            out var owner,
+                            out bool ambiguous,
+                            out string candidateSummary);
+                    if (found != null)
+                    {
+                        Undo.RecordObject(actorSet, "Connect Attack Ability Set");
+                        actorSet.attackAbilitySet = found;
+                        EditorUtility.SetDirty(actorSet);
+                        AssetDatabase.SaveAssetIfDirty(actorSet);
+                        serializedObject.Update();
+                        Debug.Log(
+                            $"[ActorAnimationMotionSet] {actorSet.name}: "
+                            + $"{owner.name}의 {found.name} 연결");
+                    }
+                    else if (ambiguous)
+                    {
+                        Debug.LogWarning(
+                            $"[ActorAnimationMotionSet] {actorSet.name}의 "
+                            + $"AbilitySet 자동 연결 후보가 모호합니다: {candidateSummary}. "
+                            + "Attack Ability Set을 직접 선택해 주세요.");
+                    }
+                    else
+                    {
+                        Debug.LogWarning(
+                            $"[ActorAnimationMotionSet] {actorSet.name}에 대응하는 "
+                            + "몬스터 ActorDefinition/AbilitySet을 찾지 못했습니다.");
+                    }
+                }
+            }
 
             EditorGUILayout.Space(6f);
             EditorGUILayout.LabelField("Motion Slot 목록", EditorStyles.boldLabel);

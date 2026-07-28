@@ -1,0 +1,9 @@
+{
+  "name": "UPlayGround.MotionSet.Animancer",
+  "rootNamespace": "UPlayGround.Animation",
+  "references": [
+    "UPlayGround.MotionSet.Core",
+    "Kybernetik.Animancer"
+  ],
+  "autoReferenced": true
+}

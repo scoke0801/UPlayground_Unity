@@ -1,35 +1,54 @@
-# MotionSet 독립 패키지 및 GameActor 계층 분리 설계
+# MotionSet 내부 asmdef 모듈 및 GameActor 계층 분리 설계
 
 > 작성일: 2026-07-27  
-> 상태: 외부 프로젝트 재사용 목표 반영 / 구현 전  
-> 범위: MotionSet 데이터·재생 커널·이벤트 실행·범용 편집기를 `GameActor`와 UPlayground 프로젝트 구현에서 분리하여, 다른 Unity 프로젝트에 UPM 패키지로 설치할 수 있게 한다. 기존 Actor API와 에셋은 무손실로 유지한다.  
+> 상태: UPM 계획 철회 / 프로젝트 내부 asmdef 모듈 전환 완료
+> 범위: MotionSet 데이터·재생 커널·이벤트 실행·범용 편집기를 `GameActor` 구현에서 분리하고 `Assets/02.Scripts/MotionSet` 내부 asmdef로 관리한다. 기존 Actor API와 에셋은 무손실로 유지한다.
 > 선행 문서: `Assets/docs/Complete/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md`, `Assets/docs/Complete/ASMDEF_MODULARIZATION_PLAN.md`, `Assets/docs/onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html`
 
 ---
 
 ## 1. 결론
 
-분리는 가능하다. 최종 산출물은 프로젝트 내부 asmdef가 아니라 `Packages/com.uplayground.motionset` 독립 UPM 패키지여야 한다.
+분리는 완료했으며 최종 산출물은 `Assets/02.Scripts/MotionSet` 내부 asmdef 모듈이다.
 
 독립의 기준은 다음과 같다.
 
-- 새 Unity 6 프로젝트에 Animancer를 설치한 뒤 MotionSet 패키지만 추가해 컴파일할 수 있다.
-- 패키지 안에서 `UPlayGround.Data`, `UPlayGround.Actor`, `GameActor`, `GameplayTag`, `WeaponType`, Manager, Camera, UI를 참조하지 않는다.
-- UPlayground의 `Assets/10.Datas`, 프리팹, GUID, 서비스 로케이터가 없어도 패키지 샘플을 실행할 수 있다.
+- `UPlayGround.MotionSet.Core`는 Data, Actor, Manager, Camera, UI를 참조하지 않는다.
+- `UPlayGround.MotionSet.Animancer`는 Core와 Animancer만 참조한다.
+- 다른 프로젝트로 이식할 때 `Assets/02.Scripts/MotionSet`과 `.meta`를 함께 복사할 수 있다.
+- UPlayground 전용 연결은 Actor 측 provider와 구체 MotionEvent에 남긴다.
 - KCC와 Animancer 같은 외부 라이브러리 의존은 허용한다.
 
 다만 `ActorAnimator`를 통째로 패키지로 옮기거나 새 공통 베이스 클래스로 바꾸는 방식은 권장하지 않는다.
 
 권장 구조는 다음과 같다.
 
-1. MotionSet 데이터와 순수 시간축 계산을 패키지의 `UPlayGround.MotionSet.Core`로 이동한다.
-2. Animancer 재생 상태를 소유하는 일반 C# 재생 커널을 패키지의 `UPlayGround.MotionSet.Animancer`로 추출한다.
+1. MotionSet 데이터와 순수 시간축 계산을 `UPlayGround.MotionSet.Core`로 이동한다.
+2. Animancer 재생 상태를 소유하는 일반 C# 재생 커널을 `UPlayGround.MotionSet.Animancer`로 추출한다.
 3. `ActorAnimator`는 상속 계층의 공통 베이스가 아니라 기존 공개 API를 보존하는 Actor 어댑터/퍼사드로 남긴다.
 4. 비-GameActor 소비자는 별도 `MotionSetPlayer` 호스트 컴포넌트로 같은 재생 커널을 사용한다.
 5. Actor 전투·카메라·워프 이벤트와 의미 슬롯/무기 해석은 `UPlayGround.Actor`에 남긴다.
 6. 범용 Inspector/Timeline/Event 카탈로그를 `UPlayGround.MotionSet.Editor`로 분리하고, UPlayground 전투 편집 기능은 프로젝트 확장으로 연결한다.
 
 핵심 방향은 **상속 분리보다 합성(composition)** 이다. 이 방식은 Player 프리팹의 MonoBehaviour 타입과 직렬화 필드를 유지하면서 재생 로직만 재사용할 수 있다.
+
+현재 내부 구조:
+
+```text
+Assets/02.Scripts/MotionSet/
+├── Core/
+│   └── UPlayGround.MotionSet.Core.asmdef
+├── Animancer/
+│   └── UPlayGround.MotionSet.Animancer.asmdef
+├── Editor/
+│   └── UPlayGround.MotionSet.Editor.asmdef
+├── Tests/
+│   └── UPlayGround.MotionSet.Core.Tests.asmdef
+└── README.md
+```
+
+이 문서 후반부의 UPM, package.json, Samples 관련 내용은 최초 검토 이력이다.
+현재 구현과 이후 유지보수는 위 내부 asmdef 구조를 기준으로 한다.
 
 ---
 
@@ -107,46 +126,31 @@
 - Animancer 또는 KCC 소스 자체를 MotionSet 패키지에 복제하거나 재배포하지 않는다.
 - MotionEvent 전투 로직을 Ability Effect로 옮기지 않는다.
 - 모든 구체 MotionEvent를 Core로 이동하지 않는다.
-- 첫 단계에서 UPlayground 전투 확장이 포함된 `MotionSetWindow` 전체를 패키지화하지 않는다.
+- UPlayground 전투 확장이 포함된 `MotionSetWindow` 전체를 범용 모듈로 이동하지 않는다.
 - `ActorAnimator` 공개 API를 한 번에 제거하거나 모든 호출부를 교체하지 않는다.
 - 기존 에셋을 일괄 재직렬화하지 않는다.
 
 ---
 
-## 4. 목표 패키지 및 asmdef 구조
+## 4. 목표 내부 asmdef 구조
 
 ```text
-Packages/com.uplayground.motionset/
-├── package.json
+Assets/02.Scripts/MotionSet/
 ├── README.md
-├── CHANGELOG.md
-├── LICENSE.md
-├── Runtime/
-│   ├── Core/
-│   │   ├── UPlayGround.MotionSet.Core.asmdef
-│   │   ├── Data/
-│   │   ├── Events/
-│   │   ├── Timeline/
-│   │   └── Diagnostics/
-│   └── Animancer/
-│       ├── UPlayGround.MotionSet.Animancer.asmdef
-│       ├── MotionSetPlaybackController.cs
-│       ├── MotionSetPlayer.cs
-│       └── RootMotion/
+├── Core/
+│   ├── UPlayGround.MotionSet.Core.asmdef
+│   ├── Data/
+│   ├── Events/
+│   └── Timeline/
+├── Animancer/
+│   ├── UPlayGround.MotionSet.Animancer.asmdef
+│   ├── MotionSetPlaybackController.cs
+│   └── MotionSetPlayer.cs
 ├── Editor/
-│   ├── UPlayGround.MotionSet.Editor.asmdef
-│   ├── Inspector/
-│   ├── Timeline/
-│   └── Extensibility/
-├── Tests/
-│   ├── Runtime/
-│   └── Editor/
-├── Samples~/
-│   └── BasicPlayback/
-└── Documentation~/
-    ├── installation.md
-    ├── custom-events.md
-    └── migration-from-uplayground.md
+│   └── UPlayGround.MotionSet.Editor.asmdef
+└── Tests/
+    └── Editor/
+        └── UPlayGround.MotionSet.Core.Tests.asmdef
 
 Assets/02.Scripts/
 ├── Data/Actor/Animation/
@@ -178,7 +182,7 @@ Ability.UPlayGround ─→ Data + MotionSet.Core
 Actor ───────────────→ Data + MotionSet.Core + MotionSet.Animancer
 ```
 
-패키지 Core는 `UPlayGround.Core`에도 의존하지 않는다. 이름이 같은 프로젝트 Core가 없는 외부 프로젝트에서도 독립적으로 컴파일되어야 하기 때문이다.
+MotionSet Core는 `UPlayGround.Core`에도 의존하지 않는다. 이름이 같은 프로젝트 Core가 없는 다른 프로젝트에서도 독립적으로 컴파일되어야 하기 때문이다.
 
 ### 4.1 왜 Runtime 하나가 아니라 Core/Animancer 둘인가
 
@@ -621,10 +625,21 @@ AbilitySetSO
 
 ### Phase 1 — Embedded package와 Core 추출
 
-- `Packages/com.uplayground.motionset` embedded package 골격 생성
-- package.json, Runtime/Core, Runtime/Animancer, Editor, Tests, Samples~ 디렉터리 계약 확정
-- `UPlayGround.MotionSet.Core.asmdef`를 패키지 안에 생성
-- 데이터 모델, Resolver, Event base를 패키지로 이동
+구현 현황 (2026-07-27):
+
+- 최초 embedded package로 검증한 뒤 `Assets/02.Scripts/MotionSet` 내부 asmdef 모듈로 전환했다.
+- `Motion`, `MotionAdvancedTypes`, `MotionSetAsset`, `MotionTimelineResolver`, `MotionEventBase`를 기존 `.meta`와 함께 이동했다.
+- 원본 Git blob과 이동 후 파일·`.meta` 10개의 해시가 모두 일치하여 내용과 MonoScript GUID가 보존되었다.
+- Data, Ability.UPlayGround, Actor, UI, Data.Editor, EditMode/PlayMode Ability Tests의 asmdef 참조를 갱신했다.
+- Unity 6.0.60f1 batchmode 컴파일과 관련 6개 프로젝트의 `dotnet build --no-restore`가 오류 0으로 완료되었다.
+- Core 정적 경계 검사에서 GameActor, Manager, KCC, GameplayTag, WeaponType 등 프로젝트 금지 의존은 발견되지 않았다.
+- 기존 Ability EditMode Test Runner는 실행 중 임시 에셋을 생성한 뒤 결과 XML 없이 종료되어 테스트 통과 여부를 확인하지 못했다. 생성된 임시 에셋은 정리했으며, 자동 재직렬화된 기존 BT 에셋은 사용자 변경과 겹칠 수 있어 보존했다.
+- 구체 MotionEvent, `ActorAnimator`, Executor는 이동하지 않았고 Phase 2 이후 범위로 남겨 두었다.
+
+- `Assets/02.Scripts/MotionSet` 내부 모듈 골격 생성
+- Core, Animancer, Editor, Tests 디렉터리 계약 확정
+- `UPlayGround.MotionSet.Core.asmdef`를 내부 모듈에 생성
+- 데이터 모델, Resolver, Event base를 Core로 이동
 - `.meta` 동반 이동
 - Data, Ability.UPlayGround, Actor, 관련 Editor/Test asmdef 참조 갱신
 - namespace와 public type 이름 유지
@@ -632,12 +647,19 @@ AbilitySetSO
 완료 조건:
 
 - Data/Ability/Actor/Editor 컴파일 오류 0
-- 패키지 내부에 UPlayground 금지 의존 0
+- MotionSet 모듈 내부에 UPlayground 금지 의존 0
 - MotionTimelineResolver 기존 테스트 통과
 - MotionSetAsset 인스펙터 로드 정상
 - managed reference/VFX 기준선 불변
 
 ### Phase 2 — Executor 분리
+
+구현 현황 (2026-07-27):
+
+- `MotionEventExecutor`와 기존 `.meta`를 Core로 이동했다.
+- 대상 해석을 명시적 대상 → 부모 `IMotionEventTargetProvider` → self 순서로 변경했다.
+- `GameActor`는 provider 계약만 구현하며 Core는 Actor 타입을 참조하지 않는다.
+- 범용 `MotionSetEventDebugOverlay`와 Actor 전용 `ActorMotionSetDebugOverlay`를 분리했다.
 
 - `IMotionEventTargetProvider` 추가
 - `GameActor` 직접 탐색 제거
@@ -652,6 +674,13 @@ AbilitySetSO
 - 전투 Collision/VFX/SFX 이벤트 발화 정상
 
 ### Phase 3 — 재생 커널 추출
+
+구현 현황 (2026-07-27):
+
+- `UPlayGround.MotionSet.Animancer` asmdef와 비-MonoBehaviour `MotionSetPlaybackController`를 추가했다.
+- 순차 Motion, 병렬 Layer, Section, Curve, TimeStretch, 이벤트 LateUpdate 평가를 패키지 커널에서 제공한다.
+- `IMotionTimeSource`와 `IMotionTimelineControlEvent`를 Core에 추가하고 기존 `LoopEvent`가 제어 계약을 구현한다.
+- 기존 `ActorAnimator` 공개 API와 직렬화 형태는 회귀 위험을 피하기 위해 보존했다. 패키지 커널은 외부 호스트의 단일 구현이며, UPlayground Actor의 내부 위임 전환은 호환성 최적화 과제로 남는다.
 
 - `IMotionTimeSource`와 `IMotionTimelineControlEvent` 추가
 - `LoopEvent`는 Actor에 남겨 계약 구현
@@ -679,6 +708,11 @@ AbilitySetSO
 
 ### Phase 4 — 비-GameActor 호스트
 
+구현 현황 (2026-07-27):
+
+- `MotionSetPlayer`를 추가해 GameActor, KCC, Manager 없이 MotionSetAsset을 직접 재생할 수 있게 했다.
+- 명시적 이벤트 대상, provider fallback, self fallback과 Section/Loop 제어 API를 공개했다.
+
 - `MotionSetPlayer` MonoBehaviour 추가
 - GameActor 없는 테스트 오브젝트에서 MotionSetAsset 직접 재생
 - 명시적 대상, 부모 provider, self fallback 검증
@@ -689,6 +723,13 @@ AbilitySetSO
 - Section/Loop/Event/PostEvaluation 테스트 통과
 
 ### Phase 5 — Editor 코어 분리
+
+구현 현황 (2026-07-27):
+
+- `UPlayGround.MotionSet.Editor` asmdef를 추가했다.
+- 외부 프로젝트용 fallback `MotionSetAsset` 인스펙터와 `MotionEventCatalog`를 제공한다.
+- `MotionEventDescriptorAttribute`로 프로젝트별 이벤트 표시 이름·범주·순서를 확장할 수 있다.
+- UPlayground의 전투/Warp/VFX 결합 대형 편집 창은 프로젝트 Editor 확장으로 유지했다.
 
 - Descriptor/Provider 기반 카탈로그로 전환
 - 범용 Inspector/Drawer/Timeline을 `UPlayGround.MotionSet.Editor`로 이동
@@ -701,6 +742,14 @@ AbilitySetSO
 - Editor 런타임 asmdef의 `UnityEditor` 참조 0
 
 ### Phase 6 — 외부 프로젝트 설치 검증
+
+구현 현황 (2026-07-27):
+
+- UPM manifest와 Samples는 제거하고 내부 모듈 README에 Animancer 8.3.1 의존과 이식 절차를 기록했다.
+- Core/Animancer/Editor/Tests asmdef 참조 그래프가 MotionSet Core와 Animancer 외 UPlayground 구현 어셈블리를 참조하지 않음을 확인했다.
+- MotionSet Core EditMode 테스트 3개를 추가했고 Unity 전체 컴파일에서 테스트 어셈블리까지 오류 0을 확인했다.
+- Unity Test Runner는 현재 환경의 headless 라이선스 부재로 실행되지 않았으며, 동일 수직 절편을 실행하는 `MotionSetModuleValidator`는 Resolver/target/Executor 모두 PASS했다.
+- 빈 외부 Unity 프로젝트의 실제 Package Manager 설치는 Animancer 라이선스 설치가 가능한 배포 환경에서 최종 확인해야 한다.
 
 - 빈 Unity 6 URP 프로젝트를 별도 검증 프로젝트로 만든다.
 - Animancer Pro 8.3.1을 정상 라이선스 경로로 설치한다.
@@ -819,17 +868,17 @@ AbilitySetSO
 
 ## 15. 구현 시작 권고
 
-첫 구현 PR/작업 단위는 **Phase 1의 embedded package + Core 이동만** 권장한다.
+첫 구현 PR/작업 단위는 **Phase 1의 내부 asmdef + Core 이동만** 권장한다.
 
 이 단계에서는:
 
-- `Packages/com.uplayground.motionset` 골격 생성
-- 패키지 안에 새 Core asmdef 생성
-- 직렬화 안전 타입만 `.meta`와 함께 패키지로 이동
+- `Assets/02.Scripts/MotionSet` 골격 생성
+- 내부 모듈에 새 Core asmdef 생성
+- 직렬화 안전 타입만 `.meta`와 함께 Core로 이동
 - 참조 갱신
 - 테스트/에셋 무손실 검증
-- 패키지 금지 의존 정적 검사
+- 모듈 금지 의존 정적 검사
 
 만 수행한다.
 
-`ActorAnimator`, LoopEvent, RootMotion, MotionSetWindow는 건드리지 않는다. 이 기준으로 package Core 경계를 먼저 실제 컴파일러가 강제하게 만든 뒤 Executor와 재생 커널을 후속 단계로 옮기는 것이 가장 안전하다.
+`ActorAnimator`, LoopEvent, RootMotion, MotionSetWindow는 건드리지 않는다. 이 기준으로 Core 경계를 먼저 실제 컴파일러가 강제하게 만든 뒤 Executor와 재생 커널을 후속 단계로 옮기는 것이 가장 안전하다.

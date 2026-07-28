@@ -321,6 +321,7 @@ Assets/
 
 | 문서 | 설명 |
 |------|------|
+| [GAME_MATH_LEARNING_GUIDE.html](guide/GAME_MATH_LEARNING_GUIDE.html) | 프로젝트 실제 코드로 배우는 게임 수학 — 초중등 눈높이의 좌표·벡터·내적·외적·회전·보간부터 포물선, 모션 워프, 카메라, 미니맵 변환, 피해 배율, 가중치·시드 난수까지 그림·식·코드·연습 문제로 설명 |
 | [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
 | [GAMEPLAY_GUIDE.md](Complete/GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
@@ -342,6 +343,7 @@ Assets/
 | [MOTION_EVENT_ROLE_GUIDE.md](guide/MOTION_EVENT_ROLE_GUIDE.md) | MotionEvent 역할 — 전투 판정, VFX/SFX, 카메라, 이동/시간, 유틸리티 이벤트별 실행 타이밍과 주의사항 |
 | [COMBAT_SYSTEM_GUIDE.md](guide/COMBAT_SYSTEM_GUIDE.md) | 전투 시스템 — PlayerCombat/EnemyCombat, 공격 데이터, 판정, 피해 적용, 가드·패리·Poise·Break 흐름 |
 | [FLOWGRAPH_SYSTEM_GUIDE.html](guide/FLOWGRAPH_SYSTEM_GUIDE.html) | FlowGraph — 게임 흐름 노드 그래프, 토큰 실행 모델, 노드 카탈로그, GraphView 에디터, SubGraph/Blackboard, TriggerComposer 변환 (md 병행: [FLOWGRAPH_SYSTEM_GUIDE.md](guide/FLOWGRAPH_SYSTEM_GUIDE.md)) |
+| [ULTIMATE_CINEMATIC_STAGE_GUIDE.html](guide/ULTIMATE_CINEMATIC_STAGE_GUIDE.html) | 궁극기 암전·별도 스테이지 연출 — UltimateSequencePlayer 실행 흐름, 일반적 구현 4종(제자리/오프월드/Additive/RenderTexture) 비교, 오프월드 스테이지 권장 설계와 UltimateStageContext 구현 가이드, 동기 Restore·Active 씬 함정 |
 | [ATTACK_CANCEL_SYSTEM_GUIDE.md](guide/ATTACK_CANCEL_SYSTEM_GUIDE.md) | 공격 캔슬(인터럽트) 시스템 — PlayerInterruptAction 마스크, 캔슬 윈도우, 이동 후딜 캔슬 게이트(윈드업/멀티히트 제외), 마이그레이션 메뉴 |
 | [COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md](Complete/COMBAT_SYSTEM_ARCHITECTURE_REFACTOR_PLAN.md) | 전투 시스템 구조 개선 계획 — DamageResolver, DefenseResolver, ReactionResolver, CombatActionRunner 단계별 리팩토링 |
 | [COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md](Complete/COMBAT_SYSTEM_NEXT_IMPROVEMENT_PROPOSAL.md) | 전투 시스템 다음 개선 제안 — 웹 레퍼런스 기반 Runner, CombatResult, Pipeline, 검증기, 전투 로그 개선 우선순위 |

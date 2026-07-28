@@ -1,0 +1,1234 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="UPlayground 실제 코드로 배우는 벡터, 회전, 보간, 충돌, 확률, 좌표 변환 게임 수학 학습 가이드">
+  <title>UPlayground 게임 수학 교실</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #081018;
+      --panel: #101b28;
+      --panel-2: #172638;
+      --panel-3: #0b1521;
+      --line: #294057;
+      --text: #edf7ff;
+      --muted: #a8bac9;
+      --mint: #65e6be;
+      --blue: #73b7ff;
+      --yellow: #ffd166;
+      --pink: #ff8eaa;
+      --purple: #c6a4ff;
+      --code: #071019;
+      --shadow: 0 20px 60px rgba(0, 0, 0, .28);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 3%, rgba(101, 230, 190, .11), transparent 28rem),
+        radial-gradient(circle at 94% 16%, rgba(115, 183, 255, .11), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Pretendard, "Noto Sans KR", system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.75;
+      word-break: keep-all;
+    }
+    a { color: var(--mint); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre, .formula { font-family: "Cascadia Code", Consolas, monospace; }
+    code {
+      padding: .12em .38em;
+      border-radius: 6px;
+      color: #d9ebff;
+      background: rgba(115, 183, 255, .1);
+      word-break: break-word;
+    }
+    .layout {
+      width: min(1500px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 44px;
+      padding: 28px 34px 90px;
+    }
+    aside {
+      position: sticky;
+      top: 22px;
+      height: calc(100vh - 44px);
+      overflow: auto;
+      padding: 22px 18px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(16, 27, 40, .9);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      scrollbar-width: thin;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; margin-bottom: 17px; font-weight: 900; }
+    .logo {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      color: #04130e;
+      background: linear-gradient(135deg, var(--mint), var(--blue));
+      font-size: 22px;
+      box-shadow: 0 8px 28px rgba(101, 230, 190, .2);
+    }
+    .nav-label {
+      margin: 18px 10px 5px;
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .12em;
+    }
+    nav a {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover, nav a.active { color: var(--text); text-decoration: none; background: var(--panel-2); }
+    main { min-width: 0; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 58px 54px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background:
+        linear-gradient(132deg, rgba(101, 230, 190, .14), transparent 48%),
+        linear-gradient(315deg, rgba(115, 183, 255, .13), transparent 44%),
+        var(--panel);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "x² + y²";
+      position: absolute;
+      right: 35px;
+      bottom: -24px;
+      color: rgba(255, 255, 255, .035);
+      font: 900 96px/1 "Cascadia Code", monospace;
+      transform: rotate(-7deg);
+    }
+    .eyebrow { color: var(--mint); font-size: 13px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+    h1 {
+      max-width: 900px;
+      margin: 12px 0 16px;
+      font-size: clamp(40px, 6vw, 74px);
+      line-height: 1.04;
+      letter-spacing: -.06em;
+    }
+    .lead { max-width: 900px; margin: 0; color: var(--muted); font-size: 18px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+    .badge {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #d5e5f2;
+      background: rgba(7, 16, 25, .52);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    section { padding-top: 64px; }
+    h2 { margin: 0 0 18px; font-size: 31px; line-height: 1.28; letter-spacing: -.04em; }
+    h3 { margin: 30px 0 12px; font-size: 21px; letter-spacing: -.025em; }
+    h4 { margin: 20px 0 8px; color: var(--blue); font-size: 16px; }
+    p { margin: 0 0 14px; }
+    ul, ol { padding-left: 1.35rem; }
+    li + li { margin-top: 7px; }
+    .muted { color: var(--muted); }
+    .tiny { color: var(--muted); font-size: 12px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card, .callout, details {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(16, 27, 40, .9);
+    }
+    .card { padding: 22px; }
+    .card h3, .card h4 { margin-top: 0; }
+    .callout { margin: 18px 0; padding: 17px 19px; border-left: 4px solid var(--blue); }
+    .callout.easy { border-left-color: var(--mint); }
+    .callout.warning { border-left-color: var(--yellow); }
+    .callout.advanced { border-left-color: var(--purple); }
+    .callout strong:first-child { color: var(--text); }
+    .formula {
+      margin: 16px 0;
+      padding: 16px 18px;
+      overflow-x: auto;
+      border: 1px solid #31536f;
+      border-radius: 14px;
+      color: #dff8ef;
+      background: linear-gradient(120deg, rgba(101, 230, 190, .09), rgba(115, 183, 255, .06));
+      font-size: 15px;
+      white-space: nowrap;
+    }
+    .formula b { color: var(--yellow); }
+    .visual {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel-3);
+      overflow: hidden;
+    }
+    .visual svg { display: block; width: 100%; height: auto; max-height: 300px; }
+    .code-wrap {
+      position: relative;
+      margin: 15px 0 22px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--code);
+    }
+    .code-title {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      background: #0d1824;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    pre { margin: 0; padding: 19px; overflow: auto; color: #deebfa; font-size: 13px; line-height: 1.68; tab-size: 4; }
+    pre code { padding: 0; color: inherit; background: none; word-break: normal; }
+    .copy {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      background: var(--panel-2);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+    }
+    .steps { counter-reset: step; display: grid; gap: 12px; }
+    .step {
+      position: relative;
+      padding: 19px 20px 19px 66px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 18px;
+      top: 17px;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      color: #04130e;
+      background: var(--mint);
+      font-weight: 900;
+    }
+    .step strong { display: block; margin-bottom: 3px; }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      background: var(--panel);
+      font-size: 14px;
+    }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--mint); background: var(--panel-2); }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child code { white-space: nowrap; }
+    details { margin: 12px 0; padding: 0 18px; }
+    summary { padding: 15px 0; color: var(--yellow); cursor: pointer; font-weight: 800; }
+    details > div { padding: 0 0 17px; }
+    .level {
+      display: inline-block;
+      margin-right: 7px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #06130f;
+      background: var(--mint);
+      font-size: 11px;
+      font-weight: 900;
+      vertical-align: 1px;
+    }
+    .level.mid { color: #101009; background: var(--yellow); }
+    .level.high { color: #100b18; background: var(--purple); }
+    .source {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .source code { color: #bddcff; background: transparent; }
+    .meter { display: grid; grid-template-columns: 160px 1fr 54px; gap: 10px; align-items: center; margin: 9px 0; font-size: 13px; }
+    .bar { height: 9px; overflow: hidden; border-radius: 999px; background: #213246; }
+    .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--blue)); }
+    footer { margin-top: 68px; padding: 24px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    @media print {
+      body { color: #111; background: white; }
+      aside, .copy { display: none; }
+      .layout { display: block; width: 100%; padding: 0; }
+      .hero, .card, .callout, details, table, .visual, .code-wrap { box-shadow: none; break-inside: avoid; }
+      section { break-before: auto; }
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; padding: 18px 18px 60px; }
+      aside { position: static; height: auto; }
+      nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-label { grid-column: 1 / -1; }
+      .hero { padding: 40px 27px; }
+      .grid, .grid.three { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      nav { display: block; }
+      .meter { grid-template-columns: 110px 1fr 42px; }
+      h2 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside>
+      <div class="brand"><span class="logo">∑</span><span>게임 수학 교실</span></div>
+      <p class="tiny">UPlayground 실제 코드로 배우기<br>분석 기준: 2026-07-28</p>
+      <nav>
+        <div class="nav-label">START</div>
+        <a href="#start">0. 이 문서 사용법</a>
+        <a href="#map">1. 프로젝트 수학 지도</a>
+        <div class="nav-label">FOUNDATION</div>
+        <a href="#coordinates">2. 좌표와 벡터</a>
+        <a href="#distance">3. 거리와 방향</a>
+        <a href="#dot">4. 내적과 시야각</a>
+        <a href="#cross">5. 외적과 지면</a>
+        <a href="#rotation">6. 각도와 회전</a>
+        <a href="#time">7. 시간과 보간</a>
+        <div class="nav-label">PROJECT</div>
+        <a href="#circle">8. 원운동과 자연스러운 AI</a>
+        <a href="#projectile">9. 포물선 투사체</a>
+        <a href="#warp">10. 모션 워프</a>
+        <a href="#camera">11. 카메라 수학</a>
+        <a href="#minimap">12. 미니맵 좌표 변환</a>
+        <a href="#combat">13. 피해량과 비율</a>
+        <a href="#random">14. 확률과 시드</a>
+        <div class="nav-label">PRACTICE</div>
+        <a href="#safe">15. 안전한 수학 코드</a>
+        <a href="#practice">16. 연습 문제</a>
+        <a href="#sources">17. 소스 지도·용어집</a>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div class="eyebrow">Math behind a third-person action game</div>
+        <h1>게임 속 움직임은<br>수학으로 말한다</h1>
+        <p class="lead">
+          “벡터가 뭔데?”에서 시작해, 적이 플레이어를 보는 법·화살이 곡선으로 날아가는 법·
+          카메라가 목표를 고르는 법까지 실제 UPlayground 코드로 천천히 배웁니다.
+          초등학생은 비유와 그림부터, 중학생 이상은 식과 코드까지 따라가면 됩니다.
+        </p>
+        <div class="badges">
+          <span class="badge">외부 라이브러리 없는 오프라인 HTML</span>
+          <span class="badge">실제 프로젝트 코드 13개 핵심 사례</span>
+          <span class="badge">기초 → 응용 → 도전 문제</span>
+          <span class="badge">Unity Vector·Quaternion·Mathf</span>
+        </div>
+      </header>
+
+      <section id="start">
+        <h2>0. 먼저 알아둘 것: 수학은 게임의 설명서다</h2>
+        <div class="callout easy">
+          <strong>한 문장으로:</strong> 게임 수학은 “어디에 있는가, 어느 쪽인가, 얼마나 빠른가,
+          얼마나 섞을까, 어떤 확률로 고를까”를 숫자로 정확하게 말하는 방법입니다.
+        </div>
+        <div class="grid three">
+          <div class="card">
+            <h3>초등 코스</h3>
+            <p class="muted">그림, 비유, 숫자 예시와 각 장의 “한 줄 기억”만 읽습니다. 코드는 색칠된 수학 문장이라고 생각해도 좋습니다.</p>
+          </div>
+          <div class="card">
+            <h3>중등 코스</h3>
+            <p class="muted">식과 코드 예시까지 읽고 손계산을 해 봅니다. 피타고라스, 비율, 좌표, 각도를 게임과 연결합니다.</p>
+          </div>
+          <div class="card">
+            <h3>개발 코스</h3>
+            <p class="muted">출처 파일을 열어 앞뒤 흐름을 확인합니다. 마지막의 안전 규칙과 도전 문제까지 풀어 봅니다.</p>
+          </div>
+        </div>
+        <h3>코드 읽는 최소 문법</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>코드</th><th>사람 말로 읽기</th><th>예</th></tr></thead>
+            <tbody>
+              <tr><td><code>=</code></td><td>오른쪽 값을 왼쪽 상자에 넣는다</td><td><code>speed = 5f</code> → 속도는 5</td></tr>
+              <tr><td><code>+</code>, <code>-</code></td><td>더하기, 빼기. 위치를 빼면 방향과 거리가 된다</td><td><code>target - me</code></td></tr>
+              <tr><td><code>*</code>, <code>/</code></td><td>곱하기, 나누기. 배율과 비율을 만든다</td><td><code>direction * speed</code></td></tr>
+              <tr><td><code>if</code></td><td>만약 조건이 맞으면 실행한다</td><td><code>if (distance &lt; 1f)</code></td></tr>
+              <tr><td><code>float</code></td><td>소수도 담는 숫자 상자</td><td><code>0.5f</code></td></tr>
+              <tr><td><code>Vector3</code></td><td>x, y, z 숫자 3개를 한 묶음으로 담는 상자</td><td><code>(3, 1, -2)</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="map">
+        <h2>1. 프로젝트 전체에서 수학은 얼마나 쓰일까?</h2>
+        <p>
+          <code>Assets/02.Scripts</code>의 C# 파일을 패턴 검색한 스냅샷입니다.
+          한 줄에 같은 단어가 여러 번 있어도 한 검색 결과로 셀 수 있으므로 “정확한 연산 횟수”가 아니라
+          <strong>어디에 많이 쓰이는지 보는 지도</strong>입니다.
+        </p>
+        <div class="card">
+          <div class="meter"><span>Vector3</span><span class="bar"><i style="width:100%"></i></span><b>2,245</b></div>
+          <div class="meter"><span>Vector2</span><span class="bar"><i style="width:58%"></i></span><b>1,302</b></div>
+          <div class="meter"><span>Clamp 계열</span><span class="bar"><i style="width:25%"></i></span><b>555</b></div>
+          <div class="meter"><span>Quaternion</span><span class="bar"><i style="width:21%"></i></span><b>475</b></div>
+          <div class="meter"><span>sqrMagnitude</span><span class="bar"><i style="width:9%"></i></span><b>204</b></div>
+          <div class="meter"><span>Lerp 계열</span><span class="bar"><i style="width:9%"></i></span><b>194</b></div>
+          <div class="meter"><span>Random 계열</span><span class="bar"><i style="width:5%"></i></span><b>108</b></div>
+          <div class="meter"><span>AnimationCurve</span><span class="bar"><i style="width:3.3%"></i></span><b>74</b></div>
+          <div class="meter"><span>Ray/Sphere/Overlap</span><span class="bar"><i style="width:2.6%"></i></span><b>58</b></div>
+          <div class="meter"><span>Dot / Cross</span><span class="bar"><i style="width:3.3%"></i></span><b>74</b></div>
+        </div>
+        <div class="grid">
+          <div class="card"><h3>공간</h3><p class="muted">이동, 적 탐지, 공격 판정, 지면 IK, 투사체, 카메라, 미니맵</p></div>
+          <div class="card"><h3>시간</h3><p class="muted">속도, 가속·감속, 애니메이션 진행률, 보간, 카메라 흔들림</p></div>
+          <div class="card"><h3>수치</h3><p class="muted">피해량, 체력 비율, 사거리, 점수, 제한값, 성장 곡선</p></div>
+          <div class="card"><h3>확률</h3><p class="muted">AI 행동 선택, 자연스러운 변화, 시드 기반 사이클 배치</p></div>
+        </div>
+      </section>
+
+      <section id="coordinates">
+        <h2>2. 좌표와 벡터: 게임 세계의 주소와 화살표</h2>
+        <p><span class="level">기초</span>Unity의 3차원 세계는 서로 직각인 세 방향으로 위치를 적습니다.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>좌표는 주소</h3>
+            <p><code>(x, y, z) = (3, 2, -1)</code>은 원점에서 오른쪽 3, 위 2, 뒤쪽 1만큼 간 주소입니다.</p>
+            <ul>
+              <li><strong>x</strong>: 왼쪽 ↔ 오른쪽</li>
+              <li><strong>y</strong>: 아래 ↔ 위</li>
+              <li><strong>z</strong>: 뒤 ↔ 앞</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>벡터는 화살표</h3>
+            <p><code>Vector3</code>는 주소도 담고, “어느 쪽으로 얼마나”라는 화살표도 담습니다. 같은 숫자 3개라도 문맥이 뜻을 정합니다.</p>
+          </div>
+        </div>
+        <div class="visual">
+          <svg viewBox="0 0 700 290" role="img" aria-label="3차원 좌표축과 벡터 그림">
+            <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#65e6be"/></marker></defs>
+            <line x1="250" y1="220" x2="600" y2="220" stroke="#ff8eaa" stroke-width="3"/><text x="610" y="226" fill="#ff8eaa">x</text>
+            <line x1="250" y1="220" x2="250" y2="35" stroke="#73b7ff" stroke-width="3"/><text x="240" y="25" fill="#73b7ff">y</text>
+            <line x1="250" y1="220" x2="80" y2="275" stroke="#ffd166" stroke-width="3"/><text x="60" y="280" fill="#ffd166">z</text>
+            <line x1="250" y1="220" x2="480" y2="90" stroke="#65e6be" stroke-width="6" marker-end="url(#arrow)"/>
+            <circle cx="250" cy="220" r="7" fill="#edf7ff"/><text x="268" y="247" fill="#a8bac9">원점 (0,0,0)</text>
+            <text x="475" y="70" fill="#edf7ff">벡터 v = (3, 2, 1)</text>
+          </svg>
+        </div>
+        <h3>벡터 덧셈과 뺄셈</h3>
+        <div class="formula">새 위치 = 현재 위치 + 이동량 &nbsp; | &nbsp; 목표로 가는 벡터 = 목표 위치 - 현재 위치</div>
+        <p>
+          내가 <code>(2, 0, 1)</code>, 목표가 <code>(7, 0, 4)</code>라면 목표 방향 벡터는
+          <code>(7-2, 0-0, 4-1) = (5, 0, 3)</code>입니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">프로젝트 곳곳에서 반복되는 가장 중요한 한 줄</div><button class="copy">복사</button>
+          <pre><code>Vector3 toTarget = targetPosition - currentPosition;</code></pre>
+        </div>
+        <div class="callout easy"><strong>한 줄 기억:</strong> 위치끼리 빼면 “한 위치에서 다른 위치로 가는 화살표”가 된다.</div>
+      </section>
+
+      <section id="distance">
+        <h2>3. 거리·방향·속력: 화살표를 재고 다듬기</h2>
+        <p><span class="level">기초</span>벡터의 길이는 거리 또는 속력이 됩니다.</p>
+        <div class="formula">2차원 길이 = √(x² + y²) &nbsp; | &nbsp; 3차원 길이 = √(x² + y² + z²)</div>
+        <p>
+          벡터 <code>(3, 4)</code>의 길이는 <code>√(3²+4²)=5</code>입니다.
+          피타고라스 정리가 게임 캐릭터와 목표 사이의 거리를 재는 도구가 된 셈입니다.
+        </p>
+        <div class="grid">
+          <div class="card">
+            <h3><code>magnitude</code></h3>
+            <p>진짜 길이를 구합니다. 내부에서 제곱근 계산이 필요합니다.</p>
+            <p><code>float distance = toTarget.magnitude;</code></p>
+          </div>
+          <div class="card">
+            <h3><code>sqrMagnitude</code></h3>
+            <p>길이의 제곱만 구합니다. “가까운가?”만 비교할 때 제곱근을 생략해 더 간단합니다.</p>
+            <p><code>toTarget.sqrMagnitude &lt; 0.01f</code></p>
+          </div>
+        </div>
+        <div class="formula">
+          거리 &lt; 3 인가? ⇔ 거리² &lt; 3² ⇔ <b>sqrMagnitude &lt; 9</b>
+        </div>
+        <h3>정규화: 길이를 1로 만든 방향표</h3>
+        <p>
+          <code>normalized</code>는 화살표 방향은 그대로 두고 길이만 1로 만듭니다.
+          그 뒤 원하는 속력을 곱하면 “정확히 그 방향으로 초당 몇 m”가 됩니다.
+        </p>
+        <div class="formula">방향 = 벡터 ÷ 벡터의 길이 &nbsp; | &nbsp; 속도 = 방향 × 속력</div>
+        <div class="code-wrap">
+          <div class="code-title">EnemyCircleState.cs · 거리와 방향을 한 번에 분리</div><button class="copy">복사</button>
+          <pre><code>float currentDistance = toTarget.magnitude;
+Vector3 dirToTarget = toTarget / currentDistance;
+Vector3 targetVelocity = moveDir * (_baseSpeed * speedMultiplier);</code></pre>
+        </div>
+        <div class="callout warning">
+          <strong>0으로 나누지 않기:</strong> 목표와 내 위치가 같으면 길이가 0입니다.
+          그래서 프로젝트는 먼저 <code>currentDistance &lt; 0.1f</code>를 검사하고 멈춥니다.
+        </div>
+        <h3>평면과 수직을 분리하기</h3>
+        <p>
+          TPS 캐릭터 이동은 땅 위 xz 이동과 중력의 y 이동을 따로 다뤄야 합니다.
+          <code>ActorVelocityUtility.ReplacePlanarPreserveVertical</code>은 원하는 속도에서 평면 성분만 가져오고,
+          실제 KCC 속도에서 위쪽 성분을 보존합니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">ActorVelocityUtility.cs:10</div><button class="copy">복사</button>
+          <pre><code>return Vector3.ProjectOnPlane(desiredVelocity, normalizedUp)
+       + normalizedUp * Vector3.Dot(authoritativeVelocity, normalizedUp);</code></pre>
+        </div>
+        <div class="source">근거: <code>GameActor/MovementController/ActorVelocityUtility.cs:10</code></div>
+      </section>
+
+      <section id="dot">
+        <h2>4. 내적: “얼마나 같은 방향인가?”를 숫자 하나로</h2>
+        <p><span class="level mid">중급</span>두 단위 방향 벡터의 내적은 -1부터 1 사이입니다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>내적 값</th><th>두 방향의 관계</th><th>게임 뜻</th></tr></thead>
+            <tbody>
+              <tr><td><code>1</code></td><td>완전히 같은 방향, 0°</td><td>정면</td></tr>
+              <tr><td><code>0</code></td><td>직각, 90°</td><td>정확히 옆</td></tr>
+              <tr><td><code>-1</code></td><td>완전히 반대, 180°</td><td>등 뒤</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="formula">a · b = a.x×b.x + a.y×b.y + a.z×b.z = |a||b|cos(θ)</div>
+        <h3>사례 A — 적의 시야각</h3>
+        <p>
+          <code>EnemyDetection.IsInFieldOfView</code>은 적의 앞 방향과 목표 방향 사이 각도를 구합니다.
+          전체 시야각이 120°면 중심에서 왼쪽 60°, 오른쪽 60°이므로 <code>0.5</code>를 곱합니다.
+        </p>
+        <div class="visual">
+          <svg viewBox="0 0 700 280" role="img" aria-label="적의 부채꼴 시야 범위">
+            <path d="M150 210 L565 65 A450 450 0 0 1 565 255 Z" fill="rgba(115,183,255,.13)" stroke="#73b7ff" stroke-width="2"/>
+            <circle cx="150" cy="210" r="14" fill="#ffd166"/>
+            <line x1="150" y1="210" x2="600" y2="210" stroke="#65e6be" stroke-width="4"/>
+            <circle cx="485" cy="145" r="14" fill="#ff8eaa"/>
+            <line x1="150" y1="210" x2="485" y2="145" stroke="#ff8eaa" stroke-width="3"/>
+            <text x="125" y="245" fill="#edf7ff">적</text><text x="470" y="125" fill="#edf7ff">플레이어</text>
+            <text x="360" y="197" fill="#65e6be">forward</text><text x="260" y="163" fill="#ff8eaa">directionToTarget</text>
+          </svg>
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">EnemyDetection.cs:170</div><button class="copy">복사</button>
+          <pre><code>Vector3 directionToTarget = (target.position - transform.position).normalized;
+float angle = Vector3.Angle(transform.forward, directionToTarget);
+return angle &lt;= _fieldOfView * 0.5f;</code></pre>
+        </div>
+        <h3>사례 B — 카메라 락온 후보 점수</h3>
+        <p>
+          <code>CameraLockOn</code>은 가까울수록, 카메라가 보는 방향에 있을수록 점수를 낮게 만들고
+          가장 낮은 후보를 고릅니다. 내적을 <code>(1-dot)/2</code>로 바꾸면 정면 0, 뒤 1의 편리한 점수가 됩니다.
+        </p>
+        <div class="formula">
+          거리 점수 = 거리 ÷ 최대 사거리<br>
+          각도 점수 = (1 - 내적) ÷ 2<br>
+          최종 점수 = 거리 점수 + 각도 점수 × 방향 가중치
+        </div>
+        <p>
+          예: 거리 점수 0.3, 내적 0.8, 방향 가중치 0.5라면
+          각도 점수는 0.1, 최종 점수는 <code>0.3 + 0.1×0.5 = 0.35</code>입니다.
+        </p>
+        <h3>사례 C — 속도를 접근 성분과 옆 성분으로 나누기</h3>
+        <p>
+          모션 워프는 내적으로 “목표 쪽으로 파고드는 속력”을 뽑습니다.
+          전체 수평 속도에서 그 성분을 빼면 목표 둘레로 흐르는 접선 속도만 남습니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">MotionWarpController.cs · ClampApproachVelocity</div><button class="copy">복사</button>
+          <pre><code>float approachSpeed = Vector3.Dot(horizontalVelocity, targetDirection);
+Vector3 tangent = horizontalVelocity - targetDirection * approachSpeed;</code></pre>
+        </div>
+        <div class="source">근거: <code>EnemyDetection.cs:170</code>, <code>CameraLockOn.cs:550</code>, <code>MotionWarpController.cs:743</code></div>
+      </section>
+
+      <section id="cross">
+        <h2>5. 외적과 법선: “두 방향에 모두 직각인 방향” 찾기</h2>
+        <p><span class="level mid">중급</span>외적 <code>Vector3.Cross(a, b)</code>는 a와 b 모두에 직각인 새 벡터를 만듭니다.</p>
+        <div class="grid">
+          <div class="card">
+            <h3>원 둘레 방향</h3>
+            <p>위쪽 벡터와 목표 방향을 외적하면 목표를 바라보며 옆으로 도는 접선 방향이 나옵니다.</p>
+            <p><code>Cross(up, toTarget)</code></p>
+          </div>
+          <div class="card">
+            <h3>회전축</h3>
+            <p>현재 위쪽과 경사면 법선을 외적하면 몸을 어느 축으로 기울여야 하는지 나옵니다.</p>
+            <p><code>Cross(up, groundNormal)</code></p>
+          </div>
+        </div>
+        <h3>지면의 법선이란?</h3>
+        <p>
+          법선(normal)은 표면에서 똑바로 튀어나온 화살표입니다. 평평한 바닥의 법선은 <code>(0,1,0)</code>,
+          경사면의 법선은 옆으로 조금 기웁니다. <code>FootIKController</code>는 각 발 아래로 Raycast를 쏴
+          바닥 높이와 법선을 얻습니다.
+        </p>
+        <div class="visual">
+          <svg viewBox="0 0 700 270" role="img" aria-label="경사면과 법선, 발 IK">
+            <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#73b7ff"/></marker></defs>
+            <line x1="70" y1="225" x2="620" y2="105" stroke="#ffd166" stroke-width="8"/>
+            <rect x="325" y="105" width="95" height="24" rx="8" fill="#ff8eaa" transform="rotate(-12 372 117)"/>
+            <line x1="370" y1="150" x2="330" y2="45" stroke="#73b7ff" stroke-width="5" marker-end="url(#arrow2)"/>
+            <line x1="370" y1="65" x2="370" y2="185" stroke="#65e6be" stroke-width="3" stroke-dasharray="8 7"/>
+            <text x="285" y="34" fill="#73b7ff">지면 법선 normal</text><text x="382" y="72" fill="#65e6be">아래로 Raycast</text>
+          </svg>
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">FootIKController.cs:349, 365</div><button class="copy">복사</button>
+          <pre><code>Physics.Raycast(origin, Vector3.down, out RaycastHit hit, _rayLength, _groundLayers);
+normal = hit.normal;
+
+Vector3 axis = Vector3.Cross(Vector3.up, avgNormal);
+float angle = Mathf.Min(Vector3.Angle(Vector3.up, avgNormal), _maxBodyTiltAngle);
+return Quaternion.AngleAxis(angle, axis.normalized);</code></pre>
+        </div>
+        <div class="callout advanced">
+          <strong>방향 순서 주의:</strong> <code>Cross(a,b)</code>와 <code>Cross(b,a)</code>는 반대 방향입니다.
+          오른손 손가락을 a에서 b로 감을 때 엄지가 가리키는 쪽을 떠올리면 됩니다.
+        </div>
+        <div class="source">근거: <code>FootIKController.cs:349</code>, <code>EnemyCircleState.cs:390</code></div>
+      </section>
+
+      <section id="rotation">
+        <h2>6. 각도와 회전: 방향을 바라보게 만들기</h2>
+        <p><span class="level">기초</span>Unity 코드에서는 “몇 도 돌기”와 “현재 자세 전체”를 구분합니다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>도구</th><th>뜻</th><th>프로젝트 사용</th></tr></thead>
+            <tbody>
+              <tr><td><code>Quaternion.Euler</code></td><td>x·y·z축 각도로 회전 만들기</td><td>원형 이동 방향, 시야 경계선</td></tr>
+              <tr><td><code>Quaternion.LookRotation</code></td><td>앞 방향이 주어진 벡터를 보도록 회전 만들기</td><td>투사체, 적, 모션 워프</td></tr>
+              <tr><td><code>Quaternion.Slerp</code></td><td>두 회전 사이를 구면 위에서 부드럽게 섞기</td><td>적 회전, IK, 카메라</td></tr>
+              <tr><td><code>Mathf.Atan2</code></td><td>x·z 방향을 -180°~180° 각도로 바꾸기</td><td>8방향 이동 애니메이션</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>왜 <code>Atan2(x, z)</code>일까?</h3>
+        <p>
+          평면 이동은 x와 z를 씁니다. <code>Atan2</code>는 두 값의 부호까지 보므로 앞·뒤·왼쪽·오른쪽을
+          모두 구별합니다. <code>EnemyCircleState</code>는 월드 속도를 적 기준 로컬 속도로 바꾼 다음 각도를 계산합니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">EnemyCircleState.cs · 로컬 이동 각도</div><button class="copy">복사</button>
+          <pre><code>Vector3 localVelocity = gameActor.transform.InverseTransformDirection(velocity);
+float localAngle = Mathf.Atan2(localVelocity.x, localVelocity.z) * Mathf.Rad2Deg;</code></pre>
+        </div>
+        <h3>도(degree)와 라디안(radian)</h3>
+        <p>
+          한 바퀴는 360°이면서 <code>2π</code> 라디안입니다. Unity의 <code>Sin</code>, <code>Cos</code>는 라디안을 받고,
+          사람이 조절하기 쉬운 Inspector 회전은 주로 도를 씁니다.
+        </p>
+        <div class="formula">라디안 = 도 × π ÷ 180 &nbsp; | &nbsp; 코드: <b>degrees * Mathf.Deg2Rad</b></div>
+        <div class="callout easy"><strong>한 줄 기억:</strong> 방향 벡터 → <code>LookRotation</code> → 바라보는 회전, xz 방향 → <code>Atan2</code> → 각도.</div>
+      </section>
+
+      <section id="time">
+        <h2>7. 시간·진행률·보간: 순간이동을 움직임으로 바꾸기</h2>
+        <p><span class="level">기초</span>게임은 작은 시간 조각인 프레임을 계속 이어 붙입니다.</p>
+        <div class="formula">이동량 = 속도 × 지난 시간(<b>deltaTime</b>)</div>
+        <p>
+          초당 6m로 0.02초 움직이면 이번 프레임 이동량은 <code>6 × 0.02 = 0.12m</code>입니다.
+          프레임 시간이 달라도 <code>deltaTime</code>을 곱하면 같은 실제 시간 동안 비슷한 거리를 갑니다.
+        </p>
+        <h3>0~1 진행률 만들기</h3>
+        <div class="formula">t = 지난 시간 ÷ 전체 시간 &nbsp; → &nbsp; Clamp01(t)</div>
+        <p><code>t=0</code>은 시작, <code>t=0.5</code>는 절반, <code>t=1</code>은 끝입니다.</p>
+        <h3>Lerp: 두 값 사이 섞기</h3>
+        <div class="formula">Lerp(A, B, t) = A × (1-t) + B × t</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>t</th><th>Lerp(10, 30, t)</th><th>뜻</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>10</td><td>완전히 A</td></tr>
+              <tr><td>0.25</td><td>15</td><td>A에서 25% 이동</td></tr>
+              <tr><td>0.5</td><td>20</td><td>정중앙</td></tr>
+              <tr><td>1</td><td>30</td><td>완전히 B</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>직선 시간과 느낌 좋은 시간</h3>
+        <p>
+          같은 t라도 가공하면 움직임 느낌이 달라집니다. 미니맵 확대는 <code>SmoothStep</code>을 사용하고,
+          모션 워프는 <code>1-(1-t)²</code>인 EaseOut을 사용해 빠르게 출발하고 부드럽게 도착합니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">UI_Minimap.TransitionZoom / MotionWarpController.EvaluateVelocity</div><button class="copy">복사</button>
+          <pre><code>float t = Mathf.Clamp01(elapsed / duration);
+t = Mathf.SmoothStep(0f, 1f, t);
+_currentMapZoom = Mathf.Lerp(startMapZoom, targetMapZoom, t);
+
+float eased = 1f - (1f - t) * (1f - t); // EaseOut 2차</code></pre>
+        </div>
+        <h3>프레임률에 강한 지수 감쇠</h3>
+        <p>
+          적의 속도와 회전은 <code>1 - exp(-sharpness × deltaTime)</code>을 Lerp 비율로 씁니다.
+          “매 프레임 10%”처럼 프레임 수에 의존하지 않고, 실제 시간에 따라 목표에 다가갑니다.
+        </p>
+        <div class="formula">이번 프레임 섞기 비율 = 1 - e<sup>-k·Δt</sup></div>
+        <div class="code-wrap">
+          <div class="code-title">EnemyCircleState.cs</div><button class="copy">복사</button>
+          <pre><code>currentVelocity = Vector3.Lerp(
+    currentVelocity,
+    targetVelocity,
+    1f - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));</code></pre>
+        </div>
+        <div class="callout advanced">
+          <strong>DirectionalVelocityDamper의 같은 생각:</strong>
+          <code>decayRatio = 1 - Exp(-Drag * deltaTime)</code>로 충격 속도를 줄입니다.
+          내적으로 현재 남아 있는 같은 방향 속도만 제거하므로 벽 충돌 뒤 반대 속도가 생기지 않습니다.
+        </div>
+        <div class="source">근거: <code>DirectionalVelocityDamper.cs:29</code>, <code>EnemyCircleState.cs:285, 381</code></div>
+      </section>
+
+      <section id="circle">
+        <h2>8. 원운동·거리 보정·노이즈: 기계 같지 않은 적 AI</h2>
+        <p><span class="level mid">중급</span><code>EnemyCircleState</code>는 타깃 주변을 돌되 완벽한 원처럼 반복하지 않습니다.</p>
+        <div class="steps">
+          <div class="step"><strong>타깃 방향을 구한다</strong><code>dirToTarget = toTarget / distance</code></div>
+          <div class="step"><strong>약 90° 돌려 접선 방향을 만든다</strong>왼쪽/오른쪽은 <code>_circleDirection</code>의 +1/-1로 정합니다.</div>
+          <div class="step"><strong>원하는 거리로 되돌리는 성분을 더한다</strong>너무 멀면 안쪽으로, 너무 가까우면 바깥쪽으로 움직입니다.</div>
+          <div class="step"><strong>Perlin Noise로 각도·거리·속도를 흔든다</strong>완전 난수보다 연속적으로 변해 자연스럽습니다.</div>
+          <div class="step"><strong>지면 접선에 투영하고 부드럽게 보간한다</strong>경사면에서도 땅을 따라 움직입니다.</div>
+        </div>
+        <div class="formula">
+          회전 각도 = 90° × 회전방향 + 각도노이즈 × 40°<br>
+          거리 오차 = 현재 거리 - 원하는 거리<br>
+          속력 배율 = Lerp(0.4, 1.0, 속도노이즈)
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">EnemyCircleState.cs:315 · 핵심 축약</div><button class="copy">복사</button>
+          <pre><code>float angleNoise = (Mathf.PerlinNoise(time * 0.8f, seed) - 0.5f) * 2f;
+float strafeAngle = 90f * _circleDirection + angleNoise * 40f;
+Vector3 moveDir = Quaternion.Euler(0, strafeAngle, 0) * dirToTarget;
+
+float distanceDiff = currentDistance - optimalDist;
+float radialCorrection = Mathf.Clamp(distanceDiff / optimalDist, -0.6f, 0.6f);
+moveDir = (moveDir + dirToTarget * radialCorrection).normalized;</code></pre>
+        </div>
+        <h3>왜 일반 Random 대신 Perlin Noise인가?</h3>
+        <div class="grid">
+          <div class="card">
+            <h3>일반 난수</h3>
+            <p class="muted">0.9 → 0.1 → 0.8처럼 갑자기 튈 수 있습니다. 매 프레임 방향에 쓰면 떨립니다.</p>
+          </div>
+          <div class="card">
+            <h3>Perlin Noise</h3>
+            <p class="muted">가까운 시간의 값이 비슷하게 이어집니다. 바람, 카메라 흔들림, 자연스러운 배회에 어울립니다.</p>
+          </div>
+        </div>
+        <div class="callout warning">
+          <strong>정규화의 역할:</strong> 접선 방향과 거리 보정 방향을 더하면 길이가 달라집니다.
+          마지막에 <code>.normalized</code>를 붙여 방향만 남기므로, 방향 변화가 의도치 않은 속력 변화로 번지지 않습니다.
+        </div>
+        <div class="source">근거: <code>GameActor/State/Enemy/EnemyCircleState.cs:315</code></div>
+      </section>
+
+      <section id="projectile">
+        <h2>9. 포물선 투사체: 직선 이동 + 가운데만 솟는 높이</h2>
+        <p><span class="level mid">중급</span><code>ArcingProjectile</code>은 물리 중력식을 직접 적분하지 않고, 시작점과 끝점을 보간한 뒤 예쁜 곡선 높이를 더합니다.</p>
+        <div class="formula">기본 위치 = Lerp(시작점, 목표점, t)<br>추가 높이 = <b>4t(1-t) × arcHeight</b></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>t</th><th>4t(1-t)</th><th>결과</th></tr></thead>
+            <tbody>
+              <tr><td>0</td><td>0</td><td>출발점에서는 높이를 더하지 않음</td></tr>
+              <tr><td>0.25</td><td>0.75</td><td>빠르게 상승</td></tr>
+              <tr><td>0.5</td><td>1</td><td>정중앙에서 정확히 arcHeight만큼 최고점</td></tr>
+              <tr><td>0.75</td><td>0.75</td><td>대칭으로 하강</td></tr>
+              <tr><td>1</td><td>0</td><td>목표점에 정확히 도착</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="visual">
+          <svg viewBox="0 0 700 280" role="img" aria-label="포물선 투사체 궤적">
+            <line x1="70" y1="230" x2="630" y2="230" stroke="#294057" stroke-width="3"/>
+            <path d="M90 220 Q350 15 610 220" fill="none" stroke="#65e6be" stroke-width="6"/>
+            <circle cx="90" cy="220" r="12" fill="#73b7ff"/><circle cx="350" cy="118" r="10" fill="#ffd166"/><circle cx="610" cy="220" r="12" fill="#ff8eaa"/>
+            <line x1="350" y1="220" x2="350" y2="118" stroke="#ffd166" stroke-dasharray="8 7"/>
+            <text x="66" y="260" fill="#edf7ff">t=0 시작</text><text x="322" y="98" fill="#ffd166">t=0.5 최고점</text><text x="574" y="260" fill="#edf7ff">t=1 목표</text>
+          </svg>
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">ArcingProjectile.cs:86</div><button class="copy">복사</button>
+          <pre><code>float t = Mathf.Clamp01(_elapsedTime / _flightDuration);
+float curved = _progressCurve.Evaluate(t);
+
+Vector3 basePos = Vector3.Lerp(_startPos, _targetPos, curved);
+float arc = 4f * curved * (1f - curved) * _arcHeight;
+Vector3 newPos = basePos + Vector3.up * arc;</code></pre>
+        </div>
+        <h3>비행 시간과 속력</h3>
+        <div class="formula">비행 시간 = 시작점과 목표점의 직선거리 ÷ 설정 속력</div>
+        <p>
+          여기서 속력은 곡선 전체 길이를 따라가는 실제 일정 속력이 아니라, <strong>비행 시간을 정하는 기준 속력</strong>입니다.
+          높이와 진행 곡선 때문에 매 순간의 실제 속도 크기는 달라질 수 있습니다.
+        </p>
+        <h3>빠른 투사체가 벽을 통과하지 않게 하기</h3>
+        <p>
+          이번 프레임의 새 위치만 겹침 검사하면 얇은 벽 건너편으로 건너뛸 수 있습니다.
+          그래서 이전 위치에서 새 위치까지 반지름을 가진 구를 쓸어 보내는 <code>SphereCast</code>를 사용합니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">ArcingProjectile.CheckCollision</div><button class="copy">복사</button>
+          <pre><code>Vector3 move = transform.position - _previousPosition;
+float distance = move.magnitude;
+Physics.SphereCast(
+    _previousPosition, _collisionRadius, move.normalized,
+    out RaycastHit hit, distance, hitLayers);</code></pre>
+        </div>
+        <div class="source">근거: <code>GameActor/Object/Projectile/ArcingProjectile.cs:86</code></div>
+      </section>
+
+      <section id="warp">
+        <h2>10. 모션 워프: 애니메이션 발걸음을 목표에 맞추기</h2>
+        <p><span class="level high">도전</span>공격 애니메이션의 루트모션은 원래 정해진 거리만큼 움직입니다. 목표가 조금 멀거나 움직이면 칼이 허공을 칠 수 있습니다. <code>MotionWarpController</code>는 원래 움직임의 느낌을 살리면서 목표까지의 오차를 나눠 보정합니다.</p>
+        <h3>가장 쉬운 생각: 남은 거리 ÷ 남은 시간</h3>
+        <div class="formula">필요 속력 = 목표까지 남은 거리 ÷ 남은 시간</div>
+        <p>5m 남았고 0.5초가 남았다면 평균 10m/s가 필요합니다. 다만 최대 속력으로 제한합니다.</p>
+        <h3>예측 타깃</h3>
+        <div class="formula">예측 위치 = 현재 타깃 위치 + 타깃 속도 × 예측비율 × 남은 시간</div>
+        <p>움직이는 적이 1초 뒤 있을 법한 위치를 미리 겨냥하는 기본적인 등속도 예측입니다.</p>
+        <div class="code-wrap">
+          <div class="code-title">MotionWarpController.cs:552</div><button class="copy">복사</button>
+          <pre><code>targetWorld += _targetVelocity * factor * remainingTime;
+
+Vector3 toTarget = targetWorld - currentPosition;
+toTarget.y = 0f;
+float remainingDist = toTarget.magnitude;</code></pre>
+        </div>
+        <h3>Delta Warp의 핵심: 보정량을 프레임 몫으로 나누기</h3>
+        <p>
+          캐시된 애니메이션의 남은 이동량과 목표까지 남은 이동량의 차이가 총 보정량입니다.
+          이번 프레임 루트모션이 남은 경로에서 차지하는 비율만큼 보정을 적용합니다.
+        </p>
+        <div class="formula">
+          총 보정 = 목표까지 벡터 - 애니메이션이 앞으로 만들 남은 이동<br>
+          이번 프레임 몫 = 이번 프레임 이동거리 ÷ 남은 루트 경로<br>
+          이번 프레임 이동 = 원래 이동 + 총 보정 × 이번 프레임 몫
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">MotionWarpController.EvaluateDeltaWarpVelocity · 개념 핵심</div><button class="copy">복사</button>
+          <pre><code>Vector3 correctionTotal = toTarget - remainingRawWorld;
+float share = Mathf.Clamp01(rawFrameDist / remainingPath);
+Vector3 frameWarped = gainHoriz * deltaTime + correctionTotal * share;
+return ClampHorizontal(frameWarped / deltaTime, rootVelocity.y, maxSpeed);</code></pre>
+        </div>
+        <h3>캡슐끼리 겹치지 않도록 접근 속도 제한</h3>
+        <p>
+          공격자가 목표 중심까지 들어가면 두 Collider가 겹칩니다. 두 캡슐의 수평 반지름과 작은 여유를 더해
+          원하는 정지 거리를 만들고, 이번 프레임에 허용되는 접근 속력을 계산합니다.
+        </p>
+        <div class="formula">허용 접근 속력 = max(0, (현재 거리 - 원하는 거리) ÷ deltaTime)</div>
+        <div class="callout advanced">
+          <strong>폐루프(closed loop):</strong> 매 프레임 새로 남은 오차를 재므로 이전 프레임에서 최대 속력 제한으로
+          덜 움직였거나 타깃이 이동해도 다음 프레임에 다시 고칩니다. “한 번 계산하고 끝”이 아니라 계속 결과를 확인하는 방식입니다.
+        </div>
+        <div class="source">근거: <code>GameActor/MovementController/MotionWarpController.cs:552, 743, 840</code></div>
+      </section>
+
+      <section id="camera">
+        <h2>11. 카메라 수학: 3D 목표를 화면에 담고 흔들기</h2>
+        <h3>A. 월드 좌표를 화면 좌표로</h3>
+        <p>
+          <code>WorldToViewportPoint</code>는 3D 위치를 화면의 정규화 좌표로 바꿉니다.
+          x와 y가 0~1 사이면 화면 안, z가 0 이하이면 카메라 뒤입니다.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Viewport 좌표</th><th>화면 위치</th></tr></thead>
+            <tbody>
+              <tr><td><code>(0, 0)</code></td><td>왼쪽 아래</td></tr>
+              <tr><td><code>(0.5, 0.5)</code></td><td>정중앙</td></tr>
+              <tr><td><code>(1, 1)</code></td><td>오른쪽 위</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          락온 전환은 현재 타깃과 후보의 화면 x 차이, 화면 중앙과의 차이, 월드 거리를 가중합합니다.
+          여러 기준의 단위를 0~1 비슷한 범위로 만든 뒤 가중치를 곱하는 것이 핵심입니다.
+        </p>
+        <div class="formula">
+          전환 점수 = 화면 가로 간격×W₁ + 중앙 간격×W₂ + 거리 점수×W₃
+        </div>
+        <h3>B. 카메라 흔들림은 파형 × 세기 곡선</h3>
+        <p>
+          <code>CameraShaker</code>는 Perlin Noise 또는 여러 사인파를 섞어 흔들림 모양을 만들고,
+          시간에 따른 <code>ShakeCurve</code>로 점점 줄어드는 외피(envelope)를 곱합니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">CameraShaker.cs:366</div><button class="copy">복사</button>
+          <pre><code>float angle = coord * TAU + phase;
+return Mathf.Sin(angle) * 0.7f
+     + Mathf.Sin(angle * 1.7f) * 0.3f;
+
+float env = GLOBAL_SHAKE_MULTIPLIER
+          * d.ShakeCurve.Evaluate(t)
+          * v.Strength;</code></pre>
+        </div>
+        <p>
+          70%짜리 기본 파동과 30%짜리 1.7배 빠른 파동을 합치면 완벽한 반복보다 복잡한 진동이 됩니다.
+          서로 다른 주파수를 합쳐 복잡한 모양을 만드는 것은 소리와 파동에서도 같은 원리입니다.
+        </p>
+        <h3>C. 공격 방향에 따른 Pitch/Yaw</h3>
+        <p>
+          공격 방향을 카메라의 위·오른쪽 방향과 각각 내적해 세로/가로 충격 성분을 구합니다.
+          수직 공격은 Pitch를, 옆 공격은 Yaw를 더 강조할 수 있습니다.
+        </p>
+        <div class="source">근거: <code>Camera/CameraLockOn.cs:550, 669</code>, <code>Camera/CameraShaker.cs:188, 315, 366</code></div>
+      </section>
+
+      <section id="minimap">
+        <h2>12. 미니맵 좌표 변환: 넓은 월드를 작은 종이에</h2>
+        <p><span class="level mid">중급</span><code>MinimapIconConfigSO</code>는 월드의 xz 위치를 UI의 xy 픽셀 위치로 바꿉니다.</p>
+        <div class="steps">
+          <div class="step"><strong>중심 빼기</strong>월드 위치에서 캡처 중심을 빼 원점을 맞춥니다.</div>
+          <div class="step"><strong>월드 크기로 나누기</strong>큰 미터 단위를 작은 정규화 단위로 바꿉니다.</div>
+          <div class="step"><strong>필요하면 축 뒤집기</strong>지도 이미지의 좌우·상하 방향과 맞춥니다.</div>
+          <div class="step"><strong>2D 회전하기</strong>지도 이미지가 돌아가 있다면 sin·cos 회전식을 적용합니다.</div>
+          <div class="step"><strong>표시 픽셀 크기 곱하기</strong>최종 UI 픽셀 좌표로 바꿉니다.</div>
+        </div>
+        <div class="formula">
+          normalized.x = (world.x - center.x) ÷ worldWidth<br>
+          normalized.y = (world.z - center.z) ÷ worldHeight
+        </div>
+        <h3>2D 회전 공식</h3>
+        <div class="formula">
+          x' = x cosθ - y sinθ<br>
+          y' = x sinθ + y cosθ
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">MinimapIconConfigSO.cs:178</div><button class="copy">복사</button>
+          <pre><code>float radians = degrees * Mathf.Deg2Rad;
+float sin = Mathf.Sin(radians);
+float cos = Mathf.Cos(radians);
+
+return new Vector2(
+    value.x * cos - value.y * sin,
+    value.x * sin + value.y * cos);</code></pre>
+        </div>
+        <h3>플레이어를 항상 중앙에 놓기</h3>
+        <p>
+          <code>UI_Minimap.CalcMinimapPos</code>는 대상의 맵 좌표에서 플레이어의 맵 좌표를 뺍니다.
+          그래서 플레이어는 항상 <code>(0,0)</code>, 즉 중앙이고 다른 아이콘은 상대 위치로 표시됩니다.
+        </p>
+        <div class="formula">아이콘 위치 = (대상의 맵 위치 - 플레이어의 맵 위치) × 현재 줌</div>
+        <h3>역변환도 가능하다</h3>
+        <p>
+          지도 클릭 위치를 월드 위치로 되돌릴 때는 순서를 거꾸로 합니다.
+          픽셀 크기로 나누고, 반대 각도만큼 회전하고, 축을 되돌리고, 월드 크기를 곱한 뒤 중심을 더합니다.
+          함수와 역함수의 실제 게임 예입니다.
+        </p>
+        <div class="callout easy"><strong>한 줄 기억:</strong> 큰 세계를 작은 지도로 바꾸려면 “중심 맞추기 → 크기 나누기 → 회전 → 픽셀 크기 곱하기”.</div>
+        <div class="source">근거: <code>Data/UI/MinimapIconConfigSO.cs:143, 158, 178</code>, <code>Cycle/Assist/UI/UI_Minimap.cs:613</code></div>
+      </section>
+
+      <section id="combat">
+        <h2>13. 피해량 수학: 여러 배율을 안전하게 곱하기</h2>
+        <p><span class="level">기초</span><code>DamageExecution.Calculate</code>은 전투의 최종 피해를 곱셈식으로 계산합니다.</p>
+        <div class="formula">
+          최종 피해 = 기본 피해 × 공격력 × (1-방어율) × 받는 피해 배율 × 속성 배율 × 치명타 배율
+        </div>
+        <p>예를 들어 기본 피해 100, 공격력 1.2, 방어율 25%, 취약 1.1, 속성 1.0, 치명타 1.5라면:</p>
+        <div class="formula">100 × 1.2 × (1-0.25) × 1.1 × 1.0 × 1.5 = <b>148.5</b></div>
+        <div class="code-wrap">
+          <div class="code-title">StandardGameplayExecutions.cs:80</div><button class="copy">복사</button>
+          <pre><code>float finalDamage = normalizedBase
+    * Math.Max(0f, attackPower)
+    * (1f - Math.Min(Math.Max(defenseRate, 0f), 1f))
+    * Math.Max(0f, damageTakenMultiplier)
+    * Math.Max(0f, elementMultiplier)
+    * Math.Max(1f, criticalMultiplier);
+
+return normalizedBase &gt; 0f ? Math.Max(1f, finalDamage) : 0f;</code></pre>
+        </div>
+        <h3>왜 방어력은 <code>1 - 방어율</code>일까?</h3>
+        <p>
+          방어율 0.25는 25%를 막는다는 뜻입니다. 통과하는 몫은 75%, 즉 <code>1 - 0.25 = 0.75</code>입니다.
+          방어율은 0~1로 제한되므로 음수 피해나 100% 초과 방어를 막습니다.
+        </p>
+        <h3>최솟값과 최댓값은 게임 규칙이다</h3>
+        <ul>
+          <li>기본 피해와 공격 배율은 최소 0: 음수 피해 방지</li>
+          <li>치명타 배율은 최소 1: “치명타”가 일반 공격보다 약해지지 않음</li>
+          <li>기본 피해가 양수면 최종 피해 최소 1: 방어가 높아도 0 피해가 되지 않음</li>
+        </ul>
+        <div class="callout warning">
+          <strong>퍼센트와 배율 구분:</strong> 25%는 계산에서 <code>0.25</code>, 25% 증가 배율은 <code>1.25</code>입니다.
+          둘을 혼동하면 결과가 4~100배까지 틀어질 수 있습니다.
+        </div>
+        <div class="source">근거: <code>Ability/Core/StandardGameplayExecutions.cs:80</code>, <code>GameActor/Combat/Resolution/DamageResolver.cs</code></div>
+      </section>
+
+      <section id="random">
+        <h2>14. 확률·가중치·시드: 우연을 설계하기</h2>
+        <h3>A. 가중치 랜덤 선택</h3>
+        <p>
+          <code>WeightedRandomSelectorNode</code>는 행동마다 원하는 상대적 빈도를 줍니다.
+          가중치가 공격 6, 회피 3, 대기 1이면 합은 10이고 확률은 각각 60%, 30%, 10%입니다.
+        </p>
+        <div class="formula">행동 확률 = 그 행동의 가중치 ÷ 모든 가중치의 합</div>
+        <div class="visual">
+          <svg viewBox="0 0 700 180" role="img" aria-label="가중치 구간에서 랜덤 숫자를 뽑는 그림">
+            <rect x="60" y="60" width="348" height="58" fill="#65e6be"/><rect x="408" y="60" width="174" height="58" fill="#73b7ff"/><rect x="582" y="60" width="58" height="58" fill="#ffd166"/>
+            <text x="205" y="95" fill="#04130e" font-weight="800">공격 0~6</text><text x="452" y="95" fill="#06111b" font-weight="800">회피 6~9</text><text x="589" y="95" fill="#161307" font-weight="800">대기</text>
+            <line x1="476" y1="35" x2="476" y2="132" stroke="#ff8eaa" stroke-width="5"/><text x="442" y="25" fill="#ff8eaa">roll=7.2</text>
+          </svg>
+        </div>
+        <div class="code-wrap">
+          <div class="code-title">WeightedRandomSelectorNode.cs:96</div><button class="copy">복사</button>
+          <pre><code>float roll = Random.value * totalWeight;
+float cumulative = 0f;
+
+for (int i = 0; i &lt; _remaining.Count; i++)
+{
+    cumulative += GetWeight(_remaining[i]);
+    if (roll &lt;= cumulative)
+        return _remaining[i];
+}</code></pre>
+        </div>
+        <p>
+          0부터 전체 가중치 사이에서 자를 한 번 던지고, 누적 구간에 들어간 행동을 고릅니다.
+          실패한 자식은 풀에서 빼고 남은 행동 중 다시 뽑기 때문에 같은 실행 중 중복 선택도 피합니다.
+        </p>
+        <h3>B. 모든 가중치가 0이면?</h3>
+        <p>
+          나눗셈이 불가능하므로 프로젝트는 남은 자식 중 균등 랜덤으로 폴백합니다.
+          예외 상황의 규칙까지 정하는 것이 좋은 확률 코드입니다.
+        </p>
+        <h3>C. 시드 기반 난수: 같은 시작 숫자, 같은 결과 순서</h3>
+        <p>
+          사이클 런은 <code>System.Random(seed)</code>를 사용합니다. 같은 시드와 같은 호출 순서라면 같은 배치가 나와
+          버그 재현과 저장·로드에 유리합니다. Layout과 BossPool은 스트림을 나눠 한쪽의 난수 호출 변화가 다른 쪽 결과를
+          쉽게 흔들지 않게 합니다.
+        </p>
+        <div class="code-wrap">
+          <div class="code-title">CycleRunManager.cs:442, 568</div><button class="copy">복사</button>
+          <pre><code>public System.Random CreateRandom(CycleRandomStream stream)
+{
+    return new System.Random(DeriveStreamSeed(_current.seed, stream));
+}</code></pre>
+        </div>
+        <div class="callout advanced">
+          <strong>파생 시드 섞기:</strong> <code>DeriveStreamSeed</code>는 비트 이동, XOR, 큰 상수 곱셈으로
+          비슷한 입력 시드를 서로 멀리 퍼뜨립니다. 암호화가 목적이 아니라, 스트림마다 고르게 다른 난수 시작 상태를 만들기 위한 정수 해시입니다.
+        </div>
+        <div class="callout warning">
+          <strong>랜덤은 “이번 한 번”을 보장하지 않는다:</strong> 60% 행동이 두 번 연속 안 나올 수도 있습니다.
+          확률은 아주 많이 반복했을 때의 비율을 설명합니다.
+        </div>
+        <div class="source">근거: <code>WeightedRandomSelectorNode.cs:96</code>, <code>CycleRunManager.cs:442, 568</code>, <code>CycleWorldSpawnService.cs:47</code></div>
+      </section>
+
+      <section id="safe">
+        <h2>15. 실제 프로젝트에서 발견한 안전한 수학 코드 습관</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>문제</th><th>프로젝트의 방어법</th><th>이유</th></tr></thead>
+            <tbody>
+              <tr><td>0으로 나누기</td><td><code>distance &gt; 0.0001f</code> 확인</td><td>Infinity·NaN 방지</td></tr>
+              <tr><td>진행률이 범위 밖</td><td><code>Mathf.Clamp01(t)</code></td><td>0~1 보간 범위 유지</td></tr>
+              <tr><td>음수 속력·피해</td><td><code>Mathf.Max(0f, value)</code></td><td>의미 없는 음수 차단</td></tr>
+              <tr><td>너무 큰 속도</td><td>방향은 유지하고 <code>normalized * maxSpeed</code></td><td>안정성과 게임 규칙 유지</td></tr>
+              <tr><td>거리 비교가 매우 잦음</td><td><code>sqrMagnitude</code>와 반지름² 비교</td><td>불필요한 제곱근 생략</td></tr>
+              <tr><td>목표와 같은 위치</td><td>정규화 전에 작은 길이 검사</td><td>방향 없는 벡터 처리</td></tr>
+              <tr><td>프레임률 차이</td><td><code>deltaTime</code>, 지수 감쇠 사용</td><td>실제 시간 기준 동작</td></tr>
+              <tr><td>투사체 터널링</td><td>이전→현재 구간 <code>SphereCast</code></td><td>프레임 사이 충돌 확인</td></tr>
+              <tr><td>화면 밖 락온</td><td>Viewport x/y/z 범위 검사 후 벌점</td><td>보이지 않는 목표 우선 방지</td></tr>
+              <tr><td>지도 크기 0</td><td><code>Mathf.Epsilon</code> 이상의 안전 크기</td><td>좌표 변환 나눗셈 보호</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>매직 숫자도 뜻을 적으면 수학이 읽힌다</h3>
+        <p>
+          <code>0.0001f</code>, <code>0.01f</code> 같은 작은 수는 “완전한 0 대신 충분히 작은 값”이라는 허용 오차입니다.
+          단위와 목적을 상수명·Tooltip·주석으로 남겨야 나중에 안전하게 조절할 수 있습니다.
+        </p>
+        <div class="callout warning">
+          <strong>단위를 섞지 않기:</strong> 도와 라디안, m와 픽셀, 초와 프레임, 퍼센트와 배율을 같은 숫자처럼 더하면 안 됩니다.
+          변수명에 <code>Degrees</code>, <code>Duration</code>, <code>Distance</code>, <code>Multiplier</code>가 붙는 이유입니다.
+        </div>
+      </section>
+
+      <section id="practice">
+        <h2>16. 손으로 풀고 코드로 확인하는 연습 문제</h2>
+        <p>먼저 종이에 답을 적고 펼쳐 보세요. 계산기 없이 풀 수 있는 값으로 만들었습니다.</p>
+
+        <details>
+          <summary>문제 1 · 좌표 빼기 <span class="level">기초</span></summary>
+          <div>
+            <p>플레이어가 <code>(2,0,3)</code>, 적이 <code>(7,0,1)</code>에 있습니다. 플레이어에서 적으로 가는 벡터는?</p>
+            <p><strong>정답:</strong> <code>(7,0,1) - (2,0,3) = (5,0,-2)</code></p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 2 · 제곱 거리 <span class="level">기초</span></summary>
+          <div>
+            <p>x 차이 3, z 차이 4일 때 거리와 제곱 거리는?</p>
+            <p><strong>정답:</strong> 제곱 거리는 <code>3²+4²=25</code>, 거리는 <code>√25=5</code>.</p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 3 · Lerp <span class="level">기초</span></summary>
+          <div>
+            <p><code>Lerp(20, 60, 0.25)</code>의 값은?</p>
+            <p><strong>정답:</strong> 전체 차이 40의 25%는 10이므로 <code>20+10=30</code>.</p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 4 · 포물선 높이 <span class="level mid">중급</span></summary>
+          <div>
+            <p><code>arcHeight=8</code>이고 <code>t=0.5</code>일 때 추가 높이는?</p>
+            <p><strong>정답:</strong> <code>4×0.5×(1-0.5)×8 = 8</code>. 정중앙에서는 설정 높이와 같습니다.</p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 5 · 방어율 <span class="level mid">중급</span></summary>
+          <div>
+            <p>기본 피해 80, 공격력 1.5, 방어율 20%, 나머지 배율 1일 때 피해는?</p>
+            <p><strong>정답:</strong> <code>80×1.5×(1-0.2)=96</code>.</p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 6 · 가중치 <span class="level mid">중급</span></summary>
+          <div>
+            <p>A, B, C의 가중치가 2, 3, 5일 때 각 확률은?</p>
+            <p><strong>정답:</strong> 합 10. A 20%, B 30%, C 50%.</p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 7 · 버그 찾기 <span class="level high">도전</span></summary>
+          <div>
+            <pre><code>Vector3 direction = toTarget / toTarget.magnitude;</code></pre>
+            <p>무슨 검사가 빠졌을까요?</p>
+            <p><strong>정답:</strong> <code>toTarget.magnitude</code>가 0 또는 매우 작은지 먼저 확인해야 합니다.
+              프로젝트처럼 <code>sqrMagnitude &gt; 0.0001f</code>를 검사하거나 안전한 <code>normalized</code> 사용 의도를 명확히 해야 합니다.</p>
+          </div>
+        </details>
+        <details>
+          <summary>문제 8 · 설계 생각하기 <span class="level high">도전</span></summary>
+          <div>
+            <p>적의 락온 점수에서 거리 가중치를 너무 크게 하면 어떤 일이 생길까요?</p>
+            <p><strong>예상 답:</strong> 화면 중앙의 중요한 적보다 옆이나 뒤의 아주 가까운 적이 선택될 수 있습니다.
+              반대로 방향 가중치가 너무 크면 조금 먼 정면 적만 선호합니다. 플레이 감각에 맞춰 정규화와 가중치를 함께 튜닝해야 합니다.</p>
+          </div>
+        </details>
+
+        <h3>직접 코드를 읽는 5단계</h3>
+        <div class="steps">
+          <div class="step"><strong>입력 찾기</strong>위치, 속도, 시간, 반지름, 배율 중 무엇을 받는가?</div>
+          <div class="step"><strong>단위 적기</strong>m, m/s, 초, 도, 0~1 비율, 픽셀을 옆에 메모한다.</div>
+          <div class="step"><strong>0과 1 넣기</strong>시작·끝·0거리 같은 경계값에서 식이 어떻게 되는지 본다.</div>
+          <div class="step"><strong>그림 그리기</strong>벡터는 화살표, 범위는 원, 시야는 부채꼴로 그린다.</div>
+          <div class="step"><strong>안전장치 찾기</strong>Clamp, Max, epsilon, null, 최대 속력 제한을 표시한다.</div>
+        </div>
+      </section>
+
+      <section id="sources">
+        <h2>17. 실제 소스 지도와 작은 용어집</h2>
+        <p>아래 줄 번호는 2026-07-28 분석 시점 기준이며 이후 코드 편집으로 달라질 수 있습니다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>주제</th><th>핵심 파일·시작 줄</th><th>볼 수 있는 수학</th></tr></thead>
+            <tbody>
+              <tr><td>포물선</td><td><code>GameActor/Object/Projectile/ArcingProjectile.cs:86</code></td><td>정규화 시간, Lerp, 2차 곡선, SphereCast</td></tr>
+              <tr><td>적 시야</td><td><code>GameActor/Component/Enemy/EnemyDetection.cs:170</code></td><td>벡터 차, 정규화, 각도, Raycast</td></tr>
+              <tr><td>원형 AI</td><td><code>GameActor/State/Enemy/EnemyCircleState.cs:315</code></td><td>회전, 노이즈, 거리 보정, 지수 감쇠</td></tr>
+              <tr><td>평면 속도</td><td><code>GameActor/MovementController/ActorVelocityUtility.cs:10</code></td><td>평면 투영, 내적, 벡터 분해</td></tr>
+              <tr><td>충격 감쇠</td><td><code>GameActor/MovementController/DirectionalVelocityDamper.cs:29</code></td><td>지수 감쇠, 내적, 성분 제거</td></tr>
+              <tr><td>모션 워프</td><td><code>GameActor/MovementController/MotionWarpController.cs:552</code></td><td>예측, 속도, 비율 보정, 캡슐 반지름</td></tr>
+              <tr><td>락온</td><td><code>Camera/CameraLockOn.cs:550</code></td><td>내적 점수, Viewport, 가중합</td></tr>
+              <tr><td>카메라 흔들림</td><td><code>Camera/CameraShaker.cs:315</code></td><td>Perlin Noise, 사인파, 곡선 외피</td></tr>
+              <tr><td>발 IK</td><td><code>GameActor/Component/Player/FootIKController.cs:349</code></td><td>Raycast, 법선, 외적, 회전축</td></tr>
+              <tr><td>미니맵</td><td><code>Data/UI/MinimapIconConfigSO.cs:178</code></td><td>정규화, 축 반전, sin·cos 2D 회전</td></tr>
+              <tr><td>피해량</td><td><code>Ability/Core/StandardGameplayExecutions.cs:80</code></td><td>퍼센트, 곱셈 배율, 범위 제한</td></tr>
+              <tr><td>가중치 랜덤</td><td><code>GameActor/AI/BehaviorTree/Nodes/Composite/WeightedRandomSelectorNode.cs:96</code></td><td>확률, 누적 구간</td></tr>
+              <tr><td>시드 난수</td><td><code>Manager/Cycle/CycleRunManager.cs:568</code></td><td>결정적 난수, 정수 해시, 독립 스트림</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>용어집</h3>
+        <div class="grid">
+          <div class="card"><h4>스칼라 Scalar</h4><p class="muted">숫자 하나. 속력, 거리, 시간, 체력처럼 크기만 있습니다.</p></div>
+          <div class="card"><h4>벡터 Vector</h4><p class="muted">여러 축의 숫자 묶음. 크기와 방향을 함께 나타낼 수 있습니다.</p></div>
+          <div class="card"><h4>정규화 Normalize</h4><p class="muted">방향을 유지하며 길이를 1로 만드는 것.</p></div>
+          <div class="card"><h4>내적 Dot</h4><p class="muted">두 방향이 얼마나 같은 쪽인지 숫자 하나로 재는 연산.</p></div>
+          <div class="card"><h4>외적 Cross</h4><p class="muted">두 벡터 모두에 직각인 방향을 만드는 연산.</p></div>
+          <div class="card"><h4>법선 Normal</h4><p class="muted">표면에서 수직으로 튀어나온 단위 방향.</p></div>
+          <div class="card"><h4>보간 Interpolation</h4><p class="muted">시작값과 끝값 사이 값을 만들어 부드럽게 잇는 것.</p></div>
+          <div class="card"><h4>투영 Projection</h4><p class="muted">벡터의 그림자를 특정 방향이나 평면 위에 내리는 것.</p></div>
+          <div class="card"><h4>Quaternion</h4><p class="muted">3D 회전을 안정적으로 담는 네 숫자 구조. 보통 직접 성분 계산보다 Unity API로 다룹니다.</p></div>
+          <div class="card"><h4>Noise</h4><p class="muted">자연스러운 불규칙성을 만드는 값. Perlin Noise는 가까운 값이 부드럽게 이어집니다.</p></div>
+          <div class="card"><h4>Clamp</h4><p class="muted">값이 정한 최솟값과 최댓값 밖으로 나가지 못하게 자르는 것.</p></div>
+          <div class="card"><h4>Epsilon</h4><p class="muted">컴퓨터 소수 계산에서 0에 매우 가깝다고 판단할 작은 기준값.</p></div>
+        </div>
+        <div class="callout easy">
+          <strong>마지막 한 문장:</strong> 복잡해 보이는 게임 수학도 결국
+          “빼서 방향 찾기 → 길이 재기 → 0~1로 바꾸기 → 필요한 만큼 곱하고 섞기 → 범위를 지키기”의 조합입니다.
+        </div>
+      </section>
+
+      <footer>
+        UPlayground 게임 수학 학습 가이드 · 실제 프로젝트 소스 분석 기반 · 오프라인 열람 및 브라우저 PDF 인쇄 지원
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    document.querySelectorAll(".copy").forEach(button => {
+      button.addEventListener("click", async () => {
+        const code = button.closest(".code-wrap").querySelector("code").innerText;
+        try {
+          await navigator.clipboard.writeText(code);
+          const before = button.textContent;
+          button.textContent = "복사됨";
+          setTimeout(() => button.textContent = before, 1200);
+        } catch {
+          button.textContent = "선택 후 복사";
+        }
+      });
+    });
+
+    const links = [...document.querySelectorAll("nav a")];
+    const targets = links
+      .map(link => document.querySelector(link.getAttribute("href")))
+      .filter(Boolean);
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      links.forEach(link => {
+        link.classList.toggle(
+          "active",
+          link.getAttribute("href") === "#" + visible.target.id);
+      });
+    }, { rootMargin: "-10% 0px -72% 0px", threshold: [0, .2, .6] });
+    targets.forEach(target => observer.observe(target));
+  </script>
+</body>
+</html>

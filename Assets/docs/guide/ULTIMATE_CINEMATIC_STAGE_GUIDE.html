@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>궁극기 암전 · 별도 스테이지 연출 가이드</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --panel: #101c2b;
+      --panel-2: #142438;
+      --line: #29415d;
+      --text: #e8f0f8;
+      --muted: #9eb0c3;
+      --cyan: #59d8ff;
+      --mint: #6ee7b7;
+      --amber: #fbbf6a;
+      --red: #fb7185;
+      --violet: #b79cff;
+      --sidebar: 270px;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(89, 216, 255, .10), transparent 28rem),
+        radial-gradient(circle at 15% 55%, rgba(183, 156, 255, .08), transparent 30rem),
+        var(--bg);
+      font-family: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+      line-height: 1.72;
+      word-break: keep-all;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+    code {
+      padding: .12rem .38rem;
+      border: 1px solid rgba(89, 216, 255, .16);
+      border-radius: 6px;
+      color: #bceeff;
+      background: rgba(89, 216, 255, .07);
+      font-size: .92em;
+    }
+    pre {
+      margin: 14px 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0b1624;
+      font-size: .85rem;
+      line-height: 1.6;
+    }
+    pre code { padding: 0; border: 0; background: none; color: #d7e6f4; }
+
+    .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky; top: 0; height: 100vh;
+      padding: 28px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 17, 29, .92);
+      overflow-y: auto;
+    }
+    .brand { font-size: 1.05rem; font-weight: 800; }
+    .brand small { display: block; color: var(--muted); font-size: .78rem; font-weight: 500; }
+    nav { margin-top: 20px; display: flex; flex-direction: column; gap: 2px; }
+    nav a { padding: 7px 10px; border-radius: 8px; color: var(--text); font-size: .88rem; }
+    nav a:hover { background: var(--panel-2); text-decoration: none; }
+
+    main { padding: 40px 48px 80px; max-width: 980px; }
+    h1 { margin: 0 0 6px; font-size: 1.9rem; letter-spacing: -.02em; }
+    .subtitle { color: var(--muted); margin-bottom: 34px; }
+    h2 {
+      margin: 46px 0 14px; padding-top: 18px; font-size: 1.32rem;
+      border-top: 1px solid var(--line);
+    }
+    h3 { margin: 26px 0 10px; font-size: 1.06rem; color: var(--cyan); }
+    p { margin: 10px 0; }
+    ul, ol { margin: 10px 0; padding-left: 22px; }
+    li { margin: 5px 0; }
+    strong { color: #fff; }
+
+    table {
+      width: 100%; margin: 14px 0; border-collapse: collapse;
+      font-size: .88rem; background: var(--panel); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    th, td { padding: 8px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--panel-2); color: var(--cyan); font-weight: 700; white-space: nowrap; }
+    .table-wrap { overflow-x: auto; }
+
+    .callout {
+      margin: 16px 0; padding: 12px 16px;
+      border-left: 3px solid var(--amber);
+      border-radius: 0 10px 10px 0;
+      background: rgba(251, 191, 106, .07);
+    }
+    .callout.tip { border-color: var(--mint); background: rgba(110, 231, 183, .06); }
+    .callout.danger { border-color: var(--red); background: rgba(251, 113, 133, .07); }
+    .tag {
+      display: inline-block; padding: .05rem .5rem; margin-right: 4px;
+      border-radius: 999px; font-size: .75rem; font-weight: 700;
+    }
+    .tag.have { background: rgba(110, 231, 183, .15); color: var(--mint); }
+    .tag.new { background: rgba(251, 191, 106, .15); color: var(--amber); }
+    .tag.no { background: rgba(251, 113, 133, .15); color: var(--red); }
+    .tag.core { background: rgba(183, 156, 255, .15); color: var(--violet); }
+
+    .verdict {
+      margin: 20px 0; padding: 16px 20px;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(110,231,183,.07), rgba(16,28,43,.4));
+    }
+    .verdict h3 { margin-top: 0; color: var(--mint); }
+    .score { font-size: .8rem; color: var(--muted); }
+    .pick { color: var(--mint); font-weight: 700; }
+    .drop { color: var(--red); font-weight: 700; }
+    footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .84rem; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      main { padding: 28px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">Ultimate Cinematic<small>궁극기 암전 · 별도 스테이지 연출 가이드</small></div>
+    <nav>
+      <a href="#summary">0. 결론 요약</a>
+      <a href="#current">1. 현재 프로젝트 구조</a>
+      <a href="#general">2. 일반적인 구현 방식 4종</a>
+      <a href="#compare">3. 방식 비교 · 선정</a>
+      <a href="#design">4. 권장 설계 (A안)</a>
+      <a href="#impl">5. 구현 가이드</a>
+      <a href="#pitfall">6. 함정 5가지</a>
+      <a href="#checklist">7. 검증 체크리스트</a>
+      <a href="#refs">8. 참고 자료</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>궁극기 암전 · 별도 스테이지 연출 가이드</h1>
+    <p class="subtitle">
+      스킬 발동 시 화면을 암전하고 배경과 분리된 공간에서 궁극기를 연출하는 방법.
+      일반적인 Unity 구현 방식과 UPlayground 현재 구조에 맞는 방식을 비교한다.
+    </p>
+
+    <h2 id="summary">0. 결론 요약</h2>
+
+    <div class="verdict">
+      <h3>새 시스템을 만들 필요는 없다</h3>
+      <p>
+        <code>UltimateSequencePlayer</code>를 축으로 하는 궁극기 연출 시스템이 이미 구축되어 있다.
+        잠금·복구·타임라인 이벤트·에디터 창까지 갖춰져 있으므로,
+        <strong>"암전 + 스테이지 격리" 단계 하나를 기존 실행 흐름에 끼워 넣는 문제</strong>다.
+      </p>
+      <p>
+        그리고 <span class="drop">진짜 별도 Scene은 권장하지 않는다.</span>
+        Unity의 additive 씬은 런타임에 <strong>Active 씬의 라이팅 설정만</strong> 적용되는데,
+        연출 씬을 Active로 만들면 <code>UltimateSequencePlayer</code>가 궁극기를 즉시 중단시킨다.
+        대신 <span class="pick">전용 레이어 + 컬링마스크로 격리한 오프월드 스테이지(A안)</span>를 권장한다.
+        시각적 결과는 동일하고, 프로젝트에 이미 같은 패턴의 선례가 있다.
+      </p>
+    </div>
+
+    <h2 id="current">1. 현재 프로젝트 구조</h2>
+
+    <h3>1.1 이미 있는 것</h3>
+
+    <div class="table-wrap">
+    <table>
+      <tr><th>구성 요소</th><th>경로</th><th>역할</th></tr>
+      <tr>
+        <td><span class="tag core">중심</span><code>UltimateSequencePlayer</code></td>
+        <td><code>GameActor/Component/Player/</code></td>
+        <td>궁극기 한 판의 실행 단위. <code>PlayerActorComponent</code> 파생, <code>PlayerActor</code> 필수</td>
+      </tr>
+      <tr>
+        <td><code>UltimateSequenceAsset</code></td>
+        <td><code>GameActor/Combat/Ultimate/</code></td>
+        <td>캐릭터별 연출 데이터 SO. MotionSet, CameraSnapshotProfile, 잠금/타깃/배치 설정, 타임라인 이벤트</td>
+      </tr>
+      <tr>
+        <td><code>UltimateGameplayLockContext</code></td>
+        <td><code>GameActor/Component/Player/</code></td>
+        <td>입력·카메라·HUD·적 AI 잠금. <strong>자기가 바꾼 것만 복구</strong>하는 소유권 추적 패턴</td>
+      </tr>
+      <tr>
+        <td><code>UltimatePlacementContext</code></td>
+        <td><code>GameActor/Component/Player/</code></td>
+        <td>캐스터/타깃을 KCC <code>Motor.SetPositionAndRotation</code>으로 워프 + 원위치 복구</td>
+      </tr>
+      <tr>
+        <td><code>UltimateTimelineEvent</code></td>
+        <td><code>GameActor/Combat/Ultimate/</code></td>
+        <td><code>[SerializeReference]</code> 다형 이벤트. VFX/사운드/타임스케일/카메라효과/흔들림/데미지윈도우</td>
+      </tr>
+      <tr>
+        <td><code>UltimateSequenceEditorWindow</code></td>
+        <td><code>Editor/Ultimate/</code></td>
+        <td>타임라인 저작 창</td>
+      </tr>
+    </table>
+    </div>
+
+    <h3>1.2 실행 흐름</h3>
+
+<pre><code>Play(asset)
+ ├─ CanPlay 검증 (재생중/생존/애니메이터/에셋/소유자/게이지)
+ ├─ UltimateTargetResolver.TryResolve      → 타깃 확정
+ ├─ Abilities.TryPreparePlayerSlot         → 자원 예약
+ ├─ _lockContext.Acquire(...)              → 입력·카메라·HUD·AI 잠금
+ ├─ Abilities.Commit                       → 자원 소비
+ └─ StartCoroutine(BeginSequenceRoutine)
+      │
+      ├─ yield _placementContext.Apply()   ← ★ 여기 앞에 스테이지 진입을 넣는다
+      ├─ PlayerIdleState 전이
+      ├─ Animator.PlayMotionSetAsset()     → MotionSet 재생 시작
+      ├─ CameraManager.PushCameraSnapshotSequence(cameraProfile)
+      └─ OnSequenceStarted + TickTimelineEvents(-0.001, 0)
+
+Update()  → 생존/타깃 검사 → ElapsedTime 갱신 → TickTimelineEvents
+
+Restore(reason, stopMotion)   ※ 동기 메서드
+ ├─ 활성 타임라인 이벤트 Complete
+ ├─ StopCameraSnapshotSequence
+ ├─ StopMotionSet
+ ├─ _lockContext.Release()
+ ├─ _placementContext.Restore()            ← ★ 여기 옆에 스테이지 이탈을 넣는다
+ ├─ Abilities.EndAbility
+ └─ Idle 복귀 + OnSequenceEnded</code></pre>
+
+    <h3>1.3 관련 인프라 현황</h3>
+
+    <div class="table-wrap">
+    <table>
+      <tr><th>필요 기능</th><th>상태</th><th>근거</th></tr>
+      <tr>
+        <td>입력/카메라/HUD 잠금</td>
+        <td><span class="tag have">있음</span></td>
+        <td><code>UltimateGameplayLockContext</code>, <code>IActorUIService.HideHud/ShowHud</code></td>
+      </tr>
+      <tr>
+        <td>연출 카메라 제어</td>
+        <td><span class="tag have">있음</span></td>
+        <td><code>CameraManager.PushCameraSnapshotSequence</code> (<code>CameraManager.cs:1005</code>), <code>SetInputLock</code>(1165), <code>PlayEffect</code>(1261)</td>
+      </tr>
+      <tr>
+        <td>액터 워프 + 복구</td>
+        <td><span class="tag have">있음</span></td>
+        <td><code>UltimatePlacementContext.SetPose</code> — KCC Motor 경유</td>
+      </tr>
+      <tr>
+        <td>레이어 기반 렌더 격리</td>
+        <td><span class="tag have">선례 있음</span></td>
+        <td><code>UICharacterPreviewRenderer.cs:41</code> — <code>CharacterPreview</code> 전용 레이어 + <code>cullingMask</code></td>
+      </tr>
+      <tr>
+        <td>전체화면 암전 UI</td>
+        <td><span class="tag new">신규</span></td>
+        <td><code>UI_Base.FadeIn/FadeOut</code>(546/558)은 존재하나 <strong>scaled time 기반</strong>이라 그대로 못 씀</td>
+      </tr>
+      <tr>
+        <td>Additive 씬 로드</td>
+        <td><span class="tag no">없음</span></td>
+        <td><code>SceneManager</code>는 단일 씬 교체만 지원. 진입 시 <code>ReleaseSceneAssets()</code>까지 호출(<code>SceneManager.Load.cs:133</code>)</td>
+      </tr>
+    </table>
+    </div>
+
+    <h2 id="general">2. 일반적인 구현 방식 4종</h2>
+
+    <p>업계에서 "궁극기 컷신"을 만드는 방식은 크게 네 갈래다. 원신·붕괴 계열의 元素爆発 연출도 이 범주 안에 있다.</p>
+
+    <h3>방식 1 — 제자리 연출 (In-Place Cinematic)</h3>
+    <p>씬을 그대로 두고 카메라만 클로즈업으로 전환. 배경은 블러·비네팅·조도 저하로 눌러 시선을 캐릭터에 모은다.</p>
+    <ul>
+      <li><strong>장점</strong> — 구현 비용 최소, 전투 상태 완전 보존, 로딩 없음</li>
+      <li><strong>단점</strong> — 배경이 그대로라 "다른 공간" 느낌이 약함. 지형이 지저분하면 그림이 안 나옴</li>
+      <li><strong>대표</strong> — 원신 원소폭발 대부분</li>
+    </ul>
+
+    <h3>방식 2 — 오프월드 스테이지 (Off-World Stage)</h3>
+    <p>같은 씬 안의 아주 먼 좌표(예: <code>y = -5000</code>)에 연출 전용 무대를 세워 두고, 캐스터를 순간이동시킨 뒤 전용 레이어/컬링마스크로 원래 월드를 렌더에서 잘라낸다.</p>
+    <ul>
+      <li><strong>장점</strong> — 완전한 배경 격리, 씬 로딩 없음, 매니저/전투 상태 무손상, 복귀가 좌표 되돌리기뿐</li>
+      <li><strong>단점</strong> — 스테이지 프리팹이 항상 메모리에 상주(또는 사전 Instantiate 필요), 레이어 예산 소모</li>
+      <li><strong>대표</strong> — 다수의 모바일 액션 RPG 소환/각성 연출</li>
+    </ul>
+
+    <h3>방식 3 — Additive 컷신 씬</h3>
+    <p>연출 전용 Scene을 <code>LoadSceneMode.Additive</code>로 올리고 캐스터를 <code>MoveGameObjectToScene</code>으로 옮긴다.</p>
+    <ul>
+      <li><strong>장점</strong> — 라이팅/볼륨/스카이박스를 통째로 교체 가능, 아티스트가 씬 단위로 저작</li>
+      <li><strong>단점</strong> — <strong>런타임에는 Active 씬의 라이팅 설정만 적용된다.</strong> 연출 씬의 조명을 쓰려면 <code>SetActiveScene</code>이 필수이고, 그러면 게임플레이 씬의 라이트맵/앰비언트가 깨진다. 로딩 히칭도 감수해야 함</li>
+      <li><strong>제약</strong> — <code>MoveGameObjectToScene</code>은 <strong>루트 GameObject만</strong> 이동 가능</li>
+    </ul>
+
+    <h3>방식 4 — RenderTexture 합성</h3>
+    <p>격리된 공간을 별도 카메라로 RenderTexture에 그리고 화면에 합성한다.</p>
+    <ul>
+      <li><strong>장점</strong> — 배경과 완전 분리, UI 위에 자유 배치</li>
+      <li><strong>단점</strong> — 풀스크린 해상도 RT 비용, 포스트프로세싱 이중 적용 문제, HDR/톤매핑 불일치</li>
+      <li><strong>적합</strong> — 화면 일부에 띄우는 초상화·소환 연출 (이 프로젝트의 <code>UICharacterPreviewRenderer</code>가 이 방식)</li>
+    </ul>
+
+    <h2 id="compare">3. 방식 비교 · 선정</h2>
+
+    <div class="table-wrap">
+    <table>
+      <tr>
+        <th>기준</th>
+        <th>1. 제자리</th>
+        <th>2. 오프월드 스테이지</th>
+        <th>3. Additive 씬</th>
+        <th>4. RenderTexture</th>
+      </tr>
+      <tr><td>배경 격리도</td><td>낮음</td><td class="pick">높음</td><td class="pick">완전</td><td class="pick">완전</td></tr>
+      <tr><td>구현 비용</td><td class="pick">최소</td><td>중간</td><td class="drop">높음</td><td>중간</td></tr>
+      <tr><td>전투 상태 보존</td><td class="pick">완전</td><td class="pick">완전</td><td>주의 필요</td><td class="pick">완전</td></tr>
+      <tr><td>로딩 히칭</td><td class="pick">없음</td><td class="pick">없음</td><td class="drop">있음</td><td class="pick">없음</td></tr>
+      <tr><td>라이팅 교체</td><td>불가</td><td>부분(전용 조명)</td><td class="pick">완전</td><td>부분</td></tr>
+      <tr><td>현재 코드 재사용</td><td class="pick">100%</td><td class="pick">높음</td><td>낮음</td><td>낮음</td></tr>
+      <tr><td><code>SceneManager</code> 개조</td><td class="pick">불필요</td><td class="pick">불필요</td><td class="drop">필수</td><td class="pick">불필요</td></tr>
+    </table>
+    </div>
+
+    <h3>3.1 이 프로젝트에서 방식 3(Additive)이 걸리는 지점</h3>
+
+    <div class="callout danger">
+      <strong>치명적 충돌.</strong>
+      Unity는 런타임에 additive 씬의 라이팅 설정을 무시하고 <strong>Active 씬의 설정만</strong> 사용한다.
+      연출 씬의 조명을 살리려면 <code>SetActiveScene</code>을 호출해야 하는데,
+      <code>UltimateSequencePlayer.cs:459</code>의 <code>HandleActiveSceneChanged</code>가
+      <code>activeSceneChanged</code>를 받는 즉시 <code>Restore(SceneChanged)</code>를 호출해
+      <strong>궁극기가 시작하자마자 중단된다.</strong>
+    </div>
+
+    <p>그 외에도:</p>
+    <ul>
+      <li><code>SceneManager.LoadScene</code>/<code>LoadSceneDirect</code>는 모두 단일 씬 교체이고 진입 시 <code>AssetManager.ReleaseSceneAssets()</code>를 호출한다 → 그대로 쓰면 <strong>전투 씬이 파괴된다.</strong> additive API를 새로 만들어야 한다.</li>
+      <li><code>MoveGameObjectToScene</code>은 루트 오브젝트만 옮길 수 있다. <code>PlayerActor</code>가 다른 오브젝트의 자식이면 사전 <code>SetParent(null)</code>이 필요하다.</li>
+      <li>KCC <code>Motor</code>는 씬 이동 후 위치/그라운딩 재확립이 필요하다.</li>
+    </ul>
+
+    <div class="callout tip">
+      <strong>다행인 점.</strong>
+      <code>GameManager.NotifySceneChanged</code>(<code>GameManager.cs:339</code>)는 Unity의 <code>sceneLoaded</code>가 아니라
+      <code>SceneManager</code>가 <strong>명시적으로</strong> 호출한다.
+      따라서 additive 로드를 하더라도 매니저들의 <code>OnSceneChanged</code>가 잘못 트리거되지는 않는다.
+    </div>
+
+    <h3>3.2 선정: A안 = 방식 2 (오프월드 스테이지)</h3>
+    <p>
+      "별도 씬"의 실제 목적은 <strong>배경 격리</strong>이지 Scene 파일 분리 그 자체가 아니다.
+      컬링마스크로 같은 결과를 얻으면서 로딩·라이팅·중단 문제를 전부 피할 수 있고,
+      워프 로직은 <code>UltimatePlacementContext</code>가 이미 하고 있다.
+      <code>UICharacterPreviewRenderer</code>가 <code>CharacterPreview</code> 레이어로 같은 격리를 이미 하고 있다는 점도 근거다.
+    </p>
+    <p>
+      아티스트가 씬 단위 라이팅 저작을 강하게 요구하는 경우에만 방식 3으로 확장하고,
+      그때는 <code>HandleActiveSceneChanged</code>에 예외 플래그를 반드시 먼저 추가한다.
+    </p>
+
+    <h2 id="design">4. 권장 설계 (A안)</h2>
+
+    <h3>4.1 추가할 구성 요소</h3>
+
+    <div class="table-wrap">
+    <table>
+      <tr><th>이름</th><th>종류</th><th>위치</th><th>역할</th></tr>
+      <tr>
+        <td><code>UltimateStageSettings</code></td>
+        <td><code>[Serializable]</code> 클래스</td>
+        <td><code>UltimateSequenceAsset.cs</code></td>
+        <td>스테이지 프리팹, 앵커 오프셋, 컬링 레이어, 페이드 시간</td>
+      </tr>
+      <tr>
+        <td><code>UltimateStageContext</code></td>
+        <td>일반 클래스</td>
+        <td><code>GameActor/Component/Player/</code></td>
+        <td><code>UltimatePlacementContext</code>의 형제. 진입은 코루틴, <strong>이탈은 동기</strong></td>
+      </tr>
+      <tr>
+        <td><code>UI_ScreenFade</code></td>
+        <td><code>UI_Base</code> 파생</td>
+        <td><code>UI/Scene/</code></td>
+        <td>전체화면 암전. <strong>unscaled time</strong> 보간</td>
+      </tr>
+      <tr>
+        <td><code>UIKeyType.ScreenFade</code></td>
+        <td>enum 값</td>
+        <td><code>Data/Path/UIKeyType.cs</code></td>
+        <td>UI 키 등록</td>
+      </tr>
+      <tr>
+        <td><code>UltimateStage</code> 레이어</td>
+        <td>Unity Layer</td>
+        <td>Project Settings</td>
+        <td>스테이지 전용 렌더 레이어</td>
+      </tr>
+    </table>
+    </div>
+
+    <h3>4.2 데이터 정의</h3>
+
+<pre><code>// UltimateSequenceAsset.cs — placementSettings 옆에 추가
+[System.Serializable]
+public class UltimateStageSettings
+{
+    [Tooltip("비우면 스테이지 연출을 사용하지 않는다.")]
+    public GameObject stagePrefab;
+
+    [Tooltip("월드에서 충분히 떨어진 연출 좌표.")]
+    public Vector3 stageOrigin = new(0f, -5000f, 0f);
+
+    [Tooltip("스테이지 원점 기준 캐스터 배치 오프셋.")]
+    public Vector3 casterLocalOffset;
+
+    [Tooltip("연출 중 카메라가 렌더할 레이어. 비우면 컬링을 건드리지 않는다.")]
+    public LayerMask stageCullingMask;
+
+    [Min(0f)] public float fadeOutDuration = 0.25f;
+    [Min(0f)] public float fadeHoldDuration = 0.1f;
+    [Min(0f)] public float fadeInDuration = 0.35f;
+
+    public bool moveTargetToStage;
+    public Vector3 targetLocalOffset = new(0f, 0f, 3f);
+}</code></pre>
+
+    <h3>4.3 UltimateSequenceAsset 확장</h3>
+
+<pre><code>[Header("3단계: 타겟/배치")]
+public UltimateTargetPolicy targetPolicy = new();
+public UltimatePlacementSettings placementSettings = new();
+
+[Header("3.5단계: 연출 스테이지")]      // ← 신규
+public UltimateStageSettings stageSettings = new();</code></pre>
+
+    <div class="callout">
+      <strong>OnValidate도 함께 갱신할 것.</strong>
+      기존 <code>OnValidate</code>가 <code>lockSettings ??= new()</code> 식으로 각 설정의 null과 음수를 정리하고 있다.
+      <code>stageSettings</code>도 같은 방식으로 <code>??=</code>와 <code>Mathf.Max(0f, ...)</code>를 추가한다.
+      (프로젝트 규약: 데이터 필드를 추가하면 연관 커스텀 인스펙터도 함께 반영한다 →
+      <code>UltimateSequenceEditorWindow</code> 확인)
+    </div>
+
+    <h3>4.4 스테이지 진입/이탈 시퀀스</h3>
+
+<pre><code>[진입] BeginSequenceRoutine 최상단
+  1. FadeOut(unscaled)        화면 암전       ─ 이 구간에 모든 전환을 숨긴다
+  2. 스테이지 프리팹 Instantiate (또는 캐시된 것 활성화)
+  3. 캐스터 원위치 백업 → stageOrigin + casterLocalOffset 으로 워프 (KCC Motor)
+  4. 캐스터/타깃 레이어를 UltimateStage 로 전환 (자식 포함, 원본 백업)
+  5. 카메라 cullingMask 를 stageCullingMask 로 교체 (원본 백업)
+  6. FadeIn(unscaled)         암전 해제
+  ↓
+  기존 placement → MotionSet 재생 → CameraSnapshotProfile
+
+[이탈] Restore() — 동기, 절대 코루틴 대기 금지
+  1. 카메라 cullingMask 원복
+  2. 레이어 원복
+  3. 캐스터/타깃 좌표 원복
+  4. 스테이지 인스턴스 비활성화/파괴
+  5. 암전 UI 는 "즉시 알파 0" 또는 UI 가 독립적으로 페이드인</code></pre>
+
+    <h2 id="impl">5. 구현 가이드</h2>
+
+    <h3>5.1 작업 순서</h3>
+    <ol>
+      <li><strong>레이어 추가</strong> — Project Settings ▸ Tags and Layers 에 <code>UltimateStage</code> 등록</li>
+      <li><strong>암전 UI</strong> — <code>UIKeyType.ScreenFade</code> 추가 후 <code>UI_ScreenFade</code> 작성 (<code>add-ui</code> 스킬 사용 가능)</li>
+      <li><strong>데이터</strong> — <code>UltimateStageSettings</code> 정의 + <code>UltimateSequenceAsset</code>에 필드/OnValidate 추가</li>
+      <li><strong>컨텍스트</strong> — <code>UltimateStageContext</code> 작성</li>
+      <li><strong>배선</strong> — <code>UltimateSequencePlayer</code>에 필드 1개 + 호출 2줄 추가</li>
+      <li><strong>에셋 저작</strong> — 스테이지 프리팹 제작 후 <code>UltimateSequenceAsset</code>에 연결</li>
+    </ol>
+
+    <h3>5.2 UltimateStageContext 골격</h3>
+
+<pre><code>namespace UPlayGround.Components
+{
+    /// &lt;summary&gt;
+    /// 궁극기 연출용 격리 스테이지 진입/이탈을 담당한다.
+    /// UltimateGameplayLockContext와 같은 원칙: 자신이 바꾼 것만 되돌린다.
+    /// Exit은 Restore() 경로에서 동기로 호출되므로 코루틴을 기다리지 않는다.
+    /// &lt;/summary&gt;
+    public sealed class UltimateStageContext
+    {
+        private readonly Dictionary&lt;GameObject, int&gt; _originalLayers = new();
+        private GameObject _stageInstance;
+        private GameActor _caster;
+        private GameActor _target;
+        private Vector3 _casterOriginPosition;
+        private Quaternion _casterOriginRotation;
+        private int _originalCullingMask;
+        private bool _ownsCullingMask;
+        private bool _isEntered;
+
+        public IEnumerator Enter(
+            UltimateRuntimeContext runtimeContext,
+            UltimateStageSettings settings)
+        {
+            if (_isEntered
+                || runtimeContext?.Caster == null
+                || settings?.stagePrefab == null)
+            {
+                yield break;
+            }
+
+            yield return FadeRoutine(0f, 1f, settings.fadeOutDuration);
+
+            _isEntered = true;
+            _caster = runtimeContext.Caster;
+            // ... 백업 → 스테이지 생성 → 워프 → 레이어 전환 → 컬링마스크 교체
+
+            if (settings.fadeHoldDuration &gt; 0f)
+                yield return WaitUnscaled(settings.fadeHoldDuration);
+
+            yield return FadeRoutine(1f, 0f, settings.fadeInDuration);
+        }
+
+        /// &lt;summary&gt;동기 복구. Restore()가 중단/사망/OnDisable 경로에서도 호출한다.&lt;/summary&gt;
+        public void Exit()
+        {
+            if (!_isEntered)
+                return;
+
+            // 컬링마스크 → 레이어 → 좌표 → 스테이지 인스턴스 순서로 원복
+            _isEntered = false;
+        }
+    }
+}</code></pre>
+
+    <h3>5.3 UltimateSequencePlayer 배선 (변경 3곳)</h3>
+
+<pre><code>// 1) 필드 추가 — _placementContext 옆
+private readonly UltimateStageContext _stageContext = new();
+
+// 2) BeginSequenceRoutine 최상단 — placement보다 먼저
+private System.Collections.IEnumerator BeginSequenceRoutine()
+{
+    yield return _stageContext.Enter(_runtimeContext, _activeAsset.stageSettings);  // ← 추가
+
+    yield return _placementContext.Apply(
+        _runtimeContext,
+        _activeAsset.placementSettings);
+    ...
+}
+
+// 3) Restore() — _placementContext.Restore() 바로 뒤
+_lockContext.Release();
+_placementContext.Restore();
+_stageContext.Exit();                                                              // ← 추가</code></pre>
+
+    <div class="callout tip">
+      <strong>왜 스테이지가 placement보다 먼저인가.</strong>
+      <code>UltimatePlacementContext</code>는 캐스터/타깃의 <em>현재</em> 좌표를 기준으로 상대 배치를 계산한다.
+      스테이지 워프를 먼저 끝내야 placement가 스테이지 안에서 올바른 상대 배치를 만든다.
+      순서를 바꾸면 캐스터가 스테이지 밖에 배치된다.
+    </div>
+
+    <h3>5.4 암전 UI 주의점</h3>
+
+<pre><code>// UI_Base.FadeIn/FadeOut은 scaled time 기반이라 궁극기에서 쓰면 안 된다.
+// UltimateTimeScaleEvent가 timeScale을 0.2까지 낮추면 페이드가 5배 느려진다.
+// UI_WorldRespawnNotice.cs:97 이 같은 이유로 unscaled 직접 보간을 쓴다. 그 방식을 따른다.
+
+float elapsed = 0f;
+while (elapsed &lt; duration)
+{
+    elapsed += Time.unscaledDeltaTime;
+    _canvasGroup.alpha = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
+    yield return null;
+}
+_canvasGroup.alpha = to;</code></pre>
+
+    <h2 id="pitfall">6. 함정 5가지</h2>
+
+    <div class="callout danger">
+      <strong>함정 1 — <code>Restore()</code>는 동기 메서드다.</strong>
+      <code>UltimateSequencePlayer.cs:377</code>. <code>OnDisable</code>, 캐스터 사망, 타깃 소실, 실패 경로가 모두 여기로 들어온다.
+      복귀 페이드를 기다리려고 코루틴을 걸면 <strong>중단 시 플레이어가 스테이지에 갇힌다.</strong>
+      상태 복구는 즉시, 페이드인은 UI가 독립적으로 재생하는 구조여야 한다.
+    </div>
+
+    <div class="callout danger">
+      <strong>함정 2 — 연출 씬을 Active로 만들지 말 것.</strong>
+      <code>HandleActiveSceneChanged</code>(<code>:459</code>)가 무조건 <code>Restore(SceneChanged)</code>를 호출한다.
+      방식 3으로 확장한다면 이 메서드에 "연출 중 예외" 플래그를 <strong>먼저</strong> 넣어야 한다.
+    </div>
+
+    <div class="callout danger">
+      <strong>함정 3 — 레이어 원복 누락.</strong>
+      캐스터의 레이어를 자식까지 바꾼 뒤 복구를 놓치면 전투 콜리전과 카메라 컬링이 영구히 망가진다.
+      <code>Dictionary&lt;GameObject, int&gt;</code>로 <strong>바꾼 오브젝트만</strong> 기록하고,
+      복구 시 <code>== null</code> 체크 후 되돌린다. (연출 중 파괴된 오브젝트가 있을 수 있다)
+    </div>
+
+    <div class="callout">
+      <strong>함정 4 — 카메라 컬링마스크 소유권.</strong>
+      다른 시스템이 동시에 컬링마스크를 만졌다면 무조건 덮어쓰면 안 된다.
+      <code>UltimateGameplayLockContext</code>의 <code>_ownsCameraInputLock</code> 패턴처럼
+      "내가 바꿨을 때만 되돌린다" 플래그를 두는 것이 이 프로젝트의 규약이다.
+    </div>
+
+    <div class="callout">
+      <strong>함정 5 — 스테이지 프리팹 상주 비용.</strong>
+      매 발동마다 <code>Instantiate</code>/<code>Destroy</code>하면 히칭이 생긴다.
+      첫 사용 시 생성 후 <code>SetActive(false)</code>로 캐시하거나 <code>GameObjectManager</code> 풀링에 얹는다.
+      단, 씬 전환 시 정리 책임을 명확히 할 것.
+    </div>
+
+    <h2 id="checklist">7. 검증 체크리스트</h2>
+
+    <div class="table-wrap">
+    <table>
+      <tr><th>#</th><th>시나리오</th><th>기대 결과</th></tr>
+      <tr><td>1</td><td>정상 발동 → 끝까지 재생</td><td>암전 → 스테이지 연출 → 복귀. 좌표·레이어·컬링마스크 모두 원복</td></tr>
+      <tr><td>2</td><td>연출 도중 캐스터 사망</td><td><code>CasterDead</code>로 <code>Restore</code>. 스테이지에 갇히지 않음</td></tr>
+      <tr><td>3</td><td>연출 도중 타깃 사망</td><td><code>TargetLost</code>로 즉시 복귀</td></tr>
+      <tr><td>4</td><td>연출 도중 컴포넌트 비활성화</td><td><code>OnDisable</code> → <code>Restore(Disabled)</code>. 화면 암전이 남지 않음</td></tr>
+      <tr><td>5</td><td><code>UltimateTimeScaleEvent</code>와 동시 사용</td><td>timeScale 0.2에서도 페이드 속도 정상 (unscaled 확인)</td></tr>
+      <tr><td>6</td><td>연속 2회 발동</td><td>두 번째도 동일하게 동작. 레이어 백업 딕셔너리가 오염되지 않음</td></tr>
+      <tr><td>7</td><td>연출 중 씬 전환</td><td>매니저 상태 정상, 스테이지 인스턴스 누수 없음</td></tr>
+      <tr><td>8</td><td><code>stagePrefab</code>이 비어 있음</td><td>스테이지 단계를 건너뛰고 기존 제자리 연출로 동작 (하위 호환)</td></tr>
+    </table>
+    </div>
+
+    <h2 id="refs">8. 참고 자료</h2>
+
+    <h3>프로젝트 내부</h3>
+    <ul>
+      <li><code>Assets/02.Scripts/GameActor/Component/Player/UltimateSequencePlayer.cs</code> — 실행 흐름의 중심</li>
+      <li><code>Assets/02.Scripts/GameActor/Component/Player/UltimateGameplayLockContext.cs</code> — 소유권 추적 복구 패턴의 모범</li>
+      <li><code>Assets/02.Scripts/UI/UICharacterPreviewRenderer.cs</code> — 레이어 격리 렌더 선례</li>
+      <li><code>Assets/02.Scripts/UI/Scene/UI_WorldRespawnNotice.cs</code> — unscaled 페이드 선례</li>
+      <li><code>Assets/docs/guide/GAS_SYSTEM_GUIDE.html</code> — Ability 자원 소비 흐름</li>
+    </ul>
+
+    <h3>외부</h3>
+    <ul>
+      <li><a href="https://docs.unity3d.com/ScriptReference/Camera-cullingMask.html">Unity Scripting API — Camera.cullingMask</a></li>
+      <li><a href="https://docs.unity3d.com/ScriptReference/SceneManagement.SceneManager.MoveGameObjectToScene.html">Unity Scripting API — SceneManager.MoveGameObjectToScene</a> (루트 오브젝트만 이동 가능)</li>
+      <li><a href="https://docs.unity3d.com/Manual/occlusion-culling-scene-loading.html">Unity Manual — Set up multiple scenes for occlusion culling</a></li>
+      <li><a href="https://discussions.unity.com/t/loading-scene-additively-causes-change-in-lighting/687635">Unity Discussions — Loading scene additively causes change in lighting</a> (런타임에는 Active 씬 라이팅만 적용)</li>
+      <li><a href="https://discussions.unity.com/t/lightmaps-with-additive-scenes/672482">Unity Discussions — Lightmaps with additive scenes</a></li>
+      <li><a href="https://catlikecoding.com/unity/tutorials/custom-srp/multiple-cameras/">Catlike Coding — Multiple Cameras</a></li>
+      <li><a href="https://www.hoyolab.com/article/212433">HoYoLAB — Elemental Burst Cinematic Zoom</a> (제자리 연출 + 배경 블러 레퍼런스)</li>
+    </ul>
+
+    <footer>
+      UPlayground 시스템 가이드 · 궁극기 암전 · 별도 스테이지 연출<br>
+      기준 코드: 워킹트리 2026-07-27 · 문서 내 줄 번호는 해당 시점 기준
+    </footer>
+  </main>
+</div>
+</body>
+</html>

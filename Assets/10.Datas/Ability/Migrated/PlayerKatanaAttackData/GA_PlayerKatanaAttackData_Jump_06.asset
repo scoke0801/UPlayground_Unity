@@ -168,10 +168,20 @@ MonoBehaviour:
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0
-    isAerialSkill: 0
-    isDiveAttack: 0
-    diveDescentSpeed: 15
+    isAerialSkill: 1
+    isDiveAttack: 1
+    diveDescentSpeed: 10
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 25
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []

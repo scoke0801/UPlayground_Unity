@@ -117,7 +117,7 @@
                     "when": [
                         { "condition": "IsPlayerAttacking" },
                         { "condition": "DistanceLessOrEqual", "value": "2.2" },
-                        { "condition": "CooldownReady", "value": "BowCloseAttackRead" }
+                        { "condition": "CooldownReady", "value": "BowCloseDisengage" }
                     ],
                     "select": "WeightedRandom",
                     "choices": [
@@ -126,24 +126,24 @@
                             "action": "RequestAction",
                             "intent": "Evade",
                             "style": "Dodge",
-                            "cooldownId": "BowCloseAttackRead",
-                            "cooldownDuration": 1.5
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         },
                         {
                             "weight": 0.3,
                             "action": "RequestAction",
                             "intent": "Evade",
                             "style": "JumpBack",
-                            "cooldownId": "BowCloseAttackRead",
-                            "cooldownDuration": 1.5
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         },
                         {
                             "weight": 0.2,
                             "action": "RequestAction",
                             "intent": "KeepDistance",
                             "style": "Circle",
-                            "cooldownId": "BowCloseAttackRead",
-                            "cooldownDuration": 1.3
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         }
                     ]
                 }
@@ -161,7 +161,7 @@
                     "priority": 930,
                     "when": [
                         { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" },
-                        { "condition": "CooldownReady", "value": "BowPersonalSpace" }
+                        { "condition": "CooldownReady", "value": "BowCloseDisengage" }
                     ],
                     "select": "WeightedRandom",
                     "choices": [
@@ -170,15 +170,15 @@
                             "action": "RequestAction",
                             "intent": "Evade",
                             "style": "JumpBack",
-                            "cooldownId": "BowPersonalSpace",
-                            "cooldownDuration": 1.1
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         },
                         {
                             "weight": 0.3,
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "cooldownId": "BowPersonalSpace",
-                            "cooldownDuration": 1.1
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         }
                     ]
                 },
@@ -187,7 +187,7 @@
                     "priority": 920,
                     "when": [
                         { "condition": "DistanceLessOrEqual", "value": "minCombatDistance" },
-                        { "condition": "CooldownReady", "value": "BowMinimumRange" }
+                        { "condition": "CooldownReady", "value": "BowCloseDisengage" }
                     ],
                     "select": "WeightedRandom",
                     "choices": [
@@ -196,24 +196,38 @@
                             "action": "RequestAction",
                             "intent": "KeepDistance",
                             "style": "Circle",
-                            "cooldownId": "BowMinimumRange",
-                            "cooldownDuration": 1.2
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         },
                         {
                             "weight": 0.35,
                             "action": "RequestAction",
                             "intent": "Retreat",
-                            "cooldownId": "BowMinimumRange",
-                            "cooldownDuration": 1.2
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         },
                         {
                             "weight": 0.2,
                             "action": "RequestAction",
                             "intent": "Evade",
                             "style": "Dodge",
-                            "cooldownId": "BowMinimumRange",
-                            "cooldownDuration": 1.2
+                            "cooldownId": "BowCloseDisengage",
+                            "cooldownDuration": 4.5
                         }
+                    ]
+                },
+                {
+                    "name": "CloseRangeStandGroundShot",
+                    "priority": 915,
+                    "when": [
+                        { "condition": "DistanceLessOrEqual", "value": "minCombatDistance" },
+                        { "condition": "CooldownReady", "value": "BowCloseDisengage", "invert": true },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanUseSkill" },
+                        { "condition": "HasLineOfSight" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack" }
                     ]
                 },
                 {

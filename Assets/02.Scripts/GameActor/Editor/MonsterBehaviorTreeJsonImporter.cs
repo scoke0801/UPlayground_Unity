@@ -265,7 +265,6 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
             var finalAssetName = Path.GetFileNameWithoutExtension(outputAssetPath);
             BehaviorTreeAsset tree = null;
-            var persistedOutputAsset = false;
 
             try
             {
@@ -291,29 +290,11 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                 ApplyReadableLayout(tree);
 
-                PersistGeneratedAsset(tree, outputAssetPath);
-                persistedOutputAsset = true;
-                tree = AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) ?? tree;
+                tree = PersistGeneratedAsset(tree, outputAssetPath);
             }
             catch
             {
-                var treeAssetPath = tree != null ? AssetDatabase.GetAssetPath(tree) : null;
-                if ((persistedOutputAsset || treeAssetPath == outputAssetPath)
-                    && AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(outputAssetPath) != null)
-                {
-                    AssetDatabase.DeleteAsset(outputAssetPath);
-                }
-                else if (tree != null)
-                {
-                    for (var i = tree.Nodes.Count - 1; i >= 0; --i)
-                    {
-                        if (tree.Nodes[i] != null)
-                            UnityEngine.Object.DestroyImmediate(tree.Nodes[i]);
-                    }
-
-                    UnityEngine.Object.DestroyImmediate(tree);
-                }
-
+                DestroyTransientTree(tree);
                 throw;
             }
 
@@ -327,26 +308,173 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return tree;
         }
 
-        private static void PersistGeneratedAsset(BehaviorTreeAsset tree, string outputAssetPath)
+        private static BehaviorTreeAsset PersistGeneratedAsset(
+            BehaviorTreeAsset generatedTree,
+            string outputAssetPath)
         {
-            if (AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) != null
-                && !AssetDatabase.DeleteAsset(outputAssetPath))
+            var existingTree = AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath);
+            if (existingTree == null)
             {
-                throw new IOException($"기존 BehaviorTreeAsset을 삭제할 수 없습니다. {outputAssetPath}");
+                try
+                {
+                    AssetDatabase.CreateAsset(generatedTree, outputAssetPath);
+                    AddNodesToAsset(generatedTree.Nodes, generatedTree);
+                    EditorUtility.SetDirty(generatedTree);
+                    return generatedTree;
+                }
+                catch
+                {
+                    if (AssetDatabase.LoadAssetAtPath<BehaviorTreeAsset>(outputAssetPath) != null)
+                        AssetDatabase.DeleteAsset(outputAssetPath);
+
+                    throw;
+                }
             }
 
-            AssetDatabase.CreateAsset(tree, outputAssetPath);
+            var oldName = existingTree.name;
+            var oldRoot = existingTree.RootNode;
+            var oldNodes = existingTree.Nodes.ToList();
+            var oldBlackboard = existingTree.Blackboard.Clone();
+            var oldGroups = CloneEditorGroups(existingTree.EditorGroups);
+            var addedNodes = new List<BTNode>();
 
-            foreach (var node in tree.Nodes)
+            // 옛 노드 파괴는 되돌릴 수 없으므로 커밋 지점(try 종료) 이후로 미룬다.
+            // try 안에서 파괴하면 그 뒤 예외 시 catch가 이미 파괴된 oldNodes를 복원해
+            // Missing 서브에셋으로 채워진 파손 트리가 남는다.
+            try
+            {
+                foreach (var node in generatedTree.Nodes)
+                {
+                    if (node == null)
+                        continue;
+
+                    AssetDatabase.AddObjectToAsset(node, existingTree);
+                    addedNodes.Add(node);
+                    EditorUtility.SetDirty(node);
+                }
+
+                existingTree.name = generatedTree.name;
+                existingTree.RootNode = generatedTree.RootNode;
+                existingTree.Nodes.Clear();
+                existingTree.Nodes.AddRange(generatedTree.Nodes);
+                CopyBlackboard(generatedTree.Blackboard, existingTree.Blackboard);
+                CopyEditorGroups(generatedTree.EditorGroups, existingTree.EditorGroups);
+                EditorUtility.SetDirty(existingTree);
+            }
+            catch
+            {
+                existingTree.name = oldName;
+                existingTree.RootNode = oldRoot;
+                existingTree.Nodes.Clear();
+                existingTree.Nodes.AddRange(oldNodes);
+                CopyBlackboard(oldBlackboard, existingTree.Blackboard);
+                CopyEditorGroups(oldGroups, existingTree.EditorGroups);
+
+                foreach (var addedNode in addedNodes)
+                {
+                    if (addedNode != null)
+                        UnityEngine.Object.DestroyImmediate(addedNode, true);
+                }
+
+                EditorUtility.SetDirty(existingTree);
+
+                // 임시 트리는 노드를 existingTree에 넘겼다가 회수당했으므로 여기서 정리한다.
+                UnityEngine.Object.DestroyImmediate(generatedTree);
+                throw;
+            }
+
+            foreach (var oldNode in oldNodes)
+            {
+                if (oldNode != null)
+                    UnityEngine.Object.DestroyImmediate(oldNode, true);
+            }
+
+            UnityEngine.Object.DestroyImmediate(generatedTree);
+            return existingTree;
+        }
+
+        private static void AddNodesToAsset(
+            IEnumerable<BTNode> nodes,
+            BehaviorTreeAsset owner)
+        {
+            foreach (var node in nodes)
             {
                 if (node == null)
                     continue;
 
-                AssetDatabase.AddObjectToAsset(node, tree);
+                AssetDatabase.AddObjectToAsset(node, owner);
                 EditorUtility.SetDirty(node);
             }
+        }
 
-            EditorUtility.SetDirty(tree);
+        private static void CopyBlackboard(Blackboard source, Blackboard destination)
+        {
+            for (var i = destination.Entries.Count - 1; i >= 0; --i)
+                destination.RemoveAt(i);
+
+            foreach (var sourceEntry in source.Entries)
+            {
+                if (sourceEntry == null)
+                    continue;
+
+                destination.AddEntry(sourceEntry.KeyReference, sourceEntry.ValueType);
+                var destinationEntry = destination.FindEntry(sourceEntry.KeyReference);
+                if (destinationEntry == null)
+                    throw new InvalidOperationException(
+                        $"Blackboard Key를 복사할 수 없습니다: {sourceEntry.Key}");
+
+                destinationEntry.BoolValue = sourceEntry.BoolValue;
+                destinationEntry.IntValue = sourceEntry.IntValue;
+                destinationEntry.FloatValue = sourceEntry.FloatValue;
+                destinationEntry.StringValue = sourceEntry.StringValue;
+                destinationEntry.Vector3Value = sourceEntry.Vector3Value;
+                destinationEntry.ObjectValue = sourceEntry.ObjectValue;
+            }
+        }
+
+        private static List<BehaviorTreeEditorGroup> CloneEditorGroups(
+            IEnumerable<BehaviorTreeEditorGroup> source)
+        {
+            var clones = new List<BehaviorTreeEditorGroup>();
+            CopyEditorGroups(source, clones);
+            return clones;
+        }
+
+        private static void CopyEditorGroups(
+            IEnumerable<BehaviorTreeEditorGroup> source,
+            ICollection<BehaviorTreeEditorGroup> destination)
+        {
+            destination.Clear();
+            foreach (var group in source)
+            {
+                if (group == null)
+                    continue;
+
+                destination.Add(new BehaviorTreeEditorGroup
+                {
+                    Guid = group.Guid,
+                    Title = group.Title,
+                    Rect = group.Rect,
+                    Color = group.Color
+                });
+            }
+        }
+
+        private static void DestroyTransientTree(BehaviorTreeAsset tree)
+        {
+            if (tree == null || !string.IsNullOrEmpty(AssetDatabase.GetAssetPath(tree)))
+                return;
+
+            for (var i = tree.Nodes.Count - 1; i >= 0; --i)
+            {
+                if (tree.Nodes[i] != null
+                    && string.IsNullOrEmpty(AssetDatabase.GetAssetPath(tree.Nodes[i])))
+                {
+                    UnityEngine.Object.DestroyImmediate(tree.Nodes[i]);
+                }
+            }
+
+            UnityEngine.Object.DestroyImmediate(tree);
         }
 
         private static List<string> GetSelectedJsonAssetPaths()

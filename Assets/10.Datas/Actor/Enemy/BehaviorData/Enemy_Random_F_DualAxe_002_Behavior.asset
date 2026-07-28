@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: Enemy_Random_F_DualAxe_002_Behavior
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 8b0e128fd2f18c942bb8de0b6fd81ab8, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 812a888314740a84e84d3af763621df4, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: b9ad27919c1308e4eb3f0b00a4a629a8, type: 2}
-  optimalCombatDistance: 2.5
-  minCombatDistance: 1.5
+  optimalCombatDistance: 2.4
+  minCombatDistance: 1.1
   maintainDistance: 1
-  chaseStopDistance: 2
+  chaseStopDistance: 2.2
   personalSpaceDistance: 0.8
   continueAttackChance: 0.3
   guardChance: 0.25

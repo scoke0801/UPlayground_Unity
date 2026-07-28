@@ -12,17 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: BehaviorData_Reien
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 547eec6e48eb3d949afb7715414b42dd, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 812a888314740a84e84d3af763621df4, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
-  optimalCombatDistance: 2.5
-  minCombatDistance: 1.5
+  optimalCombatDistance: 2.4
+  minCombatDistance: 1.1
   maintainDistance: 1
-  chaseStopDistance: 2
+  chaseStopDistance: 2.2
   personalSpaceDistance: 0.8
-  continueAttackChance: 0.3
+  continueAttackChance: 0.45
   guardChance: 0.25
-  retreatChance: 0.2
+  retreatChance: 0.16
   chaseSpeedMultiplier: 1.2
   circleDuration: 2.5
   guardDuration: 1.5

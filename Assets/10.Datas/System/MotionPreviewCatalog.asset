@@ -1,0 +1,380 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 930b78c3c8af4b4f985429e822833fea, type: 3}
+  m_Name: MotionPreviewCatalog
+  m_EditorClassIdentifier: 
+  previewScene: {fileID: 102900000, guid: f3f2ffe4a40d9c1418e8951e0d3deb3e, type: 3}
+  subjects:
+  - id: scene-player
+    displayName: "Player (\uC52C)"
+    source: 1
+    prefab: {fileID: 0}
+    sceneObjectName: Player
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 0490621b3e8650f45a39d89aa661e6d0
+    displayName: ChildPlant
+    source: 0
+    prefab: {fileID: 7329998113064271559, guid: 96f113f48fd113948899c29951fc3ceb, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 00a962c78c1344f47ab192610185f4db
+    displayName: ChildPlant_2
+    source: 0
+    prefab: {fileID: 6246715426557206640, guid: 3005218b1fcf5ae4c952b24c0a04dfaa, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 3445050d1a825154793b521d6a8cd478
+    displayName: ChildPlant_3
+    source: 0
+    prefab: {fileID: 4452331556946910925, guid: 61a62e5d27dea7b4396459339f8ab824, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 4cc18b2c380ff494181d14ebc8150699
+    displayName: Dryad
+    source: 0
+    prefab: {fileID: 1844697684467198324, guid: b8216384564475946ae6a95e6536222f, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 9251c0f91afba7f44aa0090c749e529b
+    displayName: Ent_Elite
+    source: 0
+    prefab: {fileID: 4924445308760729015, guid: e06da85ae2ef9454b930cd6d462b1d7d, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: a3023768eaa53e64daab0818165786fb
+    displayName: Ent_Normal
+    source: 0
+    prefab: {fileID: 1373865016353092880, guid: 8be5602d78b2ec14fb10903c998b7555, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 40a014f529b8156408e5b25689c1f6cc
+    displayName: Golem_Black
+    source: 0
+    prefab: {fileID: 8534123178930233116, guid: a94b0fe5e77551741a481727d27aa320, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: ce8bf5d87b89a52408acdc0aac0f18e2
+    displayName: Golem_Inferno
+    source: 0
+    prefab: {fileID: 3190050798331231544, guid: f44513d232d5c5145acf30ced6fa9172, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 60c5035c998ef834887ed77351b793f7
+    displayName: Golem_Normal
+    source: 0
+    prefab: {fileID: 3261419579455261936, guid: 4d9ef0bb3280f2f4c84e9b6a9ca0cc5e, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 08f40ec817f11ed4292c1d2b325023bb
+    displayName: Griffin_Elite
+    source: 0
+    prefab: {fileID: 1110189510639920243, guid: 340c6af39b8a9a141af09a5822409026, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 6f9122f89a7239c4da3dd872a7bc09f6
+    displayName: Griffin_Normal
+    source: 0
+    prefab: {fileID: 1273489215831532395, guid: 7340cf6450a679f40a2681984ddb23d3, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 2fae0a9da26c22448afe3984a6de2d32
+    displayName: MonsterBokusei
+    source: 0
+    prefab: {fileID: 296616552295036336, guid: d6f2b1e946a1ac441ae719cca391151f, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 1b8a3b007b293ec4491dc3f110049e92
+    displayName: MonsterHonoka
+    source: 0
+    prefab: {fileID: 3901668219934850420, guid: ed15dbb01181e2e4f921783227f14dff, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 06ce3fe1ede19cf40a0a1039074c8257
+    displayName: MonsterLianLian
+    source: 0
+    prefab: {fileID: 2701479759165243214, guid: 622399a055305144ea3c7fbf16e9ba06, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 369c4d2a4a9539a45b3a704090aeedd1
+    displayName: Lich_Elite
+    source: 0
+    prefab: {fileID: 5367946233408374009, guid: 203dd03ed10319b43abedd23e18a0e17, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: eb463220ace053946aa25db220e3e85f
+    displayName: Lich_Normal
+    source: 0
+    prefab: {fileID: 8065242988885525337, guid: cdd3684e26dbcd8438d3851e1102199c, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: c12912dc187657b49b15c7481cf22b4e
+    displayName: Plant_1
+    source: 0
+    prefab: {fileID: 7086149009995360092, guid: efe924da6cd634047ac8f7e738f217a0, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: dd939bf80cb8b8541b6438ae81f83a57
+    displayName: Plant_2
+    source: 0
+    prefab: {fileID: 1340163909804459715, guid: f008328dcd34c8a4f9e69fe8ab333b70, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 6b53ad903ea179943bb415b22a9095f2
+    displayName: Plant_3
+    source: 0
+    prefab: {fileID: 3900479358876571804, guid: 35fc649a0ff9d7c43bafb3bd0c296bbb, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 6404b57d02728b946a00e169593b924b
+    displayName: RootPlant_1
+    source: 0
+    prefab: {fileID: 5939289741211811854, guid: d1a2b1d4cc34d4943b2d7f35c2e66be0, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 8b09a44d77fdcea4995b5ab973d4228f
+    displayName: RootPlant_2
+    source: 0
+    prefab: {fileID: 8481515549980397323, guid: 0859253a9d26f6447b49652c08ad2e4c, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 8949a39ff4c019248a0049ce19541e0b
+    displayName: RootPlant_3
+    source: 0
+    prefab: {fileID: 6233259309660959119, guid: cc383909929221f48b73692e8dabe18f, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 454041ee7950dd3469dda1933802aef1
+    displayName: Skeleton_Bow
+    source: 0
+    prefab: {fileID: 1101629108985534757, guid: 07ca1166deeda044aa88d2e8263b0a21, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 9e05da5b868547248bb2e28b71ef9179
+    displayName: Skeleton_Common
+    source: 0
+    prefab: {fileID: 870704985475576431, guid: 7cc76323fff1c114b8a63d65d26cd420, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 47d6175af9945b34898045a95b073c71
+    displayName: Skeleton_Sword
+    source: 0
+    prefab: {fileID: 7952999846827242560, guid: bc4876f2938cfeb49a04630e559dfc84, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 14ce5d9d1c5ada44f96c1ef7ecce916f
+    displayName: SpiderMinion_1
+    source: 0
+    prefab: {fileID: 3387459787380139802, guid: 9973518b5d451064a87211bf7f8526eb, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 510490eaa6767ac49ace6af042968f7a
+    displayName: SpiderMinion_2
+    source: 0
+    prefab: {fileID: 3066058368436558803, guid: fab45abd524c96d4c89f0227ef5ec637, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 4dcb032087ac5d34b81cb14d5ca0924e
+    displayName: SpiderMinion_3
+    source: 0
+    prefab: {fileID: 8191382552135447617, guid: d60784756818282429785b8bc9a44d28, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: d496f117d9060af468f8658208c7ec5b
+    displayName: SpiderQueen_1
+    source: 0
+    prefab: {fileID: 5002020164236365063, guid: 9870dc79140c3f748b21efd8a46db9ef, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 973fa8ce02e113446a50d3a156edbb04
+    displayName: SpiderQueen_2
+    source: 0
+    prefab: {fileID: 5215850344115638884, guid: 18d598159fa970d48a56efa27020ad52, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 36c7e7eee9714c0449b58c84cf323d45
+    displayName: SpiderQueen_3
+    source: 0
+    prefab: {fileID: 3616471728440623243, guid: a6f27d23948fe174892787580a0480b8, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: dd6206d566565e54ea38901312fc20ca
+    displayName: Training_Dummy
+    source: 0
+    prefab: {fileID: 4288469885832810656, guid: a7fc4eaf91b3c444fa8649fe7384572d, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 03d4b46ec713a834daa7e4903849393e
+    displayName: MonsterHichi
+    source: 0
+    prefab: {fileID: 7090687639263331349, guid: 164b7404ed9b9e1448425a65c7c5fcfc, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 20ae6601a7ea3b049ad607e82af32728
+    displayName: MonsterInori
+    source: 0
+    prefab: {fileID: 1320855031529836856, guid: 7df9b972da71fa84a9a91ac446d7877d, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 43d2464aabece0542a541c55e44d7c64
+    displayName: MonsterKomoe
+    source: 0
+    prefab: {fileID: 6421260818008614621, guid: f0a5c8948f6d5224594c83389c0eaa8b, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: a89ef535e0066224f907293e85f1d011
+    displayName: MonsterLili
+    source: 0
+    prefab: {fileID: 4072941355405595787, guid: 4e56cf3ea622df2449e7c4bafb3cce7b, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 5984ceb74c28d7a4f960ef78f993c884
+    displayName: MonsterReien
+    source: 0
+    prefab: {fileID: 438089110278461679, guid: 2d3996625677f864892d3c028989c3e3, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: df634603309b3a24e9d0d004cb2d28e1
+    displayName: MonsterSera
+    source: 0
+    prefab: {fileID: 1831979147185291544, guid: af61dcb1cb9a6604daa7ae53e99fd33c, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 6b774d78fb9a47f45ae4556016878fda
+    displayName: MonsterSiuha
+    source: 0
+    prefab: {fileID: 4009840694283915376, guid: dafb014f4c4caca4e9767b24aa502e9e, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 44323843435473b4b88881b135da6226
+    displayName: MonsterNenmir
+    source: 0
+    prefab: {fileID: 840251747694296994, guid: ace15b46b1b2bdf4fb21a2a6e7de8bae, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 4fa4daa324a446648a7d2f232523a247
+    displayName: Enemy_Random_M_DualSword_002_ActorDef
+    source: 0
+    prefab: {fileID: 4271549058432074984, guid: 468de071685d7004d9d39f83c8c06684, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 5746ab3259ed15d408b854c146f1e1f2
+    displayName: Enemy_Random_M_SwordShield_002_ActorDef
+    source: 0
+    prefab: {fileID: 6187011499227378451, guid: 77110a889c025eb48abfb9701cef1b33, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: bc353f3989f5f5644b0c36f740eb87d2
+    displayName: Enemy_Random_M_GreatSword_001_ActorDef
+    source: 0
+    prefab: {fileID: 5043476185801287766, guid: 8c89bd4f556cef44c9d32a9ffeef3f34, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 6f8c4dd1502503142a2b3b4bd5f88398
+    displayName: Enemy_Random_M_DualAxe_001_ActorDef
+    source: 0
+    prefab: {fileID: 4220737111728538624, guid: 2a7247bf6d0e0574783b06214c2b0130, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: b5c2d8e47f370dc4790199a1986679a8
+    displayName: Enemy_Random_F_Bow_001_ActorDef
+    source: 0
+    prefab: {fileID: 5156567061340455063, guid: ebd2ef77bf9e1914ea1aeff305a3b42f, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: d1f6300d0fe7e9647b6aa4b976697ee5
+    displayName: Enemy_Random_M_DualSword_003_ActorDef
+    source: 0
+    prefab: {fileID: 4697961722674043917, guid: 68f31e33dbadbda44b6a43b8a6138fa0, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: c41ee31489f82e349b33b15f7f130be8
+    displayName: Enemy_Random_M_SwordShield_003_ActorDef
+    source: 0
+    prefab: {fileID: 2190142397537974693, guid: 419d8fe46a9673e45afae372e9a0ee81, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 300288dbe8220af4b99ce3eaa7c8354b
+    displayName: Enemy_Random_M_GreatSword_002_ActorDef
+    source: 0
+    prefab: {fileID: 7559848780755507690, guid: 1c9f7a641233eeb47b128c395d255757, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 8e97fdf033781894ca6689b55e3c4678
+    displayName: Enemy_Random_F_DualAxe_002_ActorDef
+    source: 0
+    prefab: {fileID: 3057702583846358035, guid: b2e1f6ee6adf78046857fb8eb9646154, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 623aad51354186b4fb2185beb4e5450d
+    displayName: Enemy_Random_F_Bow_002_ActorDef
+    source: 0
+    prefab: {fileID: 9146105876270913070, guid: 20f6cd2890b884b4582705d588033d5a, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}
+  - id: 3ec3fc1cb4995204eaa0d40464d560d3
+    displayName: ActorDef_Player
+    source: 0
+    prefab: {fileID: 7225480054528834325, guid: 69a31ad8e6117734ba10ff9e6215c248, type: 3}
+    sceneObjectName: 
+    idleClip: {fileID: 0}
+    spawnOffset: {x: 0, y: 0, z: 0}

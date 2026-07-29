@@ -11,6 +11,8 @@ namespace UPlayGround.Data.Event
         public string DisplayName { get; }
         public string Category { get; }
         public int Order { get; }
+        public string Description { get; }
+        public string[] Aliases { get; }
 
         public MotionEventDescriptorAttribute(
             string displayName,
@@ -20,6 +22,22 @@ namespace UPlayGround.Data.Event
             DisplayName = displayName;
             Category = category;
             Order = order;
+            Description = string.Empty;
+            Aliases = Array.Empty<string>();
+        }
+
+        public MotionEventDescriptorAttribute(
+            string displayName,
+            string category,
+            int order,
+            string description,
+            params string[] aliases)
+        {
+            DisplayName = displayName;
+            Category = category;
+            Order = order;
+            Description = description ?? string.Empty;
+            Aliases = aliases ?? Array.Empty<string>();
         }
     }
 }

@@ -9,6 +9,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("CustomCallback", "Utility", 0, "문자열 기반 커스텀 콜백을 발생시킵니다.", "callback", "custom", "콜백")]
     public class CustomCallbackEvent : MotionEventBase
     {
         public string callbackName;

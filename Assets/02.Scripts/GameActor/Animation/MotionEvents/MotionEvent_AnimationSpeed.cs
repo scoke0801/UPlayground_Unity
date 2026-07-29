@@ -9,6 +9,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("AnimationSpeed", "Movement / Time", 0, "애니메이션 재생 속도를 구간별로 변경합니다.", "speed", "slow", "fast", "속도")]
     public class AnimationSpeedEvent : MotionEventBase
     {
         public float speedMultiplier = 1f;

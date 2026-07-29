@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Data.Event;
@@ -36,7 +38,11 @@ namespace UPlayGround.Animation.Editor
                 ValidateResolver();
                 ValidateTargetResolution();
                 ValidateExecutorLifecycle();
-                File.WriteAllText(resultPath, "PASS: resolver,target,executor");
+                ValidateEditorAssemblyBoundary();
+                ValidateEditorExtensions();
+                File.WriteAllText(
+                    resultPath,
+                    "PASS: resolver,target,executor,editor-boundary,extensions");
                 Debug.Log("[MotionSetModuleValidator] PASS");
                 if (exitEditor)
                     EditorApplication.Exit(0);
@@ -159,6 +165,79 @@ namespace UPlayGround.Animation.Editor
                 motionName = id,
                 motionClip = clip,
             };
+        }
+
+        private static void ValidateEditorAssemblyBoundary()
+        {
+            Assembly assembly = typeof(MotionSetEditorWindow).Assembly;
+            string[] forbidden =
+            {
+                "UPlayGround.Data",
+                "UPlayGround.Actor",
+                "UPlayGround.Contracts",
+                "KinematicCharacterController",
+            };
+            string[] references = assembly.GetReferencedAssemblies()
+                .Select(reference => reference.Name)
+                .ToArray();
+            string invalid = references.FirstOrDefault(reference =>
+                forbidden.Contains(reference, StringComparer.Ordinal) ||
+                reference.StartsWith("Assembly-CSharp", StringComparison.Ordinal));
+            if (invalid != null)
+            {
+                throw new InvalidOperationException(
+                    $"MotionSet.Editor 금지 어셈블리 참조: {invalid}");
+            }
+
+            Type[] editorWindowTypes = TypeCache.GetTypesDerivedFrom<EditorWindow>()
+                .Where(type => type.Name == nameof(MotionSetEditorWindow))
+                .ToArray();
+            if (editorWindowTypes.Length != 1 ||
+                editorWindowTypes[0].Assembly != assembly)
+            {
+                string summary = string.Join(
+                    ", ",
+                    editorWindowTypes.Select(type =>
+                        $"{type.FullName}@{type.Assembly.GetName().Name}"));
+                throw new InvalidOperationException(
+                    $"MotionSetEditorWindow 어셈블리 분산: {summary}");
+            }
+        }
+
+        private static void ValidateEditorExtensions()
+        {
+            ValidateConstructible<IMotionEditorPanel>();
+            ValidateConstructible<IMotionEventSceneEditor>();
+            ValidateConstructible<IMotionEventOffsetFieldProvider>();
+            ValidateConstructible<IMotionPreviewSubjectBinder>();
+            ValidateConstructible<IMotionPreviewCatalogPopulator>();
+        }
+
+        private static void ValidateConstructible<T>()
+        {
+            foreach (Type type in TypeCache.GetTypesDerivedFrom<T>())
+            {
+                if (type.IsAbstract || type.IsInterface)
+                    continue;
+                ConstructorInfo constructor = type.GetConstructor(Type.EmptyTypes);
+                if (!type.IsPublic || constructor == null || !constructor.IsPublic)
+                {
+                    throw new InvalidOperationException(
+                        $"{typeof(T).Name} 구현은 public 무인자 생성자가 필요합니다: " +
+                        type.FullName);
+                }
+
+                try
+                {
+                    Activator.CreateInstance(type);
+                }
+                catch (Exception exception)
+                {
+                    throw new InvalidOperationException(
+                        $"{typeof(T).Name} 구현 생성 실패: {type.FullName}",
+                        exception);
+                }
+            }
         }
 
         [Serializable]

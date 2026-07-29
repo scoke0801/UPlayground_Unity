@@ -1,0 +1,423 @@
+@import url("https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap");
+
+:root {
+  --ink: #e9f1ed;
+  --muted: #91a4a1;
+  --mint: #8be0c6;
+  --gold: #efc876;
+  --danger: #ee7367;
+  --panel: rgba(10, 19, 24, .76);
+  --line: rgba(207, 229, 220, .16);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #0b1419;
+  color: var(--ink);
+  font-family: "Montserrat", "Gowun Dodum", sans-serif;
+}
+
+button, input { font: inherit; }
+button { color: inherit; }
+
+.game-shell, .title-screen, .play-screen, .summary-screen {
+  width: 100vw;
+  height: 100dvh;
+}
+
+.title-screen {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(40px, 1fr) minmax(390px, 680px) minmax(360px, 480px) minmax(40px, 1fr);
+  align-items: center;
+  gap: clamp(30px, 5vw, 92px);
+  padding: 8vh 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 74% 42%, rgba(81, 155, 143, .18), transparent 33%),
+    linear-gradient(128deg, #0a151a 0%, #10242a 44%, #161b27 100%);
+}
+
+.title-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(8, 15, 19, .85), transparent 38%, transparent 74%, rgba(8, 15, 19, .35));
+  pointer-events: none;
+}
+
+.title-grid {
+  position: absolute;
+  inset: -20%;
+  opacity: .16;
+  transform: perspective(800px) rotateX(64deg) translateY(24%);
+  transform-origin: center bottom;
+  background-image: linear-gradient(rgba(151, 216, 199, .18) 1px, transparent 1px), linear-gradient(90deg, rgba(151, 216, 199, .18) 1px, transparent 1px);
+  background-size: 76px 76px;
+  mask-image: radial-gradient(ellipse, black, transparent 68%);
+}
+
+.ambient-orb {
+  position: absolute;
+  width: 42vw;
+  aspect-ratio: 1;
+  border: 1px solid rgba(139, 224, 198, .18);
+  border-radius: 50%;
+  box-shadow: inset 0 0 100px rgba(139, 224, 198, .08), 0 0 100px rgba(139, 224, 198, .05);
+}
+.orb-a { left: -18vw; top: -18vw; }
+.orb-b { width: 30vw; right: 18vw; bottom: -21vw; border-color: rgba(229, 184, 105, .12); }
+
+.eyebrow {
+  position: absolute;
+  top: 38px;
+  left: 48px;
+  z-index: 2;
+  font-size: 11px;
+  letter-spacing: .23em;
+  color: #a6b6b1;
+}
+.eyebrow span {
+  display: inline-grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  margin-right: 10px;
+  color: #0b171a;
+  background: var(--mint);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.title-copy { grid-column: 2; position: relative; z-index: 2; }
+.kicker, .summary-kicker, .modal-kicker {
+  margin: 0 0 16px;
+  color: var(--mint);
+  font-size: 11px;
+  letter-spacing: .32em;
+  font-weight: 700;
+}
+.title-copy h1 {
+  margin: 0;
+  font-size: clamp(68px, 9vw, 146px);
+  line-height: .78;
+  letter-spacing: -.075em;
+  font-weight: 800;
+}
+.title-copy h1 em {
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(224, 240, 234, .65);
+  font-style: italic;
+}
+.lede {
+  margin: 44px 0 0;
+  color: #a7b7b4;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.launch-card {
+  grid-column: 3;
+  position: relative;
+  z-index: 3;
+  padding: 34px;
+  border: 1px solid var(--line);
+  background: rgba(8, 17, 21, .62);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .28);
+  backdrop-filter: blur(18px);
+}
+.launch-card::before {
+  content: "";
+  position: absolute;
+  width: 44px;
+  height: 3px;
+  top: -2px;
+  left: 34px;
+  background: var(--mint);
+}
+.launch-label {
+  margin-bottom: 35px;
+  color: #718682;
+  font-size: 9px;
+  letter-spacing: .25em;
+}
+.launch-card label {
+  display: block;
+  margin-bottom: 9px;
+  color: #9aaba7;
+  font-family: "Gowun Dodum", sans-serif;
+  font-size: 13px;
+}
+.seed-row {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(209, 230, 222, .28);
+}
+.seed-row > span { color: var(--mint); font-size: 26px; }
+.seed-row input {
+  width: 100%;
+  padding: 10px 12px 12px;
+  border: 0;
+  outline: none;
+  color: var(--ink);
+  background: transparent;
+  font-size: 29px;
+  letter-spacing: .13em;
+  font-weight: 600;
+}
+.dice-button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  color: var(--mint);
+  background: rgba(139, 224, 198, .06);
+  cursor: pointer;
+}
+.run-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 30px 0;
+  border-block: 1px solid var(--line);
+}
+.run-facts div { padding: 18px 8px; text-align: center; }
+.run-facts div + div { border-left: 1px solid var(--line); }
+.run-facts b { display: block; font-size: 18px; }
+.run-facts span { display: block; margin-top: 5px; color: #788d89; font-family: "Gowun Dodum"; font-size: 11px; }
+.primary-button {
+  display: flex;
+  width: 100%;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 9px 0 21px;
+  border: 0;
+  color: #10201f;
+  background: var(--mint);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.primary-button:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(112, 216, 186, .2); }
+.primary-button i {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  color: var(--mint);
+  background: #10201f;
+  font-style: normal;
+  font-size: 18px;
+}
+.microcopy { margin: 14px 0 0; text-align: center; color: #627773; font-size: 9px; letter-spacing: .12em; }
+.title-footer {
+  position: absolute;
+  right: 48px;
+  bottom: 31px;
+  left: 48px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  color: #5d716e;
+  font-size: 9px;
+  letter-spacing: .18em;
+}
+
+.play-screen { position: relative; overflow: hidden; background: #101e23; }
+.game-canvas { display: block; width: 100%; height: 100%; }
+.play-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 160px 35px rgba(2, 8, 12, .68);
+}
+.top-hud {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 180px 1fr 180px;
+  align-items: center;
+  padding: 22px 28px;
+  background: linear-gradient(rgba(5, 12, 16, .84), transparent);
+  pointer-events: none;
+}
+.brand-mark { display: flex; align-items: center; gap: 9px; }
+.brand-mark b { display: grid; place-items: center; width: 32px; height: 32px; color: #10211f; background: var(--mint); }
+.brand-mark span { color: #a7bbb6; font-size: 9px; line-height: 1.25; letter-spacing: .18em; }
+.objective-strip { justify-self: center; display: flex; align-items: center; gap: 16px; padding: 10px 18px; border: 1px solid var(--line); background: rgba(7, 15, 19, .55); backdrop-filter: blur(10px); }
+.objective-label { color: #708480; font-family: "Gowun Dodum"; font-size: 11px; }
+.objective-strip strong { font-family: "Gowun Dodum"; font-size: 14px; font-weight: 400; }
+.sigils { display: flex; gap: 6px; }
+.sigils i { width: 8px; height: 8px; border: 1px solid #78908a; transform: rotate(45deg); }
+.sigils i.filled { border-color: var(--gold); background: var(--gold); box-shadow: 0 0 10px rgba(239, 200, 118, .65); }
+.run-clock { justify-self: end; text-align: right; }
+.run-clock span, .run-clock small { display: block; color: #718680; font-size: 8px; letter-spacing: .16em; }
+.run-clock b { display: block; margin: 3px 0; font-size: 19px; font-variant-numeric: tabular-nums; }
+
+.boss-hud {
+  position: absolute;
+  z-index: 4;
+  top: 95px;
+  left: 50%;
+  width: min(520px, 58vw);
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+.boss-name span { display: block; color: var(--danger); font-size: 8px; letter-spacing: .28em; }
+.boss-name strong { display: block; margin: 3px 0 8px; font-family: "Gowun Dodum"; font-size: 19px; font-weight: 400; }
+.boss-bar { height: 5px; background: rgba(255,255,255,.12); }
+.boss-bar i { display: block; height: 100%; background: linear-gradient(90deg, #bb534d, #f08a73); box-shadow: 0 0 15px rgba(236, 112, 99, .5); transition: width .15s linear; }
+.boss-hud > span { display: block; margin-top: 5px; color: #7e8f8d; font-size: 8px; }
+.toast-message {
+  position: absolute;
+  z-index: 5;
+  top: 31%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 12px 25px;
+  border-inline: 2px solid var(--mint);
+  color: #e7f2ed;
+  background: linear-gradient(90deg, transparent, rgba(8, 19, 22, .87) 12%, rgba(8, 19, 22, .87) 88%, transparent);
+  font-family: "Gowun Dodum";
+  font-size: 14px;
+  letter-spacing: .03em;
+  text-align: center;
+  pointer-events: none;
+  animation: toast-in .25s ease;
+}
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, -42%); } }
+
+.bottom-hud {
+  position: absolute;
+  z-index: 4;
+  right: 24px;
+  bottom: 22px;
+  left: 24px;
+  display: grid;
+  grid-template-columns: minmax(250px, 340px) minmax(170px, 230px) minmax(220px, 290px) 1fr;
+  align-items: end;
+  gap: 12px;
+  pointer-events: none;
+}
+.player-vitals, .loot-ledger, .assist-slot {
+  height: 72px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  backdrop-filter: blur(12px);
+}
+.player-vitals { display: flex; align-items: center; padding: 10px; gap: 12px; }
+.portrait { display: grid; place-items: center; width: 48px; height: 48px; color: #132a29; background: linear-gradient(135deg, #b8f1df, #62af9e); font-size: 22px; font-weight: 800; }
+.vital-copy { flex: 1; }
+.vital-copy > span { display: block; margin-bottom: 6px; font-size: 10px; letter-spacing: .12em; }
+.vital-copy > span small { color: #778b86; }
+.hp-bar { height: 5px; background: #293537; }
+.hp-bar i { display: block; height: 100%; background: linear-gradient(90deg, #54af95, #9ae5cd); transition: width .2s linear; }
+.vital-copy > b { display: block; margin-top: 4px; font-size: 10px; }
+.vital-copy > b small { color: #71827f; }
+.loot-ledger { padding: 11px 14px; }
+.loot-ledger span, .assist-slot span { display: block; color: #748884; font-family: "Gowun Dodum"; font-size: 10px; }
+.loot-ledger b { display: block; margin: 3px 0; color: var(--gold); font-size: 18px; }
+.loot-ledger small { color: #796f60; font-family: "Gowun Dodum"; font-size: 9px; }
+.assist-slot { position: relative; display: flex; align-items: center; gap: 11px; padding: 10px; }
+.assist-slot.ready { border-color: rgba(139, 224, 198, .35); }
+.keycap, kbd { border: 1px solid rgba(212, 231, 225, .28); background: rgba(255, 255, 255, .06); }
+.keycap { display: grid; place-items: center; width: 45px; height: 45px; color: var(--mint); font-weight: 700; }
+.assist-slot b { display: block; margin-top: 5px; font-family: "Gowun Dodum"; font-size: 13px; font-weight: 400; }
+.assist-slot > i { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(4, 10, 13, calc(var(--cooldown) * .72)); font-style: normal; }
+.assist-slot > i span { color: white; font-size: 17px; }
+.controls { justify-self: end; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px 13px; max-width: 370px; pointer-events: auto; }
+.controls span { color: #8ca09b; font-family: "Gowun Dodum"; font-size: 10px; white-space: nowrap; }
+kbd { padding: 4px 6px; color: #d8e8e3; font-family: "Montserrat"; font-size: 8px; }
+.controls button { border: 0; color: var(--mint); background: transparent; font-family: "Gowun Dodum"; font-size: 10px; cursor: pointer; }
+
+.summary-screen {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 37%, rgba(225, 190, 111, .18), transparent 30%),
+    linear-gradient(135deg, #0a1519, #152329 55%, #171923);
+}
+.summary-screen::before {
+  content: "";
+  position: absolute;
+  width: 780px;
+  height: 780px;
+  border: 1px solid rgba(239, 200, 118, .12);
+  border-radius: 50%;
+  box-shadow: 0 0 0 75px rgba(239, 200, 118, .025), 0 0 0 150px rgba(239, 200, 118, .018);
+}
+.summary-panel { position: relative; z-index: 2; width: min(560px, calc(100vw - 40px)); padding: 50px; border: 1px solid rgba(239, 209, 147, .19); background: rgba(7, 16, 20, .73); text-align: center; backdrop-filter: blur(18px); }
+.summary-kicker { color: var(--gold); }
+.grade { position: absolute; top: 32px; right: 42px; color: var(--gold); font-size: 86px; font-style: italic; font-weight: 800; opacity: .18; }
+.summary-panel h2 { margin: 0; font-family: "Gowun Dodum"; font-size: 34px; font-weight: 400; }
+.summary-panel > p { color: #879a96; font-family: "Gowun Dodum"; font-size: 13px; }
+.summary-stats { display: grid; grid-template-columns: 1fr 1fr; margin: 34px 0 24px; border: 1px solid var(--line); }
+.summary-stats div { padding: 19px; text-align: left; }
+.summary-stats div:nth-child(even) { border-left: 1px solid var(--line); }
+.summary-stats div:nth-child(n+3) { border-top: 1px solid var(--line); }
+.summary-stats span { display: block; color: #718581; font-family: "Gowun Dodum"; font-size: 10px; }
+.summary-stats b { display: block; margin-top: 7px; font-size: 15px; }
+.settlement-note { margin-bottom: 24px; padding: 15px; background: rgba(239, 200, 118, .06); text-align: left; }
+.settlement-note span, .settlement-note small { display: block; color: #827866; font-size: 8px; letter-spacing: .14em; }
+.settlement-note b { display: block; margin: 5px 0; color: #d6c295; font-size: 12px; letter-spacing: .12em; }
+
+.modal-backdrop { position: fixed; z-index: 20; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(2, 8, 11, .77); backdrop-filter: blur(10px); }
+.help-modal { position: relative; width: min(680px, 100%); padding: 40px; border: 1px solid var(--line); background: #102027; box-shadow: 0 30px 100px rgba(0,0,0,.5); }
+.close-button { position: absolute; top: 15px; right: 18px; border: 0; color: #9db1ac; background: transparent; font-size: 26px; cursor: pointer; }
+.help-modal h2 { margin: 0 0 26px; font-family: "Gowun Dodum"; font-weight: 400; }
+.help-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); }
+.help-grid div { padding: 22px; }
+.help-grid div:nth-child(even) { border-left: 1px solid var(--line); }
+.help-grid div:nth-child(n+3) { border-top: 1px solid var(--line); }
+.help-grid b { color: var(--mint); font-size: 11px; }
+.help-grid h3 { margin: 8px 0; font-family: "Gowun Dodum"; font-size: 15px; font-weight: 400; }
+.help-grid p { margin: 0; color: #788d88; font-family: "Gowun Dodum"; font-size: 11px; line-height: 1.6; }
+.secondary-button { width: 100%; margin-top: 20px; padding: 15px; border: 1px solid rgba(139, 224, 198, .4); color: var(--mint); background: rgba(139, 224, 198, .05); font-size: 11px; cursor: pointer; }
+
+@media (max-width: 980px) {
+  .title-screen { grid-template-columns: 30px 1fr 360px 30px; gap: 30px; }
+  .title-copy h1 { font-size: 72px; }
+  .bottom-hud { grid-template-columns: 1fr 1fr 1fr; }
+  .controls { display: none; }
+}
+
+@media (max-width: 720px) {
+  html, body { overflow: auto; }
+  .title-screen { height: auto; min-height: 100dvh; display: flex; flex-direction: column; align-items: stretch; justify-content: center; padding: 90px 24px 70px; }
+  .title-copy h1 { font-size: clamp(66px, 21vw, 96px); }
+  .lede br { display: none; }
+  .launch-card { width: 100%; padding: 26px; }
+  .title-footer { display: none; }
+  .eyebrow { top: 24px; left: 24px; }
+  .top-hud { grid-template-columns: 50px 1fr 90px; padding: 12px; }
+  .brand-mark span { display: none; }
+  .objective-strip { gap: 8px; padding: 8px 10px; }
+  .objective-label { display: none; }
+  .run-clock small { display: none; }
+  .bottom-hud { right: 10px; bottom: 10px; left: 10px; grid-template-columns: 1fr 1fr; }
+  .player-vitals { grid-column: 1 / -1; }
+  .loot-ledger, .assist-slot { height: 63px; }
+  .boss-hud { top: 80px; width: 78vw; }
+  .help-modal { padding: 28px 20px; }
+  .help-grid { grid-template-columns: 1fr; }
+  .help-grid div:nth-child(even) { border-left: 0; }
+  .help-grid div + div { border-top: 1px solid var(--line); }
+  .summary-panel { padding: 36px 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

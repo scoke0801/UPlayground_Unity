@@ -441,7 +441,11 @@
       "PowerShell(Get-ChildItem -Recurse -File Assets/Tests/EditMode/AI | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\\",\"\"\\) })",
       "Bash(sort -u -t: -k2 -g)",
       "PowerShell(Select-String -Path C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Packages\\\\com.uplayground.motionset\\\\Runtime\\\\Core\\\\Events\\\\MotionEventExecutor.cs -Pattern 'Execute\\\\\\(|OnCompleteEvent|IsActive|startTime|endTime|_activeEvents' | Select-Object -First 40 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Trim\\(\\)\\)\" })",
-      "PowerShell(Test-Path Packages\\\\com.uplayground.motionset; Write-Output \"--- gitignore Packages rules ---\"; \\(Select-String -Path .gitignore -Pattern \"^Packages|uplayground.motionset\"\\).Line)"
+      "PowerShell(Test-Path Packages\\\\com.uplayground.motionset; Write-Output \"--- gitignore Packages rules ---\"; \\(Select-String -Path .gitignore -Pattern \"^Packages|uplayground.motionset\"\\).Line)",
+      "WebFetch(domain:www.animotionx.com)",
+      "WebFetch(domain:www.jaydengames.com)",
+      "Bash(sed -E 's/.*MotionEventDescriptor\\\\\\(//')",
+      "Bash(python3 -)"
     ],
     "deny": [
       "Bash(rm -rf *)",

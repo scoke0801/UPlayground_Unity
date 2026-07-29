@@ -14,6 +14,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Collision", "Combat", 0, "공격 판정을 켜고 HitPhase를 Combat에 전달합니다.", "hitbox", "attack", "damage", "타격", "피격", "콜리전")]
     public class BeginCollisionEvent : MotionEventBase
     {
         [Tooltip("AttackInfoBase.hitPhases의 인덱스. 멀티 히트 시 구간마다 다른 값을 설정한다.")]

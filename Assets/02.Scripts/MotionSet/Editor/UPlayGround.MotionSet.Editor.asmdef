@@ -2,7 +2,9 @@
   "name": "UPlayGround.MotionSet.Editor",
   "rootNamespace": "UPlayGround.Animation.Editor",
   "references": [
-    "UPlayGround.MotionSet.Core"
+    "UPlayGround.MotionSet.Core",
+    "UPlayGround.MotionSet.Animancer",
+    "Kybernetik.Animancer"
   ],
   "includePlatforms": [
     "Editor"

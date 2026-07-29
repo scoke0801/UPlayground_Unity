@@ -11,6 +11,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("FreezeEnemy", "Utility", 0, "적을 일시 정지시킵니다.", "freeze", "enemy", "stop", "빙결", "정지")]
     public class FreezeEnemyEvent : MotionEventBase
     {
         public override string GetDisplayName() => "FreezeEnemy";

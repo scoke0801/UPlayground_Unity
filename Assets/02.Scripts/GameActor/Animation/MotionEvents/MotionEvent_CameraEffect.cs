@@ -15,6 +15,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("CameraEffect", "Camera", 0, "카메라 흔들림, 줌, FOV 효과를 재생합니다.", "shake", "zoom", "fov", "카메라", "흔들림")]
     public class CameraEffectEvent : MotionEventBase
     {
         [Tooltip("재생할 CameraEffectData SO 목록")]

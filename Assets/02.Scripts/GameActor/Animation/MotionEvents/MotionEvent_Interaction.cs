@@ -14,6 +14,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Interaction", "Combat", 0, "채집·채광·벌목·낚시 처리 타이밍을 전달합니다.", "interaction", "gather", "mining", "woodcutting", "fishing", "채집", "채광", "벌목", "낚시")]
     public class InteractionEvent : MotionEventBase
     {
         public InteractionAnimEvent interactionEvent = InteractionAnimEvent.OnHit;

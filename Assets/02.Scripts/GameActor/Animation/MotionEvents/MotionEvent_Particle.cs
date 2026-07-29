@@ -10,6 +10,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Particle", "VFX / SFX", 0, "파티클 또는 VFX를 생성합니다.", "vfx", "effect", "fx", "이펙트", "파티클")]
     public class BeginParticleEvent : MotionEventBase
     {
         public GameObject particlePrefab;

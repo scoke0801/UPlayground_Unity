@@ -14,6 +14,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("DisableCollision", "Combat", 0, "공격 판정을 명시적으로 끕니다.", "hitbox off", "collision off", "판정 종료")]
     public class DisableCollisionEvent : MotionEventBase
     {
         public override string GetDisplayName() => "Disable Collision";

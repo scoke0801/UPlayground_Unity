@@ -11,6 +11,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("ComboWindow", "Combat", 0, "다음 콤보 입력을 받을 수 있는 구간을 엽니다.", "combo", "cancel", "chain", "연계", "콤보")]
     public class ComboWindowEvent : MotionEventBase
     {
 

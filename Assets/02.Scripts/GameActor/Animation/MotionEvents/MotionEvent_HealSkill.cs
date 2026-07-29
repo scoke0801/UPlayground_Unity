@@ -10,6 +10,7 @@ namespace UPlayGround.Data.Event
 {
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("HealSkill", "Combat", 0, "회복 스킬 판정을 실행합니다.", "heal", "recovery", "힐", "회복")]
     public class HealSkillEvent : MotionEventBase
     {
         public string vfxPrefabKey;

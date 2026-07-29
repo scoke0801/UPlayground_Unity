@@ -26,6 +26,7 @@ namespace UPlayGround.Data.Event
 
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("SlashVFX", "VFX / SFX", 0, "블레이드 본 자세를 샘플링해 Slash VFX를 생성합니다.", "slash", "weapon", "blade", "vfx", "검기", "참격")]
     public class SlashVFXEvent : MotionEventBase
     {
         [Header("Slash VFX Setting")]

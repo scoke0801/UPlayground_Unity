@@ -11,6 +11,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Invincibility", "Combat", 0, "피격 무적 구간을 설정합니다.", "iframe", "invincible", "무적", "회피")]
     public class InvincibilityEvent : MotionEventBase
     {
         public override string GetDisplayName() => "Invincibility";

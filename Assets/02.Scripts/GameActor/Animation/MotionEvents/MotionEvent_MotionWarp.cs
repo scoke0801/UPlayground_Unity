@@ -16,6 +16,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("MotionWarp", "Movement / Time", 0, "모션 워핑을 적용합니다.", "warp", "root", "타겟 보정", "워프")]
     public class MotionEvent_MotionWarp : MotionEventBase
     {
         // 워프 전역 토글은 SettingsManager.Data.debugMotionWarpEnabled 로 위임.

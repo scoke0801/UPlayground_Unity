@@ -10,6 +10,7 @@ namespace UPlayGround.Data.Event
 {
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("SpecialBreakAttack", "Combat", 0, "브레이크 특수공격 피해 적용 타이밍을 발생시킵니다.", "break", "special", "groggy", "브레이크", "특수공격")]
     public class SpecialBreakAttackEvent : MotionEventBase
     {
         public override string GetDisplayName() => "SpecialBreakAttack";

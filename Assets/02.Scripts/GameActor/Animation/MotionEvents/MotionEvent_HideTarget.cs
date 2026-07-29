@@ -11,6 +11,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("HideTarget", "Utility", 0, "대상을 숨기거나 표시합니다.", "hide", "visible", "렌더", "숨김")]
     public class HideTargetEvent : MotionEventBase
     {
         // 숨길 자식 오브젝트 이름. 비어있으면 target의 모든 Renderer를 토글

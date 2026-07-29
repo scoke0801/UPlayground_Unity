@@ -26,6 +26,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("SpawnSkill", "VFX / SFX", 0, "스킬 오브젝트를 생성합니다.", "skill", "cast", "스킬", "소환")]
     public class SpawnSkillEvent : MotionEventBase
     {
         private const int OverlapBufferSize = 64;

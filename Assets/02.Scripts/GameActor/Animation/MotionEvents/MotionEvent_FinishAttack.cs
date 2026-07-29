@@ -13,6 +13,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("FinishAttack", "Combat", 0, "피니시 공격 처리 타이밍을 발생시킵니다.", "finish", "execution", "처형", "피니시")]
     public class FinishAttackEvent : MotionEventBase
     {
         public override string GetDisplayName() => "FinishAttack";

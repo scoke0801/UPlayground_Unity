@@ -12,6 +12,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("AddForce", "Movement / Time", 0, "대상에게 힘/이동량을 가합니다.", "force", "move", "push", "넉백", "이동")]
     public class AddForceEvent : MotionEventBase
     {
         public Vector3 direction;   // normalized로 사용

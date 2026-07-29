@@ -12,6 +12,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("CameraLookAtSocket", "Camera", 0, "카메라가 특정 소켓이나 본을 바라보도록 합니다.", "lookat", "socket", "target", "시선", "소켓")]
     public class CameraLookAtSocketEvent : MotionEventBase
     {
         [Tooltip("주시할 소켓 타입")]

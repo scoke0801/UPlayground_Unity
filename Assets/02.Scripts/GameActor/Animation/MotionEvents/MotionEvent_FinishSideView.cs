@@ -25,6 +25,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("FinishSideView", "Camera", 0, "피니시 연출용 사이드뷰 카메라를 시작하거나 종료합니다.", "side", "cinematic", "연출", "사이드뷰")]
     public class FinishSideViewEvent : MotionEventBase
     {
         [Tooltip("플레이어→타겟 방향 기준 측면 오프셋 각도\n+90 = 왼쪽 측면  /  -90 = 오른쪽 측면")]

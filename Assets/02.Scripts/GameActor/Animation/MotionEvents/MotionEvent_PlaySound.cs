@@ -11,6 +11,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("PlaySound", "VFX / SFX", 0, "오디오 클립을 재생합니다.", "audio", "sfx", "sound", "소리", "사운드")]
     public class PlaySoundEvent : MotionEventBase
     {
         public string soundKey = "";

@@ -12,6 +12,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("TimeScale", "Movement / Time", 0, "게임 시간 배율을 변경합니다.", "hit stop", "slow motion", "time", "히트스톱", "시간")]
     public class TimeScaleEvent : MotionEventBase
     {
         [Tooltip("목표 타임스케일 (0.01 = 거의 정지, 1.0 = 정상)")]

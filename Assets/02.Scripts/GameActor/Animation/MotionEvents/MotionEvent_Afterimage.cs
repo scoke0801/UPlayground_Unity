@@ -13,6 +13,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Afterimage", "VFX / SFX", 0, "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.", "ghost", "after image", "alpha", "잔상", "알파")]
     public class AfterimageEvent : MotionEventBase
     {
         [Tooltip("복제할 자식 오브젝트 이름. 비워두면 활성 CharacterModelData 모델을 사용한다.")]

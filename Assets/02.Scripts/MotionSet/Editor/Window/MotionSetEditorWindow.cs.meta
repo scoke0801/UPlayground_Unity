@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: a1fab04e1f4544799517e176a0a3bfda
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _idleClip: {fileID: 1827226128182048838, guid: 50cc331e8181c3d41a69a486d4c2c734, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData:
+  assetBundleName:
+  assetBundleVariant:

@@ -16,6 +16,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("CancelWindow", "Combat", 0, "회피·대시·공격 등으로 현재 공격을 취소할 수 있는 구간입니다.", "cancel", "interrupt", "dodge", "캔슬", "회피")]
     public class CancelWindowEvent : MotionEventBase
     {
         [Tooltip("None이면 공격의 전역 interruptActions를 그대로 허용한다.\n지정하면 이 구간에서는 전역 마스크와의 교집합으로 좁힌다(예: 선딜 후반은 Dodge만).")]

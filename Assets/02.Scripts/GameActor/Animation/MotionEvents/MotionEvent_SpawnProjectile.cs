@@ -24,6 +24,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("SpawnProjectile", "VFX / SFX", 0, "투사체를 지정 위치에서 발사합니다.", "projectile", "bullet", "arrow", "shot", "투사체", "화살")]
     public class SpawnProjectileEvent : MotionEventBase
     {
         private static readonly List<ProjectilePatternShot> PatternShots = new(16);

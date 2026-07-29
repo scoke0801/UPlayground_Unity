@@ -19,6 +19,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Loop", "Movement / Time", 0, "모션 구간 반복, 정지 또는 무한 루프를 설정합니다.", "repeat", "freeze", "loop", "반복", "정지")]
     public class LoopEvent : MotionEventBase, IMotionTimelineControlEvent
     {
         public LoopEventMode mode = LoopEventMode.Loop;

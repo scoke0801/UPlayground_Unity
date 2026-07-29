@@ -14,7 +14,8 @@ namespace UPlayGround.Data.Actor.Animation.Editor
 
             EditorGUILayout.Space(6);
             if (GUILayout.Button("애니메이션 에디터에서 열기", GUILayout.Height(24)))
-                UPlayGround.Animation.Editor.MotionSetEditorWindow.Open((PlayerActorAnimationMotionSet)target);
+                UPlayGround.Animation.Editor.MotionEditorProjectEntry.Open(
+                    (PlayerActorAnimationMotionSet)target);
 
             serializedObject.ApplyModifiedProperties();
         }

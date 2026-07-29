@@ -10,6 +10,7 @@ namespace UPlayGround.Data.Event
     /// </summary>
     [Serializable]
     [MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
+    [MotionEventDescriptor("Footstep", "VFX / SFX", 0, "지형 기반 발자국 사운드를 재생합니다.", "foot", "step", "walk", "발소리", "발자국")]
     public class FootstepEvent : MotionEventBase
     {
         public enum Foot { Left, Right }

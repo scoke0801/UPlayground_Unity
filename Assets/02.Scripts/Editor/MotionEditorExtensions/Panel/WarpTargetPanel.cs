@@ -14,6 +14,7 @@ namespace UPlayGround.Animation.Editor
         private float _distance = 2.5f;
         private float _angle;
         private float _height;
+        private float _targetRadius = 0.55f;
         private GameObject _dummy;
         private MotionWarpController _controller;
         private GameObject _owner;
@@ -49,6 +50,7 @@ namespace UPlayGround.Animation.Editor
                     _distance = EditorGUILayout.Slider("거리", _distance, 0.1f, 12f);
                     _angle = EditorGUILayout.Slider("각도", _angle, -180f, 180f);
                     _height = EditorGUILayout.Slider("높이", _height, -3f, 5f);
+                    _targetRadius = EditorGUILayout.Slider("타겟 반경", _targetRadius, 0.2f, 2.5f);
                     bool nextSnapshot = EditorGUILayout.ToggleLeft(
                         "주입 시점 위치 스냅샷",
                         _snapshot);
@@ -57,6 +59,8 @@ namespace UPlayGround.Animation.Editor
                         _snapshot = nextSnapshot;
                         if (!context.IsPlaying)
                             PositionDummy(root);
+                        if (_dummy != null)
+                            _dummy.transform.localScale = new Vector3(_targetRadius, 1f, _targetRadius);
                         _injected = false;
                         SceneView.RepaintAll();
                     }
@@ -100,21 +104,26 @@ namespace UPlayGround.Animation.Editor
 
         public void OnSceneGUI(IMotionEditorContext context)
         {
-            if (!_enabled || _dummy == null || context.IsPlaying)
+            if (!_enabled || _dummy == null)
                 return;
 
-            EditorGUI.BeginChangeCheck();
-            Vector3 next = Handles.PositionHandle(
-                _dummy.transform.position,
-                Quaternion.identity);
-            if (!EditorGUI.EndChangeCheck())
-                return;
+            if (!context.IsPlaying)
+            {
+                EditorGUI.BeginChangeCheck();
+                Vector3 next = Handles.PositionHandle(
+                    _dummy.transform.position,
+                    Quaternion.identity);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    Undo.RecordObject(_dummy.transform, "워프 타겟 이동");
+                    _dummy.transform.position = next;
+                    UpdatePolarFromDummy(context.Subject.Root);
+                    _injected = false;
+                    context.Repaint();
+                }
+            }
 
-            Undo.RecordObject(_dummy.transform, "워프 타겟 이동");
-            _dummy.transform.position = next;
-            UpdatePolarFromDummy(context.Subject.Root);
-            _injected = false;
-            context.Repaint();
+            DrawWarpPreview(context.Subject.Root);
         }
 
         public void OnPlaybackStateChanged(
@@ -155,7 +164,7 @@ namespace UPlayGround.Animation.Editor
                 _dummy = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                 _dummy.name = DummyName;
                 _dummy.hideFlags = HideFlags.HideAndDontSave;
-                _dummy.transform.localScale = new Vector3(0.55f, 1f, 0.55f);
+                _dummy.transform.localScale = new Vector3(_targetRadius, 1f, _targetRadius);
                 if (_dummy.TryGetComponent(out Collider collider))
                     collider.isTrigger = true;
                 PositionDummy(root);
@@ -197,6 +206,48 @@ namespace UPlayGround.Animation.Editor
                 _dummy.transform,
                 _snapshot);
             _injected = true;
+        }
+
+        private void DrawWarpPreview(GameObject root)
+        {
+            if (_controller == null || root == null || !_controller.HasActiveWindow)
+                return;
+
+            MotionWarpWindowSettings settings = _controller.ActiveWindowSettings;
+            Vector3 rootPosition = root.transform.position;
+            Vector3 targetCenter = _controller.CurrentTargetCenter;
+            Vector3 desired = _controller.CurrentDesiredArrival;
+            Vector3 originalEnd = rootPosition + root.transform.rotation * settings.bakedLocalTotal;
+            Vector3 correction = desired - originalEnd;
+            correction.y = 0f;
+            Vector3 limited = MotionWarpArrivalUtility.LimitCorrection(
+                correction,
+                settings.bakedPathLen,
+                settings.maxCorrectionDistance,
+                settings.maxCorrectionRatio);
+
+            Handles.color = Color.gray;
+            Handles.DrawAAPolyLine(3f, rootPosition, originalEnd);
+            Handles.color = new Color(0.2f, 0.55f, 1f);
+            Handles.DrawAAPolyLine(4f, rootPosition, originalEnd + limited);
+            Handles.color = new Color(0.2f, 0.9f, 0.35f);
+            Handles.DrawWireDisc(targetCenter, Vector3.up, _controller.CurrentArrivalShellRadius);
+            Handles.color = Color.yellow;
+            Handles.SphereHandleCap(0, desired, Quaternion.identity, 0.14f, EventType.Repaint);
+            Handles.color = Color.red;
+            Handles.DrawAAPolyLine(3f, originalEnd, originalEnd + correction);
+            Handles.color = Color.cyan;
+            Handles.DrawAAPolyLine(4f, originalEnd, originalEnd + limited);
+
+            float ratio = settings.bakedPathLen > 0.0001f
+                ? limited.magnitude / settings.bakedPathLen
+                : 0f;
+            Handles.Label(
+                desired + Vector3.up * 0.25f,
+                $"도착: {settings.arrivalMode}\n" +
+                $"보정 {limited.magnitude:F2}m / {ratio:P0}\n" +
+                $"Translation 종료 {settings.translationEndLeadTime:F2}s 전\n" +
+                $"Bake {(settings.bakedValid ? "유효" : "무효")}");
         }
 
         private void ReleaseDummy()

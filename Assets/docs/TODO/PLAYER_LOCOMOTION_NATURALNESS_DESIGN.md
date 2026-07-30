@@ -3,7 +3,7 @@
 > 작성일: 2026-07-28
 > 대상 버전: Unity 6 (6000.0.60f1), URP, KCC, Animancer Pro V8
 > 레퍼런스: [UE5 Lyra Game Core Animation 분석](https://www.jaydengames.com/posts/ue5-black-magic-game-core-animation/), [ALS-Community V4 소스](https://github.com/dyanikoglu/ALS-Community), [Building a Turn in Gameplay Animation (Animotionx)](https://www.animotionx.com/en/post/building-a-turn-in-gameplay-animation-the-angle-under-tension), [Distance Matching in UE](https://dev.epicgames.com/documentation/unreal-engine/distance-matching-in-unreal-engine), [Unity Input System — Gamepad](https://docs.unity3d.com/Packages/com.unity.inputsystem@1.8/manual/Gamepad.html), [Analyzing Core Character Movement in 3D](https://www.gamedeveloper.com/design/analyzing-core-character-movement/)
-> 상태: **설계 확정 · 미구현** (2026-07-28 KCC·Animancer·입력 연계 정밀 검토 반영 — D-13~D-17, R-11~R-13, P0-5, P1-5, P1-6 추가)
+> 상태: **P0~P3 및 P4-1 코드 구현 · Unity 튜닝/스모크 검증 대기** (2026-07-29, P4-2는 원본 애니메이션 미저작으로 보류)
 > 범위: 플레이어 지상 이동(Idle / GroundMove / Stop / TurnInPlace)에 한정. 공중·전투·회피는 회귀 대상일 뿐 개선 대상이 아니다.
 
 ---
@@ -11,6 +11,15 @@
 ## 0. 한 줄 요약
 
 **이미 저작되어 있는 Stop 9종 · Turn 15종 클립을 코드가 호출하지 않고 있다.** 신규 에셋 없이 코드만으로 회수 가능한 자연스러움이 가장 크다. 반면 8방향 스트레이프는 플레이어용 클립이 0건이라 애니메이션 저작이 선행되어야 한다.
+
+### 0.1 구현 체크포인트 (2026-07-29)
+
+- P0-1~P0-3 구현: radial deadzone, 입력 크기 스무딩, 릴리즈 유예, 모션별 종료 판정, 로컬 시간축 통일.
+- P0-5 구현 완료: `ActorAnimationMotionSet`에 슬롯별 `motionRootYaw` / `motionReferenceSpeed`를 추가하고 Motion Editor에 18개 슬롯 원클릭·명령행 일괄 베이크를 추가. Bokusei Katana는 Turn 15종(45/90/180°)과 Walk/Run/Sprint(1.5/3.5/6m/s) 데이터까지 채움.
+- P1 구현: Run/Walk Stop 확대, 135° Turn 진입, 회전 스케일/종료 보정, 액션·벽 캔슬, 재진입 쿨다운, 루트모션 이탈 속도 시드, 속도 기반 뱅킹, 카메라 속도 EMA.
+- P2/P3 구현: 가속·감속·반전 계수 분리와 기준 속도 기반 로코모션 Graph 재생속도 동기화.
+- P4-1 (a) 구현: Idle 카메라 정렬 회전. P4-2는 방향 클립 저작 전까지 보류.
+- 남은 작업: 30fps 스트레스 및 Play Mode 회귀, 파라미터 체감 튜닝. 다른 캐릭터/무기 세트는 콘텐츠 적용 시 같은 자동 베이크를 실행한다.
 
 ---
 
@@ -851,7 +860,7 @@ LocomotionPlayRateMax = 1.25f
 
 | 위치 | 현재 | P1-4 후 |
 |---|---|---|
-| `PlayerGroundMoveState.cs:49` (OnExit) | 무조건 → Run | **로코모션 계열로 나갈 때는 유지**, 그 외만 Run |
+| `PlayerGroundMoveState.cs:49` (OnExit) | 무조건 → Run | **상태 이탈만으로 변경하지 않음**. 입력 토글·자동 Sprint·DashAttack 등 명시적 소유자만 기록 |
 | `PlayerGroundMoveState.cs:176` | → Sprint (1회 한정) | → Sprint (`_sprintArmed`로 재무장 가능) |
 | `PlayerDashState.cs:84` (OnExit) | → Sprint | 유지 |
 | `PlayerDashAttackState.cs:31` | → Run | 유지 |

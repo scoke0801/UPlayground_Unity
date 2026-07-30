@@ -13,6 +13,7 @@ namespace UPlayGround.State
     public class PlayerIdleState : PlayerActorState
     {
         public override string StateName => "Idle";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Locomotion;
         
         private PlayerEquipment _equipment;
 
@@ -29,7 +30,7 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             _equipment = playerActor.GetPlayerEquipment();
-            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
+            gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.15f);
         }
 
         public override void UpdateState(float deltaTime)
@@ -135,7 +136,7 @@ namespace UPlayGround.State
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
-            // Idle 상태에서는 회전 유지 (또는 부드럽게 정면으로)
+            // 큰 방향 전환은 TurnInPlace 루트모션이 담당한다.
             currentRotation = currentRotation.normalized;
         }
         
@@ -153,7 +154,10 @@ namespace UPlayGround.State
                 currentVelocity = Vector3.Lerp(
                     currentVelocity,
                     targetVelocity,
-                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                    1 - Mathf.Exp(
+                        -(controller.DecelerationSharpness > 0f
+                            ? controller.DecelerationSharpness
+                            : controller.StableMovementSharpness) * deltaTime));
             }
         }
 
@@ -192,7 +196,7 @@ namespace UPlayGround.State
                 }
             }
         }
-    
+
         private void PlayEquip_Left()
         {
             if (playerActor.IsEquippedLeftWeapon == false)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -18,6 +19,10 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
 
         private readonly HitContext _hit;
+        private MotionSet _playedMotionSet;
+        private float _elapsed;
+        private float _hardTimeout;
+        private bool _motionCompleted;
         public EnemyHitState(ActorMovementController controller, in HitContext hit = default) : base(controller)
         {
             _hit = hit;
@@ -42,8 +47,28 @@ namespace UPlayGround.State
 
             var state = gameActor.Animator.PlayMotion(hitAnim, fadeDuration);
             if (state != null)
-                state.OwnedEvents.OnEnd = OnHitEnd;
+            {
+                _playedMotionSet = gameActor.Animator.CurrentMotionSet;
+                float duration = _playedMotionSet?.TotalDuration ?? 0f;
+                _hardTimeout = Mathf.Max(0.35f, duration * 1.5f + 0.1f);
+                gameActor.Animator.OnMotionSetEndedWithReason += OnMotionSetEnded;
+            }
             else
+            {
+                _motionCompleted = true;
+            }
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
+            base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            _elapsed += deltaTime;
+            if (_motionCompleted || _elapsed >= _hardTimeout)
                 OnHitEnd();
         }
 
@@ -70,6 +95,12 @@ namespace UPlayGround.State
         private void OnHitEnd()
         {
             controller.TransitionToState(new EnemyIdleState(controller));
+        }
+
+        private void OnMotionSetEnded(MotionSet motionSet, MotionSetEndReason reason)
+        {
+            if (ReferenceEquals(motionSet, _playedMotionSet))
+                _motionCompleted = true;
         }
 
         private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()

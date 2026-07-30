@@ -4,6 +4,7 @@ using KinematicCharacterController;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UPlayGround;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Debugging;
 using UPlayGround.State;
 using UPlayGround.CameraSystem;
@@ -18,6 +19,32 @@ namespace UPlayGround.MovementController
         public float MaxSprintMoveSpeed = 10f;
         public float StableMovementSharpness = 15;
         public float OrientationSharpness = 10;
+
+        [Header("Player Locomotion Naturalness")]
+        [Min(0f)] public float MinStopSpeed = 1.5f;
+        [Range(45f, 180f)] public float TurnTriggerAngle = 75f;
+        [Range(0f, 180f)] public float TurnAbortAngle = 90f;
+        [Min(0f)] public float MinTurnSpeed = 0.5f;
+        [Min(0f)] public float TurnConfirmTime = 0.1f;
+        [Min(0f)] public float TurnMinDuration = 0.12f;
+        [Min(0f)] public float TurnClearance = 1.2f;
+        [Min(0.01f)] public float TurnRotationScaleMin = 0.6f;
+        [Min(0.01f)] public float TurnRotationScaleMax = 1.4f;
+        [Range(0f, 1f)] public float SprintOrientationScale = 0.35f;
+        [Min(0f)] public float CameraVelocitySmoothing = 12f;
+
+        [Header("Player Locomotion Acceleration")]
+        [Min(0f)] public float AccelerationSharpness = 8f;
+        [Min(0f)] public float DecelerationSharpness = 20f;
+        [Min(0f)] public float TurnDampSharpness = 12f;
+
+        [Header("Player Locomotion Playback")]
+        [Min(0.01f)] public float ReferenceWalkClipSpeed = 1.5f;
+        [Min(0.01f)] public float ReferenceRunClipSpeed = 3.5f;
+        [Min(0.01f)] public float ReferenceSprintClipSpeed = 6f;
+        [Min(0.01f)] public float LocomotionPlayRateMin = 0.75f;
+        [Min(0.01f)] public float LocomotionPlayRateMax = 1.25f;
+        [Range(0f, 180f)] public float IdleAlignAngle = 90f;
         
         [Header("Air Movement")]
         public float MaxAirMoveSpeed = 3f;
@@ -44,6 +71,11 @@ namespace UPlayGround.MovementController
         protected Vector3 _internalVelocityAdd = Vector3.zero;
         private Vector3 _pendingImpulseVelocity;
         private readonly List<DirectionalVelocityDamper> _impulseDampers = new();
+        private Vector3 _smoothedCameraVelocity;
+        private Vector3 _pendingPlanarVelocitySeed;
+        private bool _hasPendingPlanarVelocitySeed;
+        private Quaternion _pendingRotationSeed = Quaternion.identity;
+        private bool _hasPendingRotationSeed;
 
         /// <summary>
         /// 물리 충격량 부여. 넉백/Launch 등 감속이 필요한 외부 힘에 사용.
@@ -101,9 +133,63 @@ namespace UPlayGround.MovementController
         }
 
         public KinematicCharacterMotor Motor { get; private set; }
-        public Vector3 CameraVelocity => Motor != null ? Motor.Velocity : Vector3.zero;
+        public Vector3 CameraVelocity =>
+            CameraVelocitySmoothing > 0f
+                ? _smoothedCameraVelocity
+                : Motor != null ? Motor.Velocity : Vector3.zero;
+        public Vector3 RawCameraVelocity => Motor != null ? Motor.Velocity : Vector3.zero;
+        public Vector3 SmoothedCameraVelocity => _smoothedCameraVelocity;
         public GameActor Actor { get; private set; }
         public MotionWarpController MotionWarp { get; private set; }
+
+        public float GetMaxMoveSpeed(BaseMoveAnimType moveType) =>
+            moveType switch
+            {
+                BaseMoveAnimType.Walk => MaxWalkMoveSpeed,
+                BaseMoveAnimType.Sprint => MaxSprintMoveSpeed,
+                _ => MaxRunMoveSpeed,
+            };
+
+        public float GetReferenceClipSpeed(BaseMoveAnimType moveType) =>
+            moveType switch
+            {
+                BaseMoveAnimType.Walk => ReferenceWalkClipSpeed,
+                BaseMoveAnimType.Sprint => ReferenceSprintClipSpeed,
+                _ => ReferenceRunClipSpeed,
+            };
+
+        public bool HasTurnClearance(Vector3 direction)
+        {
+            if (Motor == null || TurnClearance <= 0f)
+                return true;
+
+            direction = Vector3.ProjectOnPlane(direction, Motor.CharacterUp);
+            if (direction.sqrMagnitude <= 0.0001f)
+                return false;
+            direction.Normalize();
+
+            float radius = Mathf.Max(0.05f, Motor.Capsule.radius * 0.8f);
+            Vector3 origin = Motor.TransientPosition
+                             + Motor.CharacterUp * Mathf.Max(radius, Motor.Capsule.height * 0.5f)
+                             + direction * (Motor.Capsule.radius + 0.02f);
+            RaycastHit[] hits = Physics.SphereCastAll(
+                origin,
+                radius,
+                direction,
+                TurnClearance,
+                Motor.CollidableLayers,
+                QueryTriggerInteraction.Ignore);
+
+            foreach (RaycastHit hit in hits)
+            {
+                if (hit.collider == null
+                    || hit.collider == Motor.Capsule
+                    || !IsColliderValidForCollisions(hit.collider))
+                    continue;
+                return false;
+            }
+            return true;
+        }
 
         protected void Awake()
         {
@@ -131,6 +217,7 @@ namespace UPlayGround.MovementController
 
             // 스크립트 리컴파일 후 NonSerialized 필드가 초기화될 수 있으므로 OnEnable에서도 재할당한다.
             Motor.CharacterController = this;
+            _smoothedCameraVelocity = Motor.Velocity;
         }
 
         protected virtual void Start()
@@ -176,13 +263,11 @@ namespace UPlayGround.MovementController
         /// </summary>
         public bool TryTransitionToState(GameActorState newState)
         {
-            if (newState.CanTransitionState(CurrentState.StateName) == false)
-            {
+            if (newState == null)
                 return false;
-            }
-
-            TransitionToState(newState);
-            return true;
+            if (CurrentState != null && newState.CanTransitionState(CurrentState.StateName) == false)
+                return false;
+            return TransitionToStateCore(newState);
         }
         
         /// <summary>
@@ -190,10 +275,15 @@ namespace UPlayGround.MovementController
         /// </summary>
         public void TransitionToState(GameActorState newState)
         {
+            TransitionToStateCore(newState);
+        }
+
+        private bool TransitionToStateCore(GameActorState newState)
+        {
             if (newState == null)
             {
                 Debug.LogError("Cannot transition to null state!");
-                return;
+                return false;
             }
             
             // 대부분의 상태는 같은 타입 중복 전환을 막는다.
@@ -203,12 +293,12 @@ namespace UPlayGround.MovementController
                 && (!newState.AllowsSameTypeReentry
                     || !newState.CanReenterFrom(_currentState)))
             {
-                return;
+                return false;
             }
 
             if (_currentState is PlayerFinishAttackState { IsTransitionLocked: true })
             {
-                return;
+                return false;
             }
 
             if (_currentState is PlayerDeathState
@@ -216,7 +306,7 @@ namespace UPlayGround.MovementController
                 && !playerActor.IsAlive()
                 && newState is not PlayerDeathState)
             {
-                return;
+                return false;
             }
             
             GameActorState oldState = _currentState;
@@ -231,6 +321,29 @@ namespace UPlayGround.MovementController
             // 새 상태 진입
             _currentState.OnEnter(oldState);
             OnStateChanged?.Invoke(oldState, _currentState);
+            return true;
+        }
+
+        /// <summary>
+        /// 루트모션 상태 이탈 뒤 첫 KCC 속도 계산에서 평면 속도를 결정적으로 교체한다.
+        /// 수직 성분과 이후 impulse 합성 순서는 보존한다.
+        /// </summary>
+        public void SeedPlanarVelocityNextUpdate(Vector3 planarVelocity)
+        {
+            _pendingPlanarVelocitySeed = Vector3.ProjectOnPlane(
+                planarVelocity,
+                Motor != null ? Motor.CharacterUp : Vector3.up);
+            _hasPendingPlanarVelocitySeed = true;
+        }
+
+        /// <summary>
+        /// 상태 완료와 KCC 물리 스텝 사이에 남은 루트 회전이 유실되어도
+        /// 다음 회전 계산 끝에서 목표 방향을 한 번 확정한다.
+        /// </summary>
+        public void SeedRotationNextUpdate(Quaternion rotation)
+        {
+            _pendingRotationSeed = rotation.normalized;
+            _hasPendingRotationSeed = true;
         }
     }
     
@@ -240,11 +353,27 @@ namespace UPlayGround.MovementController
         {
             // deltaTime은 KCCSimulator가 LocalTimeScale을 반영해서 전달
             _currentState?.UpdateRotation(ref currentRotation, deltaTime);
+            if (_hasPendingRotationSeed)
+            {
+                currentRotation = _pendingRotationSeed;
+                _pendingRotationSeed = Quaternion.identity;
+                _hasPendingRotationSeed = false;
+            }
             currentRotation = currentRotation.normalized;
         }
 
         public virtual void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
+            if (_hasPendingPlanarVelocitySeed)
+            {
+                currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
+                    _pendingPlanarVelocitySeed,
+                    currentVelocity,
+                    Motor.CharacterUp);
+                _pendingPlanarVelocitySeed = Vector3.zero;
+                _hasPendingPlanarVelocitySeed = false;
+            }
+
             // currentVelocity는 KCC 충돌 해결을 거친 유일한 권위 값이다.
             // 이전 프레임 impulse를 역산하지 않고 상태, 감쇠, 신규 delta를 순서대로 합성한다.
             _currentState?.UpdateVelocity(ref currentVelocity, deltaTime);
@@ -297,6 +426,20 @@ namespace UPlayGround.MovementController
         {
             _currentState?.AfterCharacterUpdate(deltaTime);
             Actor?.Animator?.EndRootMotionStep();
+
+            Vector3 rawVelocity = Motor != null ? Motor.Velocity : Vector3.zero;
+            if (CameraVelocitySmoothing <= 0f)
+            {
+                _smoothedCameraVelocity = rawVelocity;
+            }
+            else
+            {
+                float blend = 1f - Mathf.Exp(-CameraVelocitySmoothing * deltaTime);
+                _smoothedCameraVelocity = Vector3.Lerp(
+                    _smoothedCameraVelocity,
+                    rawVelocity,
+                    blend);
+            }
         }
 
         public virtual void PostGroundingUpdate(float deltaTime)

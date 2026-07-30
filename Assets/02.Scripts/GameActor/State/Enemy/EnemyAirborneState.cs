@@ -16,6 +16,8 @@ namespace UPlayGround.State
         private bool _landStarted = false;
         private bool _hasLeftGround;
         private float _dragSpeed = 0.1f;
+        private float _landElapsed;
+        private float _landTimeout;
 
         public EnemyAirborneState(ActorMovementController controller) : base(controller)
         {
@@ -50,6 +52,19 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (_landStarted)
+            {
+                _landElapsed += deltaTime;
+                if (_landElapsed >= _landTimeout)
+                {
+                    Debug.LogWarning(
+                        $"[{gameActor.name}] Land 모션 종료 신호가 없어 안전 복귀합니다.",
+                        gameActor);
+                    ChangeToNextState();
+                }
+                return;
+            }
+
             // _hasLeftGround 가드: KCC 1프레임 grounding 지연으로 인한 조기 종료 방지
             if (_hasLeftGround && motor.GroundingStatus.IsStableOnGround && _landStarted == false)
             {
@@ -95,6 +110,9 @@ namespace UPlayGround.State
         }
         private void ChangeToNextState()
         {
+            if (controller.CurrentState != this)
+                return;
+
             controller.TransitionToState(new EnemyIdleState(controller));
         }
 
@@ -105,6 +123,9 @@ namespace UPlayGround.State
             {
                 _landStarted = true;
                 _dragSpeed = controller.LandDrag;
+                _landElapsed = 0f;
+                float duration = gameActor.Animator.CurrentMotionSet?.TotalDuration ?? 0f;
+                _landTimeout = Mathf.Max(0.4f, duration * 1.5f + 0.1f);
         
                 state.OwnedEvents.OnEnd += ChangeToNextState;
             }

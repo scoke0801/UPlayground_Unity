@@ -1,6 +1,7 @@
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.State;
 
 namespace UPlayGround.Components
 {
@@ -158,8 +159,9 @@ namespace UPlayGround.Components
             if (_player == null || _player.PlayerController == null)
                 return false;
 
-            string stateName = _player.PlayerController.CurrentState?.StateName;
-            return stateName is "Idle" or "GroundMove" or "Stop" or "TurnInPlace";
+            GameActorState state = _player.PlayerController.CurrentState;
+            return state != null
+                   && (state.StateTags & ActorStateTag.Locomotion) != 0;
         }
 
         private void PlayCurrentStateMotionIfSafe()
@@ -175,6 +177,25 @@ namespace UPlayGround.Components
                     break;
                 case "GroundMove":
                     _animator.PlayMotion(GetMoveAnimKey(), 0.1f);
+                    break;
+                case "Stop":
+                    _animator.PlayMotion(
+                        PlayerStopState.GetStopAnimKeyForward(_player.MoveAnimType),
+                        0.1f);
+                    break;
+                case "TurnInPlace":
+                    Vector3 moveDirection = _player.PlayerController.MoveInputVector;
+                    float signedAngle = moveDirection.sqrMagnitude > 0.0001f
+                        ? Vector3.SignedAngle(
+                            _player.PlayerController.Motor.CharacterForward,
+                            moveDirection,
+                            _player.PlayerController.Motor.CharacterUp)
+                        : 180f;
+                    _animator.PlayMotion(
+                        PlayerTurnInPlaceState.GetTurnAnimKey(
+                            _player.MoveAnimType,
+                            signedAngle),
+                        0.1f);
                     break;
             }
         }

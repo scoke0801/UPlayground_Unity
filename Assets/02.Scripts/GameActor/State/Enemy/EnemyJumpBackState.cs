@@ -29,6 +29,7 @@ namespace UPlayGround.State
         private bool _usesMotionFallback;
         private AnimancerState _motionState;
         private float _maxSafeTargetDistance;
+        private float _hardTimeout;
 
         private const float HORIZONTAL_SPEED_RATIO = 1.75f;
         private const float JUMP_SPEED_RATIO = 0.52f;
@@ -76,7 +77,13 @@ namespace UPlayGround.State
                 0.05f);
 
             if (_motionState != null)
+            {
+                float duration = gameActor.Animator.CurrentMotionSet?.TotalDuration ?? 0f;
+                _hardTimeout = Mathf.Max(
+                    FALLBACK_RETREAT_DURATION,
+                    duration * 1.5f + 0.1f);
                 _motionState.OwnedEvents.OnEnd = ChangeToNextState;
+            }
             else
             {
                 // Jump/Dodge 모션이 없는 몬스터도 상태 전환 성공 직후 Idle로 끝나지 않고
@@ -103,7 +110,8 @@ namespace UPlayGround.State
         {
             _timer += deltaTime;
 
-            if (_usesMotionFallback && _timer >= FALLBACK_RETREAT_DURATION)
+            if ((_usesMotionFallback && _timer >= FALLBACK_RETREAT_DURATION)
+                || (!_usesMotionFallback && _timer >= _hardTimeout))
                 ChangeToNextState();
         }
 

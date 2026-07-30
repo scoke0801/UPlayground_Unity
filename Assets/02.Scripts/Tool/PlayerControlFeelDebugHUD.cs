@@ -109,9 +109,38 @@ namespace UPlayGround.Tool.Debugging
             Builder.Append("MoveInput: ").Append(FormatVector(controller.MoveInputVector))
                 .Append(" | LookInput: ").Append(FormatVector(controller.LookInputVector))
                 .AppendLine();
+            float rawSpeed = controller.RawCameraVelocity.magnitude;
+            float smoothedSpeed = controller.SmoothedCameraVelocity.magnitude;
+            float moveAngle = controller.MoveInputVector.sqrMagnitude > 0.0001f && motor != null
+                ? Vector3.Angle(motor.CharacterForward, controller.MoveInputVector)
+                : 0f;
+            Builder.Append("Velocity raw/smoothed: ")
+                .Append(rawSpeed.ToString("0.00")).Append(" / ")
+                .Append(smoothedSpeed.ToString("0.00")).Append(" m/s")
+                .Append(" | MoveAngle: ").Append(moveAngle.ToString("0.0")).Append(" deg")
+                .AppendLine();
+            Builder.Append("Animator.Speed: ")
+                .Append(player.Animator != null ? player.Animator.Speed.ToString("0.00") : "-")
+                .Append(" | LocalTimeScale: ").Append(player.LocalTimeScale.ToString("0.00"))
+                .Append(" | RootStep: ")
+                .Append(player.Animator != null
+                    ? player.Animator.RootMotionStepDeltaPosition.magnitude.ToString("0.0000")
+                    : "-")
+                .AppendLine();
             Builder.Append("Dash: ").Append(controller.IsDashReady ? "Ready" : $"{controller.DashCooldownRemaining:0.00}s")
                 .Append(" / ").Append(controller.DashCooldownDuration.ToString("0.00")).Append("s")
+                .Append(" | Turn cooldown: ")
+                .Append(controller.TurnReentryCooldownRemaining.ToString("0.00")).Append("s")
                 .AppendLine();
+
+            if (state is PlayerTurnInPlaceState turn)
+            {
+                Builder.Append("Turn yaw required/clip/scale: ")
+                    .Append(turn.RequiredYaw.ToString("0.0")).Append(" / ")
+                    .Append(turn.ClipTotalYaw.ToString("0.0")).Append(" / ")
+                    .Append(turn.RotationScale.ToString("0.000"))
+                    .AppendLine();
+            }
 
             if (combat != null)
             {

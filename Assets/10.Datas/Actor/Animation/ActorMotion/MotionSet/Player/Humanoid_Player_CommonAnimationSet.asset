@@ -271,3 +271,121 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Interaction.Drink
       Value: {fileID: 11400000, guid: 59e5b3cbadb2d50408665347985195ae, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Idle.L45
+      Value: {fileID: 11400000, guid: a8239c4b9e0237c4f8bd03f7c504e23d, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Idle.R45
+      Value: {fileID: 11400000, guid: cf8485edbec58d7498ff8147b37eb31b, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Idle.L90
+      Value: {fileID: 11400000, guid: c183682fa2b21764fa74335cfe43d4bc, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Idle.R90
+      Value: {fileID: 11400000, guid: aa39f60605338aa4ca1bb48f95ee5edd, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Idle.180
+      Value: {fileID: 11400000, guid: 4783feb8a8f22a34ca89611667e6159a, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Walk.L45
+      Value: {fileID: 11400000, guid: b9b37a854944f3c4bb38966731bc4e8c, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Walk.R45
+      Value: {fileID: 11400000, guid: fc992c6bd42659144a2b19e13f117391, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Walk.L90
+      Value: {fileID: 11400000, guid: e1bf3f3753dcedd43a787b17725dbbab, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Walk.R90
+      Value: {fileID: 11400000, guid: 13728fde1c40c484a84314cca970bcb7, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Walk.180
+      Value: {fileID: 11400000, guid: c63261533d1944341b2da4f3841022ce, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Run.L45
+      Value: {fileID: 11400000, guid: e0da123c168e2e04c93fede76369595e, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Run.R45
+      Value: {fileID: 11400000, guid: af034442790e6d54ebdac83910aea675, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Run.L90
+      Value: {fileID: 11400000, guid: 4b302132fd00cfe4c8420ed9cbb0c524, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Run.R90
+      Value: {fileID: 11400000, guid: cd6ff4ecde219c9488b52d0e6034826a, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Run.180
+      Value: {fileID: 11400000, guid: cf1b1a1375dfe4e42bed1f2680391420, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Sprint.L45
+      Value: {fileID: 11400000, guid: 554a9140e9e84c043b976e8a7c154e5e, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Sprint.R45
+      Value: {fileID: 11400000, guid: a84b8129f748bc8418c77efbcf6b6a56, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Sprint.L90
+      Value: {fileID: 11400000, guid: ba60e397565555d40aa68c37df6b0cc7, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Sprint.R90
+      Value: {fileID: 11400000, guid: e8d75e7955ea51843b6cf2d2fdf36602, type: 2}
+    - Key:
+        _tagName: Motion.Turn.Sprint.180
+      Value: {fileID: 11400000, guid: 1df1577cc84f38d4dab5d6f01e62a8d6, type: 2}
+  motionRootYaw:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Turn.Walk.L45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Walk.R45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Walk.L90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Walk.R90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Walk.180
+      Value: 180
+    - Key:
+        _tagName: Motion.Turn.Run.L45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Run.R45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Run.L90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Run.R90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Run.180
+      Value: 180
+    - Key:
+        _tagName: Motion.Turn.Sprint.L45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Sprint.R45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Sprint.L90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Sprint.R90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Sprint.180
+      Value: 180
+  motionReferenceSpeed:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: 1.5
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: 3.5
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: 6

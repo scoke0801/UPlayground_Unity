@@ -104,8 +104,22 @@ namespace UPlayGround.State
             if (distance <= REACH_DISTANCE && !_hasReachedTarget)
             {
                 _hasReachedTarget = true;
-                controller.TransitionToState(
-                    new EnemyAttackState(controller, _combat, _context, _detection));
+                var preparedSkill = _combat.SelectAndExecuteSkill(distance);
+                if (preparedSkill != null)
+                {
+                    controller.TransitionToState(
+                        new EnemyAttackState(
+                            controller,
+                            _combat,
+                            _context,
+                            _detection,
+                            preparedSkill));
+                }
+                else
+                {
+                    controller.TransitionToState(
+                        new EnemyChaseState(controller, _context, _detection));
+                }
                 return;
             }
 

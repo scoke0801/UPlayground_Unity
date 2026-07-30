@@ -897,7 +897,7 @@ namespace UPlayGround.State
                 Vector3 dir = (lockOnTarget.position - gameActor.transform.position).normalized;
                 dir.y = 0f;
                 if (dir.sqrMagnitude > 0.01f)
-                    currentRotation = Quaternion.Slerp(currentRotation, Quaternion.LookRotation(dir), deltaTime * 10f);
+                    currentRotation = Quaternion.Slerp(currentRotation, Quaternion.LookRotation(dir), deltaTime * 5f);
             }
             else
             {

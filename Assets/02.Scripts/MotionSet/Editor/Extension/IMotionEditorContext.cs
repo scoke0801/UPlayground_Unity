@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UPlayGround.Data.Event;
+using UnityEngine;
 
 namespace UPlayGround.Animation.Editor
 {
@@ -17,6 +18,12 @@ namespace UPlayGround.Animation.Editor
 
         void Repaint();
         void RecordUndo(string label);
+        bool SelectSlot(string slotId);
+        bool TrySampleRootMotion(
+            float fromTime,
+            float toTime,
+            out Vector3 deltaPosition,
+            out Quaternion deltaRotation);
         void SetPlaybackTime(float time);
         void Play();
         void Stop();

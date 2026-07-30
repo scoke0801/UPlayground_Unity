@@ -88,6 +88,34 @@ namespace UPlayGround.AI.Tests
             Assert.That(blackboard.TrySetInt(reference, 3), Is.False);
         }
 
+        [Test]
+        public void BehaviorTreeContext_행동_쿨다운은_Blackboard_등록과_무관하게_기록한다()
+        {
+            var context = new BehaviorTreeContext(null, new Blackboard());
+
+            Assert.That(context.IsActionCooldownReady("SpacingBeat", 10f), Is.True);
+
+            context.RecordActionCooldown("SpacingBeat", 12f);
+
+            Assert.That(context.IsActionCooldownReady("SpacingBeat", 11.99f), Is.False);
+            Assert.That(context.IsActionCooldownReady("SpacingBeat", 12f), Is.True);
+            Assert.That(context.Blackboard.Entries, Is.Empty);
+        }
+
+        [Test]
+        public void BehaviorTreeContext_Resolver_실패사유는_런타임_진단값으로_보관한다()
+        {
+            var context = new BehaviorTreeContext(null, new Blackboard());
+
+            context.SetResolverFailure("공격 슬롯을 확보하지 못했습니다.");
+            Assert.That(
+                context.ResolverFailureReason,
+                Is.EqualTo("공격 슬롯을 확보하지 못했습니다."));
+
+            context.SetResolverFailure(null);
+            Assert.That(context.ResolverFailureReason, Is.Empty);
+        }
+
         private static BlackboardKeyDefinition CreateDefinition(
             string stableId,
             string keyName,

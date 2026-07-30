@@ -14,9 +14,11 @@ namespace UPlayGround.State
     public class PlayerGroundMoveState : PlayerActorState
     {
         public override string StateName => "GroundMove";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Locomotion;
         
-        private float _runTimer;
-        private float _sprintAutoChangeDealy = 0f;
+        private float _sprintTimer;
+        private float _sprintAutoChangeDelay;
+        private float _locomotionPlayRate = 1f;
 
         private BaseMoveAnimType _cachedAnimType = BaseMoveAnimType.Run;
         
@@ -34,19 +36,22 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTags.State_Move);
 
-            _runTimer = Time.realtimeSinceStartup;
-
-            _sprintAutoChangeDealy = playerActor.PlayerController.SprintAutoStartDelay;
+            _sprintTimer = 0f;
+            _sprintAutoChangeDelay = playerActor.PlayerController.SprintAutoStartDelay;
 
             _cachedAnimType = gameActor.MoveAnimType;
-            gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
+            gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.15f);
         }
 
         public override void OnExit(GameActorState toState)
         {
             gameActor.Tags?.RemoveTag(GameplayTags.State_Move);
             gameActor.Tags?.RemoveTag(GameplayTags.State_Sprint);
-            gameActor.MoveAnimType = BaseMoveAnimType.Run;
+            gameActor.Animator.MotionTimelineSpeed = 1f;
+            gameActor.Animator.Speed = gameActor.LocalTimeScale;
+
+            // 이동 타입은 입력/대시 연계가 소유한다. 공격·회피 진입만으로
+            // Sprint를 해제하지 않아 복귀 뒤 자동 Sprint 재대기가 생기지 않는다.
             base.OnExit(toState);
         }
         public override void UpdateState(float deltaTime)
@@ -105,20 +110,36 @@ namespace UPlayGround.State
             }
 
             // 이동 입력이 없으면 Stop 전환 시도 — 전방 기본 클립이 등록된 경우에만 Stop 상태 사용
-            if (!playerController.HasMoveInput())
+            if (!playerController.HasMoveInputBuffered())
             {
-                var forwardStopKey = PlayerStopState.GetStopAnimKeyForward(gameActor.MoveAnimType);
-                bool hasStop = gameActor.Animator.HasMotion(forwardStopKey, true);
-                if (hasStop && gameActor.MoveAnimType == BaseMoveAnimType.Sprint)
+                float planarSpeed = Vector3.ProjectOnPlane(
+                    motor.Velocity,
+                    motor.CharacterUp).magnitude;
+                Vector3 stopDirection = playerController.LastMoveDirection;
+                float stopAngle = stopDirection.sqrMagnitude > 0.0001f
+                    ? Vector3.SignedAngle(
+                        motor.CharacterForward,
+                        stopDirection,
+                        motor.CharacterUp)
+                    : 0f;
+                var directionalStopKey = PlayerStopState.GetStopAnimKey(
+                    gameActor.MoveAnimType,
+                    stopAngle);
+                var forwardStopKey = PlayerStopState.GetStopAnimKeyForward(
+                    gameActor.MoveAnimType);
+                bool hasStop = gameActor.Animator.HasMotion(directionalStopKey, true)
+                               || gameActor.Animator.HasMotion(forwardStopKey, true);
+
+                GameActorState nextState = hasStop && planarSpeed >= controller.MinStopSpeed
+                    ? new PlayerStopState(
+                        controller,
+                        gameActor.MoveAnimType,
+                        stopDirection)
+                    : new PlayerIdleState(controller);
+                if (controller.TryTransitionToState(nextState))
                 {
-                    playerController.TransitionToState(
-                        new PlayerStopState(controller, gameActor.MoveAnimType, playerController.LookInputVector));
+                    return;
                 }
-                else
-                {
-                    playerController.TransitionToState(new PlayerIdleState(controller));
-                }
-                return;
             }
 
             if (playerController.HasGuardInput())
@@ -127,7 +148,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
             {
                 if (PlayerAttackState.TryEnter(playerController))
                     return;
@@ -164,19 +185,33 @@ namespace UPlayGround.State
 
                 if (PlayerAttackState.TryEnter(playerController)) return;
             }
+
+            if (TryEnterTurnInPlace())
+                return;
             
             if (_cachedAnimType != gameActor.MoveAnimType)
             {
                 _cachedAnimType = gameActor.MoveAnimType;
-                gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
+                gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.15f);
             }
 
-            if (_runTimer + _sprintAutoChangeDealy < Time.realtimeSinceStartup)
+            if (gameActor.MoveAnimType == BaseMoveAnimType.Run
+                && playerController.AutoSprintArmed)
             {
-                gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
-                gameActor.Tags?.AddTag(GameplayTags.State_Sprint);
-                _runTimer = float.MaxValue; // 자동 전환은 상태 진입 후 1회만 발동
+                _sprintTimer += deltaTime;
+                if (_sprintTimer >= _sprintAutoChangeDelay)
+                {
+                    gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
+                    gameActor.Tags?.AddTag(GameplayTags.State_Sprint);
+                    playerController.SetAutoSprintArmed(false);
+                }
             }
+            else
+            {
+                _sprintTimer = 0f;
+            }
+
+            UpdateLocomotionPlaybackSpeed(deltaTime);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -185,11 +220,21 @@ namespace UPlayGround.State
             
             if (lookDirection != Vector3.zero && controller.OrientationSharpness > 0f)
             {
-                // 부드럽게 이동 방향으로 회전
+                float planarSpeed = Vector3.ProjectOnPlane(
+                    motor.Velocity,
+                    motor.CharacterUp).magnitude;
+                float speedRatio = Mathf.Clamp01(
+                    planarSpeed / Mathf.Max(0.01f, controller.MaxSprintMoveSpeed));
+                float sharpness = Mathf.Lerp(
+                    controller.OrientationSharpness,
+                    controller.OrientationSharpness * controller.SprintOrientationScale,
+                    speedRatio);
+
+                // 이동 속도가 높을수록 선회율을 낮춰 뱅킹 호를 만든다.
                 Vector3 smoothedLookInputDirection = Vector3.Slerp(
                     motor.CharacterForward, 
                     lookDirection, 
-                    1 - Mathf.Exp(-controller.OrientationSharpness * deltaTime)).normalized;
+                    1 - Mathf.Exp(-sharpness * deltaTime)).normalized;
                 
                 currentRotation = Quaternion.LookRotation(smoothedLookInputDirection, motor.CharacterUp);
             }
@@ -215,25 +260,135 @@ namespace UPlayGround.State
             
                 Vector3 targetMovementVelocity = reorientedInput * GetMaxMovementSpeed();
             
-                // 부드럽게 목표 속도로 이동
+                float currentPlanarSpeed = Vector3.ProjectOnPlane(
+                    currentVelocity,
+                    motor.CharacterUp).magnitude;
+                float targetPlanarSpeed = targetMovementVelocity.magnitude;
+                float sharpness;
+                if (Vector3.Dot(currentVelocity, targetMovementVelocity) < 0f)
+                    sharpness = ResolveSharpness(controller.TurnDampSharpness);
+                else if (targetPlanarSpeed > currentPlanarSpeed)
+                    sharpness = ResolveSharpness(controller.AccelerationSharpness);
+                else
+                    sharpness = ResolveSharpness(controller.DecelerationSharpness);
+
                 currentVelocity = Vector3.Lerp(
                     currentVelocity, 
                     targetMovementVelocity, 
-                    1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+                    1 - Mathf.Exp(-sharpness * deltaTime));
             }
+        }
+
+        private bool TryEnterTurnInPlace()
+        {
+            if (!playerController.HasMoveInput()
+                || !playerController.CanEnterTurnInPlace)
+            {
+                return false;
+            }
+
+            Vector3 planarVelocity = Vector3.ProjectOnPlane(
+                motor.Velocity,
+                motor.CharacterUp);
+            float planarSpeed = planarVelocity.magnitude;
+            Vector3 targetDirection = Vector3.ProjectOnPlane(
+                playerController.MoveInputVector,
+                motor.CharacterUp);
+            if (planarSpeed < controller.MinTurnSpeed
+                || targetDirection.sqrMagnitude <= 0.0001f)
+            {
+                return false;
+            }
+
+            targetDirection.Normalize();
+            Vector3 movementDirection = planarVelocity / planarSpeed;
+            Vector3 previousInputDirection = Vector3.ProjectOnPlane(
+                playerController.PreviousMoveDirection,
+                motor.CharacterUp);
+            if (previousInputDirection.sqrMagnitude > 0.0001f)
+                previousInputDirection.Normalize();
+
+            float velocityTurnAngle = Vector3.Angle(
+                movementDirection,
+                targetDirection);
+            float inputTurnAngle = previousInputDirection.sqrMagnitude > 0.0001f
+                ? Vector3.Angle(previousInputDirection, targetDirection)
+                : 0f;
+            Vector3 turnSourceDirection = inputTurnAngle > velocityTurnAngle
+                ? previousInputDirection
+                : movementDirection;
+            float triggerAngle = Mathf.Max(velocityTurnAngle, inputTurnAngle);
+            if (triggerAngle < controller.TurnTriggerAngle)
+                return false;
+
+            float signedAngle = Vector3.SignedAngle(
+                turnSourceDirection,
+                targetDirection,
+                motor.CharacterUp);
+            var turnKey = PlayerTurnInPlaceState.GetTurnAnimKey(
+                gameActor.MoveAnimType,
+                signedAngle);
+            if (!gameActor.Animator.HasMotion(turnKey, true))
+                return false;
+
+            return controller.TryTransitionToState(
+                new PlayerTurnInPlaceState(
+                    controller,
+                    gameActor.MoveAnimType,
+                    targetDirection,
+                    turnSourceDirection: turnSourceDirection));
+        }
+
+        private void UpdateLocomotionPlaybackSpeed(float deltaTime)
+        {
+            var moveKey = GetMoveAnimKey();
+            float referenceSpeed =
+                gameActor.Animator.MotionSet != null
+                && gameActor.Animator.MotionSet.TryGetMotionReferenceSpeed(
+                    moveKey,
+                    out float bakedSpeed)
+                    ? bakedSpeed
+                    : controller.GetReferenceClipSpeed(gameActor.MoveAnimType);
+            if (referenceSpeed <= 0.001f)
+            {
+                gameActor.Animator.MotionTimelineSpeed = 1f;
+                gameActor.Animator.Speed = gameActor.LocalTimeScale;
+                return;
+            }
+
+            float planarSpeed = Vector3.ProjectOnPlane(
+                motor.Velocity,
+                motor.CharacterUp).magnitude;
+            float min = Mathf.Min(
+                controller.LocomotionPlayRateMin,
+                controller.LocomotionPlayRateMax);
+            float max = Mathf.Max(
+                controller.LocomotionPlayRateMin,
+                controller.LocomotionPlayRateMax);
+            float targetPlayRate = Mathf.Clamp(
+                planarSpeed / referenceSpeed,
+                min,
+                max);
+            float blend = 1f - Mathf.Exp(-12f * Mathf.Max(0f, deltaTime));
+            _locomotionPlayRate = Mathf.Lerp(
+                _locomotionPlayRate,
+                targetPlayRate,
+                blend);
+            // Graph.Speed만 바꾸면 MotionSet의 _globalTime과 실제 포즈 시간이 갈라져
+            // LoopSelf 경계에서 클립 중간 포즈가 시작점으로 튄다.
+            // 로코모션 배율은 타임라인에 적용해 포즈와 Section 경계 시계를 함께 조절한다.
+            gameActor.Animator.MotionTimelineSpeed = _locomotionPlayRate;
+            gameActor.Animator.Speed = gameActor.LocalTimeScale;
+        }
+
+        private float ResolveSharpness(float configured)
+        {
+            return configured > 0f ? configured : controller.StableMovementSharpness;
         }
 
         private float GetMaxMovementSpeed()
         {
-            switch (gameActor.MoveAnimType)
-            {
-                case BaseMoveAnimType.Walk: return controller.MaxWalkMoveSpeed;
-                case BaseMoveAnimType.Sprint: return controller.MaxSprintMoveSpeed;
-                case BaseMoveAnimType.Run: return controller.MaxRunMoveSpeed;        
-                default: break;
-            }
-
-            return controller.MaxRunMoveSpeed;
+            return controller.GetMaxMoveSpeed(gameActor.MoveAnimType);
         }
         private UPlayGround.Gameplay.Tag.GameplayTag GetMoveAnimKey()
         {

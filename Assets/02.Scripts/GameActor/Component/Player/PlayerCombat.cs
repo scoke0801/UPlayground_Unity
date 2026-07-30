@@ -98,7 +98,7 @@ namespace UPlayGround.Components
         [SerializeField] private float _warpMinDistance = 0.3f;
         [Tooltip("워프 최대 거리. 이 거리를 초과한 적에게는 워프 미적용")]
         [SerializeField] private float _warpMaxDistance = 7f;
-        [Tooltip("워프 최대 속도. 클램프 후 남은 시간 내 도달 불가 거리면 워프 자체를 미적용")]
+        [Tooltip("레거시/Custom 워프 최대 속도. 도달 가능 여부로 공격을 취소하지 않고 속도 상한까지만 보정합니다.\nLight/Heavy 신규 정책은 MotionEvent 프리셋의 별도 보정 예산을 사용합니다.")]
         [SerializeField] private float _warpMaxSpeed    = 22f;
 
         public float WarpMinDistance => _warpMinDistance;

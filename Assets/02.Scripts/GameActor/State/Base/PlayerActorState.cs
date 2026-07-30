@@ -91,6 +91,34 @@ namespace UPlayGround.State
             _unstableTimer = 0f;
         }
 
+        public override void OnExit(GameActorState toState)
+        {
+            if (gameActor != null
+                && gameActor.MoveAnimType == BaseMoveAnimType.Sprint
+                && !ShouldPreserveSprint(toState))
+            {
+                gameActor.MoveAnimType = BaseMoveAnimType.Run;
+                playerController?.SetAutoSprintArmed(true);
+            }
+
+            base.OnExit(toState);
+        }
+
+        private static bool ShouldPreserveSprint(GameActorState toState)
+        {
+            if (toState == null)
+                return false;
+
+            if ((toState.StateTags & ActorStateTag.Combat) != 0)
+                return true;
+
+            return toState is PlayerGroundMoveState
+                or PlayerStopState
+                or PlayerTurnInPlaceState
+                or PlayerDodgeState
+                or PlayerDashState;
+        }
+
         protected PlayerActorState(ActorMovementController controller) : base(controller)
         {
             playerController = controller as PlayerMovementController;

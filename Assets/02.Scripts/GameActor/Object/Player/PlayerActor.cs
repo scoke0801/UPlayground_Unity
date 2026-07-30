@@ -134,6 +134,10 @@ namespace UPlayGround
         private const float ChargeThreshold = 0.3f; // 이 시간 이상 홀드 시 차지로 전환
         private InputCondition _interactionInputCondition;
         private InputCondition _guardInputCondition;
+        private bool  _guardInputPending;
+        private bool  _guardChordConsumed;
+        private float _guardInputStartedAt;
+        private const float GuardChordResolveDelay = 0.1f;
 
         // 직접 버튼이 연결된 스킬 슬롯(Ability, Ultimate, 공통 속성 부여).
         private List<InputCondition> _skillInputCondition = new List<InputCondition>

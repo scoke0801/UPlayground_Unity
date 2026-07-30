@@ -81,6 +81,51 @@ namespace UPlayGround.Data.Event
         [Header("Offset")]
         public Vector3 targetOffset = Vector3.zero;
 
+        [Header("Arrival & Correction")]
+        [Tooltip("TargetCenter: 기존 중심 수렴. ContactShell: 양쪽 캡슐과 공격 간격을 반영한 표면 도착.")]
+        public WarpArrivalMode arrivalMode = WarpArrivalMode.ContactShell;
+        [Min(0f)]
+        [Tooltip("ContactShell에서 두 캡슐 표면 사이에 추가로 남길 공격 자세 간격.")]
+        public float desiredStandOff = 0.1f;
+        [Tooltip("타겟 로컬 축 기준 도착점 미세 조정. 좌우 비껴서기와 자세 보정에 사용.")]
+        public Vector3 localArrivalOffset = Vector3.zero;
+
+        [Header("Authored Warp Point")]
+        public WarpPointProvider warpPointProvider = WarpPointProvider.Root;
+        [Tooltip("StaticTransform 기준 공격자 루트 로컬 접촉점. 이 점이 타겟 접촉점에 맞도록 루트를 배치합니다.")]
+        public Vector3 authoredWarpPointLocal = Vector3.zero;
+        public HumanBodyBones warpPointBone = HumanBodyBones.RightHand;
+        public Vector3 warpPointBoneOffset = Vector3.zero;
+        [Tooltip("타겟 anchor 아래의 선택적 Transform 경로. 비어 있으면 캡슐 표면 접촉점을 사용합니다.")]
+        public string targetTransformPath = string.Empty;
+        public Vector3 targetPointOffset = Vector3.zero;
+
+        [Min(0f)]
+        [Tooltip("계산된 도착점까지의 잔여 오차가 이 거리 안이면 Translation만 끄고 Rotation은 유지.")]
+        public float noTranslationWithinReach = 0.08f;
+        [Min(0f)]
+        [Tooltip("원본 루트모션 예상 도착점에 더할 수 있는 보정 거리의 절대 상한.")]
+        public float maxCorrectionDistance = 0.5f;
+        [Min(0f)]
+        [Tooltip("남은 원본 이동과 도착 오차 중 큰 기준 거리 대비 보정 상한. 0.3은 30%.")]
+        public float maxCorrectionRatio = 0.3f;
+        [Range(0f, 180f)]
+        [Tooltip("공격 진행 방향에서 이 반각을 벗어나면 Translation을 끕니다.")]
+        public float maxWarpAngle = 45f;
+
+        [Header("Translation Time Policy")]
+        [Tooltip("정규화 워프 시간별 Translation Weight. 비어 있으면 1.")]
+        public AnimationCurve translationCurve;
+        [Min(0f)]
+        [Tooltip("윈도우 종료 전 Translation을 먼저 끝낼 시간(초). Rotation은 유지할 수 있음.")]
+        public float translationEndLeadTime = 0.06f;
+
+        [Header("Playback Rate Warp")]
+        [Tooltip("거리 기반 애니메이션 재생 속도 보정을 사용합니다. 일반 검격은 끄는 것을 권장.")]
+        public bool usePlaybackRateWarp = false;
+        [Tooltip("재생 속도 보정 최소/최대 배율.")]
+        public Vector2 playbackRateRange = new(0.95f, 1.05f);
+
         [Header("Root Motion Amplify")]
         [Tooltip("루트모션 고유 속도 곡선을 게인으로 증폭한다 (타겟 워프와 직교).\n" +
                  "타겟 없이도 동작하며, 타겟이 있으면 증폭된 속도 위에서 워프가 합성됨.\n" +
@@ -249,6 +294,23 @@ namespace UPlayGround.Data.Event
                 maxDistance = maxDistance,
                 maxSpeed = maxSpeed,
                 targetOffset = targetOffset,
+                arrivalMode = arrivalMode,
+                desiredStandOff = desiredStandOff,
+                localArrivalOffset = localArrivalOffset,
+                warpPointProvider = warpPointProvider,
+                authoredWarpPointLocal = authoredWarpPointLocal,
+                warpPointBone = warpPointBone,
+                warpPointBoneOffset = warpPointBoneOffset,
+                targetTransformPath = targetTransformPath,
+                targetPointOffset = targetPointOffset,
+                noTranslationWithinReach = noTranslationWithinReach,
+                maxCorrectionDistance = maxCorrectionDistance,
+                maxCorrectionRatio = maxCorrectionRatio,
+                maxWarpAngle = maxWarpAngle,
+                translationCurve = translationCurve,
+                translationEndLeadTime = translationEndLeadTime,
+                usePlaybackRateWarp = usePlaybackRateWarp,
+                playbackRateRange = playbackRateRange,
                 rotationCurve = rotationCurve,
                 predictionFactor = predictionFactor,
                 amplifyEnabled = amplifyEnabled,
@@ -277,13 +339,24 @@ namespace UPlayGround.Data.Event
                     settings.modifierType = MotionWarpModifierType.DeltaWarp;
                     settings.targetPolicy = MotionWarpTargetPolicy.Snapshot;
                     settings.translationWeight = 1f;
-                    settings.rotationWeight = 1f;
+                    settings.rotationWeight = 0.45f;
                     settings.ignoreY = true;
                     settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
-                    settings.minDistance = 0.25f;
-                    settings.maxDistance = 7f;
-                    settings.maxSpeed = 22f;
+                    settings.minDistance = 0f;
+                    settings.maxDistance = 6f;
+                    settings.maxSpeed = 14f;
+                    settings.arrivalMode = WarpArrivalMode.ContactShell;
+                    settings.desiredStandOff = Mathf.Max(0f, settings.desiredStandOff);
+                    settings.noTranslationWithinReach = 0.08f;
+                    settings.maxCorrectionDistance = Mathf.Max(settings.maxCorrectionDistance, 1.5f);
+                    settings.maxCorrectionRatio = Mathf.Max(settings.maxCorrectionRatio, 0.65f);
+                    settings.maxWarpAngle = Mathf.Max(settings.maxWarpAngle, 65f);
+                    settings.translationEndLeadTime = Mathf.Max(settings.translationEndLeadTime, 0.05f);
+                    settings.usePlaybackRateWarp = false;
+                    settings.playbackRateRange = new Vector2(0.95f, 1.05f);
+                    if (HasCurve(settings.translationCurve) == false)
+                        settings.translationCurve = BuildTranslationCurve();
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildLightCurve();
                     break;
@@ -293,13 +366,24 @@ namespace UPlayGround.Data.Event
                     // DeltaWarp 는 보정이 translationWeight 로 게이팅되므로 정확 착지를 위해 1.0.
                     // 무게감은 rotationCurve(BuildHeavyCurve)/게인으로 표현.
                     settings.translationWeight = 1f;
-                    settings.rotationWeight = 1f;
+                    settings.rotationWeight = 0.35f;
                     settings.ignoreY = true;
                     settings.yPolicy = WarpYPolicy.IgnoreY;
                     settings.overrideDistance = true;
-                    settings.minDistance = 0.35f;
-                    settings.maxDistance = 8f;
-                    settings.maxSpeed = 20f;
+                    settings.minDistance = 0f;
+                    settings.maxDistance = 7f;
+                    settings.maxSpeed = 16f;
+                    settings.arrivalMode = WarpArrivalMode.ContactShell;
+                    settings.desiredStandOff = Mathf.Max(0f, settings.desiredStandOff);
+                    settings.noTranslationWithinReach = 0.12f;
+                    settings.maxCorrectionDistance = Mathf.Max(settings.maxCorrectionDistance, 2.2f);
+                    settings.maxCorrectionRatio = Mathf.Max(settings.maxCorrectionRatio, 0.75f);
+                    settings.maxWarpAngle = Mathf.Max(settings.maxWarpAngle, 60f);
+                    settings.translationEndLeadTime = Mathf.Max(settings.translationEndLeadTime, 0.08f);
+                    settings.usePlaybackRateWarp = false;
+                    settings.playbackRateRange = new Vector2(0.95f, 1.05f);
+                    if (HasCurve(settings.translationCurve) == false)
+                        settings.translationCurve = BuildTranslationCurve();
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildHeavyCurve();
                     break;
@@ -314,6 +398,14 @@ namespace UPlayGround.Data.Event
                     settings.minDistance = 0.1f;
                     settings.maxDistance = 5f;
                     settings.maxSpeed = 16f;
+                    settings.arrivalMode = WarpArrivalMode.AuthoredWarpPoint;
+                    settings.warpPointProvider = WarpPointProvider.StaticTransform;
+                    if (settings.authoredWarpPointLocal.sqrMagnitude <= 0.0001f)
+                        settings.authoredWarpPointLocal = new Vector3(0f, 0f, 0.5f);
+                    settings.noTranslationWithinReach = 0f;
+                    settings.maxCorrectionDistance = Mathf.Max(settings.maxCorrectionDistance, 1f);
+                    settings.maxCorrectionRatio = Mathf.Max(settings.maxCorrectionRatio, 0.5f);
+                    settings.usePlaybackRateWarp = false;
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildFinishCurve();
                     break;
@@ -330,6 +422,13 @@ namespace UPlayGround.Data.Event
                     settings.minDistance = 0.05f;
                     settings.maxDistance = 3f;
                     settings.maxSpeed = 12f;
+                    settings.arrivalMode = WarpArrivalMode.AuthoredWarpPoint;
+                    settings.warpPointProvider = WarpPointProvider.Bone;
+                    settings.noTranslationWithinReach = 0f;
+                    settings.maxCorrectionDistance = Mathf.Max(settings.maxCorrectionDistance, 1f);
+                    settings.maxCorrectionRatio = Mathf.Max(settings.maxCorrectionRatio, 0.5f);
+                    settings.usePlaybackRateWarp = true;
+                    settings.playbackRateRange = new Vector2(0.9f, 1.1f);
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildLightCurve();
                     break;
@@ -357,11 +456,18 @@ namespace UPlayGround.Data.Event
             new Keyframe(0.7f, 0.7f, 1f, 1f),
             new Keyframe(1f, 1f, 1f, 0f));
 
+        private static readonly AnimationCurve TranslationCurve = new AnimationCurve(
+            new Keyframe(0f, 0f, 0f, 4f),
+            new Keyframe(0.5f, 1f, 0f, 0f),
+            new Keyframe(0.85f, 0.7f, -2f, -2f),
+            new Keyframe(1f, 0f, 0f, 0f));
+
         // 빠른 EaseOut: 앞부분에서 강하게 정렬 (LightAttack, Grab).
         private static AnimationCurve BuildLightCurve()  => LightCurve;
         // 느린 EaseIn-Out: 무게감 (HeavyAttack).
         private static AnimationCurve BuildHeavyCurve()  => HeavyCurve;
         // 마지막 프레임에 거의 정확히 일치 (FinishAttack).
         private static AnimationCurve BuildFinishCurve() => FinishCurve;
+        private static AnimationCurve BuildTranslationCurve() => TranslationCurve;
     }
 }

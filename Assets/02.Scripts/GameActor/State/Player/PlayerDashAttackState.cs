@@ -29,6 +29,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             gameActor.MoveAnimType = BaseMoveAnimType.Run;
+            playerController.SetAutoSprintArmed(true);
 
             _motionWarp = controller.MotionWarp;
             _combat = playerActor.GetCombat();
@@ -38,7 +39,8 @@ namespace UPlayGround.State
             _motionWarp?.BeginTargetLock();
             _homingTarget = FindHomingTarget();
             SnapToTarget(_homingTarget);
-            _motionWarp?.SetTarget(_homingTarget, useSnapshot: false);
+            // 추적 정책은 MotionEvent_MotionWarp가 최종 소유한다. 상태는 타겟만 주입한다.
+            _motionWarp?.SetTarget(_homingTarget);
 
             _equipment = playerActor.GetPlayerEquipment();
             _equipment?.SetMainWeaponDrawn(true);

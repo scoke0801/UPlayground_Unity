@@ -48,6 +48,7 @@ namespace UPlayGround.Animation.Editor
         }
 
         public UnityEngine.Object SourceAsset => _source;
+        public ActorAnimationMotionSet ResolvedSource => _resolvedSource;
         public IReadOnlyList<MotionSetSlot> Slots =>
             _resolved?.Slots ?? Array.Empty<MotionSetSlot>();
         public IReadOnlyList<MotionSetSlot> AssignableSlots =>

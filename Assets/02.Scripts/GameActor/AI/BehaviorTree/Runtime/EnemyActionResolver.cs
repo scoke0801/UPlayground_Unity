@@ -1,4 +1,6 @@
 using UPlayGround.Components;
+using UPlayGround.Data;
+using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 using UnityEngine;
@@ -28,6 +30,9 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
+            if (IsTransitionBlockedByActionLock(controller.CurrentState, request, out failureReason))
+                return false;
+
             var nextState = CreateState(context, controller, request, out var creationFailure);
             if (nextState == null)
             {
@@ -35,9 +40,6 @@ namespace UPlayGround.AI.BehaviorTree
                     ?? $"요청을 상태로 해석할 수 없습니다. intent={request.Intent}, style={request.Style}";
                 return false;
             }
-
-            if (IsTransitionBlockedByActionLock(controller.CurrentState, request, out failureReason))
-                return false;
 
             if (skipIfAlreadyInState && controller.CurrentState?.StateName == nextState.StateName)
             {
@@ -47,6 +49,8 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (!controller.TryTransitionToState(nextState))
             {
+                if (nextState is EnemyAttackState)
+                    context.GetComponentCached<EnemyCombat>()?.CancelCurrentAction();
                 failureReason = $"상태 전환 조건을 통과하지 못했습니다. from={controller.CurrentState?.StateName ?? "null"}, to={nextState.StateName}";
                 return false;
             }
@@ -113,19 +117,18 @@ namespace UPlayGround.AI.BehaviorTree
 
         public static bool IsCooldownReady(BehaviorTreeContext context, string cooldownId)
         {
-            if (context?.Blackboard == null || string.IsNullOrWhiteSpace(cooldownId))
+            if (context == null || string.IsNullOrWhiteSpace(cooldownId))
                 return true;
 
-            var key = EnemyBlackboardKeys.CooldownReadyTime(cooldownId);
-            return !context.Blackboard.TryGetFloat(key, out var readyTime) || Time.time >= readyTime;
+            return context.IsActionCooldownReady(cooldownId, Time.time);
         }
 
         public static void RecordCooldown(BehaviorTreeContext context, string cooldownId, float cooldownDuration)
         {
-            if (context?.Blackboard == null || string.IsNullOrWhiteSpace(cooldownId) || cooldownDuration <= 0f)
+            if (context == null || string.IsNullOrWhiteSpace(cooldownId) || cooldownDuration <= 0f)
                 return;
 
-            context.Blackboard.SetFloat(EnemyBlackboardKeys.CooldownReadyTime(cooldownId), Time.time + cooldownDuration);
+            context.RecordActionCooldown(cooldownId, Time.time + cooldownDuration);
         }
 
         private static GameActorState CreateState(BehaviorTreeContext context, ActorMovementController controller, EnemyActionRequest request, out string failureReason)
@@ -159,7 +162,14 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.Idle => new EnemyIdleState(controller),
                 EnemyTransitionStateType.Patrol when aiContext != null => new EnemyPatrolState(controller, aiContext),
                 EnemyTransitionStateType.Chase when aiContext != null && detection != null => new EnemyChaseState(controller, aiContext, detection),
-                EnemyTransitionStateType.Attack when aiContext != null && detection != null && combat != null => new EnemyAttackState(controller, combat, aiContext, detection),
+                EnemyTransitionStateType.Attack when aiContext != null && detection != null && combat != null =>
+                    CreatePreparedAttackState(
+                        controller,
+                        combat,
+                        aiContext,
+                        detection,
+                        request.AttackCategory,
+                        out failureReason),
                 EnemyTransitionStateType.Retreat when aiContext != null && detection != null => new EnemyRetreatState(controller, aiContext, detection, aiContext.RetreatDistance),
                 EnemyTransitionStateType.Circle when aiContext != null && detection != null => new EnemyCircleState(controller, aiContext, detection, aiContext.CircleDuration),
                 EnemyTransitionStateType.Charge when aiContext != null && detection != null && combat != null => new EnemyChargeState(controller, combat, aiContext, detection, memory),
@@ -168,6 +178,34 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyTransitionStateType.JumpBack when aiContext != null && detection != null => new EnemyJumpBackState(controller, aiContext, detection, memory),
                 _ => null
             };
+        }
+
+        private static GameActorState CreatePreparedAttackState(
+            ActorMovementController controller,
+            EnemyCombat combat,
+            EnemyAIContext aiContext,
+            EnemyDetection detection,
+            AbilityAttackCategory attackCategory,
+            out string failureReason)
+        {
+            failureReason = null;
+            combat.ReserveAttackCategory(attackCategory);
+            AbilityAttackInfo preparedSkill =
+                combat.SelectAndExecuteSkill(detection.DistanceToTarget);
+            if (preparedSkill == null)
+            {
+                failureReason =
+                    "현재 거리에서 실행 가능한 공격 Ability를 확정하지 못했습니다. "
+                    + combat.BuildAbilitySelectionDiagnosticSummary();
+                return null;
+            }
+
+            return new EnemyAttackState(
+                controller,
+                combat,
+                aiContext,
+                detection,
+                preparedSkill);
         }
 
         private static GameActorState CreateDodgeState(

@@ -106,6 +106,38 @@ namespace UPlayGround.Animation.Editor
             window.SetCatalog(catalog, slotId, asset);
         }
 
+        /// <summary>
+        /// 지정한 프리뷰 대상을 준비하고 프리뷰 씬 Play Mode로 진입한다.
+        /// 메뉴/배치 자동화가 GUI의 대상 선택 과정을 재현할 때 사용한다.
+        /// </summary>
+        public static bool OpenPreviewSubject(
+            MotionPreviewCatalogSO previewCatalog,
+            string subjectId)
+        {
+            if (previewCatalog == null || string.IsNullOrWhiteSpace(subjectId))
+                return false;
+
+            int subjectIndex = previewCatalog.subjects.FindIndex(
+                entry => entry != null && entry.id == subjectId);
+            if (subjectIndex < 0)
+                return false;
+
+            MotionSetEditorWindow window = ShowWindow();
+            window._previewCatalog = previewCatalog;
+            window._selectedSubjectIndex = subjectIndex;
+            window.SavePreviewCatalog();
+            EditorPrefs.SetString(PreviewSubjectPrefs, subjectId);
+
+            if (Application.isPlaying)
+            {
+                EditorApplication.delayCall += window.LoadSelectedSubject;
+                return true;
+            }
+
+            window.PlayPreviewScene();
+            return true;
+        }
+
         private static MotionSetEditorWindow ShowWindow()
         {
             MotionSetEditorWindow window = GetWindow<MotionSetEditorWindow>();
@@ -560,10 +592,34 @@ namespace UPlayGround.Animation.Editor
             SelectSlot(slots[Mathf.Max(0, index)].SlotId);
         }
 
-        private void SelectSlot(string slotId)
+        public bool SelectSlot(string slotId)
         {
             _selectedSlotId = slotId;
-            SetAsset(_catalog?.Resolve(slotId));
+            MotionSetAsset asset = _catalog?.Resolve(slotId);
+            SetAsset(asset);
+            return asset != null && asset.motionSet != null && asset.motionSet.IsValid();
+        }
+
+        public bool TrySampleRootMotion(
+            float fromTime,
+            float toTime,
+            out Vector3 deltaPosition,
+            out Quaternion deltaRotation)
+        {
+            deltaPosition = Vector3.zero;
+            deltaRotation = Quaternion.identity;
+            if (_subject is not IMotionPreviewRootMotion rootMotion
+                || _subject.Animancer == null
+                || CurrentSet == null)
+                return false;
+
+            // EditorApplication.update와 게임 Update의 호출 순서에 의존하지 않도록
+            // 같은 콜백 안에서 시작/끝 포즈를 명시적으로 평가한다.
+            SetPlaybackTime(fromTime);
+            SetPlaybackTime(toTime);
+            deltaPosition = rootMotion.DeltaPosition;
+            deltaRotation = rootMotion.DeltaRotation;
+            return true;
         }
 
         private void SetAsset(MotionSetAsset asset)

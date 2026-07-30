@@ -1,7 +1,7 @@
 # 공격 모션 워핑 조작감 개선 구현 스펙
 
 > 작성일: 2026-07-28  
-> 상태: 설계 완료 / 미구현  
+> 상태: Phase 1~4 구현 및 전체 데이터 마이그레이션 완료 / Unity Play Mode 최종 체감 검증 필요
 > 대상 환경: Unity 6 (6000.0.60f1), KCC, Animancer MotionSet  
 > 범위: 플레이어·몬스터 근접 공격의 `MotionEvent_MotionWarp` 도착점, 보정 예산, 적용 구간, 데이터·에디터·검증 개선  
 > 관련 문서: `Assets/docs/guide/MOTION_EVENT_ROLE_GUIDE.md`, `Assets/docs/guide/COMBAT_SYSTEM_GUIDE.md`, `Assets/docs/guide/CONTROL_FEEL_IMPROVEMENT_GUIDE.md`
@@ -357,9 +357,9 @@ public Vector2 playbackRateRange;
 
 | 필드 | 의미 |
 |------|------|
-| `noTranslationWithinReach` | 이 거리 안에서는 위치 워프를 끄는 Dead Zone |
+| `noTranslationWithinReach` | 계산된 도착점까지의 잔여 오차가 이 값 이하면 위치 워프를 끄는 미세 보정 Dead Zone |
 | `maxCorrectionDistance` | 원본 예상 도착점에서 추가로 이동할 수 있는 절대 상한 |
-| `maxCorrectionRatio` | 원본 남은 이동량 대비 보정 비율 상한 |
+| `maxCorrectionRatio` | 남은 원본 이동량과 도착점 잔여 오차 중 큰 기준 거리 대비 보정 비율 상한 |
 | `maxWarpAngle` | 공격 시작 방향 대비 위치 워프 허용 반각 |
 | `translationCurve` | 정규화 워프 시간별 위치 보정 Weight |
 | `translationEndLeadTime` | Hit/윈도우 종료보다 먼저 Translation을 끝낼 여유 |
@@ -373,7 +373,7 @@ public Vector2 playbackRateRange;
 → 타겟 생존
 → 거리
 → 각도
-→ 이미 공격 리치 안인지
+→ 도착점 잔여 오차가 Dead Zone 안인지
 → 목적지까지 KCC 이동 가능성
 → 보정 예산 제한
 → 위치/회전 곡선 적용
@@ -403,11 +403,11 @@ public Vector2 playbackRateRange;
 | 최대 추가 보정 | 0.5m | 0.8m | 원본 이동량의 50% 이내 | 전용 | 전용 |
 | 최대 보정 비율 | 30% | 40% | 50% | 전용 | 전용 |
 | 최대 워프 각도 | 45° | 35° | 30° | 전용 | 전용 |
-| 근거리 Translation Dead Zone | 공격 유효 리치 | 공격 유효 리치 | 짧게 | 없음/전용 | 없음 |
+| 도착 오차 Translation Dead Zone | 0.08m | 0.12m | 0.15m | 0m/전용 | 0m |
 | 재생 속도 워프 | Off 또는 0.95~1.05 | Off 또는 0.95~1.05 | 0.85~1.15 | 전용 | 전용 |
 | Translation 종료 | Hit 50~80ms 전 | Hit 80~120ms 전 | Hit 50ms 전 | 연출 기준 | 접촉 기준 |
 
-`maxDistance`는 타겟 탐색/수락 범위이고 `maxCorrectionDistance`는 원본 모션에 추가할 수 있는 보정량이다. 두 개념을 혼용하지 않는다.
+`maxDistance`는 타겟 탐색/수락 범위이고 `maxCorrectionDistance`는 원본 모션에 추가할 수 있는 보정량이다. `noTranslationWithinReach`는 공격 리치가 아니라 계산된 도착점의 미세 잔여 오차를 억제한다. 비율 예산은 인플레이스·짧은 루트모션도 제한된 보정을 만들 수 있도록 남은 원본 이동량과 도착 오차 중 큰 값을 기준으로 한다.
 
 ---
 

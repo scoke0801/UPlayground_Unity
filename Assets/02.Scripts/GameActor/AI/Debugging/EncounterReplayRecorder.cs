@@ -14,6 +14,7 @@ namespace UPlayGround.AI.Debugging
         [SerializeField] private float _lostTargetSaveDelay = 0.5f;
 
         private EnemyDetection _detection;
+        private BehaviorTreeRunner _behaviorTreeRunner;
         private EncounterReplay _replay;
         private float _startTime;
         private float _lostTargetTime = -1f;
@@ -23,6 +24,7 @@ namespace UPlayGround.AI.Debugging
         private void Awake()
         {
             _detection = GetComponent<EnemyDetection>();
+            _behaviorTreeRunner = GetComponent<BehaviorTreeRunner>();
             if (_detection != null)
             {
                 _detection.OnTargetAcquiredExternally += BeginRecording;
@@ -87,7 +89,9 @@ namespace UPlayGround.AI.Debugging
                 rhythmPhase = evaluation.RhythmPhase,
                 reason = evaluation.Reason,
                 hasAttackSlot = ReadBool(blackboard, EnemyBlackboardKeys.HasAttackSlot),
-                resolverFailureReason = ReadString(blackboard, EnemyBlackboardKeys.ResolverFailureReason)
+                resolverFailureReason =
+                    _behaviorTreeRunner?.Context?.ResolverFailureReason
+                    ?? string.Empty
             };
             _replay.frames.Add(frame);
         }

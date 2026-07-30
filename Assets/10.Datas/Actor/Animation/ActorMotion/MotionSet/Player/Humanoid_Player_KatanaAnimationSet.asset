@@ -361,3 +361,61 @@ MonoBehaviour:
     - Key:
         _tagName: Motion.Action.BreakAttack
       Value: {fileID: 11400000, guid: 33eab12a56edfb54bb5f7744f1750795, type: 2}
+  motionRootYaw:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Turn.Walk.L45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Walk.R45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Walk.L90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Walk.R90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Walk.180
+      Value: 180
+    - Key:
+        _tagName: Motion.Turn.Run.L45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Run.R45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Run.L90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Run.R90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Run.180
+      Value: 180
+    - Key:
+        _tagName: Motion.Turn.Sprint.L45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Sprint.R45
+      Value: 45
+    - Key:
+        _tagName: Motion.Turn.Sprint.L90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Sprint.R90
+      Value: 90
+    - Key:
+        _tagName: Motion.Turn.Sprint.180
+      Value: 180
+  motionReferenceSpeed:
+    _serializedList:
+    - Key:
+        _tagName: Motion.Locomotion.Walk
+      Value: 1.5
+    - Key:
+        _tagName: Motion.Locomotion.Run
+      Value: 3.5
+    - Key:
+        _tagName: Motion.Locomotion.Sprint
+      Value: 6

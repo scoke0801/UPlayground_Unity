@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
@@ -14,10 +15,16 @@ namespace UPlayGround.State
     public class PlayerStopState : PlayerActorState
     {
         public override string StateName => "Stop";
+        protected override ActorStateTag StateTagsCore => ActorStateTag.Locomotion;
 
         private readonly BaseMoveAnimType _moveAnimType;
         /// <summary> 정지 직전 이동 방향의 캐릭터 전방 기준 부호 있는 각도 (도) </summary>
         private readonly float _stopDirectionAngle;
+        private MotionSet _playedMotionSet;
+        private float _elapsed;
+        private float _hardTimeout;
+        private bool _motionCompleted;
+        private bool _playFailed;
 
         /// <summary>
         /// <param name="stopDirection">정지 시점의 이동 방향 벡터 (월드)</param>
@@ -39,7 +46,7 @@ namespace UPlayGround.State
 
             // 방향별 클립 시도 → 없으면 전방 클립 시도
             // (진입 자체는 PlayerGroundMoveState에서 HasMotion으로 보장되지만, L45/R45 클립이 없는 경우 fallback)
-            var animKey   = GetStopAnimKey(_moveAnimType, _stopDirectionAngle);
+            var animKey = GetStopAnimKey(_moveAnimType, _stopDirectionAngle);
             var animState = gameActor.Animator.PlayMotion(animKey, 0.1f);
 
             if (animState == null)
@@ -50,23 +57,33 @@ namespace UPlayGround.State
 
             if (animState != null)
             {
-                gameActor.Animator.OnMotionSetCompleted += TransitionToIdle;
+                _playedMotionSet = gameActor.Animator.CurrentMotionSet;
+                float duration = _playedMotionSet?.TotalDuration ?? 0f;
+                _hardTimeout = duration * 1.5f + 0.1f;
+                gameActor.Animator.OnMotionSetEndedWithReason += OnMotionSetEnded;
             }
             else
             {
-                // 이론상 도달 불가 (PlayerGroundMoveState에서 사전 체크), 안전장치
-                playerController.TransitionToState(new PlayerIdleState(controller));
+                // OnEnter 중 재전환하지 않고 다음 UpdateState에서 안전하게 이탈한다.
+                _playFailed = true;
             }
         }
 
         public override void OnExit(GameActorState toState)
         {
-            gameActor.Animator.OnMotionSetCompleted -= TransitionToIdle;
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
             base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
         {
+            _elapsed += deltaTime;
+            if (_playFailed || _motionCompleted || _elapsed >= _hardTimeout)
+            {
+                controller.TryTransitionToState(new PlayerIdleState(controller));
+                return;
+            }
+
             if (ShouldTransitionToAirborne(deltaTime))
             {
                 playerController.TransitionToState(new PlayerAirborneState(controller));
@@ -140,9 +157,11 @@ namespace UPlayGround.State
                 motor.CharacterUp);
         }
 
-        private void TransitionToIdle()
+        private void OnMotionSetEnded(MotionSet motionSet, MotionSetEndReason reason)
         {
-            playerController.TransitionToState(new PlayerIdleState(controller));
+            if (ReferenceEquals(motionSet, _playedMotionSet)
+                && reason == MotionSetEndReason.Completed)
+                _motionCompleted = true;
         }
 
         /// <summary>

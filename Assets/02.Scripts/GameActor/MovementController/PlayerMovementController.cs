@@ -72,10 +72,24 @@ namespace UPlayGround.MovementController
 
         [Header("Move Setting")] 
         public float SprintAutoStartDelay = 3f;
+
+        [Header("Move Input Naturalness")]
+        [Tooltip("Input Action의 StickDeadzone 처리 뒤 남는 미세 입력만 제거합니다.")]
+        [Range(0f, 1f)] public float MoveInputDeadzone = 0.01f;
+        [Min(0f)] public float MoveInputReleaseGrace = 0.08f;
+        [Min(0f)] public float MoveInputSmoothTime = 0.06f;
+        [Min(0f)] public float TurnReentryCooldown = 0.3f;
         
         private Vector3 _moveInputVector; // 입력값 캐싱
         private Vector3 _lookInputVector;
         private Vector3 _cameraForwardDirection;
+        private Vector3 _lastMoveDirection;
+        private Vector3 _previousMoveDirection;
+        private float _smoothedMoveMagnitude;
+        private float _moveInputReleaseElapsed = float.MaxValue;
+        private float _turnReentryCooldownRemaining;
+        private bool _autoSprintArmed = true;
+        private bool _hasMoveInput;
 
         private PlayerCharacterInputs _inputState;
 
@@ -83,6 +97,8 @@ namespace UPlayGround.MovementController
 
         public Vector3 LookInputVector => _lookInputVector;
         public Vector3 MoveInputVector => _moveInputVector;
+        public Vector3 LastMoveDirection => _lastMoveDirection;
+        public Vector3 PreviousMoveDirection => _previousMoveDirection;
         /// <summary> 카메라 평면 정면 방향 — 이동 입력 유무와 관계없이 항상 최신값 유지 </summary>
         public Vector3 CameraForwardDirection => _cameraForwardDirection;
         
@@ -92,6 +108,9 @@ namespace UPlayGround.MovementController
         public float DashCooldownRemaining => Mathf.Max(0f, _dashCooldownTimer);
         /// <summary>대시 쿨타임 전체 길이(초). UI fill 비율 계산용.</summary>
         public float DashCooldownDuration => _dashCooldown;
+        public float TurnReentryCooldownRemaining => _turnReentryCooldownRemaining;
+        public bool CanEnterTurnInPlace => _turnReentryCooldownRemaining <= 0f;
+        public bool AutoSprintArmed => _autoSprintArmed;
 
         /// <summary>
         /// 대시 쿨타임 시작/종료 통지 (remaining, duration). 대시 쿨타임은 이 컨트롤러가 소유하므로
@@ -118,18 +137,40 @@ namespace UPlayGround.MovementController
             
             if (_dashCooldownTimer > 0f)
             {
-                _dashCooldownTimer -= Time.deltaTime;
+                _dashCooldownTimer -= Actor != null ? Actor.DeltaTime : Time.deltaTime;
                 if (_dashCooldownTimer <= 0f)
                 {
                     _dashCooldownTimer = 0f;
                     OnDashCooldownChanged?.Invoke(0f, _dashCooldown); // 종료 통지(표시 끄기 트리거)
                 }
             }
+
+            float actorDeltaTime = Actor != null ? Actor.DeltaTime : Time.deltaTime;
+            if (_turnReentryCooldownRemaining > 0f)
+                _turnReentryCooldownRemaining = Mathf.Max(
+                    0f,
+                    _turnReentryCooldownRemaining - actorDeltaTime);
+        }
+
+        public void StartTurnReentryCooldown()
+        {
+            _turnReentryCooldownRemaining = Mathf.Max(0f, TurnReentryCooldown);
+        }
+
+        public void SetAutoSprintArmed(bool armed)
+        {
+            _autoSprintArmed = armed;
         }
 
         public void ClearInputAll()
         {
             _inputState.ClearAll();
+            _hasMoveInput = false;
+            _moveInputVector = Vector3.zero;
+            _previousMoveDirection = Vector3.zero;
+            _lastMoveDirection = Vector3.zero;
+            _smoothedMoveMagnitude = 0f;
+            _moveInputReleaseElapsed = float.MaxValue;
         }
 
         public void ClearInputConditions()
@@ -158,16 +199,48 @@ namespace UPlayGround.MovementController
             // 3. 카메라 기준의 회전값 생성
             Quaternion cameraPlanarRotation = Quaternion.LookRotation(cameraPlanarDirection, Motor.CharacterUp);
 
-            // 4. 입력 벡터를 카메라 회전에 맞춰 변환 (카메라 앞방향이 캐릭터의 이동 앞방향이 됨)
-            _moveInputVector = cameraPlanarRotation * rawMoveInput;
+            float rawMagnitude = Mathf.Clamp01(rawMoveInput.magnitude);
+            bool passesDeadzone = rawMagnitude > MoveInputDeadzone;
+            _hasMoveInput = passesDeadzone;
+            float deltaTime = Actor != null ? Actor.DeltaTime : Time.deltaTime;
+            float magnitudeBlend = MoveInputSmoothTime <= 0f
+                ? 1f
+                : 1f - Mathf.Exp(-deltaTime / Mathf.Max(0.0001f, MoveInputSmoothTime));
+            _smoothedMoveMagnitude = Mathf.Lerp(
+                _smoothedMoveMagnitude,
+                passesDeadzone ? rawMagnitude : 0f,
+                magnitudeBlend);
+
+            Vector3 rawWorldDirection = passesDeadzone
+                ? (cameraPlanarRotation * rawMoveInput).normalized
+                : Vector3.zero;
+
+            if (passesDeadzone)
+            {
+                _previousMoveDirection = _lastMoveDirection.sqrMagnitude > 0.0001f
+                    ? _lastMoveDirection
+                    : rawWorldDirection;
+                _lastMoveDirection = rawWorldDirection;
+                _moveInputReleaseElapsed = 0f;
+            }
+            else
+            {
+                _moveInputReleaseElapsed += deltaTime;
+            }
+
+            // 방향은 raw 입력을 유지하고 크기에만 저역통과를 적용한다.
+            Vector3 smoothedDirection = passesDeadzone
+                ? rawWorldDirection
+                : _lastMoveDirection;
+            _moveInputVector = smoothedDirection * _smoothedMoveMagnitude;
 
             // 5. 카메라 정면 방향은 항상 갱신 (TurnInPlace 등 Idle 상태에서도 참조)
             _cameraForwardDirection = cameraPlanarDirection;
 
             // 6. 캐릭터가 바라볼 방향 설정 (이동 중일 때만 업데이트)
-            if (_moveInputVector.sqrMagnitude > 0f)
+            if (passesDeadzone)
             {
-                _lookInputVector = _moveInputVector.normalized;
+                _lookInputVector = rawWorldDirection;
             }
         }
         
@@ -178,7 +251,12 @@ namespace UPlayGround.MovementController
     {
         public bool HasMoveInput()
         {
-            return _moveInputVector.sqrMagnitude > 0;
+            return _hasMoveInput;
+        }
+
+        public bool HasMoveInputBuffered()
+        {
+            return HasMoveInput() || _moveInputReleaseElapsed < MoveInputReleaseGrace;
         }
 
         public bool HasDodgeInput()

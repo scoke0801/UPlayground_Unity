@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
 using UPlayGround.Manager;
@@ -19,7 +20,10 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
         
-        private bool _isDestoryCalled = false;
+        private bool _isDestroyCalled;
+        private MotionSet _playedMotionSet;
+        private float _despawnTimeout;
+        private float _elapsedUnscaled;
         private PlayerEquipment _equipment;
         public EnemyDeathState(ActorMovementController controller) : base(controller)
         {
@@ -46,19 +50,34 @@ namespace UPlayGround.State
             var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Die, 0.25f);
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () =>
-                {
-                    if (_isDestoryCalled == false)
-                    {
-                        _isDestoryCalled = true;
-                        owner.PlayDissolveAndDestroy(3f);
-                    }
-                };
+                _playedMotionSet = gameActor.Animator.CurrentMotionSet;
+                _despawnTimeout = Mathf.Max(
+                    0.25f,
+                    (_playedMotionSet?.TotalDuration ?? 0f) + 0.25f);
+                gameActor.Animator.OnMotionSetEndedWithReason += OnMotionSetEnded;
             }
+            else
+            {
+                BeginDespawn();
+            }
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
+            base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
         {
+            if (_isDestroyCalled || _playedMotionSet == null)
+                return;
+
+            // 사망 모션 종료 알림은 MotionSet 교체/종료 순서에 따라 유실될 수 있다.
+            // 월드 액터가 시체 상태로 영구 잔류하지 않도록 비스케일 시간으로 보장한다.
+            _elapsedUnscaled += Time.unscaledDeltaTime;
+            if (_elapsedUnscaled >= _despawnTimeout)
+                BeginDespawn();
         }
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -76,6 +95,26 @@ namespace UPlayGround.State
                 currentVelocity += controller.Gravity * deltaTime;
             }
             
+        }
+
+        private void OnMotionSetEnded(MotionSet motionSet, MotionSetEndReason reason)
+        {
+            if (!ReferenceEquals(motionSet, _playedMotionSet))
+                return;
+
+            BeginDespawn();
+        }
+
+        private void BeginDespawn()
+        {
+            if (_isDestroyCalled)
+                return;
+
+            _isDestroyCalled = true;
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
+
+            if (gameActor is MonsterActor owner)
+                owner.PlayDissolveAndDestroy(3f);
         }
     }
 }

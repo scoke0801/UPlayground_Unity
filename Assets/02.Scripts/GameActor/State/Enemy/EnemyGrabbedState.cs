@@ -19,6 +19,8 @@ namespace UPlayGround.State
 
         private readonly HitContext _hit;
         private float _remainingDuration;
+        private float _escapeMotionTimeout;
+        private bool _escapeStarted;
 
         public EnemyGrabbedState(ActorMovementController controller, in HitContext hit)
             : base(controller)
@@ -62,6 +64,19 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (_escapeStarted)
+            {
+                _escapeMotionTimeout -= deltaTime;
+                if (_escapeMotionTimeout <= 0f)
+                {
+                    Debug.LogWarning(
+                        $"[{gameActor.name}] Grabbed_End 모션 종료 신호가 없어 안전 복귀합니다.",
+                        gameActor);
+                    TransitionOut();
+                }
+                return;
+            }
+
             _remainingDuration -= deltaTime;
 
             if (_remainingDuration <= 0f)
@@ -85,14 +100,19 @@ namespace UPlayGround.State
 
         private void Escape()
         {
-            if (_remainingDuration < -99f) return;
+            if (_escapeStarted) return;
+            _escapeStarted = true;
             _remainingDuration = float.MinValue;
 
             if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End))
             {
                 var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End, 0.1f);
                 if (state != null)
+                {
+                    float duration = gameActor.Animator.CurrentMotionSet?.TotalDuration ?? 0f;
+                    _escapeMotionTimeout = Mathf.Max(0.5f, duration * 1.5f + 0.1f);
                     state.OwnedEvents.OnEnd = TransitionOut;
+                }
                 else
                     TransitionOut();
             }
@@ -104,6 +124,9 @@ namespace UPlayGround.State
 
         private void TransitionOut()
         {
+            if (controller.CurrentState != this)
+                return;
+
             controller.TransitionToState(new EnemyIdleState(controller));
         }
     }

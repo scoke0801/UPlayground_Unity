@@ -130,7 +130,7 @@ ActorAnimator
 | 이벤트 | 표시 이름 | 역할 | 시작 처리 | 종료 처리 | 주요 필드 |
 |--------|-----------|------|-----------|-----------|-----------|
 | `AddForceEvent` | `AddForce` | Player/Monster 이동 컨트롤러에 로컬 방향 기반 속도를 더한다. | `direction.normalized`를 액터 로컬 기준 월드 방향으로 변환하고 `AddVelocity()` 호출 | 없음 | `direction`, `force` |
-| `MotionEvent_MotionWarp` | `Motion Warp` | 활성 구간 동안 모션 워핑 윈도우를 연다. | `ActorMovementController.MotionWarp.BeginWarpWindow()` 설정 후 Player/Enemy Combat에 워프 구간 길이를 전달한다. | `EndWarpWindow()` 및 Combat의 `EndMotionWarp()` 호출 | `preset`, `modifierType`, `targetPolicy`, `resolverPolicy`, `targetKey`, `predictionFactor`, `translationWeight`, `rotationWeight`, `ignoreY`, `yPolicy`, `rotationCurve`, `overrideDistance`, `minDistance`, `maxDistance`, `maxSpeed`, `targetOffset` |
+| `MotionEvent_MotionWarp` | `Motion Warp` | 활성 구간 동안 모션 워핑 윈도우를 연다. | `ActorMovementController.MotionWarp.BeginWarpWindow()` 설정 후 Player/Enemy Combat에 워프 구간 길이를 전달한다. | `EndWarpWindow()` 및 Combat의 `EndMotionWarp()` 호출 | 기존 범위·회전 필드와 `legacyCompatibility`, `arrivalMode`, `desiredStandOff`, `localArrivalOffset`, 도착점 잔여 오차 Dead Zone, 보정 거리·비율·각도 상한, Translation 시간 정책, 재생 속도 정책 |
 | `AnimationSpeedEvent` | `Anim Speed` | 애니메이션 속도 변경 이벤트 자리다. | 현재는 `Debug.Log`만 수행한다. | 없음 | `speedMultiplier`, `speedCurve` |
 | `TimeScaleEvent` | `TimeScale` | 이벤트 구간 동안 전역 타임스케일 요청을 등록한다. | `GameCombatManager.GameHitStop.Execute(duration, targetTimeScale)` 호출 | 별도 처리 없음. HitStop 요청은 duration 기반으로 자체 해제된다. | `targetTimeScale`, `blendDuration` |
 | `LoopEvent` | `Loop`, `Freeze`, `∞ Loop` | 모션 구간 반복/정지/무한 루프를 표현한다. | `Execute()`는 no-op. 타임라인 제어는 `ActorAnimator` 레벨에서 처리한다. | no-op | `mode`, `loopCount`, `freezeDuration` |
@@ -139,11 +139,13 @@ ActorAnimator
 
 | 프리셋 | 내부 성격 |
 |--------|-----------|
-| `LightAttack` | 빠른 정렬용 Additive 워프 |
-| `HeavyAttack` | 무게감 있는 Scale 워프 |
-| `FinishAttack` | 마무리 지점 정확도를 중시하는 Skew 워프 |
-| `Grab` | 움직이는 타겟을 잡기 위한 Predictive Skew 워프 |
+| `LightAttack` | Snapshot `DeltaWarp`. 신규 정책은 2.5m 수락 범위, `ContactShell`, 도착 오차 0.08m Dead Zone, 0.5m/30% 보정 예산을 사용 |
+| `HeavyAttack` | Snapshot `DeltaWarp`. 신규 정책은 3m 수락 범위, `ContactShell`, 도착 오차 0.12m Dead Zone, 0.8m/40% 보정 예산을 사용 |
+| `FinishAttack` | Snapshot `DeltaWarp`. 정밀 Authored Warp Point 적용 전까지 전용 데이터로 조정 |
+| `Grab` | 움직이는 타겟을 잡기 위한 Predictive `DeltaWarp`. 정밀 Authored Warp Point는 후속 적용 |
 | `Custom` | 필드 설정을 그대로 사용 |
+
+2026-07-29 전체 MotionWarp 데이터가 신규 정책으로 마이그레이션되었다. Light/Heavy와 일반 Custom은 `ContactShell`, Finish 계열은 `AuthoredWarpPoint`, Dash/Lunge 계열은 확장된 제한 보정과 좁은 재생속도 범위를 사용한다. `TargetCenter` 레거시 데이터와 7~8m 일반 공격 프리셋은 남아 있지 않다.
 
 ---
 
@@ -235,4 +237,3 @@ ActorAnimator
 | `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` | 플레이어 공격 판정, 콤보, 워프 연동 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` | 몬스터 판정, 텔레그래프, 스킬 타겟, 소환 등록 |
 | `Assets/02.Scripts/GameActor/Base/GameActor.cs` | ActorType 및 공격 타겟 레이어 기본 규칙 |
-

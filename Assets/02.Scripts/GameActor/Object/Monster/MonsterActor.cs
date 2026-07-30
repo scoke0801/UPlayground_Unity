@@ -614,8 +614,19 @@ namespace UPlayGround
 
         public void PlayDissolveAndDestroy(float duration)
         {
-            MovementController.Motor.enabled = false;
-            _dissolveController.StartDissolve(duration);
+            if (MovementController?.Motor != null)
+                MovementController.Motor.enabled = false;
+
+            if (_dissolveController != null)
+            {
+                _dissolveController.StartDissolve(duration);
+                return;
+            }
+
+            Debug.LogWarning(
+                $"[{name}] DissolveController가 없어 몬스터를 즉시 제거합니다.",
+                this);
+            Destroy(gameObject);
         }
         
         public void SetInvincible(bool invincible) => _isInvincible = invincible;

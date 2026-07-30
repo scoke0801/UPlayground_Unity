@@ -53,8 +53,30 @@ namespace UPlayGround.AI.BehaviorTree
 
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
             combat.ReserveAttackCategory(_attackCategory);
+            var preparedSkill =
+                combat.SelectAndExecuteSkill(detection.DistanceToTarget);
+            if (preparedSkill == null)
+            {
+                Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
+                context.ReleaseGroupSlot();
+                return BTStatus.Failure;
+            }
+
             context.NotifyBTAttackStarted();
-            controller.TransitionToState(new EnemyAttackState(controller, combat, context, detection));
+            if (!controller.TryTransitionToState(
+                    new EnemyAttackState(
+                        controller,
+                        combat,
+                        context,
+                        detection,
+                        preparedSkill)))
+            {
+                combat.CancelCurrentAction();
+                Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
+                context.ReleaseGroupSlot();
+                return BTStatus.Failure;
+            }
+
             CombatIntentHistoryUtility.RecordSelectedIntentExecution(Context?.Blackboard);
             _attackStarted = true;
             return BTStatus.Running;

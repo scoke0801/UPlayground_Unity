@@ -1,4 +1,5 @@
 using UnityEngine;
+using Animancer;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
@@ -23,6 +24,9 @@ namespace UPlayGround.State
         private float _downTimer;
         private float _knockbackElapsed;
         private Vector3 _knockbackDirection;
+        private AnimancerState _activeMotionState;
+        private float _motionElapsed;
+        private float _motionTimeout;
 
         /// <param name="overrideDownDuration">0보다 크면 누워있는 시간을 강제로 지정(브레이크 마무리용). 0이면 기존 규칙 사용.</param>
         /// <param name="knockbackDistance">0보다 크면 진입 시 공격자 반대 방향으로 날아가는 거리. 0이면 런치 없음.</param>
@@ -53,6 +57,7 @@ namespace UPlayGround.State
             _getupStarted = false;
             _knockdownMotionEnded = false;
             _knockbackElapsed = 0f;
+            _motionElapsed = 0f;
             _knockbackDirection = ResolveKnockbackDirection();
             _downTimer = _overrideDownDuration > 0f
                 ? _overrideDownDuration
@@ -63,17 +68,41 @@ namespace UPlayGround.State
                 : UPlayGround.Data.Actor.Animation.MotionTags.Knockback;
             var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
             if (state != null)
+            {
+                _activeMotionState = state;
+                float duration = gameActor.Animator.CurrentMotionSet?.TotalDuration ?? 0f;
+                _motionTimeout = Mathf.Max(0.5f, duration * 1.5f + 0.1f);
                 state.OwnedEvents.OnEnd = OnKnockdownMotionEnd;
+            }
             else
                 _knockdownMotionEnded = true;
         }
 
+        public override void OnExit(GameActorState toState)
+        {
+            ClearMotionEndCallback();
+            base.OnExit(toState);
+        }
+
         public override void UpdateState(float deltaTime)
         {
-            if (_getupStarted) return;
+            _motionElapsed += deltaTime;
+            if (_motionElapsed >= _motionTimeout)
+            {
+                Debug.LogWarning(
+                    $"[{gameActor.name}] Knockdown 모션 종료 신호가 없어 안전 복귀합니다. getup={_getupStarted}",
+                    gameActor);
+                if (_getupStarted)
+                {
+                    TransitionOut();
+                    return;
+                }
+
+                _knockdownMotionEnded = true;
+            }
 
             _downTimer -= deltaTime;
-            if (_downTimer <= 0f && _knockdownMotionEnded)
+            if (!_getupStarted && _downTimer <= 0f && _knockdownMotionEnded)
                 BeginGetup();
         }
 
@@ -132,6 +161,7 @@ namespace UPlayGround.State
 
         private void OnKnockdownMotionEnd()
         {
+            ClearMotionEndCallback();
             _knockdownMotionEnded = true;
         }
 
@@ -139,12 +169,17 @@ namespace UPlayGround.State
         {
             if (_getupStarted) return;
             _getupStarted = true;
+            ClearMotionEndCallback();
+            _motionElapsed = 0f;
 
             if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown_Getup, true))
             {
                 var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown_Getup, 0.1f);
                 if (state != null)
                 {
+                    _activeMotionState = state;
+                    float duration = gameActor.Animator.CurrentMotionSet?.TotalDuration ?? 0f;
+                    _motionTimeout = Mathf.Max(0.5f, duration * 1.5f + 0.1f);
                     state.OwnedEvents.OnEnd = TransitionOut;
                     return;
                 }
@@ -155,7 +190,20 @@ namespace UPlayGround.State
 
         private void TransitionOut()
         {
+            if (controller.CurrentState != this)
+                return;
+
+            ClearMotionEndCallback();
             controller.TransitionToState(new EnemyIdleState(controller));
+        }
+
+        private void ClearMotionEndCallback()
+        {
+            if (_activeMotionState == null)
+                return;
+
+            _activeMotionState.OwnedEvents.OnEnd = null;
+            _activeMotionState = null;
         }
     }
 }

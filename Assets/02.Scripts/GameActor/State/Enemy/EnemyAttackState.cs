@@ -29,21 +29,29 @@ namespace UPlayGround.State
         private EnemyCombat    _combat;
         private EnemyAIContext _context;
         private EnemyDetection _detection;
+        private readonly AbilityAttackInfo _preparedSkill;
 
         private AbilityAttackInfo _currentSkill;
         private float           _attackTimer;
+        private float           _attackHardTimeout;
         private bool            _isAttackActive;
 
         // 호밍 타겟 (Motion Warp + 회전 보정 공통)
         private Transform _homingTarget;
         private MotionWarpController _motionWarp;
 
-        public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyAIContext context, EnemyDetection detection)
+        public EnemyAttackState(
+            ActorMovementController controller,
+            EnemyCombat combat,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            AbilityAttackInfo preparedSkill = null)
             : base(controller)
         {
             _combat    = combat;
             _context   = context;
             _detection = detection;
+            _preparedSkill = preparedSkill;
         }
 
         public override bool CanTransitionState(string stateName)
@@ -71,7 +79,8 @@ namespace UPlayGround.State
             ActorWeaponTrailController.StartAttackTrails(gameActor);
 
             float distanceToTarget = _detection.DistanceToTarget;
-            _currentSkill = _combat.SelectAndExecuteSkill(distanceToTarget);
+            _currentSkill = _preparedSkill
+                            ?? _combat.SelectAndExecuteSkill(distanceToTarget);
 
             if (_currentSkill != null)
             {
@@ -82,7 +91,11 @@ namespace UPlayGround.State
                     _combat.BeginCurrentSkillTelegraph();
 
                 if (animState != null)
+                {
+                    float duration = gameActor.Animator.CurrentMotionSet?.TotalDuration ?? 0f;
+                    _attackHardTimeout = Mathf.Max(0.75f, duration * 1.5f + 0.25f);
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
+                }
                 else
                 {
                     Debug.LogWarning("[EnemyAttackState] 공격 MotionReference를 찾을 수 없습니다.");
@@ -127,6 +140,12 @@ namespace UPlayGround.State
             if (!_isAttackActive || _currentSkill == null) return;
 
             _attackTimer += deltaTime;
+            if (_attackTimer >= _attackHardTimeout)
+            {
+                OnAttackAnimationEnd();
+                return;
+            }
+
             _combat.UpdateTelegraphs();
 
             // 검출 요청만 표시하고 실제 Overlap은 EnemyCombat.LateUpdate에서 수행한다(갓 적용된 포즈).

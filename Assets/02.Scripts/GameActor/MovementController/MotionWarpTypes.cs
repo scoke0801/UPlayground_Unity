@@ -29,6 +29,24 @@ namespace UPlayGround.MovementController
     }
 
     /// <summary>
+    /// 워프가 맞추는 루트 도착점의 의미.
+    /// TargetCenter는 기존 데이터 호환용이며, 일반 근접 공격은 ContactShell을 사용한다.
+    /// </summary>
+    public enum WarpArrivalMode
+    {
+        TargetCenter = 0,
+        ContactShell,
+        AuthoredWarpPoint,
+    }
+
+    public enum WarpPointProvider
+    {
+        Root = 0,
+        StaticTransform,
+        Bone,
+    }
+
+    /// <summary>
     /// 워프 Y축 처리 정책. 기본은 IgnoreY 로 1차 동작 호환.
     /// </summary>
     public enum WarpYPolicy
@@ -63,6 +81,23 @@ namespace UPlayGround.MovementController
         public float maxDistance;
         public float maxSpeed;
         public Vector3 targetOffset;
+        public WarpArrivalMode arrivalMode;
+        public float desiredStandOff;
+        public Vector3 localArrivalOffset;
+        public WarpPointProvider warpPointProvider;
+        public Vector3 authoredWarpPointLocal;
+        public HumanBodyBones warpPointBone;
+        public Vector3 warpPointBoneOffset;
+        public string targetTransformPath;
+        public Vector3 targetPointOffset;
+        public float noTranslationWithinReach;
+        public float maxCorrectionDistance;
+        public float maxCorrectionRatio;
+        public float maxWarpAngle;
+        public AnimationCurve translationCurve;
+        public float translationEndLeadTime;
+        public bool usePlaybackRateWarp;
+        public Vector2 playbackRateRange;
         // 정규화 시간 t 를 회전 보간 알파로 매핑하는 곡선. null 이면 EaseOut(1-(1-t)^2) 폴백.
         public AnimationCurve rotationCurve;
         // Predictive 정책에서 타겟 속도를 어느 정도 가산할지 (0~1). 0 = Live 와 동일.
@@ -109,6 +144,23 @@ namespace UPlayGround.MovementController
                 maxDistance = 4f,
                 maxSpeed = 18f,
                 targetOffset = Vector3.zero,
+                arrivalMode = WarpArrivalMode.ContactShell,
+                desiredStandOff = 0.1f,
+                localArrivalOffset = Vector3.zero,
+                warpPointProvider = WarpPointProvider.Root,
+                authoredWarpPointLocal = Vector3.zero,
+                warpPointBone = HumanBodyBones.RightHand,
+                warpPointBoneOffset = Vector3.zero,
+                targetTransformPath = string.Empty,
+                targetPointOffset = Vector3.zero,
+                noTranslationWithinReach = 0.08f,
+                maxCorrectionDistance = 0.5f,
+                maxCorrectionRatio = 0.3f,
+                maxWarpAngle = 45f,
+                translationCurve = null,
+                translationEndLeadTime = 0.06f,
+                usePlaybackRateWarp = false,
+                playbackRateRange = new Vector2(0.95f, 1.05f),
                 rotationCurve = null,
                 predictionFactor = 0.5f,
                 amplifyEnabled = false,
@@ -130,6 +182,214 @@ namespace UPlayGround.MovementController
         {
             if (yPolicy != WarpYPolicy.IgnoreY) return yPolicy;
             return ignoreY ? WarpYPolicy.IgnoreY : WarpYPolicy.MatchTargetY;
+        }
+    }
+
+    /// <summary>
+    /// Unity 오브젝트 수명과 무관하게 EditMode에서 검증 가능한 모션 워프 도착/예산 계산 코어.
+    /// </summary>
+    public static class MotionWarpArrivalUtility
+    {
+        public static Vector3 ResolveContactShell(
+            Vector3 attackerStart,
+            Vector3 targetCenter,
+            float attackerRadius,
+            float targetRadius,
+            float desiredStandOff,
+            Vector3 localArrivalOffset,
+            Quaternion targetRotation)
+        {
+            Vector3 approach = targetCenter - attackerStart;
+            approach.y = 0f;
+            if (approach.sqrMagnitude <= 0.000001f)
+            {
+                approach = targetRotation * Vector3.forward;
+                approach.y = 0f;
+            }
+
+            Vector3 approachDirection = approach.sqrMagnitude > 0.000001f
+                ? approach.normalized
+                : Vector3.forward;
+            float shellRadius = Mathf.Max(0f, attackerRadius)
+                              + Mathf.Max(0f, targetRadius)
+                              + Mathf.Max(0f, desiredStandOff);
+            return targetCenter
+                 - approachDirection * shellRadius
+                 + targetRotation * localArrivalOffset;
+        }
+
+        public static Vector3 ResolveAuthoredWarpPoint(
+            Vector3 targetPoint,
+            Vector3 sourcePointLocal,
+            Quaternion attackerRotation,
+            Vector3 localArrivalOffset,
+            Quaternion targetRotation)
+        {
+            return targetPoint
+                 - attackerRotation * sourcePointLocal
+                 + targetRotation * localArrivalOffset;
+        }
+
+        public static bool IsWithinWarpAngle(Vector3 forward, Vector3 toTarget, float maxWarpAngle)
+        {
+            forward.y = 0f;
+            toTarget.y = 0f;
+            if (forward.sqrMagnitude <= 0.000001f || toTarget.sqrMagnitude <= 0.000001f)
+                return true;
+            return Vector3.Angle(forward, toTarget) <= Mathf.Clamp(maxWarpAngle, 0f, 180f);
+        }
+
+        public static bool CanTranslate(
+            float arrivalErrorDistance,
+            float noTranslationWithinReach,
+            Vector3 attackForward,
+            Vector3 toTarget,
+            float maxWarpAngle)
+        {
+            if (noTranslationWithinReach > 0f && arrivalErrorDistance <= noTranslationWithinReach)
+                return false;
+            return IsWithinWarpAngle(attackForward, toTarget, maxWarpAngle);
+        }
+
+        public static float ResolveCorrectionReferenceDistance(
+            float remainingOriginalDistance,
+            float arrivalErrorDistance)
+            => Mathf.Max(
+                Mathf.Max(0f, remainingOriginalDistance),
+                Mathf.Max(0f, arrivalErrorDistance));
+
+        public static float ResolveCorrectionBudget(
+            float correctionReferenceDistance,
+            float maxCorrectionDistance,
+            float maxCorrectionRatio)
+        {
+            float absoluteBudget = maxCorrectionDistance > 0f
+                ? maxCorrectionDistance
+                : float.PositiveInfinity;
+            float ratioBudget = maxCorrectionRatio > 0f
+                ? Mathf.Max(0f, correctionReferenceDistance) * maxCorrectionRatio
+                : float.PositiveInfinity;
+            return Mathf.Min(absoluteBudget, ratioBudget);
+        }
+
+        public static Vector3 LimitCorrection(
+            Vector3 correction,
+            float correctionReferenceDistance,
+            float maxCorrectionDistance,
+            float maxCorrectionRatio)
+        {
+            correction.y = 0f;
+            float budget = ResolveCorrectionBudget(
+                correctionReferenceDistance,
+                maxCorrectionDistance,
+                maxCorrectionRatio);
+            if (float.IsPositiveInfinity(budget) || correction.magnitude <= budget)
+                return correction;
+            return correction.sqrMagnitude > 0.000001f
+                ? correction.normalized * budget
+                : Vector3.zero;
+        }
+
+        public static Vector3 LimitAccumulatedCorrection(
+            Vector3 accumulatedCorrection,
+            Vector3 requiredRemainingCorrection,
+            float correctionBudget)
+        {
+            accumulatedCorrection.y = 0f;
+            requiredRemainingCorrection.y = 0f;
+            if (float.IsPositiveInfinity(correctionBudget))
+                return requiredRemainingCorrection;
+
+            float budget = Mathf.Max(0f, correctionBudget);
+            Vector3 desiredTotal = accumulatedCorrection + requiredRemainingCorrection;
+            Vector3 limitedTotal = desiredTotal.sqrMagnitude > budget * budget
+                ? desiredTotal.normalized * budget
+                : desiredTotal;
+            return limitedTotal - accumulatedCorrection;
+        }
+
+        public static float ResolveCorrectionStepScale(
+            Vector3 accumulatedCorrection,
+            Vector3 candidateStep,
+            float correctionBudget)
+        {
+            accumulatedCorrection.y = 0f;
+            candidateStep.y = 0f;
+            if (float.IsPositiveInfinity(correctionBudget))
+                return 1f;
+
+            float budget = Mathf.Max(0f, correctionBudget);
+            Vector3 candidateTotal = accumulatedCorrection + candidateStep;
+            if (candidateTotal.sqrMagnitude <= budget * budget)
+                return 1f;
+
+            float a = Vector3.Dot(candidateStep, candidateStep);
+            if (a <= 0.0000001f)
+                return 0f;
+
+            float b = 2f * Vector3.Dot(
+                accumulatedCorrection,
+                candidateStep);
+            float c = accumulatedCorrection.sqrMagnitude - budget * budget;
+            float discriminant = Mathf.Max(0f, b * b - 4f * a * c);
+            float exitScale = (-b + Mathf.Sqrt(discriminant)) / (2f * a);
+            return Mathf.Clamp01(exitScale);
+        }
+
+        public static float ResolveForwardTimeDelta(
+            float previousTime,
+            float currentTime)
+            => Mathf.Max(0f, currentTime - previousTime);
+
+        public static float ResolvePhysicalRemainingTime(
+            float authoredRemainingTime,
+            float authoredTimeRate)
+            => Mathf.Max(0f, authoredRemainingTime)
+               / Mathf.Max(0.01f, authoredTimeRate);
+
+        public static float ResolveVerticalVelocity(
+            float rootVelocityY,
+            float matchTargetVelocityY,
+            float translationBlend,
+            WarpYPolicy policy,
+            float easedProgress)
+        {
+            float blend = Mathf.Clamp01(translationBlend);
+            return policy switch
+            {
+                WarpYPolicy.IgnoreY => rootVelocityY,
+                WarpYPolicy.MatchTargetY => Mathf.Lerp(
+                    rootVelocityY,
+                    matchTargetVelocityY,
+                    blend),
+                _ => Mathf.Lerp(
+                    rootVelocityY,
+                    matchTargetVelocityY,
+                    blend * Mathf.Clamp01(easedProgress)),
+            };
+        }
+
+        public static Vector3 ResolveFallbackVelocity(
+            Vector3 rootHorizontalVelocity,
+            Vector3 arrivalError,
+            float remainingTime,
+            float deltaTime,
+            float maxCorrectionDistance,
+            float maxCorrectionRatio)
+        {
+            rootHorizontalVelocity.y = 0f;
+            arrivalError.y = 0f;
+            float horizon = Mathf.Max(remainingTime, Mathf.Max(deltaTime, 0.0001f));
+            Vector3 predictedRemaining = rootHorizontalVelocity * horizon;
+            float correctionReferenceDistance = ResolveCorrectionReferenceDistance(
+                predictedRemaining.magnitude,
+                arrivalError.magnitude);
+            Vector3 correction = LimitCorrection(
+                arrivalError - predictedRemaining,
+                correctionReferenceDistance,
+                maxCorrectionDistance,
+                maxCorrectionRatio);
+            return rootHorizontalVelocity + correction / horizon;
         }
     }
 

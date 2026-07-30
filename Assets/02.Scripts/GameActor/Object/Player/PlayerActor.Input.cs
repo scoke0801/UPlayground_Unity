@@ -13,10 +13,10 @@ using UPlayGround.Data.Event;
 using UPlayGround.Data.Stat;
 using UPlayGround.MovementController;
 using UPlayGround.Input;
+using UPlayGround.State;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.Combat;
-using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
@@ -86,11 +86,20 @@ namespace UPlayGround
         private void OnInputPerformedDodge(InputAction.CallbackContext obj)        => _dodgeInputCondition        = InputCondition.Pressed;
         private void OnInputPerformedDash(InputAction.CallbackContext obj)         => _dashInputCondition         = InputCondition.Pressed;
         private void OnInputPerformedWalk(InputAction.CallbackContext obj)
-            => MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk ? BaseMoveAnimType.Run : BaseMoveAnimType.Walk;
+        {
+            MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk
+                ? BaseMoveAnimType.Run
+                : BaseMoveAnimType.Walk;
+            PlayerController.SetAutoSprintArmed(
+                MoveAnimType == BaseMoveAnimType.Run);
+        }
         private void OnInputPerformedSprint(InputAction.CallbackContext obj)
         {
-            if (MovementController.CurrentState.StateName == "GroundMove")
+            if ((PlayerController.CurrentState?.StateTags & ActorStateTag.Locomotion) != 0)
+            {
                 MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
+                PlayerController.SetAutoSprintArmed(MoveAnimType != BaseMoveAnimType.Sprint);
+            }
         }
         private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)
         {
@@ -159,8 +168,54 @@ namespace UPlayGround
             if (GetCombat()?.FindSpecialBreakAttackTarget() != null)
                 InputMgr.InputBuffer.AddInput(PlayerAction.Interact, bufferTime: 0.15f);
         }
-        private void OnInputStartedGuard(InputAction.CallbackContext obj)          => _guardInputCondition = InputCondition.Pressed;
-        private void OnInputFinishedGuard(InputAction.CallbackContext obj)         => _guardInputCondition = InputCondition.None;
+        private void OnInputStartedGuard(InputAction.CallbackContext obj)
+        {
+            _guardInputCondition = InputCondition.None;
+            _guardChordConsumed = false;
+            _guardInputStartedAt = Time.unscaledTime;
+
+            // 키보드 V는 다른 액션의 조합키가 아니므로 즉시 가드한다.
+            // 게임패드 LB는 회피/궁극기/퀵슬롯 조합키이므로 짧게 판별을 유예한다.
+            _guardInputPending = obj.control?.device is Gamepad;
+            if (!_guardInputPending)
+                _guardInputCondition = InputCondition.Pressed;
+        }
+
+        private void OnInputFinishedGuard(InputAction.CallbackContext obj)
+        {
+            _guardInputCondition = InputCondition.None;
+            _guardInputPending = false;
+            _guardChordConsumed = false;
+        }
+
+        private void ResolveGuardChordInput()
+        {
+            if (!_guardInputPending)
+                return;
+
+            Gamepad gamepad = Gamepad.current;
+            bool chordPressed = gamepad != null
+                                && gamepad.leftShoulder.isPressed
+                                && (gamepad.rightShoulder.isPressed
+                                    || gamepad.rightTrigger.isPressed
+                                    || gamepad.dpad.up.isPressed
+                                    || gamepad.dpad.down.isPressed
+                                    || gamepad.dpad.left.isPressed
+                                    || gamepad.dpad.right.isPressed);
+
+            if (chordPressed)
+            {
+                _guardChordConsumed = true;
+                _guardInputCondition = InputCondition.None;
+                return;
+            }
+
+            if (!_guardChordConsumed
+                && Time.unscaledTime - _guardInputStartedAt >= GuardChordResolveDelay)
+            {
+                _guardInputCondition = InputCondition.Pressed;
+            }
+        }
 
         #endregion
 
@@ -204,6 +259,8 @@ namespace UPlayGround
             _equipInputCondition       = InputCondition.None;
             _interactionInputCondition = InputCondition.None;
             _guardInputCondition       = InputCondition.None;
+            _guardInputPending         = false;
+            _guardChordConsumed        = false;
             _chargeAttackHeld          = false;
             _chargeHoldTime            = 0f;
             for (int i = 0; i < _skillInputCondition.Count; ++i)

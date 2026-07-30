@@ -123,9 +123,26 @@ namespace UPlayGround.State
             if (distToFlank <= ARRIVAL_THRESHOLD && !_hasReachedFlank)
             {
                 _hasReachedFlank = true;
-                // 측면 도달 → 공격
-                controller.TransitionToState(
-                    new EnemyAttackState(controller, _combat, _context, _detection));
+                // 측면 목적지는 타겟에서 떨어져 있으므로 도착 판정만으로 공격 상태에
+                // 들어가면 Ability 최대 사거리 밖일 수 있다. 실제 현재 거리에서
+                // 실행 가능한 공격을 먼저 확정하고, 없으면 추격으로 거리를 좁힌다.
+                var preparedSkill =
+                    _combat.SelectAndExecuteSkill(_detection.DistanceToTarget);
+                if (preparedSkill != null)
+                {
+                    controller.TransitionToState(
+                        new EnemyAttackState(
+                            controller,
+                            _combat,
+                            _context,
+                            _detection,
+                            preparedSkill));
+                }
+                else
+                {
+                    controller.TransitionToState(
+                        new EnemyChaseState(controller, _context, _detection));
+                }
                 return;
             }
 

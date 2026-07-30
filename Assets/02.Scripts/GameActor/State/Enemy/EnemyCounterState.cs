@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Components;
 using UPlayGround.Data;
@@ -25,6 +26,10 @@ namespace UPlayGround.State
 
         private AbilityAttackInfo _skill;
         private bool _isActive;
+        private MotionSet _playedMotionSet;
+        private float _elapsed;
+        private float _hardTimeout;
+        private bool _motionCompleted;
 
         // 카운터 전진 - Guard 블록 후 순간적으로 파고드는 느낌
         private const float DASH_IN_SPEED   = 10f;
@@ -73,13 +78,21 @@ namespace UPlayGround.State
             var motion = _skill.baseInfo.ResolveMotion(WeaponType.NoWeapon);
             var animState = motion != null ? gameActor.Animator.PlayMotion(motion, 0.05f) : null;
             if (animState != null)
-                animState.OwnedEvents.OnEnd = OnCounterEnd;
+            {
+                _playedMotionSet = gameActor.Animator.CurrentMotionSet;
+                float duration = _playedMotionSet?.TotalDuration ?? 0f;
+                _hardTimeout = Mathf.Max(0.5f, duration * 1.5f + 0.1f);
+                gameActor.Animator.OnMotionSetEndedWithReason += OnMotionSetEnded;
+            }
             else
-                OnCounterEnd();
+            {
+                _motionCompleted = true;
+            }
         }
 
         public override void OnExit(GameActorState toState)
         {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
             base.OnExit(toState);
             _isActive = false;
             _combat.ClearHitTargets();
@@ -88,6 +101,13 @@ namespace UPlayGround.State
         public override void UpdateState(float deltaTime)
         {
             if (!_isActive) return;
+
+            _elapsed += deltaTime;
+            if (_motionCompleted || _elapsed >= _hardTimeout)
+            {
+                OnCounterEnd();
+                return;
+            }
 
             // 검출 요청만 표시하고 실제 Overlap은 EnemyCombat.LateUpdate에서 수행한다(갓 적용된 포즈).
             if (_skill?.baseInfo.attackType == AttackType.Melee && _combat.IsPossibleCollide)
@@ -158,6 +178,12 @@ namespace UPlayGround.State
             {
                 controller.TransitionToState(new EnemyIdleState(controller));
             }
+        }
+
+        private void OnMotionSetEnded(MotionSet motionSet, MotionSetEndReason reason)
+        {
+            if (ReferenceEquals(motionSet, _playedMotionSet))
+                _motionCompleted = true;
         }
     }
 }

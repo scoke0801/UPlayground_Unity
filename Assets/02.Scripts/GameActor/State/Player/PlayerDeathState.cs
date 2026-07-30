@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEditor;
 #endif
 using UnityEngine;
+using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
 using UPlayGround.Manager;
@@ -29,6 +30,10 @@ namespace UPlayGround.State
         private Vector3    _deathPosition;
         private Quaternion _deathRotation;
         private Coroutine  _autoSwitchDelayRoutine;
+        private MotionSet  _playedMotionSet;
+        private float      _deathMotionTimeout;
+        private float      _elapsedUnscaled;
+        private bool       _deathSequenceStarted;
 
         private const float AutoSwitchDelayAfterDeathMotion = 0.45f;
 
@@ -46,12 +51,35 @@ namespace UPlayGround.State
             var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Die, 0.25f);
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () => OnDeathMotionEnd(state);
+                _playedMotionSet = gameActor.Animator.CurrentMotionSet;
+                _deathMotionTimeout = Mathf.Max(
+                    0.5f,
+                    (_playedMotionSet?.TotalDuration ?? 2.5f) + 0.25f);
+                gameActor.Animator.OnMotionSetEndedWithReason += OnMotionSetEnded;
+                state.OwnedEvents.OnEnd = () => BeginDeathSequence(state);
+            }
+            else
+            {
+                BeginDeathSequence(null);
             }
         }
 
-        private void OnDeathMotionEnd(Animancer.AnimancerState deathState)
+        private void OnMotionSetEnded(MotionSet motionSet, MotionSetEndReason reason)
         {
+            if (!ReferenceEquals(motionSet, _playedMotionSet))
+                return;
+
+            BeginDeathSequence(null);
+        }
+
+        private void BeginDeathSequence(Animancer.AnimancerState deathState)
+        {
+            if (_deathSequenceStarted)
+                return;
+
+            _deathSequenceStarted = true;
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
+
             if (deathState != null)
                 deathState.Speed = 0f;
 
@@ -60,7 +88,7 @@ namespace UPlayGround.State
 
         private IEnumerator SwitchOrShowRespawnAfterDelay()
         {
-            yield return new WaitForSeconds(AutoSwitchDelayAfterDeathMotion);
+            yield return new WaitForSecondsRealtime(AutoSwitchDelayAfterDeathMotion);
             _autoSwitchDelayRoutine = null;
 
             if (controller.CurrentState != this)
@@ -85,6 +113,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
+
             if (_autoSwitchDelayRoutine != null)
             {
                 controller.StopCoroutine(_autoSwitchDelayRoutine);
@@ -131,6 +161,13 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            if (_deathSequenceStarted)
+                return;
+
+            // 모션 종료 콜백이 교체/종료 순서 때문에 유실돼도 부활 흐름은 반드시 진행한다.
+            _elapsedUnscaled += Time.unscaledDeltaTime;
+            if (_elapsedUnscaled >= _deathMotionTimeout)
+                BeginDeathSequence(null);
         }
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

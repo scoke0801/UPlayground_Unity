@@ -115,6 +115,7 @@ namespace UPlayGround
             bool isInteractHeld = InputMgr != null
                                   && InputMgr.GetAction(InputMapNames.PlayerAction, PlayerAction.Interact, out InputAction interactAction)
                                   && interactAction.IsPressed();
+            ResolveGuardChordInput();
 
             PlayerMovementPlayerController.SetInputs(new PlayerCharacterInputs
             {

@@ -76,6 +76,28 @@ namespace UPlayGround.Movement.Tests
             Assert.That(second.EnterCount, Is.Zero);
         }
 
+        [Test]
+        public void SeedRotationNextUpdate_상태회전후_목표회전을한번만확정한다()
+        {
+            Quaternion stateRotation = Quaternion.Euler(0f, 30f, 0f);
+            Quaternion targetRotation = Quaternion.Euler(0f, 120f, 0f);
+            _controller.TransitionToState(
+                new RotationTestState(_controller, stateRotation));
+            _controller.SeedRotationNextUpdate(targetRotation);
+
+            Quaternion currentRotation = Quaternion.identity;
+            _controller.UpdateRotation(ref currentRotation, 0.02f);
+            Assert.That(
+                Quaternion.Angle(currentRotation, targetRotation),
+                Is.LessThan(0.01f));
+
+            currentRotation = Quaternion.identity;
+            _controller.UpdateRotation(ref currentRotation, 0.02f);
+            Assert.That(
+                Quaternion.Angle(currentRotation, stateRotation),
+                Is.LessThan(0.01f));
+        }
+
         private sealed class TestState : GameActorState
         {
             private readonly bool _allowsSameTypeReentry;
@@ -109,6 +131,29 @@ namespace UPlayGround.Movement.Tests
             public override void OnExit(GameActorState toState)
             {
                 ExitCount++;
+            }
+        }
+
+        private sealed class RotationTestState : GameActorState
+        {
+            private readonly Quaternion _rotation;
+
+            public RotationTestState(
+                ActorMovementController controller,
+                Quaternion rotation)
+                : base(controller)
+            {
+                _rotation = rotation;
+            }
+
+            public override string StateName => "RotationTest";
+            public override bool CanTransitionState(string stateName) => true;
+
+            public override void UpdateRotation(
+                ref Quaternion currentRotation,
+                float deltaTime)
+            {
+                currentRotation = _rotation;
             }
         }
     }

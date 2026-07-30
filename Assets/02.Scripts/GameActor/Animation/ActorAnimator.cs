@@ -178,7 +178,9 @@ namespace UPlayGround.Animation
         }
         
         /// <summary>
-        /// 전체 애니메이터 재생 속도
+        /// 전체 애니메이터 재생 속도.
+        /// 런타임 상태가 값을 쓸 때는 반드시 GameActor.LocalTimeScale을 곱해야 한다.
+        /// 로코모션은 상태 OnExit에서 LocalTimeScale 값으로 복원한다.
         /// </summary>
         public float Speed
         {
@@ -233,6 +235,7 @@ namespace UPlayGround.Animation
         public string CurrentMotionSetName => _currentMotionSet?.motionSetName;
         public MotionSet CurrentMotionSet => _currentMotionSet;
         public float CurrentMotionSetTime => _globalTime;
+        public float EvaluatedMotionTime { get; private set; }
         public int    CurrentMotionIndex   => _currentMotionIndex;
         public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
         public bool   IsExternalPreviewActive => _externalPreviewLockCount > 0;
@@ -302,7 +305,16 @@ namespace UPlayGround.Animation
             _eventExecutor = GetComponent<MotionEventExecutor>();
 
             if (_animator != null)
+            {
                 ApplyAnimancerSetup(_animator);
+                if (_animator.Animator != null
+                    && _animator.Animator.gameObject != gameObject)
+                {
+                    Debug.LogError(
+                        $"[{name}] ActorAnimator와 Unity Animator는 루트모션 이중 적용 방지를 위해 같은 GameObject에 있어야 합니다.",
+                        this);
+                }
+            }
         }
 
         /// <summary>
@@ -383,12 +395,12 @@ namespace UPlayGround.Animation
                 // 실제 평가된 포즈 시간으로 판정한다. 그래프가 이미 이번 프레임 포즈를
                 // 만든 LateUpdate에서 _currentState.Time을 역산하므로, 히트스톱·타임스케일·
                 // 프레임 변동과 무관하게 이벤트가 항상 동일한 모션 시점에 발화한다.
-                _eventExecutor?.UpdateTime(
-                    _completeAfterLateUpdate
+                EvaluatedMotionTime = _completeAfterLateUpdate
+                    ? _globalTime
+                    : _currentMotionSet != null && _currentMotionSet.HasPlaybackLayers
                         ? _globalTime
-                        : _currentMotionSet != null && _currentMotionSet.HasPlaybackLayers
-                        ? _globalTime
-                        : GetPoseDrivenGlobalTime());
+                        : GetPoseDrivenGlobalTime();
+                _eventExecutor?.UpdateTime(EvaluatedMotionTime);
 
                 // 이번 프레임 발화가 결정된 공간 샘플링 이벤트(SlashVFX 등)를 여기서 실행해,
                 // 블레이드 본을 항상 이번 프레임 최종 포즈로 샘플링한다.
@@ -514,13 +526,23 @@ namespace UPlayGround.Animation
                 && _lastPlayedSlot == slot)
                 return GetRepresentativePlaybackState();
 
+            float resolvedFade = Mathf.Max(0f, fadeDuration);
+            int effectiveLayer = ResolveBaseLayerIndex(motionSet, layerIndex);
+            bool preserveBasePose =
+                _isPlayingMotionSet
+                && _currentMotionSet != null
+                && resolvedFade > 0f
+                && _currentMotionLayerIndex == effectiveLayer;
             if (_isPlayingMotionSet && _currentMotionSet != null)
-                StopMotionSet(MotionSetEndReason.Interrupted);
+                StopMotionSet(
+                    MotionSetEndReason.Interrupted,
+                    preserveBasePose: preserveBasePose);
 
             _currentMotionAsset = sourceAsset;
             _currentMotionSet = motionSet;
             _currentMotionIndex = -1;
             _globalTime = 0f;
+            EvaluatedMotionTime = 0f;
             _lastLocalTime = -0.001f;
             _isPlayingMotionSet = true;
             _completeAfterLateUpdate = false;
@@ -531,11 +553,9 @@ namespace UPlayGround.Animation
             _currentSectionId = null;
             _nextSectionOverrideId = null;
 
-            int effectiveLayer = ResolveBaseLayerIndex(motionSet, layerIndex);
             EnsureOverlayMask(effectiveLayer);
             _currentMotionLayerIndex = effectiveLayer;
 
-            float resolvedFade = Mathf.Max(0f, fadeDuration);
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
             if (motionSet.GetMotionAtTime(0f, out int initialIndex, out _))
                 PlayMotionAtIndex(initialIndex, resolvedFade, effectiveLayer);
@@ -874,7 +894,10 @@ namespace UPlayGround.Animation
             StopMotionSet(MotionSetEndReason.Stopped, blendOutOverride);
         }
 
-        private void StopMotionSet(MotionSetEndReason reason, float? blendOutOverride = null)
+        private void StopMotionSet(
+            MotionSetEndReason reason,
+            float? blendOutOverride = null,
+            bool preserveBasePose = false)
         {
             if (!_isPlayingMotionSet) return;
 
@@ -886,7 +909,14 @@ namespace UPlayGround.Animation
             _eventExecutor?.Stop();
             // 정상 완료는 상태 전환이 다음 모션을 재생할 때까지 마지막 Base 포즈를 유지한다.
             // 명시적 Hold Section은 재생 상태 자체를 유지하므로 이 경로에 들어오지 않는다.
-            if (!completed)
+            // 같은 레이어의 즉시 교체는 이전 포즈를 고정해 Animancer Play가 실제로
+            // 이전 포즈와 새 포즈를 크로스페이드할 수 있게 한다.
+            if (preserveBasePose && _currentState != null)
+            {
+                _currentState.Speed = 0f;
+                _currentState.Events(this).OnEnd = null;
+            }
+            else if (!completed)
                 FadeOrStopLayer(_currentMotionLayerIndex, blendOut);
 
             // Base 마지막 포즈를 유지하더라도 병렬 레이어까지 남겨 두면 다음 상태를 덮는다.
@@ -897,6 +927,7 @@ namespace UPlayGround.Animation
             _currentMotionSet = null;
             _currentState = null;
             _globalTime = 0f;
+            EvaluatedMotionTime = 0f;
             _currentMotionIndex = 0;
             _currentSectionId = null;
             _nextSectionOverrideId = null;
@@ -904,7 +935,7 @@ namespace UPlayGround.Animation
             _effectiveTimelineRate = 1f;
             ResetLoopState();
             
-            if (_subAnimator != null)
+            if (_subAnimator != null && !preserveBasePose)
             {
                 _subAnimator.StopMotionSet();
             }

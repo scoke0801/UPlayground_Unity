@@ -59,12 +59,12 @@ namespace UPlayGround.Ability.Tests
             Assert.That(
                 view.liteComboAttackList[1].baseInfo.hitPhases[0].damage,
                 Is.EqualTo(20f));
-            Assert.That(view.counterAttack.baseInfo.motionRef, Is.Not.Null);
+            Assert.That(view.counterAttack.baseInfo.motionKey.IsValid, Is.True);
             Assert.That(view.chargeStages, Has.Count.EqualTo(1));
-            Assert.That(view.chargeMotionRef, Is.SameAs(charge.variants[0]
+            Assert.That(view.chargeMotionKey, Is.EqualTo(charge.variants[0]
                     .executionPayload is UPlayGroundMotionAbilityPayloadSO payload
-                        ? payload.attackInfo?.baseInfo?.motionRef
-                        : null));
+                        ? payload.attackInfo.baseInfo.motionKey
+                        : default));
             Assert.That(view.comboRoutes, Has.Count.EqualTo(1));
             Assert.That(
                 view.comboRoutes[0].attackInfo.baseInfo.hitPhases[0].damage,
@@ -120,14 +120,12 @@ namespace UPlayGround.Ability.Tests
             ability.abilityId = id;
             var attack = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase(),
+                baseInfo = new AttackInfoBase
+                {
+                    motionKey = new AbilityMotionKey(id, "Default"),
+                },
             };
             attack.baseInfo.hitPhases[0].damage = damage;
-            MotionSetAsset motion = Create<MotionSetAsset>();
-            motion.name = id + "Motion";
-            MotionReferenceSO motionRef = Create<MotionReferenceSO>();
-            motionRef.defaultMotion = motion;
-            attack.baseInfo.motionRef = motionRef;
             UPlayGroundMotionAbilityPayloadSO payload =
                 Create<UPlayGroundMotionAbilityPayloadSO>();
             payload.attackInfo = attack;

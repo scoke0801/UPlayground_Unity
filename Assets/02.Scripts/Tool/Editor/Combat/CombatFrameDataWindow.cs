@@ -242,7 +242,9 @@ namespace UPlayGround.Tool.Editor.Combat
                 actorName,
                 root,
                 data,
-                motion => CombatTimelineUtility.ResolveAttacks(data, motion));
+                // 이 액터의 MotionSet 범위로 한정한다. 전역 해석은 다른 액터가 같은 모션
+                // 에셋을 공유할 때 이 액터가 실행하지 않는 공격 행까지 만들어낸다.
+                motion => CombatTimelineUtility.ResolveAttacks(data, motion, root));
 
         void AppendRows(
             string actorName,

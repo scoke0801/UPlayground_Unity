@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
-  executionId: Ability.Player.PlayerGreatSwordAttackData.Ability.Skill_3
-  motionRef: {fileID: 11400000, guid: dbf3113df7363154eab5f8ce317d5962, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: dbf3113df7363154eab5f8ce317d5962, type: 2}
+      motionKey:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
+        variantId: Skill_3
       attackType: 0
       hitPhases:
       - damage: 151
         poiseDamage: 34
         breakDamage: 22
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -104,6 +105,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -119,16 +130,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
-  executionId: Ability.Player.PlayerGreatSwordAttackData.Ability.Default
-  motionRef: {fileID: 11400000, guid: 8999afedf826a3b42ab587e75a4c083c, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: 8999afedf826a3b42ab587e75a4c083c, type: 2}
+      motionKey:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
+        variantId: Default
       attackType: 0
       hitPhases:
       - damage: 121
         poiseDamage: 34
         breakDamage: 22
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -211,6 +223,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -227,7 +249,7 @@ MonoBehaviour:
   m_Name: GA_PlayerGreatSwordAttackData_Ability
   m_EditorClassIdentifier: 
   abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
-  schemaVersion: 1
+  editorMemo: 
   presentation:
     displayName: Ability
     description: 
@@ -237,16 +259,21 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: []
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
     minDistance: 0
     maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -254,6 +281,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 3
     cooldownGroupId: Cooldown.Player.GA_PlayerGreatSwordAttackData_Ability
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -263,8 +292,8 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: -127524844858558010}
     targetEffects: []
     ownerEffects: []
@@ -274,21 +303,17 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: -7386288345501519853}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
   endEffects: []
-  cues:
-    startCueId: 
-    failureCueId: 
-    endCueId: 
-    cooldownReadyCueId: 
   persistence:
     swapPolicy: 0
     saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 0
     expectedDuration: 0

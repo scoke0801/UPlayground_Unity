@@ -21,24 +21,23 @@ namespace UPlayGround.Ability.Tests
             "Assets/Tests/EditMode/Ability/__GeneratedFactoryTests";
 
         private AbilitySetSO _set;
-        private MotionReferenceSO _motionReference;
+        private ActorAnimationMotionSet _motionOwner;
         private MotionSetAsset _motion;
 
         [SetUp]
         public void SetUp()
         {
             _set = ScriptableObject.CreateInstance<AbilitySetSO>();
-            _motionReference =
-                ScriptableObject.CreateInstance<MotionReferenceSO>();
+            _motionOwner =
+                ScriptableObject.CreateInstance<ActorAnimationMotionSet>();
             _motion = ScriptableObject.CreateInstance<MotionSetAsset>();
-            _motionReference.defaultMotion = _motion;
         }
 
         [TearDown]
         public void TearDown()
         {
             Object.DestroyImmediate(_set);
-            Object.DestroyImmediate(_motionReference);
+            Object.DestroyImmediate(_motionOwner);
             Object.DestroyImmediate(_motion);
             if (AssetDatabase.IsValidFolder(FactoryTestRoot))
             {
@@ -108,14 +107,14 @@ namespace UPlayGround.Ability.Tests
         {
             AbilityCreationRequest request = CreateValidRequest(
                 "Ability.Tests.Production.MissingMotion");
-            request.MotionReference = null;
+            request.Motion = null;
 
             AbilityCreationPlan plan = AbilityCreationPlanner.Build(request);
 
             Assert.That(plan.CanApply, Is.False);
             Assert.That(
                 plan.Issues.Any(x =>
-                    x.Code == "REQUEST.MOTION_REFERENCE"
+                    x.Code == "REQUEST.MOTION"
                     && x.Severity == AbilityProductionSeverity.Error),
                 Is.True);
         }
@@ -157,8 +156,12 @@ namespace UPlayGround.Ability.Tests
             Assert.That(request.TargetSet.Contains(result.Ability), Is.True);
             Assert.That(result.Ability.taskGraph.Root, Is.Not.Null);
             Assert.That(
-                result.Payload.attackInfo.baseInfo.motionRef,
-                Is.SameAs(request.MotionReference));
+                result.Payload.attackInfo.baseInfo.motionKey,
+                Is.EqualTo(new AbilityMotionKey(request.AbilityId, "Default")));
+            Assert.That(
+                request.MotionOwner.GetAbilityMotionAsset(
+                    result.Payload.attackInfo.baseInfo.motionKey),
+                Is.SameAs(request.Motion));
         }
 
         [Test]
@@ -273,11 +276,16 @@ namespace UPlayGround.Ability.Tests
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionRef = _motionReference,
+                    motionKey = new AbilityMotionKey(
+                        "Ability.Tests.MotionAnalyzer",
+                        "Default"),
                     hitPhases = new System.Collections.Generic.List<
                         HitPhaseData> { new() },
                 },
             };
+            _motionOwner.SetAbilityMotionAsset(
+                payload.attackInfo.baseInfo.motionKey,
+                _motion);
             _motion.motionSet.motions.Add(new global::UPlayGround.Animation.Motion
             {
                 events = new System.Collections.Generic.List<
@@ -289,7 +297,7 @@ namespace UPlayGround.Ability.Tests
             });
 
             AbilityMotionReport report =
-                AbilityMotionAnalyzer.Analyze(payload);
+                AbilityMotionAnalyzer.Analyze(payload, _motionOwner);
 
             Assert.That(report.RequiredHitPhaseCount, Is.EqualTo(3));
             Assert.That(report.HasProjectileEvent, Is.True);
@@ -336,9 +344,13 @@ namespace UPlayGround.Ability.Tests
                     UPlayGroundMotionAbilityPayloadSO>();
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase(),
+                baseInfo = new AttackInfoBase
+                {
+                    motionKey = new AbilityMotionKey(
+                        ability.abilityId,
+                        "Default"),
+                },
             };
-            payload.attackInfo.baseInfo.motionRef = _motionReference;
             payload.attackInfo.baseInfo.hitPhases =
                 new System.Collections.Generic.List<HitPhaseData>
                 {
@@ -392,7 +404,8 @@ namespace UPlayGround.Ability.Tests
                 AssetName = "TestAttack",
                 SaveRoot = "Assets/Temp/AbilityProductionTests",
                 TargetSet = _set,
-                MotionReference = _motionReference,
+                MotionOwner = _motionOwner,
+                Motion = _motion,
                 TaskGraph = taskGraph,
                 RequiredLevel = 1,
                 SelectionWeight = 10f,
@@ -419,12 +432,11 @@ namespace UPlayGround.Ability.Tests
                 motion,
                 $"{FactoryTestRoot}/Motion_Test.asset");
 
-            var motionReference =
-                ScriptableObject.CreateInstance<MotionReferenceSO>();
-            motionReference.defaultMotion = motion;
+            var motionOwner =
+                ScriptableObject.CreateInstance<ActorAnimationMotionSet>();
             AssetDatabase.CreateAsset(
-                motionReference,
-                $"{FactoryTestRoot}/MotionReference_Test.asset");
+                motionOwner,
+                $"{FactoryTestRoot}/ActorMotionSet_Test.asset");
             AssetDatabase.SaveAssets();
 
             return new AbilityCreationRequest
@@ -435,7 +447,8 @@ namespace UPlayGround.Ability.Tests
                 AssetName = assetName,
                 SaveRoot = FactoryTestRoot,
                 TargetSet = set,
-                MotionReference = motionReference,
+                MotionOwner = motionOwner,
+                Motion = motion,
                 TaskGraph = AssetDatabase.LoadAssetAtPath<AbilityTaskGraphSO>(
                     AbilityRecipeCatalog.SharedMotionTaskGraphPath),
                 RequiredLevel = 1,

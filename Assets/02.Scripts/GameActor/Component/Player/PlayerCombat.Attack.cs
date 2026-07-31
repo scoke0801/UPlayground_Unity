@@ -15,6 +15,7 @@ using UPlayGround.Manager;
 using UPlayGround.UI;
 using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Gameplay.Ability;
 using UPlayGround.MovementController;
 using UPlayGround.Debugging;
 
@@ -80,8 +81,18 @@ namespace UPlayGround.Components
             return result;
         }
 
-        public MotionSetAsset GetFirstChargeAttackMotion() => _attackData?.chargeMotionRef?.Resolve(
-            _equipment != null ? _equipment.GetMainWeaponType() : WeaponType.NoWeapon);
+        public MotionSetAsset GetFirstChargeAttackMotion()
+        {
+            if (_attackData == null
+                || !_attackData.chargeMotionKey.IsValid
+                || _playerActor?.Animator == null)
+                return null;
+            return _playerActor.Animator.TryResolveAbilityMotion(
+                _attackData.chargeMotionKey,
+                out MotionSetAsset motionAsset)
+                ? motionAsset
+                : null;
+        }
 
         /// <summary> 차지(홀드) 도중 캔슬 가능한 입력 액션 마스크. </summary>
         public PlayerInterruptAction GetChargeInterruptActions() => _attackData.chargeInterruptActions;
@@ -323,14 +334,13 @@ namespace UPlayGround.Components
         public AttackData ExecuteAbilityAttack(AbilityVariantDefinition variant)
         {
             ClearResidualAttackContext();
-            WeaponType weaponType = _equipment != null
-                ? _equipment.GetMainWeaponType()
-                : WeaponType.NoWeapon;
-            if (!UPlayGroundAbilityPayloadResolver.TryResolve(
+            if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
                     variant,
-                    weaponType,
-                    out MotionSetAsset motionAsset,
-                    out AbilityAttackInfo attackInfo))
+                    out AbilityAttackInfo attackInfo)
+                || !ActorAbilityMotionResolver.TryResolve(
+                    _playerActor,
+                    attackInfo,
+                    out MotionSetAsset motionAsset))
                 return null;
 
             _attackState = AttackState.SkillAttack;
@@ -533,10 +543,10 @@ namespace UPlayGround.Components
             AttackData data = _attackController.Create(attackInfo, attackKind);
             if (data != null)
             {
-                WeaponType weaponType = _equipment != null
-                    ? _equipment.GetMainWeaponType()
-                    : WeaponType.NoWeapon;
-                data.motionAsset = attackInfo.baseInfo.ResolveMotion(weaponType);
+                ActorAbilityMotionResolver.TryResolve(
+                    _playerActor,
+                    attackInfo,
+                    out data.motionAsset);
             }
             if (data != null && _playerActor != null)
             {

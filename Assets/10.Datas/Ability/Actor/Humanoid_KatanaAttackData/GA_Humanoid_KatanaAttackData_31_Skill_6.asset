@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GA_Humanoid_KatanaAttackData_31_Skill_6
   m_EditorClassIdentifier: 
   abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_6.31
-  schemaVersion: 1
+  editorMemo: 
   presentation:
     displayName: Skill_6
     description: "Humanoid_KatanaAttackData\uC758 BT \uC120\uD0DD\uD615 \uC804\uD22C
@@ -24,16 +24,21 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: []
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
     minDistance: 0
     maxDistance: 2.5
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -41,6 +46,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 4
     cooldownGroupId: 
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -50,21 +57,17 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: 5585784176895920842}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
   endEffects: []
-  cues:
-    startCueId: 
-    failureCueId: 
-    endCueId: 
-    cooldownReadyCueId: 
   persistence:
     swapPolicy: 0
     saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 124
     expectedDuration: 0
@@ -83,16 +86,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: Payload_Skill_6
   m_EditorClassIdentifier: 
-  executionId: 
-  motionRef: {fileID: 11400000, guid: 97192741ef0f7d64da8b748f044a55fb, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: 97192741ef0f7d64da8b748f044a55fb, type: 2}
+      motionKey:
+        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_6.31
+        variantId: Default
       attackType: 0
       hitPhases:
       - damage: 7
         poiseDamage: 24
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -156,6 +160,7 @@ MonoBehaviour:
       - damage: 7
         poiseDamage: 24
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -219,6 +224,7 @@ MonoBehaviour:
       - damage: 7
         poiseDamage: 24
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -282,6 +288,7 @@ MonoBehaviour:
       - damage: 7
         poiseDamage: 24
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -345,6 +352,7 @@ MonoBehaviour:
       - damage: 7
         poiseDamage: 24
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -408,6 +416,7 @@ MonoBehaviour:
       - damage: 7
         poiseDamage: 24
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -471,6 +480,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -534,6 +544,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -597,6 +608,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -660,6 +672,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -723,6 +736,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -786,6 +800,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -849,6 +864,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -912,6 +928,7 @@ MonoBehaviour:
       - damage: 8
         poiseDamage: 27
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -975,6 +992,7 @@ MonoBehaviour:
       - damage: 9
         poiseDamage: 30
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -1038,6 +1056,7 @@ MonoBehaviour:
       - damage: 9
         poiseDamage: 30
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -1120,6 +1139,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []

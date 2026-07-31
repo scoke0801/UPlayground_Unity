@@ -11,6 +11,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
         private SerializedProperty _fallbackMotionSet;
         private SerializedProperty _attackWeaponType;
         private SerializedProperty _attackAbilitySet;
+        private SerializedProperty _abilityMotions;
         private SerializedProperty _motionSlots;
 
         private void OnEnable()
@@ -18,6 +19,7 @@ namespace UPlayGround.Data.Actor.Animation.Editor
             _fallbackMotionSet = serializedObject.FindProperty("fallbackMotionSet");
             _attackWeaponType = serializedObject.FindProperty("attackWeaponType");
             _attackAbilitySet = serializedObject.FindProperty("attackAbilitySet");
+            _abilityMotions = serializedObject.FindProperty("abilityMotions");
             _motionSlots = serializedObject.FindProperty("motionSlots");
         }
 
@@ -36,12 +38,18 @@ namespace UPlayGround.Data.Actor.Animation.Editor
                 _attackWeaponType,
                 new GUIContent(
                     "Attack Weapon Type",
-                    "MotionReference에서 이 무기 타입의 override만 해석합니다. 해당 override가 없으면 Default Motion을 사용합니다."));
+                    "이 Actor MotionSet이 담당하는 공격 무기 타입입니다."));
             EditorGUILayout.PropertyField(
                 _attackAbilitySet,
                 new GUIContent(
                     "Attack Ability Set",
-                    "애니메이션 에디터에서 함께 표시할 공격 Ability와 MotionReference의 단일 소스입니다."));
+                    "애니메이션 에디터에서 함께 표시할 공격 Ability 모음입니다."));
+            EditorGUILayout.PropertyField(
+                _abilityMotions,
+                new GUIContent(
+                    "Ability Motions",
+                    "Ability/Variant Key를 실제 MotionSetAsset으로 해석하는 액터 소유 매핑입니다."),
+                true);
 
             if (_attackAbilitySet.objectReferenceValue == null)
             {

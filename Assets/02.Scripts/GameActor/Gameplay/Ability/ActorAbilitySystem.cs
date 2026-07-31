@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Components;
 using UPlayGround.Contracts.Ability;
+using UPlayGround.Data;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -1067,5 +1070,27 @@ namespace UPlayGround.Gameplay.Ability
             }
         }
 
+    }
+
+    /// <summary>
+    /// GAS가 전달한 모션 키를 실행 액터의 모션 데이터로 해석한다.
+    /// </summary>
+    public static class ActorAbilityMotionResolver
+    {
+        public static bool TryResolve(
+            GameActor actor,
+            AbilityAttackInfo attackInfo,
+            out MotionSetAsset motionAsset)
+        {
+            motionAsset = null;
+            AttackInfoBase baseInfo = attackInfo?.baseInfo;
+            if (actor?.Animator == null || baseInfo == null)
+                return false;
+
+            return baseInfo.motionKey.IsValid
+                   && actor.Animator.TryResolveAbilityMotion(
+                       baseInfo.motionKey,
+                       out motionAsset);
+        }
     }
 }

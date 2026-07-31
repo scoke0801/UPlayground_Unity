@@ -214,12 +214,10 @@ namespace UPlayGround.Data
     public class AttackInfoBase
     {
         [Header("Basic Info")]
-        [Tooltip("공격 콘텐츠 모션 참조입니다.")]
-        public MotionReferenceSO motionRef;
-        public AttackType attackType = AttackType.Melee;
+        [Tooltip("Ability/Variant를 액터 소유 모션에 연결하는 실행 키입니다.")]
+        public AbilityMotionKey motionKey;
 
-        public MotionSetAsset ResolveMotion(WeaponType weaponType) =>
-            motionRef != null ? motionRef.Resolve(weaponType) : null;
+        public AttackType attackType = AttackType.Melee;
 
         [Header("Hit Phases")]
         [Tooltip("히트 구간 별 데이터. BeginCollisionEvent의 hitPhaseIndex와 인덱스가 일치해야 한다.")]

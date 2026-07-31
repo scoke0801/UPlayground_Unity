@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Party;
@@ -224,11 +226,21 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(ability.variants, Has.Count.EqualTo(1));
                 Assert.That(
                     UPlayGroundAbilityPayloadResolver.TryResolve(
-                        ability.variants[0], WeaponType.NoWeapon, out var motionAsset, out _),
+                        ability.variants[0],
+                        out AbilityMotionKey motionKey,
+                        out _),
                     Is.True);
                 Assert.That(
-                    motionAsset,
-                    Is.Not.Null);
+                    AssetDatabase
+                        .FindAssets($"t:{nameof(ActorAnimationMotionSet)}")
+                        .Select(AssetDatabase.GUIDToAssetPath)
+                        .Select(AssetDatabase.LoadAssetAtPath<
+                            ActorAnimationMotionSet>)
+                        .Any(x =>
+                            x != null
+                            && x.GetAbilityMotionAsset(motionKey) != null),
+                    Is.True,
+                    $"Motion Key '{motionKey}' 매핑 누락");
                 Assert.That(ability.variants[0].ownerEffects, Has.Count.EqualTo(1));
                 Assert.That(
                     ability.variants[0].ownerEffects[0].grantedElement,

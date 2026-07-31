@@ -128,14 +128,16 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AbilityAttackInfo.baseInfo.motionRef
-→ MotionReferenceSO.Resolve(WeaponType)
+→ AbilityAttackInfo.baseInfo.motionKey
+→ ActorAnimator.TryResolveAbilityMotion
+→ PlayerActorAnimationMotionSet(WeaponType) / ActorAnimationMotionSet.abilityMotions
 → MotionSetAsset
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.baseInfo.motionRef`다. Payload 바깥에 중복 `motionRef`나 `AnimKey` 폴백을 다시 두지 않는다.
-- `MotionReferenceSO`는 기본 `MotionSetAsset`과 `WeaponType` override를 해석한다. 적의 실제 무기 타입을 제공하는 계약이 없는 상태에서 임의의 첫 override를 선택하지 않는다.
+- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.baseInfo.motionKey`다. 키는 `(abilityId, variantId)`로 구성하며 GAS는 `MotionSetAsset` 참조를 소유하지 않는다.
+- 실제 Motion 매핑은 `ActorAnimationMotionSet.abilityMotions`가 소유한다. 플레이어는 현재 `WeaponType`의 `PlayerActorAnimationMotionSet`에서 먼저 해석하고 `NoWeapon` 세트로 폴백한다.
+- Payload 바깥에 중복 Motion 참조나 `AnimKey`/레거시 Ref 폴백을 다시 두지 않는다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 `AbilitySetSO`를 읽는다.
 - `PlayerSkillSlot`은 입력 슬롯 바인딩이며 공격 수치의 원본이 아니다.
 - 제거된 `PlayerAttackDataSO`, Variant V1 직접 실행 필드, 레거시 Resolver/폴백, 일회성 마이그레이션 도구를 다시 도입하지 않는다.
@@ -145,7 +147,7 @@ CharacterModelData.abilitySet
 
 2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 구조와 후속 독립 모듈 조건은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
 
-2026-07-22 MotionReference 정밀 검증 기준: Motion Payload 487개 중 중복 필드가 존재했던 478개의 참조는 모두 일치했고, Elemental Imbue 5종은 공통 MotionReference로 복구했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·MotionReference·HitPhase 누락을 모아서 보고해야 한다.
+2026-07-31 Motion Key 이관 기준: Motion Payload 498개의 Key를 생성하고 Actor MotionSet 34개에 기존 기본/무기별 Motion 해석 결과를 이관했다. 레거시 `MotionReferenceSO` 타입과 490개 Ref 에셋은 제거했으며 직렬화 잔존 참조는 0건이다. Elemental Imbue 5종은 플레이어 무기 세트에 공통 Motion으로 연결했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·Motion Key 매핑·HitPhase 누락을 모아서 보고해야 한다.
 
 ### Editor 데이터 도구 안전 규칙
 

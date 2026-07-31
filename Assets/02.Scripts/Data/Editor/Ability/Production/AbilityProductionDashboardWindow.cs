@@ -97,7 +97,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
 
             Foldout clone = CreateFoldout(
                 "안전 Fork",
-                "Ability와 Payload만 독립 복제하고 MotionReference·TaskGraph·Effect는 공유합니다.");
+                "Ability와 Payload만 독립 복제하고 Motion Key 매핑·TaskGraph·Effect는 공유합니다.");
             clone.Add(CreateTextField(
                 "새 Ability ID",
                 _cloneAbilityId,
@@ -673,8 +673,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 "Payload",
                 _clonePlan.PayloadPath);
             EditorGUILayout.HelpBox(
-                "TaskGraph, MotionReference, Effect는 공유하고 Ability와 Payload만 "
-                + "독립 복제합니다. 원본은 변경하지 않습니다.",
+                "TaskGraph와 Effect는 공유하고 Ability와 Payload는 독립 복제합니다. "
+                + "액터 Motion Key 매핑은 새 키로 함께 복제하며 원본은 변경하지 않습니다.",
                 MessageType.Info);
             DrawIssues(_clonePlan.Issues);
         }

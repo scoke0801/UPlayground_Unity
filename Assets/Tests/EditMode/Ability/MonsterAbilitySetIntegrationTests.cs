@@ -3,8 +3,10 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Ability.Tests
 {
@@ -42,6 +44,12 @@ namespace UPlayGround.Ability.Tests
                 .ToArray();
 
             Assert.That(sets, Is.Not.Empty);
+            ActorAnimationMotionSet[] motionSets = AssetDatabase
+                .FindAssets($"t:{nameof(ActorAnimationMotionSet)}")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>)
+                .Where(x => x != null)
+                .ToArray();
             int validated = 0;
             var issues = new List<string>();
             foreach (AbilitySetSO set in sets)
@@ -65,16 +73,94 @@ namespace UPlayGround.Ability.Tests
                             continue;
                         }
 
-                        if (payload.attackInfo?.baseInfo?.motionRef == null)
-                            issues.Add($"{ability.name}: MotionReference 누락");
-                        else if (!payload.attackInfo.baseInfo.motionRef.HasAnyMotion)
-                            issues.Add($"{ability.name}: 실행 가능한 MotionSetAsset 누락");
+                        AbilityMotionKey motionKey =
+                            payload.attackInfo?.baseInfo?.motionKey ?? default;
+                        if (!motionKey.IsValid)
+                            issues.Add($"{ability.name}: Motion Key 누락");
+                        else if (!motionSets.Any(x =>
+                                     x.GetAbilityMotionAsset(motionKey) != null))
+                        {
+                            issues.Add(
+                                $"{ability.name}: Motion Key '{motionKey}'를 "
+                                + "해석할 Actor MotionSet 매핑 누락");
+                        }
                         if (attackInfo.baseInfo?.hitPhases == null
                             || attackInfo.baseInfo.hitPhases.Count == 0)
                         {
                             issues.Add($"{ability.name}: HitPhase 누락");
                         }
                         validated++;
+                    }
+                }
+            }
+
+            Assert.That(validated, Is.GreaterThan(0));
+            Assert.That(issues, Is.Empty, string.Join("\n", issues));
+        }
+
+        /// <summary>
+        /// 위 테스트는 "프로젝트 어딘가의 MotionSet"에 매핑만 있으면 통과하므로,
+        /// 매핑이 엉뚱한 액터에만 있는 경우를 잡지 못한다. 런타임 EnemyCombat은 자기 액터의
+        /// MotionSet으로만 해석하므로, 액터 단위로 실제 해석 가능 여부를 확인한다.
+        /// </summary>
+        [Test]
+        public void 몬스터_AI공격_MotionKey는_그_액터의_MotionSet에서_해석된다()
+        {
+            ActorDefinitionSO[] definitions = AssetDatabase
+                .FindAssets($"t:{nameof(ActorDefinitionSO)}")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>)
+                .Where(x => x != null
+                            && x.monsterProfile != null
+                            && x.EffectiveAbilitySet != null
+                            && x.prefab != null)
+                .ToArray();
+
+            Assert.That(definitions, Is.Not.Empty);
+
+            int validated = 0;
+            var issues = new List<string>();
+            foreach (ActorDefinitionSO definition in definitions)
+            {
+                ActorAnimator animator =
+                    definition.prefab.GetComponentInChildren<ActorAnimator>(true);
+                ActorAnimationMotionSet motionSet = animator != null
+                    ? animator.MotionSet
+                    : null;
+                if (motionSet == null)
+                {
+                    issues.Add(
+                        $"{definition.name}: prefab에서 ActorAnimator의 "
+                        + "ActorAnimationMotionSet을 찾지 못했습니다.");
+                    continue;
+                }
+
+                foreach (GameplayAbilitySO ability in
+                         definition.EffectiveAbilitySet.EnumerateAll().Distinct())
+                {
+                    if (ability?.variants == null)
+                        continue;
+
+                    foreach (AbilityVariantDefinition variant in ability.variants)
+                    {
+                        if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                                variant,
+                                out var attackInfo)
+                            || !attackInfo.aiSelectable)
+                            continue;
+
+                        AbilityMotionKey motionKey =
+                            attackInfo.baseInfo?.motionKey ?? default;
+                        if (!motionKey.IsValid)
+                            continue;
+
+                        validated++;
+                        if (motionSet.GetAbilityMotionAsset(motionKey) == null)
+                            issues.Add(
+                                $"{definition.name} / {ability.name}: Motion Key "
+                                + $"'{motionKey}'를 '{motionSet.name}'에서 해석할 수 "
+                                + "없습니다. 다른 액터 MotionSet에만 매핑되어 있으면 "
+                                + "런타임에서 이 공격이 선택 후보에서 조용히 빠집니다.");
                     }
                 }
             }

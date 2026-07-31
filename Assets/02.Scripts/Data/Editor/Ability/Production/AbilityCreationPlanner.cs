@@ -96,14 +96,17 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 AddRequired(plan, "REQUEST.RECIPE", "레시피를 선택해야 합니다.");
             if (request.TargetSet == null)
                 AddRequired(plan, "REQUEST.TARGET_SET", "대상 AbilitySet이 필요합니다.");
-            if (request.MotionReference == null)
-                AddRequired(plan, "REQUEST.MOTION_REFERENCE", "MotionReference가 필요합니다.");
-            else if (!request.MotionReference.HasAnyMotion)
+            if (request.MotionOwner == null)
                 AddRequired(
                     plan,
-                    "REQUEST.EMPTY_MOTION_REFERENCE",
-                    "MotionReference에 실행 가능한 Motion이 없습니다.",
-                    request.MotionReference);
+                    "REQUEST.MOTION_OWNER",
+                    "공격 모션을 소유할 ActorAnimationMotionSet이 필요합니다.");
+            if (request.Motion == null || request.Motion.motionSet == null)
+                AddRequired(
+                    plan,
+                    "REQUEST.MOTION",
+                    "실행 가능한 MotionSetAsset이 필요합니다.",
+                    request.Motion);
             if (string.IsNullOrWhiteSpace(request.DisplayName))
                 AddRequired(plan, "REQUEST.DISPLAY_NAME", "표시 이름이 필요합니다.");
             if (string.IsNullOrWhiteSpace(request.AbilityId))

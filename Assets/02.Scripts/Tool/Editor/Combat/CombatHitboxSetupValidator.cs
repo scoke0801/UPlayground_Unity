@@ -7,6 +7,7 @@ using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Editor.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.EditorTools;
 
@@ -152,6 +153,8 @@ namespace UPlayGround.Tool.Editor.Combat
             HashSet<string> hitboxGroups,
             List<string> issues)
         {
+            // 키마다 프로젝트를 훑지 않도록 이 검증 1회 분량의 인덱스만 만든다.
+            var motionIndex = new AbilityMotionIndex();
             foreach (AbilitySetSO attackData in assets.OfType<AbilitySetSO>())
             {
                 int attackCount = 0;
@@ -168,7 +171,10 @@ namespace UPlayGround.Tool.Editor.Combat
                         SourceName = entry.Ability != null
                             ? entry.Ability.name
                             : entry.Payload != null ? entry.Payload.name : "알 수 없는 Ability",
-                        MotionAsset = info.baseInfo.motionRef?.defaultMotion,
+                        // 여기서 모션은 진단 메시지 표시용이다. 같은 키가 무기별로 다른
+                        // 모션을 가리키는 것이 정상이므로 모호해도 대표 하나를 쓴다.
+                        MotionAsset = motionIndex.ResolveRepresentative(
+                            info.baseInfo.motionKey),
                         HitPhases = info.baseInfo.hitPhases,
                         InterruptActions = info.interruptActions,
                         AttackInfo = info,

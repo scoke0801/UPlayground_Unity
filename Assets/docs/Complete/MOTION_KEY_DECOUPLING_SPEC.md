@@ -1,6 +1,9 @@
 # 모션 실행 키 탈-AnimKey 개선 스펙 (Motion Key Decoupling)
 
-> 상태: IMPLEMENTED (Phase 1~4 코드 완료, 레거시 원본 매핑이 없는 Payload 9개 데이터 보정 대기)
+> 상태: SUPERSEDED — 2026-07-31 GAS Payload의 `MotionReferenceSO`를
+> `(abilityId, variantId)` 기반 `AbilityMotionKey`로 교체했다.
+> 실제 모션은 `ActorAnimationMotionSet.abilityMotions`가 소유하며,
+> 이 문서의 MotionReference 설계와 기록은 이전 이력으로만 유지한다.
 > 작성일: 2026-07-21
 > 관련 문서: `GAMEPLAY_ABILITY_SYSTEM_SPEC.md`(docs/TODO), `ASMDEF_MODULARIZATION_PLAN.md`(docs/Complete)
 

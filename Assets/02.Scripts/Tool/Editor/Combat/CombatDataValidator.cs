@@ -161,8 +161,8 @@ namespace UPlayGround.Tool.Editor.Combat
                 return;
             }
 
-            if (baseInfo.motionRef == null || !baseInfo.motionRef.HasAnyMotion)
-                AddIssue(issues, CombatValidationSeverity.Error, path, context, "실행 가능한 MotionReference가 없습니다.");
+            if (!baseInfo.motionKey.IsValid)
+                AddIssue(issues, CombatValidationSeverity.Error, path, context, "실행 가능한 Motion Key가 없습니다.");
 
             if (baseInfo.hitPhases == null || baseInfo.hitPhases.Count == 0)
             {
@@ -313,26 +313,17 @@ namespace UPlayGround.Tool.Editor.Combat
             ActorAnimationMotionSet motionSetRoot,
             AbilityAttackInfo enemyInfo)
         {
-            // 모션 참조 누락은 SO 기본 검증에서 이미 보고하므로 여기서는 건너뛴다.
-            if (baseInfo?.motionRef == null || !baseInfo.motionRef.HasAnyMotion)
+            if (baseInfo == null || !baseInfo.motionKey.IsValid)
                 return;
 
-            MotionSetAsset motionAsset = baseInfo.motionRef.defaultMotion;
-            if (motionAsset == null && baseInfo.motionRef.weaponOverrides != null)
-            {
-                foreach (var weaponOverride in baseInfo.motionRef.weaponOverrides)
-                {
-                    if (weaponOverride.motion == null) continue;
-                    motionAsset = weaponOverride.motion;
-                    break;
-                }
-            }
+            MotionSetAsset motionAsset =
+                motionSetRoot?.GetAbilityMotionAsset(baseInfo.motionKey);
 
             MotionSet motionSet = motionAsset?.motionSet;
             if (motionSet == null)
             {
                 AddIssue(issues, CombatValidationSeverity.Error, path, context,
-                    $"MotionReference '{baseInfo.motionRef.name}'에서 유효한 MotionSet을 찾을 수 없습니다.");
+                    $"Motion Key '{baseInfo.motionKey}'를 ActorAnimationMotionSet에서 해석할 수 없습니다.");
                 return;
             }
 

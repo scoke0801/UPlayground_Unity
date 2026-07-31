@@ -13,76 +13,166 @@ MonoBehaviour:
   m_Name: MonsterLianLian_AnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 7e23cd6de0c21054d8efcabe97340203, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 04700aefc43f2e74e8ed8cf6389db0d3, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 4cd83a8ca86be084dacb0b26f78edad7, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: 14891415769f8484b89f98bfec456cee, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: 22e0f6249961612459ce98b243cc9cb8, type: 2}
-    - Key: 20
-      Value: {fileID: 11400000, guid: 134c07794a0d73f42901035fc08a6a2d, type: 2}
-    - Key: 21
-      Value: {fileID: 11400000, guid: 1503d56af0f15d64db768d4309749709, type: 2}
-    - Key: 22
-      Value: {fileID: 11400000, guid: 8193b395a36110b4dbcb3cf1ffe866cf, type: 2}
-    - Key: 30
-      Value: {fileID: 11400000, guid: bd714603682312c47afe07db7c9fdbf1, type: 2}
-    - Key: 900
-      Value: {fileID: 11400000, guid: 9ddfce1cd2490b544b00427b5cb63754, type: 2}
-    - Key: 31
-      Value: {fileID: 11400000, guid: 68983e1fa75fb7f4b804c5099ee241b0, type: 2}
-    - Key: 32
-      Value: {fileID: 11400000, guid: 523e357954d52ce4e8dfaf9067cf3a71, type: 2}
-    - Key: 33
-      Value: {fileID: 11400000, guid: 4143423ff4751b849a5ef807f4496d40, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: cd0efaf63fc9d1b469c713a9fd97d65f, type: 2}
-    - Key: 702
-      Value: {fileID: 11400000, guid: 4e272959ee1e25e49b7d0f1277fe8803, type: 2}
-    - Key: 703
-      Value: {fileID: 11400000, guid: 09b1c84217490b74cbe09b15a22e267e, type: 2}
-    - Key: 701
-      Value: {fileID: 11400000, guid: 192c19645f1452949b87ae7889fdb8d3, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: c93bf60a4667a96489252d2862e1d38d, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Attack_1.01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9e46bc235c4e6544683952f6d1d9556a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Attack_2.02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1564ab7e2d8095a48ad3c1b52ebf7995, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Attack_3.03
+        variantId: Default
+      Value: {fileID: 11400000, guid: eae3e2160fff52942837ac88ed4e749d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Attack_4.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 98a6df4f885835b4d81009a9898e6954, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Attack_5.05
+        variantId: Default
+      Value: {fileID: 11400000, guid: b1af1083c52fd744ea93b19ed562f045, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Attack_6.06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 4f7257f931a8ee740907e2e56db097dc, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_1.07
+        variantId: Default
+      Value: {fileID: 11400000, guid: 77118ca6c06ad994aad69bf2d334461a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_2.08
+        variantId: Default
+      Value: {fileID: 11400000, guid: cc669d04ce6991e4f953dbeac0e9498b, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_3.09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 276927dbf757fbd4aa900c41810f74b6, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_4.10
+        variantId: Default
+      Value: {fileID: 11400000, guid: 4b332a976ab21134c8e4b6bbaf636801, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_5.11
+        variantId: Default
+      Value: {fileID: 11400000, guid: 2752cead1d0423c46bdc22475829e067, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Skill_1.12
+        variantId: Default
+      Value: {fileID: 11400000, guid: 23248f5a32dbd6247bf2fc14b293336d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Skill_2.13
+        variantId: Default
+      Value: {fileID: 11400000, guid: f183504f7c66a3349826a54100cb4ab8, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Skill_3.14
+        variantId: Default
+      Value: {fileID: 11400000, guid: eac98eb482d696a449895e6e14988789, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Counter_Attack_1.15
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9e46bc235c4e6544683952f6d1d9556a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_WhipAttackData.Counter_Attack_2.16
+        variantId: Default
+      Value: {fileID: 11400000, guid: 77118ca6c06ad994aad69bf2d334461a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: 4cdad912aa6e7fd46b888ef7d4db8663, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: 50c20181ab667d44386bbf95ec30dd8f, type: 2}
-    - Key: 102
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Attack_3.03
+        variantId: Default
       Value: {fileID: 11400000, guid: c1429ca294eaf1a43a23433a604a0e2b, type: 2}
-    - Key: 103
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Attack_4.04
+        variantId: Default
       Value: {fileID: 11400000, guid: 17aa59a95d92b084782c44e63b52ca3a, type: 2}
-    - Key: 104
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Attack_5.05
+        variantId: Default
       Value: {fileID: 11400000, guid: 8bd6de3be1619994190d4c1ace116e1f, type: 2}
-    - Key: 105
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Attack_6.06
+        variantId: Default
       Value: {fileID: 11400000, guid: 9abae39c1b57e2849ab1466d7bfec897, type: 2}
-    - Key: 200
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_1.07
+        variantId: Default
       Value: {fileID: 11400000, guid: 641b4d869275f7a4199ce8239bb196cc, type: 2}
-    - Key: 201
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_2.08
+        variantId: Default
       Value: {fileID: 11400000, guid: e5b2fd5bef301fe4dbaf94b455af23a1, type: 2}
-    - Key: 202
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_3.09
+        variantId: Default
       Value: {fileID: 11400000, guid: 4e73a0b43b5ca3e4b93ee6880270c653, type: 2}
-    - Key: 500
-      Value: {fileID: 11400000, guid: 445a3069aa6d5794c97341d2eb621038, type: 2}
-    - Key: 501
-      Value: {fileID: 11400000, guid: 9b4b296470035334fae1da2117004f50, type: 2}
-    - Key: 502
-      Value: {fileID: 11400000, guid: d790e09bd48ae6043a7c05d622d7fad4, type: 2}
-    - Key: 203
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_4.10
+        variantId: Default
       Value: {fileID: 11400000, guid: a6b8939e3ae6ba848be872d72cc2ce9c, type: 2}
-    - Key: 204
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_5.11
+        variantId: Default
       Value: {fileID: 11400000, guid: 74e064103120fc945b6cbc40d201f4cb, type: 2}
-    - Key: 840
-      Value: {fileID: 11400000, guid: 11d6ad9d45bad0944a6b42385d6eea8d, type: 2}
-    - Key: 3000
-      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Skill_1.12
+        variantId: Default
+      Value: {fileID: 11400000, guid: 445a3069aa6d5794c97341d2eb621038, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Skill_2.13
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9b4b296470035334fae1da2117004f50, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Monster_LianLian.Skill_3.14
+        variantId: Default
+      Value: {fileID: 11400000, guid: d790e09bd48ae6043a7c05d622d7fad4, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_1.01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9e46bc235c4e6544683952f6d1d9556a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_2.02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1564ab7e2d8095a48ad3c1b52ebf7995, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_3.03
+        variantId: Default
+      Value: {fileID: 11400000, guid: eae3e2160fff52942837ac88ed4e749d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_4.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 98a6df4f885835b4d81009a9898e6954, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_5.05
+        variantId: Default
+      Value: {fileID: 11400000, guid: b1af1083c52fd744ea93b19ed562f045, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_6.06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 4f7257f931a8ee740907e2e56db097dc, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_1.10
+        variantId: Default
+      Value: {fileID: 11400000, guid: 23248f5a32dbd6247bf2fc14b293336d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_2.11
+        variantId: Default
+      Value: {fileID: 11400000, guid: f183504f7c66a3349826a54100cb4ab8, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_3.12
+        variantId: Default
+      Value: {fileID: 11400000, guid: eac98eb482d696a449895e6e14988789, type: 2}
   motionSlots:
     _serializedList:
     - Key:

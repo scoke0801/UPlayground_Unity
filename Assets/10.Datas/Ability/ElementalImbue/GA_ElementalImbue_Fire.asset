@@ -11,14 +11,15 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_ElementalImbue_Fire
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   abilityId: Ability.ElementalImbue.Fire
-  schemaVersion: 1
+  editorMemo: 
   presentation:
-    displayName: "불 속성 부여"
-    description: "전용 모션을 재생하고 15초 동안 불 속성을 부여합니다."
-    nameLocalizationKey:
-    descriptionLocalizationKey:
+    displayName: "\uBD88 \uC18D\uC131 \uBD80\uC5EC"
+    description: "\uC804\uC6A9 \uBAA8\uC158\uC744 \uC7AC\uC0DD\uD558\uACE0 15\uCD08
+      \uB3D9\uC548 \uBD88 \uC18D\uC131\uC744 \uBD80\uC5EC\uD569\uB2C8\uB2E4."
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
     icon: {fileID: 21300000, guid: b3eefa94b16ef0f448d87617bc025c0b, type: 3}
     hudColor: {r: 1, g: 0.3, b: 0.12, a: 1}
     category: 3
@@ -33,6 +34,11 @@ MonoBehaviour:
     targetRelation: 0
     minDistance: 0
     maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -40,6 +46,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 25
     cooldownGroupId: Ability.ElementalImbue
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -57,22 +65,33 @@ MonoBehaviour:
     - {fileID: 11400000, guid: e1111111111141118111111111111111, type: 2}
   commitEffects: []
   endEffects: []
-  cues: {startCueId: '', failureCueId: '', endCueId: '', cooldownReadyCueId: ''}
-  persistence: {swapPolicy: 0, saveCooldown: 1}
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 0
     expectedDuration: 15
-    roleTags: [ElementalImbue]
-    designerNotes:
+    roleTags:
+    - ElementalImbue
+    designerNotes: 
 --- !u!114 &11400001
 MonoBehaviour:
   m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: Payload_ElementalImbue_Fire
-  executionId: Ability.ElementalImbue.Fire
+  m_EditorClassIdentifier: 
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: 6f5a0b4d8e4f4fd2899c14b9fa2da152, type: 2}
+      motionKey:
+        abilityId: Ability.ElementalImbue.Fire
+        variantId: Default
       attackType: 0
       hitPhases: []
     interruptActions: 0
@@ -82,3 +101,31 @@ MonoBehaviour:
     attackCategory: 0
     requiredLevel: 1
     selectionWeight: 0
+    useTelegraph: 0
+    telegraphShape: 0
+    telegraphRadiusScale: 1
+    telegraphFXKey: 
+    useMotionEventTelegraph: 0
+    telegraphAnchorType: 0
+    useTelegraphPositionForHit: 0
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey: 
+    defenseType: 0
+    isAerialSkill: 0
+    isDiveAttack: 0
+    diveDescentSpeed: 15
+    aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
+    conditionGroup:
+      conditionOperator: 0
+      conditions: []

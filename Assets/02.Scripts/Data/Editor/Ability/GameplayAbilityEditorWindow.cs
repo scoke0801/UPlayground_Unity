@@ -967,7 +967,7 @@ namespace UPlayGround.Data.Editor.Ability
             _variantPayloadSection.Add(SectionHeader(
                 "Execution Payload 편집",
                 "각 Variant가 참조하는 Payload 에셋을 여기서 직접 편집합니다. "
-                + "공격 Motion의 단일 소스는 attackInfo.baseInfo.motionRef입니다."));
+                + "공격 Motion 해석 키의 단일 소스는 attackInfo.baseInfo.motionKey입니다."));
 
             List<AbilityVariantDefinition> variants = ability?.variants;
             if (variants == null || variants.Count == 0)
@@ -2241,7 +2241,7 @@ namespace UPlayGround.Data.Editor.Ability
                     + "같은 그룹 ID를 쓰는 Ability는 쿨다운을 공유합니다.",
                 (GameplayAbilitySO, "Variant") =>
                     "상황 조건에 따라 실제로 실행할 Payload를 우선순위 순으로 구성합니다. "
-                    + "공격 Motion의 단일 소스는 각 Motion Payload의 attackInfo.baseInfo.motionRef입니다.",
+                    + "공격 Motion 해석 키의 단일 소스는 각 Motion Payload의 attackInfo.baseInfo.motionKey입니다.",
                 (GameplayAbilitySO, "Effect") =>
                     "Commit 직후와 실행 종료 시 적용할 GameplayEffect를 연결합니다. "
                     + "Variant 내부의 Owner/Target Effect와 적용 시점이 다르므로 중복 적용을 확인하세요.",
@@ -2252,7 +2252,7 @@ namespace UPlayGround.Data.Editor.Ability
                     "제작·밸런스 도구가 기대 피해와 역할을 비교할 때 쓰는 메타데이터입니다. "
                     + "실제 공격 수치는 Payload의 HitPhase가 권위 소스입니다.",
                 (GameplayAbilitySO, "검증 결과") =>
-                    "Ability ID, TaskGraph, Variant/Payload, MotionReference와 HitPhase 연결 오류를 확인합니다. "
+                    "Ability ID, TaskGraph, Variant/Payload, Motion Key와 HitPhase 연결 오류를 확인합니다. "
                     + "오류 항목을 먼저 해결한 뒤 에셋을 양산하거나 저장하세요.",
 
                 (AbilitySetSO, "기본 정보") =>

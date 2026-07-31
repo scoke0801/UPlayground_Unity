@@ -13,22 +13,14 @@ MonoBehaviour:
   m_Name: Skeleton_Bow_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 0447e1782a771bf4abd124b4b2798651, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: f709362940885844f85d2a79f123ec63, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: f709362940885844f85d2a79f123ec63, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: f709362940885844f85d2a79f123ec63, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Skeleton_Bow.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: f06a727f011aac1469787f45e9b3e4ad, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 0ab2e8db5836d9c44858e5d59ad6cbf9, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: a75376d9d91b2aa4595d88d27a2be983, type: 2}
   motionSlots:
     _serializedList:
     - Key:

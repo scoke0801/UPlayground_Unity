@@ -13,24 +13,18 @@ MonoBehaviour:
   m_Name: Skeleton_Common_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 0447e1782a771bf4abd124b4b2798651, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: ef7436feaf7232e4aa23777ce824e257, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: f011cbd1061f2b24f8e4d1ef9faea009, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: f011cbd1061f2b24f8e4d1ef9faea009, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Skeleton_Common.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: b520f8462224b32488e0572eb34c7182, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Skeleton_Common.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: 330264c3a3d27444ca09dd005b45e5ab, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: c4ea4e5292d22534ba99f51462c73bb5, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 3bce923447d92694daead90519323e03, type: 2}
   motionSlots:
     _serializedList:
     - Key:

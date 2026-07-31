@@ -131,8 +131,6 @@ namespace UPlayGround.Data.Editor.Ability
         {
             string[] profileGuids = AssetDatabase.FindAssets(
                 $"t:{nameof(MonsterActorProfileSO)}");
-            // AbilitySet은 여러 프로필이 공유하므로 같은 모션 해석 결함이 중복 보고되지 않게 막는다.
-            var reportedMotionIssues = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < profileGuids.Length; i++)
             {
                 MonsterActorProfileSO profile =
@@ -153,9 +151,6 @@ namespace UPlayGround.Data.Editor.Ability
                         if (ability.variants[j]?.executionPayload
                             is not UPlayGroundMotionAbilityPayloadSO payload)
                             continue;
-
-                        ValidateMonsterMotionResolution(
-                            profile, ability, payload, reportedMotionIssues, issues);
 
                         // EnemyCombat.GetAvailableAbilities와 같은 술어를 쓴다.
                         if (!payload.IsAttackExecutable
@@ -208,32 +203,6 @@ namespace UPlayGround.Data.Editor.Ability
                     + $"{baseInfo.hitPhases.Count}개 있습니다. 모션에 히트 이벤트가 있으면 피해를 줍니다.",
                     issues);
             }
-        }
-
-        /// <summary>
-        /// 몬스터는 무기 타입 계약이 없어 EnemyCombat이 항상 WeaponType.NoWeapon으로 모션을 해석한다.
-        /// MotionReference가 무기 override만 가지고 defaultMotion이 없으면 HasAnyMotion은 true라서
-        /// Payload 검증과 Variant 해석은 통과하지만 실행 시점에만 해석이 실패한다.
-        /// </summary>
-        private static void ValidateMonsterMotionResolution(
-            MonsterActorProfileSO profile,
-            GameplayAbilitySO ability,
-            UPlayGroundMotionAbilityPayloadSO payload,
-            HashSet<string> reported,
-            List<AbilityValidationIssue> issues)
-        {
-            MotionReferenceSO motionRef = payload.attackInfo?.baseInfo?.motionRef;
-            if (motionRef == null || !motionRef.HasAnyMotion) return;
-            if (payload.ResolveMotion(WeaponType.NoWeapon) != null) return;
-            if (!reported.Add($"{ability.abilityId}|{motionRef.name}")) return;
-
-            Error(profile,
-                $"'{ability.abilityId}'의 MotionReference '{motionRef.name}'는 무기 override만 있고 "
-                + "defaultMotion이 없어 몬스터(NoWeapon)에서 해석되지 않습니다. "
-                + "EnemyCombat은 항상 NoWeapon으로 해석하므로 이 공격은 실행되지 않습니다. "
-                + "defaultMotion을 지정하거나 NoWeapon override를 추가하세요. "
-                + "(같은 AbilitySet을 공유하는 다른 프로필도 동일 문제)",
-                issues);
         }
 
         public static List<AbilityValidationIssue> Validate(UnityEngine.Object target)
@@ -317,16 +286,27 @@ namespace UPlayGround.Data.Editor.Ability
                 bool executable = UPlayGroundAbilityPayloadResolver.IsExecutable(variant);
                 if (variant.executionPayload is UPlayGroundMotionAbilityPayloadSO payload)
                 {
-                    var motionRef = payload.attackInfo?.baseInfo?.motionRef;
-                    if (motionRef != null && !motionRef.HasAnyMotion)
-                        Error(ability,
-                            $"Variant '{variant.variantId}'의 MotionReference가 비어 있습니다.", issues);
-                    if (motionRef == null)
-                        Error(ability,
-                            $"Variant '{variant.variantId}'의 모션 참조가 없습니다.", issues);
                     if (payload.attackInfo?.baseInfo == null)
                         Error(ability,
                             $"Variant '{variant.variantId}'의 공격 정보가 없습니다.", issues);
+                    else
+                    {
+                        AbilityMotionKey expected =
+                            AbilityMotionKey.From(ability, variant);
+                        AbilityMotionKey actual =
+                            payload.attackInfo.baseInfo.motionKey;
+                        if (!actual.IsValid)
+                            Error(
+                                ability,
+                                $"Variant '{variant.variantId}'의 Motion Key가 없습니다.",
+                                issues);
+                        else if (actual != expected)
+                            Error(
+                                ability,
+                                $"Variant '{variant.variantId}'의 Motion Key가 "
+                                + $"Ability ID와 일치하지 않습니다: {actual} != {expected}",
+                                issues);
+                    }
                     ValidateHitPhaseCategoryConsistency(ability, variant, payload, issues);
                 }
                 if (!executable)

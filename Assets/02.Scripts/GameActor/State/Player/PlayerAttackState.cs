@@ -292,20 +292,23 @@ namespace UPlayGround.State
                 (PlayerSkillSlot)skillSlot, grounded, null, out AbilityVariantDefinition variant);
             if (result != AbilityActivationResult.Success || variant == null)
                 return false;
-            PlayerEquipment equipment = actor.GetPlayerEquipment();
-            return UPlayGroundAbilityPayloadResolver.TryResolve(
+            return UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
                        variant,
-                       equipment != null ? equipment.GetMainWeaponType() : WeaponType.NoWeapon,
-                       out motionAsset,
-                       out _)
-                   && motionAsset != null;
+                       out AbilityAttackInfo attackInfo)
+                   && ActorAbilityMotionResolver.TryResolve(
+                       actor,
+                       attackInfo,
+                       out motionAsset);
         }
 
         private static MotionSetAsset ResolveAttackMotion(PlayerActor actor, AbilityAttackInfo attackInfo)
         {
-            PlayerEquipment equipment = actor != null ? actor.GetPlayerEquipment() : null;
-            return attackInfo?.baseInfo?.ResolveMotion(
-                equipment != null ? equipment.GetMainWeaponType() : WeaponType.NoWeapon);
+            return ActorAbilityMotionResolver.TryResolve(
+                actor,
+                attackInfo,
+                out MotionSetAsset motionAsset)
+                ? motionAsset
+                : null;
         }
 
         private PlayerInterruptAction GetCurrentAttackInputType()

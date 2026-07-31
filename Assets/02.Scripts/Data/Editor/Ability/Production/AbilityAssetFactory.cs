@@ -1,15 +1,22 @@
 using System;
 using System.Collections.Generic;
+using AYellowpaper.SerializedCollections;
 using UnityEditor;
 using UnityEngine;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor.Animation;
 
 namespace UPlayGround.Data.Editor.Ability.Production
 {
     public static class AbilityAssetFactory
     {
+        /// <summary>단일 Variant로 생성하는 Ability의 기본 variantId.
+        /// motionKey의 variantId와 반드시 같아야 검증을 통과한다.</summary>
+        public const string DefaultVariantId = "Default";
+
         public static AbilityProductionResult Apply(AbilityCreationPlan plan) =>
             ApplyInternal(plan, null);
 
@@ -110,6 +117,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
                     failAfterStage,
                     AbilityProductionStage.AbilityCreated);
 
+                BindMotion(request, payload);
+
                 Undo.RecordObject(request.TargetSet, "AbilitySet 연결");
                 if (request.TargetSet.Contains(ability))
                     throw new InvalidOperationException(
@@ -139,7 +148,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 return new AbilityProductionResult
                 {
                     Success = true,
-                    Message = "Ability, Payload 생성 및 AbilitySet 연결을 완료했습니다.",
+                    Message = "Ability, Payload, 액터 모션 매핑 및 AbilitySet 연결을 완료했습니다.",
                     Ability = ability,
                     Payload = payload,
                     Effect = effect,
@@ -181,7 +190,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
             {
                 new()
                 {
-                    variantId = "Default",
+                    variantId = DefaultVariantId,
                     priority = 0,
                     condition = new AbilityVariantCondition(),
                     executionPayload = payload,
@@ -281,7 +290,9 @@ namespace UPlayGround.Data.Editor.Ability.Production
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionRef = request.MotionReference,
+                    motionKey = new AbilityMotionKey(
+                        request.AbilityId,
+                        DefaultVariantId),
                     attackType = recipe.AttackType,
                     hitPhases = new List<HitPhaseData> { new() },
                 },
@@ -292,6 +303,33 @@ namespace UPlayGround.Data.Editor.Ability.Production
             };
             payload.attackInfo.baseInfo.hitPhases[0].targetingRange =
                 request.MaxDistance;
+        }
+
+        private static void BindMotion(
+            AbilityCreationRequest request,
+            UPlayGroundMotionAbilityPayloadSO payload)
+        {
+            if (request.MotionOwner == null || request.Motion == null)
+                throw new InvalidOperationException(
+                    "Actor MotionSet 또는 Motion Asset이 없습니다.");
+
+            AbilityMotionKey key = payload.attackInfo.baseInfo.motionKey;
+            Undo.RecordObject(request.MotionOwner, "Ability Motion 연결");
+            request.MotionOwner.abilityMotions ??=
+                new SerializedDictionary<
+                    AbilityMotionKey,
+                    MotionSetAsset>();
+            if (request.MotionOwner.abilityMotions.TryGetValue(
+                    key,
+                    out MotionSetAsset existing)
+                && existing != request.Motion)
+            {
+                throw new InvalidOperationException(
+                    $"Actor MotionSet에 같은 Key가 다른 모션으로 연결되어 있습니다: {key}");
+            }
+
+            request.MotionOwner.abilityMotions[key] = request.Motion;
+            EditorUtility.SetDirty(request.MotionOwner);
         }
 
         private static void EnsureParentFolder(

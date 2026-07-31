@@ -13,66 +13,90 @@ MonoBehaviour:
   m_Name: Humanoid_BowAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 2fcf338dfba7d524a89a96d2219c0a09, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 0b0a567935cec444494fa1fae56cc586, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: db9d52cf7fd7741489000b836d91b26e, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: b5f6cc90780b21e488e756e567167e9b, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: 4f31e361a96bcdc46bf826e20f93be96, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: f0e38d36392e38f4c977553824d9696c, type: 2}
-    - Key: 102
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_3.03
+        variantId: Default
       Value: {fileID: 11400000, guid: 1f31f519a72322e408a6bb18ffdb8acd, type: 2}
-    - Key: 103
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_4.04
+        variantId: Default
       Value: {fileID: 11400000, guid: 29344f53744de4044ae561a4a0f1a0c1, type: 2}
-    - Key: 104
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_5.05
+        variantId: Default
       Value: {fileID: 11400000, guid: e3add1fc6e8ef2444bbe26012276fc64, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: a9a65f67a4dff8e47b56313c3f2ccf11, type: 2}
-    - Key: 11
-      Value: {fileID: 11400000, guid: ec002f29ca944814abf747c94caa93bf, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 72170d330a15e524c8499d1fff5c0ffb, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 7dfd60fc2b9ff234b996e18d6ebaf2f7, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_1.06
+        variantId: Default
       Value: {fileID: 11400000, guid: f4facc11d2b7f1f4c8a225b660761b60, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_2.07
+        variantId: Default
       Value: {fileID: 11400000, guid: 95ec8f4c3fe3dd5448a1f1fbbf9c3921, type: 2}
-    - Key: 502
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_3.08
+        variantId: Default
       Value: {fileID: 11400000, guid: 4972d2baf9d04da41bf9ae25a35454c2, type: 2}
-    - Key: 503
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_4.09
+        variantId: Default
       Value: {fileID: 11400000, guid: e69c75691da635849bbfefb856b5e1aa, type: 2}
-    - Key: 504
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_5.10
+        variantId: Default
       Value: {fileID: 11400000, guid: 7bd3854894ddbf24b8875c5a4f5aa0dc, type: 2}
-    - Key: 530
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Counter_Attack_1.11
+        variantId: Default
       Value: {fileID: 11400000, guid: ec4c30985cbd59545ad28e7054eaab24, type: 2}
-    - Key: 531
+    - Key:
+        abilityId: Ability.Actor.Humanoid_BowAttackData.Counter_Attack_2.12
+        variantId: Default
       Value: {fileID: 11400000, guid: ec4c30985cbd59545ad28e7054eaab24, type: 2}
-    - Key: 550
-      Value: {fileID: 11400000, guid: 154e9ca1d6e0ae54388ce11f2e8f3b37, type: 2}
-    - Key: 12
-      Value: {fileID: 11400000, guid: a9a65f67a4dff8e47b56313c3f2ccf11, type: 2}
-    - Key: 13
-      Value: {fileID: 11400000, guid: a460b98f46bd2bd499aeebf0f2dfc3da, type: 2}
-    - Key: 14
-      Value: {fileID: 11400000, guid: d9d4908204887204791f942acbb1522a, type: 2}
-    - Key: 15
-      Value: {fileID: 11400000, guid: a1be0450db64c684f8900a05dfcfc0b0, type: 2}
-    - Key: 16
-      Value: {fileID: 11400000, guid: 4bc661ef2bce994428fca3da937f583b, type: 2}
-    - Key: 17
-      Value: {fileID: 11400000, guid: 17f5a1ae14a106940be30fdab017774e, type: 2}
-    - Key: 18
-      Value: {fileID: 11400000, guid: 5aa34a67edaf2ca45b1e245ec5524377, type: 2}
-    - Key: 19
-      Value: {fileID: 11400000, guid: 2e7df1e415d294943a4eaabf7cfde37d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_1.01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 4f31e361a96bcdc46bf826e20f93be96, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_2.02
+        variantId: Default
+      Value: {fileID: 11400000, guid: f0e38d36392e38f4c977553824d9696c, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_3.03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1f31f519a72322e408a6bb18ffdb8acd, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_4.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 29344f53744de4044ae561a4a0f1a0c1, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_5.05
+        variantId: Default
+      Value: {fileID: 11400000, guid: e3add1fc6e8ef2444bbe26012276fc64, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_1.10
+        variantId: Default
+      Value: {fileID: 11400000, guid: f4facc11d2b7f1f4c8a225b660761b60, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_2.11
+        variantId: Default
+      Value: {fileID: 11400000, guid: 95ec8f4c3fe3dd5448a1f1fbbf9c3921, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_3.12
+        variantId: Default
+      Value: {fileID: 11400000, guid: 4972d2baf9d04da41bf9ae25a35454c2, type: 2}
   motionSlots:
     _serializedList:
     - Key:

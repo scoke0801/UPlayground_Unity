@@ -13,82 +13,86 @@ MonoBehaviour:
   m_Name: MonsterBokusei_KatanaAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 8bf4152a88a97664d831af63abd5b677, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 4ce4fc9d3d76e824fbdd2ebaca274933, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: 91fb7bea70d856a47a930c10323651d2, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 7af40ca5d18169b42a4712b007ac2837, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: c2b0d702aeae0d643b45b2e20717bc43, type: 2}
-    - Key: 900
-      Value: {fileID: 11400000, guid: e7c7826a13e49e74f8c0a5bd7c8e5856, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 773377a484c2a3e4692f3ace1330cf77, type: 2}
-    - Key: 840
-      Value: {fileID: 11400000, guid: 511cf6701fac26c42af06385edf62d00, type: 2}
-    - Key: 860
-      Value: {fileID: 11400000, guid: 72d44880a7d43c340a95350cd9801b27, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: a13cb1965ed9b664f9c6927ff6420463, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: 4d243e55ccee0d24b89736df1a188624, type: 2}
-    - Key: 102
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_3.03
+        variantId: Default
       Value: {fileID: 11400000, guid: c1ed995faf6537047ad1c47c04a53f83, type: 2}
-    - Key: 103
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_4.04
+        variantId: Default
       Value: {fileID: 11400000, guid: 59711be275df2ed4198ba927a66ecace, type: 2}
-    - Key: 104
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_5.05
+        variantId: Default
       Value: {fileID: 11400000, guid: d0c748e41fc96d24b98bfa5efda1cc67, type: 2}
-    - Key: 105
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_6.06
+        variantId: Default
       Value: {fileID: 11400000, guid: 5f625acb9988e174abe02a9f766ebc57, type: 2}
-    - Key: 106
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_7.07
+        variantId: Default
       Value: {fileID: 11400000, guid: 3232777d6661ad840a6bfbf888c12623, type: 2}
-    - Key: 107
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_8.08
+        variantId: Default
       Value: {fileID: 11400000, guid: ec33f40817600a94b9ec21ffb64911a5, type: 2}
-    - Key: 108
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Attack_9.09
+        variantId: Default
       Value: {fileID: 11400000, guid: debf75b588aca384f9c4bb1f244cd2cb, type: 2}
-    - Key: 200
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_1.10
+        variantId: Default
       Value: {fileID: 11400000, guid: 77de9be0d93471648a2f006beb50d326, type: 2}
-    - Key: 201
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_2.11
+        variantId: Default
       Value: {fileID: 11400000, guid: 6d9b2593147114440bfce1730f74d4ce, type: 2}
-    - Key: 202
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_3.12
+        variantId: Default
       Value: {fileID: 11400000, guid: 0fb82b71f44936345bea6610af93b9a2, type: 2}
-    - Key: 203
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_4.13
+        variantId: Default
       Value: {fileID: 11400000, guid: c0e2aaa76f68d6845bc8b25a431fd72f, type: 2}
-    - Key: 204
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_5.14
+        variantId: Default
       Value: {fileID: 11400000, guid: 40e2208c42bddb645954cb919718dbc6, type: 2}
-    - Key: 205
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_6.15
+        variantId: Default
       Value: {fileID: 11400000, guid: c057fad107e29f640913c92e18ed8d04, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Skill_1.16
+        variantId: Default
       Value: {fileID: 11400000, guid: 81ee20a34443a244688a169a75f8a61a, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Skill_2.17
+        variantId: Default
       Value: {fileID: 11400000, guid: 86a3316e4c8581549b18656fd044decc, type: 2}
-    - Key: 502
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Skill_3.18
+        variantId: Default
       Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
-    - Key: 503
+    - Key:
+        abilityId: Ability.Actor.Monster_Bokusei.Skill_4.19
+        variantId: Default
       Value: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
-    - Key: 2112
-      Value: {fileID: 11400000, guid: 6593c7158d0f80044bd7146aa6e22a60, type: 2}
-    - Key: 23
-      Value: {fileID: 11400000, guid: 962079e4e4195f442a5e0acb62d9d46f, type: 2}
-    - Key: 11
-      Value: {fileID: 11400000, guid: 864ea1742e795b245913b2f673c3fb35, type: 2}
-    - Key: 3000
-      Value: {fileID: 11400000, guid: 3dcb4dd9bcc0c124192486abb7f03e42, type: 2}
-    - Key: 400
-      Value: {fileID: 11400000, guid: e8403bb6c75847949bd403fe80cd5f01, type: 2}
-    - Key: 300
-      Value: {fileID: 11400000, guid: 88575ea8ee1ff0b4389735ec595250fe, type: 2}
-    - Key: 301
-      Value: {fileID: 11400000, guid: cb3aae0f5f30767478287628774a30e1, type: 2}
-    - Key: 690
-      Value: {fileID: 11400000, guid: c549305df2686ca4cad45ddc2431ae0e, type: 2}
-    - Key: 2110
-      Value: {fileID: 11400000, guid: c5b91c55bd7e5564c945c4d7c3d5e69c, type: 2}
   motionSlots:
     _serializedList:
     - Key:

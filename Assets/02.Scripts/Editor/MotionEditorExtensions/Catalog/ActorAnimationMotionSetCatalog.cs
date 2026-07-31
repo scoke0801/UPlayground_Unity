@@ -168,9 +168,10 @@ namespace UPlayGround.Animation.Editor
                         is not UPlayGroundMotionAbilityPayloadSO payload)
                         continue;
 
-                    MotionReferenceSO motionRef =
-                        payload.attackInfo?.baseInfo?.motionRef;
-                    MotionSetAsset asset = motionRef?.Resolve(source.attackWeaponType);
+                    AbilityMotionKey motionKey =
+                        payload.attackInfo?.baseInfo?.motionKey ?? default;
+                    MotionSetAsset asset =
+                        source.GetAbilityMotionAsset(motionKey);
                     if (asset == null)
                         continue;
 

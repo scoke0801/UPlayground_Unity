@@ -1012,6 +1012,27 @@ namespace UPlayGround.Animation.Editor
                     EditorStyles.miniLabel);
             }
             EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+            {
+                EditorGUILayout.LabelField(
+                    new GUIContent(
+                        "내부 클립 블렌드",
+                        "같은 MotionSet 안에서 다음 AnimationClip으로 넘어갈 때 적용할 크로스페이드 시간입니다."),
+                    GUILayout.Width(100));
+                EditorGUI.BeginChangeCheck();
+                float internalBlendDuration = Mathf.Max(
+                    0f,
+                    EditorGUILayout.FloatField(set.internalBlendDuration, GUILayout.Width(60)));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    RecordUndo("Edit Internal Clip Blend");
+                    set.internalBlendDuration = internalBlendDuration;
+                    MarkDirty();
+                }
+                EditorGUILayout.LabelField("초", EditorStyles.miniLabel);
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
         // ====================================================================

@@ -39,6 +39,14 @@ namespace UPlayGround.MotionSet.Tests
         }
 
         [Test]
+        public void MotionSet_내부블렌드시간은_음수가_되지않는다()
+        {
+            MotionSetData set = new() { internalBlendDuration = -1f };
+
+            Assert.That(set.InternalBlendDuration, Is.EqualTo(0f));
+        }
+
+        [Test]
         public void Executor_명시적대상_부모Provider_Self_순서로_해석한다()
         {
             GameObject parent = new("Provider");

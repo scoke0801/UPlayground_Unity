@@ -288,10 +288,20 @@ namespace UPlayGround.Components
         public AbilitySetSO      AbilitySet       => _abilitySet;
         public GameplayAbilitySO CurrentAbility   => _currentAbility;
         public AbilityAttackInfo CurrentSkill     => _currentSkill;
-        public MotionSetAsset CurrentMotionAsset  =>
-            _currentAbilityMotionAsset != null
-                ? _currentAbilityMotionAsset
-                : _currentSkill?.baseInfo?.ResolveMotion(WeaponType.NoWeapon);
+        public MotionSetAsset CurrentMotionAsset
+        {
+            get
+            {
+                if (_currentAbilityMotionAsset != null)
+                    return _currentAbilityMotionAsset;
+                return ActorAbilityMotionResolver.TryResolve(
+                    _ownerActor,
+                    _currentSkill,
+                    out MotionSetAsset motionAsset)
+                    ? motionAsset
+                    : null;
+            }
+        }
         public int               CurrentLevel     => _ownerActor != null ? _ownerActor.Level : 1;
         // P3 3차: 충돌 윈도우의 단일 소유는 CombatActionRunner의 instance. 자체 플래그를 두지 않고 runner를 읽는다.
         public bool              IsPossibleCollide => _actionRunner != null && _actionRunner.IsCollisionActive;
@@ -650,11 +660,14 @@ namespace UPlayGround.Components
                 ability,
                 IsGrounded(),
                 ResolveAbilityTarget(),
-                candidateVariant => UPlayGroundAbilityPayloadResolver.TryResolve(
-                    candidateVariant,
-                    WeaponType.NoWeapon,
-                    out resolvedMotionAsset,
-                    out resolvedAttackInfo),
+                candidateVariant =>
+                    UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                        candidateVariant,
+                        out resolvedAttackInfo)
+                    && ActorAbilityMotionResolver.TryResolve(
+                        _ownerActor,
+                        resolvedAttackInfo,
+                        out resolvedMotionAsset),
                 out AbilityExecutionHandle handle,
                 out AbilityVariantDefinition variant);
             if (prepare != AbilityActivationResult.Success)
@@ -739,11 +752,13 @@ namespace UPlayGround.Components
                 if (ability?.variants == null)
                     continue;
                 for (int i = 0; i < ability.variants.Count; i++)
-                    if (UPlayGroundAbilityPayloadResolver.TryResolve(
+                    if (UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
                             ability.variants[i],
-                            WeaponType.NoWeapon,
-                            out _,
                             out AbilityAttackInfo attackInfo)
+                        && ActorAbilityMotionResolver.TryResolve(
+                            _ownerActor,
+                            attackInfo,
+                            out _)
                         && EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo)
                         && attackInfo.baseInfo.attackType == attackType)
                         return true;

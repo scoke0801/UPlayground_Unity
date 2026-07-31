@@ -41,5 +41,21 @@ namespace UPlayGround.Data.Actor.Animation
 
         public MotionSet GetMotionSet(WeaponType weaponType, GameplayTag slot) =>
             GetMotionSetAsset(weaponType, slot)?.motionSet;
+
+        public MotionSetAsset GetAbilityMotionAsset(
+            WeaponType weaponType,
+            AbilityMotionKey key)
+        {
+            ActorAnimationMotionSet motionSet =
+                GetActorAnimationMotionSet(weaponType);
+            MotionSetAsset motion = motionSet?.GetAbilityMotionAsset(key);
+            if (motion != null)
+                return motion;
+
+            if (weaponType == WeaponType.NoWeapon)
+                return null;
+            return GetActorAnimationMotionSet(WeaponType.NoWeapon)
+                ?.GetAbilityMotionAsset(key);
+        }
     }
 }

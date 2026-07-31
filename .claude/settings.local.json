@@ -447,7 +447,10 @@
       "Bash(sed -E 's/.*MotionEventDescriptor\\\\\\(//')",
       "Bash(python3 -)",
       "Bash(sed -n '/<\\\\/style>/,/<\\\\/aside>/p' onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html)",
-      "Bash(sed -n '/<script>/,$p' onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html)"
+      "Bash(sed -n '/<script>/,$p' onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html)",
+      "Bash(tee /c/Users/scoke/AppData/Local/Temp/claude/C--UsingProject-UnityProject-UPlayground/ab5309b3-061d-45f8-a93c-e8deacb6845a/scratchpad/msets.txt)",
+      "Bash(awk -F: '$2>1')",
+      "PowerShell(git status --porcelain | Measure-Object -Line; git diff --stat HEAD | Select-Object -Last 3; git status --porcelain | Group-Object {$_.Substring\\(0,2\\)} | Select-Object Name,Count)"
     ],
     "deny": [
       "Bash(rm -rf *)",

@@ -13,32 +13,34 @@ MonoBehaviour:
   m_Name: SpiderQueen_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 3ef9cd0c0404bc8499e01098f359ea21, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 35d1800af0c6a4347941c949332a75c8, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 35d1800af0c6a4347941c949332a75c8, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: 35d1800af0c6a4347941c949332a75c8, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Spider_Queen.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: df298d3799fced642b27d9ffd1aa7985, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Spider_Queen.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: 1084a34f4d352e54bb45bf4bd614fd46, type: 2}
-    - Key: 200
+    - Key:
+        abilityId: Ability.Actor.Spider_Queen.HeavyAttack_1.03
+        variantId: Default
       Value: {fileID: 11400000, guid: 205e56abb17f38846a845cb6f9dbaa17, type: 2}
-    - Key: 201
+    - Key:
+        abilityId: Ability.Actor.Spider_Queen.HeavyAttack_2.04
+        variantId: Default
       Value: {fileID: 11400000, guid: a48ea328697de4a419488038b33420d8, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Actor.Spider_Queen.Skill_1.05
+        variantId: Default
       Value: {fileID: 11400000, guid: 7b7ca35e64eaee34a841d522a2df1d98, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Actor.Spider_Queen.Skill_2.06
+        variantId: Default
       Value: {fileID: 11400000, guid: 67d468390c036d24d9e80f36442d6545, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 0252832e95119254195694890e655061, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: e80e3ec89cf23f9449532a2b904ef68d, type: 2}
   motionSlots:
     _serializedList:
     - Key:

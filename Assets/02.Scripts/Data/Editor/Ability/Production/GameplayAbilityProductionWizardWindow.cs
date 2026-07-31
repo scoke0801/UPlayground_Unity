@@ -4,6 +4,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UPlayGround.Ability.Core;
+using UPlayGround.Animation;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
@@ -36,7 +37,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
         [SerializeField] private ActorDefinitionSO
             _compositionTargetDefinition;
         [SerializeField] private AbilitySetSO _targetSet;
-        [SerializeField] private MotionReferenceSO _motionReference;
+        [SerializeField] private ActorAnimationMotionSet _motionOwner;
+        [SerializeField] private MotionSetAsset _motion;
         [SerializeField] private AbilityTaskGraphSO _taskGraph;
         [SerializeField] private GameplayEffectSO _commitEffect;
         [SerializeField] private GameplayEffectSO _endEffect;
@@ -214,7 +216,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 "2. 대상 Set과 실행 데이터",
                 "생성된 Ability가 연결될 Set과 Motion/TaskGraph를 명시합니다.");
             AddProperty(target, serialized, "_targetSet", "대상 AbilitySet");
-            AddProperty(target, serialized, "_motionReference", "Motion Reference");
+            AddProperty(target, serialized, "_motionOwner", "Actor MotionSet");
+            AddProperty(target, serialized, "_motion", "Motion Asset");
             AddProperty(target, serialized, "_taskGraph", "Task Graph");
             AddProperty(target, serialized, "_bindingMode", "AbilitySet 연결");
             AddProperty(target, serialized, "_playerSkillSlot", "플레이어 입력 슬롯");
@@ -599,11 +602,17 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 _targetSet,
                 typeof(AbilitySetSO),
                 false);
-            _motionReference =
-                (MotionReferenceSO)EditorGUILayout.ObjectField(
-                    "Motion Reference",
-                    _motionReference,
-                    typeof(MotionReferenceSO),
+            _motionOwner =
+                (ActorAnimationMotionSet)EditorGUILayout.ObjectField(
+                    "Actor MotionSet",
+                    _motionOwner,
+                    typeof(ActorAnimationMotionSet),
+                    false);
+            _motion =
+                (MotionSetAsset)EditorGUILayout.ObjectField(
+                    "Motion Asset",
+                    _motion,
+                    typeof(MotionSetAsset),
                     false);
             _taskGraph = (AbilityTaskGraphSO)EditorGUILayout.ObjectField(
                 "Task Graph",
@@ -767,7 +776,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 AssetName = _assetName,
                 SaveRoot = _saveRoot,
                 TargetSet = _targetSet,
-                MotionReference = _motionReference,
+                MotionOwner = _motionOwner,
+                Motion = _motion,
                 TaskGraph = _taskGraph,
                 CommitEffect = _commitEffect,
                 EndEffect = _endEffect,

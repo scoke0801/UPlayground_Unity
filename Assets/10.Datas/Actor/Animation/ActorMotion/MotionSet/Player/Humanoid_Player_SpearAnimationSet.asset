@@ -13,102 +13,810 @@ MonoBehaviour:
   m_Name: Humanoid_Player_SpearAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 298e05bf791194c41979534a16bdcf6e, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 474b1304dd392494faf04c1194709389, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: d6cac202f2382fe469e2b3e35ddae7a7, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: a6498d7f16baad746ba5fc689acad0e2, type: 2}
-    - Key: 11
-      Value: {fileID: 11400000, guid: 98c3c82ba6532f840ac50f3158e8e6c5, type: 2}
-    - Key: 100
-      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
-    - Key: 101
-      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
-    - Key: 102
-      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
-    - Key: 103
-      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
-    - Key: 104
-      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
-    - Key: 105
-      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
-    - Key: 106
-      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
-    - Key: 107
-      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
-    - Key: 108
-      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
-    - Key: 109
-      Value: {fileID: 11400000, guid: 6130c5f74c77a7d4baea24c048a0388c, type: 2}
-    - Key: 200
-      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
-    - Key: 201
-      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
-    - Key: 202
-      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
-    - Key: 203
-      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
-    - Key: 204
-      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
-    - Key: 205
-      Value: {fileID: 11400000, guid: 6e96ed099afc55f43be59286af30aad0, type: 2}
-    - Key: 206
-      Value: {fileID: 11400000, guid: 62cb3a46df3f78e40b6e03c19bd82978, type: 2}
-    - Key: 207
-      Value: {fileID: 11400000, guid: 882b490d1ebc1ce4398d7efc4c241fa6, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
+        variantId: Default
       Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
+        variantId: Skill_3
+      Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
+        variantId: Skill_4
+      Value: {fileID: 11400000, guid: 972a2196a85b1514390a7a177439285a, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
+        variantId: Skill_5
+      Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
+        variantId: Skill_6
+      Value: {fileID: 11400000, guid: cb3428fc171df5e4c94b73f88928d498, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Ultimate
+        variantId: Default
       Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
-    - Key: 502
-      Value: {fileID: 11400000, guid: 6d6532c4e5cfa514d83d09fc8d962c57, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: adda83479ab0e5646a6fbd6afe2db271, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 6774642c7b0f4144a907798dcb1ad883, type: 2}
-    - Key: 820
-      Value: {fileID: 11400000, guid: 1715975901621f542b669c45f4da92b9, type: 2}
-    - Key: 840
-      Value: {fileID: 11400000, guid: 0dac6fd58db68524589892677d9997e6, type: 2}
-    - Key: 860
-      Value: {fileID: 11400000, guid: 19d960e76e4cfc04ea1422e4897d37ba, type: 2}
-    - Key: 900
-      Value: {fileID: 11400000, guid: 50d9a3d64ce96f94da679f6f8e4a5c5b, type: 2}
-    - Key: 901
-      Value: {fileID: 11400000, guid: ea0785fa4e14b704eb6d36dd4d8c9d25, type: 2}
-    - Key: 2110
-      Value: {fileID: 11400000, guid: 575a2b33dbbf2fa448f87783af86b12c, type: 2}
-    - Key: 2112
-      Value: {fileID: 11400000, guid: e1c5d05bad15b234589ca39b9072194c, type: 2}
-    - Key: 555
-      Value: {fileID: 11400000, guid: f9fb5e7b1a039244e956c752e422fb97, type: 2}
-    - Key: 530
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_00
+        variantId: Default
       Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
-    - Key: 531
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6130c5f74c77a7d4baea24c048a0388c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_00
+        variantId: Default
       Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
-    - Key: 550
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6e96ed099afc55f43be59286af30aad0, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Ability
+        variantId: Skill_3
+      Value: {fileID: 11400000, guid: 23c6e0517aa62ab4ba4e99d76be13197, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Ability
+        variantId: Skill_4
+      Value: {fileID: 11400000, guid: e365dca6b320ddb459328568e0f563a2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Ability
+        variantId: Skill_5
+      Value: {fileID: 11400000, guid: 9ba6bfd7fd4d1f9459dbe92198a0d665, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerBowAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Ability
+        variantId: Skill_3
+      Value: {fileID: 11400000, guid: 9a47dc3c14a17544d9f01d90f1578c2e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Heavy_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6e96ed099afc55f43be59286af30aad0, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6130c5f74c77a7d4baea24c048a0388c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Heavy_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Entry
+        variantId: Default
       Value: {fileID: 11400000, guid: ef703469d371e144c9b54172d67e0a57, type: 2}
-    - Key: 12
-      Value: {fileID: 11400000, guid: a6498d7f16baad746ba5fc689acad0e2, type: 2}
-    - Key: 13
-      Value: {fileID: 11400000, guid: b69dabc68506d1f4b90c9b165d3d3cd8, type: 2}
-    - Key: 14
-      Value: {fileID: 11400000, guid: 589935e0440c38246a578b522f32f1b2, type: 2}
-    - Key: 15
-      Value: {fileID: 11400000, guid: 82850ca1e1c0f3e469b81e088075977a, type: 2}
-    - Key: 16
-      Value: {fileID: 11400000, guid: 98c3c82ba6532f840ac50f3158e8e6c5, type: 2}
-    - Key: 17
-      Value: {fileID: 11400000, guid: 37a269e3718d6b6418258a3acfdae68d, type: 2}
-    - Key: 18
-      Value: {fileID: 11400000, guid: a927930a941ac04499ebce1258b7bc77, type: 2}
-    - Key: 19
-      Value: {fileID: 11400000, guid: 468a9d48564cb364f86e001c83eb2391, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: ef703469d371e144c9b54172d67e0a57, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: ef703469d371e144c9b54172d67e0a57, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: f9fb5e7b1a039244e956c752e422fb97, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
+        variantId: Skill_3
+      Value: {fileID: 11400000, guid: b7e1a0d0ba302144fb5f09fd72172d1f, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6130c5f74c77a7d4baea24c048a0388c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6e96ed099afc55f43be59286af30aad0, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 62cb3a46df3f78e40b6e03c19bd82978, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6130c5f74c77a7d4baea24c048a0388c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6e96ed099afc55f43be59286af30aad0, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Heavy_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 62cb3a46df3f78e40b6e03c19bd82978, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
+        variantId: Default
+      Value: {fileID: 11400000, guid: 466877e7f2241b344b48d00154c44501, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
+        variantId: Skill_3
+      Value: {fileID: 11400000, guid: 22bdffc1d2814254a8617872820e1641, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
+        variantId: Skill_4
+      Value: {fileID: 11400000, guid: f9a88850dc91a3b4ea7c1f5f9c9a7781, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ultimate
+        variantId: Default
+      Value: {fileID: 11400000, guid: 041882dc622a3724b90746bd447ad0ba, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e5268782c843cc4792515a35f6f4bfd, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: dd0128185dbe06943ab9a1ed210acefc, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 526801384729684419c8288bfc8e070e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0bdabdc0de19972419d3d10c3c3f8691, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3416b715ce0dc4849b0426300737f46c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3eb1c7e8e9ac74f40997c690ac99aabf, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: f52a976ecd2c1b04588959b6451aeb11, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 7c472b7ba0b77a8419b4436ff461500d, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Light_09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6130c5f74c77a7d4baea24c048a0388c, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_00
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ad4c00889502e2439a7ce9c37e32e5e, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_01
+        variantId: Default
+      Value: {fileID: 11400000, guid: de9d9cca5ccf0274185aa9bab0b31fb2, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 28fb3ec1a669ea94e8c339fc31d5a9d3, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_03
+        variantId: Default
+      Value: {fileID: 11400000, guid: e834992e21d96cb4189eb9e9543f512b, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 58ec381d6ae5373488609e1aa57418ef, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 6e96ed099afc55f43be59286af30aad0, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 62cb3a46df3f78e40b6e03c19bd82978, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_07
+        variantId: Default
+      Value: {fileID: 11400000, guid: 882b490d1ebc1ce4398d7efc4c241fa6, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Counter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.ParryCounter
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Entry
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.EntryGroggy
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.EntryAirborne
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.SwapEvade
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.SwapSpecial
+        variantId: Default
+      Value: {fileID: 11400000, guid: bb721b9ce20a5ab489e92304653b0250, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Dark
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Fire
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Light
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Nature
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Water
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
   motionSlots:
     _serializedList:
     - Key:

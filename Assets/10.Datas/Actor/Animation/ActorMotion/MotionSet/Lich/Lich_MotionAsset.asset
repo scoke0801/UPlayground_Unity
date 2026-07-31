@@ -13,27 +13,25 @@ MonoBehaviour:
   m_Name: Lich_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: f463538b3e821834b96e9a862aa354e8, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: a39404c637ad0f344b259612a1268e65, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: a39404c637ad0f344b259612a1268e65, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: a39404c637ad0f344b259612a1268e65, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Lich.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: 20ca2d93fe97bc74f97fbb2a40d94ce1, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Lich.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: a0618e4dda6b6a44abaf660ecc8bb084, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: d2aec78bbbedf3142b8cd0b5348d38e1, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: df31c1b9489b72c47956e48ec5b4b42b, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Actor.Lich.Skill_1.03
+        variantId: Default
       Value: {fileID: 11400000, guid: 1e49a969d0e52b44fa1f3d8456d372f8, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Actor.Lich.Skill_2.04
+        variantId: Default
       Value: {fileID: 11400000, guid: 4a1e4b4ee1e152043948e9d861f21c70, type: 2}
   motionSlots:
     _serializedList:

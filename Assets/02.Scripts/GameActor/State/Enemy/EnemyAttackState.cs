@@ -85,7 +85,7 @@ namespace UPlayGround.State
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
                 else
                 {
-                    Debug.LogWarning("[EnemyAttackState] 공격 MotionReference를 찾을 수 없습니다.");
+                    Debug.LogWarning("[EnemyAttackState] 공격 Motion Key를 해석할 수 없습니다.");
                     OnAttackAnimationEnd();
                 }
 

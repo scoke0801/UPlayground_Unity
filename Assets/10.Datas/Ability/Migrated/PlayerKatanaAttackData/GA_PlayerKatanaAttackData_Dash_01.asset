@@ -33,6 +33,11 @@ MonoBehaviour:
     targetRelation: 2
     minDistance: 0
     maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -40,6 +45,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 0
     cooldownGroupId: 
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -59,6 +66,7 @@ MonoBehaviour:
   persistence:
     swapPolicy: 0
     saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 0
     expectedDuration: 0
@@ -78,12 +86,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: 65b6e1aeb6da9f3409d7096f74116665, type: 2}
+      motionKey:
+        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Dash_01
+        variantId: Default
       attackType: 0
       hitPhases:
       - damage: 52
         poiseDamage: 20
         breakDamage: 14
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -166,6 +177,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []

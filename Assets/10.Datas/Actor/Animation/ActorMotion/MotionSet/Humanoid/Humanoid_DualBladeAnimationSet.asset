@@ -13,100 +13,150 @@ MonoBehaviour:
   m_Name: Humanoid_DualBladeAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: cfde9a3380f76294d840827ab7d8910e, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: 31215c927bd8781489908fb74dde2d91, type: 2}
-    - Key: 102
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_3.03
+        variantId: Default
       Value: {fileID: 11400000, guid: 1e2617d7e5c9d314aa6235f7e31f5a17, type: 2}
-    - Key: 103
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_4.04
+        variantId: Default
       Value: {fileID: 11400000, guid: 780450bc75a70d347997e18ffbe70f4f, type: 2}
-    - Key: 104
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_5.05
+        variantId: Default
       Value: {fileID: 11400000, guid: fba277923034f9d4999eea2003a797cf, type: 2}
-    - Key: 105
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_6.06
+        variantId: Default
       Value: {fileID: 11400000, guid: 04ebd776bb989a046833fc72d3743035, type: 2}
-    - Key: 106
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_7.07
+        variantId: Default
       Value: {fileID: 11400000, guid: 84fc49986f17b6f45b1c5546bdb73224, type: 2}
-    - Key: 107
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_8.08
+        variantId: Default
       Value: {fileID: 11400000, guid: 1d9dca551d60de745813be5b37c97900, type: 2}
-    - Key: 108
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_9.09
+        variantId: Default
       Value: {fileID: 11400000, guid: 318cf7a970f977d46b6b64af997e9793, type: 2}
-    - Key: 109
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Attack_10.10
+        variantId: Default
       Value: {fileID: 11400000, guid: 25c5a47c28084584f85bec1b8a09e79a, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 364a5adf4b985fa4a877d23a1d2b5605, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: a00c89dac939824489b009a496a3af2e, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: c0b521af3b921bc48a3ae91f08474ca8, type: 2}
-    - Key: 11
-      Value: {fileID: 11400000, guid: b0127351961c48741bdd985d74f351f6, type: 2}
-    - Key: 200
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_1.11
+        variantId: Default
       Value: {fileID: 11400000, guid: cd107fc2f5b69214dac9d18a9c69ed42, type: 2}
-    - Key: 201
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_2.12
+        variantId: Default
       Value: {fileID: 11400000, guid: be49866963128c140b46b5147fa2e28e, type: 2}
-    - Key: 202
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_3.13
+        variantId: Default
       Value: {fileID: 11400000, guid: de15a53fd6ee8f744a6bb361728b0721, type: 2}
-    - Key: 203
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_4.14
+        variantId: Default
       Value: {fileID: 11400000, guid: 38990d90b6e9a2147a4b5084d82cbd4c, type: 2}
-    - Key: 204
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_5.15
+        variantId: Default
       Value: {fileID: 11400000, guid: 9ab7d20c9b5a7f243b8044429cc25a29, type: 2}
-    - Key: 205
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_6.16
+        variantId: Default
       Value: {fileID: 11400000, guid: 815b61496b2fbae47943f3bd3f465a57, type: 2}
-    - Key: 206
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_7.17
+        variantId: Default
       Value: {fileID: 11400000, guid: 872cc9b5552d369469f0b32f1a5895a1, type: 2}
-    - Key: 400
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.JumpAttack_1.18
+        variantId: Default
       Value: {fileID: 11400000, guid: fcf4cd773291e48498ad8c0babcdbbc3, type: 2}
-    - Key: 401
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.JumpAttack_2.19
+        variantId: Default
       Value: {fileID: 11400000, guid: 63456a4964c56984f8234ce5e048c83d, type: 2}
-    - Key: 402
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.JumpAttack_3.20
+        variantId: Default
       Value: {fileID: 11400000, guid: 8f56bd47eb73f514fadd144746325912, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Skill_1.21
+        variantId: Default
       Value: {fileID: 11400000, guid: 1af4e16bfb2d7be4eba686328e4f716e, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Skill_2.22
+        variantId: Default
       Value: {fileID: 11400000, guid: fc0ec1b066c55724cb235d4896336c78, type: 2}
-    - Key: 530
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Counter_Attack_1.23
+        variantId: Default
       Value: {fileID: 11400000, guid: dce54209a03b34f47a02b0fd803002aa, type: 2}
-    - Key: 531
+    - Key:
+        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.Counter_Attack_2.24
+        variantId: Default
       Value: {fileID: 11400000, guid: 9544cbbefee34b34fb58877af781da26, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 9fc9eff0c87f454428d806b95f2acffe, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: a275243413ec1fd4cba3da7f48895ab3, type: 2}
-    - Key: 820
-      Value: {fileID: 11400000, guid: b99bf81d400bd7f4d8853e47d88b6f87, type: 2}
-    - Key: 860
-      Value: {fileID: 11400000, guid: e52edb7e838378244a793de700842202, type: 2}
-    - Key: 900
-      Value: {fileID: 11400000, guid: 43f5f58acb0fe2747b73d454c38e9ca3, type: 2}
-    - Key: 901
-      Value: {fileID: 11400000, guid: bb9087c5e98586445a8fa37887eba761, type: 2}
-    - Key: 1
-      Value: {fileID: 11400000, guid: 2f0abed215b72384d9516e33db90794f, type: 2}
-    - Key: 840
-      Value: {fileID: 11400000, guid: 2b95373a25a2b5a48a7d19472e193ecf, type: 2}
-    - Key: 555
-      Value: {fileID: 11400000, guid: 27f555f96bf2e684298887c98b70d7bf, type: 2}
-    - Key: 550
-      Value: {fileID: 11400000, guid: f155b0a5bcdfa904e86fd17cd499b0ed, type: 2}
-    - Key: 12
-      Value: {fileID: 11400000, guid: c0b521af3b921bc48a3ae91f08474ca8, type: 2}
-    - Key: 13
-      Value: {fileID: 11400000, guid: 0acdd6ad89415a244ae4286c15d9d47f, type: 2}
-    - Key: 14
-      Value: {fileID: 11400000, guid: 3f74cbd95dca14543963c5142d6566ad, type: 2}
-    - Key: 15
-      Value: {fileID: 11400000, guid: 722d9db4df3701b4f81c62330842b1ac, type: 2}
-    - Key: 16
-      Value: {fileID: 11400000, guid: 5307172a894839f4ca822c74fc793d17, type: 2}
-    - Key: 17
-      Value: {fileID: 11400000, guid: ad16e54d6fa430c488972f7b1f86ac30, type: 2}
-    - Key: 18
-      Value: {fileID: 11400000, guid: 81fda23be80ed9e42b4d0bff89d31e49, type: 2}
-    - Key: 19
-      Value: {fileID: 11400000, guid: 176ad19b0d304c54f9180eaa4485da0a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_1.01
+        variantId: Default
+      Value: {fileID: 11400000, guid: cfde9a3380f76294d840827ab7d8910e, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_2.02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 31215c927bd8781489908fb74dde2d91, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_3.03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1e2617d7e5c9d314aa6235f7e31f5a17, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_4.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 780450bc75a70d347997e18ffbe70f4f, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_5.05
+        variantId: Default
+      Value: {fileID: 11400000, guid: fba277923034f9d4999eea2003a797cf, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_6.06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 04ebd776bb989a046833fc72d3743035, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_7.07
+        variantId: Default
+      Value: {fileID: 11400000, guid: 84fc49986f17b6f45b1c5546bdb73224, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_8.08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1d9dca551d60de745813be5b37c97900, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Attack_9.09
+        variantId: Default
+      Value: {fileID: 11400000, guid: 318cf7a970f977d46b6b64af997e9793, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_1.10
+        variantId: Default
+      Value: {fileID: 11400000, guid: 1af4e16bfb2d7be4eba686328e4f716e, type: 2}
+    - Key:
+        abilityId: Ability.Actor.humanoid.Skill_2.11
+        variantId: Default
+      Value: {fileID: 11400000, guid: fc0ec1b066c55724cb235d4896336c78, type: 2}
   motionSlots:
     _serializedList:
     - Key:

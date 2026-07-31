@@ -77,7 +77,7 @@ namespace UPlayGround.State
             if (recordToken && DebugLog)
                 RuntimeLog.Trace(
                     RuntimeLogCategory.Combat | RuntimeLogCategory.Input,
-                    $"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수={routes.Count} grounded={grounded} → {(result != null ? $"매칭 '{result.routeName}' motion={result.attackInfo?.baseInfo?.motionRef?.name}" : "매칭없음")}");
+                    $"[ComboRoute] +{ComboInputTrackerAbbrev(pending)} 윈도우=[{tracker.ToDebugString()}] 라우트수={routes.Count} grounded={grounded} → {(result != null ? $"매칭 '{result.routeName}' motion={result.attackInfo?.baseInfo?.motionKey}" : "매칭없음")}");
 
             return result;
         }

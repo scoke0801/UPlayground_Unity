@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GA_Humanoid_KatanaAttackData_23_JumpAttack_5
   m_EditorClassIdentifier: 
   abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_5.23
-  schemaVersion: 1
+  editorMemo: 
   presentation:
     displayName: JumpAttack_5
     description: "Humanoid_KatanaAttackData\uC758 BT \uC120\uD0DD\uD615 \uC804\uD22C
@@ -24,16 +24,21 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: []
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
     minDistance: 0
     maxDistance: 2.5
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -41,6 +46,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 2
     cooldownGroupId: 
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -50,21 +57,17 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: 5976344769739634882}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
   endEffects: []
-  cues:
-    startCueId: 
-    failureCueId: 
-    endCueId: 
-    cooldownReadyCueId: 
   persistence:
     swapPolicy: 0
     saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 12
     expectedDuration: 0
@@ -83,16 +86,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: Payload_JumpAttack_5
   m_EditorClassIdentifier: 
-  executionId: 
-  motionRef: {fileID: 11400000, guid: 0fb9e0a96da1e694a924a9238578691e, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: 0fb9e0a96da1e694a924a9238578691e, type: 2}
+      motionKey:
+        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_5.23
+        variantId: Default
       attackType: 0
       hitPhases:
       - damage: 12
         poiseDamage: 39
         breakDamage: 0
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -175,6 +179,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []

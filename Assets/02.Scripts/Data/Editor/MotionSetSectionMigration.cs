@@ -31,7 +31,7 @@ namespace UPlayGround.Data.Editor
         public MotionSetSectionMigrationDecision decision;
         public string reason;
         public readonly List<string> referencedTags = new();
-        public readonly List<string> motionReferencePaths = new();
+        public readonly List<string> abilityMotionPaths = new();
     }
 
     /// <summary>
@@ -103,7 +103,8 @@ namespace UPlayGround.Data.Editor
         public static List<MotionSetSectionMigrationEntry> AnalyzeAll()
         {
             Dictionary<MotionSetAsset, HashSet<string>> references = BuildReferenceMap();
-            Dictionary<MotionSetAsset, HashSet<string>> motionReferences = BuildMotionReferenceMap();
+            Dictionary<MotionSetAsset, HashSet<string>> abilityMotions =
+                BuildAbilityMotionMap();
             string[] guids = AssetDatabase.FindAssets("t:MotionSetAsset");
             var entries = new List<MotionSetSectionMigrationEntry>(guids.Length);
 
@@ -111,7 +112,7 @@ namespace UPlayGround.Data.Editor
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
                 MotionSetAsset asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
-                entries.Add(Analyze(asset, path, guid, references, motionReferences));
+                entries.Add(Analyze(asset, path, guid, references, abilityMotions));
             }
 
             entries.Sort((left, right) =>
@@ -125,7 +126,7 @@ namespace UPlayGround.Data.Editor
             string path,
             string guid,
             IReadOnlyDictionary<MotionSetAsset, HashSet<string>> references,
-            IReadOnlyDictionary<MotionSetAsset, HashSet<string>> motionReferences = null)
+            IReadOnlyDictionary<MotionSetAsset, HashSet<string>> abilityMotions = null)
         {
             var entry = new MotionSetSectionMigrationEntry
             {
@@ -151,10 +152,10 @@ namespace UPlayGround.Data.Editor
 
             if (references != null && references.TryGetValue(asset, out HashSet<string> tags))
                 entry.referencedTags.AddRange(tags.OrderBy(tag => tag, StringComparer.Ordinal));
-            if (motionReferences != null &&
-                motionReferences.TryGetValue(asset, out HashSet<string> referencePaths))
+            if (abilityMotions != null &&
+                abilityMotions.TryGetValue(asset, out HashSet<string> referencePaths))
             {
-                entry.motionReferencePaths.AddRange(
+                entry.abilityMotionPaths.AddRange(
                     referencePaths.OrderBy(value => value, StringComparer.Ordinal));
             }
 
@@ -181,12 +182,12 @@ namespace UPlayGround.Data.Editor
                 return entry;
             }
 
-            if (entry.motionReferencePaths.Count > 0)
+            if (entry.abilityMotionPaths.Count > 0)
             {
                 entry.decision = MotionSetSectionMigrationDecision.Stop;
                 entry.reason = HasDirectorLoopEvent(asset.motionSet)
-                    ? "MotionReference 직접 참조, 기존 LoopEvent가 내부 반복 구간 제어"
-                    : "MotionReference 직접 참조";
+                    ? "Ability Motion Key 매핑, 기존 LoopEvent가 내부 반복 구간 제어"
+                    : "Ability Motion Key 매핑";
                 return entry;
             }
 
@@ -201,7 +202,7 @@ namespace UPlayGround.Data.Editor
             entry.decision = MotionSetSectionMigrationDecision.Review;
             entry.reason = clips.Any(clip => clip.isLooping)
                 ? "미참조 MotionSet, AnimationClip Loop Time은 보조 근거로만 사용"
-                : "ActorAnimationMotionSet/MotionReference 참조를 찾지 못함";
+                : "ActorAnimationMotionSet 참조를 찾지 못함";
             return entry;
         }
 
@@ -320,27 +321,30 @@ namespace UPlayGround.Data.Editor
             return result;
         }
 
-        static Dictionary<MotionSetAsset, HashSet<string>> BuildMotionReferenceMap()
+        static Dictionary<MotionSetAsset, HashSet<string>> BuildAbilityMotionMap()
         {
             var result = new Dictionary<MotionSetAsset, HashSet<string>>();
-            foreach (string guid in AssetDatabase.FindAssets("t:MotionReferenceSO"))
+            foreach (string guid in AssetDatabase.FindAssets("t:ActorAnimationMotionSet"))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
-                MotionReferenceSO reference =
-                    AssetDatabase.LoadAssetAtPath<MotionReferenceSO>(path);
-                if (reference == null)
+                ActorAnimationMotionSet motionSet =
+                    AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(path);
+                if (motionSet?.abilityMotions == null)
                     continue;
 
-                AddMotionReference(result, reference.defaultMotion, path);
-                if (reference.weaponOverrides == null)
-                    continue;
-                foreach (MotionReferenceSO.WeaponOverride weaponOverride in reference.weaponOverrides)
-                    AddMotionReference(result, weaponOverride.motion, path);
+                foreach (KeyValuePair<AbilityMotionKey, MotionSetAsset> pair
+                         in motionSet.abilityMotions)
+                {
+                    AddAbilityMotion(
+                        result,
+                        pair.Value,
+                        $"{path} [{pair.Key}]");
+                }
             }
             return result;
         }
 
-        static void AddMotionReference(
+        static void AddAbilityMotion(
             Dictionary<MotionSetAsset, HashSet<string>> result,
             MotionSetAsset asset,
             string path)
@@ -439,14 +443,14 @@ namespace UPlayGround.Data.Editor
                 string tags = entry.referencedTags.Count > 0
                     ? string.Join(", ", entry.referencedTags)
                     : "-";
-                string motionReferences = entry.motionReferencePaths.Count > 0
-                    ? string.Join(", ", entry.motionReferencePaths)
+                string abilityMotions = entry.abilityMotionPaths.Count > 0
+                    ? string.Join(", ", entry.abilityMotionPaths)
                     : "-";
                 writer.WriteLine(
                     $"[{entry.decision}] {entry.path}\n" +
                     $"  Reason: {entry.reason}\n" +
                     $"  Tags: {tags}\n" +
-                    $"  MotionReferences: {motionReferences}");
+                    $"  AbilityMotions: {abilityMotions}");
             }
         }
 

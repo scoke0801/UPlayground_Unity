@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
+using UPlayGround.Animation;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
@@ -85,7 +86,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
         public string AssetName;
         public string SaveRoot;
         public AbilitySetSO TargetSet;
-        public MotionReferenceSO MotionReference;
+        public ActorAnimationMotionSet MotionOwner;
+        public MotionSetAsset Motion;
         public AbilityTaskGraphSO TaskGraph;
         public GameplayEffectSO CommitEffect;
         public GameplayEffectSO EndEffect;

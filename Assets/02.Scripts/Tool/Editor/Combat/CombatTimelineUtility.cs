@@ -11,6 +11,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Editor.Ability;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
 using UPlayGround.Gameplay.Ability;
@@ -201,34 +202,46 @@ namespace UPlayGround.Tool.Editor.Combat
         /// AbilitySet 안에서 해당 MotionSetAsset을 쓰는 공격 데이터를 모두 찾는다.
         /// 차지 공격은 단계별로 1개씩 반환한다.
         /// </summary>
-        public static List<ResolvedAttack> ResolveAttacks(AbilitySetSO data, MotionSetAsset motionAsset)
+        /// <param name="motionOwner">
+        /// 이 공격을 실행하는 액터의 MotionSet. 지정하면 키 해석을 그 액터(및 fallback 체인)로
+        /// 한정한다. null이면 프로젝트 전체에서 찾으므로, 여러 액터가 같은 모션 에셋을 공유할 때
+        /// 실제로 그 액터가 쓰지 않는 공격까지 매칭될 수 있다.
+        /// </param>
+        public static List<ResolvedAttack> ResolveAttacks(
+            AbilitySetSO data,
+            MotionSetAsset motionAsset,
+            ActorAnimationMotionSet motionOwner = null)
         {
             var result = new List<ResolvedAttack>();
             if (data == null || motionAsset == null)
                 return result;
 
+            // 키마다 프로젝트를 훑지 않도록 이 호출 한 번 분량의 인덱스만 만든다.
+            AbilityMotionIndex index =
+                motionOwner != null ? null : new AbilityMotionIndex();
+
             PlayerCombatAbilityDataView view = PlayerCombatAbilityDataView.Build(data);
             if (view != null)
             {
-                AddPlayerList(result, data, view.liteComboAttackList, "약 공격", motionAsset);
-                AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", motionAsset);
-                AddPlayerList(result, data, view.jumpAttackList, "점프 공격", motionAsset);
-                AddPlayerList(result, data, view.dashAttackList, "대시 공격", motionAsset);
-                AddPlayerList(result, data, view.skillAttackList, "스킬", motionAsset);
-                AddPlayerInfo(result, data, view.counterAttack, "카운터", motionAsset);
-                AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", motionAsset);
-                AddPlayerInfo(result, data, view.entryAttack, "교체 등장", motionAsset);
-                AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", motionAsset);
-                AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", motionAsset);
-                AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", motionAsset);
-                AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", motionAsset);
+                AddPlayerList(result, data, view.liteComboAttackList, "약 공격", motionAsset, motionOwner, index);
+                AddPlayerList(result, data, view.heavyComboAttackList, "강 공격", motionAsset, motionOwner, index);
+                AddPlayerList(result, data, view.jumpAttackList, "점프 공격", motionAsset, motionOwner, index);
+                AddPlayerList(result, data, view.dashAttackList, "대시 공격", motionAsset, motionOwner, index);
+                AddPlayerList(result, data, view.skillAttackList, "스킬", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.counterAttack, "카운터", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.parryCounterAttack, "패리 카운터", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.entryAttack, "교체 등장", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.entryAttackVsGroggy, "교체 등장 (그로기)", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.entryAttackVsAirborne, "교체 등장 (공중)", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.swapEvadeCounterAttack, "스왑 회피 카운터", motionAsset, motionOwner, index);
+                AddPlayerInfo(result, data, view.swapSpecialAttack, "스왑 특수", motionAsset, motionOwner, index);
             }
 
             var entries = AbilityAttackEditorUtility.Collect(data, true);
             for (int i = 0; i < entries.Count; i++)
             {
                 AbilityAttackInfo info = entries[i].AttackInfo;
-                if (!MatchesMotion(info.baseInfo.motionRef, motionAsset)
+                if (!MatchesMotion(info.baseInfo.motionKey, motionAsset, motionOwner, index)
                     || result.Exists(x => ReferenceEquals(x.AttackInfo, info)))
                     continue;
                 result.Add(new ResolvedAttack
@@ -246,22 +259,26 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         static void AddPlayerList(List<ResolvedAttack> result, AbilitySetSO data,
-            List<AbilityAttackInfo> list, string listName, MotionSetAsset motionAsset)
+            List<AbilityAttackInfo> list, string listName, MotionSetAsset motionAsset,
+            ActorAnimationMotionSet motionOwner, AbilityMotionIndex index)
         {
             if (list == null) return;
             for (int i = 0; i < list.Count; i++)
             {
-                if (list[i]?.baseInfo == null || !MatchesMotion(list[i].baseInfo.motionRef, motionAsset)) continue;
-                AddPlayerInfo(result, data, list[i], $"{listName} [{i}]", motionAsset);
+                if (list[i]?.baseInfo == null
+                    || !MatchesMotion(list[i].baseInfo.motionKey, motionAsset, motionOwner, index))
+                    continue;
+                AddPlayerInfo(result, data, list[i], $"{listName} [{i}]", motionAsset, motionOwner, index);
             }
         }
 
         static void AddPlayerInfo(List<ResolvedAttack> result, AbilitySetSO data,
-            AbilityAttackInfo info, string sourceName, MotionSetAsset motionAsset)
+            AbilityAttackInfo info, string sourceName, MotionSetAsset motionAsset,
+            ActorAnimationMotionSet motionOwner, AbilityMotionIndex index)
         {
             if (info?.baseInfo == null) return;
-            // 리스트 직접 매칭이 아닌 단일 슬롯(카운터 등)도 실제 모션 참조로 비교한다.
-            if (!MatchesMotion(info.baseInfo.motionRef, motionAsset)) return;
+            // 리스트 직접 매칭이 아닌 단일 슬롯(카운터 등)도 액터 매핑으로 비교한다.
+            if (!MatchesMotion(info.baseInfo.motionKey, motionAsset, motionOwner, index)) return;
             // 동일 인스턴스 중복 방지 (skillDefinitions가 리스트 항목을 공유하는 경우)
             foreach (ResolvedAttack existing in result)
                 if (ReferenceEquals(existing.AttackInfo, info)) return;
@@ -277,16 +294,19 @@ namespace UPlayGround.Tool.Editor.Combat
             });
         }
 
-        static bool MatchesMotion(MotionReferenceSO motionRef, MotionSetAsset motionAsset)
+        static bool MatchesMotion(
+            AbilityMotionKey motionKey,
+            MotionSetAsset motionAsset,
+            ActorAnimationMotionSet motionOwner,
+            AbilityMotionIndex index)
         {
-            if (motionRef == null || motionAsset == null) return false;
-            if (motionRef.defaultMotion == motionAsset) return true;
-            if (motionRef.weaponOverrides == null) return false;
-
-            for (int i = 0; i < motionRef.weaponOverrides.Length; i++)
-                if (motionRef.weaponOverrides[i].motion == motionAsset)
-                    return true;
-            return false;
+            if (!motionKey.IsValid || motionAsset == null)
+                return false;
+            // 액터를 알면 그 액터의 해석만 본다. 같은 키가 무기·액터마다 다른 모션을 가리키므로
+            // 전역 매칭은 그 액터가 실제로 쓰지 않는 공격까지 끌어온다.
+            if (motionOwner != null)
+                return motionOwner.GetAbilityMotionAsset(motionKey) == motionAsset;
+            return index != null && index.Matches(motionKey, motionAsset);
         }
 
         // ====================================================================

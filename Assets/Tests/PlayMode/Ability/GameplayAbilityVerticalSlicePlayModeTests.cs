@@ -45,12 +45,14 @@ namespace UPlayGround.Ability.PlayModeTests
             Assert.That(owner.Tags, Is.SameAs(owner.AbilitySystem.ProjectTags));
 
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
-            var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
-            var motionRef = ScriptableObject.CreateInstance<MotionReferenceSO>();
-            motionRef.defaultMotion = motionAsset;
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase { motionRef = motionRef },
+                baseInfo = new AttackInfoBase
+                {
+                    motionKey = new AbilityMotionKey(
+                        "Ability.Test.PlayMode.VerticalSlice",
+                        "Ground"),
+                },
             };
 
             GameplayAbilitySO ability = ScriptableObject.CreateInstance<GameplayAbilitySO>();
@@ -88,9 +90,15 @@ namespace UPlayGround.Ability.PlayModeTests
                 Assert.That(prepare, Is.EqualTo(AbilityActivationResult.Success));
                 Assert.That(
                     UPlayGroundAbilityPayloadResolver.TryResolve(
-                        variant, WeaponType.NoWeapon, out MotionSetAsset resolvedMotion, out AbilityAttackInfo attackInfo),
+                        variant,
+                        out AbilityMotionKey motionKey,
+                        out AbilityAttackInfo attackInfo),
                     Is.True);
-                Assert.That(resolvedMotion, Is.SameAs(motionAsset));
+                Assert.That(
+                    motionKey,
+                    Is.EqualTo(new AbilityMotionKey(
+                        ability.abilityId,
+                        variant.variantId)));
                 Assert.That(attackInfo, Is.SameAs(payload.attackInfo));
 
                 // 실제 프로젝트에서는 이 사이에서 상태 전환과 MotionSet 시작 승인을 수행한다.
@@ -111,8 +119,6 @@ namespace UPlayGround.Ability.PlayModeTests
             {
                 Object.Destroy(ownerObject);
                 Object.Destroy(payload);
-                Object.Destroy(motionRef);
-                Object.Destroy(motionAsset);
                 Object.Destroy(ability);
                 Object.Destroy(set);
             }

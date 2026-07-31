@@ -111,8 +111,7 @@ namespace UPlayGround.Data.Combat
         /// <summary>강화 시 실행할 전용 공격 모션이 설정돼 있는지.</summary>
         public bool HasEnhancedAttack =>
             enhancedAttackInfo?.baseInfo != null
-            && enhancedAttackInfo.baseInfo.motionRef != null
-            && enhancedAttackInfo.baseInfo.motionRef.HasAnyMotion;
+            && enhancedAttackInfo.baseInfo.motionKey.IsValid;
 
         /// <summary>패턴의 마지막 토큰(없으면 LightAttack 폴백).</summary>
         public ComboInputToken LastToken =>

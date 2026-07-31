@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Heavy_02
   m_EditorClassIdentifier: 
   abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_02
-  schemaVersion: 1
+  editorMemo: 
   presentation:
     displayName: PlayerWhipAttackData Heavy_02
     description: 
@@ -23,16 +23,21 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: []
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
     minDistance: 0
     maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -40,6 +45,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 0
     cooldownGroupId: 
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -49,21 +56,17 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: 3691225386178541719}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
   endEffects: []
-  cues:
-    startCueId: 
-    failureCueId: 
-    endCueId: 
-    cooldownReadyCueId: 
   persistence:
     swapPolicy: 0
     saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 0
     expectedDuration: 0
@@ -81,16 +84,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerWhipAttackData_Heavy_02_Default_Payload
   m_EditorClassIdentifier: 
-  executionId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_02.Default
-  motionRef: {fileID: 11400000, guid: cdcd9c0624157e34fa8500970031f904, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: cdcd9c0624157e34fa8500970031f904, type: 2}
+      motionKey:
+        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_02
+        variantId: Default
       attackType: 0
       hitPhases:
       - damage: 30
         poiseDamage: 24
         breakDamage: 16
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -104,7 +108,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -153,6 +158,7 @@ MonoBehaviour:
       - damage: 32
         poiseDamage: 26
         breakDamage: 17
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -166,7 +172,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -215,6 +222,7 @@ MonoBehaviour:
       - damage: 34
         poiseDamage: 27
         breakDamage: 18
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -228,7 +236,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -277,6 +286,7 @@ MonoBehaviour:
       - damage: 36
         poiseDamage: 29
         breakDamage: 19
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -290,7 +300,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -339,6 +350,7 @@ MonoBehaviour:
       - damage: 38
         poiseDamage: 30
         breakDamage: 20
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -352,7 +364,8 @@ MonoBehaviour:
         knockBackForce: 10
         knockBackDrag: 20
         grabDuration: 1.5
-        victimForcedAnimKey: 0
+        victimForcedMotionSlot:
+          _tagName: 
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -420,6 +433,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []

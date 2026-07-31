@@ -353,6 +353,29 @@ namespace UPlayGround.Animation
         protected virtual MotionSet ResolveMotionSet(GameplayTag slot)
             => ResolveMotionSetAsset(slot)?.motionSet;
 
+        protected virtual MotionSetAsset ResolveAbilityMotionAsset(
+            AbilityMotionKey key) =>
+            _motionSet != null
+                ? _motionSet.GetAbilityMotionAsset(key)
+                : null;
+
+        public bool TryResolveAbilityMotion(
+            AbilityMotionKey key,
+            out MotionSetAsset asset)
+        {
+            MotionSetAsset resolved = ResolveAbilityMotionAsset(key);
+            // 실패하면 out을 비운다. 반환값을 보지 않고 out만 쓰는 호출부에
+            // 재생 불가능한 에셋(빈 motionSet, 깨진 섹션 레이아웃)이 흘러가면 안 된다.
+            if (!HasMotion(resolved))
+            {
+                asset = null;
+                return false;
+            }
+
+            asset = resolved;
+            return true;
+        }
+
 
         public virtual void Init(GameActor actor)
         {
@@ -514,8 +537,18 @@ namespace UPlayGround.Animation
                 && _lastPlayedSlot == slot)
                 return GetRepresentativePlaybackState();
 
+            int effectiveLayer = ResolveBaseLayerIndex(motionSet, layerIndex);
+            float resolvedFade = Mathf.Max(0f, fadeDuration);
             if (_isPlayingMotionSet && _currentMotionSet != null)
-                StopMotionSet(MotionSetEndReason.Interrupted);
+            {
+                bool preserveBaseLayer =
+                    resolvedFade > 0f &&
+                    _currentMotionLayerIndex == effectiveLayer;
+                StopMotionSet(
+                    MotionSetEndReason.Interrupted,
+                    resolvedFade,
+                    preserveBaseLayer);
+            }
 
             _currentMotionAsset = sourceAsset;
             _currentMotionSet = motionSet;
@@ -531,11 +564,9 @@ namespace UPlayGround.Animation
             _currentSectionId = null;
             _nextSectionOverrideId = null;
 
-            int effectiveLayer = ResolveBaseLayerIndex(motionSet, layerIndex);
             EnsureOverlayMask(effectiveLayer);
             _currentMotionLayerIndex = effectiveLayer;
 
-            float resolvedFade = Mathf.Max(0f, fadeDuration);
             _eventExecutor?.PlayMotionSet(_currentMotionSet);
             if (motionSet.GetMotionAtTime(0f, out int initialIndex, out _))
                 PlayMotionAtIndex(initialIndex, resolvedFade, effectiveLayer);
@@ -874,7 +905,10 @@ namespace UPlayGround.Animation
             StopMotionSet(MotionSetEndReason.Stopped, blendOutOverride);
         }
 
-        private void StopMotionSet(MotionSetEndReason reason, float? blendOutOverride = null)
+        private void StopMotionSet(
+            MotionSetEndReason reason,
+            float? blendOutOverride = null,
+            bool preserveBaseLayer = false)
         {
             if (!_isPlayingMotionSet) return;
 
@@ -886,7 +920,7 @@ namespace UPlayGround.Animation
             _eventExecutor?.Stop();
             // 정상 완료는 상태 전환이 다음 모션을 재생할 때까지 마지막 Base 포즈를 유지한다.
             // 명시적 Hold Section은 재생 상태 자체를 유지하므로 이 경로에 들어오지 않는다.
-            if (!completed)
+            if (!completed && !preserveBaseLayer)
                 FadeOrStopLayer(_currentMotionLayerIndex, blendOut);
 
             // Base 마지막 포즈를 유지하더라도 병렬 레이어까지 남겨 두면 다음 상태를 덮는다.
@@ -1113,7 +1147,10 @@ namespace UPlayGround.Animation
                     }
 
                     _currentMotionIndex = newIndex;
-                    PlayMotionAtIndex(_currentMotionIndex, 0f, _currentMotionLayerIndex);
+                    PlayMotionAtIndex(
+                        _currentMotionIndex,
+                        _currentMotionSet.InternalBlendDuration,
+                        _currentMotionLayerIndex);
                     ApplyCurrentPlaybackSpeed();
                     
                     // 새 모션의 localTime 재계산 및 시작점 초기화
@@ -1846,7 +1883,13 @@ namespace UPlayGround.Animation
             if (!playback.data.GetMotionAtTime(time, out int motionIndex, out float localTime))
                 return;
             if (motionIndex != playback.motionIndex || playback.state == null)
-                PlayLayerMotion(playback, motionIndex, 0f);
+            {
+                // MotionLayer에는 자체 블렌드 설정이 없으므로 소유 MotionSet 값을 쓴다.
+                float blendDuration = playback.motionIndex >= 0
+                    ? _currentMotionSet.InternalBlendDuration
+                    : 0f;
+                PlayLayerMotion(playback, motionIndex, blendDuration);
+            }
 
             Motion motion = playback.data.motions[motionIndex];
             if (playback.state == null || motion == null)

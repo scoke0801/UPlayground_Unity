@@ -43,6 +43,16 @@ namespace UPlayGround.Animation
                     GetActiveWeaponTypeForMotion(slot), slot)
                 : null;
 
+        protected override MotionSetAsset ResolveAbilityMotionAsset(
+            AbilityMotionKey key) =>
+            _playerActorAnimationMotionSet != null
+                ? _playerActorAnimationMotionSet.GetAbilityMotionAsset(
+                    _playerEquipment != null
+                        ? _playerEquipment.GetMainWeaponType()
+                        : WeaponType.NoWeapon,
+                    key)
+                : null;
+
         private WeaponType GetActiveWeaponTypeForMotion(GameplayTag slot)
         {
             if (_playerEquipment == null)

@@ -13,102 +13,198 @@ MonoBehaviour:
   m_Name: Humanoid_GreatSwordAnimationSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: 3a654d93498e8b146aaf7d2dd0f0cfb3, type: 2}
-    - Key: 101
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_2.02
+        variantId: Default
       Value: {fileID: 11400000, guid: e1a3c2d5843556541b82d1a97a9b4e9f, type: 2}
-    - Key: 102
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_3.03
+        variantId: Default
       Value: {fileID: 11400000, guid: 7237e2134c9154447a494be0dfdd571a, type: 2}
-    - Key: 103
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_4.04
+        variantId: Default
       Value: {fileID: 11400000, guid: 66149d2bae56c244aa9b9355a977a9ce, type: 2}
-    - Key: 104
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_5.05
+        variantId: Default
       Value: {fileID: 11400000, guid: 05ff240a7b851ca4687b3dca06d05fc4, type: 2}
-    - Key: 105
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_6.06
+        variantId: Default
       Value: {fileID: 11400000, guid: 0409393e87bdc9a43a92c9a860f4d542, type: 2}
-    - Key: 106
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_7.07
+        variantId: Default
       Value: {fileID: 11400000, guid: 86a117f2d532aad4fb1565427f0edca3, type: 2}
-    - Key: 107
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_8.08
+        variantId: Default
       Value: {fileID: 11400000, guid: 7c7943b56094fdd499b4614ca8a05f26, type: 2}
-    - Key: 108
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_9.09
+        variantId: Default
       Value: {fileID: 11400000, guid: e0933d05af5dd6a48b633f3d118fd457, type: 2}
-    - Key: 109
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_10.10
+        variantId: Default
       Value: {fileID: 11400000, guid: b064746207c5af742bca5c68bd1a97de, type: 2}
-    - Key: 200
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_1.11
+        variantId: Default
       Value: {fileID: 11400000, guid: cc0f31959ac473e4aa24487641635e6f, type: 2}
-    - Key: 201
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_2.12
+        variantId: Default
       Value: {fileID: 11400000, guid: 456574bbee3dc1442b1ce083d435767c, type: 2}
-    - Key: 202
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_3.13
+        variantId: Default
       Value: {fileID: 11400000, guid: 97238f359473bdd4abe6a795742906b0, type: 2}
-    - Key: 203
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_4.14
+        variantId: Default
       Value: {fileID: 11400000, guid: 6f054e55bd84c5b438099f360fb5db46, type: 2}
-    - Key: 204
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_5.15
+        variantId: Default
       Value: {fileID: 11400000, guid: 0a87a50ec1270da48a6ae8e705f343d0, type: 2}
-    - Key: 205
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_6.16
+        variantId: Default
       Value: {fileID: 11400000, guid: 0525d55a6e540df4d98338762cc4d42f, type: 2}
-    - Key: 206
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_7.17
+        variantId: Default
       Value: {fileID: 11400000, guid: 5bc7d332b049f8f43923eea42e61e468, type: 2}
-    - Key: 500
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Skill_1.18
+        variantId: Default
       Value: {fileID: 11400000, guid: 4f742748cdfadaf44b722485ab42ca09, type: 2}
-    - Key: 501
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Skill_2.19
+        variantId: Default
       Value: {fileID: 11400000, guid: 36b669833c83b494982e9a52148e28c2, type: 2}
-    - Key: 502
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Skill_3.20
+        variantId: Default
       Value: {fileID: 11400000, guid: 5cee26d57ec4a5548839083210f6a474, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: c70d68eca1fe9d2439dd3b2e0489b25a, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: cfcdf211f0373884db764da80fcf5685, type: 2}
-    - Key: 1
-      Value: {fileID: 11400000, guid: 2aac478799108124f90427476a3ba746, type: 2}
-    - Key: 840
-      Value: {fileID: 11400000, guid: 4e0b18ede29c2a645be3ecd29ec1487c, type: 2}
-    - Key: 820
-      Value: {fileID: 11400000, guid: 7a8024b9a5620874aa5957bf2127a6b1, type: 2}
-    - Key: 860
-      Value: {fileID: 11400000, guid: d0a8f3691d817ec4483c32017c7a5acb, type: 2}
-    - Key: 11
-      Value: {fileID: 11400000, guid: db57115d52171f74db132acde13aed2e, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: 8957993a9919bd54a9b77aa442de8aef, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: b1bbc6d3183bcbf44a196edb72b60fee, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: d93bc68ecae8e074a8ba269829d07a3f, type: 2}
-    - Key: 901
-      Value: {fileID: 11400000, guid: 0502a6c5453fff143b0bfeac3bc7749f, type: 2}
-    - Key: 900
-      Value: {fileID: 11400000, guid: 288aeff7e4d530b46b8e2acb7ef81294, type: 2}
-    - Key: 841
-      Value: {fileID: 11400000, guid: 82d8793b3733bd547a700dcdacbd141b, type: 2}
-    - Key: 2110
-      Value: {fileID: 11400000, guid: b2d8825784c8e6649b985aa32d8b51fa, type: 2}
-    - Key: 2112
-      Value: {fileID: 11400000, guid: 1f0cc401f4010f04db7fff8fa120f59d, type: 2}
-    - Key: 555
-      Value: {fileID: 11400000, guid: a66a5c2a516e7854c806188e28a9ff1f, type: 2}
-    - Key: 530
-      Value: {fileID: 11400000, guid: 3a654d93498e8b146aaf7d2dd0f0cfb3, type: 2}
-    - Key: 531
-      Value: {fileID: 11400000, guid: cc0f31959ac473e4aa24487641635e6f, type: 2}
-    - Key: 550
-      Value: {fileID: 11400000, guid: 66ff2459b72093844a09c2deecdcd467, type: 2}
-    - Key: 12
-      Value: {fileID: 11400000, guid: 8957993a9919bd54a9b77aa442de8aef, type: 2}
-    - Key: 13
-      Value: {fileID: 11400000, guid: fa03eb4c6c9f9b447baffc22faa23cb2, type: 2}
-    - Key: 14
-      Value: {fileID: 11400000, guid: 65a8afb1ade7064408820e078948c347, type: 2}
-    - Key: 15
-      Value: {fileID: 11400000, guid: 2e44e90022f06a54d8e7759ad1937fe5, type: 2}
-    - Key: 16
-      Value: {fileID: 11400000, guid: 94256fb21d742234680c974a8f3629e7, type: 2}
-    - Key: 17
-      Value: {fileID: 11400000, guid: fd6c3c5d8b67dfb4399e1eb422ab73e9, type: 2}
-    - Key: 18
-      Value: {fileID: 11400000, guid: 4c1e9973572c9764388c28acba6069f2, type: 2}
-    - Key: 19
-      Value: {fileID: 11400000, guid: aa62a766210bf4c4c83a7f61b63a9123, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Counter_Attack_1.21
+        variantId: Default
+      Value: {fileID: 11400000, guid: e2f3e3856f00bda4bb48432f39d9f40e, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Counter_Attack_2.22
+        variantId: Default
+      Value: {fileID: 11400000, guid: e2f3e3856f00bda4bb48432f39d9f40e, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_1.01
+        variantId: Default
+      Value: {fileID: 11400000, guid: e76ddb578f6002940ba90948f9bd0810, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_2.02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 96a77e11ae629284ca66178100167d5e, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_3.03
+        variantId: Default
+      Value: {fileID: 11400000, guid: 163d4332ab1396948a96a43ab95df6b2, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_4.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 75bf92c2f12f1174490d1fc1511bad0c, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_5.05
+        variantId: Default
+      Value: {fileID: 11400000, guid: 606b622ffe903e74f907c2de25f83bb0, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_6.06
+        variantId: Default
+      Value: {fileID: 11400000, guid: 8a26dd25c66dc144694f3e36c4adbbcf, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_7.07
+        variantId: Default
+      Value: {fileID: 11400000, guid: 3b914c15a5e6c9542b505010463c7977, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_8.08
+        variantId: Default
+      Value: {fileID: 11400000, guid: 90a8d60e06990ad4bb38f2b6933f914c, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_9.09
+        variantId: Default
+      Value: {fileID: 11400000, guid: e5d440de2e16e2e4a91891970e7c2c9d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_10.10
+        variantId: Default
+      Value: {fileID: 11400000, guid: 24cda811b35a7c9459f7156643aac0b3, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_1.11
+        variantId: Default
+      Value: {fileID: 11400000, guid: 08fcb75b36240904c8d426b11d817e4b, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_2.12
+        variantId: Default
+      Value: {fileID: 11400000, guid: d72ae075e7b6dd14c9806264f508eac5, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_3.13
+        variantId: Default
+      Value: {fileID: 11400000, guid: 664cb884d6e6e0948bc2fa1a616935ae, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_4.14
+        variantId: Default
+      Value: {fileID: 11400000, guid: 655dfe0379309e049a873c3608ce8ba6, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_5.15
+        variantId: Default
+      Value: {fileID: 11400000, guid: 2782fc6f7f05e4b4e980eba58db4c4c1, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_6.16
+        variantId: Default
+      Value: {fileID: 11400000, guid: 71684cb1ce0103840a31fae2c29e6baa, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_7.17
+        variantId: Default
+      Value: {fileID: 11400000, guid: 9ed14278dac0f0f4d9239c972a3e6210, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_8.18
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0df062b81ab62e14cb88adad73192778, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_9.19
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0f6045935c452a44c9a8705db6698916, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_1.20
+        variantId: Default
+      Value: {fileID: 11400000, guid: 0f5f4a971fbdce742af2c246e5a61597, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_2.21
+        variantId: Default
+      Value: {fileID: 11400000, guid: cd9687263f13eaf488bfa9f920838f3d, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_3.22
+        variantId: Default
+      Value: {fileID: 11400000, guid: a8f8cac516149ad48b3dff6267d1db61, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_4.23
+        variantId: Default
+      Value: {fileID: 11400000, guid: fea7a30b5ae8c6142a7c448d69b09ab8, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Counter_Attack_1.24
+        variantId: Default
+      Value: {fileID: 11400000, guid: e2f3e3856f00bda4bb48432f39d9f40e, type: 2}
+    - Key:
+        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Counter_Attack_2.25
+        variantId: Default
+      Value: {fileID: 11400000, guid: e2f3e3856f00bda4bb48432f39d9f40e, type: 2}
   motionSlots:
     _serializedList:
     - Key:

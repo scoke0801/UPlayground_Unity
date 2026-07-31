@@ -13,44 +13,30 @@ MonoBehaviour:
   m_Name: DoubleAxe_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 11400000, guid: 91f065285a9603b4ca92f75e5132cc32, type: 2}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: a27c64041d7c950499557675e25c68ca, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 7a2336fa5da044249b853a6d798bbf71, type: 2}
-    - Key: 10
-      Value: {fileID: 11400000, guid: 22e0f6249961612459ce98b243cc9cb8, type: 2}
-    - Key: 100
-      Value: {fileID: 11400000, guid: 39e7417cbad7a8f4794bb54d7a2d648b, type: 2}
-    - Key: 101
-      Value: {fileID: 11400000, guid: 5d09d135cfccb68498ee732cad4d9d23, type: 2}
-    - Key: 102
-      Value: {fileID: 11400000, guid: 2ace106b8e701414184a37845328d643, type: 2}
-    - Key: 103
-      Value: {fileID: 11400000, guid: ec1256b6861a62a449555d5de151cbf4, type: 2}
-    - Key: 104
-      Value: {fileID: 11400000, guid: 294be61f04fc06f448474a7df00ca660, type: 2}
-    - Key: 105
-      Value: {fileID: 11400000, guid: e9cad7c12858f9742b50b16141003a65, type: 2}
-    - Key: 106
-      Value: {fileID: 11400000, guid: c34d2e1355412fb4db3297f84f8c8ee3, type: 2}
-    - Key: 107
-      Value: {fileID: 11400000, guid: d276a74827b337c4b9aa910579ea8328, type: 2}
-    - Key: 108
-      Value: {fileID: 11400000, guid: b055829fef7a98241912533d4452bc27, type: 2}
-    - Key: 500
-      Value: {fileID: 11400000, guid: db44fa6012cb0f44bb3739fb0de7fdd8, type: 2}
-    - Key: 501
-      Value: {fileID: 11400000, guid: 80876ad1cfaac7a4ba413b8bac2ecda5, type: 2}
-    - Key: 502
-      Value: {fileID: 11400000, guid: 43a8f4ea5df5a984db6fa795b37c489e, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 8242f68a9672d964482dbf437a48e370, type: 2}
-    - Key: 840
-      Value: {fileID: 11400000, guid: 59c08b55527c2da4fadc6735de5b40a4, type: 2}
-    - Key: 900
-      Value: {fileID: 11400000, guid: 9ddfce1cd2490b544b00427b5cb63754, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Dark
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Fire
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Light
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Nature
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        abilityId: Ability.ElementalImbue.Water
+        variantId: Default
+      Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
   motionSlots:
     _serializedList:
     - Key:

@@ -13,40 +13,26 @@ MonoBehaviour:
   m_Name: Griffin_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: b2e462b6f67349744a3936b8b3e12bcb, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 08034e0538c84c4439ca82f90457d750, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: e77eef10346ce4a4183e064a628bfb97, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: e77eef10346ce4a4183e064a628bfb97, type: 2}
-    - Key: 20
-      Value: {fileID: 11400000, guid: c29339d2f7019954992a9fa3ea71417c, type: 2}
-    - Key: 21
-      Value: {fileID: 11400000, guid: 4a1f9267c6630b44b85e033e94d980bf, type: 2}
-    - Key: 22
-      Value: {fileID: 11400000, guid: f58e67104d1612a4eaf8039c7564972e, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: c10329bde4040f943b528c8b32401fc1, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 15c4c68a28c77b74e9954cf609d380bd, type: 2}
-    - Key: 500
-      Value: {fileID: 11400000, guid: 7b69c947152ad464abfd5f94c9cca0f4, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.griffin.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: f9c202542d5507e42aec5fe12538a90e, type: 2}
-    - Key: 29
-      Value: {fileID: 11400000, guid: 4a1f9267c6630b44b85e033e94d980bf, type: 2}
-    - Key: 25
-      Value: {fileID: 11400000, guid: c29339d2f7019954992a9fa3ea71417c, type: 2}
-    - Key: 26
-      Value: {fileID: 11400000, guid: 060a342ffec86fd4ba99226d0591e310, type: 2}
-    - Key: 27
-      Value: {fileID: 11400000, guid: f58e67104d1612a4eaf8039c7564972e, type: 2}
-    - Key: 28
+    - Key:
+        abilityId: Ability.Actor.griffin.Attack_2.02
+        variantId: Default
+      Value: {fileID: 11400000, guid: 88840b41980a9084798c4148507eaf19, type: 2}
+    - Key:
+        abilityId: Ability.Actor.griffin.Attack_3.03
+        variantId: Default
       Value: {fileID: 11400000, guid: 581a04dccfcb5474181860bc4c439d7a, type: 2}
+    - Key:
+        abilityId: Ability.Actor.griffin.Fly_Move.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 060a342ffec86fd4ba99226d0591e310, type: 2}
   motionSlots:
     _serializedList:
     - Key:

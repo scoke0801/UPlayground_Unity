@@ -105,15 +105,25 @@ namespace UPlayGround.Animation
                 return false;
             }
 
+            int nextBaseLayerIndex = motionSet.baseLayerIndex > 0
+                ? motionSet.baseLayerIndex
+                : Mathf.Max(0, layerIndex);
+            float resolvedFade = Mathf.Max(0f, fadeDuration);
             if (IsPlaying)
-                Stop(MotionSetEndReason.Interrupted);
+            {
+                bool preserveBaseLayer =
+                    resolvedFade > 0f &&
+                    _baseLayerIndex == nextBaseLayerIndex;
+                StopInternal(
+                    MotionSetEndReason.Interrupted,
+                    resolvedFade,
+                    preserveBaseLayer);
+            }
 
             _sourceAsset = sourceAsset;
             _motionSet = motionSet;
             _motionIndex = -1;
-            _baseLayerIndex = motionSet.baseLayerIndex > 0
-                ? motionSet.baseLayerIndex
-                : Mathf.Max(0, layerIndex);
+            _baseLayerIndex = nextBaseLayerIndex;
             _globalTime = 0f;
             _lastLocalTime = -0.001f;
             _currentSectionId = null;
@@ -123,8 +133,8 @@ namespace UPlayGround.Animation
 
             _eventExecutor?.PlayMotionSet(motionSet);
             if (motionSet.GetMotionAtTime(0f, out int initialIndex, out _))
-                PlayMotionAtIndex(initialIndex, Mathf.Max(0f, fadeDuration));
-            StartLayers(Mathf.Max(0f, fadeDuration));
+                PlayMotionAtIndex(initialIndex, resolvedFade);
+            StartLayers(resolvedFade);
             if (_currentState == null && _layerPlaybacks.Count == 0)
             {
                 Stop(MotionSetEndReason.Invalidated);
@@ -202,7 +212,7 @@ namespace UPlayGround.Animation
                     ProcessControlEvents(_lastLocalTime, oldMotion.Duration);
 
                 _motionIndex = newIndex;
-                PlayMotionAtIndex(newIndex, 0f);
+                PlayMotionAtIndex(newIndex, _motionSet.InternalBlendDuration);
                 ApplyCurrentPlaybackSpeed();
                 _motionSet.GetMotionAtTime(_globalTime, out _, out localTime);
                 _lastLocalTime = 0f;
@@ -235,12 +245,21 @@ namespace UPlayGround.Animation
 
         public void Stop(MotionSetEndReason reason = MotionSetEndReason.Stopped, float fadeDuration = 0f)
         {
+            StopInternal(reason, fadeDuration, false);
+        }
+
+        private void StopInternal(
+            MotionSetEndReason reason,
+            float fadeDuration,
+            bool preserveBaseLayer)
+        {
             if (!IsPlaying && _motionSet == null)
                 return;
 
             MotionSet endedMotionSet = _motionSet;
             _eventExecutor?.Stop();
-            FadeOrStopLayer(_baseLayerIndex, fadeDuration);
+            if (!preserveBaseLayer)
+                FadeOrStopLayer(_baseLayerIndex, fadeDuration);
             StopLayers(fadeDuration);
 
             IsPlaying = false;
@@ -688,7 +707,13 @@ namespace UPlayGround.Animation
             if (!playback.Data.GetMotionAtTime(time, out int index, out float localTime))
                 return;
             if (index != playback.MotionIndex || playback.State == null)
-                PlayLayerMotion(playback, index, 0f);
+            {
+                // MotionLayer에는 자체 블렌드 설정이 없으므로 소유 MotionSet 값을 쓴다.
+                float blendDuration = playback.MotionIndex >= 0
+                    ? _motionSet.InternalBlendDuration
+                    : 0f;
+                PlayLayerMotion(playback, index, blendDuration);
+            }
             if (playback.State == null)
                 return;
 

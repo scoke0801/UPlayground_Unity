@@ -322,7 +322,9 @@ namespace UPlayGround.Tool.Editor.Balance
 
                 result.SkillBreakdowns.Add(new BalanceSkillBreakdown
                 {
-                    Name = skill.baseInfo.motionRef != null ? skill.baseInfo.motionRef.name : "-",
+                    Name = skill.baseInfo.motionKey.IsValid
+                        ? skill.baseInfo.motionKey.ToString()
+                        : "-",
                     Damage = expectedDamage,
                     PoiseDamage = rawPoise,
                     Weight = skill.selectionWeight,

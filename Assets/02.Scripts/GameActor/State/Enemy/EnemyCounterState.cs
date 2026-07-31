@@ -70,7 +70,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            var motion = _skill.baseInfo.ResolveMotion(WeaponType.NoWeapon);
+            var motion = _combat.CurrentMotionAsset;
             var animState = motion != null ? gameActor.Animator.PlayMotion(motion, 0.05f) : null;
             if (animState != null)
                 animState.OwnedEvents.OnEnd = OnCounterEnd;

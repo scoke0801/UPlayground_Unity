@@ -201,9 +201,11 @@ namespace UPlayGround.Animation.Editor
 
         private void Resolve(IMotionEditorContext context)
         {
+            // 편집 중인 MotionSet을 소유한 액터가 있으면 그 범위로 키를 해석한다.
             _resolved = CombatTimelineUtility.ResolveAttacks(
                 _abilitySet,
-                context?.Asset);
+                context?.Asset,
+                context?.Catalog?.SourceAsset as ActorAnimationMotionSet);
             _attackIndex = Mathf.Clamp(
                 _attackIndex,
                 0,

@@ -270,6 +270,12 @@ namespace UPlayGround.Animation
         public MotionTimeStretchSettings timeStretch = new MotionTimeStretchSettings();
         public List<Motion> motions = new List<Motion>();
 
+        [Min(0f)]
+        [Tooltip("같은 MotionSet 안에서 다음 AnimationClip으로 넘어갈 때 적용할 크로스페이드 시간입니다.")]
+        public float internalBlendDuration = 0.1f;
+
+        public float InternalBlendDuration => Mathf.Max(0f, internalBlendDuration);
+
         // Base 타임라인(motions)을 재생할 Animancer 레이어 인덱스.
         // 0 = 레이어0(디렉터, 기존과 동일). 1 이상이면 Base 타임라인 전체를 해당 레이어에
         // 오버레이로 재생한다. 마스크(액터 _upperBodyMask)가 그 레이어에 있으면 마스크된 부위만

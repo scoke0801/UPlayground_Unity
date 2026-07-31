@@ -12,16 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerWhipAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
-  executionId: Ability.Player.PlayerWhipAttackData.Ability.Skill_3
-  motionRef: {fileID: 11400000, guid: d9bbeec9ed5900a40b7d2821c7f31e1a, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: d9bbeec9ed5900a40b7d2821c7f31e1a, type: 2}
+      motionKey:
+        abilityId: Ability.Player.PlayerWhipAttackData.Ability
+        variantId: Skill_3
       attackType: 0
       hitPhases:
       - damage: 41
         poiseDamage: 30
         breakDamage: 20
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -85,6 +86,7 @@ MonoBehaviour:
       - damage: 43
         poiseDamage: 32
         breakDamage: 21
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -148,6 +150,7 @@ MonoBehaviour:
       - damage: 46
         poiseDamage: 34
         breakDamage: 22
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -211,6 +214,7 @@ MonoBehaviour:
       - damage: 48
         poiseDamage: 36
         breakDamage: 24
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -274,6 +278,7 @@ MonoBehaviour:
       - damage: 51
         poiseDamage: 38
         breakDamage: 25
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -356,6 +361,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -371,16 +386,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerWhipAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
-  executionId: Ability.Player.PlayerWhipAttackData.Ability.Default
-  motionRef: {fileID: 11400000, guid: 727045f802d17a94aa8837cb8f946845, type: 2}
   attackInfo:
     baseInfo:
-      motionRef: {fileID: 11400000, guid: 727045f802d17a94aa8837cb8f946845, type: 2}
+      motionKey:
+        abilityId: Ability.Player.PlayerWhipAttackData.Ability
+        variantId: Default
       attackType: 0
       hitPhases:
       - damage: 32
         poiseDamage: 30
         breakDamage: 20
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -444,6 +460,7 @@ MonoBehaviour:
       - damage: 34
         poiseDamage: 32
         breakDamage: 21
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -507,6 +524,7 @@ MonoBehaviour:
       - damage: 36
         poiseDamage: 34
         breakDamage: 22
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -570,6 +588,7 @@ MonoBehaviour:
       - damage: 38
         poiseDamage: 36
         breakDamage: 24
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -633,6 +652,7 @@ MonoBehaviour:
       - damage: 40
         poiseDamage: 38
         breakDamage: 25
+        projectileDefinition: {fileID: 0}
         reactionType: 2
         reactionDuration: 0
         forceReaction: 0
@@ -715,6 +735,16 @@ MonoBehaviour:
     isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 1
+    aerialMovement:
+      minimumEntryUpwardSpeed: 0
+      startupGravityScale: 1
+      startupDuration: 0.1
+      apexGravityScale: 1
+      apexVelocityThreshold: 0
+      maximumApexDuration: 0
+      recoveryGravityScale: 1
+      terminalFallSpeed: 0
+      horizontalRootMotionInfluence: 0
     conditionGroup:
       conditionOperator: 0
       conditions: []
@@ -731,7 +761,7 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Ability
   m_EditorClassIdentifier: 
   abilityId: Ability.Player.PlayerWhipAttackData.Ability
-  schemaVersion: 1
+  editorMemo: 
   presentation:
     displayName: Ability
     description: 
@@ -741,16 +771,21 @@ MonoBehaviour:
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
-  abilityTagIds: 
+  abilityTagIds: []
   activation:
-    requiredTagIds: 
-    blockedTagIds: 
-    executionGrantedTagIds: 
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
     minDistance: 0
     maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
   cost:
     resourceType: 0
     policy: 0
@@ -758,6 +793,8 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 3
     cooldownGroupId: Cooldown.Player.GA_PlayerWhipAttackData_Ability
+    maxCharges: 1
+    globalLockSeconds: 0
   concurrency: 2
   taskGraph: {fileID: 11400000, guid: f95abf4303655e8449d40cb7d0bd2d16, type: 2}
   variants:
@@ -767,8 +804,8 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: -5862962735335101421}
     targetEffects: []
     ownerEffects: []
@@ -778,21 +815,17 @@ MonoBehaviour:
       groundCondition: 0
       minResource: 0
       requiresFullResource: 0
-      requiredTagIds: 
-      blockedTagIds: 
+      requiredTagIds: []
+      blockedTagIds: []
     executionPayload: {fileID: -8608436370543091756}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
   endEffects: []
-  cues:
-    startCueId: 
-    failureCueId: 
-    endCueId: 
-    cooldownReadyCueId: 
   persistence:
     swapPolicy: 0
     saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
   balance:
     expectedDamage: 0
     expectedDuration: 0

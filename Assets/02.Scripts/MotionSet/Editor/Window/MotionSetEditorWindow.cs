@@ -1144,6 +1144,11 @@ namespace UPlayGround.Animation.Editor
 
             if (_currentMotionIndex != index || _previewState == null)
             {
+                bool blendFromPrevious =
+                    _isPlaying &&
+                    !_isPaused &&
+                    _currentMotionIndex >= 0 &&
+                    _currentMotionIndex != index;
                 _currentMotionIndex = index;
                 int layerIndex = Mathf.Max(0, set.baseLayerIndex);
                 AnimancerLayer layer = animancer.Layers[layerIndex];
@@ -1161,7 +1166,9 @@ namespace UPlayGround.Animation.Editor
                 if (mask != null)
                     layer.Mask = mask;
                 layer.Weight = 1f;
-                _previewState = layer.Play(motion.motionClip, 0f);
+                _previewState = layer.Play(
+                    motion.motionClip,
+                    blendFromPrevious ? set.InternalBlendDuration : 0f);
             }
 
             float motionSpeed = motion.playbackSpeed > 0f
@@ -1172,7 +1179,8 @@ namespace UPlayGround.Animation.Editor
             _previewState.Speed = _isPlaying && !_isPaused
                 ? motionSpeed * _playbackSpeed
                 : 0f;
-            _previewState.Weight = 1f;
+            if (!_isPlaying || _isPaused)
+                _previewState.Weight = 1f;
             SyncOverlayBaseSpeed(_previewState.Speed);
             _drawer.cursorTime = _playbackTime;
         }

@@ -154,11 +154,13 @@ namespace UPlayGround.Components
                 null,
                 out AbilityVariantDefinition variant);
             if (result != AbilityActivationResult.Success
-                || !UPlayGroundAbilityPayloadResolver.TryResolve(
+                || !UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
                     variant,
-                    _equipment != null ? _equipment.GetMainWeaponType() : WeaponType.NoWeapon,
-                    out motionAsset,
-                    out attackInfo))
+                    out attackInfo)
+                || !ActorAbilityMotionResolver.TryResolve(
+                    _playerActor,
+                    attackInfo,
+                    out motionAsset))
                 return false;
 
             return attackInfo?.baseInfo != null && motionAsset != null;
@@ -166,8 +168,12 @@ namespace UPlayGround.Components
 
         private MotionSetAsset ResolveAttackMotion(AbilityAttackInfo attackInfo)
         {
-            return attackInfo?.baseInfo?.ResolveMotion(
-                _equipment != null ? _equipment.GetMainWeaponType() : WeaponType.NoWeapon);
+            return ActorAbilityMotionResolver.TryResolve(
+                _playerActor,
+                attackInfo,
+                out MotionSetAsset motionAsset)
+                ? motionAsset
+                : null;
         }
 
         private bool IsSkillUnlocked(int skillIndex)

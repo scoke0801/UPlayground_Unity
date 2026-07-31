@@ -28,7 +28,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
     public static class AbilityMotionAnalyzer
     {
         public static AbilityMotionReport Analyze(
-            UPlayGroundMotionAbilityPayloadSO payload)
+            UPlayGroundMotionAbilityPayloadSO payload,
+            ActorAnimationMotionSet motionOwner = null)
         {
             var report = new AbilityMotionReport();
             if (payload?.attackInfo?.baseInfo == null)
@@ -40,16 +41,34 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 return report;
             }
 
-            MotionReferenceSO reference =
-                payload.attackInfo.baseInfo.motionRef;
-            report.Motion = reference != null ? reference.defaultMotion : null;
+            AbilityMotionKey motionKey =
+                payload.attackInfo.baseInfo.motionKey;
+            if (motionOwner != null)
+            {
+                report.Motion = motionOwner.GetAbilityMotionAsset(motionKey);
+            }
+            else
+            {
+                // 같은 키가 무기·액터별로 다른 모션을 가리키는 것은 정상 구성이다.
+                // 모호하다고 분석을 포기하면 플레이어 Ability 대부분이 분석 불가가 되므로,
+                // 대표 모션으로 진행하고 대표를 썼다는 사실만 알린다.
+                var index = new AbilityMotionIndex();
+                report.Motion = index.ResolveRepresentative(motionKey);
+                if (index.IsAmbiguous(motionKey))
+                    report.Issues.Add(Warning(
+                        "MOTION.AMBIGUOUS",
+                        $"Motion Key '{motionKey}'가 여러 액터/무기 세트에서 서로 다른 "
+                        + "모션으로 해석됩니다. 대표 모션으로 분석했으므로 HitPhase 수는 "
+                        + "Motion Owner를 지정해 다시 확인하세요.",
+                        payload));
+            }
+
             if (report.Motion?.motionSet == null)
             {
                 report.Issues.Add(Error(
                     "MOTION.DEFAULT_MISSING",
-                    "기본 Motion을 해석할 수 없습니다. 무기 타입을 모르는 상태에서 "
-                    + "첫 override를 임의 선택하지 않습니다.",
-                    reference));
+                    $"Motion Key '{motionKey}'를 해석할 액터 MotionSet 매핑이 없습니다.",
+                    payload));
                 return report;
             }
 
@@ -134,6 +153,12 @@ namespace UPlayGround.Data.Editor.Ability.Production
             string message,
             UnityEngine.Object context) =>
             new(code, AbilityProductionSeverity.Error, message, context);
+
+        private static AbilityProductionIssue Warning(
+            string code,
+            string message,
+            UnityEngine.Object context) =>
+            new(code, AbilityProductionSeverity.Warning, message, context);
     }
 
     public sealed class AbilityDependencyReport
@@ -228,6 +253,8 @@ namespace UPlayGround.Data.Editor.Ability.Production
                     plan,
                     "CLONE.PAYLOAD",
                     "원본의 기본 Variant에서 Motion Payload를 찾지 못했습니다.");
+            else
+                CheckSinglePayload(plan);
             if (string.IsNullOrWhiteSpace(plan.AbilityId))
                 AddError(plan, "CLONE.ID", "새 abilityId가 필요합니다.");
             else
@@ -255,6 +282,12 @@ namespace UPlayGround.Data.Editor.Ability.Production
             if (!latest.CanApply)
                 return Failure("Preview 이후 경로 또는 원본 상태가 변경되었습니다.");
 
+            // 매핑 복제는 기존 ActorAnimationMotionSet 여러 개를 건드린다.
+            // 실패 시 생성 에셋 삭제만으로는 되돌릴 수 없으므로 Undo group으로 함께 묶는다.
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+            Undo.SetCurrentGroupName($"Ability 복제: {plan.AbilityId}");
+
             try
             {
                 EnsureFolder(System.IO.Path.GetDirectoryName(plan.AbilityPath)
@@ -265,6 +298,13 @@ namespace UPlayGround.Data.Editor.Ability.Production
                     UnityEngine.Object.Instantiate(plan.SourcePayload);
                 payload.name =
                     System.IO.Path.GetFileNameWithoutExtension(plan.PayloadPath);
+                AbilityMotionKey sourceMotionKey =
+                    plan.SourcePayload.attackInfo.baseInfo.motionKey;
+                string sourceVariantId =
+                    FindVariantId(plan.Source, plan.SourcePayload);
+                AbilityMotionKey clonedMotionKey =
+                    new(plan.AbilityId, sourceVariantId);
+                payload.attackInfo.baseInfo.motionKey = clonedMotionKey;
                 AssetDatabase.CreateAsset(payload, plan.PayloadPath);
 
                 GameplayAbilitySO ability =
@@ -278,25 +318,68 @@ namespace UPlayGround.Data.Editor.Ability.Production
                         == plan.SourcePayload)
                         ability.variants[i].executionPayload = payload;
                 }
+
                 AssetDatabase.CreateAsset(ability, plan.AbilityPath);
+                int mappedOwners =
+                    CloneMotionMappings(sourceMotionKey, clonedMotionKey);
                 AssetDatabase.SaveAssets();
+                Undo.CollapseUndoOperations(undoGroup);
                 Selection.activeObject = ability;
                 return new AbilityProductionResult
                 {
                     Success = true,
                     Message = "Ability와 Motion Payload를 안전 복제했습니다. "
-                        + "TaskGraph, MotionReference, Effect는 명시적으로 공유됩니다.",
+                        + "TaskGraph와 Effect는 공유하고 액터 Motion Key 매핑은 "
+                        + $"{mappedOwners}개 MotionSet에 복제했습니다.",
                     Ability = ability,
                     Payload = payload,
                 };
             }
             catch (Exception exception)
             {
+                // 매핑 변경을 되돌린 뒤 생성 에셋을 지운다. 순서가 바뀌면 Undo가
+                // 이미 삭제된 에셋을 참조하게 된다.
+                try
+                {
+                    Undo.RevertAllDownToGroup(undoGroup);
+                }
+                catch (Exception revertException)
+                {
+                    UnityEngine.Debug.LogException(revertException);
+                }
+
                 if (AssetDatabase.LoadMainAssetAtPath(plan.AbilityPath) != null)
                     AssetDatabase.DeleteAsset(plan.AbilityPath);
                 if (AssetDatabase.LoadMainAssetAtPath(plan.PayloadPath) != null)
                     AssetDatabase.DeleteAsset(plan.PayloadPath);
+                AssetDatabase.SaveAssets();
                 return Failure($"Ability 복제 실패: {exception.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 복제는 Payload 1개만 새로 만든다. 다른 Payload를 쓰는 Variant가 남으면 그 Variant의
+        /// motionKey가 원본 abilityId를 유지해 AbilityDataValidator의 ID 일치 검사에 걸린다.
+        /// 깨진 에셋을 만들기 전에 계획 단계에서 막는다.
+        /// </summary>
+        private static void CheckSinglePayload(AbilityClonePlan plan)
+        {
+            List<AbilityVariantDefinition> variants = plan.Source?.variants;
+            if (variants == null)
+                return;
+            for (int i = 0; i < variants.Count; i++)
+            {
+                AbilityVariantDefinition variant = variants[i];
+                if (variant?.executionPayload == null
+                    || variant.executionPayload == plan.SourcePayload)
+                    continue;
+                AddError(
+                    plan,
+                    "CLONE.MULTI_PAYLOAD",
+                    $"Variant '{variant.variantId}'가 다른 Payload "
+                    + $"'{variant.executionPayload.name}'를 사용합니다. "
+                    + "Variant가 여러 Payload를 쓰는 Ability는 안전 복제할 수 없습니다.");
+                return;
             }
         }
 
@@ -310,6 +393,40 @@ namespace UPlayGround.Data.Editor.Ability.Production
                     is UPlayGroundMotionAbilityPayloadSO payload)
                     return payload;
             return null;
+        }
+
+        private static string FindVariantId(
+            GameplayAbilitySO ability,
+            UPlayGroundMotionAbilityPayloadSO payload)
+        {
+            if (ability?.variants != null)
+                for (int i = 0; i < ability.variants.Count; i++)
+                    if (ability.variants[i]?.executionPayload == payload)
+                        return ability.variants[i].variantId;
+            return AbilityAssetFactory.DefaultVariantId;
+        }
+
+        /// <summary>
+        /// 원본 키를 자기 abilityMotions에 직접 가진 MotionSet에만 새 키를 추가한다.
+        /// GetAbilityMotionAsset은 fallbackMotionSet까지 재귀하므로, 그 결과로 판단하면
+        /// fallback에서 상속만 받던 자식 세트에도 자기 소유 엔트리가 생겨(평탄화) 이후
+        /// fallback의 모션을 교체해도 자식이 옛 모션에 고정된다.
+        /// </summary>
+        private static int CloneMotionMappings(
+            AbilityMotionKey source,
+            AbilityMotionKey destination)
+        {
+            var index = new AbilityMotionIndex();
+            List<ActorAnimationMotionSet> owners = index.FindDirectOwners(source);
+            for (int i = 0; i < owners.Count; i++)
+            {
+                ActorAnimationMotionSet owner = owners[i];
+                Undo.RecordObject(owner, "Ability Motion 매핑 복제");
+                owner.abilityMotions[destination] =
+                    owner.abilityMotions[source];
+                EditorUtility.SetDirty(owner);
+            }
+            return owners.Count;
         }
 
         private static void CheckConflict(AbilityClonePlan plan, string path)

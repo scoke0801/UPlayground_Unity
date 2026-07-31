@@ -13,21 +13,13 @@ MonoBehaviour:
   m_Name: SpiderMinion_MotionAsset
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: 9d1a3f13905768a43911c5a63372732d, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 9cff23db8edbcb349b114055aa413236, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 9cff23db8edbcb349b114055aa413236, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: 9cff23db8edbcb349b114055aa413236, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 083b85b5e82938a4e865e1727a61cc9a, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 94ff052fd95675145bd51594357da4e0, type: 2}
-    - Key: 100
+    - Key:
+        abilityId: Ability.Actor.Spider_Minion.Attack_1.01
+        variantId: Default
       Value: {fileID: 11400000, guid: dd445430000983c4e907e33bee248602, type: 2}
   motionSlots:
     _serializedList:

@@ -524,12 +524,14 @@ namespace UPlayGround.Ability.Tests
             ability.taskGraph = AbilityTaskGraphSO.CreateTransient(task);
             var payload =
                 ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
-            var motionAsset = ScriptableObject.CreateInstance<MotionSetAsset>();
-            var motionRef = ScriptableObject.CreateInstance<MotionReferenceSO>();
-            motionRef.defaultMotion = motionAsset;
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase { motionRef = motionRef },
+                baseInfo = new AttackInfoBase
+                {
+                    motionKey = new AbilityMotionKey(
+                        ability.abilityId,
+                        "Ground"),
+                },
             };
             ability.variants.Add(new AbilityVariantDefinition
             {

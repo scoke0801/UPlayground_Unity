@@ -1,6 +1,5 @@
 using UPlayGround.Data.Ability;
-using UPlayGround.Animation;
-using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Actor.Animation;
 using AbilityAttackInfo = global::UPlayGround.Data.AbilityAttackInfo;
 
 namespace UPlayGround.Ability.UPlayGround
@@ -21,19 +20,20 @@ namespace UPlayGround.Ability.UPlayGround
 
         public static bool TryResolve(
             AbilityVariantDefinition variant,
-            WeaponType weaponType,
-            out MotionSetAsset motionAsset,
+            out AbilityMotionKey motionKey,
             out AbilityAttackInfo attackInfo)
         {
-            motionAsset = null;
+            motionKey = default;
             attackInfo = null;
             if (variant?.executionPayload is not UPlayGroundMotionAbilityPayloadSO payload)
                 return false;
 
-            motionAsset = payload.ResolveMotion(weaponType);
             attackInfo = payload.attackInfo;
-            return attackInfo?.baseInfo != null && motionAsset != null;
-        }
+            if (attackInfo?.baseInfo == null)
+                return false;
 
+            motionKey = attackInfo.baseInfo.motionKey;
+            return motionKey.IsValid;
+        }
     }
 }

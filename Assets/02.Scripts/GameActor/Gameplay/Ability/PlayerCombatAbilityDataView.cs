@@ -32,7 +32,7 @@ namespace UPlayGround.Gameplay.Ability
         public AbilityAttackInfo entryAttackVsAirborne;
         public AbilityAttackInfo swapEvadeCounterAttack;
         public AbilityAttackInfo swapSpecialAttack;
-        public MotionReferenceSO chargeMotionRef;
+        public AbilityMotionKey chargeMotionKey;
         public PlayerInterruptAction chargeInterruptActions;
         public string fullChargeVfxKey;
         public ActorSocketType fullChargeVfxSocket;
@@ -83,8 +83,8 @@ namespace UPlayGround.Gameplay.Ability
                     AbilityAttackInfo attack = Resolve(
                         set.ResolveEffectiveChargeAbility(charge.stages[i]));
                     if (attack?.baseInfo == null) continue;
-                    if (view.chargeMotionRef == null)
-                        view.chargeMotionRef = attack.baseInfo.motionRef;
+                    if (!view.chargeMotionKey.IsValid)
+                        view.chargeMotionKey = attack.baseInfo.motionKey;
                     view.chargeStages.Add(new ChargeStageData
                     {
                         hitPhases = attack.baseInfo.hitPhases,

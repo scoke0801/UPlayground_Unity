@@ -13,24 +13,14 @@ MonoBehaviour:
   m_Name: Dryad_MotionSet
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
-  motionSets:
+  attackWeaponType: 0
+  attackAbilitySet: {fileID: 0}
+  abilityMotions:
     _serializedList:
-    - Key: 1
-      Value: {fileID: 11400000, guid: b1d39ab0014d0bc43890d656956810aa, type: 2}
-    - Key: 2
-      Value: {fileID: 11400000, guid: 1c7ae5f7aa39d5040b7b0253880979b3, type: 2}
-    - Key: 3
-      Value: {fileID: 11400000, guid: 1c7ae5f7aa39d5040b7b0253880979b3, type: 2}
-    - Key: 4
-      Value: {fileID: 11400000, guid: 1c7ae5f7aa39d5040b7b0253880979b3, type: 2}
-    - Key: 700
-      Value: {fileID: 11400000, guid: 83be77405f3477c4290193ee1a7f1d1d, type: 2}
-    - Key: 800
-      Value: {fileID: 11400000, guid: 4d4c3962bfbd086409deb6acb34e82d3, type: 2}
-    - Key: 500
-      Value: {fileID: 11400000, guid: 2acadb8b7d6aeda4eb35a8cef2984269, type: 2}
-    - Key: 501
-      Value: {fileID: 11400000, guid: a76a6331583583442955353bb09c5d51, type: 2}
+    - Key:
+        abilityId: Ability.Actor.dryad.Fly_Move.04
+        variantId: Default
+      Value: {fileID: 11400000, guid: 060a342ffec86fd4ba99226d0591e310, type: 2}
   motionSlots:
     _serializedList:
     - Key:

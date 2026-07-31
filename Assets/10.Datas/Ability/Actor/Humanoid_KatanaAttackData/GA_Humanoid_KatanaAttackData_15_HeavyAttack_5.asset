@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_5.15
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.5.15
       attackType: 0
       hitPhases:
       - damage: 9
@@ -194,7 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_KatanaAttackData_15_HeavyAttack_5
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_5.15
+  abilityId: Actor.Humanoid.KatanaAttackData.HeavyAttack.5.15
   editorMemo: 
   presentation:
     displayName: HeavyAttack_5

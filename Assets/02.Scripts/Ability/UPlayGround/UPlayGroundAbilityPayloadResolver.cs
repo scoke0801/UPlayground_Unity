@@ -20,7 +20,7 @@ namespace UPlayGround.Ability.UPlayGround
 
         public static bool TryResolve(
             AbilityVariantDefinition variant,
-            out AbilityMotionKey motionKey,
+            out MotionKey motionKey,
             out AbilityAttackInfo attackInfo)
         {
             motionKey = default;

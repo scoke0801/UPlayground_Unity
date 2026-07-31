@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerSwordShieldAttackData_Counter
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Counter
+  abilityId: Player.SwordShield.Counter
   editorMemo: 
   presentation:
     displayName: PlayerSwordShieldAttackData Counter
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Counter
-        variantId: Default
+        value: SwordShield.Counter
       attackType: 0
       hitPhases:
       - damage: 82

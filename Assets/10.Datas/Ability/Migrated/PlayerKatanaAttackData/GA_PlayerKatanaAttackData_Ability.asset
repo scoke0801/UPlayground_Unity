@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_3
+        value: Katana.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 111
@@ -133,8 +132,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_4
+        value: Katana.Ability.Skill.4
       attackType: 0
       hitPhases:
       - damage: 64
@@ -315,8 +313,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_6
+        value: Katana.Ability.Skill.6
       attackType: 0
       hitPhases:
       - damage: 56
@@ -625,8 +622,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Default
+        value: Katana.Ability
       attackType: 0
       hitPhases:
       - damage: 92
@@ -740,7 +736,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerKatanaAttackData.Ability
+  abilityId: Player.Katana.Ability
   editorMemo: 
   presentation:
     displayName: Ability
@@ -859,8 +855,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_5
+        value: Katana.Ability.Skill.5
       attackType: 0
       hitPhases:
       - damage: 42

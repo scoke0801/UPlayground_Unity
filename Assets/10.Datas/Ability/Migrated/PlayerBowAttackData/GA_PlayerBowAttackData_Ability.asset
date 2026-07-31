@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Skill_4
+        value: Bow.Ability.Skill.4
       attackType: 0
       hitPhases:
       - damage: 155
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerBowAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerBowAttackData.Ability
+  abilityId: Player.Bow.Ability
   editorMemo: 
   presentation:
     displayName: Ability
@@ -238,8 +237,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Default
+        value: Bow.Ability
       attackType: 0
       hitPhases:
       - damage: 142
@@ -356,8 +354,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Skill_5
+        value: Bow.Ability.Skill.5
       attackType: 0
       hitPhases:
       - damage: 210
@@ -474,8 +471,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Skill_3
+        value: Bow.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 148

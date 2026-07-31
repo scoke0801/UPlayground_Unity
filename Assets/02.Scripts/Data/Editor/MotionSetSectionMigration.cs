@@ -332,7 +332,7 @@ namespace UPlayGround.Data.Editor
                 if (motionSet?.abilityMotions == null)
                     continue;
 
-                foreach (KeyValuePair<AbilityMotionKey, MotionSetAsset> pair
+                foreach (KeyValuePair<MotionKey, MotionSetAsset> pair
                          in motionSet.abilityMotions)
                 {
                     AddAbilityMotion(

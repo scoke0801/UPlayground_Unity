@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerBowAttackData.Combat.Counter
-        variantId: Default
+        value: Bow.Counter
       attackType: 0
       hitPhases:
       - damage: 56
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerBowAttackData_Counter
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerBowAttackData.Combat.Counter
+  abilityId: Player.Bow.Counter
   editorMemo: 
   presentation:
     displayName: PlayerBowAttackData Counter

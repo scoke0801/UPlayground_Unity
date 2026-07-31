@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_5.14
-        variantId: Default
+        value: Monster.Bokusei.HeavyAttack.5.14
       attackType: 0
       hitPhases:
       - damage: 15
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Monster_Bokusei_14_HeavyAttack_5
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Monster_Bokusei.HeavyAttack_5.14
+  abilityId: Actor.Monster.Bokusei.HeavyAttack.5.14
   editorMemo: 
   presentation:
     displayName: HeavyAttack_5

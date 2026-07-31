@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_WhipAttackData_13_Skill_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_WhipAttackData.Skill_2.13
+  abilityId: Actor.Humanoid.WhipAttackData.Skill.2.13
   editorMemo: 
   presentation:
     displayName: Skill_2
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_WhipAttackData.Skill_2.13
-        variantId: Default
+        value: Humanoid.WhipAttackData.Skill.2.13
       attackType: 0
       hitPhases:
       - damage: 5

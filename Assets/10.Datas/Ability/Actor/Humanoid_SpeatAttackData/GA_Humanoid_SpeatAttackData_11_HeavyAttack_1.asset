@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_1.11
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.1.11
       attackType: 0
       hitPhases:
       - damage: 13
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_SpeatAttackData_11_HeavyAttack_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_1.11
+  abilityId: Actor.Humanoid.SpeatAttackData.HeavyAttack.1.11
   editorMemo: 
   presentation:
     displayName: HeavyAttack_1

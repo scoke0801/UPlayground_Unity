@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Entry
-        variantId: Default
+        value: SwordShield.Entry
       attackType: 0
       hitPhases:
       - damage: 42
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerSwordShieldAttackData_Entry
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Entry
+  abilityId: Player.SwordShield.Entry
   editorMemo: 
   presentation:
     displayName: PlayerSwordShieldAttackData Entry

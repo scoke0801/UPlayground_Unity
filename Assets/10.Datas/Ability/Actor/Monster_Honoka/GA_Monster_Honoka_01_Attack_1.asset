@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Monster_Honoka_01_Attack_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Monster_Honoka.Attack_1.01
+  abilityId: Actor.Monster.Honoka.Attack.1.01
   editorMemo: 
   presentation:
     displayName: Attack_1
@@ -88,8 +88,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_1.01
-        variantId: Default
+        value: Monster.Honoka.Attack.1.01
       attackType: 0
       hitPhases:
       - damage: 28

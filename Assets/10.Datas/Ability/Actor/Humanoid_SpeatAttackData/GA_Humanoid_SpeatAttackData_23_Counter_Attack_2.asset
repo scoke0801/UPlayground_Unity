@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Counter_Attack_2.23
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Counter.Attack.2.23
       attackType: 0
       hitPhases:
       - damage: 15
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_SpeatAttackData_23_Counter_Attack_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_SpeatAttackData.Counter_Attack_2.23
+  abilityId: Actor.Humanoid.SpeatAttackData.Counter.Attack.2.23
   editorMemo: 
   presentation:
     displayName: Counter_Attack_2

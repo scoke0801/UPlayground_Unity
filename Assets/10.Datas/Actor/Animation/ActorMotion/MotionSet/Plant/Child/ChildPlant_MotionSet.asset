@@ -18,12 +18,10 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Actor.ChildPlant.Attack_1.01
-        variantId: Default
+        value: ChildPlant.Attack.1.01
       Value: {fileID: 11400000, guid: 776d3ec8106c85d4a84804dad0848a27, type: 2}
     - Key:
-        abilityId: Ability.Actor.ChildPlant.Attack_2.02
-        variantId: Default
+        value: ChildPlant.Attack.2.02
       Value: {fileID: 11400000, guid: d4e1b15fcf27fd44ab1a5be91acc44e9, type: 2}
   motionSlots:
     _serializedList:

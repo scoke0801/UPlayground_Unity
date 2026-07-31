@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDefaultAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDefaultAttackData.Ability
+  abilityId: Player.Default.Ability
   editorMemo: 
   presentation:
     displayName: Skill1
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Ability
-        variantId: Default
+        value: Default.Ability
       attackType: 0
       hitPhases: []
     interruptActions: 0

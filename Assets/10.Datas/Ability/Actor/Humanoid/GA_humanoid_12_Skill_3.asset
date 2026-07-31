@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_humanoid_12_Skill_3
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.humanoid.Skill_3.12
+  abilityId: Actor.humanoid.Skill.3.12
   editorMemo: 
   presentation:
     displayName: Skill_3
@@ -88,8 +88,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.humanoid.Skill_3.12
-        variantId: Default
+        value: humanoid.Skill.3.12
       attackType: 0
       hitPhases:
       - damage: 10

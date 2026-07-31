@@ -13,8 +13,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
 {
     public static class AbilityAssetFactory
     {
-        /// <summary>단일 Variant로 생성하는 Ability의 기본 variantId.
-        /// motionKey의 variantId와 반드시 같아야 검증을 통과한다.</summary>
+        /// <summary>단일 Variant로 생성하는 Ability의 기본 variantId.</summary>
         public const string DefaultVariantId = "Default";
 
         public static AbilityProductionResult Apply(AbilityCreationPlan plan) =>
@@ -124,6 +123,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
                     throw new InvalidOperationException(
                         "대상 AbilitySet에 같은 Ability가 이미 연결되어 있습니다.");
                 BindAbility(request, ability);
+                request.TargetSet.RebuildRuntimeIndex();
                 EditorUtility.SetDirty(request.TargetSet);
                 ThrowIfRequested(
                     failAfterStage,
@@ -157,6 +157,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
             catch (Exception exception)
             {
                 Rollback(undoGroup, createdPaths, createdFolders);
+                request?.TargetSet?.RebuildRuntimeIndex();
                 return Failure($"Ability 생성 실패: {exception.Message}");
             }
         }
@@ -290,9 +291,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new AbilityMotionKey(
-                        request.AbilityId,
-                        DefaultVariantId),
+                    motionKey = BuildMotionKey(request),
                     attackType = recipe.AttackType,
                     hitPhases = new List<HitPhaseData> { new() },
                 },
@@ -305,6 +304,38 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 request.MaxDistance;
         }
 
+        /// <summary>
+        /// 신규 Ability의 Motion Key. 마이그레이션된 기존 494개 키가 abilityId와 같은 도메인
+        /// 표기를 쓰므로(Actor.Ent.Attack.1.01 → Ent.Attack.1.01) 같은 규약을 따른다.
+        /// MotionSetAsset 이름을 쓰면 프로젝트에 동명 모션 에셋이 대량으로 존재해
+        /// 액터를 넘나드는 모호한 키가 만들어진다.
+        /// </summary>
+        internal static MotionKey BuildMotionKey(AbilityCreationRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.AbilityId))
+                throw new InvalidOperationException(
+                    "Motion Key를 만들 Ability ID가 없습니다.");
+
+            string id = request.AbilityId.Trim();
+            foreach (string prefix in MotionKeyDroppedPrefixes)
+            {
+                if (id.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    id = id.Substring(prefix.Length);
+                    break;
+                }
+            }
+            return new MotionKey(id);
+        }
+
+        /// <summary>Motion Key에서 떨어내는 Ability ID 최상위 분류 접두사.</summary>
+        private static readonly string[] MotionKeyDroppedPrefixes =
+        {
+            "Actor.",
+            "Player.",
+            "Monster.",
+        };
+
         private static void BindMotion(
             AbilityCreationRequest request,
             UPlayGroundMotionAbilityPayloadSO payload)
@@ -313,11 +344,11 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 throw new InvalidOperationException(
                     "Actor MotionSet 또는 Motion Asset이 없습니다.");
 
-            AbilityMotionKey key = payload.attackInfo.baseInfo.motionKey;
+            MotionKey key = payload.attackInfo.baseInfo.motionKey;
             Undo.RecordObject(request.MotionOwner, "Ability Motion 연결");
             request.MotionOwner.abilityMotions ??=
                 new SerializedDictionary<
-                    AbilityMotionKey,
+                    MotionKey,
                     MotionSetAsset>();
             if (request.MotionOwner.abilityMotions.TryGetValue(
                     key,

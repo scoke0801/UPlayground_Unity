@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Charge_00
-        variantId: Default
+        value: Default.Charge.00
       attackType: 0
       hitPhases:
       - damage: 30
@@ -258,7 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDefaultAttackData_Charge_00
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Charge_00
+  abilityId: Player.Default.Charge.00
   editorMemo: 
   presentation:
     displayName: PlayerDefaultAttackData Charge_00

@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_02
-        variantId: Default
+        value: Katana.Heavy.02
       attackType: 0
       hitPhases:
       - damage: 69
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Heavy_02
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Heavy_02
+  abilityId: Player.Katana.Heavy.02
   editorMemo: 
   presentation:
     displayName: PlayerKatanaAttackData Heavy_02

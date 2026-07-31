@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Monster_Bokusei_19_Skill_4
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Monster_Bokusei.Skill_4.19
+  abilityId: Actor.Monster.Bokusei.Skill.4.19
   editorMemo: 
   presentation:
     displayName: Skill_4
@@ -88,8 +88,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Monster_Bokusei.Skill_4.19
-        variantId: Default
+        value: Monster.Bokusei.Skill.4.19
       attackType: 1
       hitPhases:
       - damage: 25

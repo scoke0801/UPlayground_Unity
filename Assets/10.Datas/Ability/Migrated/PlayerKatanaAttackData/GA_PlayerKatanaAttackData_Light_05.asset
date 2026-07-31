@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_05
-        variantId: Default
+        value: Katana.Light.05
       attackType: 0
       hitPhases:
       - damage: 56
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Light_05
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Light_05
+  abilityId: Player.Katana.Light.05
   editorMemo: 
   presentation:
     displayName: PlayerKatanaAttackData Light_05

@@ -56,10 +56,12 @@ namespace UPlayGround.Data.Editor.Ability
             List<CharacterPassiveDatabaseSO> passiveDatabases =
                 LoadAssetsIncludingSubAssets<CharacterPassiveDatabaseSO>();
 
+            // Motion Key 역인덱스는 프로젝트 전체 스캔이므로 전수 검증 1회당 한 번만 만든다.
+            var motionIndex = new AbilityMotionIndex();
             for (int i = 0; i < abilities.Count; i++)
             {
                 GameplayAbilitySO ability = abilities[i];
-                ValidateAbility(ability, issues);
+                ValidateAbility(ability, issues, motionIndex);
                 ValidateUniqueId(ability?.abilityId, ability, "Ability", ids, issues);
             }
 
@@ -232,9 +234,14 @@ namespace UPlayGround.Data.Editor.Ability
             return issues;
         }
 
+        /// <summary>
+        /// motionIndex는 전수 검증(ValidateAll)에서만 넘긴다. 단일 에셋 검증은 값이 바뀔 때마다
+        /// 실행되므로, 프로젝트 전체를 스캔하는 역인덱스를 여기서 만들면 입력마다 스캔이 돈다.
+        /// </summary>
         private static void ValidateAbility(
             GameplayAbilitySO ability,
-            List<AbilityValidationIssue> issues)
+            List<AbilityValidationIssue> issues,
+            AbilityMotionIndex motionIndex = null)
         {
             if (ability == null) return;
             if (string.IsNullOrWhiteSpace(ability.abilityId))
@@ -291,20 +298,23 @@ namespace UPlayGround.Data.Editor.Ability
                             $"Variant '{variant.variantId}'의 공격 정보가 없습니다.", issues);
                     else
                     {
-                        AbilityMotionKey expected =
-                            AbilityMotionKey.From(ability, variant);
-                        AbilityMotionKey actual =
+                        MotionKey actual =
                             payload.attackInfo.baseInfo.motionKey;
                         if (!actual.IsValid)
                             Error(
                                 ability,
                                 $"Variant '{variant.variantId}'의 Motion Key가 없습니다.",
                                 issues);
-                        else if (actual != expected)
-                            Error(
+                        else if (motionIndex != null
+                                 && motionIndex.Candidates(actual).Count == 0)
+                            // Key가 Ability에서 독립되면서 오타를 구조적으로 막을 수단이 없어졌다.
+                            // 콘텐츠 모션 확정 대기 중인 키가 정상적으로 존재하므로 Error가 아닌
+                            // Warning으로 보고한다.
+                            Warning(
                                 ability,
-                                $"Variant '{variant.variantId}'의 Motion Key가 "
-                                + $"Ability ID와 일치하지 않습니다: {actual} != {expected}",
+                                $"Variant '{variant.variantId}'의 Motion Key "
+                                + $"'{actual}'가 어떤 ActorAnimationMotionSet에서도 "
+                                + "해석되지 않습니다.",
                                 issues);
                     }
                     ValidateHitPhaseCategoryConsistency(ability, variant, payload, issues);

@@ -168,7 +168,7 @@ namespace UPlayGround.Animation.Editor
                         is not UPlayGroundMotionAbilityPayloadSO payload)
                         continue;
 
-                    AbilityMotionKey motionKey =
+                    MotionKey motionKey =
                         payload.attackInfo?.baseInfo?.motionKey ?? default;
                     MotionSetAsset asset =
                         source.GetAbilityMotionAsset(motionKey);

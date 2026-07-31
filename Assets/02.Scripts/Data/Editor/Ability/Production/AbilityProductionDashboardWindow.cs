@@ -14,7 +14,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
         [SerializeField] private GameplayAbilitySO _ability;
         [SerializeField] private Object _dependencyTarget;
         [SerializeField] private string _cloneAbilityId =
-            "Ability.Actor.Clone";
+            "Actor.Clone";
         [SerializeField] private string _cloneAssetName = "Clone";
         [SerializeField] private string _cloneRoot =
             "Assets/10.Datas/Ability/Actor";

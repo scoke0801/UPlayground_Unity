@@ -59,7 +59,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
         [SerializeField] private PlayerCombatAbilitySlot _playerCombatSlot;
         [SerializeField] private bool _replaceExistingBinding;
         [SerializeField] private string _displayName = "새 몬스터 공격";
-        [SerializeField] private string _abilityId = "Ability.Monster.Actor.Attack";
+        [SerializeField] private string _abilityId = "Monster.Actor.Attack";
         [SerializeField] private string _assetName = "MonsterAttack";
         [SerializeField] private string _saveRoot =
             "Assets/10.Datas/Ability/Actor";

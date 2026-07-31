@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_2.21
-        variantId: Default
+        value: Humanoid.SwordShieldAttackData.Skill.2.21
       attackType: 0
       hitPhases:
       - damage: 23
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_SwordShieldAttackData_21_Skill_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Skill_2.21
+  abilityId: Actor.Humanoid.SwordShieldAttackData.Skill.2.21
   editorMemo: 
   presentation:
     displayName: Skill_2

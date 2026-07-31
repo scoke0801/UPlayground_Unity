@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_5.30
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.5.30
       attackType: 0
       hitPhases:
       - damage: 10
@@ -322,7 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_KatanaAttackData_30_Skill_5
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_5.30
+  abilityId: Actor.Humanoid.KatanaAttackData.Skill.5.30
   editorMemo: 
   presentation:
     displayName: Skill_5

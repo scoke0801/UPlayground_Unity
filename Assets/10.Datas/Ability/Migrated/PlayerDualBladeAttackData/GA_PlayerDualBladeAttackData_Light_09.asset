@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_09
-        variantId: Default
+        value: DualBlade.Light.09
       attackType: 0
       hitPhases:
       - damage: 69
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDualBladeAttackData_Light_09
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.Light_09
+  abilityId: Player.DualBlade.Light.09
   editorMemo: 
   presentation:
     displayName: PlayerDualBladeAttackData Light_09

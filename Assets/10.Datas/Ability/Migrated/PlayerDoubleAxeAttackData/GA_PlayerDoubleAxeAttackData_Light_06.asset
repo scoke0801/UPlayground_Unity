@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_06
-        variantId: Default
+        value: DoubleAxe.Light.06
       attackType: 0
       hitPhases:
       - damage: 84
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_Light_06
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_06
+  abilityId: Player.DoubleAxe.Light.06
   editorMemo: 
   presentation:
     displayName: PlayerDoubleAxeAttackData Light_06

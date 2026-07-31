@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerBowAttackData_EntryAirborne
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerBowAttackData.Combat.EntryAirborne
+  abilityId: Player.Bow.EntryAirborne
   editorMemo: 
   presentation:
     displayName: PlayerBowAttackData EntryAirborne
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerBowAttackData.Combat.EntryAirborne
-        variantId: Default
+        value: Bow.EntryAirborne
       attackType: 0
       hitPhases:
       - damage: 35

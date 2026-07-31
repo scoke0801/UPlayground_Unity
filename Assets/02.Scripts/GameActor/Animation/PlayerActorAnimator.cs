@@ -1,4 +1,4 @@
-﻿using Animancer;
+using Animancer;
 using UnityEngine;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
@@ -44,7 +44,7 @@ namespace UPlayGround.Animation
                 : null;
 
         protected override MotionSetAsset ResolveAbilityMotionAsset(
-            AbilityMotionKey key) =>
+            MotionKey key) =>
             _playerActorAnimationMotionSet != null
                 ? _playerActorAnimationMotionSet.GetAbilityMotionAsset(
                     _playerEquipment != null

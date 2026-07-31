@@ -122,7 +122,7 @@ namespace UPlayGround.Ability.Tests
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new AbilityMotionKey(id, "Default"),
+                    motionKey = new MotionKey($"Tests.{id}"),
                 },
             };
             attack.baseInfo.hitPhases[0].damage = damage;

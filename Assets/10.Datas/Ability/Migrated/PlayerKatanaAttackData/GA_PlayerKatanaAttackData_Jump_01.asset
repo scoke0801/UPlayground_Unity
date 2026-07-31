@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Jump_01
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Jump_01
+  abilityId: Player.Katana.Jump.01
   editorMemo: 
   presentation:
     displayName: PlayerKatanaAttackData Jump_01
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Jump_01
-        variantId: Default
+        value: Katana.Jump.01
       attackType: 0
       hitPhases:
       - damage: 49

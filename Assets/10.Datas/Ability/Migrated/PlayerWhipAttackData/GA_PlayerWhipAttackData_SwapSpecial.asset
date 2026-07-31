@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerWhipAttackData_SwapSpecial
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerWhipAttackData.Combat.SwapSpecial
+  abilityId: Player.Whip.SwapSpecial
   editorMemo: 
   presentation:
     displayName: PlayerWhipAttackData SwapSpecial
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerWhipAttackData.Combat.SwapSpecial
-        variantId: Default
+        value: Whip.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 40

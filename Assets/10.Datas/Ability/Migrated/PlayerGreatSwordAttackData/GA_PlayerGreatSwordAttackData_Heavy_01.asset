@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_01
-        variantId: Default
+        value: GreatSword.Heavy.01
       attackType: 0
       hitPhases:
       - damage: 44
@@ -194,7 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_Heavy_01
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Heavy_01
+  abilityId: Player.GreatSword.Heavy.01
   editorMemo: 
   presentation:
     displayName: PlayerGreatSwordAttackData Heavy_01

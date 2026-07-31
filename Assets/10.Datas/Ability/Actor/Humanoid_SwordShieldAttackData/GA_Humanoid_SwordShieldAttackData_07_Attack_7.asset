@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_SwordShieldAttackData_07_Attack_7
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_7.07
+  abilityId: Actor.Humanoid.SwordShieldAttackData.Attack.7.07
   editorMemo: 
   presentation:
     displayName: Attack_7
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.Attack_7.07
-        variantId: Default
+        value: Humanoid.SwordShieldAttackData.Attack.7.07
       attackType: 0
       hitPhases:
       - damage: 12

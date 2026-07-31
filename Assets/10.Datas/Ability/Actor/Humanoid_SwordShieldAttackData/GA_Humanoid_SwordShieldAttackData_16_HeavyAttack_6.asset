@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_6.16
-        variantId: Default
+        value: Humanoid.SwordShieldAttackData.HeavyAttack.6.16
       attackType: 0
       hitPhases:
       - damage: 19
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_SwordShieldAttackData_16_HeavyAttack_6
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_SwordShieldAttackData.HeavyAttack_6.16
+  abilityId: Actor.Humanoid.SwordShieldAttackData.HeavyAttack.6.16
   editorMemo: 
   presentation:
     displayName: HeavyAttack_6

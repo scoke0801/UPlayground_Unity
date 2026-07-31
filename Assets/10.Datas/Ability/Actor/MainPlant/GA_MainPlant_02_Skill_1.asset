@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.MainPlant.Skill_1.02
-        variantId: Default
+        value: MainPlant.Skill.1.02
       attackType: 1
       hitPhases:
       - damage: 28
@@ -140,7 +139,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_MainPlant_02_Skill_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.MainPlant.Skill_1.02
+  abilityId: Actor.MainPlant.Skill.1.02
   editorMemo: 
   presentation:
     displayName: Skill_1

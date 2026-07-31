@@ -18,40 +18,31 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Actor.Ent.Attack_1.01
-        variantId: Default
+        value: Ent.Attack.1.01
       Value: {fileID: 11400000, guid: af397f919f5d6d84cb0a99d234ac73c4, type: 2}
     - Key:
-        abilityId: Ability.Actor.Ent.Attack_2.02
-        variantId: Default
+        value: Ent.Attack.2.02
       Value: {fileID: 11400000, guid: da283f59ffe0ba04a848007e6e837f96, type: 2}
     - Key:
-        abilityId: Ability.Actor.Ent.Attack_3.03
-        variantId: Default
+        value: Ent.Attack.3.03
       Value: {fileID: 11400000, guid: dc05b4a42df05114085b1363d400097b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Ent.Attack_4.04
-        variantId: Default
+        value: Ent.Attack.4.04
       Value: {fileID: 11400000, guid: 4e422869950556c4b97bd155b7da15b7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Ent.Skill_1.05
-        variantId: Default
+        value: Ent.Skill.1.05
       Value: {fileID: 11400000, guid: 06481bd8d112ad64fadaed8cd881247b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Golem.Attack_1.01
-        variantId: Default
+        value: Golem.Attack.1.01
       Value: {fileID: 11400000, guid: af397f919f5d6d84cb0a99d234ac73c4, type: 2}
     - Key:
-        abilityId: Ability.Actor.Golem.Attack_2.02
-        variantId: Default
+        value: Golem.Attack.2.02
       Value: {fileID: 11400000, guid: da283f59ffe0ba04a848007e6e837f96, type: 2}
     - Key:
-        abilityId: Ability.Actor.Golem.Attack_3.03
-        variantId: Default
+        value: Golem.Attack.3.03
       Value: {fileID: 11400000, guid: dc05b4a42df05114085b1363d400097b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Golem.Attack_4.04
-        variantId: Default
+        value: Golem.Attack.4.04
       Value: {fileID: 11400000, guid: 4e422869950556c4b97bd155b7da15b7, type: 2}
   motionSlots:
     _serializedList:

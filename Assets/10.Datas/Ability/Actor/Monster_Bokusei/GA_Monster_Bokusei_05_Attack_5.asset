@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Monster_Bokusei.Attack_5.05
-        variantId: Default
+        value: Monster.Bokusei.Attack.5.05
       attackType: 0
       hitPhases:
       - damage: 16
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Monster_Bokusei_05_Attack_5
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Monster_Bokusei.Attack_5.05
+  abilityId: Actor.Monster.Bokusei.Attack.5.05
   editorMemo: 
   presentation:
     displayName: Attack_5

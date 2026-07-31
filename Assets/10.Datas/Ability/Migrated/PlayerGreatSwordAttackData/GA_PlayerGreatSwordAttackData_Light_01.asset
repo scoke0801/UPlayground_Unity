@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_Light_01
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_01
+  abilityId: Player.GreatSword.Light.01
   editorMemo: 
   presentation:
     displayName: PlayerGreatSwordAttackData Light_01
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.Light_01
-        variantId: Default
+        value: GreatSword.Light.01
       attackType: 0
       hitPhases:
       - damage: 50

@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_2.20
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.2.20
       attackType: 0
       hitPhases:
       - damage: 9
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_KatanaAttackData_20_JumpAttack_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_2.20
+  abilityId: Actor.Humanoid.KatanaAttackData.JumpAttack.2.20
   editorMemo: 
   presentation:
     displayName: JumpAttack_2

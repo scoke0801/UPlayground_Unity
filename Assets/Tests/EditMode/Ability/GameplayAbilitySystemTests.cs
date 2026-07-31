@@ -528,9 +528,7 @@ namespace UPlayGround.Ability.Tests
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new AbilityMotionKey(
-                        ability.abilityId,
-                        "Ground"),
+                    motionKey = new MotionKey("Tests.Ground"),
                 },
             };
             ability.variants.Add(new AbilityVariantDefinition

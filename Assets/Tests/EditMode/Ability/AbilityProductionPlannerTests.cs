@@ -157,11 +157,42 @@ namespace UPlayGround.Ability.Tests
             Assert.That(result.Ability.taskGraph.Root, Is.Not.Null);
             Assert.That(
                 result.Payload.attackInfo.baseInfo.motionKey,
-                Is.EqualTo(new AbilityMotionKey(request.AbilityId, "Default")));
+                Is.EqualTo(new MotionKey(request.AbilityId)));
             Assert.That(
                 request.MotionOwner.GetAbilityMotionAsset(
                     result.Payload.attackInfo.baseInfo.motionKey),
                 Is.SameAs(request.Motion));
+        }
+
+        [Test]
+        public void Factory_MotionKey는AbilityId분류접두사를떨어낸다()
+        {
+            Assert.That(
+                AbilityAssetFactory.BuildMotionKey(
+                    new AbilityCreationRequest
+                    {
+                        AbilityId = "Actor.Ent.Attack.1.01",
+                    }),
+                Is.EqualTo(new MotionKey("Ent.Attack.1.01")));
+            Assert.That(
+                AbilityAssetFactory.BuildMotionKey(
+                    new AbilityCreationRequest
+                    {
+                        AbilityId = "Player.Bow.Ability",
+                    }),
+                Is.EqualTo(new MotionKey("Bow.Ability")));
+            // 분류 접두사가 없으면 ID를 그대로 쓴다.
+            Assert.That(
+                AbilityAssetFactory.BuildMotionKey(
+                    new AbilityCreationRequest
+                    {
+                        AbilityId = "ElementalImbue.Fire",
+                    }),
+                Is.EqualTo(new MotionKey("ElementalImbue.Fire")));
+            Assert.That(
+                () => AbilityAssetFactory.BuildMotionKey(
+                    new AbilityCreationRequest { AbilityId = " " }),
+                Throws.InvalidOperationException);
         }
 
         [Test]
@@ -276,9 +307,7 @@ namespace UPlayGround.Ability.Tests
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new AbilityMotionKey(
-                        "Ability.Tests.MotionAnalyzer",
-                        "Default"),
+                    motionKey = new MotionKey("Tests.MotionAnalyzer"),
                     hitPhases = new System.Collections.Generic.List<
                         HitPhaseData> { new() },
                 },
@@ -346,9 +375,7 @@ namespace UPlayGround.Ability.Tests
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new AbilityMotionKey(
-                        ability.abilityId,
-                        "Default"),
+                    motionKey = new MotionKey("Tests.Balance"),
                 },
             };
             payload.attackInfo.baseInfo.hitPhases =

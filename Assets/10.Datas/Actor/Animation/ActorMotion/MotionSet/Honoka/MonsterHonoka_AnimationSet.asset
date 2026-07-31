@@ -18,404 +18,304 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_1.01
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.1.01
       Value: {fileID: 11400000, guid: b4d75e3af8b28de4b80e649588517ab7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_2.02
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.2.02
       Value: {fileID: 11400000, guid: 838e2889e0723394185f6b2810257f55, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_3.03
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.3.03
       Value: {fileID: 11400000, guid: e0ac7fbcb307ec642923ef8c078cce28, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_4.04
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.4.04
       Value: {fileID: 11400000, guid: c066714d7c13810418b39cf8bfe6648b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_5.05
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.5.05
       Value: {fileID: 11400000, guid: 826c0c7360172434ab5b86bc1d4bd64b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_6.06
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.6.06
       Value: {fileID: 11400000, guid: 1eccff5bb1ec30743b528ded960afd08, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_7.07
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.7.07
       Value: {fileID: 11400000, guid: a0c9c8ff78507b44a921e7e2c06c8f59, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_8.08
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.8.08
       Value: {fileID: 11400000, guid: a7f46ea82b4d1154da74bfbafc62b64a, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_9.09
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.9.09
       Value: {fileID: 11400000, guid: 26ebd6db92f2d104aa71d62242772bce, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.HeavyAttack_1.10
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.HeavyAttack.1.10
       Value: {fileID: 11400000, guid: 54a618c3c02ad6741a06399b457ea13a, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.HeavyAttack_2.11
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.HeavyAttack.2.11
       Value: {fileID: 11400000, guid: 1a1366dd710f7604abe4385228b48dba, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.HeavyAttack_3.12
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.HeavyAttack.3.12
       Value: {fileID: 11400000, guid: 09064532949f72749ae902855ef174ba, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.HeavyAttack_4.13
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.HeavyAttack.4.13
       Value: {fileID: 11400000, guid: 8fc3dbd423b08f34eaff36d2f0a48af3, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.HeavyAttack_5.14
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.HeavyAttack.5.14
       Value: {fileID: 11400000, guid: 615699404b36135429086a8300a4e92f, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.HeavyAttack_6.15
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.HeavyAttack.6.15
       Value: {fileID: 11400000, guid: d971939d1633edd498f9f5c6f4539c6b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Skill_1.16
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Skill.1.16
       Value: {fileID: 11400000, guid: 4e1250d5b5ff5b7408f760852c289d23, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Skill_2.17
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Skill.2.17
       Value: {fileID: 11400000, guid: 0e7c27b64e0ec264bb6d044b405e53a7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Counter_Attack_1.18
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Counter.Attack.1.18
       Value: {fileID: 11400000, guid: 4aa42d9bff3c30f4a9b44b95038e955c, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Counter_Attack_2.19
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Counter.Attack.2.19
       Value: {fileID: 11400000, guid: 4aa42d9bff3c30f4a9b44b95038e955c, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Ability
-        variantId: Default
+        value: Default.Ability
       Value: {fileID: 11400000, guid: db44fa6012cb0f44bb3739fb0de7fdd8, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Ultimate
-        variantId: Default
+        value: Default.Ultimate
       Value: {fileID: 11400000, guid: 80876ad1cfaac7a4ba413b8bac2ecda5, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_00
-        variantId: Default
+        value: Default.Light.00
       Value: {fileID: 11400000, guid: 39e7417cbad7a8f4794bb54d7a2d648b, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_01
-        variantId: Default
+        value: Default.Light.01
       Value: {fileID: 11400000, guid: 5d09d135cfccb68498ee732cad4d9d23, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_02
-        variantId: Default
+        value: Default.Light.02
       Value: {fileID: 11400000, guid: 2ace106b8e701414184a37845328d643, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_03
-        variantId: Default
+        value: Default.Light.03
       Value: {fileID: 11400000, guid: ec1256b6861a62a449555d5de151cbf4, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_04
-        variantId: Default
+        value: Default.Light.04
       Value: {fileID: 11400000, guid: 294be61f04fc06f448474a7df00ca660, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_05
-        variantId: Default
+        value: Default.Light.05
       Value: {fileID: 11400000, guid: e9cad7c12858f9742b50b16141003a65, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_06
-        variantId: Default
+        value: Default.Light.06
       Value: {fileID: 11400000, guid: c34d2e1355412fb4db3297f84f8c8ee3, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_07
-        variantId: Default
+        value: Default.Light.07
       Value: {fileID: 11400000, guid: d276a74827b337c4b9aa910579ea8328, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_08
-        variantId: Default
+        value: Default.Light.08
       Value: {fileID: 11400000, guid: b055829fef7a98241912533d4452bc27, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.SwapEvade
-        variantId: Default
+        value: Default.SwapEvade
       Value: {fileID: 11400000, guid: 39e7417cbad7a8f4794bb54d7a2d648b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_1.01
-        variantId: Default
+        value: Humanoid.BowAttackData.Attack.1.01
       Value: {fileID: 11400000, guid: 4f31e361a96bcdc46bf826e20f93be96, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_2.02
-        variantId: Default
+        value: Humanoid.BowAttackData.Attack.2.02
       Value: {fileID: 11400000, guid: f0e38d36392e38f4c977553824d9696c, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_3.03
-        variantId: Default
+        value: Humanoid.BowAttackData.Attack.3.03
       Value: {fileID: 11400000, guid: 1f31f519a72322e408a6bb18ffdb8acd, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_4.04
-        variantId: Default
+        value: Humanoid.BowAttackData.Attack.4.04
       Value: {fileID: 11400000, guid: 29344f53744de4044ae561a4a0f1a0c1, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Attack_5.05
-        variantId: Default
+        value: Humanoid.BowAttackData.Attack.5.05
       Value: {fileID: 11400000, guid: e3add1fc6e8ef2444bbe26012276fc64, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_1.06
-        variantId: Default
+        value: Humanoid.BowAttackData.Skill.1.06
       Value: {fileID: 11400000, guid: f4facc11d2b7f1f4c8a225b660761b60, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_2.07
-        variantId: Default
+        value: Humanoid.BowAttackData.Skill.2.07
       Value: {fileID: 11400000, guid: 95ec8f4c3fe3dd5448a1f1fbbf9c3921, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_3.08
-        variantId: Default
+        value: Humanoid.BowAttackData.Skill.3.08
       Value: {fileID: 11400000, guid: 4972d2baf9d04da41bf9ae25a35454c2, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_4.09
-        variantId: Default
+        value: Humanoid.BowAttackData.Skill.4.09
       Value: {fileID: 11400000, guid: e69c75691da635849bbfefb856b5e1aa, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_5.10
-        variantId: Default
+        value: Humanoid.BowAttackData.Skill.5.10
       Value: {fileID: 11400000, guid: 7bd3854894ddbf24b8875c5a4f5aa0dc, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Counter_Attack_1.11
-        variantId: Default
+        value: Humanoid.BowAttackData.Counter.Attack.1.11
       Value: {fileID: 11400000, guid: ec4c30985cbd59545ad28e7054eaab24, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Counter_Attack_2.12
-        variantId: Default
+        value: Humanoid.BowAttackData.Counter.Attack.2.12
       Value: {fileID: 11400000, guid: ec4c30985cbd59545ad28e7054eaab24, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_1.01
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.1.01
       Value: {fileID: 11400000, guid: 3a654d93498e8b146aaf7d2dd0f0cfb3, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_2.02
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.2.02
       Value: {fileID: 11400000, guid: e1a3c2d5843556541b82d1a97a9b4e9f, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_3.03
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.3.03
       Value: {fileID: 11400000, guid: 7237e2134c9154447a494be0dfdd571a, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_4.04
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.4.04
       Value: {fileID: 11400000, guid: 66149d2bae56c244aa9b9355a977a9ce, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_5.05
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.5.05
       Value: {fileID: 11400000, guid: 05ff240a7b851ca4687b3dca06d05fc4, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_6.06
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.6.06
       Value: {fileID: 11400000, guid: 0409393e87bdc9a43a92c9a860f4d542, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_7.07
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.7.07
       Value: {fileID: 11400000, guid: 86a117f2d532aad4fb1565427f0edca3, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_8.08
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.8.08
       Value: {fileID: 11400000, guid: 7c7943b56094fdd499b4614ca8a05f26, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_9.09
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.9.09
       Value: {fileID: 11400000, guid: e0933d05af5dd6a48b633f3d118fd457, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_10.10
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.10.10
       Value: {fileID: 11400000, guid: b064746207c5af742bca5c68bd1a97de, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_1.11
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.1.11
       Value: {fileID: 11400000, guid: cc0f31959ac473e4aa24487641635e6f, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_2.12
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.2.12
       Value: {fileID: 11400000, guid: 456574bbee3dc1442b1ce083d435767c, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_3.13
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.3.13
       Value: {fileID: 11400000, guid: 97238f359473bdd4abe6a795742906b0, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_4.14
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.4.14
       Value: {fileID: 11400000, guid: 6f054e55bd84c5b438099f360fb5db46, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_5.15
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.5.15
       Value: {fileID: 11400000, guid: 0a87a50ec1270da48a6ae8e705f343d0, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_6.16
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.6.16
       Value: {fileID: 11400000, guid: 0525d55a6e540df4d98338762cc4d42f, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.HeavyAttack_7.17
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.HeavyAttack.7.17
       Value: {fileID: 11400000, guid: 5bc7d332b049f8f43923eea42e61e468, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Skill_1.18
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Skill.1.18
       Value: {fileID: 11400000, guid: 4f742748cdfadaf44b722485ab42ca09, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Skill_2.19
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Skill.2.19
       Value: {fileID: 11400000, guid: 36b669833c83b494982e9a52148e28c2, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Skill_3.20
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Skill.3.20
       Value: {fileID: 11400000, guid: 5cee26d57ec4a5548839083210f6a474, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Counter_Attack_1.21
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Counter.Attack.1.21
       Value: {fileID: 11400000, guid: e2f3e3856f00bda4bb48432f39d9f40e, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Counter_Attack_2.22
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Counter.Attack.2.22
       Value: {fileID: 11400000, guid: e2f3e3856f00bda4bb48432f39d9f40e, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_1.01
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.1.01
       Value: {fileID: 11400000, guid: 38da61583bcca314f85a69447dbc93ba, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_2.02
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.2.02
       Value: {fileID: 11400000, guid: f64606c692dd77d418eb416ba4f7837c, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_3.03
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.3.03
       Value: {fileID: 11400000, guid: a584878cccde7a34689dc92da6d544ec, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_4.04
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.4.04
       Value: {fileID: 11400000, guid: 4e6d089817c3ed845a5ffd0d9668c535, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_5.05
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.5.05
       Value: {fileID: 11400000, guid: b7eaea8a11c016544b042b5611f41f9f, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_6.06
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.6.06
       Value: {fileID: 11400000, guid: fcebe2f510f6ffc49926ce0e012067c7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_7.07
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.7.07
       Value: {fileID: 11400000, guid: 394abbcee7e51d748b33408374255ec9, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_8.08
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.8.08
       Value: {fileID: 11400000, guid: 7f934b81152dcf141985f7595d4e97a9, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_9.09
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.9.09
       Value: {fileID: 11400000, guid: 1bfc1e8eec0e6824a9a27e60fd4e557d, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Attack_10.10
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Attack.10.10
       Value: {fileID: 11400000, guid: 25c5a47c28084584f85bec1b8a09e79a, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_1.11
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.1.11
       Value: {fileID: 11400000, guid: 03f6be38629201e43bee7370d2041f53, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_2.12
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.2.12
       Value: {fileID: 11400000, guid: 2923f825029ebc4408ea5ddd2ceca367, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_3.13
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.3.13
       Value: {fileID: 11400000, guid: 162891c9ee331834a90b7df6d340435b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_4.14
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.4.14
       Value: {fileID: 11400000, guid: 371505b54bff23541be8c7d3c77f29a7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_5.15
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.5.15
       Value: {fileID: 11400000, guid: e07e3a4574873d746a56251bff0c37a0, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_6.16
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.6.16
       Value: {fileID: 11400000, guid: c4c96619c3dcc934fa99139fdc112a92, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_7.17
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.7.17
       Value: {fileID: 11400000, guid: 872cc9b5552d369469f0b32f1a5895a1, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.HeavyAttack_8.18
-        variantId: Default
+        value: Humanoid.SpeatAttackData.HeavyAttack.8.18
       Value: {fileID: 11400000, guid: 19c2a4912fb73224eae26bf5eec40c47, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Skill_1.19
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Skill.1.19
       Value: {fileID: 11400000, guid: a5f74a8a735ffeb4b8e8ca446a9cc6d4, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Skill_2.20
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Skill.2.20
       Value: {fileID: 11400000, guid: 1bb8fc37e509f8d49bd6918d2fc33658, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Skill_3.21
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Skill.3.21
       Value: {fileID: 11400000, guid: 609179b809b21e74eb27d55c09aa3faf, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Counter_Attack_1.22
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Counter.Attack.1.22
       Value: {fileID: 11400000, guid: dce54209a03b34f47a02b0fd803002aa, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_SpeatAttackData.Counter_Attack_2.23
-        variantId: Default
+        value: Humanoid.SpeatAttackData.Counter.Attack.2.23
       Value: {fileID: 11400000, guid: 9544cbbefee34b34fb58877af781da26, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_1.01
-        variantId: Default
+        value: Monster.Honoka.Attack.1.01
       Value: {fileID: 11400000, guid: 39e7417cbad7a8f4794bb54d7a2d648b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_2.02
-        variantId: Default
+        value: Monster.Honoka.Attack.2.02
       Value: {fileID: 11400000, guid: 5d09d135cfccb68498ee732cad4d9d23, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_3.03
-        variantId: Default
+        value: Monster.Honoka.Attack.3.03
       Value: {fileID: 11400000, guid: 2ace106b8e701414184a37845328d643, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_4.04
-        variantId: Default
+        value: Monster.Honoka.Attack.4.04
       Value: {fileID: 11400000, guid: ec1256b6861a62a449555d5de151cbf4, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_5.05
-        variantId: Default
+        value: Monster.Honoka.Attack.5.05
       Value: {fileID: 11400000, guid: 294be61f04fc06f448474a7df00ca660, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_6.06
-        variantId: Default
+        value: Monster.Honoka.Attack.6.06
       Value: {fileID: 11400000, guid: e9cad7c12858f9742b50b16141003a65, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_7.07
-        variantId: Default
+        value: Monster.Honoka.Attack.7.07
       Value: {fileID: 11400000, guid: c34d2e1355412fb4db3297f84f8c8ee3, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_8.08
-        variantId: Default
+        value: Monster.Honoka.Attack.8.08
       Value: {fileID: 11400000, guid: d276a74827b337c4b9aa910579ea8328, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Attack_9.09
-        variantId: Default
+        value: Monster.Honoka.Attack.9.09
       Value: {fileID: 11400000, guid: b055829fef7a98241912533d4452bc27, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Skill_1.10
-        variantId: Default
+        value: Monster.Honoka.Skill.1.10
       Value: {fileID: 11400000, guid: db44fa6012cb0f44bb3739fb0de7fdd8, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Skill_2.11
-        variantId: Default
+        value: Monster.Honoka.Skill.2.11
       Value: {fileID: 11400000, guid: 80876ad1cfaac7a4ba413b8bac2ecda5, type: 2}
     - Key:
-        abilityId: Ability.Actor.Monster_Honoka.Skill_3.12
-        variantId: Default
+        value: Monster.Honoka.Skill.3.12
       Value: {fileID: 11400000, guid: 43a8f4ea5df5a984db6fa795b37c489e, type: 2}
   motionSlots:
     _serializedList:

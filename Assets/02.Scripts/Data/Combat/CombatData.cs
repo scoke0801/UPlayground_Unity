@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Ability;
@@ -215,7 +215,7 @@ namespace UPlayGround.Data
     {
         [Header("Basic Info")]
         [Tooltip("Ability/Variant를 액터 소유 모션에 연결하는 실행 키입니다.")]
-        public AbilityMotionKey motionKey;
+        public MotionKey motionKey;
 
         public AttackType attackType = AttackType.Melee;
 

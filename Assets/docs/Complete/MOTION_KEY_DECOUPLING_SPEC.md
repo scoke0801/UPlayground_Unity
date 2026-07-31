@@ -1,14 +1,18 @@
 # 모션 실행 키 탈-AnimKey 개선 스펙 (Motion Key Decoupling)
 
-> 상태: SUPERSEDED — 2026-07-31 GAS Payload의 `MotionReferenceSO`를
-> `(abilityId, variantId)` 기반 `AbilityMotionKey`로 교체했다.
+> 상태: SUPERSEDED — 2026-07-31 GAS Payload의 `MotionReferenceSO`를 거쳐 도입했던
+> `(abilityId, variantId)` 복합 키를 다시 독립 문자열 `MotionKey`로 단순화했다.
 > 실제 모션은 `ActorAnimationMotionSet.abilityMotions`가 소유하며,
+> GAS는 Ability/Variant 식별자나 Motion 참조를 전달하지 않고 Motion Key 하나만 전달한다.
 > 이 문서의 MotionReference 설계와 기록은 이전 이력으로만 유지한다.
 > 작성일: 2026-07-21
 > 관련 문서: `GAMEPLAY_ABILITY_SYSTEM_SPEC.md`(docs/TODO), `ASMDEF_MODULARIZATION_PLAN.md`(docs/Complete)
 
 ### 구현 진행 기록
 
+- 2026-07-31: `AbilityMotionKey(abilityId, variantId)`를 `MotionKey(value)`로 교체하고 Payload 498개와 Actor MotionSet 33개를 실제 데이터 마이그레이션. Ability ID도 짧은 도메인 ID로 정리.
+- 2026-07-31: Ability Editor의 Motion Key 입력을 대상 액터·무기 MotionSet에서 해석 가능한 Key 드롭다운으로 교체.
+- 2026-07-31: Ability 에셋 487개와 MotionSet 매핑 2,128개를 원본과 대조해 비-Key 데이터 및 Motion GUID 변경 0건, 새 Key 충돌 0건 확인.
 - 2026-07-21: `ActorAnimator.PlayMotion(MotionSetAsset)`과 공통 재생 시작 경로 추가.
 - 2026-07-21: 재생/디버그 스냅샷에 `MotionSetAsset` 소스와 표시 키를 병기하고 직접 참조 복원을 지원.
 - 2026-07-21: `ActorAnimationMotionSet`·`PlayerActorAnimationMotionSet`에 에셋 반환 조회 API 추가.

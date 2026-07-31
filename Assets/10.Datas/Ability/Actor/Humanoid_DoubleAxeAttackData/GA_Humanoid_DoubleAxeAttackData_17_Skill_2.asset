@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Skill_2.17
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Skill.2.17
       attackType: 0
       hitPhases:
       - damage: 7
@@ -322,7 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_DoubleAxeAttackData_17_Skill_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Skill_2.17
+  abilityId: Actor.Humanoid.DoubleAxeAttackData.Skill.2.17
   editorMemo: 
   presentation:
     displayName: Skill_2

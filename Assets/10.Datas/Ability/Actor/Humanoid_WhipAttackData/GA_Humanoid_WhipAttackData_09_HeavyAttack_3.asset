@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_WhipAttackData_09_HeavyAttack_3
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_3.09
+  abilityId: Actor.Humanoid.WhipAttackData.HeavyAttack.3.09
   editorMemo: 
   presentation:
     displayName: HeavyAttack_3
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_WhipAttackData.HeavyAttack_3.09
-        variantId: Default
+        value: Humanoid.WhipAttackData.HeavyAttack.3.09
       attackType: 0
       hitPhases:
       - damage: 5

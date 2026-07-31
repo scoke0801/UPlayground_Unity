@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Counter
-        variantId: Default
+        value: Whip.Counter
       attackType: 0
       hitPhases:
       - damage: 27
@@ -450,7 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerWhipAttackData_Counter
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerWhipAttackData.Combat.Counter
+  abilityId: Player.Whip.Counter
   editorMemo: 
   presentation:
     displayName: PlayerWhipAttackData Counter

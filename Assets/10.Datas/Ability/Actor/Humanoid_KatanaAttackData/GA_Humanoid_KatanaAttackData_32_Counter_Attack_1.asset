@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_KatanaAttackData_32_Counter_Attack_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_KatanaAttackData.Counter_Attack_1.32
+  abilityId: Actor.Humanoid.KatanaAttackData.Counter.Attack.1.32
   editorMemo: 
   presentation:
     displayName: Counter_Attack_1
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Counter_Attack_1.32
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Counter.Attack.1.32
       attackType: 0
       hitPhases:
       - damage: 8

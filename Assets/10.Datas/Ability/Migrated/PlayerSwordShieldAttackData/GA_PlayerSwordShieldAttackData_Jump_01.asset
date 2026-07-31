@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Jump_01
-        variantId: Default
+        value: SwordShield.Jump.01
       attackType: 0
       hitPhases:
       - damage: 50
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerSwordShieldAttackData_Jump_01
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Jump_01
+  abilityId: Player.SwordShield.Jump.01
   editorMemo: 
   presentation:
     displayName: PlayerSwordShieldAttackData Jump_01

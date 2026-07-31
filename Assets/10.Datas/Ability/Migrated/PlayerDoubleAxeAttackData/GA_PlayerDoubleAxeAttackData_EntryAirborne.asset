@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.EntryAirborne
-        variantId: Default
+        value: DoubleAxe.EntryAirborne
       attackType: 0
       hitPhases:
       - damage: 64
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_EntryAirborne
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.EntryAirborne
+  abilityId: Player.DoubleAxe.EntryAirborne
   editorMemo: 
   presentation:
     displayName: PlayerDoubleAxeAttackData EntryAirborne

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_GreatSwordAttackData_03_Attack_3
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_3.03
+  abilityId: Actor.Humanoid.GreatSwordAttackData.Attack.3.03
   editorMemo: 
   presentation:
     displayName: Attack_3
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_GreatSwordAttackData.Attack_3.03
-        variantId: Default
+        value: Humanoid.GreatSwordAttackData.Attack.3.03
       attackType: 0
       hitPhases:
       - damage: 7

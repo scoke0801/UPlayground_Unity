@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Lich_04_Skill_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Lich.Skill_2.04
+  abilityId: Actor.Lich.Skill.2.04
   editorMemo: 
   presentation:
     displayName: Skill_2
@@ -88,8 +88,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Lich.Skill_2.04
-        variantId: Default
+        value: Lich.Skill.2.04
       attackType: 1
       hitPhases:
       - damage: 10

@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_1.06
-        variantId: Default
+        value: Humanoid.BowAttackData.Skill.1.06
       attackType: 0
       hitPhases:
       - damage: 21
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_BowAttackData_06_Skill_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_BowAttackData.Skill_1.06
+  abilityId: Actor.Humanoid.BowAttackData.Skill.1.06
   editorMemo: 
   presentation:
     displayName: Skill_1

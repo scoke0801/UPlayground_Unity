@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerWhipAttackData.Ability
-        variantId: Skill_3
+        value: Whip.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 41
@@ -389,8 +388,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerWhipAttackData.Ability
-        variantId: Default
+        value: Whip.Ability
       attackType: 0
       hitPhases:
       - damage: 32
@@ -760,7 +758,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerWhipAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerWhipAttackData.Ability
+  abilityId: Player.Whip.Ability
   editorMemo: 
   presentation:
     displayName: Ability

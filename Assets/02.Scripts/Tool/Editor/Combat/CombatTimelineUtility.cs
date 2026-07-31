@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+#if UNITY_EDITOR
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -295,7 +295,7 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         static bool MatchesMotion(
-            AbilityMotionKey motionKey,
+            MotionKey motionKey,
             MotionSetAsset motionAsset,
             ActorAnimationMotionSet motionOwner,
             AbilityMotionIndex index)

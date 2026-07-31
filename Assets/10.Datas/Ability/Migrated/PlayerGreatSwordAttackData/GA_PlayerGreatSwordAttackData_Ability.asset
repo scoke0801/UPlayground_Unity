@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
-        variantId: Skill_3
+        value: GreatSword.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 151
@@ -133,8 +132,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
-        variantId: Default
+        value: GreatSword.Ability
       attackType: 0
       hitPhases:
       - damage: 121
@@ -248,7 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
+  abilityId: Player.GreatSword.Ability
   editorMemo: 
   presentation:
     displayName: Ability

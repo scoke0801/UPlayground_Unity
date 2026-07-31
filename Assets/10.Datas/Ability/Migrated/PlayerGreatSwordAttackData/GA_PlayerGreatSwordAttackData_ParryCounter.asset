@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.ParryCounter
-        variantId: Default
+        value: GreatSword.ParryCounter
       attackType: 0
       hitPhases:
       - damage: 10
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_ParryCounter
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerGreatSwordAttackData.Combat.ParryCounter
+  abilityId: Player.GreatSword.ParryCounter
   editorMemo: 
   presentation:
     displayName: PlayerGreatSwordAttackData ParryCounter

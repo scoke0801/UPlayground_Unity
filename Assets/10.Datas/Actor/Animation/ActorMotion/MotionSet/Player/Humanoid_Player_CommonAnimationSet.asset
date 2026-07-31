@@ -18,116 +18,88 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Ability
-        variantId: Default
+        value: Default.Ability
       Value: {fileID: 11400000, guid: db44fa6012cb0f44bb3739fb0de7fdd8, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Ultimate
-        variantId: Default
+        value: Default.Ultimate
       Value: {fileID: 11400000, guid: 80876ad1cfaac7a4ba413b8bac2ecda5, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_00
-        variantId: Default
+        value: Default.Light.00
       Value: {fileID: 11400000, guid: 39e7417cbad7a8f4794bb54d7a2d648b, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_01
-        variantId: Default
+        value: Default.Light.01
       Value: {fileID: 11400000, guid: 5d09d135cfccb68498ee732cad4d9d23, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_02
-        variantId: Default
+        value: Default.Light.02
       Value: {fileID: 11400000, guid: 2ace106b8e701414184a37845328d643, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_03
-        variantId: Default
+        value: Default.Light.03
       Value: {fileID: 11400000, guid: ec1256b6861a62a449555d5de151cbf4, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_04
-        variantId: Default
+        value: Default.Light.04
       Value: {fileID: 11400000, guid: 294be61f04fc06f448474a7df00ca660, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_05
-        variantId: Default
+        value: Default.Light.05
       Value: {fileID: 11400000, guid: e9cad7c12858f9742b50b16141003a65, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_06
-        variantId: Default
+        value: Default.Light.06
       Value: {fileID: 11400000, guid: c34d2e1355412fb4db3297f84f8c8ee3, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_07
-        variantId: Default
+        value: Default.Light.07
       Value: {fileID: 11400000, guid: d276a74827b337c4b9aa910579ea8328, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.Light_08
-        variantId: Default
+        value: Default.Light.08
       Value: {fileID: 11400000, guid: b055829fef7a98241912533d4452bc27, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.SwapEvade
-        variantId: Default
+        value: Default.SwapEvade
       Value: {fileID: 11400000, guid: 39e7417cbad7a8f4794bb54d7a2d648b, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_3
+        value: Katana.Ability.Skill.3
       Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_4
+        value: Katana.Ability.Skill.4
       Value: {fileID: 11400000, guid: 972a2196a85b1514390a7a177439285a, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_5
+        value: Katana.Ability.Skill.5
       Value: {fileID: 11400000, guid: 8e317895c121b1846818cc26807ea3b4, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Ability
-        variantId: Skill_6
+        value: Katana.Ability.Skill.6
       Value: {fileID: 11400000, guid: cb3428fc171df5e4c94b73f88928d498, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Skill_3
+        value: Bow.Ability.Skill.3
       Value: {fileID: 11400000, guid: 23c6e0517aa62ab4ba4e99d76be13197, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Skill_4
+        value: Bow.Ability.Skill.4
       Value: {fileID: 11400000, guid: e365dca6b320ddb459328568e0f563a2, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerBowAttackData.Ability
-        variantId: Skill_5
+        value: Bow.Ability.Skill.5
       Value: {fileID: 11400000, guid: 9ba6bfd7fd4d1f9459dbe92198a0d665, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerWhipAttackData.Ability
-        variantId: Skill_3
+        value: Whip.Ability.Skill.3
       Value: {fileID: 11400000, guid: 9a47dc3c14a17544d9f01d90f1578c2e, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerGreatSwordAttackData.Ability
-        variantId: Skill_3
+        value: GreatSword.Ability.Skill.3
       Value: {fileID: 11400000, guid: b7e1a0d0ba302144fb5f09fd72172d1f, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
-        variantId: Skill_3
+        value: SwordShield.Ability.Skill.3
       Value: {fileID: 11400000, guid: 22bdffc1d2814254a8617872820e1641, type: 2}
     - Key:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
-        variantId: Skill_4
+        value: SwordShield.Ability.Skill.4
       Value: {fileID: 11400000, guid: f9a88850dc91a3b4ea7c1f5f9c9a7781, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Dark
-        variantId: Default
+        value: ElementalImbue.Dark
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Fire
-        variantId: Default
+        value: ElementalImbue.Fire
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Light
-        variantId: Default
+        value: ElementalImbue.Light
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Nature
-        variantId: Default
+        value: ElementalImbue.Nature
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Water
-        variantId: Default
+        value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
   motionSlots:
     _serializedList:

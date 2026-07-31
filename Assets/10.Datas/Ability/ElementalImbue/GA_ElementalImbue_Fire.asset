@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_ElementalImbue_Fire
   m_EditorClassIdentifier: 
-  abilityId: Ability.ElementalImbue.Fire
+  abilityId: ElementalImbue.Fire
   editorMemo: 
   presentation:
     displayName: "\uBD88 \uC18D\uC131 \uBD80\uC5EC"
@@ -90,8 +90,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.ElementalImbue.Fire
-        variantId: Default
+        value: ElementalImbue.Fire
       attackType: 0
       hitPhases: []
     interruptActions: 0

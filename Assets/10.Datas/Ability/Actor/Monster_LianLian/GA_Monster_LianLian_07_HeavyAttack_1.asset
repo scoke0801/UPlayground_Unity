@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Monster_LianLian_07_HeavyAttack_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_1.07
+  abilityId: Actor.Monster.LianLian.HeavyAttack.1.07
   editorMemo: 
   presentation:
     displayName: HeavyAttack_1
@@ -88,8 +88,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Monster_LianLian.HeavyAttack_1.07
-        variantId: Default
+        value: Monster.LianLian.HeavyAttack.1.07
       attackType: 0
       hitPhases:
       - damage: 10

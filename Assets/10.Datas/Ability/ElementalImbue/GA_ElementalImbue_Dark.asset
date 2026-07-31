@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_ElementalImbue_Dark
   m_EditorClassIdentifier: 
-  abilityId: Ability.ElementalImbue.Dark
+  abilityId: ElementalImbue.Dark
   editorMemo: 
   presentation:
     displayName: "\uC5B4\uB460 \uC18D\uC131 \uBD80\uC5EC"
@@ -90,8 +90,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.ElementalImbue.Dark
-        variantId: Default
+        value: ElementalImbue.Dark
       attackType: 0
       hitPhases: []
     interruptActions: 0

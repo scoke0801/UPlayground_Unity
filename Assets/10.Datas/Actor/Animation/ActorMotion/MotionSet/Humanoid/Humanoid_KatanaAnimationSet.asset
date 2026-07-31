@@ -18,184 +18,139 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_1.01
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.1.01
       Value: {fileID: 11400000, guid: cbcb97b2f0957474c820ac452221915b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_2.02
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.2.02
       Value: {fileID: 11400000, guid: 080a58acf516fa443a61faaa67a95bec, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_3.03
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.3.03
       Value: {fileID: 11400000, guid: 12d9d792b3a77f44b8218316aab82a48, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_4.04
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.4.04
       Value: {fileID: 11400000, guid: 1be7c10c99973cd409c16b50edfb23ea, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_5.05
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.5.05
       Value: {fileID: 11400000, guid: 7397a1cc15de7e348b9a8751ee778b00, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_6.06
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.6.06
       Value: {fileID: 11400000, guid: 44901c4460393df4eafc6637d3add9c7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_7.07
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.7.07
       Value: {fileID: 11400000, guid: 68353736fd938a74884926fc8a51be16, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_8.08
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.8.08
       Value: {fileID: 11400000, guid: ff559464faf7a324ba503f7ea6ce4deb, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_9.09
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.9.09
       Value: {fileID: 11400000, guid: 4353bfe3deec9bc4f9a7fecbb4d12168, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Attack_10.10
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Attack.10.10
       Value: {fileID: 11400000, guid: cbcb97b2f0957474c820ac452221915b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_1.11
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.1.11
       Value: {fileID: 11400000, guid: 7f2c56551ce504b43b6d62b35b96b50a, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_2.12
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.2.12
       Value: {fileID: 11400000, guid: 6a0a4e9e269eba84fa43f37e228d347b, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_3.13
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.3.13
       Value: {fileID: 11400000, guid: d49fa1b447c3c054cbf41aa3b37b21ba, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_4.14
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.4.14
       Value: {fileID: 11400000, guid: 48df1dd79d1f5ff40af5794fca3d38e2, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_5.15
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.5.15
       Value: {fileID: 11400000, guid: c11004a6fc9dc9844861c454ade6f290, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.HeavyAttack_6.16
-        variantId: Default
+        value: Humanoid.KatanaAttackData.HeavyAttack.6.16
       Value: {fileID: 11400000, guid: 59448c299efcf6e4cb037652633e3ec2, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.DashAttack_1.17
-        variantId: Default
+        value: Humanoid.KatanaAttackData.DashAttack.1.17
       Value: {fileID: 11400000, guid: 65faebc96b7f6484299f1c962531fc2d, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpDashAttack_1.18
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpDashAttack.1.18
       Value: {fileID: 11400000, guid: 715eaf275f0fe604b8e185b0c8837882, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_1.19
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.1.19
       Value: {fileID: 11400000, guid: 9afe4affec8e2d748a40572c8b6f18bf, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_2.20
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.2.20
       Value: {fileID: 11400000, guid: 3b2ea0b4602714a4db4ffa2f65ee08af, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_3.21
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.3.21
       Value: {fileID: 11400000, guid: fbd698bd0c37c8b42b5e182b4a415feb, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_4.22
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.4.22
       Value: {fileID: 11400000, guid: dca75e9ee5a569649beac2395eda0be1, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_5.23
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.5.23
       Value: {fileID: 11400000, guid: 0e6a13e4c4441f347a3a944734fa94aa, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_6.24
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.6.24
       Value: {fileID: 11400000, guid: 7e543fd6c823c814389cd54a24774c69, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.JumpAttack_7.25
-        variantId: Default
+        value: Humanoid.KatanaAttackData.JumpAttack.7.25
       Value: {fileID: 11400000, guid: 7ac8682423e22154481594e7e946caa7, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_1.26
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.1.26
       Value: {fileID: 11400000, guid: 63698cee80f3d3243844e693daabe31e, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_2.27
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.2.27
       Value: {fileID: 11400000, guid: 5501b9324b6c77f4aaa6a7d479751303, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_3.28
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.3.28
       Value: {fileID: 11400000, guid: 3d06e6af36b09c845b6e6808d83bd7f8, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_4.29
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.4.29
       Value: {fileID: 11400000, guid: 972a2196a85b1514390a7a177439285a, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_5.30
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.5.30
       Value: {fileID: 11400000, guid: a497ed3fda5a5b44fa1574bb9ac7f8da, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_6.31
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.6.31
       Value: {fileID: 11400000, guid: d1b44402661a53f4da3838d44d066627, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Counter_Attack_1.32
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Counter.Attack.1.32
       Value: {fileID: 11400000, guid: 9bff770f183a1c341bc05f555aa03858, type: 2}
     - Key:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Counter_Attack_2.33
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Counter.Attack.2.33
       Value: {fileID: 11400000, guid: 1a5c977f30db2ab40ae74d355f6e2e9b, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_1.01
-        variantId: Default
+        value: humanoid.Attack.1.01
       Value: {fileID: 11400000, guid: cbcb97b2f0957474c820ac452221915b, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_2.02
-        variantId: Default
+        value: humanoid.Attack.2.02
       Value: {fileID: 11400000, guid: 080a58acf516fa443a61faaa67a95bec, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_3.03
-        variantId: Default
+        value: humanoid.Attack.3.03
       Value: {fileID: 11400000, guid: 12d9d792b3a77f44b8218316aab82a48, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_4.04
-        variantId: Default
+        value: humanoid.Attack.4.04
       Value: {fileID: 11400000, guid: 1be7c10c99973cd409c16b50edfb23ea, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_5.05
-        variantId: Default
+        value: humanoid.Attack.5.05
       Value: {fileID: 11400000, guid: 7397a1cc15de7e348b9a8751ee778b00, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_6.06
-        variantId: Default
+        value: humanoid.Attack.6.06
       Value: {fileID: 11400000, guid: 44901c4460393df4eafc6637d3add9c7, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_7.07
-        variantId: Default
+        value: humanoid.Attack.7.07
       Value: {fileID: 11400000, guid: 68353736fd938a74884926fc8a51be16, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_8.08
-        variantId: Default
+        value: humanoid.Attack.8.08
       Value: {fileID: 11400000, guid: ff559464faf7a324ba503f7ea6ce4deb, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Attack_9.09
-        variantId: Default
+        value: humanoid.Attack.9.09
       Value: {fileID: 11400000, guid: 4353bfe3deec9bc4f9a7fecbb4d12168, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Skill_1.10
-        variantId: Default
+        value: humanoid.Skill.1.10
       Value: {fileID: 11400000, guid: 63698cee80f3d3243844e693daabe31e, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Skill_2.11
-        variantId: Default
+        value: humanoid.Skill.2.11
       Value: {fileID: 11400000, guid: 5501b9324b6c77f4aaa6a7d479751303, type: 2}
     - Key:
-        abilityId: Ability.Actor.humanoid.Skill_3.12
-        variantId: Default
+        value: humanoid.Skill.3.12
       Value: {fileID: 11400000, guid: 3d06e6af36b09c845b6e6808d83bd7f8, type: 2}
   motionSlots:
     _serializedList:

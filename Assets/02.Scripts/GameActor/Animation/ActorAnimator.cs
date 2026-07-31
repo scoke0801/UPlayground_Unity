@@ -354,13 +354,13 @@ namespace UPlayGround.Animation
             => ResolveMotionSetAsset(slot)?.motionSet;
 
         protected virtual MotionSetAsset ResolveAbilityMotionAsset(
-            AbilityMotionKey key) =>
+            MotionKey key) =>
             _motionSet != null
                 ? _motionSet.GetAbilityMotionAsset(key)
                 : null;
 
         public bool TryResolveAbilityMotion(
-            AbilityMotionKey key,
+            MotionKey key,
             out MotionSetAsset asset)
         {
             MotionSetAsset resolved = ResolveAbilityMotionAsset(key);

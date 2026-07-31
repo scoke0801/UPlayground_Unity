@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_KatanaAttackData_31_Skill_6
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_6.31
+  abilityId: Actor.Humanoid.KatanaAttackData.Skill.6.31
   editorMemo: 
   presentation:
     displayName: Skill_6
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_KatanaAttackData.Skill_6.31
-        variantId: Default
+        value: Humanoid.KatanaAttackData.Skill.6.31
       attackType: 0
       hitPhases:
       - damage: 7

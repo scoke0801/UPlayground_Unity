@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_DualBladeAttackData_12_HeavyAttack_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_2.12
+  abilityId: Actor.Humanoid.DualBladeAttackData.HeavyAttack.2.12
   editorMemo: 
   presentation:
     displayName: HeavyAttack_2
@@ -89,8 +89,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_DualBladeAttackData.HeavyAttack_2.12
-        variantId: Default
+        value: Humanoid.DualBladeAttackData.HeavyAttack.2.12
       attackType: 0
       hitPhases:
       - damage: 8

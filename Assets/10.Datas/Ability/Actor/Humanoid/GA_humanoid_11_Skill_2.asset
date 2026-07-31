@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.humanoid.Skill_2.11
-        variantId: Default
+        value: humanoid.Skill.2.11
       attackType: 0
       hitPhases:
       - damage: 10
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_humanoid_11_Skill_2
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.humanoid.Skill_2.11
+  abilityId: Actor.humanoid.Skill.2.11
   editorMemo: 
   presentation:
     displayName: Skill_2

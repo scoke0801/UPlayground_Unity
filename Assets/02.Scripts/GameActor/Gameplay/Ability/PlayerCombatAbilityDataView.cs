@@ -32,7 +32,7 @@ namespace UPlayGround.Gameplay.Ability
         public AbilityAttackInfo entryAttackVsAirborne;
         public AbilityAttackInfo swapEvadeCounterAttack;
         public AbilityAttackInfo swapSpecialAttack;
-        public AbilityMotionKey chargeMotionKey;
+        public MotionKey chargeMotionKey;
         public PlayerInterruptAction chargeInterruptActions;
         public string fullChargeVfxKey;
         public ActorSocketType fullChargeVfxSocket;

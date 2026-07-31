@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Dash_00
-        variantId: Default
+        value: Katana.Dash.00
       attackType: 0
       hitPhases:
       - damage: 47
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Dash_00
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerKatanaAttackData.Combat.Dash_00
+  abilityId: Player.Katana.Dash.00
   editorMemo: 
   presentation:
     displayName: PlayerKatanaAttackData Dash_00

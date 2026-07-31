@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.SwapSpecial
-        variantId: Default
+        value: DualBlade.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 48
@@ -450,7 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDualBladeAttackData_SwapSpecial
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDualBladeAttackData.Combat.SwapSpecial
+  abilityId: Player.DualBlade.SwapSpecial
   editorMemo: 
   presentation:
     displayName: PlayerDualBladeAttackData SwapSpecial

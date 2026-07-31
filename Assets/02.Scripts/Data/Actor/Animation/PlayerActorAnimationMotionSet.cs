@@ -1,4 +1,4 @@
-﻿using AYellowpaper.SerializedCollections;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
@@ -44,7 +44,7 @@ namespace UPlayGround.Data.Actor.Animation
 
         public MotionSetAsset GetAbilityMotionAsset(
             WeaponType weaponType,
-            AbilityMotionKey key)
+            MotionKey key)
         {
             ActorAnimationMotionSet motionSet =
                 GetActorAnimationMotionSet(weaponType);

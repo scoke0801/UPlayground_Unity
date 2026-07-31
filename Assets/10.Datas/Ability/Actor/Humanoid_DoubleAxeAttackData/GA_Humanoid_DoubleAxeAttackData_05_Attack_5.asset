@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_5.05
-        variantId: Default
+        value: Humanoid.DoubleAxeAttackData.Attack.5.05
       attackType: 0
       hitPhases:
       - damage: 6
@@ -194,7 +193,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Humanoid_DoubleAxeAttackData_05_Attack_5
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Humanoid_DoubleAxeAttackData.Attack_5.05
+  abilityId: Actor.Humanoid.DoubleAxeAttackData.Attack.5.05
   editorMemo: 
   presentation:
     displayName: Attack_5

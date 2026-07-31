@@ -49,9 +49,8 @@ namespace UPlayGround.Ability.PlayModeTests
             {
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new AbilityMotionKey(
-                        "Ability.Test.PlayMode.VerticalSlice",
-                        "Ground"),
+                    motionKey = new MotionKey(
+                        "Tests.PlayMode.VerticalSlice.Ground"),
                 },
             };
 
@@ -91,14 +90,13 @@ namespace UPlayGround.Ability.PlayModeTests
                 Assert.That(
                     UPlayGroundAbilityPayloadResolver.TryResolve(
                         variant,
-                        out AbilityMotionKey motionKey,
+                        out MotionKey motionKey,
                         out AbilityAttackInfo attackInfo),
                     Is.True);
                 Assert.That(
                     motionKey,
-                    Is.EqualTo(new AbilityMotionKey(
-                        ability.abilityId,
-                        variant.variantId)));
+                Is.EqualTo(new MotionKey(
+                    "Tests.PlayMode.VerticalSlice.Ground")));
                 Assert.That(attackInfo, Is.SameAs(payload.attackInfo));
 
                 // 실제 프로젝트에서는 이 사이에서 상태 전환과 MotionSet 시작 승인을 수행한다.

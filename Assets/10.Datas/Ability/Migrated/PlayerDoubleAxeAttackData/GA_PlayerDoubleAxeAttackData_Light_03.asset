@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_Light_03
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_03
+  abilityId: Player.DoubleAxe.Light.03
   editorMemo: 
   presentation:
     displayName: PlayerDoubleAxeAttackData Light_03
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.Light_03
-        variantId: Default
+        value: DoubleAxe.Light.03
       attackType: 0
       hitPhases:
       - damage: 75

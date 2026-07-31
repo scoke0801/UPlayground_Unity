@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_00
-        variantId: Default
+        value: SwordShield.Heavy.00
       attackType: 0
       hitPhases:
       - damage: 25
@@ -258,7 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerSwordShieldAttackData_Heavy_00
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerSwordShieldAttackData.Combat.Heavy_00
+  abilityId: Player.SwordShield.Heavy.00
   editorMemo: 
   presentation:
     displayName: PlayerSwordShieldAttackData Heavy_00

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerWhipAttackData_Heavy_02
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_02
+  abilityId: Player.Whip.Heavy.02
   editorMemo: 
   presentation:
     displayName: PlayerWhipAttackData Heavy_02
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerWhipAttackData.Combat.Heavy_02
-        variantId: Default
+        value: Whip.Heavy.02
       attackType: 0
       hitPhases:
       - damage: 30

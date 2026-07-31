@@ -1,4 +1,4 @@
-﻿using AYellowpaper.SerializedCollections;
+using AYellowpaper.SerializedCollections;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Data.Ability;
@@ -8,29 +8,21 @@ using UPlayGround.Gameplay.Tag;
 namespace UPlayGround.Data.Actor.Animation
 {
     /// <summary>
-    /// Ability 실행 결과를 액터 소유 MotionSet에 연결하는 안정 키.
-    /// 모션 에셋은 GAS Payload가 아니라 ActorAnimationMotionSet이 소유한다.
+    /// 액터 소유 MotionSet을 조회하는 독립 키.
+    /// Ability 식별자와 Variant 식별자를 포함하지 않으며, GAS는 이 값만 전달한다.
     /// </summary>
     [System.Serializable]
-    public struct AbilityMotionKey : System.IEquatable<AbilityMotionKey>
+    public struct MotionKey : System.IEquatable<MotionKey>
     {
-        public string abilityId;
-        public string variantId;
+        public string value;
 
         public bool IsValid =>
-            !string.IsNullOrWhiteSpace(abilityId)
-            && !string.IsNullOrWhiteSpace(variantId);
+            !string.IsNullOrWhiteSpace(value);
 
-        public AbilityMotionKey(string abilityId, string variantId)
+        public MotionKey(string value)
         {
-            this.abilityId = abilityId?.Trim();
-            this.variantId = variantId?.Trim();
+            this.value = value?.Trim();
         }
-
-        public static AbilityMotionKey From(
-            GameplayAbilitySO ability,
-            AbilityVariantDefinition variant) =>
-            new(ability?.abilityId, variant?.variantId);
 
         /// <summary>
         /// 비교·해시 전에 공백을 떨어낸다. struct는 역직렬화와 인스펙터 편집이 생성자를
@@ -39,50 +31,37 @@ namespace UPlayGround.Data.Actor.Animation
         private static string Normalize(string value) =>
             string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
-        public bool Equals(AbilityMotionKey other) =>
+        public bool Equals(MotionKey other) =>
             string.Equals(
-                Normalize(abilityId),
-                Normalize(other.abilityId),
-                System.StringComparison.Ordinal)
-            && string.Equals(
-                Normalize(variantId),
-                Normalize(other.variantId),
+                Normalize(value),
+                Normalize(other.value),
                 System.StringComparison.Ordinal);
 
         public override bool Equals(object obj) =>
-            obj is AbilityMotionKey other && Equals(other);
+            obj is MotionKey other && Equals(other);
 
         public override int GetHashCode()
         {
             unchecked
             {
-                string normalizedAbilityId = Normalize(abilityId);
-                string normalizedVariantId = Normalize(variantId);
-                int hash = 17;
-                hash = hash * 31
-                       + (normalizedAbilityId != null
-                           ? System.StringComparer.Ordinal.GetHashCode(
-                               normalizedAbilityId)
-                           : 0);
-                hash = hash * 31
-                       + (normalizedVariantId != null
-                           ? System.StringComparer.Ordinal.GetHashCode(
-                               normalizedVariantId)
-                           : 0);
-                return hash;
+                string normalizedValue = Normalize(value);
+                return normalizedValue != null
+                    ? System.StringComparer.Ordinal.GetHashCode(
+                        normalizedValue)
+                    : 0;
             }
         }
 
         public override string ToString() =>
-            IsValid ? $"{abilityId}::{variantId}" : "<Invalid Ability Motion Key>";
+            IsValid ? value : "<Invalid Motion Key>";
 
         public static bool operator ==(
-            AbilityMotionKey left,
-            AbilityMotionKey right) => left.Equals(right);
+            MotionKey left,
+            MotionKey right) => left.Equals(right);
 
         public static bool operator !=(
-            AbilityMotionKey left,
-            AbilityMotionKey right) => !left.Equals(right);
+            MotionKey left,
+            MotionKey right) => !left.Equals(right);
     }
 
     [CreateAssetMenu(fileName = "ActorAnimationMotionSet", menuName = "UPlayGround/애니메이션/Actor")]
@@ -98,8 +77,8 @@ namespace UPlayGround.Data.Actor.Animation
         [Tooltip("이 액터 모션 세트에서 함께 저작할 공격 Ability 모음입니다.")]
         public AbilitySetSO attackAbilitySet;
 
-        [Tooltip("Ability/Variant 키에 대응하는 공격 모션입니다. GAS는 키만 전달하고 실제 모션은 액터가 해석합니다.")]
-        public SerializedDictionary<AbilityMotionKey, MotionSetAsset> abilityMotions;
+        [Tooltip("독립 Motion Key에 대응하는 공격 모션입니다. GAS는 Key만 전달하고 실제 모션은 액터가 해석합니다.")]
+        public SerializedDictionary<MotionKey, MotionSetAsset> abilityMotions;
 
         [Header("상태 모션")]
         [Tooltip("액터 상태가 사용하는 의미 슬롯 매핑입니다.")]
@@ -119,7 +98,7 @@ namespace UPlayGround.Data.Actor.Animation
             GetMotionSetAsset(slot, depth)?.motionSet;
 
         public MotionSetAsset GetAbilityMotionAsset(
-            AbilityMotionKey key,
+            MotionKey key,
             int depth = 0)
         {
             if (depth > 8 || !key.IsValid)
@@ -132,7 +111,7 @@ namespace UPlayGround.Data.Actor.Animation
         }
 
         public void SetAbilityMotionAsset(
-            AbilityMotionKey key,
+            MotionKey key,
             MotionSetAsset motion)
         {
             if (!key.IsValid)
@@ -141,9 +120,8 @@ namespace UPlayGround.Data.Actor.Animation
                     nameof(key));
 
             abilityMotions ??=
-                new SerializedDictionary<AbilityMotionKey, MotionSetAsset>();
+                new SerializedDictionary<MotionKey, MotionSetAsset>();
             abilityMotions[key] = motion;
         }
     }
 }
-

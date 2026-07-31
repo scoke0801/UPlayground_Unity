@@ -6,7 +6,9 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 using UPlayGround.Ability.Core;
+using UPlayGround.Animation;
 using UPlayGround.Data.Actor;
+using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Editor.Ability.Production;
@@ -49,6 +51,7 @@ namespace UPlayGround.Data.Editor.Ability
         private string _tabClipboardTab;
         private VisualElement _variantPayloadSection;
         private string _variantPayloadSignature;
+        private AbilityMotionIndex _abilityMotionIndex;
         private readonly Dictionary<string, bool> _payloadFoldoutStates = new();
 
         private sealed class AbilitySetScope
@@ -62,6 +65,14 @@ namespace UPlayGround.Data.Editor.Ability
             public bool HasInputConnection;
             public bool HasBtConnection;
             public readonly HashSet<CharacterActorType> CharacterTypes = new();
+        }
+
+        private sealed class MotionMappingOption
+        {
+            public string Label;
+            public MotionKey SourceKey;
+            public MotionSetAsset Motion;
+            public bool Inherited;
         }
 
         private sealed class AbilitySetScopePopup : PopupWindowContent
@@ -963,6 +974,7 @@ namespace UPlayGround.Data.Editor.Ability
             if (_variantPayloadSection == null) return;
 
             _variantPayloadSection.Clear();
+            _abilityMotionIndex = new AbilityMotionIndex();
             _variantPayloadSignature = BuildVariantPayloadSignature(ability);
             _variantPayloadSection.Add(SectionHeader(
                 "Execution Payload 편집",
@@ -987,7 +999,12 @@ namespace UPlayGround.Data.Editor.Ability
                     ? $"Variant {i}"
                     : variant.variantId;
                 _variantPayloadSection.Add(
-                    BuildPayloadFoldout(i, variantId, variant.executionPayload));
+                    BuildPayloadFoldout(
+                        ability,
+                        variant,
+                        i,
+                        variantId,
+                        variant.executionPayload));
             }
         }
 
@@ -1038,7 +1055,9 @@ namespace UPlayGround.Data.Editor.Ability
             VisualElement parent,
             SerializedObject payloadSerialized,
             SerializedProperty attackInfo,
-            string stateKey)
+            string stateKey,
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant)
         {
             var remaining = new List<string>();
             SerializedProperty child = attackInfo.Copy();
@@ -1076,6 +1095,8 @@ namespace UPlayGround.Data.Editor.Ability
                     title,
                     present,
                     defaultOpen,
+                    ability,
+                    variant,
                     isAiGroup && !aiSelectable
                         ? "Ai Selectable이 꺼져 있어 이 그룹은 AI 선택에 사용되지 않습니다. "
                           + "(플레이어 Ability에서는 항상 비활성)"
@@ -1100,6 +1121,8 @@ namespace UPlayGround.Data.Editor.Ability
                         "기타 (그룹 미지정)",
                         leftovers,
                         true,
+                        ability,
+                        variant,
                         "AttackInfoGroups 표에 없는 필드입니다. 필드를 추가했다면 표에도 반영하세요."));
                 }
             }
@@ -1113,6 +1136,8 @@ namespace UPlayGround.Data.Editor.Ability
             string title,
             List<SerializedProperty> properties,
             bool defaultOpen,
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
             string hint)
         {
             var group = new Foldout
@@ -1135,6 +1160,18 @@ namespace UPlayGround.Data.Editor.Ability
 
             for (int i = 0; i < properties.Count; i++)
             {
+                if (properties[i].name == "baseInfo"
+                    && ability != null
+                    && variant != null)
+                {
+                    group.Add(BuildBaseInfoEditor(
+                        payloadSerialized,
+                        properties[i],
+                        ability,
+                        variant));
+                    continue;
+                }
+
                 var field = new PropertyField(properties[i]);
                 field.style.marginTop = 2f;
                 field.Bind(payloadSerialized);
@@ -1143,7 +1180,422 @@ namespace UPlayGround.Data.Editor.Ability
             return group;
         }
 
+        private VisualElement BuildBaseInfoEditor(
+            SerializedObject payloadSerialized,
+            SerializedProperty baseInfo,
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant)
+        {
+            var foldout = new Foldout
+            {
+                text = "Base Info",
+                value = true,
+            };
+            foldout.style.marginTop = 2f;
+
+            SerializedProperty child = baseInfo.Copy();
+            SerializedProperty end = baseInfo.GetEndProperty();
+            bool enterChildren = true;
+            while (child.NextVisible(enterChildren)
+                   && !SerializedProperty.EqualContents(child, end))
+            {
+                enterChildren = false;
+                if (child.name == "motionKey")
+                {
+                    foldout.Add(BuildMotionBindingEditor(
+                        payloadSerialized,
+                        child.Copy(),
+                        ability,
+                        variant));
+                    continue;
+                }
+
+                var field = new PropertyField(child.Copy());
+                field.style.marginTop = 2f;
+                field.Bind(payloadSerialized);
+                foldout.Add(field);
+            }
+            return foldout;
+        }
+
+        private VisualElement BuildMotionBindingEditor(
+            SerializedObject payloadSerialized,
+            SerializedProperty motionKeyProperty,
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant)
+        {
+            var root = new VisualElement();
+            root.style.marginTop = 3f;
+            root.style.marginBottom = 5f;
+            root.style.paddingTop = 5f;
+            root.style.paddingBottom = 5f;
+            root.style.paddingLeft = 6f;
+            root.style.paddingRight = 6f;
+            root.style.borderTopWidth = 1f;
+            root.style.borderBottomWidth = 1f;
+            root.style.borderLeftWidth = 1f;
+            root.style.borderRightWidth = 1f;
+            root.style.borderTopColor = Border;
+            root.style.borderBottomColor = Border;
+            root.style.borderLeftColor = Border;
+            root.style.borderRightColor = Border;
+
+            MotionKey storedKey = ReadMotionKey(motionKeyProperty);
+            List<ActorAnimationMotionSet> owners =
+                FindMotionOwners(ability, storedKey);
+            if (owners.Count == 0)
+            {
+                // 드롭다운은 이미 매핑된 Key만 고를 수 있다. 대상 MotionSet을 못 찾은
+                // Ability까지 드롭다운으로 막으면 아직 모션이 정해지지 않은 Ability의 Key를
+                // 이 창에서 아예 저작할 수 없게 되므로, 이 경우에는 직접 입력을 연다.
+                root.Add(BuildRawMotionKeyField(
+                    payloadSerialized,
+                    motionKeyProperty,
+                    storedKey));
+                root.Add(new HelpBox(
+                    "이 Ability가 연결된 ActorAnimationMotionSet을 찾지 못해 Key를 직접 입력합니다. "
+                    + "AbilitySet 범위를 선택하거나 Actor MotionSet의 Attack Ability Set 연결을 확인하세요.",
+                    HelpBoxMessageType.Warning));
+                return root;
+            }
+
+            List<string> ownerLabels = owners
+                .Select(GetMotionOwnerLabel)
+                .ToList();
+            int ownerIndex = 0;
+            for (int i = 0; i < owners.Count; i++)
+            {
+                if (owners[i].attackAbilitySet == _activeSet)
+                {
+                    ownerIndex = i;
+                    break;
+                }
+            }
+
+            // 대상을 고른 뒤 Key를 고르는 순서이므로 배치도 같은 순서로 둔다.
+            if (owners.Count > 1)
+            {
+                root.Add(new HelpBox(
+                    $"{owners.Count}개의 액터/무기 모션 컨텍스트가 연결되어 있습니다. "
+                    + "대상을 선택하면 해당 컨텍스트에서 사용할 수 있는 Motion Key만 표시합니다.",
+                    HelpBoxMessageType.Info));
+            }
+
+            var ownerDropdown = new DropdownField(
+                "대상 액터 · 무기",
+                ownerLabels,
+                ownerIndex);
+            ownerDropdown.tooltip =
+                "현재 Ability를 직접 연결하거나 현재 Motion Key를 소유한 액터 모션 세트입니다.";
+            root.Add(ownerDropdown);
+
+            var keyRoot = new VisualElement();
+            root.Add(keyRoot);
+            RebuildMotionKeyPanel(
+                keyRoot,
+                payloadSerialized,
+                motionKeyProperty,
+                owners[ownerIndex],
+                storedKey);
+
+            ownerDropdown.RegisterValueChangedCallback(_ =>
+            {
+                int selectedIndex = ownerDropdown.index;
+                if (selectedIndex < 0 || selectedIndex >= owners.Count)
+                    return;
+                RebuildMotionKeyPanel(
+                    keyRoot,
+                    payloadSerialized,
+                    motionKeyProperty,
+                    owners[selectedIndex],
+                    ReadMotionKey(motionKeyProperty));
+            });
+            return root;
+        }
+
+        private List<ActorAnimationMotionSet> FindMotionOwners(
+            GameplayAbilitySO ability,
+            MotionKey key)
+        {
+            _abilityMotionIndex ??= new AbilityMotionIndex();
+            var attachedOwners = new HashSet<ActorAnimationMotionSet>();
+
+            IReadOnlyList<ActorAnimationMotionSet> allOwners =
+                _abilityMotionIndex.Owners;
+            for (int i = 0; i < allOwners.Count; i++)
+            {
+                ActorAnimationMotionSet owner = allOwners[i];
+                if (owner?.attackAbilitySet == null)
+                    continue;
+                if (owner.attackAbilitySet == _activeSet
+                    || owner.attackAbilitySet
+                        .EnumerateAll()
+                        .Any(candidate => candidate == ability))
+                    attachedOwners.Add(owner);
+            }
+
+            HashSet<ActorAnimationMotionSet> result = attachedOwners;
+            if (result.Count == 0)
+            {
+                result = new HashSet<ActorAnimationMotionSet>();
+                List<ActorAnimationMotionSet> directOwners =
+                    _abilityMotionIndex.FindDirectOwners(key);
+                for (int i = 0; i < directOwners.Count; i++)
+                    result.Add(directOwners[i]);
+            }
+
+            return result
+                .OrderByDescending(owner => owner.attackAbilitySet == _activeSet)
+                .ThenBy(owner => owner.attackWeaponType)
+                .ThenBy(owner => owner.name, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        private static string GetMotionOwnerLabel(
+            ActorAnimationMotionSet owner) =>
+            $"{owner.attackWeaponType} · {owner.name}";
+
+        private void RebuildMotionKeyPanel(
+            VisualElement parent,
+            SerializedObject payloadSerialized,
+            SerializedProperty motionKeyProperty,
+            ActorAnimationMotionSet owner,
+            MotionKey key)
+        {
+            parent.Clear();
+            if (owner == null)
+                return;
+
+            List<MotionMappingOption> options =
+                BuildMotionKeyOptions(owner);
+            if (options.Count == 0)
+            {
+                parent.Add(BuildRawMotionKeyField(
+                    payloadSerialized,
+                    motionKeyProperty,
+                    key));
+                parent.Add(new HelpBox(
+                    "선택한 대상의 모션 세트에 매핑된 Motion Key가 없어 직접 입력합니다. "
+                    + "Actor MotionSet의 Ability Motions에 Key를 먼저 추가하면 목록에서 고를 수 있습니다.",
+                    HelpBoxMessageType.Warning));
+                return;
+            }
+
+            bool currentKeyAvailable =
+                options.Any(option => option.SourceKey == key);
+            // 저장된 값을 반드시 항목으로 만들어 둔다. 이게 없으면 드롭다운이 첫 후보를
+            // 선택된 것처럼 보여줘 실제 직렬화 값과 표시가 어긋난다.
+            if (!currentKeyAvailable)
+            {
+                options.Insert(0, new MotionMappingOption
+                {
+                    Label = key.IsValid
+                        ? $"{key} (현재 값 · 대상에서 해석 불가)"
+                        : "(미지정)",
+                    SourceKey = key,
+                });
+            }
+
+            List<string> labels = options.Select(option => option.Label).ToList();
+            int selectedIndex = options.FindIndex(
+                option => option.SourceKey == key);
+            if (selectedIndex < 0)
+                selectedIndex = 0;
+
+            var keyDropdown = new DropdownField(
+                "Motion Key",
+                labels,
+                selectedIndex);
+            keyDropdown.tooltip =
+                $"Motion: {options[selectedIndex].Motion?.name ?? "미지정"}\n"
+                + $"Key: {options[selectedIndex].SourceKey}\n"
+                + "선택한 액터/무기 모션 세트에서 해석 가능한 항목입니다.";
+            parent.Add(keyDropdown);
+
+            MotionKey selectedKey = options[selectedIndex].SourceKey;
+            MotionSetAsset resolved = owner.GetAbilityMotionAsset(selectedKey);
+
+            var statusRow = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                    alignItems = Align.Center,
+                    marginTop = 3f,
+                },
+            };
+            string inheritedSuffix =
+                options[selectedIndex].Inherited ? " · fallback" : string.Empty;
+            var status = new Label(resolved != null
+                ? $"해석 결과: {resolved.name}{inheritedSuffix}"
+                : "해석 결과: 미지정");
+            status.style.flexGrow = 1f;
+            status.tooltip = resolved != null
+                ? AssetDatabase.GetAssetPath(resolved)
+                : string.Empty;
+            statusRow.Add(status);
+            // 표시된 해석 결과와 같은 대상을 가리켜야 한다. 저장된 Key를 다시 읽으면
+            // 버튼은 활성인데 클릭은 아무 일도 하지 않는 상태가 생긴다.
+            var ping = new Button(() =>
+            {
+                if (resolved == null) return;
+                Selection.activeObject = resolved;
+                EditorGUIUtility.PingObject(resolved);
+            })
+            {
+                text = "Project에서 보기",
+            };
+            ping.SetEnabled(resolved != null);
+            statusRow.Add(ping);
+            parent.Add(statusRow);
+
+            if (!currentKeyAvailable)
+            {
+                parent.Add(new HelpBox(
+                    key.IsValid
+                        ? "현재 저장된 Key는 선택한 대상에서 해석되지 않습니다. "
+                          + "드롭다운에서 사용 가능한 Key를 선택하세요."
+                        : "Motion Key가 지정되지 않았습니다. "
+                          + "드롭다운에서 사용할 Key를 선택하세요.",
+                    HelpBoxMessageType.Warning));
+            }
+
+            keyDropdown.RegisterValueChangedCallback(_ =>
+            {
+                int optionIndex = keyDropdown.index;
+                if (optionIndex < 0 || optionIndex >= options.Count)
+                    return;
+                MotionKey selected = options[optionIndex].SourceKey;
+                if (!selected.IsValid || selected == key)
+                    return;
+                WriteMotionKey(
+                    payloadSerialized,
+                    motionKeyProperty,
+                    selected);
+                RebuildMotionKeyPanel(
+                    parent,
+                    payloadSerialized,
+                    motionKeyProperty,
+                    owner,
+                    selected);
+            });
+        }
+
+        private static List<MotionMappingOption> BuildMotionKeyOptions(
+            ActorAnimationMotionSet owner)
+        {
+            var options = new List<MotionMappingOption>();
+            var seen = new HashSet<MotionKey>();
+            var visited = new HashSet<ActorAnimationMotionSet>();
+            bool inherited = false;
+            for (ActorAnimationMotionSet current = owner;
+                 current != null && visited.Add(current);
+                 current = current.fallbackMotionSet)
+            {
+                if (current.abilityMotions != null)
+                {
+                    IEnumerable<KeyValuePair<
+                            MotionKey,
+                            MotionSetAsset>> mappings =
+                        current.abilityMotions
+                            .Where(pair =>
+                                pair.Key.IsValid
+                                && pair.Value != null
+                                && seen.Add(pair.Key))
+                            .OrderBy(
+                                pair => pair.Key.ToString(),
+                                StringComparer.Ordinal);
+                    foreach (KeyValuePair<
+                                 MotionKey,
+                                 MotionSetAsset> pair in mappings)
+                    {
+                        options.Add(new MotionMappingOption
+                        {
+                            Label = pair.Key.ToString(),
+                            SourceKey = pair.Key,
+                            Motion = pair.Value,
+                            Inherited = inherited,
+                        });
+                    }
+                }
+                inherited = true;
+            }
+            return options;
+        }
+
+        /// <summary>
+        /// 드롭다운은 이미 매핑된 Key만 고를 수 있으므로, 아직 매핑이 없는 Ability를 위해
+        /// 원시 문자열 입력 경로를 남긴다. 이게 없으면 신규 Key를 이 창에서 만들 수 없다.
+        /// </summary>
+        private VisualElement BuildRawMotionKeyField(
+            SerializedObject payloadSerialized,
+            SerializedProperty motionKeyProperty,
+            MotionKey key)
+        {
+            var field = new TextField("Motion Key")
+            {
+                value = key.IsValid ? key.value : string.Empty,
+                isDelayed = true,
+                tooltip =
+                    "Actor MotionSet의 Ability Motions에 등록할 Key를 직접 입력합니다.",
+            };
+            field.RegisterValueChangedCallback(evt =>
+            {
+                var edited = new MotionKey(evt.newValue);
+                if (edited == key)
+                    return;
+                WriteMotionKey(payloadSerialized, motionKeyProperty, edited);
+            });
+            return field;
+        }
+
+        private void WriteMotionKey(
+            SerializedObject payloadSerialized,
+            SerializedProperty motionKeyProperty,
+            MotionKey key)
+        {
+            if (payloadSerialized?.targetObject == null
+                || motionKeyProperty == null
+                || !key.IsValid)
+                return;
+
+            string propertyPath = motionKeyProperty.propertyPath;
+            Undo.RecordObjects(
+                payloadSerialized.targetObjects,
+                "Ability Motion Key 변경");
+            payloadSerialized.Update();
+            SerializedProperty current =
+                payloadSerialized.FindProperty(propertyPath);
+            SerializedProperty value =
+                current?.FindPropertyRelative("value");
+            if (value == null)
+                return;
+
+            value.stringValue = key.value;
+            payloadSerialized.ApplyModifiedPropertiesWithoutUndo();
+            foreach (UnityEngine.Object target
+                     in payloadSerialized.targetObjects)
+            {
+                EditorUtility.SetDirty(target);
+                AssetDatabase.SaveAssetIfDirty(target);
+            }
+            RebuildValidation();
+        }
+
+        private static MotionKey ReadMotionKey(
+            SerializedProperty motionKeyProperty)
+        {
+            if (motionKeyProperty == null)
+                return default;
+            string value = motionKeyProperty
+                .FindPropertyRelative("value")
+                ?.stringValue;
+            return new MotionKey(value);
+        }
+
         private VisualElement BuildPayloadFoldout(
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
             int index,
             string variantId,
             AbilityExecutionPayloadSO payload)
@@ -1203,7 +1655,12 @@ namespace UPlayGround.Data.Editor.Ability
             bool grouped = false;
             if (attackInfo != null)
                 grouped = BuildAttackInfoGroups(
-                    foldout, payloadSerialized, attackInfo, stateKey);
+                    foldout,
+                    payloadSerialized,
+                    attackInfo,
+                    stateKey,
+                    ability,
+                    variant);
 
             SerializedProperty iterator = payloadSerialized.GetIterator();
             bool enterChildren = true;

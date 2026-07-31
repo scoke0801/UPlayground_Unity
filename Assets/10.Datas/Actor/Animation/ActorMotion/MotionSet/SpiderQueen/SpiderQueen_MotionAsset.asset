@@ -18,28 +18,22 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Actor.Spider_Queen.Attack_1.01
-        variantId: Default
+        value: Spider.Queen.Attack.1.01
       Value: {fileID: 11400000, guid: df298d3799fced642b27d9ffd1aa7985, type: 2}
     - Key:
-        abilityId: Ability.Actor.Spider_Queen.Attack_2.02
-        variantId: Default
+        value: Spider.Queen.Attack.2.02
       Value: {fileID: 11400000, guid: 1084a34f4d352e54bb45bf4bd614fd46, type: 2}
     - Key:
-        abilityId: Ability.Actor.Spider_Queen.HeavyAttack_1.03
-        variantId: Default
+        value: Spider.Queen.HeavyAttack.1.03
       Value: {fileID: 11400000, guid: 205e56abb17f38846a845cb6f9dbaa17, type: 2}
     - Key:
-        abilityId: Ability.Actor.Spider_Queen.HeavyAttack_2.04
-        variantId: Default
+        value: Spider.Queen.HeavyAttack.2.04
       Value: {fileID: 11400000, guid: a48ea328697de4a419488038b33420d8, type: 2}
     - Key:
-        abilityId: Ability.Actor.Spider_Queen.Skill_1.05
-        variantId: Default
+        value: Spider.Queen.Skill.1.05
       Value: {fileID: 11400000, guid: 7b7ca35e64eaee34a841d522a2df1d98, type: 2}
     - Key:
-        abilityId: Ability.Actor.Spider_Queen.Skill_2.06
-        variantId: Default
+        value: Spider.Queen.Skill.2.06
       Value: {fileID: 11400000, guid: 67d468390c036d24d9e80f36442d6545, type: 2}
   motionSlots:
     _serializedList:

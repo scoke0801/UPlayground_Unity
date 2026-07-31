@@ -18,20 +18,16 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.Actor.Lich.Attack_1.01
-        variantId: Default
+        value: Lich.Attack.1.01
       Value: {fileID: 11400000, guid: 20ca2d93fe97bc74f97fbb2a40d94ce1, type: 2}
     - Key:
-        abilityId: Ability.Actor.Lich.Attack_2.02
-        variantId: Default
+        value: Lich.Attack.2.02
       Value: {fileID: 11400000, guid: a0618e4dda6b6a44abaf660ecc8bb084, type: 2}
     - Key:
-        abilityId: Ability.Actor.Lich.Skill_1.03
-        variantId: Default
+        value: Lich.Skill.1.03
       Value: {fileID: 11400000, guid: 1e49a969d0e52b44fa1f3d8456d372f8, type: 2}
     - Key:
-        abilityId: Ability.Actor.Lich.Skill_2.04
-        variantId: Default
+        value: Lich.Skill.2.04
       Value: {fileID: 11400000, guid: 4a1e4b4ee1e152043948e9d861f21c70, type: 2}
   motionSlots:
     _serializedList:

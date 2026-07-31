@@ -18,24 +18,19 @@ MonoBehaviour:
   abilityMotions:
     _serializedList:
     - Key:
-        abilityId: Ability.ElementalImbue.Dark
-        variantId: Default
+        value: ElementalImbue.Dark
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Fire
-        variantId: Default
+        value: ElementalImbue.Fire
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Light
-        variantId: Default
+        value: ElementalImbue.Light
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Nature
-        variantId: Default
+        value: ElementalImbue.Nature
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
     - Key:
-        abilityId: Ability.ElementalImbue.Water
-        variantId: Default
+        value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
   motionSlots:
     _serializedList:

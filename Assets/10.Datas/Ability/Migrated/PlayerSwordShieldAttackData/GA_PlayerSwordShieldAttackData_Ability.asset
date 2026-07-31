@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
-        variantId: Skill_4
+        value: SwordShield.Ability.Skill.4
       attackType: 0
       hitPhases:
       - damage: 125
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerSwordShieldAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
+  abilityId: Player.SwordShield.Ability
   editorMemo: 
   presentation:
     displayName: Ability
@@ -227,8 +226,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
-        variantId: Skill_3
+        value: SwordShield.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 110
@@ -345,8 +343,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerSwordShieldAttackData.Ability
-        variantId: Default
+        value: SwordShield.Ability
       attackType: 0
       hitPhases:
       - damage: 25

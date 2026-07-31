@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Editor.Ability
     public sealed class AbilityMotionIndex
     {
         private readonly List<ActorAnimationMotionSet> _owners = new();
-        private readonly Dictionary<AbilityMotionKey, List<MotionSetAsset>> _byKey =
+        private readonly Dictionary<MotionKey, List<MotionSetAsset>> _byKey =
             new();
 
         public AbilityMotionIndex()
@@ -35,7 +35,7 @@ namespace UPlayGround.Data.Editor.Ability
         public IReadOnlyList<ActorAnimationMotionSet> Owners => _owners;
 
         /// <summary>키가 해석되는 서로 다른 모션 후보. 무기별로 다른 모션이면 여러 개가 된다.</summary>
-        public IReadOnlyList<MotionSetAsset> Candidates(AbilityMotionKey key)
+        public IReadOnlyList<MotionSetAsset> Candidates(MotionKey key)
         {
             if (!key.IsValid)
                 return System.Array.Empty<MotionSetAsset>();
@@ -54,10 +54,10 @@ namespace UPlayGround.Data.Editor.Ability
         }
 
         /// <summary>후보가 여럿이면 액터/무기 컨텍스트 없이 고를 수 없으므로 모호로 본다.</summary>
-        public bool IsAmbiguous(AbilityMotionKey key) => Candidates(key).Count > 1;
+        public bool IsAmbiguous(MotionKey key) => Candidates(key).Count > 1;
 
         /// <summary>단일 후보일 때만 해석한다. 모호하거나 없으면 null.</summary>
-        public MotionSetAsset ResolveUnique(AbilityMotionKey key)
+        public MotionSetAsset ResolveUnique(MotionKey key)
         {
             IReadOnlyList<MotionSetAsset> candidates = Candidates(key);
             return candidates.Count == 1 ? candidates[0] : null;
@@ -67,14 +67,14 @@ namespace UPlayGround.Data.Editor.Ability
         /// 액터/무기 범위를 특정할 수 없는 표시·분석용 대표 모션.
         /// 모호한 키도 첫 후보를 돌려주므로, 수치를 확정하는 경로에는 쓰지 않는다.
         /// </summary>
-        public MotionSetAsset ResolveRepresentative(AbilityMotionKey key)
+        public MotionSetAsset ResolveRepresentative(MotionKey key)
         {
             IReadOnlyList<MotionSetAsset> candidates = Candidates(key);
             return candidates.Count > 0 ? candidates[0] : null;
         }
 
         /// <summary>이 키가 프로젝트 어딘가에서 해당 모션으로 해석되는가.</summary>
-        public bool Matches(AbilityMotionKey key, MotionSetAsset motionAsset)
+        public bool Matches(MotionKey key, MotionSetAsset motionAsset)
         {
             if (motionAsset == null)
                 return false;
@@ -89,7 +89,7 @@ namespace UPlayGround.Data.Editor.Ability
         /// 해당 키를 fallback 상속이 아니라 자기 abilityMotions에 직접 가진 세트만 모은다.
         /// 매핑을 복제·수정하는 도구는 상속 매핑을 자식 세트로 평탄화하면 안 되므로 이 목록을 쓴다.
         /// </summary>
-        public List<ActorAnimationMotionSet> FindDirectOwners(AbilityMotionKey key)
+        public List<ActorAnimationMotionSet> FindDirectOwners(MotionKey key)
         {
             var result = new List<ActorAnimationMotionSet>();
             if (!key.IsValid)

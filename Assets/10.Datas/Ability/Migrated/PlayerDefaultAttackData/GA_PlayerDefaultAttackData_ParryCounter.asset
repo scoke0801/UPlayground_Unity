@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDefaultAttackData.Combat.ParryCounter
-        variantId: Default
+        value: Default.ParryCounter
       attackType: 0
       hitPhases:
       - damage: 123
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDefaultAttackData_ParryCounter
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDefaultAttackData.Combat.ParryCounter
+  abilityId: Player.Default.ParryCounter
   editorMemo: 
   presentation:
     displayName: PlayerDefaultAttackData ParryCounter

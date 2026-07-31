@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_SwapSpecial
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.SwapSpecial
+  abilityId: Player.DoubleAxe.SwapSpecial
   editorMemo: 
   presentation:
     displayName: PlayerDoubleAxeAttackData SwapSpecial
@@ -87,8 +87,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Combat.SwapSpecial
-        variantId: Default
+        value: DoubleAxe.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 86

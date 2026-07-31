@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.humanoid.Attack_4.04
-        variantId: Default
+        value: humanoid.Attack.4.04
       attackType: 0
       hitPhases:
       - damage: 10
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_humanoid_04_Attack_4
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.humanoid.Attack_4.04
+  abilityId: Actor.humanoid.Attack.4.04
   editorMemo: 
   presentation:
     displayName: Attack_4

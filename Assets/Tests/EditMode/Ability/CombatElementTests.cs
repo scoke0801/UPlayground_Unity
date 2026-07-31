@@ -227,7 +227,7 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(
                     UPlayGroundAbilityPayloadResolver.TryResolve(
                         ability.variants[0],
-                        out AbilityMotionKey motionKey,
+                        out MotionKey motionKey,
                         out _),
                     Is.True);
                 Assert.That(

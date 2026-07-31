@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Spider_Minion.Attack_1.01
-        variantId: Default
+        value: Spider.Minion.Attack.1.01
       attackType: 0
       hitPhases:
       - damage: 12
@@ -130,7 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Spider_Minion_01_Attack_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Spider_Minion.Attack_1.01
+  abilityId: Actor.Spider.Minion.Attack.1.01
   editorMemo: 
   presentation:
     displayName: Attack_1

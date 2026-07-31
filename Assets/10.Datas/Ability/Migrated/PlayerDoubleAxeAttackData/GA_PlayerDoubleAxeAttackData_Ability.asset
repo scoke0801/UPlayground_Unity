@@ -15,8 +15,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Player.PlayerDoubleAxeAttackData.Ability
-        variantId: Default
+        value: DoubleAxe.Ability
       attackType: 0
       hitPhases:
       - damage: 48
@@ -322,7 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_Ability
   m_EditorClassIdentifier: 
-  abilityId: Ability.Player.PlayerDoubleAxeAttackData.Ability
+  abilityId: Player.DoubleAxe.Ability
   editorMemo: 
   presentation:
     displayName: Ability

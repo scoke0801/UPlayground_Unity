@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
   m_Name: GA_Spider_Queen_05_Skill_1
   m_EditorClassIdentifier: 
-  abilityId: Ability.Actor.Spider_Queen.Skill_1.05
+  abilityId: Actor.Spider.Queen.Skill.1.05
   editorMemo: 
   presentation:
     displayName: Skill_1
@@ -88,8 +88,7 @@ MonoBehaviour:
   attackInfo:
     baseInfo:
       motionKey:
-        abilityId: Ability.Actor.Spider_Queen.Skill_1.05
-        variantId: Default
+        value: Spider.Queen.Skill.1.05
       attackType: 1
       hitPhases:
       - damage: 28

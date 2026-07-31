@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>연출 스테이지 시스템 설계</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --panel: #101c2b;
+      --panel-2: #142438;
+      --line: #29415d;
+      --text: #e8f0f8;
+      --muted: #9eb0c3;
+      --cyan: #59d8ff;
+      --mint: #6ee7b7;
+      --amber: #fbbf6a;
+      --red: #fb7185;
+      --violet: #b79cff;
+      --sidebar: 286px;
+      --radius: 16px;
+      --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(89, 216, 255, .10), transparent 28rem),
+        radial-gradient(circle at 15% 55%, rgba(183, 156, 255, .08), transparent 30rem),
+        var(--bg);
+      font-family: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+      line-height: 1.72;
+      word-break: keep-all;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+    code {
+      padding: .12rem .38rem;
+      border: 1px solid rgba(89, 216, 255, .16);
+      border-radius: 6px;
+      color: #bceeff;
+      background: rgba(89, 216, 255, .07);
+      font-size: .92em;
+    }
+
+    .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 17, 29, .92);
+      backdrop-filter: blur(18px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(89, 216, 255, .45);
+      border-radius: 12px;
+      color: var(--cyan);
+      background: linear-gradient(145deg, rgba(89,216,255,.14), rgba(183,156,255,.08));
+      box-shadow: inset 0 0 18px rgba(89, 216, 255, .08);
+      font-weight: 800;
+    }
+    .brand strong { display: block; font-size: 15px; letter-spacing: .02em; }
+    .brand span { display: block; color: var(--muted); font-size: 12px; }
+
+    .search {
+      width: 100%;
+      margin-bottom: 20px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      color: var(--text);
+      background: var(--panel);
+    }
+    .search:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(89,216,255,.09); }
+    nav { display: grid; gap: 4px; }
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-left: 2px solid transparent;
+      border-radius: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover, nav a.active {
+      color: var(--text);
+      border-left-color: var(--cyan);
+      background: rgba(89, 216, 255, .07);
+      text-decoration: none;
+    }
+    .side-note {
+      margin-top: 24px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--muted);
+      background: rgba(16, 28, 43, .62);
+      font-size: 12px;
+    }
+
+    main { min-width: 0; padding: 0 5vw 96px; }
+    .hero {
+      position: relative;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 86px 0 52px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(110, 231, 183, .25);
+      border-radius: 999px;
+      color: var(--mint);
+      background: rgba(110, 231, 183, .07);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 850px;
+      margin: 18px 0 16px;
+      font-size: clamp(38px, 6vw, 72px);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+    .hero p { max-width: 780px; margin: 0; color: var(--muted); font-size: 18px; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .chip {
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #c6d4e2;
+      background: rgba(16, 28, 43, .68);
+      font-size: 12px;
+    }
+
+    section { max-width: 1120px; margin: 0 auto 76px; }
+    section[data-search-hidden="true"] { display: none; }
+    h2 { margin: 0 0 14px; font-size: clamp(27px, 3vw, 38px); letter-spacing: -.025em; }
+    h3 { margin: 28px 0 12px; font-size: 20px; }
+    .lead { max-width: 850px; margin: 0 0 26px; color: var(--muted); }
+    .kicker { display: block; margin-bottom: 6px; color: var(--cyan); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(20,36,56,.92), rgba(12,23,37,.92));
+      box-shadow: var(--shadow);
+    }
+    .card h3 { margin-top: 0; }
+    .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+    .number {
+      display: inline-grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(89,216,255,.34);
+      border-radius: 9px;
+      color: var(--cyan);
+      background: rgba(89,216,255,.08);
+      font-weight: 800;
+    }
+
+    .callout {
+      margin: 20px 0;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--cyan);
+      border-radius: 12px;
+      background: rgba(16, 28, 43, .82);
+    }
+    .callout strong { color: var(--cyan); }
+    .callout.warn { border-left-color: var(--amber); }
+    .callout.warn strong { color: var(--amber); }
+    .callout.danger { border-left-color: var(--red); }
+    .callout.danger strong { color: var(--red); }
+    .callout.good { border-left-color: var(--mint); }
+    .callout.good strong { color: var(--mint); }
+
+    .module-map {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(120px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+      margin: 26px 0;
+    }
+    .module {
+      position: relative;
+      min-height: 150px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--panel);
+    }
+    .module strong { display: block; margin-bottom: 8px; font-size: 14px; }
+    .module small { color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .module.core { border-color: rgba(158,176,195,.35); }
+    .module.data { border-color: rgba(110,231,183,.35); }
+    .module.contracts { border-color: rgba(251,191,106,.4); }
+    .module.camera { border-color: rgba(89,216,255,.4); }
+    .module.actor { border-color: rgba(183,156,255,.42); }
+    .module.ui { border-color: rgba(251,113,133,.4); }
+    .module::after {
+      content: "→";
+      position: absolute;
+      right: -11px;
+      top: 46%;
+      z-index: 2;
+      color: var(--muted);
+      font-weight: 800;
+    }
+    .module:last-child::after { display: none; }
+    .module .tag {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .06em;
+    }
+    .module.core .tag { color: var(--muted); background: rgba(158,176,195,.14); }
+    .module.data .tag { color: var(--mint); background: rgba(110,231,183,.12); }
+    .module.actor .tag { color: var(--violet); background: rgba(183,156,255,.14); }
+    .module.ui .tag { color: var(--red); background: rgba(251,113,133,.12); }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 22px 0;
+    }
+    .flow > div {
+      position: relative;
+      padding: 14px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      text-align: center;
+      background: var(--panel);
+      font-size: 13px;
+    }
+    .flow > div:not(:last-child)::after {
+      content: "›";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      z-index: 2;
+      transform: translateY(-50%);
+      color: var(--cyan);
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; }
+    table { width: 100%; border-collapse: collapse; background: rgba(16, 28, 43, .7); font-size: 14px; }
+    th, td { padding: 13px 15px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--cyan); background: rgba(89,216,255,.055); font-size: 12px; letter-spacing: .04em; }
+    tr:last-child td { border-bottom: 0; }
+
+    .code-block { position: relative; margin: 16px 0; }
+    pre {
+      margin: 0;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      color: #d8e6f3;
+      background: #07101a;
+      overflow-x: auto;
+      line-height: 1.62;
+      font-size: 13px;
+      tab-size: 4;
+    }
+    pre code { padding: 0; border: 0; color: inherit; background: none; }
+    .copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      color: var(--muted);
+      background: var(--panel);
+      cursor: pointer;
+      font-size: 11px;
+    }
+    .copy:hover { color: var(--text); border-color: var(--cyan); }
+
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .do-dont .do { border-top: 3px solid var(--mint); }
+    .do-dont .dont { border-top: 3px solid var(--red); }
+    .do-dont ul, .checklist { margin: 0; padding: 0; list-style: none; }
+    .do-dont li, .checklist li { position: relative; padding: 7px 0 7px 26px; }
+    .do-dont .do li::before { content: "✓"; color: var(--mint); }
+    .do-dont .dont li::before { content: "×"; color: var(--red); }
+    .checklist li::before { content: "□"; color: var(--cyan); }
+    .do-dont li::before, .checklist li::before { position: absolute; left: 0; font-weight: 900; }
+
+    .decision {
+      padding: 20px;
+      border: 1px dashed rgba(89,216,255,.32);
+      border-radius: 14px;
+      background: rgba(89,216,255,.035);
+    }
+    .decision ol { margin: 0; padding-left: 22px; }
+    .decision li { margin: 10px 0; padding-left: 4px; }
+
+    details {
+      margin: 10px 0;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: rgba(16, 28, 43, .64);
+    }
+    summary { padding: 14px 16px; cursor: pointer; color: #dce8f3; font-weight: 700; }
+    details > div { padding: 0 16px 16px; color: var(--muted); }
+
+    .steps { margin: 0; padding: 0; list-style: none; counter-reset: step; }
+    .steps li {
+      position: relative;
+      margin: 0;
+      padding: 11px 0 11px 46px;
+      border-bottom: 1px solid rgba(41, 65, 93, .55);
+      counter-increment: step;
+      font-size: 14px;
+    }
+    .steps li:last-child { border-bottom: 0; }
+    .steps li::before {
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 11px;
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid rgba(89,216,255,.3);
+      border-radius: 8px;
+      color: var(--cyan);
+      background: rgba(89,216,255,.07);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .steps li.critical::before { border-color: rgba(251,191,106,.45); color: var(--amber); background: rgba(251,191,106,.09); }
+    .steps li em { color: var(--amber); font-style: normal; font-weight: 700; }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+    .t0 { color: var(--muted); background: rgba(158,176,195,.14); }
+    .t1 { color: var(--mint); background: rgba(110,231,183,.13); }
+    .t2 { color: var(--cyan); background: rgba(89,216,255,.13); }
+    .t3 { color: var(--violet); background: rgba(183,156,255,.15); }
+
+    footer {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding-top: 30px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1080px) {
+      .module-map { grid-template-columns: repeat(2, 1fr); }
+      .module:nth-child(2)::after { display: none; }
+      .grid.three { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 820px) {
+      .layout { display: block; }
+      aside { position: relative; width: 100%; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      aside nav { grid-template-columns: repeat(2, 1fr); }
+      .side-note { display: none; }
+      main { padding-inline: 20px; }
+      .hero { padding-top: 56px; }
+      .grid.two, .grid.three, .do-dont { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow > div:not(:last-child)::after { content: "⌄"; right: 50%; top: auto; bottom: -18px; transform: translateX(50%); }
+    }
+    @media (max-width: 560px) {
+      aside nav { grid-template-columns: 1fr; }
+      .module-map { grid-template-columns: 1fr; }
+      .module::after, .module:nth-child(2)::after { content: "↓"; display: block; top: auto; right: 50%; bottom: -18px; transform: translateX(50%); }
+      .module:last-child::after { display: none; }
+      .card { padding: 18px; }
+      th, td { padding: 10px 11px; }
+    }
+    @media print {
+      :root { color-scheme: light; }
+      body { color: #182230; background: white; }
+      aside { display: none; }
+      .layout { display: block; }
+      main { padding: 0; }
+      .hero, section, footer { max-width: none; }
+      .card, .module, .callout, details, .table-wrap, pre { box-shadow: none; break-inside: avoid; }
+      .copy { display: none; }
+      a { color: #0369a1; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">
+      <div class="brand-mark">UP</div>
+      <div><strong>UPlayground</strong><span>Cinematic Stage design</span></div>
+    </div>
+    <input id="docSearch" class="search" type="search" placeholder="섹션 검색…" aria-label="문서 검색">
+    <nav id="toc" aria-label="문서 목차">
+      <a href="#purpose">1. 목적</a>
+      <a href="#principle">2. 핵심 원칙</a>
+      <a href="#tiers">3. Tier 구조</a>
+      <a href="#anchor">4. 샌드박스 앵커</a>
+      <a href="#architecture">5. 아키텍처</a>
+      <a href="#sequence">6. 실행 시퀀스</a>
+      <a href="#pitfalls">7. 함정 목록</a>
+      <a href="#phases">8. 구현 Phase</a>
+      <a href="#verification">9. 검증 계획</a>
+      <a href="#open">10. 열린 질문</a>
+      <a href="#research">부록. 조사 근거</a>
+    </nav>
+    <div class="side-note">
+      작성일: 2026-07-31<br>
+      기준 버전: Unity 6.0.60f1 / URP<br>
+      상태: <strong style="color:var(--amber)">설계안 (미구현)</strong><br><br>
+      Markdown 원본:<br><code>CINEMATIC_STAGE_SYSTEM_DESIGN.md</code>
+    </div>
+  </aside>
+
+  <main>
+    <div class="hero">
+      <span class="eyebrow">Design Proposal · 미구현</span>
+      <h1>연출 스테이지 시스템</h1>
+      <p>스킬 연출 중 주변 월드를 배제한 전용 무대를 만들어 재생한다. “가상 씬 스폰 / 지형 숨김 / 위치 이동” 세 요구를 하나의 오케스트레이터와 4단계 Tier로 통합한다.</p>
+      <div class="hero-meta">
+        <span class="chip">UltimateSequencePlayer 확장</span>
+        <span class="chip">CinematicStageManager 신규</span>
+        <span class="chip">강체 변환 기반</span>
+        <span class="chip">Phase 1~6</span>
+      </div>
+    </div>
+
+    <!-- ============ 1. 목적 ============ -->
+    <section id="purpose">
+      <span class="kicker">01 · PURPOSE</span>
+      <h2>목적</h2>
+      <p class="lead">
+        요구는 세 가지 형태로 제시되었다 — ① 연출 전용 “가상 씬”을 스폰, ② 주변 지형을 숨김, ③ 액터를 별도 위치로 이동.
+        이 문서는 셋을 <strong>서로 배타적인 대안이 아니라 하나의 스펙트럼(Tier)</strong> 으로 통합하고,
+        공통 오케스트레이터 하나로 처리하는 설계를 제안한다.
+      </p>
+
+      <h3>해결하려는 실제 문제</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:44%">문제</th><th>현재 상황</th></tr></thead>
+          <tbody>
+            <tr><td>연출 카메라가 지형·구조물을 뚫는다</td><td><code>CameraSnapshotProfile</code>이 벽 안으로 들어가거나 지형에 가려짐</td></tr>
+            <tr><td>배경이 연출 톤과 충돌한다</td><td>대낮 초원에서 어두운 처형 연출을 해도 배경이 그대로 밝음</td></tr>
+            <tr><td>주변 잡몹·오브젝트가 프레임에 난입한다</td><td><code>pauseEnemyAI</code>로 멈추기만 할 뿐 화면에는 그대로 보임</td></tr>
+            <tr><td>연출 전용 대형 VFX가 지형과 간섭한다</td><td>지면 관통, 충돌, 라이팅 불일치</td></tr>
+            <tr><td>좁은 실내에서 광역 연출이 성립하지 않는다</td><td>원신이 물 위·근접 시 컷신을 스킵하는 것과 같은 회피가 필요</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>비목표 (이번 범위 밖)</h3>
+      <div class="grid three">
+        <div class="card"><p>스토리 컷신 전용 편집 도구<br><small style="color:var(--muted)">별도 씬 저작 워크플로</small></p></div>
+        <div class="card"><p>멀티플레이 동기화<br><small style="color:var(--muted)">본 프로젝트는 싱글플레이</small></p></div>
+        <div class="card"><p>연출 중 플레이어 조작 허용<br><small style="color:var(--muted)">QTE 등</small></p></div>
+      </div>
+    </section>
+
+    <!-- ============ 2. 핵심 원칙 ============ -->
+    <section id="principle">
+      <span class="kicker">02 · CORE PRINCIPLE</span>
+      <h2>스테이지는 “강체 변환”이다</h2>
+      <p class="lead">이 설계의 중심 원칙이다. 여기서 벗어나면 버그 클래스가 통째로 생긴다.</p>
+
+      <div class="callout good">
+        <strong>원칙</strong> — 연출 스테이지는 월드 공간에 대한 <strong style="color:var(--text)">강체 변환 <code>S</code></strong>(위치 오프셋 + Yaw 회전)이다.
+        참가 액터는 <code>S</code>를 통해 스테이지 공간으로 이동하며, <strong style="color:var(--text)">참가자들 간의 상대 배치는 완전히 보존된다.</strong>
+      </div>
+
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+<pre><code>worldPose  --( S )--&gt;  stagePose        // 진입
+stagePose  --(S⁻¹)--&gt;  worldPose        // 복귀</code></pre>
+      </div>
+
+      <h3>이 원칙이 주는 것</h3>
+      <div class="grid two">
+        <div class="card">
+          <div class="number">1</div>
+          <h3>게임플레이 결과 불변</h3>
+          <p>히트 판정, 모션 워프, 루트모션, 거리 기반 판정이 제자리 연출과 <strong>완전히 동일</strong>하다. 연출은 “보이는 방식”만 바꾼다.</p>
+        </div>
+        <div class="card">
+          <div class="number">2</div>
+          <h3>복귀가 산술이다</h3>
+          <p>액터·드롭·시체·VFX의 최종 위치를 <code>S⁻¹</code>로 되돌리면 된다. 별도 위치 기억 테이블이 필요 없다.</p>
+        </div>
+        <div class="card">
+          <div class="number">3</div>
+          <h3>폴백이 자명하다</h3>
+          <p><code>S = identity</code>로 두면 그대로 제자리 연출이 된다. 무대를 못 잡으면 연출을 스킵해도 전투 결과가 달라지지 않는다.</p>
+        </div>
+        <div class="card">
+          <div class="number">4</div>
+          <h3>카메라 저작이 재사용된다</h3>
+          <p><code>CameraSnapshotSpace.ActorRelative</code> 스냅샷은 시전자 기준이므로, 스테이지로 옮겨도 프레이밍이 그대로 성립한다.</p>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>기존 배치와 구분</strong> — <code>UltimatePlacementContext</code>는 “시전자/타겟을 서로 기준으로 재배치”한다. 이건 액터 <strong>개별</strong> 배치라 상대 관계가 바뀐다.
+        스테이지 변환은 그 위 계층에서 <strong>집합 전체를 통째로</strong> 옮기는 별개 단계다.
+        순서는 <code>배치(Placement) → 스테이지 이동(Stage)</code>.
+      </div>
+    </section>
+
+    <!-- ============ 3. Tier ============ -->
+    <section id="tiers">
+      <span class="kicker">03 · TIERS</span>
+      <h2>Tier 구조</h2>
+      <p class="lead">같은 오케스트레이터가 4단계 강도를 데이터로 선택한다.</p>
+
+      <div class="module-map">
+        <div class="module core">
+          <span class="tag">T0</span>
+          <strong>없음</strong>
+          <small>기존 카메라 스냅샷 + VFX만.<br>비용 0 · 일반 스킬</small>
+        </div>
+        <div class="module data">
+          <span class="tag">T1</span>
+          <strong>인플레이스 은폐</strong>
+          <small>제자리 유지. cullingMask로 월드 레이어 배제 + 무대 프롭 스폰.<br>비용 낮음 · 강스킬</small>
+        </div>
+        <div class="module camera">
+          <span class="tag" style="color:var(--cyan);background:rgba(89,216,255,.13)">T2</span>
+          <strong>스테이지 이동 ★</strong>
+          <small>강체 변환 S로 샌드박스 이동. 전용 무대 + 전용 라이팅.<br>비용 중간 · <strong style="color:var(--cyan)">궁극기 기본값</strong></small>
+        </div>
+        <div class="module actor">
+          <span class="tag">T3</span>
+          <strong>가상 씬</strong>
+          <small>Addressables Additive 로드한 전용 씬.<br>비용 높음(로드 히치) · 보스 처형</small>
+        </div>
+      </div>
+
+      <h3>T1 (인플레이스 은폐) — 가능하지만 한계가 뚜렷</h3>
+      <p>카메라 <code>cullingMask</code>에서 <code>Ground / Default / Water / InteractableObject / Trigger</code>를 끄고, 시전자 주변에 무대 프롭(원형 아레나, 안개 벽)을 스폰한다.</p>
+
+      <div class="callout danger">
+        <strong>결정적 한계</strong> — 주변 잡몹은 <code>Enemy</code> 레이어라 이걸 끄면 <strong style="color:var(--text)">연출 대상 몬스터도 같이 사라진다.</strong>
+        액터 레이어를 임시 변경하는 우회는 <strong style="color:var(--text)">금지한다</strong> — <code>Enemy</code>/<code>HitBox</code>/<code>Player</code> 레이어는 콜리전 매트릭스, 히트 판정, 락온 탐색이 함께 쓰는 값이고, 연출 도중 변경하면 판정이 조용히 깨진다.
+      </div>
+
+      <p>따라서 T1은 <strong>“프레임 안에 연출 대상 외 액터가 없다고 보장되는 상황”</strong>에서만 쓴다. 아니면 T2로 승격한다. 이게 T2를 기본값으로 두는 이유다.</p>
+
+      <h3>T2 (스테이지 이동) — 권장 기본</h3>
+      <p>
+        전용 프리팹 무대를 풀에서 꺼내 샌드박스 앵커에 배치하고, 참가자를 <code>S</code>로 옮긴다.
+        카메라는 시전자를 따라오므로 자연히 무대 안에 있고, 월드 지오메트리는 프러스텀 밖이라 <strong>자동으로 안 그려진다</strong> — 컬링 마스크 조작이 필요 없다.
+        레이어를 건드리지 않으므로 판정도 안전하다.
+      </p>
+
+      <h3>T3 (가상 씬)</h3>
+      <p>
+        <code>AssetManager.LoadSceneAsync</code> 기반(현재 단일 씬 로드만 존재하므로 Additive 경로 신규 필요).
+        로드 히치가 있으므로 <strong>연출 시작 전 예열(프리로드)</strong>이 전제다.
+        30초마다 나가는 궁극기에는 부적합하고, 보스 처치 컷 같은 저빈도 연출용이다.
+      </p>
+
+      <div class="callout">
+        <strong>Tier 승격·강등은 런타임 검증에 맡긴다</strong> — 데이터에 T1을 지정해도 프레임 내 비참가 액터가 감지되면 T2로 승격하거나 T0으로 강등한다(정책은 에셋에서 선택).
+        조용히 깨진 연출보다 등급을 낮춘 연출이 낫다.
+      </div>
+    </section>
+
+    <!-- ============ 4. 앵커 ============ -->
+    <section id="anchor">
+      <span class="kicker">04 · ANCHOR</span>
+      <h2>샌드박스 앵커</h2>
+      <p class="lead">T2의 무대 좌표를 어디에 둘 것인가. 세 후보를 검토했다.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:32%">후보</th><th style="width:28%">장점</th><th>문제</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>월드 원점에서 아주 먼 XZ<br><small style="color:var(--muted)">예: x = 100000</small></td>
+              <td>월드와 절대 안 겹침</td>
+              <td><strong style="color:var(--red)">부동소수점 정밀도 붕괴.</strong> 10k를 넘어가면 셰이더·그림자·VFX 지터. 채택 불가</td>
+            </tr>
+            <tr>
+              <td>맵마다 디자이너가 배치한 고정 지점</td>
+              <td>라이팅·리플렉션 프로브를 미리 구울 수 있음</td>
+              <td>맵마다 수작업, 신규 맵 누락 시 무연출. 사이클 런의 절차적 배치와 궁합 나쁨</td>
+            </tr>
+            <tr style="background:rgba(110,231,183,.05)">
+              <td><strong style="color:var(--mint)">시전자 기준 상대 오프셋 ✅</strong><br><small style="color:var(--muted)">예: caster + (0, −1500, 0)</small></td>
+              <td>XZ 정밀도 유지, 맵 무관, 자동</td>
+              <td>지하에 월드 콜라이더·킬존이 있으면 충돌 → 진입 전 검증으로 해결</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout good">
+        <strong>채택</strong> — 시전자 상대 오프셋(기본 <code>Y −1500</code>), <strong style="color:var(--text)">진입 전 검증 필수.</strong>
+      </div>
+
+      <h3>검증 절차 <small style="color:var(--muted);font-weight:400">CinematicStageAnchorResolver</small></h3>
+      <div class="decision">
+        <ol>
+          <li>후보 앵커 주변 <code>OverlapBox</code>로 월드 콜라이더 존재 여부 확인</li>
+          <li>걸리면 <code>Y</code> 오프셋을 단계적으로 더 내리거나, 대체 축(수평 오프셋 ±2000)으로 재시도 — 최대 N회</li>
+          <li>전부 실패하면 <strong>S = identity로 폴백</strong>(제자리 연출) 또는 연출 스킵. <strong style="color:var(--amber)">절대 임의 지점에 강행하지 않는다.</strong></li>
+        </ol>
+      </div>
+
+      <p><strong>Yaw 성분</strong>: 기본 <code>identity</code>(월드 방위 유지). 무대 프리팹에 정면(관객 방향)이 있으면 시전자→타겟 벡터에 무대 정면을 맞추는 Yaw를 <code>S</code>에 포함한다.</p>
+    </section>
+
+    <!-- ============ 5. 아키텍처 ============ -->
+    <section id="architecture">
+      <span class="kicker">05 · ARCHITECTURE</span>
+      <h2>아키텍처</h2>
+
+      <h3>모듈 배치</h3>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+<pre><code>UPlayGround.Contracts
+  ICinematicStageService              // Svc.CinematicStage
+  CinematicStageTicket (struct)       // 소유권 핸들
+
+UPlayGround.Data
+  CinematicStageSO                    // 무대 정의 (프리팹/라이팅/전환/Tier)
+  CinematicStageSettings              // 스킬 에셋에 박히는 인라인 설정
+  UltimateStageEnterEvent / ExitEvent // 타임라인 이벤트 (SerializeReference)
+
+UPlayGround.Manager
+  CinematicStageManager               // BaseManager&lt;T&gt;, IManager, ICinematicStageService
+    ├ CinematicStageAnchorResolver    // 앵커 후보 탐색/검증
+    ├ CinematicStageInstance          // 활성 무대 1개의 수명/참가자/변환 S
+    ├ CinematicStageLightingContext   // RenderSettings/Volume 스냅샷·복구
+    └ CinematicStageTransition        // 진입/복귀 화면 전환(플래시·와이프)
+
+UPlayGround.Actor
+  MotionEvent_CinematicStage          // 일반 스킬에서 스테이지 사용
+  UltimateSequencePlayer (확장)       // 궁극기 경로에서 소비</code></pre>
+      </div>
+
+      <div class="callout">
+        <strong>왜 매니저인가</strong> — 연출은 <strong style="color:var(--text)">전역 단일 자원</strong>이다(동시 2개 금지).
+        카메라·라이팅·시간·저장 같은 전역 상태를 건드리므로, 소유권을 한 곳에서 티켓으로 중재해야 중복 진입과 복구 누락이 안 생긴다.
+        <code>GameManager</code> 등록 순서는 <code>CameraManager</code> 이후, <code>ActorSpawnManager</code> 이전이 적절하다.
+      </div>
+
+      <div class="callout warn">
+        <strong>Camera 모듈 이식성 규약</strong> — 스테이지가 카메라에 요구하는 동작(즉시 스냅, 스냅샷 시퀀스 점유)은
+        기존 <code>CameraManager</code> 공개 API(<code>SnapToTarget</code>, <code>PushCameraSnapshotSequence</code>)<strong style="color:var(--text)">만</strong> 사용하고,
+        Camera 모듈이 스테이지를 역참조하지 않는다.
+      </div>
+
+      <h3>서비스 계약 (초안)</h3>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+<pre><code>public interface ICinematicStageService
+{
+    bool IsActive { get; }
+    CinematicStageTicket ActiveTicket { get; }
+
+    /// 무대 진입 시도. 실패 시 ticket.IsValid == false 이며 호출자는 제자리 연출로 진행한다.
+    bool TryEnter(in CinematicStageRequest request, out CinematicStageTicket ticket);
+
+    /// 진입 시 결정된 강체 변환. 실패/미진입이면 identity.
+    Matrix4x4 StageTransform { get; }
+
+    /// 스테이지 공간 좌표를 월드로 환산 (드롭/사망 처리용)
+    Vector3 ToWorld(Vector3 stagePosition);
+
+    /// 연출 도중 생성된 오브젝트를 무대 수명에 귀속시킨다 (Spawnable 패턴)
+    void RegisterTransient(in CinematicStageTicket ticket, GameObject instance);
+
+    void Exit(in CinematicStageTicket ticket, CinematicStageExitReason reason);
+}</code></pre>
+      </div>
+
+      <p><code>CinematicStageRequest</code>는 시전자, 참가자 목록, <code>CinematicStageSO</code>, Tier 오버라이드, 폴백 정책을 담는다.</p>
+
+      <div class="callout good">
+        <strong>티켓 방식이 중요한 이유</strong> — <code>UltimateGameplayLockContext</code>가 이미 “내가 바꾼 것만 되돌린다”는 소유권 패턴을 쓰고 있다.
+        스테이지도 동일하게, 티켓을 가진 쪽만 <code>Exit</code>할 수 있어야 한다. 티켓 없는 <code>Exit</code> 호출은 무시한다.
+      </div>
+
+      <h3>데이터: CinematicStageSO</h3>
+      <div class="code-block">
+        <button class="copy" type="button">복사</button>
+<pre><code>[CreateAssetMenu(menuName = "UPlayGround/전투/Cinematic Stage")]   // CLAUDE.md flat 2단계 규약 준수
+public class CinematicStageSO : ScriptableObject
+{
+    [Header("등급")]
+    public CinematicStageTier tier = CinematicStageTier.Relocate;   // None/InPlace/Relocate/VirtualScene
+    public CinematicStageFallback fallback = CinematicStageFallback.DemoteToInPlace;
+
+    [Header("무대")]
+    public GameObject stagePrefab;              // T1/T2 무대 프롭 (풀링 대상)
+    public AssetReference virtualScene;         // T3 전용
+    public Vector3 anchorOffset = new(0f, -1500f, 0f);
+    public Vector3 anchorProbeExtents = new(60f, 30f, 60f);
+    public bool alignStageYawToTarget = true;
+
+    [Header("라이팅")]
+    public bool overrideAmbient = true;
+    public Color ambientColor = Color.black;
+    public Material skyboxOverride;             // null이면 스카이박스 제거(검은 배경)
+    public bool overrideFog = true;
+    public Color fogColor; public float fogDensity;
+    public VolumeProfile postProcessOverride;   // 최우선순위 Volume으로 주입
+    public bool disableWorldDirectionalLight = true;
+
+    [Header("전환")]
+    public CinematicStageTransitionType enterTransition = CinematicStageTransitionType.WhiteFlash;
+    [Min(0f)] public float enterTransitionDuration = 0.12f;
+    public CinematicStageTransitionType exitTransition = CinematicStageTransitionType.Dissolve;
+    [Min(0f)] public float exitTransitionDuration = 0.2f;
+
+    [Header("인플레이스(T1) 전용")]
+    public LayerMask hiddenWorldLayers;         // Ground/Default/Water/InteractableObject
+}</code></pre>
+      </div>
+
+      <h3>스킬 에셋 연결</h3>
+      <div class="grid three">
+        <div class="card">
+          <h3>궁극기</h3>
+          <p><code>UltimateSequenceAsset</code>에 <code>5단계: 연출 스테이지</code> 섹션 추가.
+          <code>BeginSequenceRoutine</code>에서 <code>_placementContext.Apply</code> <strong>직후</strong>, <code>PlayMotionSetAsset</code> <strong>직전</strong>에 진입.
+          복구는 <code>Restore()</code>에서 <code>_placementContext.Restore()</code> 직전에 <code>Exit</code>.</p>
+        </div>
+        <div class="card">
+          <h3>일반 스킬</h3>
+          <p><code>MotionEvent_CinematicStage</code>가 진입·복귀를 발화. MotionSet 타임라인 기준이라 저작 흐름이 기존 이벤트와 동일하다.</p>
+        </div>
+        <div class="card">
+          <h3>구간 스테이지 <small style="color:var(--amber)">Phase 5</small></h3>
+          <p><code>UltimateStageEnterEvent</code> / <code>ExitEvent</code>를 <code>[SerializeReference]</code> 타임라인 이벤트로 추가하면
+          “0.4초 진입 → 2.8초 복귀” 같은 부분 구간 연출이 가능하다. 앞뒤는 실제 월드에서 진행되어 연결이 자연스러워진다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. 실행 시퀀스 ============ -->
+    <section id="sequence">
+      <span class="kicker">06 · RUNTIME SEQUENCE</span>
+      <h2>실행 시퀀스</h2>
+
+      <h3>진입</h3>
+      <div class="card">
+        <ol class="steps">
+          <li>요청 검증 — 이미 활성 스테이지가 있으면 거부 → 호출자는 T0으로 진행</li>
+          <li>앵커 해석 — <code>AnchorResolver</code> → 실패 시 fallback 정책 적용</li>
+          <li>참가자 확정 — 시전자 + 해석된 타겟 집합 (그 외 월드 액터는 비참가)</li>
+          <li class="critical">화면 전환 시작 — 플래시·와이프로 텔레포트 프레임을 가린다 <em>필수</em></li>
+          <li>무대 인스턴스화 — 풀에서 <code>stagePrefab</code> 획득, 앵커에 배치, 활성화</li>
+          <li>라이팅 스냅샷/적용 — <code>RenderSettings</code> + Volume 저장 후 오버라이드 주입</li>
+          <li>액터 이동 — 참가자 전원에 <code>S</code> 적용(<code>Motor.SetPositionAndRotation</code>)</li>
+          <li class="critical">카메라 스냅 — <code>SnapToTarget()</code>. <em>블렌드 금지, 반드시 컷</em></li>
+          <li>무대 물리 안정화 — 1 FixedUpdate 대기하여 KCC 접지 재확립</li>
+          <li>티켓 발급 → 호출자가 모션·타임라인 시작</li>
+        </ol>
+      </div>
+
+      <div class="callout danger">
+        <strong>타협 불가</strong> — 4번(화면 전환)과 8번(카메라 컷). 블렌드로 처리하면 카메라가 1500m를 활강하는 게 그대로 보인다.
+      </div>
+
+      <h3>복귀</h3>
+      <div class="card">
+        <ol class="steps">
+          <li>화면 전환 시작 (<code>exitTransition</code>)</li>
+          <li>무대에서 생성된 transient 오브젝트 정리 (Spawnable 패턴)</li>
+          <li>참가자 최종 포즈에 <code>S⁻¹</code> 적용 → 월드 복귀<br>
+            <small style="color:var(--muted)"><code>restorePositionsOnFinish</code>면 진입 전 포즈로, 아니면 연출 중 이동분을 반영한 위치로</small></li>
+          <li>라이팅 복구 — 스냅샷 역적용, <strong>자기가 바꾼 것만</strong></li>
+          <li>무대 인스턴스 풀 반납</li>
+          <li>카메라 스냅 → 기존 모드 복귀</li>
+          <li>지연 처리 플러시 — 사망·드롭·경험치 (7.3 참조)</li>
+          <li>티켓 무효화</li>
+        </ol>
+      </div>
+
+      <h3>이상 종료 — 반드시 같은 경로를 탄다</h3>
+      <p><code>UltimateSequencePlayer.Restore()</code>가 이미 인터럽트·사망·씬전환·비활성화·실패를 한 함수로 모으는 좋은 패턴을 쓰고 있다. 스테이지도 동일하게:</p>
+      <ul class="checklist">
+        <li><code>CinematicStageManager.Dispose()</code> / <code>OnSceneChanged()</code>에서 활성 스테이지 강제 종료</li>
+        <li><strong>워치독</strong> — 활성 시간이 <code>maxStageSeconds</code>(예: 30초)를 넘으면 경고 로그 + 강제 종료.
+          소유자 컴포넌트가 파괴된 채 무대만 남아 <strong style="color:var(--amber)">플레이어가 지하에 갇히는 사고</strong>를 막는 최후 방어선</li>
+        <li>강제 종료 시 액터 위치는 <strong>무조건 진입 전 월드 포즈로 복구</strong>(연출 중 이동분 반영을 시도하지 않는다)</li>
+      </ul>
+    </section>
+
+    <!-- ============ 7. 함정 ============ -->
+    <section id="pitfalls">
+      <span class="kicker">07 · PITFALLS</span>
+      <h2>함정 목록</h2>
+      <p class="lead">설계 시점에 못 박아둘 것. 구현 중 발견하면 이미 늦는 항목들이다.</p>
+
+      <div class="callout danger">
+        <strong>7.1 레이어를 바꾸지 마라</strong><br>
+        <code>Enemy</code>/<code>HitBox</code>/<code>Player</code> 레이어는 콜리전 매트릭스, 히트 판정, 락온 탐색이 공유한다.
+        “연출 중에만 잠깐” 바꾸면 그 프레임의 판정이 조용히 사라진다.
+        렌더 격리는 <strong style="color:var(--text)">레이어가 아니라 물리적 거리(T2)</strong>로 얻는다.
+      </div>
+
+      <div class="callout danger">
+        <strong>7.2 세이브 차단</strong><br>
+        <code>SaveManager</code>가 파티 위치를 저장한다. 스테이지 활성 중 저장이 발생하면 <strong style="color:var(--text)">지하 1500m 좌표가 세이브에 박힌다.</strong>
+        <code>ICinematicStageService.IsActive</code>를 세이브 게이트에 물려 저장을 거부하거나 지연시킨다.
+        자동 저장 경로(<code>CycleRunManager</code>, <code>WorldStateManager</code>)도 함께 확인해야 한다.
+      </div>
+
+      <h3>7.3 사망·드롭·경험치의 좌표</h3>
+      <p>타겟이 무대에서 죽으면 시체·드롭·경험치 오브가 무대 좌표에 생성된다. 그대로 두면 복귀 후 월드에 아무것도 없고, 지하에 아이템이 떨어진다.</p>
+      <div class="do-dont">
+        <div class="card dont">
+          <h3>A. 즉시 변환</h3>
+          <ul>
+            <li>생성되는 모든 월드 오브젝트에 <code>S⁻¹</code>를 적용해 월드에 바로 배치</li>
+            <li>무대에서 안 보이게 되어 연출상 어색</li>
+          </ul>
+        </div>
+        <div class="card do">
+          <h3>B. 지연 플러시 <span class="tier-badge t2">권장</span></h3>
+          <ul>
+            <li>무대 중 사망·드롭을 큐에 적립, 렌더용 연출 오브젝트만 무대에 띄움</li>
+            <li>복귀 시점(6.2-7)에 월드 좌표로 실제 스폰</li>
+            <li><code>VitalOrbActor</code>, 드롭 아이템, <code>MonsterRespawnManager</code> 등록이 모두 이 큐를 탄다</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <strong>7.4 KCC 접지</strong><br>
+        <code>Motor.SetPositionAndRotation</code>으로 순간이동하면 KCC의 접지 상태가 한 프레임 무효다.
+        무대 바닥 콜라이더가 없거나 액터가 바닥 아래에 놓이면 <strong style="color:var(--text)">낙하 상태로 전환되어 연출이 깨진다.</strong>
+        무대 프리팹은 충분히 넓은(반경 30m+) 바닥 콜라이더를 가져야 하고, 진입 후 1 FixedUpdate 대기 + 접지 검증을 넣는다.
+      </div>
+
+      <div class="callout warn">
+        <strong>7.5 라이팅은 전역 상태다</strong><br>
+        <code>RenderSettings.ambient*</code>, <code>skybox</code>, <code>fog</code>는 전역이라 스테이지가 바꾸면 월드도 같이 바뀐다(월드는 안 보이니 상관없지만, <strong style="color:var(--text)">복구 누락 시 게임 전체가 어두워진다</strong>).
+        <code>UltimateGameplayLockContext</code>와 같은 “소유권 기록 후 자기 것만 복구” 패턴을 반드시 적용한다.
+        <code>WorldLightingManager</code>/<code>WorldLightingController</code>가 같은 값을 관리하므로 <strong style="color:var(--text)">경합한다</strong> — 스테이지 활성 중에는 <code>WorldLightingController</code> 갱신을 일시 정지시키는 조정이 필요하다.
+      </div>
+
+      <div class="grid two">
+        <div class="card">
+          <h3>7.6 리플렉션 프로브 / GI</h3>
+          <p>무대는 런타임 스폰이라 베이크 GI가 없다. 무대 프리팹에 <strong>박스 프로젝션 리플렉션 프로브 + Custom 큐브맵</strong>을 미리 넣어 배송한다(런타임 베이크 금지 — 히치).
+          캐릭터가 <code>ambient = black</code>에서 새까맣게 나오는 문제는 무대 프리팹 안의 전용 라이트 리그(키/필/림)로 해결한다.</p>
+        </div>
+        <div class="card">
+          <h3>7.7 프리워밍</h3>
+          <p>무대 프리팹 첫 인스턴스화 = 셰이더 컴파일 + 텍스처 업로드 히치. 궁극기는 게이지가 차면 언제든 나가므로,
+          <strong>스킬 게이지 만충 시점에 무대 프리팹을 비활성 상태로 미리 인스턴스화</strong>해두는 예열이 필요하다. <code>GameObjectManager</code> 풀링에 얹는다.</p>
+        </div>
+        <div class="card">
+          <h3>7.8 오디오</h3>
+          <p>무대는 1500m 아래라 월드의 3D 사운드가 자연히 감쇠한다(장점). 다만 앰비언트 루프가 2D면 그대로 들리므로 스테이지 진입 시 앰비언트 버스 덕킹을 넣는다.
+          리스너는 카메라를 따라가므로 별도 처리 불필요.</p>
+        </div>
+        <div class="card">
+          <h3>7.9 비참가 액터에 대한 피해</h3>
+          <p>무대 안 광역기는 무대에 없는 월드 몬스터를 못 때린다. <strong>정책을 명시적으로 정한다</strong>: 판정 대상은 참가자 집합으로 한정하고, 필요하면 복귀 시 “월드 잔여 대상에 결과 적용” 패스를 별도로 돈다.
+          암묵적으로 두면 <strong style="color:var(--amber)">“궁극기가 T2일 때만 데미지가 덜 들어간다”</strong>는 밸런스 버그가 된다.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>7.10 Tier 강등의 관측 가능성</strong><br>
+        원신이 물 위에서 컷신을 스킵하듯, 강등·폴백은 정상 동작이다.
+        다만 <strong style="color:var(--text)">디버그 로그와 치트 오버레이에 강등 사유를 노출</strong>해야 한다.
+        안 그러면 “가끔 연출이 안 나온다”는 재현 불가 버그로 남는다.
+      </div>
+    </section>
+
+    <!-- ============ 8. Phase ============ -->
+    <section id="phases">
+      <span class="kicker">08 · ROADMAP</span>
+      <h2>구현 Phase</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:9%">Phase</th><th style="width:41%">범위</th><th>완료 기준</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--cyan)">P1</strong></td>
+              <td>계약 + 매니저 골격 + T2(스테이지 이동) + 앵커 검증 + 화면 전환 + 티켓/복구/워치독</td>
+              <td>궁극기 1종이 지하 무대에서 재생되고, 인터럽트·사망·씬전환 모두에서 월드로 정상 복귀</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--cyan)">P2</strong></td>
+              <td>라이팅 컨텍스트 + <code>WorldLightingController</code> 조정 + 무대 라이트 리그 + 리플렉션 프로브</td>
+              <td>무대에서 캐릭터가 의도한 톤으로 보이고, 복귀 후 월드 라이팅이 진입 전과 픽셀 동일</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--cyan)">P3</strong></td>
+              <td>지연 플러시(사망·드롭·경험치) + 세이브 게이트 + 비참가 대상 정책</td>
+              <td>무대에서 처치한 몬스터의 드롭·경험치가 월드 정위치에 생성. 연출 중 저장 시도가 차단됨</td>
+            </tr>
+            <tr>
+              <td><strong>P4</strong></td>
+              <td>프리워밍/풀링 + T1(인플레이스) + Tier 자동 강등 + 치트 진단 표시</td>
+              <td>첫 발동 히치 없음. 좁은 실내에서 자동 강등 동작 확인</td>
+            </tr>
+            <tr>
+              <td><strong>P5</strong></td>
+              <td>타임라인 구간 스테이지 이벤트 + 궁극기 시퀀스 에디터 트랙 표시</td>
+              <td>에디터 타임라인에서 무대 구간이 시각적으로 보이고 저작 가능</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--muted)">P6</strong><br><small style="color:var(--muted)">선택</small></td>
+              <td>T3 가상 씬(Additive)</td>
+              <td>보스 처형 연출 1종이 전용 씬에서 재생</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout good">
+        <strong>P1~P3이 “안전한 시스템”의 최소 단위다.</strong> P4 이후는 품질·저작 편의 영역이다.
+      </div>
+    </section>
+
+    <!-- ============ 9. 검증 ============ -->
+    <section id="verification">
+      <span class="kicker">09 · VERIFICATION</span>
+      <h2>검증 계획</h2>
+
+      <div class="grid two">
+        <div class="card">
+          <h3>EditMode</h3>
+          <ul class="checklist">
+            <li><code>CinematicStageAnchorResolver</code>: 콜라이더가 있는 후보를 거르고, 전부 막히면 identity 폴백을 반환하는가</li>
+            <li><code>S</code> / <code>S⁻¹</code> 왕복 변환의 위치·회전 오차가 허용치 이내인가</li>
+            <li>티켓 소유권: 무효 티켓의 <code>Exit</code> 호출이 무시되는가</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>PlayMode (수직 슬라이스)</h3>
+          <ul class="checklist">
+            <li>진입 → 복귀 후 참가자 위치·회전이 진입 전과 동일</li>
+            <li>모션 중단(피격·사망·씬 전환) 각 경로에서 무대가 남지 않음</li>
+            <li>라이팅 복구: 진입 전후 <code>RenderSettings</code> 값 동일</li>
+            <li>워치독: 소유자를 강제 파괴해도 <code>maxStageSeconds</code> 내에 무대가 회수됨</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>수동 체크리스트</h3>
+      <div class="card">
+        <ul class="checklist">
+          <li>좁은 실내 / 절벽 / 물 위 / 지하 던전에서 각각 발동</li>
+          <li>연출 중 일시정지 → 재개</li>
+          <li>연출 중 세이브 시도</li>
+          <li>연속 발동(캐릭터 스왑 후 즉시 궁극기)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ 10. 열린 질문 ============ -->
+    <section id="open">
+      <span class="kicker">10 · OPEN QUESTIONS</span>
+      <h2>열린 질문 — 결정 필요</h2>
+
+      <div class="decision">
+        <ol>
+          <li><strong>무대 프리팹을 캐릭터별로 둘 것인가, 속성·등급별 공용으로 둘 것인가.</strong>
+            12캐릭터 × 전용 무대는 제작비가 크다. 공용 무대 3~4종 + 캐릭터별 VFX·라이팅 오버라이드가 현실적으로 보인다.
+            <span style="color:var(--amber)">→ 제작비에 가장 크게 영향을 주는 결정.</span></li>
+          <li><strong>T2를 궁극기 전체에 적용할 것인가, 일부만 적용할 것인가.</strong>
+            원신처럼 “일부 캐릭터만 컷신”으로 가면 연출 밀도 차이가 캐릭터 개성이 된다.</li>
+          <li><strong>연출 스킵 기능.</strong>
+            반복 플레이에서 매번 3초 무대는 피로하다. 스킵 시에도 게임플레이 결과가 동일해야 하므로 2절의 원칙이 여기서도 근거가 된다.</li>
+          <li><strong>사이클 런 텔레메트리와의 관계.</strong>
+            <code>CycleTelemetrySession</code>이 무대 체류 시간을 전투 시간으로 셀지 여부.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ 부록 ============ -->
+    <section id="research">
+      <span class="kicker">APPENDIX · RESEARCH</span>
+      <h2>조사 근거</h2>
+      <p class="lead">
+        명조·원신 류의 궁극기 연출 <strong>내부 구현</strong>에 대한 공개 기술 자료는 사실상 없다(비공개 엔진 코드).
+        따라서 설계 근거는 아래 공개 자료 + 엔진 공개 기능 + 본 프로젝트의 기존 인프라로 구성했다.
+      </p>
+
+      <div class="grid two">
+        <div class="card">
+          <h3>원신 — 조건부 컷신</h3>
+          <p>물 위·적과 너무 가까울 때 버스트 컷신이 스킵되고 <strong>애니메이션만 재생</strong>된다. 소요 시간과 효과는 동일하다.</p>
+          <p style="color:var(--muted);font-size:13px">→ <strong style="color:var(--mint)">연출 스테이지는 실패해도 게임플레이 결과가 동일해야 한다</strong>는 2절 원칙의 실증 근거.
+          <a href="https://genshin-impact.fandom.com/f/p/4400000000000412444" target="_blank" rel="noopener">출처</a></p>
+        </div>
+        <div class="card">
+          <h3>원신 — 렌더 분리</h3>
+          <p>씬은 디퍼드, 캐릭터는 포워드로 분리 렌더하여 캐릭터 라이팅을 아트 의도대로 완전히 통제한다. 커스텀 SRP 사용.</p>
+          <p style="color:var(--muted);font-size:13px">→ 7.6(무대 전용 라이트 리그로 캐릭터 톤을 별도 통제)의 방향성 근거.
+          <a href="https://habr.com/en/articles/874866" target="_blank" rel="noopener">출처</a></p>
+        </div>
+        <div class="card">
+          <h3>Unreal Sequencer — Spawnable</h3>
+          <p>시퀀스 시작 시 스폰되고 종료 시 파괴·제거되는 시네마틱 전용 액터. <code>Spawned</code> 트랙으로 노출 구간을 키프레임할 수 있다.
+          영속 월드 액터는 Possessable, 컷신 전용은 Spawnable로 구분하는 것이 권장 관행.</p>
+          <p style="color:var(--muted);font-size:13px">→ <code>RegisterTransient</code> / 복귀 2단계(transient 정리)의 설계 근거.
+          <a href="https://dev.epicgames.com/documentation/unreal-engine/spawn-temporary-actors-in-unreal-engine-cinematics?lang=en-US" target="_blank" rel="noopener">출처</a> ·
+          <a href="https://dev.epicgames.com/documentation/en-us/unreal-engine/spawnables-and-possessables?application_version=4.27" target="_blank" rel="noopener">Spawnables/Possessables</a></p>
+        </div>
+        <div class="card">
+          <h3>Unity — 다중 카메라 / 컬링 마스크</h3>
+          <p>레이어 기반 <code>cullingMask</code>로 렌더 대상 그룹을 선택하고, 카메라 전환으로 뷰를 바꾸는 표준 기법.</p>
+          <p style="color:var(--muted);font-size:13px">→ T1의 기반이자, 레이어 공유 문제로 T1이 제한적인 이유(7.1).
+          <a href="https://docs.unity3d.com/kr/2018.4/Manual/MultipleCameras.html" target="_blank" rel="noopener">출처</a></p>
+        </div>
+      </div>
+
+      <h3>프로젝트 내부 기반 (이미 존재)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th style="width:38%">기존 자산</th><th>스테이지 설계에서의 역할</th></tr></thead>
+          <tbody>
+            <tr><td><code>UltimateSequencePlayer</code></td><td>“잠금 → 배치 → 타임라인 → 단일 Restore” 골격. 스테이지는 배치와 모션 사이에 삽입</td></tr>
+            <tr><td><code>UltimateGameplayLockContext</code></td><td>“내가 바꾼 것만 되돌린다” 소유권 패턴 → 티켓·라이팅 컨텍스트가 그대로 계승</td></tr>
+            <tr><td><code>UltimatePlacementContext</code></td><td>개별 액터 배치. 스테이지 변환의 <strong>하위</strong> 단계</td></tr>
+            <tr><td><code>CameraManager.SnapToTarget</code></td><td>진입·복귀의 즉시 컷</td></tr>
+            <tr><td><code>CameraSnapshotSpace.ActorRelative</code></td><td>시전자 기준 프레이밍 → 스테이지 이동 후에도 저작 재사용</td></tr>
+            <tr><td><code>GameObjectManager</code> 풀링</td><td>무대 프리팹 프리워밍·반납</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      연출 스테이지 시스템 설계 · 2026-07-31 · 상태: 설계안(미구현) ·
+      Markdown 원본 <code>Assets/docs/design/CINEMATIC_STAGE_SYSTEM_DESIGN.md</code><br>
+      관련: <code>ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md</code> · <code>TODO/ULTIMATE_SEQUENCE_EDITOR_ADVANCEMENT_TODO.md</code>
+    </footer>
+  </main>
+</div>
+
+<script>
+  const sections = [...document.querySelectorAll("main section")];
+  const links = [...document.querySelectorAll("#toc a")];
+  const search = document.querySelector("#docSearch");
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    links.forEach(link => {
+      link.classList.toggle("active", link.getAttribute("href") === "#" + visible.target.id);
+    });
+  }, { rootMargin: "-15% 0px -70% 0px", threshold: [0, .25, .6] });
+  sections.forEach(section => observer.observe(section));
+
+  search.addEventListener("input", () => {
+    const query = search.value.trim().toLocaleLowerCase("ko");
+    sections.forEach(section => {
+      const match = !query || section.textContent.toLocaleLowerCase("ko").includes(query);
+      section.dataset.searchHidden = String(!match);
+    });
+    links.forEach(link => {
+      const section = document.querySelector(link.getAttribute("href"));
+      link.hidden = section?.dataset.searchHidden === "true";
+    });
+  });
+
+  document.querySelectorAll(".copy").forEach(button => {
+    button.addEventListener("click", async () => {
+      const text = button.nextElementSibling.innerText;
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+      const original = button.textContent;
+      button.textContent = "복사됨";
+      setTimeout(() => button.textContent = original, 1200);
+    });
+  });
+</script>
+</body>
+</html>

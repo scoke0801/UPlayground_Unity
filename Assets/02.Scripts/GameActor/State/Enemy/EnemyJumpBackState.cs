@@ -1,5 +1,4 @@
 using UnityEngine;
-using Animancer;
 using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
@@ -27,7 +26,8 @@ namespace UPlayGround.State
         private bool _canJumpBack;
         private bool _launchStarted;
         private bool _usesMotionFallback;
-        private AnimancerState _motionState;
+        private bool _motionEnded;
+        private float _motionLockDuration;
         private float _maxSafeTargetDistance;
 
         private const float HORIZONTAL_SPEED_RATIO = 1.75f;
@@ -41,6 +41,7 @@ namespace UPlayGround.State
         private const float HORIZONTAL_DAMPING = 2.2f;
         private const float FALLBACK_RETREAT_DURATION = 0.38f;
         private const float FALLBACK_SPEED_RATIO = 1.25f;
+        private const float MOTION_COMPLETION_GRACE = 0.1f;
 
         public EnemyJumpBackState(
             ActorMovementController controller,
@@ -66,19 +67,23 @@ namespace UPlayGround.State
             _hasLeftGround = false;
             _launchStarted = false;
             _usesMotionFallback = false;
+            _motionEnded = false;
             _jumpDirection = CalculateJumpDirection();
             _maxSafeTargetDistance = ResolveMaxSafeTargetDistance();
             _canJumpBack = HasRetreatRoom();
 
             _memory?.NotifyRetreated();
-            _motionState = gameActor.Animator.PlayMotion(
-                ResolveMotionKey(),
-                0.05f);
+            var motionKey = ResolveMotionKey();
+            var duration = gameActor.Animator.GetMotionSetDuration(motionKey);
+            _motionLockDuration = duration > 0f
+                ? Mathf.Max(FALLBACK_RETREAT_DURATION, duration + MOTION_COMPLETION_GRACE)
+                : FALLBACK_RETREAT_DURATION;
 
-            if (_motionState != null)
-                _motionState.OwnedEvents.OnEnd = ChangeToNextState;
-            else
+            gameActor.Animator.OnMotionSetCompleted += OnMotionCompleted;
+            if (gameActor.Animator.PlayMotion(motionKey, 0.05f) == null)
             {
+                gameActor.Animator.OnMotionSetCompleted -= OnMotionCompleted;
+
                 // Jump/Dodge 모션이 없는 몬스터도 상태 전환 성공 직후 Idle로 끝나지 않고
                 // 짧은 물리 후퇴를 수행한다. 원거리 몬스터의 최소 거리 확보를 보장한다.
                 _usesMotionFallback = true;
@@ -90,11 +95,7 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            if (_motionState != null)
-            {
-                _motionState.OwnedEvents.OnEnd = null;
-                _motionState = null;
-            }
+            gameActor.Animator.OnMotionSetCompleted -= OnMotionCompleted;
 
             base.OnExit(toState);
         }
@@ -104,6 +105,15 @@ namespace UPlayGround.State
             _timer += deltaTime;
 
             if (_usesMotionFallback && _timer >= FALLBACK_RETREAT_DURATION)
+            {
+                ChangeToNextState();
+                return;
+            }
+
+            // MotionSet 디렉터는 마지막 포즈를 샘플링한 뒤 개별 AnimancerState의
+            // OnEnd 전에 속도를 0으로 만들 수 있다. 완료 신호가 유실되더라도
+            // 상태가 BT를 영구 차단하지 않도록 재생 길이를 최종 안전장치로 사용한다.
+            if (_motionEnded || _timer >= _motionLockDuration)
                 ChangeToNextState();
         }
 
@@ -302,11 +312,7 @@ namespace UPlayGround.State
             if (controller.CurrentState != this)
                 return;
 
-            if (_motionState != null)
-            {
-                _motionState.OwnedEvents.OnEnd = null;
-                _motionState = null;
-            }
+            gameActor.Animator.OnMotionSetCompleted -= OnMotionCompleted;
 
             if (!_detection.HasTarget)
             {
@@ -319,6 +325,12 @@ namespace UPlayGround.State
                 controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
             else
                 controller.TransitionToState(new EnemyIdleState(controller));
+        }
+
+        private void OnMotionCompleted()
+        {
+            if (controller.CurrentState == this)
+                _motionEnded = true;
         }
     }
 }

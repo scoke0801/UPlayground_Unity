@@ -445,7 +445,9 @@
       "WebFetch(domain:www.animotionx.com)",
       "WebFetch(domain:www.jaydengames.com)",
       "Bash(sed -E 's/.*MotionEventDescriptor\\\\\\(//')",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(sed -n '/<\\\\/style>/,/<\\\\/aside>/p' onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html)",
+      "Bash(sed -n '/<script>/,$p' onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html)"
     ],
     "deny": [
       "Bash(rm -rf *)",

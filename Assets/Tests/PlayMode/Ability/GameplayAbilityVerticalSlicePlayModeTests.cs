@@ -47,11 +47,9 @@ namespace UPlayGround.Ability.PlayModeTests
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase
-                {
-                    motionKey = new MotionKey(
-                        "Tests.PlayMode.VerticalSlice.Ground"),
-                },
+                motionKey = new MotionKey(
+                    "Tests.PlayMode.VerticalSlice.Ground"),
+                baseInfo = new AttackInfoBase(),
             };
 
             GameplayAbilitySO ability = ScriptableObject.CreateInstance<GameplayAbilitySO>();

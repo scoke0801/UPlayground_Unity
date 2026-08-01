@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_ParryCounter_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Default.ParryCounter
     baseInfo:
-      motionKey:
-        value: Default.ParryCounter
       attackType: 0
       hitPhases:
       - damage: 123

@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_6
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.KatanaAttackData.Skill.6.31
     baseInfo:
-      motionKey:
-        value: Humanoid.KatanaAttackData.Skill.6.31
       attackType: 0
       hitPhases:
       - damage: 7

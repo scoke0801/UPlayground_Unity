@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDualBladeAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DualBlade.Ability
     baseInfo:
-      motionKey:
-        value: DualBlade.Ability
       attackType: 0
       hitPhases:
       - damage: 25

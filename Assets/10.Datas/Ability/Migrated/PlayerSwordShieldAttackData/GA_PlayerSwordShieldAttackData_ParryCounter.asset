@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_ParryCounter_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.ParryCounter
     baseInfo:
-      motionKey:
-        value: SwordShield.ParryCounter
       attackType: 0
       hitPhases:
       - damage: 10

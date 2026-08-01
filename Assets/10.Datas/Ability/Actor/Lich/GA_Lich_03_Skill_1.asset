@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Lich.Skill.1.03
     baseInfo:
-      motionKey:
-        value: Lich.Skill.1.03
       attackType: 1
       hitPhases:
       - damage: 30

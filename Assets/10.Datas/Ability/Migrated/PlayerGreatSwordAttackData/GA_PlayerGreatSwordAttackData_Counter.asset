@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerGreatSwordAttackData_Counter_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: GreatSword.Counter
     baseInfo:
-      motionKey:
-        value: GreatSword.Counter
       attackType: 0
       hitPhases:
       - damage: 48

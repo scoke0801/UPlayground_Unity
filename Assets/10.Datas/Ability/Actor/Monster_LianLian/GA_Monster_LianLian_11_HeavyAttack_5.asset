@@ -86,9 +86,9 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_5
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Monster.LianLian.HeavyAttack.5.11
     baseInfo:
-      motionKey:
-        value: Monster.LianLian.HeavyAttack.5.11
       attackType: 0
       hitPhases:
       - damage: 10

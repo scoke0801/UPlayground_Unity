@@ -86,9 +86,9 @@ MonoBehaviour:
   m_Name: Payload_Fly_Move
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: griffin.Fly.Move.04
     baseInfo:
-      motionKey:
-        value: griffin.Fly.Move.04
       attackType: 0
       hitPhases:
       - damage: 50

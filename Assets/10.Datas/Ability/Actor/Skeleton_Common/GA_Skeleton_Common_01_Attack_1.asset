@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Attack_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Skeleton.Common.Attack.1.01
     baseInfo:
-      motionKey:
-        value: Skeleton.Common.Attack.1.01
       attackType: 0
       hitPhases:
       - damage: 15

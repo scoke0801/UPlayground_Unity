@@ -86,9 +86,9 @@ MonoBehaviour:
   m_Name: Payload_Attack_6
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Monster.Honoka.Attack.6.06
     baseInfo:
-      motionKey:
-        value: Monster.Honoka.Attack.6.06
       attackType: 0
       hitPhases:
       - damage: 30

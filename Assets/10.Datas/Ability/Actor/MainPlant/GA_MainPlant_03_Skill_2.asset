@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: MainPlant.Skill.2.03
     baseInfo:
-      motionKey:
-        value: MainPlant.Skill.2.03
       attackType: 1
       hitPhases:
       - damage: 10

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Entry_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.Entry
     baseInfo:
-      motionKey:
-        value: Bow.Entry
       attackType: 0
       hitPhases:
       - damage: 35

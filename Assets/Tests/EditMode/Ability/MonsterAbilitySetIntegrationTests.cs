@@ -74,7 +74,7 @@ namespace UPlayGround.Ability.Tests
                         }
 
                         MotionKey motionKey =
-                            payload.attackInfo?.baseInfo?.motionKey ?? default;
+                            payload.attackInfo?.motionKey ?? default;
                         if (!motionKey.IsValid)
                             issues.Add($"{ability.name}: Motion Key 누락");
                         else if (!motionSets.Any(x =>
@@ -149,8 +149,7 @@ namespace UPlayGround.Ability.Tests
                             || !attackInfo.aiSelectable)
                             continue;
 
-                        MotionKey motionKey =
-                            attackInfo.baseInfo?.motionKey ?? default;
+                        MotionKey motionKey = attackInfo.motionKey;
                         if (!motionKey.IsValid)
                             continue;
 

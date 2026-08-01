@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_SwapSpecial_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.SwapSpecial
     baseInfo:
-      motionKey:
-        value: Bow.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 10

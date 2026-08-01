@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_JumpAttack_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.KatanaAttackData.JumpAttack.2.20
     baseInfo:
-      motionKey:
-        value: Humanoid.KatanaAttackData.JumpAttack.2.20
       attackType: 0
       hitPhases:
       - damage: 9

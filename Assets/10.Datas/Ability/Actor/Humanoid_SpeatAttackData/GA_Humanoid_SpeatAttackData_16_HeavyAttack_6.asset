@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_6
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.SpeatAttackData.HeavyAttack.6.16
     baseInfo:
-      motionKey:
-        value: Humanoid.SpeatAttackData.HeavyAttack.6.16
       attackType: 0
       hitPhases:
       - damage: 17

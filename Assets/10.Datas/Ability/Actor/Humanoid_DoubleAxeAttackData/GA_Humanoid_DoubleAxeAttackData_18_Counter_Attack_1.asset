@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Counter_Attack_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.DoubleAxeAttackData.Counter.Attack.1.18
     baseInfo:
-      motionKey:
-        value: Humanoid.DoubleAxeAttackData.Counter.Attack.1.18
       attackType: 0
       hitPhases:
       - damage: 14

@@ -156,11 +156,11 @@ namespace UPlayGround.Ability.Tests
             Assert.That(request.TargetSet.Contains(result.Ability), Is.True);
             Assert.That(result.Ability.taskGraph.Root, Is.Not.Null);
             Assert.That(
-                result.Payload.attackInfo.baseInfo.motionKey,
+                result.Payload.attackInfo.motionKey,
                 Is.EqualTo(new MotionKey(request.AbilityId)));
             Assert.That(
                 request.MotionOwner.GetAbilityMotionAsset(
-                    result.Payload.attackInfo.baseInfo.motionKey),
+                    result.Payload.attackInfo.motionKey),
                 Is.SameAs(request.Motion));
         }
 
@@ -305,15 +305,15 @@ namespace UPlayGround.Ability.Tests
                     UPlayGroundMotionAbilityPayloadSO>();
             payload.attackInfo = new AbilityAttackInfo
             {
+                motionKey = new MotionKey("Tests.MotionAnalyzer"),
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = new MotionKey("Tests.MotionAnalyzer"),
                     hitPhases = new System.Collections.Generic.List<
                         HitPhaseData> { new() },
                 },
             };
             _motionOwner.SetAbilityMotionAsset(
-                payload.attackInfo.baseInfo.motionKey,
+                payload.attackInfo.motionKey,
                 _motion);
             _motion.motionSet.motions.Add(new global::UPlayGround.Animation.Motion
             {
@@ -373,10 +373,8 @@ namespace UPlayGround.Ability.Tests
                     UPlayGroundMotionAbilityPayloadSO>();
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase
-                {
-                    motionKey = new MotionKey("Tests.Balance"),
-                },
+                motionKey = new MotionKey("Tests.Balance"),
+                baseInfo = new AttackInfoBase(),
             };
             payload.attackInfo.baseInfo.hitPhases =
                 new System.Collections.Generic.List<HitPhaseData>

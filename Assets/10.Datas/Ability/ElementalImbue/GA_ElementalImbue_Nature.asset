@@ -88,9 +88,9 @@ MonoBehaviour:
   m_Name: Payload_ElementalImbue_Nature
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: ElementalImbue.Nature
     baseInfo:
-      motionKey:
-        value: ElementalImbue.Nature
       attackType: 0
       hitPhases: []
     interruptActions: 0

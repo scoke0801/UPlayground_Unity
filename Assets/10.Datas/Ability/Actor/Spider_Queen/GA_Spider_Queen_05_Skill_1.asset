@@ -86,9 +86,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Spider.Queen.Skill.1.05
     baseInfo:
-      motionKey:
-        value: Spider.Queen.Skill.1.05
       attackType: 1
       hitPhases:
       - damage: 28

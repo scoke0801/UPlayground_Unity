@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Light_02_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.Light.02
     baseInfo:
-      motionKey:
-        value: Whip.Light.02
       attackType: 0
       hitPhases:
       - damage: 50

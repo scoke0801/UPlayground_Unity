@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_EntryAirborne_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.EntryAirborne
     baseInfo:
-      motionKey:
-        value: SwordShield.EntryAirborne
       attackType: 0
       hitPhases:
       - damage: 46

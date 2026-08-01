@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Counter_Attack_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.GreatSwordAttackData.Counter.Attack.2.22
     baseInfo:
-      motionKey:
-        value: Humanoid.GreatSwordAttackData.Counter.Attack.2.22
       attackType: 0
       hitPhases:
       - damage: 6

@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Counter_Attack_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.KatanaAttackData.Counter.Attack.1.32
     baseInfo:
-      motionKey:
-        value: Humanoid.KatanaAttackData.Counter.Attack.1.32
       attackType: 0
       hitPhases:
       - damage: 8

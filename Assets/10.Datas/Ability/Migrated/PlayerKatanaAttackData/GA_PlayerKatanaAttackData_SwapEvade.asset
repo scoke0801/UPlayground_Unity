@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_SwapEvade_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.SwapEvade
     baseInfo:
-      motionKey:
-        value: Katana.SwapEvade
       attackType: 0
       hitPhases:
       - damage: 10

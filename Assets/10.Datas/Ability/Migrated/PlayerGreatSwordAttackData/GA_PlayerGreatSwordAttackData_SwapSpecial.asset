@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerGreatSwordAttackData_SwapSpecial_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: GreatSword.SwapSpecial
     baseInfo:
-      motionKey:
-        value: GreatSword.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 75

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Dash_00_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Default.Dash.00
     baseInfo:
-      motionKey:
-        value: Default.Dash.00
       attackType: 0
       hitPhases:
       - damage: 48

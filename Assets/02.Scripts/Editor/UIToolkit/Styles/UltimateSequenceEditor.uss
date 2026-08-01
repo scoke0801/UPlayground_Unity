@@ -12,7 +12,11 @@
 }
 
 .up-ult-toolbar-asset {
+    width: 320px;
     min-width: 200px;
+    max-width: 360px;
+    flex-grow: 0;
+    flex-shrink: 1;
     margin-right: 6px;
 }
 
@@ -57,12 +61,12 @@
 }
 
 .up-ult-timeline-pane {
-    min-width: 360px;
+    min-width: 460px;
     background-color: var(--up-bg-0);
 }
 
 .up-ult-inspector-pane {
-    min-width: 300px;
+    min-width: 360px;
     background-color: var(--up-bg-1);
     border-left-width: 1px;
     border-left-color: var(--up-border-strong);
@@ -172,6 +176,21 @@
     border-color: rgba(126, 184, 255, 0.75);
 }
 
+.up-ult-timeline-empty {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    top: 36px;
+    height: 34px;
+    color: var(--up-text-faint);
+    background-color: rgba(46, 154, 255, 0.06);
+    border-width: 1px;
+    border-color: rgba(46, 154, 255, 0.18);
+    border-radius: 4px;
+    font-size: 11px;
+    -unity-text-align: middle-center;
+}
+
 /* ── 이벤트 블록 ─────────────────────────────────────── */
 .up-ult-event {
     position: absolute;
@@ -241,6 +260,15 @@
     border-radius: var(--up-radius);
     border-width: 1px;
     border-color: var(--up-border);
+}
+
+.up-ult-section .unity-base-field__label {
+    min-width: 124px;
+    width: 42%;
+}
+
+.up-ult-section .unity-base-field__input {
+    min-width: 120px;
 }
 
 .up-ult-section-title {

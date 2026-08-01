@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDoubleAxeAttackData_Light_07_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DoubleAxe.Light.07
     baseInfo:
-      motionKey:
-        value: DoubleAxe.Light.07
       attackType: 0
       hitPhases:
       - damage: 82

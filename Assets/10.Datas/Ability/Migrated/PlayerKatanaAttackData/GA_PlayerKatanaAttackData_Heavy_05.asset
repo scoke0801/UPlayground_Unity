@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Heavy_05_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Heavy.05
     baseInfo:
-      motionKey:
-        value: Katana.Heavy.05
       attackType: 0
       hitPhases:
       - damage: 91

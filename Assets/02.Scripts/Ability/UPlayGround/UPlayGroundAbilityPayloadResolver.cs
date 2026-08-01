@@ -29,10 +29,11 @@ namespace UPlayGround.Ability.UPlayGround
                 return false;
 
             attackInfo = payload.attackInfo;
-            if (attackInfo?.baseInfo == null)
+            // Motion Key는 공격 수치와 분리돼 있으므로 baseInfo 없이도 해석된다.
+            if (attackInfo == null)
                 return false;
 
-            motionKey = attackInfo.baseInfo.motionKey;
+            motionKey = attackInfo.motionKey;
             return motionKey.IsValid;
         }
     }

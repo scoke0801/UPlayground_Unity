@@ -174,7 +174,7 @@ namespace UPlayGround.Tool.Editor.Combat
                         // 여기서 모션은 진단 메시지 표시용이다. 같은 키가 무기별로 다른
                         // 모션을 가리키는 것이 정상이므로 모호해도 대표 하나를 쓴다.
                         MotionAsset = motionIndex.ResolveRepresentative(
-                            info.baseInfo.motionKey),
+                            info.motionKey),
                         HitPhases = info.baseInfo.hitPhases,
                         InterruptActions = info.interruptActions,
                         AttackInfo = info,

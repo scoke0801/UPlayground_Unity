@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_DashAttack_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.KatanaAttackData.DashAttack.1.17
     baseInfo:
-      motionKey:
-        value: Humanoid.KatanaAttackData.DashAttack.1.17
       attackType: 0
       hitPhases:
       - damage: 9

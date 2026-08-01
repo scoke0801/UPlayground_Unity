@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Light_01_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Default.Light.01
     baseInfo:
-      motionKey:
-        value: Default.Light.01
       attackType: 0
       hitPhases:
       - damage: 24

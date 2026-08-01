@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Jump_03_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Jump.03
     baseInfo:
-      motionKey:
-        value: Katana.Jump.03
       attackType: 0
       hitPhases:
       - damage: 56

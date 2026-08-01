@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_EntryGroggy_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.EntryGroggy
     baseInfo:
-      motionKey:
-        value: Bow.EntryGroggy
       attackType: 0
       hitPhases:
       - damage: 52

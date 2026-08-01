@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerGreatSwordAttackData_Heavy_00_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: GreatSword.Heavy.00
     baseInfo:
-      motionKey:
-        value: GreatSword.Heavy.00
       attackType: 0
       hitPhases:
       - damage: 39

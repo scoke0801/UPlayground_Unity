@@ -37,7 +37,6 @@ public sealed class MonsterGroupPresetMember
 {
     public ActorDefinitionSO definition;     // 우선 소스
     public GameObject directPrefab;          // definition 없을 때 폴백
-    public MemberPriority priority = MemberPriority.Normal;
 
     public Vector3 localOffset;              // 그룹 앵커 기준 (XZ 사용, Y는 스냅으로 재계산)
     public float localYaw;                   // 앵커 forward 기준 상대 yaw
@@ -48,26 +47,21 @@ public sealed class MonsterGroupPresetMember
     public bool initiallyActive = true;
 }
 
-[Serializable]
-public sealed class MonsterGroupPresetSettings   // MonsterGroupController 필드 스냅샷
-{
-    public int maxMeleeAttackers = 2;
-    public int maxRangedAttackers = 2;
-    public float breatherDuration = 0.6f;
-    public int formationSlotCount = 8;
-    // 필드 추가 시 MonsterGroupController와 1:1 유지 (아래 6.3 참조)
-}
-
 public sealed class MonsterGroupPresetSO : ScriptableObject
 {
     [SerializeField] private string _presetId;        // 고유 키. bake record에 기록
     [SerializeField] private string _displayName;
     [SerializeField] private string _category;        // "숲 순찰", "보스 호위" 등 좌측 리스트 그룹핑
-    [SerializeField] private MonsterGroupPresetSettings _settings = new();
+    [SerializeField] private string _groupSettingsJson;    // 컨트롤러 설정 스냅샷 (아래)
     [SerializeField] private List<MonsterGroupPresetMember> _members = new();
     [SerializeField] private float _anchorRadiusHint = 6f;  // 씬 프리뷰 링 반경
+    [SerializeField] private int _revision = 1;
 }
 ```
+
+**멤버 우선순위(`MemberPriority`)는 저장하지 않는다.** `MonsterGroupController.Start`가 자식 `MonsterActor`를 전부 `Normal`로 등록하고(`MonsterGroupController.cs:161`), `Summon`은 런타임 소환 경로에서만 붙는다. 저작 시점에 우선순위를 저장해도 런타임이 무시하므로, 지키지 못할 필드를 두지 않는다.
+
+**그룹 설정은 필드 미러링이 아니라 JSON 스냅샷으로 저장한다.** 컨트롤러는 현재도 활발히 튜닝 중이라(`_meleeSlotCap`, `_rangedSlotCap` 등 `FormerlySerializedAs` 이관 진행 중) 필드를 하나씩 미러링하면 바뀔 때마다 드리프트가 생긴다. `EditorJsonUtility.ToJson`으로 통째로 캡처하고 `FromJsonOverwrite`로 복원하되, `m_GameObject`/`m_Script` 같은 Unity 내장 키를 덮어쓰면 컴포넌트가 망가지므로 **캡처 단계에서 `m_` 접두 키를 제거**한다 (`MonsterGroupSettingsSnapshot`). 이 방식은 6.3의 드리프트 문제 자체를 없앤다. 대신 씬 오브젝트 참조 필드(`_visibilityCamera`)는 보존되지 않는다.
 
 **설계 의도 — 위치는 로컬 오프셋만 저장한다.** 월드 좌표를 저장하면 프리셋이 특정 지형에 종속된다. Y는 저장하지 않고 배치 시 각 멤버 지점에서 개별 레이캐스트로 결정한다(경사면에서 그룹이 통째로 떠 있거나 파묻히는 문제 방지).
 
@@ -154,8 +148,11 @@ public string groupPresetId;   // 프리셋 유래 추적 / 텔레메트리 / �
 | 경사 각도 | `Vector3.Angle(hitNormal, up) > maxSlope` (기본 35°) | 경고 + 배치 허용 |
 | 겹침 | 반경 내 기존 `WorldPlacementMetadata` 검색 (기본 0.5m) | 경고 |
 | NavMesh 이탈 | `NavMesh.SamplePosition` 실패 (몬스터/NPC 한정) | 경고 |
-| 지형 관통 | 스냅 후 렌더러 바운드 최저점이 표면보다 아래 | 차단 |
 | 레이 미스 | 현행 `_hasPreviewHit == false` | 차단(현행 유지) |
+
+지형 관통은 배치 **전에** 판정하려면 인스턴스 바운드가 필요해 프리뷰 단계에서 정확히 낼 수 없다. 3.2의 일괄 감사에서 "지면과 N미터 어긋남" 항목으로 사후 검출한다.
+
+프로필이 선택되지 않았으면 아무 것도 검사하지 않아 기존 동작과 동일하다. 현재 규칙은 모두 경고(앰버 프리뷰)이며 차단 경로(`PlacementIssueSeverity.Blocked`)는 배선만 되어 있다.
 
 그룹 프리셋 배치는 **멤버 단위로 판정**하고, 실패 멤버가 있으면 앵커 라벨에 `3/5 배치 가능`처럼 표시한다.
 
@@ -209,9 +206,9 @@ GatheringPlacementEditorWindow.Bake.cs         // Bake 뷰어 / 인벤토리 / �
 
 사이클 규칙(외곽 보스 3 + 중앙 보스 1)에 맞춰 섹터별 마커 통계 표시: 역할별 개수, `_cycleSafetyRadius` 겹침, 섹터 미커버 경고. 현재는 마커를 찍을 수만 있고 규칙 충족 여부를 알 수 없다.
 
-### 6.3 데이터 변경 시 인스펙터 동기화
+### 6.3 그룹 설정 드리프트 (해소됨)
 
-`MonsterGroupPresetSettings`는 `MonsterGroupController`의 필드 미러다. 한쪽에 필드가 늘면 다른 쪽과 커스텀 인스펙터도 함께 갱신해야 한다. 드리프트 방지를 위해 EditMode 테스트 1개를 둔다: 리플렉션으로 양쪽 필드 집합을 비교해 미러 누락 시 실패.
+당초 `MonsterGroupController`의 필드를 프리셋에 미러링하고 드리프트 감지 테스트를 두는 안이었으나, 1.2의 JSON 스냅샷 방식으로 대체해 미러 자체를 없앴다. 컨트롤러에 필드를 추가해도 프리셋 코드는 손댈 필요가 없다.
 
 ### 6.4 잔여 함정
 
@@ -233,6 +230,21 @@ GatheringPlacementEditorWindow.Bake.cs         // Bake 뷰어 / 인벤토리 / �
 | **P5** | 사이클 스폰 대시보드 | 6.2장 |
 
 P1이 단독으로 가치를 내므로 P0→P1까지가 최소 유효 범위다. P2 이후는 독립적이라 순서 교체 가능.
+
+## 7.1 구현 현황 (2026-08-01)
+
+P0~P5 코드 작성 완료. **Unity에서의 컴파일·동작 검증은 미완료** — 프로젝트에 Unity가 생성한 스크립트 어셈블리(`Library/ScriptAssemblies`)가 없고 `.csproj`가 패키지 참조를 잃은 상태라 `dotnet build`로 검증할 수 없다. Unity 에디터에서 최초 임포트 시 컴파일 오류를 확인해야 한다.
+
+| 단계 | 신규/수정 파일 |
+|---|---|
+| P0 | `GatheringPlacementEditorWindow.{Actor,Interaction,CycleSpawn,Bake,Scene}.cs` 분할, `PlacementUndoScope.cs` |
+| P1 | `MonsterGroupPresetSO.cs`, `MonsterGroupPresetLink.cs`, `MonsterGroupSettingsSnapshot.cs`, `…GroupPreset.cs`, `WorldPlacementDataSO`(groupGuid/groupPresetId), `WorldPlacementBakeUtility`(GUID 매칭) |
+| P2 | `PlacementRuleProfileSO.cs`, `…Rules.cs` |
+| P3 | `…Inventory.cs` |
+| P4 | `…Brush.cs` |
+| P5 | `…CycleDashboard.cs` |
+
+미처리로 남긴 항목: 기본 제공 규칙 프로필 4종 에셋(캐릭터/채집물/바위/트리거)은 코드가 아니라 에셋이므로 Unity에서 생성해야 한다. 6.1의 클래스 개명(`WorldPlacementEditorWindow`)은 보류했다 — 참조 지점이 많고 P1~P5 검증 전에 섞으면 원인 분리가 어려워진다.
 
 ## 8. 테스트
 

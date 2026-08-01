@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_3
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.BowAttackData.Skill.3.08
     baseInfo:
-      motionKey:
-        value: Humanoid.BowAttackData.Skill.3.08
       attackType: 0
       hitPhases:
       - damage: 22

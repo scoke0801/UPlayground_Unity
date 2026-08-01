@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Fly_Move
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: dryad.Fly.Move.04
     baseInfo:
-      motionKey:
-        value: dryad.Fly.Move.04
       attackType: 0
       hitPhases:
       - damage: 50

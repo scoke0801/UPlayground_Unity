@@ -11,11 +11,15 @@ namespace UPlayGround.Ability.UPlayGround
     {
         public AbilityAttackInfo attackInfo = new();
 
+        /// <summary>
+        /// 실행 가능 여부는 Motion Key만으로 결정된다. 히트 페이즈가 없는
+        /// 모션 전용 Ability도 실행 대상이므로 baseInfo를 전제로 두지 않는다.
+        /// </summary>
         public bool IsExecutable =>
-            attackInfo?.baseInfo != null
-            && attackInfo.baseInfo.motionKey.IsValid;
+            attackInfo != null && attackInfo.motionKey.IsValid;
 
+        /// <summary>공격으로서 실행 가능한지. 모션에 더해 공격 수치까지 필요하다.</summary>
         public bool IsAttackExecutable =>
-            attackInfo?.baseInfo != null && IsExecutable;
+            IsExecutable && attackInfo.baseInfo != null;
     }
 }

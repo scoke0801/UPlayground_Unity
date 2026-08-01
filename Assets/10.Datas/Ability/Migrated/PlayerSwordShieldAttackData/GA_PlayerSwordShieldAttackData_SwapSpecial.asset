@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_SwapSpecial_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.SwapSpecial
     baseInfo:
-      motionKey:
-        value: SwordShield.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 48

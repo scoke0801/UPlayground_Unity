@@ -42,7 +42,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
             }
 
             MotionKey motionKey =
-                payload.attackInfo.baseInfo.motionKey;
+                payload.attackInfo.motionKey;
             if (motionOwner != null)
             {
                 report.Motion = motionOwner.GetAbilityMotionAsset(motionKey);

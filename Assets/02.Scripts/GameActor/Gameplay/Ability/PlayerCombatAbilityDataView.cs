@@ -84,7 +84,7 @@ namespace UPlayGround.Gameplay.Ability
                         set.ResolveEffectiveChargeAbility(charge.stages[i]));
                     if (attack?.baseInfo == null) continue;
                     if (!view.chargeMotionKey.IsValid)
-                        view.chargeMotionKey = attack.baseInfo.motionKey;
+                        view.chargeMotionKey = attack.motionKey;
                     view.chargeStages.Add(new ChargeStageData
                     {
                         hitPhases = attack.baseInfo.hitPhases,

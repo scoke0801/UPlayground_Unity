@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_3
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.WhipAttackData.HeavyAttack.3.09
     baseInfo:
-      motionKey:
-        value: Humanoid.WhipAttackData.HeavyAttack.3.09
       attackType: 0
       hitPhases:
       - damage: 5

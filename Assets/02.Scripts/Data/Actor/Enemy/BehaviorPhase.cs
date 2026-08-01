@@ -31,6 +31,10 @@ namespace UPlayGround.Data.Enemy
         [Header("연속 공격 한계")]
         public int maxConsecutiveAttacks = 3;
 
+        [Header("그룹 템포")]
+        [Tooltip("이 페이즈의 그룹 breather 시간. 음수면 EnemyBehaviorSO 또는 그룹 기본값을 사용")]
+        public float breatherDurationOverride = -1f;
+
         [Header("Intent 가중치")]
         [Min(0f)] public float attackWeight       = 1f;
         [Min(0f)] public float punishWeight       = 1f;

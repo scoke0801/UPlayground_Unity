@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDualBladeAttackData_EntryGroggy_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DualBlade.EntryGroggy
     baseInfo:
-      motionKey:
-        value: DualBlade.EntryGroggy
       attackType: 0
       hitPhases:
       - damage: 63

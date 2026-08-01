@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_EntryAirborne_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.EntryAirborne
     baseInfo:
-      motionKey:
-        value: Whip.EntryAirborne
       attackType: 0
       hitPhases:
       - damage: 47

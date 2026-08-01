@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_3
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.SwordShieldAttackData.Skill.3.22
     baseInfo:
-      motionKey:
-        value: Humanoid.SwordShieldAttackData.Skill.3.22
       attackType: 0
       hitPhases:
       - damage: 23

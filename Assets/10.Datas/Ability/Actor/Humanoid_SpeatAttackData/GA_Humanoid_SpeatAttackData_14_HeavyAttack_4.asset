@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_4
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.SpeatAttackData.HeavyAttack.4.14
     baseInfo:
-      motionKey:
-        value: Humanoid.SpeatAttackData.HeavyAttack.4.14
       attackType: 0
       hitPhases:
       - damage: 15

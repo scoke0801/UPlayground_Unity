@@ -169,7 +169,7 @@ namespace UPlayGround.Animation.Editor
                         continue;
 
                     MotionKey motionKey =
-                        payload.attackInfo?.baseInfo?.motionKey ?? default;
+                        payload.attackInfo?.motionKey ?? default;
                     MotionSetAsset asset =
                         source.GetAbilityMotionAsset(motionKey);
                     if (asset == null)

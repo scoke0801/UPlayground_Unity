@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_5
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.BowAttackData.Skill.5.10
     baseInfo:
-      motionKey:
-        value: Humanoid.BowAttackData.Skill.5.10
       attackType: 0
       hitPhases:
       - damage: 31

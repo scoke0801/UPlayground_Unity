@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Jump_06_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Default.Jump.06
     baseInfo:
-      motionKey:
-        value: Default.Jump.06
       attackType: 0
       hitPhases:
       - damage: 54

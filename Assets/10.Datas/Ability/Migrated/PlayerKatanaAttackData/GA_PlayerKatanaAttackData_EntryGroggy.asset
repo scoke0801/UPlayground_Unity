@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_EntryGroggy_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.EntryGroggy
     baseInfo:
-      motionKey:
-        value: Katana.EntryGroggy
       attackType: 0
       hitPhases:
       - damage: 69

@@ -122,7 +122,21 @@ namespace UPlayGround.Tool.Editor.Combat
             if (attack == null)
                 return;
 
+            ValidateMotionKey(issues, path, context, attack);
             ValidateAttackInfoBase(issues, path, context, attack.baseInfo, requireMeleeHitPhase: true);
+        }
+
+        /// <summary>
+        /// Motion Key는 히트 페이즈와 분리된 형제 필드이므로 baseInfo 검증과 따로 확인한다.
+        /// </summary>
+        private static void ValidateMotionKey(
+            List<CombatValidationIssue> issues,
+            string path,
+            string context,
+            AbilityAttackInfo attack)
+        {
+            if (attack != null && !attack.motionKey.IsValid)
+                AddIssue(issues, CombatValidationSeverity.Error, path, context, "실행 가능한 Motion Key가 없습니다.");
         }
 
         private static void ValidateAiSelectableAttack(
@@ -137,6 +151,7 @@ namespace UPlayGround.Tool.Editor.Combat
                 return;
             }
 
+            ValidateMotionKey(issues, path, context, attack);
             ValidateAttackInfoBase(
                 issues,
                 path,
@@ -160,9 +175,6 @@ namespace UPlayGround.Tool.Editor.Combat
                 AddIssue(issues, CombatValidationSeverity.Error, path, context, "baseInfo가 null입니다.");
                 return;
             }
-
-            if (!baseInfo.motionKey.IsValid)
-                AddIssue(issues, CombatValidationSeverity.Error, path, context, "실행 가능한 Motion Key가 없습니다.");
 
             if (baseInfo.hitPhases == null || baseInfo.hitPhases.Count == 0)
             {
@@ -230,7 +242,7 @@ namespace UPlayGround.Tool.Editor.Combat
                     AbilityAttackInfo skill = entries[i].AttackInfo;
                     if (skill?.baseInfo == null)
                         continue;
-                    ValidateAttackMotionSet(issues, path, $"skills[{i}]", skill.baseInfo, motionSet, skill);
+                    ValidateAttackMotionSet(issues, path, $"skills[{i}]", skill, motionSet, skill);
                 }
             }
         }
@@ -290,7 +302,7 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             if (attack?.baseInfo == null)
                 return;
-            ValidateAttackMotionSet(issues, path, context, attack.baseInfo, motionSet, null);
+            ValidateAttackMotionSet(issues, path, context, attack, motionSet, null);
         }
 
         private static ActorAnimationMotionSet ResolveMotionSet(GameObject prefab)
@@ -302,28 +314,30 @@ namespace UPlayGround.Tool.Editor.Combat
         }
 
         /// <summary>
-        /// 단일 공격의 baseInfo와 MotionSet 타임라인 이벤트의 정합성을 검증한다.
+        /// 단일 공격의 히트 페이즈와 MotionSet 타임라인 이벤트의 정합성을 검증한다.
+        /// Motion Key는 <paramref name="attack"/>이, 히트 페이즈는 그 baseInfo가 소유한다.
         /// <paramref name="enemyInfo"/>가 null이 아니면 텔레그래프/방어 정책 등 적 전용 룰셋까지 적용한다.
         /// </summary>
         private static void ValidateAttackMotionSet(
             List<CombatValidationIssue> issues,
             string path,
             string context,
-            AttackInfoBase baseInfo,
+            AbilityAttackInfo attack,
             ActorAnimationMotionSet motionSetRoot,
             AbilityAttackInfo enemyInfo)
         {
-            if (baseInfo == null || !baseInfo.motionKey.IsValid)
+            AttackInfoBase baseInfo = attack?.baseInfo;
+            if (attack == null || baseInfo == null || !attack.motionKey.IsValid)
                 return;
 
             MotionSetAsset motionAsset =
-                motionSetRoot?.GetAbilityMotionAsset(baseInfo.motionKey);
+                motionSetRoot?.GetAbilityMotionAsset(attack.motionKey);
 
             MotionSet motionSet = motionAsset?.motionSet;
             if (motionSet == null)
             {
                 AddIssue(issues, CombatValidationSeverity.Error, path, context,
-                    $"Motion Key '{baseInfo.motionKey}'를 ActorAnimationMotionSet에서 해석할 수 없습니다.");
+                    $"Motion Key '{attack.motionKey}'를 ActorAnimationMotionSet에서 해석할 수 없습니다.");
                 return;
             }
 

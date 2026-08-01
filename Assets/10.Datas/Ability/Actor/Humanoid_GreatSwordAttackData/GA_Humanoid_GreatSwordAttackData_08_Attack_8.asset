@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_Attack_8
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.GreatSwordAttackData.Attack.8.08
     baseInfo:
-      motionKey:
-        value: Humanoid.GreatSwordAttackData.Attack.8.08
       attackType: 0
       hitPhases:
       - damage: 9

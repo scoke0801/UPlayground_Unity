@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Monster.Bokusei.Skill.2.17
     baseInfo:
-      motionKey:
-        value: Monster.Bokusei.Skill.2.17
       attackType: 0
       hitPhases:
       - damage: 20

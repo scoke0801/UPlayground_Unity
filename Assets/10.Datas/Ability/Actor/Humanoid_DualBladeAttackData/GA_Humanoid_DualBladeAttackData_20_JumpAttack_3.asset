@@ -87,9 +87,9 @@ MonoBehaviour:
   m_Name: Payload_JumpAttack_3
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.DualBladeAttackData.JumpAttack.3.20
     baseInfo:
-      motionKey:
-        value: Humanoid.DualBladeAttackData.JumpAttack.3.20
       attackType: 0
       hitPhases:
       - damage: 7

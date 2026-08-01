@@ -148,7 +148,7 @@ namespace UPlayGround.Data.Combat
         public static bool IsExecutable(ComboRouteEntry route)
             => route != null
                && route.attackInfo?.baseInfo != null
-               && route.attackInfo.baseInfo.motionKey.IsValid;
+               && route.attackInfo.motionKey.IsValid;
 
         private static bool GroundOk(RouteGroundCondition condition, bool isGrounded) => condition switch
         {

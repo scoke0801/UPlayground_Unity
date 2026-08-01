@@ -86,9 +86,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Ent.Skill.1.05
     baseInfo:
-      motionKey:
-        value: Ent.Skill.1.05
       attackType: 1
       hitPhases:
       - damage: 30

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Heavy_04_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Heavy.04
     baseInfo:
-      motionKey:
-        value: SwordShield.Heavy.04
       attackType: 0
       hitPhases:
       - damage: 43

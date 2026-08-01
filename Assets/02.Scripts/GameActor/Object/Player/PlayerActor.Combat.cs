@@ -345,6 +345,14 @@ namespace UPlayGround
             if (reactionDecision.ShouldEnterState)
             {
                 ApplyPlayerReactionState(reactionDecision.TargetState, attackData);
+
+                if (reactionDecision.TargetState is CombatReactionState.Hit
+                    or CombatReactionState.Stun
+                    or CombatReactionState.Knockdown
+                    && hit.Attacker is MonsterActor monsterAttacker)
+                {
+                    monsterAttacker.AIController?.Group?.NotifyPlayerEnteredHitReaction();
+                }
             }
 
             if (reactionDecision.ShouldPlayCameraFeedback)

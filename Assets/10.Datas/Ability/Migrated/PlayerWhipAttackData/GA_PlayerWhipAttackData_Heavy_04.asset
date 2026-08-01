@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Heavy_04_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.Heavy.04
     baseInfo:
-      motionKey:
-        value: Whip.Heavy.04
       attackType: 0
       hitPhases:
       - damage: 34

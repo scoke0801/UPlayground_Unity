@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Ability_Skill_4_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Ability.Skill.4
     baseInfo:
-      motionKey:
-        value: SwordShield.Ability.Skill.4
       attackType: 0
       hitPhases:
       - damage: 125
@@ -224,9 +224,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Ability.Skill.3
     baseInfo:
-      motionKey:
-        value: SwordShield.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 110
@@ -341,9 +341,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Ability
     baseInfo:
-      motionKey:
-        value: SwordShield.Ability
       attackType: 0
       hitPhases:
       - damage: 25

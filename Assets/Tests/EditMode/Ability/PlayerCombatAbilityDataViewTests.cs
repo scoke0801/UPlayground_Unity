@@ -59,11 +59,11 @@ namespace UPlayGround.Ability.Tests
             Assert.That(
                 view.liteComboAttackList[1].baseInfo.hitPhases[0].damage,
                 Is.EqualTo(20f));
-            Assert.That(view.counterAttack.baseInfo.motionKey.IsValid, Is.True);
+            Assert.That(view.counterAttack.motionKey.IsValid, Is.True);
             Assert.That(view.chargeStages, Has.Count.EqualTo(1));
             Assert.That(view.chargeMotionKey, Is.EqualTo(charge.variants[0]
                     .executionPayload is UPlayGroundMotionAbilityPayloadSO payload
-                        ? payload.attackInfo.baseInfo.motionKey
+                        ? payload.attackInfo.motionKey
                         : default));
             Assert.That(view.comboRoutes, Has.Count.EqualTo(1));
             Assert.That(
@@ -120,10 +120,8 @@ namespace UPlayGround.Ability.Tests
             ability.abilityId = id;
             var attack = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase
-                {
-                    motionKey = new MotionKey($"Tests.{id}"),
-                },
+                motionKey = new MotionKey($"Tests.{id}"),
+                baseInfo = new AttackInfoBase(),
             };
             attack.baseInfo.hitPhases[0].damage = damage;
             UPlayGroundMotionAbilityPayloadSO payload =

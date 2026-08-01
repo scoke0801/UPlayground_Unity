@@ -293,13 +293,19 @@ namespace UPlayGround.Data.Editor.Ability
                 bool executable = UPlayGroundAbilityPayloadResolver.IsExecutable(variant);
                 if (variant.executionPayload is UPlayGroundMotionAbilityPayloadSO payload)
                 {
-                    if (payload.attackInfo?.baseInfo == null)
+                    if (payload.attackInfo == null)
                         Error(ability,
-                            $"Variant '{variant.variantId}'의 공격 정보가 없습니다.", issues);
+                            $"Variant '{variant.variantId}'의 실행 정보가 없습니다.", issues);
                     else
                     {
+                        // Motion Key는 공격 수치(baseInfo)와 분리된 형제 필드이므로
+                        // baseInfo 유무와 무관하게 검증한다.
+                        if (payload.attackInfo.baseInfo == null)
+                            Error(ability,
+                                $"Variant '{variant.variantId}'의 공격 정보가 없습니다.", issues);
+
                         MotionKey actual =
-                            payload.attackInfo.baseInfo.motionKey;
+                            payload.attackInfo.motionKey;
                         if (!actual.IsValid)
                             Error(
                                 ability,

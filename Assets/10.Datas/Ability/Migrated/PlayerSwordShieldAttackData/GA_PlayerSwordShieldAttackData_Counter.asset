@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Counter_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Counter
     baseInfo:
-      motionKey:
-        value: SwordShield.Counter
       attackType: 0
       hitPhases:
       - damage: 82

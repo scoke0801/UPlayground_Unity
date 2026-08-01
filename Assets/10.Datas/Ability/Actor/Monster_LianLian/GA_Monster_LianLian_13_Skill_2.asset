@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Monster.LianLian.Skill.2.13
     baseInfo:
-      motionKey:
-        value: Monster.LianLian.Skill.2.13
       attackType: 0
       hitPhases:
       - damage: 10

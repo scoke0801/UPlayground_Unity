@@ -69,6 +69,8 @@ namespace UPlayGround.Data.Editor
 
         public void CreateGUI()
         {
+            minSize = new Vector2(900f, 560f);
+
             VisualElement root = rootVisualElement;
             root.Clear();
             root.AddToClassList("up-editor-root");
@@ -82,7 +84,7 @@ namespace UPlayGround.Data.Editor
             _objTracker = new VisualElement { style = { height = 0f } };
             root.Add(_objTracker);
 
-            var split = new TwoPaneSplitView(1, 340f, TwoPaneSplitViewOrientation.Horizontal);
+            var split = new TwoPaneSplitView(1, 400f, TwoPaneSplitViewOrientation.Horizontal);
             split.AddToClassList("up-ult-split");
             split.Add(BuildTimelinePane());
             split.Add(BuildInspectorPane());
@@ -235,6 +237,8 @@ namespace UPlayGround.Data.Editor
             var scroll = new ScrollView(ScrollViewMode.VerticalAndHorizontal);
             scroll.AddToClassList("up-ult-scroll");
             scroll.Add(_timeline);
+            scroll.contentViewport.RegisterCallback<GeometryChangedEvent>(evt =>
+                _timeline.SetViewportWidth(evt.newRect.width));
             pane.Add(scroll);
             return pane;
         }

@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDualBladeAttackData_SwapEvade_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DualBlade.SwapEvade
     baseInfo:
-      motionKey:
-        value: DualBlade.SwapEvade
       attackType: 0
       hitPhases:
       - damage: 10

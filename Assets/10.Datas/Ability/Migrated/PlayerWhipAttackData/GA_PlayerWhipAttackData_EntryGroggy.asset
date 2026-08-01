@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_EntryGroggy_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.EntryGroggy
     baseInfo:
-      motionKey:
-        value: Whip.EntryGroggy
       attackType: 0
       hitPhases:
       - damage: 70

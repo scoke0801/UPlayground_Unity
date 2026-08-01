@@ -526,10 +526,8 @@ namespace UPlayGround.Ability.Tests
                 ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
             payload.attackInfo = new AbilityAttackInfo
             {
-                baseInfo = new AttackInfoBase
-                {
-                    motionKey = new MotionKey("Tests.Ground"),
-                },
+                motionKey = new MotionKey("Tests.Ground"),
+                baseInfo = new AttackInfoBase(),
             };
             ability.variants.Add(new AbilityVariantDefinition
             {

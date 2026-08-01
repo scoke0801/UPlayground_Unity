@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_1
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.WhipAttackData.Skill.1.12
     baseInfo:
-      motionKey:
-        value: Humanoid.WhipAttackData.Skill.1.12
       attackType: 0
       hitPhases:
       - damage: 5

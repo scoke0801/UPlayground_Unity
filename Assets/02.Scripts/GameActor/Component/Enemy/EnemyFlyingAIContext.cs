@@ -1,5 +1,6 @@
 using UnityEngine;
 using UPlayGround.Data.Enemy;
+using UPlayGround.Group;
 
 namespace UPlayGround.Components
 {
@@ -21,6 +22,8 @@ namespace UPlayGround.Components
         public abstract float OptimalCombatDistance { get; }
         public abstract float MinCombatDistance { get; }
         public abstract float PersonalSpaceDistance { get; }
+        public abstract GroupIntentBias CurrentGroupIntentBias { get; }
+        public abstract MonsterGroupMemory CurrentGroupMemory { get; }
         public abstract float CircleDuration { get; }
         public abstract float RetreatDistance { get; }
 
@@ -50,6 +53,7 @@ namespace UPlayGround.Components
         public abstract bool CanUseSkill();
         public abstract bool ShouldTakeOff();
         public abstract bool TryRequestAttackSlot();
+        public abstract void ReleaseGroupSlot();
         public abstract void NotifyBTAttackStarted();
 
         // ── 패트롤 ──

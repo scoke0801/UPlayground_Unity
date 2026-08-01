@@ -1083,13 +1083,14 @@ namespace UPlayGround.Gameplay.Ability
             out MotionSetAsset motionAsset)
         {
             motionAsset = null;
-            AttackInfoBase baseInfo = attackInfo?.baseInfo;
-            if (actor?.Animator == null || baseInfo == null)
+            // 모션 해석은 히트 페이즈(baseInfo) 유무와 무관하다. 모션 전용 Ability도
+            // 여기서 해석되어야 하므로 baseInfo를 전제 조건으로 두지 않는다.
+            if (actor?.Animator == null || attackInfo == null)
                 return false;
 
-            return baseInfo.motionKey.IsValid
+            return attackInfo.motionKey.IsValid
                    && actor.Animator.TryResolveAbilityMotion(
-                       baseInfo.motionKey,
+                       attackInfo.motionKey,
                        out motionAsset);
         }
     }

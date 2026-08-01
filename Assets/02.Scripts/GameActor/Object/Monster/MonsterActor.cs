@@ -10,6 +10,7 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Diagnostics;
+using UPlayGround.Group;
 using UPlayGround.Manager;
 using UPlayGround.State;
 using UPlayGround.UI;
@@ -116,6 +117,14 @@ namespace UPlayGround
             // Definition 없이 직접 배치된 몬스터는 프리팹에 직렬화된 AbilitySet을 사용한다.
             _combat?.Init(_combat.AbilitySet);
             ApplyDefinitionData(Definition);
+        }
+
+        private void OnEnable()
+        {
+            // 비활성 자식은 활성화되는 시점에 Awake 캐시가 완성된다.
+            // 부모 그룹의 Start 수집이 먼저 실행됐더라도 여기서 바인딩을 재시도한다.
+            var group = GetComponentInParent<MonsterGroupController>();
+            group?.EnsureMemberRegistered(this);
         }
 
         protected override void Start()
@@ -368,7 +377,7 @@ namespace UPlayGround
 
             bool isPoiseBroken = _poiseStat != null && _poiseStat.IsPoiseBroken;
             GetComponent<EnemyTacticalMemory>()?.NotifyTookDamage(hit, isPoiseBroken);
-            AIController?.Group?.Memory?.NotifyMemberTookDamage();
+            ResolveOwningGroup()?.Memory?.NotifyMemberTookDamage();
             breakDamageApplied = _breakGauge != null ? _breakGauge.TakeBreakDamage(hit) : 0f;
 
             // 노출(브레이크 가능) 중에도 무방비 경직 없이 정상 리액션한다.
@@ -532,7 +541,7 @@ namespace UPlayGround
 
             CombatTelemetrySession.NotifyMonsterDeath(this);
             GetComponent<EncounterReplayRecorder>()?.EndAndSave("death", "몬스터 사망");
-            AIController?.Group?.UnregisterMember(this);
+            ResolveOwningGroup()?.UnregisterMember(this);
             MovementController.TransitionToState(new EnemyDeathState(MovementController));
 
             NotifyQuestMonsterKill();
@@ -555,6 +564,10 @@ namespace UPlayGround
 
             MovementController.Motor.SetCapsuleCollisionsActivation(false);
         }
+
+        private MonsterGroupController ResolveOwningGroup()
+            => AIController?.Group
+               ?? GetComponentInParent<MonsterGroupController>(includeInactive: true);
 
         private void NotifyQuestMonsterKill()
         {

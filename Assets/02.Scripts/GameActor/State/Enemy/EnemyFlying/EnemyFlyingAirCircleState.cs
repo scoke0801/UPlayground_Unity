@@ -99,6 +99,7 @@ namespace UPlayGround.State
             if (_isAttacking)
                 _brain.Combat.CancelCurrentAbility();
             _isAttacking = false;
+            _brain.ReleaseGroupSlot();
         }
 
         public override void UpdateState(float deltaTime)

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Skill_4_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.Ability.Skill.4
     baseInfo:
-      motionKey:
-        value: Bow.Ability.Skill.4
       attackType: 0
       hitPhases:
       - damage: 155
@@ -235,9 +235,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.Ability
     baseInfo:
-      motionKey:
-        value: Bow.Ability
       attackType: 0
       hitPhases:
       - damage: 142
@@ -352,9 +352,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Skill_5_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.Ability.Skill.5
     baseInfo:
-      motionKey:
-        value: Bow.Ability.Skill.5
       attackType: 0
       hitPhases:
       - damage: 210
@@ -469,9 +469,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.Ability.Skill.3
     baseInfo:
-      motionKey:
-        value: Bow.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 148

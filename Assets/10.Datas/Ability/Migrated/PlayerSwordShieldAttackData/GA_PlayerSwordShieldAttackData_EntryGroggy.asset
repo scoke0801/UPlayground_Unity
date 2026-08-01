@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_EntryGroggy_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.EntryGroggy
     baseInfo:
-      motionKey:
-        value: SwordShield.EntryGroggy
       attackType: 0
       hitPhases:
       - damage: 69

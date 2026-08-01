@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Attack_10
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.GreatSwordAttackData.Attack.10.10
     baseInfo:
-      motionKey:
-        value: Humanoid.GreatSwordAttackData.Attack.10.10
       attackType: 0
       hitPhases:
       - damage: 12

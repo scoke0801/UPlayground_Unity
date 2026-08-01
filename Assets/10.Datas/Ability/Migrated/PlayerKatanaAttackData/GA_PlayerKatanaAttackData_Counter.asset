@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Counter_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Counter
     baseInfo:
-      motionKey:
-        value: Katana.Counter
       attackType: 0
       hitPhases:
       - damage: 71

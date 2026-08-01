@@ -207,16 +207,14 @@ namespace UPlayGround.Data
     }
 
     /// <summary>
-    /// 기본 공격 정보.
+    /// 기본 공격 정보. 히트 판정 수치만 소유하며 모션 참조는 포함하지 않는다.
+    /// 실행 모션은 형제 필드인 <see cref="AbilityAttackInfo.motionKey"/>가 소유한다.
     /// hitPhases[0]이 기본값이며, 멀티 히트 공격은 hitPhases를 추가한다.
     /// </summary>
     [Serializable]
     public class AttackInfoBase
     {
         [Header("Basic Info")]
-        [Tooltip("Ability/Variant를 액터 소유 모션에 연결하는 실행 키입니다.")]
-        public MotionKey motionKey;
-
         public AttackType attackType = AttackType.Melee;
 
         [Header("Hit Phases")]
@@ -303,6 +301,13 @@ namespace UPlayGround.Data
     [Serializable]
     public class AbilityAttackInfo
     {
+        [Header("Motion")]
+        [Tooltip("Ability/Variant를 액터 소유 모션에 연결하는 실행 키입니다.\n"
+                 + "공격 수치(baseInfo)와 형제 관계이며, 모션 교체와 밸런스 조정을 서로 독립적으로 편집합니다.")]
+        public MotionKey motionKey;
+
+        [Header("Attack")]
+        [Tooltip("히트 판정 수치입니다. 모션 참조를 포함하지 않습니다.")]
         public AttackInfoBase baseInfo;
 
         [Tooltip("공격 중 캔슬 가능한 입력 액션 마스크 (None이면 캔슬 불가).\n허용 구간은 캔슬 윈도우(콜리전 비활성 구간)가 결정 — 액티브 히트 중엔 캔슬 불가.\n공격타입(Light/Heavy/Skill)은 '다른 타입'으로의 전환용. 같은 타입 연계는 ComboWindow 사용.")]

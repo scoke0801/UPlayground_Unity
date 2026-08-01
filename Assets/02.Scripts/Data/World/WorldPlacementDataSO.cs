@@ -58,8 +58,14 @@ namespace UPlayGround.Data.World
         public Quaternion rotation = Quaternion.identity;
         public Vector3 scale = Vector3.one;
 
-        [Tooltip("스폰 시 소속시킬 씬의 MonsterGroupController 오브젝트 이름. 비어 있으면 그룹 없음.")]
+        [Tooltip("스폰 시 소속시킬 씬의 MonsterGroupController 오브젝트 이름. groupGuid가 없을 때만 쓰는 폴백이다.")]
         public string groupName;
+
+        [Tooltip("소속 그룹의 SceneEntityId GUID. 동명 그룹이 있어도 정확히 매칭하기 위한 1순위 키.")]
+        public string groupGuid;
+
+        [Tooltip("이 배치물이 유래한 MonsterGroupPresetSO의 PresetId. 추적용이며 복원에는 쓰이지 않는다.")]
+        public string groupPresetId;
 
         public string cellId;
         public int randomSeed;

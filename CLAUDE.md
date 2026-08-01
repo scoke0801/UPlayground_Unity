@@ -120,14 +120,14 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AbilityAttackInfo.baseInfo.motionKey
+→ AbilityAttackInfo.motionKey
 → ActorAnimator.TryResolveAbilityMotion
 → PlayerActorAnimationMotionSet(WeaponType) / ActorAnimationMotionSet.abilityMotions
 → MotionSetAsset
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.baseInfo.motionKey`다. `MotionKey`는 Ability/Variant 식별자를 포함하지 않는 **독립 문자열 키**이며 GAS는 이 값만 전달하고 `MotionSetAsset` 참조를 소유하지 않는다. 저작 규약은 `abilityId`에서 최상위 분류 접두사(`Actor.`/`Player.`/`Monster.`)를 떨어낸 형태다 (`Actor.Ent.Attack.1.01` → `Ent.Attack.1.01`). 신규 생성은 `AbilityAssetFactory.BuildMotionKey`가 이 규약을 적용한다.
+- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.motionKey`다. Motion 참조와 공격 수치는 형제 필드로 분리되어 있다 — `motionKey`는 모션을, `baseInfo`는 히트 페이즈 수치만 소유하며 `baseInfo`는 모션 참조를 갖지 않는다. 모션 해석은 `baseInfo` 유무와 무관하므로 히트 페이즈가 없는 모션 전용 Ability도 실행된다. Ability Editor도 "실행 · 모션"과 "공격 · 히트 페이즈" 그룹으로 나누어 저작한다. `MotionKey`는 Ability/Variant 식별자를 포함하지 않는 **독립 문자열 키**이며 GAS는 이 값만 전달하고 `MotionSetAsset` 참조를 소유하지 않는다. 저작 규약은 `abilityId`에서 최상위 분류 접두사(`Actor.`/`Player.`/`Monster.`)를 떨어낸 형태다 (`Actor.Ent.Attack.1.01` → `Ent.Attack.1.01`). 신규 생성은 `AbilityAssetFactory.BuildMotionKey`가 이 규약을 적용한다.
 - 실제 Motion 매핑은 `ActorAnimationMotionSet.abilityMotions`가 소유한다. 플레이어는 현재 `WeaponType`의 `PlayerActorAnimationMotionSet`에서 먼저 해석하고 `NoWeapon` 세트로 폴백한다.
 - Payload 바깥에 중복 Motion 참조나 `AnimKey`/레거시 Ref 폴백을 다시 두지 않는다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 Set을 소비한다.

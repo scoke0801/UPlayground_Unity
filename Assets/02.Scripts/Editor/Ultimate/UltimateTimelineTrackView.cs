@@ -75,6 +75,7 @@ namespace UPlayGround.Data.Editor
         private readonly VisualElement _grid;
         private readonly VisualElement _ruler;
         private readonly VisualElement _blockLayer;
+        private readonly Label _emptyState;
         private readonly VisualElement _marquee;
         private readonly VisualElement _cursor;
         private readonly Label _cursorCap;
@@ -86,6 +87,7 @@ namespace UPlayGround.Data.Editor
         private readonly List<DragSnapshot> _dragSnapshots = new();
 
         private float _pps = 80f;
+        private float _viewportWidth;
         private bool _snap;
         private int _fps = 30;
         private float? _cursorTime;
@@ -143,6 +145,11 @@ namespace UPlayGround.Data.Editor
             _blockLayer.pickingMode = PickingMode.Ignore;
             Add(_blockLayer);
 
+            _emptyState = new Label("이벤트가 없습니다. 상단의 ‘＋ 이벤트’에서 연출 이벤트를 추가하세요.");
+            _emptyState.AddToClassList("up-ult-timeline-empty");
+            _emptyState.pickingMode = PickingMode.Ignore;
+            Add(_emptyState);
+
             _marquee = new VisualElement();
             _marquee.AddToClassList("up-ult-marquee");
             _marquee.pickingMode = PickingMode.Ignore;
@@ -169,6 +176,16 @@ namespace UPlayGround.Data.Editor
         public void SetPixelsPerSecond(float pps)
         {
             _pps = Mathf.Clamp(pps, 10f, 600f);
+            RefreshLayout();
+        }
+
+        public void SetViewportWidth(float width)
+        {
+            float next = Mathf.Max(0f, width);
+            if (Mathf.Approximately(_viewportWidth, next))
+                return;
+
+            _viewportWidth = next;
             RefreshLayout();
         }
 
@@ -267,6 +284,7 @@ namespace UPlayGround.Data.Editor
             }
 
             _selection.RemoveWhere(s => s < 0 || s >= count);
+            _emptyState.style.display = count == 0 ? DisplayStyle.Flex : DisplayStyle.None;
             RefreshLayout();
         }
 
@@ -311,7 +329,7 @@ namespace UPlayGround.Data.Editor
             }
 
             int laneCount = Mathf.Max(1, laneEnds.Count);
-            float contentWidth = Mathf.Max(MinContentWidth, duration * _pps + EndPadding);
+            float contentWidth = Mathf.Max(MinContentWidth, _viewportWidth, duration * _pps + EndPadding);
             float contentHeight = RulerHeight + TopPad + laneCount * (RowHeight + RowGap) + BottomPad;
             style.width = contentWidth;
             style.height = contentHeight;

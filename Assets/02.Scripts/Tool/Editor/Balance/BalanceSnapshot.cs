@@ -211,8 +211,8 @@ namespace UPlayGround.Tool.Editor.Balance
                     actor.skills.Add(new SkillSnapshot
                     {
                         index = i,
-                        motion = skill.baseInfo.motionKey.IsValid
-                            ? skill.baseInfo.motionKey.ToString()
+                        motion = skill.motionKey.IsValid
+                            ? skill.motionKey.ToString()
                             : "-",
                         selectionWeight = skill.selectionWeight,
                         cooldown = ability?.cooldown?.durationSeconds ?? 0f,
@@ -267,8 +267,8 @@ namespace UPlayGround.Tool.Editor.Balance
             snapshot.attacks.Add(new PlayerAttackEntry
             {
                 slot = slot,
-                motion = info.baseInfo.motionKey.IsValid
-                    ? info.baseInfo.motionKey.ToString()
+                motion = info.motionKey.IsValid
+                    ? info.motionKey.ToString()
                     : "-",
                 totalDamage = BalanceAttackAnalyzer.SumDamage(info.baseInfo),
                 totalPoiseDamage = BalanceAttackAnalyzer.SumPoiseDamage(info.baseInfo),

@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_SwapSpecial_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.SwapSpecial
     baseInfo:
-      motionKey:
-        value: Whip.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 40

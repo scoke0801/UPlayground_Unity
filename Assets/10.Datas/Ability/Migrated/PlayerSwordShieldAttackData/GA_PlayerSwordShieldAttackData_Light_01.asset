@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Light_01_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Light.01
     baseInfo:
-      motionKey:
-        value: SwordShield.Light.01
       attackType: 0
       hitPhases:
       - damage: 39

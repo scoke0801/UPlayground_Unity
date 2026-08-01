@@ -98,17 +98,59 @@ namespace UPlayGround.Tool.Editor.Map
         }
 
         /// <summary>
-        /// 복원 오브젝트의 부모를 결정한다. 그룹 이름이 기록되어 있고 씬에 해당 그룹이 있으면 그룹 하위로 —
+        /// 복원 오브젝트의 부모를 결정한다. 씬에 해당 그룹이 있으면 그룹 하위로 —
         /// 재Bake 시 GetComponentInParent로 같은 그룹이 다시 기록되도록 왕복을 보존한다.
         /// </summary>
+        /// <remarks>
+        /// GUID 매칭이 1순위다. 이름만으로 찾으면 동명 그룹이 있을 때 다른 그룹에 잘못 복원되며,
+        /// 그룹 프리셋으로 그룹 수가 늘어날수록 충돌 확률이 올라간다.
+        /// </remarks>
         private static Transform ResolveRestoreParent(WorldPlacementRecord record, Transform fallback)
         {
+            if (string.IsNullOrEmpty(record.groupGuid) && string.IsNullOrEmpty(record.groupName))
+                return fallback;
+
+            var groups = UnityEngine.Object.FindObjectsByType<MonsterGroupController>(
+                FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+            if (!string.IsNullOrEmpty(record.groupGuid))
+            {
+                foreach (var group in groups)
+                {
+                    var entityId = group != null ? group.GetComponent<SceneEntityId>() : null;
+                    if (entityId != null && entityId.HasGuid && entityId.Guid == record.groupGuid)
+                        return group.transform;
+                }
+
+                Debug.LogWarning(
+                    $"[WorldPlacementBake] 그룹 GUID '{record.groupGuid}'를 찾지 못했습니다. " +
+                    "잘못된 동명 그룹에 복원하지 않도록 이름 폴백을 사용하지 않습니다.");
+                return fallback;
+            }
+
             if (string.IsNullOrEmpty(record.groupName))
                 return fallback;
 
-            var groupObject = GameObject.Find(record.groupName);
-            var group = groupObject != null ? groupObject.GetComponent<MonsterGroupController>() : null;
-            return group != null ? group.transform : fallback;
+            MonsterGroupController matchedByName = null;
+            int nameMatchCount = 0;
+            foreach (var group in groups)
+            {
+                if (group == null || group.name != record.groupName)
+                    continue;
+
+                nameMatchCount++;
+                matchedByName ??= group;
+            }
+
+            if (nameMatchCount > 1)
+            {
+                Debug.LogWarning(
+                    $"[WorldPlacementBake] 이름이 '{record.groupName}'인 그룹이 {nameMatchCount}개라 복원 대상을 특정할 수 없습니다. " +
+                    "그룹 오브젝트에 SceneEntityId를 추가하고 다시 Bake 하세요.");
+                return fallback;
+            }
+
+            return matchedByName != null ? matchedByName.transform : fallback;
         }
 
         /// <summary>씬의 RuntimePlacementLoader가 참조 중인 PlacementData를 찾는다. 없으면 null.</summary>
@@ -541,6 +583,8 @@ namespace UPlayGround.Tool.Editor.Map
             }
 
             var group = metadata.GetComponentInParent<MonsterGroupController>();
+            var groupEntityId = group != null ? group.GetComponent<SceneEntityId>() : null;
+            var groupPresetLink = group != null ? group.GetComponent<MonsterGroupPresetLink>() : null;
             var sceneEntityId = metadata.GetComponent<SceneEntityId>();
             var gatheringActor = metadata.GetComponent<GatheringActor>();
             var dropItemActor = metadata.GetComponent<DropItemActor>();
@@ -573,6 +617,8 @@ namespace UPlayGround.Tool.Editor.Map
                 rotation = t.rotation,
                 scale = t.localScale,
                 groupName = group != null ? group.name : "",
+                groupGuid = groupEntityId != null && groupEntityId.HasGuid ? groupEntityId.Guid : "",
+                groupPresetId = groupPresetLink != null ? groupPresetLink.PresetId : "",
                 cellId = metadata.CellId,
                 randomSeed = metadata.RandomSeed,
                 initiallyActive = metadata.InitiallyActive,

@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerBowAttackData_EntryAirborne_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Bow.EntryAirborne
     baseInfo:
-      motionKey:
-        value: Bow.EntryAirborne
       attackType: 0
       hitPhases:
       - damage: 35

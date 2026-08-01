@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Skill_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.SpeatAttackData.Skill.2.20
     baseInfo:
-      motionKey:
-        value: Humanoid.SpeatAttackData.Skill.2.20
       attackType: 0
       hitPhases:
       - damage: 23

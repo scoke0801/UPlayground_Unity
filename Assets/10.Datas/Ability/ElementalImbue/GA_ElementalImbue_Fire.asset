@@ -88,9 +88,9 @@ MonoBehaviour:
   m_Name: Payload_ElementalImbue_Fire
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: ElementalImbue.Fire
     baseInfo:
-      motionKey:
-        value: ElementalImbue.Fire
       attackType: 0
       hitPhases: []
     interruptActions: 0

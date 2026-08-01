@@ -27,7 +27,10 @@ namespace UPlayGround.Manager.World
         private bool _clearBeforeSpawn = true;
 
         private readonly List<GameObject> _instances = new();
-        private Dictionary<string, MonsterGroupController> _groupLookup;
+        private Dictionary<string, MonsterGroupController> _groupLookupByName;
+        private Dictionary<string, MonsterGroupController> _groupLookupByGuid;
+        private HashSet<string> _ambiguousGroupNames;
+        private HashSet<string> _ambiguousGroupGuids;
         private bool _isSpawning;
         private bool _hasSpawnCompleted;
 
@@ -80,7 +83,10 @@ namespace UPlayGround.Manager.World
                 return;
             }
 
-            _groupLookup = null;
+            _groupLookupByName = null;
+            _groupLookupByGuid = null;
+            _ambiguousGroupNames = null;
+            _ambiguousGroupGuids = null;
 
             // 이미 존재하는 PlayerActor(선행 확보된 플레이어)는 레코드마다 재탐색하지 않고 루프 밖에서 1회만 캐싱한다.
             var existingPlayer = FindFirstObjectByType<PlayerActor>();
@@ -162,7 +168,7 @@ namespace UPlayGround.Manager.World
                 return null;
             }
 
-            MonsterGroupController group = ResolveGroup(record.groupName);
+            MonsterGroupController group = ResolveGroup(record);
             Transform parent = group != null ? group.transform : transform;
 
             var actor = ActorSpawnManager.Instance.SpawnActor(record.actorId, record.position, record.rotation, group, parent);
@@ -189,10 +195,12 @@ namespace UPlayGround.Manager.World
 
         private GameObject SpawnViaPrefab(WorldPlacementRecord record)
         {
+            var group = ResolveGroup(record);
+            Transform parent = group != null ? group.transform : transform;
             GameObject instance;
             if (record.prefab != null)
             {
-                instance = Instantiate(record.prefab, record.position, record.rotation, transform);
+                instance = Instantiate(record.prefab, record.position, record.rotation, parent);
             }
             else
             {
@@ -200,7 +208,7 @@ namespace UPlayGround.Manager.World
                 if (instance == null)
                     return null;
 
-                instance.transform.SetParent(transform);
+                instance.transform.SetParent(parent);
                 instance.transform.SetPositionAndRotation(record.position, record.rotation);
             }
 
@@ -268,7 +276,7 @@ namespace UPlayGround.Manager.World
                     monster.ActorId,
                     record.position,
                     record.rotation,
-                    ResolveGroup(record.groupName));
+                    ResolveGroup(record));
                 return;
             }
 
@@ -351,27 +359,90 @@ namespace UPlayGround.Manager.World
             return ActorSpawnManager.Instance != null && ActorSpawnManager.Instance.IsDBLoaded;
         }
 
-        private MonsterGroupController ResolveGroup(string groupName)
+        private MonsterGroupController ResolveGroup(WorldPlacementRecord record)
         {
-            if (string.IsNullOrEmpty(groupName))
+            if (record == null)
                 return null;
 
-            // 첫 조회 시 씬의 그룹을 한 번만 수집한다. Bake 시 그룹 오브젝트는 씬에 남는 것을 전제로 한다.
-            if (_groupLookup == null)
+            EnsureGroupLookup();
+
+            if (!string.IsNullOrEmpty(record.groupGuid))
             {
-                _groupLookup = new Dictionary<string, MonsterGroupController>();
-                foreach (var group in FindObjectsByType<MonsterGroupController>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (!_ambiguousGroupGuids.Contains(record.groupGuid)
+                    && _groupLookupByGuid.TryGetValue(record.groupGuid, out var foundByGuid)
+                    && foundByGuid != null)
                 {
-                    if (!_groupLookup.ContainsKey(group.name))
-                        _groupLookup[group.name] = group;
+                    return foundByGuid;
                 }
+
+                Debug.LogWarning(
+                    $"[RuntimePlacementLoader] 그룹 GUID '{record.groupGuid}'를 정확히 해석하지 못했습니다. " +
+                    "잘못된 동명 그룹에 연결하지 않도록 이름 폴백 없이 스폰합니다.",
+                    this);
+                return null;
             }
 
-            if (_groupLookup.TryGetValue(groupName, out var found) && found != null)
-                return found;
+            if (string.IsNullOrEmpty(record.groupName))
+                return null;
 
-            Debug.LogWarning($"[RuntimePlacementLoader] 그룹 '{groupName}'을 씬에서 찾지 못했습니다. 그룹 없이 스폰합니다.", this);
+            if (_ambiguousGroupNames.Contains(record.groupName))
+            {
+                Debug.LogWarning(
+                    $"[RuntimePlacementLoader] 이름이 '{record.groupName}'인 그룹이 여러 개라 대상을 특정할 수 없습니다. " +
+                    "그룹에 SceneEntityId를 추가하고 다시 Bake 하세요.",
+                    this);
+                return null;
+            }
+
+            if (_groupLookupByName.TryGetValue(record.groupName, out var foundByName) && foundByName != null)
+                return foundByName;
+
+            Debug.LogWarning($"[RuntimePlacementLoader] 그룹 '{record.groupName}'을 씬에서 찾지 못했습니다. 그룹 없이 스폰합니다.", this);
             return null;
+        }
+
+        private void EnsureGroupLookup()
+        {
+            if (_groupLookupByName != null)
+                return;
+
+            _groupLookupByName = new Dictionary<string, MonsterGroupController>();
+            _groupLookupByGuid = new Dictionary<string, MonsterGroupController>();
+            _ambiguousGroupNames = new HashSet<string>();
+            _ambiguousGroupGuids = new HashSet<string>();
+
+            foreach (var group in FindObjectsByType<MonsterGroupController>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (group == null)
+                    continue;
+
+                AddUniqueGroupKey(group.name, group, _groupLookupByName, _ambiguousGroupNames);
+
+                var entityId = group.GetComponent<SceneEntityId>();
+                if (entityId != null && entityId.HasGuid)
+                    AddUniqueGroupKey(entityId.Guid, group, _groupLookupByGuid, _ambiguousGroupGuids);
+            }
+        }
+
+        private static void AddUniqueGroupKey(
+            string key,
+            MonsterGroupController group,
+            Dictionary<string, MonsterGroupController> lookup,
+            HashSet<string> ambiguousKeys)
+        {
+            if (string.IsNullOrEmpty(key) || ambiguousKeys.Contains(key))
+                return;
+
+            if (lookup.ContainsKey(key))
+            {
+                lookup.Remove(key);
+                ambiguousKeys.Add(key);
+                return;
+            }
+
+            lookup[key] = group;
         }
 
 #if UNITY_EDITOR

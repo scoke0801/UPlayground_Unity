@@ -88,9 +88,9 @@ MonoBehaviour:
   m_Name: Payload_ElementalImbue_Water
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: ElementalImbue.Water
     baseInfo:
-      motionKey:
-        value: ElementalImbue.Water
       attackType: 0
       hitPhases: []
     interruptActions: 0

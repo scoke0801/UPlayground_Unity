@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDualBladeAttackData_Jump_00_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DualBlade.Jump.00
     baseInfo:
-      motionKey:
-        value: DualBlade.Jump.00
       attackType: 0
       hitPhases:
       - damage: 47

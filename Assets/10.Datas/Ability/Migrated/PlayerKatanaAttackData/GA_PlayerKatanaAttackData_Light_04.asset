@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Light_04_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Light.04
     baseInfo:
-      motionKey:
-        value: Katana.Light.04
       attackType: 0
       hitPhases:
       - damage: 27

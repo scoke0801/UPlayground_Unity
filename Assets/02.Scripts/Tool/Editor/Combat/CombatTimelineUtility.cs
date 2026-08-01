@@ -241,7 +241,7 @@ namespace UPlayGround.Tool.Editor.Combat
             for (int i = 0; i < entries.Count; i++)
             {
                 AbilityAttackInfo info = entries[i].AttackInfo;
-                if (!MatchesMotion(info.baseInfo.motionKey, motionAsset, motionOwner, index)
+                if (!MatchesMotion(info.motionKey, motionAsset, motionOwner, index)
                     || result.Exists(x => ReferenceEquals(x.AttackInfo, info)))
                     continue;
                 result.Add(new ResolvedAttack
@@ -266,7 +266,7 @@ namespace UPlayGround.Tool.Editor.Combat
             for (int i = 0; i < list.Count; i++)
             {
                 if (list[i]?.baseInfo == null
-                    || !MatchesMotion(list[i].baseInfo.motionKey, motionAsset, motionOwner, index))
+                    || !MatchesMotion(list[i].motionKey, motionAsset, motionOwner, index))
                     continue;
                 AddPlayerInfo(result, data, list[i], $"{listName} [{i}]", motionAsset, motionOwner, index);
             }
@@ -278,7 +278,7 @@ namespace UPlayGround.Tool.Editor.Combat
         {
             if (info?.baseInfo == null) return;
             // 리스트 직접 매칭이 아닌 단일 슬롯(카운터 등)도 액터 매핑으로 비교한다.
-            if (!MatchesMotion(info.baseInfo.motionKey, motionAsset, motionOwner, index)) return;
+            if (!MatchesMotion(info.motionKey, motionAsset, motionOwner, index)) return;
             // 동일 인스턴스 중복 방지 (skillDefinitions가 리스트 항목을 공유하는 경우)
             foreach (ResolvedAttack existing in result)
                 if (ReferenceEquals(existing.AttackInfo, info)) return;

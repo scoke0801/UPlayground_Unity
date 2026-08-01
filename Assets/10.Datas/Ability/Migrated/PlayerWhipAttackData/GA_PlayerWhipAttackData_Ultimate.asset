@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.Ultimate
     baseInfo:
-      motionKey:
-        value: Whip.Ultimate
       attackType: 0
       hitPhases:
       - damage: 33

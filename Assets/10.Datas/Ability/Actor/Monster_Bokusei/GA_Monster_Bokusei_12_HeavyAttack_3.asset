@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_3
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Monster.Bokusei.HeavyAttack.3.12
     baseInfo:
-      motionKey:
-        value: Monster.Bokusei.HeavyAttack.3.12
       attackType: 0
       hitPhases:
       - damage: 30

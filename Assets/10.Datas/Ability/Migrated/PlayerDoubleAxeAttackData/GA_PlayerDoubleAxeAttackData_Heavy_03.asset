@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDoubleAxeAttackData_Heavy_03_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DoubleAxe.Heavy.03
     baseInfo:
-      motionKey:
-        value: DoubleAxe.Heavy.03
       attackType: 0
       hitPhases:
       - damage: 111

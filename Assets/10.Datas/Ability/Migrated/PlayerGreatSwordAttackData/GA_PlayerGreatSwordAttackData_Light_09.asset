@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerGreatSwordAttackData_Light_09_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: GreatSword.Light.09
     baseInfo:
-      motionKey:
-        value: GreatSword.Light.09
       attackType: 0
       hitPhases:
       - damage: 91

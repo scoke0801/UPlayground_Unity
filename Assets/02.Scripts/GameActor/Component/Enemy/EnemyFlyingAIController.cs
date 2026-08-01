@@ -79,6 +79,7 @@ namespace UPlayGround.Components
 
         protected MonsterActor _monster;
         private MonsterGroupController _groupController;
+        private AttackType _myAttackType;
 
         // ── 프로퍼티 (State에서 접근) ──
         public override EnemyDetection Detection => _detection;
@@ -106,6 +107,11 @@ namespace UPlayGround.Components
         public override float OptimalCombatDistance => _optimalCombatDistance;
         public override float MinCombatDistance => _minCombatDistance;
         public override float PersonalSpaceDistance => _personalSpaceDistance;
+        public override GroupIntentBias CurrentGroupIntentBias
+            => _groupController != null && _monster != null
+                ? _groupController.GetIntentBias(_monster, _myAttackType)
+                : GroupIntentBias.Neutral;
+        public override MonsterGroupMemory CurrentGroupMemory => _groupController?.Memory;
 
         /// <summary> State들이 튜닝 값에 접근하는 단일 창구 </summary>
         public override EnemyFlyingSettingsSO FlyingSettings => _flyingSettings;
@@ -122,12 +128,19 @@ namespace UPlayGround.Components
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
             _monster = GetComponent<MonsterActor>();
             _spawnPosition = transform.position;
+            if (_detection != null)
+                _detection.OnTargetAcquiredExternally += HandleTargetAcquired;
             EnsureBehaviorTreeRunner();
         }
 
         protected virtual void Start()
         {
             ResetAllCounters();
+
+            _myAttackType = (_combat?.HasAttackType(AttackType.Ranged) == true
+                             && !_combat.HasAttackType(AttackType.Melee))
+                ? AttackType.Ranged
+                : AttackType.Melee;
 
             EnsureBehaviorTreeRunner();
 
@@ -161,6 +174,15 @@ namespace UPlayGround.Components
             if (IsGroundCombatState(stateId.Value))
                 _groundTimer += Time.deltaTime;
 
+            if (_detection != null && _detection.HasTarget)
+                _groupController?.Memory?.SetPlayerTarget(_detection.CurrentTarget);
+
+        }
+
+        protected virtual void OnDestroy()
+        {
+            if (_detection != null)
+                _detection.OnTargetAcquiredExternally -= HandleTargetAcquired;
         }
 
         #endregion
@@ -178,10 +200,12 @@ namespace UPlayGround.Components
         /// </summary>
         public override void OnAirCircleForceDescend()
         {
+            ReleaseGroupSlot();
         }
 
         public override void OnDiveLanded()
         {
+            ReleaseGroupSlot();
             ResetAllCounters();
         }
 
@@ -196,6 +220,7 @@ namespace UPlayGround.Components
         public override void OnGroundAttackFinished()
         {
             _groundAttackCount++;
+            ReleaseGroupSlot();
         }
 
         /// <summary>
@@ -225,14 +250,23 @@ namespace UPlayGround.Components
 
         public override bool TryRequestAttackSlot()
         {
-            // 비행형은 그룹 슬롯 시스템과 결합되지 않은 시점 — 항상 허용.
-            // 추후 MonsterGroupController 도입 시 EnemyAIController과 동일하게 슬롯 요청으로 교체.
-            return true;
+            if (_groupController == null || _monster == null)
+                return true;
+
+            return _groupController.RequestAttackSlot(_monster, _myAttackType);
+        }
+
+        public override void ReleaseGroupSlot()
+        {
+            if (_monster != null)
+                _groupController?.NotifyMemberAttackEnded(_monster);
         }
 
         public override void NotifyBTAttackStarted()
         {
             // 실제 재사용 대기시간은 ActorAbilitySystem이 Ability별로 관리한다.
+            if (_detection != null && _detection.HasTarget)
+                _groupController?.AlertGroup(_detection.CurrentTarget, _monster);
         }
 
         protected virtual void TransitionToTakeOff()
@@ -319,6 +353,12 @@ namespace UPlayGround.Components
         public void SetGroup(MonsterGroupController group, MemberPriority priority)
         {
             _groupController = group;
+        }
+
+        private void HandleTargetAcquired()
+        {
+            if (_detection != null && _detection.HasTarget)
+                _groupController?.AlertGroup(_detection.CurrentTarget, _monster);
         }
 
         public void UpdatePhase(float hpPercent)

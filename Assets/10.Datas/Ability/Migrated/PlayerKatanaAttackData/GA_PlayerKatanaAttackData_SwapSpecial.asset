@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_SwapSpecial_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.SwapSpecial
     baseInfo:
-      motionKey:
-        value: Katana.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 54

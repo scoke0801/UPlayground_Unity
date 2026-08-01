@@ -289,9 +289,9 @@ namespace UPlayGround.Data.Editor.Ability.Production
             AbilityRecipeDefinition recipe = request.Recipe;
             payload.attackInfo = new AbilityAttackInfo
             {
+                motionKey = BuildMotionKey(request),
                 baseInfo = new AttackInfoBase
                 {
-                    motionKey = BuildMotionKey(request),
                     attackType = recipe.AttackType,
                     hitPhases = new List<HitPhaseData> { new() },
                 },
@@ -344,7 +344,7 @@ namespace UPlayGround.Data.Editor.Ability.Production
                 throw new InvalidOperationException(
                     "Actor MotionSet 또는 Motion Asset이 없습니다.");
 
-            MotionKey key = payload.attackInfo.baseInfo.motionKey;
+            MotionKey key = payload.attackInfo.motionKey;
             Undo.RecordObject(request.MotionOwner, "Ability Motion 연결");
             request.MotionOwner.abilityMotions ??=
                 new SerializedDictionary<

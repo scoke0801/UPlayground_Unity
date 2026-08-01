@@ -195,6 +195,7 @@ namespace UPlayGround.Components
             if (stateId is not (ActorStateId.Idle or ActorStateId.Patrol))
                 return;
 
+            _groupController?.AlertGroup(_detection.CurrentTarget, _monster);
             _movementController.TransitionToState(new EnemyChaseState(_movementController, this, _detection));
         }
 
@@ -319,7 +320,7 @@ namespace UPlayGround.Components
             _memory?.NotifyCombatAction();
 
             if (_detection != null && _detection.HasTarget)
-                _groupController?.AlertGroup(_detection.CurrentTarget);
+                _groupController?.AlertGroup(_detection.CurrentTarget, _monster);
         }
 
         /// <summary> 다음 행동까지의 대기 시간을 랜덤으로 결정 </summary>

@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_Jump_02_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: SwordShield.Jump.02
     baseInfo:
-      motionKey:
-        value: SwordShield.Jump.02
       attackType: 0
       hitPhases:
       - damage: 30

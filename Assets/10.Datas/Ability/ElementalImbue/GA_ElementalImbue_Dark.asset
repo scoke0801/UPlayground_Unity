@@ -88,9 +88,9 @@ MonoBehaviour:
   m_Name: Payload_ElementalImbue_Dark
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: ElementalImbue.Dark
     baseInfo:
-      motionKey:
-        value: ElementalImbue.Dark
       attackType: 0
       hitPhases: []
     interruptActions: 0

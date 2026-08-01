@@ -76,6 +76,10 @@ namespace UPlayGround.Data.Enemy
         public float guardDuration        = 1.5f;
         public float retreatDistance      = 3.0f;
 
+        [Header("그룹 템포")]
+        [Tooltip("이 몬스터가 공격을 끝낸 뒤 적용할 그룹 breather 시간. 음수면 그룹 기본값을 사용")]
+        public float breatherDurationOverride = -1f;
+
         [Header("순찰")]
         public bool  enablePatrol  = true;
         public float patrolRadius  = 5f;

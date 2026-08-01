@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDoubleAxeAttackData_SwapSpecial_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DoubleAxe.SwapSpecial
     baseInfo:
-      motionKey:
-        value: DoubleAxe.SwapSpecial
       attackType: 0
       hitPhases:
       - damage: 86

@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.Ability.Skill.3
     baseInfo:
-      motionKey:
-        value: Whip.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 41
@@ -386,9 +386,9 @@ MonoBehaviour:
   m_Name: GA_PlayerWhipAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Whip.Ability
     baseInfo:
-      motionKey:
-        value: Whip.Ability
       attackType: 0
       hitPhases:
       - damage: 32

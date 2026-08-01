@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: Payload_Attack_3
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Humanoid.SwordShieldAttackData.Attack.3.03
     baseInfo:
-      motionKey:
-        value: Humanoid.SwordShieldAttackData.Attack.3.03
       attackType: 0
       hitPhases:
       - damage: 10

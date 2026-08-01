@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Default.Ability
     baseInfo:
-      motionKey:
-        value: Default.Ability
       attackType: 0
       hitPhases: []
     interruptActions: 0

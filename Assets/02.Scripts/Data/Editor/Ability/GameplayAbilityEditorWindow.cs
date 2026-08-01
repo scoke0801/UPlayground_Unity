@@ -979,7 +979,7 @@ namespace UPlayGround.Data.Editor.Ability
             _variantPayloadSection.Add(SectionHeader(
                 "Execution Payload 편집",
                 "각 Variant가 참조하는 Payload 에셋을 여기서 직접 편집합니다. "
-                + "공격 Motion 해석 키의 단일 소스는 attackInfo.baseInfo.motionKey입니다."));
+                + "공격 Motion 해석 키의 단일 소스는 attackInfo.motionKey입니다."));
 
             List<AbilityVariantDefinition> variants = ability?.variants;
             if (variants == null || variants.Count == 0)
@@ -1018,7 +1018,10 @@ namespace UPlayGround.Data.Editor.Ability
         private static readonly (string Title, string[] Fields, bool DefaultOpen)[]
             AttackInfoGroups =
             {
-                ("실행 · 모션과 히트 페이즈", new[] { "baseInfo" }, true),
+                // 모션과 공격 수치는 서로 독립적으로 편집한다. 한 그룹에 묶으면
+                // 모션 교체와 밸런스 조정이 같은 화면에서 섞여 보인다.
+                ("실행 · 모션", new[] { "motionKey" }, true),
+                ("공격 · 히트 페이즈", new[] { "baseInfo" }, true),
                 ("플레이어 조작 · 캔슬",
                     new[] { "interruptActions", "moveCancelDelayAfterLastHit" }, true),
                 ("방어 대응", new[] { "defenseType" }, true),
@@ -1160,15 +1163,23 @@ namespace UPlayGround.Data.Editor.Ability
 
             for (int i = 0; i < properties.Count; i++)
             {
-                if (properties[i].name == "baseInfo"
+                if (properties[i].name == "motionKey"
                     && ability != null
                     && variant != null)
                 {
-                    group.Add(BuildBaseInfoEditor(
+                    group.Add(BuildMotionBindingEditor(
                         payloadSerialized,
                         properties[i],
                         ability,
                         variant));
+                    continue;
+                }
+
+                if (properties[i].name == "baseInfo")
+                {
+                    group.Add(BuildBaseInfoEditor(
+                        payloadSerialized,
+                        properties[i]));
                     continue;
                 }
 
@@ -1180,18 +1191,17 @@ namespace UPlayGround.Data.Editor.Ability
             return group;
         }
 
+        /// <summary>
+        /// baseInfo의 하위 필드(attackType, hitPhases)를 평탄하게 그린다.
+        /// Motion Key가 형제 필드로 분리된 뒤로는 baseInfo 자체를 감쌀 단계가
+        /// 필요 없어, 상위 "공격 · 히트 페이즈" 그룹 아래에 바로 편다.
+        /// </summary>
         private VisualElement BuildBaseInfoEditor(
             SerializedObject payloadSerialized,
-            SerializedProperty baseInfo,
-            GameplayAbilitySO ability,
-            AbilityVariantDefinition variant)
+            SerializedProperty baseInfo)
         {
-            var foldout = new Foldout
-            {
-                text = "Base Info",
-                value = true,
-            };
-            foldout.style.marginTop = 2f;
+            var container = new VisualElement();
+            container.style.marginTop = 2f;
 
             SerializedProperty child = baseInfo.Copy();
             SerializedProperty end = baseInfo.GetEndProperty();
@@ -1200,22 +1210,13 @@ namespace UPlayGround.Data.Editor.Ability
                    && !SerializedProperty.EqualContents(child, end))
             {
                 enterChildren = false;
-                if (child.name == "motionKey")
-                {
-                    foldout.Add(BuildMotionBindingEditor(
-                        payloadSerialized,
-                        child.Copy(),
-                        ability,
-                        variant));
-                    continue;
-                }
 
                 var field = new PropertyField(child.Copy());
                 field.style.marginTop = 2f;
                 field.Bind(payloadSerialized);
-                foldout.Add(field);
+                container.Add(field);
             }
-            return foldout;
+            return container;
         }
 
         private VisualElement BuildMotionBindingEditor(
@@ -2698,7 +2699,7 @@ namespace UPlayGround.Data.Editor.Ability
                     + "같은 그룹 ID를 쓰는 Ability는 쿨다운을 공유합니다.",
                 (GameplayAbilitySO, "Variant") =>
                     "상황 조건에 따라 실제로 실행할 Payload를 우선순위 순으로 구성합니다. "
-                    + "공격 Motion 해석 키의 단일 소스는 각 Motion Payload의 attackInfo.baseInfo.motionKey입니다.",
+                    + "공격 Motion 해석 키의 단일 소스는 각 Motion Payload의 attackInfo.motionKey입니다.",
                 (GameplayAbilitySO, "Effect") =>
                     "Commit 직후와 실행 종료 시 적용할 GameplayEffect를 연결합니다. "
                     + "Variant 내부의 Owner/Target Effect와 적용 시점이 다르므로 중복 적용을 확인하세요.",

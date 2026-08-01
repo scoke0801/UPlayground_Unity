@@ -85,9 +85,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDualBladeAttackData_Heavy_02_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: DualBlade.Heavy.02
     baseInfo:
-      motionKey:
-        value: DualBlade.Heavy.02
       attackType: 0
       hitPhases:
       - damage: 67

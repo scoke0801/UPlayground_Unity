@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerDefaultAttackData_Charge_00_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Default.Charge.00
     baseInfo:
-      motionKey:
-        value: Default.Charge.00
       attackType: 0
       hitPhases:
       - damage: 30

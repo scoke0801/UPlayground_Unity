@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ability_Skill_3_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Ability.Skill.3
     baseInfo:
-      motionKey:
-        value: Katana.Ability.Skill.3
       attackType: 0
       hitPhases:
       - damage: 111
@@ -130,9 +130,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ability_Skill_4_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Ability.Skill.4
     baseInfo:
-      motionKey:
-        value: Katana.Ability.Skill.4
       attackType: 0
       hitPhases:
       - damage: 64
@@ -311,9 +311,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ability_Skill_6_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Ability.Skill.6
     baseInfo:
-      motionKey:
-        value: Katana.Ability.Skill.6
       attackType: 0
       hitPhases:
       - damage: 56
@@ -620,9 +620,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ability_Default_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Ability
     baseInfo:
-      motionKey:
-        value: Katana.Ability
       attackType: 0
       hitPhases:
       - damage: 92
@@ -853,9 +853,9 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ability_Skill_5_Payload
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Katana.Ability.Skill.5
     baseInfo:
-      motionKey:
-        value: Katana.Ability.Skill.5
       attackType: 0
       hitPhases:
       - damage: 42

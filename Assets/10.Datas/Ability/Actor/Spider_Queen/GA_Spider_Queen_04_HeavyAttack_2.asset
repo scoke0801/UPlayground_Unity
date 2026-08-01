@@ -86,9 +86,9 @@ MonoBehaviour:
   m_Name: Payload_HeavyAttack_2
   m_EditorClassIdentifier: 
   attackInfo:
+    motionKey:
+      value: Spider.Queen.HeavyAttack.2.04
     baseInfo:
-      motionKey:
-        value: Spider.Queen.HeavyAttack.2.04
       attackType: 0
       hitPhases:
       - damage: 35

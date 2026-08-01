@@ -46,6 +46,7 @@ MonoBehaviour:
       - rid: 7432452542259527809
       - rid: 7432452542259527810
       - rid: 7432452542259527811
+    internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
     layers: []

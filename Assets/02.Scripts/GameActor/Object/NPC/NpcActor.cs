@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
@@ -20,6 +21,7 @@ namespace UPlayGround
         [SerializeField] private NpcActorSO _data;
 
         private bool _isInteracting;
+        private IDisposable _simulationLease;
 
         // ── IInteractable ────────────────────────────────────────────
 
@@ -38,6 +40,7 @@ namespace UPlayGround
             if (!CanInteract()) return;
 
             _isInteracting = true;
+            _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "Dialogue");
 
             Svc.Dialogue.OnDialogueEnd += OnDialogueEnd;
             Svc.Dialogue.StartDialogue(_data.dialogueGraph);
@@ -50,6 +53,7 @@ namespace UPlayGround
             // 강제 종료 시 이벤트 정리
             Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
             _isInteracting = false;
+            ReleaseSimulationLease();
         }
 
         // InteractionAnimEvent는 현재 NPC 대화에서 사용하지 않으므로 빈 구현
@@ -62,6 +66,19 @@ namespace UPlayGround
         {
             Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
             _isInteracting = false;
+            ReleaseSimulationLease();
+        }
+
+        private void ReleaseSimulationLease()
+        {
+            _simulationLease?.Dispose();
+            _simulationLease = null;
+        }
+
+        protected override void OnDestroy()
+        {
+            ReleaseSimulationLease();
+            base.OnDestroy();
         }
 
         /// <summary>

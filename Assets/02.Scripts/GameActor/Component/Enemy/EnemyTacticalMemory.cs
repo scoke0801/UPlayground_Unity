@@ -13,7 +13,7 @@ namespace UPlayGround.Components
     /// 전투 이벤트를 기억해 EnemyAIController의 다음 행동 결정에 맥락을 제공한다.
     /// 플레이어의 현재 상태를 관찰하여 반응형 의사결정을 지원한다.
     /// </summary>
-    public class EnemyTacticalMemory : MonoBehaviour, IManagedTick
+    public class EnemyTacticalMemory : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
     {
         // ── 연속 행동 카운터 ──
         public int ConsecutiveAttackCount { get; private set; }
@@ -79,12 +79,12 @@ namespace UPlayGround.Components
                 return;
 
             _tickManager = AgentTickManager.Instance;
-            _tickManager?.Register(this);
+            _tickManager?.Register(GetComponent<GameActor>(), this);
         }
 
         private void OnDisable()
         {
-            _tickManager?.Unregister(this);
+            _tickManager?.Unregister(GetComponent<GameActor>(), this);
             _tickManager = null;
         }
 
@@ -127,6 +127,12 @@ namespace UPlayGround.Components
 
             if (Time.time - _lastHitCountRefreshTime >= _hitCountResetWindow)
                 RecentHitCount = 0;
+        }
+
+        public void OnActorSimulationResumed()
+        {
+            if (_isPlayerTracked && _playerTransform != null)
+                _lastPlayerPosition = _playerTransform.position;
         }
 
         // ══════════════════════════════════════════

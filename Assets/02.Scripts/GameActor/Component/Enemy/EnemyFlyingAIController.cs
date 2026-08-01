@@ -164,7 +164,7 @@ namespace UPlayGround.Components
 
         protected virtual void OnDisable()
         {
-            _tickManager?.Unregister(this);
+            _tickManager?.Unregister(GetComponent<GameActor>(), this);
             _tickManager = null;
         }
 

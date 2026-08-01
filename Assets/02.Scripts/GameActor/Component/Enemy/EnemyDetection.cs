@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Debugging;
@@ -43,7 +44,7 @@ namespace UPlayGround.Components
     /// <summary>
     /// 적 탐지 시스템 - 플레이어 감지 및 추적 타겟 관리
     /// </summary>
-    public class EnemyDetection : ActorComponent, IManagedTick, IDebugGizmoProvider
+    public class EnemyDetection : ActorComponent, IManagedTick, IActorSimulationResumeHandler, IDebugGizmoProvider
     {
         [Header("Detection Settings")]
         [SerializeField] private float _detectionRadius = 10f;
@@ -80,6 +81,8 @@ namespace UPlayGround.Components
         private readonly Collider[] _overlapBuffer = new Collider[64];
 
         private AgentTickManager _tickManager;
+        private IDisposable _simulationLease;
+        private GameActor _owner;
         
         public Transform CurrentTarget => _currentTarget;
         public bool HasTarget => _currentTarget != null;
@@ -98,17 +101,19 @@ namespace UPlayGround.Components
             // 개별 Update 대신 AgentTickManager가 일괄 틱한다.
             if (Application.isPlaying)
             {
+                _owner ??= GetComponent<GameActor>();
                 _tickManager = AgentTickManager.Instance;
-                _tickManager?.Register(this);
+                _tickManager?.Register(_owner, this);
                 DebugGizmoBridge.RegisterProvider(this);
             }
         }
 
         private void OnDisable()
         {
-            _tickManager?.Unregister(this);
+            _tickManager?.Unregister(_owner, this);
             _tickManager = null;
             DebugGizmoBridge.UnregisterProvider(this);
+            ReleaseSimulationLease();
         }
 
         /// <summary>
@@ -125,6 +130,12 @@ namespace UPlayGround.Components
             }
         }
 
+        public void OnActorSimulationResumed()
+        {
+            _detectionTimer = 0f;
+            UpdateDetection();
+        }
+
         public void AcquireTarget(Transform target, bool acquiredExternally = true)
         {
             if (target == null)
@@ -137,9 +148,14 @@ namespace UPlayGround.Components
             _currentTarget = target;
             if (wasWithoutTarget)
             {
+                // Unity fake-null 타겟이 파괴된 뒤 재획득하면 이전 lease가 남아 있을 수 있다.
+                ReleaseSimulationLease();
+                _owner ??= GetComponent<GameActor>();
                 _targetAcquiredExternally = acquiredExternally;
                 _targetAcquiredTime = Time.time;
                 _lastLineOfSightTime = Time.time;
+                _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(
+                    _owner, this, "EnemyTarget");
             }
 
             if (wasWithoutTarget)
@@ -271,6 +287,7 @@ namespace UPlayGround.Components
             _targetAcquiredExternally = false;
             _targetAcquiredTime = 0f;
             _lastLineOfSightTime = 0f;
+            ReleaseSimulationLease();
             OnTargetLost?.Invoke();
         }
 
@@ -281,8 +298,15 @@ namespace UPlayGround.Components
             _targetAcquiredExternally = false;
             _targetAcquiredTime = 0f;
             _lastLineOfSightTime = 0f;
+            ReleaseSimulationLease();
             if (hadTarget)
                 OnTargetLost?.Invoke();
+        }
+
+        private void ReleaseSimulationLease()
+        {
+            _simulationLease?.Dispose();
+            _simulationLease = null;
         }
             
         #region Ally Detection

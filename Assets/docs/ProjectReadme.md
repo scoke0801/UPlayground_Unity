@@ -329,6 +329,7 @@ Assets/
 | [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |
 | [MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md](Complete/MOTIONSET_ASMDEF_PACKAGE_REFACTOR_PLAN.md) | MotionEvent/MotionSet asmdef 패키지 분리 리팩터 계획 — 프레임워크/구체 이벤트 경계 판정, SerializeReference·MovedFrom 직렬화 안전성, Executor·에디터 하드코딩 역전, Phase 1~4 |
 | [ACTOR_ID_SYSTEM_GUIDE.md](Complete/ACTOR_ID_SYSTEM_GUIDE.md) | Actor ID 시스템 — 데이터 정의, 런타임 스폰, 에디터 사용법 |
+| [ACTOR_SIMULATION_RANGE_SYSTEM_GUIDE.md](ACTOR_SIMULATION_RANGE_SYSTEM_GUIDE.md) | 플레이어 중심 액터 시뮬레이션 범위 설계 — 일반 몬스터/NPC의 AI·상태 머신·KCC·Animancer 일괄 정지와 안전한 복귀 정책 |
 | [CRAFTING_SYSTEM_GUIDE.md](Complete/CRAFTING_SYSTEM_GUIDE.md) | 제작(Crafting) 시스템 — 레시피, 재료, 언락 조건 |
 | [CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md](guide/CRAFT_QUEST_UI_EDITOR_SETUP_GUIDE.md) | 제작 UI / 퀘스트 UI 에디터 작업 가이드 — 현재 코드·데이터·프리팹 연결 상태 기반 세팅 순서 |
 | [SAVE_SYSTEM_GUIDE.md](Complete/SAVE_SYSTEM_GUIDE.md) | 세이브/로드 시스템 |

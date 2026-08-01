@@ -132,6 +132,16 @@ namespace UPlayGround.Manager
         void RegisterActor(GameActor actor, string actorIdOverride = null);
     }
 
+    /// <summary>
+    /// Actor 모듈이 구체 시뮬레이션 매니저를 참조하지 않고 활성 상태를 요청하는 계약.
+    /// </summary>
+    public interface IActorSimulationService : IGameService
+    {
+        bool IsSuspended(GameActor actor);
+        IDisposable AcquireActiveLease(GameActor actor, object owner, string reason);
+        void ForceRefresh();
+    }
+
     public interface IInteractionPersistenceService : IGameService
     {
         bool TryConsume(GatheringActor actor);
@@ -190,5 +200,6 @@ namespace UPlayGround.Manager
         public static ICheatStateService CheatState => Services.Get<ICheatStateService>();
         public static ICycleExitService CycleExit => Services.Get<ICycleExitService>();
         public static ISceneTransitionService SceneTransition => Services.Get<ISceneTransitionService>();
+        public static IActorSimulationService Simulation => Services.Get<IActorSimulationService>();
     }
 }

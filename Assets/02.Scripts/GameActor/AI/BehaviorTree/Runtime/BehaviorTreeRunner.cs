@@ -6,7 +6,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.AI.BehaviorTree
 {
-    public class BehaviorTreeRunner : MonoBehaviour, IManagedTick
+    public class BehaviorTreeRunner : MonoBehaviour, IManagedTick, IActorSimulationResumeHandler
     {
         [Header("Tree")]
         [SerializeField] private BehaviorTreeAsset _treeAsset;
@@ -71,7 +71,7 @@ namespace UPlayGround.AI.BehaviorTree
             if (Application.isPlaying)
             {
                 _tickManager = AgentTickManager.Instance;
-                _tickManager?.Register(this);
+                _tickManager?.Register(GetComponent<GameActor>(), this);
             }
 
             if (_startOnEnable)
@@ -80,7 +80,7 @@ namespace UPlayGround.AI.BehaviorTree
 
         private void OnDisable()
         {
-            _tickManager?.Unregister(this);
+            _tickManager?.Unregister(GetComponent<GameActor>(), this);
             _tickManager = null;
             StopTree();
         }
@@ -117,6 +117,12 @@ namespace UPlayGround.AI.BehaviorTree
             }
 
             TickOnce();
+        }
+
+        public void OnActorSimulationResumed()
+        {
+            // 복귀 프레임에 즉시 한 번 평가할 수 있게 기본 간격을 채운다.
+            _tickTimer = Mathf.Max(0.01f, _tickInterval);
         }
 
         /// <summary>

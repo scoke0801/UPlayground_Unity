@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f4c1f4df5b64f678d88e923eacb8ef1, type: 3}
+  m_Name: ActorSimulationSettings
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Config.ActorSimulationSettingsSO
+  wakeDistance: 55
+  sleepDistance: 65
+  evaluationInterval: 0.2
+  evaluationBuckets: 4
+  minimumActiveDuration: 1
+  unsafeRetryInterval: 0.25
+  teleportRefreshDistance: 20
+  maximumSuspendSpeed: 0.1
+  includeEliteMonsters: 0

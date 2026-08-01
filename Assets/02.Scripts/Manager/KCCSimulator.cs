@@ -3,6 +3,7 @@ using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround;
 using UPlayGround.Manager;
+using UPlayGround.Simulation;
 
 namespace UPlayGround.Manager
 {
@@ -23,6 +24,7 @@ namespace UPlayGround.Manager
         private readonly List<KinematicCharacterMotor> _activeMotors = new();
         private readonly Dictionary<KinematicCharacterMotor, float> _motorScales = new();
         private readonly Dictionary<KinematicCharacterMotor, GameActor> _actorCache = new();
+        private readonly Dictionary<KinematicCharacterMotor, ActorSimulationParticipant> _simulationCache = new();
         private readonly List<KinematicCharacterMotor> _staleActorCacheKeys = new();
 
         private void Awake()
@@ -129,6 +131,7 @@ namespace UPlayGround.Manager
                 {
                     Debug.LogWarning($"[KCCSimulator] CharacterController가 없는 모터를 시뮬레이션 목록에서 제거합니다: {motor.name}", motor);
                     _actorCache.Remove(motor);
+                    _simulationCache.Remove(motor);
                     motors.RemoveAt(i);
                 }
             }
@@ -153,6 +156,18 @@ namespace UPlayGround.Manager
                     _actorCache.Add(motor, actor);
                 }
 
+                if (!_simulationCache.TryGetValue(motor, out var simulation) && actor != null &&
+                    actor.TryGetComponent(out simulation))
+                {
+                    // Participant는 부트 후 런타임에 추가될 수 있으므로 찾은 뒤에만 캐시한다.
+                    _simulationCache.Add(motor, simulation);
+                }
+
+                if (simulation != null && simulation.IsSuspended)
+                {
+                    continue;
+                }
+
                 // 소수점 3자리 반올림: 0.05f / 0.1f 등 근사값이 다른 키로 분류되는 것 방지
                 float scale = actor != null ? Mathf.Round(actor.LocalTimeScale * 1000f) / 1000f : 1f;
                 _activeMotors.Add(motor);
@@ -173,7 +188,10 @@ namespace UPlayGround.Manager
             }
 
             for (int i = 0; i < _staleActorCacheKeys.Count; i++)
+            {
                 _actorCache.Remove(_staleActorCacheKeys[i]);
+                _simulationCache.Remove(_staleActorCacheKeys[i]);
+            }
         }
     }
 }

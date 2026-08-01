@@ -94,6 +94,7 @@ namespace UPlayGround.Manager
             RegisterManager(GameObjectManager.Instance);
             RegisterManager(ProjectileManager.Instance); // 조합형 투사체 풀/일괄 틱
             RegisterManager(PartyManager.Instance);
+            RegisterManager(ActorSimulationManager.Instance); // 일반 몬스터/NPC 거리 기반 시뮬레이션
             RegisterManager(ItemManager.Instance);
             RegisterManager(InventoryManager.Instance);
             RegisterManager(EventManager.Instance);

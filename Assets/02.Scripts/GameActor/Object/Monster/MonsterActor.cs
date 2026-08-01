@@ -67,6 +67,7 @@ namespace UPlayGround
             set => AbilitySystem?.Attributes.SetBase(global::UPlayGround.Data.Stat.Attributes.Vital.Health, value);
         }
         protected bool _isDead = false;
+        private IDisposable _lockOnSimulationLease;
         private int _externalHitReactionSuppressionCount;
         
         protected IActorHpBarView _uiHpBar;
@@ -311,8 +312,19 @@ namespace UPlayGround
             => IsAlive() && !_isInvincible && !(MovementController?.CurrentState?.GrantsInvincibility ?? false);
         public Transform GetTransform() => transform;
 
-        public void LockOn()   { if (_lockOnDecal != null) _lockOnDecal.SetActive(true); }
-        public void UnLockOn() { if (_lockOnDecal != null) _lockOnDecal.SetActive(false); }
+        public void LockOn()
+        {
+            if (_lockOnDecal != null) _lockOnDecal.SetActive(true);
+            _lockOnSimulationLease ??=
+                ActorSvc.Simulation?.AcquireActiveLease(this, this, "LockOn");
+        }
+
+        public void UnLockOn()
+        {
+            if (_lockOnDecal != null) _lockOnDecal.SetActive(false);
+            _lockOnSimulationLease?.Dispose();
+            _lockOnSimulationLease = null;
+        }
 
         public float GetHealthPercent() => _currentHealth / _maxHealth;
         public float GetCurrentHealth() => _currentHealth;
@@ -753,6 +765,8 @@ namespace UPlayGround
 
         protected override void OnDestroy()
         {
+            _lockOnSimulationLease?.Dispose();
+            _lockOnSimulationLease = null;
             ReleaseHpBar();
             base.OnDestroy();
             UnregisterExposed();

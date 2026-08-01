@@ -1,90 +1,242 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UPlayGround.Simulation;
 
 namespace UPlayGround.Manager
 {
-    /// <summary>
-    /// 매 프레임 갱신이 필요한 에이전트 구성요소가 구현한다.
-    /// 개별 MonoBehaviour.Update 대신 <see cref="AgentTickManager"/>가 일괄 호출한다.
-    /// </summary>
+    /// <summary>개별 MonoBehaviour.Update 대신 매니저가 일괄 호출하는 틱 계약.</summary>
     public interface IManagedTick
     {
         void ManagedTick(float deltaTime);
     }
 
+    /// <summary>Suspended에서 Active로 복귀한 프레임의 캐시/타이머 재기준화 계약.</summary>
+    public interface IActorSimulationResumeHandler
+    {
+        void OnActorSimulationResumed();
+    }
+
     /// <summary>
-    /// 적 BT 러너/탐지 등 다수 MonoBehaviour의 개별 Update를 단일 루프로 통합한다.
-    /// Unity의 네이티브↔매니지드 Update 디스패치는 호출 개수 자체가 비용이므로,
-    /// N개의 Update를 1개의 매니저 루프 + N개의 매니지드 메서드 호출로 치환해 오버헤드를 낮춘다.
-    /// 각 구성요소는 자체 타이머/인터벌을 유지하므로 동작 의미는 기존과 동일하다.
+    /// 소유 액터별로 틱을 그룹화한다. Suspended 그룹은 활성 그룹 목록에서 제거하므로
+    /// 원거리 액터 수가 늘어도 OnUpdate 순회량이 함께 늘지 않는다.
     /// </summary>
     public class AgentTickManager : BaseManager<AgentTickManager>, IManager, IUpdatableManager
     {
-        private readonly List<IManagedTick> _ticks = new();
-        private bool _needsCompact;
+        private sealed class TickGroup
+        {
+            public GameActor Owner;
+            public readonly List<IManagedTick> Ticks = new();
+            public bool IsActive = true;
+            public bool NeedsCompact;
+        }
 
-        // ── IManager 생명주기 (GameManager가 순차 구동) ──
-        public void Init() { }
+        private readonly Dictionary<GameActor, TickGroup> _groups = new();
+        private readonly List<TickGroup> _activeGroups = new();
+        private readonly List<IManagedTick> _ownerlessTicks = new();
+        private readonly List<GameActor> _staleOwners = new();
+        private readonly HashSet<TickGroup> _dirtyGroups = new();
+        private bool _ownerlessNeedsCompact;
+        private bool _isUpdating;
+
+        public void Init()
+        {
+            ActorSimulationParticipant.AnyStateChanged += HandleSimulationStateChanged;
+        }
+
         public void AfterInit() { }
         public void OnFixedUpdate() { }
         public void OnLateUpdate() { }
 
         public void Dispose()
         {
-            _ticks.Clear();
-            _needsCompact = false;
+            ActorSimulationParticipant.AnyStateChanged -= HandleSimulationStateChanged;
+            _groups.Clear();
+            _activeGroups.Clear();
+            _ownerlessTicks.Clear();
+            _staleOwners.Clear();
+            _dirtyGroups.Clear();
+            _ownerlessNeedsCompact = false;
+            _isUpdating = false;
         }
 
         public void OnSceneChanged(string sceneType)
         {
-            // 이전 씬 에이전트는 OnDisable에서 Unregister되지만, 파괴 순서가 보장되지 않으므로
-            // 씬 전환 시 죽은(파괴된) 엔트리를 한 번 정리해 둔다.
-            _ticks.RemoveAll(IsDead);
-            _needsCompact = false;
+            _staleOwners.Clear();
+            foreach (KeyValuePair<GameActor, TickGroup> pair in _groups)
+            {
+                if (pair.Key == null)
+                    _staleOwners.Add(pair.Key);
+            }
+            for (int i = 0; i < _staleOwners.Count; i++)
+            {
+                GameActor owner = _staleOwners[i];
+                if (_groups.TryGetValue(owner, out TickGroup group))
+                    RemoveGroup(group);
+            }
+            _staleOwners.Clear();
+            _ownerlessTicks.RemoveAll(IsDead);
+        }
+
+        public void Register(GameActor owner, IManagedTick tick)
+        {
+            if (tick == null)
+                return;
+            if (owner == null)
+            {
+                if (!_ownerlessTicks.Contains(tick))
+                    _ownerlessTicks.Add(tick);
+                return;
+            }
+
+            if (!_groups.TryGetValue(owner, out TickGroup group))
+            {
+                group = new TickGroup { Owner = owner };
+                ActorSimulationParticipant participant =
+                    owner.GetComponent<ActorSimulationParticipant>();
+                group.IsActive = participant == null || !participant.IsSuspended;
+                _groups.Add(owner, group);
+                if (group.IsActive)
+                    _activeGroups.Add(group);
+            }
+            if (!group.Ticks.Contains(tick))
+                group.Ticks.Add(tick);
         }
 
         public void Register(IManagedTick tick)
         {
-            if (tick == null)
-                return;
-            if (!_ticks.Contains(tick))
-                _ticks.Add(tick);
+            GameActor owner = tick is Component component
+                ? component.GetComponent<GameActor>()
+                : null;
+            Register(owner, tick);
         }
 
         public void Unregister(IManagedTick tick)
         {
-            int idx = _ticks.IndexOf(tick);
-            if (idx >= 0)
+            if (tick == null)
+                return;
+
+            foreach (TickGroup group in _groups.Values)
             {
-                // 순회 도중 호출돼도 안전하도록 null 마킹 후 프레임 말미에 일괄 제거
-                _ticks[idx] = null;
-                _needsCompact = true;
+                if (MarkUnregistered(group, tick))
+                    return;
             }
+
+            int ownerlessIndex = _ownerlessTicks.IndexOf(tick);
+            if (ownerlessIndex >= 0)
+            {
+                _ownerlessTicks[ownerlessIndex] = null;
+                _ownerlessNeedsCompact = true;
+            }
+        }
+
+        public void Unregister(GameActor owner, IManagedTick tick)
+        {
+            if (tick == null)
+                return;
+            if (owner != null && _groups.TryGetValue(owner, out TickGroup group) &&
+                MarkUnregistered(group, tick))
+            {
+                return;
+            }
+
+            Unregister(tick);
         }
 
         public void OnUpdate()
         {
-            float dt = Time.deltaTime;
-
-            // for-인덱스 순회: ManagedTick 내부에서 Register/Unregister가 일어나도 안전
-            for (int i = 0; i < _ticks.Count; i++)
+            float deltaTime = Time.deltaTime;
+            _isUpdating = true;
+            try
             {
-                var tick = _ticks[i];
-                if (tick == null)
-                    continue;
-                tick.ManagedTick(dt);
+                for (int groupIndex = 0; groupIndex < _activeGroups.Count; groupIndex++)
+                {
+                    TickGroup group = _activeGroups[groupIndex];
+                    for (int tickIndex = 0; tickIndex < group.Ticks.Count; tickIndex++)
+                        group.Ticks[tickIndex]?.ManagedTick(deltaTime);
+                }
+
+                for (int i = 0; i < _ownerlessTicks.Count; i++)
+                    _ownerlessTicks[i]?.ManagedTick(deltaTime);
             }
-
-            if (_needsCompact)
+            finally
             {
-                _ticks.RemoveAll(t => t == null);
-                _needsCompact = false;
+                _isUpdating = false;
+                FlushDirtyGroups();
+                if (_ownerlessNeedsCompact)
+                {
+                    _ownerlessTicks.RemoveAll(tick => tick == null);
+                    _ownerlessNeedsCompact = false;
+                }
             }
         }
 
-        // IManagedTick은 인터페이스라 destroy된 MonoBehaviour를 참조해도 일반 null 비교로는 걸러지지 않는다.
-        // UnityEngine.Object로 캐스팅해 파괴 여부(가짜 null)를 판별한다.
-        private static bool IsDead(IManagedTick tick)
-            => tick == null || (tick is global::UnityEngine.Object obj && obj == null);
+        private void HandleSimulationStateChanged(GameActor owner, ActorSimulationState state)
+        {
+            if (owner == null || !_groups.TryGetValue(owner, out TickGroup group))
+                return;
+
+            bool active = state == ActorSimulationState.Active;
+            if (group.IsActive == active)
+                return;
+            group.IsActive = active;
+            if (active)
+                _activeGroups.Add(group);
+            else
+                _activeGroups.Remove(group);
+        }
+
+        private static void Compact(TickGroup group)
+        {
+            if (!group.NeedsCompact)
+                return;
+            group.Ticks.RemoveAll(IsDead);
+            group.NeedsCompact = false;
+        }
+
+        private bool MarkUnregistered(TickGroup group, IManagedTick tick)
+        {
+            int index = group.Ticks.IndexOf(tick);
+            if (index < 0)
+                return false;
+
+            group.Ticks[index] = null;
+            group.NeedsCompact = true;
+            if (_isUpdating)
+            {
+                _dirtyGroups.Add(group);
+            }
+            else
+            {
+                Compact(group);
+                if (group.Ticks.Count == 0)
+                    RemoveGroup(group);
+            }
+            return true;
+        }
+
+        private void FlushDirtyGroups()
+        {
+            foreach (TickGroup group in _dirtyGroups)
+            {
+                Compact(group);
+                if (group.Ticks.Count == 0)
+                    RemoveGroup(group);
+            }
+            _dirtyGroups.Clear();
+        }
+
+        private void RemoveGroup(TickGroup group)
+        {
+            if (group == null)
+                return;
+            _activeGroups.Remove(group);
+            if (!ReferenceEquals(group.Owner, null))
+                _groups.Remove(group.Owner);
+            group.Ticks.Clear();
+            group.NeedsCompact = false;
+        }
+
+        private static bool IsDead(IManagedTick tick) =>
+            tick == null || (tick is global::UnityEngine.Object obj && obj == null);
     }
 }

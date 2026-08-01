@@ -44,6 +44,8 @@ namespace UPlayGround.Animation
         protected string _currentMotionDisplayKey = "-";
         protected bool _isPlayingMotionSet;
         private int _externalPreviewLockCount;
+        private bool _simulationPaused;
+        private float _requestedGraphSpeed = 1f;
 
         // ── Loop/Freeze 상태 ──
         private float _lastLocalTime; // 이전 프레임의 로컬 타임
@@ -182,10 +184,12 @@ namespace UPlayGround.Animation
         /// </summary>
         public float Speed
         {
-            get => _animator != null ? _animator.Graph.Speed : 1.0f;
+            get => _simulationPaused ? _requestedGraphSpeed :
+                (_animator != null ? _animator.Graph.Speed : _requestedGraphSpeed);
             set
             {
-                if (_animator != null)
+                _requestedGraphSpeed = value;
+                if (_animator != null && !_simulationPaused)
                     _animator.Graph.Speed = value;
                 
                 if (_subAnimator != null)
@@ -236,6 +240,7 @@ namespace UPlayGround.Animation
         public int    CurrentMotionIndex   => _currentMotionIndex;
         public bool   IsPlayingMotionSet   => _isPlayingMotionSet;
         public bool   IsExternalPreviewActive => _externalPreviewLockCount > 0;
+        public bool   IsSimulationPaused => _simulationPaused;
         public string CurrentSectionId => _currentSectionId;
 
         /// <summary>
@@ -382,9 +387,32 @@ namespace UPlayGround.Animation
             _actor = actor;
         }
 
+        /// <summary>
+        /// 거리 시뮬레이션이 Animancer 평가와 MotionSet 시계를 함께 정지/복귀시킨다.
+        /// LocalTimeScale의 소유권은 변경하지 않는다.
+        /// </summary>
+        public void SetSimulationPaused(bool paused)
+        {
+            if (_simulationPaused == paused)
+                return;
+
+            _simulationPaused = paused;
+            FlushRootMotion();
+            if (_animator != null)
+            {
+                if (paused)
+                    _requestedGraphSpeed = _animator.Graph.Speed;
+                _animator.Graph.Speed = paused ? 0f : _requestedGraphSpeed;
+            }
+
+            if (!paused && _isPlayingMotionSet)
+                _eventExecutor?.SeekTo(_globalTime);
+            _subAnimator?.SetSimulationPaused(paused);
+        }
+
         private void Update()
         {
-            if (IsExternalPreviewActive)
+            if (IsExternalPreviewActive || _simulationPaused)
                 return;
 
             // 타임라인 업데이트 (MotionSet 재생 중일 때만)
@@ -396,7 +424,7 @@ namespace UPlayGround.Animation
 
         private void LateUpdate()
         {
-            if (IsExternalPreviewActive)
+            if (IsExternalPreviewActive || _simulationPaused)
                 return;
 
             // Animancer(본) 평가가 끝난 이후 시점.
@@ -1645,7 +1673,7 @@ namespace UPlayGround.Animation
         
         private void OnAnimatorMove()
         {
-            if (_animator?.Animator == null)
+            if (_simulationPaused || _animator?.Animator == null)
                 return;
 
             // 원본 델타는 프리뷰/비물리 소비자 호환을 위해 유지한다.

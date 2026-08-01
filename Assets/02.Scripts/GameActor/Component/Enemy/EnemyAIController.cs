@@ -167,12 +167,12 @@ namespace UPlayGround.Components
                 return;
 
             _tickManager = AgentTickManager.Instance;
-            _tickManager?.Register(this);
+            _tickManager?.Register(_monster, this);
         }
 
         protected virtual void OnDisable()
         {
-            _tickManager?.Unregister(this);
+            _tickManager?.Unregister(GetComponent<GameActor>(), this);
             _tickManager = null;
         }
 

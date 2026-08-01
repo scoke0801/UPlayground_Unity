@@ -7,6 +7,7 @@ using UPlayGround;
 using UPlayGround.Debugging;
 using UPlayGround.State;
 using UPlayGround.CameraSystem;
+using UPlayGround.Simulation;
 
 namespace UPlayGround.MovementController
 {
@@ -105,6 +106,10 @@ namespace UPlayGround.MovementController
         public GameActor Actor { get; private set; }
         public MotionWarpController MotionWarp { get; private set; }
         public ActorStateMachine StateMachine { get; private set; }
+        private ActorSimulationParticipant _simulationParticipant;
+
+        public void SetSimulationParticipant(ActorSimulationParticipant participant) =>
+            _simulationParticipant = participant;
 
         protected void Awake()
         {
@@ -135,6 +140,7 @@ namespace UPlayGround.MovementController
         {
             Motor = GetComponent<KinematicCharacterMotor>();
             Actor = GetComponent<GameActor>();
+            _simulationParticipant = GetComponent<ActorSimulationParticipant>();
             MotionWarp = GetComponent<MotionWarpController>();
             if (MotionWarp == null)
                 MotionWarp = gameObject.AddComponent<MotionWarpController>();
@@ -155,6 +161,9 @@ namespace UPlayGround.MovementController
 
         protected virtual void Update()
         {
+            if (_simulationParticipant != null && _simulationParticipant.IsSuspended)
+                return;
+
             // Motor가 비활성화된 경우(파티 대기 상태) 상태 머신을 멈춰 InputBuffer를 공유 소비하지 않도록 함
             if (_currentState != null && (Motor == null || Motor.enabled))
             {

@@ -31,25 +31,33 @@ namespace UPlayGround.Manager
                 }
             }
 
-            EnsureStandardUiActions();
+            // Input System 1.20에서는 InputSystemUIInputModule이 같은 에셋의 맵을
+            // GameManager 초기화보다 먼저 활성화할 수 있다. 바인딩 구조를 변경하는
+            // 초기화 구간에서는 모든 맵을 비활성화하고, 완료 후 아래에서 다시 켠다.
+            inputActions.Disable();
 
-            // Actions 초기화
-            InitializeActions();
-
-            // 사용자 바인딩 슬롯은 Enable 전에 전부 만들어 둔다.
-            // 이후 리바인딩은 override만 쓰므로 런타임에 에셋 구조가 바뀌지 않는다.
-            // (구조가 바뀌면 UI 액션을 참조하는 InputSystemUIInputModule의 캐시가 깨진다)
-            EnsureAllUserBindingSlots();
-
-            // 사용자 바인딩은 Action Map을 Enable하기 전에 적용한다.
-            LoadInputBindingProfile();
-
-            // 조합 카탈로그는 effective binding이 확정된 뒤에 만든다.
-            InitChordArbiter();
-
-            foreach (var inputActionMap in actionMapCache.Values)
+            try
             {
-                inputActionMap.Enable();
+                EnsureStandardUiActions();
+
+                // Actions 초기화
+                InitializeActions();
+
+                // 사용자 바인딩 슬롯은 Enable 전에 전부 만들어 둔다.
+                // 이후 리바인딩은 override만 쓰므로 런타임에 에셋 구조가 바뀌지 않는다.
+                // (구조가 바뀌면 UI 액션을 참조하는 InputSystemUIInputModule의 캐시가 깨진다)
+                EnsureAllUserBindingSlots();
+
+                // 사용자 바인딩은 Action Map을 Enable하기 전에 적용한다.
+                LoadInputBindingProfile();
+
+                // 조합 카탈로그는 effective binding이 확정된 뒤에 만든다.
+                InitChordArbiter();
+            }
+            finally
+            {
+                // 초기화 도중 예외가 발생해도 UI를 포함한 입력 맵이 비활성 상태로 남지 않게 한다.
+                inputActions.Enable();
             }
         }
 
@@ -65,7 +73,6 @@ namespace UPlayGround.Manager
                 {
                     var key = (map.name, action.name);
                     actionCache[key] = action;
-                    actionCache.TryAdd(key, action);
 
                     action.started += OnInputEventStarted;
                     action.performed += OnInputEventPerformed;

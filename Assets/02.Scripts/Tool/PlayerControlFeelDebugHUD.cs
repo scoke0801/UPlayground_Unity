@@ -209,11 +209,14 @@ namespace UPlayGround.Tool.Debugging
         [SerializeField, Min(1f)] private float _targetFps = 60f;
         [SerializeField, Min(0f)] private float _gcWarningBytesPerFrame = 1024f;
         [SerializeField, Range(0f, 1f)] private float _slowFrameWarningRatio = 0.1f;
+        [SerializeField, Min(0.05f)] private float _hudRefreshInterval = 0.25f;
 
         private ProfilerRecorder _gcRecorder;
         private ProfilerRecorder _drawCallsRecorder;
         private ProfilerRecorder _setPassRecorder;
         private GUIStyle _style;
+        private GUIContent _content;
+        private float _nextHudRefreshTime;
         private int _count;
         private int _index;
         private float _frameSum;
@@ -268,7 +271,17 @@ namespace UPlayGround.Tool.Debugging
                 fontSize = 12,
                 padding = new RectOffset(10, 10, 8, 8),
             };
-            GUI.Box(new Rect(548f, 12f, 500f, 280f), BuildText(), _style);
+
+            _content ??= new GUIContent();
+            if (Time.unscaledTime >= _nextHudRefreshTime)
+            {
+                _content.text = BuildText();
+                _nextHudRefreshTime = Time.unscaledTime + _hudRefreshInterval;
+            }
+
+            // 표시 문자열은 주기적으로만 다시 계산하고, 그 사이 IMGUI 이벤트에서는
+            // 캐시한 콘텐츠를 그대로 그린다.
+            GUI.Box(new Rect(548f, 12f, 500f, 280f), _content, _style);
         }
 
         private void AddSample(float frameMilliseconds, long gcAllocatedBytes)

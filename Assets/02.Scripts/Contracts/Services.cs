@@ -110,5 +110,7 @@ namespace UPlayGround.Manager
         public static IQuestFlowService QuestFlow => Services.Get<IQuestFlowService>();
         public static IStoryFlowService StoryFlow => Services.Get<IStoryFlowService>();
         public static IFlowGraphService FlowGraph => Services.Get<IFlowGraphService>();
+        public static ICinematicStageService CinematicStage =>
+            Services.Get<ICinematicStageService>();
     }
 }

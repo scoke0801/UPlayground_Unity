@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UPlayGround.Animation;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Cinematic;
 
 namespace UPlayGround.Data
 {
@@ -81,6 +82,9 @@ namespace UPlayGround.Data
         public UltimateTargetPolicy targetPolicy = new();
         public UltimatePlacementSettings placementSettings = new();
 
+        [Header("연출 스테이지")]
+        public CinematicStageSettings cinematicStage = new();
+
         [Header("4단계: 연출 이벤트")]
         [Tooltip("끄면 ActorAnimator의 MotionSet 시간축을 사용해 타격/연출 타이밍을 정확히 맞춘다.")]
         public bool timelineUseUnscaledTime;
@@ -116,6 +120,7 @@ namespace UPlayGround.Data
             placementSettings ??= new UltimatePlacementSettings();
             placementSettings.placementBlendDuration =
                 Mathf.Max(0f, placementSettings.placementBlendDuration);
+            cinematicStage ??= new CinematicStageSettings();
             events ??= new List<UltimateTimelineEvent>();
             foreach (UltimateTimelineEvent timelineEvent in events)
             {

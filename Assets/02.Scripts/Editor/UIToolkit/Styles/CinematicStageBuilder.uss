@@ -1,0 +1,370 @@
+/* Cinematic Stage Builder 전용 UI Toolkit 스타일. 공통 --up-* 토큰을 사용한다. */
+
+.up-cstage-root {
+    flex-grow: 1;
+    min-width: 860px;
+    min-height: 580px;
+}
+
+.up-cstage-header {
+    height: 72px;
+    min-height: 72px;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 18px;
+    padding-right: 18px;
+    background-color: var(--up-bg-1);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--up-border-strong);
+}
+
+.up-cstage-title-group {
+    flex-grow: 1;
+}
+
+.up-cstage-title-group > #title {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: var(--up-text);
+}
+
+.up-cstage-title-group > #subtitle {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--up-text-dim);
+}
+
+.up-cstage-pill {
+    min-width: 88px;
+    padding: 5px 12px;
+    border-radius: 12px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 11px;
+    background-color: var(--up-bg-3);
+    color: var(--up-text-dim);
+}
+
+.up-cstage-pill--ok {
+    background-color: rgba(73, 171, 143, 0.20);
+    color: rgb(126, 214, 184);
+}
+
+.up-cstage-pill--warn {
+    background-color: rgba(214, 165, 62, 0.22);
+    color: rgb(235, 197, 118);
+}
+
+.up-cstage-pill--error {
+    background-color: rgba(224, 90, 90, 0.22);
+    color: rgb(242, 148, 148);
+}
+
+.up-cstage-step-rail {
+    height: 44px;
+    min-height: 44px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding-left: 12px;
+    padding-right: 12px;
+    background-color: var(--up-bg-2);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--up-border);
+}
+
+.up-cstage-step {
+    flex-direction: row;
+    align-items: center;
+    margin-left: 8px;
+    margin-right: 8px;
+    opacity: 0.62;
+}
+
+.up-cstage-step > #badge {
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    background-color: var(--up-bg-3);
+    border-width: 1px;
+    border-color: var(--up-border-strong);
+    color: var(--up-text-dim);
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    font-size: 10px;
+}
+
+.up-cstage-step > #label {
+    margin-left: 6px;
+    color: var(--up-text-dim);
+    font-size: 11px;
+}
+
+.up-cstage-step--complete {
+    opacity: 1;
+}
+
+.up-cstage-step--complete > #badge {
+    background-color: rgba(73, 171, 143, 0.24);
+    border-color: rgb(73, 171, 143);
+    color: rgb(126, 214, 184);
+}
+
+.up-cstage-split {
+    flex-grow: 1;
+    min-height: 360px;
+}
+
+.up-cstage-authoring-pane {
+    min-width: 340px;
+    background-color: var(--up-bg-0);
+    border-right-width: 1px;
+    border-right-color: var(--up-border-strong);
+}
+
+.up-cstage-review-pane {
+    min-width: 360px;
+    background-color: var(--up-bg-1);
+}
+
+.up-cstage-scroll {
+    flex-grow: 1;
+    padding: 10px;
+}
+
+.up-cstage-card {
+    margin-bottom: 10px;
+    padding: 11px;
+    background-color: var(--up-bg-2);
+    border-width: 1px;
+    border-color: var(--up-border);
+    border-radius: 6px;
+}
+
+.up-cstage-card:hover {
+    border-color: var(--up-border-strong);
+}
+
+.up-cstage-card-header {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 9px;
+}
+
+.up-cstage-card-step {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 12px;
+    margin-right: 8px;
+    background-color: var(--up-accent-soft);
+    color: var(--up-accent);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.up-cstage-card-copy {
+    flex-grow: 1;
+}
+
+.up-cstage-card-title {
+    color: var(--up-text);
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.up-cstage-card-description {
+    margin-top: 3px;
+    color: var(--up-text-dim);
+    font-size: 10px;
+    white-space: normal;
+}
+
+.up-cstage-property-stack {
+    margin-top: -3px;
+}
+
+.up-cstage-foldout {
+    margin-top: 4px;
+    padding: 4px 6px 6px 6px;
+    border-radius: 4px;
+    background-color: var(--up-bg-1);
+}
+
+.up-cstage-foldout > .unity-foldout__toggle {
+    -unity-font-style: bold;
+    color: var(--up-text);
+}
+
+.up-cstage-button-row {
+    flex-direction: row;
+    margin-top: 7px;
+}
+
+.up-cstage-button-row > .up-cstage-button {
+    flex-grow: 1;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.up-cstage-button {
+    min-height: 25px;
+    margin-top: 3px;
+    font-size: 11px;
+}
+
+.up-cstage-button--primary {
+    background-color: rgb(34, 112, 182);
+    border-color: rgb(62, 154, 238);
+    color: rgb(240, 247, 255);
+    -unity-font-style: bold;
+}
+
+.up-cstage-button--primary:hover {
+    background-color: rgb(42, 130, 210);
+}
+
+.up-cstage-inline-hint {
+    margin-top: 8px;
+    padding: 7px 8px;
+    border-left-width: 2px;
+    border-left-color: rgb(214, 165, 62);
+    background-color: rgba(214, 165, 62, 0.08);
+    color: var(--up-text-dim);
+    font-size: 10px;
+    white-space: normal;
+}
+
+.up-cstage-empty {
+    padding: 18px 10px;
+    color: var(--up-text-faint);
+    font-size: 11px;
+    white-space: normal;
+    -unity-text-align: middle-center;
+}
+
+.up-cstage-preview {
+    min-height: 210px;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 5px;
+    background-color: rgb(7, 11, 16);
+    border-width: 1px;
+    border-color: var(--up-border);
+}
+
+.up-theme-light .up-cstage-preview {
+    background-color: rgb(190, 194, 200);
+}
+
+.up-cstage-preview-image {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 8px;
+}
+
+.up-cstage-preview-title {
+    color: var(--up-text);
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+}
+
+.up-cstage-preview-description {
+    margin-top: 4px;
+    color: var(--up-text-dim);
+    font-size: 10px;
+    -unity-text-align: middle-center;
+}
+
+.up-cstage-validation-list {
+    margin-top: -2px;
+}
+
+.up-cstage-validation-row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 3px;
+    padding: 6px 7px;
+    border-radius: 4px;
+    border-left-width: 3px;
+}
+
+.up-cstage-validation-icon {
+    width: 18px;
+    min-width: 18px;
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+}
+
+.up-cstage-validation-message {
+    flex-grow: 1;
+    color: var(--up-text-dim);
+    font-size: 10px;
+    white-space: normal;
+}
+
+.up-cstage-validation--error {
+    border-left-color: rgb(224, 90, 90);
+    background-color: rgba(224, 90, 90, 0.08);
+}
+
+.up-cstage-validation--warn {
+    border-left-color: rgb(214, 165, 62);
+    background-color: rgba(214, 165, 62, 0.08);
+}
+
+.up-cstage-validation--ok {
+    border-left-color: rgb(73, 171, 143);
+    background-color: rgba(73, 171, 143, 0.08);
+}
+
+.up-cstage-validation--info {
+    border-left-color: rgb(86, 150, 210);
+    background-color: rgba(86, 150, 210, 0.08);
+}
+
+.up-cstage-check-row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.up-cstage-check-row > #number {
+    width: 20px;
+    height: 20px;
+    margin-right: 7px;
+    border-radius: 10px;
+    background-color: var(--up-bg-3);
+    color: var(--up-text-dim);
+    font-size: 9px;
+    -unity-text-align: middle-center;
+}
+
+.up-cstage-check-row > #text {
+    color: var(--up-text-dim);
+    font-size: 10px;
+}
+
+.up-cstage-footer {
+    height: 40px;
+    min-height: 40px;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 8px;
+    background-color: var(--up-bg-2);
+    border-top-width: 1px;
+    border-top-color: var(--up-border-strong);
+}
+
+.up-cstage-footer > .up-cstage-button {
+    min-width: 112px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.up-cstage-spacer {
+    flex-grow: 1;
+}

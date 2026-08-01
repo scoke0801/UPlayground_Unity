@@ -10,6 +10,7 @@ using UnityEngine.SceneManagement;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
+using UPlayGround.Data.Cinematic;
 
 namespace UPlayGround.Components
 {
@@ -304,11 +305,12 @@ namespace UPlayGround.Components
             if (_activeAsset == null)
                 yield break;
 
+            TryEnterCinematicStage();
+
             if (_caster.PlayerController != null
                 && _caster.PlayerController.CurrentState is not PlayerIdleState)
             {
-                _caster.PlayerController.TransitionToState(
-                    new PlayerIdleState(_caster.PlayerController));
+                _caster.PlayerController.TransitionToState(ActorStateId.Idle);
             }
 
             if (_animator.PlayMotionSetAsset(
@@ -403,6 +405,14 @@ namespace UPlayGround.Components
             if (endedAsset.cameraProfile != null)
                 CameraManager.Instance?.StopCameraSnapshotSequence(endedAsset.cameraProfile);
 
+            if (_runtimeContext != null && _runtimeContext.StageTicket.IsValid)
+            {
+                Svc.CinematicStage?.Exit(
+                    _runtimeContext.StageTicket,
+                    MapStageExitReason(reason));
+                _runtimeContext.StageTicket = default;
+            }
+
             if (stopMotion
                 && _animator != null
                 && _animator.IsPlayingMotionSet
@@ -432,8 +442,7 @@ namespace UPlayGround.Components
                 if (_caster.PlayerController != null
                     && _caster.PlayerController.CurrentState is not PlayerIdleState)
                 {
-                    _caster.PlayerController.TransitionToState(
-                        new PlayerIdleState(_caster.PlayerController));
+                    _caster.PlayerController.TransitionToState(ActorStateId.Idle);
                 }
                 else
                 {
@@ -454,6 +463,40 @@ namespace UPlayGround.Components
             MonsterActor monster = target.GetComponent<MonsterActor>()
                                    ?? target.GetComponentInParent<MonsterActor>();
             return monster != null && monster.IsAlive();
+        }
+
+        private void TryEnterCinematicStage()
+        {
+            CinematicStageSettings settings = _activeAsset?.cinematicStage;
+            if (settings?.enabled != true || settings.stage == null || _runtimeContext == null)
+                return;
+
+            GameObject target = _runtimeContext.PrimaryTarget != null
+                ? (_runtimeContext.PrimaryTarget.GetComponentInParent<GameActor>()?.gameObject
+                   ?? _runtimeContext.PrimaryTarget.gameObject)
+                : null;
+            if (CinematicStageRuntimeUtility.TryEnter(
+                    settings.stage,
+                    this,
+                    _caster.gameObject,
+                    target,
+                    out CinematicStageTicket ticket))
+            {
+                _runtimeContext.StageTicket = ticket;
+            }
+        }
+
+        private static CinematicStageExitReason MapStageExitReason(
+            UltimateSequenceEndReason reason)
+        {
+            return reason switch
+            {
+                UltimateSequenceEndReason.Completed => CinematicStageExitReason.Completed,
+                UltimateSequenceEndReason.SceneChanged => CinematicStageExitReason.SceneChanged,
+                UltimateSequenceEndReason.Disabled => CinematicStageExitReason.Disabled,
+                UltimateSequenceEndReason.Failed => CinematicStageExitReason.Failed,
+                _ => CinematicStageExitReason.Interrupted
+            };
         }
 
         private void HandleActiveSceneChanged(Scene previous, Scene next)

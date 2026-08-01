@@ -313,6 +313,7 @@ namespace UPlayGround.Data.Editor
             AddSettingField("lockSettings", "게임플레이 잠금");
             AddSettingField("targetPolicy", "타겟 정책");
             AddSettingField("placementSettings", "배치 설정");
+            AddSettingField("cinematicStage", "연출 스테이지");
             _settingsSection.Bind(_serialized);
         }
 
@@ -397,6 +398,11 @@ namespace UPlayGround.Data.Editor
                 items.Add((2, error));
             if (_asset.cameraProfile == null)
                 items.Add((1, "카메라 프로필이 없습니다. 카메라 없는 궁극기로 실행됩니다."));
+            if (_asset.cinematicStage?.enabled == true
+                && _asset.cinematicStage.stage == null)
+            {
+                items.Add((2, "연출 스테이지가 활성화됐지만 CinematicStageSO가 없습니다."));
+            }
 
             float duration = ResolveMotionDuration();
             if (_asset.events != null)

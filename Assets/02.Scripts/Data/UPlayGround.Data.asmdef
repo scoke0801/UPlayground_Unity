@@ -5,7 +5,8 @@
     "UPlayGround.Ability.Core",
     "UPlayGround.Core",
     "UPlayGround.MotionSet.Core",
-    "AYellowpaper.SerializedCollections"
+    "AYellowpaper.SerializedCollections",
+    "Unity.RenderPipelines.Core.Runtime"
   ],
   "autoReferenced": true
 }

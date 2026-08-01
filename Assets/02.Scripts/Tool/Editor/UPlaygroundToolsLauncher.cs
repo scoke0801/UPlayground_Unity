@@ -60,6 +60,7 @@ namespace UPlayGround.Editor
                 Tool("액터 런타임 모니터",           "UPlayGround/캐릭터/액터/액터 런타임 모니터", "현재 씬의 액터 등록 상태를 확인합니다.", "GameObjectManager/ActorSpawnManager에 등록된 액터, ActorType 필터, 런타임 상태를 점검하는 모니터입니다."),
                 Tool("Lossy Scale 검사기",           "UPlayGround/캐릭터/액터/Lossy Scale 검사기", "선택 오브젝트 계층의 스케일 문제를 검사합니다.", "캐릭터/무기/이펙트 하위 Transform의 lossyScale을 확인해 비정상 스케일 전파를 찾습니다."),
                 Tool("애니메이션 에디터",                 "UPlayGround/캐릭터/액터/애니메이션 에디터", "MotionSet 타임라인을 편집하고 테스트합니다.", "Animancer 기반 MotionSet, MotionEvent, 캐릭터 프리뷰를 다루는 핵심 애니메이션 편집기입니다."),
+                Tool("Cinematic Stage Builder",          "UPlayGround/캐릭터/궁극기/Cinematic Stage Builder", "궁극기 연출 무대 데이터와 프리팹·Additive 씬을 생성하고 검증합니다.", "UI Toolkit 기반 단계형 저작 도구입니다. CinematicStageSO 생성, 무대 프리팹/씬 구축, Ultimate 레이어·컬링 검증, 궁극기 안전 연결과 소스 미리보기를 한 창에서 처리합니다."),
                 Tool("모션셋 복제기",                    "Tools/UPlayGround/Animation/모션셋 복제기 (참조 포함)", "MotionSet과 참조 에셋을 함께 복제합니다.", "ActorAnimationMotionSet 계열 에셋을 새 캐릭터/무기용으로 복제할 때 참조 관계까지 함께 정리하는 보조 도구입니다."),
             }),
             ("캐릭터 / AI", new[]

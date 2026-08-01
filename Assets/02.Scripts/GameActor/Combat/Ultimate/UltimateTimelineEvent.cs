@@ -6,6 +6,7 @@ using UPlayGround.CameraSystem;
 using UPlayGround.Data.Sound;
 using UPlayGround.Manager;
 using UPlayGround.Components;
+using UPlayGround.Data.Cinematic;
 
 namespace UPlayGround.Data
 {
@@ -70,11 +71,30 @@ namespace UPlayGround.Data
             Quaternion rotation = (target != null ? target.rotation : Quaternion.identity)
                                   * Quaternion.Euler(rotationOffset);
 
+            ICinematicStageService stageService = Svc.CinematicStage;
+            CinematicStageTicket stageTicket = context?.StageTicket ?? default;
+            bool useStage = stageTicket.IsValid
+                            && stageService != null
+                            && stageService.ActiveTicket == stageTicket;
+            if (useStage)
+            {
+                position = stageService.StageTransform.MultiplyPoint3x4(position);
+                rotation = stageService.StageTransform.rotation * rotation;
+            }
+
             _instance = UnityEngine.Object.Instantiate(
                 prefab,
                 position,
                 rotation,
-                parentToAnchor ? target : null);
+                parentToAnchor && !useStage ? target : null);
+
+            if (useStage)
+            {
+                CinematicStageRuntimeUtility.SetLayerRecursively(
+                    _instance,
+                    "UltimateVFX");
+                stageService.RegisterTransient(stageTicket, _instance);
+            }
         }
 
         public override void Complete(UltimateRuntimeContext context)
@@ -214,6 +234,66 @@ namespace UPlayGround.Data
                 requireReceiver
                     ? SendMessageOptions.RequireReceiver
                     : SendMessageOptions.DontRequireReceiver);
+        }
+    }
+
+    [Serializable]
+    public sealed class UltimateStageEnterEvent : UltimateTimelineEvent
+    {
+        [Tooltip("비워두면 UltimateSequenceAsset의 연출 스테이지를 사용합니다.")]
+        public CinematicStageSO stageOverride;
+
+        public override string DisplayName => "연출 스테이지 진입";
+
+        public override void Execute(UltimateRuntimeContext context)
+        {
+            if (context?.Caster == null || context.StageTicket.IsValid)
+                return;
+
+            CinematicStageSO stage = stageOverride != null
+                ? stageOverride
+                : context.Asset?.cinematicStage?.stage;
+            GameObject target = context.PrimaryTarget != null
+                ? (context.PrimaryTarget.GetComponentInParent<GameActor>()?.gameObject
+                   ?? context.PrimaryTarget.gameObject)
+                : null;
+            if (CinematicStageRuntimeUtility.TryEnter(
+                    stage,
+                    context.Caster,
+                    context.Caster.gameObject,
+                    target,
+                    out CinematicStageTicket ticket))
+            {
+                context.StageTicket = ticket;
+            }
+        }
+
+        public override void Complete(UltimateRuntimeContext context)
+        {
+            if (duration <= 0f || context == null || !context.StageTicket.IsValid)
+                return;
+
+            Svc.CinematicStage?.Exit(
+                context.StageTicket,
+                CinematicStageExitReason.Completed);
+            context.StageTicket = default;
+        }
+    }
+
+    [Serializable]
+    public sealed class UltimateStageExitEvent : UltimateTimelineEvent
+    {
+        public override string DisplayName => "연출 스테이지 복귀";
+
+        public override void Execute(UltimateRuntimeContext context)
+        {
+            if (context == null || !context.StageTicket.IsValid)
+                return;
+
+            Svc.CinematicStage?.Exit(
+                context.StageTicket,
+                CinematicStageExitReason.Completed);
+            context.StageTicket = default;
         }
     }
 }

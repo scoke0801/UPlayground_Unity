@@ -1,0 +1,16 @@
+{
+  "name": "UPlayGround.Cinematic.Tests",
+  "rootNamespace": "UPlayGround.Cinematic.Tests",
+  "references": [
+    "UPlayGround.Actor",
+    "UPlayGround.Contracts",
+    "UPlayGround.Data"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

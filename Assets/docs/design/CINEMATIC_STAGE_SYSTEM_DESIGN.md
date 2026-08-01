@@ -2,9 +2,18 @@
 
 > 작성일: 2026-07-31 · **개정: 2026-07-31 (v2)**
 > 대상: Unity 6 (6000.0.60f1), URP
-> 분류: **설계안 (미구현)**. 구현 착수 시 Phase 단위로 본 문서를 갱신한다.
+> 분류: **런타임 기반 구현 완료 / 콘텐츠 수직 슬라이스 검증 대기**.
 > 관련 문서: `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md`, `Assets/docs/TODO/ULTIMATE_SEQUENCE_EDITOR_ADVANCEMENT_TODO.md`
 > 관련 코드: `GameActor/Component/Player/UltimateSequencePlayer.cs`, `UltimateGameplayLockContext.cs`, `UltimatePlacementContext.cs`, `GameActor/Combat/Ultimate/UltimateSequenceAsset.cs`, `GameActor/Animation/MotionEvents/MotionEvent_Afterimage.cs`, `Camera/CameraManager.cs`
+
+### 2026-07-31 구현 상태
+
+- 구현 완료: 서비스 계약/티켓, `CinematicStageSO`, 매니저 등록, 비활성 루트 기반 클론 생성과 새니타이즈, 경로 기반 포즈 미러, 원본 Animator 컬링·SkinnedMeshRenderer 오프스크린 갱신 소유권 복구, 원본 렌더러 가시성 API, 전용 카메라와 강체 변환 추종, 라이트/Volume/레이어 격리, 전환 오버레이, 워치독, 클론 풀, T2 실루엣/T3 타깃 클론, 일반 MotionEvent와 Ultimate 타임라인 Enter/Exit 이벤트, Ultimate Editor 저작 항목.
+- UI Toolkit 기반 `Cinematic Stage Builder`를 추가했다. 메뉴 `UPlayGround/캐릭터/궁극기/Cinematic Stage Builder`에서 Stage 에셋·기본 프리팹·Additive 씬 생성, 필수 레이어/마스크 보정, 궁극기 안전 연결, 프리팹 미리보기와 실시간 검증을 수행한다. 프리팹 생성은 Preview Scene에서 처리해 현재 작업 씬을 오염시키지 않는다.
+- Additive 무대는 **사전 로드된 씬만** 사용한다. 발동 시 로드는 하지 않으며, 씬에 `CinematicStageRoot`가 없으면 프리팹 또는 절차형 빈 무대로 폴백한다.
+- MagicaCloth2 실측: `Player.prefab` 기준 MeshCloth 62, BoneCloth 18, BoneSpring 3. 포즈 미러만으로 전달되지 않는 MeshCloth(`clothType: 0`)와 그 충돌 프록시는 클론에서만 독립 구동하는 화이트리스트 예외로 유지한다. BoneCloth/BoneSpring은 본 포즈 복사 결과를 사용하므로 제거한다.
+- 자동 검증: Unity 배치 스크립트 컴파일 오류 0. 신규 EditMode 테스트 3개를 추가했으나 현재 머신의 headless Test Runner entitlement 오류로 CLI 결과 XML이 생성되지 않아 실행 확인은 Unity Test Runner에서 남아 있다.
+- 콘텐츠 작업 대기: 실제 `CinematicStageSO`/무대 프리팹·Additive 씬·실루엣 프리팹 제작, 궁극기 에셋 1종 연결, MeshCloth 외형과 중단/사망/씬 전환 PlayMode 수직 슬라이스, Player Build 검증.
 
 ---
 

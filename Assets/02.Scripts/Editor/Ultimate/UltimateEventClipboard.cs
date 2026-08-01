@@ -37,6 +37,8 @@ namespace UPlayGround.Data.Editor
             new(typeof(UltimateCameraEffectEvent), "카메라 효과", "up-ult-event--camfx"),
             new(typeof(UltimateCameraShakeEvent), "카메라 흔들림", "up-ult-event--shake"),
             new(typeof(UltimateDamageWindowEvent), "데미지 윈도우", "up-ult-event--damage"),
+            new(typeof(UltimateStageEnterEvent), "연출 스테이지 진입", "up-ult-event--camfx"),
+            new(typeof(UltimateStageExitEvent), "연출 스테이지 복귀", "up-ult-event--camfx"),
             new(typeof(UltimateCustomCallbackEvent), "커스텀 콜백", "up-ult-event--callback"),
         };
 

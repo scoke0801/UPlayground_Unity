@@ -23,6 +23,8 @@ namespace UPlayGround.Components
             public bool OriginalForceRenderingOff;
         }
 
+        private ActorPresentation _presentation;
+
         private sealed class RuntimeMaterialInfo
         {
             public Material Material;
@@ -86,6 +88,7 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
+            _presentation = GetComponent<ActorPresentation>();
             ResolveActorCapsule();
             RefreshRenderers();
         }
@@ -325,11 +328,22 @@ namespace UPlayGround.Components
                 if (!HasConvertibleSlot(originals))
                     continue;
 
+                bool originalForceRenderingOff = renderer.forceRenderingOff;
+                ActorPresentation presentation = ResolvePresentation();
+                if (presentation != null
+                    && presentation.IsHidden
+                    && presentation.TryGetOriginalForceRenderingOff(
+                        renderer,
+                        out bool presentationOriginal))
+                {
+                    originalForceRenderingOff = presentationOriginal;
+                }
+
                 _rendererInfos.Add(new RendererInfo
                 {
                     Renderer = renderer,
                     OriginalMaterials = originals,
-                    OriginalForceRenderingOff = renderer.forceRenderingOff
+                    OriginalForceRenderingOff = originalForceRenderingOff
                 });
             }
 
@@ -456,11 +470,29 @@ namespace UPlayGround.Components
                 return;
 
             _isCameraInside = cameraInside;
+            RefreshVisibilitySuppression();
+        }
+
+        public void RefreshVisibilitySuppression()
+        {
+            bool presentationHidden = ResolvePresentation()?.IsHidden == true;
             foreach (RendererInfo info in _rendererInfos)
             {
                 if (info.Renderer != null)
-                    info.Renderer.forceRenderingOff = info.OriginalForceRenderingOff || cameraInside;
+                {
+                    info.Renderer.forceRenderingOff =
+                        info.OriginalForceRenderingOff
+                        || _isCameraInside
+                        || presentationHidden;
+                }
             }
+        }
+
+        private ActorPresentation ResolvePresentation()
+        {
+            if (_presentation == null)
+                _presentation = GetComponent<ActorPresentation>();
+            return _presentation;
         }
 
         private void ResolveCamera()
@@ -834,7 +866,9 @@ namespace UPlayGround.Components
                 if (info.Renderer == null)
                     continue;
 
-                info.Renderer.forceRenderingOff = info.OriginalForceRenderingOff;
+                info.Renderer.forceRenderingOff =
+                    info.OriginalForceRenderingOff
+                    || ResolvePresentation()?.IsHidden == true;
                 Material[] current = info.Renderer.sharedMaterials;
                 if (IsSameMaterialSet(current, info.RuntimeMaterials))
                     info.Renderer.sharedMaterials = info.OriginalMaterials;

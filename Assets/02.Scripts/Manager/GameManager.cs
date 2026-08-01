@@ -7,6 +7,7 @@ using UPlayGround.Dialogue;
 using UPlayGround.CameraSystem;
 using UPlayGround.Manager.Handler;
 using UPlayGround.Manager.Combat;
+using UPlayGround.Manager.Cinematic;
 #if UNITY_EDITOR
 using UPlayGround.Debugging;
 #endif
@@ -89,6 +90,7 @@ namespace UPlayGround.Manager
             RegisterManager(UIManager.Instance); // UI 관리
             CameraRuntimeServices.Configure(new UPlayGroundCameraRuntimeAdapter());
             RegisterManager(CameraManager.Instance); // 카메라 시스템
+            RegisterManager(CinematicStageManager.Instance); // 궁극기/처형기 전용 표현 무대
             RegisterManager(GameObjectManager.Instance);
             RegisterManager(ProjectileManager.Instance); // 조합형 투사체 풀/일괄 틱
             RegisterManager(PartyManager.Instance);

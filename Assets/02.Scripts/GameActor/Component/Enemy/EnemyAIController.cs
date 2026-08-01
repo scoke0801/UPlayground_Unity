@@ -114,7 +114,10 @@ namespace UPlayGround.Components
                 Init(_monster.Definition);
             _spawnPosition       = transform.position;
             if (_detection != null)
+            {
                 _detection.OnTargetAcquiredExternally += HandleTargetAcquired;
+                _detection.OnTargetLost += HandleTargetLost;
+            }
             EnsureBehaviorTreeRunner();
 
         }
@@ -150,7 +153,10 @@ namespace UPlayGround.Components
         protected virtual void OnDestroy()
         {
             if (_detection != null)
+            {
                 _detection.OnTargetAcquiredExternally -= HandleTargetAcquired;
+                _detection.OnTargetLost -= HandleTargetLost;
+            }
         }
 
         protected virtual void Update()
@@ -313,6 +319,43 @@ namespace UPlayGround.Components
                 out position);
         }
 
+        public override bool TryGetChaseFormationPosition(
+            float targetDistance,
+            out Vector3 position,
+            out float arrivalTolerance)
+        {
+            position = default;
+            arrivalTolerance = 0f;
+            if (_groupController == null || _monster == null || _detection == null || !_detection.HasTarget)
+                return false;
+
+            return _groupController.TryGetChaseFormationPosition(
+                _monster,
+                _detection.CurrentTarget.position,
+                _detection.CurrentTarget.forward,
+                targetDistance,
+                out position,
+                out arrivalTolerance);
+        }
+
+        private void HandleTargetLost()
+        {
+            if (_monster == null)
+                return;
+
+            // 공격 모션이 끝날 때까지 슬롯 소유권을 유지해야 그룹 동시 공격 제한이 깨지지 않는다.
+            // Chase 등에서 미리 확보한 예약만 타겟 상실 시 즉시 정리한다.
+            if (_movementController?.CurrentState?.StateId != ActorStateId.Attack)
+            {
+                _groupController?.ReleaseAttackSlot(_monster);
+                _behaviorTreeRunner?.Context?.Blackboard?.SetBool(
+                    EnemyBlackboardKeys.HasAttackSlot,
+                    false);
+            }
+
+            _groupController?.ReleaseFormationSlot(_monster);
+        }
+
         public override void NotifyBTAttackStarted()
         {
             _actionCooldownTimer = 0f;
@@ -364,6 +407,10 @@ namespace UPlayGround.Components
         {
             if (_monster != null)
                 _groupController?.NotifyMemberAttackEnded(_monster);
+
+            _behaviorTreeRunner?.Context?.Blackboard?.SetBool(
+                EnemyBlackboardKeys.HasAttackSlot,
+                false);
         }
 
         public override void ReleaseFormationSlot()

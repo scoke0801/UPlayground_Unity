@@ -150,6 +150,29 @@
             ]
         },
         {
+            "name": "15 Group Formation And Breather",
+            "priority": 935,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "GroupBreatherRestoreRange",
+                    "priority": 935,
+                    "when": [
+                        { "condition": "BlackboardCompare", "key": "Group.BreatherRemainingTime", "op": "GreaterOrEqual", "value": "0.01" },
+                        { "condition": "CooldownReady", "value": "BowGroupBreatherFormation" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.55, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "BowGroupBreatherFormation", "cooldownDuration": 0.9 },
+                        { "weight": 0.25, "action": "RequestAction", "intent": "Retreat", "cooldownId": "BowGroupBreatherFormation", "cooldownDuration": 0.9 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Recover", "style": "Idle", "cooldownId": "BowGroupBreatherFormation", "cooldownDuration": 0.9 }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "20 Adaptive Spacing",
             "priority": 930,
             "when": [

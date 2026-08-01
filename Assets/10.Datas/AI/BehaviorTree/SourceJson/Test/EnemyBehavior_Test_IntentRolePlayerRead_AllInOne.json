@@ -3,7 +3,7 @@
     "id": "EnemyBehavior_Test_IntentRolePlayerRead_AllInOne",
     "displayName": "Test Intent Role Player Read All In One",
     "actorKind": "Ground",
-    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Bokusei.asset",
+    "sourceBehaviorSo": "",
     "blackboard": {
         "tickInterval": 0.06,
         "enablePatrol": true,

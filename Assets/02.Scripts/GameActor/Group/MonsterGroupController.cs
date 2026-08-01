@@ -155,6 +155,12 @@ namespace UPlayGround.Group
         [Header("Formation")]
         [Tooltip("플레이어 주변을 나누는 공간 슬롯 개수")]
         [SerializeField] private int _formationSlotCount = 8;
+        [Tooltip("추격 상태가 전투권에 들어오면 각자 진형 슬롯으로 접근합니다.")]
+        [SerializeField] private bool _maintainFormationDuringChase = true;
+        [Tooltip("타겟과 이 거리 안에 들어온 추격 멤버부터 진형 슬롯을 사용합니다.")]
+        [Min(0f)] [SerializeField] private float _chaseFormationEngagementDistance = 8f;
+        [Tooltip("진형 슬롯 도착으로 판단할 수평 거리입니다.")]
+        [Min(0.05f)] [SerializeField] private float _chaseFormationArrivalTolerance = 0.65f;
 
         [Header("Alert Propagation")]
         [Tooltip("최초 발견 지점에서 경보를 전달할 최대 거리")]
@@ -439,6 +445,38 @@ namespace UPlayGround.Group
                 : radius;
             position = GetFormationSlotPosition(slot.Index, targetPosition, targetForward, resolvedRadius);
             return true;
+        }
+
+        public bool TryGetChaseFormationPosition(
+            MonsterActor member,
+            Vector3 targetPosition,
+            Vector3 targetForward,
+            float targetDistance,
+            out Vector3 position,
+            out float arrivalTolerance)
+        {
+            position = default;
+            arrivalTolerance = Mathf.Max(0.05f, _chaseFormationArrivalTolerance);
+
+            if (!_maintainFormationDuringChase
+                || targetDistance > Mathf.Max(0f, _chaseFormationEngagementDistance))
+            {
+                ReleaseFormationSlot(member);
+                return false;
+            }
+
+            var radius = member?.GroundAIController != null
+                ? Mathf.Max(
+                    member.GroundAIController.ChaseStopDistance,
+                    member.GroundAIController.MinCombatDistance)
+                : 2.5f;
+
+            return TryGetFormationSlotPosition(
+                member,
+                targetPosition,
+                targetForward,
+                radius,
+                out position);
         }
 
         public int RequestFormationSlot(MonsterActor member, Vector3 targetPosition, Vector3 targetForward)

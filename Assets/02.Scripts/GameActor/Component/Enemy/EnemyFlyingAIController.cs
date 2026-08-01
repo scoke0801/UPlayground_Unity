@@ -129,7 +129,10 @@ namespace UPlayGround.Components
             _monster = GetComponent<MonsterActor>();
             _spawnPosition = transform.position;
             if (_detection != null)
+            {
                 _detection.OnTargetAcquiredExternally += HandleTargetAcquired;
+                _detection.OnTargetLost += HandleTargetLost;
+            }
             EnsureBehaviorTreeRunner();
         }
 
@@ -182,7 +185,10 @@ namespace UPlayGround.Components
         protected virtual void OnDestroy()
         {
             if (_detection != null)
+            {
                 _detection.OnTargetAcquiredExternally -= HandleTargetAcquired;
+                _detection.OnTargetLost -= HandleTargetLost;
+            }
         }
 
         #endregion
@@ -260,6 +266,10 @@ namespace UPlayGround.Components
         {
             if (_monster != null)
                 _groupController?.NotifyMemberAttackEnded(_monster);
+
+            _behaviorTreeRunner?.Context?.Blackboard?.SetBool(
+                EnemyBlackboardKeys.HasAttackSlot,
+                false);
         }
 
         public override void NotifyBTAttackStarted()
@@ -359,6 +369,25 @@ namespace UPlayGround.Components
         {
             if (_detection != null && _detection.HasTarget)
                 _groupController?.AlertGroup(_detection.CurrentTarget, _monster);
+        }
+
+        private void HandleTargetLost()
+        {
+            if (_monster == null || IsAttackSlotOwningState(_movementController?.CurrentState?.StateId))
+                return;
+
+            _groupController?.ReleaseAttackSlot(_monster);
+            _behaviorTreeRunner?.Context?.Blackboard?.SetBool(
+                EnemyBlackboardKeys.HasAttackSlot,
+                false);
+        }
+
+        private static bool IsAttackSlotOwningState(ActorStateId? stateId)
+        {
+            return stateId is ActorStateId.Flying_GroundAttack
+                or ActorStateId.Flying_TakeOff
+                or ActorStateId.Flying_AirCircle
+                or ActorStateId.Flying_Dive;
         }
 
         public void UpdatePhase(float hpPercent)

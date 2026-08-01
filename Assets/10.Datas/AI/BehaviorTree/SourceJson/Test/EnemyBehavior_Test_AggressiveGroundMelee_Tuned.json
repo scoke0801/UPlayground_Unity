@@ -3,7 +3,7 @@
     "id": "EnemyBehavior_Test_AggressiveGroundMelee_Tuned",
     "displayName": "Test Aggressive Ground Melee Tuned",
     "actorKind": "Ground",
-    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Bokusei.asset",
+    "sourceBehaviorSo": "",
     "blackboard": {
         "tickInterval": 0.05,
         "enablePatrol": true,
@@ -52,6 +52,29 @@
                     ],
                     "do": [
                         { "action": "PatrolOrIdle" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "015 Group Formation And Breather",
+            "priority": 960,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "AggressiveGroupBreatherReposition",
+                    "priority": 960,
+                    "when": [
+                        { "condition": "BlackboardCompare", "key": "Group.BreatherRemainingTime", "op": "GreaterOrEqual", "value": "0.01" },
+                        { "condition": "CooldownReady", "value": "AggressiveGroupBreather" }
+                    ],
+                    "select": "WeightedRandom",
+                    "choices": [
+                        { "weight": 0.45, "action": "RequestAction", "intent": "Pressure", "style": "Flank", "cooldownId": "AggressiveGroupBreather", "cooldownDuration": 0.75 },
+                        { "weight": 0.35, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "AggressiveGroupBreather", "cooldownDuration": 0.75 },
+                        { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "AggressiveGroupBreather", "cooldownDuration": 0.75 }
                     ]
                 }
             ]

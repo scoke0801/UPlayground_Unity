@@ -3,7 +3,7 @@
     "id": "EnemyBehavior_Test_SmartPlayerPredict_GroundMelee",
     "displayName": "Test Smart Player Predict Ground Melee",
     "actorKind": "Ground",
-    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Bokusei.asset",
+    "sourceBehaviorSo": "",
     "blackboard": {
         "tickInterval": 0.06,
         "enablePatrol": true,

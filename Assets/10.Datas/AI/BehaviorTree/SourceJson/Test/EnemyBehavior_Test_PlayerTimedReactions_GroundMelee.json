@@ -3,7 +3,7 @@
     "id": "EnemyBehavior_Test_PlayerTimedReactions_GroundMelee",
     "displayName": "Test Player Timed Reactions Ground Melee",
     "actorKind": "Ground",
-    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_Bokusei.asset",
+    "sourceBehaviorSo": "",
     "blackboard": {
         "tickInterval": 0.05,
         "enablePatrol": true,

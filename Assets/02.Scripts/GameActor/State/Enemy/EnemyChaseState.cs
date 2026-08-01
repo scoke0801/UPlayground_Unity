@@ -25,6 +25,9 @@ namespace UPlayGround.State
         private float _targetContactTimer;
         private bool _hasTargetContact;
         private float _nextContactCheckTime;
+        private bool _hasFormationTarget;
+        private Vector3 _formationTarget;
+        private float _formationArrivalTolerance;
 
         private const float TARGET_CONTACT_BREAK_TIME = 0.08f;
         private const float TARGET_CONTACT_CHECK_INTERVAL = 0.05f;
@@ -55,6 +58,7 @@ namespace UPlayGround.State
             _targetContactTimer = 0f;
             _hasTargetContact = false;
             _nextContactCheckTime = 0f;
+            _hasFormationTarget = false;
             CacheContactColliders();
             UpdateChaseAnimation(0.25f);
         }
@@ -132,9 +136,22 @@ namespace UPlayGround.State
             toTarget.y       = 0;
             float dist       = toTarget.magnitude;
 
+            _hasFormationTarget = _context.TryGetChaseFormationPosition(
+                dist,
+                out _formationTarget,
+                out _formationArrivalTolerance);
+            Vector3 toMoveTarget = _hasFormationTarget
+                ? _formationTarget - motor.TransientPosition
+                : toTarget;
+            toMoveTarget.y = 0f;
+            float moveDistance = toMoveTarget.magnitude;
+
             // 전투 최소 거리 안에서는 절대 계속 밀고 들어가지 않는다.
             float stopDistance = Mathf.Max(_context.ChaseStopDistance, _context.MinCombatDistance);
-            if (dist <= stopDistance)
+            float arrivalDistance = _hasFormationTarget
+                ? Mathf.Max(0.05f, _formationArrivalTolerance)
+                : stopDistance;
+            if (moveDistance <= arrivalDistance)
             {
                 currentVelocity = Vector3.Lerp(
                     currentVelocity,
@@ -154,7 +171,7 @@ namespace UPlayGround.State
                 return;
             }
 
-            Vector3 moveDir = toTarget.normalized;
+            Vector3 moveDir = toMoveTarget.normalized;
 
             // chaseStopDistance의 1.5배 이내 진입 시 측면 이동 혼합 (직진 70% + 측면 30%)
             // 단조로운 직선 돌진을 막아 자연스러운 접근처럼 보이게 한다
@@ -178,6 +195,12 @@ namespace UPlayGround.State
                 currentVelocity,
                 targetVelocity,
                 1 - Mathf.Exp(-controller.StableMovementSharpness * deltaTime));
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            _context.ReleaseFormationSlot();
+            base.OnExit(toState);
         }
 
         public override void OnMovementHit(
@@ -312,6 +335,14 @@ namespace UPlayGround.State
         {
             if (!_detection.HasTarget)
                 return false;
+
+            if (_hasFormationTarget)
+            {
+                Vector3 toFormation = _formationTarget - motor.TransientPosition;
+                toFormation.y = 0f;
+                float tolerance = Mathf.Max(0.05f, _formationArrivalTolerance);
+                return toFormation.sqrMagnitude <= tolerance * tolerance;
+            }
 
             Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
             toTarget.y = 0f;

@@ -61,19 +61,58 @@ namespace UPlayGround.Manager
 
         public async UniTask InitializeAsync(CancellationToken cancellationToken)
         {
-            if (_uiRootPrefab == null)
-            {
-                _uiRootPrefab = await Svc.Asset.LoadGlobalAsync<GameObject>(
-                    UI_ROOT_PREFAB_PATH,
+            // UI Root가 로드되는 동안 독립적인 UI 데이터도 함께 요청한다.
+            UniTask<UIPrefabDatabase> databaseTask = Svc.Asset.LoadGlobalAsync<UIPrefabDatabase>(
+                DATABASE_PATH,
+                nameof(UIManager),
+                cancellationToken);
+            UniTask<DamageFloaterConfigSO> floaterConfigTask =
+                Svc.Asset.LoadGlobalAsync<DamageFloaterConfigSO>(
+                    FLOATER_CONFIG_PATH,
                     nameof(UIManager),
                     cancellationToken);
-            }
 
-            CreateUIRoot();
-            CreateCanvasLayers();
-            EnsureEventSystem();
-            RegisterInputEvents();
-            await LoadAssetsAsync(cancellationToken);
+            bool assetTasksAwaited = false;
+            try
+            {
+                if (_uiRootPrefab == null)
+                {
+                    _uiRootPrefab = await Svc.Asset.LoadGlobalAsync<GameObject>(
+                        UI_ROOT_PREFAB_PATH,
+                        nameof(UIManager),
+                        cancellationToken);
+                }
+
+                CreateUIRoot();
+                CreateCanvasLayers();
+                EnsureEventSystem();
+                RegisterInputEvents();
+
+                assetTasksAwaited = true;
+                await FinishLoadingAssetsAsync(databaseTask, floaterConfigTask);
+            }
+            catch
+            {
+                // UI Root 로드가 실패하거나 취소되면 위에서 먼저 띄운 두 로드가 await되지 않아
+                // UniTask 미관측 예외로 남는다. 결과를 버리더라도 반드시 소비한 뒤 전파한다.
+                if (!assetTasksAwaited)
+                    await ObserveAssetTasksQuietlyAsync(databaseTask, floaterConfigTask);
+                throw;
+            }
+        }
+
+        private static async UniTask ObserveAssetTasksQuietlyAsync(
+            UniTask<UIPrefabDatabase> databaseTask,
+            UniTask<DamageFloaterConfigSO> floaterConfigTask)
+        {
+            try
+            {
+                await UniTask.WhenAll(databaseTask, floaterConfigTask);
+            }
+            catch
+            {
+                // 초기화가 이미 실패한 경로다. 부수 로드 결과와 예외는 버린다.
+            }
         }
 
         public void AfterInit() { }
@@ -125,16 +164,12 @@ namespace UPlayGround.Manager
 
         #endregion
 
-        private async UniTask LoadAssetsAsync(CancellationToken cancellationToken)
+        private async UniTask FinishLoadingAssetsAsync(
+            UniTask<UIPrefabDatabase> databaseTask,
+            UniTask<DamageFloaterConfigSO> floaterConfigTask)
         {
-            _uiPrefabDatabase = await Svc.Asset.LoadGlobalAsync<UIPrefabDatabase>(
-                DATABASE_PATH,
-                nameof(UIManager),
-                cancellationToken);
-            _floaterConfig = await Svc.Asset.LoadGlobalAsync<DamageFloaterConfigSO>(
-                FLOATER_CONFIG_PATH,
-                nameof(UIManager),
-                cancellationToken);
+            // 순차 await하면 앞쪽이 먼저 실패했을 때 뒤쪽이 미관측 예외로 남는다.
+            (_uiPrefabDatabase, _floaterConfig) = await UniTask.WhenAll(databaseTask, floaterConfigTask);
 
             _uiPrefabDatabase.Initialize();
             IsInitialized = true;

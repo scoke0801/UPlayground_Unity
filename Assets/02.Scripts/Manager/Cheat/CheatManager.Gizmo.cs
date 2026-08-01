@@ -50,7 +50,15 @@ namespace UPlayGround.Manager
         public void SetAiDebugGizmo(bool value)
         {
 #if UNITY_EDITOR
-            DebugGizmoManager.Instance?.SetCategory(DebugGizmoCategory.AI, value);
+            var gizmo = DebugGizmoManager.Instance;
+            if (gizmo != null)
+            {
+                // DebugGizmoManager는 실제 사용 전까지 비활성 상태로 유지된다.
+                // 개별 치트 토글이 켜질 때 전역 기즈모도 함께 활성화해야 표시된다.
+                if (value)
+                    gizmo.SetEnabled(true);
+                gizmo.SetCategory(DebugGizmoCategory.AI, value);
+            }
 #endif
             Log(CheatCategory.Gizmo, $"AI Debug {(value ? "ON" : "OFF")}");
         }
@@ -59,7 +67,14 @@ namespace UPlayGround.Manager
         public void SetNavPathGizmo(bool value)
         {
 #if UNITY_EDITOR
-            DebugGizmoManager.Instance?.SetCategory(DebugGizmoCategory.Movement, value);
+            var gizmo = DebugGizmoManager.Instance;
+            if (gizmo != null)
+            {
+                // 다른 기즈모 토글과 동일하게 지연 초기화된 매니저를 먼저 활성화한다.
+                if (value)
+                    gizmo.SetEnabled(true);
+                gizmo.SetCategory(DebugGizmoCategory.Movement, value);
+            }
 #endif
             Log(CheatCategory.Gizmo, $"Nav/Path {(value ? "ON" : "OFF")}");
         }

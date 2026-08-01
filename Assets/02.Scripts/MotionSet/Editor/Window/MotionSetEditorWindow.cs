@@ -51,6 +51,7 @@ namespace UPlayGround.Animation.Editor
 
         private bool _isPlaying;
         private bool _isPaused;
+        private bool _hasWindowFocus;
         private bool _loop;
         private bool _rootMotionEnabled = true;
         private float _playbackTime;
@@ -142,6 +143,21 @@ namespace UPlayGround.Animation.Editor
             StopPlayback();
             ReleaseSubject();
             DisposeUIToolkit();
+        }
+
+        private void OnFocus()
+        {
+            // OnFocus 시점에는 EditorWindow.focusedWindow가 아직 이전 창일 수 있어
+            // 포커스 여부를 콜백에서 직접 기록한다.
+            _hasWindowFocus = true;
+            RefreshInputLock();
+        }
+
+        private void OnLostFocus()
+        {
+            _hasWindowFocus = false;
+            if (!_isPlaying)
+                ReleaseInputLock();
         }
 
         private void OnProjectChange()
@@ -859,7 +875,7 @@ namespace UPlayGround.Animation.Editor
                 session.OnPreviewLoaded(spawned);
             if (_subject?.Catalog != null)
                 SetCatalog(_subject.Catalog, _selectedSlotId, null);
-            AcquireInputLock();
+            RefreshInputLock();
         }
 
         private void ReleaseSubject()
@@ -991,6 +1007,21 @@ namespace UPlayGround.Animation.Editor
             }
         }
 
+        private void RefreshInputLock()
+        {
+            // 에디터가 열려 있다는 이유만으로 게임플레이 입력을 계속 막지 않는다.
+            // 프리뷰 재생 중이거나 이 창을 직접 조작할 때만 잠근다.
+            if (Application.isPlaying &&
+                (_isPlaying || _hasWindowFocus || focusedWindow == this))
+            {
+                AcquireInputLock();
+            }
+            else
+            {
+                ReleaseInputLock();
+            }
+        }
+
         private void ReleaseInputLock()
         {
             if (_subject is IMotionPreviewInputLock inputLock)
@@ -1020,6 +1051,7 @@ namespace UPlayGround.Animation.Editor
 
             _isPlaying = true;
             _isPaused = false;
+            RefreshInputLock();
             _playbackTime = Mathf.Clamp(
                 _playbackTime,
                 0f,
@@ -1072,6 +1104,7 @@ namespace UPlayGround.Animation.Editor
             EndRootMotionPreview();
             if (_subject is IMotionPreviewPlaybackOwnership ownership)
                 ownership.ReleasePreviewOwnership();
+            RefreshInputLock();
             if (wasActive)
                 NotifyPlaybackState(MotionPreviewPlaybackState.Stopped);
         }

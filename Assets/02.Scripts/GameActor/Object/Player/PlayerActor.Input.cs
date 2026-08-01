@@ -27,14 +27,22 @@ namespace UPlayGround
     public partial class PlayerActor : GameActor, IDamageable
     {
         private bool _isInputRegistered;
+        private IInputService _registeredInputService;
 
         private void RegisterInputEvents()
         {
-            if (InputMgr == null || _isInputRegistered) return;
+            if (_isInputRegistered) return;
+
+            // 씬 오브젝트의 OnEnable은 GameManager의 비동기 초기화보다 먼저 호출될 수 있다.
+            // 이 경우 한 번 실패한 등록을 Update에서 재시도할 수 있도록 상태를 유지한다.
+            if (!Services.TryGet<IInputService>(out var I))
+                return;
+
+            _cachedInputManager = I;
+            _registeredInputService = I;
             _isInputRegistered = true;
 
             InputLayer layer = InputLayer.Level_0;
-            var I = InputMgr;
 
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove,             null,             OnMoveCanceled,  layer);
             I.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null,                    null,             null,            layer);
@@ -55,10 +63,16 @@ namespace UPlayGround
 
         private void UnRegisterInputEvents()
         {
-            if (InputMgr == null || !_isInputRegistered) return;
+            if (!_isInputRegistered) return;
             _isInputRegistered = false;
 
-            var I = InputMgr;
+            // 등록 당시의 인스턴스에서 해제해야 서비스 레지스트리 정리 순서와 무관하게
+            // 콜백이 남지 않는다.
+            var I = _registeredInputService;
+            _registeredInputService = null;
+            if (I == null)
+                return;
+
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Move,        OnInputMove,             OnInputMove,                 OnInputMove);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Jump,        null,                    OnInputPerformedJump,        null);
             I.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Walk,        null,                    OnInputPerformedWalk,        null);

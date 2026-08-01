@@ -115,6 +115,10 @@ namespace UPlayGround.UI
 
         private static void SetEdge(Image image, Vector2 anchorMin, Vector2 anchorMax, Vector2 sizeDelta)
         {
+            // OnValidate는 프레임 자식이 복원되는 도중에도 호출될 수 있다.
+            if (image == null)
+                return;
+
             var rect = (RectTransform)image.transform;
             rect.anchorMin = anchorMin;
             rect.anchorMax = anchorMax;

@@ -4,6 +4,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace UPlayGround.Components
     /// 의사결정은 BehaviorTreeRunner가 담당한다.
     /// State 콜백은 BT가 참조할 카운터와 타임스탬프만 갱신한다.
     /// </summary>
-    public class EnemyFlyingAIController : EnemyFlyingAIContext, IEnemyAIController
+    public class EnemyFlyingAIController : EnemyFlyingAIContext, IEnemyAIController, IManagedTick
     {
         [Header("References")]
         [SerializeField] protected EnemyDetection _detection;
@@ -80,6 +81,7 @@ namespace UPlayGround.Components
         protected MonsterActor _monster;
         private MonsterGroupController _groupController;
         private AttackType _myAttackType;
+        private AgentTickManager _tickManager;
 
         // ── 프로퍼티 (State에서 접근) ──
         public override EnemyDetection Detection => _detection;
@@ -151,6 +153,21 @@ namespace UPlayGround.Components
                 Debug.LogWarning($"[EnemyFlyingAIController] {gameObject.name}에 실행 중인 BehaviorTreeRunner가 없습니다. Phase 7 이후 비행형 의사결정은 BT가 담당합니다.", this);
         }
 
+        protected virtual void OnEnable()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            _tickManager = AgentTickManager.Instance;
+            _tickManager?.Register(this);
+        }
+
+        protected virtual void OnDisable()
+        {
+            _tickManager?.Unregister(this);
+            _tickManager = null;
+        }
+
         private void EnsureBehaviorTreeRunner()
         {
             if (_behaviorTree == null)
@@ -169,13 +186,13 @@ namespace UPlayGround.Components
                 _behaviorTreeRunner.StartTree();
         }
 
-        private void Update()
+        public void ManagedTick(float deltaTime)
         {
             ActorStateId? stateId = _movementController.CurrentState?.StateId;
             if (stateId is null or ActorStateId.Death) return;
 
             if (IsGroundCombatState(stateId.Value))
-                _groundTimer += Time.deltaTime;
+                _groundTimer += deltaTime;
 
             if (_detection != null && _detection.HasTarget)
                 _groupController?.Memory?.SetPlayerTarget(_detection.CurrentTarget);

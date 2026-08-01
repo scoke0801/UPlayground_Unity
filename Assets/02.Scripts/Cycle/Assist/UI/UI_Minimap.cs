@@ -56,6 +56,10 @@ namespace UPlayGround.UI
         // MapImage 모드 마스크 영역 픽셀 크기 (MinimapMask RectTransform.sizeDelta.x 와 일치)
         [SerializeField] private float _maskDisplaySize = 200f;
 
+        [Tooltip("플레이어 아이콘을 제외한 동적 마커 갱신 간격(초)")]
+        [Min(0.02f)]
+        [SerializeField] private float _markerUpdateInterval = 0.1f;
+
         // ── 런타임 ───────────────────────────────────────────────
         private PlayerActor         _player;
         private MinimapIconConfigSO _config;
@@ -66,11 +70,14 @@ namespace UPlayGround.UI
         private float     _currentMapZoom;
         private Vector2   _contentOffset;
         private Coroutine _expandCoroutine;
+        private float     _markerUpdateTimer;
 
         // 섹션 1: 적 아이콘
         private readonly Dictionary<MonsterActor, MinimapEntityIcon> _enemyIconMap        = new();
+        private readonly List<MonsterActor> _enemyRemovalBuffer = new();
         // 섹션 2: 일반 액터 아이콘 (NPC·채집 등)
         private readonly Dictionary<GameActor, MinimapEntityIcon>    _actorIconMap        = new();
+        private readonly List<GameActor> _actorRemovalBuffer = new();
         private readonly List<string> _tempRemoveIds = new();
         // 섹션 3: 퀘스트 마커 (활성 퀘스트 연동)
         private readonly Dictionary<string, MinimapEntityIcon>       _questIconMap        = new();
@@ -107,6 +114,7 @@ namespace UPlayGround.UI
             _isExpanded      = false;
             _currentMaskSize = _maskDisplaySize;
             _currentMapZoom  = _config.mapZoom;
+            _markerUpdateTimer = Mathf.Max(0.02f, _markerUpdateInterval);
             ApplyMaskSize(_currentMaskSize);
 
             NormalizeRectTransforms();
@@ -192,6 +200,7 @@ namespace UPlayGround.UI
                 _expandCoroutine = null;
             }
             _isExpanded = false;
+            _markerUpdateTimer = 0f;
             ApplyMaskSize(_maskDisplaySize);
 
             ClearAllIcons();
@@ -205,6 +214,13 @@ namespace UPlayGround.UI
 
             UpdateContainerLayout();
             UpdatePlayerIcon();
+
+            _markerUpdateTimer += Time.unscaledDeltaTime;
+            float markerUpdateInterval = Mathf.Max(0.02f, _markerUpdateInterval);
+            if (_markerUpdateTimer < markerUpdateInterval)
+                return;
+
+            _markerUpdateTimer %= markerUpdateInterval;
             UpdateEnemyIcons();
             UpdateActorIcons();
             UpdateQuestMarkers();
@@ -333,11 +349,11 @@ namespace UPlayGround.UI
 
         private void UpdateEnemyIcons()
         {
-            var toRemove = new List<MonsterActor>();
+            _enemyRemovalBuffer.Clear();
 
             foreach (var (monster, icon) in _enemyIconMap)
             {
-                if (monster == null || icon == null) { toRemove.Add(monster); continue; }
+                if (monster == null || icon == null) { _enemyRemovalBuffer.Add(monster); continue; }
 
                 bool isDetected = monster.Detection != null && monster.Detection.HasTarget;
 
@@ -351,22 +367,22 @@ namespace UPlayGround.UI
                 icon.UpdateIcon(CalcMinimapPos(monster.transform.position), true);
             }
 
-            CleanupDeadEntries(toRemove, _enemyIconMap);
+            CleanupDeadEntries(_enemyRemovalBuffer, _enemyIconMap);
         }
 
         // ── 일반 액터 아이콘 ─────────────────────────────────────
 
         private void UpdateActorIcons()
         {
-            var toRemove = new List<GameActor>();
+            _actorRemovalBuffer.Clear();
 
             foreach (var (actor, icon) in _actorIconMap)
             {
-                if (actor == null || icon == null) { toRemove.Add(actor); continue; }
+                if (actor == null || icon == null) { _actorRemovalBuffer.Add(actor); continue; }
                 icon.UpdateIcon(CalcMinimapPos(actor.transform.position), true);
             }
 
-            CleanupDeadEntries(toRemove, _actorIconMap);
+            CleanupDeadEntries(_actorRemovalBuffer, _actorIconMap);
         }
 
         // ── 퀘스트 마커 ──────────────────────────────────────────

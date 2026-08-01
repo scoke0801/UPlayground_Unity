@@ -2,6 +2,7 @@ using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 
@@ -12,7 +13,7 @@ namespace UPlayGround.Components
     /// 전투 이벤트를 기억해 EnemyAIController의 다음 행동 결정에 맥락을 제공한다.
     /// 플레이어의 현재 상태를 관찰하여 반응형 의사결정을 지원한다.
     /// </summary>
-    public class EnemyTacticalMemory : MonoBehaviour
+    public class EnemyTacticalMemory : MonoBehaviour, IManagedTick
     {
         // ── 연속 행동 카운터 ──
         public int ConsecutiveAttackCount { get; private set; }
@@ -70,9 +71,26 @@ namespace UPlayGround.Components
         /// <summary> 현재 전투에서 공격이 빗나간 총 횟수 </summary>
         public int TotalHitsMissed { get; private set; }
 
-        private void Update()
+        private AgentTickManager _tickManager;
+
+        private void OnEnable()
         {
-            float dt = Time.deltaTime;
+            if (!Application.isPlaying)
+                return;
+
+            _tickManager = AgentTickManager.Instance;
+            _tickManager?.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            _tickManager?.Unregister(this);
+            _tickManager = null;
+        }
+
+        public void ManagedTick(float deltaTime)
+        {
+            float dt = deltaTime;
 
             // 회피 윈도우
             _dodgeWindowTimer += dt;
@@ -127,6 +145,9 @@ namespace UPlayGround.Components
                 _wasPlayerRecovering = false;
                 return;
             }
+
+            if (_isPlayerTracked && _playerTransform == player)
+                return;
 
             _playerTransform  = player;
             _playerController = player.GetComponent<ActorMovementController>();

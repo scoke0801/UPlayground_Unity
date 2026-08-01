@@ -5,6 +5,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
+using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 using Random = UnityEngine.Random;
@@ -16,7 +17,7 @@ namespace UPlayGround.Components
     /// 플레이어 상태를 관찰하여 반응형으로 행동을 결정한다.
     /// 공격적 접근 + 불확실한 전환 + 빠른 리듬이 핵심.
     /// </summary>
-    public class EnemyAIController : EnemyAIContext, IEnemyAIController
+    public class EnemyAIController : EnemyAIContext, IEnemyAIController, IManagedTick
     {
         [HideInInspector, SerializeField] private EnemyBehaviorSO _behaviorData;
 
@@ -26,6 +27,12 @@ namespace UPlayGround.Components
         [SerializeField] private EnemyCombat             _combat;
         [SerializeField] private EnemyTacticalMemory     _memory;
         [SerializeField] private BehaviorTreeRunner      _behaviorTreeRunner;
+
+#if UNITY_EDITOR
+        [Header("에디터 진단")]
+        [Tooltip("활성화하면 전투 의도 타임라인과 인카운터 리플레이 기록 컴포넌트를 런타임에 추가합니다.")]
+        [SerializeField] private bool _enableEditorCombatDiagnostics;
+#endif
 
         private Vector3       _spawnPosition;
         private float         _maxAttackRange;
@@ -48,6 +55,7 @@ namespace UPlayGround.Components
         private MemberPriority         _memberPriority;
         private MonsterActor           _monster;
         private AttackType             _myAttackType; // Start()에서 1회 결정, 런타임 불변
+        private AgentTickManager        _tickManager;
 
         // SO 값 접근
         private EnemyBehaviorSO data => _behaviorData;
@@ -104,10 +112,13 @@ namespace UPlayGround.Components
             _memory             ??= GetComponent<EnemyTacticalMemory>();
             _behaviorTreeRunner ??= GetComponent<BehaviorTreeRunner>();
 #if UNITY_EDITOR
-            if (GetComponent<IntentScoreTimeline>() == null)
-                gameObject.AddComponent<IntentScoreTimeline>();
-            if (GetComponent<EncounterReplayRecorder>() == null)
-                gameObject.AddComponent<EncounterReplayRecorder>();
+            if (_enableEditorCombatDiagnostics)
+            {
+                if (GetComponent<IntentScoreTimeline>() == null)
+                    gameObject.AddComponent<IntentScoreTimeline>();
+                if (GetComponent<EncounterReplayRecorder>() == null)
+                    gameObject.AddComponent<EncounterReplayRecorder>();
+            }
 #endif
             _monster             = GetComponent<MonsterActor>();
             if (_monster?.Definition != null)
@@ -150,6 +161,21 @@ namespace UPlayGround.Components
             EnsureBehaviorTreeRunner();
         }
 
+        protected virtual void OnEnable()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            _tickManager = AgentTickManager.Instance;
+            _tickManager?.Register(this);
+        }
+
+        protected virtual void OnDisable()
+        {
+            _tickManager?.Unregister(this);
+            _tickManager = null;
+        }
+
         protected virtual void OnDestroy()
         {
             if (_detection != null)
@@ -159,9 +185,9 @@ namespace UPlayGround.Components
             }
         }
 
-        protected virtual void Update()
+        public virtual void ManagedTick(float deltaTime)
         {
-            _actionCooldownTimer += Time.deltaTime;
+            _actionCooldownTimer += deltaTime;
 
             if (_detection != null)
             {

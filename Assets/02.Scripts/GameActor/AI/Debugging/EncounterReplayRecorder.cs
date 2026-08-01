@@ -28,6 +28,9 @@ namespace UPlayGround.AI.Debugging
                 _detection.OnTargetAcquiredExternally += BeginRecording;
                 _detection.OnTargetLost += HandleTargetLost;
             }
+
+            // 실제 기록이 시작되기 전에는 개별 MonoBehaviour.Update 디스패치를 만들지 않는다.
+            enabled = false;
         }
 
         private void Update()
@@ -108,6 +111,7 @@ namespace UPlayGround.AI.Debugging
             File.WriteAllText(Path.Combine(directory, fileName), json);
             _replay = null;
             _lostTargetTime = -1f;
+            enabled = false;
         }
 
         private void BeginRecording()
@@ -122,6 +126,7 @@ namespace UPlayGround.AI.Debugging
             }
 
             _startTime = Time.time;
+            enabled = true;
             _replay = new EncounterReplay
             {
                 actorId = gameObject.GetInstanceID().ToString(),

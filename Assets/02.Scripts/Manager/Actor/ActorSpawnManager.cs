@@ -18,7 +18,9 @@ namespace UPlayGround.Manager
         IUpdatableManager, IActorSpawnTrackingService
     {
         private const string DATABASE_KEY = "ActorDatabase";
+        private const float DESTROYED_ACTOR_CLEANUP_INTERVAL = 1f;
         private ActorDatabase _database;
+        private float _destroyedActorCleanupTimer;
         
         public bool IsDBLoaded { get; private set; } = false;
         
@@ -41,6 +43,7 @@ namespace UPlayGround.Manager
         public void Init()
         {
             _spawnedActors.Clear();
+            _destroyedActorCleanupTimer = 0f;
         }
 
         public UniTask InitializeAsync(CancellationToken cancellationToken) =>
@@ -118,9 +121,18 @@ namespace UPlayGround.Manager
 
             _database = null;
             IsDBLoaded = false;
+            _destroyedActorCleanupTimer = 0f;
         }
 
-        public void OnUpdate() => CleanupDestroyedActors();
+        public void OnUpdate()
+        {
+            _destroyedActorCleanupTimer += Time.unscaledDeltaTime;
+            if (_destroyedActorCleanupTimer < DESTROYED_ACTOR_CLEANUP_INTERVAL)
+                return;
+
+            _destroyedActorCleanupTimer %= DESTROYED_ACTOR_CLEANUP_INTERVAL;
+            CleanupDestroyedActors();
+        }
 
         public void OnFixedUpdate() { }
         public void OnLateUpdate() { }
@@ -129,6 +141,7 @@ namespace UPlayGround.Manager
         {
             // 씬 전환 시 스폰 기록 초기화 (실제 오브젝트는 Unity가 정리)
             _spawnedActors.Clear();
+            _destroyedActorCleanupTimer = 0f;
         }
 
         // ── 스폰 API ─────────────────────────────────────────────────

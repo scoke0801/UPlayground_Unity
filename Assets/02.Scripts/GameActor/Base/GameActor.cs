@@ -292,7 +292,8 @@ namespace UPlayGround
         protected virtual void OnDestroy()
         {
             // 매니저에서 제거
-            ActorSvc.Objects?.UnregisterActor(this);
+            if (Services.TryGet<IActorObjectService>(out var objects))
+                objects.UnregisterActor(this);
         }
         
         protected virtual void Start()

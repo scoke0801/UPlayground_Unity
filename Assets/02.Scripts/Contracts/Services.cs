@@ -73,6 +73,27 @@ namespace UPlayGround.Manager
             return null;
         }
 
+        /// <summary>
+        /// 등록 여부가 정상적인 분기인 종료/비동기 경계에서 경고 없이 서비스를 조회한다.
+        /// </summary>
+        public static bool TryGet<T>(out T service) where T : class, IGameService
+        {
+            service = null;
+            if (ManagerLifecycle.ApplicationIsQuitting)
+                return false;
+
+            if (!Registry.TryGetValue(typeof(T), out IGameService registered))
+                return false;
+
+            // 계약이 인터페이스라 제네릭 비교로는 파괴된 MonoBehaviour(fake null)를 걸러내지 못한다.
+            // 씬 전환/종료 경계가 이 API의 주 용도이므로 여기서 직접 판별한다.
+            if (registered is UnityEngine.Object unityObject && unityObject == null)
+                return false;
+
+            service = registered as T;
+            return service != null;
+        }
+
         public static void Clear()
         {
             Registry.Clear();

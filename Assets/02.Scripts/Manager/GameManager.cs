@@ -143,11 +143,9 @@ namespace UPlayGround.Manager
                 InitializeAsyncManager(ItemManager.Instance, cancellationToken),
                 InitializeAsyncManager(DialogueManager.Instance, cancellationToken),
                 InitializeAsyncManager(ActorSpawnManager.Instance, cancellationToken),
-                InitializeAsyncManager(MonsterCodexManager.Instance, cancellationToken)
-#if UNITY_EDITOR
-                , InitializeAsyncManager(DebugGizmoManager.Instance, cancellationToken)
-#endif
-            );
+                InitializeAsyncManager(MonsterCodexManager.Instance, cancellationToken));
+            // DebugGizmoManager는 더 이상 비동기 초기화를 하지 않는다.
+            // 설정 Addressable은 SetEnabled(true)로 실제 사용이 시작될 때 지연 로드한다.
 
             // 실제 플레이어 탐색과 CameraManager.SetTarget 연결은 PartyManager.AfterInit에서 일어난다.
             // Recipe/Quest DB가 느려도 첫 카메라 세팅은 기다리지 않도록 핵심 후처리를 먼저 수행한다.

@@ -72,15 +72,19 @@ namespace UPlayGround.Components
         [SerializeField, Min(0.02f)] private float _fadeStartDistance = 0.65f;
         [Tooltip("근접 상태의 최대 투명도")]
         [SerializeField, Range(0f, 0.85f)] private float _maximumTransparency = 0.8f;
-        [Tooltip("화면 픽셀 기준 디더 점 크기. Play Mode에서 변경하면 즉시 반영된다.")]
+        [Tooltip("화면 픽셀 기준 디더 점 크기. Play Mode에서 변경하면 다음 평가 시점(최대 재검사 간격)에 반영된다.")]
         [SerializeField, Range(1, 4)] private int _ditherPixelScale = 2;
         [SerializeField, Min(0f)] private float _fadeSpeed = 8f;
+        [Tooltip("완전히 보이는 동안 카메라 거리와 Renderer Bounds를 다시 검사할 간격(초)")]
+        [SerializeField, Min(0.02f)] private float _fullyVisibleEvaluationInterval = 0.05f;
 
         private readonly List<RendererInfo> _rendererInfos = new();
         private readonly List<RuntimeMaterialInfo> _runtimeMaterials = new();
         private Camera _camera;
         private CapsuleCollider _actorCapsule;
         private float _visibility = 1f;
+        private float _fullyVisibleEvaluationTimer;
+        private float _lastAppliedVisibility = float.NaN;
         private int _appliedDitherPixelScale;
         private bool _isCameraInside;
         private bool _runtimePrepared;
@@ -96,6 +100,8 @@ namespace UPlayGround.Components
         private void OnEnable()
         {
             ResolveCamera();
+            _fullyVisibleEvaluationTimer = Mathf.Max(0.02f, _fullyVisibleEvaluationInterval);
+            _lastAppliedVisibility = float.NaN;
             if (_rendererInfos.Count > 0 && !_runtimePrepared)
                 PrepareRuntimeMaterials();
         }
@@ -105,8 +111,6 @@ namespace UPlayGround.Components
             if (_rendererInfos.Count == 0)
                 return;
 
-            UpdateDitherPixelScale();
-
             if (_camera == null || !_camera.isActiveAndEnabled)
                 ResolveCamera();
 
@@ -115,6 +119,24 @@ namespace UPlayGround.Components
                 ApplyVisibility(1f, false);
                 return;
             }
+
+            // 대부분의 액터는 완전히 보이는 상태다. 이때 비싼 Renderer.bounds 결합은
+            // 짧은 주기로만 수행하고, 실제 페이드 중에는 매 프레임 갱신해 부드러움을 유지한다.
+            if (_visibility >= 0.999f && !_isCameraInside)
+            {
+                _fullyVisibleEvaluationTimer += Time.unscaledDeltaTime;
+                float evaluationInterval = Mathf.Max(0.02f, _fullyVisibleEvaluationInterval);
+                if (_fullyVisibleEvaluationTimer < evaluationInterval)
+                    return;
+
+                _fullyVisibleEvaluationTimer %= evaluationInterval;
+            }
+            else
+            {
+                _fullyVisibleEvaluationTimer = 0f;
+            }
+
+            UpdateDitherPixelScale();
 
             Vector3 cameraPosition = _camera.transform.position;
             if (!TryGetRendererDistance(
@@ -303,6 +325,8 @@ namespace UPlayGround.Components
             RestoreOriginalMaterials();
             ReleaseRuntimeMaterials();
             _runtimePrepared = false;
+            _fullyVisibleEvaluationTimer = 0f;
+            _lastAppliedVisibility = float.NaN;
         }
 
         private void OnDestroy()
@@ -368,6 +392,10 @@ namespace UPlayGround.Components
             _visibility = 1f;
             _isCameraInside = false;
             _runtimePrepared = false;
+            // 렌더러 바인딩이 통째로 갈리므로 직전 적용값 캐시도 함께 무효화한다.
+            // (OnEnable / 머티리얼 해제 경로와 동일한 처리)
+            _lastAppliedVisibility = float.NaN;
+            _fullyVisibleEvaluationTimer = 0f;
         }
 
         private void PrepareRuntimeMaterials()
@@ -450,23 +478,33 @@ namespace UPlayGround.Components
         private void ApplyVisibility(float visibility, bool cameraInside)
         {
             visibility = Mathf.Clamp01(visibility);
-            if (!Mathf.Approximately(_visibility, visibility))
-                _visibility = visibility;
+            bool visibilityChanged = float.IsNaN(_lastAppliedVisibility) ||
+                                     !Mathf.Approximately(_lastAppliedVisibility, visibility);
+            bool insideChanged = _isCameraInside != cameraInside;
+            _visibility = visibility;
 
-            foreach (RuntimeMaterialInfo runtimeInfo in _runtimeMaterials)
+            if (!visibilityChanged && !insideChanged)
+                return;
+
+            if (visibilityChanged)
             {
-                if (runtimeInfo?.Material == null)
-                    continue;
+                foreach (RuntimeMaterialInfo runtimeInfo in _runtimeMaterials)
+                {
+                    if (runtimeInfo?.Material == null)
+                        continue;
 
-                runtimeInfo.Material.SetFloat(
-                    AlphaMaskScaleID,
-                    runtimeInfo.BaseAlphaMaskScale * visibility);
-                runtimeInfo.Material.SetFloat(
-                    AlphaMaskValueID,
-                    runtimeInfo.BaseAlphaMaskValue * visibility);
+                    runtimeInfo.Material.SetFloat(
+                        AlphaMaskScaleID,
+                        runtimeInfo.BaseAlphaMaskScale * visibility);
+                    runtimeInfo.Material.SetFloat(
+                        AlphaMaskValueID,
+                        runtimeInfo.BaseAlphaMaskValue * visibility);
+                }
+
+                _lastAppliedVisibility = visibility;
             }
 
-            if (_isCameraInside == cameraInside)
+            if (!insideChanged)
                 return;
 
             _isCameraInside = cameraInside;

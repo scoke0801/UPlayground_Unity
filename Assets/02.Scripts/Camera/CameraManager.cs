@@ -101,6 +101,8 @@ namespace UPlayGround.Manager
 
         private CameraShakeDatabase _cameraShakeDatabase;
         private DialogueCameraSettingsSO _dialogueCameraSettings;
+        private CancellationToken _lifetimeCancellationToken;
+        private bool _optionalAssetLoadStarted;
         private LayerMask           _lockOnLayerMask;
         private LayerMask           _collisionLayers;
 
@@ -113,6 +115,7 @@ namespace UPlayGround.Manager
 
         public async UniTask InitializeAsync(CancellationToken cancellationToken)
         {
+            _lifetimeCancellationToken = cancellationToken;
             if (settings == null)
             {
                 settings = await CameraRuntimeServices.Adapter.LoadAssetAsync<CameraSettings>(
@@ -133,24 +136,48 @@ namespace UPlayGround.Manager
             _combatCameraEventRouter = new CombatCameraEventRouter(this);
             InitializeCameraModes();
 
-            UniTask cameraShakeTask = LoadCameraShakeDatabase(cancellationToken);
-            UniTask dialogueTask = LoadDialogueCameraSettings(cancellationToken);
-            UniTask killCamTask = LoadKillCamData(cancellationToken);
-            UniTask profileTask = LoadCombatCameraProfileDatabase(cancellationToken);
-            UniTask guardFovTask = LoadPerfectGuardFOVData(cancellationToken);
-            await UniTask.WhenAll(
-                cameraShakeTask,
-                dialogueTask,
-                killCamTask,
-                profileTask,
-                guardFovTask);
+            Debug.Log("[CameraManager] 핵심 초기화 완료");
+        }
 
-            Debug.Log("[CameraManager] 초기화 완료");
+        private async UniTask LoadOptionalCameraAssetsAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                UniTask cameraShakeTask = LoadCameraShakeDatabase(cancellationToken);
+                UniTask dialogueTask = LoadDialogueCameraSettings(cancellationToken);
+                UniTask killCamTask = LoadKillCamData(cancellationToken);
+                UniTask profileTask = LoadCombatCameraProfileDatabase(cancellationToken);
+                UniTask guardFovTask = LoadPerfectGuardFOVData(cancellationToken);
+                await UniTask.WhenAll(
+                    cameraShakeTask,
+                    dialogueTask,
+                    killCamTask,
+                    profileTask,
+                    guardFovTask);
+
+                Debug.Log("[CameraManager] 선택 연출 데이터 로드 완료");
+            }
+            catch (System.OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // GameManager 종료와 함께 취소된 정상 경로다.
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
         }
 
         public void AfterInit()
         {
             RegisterCameraInputEvents();
+
+            // UI를 포함한 핵심 런타임 로드가 끝난 뒤 선택 연출 데이터를 요청한다.
+            // Addressables I/O 경합이 플레이 가능 시점을 늦추지 않게 한다.
+            if (!_optionalAssetLoadStarted)
+            {
+                _optionalAssetLoadStarted = true;
+                LoadOptionalCameraAssetsAsync(_lifetimeCancellationToken).Forget();
+            }
         }
 
         private void RegisterCameraInputEvents()
@@ -203,6 +230,7 @@ namespace UPlayGround.Manager
             _cameraShakeDatabase = null;
             _dialogueCameraSettings = null;
             _killCamController = null;
+            _optionalAssetLoadStarted = false;
 
             if (_cameraPivot != null) Destroy(_cameraPivot.gameObject);
 

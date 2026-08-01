@@ -6,13 +6,12 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.Debugging
 {
-    public class DebugGizmoManager : BaseManager<DebugGizmoManager>, IManager,
-        IAsyncInitializableManager, IUpdatableManager
+    public class DebugGizmoManager : BaseManager<DebugGizmoManager>, IManager, IUpdatableManager
     {
         // Addressable로 로드하는 설정(에디터 전용). 빌드에는 포함하지 않으며,
         // 로드 전/실패 시 아래 기본값을 사용한다.
         private DebugGizmoSettingsSO _settings;
-        [SerializeField] private bool _enabled = true;
+        [SerializeField] private bool _enabled;
         [SerializeField] private DebugGizmoCategory _enabledCategories =
             DebugGizmoCategory.Combat | DebugGizmoCategory.AI | DebugGizmoCategory.Movement;
         [SerializeField] private DebugGizmoContentType _enabledContentTypes = DebugGizmoContentType.All;
@@ -24,6 +23,10 @@ namespace UPlayGround.Debugging
         private readonly DebugGizmoDrawContext _drawContext = new();
         private readonly DebugGizmoFrameRecorder _recorder = new();
         private GameObject _focusObject;
+        private bool _settingsLoadAttempted;
+        // 설정 로드가 지연 실행이라, 로드가 끝나기 전에 치트/에디터 창이 필터를 바꿔 둘 수 있다.
+        // 그 경우 뒤늦게 도착한 SO 기본값이 사용자의 조작을 덮지 않도록 표시해 둔다.
+        private bool _runtimeFiltersOverridden;
 
         public bool Enabled => _enabled;
         public DebugGizmoCategory EnabledCategories => _enabledCategories;
@@ -102,18 +105,42 @@ namespace UPlayGround.Debugging
 #endif
         }
 
-        public void SetEnabled(bool value) => _enabled = value;
+        public void SetEnabled(bool value)
+        {
+            _enabled = value;
+#if UNITY_EDITOR
+            if (value && _settings == null && !_settingsLoadAttempted)
+            {
+                _settingsLoadAttempted = true;
+                LoadSettingsAsync(CancellationToken.None).Forget();
+            }
+#endif
+        }
         public void SetCategory(DebugGizmoCategory category, bool enabled)
         {
+            _runtimeFiltersOverridden = true;
             _enabledCategories = enabled ? _enabledCategories | category : _enabledCategories & ~category;
         }
         public void SetContentType(DebugGizmoContentType contentType, bool enabled)
         {
+            _runtimeFiltersOverridden = true;
             _enabledContentTypes = enabled ? _enabledContentTypes | contentType : _enabledContentTypes & ~contentType;
         }
-        public void SetDrawLabels(bool value) => _drawLabels = value;
-        public void SetDrawOnlyFocus(bool value) => _drawOnlyFocus = value;
-        public void SetMaxDrawDistance(float value) => _maxDrawDistance = Mathf.Max(0f, value);
+        public void SetDrawLabels(bool value)
+        {
+            _runtimeFiltersOverridden = true;
+            _drawLabels = value;
+        }
+        public void SetDrawOnlyFocus(bool value)
+        {
+            _runtimeFiltersOverridden = true;
+            _drawOnlyFocus = value;
+        }
+        public void SetMaxDrawDistance(float value)
+        {
+            _runtimeFiltersOverridden = true;
+            _maxDrawDistance = Mathf.Max(0f, value);
+        }
         public void SetFocusObject(GameObject focusObject) => _focusObject = focusObject;
         public bool IsCategoryEnabled(DebugGizmoCategory category) => (_enabledCategories & category) != 0;
         public bool IsContentTypeEnabled(DebugGizmoContentType contentType)
@@ -186,7 +213,7 @@ namespace UPlayGround.Debugging
 #if UNITY_EDITOR
         private const string SettingsAddressableKey = "DebugGizmoSettings";
 
-        public async UniTask InitializeAsync(CancellationToken cancellationToken)
+        private async UniTask LoadSettingsAsync(CancellationToken cancellationToken)
         {
             try
             {
@@ -201,12 +228,22 @@ namespace UPlayGround.Debugging
                 }
 
                 _settings = settings;
+                _recorder.SetRecording(settings.recordFrames);
+
+                // 로드는 SetEnabled(true) 시점에 시작되고 그 직후 호출자가 카테고리를
+                // 지정하는 경우가 많다(CheatManager.Gizmo). 뒤늦게 완료된 로드가 그 조작을
+                // 되돌리지 않도록, 아직 아무도 필터를 건드리지 않았을 때만 기본값을 적용한다.
+                if (_runtimeFiltersOverridden)
+                {
+                    Debug.Log("[DebugGizmoManager] 설정 로드 완료(런타임 필터 조작이 있어 기본값은 적용하지 않음)");
+                    return;
+                }
+
                 _enabledCategories = settings.defaultCategories;
                 _enabledContentTypes = settings.defaultContentTypes;
                 _drawLabels = settings.drawLabels;
                 _drawOnlyFocus = settings.drawOnlyFocus;
                 _maxDrawDistance = settings.maxDrawDistance;
-                _recorder.SetRecording(settings.recordFrames);
 
                 Debug.Log("[DebugGizmoManager] 설정 로드 완료");
             }
@@ -215,9 +252,6 @@ namespace UPlayGround.Debugging
                 Debug.LogWarning($"[DebugGizmoManager] 설정 로드 예외(기본값 사용): {e.Message}");
             }
         }
-#else
-        public UniTask InitializeAsync(CancellationToken cancellationToken) =>
-            UniTask.CompletedTask;
 #endif
 
         public void AfterInit() { }

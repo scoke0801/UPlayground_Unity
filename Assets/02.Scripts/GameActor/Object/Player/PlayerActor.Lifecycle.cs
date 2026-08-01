@@ -77,6 +77,10 @@ namespace UPlayGround
         {
             base.Update();
 
+            // OnEnable 시점에 InputManager 초기화가 끝나지 않았던 경우 등록을 복구한다.
+            if (!_isInputRegistered)
+                RegisterInputEvents();
+
             if (MovementController == null) return;
 
             if (_isInputSuppressed)

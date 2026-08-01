@@ -6,6 +6,40 @@ using UPlayGround.Data.Event;
 
 namespace UPlayGround.Components
 {
+    public static class EnemyAggroPolicy
+    {
+        public static bool ShouldLoseTarget(
+            bool targetAlive,
+            float targetDistance,
+            float distanceFromAnchor,
+            bool acquiredExternally,
+            float externalAcquireElapsed,
+            bool hasLineOfSight,
+            float lostSightElapsed,
+            float lostTargetRadius,
+            float maxChaseDistanceFromAnchor,
+            float externalTargetMaxDuration,
+            float lostSightGraceDuration)
+        {
+            if (!targetAlive)
+                return true;
+
+            if (maxChaseDistanceFromAnchor > 0f && distanceFromAnchor > maxChaseDistanceFromAnchor)
+                return true;
+
+            if (!hasLineOfSight && lostSightElapsed > Mathf.Max(0f, lostSightGraceDuration))
+                return true;
+
+            if (acquiredExternally)
+            {
+                return externalTargetMaxDuration > 0f
+                       && externalAcquireElapsed > externalTargetMaxDuration;
+            }
+
+            return targetDistance > Mathf.Max(0f, lostTargetRadius);
+        }
+    }
+
     /// <summary>
     /// 적 탐지 시스템 - 플레이어 감지 및 추적 타겟 관리
     /// </summary>
@@ -17,6 +51,14 @@ namespace UPlayGround.Components
         [SerializeField] private float _fieldOfView = 120f;
         [SerializeField] private LayerMask _targetLayer;
         [SerializeField] private LayerMask _obstacleLayer;
+
+        [Header("Aggro Release")]
+        [Tooltip("타겟이 장애물 뒤로 사라진 뒤 추적을 유지하는 시간(초)")]
+        [Min(0f)] [SerializeField] private float _lostSightGraceDuration = 3f;
+        [Tooltip("그룹 경보로 받은 먼 타겟을 직접 확인하지 못했을 때 추적할 최대 시간(초). 0이면 제한하지 않습니다.")]
+        [Min(0f)] [SerializeField] private float _externalTargetMaxDuration = 6f;
+        [Tooltip("최초 활성 위치에서 이 거리보다 멀리 추격하면 어그로를 해제합니다. 0이면 제한하지 않습니다.")]
+        [Min(0f)] [SerializeField] private float _maxChaseDistanceFromAnchor = 30f;
         
         [Header("Ally Detection")]
         [SerializeField] private float _allyDetectionRadius = 10f;
@@ -27,6 +69,9 @@ namespace UPlayGround.Components
         
         private Transform _currentTarget;
         private bool       _targetAcquiredExternally; // AlertGroup 등 외부 주입 여부
+        private Vector3    _aggroAnchorPosition;
+        private float      _targetAcquiredTime;
+        private float      _lastLineOfSightTime;
         private float _detectionTimer;
         private List<IDamageable> _cachedAllies = new List<IDamageable>();
 
@@ -47,6 +92,9 @@ namespace UPlayGround.Components
         
         private void OnEnable()
         {
+            if (!HasTarget)
+                _aggroAnchorPosition = transform.position;
+
             // 개별 Update 대신 AgentTickManager가 일괄 틱한다.
             if (Application.isPlaying)
             {
@@ -77,14 +125,22 @@ namespace UPlayGround.Components
             }
         }
 
-        public void AcquireTarget(Transform target)
+        public void AcquireTarget(Transform target, bool acquiredExternally = true)
         {
+            if (target == null)
+                return;
+
             if (target.TryGetComponent<IDamageable>(out var targetDamageable) && !targetDamageable.IsAlive())
                 return;
 
             bool wasWithoutTarget = !HasTarget;
             _currentTarget = target;
-            _targetAcquiredExternally = wasWithoutTarget; // 새로 주입된 경우만 true
+            if (wasWithoutTarget)
+            {
+                _targetAcquiredExternally = acquiredExternally;
+                _targetAcquiredTime = Time.time;
+                _lastLineOfSightTime = Time.time;
+            }
 
             if (wasWithoutTarget)
             {
@@ -134,7 +190,7 @@ namespace UPlayGround.Components
                     continue;
                 
                 // 타겟 발견
-                AcquireTarget(potentialTarget);
+                AcquireTarget(potentialTarget, acquiredExternally: false);
                 break;
             }
         }
@@ -145,26 +201,34 @@ namespace UPlayGround.Components
                 return false;
 
             // 타겟이 살아있는지 체크
-            if (target.TryGetComponent<IDamageable>(out var damageable) && !damageable.IsAlive())
-                return false;
+            bool targetAlive = !target.TryGetComponent<IDamageable>(out var damageable) || damageable.IsAlive();
+            float targetDistance = Vector3.Distance(transform.position, target.position);
+            float distanceFromAnchor = Vector3.Distance(_aggroAnchorPosition, transform.position);
+            bool hasLineOfSight = !IsObstructed(target);
 
-            // 외부 주입(AlertGroup 등) 타겟은 거리 체크를 면제한다.
-            // 자체 탐지한 타겟만 lostTargetRadius로 추적 해제한다.
+            if (hasLineOfSight)
+                _lastLineOfSightTime = Time.time;
+
+            // 외부 경보 타겟이 일반 추적 범위까지 들어오고 시야로 확인되면
+            // 이후부터 직접 획득한 타겟과 같은 해제 규칙을 적용한다.
             if (_targetAcquiredExternally)
             {
-                // 스스로 감지 범위 안에 들어오면 이후부터는 일반 추적으로 전환
-                float dist = Vector3.Distance(transform.position, target.position);
-                if (dist <= _lostTargetRadius)
+                if (hasLineOfSight && targetDistance <= _lostTargetRadius)
                     _targetAcquiredExternally = false;
-
-                return true; // 아직 멀어도 타겟 유지
             }
 
-            // 자체 탐지 타겟 — 추적 해제 범위 체크
-            if (Vector3.Distance(transform.position, target.position) > _lostTargetRadius)
-                return false;
-
-            return true;
+            return !EnemyAggroPolicy.ShouldLoseTarget(
+                targetAlive,
+                targetDistance,
+                distanceFromAnchor,
+                _targetAcquiredExternally,
+                Time.time - _targetAcquiredTime,
+                hasLineOfSight,
+                Time.time - _lastLineOfSightTime,
+                _lostTargetRadius,
+                _maxChaseDistanceFromAnchor,
+                _externalTargetMaxDuration,
+                _lostSightGraceDuration);
         }
 
         private bool IsInFieldOfView(Transform target)
@@ -205,6 +269,8 @@ namespace UPlayGround.Components
             Debug.Log($"[EnemyDetection] 타겟 상실: {_currentTarget?.name}");
             _currentTarget = null;
             _targetAcquiredExternally = false;
+            _targetAcquiredTime = 0f;
+            _lastLineOfSightTime = 0f;
             OnTargetLost?.Invoke();
         }
 
@@ -213,6 +279,8 @@ namespace UPlayGround.Components
             bool hadTarget = _currentTarget != null;
             _currentTarget = null;
             _targetAcquiredExternally = false;
+            _targetAcquiredTime = 0f;
+            _lastLineOfSightTime = 0f;
             if (hadTarget)
                 OnTargetLost?.Invoke();
         }
@@ -353,6 +421,14 @@ namespace UPlayGround.Components
             // 추적 해제 범위
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(position, _lostTargetRadius);
+
+            // 최초 활성 위치 기준 최대 추격 범위
+            if (_maxChaseDistanceFromAnchor > 0f)
+            {
+                Gizmos.color = new Color(1f, 0.45f, 0.1f, 0.8f);
+                Gizmos.DrawWireSphere(_aggroAnchorPosition, _maxChaseDistanceFromAnchor);
+                Gizmos.DrawLine(position, _aggroAnchorPosition);
+            }
 
             // 아군 탐지 범위
             Gizmos.color = Color.cyan;

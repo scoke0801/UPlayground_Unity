@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,16 +17,17 @@ namespace UPlayGround.Data.Editor
     internal sealed class UltimateTimelineTrackView : VisualElement
     {
         private const float RulerHeight = 24f;
-        private const float RowHeight = 22f;
-        private const float RowGap = 3f;
-        private const float TopPad = 6f;
+        private const float RowHeight = 26f;
+        private const float RowGap = 4f;
+        private const float TopPad = 8f;
         private const float BottomPad = 10f;
         private const float HandleWidth = 7f;
         private const float MinBlockPx = 14f;
-        private const float InstantPx = 14f;
+        private const float InstantPx = 104f;
         private const float LaneGapPx = 4f;
         private const float MinContentWidth = 240f;
         private const float EndPadding = 60f;
+        private const float MinMajorTickSpacing = 48f;
 
         private static readonly Color RulerBg = new(0.06f, 0.085f, 0.11f);
         private static readonly Color GridLine = new(0.16f, 0.21f, 0.26f);
@@ -75,7 +77,8 @@ namespace UPlayGround.Data.Editor
         private readonly VisualElement _grid;
         private readonly VisualElement _ruler;
         private readonly VisualElement _blockLayer;
-        private readonly Label _emptyState;
+        private readonly VisualElement _emptyState;
+        private readonly Label _emptyStateDescription;
         private readonly VisualElement _marquee;
         private readonly VisualElement _cursor;
         private readonly Label _cursorCap;
@@ -88,6 +91,9 @@ namespace UPlayGround.Data.Editor
 
         private float _pps = 80f;
         private float _viewportWidth;
+        private float _viewportHeight;
+        private int _laneCount = 1;
+        private float _contextTime;
         private bool _snap;
         private int _fps = 30;
         private float? _cursorTime;
@@ -105,6 +111,8 @@ namespace UPlayGround.Data.Editor
         public Action DuplicateSelected;
         public Action PasteClipboard;
         public Func<bool> CanPaste;
+        public Action<Type> AddEvent;
+        public Action<Type, float> AddEventAtTime;
 
         public IReadOnlyCollection<int> Selection => _selection;
         public bool IsDragging => _drag != DragMode.None;
@@ -145,9 +153,37 @@ namespace UPlayGround.Data.Editor
             _blockLayer.pickingMode = PickingMode.Ignore;
             Add(_blockLayer);
 
-            _emptyState = new Label("이벤트가 없습니다. 상단의 ‘＋ 이벤트’에서 연출 이벤트를 추가하세요.");
+            _emptyState = new VisualElement();
             _emptyState.AddToClassList("up-ult-timeline-empty");
-            _emptyState.pickingMode = PickingMode.Ignore;
+
+            var emptyKicker = new Label("EMPTY SEQUENCE");
+            emptyKicker.AddToClassList("up-ult-timeline-empty__kicker");
+            _emptyState.Add(emptyKicker);
+
+            var emptyTitle = new Label("첫 연출 이벤트를 배치하세요");
+            emptyTitle.AddToClassList("up-ult-timeline-empty__title");
+            _emptyState.Add(emptyTitle);
+
+            _emptyStateDescription = new Label();
+            _emptyStateDescription.AddToClassList("up-ult-timeline-empty__description");
+            _emptyState.Add(_emptyStateDescription);
+
+            var emptyActions = new VisualElement();
+            emptyActions.AddToClassList("up-ult-timeline-empty__actions");
+            var addMenu = new ToolbarMenu { text = "＋ 이벤트 추가" };
+            addMenu.AddToClassList("up-ult-timeline-empty__add");
+            foreach (UltimateEventClipboard.EventKind kind in UltimateEventClipboard.Kinds)
+            {
+                UltimateEventClipboard.EventKind captured = kind;
+                addMenu.menu.AppendAction(
+                    captured.Label,
+                    _ => AddEvent?.Invoke(captured.Type),
+                    _ => _getAsset() != null
+                        ? DropdownMenuAction.Status.Normal
+                        : DropdownMenuAction.Status.Disabled);
+            }
+            emptyActions.Add(addMenu);
+            _emptyState.Add(emptyActions);
             Add(_emptyState);
 
             _marquee = new VisualElement();
@@ -169,6 +205,7 @@ namespace UPlayGround.Data.Editor
             this.AddManipulator(new ContextualMenuManipulator(BuildContextMenu));
             RegisterCallback<PointerMoveEvent>(OnPointerMove);
             RegisterCallback<PointerUpEvent>(OnPointerUp);
+            RegisterCallback<PointerDownEvent>(OnRootPointerDown, TrickleDown.TrickleDown);
             RegisterCallback<KeyDownEvent>(OnKeyDown);
         }
 
@@ -186,6 +223,21 @@ namespace UPlayGround.Data.Editor
                 return;
 
             _viewportWidth = next;
+            RefreshLayout();
+        }
+
+        public void SetViewportSize(Vector2 size)
+        {
+            // 바깥 호스트의 크기를 사용하므로 ScrollView 콘텐츠 측정과 순환하지 않는다.
+            // 하단 가로 스크롤바 여유를 미리 빼 세로 스크롤이 1px 차이로 생기는 것도 막는다.
+            float nextWidth = Mathf.Max(0f, size.x - 1f);
+            float nextHeight = Mathf.Max(0f, size.y - 16f);
+            if (Mathf.Approximately(_viewportWidth, nextWidth)
+                && Mathf.Approximately(_viewportHeight, nextHeight))
+                return;
+
+            _viewportWidth = nextWidth;
+            _viewportHeight = nextHeight;
             RefreshLayout();
         }
 
@@ -284,7 +336,8 @@ namespace UPlayGround.Data.Editor
             }
 
             _selection.RemoveWhere(s => s < 0 || s >= count);
-            _emptyState.style.display = count == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            _emptyState.style.display = _blocks.Count == 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            UpdateEmptyStateDescription();
             RefreshLayout();
         }
 
@@ -300,6 +353,7 @@ namespace UPlayGround.Data.Editor
             });
 
             var laneEnds = new List<float>();
+            float maxEventRight = duration * _pps;
             foreach (Block block in order)
             {
                 float x0 = block.Event.startTime * _pps;
@@ -324,21 +378,41 @@ namespace UPlayGround.Data.Editor
                 }
 
                 laneEnds[lane] = x0 + w;
+                maxEventRight = Mathf.Max(maxEventRight, x0 + w);
                 block.Lane = lane;
                 PositionBlock(block);
             }
 
             int laneCount = Mathf.Max(1, laneEnds.Count);
-            float contentWidth = Mathf.Max(MinContentWidth, _viewportWidth, duration * _pps + EndPadding);
-            float contentHeight = RulerHeight + TopPad + laneCount * (RowHeight + RowGap) + BottomPad;
+            _laneCount = laneCount;
+            float contentWidth = Mathf.Max(MinContentWidth, _viewportWidth, maxEventRight + EndPadding);
+            float laneContentHeight = RulerHeight + TopPad + laneCount * (RowHeight + RowGap) + BottomPad;
+            float contentHeight = _blocks.Count == 0
+                ? Mathf.Max(220f, laneContentHeight, _viewportHeight)
+                : Mathf.Max(laneContentHeight, _viewportHeight);
             style.width = contentWidth;
             style.height = contentHeight;
+
+            // ScrollView 콘텐츠 높이와 뷰포트 높이를 서로 연동하면 레이아웃 계산이
+            // 순환해 불필요한 세로 스크롤이 생길 수 있다. 빈 상태 카드는 고정된
+            // 콘텐츠 영역 안에서 가로 폭만 기준으로 배치한다.
+            float emptyWidth = Mathf.Clamp(_viewportWidth - 32f, 260f, 440f);
+            _emptyState.style.width = emptyWidth;
+            _emptyState.style.left = Mathf.Max(16f, (_viewportWidth - emptyWidth) * 0.5f);
 
             BuildTicks(duration);
             _grid.MarkDirtyRepaint();
             ApplySelectionClasses();
             if (_cursorTime.HasValue)
                 SetPlayCursor(_cursorTime);
+        }
+
+        private void UpdateEmptyStateDescription()
+        {
+            float duration = Mathf.Max(0f, _getDuration());
+            _emptyStateDescription.text = duration > 0.001f
+                ? $"모션 길이 {duration:0.##}초 · 이벤트를 추가한 뒤 블록을 드래그해 타이밍을 조정할 수 있습니다."
+                : "먼저 MotionSet을 연결한 뒤 VFX, 사운드, 카메라, 데미지 이벤트를 배치하세요.";
         }
 
         private Block CreateBlock(UltimateTimelineEvent evt, int index)
@@ -349,6 +423,7 @@ namespace UPlayGround.Data.Editor
 
             var left = new VisualElement();
             left.AddToClassList("up-ult-event__handle");
+            left.AddToClassList("up-ult-event__handle--left");
             left.pickingMode = PickingMode.Ignore;
 
             var label = new Label(evt.DisplayName);
@@ -357,6 +432,7 @@ namespace UPlayGround.Data.Editor
 
             var right = new VisualElement();
             right.AddToClassList("up-ult-event__handle");
+            right.AddToClassList("up-ult-event__handle--right");
             right.pickingMode = PickingMode.Ignore;
 
             root.Add(left);
@@ -387,13 +463,14 @@ namespace UPlayGround.Data.Editor
             block.Root.EnableInClassList("up-ult-event--instant", instant);
             block.Label.text = block.Event.DisplayName;
             block.Root.tooltip =
-                $"{block.Event.DisplayName}\n@{block.Event.startTime:0.###}s · 길이 {block.Event.duration:0.###}s";
+                $"{block.Event.DisplayName}\n@{block.Event.startTime:0.###}s · 길이 {block.Event.duration:0.###}s"
+                + (instant ? "\n오른쪽 끝을 드래그하면 구간 이벤트로 확장됩니다." : string.Empty);
         }
 
         private void BuildTicks(float duration)
         {
             _ruler.Clear();
-            float step = NiceStep(duration);
+            float step = NiceStep();
             for (float t = 0f; t <= duration + 1e-4f; t += step)
             {
                 var tick = new Label($"{t:0.##}s");
@@ -404,15 +481,20 @@ namespace UPlayGround.Data.Editor
             }
         }
 
-        private static float NiceStep(float duration)
+        /// <summary>
+        /// 현재 줌에서 라벨이 겹치지 않는 주요 눈금 간격을 선택한다.
+        /// 시간 길이만 기준으로 잡으면 짧은 시퀀스에서 0.25초 라벨이
+        /// 20px 간격으로 몰리므로 실제 화면 픽셀 간격을 기준으로 한다.
+        /// </summary>
+        private float NiceStep()
         {
             foreach (float step in NiceSteps)
             {
-                if (duration / step <= 12f)
+                if (step * _pps >= MinMajorTickSpacing)
                     return step;
             }
 
-            return duration / 12f;
+            return NiceSteps[NiceSteps.Length - 1];
         }
 
         private void DrawGrid(MeshGenerationContext mgc)
@@ -433,7 +515,46 @@ namespace UPlayGround.Data.Editor
             p.ClosePath();
             p.Fill();
 
-            float step = NiceStep(duration);
+            // 트랙 행을 교대로 구분해 이벤트가 속한 레인을 빠르게 읽을 수 있게 한다.
+            for (int lane = 0; lane < _laneCount; lane++)
+            {
+                float y = RulerHeight + TopPad + lane * (RowHeight + RowGap);
+                if ((lane & 1) == 1)
+                {
+                    p.fillColor = new Color(0.11f, 0.15f, 0.18f, 0.22f);
+                    p.BeginPath();
+                    p.MoveTo(new Vector2(0f, y));
+                    p.LineTo(new Vector2(rect.width, y));
+                    p.LineTo(new Vector2(rect.width, y + RowHeight));
+                    p.LineTo(new Vector2(0f, y + RowHeight));
+                    p.ClosePath();
+                    p.Fill();
+                }
+
+                p.strokeColor = new Color(BaseLine.r, BaseLine.g, BaseLine.b, 0.42f);
+                p.lineWidth = 1f;
+                p.BeginPath();
+                p.MoveTo(new Vector2(0f, y + RowHeight));
+                p.LineTo(new Vector2(rect.width, y + RowHeight));
+                p.Stroke();
+            }
+
+            float step = NiceStep();
+
+            // 주요 눈금 사이에는 라벨 없는 보조 눈금만 그려 시간 감각은 유지한다.
+            float minorStep = step * 0.5f;
+            p.strokeColor = new Color(GridLine.r, GridLine.g, GridLine.b, 0.45f);
+            p.lineWidth = 1f;
+            p.BeginPath();
+            for (float t = minorStep; t <= duration + 1e-4f; t += step)
+            {
+                float x = t * _pps;
+                p.MoveTo(new Vector2(x, RulerHeight * 0.55f));
+                p.LineTo(new Vector2(x, rect.height));
+            }
+
+            p.Stroke();
+
             p.strokeColor = GridLine;
             p.lineWidth = 1f;
             p.BeginPath();
@@ -493,7 +614,7 @@ namespace UPlayGround.Data.Editor
             DragMode mode;
             if (block.Event.duration > 0f && localX <= HandleWidth)
                 mode = DragMode.ResizeStart;
-            else if (block.Event.duration > 0f && localX >= width - HandleWidth)
+            else if (localX >= width - HandleWidth)
                 mode = DragMode.ResizeEnd;
             else
                 mode = DragMode.MoveBody;
@@ -508,7 +629,6 @@ namespace UPlayGround.Data.Editor
             _dragStartCanvasX = ToCanvasX(pointerPos);
             _dragUndoLabel = mode == DragMode.MoveBody ? "궁극기 이벤트 이동" : "궁극기 이벤트 리사이즈";
             _dragChanged = false;
-
             _dragSnapshots.Clear();
             if (mode == DragMode.MoveBody)
             {
@@ -585,6 +705,8 @@ namespace UPlayGround.Data.Editor
                 case DragMode.ResizeEnd:
                 {
                     DragSnapshot s = _dragSnapshots[0];
+                    // 인스턴트 이벤트의 넓은 블록은 선택 편의를 위한 표시 폭일 뿐이다.
+                    // 표시 폭을 시간으로 환산하면 같은 드래그가 줌 배율마다 다른 duration을 만든다.
                     float ne = Mathf.Max(SnapValue(s.Start + s.Dur + deltaTime), s.Start);
                     s.Event.duration = ne - s.Start;
                     break;
@@ -715,6 +837,16 @@ namespace UPlayGround.Data.Editor
         }
 
         // ── 컨텍스트 메뉴 / 키보드 ────────────────────────
+        private void OnRootPointerDown(PointerDownEvent evt)
+        {
+            if (evt.button != 1)
+                return;
+
+            float duration = Mathf.Max(0f, _getDuration());
+            _contextTime = Mathf.Clamp(ToCanvasX(evt.position) / _pps, 0f, duration);
+            _contextTime = SnapValue(_contextTime);
+        }
+
         private void BuildContextMenu(ContextualMenuPopulateEvent evt)
         {
             int count = _selection.Count;
@@ -725,6 +857,20 @@ namespace UPlayGround.Data.Editor
                 evt.menu.AppendAction($"삭제 ({count})", _ => DeleteSelected?.Invoke());
                 evt.menu.AppendSeparator();
             }
+
+            bool canAdd = _getAsset() != null && AddEventAtTime != null;
+            foreach (UltimateEventClipboard.EventKind kind in UltimateEventClipboard.Kinds)
+            {
+                UltimateEventClipboard.EventKind captured = kind;
+                evt.menu.AppendAction(
+                    $"이벤트 추가 @ {_contextTime:0.##}s/{captured.Label}",
+                    _ => AddEventAtTime?.Invoke(captured.Type, _contextTime),
+                    canAdd
+                        ? DropdownMenuAction.Status.Normal
+                        : DropdownMenuAction.Status.Disabled);
+            }
+
+            evt.menu.AppendSeparator();
 
             bool canPaste = CanPaste?.Invoke() ?? false;
             evt.menu.AppendAction(

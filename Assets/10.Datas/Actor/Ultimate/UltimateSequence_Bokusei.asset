@@ -45,6 +45,9 @@ MonoBehaviour:
     faceTarget: 1
     placementBlendDuration: 0
     restorePositionsOnFinish: 0
+  cinematicStage:
+    enabled: 1
+    stage: {fileID: 11400000, guid: 831e0241dce9c0a4a91e0a0ce8bc060f, type: 2}
   timelineUseUnscaledTime: 0
   events: []
   references:

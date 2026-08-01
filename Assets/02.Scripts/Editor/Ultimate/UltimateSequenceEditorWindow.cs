@@ -24,6 +24,16 @@ namespace UPlayGround.Data.Editor
             "Assets/02.Scripts/Editor/UIToolkit/Styles/UPlayGroundEditor.uss";
         private const string UltimateStylePath =
             "Assets/02.Scripts/Editor/UIToolkit/Styles/UltimateSequenceEditor.uss";
+        private const string InspectorWidthPrefs =
+            "UltimateSequenceEditor.InspectorWidth";
+        private const string BasicSettingsPrefs =
+            "UltimateSequenceEditor.BasicSettingsExpanded";
+        private const string GameplaySettingsPrefs =
+            "UltimateSequenceEditor.GameplaySettingsExpanded";
+        private const string TargetSettingsPrefs =
+            "UltimateSequenceEditor.TargetSettingsExpanded";
+        private const string StageSettingsPrefs =
+            "UltimateSequenceEditor.StageSettingsExpanded";
 
         private UltimateSequenceAsset _asset;
         private SerializedObject _serialized;
@@ -39,6 +49,8 @@ namespace UPlayGround.Data.Editor
         private VisualElement _validationSection;
         private VisualElement _settingsSection;
         private VisualElement _eventSection;
+        private VisualElement _inspectorPane;
+        private Label _inspectorTitle;
 
         private UltimateTimelineTrackView _timeline;
         private Slider _zoom;
@@ -84,7 +96,11 @@ namespace UPlayGround.Data.Editor
             _objTracker = new VisualElement { style = { height = 0f } };
             root.Add(_objTracker);
 
-            var split = new TwoPaneSplitView(1, 400f, TwoPaneSplitViewOrientation.Horizontal);
+            float inspectorWidth = Mathf.Clamp(
+                EditorPrefs.GetFloat(InspectorWidthPrefs, 360f),
+                340f,
+                520f);
+            var split = new TwoPaneSplitView(1, inspectorWidth, TwoPaneSplitViewOrientation.Horizontal);
             split.AddToClassList("up-ult-split");
             split.Add(BuildTimelinePane());
             split.Add(BuildInspectorPane());
@@ -175,8 +191,23 @@ namespace UPlayGround.Data.Editor
             var toolbar = new VisualElement();
             toolbar.AddToClassList("up-ult-timeline-toolbar");
 
-            toolbar.Add(new Label("줌"));
+            var titleBlock = new VisualElement();
+            titleBlock.AddToClassList("up-ult-timeline-title-block");
+            var kicker = new Label("SEQUENCE");
+            kicker.AddToClassList("up-ult-timeline-kicker");
+            titleBlock.Add(kicker);
+            var title = new Label("연출 타임라인");
+            title.AddToClassList("up-ult-timeline-title");
+            titleBlock.Add(title);
+            toolbar.Add(titleBlock);
+
+            toolbar.Add(new VisualElement().WithClass("up-ult-toolbar-divider"));
+
+            var zoomLabel = new Label("줌");
+            zoomLabel.AddToClassList("up-ult-control-label");
+            toolbar.Add(zoomLabel);
             _zoom = new Slider(10f, 400f) { value = _pps };
+            _zoom.AddToClassList("up-ult-zoom");
             _zoom.RegisterValueChangedCallback(e =>
             {
                 _pps = e.newValue;
@@ -185,6 +216,7 @@ namespace UPlayGround.Data.Editor
             toolbar.Add(_zoom);
 
             _snapToggle = new Toggle("스냅") { value = _snap };
+            _snapToggle.AddToClassList("up-ult-snap");
             _snapToggle.RegisterValueChangedCallback(e =>
             {
                 _snap = e.newValue;
@@ -192,8 +224,8 @@ namespace UPlayGround.Data.Editor
             });
             toolbar.Add(_snapToggle);
 
-            toolbar.Add(new Label("fps"));
-            _fpsField = new IntegerField { value = _fps };
+            _fpsField = new IntegerField("FPS") { value = _fps };
+            _fpsField.AddToClassList("up-ult-fps");
             _fpsField.RegisterValueChangedCallback(e =>
             {
                 _fps = Mathf.Max(1, e.newValue);
@@ -230,6 +262,8 @@ namespace UPlayGround.Data.Editor
                 DuplicateSelected = DuplicateSelected,
                 PasteClipboard = PasteClipboard,
                 CanPaste = () => UltimateEventClipboard.HasContent,
+                AddEvent = AddEvent,
+                AddEventAtTime = AddEventAtTime,
             };
             _timeline.SetSnap(_snap, _fps);
             _timeline.SetPixelsPerSecond(_pps);
@@ -237,35 +271,62 @@ namespace UPlayGround.Data.Editor
             var scroll = new ScrollView(ScrollViewMode.VerticalAndHorizontal);
             scroll.AddToClassList("up-ult-scroll");
             scroll.Add(_timeline);
-            scroll.contentViewport.RegisterCallback<GeometryChangedEvent>(evt =>
-                _timeline.SetViewportWidth(evt.newRect.width));
-            pane.Add(scroll);
+
+            // ScrollView 자체가 아닌 외부 호스트 크기를 기준으로 캔버스를 채운다.
+            // 콘텐츠 크기 → 스크롤바 → 뷰포트 크기의 순환 계산을 피하기 위한 구조다.
+            var timelineViewport = new VisualElement();
+            timelineViewport.AddToClassList("up-ult-timeline-viewport");
+            timelineViewport.Add(scroll);
+            timelineViewport.RegisterCallback<GeometryChangedEvent>(evt =>
+                _timeline.SetViewportSize(evt.newRect.size));
+            pane.Add(timelineViewport);
             return pane;
         }
 
         // ── 인스펙터 패널 ─────────────────────────────────
         private VisualElement BuildInspectorPane()
         {
-            var pane = new VisualElement();
-            pane.AddToClassList("up-ult-inspector-pane");
+            _inspectorPane = new VisualElement();
+            _inspectorPane.AddToClassList("up-ult-inspector-pane");
+            _inspectorPane.RegisterCallback<GeometryChangedEvent>(SaveInspectorWidth);
+
+            var header = new VisualElement();
+            header.AddToClassList("up-ult-inspector-header");
+            var kicker = new Label("ULTIMATE SEQUENCE");
+            kicker.AddToClassList("up-ult-inspector-kicker");
+            header.Add(kicker);
+            _inspectorTitle = new Label("이벤트 인스펙터");
+            _inspectorTitle.AddToClassList("up-ult-inspector-title");
+            header.Add(_inspectorTitle);
+            _inspectorPane.Add(header);
 
             var scroll = new ScrollView(ScrollViewMode.Vertical);
             scroll.AddToClassList("up-ult-inspector-scroll");
 
+            // Motion 에디터처럼 현재 선택을 가장 먼저 보여준다.
+            _eventSection = new VisualElement();
+            _eventSection.AddToClassList("up-ult-section");
+            _eventSection.AddToClassList("up-ult-event-section");
+            scroll.Add(_eventSection);
+
             _validationSection = new VisualElement();
             _validationSection.AddToClassList("up-ult-section");
+            _validationSection.AddToClassList("up-ult-validation-section");
             scroll.Add(_validationSection);
 
             _settingsSection = new VisualElement();
-            _settingsSection.AddToClassList("up-ult-section");
+            _settingsSection.AddToClassList("up-ult-settings");
             scroll.Add(_settingsSection);
 
-            _eventSection = new VisualElement();
-            _eventSection.AddToClassList("up-ult-section");
-            scroll.Add(_eventSection);
+            _inspectorPane.Add(scroll);
+            return _inspectorPane;
+        }
 
-            pane.Add(scroll);
-            return pane;
+        private void SaveInspectorWidth(GeometryChangedEvent evt)
+        {
+            float width = evt.newRect.width;
+            if (width >= 340f && width <= 520f)
+                EditorPrefs.SetFloat(InspectorWidthPrefs, width);
         }
 
         // ── 에셋 바인딩 ───────────────────────────────────
@@ -300,31 +361,65 @@ namespace UPlayGround.Data.Editor
         private void BuildSettingsInspector()
         {
             _settingsSection.Clear();
-            _settingsSection.Add(SectionTitle("시퀀스 설정"));
 
             if (_serialized == null)
             {
+                _settingsSection.Add(SectionTitle("시퀀스 설정"));
                 _settingsSection.Add(Hint("에셋을 선택하거나 상단에서 캐릭터별 에셋을 생성하세요."));
                 return;
             }
 
-            AddSettingField("ownerType", "소유 캐릭터");
-            AddSettingField("motionSet", "MotionSet");
-            AddSettingField("cameraProfile", "카메라 프로필");
-            AddSettingField("motionFadeDuration", "모션 페이드");
-            AddSettingField("consumeUltimateGauge", "게이지 소비");
-            AddSettingField("timelineUseUnscaledTime", "언스케일드 타임라인");
-            AddSettingField("lockSettings", "게임플레이 잠금");
-            AddSettingField("targetPolicy", "타겟 정책");
-            AddSettingField("placementSettings", "배치 설정");
-            AddSettingField("cinematicStage", "연출 스테이지");
+            AddSettingsGroup(
+                "1단계 · 기본 재생",
+                BasicSettingsPrefs,
+                true,
+                ("ownerType", "소유 캐릭터"),
+                ("motionSet", "MotionSet"),
+                ("cameraProfile", "카메라 프로필"),
+                ("motionFadeDuration", "모션 페이드"),
+                ("consumeUltimateGauge", "게이지 소비"));
+            AddSettingsGroup(
+                "2단계 · 게임플레이 잠금",
+                GameplaySettingsPrefs,
+                false,
+                ("timelineUseUnscaledTime", "언스케일드 타임라인"),
+                ("lockSettings", "게임플레이 잠금"));
+            AddSettingsGroup(
+                "3단계 · 타겟 / 배치",
+                TargetSettingsPrefs,
+                false,
+                ("targetPolicy", "타겟 정책"),
+                ("placementSettings", "배치 설정"));
+            AddSettingsGroup(
+                "4단계 · 연출 스테이지",
+                StageSettingsPrefs,
+                false,
+                ("cinematicStage", "연출 스테이지"));
             _settingsSection.Bind(_serialized);
         }
 
-        private void AddSettingField(string bindingPath, string label)
+        private void AddSettingsGroup(
+            string title,
+            string prefsKey,
+            bool defaultExpanded,
+            params (string path, string label)[] fields)
         {
-            var field = new PropertyField { bindingPath = bindingPath, label = label };
-            _settingsSection.Add(field);
+            var foldout = new Foldout
+            {
+                text = title,
+                value = EditorPrefs.GetBool(prefsKey, defaultExpanded),
+            };
+            foldout.AddToClassList("up-ult-settings-foldout");
+            foldout.RegisterValueChangedCallback(e => EditorPrefs.SetBool(prefsKey, e.newValue));
+
+            foreach ((string path, string label) in fields)
+            {
+                var field = new PropertyField { bindingPath = path, label = label };
+                field.AddToClassList("up-ult-setting-field");
+                foldout.Add(field);
+            }
+
+            _settingsSection.Add(foldout);
         }
 
         private void RefreshEventInspector()
@@ -333,6 +428,15 @@ namespace UPlayGround.Data.Editor
 
             IReadOnlyCollection<int> selection = _timeline != null ? _timeline.Selection : null;
             int count = selection?.Count ?? 0;
+
+            if (_inspectorTitle != null)
+            {
+                _inspectorTitle.text = count == 0
+                    ? "이벤트 인스펙터"
+                    : count == 1
+                        ? "선택 이벤트"
+                        : $"선택 이벤트 · {count}개";
+            }
 
             _eventSection.Add(SectionTitle(count <= 1 ? "선택 이벤트" : $"선택 이벤트 ({count})"));
 
@@ -465,6 +569,11 @@ namespace UPlayGround.Data.Editor
         // ── 구조 편집 ─────────────────────────────────────
         private void AddEvent(Type type)
         {
+            AddEventAtTime(type, 0f);
+        }
+
+        private void AddEventAtTime(Type type, float startTime)
+        {
             if (_serialized == null)
                 return;
 
@@ -472,7 +581,9 @@ namespace UPlayGround.Data.Editor
             SerializedProperty events = _serialized.FindProperty("events");
             int index = events.arraySize;
             events.InsertArrayElementAtIndex(index);
-            events.GetArrayElementAtIndex(index).managedReferenceValue = Activator.CreateInstance(type);
+            var timelineEvent = (UltimateTimelineEvent)Activator.CreateInstance(type);
+            timelineEvent.startTime = Mathf.Clamp(startTime, 0f, ResolveMotionDuration());
+            events.GetArrayElementAtIndex(index).managedReferenceValue = timelineEvent;
             _serialized.ApplyModifiedProperties();
             EditorUtility.SetDirty(_asset);
 

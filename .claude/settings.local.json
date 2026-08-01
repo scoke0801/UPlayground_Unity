@@ -453,7 +453,8 @@
       "PowerShell(git status --porcelain | Measure-Object -Line; git diff --stat HEAD | Select-Object -Last 3; git status --porcelain | Group-Object {$_.Substring\\(0,2\\)} | Select-Object Name,Count)",
       "Bash(awk -F: '$1>1100 && $1<1650')",
       "PowerShell($s = git status --porcelain; \"TOTAL: \" + $s.Count; $s | ForEach-Object { $_.Substring\\(0,2\\).Trim\\(\\) } | Group-Object | Select-Object Name,Count | Format-Table; $s | ForEach-Object { \\($_.Substring\\(3\\) -split '/'\\)[0..2] -join '/' } | Group-Object | Sort-Object Count -Descending | Select-Object -First 25 Count,Name | Format-Table -AutoSize)",
-      "PowerShell(git status --porcelain | Where-Object { $_ -match '\\\\.\\(cs|md\\)$' -or $_ -match '^\\\\?\\\\?' })"
+      "PowerShell(git status --porcelain | Where-Object { $_ -match '\\\\.\\(cs|md\\)$' -or $_ -match '^\\\\?\\\\?' })",
+      "PowerShell(git status *)"
     ],
     "deny": [
       "Bash(rm -rf *)",

@@ -33,6 +33,7 @@ namespace UPlayGround.Components
         private bool  _isHyperArmorActive;
         private IActorHpBarView _actorUIBar;
         private float _lastMaxPoise;
+        private GameActor _owner;
 
         public bool  IsHyperArmorActive => _isHyperArmorActive;
         public float PoisePercent       => MaxPoise > 0f ? _currentPoise / MaxPoise : 1f;
@@ -49,6 +50,7 @@ namespace UPlayGround.Components
 
         private void Awake()
         {
+            _owner = GetComponent<GameActor>();
             // Profile 주입 전이라도 합리적 기본값으로 시작. 권위 초기화는 Init()이 담당.
             InitFromStats();
         }
@@ -103,9 +105,11 @@ namespace UPlayGround.Components
 
         private void Update()
         {
+            float deltaTime = _owner != null ? _owner.DeltaTime : Time.deltaTime;
+
             if (_isBroken)
             {
-                _recoveryTimer += Time.deltaTime;
+                _recoveryTimer += deltaTime;
                 if (_recoveryTimer >= RecoveryDelay)
                 {
                     _isBroken      = false;
@@ -120,11 +124,11 @@ namespace UPlayGround.Components
 
             if (_currentPoise < MaxPoise)
             {
-                _recoveryTimer += Time.deltaTime;
+                _recoveryTimer += deltaTime;
                 if (_recoveryTimer >= RecoveryDelay)
                 {
                     ApplyPoiseDelta(
-                        Mathf.Min(RecoveryRate * Time.deltaTime, MaxPoise - _currentPoise),
+                        Mathf.Min(RecoveryRate * deltaTime, MaxPoise - _currentPoise),
                         "GE_Poise.Recovery");
 
                     if (_actorUIBar != null)

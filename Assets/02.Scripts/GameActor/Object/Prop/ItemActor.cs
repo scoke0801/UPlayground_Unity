@@ -10,6 +10,8 @@ namespace UPlayGround
 {
     public class ItemActor : GameActor
     {
+        protected override bool RequiresCombatVisuals => false;
+
         // 아이템마다 비행이 동일해 보이지 않도록 아래 값들은 인스턴스별로 무작위 추출한다.
         [Header("확산(튀어오름)")]
         [SerializeField] private Vector2 _spreadRadiusRange = new Vector2(1.0f, 2.5f);

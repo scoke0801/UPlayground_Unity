@@ -15,6 +15,8 @@ namespace UPlayGround
     /// </summary>
     public class RestPointActor : GameActor, IInteractable
     {
+        protected override bool RequiresCombatVisuals => false;
+
         [SerializeField] private InteractableActorSO _data;
 
         private bool _isInteracting;

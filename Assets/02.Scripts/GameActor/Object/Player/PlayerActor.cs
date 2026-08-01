@@ -158,9 +158,9 @@ namespace UPlayGround
         public FootIKController            FootIK                => _footIK;
         public bool                        IsInputSuppressed     => _isInputSuppressed;
         public bool                        IsInvincible          => _isInvincible;
-        public bool                        IsSwapEvadeInvincible => Time.time <= _swapEvadeInvincibleEndTime;
-        public bool                        IsSwapEvadeCounterAvailable => Time.time <= _swapEvadeCounterInputEndTime;
-        public bool                        IsStaggerImmune       => Time.time <= _staggerImmuneEndTime;
+        public bool                        IsSwapEvadeInvincible => ActorTime <= _swapEvadeInvincibleEndTime;
+        public bool                        IsSwapEvadeCounterAvailable => ActorTime <= _swapEvadeCounterInputEndTime;
+        public bool                        IsStaggerImmune       => ActorTime <= _staggerImmuneEndTime;
 
         /// <summary>
         /// 현재 활성 플레이어가 Drink 모션을 시작할 수 있는지 확인한다.

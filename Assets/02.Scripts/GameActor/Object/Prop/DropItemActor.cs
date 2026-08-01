@@ -16,6 +16,8 @@ namespace UPlayGround
     /// </summary>
     public class DropItemActor : GameActor, IInteractable
     {
+        protected override bool RequiresCombatVisuals => false;
+
         [SerializeField] private ItemSO _itemData;
         [Min(1)]
         [SerializeField] private int _count = 1;

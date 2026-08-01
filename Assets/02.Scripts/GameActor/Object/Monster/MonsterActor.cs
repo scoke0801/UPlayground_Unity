@@ -19,7 +19,7 @@ using UPlayGround.Ability.Core;
 
 namespace UPlayGround
 {
-    public partial class MonsterActor : GameActor, IDamageable
+    public partial class MonsterActor : GameActor, ICombatResolvable
     {
         public event System.Action<MonsterActor> OnDied;
         public bool LastDeathWasSpecialBreak { get; private set; }
@@ -147,7 +147,7 @@ namespace UPlayGround
         public CombatResult ReceiveHit(in HitRequest request)
             => CombatResolutionPipeline.Execute(this, request);
 
-        internal bool CanResolveHit(in HitRequest request)
+        public bool CanResolveHit(in HitRequest request)
         {
             if (request.IsSpecialBreak)
                 return IsAlive() && _breakGauge != null && _breakGauge.IsExposed;
@@ -176,7 +176,10 @@ namespace UPlayGround
             return true;
         }
 
-        internal CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
+        public CombatResult ResolveHit(in HitRequest request)
+            => CombatResolutionPipeline.ResolveMonsterHit(this, request, BreakGauge);
+
+        public CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
         {
             DamageResult damageResult = combatResult.Damage;
             float finalDamage = combatResult.FinalDamage;

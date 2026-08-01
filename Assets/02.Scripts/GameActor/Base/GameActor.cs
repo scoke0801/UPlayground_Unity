@@ -107,6 +107,9 @@ namespace UPlayGround
         /// </summary>
         public float DeltaTime => Time.deltaTime * _localTimeScale;
 
+        /// <summary>LocalTimeScale이 누적 반영된 액터 고유 시각.</summary>
+        public float ActorTime { get; private set; }
+
         public virtual ActorAnimator Animator => _animator;
         public BaseMoveAnimType MoveAnimType { get; set; } = BaseMoveAnimType.Run;
 
@@ -175,6 +178,9 @@ namespace UPlayGround
         }
 
         public ActorMovementController ActorController => MovementController;
+
+        /// <summary>피격 연출 컴포넌트를 자동 부착해야 하는 액터인지 여부.</summary>
+        protected virtual bool RequiresCombatVisuals => true;
         
         protected virtual void Awake()
         {
@@ -189,9 +195,12 @@ namespace UPlayGround
             if (_animator != null)
                 _animator.Init(this);
             
-            _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
-            _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
-            _cameraProximityDither = gameObject.GetOrAddComponent<ActorCameraProximityDither>();
+            if (RequiresCombatVisuals)
+            {
+                _colorChanger = gameObject.GetOrAddComponent<ActorColorChanger>();
+                _dissolveController = gameObject.GetOrAddComponent<DissolveController>();
+                _cameraProximityDither = gameObject.GetOrAddComponent<ActorCameraProximityDither>();
+            }
             RefreshCurrentElement();
             
             // 매니저에 등록
@@ -207,6 +216,11 @@ namespace UPlayGround
 
             _actorType = _definition.actorType;
             _characterActorType = _definition.characterType;
+        }
+
+        protected virtual void Update()
+        {
+            ActorTime += DeltaTime;
         }
 
         public void AddElementOverride(

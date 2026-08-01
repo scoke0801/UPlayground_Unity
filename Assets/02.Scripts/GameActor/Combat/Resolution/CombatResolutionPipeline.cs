@@ -11,36 +11,25 @@ namespace UPlayGround.Combat
     {
         public static CombatResult Execute(IDamageable victim, in HitRequest request)
         {
-            if (victim == null)
+            if (victim == null
+                || victim is UnityEngine.Object unityVictim && unityVictim == null)
                 return default;
 
-            CombatResult result = victim switch
+            if (victim is not ICombatResolvable resolvable)
             {
-                PlayerActor player => ExecutePlayerHit(player, request),
-                MonsterActor monster => ExecuteMonsterHit(monster, request),
-                _ => default,
-            };
+                Debug.LogError(
+                    $"[CombatResolutionPipeline] {victim.GetType().Name}은 ICombatResolvable 계약을 구현하지 않습니다.");
+                return default;
+            }
+
+            if (!resolvable.CanResolveHit(request))
+                return default;
+
+            CombatResult resolved = resolvable.ResolveHit(request);
+            CombatResult result = resolvable.ApplyResolvedHit(request, resolved);
 
             RecordIfObservable(result);
             return result;
-        }
-
-        private static CombatResult ExecutePlayerHit(PlayerActor victim, in HitRequest request)
-        {
-            CombatResult resolved = ResolvePlayerHit(
-                victim,
-                request,
-                victim.BuildCombatDefenseQuery());
-            return victim.ApplyResolvedHit(request, resolved);
-        }
-
-        private static CombatResult ExecuteMonsterHit(MonsterActor victim, in HitRequest request)
-        {
-            if (!victim.CanResolveHit(request))
-                return default;
-
-            CombatResult resolved = ResolveMonsterHit(victim, request, victim.BreakGauge);
-            return victim.ApplyResolvedHit(request, resolved);
         }
 
         public static CombatResult ResolvePlayerHit(

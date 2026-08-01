@@ -23,7 +23,7 @@ using UPlayGround.AI.CombatDecision;
 
 namespace UPlayGround
 {
-    public partial class PlayerActor : GameActor, IDamageable
+    public partial class PlayerActor : GameActor, ICombatResolvable
     {
         #region Mono
 
@@ -73,8 +73,10 @@ namespace UPlayGround
             base.OnDestroy();
         }
 
-        private void Update()
+        protected override void Update()
         {
+            base.Update();
+
             if (MovementController == null) return;
 
             if (_isInputSuppressed)
@@ -85,10 +87,10 @@ namespace UPlayGround
             }
 
             if (_chargeAttackHeld)
-                _chargeHoldTime += Time.deltaTime;
+                _chargeHoldTime += DeltaTime;
 
             // 어시스트 패리(§4.3) 폴백: 패리 창이 비소비로 만료되면 기존 어시스트 즉시공격으로 폴백.
-            if (_assistParryFallbackPending && Time.time > _assistParryFallbackTime)
+            if (_assistParryFallbackPending && ActorTime > _assistParryFallbackTime)
             {
                 _assistParryFallbackPending = false;
                 _swapAssistQueued = true;

@@ -74,9 +74,11 @@ namespace UPlayGround.Components
 
         private void Update()
         {
+            float deltaTime = _owner != null ? _owner.DeltaTime : Time.deltaTime;
+
             if (_repeatCooldownTimer > 0f)
             {
-                _repeatCooldownTimer -= Time.deltaTime;
+                _repeatCooldownTimer -= deltaTime;
                 if (_repeatCooldownTimer <= 0f)
                 {
                     _repeatCooldownTimer = 0f;
@@ -90,7 +92,7 @@ namespace UPlayGround.Components
 
             if (!_isExposed) return;
 
-            _exposedTimer -= Time.deltaTime;
+            _exposedTimer -= deltaTime;
             UpdateUiAsTimer();
 
             if (_exposedTimer <= 0f)

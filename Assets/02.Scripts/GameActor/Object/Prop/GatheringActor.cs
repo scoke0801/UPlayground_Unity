@@ -10,6 +10,8 @@ namespace UPlayGround
 {
     public class GatheringActor : GameActor, IInteractable
     {
+        protected override bool RequiresCombatVisuals => false;
+
         [SerializeField] private InteractableActorSO _interactableData;
         [SerializeField] private float _shakeAmount = 5.0f;
         [SerializeField] private float _shakeDuration = 0.5f;

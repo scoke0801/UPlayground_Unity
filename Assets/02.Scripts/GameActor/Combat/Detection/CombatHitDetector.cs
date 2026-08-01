@@ -150,7 +150,7 @@ namespace UPlayGround.Combat
                     continue;
 
                 IDamageable damageable = ResolveDamageable(hit);
-                if (damageable == null || collected.Contains(damageable))
+                if (IsUnityNull(damageable) || collected.Contains(damageable))
                     continue;
 
                 bool deliverable = includeInvincibleTargets ? damageable.IsAlive() : damageable.CanTakeDamage();
@@ -178,14 +178,27 @@ namespace UPlayGround.Combat
         private static IDamageable ResolveDamageable(Collider collider)
         {
             if (_damageableCache.TryGetValue(collider, out IDamageable cached))
-                return cached;
+            {
+                if (!IsUnityNull(cached))
+                    return cached;
 
-            IDamageable resolved = collider.GetComponent<IDamageable>()
-                                ?? collider.GetComponentInParent<IDamageable>();
+                if (cached is UnityEngine.Object)
+                    _damageableCache.Remove(collider);
+                else
+                    return null;
+            }
+
+            IDamageable resolved = collider.GetComponent<IDamageable>();
+            if (IsUnityNull(resolved))
+                resolved = collider.GetComponentInParent<IDamageable>();
             if (_damageableCache.Count >= DamageableCacheLimit)
                 _damageableCache.Clear();
             _damageableCache[collider] = resolved;
             return resolved;
         }
+
+        private static bool IsUnityNull(IDamageable damageable)
+            => damageable == null
+               || damageable is UnityEngine.Object unityObject && unityObject == null;
     }
 }

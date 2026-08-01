@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: c4e96dfcdca04152b1a5b8fef6ca8331, type: 3}
   m_Name: CinematicStagePreloadCatalog
   m_EditorClassIdentifier: UPlayGround.Data:UPlayGround.Data.Cinematic:CinematicStagePreloadCatalogSO
   _sceneNames: []

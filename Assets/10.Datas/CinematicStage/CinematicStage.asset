@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 84e94f4bd54b4e17b39161979cf3ad8d, type: 3}
   m_Name: CinematicStage
   m_EditorClassIdentifier: UPlayGround.Data:UPlayGround.Data.Cinematic:CinematicStageSO
   tier: 3
@@ -18,7 +18,7 @@ MonoBehaviour:
   stagePrefab: {fileID: 6961853934973319867, guid: 257751c797f45c4498fea303487978e2, type: 3}
   anchorOffset: {x: 0, y: 400, z: 0}
   alignStageYawToTarget: 1
-  targetMode: 1
+  targetMode: 0
   silhouettePrefab: {fileID: 0}
   sizeAnchors:
     small: {x: 0, y: 0, z: 0}

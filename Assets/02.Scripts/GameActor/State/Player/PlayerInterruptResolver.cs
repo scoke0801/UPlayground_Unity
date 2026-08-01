@@ -71,7 +71,7 @@ namespace UPlayGround.State
             if ((mask & PlayerInterruptAction.Jump) != 0 &&
                 buffer.ConsumeInput(PlayerAction.Jump) != null)
             {
-                controller.TransitionToState(new PlayerAirborneState(controller));
+                controller.TransitionToState(ActorStateId.Airborne);
                 return true;
             }
 

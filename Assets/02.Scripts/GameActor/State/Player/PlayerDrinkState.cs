@@ -14,7 +14,7 @@ namespace UPlayGround.State
     /// </summary>
     public sealed class PlayerDrinkState : PlayerActorState
     {
-        public override string StateName => "Drink";
+        public override ActorStateId StateId => ActorStateId.Drink;
 
         protected override UPlayGround.Gameplay.Tag.GameplayTag? RequiredMotionKey => UPlayGround.Data.Actor.Animation.MotionTags.Drink;
 
@@ -29,9 +29,9 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            return stateName == "Idle" && HasRequiredMotion();
+            return fromState == ActorStateId.Idle && HasRequiredMotion();
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -69,13 +69,13 @@ namespace UPlayGround.State
             // 점프 입력은 자연 낙하 판정보다 먼저 처리한다.
             if (Svc.Input.InputBuffer.HasInput(PlayerAction.Jump))
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -241,7 +241,7 @@ namespace UPlayGround.State
         {
             if (controller.CurrentState == this)
             {
-                playerController.TransitionToState(new PlayerIdleState(playerController));
+                playerController.TransitionToState(ActorStateId.Idle);
             }
         }
     }

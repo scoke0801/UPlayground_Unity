@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemySpecialBreakVictimState : EnemyActorState
     {
-        public override string StateName => "SpecialBreakVictim";
+        public override ActorStateId StateId => ActorStateId.SpecialBreakVictim;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -31,7 +31,7 @@ namespace UPlayGround.State
             _duration = Mathf.Max(0.1f, duration);
         }
 
-        public override bool CanTransitionState(string stateName) => stateName is "Death";
+        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -48,7 +48,7 @@ namespace UPlayGround.State
         {
             _remainingDuration -= deltaTime;
             if (_remainingDuration <= 0f)
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyJumpBackState : EnemyActorState
     {
-        public override string StateName => "JumpBack";
+        public override ActorStateId StateId => ActorStateId.JumpBack;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -54,9 +54,9 @@ namespace UPlayGround.State
             _memory = memory;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            return stateName is not ("Death" or "Grabbed");
+            return fromState is not (ActorStateId.Death or ActorStateId.Grabbed);
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -316,7 +316,7 @@ namespace UPlayGround.State
 
             if (!_detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 
@@ -324,7 +324,7 @@ namespace UPlayGround.State
             if (distance > _context.OptimalCombatDistance + 0.8f)
                 controller.TransitionToState(new EnemyChaseState(controller, _context, _detection));
             else
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         private void OnMotionCompleted()

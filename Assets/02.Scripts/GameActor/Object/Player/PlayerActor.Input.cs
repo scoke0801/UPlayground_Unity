@@ -89,7 +89,7 @@ namespace UPlayGround
             => MoveAnimType = MoveAnimType == BaseMoveAnimType.Walk ? BaseMoveAnimType.Run : BaseMoveAnimType.Walk;
         private void OnInputPerformedSprint(InputAction.CallbackContext obj)
         {
-            if (MovementController.CurrentState.StateName == "GroundMove")
+            if (MovementController.CurrentState.StateId == ActorStateId.GroundMove)
                 MoveAnimType = MoveAnimType == BaseMoveAnimType.Sprint ? BaseMoveAnimType.Run : BaseMoveAnimType.Sprint;
         }
         private void OnInputPerformedHeavyAttack(InputAction.CallbackContext obj)
@@ -233,12 +233,12 @@ namespace UPlayGround
         {
             _combat.OpenAssistParryWindow();
             _assistParryFallbackPending = true;
-            _assistParryFallbackTime    = Time.time + _combat.AssistParryWindowDuration;
+            _assistParryFallbackTime    = ActorTime + _combat.AssistParryWindowDuration;
         }
 
         public void BeginSwapEvadeIFrame(float duration)
         {
-            _swapEvadeInvincibleEndTime = Time.time + Mathf.Max(0f, duration);
+            _swapEvadeInvincibleEndTime = ActorTime + Mathf.Max(0f, duration);
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace UPlayGround
         /// </summary>
         public void GrantStaggerImmunity(float duration)
         {
-            float end = Time.time + Mathf.Max(0f, duration);
+            float end = ActorTime + Mathf.Max(0f, duration);
             if (end > _staggerImmuneEndTime)
                 _staggerImmuneEndTime = end;
         }
@@ -257,7 +257,7 @@ namespace UPlayGround
         {
             _swapEvadeQueued = true;
             _swapEvadeTarget = target;
-            _swapEvadeCounterInputEndTime = Time.time + Mathf.Max(0f, counterWindow);
+            _swapEvadeCounterInputEndTime = ActorTime + Mathf.Max(0f, counterWindow);
         }
 
         /// <summary>
@@ -304,8 +304,8 @@ namespace UPlayGround
         /// </summary>
         private void ConsumeEntryAttackQueue()
         {
-            string state = MovementController?.CurrentState?.StateName;
-            if (state == "Hit" || state == "Death" || state == "Grabbed" || state == "Knockdown")
+            ActorStateId? stateId = MovementController?.CurrentState?.StateId;
+            if (stateId is ActorStateId.Hit or ActorStateId.Death or ActorStateId.Grabbed or ActorStateId.Knockdown)
             {
                 _entryAttackQueued = false;
                 _entryAttackTarget = null;
@@ -331,8 +331,8 @@ namespace UPlayGround
 
         private void ConsumeSwapEvadeQueue()
         {
-            string state = MovementController?.CurrentState?.StateName;
-            if (state == "Hit" || state == "Death" || state == "Grabbed" || state == "Knockdown")
+            ActorStateId? stateId = MovementController?.CurrentState?.StateId;
+            if (stateId is ActorStateId.Hit or ActorStateId.Death or ActorStateId.Grabbed or ActorStateId.Knockdown)
             {
                 _swapEvadeQueued = false;
                 _swapEvadeTarget = null;

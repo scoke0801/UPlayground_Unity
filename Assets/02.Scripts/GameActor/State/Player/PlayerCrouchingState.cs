@@ -9,7 +9,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerCrouchingState : PlayerActorState
     {
-        public override string StateName => "Crouching";
+        public override ActorStateId StateId => ActorStateId.Crouching;
         
         private Collider[] _probedColliders = new Collider[8];
         private const float CrouchSpeedMultiplier = 0.5f;
@@ -22,7 +22,7 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -80,11 +80,11 @@ namespace UPlayGround.State
                             // 이동 입력이 있으면 GroundMove, 없으면 Idle
                             if (playerController.HasMoveInput())
                             {
-                                playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                                playerController.TransitionToState(ActorStateId.GroundMove);
                             }
                             else
                             {
-                                playerController.TransitionToState(new PlayerIdleState(controller));
+                                playerController.TransitionToState(ActorStateId.Idle);
                             }
                         };
                     }
@@ -104,7 +104,7 @@ namespace UPlayGround.State
             {
                 if (playerController.HasJumpInput())
                 {
-                    controller.TransitionToState(new PlayerAirborneState(controller));
+                    controller.TransitionToState(ActorStateId.Airborne);
                     return;
                 }
 
@@ -118,7 +118,7 @@ namespace UPlayGround.State
             // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new PlayerAirborneState(controller));
+                controller.TransitionToState(ActorStateId.Airborne);
                 return;
             }
         }

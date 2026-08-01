@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerGrabbedState : PlayerActorState
     {
-        public override string StateName => "Grabbed";
+        public override ActorStateId StateId => ActorStateId.Grabbed;
 
         private readonly AttackData _attackedData;
         private float _remainingDuration;
@@ -24,7 +24,7 @@ namespace UPlayGround.State
             _attackedData = attackedData;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -108,7 +108,7 @@ namespace UPlayGround.State
             if (controller.CurrentState != this)
                 return;
 
-            controller.TransitionToState(new PlayerIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
     }
 }

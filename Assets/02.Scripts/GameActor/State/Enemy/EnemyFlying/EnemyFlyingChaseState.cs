@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlyingChaseState : EnemyActorState
     {
-        public override string StateName => "Flying_Chase";
+        public override ActorStateId StateId => ActorStateId.Flying_Chase;
 
         private readonly EnemyFlyingAIContext _brain;
         private float _chaseSpeed;
@@ -22,7 +22,7 @@ namespace UPlayGround.State
             _brain = brain;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -42,7 +42,7 @@ namespace UPlayGround.State
 
             if (!_brain.Detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 

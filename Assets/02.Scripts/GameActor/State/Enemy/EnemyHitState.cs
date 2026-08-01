@@ -14,7 +14,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyHitState : EnemyActorState
     {
-        public override string StateName => "Hit";
+        public override ActorStateId StateId => ActorStateId.Hit;
         public override bool BlocksBehaviorTree => true;
 
         private readonly HitContext _hit;
@@ -23,7 +23,7 @@ namespace UPlayGround.State
             _hit = hit;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -69,7 +69,7 @@ namespace UPlayGround.State
 
         private void OnHitEnd()
         {
-            controller.TransitionToState(new EnemyIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
 
         private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()

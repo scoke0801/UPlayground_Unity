@@ -8,7 +8,7 @@ namespace UPlayGround.State
 {
     public class EnemyKnockdownState : EnemyActorState
     {
-        public override string StateName => "Knockdown";
+        public override ActorStateId StateId => ActorStateId.Knockdown;
         public override bool BlocksBehaviorTree => true;
 
         private readonly HitContext _hit;
@@ -44,7 +44,7 @@ namespace UPlayGround.State
             _knockbackSource = knockbackSource;
         }
 
-        public override bool CanTransitionState(string stateName) => stateName is "Death" or "Grabbed";
+        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death or ActorStateId.Grabbed;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -155,7 +155,7 @@ namespace UPlayGround.State
 
         private void TransitionOut()
         {
-            controller.TransitionToState(new EnemyIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyRetreatState : EnemyActorState
     {
-        public override string StateName => "Retreat";
+        public override ActorStateId StateId => ActorStateId.Retreat;
         public override bool BlocksBehaviorTree => true;
 
         private EnemyAIContext _context;
@@ -37,7 +37,7 @@ namespace UPlayGround.State
             _targetDistance = targetDistance;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -74,7 +74,7 @@ namespace UPlayGround.State
 
             if (lostTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 
@@ -100,7 +100,7 @@ namespace UPlayGround.State
                 else
                 {
                     // 대기 후 Brain의 다음 판단에 맡김
-                    controller.TransitionToState(new EnemyIdleState(controller));
+                    controller.TransitionToState(ActorStateId.Idle);
                 }
             }
         }

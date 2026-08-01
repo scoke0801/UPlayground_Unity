@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyCircleState : EnemyActorState
     {
-        public override string StateName => "Circle";
+        public override ActorStateId StateId => ActorStateId.Circle;
         public override bool BlocksBehaviorTree => true;
 
         private EnemyAIContext _context;
@@ -65,7 +65,7 @@ namespace UPlayGround.State
             _circleDuration = duration;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -119,7 +119,7 @@ namespace UPlayGround.State
 
             if (!_detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 
@@ -137,7 +137,7 @@ namespace UPlayGround.State
                 else
                 {
                     // Brain의 다음 판단에 맡김 (Idle로 돌아가면 Brain이 즉시 재판단)
-                    controller.TransitionToState(new EnemyIdleState(controller));
+                    controller.TransitionToState(ActorStateId.Idle);
                 }
                 return;
             }

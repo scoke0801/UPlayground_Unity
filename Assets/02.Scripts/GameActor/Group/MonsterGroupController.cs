@@ -605,7 +605,7 @@ namespace UPlayGround.Group
         {
             return owner != null
                    && owner.ActorController != null
-                   && owner.ActorController.CurrentState?.StateName == EnemyAttackState.StateNameValue;
+                   && owner.ActorController.CurrentState?.StateId == ActorStateId.Attack;
         }
 
         private static float ComputeAggroFitness(MonsterActor member, Transform target)

@@ -104,15 +104,31 @@ namespace UPlayGround.MovementController
         public Vector3 CameraVelocity => Motor != null ? Motor.Velocity : Vector3.zero;
         public GameActor Actor { get; private set; }
         public MotionWarpController MotionWarp { get; private set; }
+        public ActorStateMachine StateMachine { get; private set; }
 
         protected void Awake()
         {
             EnsureReferences();
+            EnsureStateMachine();
         }
 
         protected virtual void OnEnable()
         {
             EnsureReferences();
+            EnsureStateMachine();
+        }
+
+        private void EnsureStateMachine()
+        {
+            if (StateMachine != null)
+                return;
+
+            StateMachine = new ActorStateMachine(this);
+            RegisterDefaultStates();
+        }
+
+        protected virtual void RegisterDefaultStates()
+        {
         }
 
         private void EnsureReferences()
@@ -176,7 +192,10 @@ namespace UPlayGround.MovementController
         /// </summary>
         public bool TryTransitionToState(GameActorState newState)
         {
-            if (newState.CanTransitionState(CurrentState.StateName) == false)
+            if (newState == null)
+                return false;
+
+            if (CurrentState != null && newState.CanTransitionState(CurrentState.StateId) == false)
             {
                 return false;
             }
@@ -184,6 +203,12 @@ namespace UPlayGround.MovementController
             TransitionToState(newState);
             return true;
         }
+
+        public bool TryTransitionToState(ActorStateId stateId)
+            => StateMachine.TryTransition(stateId);
+
+        public bool TryTransitionToState<TContext>(ActorStateId stateId, in TContext context)
+            => StateMachine.TryTransition(stateId, context);
         
         /// <summary>
         /// 상태 전환
@@ -206,15 +231,7 @@ namespace UPlayGround.MovementController
                 return;
             }
 
-            if (_currentState is PlayerFinishAttackState { IsTransitionLocked: true })
-            {
-                return;
-            }
-
-            if (_currentState is PlayerDeathState
-                && Actor is PlayerActor playerActor
-                && !playerActor.IsAlive()
-                && newState is not PlayerDeathState)
+            if (_currentState?.BlocksExitTo(newState) == true)
             {
                 return;
             }
@@ -232,6 +249,12 @@ namespace UPlayGround.MovementController
             _currentState.OnEnter(oldState);
             OnStateChanged?.Invoke(oldState, _currentState);
         }
+
+        public void TransitionToState(ActorStateId stateId)
+            => StateMachine.Transition(stateId);
+
+        public void TransitionToState<TContext>(ActorStateId stateId, in TContext context)
+            => StateMachine.Transition(stateId, context);
     }
     
     public partial class ActorMovementController : MonoBehaviour, ICharacterController

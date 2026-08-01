@@ -16,7 +16,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyChargeState : EnemyActorState
     {
-        public override string StateName => "Charge";
+        public override ActorStateId StateId => ActorStateId.Charge;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -53,7 +53,7 @@ namespace UPlayGround.State
             _memory    = memory;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {

@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlyingPatrolState : EnemyActorState
     {
-        public override string StateName => "Flying_Patrol";
+        public override ActorStateId StateId => ActorStateId.Flying_Patrol;
 
         private readonly EnemyFlyingAIContext _brain;
         private Vector3 _targetPos;
@@ -26,7 +26,7 @@ namespace UPlayGround.State
         public EnemyFlyingPatrolState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller) { _brain = brain; }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {

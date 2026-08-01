@@ -17,6 +17,7 @@ using UPlayGround.Input;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Gameplay.Ability;
 using UPlayGround.MovementController;
+using UPlayGround.State;
 using UPlayGround.Debugging;
 
 namespace UPlayGround.Components
@@ -233,13 +234,13 @@ namespace UPlayGround.Components
         }
 
         private static bool IsEntryTargetAirborne(MonsterActor target)
-            => target != null && target.ActorController?.CurrentState?.StateName == "Airborne";
+            => target != null && target.ActorController?.CurrentState?.StateId == ActorStateId.Airborne;
 
         private static bool IsEntryTargetGroggy(MonsterActor target)
         {
             if (target == null) return false;
-            string s = target.ActorController?.CurrentState?.StateName;
-            if (s is "Stun" or "Knockdown") return true;
+            ActorStateId? stateId = target.ActorController?.CurrentState?.StateId;
+            if (stateId is ActorStateId.Stun or ActorStateId.Knockdown) return true;
             return target.BreakGauge != null && target.BreakGauge.IsExposed;
         }
 

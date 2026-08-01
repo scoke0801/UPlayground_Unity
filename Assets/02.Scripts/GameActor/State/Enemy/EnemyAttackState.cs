@@ -20,9 +20,9 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyAttackState : EnemyActorState
     {
-        public const string StateNameValue = "Attack";
+        public const string StateNameValue = nameof(ActorStateId.Attack);
 
-        public override string StateName => StateNameValue;
+        public override ActorStateId StateId => ActorStateId.Attack;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -46,9 +46,9 @@ namespace UPlayGround.State
             _detection = detection;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            if (stateName == "Hit") return false;
+            if (fromState == ActorStateId.Hit) return false;
             return true;
         }
 

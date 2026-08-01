@@ -17,7 +17,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerDashState : PlayerActorState
     {
-        public override string StateName => "Dash";
+        public override ActorStateId StateId => ActorStateId.Dash;
         public override bool GrantsInvincibility => true;
 
         private Vector3 _dashDirection;
@@ -42,7 +42,7 @@ namespace UPlayGround.State
         }
 
         // 상태 전환 제한
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             if (playerController != null && playerController.IsDashReady == false)
                 return false;
@@ -173,14 +173,14 @@ namespace UPlayGround.State
         {
             if (!motor.GroundingStatus.IsStableOnGround)
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             if (playerController.HasMoveInput())
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             else
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         private void OnAnimationEnd()

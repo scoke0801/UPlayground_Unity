@@ -11,7 +11,7 @@ namespace UPlayGround.State
     public class PlayerDashAttackState : PlayerActorState
     {
         
-        public override string StateName => "DashAttack";
+        public override ActorStateId StateId => ActorStateId.DashAttack;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private AttackData _attackData;
@@ -92,17 +92,17 @@ namespace UPlayGround.State
         {
             if (playerController.HasMoveInput())
             {
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             }
             else
             {
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
             }
         }
         
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            if (stateName == "Hit") return false;
+            if (fromState == ActorStateId.Hit) return false;
             return true;
         }
 

@@ -2,8 +2,26 @@
 
 > 작성일: 2026-07-31
 > 대상 버전: Unity 6 (6000.0.60f1), URP
-> 분류: 설계서(미구현 계획). 구현 착수 시 Phase 단위로 본 문서를 갱신하고, 완료분은 `docs/Complete/`로 이관한다.
+> 분류: 설계서(단계 구현 중). Phase 단위로 본 문서를 갱신하고, 전체 완료 후 `docs/Complete/`로 이관한다.
 > 분석 대상: `Assets/02.Scripts/GameActor/` — 390개 파일, 약 69,500 라인 (2026-07-31 기준)
+
+## 구현 현황 (2026-07-31)
+
+첫 구현 슬라이스에서 의존 관계상 선행되는 기반과 액터 시계 정합성을 반영했다.
+
+| 항목 | 상태 | 반영 내용 |
+|------|------|----------|
+| §5-2 B2 | 완료 | 플레이어/몬스터 접지 이탈 판정을 `GameActorState`로 통합 |
+| §4-1 A3 | 완료 | `BlocksExitTo` 정책으로 처형·사망 전이 잠금을 상태에 위임 |
+| §4-2 A2 | 완료 | 전체 상태를 `ActorStateId`/enum 전이 가드로 이관, 문자열 가드 0건 |
+| §4-3 A1 | 진행 중 | `ActorStateMachine`/`IConfigurableState<T>` 기반 추가. Player Idle/GroundMove/Airborne, Enemy Idle 캐시 적용. 직접 생성 249건 → 152건 |
+| §5-1 B1 | 완료(Play Mode 검증 필요) | `ActorTime`을 방어 창, Poise, Break, 스왑 무적·카운터, 경직 내성, 차지·자동질주 판정에 적용 |
+| §4-4 A4 | 완료 | `ICombatResolvable` 계약 기반 개방형 디스패치로 변경 |
+| §5-3 B3 | 1차 완료 | 안 B 적용. Prop/Item 계열의 전투 비주얼 컴포넌트 자동 부착 제거 |
+| §6-2 C2 | 진행 중 | enum 전이 가드 회귀 테스트 추가. Resolver 및 ActorClock 테스트는 후속 |
+| §6-3 C3 | 완료 | 인터페이스 참조의 Unity fake-null 검사 및 파괴 객체 캐시 제거 |
+
+아직 남은 범위는 인자 상태 캐시/`Configure` 이관, 플레이어 예약 액션·창 레지스트리 통합(§5-4), 대형 파일 partial 분리(§6-1), Resolver/ActorClock 자동 테스트와 Unity Play Mode·Player Build 검증이다.
 
 ---
 

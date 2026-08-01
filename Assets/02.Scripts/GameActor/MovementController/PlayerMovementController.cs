@@ -99,6 +99,13 @@ namespace UPlayGround.MovementController
         /// </summary>
         public event Action<float, float> OnDashCooldownChanged;
 
+        protected override void RegisterDefaultStates()
+        {
+            StateMachine.Register(new PlayerIdleState(this));
+            StateMachine.Register(new PlayerGroundMoveState(this));
+            StateMachine.Register(new PlayerAirborneState(this));
+        }
+
         public void StartDashCooldown()
         {
             _dashCooldownTimer = _dashCooldown;
@@ -109,7 +116,7 @@ namespace UPlayGround.MovementController
         {
             base.Start();
             
-            TransitionToState(new PlayerIdleState(this));
+            TransitionToState(ActorStateId.Idle);
         }
 
         protected override void Update()

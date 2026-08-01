@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerDodgeState : PlayerActorState
     {
-        public override string StateName => "Dodge";
+        public override ActorStateId StateId => ActorStateId.Dodge;
         public override bool GrantsInvincibility => Time.time <= _invincibilityEndsAt;
         private float _invincibilityEndsAt;
         
@@ -23,9 +23,9 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            if (stateName == "Hit")
+            if (fromState == ActorStateId.Hit)
                 return false;
             return true;
         }
@@ -70,11 +70,11 @@ namespace UPlayGround.State
             // 이동 입력이 있으면 GroundMove, 없으면 Idle
             if (playerController.HasMoveInput())
             {
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             }
             else
             {
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
             }
         }
          private void IgnoreMonsterColliders()

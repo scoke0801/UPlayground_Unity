@@ -15,7 +15,7 @@ namespace UPlayGround.State
 {
     public class PlayerSpecialBreakAttackState : PlayerActorState
     {
-        public override string StateName => "SpecialBreakAttack";
+        public override ActorStateId StateId => ActorStateId.SpecialBreakAttack;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private const float DEFAULT_DURATION = 1.2f;
@@ -46,7 +46,7 @@ namespace UPlayGround.State
             _target = target;
         }
 
-        public override bool CanTransitionState(string stateName) => stateName is "Death" or "Hit" or "Grabbed";
+        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death or ActorStateId.Hit or ActorStateId.Grabbed;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -61,7 +61,7 @@ namespace UPlayGround.State
                 || _targetMonster.BreakGauge == null
                 || !_targetMonster.BreakGauge.IsExposed)
             {
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 
@@ -237,9 +237,9 @@ namespace UPlayGround.State
         private void Finish()
         {
             if (playerController.HasMoveInput())
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             else
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerGuardState : PlayerActorState
     {
-        public override string StateName => "Guard";
+        public override ActorStateId StateId => ActorStateId.Guard;
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;
         private float _guardStartTime;
@@ -35,10 +35,10 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             // Guard 중에는 Hit 상태로 전환 불가 (Guard가 막아줌)
-            if (stateName == "Hit")
+            if (fromState == ActorStateId.Hit)
                 return false;
             return true;
         }
@@ -127,7 +127,7 @@ namespace UPlayGround.State
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
         }
@@ -282,11 +282,11 @@ namespace UPlayGround.State
         {
             if (playerController.HasMoveInput())
             {
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             }
             else
             {
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
             }
         }
     }

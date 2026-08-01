@@ -28,14 +28,14 @@ namespace UPlayGround.State
         private bool _requiresHeldInput;
         private bool _hasPickupMotion;
         
-        public override string StateName => "Interaction";
+        public override ActorStateId StateId => ActorStateId.Interaction;
 
         public PlayerInteractionState(ActorMovementController controller) : base(controller)
         {
             
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -342,18 +342,18 @@ namespace UPlayGround.State
             // 지면에서 떨어지면 Airborne 상태로 전환
             if (!motor.GroundingStatus.IsStableOnGround)
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             // 이동 입력이 있으면 GroundMove 상태로 전환
             if (playerController.HasMoveInput())
             {
-                playerController.TransitionToState(new PlayerGroundMoveState(playerController));
+                playerController.TransitionToState(ActorStateId.GroundMove);
             }
             else
             {
-                playerController.TransitionToState(new PlayerIdleState(playerController));
+                playerController.TransitionToState(ActorStateId.Idle);
             }
         }
         

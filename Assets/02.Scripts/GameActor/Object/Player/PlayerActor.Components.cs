@@ -161,7 +161,7 @@ namespace UPlayGround
                                      && _playerActorAnimator.RestorePlaybackSnapshot(animationSnapshot);
             if (!restoredAnimation)
             {
-                PlayerMovementPlayerController?.TransitionToState(new PlayerIdleState(PlayerMovementPlayerController));
+                PlayerMovementPlayerController?.TransitionToState(ActorStateId.Idle);
                 _playerActorAnimator?.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0f);
             }
 

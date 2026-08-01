@@ -7,7 +7,7 @@ namespace UPlayGround.State
 {
     public class PlayerStunState : PlayerActorState
     {
-        public override string StateName => "Stun";
+        public override ActorStateId StateId => ActorStateId.Stun;
 
         private readonly AttackData _attackData;
         private float _remainingDuration;
@@ -17,7 +17,7 @@ namespace UPlayGround.State
             _attackData = attackData;
         }
 
-        public override bool CanTransitionState(string stateName) => stateName is "Death" or "Grabbed";
+        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death or ActorStateId.Grabbed;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -42,7 +42,7 @@ namespace UPlayGround.State
             {
                 // 스턴 회복 직후 경직 내성 부여 — 깨어나자마자 재경직되는 것을 막는다.
                 playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
             }
         }
 

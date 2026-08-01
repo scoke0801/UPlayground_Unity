@@ -191,8 +191,8 @@ namespace UPlayGround.Components
             if (_movementController == null || _detection == null || !_detection.HasTarget)
                 return;
 
-            var stateName = _movementController.CurrentState?.StateName;
-            if (stateName is not ("Idle" or "Patrol"))
+            ActorStateId? stateId = _movementController.CurrentState?.StateId;
+            if (stateId is not (ActorStateId.Idle or ActorStateId.Patrol))
                 return;
 
             _movementController.TransitionToState(new EnemyChaseState(_movementController, this, _detection));
@@ -267,7 +267,7 @@ namespace UPlayGround.Components
                 EnemyBlackboardKeys.NextActionAllowedTime,
                 Time.time + _nextActionDelay);
 
-            _movementController.TransitionToState(new EnemyIdleState(_movementController));
+            _movementController.TransitionToState(ActorStateId.Idle);
         }
 
         #endregion
@@ -377,10 +377,10 @@ namespace UPlayGround.Components
         public void Freeze()
         {
             if (this == null) return;
-            if (_movementController == null || _movementController.CurrentState?.StateName == "Death") return;
+            if (_movementController == null || _movementController.CurrentState?.StateId == ActorStateId.Death) return;
             _behaviorTreeRunner?.DisableBehavior(pause: true);
             enabled = false;
-            _movementController.TransitionToState(new EnemyIdleState(_movementController));
+            _movementController.TransitionToState(ActorStateId.Idle);
         }
 
         public void Unfreeze()

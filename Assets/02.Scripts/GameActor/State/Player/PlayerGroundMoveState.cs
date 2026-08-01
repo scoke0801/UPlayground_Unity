@@ -13,18 +13,18 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerGroundMoveState : PlayerActorState
     {
-        public override string StateName => "GroundMove";
+        public override ActorStateId StateId => ActorStateId.GroundMove;
         
         private float _runTimer;
         private float _sprintAutoChangeDealy = 0f;
 
         private BaseMoveAnimType _cachedAnimType = BaseMoveAnimType.Run;
         
-        public PlayerGroundMoveState(ActorMovementController controller) : base(controller)
+        internal PlayerGroundMoveState(ActorMovementController controller) : base(controller)
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -34,7 +34,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             gameActor.Tags?.AddTag(GameplayTags.State_Move);
 
-            _runTimer = Time.realtimeSinceStartup;
+            _runTimer = gameActor.ActorTime;
 
             _sprintAutoChangeDealy = playerActor.PlayerController.SprintAutoStartDelay;
 
@@ -54,7 +54,7 @@ namespace UPlayGround.State
             // 점프 입력이 있으면 Airborne 상태로 전환
             if (playerController.HasJumpInput())
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace UPlayGround.State
             // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -116,7 +116,7 @@ namespace UPlayGround.State
                 }
                 else
                 {
-                    playerController.TransitionToState(new PlayerIdleState(controller));
+                    playerController.TransitionToState(ActorStateId.Idle);
                 }
                 return;
             }
@@ -171,7 +171,7 @@ namespace UPlayGround.State
                 gameActor.Animator.PlayMotion(GetMoveAnimKey(), 0.25f);
             }
 
-            if (_runTimer + _sprintAutoChangeDealy < Time.realtimeSinceStartup)
+            if (_runTimer + _sprintAutoChangeDealy < gameActor.ActorTime)
             {
                 gameActor.MoveAnimType = BaseMoveAnimType.Sprint;
                 gameActor.Tags?.AddTag(GameplayTags.State_Sprint);

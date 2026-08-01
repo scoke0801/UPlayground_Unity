@@ -14,7 +14,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerFinishAttackState : PlayerActorState
     {
-        public override string StateName => "FinishAttack";
+        public override ActorStateId StateId => ActorStateId.FinishAttack;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
         public override bool GrantsInvincibility => true;
 
@@ -38,13 +38,15 @@ namespace UPlayGround.State
         public Transform FinishTarget => _finishTarget;
         public bool IsTransitionLocked { get; private set; }
 
+        public override bool BlocksExitTo(GameActorState newState) => IsTransitionLocked;
+
         public PlayerFinishAttackState(ActorMovementController controller, Transform finishTarget)
             : base(controller)
         {
             _finishTarget = finishTarget;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -174,9 +176,9 @@ namespace UPlayGround.State
         private void TransitionToIdleOrMove()
         {
             if (playerController.HasMoveInput())
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             else
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         private static bool IsValidAIController(IEnemyAIController controller)

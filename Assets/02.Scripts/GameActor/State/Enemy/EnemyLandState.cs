@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyLandState : EnemyActorState
     {
-        public override string StateName => "Land";
+        public override ActorStateId StateId => ActorStateId.Land;
         public override bool BlocksBehaviorTree => true;
 
         private bool _groundSnapRestored;
@@ -24,8 +24,8 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
-            => stateName is "Hit" or "Death";
+        public override bool CanTransitionState(ActorStateId fromState)
+            => fromState is ActorStateId.Hit or ActorStateId.Death;
 
         public override void OnEnter(GameActorState fromState)
         {

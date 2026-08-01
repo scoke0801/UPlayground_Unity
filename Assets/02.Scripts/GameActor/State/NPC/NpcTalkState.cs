@@ -11,11 +11,11 @@ namespace UPlayGround.State
     /// </summary>
     public class NpcTalkState : NpcActorState
     {
-        public override string StateName => "Talk";
+        public override ActorStateId StateId => ActorStateId.Talk;
 
         public NpcTalkState(NpcMovementController controller) : base(controller) { }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {

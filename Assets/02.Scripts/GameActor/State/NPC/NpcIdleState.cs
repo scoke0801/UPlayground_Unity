@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// </summary>
     public class NpcIdleState : NpcActorState
     {
-        public override string StateName => "Idle";
+        public override ActorStateId StateId => ActorStateId.Idle;
 
         private NpcBrain _brain;
 
@@ -22,7 +22,7 @@ namespace UPlayGround.State
 
         public NpcIdleState(NpcMovementController controller) : base(controller) { }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {

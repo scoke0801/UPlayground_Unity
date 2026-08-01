@@ -14,7 +14,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyGuardState : EnemyActorState
     {
-        public override string StateName => "Guard";
+        public override ActorStateId StateId => ActorStateId.Guard;
         public override bool BlocksBehaviorTree => true;
         
         private EnemyAIContext _context;
@@ -32,7 +32,7 @@ namespace UPlayGround.State
             _guardDuration = duration;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -78,7 +78,7 @@ namespace UPlayGround.State
             if (_guardTimer >= _guardDuration)
             {
                 // 가드 종료 → Brain 판단에 위임 (Idle로 가면 Brain이 즉시 결정)
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
             }
         }
 

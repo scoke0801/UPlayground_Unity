@@ -39,7 +39,7 @@ namespace UPlayGround.AI.BehaviorTree
             if (IsTransitionBlockedByActionLock(controller.CurrentState, request, out failureReason))
                 return false;
 
-            if (skipIfAlreadyInState && controller.CurrentState?.StateName == nextState.StateName)
+            if (skipIfAlreadyInState && controller.CurrentState?.StateId == nextState.StateId)
             {
                 RecordCooldown(context, request.CooldownId, request.CooldownDuration);
                 return true;
@@ -156,7 +156,7 @@ namespace UPlayGround.AI.BehaviorTree
 
             return state switch
             {
-                EnemyTransitionStateType.Idle => new EnemyIdleState(controller),
+                EnemyTransitionStateType.Idle => controller.StateMachine.Get(ActorStateId.Idle),
                 EnemyTransitionStateType.Patrol when aiContext != null => new EnemyPatrolState(controller, aiContext),
                 EnemyTransitionStateType.Chase when aiContext != null && detection != null => new EnemyChaseState(controller, aiContext, detection),
                 EnemyTransitionStateType.Attack when aiContext != null && detection != null && combat != null => new EnemyAttackState(controller, combat, aiContext, detection),
@@ -311,7 +311,7 @@ namespace UPlayGround.AI.BehaviorTree
             var resolved = ResolveFlyingState(request);
             state = resolved switch
             {
-                FlyingEnemyTransitionStateType.Idle => new EnemyIdleState(controller),
+                FlyingEnemyTransitionStateType.Idle => controller.StateMachine.Get(ActorStateId.Idle),
                 FlyingEnemyTransitionStateType.Patrol => new EnemyFlyingPatrolState(controller, context),
                 FlyingEnemyTransitionStateType.Chase => new EnemyFlyingChaseState(controller, context),
                 FlyingEnemyTransitionStateType.GroundAttack => new EnemyFlyingGroundAttackState(controller, context),
@@ -371,15 +371,15 @@ namespace UPlayGround.AI.BehaviorTree
 
         private static bool IsHardLockedState(GameActorState state)
         {
-            return state?.StateName is
-                "Death" or
-                "Hit" or
-                "Stun" or
-                "Knockdown" or
-                "Grabbed" or
-                "Airborne" or
-                "Land" or
-                "SpecialBreakVictim";
+            return state?.StateId is
+                ActorStateId.Death or
+                ActorStateId.Hit or
+                ActorStateId.Stun or
+                ActorStateId.Knockdown or
+                ActorStateId.Grabbed or
+                ActorStateId.Airborne or
+                ActorStateId.Land or
+                ActorStateId.SpecialBreakVictim;
         }
 
         private static bool IsLocomotionState(GameActorState state)

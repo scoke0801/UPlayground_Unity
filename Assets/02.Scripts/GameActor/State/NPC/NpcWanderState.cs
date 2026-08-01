@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class NpcWanderState : NpcActorState
     {
-        public override string StateName => "Wander";
+        public override ActorStateId StateId => ActorStateId.Wander;
 
         private NpcBrain _brain;
 
@@ -33,7 +33,7 @@ namespace UPlayGround.State
             _brain = brain;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {

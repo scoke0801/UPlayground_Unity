@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyChaseState : EnemyActorState
     {
-        public override string StateName => "Chase";
+        public override ActorStateId StateId => ActorStateId.Chase;
         
         private EnemyAIContext _context;
         private EnemyDetection _detection;
@@ -40,7 +40,7 @@ namespace UPlayGround.State
             _memory = gameActor.GetComponent<EnemyTacticalMemory>();
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -68,7 +68,7 @@ namespace UPlayGround.State
             }
             if (!_detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 

@@ -8,7 +8,7 @@ namespace UPlayGround.State
 {
     public class EnemyStunState : EnemyActorState
     {
-        public override string StateName => "Stun";
+        public override ActorStateId StateId => ActorStateId.Stun;
         public override bool BlocksBehaviorTree => true;
 
         private readonly HitContext _hit;
@@ -19,7 +19,7 @@ namespace UPlayGround.State
             _hit = hit;
         }
 
-        public override bool CanTransitionState(string stateName) => stateName is "Death" or "Grabbed";
+        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death or ActorStateId.Grabbed;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -33,7 +33,7 @@ namespace UPlayGround.State
         {
             _remainingDuration -= deltaTime;
             if (_remainingDuration <= 0f)
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

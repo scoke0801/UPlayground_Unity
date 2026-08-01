@@ -92,7 +92,7 @@ namespace UPlayGround.AI.BehaviorTree
             if (controller == null)
                 return BTStatus.Failure;
 
-            if (controller.CurrentState?.StateName == EnemyAttackState.StateNameValue)
+            if (controller.CurrentState?.StateId == ActorStateId.Attack)
             {
                 _attackStarted = true;
                 return BTStatus.Running;

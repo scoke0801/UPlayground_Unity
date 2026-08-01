@@ -209,7 +209,7 @@ namespace UPlayGround
                 actor.transform.SetPositionAndRotation(_destinationPoint.position, _destinationPoint.rotation);
 
             // 이전 애니메이션 이어짐 방지: 상태를 Idle로 강제 전환
-            actor.ActorController?.TransitionToState(new PlayerIdleState(actor.ActorController));
+            actor.ActorController?.TransitionToState(ActorStateId.Idle);
 
             // 카메라 튀는 현상 방지: SmoothDamp 속도를 초기화하고 목적지로 즉시 스냅
             CameraManager.Instance?.SnapToTarget(_destinationPoint.position);
@@ -265,7 +265,7 @@ namespace UPlayGround
             else
                 actor.transform.SetPositionAndRotation(targetPos, targetRot);
 
-            actor.ActorController?.TransitionToState(new PlayerIdleState(actor.ActorController));
+            actor.ActorController?.TransitionToState(ActorStateId.Idle);
             CameraManager.Instance?.SnapToTarget(targetPos);
 
             StartCoroutine(ResetActivatingAfterDelay());

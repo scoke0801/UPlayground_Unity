@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerAirborneState : PlayerActorState
     {
-        public override string StateName => "Airborne";
+        public override ActorStateId StateId => ActorStateId.Airborne;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
         
         private int _remainingJumps;
@@ -30,11 +30,11 @@ namespace UPlayGround.State
 
         private float _dragSpeed = 0.1f;
         
-        public PlayerAirborneState(ActorMovementController controller) : base(controller)
+        internal PlayerAirborneState(ActorMovementController controller) : base(controller)
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -286,11 +286,11 @@ namespace UPlayGround.State
             // 이동 입력이 있으면 GroundMove, 없으면 Idle
             if (playerController.HasMoveInput())
             {
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             }
             else
             {
-                 controller.TransitionToState(new PlayerIdleState(controller));
+                 controller.TransitionToState(ActorStateId.Idle);
             }
         }
 

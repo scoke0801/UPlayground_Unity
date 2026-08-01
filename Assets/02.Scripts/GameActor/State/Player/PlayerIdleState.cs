@@ -12,15 +12,15 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerIdleState : PlayerActorState
     {
-        public override string StateName => "Idle";
+        public override ActorStateId StateId => ActorStateId.Idle;
         
         private PlayerEquipment _equipment;
 
-        public PlayerIdleState(ActorMovementController controller) : base(controller)
+        internal PlayerIdleState(ActorMovementController controller) : base(controller)
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -37,14 +37,14 @@ namespace UPlayGround.State
             // 점프 입력이 있으면 Airborne 상태로 전환 (낙하 판정보다 먼저 체크)
             if (Svc.Input.InputBuffer.HasInput(PlayerAction.Jump))
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             // 지면에서 떨어지면 Airborne 상태로 전환 (유예 시간 적용)
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -70,7 +70,7 @@ namespace UPlayGround.State
             // 이동 입력이 있으면 GroundMove 상태로 전환
             if (playerController.HasMoveInput())
             {
-                playerController.TransitionToState(new PlayerGroundMoveState(playerController));
+                playerController.TransitionToState(ActorStateId.GroundMove);
                 return;
             }
 

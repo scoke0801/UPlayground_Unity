@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerGuardBreakState : PlayerActorState
     {
-        public override string StateName => "GuardBreak";
+        public override ActorStateId StateId => ActorStateId.GuardBreak;
 
         // 애니메이션이 없는 경우의 강제 경직 시간 (폴백용)
         private const float FALLBACK_STUN_DURATION = 1.2f;
@@ -23,7 +23,7 @@ namespace UPlayGround.State
         public PlayerGuardBreakState(ActorMovementController controller) : base(controller) { }
 
         // 가드 브레이크 중에는 어떤 State로도 전환 불가
-        public override bool CanTransitionState(string stateName) => false;
+        public override bool CanTransitionState(ActorStateId fromState) => false;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -55,7 +55,7 @@ namespace UPlayGround.State
 
             if (_animFinished)
             {
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
         }
@@ -83,7 +83,7 @@ namespace UPlayGround.State
             if (controller.CurrentState != this)
                 yield break;
 
-            controller.TransitionToState(new PlayerIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
     }
 }

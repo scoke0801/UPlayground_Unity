@@ -17,7 +17,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlankState : EnemyActorState
     {
-        public override string StateName => "Flank";
+        public override ActorStateId StateId => ActorStateId.Flank;
         public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyCombat _combat;
@@ -48,7 +48,7 @@ namespace UPlayGround.State
             _detection = detection;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -108,7 +108,7 @@ namespace UPlayGround.State
 
             if (!_detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 

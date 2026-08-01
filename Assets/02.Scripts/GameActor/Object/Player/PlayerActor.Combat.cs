@@ -38,7 +38,12 @@ namespace UPlayGround
         internal PlayerDefenseQuery BuildCombatDefenseQuery()
             => CreatePlayerDefenseQuery();
 
-        internal CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
+        public bool CanResolveHit(in HitRequest request) => true;
+
+        public CombatResult ResolveHit(in HitRequest request)
+            => CombatResolutionPipeline.ResolvePlayerHit(this, request, BuildCombatDefenseQuery());
+
+        public CombatResult ApplyResolvedHit(in HitRequest request, in CombatResult combatResult)
         {
             AttackData attackData = request.ToReactionData();
 
@@ -130,7 +135,7 @@ namespace UPlayGround
         private PlayerDefenseQuery CreatePlayerDefenseQuery()
         {
             bool alwaysParry = ActorSvc.CheatState?.IsAlwaysParryEnabled ?? false;
-            bool isAttackState = MovementController.CurrentState.StateName == "Attack";
+            bool isAttackState = MovementController.CurrentState.StateId == ActorStateId.Attack;
             bool isCurrentAttackParryCapable = _combat.CurrentAttackData?.attackKind == AttackKind.NormalAttack;
 
             return new PlayerDefenseQuery(
@@ -170,7 +175,7 @@ namespace UPlayGround
             _combat.SetEnableCollision(false);
 
             // 공격 상태를 중단하고 Idle로 복귀 (패리 반격 창은 이미 열려 있으므로 다음 공격 입력 시 반격 발동)
-            MovementController.TransitionToState(new PlayerIdleState(MovementController));
+            MovementController.TransitionToState(ActorStateId.Idle);
 
             Vector3 fxPos = TryGetSocket(ActorSocketType.Weapon, out var center)
                 ? center.position
@@ -290,12 +295,12 @@ namespace UPlayGround
                                  chargeState.HasChargedAtLeastOneStage;
             bool suppressHitReaction = MovementController.CurrentState.SuppressesHitReaction;
             bool ignoreHitReaction = hasSuperArmor || suppressHitReaction;
-            string stateName = MovementController.CurrentState.StateName;
+            ActorStateId stateId = MovementController.CurrentState.StateId;
             ReactionDecision reactionDecision = ReactionResolver.ResolvePlayerReaction(
                 new PlayerReactionQuery(
                     ignoreHitReaction,
-                    MovementController.CurrentState.CanTransitionState("Hit"),
-                    stateName is "Hit" or "Grabbed",
+                MovementController.CurrentState.CanTransitionState(ActorStateId.Hit),
+                    stateId is ActorStateId.Hit or ActorStateId.Grabbed,
                     ShouldEnterAirborneState(attackData),
                     IsStaggerImmune),
                 hit);
@@ -381,7 +386,7 @@ namespace UPlayGround
             switch (reactionState)
             {
                 case CombatReactionState.Airborne:
-                    MovementController.TransitionToState(new PlayerAirborneState(MovementController));
+                    MovementController.TransitionToState(ActorStateId.Airborne);
                     break;
                 case CombatReactionState.Grabbed:
                     MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
@@ -438,7 +443,7 @@ namespace UPlayGround
             else
                 transform.SetPositionAndRotation(position, rotation);
 
-            MovementController.TransitionToState(new PlayerIdleState(MovementController));
+            MovementController.TransitionToState(ActorStateId.Idle);
             _behaviorPredictor?.ResetHistory();
             CameraMgr?.SnapToTarget(position);
 

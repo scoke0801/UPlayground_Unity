@@ -15,7 +15,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyDeathState : EnemyActorState
     {
-        public override string StateName => "Death";
+        public override ActorStateId StateId => ActorStateId.Death;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
         
@@ -25,7 +25,7 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }

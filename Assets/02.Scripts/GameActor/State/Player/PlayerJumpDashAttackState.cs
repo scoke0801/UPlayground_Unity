@@ -8,7 +8,7 @@ namespace UPlayGround.State
 {
     public class PlayerJumpDashAttackState : PlayerActorState
     {
-        public override string StateName  => "JumpDashAttack";
+        public override ActorStateId StateId => ActorStateId.JumpDashAttack;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private float _decelerationDuration = 0.5f;
@@ -26,9 +26,9 @@ namespace UPlayGround.State
 
         public PlayerJumpDashAttackState(ActorMovementController controller) : base(controller) { }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            if (stateName == "Hit") return false;
+            if (fromState == ActorStateId.Hit) return false;
             return true;
         }
 
@@ -143,14 +143,14 @@ namespace UPlayGround.State
 
             if (!motor.GroundingStatus.IsStableOnGround)
             {
-                playerController.TransitionToState(new PlayerAirborneState(playerController));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             if (playerController.HasMoveInput())
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             else
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
     }
 }

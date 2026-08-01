@@ -87,6 +87,9 @@ namespace UPlayGround.State
         /// </summary>
         public ActorStateTag StateTags =>
             StateTagsCore | (BlocksBehaviorTree ? ActorStateTag.InterruptLocked : ActorStateTag.None);
+
+        /// <summary>이 상태가 새 상태로의 이탈을 거부하면 true.</summary>
+        public virtual bool BlocksExitTo(GameActorState newState) => false;
         
         public GameActorState(ActorMovementController controller)
         {
@@ -96,17 +99,53 @@ namespace UPlayGround.State
         }
         
         /// <summary>
-        /// 상태 이름 (디버깅용)
+        /// 상태 전이 계약에 사용하는 식별자.
         /// </summary>
-        public abstract string StateName { get; }
+        public abstract ActorStateId StateId { get; }
+
+        /// <summary>디버그 및 BT 블랙보드 표시 전용 상태 이름.</summary>
+        public string StateName => StateId.ToString();
         
-        public abstract bool CanTransitionState(string stateName);
+        public abstract bool CanTransitionState(ActorStateId fromState);
+
+        /// <summary>지면 이탈 후 자연 Airborne 전환까지의 유예 시간.</summary>
+        protected virtual float AirborneGracePeriod => 0.2f;
+
+        private float _unstableGroundTimer;
+
+        private const float GroundCheckOriginOffset = 0.1f;
+        private const float GroundCheckDistance = 0.6f;
+
+        /// <summary>KCC 프로브와 독립적인 근접 지면 검사와 유예 시간을 적용한다.</summary>
+        protected bool ShouldTransitionToAirborne(float deltaTime)
+        {
+            if (motor.GroundingStatus.IsStableOnGround || CheckGroundNearby())
+            {
+                _unstableGroundTimer = 0f;
+                return false;
+            }
+
+            _unstableGroundTimer += deltaTime;
+            return _unstableGroundTimer >= AirborneGracePeriod;
+        }
+
+        private bool CheckGroundNearby()
+        {
+            Vector3 origin = motor.TransientPosition + motor.CharacterUp * GroundCheckOriginOffset;
+            return Physics.Raycast(
+                origin,
+                -motor.CharacterUp,
+                GroundCheckDistance + GroundCheckOriginOffset,
+                motor.CollidableLayers & motor.StableGroundLayers,
+                QueryTriggerInteraction.Ignore);
+        }
         
         /// <summary>
         /// 상태 진입 시 호출
         /// </summary>
         public virtual void OnEnter(GameActorState fromState)
         {
+            _unstableGroundTimer = 0f;
         }
         
         /// <summary>

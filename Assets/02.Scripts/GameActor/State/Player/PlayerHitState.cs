@@ -22,7 +22,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerHitState : PlayerActorState
     {
-        public override string StateName => "Hit";
+        public override ActorStateId StateId => ActorStateId.Hit;
 
         private readonly AttackData _attackData;
 
@@ -42,7 +42,7 @@ namespace UPlayGround.State
             _attackData = attackData;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -127,7 +127,7 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                controller.TransitionToState(new PlayerAirborneState(controller));
+                controller.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -200,7 +200,7 @@ namespace UPlayGround.State
 
             // 회복 직후 경직 내성 부여 — Hit→Idle(찰나)→Hit 재스턴 루프를 차단한다(데미지는 유지).
             playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
-            controller.TransitionToState(new PlayerIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
 
         private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()

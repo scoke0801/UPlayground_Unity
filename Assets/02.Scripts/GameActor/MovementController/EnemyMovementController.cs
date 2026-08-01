@@ -10,11 +10,16 @@ namespace UPlayGround.MovementController
     // BeforeCharacterUpdate -> UpdateRotation / UpdateVelocity -> KCC Motor -> AfterCharacterUpdate
     public partial class EnemyMovementController : ActorMovementController
     {
+        protected override void RegisterDefaultStates()
+        {
+            StateMachine.Register(new EnemyIdleState(this));
+        }
+
         protected override void Start()
         {
             base.Start();
             
-            TransitionToState(new EnemyIdleState(this));
+            TransitionToState(ActorStateId.Idle);
         }
         
         // IgnoredColliders 필터는 ActorMovementController.IsColliderValidForCollisions로 통합됨.

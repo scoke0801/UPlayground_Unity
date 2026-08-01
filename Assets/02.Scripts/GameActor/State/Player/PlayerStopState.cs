@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerStopState : PlayerActorState
     {
-        public override string StateName => "Stop";
+        public override ActorStateId StateId => ActorStateId.Stop;
 
         private readonly BaseMoveAnimType _moveAnimType;
         /// <summary> 정지 직전 이동 방향의 캐릭터 전방 기준 부호 있는 각도 (도) </summary>
@@ -31,7 +31,7 @@ namespace UPlayGround.State
                 controller.Motor.CharacterForward, stopDirection, controller.Motor.CharacterUp);
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -55,7 +55,7 @@ namespace UPlayGround.State
             else
             {
                 // 이론상 도달 불가 (PlayerGroundMoveState에서 사전 체크), 안전장치
-                playerController.TransitionToState(new PlayerIdleState(controller));
+                playerController.TransitionToState(ActorStateId.Idle);
             }
         }
 
@@ -69,20 +69,20 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             // 이동 입력 복귀 시 즉시 GroundMove
             if (playerController.HasMoveInput())
             {
-                playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                playerController.TransitionToState(ActorStateId.GroundMove);
                 return;
             }
 
             if (playerController.HasJumpInput())
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace UPlayGround.State
 
         private void TransitionToIdle()
         {
-            playerController.TransitionToState(new PlayerIdleState(controller));
+            playerController.TransitionToState(ActorStateId.Idle);
         }
 
         /// <summary>

@@ -10,7 +10,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyAirborneState : EnemyActorState
     {
-        public override string StateName => "Airborne";
+        public override ActorStateId StateId => ActorStateId.Airborne;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
         private bool _landStarted = false;
@@ -21,7 +21,7 @@ namespace UPlayGround.State
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }
@@ -95,7 +95,7 @@ namespace UPlayGround.State
         }
         private void ChangeToNextState()
         {
-            controller.TransitionToState(new EnemyIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
 
         private void OnLanded()

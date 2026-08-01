@@ -10,7 +10,7 @@ namespace UPlayGround.State
 {
     public class PlayerJumpAttackState : PlayerActorState
     {
-        public override string StateName => "JumpAttack";
+        public override ActorStateId StateId => ActorStateId.JumpAttack;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private PlayerCombat _combat;
@@ -91,9 +91,9 @@ namespace UPlayGround.State
             base.OnExit(toState);
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            if (stateName == "Hit") return false;
+            if (fromState == ActorStateId.Hit) return false;
             return true;
         }
 
@@ -263,14 +263,14 @@ namespace UPlayGround.State
         {
             if (!motor.GroundingStatus.IsStableOnGround)
             {
-                controller.TransitionToState(new PlayerAirborneState(playerController));
+                controller.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             if (playerController.HasMoveInput())
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             else
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         private void OnLanded()

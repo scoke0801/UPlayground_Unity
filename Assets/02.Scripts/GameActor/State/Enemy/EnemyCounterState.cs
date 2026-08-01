@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Components;
 using UPlayGround.Data;
@@ -14,7 +14,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyCounterState : EnemyActorState
     {
-        public override string StateName => "Counter";
+        public override ActorStateId StateId => ActorStateId.Counter;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -44,7 +44,7 @@ namespace UPlayGround.State
             _memory   = memory;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override bool CanPlayHitReaction(in HitContext hit)
         {
@@ -156,7 +156,7 @@ namespace UPlayGround.State
             }
             else
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
             }
         }
     }

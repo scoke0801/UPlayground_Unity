@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlyingRetreatState : EnemyActorState
     {
-        public override string StateName => "Flying_Retreat";
+        public override ActorStateId StateId => ActorStateId.Flying_Retreat;
         public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyFlyingAIContext _brain;
@@ -23,7 +23,7 @@ namespace UPlayGround.State
         public EnemyFlyingRetreatState(ActorMovementController controller, EnemyFlyingAIContext brain)
             : base(controller) { _brain = brain; }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -46,7 +46,7 @@ namespace UPlayGround.State
 
             if (!_brain.Detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 

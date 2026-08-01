@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlyingTakeOffState : EnemyActorState
     {
-        public override string StateName => "Flying_TakeOff";
+        public override ActorStateId StateId => ActorStateId.Flying_TakeOff;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.None; // 이륙 중 중력 무시
 
@@ -33,8 +33,8 @@ namespace UPlayGround.State
             _brain = brain;
         }
 
-        public override bool CanTransitionState(string stateName)
-            => stateName is "Death";
+        public override bool CanTransitionState(ActorStateId fromState)
+            => fromState is ActorStateId.Death;
 
         public override void OnEnter(GameActorState fromState)
         {

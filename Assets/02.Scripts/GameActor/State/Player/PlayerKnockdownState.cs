@@ -9,7 +9,7 @@ namespace UPlayGround.State
 {
     public class PlayerKnockdownState : PlayerActorState
     {
-        public override string StateName => "Knockdown";
+        public override ActorStateId StateId => ActorStateId.Knockdown;
         public override bool GrantsInvincibility => _invincibleTimer > 0f;
 
         private readonly AttackData _attackData;
@@ -22,7 +22,7 @@ namespace UPlayGround.State
             _attackData = attackData;
         }
 
-        public override bool CanTransitionState(string stateName) => stateName is "Death" or "Grabbed";
+        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death or ActorStateId.Grabbed;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -104,7 +104,7 @@ namespace UPlayGround.State
             // 기상 직후 경직 내성 부여 — 일어나는 순간 다시 맞고 다운되는 루프를 막는다.
             // (기상 무적 _invincibleTimer가 끝난 뒤에도 약한 리액션을 흡수한다.)
             playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
-            controller.TransitionToState(new PlayerIdleState(controller));
+            controller.TransitionToState(ActorStateId.Idle);
         }
     }
 }

@@ -12,14 +12,14 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyIdleState : EnemyActorState
     {
-        public override string StateName => "Idle";
+        public override ActorStateId StateId => ActorStateId.Idle;
         
         private PlayerEquipment _equipment;
-        public EnemyIdleState(ActorMovementController controller) : base(controller)
+        internal EnemyIdleState(ActorMovementController controller) : base(controller)
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }

@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlyingCircleState : EnemyActorState
     {
-        public override string StateName => "Flying_Circle";
+        public override ActorStateId StateId => ActorStateId.Flying_Circle;
         public override bool BlocksBehaviorTree => true;
 
         private readonly EnemyFlyingAIContext _brain;
@@ -28,7 +28,7 @@ namespace UPlayGround.State
             _duration = duration;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -49,7 +49,7 @@ namespace UPlayGround.State
             }
             if (!_brain.Detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 

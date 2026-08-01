@@ -469,7 +469,9 @@ namespace UPlayGround
             if (state == null || state.SuppressesHitReaction)
                 return false;
 
-            return state.StateName is not ("Death" or "Hit" or "Airborne" or "Knockdown" or "Stun" or "Grabbed" or "SpecialBreakVictim")
+            return state.StateId is not (ActorStateId.Death or ActorStateId.Hit or ActorStateId.Airborne
+                       or ActorStateId.Knockdown or ActorStateId.Stun or ActorStateId.Grabbed
+                       or ActorStateId.SpecialBreakVictim)
                    && state.CanPlayHitReaction(hit);
         }
 

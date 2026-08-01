@@ -15,13 +15,18 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerDeathState : PlayerActorState
     {
-        public override string StateName => "Death";
+        public override ActorStateId StateId => ActorStateId.Death;
+
+        public override bool BlocksExitTo(GameActorState newState)
+            => playerActor != null
+               && !playerActor.IsAlive()
+               && newState?.StateId != ActorStateId.Death;
         
         public PlayerDeathState(ActorMovementController controller) : base(controller)
         {
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }

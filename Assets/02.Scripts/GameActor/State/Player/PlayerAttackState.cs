@@ -32,7 +32,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerAttackState : PlayerActorState
     {
-        public override string StateName => "Attack";
+        public override ActorStateId StateId => ActorStateId.Attack;
         public override bool AllowsSameTypeReentry => true;
         public override bool CanReenterFrom(GameActorState currentState)
         {
@@ -95,9 +95,9 @@ namespace UPlayGround.State
             _forcedAttackAction = forcedAttackAction;
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            if (stateName == "Hit") return false;
+            if (fromState == ActorStateId.Hit) return false;
             return true;
         }
 
@@ -545,7 +545,7 @@ namespace UPlayGround.State
                 && playerController.HasMoveInput())
             {
                 _combat.ResetCombo();
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             }
         }
 
@@ -622,9 +622,9 @@ namespace UPlayGround.State
                     _comboInputted = false;
                     _combat.ResetCombo();
                     if (playerController.HasMoveInput())
-                        controller.TransitionToState(new PlayerGroundMoveState(controller));
+                        controller.TransitionToState(ActorStateId.GroundMove);
                     else
-                        controller.TransitionToState(new PlayerIdleState(controller));
+                        controller.TransitionToState(ActorStateId.Idle);
                     return;
                 }
 
@@ -646,9 +646,9 @@ namespace UPlayGround.State
             {
                 _combat.ResetCombo();
                 if (playerController.HasMoveInput())
-                    controller.TransitionToState(new PlayerGroundMoveState(controller));
+                    controller.TransitionToState(ActorStateId.GroundMove);
                 else
-                    controller.TransitionToState(new PlayerIdleState(controller));
+                    controller.TransitionToState(ActorStateId.Idle);
             }
         }
 

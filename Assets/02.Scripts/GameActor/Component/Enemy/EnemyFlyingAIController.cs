@@ -155,10 +155,10 @@ namespace UPlayGround.Components
 
         private void Update()
         {
-            string stateName = _movementController.CurrentState?.StateName;
-            if (stateName is null or "Death") return;
+            ActorStateId? stateId = _movementController.CurrentState?.StateId;
+            if (stateId is null or ActorStateId.Death) return;
 
-            if (IsGroundCombatState(stateName))
+            if (IsGroundCombatState(stateId.Value))
                 _groundTimer += Time.deltaTime;
 
         }
@@ -307,8 +307,14 @@ namespace UPlayGround.Components
             return _spawnPosition + new Vector3(c.x, 0, c.y);
         }
 
-        protected bool IsAirState(string s) => s is "Flying_AirCircle" or "Flying_TakeOff";
-        protected bool IsGroundCombatState(string s) => s is "Flying_Chase" or "Flying_GroundAttack" or "Flying_Circle" or "Flying_Retreat";
+        protected bool IsAirState(ActorStateId stateId)
+            => stateId is ActorStateId.Flying_AirCircle or ActorStateId.Flying_TakeOff;
+
+        protected bool IsGroundCombatState(ActorStateId stateId)
+            => stateId is ActorStateId.Flying_Chase
+                or ActorStateId.Flying_GroundAttack
+                or ActorStateId.Flying_Circle
+                or ActorStateId.Flying_Retreat;
 
         public void SetGroup(MonsterGroupController group, MemberPriority priority)
         {
@@ -326,7 +332,7 @@ namespace UPlayGround.Components
         public void Freeze()
         {
             if (this == null) return;
-            if (_movementController == null || _movementController.CurrentState?.StateName == "Death") return;
+            if (_movementController == null || _movementController.CurrentState?.StateId == ActorStateId.Death) return;
             _behaviorTreeRunner?.DisableBehavior(pause: true);
             enabled = false;
         }

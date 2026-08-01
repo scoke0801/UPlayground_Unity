@@ -12,7 +12,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerTurnInPlaceState : PlayerActorState
     {
-        public override string StateName => "TurnInPlace";
+        public override ActorStateId StateId => ActorStateId.TurnInPlace;
 
         private readonly BaseMoveAnimType _moveAnimType;
         private readonly Vector3          _targetDirection;
@@ -26,7 +26,7 @@ namespace UPlayGround.State
             _targetDirection = targetDirection;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override void OnEnter(GameActorState fromState)
         {
@@ -44,7 +44,7 @@ namespace UPlayGround.State
             else
             {
                 // 클립 미등록 → 즉시 GroundMove 복귀
-                playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                playerController.TransitionToState(ActorStateId.GroundMove);
             }
         }
 
@@ -58,13 +58,13 @@ namespace UPlayGround.State
         {
             if (ShouldTransitionToAirborne(deltaTime))
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
             if (playerController.HasJumpInput())
             {
-                playerController.TransitionToState(new PlayerAirborneState(controller));
+                playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
 
@@ -86,7 +86,7 @@ namespace UPlayGround.State
                 float angleToTarget = Vector3.Angle(playerController.MoveInputVector, _targetDirection);
                 if (angleToTarget > 45f)
                 {
-                    playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                    playerController.TransitionToState(ActorStateId.GroundMove);
                     return;
                 }
             }
@@ -110,9 +110,9 @@ namespace UPlayGround.State
         private void OnTurnComplete()
         {
             if (playerController.HasMoveInput())
-                playerController.TransitionToState(new PlayerGroundMoveState(controller));
+                playerController.TransitionToState(ActorStateId.GroundMove);
             else
-                playerController.TransitionToState(new PlayerIdleState(controller));
+                playerController.TransitionToState(ActorStateId.Idle);
         }
 
         /// <summary>

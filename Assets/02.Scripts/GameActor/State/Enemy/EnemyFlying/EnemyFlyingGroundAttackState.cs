@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyFlyingGroundAttackState : EnemyActorState
     {
-        public override string StateName => "Flying_GroundAttack";
+        public override ActorStateId StateId => ActorStateId.Flying_GroundAttack;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -33,7 +33,7 @@ namespace UPlayGround.State
             _brain = brain;
         }
 
-        public override bool CanTransitionState(string stateName) => true;
+        public override bool CanTransitionState(ActorStateId fromState) => true;
 
         public override bool CanPlayHitReaction(in HitContext hit)
         {

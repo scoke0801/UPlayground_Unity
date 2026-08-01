@@ -11,7 +11,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyPatrolState : EnemyActorState
     {
-        public override string StateName => "Patrol";
+        public override ActorStateId StateId => ActorStateId.Patrol;
         
         private EnemyAIContext _context;
         private EnemyDetection _detection;
@@ -39,7 +39,7 @@ namespace UPlayGround.State
             _detection = controller.GetComponent<EnemyDetection>();
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             return true;
         }

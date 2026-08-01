@@ -25,7 +25,7 @@ namespace UPlayGround.State
     /// </summary>
     public class PlayerChargeState : PlayerActorState
     {
-        public override string StateName => "Charge";
+        public override ActorStateId StateId => ActorStateId.Charge;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
 
         private PlayerCombat _combat;
@@ -58,10 +58,10 @@ namespace UPlayGround.State
 
         // 한 단계 이상 차징 중이면 Hit/Airborne/Grabbed 전환 차단 (슈퍼아머)
         // 그 외(Dodge 등)는 항상 허용
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
             if (HasChargedAtLeastOneStage &&
-                (stateName == "Hit" || stateName == "Airborne" || stateName == "Grabbed"))
+                (fromState == ActorStateId.Hit || fromState == ActorStateId.Airborne || fromState == ActorStateId.Grabbed))
                 return false;
             return true;
         }
@@ -242,9 +242,9 @@ namespace UPlayGround.State
         {
             _combat.ResetCombo();
             if (playerController.HasMoveInput())
-                controller.TransitionToState(new PlayerGroundMoveState(controller));
+                controller.TransitionToState(ActorStateId.GroundMove);
             else
-                controller.TransitionToState(new PlayerIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

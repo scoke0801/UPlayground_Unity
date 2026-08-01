@@ -91,7 +91,7 @@ namespace UPlayGround.Movement.Tests
                 _executionType = executionType;
             }
 
-            public override string StateName => "Test";
+            public override ActorStateId StateId => ActorStateId.None;
             public override bool AllowsSameTypeReentry => _allowsSameTypeReentry;
             public override bool CanReenterFrom(GameActorState currentState)
                 => currentState is TestState current
@@ -99,7 +99,7 @@ namespace UPlayGround.Movement.Tests
             public int EnterCount { get; private set; }
             public int ExitCount { get; private set; }
 
-            public override bool CanTransitionState(string stateName) => true;
+            public override bool CanTransitionState(ActorStateId fromState) => true;
 
             public override void OnEnter(GameActorState fromState)
             {

@@ -13,7 +13,7 @@ namespace UPlayGround.State
     /// </summary>
     public class EnemyStepState : EnemyActorState
     {
-        public override string StateName => "Dash";
+        public override ActorStateId StateId => ActorStateId.Dash;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
 
@@ -80,9 +80,9 @@ namespace UPlayGround.State
             return actor.Animator != null && actor.Animator.HasMotion(motionKey);
         }
 
-        public override bool CanTransitionState(string stateName)
+        public override bool CanTransitionState(ActorStateId fromState)
         {
-            return stateName is not ("Death" or "Grabbed");
+            return fromState is not (ActorStateId.Death or ActorStateId.Grabbed);
         }
 
         public override void OnEnter(GameActorState fromState)
@@ -134,7 +134,7 @@ namespace UPlayGround.State
 
             if (!_detection.HasTarget)
             {
-                controller.TransitionToState(new EnemyIdleState(controller));
+                controller.TransitionToState(ActorStateId.Idle);
                 return;
             }
 

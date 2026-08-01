@@ -474,7 +474,11 @@
       "PowerShell(git status --short | Where-Object { $_ -match '^\\\\?\\\\?' } | ForEach-Object { $_.Substring\\(3\\) } | Where-Object { $_ -notmatch '\\\\.meta$' } | Select-Object -Skip 15)",
       "PowerShell(git status --short --untracked-files=all | Where-Object { $_ -match '^\\\\?\\\\?' } | ForEach-Object { $_.Substring\\(3\\) } | Where-Object { $_ -notmatch '\\\\.meta$' -and $_ -match '10\\\\.Datas|Resources' })",
       "PowerShell(git status --short | ForEach-Object { $p = $_.Substring\\(3\\); if \\($p -match '^Assets/\\([^/]+\\)/\\([^/]+\\)/'\\) { \"$\\($matches[1]\\)/$\\($matches[2]\\)\" } elseif \\($p -match '^Assets/\\([^/]+\\)/'\\) { $matches[1] } else { $p } } | Group-Object | Sort-Object Count -Descending | Select-Object Count,Name -First 20)",
-      "PowerShell($f = git status --short | ForEach-Object { $_.Substring\\(3\\) } | Where-Object { $_ -match '10\\\\.Datas/Ability' } | Select-Object -First 1; echo $f; git diff -- $f | Select-Object -Last 30)"
+      "PowerShell($f = git status --short | ForEach-Object { $_.Substring\\(3\\) } | Where-Object { $_ -match '10\\\\.Datas/Ability' } | Select-Object -First 1; echo $f; git diff -- $f | Select-Object -Last 30)",
+      "PowerShell($env:GIT_PAGER='cat'; git --no-pager diff --stat -- Assets/02.Scripts/GameActor/AI/BehaviorTree/Nodes/Action/RequestEnemyActionNode.cs Assets/02.Scripts/GameActor/AI/Debugging/EncounterReplayRecorder.cs Assets/Resources/BlackboardKeyRegistry.asset Assets/10.Datas/AI/BehaviorTree/BehaviorTreeEditorRegistry.json 2>$null; git --no-pager diff -- Assets/02.Scripts/GameActor/AI/Debugging/EncounterReplayRecorder.cs Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_GroundMelee_Balanced.json 2>$null)",
+      "PowerShell(git restore *)",
+      "PowerShell($env:GIT_PAGER='cat'; git --no-pager diff -- Assets/02.Scripts/GameActor/Animation Assets/02.Scripts/GameActor/Contracts Assets/02.Scripts/GameActor/MovementController Assets/02.Scripts/GameActor/Object Assets/02.Scripts/Manager | Select-Object -First 200)",
+      "PowerShell(git status --porcelain --untracked-files=all | Where-Object { $_ -match '^\\\\?\\\\?' })"
     ],
     "deny": [
       "Bash(rm -rf *)",

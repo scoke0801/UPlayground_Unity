@@ -11,6 +11,7 @@ namespace UPlayGround.AI.BehaviorTree
 
         [NonSerialized] private Dictionary<string, BlackboardEntry> _entryLookup;
         [NonSerialized] private Dictionary<string, BlackboardEntry> _stableIdLookup;
+        [NonSerialized] private Dictionary<string, float> _runtimeFloatValues;
         [NonSerialized] private int _lookupEntryCount;
 
         public IReadOnlyList<BlackboardEntry> Entries => _entries;
@@ -147,6 +148,36 @@ namespace UPlayGround.AI.BehaviorTree
 
             value = entry.FloatValue;
             return true;
+        }
+
+        /// <summary>
+        /// Registry에 등록할 수 없는 런타임 조합 Key의 Float 값을 읽는다.
+        /// 이 값은 BT 에셋에 직렬화되지 않으며 Clone으로 복사되지 않는다.
+        /// </summary>
+        public bool TryGetRuntimeFloat(string key, out float value)
+        {
+            if (_runtimeFloatValues != null
+                && !string.IsNullOrWhiteSpace(key)
+                && _runtimeFloatValues.TryGetValue(key, out value))
+            {
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
+        /// <summary>
+        /// Registry에 등록할 수 없는 런타임 조합 Key의 Float 값을 기록한다.
+        /// 정적 Blackboard Key는 SetFloat를 사용해야 한다.
+        /// </summary>
+        public void SetRuntimeFloat(string key, float value)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return;
+
+            _runtimeFloatValues ??= new Dictionary<string, float>(StringComparer.Ordinal);
+            _runtimeFloatValues[key] = value;
         }
 
         public bool TryGetString(string key, out string value)

@@ -75,6 +75,7 @@ namespace UPlayGround.AI.BehaviorTree
         public const string DecisionIntentScoreDefend = "Decision.IntentScore.Defend";
         public const string DecisionIntentScoreRecover = "Decision.IntentScore.Recover";
         public const string DecisionCombatRhythmPhase = "Decision.CombatRhythmPhase";
+        public const string ResolverFailureReason = "Decision.ResolverFailureReason";
         public const string EnablePatrol = "enablePatrol";
         public const string OptimalCombatDistance = "optimalCombatDistance";
         public const string MinCombatDistance = "minCombatDistance";

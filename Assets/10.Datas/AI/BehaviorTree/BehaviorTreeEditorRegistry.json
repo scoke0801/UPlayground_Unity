@@ -1759,6 +1759,27 @@
             }
         },
         {
+            "stableId": "834fcc0e9c91433f9dc3752afb81dc3e",
+            "key": "Decision.ResolverFailureReason",
+            "identifier": "ResolverFailureReason",
+            "aliases": [],
+            "type": 3,
+            "label": "액션 해석 실패 사유",
+            "description": "최근 EnemyActionResolver 요청이 실패한 원인입니다.",
+            "scope": 5,
+            "writePolicy": 1,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
             "stableId": "f6a3b8b4deab25be3abf6eccf7fd21f7",
             "key": "enablePatrol",
             "identifier": "",

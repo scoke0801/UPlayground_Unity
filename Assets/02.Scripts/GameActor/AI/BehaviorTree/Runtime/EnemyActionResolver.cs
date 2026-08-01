@@ -117,7 +117,7 @@ namespace UPlayGround.AI.BehaviorTree
                 return true;
 
             var key = EnemyBlackboardKeys.CooldownReadyTime(cooldownId);
-            return !context.Blackboard.TryGetFloat(key, out var readyTime) || Time.time >= readyTime;
+            return !context.Blackboard.TryGetRuntimeFloat(key, out var readyTime) || Time.time >= readyTime;
         }
 
         public static void RecordCooldown(BehaviorTreeContext context, string cooldownId, float cooldownDuration)
@@ -125,7 +125,9 @@ namespace UPlayGround.AI.BehaviorTree
             if (context?.Blackboard == null || string.IsNullOrWhiteSpace(cooldownId) || cooldownDuration <= 0f)
                 return;
 
-            context.Blackboard.SetFloat(EnemyBlackboardKeys.CooldownReadyTime(cooldownId), Time.time + cooldownDuration);
+            context.Blackboard.SetRuntimeFloat(
+                EnemyBlackboardKeys.CooldownReadyTime(cooldownId),
+                Time.time + cooldownDuration);
         }
 
         private static GameActorState CreateState(BehaviorTreeContext context, ActorMovementController controller, EnemyActionRequest request, out string failureReason)

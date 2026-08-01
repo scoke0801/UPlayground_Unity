@@ -88,6 +88,20 @@ namespace UPlayGround.AI.Tests
             Assert.That(blackboard.TrySetInt(reference, 3), Is.False);
         }
 
+        [Test]
+        public void Blackboard_런타임_Float는_Registry와_직렬화_Entry를_사용하지_않는다()
+        {
+            var blackboard = new Blackboard();
+            const string key = "Cooldown.SpacingBeat.ReadyTime";
+
+            blackboard.SetRuntimeFloat(key, 12.5f);
+
+            Assert.That(blackboard.TryGetRuntimeFloat(key, out float value), Is.True);
+            Assert.That(value, Is.EqualTo(12.5f));
+            Assert.That(blackboard.Entries, Is.Empty);
+            Assert.That(blackboard.Clone().TryGetRuntimeFloat(key, out _), Is.False);
+        }
+
         private static BlackboardKeyDefinition CreateDefinition(
             string stableId,
             string keyName,

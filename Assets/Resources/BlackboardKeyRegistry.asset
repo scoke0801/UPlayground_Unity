@@ -674,6 +674,15 @@ MonoBehaviour:
     _scope: 3
     _writePolicy: 0
     _required: 0
+  - _stableId: 834fcc0e9c91433f9dc3752afb81dc3e
+    _keyName: Decision.ResolverFailureReason
+    _aliases: []
+    _displayName: "\uC561\uC158 \uD574\uC11D \uC2E4\uD328 \uC0AC\uC720"
+    _description: "\uCD5C\uADFC EnemyActionResolver \uC694\uCCAD\uC774 \uC2E4\uD328\uD55C \uC6D0\uC778\uC785\uB2C8\uB2E4."
+    _valueType: 3
+    _scope: 5
+    _writePolicy: 1
+    _required: 0
   - _stableId: f6a3b8b4deab25be3abf6eccf7fd21f7
     _keyName: enablePatrol
     _aliases: []

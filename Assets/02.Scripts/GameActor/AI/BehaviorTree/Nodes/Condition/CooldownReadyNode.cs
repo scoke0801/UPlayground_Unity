@@ -17,8 +17,8 @@ namespace UPlayGround.AI.BehaviorTree
             if (Context?.Blackboard == null || string.IsNullOrWhiteSpace(_cooldownId))
                 return BTStatus.Success;
 
-            var key = $"Cooldown.{_cooldownId}.ReadyTime";
-            return !Context.Blackboard.TryGetFloat(key, out var readyTime) || Time.time >= readyTime
+            var key = EnemyBlackboardKeys.CooldownReadyTime(_cooldownId);
+            return !Context.Blackboard.TryGetRuntimeFloat(key, out var readyTime) || Time.time >= readyTime
                 ? BTStatus.Success
                 : BTStatus.Failure;
         }

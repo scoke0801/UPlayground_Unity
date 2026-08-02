@@ -240,9 +240,27 @@ namespace UPlayGround.Group
         private MonsterGroupMemory _memory;
         private Transform _lastAlertTarget;
         private float _lastAlertTime = -999f;
+        private int _combatEngagementEvaluationFrame = -1;
+        private bool _cachedCombatEngagement;
 
         public MonsterGroupMemory Memory => _memory;
         public bool IsActivated => _isActivated;
+        /// <summary>
+        /// 공격 슬롯 소유 여부와 무관한 그룹 전체 교전 상태.
+        /// 토큰을 반납하거나 빼앗긴 멤버도 다른 그룹원이 타겟을 유지하는 동안 교전 중이다.
+        /// </summary>
+        public bool IsCombatEngaged
+        {
+            get
+            {
+                if (_combatEngagementEvaluationFrame == Time.frameCount)
+                    return _cachedCombatEngagement;
+
+                _combatEngagementEvaluationFrame = Time.frameCount;
+                _cachedCombatEngagement = EvaluateCombatEngagement();
+                return _cachedCombatEngagement;
+            }
+        }
         public int CurrentMeleeSlotLimit => GetDynamicSlotLimit(AttackType.Melee);
         public int CurrentRangedSlotLimit => GetDynamicSlotLimit(AttackType.Ranged);
 
@@ -1271,6 +1289,27 @@ namespace UPlayGround.Group
         public float BreatherRemainingTime => Mathf.Max(
             Mathf.Max(0f, _groupBreatherUntil - Time.time),
             Mathf.Max(0f, _playerBreatherUntil - Time.time));
+
+        private bool EvaluateCombatEngagement()
+        {
+            if (!_isActivated)
+                return false;
+
+            if (_meleeSlotOwners.Count > 0 || _rangedSlotOwners.Count > 0 ||
+                _meleeSlotCandidates.Count > 0 || _rangedSlotCandidates.Count > 0)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < _members.Count; i++)
+            {
+                MonsterActor member = _members[i];
+                if (member != null && member.IsAlive() && member.Detection?.HasTarget == true)
+                    return true;
+            }
+
+            return false;
+        }
 
         #endregion
 

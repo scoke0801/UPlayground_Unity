@@ -39,6 +39,8 @@ namespace UPlayGround.Simulation
         private ActorMovementController _movement;
         private ActorAnimator _animator;
         private EnemyDetection _detection;
+        private EnemyAIController _groundAI;
+        private EnemyFlyingAIController _flyingAI;
         private int _nextLeaseId;
 
         public static event Action<GameActor, ActorSimulationState> AnyStateChanged;
@@ -96,6 +98,8 @@ namespace UPlayGround.Simulation
             {
                 if (_detection != null && _detection.HasTarget)
                     return false;
+                if (IsMonsterGroupEngaged())
+                    return false;
                 return stateId is ActorStateId.Idle or ActorStateId.Patrol;
             }
 
@@ -151,6 +155,8 @@ namespace UPlayGround.Simulation
             _movement ??= GetComponent<ActorMovementController>();
             _animator ??= _actor != null ? _actor.Animator : GetComponentInChildren<ActorAnimator>();
             _detection ??= GetComponent<EnemyDetection>();
+            _groundAI ??= GetComponent<EnemyAIController>();
+            _flyingAI ??= GetComponent<EnemyFlyingAIController>();
         }
 
         private void NotifyResumedHandlers()
@@ -162,6 +168,15 @@ namespace UPlayGround.Simulation
                 if (_resumeBehaviours[i] is IActorSimulationResumeHandler handler)
                     handler.OnActorSimulationResumed();
             }
+        }
+
+        private bool IsMonsterGroupEngaged()
+        {
+            // 파괴된 UnityEngine.Object에는 ?.가 fake-null을 통과시키므로 명시 비교를 쓴다.
+            if (_groundAI != null && _groundAI.Group != null && _groundAI.Group.IsCombatEngaged)
+                return true;
+
+            return _flyingAI != null && _flyingAI.Group != null && _flyingAI.Group.IsCombatEngaged;
         }
 
         private void OnDestroy()

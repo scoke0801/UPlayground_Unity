@@ -1,7 +1,8 @@
 # Collision Event 명시적 범위 판정 확장 스펙
 
 > 작성일: 2026-08-01  
-> 상태: 설계 완료 / 미구현  
+> 갱신일: 2026-08-02  
+> 상태: Phase 1~5 구현 완료 / Phase 6(Unity Play Mode·Build 검증, 콘텐츠 수직 슬라이스) 미완  
 > 대상 환경: Unity 6 (6000.0.60f1), Animancer MotionSet, Gameplay Ability  
 > 범위: 플레이어·몬스터·궁극기의 Collision Event 판정 소스, 명시적 Shape, 런타임 요청 계약, 에디터·검증 확장  
 > 관련 문서: `Assets/docs/guide/COMBAT_SYSTEM_GUIDE.md`, `Assets/docs/guide/MOTION_EVENT_ROLE_GUIDE.md`, `Assets/docs/design/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md`
@@ -522,48 +523,48 @@ Collision Event Explicit Shape는 **액터 모션 타임라인의 특정 순간 
 
 ### Phase 1. 공용 데이터와 요청 계약
 
-- [ ] `CollisionSourceType`, Shape/Anchor/Evaluation/Direction enum 추가
-- [ ] `ExplicitCollisionShapeData` 추가
-- [ ] `CollisionRequest`, `ResolvedCollisionShape` 추가
-- [ ] `ICombatCollisionExecutor.BeginCollision/EndCollision` 추가
-- [ ] 기존 Attached 호출을 신규 요청으로 연결
-- [ ] 기존 Collision Event 직렬화 회귀 테스트 추가
+- [x] `CollisionSourceType`, Shape/Anchor/Evaluation/Direction enum 추가
+- [x] `ExplicitCollisionShapeData` 추가
+- [x] `CollisionRequest`, `ResolvedCollisionShape` 추가
+- [x] `ICombatCollisionExecutor.BeginCollision/EndCollision` 추가
+- [x] 기존 Attached 호출을 신규 요청으로 연결
+- [x] 기존 Collision Event 직렬화 회귀 테스트 추가
 
 ### Phase 2. Explicit Shape 검출
 
-- [ ] `CombatHitDetector.DetectExplicitHits` 구현
-- [ ] Sphere/Box/Capsule NonAlloc 질의 구현
-- [ ] 공통 owner 제외·Damageable 캐시·중복 제거 재사용
-- [ ] `CombatCollisionSession` 추가
-- [ ] `Window` 평가를 Player/Enemy 프레임당 1회 검출에 연결
-- [ ] `OnceOnBegin` 즉시 검출 보장
-- [ ] Direction 정책을 `CombatHit.AttackDirection`에 반영
+- [x] `CombatHitDetector.DetectExplicitHits` 구현
+- [x] Sphere/Box/Capsule NonAlloc 질의 구현
+- [x] 공통 owner 제외·Damageable 캐시·중복 제거 재사용
+- [x] `CombatCollisionSession` 추가
+- [x] `Window` 평가를 Player/Enemy 프레임당 1회 검출에 연결
+- [x] `OnceOnBegin` 즉시 검출 보장
+- [x] Direction 정책을 `CombatHit.AttackDirection`에 반영
 
 ### Phase 3. Motion Event와 전투 경로
 
-- [ ] `BeginCollisionEvent` Inspector 데이터 추가
-- [ ] `GetShortLabel` 개선
-- [ ] PlayerCombat 요청 처리
-- [ ] EnemyCombat 요청 처리
-- [ ] ResidualPlayerCombat 호환
-- [ ] 취소·상태 전환·OnDisable에서 Session 종료 보장
+- [x] `BeginCollisionEvent` Inspector 데이터 추가
+- [x] `GetShortLabel` 개선
+- [x] PlayerCombat 요청 처리
+- [x] EnemyCombat 요청 처리
+- [x] ResidualPlayerCombat 호환
+- [x] 취소·상태 전환·OnDisable에서 Session 종료 보장
 - [ ] 기존 Attached Sweep 회귀 확인
 
 ### Phase 4. Ultimate 연결
 
-- [ ] 공유 `CollisionEventData` 도입 여부 확정
-- [ ] `UltimateDamageWindowEvent`에 명시적 판정 연결
-- [ ] PrimaryTarget/WorldPosition Anchor 해석
-- [ ] Cinematic Stage 좌표 변환 일치
-- [ ] 궁극기 종료·중단 시 Collision Session 정리
+- [x] 공유 `CollisionEventData` 도입 여부 확정
+- [x] `UltimateDamageWindowEvent`에 명시적 판정 연결
+- [x] PrimaryTarget/WorldPosition Anchor 해석
+- [x] Cinematic Stage 좌표 변환 일치
+- [x] 궁극기 종료·중단 시 Collision Session 정리
 
 ### Phase 5. 에디터와 검증
 
-- [ ] 조건부 Inspector UI
-- [ ] Scene View Shape 프리뷰
-- [ ] 런타임 Debug Renderer 확장
-- [ ] Shape 값 검증 및 오류 뱃지
-- [ ] `WeaponSlashSetupWindow`의 Explicit 이벤트 제외
+- [x] 조건부 Inspector UI
+- [x] Scene View Shape 프리뷰
+- [x] 런타임 Debug Renderer 확장
+- [x] Shape 값 검증 및 오류 뱃지
+- [x] `WeaponSlashSetupWindow`의 Explicit 이벤트 제외
 - [ ] 텔레그래프 근사 베이크 필요성 재평가
 
 ### Phase 6. 자동 검증과 콘텐츠 수직 슬라이스
@@ -649,3 +650,44 @@ Collision Event Explicit Shape는 **액터 모션 타임라인의 특정 순간 
 | 지속 장판 | Projectile/전용 영역 런타임 유지 | 틱·수명·재타격 쿨다운 책임 분리 |
 
 이 표의 권장안을 기준으로 Phase 1을 시작할 수 있다. Cone, 복합 Shape, 거리 감쇠는 실제 콘텐츠 수직 슬라이스에서 필요성이 확인된 뒤 별도 확장으로 다룬다.
+
+---
+
+## 14. 구현 결과와 설계 이탈 (2026-08-02)
+
+### 14.1 추가·변경된 파일
+
+| 파일 | 역할 |
+|------|------|
+| `GameActor/Combat/Detection/ExplicitCollisionShapeData.cs` | Source/Shape/Anchor/Sampling/Evaluation/Direction enum과 저작 데이터, `Validate`/`Describe` |
+| `GameActor/Combat/Detection/ResolvedCollisionShape.cs` | 실행 시점 Anchor 포즈·월드 형상·방향 정책 |
+| `GameActor/Combat/Detection/CombatCollisionSession.cs` | 명시적 판정 윈도우 소유자(A안)와 `ICollisionAnchorProvider` |
+| `GameActor/Combat/Detection/ExplicitCollisionDebugRegistry.cs` | 개발 빌드 전용 활성 세션 레지스트리 |
+| `GameActor/Combat/Action/CollisionRequest.cs` | 원자적 요청 |
+| `GameActor/Combat/Action/CollisionEventData.cs` | Motion/Ultimate 공용 저작 데이터(7.1 2안) |
+| `MotionSet/Core/Events/MotionEventShowIfAttribute.cs` | MotionEvent 인스펙터 조건부 필드 표시 |
+| `02.Scripts/Editor/MotionEditorExtensions/EventEditor/BeginCollisionEventSceneEditor.cs` | Scene View Shape 프리뷰와 저작 경고 |
+| `GameActor/Editor/ExplicitCollisionShapeDataDrawer.cs` | Shape 종류별 조건부 Inspector와 값 오류 표시 |
+| `Tests/EditMode/Combat/ExplicitCollisionDetectionTests.cs` | EditMode 검증 20건 |
+
+`CombatHitboxShape`에는 `Sphere` 타입을 추가했다. `Point0 == Point1 == Center`로 채우므로
+기존 `Box가 아니면 Capsule` 분기(디버그 렌더·기즈모)에 그대로 흘러도 형상이 어긋나지 않는다.
+
+### 14.2 설계와 다르게 구현한 부분
+
+**EnemyCombat의 `attackDirection` 정리 범위 (스펙 5.7).**
+스펙은 `_attackOrigin.forward` 덮어쓰기를 전면 제거해 `CombatHit.AttackDirection`을 존중하라고 했다.
+구현은 **명시적 Shape일 때만** 검출 방향을 사용하고, 부착형 경로는 기존 `_attackOrigin.forward`를 유지했다.
+부착형의 검출 방향은 Sweep 진행 방향이라 넓은 휘두르기에서 대상이 옆으로 밀리게 되고,
+이는 이번 작업 범위 밖인 전체 몬스터 넉백 체감을 바꾼다(§12 "기존 무기 그룹 회귀 유지"와 충돌).
+전면 적용을 원하면 `EnemyCombat.CheckMeleeAttackHit`의 `attackDirection` 삼항식 한 줄을 바꾸면 된다.
+
+### 14.3 남은 제약
+
+- `DisableCollisionEvent`는 부착형 전제의 레거시 이벤트다. 명시적 Shape 윈도우와 함께 저작하면
+  복구 시 부착형 그룹으로 돌아간다. 두 이벤트를 같은 구간에 조합하지 않는다.
+- 몬스터의 `Window` 평가는 기존 "상태 틱 게이트"(`RequestMeleeHitCheck`)를 그대로 따른다.
+  공격 상태가 멈추면 유령 히트가 발생하지 않는 대신, 상태 바깥에서 지속되는 판정도 만들 수 없다.
+- `PlayerCombat`에 `_attackOrigin` 직렬화 필드를 추가했다. 비워 두면 액터 루트로 폴백하므로
+  기존 프리팹은 재저장 없이 동작한다.
+- Scene View 프리뷰는 `PrimaryTarget` Anchor를 표시하지 않는다(프리뷰 대상 인프라 미연동).

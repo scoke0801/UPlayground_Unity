@@ -42,6 +42,15 @@ namespace UPlayGround.Combat
             string hitboxGroupId,
             IReadOnlyList<string> hitboxGroupIds,
             LayerMask targetLayer)
+            => HandleCollisionEvent(
+                enable,
+                CollisionRequest.Attached(hitPhaseIndex, targetLayer, hitboxGroupId, hitboxGroupIds));
+
+        /// <summary>
+        /// BeginCollisionEvent 진입점. 판정 소스(부착형 그룹 / 명시적 Shape)를 요청 하나로 전달한다.
+        /// enable일 때 원자적 요청을 실행체에 전달해 HitPhase·대상 초기화와 윈도우 시작을 한 번에 처리한다.
+        /// </summary>
+        public void HandleCollisionEvent(bool enable, in CollisionRequest request)
         {
             if (_collisionExecutor == null)
             {
@@ -49,20 +58,19 @@ namespace UPlayGround.Combat
                 return;
             }
 
-            _collisionExecutor.ClearHitTargets();
             if (enable)
             {
-                _collisionExecutor.SetTargetLayerMask(targetLayer);
-                _collisionExecutor.SetHitPhaseIndex(hitPhaseIndex);
-                // SetHitboxGroup이 먼저 그룹 목록을 비우므로 순서 유지 필수.
-                // SetHitboxGroups는 null/빈 목록을 안전하게 무시(단일 그룹으로 폴백)한다.
-                _collisionExecutor.SetHitboxGroup(hitboxGroupId);
-                _collisionExecutor.SetHitboxGroups(hitboxGroupIds);
-                CurrentAction?.SetHitboxGroup(hitboxGroupId);
+                // Explicit Shape는 부착형 그룹을 사용하지 않으므로 액션 상태에 그룹을 기록하지 않는다.
+                CurrentAction?.SetHitboxGroup(request.IsExplicit ? null : request.PrimaryHitboxGroupId);
+                _collisionExecutor.BeginCollision(request);
             }
-            _collisionExecutor.SetEnableCollision(enable);
-            if (!enable)
+            else
+            {
+                // 기존 계약 보존: Collision 종료 이벤트도 적중 대상 캐시를 비운다.
+                _collisionExecutor.ClearHitTargets();
+                _collisionExecutor.EndCollision();
                 CurrentAction?.SetHitboxGroup(null);
+            }
         }
 
         /// <summary>

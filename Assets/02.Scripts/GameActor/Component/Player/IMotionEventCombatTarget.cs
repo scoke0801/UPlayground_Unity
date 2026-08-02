@@ -9,6 +9,14 @@ namespace UPlayGround.Components
     /// </summary>
     public interface IMotionEventCombatTarget
     {
+        /// <summary>
+        /// 판정 소스·그룹·명시적 Shape를 한 번에 전달해 Collision 윈도우를 시작한다.
+        /// 잔류 실행체는 자신의 targetLayerMask를 이미 보유하므로 요청의 LayerMask는 사용하지 않는다.
+        /// </summary>
+        void BeginCollision(in UPlayGround.Combat.CollisionRequest request);
+
+        void EndCollision();
+
         void SetTargetLayerMask(LayerMask targetLayerMask);
         void SetHitPhaseIndex(int hitPhaseIndex);
         void SetHitboxGroup(string hitboxGroupId);

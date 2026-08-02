@@ -9,6 +9,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Editor.Ability;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.EditorTools;
 
 namespace UPlayGround.Tool.Editor.Combat
@@ -240,10 +241,20 @@ namespace UPlayGround.Tool.Editor.Combat
                 if (collisions.Count == 0)
                     continue;
 
+                List<CombatTimelineUtility.TimedSpan> disabledCollisions =
+                    CombatTimelineUtility.CollectSpans<DisableCollisionEvent>(set);
+
                 int maxPhase = -1;
                 foreach (CombatTimelineUtility.TimedSpan span in collisions)
                 {
                     maxPhase = Mathf.Max(maxPhase, span.PhaseIndex);
+
+                    if (span.IsExplicitCollision)
+                    {
+                        AppendExplicitShapeIssues(asset.name, span, issues);
+                        continue;
+                    }
+
                     if (span.End <= span.Start)
                     {
                         issues.Add(
@@ -270,8 +281,95 @@ namespace UPlayGround.Tool.Editor.Combat
                     }
                 }
 
+                AppendExplicitDisableOverlapIssues(
+                    asset.name,
+                    collisions,
+                    disabledCollisions,
+                    issues);
+
                 issues.Add($"통합 검증: {asset.name} Collision {collisions.Count}개, 최대 Phase P{maxPhase}");
             }
+        }
+
+        /// <summary>
+        /// DisableCollisionEvent는 부착형 그룹만 재개할 수 있으므로 Explicit Window와 겹치면
+        /// 종료 뒤 판정 소스가 바뀐다. 완료 스펙 14.3의 저작 금지 조합을 검증 오류로 승격한다.
+        /// </summary>
+        private static void AppendExplicitDisableOverlapIssues(
+            string assetName,
+            IReadOnlyList<CombatTimelineUtility.TimedSpan> collisions,
+            IReadOnlyList<CombatTimelineUtility.TimedSpan> disabledCollisions,
+            List<string> issues)
+        {
+            if (disabledCollisions == null || disabledCollisions.Count == 0)
+                return;
+
+            foreach (CombatTimelineUtility.TimedSpan collision in collisions)
+            {
+                if (!collision.IsExplicitCollision
+                    || collision.ExplicitShape?.evaluation != CollisionEvaluationType.Window)
+                {
+                    continue;
+                }
+
+                foreach (CombatTimelineUtility.TimedSpan disabled in disabledCollisions)
+                {
+                    if (disabled.Start >= collision.End || disabled.End <= collision.Start)
+                        continue;
+
+                    issues.Add(
+                        $"Error: {assetName} P{collision.PhaseIndex} Explicit Window "
+                        + $"({collision.Start:0.###}~{collision.End:0.###})와 DisableCollision "
+                        + $"({disabled.Start:0.###}~{disabled.End:0.###})이 겹칩니다. "
+                        + "DisableCollision은 Explicit Shape를 재개할 수 없으므로 구간을 분리하세요.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 명시적 범위 판정 이벤트의 데이터 검증(스펙 11.3).
+        /// 부착형 그룹 존재 검증은 적용하지 않는다 — Explicit Shape는 HitBox 그룹을 사용하지 않는다.
+        /// </summary>
+        private static void AppendExplicitShapeIssues(
+            string assetName,
+            CombatTimelineUtility.TimedSpan span,
+            List<string> issues)
+        {
+            ExplicitCollisionShapeData shape = span.ExplicitShape;
+            if (shape == null)
+            {
+                issues.Add(
+                    $"Error: {assetName} P{span.PhaseIndex} Collision 판정 소스가 Explicit Shape인데 "
+                    + "Shape 데이터가 없습니다.");
+                return;
+            }
+
+            if (!shape.Validate(out string error))
+                issues.Add($"Error: {assetName} P{span.PhaseIndex} Explicit Shape — {error}");
+
+            if (shape.evaluation == CollisionEvaluationType.Window && span.End <= span.Start)
+            {
+                issues.Add(
+                    $"Error: {assetName} P{span.PhaseIndex} Explicit Shape가 Window 평가인데 duration이 0입니다. "
+                    + "duration을 주거나 OnceOnBegin으로 전환하세요.");
+            }
+
+            if (shape.anchor == CollisionAnchorType.PrimaryTarget)
+            {
+                issues.Add(
+                    $"Info: {assetName} P{span.PhaseIndex} Explicit Shape가 PrimaryTarget Anchor를 사용합니다. "
+                    + "런타임에 주 대상이 없으면 판정이 중단됩니다.");
+            }
+
+            if (shape.anchor == CollisionAnchorType.WorldPosition
+                && shape.worldPosition == Vector3.zero)
+            {
+                issues.Add(
+                    $"Warning: {assetName} P{span.PhaseIndex} Explicit Shape가 WorldPosition Anchor인데 "
+                    + "좌표가 원점입니다. 런타임 Context가 좌표를 제공하지 않으면 월드 원점에서 판정합니다.");
+            }
+
+            issues.Add($"Info: {assetName} P{span.PhaseIndex} Explicit Shape — {shape.Describe()}");
         }
 
         private static string GetPath(Transform root, Transform target)

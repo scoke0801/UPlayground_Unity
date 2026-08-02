@@ -38,6 +38,10 @@ namespace UPlayGround.Tool.Editor.Combat
             public int PhaseIndex; // Collision 전용. 그 외 -1
             public string HitboxGroupId; // Collision 전용
             public List<string> AdditionalHitboxGroupIds; // Collision 전용
+            public CollisionSourceType CollisionSource; // Collision 전용. 기본값 = AttachedHitboxGroup
+            public ExplicitCollisionShapeData ExplicitShape; // Collision + ExplicitShape 전용
+
+            public bool IsExplicitCollision => CollisionSource == CollisionSourceType.ExplicitShape;
 
             public float Duration => Mathf.Max(0f, End - Start);
         }
@@ -144,15 +148,23 @@ namespace UPlayGround.Tool.Editor.Combat
 
         static TimedSpan MakeSpan(MotionEventBase evt, float offset)
         {
+            var collision = evt as BeginCollisionEvent;
+            bool isExplicit = collision != null
+                              && collision.collisionSource == CollisionSourceType.ExplicitShape;
+
             return new TimedSpan
             {
                 Start = offset + evt.startTime,
                 End = offset + Mathf.Max(evt.startTime, evt.endTime),
-                PhaseIndex = evt is BeginCollisionEvent col ? Mathf.Max(0, col.hitPhaseIndex) : -1,
-                HitboxGroupId = evt is BeginCollisionEvent collision ? collision.hitboxGroupId : null,
-                AdditionalHitboxGroupIds = evt is BeginCollisionEvent collisionWithGroups
-                    ? HitboxGroupIds.Normalize(null, collisionWithGroups.additionalHitboxGroupIds)
+                PhaseIndex = collision != null ? Mathf.Max(0, collision.hitPhaseIndex) : -1,
+                // 명시적 Shape는 부착형 그룹을 사용하지 않는다. 그룹 정보를 흘려보내면
+                // 다운스트림 그룹 존재 검증이 잘못된 Error를 낸다.
+                HitboxGroupId = collision != null && !isExplicit ? collision.hitboxGroupId : null,
+                AdditionalHitboxGroupIds = collision != null && !isExplicit
+                    ? HitboxGroupIds.Normalize(null, collision.additionalHitboxGroupIds)
                     : null,
+                CollisionSource = collision?.collisionSource ?? CollisionSourceType.AttachedHitboxGroup,
+                ExplicitShape = isExplicit ? collision.explicitShape : null,
             };
         }
 

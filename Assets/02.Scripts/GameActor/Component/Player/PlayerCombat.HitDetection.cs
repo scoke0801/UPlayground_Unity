@@ -17,7 +17,10 @@ using UPlayGround.Debugging;
 
 namespace UPlayGround.Components
 {
-    public partial class PlayerCombat : PlayerActorComponent, UPlayGround.Combat.ICombatCollisionExecutor, IDebugGizmoProvider
+    public partial class PlayerCombat : PlayerActorComponent,
+        UPlayGround.Combat.ICombatCollisionExecutor,
+        UPlayGround.Combat.ICollisionAnchorProvider,
+        IDebugGizmoProvider
     {
         #region Hit Detection
 
@@ -38,7 +41,9 @@ namespace UPlayGround.Components
                 SetHitPhaseIndex(_actionRunner.CurrentPhaseIndex);
             }
 
-            if (_hitboxSet == null || !_hitboxSet.IsActive)
+            // 판정 소스는 배타적이다 — 명시적 세션이 열려 있으면 부착형 그룹을 질의하지 않는다.
+            bool explicitActive = _collisionSession.ShouldDetect();
+            if (!explicitActive && (_hitboxSet == null || !_hitboxSet.IsActive))
                 return;
 
             // 프레임당 1회만 검출한다. LateUpdate 폴링과 애니메이션 이벤트(OnAnimationEvent_HitCheck)가
@@ -47,12 +52,28 @@ namespace UPlayGround.Components
                 return;
             _lastHitDetectionFrame = Time.frameCount;
 
-            _hitboxSet.DetectActiveGroup(
-                transform,
-                _targetLayerMask,
-                _hitTargets,
-                _detectedHits,
-                includeInvincibleTargets: false);
+            if (explicitActive)
+            {
+                _collisionSession.Detect(
+                    transform,
+                    _targetLayerMask,
+                    _hitTargets,
+                    _detectedHits,
+                    includeInvincibleTargets: false);
+
+                // OnceOnBegin은 시작 시점 1회로 끝난다. 이후 프레임에서 다시 질의하지 않는다.
+                if (_collisionSession.Evaluation == CollisionEvaluationType.OnceOnBegin)
+                    _collisionSession.MarkConsumed();
+            }
+            else
+            {
+                _hitboxSet.DetectActiveGroup(
+                    transform,
+                    _targetLayerMask,
+                    _hitTargets,
+                    _detectedHits,
+                    includeInvincibleTargets: false);
+            }
 
             // 첫 번째 히트 정보만 피드백(킬캠 등)에 사용
             bool    hitOccurred   = false;

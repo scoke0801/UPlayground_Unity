@@ -96,9 +96,9 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             SerializedProperty start = eventProperty.FindPropertyRelative("startTime");
             SerializedProperty end = eventProperty.FindPropertyRelative("endTime");
             if (start != null)
-                timing.Add(new PropertyField(start, "Start"));
+                timing.Add(new PropertyField(start, "시작"));
             if (end != null)
-                timing.Add(new PropertyField(end, "End"));
+                timing.Add(new PropertyField(end, "끝"));
 
             VisualElement properties = AddSection("PROPERTIES", "이벤트 속성");
             AddConcreteEventProperties(eventProperty, properties);
@@ -142,6 +142,8 @@ namespace UPlayGround.Animation.Editor.UIToolkit
             bool added = false;
             bool enterChildren = true;
 
+            object eventInstance = eventProperty.managedReferenceValue;
+
             while (iterator.NextVisible(enterChildren) &&
                    !SerializedProperty.EqualContents(iterator, end))
             {
@@ -151,7 +153,14 @@ namespace UPlayGround.Animation.Editor.UIToolkit
                 if (iterator.name is "startTime" or "endTime" or "globalStartTimeOffset")
                     continue;
 
-                container.Add(new PropertyField(iterator.Copy()));
+                System.Reflection.FieldInfo fieldInfo = FindFieldInfo(eventInstance, iterator.name);
+                string koreanLabel = GetKoreanLabel(fieldInfo);
+
+                var field = koreanLabel != null
+                    ? new PropertyField(iterator.Copy(), koreanLabel)
+                    : new PropertyField(iterator.Copy());
+                container.Add(field);
+                ApplyShowIfCondition(eventProperty, fieldInfo, field);
                 added = true;
             }
 
@@ -161,6 +170,68 @@ namespace UPlayGround.Animation.Editor.UIToolkit
                 hint.AddToClassList("up-empty-hint");
                 container.Add(hint);
             }
+        }
+
+        static System.Reflection.FieldInfo FindFieldInfo(object eventInstance, string fieldName)
+        {
+            return eventInstance?.GetType().GetField(
+                fieldName,
+                System.Reflection.BindingFlags.Public
+                | System.Reflection.BindingFlags.NonPublic
+                | System.Reflection.BindingFlags.Instance);
+        }
+
+        /// <summary>
+        /// <see cref="MotionEventLabelAttribute"/>가 지정한 한국어 라벨. 없으면 null(Unity 기본 표시 이름 사용).
+        /// </summary>
+        static string GetKoreanLabel(System.Reflection.FieldInfo fieldInfo)
+        {
+            if (fieldInfo == null)
+                return null;
+
+            var label = Attribute.GetCustomAttribute(fieldInfo, typeof(MotionEventLabelAttribute))
+                as MotionEventLabelAttribute;
+            return string.IsNullOrEmpty(label?.Label) ? null : label.Label;
+        }
+
+        /// <summary>
+        /// <see cref="MotionEventShowIfAttribute"/>가 붙은 필드를 조건 필드 값에 따라 숨긴다.
+        /// 조건 필드를 찾지 못하면(타입 변경·리팩터링) 필드를 감추지 않고 항상 표시한다.
+        /// </summary>
+        static void ApplyShowIfCondition(
+            SerializedProperty eventProperty,
+            System.Reflection.FieldInfo fieldInfo,
+            VisualElement field)
+        {
+            if (fieldInfo == null)
+                return;
+
+            var showIf = Attribute.GetCustomAttribute(fieldInfo, typeof(MotionEventShowIfAttribute))
+                as MotionEventShowIfAttribute;
+            if (showIf == null)
+                return;
+
+            SerializedProperty condition =
+                eventProperty.FindPropertyRelative(showIf.ConditionFieldName);
+            if (condition == null)
+                return;
+
+            SerializedProperty conditionCopy = condition.Copy();
+
+            void Sync()
+            {
+                conditionCopy.serializedObject.UpdateIfRequiredOrScript();
+                int value = conditionCopy.propertyType == SerializedPropertyType.Boolean
+                    ? conditionCopy.boolValue ? 1 : 0
+                    : conditionCopy.intValue;
+                field.style.display = showIf.IsVisible(value) ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            Sync();
+
+            // 조건 필드가 바뀌면 같은 속성 패널 안에서 변경 이벤트가 버블링되므로,
+            // 인스펙터를 다시 만들지 않고 display만 토글한다.
+            field.parent?.RegisterCallback<SerializedPropertyChangeEvent>(_ => Sync());
         }
 
         SerializedProperty FindSelectedEventProperty()

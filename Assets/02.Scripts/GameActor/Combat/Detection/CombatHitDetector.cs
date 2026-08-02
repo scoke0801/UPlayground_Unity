@@ -70,7 +70,7 @@ namespace UPlayGround.Combat
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                     hitbox.AddDebugDetectionSample(shape);
 #endif
-                    CollectAttachedShapeHits(
+                    CollectShapeHits(
                         ownerRoot,
                         shape,
                         targetLayer,
@@ -79,7 +79,8 @@ namespace UPlayGround.Combat
                         collectedDamageables,
                         results,
                         includeInvincibleTargets,
-                        sweepDirection);
+                        sweepDirection,
+                        null);
                 }
 
                 hitbox.CommitShape(current);
@@ -88,7 +89,46 @@ namespace UPlayGround.Combat
             return results.Count;
         }
 
-        private static void CollectAttachedShapeHits(
+        /// <summary>
+        /// Collision Event가 직접 소유한 명시적 Shape를 1회 질의한다.
+        /// 부착형 경로와 동일한 owner 제외·Damageable 캐시·중복 제거·정책 판정을 공유한다.
+        /// </summary>
+        public static int DetectExplicitHits(
+            Transform ownerRoot,
+            in ResolvedCollisionShape resolvedShape,
+            LayerMask targetLayer,
+            Collider[] overlapBuffer,
+            ISet<IDamageable> ignoredDamageables,
+            ISet<IDamageable> collectedDamageables,
+            List<CombatHit> results,
+            bool includeInvincibleTargets = false)
+        {
+            results.Clear();
+            if (overlapBuffer == null || overlapBuffer.Length == 0 || collectedDamageables == null)
+                return 0;
+            if (!resolvedShape.TryGetWorldShape(out CombatHitboxShape shape))
+                return 0;
+
+            CollectShapeHits(
+                ownerRoot,
+                shape,
+                targetLayer,
+                overlapBuffer,
+                ignoredDamageables,
+                collectedDamageables,
+                results,
+                includeInvincibleTargets,
+                Vector3.zero,
+                resolvedShape);
+
+            return results.Count;
+        }
+
+        /// <summary>
+        /// Shape 종류와 무관한 공용 수집 함수. 부착형 Sweep 샘플과 명시적 Shape가 함께 사용한다.
+        /// <paramref name="directionPolicy"/>가 지정되면 명시적 Shape의 방향 정책이 우선한다.
+        /// </summary>
+        private static void CollectShapeHits(
             Transform ownerRoot,
             in CombatHitboxShape shape,
             LayerMask targetLayer,
@@ -97,23 +137,10 @@ namespace UPlayGround.Combat
             ISet<IDamageable> collected,
             List<CombatHit> results,
             bool includeInvincibleTargets,
-            Vector3 preferredAttackDirection)
+            Vector3 preferredAttackDirection,
+            ResolvedCollisionShape? directionPolicy)
         {
-            int hitCount = shape.Type == CombatHitboxShapeType.Box
-                ? Physics.OverlapBoxNonAlloc(
-                    shape.Center,
-                    shape.HalfExtents,
-                    overlapBuffer,
-                    shape.Rotation,
-                    targetLayer,
-                    QueryTriggerInteraction.Collide)
-                : Physics.OverlapCapsuleNonAlloc(
-                    shape.Point0,
-                    shape.Point1,
-                    shape.Radius,
-                    overlapBuffer,
-                    targetLayer,
-                    QueryTriggerInteraction.Collide);
+            int hitCount = OverlapNonAlloc(shape, overlapBuffer, targetLayer);
 
             Collider[] hits = overlapBuffer;
             if (hitCount == overlapBuffer.Length)
@@ -125,19 +152,7 @@ namespace UPlayGround.Combat
                         $"[CombatHitDetector] Overlap 버퍼({overlapBuffer.Length})가 가득 차 임시 배열을 할당합니다(GC). " +
                         "버퍼 크기 상향 또는 HitBox 범위 축소를 고려하세요. (이 경고는 1회만 출력)");
                 }
-                hits = shape.Type == CombatHitboxShapeType.Box
-                    ? Physics.OverlapBox(
-                        shape.Center,
-                        shape.HalfExtents,
-                        shape.Rotation,
-                        targetLayer,
-                        QueryTriggerInteraction.Collide)
-                    : Physics.OverlapCapsule(
-                        shape.Point0,
-                        shape.Point1,
-                        shape.Radius,
-                        targetLayer,
-                        QueryTriggerInteraction.Collide);
+                hits = OverlapAlloc(shape, targetLayer);
                 hitCount = hits.Length;
             }
 
@@ -158,22 +173,78 @@ namespace UPlayGround.Combat
                     continue;
 
                 Vector3 hitPoint = hit.ClosestPoint(shape.Center);
-                Vector3 attackDirection = preferredAttackDirection;
-                if (attackDirection.sqrMagnitude < 0.0001f)
-                    attackDirection = hitPoint - shape.Center;
-                if (attackDirection.sqrMagnitude < 0.0001f && ownerRoot != null)
-                    attackDirection = hit.transform.position - ownerRoot.position;
-                if (attackDirection.sqrMagnitude < 0.0001f)
-                    attackDirection = ownerRoot != null ? ownerRoot.forward : Vector3.forward;
+                Vector3 attackDirection;
+                if (directionPolicy.HasValue)
+                {
+                    attackDirection = directionPolicy.Value.ResolveAttackDirection(hitPoint, shape.Center, ownerRoot);
+                }
+                else
+                {
+                    attackDirection = preferredAttackDirection;
+                    if (attackDirection.sqrMagnitude < 0.0001f)
+                        attackDirection = hitPoint - shape.Center;
+                    if (attackDirection.sqrMagnitude < 0.0001f && ownerRoot != null)
+                        attackDirection = hit.transform.position - ownerRoot.position;
+                    if (attackDirection.sqrMagnitude < 0.0001f)
+                        attackDirection = ownerRoot != null ? ownerRoot.forward : Vector3.forward;
+                    attackDirection = attackDirection.normalized;
+                }
 
                 collected.Add(damageable);
                 results.Add(new CombatHit(
                     damageable,
                     hit,
                     hitPoint,
-                    attackDirection.normalized));
+                    attackDirection));
             }
         }
+
+        private static int OverlapNonAlloc(in CombatHitboxShape shape, Collider[] buffer, LayerMask targetLayer)
+            => shape.Type switch
+            {
+                CombatHitboxShapeType.Box => Physics.OverlapBoxNonAlloc(
+                    shape.Center,
+                    shape.HalfExtents,
+                    buffer,
+                    shape.Rotation,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide),
+                CombatHitboxShapeType.Sphere => Physics.OverlapSphereNonAlloc(
+                    shape.Center,
+                    shape.Radius,
+                    buffer,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide),
+                _ => Physics.OverlapCapsuleNonAlloc(
+                    shape.Point0,
+                    shape.Point1,
+                    shape.Radius,
+                    buffer,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide),
+            };
+
+        private static Collider[] OverlapAlloc(in CombatHitboxShape shape, LayerMask targetLayer)
+            => shape.Type switch
+            {
+                CombatHitboxShapeType.Box => Physics.OverlapBox(
+                    shape.Center,
+                    shape.HalfExtents,
+                    shape.Rotation,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide),
+                CombatHitboxShapeType.Sphere => Physics.OverlapSphere(
+                    shape.Center,
+                    shape.Radius,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide),
+                _ => Physics.OverlapCapsule(
+                    shape.Point0,
+                    shape.Point1,
+                    shape.Radius,
+                    targetLayer,
+                    QueryTriggerInteraction.Collide),
+            };
 
         private static IDamageable ResolveDamageable(Collider collider)
         {

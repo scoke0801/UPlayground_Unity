@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.CameraSystem;
+using UPlayGround.Combat;
 using UPlayGround.Data.Sound;
 using UPlayGround.Manager;
 using UPlayGround.Components;
@@ -202,16 +203,64 @@ namespace UPlayGround.Data
     [Serializable, MovedFrom(true, sourceAssembly: "Assembly-CSharp")]
     public sealed class UltimateDamageWindowEvent : UltimateTimelineEvent
     {
+        [Tooltip("판정 소스와 범위. 기본값은 기존과 동일하게 부착형 HitBox 그룹(Phase Default)이다.")]
+        public CollisionEventData collision = new();
+
         public override string DisplayName => "데미지 윈도우";
 
         public override void Execute(UltimateRuntimeContext context)
         {
-            context?.Caster?.GetCombat()?.SetEnableCollision(true);
+            PlayerCombat combat = context?.Caster?.GetCombat();
+            if (combat == null)
+                return;
+
+            CollisionEventData collisionData = collision ?? new CollisionEventData();
+
+            // 궁극기의 주 대상과 스테이지 좌표계는 Combat이 알 수 없으므로 여기서 해석해 전달한다.
+            ResolveStageWorldPose(
+                context,
+                collisionData.explicitShape,
+                out Vector3? overrideWorldPosition,
+                out Quaternion? overrideWorldRotation);
+            combat.BeginCollision(collisionData.BuildRequest(
+                combat.WarpTargetLayer,
+                overrideWorldPosition,
+                context?.PrimaryTarget,
+                overrideWorldRotation));
         }
 
         public override void Complete(UltimateRuntimeContext context)
         {
-            context?.Caster?.GetCombat()?.SetEnableCollision(false);
+            context?.Caster?.GetCombat()?.EndCollision();
+        }
+
+        /// <summary>
+        /// WorldPosition Anchor는 시네마틱 스테이지가 활성화된 동안 VFX 이벤트와 동일한
+        /// Stage Transform 규약을 따라야 한다. 그래야 화면상 연출과 실제 판정이 같은 좌표계에 놓인다.
+        /// </summary>
+        private static void ResolveStageWorldPose(
+            UltimateRuntimeContext context,
+            ExplicitCollisionShapeData shape,
+            out Vector3? position,
+            out Quaternion? rotation)
+        {
+            position = null;
+            rotation = null;
+            if (shape == null || shape.anchor != CollisionAnchorType.WorldPosition)
+                return;
+
+            position = shape.worldPosition;
+
+            ICinematicStageService stageService = Svc.CinematicStage;
+            CinematicStageTicket stageTicket = context?.StageTicket ?? default;
+            if (stageTicket.IsValid
+                && stageService != null
+                && stageService.ActiveTicket == stageTicket)
+            {
+                Matrix4x4 stageTransform = stageService.StageTransform;
+                position = stageTransform.MultiplyPoint3x4(position.Value);
+                rotation = stageTransform.rotation;
+            }
         }
     }
 

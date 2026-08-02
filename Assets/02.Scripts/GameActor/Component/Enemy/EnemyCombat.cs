@@ -180,7 +180,9 @@ namespace UPlayGround.Components
         }
     }
 
-    public class EnemyCombat : MonoBehaviour, UPlayGround.Combat.ICombatCollisionExecutor
+    public class EnemyCombat : MonoBehaviour,
+        UPlayGround.Combat.ICombatCollisionExecutor,
+        UPlayGround.Combat.ICollisionAnchorProvider
     {
         private const string DefaultCircleTelegraphFXKey = "EnemyHeavyAttackTelegraph_Circle";
         private const float  DefaultDangerRingDuration   = 0.6f;
@@ -264,6 +266,8 @@ namespace UPlayGround.Components
         private readonly List<CombatHit> _detectedMeleeHits = new List<CombatHit>(32);
         private readonly Dictionary<int, Vector3> _telegraphHitPositions = new Dictionary<int, Vector3>();
         private CombatHitboxSet _hitboxSet;
+        // 명시적 범위 판정 윈도우의 단일 소유자. 부착형 그룹 저장소(_hitboxSet)와 책임을 분리한다.
+        private readonly CombatCollisionSession _collisionSession = new();
         private string _requestedHitboxGroupId;
         private IReadOnlyList<string> _requestedHitboxGroupIds;
         private int _lastMeleeHitCheckFrame = -1;
@@ -306,6 +310,8 @@ namespace UPlayGround.Components
         public int               CurrentLevel     => _ownerActor != null ? _ownerActor.Level : 1;
         // P3 3차: 충돌 윈도우의 단일 소유는 CombatActionRunner의 instance. 자체 플래그를 두지 않고 runner를 읽는다.
         public bool              IsPossibleCollide => _actionRunner != null && _actionRunner.IsCollisionActive;
+        /// <summary>현재 공격 타입과 무관하게 LateUpdate 폴링이 필요한 명시적 Window가 활성 상태인지.</summary>
+        public bool              HasActiveExplicitCollision => _collisionSession.ShouldDetect();
         public SkillType         ReservedSkillType => _reservedSkillType;
         public AbilityAttackCategory ReservedAttackCategory => _reservedAttackCategory;
         public List<IDamageable> SkillTargetList  => _skillTargets;
@@ -900,7 +906,14 @@ namespace UPlayGround.Components
 
         public void CheckMeleeAttackHit()
         {
-            if (_currentSkill == null || _currentSkill.baseInfo.attackType != AttackType.Melee)
+            if (_currentSkill == null)
+                return;
+
+            // 판정 소스는 배타적이다 — 명시적 세션이 열려 있으면 부착형 그룹을 질의하지 않는다.
+            bool explicitActive = _collisionSession.ShouldDetect();
+
+            // 명시적 범위 판정은 Ability의 attackType과 무관하다(폭발·충격파는 Melee로 저작되지 않는다).
+            if (!explicitActive && _currentSkill.baseInfo.attackType != AttackType.Melee)
                 return;
 
             if (_actionRunner != null
@@ -911,7 +924,9 @@ namespace UPlayGround.Components
             }
 
             var phase = _currentSkill.baseInfo.GetHitPhase(_currentHitPhaseIndex);
-            if (_hitboxSet == null || !_hitboxSet.IsActive)
+            if (phase == null)
+                return;
+            if (!explicitActive && (_hitboxSet == null || !_hitboxSet.IsActive))
                 return;
 
             // 프레임당 1회만 검출한다(스윕 기준 형상 이중 커밋 방지). LateUpdate 폴링과
@@ -921,12 +936,28 @@ namespace UPlayGround.Components
             _lastMeleeHitCheckFrame = Time.frameCount;
 
             // 무적 플레이어도 전달해 방어 레이어가 퍼펙트 도지/대시 회피를 판정한다.
-            _hitboxSet.DetectActiveGroup(
-                transform,
-                _targetLayer,
-                _hitTargets,
-                _detectedMeleeHits,
-                includeInvincibleTargets: true);
+            if (explicitActive)
+            {
+                _collisionSession.Detect(
+                    transform,
+                    _targetLayer,
+                    _hitTargets,
+                    _detectedMeleeHits,
+                    includeInvincibleTargets: true);
+
+                // OnceOnBegin은 시작 시점 1회로 끝난다. 이후 프레임에서 다시 질의하지 않는다.
+                if (_collisionSession.Evaluation == CollisionEvaluationType.OnceOnBegin)
+                    _collisionSession.MarkConsumed();
+            }
+            else
+            {
+                _hitboxSet.DetectActiveGroup(
+                    transform,
+                    _targetLayer,
+                    _hitTargets,
+                    _detectedMeleeHits,
+                    includeInvincibleTargets: true);
+            }
 
             foreach (CombatHit hit in _detectedMeleeHits)
             {
@@ -940,7 +971,9 @@ namespace UPlayGround.Components
                     forceBreakExpose   = phase.forceBreakExpose,
                     criticalMultiplier = 1.0f,
                     hitPoint           = hit.HitPoint,
-                    attackDirection    = _attackOrigin.forward,
+                    // 명시적 범위 판정은 Shape 중심 기준 방사/흡입 방향이 의미를 가지므로 검출 결과를 존중한다.
+                    // 부착형은 기존 회귀 보존을 위해 공격 원점 전방을 그대로 유지한다.
+                    attackDirection    = explicitActive ? hit.AttackDirection : _attackOrigin.forward,
                     reactionType       = phase.reactionType,
                     hitParticleName    = phase.hitParticleName,
                     pullForce          = phase.pullForce,
@@ -1217,15 +1250,96 @@ namespace UPlayGround.Components
             _telegraphHitPositions.Clear();
         }
 
+        private void OnDisable()
+        {
+            // 풀링·사망·씬 전환으로 비활성화될 때 명시적 판정 세션이 디버그 레지스트리에 남지 않게 한다.
+            _collisionSession.End();
+        }
+
         public void CancelCurrentAction()
         {
             CancelCurrentAbility();
             _actionRunner?.CancelCurrentAction();
+            // 취소 이후 추가 검출이 발생하지 않도록 두 판정 소스를 모두 닫는다.
+            _hitboxSet?.EndGroup();
+            _collisionSession.End();
             ClearHitTargets();
             ClearTelegraphs();
             ClearTelegraphHitPositions();
             _motionWarp?.Cancel(WarpCancelReason.ExternalEnd);
         }
+
+        /// <summary>
+        /// 원자적 Collision 요청 진입점. 판정 소스에 따라 부착형 그룹 또는 명시적 Shape 세션을 연다.
+        /// OnceOnBegin 명시적 판정은 여기서 즉시 1회 검출까지 마친다(업데이트 순서 비의존).
+        /// </summary>
+        public void BeginCollision(in CollisionRequest request)
+        {
+            // 원자적 요청의 권위 진입점. 모든 호출자가 같은 페이즈·중복 대상 초기화를 공유한다.
+            ClearHitTargets();
+            SetHitPhaseIndex(request.HitPhaseIndex);
+            SetTargetLayer(request.TargetLayerMask);
+
+            bool collisionStarted = true;
+
+            if (request.IsExplicit)
+            {
+                _requestedHitboxGroupId = null;
+                _requestedHitboxGroupIds = null;
+                _hitboxSet?.EndGroup();
+
+                if (!_collisionSession.TryBegin(
+                        request.ExplicitShape,
+                        this,
+                        request.OverrideWorldPosition,
+                        request.OverrideAnchor,
+                        request.OverrideWorldRotation,
+                        out string error))
+                {
+                    // 조용한 ActorRoot 폴백을 두지 않는다. 설정 오류를 보고하고 판정을 중단한다.
+                    Debug.LogError($"[EnemyCombat] 명시적 Collision 판정을 시작할 수 없습니다: {error}", this);
+                    collisionStarted = false;
+                }
+            }
+            else
+            {
+                _collisionSession.End();
+                _requestedHitboxGroupId = string.IsNullOrWhiteSpace(request.PrimaryHitboxGroupId)
+                    ? null
+                    : request.PrimaryHitboxGroupId.Trim();
+                _requestedHitboxGroupIds = request.AdditionalHitboxGroupIds != null
+                                           && request.AdditionalHitboxGroupIds.Count > 0
+                    ? request.AdditionalHitboxGroupIds
+                    : null;
+                BeginHitboxWindow();
+            }
+
+            // Shape 설정이 잘못되어 판정만 중단된 경우에도 Begin/End 액션 신호와 텔레그래프 수명은 짝을 맞춘다.
+            _actionRunner?.HandleTimelineEvent(CombatTimelineEventType.BeginCollision, request.HitPhaseIndex);
+
+            _lastCollisionStartTime = Time.time;
+            CompleteDangerRing();
+
+            // duration 0인 폭발도 정확히 한 번 판정되도록 시작 시점에 즉시 검출한다.
+            if (collisionStarted
+                && request.IsExplicit
+                && _collisionSession.Evaluation == CollisionEvaluationType.OnceOnBegin)
+            {
+                // 새 Once 세션은 같은 프레임의 직전 Window/Once 검출과 독립된 판정 기회를 가진다.
+                _lastMeleeHitCheckFrame = -1;
+                CheckMeleeAttackHit();
+            }
+        }
+
+        public void EndCollision() => SetEnableCollision(false);
+
+        // ── ICollisionAnchorProvider ──────────────────────────────────
+        public Transform CollisionActorRoot => transform;
+
+        public Transform CollisionAttackOrigin => _attackOrigin != null ? _attackOrigin : transform;
+
+        public Transform CollisionPrimaryTarget =>
+            _detection != null && _detection.HasTarget ? _detection.CurrentTarget : null;
 
         public void SetEnableCollision(bool isCollisionEnable)
         {
@@ -1234,6 +1348,7 @@ namespace UPlayGround.Components
             else
             {
                 _hitboxSet?.EndGroup();
+                _collisionSession.End();
                 // 윈도우 종료 시 그룹 요청을 비워 다음 윈도우에 직전 공격의 그룹이 잔존하지 않게 한다.
                 _requestedHitboxGroupId = null;
                 _requestedHitboxGroupIds = null;

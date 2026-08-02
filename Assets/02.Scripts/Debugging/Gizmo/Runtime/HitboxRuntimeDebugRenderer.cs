@@ -59,9 +59,21 @@ namespace UPlayGround.Debugging
         }
 
         // OnRenderObject 는 카메라마다 호출되므로 별도 카메라 훅 없이 씬을 렌더하는 모든 카메라에 그려진다.
+        /// <summary> 명시적 범위 판정(Collision Event Explicit Shape) 와이어 색. 부착형과 구분한다. </summary>
+        public static Color ExplicitShapeColor { get; set; } = new(0.3f, 0.6f, 1f, 0.9f);
+
+        /// <summary> 실제 Physics 질의에 사용된 형상과 Anchor 스냅샷 표시 색. </summary>
+        public static Color ExplicitAnchorColor { get; set; } = new(1f, 0.85f, 0.2f, 0.9f);
+
+        private static readonly List<CombatCollisionSession> s_sessionBuffer = new(16);
+
         private void OnRenderObject()
         {
-            if (!Enabled || CombatHitbox.Active.Count == 0)
+            if (!Enabled)
+                return;
+
+            int explicitCount = ExplicitCollisionDebugRegistry.Active.Count;
+            if (CombatHitbox.Active.Count == 0 && explicitCount == 0)
                 return;
 
             EnsureMaterial();
@@ -70,6 +82,10 @@ namespace UPlayGround.Debugging
             s_drawBuffer.Clear();
             foreach (var hitbox in CombatHitbox.Active)
                 s_drawBuffer.Add(hitbox);
+
+            s_sessionBuffer.Clear();
+            foreach (var session in ExplicitCollisionDebugRegistry.Active)
+                s_sessionBuffer.Add(session);
 
             _lineMaterial.SetPass(0);
             GL.PushMatrix();
@@ -82,8 +98,13 @@ namespace UPlayGround.Debugging
                     DrawHitbox(hitbox);
             }
 
+            for (int i = 0; i < s_sessionBuffer.Count; i++)
+                DrawExplicitSession(s_sessionBuffer[i]);
+
             GL.End();
             GL.PopMatrix();
+
+            s_sessionBuffer.Clear();
 
             // 판정이 끝났고 잔상도 만료된 히트박스를 레지스트리에서 정리한다(다음 프레임부터 순회 제외).
             for (int i = 0; i < s_drawBuffer.Count; i++)
@@ -167,10 +188,42 @@ namespace UPlayGround.Debugging
             }
         }
 
+        // 명시적 판정 세션: (1) 현재 활성 Shape, (2) 마지막 실제 질의 Shape, (3) Anchor 스냅샷과 중심 연결선.
+        private static void DrawExplicitSession(CombatCollisionSession session)
+        {
+            if (session == null || !session.IsActive)
+                return;
+
+            ResolvedCollisionShape resolved = session.Shape;
+            if (!resolved.TryGetWorldShape(out CombatHitboxShape current))
+                return;
+
+            GL.Color(ExplicitShapeColor);
+            DrawShape(current);
+
+            // 실제 질의에 사용된 형상이 현재 형상과 다르면(Snapshot vs Follow) 함께 표시한다.
+            if (session.HasLastQueriedShape)
+            {
+                CombatHitboxShape queried = session.LastQueriedShape;
+                if ((queried.Center - current.Center).sqrMagnitude > 0.0001f)
+                {
+                    GL.Color(ExplicitAnchorColor);
+                    DrawShape(queried);
+                }
+            }
+
+            resolved.GetAnchorPose(out Vector3 anchorPosition, out _);
+            GL.Color(ExplicitAnchorColor);
+            Line(anchorPosition, current.Center);
+            DrawWireSphere(anchorPosition, 0.15f);
+        }
+
         private static void DrawShape(in CombatHitboxShape shape)
         {
             if (shape.Type == CombatHitboxShapeType.Box)
                 DrawBox(shape);
+            else if (shape.Type == CombatHitboxShapeType.Sphere)
+                DrawWireSphere(shape.Center, shape.Radius);
             else
                 DrawCapsule(shape);
         }

@@ -1,0 +1,15 @@
+{
+  "name": "UPlayGround.Combat.Tests",
+  "rootNamespace": "UPlayGround.Combat.Tests",
+  "references": [
+    "UPlayGround.Data",
+    "UPlayGround.Actor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

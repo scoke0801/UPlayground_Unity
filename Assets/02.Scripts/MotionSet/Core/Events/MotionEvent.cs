@@ -5,40 +5,40 @@ namespace UPlayGround.Data.Event
 {
     public enum MotionEventLinkMode
     {
-        Absolute,
-        Relative,
-        Proportional,
-        Marker,
+        [InspectorName("절대 시간")] Absolute,
+        [InspectorName("상대 시간")] Relative,
+        [InspectorName("비율")] Proportional,
+        [InspectorName("마커")] Marker,
     }
 
     public enum MotionEventReentryPolicy
     {
-        OncePerPlayback,
-        OncePerSectionEntry,
-        EveryCrossing,
+        [InspectorName("재생당 1회")] OncePerPlayback,
+        [InspectorName("구간 진입당 1회")] OncePerSectionEntry,
+        [InspectorName("통과할 때마다")] EveryCrossing,
     }
 
     public enum MotionEventDispatchMode
     {
-        Queued,
-        Exact,
+        [InspectorName("큐 처리")] Queued,
+        [InspectorName("정확한 시점")] Exact,
     }
 
     public enum MotionEventEvaluationPhase
     {
-        Update,
-        PostAnimationEvaluation,
+        [InspectorName("Update (기본)")] Update,
+        [InspectorName("애니메이션 평가 후")] PostAnimationEvaluation,
     }
 
     [Serializable]
     public struct MotionEventTimeLink
     {
-        public bool enabled;
-        public MotionEventLinkMode mode;
-        public string linkedMotionId;
-        public string markerId;
-        public float startValue;
-        public float endValue;
+        [MotionEventLabel("사용")] public bool enabled;
+        [MotionEventLabel("연결 방식")] public MotionEventLinkMode mode;
+        [MotionEventLabel("연결 모션 ID")] public string linkedMotionId;
+        [MotionEventLabel("마커 ID")] public string markerId;
+        [MotionEventLabel("시작 값")] public float startValue;
+        [MotionEventLabel("끝 값")] public float endValue;
     }
 
     public interface IMotionEventTick
@@ -67,11 +67,11 @@ namespace UPlayGround.Data.Event
     {
         public float startTime;
         public float endTime;
-        public MotionEventTimeLink timeLink;
-        public MotionEventReentryPolicy reentryPolicy;
-        public int executionOrder;
-        public MotionEventDispatchMode dispatchMode;
-        public MotionEventEvaluationPhase evaluationPhase;
+        [MotionEventLabel("시간 링크")] public MotionEventTimeLink timeLink;
+        [MotionEventLabel("재진입 정책")] public MotionEventReentryPolicy reentryPolicy;
+        [MotionEventLabel("실행 순서")] public int executionOrder;
+        [MotionEventLabel("디스패치 방식")] public MotionEventDispatchMode dispatchMode;
+        [MotionEventLabel("평가 시점")] public MotionEventEvaluationPhase evaluationPhase;
             
         // 이전 모션들의 누적 시간 (글로벌 타임라인에서의 오프셋)
         [HideInInspector] public float globalStartTimeOffset = 0f;

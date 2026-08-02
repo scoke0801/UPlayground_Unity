@@ -130,7 +130,9 @@ namespace UPlayGround.State
             _combat.UpdateTelegraphs();
 
             // 검출 요청만 표시하고 실제 Overlap은 EnemyCombat.LateUpdate에서 수행한다(갓 적용된 포즈).
-            if (_currentSkill.baseInfo.attackType == AttackType.Melee && _combat.IsPossibleCollide)
+            if ((_currentSkill.baseInfo.attackType == AttackType.Melee
+                 || _combat.HasActiveExplicitCollision)
+                && _combat.IsPossibleCollide)
                 _combat.RequestMeleeHitCheck();
         }
 

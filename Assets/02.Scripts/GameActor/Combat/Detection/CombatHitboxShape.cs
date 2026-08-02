@@ -6,6 +6,10 @@ namespace UPlayGround.Combat
     {
         Box,
         Capsule,
+
+        // 명시적 범위 판정(Collision Event Explicit Shape) 전용. 부착형 HitBox는 생성하지 않는다.
+        // Point0 == Point1 == Center로 채우므로 Box가 아닌 분기(캡슐 렌더/디버그)에 그대로 흘러도 안전하다.
+        Sphere,
     }
 
     /// <summary>
@@ -66,11 +70,28 @@ namespace UPlayGround.Combat
                 point1,
                 radius);
 
+        public static CombatHitboxShape Sphere(Vector3 center, float radius)
+            => new(
+                CombatHitboxShapeType.Sphere,
+                center,
+                Quaternion.identity,
+                default,
+                center,
+                center,
+                radius);
+
         public static CombatHitboxShape Lerp(
             in CombatHitboxShape from,
             in CombatHitboxShape to,
             float t)
         {
+            if (to.Type == CombatHitboxShapeType.Sphere)
+            {
+                return Sphere(
+                    Vector3.Lerp(from.Center, to.Center, t),
+                    Mathf.Lerp(from.Radius, to.Radius, t));
+            }
+
             if (to.Type == CombatHitboxShapeType.Box)
             {
                 return Box(

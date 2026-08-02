@@ -572,8 +572,11 @@ namespace UPlayGround.Editor.VFX
                 return;
 
             const float timeTolerance = 0.001f;
+            // 명시적 범위 판정(폭발·충격파)은 검 궤적이 아니므로 Slash VFX를 자동 생성하지 않는다.
+            // 부착형 HitBox 그룹 이벤트만 동기화 대상이다.
             var collisions = events
                 .OfType<BeginCollisionEvent>()
+                .Where(evt => evt.collisionSource == UPlayGround.Combat.CollisionSourceType.AttachedHitboxGroup)
                 .OrderBy(evt => evt.startTime)
                 .ToArray();
 

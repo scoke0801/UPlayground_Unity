@@ -160,6 +160,10 @@ namespace UPlayGround.Components
         [SerializeField] private CameraShakeIdType _shakeKeyHeavy = CameraShakeIdType.HeavyHit;
         // ──────────────────────────────────────────────────────────────
 
+        [Header("Collision — Explicit Shape Anchor")]
+        [Tooltip("Collision Event의 AttackOrigin Anchor 기준 Transform. 비우면 액터 루트를 사용한다.")]
+        [SerializeField] private Transform _attackOrigin;
+
         public float GetSnapSearchRange(bool isLockedOn) =>
             isLockedOn ? _lockOnSnapSearchRange : _freeSnapSearchRange;
 
@@ -190,6 +194,8 @@ namespace UPlayGround.Components
         private HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private readonly Collider[] _threatOverlapBuffer = new Collider[128];
         private CombatHitboxSet _hitboxSet;
+        // 명시적 범위 판정 윈도우의 단일 소유자. 부착형 그룹 저장소(_hitboxSet)와 책임을 분리한다.
+        private readonly CombatCollisionSession _collisionSession = new();
         private string _requestedHitboxGroupId;
         private IReadOnlyList<string> _requestedHitboxGroupIds;
         private int _lastHitDetectionFrame = -1;
@@ -623,6 +629,9 @@ namespace UPlayGround.Components
         {
             // 컷씬·씬 전환 등으로 비활성화될 때 상호작용 UI가 남지 않도록 정리.
             SetBreakInteractionTarget(null);
+            // 명시적 판정 세션이 디버그 레지스트리에 남지 않도록 반드시 닫는다.
+            _collisionSession.End();
+            _hitboxSet?.EndGroup();
             DebugGizmoBridge.UnregisterProvider(this);
         }
 
@@ -723,6 +732,68 @@ namespace UPlayGround.Components
         private Action _endMotionWarpAction;
         public Action EndMotionWarpAction => _endMotionWarpAction ??= EndMotionWarp;
 
+        /// <summary>
+        /// 원자적 Collision 요청 진입점. 판정 소스에 따라 부착형 그룹 또는 명시적 Shape 세션을 연다.
+        /// OnceOnBegin 명시적 판정은 여기서 즉시 1회 검출까지 마친다(LateUpdate 폴링 순서 비의존).
+        /// </summary>
+        public void BeginCollision(in CollisionRequest request)
+        {
+            // 원자적 요청의 권위 진입점. Runner를 거치지 않는 Ultimate 경로도 같은 초기화를 보장한다.
+            ClearHitTargets();
+            SetHitPhaseIndex(request.HitPhaseIndex);
+            SetTargetLayerMask(request.TargetLayerMask);
+
+            bool collisionStarted = true;
+
+            if (request.IsExplicit)
+            {
+                _requestedHitboxGroupId = null;
+                _requestedHitboxGroupIds = null;
+                _hitboxSet?.EndGroup();
+
+                if (!_collisionSession.TryBegin(
+                        request.ExplicitShape,
+                        this,
+                        request.OverrideWorldPosition,
+                        request.OverrideAnchor,
+                        request.OverrideWorldRotation,
+                        out string error))
+                {
+                    // 조용한 ActorRoot 폴백을 두지 않는다. 설정 오류를 보고하고 판정을 중단한다.
+                    Debug.LogError($"[PlayerCombat] 명시적 Collision 판정을 시작할 수 없습니다: {error}", this);
+                    collisionStarted = false;
+                }
+            }
+            else
+            {
+                _collisionSession.End();
+                _requestedHitboxGroupId = string.IsNullOrWhiteSpace(request.PrimaryHitboxGroupId)
+                    ? null
+                    : request.PrimaryHitboxGroupId.Trim();
+                _requestedHitboxGroupIds = request.AdditionalHitboxGroupIds != null
+                                           && request.AdditionalHitboxGroupIds.Count > 0
+                    ? request.AdditionalHitboxGroupIds
+                    : null;
+                BeginHitboxWindow();
+            }
+
+            _actionRunner?.HandleTimelineEvent(
+                CombatTimelineEventType.BeginCollision,
+                request.HitPhaseIndex);
+
+            // duration 0인 폭발도 정확히 한 번 판정되도록 시작 시점에 즉시 검출한다.
+            if (collisionStarted
+                && request.IsExplicit
+                && _collisionSession.Evaluation == CollisionEvaluationType.OnceOnBegin)
+            {
+                // 새 Once 세션은 같은 프레임의 직전 Window/Once 검출과 독립된 판정 기회를 가진다.
+                _lastHitDetectionFrame = -1;
+                PerformHitDetection();
+            }
+        }
+
+        public void EndCollision() => SetEnableCollision(false);
+
         public void SetEnableCollision(bool isCollisionEnable)
         {
             if (isCollisionEnable)
@@ -730,6 +801,7 @@ namespace UPlayGround.Components
             else
             {
                 _hitboxSet?.EndGroup();
+                _collisionSession.End();
                 // 윈도우 종료 시 그룹 요청을 비운다. 다음 윈도우가 runner를 우회해
                 // 직접 SetEnableCollision(true)로 들어오더라도(예: 얼티밋) 직전 공격의
                 // 그룹이 잔존하지 않고 phase 기본값으로 폴백되도록 한다.
@@ -741,6 +813,23 @@ namespace UPlayGround.Components
             _actionRunner?.HandleTimelineEvent(
                 isCollisionEnable ? CombatTimelineEventType.BeginCollision : CombatTimelineEventType.EndCollision,
                 _currentAttackData?.hitPhaseIndex ?? 0);
+        }
+
+        // ── ICollisionAnchorProvider ──────────────────────────────────
+        public Transform CollisionActorRoot => transform;
+
+        public Transform CollisionAttackOrigin => _attackOrigin != null ? _attackOrigin : transform;
+
+        public Transform CollisionPrimaryTarget
+        {
+            get
+            {
+                if (_currentFinishTarget != null && _currentFinishTarget.IsAlive())
+                    return _currentFinishTarget.transform;
+                if (_currentSpecialBreakTarget != null && _currentSpecialBreakTarget.IsAlive())
+                    return _currentSpecialBreakTarget.transform;
+                return CurrentAttackPreferredTarget;
+            }
         }
 
         public void SetTargetLayerMask(LayerMask targetLayerMask) =>

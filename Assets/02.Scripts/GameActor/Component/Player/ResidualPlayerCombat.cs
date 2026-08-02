@@ -17,6 +17,7 @@ namespace UPlayGround.Components
     /// </summary>
     public sealed class ResidualPlayerCombat : MonoBehaviour,
         IMotionEventCombatTarget,
+        ICollisionAnchorProvider,
         IFinishAttackMotionEventTarget,
         ISpecialBreakAttackMotionEventTarget
     {
@@ -47,6 +48,8 @@ namespace UPlayGround.Components
         private float _specialBreakFixedDamage;
         private float _specialBreakMinReferenceHealth;
         private CombatHitboxSet _hitboxSet;
+        // 명시적 범위 판정 윈도우의 단일 소유자. 부착형 그룹 저장소(_hitboxSet)와 책임을 분리한다.
+        private readonly CombatCollisionSession _collisionSession = new();
         private string _requestedHitboxGroupId;
         private IReadOnlyList<string> _requestedHitboxGroupIds;
         private float _homingReachRange;
@@ -96,10 +99,81 @@ namespace UPlayGround.Components
                 PerformHitDetection();
         }
 
+        private void OnDisable()
+        {
+            // 잔류 모델 정리 시 명시적 판정 세션이 디버그 레지스트리에 남지 않게 한다.
+            _collisionSession.End();
+            _isCollisionEnabled = false;
+        }
+
         public void ClearHitTargets()
         {
             _hitTargets.Clear();
             Debug.Log("[ResidualAttack] Combat hit targets cleared.");
+        }
+
+        /// <summary>
+        /// 원자적 Collision 요청 진입점. 잔류 실행체는 스냅샷된 자신의 targetLayerMask를 사용하므로
+        /// 요청의 <c>TargetLayerMask</c>는 의도적으로 무시한다.
+        /// </summary>
+        public void BeginCollision(in CollisionRequest request)
+        {
+            ClearHitTargets();
+            SetHitPhaseIndex(request.HitPhaseIndex);
+
+            if (request.IsExplicit)
+            {
+                _requestedHitboxGroupId = null;
+                _requestedHitboxGroupIds = null;
+                _hitboxSet?.EndGroup();
+
+                if (!_collisionSession.TryBegin(
+                        request.ExplicitShape,
+                        this,
+                        request.OverrideWorldPosition,
+                        request.OverrideAnchor,
+                        request.OverrideWorldRotation,
+                        out string error))
+                {
+                    Debug.LogError($"[ResidualAttack] 명시적 Collision 판정을 시작할 수 없습니다: {error}", this);
+                    return;
+                }
+
+                _isCollisionEnabled = true;
+
+                // duration 0인 폭발도 정확히 한 번 판정되도록 시작 시점에 즉시 검출한다.
+                if (_collisionSession.Evaluation == CollisionEvaluationType.OnceOnBegin)
+                    PerformHitDetection();
+                return;
+            }
+
+            _collisionSession.End();
+            _requestedHitboxGroupId = string.IsNullOrWhiteSpace(request.PrimaryHitboxGroupId)
+                ? null
+                : request.PrimaryHitboxGroupId.Trim();
+            _requestedHitboxGroupIds = request.AdditionalHitboxGroupIds != null
+                                       && request.AdditionalHitboxGroupIds.Count > 0
+                ? request.AdditionalHitboxGroupIds
+                : null;
+            SetEnableCollision(true);
+        }
+
+        public void EndCollision() => SetEnableCollision(false);
+
+        // ── ICollisionAnchorProvider ──────────────────────────────────
+        // 잔류 모델은 별도 공격 원점을 두지 않으므로 루트를 공유한다.
+        public Transform CollisionActorRoot => transform;
+        public Transform CollisionAttackOrigin => transform;
+        public Transform CollisionPrimaryTarget
+        {
+            get
+            {
+                if (_finishTarget != null && _finishTarget.IsAlive())
+                    return _finishTarget.transform;
+                return _specialBreakTarget != null && _specialBreakTarget.IsAlive()
+                    ? _specialBreakTarget.transform
+                    : null;
+            }
         }
 
         public void SetEnableCollision(bool enabled)
@@ -109,6 +183,7 @@ namespace UPlayGround.Components
             else
             {
                 _hitboxSet?.EndGroup();
+                _collisionSession.End();
                 // 윈도우 종료 시 그룹 요청을 비워 다음 윈도우에 직전 공격의 그룹이 잔존하지 않게 한다.
                 _requestedHitboxGroupId = null;
                 _requestedHitboxGroupIds = null;
@@ -230,15 +305,33 @@ namespace UPlayGround.Components
                 return;
             }
 
-            if (_hitboxSet == null || !_hitboxSet.IsActive)
+            // 판정 소스는 배타적이다 — 명시적 세션이 열려 있으면 부착형 그룹을 질의하지 않는다.
+            bool explicitActive = _collisionSession.ShouldDetect();
+            if (!explicitActive && (_hitboxSet == null || !_hitboxSet.IsActive))
                 return;
 
-            _hitboxSet.DetectActiveGroup(
-                transform,
-                _targetLayerMask,
-                _hitTargets,
-                _detectedHits,
-                includeInvincibleTargets: false);
+            if (explicitActive)
+            {
+                _collisionSession.Detect(
+                    transform,
+                    _targetLayerMask,
+                    _hitTargets,
+                    _detectedHits,
+                    includeInvincibleTargets: false);
+
+                // OnceOnBegin은 시작 시점 1회로 끝난다. 이후 프레임에서 다시 질의하지 않는다.
+                if (_collisionSession.Evaluation == CollisionEvaluationType.OnceOnBegin)
+                    _collisionSession.MarkConsumed();
+            }
+            else
+            {
+                _hitboxSet.DetectActiveGroup(
+                    transform,
+                    _targetLayerMask,
+                    _hitTargets,
+                    _detectedHits,
+                    includeInvincibleTargets: false);
+            }
 
             bool hitOccurred = false;
             Vector3 firstHitPoint = Vector3.zero;

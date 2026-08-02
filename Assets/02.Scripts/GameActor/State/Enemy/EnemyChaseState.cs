@@ -15,6 +15,7 @@ namespace UPlayGround.State
         private EnemyAIContext _context;
         private EnemyDetection _detection;
         private EnemyTacticalMemory _memory;
+        private EnemyCombat _combat;
 
         private float _chaseSpeed;
         private float _strafeSign; // +1 or -1, OnEnter마다 랜덤 결정
@@ -28,6 +29,8 @@ namespace UPlayGround.State
         private bool _hasFormationTarget;
         private Vector3 _formationTarget;
         private float _formationArrivalTolerance;
+        private float _preferredMeleeApproachDistance;
+        private AbilityAttackCategory _approachAttackCategory;
 
         private const float TARGET_CONTACT_BREAK_TIME = 0.08f;
         private const float TARGET_CONTACT_CHECK_INTERVAL = 0.05f;
@@ -35,12 +38,18 @@ namespace UPlayGround.State
         private const float SEPARATION_RADIUS = 1.6f;
         private const float SEPARATION_WEIGHT = 0.65f;
         
-        public EnemyChaseState(ActorMovementController controller, EnemyAIContext context, EnemyDetection detection) : base(controller)
+        public EnemyChaseState(
+            ActorMovementController controller,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            AbilityAttackCategory approachAttackCategory = AbilityAttackCategory.None) : base(controller)
         {
             _context = context;
             _detection = detection;
+            _approachAttackCategory = approachAttackCategory;
             // 핫패스 GetComponent 제거: 액터 생애 동안 불변이므로 1회 캐싱
             _memory = gameActor.GetComponent<EnemyTacticalMemory>();
+            _combat = gameActor.GetComponent<EnemyCombat>();
         }
 
         public override bool CanTransitionState(ActorStateId fromState)
@@ -59,8 +68,29 @@ namespace UPlayGround.State
             _hasTargetContact = false;
             _nextContactCheckTime = 0f;
             _hasFormationTarget = false;
+            RefreshPreferredApproachDistance();
             CacheContactColliders();
             UpdateChaseAnimation(0.25f);
+        }
+
+        /// <summary>
+        /// 실행 대기 중인 공격 카테고리에 맞춰 정지 거리를 갱신한다.
+        /// 명시 카테고리는 그룹의 범용 진형 반경과 다를 수 있으므로 해당 접근 중에는 진형 슬롯을 사용하지 않는다.
+        /// </summary>
+        public void SetApproachAttackCategory(AbilityAttackCategory attackCategory)
+        {
+            // BT는 접근이 끝날 때까지 매 틱 같은 카테고리로 이 메서드를 호출한다.
+            // 갱신은 AbilitySet 전 Variant 순회를 동반하므로 값이 바뀔 때만 수행한다.
+            if (_approachAttackCategory == attackCategory)
+                return;
+
+            _approachAttackCategory = attackCategory;
+            RefreshPreferredApproachDistance();
+            if (_approachAttackCategory == AbilityAttackCategory.None)
+                return;
+
+            _hasFormationTarget = false;
+            _context.ReleaseFormationSlot();
         }
 
         public override void UpdateState(float deltaTime)
@@ -136,18 +166,20 @@ namespace UPlayGround.State
             toTarget.y       = 0;
             float dist       = toTarget.magnitude;
 
-            _hasFormationTarget = _context.TryGetChaseFormationPosition(
-                dist,
-                out _formationTarget,
-                out _formationArrivalTolerance);
+            _hasFormationTarget = _approachAttackCategory == AbilityAttackCategory.None
+                                  && _context.TryGetChaseFormationPosition(
+                                      dist,
+                                      out _formationTarget,
+                                      out _formationArrivalTolerance);
             Vector3 toMoveTarget = _hasFormationTarget
                 ? _formationTarget - motor.TransientPosition
                 : toTarget;
             toMoveTarget.y = 0f;
             float moveDistance = toMoveTarget.magnitude;
 
-            // 전투 최소 거리 안에서는 절대 계속 밀고 들어가지 않는다.
-            float stopDistance = Mathf.Max(_context.ChaseStopDistance, _context.MinCombatDistance);
+            // 저작된 전투 정지 거리보다 실제 근접 공격 사거리가 짧으면
+            // 공격 가능한 거리까지 추가 접근한다. 타깃 침투는 접촉 판정이 별도로 차단한다.
+            float stopDistance = ResolveStopDistance();
             float arrivalDistance = _hasFormationTarget
                 ? Mathf.Max(0.05f, _formationArrivalTolerance)
                 : stopDistance;
@@ -346,8 +378,22 @@ namespace UPlayGround.State
 
             Vector3 toTarget = _detection.CurrentTarget.position - motor.TransientPosition;
             toTarget.y = 0f;
-            float stopDistance = Mathf.Max(_context.ChaseStopDistance, _context.MinCombatDistance);
+            float stopDistance = ResolveStopDistance();
             return toTarget.sqrMagnitude <= stopDistance * stopDistance;
+        }
+
+        private float ResolveStopDistance()
+        {
+            float stopDistance = Mathf.Max(_context.ChaseStopDistance, _context.MinCombatDistance);
+            return _preferredMeleeApproachDistance > 0f
+                ? Mathf.Min(stopDistance, _preferredMeleeApproachDistance)
+                : stopDistance;
+        }
+
+        private void RefreshPreferredApproachDistance()
+        {
+            _preferredMeleeApproachDistance = _combat?.GetPreferredMeleeApproachDistance(
+                _approachAttackCategory) ?? 0f;
         }
     }
 }

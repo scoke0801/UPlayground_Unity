@@ -123,9 +123,20 @@ namespace UPlayGround.State
             if (distToFlank <= ARRIVAL_THRESHOLD && !_hasReachedFlank)
             {
                 _hasReachedFlank = true;
-                // 측면 도달 → 공격
-                controller.TransitionToState(
-                    new EnemyAttackState(controller, _combat, _context, _detection));
+                // 진형 슬롯은 도착 허용 반경 때문에 실제 타겟으로부터 공격 사거리 밖일 수 있다.
+                // 이 상태에서 Attack으로 바로 들어가면 선택 가능한 Ability가 없어
+                // Flank → Attack 실패를 반복하므로, 실제 거리에서 재검증한다.
+                if (_combat != null
+                    && _combat.HasAvailableSkillAtDistance(_detection.DistanceToTarget))
+                {
+                    controller.TransitionToState(
+                        new EnemyAttackState(controller, _combat, _context, _detection));
+                }
+                else
+                {
+                    controller.TransitionToState(
+                        new EnemyChaseState(controller, _context, _detection));
+                }
                 return;
             }
 

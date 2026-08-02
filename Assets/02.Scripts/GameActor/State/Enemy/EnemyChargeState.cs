@@ -104,8 +104,18 @@ namespace UPlayGround.State
             if (distance <= REACH_DISTANCE && !_hasReachedTarget)
             {
                 _hasReachedTarget = true;
-                controller.TransitionToState(
-                    new EnemyAttackState(controller, _combat, _context, _detection));
+                // 캐릭터별 Ability 최소/최대 거리는 고정 REACH_DISTANCE와 다를 수 있다.
+                // 실제 실행 가능한 공격이 없으면 빈 Attack 상태로 진입하지 않고 추격을 이어간다.
+                if (_combat != null && _combat.HasAvailableSkillAtDistance(distance))
+                {
+                    controller.TransitionToState(
+                        new EnemyAttackState(controller, _combat, _context, _detection));
+                }
+                else
+                {
+                    controller.TransitionToState(
+                        new EnemyChaseState(controller, _context, _detection));
+                }
                 return;
             }
 

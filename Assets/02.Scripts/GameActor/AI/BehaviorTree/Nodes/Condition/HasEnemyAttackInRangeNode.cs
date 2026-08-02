@@ -12,13 +12,17 @@ namespace UPlayGround.AI.BehaviorTree
         {
             EnemyCombat combat = Context?.GetComponentCached<EnemyCombat>();
             EnemyDetection detection = Context?.GetComponentCached<EnemyDetection>();
+            EnemyAIContext aiContext = Context?.GetComponentCached<EnemyAIContext>();
             if (combat?.AbilitySet == null || detection == null || !detection.HasTarget)
                 return BTStatus.Failure;
 
             return EnemyAttackRangePolicy.HasAttackInRange(
                 combat.AbilitySet,
                 detection.DistanceToTarget,
-                combat.CurrentLevel)
+                combat.CurrentLevel,
+                useMeleeApproachRange: true,
+                personalSpaceDistance: aiContext?.PersonalSpaceDistance
+                                       ?? EnemyAttackRangePolicy.DefaultPersonalSpaceDistance)
                 ? BTStatus.Success
                 : BTStatus.Failure;
         }

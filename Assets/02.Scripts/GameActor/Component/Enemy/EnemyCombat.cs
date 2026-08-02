@@ -55,7 +55,8 @@ namespace UPlayGround.Components
         CategoryMismatch = 1 << 7,
         ActivationRejected = 1 << 8,
         BlockedByStrategy = 1 << 9,
-        RepetitionLimit = 1 << 10
+        RepetitionLimit = 1 << 10,
+        OutsideEffectiveMeleeRange = 1 << 11
     }
 
     public interface IEnemyAbilityRandomSource
@@ -526,6 +527,22 @@ namespace UPlayGround.Components
                         attackCategory,
                         aerialOnly,
                         diveOnly);
+                if (rejectReason == EnemyAbilityRejectReason.None
+                    && attackInfo.baseInfo.attackType == AttackType.Melee
+                    && !EnemyAttackRangePolicy.CoversDistance(
+                        ability,
+                        attackInfo,
+                        distanceToTarget,
+                        CurrentLevel,
+                        attackCategory,
+                        aerialOnly,
+                        diveOnly,
+                        useMeleeApproachRange: true,
+                        personalSpaceDistance: _aiContext?.PersonalSpaceDistance
+                                               ?? EnemyAttackRangePolicy.DefaultPersonalSpaceDistance))
+                {
+                    rejectReason |= EnemyAbilityRejectReason.OutsideEffectiveMeleeRange;
+                }
                 if (rejectReason != EnemyAbilityRejectReason.None)
                 {
                     _abilitySelectionDiagnostics.Add(new EnemyAbilitySelectionDiagnostic(
@@ -727,7 +744,25 @@ namespace UPlayGround.Components
                 false,
                 false).Count > 0;
 
-        public float GetMaxAttackRange()
+        public float GetMaxAttackRange() => ResolveMaxAttackRange();
+
+        public float GetMaxMeleeAttackRange() =>
+            ResolveMaxAttackRange(AttackType.Melee, groundOnly: true);
+
+        public float GetPreferredMeleeApproachDistance(
+            AbilityAttackCategory attackCategory = AbilityAttackCategory.None)
+        {
+            float maxRange = ResolveMaxAttackRange(
+                AttackType.Melee,
+                groundOnly: true,
+                attackCategory);
+            return maxRange > 0f ? Mathf.Max(0.1f, maxRange - 0.1f) : 0f;
+        }
+
+        private float ResolveMaxAttackRange(
+            AttackType? attackType = null,
+            bool groundOnly = false,
+            AbilityAttackCategory attackCategory = AbilityAttackCategory.None)
         {
             float maxRange = 0f;
             if (_abilitySet == null)
@@ -735,10 +770,33 @@ namespace UPlayGround.Components
 
             foreach (GameplayAbilitySO ability in _abilitySet.GetRuntimeAbilities())
             {
-                if (ability?.activation == null || !HasAISelectableVariant(ability))
+                if (ability?.variants == null)
                     continue;
-                maxRange = Mathf.Max(maxRange, ability.activation.maxDistance);
+
+                for (var i = 0; i < ability.variants.Count; i++)
+                {
+                    if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                            ability.variants[i],
+                            out AbilityAttackInfo attackInfo)
+                        || !EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo)
+                        || (attackType.HasValue
+                            && attackInfo.baseInfo.attackType != attackType.Value)
+                        || (groundOnly && attackInfo.isAerialSkill)
+                        || (attackCategory != AbilityAttackCategory.None
+                            && attackInfo.attackCategory != attackCategory
+                            && attackInfo.attackCategory != AbilityAttackCategory.None))
+                        continue;
+
+                    maxRange = Mathf.Max(
+                        maxRange,
+                        EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
+                            ability,
+                            attackInfo,
+                            _aiContext?.PersonalSpaceDistance
+                            ?? EnemyAttackRangePolicy.DefaultPersonalSpaceDistance));
+                }
             }
+
             return maxRange;
         }
 
@@ -763,23 +821,6 @@ namespace UPlayGround.Components
                         && attackInfo.baseInfo.attackType == attackType)
                         return true;
             }
-            return false;
-        }
-
-        private static bool HasAISelectableVariant(GameplayAbilitySO ability)
-        {
-            if (ability?.variants == null)
-                return false;
-
-            for (var i = 0; i < ability.variants.Count; i++)
-            {
-                if (UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
-                        ability.variants[i],
-                        out AbilityAttackInfo attackInfo)
-                    && EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo))
-                    return true;
-            }
-
             return false;
         }
 

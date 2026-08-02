@@ -36,6 +36,7 @@ namespace UPlayGround.Components
 
         private Vector3       _spawnPosition;
         private float         _maxAttackRange;
+        private float         _maxMeleeAttackRange;
         private float         _effectiveOptimalCombatDistance;
         private bool          _hasGuardMotion;
         protected BehaviorPhase _currentPhase;
@@ -140,6 +141,7 @@ namespace UPlayGround.Components
             if (_combat?.AbilitySet != null)
             {
                 _maxAttackRange = _combat.GetMaxAttackRange();
+                _maxMeleeAttackRange = _combat.GetMaxMeleeAttackRange();
                 if (_effectiveOptimalCombatDistance > _maxAttackRange)
                     _effectiveOptimalCombatDistance = _maxAttackRange * 0.8f;
             }
@@ -255,6 +257,7 @@ namespace UPlayGround.Components
             {
                 _combat.Init(phase.abilitySetOverride);
                 _maxAttackRange = _combat.GetMaxAttackRange();
+                _maxMeleeAttackRange = _combat.GetMaxMeleeAttackRange();
                 if (_maxAttackRange > 0f)
                     _effectiveOptimalCombatDistance =
                         Mathf.Min(data?.optimalCombatDistance ?? 2.5f, _maxAttackRange);
@@ -412,6 +415,7 @@ namespace UPlayGround.Components
         }
 
         public float GetMaxAttackRange() => _maxAttackRange;
+        public float GetMaxMeleeAttackRange() => _maxMeleeAttackRange;
 
         public override Vector3 GetRandomPatrolPoint()
         {

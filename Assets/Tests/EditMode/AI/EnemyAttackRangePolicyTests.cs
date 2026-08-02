@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using NUnit.Framework;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
@@ -128,6 +129,133 @@ namespace UPlayGround.AI.Tests
                 currentLevel: 1);
 
             Assert.That(result, Is.False);
+        }
+
+        [TestCase(0.5f, EnemyAttackDistanceRelation.TooClose)]
+        [TestCase(3f, EnemyAttackDistanceRelation.InRange)]
+        [TestCase(6f, EnemyAttackDistanceRelation.TooFar)]
+        public void 공격_거리_관계는_최소와_최대_범위를_구분한다(
+            float distance,
+            EnemyAttackDistanceRelation expected)
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+
+            EnemyAttackDistanceRelation result =
+                EnemyAttackRangePolicy.EvaluateAttackDistance(
+                    _ability,
+                    attackInfo,
+                    distance,
+                    currentLevel: 1);
+
+            Assert.That(result, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void 요청_카테고리_후보가_없으면_접근하지_않는다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.attackCategory = AbilityAttackCategory.Basic;
+
+            EnemyAttackDistanceRelation result =
+                EnemyAttackRangePolicy.EvaluateAttackDistance(
+                    _ability,
+                    attackInfo,
+                    distanceToTarget: 6f,
+                    currentLevel: 1,
+                    attackCategory: AbilityAttackCategory.Heavy);
+
+            Assert.That(result, Is.EqualTo(EnemyAttackDistanceRelation.Unavailable));
+        }
+
+        [Test]
+        public void AbilitySet_판정도_너무가까움과_접근필요를_구분한다()
+        {
+            var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
+            var abilitySet = ScriptableObject.CreateInstance<AbilitySetSO>();
+            try
+            {
+                payload.attackInfo = CreateAttackInfo();
+                _ability.variants.Add(new AbilityVariantDefinition
+                {
+                    variantId = "Default",
+                    executionPayload = payload,
+                });
+                abilitySet.additionalAbilities.Add(_ability);
+                abilitySet.RebuildRuntimeIndex();
+
+                Assert.That(
+                    EnemyAttackRangePolicy.EvaluateAttackDistance(
+                        abilitySet,
+                        distanceToTarget: 0.5f,
+                        currentLevel: 1),
+                    Is.EqualTo(EnemyAttackDistanceRelation.TooClose));
+                Assert.That(
+                    EnemyAttackRangePolicy.EvaluateAttackDistance(
+                        abilitySet,
+                        distanceToTarget: 6f,
+                        currentLevel: 1),
+                    Is.EqualTo(EnemyAttackDistanceRelation.TooFar));
+            }
+            finally
+            {
+                Object.DestroyImmediate(abilitySet);
+                Object.DestroyImmediate(payload);
+            }
+        }
+
+        [Test]
+        public void 근접_안전접근은_HitPhase와_PersonalSpace로_공격_시작거리를_좁힌다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.baseInfo.hitPhases[0].targetingRange = 1.5f;
+
+            Assert.That(
+                EnemyAttackRangePolicy.CoversDistance(
+                    _ability,
+                    attackInfo,
+                    1.3f,
+                    currentLevel: 1,
+                    useMeleeApproachRange: true,
+                    personalSpaceDistance: 0.8f),
+                Is.True);
+            Assert.That(
+                EnemyAttackRangePolicy.CoversDistance(
+                    _ability,
+                    attackInfo,
+                    1.5f,
+                    currentLevel: 1,
+                    useMeleeApproachRange: true,
+                    personalSpaceDistance: 0.8f),
+                Is.False);
+        }
+
+        [Test]
+        public void 대형_근접_몬스터는_PersonalSpace만큼_접근거리를_확보한다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.baseInfo.hitPhases[0].targetingRange = 1.5f;
+
+            float effectiveMax = EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
+                _ability,
+                attackInfo,
+                personalSpaceDistance: 1.5f);
+
+            Assert.That(effectiveMax, Is.EqualTo(2f).Within(0.001f));
+        }
+
+        [Test]
+        public void PersonalSpace_하한은_베이크된_Activation_최대거리를_넘지_않는다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.baseInfo.hitPhases[0].targetingRange = 0.8f;
+            _ability.activation.maxDistance = 0.8f;
+
+            float effectiveMax = EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
+                _ability,
+                attackInfo,
+                personalSpaceDistance: 0.8f);
+
+            Assert.That(effectiveMax, Is.EqualTo(0.8f).Within(0.001f));
         }
 
         [Test]

@@ -53,6 +53,8 @@ namespace UPlayGround.Group
 
     public static class MonsterGroupSlotPolicy
     {
+        private const float MinimumFormationDistance = 0.05f;
+
         public static int CalculateLimit(int aliveCount, float ratio, int cap, bool reduceForRecentHit)
         {
             var limit = Mathf.Clamp(
@@ -67,6 +69,38 @@ namespace UPlayGround.Group
             var difference = (requesterFitness - ownerFitness)
                              / Mathf.Max(0.01f, Mathf.Max(requesterFitness, ownerFitness));
             return difference > Mathf.Max(0f, margin);
+        }
+
+        /// <summary>
+        /// 진형 슬롯의 바깥쪽 도착 경계가 실제 공격 가능 거리를 넘지 않도록 제한한다.
+        /// <paramref name="minimumRadius"/>(개인 공간 거리)는 타깃 캡슐을 파고드는 슬롯을 막는 하한이며,
+        /// 공격 사거리가 개인 공간보다 짧은 극단적인 데이터에서는 하한이 우선한다.
+        /// </summary>
+        public static void ClampFormationToAttackRange(
+            float requestedRadius,
+            float requestedArrivalTolerance,
+            float maxAttackRange,
+            float entryMargin,
+            float minimumRadius,
+            out float radius,
+            out float arrivalTolerance)
+        {
+            float radiusFloor = Mathf.Max(MinimumFormationDistance, minimumRadius);
+            radius = Mathf.Max(radiusFloor, requestedRadius);
+            arrivalTolerance = Mathf.Max(MinimumFormationDistance, requestedArrivalTolerance);
+            if (maxAttackRange <= 0f)
+                return;
+
+            // 하한을 유지하면서도 radius + arrivalTolerance <= safeOuterRadius 불변식이 항상 성립하도록
+            // safeOuterRadius 자체에 (하한 + 최소 오차)의 바닥을 둔다.
+            float safeOuterRadius = Mathf.Max(
+                radiusFloor + MinimumFormationDistance,
+                maxAttackRange - Mathf.Max(0f, entryMargin));
+            radius = Mathf.Min(radius, safeOuterRadius - MinimumFormationDistance);
+            arrivalTolerance = Mathf.Clamp(
+                arrivalTolerance,
+                MinimumFormationDistance,
+                safeOuterRadius - radius);
         }
     }
 
@@ -114,6 +148,9 @@ namespace UPlayGround.Group
     [DefaultExecutionOrder(-500)]
     public class MonsterGroupController : MonoBehaviour
     {
+        // 근접 진형의 도착 경계를 공격 사거리 끝단보다 이만큼 안쪽에 둔다.
+        private const float MeleeFormationEntryMargin = 0.05f;
+
         [Header("Activation")]
         [Tooltip("활성화 트리거가 호출될 때까지 자식 몬스터를 비활성 상태로 유지합니다.")]
         [SerializeField] private bool _startDormant;
@@ -465,11 +502,26 @@ namespace UPlayGround.Group
                 return false;
             }
 
-            var radius = member?.GroundAIController != null
+            var groundAI = member?.GroundAIController;
+            var radius = groundAI != null
                 ? Mathf.Max(
-                    member.GroundAIController.ChaseStopDistance,
-                    member.GroundAIController.MinCombatDistance)
+                    groundAI.ChaseStopDistance,
+                    groundAI.MinCombatDistance)
                 : 2.5f;
+
+            // 진형 슬롯 도착 허용 오차까지 더한 실제 정지 거리가 공격 범위를 넘으면
+            // HasAvailableSkillAtDistance가 계속 실패하여 Chase/Idle만 반복한다.
+            if (groundAI != null && GetMemberAttackType(member) == AttackType.Melee)
+            {
+                MonsterGroupSlotPolicy.ClampFormationToAttackRange(
+                    radius,
+                    arrivalTolerance,
+                    groundAI.GetMaxMeleeAttackRange(),
+                    MeleeFormationEntryMargin,
+                    groundAI.PersonalSpaceDistance,
+                    out radius,
+                    out arrivalTolerance);
+            }
 
             return TryGetFormationSlotPosition(
                 member,

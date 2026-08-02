@@ -2,6 +2,7 @@
 
 > 작성일: 2026-06-08
 > 상태: 코드 구현 완료 (Unity 컴파일/플레이 검증 대기)
+> **2026-08-02 부분 대체:** 아래 "범위 밖: 수동 스탯 포인트 배분, 스킬 트리" 결정은 `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md`로 해제되었다. 레벨업 시 **스킬 포인트를 지급하고 플레이어가 스킬 UI에서 노드를 직접 선택**하는 레이어가 추가된다. 본 문서의 EXP 획득·분배·곡선·자동 곡선 성장과 5절의 정확성 기둥 A/B는 **그대로 유효**하다.
 > 선행 문서: [PARTY_LEVEL_POWER_DESIGN.md](../Complete/PARTY_LEVEL_POWER_DESIGN.md) (2026-05-03)
 > 관련 문서: [party-formation-system.md](../Complete/party-formation-system.md), [STAT_SYSTEM_GUIDE.md](../guide/STAT_SYSTEM_GUIDE.md), [SAVE_SYSTEM_GUIDE.md](../Complete/SAVE_SYSTEM_GUIDE.md)
 
@@ -30,7 +31,9 @@
 - 레벨업 시 `PartyMemberGrowthSO`의 **기존 성장 곡선**대로 스탯이 자동 상승하고, 그 결과가 **살아있는 액터에 즉시 반영**된다.
 - 캐릭터별로 레벨/경험치가 **독립**이며 저장/복원된다.
 
-**범위 밖:** 수동 스탯 포인트 배분, 장비 성장, 스킬 트리, 환생/돌파, 성장 화폐 소비.
+**범위 밖:** 장비 성장, 환생/돌파, 성장 화폐 소비.
+
+> ~~수동 스탯 포인트 배분, 스킬 트리~~ → 2026-08-02 해제. `../cycle/08_CHARACTER_SKILL_GROWTH_SPEC.md` 참조. 자동 곡선 성장은 유지되며, 그 위에 포인트 기반 선택 레이어가 얹힌다.
 
 ## 2. 확정된 설계 결정
 

@@ -70,10 +70,15 @@ public sealed class CycleSaveData
 | 데이터 | 소유 |
 |---|---|
 | 플레이어블 로스터·레벨·경험치 | 기존 `PartySaveData` |
+| 캐릭터별 스킬 포인트·취득 노드 | `CharacterSkillProgressSaveData` |
 | 영구 인벤토리·골드·장비 | 기존 `InventorySaveData` |
 | 어시스트 로스터·장착 ID | `AssistProgressSaveData` |
-| 보스별 영입 천장 | `AssistProgressSaveData` |
-| 완료 사이클 수·직전 시작점 | `CycleHistorySaveData` |
+| 보스별 누적 처치 횟수 | `AssistProgressSaveData` |
+| 완료 사이클 수 | `CycleHistorySaveData` |
+
+스킬 진행도는 **영구 데이터**다. 사이클 정산·전멸·포기 어느 경로에서도 변경하지 않는다. 상세 스키마는 `08_CHARACTER_SKILL_GROWTH_SPEC.md` 5.3절을 따른다.
+
+`직전 시작점`은 시작점 고정으로 의미가 없어져 `CycleHistorySaveData`에서 제거한다.
 
 ---
 
@@ -85,13 +90,13 @@ public sealed class AssistProgressSaveData
 {
     public List<string> roster;
     public string equippedAssistId;
-    public List<AssistPityEntry> pity;
+    public List<AssistDefeatCountEntry> defeatCounts;   // 보스별 누적 처치 횟수
     public List<AssistCooldownEntry> cooldowns;
     public string pendingRecruitAssistId;
 }
 ```
 
-- 로스터와 천장은 영구 유지한다.
+- 로스터와 누적 처치 횟수는 영구 유지한다. 처치 횟수는 영입 성공 후에도 초기화하지 않는다.
 - 쿨다운은 실행 중 사이클에만 의미가 있다. 사이클이 `Inactive/Completed`면 로드 시 0으로 정리한다.
 - 쿨다운은 `Time.time` 종료시각이 아니라 남은 초로 저장한다.
 - 존재하지 않는 `assistId`는 로드 경고 후 제거한다.
@@ -189,7 +194,8 @@ RequestExit
 - 런 상태와 레이아웃
 - 미정산 재료
 - 유해
-- 어시스트 로스터·장착·천장
+- 어시스트 로스터·장착·누적 처치 횟수
+- 캐릭터별 스킬 포인트·취득 노드
 - 사이클 히스토리
 - pending load와 pending recruit
 
@@ -197,7 +203,8 @@ RequestExit
 
 ### 다음 사이클
 
-- 어시스트 로스터와 천장 유지
+- 어시스트 로스터와 누적 처치 횟수 유지
+- 캐릭터 스킬 포인트·취득 노드 유지 (사이클 전환은 스킬 진행도를 건드리지 않는다)
 - 어시스트 쿨다운 0
 - 이전 레이아웃·발견·유해·미정산 재료 제거
 - `cycleIndex + 1`과 새 시드로 `Preparing` 시작
@@ -226,7 +233,8 @@ RequestExit
 1. 구버전 세이브를 로드하면 사이클이 비활성 기본 상태로 열린다.
 2. 실행 중 저장·로드 후 동일 보스 배치와 발견 상태가 복원된다.
 3. 미정산 재료와 유해가 중복·유실 없이 복원된다.
-4. 어시스트 로스터·장착·천장이 영구 유지되고 쿨다운은 실행 중에만 유지된다.
+4. 어시스트 로스터·장착·누적 처치 횟수가 영구 유지되고 쿨다운은 실행 중에만 유지된다.
+4-1. 사이클 시작·완료·전멸 어느 경로에서도 스킬 포인트와 취득 노드가 변하지 않는다.
 5. 중앙 보스 처치만으로 재료가 인벤토리에 들어오지 않는다.
 6. 포털 진입 정산이 정확히 한 번 적용된다.
 7. 새 게임에 이전 사이클 데이터가 누수되지 않는다.

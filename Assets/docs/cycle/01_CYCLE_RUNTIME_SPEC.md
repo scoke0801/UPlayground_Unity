@@ -104,6 +104,18 @@ public sealed class CycleRunState
 - RNG는 `UnityEngine.Random` 전역 상태를 사용하지 않는다. 사이클 전용 결정적 RNG 인스턴스를 사용한다.
 - 서로 다른 시스템이 추첨 순서에 영향을 주지 않도록 `Layout`, `BossPool`, `Reward` 스트림을 시드에서 파생하는 방식을 권장한다.
 
+### 시드가 결정하지 않는 것
+
+시드의 적용 범위를 명시적으로 제한한다. 아래 항목은 시드를 바꿔도 변하지 않는다.
+
+| 항목 | 결정 주체 | 근거 문서 |
+|---|---|---|
+| 플레이어 시작 지점 | `CycleWorldConfigSO.fixedPlayerSpawnId` (고정) | `02_WORLD_SPAWN_ENCOUNTER_SPEC.md` 6.1 |
+| 보스 어시스트 영입 성공 여부 | 플레이 조건 달성 (확정) | `04_BOSS_ASSIST_RECRUITMENT_SPEC.md` 5 |
+| 캐릭터 스킬 노드 구성·포인트 총량 | 캐릭터별 고정 저작 + 레벨의 함수 | `08_CHARACTER_SKILL_GROWTH_SPEC.md` |
+
+P0에서 시드가 실제로 결정하는 것은 **외곽·중앙 보스의 위치와 종류, 부활 지점 활성화, 보상 롤**뿐이다. 새 랜덤 요소를 추가할 때는 이 표에 넣을지 먼저 판단하고, 넣지 않기로 하면 결정 주체를 함께 명시한다.
+
 ---
 
 ## 5. 상태 전이

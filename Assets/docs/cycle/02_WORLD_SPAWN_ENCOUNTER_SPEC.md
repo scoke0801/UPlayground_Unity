@@ -2,7 +2,9 @@
 
 ## 1. 목표
 
-수작업 검증된 N개 외곽 후보에서 플레이어 시작점과 보스 위치를 결정하고, 중앙 보스를 별도 아레나에 생성한다. 모든 보스 위치는 처음부터 `?`로 표시하되 정체는 실제 조우 전까지 숨긴다.
+**고정된 플레이어 시작점**에서 출발해, 수작업 검증된 N개 외곽 후보에서 보스 위치를 결정하고 중앙 보스를 별도 아레나에 생성한다. 모든 보스 위치는 처음부터 `?`로 표시하되 정체는 실제 조우 전까지 숨긴다.
+
+> 2026-08-02 개정: 플레이어 시작 지점 추첨을 제거했다. 시작점은 설정이 지정한 단일 `spawnId`이며 시드의 영향을 받지 않는다. 상세는 6.1절.
 
 ---
 
@@ -55,7 +57,8 @@ public sealed class CycleSpawnPoint : MonoBehaviour
 
 - `spawnId` 공백·중복
 - 지면에서 과도하게 뜨거나 파묻힌 위치
-- 플레이어와 외곽 보스 역할 후보 수 부족
+- `fixedPlayerSpawnId` 미지정, 또는 해당 후보가 씬에 없거나 `Player` 역할이 아님
+- 외곽 보스 역할 후보 수 부족
 - 중앙 아레나 후보 누락
 - `ActorDatabase`에 없는 보스 ID
 - 미니맵 캡처 범위를 벗어난 후보
@@ -72,12 +75,18 @@ P0에서는 별도 에디터 창보다 `OnDrawGizmos`와 메뉴 검증 명령을
 public sealed class CycleWorldConfigSO : ScriptableObject
 {
     public string mapId;
+
+    // 고정 플레이어 시작점. 값이 있으면 추첨하지 않고 이 spawnId를 그대로 사용한다.
+    public string fixedPlayerSpawnId;
+
     public List<string> outerBossActorIds;
     public List<string> centralBossActorIds;
     public int outerBossCount = 3;
     public int maxSameSectorBossCount = 1;
 }
 ```
+
+`fixedPlayerSpawnId`는 P0에서 **필수**다. 비어 있으면 레이아웃 생성을 실패시키고, 조용히 추첨으로 폴백하지 않는다. 씬에 `Player` 역할 후보가 여러 개 저작되어 있어도 지정되지 않은 후보는 **미집행 데이터**로 남을 뿐 런타임 결과에 영향을 주지 않는다. 시작점 랜덤화를 다시 도입할 경우를 대비해 후보 저작 구조 자체는 유지한다.
 
 ### `CycleLayoutState`
 
@@ -130,24 +139,40 @@ public sealed class CycleWorldSpawnService
 
 ---
 
-## 6. 추첨 알고리즘
+## 6. 배치 알고리즘
+
+### 6.1 플레이어 시작점 — 고정
 
 ```text
-1. Player 역할 후보를 spawnId로 정렬한다.
-2. 시드의 Layout RNG로 플레이어 후보 1개를 선택한다.
-3. 선택 지점의 safetyRadius 안 후보와 같은 spawnId를 보스 후보에서 제외한다.
-4. 남은 OuterBoss 후보를 spawnId로 정렬한다.
-5. 섹터 중복 제한을 적용해 outerBossCount개 위치를 선택한다.
-6. BossPool RNG로 외곽 보스 Actor ID를 선택한다.
-7. 중앙 풀에서 중앙 보스 Actor ID 1개를 선택한다.
-8. Respawn 역할 후보에서 활성 지점을 선택한다.
-9. 결과를 CycleLayoutState에 저장한 뒤 실제 Actor를 생성한다.
+1. config.fixedPlayerSpawnId를 읽는다.
+2. 값이 비었으면 즉시 레이아웃 생성 실패.
+3. 해당 spawnId를 가진 CycleSpawnPoint를 찾는다. 없으면 실패.
+4. 그 후보의 allowedRoles에 Player가 없으면 실패.
+5. layout.playerSpawnId에 확정한다.
+```
+
+- 이 단계는 **RNG를 전혀 소비하지 않는다**. Layout RNG 스트림은 보스 위치 선택에서 처음 사용된다.
+- 시드를 바꿔도 시작점은 동일하다. 시작 위치는 시드의 함수가 아니라 설정의 함수다.
+- 씬에 남아 있는 다른 `Player` 역할 후보는 검증 경고 대상이 아니다. 미집행 데이터로 허용한다.
+- 시작점이 고정되므로 시작 지점 주변 지형·조우 밀도·초반 동선은 **레벨 디자인으로 확정 저작**할 수 있다. 이 전제를 활용하는 것이 고정의 목적이다.
+
+### 6.2 보스와 부활 지점 — 시드 기반 유지
+
+```text
+1. 확정된 플레이어 시작점의 safetyRadius 안 후보와 같은 spawnId를 보스 후보에서 제외한다.
+2. 남은 OuterBoss 후보를 spawnId로 정렬한다.
+3. 섹터 중복 제한을 적용해 outerBossCount개 위치를 선택한다.
+4. BossPool RNG로 외곽 보스 Actor ID를 선택한다.
+5. 중앙 풀에서 중앙 보스 Actor ID 1개를 선택한다.
+6. Respawn 역할 후보에서 활성 지점을 선택한다.
+7. 결과를 CycleLayoutState에 저장한 뒤 실제 Actor를 생성한다.
 ```
 
 - 입력 리스트 정렬 없이 RNG 인덱스를 사용하면 씬 탐색 순서에 따라 결과가 바뀌므로 반드시 안정 정렬한다.
 - 무한 재추첨을 금지한다. 조건을 만족하는 후보 목록을 먼저 만든 뒤 한 번 선택한다.
 - 후보 부족 시 폴백 배치가 아니라 명시적인 생성 실패를 반환한다. 잘못된 씬 저작을 숨기지 않는다.
-- 같은 시작점 최대 2회 연속 제한과 보스 미조우 천장은 영구 히스토리가 필요한 P1 항목이다. P0 결정성 검증 후 추가한다.
+- 보스 미조우 천장은 영구 히스토리가 필요한 P1 항목이다. P0 결정성 검증 후 추가한다.
+- 시작점 연속 제한 규칙은 시작점 고정으로 **불필요해졌으므로 제거**한다.
 
 ---
 
@@ -217,9 +242,11 @@ Discover(spawnId)
 
 ## 9. 완료 조건
 
-1. N개 중 플레이어 위치는 한 곳만 선택되고 같은 위치에 보스가 생성되지 않는다.
+1. 플레이어는 시드·사이클 번호와 무관하게 항상 `fixedPlayerSpawnId` 위치에서 시작하고, 같은 위치에 보스가 생성되지 않는다.
 2. 안전 반경 내 보스가 생성되지 않는다.
-3. 같은 시드는 같은 `spawnId/actorId` 조합을 만든다.
+3. 같은 시드는 같은 보스 `spawnId/actorId` 조합을 만든다.
+3-1. 시드만 바꾼 두 런의 `playerSpawnId`가 동일하다.
+3-2. `fixedPlayerSpawnId`가 비었거나 해석되지 않으면 레이아웃 생성이 실패하고 추첨으로 폴백하지 않는다.
 4. 외곽 3마리와 중앙 1마리가 정확히 한 번 생성된다.
 5. 모든 보스는 처음부터 `?`로 보이고 정체 정보는 노출되지 않는다.
 6. 조우 시 `?`가 정식 아이콘으로 한 번만 전환된다.

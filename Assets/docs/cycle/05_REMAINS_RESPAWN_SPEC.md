@@ -80,7 +80,8 @@ public void RestoreCurrentLevelExp(CharacterActorType type, long amount);
 규칙:
 
 - `RemoveCurrentLevelExp`는 0 아래로 내리지 않고 실제 차감량을 반환한다.
-- 레벨은 절대 내리지 않는다.
+- 레벨은 절대 내리지 않는다. 레벨이 내려가면 이미 지급·소비한 스킬 포인트를 회수해야 하고, 그 시점에 찍은 노드를 강제 해제하는 문제가 생긴다. 이 규칙은 `08_CHARACTER_SKILL_GROWTH_SPEC.md`의 전제이므로 완화하지 않는다.
+- **스킬 포인트와 취득 노드는 손실 대상이 아니다.** 유해는 경험치 진행분과 미정산 재료만 다룬다.
 - `RestoreCurrentLevelExp`는 사망 시 차감한 값을 복구하는 전용 API다.
 - 복구 경험치로 레벨업하지 않는다. 사망 직전 같은 현재 레벨 진행분으로 돌아가는 것이 목적이다.
 - 두 API 모두 기존 `OnExpChanged`와 `OnPartyProgressionChanged`를 적절히 발행한다.

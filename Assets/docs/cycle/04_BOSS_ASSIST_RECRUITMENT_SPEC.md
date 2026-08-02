@@ -113,12 +113,21 @@ P0 규칙:
 
 ## 5. 영입 판정
 
-### 확률
+> 2026-08-02 개정: 확률 롤과 천장(pity)을 제거하고 **조건 달성 시 확정 영입**으로 전환했다. 이전 규칙(`40% + 브레이크 35% + 노히트 15% + 실패당 15%`, 100% 상한)은 폐기한다.
 
-```text
-최종 확률 = 40% + 브레이크 특수공격 마무리 35% + 노히트 15% + 실패당 15%
-최종 확률은 100%로 제한
-```
+### 확정 조건
+
+보스를 처치한 시점에 **아래 조건 중 하나 이상**을 만족하면 영입이 확정된다. 하나도 만족하지 못하면 영입되지 않으며, 다음 사이클에 같은 보스를 다시 만나 재도전할 수 있다.
+
+| 조건 | 판정 |
+|---|---|
+| 브레이크 마무리 | 마지막 유효 피해가 브레이크 특수공격일 때 |
+| 노히트 처치 | 조우 시작부터 처치까지 실제 HP 피해 0 |
+| 누적 처치 | 해당 보스를 `requiredDefeatCount`회(P0 기본 3회) 처치 |
+
+- 앞의 두 조건은 **플레이 숙련의 지름길**이고, 누적 처치는 **숙련과 무관한 보장선**이다. 확률 천장과 달리 진행도가 UI에 그대로 노출되므로 플레이어가 남은 횟수를 정확히 알 수 있다.
+- 누적 처치 카운터는 **영입 성공 여부와 무관하게 매 처치마다 증가**한다. 브레이크 마무리로 1회차에 영입되면 카운터는 더 이상 의미가 없으므로 그대로 둔다.
+- 조건은 OR이며 합산 개념이 없다. "조건 2개 달성 시 추가 보상"은 P1에서 판단한다.
 
 ### `BossRecruitmentService`
 
@@ -137,13 +146,21 @@ public readonly struct BossDefeatContext
 출력은 성공 여부뿐 아니라 UI와 저장에 필요한 세부 결과를 포함한다.
 
 ```csharp
+public enum BossRecruitTrigger
+{
+    None,
+    BreakFinish,
+    NoHit,
+    DefeatCount,
+}
+
 public readonly struct BossRecruitmentResult
 {
-    public readonly bool rolled;
     public readonly bool success;
-    public readonly float finalChance;
-    public readonly int pityBefore;
-    public readonly int pityAfter;
+    public readonly BossRecruitTrigger trigger;   // 어떤 조건으로 확정됐는지
+    public readonly int defeatCountBefore;
+    public readonly int defeatCountAfter;
+    public readonly int requiredDefeatCount;
     public readonly AssistRecruitResult rosterResult;
 }
 ```
@@ -153,9 +170,10 @@ public readonly struct BossRecruitmentResult
 - 중앙 보스 영입 여부는 P0 데이터에서 보스별로 설정한다. 기본은 외곽 보스만 가능하다.
 - 브레이크 보너스는 마지막 유효 피해 원인이 특수공격일 때만 적용한다.
 - 노히트는 조우 시작부터 처치까지 실제 HP 피해가 0일 때만 참이다. 가드로 0 피해면 노히트로 인정한다.
-- 천장은 보스별 영구 데이터다. 성공하면 0으로 초기화한다.
-- 플레이어블 `_recruitableAs` 해금은 확정이며 이 확률식을 사용하지 않는다.
-- 결정적 테스트를 위해 확률 RNG를 주입 가능하게 한다.
+- 처치 카운터는 보스별 영구 데이터다. 영입 성공 후에도 초기화하지 않는다.
+- 여러 조건을 동시에 만족하면 `trigger`는 `BreakFinish > NoHit > DefeatCount` 우선순위로 하나만 기록한다. 연출과 텔레메트리가 원인을 단일하게 읽기 위해서다.
+- 플레이어블 `_recruitableAs` 해금은 확정이며 이 판정과 별개 경로다.
+- **이 서비스는 RNG를 사용하지 않는다.** 같은 `BossDefeatContext`와 같은 저장 상태는 언제나 같은 결과를 낸다. 테스트용 RNG 주입 지점도 두지 않는다.
 
 ---
 
@@ -263,5 +281,6 @@ RequestAssist()
 4. 어시스트는 실행 중 이동하지 않고 적 타겟·피격·충돌 대상이 되지 않는다.
 5. 정상 종료와 timeout 모두 모델과 판정을 남기지 않는다.
 6. 부활 후 쿨다운이 초기화되지 않는다.
-7. 영입 확률, 브레이크 보너스, 노히트, 천장이 계산대로 동작한다.
+7. 브레이크 마무리·노히트·누적 처치 세 조건이 각각 단독으로 영입을 확정시키고, 어느 조건도 만족하지 못하면 영입되지 않는다.
+7-1. 같은 처치 컨텍스트를 반복 입력해도 결과가 항상 동일하다(영입 판정에 RNG 없음).
 8. 어시스트 로스터가 플레이어 `Roster/BattleOrder`를 변경하지 않는다.

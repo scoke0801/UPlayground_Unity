@@ -232,7 +232,18 @@ namespace UPlayGround
 
             if (_uiHpBar == null) AttachHpUI();
 
-            MovementController.AddVelocity(attackDirection.normalized * 30.0f);
+            if (MovementController != null)
+            {
+                // 수직 성분을 남기면 AddVelocity가 ForceUnground를 호출해 사체가 공중으로 솟는다.
+                Vector3 finishDir = KnockbackDirectionResolver.ResolveHorizontal(
+                    attackDirection,
+                    null,
+                    transform,
+                    MovementController.Motor != null
+                        ? MovementController.Motor.CharacterUp
+                        : Vector3.up);
+                MovementController.AddVelocity(finishDir * 30.0f);
+            }
             ActorSvc.Combat?.TrySpawnVitalOrb(VitalOrbTrigger.FinishAttackHit, transform.position);
             OnDeath();
         }
@@ -423,7 +434,8 @@ namespace UPlayGround
                 switch (hit.ReactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(hit.AttackDirection.normalized * hit.KnockbackForce,
+                        MovementController.AddImpulse(
+                            ResolveKnockbackDirection(hit) * hit.KnockbackForce,
                             hit.KnockbackDrag);
                         appliedReactionForce = true;
                         break;
@@ -441,8 +453,7 @@ namespace UPlayGround
 
                     case AttackReactionType.Airborne:
                     {
-                        Vector3 launchDir = hit.AttackDirection.normalized;
-                        launchDir.y = 0f;
+                        Vector3 launchDir = ResolveKnockbackDirection(hit);
                         Vector3 airborneVelocity = ShouldEnterAirborneState(hit)
                             ? Vector3.up * hit.AirborneForce
                             : Vector3.zero;
@@ -855,6 +866,21 @@ namespace UPlayGround
 
             if (_uiHpBar != null)
                 _breakGauge.ConnectUiBar(_uiHpBar);
+        }
+
+        /// <summary>
+        /// 넉백/에어본 임펄스에 사용할 수평 방향. AttackDirection은 히트박스 스윕 델타에서 유도되어
+        /// 수직 성분을 포함할 수 있으므로 그대로 쓰면 ForceUnground로 인해 피격자가 솟구친다.
+        /// </summary>
+        private Vector3 ResolveKnockbackDirection(in HitContext hit)
+        {
+            return KnockbackDirectionResolver.ResolveHorizontal(
+                hit.AttackDirection,
+                hit.Attacker != null ? hit.Attacker.transform : null,
+                transform,
+                MovementController != null && MovementController.Motor != null
+                    ? MovementController.Motor.CharacterUp
+                    : Vector3.up);
         }
 
         // 가벼운 밀쳐냄(shove) 튜닝값. 이동 거리 ≈ Force/Drag (≈1.2m). 브레이크 마무리(2.5m+2초 넘어짐)보다 약하다.

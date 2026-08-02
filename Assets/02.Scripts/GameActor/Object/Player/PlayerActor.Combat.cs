@@ -285,6 +285,21 @@ namespace UPlayGround
         }
 
         /// <summary>
+        /// 넉백/에어본 임펄스에 사용할 수평 방향. attackDirection은 히트박스 스윕 델타에서 유도되어
+        /// 수직 성분을 포함할 수 있으므로 그대로 쓰면 ForceUnground로 인해 플레이어가 솟구친다.
+        /// </summary>
+        private Vector3 ResolveKnockbackDirection(AttackData attackData)
+        {
+            return KnockbackDirectionResolver.ResolveHorizontal(
+                attackData.attackDirection,
+                attackData.attacker != null ? attackData.attacker.transform : null,
+                transform,
+                MovementController != null && MovementController.Motor != null
+                    ? MovementController.Motor.CharacterUp
+                    : Vector3.up);
+        }
+
+        /// <summary>
         /// 피격 시 호출.
         /// 쉐이크 강도는 AttackReactionType으로 결정한다.
         /// </summary>
@@ -310,7 +325,8 @@ namespace UPlayGround
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(attackData.attackDirection.normalized * attackData.knockbackForce,
+                        MovementController.AddImpulse(
+                            ResolveKnockbackDirection(attackData) * attackData.knockbackForce,
                             attackData.knockbackDrag);
                         break;
 
@@ -326,8 +342,7 @@ namespace UPlayGround
 
                     case AttackReactionType.Airborne:
                     {
-                        Vector3 launchDir = attackData.attackDirection.normalized;
-                        launchDir.y = 0f;
+                        Vector3 launchDir = ResolveKnockbackDirection(attackData);
                         Vector3 airborneVelocity = ShouldEnterAirborneState(attackData)
                             ? Vector3.up * attackData.airborneForce
                             : Vector3.zero;

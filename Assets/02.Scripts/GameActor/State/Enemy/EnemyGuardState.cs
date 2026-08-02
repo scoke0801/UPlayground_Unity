@@ -5,6 +5,7 @@ using UPlayGround.Data;
 using UPlayGround.MovementController;
 using UPlayGround.Data.Sound;
 using UPlayGround.Manager;
+using UPlayGround.Combat;
 
 namespace UPlayGround.State
 {
@@ -112,8 +113,13 @@ namespace UPlayGround.State
                 return;
             }
 
-            // 카운터 불가 시 밀려나기만
-            controller.AddVelocity(incomingAttack.attackDirection.normalized * 2.0f);
+            // 카운터 불가 시 밀려나기만. 수직 성분을 남기면 AddVelocity가 ForceUnground를 호출해 떠오른다.
+            Vector3 pushDir = KnockbackDirectionResolver.ResolveHorizontal(
+                incomingAttack.attackDirection,
+                incomingAttack.attacker != null ? incomingAttack.attacker.transform : null,
+                gameActor.transform,
+                motor != null ? motor.CharacterUp : Vector3.up);
+            controller.AddVelocity(pushDir * 2.0f);
         }
     }
 }

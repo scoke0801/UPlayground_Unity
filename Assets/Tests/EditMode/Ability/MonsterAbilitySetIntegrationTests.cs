@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEditor;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Animation;
+using UPlayGround.Components;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
@@ -12,6 +13,33 @@ namespace UPlayGround.Ability.Tests
 {
     public sealed class MonsterAbilitySetIntegrationTests
     {
+        [Test]
+        public void 지상_몬스터_프리팹의_AIController는_활성화되어_있다()
+        {
+            ActorDefinitionSO[] definitions = AssetDatabase
+                .FindAssets($"t:{nameof(ActorDefinitionSO)}")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>)
+                .Where(x => x != null && x.monsterProfile != null && x.prefab != null)
+                .ToArray();
+
+            Assert.That(definitions, Is.Not.Empty);
+
+            var issues = new List<string>();
+            foreach (ActorDefinitionSO definition in definitions)
+            {
+                EnemyAIController controller = definition.prefab.GetComponent<EnemyAIController>();
+                if (controller != null && !controller.enabled)
+                {
+                    issues.Add(
+                        $"{definition.name}: EnemyAIController가 비활성화되어 "
+                        + "ManagedTick과 공격 쿨다운 진행이 멈춥니다.");
+                }
+            }
+
+            Assert.That(issues, Is.Empty, string.Join("\n", issues));
+        }
+
         [Test]
         public void 모든_몬스터_프로필은_AI_공격_AbilitySet을_가진다()
         {

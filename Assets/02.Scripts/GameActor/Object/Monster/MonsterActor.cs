@@ -130,6 +130,12 @@ namespace UPlayGround
 
         protected override void Start()
         {
+            // 프리팹에서 AI가 실수로 비활성화되면 EnemyAIController.ManagedTick이 돌지 않아
+            // 첫 공격 뒤 행동 쿨다운이 영원히 0에 고정된다. 런타임 Freeze는 Start 이후에만
+            // 발생하므로, 초기 구성 단계에서 지상 AI를 활성 상태로 정규화한다.
+            if (_groundAIController != null && !_groundAIController.enabled)
+                _groundAIController.enabled = true;
+
             base.Start();
         }
 

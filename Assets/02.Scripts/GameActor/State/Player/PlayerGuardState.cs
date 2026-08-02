@@ -30,6 +30,7 @@ namespace UPlayGround.State
         private const float HeavyGuardPushMultiplier = 1.2f;
         private Vector3 _guardBlockRecoilDirection;
         private float _guardBlockRecoilTimer;
+        private bool _guardMotionRestoreFailed;
 
         public PlayerGuardState(ActorMovementController controller) : base(controller)
         {
@@ -77,6 +78,7 @@ namespace UPlayGround.State
             _guardStartTime = Time.time;
             _guardBlockRecoilDirection = Vector3.zero;
             _guardBlockRecoilTimer = 0f;
+            _guardMotionRestoreFailed = false;
 
             playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.1f);
         }
@@ -130,6 +132,27 @@ namespace UPlayGround.State
                 playerController.TransitionToState(ActorStateId.Airborne);
                 return;
             }
+
+            EnsureGuardMotionPlaying();
+        }
+
+        /// <summary>
+        /// 가드 유지 중 재생 중인 MotionSet이 없으면 Guard 루프 모션을 다시 건다.
+        /// Block 모션은 완료 시점에 타임라인이 마지막 포즈에서 정지(Speed = 0)하므로
+        /// AnimancerState.OwnedEvents.OnEnd가 발화하지 않을 수 있다. 종료 콜백에 의존하면
+        /// Block 모션이 끝난 뒤 그 포즈로 굳은 채 가드 루프로 돌아오지 못하므로,
+        /// 상태가 매 프레임 직접 복구한다. (이미 재생 중이면 PlayMotion이 조기 반환한다)
+        /// 재생이 실패하면(모션 없음·섹션 검증 실패) 매 프레임 재시도가 되어 해석 비용과
+        /// 에러 로그가 반복되므로, 이번 가드 동안은 복구를 포기한다.
+        /// </summary>
+        private void EnsureGuardMotionPlaying()
+        {
+            var animator = playerActor.Animator;
+            if (animator == null || _guardMotionRestoreFailed || animator.IsPlayingMotionSet)
+                return;
+
+            if (animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.1f, 0) == null)
+                _guardMotionRestoreFailed = true;
         }
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
@@ -180,13 +203,15 @@ namespace UPlayGround.State
             float timeSinceGuardStart = Time.time - _guardStartTime;
             bool isPerfectGuard = timeSinceGuardStart <= PERFECT_GUARD_WINDOW;
             
-            var blockAnimState = playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Block, 0.05f, 0);
-            BeginGuardBlockRecoil(incomingAttack, isPerfectGuard);
-            
-            blockAnimState.OwnedEvents.OnEnd = () =>
+            // Block 모션이 없는 무기(예: Whip)면 재생 결과가 null이므로 그대로 가드 루프를 유지한다.
+            // Block 종료 후 Guard 복귀는 UpdateState의 EnsureGuardMotionPlaying이 담당한다.
+            if (playerActor.Animator.PlayMotion(
+                    UPlayGround.Data.Actor.Animation.MotionTags.Block, 0.05f, 0) != null)
             {
-                playerActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, 0.1f, 0);
-            };
+                // Block이 실제로 재생됐다면 애니메이터가 정상이므로 Guard 복구를 다시 시도할 수 있다.
+                _guardMotionRestoreFailed = false;
+            }
+            BeginGuardBlockRecoil(incomingAttack, isPerfectGuard);
 
             if (isPerfectGuard)
             {

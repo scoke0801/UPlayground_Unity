@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 프로젝트 개요
 
-Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP 렌더링 파이프라인.
+Unity 6 (6000.3.21f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP 렌더링 파이프라인.
 **사이클형 보스 헌팅** 구조: 시드 기반 런(개발 20분/정식 40분)에서 외곽 보스 3 + 중앙 보스 1을 배치하고, 중앙 보스 처치 후 포털 정산으로 사이클을 마친다 (스펙: `Assets/docs/cycle/`). 사이클 보스 영입은 파티 합류가 아니라 **BossAssist**(장착 1마리, 지정 스킬 1회, 비이동·비어그로 서포트 소환)로 처리한다. 매핑은 `BossAssistDatabaseSO.sourceBossActorId`, 확률 롤은 `BossRecruitmentService`가 담당한다. 이 흐름과 별개로 `MonsterActor._recruitableAs`가 지정된 몬스터는 사망 시 `Svc.Party?.UnlockCharacter`로 플레이어블 캐릭터를 해금하는 기존 경로가 현재도 유효하다. 사이클 보스에서 파티 해금을 원하지 않으면 `_recruitableAs`를 `None`으로 유지한다.
 
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
@@ -15,7 +15,7 @@ Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP
 
 ## 빌드 & 실행
 
-Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.0.60f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개, FlowGraph에는 EditMode 3개(`Assets/Tests/EditMode/FlowGraph/`)와 PlayMode 수직 슬라이스 3개(`Assets/Tests/PlayMode/FlowGraph/`)가 있다.
+Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.3.21f1+)에서 URP로 수행한다. 생성된 `.csproj`가 최신이면 `dotnet build <프로젝트>.csproj --no-restore`로 asmdef별 컴파일을 보조 확인할 수 있다. Ability 시스템에는 EditMode 14개와 PlayMode 수직 슬라이스 2개의 자동 테스트가 있으며, 파티 Core에는 `Assets/Tests/EditMode/PartyRosterServiceTests.cs`의 테스트 3개, FlowGraph에는 EditMode 3개(`Assets/Tests/EditMode/FlowGraph/`)와 PlayMode 수직 슬라이스 3개(`Assets/Tests/PlayMode/FlowGraph/`)가 있다.
 
 ## 아키텍처
 

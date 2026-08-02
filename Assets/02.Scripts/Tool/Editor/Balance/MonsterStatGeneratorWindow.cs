@@ -51,7 +51,15 @@ namespace UPlayGround.Tool.Editor.Balance
                 _scaling = FindFirst<MonsterScalingSO>();
         }
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "몬스터 스탯 생성기",
+                "스케일링 커브를 미리 보고 누락 스탯 생성과 선택 덮어쓰기를 안전하게 수행합니다.",
+                "d_ScriptableObject Icon", DrawLegacyGUI, "up-monster-stat-generator");
+        }
+
+        private void DrawLegacyGUI()
         {
             HandleTableNavigation();
             DrawToolbar();

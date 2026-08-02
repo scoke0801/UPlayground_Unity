@@ -1,44 +1,12 @@
 .up-editor-root {
-    --up-bg-0: rgb(9, 14, 20);
-    --up-bg-1: rgb(14, 21, 29);
-    --up-bg-2: rgb(20, 29, 39);
-    --up-bg-3: rgb(27, 38, 50);
-    --up-border: rgb(44, 61, 77);
-    --up-border-strong: rgb(62, 84, 103);
-    --up-accent: rgb(46, 154, 255);
-    --up-accent-soft: rgba(46, 154, 255, 0.16);
-    --up-text: rgb(228, 235, 244);
-    --up-text-dim: rgb(142, 157, 174);
-    --up-text-faint: rgb(94, 112, 130);
-    --up-space-1: 4px;
-    --up-space-2: 8px;
-    --up-space-3: 12px;
-    --up-radius: 4px;
-    --up-font-sm: 11px;
-    --up-font-md: 12px;
-    --up-track-montage: rgb(66, 135, 201);
-    --up-track-timing: rgb(214, 165, 62);
-    --up-track-notify: rgb(177, 96, 199);
-    --up-track-overlay: rgb(73, 171, 143);
-
     flex-grow: 1;
     min-width: 600px;
     min-height: 400px;
-    color: var(--up-text);
-    background-color: var(--up-bg-0);
+    background-color: rgb(9, 14, 20);
 }
 
 .up-theme-light {
-    --up-bg-0: rgb(224, 226, 230);
-    --up-bg-1: rgb(235, 237, 240);
-    --up-bg-2: rgb(207, 210, 215);
-    --up-bg-3: rgb(198, 203, 210);
-    --up-border: rgb(150, 154, 160);
-    --up-border-strong: rgb(125, 132, 141);
-    --up-accent-soft: rgba(46, 133, 235, 0.14);
-    --up-text: rgb(35, 38, 43);
-    --up-text-dim: rgb(82, 87, 94);
-    --up-text-faint: rgb(112, 118, 126);
+    background-color: rgb(224, 226, 230);
 }
 
 .up-motion-toolbar,
@@ -51,7 +19,7 @@
     flex-grow: 1;
     min-height: 260px;
     border-top-width: 1px;
-    border-top-color: var(--up-border-strong);
+    border-top-color: rgb(62, 84, 103);
 }
 
 .up-motion-content-split {
@@ -61,7 +29,7 @@
 
 .up-motion-sidebar {
     min-width: 280px;
-    background-color: var(--up-bg-1);
+    background-color: rgb(14, 21, 29);
 }
 
 .up-motion-sidebar-imgui,
@@ -72,16 +40,134 @@
 
 .up-motion-body {
     min-width: 320px;
-    background-color: var(--up-bg-0);
+    background-color: rgb(9, 14, 20);
 }
 
 .up-motion-inspector-pane {
     min-width: 280px;
-    background-color: var(--up-bg-1);
+    background-color: rgb(14, 21, 29);
     border-left-width: 1px;
-    border-left-color: var(--up-border-strong);
+    border-left-color: rgb(62, 84, 103);
 }
 
 .up-hidden {
     display: none;
+}
+
+/* 공통 에디터 도구 크롬 --------------------------------------------------- */
+.up-tool-header {
+    height: 64px;
+    min-height: 64px;
+    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 14px;
+    padding-right: 14px;
+    background-color: rgb(14, 21, 29);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(62, 84, 103);
+}
+
+.up-tool-header__icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    opacity: 0.92;
+}
+
+.up-tool-header__copy {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.up-tool-header__title-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.up-tool-header__title {
+    color: rgb(228, 235, 244);
+    font-size: 15px;
+    -unity-font-style: bold;
+}
+
+.up-tool-header__badge {
+    height: 18px;
+    margin-left: 8px;
+    padding-left: 6px;
+    padding-right: 6px;
+    color: rgb(46, 154, 255);
+    background-color: rgba(46, 154, 255, 0.16);
+    border-width: 1px;
+    border-color: rgb(46, 154, 255);
+    border-radius: 4px;
+    font-size: 9px;
+    -unity-text-align: middle-center;
+}
+
+.up-tool-header__description {
+    margin-top: 3px;
+    color: rgb(142, 157, 174);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.up-legacy-host {
+    flex-grow: 1;
+    min-height: 0;
+    padding: 8px;
+    background-color: rgb(9, 14, 20);
+}
+
+.up-legacy-tool {
+    min-width: 420px;
+}
+
+.up-editor-root > .unity-toolbar {
+    min-height: 28px;
+    flex-shrink: 0;
+    background-color: rgb(20, 29, 39);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(44, 61, 77);
+}
+
+/* Unity USS는 CSS custom property 해석이 버전별로 달라 명시 색상을 사용한다. */
+.up-theme-light .up-motion-main-split {
+    border-top-color: rgb(125, 132, 141);
+}
+
+.up-theme-light .up-motion-sidebar,
+.up-theme-light .up-motion-inspector-pane,
+.up-theme-light .up-tool-header {
+    background-color: rgb(235, 237, 240);
+}
+
+.up-theme-light .up-motion-body,
+.up-theme-light .up-legacy-host {
+    background-color: rgb(224, 226, 230);
+}
+
+.up-theme-light .up-motion-inspector-pane {
+    border-left-color: rgb(125, 132, 141);
+}
+
+.up-theme-light .up-tool-header {
+    border-bottom-color: rgb(125, 132, 141);
+}
+
+.up-theme-light .up-tool-header__title {
+    color: rgb(35, 38, 43);
+}
+
+.up-theme-light .up-tool-header__description {
+    color: rgb(82, 87, 94);
+}
+
+.up-theme-light .up-tool-header__badge {
+    background-color: rgba(46, 133, 235, 0.14);
+}
+
+.up-theme-light > .unity-toolbar {
+    background-color: rgb(207, 210, 215);
+    border-bottom-color: rgb(150, 154, 160);
 }

@@ -98,6 +98,11 @@ namespace UPlayGround.Actor.Editor
         {
             rootVisualElement.Clear();
             rootVisualElement.style.flexDirection = FlexDirection.Column;
+            UPlayGround.EditorTools.UPlaygroundEditorUX.PrepareRoot(rootVisualElement, "up-actor-database");
+            rootVisualElement.Add(UPlayGround.EditorTools.UPlaygroundEditorUX.CreateHeader(
+                "액터 데이터베이스",
+                "ActorDefinition 검색·편집·동기화와 데이터 무결성 작업을 한 화면에서 처리합니다.",
+                "d_ScriptableObject Icon"));
 
             BuildToolbar();
             BuildBody();
@@ -252,7 +257,9 @@ namespace UPlayGround.Actor.Editor
                 virtualizationMethod = CollectionVirtualizationMethod.FixedHeight,
                 fixedItemHeight = ItemHeight,
                 reorderMode = ListViewReorderMode.Animated,
-                showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly,
+                // 다수의 액터를 오래 훑는 화면이므로 강한 교차 행 색상을 사용하지 않는다.
+                // 현재 선택은 ListView 기본 선택 강조만으로 구분한다.
+                showAlternatingRowBackgrounds = AlternatingRowBackground.None,
                 itemsSource = _visible,
                 makeItem = MakeListItem,
                 bindItem = BindListItem,

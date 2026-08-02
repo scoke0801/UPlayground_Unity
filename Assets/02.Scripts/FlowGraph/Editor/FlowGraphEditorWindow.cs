@@ -86,6 +86,12 @@ namespace UPlayGround.FlowGraph.Editor
 
         private void CreateGUI()
         {
+            rootVisualElement.Clear();
+            UPlayGround.EditorTools.UPlaygroundEditorUX.PrepareRoot(rootVisualElement, "up-flow-graph");
+            rootVisualElement.Add(UPlayGround.EditorTools.UPlaygroundEditorUX.CreateHeader(
+                "Flow Graph",
+                "노드 탐색·변수 편집·검증과 런타임 Step 디버깅을 하나의 그래프 작업 공간에서 제공합니다.",
+                "d_UnityEditor.Graphs.AnimatorControllerTool"));
             BuildToolbar();
             BuildContent();
             BuildBottomPanel();

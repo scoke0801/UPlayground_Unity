@@ -51,7 +51,15 @@ namespace UPlayGround.Data.Editor
             EditorApplication.update -= UpdateEditorPreviewPlayback;
         }
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "카메라 스냅샷",
+                "카메라 샷 캡처, 순서 편집, 프로필 검증과 시퀀스 미리보기를 한 흐름에서 제공합니다.",
+                "d_Camera Icon", DrawLegacyGUI, "up-camera-snapshot");
+        }
+
+        private void DrawLegacyGUI()
         {
             DrawToolbar();
             EditorGUILayout.Space(6f);

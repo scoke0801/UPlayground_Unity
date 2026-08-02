@@ -168,7 +168,15 @@ namespace UPlayGround.Gameplay.Tag.Editor
             };
         }
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "태그 레지스트리",
+                "Gameplay Tag의 생성·정렬·이름 변경·사용처 확인과 레지스트리 검증을 제공합니다.",
+                "d_FilterByLabel", DrawLegacyGUI, "up-tag-registry");
+        }
+
+        private void DrawLegacyGUI()
         {
             DrawToolbar();
             if (_registry == null)

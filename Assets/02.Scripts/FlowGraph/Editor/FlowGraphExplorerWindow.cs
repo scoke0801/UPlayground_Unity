@@ -36,7 +36,7 @@ namespace UPlayGround.FlowGraph.Editor
         private ListView _list;
         private Label _status;
 
-        [MenuItem("UPlayGround/Flow Graph Explorer")]
+        [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/Flow Graph Explorer")]
         public static void Open()
         {
             GetWindow<FlowGraphExplorerWindow>("FlowGraph Explorer").Show();

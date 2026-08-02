@@ -20,7 +20,12 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         private void ConstructLayout()
         {
             rootVisualElement.Clear();
+            UPlayGround.EditorTools.UPlaygroundEditorUX.PrepareRoot(rootVisualElement, "up-behavior-tree");
             rootVisualElement.style.backgroundColor = BehaviorTreeEditorStyles.Background;
+            rootVisualElement.Add(UPlayGround.EditorTools.UPlaygroundEditorUX.CreateHeader(
+                "Behavior Tree",
+                "트리 저작, Blackboard, 검증, 런타임 디버그와 실행 추적을 통합한 AI 작업 공간입니다.",
+                "d_Profiler.NetworkMessages"));
 
             var toolbarRoot = new VisualElement();
             toolbarRoot.style.backgroundColor = BehaviorTreeEditorStyles.PanelAlt;

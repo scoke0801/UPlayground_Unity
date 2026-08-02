@@ -100,11 +100,17 @@ namespace UPlayGround.Tool.Editor
 
         // ── 메인 GUI ─────────────────────────────────────────────
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "미니맵 캡처",
+                "씬 캡처 범위·렌더 설정·출력과 Sprite 자동 연결을 단계별로 구성합니다.",
+                "d_SceneViewCamera", DrawLegacyGUI, "up-minimap-capture");
+        }
+
+        private void DrawLegacyGUI()
         {
             EnsureStyles();
-
-            DrawHeader();
             DrawTabs();
 
             EditorGUILayout.Space(4f);

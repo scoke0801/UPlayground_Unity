@@ -240,7 +240,15 @@ namespace UPlayGround.Tool.Editor.Map
             SaveFoldoutPrefs();
         }
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "월드 배치 도구",
+                "액터·상호작용·아이템 배치 규칙과 씬 브러시 작업 상태를 한 화면에서 관리합니다.",
+                "d_Prefab Icon", DrawLegacyGUI, "up-world-placement");
+        }
+
+        private void DrawLegacyGUI()
         {
             InitStyles();
             HandleWindowShortcuts();

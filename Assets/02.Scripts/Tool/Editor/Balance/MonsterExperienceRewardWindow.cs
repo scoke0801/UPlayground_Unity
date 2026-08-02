@@ -76,7 +76,15 @@ namespace UPlayGround.Tool.Editor.Balance
             Repaint();
         }
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "경험치 발급기",
+                "레벨 곡선과 몬스터 난이도를 비교해 경험치 보상을 일괄 산정하고 적용합니다.",
+                "d_UnityEditor.ConsoleWindow", DrawLegacyGUI, "up-experience-reward");
+        }
+
+        private void DrawLegacyGUI()
         {
             HandleTableNavigation();
             DrawToolbar();

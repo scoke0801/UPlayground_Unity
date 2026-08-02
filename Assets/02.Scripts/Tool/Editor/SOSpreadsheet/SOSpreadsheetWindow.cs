@@ -2143,11 +2143,13 @@ namespace UPlayGround.Tool.Editor.SOSpreadsheet
                 for (int i = 0; i < types.Count; i++)
                 {
                     var entry = types[i];
-                    root.AddChild(new AdvancedDropdownItem(
-                        $"{entry.type.Name}  ({entry.assetPaths.Count})")
-                    {
-                        id = i,
-                    });
+                    var item = new AdvancedDropdownItem(
+                        $"{entry.type.Name}  ({entry.assetPaths.Count})");
+                    root.AddChild(item);
+
+                    // Unity 6.3에서는 AddChild가 항목 id를 다시 지정한다.
+                    // 타입 인덱스는 자식으로 추가한 다음 설정해야 ItemSelected에서 보존된다.
+                    item.id = i;
                 }
                 return root;
             }

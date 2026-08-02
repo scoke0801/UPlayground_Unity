@@ -65,7 +65,15 @@ namespace UPlayGround.Tool.Editor.Balance
             Repaint();
         }
 
-        private void OnGUI()
+        public void CreateGUI()
+        {
+            UPlayGround.EditorTools.UPlaygroundEditorUX.BuildLegacyWindow(
+                rootVisualElement, "밸런스 디자이너",
+                "액터 전투 지표 분석, 시나리오 비교, 자동 생성과 텔레메트리 검토를 위한 작업 공간입니다.",
+                "d_Profiler.CPU", DrawLegacyGUI, "up-balance-designer");
+        }
+
+        private void DrawLegacyGUI()
         {
             HandleListNavigation();
             DrawToolbar();

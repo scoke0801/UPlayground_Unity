@@ -32,7 +32,7 @@ MonoBehaviour:
     targetPolicy: 2
     targetRelation: 2
     minDistance: 0
-    maxDistance: 2.5
+    maxDistance: 1.65
   targeting:
     mode: 0
     indicatorRadius: 0

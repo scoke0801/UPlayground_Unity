@@ -15,11 +15,11 @@ MonoBehaviour:
   behaviorTree: {fileID: 11400000, guid: 812a888314740a84e84d3af763621df4, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
-  optimalCombatDistance: 2.4
-  minCombatDistance: 1.1
+  optimalCombatDistance: 1.85
+  minCombatDistance: 1.25
   maintainDistance: 1
-  chaseStopDistance: 2.2
-  personalSpaceDistance: 0.8
+  chaseStopDistance: 1.65
+  personalSpaceDistance: 1.0500001
   continueAttackChance: 0.3
   guardChance: 0.25
   retreatChance: 0.2

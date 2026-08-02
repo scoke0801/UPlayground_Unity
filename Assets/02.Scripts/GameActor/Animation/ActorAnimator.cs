@@ -69,6 +69,7 @@ namespace UPlayGround.Animation
         public event Action<MotionSet, MotionSetEndReason> OnMotionSetEndedWithReason;
         public AnimancerComponent GetAnimancerComponent() => _animator;
         public Animator GetAnimator => _animator.Animator;
+        public ActorAnimator SubAnimator => _subAnimator;
 
         public readonly struct MotionPlaybackSnapshot
         {

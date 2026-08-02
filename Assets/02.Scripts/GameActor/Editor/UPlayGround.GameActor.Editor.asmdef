@@ -4,10 +4,12 @@
   "references": [
     "UPlayGround.EditorTools",
     "UPlayGround.Ability.Core",
+    "UPlayGround.Ability.UPlayGround",
     "UPlayGround.Actor",
     "UPlayGround.Data",
     "UPlayGround.Contracts",
     "UPlayGround.Core",
+    "UPlayGround.MotionSet.Core",
     "AYellowpaper.SerializedCollections"
   ],
   "includePlatforms": [

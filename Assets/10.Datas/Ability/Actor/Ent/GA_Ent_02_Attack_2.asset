@@ -31,8 +31,8 @@ MonoBehaviour:
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
-    minDistance: 0
-    maxDistance: 2.5
+    minDistance: 1.35
+    maxDistance: 2.15
   targeting:
     mode: 0
     indicatorRadius: 0

@@ -41,12 +41,31 @@ namespace UPlayGround.Cycle
             CentralBossSpawnPoint[] centralPoints = UnityEngine.Object.FindObjectsByType<CentralBossSpawnPoint>(FindObjectsSortMode.None);
             if (centralPoints.Length != 1) { error = $"CentralBossSpawnPoint는 정확히 하나여야 합니다: {centralPoints.Length}"; return false; }
 
-            List<CycleSpawnPoint> playerPoints = points.Where(p => p != null && p.Allows(CycleSpawnRole.Player) && !string.IsNullOrWhiteSpace(p.SpawnId)).OrderBy(p => p.SpawnId, StringComparer.Ordinal).ToList();
-            if (playerPoints.Count == 0) { error = "Player 역할 CycleSpawnPoint가 없습니다."; return false; }
-
+            // 주의: 시드 결정론 — 과거 구현은 여기서 layoutRandom.Next(playerPoints.Count)로 시작점을 추첨했다.
+            // 고정 스폰 도입으로 Layout 스트림의 뽑기 1회가 사라졌으므로 같은 시드라도 외곽 보스 배치가 달라진다.
+            // 자리 채움 draw로 과거 시드를 억지로 맞추지 않는다. 상세는 docs/cycle/09_DETERMINISTIC_REPLAY_ADDITIONS.md 5절 참고.
             System.Random layoutRandom = randomFactory(CycleRandomStream.Layout);
             System.Random bossRandom = randomFactory(CycleRandomStream.BossPool);
-            CycleSpawnPoint playerPoint = playerPoints[layoutRandom.Next(playerPoints.Count)];
+
+            // 먼저 SpawnId 일치 여부를 전체 포인트에서 확인해, "존재하지 않음"과 "Player 역할 미설정"을 구분해 보고한다.
+            CycleSpawnPoint playerPoint = points.FirstOrDefault(point =>
+                point != null &&
+                string.Equals(
+                    point.SpawnId,
+                    config.fixedPlayerSpawnId,
+                    StringComparison.Ordinal));
+            if (playerPoint == null)
+            {
+                error = $"고정 플레이어 스폰 '{config.fixedPlayerSpawnId}'과(와) 같은 Spawn ID를 가진 CycleSpawnPoint가 씬에 없습니다. " +
+                        "월드 설정의 fixedPlayerSpawnId 철자를 확인하거나 해당 Spawn ID의 CycleSpawnPoint를 씬에 배치하세요.";
+                return false;
+            }
+            if (!playerPoint.Allows(CycleSpawnRole.Player))
+            {
+                error = $"고정 플레이어 스폰 '{config.fixedPlayerSpawnId}'을(를) 씬에서 찾았지만 Player 역할이 설정되어 있지 않습니다. " +
+                        $"오브젝트 '{playerPoint.name}'의 CycleSpawnPoint에서 Allowed Roles에 Player를 추가하세요.";
+                return false;
+            }
 
             List<CycleSpawnPoint> roleCandidates = points
                 .Where(p => p != null && p.Allows(CycleSpawnRole.OuterBoss) && !string.IsNullOrWhiteSpace(p.SpawnId))

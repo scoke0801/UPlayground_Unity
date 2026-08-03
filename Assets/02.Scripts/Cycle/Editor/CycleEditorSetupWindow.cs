@@ -36,6 +36,8 @@ namespace UPlayGround.Cycle.Editor
         private BossAssistDatabaseSO _assistDatabase;
         private RemainsActor _remainsPrefab;
         private CycleSpawnRole _spawnRoles = CycleSpawnRole.OuterBoss;
+        private string _fixedPlayerSpawnId = string.Empty;
+        private CycleWorldConfigSO _fixedPlayerSpawnSource;
         private string _sectorId = "sector_01";
         private float _safetyRadius = 10f;
         private string _keyboardBinding = "<Keyboard>/q";
@@ -97,10 +99,39 @@ namespace UPlayGround.Cycle.Editor
         {
             EditorGUILayout.Space(10f);
             EditorGUILayout.LabelField("2. 현재 씬", EditorStyles.boldLabel);
+            DrawFixedPlayerSpawnField();
             if (GUILayout.Button("SceneContext.MapID로 월드 설정 생성/불러오기"))
                 CreateOrLoadWorldConfig();
             if (GUILayout.Button("CycleWorldContext + BossAssistBootstrap 배치/연결"))
                 SetupSceneContexts();
+        }
+
+        private void DrawFixedPlayerSpawnField()
+        {
+            if (_fixedPlayerSpawnSource != _worldConfig)
+            {
+                _fixedPlayerSpawnSource = _worldConfig;
+                if (_worldConfig != null)
+                    _fixedPlayerSpawnId = _worldConfig.fixedPlayerSpawnId ?? string.Empty;
+            }
+
+            _fixedPlayerSpawnId = EditorGUILayout.TextField(
+                "고정 Player Spawn ID",
+                _fixedPlayerSpawnId);
+
+            using (new EditorGUI.DisabledScope(
+                       _worldConfig == null
+                       || string.IsNullOrWhiteSpace(_fixedPlayerSpawnId)))
+            {
+                if (!GUILayout.Button("현재 월드 설정에 고정 Player Spawn ID 적용"))
+                    return;
+
+                Undo.RecordObject(_worldConfig, "고정 Player Spawn ID 설정");
+                _worldConfig.fixedPlayerSpawnId = _fixedPlayerSpawnId.Trim();
+                EditorUtility.SetDirty(_worldConfig);
+                AssetDatabase.SaveAssets();
+                _lastResult = $"고정 Player Spawn ID를 '{_worldConfig.fixedPlayerSpawnId}'로 설정했습니다.";
+            }
         }
 
         private void DrawSelectionSection()
@@ -206,9 +237,18 @@ namespace UPlayGround.Cycle.Editor
             EnsureAssetFolder(_assetRoot);
             string safeMapId = SanitizeId(sceneContext.MapID);
             string path = $"{_assetRoot}/CycleWorld_{safeMapId}.asset";
-            _worldConfig = GetOrCreateAsset<CycleWorldConfigSO>(path);
+            CycleWorldConfigSO existingConfig =
+                AssetDatabase.LoadAssetAtPath<CycleWorldConfigSO>(path);
+            _worldConfig = existingConfig != null
+                ? existingConfig
+                : GetOrCreateAsset<CycleWorldConfigSO>(path);
             Undo.RecordObject(_worldConfig, "사이클 월드 설정 보정");
             _worldConfig.mapId = sceneContext.MapID;
+            if (existingConfig == null)
+                _worldConfig.fixedPlayerSpawnId = _fixedPlayerSpawnId?.Trim() ?? string.Empty;
+            else
+                _fixedPlayerSpawnId = _worldConfig.fixedPlayerSpawnId ?? string.Empty;
+            _fixedPlayerSpawnSource = _worldConfig;
             _worldConfig.outerBossCount = 3;
             _worldConfig.maxSameSectorBossCount = 1;
             EditorUtility.SetDirty(_worldConfig);

@@ -25,12 +25,19 @@
 | 1 | [01_CYCLE_RUNTIME_SPEC.md](01_CYCLE_RUNTIME_SPEC.md) | 사이클 상태, 시드, 시작·완료·포기 오케스트레이션 |
 | 2 | [02_WORLD_SPAWN_ENCOUNTER_SPEC.md](02_WORLD_SPAWN_ENCOUNTER_SPEC.md) | N개 스폰 후보 추첨, 보스 생성, `?` 마커, 조우 공개 |
 | 3 | [03_CHARACTER_WEIGHT_SPEC.md](03_CHARACTER_WEIGHT_SPEC.md) | 경량·표준·중량 프로필과 전투 파생값 적용 |
-| 4 | [04_BOSS_ASSIST_RECRUITMENT_SPEC.md](04_BOSS_ASSIST_RECRUITMENT_SPEC.md) | 보스 영입, 천장, 지정 스킬 1회 어시스트 |
+| 4 | [04_BOSS_ASSIST_RECRUITMENT_SPEC.md](04_BOSS_ASSIST_RECRUITMENT_SPEC.md) | 조건부 확정 보스 영입, 누적 처치 보장선, 지정 스킬 1회 어시스트 |
 | 5 | [05_REMAINS_RESPAWN_SPEC.md](05_REMAINS_RESPAWN_SPEC.md) | 파티 전멸, 유해 생성·회수·재사망, 부활 |
 | 6 | [06_CYCLE_SAVE_SETTLEMENT_SPEC.md](06_CYCLE_SAVE_SETTLEMENT_SPEC.md) | 실행 중 저장, 영구 저장, 탈출 정산, 호환성 |
 | 7 | [07_CYCLE_UI_TELEMETRY_VALIDATION_SPEC.md](07_CYCLE_UI_TELEMETRY_VALIDATION_SPEC.md) | HUD, 조우 연출, 텔레메트리, P0 판정 기준 |
 | 8 | [08_CHARACTER_SKILL_GROWTH_SPEC.md](08_CHARACTER_SKILL_GROWTH_SPEC.md) | 레벨업 포인트, 캐릭터별 고정 스킬 노드 트리, 영속 육성 |
 | - | [09_DETERMINISTIC_REPLAY_ADDITIONS.md](09_DETERMINISTIC_REPLAY_ADDITIONS.md) | (제안) 랜덤 제거 후 반복 플레이 동기를 채울 추가 요소 |
+
+### 2026-08-02 구현 대조 결과
+
+- `02`: `CycleWorldSpawnService`가 플레이어 시작점을 다시 추첨하던 구현을 제거하고 `fixedPlayerSpawnId`를 필수 검증·사용하도록 수정했다.
+- `04`: 문서만 확정 판정으로 개정되고 코드는 확률/pity를 유지하던 불일치를 수정했다. 신규 저장은 `defeatCounts`, 구버전 `pity.failures`는 누적 처치 수로 1회 호환 이관한다.
+- `08`: 고정 스킬 트리 런타임·저장·전투 보정·전용 `UI_SkillTree`·검증기를 추가했다. 실제 캐릭터 트리 에셋은 마이그레이션 도구로 초안을 만든 뒤 캐릭터별 Ability/Passive/선행 그래프를 저작해야 한다.
+- `09`: 여전히 후보 제안서다. A~G 중 채택되지 않은 기능은 구현 계약으로 간주하지 않는다.
 
 ---
 
@@ -64,7 +71,7 @@
 ## 4. P0 공통 제약
 
 - 출전 플레이어블 파티는 최대 4명이며 기존 1~4번 스왑을 유지한다.
-- P0 데이터는 Honoka, Bokusei, H09 3명만 저작한다.
+- P0 데이터는 현재 `CycleWorld_lakeoflife` 외곽 보스 풀과 성장 데이터가 함께 존재하는 Honoka, Bokusei, Hichi 3명을 우선 저작한다. `H09`는 현재 성장 데이터가 없고 enum에서도 미사용 상태이므로 P0 대상이 아니다.
 - 보스 위치는 외곽·중앙 모두 `?`로 공개하고 정체는 조우 전까지 숨긴다.
 - 보스 어시스트는 별도 입력, 장착 1마리, 지정 스킬 1회, 비이동·비어그로다.
 - 유해는 출전 파티 전멸 시에만 생성한다.

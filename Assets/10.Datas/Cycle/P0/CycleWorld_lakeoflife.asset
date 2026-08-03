@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CycleWorld_lakeoflife
   m_EditorClassIdentifier: 
   mapId: LakeOfLife
+  fixedPlayerSpawnId: player_spawn_pos
   outerBossActorIds:
   - MonsterHonoka
   - MonsterBokusei

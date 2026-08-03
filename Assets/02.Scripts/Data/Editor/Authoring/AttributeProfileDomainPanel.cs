@@ -67,7 +67,7 @@ namespace UPlayGround.Data.Editor.Authoring
                     {
                         var entries = new List<AttributeProfileEntry>();
                         foreach (AttributeId id in
-                                 UPlayGroundAttributeDefaults.All)
+                                 UPlayGroundAttributeDefaults.ProfileAttributes)
                         {
                             entries.Add(new AttributeProfileEntry(
                                 id,

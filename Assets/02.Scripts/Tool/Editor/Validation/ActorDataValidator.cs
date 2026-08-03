@@ -152,7 +152,7 @@ namespace UPlayGround.Tool.Editor.Validation
                 return;
             }
 
-            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.ProfileAttributes)
             {
                 if (!values.ContainsKey(attributeId))
                 {

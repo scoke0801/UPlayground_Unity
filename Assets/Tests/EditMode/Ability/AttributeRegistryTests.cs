@@ -96,6 +96,27 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void Profile_필수값은_런타임_전용_Attribute를_포함하지_않는다()
+        {
+            AttributeId[] profileAttributes =
+                UPlayGroundAttributeDefaults.ProfileAttributes;
+
+            Assert.That(profileAttributes, Has.Length.EqualTo(15));
+            CollectionAssert.Contains(
+                profileAttributes,
+                (AttributeId)Attributes.Vital.MaxHealth);
+            CollectionAssert.DoesNotContain(
+                profileAttributes,
+                (AttributeId)Attributes.Vital.Health);
+            CollectionAssert.DoesNotContain(
+                profileAttributes,
+                (AttributeId)Attributes.Resource.UltimateEnergy);
+            CollectionAssert.DoesNotContain(
+                profileAttributes,
+                (AttributeId)Attributes.Meta.IncomingDamage);
+        }
+
+        [Test]
         public void InternTable은_alias를_같은_핸들로_해석한다()
         {
             var current = new AttributeRegistryEntry

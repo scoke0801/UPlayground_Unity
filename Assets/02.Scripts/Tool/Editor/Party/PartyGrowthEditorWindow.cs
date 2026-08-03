@@ -52,7 +52,7 @@ namespace UPlayGround.Tool.Editor.Party
             ("강인도", new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Vital.MaxPoise, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryRate, global::UPlayGround.Data.Stat.Attributes.Vital.PoiseRecoveryDelay }),
             ("스킬",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Resource.GenerationMultiplier, global::UPlayGround.Data.Stat.Attributes.Combat.InvincibleDurationMultiplier }),
             ("생활",  new AttributeId[] { global::UPlayGround.Data.Stat.Attributes.Life.GatheringPower }),
-            ("전체",  UPlayGroundAttributeDefaults.All),
+            ("전체",  UPlayGroundAttributeDefaults.ProfileAttributes),
         };
 
         public static void Open()
@@ -440,7 +440,7 @@ namespace UPlayGround.Tool.Editor.Party
 
             var profile = CreateInstance<AttributeProfileSO>();
             var entries = new List<AttributeProfileEntry>();
-            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
+            foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.ProfileAttributes)
                 entries.Add(new AttributeProfileEntry(
                     attributeId,
                     UPlayGroundAttributeDefaults.Get(attributeId)));

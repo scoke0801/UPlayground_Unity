@@ -40,7 +40,7 @@ namespace UPlayGround.Ability.Tests
                 }
 
                 foreach (AttributeId attributeId in
-                         UPlayGroundAttributeDefaults.All)
+                         UPlayGroundAttributeDefaults.ProfileAttributes)
                     if (!values.ContainsKey(attributeId))
                         failures.Add($"{path}: 필수 Attribute 누락 {attributeId}");
             }

@@ -36,6 +36,7 @@ namespace UPlayGround.Ability.Tests
             derived.abilityOverrides.Add(Replace(commonAttack, eliteAttack));
             derived.abilityOverrides.Add(Remove(commonBuff));
             derived.additionalAbilities.Add(eliteSpecial);
+            derived.RebuildRuntimeIndex();
 
             GameplayAbilitySO[] effective =
                 derived.EnumerateAll().ToArray();
@@ -73,6 +74,7 @@ namespace UPlayGround.Ability.Tests
             AbilitySetSO derived = Create<AbilitySetSO>();
             derived.baseSet = common;
             derived.abilityOverrides.Add(Replace(commonAttack, eliteAttack));
+            derived.RebuildRuntimeIndex();
 
             Assert.That(
                 derived.GetPlayerAbility(PlayerSkillSlot.Ability),

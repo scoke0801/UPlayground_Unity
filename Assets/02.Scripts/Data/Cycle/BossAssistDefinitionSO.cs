@@ -21,6 +21,7 @@ namespace UPlayGround.Data.Cycle
         public Vector3 placementOffset = new(1.5f, 0f, 1.5f);
         public bool requiresTarget;
         public bool recruitableFromCentralBoss;
+        [Min(1)] public int requiredDefeatCount = 3;
         [Min(0f)] public float healAmount;
     }
 

@@ -166,12 +166,15 @@ namespace UPlayGround.Manager
             BossAssistDefinitionSO definition = _database?.FindByBossActorId(placement.actorId);
             if (definition == null) return;
             if (placement.isCentral && !definition.recruitableFromCentralBoss) return;
-            CycleRunState run = CycleRunManager.Instance.Current;
-            int derived = DeriveRecruitSeed(run.seed, placement.spawnId);
             _defeatContexts.TryGetValue(placement.spawnId, out var flags);
             _defeatContexts.Remove(placement.spawnId);
             var context = new UPlayGround.Cycle.BossDefeatContext(placement.actorId, placement.spawnId, flags.specialBreak, flags.noHit);
-            var result = _recruitment.Roll(definition.assistId, context, new System.Random(derived), _roster, MaxRosterSize);
+            var result = _recruitment.Resolve(
+                definition.assistId,
+                context,
+                definition.requiredDefeatCount,
+                _roster,
+                MaxRosterSize);
             OnRecruitmentResolved?.Invoke(result);
             if (result.rosterResult?.status == UPlayGround.Cycle.AssistRecruitStatus.Duplicate)
                 OnDuplicateRecruitRewardRequested?.Invoke(definition.assistId);
@@ -243,11 +246,6 @@ namespace UPlayGround.Manager
         }
 
         private void OnAssistInput(InputAction.CallbackContext _) => RequestAssist();
-        private static int DeriveRecruitSeed(int seed, string spawnId)
-        {
-            unchecked { int hash = seed; foreach (char c in spawnId ?? string.Empty) hash = hash * 31 + c; return hash; }
-        }
-
         public void ExportSaveData(UPlayGround.Data.Save.GameSaveData saveData)
         {
             saveData.cycle ??= new UPlayGround.Data.Save.CycleSaveData();
@@ -255,7 +253,7 @@ namespace UPlayGround.Manager
             {
                 roster = new List<string>(_roster.Roster),
                 equippedAssistId = _roster.EquippedAssistId,
-                pity = _recruitment.Export(),
+                defeatCounts = _recruitment.Export(),
                 pendingRecruitAssistId = _roster.PendingRecruitAssistId,
             };
             foreach ((string id, float remaining) in _cooldowns)
@@ -269,7 +267,25 @@ namespace UPlayGround.Manager
             IEnumerable<string> validRoster = data.roster;
             if (_database != null) validRoster = data.roster.FindAll(id => _database.FindByAssistId(id) != null);
             _roster.Restore(validRoster, data.equippedAssistId, data.pendingRecruitAssistId);
-            _recruitment.Restore(data.pity);
+            List<AssistDefeatCountEntry> defeatCounts = data.defeatCounts;
+            if ((defeatCounts == null || defeatCounts.Count == 0)
+                && data.pity != null
+                && data.pity.Count > 0)
+            {
+                defeatCounts = new List<AssistDefeatCountEntry>(data.pity.Count);
+                for (int i = 0; i < data.pity.Count; i++)
+                {
+                    UPlayGround.Cycle.AssistPityEntry legacy = data.pity[i];
+                    if (legacy == null || string.IsNullOrWhiteSpace(legacy.assistId))
+                        continue;
+                    defeatCounts.Add(new AssistDefeatCountEntry
+                    {
+                        assistId = legacy.assistId,
+                        defeatCount = Mathf.Max(0, legacy.failures),
+                    });
+                }
+            }
+            _recruitment.Restore(defeatCounts);
             _cooldowns.Clear();
             _defeatContexts.Clear();
             bool keepCooldowns = saveData?.cycle?.run?.phase is CycleRunPhase.Active or CycleRunPhase.BossDefeated;

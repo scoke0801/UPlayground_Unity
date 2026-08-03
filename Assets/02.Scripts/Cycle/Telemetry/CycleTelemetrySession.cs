@@ -46,10 +46,11 @@ namespace UPlayGround.Cycle
     {
         public string assistId;
         public float occurredAt;
-        public float finalChance;
         public bool success;
-        public int pityBefore;
-        public int pityAfter;
+        public string trigger;
+        public int defeatCountBefore;
+        public int defeatCountAfter;
+        public int requiredDefeatCount;
         public string rosterStatus;
     }
 
@@ -308,15 +309,16 @@ namespace UPlayGround.Cycle
 
         private void OnRecruitment(BossRecruitmentResult result)
         {
-            if (_record == null || !result.rolled) return;
+            if (_record == null) return;
             _record.recruitments.Add(new AssistRecruitmentRecord
             {
                 assistId = result.assistId,
                 occurredAt = _record.totalSeconds,
-                finalChance = result.finalChance,
                 success = result.success,
-                pityBefore = result.pityBefore,
-                pityAfter = result.pityAfter,
+                trigger = result.trigger.ToString(),
+                defeatCountBefore = result.defeatCountBefore,
+                defeatCountAfter = result.defeatCountAfter,
+                requiredDefeatCount = result.requiredDefeatCount,
                 rosterStatus = result.rosterResult?.status.ToString(),
             });
         }

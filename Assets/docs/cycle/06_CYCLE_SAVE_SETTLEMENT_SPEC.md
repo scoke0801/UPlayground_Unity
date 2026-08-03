@@ -70,7 +70,7 @@ public sealed class CycleSaveData
 | 데이터 | 소유 |
 |---|---|
 | 플레이어블 로스터·레벨·경험치 | 기존 `PartySaveData` |
-| 캐릭터별 스킬 포인트·취득 노드 | `CharacterSkillProgressSaveData` |
+| 캐릭터별 스킬 포인트·취득 노드 | `PartySaveData.skillProgress`의 `CharacterSkillProgressState` |
 | 영구 인벤토리·골드·장비 | 기존 `InventorySaveData` |
 | 어시스트 로스터·장착 ID | `AssistProgressSaveData` |
 | 보스별 누적 처치 횟수 | `AssistProgressSaveData` |

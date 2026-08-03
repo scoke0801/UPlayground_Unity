@@ -7,11 +7,19 @@ namespace UPlayGround.Data.Cycle
     public sealed class AssistCooldownEntry { public string assistId; public float remainingSeconds; }
 
     [Serializable]
+    public sealed class AssistDefeatCountEntry
+    {
+        public string assistId;
+        public int defeatCount;
+    }
+
+    [Serializable]
     public sealed class AssistProgressSaveData
     {
         public List<string> roster = new();
         public string equippedAssistId;
         public List<UPlayGround.Cycle.AssistPityEntry> pity = new();
+        public List<AssistDefeatCountEntry> defeatCounts = new();
         public List<AssistCooldownEntry> cooldowns = new();
         public string pendingRecruitAssistId;
     }

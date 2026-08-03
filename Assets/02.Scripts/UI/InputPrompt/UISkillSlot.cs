@@ -1,6 +1,7 @@
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UPlayGround.Ability.Core;
 using UPlayGround.Components;
@@ -17,7 +18,7 @@ namespace UPlayGround.UI.InputPrompt
     /// - <b>ReadyGlow</b> / <b>ComboGlow</b>: 현재 콤보의 '다음 키'가 이 슬롯일 때 켠다(CollectHints).
     /// 게이지(자원) 부족은 글로우가 아니라 <b>dim</b>으로만 표현한다.
     /// </summary>
-    public class UISkillSlot : MonoBehaviour
+    public class UISkillSlot : MonoBehaviour, IPointerClickHandler
     {
         [Header("정의")]
         [Tooltip("이 슬롯이 대표하는 입력 토큰. Skill1은 Ability, Skill2는 Ultimate로 취급한다.")]
@@ -95,6 +96,19 @@ namespace UPlayGround.UI.InputPrompt
         private bool _cooldownUiUnderAvailableRoot;
         private bool _locked;
         private bool _unavailable;
+        private System.Action<UISkillSlot> _clickHandler;
+
+        /// <summary>HUD가 슬롯 클릭을 gameplay 입력으로 연결할 때 호출한다.</summary>
+        public void SetClickHandler(System.Action<UISkillSlot> clickHandler) =>
+            _clickHandler = clickHandler;
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Left)
+                return;
+
+            _clickHandler?.Invoke(this);
+        }
 
         /// <summary>
         /// 게이지와 무관한 외부 쿨타임 소스(remaining, duration)를 샘플링한다. 예: 대시 쿨타임은

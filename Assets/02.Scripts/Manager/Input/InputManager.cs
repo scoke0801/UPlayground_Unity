@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UPlayGround.Input;
 using Unity.Mathematics;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace UPlayGround.Manager
     // IUpdatableManager를 붙여야 GameManager의 틱 목록에 등록된다.
     // IManager.OnUpdate 선언만으로는 호출되지 않는다(조합 grace 만료 처리에 필요).
     public partial class InputManager
-        : BaseManager<InputManager>, IManager, IUpdatableManager, IInputService
+        : BaseManager<InputManager>, IManager, IUpdatableManager, ILateUpdatableManager, IInputService
     {
         private int _cursorVisibleStack = 0;
         private InputBuffer _inputBuffer; // InputBuffer 선언
@@ -23,6 +24,8 @@ namespace UPlayGround.Manager
         // ShouldSuppressPlayerActionInput 핫패스에서 문자열 비교 회피용 — InitInputAction 직후 1회 캐시.
         private InputAction _cachedLookAction;
         private bool _isGamepadActive = false;
+        private readonly Dictionary<string, int> _pendingSyntheticPlayerActionReleases = new();
+        private readonly List<string> _syntheticReleaseScratch = new();
 
         public InputLayer CurrentLayer { get; set; } = InputLayer.Level_0;
 
@@ -66,6 +69,10 @@ namespace UPlayGround.Manager
         {
             Debug.Log("[InputManager] 정리 시작");
 
+            // 보류 중인 합성 입력은 그냥 비우면 hold 플래그(차지·스킬 홀드)가 소비자에 남는다.
+            // 프레임 조건을 무시하고 cancel을 먼저 발화한 뒤 정리한다.
+            ReleaseSyntheticPlayerActions(force: true);
+
             DisposeDeviceDetection();
             OnBindingsChanged = null;
             OnBindingStructureChanged = null;
@@ -77,6 +84,8 @@ namespace UPlayGround.Manager
             _chordArbiter.ClearCatalog();
             _chordArbiter.Reset();
             _arbiterDispatch.Clear();
+            _pendingSyntheticPlayerActionReleases.Clear();
+            _syntheticReleaseScratch.Clear();
 
 
             Debug.Log("[InputManager] 정리 완료");
@@ -94,6 +103,10 @@ namespace UPlayGround.Manager
 
         public void OnLateUpdate()
         {
+            // 합성 performed 다음 프레임의 모든 Update가 끝난 뒤 release한다.
+            // PlayerActor와 GameManager의 Update 실행 순서와 무관하게 Pressed 스냅샷을
+            // 최소 한 번 PlayerMovementController에 전달한 뒤 canceled가 발화한다.
+            ReleaseSyntheticPlayerActions();
         }
 
         public void OnSceneChanged(string sceneType) { }

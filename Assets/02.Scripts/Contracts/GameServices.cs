@@ -69,6 +69,11 @@ namespace UPlayGround.Manager
             CancellationToken cancellationToken = default);
         void ShowCursor(bool isShow, bool isForce = false);
         void RefreshInputLayer();
+        /// <summary>
+        /// HUD 버튼처럼 물리 InputAction이 없는 명시적 UI 조작을 PlayerAction 1회 입력으로 전달한다.
+        /// 현재 입력 레이어나 억제 상태가 플레이 입력을 허용하지 않으면 false를 반환한다.
+        /// </summary>
+        bool TryPerformPlayerAction(string actionName);
         void SuppressPlayerActionInputBriefly(float seconds = 0.05f, int frameCount = 1);
         void SetPlayerActionInputSuppressed(bool suppressed);
         void RegisterInputEvent(

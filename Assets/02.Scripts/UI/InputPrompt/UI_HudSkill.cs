@@ -204,6 +204,17 @@ namespace UPlayGround.UI.InputPrompt
             }
         }
 
+        private void OnSlotClicked(UISkillSlot slot)
+        {
+            if (_player == null || slot == null)
+                return;
+
+            if (!ComboTokenInput.TryGetAction(slot.Token, out _, out string actionName, out _))
+                return;
+
+            Svc.Input?.TryPerformPlayerAction(actionName);
+        }
+
         private void Bind(PlayerActor player)
         {
             // 이전 게이지 구독 해제
@@ -431,6 +442,9 @@ namespace UPlayGround.UI.InputPrompt
 
             EnsureDashSlot();
             EnsureElementalImbueSlot();
+
+            for (int i = 0; i < _slots.Count; i++)
+                _slots[i]?.SetClickHandler(OnSlotClicked);
         }
 
         private void EnsureDashSlot()

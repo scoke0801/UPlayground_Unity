@@ -127,13 +127,19 @@ namespace UPlayGround.Manager
             bool applyPointerGate = true)
         {
             if (_rebindCaptureActive)
+            {
                 return false;
+            }
 
             if (ShouldSuppressPlayerActionInput(context))
+            {
                 return false;
+            }
 
             if (applyPointerGate && ShouldBlockPointerPlayerActionOverUI(context))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -147,6 +153,14 @@ namespace UPlayGround.Manager
             if (action == null) return false;
             if (CurrentLayer != InputLayer.Level_0) return false;
             if (action.actionMap?.name != InputMapNames.PlayerAction) return false;
+
+            // TPS 조작 중 잠기거나 숨겨진 포인터는 화면 중앙 HUD/조준점 위에 머물 수 있다.
+            // 실제 UI 포인터를 표시한 상태에서만 UI 레이캐스트로 게임플레이 입력을 차단한다.
+            if (_cursorVisibleStack <= 0
+                || !Cursor.visible
+                || Cursor.lockState == CursorLockMode.Locked)
+                return false;
+
             if (!IsPointerLikeInput(context)) return false;
 
             return IsPointerOverUI(context);
@@ -217,6 +231,148 @@ namespace UPlayGround.Manager
             };
         }
 
+        /// <summary>
+        /// HUD 클릭을 실제 PlayerAction의 started/performed 흐름과 동일하게 전달한다.
+        /// release는 다음 프레임 LateUpdate에 보내 PlayerActor가 performed 상태를 최소 한 번 소비하게 한다.
+        /// 포인터 UI 게이트는 명시적인 HUD 클릭이므로 적용하지 않는다.
+        /// </summary>
+        public bool TryPerformPlayerAction(string actionName)
+        {
+            if (_rebindCaptureActive
+                || CurrentLayer != InputLayer.Level_0
+                || IsPlayerActionCurrentlySuppressed()
+                || !IsHudPlayerAction(actionName))
+            {
+                return false;
+            }
+
+            // 같은 액션을 연속 프레임에 다시 요청하면 pending 프레임만 뒤로 밀려
+            // started/performed만 반복되고 canceled가 영구히 발화되지 않는다(차지 고착·버퍼 소실).
+            // 새 started 앞에서 직전 합성 입력을 먼저 강제 릴리스해 started/canceled 대칭을 보장한다.
+            ForceReleaseSyntheticPlayerAction(actionName);
+
+            var context = default(InputAction.CallbackContext);
+            ExecuteCallbacksForAction(
+                context,
+                startCallbackDict,
+                InputMapNames.PlayerAction,
+                actionName);
+
+            _inputBuffer?.AddInput(
+                actionName,
+                bufferTime: GetPlayerActionBufferTime(actionName),
+                replaceExisting: true);
+
+            ExecuteCallbacksForAction(
+                context,
+                performCallbackDict,
+                InputMapNames.PlayerAction,
+                actionName);
+
+            _pendingSyntheticPlayerActionReleases[actionName] = Time.frameCount + 1;
+            return true;
+        }
+
+        /// <summary>
+        /// 보류 중인 합성 입력의 릴리스(canceled)를 발화한다.
+        /// force가 true면 프레임 조건과 무관하게 전부 즉시 해제한다(Dispose 경로).
+        /// 릴리스 콜백이 다시 TryPerformPlayerAction을 호출해 딕셔너리를 변경할 수 있으므로,
+        /// 대상 키를 먼저 수집·제거한 뒤에 콜백을 발화한다(순회 중 컬렉션 변경 방지).
+        /// </summary>
+        private void ReleaseSyntheticPlayerActions(bool force = false)
+        {
+            if (_pendingSyntheticPlayerActionReleases.Count == 0)
+                return;
+
+            _syntheticReleaseScratch.Clear();
+            foreach (var pair in _pendingSyntheticPlayerActionReleases)
+            {
+                if (!force && Time.frameCount < pair.Value)
+                    continue;
+
+                _syntheticReleaseScratch.Add(pair.Key);
+            }
+
+            if (_syntheticReleaseScratch.Count == 0)
+                return;
+
+            // 콜백 발화 전에 먼저 제거해야 재진입 시 딕셔너리 변경이 안전하다.
+            for (int i = 0; i < _syntheticReleaseScratch.Count; i++)
+                _pendingSyntheticPlayerActionReleases.Remove(_syntheticReleaseScratch[i]);
+
+            for (int i = 0; i < _syntheticReleaseScratch.Count; i++)
+                InvokeSyntheticRelease(_syntheticReleaseScratch[i], suppressExceptions: force);
+        }
+
+        /// <summary>
+        /// 특정 액션의 보류 릴리스를 즉시 발화한다. 보류 중이 아니면 아무것도 하지 않는다.
+        /// 재진입 안전을 위해 공용 스크래치 리스트를 사용하지 않는다.
+        /// </summary>
+        private void ForceReleaseSyntheticPlayerAction(string actionName)
+        {
+            if (!_pendingSyntheticPlayerActionReleases.Remove(actionName))
+                return;
+
+            InvokeSyntheticRelease(actionName, suppressExceptions: false);
+        }
+
+        /// <summary>
+        /// 합성 입력의 cancel 콜백을 발화한다.
+        /// UI가 같은 프레임에 모달을 열었더라도 hold 상태는 반드시 해제해야 하므로
+        /// 레이어 게이트와 레이어 변경 break를 모두 우회한다(일반 물리 입력 경로는 그대로 유지).
+        /// </summary>
+        private void InvokeSyntheticRelease(string actionName, bool suppressExceptions)
+        {
+            var context = default(InputAction.CallbackContext);
+
+            if (!suppressExceptions)
+            {
+                ExecuteCallbacksForAction(
+                    context,
+                    cancelCallbackDict,
+                    InputMapNames.PlayerAction,
+                    actionName,
+                    ignoreLayer: true,
+                    ignoreLayerChangeBreak: true);
+                return;
+            }
+
+            // Dispose 시점에는 소비자가 이미 파괴됐을 수 있다. 예외가 정리 흐름을 끊지 않게 막는다.
+            try
+            {
+                ExecuteCallbacksForAction(
+                    context,
+                    cancelCallbackDict,
+                    InputMapNames.PlayerAction,
+                    actionName,
+                    ignoreLayer: true,
+                    ignoreLayerChangeBreak: true);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[InputManager] 합성 입력 릴리스 중 예외 무시 ({actionName}): {e}");
+            }
+        }
+
+        private bool IsPlayerActionCurrentlySuppressed()
+        {
+            return _isPlayerActionInputSuppressed
+                   || Time.frameCount <= _playerActionSuppressedUntilFrame
+                   || Time.unscaledTime <= _playerActionSuppressedUntilTime;
+        }
+
+        private static bool IsHudPlayerAction(string actionName)
+        {
+            return actionName == PlayerAction.Attack
+                   || actionName == PlayerAction.HeavyAttack
+                   || actionName == PlayerAction.Dodge
+                   || actionName == PlayerAction.Jump
+                   || actionName == PlayerAction.Dash
+                   || actionName == PlayerAction.SkillAbility
+                   || actionName == PlayerAction.SkillUltimate
+                   || actionName == PlayerAction.ElementBuff;
+        }
+
         // Canceled는 포인터-오버-UI 게이트를 적용하지 않는다.
         // 눌러둔 채 커서가 UI 위로 올라간 상태에서 떼면 release가 유실돼 hold가 영구히 남는다.
         private void OnInputEventCanceled(InputAction.CallbackContext context)
@@ -265,7 +421,9 @@ namespace UPlayGround.Manager
             InputAction.CallbackContext context,
             Dictionary<InputCallbackKey, List<InputCallbackData>> dict,
             string mapName,
-            string actionName)
+            string actionName,
+            bool ignoreLayer = false,
+            bool ignoreLayerChangeBreak = false)
         {
             var key = new InputCallbackKey(mapName, actionName);
             if (!dict.TryGetValue(key, out List<InputCallbackData> callbackList))
@@ -276,7 +434,7 @@ namespace UPlayGround.Manager
                 InputCallbackData data = callbackList[i];
 
                 // 레이어 검사: 등록된 레이어가 현재 활성화된 레이어보다 낮으면 실행하지 않음
-                if (data.Layer != InputLayer.None && data.Layer < CurrentLayer)
+                if (!ignoreLayer && data.Layer != InputLayer.None && data.Layer < CurrentLayer)
                     continue;
 
                 // 조건 함수 검사: checkFunc가 등록되어 있다면 실행 결과 확인
@@ -289,7 +447,8 @@ namespace UPlayGround.Manager
                 data.Callback?.Invoke(context);
 
                 // 실행 결과로 인해 레이어가 변경되었다면 후속 이벤트 중단
-                if (cachedLayer != CurrentLayer)
+                // 단, 합성 릴리스처럼 hold 해제를 보장해야 하는 경로는 이 중단을 우회한다.
+                if (!ignoreLayerChangeBreak && cachedLayer != CurrentLayer)
                     break;
             }
         }

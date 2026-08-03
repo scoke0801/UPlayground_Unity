@@ -49,17 +49,17 @@ namespace UPlayGround.UI
             _onConflictDecision = onConflictDecision;
 
             UGuiFactory.AddImage(gameObject, PanelBg);
-            VerticalLayoutGroup root = UGuiFactory.AddVLG(gameObject, spacing: 16f, padding: 28);
+            VerticalLayoutGroup root = UGuiFactory.AddVLG(gameObject, spacing: 18f, padding: 32);
             root.childForceExpandHeight = false;
 
-            _title = UGuiFactory.MakeText(transform, "—", 30f, TextMain,
+            _title = UGuiFactory.MakeText(transform, "—", 34f, TextMain,
                 TextAlignmentOptions.Left, FontStyles.Bold);
-            UGuiFactory.SetSize(_title.gameObject, minH: 42f, prefH: 42f, flexH: 0f);
+            UGuiFactory.SetSize(_title.gameObject, minH: 48f, prefH: 48f, flexH: 0f);
 
-            _description = UGuiFactory.MakeText(transform, string.Empty, 16f, TextSub);
+            _description = UGuiFactory.MakeText(transform, string.Empty, 20f, TextSub);
             _description.overflowMode = TextOverflowModes.Overflow;
             _description.enableWordWrapping = true;
-            UGuiFactory.SetSize(_description.gameObject, minH: 58f, prefH: 58f, flexH: 0f);
+            UGuiFactory.SetSize(_description.gameObject, minH: 68f, prefH: 68f, flexH: 0f);
 
             _body = UGuiFactory.NewRect("Body", transform).gameObject;
             VerticalLayoutGroup bodyLayout = UGuiFactory.AddVLG(_body, spacing: 12f, padding: 0);
@@ -76,14 +76,14 @@ namespace UPlayGround.UI
         private void BuildCurrentBindingSection(Transform parent)
         {
             TextMeshProUGUI header = UGuiFactory.MakeText(
-                parent, "현재 바인딩", 17f, TextMain,
+                parent, "현재 바인딩", 21f, TextMain,
                 TextAlignmentOptions.Left, FontStyles.Bold);
-            UGuiFactory.SetSize(header.gameObject, minH: 28f, prefH: 28f, flexH: 0f);
+            UGuiFactory.SetSize(header.gameObject, minH: 34f, prefH: 34f, flexH: 0f);
 
             RectTransform row = UGuiFactory.NewRect("BindingRow", parent);
             HorizontalLayoutGroup layout = UGuiFactory.AddHLG(row.gameObject, spacing: 10f, padding: 0, forceExpandWidth: true);
             layout.childAlignment = TextAnchor.UpperCenter;
-            UGuiFactory.SetSize(row.gameObject, minH: 152f, prefH: 152f, flexH: 0f);
+            UGuiFactory.SetSize(row.gameObject, minH: 184f, prefH: 184f, flexH: 0f);
 
             _keyboardStrip = BuildDeviceBox(
                 row, "키보드 / 마우스", InputBindingDeviceGroup.KeyboardMouse, out _keyboardSecondary);
@@ -107,25 +107,25 @@ namespace UPlayGround.UI
             layout.childAlignment = TextAnchor.UpperCenter;
             layout.childForceExpandHeight = false;
             UGuiFactory.SetSize(
-                box.gameObject, flexW: 1f, minH: 152f, prefH: 152f, flexH: 0f);
+                box.gameObject, flexW: 1f, minH: 184f, prefH: 184f, flexH: 0f);
 
             TextMeshProUGUI captionLabel = UGuiFactory.MakeText(
-                box, caption, 14f, TextSub, TextAlignmentOptions.Center);
-            UGuiFactory.SetSize(captionLabel.gameObject, minH: 20f, prefH: 20f, flexH: 0f);
+                box, caption, 17f, TextSub, TextAlignmentOptions.Center);
+            UGuiFactory.SetSize(captionLabel.gameObject, minH: 24f, prefH: 24f, flexH: 0f);
 
             RectTransform primaryRow = UGuiFactory.NewRect("Primary", box);
             var strip = primaryRow.gameObject.AddComponent<UIKeyCapStrip>();
-            UGuiFactory.SetSize(primaryRow.gameObject, minH: 44f, prefH: 44f, flexH: 0f);
+            UGuiFactory.SetSize(primaryRow.gameObject, minH: 52f, prefH: 52f, flexH: 0f);
 
             Button primaryButton = UGuiFactory.MakeButton(
-                box, "이 장치 키 변경", 13f, CaptureIdle, TextTint(Accent), out _);
-            UGuiFactory.SetSize(primaryButton.gameObject, minH: 30f, prefH: 30f, flexH: 0f);
+                box, "이 장치 키 변경", 16f, CaptureIdle, TextTint(Accent), out _);
+            UGuiFactory.SetSize(primaryButton.gameObject, minH: 36f, prefH: 36f, flexH: 0f);
             primaryButton.onClick.AddListener(() =>
                 _onRequestCapture?.Invoke(deviceGroup, InputBindingSlot.Primary));
 
             Button secondaryButton = UGuiFactory.MakeButton(
-                box, "보조: -", 12f, CaptureIdle, TextSub, out secondaryLabel);
-            UGuiFactory.SetSize(secondaryButton.gameObject, minH: 24f, prefH: 24f, flexH: 0f);
+                box, "보조: -", 15f, CaptureIdle, TextSub, out secondaryLabel);
+            UGuiFactory.SetSize(secondaryButton.gameObject, minH: 30f, prefH: 30f, flexH: 0f);
             secondaryButton.onClick.AddListener(() =>
                 _onRequestCapture?.Invoke(deviceGroup, InputBindingSlot.Secondary));
 
@@ -137,20 +137,20 @@ namespace UPlayGround.UI
         private void BuildCaptureSection(Transform parent)
         {
             TextMeshProUGUI header = UGuiFactory.MakeText(
-                parent, "키 변경", 17f, Accent,
+                parent, "키 변경", 21f, Accent,
                 TextAlignmentOptions.Left, FontStyles.Bold);
-            UGuiFactory.SetSize(header.gameObject, minH: 28f, prefH: 28f, flexH: 0f);
+            UGuiFactory.SetSize(header.gameObject, minH: 34f, prefH: 34f, flexH: 0f);
 
             _captureText = UGuiFactory.MakeText(
-                parent, "변경할 키나 버튼을 입력하세요.", 14f, TextSub);
-            UGuiFactory.SetSize(_captureText.gameObject, minH: 22f, prefH: 22f, flexH: 0f);
+                parent, "변경할 키나 버튼을 입력하세요.", 18f, TextSub);
+            UGuiFactory.SetSize(_captureText.gameObject, minH: 28f, prefH: 28f, flexH: 0f);
 
             RectTransform box = UGuiFactory.NewRect("CaptureBox", parent);
             _captureBox = UGuiFactory.AddImage(box.gameObject, CaptureIdle);
-            UGuiFactory.SetSize(box.gameObject, minH: 48f, prefH: 48f, flexH: 0f);
+            UGuiFactory.SetSize(box.gameObject, minH: 60f, prefH: 60f, flexH: 0f);
 
             TextMeshProUGUI boxText = UGuiFactory.MakeText(
-                box, string.Empty, 16f, TextMain, TextAlignmentOptions.Center);
+                box, string.Empty, 20f, TextMain, TextAlignmentOptions.Center);
             var boxTextRect = (RectTransform)boxText.transform;
             boxTextRect.anchorMin = Vector2.zero;
             boxTextRect.anchorMax = Vector2.one;
@@ -161,8 +161,8 @@ namespace UPlayGround.UI
             TextMeshProUGUI hints = UGuiFactory.MakeText(
                 parent,
                 "길게 누르기: Esc / 게임패드 B 취소     Backspace / Delete 제거",
-                13f, TextSub);
-            UGuiFactory.SetSize(hints.gameObject, minH: 22f, prefH: 22f, flexH: 0f);
+                16f, TextSub);
+            UGuiFactory.SetSize(hints.gameObject, minH: 28f, prefH: 28f, flexH: 0f);
 
             BuildConflictActions(parent);
         }
@@ -172,15 +172,15 @@ namespace UPlayGround.UI
         {
             RectTransform row = UGuiFactory.NewRect("ConflictActions", parent);
             UGuiFactory.AddHLG(row.gameObject, spacing: 8f, padding: 0, forceExpandWidth: true);
-            UGuiFactory.SetSize(row.gameObject, minH: 34f, prefH: 34f, flexH: 0f);
+            UGuiFactory.SetSize(row.gameObject, minH: 42f, prefH: 42f, flexH: 0f);
             _conflictActions = row.gameObject;
 
             _replaceButton = UGuiFactory.MakeButton(
-                row, "대체", 14f, CaptureActive, TextMain, out _);
+                row, "대체", 17f, CaptureActive, TextMain, out _);
             _replaceButton.onClick.AddListener(() => _onConflictDecision?.Invoke(true));
 
             Button cancel = UGuiFactory.MakeButton(
-                row, "취소", 14f, CaptureIdle, TextSub, out _);
+                row, "취소", 17f, CaptureIdle, TextSub, out _);
             cancel.onClick.AddListener(() => _onConflictDecision?.Invoke(false));
 
             _conflictActions.SetActive(false);

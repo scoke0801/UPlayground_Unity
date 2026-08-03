@@ -22,9 +22,9 @@ namespace UPlayGround.UI
     public sealed class UIKeyBindingRow : MonoBehaviour, ISelectHandler, IUIFocusPresentation
     {
         /// <summary>헤더와 행의 컬럼 폭은 반드시 같은 상수를 쓴다.</summary>
-        public const float KeyboardColumnWidth = 220f;
-        public const float GamepadColumnWidth = 220f;
-        public const float RowHeight = 54f;
+        public const float KeyboardColumnWidth = 240f;
+        public const float GamepadColumnWidth = 240f;
+        public const float RowHeight = 68f;
 
         private static readonly Color RowNormal = new(1f, 1f, 1f, 0f);
         private static readonly Color RowSelected = new(0.13f, 0.24f, 0.42f, 0.95f);
@@ -71,7 +71,7 @@ namespace UPlayGround.UI
             _selectionAccent.raycastTarget = false;
             _selectionAccent.enabled = false;
 
-            _nameLabel = UGuiFactory.MakeText(transform, string.Empty, 17f, NameText);
+            _nameLabel = UGuiFactory.MakeText(transform, string.Empty, 21f, NameText);
             UGuiFactory.SetSize(_nameLabel.gameObject, flexW: 1f);
 
             _keyboardStrip = MakeStrip("KeyboardStrip", KeyboardColumnWidth);

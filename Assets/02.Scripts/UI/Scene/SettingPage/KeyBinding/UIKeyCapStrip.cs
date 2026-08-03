@@ -19,9 +19,12 @@ namespace UPlayGround.UI
     /// </summary>
     public sealed class UIKeyCapStrip : MonoBehaviour
     {
-        private const float CapHeight = 26f;
-        private const float CapMinWidth = 26f;
-        private const float CapPaddingX = 8f;
+        // UIManager의 2560x1440 기준 캔버스는 2048x1152에서 0.8배로 축소된다.
+        // 26px 키캡은 실제 약 21px라 64px 글리프가 지나치게 작게 샘플링되므로,
+        // 설정 화면에서 읽을 수 있는 최소 크기를 기준 해상도 38px로 잡는다.
+        private const float CapHeight = 38f;
+        private const float CapMinWidth = 38f;
+        private const float CapPaddingX = 10f;
 
         private static readonly Color CapBackground = new(0.16f, 0.19f, 0.25f, 1f);
         private static readonly Color CapBorder = new(0.35f, 0.42f, 0.53f, 1f);
@@ -70,7 +73,7 @@ namespace UPlayGround.UI
             _contentKey = key;
             ClearChildren();
             TextMeshProUGUI dash = UGuiFactory.MakeText(
-                transform, "-", 16f, EmptyText, TextAlignmentOptions.Center);
+                transform, "-", 20f, EmptyText, TextAlignmentOptions.Center);
             UGuiFactory.SetSize(dash.gameObject, minW: CapMinWidth, prefW: CapMinWidth,
                 minH: CapHeight, prefH: CapHeight, flexH: 0f);
         }
@@ -151,8 +154,8 @@ namespace UPlayGround.UI
         private void AddPlus()
         {
             TextMeshProUGUI plus = UGuiFactory.MakeText(
-                transform, "+", 14f, PlusText, TextAlignmentOptions.Center);
-            UGuiFactory.SetSize(plus.gameObject, minW: 10f, prefW: 10f,
+                transform, "+", 18f, PlusText, TextAlignmentOptions.Center);
+            UGuiFactory.SetSize(plus.gameObject, minW: 14f, prefW: 14f,
                 minH: CapHeight, prefH: CapHeight, flexH: 0f);
         }
 
@@ -177,7 +180,7 @@ namespace UPlayGround.UI
 
             string text = string.IsNullOrWhiteSpace(part.Text) ? "?" : part.Text;
             TextMeshProUGUI label = UGuiFactory.MakeText(
-                cap, text, 14f, CapText, TextAlignmentOptions.Center);
+                cap, text, 18f, CapText, TextAlignmentOptions.Center);
             var labelRect = (RectTransform)label.transform;
             labelRect.anchorMin = Vector2.zero;
             labelRect.anchorMax = Vector2.one;
@@ -185,7 +188,7 @@ namespace UPlayGround.UI
             labelRect.offsetMax = new Vector2(-CapPaddingX * 0.5f, 0f);
 
             // 글자 수에 비례해 폭을 잡는다. 스프라이트 없이도 W와 Space가 같은 높이로 정렬된다.
-            float width = Mathf.Max(CapMinWidth, text.Length * 9f + CapPaddingX * 2f);
+            float width = Mathf.Max(CapMinWidth, text.Length * 11f + CapPaddingX * 2f);
             UGuiFactory.SetSize(cap.gameObject,
                 minW: width, prefW: width,
                 minH: CapHeight, prefH: CapHeight, flexH: 0f);

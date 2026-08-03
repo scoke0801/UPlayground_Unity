@@ -40,8 +40,8 @@ namespace UPlayGround.UI
         private static readonly Color Divider = new(0.16f, 0.21f, 0.29f, 1f);
         private static readonly Color ResetBg = new(0.08f, 0.11f, 0.16f, 1f);
 
-        private const float RailWidth = 280f;
-        private const float DetailWidth = 440f;
+        private const float RailWidth = 300f;
+        private const float DetailWidth = 520f;
 
         /// <summary>액션 1개에 대한 두 장치·두 슬롯 서술자 묶음.</summary>
         private readonly struct MergedBinding
@@ -271,9 +271,9 @@ namespace UPlayGround.UI
             layout.childForceExpandHeight = false;
 
             TextMeshProUGUI title = UGuiFactory.MakeText(
-                _railContent, "카테고리", 15f, HeaderText,
+                _railContent, "카테고리", 18f, HeaderText,
                 TextAlignmentOptions.Left, FontStyles.Bold);
-            UGuiFactory.SetSize(title.gameObject, minH: 38f, prefH: 38f, flexH: 0f);
+            UGuiFactory.SetSize(title.gameObject, minH: 44f, prefH: 44f, flexH: 0f);
 
             AddRailItem("모든", null);
             foreach (InputBindingCategory category in Enum.GetValues(typeof(InputBindingCategory)))
@@ -283,11 +283,11 @@ namespace UPlayGround.UI
         private void AddRailItem(string label, InputBindingCategory? category)
         {
             Button button = UGuiFactory.MakeButton(
-                _railContent, label, 17f, RailItemOff, TextMain, out TextMeshProUGUI text);
+                _railContent, label, 21f, RailItemOff, TextMain, out TextMeshProUGUI text);
             text.alignment = TextAlignmentOptions.Left;
             text.fontStyle = FontStyles.Bold;
             button.transition = Selectable.Transition.None;
-            UGuiFactory.SetSize(button.gameObject, minH: 54f, prefH: 54f, flexH: 0f);
+            UGuiFactory.SetSize(button.gameObject, minH: 62f, prefH: 62f, flexH: 0f);
 
             RectTransform accentRect = UGuiFactory.NewRect("SelectedAccent", button.transform);
             accentRect.anchorMin = new Vector2(0f, 0f);
@@ -312,7 +312,7 @@ namespace UPlayGround.UI
         {
             RectTransform panel = UGuiFactory.NewRect("BindingList", parent);
             UGuiFactory.AddImage(panel.gameObject, ListBg);
-            UGuiFactory.SetSize(panel.gameObject, minW: 760f, flexW: 1f, flexH: 1f);
+            UGuiFactory.SetSize(panel.gameObject, minW: 820f, flexW: 1f, flexH: 1f);
 
             VerticalLayoutGroup layout = UGuiFactory.AddVLG(panel.gameObject, spacing: 0f, padding: 0);
             layout.childForceExpandHeight = false;
@@ -331,18 +331,18 @@ namespace UPlayGround.UI
             RectTransform header = UGuiFactory.NewRect("ColumnHeader", parent);
             HorizontalLayoutGroup layout = UGuiFactory.AddHLG(header.gameObject, spacing: 8f, padding: 0);
             layout.padding = new RectOffset(18, 18, 0, 0);
-            UGuiFactory.SetSize(header.gameObject, minH: 50f, prefH: 50f, flexH: 0f);
+            UGuiFactory.SetSize(header.gameObject, minH: 58f, prefH: 58f, flexH: 0f);
 
-            TextMeshProUGUI spacer = UGuiFactory.MakeText(header, string.Empty, 14f, HeaderText);
+            TextMeshProUGUI spacer = UGuiFactory.MakeText(header, string.Empty, 18f, HeaderText);
             UGuiFactory.SetSize(spacer.gameObject, flexW: 1f);
 
             TextMeshProUGUI keyboard = UGuiFactory.MakeText(
-                header, "키보드 / 마우스", 14f, HeaderText, TextAlignmentOptions.Center);
+                header, "키보드 / 마우스", 18f, HeaderText, TextAlignmentOptions.Center);
             UGuiFactory.SetSize(keyboard.gameObject,
                 minW: UIKeyBindingRow.KeyboardColumnWidth, prefW: UIKeyBindingRow.KeyboardColumnWidth);
 
             TextMeshProUGUI gamepad = UGuiFactory.MakeText(
-                header, "게임패드", 14f, HeaderText, TextAlignmentOptions.Center);
+                header, "게임패드", 18f, HeaderText, TextAlignmentOptions.Center);
             UGuiFactory.SetSize(gamepad.gameObject,
                 minW: UIKeyBindingRow.GamepadColumnWidth, prefW: UIKeyBindingRow.GamepadColumnWidth);
         }
@@ -362,8 +362,8 @@ namespace UPlayGround.UI
             _detail.Build(RequestCapture, OnConflictDecision);
 
             Button resetDevice = UGuiFactory.MakeButton(
-                panel, "선택 액션 기본값 복원", 14f, ResetBg, HeaderText, out _);
-            UGuiFactory.SetSize(resetDevice.gameObject, minH: 42f, prefH: 42f, flexH: 0f);
+                panel, "선택 액션 기본값 복원", 18f, ResetBg, HeaderText, out _);
+            UGuiFactory.SetSize(resetDevice.gameObject, minH: 52f, prefH: 52f, flexH: 0f);
             resetDevice.onClick.AddListener(ResetSelectedAction);
         }
 
@@ -745,10 +745,10 @@ namespace UPlayGround.UI
         private void AddSectionHeader(string title)
         {
             RectTransform host = UGuiFactory.NewRect("Section_" + title, _listContent);
-            UGuiFactory.SetSize(host.gameObject, minH: 46f, prefH: 46f, flexH: 0f);
+            UGuiFactory.SetSize(host.gameObject, minH: 54f, prefH: 54f, flexH: 0f);
 
             TextMeshProUGUI label = UGuiFactory.MakeText(
-                host, title, 18f, SectionText, TextAlignmentOptions.Left, FontStyles.Bold);
+                host, title, 22f, SectionText, TextAlignmentOptions.Left, FontStyles.Bold);
             var rect = (RectTransform)label.transform;
             rect.anchorMin = Vector2.zero;
             rect.anchorMax = Vector2.one;

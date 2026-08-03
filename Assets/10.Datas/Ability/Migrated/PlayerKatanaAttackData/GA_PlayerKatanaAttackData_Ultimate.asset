@@ -81,9 +81,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Script: {fileID: 11500000, guid: c6f7925196b84c2aa87d2a42f367f009, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
+  sequence: {fileID: 11400000, guid: 4312f05afab1dd548af260ac1e709fed, type: 2}
   attackInfo:
     motionKey:
       value: Katana.Ultimate

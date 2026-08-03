@@ -11,6 +11,7 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Cinematic;
+using UPlayGround.MovementController;
 
 namespace UPlayGround.Components
 {
@@ -33,19 +34,24 @@ namespace UPlayGround.Components
     [RequireComponent(typeof(PlayerActor))]
     public class UltimateSequencePlayer : PlayerActorComponent
     {
-        [SerializeField] private List<UltimateSequenceAsset> _sequences = new();
-
         private PlayerActor _caster;
         private ActorAnimator _animator;
         private UltimateSequenceAsset _activeAsset;
+        private MotionSetAsset _activeMotionAsset;
         private MotionSet _activeMotionSet;
         private bool _isRestoring;
         private bool _isAnimatorSubscribed;
+        // 레터박스는 에셋 상태가 아니라 실제 Show 여부로 해제한다.
+        // 재생 중 에셋 필드가 바뀌어도 잔존하지 않도록 인스턴스 플래그로 기억한다.
+        private bool _letterboxShown;
+        private float _letterboxExitDuration;
         private readonly UltimateGameplayLockContext _lockContext = new();
         private readonly UltimatePlacementContext _placementContext = new();
         private UltimateRuntimeContext _runtimeContext;
         private Coroutine _startRoutine;
+        private Coroutine _completionRoutine;
         private AbilityExecutionHandle _abilityExecution;
+        private PlayerUltimateState _sequenceState;
         private readonly HashSet<UltimateTimelineEvent> _executedTimelineEvents = new();
         private readonly HashSet<UltimateTimelineEvent> _activeTimelineEvents = new();
 
@@ -90,7 +96,7 @@ namespace UPlayGround.Components
             }
 
             if (_activeAsset.targetPolicy != null
-                && _activeAsset.targetPolicy.requireTarget
+                && _activeAsset.targetPolicy.interruptWhenTargetLost
                 && !IsPrimaryTargetAlive())
             {
                 Restore(UltimateSequenceEndReason.TargetLost, true);
@@ -129,29 +135,9 @@ namespace UPlayGround.Components
             SubscribeAnimator();
         }
 
-        public UltimateSequenceAsset ResolveAsset(CharacterActorType characterType)
-        {
-            if (_sequences == null)
-                return null;
-
-            for (int i = 0; i < _sequences.Count; i++)
-            {
-                UltimateSequenceAsset asset = _sequences[i];
-                if (asset != null && asset.ownerType == characterType)
-                    return asset;
-            }
-
-            return null;
-        }
-
-        public void ConfigureSequences(List<UltimateSequenceAsset> sequences)
-        {
-            _sequences = sequences ?? new List<UltimateSequenceAsset>();
-        }
-
         public bool CanPlay(
             UltimateSequenceAsset asset,
-            bool ignoreResource,
+            MotionSetAsset motionAsset,
             out string error)
         {
             if (IsPlaying)
@@ -182,18 +168,17 @@ namespace UPlayGround.Components
             if (!asset.IsValid(out error))
                 return false;
 
-            if (asset.ownerType != _caster.CharacterType)
+            if (motionAsset == null
+                || motionAsset.motionSet == null
+                || !motionAsset.motionSet.IsValid())
             {
-                error = $"에셋 소유자({asset.ownerType})와 현재 캐릭터({_caster.CharacterType})가 다릅니다.";
+                error = "유효한 실행 MotionSetAsset이 필요합니다.";
                 return false;
             }
 
-            if (!ignoreResource
-                && asset.consumeUltimateGauge
-                && (_caster.SkillGauge == null
-                    || !_caster.SkillGauge.CanUseSkill(PlayerAbilityResourceView.UltimateSkillSlot)))
+            if (asset.ownerType != _caster.CharacterType)
             {
-                error = "궁극기 게이지가 부족하거나 쿨타임 중입니다.";
+                error = $"에셋 소유자({asset.ownerType})와 현재 캐릭터({_caster.CharacterType})가 다릅니다.";
                 return false;
             }
 
@@ -201,23 +186,81 @@ namespace UPlayGround.Components
             return true;
         }
 
-        public bool Play(
-            UltimateSequenceAsset asset = null,
-            Transform manualTarget = null,
-            bool ignoreResource = false)
+        /// <summary>
+        /// 궁극기 에디터의 명시적 미리보기 경로. Ability 비용과 쿨타임을 건드리지 않는다.
+        /// 실제 인게임 입력은 반드시 <see cref="PlayPrepared"/>를 사용한다.
+        /// 비용·쿨타임을 완전히 우회하므로 에디터에서만 동작한다.
+        /// (호출부 <c>PlayerCombat.PreviewUltimate</c>가 런타임 코드라 #if UNITY_EDITOR로 잘라낼 수 없어
+        ///  런타임 가드로 막는다. 빌드에서는 항상 false를 반환한다.)
+        /// </summary>
+        public bool PlayPreview(
+            UltimateSequenceAsset asset,
+            Transform manualTarget = null)
         {
-            asset ??= ResolveAsset(_caster != null
-                ? _caster.CharacterType
-                : CharacterActorType.None);
+            if (!Application.isEditor)
+            {
+                Debug.LogWarning(
+                    "[UltimateSequence] 미리보기 경로는 에디터에서만 사용할 수 있습니다.",
+                    this);
+                return false;
+            }
 
-            if (!CanPlay(asset, ignoreResource, out string error))
+            return PlayInternal(
+                asset,
+                asset != null ? asset.motionSet : null,
+                default,
+                manualTarget);
+        }
+
+        /// <summary>
+        /// GAS가 선택한 Ultimate Variant의 Prepared 실행과 Motion을 받아 시퀀스를 시작한다.
+        /// 비용·쿨타임 Commit과 종료는 이 실행 핸들 하나로 관리한다.
+        /// </summary>
+        public bool PlayPrepared(
+            UltimateSequenceAsset asset,
+            MotionSetAsset motionAsset,
+            AbilityExecutionHandle abilityExecution,
+            Transform manualTarget = null)
+        {
+            if (!abilityExecution.IsValid)
+            {
+                Debug.LogWarning("[UltimateSequence] 유효한 Prepared Ability 실행이 없습니다.", this);
+                return false;
+            }
+
+            return PlayInternal(
+                asset,
+                motionAsset,
+                abilityExecution,
+                manualTarget);
+        }
+
+        /// <summary>
+        /// 시퀀스 시작 실패 시의 Ability 정리 책임은 이 클래스가 가진다.
+        /// 실행 핸들을 넘겨받은 뒤 실패하면 <see cref="FailStart"/> → <see cref="Restore"/> 경로에서
+        /// <c>EndAbility(handle, false)</c>로 반드시 종료하므로, 호출부가 추가로 Abort할 필요는 없다.
+        /// (현재 호출부 <c>PlayerCombat.RequestUltimate</c>는 false 반환 시 Abort를 한 번 더 호출한다.
+        ///  <c>ActorAbilitySystem.Abort</c>는 이미 종료된 stale 핸들을 무시하므로 무해하지만
+        ///  이중 종료 계약이므로 호출부 정리는 후속 과제로 남긴다.)
+        /// 단, 핸들을 넘겨받기 전 단계인 <see cref="CanPlay"/> 거부는 아무것도 소유하지 않은 상태이므로
+        /// 호출부가 Abort로 정리해야 한다.
+        /// </summary>
+        private bool PlayInternal(
+            UltimateSequenceAsset asset,
+            MotionSetAsset motionAsset,
+            AbilityExecutionHandle abilityExecution,
+            Transform manualTarget)
+        {
+            if (!CanPlay(asset, motionAsset, out string error))
             {
                 Debug.LogWarning($"[UltimateSequence] 실행 거부: {error}", this);
                 return false;
             }
 
+            _abilityExecution = abilityExecution;
             _activeAsset = asset;
-            _activeMotionSet = asset.motionSet.motionSet;
+            _activeMotionAsset = motionAsset;
+            _activeMotionSet = motionAsset.motionSet;
             _runtimeContext = new UltimateRuntimeContext
             {
                 Caster = _caster,
@@ -237,36 +280,14 @@ namespace UPlayGround.Components
                 return false;
             }
 
-            if (!ignoreResource && asset.consumeUltimateGauge)
-            {
-                GameActor abilityTarget = _runtimeContext.PrimaryTarget != null
-                    ? _runtimeContext.PrimaryTarget.GetComponentInParent<GameActor>()
-                    : null;
-                bool grounded = _caster.PlayerController?.Motor == null
-                                || _caster.PlayerController.Motor.GroundingStatus
-                                    .IsStableOnGround;
-                AbilityActivationResult prepare =
-                    _caster.Abilities.TryPreparePlayerSlot(
-                        PlayerSkillSlot.Ultimate,
-                        grounded,
-                        abilityTarget,
-                        out _abilityExecution,
-                        out _);
-                if (prepare != AbilityActivationResult.Success)
-                {
-                    FailStart($"궁극기 준비에 실패했습니다: {prepare}");
-                    return false;
-                }
-            }
-
             _lockContext.Acquire(
                 _caster,
                 _caster.GetCombat(),
                 _runtimeContext,
-                asset.lockSettings);
+                asset.lockSettings,
+                asset.uiSettings);
 
-            if (!ignoreResource
-                && asset.consumeUltimateGauge
+            if (_abilityExecution.IsValid
                 && _caster.Abilities.Commit(_abilityExecution)
                 != AbilityActivationResult.Success)
             {
@@ -288,11 +309,41 @@ namespace UPlayGround.Components
             if (!IsPlaying || motionSet != _activeMotionSet)
                 return;
 
-            Restore(
-                completed
-                    ? UltimateSequenceEndReason.Completed
-                    : UltimateSequenceEndReason.Interrupted,
-                false);
+            if (!completed)
+            {
+                Restore(UltimateSequenceEndReason.Interrupted, false);
+                return;
+            }
+
+            if (_runtimeContext != null)
+            {
+                float previousTime = _runtimeContext.ElapsedTime;
+                float completedTime = Mathf.Max(previousTime, motionSet.TotalDuration);
+                _runtimeContext.ElapsedTime = completedTime;
+                TickTimelineEvents(previousTime, completedTime);
+            }
+
+            if (_completionRoutine == null)
+                _completionRoutine = StartCoroutine(CompleteAfterFinalPoseRoutine(motionSet));
+        }
+
+        private System.Collections.IEnumerator CompleteAfterFinalPoseRoutine(MotionSet motionSet)
+        {
+            // ActorAnimator는 LateUpdate에서 마지막 포즈를 샘플링한 직후 완료 이벤트를 보낸다.
+            // CinematicPoseMirror도 LateUpdate에서 원본 포즈를 복사하지만 두 컴포넌트 사이의
+            // 실행 순서는 보장되지 않는다. Mirror가 먼저 실행된 프레임에 완료 이벤트가 오면
+            // yield return null 한 번만으로는 다음 Update에서 무대를 먼저 제거해, 복제 캐릭터가
+            // 마지막 포즈를 복사할 기회가 없다. 다음 프레임의 LateUpdate를 온전히 통과시킨 뒤
+            // 그 다음 Update에서 복구해야 Ultimate Motion의 최종 포즈가 잘리지 않는다.
+            // WaitForEndOfFrame은 카메라가 렌더하지 않는 프레임(배치/헤드리스 모드 등)에서 재개되지 않아
+            // Restore가 영원히 호출되지 않는 잠금이 발생한다. 두 번의 yield return null은 렌더러 유무와
+            // 관계없이 최소 한 번의 전체 LateUpdate 구간을 보장한다.
+            yield return null;
+            yield return null;
+
+            _completionRoutine = null;
+            if (IsPlaying && _activeMotionSet == motionSet)
+                Restore(UltimateSequenceEndReason.Completed, false);
         }
 
         private System.Collections.IEnumerator BeginSequenceRoutine()
@@ -305,16 +356,36 @@ namespace UPlayGround.Components
             if (_activeAsset == null)
                 yield break;
 
+            ShowLetterbox();
             TryEnterCinematicStage();
 
-            if (_caster.PlayerController != null
-                && _caster.PlayerController.CurrentState is not PlayerIdleState)
+            if (_caster.PlayerController == null)
             {
-                _caster.PlayerController.TransitionToState(ActorStateId.Idle);
+                FailStart("플레이어 상태 컨트롤러가 없습니다.");
+                yield break;
             }
 
+            _sequenceState = new PlayerUltimateState(_caster.PlayerController);
+            _caster.PlayerController.TransitionToState(_sequenceState);
+            if (_caster.PlayerController.CurrentState != _sequenceState)
+            {
+                _sequenceState = null;
+                FailStart("Ultimate 전용 상태로 전환하지 못했습니다.");
+                yield break;
+            }
+
+            // 궁극기는 직전 공격 상태의 워프/공격속도 재생 배율을 이어받지 않는다.
+            // 상태 이탈이 잠겨 있거나 입력 잠금으로 상태 갱신이 멈춘 프레임에는
+            // PlayerAttackState.OnExit의 속도 복구가 실행되지 않을 수 있다. 이때
+            // ActorAnimator의 디렉터 시간은 정상 속도로 흐르지만 Animancer Graph만
+            // 직전 WarpPlayRateScale로 느리게 재생되어, 타임라인이 실제 포즈보다 먼저
+            // 끝나는 간헐적 조기 종료가 발생한다. 새 MotionSet을 시작하기 직전에
+            // 두 시계를 동일한 기본 배율로 명시적으로 맞춘다.
+            _animator.MotionTimelineSpeed = 1f;
+            _animator.Speed = _caster.LocalTimeScale;
+
             if (_animator.PlayMotionSetAsset(
-                    _activeAsset.motionSet,
+                    _activeMotionAsset,
                     _activeAsset.motionFadeDuration) == null)
             {
                 FailStart("MotionSet 재생을 시작하지 못했습니다.");
@@ -386,12 +457,19 @@ namespace UPlayGround.Components
             MotionSet endedMotionSet = _activeMotionSet;
 
             _activeAsset = null;
+            _activeMotionAsset = null;
             _activeMotionSet = null;
 
             if (_startRoutine != null)
             {
                 StopCoroutine(_startRoutine);
                 _startRoutine = null;
+            }
+
+            if (_completionRoutine != null)
+            {
+                StopCoroutine(_completionRoutine);
+                _completionRoutine = null;
             }
 
             if (_runtimeContext != null)
@@ -412,6 +490,10 @@ namespace UPlayGround.Components
                     MapStageExitReason(reason));
                 _runtimeContext.StageTicket = default;
             }
+
+            // 레터박스는 연출 스테이지 Exit(암전 등 퇴장 트랜지션)가 시작된 뒤에 걷는다.
+            // 해제 조건은 에셋 상태가 아니라 실제 Show 여부이므로 재생 중 에셋이 바뀌어도 반드시 해제된다.
+            HideLetterbox();
 
             if (stopMotion
                 && _animator != null
@@ -434,6 +516,10 @@ namespace UPlayGround.Components
                 _runtimeContext.IsInterrupted = reason != UltimateSequenceEndReason.Completed;
             _runtimeContext = null;
 
+            PlayerUltimateState sequenceState = _sequenceState;
+            _sequenceState = null;
+            sequenceState?.Release();
+
             if (reason != UltimateSequenceEndReason.Disabled
                 && _caster != null
                 && _caster.IsAlive()
@@ -452,6 +538,35 @@ namespace UPlayGround.Components
 
             _isRestoring = false;
             OnSequenceEnded?.Invoke(endedAsset, reason);
+        }
+
+        /// <summary>
+        /// Ultimate가 재생되는 동안 상태 머신과 지연 애니메이션 콜백이 새 모션을
+        /// 덮어쓰지 못하게 하는 실행 전용 상태. 시퀀스 복구 경로만 명시적으로 해제한다.
+        /// </summary>
+        private sealed class PlayerUltimateState : PlayerActorState
+        {
+            private bool _canExit;
+
+            public override ActorStateId StateId => ActorStateId.Ultimate;
+            protected override ActorStateTag StateTagsCore
+                => ActorStateTag.Combat | ActorStateTag.InterruptLocked;
+
+            public PlayerUltimateState(ActorMovementController controller) : base(controller)
+            {
+            }
+
+            public override bool CanTransitionState(ActorStateId fromState) => true;
+
+            public override bool BlocksExitTo(GameActorState newState)
+                => !_canExit && newState?.StateId != ActorStateId.Death;
+
+            public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
+            {
+                currentVelocity = Vector3.zero;
+            }
+
+            public void Release() => _canExit = true;
         }
 
         private bool IsPrimaryTargetAlive()
@@ -484,6 +599,28 @@ namespace UPlayGround.Components
             {
                 _runtimeContext.StageTicket = ticket;
             }
+        }
+
+        private void ShowLetterbox()
+        {
+            UltimateLetterboxSettings settings = _activeAsset?.letterbox;
+            if (settings?.enabled != true)
+                return;
+
+            Svc.CinematicStage?.ShowLetterbox(settings);
+            // Show 시점의 exitDuration을 캐시해 두어야, 이후 에셋 값이 바뀌어도 같은 연출로 해제된다.
+            _letterboxShown = true;
+            _letterboxExitDuration = settings.exitDuration;
+        }
+
+        private void HideLetterbox()
+        {
+            if (!_letterboxShown)
+                return;
+
+            _letterboxShown = false;
+            Svc.CinematicStage?.HideLetterbox(_letterboxExitDuration);
+            _letterboxExitDuration = 0f;
         }
 
         private static CinematicStageExitReason MapStageExitReason(

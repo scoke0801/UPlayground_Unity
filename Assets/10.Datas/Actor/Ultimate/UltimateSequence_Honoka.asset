@@ -16,7 +16,6 @@ MonoBehaviour:
   motionSet: {fileID: 11400000, guid: 69e9e4d16dc3b384fa868a8ab6f2943a, type: 2}
   cameraProfile: {fileID: 0}
   motionFadeDuration: 0.1
-  consumeUltimateGauge: 1
   lockSettings:
     lockPlayerInput: 1
     lockCameraInput: 1
@@ -25,7 +24,7 @@ MonoBehaviour:
     freezeTargets: 1
     ignoreCasterDamage: 1
     ignoreTargetReactions: 1
-    hideHud: 1
+    hideHud: 0
     releaseLockOnOnEnter: 0
   targetPolicy:
     mode: 0

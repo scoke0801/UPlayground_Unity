@@ -56,7 +56,12 @@ namespace UPlayGround.Manager
         CinematicStageTicket ActiveTicket { get; }
         Matrix4x4 StageTransform { get; }
         bool TryEnter(in CinematicStageRequest request, out CinematicStageTicket ticket);
+        bool TryResolvePresentationTransform(
+            Transform source,
+            out Transform presentation);
         void RegisterTransient(in CinematicStageTicket ticket, GameObject instance);
+        void ShowLetterbox(UltimateLetterboxSettings settings);
+        void HideLetterbox(float duration);
         void Exit(in CinematicStageTicket ticket, CinematicStageExitReason reason);
     }
 }

@@ -82,6 +82,8 @@ namespace UPlayGround.Manager
         void ShowDamageFloaterHeal(Vector3 worldPos, float amount, FloatStyle style = FloatStyle.Heal);
         bool HideHud(UIKeyType key);
         void ShowHud(UIKeyType key);
+        bool HideHudLayer();
+        void ShowHudLayer();
         void ShowItemAcquisition(ItemSO item);
         void RefreshInventoryIfVisible();
         void ShowInteractionBoard(InteractableActorSO data, float current, float max);

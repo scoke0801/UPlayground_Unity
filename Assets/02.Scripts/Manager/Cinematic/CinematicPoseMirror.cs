@@ -15,6 +15,7 @@ namespace UPlayGround.Manager.Cinematic
         private readonly Renderer[] _cloneRenderers;
         private readonly SkinnedMeshRenderer[] _sourceSkinnedRenderers;
         private readonly SkinnedMeshRenderer[] _cloneSkinnedRenderers;
+        private readonly MaterialPropertyBlock _propertyBlock = new();
 
         public CinematicPoseMirror(Transform sourceRoot, Transform cloneRoot)
         {
@@ -37,6 +38,42 @@ namespace UPlayGround.Manager.Cinematic
 
         public int BoneCount => _sourceBones.Length;
 
+        public bool TryResolveCloneTransform(
+            Transform source,
+            out Transform clone)
+        {
+            clone = null;
+            if (source == null || _sourceRoot == null || _cloneRoot == null)
+                return false;
+
+            if (source == _sourceRoot)
+            {
+                clone = _cloneRoot;
+                return true;
+            }
+
+            // MotionEvent의 소켓 이름이 잘못되어 액터 루트로 폴백한 경우에도
+            // 원본 월드가 아니라 시네마틱 시전자 클론 루트에서 VFX를 재생한다.
+            // 모델 루트의 상위 Transform에만 허용해 다른 액터의 Transform을
+            // 잘못된 프레젠테이션에 연결하지 않는다.
+            if (_sourceRoot.IsChildOf(source))
+            {
+                clone = _cloneRoot;
+                return true;
+            }
+
+            for (int i = 0; i < _sourceBones.Length; i++)
+            {
+                if (_sourceBones[i] != source)
+                    continue;
+
+                clone = _cloneBones[i];
+                return clone != null;
+            }
+
+            return false;
+        }
+
         public void Apply(Matrix4x4 stageTransform)
         {
             if (_sourceRoot == null || _cloneRoot == null)
@@ -58,8 +95,17 @@ namespace UPlayGround.Manager.Cinematic
             {
                 Renderer source = _sourceRenderers[i];
                 Renderer clone = _cloneRenderers[i];
-                if (source != null && clone != null)
-                    clone.enabled = source.enabled;
+                if (source == null || clone == null)
+                    continue;
+
+                clone.enabled = source.enabled;
+
+                // 피격 플래시 등 런타임 표현은 원본 Renderer의 PropertyBlock에 기록된다.
+                // 스테이지에서는 원본을 숨기고 렌더 전용 클론을 보여 주므로, 이 상태도
+                // 매 프레임 복사해야 일반 전투와 같은 피격 표현이 화면에 나타난다.
+                _propertyBlock.Clear();
+                source.GetPropertyBlock(_propertyBlock);
+                clone.SetPropertyBlock(_propertyBlock);
             }
 
             for (int i = 0; i < _sourceSkinnedRenderers.Length; i++)

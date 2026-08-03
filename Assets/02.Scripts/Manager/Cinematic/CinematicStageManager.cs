@@ -35,9 +35,18 @@ namespace UPlayGround.Manager.Cinematic
         private CanvasGroup _transitionGroup;
         private Image _transitionImage;
         private Coroutine _transitionRoutine;
+        private bool _isExiting;
+        private GameObject _letterboxRoot;
+        private RectTransform _letterboxTop;
+        private RectTransform _letterboxBottom;
+        private Image _letterboxTopImage;
+        private Image _letterboxBottomImage;
+        private Coroutine _letterboxRoutine;
+        private float _letterboxProgress;
+        private float _letterboxHeightRatio = 0.1f;
         private CinematicStagePreloadCatalogSO _preloadCatalog;
 
-        public bool IsActive => _active != null;
+        public bool IsActive => _active != null || _isExiting;
         public CinematicStageTicket ActiveTicket => _active?.Ticket ?? default;
         public Matrix4x4 StageTransform => _active?.StageTransform ?? Matrix4x4.identity;
 
@@ -68,6 +77,7 @@ namespace UPlayGround.Manager.Cinematic
             ForceExit(CinematicStageExitReason.Disabled, playTransition: false);
             _cloneFactory.Dispose();
             DestroyTransitionOverlay();
+            DestroyLetterboxOverlay();
 
             foreach (GameObject root in _preloadedStageRoots.Values)
             {
@@ -111,7 +121,11 @@ namespace UPlayGround.Manager.Cinematic
 
         public void OnSceneChanged(string sceneType)
         {
-            ForceExit(CinematicStageExitReason.SceneChanged);
+            HideLetterbox(0f);
+            ForceExit(CinematicStageExitReason.SceneChanged, playTransition: false);
+            // 종료 트랜지션 코루틴이 씬 전환으로 중단되면 finally가 실행되지 않을 수 있으므로
+            // 조건 없이 트랜지션 상태를 원복해 암전 오버레이와 _isExiting 잔존을 막는다.
+            CancelTransitionState();
         }
 
         public bool TryEnter(
@@ -119,6 +133,15 @@ namespace UPlayGround.Manager.Cinematic
             out CinematicStageTicket ticket)
         {
             ticket = default;
+            // 거부 사유를 구분해 남긴다. 종료 트랜지션 대기 때문인지, 이미 활성 무대가 있는지에 따라
+            // 호출부에서 취해야 할 대응(재시도 vs 강등)이 다르다.
+            if (_isExiting)
+            {
+                Debug.LogWarning(
+                    "[CinematicStage] 이전 연출 무대의 종료 트랜지션이 진행 중이라 요청을 강등합니다.");
+                return false;
+            }
+
             if (_active != null)
             {
                 Debug.LogWarning("[CinematicStage] 이미 다른 연출 무대가 활성 상태라 요청을 강등합니다.");
@@ -188,6 +211,58 @@ namespace UPlayGround.Manager.Cinematic
             _active.RegisterTransient(instance);
         }
 
+        public void ShowLetterbox(UltimateLetterboxSettings settings)
+        {
+            if (settings?.enabled != true)
+                return;
+
+            EnsureLetterboxOverlay();
+            if (_letterboxRoutine != null)
+                StopCoroutine(_letterboxRoutine);
+
+            _letterboxHeightRatio = Mathf.Clamp(settings.heightRatio, 0.02f, 0.3f);
+            _letterboxTopImage.color = settings.color;
+            _letterboxBottomImage.color = settings.color;
+            _letterboxRoot.SetActive(true);
+            if (settings.enterDuration <= 0f)
+            {
+                SetLetterboxProgress(1f);
+                _letterboxRoutine = null;
+                return;
+            }
+            _letterboxRoutine = StartCoroutine(
+                AnimateLetterbox(_letterboxProgress, 1f, settings.enterDuration));
+        }
+
+        public void HideLetterbox(float duration)
+        {
+            if (_letterboxRoot == null)
+                return;
+
+            if (_letterboxRoutine != null)
+                StopCoroutine(_letterboxRoutine);
+            if (duration <= 0f)
+            {
+                SetLetterboxProgress(0f);
+                _letterboxRoot.SetActive(false);
+                _letterboxRoutine = null;
+                return;
+            }
+            _letterboxRoutine = StartCoroutine(
+                AnimateLetterbox(_letterboxProgress, 0f, Mathf.Max(0f, duration)));
+        }
+
+        public bool TryResolvePresentationTransform(
+            Transform source,
+            out Transform presentation)
+        {
+            presentation = null;
+            return _active != null
+                   && _active.TryResolvePresentationTransform(
+                       source,
+                       out presentation);
+        }
+
         public void Exit(
             in CinematicStageTicket ticket,
             CinematicStageExitReason reason)
@@ -202,18 +277,32 @@ namespace UPlayGround.Manager.Cinematic
             CinematicStageExitReason reason,
             bool playTransition = true)
         {
-            if (_active == null)
+            // 종료 트랜지션의 리빌 단계에서는 _active가 이미 null이지만 _isExiting은 true다.
+            // 이때도 정리 경로에 들어와야 암전 오버레이와 _isExiting이 잔존하지 않는다.
+            if (_active == null && !_isExiting)
+                return;
+
+            if (_isExiting && playTransition)
                 return;
 
             CinematicStageInstance ending = _active;
-            _active = null;
-            if (playTransition)
+            if (playTransition
+                && ending != null
+                && ending.Definition.exitTransition != CinematicStageTransitionType.None
+                && ending.Definition.exitTransitionDuration > 0f)
             {
-                PlayTransition(
+                BeginExitTransition(
+                    ending,
+                    reason,
                     ending.Definition.exitTransition,
                     ending.Definition.exitTransitionDuration);
+                return;
             }
-            ending.Dispose(_cloneFactory);
+
+            _active = null;
+            // 리빌 단계에서 진입한 경우 ending은 null이며 무대는 이미 Dispose된 상태다.
+            ending?.Dispose(_cloneFactory);
+            CancelTransitionState();
 
             if (reason is CinematicStageExitReason.WatchdogTimeout
                 or CinematicStageExitReason.Failed)
@@ -245,13 +334,219 @@ namespace UPlayGround.Manager.Cinematic
             while (elapsed < duration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                _transitionGroup.alpha = 1f - Mathf.Clamp01(elapsed / duration);
+                float progress = Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.Clamp01(elapsed / duration));
+                _transitionGroup.alpha = 1f - progress;
                 yield return null;
             }
 
+            ResetTransitionOverlay();
+            _transitionRoutine = null;
+        }
+
+        private void BeginExitTransition(
+            CinematicStageInstance ending,
+            CinematicStageExitReason reason,
+            CinematicStageTransitionType type,
+            float duration)
+        {
+            EnsureTransitionOverlay();
+            if (_transitionRoutine != null)
+                StopCoroutine(_transitionRoutine);
+
+            _isExiting = true;
+            ending.FreezePresentation();
+            _transitionImage.color = type == CinematicStageTransitionType.WhiteFlash
+                ? Color.white
+                : Color.black;
+            _transitionRoutine = StartCoroutine(
+                ExitTransitionRoutine(ending, reason, duration));
+        }
+
+        private IEnumerator ExitTransitionRoutine(
+            CinematicStageInstance ending,
+            CinematicStageExitReason reason,
+            float duration)
+        {
+            // 중간에 예외가 발생해도 _isExiting과 암전 오버레이가 잔존하지 않도록 finally로 감싼다.
+            try
+            {
+                _transitionGroup.blocksRaycasts = true;
+                float coverDuration = Mathf.Max(0.01f, duration * 0.45f);
+                float revealDuration = Mathf.Max(0.01f, duration - coverDuration);
+                float startAlpha = _transitionGroup.alpha;
+                float elapsed = 0f;
+
+                while (elapsed < coverDuration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float progress = Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(elapsed / coverDuration));
+                    _transitionGroup.alpha = Mathf.Lerp(startAlpha, 1f, progress);
+                    yield return null;
+                }
+
+                _transitionGroup.alpha = 1f;
+                if (_active == ending)
+                    _active = null;
+                ending.Dispose(_cloneFactory);
+
+                elapsed = 0f;
+                while (elapsed < revealDuration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float progress = Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(elapsed / revealDuration));
+                    _transitionGroup.alpha = 1f - progress;
+                    yield return null;
+                }
+
+                if (reason is CinematicStageExitReason.WatchdogTimeout
+                    or CinematicStageExitReason.Failed)
+                {
+                    Debug.LogWarning($"[CinematicStage] 비정상 종료: {reason}");
+                }
+            }
+            finally
+            {
+                // 커버 단계에서 예외로 빠져나온 경우 무대가 아직 살아 있을 수 있으므로 함께 정리한다.
+                if (_active == ending)
+                {
+                    _active = null;
+                    ending.Dispose(_cloneFactory);
+                }
+
+                _isExiting = false;
+                _transitionRoutine = null;
+                ResetTransitionOverlay();
+            }
+        }
+
+        /// <summary>
+        /// 진행 중인 트랜지션 코루틴을 중단하고 종료 상태와 오버레이를 조건 없이 원복한다.
+        /// 코루틴이 강제 중단되어 finally가 실행되지 않는 경로의 최종 방어선이다.
+        /// </summary>
+        private void CancelTransitionState()
+        {
+            if (_transitionRoutine != null)
+                StopCoroutine(_transitionRoutine);
+            _transitionRoutine = null;
+            _isExiting = false;
+            ResetTransitionOverlay();
+        }
+
+        private void ResetTransitionOverlay()
+        {
+            if (_transitionGroup == null)
+                return;
+
             _transitionGroup.alpha = 0f;
             _transitionGroup.blocksRaycasts = false;
-            _transitionRoutine = null;
+        }
+
+        private void EnsureLetterboxOverlay()
+        {
+            if (_letterboxRoot != null)
+                return;
+
+            _letterboxRoot = new GameObject(
+                "Ultimate Letterbox",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(CanvasScaler));
+            _letterboxRoot.transform.SetParent(transform, false);
+
+            Canvas canvas = _letterboxRoot.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = short.MaxValue - 10;
+            CanvasScaler scaler = _letterboxRoot.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 0.5f;
+
+            _letterboxTop = CreateLetterboxBar("Top", out _letterboxTopImage);
+            _letterboxBottom = CreateLetterboxBar("Bottom", out _letterboxBottomImage);
+            SetLetterboxProgress(0f);
+            _letterboxRoot.SetActive(false);
+        }
+
+        private RectTransform CreateLetterboxBar(string name, out Image image)
+        {
+            var barObject = new GameObject(name, typeof(RectTransform), typeof(Image));
+            barObject.transform.SetParent(_letterboxRoot.transform, false);
+            var rect = barObject.GetComponent<RectTransform>();
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            image = barObject.GetComponent<Image>();
+            image.color = Color.black;
+            image.raycastTarget = false;
+            return rect;
+        }
+
+        private IEnumerator AnimateLetterbox(float from, float to, float duration)
+        {
+            if (duration <= 0f)
+            {
+                SetLetterboxProgress(to);
+            }
+            else
+            {
+                float elapsed = 0f;
+                while (elapsed < duration)
+                {
+                    elapsed += Time.unscaledDeltaTime;
+                    float progress = Mathf.SmoothStep(
+                        0f,
+                        1f,
+                        Mathf.Clamp01(elapsed / duration));
+                    SetLetterboxProgress(Mathf.Lerp(from, to, progress));
+                    yield return null;
+                }
+                SetLetterboxProgress(to);
+            }
+
+            if (to <= 0f && _letterboxRoot != null)
+                _letterboxRoot.SetActive(false);
+            _letterboxRoutine = null;
+        }
+
+        private void SetLetterboxProgress(float progress)
+        {
+            _letterboxProgress = Mathf.Clamp01(progress);
+            if (_letterboxTop == null || _letterboxBottom == null)
+                return;
+
+            float hiddenOffset = (1f - _letterboxProgress) * _letterboxHeightRatio;
+            _letterboxTop.anchorMin = new Vector2(
+                0f,
+                1f - _letterboxHeightRatio + hiddenOffset);
+            _letterboxTop.anchorMax = new Vector2(1f, 1f + hiddenOffset);
+            _letterboxBottom.anchorMin = new Vector2(0f, -hiddenOffset);
+            _letterboxBottom.anchorMax = new Vector2(
+                1f,
+                _letterboxHeightRatio - hiddenOffset);
+        }
+
+        private void DestroyLetterboxOverlay()
+        {
+            if (_letterboxRoutine != null)
+                StopCoroutine(_letterboxRoutine);
+            _letterboxRoutine = null;
+
+            if (_letterboxRoot != null)
+                Destroy(_letterboxRoot);
+            _letterboxRoot = null;
+            _letterboxTop = null;
+            _letterboxBottom = null;
+            _letterboxTopImage = null;
+            _letterboxBottomImage = null;
+            _letterboxProgress = 0f;
         }
 
         private void EnsureTransitionOverlay()
@@ -291,6 +586,7 @@ namespace UPlayGround.Manager.Cinematic
             if (_transitionRoutine != null)
                 StopCoroutine(_transitionRoutine);
             _transitionRoutine = null;
+            _isExiting = false;
 
             if (_transitionGroup != null)
                 Destroy(_transitionGroup.gameObject);
@@ -401,6 +697,7 @@ namespace UPlayGround.Manager.Cinematic
         private bool _ownsStageCamera;
         private bool _stageCameraWasEnabled;
         private int _stageCullingMask;
+        private bool _presentationFrozen;
 
         private CinematicStageInstance(
             CinematicStageRequest request,
@@ -456,6 +753,9 @@ namespace UPlayGround.Manager.Cinematic
 
         public void LateUpdate()
         {
+            if (_presentationFrozen)
+                return;
+
             for (int i = 0; i < _mirrors.Count; i++)
                 _mirrors[i].Apply(StageTransform);
 
@@ -475,10 +775,42 @@ namespace UPlayGround.Manager.Cinematic
             cameraData.renderPostProcessing = Definition.stageVolumeProfile != null;
         }
 
+        public void FreezePresentation()
+        {
+            if (_presentationFrozen)
+                return;
+
+            // Sequence 종료 후 원본 Animator와 카메라가 즉시 복귀하더라도,
+            // 화면이 완전히 가려질 때까지 Stage의 마지막 Ultimate 프레임을 유지한다.
+            LateUpdate();
+            _presentationFrozen = true;
+        }
+
         public void RegisterTransient(GameObject instance)
         {
             if (instance != null && !_transients.Contains(instance))
                 _transients.Add(instance);
+        }
+
+        public bool TryResolvePresentationTransform(
+            Transform source,
+            out Transform presentation)
+        {
+            presentation = null;
+            if (source == null)
+                return false;
+
+            for (int i = 0; i < _mirrors.Count; i++)
+            {
+                if (_mirrors[i].TryResolveCloneTransform(
+                        source,
+                        out presentation))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void Dispose(CinematicCloneFactory cloneFactory)
@@ -553,6 +885,7 @@ namespace UPlayGround.Manager.Cinematic
             _originalStageRotation = _stageRoot.transform.rotation;
             PositionStageRoot(request);
             ApplyStageEnvironmentLayer();
+            RefreshStageTerrains();
 
             CinematicStageRoot binding = _stageRoot.GetComponent<CinematicStageRoot>();
             _actorRoot = binding != null ? binding.ActorRoot : _stageRoot.transform;
@@ -635,6 +968,17 @@ namespace UPlayGround.Manager.Cinematic
 
         private void PositionStageRoot(CinematicStageRequest request)
         {
+            // Unity Terrain은 부모 Transform의 회전을 지원하지 않는다.
+            // Terrain 무대는 저작된 로컬 배치를 유지하고 위치만 격리 공간으로 옮긴다.
+            bool hasTerrain = _stageRoot.GetComponentInChildren<Terrain>(true) != null;
+            if (hasTerrain)
+            {
+                _stageRoot.transform.SetPositionAndRotation(
+                    request.Caster.transform.position + Definition.anchorOffset,
+                    Quaternion.identity);
+                return;
+            }
+
             Vector3 forward = request.Caster.transform.forward;
             if (Definition.alignStageYawToTarget && request.Target != null)
             {
@@ -666,6 +1010,27 @@ namespace UPlayGround.Manager.Cinematic
                 Transform current = transforms[i];
                 _stageLayerStates.Add(new LayerState(current.gameObject, current.gameObject.layer));
                 current.gameObject.layer = stageLayer;
+            }
+        }
+
+        private void RefreshStageTerrains()
+        {
+            if (_stageRoot == null)
+                return;
+
+            Terrain[] terrains = _stageRoot.GetComponentsInChildren<Terrain>(true);
+            for (int i = 0; i < terrains.Length; i++)
+            {
+                Terrain terrain = terrains[i];
+                if (terrain == null)
+                    continue;
+
+                bool wasEnabled = terrain.enabled;
+                if (wasEnabled)
+                    terrain.enabled = false;
+
+                terrain.Flush();
+                terrain.enabled = wasEnabled;
             }
         }
 
@@ -784,6 +1149,7 @@ namespace UPlayGround.Manager.Cinematic
 
             _sourceCamera.enabled = false;
             _stageCamera.enabled = true;
+            CameraManager.Instance?.RegisterShakeCamera(_stageCamera);
             return true;
         }
 
@@ -791,6 +1157,7 @@ namespace UPlayGround.Manager.Cinematic
         {
             if (_stageCamera != null)
             {
+                CameraManager.Instance?.UnregisterShakeCamera(_stageCamera);
                 if (_ownsStageCamera)
                     UnityEngine.Object.Destroy(_stageCamera.gameObject);
                 else

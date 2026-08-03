@@ -49,9 +49,15 @@
 ## 목표 아키텍처
 
 ```
+AbilitySetSO (Ultimate 슬롯)
+└── GameplayAbilitySO.Variant
+    └── UPlayGroundUltimateAbilityPayloadSO
+        ├── AbilityAttackInfo.motionKey
+        └── UltimateSequenceAsset sequence
+
 UltimateSequenceAsset
 ├── CharacterActorType ownerType
-├── MotionSetAsset motionSet
+├── MotionSetAsset motionSet (에디터 미리보기 전용)
 ├── CameraSnapshotProfile cameraProfile
 ├── UltimateTargetPolicy targetPolicy
 ├── UltimateGameplayLockSettings lockSettings
@@ -76,15 +82,21 @@ UltimateSequencePlayer
 PlayerCombat.RequestUltimate()
         │
         ▼
-UltimateSequencePlayer.Play(asset, caster, targetContext)
+ActorAbilitySystem.TryPreparePlayerSlot(Ultimate)
         │
-        ├── 중복 실행 / 게이지 / 상태 검증
+        ├── GameplayAbilitySO Variant/Payload 선택
+        ├── 비용 / 쿨다운 / 상태 검증
+        ├── Payload motionKey → Actor MotionSet 해석
+        ▼
+UltimateSequencePlayer.PlayPrepared(sequence, resolvedMotion, handle)
+        │
+        ├── GAS Ability Commit
         ├── 타겟 선택 및 배치 보정
         ├── 입력/AI/피격/HUD/카메라 잠금
-        ├── MotionSet 궁극기 애니메이션 재생
+        ├── 해석된 Actor MotionSet 궁극기 애니메이션 재생
         ├── CameraSnapshotProfile 재생
         ├── VFX/SFX/TimeScale/PostProcess/데미지 이벤트 실행
-        └── 완료 또는 인터럽트 시 RestoreAll()
+        └── 완료 또는 인터럽트 시 RestoreAll() + EndAbility()
 ```
 
 ---
@@ -100,7 +112,7 @@ namespace UPlayGround.Data
     public class UltimateSequenceAsset : ScriptableObject
     {
         public CharacterActorType ownerType;
-        public MotionSetAsset motionSet;
+        public MotionSetAsset motionSet; // 에디터 미리보기 전용
         public CameraSnapshotProfile cameraProfile;
         public UltimateTargetPolicy targetPolicy;
         public UltimateGameplayLockSettings lockSettings;
@@ -116,7 +128,7 @@ namespace UPlayGround.Data
 | 필드 | 설명 |
 |------|------|
 | `ownerType` | 궁극기를 소유한 캐릭터 타입 |
-| `motionSet` | 궁극기 애니메이션 MotionSet |
+| `motionSet` | 에디터 미리보기에만 사용할 MotionSet. 인게임 실행 Motion은 Ability Payload의 `motionKey`로 해석 |
 | `cameraProfile` | 궁극기 카메라 스냅샷 프로필 |
 | `targetPolicy` | 타겟 선택, 다수 타겟 처리, 락온 대상 사용 여부 |
 | `lockSettings` | 입력, AI, 카메라, HUD, 피격 반응 잠금 정책 |
@@ -223,12 +235,11 @@ public enum UltimateTimelineEventType
 
 ### UltimateSequencePlayer
 
-`UltimateSequencePlayer`는 `PlayerActor` 또는 `PlayerCombat` 하위 컴포넌트로 붙이는 방식이 적합하다. 싱글플레이 구조이므로 처음에는 전역 매니저보다 플레이어 컴포넌트로 시작하는 편이 변경 범위가 작다.
+`UltimateSequencePlayer`는 `PlayerActor` 하위의 실행기다. 시퀀스 데이터를 소유하지 않고, `PlayerCombat`이 GAS에서 준비한 Payload·Motion·Ability Handle을 받아 재생과 복구만 담당한다.
 
 책임:
 
-- 현재 캐릭터 타입에 맞는 `UltimateSequenceAsset` 선택
-- 궁극기 실행 가능 상태 검증
+- GAS에서 준비된 `UltimateSequenceAsset`·Motion·Ability Handle 검증
 - 타겟 해석
 - 입력/AI/카메라/HUD 잠금 획득
 - 위치 보정
@@ -355,9 +366,11 @@ public enum UltimateRestoreReason
 
 1. `Camera Snapshot 에디터`에서 궁극기 카메라 프로필을 만든다.
 2. `MotionSet Editor`에서 궁극기 애니메이션과 타격 이벤트를 만든다.
-3. `UltimateSequenceAsset`에 카메라 프로필, MotionSet, VFX/SFX/TimeScale 이벤트를 연결한다.
-4. PlayMode에서 `UltimateSequencePlayer` 테스트 버튼으로 실행한다.
-5. 카메라 샷, 애니메이션 타격 시점, VFX 스폰 시점을 반복 조정한다.
+3. `UltimateSequenceAsset`에 카메라 프로필과 VFX/SFX/TimeScale 이벤트를 연결한다. `motionSet`은 에디터 미리보기용으로만 설정한다.
+4. Ability Editor에서 Ultimate Ability의 Variant Payload를 `UPlayGroundUltimateAbilityPayloadSO`로 지정하고, `sequence`와 `attackInfo.motionKey`를 설정한다.
+5. `motionKey`가 현재 무기의 `ActorAnimationMotionSet.abilityMotions`에서 해석되는지 검증한다.
+6. 시퀀스 에디터의 PlayMode 미리보기와 실제 인게임 Ultimate 입력을 각각 검증한다.
+7. 카메라 샷, 애니메이션 타격 시점, VFX 스폰 시점을 반복 조정한다.
 
 ---
 
@@ -369,6 +382,8 @@ public enum UltimateRestoreReason
 4. 적 AI 정지는 전체 정지와 타겟만 정지를 분리해야 한다. 보스전에서는 주변 적까지 멈추는 것이 어색할 수 있다.
 5. 위치 보정은 KCC Motor와 충돌하지 않게 처리해야 한다.
 6. 캐릭터별 궁극기는 데이터 중심으로 만들되, 특수 캐릭터 전용 로직은 `CustomCallback` 또는 별도 `UltimateAction`으로 격리한다.
+7. 비용·쿨다운·Variant 선택은 `GameplayAbilitySO`만 소유한다. `UltimateSequenceAsset`에 게이지 소비 옵션을 다시 추가하지 않는다.
+8. `PlayerCombat`에 캐릭터별 시퀀스 목록을 직렬화하지 않는다. 시퀀스 소유자는 Ultimate Ability Variant Payload다.
 
 ---
 
@@ -387,7 +402,7 @@ public enum UltimateRestoreReason
 
 | 단계 | 상태 | 주요 구현 |
 |------|------|-----------|
-| 1단계 | 완료 | `UltimateSequenceAsset`, `UltimateSequencePlayer`, `PlayerCombat` 입력 연결, MotionSet/카메라 재생 및 종료 복구 |
+| 1단계 | 완료 | `UltimateSequenceAsset`, `UltimateSequencePlayer`, GAS Ultimate Payload 연결, MotionSet/카메라 재생 및 종료 복구 |
 | 2단계 | 완료 | 플레이어·카메라 입력, HUD, 적 AI, 무적, 타겟 피격 반응을 소유권 기반으로 잠그고 복구 |
 | 3단계 | 완료 | 락온/수동/근거리/콘 타겟 선택, KCC 위치·회전 보정, 선택적 원위치 복구 |
 | 4단계 | 완료 | VFX, SFX/Voice, 타임스케일, 카메라 효과/흔들림, 데미지 윈도우, 커스텀 콜백 이벤트 |
@@ -407,4 +422,4 @@ public enum UltimateRestoreReason
 - `UPlayGround/캐릭터/궁극기/궁극기 시퀀스 에디터`
 - MotionSet Editor의 `촬영 연동` 탭
 
-캐릭터별 에셋을 생성한 뒤 해당 플레이어의 `PlayerCombat._ultimateSequences` 목록에 연결하면 궁극기 입력에서 실행된다. 연결된 에셋이 없으면 기존 Ultimate 스킬 입력 경로를 유지한다.
+캐릭터별 에셋을 생성한 뒤 Ultimate `GameplayAbilitySO` Variant의 `UPlayGroundUltimateAbilityPayloadSO.sequence`에 연결하면 궁극기 입력에서 실행된다. Payload가 시퀀스형이 아니면 기존 Ultimate 스킬 공격 경로를 유지한다. `PlayerCombat`은 실행 조정자일 뿐 시퀀스 데이터를 소유하지 않는다.

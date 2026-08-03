@@ -374,10 +374,9 @@ namespace UPlayGround.Data.Editor
                 BasicSettingsPrefs,
                 true,
                 ("ownerType", "소유 캐릭터"),
-                ("motionSet", "MotionSet"),
+                ("motionSet", "미리보기 MotionSet"),
                 ("cameraProfile", "카메라 프로필"),
-                ("motionFadeDuration", "모션 페이드"),
-                ("consumeUltimateGauge", "게이지 소비"));
+                ("motionFadeDuration", "모션 페이드"));
             AddSettingsGroup(
                 "2단계 · 게임플레이 잠금",
                 GameplaySettingsPrefs,
@@ -394,7 +393,9 @@ namespace UPlayGround.Data.Editor
                 "4단계 · 연출 스테이지",
                 StageSettingsPrefs,
                 false,
-                ("cinematicStage", "연출 스테이지"));
+                ("cinematicStage", "연출 스테이지"),
+                ("letterbox", "Letterbox UI"),
+                ("uiSettings", "UI 표시"));
             _settingsSection.Bind(_serialized);
         }
 
@@ -504,6 +505,13 @@ namespace UPlayGround.Data.Editor
             var items = new List<(int severity, string message)>();
             if (!_asset.IsValid(out string error))
                 items.Add((2, error));
+            if (_asset.motionSet == null
+                || _asset.motionSet.motionSet == null
+                || !_asset.motionSet.motionSet.IsValid())
+            {
+                items.Add((1,
+                    "미리보기 MotionSet이 없습니다. 인게임 Motion은 Ability Payload의 Motion Key로 실행되지만 에디터 테스트는 사용할 수 없습니다."));
+            }
             if (_asset.cameraProfile == null)
                 items.Add((1, "카메라 프로필이 없습니다. 카메라 없는 궁극기로 실행됩니다."));
             if (_asset.cinematicStage?.enabled == true
@@ -739,7 +747,7 @@ namespace UPlayGround.Data.Editor
                 return;
             }
 
-            player.GetCombat()?.RequestUltimate(_asset, null, true);
+            player.GetCombat()?.PreviewUltimate(_asset);
         }
 
         private void StopTest()

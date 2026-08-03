@@ -57,6 +57,16 @@ namespace UPlayGround.Data.Event
 
             if (spawnPoint == null) spawnPoint = target.transform;
 
+            ICinematicStageService stageService = Svc.CinematicStage;
+            CinematicStageTicket stageTicket = stageService?.ActiveTicket ?? default;
+            Transform presentationSpawnPoint = null;
+            bool useStagePresentation = stageTicket.IsValid
+                                        && stageService.TryResolvePresentationTransform(
+                                            spawnPoint,
+                                            out presentationSpawnPoint);
+            if (useStagePresentation)
+                spawnPoint = presentationSpawnPoint;
+
             if (attachToTarget)
             {
                 _instance = GameObject.Instantiate(particlePrefab, spawnPoint);
@@ -75,6 +85,14 @@ namespace UPlayGround.Data.Event
                 Quaternion finalRot = baseRot * Quaternion.Euler(rotationOffset);
 
                 _instance = GameObject.Instantiate(particlePrefab, worldPos, finalRot);
+            }
+
+            if (useStagePresentation)
+            {
+                UPlayGround.Data.CinematicStageRuntimeUtility.SetLayerRecursively(
+                    _instance,
+                    "UltimateVFX");
+                stageService.RegisterTransient(stageTicket, _instance);
             }
 
             if (destroyOnFinish == false && particleLifeTime > 0f)

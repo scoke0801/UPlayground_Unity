@@ -121,7 +121,13 @@ namespace UPlayGround.MovementController
 
         protected override void Update()
         {
-            base.Update();
+            // 궁극기/시네마틱 잠금 중에도 InputManager는 같은 프레임의 performed 입력을
+            // 공유 InputBuffer에 추가할 수 있다. 이때 IdleState를 계속 갱신하면 버퍼 입력이나
+            // 접지 변화가 Attack/Dodge/Airborne 상태 진입을 일으키고, 새 상태의 OnEnter가
+            // 궁극기 MotionSet을 Interrupted로 덮어쓴다. 입력 잠금의 의미에 맞게 플레이어
+            // 상태 머신만 정지하되, 아래의 독립적인 대시 쿨다운 시계는 계속 갱신한다.
+            if (Actor is not PlayerActor { IsInputSuppressed: true })
+                base.Update();
             
             if (_dashCooldownTimer > 0f)
             {

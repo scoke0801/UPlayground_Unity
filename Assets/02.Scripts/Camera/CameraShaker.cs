@@ -70,6 +70,7 @@ namespace UPlayGround
         // Pre/PostRender 카메라 원래 위치/회전 저장
         private readonly Dictionary<Camera, Vector3>    _savedPositions = new Dictionary<Camera, Vector3>();
         private readonly Dictionary<Camera, Quaternion> _savedRotations = new Dictionary<Camera, Quaternion>();
+        private readonly HashSet<Camera> _runtimeCameras = new HashSet<Camera>();
 
         // 수동 틱 모드 플래그
         private bool _autoUpdate = true;
@@ -79,6 +80,30 @@ namespace UPlayGround
         #region Public API
 
         public void SetAutoUpdate(bool enabled) => _autoUpdate = enabled;
+
+        /// <summary>
+        /// 런타임에 별도 렌더 카메라를 사용하는 연출이 쉐이크 출력을 공유하도록 등록한다.
+        /// CameraShakeData의 직렬화된 Cameras 목록은 변경하지 않는다.
+        /// </summary>
+        public void RegisterRuntimeCamera(Camera camera)
+        {
+            if (camera == null)
+                return;
+
+            _runtimeCameras.Add(camera);
+            RegisterCamera(camera);
+        }
+
+        /// <summary>연출 종료 시 런타임 카메라 등록과 저장된 렌더 상태를 제거한다.</summary>
+        public void UnregisterRuntimeCamera(Camera camera)
+        {
+            if (camera == null)
+                return;
+
+            _runtimeCameras.Remove(camera);
+            _savedPositions.Remove(camera);
+            _savedRotations.Remove(camera);
+        }
 
         /// <summary>CameraManager.OnUpdate()에서 매 프레임 호출</summary>
         public void ManualUpdate(float deltaTime) => Tick(deltaTime);
@@ -135,6 +160,7 @@ namespace UPlayGround
             _isPunching       = true;
 
             RegisterCamera(cam);
+            RegisterRuntimeCameras();
             s_Shakers.AddUnique(this);
             EnsureCallbacks();
         }
@@ -469,6 +495,14 @@ namespace UPlayGround
 
             if (data.UseMainCamera)
                 RegisterCamera(Camera.main);
+
+            RegisterRuntimeCameras();
+        }
+
+        private void RegisterRuntimeCameras()
+        {
+            foreach (Camera camera in _runtimeCameras)
+                RegisterCamera(camera);
         }
 
         private void RegisterEditorCameras()

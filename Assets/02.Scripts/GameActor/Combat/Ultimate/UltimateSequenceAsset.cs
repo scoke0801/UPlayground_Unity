@@ -16,7 +16,8 @@ namespace UPlayGround.Data
         public bool freezeTargets = true;
         public bool ignoreCasterDamage = true;
         public bool ignoreTargetReactions = true;
-        public bool hideHud = true;
+        // 기존 에셋 호환용. 신규 편집은 UltimateSequenceUISettings.hideHud를 사용한다.
+        [HideInInspector] public bool hideHud;
         public bool releaseLockOnOnEnter = false;
     }
 
@@ -36,7 +37,10 @@ namespace UPlayGround.Data
         [Min(0f)] public float searchRadius = 15f;
         [Range(0f, 360f)] public float coneAngle = 120f;
         public LayerMask targetLayer = -1;
+        [Tooltip("시작 시 유효한 타겟이 필요한지 여부입니다. 재생 중 타겟 소실로 Ultimate를 중단하려면 interruptWhenTargetLost를 별도로 켭니다.")]
         public bool requireTarget = true;
+        [Tooltip("재생 중 주 타겟이 사망하거나 파괴되면 Ultimate MotionSet과 Ability를 중단합니다.")]
+        public bool interruptWhenTargetLost;
         public bool includeMultipleTargets;
         [Min(1)] public int maxTargets = 1;
     }
@@ -65,15 +69,13 @@ namespace UPlayGround.Data
         [Header("소유 캐릭터")]
         public CharacterActorType ownerType = CharacterActorType.None;
 
-        [Header("1단계: 기본 재생")]
+        [Header("1단계: 에디터 미리보기")]
+        [Tooltip("궁극기 에디터 미리보기용 MotionSet입니다. 실제 인게임 Motion은 Ability Payload의 Motion Key로 해석합니다.")]
         public MotionSetAsset motionSet;
         public CameraSnapshotProfile cameraProfile;
 
         [Min(0f)]
         public float motionFadeDuration = 0.1f;
-
-        [Tooltip("실제 입력 실행 시 Ultimate 슬롯의 게이지와 쿨타임을 소비한다.")]
-        public bool consumeUltimateGauge = true;
 
         [Header("2단계: 게임플레이 잠금")]
         public UltimateGameplayLockSettings lockSettings = new();
@@ -85,6 +87,12 @@ namespace UPlayGround.Data
         [Header("연출 스테이지")]
         public CinematicStageSettings cinematicStage = new();
 
+        [Header("Letterbox UI")]
+        public UltimateLetterboxSettings letterbox = new();
+
+        [Header("UI 표시")]
+        public UltimateSequenceUISettings uiSettings = new();
+
         [Header("4단계: 연출 이벤트")]
         [Tooltip("끄면 ActorAnimator의 MotionSet 시간축을 사용해 타격/연출 타이밍을 정확히 맞춘다.")]
         public bool timelineUseUnscaledTime;
@@ -95,12 +103,6 @@ namespace UPlayGround.Data
             if (ownerType == CharacterActorType.None)
             {
                 error = "ownerType이 지정되지 않았습니다.";
-                return false;
-            }
-
-            if (motionSet == null || motionSet.motionSet == null || !motionSet.motionSet.IsValid())
-            {
-                error = "유효한 MotionSetAsset이 필요합니다.";
                 return false;
             }
 
@@ -121,6 +123,11 @@ namespace UPlayGround.Data
             placementSettings.placementBlendDuration =
                 Mathf.Max(0f, placementSettings.placementBlendDuration);
             cinematicStage ??= new CinematicStageSettings();
+            letterbox ??= new UltimateLetterboxSettings();
+            uiSettings ??= new UltimateSequenceUISettings();
+            letterbox.heightRatio = Mathf.Clamp(letterbox.heightRatio, 0.02f, 0.3f);
+            letterbox.enterDuration = Mathf.Max(0f, letterbox.enterDuration);
+            letterbox.exitDuration = Mathf.Max(0f, letterbox.exitDuration);
             events ??= new List<UltimateTimelineEvent>();
             foreach (UltimateTimelineEvent timelineEvent in events)
             {

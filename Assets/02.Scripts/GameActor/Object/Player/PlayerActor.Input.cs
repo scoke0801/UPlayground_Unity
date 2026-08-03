@@ -143,9 +143,11 @@ namespace UPlayGround
         private void OnInputStartedSkill_2(InputAction.CallbackContext obj) => SetSkillHeld(1, true);
         private void OnInputPerformedSkill_2(InputAction.CallbackContext obj)
         {
-            // 궁극기 시퀀스 에셋이 연결돼 있으면 전용 실행기를 우선 사용한다.
-            // 아직 에셋이 없는 캐릭터는 기존 Skill 2 상태 경로를 그대로 유지한다.
-            if (GetCombat()?.RequestUltimate() == true)
+            // Ultimate Variant Payload가 시퀀스를 소유한다. 구성되지 않은 기존 Ability만
+            // 일반 Skill 2 공격 상태 경로로 폴백한다.
+            UltimateRequestStatus status = GetCombat()?.RequestUltimate()
+                                           ?? UltimateRequestStatus.NotConfigured;
+            if (status != UltimateRequestStatus.NotConfigured)
                 return;
 
             _skillInputCondition[1] = InputCondition.Pressed;

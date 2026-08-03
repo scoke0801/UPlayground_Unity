@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data;
-using UPlayGround.Data.Path;
+using UPlayGround.Data.Cinematic;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Components
@@ -12,19 +12,8 @@ namespace UPlayGround.Components
     /// </summary>
     public sealed class UltimateGameplayLockContext
     {
-        private static readonly UIKeyType[] HudKeys =
-        {
-            UIKeyType.HudPlayerInfo,
-            UIKeyType.Minimap,
-            UIKeyType.HudParty,
-            UIKeyType.HudQuest,
-            UIKeyType.HudSkill,
-            UIKeyType.OffscreenThreatIndicator
-        };
-
         private readonly List<IEnemyAIController> _frozenControllers = new();
         private readonly List<MonsterActor> _reactionSuppressedTargets = new();
-        private readonly List<UIKeyType> _hiddenHudKeys = new();
 
         private PlayerActor _caster;
         private bool _previousInputSuppressed;
@@ -33,13 +22,15 @@ namespace UPlayGround.Components
         private bool _ownsInputLock;
         private bool _ownsCasterInvincibility;
         private bool _ownsCameraInputLock;
+        private bool _ownsHudLayerVisibility;
         private bool _isAcquired;
 
         public void Acquire(
             PlayerActor caster,
             PlayerCombat combat,
             UltimateRuntimeContext runtimeContext,
-            UltimateGameplayLockSettings settings)
+            UltimateGameplayLockSettings settings,
+            UltimateSequenceUISettings uiSettings)
         {
             if (_isAcquired || caster == null || settings == null)
                 return;
@@ -123,7 +114,7 @@ namespace UPlayGround.Components
                 }
             }
 
-            if (settings.hideHud)
+            if (settings.hideHud || uiSettings?.hideHud == true)
                 HideHud();
         }
 
@@ -172,26 +163,15 @@ namespace UPlayGround.Components
         private void HideHud()
         {
             IActorUIService uiManager = ActorSvc.UI;
-            if (uiManager == null)
-                return;
-
-            foreach (UIKeyType key in HudKeys)
-            {
-                if (uiManager.HideHud(key))
-                    _hiddenHudKeys.Add(key);
-            }
+            _ownsHudLayerVisibility = uiManager?.HideHudLayer() == true;
         }
 
         private void RestoreHud()
         {
-            IActorUIService uiManager = ActorSvc.UI;
-            if (uiManager != null)
-            {
-                foreach (UIKeyType key in _hiddenHudKeys)
-                    uiManager.ShowHud(key);
-            }
+            if (_ownsHudLayerVisibility)
+                ActorSvc.UI?.ShowHudLayer();
 
-            _hiddenHudKeys.Clear();
+            _ownsHudLayerVisibility = false;
         }
     }
 }

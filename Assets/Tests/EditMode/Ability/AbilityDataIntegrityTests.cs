@@ -1,10 +1,13 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UPlayGround.Ability.Core;
+using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Data.Stat;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround.Ability.Tests
@@ -65,6 +68,51 @@ namespace UPlayGround.Ability.Tests
                     failures.Add($"{path}: 미지원 Root {ability.taskGraph.Root.GetType().Name}");
             }
             Assert.That(failures, Is.Empty, string.Join("\n", failures));
+        }
+
+        [TestCase(
+            "Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset",
+            CharacterActorType.Bokusei,
+            1)]
+        [TestCase(
+            "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset",
+            CharacterActorType.Honoka,
+            2)]
+        public void 시퀀스형_Ultimate는_Variant_Payload가_시퀀스를_소유한다(
+            string abilityPath,
+            CharacterActorType expectedOwner,
+            int expectedEventCount)
+        {
+            GameplayAbilitySO ability =
+                AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(abilityPath);
+            UPlayGroundUltimateAbilityPayloadSO payload =
+                AssetDatabase.LoadAllAssetsAtPath(abilityPath)
+                    .OfType<UPlayGroundUltimateAbilityPayloadSO>()
+                    .SingleOrDefault();
+
+            Assert.That(ability, Is.Not.Null, abilityPath);
+            Assert.That(payload, Is.Not.Null, $"{abilityPath}: Ultimate Payload 누락");
+            Assert.That(payload.sequence, Is.Not.Null, $"{abilityPath}: Sequence 누락");
+            Assert.That(payload.sequence.ownerType, Is.EqualTo(expectedOwner));
+            Assert.That(
+                payload.sequence.events,
+                Has.Count.EqualTo(expectedEventCount),
+                $"{abilityPath}: Ultimate managed reference 이벤트 유실");
+            Assert.That(
+                payload.sequence.events,
+                Has.None.Null,
+                $"{abilityPath}: Ultimate managed reference 타입 복원 실패");
+            Assert.That(payload.attackInfo?.motionKey.IsValid, Is.True);
+
+            AbilityVariantDefinition variant = ability.variants.Single();
+            Assert.That(variant.executionPayload, Is.SameAs(payload));
+            Assert.That(UPlayGroundAbilityPayloadResolver.IsExecutable(variant), Is.True);
+            Assert.That(
+                UPlayGroundUltimateAbilityPayloadResolver.TryResolve(
+                    variant,
+                    out UPlayGroundUltimateAbilityPayloadSO resolved),
+                Is.True);
+            Assert.That(resolved, Is.SameAs(payload));
         }
     }
 }

@@ -84,6 +84,27 @@ namespace UPlayGround.Data.Cinematic
         public CinematicStageSO stage;
     }
 
+    [Serializable]
+    public sealed class UltimateLetterboxSettings
+    {
+        [Tooltip("Ultimate Sequence 재생 중 화면 위아래에 시네마틱 바를 표시합니다.")]
+        public bool enabled;
+
+        [Tooltip("각 바가 차지하는 화면 높이 비율입니다.")]
+        [Range(0.02f, 0.3f)] public float heightRatio = 0.1f;
+
+        [Min(0f)] public float enterDuration = 0.18f;
+        [Min(0f)] public float exitDuration = 0.2f;
+        public Color color = Color.black;
+    }
+
+    [Serializable]
+    public sealed class UltimateSequenceUISettings
+    {
+        [Tooltip("Ultimate Sequence 재생 중 HUD 캔버스 전체를 숨깁니다. 미니맵, 스킬 UI, 월드 HUD를 포함하며 Popup/System UI와 Letterbox는 유지됩니다.")]
+        public bool hideHud;
+    }
+
     [CreateAssetMenu(
         fileName = "CinematicStage",
         menuName = "UPlayGround/전투/Cinematic Stage")]

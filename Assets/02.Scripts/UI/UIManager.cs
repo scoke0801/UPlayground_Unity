@@ -38,6 +38,7 @@ namespace UPlayGround.Manager
         [SerializeField] private GameObject _uiRootPrefab;
 
         private GameObject  _uiRootInstance;
+        private Canvas _combatFeedbackCanvas;
         private EventSystem _eventSystem;
         private readonly List<InputActionReference> _uiInputActionReferences = new();
         private bool _bindingStructureSubscribed;
@@ -141,6 +142,7 @@ namespace UPlayGround.Manager
                 Destroy(_uiRootInstance);
 
             _uiRootInstance = null;
+            _combatFeedbackCanvas = null;
             _eventSystem    = null;
 
             foreach (InputActionReference reference in _uiInputActionReferences)
@@ -222,10 +224,11 @@ namespace UPlayGround.Manager
                     _worldSpaceHudLayer = canvas.GetComponentInChildren<UI_WorldSpaceHudLayer>(true);
                     if (_worldSpaceHudLayer == null)
                         _worldSpaceHudLayer = CreateWorldSpaceHudLayer(canvas);
-
-                    _worldSpaceHudLayer.Init(canvas);
                 }
             }
+
+            _combatFeedbackCanvas = CreateCombatFeedbackCanvas();
+            _worldSpaceHudLayer?.Init(_canvasDictionary[CanvasLayer.HUD], _combatFeedbackCanvas);
 
             EnsureFocusIndicator();
             EnsureCursorClickEffect();
@@ -369,6 +372,25 @@ namespace UPlayGround.Manager
             scaler.matchWidthOrHeight  = 0.5f;
 
             canvasObj.AddComponent<GraphicRaycaster>();
+            return canvas;
+        }
+
+        private Canvas CreateCombatFeedbackCanvas()
+        {
+            GameObject canvasObj = new GameObject("Canvas_CombatFeedback");
+            canvasObj.transform.SetParent(
+                _uiRootInstance != null ? _uiRootInstance.transform : transform,
+                false);
+
+            Canvas canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = (int)CanvasLayer.HUD + 1;
+
+            CanvasScaler scaler = canvasObj.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
+            scaler.referenceResolution = new Vector2(2560, 1440);
+            scaler.matchWidthOrHeight = 0.5f;
             return canvas;
         }
 
@@ -675,6 +697,30 @@ namespace UPlayGround.Manager
         }
 
         public void ShowHud(UIKeyType key) => ShowUI(key);
+
+        public bool HideHudLayer()
+        {
+            if (_canvasDictionary == null
+                || !_canvasDictionary.TryGetValue(CanvasLayer.HUD, out Canvas canvas)
+                || canvas == null
+                || !canvas.enabled)
+            {
+                return false;
+            }
+
+            canvas.enabled = false;
+            return true;
+        }
+
+        public void ShowHudLayer()
+        {
+            if (_canvasDictionary != null
+                && _canvasDictionary.TryGetValue(CanvasLayer.HUD, out Canvas canvas)
+                && canvas != null)
+            {
+                canvas.enabled = true;
+            }
+        }
 
         public void ShowItemAcquisition(ItemSO item)
         {

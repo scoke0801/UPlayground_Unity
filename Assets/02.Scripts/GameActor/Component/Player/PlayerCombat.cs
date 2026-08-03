@@ -18,9 +18,17 @@ using UPlayGround.Debugging;
 using UPlayGround.Data.Ability;
 using UPlayGround.Gameplay.Ability;
 using UPlayGround.State;
+using UPlayGround.Ability.Core;
 
 namespace UPlayGround.Components
 {
+    public enum UltimateRequestStatus
+    {
+        NotConfigured,
+        Started,
+        Rejected
+    }
+
     /// <summary>
     /// 플레이어의 전투 관련 데이터와 로직.
     /// State는 "언제" 공격할지 결정하고
@@ -126,9 +134,6 @@ namespace UPlayGround.Components
         [SerializeField] private SpecialBreakAttackAsset _specialBreakAttackData;
         [SerializeField] private float _specialBreakAttackSearchRange = 4f;
         [SerializeField] private float _specialBreakAttackSearchAngle = 110f;
-
-        [Header("Ultimate Sequence")]
-        [SerializeField] private List<UltimateSequenceAsset> _ultimateSequences = new();
 
         // ── 퍼펙트 도지 ──────────────────────────────────────────────
         [Header("Perfect Dodge Settings")]
@@ -536,7 +541,6 @@ namespace UPlayGround.Components
             _ultimateSequencePlayer = GetComponent<UltimateSequencePlayer>();
             if (_ultimateSequencePlayer == null)
                 _ultimateSequencePlayer = gameObject.AddComponent<UltimateSequencePlayer>();
-            _ultimateSequencePlayer.ConfigureSequences(_ultimateSequences);
 
             _combatStateTracker = gameObject.GetOrAddComponent<PlayerCombatStateTracker>();
             _combatStateTracker.Configure(
@@ -636,27 +640,95 @@ namespace UPlayGround.Components
         }
 
         /// <summary>
-        /// 현재 캐릭터에 등록된 궁극기 시퀀스를 실행한다.
-        /// overrideAsset은 에디터/테스트에서 등록 목록을 우회할 때 사용한다.
+        /// Ultimate 슬롯의 GameplayAbility가 선택한 Variant Payload로 시퀀스를 실행한다.
+        /// PlayerCombat은 시퀀스 데이터를 소유하지 않고 GAS의 선택 결과만 실행기로 전달한다.
         /// </summary>
-        public bool RequestUltimate(
-            UltimateSequenceAsset overrideAsset = null,
-            Transform manualTarget = null,
-            bool ignoreResource = false)
+        public UltimateRequestStatus RequestUltimate(Transform manualTarget = null)
         {
             if (_ultimateSequencePlayer == null)
                 _ultimateSequencePlayer = GetComponent<UltimateSequencePlayer>();
 
-            if (_ultimateSequencePlayer == null)
-                return false;
+            if (_ultimateSequencePlayer == null || _playerActor?.Abilities == null)
+                return UltimateRequestStatus.Rejected;
 
-            UltimateSequenceAsset asset = overrideAsset
-                                          ?? _ultimateSequencePlayer.ResolveAsset(
-                                              _playerActor != null
-                                                  ? _playerActor.CharacterType
-                                                  : CharacterActorType.None);
-            return asset != null
-                   && _ultimateSequencePlayer.Play(asset, manualTarget, ignoreResource);
+            if (!IsSkillUnlocked(PlayerAbilityResourceView.UltimateSkillSlot))
+                return UltimateRequestStatus.Rejected;
+
+            UPlayGroundUltimateAbilityPayloadSO payload = null;
+            MotionSetAsset motionAsset = null;
+            bool ValidateUltimatePayload(AbilityVariantDefinition variant)
+            {
+                if (!UPlayGroundUltimateAbilityPayloadResolver.TryResolve(
+                        variant,
+                        out UPlayGroundUltimateAbilityPayloadSO resolvedPayload))
+                {
+                    return false;
+                }
+
+                if (!ActorAbilityMotionResolver.TryResolve(
+                        _playerActor,
+                        resolvedPayload.attackInfo,
+                        out MotionSetAsset resolvedMotion))
+                {
+                    return false;
+                }
+
+                payload = resolvedPayload;
+                motionAsset = resolvedMotion;
+                return true;
+            }
+
+            bool grounded = _playerActor.PlayerController?.Motor == null
+                            || _playerActor.PlayerController.Motor.GroundingStatus
+                                .IsStableOnGround;
+            AbilityActivationResult prepare =
+                _playerActor.Abilities.TryPreparePlayerSlot(
+                    PlayerSkillSlot.Ultimate,
+                    grounded,
+                    null,
+                    ValidateUltimatePayload,
+                    out AbilityExecutionHandle execution,
+                    out AbilityVariantDefinition variant);
+
+            if (prepare == AbilityActivationResult.MissingExecutionData
+                && variant?.executionPayload
+                    is not UPlayGroundUltimateAbilityPayloadSO)
+            {
+                return UltimateRequestStatus.NotConfigured;
+            }
+
+            if (prepare != AbilityActivationResult.Success
+                || payload == null
+                || motionAsset == null)
+            {
+                Debug.LogWarning(
+                    $"[UltimateSequence] Ability 실행 준비 실패: {prepare}",
+                    this);
+                return UltimateRequestStatus.Rejected;
+            }
+
+            if (_ultimateSequencePlayer.PlayPrepared(
+                    payload.sequence,
+                    motionAsset,
+                    execution,
+                    manualTarget))
+            {
+                return UltimateRequestStatus.Started;
+            }
+
+            _playerActor.Abilities.Abort(execution);
+            return UltimateRequestStatus.Rejected;
+        }
+
+        /// <summary>궁극기 에디터가 선택 에셋을 비용 없이 미리보기 위한 명시적 우회 경로.</summary>
+        public bool PreviewUltimate(
+            UltimateSequenceAsset asset,
+            Transform manualTarget = null)
+        {
+            if (_ultimateSequencePlayer == null)
+                _ultimateSequencePlayer = GetComponent<UltimateSequencePlayer>();
+            return _ultimateSequencePlayer != null
+                   && _ultimateSequencePlayer.PlayPreview(asset, manualTarget);
         }
 
         private void SetBreakInteractionTarget(MonsterActor target)

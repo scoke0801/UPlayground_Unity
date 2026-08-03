@@ -16,7 +16,6 @@ MonoBehaviour:
   motionSet: {fileID: 11400000, guid: 2d89262b41780f345b1cad4943c1cd6f, type: 2}
   cameraProfile: {fileID: 0}
   motionFadeDuration: 0.1
-  consumeUltimateGauge: 1
   lockSettings:
     lockPlayerInput: 1
     lockCameraInput: 1
@@ -25,7 +24,7 @@ MonoBehaviour:
     freezeTargets: 1
     ignoreCasterDamage: 1
     ignoreTargetReactions: 1
-    hideHud: 1
+    hideHud: 0
     releaseLockOnOnEnter: 0
   targetPolicy:
     mode: 0
@@ -35,6 +34,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 4294967295
     requireTarget: 1
+    interruptWhenTargetLost: 0
     includeMultipleTargets: 0
     maxTargets: 1
   placementSettings:
@@ -48,15 +48,16 @@ MonoBehaviour:
   cinematicStage:
     enabled: 1
     stage: {fileID: 11400000, guid: 831e0241dce9c0a4a91e0a0ce8bc060f, type: 2}
+  letterbox:
+    enabled: 1
+    heightRatio: 0.1
+    enterDuration: 0.18
+    exitDuration: 0.2
+    color: {r: 0, g: 0, b: 0, a: 1}
+  uiSettings:
+    hideHud: 1
   timelineUseUnscaledTime: 0
-  events:
-  - rid: 6689042841449791628
+  events: []
   references:
     version: 2
-    RefIds:
-    - rid: 6689042841449791628
-      type: {class: UltimateTimeScaleEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
-      data:
-        startTime: 2.0833335
-        duration: 2.1374998
-        timeScale: 0.2
+    RefIds: []

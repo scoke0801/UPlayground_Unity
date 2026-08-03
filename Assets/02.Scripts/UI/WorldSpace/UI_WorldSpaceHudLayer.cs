@@ -17,6 +17,8 @@ namespace UPlayGround.UI
     {
         private Canvas _parentCanvas;
         private RectTransform _parentCanvasRect;
+        private Transform _floaterRoot;
+        private RectTransform _floaterCanvasRect;
         private Camera _mainCamera;
 
         private GameObject _hpBarPrefab;
@@ -38,12 +40,16 @@ namespace UPlayGround.UI
         // 풀 준비 완료 여부 — 미준비 상태에서 호출 시 조용히 스킵
         private bool _isPoolReady = false;
 
-        public void Init(Canvas parentCanvas)
+        public void Init(Canvas parentCanvas, Canvas floaterCanvas = null)
         {
             _parentCanvas = parentCanvas;
             _parentCanvasRect = parentCanvas != null
                 ? parentCanvas.GetComponent<RectTransform>()
                 : null;
+            _floaterRoot = floaterCanvas != null ? floaterCanvas.transform : transform;
+            _floaterCanvasRect = floaterCanvas != null
+                ? floaterCanvas.GetComponent<RectTransform>()
+                : _parentCanvasRect;
             _mainCamera   = Camera.main;
         }
 
@@ -253,9 +259,9 @@ namespace UPlayGround.UI
 
         private UI_DamageFloater CreateFloater()
         {
-            var go      = Instantiate(_floaterPrefab, transform);
+            var go      = Instantiate(_floaterPrefab, _floaterRoot != null ? _floaterRoot : transform);
             var floater = go.GetComponent<UI_DamageFloater>();
-            floater.Init(_mainCamera, _parentCanvasRect, _floaterConfig, this);
+            floater.Init(_mainCamera, _floaterCanvasRect, _floaterConfig, this);
             go.SetActive(false);
             return floater;
         }

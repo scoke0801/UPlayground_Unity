@@ -9,9 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
+  m_Script: {fileID: 11500000, guid: c6f7925196b84c2aa87d2a42f367f009, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
+  sequence: {fileID: 11400000, guid: 4551ebb27d5441d4b9e5ddf88633d9bd, type: 2}
   attackInfo:
     motionKey:
       value: DoubleAxe.Ultimate

@@ -34,7 +34,7 @@ MonoBehaviour:
   stageVolumeProfile: {fileID: 0}
   hideSourceRenderers: 1
   enterTransition: 1
-  enterTransitionDuration: 0.12
+  enterTransitionDuration: 0.18
   exitTransition: 3
-  exitTransitionDuration: 0.2
+  exitTransitionDuration: 0.32
   maxStageSeconds: 30

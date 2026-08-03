@@ -1253,6 +1253,13 @@ namespace UPlayGround.Manager
 
         public void StopShake() => _shaker?.StopShake();
 
+        /// <summary>
+        /// 시네마틱 등 별도 렌더 카메라가 현재 쉐이크 보이스를 함께 출력하도록 등록한다.
+        /// </summary>
+        public void RegisterShakeCamera(Camera camera) => _shaker?.RegisterRuntimeCamera(camera);
+
+        public void UnregisterShakeCamera(Camera camera) => _shaker?.UnregisterRuntimeCamera(camera);
+
         public void Punch(Vector3 direction, float strength, float duration = 0.15f) =>
             _shaker?.Punch(direction, strength, duration);
 

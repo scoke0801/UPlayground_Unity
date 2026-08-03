@@ -82,8 +82,8 @@ namespace UPlayGround.UI
             {
                 GrowthCard card = _cards[i];
                 if (card?.investButton == null) continue;
-                AttributeId attribute = card.AttributeId;
-                UnityAction action = () => Invest(attribute);
+                int cardIndex = i;
+                UnityAction action = () => ActivateCard(cardIndex);
                 _investActions[card.investButton] = action;
                 card.investButton.onClick.AddListener(action);
             }
@@ -100,6 +100,7 @@ namespace UPlayGround.UI
             }
 
             _targetType = UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
+            UISvc.Party?.SetSkillTreeAccessAllowed(true);
             Subscribe();
             if (_unlockText != null) _unlockText.text = string.Empty;
             RefreshView();
@@ -108,6 +109,7 @@ namespace UPlayGround.UI
         protected override void OnHide()
         {
             Unsubscribe();
+            UISvc.Party?.SetSkillTreeAccessAllowed(false);
 
             if (_pausedByThisPopup)
             {
@@ -126,9 +128,23 @@ namespace UPlayGround.UI
             base.OnDispose();
         }
 
-        private void Invest(AttributeId attribute)
+        private void ActivateCard(int cardIndex)
         {
-            if (UISvc.Party?.TryInvestGrowthPoint(_targetType, attribute) == true)
+            IUIPartyService party = UISvc.Party;
+            CharacterSkillTreeSO tree = party?.GetSkillTree(_targetType);
+            if (tree?.nodes != null && cardIndex >= 0 && cardIndex < tree.nodes.Count)
+            {
+                SkillNodeDefinition node = tree.nodes[cardIndex];
+                if (node != null && party.TryTakeSkillNode(_targetType, node.nodeId))
+                    RefreshView();
+                return;
+            }
+
+            if (cardIndex >= 0
+                && cardIndex < _cards.Count
+                && party?.TryInvestGrowthPoint(
+                    _targetType,
+                    _cards[cardIndex].AttributeId) == true)
                 RefreshView();
         }
 
@@ -139,6 +155,8 @@ namespace UPlayGround.UI
             UISvc.Party.OnGrowthPointsChanged += HandlePointsChanged;
             UISvc.Party.OnGrowthUnlock -= HandleUnlock;
             UISvc.Party.OnGrowthUnlock += HandleUnlock;
+            UISvc.Party.OnSkillProgressChanged -= HandleSkillProgressChanged;
+            UISvc.Party.OnSkillProgressChanged += HandleSkillProgressChanged;
             UISvc.Party.OnPartyProgressionChanged -= HandleProgressionChanged;
             UISvc.Party.OnPartyProgressionChanged += HandleProgressionChanged;
         }
@@ -148,11 +166,13 @@ namespace UPlayGround.UI
             if (UISvc.Party == null) return;
             UISvc.Party.OnGrowthPointsChanged -= HandlePointsChanged;
             UISvc.Party.OnGrowthUnlock -= HandleUnlock;
+            UISvc.Party.OnSkillProgressChanged -= HandleSkillProgressChanged;
             UISvc.Party.OnPartyProgressionChanged -= HandleProgressionChanged;
         }
 
         private void HandlePointsChanged(CharacterActorType type, int _) { if (type == _targetType) RefreshView(); }
         private void HandleProgressionChanged(CharacterActorType type) { if (type == _targetType) RefreshView(); }
+        private void HandleSkillProgressChanged(CharacterActorType type) { if (type == _targetType) RefreshView(); }
 
         private void HandleUnlock(CharacterActorType type, GrowthUnlockMilestone milestone)
         {
@@ -165,11 +185,93 @@ namespace UPlayGround.UI
         {
             IUIPartyService party = UISvc.Party;
             if (party == null || _targetType == CharacterActorType.None) return;
-            if (_characterNameText != null) _characterNameText.text = $"{_targetType} 성장";
-            if (_pointText != null) _pointText.text = $"사용 가능 포인트  {party.GetGrowthPoints(_targetType)}";
-            for (int i = 0; i < _cards.Count; i++) RefreshCard(_cards[i]);
+            CharacterSkillTreeSO tree = party.GetSkillTree(_targetType);
+            bool useSkillTree = tree?.nodes != null && tree.nodes.Count > 0;
+            if (_characterNameText != null)
+                _characterNameText.text = useSkillTree
+                    ? $"{_targetType} 스킬 트리"
+                    : $"{_targetType} 성장";
+            if (_pointText != null)
+                _pointText.text = useSkillTree
+                    ? $"사용 가능 스킬 포인트  {party.GetAvailableSkillPoints(_targetType)}"
+                    : $"사용 가능 포인트  {party.GetGrowthPoints(_targetType)}";
+            for (int i = 0; i < _cards.Count; i++)
+            {
+                if (useSkillTree)
+                    RefreshSkillNodeCard(_cards[i], tree, i);
+                else
+                    RefreshCard(_cards[i]);
+            }
             RebuildNavigation();
         }
+
+        private void RefreshSkillNodeCard(
+            GrowthCard card,
+            CharacterSkillTreeSO tree,
+            int index)
+        {
+            if (card == null || tree?.nodes == null || index >= tree.nodes.Count)
+            {
+                SetCardVisible(card, false);
+                return;
+            }
+
+            SkillNodeDefinition node = tree.nodes[index];
+            if (node == null)
+            {
+                SetCardVisible(card, false);
+                return;
+            }
+
+            SetCardVisible(card, true);
+            IUIPartyService party = UISvc.Party;
+            int rank = party.GetSkillNodeRank(_targetType, node.nodeId);
+            if (card.nameText != null)
+                card.nameText.text = string.IsNullOrWhiteSpace(node.displayNameKey)
+                    ? node.nodeId
+                    : node.displayNameKey;
+            if (card.rankText != null)
+                card.rankText.text = $"{rank} / {Mathf.Max(1, node.maxRank)}";
+            if (card.effectText != null)
+                card.effectText.text = DescribeNode(node, Mathf.Min(rank + 1, Mathf.Max(1, node.maxRank)));
+            bool canTake = party.CanTakeSkillNode(
+                _targetType,
+                node.nodeId,
+                out SkillNodeBlockReason reason);
+            if (card.milestoneText != null)
+                card.milestoneText.text = canTake
+                    ? "취득 가능"
+                    : DescribeBlockReason(reason, node);
+            if (card.investButton != null)
+                card.investButton.interactable = canTake;
+        }
+
+        private static string DescribeNode(SkillNodeDefinition node, int previewRank)
+        {
+            if (node?.effects == null || node.effects.Count == 0)
+                return string.IsNullOrWhiteSpace(node.descriptionKey)
+                    ? "효과 없음"
+                    : node.descriptionKey;
+            var descriptions = new List<string>();
+            for (int i = 0; i < node.effects.Count; i++)
+                if (node.effects[i] != null)
+                    descriptions.Add(node.effects[i].Describe(previewRank));
+            return descriptions.Count > 0
+                ? string.Join(" / ", descriptions)
+                : "효과 없음";
+        }
+
+        private static string DescribeBlockReason(
+            SkillNodeBlockReason reason,
+            SkillNodeDefinition node) => reason switch
+        {
+            SkillNodeBlockReason.InsufficientPoints => $"포인트 부족 (비용 {Mathf.Max(1, node.cost)})",
+            SkillNodeBlockReason.MissingPrerequisite => "선행 노드 필요",
+            SkillNodeBlockReason.LevelTooLow => $"레벨 {Mathf.Max(1, node.requiredLevel)} 필요",
+            SkillNodeBlockReason.MaxRank => "최대 랭크",
+            SkillNodeBlockReason.NotInSafeZone => "안전 지역에서만 가능",
+            _ => "취득 불가",
+        };
 
         private void RebuildNavigation()
         {

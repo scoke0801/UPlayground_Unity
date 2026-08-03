@@ -186,3 +186,7 @@ MonoBehaviour:
     prefab: {fileID: 8065138479794686207, guid: fda1e2a8012a2a94d915d22b119c42bc, type: 3}
     defaultLayer: 1000
     description: "\uC2E0\uADDC \uAC8C\uC784 \uCE90\uB9AD\uD130 \uC120\uD0DD \uD654\uBA74"
+  - key: SkillTree
+    prefab: {fileID: 100000, guid: 436ee55d36d44b79b2925e37d8f7e421, type: 3}
+    defaultLayer: 2000
+    description: "\uCE90\uB9AD\uD130 \uACE0\uC815 \uC2A4\uD0AC \uD2B8\uB9AC"

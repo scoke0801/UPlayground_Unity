@@ -7,6 +7,7 @@ using UPlayGround.Data.Ability;
 using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Party;
 using UPlayGround.Animation;
 using UPlayGround.Combat;
 using UPlayGround.Data;
@@ -563,6 +564,17 @@ namespace UPlayGround.Components
                 };
                 float passiveBreakMultiplier = Svc.Passives?.GetActiveMultiplier(
                     PassiveModifierType.BreakDamage) ?? 1f;
+                string abilityId = _playerActor.Abilities?.CurrentAbilityId;
+                float skillTreeDamageMultiplier = Svc.Party?.GetAbilityScalar(
+                    _playerActor.CharacterType,
+                    abilityId,
+                    AbilityScalarKind.Damage) ?? 1f;
+                float skillTreeBreakMultiplier = Svc.Party?.GetAbilityScalar(
+                    _playerActor.CharacterType,
+                    abilityId,
+                    AbilityScalarKind.BreakDamage) ?? 1f;
+                attackMultiplier *= skillTreeDamageMultiplier;
+                passiveBreakMultiplier *= skillTreeBreakMultiplier;
 
                 // 공격 생성 시 스냅샷해 스왑 후 잔류 공격도 outgoing 캐릭터 배율을 유지한다.
                 data.damageMultiplier *= _playerActor.WeightDamageMultiplier * attackMultiplier;

@@ -29,7 +29,7 @@ namespace UPlayGround.UI.EditorTools
             UIMonsterCodexSlot slotPrefab = BuildSlot();
             GameObject mainPrefab = BuildMain(slotPrefab);
             RegisterUI(mainPrefab);
-            BindMenuButton();
+            UIMenuPanelPrefabBuilder.Build();
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = mainPrefab;
@@ -58,12 +58,12 @@ namespace UPlayGround.UI.EditorTools
                     Debug.Log("[MonsterCodexUIBuilder] 잘못 생성된 도감 화면 레이아웃을 자동 복구했습니다.");
                 }
 
-                if (File.Exists(MenuPanelPath) && NeedsMenuLayoutRepair())
-                {
-                    BindMenuButton();
-                    repaired = true;
-                    Debug.Log("[MonsterCodexUIBuilder] 잘못 중첩된 도감 메뉴 버튼을 자동 복구했습니다.");
-                }
+                // if (File.Exists(MenuPanelPath) && NeedsMenuLayoutRepair())
+                // {
+                //     BindMenuButton();
+                //     repaired = true;
+                //     Debug.Log("[MonsterCodexUIBuilder] 잘못 중첩된 도감 메뉴 버튼을 자동 복구했습니다.");
+                // }
 
                 if (repaired)
                 {

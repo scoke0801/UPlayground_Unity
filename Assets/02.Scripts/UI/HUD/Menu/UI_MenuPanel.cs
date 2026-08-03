@@ -24,6 +24,7 @@ namespace UPlayGround.UI
         [SerializeField] private Button _questButton;
         [SerializeField] private Button _partyButton;
         [SerializeField] private Button _codexButton;
+        [SerializeField] private Button _skillTreeButton;
         [SerializeField] private Button _configButton;
         [SerializeField] private Button _exitButton;
 
@@ -66,6 +67,7 @@ namespace UPlayGround.UI
             _questButton.onClick.AddListener(OnClickedQuestButton);
             _partyButton.onClick.AddListener(OnClickedPartyButton);
             if (_codexButton != null) _codexButton.onClick.AddListener(OnClickedCodexButton);
+            if (_skillTreeButton != null) _skillTreeButton.onClick.AddListener(OnClickedSkillTreeButton);
             _configButton.onClick.AddListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.AddListener(OnClickedExitButton);
 
@@ -77,6 +79,7 @@ namespace UPlayGround.UI
                 _questButton,
                 _partyButton,
                 _codexButton,
+                _skillTreeButton,
                 _configButton,
                 _exitButton
             });
@@ -98,6 +101,7 @@ namespace UPlayGround.UI
                 _questButton,
                 _partyButton,
                 _codexButton,
+                _skillTreeButton,
                 _configButton,
                 _exitButton));
         }
@@ -174,6 +178,7 @@ namespace UPlayGround.UI
             if (_questButton != null) _questButton.onClick.RemoveListener(OnClickedQuestButton);
             if (_partyButton != null) _partyButton.onClick.RemoveListener(OnClickedPartyButton);
             if (_codexButton != null) _codexButton.onClick.RemoveListener(OnClickedCodexButton);
+            if (_skillTreeButton != null) _skillTreeButton.onClick.RemoveListener(OnClickedSkillTreeButton);
             if (_configButton != null) _configButton.onClick.RemoveListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.RemoveListener(OnClickedExitButton);
 
@@ -217,6 +222,27 @@ namespace UPlayGround.UI
         private void OnClickedCodexButton()
         {
             Toggle(UIKeyType.MonsterCodex);
+        }
+
+        private void OnClickedSkillTreeButton()
+        {
+            GameObject active = UISvc.UI.GetActiveUI(UI_SkillTree.UIKey);
+            UI_Base activeUI = active != null ? active.GetComponent<UI_Base>() : null;
+            bool shouldShow = activeUI == null || !activeUI.IsVisible;
+            Hide();
+            if (shouldShow)
+            {
+                GameObject instance = UISvc.UI.ShowUI(
+                    UI_SkillTree.UIKey,
+                    CanvasLayer.Popup);
+                instance?.GetComponent<UI_SkillTree>()?.Configure(
+                    UISvc.Party?.ActiveCharacterType ?? Data.EnumType.CharacterActorType.None,
+                    allowChanges: false);
+            }
+            else
+            {
+                UISvc.UI.HideUI(UI_SkillTree.UIKey);
+            }
         }
 
         private void OnClickedConfigButton()

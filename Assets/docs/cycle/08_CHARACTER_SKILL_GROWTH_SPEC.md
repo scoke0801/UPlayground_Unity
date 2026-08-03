@@ -1,9 +1,24 @@
 # Character Skill Growth 구현 스펙 — 레벨업 포인트와 스킬 노드 트리
 
 > 작성일: 2026-08-02
-> 상태: 설계 (미구현)
+> 상태: P0 런타임 구현, 캐릭터별 에셋 저작·Unity Play Mode 검증 필요
 > 선행 문서: `../Complete/PLAYER_GROWTH_LEVELING_DESIGN.md` (EXP 루프), `../Complete/PARTY_LEVEL_POWER_DESIGN.md`
 > 연관 문서: `../Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`, `../Complete/PASSIVE_ABILITY_SYSTEM_SPEC.md`, `03_CHARACTER_WEIGHT_SPEC.md`, `06_CYCLE_SAVE_SETTLEMENT_SPEC.md`
+
+---
+
+## 0. 현재 구현 대조 (2026-08-02)
+
+명세 작성 시점의 타입 가정과 실제 프로젝트 사이에 다음 차이가 있어 구현 계약을 현재 구조에 맞췄다.
+
+- 실제 스탯 런타임은 구 `ActorStatContainer`가 아니라 GAS의 `AttributeSetRuntime`이다. 노드 스탯은 `SkillTree.{CharacterActorType}` 소유 ID의 Infinite GameplayEffect로 적용·교체한다.
+- 기존 `PartyMemberGrowthSO`에는 휴식지점 스탯 투자와 고정 `milestones`가 이미 있었지만, 런타임이 이를 `contentUnlockSeed`로 재배치하고 있었다. 신규 Ability 해금은 `CharacterSkillTreeSO`가 권위를 가지며, 남은 레거시 콤보 게이트는 저작된 `milestones`를 그대로 읽어 결정적으로 판정한다.
+- 영구 진행도는 별도 최상위 매니저가 아니라 `PartySaveData.skillProgress`에 저장한다. 사이클 DTO는 이를 참조하거나 복제하지 않는다.
+- 전용 `UI_SkillTree` 팝업을 `SkillTree` 키로 추가했다. 좌측 캐릭터 탭/포인트 배지, `layoutPosition` 기반 노드·연결선, 4단계 상태, 우측 상세·다음 랭크 효과, 공간 기반 게임패드 내비게이션, 전체 리스펙 2차 확인을 제공한다. 휴식 지점에서는 편집 가능, 파티 상세에서는 읽기 전용으로 열린다.
+- `UPlayGround/데이터/성장/누락 Character Skill Tree 초안 생성`은 기존 고정 스탯 투자로부터 누락 트리만 생성한다. 기존 에셋을 덮어쓰지 않으며, Ability/Passive/선행 그래프는 자동 추정하지 않는다.
+- 현재 `PartyConfigSO.characterSkillTrees`에는 플레이어블 11종의 자동 생성 초안이 연결되어 있고, 기존 `PartyMemberGrowthSO.useAutomaticLevelGrowth`는 비활성이다. 이 초안은 레거시 고정 스탯 5종을 옮긴 호환 성장 보드일 뿐이며 선행 관계·Ability·Passive 노드가 없는 상태다. UI는 이를 완성된 트리로 오인하지 않도록 `성장 보드 · 초안`으로 표시한다. 실제 스킬 트리로 전환하려면 캐릭터별 선행 그래프와 Ability/Passive 노드를 별도로 저작해야 한다. 스킬 트리가 연결된 캐릭터에는 레거시 성장 포인트를 중복 지급하지 않는다. 자동 base 성장 곡선은 밸런스 값 확정 후 별도로 활성화해야 한다.
+
+현재 코드 구현 범위는 포인트 누적/소급, 노드 취득·전체 리스펙 API, 저장·로드, 스탯 modifier, Ability 해금·피해/Break/쿨다운/비용 스칼라, 패시브 합집합, 전용 UI, 에디터 검증이다.
 
 ---
 
@@ -53,7 +68,7 @@
 | `OnPartyProgressionChanged` | 레벨·포인트·노드 변경 통지 채널 재사용 |
 | `PartyMemberGrowthSO` | 자동 곡선 성장. 노드 효과의 **기준선**이며 노드가 이 값을 덮어쓰지 않음 |
 | `PartyPowerCalculator.CalculateGrowthStats` | 레벨 기반 base 스탯 산출. 노드는 이 결과에 modifier로 얹힘 |
-| `ActorStatContainer` | base + modifier 합산. 노드 스탯 효과는 **modifier로만** 들어감 |
+| `AttributeSetRuntime` / `AbilitySystemComponent` | base + modifier 합산. 노드 스탯 효과는 소유 ID가 있는 Infinite Effect **modifier로만** 들어감 |
 | `PlayerActor.ApplyCharacterStats` | 스왑 시 주입 경로. 노드 modifier 재적용 지점 |
 | `AbilitySetSO` / `GameplayAbilitySO` | 노드가 해금·강화하는 대상 |
 | `PassiveAbilitySO` / `IPassiveModifierReader` | 노드의 Ability 문맥 보정을 **기존 계약으로** 노출 |
@@ -283,7 +298,7 @@ PlayerActor.ApplyCharacterStats(model)
 - `AbilityScalarEffect`의 `abilityId` 미해석
 - 레벨 상한까지 얻는 총 포인트로 **전체 노드를 다 찍을 수 있는지** 검사. 다 찍히면 선택의 의미가 사라지므로 경고
 - 반대로 총 포인트가 최소 유효 빌드에도 못 미치면 오류
-- P0 캐릭터(Honoka, Bokusei, H09)의 `CharacterSkillTreeSO` 누락
+- P0 캐릭터(Honoka, Bokusei, Hichi)의 `CharacterSkillTreeSO` 누락. 기존 문서의 H09 표기는 현재 데이터와 맞지 않아 Hichi로 정정한다.
 
 Balance Designer 추출 데이터에 캐릭터별 총 포인트, 노드 수, 최대 취득 비율을 포함한다.
 

@@ -538,6 +538,9 @@ namespace UPlayGround.Editor.UI
             Add("HUD", "월드 마커", "인게임 월드 마커 HUD 패널과 마커 아이콘 프리팹 초안을 생성합니다.",
                 UPlayGround.UI.EditorTools.WorldMarkerUIBuilder.Build,
                 requiresConfirmation: false);
+            Add("HUD", "인게임 메뉴 패널",
+                "도감·스킬 트리를 포함한 메뉴 타일과 4x2 배치, 직렬화 참조를 갱신합니다.",
+                UPlayGround.UI.EditorTools.UIMenuPanelPrefabBuilder.Build);
 
             Add("화면 UI", "신규 게임 캐릭터 선택", "캐릭터 선택 카드와 메인 UI 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.CharacterSelect.EditorTools.UICharacterSelectPrefabBuilder.Build);
@@ -572,6 +575,8 @@ namespace UPlayGround.Editor.UI
                 UPlayGround.UI.Respawn.EditorTools.UIRespawnPopupPrefabBuilder.Build);
             Add("팝업 · 시스템", "휴식 성장", "휴식 성장 UI 프리팹을 생성하거나 갱신합니다.",
                 UPlayGround.UI.Growth.EditorTools.UIRestGrowthPrefabBuilder.Build);
+            Add("팝업 · 시스템", "스킬 트리", "캐릭터 탭·노드 그래프·상세 패널을 포함한 스킬 트리 UI 프리팹을 생성하거나 갱신합니다.",
+                UPlayGround.UI.Growth.EditorTools.UISkillTreePrefabBuilder.Build);
             Add("팝업 · 시스템", "일시정지 메뉴", "일시정지 메뉴 프리팹의 계층과 직렬화 참조를 갱신합니다.",
                 UPlayGround.UI.PauseMenu.EditorTools.UIPauseMenuPrefabBuilder.Build);
             Add("팝업 · 시스템", "월드 재스폰 안내", "월드 재스폰 안내 프리팹을 생성하거나 갱신합니다.",

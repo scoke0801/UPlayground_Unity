@@ -37,7 +37,7 @@ namespace UPlayGround.Manager
     /// - Death / Grabbed 상태에서는 교체 불가
     /// - 교체 어시스트: PerfectDodgeWindow 중 교체 성공 시 incoming 캐릭터 공격 자동 발동
     /// </summary>
-    public class PartyManager : BaseManager<PartyManager>, IManager, ISaveable, IAsyncInitializableManager,
+    public partial class PartyManager : BaseManager<PartyManager>, IManager, ISaveable, IAsyncInitializableManager,
         UPlayGround.UI.IUIPartyService,
         IUpdatableManager, IPartyService, IPassiveModifierReader
     {
@@ -52,8 +52,7 @@ namespace UPlayGround.Manager
         private readonly Dictionary<CharacterActorType, long> _exp = new();
         private readonly Dictionary<CharacterActorType, int> _growthPoints = new();
         private readonly Dictionary<CharacterActorType, Dictionary<AttributeId, int>> _growthInvestments = new();
-        // 컨텐츠 해금 조건을 새 게임 단위로 랜덤화하는 시드. 0이면 지연 생성.
-        // (WorldStateManager.NewGameElementSeed 패턴 미러링, 소유는 파티 진행 관심사)
+        // 구버전 세이브 호환용. 신규 고정 스킬 트리/저작 마일스톤 판정에는 사용하지 않는다.
         private int _contentUnlockSeed;
 
         // growth.levelCurve가 없을 때 사용하는 폴백 곡선 파라미터.
@@ -171,7 +170,7 @@ namespace UPlayGround.Manager
 
         public float GetActiveSkillCooldownMultiplier(PlayerSkillSlot slot)
             => PassiveModifierCalculator.CalculateMultiplier(
-                GetPassiveSet(ActiveCharacterType),
+                GetAllPassives(ActiveCharacterType),
                 PassiveModifierType.SkillCooldownDuration,
                 slot,
                 PassiveScope.ActiveCharacter,
@@ -181,7 +180,7 @@ namespace UPlayGround.Manager
             CharacterActorType characterType,
             PassiveModifierType type)
             => PassiveModifierCalculator.CalculateMultiplier(
-                GetPassiveSet(characterType),
+                GetAllPassives(characterType),
                 type,
                 null,
                 PassiveScope.ActiveCharacter,
@@ -194,7 +193,7 @@ namespace UPlayGround.Manager
             for (int i = 0; i < _battleOrder.Count; i++)
             {
                 float candidate = PassiveModifierCalculator.CalculateMultiplier(
-                    GetPassiveSet(_battleOrder[i]),
+                    GetAllPassives(_battleOrder[i]),
                     type,
                     null,
                     PassiveScope.BattlePartyHighest);
@@ -212,6 +211,7 @@ namespace UPlayGround.Manager
         public void Init()
         {
             RegisterSwapInputs();
+            _skillProgression.OnSkillProgressChanged += HandleSkillProgressChanged;
             SaveManager.Instance.RegisterSaveable(this);
         }
 
@@ -280,6 +280,9 @@ namespace UPlayGround.Manager
             _pendingPartyLoad = null;
             _newGameStartingCharacter = CharacterActorType.None;
             _hasRuntimePartyComposition = false;
+            _skillProgression.OnSkillProgressChanged -= HandleSkillProgressChanged;
+            _skillProgression.Clear();
+            _skillTreeAccessAllowed = false;
 
             _config = null;
         }
@@ -796,45 +799,42 @@ namespace UPlayGround.Manager
             return true;
         }
 
-        /// <summary>새 게임 단위 컨텐츠 해금 시드. 0이면 생성해 보장한다.</summary>
-        public int ContentUnlockSeed
-        {
-            get { EnsureContentUnlockSeed(); return _contentUnlockSeed; }
-        }
-
-        private void EnsureContentUnlockSeed()
-        {
-            if (_contentUnlockSeed == 0)
-                _contentUnlockSeed = CreateContentUnlockSeed();
-        }
-
-        private static int CreateContentUnlockSeed()
-        {
-            int seed;
-            do { seed = Guid.NewGuid().GetHashCode(); } while (seed == 0);
-            return seed;
-        }
+        /// <summary>구버전 디버그 표시 호환용. 결정적 성장에서는 항상 0이다.</summary>
+        [Obsolete("고정 스킬 트리는 컨텐츠 해금 시드를 사용하지 않습니다.")]
+        public int ContentUnlockSeed => 0;
 
         /// <summary>
         /// 해당 콘텐츠가 현재 실효 성장 랭크로 해금됐는지.
-        /// 무료(약 5타/강 2타)면 항상 true, 아니면 시드로 결정된 속성의 요구 랭크 충족 여부.
-        /// 해금 조건(어느 속성인지)은 새 게임 시드마다 달라지되 요구 랭크(난이도)는 고정된다.
+        /// 무료(약 5타/강 2타)면 항상 true, 아니면 저작된 속성 마일스톤의 요구 랭크 충족 여부.
         /// </summary>
         public bool IsGrowthUnlockAvailable(CharacterActorType type, GrowthUnlockType unlockType, string unlockId)
         {
             if (type == CharacterActorType.None || string.IsNullOrWhiteSpace(unlockId)) return true;
             if (GrowthUnlockCatalog.IsFree(unlockType, unlockId)) return true;
 
-            EnsureContentUnlockSeed();
             PartyMemberGrowthSO growth = GetGrowthData(type);
-            (AttributeId attribute, int requiredRank) =
-                GrowthUnlockCatalog.Resolve(
-                    _contentUnlockSeed,
-                    type,
-                    unlockType,
-                    unlockId,
-                    growth?.investmentRules);
-            return GetEffectiveGrowthRank(type, attribute) >= requiredRank;
+            bool hasGate = false;
+            if (growth?.investmentRules != null)
+                for (int i = 0; i < growth.investmentRules.Count; i++)
+                {
+                    GrowthInvestmentRule rule = growth.investmentRules[i];
+                    if (rule.milestones == null) continue;
+                    for (int j = 0; j < rule.milestones.Count; j++)
+                    {
+                        GrowthUnlockMilestone milestone = rule.milestones[j];
+                        if (milestone.unlockType != unlockType
+                            || !string.Equals(
+                                milestone.unlockId,
+                                unlockId,
+                                StringComparison.Ordinal))
+                            continue;
+                        hasGate = true;
+                        if (GetEffectiveGrowthRank(type, rule.AttributeId)
+                            >= Mathf.Max(1, milestone.requiredRank))
+                            return true;
+                    }
+                }
+            return !hasGate;
         }
 
         public int GetUnlockedComboLength(
@@ -875,7 +875,7 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 해당 속성에 투자하면 해금되는 콘텐츠 목록을 마일스톤 형태로 반환한다(성장 UI 표시용).
-        /// 시드로 결정된 (속성, 요구 랭크)를 기존 GrowthUnlockMilestone struct로 투영한다.
+        /// 저작된 (속성, 요구 랭크)를 기존 GrowthUnlockMilestone struct로 투영한다.
         /// </summary>
         public List<GrowthUnlockMilestone> GetGrowthUnlockMilestones(
             CharacterActorType type,
@@ -884,33 +884,23 @@ namespace UPlayGround.Manager
             var result = new List<GrowthUnlockMilestone>();
             if (type == CharacterActorType.None) return result;
 
-            EnsureContentUnlockSeed();
             PartyMemberGrowthSO growth = GetGrowthData(type);
-            foreach ((GrowthUnlockType unlockType, string id, string display) in EnumerateGatedContent(type))
+            if (growth?.investmentRules == null)
+                return result;
+            for (int i = 0; i < growth.investmentRules.Count; i++)
             {
-                (AttributeId attr, int requiredRank) =
-                    GrowthUnlockCatalog.Resolve(
-                        _contentUnlockSeed,
-                        type,
-                        unlockType,
-                        id,
-                        growth?.investmentRules);
-                if (attr != attribute) continue;
-                result.Add(new GrowthUnlockMilestone
-                {
-                    requiredRank = requiredRank,
-                    unlockType = unlockType,
-                    unlockId = id,
-                    displayName = display,
-                    description = $"{requiredRank}랭크 달성 시 해금",
-                });
+                GrowthInvestmentRule rule = growth.investmentRules[i];
+                if (rule.AttributeId != attribute || rule.milestones == null)
+                    continue;
+                for (int j = 0; j < rule.milestones.Count; j++)
+                    result.Add(rule.milestones[j]);
             }
             result.Sort((a, b) => a.requiredRank.CompareTo(b.requiredRank));
             return result;
         }
 
         /// <summary>
-        /// 이 캐릭터가 시드 랜덤화로 게이팅하는 모든 콘텐츠(스킬/조합 스텝/ComboRoute)를 열거한다.
+        /// 이 캐릭터가 저작된 마일스톤으로 게이팅하는 모든 콘텐츠(스킬/조합 스텝/ComboRoute)를 열거한다.
         /// 무료 콘텐츠(약 5타/강 2타)는 제외한다.
         /// </summary>
         private IEnumerable<(GrowthUnlockType unlockType, string id, string display)> EnumerateGatedContent(
@@ -982,6 +972,7 @@ namespace UPlayGround.Manager
             int clamped = Mathf.Clamp(level, 1, LevelCapOf(type));
             _levels[type] = clamped;
             _exp[type]    = 0;
+            _skillProgression.ReconcileLevel(type);
 
             RefreshGrowthStats(type);
             OnExpChanged?.Invoke(type, 0, RequiredExpOf(type, clamped));
@@ -1069,17 +1060,23 @@ namespace UPlayGround.Manager
                 level++;
                 leveled = true;
                 EnsureGrowthState(type);
-                int pointsPerLevel = _growthLookup.TryGetValue(type, out var growth) && growth != null
-                    ? Mathf.Max(1, growth.growthPointsPerLevel)
-                    : 1;
-                _growthPoints[type] += pointsPerLevel;
-                OnGrowthPointsChanged?.Invoke(type, _growthPoints[type]);
+                // 스킬 트리가 저작된 캐릭터는 신규 포인트 규칙만 사용한다.
+                // 트리 미저작 캐릭터는 기존 데이터/세이브 호환을 위해 레거시 포인트를 유지한다.
+                if (_skillProgression.GetTree(type) == null)
+                {
+                    int pointsPerLevel = _growthLookup.TryGetValue(type, out var growth) && growth != null
+                        ? Mathf.Max(1, growth.growthPointsPerLevel)
+                        : 1;
+                    _growthPoints[type] += pointsPerLevel;
+                    OnGrowthPointsChanged?.Invoke(type, _growthPoints[type]);
+                }
                 OnLevelUp?.Invoke(type, level);
             }
             if (level >= cap) exp = 0;                       // 만렙 도달 시 잉여 버림
 
             _levels[type] = level;
             _exp[type]    = exp;
+            _skillProgression.ReconcileLevel(type);
 
             OnExpChanged?.Invoke(type, exp, RequiredExpOf(type, level));
             if (leveled)
@@ -1138,8 +1135,8 @@ namespace UPlayGround.Manager
                 party.battleOrder.Add(_battleOrder[i].ToString());
 
             party.activeIndex = _activeIndex;
-            EnsureContentUnlockSeed();
             party.contentUnlockSeed = _contentUnlockSeed;
+            party.skillProgress = _skillProgression.ExportStates();
 
             party.members = new List<PartyMemberSaveEntry>(_levels.Count);
             foreach (var kv in _levels)
@@ -1223,9 +1220,9 @@ namespace UPlayGround.Manager
             _exp.Clear();
             _growthPoints.Clear();
             _growthInvestments.Clear();
+            _skillProgression.Clear();
             _swapCooldownEndTimes.Clear();
-            // 새 게임마다 해금 조건(투자 속성 배치)을 새로 랜덤화한다.
-            _contentUnlockSeed = CreateContentUnlockSeed();
+            _contentUnlockSeed = 0;
         }
 
         /// <summary>
@@ -1268,7 +1265,7 @@ namespace UPlayGround.Manager
 
             _pendingPartyLoad = null;
 
-            // 저장 시드 복원(0이면 지연 생성으로 발급됨 → 기존 세이브 호환).
+            // 레거시 세이브 필드는 읽기만 하며, 결정적 스킬 트리에서는 사용하지 않는다.
             _contentUnlockSeed = party.contentUnlockSeed;
 
             _roster.Clear();
@@ -1312,6 +1309,7 @@ namespace UPlayGround.Manager
 
             // 로스터에 있는데 레벨 기록이 없는 캐릭터는 초기 레벨로 보정.
             InitializeRosterLevels();
+            _skillProgression.ImportStates(party.skillProgress);
 
             _activeIndex = _battleOrder.Count > 0
                 ? Mathf.Clamp(party.activeIndex, 0, _battleOrder.Count - 1)
@@ -1668,8 +1666,9 @@ namespace UPlayGround.Manager
         private void BuildGrowthLookup()
         {
             _growthLookup.Clear();
-            if (_config == null || _config.growthData == null) return;
+            if (_config == null) return;
 
+            if (_config.growthData != null)
             for (int i = 0; i < _config.growthData.Count; i++)
             {
                 var growth = _config.growthData[i];
@@ -1682,6 +1681,8 @@ namespace UPlayGround.Manager
 
                 _growthLookup.Add(growth.characterType, growth);
             }
+
+            ConfigureSkillProgression();
         }
 
         private void InitializeRosterLevels()

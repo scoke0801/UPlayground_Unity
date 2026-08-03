@@ -14,15 +14,25 @@ namespace UPlayGround.Data.Ability
             PassiveScope? scopeA = null,
             PassiveScope? scopeB = null)
         {
-            if (set?.passives == null)
+            return CalculateMultiplier(set?.passives, type, slot, scopeA, scopeB);
+        }
+
+        public static float CalculateMultiplier(
+            IReadOnlyList<PassiveAbilitySO> passives,
+            PassiveModifierType type,
+            PlayerSkillSlot? slot = null,
+            PassiveScope? scopeA = null,
+            PassiveScope? scopeB = null)
+        {
+            if (passives == null)
                 return 1f;
 
             float flat = 0f;
             float percent = 0f;
             float multiply = 1f;
-            for (int i = 0; i < set.passives.Count; i++)
+            for (int i = 0; i < passives.Count; i++)
             {
-                PassiveAbilitySO passive = set.passives[i];
+                PassiveAbilitySO passive = passives[i];
                 if (passive == null
                     || passive.activationType != PassiveActivationType.Always
                     || !MatchesScope(passive.scope, scopeA, scopeB)

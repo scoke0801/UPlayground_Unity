@@ -37,6 +37,7 @@ namespace UPlayGround.Gameplay.Ability
         private AbilityResourceRuleSO _resourceRules;
         private ulong _nextHandle = 1;
         private ulong _primaryExecution;
+        private ulong _latestPreparedExecution;
         private AbilitySystemComponent _abilitySystem;
         private GameplayEffectController _effects;
         private AbilityCooldownRuntime _cooldowns;
@@ -48,6 +49,19 @@ namespace UPlayGround.Gameplay.Ability
         public bool HasActiveAbility =>
             _primaryExecution != 0 || _backgroundExecutions.Count > 0;
         public bool HasActivePlayerAbility => _primaryExecution != 0;
+        public string CurrentAbilityId =>
+            _primaryExecution != 0
+            && _executions.TryGetValue(
+                _primaryExecution,
+                out AbilityExecution execution)
+                ? execution.Definition?.abilityId
+                : _latestPreparedExecution != 0
+                  && _executions.TryGetValue(
+                      _latestPreparedExecution,
+                      out AbilityExecution prepared)
+                  && prepared.State == AbilityExecutionState.Prepared
+                    ? prepared.Definition?.abilityId
+                    : null;
 
         internal ActorAbilitySystem(
             GameActor owner,
@@ -163,6 +177,27 @@ namespace UPlayGround.Gameplay.Ability
             out AbilityExecutionHandle handle,
             out AbilityVariantDefinition variant)
         {
+            return TryPreparePlayerSlot(
+                slot,
+                isGrounded,
+                target,
+                null,
+                out handle,
+                out variant);
+        }
+
+        /// <summary>
+        /// 슬롯 Variant의 프로젝트 실행 데이터를 검증한 뒤 Prepared 실행을 만든다.
+        /// Ultimate처럼 일반 Motion 실행과 다른 Payload도 같은 GAS 진입점을 사용한다.
+        /// </summary>
+        public AbilityActivationResult TryPreparePlayerSlot(
+            PlayerSkillSlot slot,
+            bool isGrounded,
+            GameActor target,
+            Func<AbilityVariantDefinition, bool> validateExecutionData,
+            out AbilityExecutionHandle handle,
+            out AbilityVariantDefinition variant)
+        {
             handle = default;
             variant = null;
             GameplayAbilitySO definition = ResolvePlayerAbility(slot);
@@ -172,6 +207,7 @@ namespace UPlayGround.Gameplay.Ability
                 definition,
                 isGrounded,
                 target,
+                validateExecutionData,
                 out handle,
                 out variant);
         }
@@ -237,6 +273,8 @@ namespace UPlayGround.Gameplay.Ability
             handle = new AbilityExecutionHandle(_nextHandle++);
             _executions.Add(handle.Value, new AbilityExecution(
                 handle, definition, variant, _owner, resolvedTarget, Time.frameCount));
+            if (definition.concurrency != AbilityConcurrencyPolicy.Background)
+                _latestPreparedExecution = handle.Value;
             return AbilityActivationResult.Success;
         }
 
@@ -254,7 +292,10 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.PreparedExecutionExpired;
             }
 
-            if (!TryConsumeCost(execution.Definition.cost, execution.Handle))
+            if (!TryConsumeCost(
+                    execution.Definition.cost,
+                    execution.Handle,
+                    execution.Definition.abilityId))
             {
                 Abort(handle);
                 return AbilityActivationResult.InsufficientResource;
@@ -271,6 +312,8 @@ namespace UPlayGround.Gameplay.Ability
 
             execution.StartTime = Time.time;
             execution.State = AbilityExecutionState.Active;
+            if (_latestPreparedExecution == handle.Value)
+                _latestPreparedExecution = 0;
             if (execution.Definition.concurrency
                 == AbilityConcurrencyPolicy.Background)
             {
@@ -295,6 +338,8 @@ namespace UPlayGround.Gameplay.Ability
             _backgroundExecutions.Remove(handle.Value);
             if (_primaryExecution == handle.Value)
                 _primaryExecution = 0;
+            if (_latestPreparedExecution == handle.Value)
+                _latestPreparedExecution = 0;
         }
 
         public void EndActiveAbility(bool completed)
@@ -332,6 +377,7 @@ namespace UPlayGround.Gameplay.Ability
             if (_executions.Count == 0)
             {
                 _primaryExecution = 0;
+                _latestPreparedExecution = 0;
                 _backgroundExecutions.Clear();
                 return;
             }
@@ -342,6 +388,7 @@ namespace UPlayGround.Gameplay.Ability
             for (int i = 0; i < handles.Count; i++)
                 EndExecution(handles[i], false, "AbilityCancelled");
             _primaryExecution = 0;
+            _latestPreparedExecution = 0;
             _backgroundExecutions.Clear();
             StateChanged?.Invoke();
         }
@@ -386,7 +433,9 @@ namespace UPlayGround.Gameplay.Ability
                     ResolveTarget(definition, null),
                     out AbilityVariantDefinition variant);
             float current = GetResourceCurrent(definition.cost.resourceType);
-            float required = GetRequiredCost(definition.cost);
+            float required = GetRequiredCost(
+                definition.cost,
+                definition.abilityId);
             string group = definition.cooldown.ResolveGroupId(definition.abilityId);
             state = new AbilitySlotViewState(
                 definition.abilityId,
@@ -513,12 +562,20 @@ namespace UPlayGround.Gameplay.Ability
 
             CharacterPassiveSetSO passiveSet =
                 Svc.Passives?.GetPassiveSet(_owner.CharacterType);
-            if (passiveSet?.passives == null)
-                return null;
+            if (passiveSet?.passives != null)
             for (int i = 0; i < passiveSet.passives.Count; i++)
             {
                 GameplayEffectSO found = FindEffect(
                     passiveSet.passives[i]?.triggeredEffects, effectId);
+                if (found != null) return found;
+            }
+            IReadOnlyList<PassiveAbilitySO> granted =
+                Svc.Passives?.GetGrantedPassives(_owner.CharacterType);
+            if (granted != null)
+            for (int i = 0; i < granted.Count; i++)
+            {
+                GameplayEffectSO found = FindEffect(
+                    granted[i]?.triggeredEffects, effectId);
                 if (found != null) return found;
             }
             return null;
@@ -568,7 +625,7 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.InvalidTarget;
             if (target != null && !MatchesDistance(activation, target))
                 return AbilityActivationResult.OutOfRange;
-            if (!CanPayCost(definition.cost))
+            if (!CanPayCost(definition.cost, definition.abilityId))
                 return AbilityActivationResult.InsufficientResource;
             if (GetCooldownRemaining(definition.cooldown.ResolveGroupId(definition.abilityId)) > 0f)
                 return AbilityActivationResult.CooldownActive;
@@ -618,23 +675,16 @@ namespace UPlayGround.Gameplay.Ability
         private bool IsUnlocked(GameplayAbilitySO definition)
         {
             if (_owner is not PlayerActor || Svc.Party == null) return true;
-            PlayerSkillSlot? slot = FindPlayerSlot(definition);
-            if (!slot.HasValue) return true;
-            GrowthSkillType type = slot.Value switch
-            {
-                PlayerSkillSlot.Ability => GrowthSkillType.Ability,
-                PlayerSkillSlot.Ultimate => GrowthSkillType.Ultimate,
-                PlayerSkillSlot.ElementalImbue => GrowthSkillType.ElementalImbue,
-                _ => GrowthSkillType.Ability,
-            };
-            return Svc.Party.IsSkillUnlocked(Svc.Party.ActiveCharacterType, type);
+            return Svc.Party.IsAbilityUnlocked(
+                Svc.Party.ActiveCharacterType,
+                definition.abilityId);
         }
 
-        private bool CanPayCost(AbilityCostDefinition cost)
+        private bool CanPayCost(AbilityCostDefinition cost, string abilityId)
         {
             if (cost == null || cost.policy == AbilityCostPolicy.None) return true;
             float current = GetResourceCurrent(cost.resourceType);
-            float required = GetRequiredCost(cost);
+            float required = GetRequiredCost(cost, abilityId);
             if (float.IsInfinity(current)) return false;
             if (cost.policy == AbilityCostPolicy.All && current <= 0f) return false;
             return current >= required;
@@ -642,30 +692,37 @@ namespace UPlayGround.Gameplay.Ability
 
         private bool TryConsumeCost(
             AbilityCostDefinition cost,
-            AbilityExecutionHandle abilityHandle)
+            AbilityExecutionHandle abilityHandle,
+            string abilityId)
         {
-            if (!CanPayCost(cost)) return false;
+            if (!CanPayCost(cost, abilityId)) return false;
             if (cost == null || cost.policy == AbilityCostPolicy.None) return true;
             string resourceId = cost.resourceType.ToString();
             if (!_resources.TryGet(resourceId, out float current, out _))
                 return false;
 
-            float required = GetRequiredCost(cost);
+            float required = GetRequiredCost(cost, abilityId);
             return _abilitySystem.TryApplyResourceCost(
                 cost.resourceType, required, abilityHandle);
         }
 
-        private float GetRequiredCost(AbilityCostDefinition cost)
+        private float GetRequiredCost(AbilityCostDefinition cost, string abilityId)
         {
             if (cost == null || cost.policy == AbilityCostPolicy.None) return 0f;
             float max = GetResourceMax(cost.resourceType);
-            return cost.policy switch
+            float required = cost.policy switch
             {
                 AbilityCostPolicy.Fixed => Mathf.Max(0f, cost.value),
                 AbilityCostPolicy.All => Mathf.Max(0f, GetResourceCurrent(cost.resourceType)),
                 AbilityCostPolicy.PercentOfMax => Mathf.Max(0f, max * cost.value),
                 _ => 0f,
             };
+            if (_owner is PlayerActor && Svc.Party != null)
+                required *= Svc.Party.GetAbilityScalar(
+                    Svc.Party.ActiveCharacterType,
+                    abilityId,
+                    AbilityScalarKind.Cost);
+            return Mathf.Max(0f, required);
         }
 
         private float GetResourceCurrent(AbilityResourceType type)
@@ -778,12 +835,17 @@ namespace UPlayGround.Gameplay.Ability
             PlayerSkillSlot? slot)
         {
             float duration = Mathf.Max(0f, definition?.cooldown?.durationSeconds ?? 0f);
-            if (_owner is not PlayerActor || !slot.HasValue)
+            if (_owner is not PlayerActor)
                 return duration;
 
-            float multiplier =
-                Svc.Passives?.GetActiveSkillCooldownMultiplier(slot.Value) ?? 1f;
-            return duration * Mathf.Clamp(multiplier, 0.0001f, 1f);
+            float multiplier = slot.HasValue
+                ? Svc.Passives?.GetActiveSkillCooldownMultiplier(slot.Value) ?? 1f
+                : 1f;
+            multiplier *= Svc.Party?.GetAbilityScalar(
+                Svc.Party.ActiveCharacterType,
+                definition.abilityId,
+                AbilityScalarKind.Cooldown) ?? 1f;
+            return duration * Mathf.Max(0.0001f, multiplier);
         }
 
         private float GetCooldownRemaining(string group)

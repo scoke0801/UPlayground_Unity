@@ -234,11 +234,16 @@ namespace UPlayGround.Manager
         CombatElement GetCombatElement(CharacterActorType type);
         GameplayAbilitySO GetElementalImbueAbility(CharacterActorType type);
         IReadOnlyDictionary<AttributeId, int> GetGrowthInvestments(CharacterActorType type);
+        IReadOnlyList<SkillStatModifierEntry> GetSkillStatModifiers(CharacterActorType type);
+        float GetAbilityScalar(CharacterActorType type, string abilityId, AbilityScalarKind kind);
+        bool IsAbilityUnlocked(CharacterActorType type, string abilityId);
+        void SetSkillTreeAccessAllowed(bool allowed);
     }
 
     public interface IPassiveModifierReader : IGameService
     {
         CharacterPassiveSetSO GetPassiveSet(CharacterActorType type);
+        IReadOnlyList<PassiveAbilitySO> GetGrantedPassives(CharacterActorType type);
         float GetActiveMultiplier(PassiveModifierType type);
         float GetActiveSkillCooldownMultiplier(PlayerSkillSlot slot);
         float GetCharacterMultiplier(

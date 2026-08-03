@@ -13,6 +13,7 @@ namespace UPlayGround.Gameplay.Passive
     {
         private PlayerActor _owner;
         private CharacterPassiveSetSO _currentSet;
+        private System.Collections.Generic.IReadOnlyList<PassiveAbilitySO> _grantedPassives;
 
         private void Awake()
         {
@@ -24,34 +25,47 @@ namespace UPlayGround.Gameplay.Passive
         public void RefreshForCharacter(CharacterActorType characterType)
         {
             _currentSet = Svc.Passives?.GetPassiveSet(characterType);
+            _grantedPassives = Svc.Passives?.GetGrantedPassives(characterType);
         }
 
         private void OnPassiveActivationSucceeded(PassiveActivationType activationType)
         {
-            if (_currentSet?.passives == null || _owner?.Effects == null)
+            if (_owner?.Effects == null)
                 return;
 
-            for (int i = 0; i < _currentSet.passives.Count; i++)
-            {
-                PassiveAbilitySO passive = _currentSet.passives[i];
-                if (passive == null
-                    || passive.activationType != activationType
-                    || passive.triggeredEffects == null)
-                {
-                    continue;
-                }
+            var seen = new System.Collections.Generic.HashSet<PassiveAbilitySO>();
+            if (_currentSet?.passives != null)
+                for (int i = 0; i < _currentSet.passives.Count; i++)
+                    if (_currentSet.passives[i] != null
+                        && seen.Add(_currentSet.passives[i]))
+                        ApplyTriggeredPassive(_currentSet.passives[i], activationType);
 
-                for (int j = 0; j < passive.triggeredEffects.Count; j++)
+            if (_grantedPassives == null)
+                return;
+            for (int i = 0; i < _grantedPassives.Count; i++)
+                if (_grantedPassives[i] != null
+                    && seen.Add(_grantedPassives[i]))
+                    ApplyTriggeredPassive(_grantedPassives[i], activationType);
+        }
+
+        private void ApplyTriggeredPassive(
+            PassiveAbilitySO passive,
+            PassiveActivationType activationType)
+        {
+            if (passive == null
+                || passive.activationType != activationType
+                || passive.triggeredEffects == null)
+                return;
+            for (int j = 0; j < passive.triggeredEffects.Count; j++)
+            {
+                GameplayEffectSO effect = passive.triggeredEffects[j];
+                if (effect != null)
                 {
-                    GameplayEffectSO effect = passive.triggeredEffects[j];
-                    if (effect != null)
-                    {
-                        _owner.Effects.ApplyEffect(
-                            effect,
-                            _owner,
-                            new GameplayEffectApplicationOptions(
-                                passive.triggeredEffectHudVisibility));
-                    }
+                    _owner.Effects.ApplyEffect(
+                        effect,
+                        _owner,
+                        new GameplayEffectApplicationOptions(
+                            passive.triggeredEffectHudVisibility));
                 }
             }
         }

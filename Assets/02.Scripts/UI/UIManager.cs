@@ -13,6 +13,7 @@ using UPlayGround.Data.Actor;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Party;
 using UPlayGround.Data.UI;
 using UPlayGround.InputDefine;
 using UPlayGround.UI;
@@ -707,7 +708,31 @@ namespace UPlayGround.Manager
             GetUI<UI_InteractionHPBoard>(UIKeyType.InteractionHPBoard)?.BoardFill(current, max);
         }
 
-        public void ShowRestGrowth() => ShowUI("RestGrowth", CanvasLayer.Popup);
+        public void ShowRestGrowth()
+        {
+            CharacterActorType activeType =
+                UISvc.Party?.ActiveCharacterType ?? CharacterActorType.None;
+            CharacterSkillTreeSO authoredTree = UISvc.Party?.GetSkillTree(activeType);
+            if (authoredTree?.nodes == null || authoredTree.nodes.Count == 0)
+            {
+                ShowUI("RestGrowth", CanvasLayer.Popup);
+                return;
+            }
+            GameObject instance = ShowUI(UI_SkillTree.UIKey, CanvasLayer.Popup);
+            UI_SkillTree tree = instance != null ? instance.GetComponent<UI_SkillTree>() : null;
+            if (tree != null)
+            {
+                tree.Configure(activeType, true);
+                return;
+            }
+            ShowUI("RestGrowth", CanvasLayer.Popup);
+        }
+
+        public void ShowSkillTree(CharacterActorType type, bool allowChanges = false)
+        {
+            GameObject instance = ShowUI(UI_SkillTree.UIKey, CanvasLayer.Popup);
+            instance?.GetComponent<UI_SkillTree>()?.Configure(type, allowChanges);
+        }
 
         public void ShowRespawn(System.Action<float> onSpotRevive, System.Action onPortalRevive)
         {

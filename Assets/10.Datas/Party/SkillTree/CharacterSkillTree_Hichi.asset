@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8020801c51a4a5aa58d9cf7f5c10101, type: 3}
+  m_Name: CharacterSkillTree_Hichi
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Party.CharacterSkillTreeSO
+  characterType: 8
+  nodes:
+  - nodeId: Stat.Vital.MaxHealth
+    displayNameKey: "\uCD5C\uB300 \uCCB4\uB825"
+    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
+      \uC0DD\uC131\uB41C \uCD08\uC548"
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 0, y: 0}
+    effects:
+    - rid: 6689042862340833452
+  - nodeId: Stat.Combat.Defense
+    displayNameKey: "\uBC29\uC5B4\uB825"
+    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
+      \uC0DD\uC131\uB41C \uCD08\uC548"
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 240, y: 0}
+    effects:
+    - rid: 6689042862340833453
+  - nodeId: Stat.Combat.CritRate
+    displayNameKey: "\uCE58\uBA85\uD0C0 \uD655\uB960"
+    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
+      \uC0DD\uC131\uB41C \uCD08\uC548"
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 480, y: 0}
+    effects:
+    - rid: 6689042862340833454
+  - nodeId: Stat.Combat.AttackSpeed
+    displayNameKey: "\uACF5\uACA9 \uC18D\uB3C4"
+    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
+      \uC0DD\uC131\uB41C \uCD08\uC548"
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 720, y: 0}
+    effects:
+    - rid: 6689042862340833455
+  - nodeId: Stat.Combat.AttackPower
+    displayNameKey: "\uACF5\uACA9\uB825"
+    descriptionKey: "\uAE30\uC874 \uACE0\uC815 \uC2A4\uD0EF \uD22C\uC790\uC5D0\uC11C
+      \uC0DD\uC131\uB41C \uCD08\uC548"
+    icon: {fileID: 0}
+    cost: 1
+    maxRank: 20
+    requiredNodeIds: []
+    requiredLevel: 0
+    layoutPosition: {x: 960, y: 0}
+    effects:
+    - rid: 6689042862340833456
+  references:
+    version: 2
+    RefIds:
+    - rid: 6689042862340833452
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Vital.MaxHealth
+        operation: 0
+        valuePerRank: 20
+    - rid: 6689042862340833453
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.Defense
+        operation: 0
+        valuePerRank: 0.02
+    - rid: 6689042862340833454
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.CritRate
+        operation: 0
+        valuePerRank: 0.01
+    - rid: 6689042862340833455
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackSpeed
+        operation: 0
+        valuePerRank: 0.03
+    - rid: 6689042862340833456
+      type: {class: StatDeltaEffect, ns: UPlayGround.Data.Party, asm: UPlayGround.Data}
+      data:
+        attributeId: Combat.AttackPower
+        operation: 0
+        valuePerRank: 0.05

@@ -175,6 +175,12 @@ namespace UPlayGround.Data.Party
         [Tooltip("캐릭터별 레벨 성장 데이터. 누락된 캐릭터는 기본 스탯 기준으로 전투력을 계산한다.")]
         public List<PartyMemberGrowthSO> growthData = new();
 
+        [Tooltip("캐릭터별 고정 스킬 트리. 런/새 게임 시드와 무관한 영구 성장 데이터입니다.")]
+        public List<CharacterSkillTreeSO> characterSkillTrees = new();
+
+        [Tooltip("레벨에 따른 스킬 포인트 누적 지급 규칙. 저장 복원 시 이 누적 함수로 소급 정산합니다.")]
+        public SkillPointRule skillPointRule = new();
+
         [Header("Elemental Imbue Ability")]
         [Tooltip("플레이어 캐릭터의 전투 속성별 공통 속성 부여 어빌리티.")]
         public List<ElementalImbueAbilityEntry> elementalImbueAbilities = new();

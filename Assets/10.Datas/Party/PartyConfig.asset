@@ -69,6 +69,22 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a4d18acdd71dc1b44bad4e5a08c3b6e2, type: 2}
   - {fileID: 11400000, guid: 7bd5c0c147c228949af790b02195f614, type: 2}
   - {fileID: 11400000, guid: b532f3b33a09cb64397526c8a37c6bad, type: 2}
+  characterSkillTrees:
+  - {fileID: 11400000, guid: ddffbc7fa93f12442ad9e4e607efbcff, type: 2}
+  - {fileID: 11400000, guid: 0aa4d725240ea624c93ba5b987252afb, type: 2}
+  - {fileID: 11400000, guid: 337d1b15583665541bc730dad20403d3, type: 2}
+  - {fileID: 11400000, guid: 09d2caeeb940b984c89f776ace8b7505, type: 2}
+  - {fileID: 11400000, guid: e7a36f07cefa8e346b6e0e278c212643, type: 2}
+  - {fileID: 11400000, guid: 518d060f239b00d45906197e078c4133, type: 2}
+  - {fileID: 11400000, guid: f60de817c374e9d43b17bf1532fd8f00, type: 2}
+  - {fileID: 11400000, guid: 6470092de0310ae48ac7f555100e37d9, type: 2}
+  - {fileID: 11400000, guid: 8f899cc2a93ba8142aa21e4e1e1f48ef, type: 2}
+  - {fileID: 11400000, guid: c17b7df75ea7c494cb78b1804914c60b, type: 2}
+  - {fileID: 11400000, guid: cf5ea2cb219538e4894bd2c6e39441c4, type: 2}
+  skillPointRule:
+    perLevel: 1
+    milestoneInterval: 5
+    milestoneBonus: 1
   elementalImbueAbilities:
   - element: 1
     ability: {fileID: 11400000, guid: a1111111111141118111111111111111, type: 2}

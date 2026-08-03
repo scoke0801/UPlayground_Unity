@@ -20,7 +20,7 @@ namespace UPlayGround.Data.Party
             Dictionary<AttributeId, float> stats =
                 PartyPowerCalculator.CalculateGrowthStats(
                     growthData, level, investments);
-            ApplyEquipmentStats(type, growthData, stats);
+            ApplyEffectiveModifiers(type, growthData, stats);
             return stats;
         }
 
@@ -33,7 +33,7 @@ namespace UPlayGround.Data.Party
             return Calculate(type, party.GetGrowthData(type), party.GetLevel(type), party.GetGrowthInvestments(type));
         }
 
-        private static void ApplyEquipmentStats(
+        private static void ApplyEffectiveModifiers(
             CharacterActorType type,
             PartyMemberGrowthSO growthData,
             Dictionary<AttributeId, float> stats)
@@ -41,27 +41,37 @@ namespace UPlayGround.Data.Party
             if (type == CharacterActorType.None || stats == null)
                 return;
 
-            IInventoryService inventory = Svc.Inventory;
-            if (inventory == null)
-                return;
-
             List<AttributeModifierValue> modifiers = new();
-            IReadOnlyList<ItemInstance> equipment = inventory.GetEquippedItemInstances(type);
-            for (int i = 0; i < equipment.Count; i++)
+            IInventoryService inventory = Svc.Inventory;
+            if (inventory != null)
             {
-                ItemInstance instance = equipment[i];
-                if (instance?.data is not EquipmentSO equipmentData)
-                    continue;
+                IReadOnlyList<ItemInstance> equipment =
+                    inventory.GetEquippedItemInstances(type);
+                for (int i = 0; i < equipment.Count; i++)
+                {
+                    ItemInstance instance = equipment[i];
+                    if (instance?.data is not EquipmentSO equipmentData)
+                        continue;
 
-                equipmentData.AddAttributeModifiersTo(modifiers);
-                AddRandomGrowthModifiers(growthData, instance, modifiers);
+                    equipmentData.AddAttributeModifiersTo(modifiers);
+                    AddRandomGrowthModifiers(growthData, instance, modifiers);
+                }
             }
 
+            IReadOnlyList<SkillStatModifierEntry> skillModifiers =
+                Svc.Party?.GetSkillStatModifiers(type);
+            if (skillModifiers != null)
+                for (int i = 0; i < skillModifiers.Count; i++)
+                    modifiers.Add(skillModifiers[i].ToRuntimeValue());
+
+            // 런타임 AttributeSet은 출처와 무관하게 같은 Attribute의 Add/Percent를 합산하고
+            // Multiply를 곱한 뒤 한 번에 계산한다. 장비와 스킬 트리를 따로 계산하면
+            // Percent가 복리 적용되어 전투력/벤치 최대 체력이 실제 런타임과 달라진다.
             foreach (AttributeId attributeId in UPlayGroundAttributeDefaults.All)
                 stats[attributeId] = ComputeFinal(
                     stats.TryGetValue(attributeId, out float baseValue)
-                    ? baseValue
-                    : UPlayGroundAttributeDefaults.Get(attributeId),
+                        ? baseValue
+                        : UPlayGroundAttributeDefaults.Get(attributeId),
                     attributeId,
                     modifiers);
         }
@@ -103,6 +113,8 @@ namespace UPlayGround.Data.Party
             float flat = 0f;
             float percent = 0f;
             float multiply = 1f;
+            bool hasOverride = false;
+            float overrideValue = 0f;
             for (int i = 0; i < modifiers.Count; i++)
             {
                 AttributeModifierValue modifier = modifiers[i];
@@ -121,12 +133,18 @@ namespace UPlayGround.Data.Party
                         multiply *= modifier.Value;
                         break;
                     case AttributeModifierOperation.Override:
-                        baseValue = modifier.Value;
+                        // AttributeSetRuntime과 동일하게 Override가 있으면 다른 연산을 무시한다.
+                        // AttributeModifierValue에는 우선순위 정보가 없으므로 런타임 적용 순서와
+                        // 같은 목록의 마지막 값을 승자로 사용한다.
+                        hasOverride = true;
+                        overrideValue = modifier.Value;
                         break;
                 }
             }
 
-            return (baseValue + flat) * (1f + percent) * multiply;
+            return hasOverride
+                ? overrideValue
+                : (baseValue + flat) * (1f + percent) * multiply;
         }
 
         private static Dictionary<AttributeId, float> BuildDefaultStats()

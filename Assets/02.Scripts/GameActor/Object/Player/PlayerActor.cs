@@ -59,6 +59,8 @@ namespace UPlayGround
             _characterAbilitySystemMap = new();
         private readonly List<AttributeModifierValue> _equipmentStatBuffer = new();
         private ActiveGameplayEffectHandle _equipmentStatEffectHandle;
+        private readonly List<AttributeModifierValue> _skillTreeStatBuffer = new();
+        private ActiveGameplayEffectHandle _skillTreeStatEffectHandle;
         private bool _hasInitializedCharacterRuntime;
 
         [SerializeField] private PlayerEquipment  _equipment;

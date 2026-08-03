@@ -7,6 +7,7 @@ using UPlayGround;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.Party;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 
@@ -37,6 +38,7 @@ namespace UPlayGround.UI
         [SerializeField] private Button _autoOrganizationButton;
         [SerializeField] private Button _disbandBattleButton;   // 출전 해제 (선택 캐릭터 제외)
         [SerializeField] private Button _disbandPartyButton;     // 파티 해제 (리더만 남김)
+        [SerializeField] private Button _skillTreeButton;        // 선택 캐릭터 스킬 트리
         [SerializeField] private Button _closeButton;            // 닫기 (저장 안 함)
 
         [Header("텍스트")]
@@ -68,6 +70,7 @@ namespace UPlayGround.UI
         {
             base.OnInit();
             ConfigureMainPageShortcut(UIKeyType.Party);
+            EnsureSkillTreeButton();
 
             foreach (var battleEntry in _partyBattleEntries)
                 battleEntry.OnSelectRequested += OnBattleEntrySelected;
@@ -76,6 +79,7 @@ namespace UPlayGround.UI
             _autoOrganizationButton?.onClick.AddListener(OnAutoOrganizationClicked);
             _disbandBattleButton?.onClick.AddListener(OnDisbandBattleClicked);
             _disbandPartyButton?.onClick.AddListener(OnDisbandPartyClicked);
+            _skillTreeButton?.onClick.AddListener(OnSkillTreeClicked);
             _closeButton?.onClick.AddListener(Hide);
         }
 
@@ -156,6 +160,7 @@ namespace UPlayGround.UI
 
             foreach (var battleEntry in _partyBattleEntries)
                 battleEntry.OnSelectRequested -= OnBattleEntrySelected;
+            _skillTreeButton?.onClick.RemoveListener(OnSkillTreeClicked);
         }
 
         public override bool PerformBackFunction()
@@ -201,6 +206,27 @@ namespace UPlayGround.UI
             }
 
             Refresh();
+        }
+
+        private void OnSkillTreeClicked()
+        {
+            if (_selectedType == CharacterActorType.None) return;
+            GameObject instance = UISvc.UI?.ShowUI(UI_SkillTree.UIKey, CanvasLayer.Popup);
+            instance?.GetComponent<UI_SkillTree>()?.Configure(_selectedType, false);
+        }
+
+        private void EnsureSkillTreeButton()
+        {
+            if (_skillTreeButton != null || _saveButton == null) return;
+            GameObject clone = Instantiate(
+                _saveButton.gameObject,
+                _saveButton.transform.parent);
+            clone.name = "SkillTreeButton_Runtime";
+            _skillTreeButton = clone.GetComponent<Button>();
+            _skillTreeButton.onClick.RemoveAllListeners();
+            TextMeshProUGUI label = clone.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (label != null) label.text = "스킬 트리";
+            clone.transform.SetSiblingIndex(_saveButton.transform.GetSiblingIndex());
         }
 
         private void OnEntryFocused(CharacterActorType type)
@@ -323,6 +349,7 @@ namespace UPlayGround.UI
                 _autoOrganizationButton,
                 _disbandBattleButton,
                 _disbandPartyButton,
+                _skillTreeButton,
                 _saveButton,
                 _closeButton
             };
@@ -389,6 +416,16 @@ namespace UPlayGround.UI
                 _detailPanel.Clear();
             else
                 _detailPanel.Show(_selectedType);
+
+            if (_skillTreeButton != null)
+            {
+                CharacterSkillTreeSO tree = PartyMgr?.GetSkillTree(_selectedType);
+                int points = PartyMgr?.GetAvailableSkillPoints(_selectedType) ?? 0;
+                _skillTreeButton.interactable = tree?.nodes != null && tree.nodes.Count > 0;
+                TextMeshProUGUI label = _skillTreeButton.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (label != null)
+                    label.text = points > 0 ? $"스킬 트리  !{points}" : "스킬 트리";
+            }
         }
 
         private void RefreshBattleEntries()

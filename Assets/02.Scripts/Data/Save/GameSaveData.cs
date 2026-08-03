@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Item;
+using UPlayGround.Data.Party;
 
 namespace UPlayGround.Data.Save
 {
@@ -140,8 +141,12 @@ namespace UPlayGround.Data.Save
         public List<string> battleOrder = new List<string>();
         public int activeIndex;
 
-        /// <summary>컨텐츠 해금 조건을 새 게임 단위로 결정하는 저장 시드(0=미발급).</summary>
+        /// <summary>구버전 랜덤 해금 세이브 호환 필드. 신규 스킬 트리는 이 값을 사용하지 않는다.</summary>
         public int contentUnlockSeed;
+
+        /// <summary>사이클 정산/전멸과 무관하게 유지되는 캐릭터별 고정 스킬 트리 진행도.</summary>
+        public List<CharacterSkillProgressState> skillProgress =
+            new List<CharacterSkillProgressState>();
 
         /// <summary> 캐릭터별 Attribute·쿨다운·지속 Effect ASC 스냅샷. </summary>
         public List<CharacterAbilitySystemSaveEntry> abilitySystems =

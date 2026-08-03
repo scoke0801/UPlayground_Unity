@@ -74,6 +74,11 @@ namespace UPlayGround
                 AbilitySystem.RemoveEffect(_equipmentStatEffectHandle);
                 _equipmentStatEffectHandle = default;
             }
+            if (_skillTreeStatEffectHandle.IsValid)
+            {
+                AbilitySystem.RemoveEffect(_skillTreeStatEffectHandle);
+                _skillTreeStatEffectHandle = default;
+            }
 
             _characterActorType = data.characterType;
             SetCharacterBaseElement(
@@ -87,6 +92,7 @@ namespace UPlayGround
             // 성장 스탯 적용 후 장비 스탯까지 먼저 반영한다.
             // 체력 복원은 최종 MaxHealth 기준으로 처리해야 교체 시 장비 체력 보너스가 비율을 왜곡하지 않는다.
             ApplyCharacterStats(data);
+            ApplySkillTreeStatsForActiveCharacter(preserveHealthRatio: false);
             _animator            = GetComponentInChildren<ActorAnimator>();
             
             _playerActorAnimator = _animator as PlayerActorAnimator;
@@ -259,6 +265,83 @@ namespace UPlayGround
                     : Mathf.Clamp(newMaxHealth * oldRatio, 0f, newMaxHealth);
                 OnHpChanged?.Invoke(_currentHealth, _maxHealth);
             }
+        }
+
+        public void ApplySkillTreeStatsForActiveCharacter(bool preserveHealthRatio = true)
+        {
+            if (AbilitySystem == null || _characterActorType == CharacterActorType.None)
+                return;
+
+            float oldMax = Mathf.Max(1f, _maxHealth);
+            float oldCurrent = Mathf.Clamp(_currentHealth, 0f, oldMax);
+            bool wasFull = oldCurrent >= oldMax - 0.01f;
+            float oldRatio = oldCurrent / oldMax;
+
+            if (_skillTreeStatEffectHandle.IsValid)
+                AbilitySystem.RemoveEffect(_skillTreeStatEffectHandle);
+            _skillTreeStatBuffer.Clear();
+
+            IReadOnlyList<UPlayGround.Data.Party.SkillStatModifierEntry> modifiers =
+                Svc.Party?.GetSkillStatModifiers(_characterActorType);
+            if (modifiers != null)
+                for (int i = 0; i < modifiers.Count; i++)
+                    _skillTreeStatBuffer.Add(modifiers[i].ToRuntimeValue());
+
+            _skillTreeStatEffectHandle = AbilitySystem.ApplyAttributeEffect(
+                $"SkillTree.{_characterActorType}",
+                _skillTreeStatBuffer);
+
+            if (!preserveHealthRatio)
+                return;
+            float newMax = Mathf.Max(1f, AbilitySystem.Attributes.GetCurrent(
+                global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth));
+            _currentHealth = wasFull
+                ? newMax
+                : Mathf.Clamp(newMax * oldRatio, 0f, newMax);
+            OnHpChanged?.Invoke(_currentHealth, _maxHealth);
+        }
+
+        public void RefreshSkillTreeStatsForCharacter(CharacterActorType type)
+        {
+            RefreshSkillTreeStatsForCharacter(type, null, null);
+        }
+
+        public void RefreshSkillTreeStatsForCharacter(
+            CharacterActorType type,
+            float? previousCurrentHealth,
+            float? previousMaxHealth)
+        {
+            if (type == CharacterActorType.None)
+                return;
+            if (type == _characterActorType)
+            {
+                ApplySkillTreeStatsForActiveCharacter();
+                _passiveAbilities?.RefreshForCharacter(type);
+                return;
+            }
+
+            if (!TryGetStoredAttribute(
+                    type,
+                    global::UPlayGround.Data.Stat.Attributes.Vital.Health,
+                    out float currentHealth))
+                return;
+
+            float oldMax = Mathf.Max(
+                1f,
+                previousMaxHealth ?? GetMaxHealthForCharacter(type));
+            float oldCurrent = Mathf.Clamp(
+                previousCurrentHealth ?? currentHealth,
+                0f,
+                oldMax);
+            bool wasFull = oldCurrent >= oldMax - 0.01f;
+            float oldRatio = oldCurrent / oldMax;
+            float newMax = GetMaxHealthForCharacter(type);
+            SetStoredAttribute(
+                type,
+                global::UPlayGround.Data.Stat.Attributes.Vital.Health,
+                wasFull
+                    ? newMax
+                    : Mathf.Clamp(newMax * oldRatio, 0f, newMax));
         }
 
         public void RefreshEquipmentStatsForCharacter(

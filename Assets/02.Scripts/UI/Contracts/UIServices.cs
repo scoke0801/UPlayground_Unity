@@ -33,6 +33,7 @@ namespace UPlayGround.UI
         event Action<CharacterActorType, int> OnLevelUp;
         event Action<CharacterActorType, int> OnGrowthPointsChanged;
         event Action<CharacterActorType, GrowthUnlockMilestone> OnGrowthUnlock;
+        event Action<CharacterActorType> OnSkillProgressChanged;
         event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
         event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
         event Action OnPartyHealthRefreshed;
@@ -60,6 +61,14 @@ namespace UPlayGround.UI
         long GetPartyCombatPower(IReadOnlyList<CharacterActorType> order = null);
         float GetSwapCooldownRemaining(CharacterActorType type);
         bool TryInvestGrowthPoint(CharacterActorType type, AttributeId attribute);
+        CharacterSkillTreeSO GetSkillTree(CharacterActorType type);
+        int GetAvailableSkillPoints(CharacterActorType type);
+        int GetSkillNodeRank(CharacterActorType type, string nodeId);
+        bool CanTakeSkillNode(CharacterActorType type, string nodeId, out SkillNodeBlockReason reason);
+        bool CanPreviewSkillNode(CharacterActorType type, string nodeId, out SkillNodeBlockReason reason);
+        bool TryTakeSkillNode(CharacterActorType type, string nodeId);
+        bool TryRespecSkillTree(CharacterActorType type);
+        void SetSkillTreeAccessAllowed(bool allowed);
         bool CanSwapTo(int targetIndex);
         bool RequestSwapTo(int targetIndex);
         bool AddToBattle(CharacterActorType type);

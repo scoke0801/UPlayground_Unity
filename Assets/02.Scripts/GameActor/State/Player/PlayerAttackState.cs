@@ -44,10 +44,16 @@ namespace UPlayGround.State
                  PlayerInterruptAction.HeavyAttack |
                  PlayerInterruptAction.Skill);
 
-            // 공격 중 재진입은 같은 입력 타입만 허용한다.
-            // 다른 타입 입력은 소비하지 않고 남겨 모션 완료/정식 콤보 창에서 처리한다.
-            return requestedType != PlayerInterruptAction.None
-                   && requestedType == currentAttack.GetCurrentAttackInputType();
+            if (requestedType == PlayerInterruptAction.None)
+                return false;
+
+            // 모션 재생 중 기본 약/강공격 재진입은 금지한다. 기본 연계는
+            // ComboWindow만 소유하며, 재진입은 isCombo=false로 1타를 재시작한다.
+            // 저작된 스킬 캔슬과 MotionSet 완료 경계의 새 체인 진입만 허용한다.
+            if (currentAttack.gameActor.Animator.IsPlayingMotionSet)
+                return (requestedType & PlayerInterruptAction.Skill) != 0;
+
+            return true;
         }
 
         // 후딜(리커버리) 꼬리 구간에선 Combat에 Recovery를 합성해 적 AI가 Punish 기회로 인식하게 한다.
@@ -63,6 +69,8 @@ namespace UPlayGround.State
 
         private bool _comboInputted;
         private bool _comboContinuesSameType;
+        private bool _hasPendingAttack;
+        private bool _pendingAttackIsHeavy;
         // 현재 공격 모션에서 액티브 히트(콜리전)가 최소 1회 발생했는지. 이동 후딜 캔슬 게이트에 사용.
         // 단일 페이즈 공격은 윈드업에도 CurrentHitPhaseIndex == LastHitPhaseIndex == 0 이라
         // 페이즈 비교만으로는 윈드업을 못 거른다 → 히트 1회 발생 여부를 함께 본다.
@@ -77,6 +85,7 @@ namespace UPlayGround.State
         private bool _isEntryAttack;
         private bool _isSwapSpecialAttack;
         private readonly PlayerInterruptAction _forcedAttackAction;
+        private bool _hasConsumedForcedAttackAction;
         private AbilityExecutionHandle _abilityExecutionHandle;
 
         private PlayerActorAnimator _playerActorAnimator;
@@ -397,7 +406,10 @@ namespace UPlayGround.State
             }
             else if ((_forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
             {
-                _isHeavyAttack = Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack) != null;
+                // forced action은 직전 AttackState가 완료 경계에서 이미 후보를 확정한 값이다.
+                // 버퍼 소비 결과로 타입을 다시 뒤집으면, 로컬에서 인계된 강공격이 약공격으로 변질된다.
+                Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
+                _isHeavyAttack = true;
             }
 
             bool shouldResetCombo = !_isCounter
@@ -407,8 +419,8 @@ namespace UPlayGround.State
                                     && !_isSwapSpecialAttack
                                     && !_combat.CanUseStoredCombo(_isHeavyAttack);
             if (shouldResetCombo)
-                // 공격 상태 재진입(크로스타입 캔슬 포함)은 진짜 콤보 종료가 아니므로 약/강 체인 분기 메모리는 보존한다.
-                // (진입 체인은 ExecuteAttack/ExecuteHeavyAttack이 isCombo=false → index 0으로 알아서 시작)
+                // 진입 입력 하나는 위 중재기에서 이미 소비했다. 같은 프레임에 들어온 다음 연타까지
+                // 지우지 않으면서, 공격 상태 재진입의 약/강 체인 분기 메모리는 보존한다.
                 _combat.ResetComboPreserveChains();
             _attackTimer = 0f;
             _hasActiveHitFired = false;
@@ -427,7 +439,7 @@ namespace UPlayGround.State
             }
 
             var animKey   = GetMotion();
-            var animState = PlayCurrentAttackMotion(animKey, 0.25f);
+            var animState = PlayCurrentAttackMotion(animKey, GetAttackBlendDuration(animKey));
             if (_isParryCounter)
                 Debug.Log($"[ParryCounter] PlayMotion({animKey}) → {(animState != null ? "성공" : "실패(모션셋 없음)")}");
 
@@ -451,9 +463,6 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            // 상태를 빠져나갈 때 만료 정지를 반드시 해제(콜리전 ON 도중 전환되어도 버퍼가 멈춘 채 남지 않도록).
-            Svc.Input.InputBuffer.SetExpiryPaused(false);
-
             gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Attack);
 
             // 공격 종료 시 열린 채 남은 캔슬 윈도우 정리(다음 상태로 누수 방지).
@@ -472,7 +481,10 @@ namespace UPlayGround.State
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
             if (_abilityExecutionHandle.IsValid)
             {
-                playerActor.Abilities?.CancelActivePlayerAbility();
+                // 이 AttackState가 시작한 실행만 종료한다. Ultimate처럼 새 Ability가
+                // 이미 primary가 된 뒤 공격 상태가 빠져나갈 수 있으므로, "현재 활성"
+                // Ability를 취소하면 새 Ultimate를 잘못 종료하게 된다.
+                playerActor.Abilities?.EndAbility(_abilityExecutionHandle, false);
                 _abilityExecutionHandle = default;
             }
             base.OnExit(toState);
@@ -480,6 +492,15 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            // MotionSet은 완료 처리에서 먼저 재생 상태를 내린 뒤 완료 이벤트를 보낸다.
+            // 다른 완료 구독자의 예외나 외부 중단으로 ChangeToNextState 콜백이 누락되더라도
+            // 다음 프레임 Attack 상태에 영구 잔류하지 않도록 상태 측에서 종료를 보증한다.
+            if (!gameActor.Animator.IsPlayingMotionSet)
+            {
+                ChangeToNextState();
+                return;
+            }
+
             _attackTimer += deltaTime * GetAttackSpeed();
 
             // 이번 공격 모션에서 액티브 히트가 한 번이라도 열렸는지 기록(이동 후딜 캔슬 게이트용).
@@ -489,39 +510,64 @@ namespace UPlayGround.State
                 _lastActiveHitEndTime = _attackTimer;
             _wasActiveHit = _combat.IsPossibleCollide;
 
-            // 선입력 보존: 액티브 히트(캔슬 불가) 동안엔 입력 버퍼 만료를 정지해, 이 구간에 들어온
-            // 캔슬/콤보 선입력이 0.24s 만료로 유실되지 않게 한다. 캔슬창이 열리면(콜리전 OFF) 정지가
-            // 풀려 선입력이 살아있는 채로 아래 TryInterrupt/콤보 검사에 즉시 소비된다.
-            //
-            // 추가: 공격 중 피격 히트스톱(LocalTimeScale freeze)은 애니메이션(=콤보 윈도우)만 얼리고
-            // InputBuffer는 실시간(Time.time) 기준으로 계속 만료된다. 공격 상태는 하이퍼아머라 피격에도
-            // 유지되므로, 콜리전 OFF 구간(콤보 윈도우)에서 프리즈가 걸리면 선입력한 다음 콤보가 프리즈
-            // 도중 만료돼 씹힌다. 프리즈 동안에도 만료를 정지해 보존한다(재개 시 정지 시간만큼 타임스탬프 보정).
-            bool hitStopFrozen = gameActor.LocalTimeScale < 1f;
-            Svc.Input.InputBuffer.SetExpiryPaused(_combat.IsPossibleCollide || hitStopFrozen);
+            // 선입력은 전역 큐의 수명을 연장하지 않고 현재 공격의 단일 대기 슬롯으로 즉시 이관한다.
+            CapturePendingAttackIntent();
 
             // 인터럽트(캔슬): 허용 액션·허용 구간을 ResolveCancelMask가 함께 산출한다.
-            // 활성 CancelWindowEvent가 있으면 그 구간 마스크(maskOverride 교집합 포함)를, 없으면
-            // 기존 폴백(콜리전 비활성 구간에서 전역 interruptActions)을 반환한다 → 무회귀.
-            // 콤보 검사보다 먼저 실행되어 둘 다 성립하면 캔슬이 우선한다.
-            // Dash가 입력만 소비하고 전환에 실패하면 false가 반환되어 아래 콤보 로직으로 fall-through 한다.
+            // 이동/방어계 캔슬은 콤보보다 우선하고, 약/강공격과 스킬은 아래의
+            // 콤보 처리 후에 평가해 하나의 입력이 두 전환 경로에서 중복 소비되지 않게 한다.
             // allowGuardCancel: 가드(hold) 캔슬은 액티브 히트가 한 번이라도 발생한 뒤(리커버리/멀티히트 간격)에만
             // 허용한다. 초기 윈드업에서 가드를 쥔 채 시작하는 패리/카운터 반격이 곧바로 가드로 튕기는 걸 막는다.
             var cancelMask = _combat.ResolveCancelMask();
-            if (cancelMask != PlayerInterruptAction.None
-                && PlayerInterruptResolver.TryInterrupt(playerController, cancelMask,
+            const PlayerInterruptAction controlCancelMask =
+                PlayerInterruptAction.Dodge
+                | PlayerInterruptAction.Jump
+                | PlayerInterruptAction.Dash
+                | PlayerInterruptAction.Guard;
+            PlayerInterruptAction allowedControlCancels = cancelMask & controlCancelMask;
+            if (allowedControlCancels != PlayerInterruptAction.None
+                && PlayerInterruptResolver.TryInterrupt(playerController, allowedControlCancels,
                     allowGuardCancel: _hasActiveHitFired))
                 return;
 
             if (_combat.CanCombo)
             {
-                // 약/강이 둘 다 버퍼에 있으면 더 최근 입력을 콤보 타입으로 채택한다.
-                if (PlayerAttackInputArbiter.TryConsumeAttackInput(out bool comboIsHeavy))
+                if (!_comboInputted && _hasPendingAttack)
                 {
-                    _comboInputted = true;
-                    _comboContinuesSameType = comboIsHeavy == _isHeavyAttack;
-                    _isHeavyAttack = comboIsHeavy;
-                    _combat.CloseComboWindow();
+                    bool continuesSameType = _pendingAttackIsHeavy == _isHeavyAttack;
+                    bool hasNextComboHit = !continuesSameType
+                                           || _combat.CanContinueStoredCombo(_isHeavyAttack);
+
+                    if (hasNextComboHit)
+                    {
+                        _comboInputted = true;
+                        _comboContinuesSameType = continuesSameType;
+                        _isHeavyAttack = _pendingAttackIsHeavy;
+                        _hasPendingAttack = false;
+                        _combat.CloseComboWindow();
+                    }
+                    // 현재 타입의 막타라면 0번으로 즉시 래핑하지 않는다.
+                    // 입력은 로컬 슬롯에 그대로 두고 MotionSet 완료 경계에서 체인을
+                    // ResetCombo한 뒤 새 AttackState의 1타로 인계한다.
+                }
+            }
+
+            // 기본 약/강공격은 AttackState의 ComboWindow가 단일 소유한다.
+            // 공용 인터럽트가 먼저 소비하면 isCombo=false로 재진입해 매번 1타로 되감긴다.
+            // 콤보가 받지 못한 스킬 입력만 저작된 캔슬로 넘긴다.
+            // 기본 약/강공격은 ComboWindow 밖에서 AttackState를 재진입하지 않는다.
+            if (!_comboInputted)
+            {
+                const PlayerInterruptAction offensiveCancelMask =
+                    PlayerInterruptAction.Skill;
+                PlayerInterruptAction allowedOffensiveCancels = cancelMask & offensiveCancelMask;
+                if (allowedOffensiveCancels != PlayerInterruptAction.None
+                    && PlayerInterruptResolver.TryInterrupt(
+                        playerController,
+                        allowedOffensiveCancels,
+                        allowGuardCancel: false))
+                {
+                    return;
                 }
             }
 
@@ -549,6 +595,25 @@ namespace UPlayGround.State
             }
         }
 
+        /// <summary>
+        /// 전역 InputBuffer의 약/강 입력을 즉시 회수해 현재 공격이 소유하는
+        /// 단일 "다음 공격" 슬롯에 보관한다. ComboWindow를 기다리며 전역 버퍼의
+        /// 만료를 멈추지 않으므로 다른 액션의 수명을 연장하지 않는다.
+        /// </summary>
+        private void CapturePendingAttackIntent()
+        {
+            if (!PlayerAttackInputArbiter.TryConsumeAttackInput(out bool isHeavy))
+                return;
+
+            // 이미 다음 콤보가 확정된 후의 추가 연타는 소비만 하고 적재하지 않는다.
+            // 현재 타격 하나가 미래 타격 여러 개를 예약할 수 없게 하는 상한이다.
+            if (_comboInputted)
+                return;
+
+            _hasPendingAttack = true;
+            _pendingAttackIsHeavy = isHeavy;
+        }
+
         // 후딜 꼬리 진입 후 이 시간만큼 지속돼야 Recovery로 노출한다. 버퍼된 콤보는 이 시간 안에
         // 다음 공격으로 전환되므로, 캔슬창을 후딜로 오인해 적 Punish 빈도가 콤보마다 누적되는 것을 막는다.
         private const float RecoveryRevealDelay = 0.1f;
@@ -569,9 +634,15 @@ namespace UPlayGround.State
 
         private void ChangeToNextState()
         {
+            // 모션 완료 이벤트가 UpdateState보다 먼저 실행된 프레임의 입력도
+            // 전역 버퍼에 남기지 않고 로컬 슬롯으로 회수한다.
+            CapturePendingAttackIntent();
+
             if (_abilityExecutionHandle.IsValid)
             {
-                playerActor.Abilities?.EndActivePlayerAbility(true);
+                // 완료 시점에도 이 상태가 소유한 핸들만 닫는다. 상태 종료와 새 Ability
+                // 시작이 같은 프레임에 겹쳐도 새 primary 실행을 건드리지 않는다.
+                playerActor.Abilities?.EndAbility(_abilityExecutionHandle, true);
                 _abilityExecutionHandle = default;
             }
             _combat.ClearHitTargets();
@@ -580,16 +651,14 @@ namespace UPlayGround.State
             _lastActiveHitEndTime = -1f;
             _wasActiveHit = false;
 
-            // 강 입력이 승자일 때만 소비한다. 약이 승자면 아래 else 분기로 Idle/Move에 넘어가고
-            // 거기서 약 입력이 다시 평가되므로, 여기서 약을 소비하면 그 입력이 유실된다.
-            if (!_comboInputted)
-                _isHeavyAttack = PlayerAttackInputArbiter.TryConsumeHeavyIfPreferred();
-
-            if (_isHeavyAttack)
+            // 대기 중인 강 입력으로 피니시가 가능한 경우에만 여기서 소비한다.
+            // 피니시 대상이 없는데 미리 소비하면 새 강공 체인을 시작할 입력이 사라진다.
+            if (!_comboInputted && _hasPendingAttack && _pendingAttackIsHeavy)
             {
                 Transform finishTarget = _combat.FindFinishableTarget();
                 if (finishTarget != null)
                 {
+                    _hasPendingAttack = false;
                     controller.TransitionToState(new PlayerFinishAttackState(controller, finishTarget));
                     return;
                 }
@@ -630,9 +699,21 @@ namespace UPlayGround.State
 
                 gameActor.Animator.OnMotionSetCompleted -= ChangeToNextState;
                 MotionSetAsset animKey = GetMotion();
-                var animState = PlayCurrentAttackMotion(animKey, 0.25f);
-                if (animState != null)
-                    gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
+                // 콤보 간 0.25초 고정 블렌드는 짧은 공격에서 정지 프레임처럼 보인다.
+                // MotionSet에 저작된 내부 블렌드 시간을 연속 공격 전환에도 사용한다.
+                var animState = PlayCurrentAttackMotion(animKey, GetAttackBlendDuration(animKey));
+                if (animState == null)
+                {
+                    // Peek 이후 런타임 해석/재생이 실패해도 완료 콜백 없는 Attack 상태에
+                    // 영구 잔류하지 않도록 즉시 안전 상태로 복귀한다.
+                    _comboInputted = false;
+                    _combat.ResetCombo();
+                    controller.TransitionToState(
+                        playerController.HasMoveInput() ? ActorStateId.GroundMove : ActorStateId.Idle);
+                    return;
+                }
+
+                gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
                 _playerActorAnimator.IsOpenedComboWindow = false;
                 _combat.CloseComboWindow();
                 _comboInputted = false;
@@ -645,6 +726,14 @@ namespace UPlayGround.State
             else
             {
                 _combat.ResetCombo();
+
+                // 콤보 윈도우가 닫힌 뒤 들어온 입력과 막타에서 받은 다음 입력은 MotionSet 완료
+                // 경계에서 체인을 완전히 초기화한 다음 새 AttackState의 1타로 연결한다.
+                // 완주 체인을 같은 상태에서 0번으로 래핑하면 다음 콤보 창의 수명주기가 이전
+                // 시퀀스에 묶여, 이후 공격이 1타씩만 반복되는 문제가 생긴다.
+                if (TryRestartPendingAttackChain())
+                    return;
+
                 if (playerController.HasMoveInput())
                     controller.TransitionToState(ActorStateId.GroundMove);
                 else
@@ -652,8 +741,33 @@ namespace UPlayGround.State
             }
         }
 
+        private bool TryRestartPendingAttackChain()
+        {
+            if (!_hasPendingAttack)
+                return false;
+
+            PlayerInterruptAction action = _pendingAttackIsHeavy
+                ? PlayerInterruptAction.HeavyAttack
+                : PlayerInterruptAction.LightAttack;
+            _hasPendingAttack = false;
+            return TryEnter(playerController, action);
+        }
+
+        private static float GetAttackBlendDuration(MotionSetAsset motionAsset)
+        {
+            return motionAsset?.motionSet?.InternalBlendDuration ?? 0f;
+        }
+
         private MotionSetAsset GetMotion()
         {
+            // 강제 입력은 AttackState 진입을 확정한 최초 공격에만 적용한다.
+            // 막타 뒤 pending 입력으로 새 체인을 시작하면 같은 상태 인스턴스에서 후속 콤보도
+            // 재생되므로, 필드를 계속 참조하면 승인된 2타 이후에도 매번 1타(false)로 실행된다.
+            PlayerInterruptAction forcedAttackAction = _hasConsumedForcedAttackAction
+                ? PlayerInterruptAction.None
+                : _forcedAttackAction;
+            _hasConsumedForcedAttackAction = true;
+
             // 0순위: 패리 반격
             if (_isParryCounter)
             {
@@ -695,7 +809,7 @@ namespace UPlayGround.State
             //   여기서 pending 토큰을 트래커에 1회 push(기록)하고, 매칭 시 라우트를 실행한다.
             {
                 var routeAttack = ComboRouteRunner.TryExecuteRoute(playerActor, playerController, _combat,
-                    _isHeavyAttack, _forcedAttackAction, out var routeMotion);
+                    _isHeavyAttack, forcedAttackAction, out var routeMotion);
                 if (routeAttack != null)
                 {
                     _currentAttack = routeAttack;
@@ -703,21 +817,21 @@ namespace UPlayGround.State
                 }
             }
 
-            if ((_forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
+            if ((forcedAttackAction & PlayerInterruptAction.LightAttack) != 0)
             {
                 _currentAttack = _combat.ExecuteAttack(false);
                 return _currentAttack?.motionAsset ?? default;
             }
 
-            if ((_forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
+            if ((forcedAttackAction & PlayerInterruptAction.HeavyAttack) != 0)
             {
                 _currentAttack = _combat.ExecuteHeavyAttack(false);
                 return _currentAttack?.motionAsset ?? default;
             }
 
             // 1순위: 숫자 키 스킬
-            bool skillAllowed = _forcedAttackAction == PlayerInterruptAction.None
-                                || (_forcedAttackAction & PlayerInterruptAction.Skill) != 0;
+            bool skillAllowed = forcedAttackAction == PlayerInterruptAction.None
+                                || (forcedAttackAction & PlayerInterruptAction.Skill) != 0;
             for (int i = 0; skillAllowed && i < PlayerAbilityResourceView.SkillSlotCount; i++)
             {
                 if (!playerController.HasSkillInput(i)) continue;

@@ -127,7 +127,10 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack) != null)
+            // 공격 입력 소비는 PlayerAttackState.OnEnter의 중재기가 한 번만 담당한다.
+            // 여기서 먼저 소비하면 빠른 연타의 두 번째 입력까지 OnEnter에서 연달아 소비되어
+            // 콤보 선입력이 사라진다.
+            if (Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
             {
                 if (PlayerAttackState.TryEnter(playerController))
                     return;

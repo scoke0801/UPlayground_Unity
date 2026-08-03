@@ -42,7 +42,10 @@ namespace UPlayGround.State
         }
 
         private void PlayCrouchingAnimation()
-        { 
+        {
+            if (controller.CurrentState != this)
+                return;
+
             if (playerController.HasMoveInput())
             {
                 _isIdleAnim = false;
@@ -77,6 +80,9 @@ namespace UPlayGround.State
                     {
                         animState.OwnedEvents.OnEnd = () =>
                         {
+                            if (controller.CurrentState != this)
+                                return;
+
                             // 이동 입력이 있으면 GroundMove, 없으면 Idle
                             if (playerController.HasMoveInput())
                             {

@@ -52,7 +52,20 @@ namespace UPlayGround.Components
             AttackState desiredState = isHeavyAttack ? AttackState.HeavyAttack : AttackState.NormalAttack;
             return CanCombo
                    && _attackState == desiredState
-                   && CurrentComboIndex < GetComboLength(desiredState) - 1;
+                   && CanContinueStoredCombo(isHeavyAttack);
+        }
+
+        /// <summary>
+        /// 현재 약/강 체인에 실제 다음 타격이 남아 있는지 반환한다.
+        /// 막타 뒤 입력을 같은 AttackState 안에서 0번으로 래핑하지 않고, 완주한 체인을
+        /// 종료한 뒤 새 공격 상태로 시작하기 위한 시퀀스 경계 판정이다.
+        /// </summary>
+        public bool CanContinueStoredCombo(bool isHeavyAttack)
+        {
+            AttackState desiredState = isHeavyAttack ? AttackState.HeavyAttack : AttackState.NormalAttack;
+            int storedIndex = isHeavyAttack ? _heavyComboIndex : _normalComboIndex;
+            int length = GetComboLength(desiredState);
+            return storedIndex >= 0 && storedIndex < length - 1;
         }
 
         // ── Peek API (side-effect-free) ───────────────────────────────
@@ -274,19 +287,24 @@ namespace UPlayGround.Components
 
         public void ResetCombo()
         {
-            ResetCombo(true, true);
+            ResetComboState(true);
         }
 
         /// <summary>
-        /// 콤보 인덱스/윈도우/태그/입력버퍼는 초기화하되 약·강 체인 분기 메모리(_normalComboIndex/_heavyComboIndex)는 보존한다.
+        /// 콤보 인덱스/윈도우/태그는 초기화하되 약·강 체인 분기 메모리(_normalComboIndex/_heavyComboIndex)는 보존한다.
         /// 공격 상태 재진입(크로스타입 캔슬 등)에서 호출 — 진짜 콤보 종료가 아니므로 분기 진행도를 잇기 위함.
         /// </summary>
         public void ResetComboPreserveChains()
         {
-            ResetCombo(true, false);
+            ResetComboState(false);
         }
 
-        private void ResetCombo(bool clearInputBuffer, bool resetChains)
+        /// <summary>
+        /// PlayerCombat이 소유하는 콤보 진행 상태만 초기화한다.
+        /// 입력 버퍼는 InputManager의 소유물이므로 여기서 비우지 않는다. 상태 전환 직전에 들어온
+        /// 다음 공격·회피 입력까지 전역 삭제하면 막타 경계에서 조작이 끊긴다.
+        /// </summary>
+        private void ResetComboState(bool resetChains)
         {
             LastAttackTime    = Time.time;
             CurrentComboIndex = 0;
@@ -299,8 +317,6 @@ namespace UPlayGround.Components
             _comboController?.ResetWindow();
             ApplyComboTags();
             OnComboReset?.Invoke();
-            if (clearInputBuffer)
-                Svc.Input.InputBuffer.Clear();
         }
 
         private CharacterComboState CaptureComboState()

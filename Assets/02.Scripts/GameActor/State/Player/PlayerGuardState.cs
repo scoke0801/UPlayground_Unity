@@ -110,7 +110,7 @@ namespace UPlayGround.State
                 playerActor.Tags?.AddTag(GameplayTags.State_Combat_Counter);
                 if (PlayerAttackState.TryEnter(playerController))
                 {
-                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
+                    // 공격 입력은 PlayerAttackState.OnEnter에서 이미 소비된다.
                     _combat.ClosePerfectGuardCounterWindow();
                     return;
                 }

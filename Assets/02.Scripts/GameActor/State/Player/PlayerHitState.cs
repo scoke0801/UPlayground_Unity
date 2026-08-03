@@ -149,15 +149,13 @@ namespace UPlayGround.State
             if (_heavyHit) return;  // Heavy 이상은 공격 캔슬 불가
 
             // 공격 캔슬 (일반 Hit 이하만)
-            // 입력 소비는 TryEnter 성공 시에만 일어나도록 HasInput으로 사전 확인.
+            // 입력 소비는 성공한 PlayerAttackState.OnEnter가 승자 입력 하나만 담당한다.
             bool hasAttack      = Svc.Input.InputBuffer.HasInput(PlayerAction.Attack);
             bool hasHeavyAttack = Svc.Input.InputBuffer.HasInput(PlayerAction.HeavyAttack);
             if (hasAttack || hasHeavyAttack)
             {
                 if (PlayerAttackState.TryEnter(playerController))
                 {
-                    if (hasAttack)      Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
-                    if (hasHeavyAttack) Svc.Input.InputBuffer.ConsumeInput(PlayerAction.HeavyAttack);
                     return;
                 }
             }

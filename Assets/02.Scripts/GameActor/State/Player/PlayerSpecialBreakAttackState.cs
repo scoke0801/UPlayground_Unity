@@ -236,6 +236,11 @@ namespace UPlayGround.State
 
         private void Finish()
         {
+            // 상태 이탈 뒤 이전 AnimancerState의 OnEnd가 늦게 도착할 수 있다.
+            // 이 인스턴스가 여전히 현재 상태일 때만 후속 상태를 선택한다.
+            if (controller.CurrentState != this)
+                return;
+
             if (playerController.HasMoveInput())
                 controller.TransitionToState(ActorStateId.GroundMove);
             else

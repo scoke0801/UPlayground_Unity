@@ -106,11 +106,10 @@ namespace UPlayGround.State
 
             if (Svc.Input.InputBuffer.HasInput(PlayerAction.Attack))
             {
+                // 성공한 진입의 입력은 PlayerAttackState.OnEnter에서 이미 소비된다.
+                // 진입 뒤 다시 소비하면 다음 연타 입력까지 삭제된다.
                 if (PlayerAttackState.TryEnter(playerController))
-                {
-                    Svc.Input.InputBuffer.ConsumeInput(PlayerAction.Attack);
                     return;
-                }
             }
 
             if (playerController.IsChargeAttackHeld())

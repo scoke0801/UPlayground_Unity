@@ -124,12 +124,18 @@ namespace UPlayGround
             if (_chargeAttackHeld && _chargeHoldTime < ChargeThreshold)
             {
                 // 짧은 누름 → 일반 강공격으로 처리 (버퍼에 재추가)
-                InputMgr.InputBuffer.AddInput(PlayerAction.HeavyAttack, bufferTime: 0.24f);
+                InputMgr.InputBuffer.AddInput(
+                    PlayerAction.HeavyAttack,
+                    bufferTime: 0.24f,
+                    replaceExisting: true);
                 _heavyInputCondition = InputCondition.Pressed;
             }
             _chargeAttackHeld = false;
         }
-        private void OnInputPerformedAttack(InputAction.CallbackContext obj)       => _attackInputCondition   = InputCondition.Pressed;
+        private void OnInputPerformedAttack(InputAction.CallbackContext obj)
+        {
+            _attackInputCondition = InputCondition.Pressed;
+        }
         private void OnInputPerformedEquipWeapon(InputAction.CallbackContext obj)  => _equipInputCondition    = InputCondition.Pressed;
         private void OnInputStartedSkill_1(InputAction.CallbackContext obj) => SetSkillHeld(0, true);
         private void OnInputPerformedSkill_1(InputAction.CallbackContext obj)      => _skillInputCondition[0] = InputCondition.Pressed;

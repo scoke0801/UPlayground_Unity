@@ -157,6 +157,9 @@ namespace UPlayGround.Manager
             if (evt.MapName != InputMapNames.PlayerAction)
                 return;
 
+            // 아래 목록은 "중재 확정 시 버퍼에 적재할 액션"이며,
+            // "버퍼에 1개만 유지할 액션"은 InputBuffer.IsSingleSlotAction이 단독으로 판정한다.
+            // 두 정책은 별개이므로 여기서 교체 여부를 다시 지정하지 않는다.
             switch (evt.ActionName)
             {
                 case InputDefine.PlayerAction.Attack:

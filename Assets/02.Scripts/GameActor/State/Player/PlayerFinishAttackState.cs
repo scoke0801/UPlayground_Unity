@@ -38,7 +38,8 @@ namespace UPlayGround.State
         public Transform FinishTarget => _finishTarget;
         public bool IsTransitionLocked { get; private set; }
 
-        public override bool BlocksExitTo(GameActorState newState) => IsTransitionLocked;
+        public override bool BlocksExitTo(GameActorState newState)
+            => IsTransitionLocked && newState?.StateId != ActorStateId.Ultimate;
 
         public PlayerFinishAttackState(ActorMovementController controller, Transform finishTarget)
             : base(controller)
@@ -169,6 +170,11 @@ namespace UPlayGround.State
 
         private void OnFinishAttackEnd()
         {
+            // 다른 모션으로 블렌드 아웃된 AnimancerState의 OnEnd가 뒤늦게 발화해도
+            // 새 상태(특히 Ultimate)의 모션을 Idle로 덮어쓰지 않는다.
+            if (controller.CurrentState != this)
+                return;
+
             IsTransitionLocked = false;
             TransitionToIdleOrMove();
         }

@@ -13,11 +13,32 @@ MonoBehaviour:
   m_Name: FLOW_IngameBase
   m_EditorClassIdentifier: 
   graphId: 
-  nodes: []
+  nodes:
+  - rid: 6689042862340833424
   connections: []
   editorGroups: []
   variables: []
   parameters: []
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 6689042862340833424
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: 692b36d09ea74785955e91f7125352fb
+        editorPosition: {x: 100, y: 150}
+        breakpoint: 0
+        breakpointDisabled: 0
+        breakpointAfterHits: 0
+        breakpointVariable: 
+        breakpointExpected:
+          type: 0
+          boolValue: 0
+          intValue: 0
+          floatValue: 0
+          stringValue: 
+        editorLabel: 
+        editorComment: 
+        entryId: start
+        repeatPolicy: 3
+        cooldownSeconds: 1

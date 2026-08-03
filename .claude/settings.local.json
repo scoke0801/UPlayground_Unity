@@ -484,7 +484,15 @@
       "PowerShell($env:GIT_PAGER='cat'; git --no-pager diff --stat -- Assets/docs/cycle; git --no-pager diff -- Assets/docs/cycle/README.md Assets/docs/cycle/01_CYCLE_RUNTIME_SPEC.md)",
       "PowerShell($env:GIT_PAGER='cat'; git --no-pager diff -- Assets/02.Scripts/GameActor/Editor/BehaviorTreeEditorWindow.Layout.cs Assets/02.Scripts/Tool/Editor/Combat/CombatTimelineUtility.cs Assets/02.Scripts/Tool/Editor/Minimap/MinimapCaptureEditorWindow.cs Assets/02.Scripts/FlowGraph/Editor/FlowGraphEditorWindow.cs | Select-Object -First 160)",
       "PowerShell($env:GIT_PAGER='cat'; git --no-pager diff -- Assets/02.Scripts/MotionSet/Editor/Views/MotionEventInspectorView.cs | Select-Object -First 60)",
-      "PowerShell(git add *)"
+      "PowerShell(git add *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell($c = Get-Content -Raw \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\02.Scripts\\\\Manager\\\\Cinematic\\\\CinematicStageManager.cs\"; \"open=\" + \\([regex]::Matches\\($c,'\\\\{'\\).Count\\) + \" close=\" + \\([regex]::Matches\\($c,'\\\\}'\\).Count\\) + \" lines=\" + \\(\\(Get-Content \"C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\02.Scripts\\\\Manager\\\\Cinematic\\\\CinematicStageManager.cs\" | Measure-Object -Line\\).Lines\\))",
+      "PowerShell($c = Get-Content -Raw 'C:\\\\UsingProject\\\\UnityProject\\\\UPlayground\\\\Assets\\\\02.Scripts\\\\GameActor\\\\Component\\\\Player\\\\UltimateSequencePlayer.cs'; \"open={0} close={1} lines={2}\" -f \\($c.ToCharArray\\(\\)|?{$_ -eq '{'}\\).Count, \\($c.ToCharArray\\(\\)|?{$_ -eq '}'}\\).Count, \\($c -split \"`n\"\\).Count)",
+      "Bash(awk '/^diff .*AbilityDataIntegrityTests/,/^diff .*ProjectSettings/' d_assets.txt)",
+      "Bash(awk '/^diff .*ActorAbilitySystem/,/^diff .*PassiveAbilityController/' d_misc2.txt)",
+      "PowerShell(cd C:\\\\UsingProject\\\\UnityProject\\\\UPlayground; $env:GIT_PAGER='cat'; git diff -- .claude/settings.local.json; Get-Content Assets\\\\02.Scripts\\\\Editor\\\\Unity6ExternalShaderCompatibility.cs -TotalCount 40)",
+      "Bash(awk '/^diff .*cycle\\\\/README/,0' d_party.txt)",
+      "Bash(awk '/^diff .*PLAYER_COMBAT_SKILL_LINK/,/^diff .*04_BOSS/' d_party.txt)"
     ],
     "deny": [
       "Bash(rm -rf *)",

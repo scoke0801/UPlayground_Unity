@@ -16,7 +16,10 @@ using UPlayGround.Data.Projectile;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.State;
 using UPlayGround.UI;
+using UPlayGround.AI.BehaviorTree;
 
 namespace UPlayGround.Components
 {
@@ -248,6 +251,7 @@ namespace UPlayGround.Components
         private MotionSetAsset _currentAbilityMotionAsset;
         private readonly HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
         private int _currentHitPhaseIndex = 0;
+        private AbilityTriggerRequest? _pendingTriggerRequest;
 
         private SkillType _reservedSkillType = SkillType.None;
         private AbilityAttackCategory _reservedAttackCategory = AbilityAttackCategory.None;
@@ -291,6 +295,7 @@ namespace UPlayGround.Components
         // ──────────────────────────────────────────────────────────────
 
         public AbilitySetSO      AbilitySet       => _abilitySet;
+        public ActorAbilitySystem AbilitySystem   => _abilitySystem;
         public GameplayAbilitySO CurrentAbility   => _currentAbility;
         public AbilityAttackInfo CurrentSkill     => _currentSkill;
         public MotionSetAsset CurrentMotionAsset
@@ -369,6 +374,129 @@ namespace UPlayGround.Components
             _actionRunner.SetCollisionExecutor(this);
             _hitboxSet = gameObject.GetOrAddComponent<CombatHitboxSet>();
             _hitboxSet.Refresh();
+        }
+
+        private void OnEnable()
+        {
+            SubscribeAbilityTriggers();
+        }
+
+        private void SubscribeAbilityTriggers()
+        {
+            _abilitySystem ??= _ownerActor?.Abilities;
+            if (_abilitySystem == null)
+                return;
+            _abilitySystem.AbilityTriggerRequested -= OnAbilityTriggerRequested;
+            _abilitySystem.AbilityTriggerRequested += OnAbilityTriggerRequested;
+            _abilitySystem.AbilityTriggerCancelRequested -= OnAbilityTriggerCancelRequested;
+            _abilitySystem.AbilityTriggerCancelRequested += OnAbilityTriggerCancelRequested;
+        }
+
+        private void UnsubscribeAbilityTriggers()
+        {
+            if (_abilitySystem == null)
+                return;
+            _abilitySystem.AbilityTriggerRequested -= OnAbilityTriggerRequested;
+            _abilitySystem.AbilityTriggerCancelRequested -= OnAbilityTriggerCancelRequested;
+        }
+
+        private void OnAbilityTriggerRequested(AbilityTriggerRequest request)
+        {
+            if (_ownerActor == null
+                || request.Ability == null
+                || !request.TriggerTag.IsChildOf(GameplayTags.Trigger_Monster_Attack)
+                || _abilitySystem?.AbilitySet?.Contains(request.Ability) != true
+                || _pendingTriggerRequest.HasValue)
+                return;
+
+            ActorMovementController movement =
+                _ownerActor.GetComponent<ActorMovementController>();
+            if (movement == null)
+            {
+                _abilitySystem.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.StateTransitionRejected);
+                return;
+            }
+
+            _pendingTriggerRequest = request;
+            bool transitioned = movement.TryTransitionToState(
+                new EnemyAttackState(
+                    movement,
+                    this,
+                    _aiContext,
+                    _detection,
+                    useTriggeredAbility: true));
+            if (transitioned)
+                return;
+
+            _pendingTriggerRequest = null;
+            _abilitySystem.ReportTriggerRejected(
+                request.Ability,
+                AbilityActivationResult.StateTransitionRejected);
+        }
+
+        private void OnAbilityTriggerCancelRequested(AbilityExecutionHandle handle)
+        {
+            if (_currentAbility == null
+                || !_abilitySystem.TryGetActiveExecutionHandle(
+                    _currentAbility,
+                    out AbilityExecutionHandle current)
+                || current.Value != handle.Value)
+                return;
+            CancelCurrentAction();
+            _ownerActor?.GetComponent<ActorMovementController>()
+                ?.TryTransitionToState(ActorStateId.Idle);
+        }
+
+        public bool TryConsumeTriggeredAbility(out AbilityAttackInfo attackInfo)
+        {
+            attackInfo = null;
+            if (!_pendingTriggerRequest.HasValue)
+                return false;
+
+            AbilityTriggerRequest request = _pendingTriggerRequest.Value;
+            _pendingTriggerRequest = null;
+            if (!EnemyAbilityTriggerTags.TryGetAttackCategory(
+                    request.TriggerTag,
+                    out AbilityAttackCategory triggerCategory))
+            {
+                _abilitySystem.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.InvalidDefinition);
+                return false;
+            }
+
+            AbilityAttackCategory reservedCategory = ConsumeReservedAttackCategory();
+            if (reservedCategory != AbilityAttackCategory.None
+                && reservedCategory != triggerCategory)
+            {
+                _abilitySystem.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.StateTransitionRejected);
+                return false;
+            }
+
+            attackInfo = SelectAndExecuteSkill(
+                _detection != null ? _detection.DistanceToTarget : float.MaxValue,
+                triggerCategory,
+                request.TriggerEvent);
+            if (attackInfo == null
+                || _currentAbility == null
+                || !_abilitySystem.TryGetActiveExecutionHandle(
+                    _currentAbility,
+                    out AbilityExecutionHandle handle)
+                || !_abilitySystem.BindActiveExecutionToTrigger(handle, request))
+            {
+                CancelCurrentAction();
+                _abilitySystem.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.MissingExecutionData);
+                attackInfo = null;
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>액터가 사용할 공용 AbilitySet을 주입한다.</summary>
@@ -479,7 +607,8 @@ namespace UPlayGround.Components
 
         public AbilityAttackInfo SelectAndExecuteSkill(
             float distanceToTarget,
-            AbilityAttackCategory attackCategory)
+            AbilityAttackCategory attackCategory,
+            GameplayEventData? triggerEvent = null)
         {
             _spawnedUnits.RemoveAll(unit => unit == null);
 
@@ -489,7 +618,7 @@ namespace UPlayGround.Components
                 return null;
 
             AbilityCandidate selected = SelectWeighted(available);
-            if (!SetCurrentAbility(selected.Ability))
+            if (!SetCurrentAbility(selected.Ability, triggerEvent))
                 return null;
 
             ExecuteSkill(_currentSkill);
@@ -670,7 +799,8 @@ namespace UPlayGround.Components
 
         private bool TryActivateAbility(
             GameplayAbilitySO ability,
-            out AbilityAttackInfo attackInfo)
+            out AbilityAttackInfo attackInfo,
+            GameplayEventData? triggerEvent = null)
         {
             attackInfo = null;
             _currentAbilityMotionAsset = null;
@@ -692,7 +822,8 @@ namespace UPlayGround.Components
                         resolvedAttackInfo,
                         out resolvedMotionAsset),
                 out AbilityExecutionHandle handle,
-                out AbilityVariantDefinition variant);
+                out AbilityVariantDefinition variant,
+                triggerEvent);
             if (prepare != AbilityActivationResult.Success)
                 return false;
 
@@ -1025,9 +1156,14 @@ namespace UPlayGround.Components
                 true,
                 diveOnly).Count > 0;
 
-        public bool SetCurrentAbility(GameplayAbilitySO ability)
+        public bool SetCurrentAbility(
+            GameplayAbilitySO ability,
+            GameplayEventData? triggerEvent = null)
         {
-            if (!TryActivateAbility(ability, out AbilityAttackInfo attackInfo))
+            if (!TryActivateAbility(
+                    ability,
+                    out AbilityAttackInfo attackInfo,
+                    triggerEvent))
                 return false;
 
             _currentAbility       = ability;
@@ -1252,6 +1388,8 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            UnsubscribeAbilityTriggers();
+            _pendingTriggerRequest = null;
             // 풀링·사망·씬 전환으로 비활성화될 때 명시적 판정 세션이 디버그 레지스트리에 남지 않게 한다.
             _collisionSession.End();
         }

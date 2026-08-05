@@ -11,6 +11,7 @@ using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Stat;
+using UPlayGround.Data.Editor.Ability;
 using UPlayGround.Gameplay.Effect;
 using UPlayGround.Gameplay.Tag;
 
@@ -117,6 +118,861 @@ namespace UPlayGround.Ability.Tests
             Assert.That(tags.HasTag(GameplayTags.State_Combat_Attack), Is.False);
             Assert.That(_actor.AbilitySystem.Tags.Has(
                 new AbilityTagId(GameplayTags.State_Combat_Attack.TagName)), Is.False);
+        }
+
+        [Test]
+        public void 명시_태그도_중복_추가_후_한번_제거하면_GAS_소유권을_보존한다()
+        {
+            _actor.Tags.AddTag(GameplayTags.State_Hit);
+            _actor.Tags.AddTag(GameplayTags.State_Hit);
+
+            _actor.Tags.RemoveTag(GameplayTags.State_Hit);
+
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Hit), Is.True);
+            Assert.That(_actor.AbilitySystem.Tags.Has(
+                new AbilityTagId(GameplayTags.State_Hit.TagName)), Is.True);
+            _actor.Tags.RemoveTag(GameplayTags.State_Hit);
+            Assert.That(_actor.AbilitySystem.Tags.Has(
+                new AbilityTagId(GameplayTags.State_Hit.TagName)), Is.False);
+        }
+
+        [Test]
+        public void ComboRoute의_requireAny는_하나의_태그만_있어도_통과한다()
+        {
+            var route = new ComboRouteEntry();
+            route.tagRequirement.requireAny.Add(GameplayTags.State_Hit);
+            route.tagRequirement.requireAny.Add(GameplayTags.State_Dodge);
+
+            Assert.That(route.CheckTagConditions(_actor.Tags), Is.False);
+            _actor.Tags.AddTag(GameplayTags.State_Dodge);
+            Assert.That(route.CheckTagConditions(_actor.Tags), Is.True);
+            _actor.Tags.RemoveTag(GameplayTags.State_Dodge);
+        }
+
+        [Test]
+        public void ComboRoute는_태그컨테이너가_없으면_신규필수태그를_통과시키지않는다()
+        {
+            var requiredRoute = new ComboRouteEntry();
+            requiredRoute.tagRequirement.requireAny.Add(GameplayTags.State_Dodge);
+            var blockedOnlyRoute = new ComboRouteEntry();
+            blockedOnlyRoute.tagRequirement.blockAny.Add(GameplayTags.State_Hit);
+
+            Assert.That(requiredRoute.CheckTagConditions(null), Is.False);
+            Assert.That(blockedOnlyRoute.CheckTagConditions(null), Is.True);
+        }
+
+        [Test]
+        public void Owner태그_requireAny는_하나만_보유해도_활성화를_허용한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.ownerTagRequirement.requireAny.Add(GameplayTags.State_Hit);
+            ability.activation.ownerTagRequirement.requireAny.Add(GameplayTags.State_Dodge);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(
+                _actor.Abilities.EvaluatePlayerSlot(
+                    PlayerSkillSlot.Ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
+
+            GameplayTagHandle handle = _actor.Tags.AddTag(
+                GameplayTags.State_Dodge,
+                new GameplayTagSource("Test", 1));
+            Assert.That(
+                _actor.Abilities.EvaluatePlayerSlot(
+                    PlayerSkillSlot.Ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            _actor.Tags.RemoveTag(handle);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Owner태그_Exact는_하위_계층_태그를_조건_충족으로_보지_않는다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.ownerTagRequirement.requireAll.Add(GameplayTags.State_Combat);
+            ability.activation.ownerTagRequirement.matchMode = AbilityTagMatchMode.Exact;
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            GameplayTagHandle handle = _actor.Tags.AddTag(
+                GameplayTags.State_Combat_Attack,
+                new GameplayTagSource("Test", 1));
+
+            Assert.That(
+                _actor.Abilities.EvaluatePlayerSlot(
+                    PlayerSkillSlot.Ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
+
+            _actor.Tags.RemoveTag(handle);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 레거시_requiredTagIds는_기존처럼_계층_태그를_허용한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.requiredTagIds.Add(GameplayTags.State_Combat);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(
+                _actor.Abilities.EvaluatePlayerSlot(
+                    PlayerSkillSlot.Ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
+
+            GameplayTagHandle handle = _actor.Tags.AddTag(
+                GameplayTags.State_Combat_Attack,
+                new GameplayTagSource("Test", 1));
+            Assert.That(
+                _actor.Abilities.EvaluatePlayerSlot(
+                    PlayerSkillSlot.Ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            _actor.Tags.RemoveTag(handle);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void OwnedTagAdded_Immediate는_Background_Ability를_활성화한다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.OwnedTagAdded);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 1));
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.True);
+            Assert.That(
+                _actor.Abilities.TryGetActiveExecutionHandle(ability, out _),
+                Is.True);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 태그_트리거도_owner_blockAny_조건을_우회하지_않는다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.OwnedTagAdded);
+            ability.activation.ownerTagRequirement.blockAny.Add(GameplayTags.State_Dodge);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            _actor.Tags.AddTag(
+                GameplayTags.State_Dodge,
+                new GameplayTagSource("Test", 1));
+
+            _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 2));
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.False);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Exact_트리거는_하위_계층_태그로_발화하지_않는다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Combat,
+                AbilityTriggerSource.OwnedTagAdded);
+            ability.triggers[0].matchMode = AbilityTagMatchMode.Exact;
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            _actor.Tags.AddTag(
+                GameplayTags.State_Combat_Attack,
+                new GameplayTagSource("Test", 1));
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.False);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 자기_부여_태그를_트리거로_사용해도_순환_활성화하지_않는다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.OwnedTagAdded);
+            ability.activation.executionGrantedTagIds.Add(GameplayTags.State_Hit);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 1));
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.False);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void retriggerInterval_안의_재부여는_재활성화하지_않는다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.OwnedTagAdded);
+            ability.triggers[0].retriggerIntervalSeconds = 10f;
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            GameplayTagHandle first = _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 1));
+            Assert.That(
+                _actor.Abilities.TryGetActiveExecutionHandle(
+                    ability, out AbilityExecutionHandle execution),
+                Is.True);
+            _actor.Abilities.EndAbility(execution, completed: true);
+            _actor.Tags.RemoveTag(first);
+
+            _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 2));
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.False);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void OwnedTagPresent는_태그가_붙으면_활성화하고_사라지면_취소한다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.OwnedTagPresent);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            GameplayTagHandle tagHandle = _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 1));
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.True);
+
+            _actor.Tags.RemoveTag(tagHandle);
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.False);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void AbilitySet_교체후에는_이전_Set의_트리거가_발화하지_않는다()
+        {
+            GameplayAbilitySO previousAbility = MakeAbility();
+            previousAbility.abilityId = "Ability.Test.PreviousCharacterTrigger";
+            previousAbility.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Player_Hit_Light,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            GameplayAbilitySO currentAbility = MakeAbility();
+            currentAbility.abilityId = "Ability.Test.CurrentCharacter";
+            AbilitySetSO previousSet = MakeSet(previousAbility);
+            AbilitySetSO currentSet = MakeSet(currentAbility);
+
+            _actor.Abilities.SetAbilitySet(previousSet);
+            _actor.Abilities.SetAbilitySet(currentSet);
+            int requestCount = 0;
+            _actor.Abilities.AbilityTriggerRequested += _ => requestCount++;
+
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Player_Hit_Light);
+
+            Assert.That(requestCount, Is.Zero);
+            Object.DestroyImmediate(previousAbility);
+            Object.DestroyImmediate(currentAbility);
+            Object.DestroyImmediate(previousSet);
+            Object.DestroyImmediate(currentSet);
+        }
+
+        [Test]
+        public void GameplayEffect_GrantedTag도_Immediate_트리거를_발화한다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.OwnedTagAdded);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.TriggerTag";
+            effect.durationType = GameplayEffectDurationType.Infinite;
+            effect.grantedTagIds.Add(GameplayTags.State_Hit);
+
+            _actor.Effects.ApplyEffect(effect, _actor);
+
+            Assert.That(_actor.Abilities.HasActiveAbility, Is.True);
+            Object.DestroyImmediate(effect);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void GameplayEvent_트리거는_Instigator를_실행에_보존한다()
+        {
+            GameplayAbilitySO ability = MakeTriggeredBackgroundAbility(
+                GameplayTags.State_Hit,
+                AbilityTriggerSource.GameplayEvent);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            AbilitySystemHandle instigator = _actor.AbilitySystem.Runtime.Handle;
+            var eventData = new GameplayEventData(
+                new AbilityTagId(GameplayTags.State_Hit.TagName),
+                instigator,
+                _actor.AbilitySystem.Runtime.Handle);
+
+            _actor.AbilitySystem.Runtime.Events.Send(eventData);
+
+            Assert.That(
+                _actor.Abilities.TryGetActiveExecutionHandle(
+                    ability, out AbilityExecutionHandle execution),
+                Is.True);
+            Assert.That(
+                _actor.Abilities.TryGetTriggerEvent(execution, out GameplayEventData stored),
+                Is.True);
+            Assert.That(stored.Instigator, Is.EqualTo(instigator));
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 같은프레임의_동일_GameplayEvent_2회는_사건을_각각_발급한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.abilityId = "Ability.Test.RepeatedHitEvent";
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Monster_Hit_Light,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            int eventCount = 0;
+            _actor.AbilitySystem.Runtime.Events.EventSent += data =>
+            {
+                if (data.EventTag.Value
+                    == GameplayTags.Trigger_Monster_Hit_Light.TagName)
+                    eventCount++;
+            };
+
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Light);
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Light);
+
+            Assert.That(eventCount, Is.EqualTo(2));
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Request트리거는_선택된_다른Ability_실행핸들에_귀속할수있다()
+        {
+            GameplayTag triggerTag = GameplayTags.Trigger_Monster_Attack_Basic;
+            GameplayAbilitySO routeAbility = MakeAbility();
+            routeAbility.abilityId = "Ability.Test.Route.Basic";
+            routeAbility.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = triggerTag,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            GameplayAbilitySO selectedAbility = MakeAbility();
+            selectedAbility.abilityId = "Ability.Test.Selected.Basic";
+            AbilitySetSO set = MakeSet(routeAbility);
+            set.additionalAbilities.Add(selectedAbility);
+            _actor.Abilities.SetAbilitySet(set);
+
+            AbilityExecutionHandle acceptedHandle = default;
+            GameplayAbilitySO acceptedRoute = null;
+            _actor.Abilities.AbilityTriggerAccepted += (request, handle) =>
+            {
+                acceptedRoute = request.Ability;
+                acceptedHandle = handle;
+            };
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                Assert.That(
+                    _actor.Abilities.TryPrepareAbility(
+                        selectedAbility,
+                        true,
+                        null,
+                        out AbilityExecutionHandle handle,
+                        out _,
+                        request.TriggerEvent),
+                    Is.EqualTo(AbilityActivationResult.Success));
+                Assert.That(
+                    _actor.Abilities.Commit(handle),
+                    Is.EqualTo(AbilityActivationResult.Success));
+                Assert.That(
+                    _actor.Abilities.BindActiveExecutionToTrigger(handle, request),
+                    Is.True);
+            };
+
+            Assert.That(
+                _actor.Abilities.TryGetRequestTriggerAbility(
+                    triggerTag,
+                    out GameplayAbilitySO found),
+                Is.True);
+            Assert.That(found, Is.SameAs(routeAbility));
+            _actor.Abilities.IssueTriggerEvent(triggerTag);
+
+            Assert.That(acceptedRoute, Is.SameAs(routeAbility));
+            Assert.That(acceptedHandle.IsValid, Is.True);
+            Assert.That(
+                _actor.Abilities.TryGetActiveExecutionHandle(
+                    selectedAbility,
+                    out AbilityExecutionHandle active),
+                Is.True);
+            Assert.That(active, Is.EqualTo(acceptedHandle));
+
+            Object.DestroyImmediate(selectedAbility);
+            Object.DestroyImmediate(routeAbility);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Request전용Ability는_TaskGraph와_Payload없이_검증을_통과한다()
+        {
+            GameplayAbilitySO ability =
+                ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            ability.abilityId = "Ability.Test.ExternalRequest";
+            ability.variants.Add(new AbilityVariantDefinition
+            {
+                variantId = "Default",
+                priority = 1,
+            });
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Player_Hit_Light,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+
+            List<AbilityValidationIssue> issues =
+                AbilityDataValidator.Validate(ability);
+
+            Assert.That(issues.Exists(issue =>
+                issue.Severity == AbilityValidationSeverity.Error
+                && (issue.Message.Contains("Task Graph")
+                    || issue.Message.Contains("Payload")
+                    || issue.Message.Contains("실행 가능한 Variant"))), Is.False);
+            Object.DestroyImmediate(ability);
+        }
+
+        [Test]
+        public void Request전용Ability는_TaskGraph와_Payload없이_요청을_발급한다()
+        {
+            GameplayAbilitySO ability =
+                ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            ability.abilityId = "Ability.Test.ExternalRequest.Runtime";
+            ability.variants.Add(new AbilityVariantDefinition
+            {
+                variantId = "Default",
+                priority = 1,
+            });
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Player_Hit_Light,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            int requestCount = 0;
+            AbilityVariantDefinition requestedVariant = null;
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                requestCount++;
+                requestedVariant = request.Variant;
+            };
+
+            _actor.Abilities.IssueTriggerEvent(
+                GameplayTags.Trigger_Player_Hit_Light);
+
+            Assert.That(requestCount, Is.EqualTo(1));
+            Assert.That(requestedVariant, Is.SameAs(ability.variants[0]));
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 입력슬롯_Ability에_Request트리거를_함께_지정하면_검증오류다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.abilityId = "Ability.Test.InputAndTrigger";
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Player_Hit_Light,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            AbilitySetSO set = MakeSet(ability);
+            set.playerSlots.Add(new AbilitySetSO.PlayerSlotEntry
+            {
+                slot = PlayerSkillSlot.Ability,
+                ability = ability,
+            });
+
+            List<AbilityValidationIssue> issues = AbilityDataValidator.Validate(set);
+
+            Assert.That(issues.Exists(issue =>
+                issue.Severity == AbilityValidationSeverity.Error
+                && issue.Message.Contains("중복 실행")), Is.True);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Request트리거는_선점허용이_없으면_기존주실행중_거부된다()
+        {
+            GameplayAbilitySO current = MakeAbility();
+            current.abilityId = "Ability.Test.Current";
+            GameplayAbilitySO reaction = MakeAbility();
+            reaction.abilityId = "Ability.Test.Reaction";
+            reaction.concurrency = AbilityConcurrencyPolicy.CancelExisting;
+            reaction.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Monster_Hit_Heavy,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            AbilitySetSO set = MakeSet(current);
+            set.additionalAbilities.Add(reaction);
+            _actor.Abilities.SetAbilitySet(set);
+            Assert.That(
+                _actor.Abilities.TryPrepareAbility(
+                    current, true, null, out AbilityExecutionHandle handle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(
+                _actor.Abilities.Commit(handle),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            int requestCount = 0;
+            AbilityActivationResult? rejection = null;
+            _actor.Abilities.AbilityTriggerRequested += _ => requestCount++;
+            _actor.Abilities.AbilityTriggerRejected += (_, result) =>
+                rejection = result;
+            _actor.Abilities.IssueTriggerEvent(
+                GameplayTags.Trigger_Monster_Hit_Heavy);
+
+            Assert.That(requestCount, Is.Zero);
+            Assert.That(rejection, Is.EqualTo(AbilityActivationResult.ConflictingAbility));
+            Object.DestroyImmediate(reaction);
+            Object.DestroyImmediate(current);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 선점허용_Request트리거는_기존주실행중에도_구독자에게_전달된다()
+        {
+            GameplayAbilitySO current = MakeAbility();
+            current.abilityId = "Ability.Test.Current";
+            GameplayAbilitySO reaction = MakeAbility();
+            reaction.abilityId = "Ability.Test.Reaction";
+            reaction.concurrency = AbilityConcurrencyPolicy.CancelExisting;
+            reaction.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Monster_Hit_Heavy,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+                allowPreemption = true,
+            });
+            AbilitySetSO set = MakeSet(current);
+            set.additionalAbilities.Add(reaction);
+            _actor.Abilities.SetAbilitySet(set);
+            Assert.That(
+                _actor.Abilities.TryPrepareAbility(
+                    current, true, null, out AbilityExecutionHandle handle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(
+                _actor.Abilities.Commit(handle),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            int requestCount = 0;
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                if (request.Ability == reaction)
+                    requestCount++;
+            };
+            _actor.Abilities.IssueTriggerEvent(
+                GameplayTags.Trigger_Monster_Hit_Heavy);
+
+            Assert.That(requestCount, Is.EqualTo(1));
+            Object.DestroyImmediate(reaction);
+            Object.DestroyImmediate(current);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Target의_blockAny_태그는_활성화를_차단한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.targetPolicy = AbilityTargetPolicy.Required;
+            ability.activation.targetRelation = AbilityTargetRelation.Self;
+            ability.activation.targetTagRequirement.blockAny.Add(GameplayTags.State_Hit);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            GameplayTagHandle tagHandle = _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 71));
+
+            Assert.That(_actor.Abilities.EvaluateAbility(
+                ability, true, _actor, out _),
+                Is.EqualTo(AbilityActivationResult.BlockedByTag));
+
+            _actor.Tags.RemoveTag(tagHandle);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void GameplayEvent_Instigator의_requireAll_미충족은_활성화를_차단한다()
+        {
+            var sourceObject = new GameObject("AbilitySource");
+            var source = sourceObject.AddComponent<TestGameActor>();
+            source.InitializeForEditMode();
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.sourceTagRequirement.requireAll.Add(GameplayTags.State_Hit);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            var eventData = new GameplayEventData(
+                new AbilityTagId(GameplayTags.State_Combat.TagName),
+                source.AbilitySystem.Runtime.Handle,
+                _actor.AbilitySystem.Runtime.Handle);
+
+            Assert.That(_actor.Abilities.EvaluateAbility(
+                ability, true, null, out _, eventData),
+                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
+
+            Object.DestroyImmediate(sourceObject);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void GameplayEvent_Target의_blockAny는_targetPolicy_None에서도_검사한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.targetTagRequirement.blockAny.Add(GameplayTags.State_Hit);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            GameplayTagHandle tagHandle = _actor.Tags.AddTag(
+                GameplayTags.State_Hit,
+                new GameplayTagSource("Test", 72));
+            var eventData = new GameplayEventData(
+                new AbilityTagId(GameplayTags.State_Combat.TagName),
+                _actor.AbilitySystem.Runtime.Handle,
+                _actor.AbilitySystem.Runtime.Handle);
+
+            Assert.That(_actor.Abilities.EvaluateAbility(
+                ability, true, null, out _, eventData),
+                Is.EqualTo(AbilityActivationResult.BlockedByTag));
+
+            _actor.Tags.RemoveTag(tagHandle);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Validator는_Immediate와_비Background_조합을_Error로_보고한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.State_Hit,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Immediate,
+            });
+
+            List<AbilityValidationIssue> issues = AbilityDataValidator.Validate(ability);
+
+            Assert.That(issues.Exists(issue =>
+                issue.Severity == AbilityValidationSeverity.Error
+                && issue.Message.Contains("Background")), Is.True);
+            Object.DestroyImmediate(ability);
+        }
+
+        [Test]
+        public void Commit은_태그가_일치하는_활성_Ability를_취소한다()
+        {
+            GameplayAbilitySO incoming = MakeAbility();
+            incoming.abilityId = "Ability.Test.CancelIncoming";
+            incoming.cancelAbilitiesWithTag.Add(GameplayTags.State_Combat);
+            GameplayAbilitySO existing = MakeAbility();
+            existing.abilityId = "Ability.Test.CancelExisting";
+            existing.concurrency = AbilityConcurrencyPolicy.Background;
+            existing.persistence.backgroundMaxDurationSeconds = 30f;
+            existing.abilityTagIds.Add(GameplayTags.State_Combat_Attack);
+            AbilitySetSO set = MakeSet(incoming);
+            set.additionalAbilities.Add(existing);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                existing, true, null, out AbilityExecutionHandle existingHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.Commit(existingHandle),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                incoming, true, null, out AbilityExecutionHandle incomingHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            Assert.That(_actor.Abilities.Commit(incomingHandle),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.IsExecutionActive(existingHandle), Is.False);
+            Assert.That(_actor.Abilities.IsExecutionActive(incomingHandle), Is.True);
+
+            Object.DestroyImmediate(existing);
+            Object.DestroyImmediate(incoming);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 활성_Ability의_Block태그는_계층_일치하는_새_Ability를_차단한다()
+        {
+            GameplayAbilitySO candidate = MakeAbility();
+            candidate.abilityId = "Ability.Test.BlockCandidate";
+            candidate.abilityTagIds.Add(GameplayTags.State_Combat_Attack);
+            GameplayAbilitySO blocker = MakeAbility();
+            blocker.abilityId = "Ability.Test.BlockOwner";
+            blocker.concurrency = AbilityConcurrencyPolicy.Background;
+            blocker.persistence.backgroundMaxDurationSeconds = 30f;
+            blocker.blockAbilitiesWithTag.Add(GameplayTags.State_Combat);
+            AbilitySetSO set = MakeSet(candidate);
+            set.additionalAbilities.Add(blocker);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                blocker, true, null, out AbilityExecutionHandle blockerHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.Commit(blockerHandle),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.EvaluateAbility(
+                candidate, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.BlockedByActiveAbility));
+
+            _actor.Abilities.EndAbility(blockerHandle, false);
+            Assert.That(_actor.Abilities.EvaluateAbility(
+                candidate, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            Object.DestroyImmediate(blocker);
+            Object.DestroyImmediate(candidate);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Prepare후_생긴_Block태그는_Commit에서_재검사한다()
+        {
+            GameplayAbilitySO candidate = MakeAbility();
+            candidate.abilityId = "Ability.Test.CommitRecheck";
+            candidate.abilityTagIds.Add(GameplayTags.State_Combat_Attack);
+            GameplayAbilitySO blocker = MakeAbility();
+            blocker.abilityId = "Ability.Test.CommitBlocker";
+            blocker.concurrency = AbilityConcurrencyPolicy.Background;
+            blocker.persistence.backgroundMaxDurationSeconds = 30f;
+            blocker.blockAbilitiesWithTag.Add(GameplayTags.State_Combat);
+            AbilitySetSO set = MakeSet(candidate);
+            set.additionalAbilities.Add(blocker);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                candidate, true, null, out AbilityExecutionHandle candidateHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                blocker, true, null, out AbilityExecutionHandle blockerHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.Commit(blockerHandle),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            Assert.That(_actor.Abilities.Commit(candidateHandle),
+                Is.EqualTo(AbilityActivationResult.BlockedByActiveAbility));
+            Assert.That(_actor.Abilities.IsExecutionActive(candidateHandle), Is.False);
+
+            Object.DestroyImmediate(blocker);
+            Object.DestroyImmediate(candidate);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 중복_Block태그는_모든_소유_Ability가_끝날_때까지_유지된다()
+        {
+            GameplayAbilitySO candidate = MakeAbility();
+            candidate.abilityId = "Ability.Test.RefCountCandidate";
+            candidate.abilityTagIds.Add(GameplayTags.State_Combat_Attack);
+            GameplayAbilitySO first = MakeAbility();
+            first.abilityId = "Ability.Test.RefCountFirst";
+            first.concurrency = AbilityConcurrencyPolicy.Background;
+            first.persistence.backgroundMaxDurationSeconds = 30f;
+            first.blockAbilitiesWithTag.Add(GameplayTags.State_Combat);
+            GameplayAbilitySO second = MakeAbility();
+            second.abilityId = "Ability.Test.RefCountSecond";
+            second.concurrency = AbilityConcurrencyPolicy.Background;
+            second.persistence.backgroundMaxDurationSeconds = 30f;
+            second.blockAbilitiesWithTag.Add(GameplayTags.State_Combat);
+            AbilitySetSO set = MakeSet(candidate);
+            set.additionalAbilities.Add(first);
+            set.additionalAbilities.Add(second);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                first, true, null, out AbilityExecutionHandle firstHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.Commit(firstHandle),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                second, true, null, out AbilityExecutionHandle secondHandle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.Commit(secondHandle),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            _actor.Abilities.EndAbility(firstHandle, false);
+            Assert.That(_actor.Abilities.EvaluateAbility(candidate, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.BlockedByActiveAbility));
+            _actor.Abilities.EndAbility(secondHandle, false);
+            Assert.That(_actor.Abilities.EvaluateAbility(candidate, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            Object.DestroyImmediate(second);
+            Object.DestroyImmediate(first);
+            Object.DestroyImmediate(candidate);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Abort는_이미_Commit된_실행을_제거하지_않는다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+            Assert.That(_actor.Abilities.TryPrepareAbility(
+                ability, true, null, out AbilityExecutionHandle handle, out _),
+                Is.EqualTo(AbilityActivationResult.Success));
+            Assert.That(_actor.Abilities.Commit(handle),
+                Is.EqualTo(AbilityActivationResult.Success));
+
+            _actor.Abilities.Abort(handle);
+
+            Assert.That(_actor.Abilities.IsExecutionActive(handle), Is.True);
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
         }
 
         [Test]
@@ -359,6 +1215,56 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void 세이브복원중_부활한_태그는_OwnedTagPresent를_발화하지_않는다()
+        {
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.RestoreTriggerSuppression";
+            effect.durationType = GameplayEffectDurationType.Duration;
+            effect.durationSeconds = 20f;
+            effect.removalPolicy = GameplayEffectRemovalPolicy.PersistPerCharacter;
+            effect.savePolicy = GameplayEffectSavePolicy.SaveRemainingDuration;
+            effect.grantedTagIds.Add(GameplayTags.State_Combat_Charge);
+
+            GameplayAbilitySO carrier = MakeAbility();
+            carrier.abilityId = "Ability.Test.RestoreEffectCarrier";
+            carrier.commitEffects.Add(effect);
+            GameplayAbilitySO aura = MakeAbility();
+            aura.abilityId = "Ability.Test.RestoreOwnedTagPresent";
+            aura.concurrency = AbilityConcurrencyPolicy.Background;
+            aura.persistence.backgroundMaxDurationSeconds = 30f;
+            aura.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.State_Combat_Charge,
+                source = AbilityTriggerSource.OwnedTagPresent,
+                mode = AbilityTriggerActivationMode.Immediate,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+            AbilitySetSO set = MakeSet(carrier);
+            set.additionalAbilities.Add(aura);
+            _actor.Abilities.SetAbilitySet(set);
+
+            _actor.Effects.ApplyEffect(effect, _actor);
+            AbilitySystemSaveData snapshot =
+                _actor.Abilities.CaptureAbilitySystemStateForCharacter(
+                    forCharacterSwap: true);
+            _actor.Abilities.HandleCharacterSwap();
+            int acceptedCount = 0;
+            _actor.Abilities.AbilityTriggerAccepted += (_, _) => acceptedCount++;
+
+            _actor.Abilities.RestoreAbilitySystemStateForCharacter(snapshot);
+
+            Assert.That(_actor.Tags.HasTag(GameplayTags.State_Combat_Charge), Is.True);
+            Assert.That(acceptedCount, Is.Zero);
+            Assert.That(
+                _actor.Abilities.TryGetActiveExecutionHandle(aura, out _),
+                Is.False);
+            Object.DestroyImmediate(effect);
+            Object.DestroyImmediate(carrier);
+            Object.DestroyImmediate(aura);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
         public void OwnerDeath는_활성_Effect와_GrantedTag를_모두_정리한다()
         {
             GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
@@ -503,6 +1409,143 @@ namespace UPlayGround.Ability.Tests
             Assert.That(restored.activeEffects[0].stackCount, Is.EqualTo(2));
         }
 
+        [Test]
+        public void Request전용_Ability는_트리거_경로_밖에서_활성화되지_않는다()
+        {
+            GameplayAbilitySO router = MakeRequestRouterAbility(
+                GameplayTags.Trigger_Monster_Attack_Basic);
+            AbilitySetSO set = MakeSet(MakeAbility());
+            set.additionalAbilities.Add(router);
+            _actor.Abilities.SetAbilitySet(set);
+
+            // 트리거 없이 직접 활성화하면 실행 데이터가 없으므로 거부되어야 한다.
+            // 통과시키면 모션 없이 비용·쿨다운만 소모하는 실행이 만들어진다.
+            Assert.That(
+                _actor.Abilities.EvaluateAbility(router, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.MissingExecutionData));
+            Assert.That(
+                _actor.Abilities.TryPrepareAbility(
+                    router, true, null, out AbilityExecutionHandle handle, out _),
+                Is.EqualTo(AbilityActivationResult.MissingExecutionData));
+            Assert.That(handle.IsValid, Is.False);
+
+            // 반면 트리거 경로로 들어오면 정상적으로 구독자에게 전달된다.
+            int requestCount = 0;
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                if (request.Ability == router) requestCount++;
+            };
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Attack_Basic);
+            Assert.That(requestCount, Is.EqualTo(1));
+
+            Object.DestroyImmediate(router);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 임시Ability_부여는_대기중인_트리거를_삼키지_않는다()
+        {
+            GameplayAbilitySO granted = MakeAbility();
+            granted.abilityId = "Ability.Test.Granted";
+            // 같은 태그에 두 라우터를 걸어 한 신호로 두 건이 대기하게 만든다.
+            GameplayAbilitySO first = MakeRequestRouterAbility(
+                GameplayTags.Trigger_Monster_Hit_Heavy);
+            first.abilityId = "Ability.Test.Router.First";
+            GameplayAbilitySO second = MakeRequestRouterAbility(
+                GameplayTags.Trigger_Monster_Hit_Heavy);
+            second.abilityId = "Ability.Test.Router.Second";
+            AbilitySetSO set = MakeSet(MakeAbility());
+            set.additionalAbilities.Add(first);
+            set.additionalAbilities.Add(second);
+            _actor.Abilities.SetAbilitySet(set);
+
+            // 첫 트리거를 처리하는 도중 임시 Ability를 부여해 인덱스 재구축을 유발한다.
+            // 재구축이 대기 큐까지 비우면 아직 처리되지 않은 두 번째 트리거가 사라진다.
+            int requestCount = 0;
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                if (request.Ability != first && request.Ability != second) return;
+                requestCount++;
+                if (requestCount == 1)
+                    _actor.Abilities.GrantTemporaryAbilities(new[] { granted });
+            };
+
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Heavy);
+
+            Assert.That(
+                requestCount,
+                Is.EqualTo(2),
+                "인덱스 재구축이 대기 큐를 비우면 두 번째 트리거가 유실된다.");
+
+            Object.DestroyImmediate(first);
+            Object.DestroyImmediate(second);
+            Object.DestroyImmediate(granted);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 드레인_예산을_넘긴_트리거는_폐기되지_않고_이월된다()
+        {
+            const int routerCount = 100; // MaxTriggerDrainBudget(64)보다 크게
+            var routers = new List<GameplayAbilitySO>(routerCount);
+            AbilitySetSO set = MakeSet(MakeAbility());
+            for (int i = 0; i < routerCount; i++)
+            {
+                GameplayAbilitySO router = MakeRequestRouterAbility(
+                    GameplayTags.Trigger_Monster_Hit_Light);
+                router.abilityId = $"Ability.Test.Router.{i}";
+                routers.Add(router);
+                set.additionalAbilities.Add(router);
+            }
+            _actor.Abilities.SetAbilitySet(set);
+
+            int requestCount = 0;
+            _actor.Abilities.AbilityTriggerRequested += _ => requestCount++;
+
+            // 한 번의 신호로 예산(64)을 넘는 트리거가 대기열에 쌓인다.
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Light);
+            Assert.That(
+                requestCount,
+                Is.LessThan(routerCount),
+                "이 테스트는 드레인 예산 초과 상황을 전제로 한다.");
+
+            // 초과분은 폐기가 아니라 이월이므로, 다음 드레인 기회에 남김없이 처리된다.
+            // (매칭되지 않는 태그를 발행해 드레인만 유발한다.)
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Grab);
+
+            Assert.That(
+                requestCount,
+                Is.EqualTo(routerCount),
+                "예산 초과분이 폐기되면 발행한 트리거 수보다 적게 처리된다.");
+
+            for (int i = 0; i < routers.Count; i++)
+                Object.DestroyImmediate(routers[i]);
+            Object.DestroyImmediate(set);
+        }
+
+        /// <summary>실행 데이터 없이 Request 트리거만 가진 라우터 Ability.</summary>
+        private static GameplayAbilitySO MakeRequestRouterAbility(GameplayTag triggerTag)
+        {
+            GameplayAbilitySO ability =
+                ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            ability.abilityId = "Ability.Test.Router";
+            ability.concurrency = AbilityConcurrencyPolicy.CancelExisting;
+            ability.variants.Add(new AbilityVariantDefinition
+            {
+                variantId = "Default",
+                priority = 1,
+            });
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = triggerTag,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+                allowPreemption = true,
+            });
+            return ability;
+        }
+
         private static AbilitySetSO MakeSet(GameplayAbilitySO ability)
         {
             AbilitySetSO set = ScriptableObject.CreateInstance<AbilitySetSO>();
@@ -534,6 +1577,23 @@ namespace UPlayGround.Ability.Tests
                 variantId = "Ground",
                 priority = 1,
                 executionPayload = payload,
+            });
+            return ability;
+        }
+
+        private static GameplayAbilitySO MakeTriggeredBackgroundAbility(
+            GameplayTag triggerTag,
+            AbilityTriggerSource source)
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.concurrency = AbilityConcurrencyPolicy.Background;
+            ability.persistence.backgroundMaxDurationSeconds = 30f;
+            ability.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = triggerTag,
+                source = source,
+                mode = AbilityTriggerActivationMode.Immediate,
+                matchMode = AbilityTagMatchMode.Exact,
             });
             return ability;
         }

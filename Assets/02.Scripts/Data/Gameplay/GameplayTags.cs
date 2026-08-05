@@ -22,10 +22,39 @@ namespace UPlayGround.Gameplay.Tag
         public static readonly GameplayTag State_Hit = GameplayTag.CreateCodeDefined("State.Hit");
         public static readonly GameplayTag State_Death = GameplayTag.CreateCodeDefined("State.Death");
         public static readonly GameplayTag State_Grabbed = GameplayTag.CreateCodeDefined("State.Grabbed");
+        public static readonly GameplayTag State_Stun = GameplayTag.CreateCodeDefined("State.Stun");
+        public static readonly GameplayTag State_Knockdown = GameplayTag.CreateCodeDefined("State.Knockdown");
+        public static readonly GameplayTag State_SpecialBreakVictim = GameplayTag.CreateCodeDefined("State.SpecialBreakVictim");
+        public static readonly GameplayTag State_SuperArmor = GameplayTag.CreateCodeDefined("State.SuperArmor");
         public static readonly GameplayTag State_Interaction = GameplayTag.CreateCodeDefined("State.Interaction");
         public static readonly GameplayTag Combo_Light = GameplayTag.CreateCodeDefined("Combo.Light");
         public static readonly GameplayTag Combo_Heavy = GameplayTag.CreateCodeDefined("Combo.Heavy");
         public static readonly GameplayTag State_Combat_Counter = GameplayTag.CreateCodeDefined("State.Combat.Counter");
+        public static readonly GameplayTag Trigger_Monster_Hit = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit");
+        public static readonly GameplayTag Trigger_Monster_Hit_Light = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Light");
+        public static readonly GameplayTag Trigger_Monster_Hit_Hit = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Hit");
+        public static readonly GameplayTag Trigger_Monster_Hit_Heavy = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Heavy");
+        public static readonly GameplayTag Trigger_Monster_Hit_KnockBack = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.KnockBack");
+        public static readonly GameplayTag Trigger_Monster_Hit_Stun = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Stun");
+        public static readonly GameplayTag Trigger_Monster_Hit_Pull = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Pull");
+        public static readonly GameplayTag Trigger_Monster_Hit_Airborne = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Airborne");
+        public static readonly GameplayTag Trigger_Monster_Hit_Knockdown = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Knockdown");
+        public static readonly GameplayTag Trigger_Monster_Hit_Grab = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.Grab");
+        public static readonly GameplayTag Trigger_Monster_Hit_PoiseBreak = GameplayTag.CreateCodeDefined("Trigger.Monster.Hit.PoiseBreak");
+        public static readonly GameplayTag Trigger_Monster_Attack = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack");
+        public static readonly GameplayTag Trigger_Monster_Attack_Basic = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack.Basic");
+        public static readonly GameplayTag Trigger_Monster_Attack_Heavy = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack.Heavy");
+        public static readonly GameplayTag Trigger_Monster_Attack_Skill = GameplayTag.CreateCodeDefined("Trigger.Monster.Attack.Skill");
+        public static readonly GameplayTag Trigger_Player_Hit = GameplayTag.CreateCodeDefined("Trigger.Player.Hit");
+        public static readonly GameplayTag Trigger_Player_Hit_Light = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Light");
+        public static readonly GameplayTag Trigger_Player_Hit_Hit = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Hit");
+        public static readonly GameplayTag Trigger_Player_Hit_Heavy = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Heavy");
+        public static readonly GameplayTag Trigger_Player_Hit_KnockBack = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.KnockBack");
+        public static readonly GameplayTag Trigger_Player_Hit_Stun = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Stun");
+        public static readonly GameplayTag Trigger_Player_Hit_Pull = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Pull");
+        public static readonly GameplayTag Trigger_Player_Hit_Airborne = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Airborne");
+        public static readonly GameplayTag Trigger_Player_Hit_Knockdown = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Knockdown");
+        public static readonly GameplayTag Trigger_Player_Hit_Grab = GameplayTag.CreateCodeDefined("Trigger.Player.Hit.Grab");
     }
 }
 

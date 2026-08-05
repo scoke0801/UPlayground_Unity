@@ -13,6 +13,8 @@ namespace UPlayGround.Data.Ability
     [CreateAssetMenu(fileName = "AbilitySet_", menuName = "UPlayGround/Ability/Ability Set")]
     public sealed class AbilitySetSO : ScriptableObject
     {
+        [HideInInspector]
+        public int tagTriggerMigrationVersion;
         [System.NonSerialized] private HashSet<GameplayAbilitySO> _runtimeIndex;
         [System.NonSerialized]
         private Dictionary<GameplayAbilitySO, PlayerSkillSlot> _runtimePlayerSlots;

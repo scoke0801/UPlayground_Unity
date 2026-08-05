@@ -153,6 +153,14 @@
             "label": "스킬 사용 가능"
         },
         {
+            "key": "CanActivateAbilityNode",
+            "label": "Ability 활성화 가능"
+        },
+        {
+            "key": "IssueAbilityTriggerNode",
+            "label": "Ability 트리거 발급"
+        },
+        {
             "key": "HasEnemyAttackInRangeNode",
             "label": "공격 사거리 커버"
         },

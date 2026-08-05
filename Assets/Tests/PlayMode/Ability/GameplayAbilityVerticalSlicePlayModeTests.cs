@@ -123,6 +123,116 @@ namespace UPlayGround.Ability.PlayModeTests
         }
 
         [UnityTest]
+        public IEnumerator GameplayEvent_Request는_상태승인후_Commit_End까지_왕복한다()
+        {
+            var ownerObject = new GameObject("AbilityTriggerPlayModeOwner");
+            var owner = ownerObject.AddComponent<AbilityPlayModeTestActor>();
+            owner.SetActorType(ActorType.Player);
+
+            GameplayAbilitySO route = ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            route.abilityId = "Ability.Test.PlayMode.TriggerRoute";
+            route.variants.Add(new AbilityVariantDefinition
+            {
+                variantId = "Default",
+                priority = 1,
+            });
+            route.triggers.Add(new AbilityTriggerDefinition
+            {
+                triggerTag = GameplayTags.Trigger_Player_Hit_Light,
+                source = AbilityTriggerSource.GameplayEvent,
+                mode = AbilityTriggerActivationMode.Request,
+                matchMode = AbilityTagMatchMode.Exact,
+            });
+
+            var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
+            payload.attackInfo = new AbilityAttackInfo
+            {
+                motionKey = new MotionKey("Tests.PlayMode.TriggerRequest.Ground"),
+                baseInfo = new AttackInfoBase(),
+            };
+            GameplayAbilitySO selected = ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            selected.abilityId = "Ability.Test.PlayMode.TriggerSelected";
+            var task = ScriptableObject.CreateInstance<WaitDelayTaskDefinitionSO>();
+            task.duration = 999f;
+            selected.taskGraph = AbilityTaskGraphSO.CreateTransient(task);
+            selected.variants.Add(new AbilityVariantDefinition
+            {
+                variantId = "Ground",
+                priority = 1,
+                executionPayload = payload,
+            });
+
+            AbilitySetSO set = ScriptableObject.CreateInstance<AbilitySetSO>();
+            set.additionalAbilities.Add(route);
+            set.additionalAbilities.Add(selected);
+            owner.Abilities.SetAbilitySet(set);
+
+            bool stateEntered = false;
+            AbilityExecutionHandle acceptedHandle = default;
+            owner.Abilities.AbilityTriggerRequested += request =>
+            {
+                Assert.That(request.Ability, Is.SameAs(route));
+                Assert.That(
+                    owner.Abilities.TryPrepareAbility(
+                        selected,
+                        true,
+                        null,
+                        out AbilityExecutionHandle handle,
+                        out _,
+                        request.TriggerEvent),
+                    Is.EqualTo(AbilityActivationResult.Success));
+                stateEntered = owner.TryEnterTriggeredState();
+                if (!stateEntered)
+                {
+                    owner.Abilities.Abort(handle);
+                    return;
+                }
+                Assert.That(
+                    owner.Abilities.Commit(handle),
+                    Is.EqualTo(AbilityActivationResult.Success));
+                Assert.That(
+                    owner.Abilities.BindActiveExecutionToTrigger(handle, request),
+                    Is.True);
+            };
+            owner.Abilities.AbilityTriggerAccepted += (_, handle) =>
+                acceptedHandle = handle;
+
+            owner.Abilities.IssueTriggerEvent(
+                GameplayTags.Trigger_Player_Hit_Light,
+                owner,
+                owner,
+                payload: "T5-1");
+            yield return null;
+
+            Assert.That(stateEntered, Is.True);
+            Assert.That(acceptedHandle.IsValid, Is.True);
+            Assert.That(
+                owner.Abilities.TryGetActiveExecutionHandle(
+                    selected,
+                    out AbilityExecutionHandle activeHandle),
+                Is.True);
+            Assert.That(activeHandle, Is.EqualTo(acceptedHandle));
+            Assert.That(
+                owner.Abilities.TryGetTriggerEvent(
+                    activeHandle,
+                    out GameplayEventData triggerEvent),
+                Is.True);
+            Assert.That(triggerEvent.Payload, Is.EqualTo("T5-1"));
+
+            owner.Abilities.EndAbility(activeHandle, completed: true);
+            owner.ExitTriggeredState();
+            Assert.That(owner.Abilities.HasActiveAbility, Is.False);
+            Assert.That(owner.IsInTriggeredState, Is.False);
+
+            Object.Destroy(ownerObject);
+            Object.Destroy(route);
+            Object.Destroy(selected);
+            Object.Destroy(payload);
+            Object.Destroy(set);
+            yield return null;
+        }
+
+        [UnityTest]
         public IEnumerator DurationEffect는_시간_경과후_Modifier와_Tag를_정리한다()
         {
             var ownerObject = new GameObject("AbilityEffectPlayModeOwner");
@@ -163,9 +273,24 @@ namespace UPlayGround.Ability.PlayModeTests
 
     public sealed class AbilityPlayModeTestActor : GameActor
     {
+        public bool IsInTriggeredState { get; private set; }
+
         public void SetActorType(ActorType actorType)
         {
             _actorType = actorType;
+        }
+
+        public bool TryEnterTriggeredState()
+        {
+            if (IsInTriggeredState)
+                return false;
+            IsInTriggeredState = true;
+            return true;
+        }
+
+        public void ExitTriggeredState()
+        {
+            IsInTriggeredState = false;
         }
     }
 

@@ -54,6 +54,10 @@ namespace UPlayGround
         }
         [SerializeField] private bool  _isInvincible  = false;
 
+        [Header("Ability Tag Trigger")]
+        [Tooltip("피격 상태 전환을 태그 트리거 Ability에 맡깁니다. 검증 전에는 false로 유지합니다.")]
+        public bool useTagTriggeredPlayerHitReaction;
+
         // 캐릭터별 Health/Gauge/Cooldown/Effect를 하나의 ASC 저장 스냅샷으로 보관한다.
         private readonly Dictionary<CharacterActorType, AbilitySystemSaveData>
             _characterAbilitySystemMap = new();
@@ -118,6 +122,9 @@ namespace UPlayGround
         // 경직 내성(Stagger Protection): 리액션 회복 직후 짧은 창 동안 약한 리액션(Light/Hit)을 무시한다.
         // 데미지는 그대로 적용되고 통제권만 보호 → 다인전 Hit→Idle(찰나)→Hit 재스턴 루프를 차단한다.
         private float        _staggerImmuneEndTime = -999f;
+        private bool         _staggerImmunityTagGranted;
+        private AbilityExecutionHandle _triggeredReactionHandle;
+        private ActorStateId? _triggeredReactionState;
         // 회복 직후 부여 길이(초). 0.25~0.35 권장. 큰 한 방(Heavy/넉백 등)은 이 창에도 통과한다.
         public const float   StaggerImmunityDuration = 0.3f;
 

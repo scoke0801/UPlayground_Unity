@@ -13,6 +13,7 @@ namespace UPlayGround.Gameplay.Tag
     public sealed class GameplayTagContainer : IGameplayTagReader
     {
         private readonly HashSet<GameplayTag> _tags = new();
+        private readonly Dictionary<GameplayTag, int> _explicitTagCounts = new();
         private readonly Dictionary<GameplayTag, int> _ownedTagCounts = new();
         private readonly Dictionary<ulong, OwnedTag> _ownedTags = new();
         private readonly Dictionary<GameplayTag, GameplayTagSourceHandle> _gasExplicit = new();
@@ -55,6 +56,8 @@ namespace UPlayGround.Gameplay.Tag
             EnsureRegisteredOrEmpty(tag, nameof(tag));
             if (!tag.IsValid()) return;
             bool wasPresent = HasTag(tag);
+            _explicitTagCounts.TryGetValue(tag, out int count);
+            _explicitTagCounts[tag] = count + 1;
             _tags.Add(tag);
             AbilitySystemComponent gas = EnsureAbilitySystem();
             if (!_gasExplicit.ContainsKey(tag) && gas?.Tags != null)
@@ -69,7 +72,14 @@ namespace UPlayGround.Gameplay.Tag
         public void RemoveTag(GameplayTag tag)
         {
             EnsureRegisteredOrEmpty(tag, nameof(tag));
-            if (!_tags.Remove(tag)) return;
+            if (!_explicitTagCounts.TryGetValue(tag, out int count)) return;
+            if (count > 1)
+            {
+                _explicitTagCounts[tag] = count - 1;
+                return;
+            }
+            _explicitTagCounts.Remove(tag);
+            _tags.Remove(tag);
             if (_gasExplicit.Remove(tag, out GameplayTagSourceHandle gasHandle))
                 _abilitySystem?.Tags?.Remove(gasHandle);
             if (!HasTag(tag)) OnTagRemoved?.Invoke(tag);
@@ -140,7 +150,9 @@ namespace UPlayGround.Gameplay.Tag
             var toRemove = new List<GameplayTag>();
             foreach (var t in _tags)
                 if (t.IsChildOf(parent)) toRemove.Add(t);
-            foreach (var t in toRemove) RemoveTag(t);
+            foreach (var t in toRemove)
+                while (_explicitTagCounts.ContainsKey(t))
+                    RemoveTag(t);
         }
 
         // ── 쿼리 ───────────────────────────────────────────────────────
@@ -155,6 +167,9 @@ namespace UPlayGround.Gameplay.Tag
                        && EnsureAbilitySystem()?.Tags?.Has(
                            new AbilityTagId(tag.TagName), false) == true);
         }
+
+        public bool HasTag(GameplayTag tag, bool matchHierarchy) =>
+            matchHierarchy ? HasTagInHierarchy(tag) : HasTag(tag);
 
         /// <summary>parent 계층 아래 임의의 태그를 보유하는지 확인</summary>
         public bool HasTagInHierarchy(GameplayTag parent)
@@ -212,8 +227,11 @@ namespace UPlayGround.Gameplay.Tag
 
         public void Clear()
         {
-            var copy = new List<GameplayTag>(_tags);
-            foreach (var t in copy) RemoveTag(t);
+            foreach (GameplayTagSourceHandle handle in _gasExplicit.Values)
+                _abilitySystem?.Tags?.Remove(handle);
+            _gasExplicit.Clear();
+            _explicitTagCounts.Clear();
+            _tags.Clear();
             var handles = new List<GameplayTagHandle>();
             foreach (ulong id in _ownedTags.Keys)
                 handles.Add(new GameplayTagHandle(id));

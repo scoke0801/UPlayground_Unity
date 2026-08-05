@@ -13,6 +13,9 @@ namespace UPlayGround.Data.Ability
         public string editorMemo;
         public AbilityPresentationDefinition presentation = new();
         public List<GameplayTag> abilityTagIds = new();
+        public List<AbilityTriggerDefinition> triggers = new();
+        public List<GameplayTag> cancelAbilitiesWithTag = new();
+        public List<GameplayTag> blockAbilitiesWithTag = new();
         public AbilityActivationRules activation = new();
         public AbilityTargetingDefinition targeting = new();
         public AbilityCostDefinition cost = new();

@@ -250,10 +250,42 @@ namespace UPlayGround.Data.Editor.Ability
                 Error(ability, "비용은 음수일 수 없습니다.", issues);
             if (ability.cooldown != null && ability.cooldown.durationSeconds < 0f)
                 Error(ability, "쿨다운은 음수일 수 없습니다.", issues);
-            if (ability.taskGraph?.Root == null)
+            bool requestDriven = IsRequestDrivenAbility(ability);
+            if (ability.taskGraph?.Root == null && !requestDriven)
                 Error(ability, "실행 Task Graph 또는 Root Task가 없습니다.", issues);
             if (ability.activation != null)
             {
+                ValidateTagRequirement(
+                    ability.activation.ownerTagRequirement,
+                    ability,
+                    "Owner 활성화",
+                    issues);
+                ValidateTagRequirement(
+                    ability.activation.sourceTagRequirement,
+                    ability,
+                    "Source 활성화",
+                    issues);
+                ValidateTagRequirement(
+                    ability.activation.targetTagRequirement,
+                    ability,
+                    "Target 활성화",
+                    issues);
+                if (!IsEmpty(ability.activation.requiredTagIds)
+                    && ability.activation.ownerTagRequirement?.IsEmpty == false)
+                {
+                    Warning(
+                        ability,
+                        "레거시 requiredTagIds와 ownerTagRequirement가 함께 설정되어 있습니다.",
+                        issues);
+                }
+                if (!IsEmpty(ability.activation.blockedTagIds)
+                    && ability.activation.ownerTagRequirement?.IsEmpty == false)
+                {
+                    Warning(
+                        ability,
+                        "레거시 blockedTagIds와 ownerTagRequirement가 함께 설정되어 있습니다.",
+                        issues);
+                }
                 if (ability.activation.maxDistance > 0f
                     && ability.activation.minDistance > ability.activation.maxDistance)
                     Error(ability, "최소 대상 거리가 최대 대상 거리보다 큽니다.", issues);
@@ -273,6 +305,18 @@ namespace UPlayGround.Data.Editor.Ability
                 if (!consumes && ability.cost.value > 0f)
                     Warning(ability, "비용 정책이 None이므로 입력한 비용 값은 사용되지 않습니다.", issues);
             }
+            ValidateAbilityTriggers(ability, issues);
+            ValidateTagList(ability.abilityTagIds, ability, "Ability", issues);
+            ValidateTagList(
+                ability.cancelAbilitiesWithTag,
+                ability,
+                "Cancel Ability",
+                issues);
+            ValidateTagList(
+                ability.blockAbilitiesWithTag,
+                ability,
+                "Block Ability",
+                issues);
             if (ability.variants == null || ability.variants.Count == 0)
             {
                 Error(ability, "실행 가능한 Variant가 없습니다.", issues);
@@ -290,7 +334,23 @@ namespace UPlayGround.Data.Editor.Ability
                 }
                 if (string.IsNullOrWhiteSpace(variant.variantId))
                     Error(ability, $"Variant {i}의 ID가 비어 있습니다.", issues);
-                bool executable = UPlayGroundAbilityPayloadResolver.IsExecutable(variant);
+                ValidateTagRequirement(
+                    variant.condition?.ownerTagRequirement,
+                    ability,
+                    $"Variant '{variant.variantId}' Owner",
+                    issues);
+                if (variant.condition != null
+                    && (!IsEmpty(variant.condition.requiredTagIds)
+                        || !IsEmpty(variant.condition.blockedTagIds))
+                    && variant.condition.ownerTagRequirement?.IsEmpty == false)
+                {
+                    Warning(
+                        ability,
+                        $"Variant '{variant.variantId}'에 레거시 태그 조건과 ownerTagRequirement가 함께 설정되어 있습니다.",
+                        issues);
+                }
+                bool executable = requestDriven
+                    || UPlayGroundAbilityPayloadResolver.IsExecutable(variant);
                 if (variant.executionPayload is UPlayGroundMotionAbilityPayloadSO payload)
                 {
                     if (payload.attackInfo == null)
@@ -540,10 +600,31 @@ namespace UPlayGround.Data.Editor.Ability
                     Error(set, $"플레이어 슬롯 {i}의 Ability 참조가 없습니다.", issues);
                 else if (!seenSlots.Add(entry.slot))
                     Error(set, $"'{entry.slot}' 슬롯이 중복되었습니다.", issues);
+                if (entry?.slot == Data.Combat.PlayerSkillSlot.ElementalImbue
+                    && (entry.ability?.triggers?.Count ?? 0) > 0)
+                {
+                    Error(
+                        set,
+                        $"ElementalImbue 슬롯 Ability '{entry.ability.name}'에는 트리거를 설정할 수 없습니다.",
+                        issues);
+                }
+                else if ((entry?.ability?.triggers?.Count ?? 0) > 0)
+                {
+                    Error(
+                        set,
+                        $"입력 슬롯 '{entry.slot}' Ability '{entry.ability.name}'에 트리거가 함께 설정되어 입력 1회가 중복 실행될 수 있습니다.",
+                        issues);
+                }
             }
             for (int i = 0; i < (set.additionalAbilities?.Count ?? 0); i++)
                 if (set.additionalAbilities[i] == null)
                     Error(set, $"추가 Ability {i}번 참조가 없습니다.", issues);
+
+            // Request 전용 라우터 Ability는 실행 데이터 없이 Prepare되는 것이 정상이다.
+            // 이런 Ability가 BT 선택 대상(aiSelectable)이나 전투 슬롯에 노출되면
+            // 트리거 경로를 우회해 활성화가 시도되고, 런타임은 이를 거부하므로
+            // "선택은 되는데 아무 일도 일어나지 않는" 무증상 실패가 된다.
+            ValidateRequestDrivenExposure(set, issues);
 
             var seenCombatSlots = new HashSet<PlayerCombatAbilitySlot>();
             for (int i = 0; i < (set.combatBindings?.Count ?? 0); i++)
@@ -590,7 +671,203 @@ namespace UPlayGround.Data.Editor.Ability
                 else if (route.IsEmpty)
                     Warning(set, $"연계 라우트 '{route.DisplayLabel}'의 입력 패턴이 비어 있습니다.", issues);
             }
+
+            var triggerCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+            foreach (GameplayAbilitySO ability in set.EnumerateAll())
+            {
+                for (int i = 0; i < (ability?.triggers?.Count ?? 0); i++)
+                {
+                    AbilityTriggerDefinition trigger = ability.triggers[i];
+                    if (trigger == null || !trigger.triggerTag.IsValid()) continue;
+                    string key = $"{trigger.source}:{trigger.triggerTag.TagName}";
+                    triggerCounts.TryGetValue(key, out int count);
+                    triggerCounts[key] = count + 1;
+                }
+            }
+            foreach (KeyValuePair<string, int> pair in triggerCounts)
+            {
+                if (pair.Value >= 3)
+                {
+                    Warning(
+                        set,
+                        $"같은 Source/Tag 트리거 '{pair.Key}'가 AbilitySet에 {pair.Value}개 있습니다.",
+                        issues);
+                }
+            }
         }
+
+        private static void ValidateAbilityTriggers(
+            GameplayAbilitySO ability,
+            List<AbilityValidationIssue> issues)
+        {
+            for (int i = 0; i < (ability.triggers?.Count ?? 0); i++)
+            {
+                AbilityTriggerDefinition trigger = ability.triggers[i];
+                if (trigger == null)
+                {
+                    Error(ability, $"Trigger {i}가 null입니다.", issues);
+                    continue;
+                }
+                if (!trigger.triggerTag.IsValid())
+                {
+                    Error(
+                        ability,
+                        $"Trigger {i}의 태그가 비어 있거나 Registry에 없습니다.",
+                        issues);
+                }
+                if (trigger.mode == AbilityTriggerActivationMode.Immediate
+                    && ability.concurrency != AbilityConcurrencyPolicy.Background)
+                {
+                    Error(
+                        ability,
+                        $"Immediate Trigger {i}는 Background Ability에서만 사용할 수 있습니다.",
+                        issues);
+                }
+                if (trigger.mode == AbilityTriggerActivationMode.Immediate
+                    && ability.concurrency == AbilityConcurrencyPolicy.Background
+                    && (ability.persistence?.backgroundMaxDurationSeconds ?? 0f) <= 0f)
+                {
+                    Error(
+                        ability,
+                        $"Immediate Background Trigger {i}에는 0보다 큰 최대 실행 시간이 필요합니다.",
+                        issues);
+                }
+                if (trigger.source == AbilityTriggerSource.OwnedTagPresent
+                    && ability.concurrency != AbilityConcurrencyPolicy.Background)
+                {
+                    Error(
+                        ability,
+                        $"OwnedTagPresent Trigger {i}는 Background Ability에서만 사용할 수 있습니다.",
+                        issues);
+                }
+                if (ContainsTag(
+                        ability.activation?.executionGrantedTagIds,
+                        trigger.triggerTag,
+                        trigger.matchMode))
+                {
+                    Error(
+                        ability,
+                        $"Trigger {i}의 태그가 자신의 실행 부여 태그에도 포함되어 순환 발동할 수 있습니다.",
+                        issues);
+                }
+            }
+
+            for (int i = 0; i < (ability.cancelAbilitiesWithTag?.Count ?? 0); i++)
+            {
+                GameplayTag cancelTag = ability.cancelAbilitiesWithTag[i];
+                if (ContainsTag(
+                        ability.abilityTagIds,
+                        cancelTag,
+                        AbilityTagMatchMode.Hierarchy))
+                {
+                    Error(
+                        ability,
+                        $"Cancel Ability 태그 '{cancelTag.TagName}'가 자신의 Ability 태그를 포함합니다.",
+                        issues);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Request 전용 라우터 Ability가 트리거 이외 활성화 경로에 노출됐는지 검사한다.
+        /// </summary>
+        private static void ValidateRequestDrivenExposure(
+            AbilitySetSO set,
+            List<AbilityValidationIssue> issues)
+        {
+            for (int i = 0; i < (set.additionalAbilities?.Count ?? 0); i++)
+            {
+                GameplayAbilitySO ability = set.additionalAbilities[i];
+                if (ability == null || !IsRequestDrivenAbility(ability))
+                    continue;
+                for (int j = 0; j < (ability.variants?.Count ?? 0); j++)
+                {
+                    if (ability.variants[j]?.executionPayload
+                            is not UPlayGroundMotionAbilityPayloadSO payload
+                        || payload.attackInfo?.aiSelectable != true)
+                        continue;
+                    Error(
+                        set,
+                        $"Request 전용 트리거 Ability '{ability.name}'의 Variant {j}가 aiSelectable입니다. "
+                        + "BT가 직접 선택하면 트리거 경로를 우회하므로 런타임이 활성화를 거부합니다.",
+                        issues);
+                    break;
+                }
+            }
+
+            for (int i = 0; i < (set.combatBindings?.Count ?? 0); i++)
+            {
+                PlayerCombatAbilityBinding binding = set.combatBindings[i];
+                if (binding?.abilities == null)
+                    continue;
+                for (int j = 0; j < binding.abilities.Count; j++)
+                {
+                    GameplayAbilitySO ability = binding.abilities[j];
+                    if (ability == null || !IsRequestDrivenAbility(ability))
+                        continue;
+                    Error(
+                        set,
+                        $"Request 전용 트리거 Ability '{ability.name}'가 전투 슬롯 '{binding.slot}'에 "
+                        + "바인딩되어 있습니다. 트리거 경로 외 활성화는 거부됩니다.",
+                        issues);
+                }
+            }
+        }
+
+        private static bool IsRequestDrivenAbility(GameplayAbilitySO ability)
+        {
+            if (ability?.triggers == null || ability.triggers.Count == 0)
+                return false;
+            for (int i = 0; i < ability.triggers.Count; i++)
+                if (ability.triggers[i] == null
+                    || ability.triggers[i].mode
+                    != AbilityTriggerActivationMode.Request)
+                    return false;
+            return true;
+        }
+
+        private static void ValidateTagRequirement(
+            AbilityTagRequirement requirement,
+            UnityEngine.Object context,
+            string label,
+            List<AbilityValidationIssue> issues)
+        {
+            if (requirement == null) return;
+            ValidateTagList(requirement.requireAll, context, $"{label} RequireAll", issues);
+            ValidateTagList(requirement.requireAny, context, $"{label} RequireAny", issues);
+            ValidateTagList(requirement.blockAny, context, $"{label} BlockAny", issues);
+            for (int i = 0; i < (requirement.requireAll?.Count ?? 0); i++)
+            {
+                GameplayTag required = requirement.requireAll[i];
+                if (ContainsTag(requirement.blockAny, required, requirement.matchMode))
+                {
+                    Warning(
+                        context,
+                        $"{label} 태그 '{required.TagName}'가 RequireAll과 BlockAny에 함께 있습니다.",
+                        issues);
+                }
+            }
+        }
+
+        private static bool ContainsTag(
+            List<GameplayTag> tags,
+            GameplayTag expected,
+            AbilityTagMatchMode matchMode)
+        {
+            if (!expected.IsValid()) return false;
+            for (int i = 0; i < (tags?.Count ?? 0); i++)
+            {
+                GameplayTag candidate = tags[i];
+                if (matchMode == AbilityTagMatchMode.Exact
+                    ? candidate.Equals(expected)
+                    : candidate.IsChildOf(expected))
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool IsEmpty<T>(List<T> values) =>
+            values == null || values.Count == 0;
 
         private static void ValidatePassive(
             PassiveAbilitySO passive,

@@ -20,6 +20,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             public const string DistanceGreater = "DistanceGreater";
             public const string ActionDelayElapsed = "ActionDelayElapsed";
             public const string CanUseSkill = "CanUseSkill";
+            public const string CanActivateAbility = "CanActivateAbility";
             public const string HasAttackInRange = "HasAttackInRange";
             public const string HasLineOfSight = "HasLineOfSight";
             public const string IsPlayerAttacking = "IsPlayerAttacking";
@@ -60,6 +61,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             public const string RequestAction = "RequestAction";
             public const string RequestAttackSlot = "RequestAttackSlot";
             public const string ExecuteAttack = "ExecuteAttack";
+            public const string IssueAbilityTrigger = "IssueAbilityTrigger";
             public const string Wait = "Wait";
             public const string FlyingTransition = "FlyingTransition";
             public const string FlyingPatrolOrIdle = "FlyingPatrolOrIdle";

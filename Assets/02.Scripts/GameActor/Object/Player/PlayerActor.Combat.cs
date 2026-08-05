@@ -21,6 +21,9 @@ using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Ability.Core;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround
 {
@@ -90,6 +93,19 @@ namespace UPlayGround
             }
 
             ReactionDecision reactionDecision = OnDamaged(attackData, combatResult.Hit);
+            GameplayTag triggerTag = ResolvePlayerHitTrigger(
+                combatResult.Hit.ReactionType);
+            if (triggerTag.IsValid())
+            {
+                Abilities?.IssueTriggerEvent(
+                    triggerTag,
+                    combatResult.Hit.Attacker,
+                    this,
+                    new HitReactionTriggerPayload(
+                        combatResult.Hit,
+                        reactionDecision.TargetState,
+                        attackData));
+            }
             return CombatResolutionPipeline.WithReaction(combatResult, reactionDecision);
         }
 
@@ -359,7 +375,10 @@ namespace UPlayGround
 
             if (reactionDecision.ShouldEnterState)
             {
-                ApplyPlayerReactionState(reactionDecision.TargetState, attackData);
+                if (!useTagTriggeredPlayerHitReaction)
+                    ApplyPlayerReactionState(
+                        reactionDecision.TargetState,
+                        attackData);
 
                 if (reactionDecision.TargetState is CombatReactionState.Hit
                     or CombatReactionState.Stun
@@ -404,7 +423,9 @@ namespace UPlayGround
             return reactionDecision;
         }
 
-        private void ApplyPlayerReactionState(CombatReactionState reactionState, AttackData attackData)
+        private void ApplyPlayerReactionState(
+            CombatReactionState reactionState,
+            AttackData attackData)
         {
             switch (reactionState)
             {
@@ -412,18 +433,215 @@ namespace UPlayGround
                     MovementController.TransitionToState(ActorStateId.Airborne);
                     break;
                 case CombatReactionState.Grabbed:
-                    MovementController.TransitionToState(new PlayerGrabbedState(MovementController, attackData));
+                    MovementController.TransitionToState(
+                        new PlayerGrabbedState(MovementController, attackData));
                     break;
                 case CombatReactionState.Stun:
-                    MovementController.TransitionToState(new PlayerStunState(MovementController, attackData));
+                    MovementController.TransitionToState(
+                        new PlayerStunState(MovementController, attackData));
                     break;
                 case CombatReactionState.Knockdown:
-                    MovementController.TransitionToState(new PlayerKnockdownState(MovementController, attackData));
+                    MovementController.TransitionToState(
+                        new PlayerKnockdownState(MovementController, attackData));
                     break;
                 case CombatReactionState.Hit:
-                    MovementController.TransitionToState(new PlayerHitState(MovementController, attackData));
+                    MovementController.TransitionToState(
+                        new PlayerHitState(MovementController, attackData));
                     break;
             }
+        }
+
+        private static GameplayTag ResolvePlayerHitTrigger(
+            AttackReactionType reactionType) => reactionType switch
+        {
+            AttackReactionType.Light => GameplayTags.Trigger_Player_Hit_Light,
+            AttackReactionType.Hit => GameplayTags.Trigger_Player_Hit_Hit,
+            AttackReactionType.Heavy => GameplayTags.Trigger_Player_Hit_Heavy,
+            AttackReactionType.KnockBack => GameplayTags.Trigger_Player_Hit_KnockBack,
+            AttackReactionType.Stun => GameplayTags.Trigger_Player_Hit_Stun,
+            AttackReactionType.Pull => GameplayTags.Trigger_Player_Hit_Pull,
+            AttackReactionType.Airborne => GameplayTags.Trigger_Player_Hit_Airborne,
+            AttackReactionType.Knockdown => GameplayTags.Trigger_Player_Hit_Knockdown,
+            AttackReactionType.Grab => GameplayTags.Trigger_Player_Hit_Grab,
+            _ => default,
+        };
+
+        private void SubscribeReactionAbilityTriggers()
+        {
+            if (Abilities == null)
+                return;
+            Abilities.AbilityTriggerRequested -= OnReactionAbilityTriggerRequested;
+            Abilities.AbilityTriggerRequested += OnReactionAbilityTriggerRequested;
+            if (MovementController != null)
+            {
+                MovementController.OnStateChanged -= OnReactionAbilityStateChanged;
+                MovementController.OnStateChanged += OnReactionAbilityStateChanged;
+            }
+        }
+
+        private void UnsubscribeReactionAbilityTriggers()
+        {
+            if (Abilities != null)
+                Abilities.AbilityTriggerRequested -= OnReactionAbilityTriggerRequested;
+            if (MovementController != null)
+                MovementController.OnStateChanged -= OnReactionAbilityStateChanged;
+        }
+
+        private void OnReactionAbilityTriggerRequested(AbilityTriggerRequest request)
+        {
+            if (!request.TriggerTag.IsChildOf(GameplayTags.Trigger_Player_Hit))
+                return;
+            if (!useTagTriggeredPlayerHitReaction)
+                return;
+
+            if (!request.TriggerEvent.HasValue
+                || request.TriggerEvent.Value.Payload is not HitReactionTriggerPayload payload
+                || payload.ReactionState == CombatReactionState.None
+                || MovementController == null)
+            {
+                Abilities?.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.InvalidDefinition);
+                return;
+            }
+
+            // 이전 트리거 리액션 실행을 먼저 명시적으로 회수한다.
+            // concurrency(CancelExisting)에 기대면 정책 변경 시 핸들이 누수된다.
+            ReleaseTriggeredReaction(false);
+
+            if (!TryResolveTriggeredReactionStateId(
+                    payload.ReactionState,
+                    out ActorStateId targetStateId))
+            {
+                Abilities.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.InvalidDefinition);
+                return;
+            }
+
+            bool grounded = MovementController.Motor == null
+                || MovementController.Motor.GroundingStatus.IsStableOnGround;
+            AbilityActivationResult prepared = Abilities.TryPrepareAbility(
+                request.Ability,
+                grounded,
+                null,
+                out AbilityExecutionHandle handle,
+                out _,
+                request.TriggerEvent);
+            if (prepared != AbilityActivationResult.Success)
+            {
+                Abilities.ReportTriggerRejected(request.Ability, prepared);
+                return;
+            }
+
+            // 상태 전환보다 Commit을 먼저 수행한다(spec §4).
+            // 반대로 두면 Commit 실패 시 리액션 상태에는 들어갔는데
+            // 핸들이 없어 종료 훅이 실행을 회수하지 못한다.
+            AbilityActivationResult committed = Abilities.Commit(handle);
+            if (committed != AbilityActivationResult.Success)
+            {
+                Abilities.Abort(handle);
+                Abilities.ReportTriggerRejected(request.Ability, committed);
+                return;
+            }
+
+            _triggeredReactionHandle = handle;
+            _triggeredReactionState = targetStateId;
+
+            if (!TryEnterTriggeredPlayerReaction(payload))
+            {
+                // 커밋 롤백: 상태 없이 활성 실행만 남지 않도록 즉시 종료한다.
+                ReleaseTriggeredReaction(false);
+                Abilities.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.StateTransitionRejected);
+                return;
+            }
+
+            Abilities.BindActiveExecutionToTrigger(handle, request);
+        }
+
+        /// <summary>진행 중인 트리거 리액션 실행을 종료하고 추적 상태를 비운다.</summary>
+        private void ReleaseTriggeredReaction(bool completed)
+        {
+            if (!_triggeredReactionHandle.IsValid)
+            {
+                _triggeredReactionState = null;
+                return;
+            }
+
+            AbilityExecutionHandle handle = _triggeredReactionHandle;
+            _triggeredReactionHandle = default;
+            _triggeredReactionState = null;
+            Abilities?.EndAbility(handle, completed);
+        }
+
+        /// <summary>
+        /// 리액션 종류에 대응하는 상태 ID. 상태 전환보다 Commit이 앞서므로
+        /// 전환 전에 추적할 StateId를 미리 확정해야 한다.
+        /// </summary>
+        private static bool TryResolveTriggeredReactionStateId(
+            CombatReactionState reactionState,
+            out ActorStateId stateId)
+        {
+            switch (reactionState)
+            {
+                case CombatReactionState.Airborne: stateId = ActorStateId.Airborne; return true;
+                case CombatReactionState.Grabbed: stateId = ActorStateId.Grabbed; return true;
+                case CombatReactionState.Stun: stateId = ActorStateId.Stun; return true;
+                case CombatReactionState.Knockdown: stateId = ActorStateId.Knockdown; return true;
+                case CombatReactionState.Hit: stateId = ActorStateId.Hit; return true;
+                default: stateId = default; return false;
+            }
+        }
+
+        private bool TryEnterTriggeredPlayerReaction(
+            in HitReactionTriggerPayload payload) => payload.ReactionState switch
+        {
+            CombatReactionState.Airborne =>
+                MovementController.TryTransitionToState(ActorStateId.Airborne),
+            CombatReactionState.Grabbed =>
+                MovementController.TryTransitionToState(
+                    new PlayerGrabbedState(MovementController, payload.AttackData)),
+            CombatReactionState.Stun =>
+                MovementController.TryTransitionToState(
+                    new PlayerStunState(MovementController, payload.AttackData)),
+            CombatReactionState.Knockdown =>
+                MovementController.TryTransitionToState(
+                    new PlayerKnockdownState(MovementController, payload.AttackData)),
+            CombatReactionState.Hit =>
+                MovementController.TryTransitionToState(
+                    new PlayerHitState(MovementController, payload.AttackData)),
+            _ => false,
+        };
+
+        private void OnReactionAbilityStateChanged(
+            GameActorState previous,
+            GameActorState current)
+        {
+            if (!_triggeredReactionHandle.IsValid
+                || !_triggeredReactionState.HasValue
+                || previous?.StateId != _triggeredReactionState.Value
+                || current?.StateId == _triggeredReactionState.Value)
+                return;
+
+            bool completed = current?.StateId != ActorStateId.Death;
+            ReleaseTriggeredReaction(completed);
+        }
+
+        private void UpdateStaggerImmunityTag()
+        {
+            if (!_staggerImmunityTagGranted || IsStaggerImmune)
+                return;
+            ClearStaggerImmunityTag();
+        }
+
+        private void ClearStaggerImmunityTag()
+        {
+            if (!_staggerImmunityTagGranted)
+                return;
+            Tags?.RemoveTag(GameplayTags.State_SuperArmor);
+            _staggerImmunityTagGranted = false;
         }
 
         private bool ShouldEnterAirborneState(AttackData attackData)

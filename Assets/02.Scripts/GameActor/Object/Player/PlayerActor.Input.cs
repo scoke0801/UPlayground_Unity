@@ -20,6 +20,7 @@ using UPlayGround.State;
 using UPlayGround.UI;
 using Random = UnityEngine.Random;
 using UPlayGround.AI.CombatDecision;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround
 {
@@ -273,6 +274,11 @@ namespace UPlayGround
             float end = ActorTime + Mathf.Max(0f, duration);
             if (end > _staggerImmuneEndTime)
                 _staggerImmuneEndTime = end;
+            if (!_staggerImmunityTagGranted && duration > 0f)
+            {
+                Tags?.AddTag(GameplayTags.State_SuperArmor);
+                _staggerImmunityTagGranted = true;
+            }
         }
 
         public void QueueSwapEvade(MonsterActor target, float counterWindow)

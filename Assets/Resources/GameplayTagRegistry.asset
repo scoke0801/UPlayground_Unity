@@ -73,6 +73,93 @@ MonoBehaviour:
   - tagName: State.Combat.Counter
     description: 
     color: {r: 0.4, g: 0.8, b: 1, a: 1}
+  - tagName: State.Stun
+    description: "Stun state"
+    color: {r: 0.8, g: 0.4, b: 1, a: 1}
+  - tagName: State.Knockdown
+    description: "Knockdown state"
+    color: {r: 0.8, g: 0.3, b: 0.3, a: 1}
+  - tagName: State.SpecialBreakVictim
+    description: "Special break victim state"
+    color: {r: 1, g: 0.2, b: 0.5, a: 1}
+  - tagName: State.SuperArmor
+    description: "Super armor state"
+    color: {r: 1, g: 0.8, b: 0.2, a: 1}
+  - tagName: Trigger.Monster.Hit
+    description: "Monster hit trigger root"
+    color: {r: 1, g: 0.25, b: 0.25, a: 1}
+  - tagName: Trigger.Monster.Hit.Light
+    description: "Monster light hit event"
+    color: {r: 1, g: 0.4, b: 0.4, a: 1}
+  - tagName: Trigger.Monster.Hit.Hit
+    description: "Monster normal hit event"
+    color: {r: 1, g: 0.35, b: 0.35, a: 1}
+  - tagName: Trigger.Monster.Hit.Heavy
+    description: "Monster heavy hit event"
+    color: {r: 1, g: 0.2, b: 0.2, a: 1}
+  - tagName: Trigger.Monster.Hit.KnockBack
+    description: "Monster knockback event"
+    color: {r: 1, g: 0.25, b: 0.15, a: 1}
+  - tagName: Trigger.Monster.Hit.Stun
+    description: "Monster stun event"
+    color: {r: 0.85, g: 0.3, b: 1, a: 1}
+  - tagName: Trigger.Monster.Hit.Pull
+    description: "Monster pull event"
+    color: {r: 0.9, g: 0.35, b: 0.7, a: 1}
+  - tagName: Trigger.Monster.Hit.Airborne
+    description: "Monster airborne event"
+    color: {r: 0.4, g: 0.75, b: 1, a: 1}
+  - tagName: Trigger.Monster.Hit.Knockdown
+    description: "Monster knockdown event"
+    color: {r: 0.75, g: 0.25, b: 0.25, a: 1}
+  - tagName: Trigger.Monster.Hit.Grab
+    description: "Monster grab event"
+    color: {r: 0.7, g: 0.3, b: 0.7, a: 1}
+  - tagName: Trigger.Monster.Hit.PoiseBreak
+    description: "Monster poise break event"
+    color: {r: 1, g: 0.6, b: 0.1, a: 1}
+  - tagName: Trigger.Monster.Attack
+    description: "Monster attack trigger root"
+    color: {r: 1, g: 0.45, b: 0.15, a: 1}
+  - tagName: Trigger.Monster.Attack.Basic
+    description: "Monster basic attack event"
+    color: {r: 1, g: 0.55, b: 0.2, a: 1}
+  - tagName: Trigger.Monster.Attack.Heavy
+    description: "Monster heavy attack event"
+    color: {r: 1, g: 0.35, b: 0.1, a: 1}
+  - tagName: Trigger.Monster.Attack.Skill
+    description: "Monster skill attack event"
+    color: {r: 0.9, g: 0.25, b: 0.9, a: 1}
+  - tagName: Trigger.Player.Hit
+    description: "Player hit trigger root"
+    color: {r: 0.3, g: 0.65, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.Light
+    description: "Player light hit event"
+    color: {r: 0.4, g: 0.7, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.Hit
+    description: "Player normal hit event"
+    color: {r: 0.35, g: 0.65, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.Heavy
+    description: "Player heavy hit event"
+    color: {r: 0.25, g: 0.55, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.KnockBack
+    description: "Player knockback event"
+    color: {r: 0.25, g: 0.5, b: 0.9, a: 1}
+  - tagName: Trigger.Player.Hit.Stun
+    description: "Player stun event"
+    color: {r: 0.55, g: 0.35, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.Pull
+    description: "Player pull event"
+    color: {r: 0.45, g: 0.45, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.Airborne
+    description: "Player airborne event"
+    color: {r: 0.35, g: 0.8, b: 1, a: 1}
+  - tagName: Trigger.Player.Hit.Knockdown
+    description: "Player knockdown event"
+    color: {r: 0.3, g: 0.45, b: 0.85, a: 1}
+  - tagName: Trigger.Player.Hit.Grab
+    description: "Player grab event"
+    color: {r: 0.55, g: 0.3, b: 0.85, a: 1}
   - tagName: Motion.Action.Dash
     description: "\uBAA8\uC158 \uC758\uBBF8 \uC2AC\uB86F: Dash"
     color: {r: 0.35, g: 0.7, b: 1, a: 1}

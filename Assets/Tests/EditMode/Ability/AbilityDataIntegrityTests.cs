@@ -49,7 +49,7 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void 모든_GameplayAbility는_실행가능한_TaskGraph를_가진다()
+        public void 모든_GameplayAbility는_TaskGraph_또는_Request트리거를_가진다()
         {
             string[] guids = AssetDatabase.FindAssets(
                 "t:GameplayAbilitySO", new[] { "Assets/10.Datas/Ability" });
@@ -60,6 +60,8 @@ namespace UPlayGround.Ability.Tests
                 GameplayAbilitySO ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(path);
                 if (ability == null)
                     failures.Add($"{path}: Ability 로드 실패");
+                else if (IsRequestDrivenAbility(ability))
+                    continue;
                 else if (ability.taskGraph == null)
                     failures.Add($"{path}: TaskGraph 누락");
                 else if (ability.taskGraph.Root == null)
@@ -68,6 +70,57 @@ namespace UPlayGround.Ability.Tests
                     failures.Add($"{path}: 미지원 Root {ability.taskGraph.Root.GetType().Name}");
             }
             Assert.That(failures, Is.Empty, string.Join("\n", failures));
+        }
+
+        [Test]
+        public void 태그_트리거_마이그레이션_데이터는_모든_AbilitySet에_한번씩_연결된다()
+        {
+            const string monsterSetRoot = "Assets/10.Datas/Ability/Actor";
+            const string monsterTriggerRoot =
+                "Assets/10.Datas/Ability/Actor/TagTriggers";
+            const string playerSetRoot = "Assets/10.Datas/Ability/Migrated";
+            const string playerTriggerRoot =
+                "Assets/10.Datas/Ability/Migrated/TagTriggers";
+
+            List<GameplayAbilitySO> monsterTriggers = LoadAssets<GameplayAbilitySO>(
+                monsterTriggerRoot);
+            List<GameplayAbilitySO> playerTriggers = LoadAssets<GameplayAbilitySO>(
+                playerTriggerRoot);
+            List<AbilitySetSO> monsterSets = LoadAssets<AbilitySetSO>(monsterSetRoot);
+            List<AbilitySetSO> playerSets = LoadAssets<AbilitySetSO>(playerSetRoot);
+
+            Assert.That(monsterTriggers, Has.Count.EqualTo(12));
+            Assert.That(playerTriggers, Has.Count.EqualTo(9));
+            Assert.That(monsterSets, Has.Count.EqualTo(26));
+            Assert.That(playerSets, Has.Count.EqualTo(8));
+
+            AssertRequestTriggerDefinitions(monsterTriggers, "Trigger.Monster.");
+            AssertRequestTriggerDefinitions(playerTriggers, "Trigger.Player.Hit.");
+
+            foreach (AbilitySetSO set in monsterSets)
+            {
+                Assert.That(set.tagTriggerMigrationVersion, Is.EqualTo(1), set.name);
+                AssertSetContainsTriggersExactlyOnce(set, monsterTriggers);
+                Assert.That(
+                    set.additionalAbilities.Count(playerTriggers.Contains),
+                    Is.Zero,
+                    set.name);
+            }
+
+            foreach (AbilitySetSO set in playerSets)
+            {
+                Assert.That(set.tagTriggerMigrationVersion, Is.EqualTo(1), set.name);
+                AssertSetContainsTriggersExactlyOnce(set, playerTriggers);
+                Assert.That(
+                    set.additionalAbilities.Count(monsterTriggers.Contains),
+                    Is.Zero,
+                    set.name);
+                Assert.That(
+                    set.playerSlots.Any(slot =>
+                        slot != null && playerTriggers.Contains(slot.ability)),
+                    Is.False,
+                    $"{set.name}: Request 트리거 Ability가 입력 슬롯에도 연결됨");
+            }
         }
 
         [TestCase(
@@ -113,6 +166,68 @@ namespace UPlayGround.Ability.Tests
                     out UPlayGroundUltimateAbilityPayloadSO resolved),
                 Is.True);
             Assert.That(resolved, Is.SameAs(payload));
+        }
+
+        private static bool IsRequestDrivenAbility(GameplayAbilitySO ability) =>
+            ability?.triggers != null
+            && ability.triggers.Count > 0
+            && ability.triggers.All(trigger =>
+                trigger != null
+                && trigger.mode == AbilityTriggerActivationMode.Request);
+
+        private static List<T> LoadAssets<T>(string root)
+            where T : UnityEngine.Object => AssetDatabase
+                .FindAssets($"t:{typeof(T).Name}", new[] { root })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<T>)
+                .Where(asset => asset != null)
+                .ToList();
+
+        private static void AssertRequestTriggerDefinitions(
+            IReadOnlyList<GameplayAbilitySO> abilities,
+            string tagPrefix)
+        {
+            var tags = new HashSet<string>();
+            for (int i = 0; i < abilities.Count; i++)
+            {
+                GameplayAbilitySO ability = abilities[i];
+                Assert.That(ability.taskGraph, Is.Null, ability.name);
+                Assert.That(ability.triggers, Has.Count.EqualTo(1), ability.name);
+                Assert.That(ability.variants, Has.Count.EqualTo(1), ability.name);
+                Assert.That(
+                    ability.variants[0].executionPayload,
+                    Is.Null,
+                    ability.name);
+
+                AbilityTriggerDefinition trigger = ability.triggers[0];
+                Assert.That(trigger.source, Is.EqualTo(AbilityTriggerSource.GameplayEvent));
+                Assert.That(trigger.mode, Is.EqualTo(AbilityTriggerActivationMode.Request));
+                Assert.That(trigger.matchMode, Is.EqualTo(AbilityTagMatchMode.Exact));
+                bool hitReaction = trigger.triggerTag.TagName.Contains(".Hit.");
+                Assert.That(
+                    trigger.allowPreemption,
+                    Is.EqualTo(hitReaction),
+                    $"{ability.name}: 피격 리액션만 명시적 선점을 허용해야 합니다.");
+                Assert.That(
+                    trigger.triggerTag.TagName.StartsWith(tagPrefix),
+                    Is.True,
+                    ability.name);
+                Assert.That(tags.Add(trigger.triggerTag.TagName), Is.True, ability.name);
+            }
+        }
+
+        private static void AssertSetContainsTriggersExactlyOnce(
+            AbilitySetSO set,
+            IReadOnlyList<GameplayAbilitySO> triggers)
+        {
+            for (int i = 0; i < triggers.Count; i++)
+            {
+                GameplayAbilitySO trigger = triggers[i];
+                Assert.That(
+                    set.additionalAbilities.Count(ability => ability == trigger),
+                    Is.EqualTo(1),
+                    $"{set.name}: {trigger.name} 연결 수");
+            }
         }
     }
 }

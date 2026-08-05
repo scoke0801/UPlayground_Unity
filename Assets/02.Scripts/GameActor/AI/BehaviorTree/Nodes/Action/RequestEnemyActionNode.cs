@@ -15,6 +15,7 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] private string _cooldownId;
         [SerializeField] private float _cooldownDuration;
 
+        private readonly EnemyAttackTriggerRequest _triggerRequest = new();
         private bool _attackStarted;
 
         public EnemyActionIntent Intent
@@ -79,10 +80,12 @@ namespace UPlayGround.AI.BehaviorTree
         protected override void OnStart()
         {
             _attackStarted = false;
+            _triggerRequest.Reset();
         }
 
         protected override void OnStop()
         {
+            _triggerRequest.Stop();
             _attackStarted = false;
         }
 
@@ -92,11 +95,33 @@ namespace UPlayGround.AI.BehaviorTree
             if (controller == null)
                 return BTStatus.Failure;
 
-            if (controller.CurrentState?.StateId == ActorStateId.Attack)
+            if (_triggerRequest.TriggerIssued)
             {
-                _attackStarted = true;
-                return BTStatus.Running;
+                BTStatus triggerStatus = _triggerRequest.Update();
+                if (_triggerRequest.ConsumeAcceptedSignal())
+                {
+                    _attackStarted = true;
+                    CombatIntentHistoryUtility.RecordSelectedIntentExecution(
+                        Context?.Blackboard);
+                    EnemyActionResolver.RecordCooldown(
+                        Context,
+                        _cooldownId,
+                        _cooldownDuration);
+                }
+                if (triggerStatus == BTStatus.Failure)
+                {
+                    Context?.Blackboard?.SetBool(
+                        EnemyBlackboardKeys.HasAttackSlot,
+                        false);
+                    Context?.Blackboard?.SetString(
+                        EnemyBlackboardKeys.ResolverFailureReason,
+                        "공격 Ability 트리거가 거부되었습니다.");
+                }
+                return triggerStatus;
             }
+
+            if (controller.CurrentState?.StateId == ActorStateId.Attack)
+                return BTStatus.Failure;
 
             if (_attackStarted)
                 return BTStatus.Success;
@@ -153,11 +178,26 @@ namespace UPlayGround.AI.BehaviorTree
             Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, string.Empty);
             combat.ReserveAttackCategory(_attackCategory);
             aiContext.NotifyBTAttackStarted();
-            controller.TransitionToState(new EnemyAttackState(controller, combat, aiContext, detection));
-            CombatIntentHistoryUtility.RecordSelectedIntentExecution(Context?.Blackboard);
-            EnemyActionResolver.RecordCooldown(Context, _cooldownId, _cooldownDuration);
-            _attackStarted = true;
-            return BTStatus.Running;
+            _triggerRequest.Issue(combat, aiContext, _attackCategory);
+            BTStatus status = _triggerRequest.Update();
+            if (_triggerRequest.ConsumeAcceptedSignal())
+            {
+                CombatIntentHistoryUtility.RecordSelectedIntentExecution(
+                    Context?.Blackboard);
+                EnemyActionResolver.RecordCooldown(
+                    Context,
+                    _cooldownId,
+                    _cooldownDuration);
+                _attackStarted = true;
+            }
+            if (status == BTStatus.Failure)
+            {
+                Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
+                Context?.Blackboard?.SetString(
+                    EnemyBlackboardKeys.ResolverFailureReason,
+                    "공격 Ability 트리거가 거부되었습니다.");
+            }
+            return status;
         }
 
         private EnemyActionRequest CreateRequest()

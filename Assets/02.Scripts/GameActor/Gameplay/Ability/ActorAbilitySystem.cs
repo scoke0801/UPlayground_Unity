@@ -23,8 +23,15 @@ namespace UPlayGround.Gameplay.Ability
     /// 정의(SO)와 실행 상태를 분리하고
     /// Prepare 이후 외부 상태 전환이 성공한 경우에만 비용/쿨다운을 Commit한다.
     /// </summary>
-    public sealed class ActorAbilitySystem : IAbilityRuntimeReader
+    public sealed partial class ActorAbilitySystem : IAbilityRuntimeReader
     {
+        private enum AbilityTagEvaluation
+        {
+            Pass,
+            MissingRequired,
+            Blocked,
+        }
+
         private const string GlobalCooldownGroupId = "Ability.Global";
         private readonly Dictionary<ulong, AbilityExecution> _executions = new();
         private readonly HashSet<ulong> _backgroundExecutions = new();
@@ -32,6 +39,8 @@ namespace UPlayGround.Gameplay.Ability
             new();
         private readonly Dictionary<AbilityActivationResult, int>
             _activationFailureCounts = new();
+        private readonly Dictionary<string, int> _activeAbilityBlockTags =
+            new(StringComparer.Ordinal);
         private GameActor _owner;
         private AbilitySetSO _abilitySet;
         private AbilityResourceRuleSO _resourceRules;
@@ -88,6 +97,7 @@ namespace UPlayGround.Gameplay.Ability
             var ports = new UPlayGroundAbilityOwnerPorts(_abilitySystem);
             _resources = ports;
             _tags = ports;
+            SubscribeTriggerEvents();
             _abilitySystem.Runtime.SetInputPort(
                 owner is PlayerActor player
                     ? new PlayerAbilityInputPort(player)
@@ -96,9 +106,14 @@ namespace UPlayGround.Gameplay.Ability
 
         public void SetAbilitySet(AbilitySetSO abilitySet)
         {
+            using AbilityListLock abilityListLock = LockAbilityList();
             CancelAllAbilities();
             _abilitySet = abilitySet;
             _abilitySet?.RebuildRuntimeIndex();
+            // Set 교체는 이전 Set 기준으로 쌓인 대기 트리거와 재트리거 이력을
+            // 무효화하므로 인덱스 재구축과 함께 명시적으로 비운다.
+            ClearPendingTriggerState();
+            RebuildTriggerIndex();
             StateChanged?.Invoke();
         }
 
@@ -123,7 +138,8 @@ namespace UPlayGround.Gameplay.Ability
             PlayerSkillSlot slot,
             bool isGrounded,
             GameActor target,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             variant = null;
             GameplayAbilitySO definition = ResolvePlayerAbility(slot);
@@ -136,7 +152,8 @@ namespace UPlayGround.Gameplay.Ability
                 definition,
                 isGrounded,
                 ResolveTarget(definition, target),
-                out variant);
+                out variant,
+                triggerEvent);
             RecordActivationResult(result);
             return result;
         }
@@ -156,7 +173,8 @@ namespace UPlayGround.Gameplay.Ability
             GameplayAbilitySO definition,
             bool isGrounded,
             GameActor target,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             variant = null;
             if (!IsGrantedAbility(definition))
@@ -165,7 +183,8 @@ namespace UPlayGround.Gameplay.Ability
                 definition,
                 isGrounded,
                 ResolveTarget(definition, target),
-                out variant);
+                out variant,
+                triggerEvent);
             RecordActivationResult(result);
             return result;
         }
@@ -175,7 +194,8 @@ namespace UPlayGround.Gameplay.Ability
             bool isGrounded,
             GameActor target,
             out AbilityExecutionHandle handle,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             return TryPreparePlayerSlot(
                 slot,
@@ -183,7 +203,8 @@ namespace UPlayGround.Gameplay.Ability
                 target,
                 null,
                 out handle,
-                out variant);
+                out variant,
+                triggerEvent);
         }
 
         /// <summary>
@@ -196,7 +217,8 @@ namespace UPlayGround.Gameplay.Ability
             GameActor target,
             Func<AbilityVariantDefinition, bool> validateExecutionData,
             out AbilityExecutionHandle handle,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             handle = default;
             variant = null;
@@ -209,7 +231,8 @@ namespace UPlayGround.Gameplay.Ability
                 target,
                 validateExecutionData,
                 out handle,
-                out variant);
+                out variant,
+                triggerEvent);
         }
 
         public AbilityActivationResult TryPrepareAbility(
@@ -217,7 +240,8 @@ namespace UPlayGround.Gameplay.Ability
             bool isGrounded,
             GameActor target,
             out AbilityExecutionHandle handle,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             return TryPrepareAbility(
                 definition,
@@ -225,7 +249,8 @@ namespace UPlayGround.Gameplay.Ability
                 target,
                 null,
                 out handle,
-                out variant);
+                out variant,
+                triggerEvent);
         }
 
         /// <summary>
@@ -238,7 +263,8 @@ namespace UPlayGround.Gameplay.Ability
             GameActor target,
             Func<AbilityVariantDefinition, bool> validateExecutionData,
             out AbilityExecutionHandle handle,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             handle = default;
             variant = null;
@@ -247,7 +273,12 @@ namespace UPlayGround.Gameplay.Ability
 
             GameActor resolvedTarget = ResolveTarget(definition, target);
             AbilityActivationResult result =
-                Evaluate(definition, isGrounded, resolvedTarget, out variant);
+                Evaluate(
+                    definition,
+                    isGrounded,
+                    resolvedTarget,
+                    out variant,
+                    triggerEvent);
             if (result != AbilityActivationResult.Success)
             {
                 RecordActivationResult(result);
@@ -272,7 +303,13 @@ namespace UPlayGround.Gameplay.Ability
 
             handle = new AbilityExecutionHandle(_nextHandle++);
             _executions.Add(handle.Value, new AbilityExecution(
-                handle, definition, variant, _owner, resolvedTarget, Time.frameCount));
+                handle,
+                definition,
+                variant,
+                _owner,
+                resolvedTarget,
+                Time.frameCount,
+                triggerEvent));
             if (definition.concurrency != AbilityConcurrencyPolicy.Background)
                 _latestPreparedExecution = handle.Value;
             return AbilityActivationResult.Success;
@@ -280,6 +317,7 @@ namespace UPlayGround.Gameplay.Ability
 
         public AbilityActivationResult Commit(AbilityExecutionHandle handle)
         {
+            using AbilityListLock abilityListLock = LockAbilityList();
             if (!handle.IsValid || !_executions.TryGetValue(handle.Value, out AbilityExecution execution))
                 return AbilityActivationResult.InvalidDefinition;
             if (execution.State == AbilityExecutionState.Active)
@@ -292,6 +330,14 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.PreparedExecutionExpired;
             }
 
+            if (IsBlockedByActiveAbility(execution.Definition))
+            {
+                Abort(handle);
+                RecordActivationResult(
+                    AbilityActivationResult.BlockedByActiveAbility);
+                return AbilityActivationResult.BlockedByActiveAbility;
+            }
+
             if (!TryConsumeCost(
                     execution.Definition.cost,
                     execution.Handle,
@@ -301,8 +347,8 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.InsufficientResource;
             }
 
+            CancelExecutionsMatchedBy(execution);
             StartCooldown(execution.Definition);
-            AddExecutionTags(execution);
             ApplyEffects(execution.Definition.commitEffects, _owner);
             ApplyEffects(execution.Variant.ownerEffects, _owner);
             ApplyEffects(execution.Variant.targetEffects, execution.Target);
@@ -323,6 +369,8 @@ namespace UPlayGround.Gameplay.Ability
             {
                 _primaryExecution = handle.Value;
             }
+            AddAbilityBlocks(execution);
+            AddExecutionTags(execution);
             if (execution.Definition.taskGraph?.Root != null)
                 _abilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
             StateChanged?.Invoke();
@@ -331,8 +379,12 @@ namespace UPlayGround.Gameplay.Ability
 
         public void Abort(AbilityExecutionHandle handle)
         {
-            if (!handle.IsValid || !_executions.Remove(handle.Value, out AbilityExecution execution))
+            using AbilityListLock abilityListLock = LockAbilityList();
+            if (!handle.IsValid
+                || !_executions.TryGetValue(handle.Value, out AbilityExecution execution)
+                || execution.State == AbilityExecutionState.Active)
                 return;
+            _executions.Remove(handle.Value);
             _abilitySystem.Runtime.Tasks.CancelParent(handle, "AbilityAborted");
             execution.State = AbilityExecutionState.Aborted;
             _backgroundExecutions.Remove(handle.Value);
@@ -374,11 +426,13 @@ namespace UPlayGround.Gameplay.Ability
 
         public void CancelAllAbilities()
         {
+            using AbilityListLock abilityListLock = LockAbilityList();
             if (_executions.Count == 0)
             {
                 _primaryExecution = 0;
                 _latestPreparedExecution = 0;
                 _backgroundExecutions.Clear();
+                _activeAbilityBlockTags.Clear();
                 return;
             }
 
@@ -390,6 +444,7 @@ namespace UPlayGround.Gameplay.Ability
             _primaryExecution = 0;
             _latestPreparedExecution = 0;
             _backgroundExecutions.Clear();
+            _activeAbilityBlockTags.Clear();
             StateChanged?.Invoke();
         }
 
@@ -405,6 +460,46 @@ namespace UPlayGround.Gameplay.Ability
             }
             reservation = default;
             return false;
+        }
+
+        public bool TryGetTriggerEvent(
+            AbilityExecutionHandle handle,
+            out GameplayEventData data)
+        {
+            if (handle.IsValid
+                && _executions.TryGetValue(handle.Value, out AbilityExecution execution)
+                && execution.TriggerEvent.HasValue)
+            {
+                data = execution.TriggerEvent.Value;
+                return true;
+            }
+            data = default;
+            return false;
+        }
+
+        public bool TryGetActiveExecutionHandle(
+            GameplayAbilitySO definition,
+            out AbilityExecutionHandle handle)
+        {
+            foreach (AbilityExecution execution in _executions.Values)
+            {
+                if (execution.State != AbilityExecutionState.Active
+                    || execution.Definition != definition)
+                    continue;
+                handle = execution.Handle;
+                return true;
+            }
+            handle = default;
+            return false;
+        }
+
+        public bool IsExecutionActive(AbilityExecutionHandle handle)
+        {
+            return handle.IsValid
+                   && _executions.TryGetValue(
+                       handle.Value,
+                       out AbilityExecution execution)
+                   && execution.State == AbilityExecutionState.Active;
         }
 
         public bool TryGetPrimaryTargetReservation(
@@ -482,8 +577,16 @@ namespace UPlayGround.Gameplay.Ability
 
         public void RestoreAbilitySystemStateForCharacter(AbilitySystemSaveData data)
         {
-            _abilitySystem.Runtime.RestoreSaveData(data);
-            _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
+            BeginTriggerSuppression();
+            try
+            {
+                _abilitySystem.Runtime.RestoreSaveData(data);
+                _effects?.RestoreRuntimeState(data?.activeEffects, ResolveEffectDefinition);
+            }
+            finally
+            {
+                EndTriggerSuppression();
+            }
             StateChanged?.Invoke();
         }
 
@@ -598,7 +701,8 @@ namespace UPlayGround.Gameplay.Ability
             GameplayAbilitySO definition,
             bool isGrounded,
             GameActor target,
-            out AbilityVariantDefinition variant)
+            out AbilityVariantDefinition variant,
+            GameplayEventData? triggerEvent = null)
         {
             variant = null;
             if (definition == null || string.IsNullOrWhiteSpace(definition.abilityId))
@@ -606,16 +710,30 @@ namespace UPlayGround.Gameplay.Ability
             if (definition.concurrency == AbilityConcurrencyPolicy.Background
                 && (definition.persistence?.backgroundMaxDurationSeconds ?? 0f) <= 0f)
                 return AbilityActivationResult.InvalidDefinition;
-            if (definition.taskGraph?.Root == null)
+            // Request 전용 라우터 Ability는 실행 데이터(taskGraph / 실행 가능한 Variant
+            // payload) 없이도 Prepare될 수 있다. 단 이 완화는 트리거 경로에서 들어온
+            // 활성화에만 적용한다. 플레이어 슬롯·BT·치트 등 다른 경로에서 통과시키면
+            // 모션 없이 비용과 쿨다운만 소모하는 실행이 만들어진다(spec §3-F).
+            bool requestDriven = IsRequestDrivenAbility(definition);
+            if (requestDriven && _triggerPathDepth == 0)
+                return AbilityActivationResult.MissingExecutionData;
+            if (definition.taskGraph?.Root == null && !requestDriven)
                 return AbilityActivationResult.MissingExecutionData;
             if (!IsUnlocked(definition))
                 return AbilityActivationResult.Locked;
+            if (IsBlockedByActiveAbility(definition))
+                return AbilityActivationResult.BlockedByActiveAbility;
 
             AbilityActivationRules activation = definition.activation ?? new AbilityActivationRules();
-            if (!HasAllTags(activation.requiredTagIds))
-                return AbilityActivationResult.MissingRequiredTag;
-            if (HasAnyTag(activation.blockedTagIds))
-                return AbilityActivationResult.BlockedByTag;
+            AbilityTagEvaluation tagResult = EvaluateOwnerTags(activation);
+            if (tagResult != AbilityTagEvaluation.Pass)
+                return tagResult == AbilityTagEvaluation.MissingRequired
+                    ? AbilityActivationResult.MissingRequiredTag
+                    : AbilityActivationResult.BlockedByTag;
+            AbilityTagEvaluation sourceTagResult =
+                EvaluateSourceTags(activation, triggerEvent);
+            if (sourceTagResult != AbilityTagEvaluation.Pass)
+                return ToActivationResult(sourceTagResult);
             if (!MatchesGround(activation.groundCondition, isGrounded))
                 return AbilityActivationResult.InvalidGroundState;
             if (activation.targetPolicy == AbilityTargetPolicy.Required && target == null)
@@ -623,6 +741,10 @@ namespace UPlayGround.Gameplay.Ability
             if (target != null
                 && !MatchesTargetRelation(activation.targetRelation, target))
                 return AbilityActivationResult.InvalidTarget;
+            AbilityTagEvaluation targetTagResult =
+                EvaluateTargetTags(activation, target, triggerEvent);
+            if (targetTagResult != AbilityTagEvaluation.Pass)
+                return ToActivationResult(targetTagResult);
             if (target != null && !MatchesDistance(activation, target))
                 return AbilityActivationResult.OutOfRange;
             if (!CanPayCost(definition.cost, definition.abilityId))
@@ -636,13 +758,31 @@ namespace UPlayGround.Gameplay.Ability
                 && definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
                 return AbilityActivationResult.ConflictingAbility;
 
-            variant = ResolveVariant(definition, isGrounded);
+            variant = ResolveVariant(
+                definition,
+                isGrounded,
+                requireExecutablePayload: !requestDriven);
             return variant != null
                 ? AbilityActivationResult.Success
                 : AbilityActivationResult.MissingExecutionData;
         }
 
-        private AbilityVariantDefinition ResolveVariant(GameplayAbilitySO definition, bool grounded)
+        private static bool IsRequestDrivenAbility(GameplayAbilitySO definition)
+        {
+            if (definition?.triggers == null || definition.triggers.Count == 0)
+                return false;
+            for (int i = 0; i < definition.triggers.Count; i++)
+                if (definition.triggers[i] == null
+                    || definition.triggers[i].mode
+                    != AbilityTriggerActivationMode.Request)
+                    return false;
+            return true;
+        }
+
+        private AbilityVariantDefinition ResolveVariant(
+            GameplayAbilitySO definition,
+            bool grounded,
+            bool requireExecutablePayload)
         {
             AbilityVariantDefinition best = null;
             int bestPriority = int.MinValue;
@@ -652,14 +792,14 @@ namespace UPlayGround.Gameplay.Ability
             {
                 AbilityVariantDefinition candidate = definition.variants[i];
                 if (candidate == null
-                    || !UPlayGroundAbilityPayloadResolver.IsExecutable(candidate))
+                    || requireExecutablePayload
+                    && !UPlayGroundAbilityPayloadResolver.IsExecutable(candidate))
                     continue;
                 AbilityVariantCondition condition = candidate.condition;
                 if (condition != null)
                 {
                     if (!MatchesGround(condition.groundCondition, grounded)) continue;
-                    if (!HasAllTags(condition.requiredTagIds)) continue;
-                    if (HasAnyTag(condition.blockedTagIds)) continue;
+                    if (EvaluateOwnerTags(condition) != AbilityTagEvaluation.Pass) continue;
                     float current = GetResourceCurrent(definition.cost.resourceType);
                     float max = GetResourceMax(definition.cost.resourceType);
                     if (condition.minResource > 0f && current < condition.minResource) continue;
@@ -808,6 +948,7 @@ namespace UPlayGround.Gameplay.Ability
                 _temporaryAbilities.TryGetValue(ability, out int count);
                 _temporaryAbilities[ability] = count + 1;
             }
+            RebuildTriggerIndex();
             StateChanged?.Invoke();
         }
 
@@ -827,6 +968,7 @@ namespace UPlayGround.Gameplay.Ability
                 else
                     _temporaryAbilities[ability] = count - 1;
             }
+            RebuildTriggerIndex();
             StateChanged?.Invoke();
         }
 
@@ -866,6 +1008,89 @@ namespace UPlayGround.Gameplay.Ability
                     tags[i].TagName, "Ability", execution.Handle.Value);
                 if (handle.IsValid) execution.GrantedTagHandles.Add(handle);
             }
+        }
+
+        private bool IsBlockedByActiveAbility(GameplayAbilitySO definition)
+        {
+            List<GameplayTag> abilityTags = definition?.abilityTagIds;
+            if (abilityTags == null || _activeAbilityBlockTags.Count == 0)
+                return false;
+            for (int i = 0; i < abilityTags.Count; i++)
+            {
+                GameplayTag abilityTag = abilityTags[i];
+                if (!abilityTag.IsValid()) continue;
+                foreach (KeyValuePair<string, int> pair in _activeAbilityBlockTags)
+                {
+                    if (pair.Value > 0
+                        && new AbilityTagId(abilityTag.TagName).IsChildOf(
+                            new AbilityTagId(pair.Key)))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        private void CancelExecutionsMatchedBy(AbilityExecution incoming)
+        {
+            List<GameplayTag> cancelTags =
+                incoming.Definition?.cancelAbilitiesWithTag;
+            if (cancelTags == null || cancelTags.Count == 0)
+                return;
+
+            var cancelled = new List<AbilityExecutionHandle>();
+            foreach (AbilityExecution active in _executions.Values)
+            {
+                if (active.State != AbilityExecutionState.Active
+                    || active.Handle.Equals(incoming.Handle)
+                    || !MatchesAnyAbilityTag(
+                        active.Definition?.abilityTagIds,
+                        cancelTags))
+                    continue;
+                cancelled.Add(active.Handle);
+            }
+            for (int i = 0; i < cancelled.Count; i++)
+                EndExecution(cancelled[i], false, "CancelledByAbilityTag");
+        }
+
+        private void AddAbilityBlocks(AbilityExecution execution)
+        {
+            List<GameplayTag> blockTags =
+                execution.Definition?.blockAbilitiesWithTag;
+            for (int i = 0; i < (blockTags?.Count ?? 0); i++)
+            {
+                string tagId = blockTags[i].TagName;
+                if (string.IsNullOrWhiteSpace(tagId)) continue;
+                _activeAbilityBlockTags.TryGetValue(tagId, out int count);
+                _activeAbilityBlockTags[tagId] = count + 1;
+            }
+        }
+
+        private void RemoveAbilityBlocks(AbilityExecution execution)
+        {
+            List<GameplayTag> blockTags =
+                execution.Definition?.blockAbilitiesWithTag;
+            for (int i = 0; i < (blockTags?.Count ?? 0); i++)
+            {
+                string tagId = blockTags[i].TagName;
+                if (string.IsNullOrWhiteSpace(tagId)
+                    || !_activeAbilityBlockTags.TryGetValue(tagId, out int count))
+                    continue;
+                if (count <= 1)
+                    _activeAbilityBlockTags.Remove(tagId);
+                else
+                    _activeAbilityBlockTags[tagId] = count - 1;
+            }
+        }
+
+        private static bool MatchesAnyAbilityTag(
+            List<GameplayTag> abilityTags,
+            List<GameplayTag> filters)
+        {
+            for (int i = 0; i < (abilityTags?.Count ?? 0); i++)
+            for (int j = 0; j < (filters?.Count ?? 0); j++)
+                if (abilityTags[i].IsChildOf(filters[j]))
+                    return true;
+            return false;
         }
 
         private void CleanupExecution(AbilityExecution execution)
@@ -923,27 +1148,162 @@ namespace UPlayGround.Gameplay.Ability
             return false;
         }
 
-        private bool HasAllTags(List<GameplayTag> tags)
+        private AbilityTagEvaluation EvaluateOwnerTags(AbilityActivationRules activation)
+        {
+            if (!HasAllTags(
+                    activation.requiredTagIds,
+                    matchHierarchy: true,
+                    nameof(activation.requiredTagIds)))
+                return AbilityTagEvaluation.MissingRequired;
+            if (HasAnyTag(
+                    activation.blockedTagIds,
+                    matchHierarchy: true,
+                    nameof(activation.blockedTagIds)))
+                return AbilityTagEvaluation.Blocked;
+            return EvaluateTagRequirement(activation.ownerTagRequirement, _tags);
+        }
+
+        private AbilityTagEvaluation EvaluateSourceTags(
+            AbilityActivationRules activation,
+            GameplayEventData? triggerEvent)
+        {
+            if (activation?.sourceTagRequirement == null
+                || activation.sourceTagRequirement.IsEmpty
+                || !triggerEvent.HasValue
+                || !AbilitySystemComponent.TryResolve(
+                    triggerEvent.Value.Instigator,
+                    out AbilitySystemComponent source)
+                || source == null
+                || source.Tags == null)
+                return AbilityTagEvaluation.Pass;
+            return EvaluateTagRequirement(
+                activation.sourceTagRequirement,
+                new UPlayGroundAbilityOwnerPorts(source));
+        }
+
+        private static AbilityTagEvaluation EvaluateTargetTags(
+            AbilityActivationRules activation,
+            GameActor target,
+            GameplayEventData? triggerEvent)
+        {
+            if (target == null
+                && triggerEvent.HasValue
+                && AbilitySystemComponent.TryResolve(
+                    triggerEvent.Value.Target,
+                    out AbilitySystemComponent eventTarget))
+            {
+                target = eventTarget.GetComponent<GameActor>();
+            }
+            if (activation?.targetTagRequirement == null
+                || activation.targetTagRequirement.IsEmpty
+                || target == null
+                || target.AbilitySystem == null
+                || target.AbilitySystem.Tags == null)
+                return AbilityTagEvaluation.Pass;
+            return EvaluateTagRequirement(
+                activation.targetTagRequirement,
+                new UPlayGroundAbilityOwnerPorts(target.AbilitySystem));
+        }
+
+        private static AbilityActivationResult ToActivationResult(
+            AbilityTagEvaluation evaluation)
+        {
+            return evaluation == AbilityTagEvaluation.MissingRequired
+                ? AbilityActivationResult.MissingRequiredTag
+                : AbilityActivationResult.BlockedByTag;
+        }
+
+        private AbilityTagEvaluation EvaluateOwnerTags(AbilityVariantCondition condition)
+        {
+            if (!HasAllTags(
+                    condition.requiredTagIds,
+                    matchHierarchy: true,
+                    nameof(condition.requiredTagIds)))
+                return AbilityTagEvaluation.MissingRequired;
+            if (HasAnyTag(
+                    condition.blockedTagIds,
+                    matchHierarchy: true,
+                    nameof(condition.blockedTagIds)))
+                return AbilityTagEvaluation.Blocked;
+            return EvaluateTagRequirement(condition.ownerTagRequirement, _tags);
+        }
+
+        private static AbilityTagEvaluation EvaluateTagRequirement(
+            AbilityTagRequirement requirement,
+            IAbilityTagPort tags)
+        {
+            if (requirement == null || requirement.IsEmpty)
+                return AbilityTagEvaluation.Pass;
+
+            bool matchHierarchy =
+                requirement.matchMode == AbilityTagMatchMode.Hierarchy;
+            if (!HasAllTags(
+                    requirement.requireAll,
+                    tags,
+                    matchHierarchy,
+                    nameof(requirement.requireAll)))
+                return AbilityTagEvaluation.MissingRequired;
+            if ((requirement.requireAny?.Count ?? 0) > 0
+                && !HasAnyTag(
+                    requirement.requireAny,
+                    tags,
+                    matchHierarchy,
+                    nameof(requirement.requireAny)))
+                return AbilityTagEvaluation.MissingRequired;
+            if (HasAnyTag(
+                    requirement.blockAny,
+                    tags,
+                    matchHierarchy,
+                    nameof(requirement.blockAny)))
+                return AbilityTagEvaluation.Blocked;
+            return AbilityTagEvaluation.Pass;
+        }
+
+        private bool HasAllTags(
+            List<GameplayTag> tags,
+            bool matchHierarchy,
+            string fieldName)
+        {
+            return HasAllTags(tags, _tags, matchHierarchy, fieldName);
+        }
+
+        private static bool HasAllTags(
+            List<GameplayTag> tags,
+            IAbilityTagPort tagPort,
+            bool matchHierarchy,
+            string fieldName)
         {
             if (tags == null) return true;
             for (int i = 0; i < tags.Count; i++)
             {
-                EnsureRegisteredOrEmpty(tags[i], "requiredTagIds", i);
+                EnsureRegisteredOrEmpty(tags[i], fieldName, i);
                 if (!string.IsNullOrEmpty(tags[i].TagName)
-                    && !_tags.Has(tags[i].TagName))
+                    && !tagPort.Has(tags[i].TagName, matchHierarchy))
                     return false;
             }
             return true;
         }
 
-        private bool HasAnyTag(List<GameplayTag> tags)
+        private bool HasAnyTag(
+            List<GameplayTag> tags,
+            bool matchHierarchy,
+            string fieldName)
+        {
+            return HasAnyTag(tags, _tags, matchHierarchy, fieldName);
+        }
+
+        private static bool HasAnyTag(
+            List<GameplayTag> tags,
+            IAbilityTagPort tagPort,
+            bool matchHierarchy,
+            string fieldName)
         {
             if (tags == null) return false;
             for (int i = 0; i < tags.Count; i++)
             {
-                EnsureRegisteredOrEmpty(tags[i], "blockedTagIds", i);
+                EnsureRegisteredOrEmpty(tags[i], fieldName, i);
                 if (!string.IsNullOrEmpty(tags[i].TagName)
-                    && _tags.Has(tags[i].TagName))
+                    && tagPort.Has(tags[i].TagName, matchHierarchy))
                     return true;
             }
             return false;
@@ -1004,6 +1364,11 @@ namespace UPlayGround.Gameplay.Ability
 
         internal void Tick()
         {
+            // 예산 초과로 이월된 대기 트리거를 반드시 소진시킨다.
+            // 드레인이 신호 수신/락 해제 시점에만 걸리면, 다음 신호가 오기 전까지
+            // 이월분이 처리되지 않은 채 남는다.
+            TryDrainPendingTriggers();
+
             if (_cooldowns.RemoveExpired())
                 StateChanged?.Invoke();
 
@@ -1039,7 +1404,15 @@ namespace UPlayGround.Gameplay.Ability
                 else if (maximumDuration > 0f
                          && Time.time >= execution.StartTime + maximumDuration)
                 {
-                    completed.Add((execution.Handle, false, "BackgroundTimeout"));
+                    if (execution.TriggerSource == AbilityTriggerSource.OwnedTagPresent
+                        && IsOwnedTriggerPresent(execution))
+                    {
+                        execution.StartTime = Time.time;
+                    }
+                    else
+                    {
+                        completed.Add((execution.Handle, false, "BackgroundTimeout"));
+                    }
                 }
                 else if (execution.Definition.taskGraph?.Root == null)
                 {
@@ -1068,9 +1441,14 @@ namespace UPlayGround.Gameplay.Ability
 
         internal void Dispose()
         {
+            _isDisposing = true;
+            UnsubscribeTriggerEvents();
+            using AbilityListLock abilityListLock = LockAbilityList();
             CancelAllAbilities();
             _executions.Clear();
             _temporaryAbilities.Clear();
+            _activeAbilityBlockTags.Clear();
+            ClearTriggerRuntime();
         }
 
         private void EndExecution(
@@ -1078,6 +1456,7 @@ namespace UPlayGround.Gameplay.Ability
             bool completed,
             string reason)
         {
+            using AbilityListLock abilityListLock = LockAbilityList();
             if (!handle.IsValid
                 || !_executions.Remove(handle.Value, out AbilityExecution execution))
             {
@@ -1087,6 +1466,7 @@ namespace UPlayGround.Gameplay.Ability
                 return;
             }
 
+            RemoveAbilityBlocks(execution);
             CleanupExecution(execution);
             _abilitySystem.Runtime.Tasks.CancelParent(handle, reason);
             _abilitySystem.Runtime.Tasks.DiscardParentCompletion(handle);

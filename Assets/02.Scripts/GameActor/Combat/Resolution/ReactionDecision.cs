@@ -1,5 +1,22 @@
 namespace UPlayGround.Combat
 {
+    public readonly struct HitReactionTriggerPayload
+    {
+        public readonly HitContext Hit;
+        public readonly CombatReactionState ReactionState;
+        public readonly UPlayGround.Data.AttackData AttackData;
+
+        public HitReactionTriggerPayload(
+            in HitContext hit,
+            CombatReactionState reactionState,
+            UPlayGround.Data.AttackData attackData = null)
+        {
+            Hit = hit;
+            ReactionState = reactionState;
+            AttackData = attackData;
+        }
+    }
+
     public enum CombatReactionState
     {
         None,

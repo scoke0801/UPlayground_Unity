@@ -36,6 +36,7 @@ namespace UPlayGround.Ability.Core
     public interface IAbilityTagPort
     {
         bool Has(string tagId);
+        bool Has(string tagId, bool matchHierarchy);
         AbilityTagHandle Add(string tagId, string sourceType, ulong sourceId);
         bool Remove(AbilityTagHandle handle);
     }

@@ -85,7 +85,9 @@ namespace UPlayGround.State
         private bool _isEntryAttack;
         private bool _isSwapSpecialAttack;
         private readonly PlayerInterruptAction _forcedAttackAction;
+        private readonly AbilityTriggerRequest? _triggerRequest;
         private bool _hasConsumedForcedAttackAction;
+        private bool _hasConsumedTriggerRequest;
         private AbilityExecutionHandle _abilityExecutionHandle;
 
         private PlayerActorAnimator _playerActorAnimator;
@@ -102,6 +104,42 @@ namespace UPlayGround.State
         private PlayerAttackState(ActorMovementController controller, PlayerInterruptAction forcedAttackAction) : base(controller)
         {
             _forcedAttackAction = forcedAttackAction;
+        }
+
+        private PlayerAttackState(
+            ActorMovementController controller,
+            PlayerInterruptAction forcedAttackAction,
+            in AbilityTriggerRequest triggerRequest)
+            : base(controller)
+        {
+            _forcedAttackAction = forcedAttackAction;
+            _triggerRequest = triggerRequest;
+        }
+
+        public static bool TryEnterTriggered(
+            PlayerMovementController controller,
+            in AbilityTriggerRequest request)
+        {
+            if (controller == null
+                || request.Ability == null
+                || !UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                    request.Variant,
+                    out AbilityAttackInfo attackInfo))
+                return false;
+            PlayerActor actor = controller.GetComponent<PlayerActor>();
+            if (actor == null
+                || !ActorAbilityMotionResolver.TryResolve(
+                    actor,
+                    attackInfo,
+                    out MotionSetAsset motionAsset)
+                || motionAsset == null)
+                return false;
+
+            var state = new PlayerAttackState(
+                controller,
+                PlayerInterruptAction.Skill,
+                request);
+            return controller.TryTransitionToState(state);
         }
 
         public override bool CanTransitionState(ActorStateId fromState)
@@ -767,6 +805,54 @@ namespace UPlayGround.State
                 ? PlayerInterruptAction.None
                 : _forcedAttackAction;
             _hasConsumedForcedAttackAction = true;
+
+            if (_triggerRequest.HasValue && !_hasConsumedTriggerRequest)
+            {
+                _hasConsumedTriggerRequest = true;
+                AbilityTriggerRequest request = _triggerRequest.Value;
+                AbilityAttackInfo resolvedAttackInfo = null;
+                MotionSetAsset resolvedMotion = null;
+                bool grounded = playerController.Motor == null
+                                || playerController.Motor.GroundingStatus
+                                    .IsStableOnGround;
+                AbilityActivationResult prepare =
+                    playerActor.Abilities.TryPrepareAbility(
+                        request.Ability,
+                        grounded,
+                        null,
+                        candidate =>
+                            UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                                candidate,
+                                out resolvedAttackInfo)
+                            && ActorAbilityMotionResolver.TryResolve(
+                                playerActor,
+                                resolvedAttackInfo,
+                                out resolvedMotion),
+                        out AbilityExecutionHandle handle,
+                        out AbilityVariantDefinition variant,
+                        request.TriggerEvent);
+                if (prepare != AbilityActivationResult.Success)
+                    return null;
+
+                _currentAttack = _combat.ExecuteAbilityAttack(variant);
+                if (_currentAttack == null)
+                {
+                    playerActor.Abilities.Abort(handle);
+                    return null;
+                }
+
+                AbilityActivationResult commit = playerActor.Abilities.Commit(handle);
+                if (commit != AbilityActivationResult.Success)
+                {
+                    playerActor.Abilities.Abort(handle);
+                    _currentAttack = null;
+                    return null;
+                }
+
+                _abilityExecutionHandle = handle;
+                playerActor.Abilities.BindActiveExecutionToTrigger(request);
+                return resolvedMotion ?? _currentAttack.motionAsset;
+            }
 
             // 0순위: 패리 반격
             if (_isParryCounter)

@@ -4,6 +4,7 @@ using UnityEngine;
 using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.MovementController;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.State
 {
@@ -147,13 +148,30 @@ namespace UPlayGround.State
         {
             _unstableGroundTimer = 0f;
         }
-        
+
         /// <summary>
         /// 상태 퇴장 시 호출
         /// </summary>
         public virtual void OnExit(GameActorState toState)
         {
         }
+
+        /// <summary>
+        /// 상태 ID에 대응하는 시맨틱 상태 태그.
+        /// 실제 부여/회수는 ActorMovementController가 전환 지점에서 단독으로 처리한다.
+        /// </summary>
+        internal static GameplayTag ResolveSemanticStateTag(ActorStateId stateId) =>
+            stateId switch
+            {
+                ActorStateId.Hit => GameplayTags.State_Hit,
+                ActorStateId.Stun => GameplayTags.State_Stun,
+                ActorStateId.Knockdown => GameplayTags.State_Knockdown,
+                ActorStateId.Grabbed => GameplayTags.State_Grabbed,
+                ActorStateId.Death => GameplayTags.State_Death,
+                ActorStateId.SpecialBreakVictim =>
+                    GameplayTags.State_SpecialBreakVictim,
+                _ => default,
+            };
         
         /// <summary>
         /// 매 프레임 상태 업데이트 - 상태 전환 로직 포함

@@ -17,6 +17,8 @@ using UPlayGround.UI;
 using UnityEngine.Serialization;
 using Random = System.Random;
 using UPlayGround.Ability.Core;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Gameplay.Ability;
 
 namespace UPlayGround
 {
@@ -69,6 +71,8 @@ namespace UPlayGround
         protected bool _isDead = false;
         private IDisposable _lockOnSimulationLease;
         private int _externalHitReactionSuppressionCount;
+        private AbilityExecutionHandle _triggeredReactionHandle;
+        private ActorStateId? _triggeredReactionState;
         
         protected IActorHpBarView _uiHpBar;
         private IActorBreakInteractionView _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
@@ -126,6 +130,7 @@ namespace UPlayGround
             // 부모 그룹의 Start 수집이 먼저 실행됐더라도 여기서 바인딩을 재시도한다.
             var group = GetComponentInParent<MonsterGroupController>();
             group?.EnsureMemberRegistered(this);
+            SubscribeReactionAbilityTriggers();
         }
 
         protected override void Start()
@@ -220,11 +225,31 @@ namespace UPlayGround
 
             _detection?.AcquireTarget(combatResult.Hit.Attacker?.transform);
 
+            // 순간 GameplayEvent는 현재 상태와 무관하게 매 피격마다 발급한다.
+            // State.Hit 등에서의 중복 리액션은 Ability blockAny가 차단해야
+            // 같은 프레임의 두 번째 피격 사건 자체가 유실되지 않는다.
+            // 외부 리액션 억제 스코프는 기존 계약대로 사건 발급도 억제한다.
+            bool canIssueHitTrigger = _externalHitReactionSuppressionCount <= 0;
             ReactionDecision reactionDecision = OnDamaged(
                 combatResult.Hit,
                 out ResourceChangeSet appliedResources);
             if (_currentHealth <= 0)
                 OnDeath();
+            if (IsAlive() && canIssueHitTrigger)
+            {
+                GameplayTag triggerTag = ResolveMonsterHitTrigger(
+                    combatResult.Hit.ReactionType);
+                if (triggerTag.IsValid())
+                {
+                    Abilities?.IssueTriggerEvent(
+                        triggerTag,
+                        combatResult.Hit.Attacker,
+                        this,
+                        new HitReactionTriggerPayload(
+                            combatResult.Hit,
+                            reactionDecision.TargetState));
+                }
+            }
             return CombatResolutionPipeline.WithMonsterAppliedResources(
                 combatResult,
                 reactionDecision,
@@ -490,7 +515,8 @@ namespace UPlayGround
                 if (isPlainPoiseBreak)
                     ApplyShoveImpulse(hit.Attacker);
 
-                ApplyMonsterReactionState(reactionDecision.TargetState, hit);
+                if (!UseTagTriggeredHitReaction)
+                    ApplyMonsterReactionState(reactionDecision.TargetState, hit);
             }
 
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
@@ -513,7 +539,34 @@ namespace UPlayGround
                    && state.CanPlayHitReaction(hit);
         }
 
-        private void ApplyMonsterReactionState(CombatReactionState reactionState, in HitContext hit)
+        private static GameplayTag ResolveMonsterHitTrigger(
+            AttackReactionType reactionType) => reactionType switch
+        {
+            AttackReactionType.Light => GameplayTags.Trigger_Monster_Hit_Light,
+            AttackReactionType.Hit => GameplayTags.Trigger_Monster_Hit_Hit,
+            AttackReactionType.Heavy => GameplayTags.Trigger_Monster_Hit_Heavy,
+            AttackReactionType.KnockBack => GameplayTags.Trigger_Monster_Hit_KnockBack,
+            AttackReactionType.Stun => GameplayTags.Trigger_Monster_Hit_Stun,
+            AttackReactionType.Pull => GameplayTags.Trigger_Monster_Hit_Pull,
+            AttackReactionType.Airborne => GameplayTags.Trigger_Monster_Hit_Airborne,
+            AttackReactionType.Knockdown => GameplayTags.Trigger_Monster_Hit_Knockdown,
+            AttackReactionType.Grab => GameplayTags.Trigger_Monster_Hit_Grab,
+            _ => default,
+        };
+
+        private bool UseTagTriggeredHitReaction
+        {
+            get
+            {
+                EnemyBehaviorSO behavior = Definition?.EffectiveBehaviorData
+                                           ?? _groundAIController?.BehaviorData;
+                return behavior != null && behavior.useTagTriggeredHitReaction;
+            }
+        }
+
+        private void ApplyMonsterReactionState(
+            CombatReactionState reactionState,
+            in HitContext hit)
         {
             if (MovementController == null)
                 return;
@@ -521,21 +574,166 @@ namespace UPlayGround
             switch (reactionState)
             {
                 case CombatReactionState.Airborne:
-                    MovementController.TransitionToState(new EnemyAirborneState(MovementController));
+                    MovementController.TransitionToState(
+                        new EnemyAirborneState(MovementController));
                     break;
                 case CombatReactionState.Grabbed:
-                    MovementController.TransitionToState(new EnemyGrabbedState(MovementController, hit));
+                    MovementController.TransitionToState(
+                        new EnemyGrabbedState(MovementController, hit));
                     break;
                 case CombatReactionState.Stun:
-                    MovementController.TransitionToState(new EnemyStunState(MovementController, hit));
+                    MovementController.TransitionToState(
+                        new EnemyStunState(MovementController, hit));
                     break;
                 case CombatReactionState.Knockdown:
-                    MovementController.TransitionToState(new EnemyKnockdownState(MovementController, hit));
+                    MovementController.TransitionToState(
+                        new EnemyKnockdownState(MovementController, hit));
                     break;
                 case CombatReactionState.Hit:
-                    MovementController.TransitionToState(new EnemyHitState(MovementController, hit));
+                    MovementController.TransitionToState(
+                        new EnemyHitState(MovementController, hit));
                     break;
             }
+        }
+
+        private void SubscribeReactionAbilityTriggers()
+        {
+            if (Abilities == null)
+                return;
+            Abilities.AbilityTriggerRequested -= OnReactionAbilityTriggerRequested;
+            Abilities.AbilityTriggerRequested += OnReactionAbilityTriggerRequested;
+            if (MovementController != null)
+            {
+                MovementController.OnStateChanged -= OnReactionAbilityStateChanged;
+                MovementController.OnStateChanged += OnReactionAbilityStateChanged;
+            }
+        }
+
+        private void UnsubscribeReactionAbilityTriggers()
+        {
+            if (Abilities != null)
+                Abilities.AbilityTriggerRequested -= OnReactionAbilityTriggerRequested;
+            if (MovementController != null)
+                MovementController.OnStateChanged -= OnReactionAbilityStateChanged;
+        }
+
+        private void OnReactionAbilityTriggerRequested(AbilityTriggerRequest request)
+        {
+            if (!request.TriggerTag.IsChildOf(GameplayTags.Trigger_Monster_Hit))
+                return;
+            if (!UseTagTriggeredHitReaction)
+                return;
+
+            if (!request.TriggerEvent.HasValue
+                || request.TriggerEvent.Value.Payload is not HitReactionTriggerPayload payload
+                || payload.ReactionState == CombatReactionState.None
+                || MovementController == null)
+            {
+                Abilities?.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.InvalidDefinition);
+                return;
+            }
+
+            // 이전 트리거 리액션 실행을 먼저 명시적으로 회수한다.
+            // concurrency(CancelExisting)가 대신 정리해 주기를 기대하면
+            // 정책을 바꾸는 순간 실행 핸들이 조용히 누수된다.
+            ReleaseTriggeredReaction(false);
+
+            GameActorState state = CreateTriggeredMonsterReactionState(payload);
+            if (state == null)
+            {
+                Abilities.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.InvalidDefinition);
+                return;
+            }
+
+            bool grounded = MovementController.Motor == null
+                || MovementController.Motor.GroundingStatus.IsStableOnGround;
+            AbilityActivationResult prepared = Abilities.TryPrepareAbility(
+                request.Ability,
+                grounded,
+                null,
+                out AbilityExecutionHandle handle,
+                out _,
+                request.TriggerEvent);
+            if (prepared != AbilityActivationResult.Success)
+            {
+                Abilities.ReportTriggerRejected(request.Ability, prepared);
+                return;
+            }
+
+            // 상태 전환보다 Commit을 먼저 수행한다(spec §4).
+            // 반대로 두면 Commit 실패 시 "리액션 상태에는 들어갔는데 Ability는 없는"
+            // 상태가 되고, 핸들이 없어 종료 훅이 그 실행을 영영 회수하지 못한다.
+            AbilityActivationResult committed = Abilities.Commit(handle);
+            if (committed != AbilityActivationResult.Success)
+            {
+                Abilities.Abort(handle);
+                Abilities.ReportTriggerRejected(request.Ability, committed);
+                return;
+            }
+
+            _triggeredReactionHandle = handle;
+            _triggeredReactionState = state.StateId;
+
+            if (!MovementController.TryTransitionToState(state))
+            {
+                // 커밋 롤백: 상태 없이 활성 실행만 남지 않도록 즉시 종료한다.
+                ReleaseTriggeredReaction(false);
+                Abilities.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.StateTransitionRejected);
+                return;
+            }
+
+            Abilities.BindActiveExecutionToTrigger(handle, request);
+        }
+
+        /// <summary>진행 중인 트리거 리액션 실행을 종료하고 추적 상태를 비운다.</summary>
+        private void ReleaseTriggeredReaction(bool completed)
+        {
+            if (!_triggeredReactionHandle.IsValid)
+            {
+                _triggeredReactionState = null;
+                return;
+            }
+
+            AbilityExecutionHandle handle = _triggeredReactionHandle;
+            _triggeredReactionHandle = default;
+            _triggeredReactionState = null;
+            Abilities?.EndAbility(handle, completed);
+        }
+
+        private GameActorState CreateTriggeredMonsterReactionState(
+            in HitReactionTriggerPayload payload) => payload.ReactionState switch
+        {
+            CombatReactionState.Airborne =>
+                new EnemyAirborneState(MovementController),
+            CombatReactionState.Grabbed =>
+                new EnemyGrabbedState(MovementController, payload.Hit),
+            CombatReactionState.Stun =>
+                new EnemyStunState(MovementController, payload.Hit),
+            CombatReactionState.Knockdown =>
+                new EnemyKnockdownState(MovementController, payload.Hit),
+            CombatReactionState.Hit =>
+                new EnemyHitState(MovementController, payload.Hit),
+            _ => null,
+        };
+
+        private void OnReactionAbilityStateChanged(
+            GameActorState previous,
+            GameActorState current)
+        {
+            if (!_triggeredReactionHandle.IsValid
+                || !_triggeredReactionState.HasValue
+                || previous?.StateId != _triggeredReactionState.Value
+                || current?.StateId == _triggeredReactionState.Value)
+                return;
+
+            bool completed = current?.StateId != ActorStateId.Death;
+            ReleaseTriggeredReaction(completed);
         }
 
         private bool ShouldEnterAirborneState(in HitContext hit)
@@ -782,6 +980,7 @@ namespace UPlayGround
 
         protected override void OnDestroy()
         {
+            UnsubscribeReactionAbilityTriggers();
             _lockOnSimulationLease?.Dispose();
             _lockOnSimulationLease = null;
             ReleaseHpBar();

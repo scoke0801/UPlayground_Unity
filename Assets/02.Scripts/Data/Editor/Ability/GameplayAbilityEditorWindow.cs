@@ -466,7 +466,7 @@ namespace UPlayGround.Data.Editor.Ability
             string[] labels =
             {
                 "기본 정보", "활성화 조건", "비용/쿨다운", "Variant",
-                "Effect", "저장/교체 정책", "정적 밸런스", "검증 결과",
+                "트리거", "Effect", "저장/교체 정책", "정적 밸런스", "검증 결과",
             };
             for (int i = 0; i < labels.Length; i++)
             {
@@ -496,10 +496,22 @@ namespace UPlayGround.Data.Editor.Ability
 
         private void UpdateTabStyles()
         {
+            if (_selected is not GameplayAbilitySO
+                && string.Equals(_activeTab, "트리거", StringComparison.Ordinal))
+                _activeTab = "기본 정보";
+
             foreach (KeyValuePair<string, Button> pair in _tabButtons)
             {
+                bool visible = !string.Equals(
+                                   pair.Key,
+                                   "트리거",
+                                   StringComparison.Ordinal)
+                               || _selected is GameplayAbilitySO;
                 bool active = string.Equals(pair.Key, _activeTab, StringComparison.Ordinal);
                 Button button = pair.Value;
+                button.style.display = visible
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
                 button.style.backgroundColor = active
                     ? new Color(0.12f, 0.22f, 0.32f)
                     : Bg2;
@@ -859,6 +871,7 @@ namespace UPlayGround.Data.Editor.Ability
         private void RebuildDetail()
         {
             if (_detail == null || _summary == null) return;
+            UpdateTabStyles();
             _detail.Clear();
             _summary.Clear();
             if (_selected == null)
@@ -2554,6 +2567,7 @@ namespace UPlayGround.Data.Editor.Ability
                     "활성화 조건" => new[] { "activation" },
                     "비용/쿨다운" => new[] { "cost", "cooldown" },
                     "Variant" => new[] { "variants" },
+                    "트리거" => new[] { "triggers", "cancelAbilitiesWithTag", "blockAbilitiesWithTag" },
                     "Effect" => new[] { "commitEffects", "endEffects" },
                     "저장/교체 정책" => new[] { "persistence" },
                     "정적 밸런스" => new[] { "balance" },
@@ -2678,6 +2692,7 @@ namespace UPlayGround.Data.Editor.Ability
             "활성화 조건" => "Ability 발동 조건 또는 AbilitySet의 콤보 연결 조건을 설정합니다.",
             "비용/쿨다운" => "자원 소모 시점과 재사용 대기시간을 설정합니다.",
             "Variant" => "상황별 실행 Variant 또는 차지 단계별 Ability를 구성합니다.",
+            "트리거" => "태그·Gameplay Event 기반 자동 활성화와 Ability 간 취소·차단 관계를 설정합니다.",
             "Effect" => "발동·종료 Effect와 Effect가 적용할 수치 변화를 설정합니다.",
             "저장/교체 정책" => "캐릭터 교체, 저장, 종료 시 유지하거나 제거할 범위를 설정합니다.",
             "정적 밸런스" => "밸런스 도구가 사용하는 기대 피해량과 메타데이터를 설정합니다.",
@@ -2700,6 +2715,9 @@ namespace UPlayGround.Data.Editor.Ability
                 (GameplayAbilitySO, "Variant") =>
                     "상황 조건에 따라 실제로 실행할 Payload를 우선순위 순으로 구성합니다. "
                     + "공격 Motion 해석 키의 단일 소스는 각 Motion Payload의 attackInfo.motionKey입니다.",
+                (GameplayAbilitySO, "트리거") =>
+                    "Owned Tag 변화·보유 상태 또는 Gameplay Event로 Ability를 자동 요청합니다. "
+                    + "Immediate는 시간 제한이 있는 Background 실행에만 사용하고, 전투 모션은 Request를 사용하세요.",
                 (GameplayAbilitySO, "Effect") =>
                     "Commit 직후와 실행 종료 시 적용할 GameplayEffect를 연결합니다. "
                     + "Variant 내부의 Owner/Target Effect와 적용 시점이 다르므로 중복 적용을 확인하세요.",
@@ -2760,6 +2778,9 @@ namespace UPlayGround.Data.Editor.Ability
             "scope" => "적용 범위",
             "triggeredEffects" => "조건 충족 시 Effect",
             "abilityTagIds" => "Ability 태그",
+            "triggers" => "자동 발동 트리거",
+            "cancelAbilitiesWithTag" => "발동 시 취소할 Ability 태그",
+            "blockAbilitiesWithTag" => "실행 중 차단할 Ability 태그",
             "concurrency" => "동시 실행 정책",
             "activation" => "활성화 조건",
             "cost" => "비용",
@@ -2806,6 +2827,9 @@ namespace UPlayGround.Data.Editor.Ability
             "scope" => "활성 캐릭터, 소유 캐릭터 또는 출전 파티 최고값 정책을 설정합니다.",
             "triggeredEffects" => "조건부 패시브가 성공했을 때 적용할 GameplayEffect입니다.",
             "abilityTagIds" or "grantedTagIds" => "조건 판정과 다른 시스템 연동에 사용하는 태그입니다.",
+            "triggers" => "태그 변화·현재 보유 태그·Gameplay Event에 반응할 발동 규칙입니다.",
+            "cancelAbilitiesWithTag" => "Commit 성공 시 이 태그와 계층 일치하는 다른 실행을 취소합니다.",
+            "blockAbilitiesWithTag" => "실행 중 이 태그와 계층 일치하는 새 Ability의 Prepare를 차단합니다.",
             "concurrency" => "같은 Ability가 이미 실행 중일 때 새 요청을 처리하는 방법입니다.",
             "activation" => "필요·차단 태그와 활성화 규칙을 설정합니다.",
             "cost" => "소모 자원, 소모량, 실제 차감 시점을 설정합니다.",

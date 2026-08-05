@@ -11,6 +11,7 @@ namespace UPlayGround.Ability.Core
         Locked,
         MissingRequiredTag,
         BlockedByTag,
+        BlockedByActiveAbility,
         InvalidGroundState,
         InvalidTarget,
         OutOfRange,

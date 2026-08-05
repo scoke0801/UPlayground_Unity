@@ -208,6 +208,7 @@ namespace UPlayGround.Components
         private PlayerCombatStateTracker _combatStateTracker;
         private CombatActionRunner _actionRunner;
         private UltimateSequencePlayer _ultimateSequencePlayer;
+        private ActorAbilitySystem _abilitySystem;
 
         // ── Motion Warp 상태 ──────────────────────────────────────────
         // 진실 소스는 MotionWarpController. 본 클래스는 호환 프록시만 노출한다.
@@ -515,6 +516,7 @@ namespace UPlayGround.Components
         private void Awake()
         {
             _playerActor   = GetComponent<PlayerActor>();
+            _abilitySystem = _playerActor?.Abilities;
             _defenseController = new PlayerDefenseController(
                 _playerActor,
                 _maxGuardCount,
@@ -572,8 +574,55 @@ namespace UPlayGround.Components
 
         private void OnEnable()
         {
+            SubscribeAbilityTriggers();
             if (Application.isPlaying)
                 DebugGizmoBridge.RegisterProvider(this);
+        }
+
+        private void SubscribeAbilityTriggers()
+        {
+            _abilitySystem ??= _playerActor?.Abilities;
+            if (_abilitySystem == null)
+                return;
+            _abilitySystem.AbilityTriggerRequested -= OnAbilityTriggerRequested;
+            _abilitySystem.AbilityTriggerRequested += OnAbilityTriggerRequested;
+            _abilitySystem.AbilityTriggerCancelRequested -= OnAbilityTriggerCancelRequested;
+            _abilitySystem.AbilityTriggerCancelRequested += OnAbilityTriggerCancelRequested;
+        }
+
+        private void UnsubscribeAbilityTriggers()
+        {
+            if (_abilitySystem == null)
+                return;
+            _abilitySystem.AbilityTriggerRequested -= OnAbilityTriggerRequested;
+            _abilitySystem.AbilityTriggerCancelRequested -= OnAbilityTriggerCancelRequested;
+        }
+
+        private void OnAbilityTriggerRequested(AbilityTriggerRequest request)
+        {
+            if (_playerActor?.PlayerController == null
+                || request.Ability == null
+                || request.TriggerTag.IsChildOf(GameplayTags.Trigger_Player_Hit)
+                || _abilitySystem?.AbilitySet?.Contains(request.Ability) != true)
+                return;
+
+            if (!PlayerAttackState.TryEnterTriggered(
+                    _playerActor.PlayerController,
+                    request))
+            {
+                _abilitySystem.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.StateTransitionRejected);
+            }
+        }
+
+        private void OnAbilityTriggerCancelRequested(AbilityExecutionHandle handle)
+        {
+            if (_abilitySystem == null
+                || !_abilitySystem.IsExecutionActive(handle)
+                || _playerActor?.PlayerController?.CurrentState is not PlayerAttackState)
+                return;
+            _playerActor.PlayerController.TryTransitionToState(ActorStateId.Idle);
         }
 
         private void Update()
@@ -631,6 +680,7 @@ namespace UPlayGround.Components
 
         private void OnDisable()
         {
+            UnsubscribeAbilityTriggers();
             // 컷씬·씬 전환 등으로 비활성화될 때 상호작용 UI가 남지 않도록 정리.
             SetBreakInteractionTarget(null);
             // 명시적 판정 세션이 디버그 레지스트리에 남지 않도록 반드시 닫는다.

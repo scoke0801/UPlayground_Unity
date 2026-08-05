@@ -60,6 +60,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Conditions.DistanceGreater] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, source, blackboard, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.ActionDelayElapsed] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyActionDelayElapsedNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.CanUseSkill] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<CanUseEnemySkillNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.CanActivateAbility] = new(JsonNodeActorScope.GroundOnly, false, (tree, condition, _, _, row) => CreateCanActivateAbilityNode(tree, condition.attackCategory, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackInRange] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyAttackInRangeNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.HasLineOfSight] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyLineOfSightNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerAttacking] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
@@ -100,6 +101,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Actions.RequestAction] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateRequestActionNode(tree, action, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.RequestAttackSlot] = new(JsonNodeActorScope.GroundOnly, (tree, _, row) => CreateActionLeaf<RequestEnemyAttackSlotNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateExecuteAttackNode(tree, action.attackCategory, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.IssueAbilityTrigger] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateIssueAbilityTriggerNode(tree, action.attackCategory, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.Wait] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateWaitNode(tree, action.duration, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.FlyingTransition] = new(JsonNodeActorScope.FlyingOnly, (tree, action, row) => CreateFlyingTransitionNode(tree, action.state, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.FlyingPatrolOrIdle] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateFlyingPatrolOrIdleNode(tree, row)),
@@ -289,6 +291,48 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             var node = CreateNode<ExecuteEnemyAttackNode>(tree, string.IsNullOrWhiteSpace(attackCategory) ? "Execute Attack" : $"Execute Attack {attackCategory}", ActionPosition(row));
             if (Enum.TryParse<AbilityAttackCategory>(attackCategory, true, out var parsed))
                 node.AttackCategory = parsed;
+            return node;
+        }
+
+        private static CanActivateAbilityNode CreateCanActivateAbilityNode(
+            BehaviorTreeAsset tree,
+            string attackCategory,
+            int row)
+        {
+            if (!Enum.TryParse(
+                    attackCategory,
+                    true,
+                    out AbilityAttackCategory parsed)
+                || parsed == AbilityAttackCategory.None)
+                throw new System.IO.InvalidDataException(
+                    $"CanActivateAbility의 attackCategory가 올바르지 않습니다. {attackCategory}");
+
+            var node = CreateNode<CanActivateAbilityNode>(
+                tree,
+                $"Can Activate {parsed}",
+                ConditionPosition(row));
+            node.Category = parsed;
+            return node;
+        }
+
+        private static IssueAbilityTriggerNode CreateIssueAbilityTriggerNode(
+            BehaviorTreeAsset tree,
+            string attackCategory,
+            int row)
+        {
+            if (!Enum.TryParse(
+                    attackCategory,
+                    true,
+                    out AbilityAttackCategory parsed)
+                || parsed == AbilityAttackCategory.None)
+                throw new System.IO.InvalidDataException(
+                    $"IssueAbilityTrigger의 attackCategory가 올바르지 않습니다. {attackCategory}");
+
+            var node = CreateNode<IssueAbilityTriggerNode>(
+                tree,
+                $"Issue Ability Trigger {parsed}",
+                ActionPosition(row));
+            node.AttackCategory = parsed;
             return node;
         }
 

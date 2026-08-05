@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
+  m_Name: GA_Player_Hit_Hit
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.GameplayAbilitySO
+  abilityId: GA_Player_Hit_Hit
+  editorMemo: "\uD0DC\uADF8 \uD2B8\uB9AC\uAC70 \uB9C8\uC774\uADF8\uB808\uC774\uC158:
+    \uD50C\uB808\uC774\uC5B4 \uD53C\uACA9 \uB9AC\uC561\uC158"
+  presentation:
+    displayName: "\uC0C8 Ability"
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 0}
+    hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
+    category: 0
+    ownerType: 0
+  abilityTagIds: []
+  triggers:
+  - triggerTag:
+      _tagName: Trigger.Player.Hit.Hit
+    source: 2
+    mode: 1
+    matchMode: 1
+    priority: 0
+    retriggerIntervalSeconds: 0
+    allowPreemption: 1
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
+  activation:
+    requiredTagIds: []
+    blockedTagIds: []
+    executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny:
+      - _tagName: State.Hit
+      - _tagName: State.Stun
+      - _tagName: State.Knockdown
+      - _tagName: State.Grabbed
+      - _tagName: State.Death
+      - _tagName: State.SuperArmor
+      matchMode: 0
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+    groundCondition: 0
+    targetPolicy: 0
+    targetRelation: 2
+    minDistance: 0
+    maxDistance: 0
+  targeting:
+    mode: 0
+    indicatorRadius: 0
+    maximumAimDistance: 0
+    clampToGround: 1
+  cost:
+    resourceType: 0
+    policy: 0
+    value: 0
+  cooldown:
+    durationSeconds: 0
+    cooldownGroupId: 
+    maxCharges: 1
+    globalLockSeconds: 0
+  concurrency: 1
+  taskGraph: {fileID: 0}
+  variants:
+  - variantId: Default
+    priority: 1
+    condition:
+      groundCondition: 0
+      minResource: 0
+      requiresFullResource: 0
+      requiredTagIds: []
+      blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+    executionPayload: {fileID: 0}
+    targetEffects: []
+    ownerEffects: []
+  commitEffects: []
+  endEffects: []
+  persistence:
+    swapPolicy: 0
+    saveCooldown: 1
+    backgroundMaxDurationSeconds: 0
+  balance:
+    expectedDamage: 0
+    expectedDuration: 0
+    roleTags: []
+    designerNotes: 

@@ -12,13 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
   m_Name: AbilitySet_Lich
   m_EditorClassIdentifier: 
+  tagTriggerMigrationVersion: 1
+  editorMemo: 
+  baseSet: {fileID: 0}
+  abilityOverrides: []
   playerSlots: []
   additionalAbilities:
   - {fileID: 11400000, guid: 5c910efce1f149f44907ee8c158c68fe, type: 2}
   - {fileID: 11400000, guid: 05390aa6bebf4d44da5cd4ea78abbf13, type: 2}
   - {fileID: 11400000, guid: 24131b76847a0b849aae6a9cbcd44e73, type: 2}
   - {fileID: 11400000, guid: d74eab602d7b93d4ab0042e9834274e7, type: 2}
+  - {fileID: 11400000, guid: 495f0cb06effe724097710c6821ba8be, type: 2}
+  - {fileID: 11400000, guid: 1dac5bdd5a08ec547bb1e7df6401138e, type: 2}
+  - {fileID: 11400000, guid: ea7da847b91f2d24d81664e58dc37486, type: 2}
+  - {fileID: 11400000, guid: c9f2abf5b9ce19647addb9342126f548, type: 2}
+  - {fileID: 11400000, guid: d8b2ff968a154974c9cfa30ab0cfdb6b, type: 2}
+  - {fileID: 11400000, guid: 88185e9eb0fc1be49a907012c6e75a00, type: 2}
+  - {fileID: 11400000, guid: 980501bb3a79ec34b812ed66f3d54da9, type: 2}
+  - {fileID: 11400000, guid: dfddaf9d64456ca40af76b44aa97d4c5, type: 2}
+  - {fileID: 11400000, guid: 337e7543a93aaff44a9084eef5cdc414, type: 2}
+  - {fileID: 11400000, guid: 3c225dd21ef684242a219c63a8115c96, type: 2}
+  - {fileID: 11400000, guid: 058c3f845affa164cb537b2518decbca, type: 2}
+  - {fileID: 11400000, guid: d1c61d5538f36594c917ee3b81cbd140, type: 2}
   combatBindings: []
+  overrideCharge: 0
   charge:
     stages: []
     stageThresholds: []
@@ -26,5 +43,7 @@ MonoBehaviour:
     fullChargeVfxKey: 
     fullChargeVfxSocket: 3
     fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
   comboRoutes: []
+  overrideComboLinkWindow: 0
   comboLinkWindow: 1

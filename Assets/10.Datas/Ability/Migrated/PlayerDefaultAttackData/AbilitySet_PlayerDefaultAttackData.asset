@@ -12,12 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
   m_Name: AbilitySet_PlayerDefaultAttackData
   m_EditorClassIdentifier: 
+  tagTriggerMigrationVersion: 1
+  editorMemo: 
+  baseSet: {fileID: 0}
+  abilityOverrides: []
   playerSlots:
   - slot: 0
     ability: {fileID: 11400000, guid: 1697cf2c18e6a714396f8c3afe5ceeab, type: 2}
   - slot: 1
     ability: {fileID: 11400000, guid: 60d08e36398986a4e85f730c3fd3d34a, type: 2}
-  additionalAbilities: []
+  additionalAbilities:
+  - {fileID: 11400000, guid: d9879278d5891554bbe26cdfbe90d3f2, type: 2}
+  - {fileID: 11400000, guid: eff25bc3b861b594a8c3d5a80c42d811, type: 2}
+  - {fileID: 11400000, guid: e16933a4137cf7445aa354f335f06b79, type: 2}
+  - {fileID: 11400000, guid: b71312d6287550a488059ca9d924f5a9, type: 2}
+  - {fileID: 11400000, guid: f66c2c0f47748ef438a6b9557c8171cc, type: 2}
+  - {fileID: 11400000, guid: b99f5488fcdfee24b97712825d6e4db5, type: 2}
+  - {fileID: 11400000, guid: f566afef7d2357f4790a16605ea724c6, type: 2}
+  - {fileID: 11400000, guid: e4104467478ebf14e9514c26a4d65572, type: 2}
+  - {fileID: 11400000, guid: f6736fca5d59789488e93f795bf6af57, type: 2}
   combatBindings:
   - slot: 0
     abilities:
@@ -69,6 +82,7 @@ MonoBehaviour:
   - slot: 10
     abilities:
     - {fileID: 11400000, guid: 7a59623d4e15cb840b1d1d57022f060d, type: 2}
+  overrideCharge: 0
   charge:
     stages:
     - {fileID: 11400000, guid: 72339020100e030429ea43dcad41ce7c, type: 2}
@@ -77,5 +91,7 @@ MonoBehaviour:
     fullChargeVfxKey: playerFullChargeFX
     fullChargeVfxSocket: 0
     fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
   comboRoutes: []
+  overrideComboLinkWindow: 0
   comboLinkWindow: 1

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Data.Ability;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Gameplay.Ability
 {
@@ -16,6 +17,11 @@ namespace UPlayGround.Gameplay.Ability
         public int PreparedFrame { get; }
         public float StartTime { get; internal set; }
         public AbilityExecutionState State { get; internal set; }
+        public GameplayTag TriggerTag { get; internal set; }
+        public AbilityTriggerSource TriggerSource { get; internal set; }
+        public GameplayEventData? TriggerEvent { get; internal set; }
+        internal AbilityTriggerActivationMode TriggerActivationMode { get; set; }
+        internal AbilityTagMatchMode TriggerMatchMode { get; set; }
         internal readonly List<AbilityTagHandle> GrantedTagHandles = new();
         internal readonly List<Effect.GameplayEffectHandle> TemporaryEffectHandles = new();
 
@@ -25,7 +31,8 @@ namespace UPlayGround.Gameplay.Ability
             AbilityVariantDefinition variant,
             GameActor owner,
             GameActor target,
-            int preparedFrame)
+            int preparedFrame,
+            GameplayEventData? triggerEvent = null)
         {
             Handle = handle;
             Definition = definition;
@@ -41,6 +48,7 @@ namespace UPlayGround.Gameplay.Ability
                     : owner.transform.forward,
                 preparedFrame);
             PreparedFrame = preparedFrame;
+            TriggerEvent = triggerEvent;
             State = AbilityExecutionState.Prepared;
         }
     }

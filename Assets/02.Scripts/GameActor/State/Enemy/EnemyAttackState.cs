@@ -33,17 +33,24 @@ namespace UPlayGround.State
         private AbilityAttackInfo _currentSkill;
         private float           _attackTimer;
         private bool            _isAttackActive;
+        private readonly bool _useTriggeredAbility;
 
         // 호밍 타겟 (Motion Warp + 회전 보정 공통)
         private Transform _homingTarget;
         private MotionWarpController _motionWarp;
 
-        public EnemyAttackState(ActorMovementController controller, EnemyCombat combat, EnemyAIContext context, EnemyDetection detection)
+        public EnemyAttackState(
+            ActorMovementController controller,
+            EnemyCombat combat,
+            EnemyAIContext context,
+            EnemyDetection detection,
+            bool useTriggeredAbility = false)
             : base(controller)
         {
             _combat    = combat;
             _context   = context;
             _detection = detection;
+            _useTriggeredAbility = useTriggeredAbility;
         }
 
         public override bool CanTransitionState(ActorStateId fromState)
@@ -70,8 +77,15 @@ namespace UPlayGround.State
             gameActor.GetComponent<UPlayGround.Components.PoiseStat>()?.SetHyperArmor(true);
             ActorWeaponTrailController.StartAttackTrails(gameActor);
 
-            float distanceToTarget = _detection.DistanceToTarget;
-            _currentSkill = _combat.SelectAndExecuteSkill(distanceToTarget);
+            if (_useTriggeredAbility)
+            {
+                _combat.TryConsumeTriggeredAbility(out _currentSkill);
+            }
+            else
+            {
+                float distanceToTarget = _detection.DistanceToTarget;
+                _currentSkill = _combat.SelectAndExecuteSkill(distanceToTarget);
+            }
 
             if (_currentSkill != null)
             {

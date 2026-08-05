@@ -7,6 +7,7 @@ using UPlayGround;
 using UPlayGround.Debugging;
 using UPlayGround.State;
 using UPlayGround.CameraSystem;
+using UPlayGround.Gameplay.Tag;
 using UPlayGround.Simulation;
 
 namespace UPlayGround.MovementController
@@ -121,6 +122,16 @@ namespace UPlayGround.MovementController
         {
             EnsureReferences();
             EnsureStateMachine();
+            // 비활성화 중 회수한 태그를 현재 상태 기준으로 복원한다.
+            ApplySemanticStateTag(_currentState?.StateId);
+        }
+
+        protected virtual void OnDisable()
+        {
+            // 비활성화·풀 반환 경로에서는 OnExit이 돌지 않으므로
+            // 여기서 시맨틱 상태 태그를 회수한다. 남겨 두면 재사용된 액터가
+            // State.Hit/Death를 계속 보유해 피격 리액션이 영구히 차단된다.
+            ClearSemanticStateTag();
         }
 
         private void EnsureStateMachine()
@@ -194,6 +205,9 @@ namespace UPlayGround.MovementController
         // 상태 관리
         private GameActorState _currentState;
         public GameActorState CurrentState => _currentState;
+
+        /// <summary>현재 부여 중인 시맨틱 상태 태그. ApplySemanticStateTag만 갱신한다.</summary>
+        private GameplayTag _semanticStateTag;
         public event Action<GameActorState, GameActorState> OnStateChanged;
 
         /// <summary>
@@ -246,18 +260,49 @@ namespace UPlayGround.MovementController
             }
             
             GameActorState oldState = _currentState;
-            
+
             // 이전 상태 종료
             _currentState?.OnExit(newState);
             Actor?.Animator?.FlushRootMotion();
-            
+
             // 새 상태 설정
             _currentState = newState;
-            
+
+            // 시맨틱 상태 태그(State.Hit/Stun/...)는 상태가 아니라 컨트롤러가 소유한다.
+            // 상태 쪽 OnEnter/OnExit에 두면 파생 상태가 base 호출을 한 번만 빠뜨려도
+            // 태그가 잔존하고, 그 액터는 이후 영구히 피격 리액션이 차단된다.
+            // 전환 경로가 하나뿐인 이곳에서 처리해 그 사고 자체를 없앤다.
+            ApplySemanticStateTag(newState.StateId);
+
             // 새 상태 진입
             _currentState.OnEnter(oldState);
             OnStateChanged?.Invoke(oldState, _currentState);
         }
+
+        /// <summary>
+        /// 현재 시맨틱 상태 태그를 새 상태에 맞게 교체한다.
+        /// <paramref name="stateId"/>가 null이면 태그를 제거하기만 한다(상태 머신 해제).
+        /// </summary>
+        private void ApplySemanticStateTag(ActorStateId? stateId)
+        {
+            GameplayTag next = stateId.HasValue
+                ? GameActorState.ResolveSemanticStateTag(stateId.Value)
+                : default;
+            if (_semanticStateTag.Equals(next))
+                return;
+
+            if (_semanticStateTag.IsValid())
+                Actor?.Tags?.RemoveTag(_semanticStateTag);
+            _semanticStateTag = next;
+            if (_semanticStateTag.IsValid())
+                Actor?.Tags?.AddTag(_semanticStateTag);
+        }
+
+        /// <summary>
+        /// 상태 머신을 놓을 때 시맨틱 상태 태그를 반드시 회수한다.
+        /// 풀 반환·비활성화·씬 전환처럼 OnExit이 돌지 않는 경로를 위한 안전망.
+        /// </summary>
+        public void ClearSemanticStateTag() => ApplySemanticStateTag(null);
 
         public void TransitionToState(ActorStateId stateId)
             => StateMachine.Transition(stateId);

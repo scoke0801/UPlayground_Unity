@@ -56,10 +56,13 @@ namespace UPlayGround
         {
             RegisterInputEvents();
             CameraMgr?.SetCombatStateProvider(() => _combat != null && _combat.IsInCombat);
+            SubscribeReactionAbilityTriggers();
         }
 
         private void OnDisable()
         {
+            UnsubscribeReactionAbilityTriggers();
+            ClearStaggerImmunityTag();
             UnRegisterInputEvents();
             CameraMgr?.SetCombatStateProvider(null);
             ClearAllInputState();
@@ -76,6 +79,7 @@ namespace UPlayGround
         protected override void Update()
         {
             base.Update();
+            UpdateStaggerImmunityTag();
 
             // OnEnable 시점에 InputManager 초기화가 끝나지 않았던 경우 등록을 복구한다.
             if (!_isInputRegistered)

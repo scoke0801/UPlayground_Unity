@@ -74,6 +74,99 @@ namespace UPlayGround.Data.Ability
         Airborne,
     }
 
+    public enum AbilityTagMatchMode
+    {
+        /// <summary>하위 계층 태그도 조건을 만족시킨다.</summary>
+        Hierarchy,
+        /// <summary>태그 문자열이 정확히 일치해야 한다.</summary>
+        Exact,
+    }
+
+    public enum AbilityTriggerSource
+    {
+        /// <summary>소유 태그가 새로 추가되는 순간 한 번 활성화를 시도한다.</summary>
+        OwnedTagAdded,
+        /// <summary>태그가 존재하는 동안 활성 상태를 유지하고 소실 시 취소한다.</summary>
+        OwnedTagPresent,
+        /// <summary>Gameplay Event가 전달될 때 활성화를 시도한다.</summary>
+        GameplayEvent,
+    }
+
+    public enum AbilityTriggerActivationMode
+    {
+        /// <summary>Ability System이 Prepare와 Commit을 직접 수행한다.</summary>
+        Immediate,
+        /// <summary>전투 계층에 활성화 요청을 전달한다.</summary>
+        Request,
+    }
+
+    [Serializable]
+    public sealed class AbilityTriggerDefinition
+    {
+        public GameplayTag triggerTag;
+        public AbilityTriggerSource source = AbilityTriggerSource.OwnedTagAdded;
+        public AbilityTriggerActivationMode mode = AbilityTriggerActivationMode.Immediate;
+        public AbilityTagMatchMode matchMode = AbilityTagMatchMode.Exact;
+        [Tooltip("같은 프레임에 여러 트리거가 걸리면 높은 값이 먼저 처리됩니다.")]
+        public int priority;
+        [Min(0f)]
+        [Tooltip("트리거로 재활성화되기까지의 최소 간격입니다. OwnedTagPresent에는 적용되지 않습니다.")]
+        public float retriggerIntervalSeconds;
+        [Tooltip("Request 트리거가 현재 주 실행 Ability를 선점할 수 있는지 여부입니다. 기본값은 선점 금지입니다.")]
+        public bool allowPreemption;
+    }
+
+    [Serializable]
+    public sealed class AbilityTagRequirement
+    {
+        [Tooltip("전부 보유해야 활성화됩니다. (AND)")]
+        public List<GameplayTag> requireAll = new();
+        [Tooltip("하나라도 보유하면 활성화됩니다. 비어 있으면 검사하지 않습니다. (OR)")]
+        public List<GameplayTag> requireAny = new();
+        [Tooltip("하나라도 보유하면 활성화를 차단합니다. (NONE)")]
+        public List<GameplayTag> blockAny = new();
+        public AbilityTagMatchMode matchMode = AbilityTagMatchMode.Hierarchy;
+
+        public bool IsEmpty =>
+            (requireAll?.Count ?? 0) == 0
+            && (requireAny?.Count ?? 0) == 0
+            && (blockAny?.Count ?? 0) == 0;
+    }
+
+    public static class AbilityTagRequirementEvaluator
+    {
+        public static bool Matches(
+            AbilityTagRequirement requirement,
+            IGameplayTagReader tags)
+        {
+            if (requirement == null || requirement.IsEmpty)
+                return true;
+            if (tags == null)
+                return false;
+            bool hierarchy = requirement.matchMode == AbilityTagMatchMode.Hierarchy;
+            for (int i = 0; i < (requirement.requireAll?.Count ?? 0); i++)
+                if (requirement.requireAll[i].IsValid()
+                    && !tags.HasTag(requirement.requireAll[i], hierarchy))
+                    return false;
+            bool hasAnyRequirement = false;
+            bool hasAny = false;
+            for (int i = 0; i < (requirement.requireAny?.Count ?? 0); i++)
+            {
+                if (!requirement.requireAny[i].IsValid()) continue;
+                hasAnyRequirement = true;
+                if (tags.HasTag(requirement.requireAny[i], hierarchy))
+                    hasAny = true;
+            }
+            if (hasAnyRequirement && !hasAny)
+                return false;
+            for (int i = 0; i < (requirement.blockAny?.Count ?? 0); i++)
+                if (requirement.blockAny[i].IsValid()
+                    && tags.HasTag(requirement.blockAny[i], hierarchy))
+                    return false;
+            return true;
+        }
+    }
+
     public enum AbilityTargetPolicy
     {
         None,
@@ -190,6 +283,9 @@ namespace UPlayGround.Data.Ability
         public List<GameplayTag> requiredTagIds = new();
         public List<GameplayTag> blockedTagIds = new();
         public List<GameplayTag> executionGrantedTagIds = new();
+        public AbilityTagRequirement ownerTagRequirement = new();
+        public AbilityTagRequirement sourceTagRequirement = new();
+        public AbilityTagRequirement targetTagRequirement = new();
         public AbilityGroundCondition groundCondition = AbilityGroundCondition.Any;
         public AbilityTargetPolicy targetPolicy = AbilityTargetPolicy.None;
         public AbilityTargetRelation targetRelation = AbilityTargetRelation.Enemy;
@@ -242,6 +338,7 @@ namespace UPlayGround.Data.Ability
         public bool requiresFullResource;
         public List<GameplayTag> requiredTagIds = new();
         public List<GameplayTag> blockedTagIds = new();
+        public AbilityTagRequirement ownerTagRequirement = new();
     }
 
     [Serializable]

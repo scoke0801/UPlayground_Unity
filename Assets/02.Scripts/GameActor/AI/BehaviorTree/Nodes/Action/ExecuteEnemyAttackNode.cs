@@ -15,6 +15,7 @@ namespace UPlayGround.AI.BehaviorTree
         // 상한을 넘기면 Failure로 빠져 상위 BT가 후퇴·재배치 등 다른 분기를 고를 수 있게 한다.
         private const float APPROACH_TIMEOUT = 4f;
 
+        private readonly EnemyAttackTriggerRequest _triggerRequest = new();
         private bool _attackStarted;
         private float _approachDeadline;
 
@@ -30,11 +31,25 @@ namespace UPlayGround.AI.BehaviorTree
             if (controller == null)
                 return BTStatus.Failure;
 
-            if (controller.CurrentState?.StateId == ActorStateId.Attack)
+            if (_triggerRequest.TriggerIssued)
             {
-                _attackStarted = true;
-                return BTStatus.Running;
+                BTStatus triggerStatus = _triggerRequest.Update();
+                if (_triggerRequest.ConsumeAcceptedSignal())
+                {
+                    _attackStarted = true;
+                    CombatIntentHistoryUtility.RecordSelectedIntentExecution(
+                        Context?.Blackboard);
+                }
+                if (triggerStatus == BTStatus.Failure)
+                    Context?.Blackboard?.SetBool(
+                        EnemyBlackboardKeys.HasAttackSlot,
+                        false);
+                return triggerStatus;
             }
+
+            // 다른 원인으로 들어간 Attack 상태를 이 노드가 시작한 공격으로 귀속하지 않는다.
+            if (controller.CurrentState?.StateId == ActorStateId.Attack)
+                return BTStatus.Failure;
 
             if (controller.CurrentState?.BlocksBehaviorTree == true)
                 return BTStatus.Failure;
@@ -99,20 +114,29 @@ namespace UPlayGround.AI.BehaviorTree
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
             combat.ReserveAttackCategory(_attackCategory);
             context.NotifyBTAttackStarted();
-            controller.TransitionToState(new EnemyAttackState(controller, combat, context, detection));
-            CombatIntentHistoryUtility.RecordSelectedIntentExecution(Context?.Blackboard);
-            _attackStarted = true;
-            return BTStatus.Running;
+            _triggerRequest.Issue(combat, context, _attackCategory);
+            BTStatus status = _triggerRequest.Update();
+            if (_triggerRequest.ConsumeAcceptedSignal())
+            {
+                CombatIntentHistoryUtility.RecordSelectedIntentExecution(
+                    Context?.Blackboard);
+                _attackStarted = true;
+            }
+            if (status == BTStatus.Failure)
+                Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
+            return status;
         }
 
         protected override void OnStart()
         {
             _attackStarted = false;
             _approachDeadline = 0f;
+            _triggerRequest.Reset();
         }
 
         protected override void OnStop()
         {
+            _triggerRequest.Stop();
             _attackStarted = false;
             _approachDeadline = 0f;
         }

@@ -3,6 +3,7 @@ using UPlayGround.Components;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.State
 {
@@ -37,6 +38,7 @@ namespace UPlayGround.State
         private bool  _isInLoop;      // InfiniteLoop 구간에 진입했는지
         private bool  _isFired;       // BreakInfiniteLoop 한 번만 호출되도록
         private bool  _releasedBeforeLoop; // 루프 진입 전에 이미 버튼을 뗐는지
+        private GameplayTagHandle _superArmorTagHandle;
 
         private const float MaxChargeTime = 1.5f; // 풀 차지까지 걸리는 시간 (초)
 
@@ -80,6 +82,7 @@ namespace UPlayGround.State
             _isInLoop           = false;
             _isFired            = false;
             _releasedBeforeLoop = false;
+            _superArmorTagHandle = default;
             _stageThresholds    = _combat.GetChargeStageThresholds();
 
 
@@ -119,6 +122,9 @@ namespace UPlayGround.State
             ActorWeaponTrailController.StopAttackTrails(_equipment != null ? _equipment : playerActor);
 
             _softRotationTarget = null;
+            if (_superArmorTagHandle.IsValid)
+                gameActor.Tags?.RemoveTag(_superArmorTagHandle);
+            _superArmorTagHandle = default;
             base.OnExit(toState);
         }
 
@@ -170,6 +176,12 @@ namespace UPlayGround.State
 
                     // ── 스테이지 전환: 홀드 중 임계값 도달 시 다음 InfiniteLoop로 진행 ──
                     int stageIndex = gameActor.Animator.InfiniteLoopStageIndex;
+                    if (stageIndex >= 1 && !_superArmorTagHandle.IsValid)
+                    {
+                        _superArmorTagHandle = gameActor.Tags.AddTag(
+                            GameplayTags.State_SuperArmor,
+                            new GameplayTagSource("PlayerChargeState", 0));
+                    }
                     if (isHeld
                         && stageIndex < _stageThresholds.Length
                         && _chargeRatio >= _stageThresholds[stageIndex])

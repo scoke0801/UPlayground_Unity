@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Data.Ability;
 
 namespace UPlayGround.Data.Combat
 {
@@ -72,6 +73,9 @@ namespace UPlayGround.Data.Combat
         [Tooltip("이 중 하나라도 보유하면 사용 불가 (블록).")]
         public List<GameplayTag> blockedTagIds = new();
 
+        [Tooltip("확장 태그 조건. requireAny와 Exact 계층 정책을 사용할 수 있습니다.")]
+        public AbilityTagRequirement tagRequirement = new();
+
         [Header("상태/물리 조건")]
         [Tooltip("이 라우트가 성립하려면 플레이어가 지상/공중 중 어느 쪽이어야 하는지")]
         public RouteGroundCondition groundCondition = RouteGroundCondition.Any;
@@ -126,7 +130,9 @@ namespace UPlayGround.Data.Combat
         public bool CheckTagConditions(IGameplayTagReader container)
         {
             if (container == null)
-                return requiredTagIds == null || requiredTagIds.Count == 0;
+                return !HasValidRequiredTag(requiredTagIds)
+                       && !HasValidRequiredTag(tagRequirement?.requireAll)
+                       && !HasValidRequiredTag(tagRequirement?.requireAny);
 
             if (requiredTagIds != null)
             {
@@ -146,7 +152,17 @@ namespace UPlayGround.Data.Combat
                 }
             }
 
-            return true;
+            return AbilityTagRequirementEvaluator.Matches(
+                tagRequirement,
+                container);
+        }
+
+        private static bool HasValidRequiredTag(List<GameplayTag> tags)
+        {
+            for (int i = 0; i < (tags?.Count ?? 0); i++)
+                if (tags[i].IsValid())
+                    return true;
+            return false;
         }
     }
 }

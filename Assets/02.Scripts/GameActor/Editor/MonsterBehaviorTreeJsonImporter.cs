@@ -75,6 +75,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
     {
         public string condition;
         public bool invert;
+        public string attackCategory;
         public string key;
         public string op;
         public string value;

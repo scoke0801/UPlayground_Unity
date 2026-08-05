@@ -58,9 +58,14 @@ namespace UPlayGround.Gameplay.Ability
 
         public bool Has(string tagId)
         {
+            return Has(tagId, true);
+        }
+
+        public bool Has(string tagId, bool matchHierarchy)
+        {
             return GameplayTagRegistry.TryResolve(tagId, out GameplayTag tag)
                    && (_abilitySystem.Tags?.Has(
-                       new AbilityTagId(tag.TagName)) ?? false);
+                       new AbilityTagId(tag.TagName), matchHierarchy) ?? false);
         }
 
         public AbilityTagHandle Add(string tagId, string sourceType, ulong sourceId)

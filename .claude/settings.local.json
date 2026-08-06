@@ -492,7 +492,11 @@
       "Bash(awk '/^diff .*ActorAbilitySystem/,/^diff .*PassiveAbilityController/' d_misc2.txt)",
       "PowerShell(cd C:\\\\UsingProject\\\\UnityProject\\\\UPlayground; $env:GIT_PAGER='cat'; git diff -- .claude/settings.local.json; Get-Content Assets\\\\02.Scripts\\\\Editor\\\\Unity6ExternalShaderCompatibility.cs -TotalCount 40)",
       "Bash(awk '/^diff .*cycle\\\\/README/,0' d_party.txt)",
-      "Bash(awk '/^diff .*PLAYER_COMBAT_SKILL_LINK/,/^diff .*04_BOSS/' d_party.txt)"
+      "Bash(awk '/^diff .*PLAYER_COMBAT_SKILL_LINK/,/^diff .*04_BOSS/' d_party.txt)",
+      "Read(//c/Users/scoke/.codex/**)",
+      "Bash(xargs ls -la)",
+      "Bash(mkdir -p \".claude/skills/generate-bt-json/scripts\" \".claude/skills/generate-gas-ability/references\")",
+      "Bash(cp \"C:/Users/scoke/.codex/skills/uplayground-bt-data/scripts/validate_bt_json.py\" \".claude/skills/generate-bt-json/scripts/validate_bt_json.py\")"
     ],
     "deny": [
       "Bash(rm -rf *)",

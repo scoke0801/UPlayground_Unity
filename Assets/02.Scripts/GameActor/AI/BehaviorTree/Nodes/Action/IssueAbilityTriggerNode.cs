@@ -75,15 +75,15 @@ namespace UPlayGround.AI.BehaviorTree
             TriggerIssued = true;
             TriggerFrame = Time.frameCount;
             _aiContext = aiContext;
-            _category = category;
             _abilitySystem = combat?.AbilitySystem;
-            _triggerAbility = EnemyAbilityTriggerTags.FindTriggerAbility(
-                combat?.AbilitySet,
-                category);
 
             if (_abilitySystem == null
-                || _triggerAbility == null
-                || !EnemyAbilityTriggerTags.TryGetAttackTag(category, out var tag))
+                || !EnemyAbilityTriggerTags.TryResolveAttackTrigger(
+                    combat?.AbilitySet,
+                    category,
+                    out _category,
+                    out _triggerAbility,
+                    out var tag))
             {
                 Reject(AbilityActivationResult.NotGranted);
                 return;

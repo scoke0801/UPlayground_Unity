@@ -477,9 +477,15 @@ namespace UPlayGround.Components
                 return false;
             }
 
+            // None은 기존 BT에서 "모든 공격 후보"를 뜻한다. 이 경우 triggerCategory는
+            // Request 라우터를 찾기 위한 운반 경로일 뿐 후보 필터로 사용하지 않는다.
+            AbilityAttackCategory selectionCategory =
+                reservedCategory == AbilityAttackCategory.None
+                    ? AbilityAttackCategory.None
+                    : triggerCategory;
             attackInfo = SelectAndExecuteSkill(
                 _detection != null ? _detection.DistanceToTarget : float.MaxValue,
-                triggerCategory,
+                selectionCategory,
                 request.TriggerEvent);
             if (attackInfo == null
                 || _currentAbility == null

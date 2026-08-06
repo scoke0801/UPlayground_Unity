@@ -36,7 +36,13 @@ UPlayGround 적 AI용 **Monster Behavior Rules JSON**을 작성한다. 이 JSON�
    - `40 Execute Selected Intent` — **필수** (위 ⭐)
    - `50 Default Combat Rhythm` — 거리/콤보 기반 기본 행동 + `KeepCurrentState` fallback
 5. **저장 경로 결정** — 기본은 `Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_<이름>.json`. (보스 페이즈 변형은 `SourceJson/Boss/` 등 하위 폴더 가능.)
-6. **파일 쓰기 + 안내 출력** — Write 툴로 저장. 출력에 (a) 경로, (b) 그룹/규칙 한 줄 요약, (c) SelectedIntent 그룹 포함 확인, (d) import 메뉴 안내를 포함한다.
+6. **파일 쓰기** — Write 툴로 저장.
+7. **정적 검증 (필수)** — 저장 직후 반드시 실행한다. 오류가 남은 채로 완료 보고하지 않는다.
+   ```powershell
+   python ".claude/skills/generate-bt-json/scripts/validate_bt_json.py" "<저장한 경로>"
+   ```
+   이 스크립트는 문서가 아니라 저장소의 현재 C#(`MonsterBehaviorJsonNodeKeys.cs`, NodeFactory, enum, registry)에서 카탈로그를 읽어 unknown key/enum 오타/actor scope 위반/payload 누락/priority 순서/id 중복을 잡는다. 전체 검사와 warning 승격은 `... "Assets/10.Datas/AI/BehaviorTree/SourceJson" --strict`. 상세 절차는 `references/validation.md`.
+8. **안내 출력** — (a) 경로, (b) 그룹/규칙 한 줄 요약, (c) SelectedIntent 그룹 포함 확인, (d) 정적 검증 결과, (e) import 메뉴 안내를 포함한다. Unity import와 Play Mode 스모크를 실행하지 못했으면 "미검증"으로 명시한다.
 
 ## 스키마 요약
 
@@ -90,6 +96,10 @@ UPlayGround 적 AI용 **Monster Behavior Rules JSON**을 작성한다. 이 JSON�
 **구성 요약:**
 - actorKind / 그룹 목록 / 핵심 규칙 한 줄
 - ✅ "40 Execute Selected Intent" 그룹 포함 (스코어러 소비 확인)  ← Ground 필수
+
+**검증:**
+- 정적 검증: 오류 0 / 경고 N (validate_bt_json.py)
+- Unity import·Play Mode: 미검증 (또는 실행 결과)
 
 **Unity에서 사용하는 법:**
 1. `UPlayGround/비헤이비어 트리/JSON/선택 JSON 가져오기` (또는 Project에서 JSON 우클릭 → UPlayGround/AI/Import)

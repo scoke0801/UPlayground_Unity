@@ -1168,14 +1168,15 @@ namespace UPlayGround.Gameplay.Ability
             GameplayEventData? triggerEvent)
         {
             if (activation?.sourceTagRequirement == null
-                || activation.sourceTagRequirement.IsEmpty
-                || !triggerEvent.HasValue
+                || activation.sourceTagRequirement.IsEmpty)
+                return AbilityTagEvaluation.Pass;
+            if (!triggerEvent.HasValue
                 || !AbilitySystemComponent.TryResolve(
                     triggerEvent.Value.Instigator,
                     out AbilitySystemComponent source)
                 || source == null
                 || source.Tags == null)
-                return AbilityTagEvaluation.Pass;
+                return AbilityTagEvaluation.MissingRequired;
             return EvaluateTagRequirement(
                 activation.sourceTagRequirement,
                 new UPlayGroundAbilityOwnerPorts(source));
@@ -1195,11 +1196,12 @@ namespace UPlayGround.Gameplay.Ability
                 target = eventTarget.GetComponent<GameActor>();
             }
             if (activation?.targetTagRequirement == null
-                || activation.targetTagRequirement.IsEmpty
-                || target == null
+                || activation.targetTagRequirement.IsEmpty)
+                return AbilityTagEvaluation.Pass;
+            if (target == null
                 || target.AbilitySystem == null
                 || target.AbilitySystem.Tags == null)
-                return AbilityTagEvaluation.Pass;
+                return AbilityTagEvaluation.MissingRequired;
             return EvaluateTagRequirement(
                 activation.targetTagRequirement,
                 new UPlayGroundAbilityOwnerPorts(target.AbilitySystem));

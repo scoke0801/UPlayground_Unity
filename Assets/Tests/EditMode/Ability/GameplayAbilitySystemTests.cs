@@ -792,6 +792,40 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void Source_태그요구사항은_GameplayEvent가_없으면_실패한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.sourceTagRequirement.requireAll.Add(
+                GameplayTags.State_Hit);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(
+                _actor.Abilities.EvaluateAbility(ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
+
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void Target_태그요구사항은_대상컨텍스트가_없으면_실패한다()
+        {
+            GameplayAbilitySO ability = MakeAbility();
+            ability.activation.targetTagRequirement.requireAll.Add(
+                GameplayTags.State_Hit);
+            AbilitySetSO set = MakeSet(ability);
+            _actor.Abilities.SetAbilitySet(set);
+
+            Assert.That(
+                _actor.Abilities.EvaluateAbility(ability, true, null, out _),
+                Is.EqualTo(AbilityActivationResult.MissingRequiredTag));
+
+            Object.DestroyImmediate(ability);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
         public void Validator는_Immediate와_비Background_조합을_Error로_보고한다()
         {
             GameplayAbilitySO ability = MakeAbility();
@@ -1520,6 +1554,81 @@ namespace UPlayGround.Ability.Tests
 
             for (int i = 0; i < routers.Count; i++)
                 Object.DestroyImmediate(routers[i]);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 거부된_Request트리거는_retriggerInterval을_소비하지않는다()
+        {
+            GameplayAbilitySO router = MakeRequestRouterAbility(
+                GameplayTags.Trigger_Monster_Hit_Heavy);
+            router.triggers[0].retriggerIntervalSeconds = 10f;
+            GameplayAbilitySO baseAbility = MakeAbility();
+            AbilitySetSO set = MakeSet(baseAbility);
+            set.additionalAbilities.Add(router);
+            _actor.Abilities.SetAbilitySet(set);
+
+            int requestCount = 0;
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                requestCount++;
+                _actor.Abilities.ReportTriggerRejected(
+                    request.Ability,
+                    AbilityActivationResult.StateTransitionRejected);
+            };
+
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Heavy);
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Heavy);
+
+            Assert.That(requestCount, Is.EqualTo(2));
+            Object.DestroyImmediate(baseAbility);
+            Object.DestroyImmediate(router);
+            Object.DestroyImmediate(set);
+        }
+
+        [Test]
+        public void 승인된_Request트리거만_retriggerInterval을_소비한다()
+        {
+            GameplayAbilitySO router = MakeRequestRouterAbility(
+                GameplayTags.Trigger_Monster_Hit_Heavy);
+            router.triggers[0].retriggerIntervalSeconds = 10f;
+            GameplayAbilitySO baseAbility = MakeAbility();
+            AbilitySetSO set = MakeSet(baseAbility);
+            set.additionalAbilities.Add(router);
+            _actor.Abilities.SetAbilitySet(set);
+
+            int requestCount = 0;
+            AbilityExecutionHandle acceptedHandle = default;
+            _actor.Abilities.AbilityTriggerRequested += request =>
+            {
+                requestCount++;
+                Assert.That(
+                    _actor.Abilities.TryPrepareAbility(
+                        request.Ability,
+                        true,
+                        null,
+                        out acceptedHandle,
+                        out _,
+                        request.TriggerEvent),
+                    Is.EqualTo(AbilityActivationResult.Success));
+                Assert.That(
+                    _actor.Abilities.Commit(acceptedHandle),
+                    Is.EqualTo(AbilityActivationResult.Success));
+                Assert.That(
+                    _actor.Abilities.BindActiveExecutionToTrigger(
+                        acceptedHandle,
+                        request),
+                    Is.True);
+            };
+
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Heavy);
+            Assert.That(acceptedHandle.IsValid, Is.True);
+            _actor.Abilities.EndAbility(acceptedHandle, completed: true);
+            _actor.Abilities.IssueTriggerEvent(GameplayTags.Trigger_Monster_Hit_Heavy);
+
+            Assert.That(requestCount, Is.EqualTo(1));
+            Object.DestroyImmediate(baseAbility);
+            Object.DestroyImmediate(router);
             Object.DestroyImmediate(set);
         }
 

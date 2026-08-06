@@ -223,8 +223,7 @@ namespace UPlayGround.MovementController
                 return false;
             }
 
-            TransitionToState(newState);
-            return true;
+            return TransitionToState(newState);
         }
 
         public bool TryTransitionToState(ActorStateId stateId)
@@ -236,12 +235,12 @@ namespace UPlayGround.MovementController
         /// <summary>
         /// 상태 전환
         /// </summary>
-        public void TransitionToState(GameActorState newState)
+        public bool TransitionToState(GameActorState newState)
         {
             if (newState == null)
             {
                 Debug.LogError("Cannot transition to null state!");
-                return;
+                return false;
             }
             
             // 대부분의 상태는 같은 타입 중복 전환을 막는다.
@@ -251,12 +250,12 @@ namespace UPlayGround.MovementController
                 && (!newState.AllowsSameTypeReentry
                     || !newState.CanReenterFrom(_currentState)))
             {
-                return;
+                return false;
             }
 
             if (_currentState?.BlocksExitTo(newState) == true)
             {
-                return;
+                return false;
             }
             
             GameActorState oldState = _currentState;
@@ -277,6 +276,7 @@ namespace UPlayGround.MovementController
             // 새 상태 진입
             _currentState.OnEnter(oldState);
             OnStateChanged?.Invoke(oldState, _currentState);
+            return true;
         }
 
         /// <summary>

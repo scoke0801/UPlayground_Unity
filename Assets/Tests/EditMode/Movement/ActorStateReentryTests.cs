@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using UnityEngine;
-using UnityEngine.TestTools;
 using UPlayGround.MovementController;
 using UPlayGround.State;
 
@@ -16,9 +15,6 @@ namespace UPlayGround.Movement.Tests
         {
             _gameObject = new GameObject(nameof(ActorStateReentryTests));
             _gameObject.SetActive(false);
-            LogAssert.Expect(
-                LogType.Error,
-                "[ActorMovementController] KinematicCharacterMotor를 찾을 수 없습니다.");
             _controller = _gameObject.AddComponent<ActorMovementController>();
         }
 
@@ -34,9 +30,11 @@ namespace UPlayGround.Movement.Tests
             var first = new TestState(_controller, allowsSameTypeReentry: false);
             var second = new TestState(_controller, allowsSameTypeReentry: false);
 
-            _controller.TransitionToState(first);
-            _controller.TransitionToState(second);
+            bool firstTransitioned = _controller.TryTransitionToState(first);
+            bool secondTransitioned = _controller.TryTransitionToState(second);
 
+            Assert.That(firstTransitioned, Is.True);
+            Assert.That(secondTransitioned, Is.False);
             Assert.That(_controller.CurrentState, Is.SameAs(first));
             Assert.That(first.ExitCount, Is.Zero);
             Assert.That(second.EnterCount, Is.Zero);
@@ -54,6 +52,24 @@ namespace UPlayGround.Movement.Tests
             Assert.That(_controller.CurrentState, Is.SameAs(second));
             Assert.That(first.ExitCount, Is.EqualTo(1));
             Assert.That(second.EnterCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void TryTransitionToState_현재상태가_이탈을막으면_false를반환한다()
+        {
+            var first = new TestState(
+                _controller,
+                allowsSameTypeReentry: true,
+                blocksExit: true);
+            var second = new TestState(
+                _controller,
+                allowsSameTypeReentry: true);
+
+            Assert.That(_controller.TryTransitionToState(first), Is.True);
+            Assert.That(_controller.TryTransitionToState(second), Is.False);
+            Assert.That(_controller.CurrentState, Is.SameAs(first));
+            Assert.That(first.ExitCount, Is.Zero);
+            Assert.That(second.EnterCount, Is.Zero);
         }
 
         [Test]
@@ -80,15 +96,18 @@ namespace UPlayGround.Movement.Tests
         {
             private readonly bool _allowsSameTypeReentry;
             private readonly int _executionType;
+            private readonly bool _blocksExit;
 
             public TestState(
                 ActorMovementController controller,
                 bool allowsSameTypeReentry,
-                int executionType = 0)
+                int executionType = 0,
+                bool blocksExit = false)
                 : base(controller)
             {
                 _allowsSameTypeReentry = allowsSameTypeReentry;
                 _executionType = executionType;
+                _blocksExit = blocksExit;
             }
 
             public override ActorStateId StateId => ActorStateId.None;
@@ -96,6 +115,7 @@ namespace UPlayGround.Movement.Tests
             public override bool CanReenterFrom(GameActorState currentState)
                 => currentState is TestState current
                    && current._executionType == _executionType;
+            public override bool BlocksExitTo(GameActorState newState) => _blocksExit;
             public int EnterCount { get; private set; }
             public int ExitCount { get; private set; }
 

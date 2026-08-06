@@ -16,6 +16,7 @@ namespace UPlayGround.Gameplay.Ability
         public readonly AbilityTriggerSource Source;
         public readonly AbilityTagMatchMode MatchMode;
         public readonly GameplayEventData? TriggerEvent;
+        internal readonly int TriggerIndex;
 
         public AbilityTriggerRequest(
             GameplayAbilitySO ability,
@@ -24,6 +25,25 @@ namespace UPlayGround.Gameplay.Ability
             AbilityTriggerSource source,
             AbilityTagMatchMode matchMode,
             GameplayEventData? triggerEvent)
+            : this(
+                ability,
+                variant,
+                triggerTag,
+                source,
+                matchMode,
+                triggerEvent,
+                -1)
+        {
+        }
+
+        internal AbilityTriggerRequest(
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
+            GameplayTag triggerTag,
+            AbilityTriggerSource source,
+            AbilityTagMatchMode matchMode,
+            GameplayEventData? triggerEvent,
+            int triggerIndex)
         {
             Ability = ability;
             Variant = variant;
@@ -31,6 +51,7 @@ namespace UPlayGround.Gameplay.Ability
             Source = source;
             MatchMode = matchMode;
             TriggerEvent = triggerEvent;
+            TriggerIndex = triggerIndex;
         }
     }
 
@@ -488,8 +509,7 @@ namespace UPlayGround.Gameplay.Ability
                 ProcessTriggerRequest(
                     entry,
                     pending.TriggerEvent,
-                    target,
-                    intervalKey);
+                    target);
                 return;
             }
             if (ability.concurrency != AbilityConcurrencyPolicy.Background)
@@ -532,8 +552,7 @@ namespace UPlayGround.Gameplay.Ability
         private void ProcessTriggerRequest(
             TriggerEntry entry,
             GameplayEventData? triggerEvent,
-            GameActor target,
-            (GameplayAbilitySO Ability, int TriggerIndex) intervalKey)
+            GameActor target)
         {
             if (_primaryExecution != 0
                 && !entry.Trigger.allowPreemption)
@@ -547,7 +566,7 @@ namespace UPlayGround.Gameplay.Ability
             _triggerPathDepth++;
             try
             {
-                ProcessTriggerRequestCore(entry, triggerEvent, target, intervalKey);
+                ProcessTriggerRequestCore(entry, triggerEvent, target);
             }
             finally
             {
@@ -558,8 +577,7 @@ namespace UPlayGround.Gameplay.Ability
         private void ProcessTriggerRequestCore(
             TriggerEntry entry,
             GameplayEventData? triggerEvent,
-            GameActor target,
-            (GameplayAbilitySO Ability, int TriggerIndex) intervalKey)
+            GameActor target)
         {
             AbilityActivationResult evaluation = EvaluateAbility(
                 entry.Ability,
@@ -592,10 +610,9 @@ namespace UPlayGround.Gameplay.Ability
                 entry.Trigger.triggerTag,
                 entry.Trigger.source,
                 entry.Trigger.matchMode,
-                triggerEvent));
+                triggerEvent,
+                entry.TriggerIndex));
             RecordTriggerDebug(entry, "Requested", entry.Trigger.triggerTag.TagName);
-            if (entry.Trigger.source != AbilityTriggerSource.OwnedTagPresent)
-                _lastTriggerTime[intervalKey] = Time.time;
         }
 
         public void ReportTriggerRejected(
@@ -641,8 +658,30 @@ namespace UPlayGround.Gameplay.Ability
             execution.TriggerActivationMode = AbilityTriggerActivationMode.Request;
             execution.TriggerMatchMode = request.MatchMode;
             execution.TriggerEvent = request.TriggerEvent;
+            RecordAcceptedRequestTriggerInterval(request);
             AbilityTriggerAccepted?.Invoke(request, handle);
             return true;
+        }
+
+        private void RecordAcceptedRequestTriggerInterval(
+            in AbilityTriggerRequest request)
+        {
+            if (request.Ability?.triggers == null
+                || request.TriggerIndex < 0
+                || request.TriggerIndex >= request.Ability.triggers.Count)
+                return;
+
+            AbilityTriggerDefinition trigger =
+                request.Ability.triggers[request.TriggerIndex];
+            if (trigger == null
+                || trigger.mode != AbilityTriggerActivationMode.Request
+                || trigger.source != request.Source
+                || trigger.matchMode != request.MatchMode
+                || trigger.triggerTag != request.TriggerTag
+                || trigger.source == AbilityTriggerSource.OwnedTagPresent)
+                return;
+
+            _lastTriggerTime[(request.Ability, request.TriggerIndex)] = Time.time;
         }
 
         private void ProcessOwnedTagPresentCancellation(AbilityTagId removedTag)

@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Boss_Lili
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 0
+  editorMemo: "Lili \uBCF4\uC2A4 \uC804\uC6A9 \uD30C\uC0DD Set. \uACF5\uC720 \uC6D0\uBCF8
+    \uACF5\uACA9\uC740 \uBCC0\uACBD\uD558\uC9C0 \uC54A\uB294\uB2E4."
+  baseSet: {fileID: 11400000, guid: 6c06cd83d80451b48aaff914778e9883, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: 32c399ac73f5c034ebfa79544e830385, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: c063fcbec0c2a29408d1ddb63260bf32, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 72ddb81a439a0a74589f8a01584f6522, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: a6cd7a15250840342b2e13d6533ca8d6, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: acfd8ddb0cabfc34e8aa0ced36bb4cd6, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 3534dad6763d8cb4da1a2f336eeb44e7, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 507145c498f55a74f8f8b3b800e66b42, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 7c9491af2655ff54fa940bc9a6e21e01, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 4437a148b63a686499c1130df62be2b9, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 201c512f37f45474fa538d5c749138f9, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 9a6febe8fccde42458acc6dbf6acd1ec, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 8c8740b9cbd65544e9e1f9b2f7f18946, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: aaa9b883ab44f5f48a3be18eef7e254b, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: a3ac36c50a24bbd42b39c6e4cbbb5de2, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 435c6db462a64f848883647fadb63fa2, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 689f541f77b417749bdc992f72a3fde6, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: fff7f2bb13022504184d5883828aec8b, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: e23f0b162bdbf0f46a6f0c7c196bbb4d, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: d0f4f6247ce246844a8ccfe5c9283012, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 09a6fa6ce6365ae41869fd8817114a75, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: fdf193f787896b045a41b136a3a5fc17, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 751f738f3f04f904183aa00a522a968a, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: d7fcca752a149d34fa541f208c936be0, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 9f6f904f39a48f449a1f9ea9a98912ab, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: ddd9e0fec2e2dd54fa508d546c9761b9, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 698f3f0f57c26c54fa4f7856b506f3ad, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 73e728b82c2cf824289ec4cac5bf6e81, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 147cd8e13a467fb43b8bda8edcdfb844, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 39f2ccb28cd7bfd43816fc797dc9af7d, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: d0523e04c750d5440824bce4cff64909, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 26fe980f5d6d508489a275ef9bace0ec, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 7c4746401287e094ea60988e3375c1d0, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  playerSlots: []
+  additionalAbilities: []
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

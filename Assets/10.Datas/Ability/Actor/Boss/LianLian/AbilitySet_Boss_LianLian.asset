@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e34eaee2f251eff459b3d7ef262d496e, type: 3}
+  m_Name: AbilitySet_Boss_LianLian
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Ability.AbilitySetSO
+  tagTriggerMigrationVersion: 0
+  editorMemo: "LianLian \uBCF4\uC2A4 \uC804\uC6A9 \uD30C\uC0DD Set. \uACF5\uC720
+    \uC6D0\uBCF8 \uACF5\uACA9\uC740 \uBCC0\uACBD\uD558\uC9C0 \uC54A\uB294\uB2E4."
+  baseSet: {fileID: 11400000, guid: 9682034039d94e449a01993132857f78, type: 2}
+  abilityOverrides:
+  - sourceAbility: {fileID: 11400000, guid: e29797aa9467c5e4bb46de8b7e2e4927, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 6c1ccd1c52144c64fac4e4c8446c4f3d, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 16b7d7cdb5225cd41ac1e0cb761147f2, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 6a7bb7a9eafe35e4893cbb43c44964cb, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 5b3a916a90ea61b4cb8d6b4fa8cde3d3, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: c880a46cde0838f4bb8d220e8d07c2fa, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: a281e1c441951ac42a3e22c60655b1f8, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 4f5fbef6d3cc3764488668cb3c0edc74, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 816a1e9c5d1c7b64aa4f815d73794835, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: d939a5926e69273458311ccf755f731e, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 7a21bb4636d198248914999227b1894d, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 61f7943a4c3e7144d800bb28f4319f22, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 792c8bb07b2721745a5e2b7ba2e04fb8, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 853eccfdf7256a848b7e7c0533b31b49, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 9989769d0a2d33647b4a5da177d0c828, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 0387d5355ec82cc49a4d792db1d67137, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: 2fb84553ea7906c4780b8acb18bc54c7, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 704abdd79e984a24bae4cbc6051872d4, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: cf84ac33779e59c48a72eb493314dc90, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 651e4da9d5c0e3d498ff569deea6b939, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: f43f5f4d1b579e942a0f44fddf7c1aca, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: 1bd9a7e5d103e004e9229d1a27eec669, type: 2}
+    operation: 0
+    replacementAbility: {fileID: 11400000, guid: fc8fe60d3ac29074aab8af46ecd7189f, type: 2}
+  - sourceAbility: {fileID: 11400000, guid: a02440e27adea5d4c8b6bf6d5913568e, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  - sourceAbility: {fileID: 11400000, guid: 61b9cb11249c0b54e98c379772fc7920, type: 2}
+    operation: 1
+    replacementAbility: {fileID: 0}
+  playerSlots: []
+  additionalAbilities: []
+  combatBindings: []
+  overrideCharge: 0
+  charge:
+    stages: []
+    stageThresholds: []
+    interruptActions: 1
+    fullChargeVfxKey: 
+    fullChargeVfxSocket: 3
+    fullChargeVfxOffset: {x: 0, y: 0, z: 0}
+  overrideComboRoutes: 0
+  comboRoutes: []
+  overrideComboLinkWindow: 0
+  comboLinkWindow: 1

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "id": "Boss_Bokusei",
+  "displayName": "Boss Bokusei - Reading Duelist",
+  "actorKind": "Ground",
+  "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/Boss/BehaviorData_Boss_Bokusei.asset",
+  "blackboard": {
+    "tickInterval": 0.05,
+    "enablePatrol": false,
+    "optimalCombatDistance": 2.4,
+    "minCombatDistance": 1.1,
+    "personalSpaceDistance": 0.8,
+    "preferredRange": 2.6,
+    "aggression": 0.66,
+    "reactionChance": 0.7,
+    "counterChance": 0.48,
+    "guardChance": 0.18,
+    "dodgeChance": 0.3,
+    "retreatChance": 0.18,
+    "punishRecoveryChance": 0.74,
+    "antiGuardChance": 0.58,
+    "revengeChance": 0.35,
+    "circleWeight": 0.45,
+    "maxComboPressureCount": 3,
+    "minRetreatCooldown": 2.4
+  },
+  "groups": [
+    {
+      "name": "00 Survival And Acquire",
+      "priority": 1000,
+      "rules": [
+        { "name": "BlockedKeep", "priority": 1000, "when": [{ "condition": "IsBlockedEnemyState" }], "do": [{ "action": "KeepCurrentState" }] },
+        { "name": "NoTargetIdle", "priority": 990, "when": [{ "condition": "HasTarget", "invert": true }], "do": [{ "action": "PatrolOrIdle" }] }
+      ]
+    },
+    {
+      "name": "10 Phase Signature",
+      "priority": 960,
+      "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }],
+      "rules": [
+        { "name": "FinalSwordDance", "priority": 960, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "BokuseiFinalSignature" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "BokuseiFinalSignature", "cooldownDuration": 7.5 }] },
+        { "name": "MidSignature", "priority": 950, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "IsPlayerRecovering" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "BokuseiMidSignature" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "BokuseiMidSignature", "cooldownDuration": 7.0 }] }
+      ]
+    },
+    {
+      "name": "20 Immediate Reactions",
+      "priority": 930,
+      "when": [{ "condition": "HasTarget" }],
+      "rules": [
+        { "name": "ReadPlayerAttack", "priority": 930, "when": [{ "condition": "IsPlayerAttacking" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "CooldownReady", "value": "BokuseiRead" }], "select": "WeightedRandom", "choices": [
+          { "weight": 0.45, "action": "RequestAction", "intent": "Counter", "cooldownId": "BokuseiRead", "cooldownDuration": 2.2 },
+          { "weight": 0.35, "action": "RequestAction", "intent": "Evade", "style": "Dodge", "cooldownId": "BokuseiRead", "cooldownDuration": 2.2 },
+          { "weight": 0.20, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "BokuseiRead", "cooldownDuration": 2.2 }
+        ] },
+        { "name": "PoiseBreakBreather", "priority": 925, "when": [{ "condition": "IsPoiseBroken" }, { "condition": "CooldownReady", "value": "BokuseiPoise" }], "do": [{ "action": "RequestAction", "intent": "Evade", "style": "JumpBack", "cooldownId": "BokuseiPoise", "cooldownDuration": 3.0 }] }
+      ]
+    },
+    {
+      "name": "30 Punish Windows",
+      "priority": 910,
+      "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }],
+      "rules": [
+        { "name": "BaitFrequentDodge", "priority": 910, "when": [{ "condition": "IsPlayerDodgingFrequently" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "BokuseiDodgeBait" }], "do": [{ "action": "Wait", "duration": 0.18 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "BokuseiDodgeBait", "cooldownDuration": 3.0 }] },
+        { "name": "PunishRecovery", "priority": 900, "when": [{ "condition": "IsPlayerRecovering" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish" }] }
+      ]
+    },
+    {
+      "name": "50 Combat Rhythm",
+      "priority": 820,
+      "when": [{ "condition": "HasTarget" }],
+      "rules": [
+        { "name": "GapClose", "priority": 825, "when": [{ "condition": "HasAttackInRange", "invert": true }, { "condition": "ActionDelayElapsed" }], "do": [{ "action": "RequestAction", "intent": "Chase" }] },
+        { "name": "ComboReset", "priority": 820, "when": [{ "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "3" }, { "condition": "CooldownReady", "value": "BokuseiReset" }], "select": "WeightedRandom", "choices": [
+          { "weight": 0.55, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "BokuseiReset", "cooldownDuration": 1.8 },
+          { "weight": 0.45, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "BokuseiReset", "cooldownDuration": 1.8 }
+        ] },
+        { "name": "BasicRhythm", "priority": 810, "when": [{ "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "3" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener" }] },
+        { "name": "IdleFallback", "priority": 800, "do": [{ "action": "KeepCurrentState" }] }
+      ]
+    }
+  ],
+  "rules": []
+}

@@ -4,11 +4,13 @@ using UnityEditor;
 using UnityEngine;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Animation;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Event;
 using UPlayGround.Gameplay.Tag;
 
 namespace UPlayGround.Data.Editor.Ability
@@ -39,6 +41,8 @@ namespace UPlayGround.Data.Editor.Ability
 
     public static class AbilityDataValidator
     {
+        private const string CounterAbilityIdSegment = ".Counter.";
+
         public static List<AbilityValidationIssue> ValidateAll()
         {
             var issues = new List<AbilityValidationIssue>();
@@ -58,10 +62,12 @@ namespace UPlayGround.Data.Editor.Ability
 
             // Motion Key 역인덱스는 프로젝트 전체 스캔이므로 전수 검증 1회당 한 번만 만든다.
             var motionIndex = new AbilityMotionIndex();
+            var motionEventCache =
+                new Dictionary<MotionSetAsset, IReadOnlyList<MotionEventBase>>();
             for (int i = 0; i < abilities.Count; i++)
             {
                 GameplayAbilitySO ability = abilities[i];
-                ValidateAbility(ability, issues, motionIndex);
+                ValidateAbility(ability, issues, motionIndex, motionEventCache);
                 ValidateUniqueId(ability?.abilityId, ability, "Ability", ids, issues);
             }
 
@@ -157,6 +163,7 @@ namespace UPlayGround.Data.Editor.Ability
                         // EnemyCombat.GetAvailableAbilities와 같은 술어를 쓴다.
                         if (!payload.IsAttackExecutable
                             || payload.attackInfo is not AbilityAttackInfo attackInfo
+                            || !attackInfo.aiSelectable
                             || attackInfo.baseInfo?.HasHitPhases != true)
                             continue;
                         hasAiAttack = true;
@@ -241,7 +248,9 @@ namespace UPlayGround.Data.Editor.Ability
         private static void ValidateAbility(
             GameplayAbilitySO ability,
             List<AbilityValidationIssue> issues,
-            AbilityMotionIndex motionIndex = null)
+            AbilityMotionIndex motionIndex = null,
+            Dictionary<MotionSetAsset, IReadOnlyList<MotionEventBase>>
+                motionEventCache = null)
         {
             if (ability == null) return;
             if (string.IsNullOrWhiteSpace(ability.abilityId))
@@ -382,6 +391,19 @@ namespace UPlayGround.Data.Editor.Ability
                                 + $"'{actual}'가 어떤 ActorAnimationMotionSet에서도 "
                                 + "해석되지 않습니다.",
                                 issues);
+
+                        ValidateAiAttackDefinition(
+                            ability,
+                            variant,
+                            payload.attackInfo,
+                            motionIndex,
+                            motionEventCache,
+                            issues);
+                        ValidateSkillConditionGroup(
+                            ability,
+                            variant,
+                            payload.attackInfo.conditionGroup,
+                            issues);
                     }
                     ValidateHitPhaseCategoryConsistency(ability, variant, payload, issues);
                 }
@@ -520,9 +542,204 @@ namespace UPlayGround.Data.Editor.Ability
                             issues);
                         continue;
                     }
+                    ValidateModifierMagnitude(effect, modifier, i, issues);
+                }
+                if (effect.modifiers.Count > 0
+                    && effect.durationType == GameplayEffectDurationType.Instant)
+                {
+                    Warning(
+                        effect,
+                        "Instant Effect의 Modifier는 적용되지 않습니다. "
+                        + "즉시 수치 변경은 Execution 경로를 사용하세요.",
+                        issues);
                 }
             }
             ValidateTagList(effect.grantedTagIds, effect, "Granted", issues);
+        }
+
+        private static void ValidateAiAttackDefinition(
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
+            AbilityAttackInfo attackInfo,
+            AbilityMotionIndex motionIndex,
+            Dictionary<MotionSetAsset, IReadOnlyList<MotionEventBase>>
+                motionEventCache,
+            List<AbilityValidationIssue> issues)
+        {
+            if (attackInfo?.aiSelectable != true)
+                return;
+
+            if (attackInfo.attackCategory == AbilityAttackCategory.None)
+            {
+                Error(
+                    ability,
+                    $"Variant '{variant.variantId}'가 aiSelectable이지만 "
+                    + "공격 카테고리가 None입니다. 구체 카테고리 또는 명시적 "
+                    + "와일드카드 Any를 지정하세요.",
+                    issues);
+            }
+
+            if (ability.abilityId?.IndexOf(
+                    CounterAbilityIdSegment,
+                    StringComparison.Ordinal) >= 0
+                && (attackInfo.aiRoles & AbilityAIRole.Counter) == 0)
+            {
+                Error(
+                    ability,
+                    $"Counter Ability Variant '{variant.variantId}'에 "
+                    + "Counter AI 역할이 없습니다. AbilityAIRole.Counter를 "
+                    + "지정하세요.",
+                    issues);
+            }
+
+            if (IsBossAbilityAsset(ability)
+                && attackInfo.aiRoles == AbilityAIRole.None)
+            {
+                Error(
+                    ability,
+                    $"보스 Ability Variant '{variant.variantId}'에 AI 역할이 없습니다. "
+                    + "Opener, Punish, GapCloser, Counter, Signature, Finisher 중 "
+                    + "하나 이상을 지정하세요.",
+                    issues);
+            }
+
+            if (motionIndex == null
+                || motionEventCache == null
+                || !attackInfo.motionKey.IsValid)
+                return;
+
+            IReadOnlyList<MotionSetAsset> candidates =
+                motionIndex.Candidates(attackInfo.motionKey);
+            var reported = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < candidates.Count; i++)
+            {
+                MotionSetAsset motionAsset = candidates[i];
+                if (motionAsset?.motionSet == null)
+                    continue;
+
+                IReadOnlyList<MotionEventBase> events = GetAllMotionEvents(
+                    motionAsset,
+                    motionEventCache);
+                for (int j = 0; j < events.Count; j++)
+                {
+                    MotionEventBase motionEvent = events[j];
+                    if (motionEvent == null
+                        || motionEvent.EnemyExecutionPolicy
+                            != MotionEventEnemyExecutionPolicy.Forbidden)
+                        continue;
+
+                    string key = $"{motionAsset.GetInstanceID()}:{motionEvent.GetType().FullName}";
+                    if (!reported.Add(key))
+                        continue;
+                    Error(
+                        ability,
+                        $"Variant '{variant.variantId}'의 Motion "
+                        + $"'{motionAsset.name}'에 몬스터 실행이 금지된 "
+                        + $"{motionEvent.GetType().Name} 이벤트가 있습니다. "
+                        + "적 실행 무시 옵션을 켜거나 보스 공격 풀에서 제외하세요.",
+                        issues);
+                }
+            }
+        }
+
+        private static bool IsBossAbilityAsset(GameplayAbilitySO ability)
+        {
+            string path = AssetDatabase.GetAssetPath(ability);
+            return !string.IsNullOrEmpty(path)
+                   && path.Replace('\\', '/').IndexOf(
+                       "/Ability/Actor/Boss/",
+                       StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static IReadOnlyList<MotionEventBase> GetAllMotionEvents(
+            MotionSetAsset motionAsset,
+            Dictionary<MotionSetAsset, IReadOnlyList<MotionEventBase>> cache)
+        {
+            if (cache.TryGetValue(motionAsset, out IReadOnlyList<MotionEventBase> events))
+                return events;
+
+            var result = new List<MotionEventBase>();
+            MotionSet motionSet = motionAsset.motionSet;
+            AddMotionEvents(motionSet.globalEvents, result);
+            AddTimelineMotionEvents(motionSet.motions, result);
+            for (int i = 0; i < (motionSet.layers?.Count ?? 0); i++)
+            {
+                MotionLayer layer = motionSet.layers[i];
+                if (layer == null || !layer.enabled)
+                    continue;
+                AddMotionEvents(layer.globalEvents, result);
+                AddTimelineMotionEvents(layer.motions, result);
+            }
+
+            cache.Add(motionAsset, result);
+            return result;
+        }
+
+        private static void AddTimelineMotionEvents(
+            List<UPlayGround.Animation.Motion> motions,
+            List<MotionEventBase> destination)
+        {
+            for (int i = 0; i < (motions?.Count ?? 0); i++)
+                AddMotionEvents(motions[i]?.events, destination);
+        }
+
+        private static void AddMotionEvents(
+            List<MotionEventBase> source,
+            List<MotionEventBase> destination)
+        {
+            for (int i = 0; i < (source?.Count ?? 0); i++)
+                if (source[i] != null)
+                    destination.Add(source[i]);
+        }
+
+        private static void ValidateSkillConditionGroup(
+            GameplayAbilitySO ability,
+            AbilityVariantDefinition variant,
+            SkillConditionGroup group,
+            List<AbilityValidationIssue> issues)
+        {
+            if (group?.conditions == null)
+                return;
+
+            for (int i = 0; i < group.conditions.Count; i++)
+            {
+                SkillCondition condition = group.conditions[i];
+                if (condition == null)
+                {
+                    Error(
+                        ability,
+                        $"Variant '{variant.variantId}'의 AI 조건 {i}가 null입니다.",
+                        issues);
+                    continue;
+                }
+
+                // TargetHealthBased는 현재 런타임에서 HasTarget만 검사하고 HP 범위를
+                // 소비하지 않으므로, 구현되기 전까지 경계 모순 검사 대상이 아니다.
+                if (condition.type is not ConditionType.SelfHealthBased
+                    and not ConditionType.InjuredAllyNearby)
+                    continue;
+
+                if (condition.minHealthPercent > condition.maxHealthPercent)
+                {
+                    Error(
+                        ability,
+                        $"Variant '{variant.variantId}'의 AI 조건 {i}에서 최소 HP가 "
+                        + "최대 HP보다 큽니다.",
+                        issues);
+                }
+                else if (Mathf.Approximately(
+                             condition.minHealthPercent,
+                             condition.maxHealthPercent)
+                         && (!condition.includeMinHealth
+                             || !condition.includeMaxHealth))
+                {
+                    Error(
+                        ability,
+                        $"Variant '{variant.variantId}'의 AI 조건 {i}는 같은 HP 경계에서 "
+                        + "한쪽을 제외해 만족 가능한 값이 없습니다.",
+                        issues);
+                }
+            }
         }
 
         private static void ValidateSet(
@@ -826,6 +1043,96 @@ namespace UPlayGround.Data.Editor.Ability
             return true;
         }
 
+        private static void ValidateModifierMagnitude(
+            GameplayEffectSO effect,
+            GameplayEffectModifierDefinition modifier,
+            int index,
+            List<AbilityValidationIssue> issues)
+        {
+            switch (modifier.magnitudeSource)
+            {
+                case GameplayEffectMagnitudeSource.AttributeBased:
+                    if (!modifier.SourceAttributeId.IsValid)
+                    {
+                        Error(
+                            effect,
+                            $"Modifier {index}번 AttributeBased 크기의 "
+                            + "캡처 Attribute ID가 비어 있습니다.",
+                            issues);
+                    }
+                    if (Mathf.Approximately(modifier.coefficient, 0f))
+                    {
+                        Warning(
+                            effect,
+                            $"Modifier {index}번 AttributeBased 계수가 0이라 "
+                            + "캡처값이 반영되지 않습니다.",
+                            issues);
+                    }
+                    if (modifier.captureSource
+                            == GameplayEffectCaptureSource.Target
+                        && modifier.capturePolicy
+                            == GameplayEffectCapturePolicy.SnapshotOnCreate)
+                    {
+                        Error(
+                            effect,
+                            $"Modifier {index}번은 Spec 생성 시점에 적용 대상이 없어 "
+                            + "Target Attribute를 SnapshotOnCreate로 캡처할 수 없습니다.",
+                            issues);
+                    }
+                    if (modifier.capturePolicy
+                        == GameplayEffectCapturePolicy.SnapshotOnCreate
+                        && effect.durationType == GameplayEffectDurationType.Infinite)
+                    {
+                        Info(
+                            effect,
+                            $"Modifier {index}번은 Spec 생성 시점 값으로 고정됩니다. "
+                            + "Infinite Effect에서 의도한 동작인지 확인하세요.",
+                            issues);
+                    }
+                    break;
+
+                case GameplayEffectMagnitudeSource.SetByCaller:
+                    if (string.IsNullOrWhiteSpace(modifier.setByCallerKey))
+                    {
+                        Error(
+                            effect,
+                            $"Modifier {index}번 SetByCaller 크기의 키가 비어 있습니다.",
+                            issues);
+                    }
+                    else if (!modifier.allowMissingSetByCaller)
+                    {
+                        Info(
+                            effect,
+                            $"Modifier {index}번은 SetByCaller "
+                            + $"'{modifier.setByCallerKey}'가 없으면 적용이 실패합니다.",
+                            issues);
+                    }
+                    break;
+
+                case GameplayEffectMagnitudeSource.ScalableByLevel:
+                    if (Mathf.Approximately(modifier.perLevel, 0f))
+                    {
+                        Warning(
+                            effect,
+                            $"Modifier {index}번 ScalableByLevel의 레벨당 증가량이 0입니다. "
+                            + "Fixed와 동일하게 동작합니다.",
+                            issues);
+                    }
+                    break;
+
+                case GameplayEffectMagnitudeSource.Fixed:
+                    break;
+
+                default:
+                    Error(
+                        effect,
+                        $"Modifier {index}번의 크기 계산 방식이 올바르지 않습니다: "
+                        + modifier.magnitudeSource,
+                        issues);
+                    break;
+            }
+        }
+
         private static void ValidateTagRequirement(
             AbilityTagRequirement requirement,
             UnityEngine.Object context,
@@ -833,6 +1140,7 @@ namespace UPlayGround.Data.Editor.Ability
             List<AbilityValidationIssue> issues)
         {
             if (requirement == null) return;
+            ValidateTagExpression(requirement.expression, context, label, issues);
             ValidateTagList(requirement.requireAll, context, $"{label} RequireAll", issues);
             ValidateTagList(requirement.requireAny, context, $"{label} RequireAny", issues);
             ValidateTagList(requirement.blockAny, context, $"{label} BlockAny", issues);
@@ -847,6 +1155,40 @@ namespace UPlayGround.Data.Editor.Ability
                         issues);
                 }
             }
+        }
+
+        private static void ValidateTagExpression(
+            AbilityTagExpression expression,
+            UnityEngine.Object context,
+            string label,
+            List<AbilityValidationIssue> issues)
+        {
+            if (expression == null) return;
+
+            int depth = AbilityTagExpressionUtility.MeasureDepth(expression);
+            if (!AbilityTagExpressionUtility.IsWithinDepth(depth))
+            {
+                Error(
+                    context,
+                    $"{label} 중첩 태그 조건의 깊이가 "
+                    + $"{AbilityTagExpression.MaxDepth}를 초과했습니다. "
+                    + "런타임에서 조건이 항상 실패합니다.",
+                    issues);
+                return;
+            }
+
+            var tagLists = new List<List<GameplayTag>>();
+            AbilityTagExpressionUtility.CollectTagLists(expression, tagLists);
+            if (!AbilityTagExpressionUtility.HasCondition(expression))
+            {
+                Warning(
+                    context,
+                    $"{label} 중첩 태그 조건에 유효한 태그 노드가 없습니다.",
+                    issues);
+                return;
+            }
+            for (int i = 0; i < tagLists.Count; i++)
+                ValidateTagList(tagLists[i], context, $"{label} 중첩[{i}]", issues);
         }
 
         private static bool ContainsTag(

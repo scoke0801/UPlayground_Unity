@@ -8,6 +8,7 @@ using UPlayGround.Components;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Ability.Tests
 {
@@ -214,6 +215,76 @@ namespace UPlayGround.Ability.Tests
                     Is.SameAs(definition.monsterProfile.abilitySet),
                     $"{definition.name}: 프로필 AbilitySet 연결 불일치");
             }
+        }
+
+        [Test]
+        public void 모든_AI선택_공격은_명시적_카테고리를_가진다()
+        {
+            GameplayAbilitySO[] abilities = AssetDatabase
+                .FindAssets($"t:{nameof(GameplayAbilitySO)}")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>)
+                .Where(x => x != null)
+                .ToArray();
+
+            var issues = new List<string>();
+            foreach (GameplayAbilitySO ability in abilities)
+            {
+                foreach (AbilityVariantDefinition variant in
+                         ability.variants
+                         ?? Enumerable.Empty<AbilityVariantDefinition>())
+                {
+                    if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                            variant,
+                            out var attackInfo)
+                        || !attackInfo.aiSelectable
+                        || attackInfo.attackCategory
+                            != AbilityAttackCategory.None)
+                        continue;
+
+                    issues.Add(
+                        $"{ability.name} / {variant?.variantId}: "
+                        + "aiSelectable 공격의 attackCategory가 None입니다.");
+                }
+            }
+
+            Assert.That(issues, Is.Empty, string.Join("\n", issues));
+        }
+
+        [Test]
+        public void Counter_AI공격은_Counter_역할을_가진다()
+        {
+            GameplayAbilitySO[] abilities = AssetDatabase
+                .FindAssets($"t:{nameof(GameplayAbilitySO)}")
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>)
+                .Where(x => x != null
+                            && x.abilityId?.Contains(
+                                ".Counter.",
+                                System.StringComparison.Ordinal) == true)
+                .ToArray();
+
+            var issues = new List<string>();
+            foreach (GameplayAbilitySO ability in abilities)
+            {
+                foreach (AbilityVariantDefinition variant in
+                         ability.variants
+                         ?? Enumerable.Empty<AbilityVariantDefinition>())
+                {
+                    if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                            variant,
+                            out var attackInfo)
+                        || !attackInfo.aiSelectable
+                        || (attackInfo.aiRoles & AbilityAIRole.Counter) != 0)
+                        continue;
+
+                    issues.Add(
+                        $"{ability.name} / {variant?.variantId}: "
+                        + "Counter 역할이 없습니다.");
+                }
+            }
+
+            Assert.That(issues, Is.Empty, string.Join("\n", issues));
         }
 
         private static AbilitySetSO[] LoadAllAbilitySets() =>

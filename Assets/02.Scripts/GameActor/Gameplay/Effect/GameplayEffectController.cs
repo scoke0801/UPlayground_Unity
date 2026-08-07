@@ -86,7 +86,11 @@ namespace UPlayGround.Gameplay.Effect
             if (definition.durationType == GameplayEffectDurationType.Instant)
             {
                 GameplayEffectApplyOutcome instantOutcome = ApplyGasSpec(
-                    definition, source, 0f, executePeriodicOnApplication);
+                    definition,
+                    source,
+                    0f,
+                    executePeriodicOnApplication,
+                    options.SetByCallerMagnitudes);
                 if (!instantOutcome.Succeeded)
                     ReportApplyFailure(definition, instantOutcome);
                 succeeded = instantOutcome.Succeeded;
@@ -111,7 +115,8 @@ namespace UPlayGround.Gameplay.Effect
                     case AbilityEffectStackAction.RefreshExisting:
                         GameplayEffectApplyOutcome refreshed =
                             ApplyGasSpec(definition, source, effectiveDuration,
-                                executePeriodicOnApplication);
+                                executePeriodicOnApplication,
+                                options.SetByCallerMagnitudes);
                         if (!refreshed.Succeeded)
                         {
                             ReportApplyFailure(definition, refreshed);
@@ -146,7 +151,8 @@ namespace UPlayGround.Gameplay.Effect
             };
             GameplayEffectApplyOutcome gasOutcome =
                 ApplyGasSpec(definition, source, effectiveDuration,
-                    executePeriodicOnApplication);
+                    executePeriodicOnApplication,
+                    options.SetByCallerMagnitudes);
             if (!gasOutcome.Succeeded)
             {
                 ReportApplyFailure(definition, gasOutcome);
@@ -212,6 +218,8 @@ namespace UPlayGround.Gameplay.Effect
             bool forCharacterSwap)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
+            var gasEffects = new List<ActiveGameplayEffect>();
+            _abilitySystem?.Runtime?.Effects.CopyActive(gasEffects);
             foreach (GameplayEffectInstance instance in _active.Values)
             {
                 GameplayEffectSO definition = instance.Definition;
@@ -222,7 +230,7 @@ namespace UPlayGround.Gameplay.Effect
                       == GameplayEffectSavePolicy.SaveRemainingDuration;
                 if (!shouldCapture) continue;
 
-                destination.Add(new ActiveEffectSaveEntry
+                var entry = new ActiveEffectSaveEntry
                 {
                     effectId = definition.effectId,
                     sourceActorId = instance.Source != null
@@ -235,7 +243,24 @@ namespace UPlayGround.Gameplay.Effect
                     stackCount = Mathf.Clamp(
                         instance.StackCount, 1, Mathf.Max(1, definition.maxStackCount)),
                     hudVisibility = (int)instance.HudVisibility,
-                });
+                };
+                for (int i = 0; i < gasEffects.Count; i++)
+                {
+                    ActiveGameplayEffect gasEffect = gasEffects[i];
+                    if (!gasEffect.Handle.Equals(instance.GasHandle))
+                        continue;
+                    foreach (KeyValuePair<AbilityTagId, float> pair
+                             in gasEffect.Spec.SetByCaller)
+                    {
+                        entry.setByCaller.Add(new SetByCallerSaveEntry
+                        {
+                            key = pair.Key.Value,
+                            value = pair.Value,
+                        });
+                    }
+                    break;
+                }
+                destination.Add(entry);
             }
         }
 
@@ -257,15 +282,19 @@ namespace UPlayGround.Gameplay.Effect
                     && entry.remainingSeconds <= 0f)
                     continue;
 
+                IReadOnlyDictionary<string, float> setByCaller =
+                    BuildSetByCallerMap(entry.setByCaller);
+                var options = new GameplayEffectApplicationOptions(
+                    Enum.IsDefined(
+                        typeof(GameplayEffectHudVisibility),
+                        entry.hudVisibility)
+                            ? (GameplayEffectHudVisibility)entry.hudVisibility
+                            : GameplayEffectHudVisibility.UseDefinition,
+                    setByCaller);
                 GameplayEffectHandle handle = ApplyEffectInternal(
                     definition,
                     null,
-                    new GameplayEffectApplicationOptions(
-                        Enum.IsDefined(
-                            typeof(GameplayEffectHudVisibility),
-                            entry.hudVisibility)
-                                ? (GameplayEffectHudVisibility)entry.hudVisibility
-                                : GameplayEffectHudVisibility.UseDefinition),
+                    options,
                     false,
                     false,
                     out _);
@@ -278,7 +307,11 @@ namespace UPlayGround.Gameplay.Effect
                 for (int stack = 1; stack < instance.StackCount; stack++)
                 {
                     GameplayEffectApplyOutcome restoredStack = ApplyGasSpec(
-                        definition, null, ResolveEffectiveDuration(definition), false);
+                        definition,
+                        null,
+                        ResolveEffectiveDuration(definition),
+                        false,
+                        setByCaller);
                     if (restoredStack.ActiveHandle.IsValid)
                         instance.GasHandle = restoredStack.ActiveHandle;
                 }
@@ -510,7 +543,8 @@ namespace UPlayGround.Gameplay.Effect
             GameplayEffectSO sourceDefinition,
             GameActor source,
             float effectiveDuration,
-            bool executePeriodicOnApplication)
+            bool executePeriodicOnApplication,
+            IReadOnlyDictionary<string, float> setByCallerMagnitudes = null)
         {
             if (_abilitySystem?.Runtime == null)
                 return new GameplayEffectApplyOutcome(
@@ -541,6 +575,16 @@ namespace UPlayGround.Gameplay.Effect
                             error:
                             $"{sourceDefinition.effectId}: Modifier {i}번 Attribute ID가 없습니다.");
                     }
+                    if (!GameplayEffectMagnitudeFactory.TryBuild(
+                            modifier,
+                            out IGameplayMagnitudeCalculation magnitude,
+                            out string magnitudeError))
+                    {
+                        return new GameplayEffectApplyOutcome(
+                            GameplayEffectApplyResult.InvalidDefinition,
+                            error:
+                            $"{sourceDefinition.effectId}: Modifier {i}번 {magnitudeError}");
+                    }
                     modifiers.Add(new GameplayEffectModifierSpecDefinition(
                         attributeId,
                         modifier.modifierType switch
@@ -550,7 +594,7 @@ namespace UPlayGround.Gameplay.Effect
                             ModifierType.Multiply => AttributeModifierOperation.Multiply,
                             _ => throw new ArgumentOutOfRangeException(),
                         },
-                        new FixedMagnitudeCalculation(modifier.value)));
+                        magnitude));
                 }
             }
             var grantedTags = new List<AbilityTagId>();
@@ -600,8 +644,43 @@ namespace UPlayGround.Gameplay.Effect
                 sourceObjectId: sourceDefinition.effectId);
             GameplayEffectSpec spec = sourceRuntime.EffectSpecs.Create(
                 definition, 1f, context, sourceRuntime);
+            if (setByCallerMagnitudes != null)
+            {
+                foreach (KeyValuePair<string, float> pair in setByCallerMagnitudes)
+                {
+                    var key = new AbilityTagId(pair.Key);
+                    if (!key.IsValid
+                        || float.IsNaN(pair.Value)
+                        || float.IsInfinity(pair.Value)
+                        || !spec.SetMagnitude(key, pair.Value))
+                    {
+                        return new GameplayEffectApplyOutcome(
+                            GameplayEffectApplyResult.InvalidContext,
+                            error:
+                            $"{sourceDefinition.effectId}: 올바르지 않은 "
+                            + $"SetByCaller 값입니다. {pair.Key}");
+                    }
+                }
+            }
             spec.AddTrace("GameplayEffectSO Spec");
             return _abilitySystem.Effects.Apply(spec, sourceRuntime);
+        }
+
+        private static IReadOnlyDictionary<string, float> BuildSetByCallerMap(
+            List<SetByCallerSaveEntry> entries)
+        {
+            if (entries == null || entries.Count == 0)
+                return null;
+
+            var result = new Dictionary<string, float>(StringComparer.Ordinal);
+            for (int i = 0; i < entries.Count; i++)
+            {
+                SetByCallerSaveEntry entry = entries[i];
+                if (entry == null || string.IsNullOrWhiteSpace(entry.key))
+                    continue;
+                result[entry.key] = entry.value;
+            }
+            return result.Count > 0 ? result : null;
         }
 
         private void ReportApplyFailure(

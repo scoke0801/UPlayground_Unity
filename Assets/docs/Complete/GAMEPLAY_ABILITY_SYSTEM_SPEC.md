@@ -557,6 +557,27 @@ V1 실행 정보는 프로젝트 전용 `AbilityExecutionPayloadSO` 구현이 �
 | Unlock | 성장 데이터의 해금 상태 |
 | Concurrency | 실행 중 Ability와 공존·취소 가능 여부 |
 
+#### 중첩 태그 조건 (2026-08-06)
+
+`AbilityTagRequirement`의 평면 조건(`requireAll`/`requireAny`/`blockAny`)으로 표현할 수 없는
+조건은 `expression`(`[SerializeReference] AbilityTagExpression`)에 트리로 저작한다.
+
+| 노드 | 의미 |
+|------|------|
+| `AbilityTagLeafExpression` | 태그 묶음을 `All`/`Any`/`None`으로 판정 |
+| `AbilityTagAllExpression` | 모든 자식이 참 (AND) |
+| `AbilityTagAnyExpression` | 자식 하나라도 참 (OR) |
+| `AbilityTagNotExpression` | 자식의 부정 (NOT) |
+
+- 평면 조건과 `expression`은 **AND**로 결합한다. `expression`이 `null`이면 기존 동작과 동일하므로
+  기존 Ability 에셋의 재저작이 필요 없다.
+- 최대 깊이는 `AbilityTagExpression.MaxDepth`(8)다. 초과하면 런타임 평가는 fail-closed로
+  실패하고 `AbilityDataValidator`가 Error로 보고한다.
+- 자식이나 유효 태그가 없는 노드는 "조건을 걸지 않은 것"으로 보아 참이다. 평면 조건의 빈 리스트 규약과 같다.
+- 중첩 조건 실패는 미충족/차단을 구분할 수 없으므로 `AbilityTagEvaluation.MissingRequired`로 보고한다.
+- 태그 조회 구현 차이는 `IAbilityTagQuerySource`가 흡수한다
+  (`GameplayTagReaderQuerySource`, `AbilityTagPortQuerySource`). 두 어댑터는 호출자가 캐싱해 재사용한다.
+
 ### 10.2 표준 실패 결과 — 신규 제안
 
 ```csharp
@@ -798,7 +819,26 @@ Final = (Base + ΣFlat) × (1 + ΣPercent) × ΠMultiply
 
 Effect 인스턴스는 `StatModifier.source`에 임의 문자열이나 SO를 직접 넣는 대신 런타임 Effect source token을 사용한다. 제거 시 해당 인스턴스가 추가한 Modifier만 제거해야 한다.
 
-### 14.5 현재값과 최대값 분리
+### 14.5 Modifier 크기 계산 방식 (2026-08-06)
+
+`GameplayEffectModifierDefinition.magnitudeSource`가 Modifier 크기의 출처를 결정한다.
+`GameplayEffectMagnitudeFactory.TryBuild`가 이를 Core의
+`IGameplayMagnitudeCalculation`으로 변환하고, `GameplayEffectController`가 Spec을 만들 때 호출한다.
+
+| 방식 | 사용 필드 | Core 구현 |
+|------|-----------|-----------|
+| `Fixed` (기본) | `value` | `FixedMagnitudeCalculation` |
+| `AttributeBased` | `sourceAttributeId`, `captureSource`, `capturePolicy`, `coefficient`, `preAdd`, `postAdd` | `AttributeBasedMagnitudeCalculation` |
+| `SetByCaller` | `setByCallerKey`, `allowMissingSetByCaller`, `setByCallerDefaultValue` | `SetByCallerMagnitudeCalculation` |
+| `ScalableByLevel` | `value`, `perLevel` | `ScalableMagnitudeCalculation` |
+
+- 계산식은 `(캡처값 + preAdd) × coefficient + postAdd`다.
+- 기본값이 `Fixed`이므로 기존 Effect 에셋의 직렬화와 동작은 바뀌지 않는다. 재저작·마이그레이션 대상이 아니다.
+- `AttributeBased`에 캡처 Attribute ID가 없거나 `SetByCaller`에 키가 없으면 Effect 적용을 `InvalidDefinition`으로 실패시킨다. 조용한 0 적용으로 넘어가지 않는다.
+- Instant Effect의 Modifier는 적용되지 않는다. 즉시 수치 변경은 Execution 경로를 사용하며, `AbilityDataValidator`가 이 조합을 Warning으로 보고한다.
+- 인스펙터는 `GameplayEffectModifierDrawer`가 선택한 방식의 필드만 표시한다.
+
+### 14.6 현재값과 최대값 분리
 
 | 값 | 저장 위치 |
 |----|-----------|
@@ -809,7 +849,7 @@ Effect 인스턴스는 `StatModifier.source`에 임의 문자열이나 SO를 직
 
 현재 자원 변경은 `StatModifier`가 아니라 `GameplayResourceOperation`으로 처리한다.
 
-### 14.6 V1 Effect 범위
+### 14.7 V1 Effect 범위
 
 V1에 포함:
 

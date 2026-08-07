@@ -29,7 +29,8 @@
 
     /// <summary>
     /// 적 AI가 BT에서 요청하는 공격 선택 카테고리.
-    /// None은 기존 동작처럼 전체 사용 가능 공격 풀을 의미한다.
+    /// 요청의 None은 필터 없음을 뜻하지만, 공격 데이터의 None은 미설정 오류다.
+    /// 모든 구체 카테고리 요청에 참여하는 데이터는 Any를 사용한다.
     /// </summary>
     public enum AbilityAttackCategory
     {
@@ -37,6 +38,27 @@
         Basic = 1,
         Heavy = 2,
         Skill = 3,
+        /// <summary>
+        /// 어떤 구체 카테고리 요청에도 참여하는 명시적 와일드카드.
+        /// None은 요청 측의 "필터 없음"으로만 사용한다.
+        /// </summary>
+        Any = 4,
+    }
+
+    /// <summary>
+    /// 적 AI가 공격을 전술적 용도로 좁힐 때 사용하는 역할 플래그.
+    /// 하나의 공격이 Counter와 Punish처럼 여러 역할을 겸할 수 있다.
+    /// </summary>
+    [System.Flags]
+    public enum AbilityAIRole
+    {
+        None = 0,
+        Opener = 1 << 0,
+        Punish = 1 << 1,
+        GapCloser = 1 << 2,
+        Counter = 1 << 3,
+        Signature = 1 << 4,
+        Finisher = 1 << 5,
     }
 
     /// <summary>

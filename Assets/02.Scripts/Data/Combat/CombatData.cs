@@ -322,8 +322,12 @@ namespace UPlayGround.Data
                  + "false인 Ability는 연출·명시 실행에는 사용할 수 있지만 BT/Intent 자동 선택 후보에서는 제외됩니다.")]
         public bool aiSelectable;
         public SkillType skillType = SkillType.Attack;
-        [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. None이면 모든 요청에 포함된다.")]
+        [Tooltip("BT가 특정 공격 카테고리를 요청할 때 필터링에 사용한다. "
+                 + "None은 미설정 오류이며, 모든 요청에 참여해야 하면 Any를 사용한다.")]
         public AbilityAttackCategory attackCategory = AbilityAttackCategory.None;
+        [Tooltip("BT가 대표기·응징·카운터처럼 전술 역할을 요청할 때 필터링한다. "
+                 + "복수 역할을 함께 지정할 수 있다.")]
+        public AbilityAIRole aiRoles = AbilityAIRole.None;
         [Min(1)] public int requiredLevel = 1;
         [Range(0f, 100f)] public float selectionWeight = 10f;
 

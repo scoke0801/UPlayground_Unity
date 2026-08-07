@@ -58,9 +58,15 @@ namespace UPlayGround.Data.Combat
         [Header("Health Condition (SelfHealthBased / InjuredAllyNearby)")]
         [Range(0f, 1f)]
         public float minHealthPercent = 0f;
+
+        [Tooltip("최소 HP 경계값을 조건에 포함합니다.")]
+        public bool includeMinHealth = true;
         
         [Range(0f, 1f)]
         public float maxHealthPercent = 1f;
+
+        [Tooltip("최대 HP 경계값을 조건에 포함합니다.")]
+        public bool includeMaxHealth = true;
         
         [Header("Range Condition (RangeBased / InjuredAllyNearby)")]
         public float minRange = 0f;
@@ -130,7 +136,18 @@ namespace UPlayGround.Data.Combat
         private bool CheckSelfHealth(SkillConditionContext context)
         {
             float healthPercent = context.CurrentHealth / context.MaxHealth;
-            return healthPercent >= minHealthPercent && healthPercent <= maxHealthPercent;
+            return MatchesHealthPercent(healthPercent);
+        }
+
+        public bool MatchesHealthPercent(float healthPercent)
+        {
+            bool aboveMinimum = includeMinHealth
+                ? healthPercent >= minHealthPercent
+                : healthPercent > minHealthPercent;
+            bool belowMaximum = includeMaxHealth
+                ? healthPercent <= maxHealthPercent
+                : healthPercent < maxHealthPercent;
+            return aboveMinimum && belowMaximum;
         }
         
         private bool CheckTargetHealth(SkillConditionContext context)
@@ -180,8 +197,7 @@ namespace UPlayGround.Data.Combat
                 {
                     float allyHealthPercent = healthProvider.HealthRatio;
                     
-                    if (allyHealthPercent >= minHealthPercent && 
-                        allyHealthPercent <= maxHealthPercent)
+                    if (MatchesHealthPercent(allyHealthPercent))
                     {
                         return true;
                     }

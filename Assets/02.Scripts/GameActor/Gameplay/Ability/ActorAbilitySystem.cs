@@ -52,6 +52,8 @@ namespace UPlayGround.Gameplay.Ability
         private AbilityCooldownRuntime _cooldowns;
         private IAbilityResourcePort _resources;
         private IAbilityTagPort _tags;
+        [ThreadStatic] private static AbilityTagPortQuerySource _tagQuerySource;
+        [ThreadStatic] private static bool _isEvaluatingTagExpression;
 
         public event Action StateChanged;
         public AbilitySetSO AbilitySet => _abilitySet;
@@ -1258,7 +1260,35 @@ namespace UPlayGround.Gameplay.Ability
                     matchHierarchy,
                     nameof(requirement.blockAny)))
                 return AbilityTagEvaluation.Blocked;
+            if (requirement.expression != null
+                && !EvaluateTagExpression(requirement.expression, tags))
+            {
+                // 중첩 표현식은 실패 원인을 미충족/차단으로 나눌 수 없으므로
+                // 평면 조건과 동일하게 fail-closed로 미충족 처리한다.
+                return AbilityTagEvaluation.MissingRequired;
+            }
             return AbilityTagEvaluation.Pass;
+        }
+
+        private static bool EvaluateTagExpression(
+            AbilityTagExpression expression,
+            IAbilityTagPort tags)
+        {
+            // 태그 Port 구현이 다시 Ability 조건을 평가하는 경우 공유 어댑터의 Bind 대상이
+            // 오염되지 않도록 재진입 호출만 일회성 어댑터로 격리한다.
+            if (_isEvaluatingTagExpression)
+                return expression.Evaluate(new AbilityTagPortQuerySource(tags));
+
+            _tagQuerySource ??= new AbilityTagPortQuerySource();
+            _isEvaluatingTagExpression = true;
+            try
+            {
+                return expression.Evaluate(_tagQuerySource.Bind(tags));
+            }
+            finally
+            {
+                _isEvaluatingTagExpression = false;
+            }
         }
 
         private bool HasAllTags(

@@ -86,7 +86,7 @@ MonoBehaviour:
     moveCancelDelayAfterLastHit: 0
     aiSelectable: 1
     skillType: 1
-    attackCategory: 0
+    attackCategory: 2
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0

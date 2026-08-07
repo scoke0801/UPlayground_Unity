@@ -126,15 +126,23 @@ namespace UPlayGround.Data.Ability
         [Tooltip("하나라도 보유하면 활성화를 차단합니다. (NONE)")]
         public List<GameplayTag> blockAny = new();
         public AbilityTagMatchMode matchMode = AbilityTagMatchMode.Hierarchy;
+        [Tooltip("위 평면 조건으로 표현할 수 없는 중첩 조건입니다. 평면 조건과 AND로 결합됩니다.")]
+        [SerializeReference] public AbilityTagExpression expression;
 
         public bool IsEmpty =>
             (requireAll?.Count ?? 0) == 0
             && (requireAny?.Count ?? 0) == 0
-            && (blockAny?.Count ?? 0) == 0;
+            && (blockAny?.Count ?? 0) == 0
+            && AbilityTagExpressionUtility.IsEffectivelyEmpty(expression);
     }
 
     public static class AbilityTagRequirementEvaluator
     {
+        [ThreadStatic]
+        private static GameplayTagReaderQuerySource _tagQuerySource;
+        [ThreadStatic]
+        private static bool _isEvaluatingExpression;
+
         public static bool Matches(
             AbilityTagRequirement requirement,
             IGameplayTagReader tags)
@@ -143,6 +151,60 @@ namespace UPlayGround.Data.Ability
                 return true;
             if (tags == null)
                 return false;
+            if (!MatchesFlat(requirement, tags))
+                return false;
+            return requirement.expression == null
+                   || EvaluateExpression(requirement.expression, tags);
+        }
+
+        /// <summary>
+        /// 표현식 평가마다 어댑터를 새로 만들지 않으려는 호출자를 위한 오버로드.
+        /// <paramref name="cachedSource"/>는 호출자가 소유·재사용한다.
+        /// </summary>
+        public static bool Matches(
+            AbilityTagRequirement requirement,
+            IGameplayTagReader tags,
+            GameplayTagReaderQuerySource cachedSource)
+        {
+            if (requirement == null || requirement.IsEmpty)
+                return true;
+            if (tags == null)
+                return false;
+            if (!MatchesFlat(requirement, tags))
+                return false;
+            if (requirement.expression == null)
+                return true;
+            return requirement.expression.Evaluate(
+                cachedSource != null
+                    ? cachedSource.Bind(tags)
+                    : new GameplayTagReaderQuerySource(tags));
+        }
+
+        private static bool EvaluateExpression(
+            AbilityTagExpression expression,
+            IGameplayTagReader tags)
+        {
+            // HasTag 구현이 다시 조건 평가를 호출하는 재진입 경로에서는 공유 어댑터의
+            // Bind 대상이 바뀌지 않도록 일회성 어댑터로 격리한다.
+            if (_isEvaluatingExpression)
+                return expression.Evaluate(new GameplayTagReaderQuerySource(tags));
+
+            _tagQuerySource ??= new GameplayTagReaderQuerySource();
+            _isEvaluatingExpression = true;
+            try
+            {
+                return expression.Evaluate(_tagQuerySource.Bind(tags));
+            }
+            finally
+            {
+                _isEvaluatingExpression = false;
+            }
+        }
+
+        private static bool MatchesFlat(
+            AbilityTagRequirement requirement,
+            IGameplayTagReader tags)
+        {
             bool hierarchy = requirement.matchMode == AbilityTagMatchMode.Hierarchy;
             for (int i = 0; i < (requirement.requireAll?.Count ?? 0); i++)
                 if (requirement.requireAll[i].IsValid()
@@ -269,11 +331,14 @@ namespace UPlayGround.Data.Ability
     public readonly struct GameplayEffectApplicationOptions
     {
         public readonly GameplayEffectHudVisibility HudVisibility;
+        public readonly IReadOnlyDictionary<string, float> SetByCallerMagnitudes;
 
         public GameplayEffectApplicationOptions(
-            GameplayEffectHudVisibility hudVisibility)
+            GameplayEffectHudVisibility hudVisibility,
+            IReadOnlyDictionary<string, float> setByCallerMagnitudes = null)
         {
             HudVisibility = hudVisibility;
+            SetByCallerMagnitudes = setByCallerMagnitudes;
         }
     }
 
@@ -377,6 +442,22 @@ namespace UPlayGround.Data.Ability
         public string designerNotes;
     }
 
+    /// <summary>
+    /// Modifier 크기를 어디서 얻는지 결정한다. 기본값 <see cref="Fixed"/>는 기존 저작과 같으므로
+    /// 이미 저장된 Effect 에셋의 동작이 바뀌지 않는다.
+    /// </summary>
+    public enum GameplayEffectMagnitudeSource
+    {
+        /// <summary>고정값. <c>value</c>를 그대로 사용한다.</summary>
+        Fixed = 0,
+        /// <summary>Source/Target Attribute를 캡처해 계수를 적용한다.</summary>
+        AttributeBased = 1,
+        /// <summary>실행 시점에 코드가 넣어준 SetByCaller 값을 사용한다.</summary>
+        SetByCaller = 2,
+        /// <summary>Spec Level에 비례해 <c>value + (Level - 1) * perLevel</c>로 계산한다.</summary>
+        ScalableByLevel = 3,
+    }
+
     [Serializable]
     public sealed class GameplayEffectModifierDefinition
     {
@@ -384,9 +465,39 @@ namespace UPlayGround.Data.Ability
         [AttributeIdSelector]
         public string attributeId;
         public ModifierType modifierType = ModifierType.Percent;
+        [Tooltip("Fixed의 고정값이자 ScalableByLevel의 기준값입니다.")]
         public float value;
 
+        [Header("크기 계산")]
+        public GameplayEffectMagnitudeSource magnitudeSource =
+            GameplayEffectMagnitudeSource.Fixed;
+
+        [Header("AttributeBased")]
+        [Tooltip("캡처할 Attribute ID입니다.")]
+        [AttributeIdSelector]
+        public string sourceAttributeId;
+        [Tooltip("Source는 시전자, Target은 피적용자 Attribute를 캡처합니다.")]
+        public GameplayEffectCaptureSource captureSource =
+            GameplayEffectCaptureSource.Source;
+        public GameplayEffectCapturePolicy capturePolicy =
+            GameplayEffectCapturePolicy.SnapshotOnApply;
+        [Tooltip("(캡처값 + preAdd) * coefficient + postAdd")]
+        public float coefficient = 1f;
+        public float preAdd;
+        public float postAdd;
+
+        [Header("SetByCaller")]
+        [Tooltip("실행 코드가 채우는 키입니다. 예: Data.Damage")]
+        public string setByCallerKey;
+        [Tooltip("키가 없으면 실패시키지 않고 defaultValue를 사용합니다.")]
+        public bool allowMissingSetByCaller;
+        public float setByCallerDefaultValue;
+
+        [Header("ScalableByLevel")]
+        public float perLevel;
+
         public AttributeId AttributeId => new(attributeId);
+        public AttributeId SourceAttributeId => new(sourceAttributeId);
     }
 
 }

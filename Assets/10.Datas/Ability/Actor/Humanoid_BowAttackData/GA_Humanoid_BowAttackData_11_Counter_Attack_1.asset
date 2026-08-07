@@ -87,6 +87,7 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 3
+    aiRoles: 8
     requiredLevel: 1
     selectionWeight: 1
     useTelegraph: 0

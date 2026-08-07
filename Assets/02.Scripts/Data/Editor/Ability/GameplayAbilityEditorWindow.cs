@@ -1041,7 +1041,7 @@ namespace UPlayGround.Data.Editor.Ability
                 ("AI 선택 (BT 전용)",
                     new[]
                     {
-                        "aiSelectable", "skillType", "attackCategory",
+                        "aiSelectable", "skillType", "attackCategory", "aiRoles",
                         "requiredLevel", "selectionWeight", "conditionGroup",
                     },
                     false),

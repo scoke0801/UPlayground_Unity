@@ -88,6 +88,12 @@ Ability는 정책과 Variant 선택을 소유하고, Payload는 프로젝트 실
 - 중첩 정책이 `RejectNew`가 아니면 명시적 `stackingKey`를 둔다.
 - `maxStackCount`는 1 이상으로 둔다.
 - Modifier는 Registry에 존재하는 Attribute ID와 의도한 Flat/Percent 정책을 사용한다.
+- Modifier 크기는 `magnitudeSource`로 정한다. 기본 `Fixed`는 `value`를 그대로 쓴다.
+  - `AttributeBased`: `sourceAttributeId`를 캡처해 `(캡처값 + preAdd) × coefficient + postAdd`로 계산한다. "공격력의 30% 실드"처럼 다른 Attribute에 비례하는 값에 쓴다. `captureSource`(Source=시전자/Target=피적용자)와 `capturePolicy`를 반드시 의도대로 지정한다.
+  - `SetByCaller`: 실행 코드가 넣는 키를 쓴다. 키가 비면 적용이 실패하므로 `allowMissingSetByCaller`로 기본값 허용 여부를 명시한다.
+  - `ScalableByLevel`: `value + (Level - 1) × perLevel`.
+  - 새 계산식이 필요하다고 Execution 코드를 먼저 추가하지 않는다. 위 네 방식으로 표현되는지 먼저 확인한다.
+- Instant Effect의 Modifier는 적용되지 않는다. 즉시 수치 변경은 Execution 경로를 쓴다.
 - `grantedTagIds`, 적용 required/blocked/immunity/dispel 태그와 `grantedAbilities`의 순환 가능성을 검토한다.
 - 공유 Effect 변경 전 역참조를 확인한다. 한 Ability만 달라야 하면 Effect도 Fork할지 명시적으로 결정한다.
 
@@ -107,7 +113,7 @@ Base 순환, 중복 슬롯, 중복 전투 바인딩, 같은 원본에 대한 Ove
 
 ## Production Wizard 레시피
 
-현재 `AbilityRecipeCatalog.cs`의 목록을 최종 기준으로 삼는다.
+현재 `Assets/02.Scripts/Data/Editor/Ability/Production/AbilityRecipeCatalog.cs`의 목록을 최종 기준으로 삼는다.
 
 | 레시피 | 기본 연결 | 핵심 확인 |
 | --- | --- | --- |

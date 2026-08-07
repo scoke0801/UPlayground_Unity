@@ -33,6 +33,22 @@ TODO 문서의 단계표는 작성 시점 상태일 수 있다. 실제 코드와
 - `blockAny`: 유효 항목 중 하나라도 보유하면 차단한다.
 - `matchMode = Hierarchy`: 하위 계층 태그도 일치시킨다.
 - `matchMode = Exact`: 문자열이 정확히 같은 태그만 일치시킨다.
+- `expression`: 위 평면 조건으로 표현할 수 없는 중첩 조건을 담는다. 평면 조건과 **AND**로 결합된다.
+
+### 중첩 태그 조건 (`expression`)
+
+평면 조건 세 개로 표현 가능한 조건은 평면 조건을 쓴다. `(A AND NOT B) OR C`처럼 OR 안에 AND/NOT이 들어가는 경우에만 `expression`을 쓴다.
+
+| 노드 | 의미 |
+| --- | --- |
+| `AbilityTagLeafExpression` | 태그 묶음을 `mode`(All/Any/None)로 판정. `matchMode`를 노드마다 지정한다 |
+| `AbilityTagAllExpression` | 자식 전부 참 (AND) |
+| `AbilityTagAnyExpression` | 자식 하나라도 참 (OR) |
+| `AbilityTagNotExpression` | 자식의 부정 (NOT) |
+
+- 최대 깊이는 `AbilityTagExpression.MaxDepth`(8)다. 초과하면 런타임에서 항상 실패하고 검증이 Error로 보고한다.
+- 자식이나 유효 태그가 없는 노드는 참이다(조건을 걸지 않은 것으로 본다). 빈 노드를 "항상 거짓"으로 쓰지 않는다.
+- 중첩 조건 실패는 항상 `MissingRequired`로 보고된다. 차단 의미를 실패 결과로 구분해야 하면 `blockAny`를 쓴다.
 
 Owner, Source, Target의 태그 컨테이너가 다르므로 조건을 올바른 대상에 둔다. 새 조건은 `ownerTagRequirement`, `sourceTagRequirement`, `targetTagRequirement`를 사용한다. 같은 위치에서 레거시 `requiredTagIds`/`blockedTagIds`와 새 쿼리를 함께 채우지 않는다.
 

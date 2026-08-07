@@ -76,6 +76,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string condition;
         public bool invert;
         public string attackCategory;
+        public string abilityRole;
         public string key;
         public string op;
         public string value;
@@ -90,6 +91,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string style;
         public string state;
         public string attackCategory;
+        public string abilityRole;
         public string cooldownId;
         public float cooldownDuration;
         public float duration;
@@ -105,6 +107,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
         public string style;
         public string state;
         public string attackCategory;
+        public string abilityRole;
         public string cooldownId;
         public float cooldownDuration;
     }

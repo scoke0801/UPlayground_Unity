@@ -116,6 +116,19 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             if (condition.condition == MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent && string.IsNullOrWhiteSpace(condition.value))
                 throw new InvalidDataException($"{ruleName}: {MonsterBehaviorJsonNodeKeys.Conditions.SelectedIntent}는 value(CombatIntent 이름)가 필요합니다.");
 
+            if (condition.condition
+                == MonsterBehaviorJsonNodeKeys.Conditions.CanActivateAbility)
+            {
+                ParseAttackCategory(
+                    condition.attackCategory,
+                    $"{ruleName}: CanActivateAbility",
+                    allowNone: false,
+                    allowAny: false);
+                ParseAbilityRole(
+                    condition.abilityRole,
+                    $"{ruleName}: CanActivateAbility");
+            }
+
             ValidateActorScope(definition.Scope, actorKind, ruleName, "condition", condition.condition);
         }
 
@@ -140,9 +153,22 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     throw new InvalidDataException($"{ruleName}: 알 수 없는 EnemyActionStyle입니다. {action.style}");
             }
 
-            if (!string.IsNullOrWhiteSpace(action.attackCategory)
-                && !Enum.TryParse<AbilityAttackCategory>(action.attackCategory, true, out _))
-                throw new InvalidDataException($"{ruleName}: 알 수 없는 AbilityAttackCategory입니다. {action.attackCategory}");
+            ParseAttackCategory(
+                action.attackCategory,
+                $"{ruleName}: {action.action}",
+                allowNone: action.action
+                    != MonsterBehaviorJsonNodeKeys.Actions.IssueAbilityTrigger,
+                allowAny: false);
+            ParseAbilityRole(
+                action.abilityRole,
+                $"{ruleName}: {action.action}");
+
+            if (actorKind == ActorKind.Flying
+                && !string.IsNullOrWhiteSpace(action.abilityRole))
+            {
+                throw new InvalidDataException(
+                    $"{ruleName}: abilityRole 공격 필터는 현재 지상형 BT에서만 지원합니다.");
+            }
 
             ValidateActorScope(definition.Scope, actorKind, ruleName, "action", action.action);
         }
@@ -171,6 +197,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     style = choice.style,
                     state = choice.state,
                     attackCategory = choice.attackCategory,
+                    abilityRole = choice.abilityRole,
                     cooldownId = choice.cooldownId,
                     cooldownDuration = choice.cooldownDuration
                 },

@@ -9,6 +9,7 @@ namespace UPlayGround.AI.BehaviorTree
     public class ExecuteEnemyAttackNode : BTActionNode
     {
         [SerializeField] private AbilityAttackCategory _attackCategory = AbilityAttackCategory.None;
+        [SerializeField] private AbilityAIRole _abilityRole = AbilityAIRole.None;
 
         // 접근을 유지한 채 Running으로 머무를 수 있는 상한.
         // 지형/그룹 슬롯 때문에 사거리에 끝내 들어가지 못하면 이 노드가 BT를 영구 점유하므로,
@@ -23,6 +24,12 @@ namespace UPlayGround.AI.BehaviorTree
         {
             get => _attackCategory;
             set => _attackCategory = value;
+        }
+
+        public AbilityAIRole AbilityRole
+        {
+            get => _abilityRole;
+            set => _abilityRole = value;
         }
 
         protected override BTStatus OnUpdate()
@@ -73,7 +80,8 @@ namespace UPlayGround.AI.BehaviorTree
                     combat.CurrentLevel,
                     _attackCategory,
                     useMeleeApproachRange: true,
-                    personalSpaceDistance: context.PersonalSpaceDistance);
+                    personalSpaceDistance: context.PersonalSpaceDistance,
+                    abilityRole: _abilityRole);
             if (distanceRelation == EnemyAttackDistanceRelation.TooFar)
             {
                 if (_approachDeadline <= 0f)
@@ -83,14 +91,17 @@ namespace UPlayGround.AI.BehaviorTree
 
                 if (controller.CurrentState is EnemyChaseState chaseState)
                 {
-                    chaseState.SetApproachAttackCategory(_attackCategory);
+                    chaseState.SetApproachAttackFilter(
+                        _attackCategory,
+                        _abilityRole);
                 }
                 else if (!controller.TryTransitionToState(
                              new EnemyChaseState(
                                  controller,
                                  context,
                                  detection,
-                                 _attackCategory)))
+                                 _attackCategory,
+                                 _abilityRole)))
                 {
                     return BTStatus.Failure;
                 }
@@ -102,7 +113,10 @@ namespace UPlayGround.AI.BehaviorTree
             if (distanceRelation != EnemyAttackDistanceRelation.InRange)
                 return BTStatus.Failure;
 
-            if (!combat.HasAvailableSkillAtDistance(detection.DistanceToTarget, _attackCategory))
+            if (!combat.HasAvailableSkillAtDistance(
+                    detection.DistanceToTarget,
+                    _attackCategory,
+                    _abilityRole))
                 return BTStatus.Failure;
 
             if (!context.TryRequestAttackSlot())
@@ -112,7 +126,7 @@ namespace UPlayGround.AI.BehaviorTree
             }
 
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
-            combat.ReserveAttackCategory(_attackCategory);
+            combat.ReserveAttackSelection(_attackCategory, _abilityRole);
             context.NotifyBTAttackStarted();
             _triggerRequest.Issue(combat, context, _attackCategory);
             BTStatus status = _triggerRequest.Update();

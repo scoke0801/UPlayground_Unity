@@ -15,6 +15,8 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] private GameplayAbilitySO _ability;
         [SerializeField] private AbilityAttackCategory _category =
             AbilityAttackCategory.None;
+        [SerializeField] private AbilityAIRole _abilityRole =
+            AbilityAIRole.None;
 
         public GameplayAbilitySO Ability
         {
@@ -26,6 +28,12 @@ namespace UPlayGround.AI.BehaviorTree
         {
             get => _category;
             set => _category = value;
+        }
+
+        public AbilityAIRole AbilityRole
+        {
+            get => _abilityRole;
+            set => _abilityRole = value;
         }
 
         protected override BTStatus OnUpdate()
@@ -45,7 +53,12 @@ namespace UPlayGround.AI.BehaviorTree
             }
 
             bool categoryExecuting = combat.CurrentAbility != null
-                && combat.CurrentSkill?.attackCategory == _category
+                && EnemyAbilitySelectionPolicy.MatchesCategory(
+                    combat.CurrentSkill,
+                    _category)
+                && EnemyAbilitySelectionPolicy.MatchesRole(
+                    combat.CurrentSkill,
+                    _abilityRole)
                 && combat.AbilitySystem.TryGetActiveExecutionHandle(
                     combat.CurrentAbility,
                     out _);
@@ -57,7 +70,10 @@ namespace UPlayGround.AI.BehaviorTree
             float distance = detection != null && detection.HasTarget
                 ? detection.DistanceToTarget
                 : float.MaxValue;
-            return combat.HasAvailableSkillAtDistance(distance, _category)
+            return combat.HasAvailableSkillAtDistance(
+                    distance,
+                    _category,
+                    _abilityRole)
                 ? BTStatus.Success
                 : BTStatus.Failure;
         }

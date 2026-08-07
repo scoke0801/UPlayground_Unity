@@ -61,7 +61,24 @@ namespace UPlayGround.State
             _dashTimer = 0f;
 
             float distance = _detection.DistanceToTarget;
-            _skill = _combat.SelectAndExecuteSkill(distance);
+            bool hasCounterAbility = _combat.HasAvailableSkillAtDistance(
+                distance,
+                AbilityAttackCategory.None,
+                AbilityAIRole.Counter);
+            if (hasCounterAbility)
+            {
+                _skill = _combat.SelectAndExecuteSkill(
+                    distance,
+                    AbilityAttackCategory.None,
+                    AbilityAIRole.Counter);
+            }
+            else
+            {
+                // 전용 Counter가 없는 기존 몬스터는 짧은 Basic 공격으로만 폴백한다.
+                _skill = _combat.SelectAndExecuteSkill(
+                    distance,
+                    AbilityAttackCategory.Basic);
+            }
 
             if (_skill == null)
             {

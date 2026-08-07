@@ -168,6 +168,54 @@ namespace UPlayGround.AI.Tests
         }
 
         [Test]
+        public void 데이터_None_카테고리는_정적_커버리지에서도_제외한다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.attackCategory = AbilityAttackCategory.None;
+
+            bool result = EnemyAttackRangePolicy.CoversDistance(
+                _ability,
+                attackInfo,
+                distanceToTarget: 3f,
+                currentLevel: 1,
+                attackCategory: AbilityAttackCategory.None);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void 데이터_Any_카테고리는_구체_요청의_정적_커버리지에_참여한다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.attackCategory = AbilityAttackCategory.Any;
+
+            bool result = EnemyAttackRangePolicy.CoversDistance(
+                _ability,
+                attackInfo,
+                distanceToTarget: 3f,
+                currentLevel: 1,
+                attackCategory: AbilityAttackCategory.Skill);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void 요청_AI역할이_없는_공격은_정적_커버리지에서_제외한다()
+        {
+            AbilityAttackInfo attackInfo = CreateAttackInfo();
+            attackInfo.aiRoles = AbilityAIRole.Opener;
+
+            bool result = EnemyAttackRangePolicy.CoversDistance(
+                _ability,
+                attackInfo,
+                distanceToTarget: 3f,
+                currentLevel: 1,
+                abilityRole: AbilityAIRole.Counter);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
         public void AbilitySet_판정도_너무가까움과_접근필요를_구분한다()
         {
             var payload = ScriptableObject.CreateInstance<UPlayGroundMotionAbilityPayloadSO>();
@@ -248,6 +296,7 @@ namespace UPlayGround.AI.Tests
         {
             AbilityAttackInfo attackInfo = CreateAttackInfo();
             attackInfo.baseInfo.hitPhases[0].targetingRange = 0.8f;
+            _ability.activation.minDistance = 0f;
             _ability.activation.maxDistance = 0.8f;
 
             float effectiveMax = EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
@@ -259,7 +308,7 @@ namespace UPlayGround.AI.Tests
         }
 
         [Test]
-        public void 실제_활_몬스터_AbilitySet의_사거리_차이를_보존한다()
+        public void 실제_활_몬스터의_일반공격과_카운터_사거리_차이를_보존한다()
         {
             AbilitySetSO skeletonBow = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(
                 "Assets/10.Datas/Ability/Actor/Skeleton_Bow/AbilitySet_Skeleton_Bow.asset");
@@ -278,13 +327,15 @@ namespace UPlayGround.AI.Tests
                 EnemyAttackRangePolicy.HasAttackInRange(
                     femaleBow,
                     distanceToTarget: 2f,
-                    currentLevel: 3),
+                    currentLevel: 3,
+                    abilityRole: AbilityAIRole.Counter),
                 Is.True);
             Assert.That(
                 EnemyAttackRangePolicy.HasAttackInRange(
                     femaleBow,
                     distanceToTarget: 3f,
-                    currentLevel: 3),
+                    currentLevel: 3,
+                    abilityRole: AbilityAIRole.Counter),
                 Is.False);
         }
 
@@ -293,6 +344,7 @@ namespace UPlayGround.AI.Tests
             return new AbilityAttackInfo
             {
                 aiSelectable = true,
+                attackCategory = AbilityAttackCategory.Basic,
                 requiredLevel = 1,
                 baseInfo = new AttackInfoBase
                 {

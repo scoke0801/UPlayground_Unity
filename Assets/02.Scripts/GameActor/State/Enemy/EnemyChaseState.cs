@@ -31,6 +31,7 @@ namespace UPlayGround.State
         private float _formationArrivalTolerance;
         private float _preferredMeleeApproachDistance;
         private AbilityAttackCategory _approachAttackCategory;
+        private AbilityAIRole _approachAbilityRole;
 
         private const float TARGET_CONTACT_BREAK_TIME = 0.08f;
         private const float TARGET_CONTACT_CHECK_INTERVAL = 0.05f;
@@ -42,11 +43,13 @@ namespace UPlayGround.State
             ActorMovementController controller,
             EnemyAIContext context,
             EnemyDetection detection,
-            AbilityAttackCategory approachAttackCategory = AbilityAttackCategory.None) : base(controller)
+            AbilityAttackCategory approachAttackCategory = AbilityAttackCategory.None,
+            AbilityAIRole approachAbilityRole = AbilityAIRole.None) : base(controller)
         {
             _context = context;
             _detection = detection;
             _approachAttackCategory = approachAttackCategory;
+            _approachAbilityRole = approachAbilityRole;
             // 핫패스 GetComponent 제거: 액터 생애 동안 불변이므로 1회 캐싱
             _memory = gameActor.GetComponent<EnemyTacticalMemory>();
             _combat = gameActor.GetComponent<EnemyCombat>();
@@ -79,14 +82,24 @@ namespace UPlayGround.State
         /// </summary>
         public void SetApproachAttackCategory(AbilityAttackCategory attackCategory)
         {
+            SetApproachAttackFilter(attackCategory, AbilityAIRole.None);
+        }
+
+        public void SetApproachAttackFilter(
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole)
+        {
             // BT는 접근이 끝날 때까지 매 틱 같은 카테고리로 이 메서드를 호출한다.
             // 갱신은 AbilitySet 전 Variant 순회를 동반하므로 값이 바뀔 때만 수행한다.
-            if (_approachAttackCategory == attackCategory)
+            if (_approachAttackCategory == attackCategory
+                && _approachAbilityRole == abilityRole)
                 return;
 
             _approachAttackCategory = attackCategory;
+            _approachAbilityRole = abilityRole;
             RefreshPreferredApproachDistance();
-            if (_approachAttackCategory == AbilityAttackCategory.None)
+            if (_approachAttackCategory == AbilityAttackCategory.None
+                && _approachAbilityRole == AbilityAIRole.None)
                 return;
 
             _hasFormationTarget = false;
@@ -167,6 +180,7 @@ namespace UPlayGround.State
             float dist       = toTarget.magnitude;
 
             _hasFormationTarget = _approachAttackCategory == AbilityAttackCategory.None
+                                  && _approachAbilityRole == AbilityAIRole.None
                                   && _context.TryGetChaseFormationPosition(
                                       dist,
                                       out _formationTarget,
@@ -393,7 +407,8 @@ namespace UPlayGround.State
         private void RefreshPreferredApproachDistance()
         {
             _preferredMeleeApproachDistance = _combat?.GetPreferredMeleeApproachDistance(
-                _approachAttackCategory) ?? 0f;
+                _approachAttackCategory,
+                _approachAbilityRole) ?? 0f;
         }
     }
 }

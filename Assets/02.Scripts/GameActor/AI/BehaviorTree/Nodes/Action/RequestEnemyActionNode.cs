@@ -11,6 +11,7 @@ namespace UPlayGround.AI.BehaviorTree
         [SerializeField] private EnemyActionIntent _intent = EnemyActionIntent.None;
         [SerializeField] private EnemyActionStyle _style = EnemyActionStyle.None;
         [SerializeField] private AbilityAttackCategory _attackCategory = AbilityAttackCategory.None;
+        [SerializeField] private AbilityAIRole _abilityRole = AbilityAIRole.None;
         [SerializeField] private bool _skipIfAlreadyInState = true;
         [SerializeField] private string _cooldownId;
         [SerializeField] private float _cooldownDuration;
@@ -34,6 +35,12 @@ namespace UPlayGround.AI.BehaviorTree
         {
             get => _attackCategory;
             set => _attackCategory = value;
+        }
+
+        public AbilityAIRole AbilityRole
+        {
+            get => _abilityRole;
+            set => _abilityRole = value;
         }
 
         public bool SkipIfAlreadyInState
@@ -149,12 +156,15 @@ namespace UPlayGround.AI.BehaviorTree
                 return BTStatus.Failure;
             }
 
-            if (!combat.HasAvailableSkillAtDistance(detection.DistanceToTarget, _attackCategory))
+            if (!combat.HasAvailableSkillAtDistance(
+                    detection.DistanceToTarget,
+                    _attackCategory,
+                    _abilityRole))
             {
                 string detail =
                     $"현재 거리에서 사용 가능한 공격이 없습니다. "
                     + $"distance={detection.DistanceToTarget:0.00}, "
-                    + $"category={_attackCategory}; "
+                    + $"category={_attackCategory}, role={_abilityRole}; "
                     + combat.BuildAbilitySelectionDiagnosticSummary();
                 Context?.Blackboard?.SetString(
                     EnemyBlackboardKeys.ResolverFailureReason,
@@ -176,7 +186,7 @@ namespace UPlayGround.AI.BehaviorTree
 
             Context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, true);
             Context?.Blackboard?.SetString(EnemyBlackboardKeys.ResolverFailureReason, string.Empty);
-            combat.ReserveAttackCategory(_attackCategory);
+            combat.ReserveAttackSelection(_attackCategory, _abilityRole);
             aiContext.NotifyBTAttackStarted();
             _triggerRequest.Issue(combat, aiContext, _attackCategory);
             BTStatus status = _triggerRequest.Update();
@@ -202,7 +212,13 @@ namespace UPlayGround.AI.BehaviorTree
 
         private EnemyActionRequest CreateRequest()
         {
-            return new EnemyActionRequest(_intent, _style, _attackCategory, _cooldownId, _cooldownDuration);
+            return new EnemyActionRequest(
+                intent: _intent,
+                style: _style,
+                attackCategory: _attackCategory,
+                cooldownId: _cooldownId,
+                cooldownDuration: _cooldownDuration,
+                abilityRole: _abilityRole);
         }
     }
 }

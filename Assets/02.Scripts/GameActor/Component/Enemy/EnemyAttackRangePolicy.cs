@@ -33,7 +33,8 @@ namespace UPlayGround.Components
             bool aerialOnly = false,
             bool diveOnly = false,
             bool useMeleeApproachRange = false,
-            float personalSpaceDistance = DefaultPersonalSpaceDistance)
+            float personalSpaceDistance = DefaultPersonalSpaceDistance,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             if (abilitySet == null)
                 return false;
@@ -59,7 +60,8 @@ namespace UPlayGround.Components
                             aerialOnly,
                             diveOnly,
                             useMeleeApproachRange,
-                            personalSpaceDistance))
+                            personalSpaceDistance,
+                            abilityRole))
                         return true;
                 }
             }
@@ -80,7 +82,8 @@ namespace UPlayGround.Components
             bool aerialOnly = false,
             bool diveOnly = false,
             bool useMeleeApproachRange = false,
-            float personalSpaceDistance = DefaultPersonalSpaceDistance)
+            float personalSpaceDistance = DefaultPersonalSpaceDistance,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             if (abilitySet == null)
                 return EnemyAttackDistanceRelation.Unavailable;
@@ -108,7 +111,8 @@ namespace UPlayGround.Components
                         aerialOnly,
                         diveOnly,
                         useMeleeApproachRange,
-                        personalSpaceDistance);
+                        personalSpaceDistance,
+                        abilityRole);
                     if (relation == EnemyAttackDistanceRelation.InRange)
                         return relation;
 
@@ -133,7 +137,8 @@ namespace UPlayGround.Components
             bool aerialOnly = false,
             bool diveOnly = false,
             bool useMeleeApproachRange = false,
-            float personalSpaceDistance = DefaultPersonalSpaceDistance)
+            float personalSpaceDistance = DefaultPersonalSpaceDistance,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             if (!IsStaticCandidate(
                     ability,
@@ -141,7 +146,8 @@ namespace UPlayGround.Components
                     currentLevel,
                     attackCategory,
                     aerialOnly,
-                    diveOnly))
+                    diveOnly,
+                    abilityRole))
                 return EnemyAttackDistanceRelation.Unavailable;
 
             float distance = Mathf.Max(0f, distanceToTarget);
@@ -167,7 +173,8 @@ namespace UPlayGround.Components
             bool aerialOnly = false,
             bool diveOnly = false,
             bool useMeleeApproachRange = false,
-            float personalSpaceDistance = DefaultPersonalSpaceDistance)
+            float personalSpaceDistance = DefaultPersonalSpaceDistance,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             if (!IsStaticCandidate(
                     ability,
@@ -175,7 +182,8 @@ namespace UPlayGround.Components
                     currentLevel,
                     attackCategory,
                     aerialOnly,
-                    diveOnly))
+                    diveOnly,
+                    abilityRole))
                 return false;
 
             float distance = Mathf.Max(0f, distanceToTarget);
@@ -195,7 +203,8 @@ namespace UPlayGround.Components
             int currentLevel,
             AbilityAttackCategory attackCategory,
             bool aerialOnly,
-            bool diveOnly)
+            bool diveOnly,
+            AbilityAIRole abilityRole)
         {
             if (ability?.activation == null
                 || !EnemyAbilitySelectionPolicy.IsAISelectableAttack(attackInfo)
@@ -207,9 +216,12 @@ namespace UPlayGround.Components
                 || (!diveOnly && aerialOnly && attackInfo.isDiveAttack))
                 return false;
 
-            if (attackCategory != AbilityAttackCategory.None
-                && attackInfo.attackCategory != attackCategory
-                && attackInfo.attackCategory != AbilityAttackCategory.None)
+            if (!EnemyAbilitySelectionPolicy.MatchesCategory(
+                    attackInfo,
+                    attackCategory)
+                || !EnemyAbilitySelectionPolicy.MatchesRole(
+                    attackInfo,
+                    abilityRole))
                 return false;
 
             return aerialOnly || ability.activation.groundCondition != AbilityGroundCondition.Airborne;

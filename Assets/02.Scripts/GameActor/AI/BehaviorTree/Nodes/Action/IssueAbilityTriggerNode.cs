@@ -15,6 +15,8 @@ namespace UPlayGround.AI.BehaviorTree
     {
         [SerializeField] private AbilityAttackCategory _attackCategory =
             AbilityAttackCategory.None;
+        [SerializeField] private AbilityAIRole _abilityRole =
+            AbilityAIRole.None;
 
         private readonly EnemyAttackTriggerRequest _request = new();
 
@@ -22,6 +24,12 @@ namespace UPlayGround.AI.BehaviorTree
         {
             get => _attackCategory;
             set => _attackCategory = value;
+        }
+
+        public AbilityAIRole AbilityRole
+        {
+            get => _abilityRole;
+            set => _abilityRole = value;
         }
 
         protected override void OnStart() => _request.Reset();
@@ -35,7 +43,7 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (!_request.TriggerIssued)
             {
-                combat.ReserveAttackCategory(_attackCategory);
+                combat.ReserveAttackSelection(_attackCategory, _abilityRole);
                 aiContext.NotifyBTAttackStarted();
                 _request.Issue(combat, aiContext, _attackCategory);
             }
@@ -52,6 +60,7 @@ namespace UPlayGround.AI.BehaviorTree
     /// <summary>두 공격 개시 노드가 공유하는 트리거 발급/수락/거부 수명주기.</summary>
     internal sealed class EnemyAttackTriggerRequest
     {
+        private EnemyCombat _combat;
         private ActorAbilitySystem _abilitySystem;
         private EnemyAIContext _aiContext;
         private GameplayAbilitySO _triggerAbility;
@@ -74,6 +83,7 @@ namespace UPlayGround.AI.BehaviorTree
 
             TriggerIssued = true;
             TriggerFrame = Time.frameCount;
+            _combat = combat;
             _aiContext = aiContext;
             _abilitySystem = combat?.AbilitySystem;
 
@@ -128,12 +138,16 @@ namespace UPlayGround.AI.BehaviorTree
             if (TriggerIssued
                 && !_acceptedHandle.IsValid
                 && !_rejection.HasValue)
+            {
+                _combat?.ClearReservedAttackSelection();
                 ReleaseSlot();
+            }
         }
 
         public void Reset()
         {
             Stop();
+            _combat = null;
             _abilitySystem = null;
             _aiContext = null;
             _triggerAbility = null;
@@ -175,6 +189,7 @@ namespace UPlayGround.AI.BehaviorTree
         {
             _rejection = reason;
             Unsubscribe();
+            _combat?.ClearReservedAttackSelection();
             ReleaseSlot();
         }
 

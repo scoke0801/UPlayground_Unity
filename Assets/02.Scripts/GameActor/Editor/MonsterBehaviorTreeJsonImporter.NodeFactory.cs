@@ -60,7 +60,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Conditions.DistanceGreater] = new(JsonNodeActorScope.Common, false, (tree, condition, source, blackboard, row) => CreateRangeNode(tree, FloatComparisonType.GreaterOrEqual, condition.value, source, blackboard, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.ActionDelayElapsed] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyActionDelayElapsedNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.CanUseSkill] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<CanUseEnemySkillNode>(tree, row)),
-            [MonsterBehaviorJsonNodeKeys.Conditions.CanActivateAbility] = new(JsonNodeActorScope.GroundOnly, false, (tree, condition, _, _, row) => CreateCanActivateAbilityNode(tree, condition.attackCategory, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.CanActivateAbility] = new(JsonNodeActorScope.GroundOnly, false, (tree, condition, _, _, row) => CreateCanActivateAbilityNode(tree, condition.attackCategory, condition.abilityRole, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.HasAttackInRange] = new(JsonNodeActorScope.GroundOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyAttackInRangeNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.HasLineOfSight] = new(JsonNodeActorScope.Common, false, (tree, _, _, _, row) => CreateConditionLeaf<HasEnemyLineOfSightNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsPlayerAttacking] = new(JsonNodeActorScope.Common, true, (tree, condition, _, _, row) => CreateBlackboardAliasNode(tree, condition, row)),
@@ -100,8 +100,8 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Actions.Transition] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateTransitionNode(tree, action.state, row, action.cooldownId, action.cooldownDuration)),
             [MonsterBehaviorJsonNodeKeys.Actions.RequestAction] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateRequestActionNode(tree, action, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.RequestAttackSlot] = new(JsonNodeActorScope.GroundOnly, (tree, _, row) => CreateActionLeaf<RequestEnemyAttackSlotNode>(tree, row)),
-            [MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateExecuteAttackNode(tree, action.attackCategory, row)),
-            [MonsterBehaviorJsonNodeKeys.Actions.IssueAbilityTrigger] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateIssueAbilityTriggerNode(tree, action.attackCategory, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.ExecuteAttack] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateExecuteAttackNode(tree, action.attackCategory, action.abilityRole, row)),
+            [MonsterBehaviorJsonNodeKeys.Actions.IssueAbilityTrigger] = new(JsonNodeActorScope.GroundOnly, (tree, action, row) => CreateIssueAbilityTriggerNode(tree, action.attackCategory, action.abilityRole, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.Wait] = new(JsonNodeActorScope.Common, (tree, action, row) => CreateWaitNode(tree, action.duration, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.FlyingTransition] = new(JsonNodeActorScope.FlyingOnly, (tree, action, row) => CreateFlyingTransitionNode(tree, action.state, row)),
             [MonsterBehaviorJsonNodeKeys.Actions.FlyingPatrolOrIdle] = new(JsonNodeActorScope.FlyingOnly, (tree, _, row) => CreateFlyingPatrolOrIdleNode(tree, row)),
@@ -280,60 +280,154 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                     style = choice.style,
                     state = choice.state,
                     attackCategory = choice.attackCategory,
+                    abilityRole = choice.abilityRole,
                     cooldownId = choice.cooldownId,
                     cooldownDuration = choice.cooldownDuration
                 },
                 row + column);
         }
 
-        private static ExecuteEnemyAttackNode CreateExecuteAttackNode(BehaviorTreeAsset tree, string attackCategory, int row)
+        private static ExecuteEnemyAttackNode CreateExecuteAttackNode(
+            BehaviorTreeAsset tree,
+            string attackCategory,
+            string abilityRole,
+            int row)
         {
-            var node = CreateNode<ExecuteEnemyAttackNode>(tree, string.IsNullOrWhiteSpace(attackCategory) ? "Execute Attack" : $"Execute Attack {attackCategory}", ActionPosition(row));
-            if (Enum.TryParse<AbilityAttackCategory>(attackCategory, true, out var parsed))
-                node.AttackCategory = parsed;
+            AbilityAttackCategory parsedCategory = ParseAttackCategory(
+                attackCategory,
+                "ExecuteAttack",
+                allowNone: true,
+                allowAny: false);
+            AbilityAIRole parsedRole = ParseAbilityRole(
+                abilityRole,
+                "ExecuteAttack");
+            var node = CreateNode<ExecuteEnemyAttackNode>(
+                tree,
+                BuildAttackFilterLabel(
+                    "Execute Attack",
+                    parsedCategory,
+                    parsedRole),
+                ActionPosition(row));
+            node.AttackCategory = parsedCategory;
+            node.AbilityRole = parsedRole;
             return node;
         }
 
         private static CanActivateAbilityNode CreateCanActivateAbilityNode(
             BehaviorTreeAsset tree,
             string attackCategory,
+            string abilityRole,
             int row)
         {
-            if (!Enum.TryParse(
-                    attackCategory,
-                    true,
-                    out AbilityAttackCategory parsed)
-                || parsed == AbilityAttackCategory.None)
-                throw new System.IO.InvalidDataException(
-                    $"CanActivateAbility의 attackCategory가 올바르지 않습니다. {attackCategory}");
+            AbilityAttackCategory parsedCategory = ParseAttackCategory(
+                attackCategory,
+                "CanActivateAbility",
+                allowNone: false,
+                allowAny: false);
+            AbilityAIRole parsedRole = ParseAbilityRole(
+                abilityRole,
+                "CanActivateAbility");
 
             var node = CreateNode<CanActivateAbilityNode>(
                 tree,
-                $"Can Activate {parsed}",
+                BuildAttackFilterLabel(
+                    "Can Activate",
+                    parsedCategory,
+                    parsedRole),
                 ConditionPosition(row));
-            node.Category = parsed;
+            node.Category = parsedCategory;
+            node.AbilityRole = parsedRole;
             return node;
         }
 
         private static IssueAbilityTriggerNode CreateIssueAbilityTriggerNode(
             BehaviorTreeAsset tree,
             string attackCategory,
+            string abilityRole,
             int row)
         {
-            if (!Enum.TryParse(
-                    attackCategory,
-                    true,
-                    out AbilityAttackCategory parsed)
-                || parsed == AbilityAttackCategory.None)
-                throw new System.IO.InvalidDataException(
-                    $"IssueAbilityTrigger의 attackCategory가 올바르지 않습니다. {attackCategory}");
+            AbilityAttackCategory parsedCategory = ParseAttackCategory(
+                attackCategory,
+                "IssueAbilityTrigger",
+                allowNone: false,
+                allowAny: false);
+            AbilityAIRole parsedRole = ParseAbilityRole(
+                abilityRole,
+                "IssueAbilityTrigger");
 
             var node = CreateNode<IssueAbilityTriggerNode>(
                 tree,
-                $"Issue Ability Trigger {parsed}",
+                BuildAttackFilterLabel(
+                    "Issue Ability Trigger",
+                    parsedCategory,
+                    parsedRole),
                 ActionPosition(row));
-            node.AttackCategory = parsed;
+            node.AttackCategory = parsedCategory;
+            node.AbilityRole = parsedRole;
             return node;
+        }
+
+        private static string BuildAttackFilterLabel(
+            string prefix,
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole)
+        {
+            string category = attackCategory == AbilityAttackCategory.None
+                ? string.Empty
+                : $" {attackCategory}";
+            string role = abilityRole == AbilityAIRole.None
+                ? string.Empty
+                : $" [{abilityRole}]";
+            return prefix + category + role;
+        }
+
+        private static AbilityAttackCategory ParseAttackCategory(
+            string raw,
+            string nodeName,
+            bool allowNone,
+            bool allowAny)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                if (allowNone)
+                    return AbilityAttackCategory.None;
+                throw new System.IO.InvalidDataException(
+                    $"{nodeName}에는 attackCategory가 필요합니다.");
+            }
+
+            if (!Enum.TryParse(raw, true, out AbilityAttackCategory parsed)
+                || !Enum.IsDefined(typeof(AbilityAttackCategory), parsed)
+                || (!allowNone && parsed == AbilityAttackCategory.None)
+                || (!allowAny && parsed == AbilityAttackCategory.Any))
+            {
+                throw new System.IO.InvalidDataException(
+                    $"{nodeName}의 AbilityAttackCategory가 올바르지 않습니다. {raw}");
+            }
+            return parsed;
+        }
+
+        private static AbilityAIRole ParseAbilityRole(
+            string raw,
+            string nodeName)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+                return AbilityAIRole.None;
+
+            const AbilityAIRole definedRoles =
+                AbilityAIRole.Opener
+                | AbilityAIRole.Punish
+                | AbilityAIRole.GapCloser
+                | AbilityAIRole.Counter
+                | AbilityAIRole.Signature
+                | AbilityAIRole.Finisher;
+            if (!Enum.TryParse(raw, true, out AbilityAIRole parsed)
+                || parsed == AbilityAIRole.None
+                || (parsed & ~definedRoles) != 0)
+            {
+                throw new System.IO.InvalidDataException(
+                    $"{nodeName}의 AbilityAIRole이 올바르지 않습니다. {raw}");
+            }
+            return parsed;
         }
 
         private static HasTargetNode CreateHasTargetNode(BehaviorTreeAsset tree, bool expected, int row)
@@ -458,18 +552,27 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 && !Enum.TryParse(action.style, true, out style))
                 throw new System.IO.InvalidDataException($"알 수 없는 EnemyActionStyle입니다. {action.style}");
 
-            var attackCategory = AbilityAttackCategory.None;
-            if (!string.IsNullOrWhiteSpace(action.attackCategory)
-                && !Enum.TryParse(action.attackCategory, true, out attackCategory))
-                throw new System.IO.InvalidDataException($"알 수 없는 AbilityAttackCategory입니다. {action.attackCategory}");
+            AbilityAttackCategory attackCategory = ParseAttackCategory(
+                action.attackCategory,
+                "RequestAction",
+                allowNone: true,
+                allowAny: false);
+            AbilityAIRole abilityRole = ParseAbilityRole(
+                action.abilityRole,
+                "RequestAction");
 
-            var displayName = style == EnemyActionStyle.None
+            string requestLabel = style == EnemyActionStyle.None
                 ? $"Request {intent}"
                 : $"Request {intent} {style}";
+            string displayName = BuildAttackFilterLabel(
+                requestLabel,
+                attackCategory,
+                abilityRole);
             var node = CreateNode<RequestEnemyActionNode>(tree, displayName, ActionPosition(row));
             node.Intent = intent;
             node.Style = style;
             node.AttackCategory = attackCategory;
+            node.AbilityRole = abilityRole;
             node.CooldownId = action.cooldownId;
             node.CooldownDuration = action.cooldownDuration;
             return node;

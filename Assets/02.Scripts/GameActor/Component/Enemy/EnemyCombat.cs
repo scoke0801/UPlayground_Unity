@@ -59,7 +59,9 @@ namespace UPlayGround.Components
         ActivationRejected = 1 << 8,
         BlockedByStrategy = 1 << 9,
         RepetitionLimit = 1 << 10,
-        OutsideEffectiveMeleeRange = 1 << 11
+        OutsideEffectiveMeleeRange = 1 << 11,
+        RoleMismatch = 1 << 12,
+        MissingAttackCategory = 1 << 13,
     }
 
     public interface IEnemyAbilityRandomSource
@@ -94,14 +96,43 @@ namespace UPlayGround.Components
     {
         public static bool IsAISelectableAttack(AbilityAttackInfo attackInfo) =>
             attackInfo?.aiSelectable == true
-            && attackInfo.baseInfo?.HasHitPhases == true;
+            && attackInfo.baseInfo?.HasHitPhases == true
+            && attackInfo.attackCategory != AbilityAttackCategory.None;
+
+        /// <summary>
+        /// 요청의 None은 카테고리 필터 없음이고, 데이터의 Any는 모든 구체 카테고리 요청에 참여한다.
+        /// 데이터의 None과 요청의 Any는 유효한 선택 의미가 아니므로 fail-closed 처리한다.
+        /// </summary>
+        public static bool MatchesCategory(
+            AbilityAttackInfo attackInfo,
+            AbilityAttackCategory requestedCategory)
+        {
+            if (attackInfo == null
+                || attackInfo.attackCategory == AbilityAttackCategory.None
+                || requestedCategory == AbilityAttackCategory.Any)
+                return false;
+            if (requestedCategory == AbilityAttackCategory.None)
+                return true;
+            return attackInfo.attackCategory == requestedCategory
+                   || attackInfo.attackCategory == AbilityAttackCategory.Any;
+        }
+
+        public static bool MatchesRole(
+            AbilityAttackInfo attackInfo,
+            AbilityAIRole requestedRole)
+        {
+            return attackInfo != null
+                   && (requestedRole == AbilityAIRole.None
+                       || (attackInfo.aiRoles & requestedRole) != 0);
+        }
 
         public static EnemyAbilityRejectReason Evaluate(
             AbilityAttackInfo attackInfo,
             in SkillConditionContext context,
             AbilityAttackCategory attackCategory,
             bool aerialOnly,
-            bool diveOnly)
+            bool diveOnly,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             if (attackInfo == null)
                 return EnemyAbilityRejectReason.MissingAttackInfo;
@@ -111,6 +142,8 @@ namespace UPlayGround.Components
                 reasons |= EnemyAbilityRejectReason.NotAISelectable;
             if (attackInfo.baseInfo?.HasHitPhases != true)
                 reasons |= EnemyAbilityRejectReason.MissingHitPhase;
+            if (attackInfo.attackCategory == AbilityAttackCategory.None)
+                reasons |= EnemyAbilityRejectReason.MissingAttackCategory;
             if (attackInfo.isAerialSkill != aerialOnly)
                 reasons |= EnemyAbilityRejectReason.AerialMismatch;
             if (diveOnly && !attackInfo.isDiveAttack
@@ -120,10 +153,10 @@ namespace UPlayGround.Components
                 reasons |= EnemyAbilityRejectReason.LevelLocked;
             if (!attackInfo.CheckCondition(context))
                 reasons |= EnemyAbilityRejectReason.ConditionFailed;
-            if (attackCategory != AbilityAttackCategory.None
-                && attackInfo.attackCategory != attackCategory
-                && attackInfo.attackCategory != AbilityAttackCategory.None)
+            if (!MatchesCategory(attackInfo, attackCategory))
                 reasons |= EnemyAbilityRejectReason.CategoryMismatch;
+            if (!MatchesRole(attackInfo, abilityRole))
+                reasons |= EnemyAbilityRejectReason.RoleMismatch;
             return reasons;
         }
 
@@ -255,6 +288,7 @@ namespace UPlayGround.Components
 
         private SkillType _reservedSkillType = SkillType.None;
         private AbilityAttackCategory _reservedAttackCategory = AbilityAttackCategory.None;
+        private AbilityAIRole _reservedAbilityRole = AbilityAIRole.None;
 
         private readonly List<Transform> _spawnedUnits = new List<Transform>();
         private readonly List<IDamageable> _skillTargets = new List<IDamageable>();
@@ -319,6 +353,7 @@ namespace UPlayGround.Components
         public bool              HasActiveExplicitCollision => _collisionSession.ShouldDetect();
         public SkillType         ReservedSkillType => _reservedSkillType;
         public AbilityAttackCategory ReservedAttackCategory => _reservedAttackCategory;
+        public AbilityAIRole ReservedAbilityRole => _reservedAbilityRole;
         public List<IDamageable> SkillTargetList  => _skillTargets;
         public bool              IsGuarding { get; set; } = false;
         public IReadOnlyList<EnemyAbilitySelectionDiagnostic> LastAbilitySelectionDiagnostics =>
@@ -467,7 +502,9 @@ namespace UPlayGround.Components
                 return false;
             }
 
-            AbilityAttackCategory reservedCategory = ConsumeReservedAttackCategory();
+            ConsumeReservedAttackSelection(
+                out AbilityAttackCategory reservedCategory,
+                out AbilityAIRole reservedRole);
             if (reservedCategory != AbilityAttackCategory.None
                 && reservedCategory != triggerCategory)
             {
@@ -483,9 +520,10 @@ namespace UPlayGround.Components
                 reservedCategory == AbilityAttackCategory.None
                     ? AbilityAttackCategory.None
                     : triggerCategory;
-            attackInfo = SelectAndExecuteSkill(
+            attackInfo = SelectAndExecuteSkillCore(
                 _detection != null ? _detection.DistanceToTarget : float.MaxValue,
                 selectionCategory,
+                reservedRole,
                 request.TriggerEvent);
             if (attackInfo == null
                 || _currentAbility == null
@@ -608,7 +646,13 @@ namespace UPlayGround.Components
 
         public AbilityAttackInfo SelectAndExecuteSkill(float distanceToTarget)
         {
-            return SelectAndExecuteSkill(distanceToTarget, ConsumeReservedAttackCategory());
+            ConsumeReservedAttackSelection(
+                out AbilityAttackCategory attackCategory,
+                out AbilityAIRole abilityRole);
+            return SelectAndExecuteSkillCore(
+                distanceToTarget,
+                attackCategory,
+                abilityRole);
         }
 
         public AbilityAttackInfo SelectAndExecuteSkill(
@@ -616,10 +660,43 @@ namespace UPlayGround.Components
             AbilityAttackCategory attackCategory,
             GameplayEventData? triggerEvent = null)
         {
+            ClearReservedAttackSelection();
+            return SelectAndExecuteSkillCore(
+                distanceToTarget,
+                attackCategory,
+                AbilityAIRole.None,
+                triggerEvent);
+        }
+
+        public AbilityAttackInfo SelectAndExecuteSkill(
+            float distanceToTarget,
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole,
+            GameplayEventData? triggerEvent = null)
+        {
+            ClearReservedAttackSelection();
+            return SelectAndExecuteSkillCore(
+                distanceToTarget,
+                attackCategory,
+                abilityRole,
+                triggerEvent);
+        }
+
+        private AbilityAttackInfo SelectAndExecuteSkillCore(
+            float distanceToTarget,
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole,
+            GameplayEventData? triggerEvent = null)
+        {
             _spawnedUnits.RemoveAll(unit => unit == null);
 
             List<AbilityCandidate> available =
-                GetAvailableAbilities(distanceToTarget, attackCategory, false, false);
+                GetAvailableAbilities(
+                    distanceToTarget,
+                    attackCategory,
+                    false,
+                    false,
+                    abilityRole);
             if (available.Count == 0)
                 return null;
 
@@ -635,7 +712,8 @@ namespace UPlayGround.Components
             float distanceToTarget,
             AbilityAttackCategory attackCategory,
             bool aerialOnly,
-            bool diveOnly)
+            bool diveOnly,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             _abilityCandidates.Clear();
             _abilitySelectionDiagnostics.Clear();
@@ -667,7 +745,8 @@ namespace UPlayGround.Components
                         in context,
                         attackCategory,
                         aerialOnly,
-                        diveOnly);
+                        diveOnly,
+                        abilityRole);
                 if (rejectReason == EnemyAbilityRejectReason.None
                     && attackInfo.baseInfo.attackType == AttackType.Melee
                     && !EnemyAttackRangePolicy.CoversDistance(
@@ -680,7 +759,8 @@ namespace UPlayGround.Components
                         diveOnly,
                         useMeleeApproachRange: true,
                         personalSpaceDistance: _aiContext?.PersonalSpaceDistance
-                                               ?? EnemyAttackRangePolicy.DefaultPersonalSpaceDistance))
+                                               ?? EnemyAttackRangePolicy.DefaultPersonalSpaceDistance,
+                        abilityRole: abilityRole))
                 {
                     rejectReason |= EnemyAbilityRejectReason.OutsideEffectiveMeleeRange;
                 }
@@ -881,11 +961,21 @@ namespace UPlayGround.Components
                 false).Count > 0;
 
         public bool HasAvailableSkillAtDistance(float distanceToTarget, AbilityAttackCategory attackCategory)
+            => HasAvailableSkillAtDistance(
+                distanceToTarget,
+                attackCategory,
+                AbilityAIRole.None);
+
+        public bool HasAvailableSkillAtDistance(
+            float distanceToTarget,
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole)
             => GetAvailableAbilities(
                 distanceToTarget,
                 attackCategory,
                 false,
-                false).Count > 0;
+                false,
+                abilityRole).Count > 0;
 
         public float GetMaxAttackRange() => ResolveMaxAttackRange();
 
@@ -893,19 +983,22 @@ namespace UPlayGround.Components
             ResolveMaxAttackRange(AttackType.Melee, groundOnly: true);
 
         public float GetPreferredMeleeApproachDistance(
-            AbilityAttackCategory attackCategory = AbilityAttackCategory.None)
+            AbilityAttackCategory attackCategory = AbilityAttackCategory.None,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             float maxRange = ResolveMaxAttackRange(
                 AttackType.Melee,
                 groundOnly: true,
-                attackCategory);
+                attackCategory,
+                abilityRole);
             return maxRange > 0f ? Mathf.Max(0.1f, maxRange - 0.1f) : 0f;
         }
 
         private float ResolveMaxAttackRange(
             AttackType? attackType = null,
             bool groundOnly = false,
-            AbilityAttackCategory attackCategory = AbilityAttackCategory.None)
+            AbilityAttackCategory attackCategory = AbilityAttackCategory.None,
+            AbilityAIRole abilityRole = AbilityAIRole.None)
         {
             float maxRange = 0f;
             if (_abilitySet == null)
@@ -925,9 +1018,12 @@ namespace UPlayGround.Components
                         || (attackType.HasValue
                             && attackInfo.baseInfo.attackType != attackType.Value)
                         || (groundOnly && attackInfo.isAerialSkill)
-                        || (attackCategory != AbilityAttackCategory.None
-                            && attackInfo.attackCategory != attackCategory
-                            && attackInfo.attackCategory != AbilityAttackCategory.None))
+                        || !EnemyAbilitySelectionPolicy.MatchesCategory(
+                            attackInfo,
+                            attackCategory)
+                        || !EnemyAbilitySelectionPolicy.MatchesRole(
+                            attackInfo,
+                            abilityRole))
                         continue;
 
                     maxRange = Mathf.Max(
@@ -969,14 +1065,32 @@ namespace UPlayGround.Components
 
         public void ReserveAttackCategory(AbilityAttackCategory attackCategory)
         {
-            _reservedAttackCategory = attackCategory;
+            ReserveAttackSelection(
+                attackCategory,
+                AbilityAIRole.None);
         }
 
-        private AbilityAttackCategory ConsumeReservedAttackCategory()
+        public void ReserveAttackSelection(
+            AbilityAttackCategory attackCategory,
+            AbilityAIRole abilityRole)
         {
-            var category = _reservedAttackCategory;
+            _reservedAttackCategory = attackCategory;
+            _reservedAbilityRole = abilityRole;
+        }
+
+        internal void ClearReservedAttackSelection()
+        {
             _reservedAttackCategory = AbilityAttackCategory.None;
-            return category;
+            _reservedAbilityRole = AbilityAIRole.None;
+        }
+
+        private void ConsumeReservedAttackSelection(
+            out AbilityAttackCategory attackCategory,
+            out AbilityAIRole abilityRole)
+        {
+            attackCategory = _reservedAttackCategory;
+            abilityRole = _reservedAbilityRole;
+            ClearReservedAttackSelection();
         }
 
         private void ExecuteSkill(AbilityAttackInfo skill)
@@ -1036,7 +1150,7 @@ namespace UPlayGround.Components
                 if (damageable == null || !damageable.IsAlive()) continue;
 
                 float hp = damageable.GetHealthPercent();
-                if (hp >= condition.minHealthPercent && hp <= condition.maxHealthPercent)
+                if (condition.MatchesHealthPercent(hp))
                     _skillTargets.Add(damageable);
             }
         }
@@ -1396,6 +1510,7 @@ namespace UPlayGround.Components
         {
             UnsubscribeAbilityTriggers();
             _pendingTriggerRequest = null;
+            ClearReservedAttackSelection();
             // 풀링·사망·씬 전환으로 비활성화될 때 명시적 판정 세션이 디버그 레지스트리에 남지 않게 한다.
             _collisionSession.End();
         }

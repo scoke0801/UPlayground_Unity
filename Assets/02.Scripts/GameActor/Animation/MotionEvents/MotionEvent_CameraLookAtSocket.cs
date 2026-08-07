@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.Serialization;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Manager;
 
@@ -15,6 +17,11 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("CameraLookAtSocket", "Camera", 0, "카메라가 특정 소켓이나 본을 바라보도록 합니다.", "lookat", "socket", "target", "시선", "소켓")]
     public class CameraLookAtSocketEvent : MotionEventBase
     {
+        [FormerlySerializedAs("ignoreWhenEnemy")]
+        [Tooltip("몬스터가 이 모션을 재생할 때의 처리. 금지는 검증 오류이며 런타임에서도 차단된다.")]
+        public MotionEventEnemyExecutionPolicy enemyExecutionPolicy =
+            MotionEventEnemyExecutionPolicy.Ignored;
+
         [Tooltip("주시할 소켓 타입")]
         public ActorSocketType socketType = ActorSocketType.Head;
 
@@ -59,19 +66,45 @@ namespace UPlayGround.Data.Event
         [Tooltip("이벤트 재생 중 카메라 수동 조작 잠금")]
         public bool lockCameraInput = false;
 
-        // 복원용 진입 시점 각도 저장
-        private float _savedYaw;
-        private float _savedPitch;
+        private readonly struct ActiveLookAtState
+        {
+            public readonly bool inputLocked;
+            public readonly bool restoreOnComplete;
+            public readonly float savedYaw;
+            public readonly float savedPitch;
+
+            public ActiveLookAtState(
+                bool inputLocked,
+                bool restoreOnComplete,
+                float savedYaw,
+                float savedPitch)
+            {
+                this.inputLocked = inputLocked;
+                this.restoreOnComplete = restoreOnComplete;
+                this.savedYaw = savedYaw;
+                this.savedPitch = savedPitch;
+            }
+        }
+
+        [NonSerialized]
+        private Dictionary<int, ActiveLookAtState> _activeStates;
 
         public override string GetDisplayName() => "Camera LookAt Socket";
         public override string GetShortLabel() => $"LookAt: {socketType} ({angleOffset}°)";
 
+        public override MotionEventEnemyExecutionPolicy EnemyExecutionPolicy => enemyExecutionPolicy;
+
         public override void Execute(GameObject target)
         {
+            if (MotionEventEnemyScope.ShouldSkip(target, EnemyExecutionPolicy))
+                return;
+
             var cam = CameraManager.Instance;
             if (cam == null) return;
 
-            var actor = target.GetComponent<GameActor>();
+            var actor = target != null
+                ? target.GetComponentInParent<GameActor>()
+                : null;
             if (actor == null)
             {
                 Debug.LogWarning("[CameraLookAtSocketEvent] target에 GameActor가 없습니다.");
@@ -84,11 +117,8 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            if (restoreOnComplete)
-            {
-                _savedYaw   = cam.GetCurrentYaw();
-                _savedPitch = cam.GetCurrentPitch();
-            }
+            float savedYaw = restoreOnComplete ? cam.GetCurrentYaw() : 0f;
+            float savedPitch = restoreOnComplete ? cam.GetCurrentPitch() : 0f;
 
             cam.SetLookAtOverride(socket, offset);
 
@@ -111,20 +141,36 @@ namespace UPlayGround.Data.Event
             // SetRotationSmooth 내부 상태가 잠금 영향을 받지 않는다
             if (lockCameraInput)
                 cam.SetInputLock(true);
+
+            _activeStates ??= new Dictionary<int, ActiveLookAtState>();
+            _activeStates[MotionEventEnemyScope.GetTargetKey(target)] = new ActiveLookAtState(
+                lockCameraInput,
+                restoreOnComplete,
+                savedYaw,
+                savedPitch);
         }
 
         public override void OnCompleteEvent(GameObject target)
         {
+            int targetKey = MotionEventEnemyScope.GetTargetKey(target);
+            if (_activeStates == null
+                || !_activeStates.TryGetValue(targetKey, out ActiveLookAtState state))
+                return;
+
+            _activeStates.Remove(targetKey);
+            if (_activeStates.Count == 0)
+                _activeStates = null;
+
             var cam = CameraManager.Instance;
             if (cam == null) return;
 
             cam.ClearLookAtOverride();
 
-            if (lockCameraInput)
+            if (state.inputLocked)
                 cam.SetInputLock(false);
 
-            if (restoreOnComplete)
-                cam.SetRotationSmooth(_savedYaw, _savedPitch, restoreDuration, null);
+            if (state.restoreOnComplete)
+                cam.SetRotationSmooth(state.savedYaw, state.savedPitch, restoreDuration, null);
         }
     }
 }

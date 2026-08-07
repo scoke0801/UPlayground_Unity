@@ -59,6 +59,23 @@ namespace UPlayGround.Data.Event
     }
 
     /// <summary>
+    /// 몬스터가 Motion을 재생할 때 이벤트를 어떻게 처리해야 하는지 나타낸다.
+    /// Ignored는 의도적으로 실행하지 않는 정상 저작이고, Forbidden은 데이터 오류로 취급하되
+    /// 런타임에서도 fail-closed로 실행을 차단한다.
+    /// </summary>
+    public enum MotionEventEnemyExecutionPolicy
+    {
+        [InspectorName("허용")]
+        Allowed = 0,
+
+        [InspectorName("무시")]
+        Ignored = 1,
+
+        [InspectorName("금지 (검증 오류)")]
+        Forbidden = 2,
+    }
+
+    /// <summary>
     /// 모션 이벤트 기본 추상 클래스
     /// 모든 모션 이벤트는 이 클래스를 상속받아야 함
     /// </summary>
@@ -116,6 +133,13 @@ namespace UPlayGround.Data.Event
         /// </summary>
         public virtual bool RequiresPostEvaluation =>
             evaluationPhase == MotionEventEvaluationPhase.PostAnimationEvaluation;
+
+        /// <summary>
+        /// 기본 이벤트는 몬스터 실행을 허용한다. 카메라·전역 시간처럼 플레이어 전용인
+        /// 이벤트는 Ignored 또는 Forbidden을 명시해 데이터 검증에서 식별되게 한다.
+        /// </summary>
+        public virtual MotionEventEnemyExecutionPolicy EnemyExecutionPolicy =>
+            MotionEventEnemyExecutionPolicy.Allowed;
 
         /// <summary>
         /// 이벤트 실행 (런타임)

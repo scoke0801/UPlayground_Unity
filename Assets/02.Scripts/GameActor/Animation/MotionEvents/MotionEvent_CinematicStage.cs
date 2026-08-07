@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.Serialization;
 using UPlayGround.Data.Cinematic;
 using UPlayGround.Manager;
 
@@ -20,10 +22,18 @@ namespace UPlayGround.Data.Event
         "무대")]
     public sealed class MotionEvent_CinematicStage : MotionEventBase
     {
+        [FormerlySerializedAs("ignoreWhenEnemy")]
+        [Tooltip("몬스터가 이 모션을 재생할 때의 처리. 금지는 검증 오류이며 런타임에서도 차단된다.")]
+        public MotionEventEnemyExecutionPolicy enemyExecutionPolicy =
+            MotionEventEnemyExecutionPolicy.Ignored;
         public CinematicStageSO stage;
-        private CinematicStageTicket _ticket;
+
+        [NonSerialized]
+        private Dictionary<int, CinematicStageTicket> _activeTickets;
 
         public override string GetDisplayName() => "Cinematic Stage";
+
+        public override MotionEventEnemyExecutionPolicy EnemyExecutionPolicy => enemyExecutionPolicy;
 
         public override string GetShortLabel() => stage != null
             ? $"Cinematic Stage: {stage.name}"
@@ -31,29 +41,45 @@ namespace UPlayGround.Data.Event
 
         public override void Execute(GameObject target)
         {
-            if (_ticket.IsValid)
-                Svc.CinematicStage?.Exit(
-                    _ticket,
-                    CinematicStageExitReason.Replaced);
-            _ticket = default;
+            if (MotionEventEnemyScope.ShouldSkip(target, EnemyExecutionPolicy))
+                return;
 
-            CinematicStageRuntimeUtility.TryEnter(
+            int targetKey = MotionEventEnemyScope.GetTargetKey(target);
+            if (_activeTickets != null
+                && _activeTickets.TryGetValue(targetKey, out CinematicStageTicket activeTicket))
+            {
+                Svc.CinematicStage?.Exit(
+                    activeTicket,
+                    CinematicStageExitReason.Replaced);
+                _activeTickets.Remove(targetKey);
+            }
+
+            if (!CinematicStageRuntimeUtility.TryEnter(
                 stage,
                 target,
                 target,
                 null,
-                out _ticket);
+                out CinematicStageTicket ticket))
+                return;
+
+            _activeTickets ??= new Dictionary<int, CinematicStageTicket>();
+            _activeTickets[targetKey] = ticket;
         }
 
         public override void OnCompleteEvent(GameObject target)
         {
-            if (!_ticket.IsValid)
+            int targetKey = MotionEventEnemyScope.GetTargetKey(target);
+            if (_activeTickets == null
+                || !_activeTickets.TryGetValue(targetKey, out CinematicStageTicket ticket))
                 return;
 
+            _activeTickets.Remove(targetKey);
+            if (_activeTickets.Count == 0)
+                _activeTickets = null;
+
             Svc.CinematicStage?.Exit(
-                _ticket,
+                ticket,
                 CinematicStageExitReason.Completed);
-            _ticket = default;
         }
     }
 }

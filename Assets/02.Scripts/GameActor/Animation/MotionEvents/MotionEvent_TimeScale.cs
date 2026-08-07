@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
+using UnityEngine.Serialization;
 using UPlayGround.Manager;
 
 namespace UPlayGround.Data.Event
@@ -15,6 +16,11 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("TimeScale", "Movement / Time", 0, "게임 시간 배율을 변경합니다.", "hit stop", "slow motion", "time", "히트스톱", "시간")]
     public class TimeScaleEvent : MotionEventBase
     {
+        [FormerlySerializedAs("ignoreWhenEnemy")]
+        [Tooltip("몬스터가 이 모션을 재생할 때의 처리. 금지는 검증 오류이며 런타임에서도 차단된다.")]
+        public MotionEventEnemyExecutionPolicy enemyExecutionPolicy =
+            MotionEventEnemyExecutionPolicy.Ignored;
+
         [Tooltip("목표 타임스케일 (0.01 = 거의 정지, 1.0 = 정상)")]
         [Range(0.01f, 1f)]
         public float targetTimeScale = 0.3f;
@@ -26,8 +32,13 @@ namespace UPlayGround.Data.Event
         public override string GetDisplayName() => "TimeScale";
         public override string GetShortLabel()  => $"TimeScale: ×{targetTimeScale:F2}";
 
+        public override MotionEventEnemyExecutionPolicy EnemyExecutionPolicy => enemyExecutionPolicy;
+
         public override void Execute(GameObject target)
         {
+            if (MotionEventEnemyScope.ShouldSkip(target, EnemyExecutionPolicy))
+                return;
+
             float duration = endTime - startTime;
             if (duration <= 0f) return;
 

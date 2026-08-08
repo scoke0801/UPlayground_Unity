@@ -484,7 +484,66 @@ Unity 6000.3.21f1이 `C:\Program Files\Unity\Hub\Editor\6000.3.21f1`에 설치�
 
 ---
 
-## 11. 참고
+## 11. 실행 결과 (2026-08-08 완료)
+
+전 단계를 Unity 6000.3.21f1 batchmode(`-executeMethod`)로 수행했다. 사용자 수작업 없음.
+
+| 단계 | 스텝 | 결과 |
+|---|---|---|
+| P0 | `validate_bt_json.py` + 카탈로그 + SKILL.md | 보스 5개 포함 19개 파일 오류 0 |
+| P1 | `HumanoidAuthoringBatch` 신설 | Preview 기본 / `-uplayground-apply` 시 쓰기 |
+| P3 | `Step_BowFix` | 44건 |
+| P4 | `Step_FixDefects` | 2건 |
+| P5 | `Step_BakeMeleeRangeHumanoidOnly` | 84건 |
+| P6 | `Step_AssignRoles` | 175건 |
+| P7 | `gen_bt.py` → Rules JSON 5종 | 정적 검증 통과 |
+| P8 | `Step_ImportHumanoidBt` + `Step_WireBehaviorData` | BT 5개, 전략 SO 5개, 배선 15건 |
+| P9 | `Step_Validate` + EditMode 385개 | 역할 커버리지 30/30 |
+
+커밋: `c402f332`(1단계), `73e60467`(2단계).
+
+### 11.1 계획에서 바뀐 것
+
+**`MonsterMeleeRangeBakeTool.BakeAll()`은 쓰지 않았다.** 이 도구는 프로젝트의 **모든** `ActorDefinitionSO`를 순회해 `activation` 사거리와 `EnemyBehaviorSO` 거리까지 덮어쓴다 — 보스·식물·거미 전부 포함이다. 읽기 전용 `AnalyzeAll()`로 측정만 하고, `Library/MonsterMeleeRangeBakeReport.json`에서 Humanoid Ability에만 반영했다.
+
+**BT가 `Counter`·`GapCloser`를 요청하지 않고 있었다.** 초안 BT는 두 역할의 요청 경로가 없어서, GAS에 배정해도 소비하는 쪽이 없는 죽은 역할이 될 뻔했다. `20 Immediate Reactions`의 카운터 갈래와 `40 IntentCounter`에 `abilityRole: Counter`를, `50`의 사거리 밖 진입에 `GapCloseAttack` 규칙을 추가했다.
+
+**`(attackCategory, abilityRole)`은 AND 조건이다.** 초안은 BT가 `Finisher`를 `Basic`으로 요청하는데 배정은 데미지 내림차순이라 `Heavy`가 잡히도록 되어 있었다 — 후보 0으로 영구 실패한다. 아래 계약을 `gen_bt.py`의 `role_category()`와 `AssignRolesFor`의 `Take(...)` 양쪽에 명시했다. **한쪽만 고치면 안 된다.**
+
+| 역할 | 카테고리 | 선정 기준 |
+|---|---|---|
+| `Opener` | `Basic` | startup 최단 2개 |
+| `Punish` | `Heavy` (Bow: `Skill`) | startup 최단 2개 |
+| `Counter` | `Skill` | Counter 계열 **전부** |
+| `GapCloser` | `Skill` | 베이크된 `maxDistance` 최대 1개 |
+| `Signature` | `Skill` | startup 최장 1개 |
+| `Finisher` | `Basic` | 데미지 최대 2개 |
+
+`Counter`만 개수를 제한하지 않는다 — `MonsterAbilitySetIntegrationTests.Counter_AI공격은_Counter_역할을_가진다`가 Counter 계열 AI 공격 전부에 역할을 요구하는 불변식을 강제한다. 아키타입당 1개만 배정했다가 이 테스트로 회귀를 잡았다.
+
+**투사체 프리팹 교체는 같은 구체 타입일 때만 했다.** `Humanoid_Bow_Attack_3`은 `Nenmir_Arcing_Arrow`(곡사)라 `DefaultArrow`(직사)로 바꾸면 공격 성격이 달라진다. 소유권 정리가 거동 변경이 되면 안 되므로 유지했다.
+
+**`hitPhaseIndex`는 발사 시간 순으로 매긴다.** MotionSet 저장 순서는 시간 순이 아니다(레이어를 가로질러 수집되므로). `startTime` 정렬 후 0..N-1을 부여한다.
+
+### 11.2 미해결·미검증
+
+**Play Mode 체감 미검증.** 정적 검증과 데이터 정합만 통과했다. 확인 필요:
+1. 궁수가 8m에서 실제로 발사하는가 — §2.2 수정의 회귀 지점.
+2. 다발 사격 데미지 — `Skill_5` 31을 4발 7.75로 분할했다. 원 저작값이 "1발 기준"이었다면 이 판단이 틀리다.
+3. §5의 아키타입 한 문장을 30초 교전으로 맞힐 수 있는가.
+
+**역할 의미가 약한 두 곳.**
+- GreatSword `GapCloser` = `Skill_2`(maxD 1.7). 대검에 실제 돌진기가 없어 "사거리 최대인 Skill"이 잡혔다.
+- Bow `GapCloser` = `Skill_1`. 원거리라 거리 좁히기 자체가 무의미하고, 모든 Bow Ability의 `maxDistance`가 20으로 동률이라 첫 항목이 잡혔다. 사실상 "장거리 사격"으로 동작한다.
+
+두 경우 모두 콘텐츠(돌진 모션) 확정 후 재지명이 맞다.
+
+**범위 밖 레거시 22건 미처리.** §10.1 표의 보류분이다. 결선하면 Skeleton/Lich/MainPlant/SpiderQueen은 투사체 데미지가 2.8~3배 오르고, 플레이어 18건은 전투 밸런스 전반이 바뀐다.
+
+**EditMode 기존 실패 7건**(내 변경과 무관, 건드리지 않은 파일):
+Ultimate managed reference 유실 1 / 태그 트리거 개수 26↔31 1 / Dryad·Training Dummy Motion 미해석 2 (CLAUDE.md에 예상된 미해결로 기록됨) / Blackboard 로그 어서션 1 / Cinematic 1 / MotionSet Executor 1.
+
+## 12. 참고
 
 - `Assets/10.Datas/Ability/Actor/Boss/*/` — 역할 기반 GAS 규약의 기준 구현
 - `Assets/10.Datas/AI/BehaviorTree/SourceJson/Boss/Boss_Siuha.json` — BT 5그룹 골격 기준

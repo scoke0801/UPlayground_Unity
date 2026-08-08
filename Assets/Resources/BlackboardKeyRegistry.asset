@@ -678,7 +678,8 @@ MonoBehaviour:
     _keyName: Decision.ResolverFailureReason
     _aliases: []
     _displayName: "\uC561\uC158 \uD574\uC11D \uC2E4\uD328 \uC0AC\uC720"
-    _description: "\uCD5C\uADFC EnemyActionResolver \uC694\uCCAD\uC774 \uC2E4\uD328\uD55C \uC6D0\uC778\uC785\uB2C8\uB2E4."
+    _description: "\uCD5C\uADFC EnemyActionResolver \uC694\uCCAD\uC774 \uC2E4\uD328\uD55C
+      \uC6D0\uC778\uC785\uB2C8\uB2E4."
     _valueType: 3
     _scope: 5
     _writePolicy: 1

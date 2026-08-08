@@ -1565,7 +1565,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
-    _stableId: 
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &50632971565826343
@@ -1724,7 +1724,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
-    _stableId: 
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &874780895085371837
@@ -1813,7 +1813,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _nextActionAllowedTime:
-    _stableId: 
+    _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
 --- !u!114 &1379664748789772543

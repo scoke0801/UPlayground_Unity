@@ -575,7 +575,10 @@ namespace UPlayGround.Editor
 
             Take(AbilityAIRole.Opener, basics.OrderBy(c => c.Startup), 2);                    // Basic
             Take(AbilityAIRole.Punish, punishPool.OrderBy(c => c.Startup), 2);                // Heavy (Bow: Skill)
-            Take(AbilityAIRole.Counter, counters.OrderBy(c => c.Ability.name), 1);            // Skill
+            // Counter는 개수를 제한하지 않는다. 프로젝트 불변식상 Counter 계열 AI 공격은
+            // 전부 Counter 역할을 가져야 한다(MonsterAbilitySetIntegrationTests가 강제).
+            // 역할 후보가 여럿이어도 가중 랜덤이 하나를 고르므로 결정론이 깨지지 않는다.
+            Take(AbilityAIRole.Counter, counters.OrderBy(c => c.Ability.name), counters.Count);  // Skill
             Take(AbilityAIRole.GapCloser, skills.OrderByDescending(c => c.MaxDistance), 1);   // Skill
             Take(AbilityAIRole.Signature, skills.OrderByDescending(c => c.Startup), 1);       // Skill
             Take(AbilityAIRole.Finisher, basics.OrderByDescending(c => c.Damage), 2);         // Basic

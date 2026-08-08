@@ -68,8 +68,8 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 3
-    cooldownGroupId: 
+    durationSeconds: 5
+    cooldownGroupId: Humanoid.DualBlade.Heavy
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -197,9 +197,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 3
-    aiRoles: 0
+    aiRoles: 8
     requiredLevel: 1
-    selectionWeight: 1
+    selectionWeight: 9
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1

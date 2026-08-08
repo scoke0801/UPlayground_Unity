@@ -87,6 +87,23 @@ UPlayGround 적 AI용 **Monster Behavior Rules JSON**을 작성한다. 이 JSON�
 - 그룹·규칙 `name`은 의도가 드러나게(`PunishStagger`, `FrequentAttackCounter`).
 - 게임 디자인 의도가 보이도록 작성. 설명은 한국어(프로젝트 규약).
 
+## 역할 지명 패턴 (보스·아키타입 전용)
+
+기본 `ExecuteAttack` 대신 **`CanActivateAbility` 확인 → `RequestAction` 실행**으로 짜면 공격을 역할 단위로 지명할 수 있다. 보스 5종(`SourceJson/Boss/`)이 이 형태다.
+
+```jsonc
+"when": [ { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" },
+          { "condition": "CooldownReady", "value": "XxxFinal" } ],
+"do":   [ { "action": "RequestAction", "intent": "Attack",
+            "attackCategory": "Skill", "abilityRole": "Signature",
+            "cooldownId": "XxxFinal", "cooldownDuration": 8.5 } ]
+```
+
+- `RequestAction`은 `cooldownId`를 **기록한다** — `ExecuteAttack`과 달리 `CooldownReady` 게이트가 실제로 작동한다.
+- `CanActivateAbility`를 선행하지 않으면 후보가 0일 때 빈 스윙이 된다. 항상 짝으로 쓴다.
+- `abilityRole`은 Payload의 `aiRoles`와 매칭된다. **대상 Ability의 `aiRoles`가 `None`이면 영구히 잡히지 않는다** — 역할 지명 BT를 쓰기 전에 AbilitySet 쪽 `aiRoles`가 채워졌는지 먼저 확인한다.
+- 이 패턴을 써도 Ground 트리에서는 `40 Execute Selected Intent`를 유지하는 것을 권장한다. 역할 지명(결정론)과 스코어러(확률적 변주)는 배타적이지 않다. 보스는 `IsEnemyPhase` 결정론으로 개성을 만들어 40번을 생략했지만, 페이즈가 없는 일반 몬스터가 이를 따라하면 거리 분기만 남아 균질해진다.
+
 ## 결과 출력 형식
 
 ```

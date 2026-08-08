@@ -1,0 +1,842 @@
+{
+  "schemaVersion": 1,
+  "id": "EnemyBehavior_Humanoid_DualBlade",
+  "displayName": "Humanoid 쌍검 — 기동 교란형",
+  "actorKind": "Ground",
+  "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/Enemy_Random_M_DualSword_002_Behavior.asset",
+  "blackboard": {
+    "tickInterval": 0.06,
+    "optimalCombatDistance": 2.0,
+    "minCombatDistance": 0.9,
+    "personalSpaceDistance": 0.75,
+    "preferredRange": 2.2,
+    "aggression": 0.7,
+    "reactionChance": 0.7,
+    "counterChance": 0.35,
+    "guardChance": 0.15,
+    "dodgeChance": 0.55,
+    "retreatChance": 0.3,
+    "punishRecoveryChance": 0.65,
+    "antiGuardChance": 0.35,
+    "revengeChance": 0.4,
+    "circleWeight": 0.65,
+    "maxComboPressureCount": 3,
+    "minRetreatCooldown": 1.6,
+    "enablePatrol": true
+  },
+  "groups": [
+    {
+      "name": "00 Survival And Acquire",
+      "priority": 1000,
+      "rules": [
+        {
+          "name": "BlockedStateKeep",
+          "priority": 1000,
+          "when": [
+            {
+              "condition": "IsBlockedEnemyState"
+            }
+          ],
+          "do": [
+            {
+              "action": "KeepCurrentState"
+            }
+          ]
+        },
+        {
+          "name": "NoTargetPatrol",
+          "priority": 990,
+          "when": [
+            {
+              "condition": "HasTarget",
+              "invert": true
+            }
+          ],
+          "do": [
+            {
+              "action": "PatrolOrIdle"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "10 Signature Window",
+      "priority": 960,
+      "when": [
+        {
+          "condition": "HasTarget"
+        },
+        {
+          "condition": "ActionDelayElapsed"
+        }
+      ],
+      "rules": [
+        {
+          "name": "SignatureWindow",
+          "priority": 960,
+          "when": [
+            {
+              "condition": "IsPlayerRecovering"
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "preferredRange"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Skill",
+              "abilityRole": "Signature"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeSignature"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Skill",
+              "abilityRole": "Signature",
+              "cooldownId": "DualBladeSignature",
+              "cooldownDuration": 14.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "15 Group Formation",
+      "priority": 932,
+      "when": [
+        {
+          "condition": "HasTarget"
+        }
+      ],
+      "rules": [
+        {
+          "name": "YieldAttackSlot",
+          "priority": 932,
+          "when": [
+            {
+              "condition": "HasAttackSlot",
+              "invert": true
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeYield"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.6,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Circle",
+              "cooldownId": "DualBladeYield",
+              "cooldownDuration": 0.8
+            },
+            {
+              "weight": 0.4,
+              "action": "RequestAction",
+              "intent": "Pressure",
+              "style": "Flank",
+              "cooldownId": "DualBladeYield",
+              "cooldownDuration": 0.8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "20 Immediate Reactions",
+      "priority": 930,
+      "when": [
+        {
+          "condition": "HasTarget"
+        }
+      ],
+      "rules": [
+        {
+          "name": "PoiseBreakEscape",
+          "priority": 950,
+          "when": [
+            {
+              "condition": "IsPoiseBroken"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladePoise"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.6,
+              "action": "RequestAction",
+              "intent": "Evade",
+              "style": "Dodge",
+              "cooldownId": "DualBladePoise",
+              "cooldownDuration": 2.4
+            },
+            {
+              "weight": 0.4,
+              "action": "RequestAction",
+              "intent": "Evade",
+              "style": "JumpBack",
+              "cooldownId": "DualBladePoise",
+              "cooldownDuration": 2.4
+            }
+          ]
+        },
+        {
+          "name": "RepeatedHitMakeSpace",
+          "priority": 940,
+          "when": [
+            {
+              "condition": "RecentHitCountGreaterOrEqual",
+              "value": "4"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeRepeated"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.5,
+              "action": "RequestAction",
+              "intent": "Evade",
+              "style": "JumpBack",
+              "cooldownId": "DualBladeRepeated",
+              "cooldownDuration": 3.0
+            },
+            {
+              "weight": 0.5,
+              "action": "RequestAction",
+              "intent": "Defend",
+              "style": "Guard",
+              "cooldownId": "DualBladeRepeated",
+              "cooldownDuration": 3.0
+            }
+          ]
+        },
+        {
+          "name": "PlayerAttackRead",
+          "priority": 930,
+          "when": [
+            {
+              "condition": "IsPlayerAttacking"
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "optimalCombatDistance"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeRead"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.7,
+              "action": "RequestAction",
+              "intent": "Evade",
+              "style": "Dodge",
+              "cooldownId": "DualBladeRead",
+              "cooldownDuration": 2.4
+            },
+            {
+              "weight": 0.3,
+              "action": "RequestAction",
+              "intent": "Counter",
+              "cooldownId": "DualBladeRead",
+              "cooldownDuration": 2.4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "30 Punish Windows",
+      "priority": 910,
+      "when": [
+        {
+          "condition": "HasTarget"
+        },
+        {
+          "condition": "ActionDelayElapsed"
+        }
+      ],
+      "rules": [
+        {
+          "name": "PunishStagger",
+          "priority": 915,
+          "when": [
+            {
+              "condition": "IsPlayerStaggered"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Basic",
+              "abilityRole": "Finisher"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Basic",
+              "abilityRole": "Finisher"
+            }
+          ]
+        },
+        {
+          "name": "PunishRecovery",
+          "priority": 910,
+          "when": [
+            {
+              "condition": "IsPlayerRecovering"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Basic",
+              "abilityRole": "Finisher"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Basic",
+              "abilityRole": "Finisher"
+            }
+          ]
+        },
+        {
+          "name": "AvoidFrequentGuard",
+          "priority": 905,
+          "when": [
+            {
+              "condition": "IsPlayerGuardingFrequently"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeAntiGuard"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Flank",
+              "cooldownId": "DualBladeAntiGuard",
+              "cooldownDuration": 3.5
+            }
+          ]
+        },
+        {
+          "name": "ChaseFrequentDodge",
+          "priority": 900,
+          "when": [
+            {
+              "condition": "IsPlayerDodgingFrequently"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeAntiDodge"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Chase",
+              "style": "Step",
+              "cooldownId": "DualBladeAntiDodge",
+              "cooldownDuration": 2.5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "40 Execute Selected Intent",
+      "priority": 880,
+      "when": [
+        {
+          "condition": "HasTarget"
+        }
+      ],
+      "rules": [
+        {
+          "name": "IntentPunish",
+          "priority": 880,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Punish"
+            },
+            {
+              "condition": "ActionDelayElapsed"
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "optimalCombatDistance"
+            },
+            {
+              "condition": "CanUseSkill"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Punish",
+              "attackCategory": "Heavy"
+            }
+          ]
+        },
+        {
+          "name": "IntentAttack",
+          "priority": 875,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Attack"
+            },
+            {
+              "condition": "ActionDelayElapsed"
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "optimalCombatDistance"
+            },
+            {
+              "condition": "CanUseSkill"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.6,
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Basic"
+            },
+            {
+              "weight": 0.25,
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Heavy"
+            },
+            {
+              "weight": 0.15,
+              "action": "RequestAction",
+              "intent": "Pressure",
+              "style": "Flank",
+              "cooldownId": "DualBladePressure",
+              "cooldownDuration": 1.4
+            }
+          ]
+        },
+        {
+          "name": "IntentAttackApproach",
+          "priority": 872,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Attack"
+            },
+            {
+              "condition": "HasAttackInRange",
+              "invert": true
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Chase"
+            }
+          ]
+        },
+        {
+          "name": "IntentCounter",
+          "priority": 870,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Counter"
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "optimalCombatDistance"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeIntentCounter"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.6,
+              "action": "RequestAction",
+              "intent": "Counter",
+              "cooldownId": "DualBladeIntentCounter",
+              "cooldownDuration": 2.0
+            },
+            {
+              "weight": 0.4,
+              "action": "RequestAction",
+              "intent": "Defend",
+              "style": "Guard",
+              "cooldownId": "DualBladeIntentCounter",
+              "cooldownDuration": 2.0
+            }
+          ]
+        },
+        {
+          "name": "IntentPressure",
+          "priority": 865,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Pressure"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeIntentPressure"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.5,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Circle",
+              "cooldownId": "DualBladeIntentPressure",
+              "cooldownDuration": 1.8
+            },
+            {
+              "weight": 0.5,
+              "action": "RequestAction",
+              "intent": "Pressure",
+              "style": "Flank",
+              "cooldownId": "DualBladeIntentPressure",
+              "cooldownDuration": 1.8
+            }
+          ]
+        },
+        {
+          "name": "IntentKeepDistance",
+          "priority": 860,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "KeepDistance"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeIntentKeep"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.55,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Circle",
+              "cooldownId": "DualBladeIntentKeep",
+              "cooldownDuration": 1.8
+            },
+            {
+              "weight": 0.45,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Step",
+              "cooldownId": "DualBladeIntentKeep",
+              "cooldownDuration": 1.6
+            }
+          ]
+        },
+        {
+          "name": "IntentDefend",
+          "priority": 855,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Defend"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeIntentDefend"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.6,
+              "action": "RequestAction",
+              "intent": "Defend",
+              "style": "Guard",
+              "cooldownId": "DualBladeIntentDefend",
+              "cooldownDuration": 2.6
+            },
+            {
+              "weight": 0.4,
+              "action": "RequestAction",
+              "intent": "Counter",
+              "cooldownId": "DualBladeIntentDefend",
+              "cooldownDuration": 2.2
+            }
+          ]
+        },
+        {
+          "name": "IntentRetreat",
+          "priority": 850,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Retreat"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeIntentRetreat"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.55,
+              "action": "RequestAction",
+              "intent": "Evade",
+              "style": "JumpBack",
+              "cooldownId": "DualBladeIntentRetreat",
+              "cooldownDuration": 2.4
+            },
+            {
+              "weight": 0.45,
+              "action": "RequestAction",
+              "intent": "Retreat",
+              "cooldownId": "DualBladeIntentRetreat",
+              "cooldownDuration": 2.4
+            }
+          ]
+        },
+        {
+          "name": "IntentChase",
+          "priority": 845,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Chase"
+            },
+            {
+              "condition": "HasAttackInRange",
+              "invert": true
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Chase"
+            }
+          ]
+        },
+        {
+          "name": "IntentRecover",
+          "priority": 840,
+          "when": [
+            {
+              "condition": "SelectedIntent",
+              "value": "Recover"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeIntentRecover"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.5,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Circle",
+              "cooldownId": "DualBladeIntentRecover",
+              "cooldownDuration": 2.6
+            },
+            {
+              "weight": 0.5,
+              "action": "RequestAction",
+              "intent": "Defend",
+              "style": "Guard",
+              "cooldownId": "DualBladeIntentRecover",
+              "cooldownDuration": 2.6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "50 Default Combat Rhythm",
+      "priority": 820,
+      "when": [
+        {
+          "condition": "HasTarget"
+        }
+      ],
+      "rules": [
+        {
+          "name": "ApproachWhenOutOfRange",
+          "priority": 825,
+          "when": [
+            {
+              "condition": "HasAttackInRange",
+              "invert": true
+            },
+            {
+              "condition": "ActionDelayElapsed"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Chase"
+            }
+          ]
+        },
+        {
+          "name": "RhythmOpener",
+          "priority": 818,
+          "when": [
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "optimalCombatDistance"
+            },
+            {
+              "condition": "HasAttackInRange"
+            },
+            {
+              "condition": "ConsecutiveAttackCountLessThan",
+              "value": "3"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Basic",
+              "abilityRole": "Opener"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Basic",
+              "abilityRole": "Opener"
+            }
+          ]
+        },
+        {
+          "name": "RhythmAlternate",
+          "priority": 814,
+          "when": [
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "optimalCombatDistance"
+            },
+            {
+              "condition": "HasAttackInRange"
+            },
+            {
+              "condition": "ConsecutiveAttackCountLessThan",
+              "value": "3"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Basic",
+              "abilityRole": "Opener"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Basic",
+              "abilityRole": "Opener"
+            }
+          ]
+        },
+        {
+          "name": "RhythmComboReset",
+          "priority": 810,
+          "when": [
+            {
+              "condition": "ConsecutiveAttackCountGreaterOrEqual",
+              "value": "3"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeReset"
+            }
+          ],
+          "select": "WeightedRandom",
+          "choices": [
+            {
+              "weight": 0.55,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Circle",
+              "cooldownId": "DualBladeReset",
+              "cooldownDuration": 2.2
+            },
+            {
+              "weight": 0.45,
+              "action": "RequestAction",
+              "intent": "KeepDistance",
+              "style": "Step",
+              "cooldownId": "DualBladeReset",
+              "cooldownDuration": 2.0
+            }
+          ]
+        },
+        {
+          "name": "RhythmTooClose",
+          "priority": 806,
+          "when": [
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "minCombatDistance"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DualBladeSpacing"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Evade",
+              "style": "Dodge",
+              "cooldownId": "DualBladeSpacing",
+              "cooldownDuration": 2.4
+            }
+          ]
+        },
+        {
+          "name": "RhythmIdle",
+          "priority": 800,
+          "do": [
+            {
+              "action": "KeepCurrentState"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

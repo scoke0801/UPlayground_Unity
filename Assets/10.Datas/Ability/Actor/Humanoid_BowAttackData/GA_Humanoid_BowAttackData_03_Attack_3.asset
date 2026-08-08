@@ -25,10 +25,34 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
@@ -59,6 +83,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 8920104273116227748}
     targetEffects: []
     ownerEffects: []
@@ -74,6 +105,11 @@ MonoBehaviour:
     roleTags:
     - AI.Selected
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &8920104273116227748
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -90,7 +126,7 @@ MonoBehaviour:
     motionKey:
       value: Humanoid.BowAttackData.Attack.3.03
     baseInfo:
-      attackType: 0
+      attackType: 1
       hitPhases:
       - damage: 10
         poiseDamage: 30
@@ -161,6 +197,7 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 1
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0

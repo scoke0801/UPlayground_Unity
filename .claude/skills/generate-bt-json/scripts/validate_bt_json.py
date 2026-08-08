@@ -21,9 +21,13 @@ SOURCE_REL = Path("Assets/10.Datas/AI/BehaviorTree/SourceJson")
 TOP_FIELDS = {"schemaVersion", "id", "displayName", "actorKind", "sourceBehaviorSo", "blackboard", "groups", "rules"}
 GROUP_FIELDS = {"name", "priority", "when", "rules"}
 RULE_FIELDS = {"name", "priority", "select", "when", "do", "choices"}
-CONDITION_FIELDS = {"condition", "invert", "attackCategory", "key", "op", "value", "valueKey"}
-ACTION_FIELDS = {"action", "intent", "style", "state", "attackCategory", "cooldownId", "cooldownDuration", "duration"}
-CHOICE_FIELDS = {"weight", "weightKey", "action", "intent", "style", "state", "attackCategory", "cooldownId", "cooldownDuration"}
+CONDITION_FIELDS = {"condition", "invert", "attackCategory", "abilityRole", "key", "op", "value", "valueKey"}
+ACTION_FIELDS = {"action", "intent", "style", "state", "attackCategory", "abilityRole", "cooldownId", "cooldownDuration", "duration"}
+CHOICE_FIELDS = {"weight", "weightKey", "action", "intent", "style", "state", "attackCategory", "abilityRole", "cooldownId", "cooldownDuration"}
+
+# abilityRole을 파싱하는 노드. NodeFactory의 ParseAbilityRole 호출 지점과 일치해야 한다.
+ABILITY_ROLE_CONDITIONS = {"CanActivateAbility"}
+ABILITY_ROLE_ACTIONS = {"RequestAction", "ExecuteAttack", "IssueAbilityTrigger"}
 
 VALUE_REQUIRED = {"HasStateTag", "IsEnemyPhase", "CooldownReady", "IsSelfLowHealth", "RecentHitCountGreaterOrEqual", "ConsecutiveAttackCountLessThan", "ConsecutiveAttackCountGreaterOrEqual", "CanRevengeAfterHit", "SelectedIntent", "IsCurrentState"}
 NUMERIC_VALUE_REQUIRED = {"IsSelfLowHealth", "RecentHitCountGreaterOrEqual", "ConsecutiveAttackCountLessThan", "ConsecutiveAttackCountGreaterOrEqual", "CanRevengeAfterHit"}
@@ -148,7 +152,7 @@ def load_catalog(project: Path) -> Catalog:
         registry_keys.update(alias for alias in entry.get("aliases", []) if alias)
     aliases = {entry.get("condition", "") for entry in registry.get("blackboardConditionAliases", [])}
 
-    enum_names = ["ActorStateTag", "BlackboardComparisonType", "AbilityAttackCategory", "CombatIntent", "EnemyTransitionStateType", "FlyingEnemyTransitionStateType", "EnemyActionIntent", "EnemyActionStyle"]
+    enum_names = ["ActorStateTag", "BlackboardComparisonType", "AbilityAttackCategory", "AbilityAIRole", "CombatIntent", "EnemyTransitionStateType", "FlyingEnemyTransitionStateType", "EnemyActionIntent", "EnemyActionStyle"]
     enums = {name: enum_values(project, name) for name in enum_names}
     return Catalog(set(condition_map.values()), set(action_map.values()), set(select_map.values()), scopes, blackboard_fields, numeric_references, registry_keys, aliases, enums)
 
@@ -186,6 +190,32 @@ def require_list(report: Report, location: str, value: Any) -> list[Any]:
 
 def number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def validate_ability_role(report: Report, location: str, value: Any, catalog: Catalog, name: str, allowed_nodes: set[str]) -> None:
+    """abilityRole 필드를 NodeFactory.ParseAbilityRole과 같은 규칙으로 검사한다.
+
+    Enum.TryParse가 flags를 받으므로 "Punish, Counter" 처럼 쉼표 조합이 가능하고,
+    대소문자를 구분하지 않는다. None과 미정의 비트는 거부된다.
+    """
+    role = value.get("abilityRole")
+    if role is None:
+        return
+    if name not in allowed_nodes:
+        report.error(location, f"{name}은 abilityRole을 파싱하지 않습니다.")
+        return
+    if not isinstance(role, str) or not role.strip():
+        report.error(location, "abilityRole은 비어 있지 않은 문자열이어야 합니다.")
+        return
+    defined = {member.lower() for member in catalog.enums["AbilityAIRole"] if member != "None"}
+    for part in role.split(","):
+        token = part.strip().lower()
+        if not token:
+            report.error(location, f"abilityRole에 빈 항목이 있습니다: {role}")
+        elif token == "none":
+            report.error(location, "abilityRole에 None은 쓸 수 없습니다. 필드를 생략하세요.")
+        elif token not in defined:
+            report.error(location, f"알 수 없는 AbilityAIRole: {part.strip()}")
 
 
 def numeric_string(value: Any) -> bool:
@@ -254,6 +284,7 @@ def validate_condition(report: Report, location: str, value: Any, catalog: Catal
         category = value.get("attackCategory")
         if category not in catalog.enums["AbilityAttackCategory"] or category == "None":
             report.error(location, f"CanActivateAbility.attackCategory가 올바르지 않습니다: {category}")
+    validate_ability_role(report, location, value, catalog, name, ABILITY_ROLE_CONDITIONS)
 
 
 def validate_action(report: Report, location: str, value: Any, catalog: Catalog, actor_kind: str, choice: bool = False) -> None:
@@ -283,6 +314,7 @@ def validate_action(report: Report, location: str, value: Any, catalog: Catalog,
         report.error(location, f"알 수 없는 AbilityAttackCategory: {category}")
     if name == "IssueAbilityTrigger" and (not category or category == "None"):
         report.error(location, "IssueAbilityTrigger에는 None이 아닌 attackCategory가 필요합니다.")
+    validate_ability_role(report, location, value, catalog, name, ABILITY_ROLE_ACTIONS)
     if name == "Wait":
         if choice:
             report.error(location, "choice DTO에는 duration이 없어 Wait를 사용할 수 없습니다.")

@@ -47,6 +47,7 @@ MonoBehaviour:
       - rid: 7432452679253098646
       - rid: 7432452679253098645
       - rid: 7432452679253098647
+    internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
     layers: []
@@ -82,7 +83,7 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
-        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectilePrefab: {fileID: 3907672296152656769, guid: a550920db554d3541a9da0cab0af6e9a, type: 3}
         projectileDefinition: {fileID: 0}
         spawnPattern:
           rid: 5341828300924256451
@@ -90,7 +91,7 @@ MonoBehaviour:
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
-        hitPhaseIndex: -1
+        hitPhaseIndex: 0
         damage: 10
         barrelBlendTime: 0
         targetMode: 0
@@ -126,7 +127,7 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
-        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectilePrefab: {fileID: 3907672296152656769, guid: a550920db554d3541a9da0cab0af6e9a, type: 3}
         projectileDefinition: {fileID: 0}
         spawnPattern:
           rid: 5341828300924256453
@@ -134,7 +135,7 @@ MonoBehaviour:
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
-        hitPhaseIndex: -1
+        hitPhaseIndex: 2
         damage: 10
         barrelBlendTime: 0
         targetMode: 0
@@ -170,7 +171,7 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
-        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectilePrefab: {fileID: 3907672296152656769, guid: a550920db554d3541a9da0cab0af6e9a, type: 3}
         projectileDefinition: {fileID: 0}
         spawnPattern:
           rid: 5341828300924256452
@@ -178,7 +179,7 @@ MonoBehaviour:
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
-        hitPhaseIndex: -1
+        hitPhaseIndex: 1
         damage: 10
         barrelBlendTime: 0
         targetMode: 0
@@ -214,7 +215,7 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
-        projectilePrefab: {fileID: 3907672296152656769, guid: ecb38a8dca96be5419629bd5278425ea, type: 3}
+        projectilePrefab: {fileID: 3907672296152656769, guid: a550920db554d3541a9da0cab0af6e9a, type: 3}
         projectileDefinition: {fileID: 0}
         spawnPattern:
           rid: 5341828300924256454
@@ -222,7 +223,7 @@ MonoBehaviour:
         spawnOffset: {x: 0, y: 1, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
-        hitPhaseIndex: -1
+        hitPhaseIndex: 3
         damage: 10
         barrelBlendTime: 0
         targetMode: 0

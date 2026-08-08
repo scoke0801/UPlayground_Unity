@@ -78,6 +78,9 @@
 | `DistanceGreater` | Common | 거리 키 이름 | 타겟 거리 > 값 |
 | `ActionDelayElapsed` | Common | — | 다음 행동 허용 시각 경과(템포) |
 | `CanUseSkill` | Ground | — | 현재 거리에 사용 가능 스킬 존재 |
+| `CanActivateAbility` | Ground | — (`attackCategory` 필수 + `abilityRole` 선택) | 해당 카테고리·역할의 활성화 가능 Ability 존재. **공격 요청 직전의 빈 스윙 방지 가드** |
+| `HasAttackInRange` | Ground | — | 현재 거리를 커버하는 공격이 하나라도 있음 (invert로 "사거리 밖" = 접근 필요) |
+| `HasLineOfSight` | Common | — | 타겟까지 시야 확보 |
 | `IsPlayerAttacking` | Common | — | 플레이어 공격 중 |
 | `IsPlayerGuarding` | Common | — | 플레이어 가드 중 |
 | `IsPlayerStaggered` | Common | — | 플레이어 경직 중 |
@@ -114,9 +117,10 @@
 | `KeepCurrentState` | Common | — | BT가 현재 상태를 덮지 않음(무한 Running) |
 | `PatrolOrIdle` | Ground | — | 순찰 또는 idle |
 | `Transition` | Ground | `state`(EnemyTransitionStateType), `cooldownId?`, `cooldownDuration?` | 상태로 직접 전이 |
-| `RequestAction` | Common | `intent`(EnemyActionIntent), `style?`(EnemyActionStyle), `attackCategory?`, `cooldownId?`, `cooldownDuration?` | 의도/스타일 요청 (Resolver가 상태 선택) |
+| `RequestAction` | Common | `intent`(EnemyActionIntent), `style?`(EnemyActionStyle), `attackCategory?`, `abilityRole?`, `cooldownId?`, `cooldownDuration?` | 의도/스타일 요청 (Resolver가 상태 선택). **쿨다운을 기록하는 유일한 공격 경로** |
 | `RequestAttackSlot` | Ground | — | 그룹 공격 슬롯 예약 |
-| `ExecuteAttack` | Ground | `attackCategory?`(None=아무거나) | 공격 실행 |
+| `ExecuteAttack` | Ground | `attackCategory?`(None=아무거나), `abilityRole?` | 공격 실행. ⚠ `cooldownId`를 기록하지 않는다 |
+| `IssueAbilityTrigger` | Ground | `attackCategory`(None 불가), `abilityRole?` | 태그 트리거 경로로 Ability 발동 요청 |
 | `Wait` | Common | `duration`(초) | 대기 |
 | `FlyingTransition` | Flying | `state`(FlyingEnemyTransitionStateType) | 비행 상태 전이 |
 | `FlyingPatrolOrIdle` | Flying | — | 비행 순찰/idle |
@@ -131,7 +135,12 @@ choice는 위 action 필드에 `weight`(float, 기본 1.0) 또는 `weightKey`(bl
 
 - **EnemyActionIntent** (`RequestAction.intent`): `None`, `Attack`, `Punish`, `Counter`, `Pressure`, `Chase`, `Retreat`, `KeepDistance`, `Defend`, `Evade`, `Recover`
 - **EnemyActionStyle** (`RequestAction.style`): `None`, `Dodge`, `JumpBack`, `Guard`, `Circle`, `Flank`, `Charge`, `Dive`, `Land`, `TakeOff`, `Patrol`, `Idle`, `Step`
-- **EnemyAttackCategory** (`ExecuteAttack.attackCategory`): `None`, `Basic`, `Heavy`, `Skill`
+- **AbilityAttackCategory** (`attackCategory`): `None`, `Basic`, `Heavy`, `Skill`, `Any`
+  - 요청 측 `None` = 카테고리 필터 없음. `CanActivateAbility`/`IssueAbilityTrigger`는 `None` 불가.
+- **AbilityAIRole** (`abilityRole`): `Opener`, `Punish`, `GapCloser`, `Counter`, `Signature`, `Finisher`
+  - flags라 `"Punish, Counter"` 처럼 쉼표 조합 가능. 대소문자 무시. `None`은 불가 — 필터를 안 걸려면 **필드를 생략**한다.
+  - `CanActivateAbility` / `RequestAction` / `ExecuteAttack` / `IssueAbilityTrigger`만 파싱한다. 다른 노드에 붙이면 검증 오류.
+  - 대상 Ability Payload의 `aiRoles`와 매칭된다. `aiRoles`가 `None`인 Ability는 **역할을 지정한 요청에 절대 잡히지 않는다.**
 - **EnemyTransitionStateType** (`Transition.state`): `Idle`, `Patrol`, `Chase`, `Attack`, `Retreat`, `Circle`, `Guard`, `Charge`, `Flank`, `Counter`, `Dodge`, `JumpBack`, `Step`
 - **CombatIntent** (`SelectedIntent.value`): `Attack`, `Punish`, `Counter`, `Pressure`, `Chase`, `Retreat`, `KeepDistance`, `Defend`, `Recover` (← `Evade`/`None` 없음)
 - **ActorStateTag** (`HasStateTag.value`): `None`, `Locomotion`, `Combat`, `Defensive`, `Airborne`, `InterruptLocked`, `Recovery`

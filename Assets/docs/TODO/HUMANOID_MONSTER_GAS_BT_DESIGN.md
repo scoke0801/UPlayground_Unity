@@ -525,6 +525,50 @@ Unity 6000.3.21f1이 `C:\Program Files\Unity\Hub\Editor\6000.3.21f1`에 설치�
 
 **`hitPhaseIndex`는 발사 시간 순으로 매긴다.** MotionSet 저장 순서는 시간 순이 아니다(레이어를 가로질러 수집되므로). `startTime` 정렬 후 0..N-1을 부여한다.
 
+### 11.3 교전 거리와 실제 도달 거리는 다르다 (중요)
+
+`optimalCombatDistance`(BehaviorData·blackboard)와 Ability가 **실제로 닿는 거리**는 별개다. 근접 Ability의 유효 최대 거리는 저작된 `activation.maxDistance`가 아니라 `EnemyAttackRangePolicy.ResolveEffectiveMaxDistance`가 정한다:
+
+```
+min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))
+```
+
+베이크 후 실측값 (`Step_ReportReach`):
+
+| 아키타입 | 역할별 유효 도달 | 설정한 교전 거리 |
+|---|---|---|
+| GreatSword | Opener 0.85 / Punish 1.2 / Counter 1.1 / Finisher·Signature·GapCloser 1.5 | 2.8 |
+| DoubleAxe | 전 역할 1.35 (Counter 1.4) | 2.3 |
+| DualBlade | 전 역할 1.35 | 2.0 |
+| SwordShield | Counter 0.85 / 나머지 1.35 | 2.4 |
+| Bow | Counter 2.5 / 나머지 20 | 8.0 |
+
+**교전 거리가 도달 거리보다 멀지만 몬스터는 굳지 않는다.** `EnemyChaseState.ResolveStopDistance`가
+`Min(Max(chaseStopDistance, minCombatDistance), GetPreferredMeleeApproachDistance)`를 쓰고,
+`GetPreferredMeleeApproachDistance`는 **요청된 카테고리·역할의 실제 최대 사거리 − 0.1**이다.
+즉 추격이 Ability가 닿는 지점까지 파고들어 차이를 메운다.
+
+**이 불일치는 이번 작업 이전부터 있었다.** 베이크 전 `maxDistance`가 2.5 고정일 때도 GreatSword의 유효 도달은 `min(2.5, max(1.35, 1.3)) = 1.35`인데 `optimalCombatDistance`는 2.4였다. 베이크가 이를 드러냈을 뿐 만들어낸 것이 아니다.
+
+교전 거리를 실측값에 맞춰 좁힐지는 **체감 문제**라 임의로 정하지 않았다. 좁히면 근접 몬스터가 훨씬 밀착해 싸우게 된다. `Step_ReportReach`로 언제든 현재 수치를 다시 뽑을 수 있다.
+
+> 테스트 작성 시 함정 — "교전 거리에서 공격 가능한가"는 런타임 불변식이 **아니다**(추격이 메운다). 진짜 불변식은 "역할마다 0보다 큰 도달 거리가 있다"이다. 또 베이크된 Ability는 `minDistance`가 0이 아닌 밴드(예: 0.65~1.55)라, 저거리 몇 점만 찔러 보는 이분 탐색은 밴드를 통째로 놓친다. `MaxReach`는 스캔으로 구현했다.
+
+### 11.4 베이크된 min이 유효 최대를 넘으면 Ability가 죽는다
+
+`Step_BakeMeleeRangeHumanoidOnly`가 `minDistance`를 모션의 실제 접촉 지점에서 뽑기 때문에, 스윙이 몸에서 먼 곳부터 닿는 모션은 `min`이 §11.3의 유효 최대 상한을 넘어설 수 있다. 그러면 `[min, 유효최대]`가 빈 구간이 되어 **어떤 거리에서도 후보에 오르지 못한다.** 예외도 로그도 없다.
+
+역할이 배정된 근접 Ability 50개 중 실제 위반은 2건이었다.
+
+| Ability | min | 유효 최대 | 조치 |
+| --- | --- | --- | --- |
+| `DoubleAxe_18_Counter_Attack_1` | 1.4 | 1.4 | min → 0 |
+| `DoubleAxe_19_Counter_Attack_2` | 1.4 | 1.4 | min → 0 |
+
+`min → 0`은 클램프된 창 전체를 쓰게 하는 조치다. 모션 기준 스위트스팟보다 가까이서 발동해 스쳐 지나갈 여지는 남지만, 영영 발동하지 않는 것보다 낫다. 다른 세 근접 아키타입의 Counter도 전부 `min` 0~0.5에서 시작하므로 규약에서 벗어나지도 않는다. **근본 해소는 이 모션의 `targetingRange`를 실제 도달(2.1m)에 맞춰 올리는 콘텐츠 작업이다.**
+
+`Step_ClampUnreachableMinDistance`가 이 위반을 전수 검출한다. 멱등이므로 베이크를 다시 돌린 뒤 항상 이어서 실행한다.
+
 ### 11.2 미해결·미검증
 
 **Play Mode 체감 미검증.** 정적 검증과 데이터 정합만 통과했다. 확인 필요:
@@ -538,7 +582,9 @@ Unity 6000.3.21f1이 `C:\Program Files\Unity\Hub\Editor\6000.3.21f1`에 설치�
 
 두 경우 모두 콘텐츠(돌진 모션) 확정 후 재지명이 맞다.
 
-**범위 밖 레거시 22건 미처리.** §10.1 표의 보류분이다. 결선하면 Skeleton/Lich/MainPlant/SpiderQueen은 투사체 데미지가 2.8~3배 오르고, 플레이어 18건은 전투 밸런스 전반이 바뀐다.
+**플레이어 투사체 레거시 18건 미처리.** §10.1 표의 보류분이다. 결선하면 저작 데미지 35~155가 고정 10을 대체해 플레이어 전투 밸런스 전반이 6~15배로 바뀐다. 판단 대기.
+
+몬스터 4건(Skeleton/Lich/MainPlant/SpiderQueen)은 `Step_WireMonsterProjectileHitPhases`로 결선 완료했다 — `hitPhaseIndex: -1 → 0`. 투사체 데미지가 `legacyDamage` 고정값에서 저작 `hitPhases[0]`으로 바뀐다.
 
 **EditMode 기존 실패 7건**(내 변경과 무관, 건드리지 않은 파일):
 Ultimate managed reference 유실 1 / 태그 트리거 개수 26↔31 1 / Dryad·Training Dummy Motion 미해석 2 (CLAUDE.md에 예상된 미해결로 기록됨) / Blackboard 로그 어서션 1 / Cinematic 1 / MotionSet Executor 1.

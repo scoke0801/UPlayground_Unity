@@ -752,6 +752,57 @@ namespace UPlayGround.Editor
             });
         }
 
+        /// <summary>
+        /// Step 5b — 베이크된 minDistance가 유효 최대 사거리를 넘어선 Ability를 되살린다.
+        ///
+        /// 근접 Ability의 유효 최대는 저작값이 아니라
+        /// min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))다.
+        /// 베이크는 모션의 실제 접촉 지점에서 min을 뽑기 때문에, 스윙이 몸에서 먼 곳부터
+        /// 닿는 모션은 min이 이 상한을 넘어설 수 있다. 그러면 구간이 비어
+        /// 어떤 거리에서도 후보에 오르지 못한다 — 예외도 로그도 없이 그냥 안 나온다.
+        ///
+        /// 이 경우 min을 0으로 내려 클램프된 창 전체를 쓰게 한다. 모션 기준 스위트스팟보다
+        /// 가까이서 발동해 스쳐 지나갈 여지는 남지만, 영영 발동하지 않는 것보다 낫다.
+        /// 근본 해소는 해당 모션의 targetingRange를 실제 도달에 맞춰 올리는 콘텐츠 작업이다.
+        /// </summary>
+        public static void Step_ClampUnreachableMinDistance()
+        {
+            Run(nameof(Step_ClampUnreachableMinDistance), ctx =>
+            {
+                foreach (string archetype in Archetypes)
+                {
+                    float personalSpace = Profiles[archetype].PersonalSpace;
+
+                    foreach (GameplayAbilitySO ability in LoadAbilities(archetype).OrderBy(a => a.name))
+                    {
+                        AbilityAttackInfo info = PayloadOf(ability)?.attackInfo;
+                        if (info == null || !EnemyAbilitySelectionPolicy.IsAISelectableAttack(info))
+                            continue;
+                        if (info.aiRoles == AbilityAIRole.None)
+                            continue;
+                        if (info.baseInfo == null || info.baseInfo.attackType != AttackType.Melee)
+                            continue;
+
+                        float effectiveMax = EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
+                            ability, info, personalSpace);
+                        if (ability.activation.minDistance < effectiveMax)
+                            continue;
+
+                        ctx.Line($"[{archetype}] {ability.name}: "
+                                 + $"min {ability.activation.minDistance:0.##} >= 유효최대 {effectiveMax:0.##} — 선택 불가 구간");
+                        ctx.Change(ability, "activation.minDistance",
+                            $"{ability.activation.minDistance:0.##}", "0");
+                        if (ctx.Apply)
+                        {
+                            ctx.Record(ability);
+                            ability.activation.minDistance = 0f;
+                            ctx.Dirty(ability);
+                        }
+                    }
+                }
+            });
+        }
+
         // ────────────────────────────────────────────────────────────────
         // Step 6 — 전략 SO 생성 + BehaviorData 배선 (설계서 §6.6 / §7.4 / §7.5)
         // ────────────────────────────────────────────────────────────────
@@ -792,6 +843,65 @@ namespace UPlayGround.Editor
         private const string IntentWeightsFolder = "Assets/10.Datas/AI/IntentWeights";
         private const string GeneratedBtFolder = "Assets/10.Datas/AI/BehaviorTree/Generated";
         private const string BehaviorDataFolder = "Assets/10.Datas/Actor/Enemy/BehaviorData";
+
+        /// <summary>
+        /// 아키타입의 역할별 유효 도달 거리를 실제 Ability에서 계산한다.
+        ///
+        /// 근접 Ability의 유효 최대 거리는 authored maxDistance가 아니라
+        /// <see cref="EnemyAttackRangePolicy.ResolveEffectiveMaxDistance"/>가 결정한다.
+        /// 베이크로 사거리가 좁아졌는데 교전 거리를 손으로 크게 잡으면, 몬스터가
+        /// 접근을 멈춘 지점에서 어떤 역할도 발동하지 못하고 굳는다.
+        /// </summary>
+        private static Dictionary<AbilityAIRole, float> RoleReach(string archetype, float personalSpace)
+        {
+            var reach = new Dictionary<AbilityAIRole, float>();
+            foreach (GameplayAbilitySO ability in LoadAbilities(archetype))
+            {
+                AbilityAttackInfo info = PayloadOf(ability)?.attackInfo;
+                if (info == null || !EnemyAbilitySelectionPolicy.IsAISelectableAttack(info))
+                    continue;
+                if (info.aiRoles == AbilityAIRole.None)
+                    continue;
+
+                float effective = info.baseInfo.attackType == AttackType.Melee
+                    ? EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(ability, info, personalSpace)
+                    : ability.activation.maxDistance;
+
+                foreach (AbilityAIRole role in RoleTuning.Keys)
+                {
+                    if ((info.aiRoles & role) == 0)
+                        continue;
+                    reach[role] = reach.TryGetValue(role, out float prev)
+                        ? Mathf.Max(prev, effective)
+                        : effective;
+                }
+            }
+            return reach;
+        }
+
+        /// <summary>
+        /// 교전 거리를 역할 도달 거리에서 도출한다. GapCloser는 정의상 교전 거리 밖에서
+        /// 쓰므로 제외하고, 나머지 역할이 **전부** 닿는 거리를 잡는다.
+        /// </summary>
+        public static void Step_ReportReach()
+        {
+            Run(nameof(Step_ReportReach), ctx =>
+            {
+                foreach ((string archetype, ArchetypeProfile p) in Profiles)
+                {
+                    Dictionary<AbilityAIRole, float> reach = RoleReach(archetype, p.PersonalSpace);
+                    float limiting = reach
+                        .Where(kv => kv.Key != AbilityAIRole.GapCloser)
+                        .Select(kv => kv.Value)
+                        .DefaultIfEmpty(0f)
+                        .Min();
+                    ctx.Line($"[{archetype}] personalSpace={p.PersonalSpace:0.##} "
+                             + $"제한 역할 도달={limiting:0.##} (현재 optimal={p.Optimal:0.##})");
+                    foreach ((AbilityAIRole role, float value) in reach.OrderBy(kv => kv.Key.ToString()))
+                        ctx.Line($"      {role,-10} {value:0.##}");
+                }
+            });
+        }
 
         public static void Step_WireBehaviorData()
         {
@@ -986,6 +1096,65 @@ namespace UPlayGround.Editor
                     throw new InvalidOperationException($"검증 실패 {failures.Count}건");
                 }
                 ctx.Line("  검증 통과 — 실패 0건");
+            });
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Step 9 — 몬스터 투사체 hitPhaseIndex 레거시 정리 (설계서 §10.1 보류분)
+        //
+        // hitPhaseIndex: -1 은 ProjectileManager.ResolveAttackData 에서 legacyDamage(고정 10)를
+        // 쓰게 만든다. 0..N-1 로 결선하면 Ability 의 hitPhase 수치(데미지·포이즈·브레이크·리액션)가
+        // 적용된다. 즉 저작된 의도대로 동작하게 되는 것이지만, 실측 데미지가 2.8~3배 오른다.
+        //
+        // ⚠ 플레이어(Bow/Katana/Staff 22건)는 대상이 아니다. 저작값이 35~155라
+        //    결선하면 6~15배가 되어 플레이어 전투 밸런스 전체가 바뀐다. 별도 밸런스 과제다.
+        // ────────────────────────────────────────────────────────────────
+
+        /// <summary>Humanoid 밖 몬스터 MotionSet 루트. 플레이어(Player/) 폴더는 의도적으로 제외한다.</summary>
+        private static readonly string[] MonsterProjectileMotionRoots =
+        {
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Skeleton",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Lich",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Plant",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/SpiderQueen",
+        };
+
+        public static void Step_WireMonsterProjectileHitPhases()
+        {
+            Run(nameof(Step_WireMonsterProjectileHitPhases), ctx =>
+            {
+                foreach (string guid in AssetDatabase.FindAssets(
+                             "t:MotionSetAsset", MonsterProjectileMotionRoots))
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    var motion = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(path);
+                    if (motion == null)
+                        continue;
+
+                    // 발사 시간 순서가 곧 hitPhase 인덱스다. 저장 순서를 믿지 않는다.
+                    var shots = AllEvents(motion)
+                        .OfType<SpawnProjectileEvent>()
+                        .OrderBy(e => e.startTime)
+                        .ToList();
+                    if (shots.Count == 0)
+                        continue;
+
+                    bool dirty = false;
+                    for (var i = 0; i < shots.Count; i++)
+                    {
+                        if (shots[i].hitPhaseIndex == i)
+                            continue;
+                        ctx.Change(motion, $"shot[{i}].hitPhaseIndex", shots[i].hitPhaseIndex, i);
+                        if (ctx.Apply)
+                        {
+                            ctx.Record(motion);
+                            shots[i].hitPhaseIndex = i;
+                            dirty = true;
+                        }
+                    }
+                    if (dirty)
+                        ctx.Dirty(motion);
+                }
             });
         }
     }

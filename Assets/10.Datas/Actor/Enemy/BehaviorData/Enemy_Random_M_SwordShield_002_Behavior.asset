@@ -12,21 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: Enemy_Random_M_SwordShield_002_Behavior
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 812a888314740a84e84d3af763621df4, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 84e1929de4576724f866983da2dce15e, type: 2}
   aiRole: 0
-  intentWeights: {fileID: 11400000, guid: b9ad27919c1308e4eb3f0b00a4a629a8, type: 2}
+  intentWeights: {fileID: 11400000, guid: f163c4f5d5490fa45b88dddd9574fb78, type: 2}
+  combatStrategy: {fileID: 11400000, guid: 6d41d45dc95386544b28779b47508ee9, type: 2}
+  useTagTriggeredHitReaction: 0
   optimalCombatDistance: 2.4
   minCombatDistance: 1.1
   maintainDistance: 1
   chaseStopDistance: 2.2
-  personalSpaceDistance: 0.8
-  continueAttackChance: 0.3
-  guardChance: 0.25
-  retreatChance: 0.2
+  personalSpaceDistance: 0.85
+  continueAttackChance: 0.28
+  guardChance: 0.6
+  retreatChance: 0.15
   chaseSpeedMultiplier: 1.2
   circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 3
+  breatherDurationOverride: -1
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

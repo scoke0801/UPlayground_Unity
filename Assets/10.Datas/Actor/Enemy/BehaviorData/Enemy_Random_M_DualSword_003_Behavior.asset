@@ -12,21 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: Enemy_Random_M_DualSword_003_Behavior
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 812a888314740a84e84d3af763621df4, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 1dabf518b5f854344800a4ee99f32d4e, type: 2}
   aiRole: 0
-  intentWeights: {fileID: 11400000, guid: b9ad27919c1308e4eb3f0b00a4a629a8, type: 2}
-  optimalCombatDistance: 2.4
-  minCombatDistance: 1.1
+  intentWeights: {fileID: 11400000, guid: 6b6cdbaab99927440995d026c898dd89, type: 2}
+  combatStrategy: {fileID: 11400000, guid: 6f1a84d8d2220584897a441104b4fb5c, type: 2}
+  useTagTriggeredHitReaction: 0
+  optimalCombatDistance: 2
+  minCombatDistance: 0.9
   maintainDistance: 1
-  chaseStopDistance: 2.2
-  personalSpaceDistance: 0.8
-  continueAttackChance: 0.3
-  guardChance: 0.25
-  retreatChance: 0.2
+  chaseStopDistance: 1.8
+  personalSpaceDistance: 0.75
+  continueAttackChance: 0.4
+  guardChance: 0.15
+  retreatChance: 0.3
   chaseSpeedMultiplier: 1.2
   circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 3
+  breatherDurationOverride: -1
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

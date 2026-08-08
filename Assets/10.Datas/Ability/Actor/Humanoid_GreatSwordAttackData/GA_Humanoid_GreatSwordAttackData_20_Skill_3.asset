@@ -25,15 +25,39 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
-    minDistance: 0
-    maxDistance: 2.5
+    minDistance: 0.65000004
+    maxDistance: 1.5500001
   targeting:
     mode: 0
     indicatorRadius: 0
@@ -44,8 +68,8 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
-    cooldownGroupId: 
+    durationSeconds: 12
+    cooldownGroupId: Humanoid.GreatSword.Skill
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -59,6 +83,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 8739946831377617461}
     targetEffects: []
     ownerEffects: []
@@ -74,6 +105,11 @@ MonoBehaviour:
     roleTags:
     - AI.Selected
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &8739946831377617461
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -161,8 +197,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 3
+    aiRoles: 16
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 4
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -170,7 +207,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0

@@ -25,15 +25,39 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
     minDistance: 0
-    maxDistance: 2.5
+    maxDistance: 0.85
   targeting:
     mode: 0
     indicatorRadius: 0
@@ -44,8 +68,8 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 3
-    cooldownGroupId: 
+    durationSeconds: 5
+    cooldownGroupId: Humanoid.SwordShield.Heavy
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -59,6 +83,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 5356643759888986420}
     targetEffects: []
     ownerEffects: []
@@ -74,6 +105,11 @@ MonoBehaviour:
     roleTags:
     - AI.Selected
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &5356643759888986420
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -163,7 +199,7 @@ MonoBehaviour:
     attackCategory: 3
     aiRoles: 8
     requiredLevel: 1
-    selectionWeight: 1
+    selectionWeight: 9
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1

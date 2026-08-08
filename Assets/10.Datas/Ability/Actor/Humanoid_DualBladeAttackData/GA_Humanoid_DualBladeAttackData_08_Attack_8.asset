@@ -25,10 +25,34 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 2
     targetRelation: 2
@@ -44,7 +68,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
+    durationSeconds: 4
     cooldownGroupId: 
     maxCharges: 1
     globalLockSeconds: 0
@@ -59,6 +83,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 4840045868406882353}
     targetEffects: []
     ownerEffects: []
@@ -74,6 +105,11 @@ MonoBehaviour:
     roleTags:
     - AI.Selected
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &4840045868406882353
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -225,8 +261,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 1
+    aiRoles: 32
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 7
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -234,7 +271,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0

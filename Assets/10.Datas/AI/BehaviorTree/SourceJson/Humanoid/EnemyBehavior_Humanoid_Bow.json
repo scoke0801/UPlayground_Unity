@@ -255,6 +255,8 @@
               "weight": 0.3,
               "action": "RequestAction",
               "intent": "Counter",
+              "attackCategory": "Skill",
+              "abilityRole": "Counter",
               "cooldownId": "BowRead",
               "cooldownDuration": 2.4
             }
@@ -496,6 +498,8 @@
               "weight": 0.6,
               "action": "RequestAction",
               "intent": "Counter",
+              "attackCategory": "Skill",
+              "abilityRole": "Counter",
               "cooldownId": "BowIntentCounter",
               "cooldownDuration": 2.0
             },
@@ -704,6 +708,39 @@
       ],
       "rules": [
         {
+          "name": "GapCloseAttack",
+          "priority": 828,
+          "when": [
+            {
+              "condition": "HasAttackInRange",
+              "invert": true
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "preferredRange"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Skill",
+              "abilityRole": "GapCloser"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "BowGapClose"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Skill",
+              "abilityRole": "GapCloser",
+              "cooldownId": "BowGapClose",
+              "cooldownDuration": 9.0
+            }
+          ]
+        },
+        {
           "name": "ApproachWhenOutOfRange",
           "priority": 825,
           "when": [
@@ -770,7 +807,7 @@
             {
               "condition": "CanActivateAbility",
               "attackCategory": "Basic",
-              "abilityRole": "Opener"
+              "abilityRole": "Finisher"
             }
           ],
           "do": [
@@ -778,7 +815,7 @@
               "action": "RequestAction",
               "intent": "Attack",
               "attackCategory": "Basic",
-              "abilityRole": "Opener"
+              "abilityRole": "Finisher"
             }
           ]
         },

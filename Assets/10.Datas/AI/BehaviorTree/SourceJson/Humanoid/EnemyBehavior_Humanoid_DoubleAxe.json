@@ -248,16 +248,16 @@
             },
             {
               "condition": "CanActivateAbility",
-              "attackCategory": "Basic",
-              "abilityRole": "Finisher"
+              "attackCategory": "Heavy",
+              "abilityRole": "Punish"
             }
           ],
           "do": [
             {
               "action": "RequestAction",
               "intent": "Attack",
-              "attackCategory": "Basic",
-              "abilityRole": "Finisher"
+              "attackCategory": "Heavy",
+              "abilityRole": "Punish"
             }
           ]
         },
@@ -270,16 +270,16 @@
             },
             {
               "condition": "CanActivateAbility",
-              "attackCategory": "Basic",
-              "abilityRole": "Finisher"
+              "attackCategory": "Heavy",
+              "abilityRole": "Punish"
             }
           ],
           "do": [
             {
               "action": "RequestAction",
               "intent": "Attack",
-              "attackCategory": "Basic",
-              "abilityRole": "Finisher"
+              "attackCategory": "Heavy",
+              "abilityRole": "Punish"
             }
           ]
         },
@@ -467,6 +467,8 @@
               "weight": 0.6,
               "action": "RequestAction",
               "intent": "Counter",
+              "attackCategory": "Skill",
+              "abilityRole": "Counter",
               "cooldownId": "DoubleAxeIntentCounter",
               "cooldownDuration": 2.0
             },
@@ -675,6 +677,39 @@
       ],
       "rules": [
         {
+          "name": "GapCloseAttack",
+          "priority": 828,
+          "when": [
+            {
+              "condition": "HasAttackInRange",
+              "invert": true
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "preferredRange"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Skill",
+              "abilityRole": "GapCloser"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "DoubleAxeGapClose"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Skill",
+              "abilityRole": "GapCloser",
+              "cooldownId": "DoubleAxeGapClose",
+              "cooldownDuration": 9.0
+            }
+          ]
+        },
+        {
           "name": "ApproachWhenOutOfRange",
           "priority": 825,
           "when": [
@@ -741,7 +776,7 @@
             {
               "condition": "CanActivateAbility",
               "attackCategory": "Basic",
-              "abilityRole": "Opener"
+              "abilityRole": "Finisher"
             }
           ],
           "do": [
@@ -749,7 +784,7 @@
               "action": "RequestAction",
               "intent": "Attack",
               "attackCategory": "Basic",
-              "abilityRole": "Opener"
+              "abilityRole": "Finisher"
             }
           ]
         },

@@ -87,9 +87,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 1
-    aiRoles: 0
+    aiRoles: 1
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 12
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -186,7 +186,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
+    durationSeconds: 0.6
     cooldownGroupId: 
     maxCharges: 1
     globalLockSeconds: 0

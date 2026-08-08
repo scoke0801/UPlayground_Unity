@@ -255,6 +255,8 @@
               "weight": 0.3,
               "action": "RequestAction",
               "intent": "Counter",
+              "attackCategory": "Skill",
+              "abilityRole": "Counter",
               "cooldownId": "GreatSwordRead",
               "cooldownDuration": 2.4
             }
@@ -506,6 +508,8 @@
               "weight": 0.6,
               "action": "RequestAction",
               "intent": "Counter",
+              "attackCategory": "Skill",
+              "abilityRole": "Counter",
               "cooldownId": "GreatSwordIntentCounter",
               "cooldownDuration": 2.0
             },
@@ -713,6 +717,39 @@
         }
       ],
       "rules": [
+        {
+          "name": "GapCloseAttack",
+          "priority": 828,
+          "when": [
+            {
+              "condition": "HasAttackInRange",
+              "invert": true
+            },
+            {
+              "condition": "DistanceLessOrEqual",
+              "value": "preferredRange"
+            },
+            {
+              "condition": "CanActivateAbility",
+              "attackCategory": "Skill",
+              "abilityRole": "GapCloser"
+            },
+            {
+              "condition": "CooldownReady",
+              "value": "GreatSwordGapClose"
+            }
+          ],
+          "do": [
+            {
+              "action": "RequestAction",
+              "intent": "Attack",
+              "attackCategory": "Skill",
+              "abilityRole": "GapCloser",
+              "cooldownId": "GreatSwordGapClose",
+              "cooldownDuration": 9.0
+            }
+          ]
+        },
         {
           "name": "ApproachWhenOutOfRange",
           "priority": 825,

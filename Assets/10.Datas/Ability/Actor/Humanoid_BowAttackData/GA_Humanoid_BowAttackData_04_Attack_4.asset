@@ -68,7 +68,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
+    durationSeconds: 4
     cooldownGroupId: 
     maxCharges: 1
     globalLockSeconds: 0
@@ -197,9 +197,9 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 1
-    aiRoles: 0
+    aiRoles: 32
     requiredLevel: 1
-    selectionWeight: 10
+    selectionWeight: 7
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
@@ -207,7 +207,7 @@ MonoBehaviour:
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
+    useDangerRing: 1
     dangerRingDuration: 0
     dangerRingPrefabKey: 
     defenseType: 0

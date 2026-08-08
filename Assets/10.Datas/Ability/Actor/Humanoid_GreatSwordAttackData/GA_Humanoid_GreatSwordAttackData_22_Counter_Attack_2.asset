@@ -57,7 +57,7 @@ MonoBehaviour:
     targetPolicy: 2
     targetRelation: 2
     minDistance: 0
-    maxDistance: 2.5
+    maxDistance: 1.1
   targeting:
     mode: 0
     indicatorRadius: 0
@@ -197,7 +197,7 @@ MonoBehaviour:
     aiSelectable: 1
     skillType: 1
     attackCategory: 3
-    aiRoles: 8
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0

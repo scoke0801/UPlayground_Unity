@@ -11,7 +11,7 @@
 
 | ActorDef | 무기 | 프리팹 MotionSet | AbilitySet | BT | aiRole |
 |---|---|---|---|---|---|
-| `Enemy_Random_F_Bow_001` | Bow | `Humanoid_BowAnimationSet` | `AbilitySet_Humanoid_BowAttackData` | `BT_EnemyBehavior_RangedKiter` | RangedMain(2) |
+| `Enemy_Random_F_Bow_001` | Bow | `Humanoid_BowAnimationSet` | `AbilitySet_Humanoid_BowAttackData` | `BT_EnemyBehavior_SkeletonBow_AdaptiveRanged` | RangedMain(2) |
 | `Enemy_Random_F_Bow_002` | Bow | 〃 | 〃 | 〃 | 〃 |
 | `Enemy_Random_M_DualAxe_001` | DoubleAxe | `Humanoid_DoubleAxeAnimationSet` | `AbilitySet_Humanoid_DoubleAxeAttackData` | `BT_EnemyBehavior_GroundMelee_Balanced` | Melee(0) |
 | `Enemy_Random_F_DualAxe_002` | DoubleAxe | 〃 | 〃 | 〃 | 〃 |
@@ -90,7 +90,7 @@ RandomBow는 `targetingRange 1.5`, BehaviorData `personalSpaceDistance 2.5`이�
 
 ### 2.4 BT 현황
 
-- 근접 8종이 **`BT_EnemyBehavior_GroundMelee_Balanced` 하나를 공유**. 궁수 2종은 `RangedKiter` 공유.
+- 근접 8종이 **`BT_EnemyBehavior_GroundMelee_Balanced` 하나를 공유**. 궁수 2종은 `SkeletonBow_AdaptiveRanged` 공유(스켈레톤 궁수용 트리를 그대로 빌려 쓰고 있었다).
 - 근접 8종 BehaviorData 수치(거리·확률)가 **완전히 동일**.
 - 10종 전부 `combatStrategy` = null, `phases` = 빈 배열.
 

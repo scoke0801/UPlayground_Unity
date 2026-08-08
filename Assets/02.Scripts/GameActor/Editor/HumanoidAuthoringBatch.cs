@@ -17,6 +17,7 @@ using UPlayGround.Animation;
 // UnityEngine.Motion(레거시 애니메이션 타입)과 이름이 겹친다.
 using Motion = UPlayGround.Animation.Motion;
 using UPlayGround.Tool.Editor.AI;
+using UPlayGround.Components;
 
 namespace UPlayGround.Editor
 {
@@ -559,21 +560,25 @@ namespace UPlayGround.Editor
                 }
             }
 
+            // ⚠ 역할↔카테고리 계약. BT는 (attackCategory, abilityRole) 쌍으로 요청하므로
+            //    배정도 반드시 같은 카테고리 안에서 골라야 한다. 어긋나면 그 요청은
+            //    후보 0이 되어 영원히 실패한다 (MatchesCategory & MatchesRole 이 AND 조건).
+            //    이 계약은 gen_bt.py의 ROLE_CATEGORY와 한 글자도 다르면 안 된다.
             bool ranged = archetype == "Bow";
-            var basics = all.Where(c => c.Info.attackCategory == AbilityAttackCategory.Basic && !c.IsCounterMotion);
-            var heavies = all.Where(c => c.Info.attackCategory == AbilityAttackCategory.Heavy && !c.IsCounterMotion);
-            var skills = all.Where(c => c.Info.attackCategory == AbilityAttackCategory.Skill && !c.IsCounterMotion);
-            var counters = all.Where(c => c.IsCounterMotion);
+            var basics = all.Where(c => c.Info.attackCategory == AbilityAttackCategory.Basic && !c.IsCounterMotion).ToList();
+            var heavies = all.Where(c => c.Info.attackCategory == AbilityAttackCategory.Heavy && !c.IsCounterMotion).ToList();
+            var skills = all.Where(c => c.Info.attackCategory == AbilityAttackCategory.Skill && !c.IsCounterMotion).ToList();
+            var counters = all.Where(c => c.IsCounterMotion).ToList();
 
-            // Bow는 Heavy 카테고리가 없다. Skill을 Punish/Signature로 나눠 쓴다.
-            IEnumerable<RoleCandidate> punishPool = ranged ? skills : heavies;
+            // Bow는 Heavy 카테고리가 없어 Punish도 Skill에서 뽑는다.
+            List<RoleCandidate> punishPool = ranged ? skills : heavies;
 
-            Take(AbilityAIRole.Opener, basics.OrderBy(c => c.Startup), 2);
-            Take(AbilityAIRole.Punish, punishPool.OrderBy(c => c.Startup).ThenByDescending(c => c.Damage), 2);
-            Take(AbilityAIRole.Counter, counters.OrderBy(c => c.Ability.name), 1);
-            Take(AbilityAIRole.GapCloser, all.OrderByDescending(c => c.MaxDistance).ThenByDescending(c => c.Damage), 1);
-            Take(AbilityAIRole.Signature, skills.OrderByDescending(c => c.Startup), ranged ? 1 : 2);
-            Take(AbilityAIRole.Finisher, all.Where(c => !c.IsCounterMotion).OrderByDescending(c => c.Damage), 2);
+            Take(AbilityAIRole.Opener, basics.OrderBy(c => c.Startup), 2);                    // Basic
+            Take(AbilityAIRole.Punish, punishPool.OrderBy(c => c.Startup), 2);                // Heavy (Bow: Skill)
+            Take(AbilityAIRole.Counter, counters.OrderBy(c => c.Ability.name), 1);            // Skill
+            Take(AbilityAIRole.GapCloser, skills.OrderByDescending(c => c.MaxDistance), 1);   // Skill
+            Take(AbilityAIRole.Signature, skills.OrderByDescending(c => c.Startup), 1);       // Skill
+            Take(AbilityAIRole.Finisher, basics.OrderByDescending(c => c.Damage), 2);         // Basic
 
             ctx.Line($"[{archetype}] 역할 배정 {taken.Count}/{all.Count}");
             foreach (RoleCandidate c in all.Where(c => c.Assigned != AbilityAIRole.None)
@@ -659,12 +664,326 @@ namespace UPlayGround.Editor
         // 반드시 Step_AssignRoles 앞에 실행한다 — GapCloser 판별이 이 값을 쓴다.
         // ────────────────────────────────────────────────────────────────
 
-        public static void Step_BakeMeleeRange()
+        [Serializable]
+        private sealed class BakeReportEntry
         {
-            // 이 도구는 자체 Undo/저장을 수행하므로 BatchContext로 감싸지 않는다.
-            Debug.Log("===== Step_BakeMeleeRange — MonsterMeleeRangeBakeTool.BakeAll() =====");
-            MonsterMeleeRangeBakeTool.BakeAll();
+            public string ability;
+            public string status;
+            public float currentMinDistance;
+            public float currentMaxDistance;
+            public float recommendedMinDistance;
+            public float recommendedMaxDistance;
+        }
+
+        [Serializable]
+        private sealed class BakeReportRoot
+        {
+            public List<BakeReportEntry> entries = new();
+        }
+
+        private const string BakeReportPath = "Library/MonsterMeleeRangeBakeReport.json";
+
+        /// <summary>
+        /// ⚠ MonsterMeleeRangeBakeTool.BakeAll()은 프로젝트의 모든 ActorDefinition을 대상으로
+        /// activation 사거리와 BehaviorSO 거리까지 덮어쓴다 — 보스·식물·거미 전부 포함이다.
+        /// 이번 작업 범위는 Humanoid 5종이므로 읽기 전용 AnalyzeAll()로 측정만 하고,
+        /// 그 리포트에서 Humanoid Ability에만 사거리를 반영한다.
+        /// </summary>
+        public static void Step_BakeMeleeRangeHumanoidOnly()
+        {
+            MonsterMeleeRangeBakeTool.AnalyzeAll();
+
+            Run(nameof(Step_BakeMeleeRangeHumanoidOnly), ctx =>
+            {
+                string reportFull = Path.GetFullPath(BakeReportPath);
+                if (!File.Exists(reportFull))
+                    throw new FileNotFoundException($"베이크 리포트를 찾지 못했습니다: {reportFull}");
+
+                BakeReportRoot report =
+                    JsonUtility.FromJson<BakeReportRoot>(File.ReadAllText(reportFull));
+
+                // Ability 이름 -> 권장 사거리. 같은 Ability가 여러 ActorDefinition에서 측정되면
+                // 원 도구와 같은 규칙으로 가장 보수적인(작은) max를 취한다.
+                var recommended = new Dictionary<string, (float Min, float Max)>();
+                foreach (BakeReportEntry e in report.entries)
+                {
+                    if (e.status != "Measured" || e.recommendedMaxDistance <= 0f)
+                        continue;
+                    if (recommended.TryGetValue(e.ability, out (float Min, float Max) prev))
+                        recommended[e.ability] = (Mathf.Max(prev.Min, e.recommendedMinDistance),
+                                                  Mathf.Min(prev.Max, e.recommendedMaxDistance));
+                    else
+                        recommended[e.ability] = (e.recommendedMinDistance, e.recommendedMaxDistance);
+                }
+                ctx.Line($"  리포트 측정 항목 {recommended.Count}건");
+
+                foreach (string archetype in Archetypes)
+                {
+                    // Bow는 Ranged라 근접 접근 사거리 클램프를 타지 않는다. 20m 저작값을 지킨다.
+                    if (archetype == "Bow")
+                    {
+                        ctx.Line("[Bow] Ranged — 근접 사거리 베이크 대상 아님, 저작값 유지");
+                        continue;
+                    }
+
+                    foreach (GameplayAbilitySO ability in LoadAbilities(archetype).OrderBy(a => a.name))
+                    {
+                        if (!recommended.TryGetValue(ability.name, out (float Min, float Max) r))
+                            continue;
+                        if (Mathf.Approximately(ability.activation.minDistance, r.Min)
+                            && Mathf.Approximately(ability.activation.maxDistance, r.Max))
+                            continue;
+
+                        ctx.Change(ability, "activation.min/maxDistance",
+                            $"{ability.activation.minDistance:0.##}~{ability.activation.maxDistance:0.##}",
+                            $"{r.Min:0.##}~{r.Max:0.##}");
+                        if (ctx.Apply)
+                        {
+                            ctx.Record(ability);
+                            ability.activation.minDistance = r.Min;
+                            ability.activation.maxDistance = r.Max;
+                            ctx.Dirty(ability);
+                        }
+                    }
+                }
+            });
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Step 6 — 전략 SO 생성 + BehaviorData 배선 (설계서 §6.6 / §7.4 / §7.5)
+        // ────────────────────────────────────────────────────────────────
+
+        private sealed class ArchetypeProfile
+        {
+            public string IntentWeights;
+            public float RepeatMultiplier;
+            public int MaxConsecutiveSame;
+            public float MinCommitment;
+            public float GroupPressure;
+            public float Optimal, Min, PersonalSpace, ChaseStop;
+            public float Guard, Retreat, ContinueAttack;
+            public EnemyAIRole Role;
+        }
+
+        private static readonly Dictionary<string, ArchetypeProfile> Profiles = new()
+        {
+            ["GreatSword"] = new() { IntentWeights = "IW_AggressiveMelee", RepeatMultiplier = 0.30f, MaxConsecutiveSame = 1, MinCommitment = 0.35f, GroupPressure = 0.8f, Optimal = 2.8f, Min = 1.4f, PersonalSpace = 1.0f, ChaseStop = 2.6f, Guard = 0.20f, Retreat = 0.12f, ContinueAttack = 0.30f, Role = EnemyAIRole.Melee },
+            ["DoubleAxe"] = new() { IntentWeights = "IW_AggressiveMelee", RepeatMultiplier = 0.55f, MaxConsecutiveSame = 3, MinCommitment = 0.12f, GroupPressure = 1.2f, Optimal = 2.3f, Min = 1.0f, PersonalSpace = 0.8f, ChaseStop = 2.1f, Guard = 0.05f, Retreat = 0.05f, ContinueAttack = 0.55f, Role = EnemyAIRole.Melee },
+            ["DualBlade"] = new() { IntentWeights = "IW_Default_Melee", RepeatMultiplier = 0.50f, MaxConsecutiveSame = 2, MinCommitment = 0.10f, GroupPressure = 1.1f, Optimal = 2.0f, Min = 0.9f, PersonalSpace = 0.75f, ChaseStop = 1.8f, Guard = 0.15f, Retreat = 0.30f, ContinueAttack = 0.40f, Role = EnemyAIRole.Melee },
+            ["SwordShield"] = new() { IntentWeights = "IW_DefensiveShield", RepeatMultiplier = 0.40f, MaxConsecutiveSame = 2, MinCommitment = 0.20f, GroupPressure = 0.9f, Optimal = 2.4f, Min = 1.1f, PersonalSpace = 0.85f, ChaseStop = 2.2f, Guard = 0.60f, Retreat = 0.15f, ContinueAttack = 0.28f, Role = EnemyAIRole.Melee },
+            ["Bow"] = new() { IntentWeights = "IW_RangedCaster", RepeatMultiplier = 0.45f, MaxConsecutiveSame = 2, MinCommitment = 0.15f, GroupPressure = 0.7f, Optimal = 8.0f, Min = 4.0f, PersonalSpace = 2.0f, ChaseStop = 7.0f, Guard = 0.05f, Retreat = 0.55f, ContinueAttack = 0.30f, Role = EnemyAIRole.RangedMain },
+        };
+
+        /// <summary>ActorDef/BehaviorData 이름 -> 아키타입. GreatSword_002는 이름대로 GreatSword다(§2.3 교정 후).</summary>
+        private static string ArchetypeOf(string assetName)
+        {
+            if (assetName.Contains("Bow", StringComparison.OrdinalIgnoreCase)) return "Bow";
+            if (assetName.Contains("DualAxe", StringComparison.OrdinalIgnoreCase)) return "DoubleAxe";
+            if (assetName.Contains("DualSword", StringComparison.OrdinalIgnoreCase)) return "DualBlade";
+            if (assetName.Contains("GreatSword", StringComparison.OrdinalIgnoreCase)) return "GreatSword";
+            if (assetName.Contains("SwordShield", StringComparison.OrdinalIgnoreCase)) return "SwordShield";
+            return null;
+        }
+
+        private const string StrategyFolder = "Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy";
+        private const string IntentWeightsFolder = "Assets/10.Datas/AI/IntentWeights";
+        private const string GeneratedBtFolder = "Assets/10.Datas/AI/BehaviorTree/Generated";
+        private const string BehaviorDataFolder = "Assets/10.Datas/Actor/Enemy/BehaviorData";
+
+        public static void Step_WireBehaviorData()
+        {
+            Run(nameof(Step_WireBehaviorData), ctx =>
+            {
+                if (ctx.Apply && !AssetDatabase.IsValidFolder(StrategyFolder))
+                    AssetDatabase.CreateFolder(BehaviorDataFolder, "Strategy");
+
+                // (1) 아키타입별 전략 SO — 없으면 만들고 있으면 값만 갱신한다.
+                var strategies = new Dictionary<string, Data.Enemy.EnemyCombatStrategySO>();
+                foreach ((string archetype, ArchetypeProfile p) in Profiles)
+                {
+                    string path = $"{StrategyFolder}/CombatStrategy_Humanoid_{archetype}.asset";
+                    var strategy = AssetDatabase.LoadAssetAtPath<Data.Enemy.EnemyCombatStrategySO>(path);
+                    bool created = false;
+                    if (strategy == null)
+                    {
+                        ctx.Line($"  전략 SO 생성 예정: {path}");
+                        if (ctx.Apply)
+                        {
+                            strategy = ScriptableObject.CreateInstance<Data.Enemy.EnemyCombatStrategySO>();
+                            AssetDatabase.CreateAsset(strategy, path);
+                            created = true;
+                        }
+                    }
+                    if (strategy == null)
+                        continue;
+
+                    var weights = AssetDatabase.LoadAssetAtPath<Data.Enemy.EnemyIntentWeightsSO>(
+                        $"{IntentWeightsFolder}/{p.IntentWeights}.asset");
+                    if (weights == null)
+                        throw new InvalidOperationException($"IntentWeights를 찾지 못했습니다: {p.IntentWeights}");
+
+                    if (!created)
+                        ctx.Record(strategy);
+                    ctx.Change(strategy, "intentWeights/repeat/maxSame/commit/groupPressure",
+                        created ? "(신규)" : "기존",
+                        $"{p.IntentWeights}/{p.RepeatMultiplier}/{p.MaxConsecutiveSame}/{p.MinCommitment}/{p.GroupPressure}");
+                    if (ctx.Apply)
+                    {
+                        strategy.intentWeights = weights;
+                        strategy.repeatedAbilityScoreMultiplier = p.RepeatMultiplier;
+                        strategy.maxConsecutiveSameAbility = p.MaxConsecutiveSame;
+                        strategy.minimumCommitmentSeconds = p.MinCommitment;
+                        strategy.groupPressureMultiplier = p.GroupPressure;
+                        ctx.Dirty(strategy);
+                    }
+                    strategies[archetype] = strategy;
+                }
+
+                // (2) BehaviorData 10개 — BT/전략/IntentWeights/거리·확률 재배선
+                foreach (string guid in AssetDatabase.FindAssets(
+                             "t:EnemyBehaviorSO", new[] { BehaviorDataFolder }))
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    var behavior = AssetDatabase.LoadAssetAtPath<Data.Enemy.EnemyBehaviorSO>(path);
+                    if (behavior == null || !behavior.name.StartsWith("Enemy_Random_", StringComparison.Ordinal))
+                        continue;
+
+                    string archetype = ArchetypeOf(behavior.name);
+                    if (archetype == null)
+                        throw new InvalidOperationException($"아키타입을 판별하지 못했습니다: {behavior.name}");
+                    ArchetypeProfile p = Profiles[archetype];
+
+                    var tree = AssetDatabase.LoadAssetAtPath<ScriptableObject>(
+                        $"{GeneratedBtFolder}/BT_EnemyBehavior_Humanoid_{archetype}.asset");
+                    if (tree == null)
+                        throw new InvalidOperationException(
+                            $"{archetype} BT 에셋이 없습니다. Step_ImportHumanoidBt를 먼저 실행하세요.");
+
+                    ctx.Change(behavior, "behaviorTree",
+                        behavior.behaviorTree != null ? behavior.behaviorTree.name : "null", tree.name);
+                    if (ctx.Apply)
+                    {
+                        ctx.Record(behavior);
+                        behavior.behaviorTree = tree;
+                        behavior.combatStrategy = strategies[archetype];
+                        behavior.intentWeights = strategies[archetype].intentWeights;
+                        behavior.aiRole = p.Role;
+                        behavior.optimalCombatDistance = p.Optimal;
+                        behavior.minCombatDistance = p.Min;
+                        behavior.personalSpaceDistance = p.PersonalSpace;
+                        behavior.chaseStopDistance = p.ChaseStop;
+                        behavior.guardChance = p.Guard;
+                        behavior.retreatChance = p.Retreat;
+                        behavior.continueAttackChance = p.ContinueAttack;
+                        ctx.Dirty(behavior);
+                    }
+                }
+            });
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Step 7 — Humanoid BT JSON import (설계서 §7.1)
+        // 임포터의 MenuItem은 Selection에 의존하므로 headless 진입점을 따로 둔다.
+        // ────────────────────────────────────────────────────────────────
+
+        public static void Step_ImportHumanoidBt()
+        {
+            const string folder = "Assets/10.Datas/AI/BehaviorTree/SourceJson/Humanoid";
+            string absolute = Path.GetFullPath(folder);
+            Debug.Log($"===== Step_ImportHumanoidBt — {absolute} =====");
+            IReadOnlyList<AI.BehaviorTree.BehaviorTreeAsset> imported =
+                AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter.ImportJsonFolder(absolute);
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Debug.Log($"import 결과: {imported.Count}개 — "
+                      + string.Join(", ", imported.Select(a => a != null ? a.name : "null")));
+            if (imported.Count != 5)
+                throw new InvalidOperationException($"BT 5개를 기대했으나 {imported.Count}개가 생성되었습니다.");
+        }
+
+        // ────────────────────────────────────────────────────────────────
+        // Step 8 — 최종 검증 (설계서 §9)
+        // BT가 요청하는 (attackCategory, abilityRole) 쌍마다 실제 후보가 있는지 확인한다.
+        // 이게 0이면 그 규칙은 런타임에 영원히 실패한다.
+        // ────────────────────────────────────────────────────────────────
+
+        /// <summary>gen_bt.py의 role_category 계약과 동일. 어긋나면 후보 0이 된다.</summary>
+        private static AbilityAttackCategory ContractCategory(string archetype, AbilityAIRole role) =>
+            role switch
+            {
+                AbilityAIRole.Opener => AbilityAttackCategory.Basic,
+                AbilityAIRole.Finisher => AbilityAttackCategory.Basic,
+                AbilityAIRole.Punish => archetype == "Bow"
+                    ? AbilityAttackCategory.Skill
+                    : AbilityAttackCategory.Heavy,
+                _ => AbilityAttackCategory.Skill,
+            };
+
+        public static void Step_Validate()
+        {
+            Run(nameof(Step_Validate), ctx =>
+            {
+                var failures = new List<string>();
+
+                foreach (string archetype in Archetypes)
+                {
+                    ActorAnimationMotionSet animationSet = LoadAnimationSet(archetype);
+                    var infos = new List<(GameplayAbilitySO Ability, AbilityAttackInfo Info)>();
+                    foreach (GameplayAbilitySO ability in LoadAbilities(archetype))
+                    {
+                        AbilityAttackInfo info = PayloadOf(ability)?.attackInfo;
+                        if (info == null)
+                            continue;
+                        infos.Add((ability, info));
+
+                        // Motion 해석과 hitPhase 정합
+                        MotionSetAsset motion = ResolveMotion(animationSet, ability);
+                        if (motion == null)
+                        {
+                            failures.Add($"[{archetype}] {ability.name}: MotionKey 미해석");
+                            continue;
+                        }
+                        int hitEvents = AllEvents(motion)
+                            .Count(e => e is BeginCollisionEvent or SpawnProjectileEvent);
+                        int phases = info.baseInfo?.hitPhases?.Count ?? 0;
+                        if (hitEvents > 0 && phases > hitEvents)
+                            failures.Add($"[{archetype}] {ability.name}: hitPhases {phases} > 히트 이벤트 {hitEvents} (미발화 페이즈)");
+                    }
+
+                    // 역할 커버리지 — BT가 쓰는 계약 그대로 후보를 센다.
+                    foreach (AbilityAIRole role in RoleTuning.Keys)
+                    {
+                        AbilityAttackCategory category = ContractCategory(archetype, role);
+                        int count = infos.Count(x =>
+                            EnemyAbilitySelectionPolicy.IsAISelectableAttack(x.Info)
+                            && EnemyAbilitySelectionPolicy.MatchesCategory(x.Info, category)
+                            && EnemyAbilitySelectionPolicy.MatchesRole(x.Info, role));
+                        ctx.Line($"  [{archetype}] {category}+{role} 후보 {count}개");
+                        if (count == 0)
+                            failures.Add($"[{archetype}] {category}+{role} 후보가 0 — BT 규칙이 영구 실패한다");
+                    }
+
+                    // Bow는 전부 Ranged여야 한다 (Counter 제외).
+                    if (archetype == "Bow")
+                    {
+                        foreach ((GameplayAbilitySO ability, AbilityAttackInfo info) in infos)
+                        {
+                            bool shouldBeRanged = IsBowRangedAbility(ability);
+                            var actual = info.baseInfo?.attackType ?? AttackType.Melee;
+                            if (shouldBeRanged && actual != AttackType.Ranged)
+                                failures.Add($"[Bow] {ability.name}: attackType이 {actual} — 근접 클램프에 걸린다");
+                        }
+                    }
+                }
+
+                if (failures.Count > 0)
+                {
+                    foreach (string f in failures)
+                        ctx.Line($"  FAIL {f}");
+                    throw new InvalidOperationException($"검증 실패 {failures.Count}건");
+                }
+                ctx.Line("  검증 통과 — 실패 0건");
+            });
         }
     }
 }

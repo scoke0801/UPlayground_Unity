@@ -12,21 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8546f50c0b6b6f41abb3f54dc0eda7c, type: 3}
   m_Name: Enemy_Random_M_GreatSword_001_Behavior
   m_EditorClassIdentifier: 
-  behaviorTree: {fileID: 11400000, guid: 812a888314740a84e84d3af763621df4, type: 2}
+  behaviorTree: {fileID: 11400000, guid: 4ac6267322f1a6548a0b03a666063320, type: 2}
   aiRole: 0
   intentWeights: {fileID: 11400000, guid: b9ad27919c1308e4eb3f0b00a4a629a8, type: 2}
-  optimalCombatDistance: 2.4
-  minCombatDistance: 1.1
+  combatStrategy: {fileID: 11400000, guid: f994e2ddfad468540b715cd2fcfb14cc, type: 2}
+  useTagTriggeredHitReaction: 0
+  optimalCombatDistance: 2.8
+  minCombatDistance: 1.4
   maintainDistance: 1
-  chaseStopDistance: 2.2
-  personalSpaceDistance: 0.8
+  chaseStopDistance: 2.6
+  personalSpaceDistance: 1
   continueAttackChance: 0.3
-  guardChance: 0.25
-  retreatChance: 0.2
+  guardChance: 0.2
+  retreatChance: 0.12
   chaseSpeedMultiplier: 1.2
   circleDuration: 2.5
   guardDuration: 1.5
   retreatDistance: 3
+  breatherDurationOverride: -1
   enablePatrol: 1
   patrolRadius: 5
   patrolWaitTime: 2

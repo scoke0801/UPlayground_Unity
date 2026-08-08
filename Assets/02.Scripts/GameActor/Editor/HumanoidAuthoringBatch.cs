@@ -1157,6 +1157,158 @@ namespace UPlayGround.Editor
                 }
             });
         }
+
+        // ────────────────────────────────────────────────────────────────
+        // Step 11 — 플레이어 투사체 레거시 결선 (설계서 §11.2)
+        // ────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 저작 데미지는 "스킬 전체 총합"이다(사용자 확정). 따라서 다발 사격은
+        /// 총합을 발사 수로 나눠야 하고, 단발은 저작값을 그대로 쓰면 된다.
+        ///
+        /// 결선 가능 여부는 그 motionKey가 **장착 무기와 무관하게 같은 모션으로 풀리는지**가
+        /// 가른다. 플레이어 AnimationSet은 무기별 조회 표라, 같은 키가 무기에 따라 다른
+        /// 모션으로 간다. Ability의 hitPhases는 하나뿐인데 모션마다 히트 수가 다르면
+        /// 한 phase 목록으로 모든 무기의 총합을 동시에 만족시킬 수 없다.
+        /// </summary>
+        private static readonly string[] PlayerSingleShotMotions =
+        {
+            // 발사 1개 — 인덱스 0이면 총합이 곧 그 한 발이다.
+            // 다른 무기 장착 시 이 키들은 근접 모션(콜리전 1개, index 0)으로 풀리므로
+            // 인덱스 0은 어느 무기에서도 일관된다.
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Attack_1.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Attack_2.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Attack_3.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Attack_4.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Attack_5.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Skill_1.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Skill_3.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Skill_Ability.asset",
+            "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Staff/Humanoid_Staff_HeavyAttack_1.asset",
+        };
+
+        /// <summary>
+        /// 다발 사격 중 **무기 불변**이라 총합 분할이 안전한 것만. 이 키들은 어떤 무기를
+        /// 장착해도 같은 활 모션으로 풀리므로, phase를 발사 수만큼 쪼개도 다른 모션의
+        /// 인덱스 매핑을 깨뜨리지 않는다.
+        /// </summary>
+        private static readonly (string Motion, string Ability, string MotionKey)[] PlayerSplitShots =
+        {
+            ("Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Skill_4.asset",
+             "Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset",
+             "Bow.Ability.Skill.4"),
+            ("Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Bow/Humanoid_Bow_Skill_5.asset",
+             "Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset",
+             "Bow.Ability.Skill.5"),
+        };
+
+        public static void Step_WirePlayerProjectileHitPhases()
+        {
+            Run(nameof(Step_WirePlayerProjectileHitPhases), ctx =>
+            {
+                foreach (string path in PlayerSingleShotMotions)
+                    WireShots(ctx, path, expected: 1);
+
+                foreach ((string motionPath, string abilityPath, string key) in PlayerSplitShots)
+                {
+                    var motion = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(motionPath);
+                    var ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(abilityPath);
+                    if (motion == null || ability == null)
+                    {
+                        ctx.Line($"  [건너뜀] 에셋 없음 {motionPath}");
+                        continue;
+                    }
+
+                    int shotCount = AllEvents(motion).OfType<SpawnProjectileEvent>().Count();
+                    UPlayGroundMotionAbilityPayloadSO payload = PayloadByMotionKey(ability, key);
+                    if (payload?.attackInfo?.baseInfo?.hitPhases == null || shotCount == 0)
+                    {
+                        ctx.Line($"  [건너뜀] Payload/발사 없음 {key}");
+                        continue;
+                    }
+
+                    List<HitPhaseData> phases = payload.attackInfo.baseInfo.hitPhases;
+                    float total = phases.Sum(p => p.damage);
+                    if (phases.Count != shotCount)
+                    {
+                        float each = total / shotCount;
+                        ctx.Line($"  [{key}] 총합 {total:0.##}을 {shotCount}발로 분할 → 발당 {each:0.##} "
+                                 + $"(phase {phases.Count} -> {shotCount})");
+                        ctx.Change(payload, "hitPhases.Count", phases.Count, shotCount);
+                        if (ctx.Apply)
+                        {
+                            ctx.Record(payload);
+                            HitPhaseData template = phases[0];
+                            var rebuilt = new List<HitPhaseData>(shotCount);
+                            for (var i = 0; i < shotCount; i++)
+                            {
+                                HitPhaseData p = i < phases.Count ? phases[i] : ClonePhase(template);
+                                p.damage = each;
+                                rebuilt.Add(p);
+                            }
+                            payload.attackInfo.baseInfo.hitPhases = rebuilt;
+                            ctx.Dirty(payload);
+                        }
+                    }
+
+                    WireShots(ctx, motionPath, expected: shotCount);
+                }
+            });
+        }
+
+        /// <summary>Variant의 motionKey로 Payload를 특정한다. 같은 Ability 안에 변형이 여럿이다.</summary>
+        private static UPlayGroundMotionAbilityPayloadSO PayloadByMotionKey(
+            GameplayAbilitySO ability, string motionKey)
+        {
+            if (ability?.variants == null)
+                return null;
+            foreach (AbilityVariantDefinition variant in ability.variants)
+            {
+                if (variant?.executionPayload is UPlayGroundMotionAbilityPayloadSO p
+                    && p.attackInfo != null
+                    && p.attackInfo.motionKey.value == motionKey)
+                    return p;
+            }
+            return null;
+        }
+
+        /// <summary>발사 시간 순으로 hitPhaseIndex를 0..N-1 로 채운다.</summary>
+        private static void WireShots(BatchContext ctx, string motionPath, int expected)
+        {
+            var motion = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(motionPath);
+            if (motion == null)
+            {
+                ctx.Line($"  [건너뜀] MotionSet 없음 {motionPath}");
+                return;
+            }
+
+            var shots = AllEvents(motion)
+                .OfType<SpawnProjectileEvent>()
+                .OrderBy(e => e.startTime)
+                .ToList();
+            if (shots.Count != expected)
+            {
+                ctx.Line($"  [건너뜀] 발사 수 불일치 {System.IO.Path.GetFileName(motionPath)} "
+                         + $"기대 {expected} 실제 {shots.Count}");
+                return;
+            }
+
+            bool dirty = false;
+            for (var i = 0; i < shots.Count; i++)
+            {
+                if (shots[i].hitPhaseIndex == i)
+                    continue;
+                ctx.Change(motion, $"shot[{i}].hitPhaseIndex", shots[i].hitPhaseIndex, i);
+                if (ctx.Apply)
+                {
+                    ctx.Record(motion);
+                    shots[i].hitPhaseIndex = i;
+                    dirty = true;
+                }
+            }
+            if (dirty)
+                ctx.Dirty(motion);
+        }
     }
 }
 #endif

@@ -44,6 +44,7 @@ MonoBehaviour:
       playbackSpeed: 1
       events:
       - rid: 7432452679253098637
+    internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
     layers: []
@@ -78,7 +79,7 @@ MonoBehaviour:
         spawnOffset: {x: 0, y: 0.9, z: 0}
         rotationOffset: {x: 0, y: 0, z: 0}
         useSpawnRotation: 1
-        hitPhaseIndex: -1
+        hitPhaseIndex: 0
         damage: 10
         barrelBlendTime: 0
         targetMode: 0

@@ -600,9 +600,28 @@ min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))
 | `Bow_Ability`(Skill.4) | 3 | 30 | 465 | 15.5× |
 | `Bow_Ability`(Skill.5) | 4 | 40 | 840 | 21× |
 
-**핵심 판단은 배율이 아니라 다발 사격의 해석이다.** `Skill.5`의 저작값 210이 "스킬 전체 총합"이면 4발로 나눠 52.5씩이어야 하고, "화살 1발 기준"이면 그대로 840이 맞다. 몬스터 쪽 `Skill_5`에서 31을 4발 7.75로 나눈 것과 같은 질문이며, 그때의 판단도 아직 미검증이다(§11.2). 원 저작 의도를 확인하기 전에는 결선하지 않는다.
+**저작값은 "스킬 전체 총합"으로 확정됐다(2026-08-08 사용자 확정).** 따라서 다발 사격은 총합을 발사 수로 나눈다. 단발은 저작값이 곧 그 한 발이므로 분할이 없다.
 
-**공유 모션 주의.** `Humanoid_Player_BowAnimationSet`은 Bow 장착 상태의 조회 표라 `Katana.Light.00`·`GreatSword.Light.00` 등 **다른 무기의 키까지 전부 이 활 모션으로 매핑**한다. 즉 이 22개 이벤트는 8개 무기 AbilitySet이 공유한다. `hitPhaseIndex`는 발동한 Ability의 `hitPhases`를 참조하므로 무기별로 다른 값이 나오는 것 자체는 설계대로다. 다만 무기마다 phase 개수가 달라, 다발 사격에 shot별로 다른 인덱스를 주려 하면 한 인덱스가 모든 무기에 맞지 않는다.
+**결선 가능 여부를 가르는 것은 배율이 아니라 "무기 불변성"이다.** 플레이어 AnimationSet은 무기별 조회 표이고 모든 무기 세트가 모든 키를 갖는다. 같은 키가 장착 무기에 따라 다른 모션으로 풀리는데, Ability의 `hitPhases`는 하나뿐이다. 모션마다 히트 수가 다르면 한 phase 목록으로 모든 무기의 총합을 동시에 만족시킬 수 없다.
+
+| 키 | Bow 장착 | 다른 무기 장착 | 판정 |
+| --- | --- | --- | --- |
+| `Bow.Light.00`~`04`, `Entry*`, `Counter`, `Swap*` | 발사 1 | 근접 모션 콜리전 1개 `[0]` | 인덱스 0이 어디서나 일관 → **안전** |
+| `Bow.Ability.Skill.3/4/5` | 발사 1/3/4 | **같은 활 모션** | 무기 불변 → **분할 안전** |
+| `Katana.Ability.Skill.6` | 발사 4 + 콜리전 4 `[0,1,2,3]` | 같은 카타나 모션 | phase 4개를 콜리전이 이미 소진 → **보류** |
+| `Bow.Ultimate` | 발사 2 | 무기별 콜리전 1·4·5·7·16개 | 한 phase 목록으로 불가 → **보류** |
+
+`Step_WirePlayerProjectileHitPhases`로 **18건 결선 완료**했다.
+
+| 대상 | 처리 |
+| --- | --- |
+| 단발 9건 (`Bow_Attack_1`~`5`, `Bow_Skill_1`, `Bow_Skill_3`, `Katana_Skill_Ability`, `Staff_HeavyAttack_1`) | `hitPhaseIndex` → 0, phase 불변 |
+| `Bow_Skill_4` 3발 | 155 → 3 phase × 51.67, 인덱스 0·1·2 |
+| `Bow_Skill_5` 4발 | 210 → 4 phase × 52.5, 인덱스 0·1·2·3 |
+
+**보류 6건.**
+- `Bow_Skill_2` 2발 (`Bow.Ultimate`) — 139을 2로 나누면 Bow는 맞지만, GreatSword·SwordShield 장착 시 콜리전이 1개뿐이라 69.5만 들어간다(현재 139). 무기별로 다른 phase 목록이 필요하다. 참고로 Katana 장착 시 콜리전 16개가 phase 0-15를 요구하는데 이 Ability는 phase가 1개뿐이라 **이번 작업 이전부터 인덱스 1-15는 범위 밖**이다.
+- `Katana_Skill_InYan` 4발 (`Katana.Ability.Skill.6`) — phase 4개 `[56,61,66,71]`을 콜리전 4개가 이미 쓴다. 발사까지 0-3에 물리면 254가 두 번 적용돼 총합 규칙을 깬다. 현재도 254 + 80(발사 고정값)으로 이미 초과 상태다. 발사용 phase 4개를 추가하고 254를 8히트로 재분배할지, 투사체를 무피해로 둘지 콘텐츠 결정이 필요하다.
 
 몬스터 4건(Skeleton/Lich/MainPlant/SpiderQueen)은 `Step_WireMonsterProjectileHitPhases`로 결선 완료했다 — `hitPhaseIndex: -1 → 0`. 투사체 데미지가 `legacyDamage` 고정값에서 저작 `hitPhases[0]`으로 바뀐다.
 

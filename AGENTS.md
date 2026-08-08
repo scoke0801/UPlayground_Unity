@@ -185,3 +185,4 @@ CharacterModelData.abilitySet
 - 네임스페이스는 `UPlayGround` 루트 아래에서 폴더 경로를 따른다. 신규 파일은 네임스페이스 필수
 - UI 네이밍: `UI_Base` 상속 클래스만 `UI_` 접두사, 그 외 UI 보조 클래스는 `UIXxx`
 - 대형 클래스(GameManager, InputManager, GameObjectManager, CheatManager 등)는 `클래스명.기능.cs` partial 분리 패턴 사용
+- 신규 에디터 도구를 만들거나 기존 도구의 진입점을 변경할 때는 창/메뉴 구현만으로 완료하지 않는다. 실행 메서드에 `UPlaygroundTool`을 등록하고, `Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs`의 `s_categories`에 동일한 도구 ID와 적절한 카테고리·요약·상세 설명을 추가하여 통합 툴 런처에서 검색·실행 가능하게 해야 한다. `UPlayGround` 최상위 개별 메뉴는 툴 런처와 허용된 예외 외에는 새로 추가하지 않는다.

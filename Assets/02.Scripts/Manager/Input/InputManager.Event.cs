@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.Manager
 {
@@ -256,7 +257,8 @@ namespace UPlayGround.Manager
                 context,
                 startCallbackDict,
                 InputMapNames.PlayerAction,
-                actionName);
+                actionName,
+                InputArbiterPhase.Started);
 
             _inputBuffer?.AddInput(
                 actionName,
@@ -267,7 +269,8 @@ namespace UPlayGround.Manager
                 context,
                 performCallbackDict,
                 InputMapNames.PlayerAction,
-                actionName);
+                actionName,
+                InputArbiterPhase.Performed);
 
             _pendingSyntheticPlayerActionReleases[actionName] = Time.frameCount + 1;
             return true;
@@ -332,6 +335,7 @@ namespace UPlayGround.Manager
                     cancelCallbackDict,
                     InputMapNames.PlayerAction,
                     actionName,
+                    InputArbiterPhase.Canceled,
                     ignoreLayer: true,
                     ignoreLayerChangeBreak: true);
                 return;
@@ -345,6 +349,7 @@ namespace UPlayGround.Manager
                     cancelCallbackDict,
                     InputMapNames.PlayerAction,
                     actionName,
+                    InputArbiterPhase.Canceled,
                     ignoreLayer: true,
                     ignoreLayerChangeBreak: true);
             }
@@ -422,6 +427,7 @@ namespace UPlayGround.Manager
             Dictionary<InputCallbackKey, List<InputCallbackData>> dict,
             string mapName,
             string actionName,
+            InputArbiterPhase phase,
             bool ignoreLayer = false,
             bool ignoreLayerChangeBreak = false)
         {
@@ -429,6 +435,7 @@ namespace UPlayGround.Manager
             if (!dict.TryGetValue(key, out List<InputCallbackData> callbackList))
                 return;
 
+            bool traced = false;
             for (int i = 0; i < callbackList.Count; i++)
             {
                 InputCallbackData data = callbackList[i];
@@ -444,6 +451,12 @@ namespace UPlayGround.Manager
                 // 실행 전 현재 레이어 캐싱
                 InputLayer cachedLayer = CurrentLayer;
 
+                if (!traced)
+                {
+                    TraceInputDispatch(context, mapName, actionName, phase);
+                    traced = true;
+                }
+
                 data.Callback?.Invoke(context);
 
                 // 실행 결과로 인해 레이어가 변경되었다면 후속 이벤트 중단
@@ -451,6 +464,29 @@ namespace UPlayGround.Manager
                 if (!ignoreLayerChangeBreak && cachedLayer != CurrentLayer)
                     break;
             }
+        }
+
+        private static void TraceInputDispatch(
+            InputAction.CallbackContext context,
+            string mapName,
+            string actionName,
+            InputArbiterPhase phase)
+        {
+            InputAction action = context.action;
+
+            // Move/Look 같은 연속 값은 performed가 매 입력 업데이트마다 발생한다.
+            // 시작/해제만 남기고, Button의 performed와 합성 입력은 모두 기록한다.
+            if (phase == InputArbiterPhase.Performed
+                && action != null
+                && action.type != InputActionType.Button)
+            {
+                return;
+            }
+
+            string source = action == null ? "Synthetic" : "Physical";
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input,
+                $"[Input] {mapName}/{actionName} ({phase}, {source})");
         }
 
         // PlayerAction 액션맵에 한해 차단. UI/메뉴 등 다른 맵은 통과시켜 모션 툴 사용 중에도 메뉴 조작이 가능해야 한다.

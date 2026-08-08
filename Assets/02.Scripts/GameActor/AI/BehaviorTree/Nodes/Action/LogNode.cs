@@ -19,7 +19,10 @@ namespace UPlayGround.AI.BehaviorTree
         {
             if (_logEveryTick || !_logged)
             {
-                RuntimeLog.Trace(RuntimeLogCategory.AI, $"[BT] {_message}", Context?.Owner);
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Monster,
+                    $"[BT] {_message}",
+                    Context?.Owner);
                 _logged = true;
             }
 

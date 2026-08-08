@@ -12,6 +12,7 @@ using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
 using UPlayGround.Data.Sound;
 using UPlayGround.MovementController;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.State
 {
@@ -48,7 +49,10 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
-            Debug.Log("Player Guard Started");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                "[PlayerGuardState] 방어 시작",
+                playerActor);
             if (playerActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Guard, true) == false)
             {
                 TransitionToIdleOrMove();

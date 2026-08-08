@@ -130,18 +130,21 @@ namespace UPlayGround.Manager
             switch (evt.Phase)
             {
                 case InputArbiterPhase.Started:
-                    ExecuteCallbacksForAction(evt.Context, startCallbackDict, evt.MapName, evt.ActionName);
+                    ExecuteCallbacksForAction(
+                        evt.Context, startCallbackDict, evt.MapName, evt.ActionName, evt.Phase);
                     break;
 
                 case InputArbiterPhase.Performed:
                     TryBufferPlayerAction(evt);
-                    ExecuteCallbacksForAction(evt.Context, performCallbackDict, evt.MapName, evt.ActionName);
+                    ExecuteCallbacksForAction(
+                        evt.Context, performCallbackDict, evt.MapName, evt.ActionName, evt.Phase);
                     break;
 
                 case InputArbiterPhase.Canceled:
                     if (evt.IsSynthetic)
                         _inputBuffer?.ConsumeInput(evt.ActionName);
-                    ExecuteCallbacksForAction(evt.Context, cancelCallbackDict, evt.MapName, evt.ActionName);
+                    ExecuteCallbacksForAction(
+                        evt.Context, cancelCallbackDict, evt.MapName, evt.ActionName, evt.Phase);
                     break;
             }
         }

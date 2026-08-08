@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.Manager
 {
@@ -33,10 +34,14 @@ namespace UPlayGround.Manager
 
         public void Init()
         {
-            Debug.Log("[InputManager] 초기화 시작");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input | RuntimeLogCategory.System,
+                "[InputManager] 초기화 시작");
 
             _inputBuffer = new InputBuffer(); // InputBuffer 초기화
-            Debug.Log("[InputManager] InputBuffer 초기화 완료");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input | RuntimeLogCategory.System,
+                "[InputManager] InputBuffer 초기화 완료");
 
             Texture2D cursorTexture = Resources.Load<Texture2D>("Cursor/cursor_default");
             ;
@@ -57,7 +62,9 @@ namespace UPlayGround.Manager
             // 활성 디바이스(키보드+마우스 ↔ 게임패드) 감지 시작
             InitDeviceDetection();
 
-            Debug.Log("[InputManager] 초기화 완료");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input | RuntimeLogCategory.System,
+                "[InputManager] 초기화 완료");
         }
 
         public void AfterInit()
@@ -67,7 +74,9 @@ namespace UPlayGround.Manager
 
         public void Dispose()
         {
-            Debug.Log("[InputManager] 정리 시작");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input | RuntimeLogCategory.System,
+                "[InputManager] 정리 시작");
 
             // 보류 중인 합성 입력은 그냥 비우면 hold 플래그(차지·스킬 홀드)가 소비자에 남는다.
             // 프레임 조건을 무시하고 cancel을 먼저 발화한 뒤 정리한다.
@@ -88,7 +97,9 @@ namespace UPlayGround.Manager
             _syntheticReleaseScratch.Clear();
 
 
-            Debug.Log("[InputManager] 정리 완료");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input | RuntimeLogCategory.System,
+                "[InputManager] 정리 완료");
         }
 
         public void OnUpdate()

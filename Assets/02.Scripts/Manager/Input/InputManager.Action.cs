@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UPlayGround.InputDefine;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.Manager
 {
@@ -80,7 +81,9 @@ namespace UPlayGround.Manager
                 }
             }
 
-            Debug.Log($"총 {actionCache.Count}개 액션 캐싱 완료");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Input | RuntimeLogCategory.System,
+                $"[InputManager] 총 {actionCache.Count}개 액션 캐싱 완료");
         }
 
         private void EnsureStandardUiActions()

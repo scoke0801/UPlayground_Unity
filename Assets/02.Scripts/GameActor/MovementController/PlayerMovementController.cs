@@ -5,6 +5,7 @@ using KinematicCharacterController;
 using UnityEngine;
 using UPlayGround.State;
 using UPlayGround.Input;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.MovementController
 {
@@ -279,12 +280,18 @@ namespace UPlayGround.MovementController
     {
         private void OnLanded()
         {
-            Debug.Log("Landed");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                "[PlayerMovement] 착지",
+                Actor != null ? Actor : this);
         }
 
         private void OnLeaveStableGround()
         {
-            Debug.Log("Left ground");
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                "[PlayerMovement] 지면 이탈",
+                Actor != null ? Actor : this);
         }
     }
 }

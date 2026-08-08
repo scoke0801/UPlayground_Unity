@@ -9,6 +9,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
 using UnityEngine.InputSystem;
 using Cysharp.Threading.Tasks;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.UI
 {
@@ -220,6 +221,11 @@ namespace UPlayGround.UI
 
             OnShow();
 
+            RuntimeLog.Trace(
+                RuntimeLogCategory.UI,
+                $"[UI] 열림: {GetType().Name} (Object={name}, Layer={_layer})",
+                this);
+
             if (BlocksLowerInput || RequiresCursorVisible)
             {
                 EnsureFocusScope();
@@ -289,6 +295,12 @@ namespace UPlayGround.UI
 
             _focusScope?.DeactivateScope();
             OnHide();
+
+            RuntimeLog.Trace(
+                RuntimeLogCategory.UI,
+                $"[UI] 닫힘: {GetType().Name} (Object={name}, Layer={_layer})",
+                this);
+
             if(this.gameObject != null)
             {
                 gameObject.SetActive(false);
@@ -304,6 +316,11 @@ namespace UPlayGround.UI
         {
             if (IsVisible)
                 Hide();
+
+            RuntimeLog.Trace(
+                RuntimeLogCategory.UI,
+                $"[UI] 제거: {GetType().Name} (Object={name}, Layer={_layer})",
+                this);
 
             OnClose();
         }

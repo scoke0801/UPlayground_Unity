@@ -182,6 +182,7 @@ namespace UPlayGround.Editor
             }),
             ("디버그", new[]
             {
+                Tool("런타임 로그 필터",              "UPlayGround/Debug/런타임 로그 필터", "런타임 로그 카테고리를 선택해 출력 범위를 제어합니다.", "Default, Combat, Player, Monster, Input, UI, System 등 RuntimeLog 카테고리를 개별 토글하고 저장합니다. Edit Mode와 Play Mode에 즉시 반영되며 다음 실행에도 유지됩니다."),
                 Tool("디버그 기즈모 창",               "UPlayGround/Debug/Debug Gizmo Window", "런타임 디버그 기즈모 표시를 토글합니다.", "DebugGizmo 시스템의 카테고리별 기즈모 표시 여부를 제어하는 개발용 창입니다."),
                 Tool("C# 프로젝트 파일 재생성", "UPlayGround/Debug/Regenerate C# Project Files", "Unity C# 프로젝트 파일을 다시 생성합니다.", "IDE 프로젝트 참조나 생성된 csproj가 오래됐을 때 Unity의 프로젝트 파일 생성을 다시 요청합니다."),
             }),

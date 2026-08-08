@@ -99,6 +99,10 @@ Debug.unityLogger.filterLogType =
 | `UI` | UI 표시 및 입력 레이어 |
 | `Asset` | Addressables와 데이터 로딩 |
 | `Performance` | 성능 측정 및 기준선 저장 |
+| `Player` | 플레이어 상태 및 플레이어 전용 진단 |
+| `Monster` | 몬스터 Behavior Tree 및 몬스터 전용 진단 |
+| `Default` | 별도 기능 분류가 없는 일반 진단 |
+| `System` | 매니저와 시스템 생명주기 진단 |
 | `All` | 모든 카테고리 |
 
 기본값은 `All`이며 설정값은 다음 PlayerPrefs 키에 저장된다.
@@ -165,13 +169,25 @@ RuntimeLog.SetEnabledCategories(
     persist: false);
 ```
 
+### 에디터 필터 창
+
+`UPlayGround > 툴 런처`를 연 뒤 `디버그 > 런타임 로그 필터`에서 카테고리를 체크하여 변경할 수 있다.
+
+- 체크 변경은 Edit Mode와 Play Mode의 현재 필터에 즉시 반영된다.
+- 기본적으로 `PlayerPrefs`에 저장되어 다음 Play Mode에도 유지된다.
+- `모두 켜기`, `모두 끄기`, `저장값 다시 읽기`를 지원한다.
+- 여러 카테고리가 지정된 로그는 활성 카테고리와 하나라도 겹치면 출력된다.
+
 ### 적용된 고빈도 경로
 
 | 코드 | 적용 내용 |
 |------|-----------|
 | `ComboRouteRunner` | 상세 콤보 로그 기본 비활성화, Combat/Input 카테고리 적용 |
 | `MonsterActor` | 무적 대상 반복 로그 스로틀, 크리티컬·회복·사망·패리 로그 분류 |
-| `LogNode` | BT 로그를 AI 카테고리로 전환 |
+| `BehaviorTreeRunner` / `LogNode` | BT 시작·정지·일시정지·루트 결과와 명시적 BT 로그에 Combat/Monster 카테고리 적용 |
+| `ActorMovementController` | 성공한 플레이어 상태 전이에 Combat/Player 카테고리 적용 |
+| `UI_Base` | UI 열기·숨김·제거 생명주기에 UI 카테고리 적용 |
+| `InputManager` | 최종 콜백 디스패치에 Input 카테고리 적용. 연속 값의 반복 `performed`는 제외 |
 
 `ComboRouteRunner.DebugLog` 기본값은 `false`다. 콤보 라우트 조사 시에만 임시로 활성화해야 한다.
 
@@ -404,4 +420,3 @@ Unity 계층이 HP, 상태, 애니메이션, VFX 적용
 - MonoBehaviour 생명주기와 전투 규칙의 결합 감소
 
 이 가이드의 로그·성능 시스템은 전투 Core 분리의 전제 조건이 아니다. 현재 구조에서도 독립적으로 사용할 수 있으며, Core 분리 후에는 실제 플레이 성능과 순수 계산 성능을 각각 검증할 수 있다.
-

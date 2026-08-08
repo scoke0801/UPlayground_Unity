@@ -9,6 +9,7 @@ using UPlayGround.State;
 using UPlayGround.CameraSystem;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Simulation;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.MovementController
 {
@@ -276,6 +277,15 @@ namespace UPlayGround.MovementController
             // 새 상태 진입
             _currentState.OnEnter(oldState);
             OnStateChanged?.Invoke(oldState, _currentState);
+
+            if (this is PlayerMovementController)
+            {
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                    $"[PlayerState] {Actor?.name ?? name}: {oldState?.StateId.ToString() ?? "None"} -> {_currentState.StateId}",
+                    Actor != null ? Actor : this);
+            }
+
             return true;
         }
 

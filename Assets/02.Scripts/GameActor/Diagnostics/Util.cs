@@ -29,6 +29,10 @@ namespace UPlayGround.Diagnostics
         UI = 1 << 5,
         Asset = 1 << 6,
         Performance = 1 << 7,
+        Player = 1 << 8,
+        Monster = 1 << 9,
+        Default = 1 << 10,
+        System = 1 << 11,
         All = ~0,
     }
 
@@ -49,10 +53,20 @@ namespace UPlayGround.Diagnostics
             // 릴리스에서는 기존 Debug.Log 호출까지 차단한다. Warning/Error/Exception은 계속 출력한다.
             Debug.unityLogger.filterLogType = Debug.isDebugBuild ? LogType.Log : LogType.Warning;
 
+            ReloadEnabledCategories();
+        }
+
+        /// <summary>
+        /// PlayerPrefs에 저장된 카테고리 마스크를 다시 읽어 현재 필터에 반영한다.
+        /// 에디터 도메인 리로드 뒤 필터 창이 저장값을 복원할 때도 사용한다.
+        /// </summary>
+        public static RuntimeLogCategory ReloadEnabledCategories()
+        {
             int defaultMask = (int)RuntimeLogCategory.All;
             EnabledCategories = (RuntimeLogCategory)PlayerPrefs.GetInt(
                 CategoryMaskPlayerPrefsKey,
                 defaultMask);
+            return EnabledCategories;
         }
 
         public static void SetEnabledCategories(RuntimeLogCategory categories, bool persist = true)

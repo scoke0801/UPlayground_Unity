@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Components;
 using UPlayGround.Manager;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.AI.BehaviorTree
 {
@@ -172,10 +173,18 @@ namespace UPlayGround.AI.BehaviorTree
             _state = BehaviorTreeRunnerState.Running;
             _tickTimer = _tickInterval;
             ExecutionStatus = BTStatus.Running;
+
+            RuntimeLog.Trace(
+                RuntimeLogCategory.Combat | RuntimeLogCategory.Monster,
+                $"[BT] 시작: {name} / {_treeAsset.name}",
+                this);
         }
 
         public void StopTree()
         {
+            bool wasActive = _state != BehaviorTreeRunnerState.Stopped || _runtimeTree != null;
+            string treeName = _treeAsset != null ? _treeAsset.name : "None";
+
             if (_runtimeTree?.RootNode != null)
                 _runtimeTree.RootNode.Abort();
 
@@ -188,6 +197,14 @@ namespace UPlayGround.AI.BehaviorTree
             _state = BehaviorTreeRunnerState.Stopped;
             _tickTimer = 0f;
             ExecutionStatus = BTStatus.Failure;
+
+            if (wasActive)
+            {
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Monster,
+                    $"[BT] 정지: {name} / {treeName}",
+                    this);
+            }
         }
 
         public void RestartTree()
@@ -218,13 +235,25 @@ namespace UPlayGround.AI.BehaviorTree
         public void PauseTree()
         {
             if (_state == BehaviorTreeRunnerState.Running)
+            {
                 _state = BehaviorTreeRunnerState.Paused;
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Monster,
+                    $"[BT] 일시정지: {name} / {_treeAsset?.name ?? "None"}",
+                    this);
+            }
         }
 
         public void ResumeTree()
         {
             if (_state == BehaviorTreeRunnerState.Paused)
+            {
                 _state = BehaviorTreeRunnerState.Running;
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Monster,
+                    $"[BT] 재개: {name} / {_treeAsset?.name ?? "None"}",
+                    this);
+            }
         }
 
         public BTStatus TickOnce()
@@ -261,7 +290,16 @@ namespace UPlayGround.AI.BehaviorTree
             _pauseRequested = false;
             _pauseRequestedBy = null;
             DebugTrace?.BeginTick();
+            BTStatus previousStatus = ExecutionStatus;
             ExecutionStatus = _runtimeTree.RootNode.Tick();
+            if (ExecutionStatus != previousStatus)
+            {
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Monster,
+                    $"[BT] 루트 상태 변경: {name} / {_treeAsset?.name ?? "None"} ({previousStatus} -> {ExecutionStatus})",
+                    this);
+            }
+
             if (_pauseRequested)
                 _state = BehaviorTreeRunnerState.Paused;
 

@@ -15,6 +15,7 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Stat;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Gameplay.Ability;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.State
 {
@@ -408,7 +409,10 @@ namespace UPlayGround.State
             if (_isParryCounter)
             {
                 _combat.CloseParryCounterWindow();
-                Debug.Log("[ParryCounter] 패리 반격 진입");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                    "[ParryCounter] 패리 반격 진입",
+                    playerActor);
             }
 
             bool hasPerfectGuardCounterTag = !hasForcedAttack
@@ -479,7 +483,10 @@ namespace UPlayGround.State
             var animKey   = GetMotion();
             var animState = PlayCurrentAttackMotion(animKey, GetAttackBlendDuration(animKey));
             if (_isParryCounter)
-                Debug.Log($"[ParryCounter] PlayMotion({animKey}) → {(animState != null ? "성공" : "실패(모션셋 없음)")}");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                    $"[ParryCounter] PlayMotion({animKey}) → {(animState != null ? "성공" : "실패(모션셋 없음)")}",
+                    playerActor);
 
             if (animState != null)
                 gameActor.Animator.OnMotionSetCompleted += ChangeToNextState;
@@ -936,7 +943,10 @@ namespace UPlayGround.State
                             out AbilityVariantDefinition variant);
                     if (prepareResult != AbilityActivationResult.Success)
                     {
-                        Debug.Log($"[PlayerAttackState] Ability {i + 1} 활성화 실패: {prepareResult}");
+                        RuntimeLog.Trace(
+                            RuntimeLogCategory.Combat | RuntimeLogCategory.Player,
+                            $"[PlayerAttackState] Ability {i + 1} 활성화 실패: {prepareResult}",
+                            playerActor);
                         continue;
                     }
 

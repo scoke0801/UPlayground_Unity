@@ -4,6 +4,7 @@ using System.Linq;
 using UPlayGround.InputDefine;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UPlayGround.Diagnostics;
 
 namespace UPlayGround.Manager
 {
@@ -254,7 +255,9 @@ namespace UPlayGround.Manager
                 InputBindingProfileMigration.Migrate(profile, this);
 
             if (report.HasChanges)
-                Debug.Log($"[InputManager] 입력 바인딩 프로필 마이그레이션: {report}");
+                RuntimeLog.Trace(
+                    RuntimeLogCategory.Input,
+                    $"[InputManager] 입력 바인딩 프로필 마이그레이션: {report}");
         }
 
         bool IInputActionIdentityLookup.TryResolveById(

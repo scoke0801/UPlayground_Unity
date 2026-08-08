@@ -582,7 +582,27 @@ min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))
 
 두 경우 모두 콘텐츠(돌진 모션) 확정 후 재지명이 맞다.
 
-**플레이어 투사체 레거시 18건 미처리.** §10.1 표의 보류분이다. 결선하면 저작 데미지 35~155가 고정 10을 대체해 플레이어 전투 밸런스 전반이 6~15배로 바뀐다. 판단 대기.
+**플레이어 투사체 레거시 22건 미처리.** §10.1 표의 보류분이다. 전수 조사 결과는 아래와 같다.
+
+| MotionSet | 파일 | 발사 | 이벤트 `damage` |
+| --- | --- | --- | --- |
+| `Player/Bow/` | `Attack_1`~`5` 각 1, `Skill_1` 1, `Skill_2` 2, `Skill_3` 1, `Skill_4` 3, `Skill_5` 4 | 16 | 10 |
+| `Player/Katana/` | `Katana_Skill_Ability` 1, `Katana_Skill_InYan` 4 | 5 | 10 / 20 |
+| `Player/Staff/` | `Humanoid_Staff_HeavyAttack_1` | 1 | 10 |
+
+전부 `hitPhaseIndex: -1`이라 이벤트 자체의 고정 `damage`를 쓴다. 0으로 결선하면 발동한 Ability의 `hitPhases[0]`이 대신 적용된다. Bow AbilitySet은 모든 Ability가 hitPhase 1개뿐이라 인덱스 모호성은 없다.
+
+| Ability | 발사 | 현재 총합 | 결선 후 총합 | 배율 |
+| --- | --- | --- | --- | --- |
+| `Bow_Light_00` | 1 | 10 | 61 | 6.1× |
+| `Bow_Light_04` | 1 | 10 | 77 | 7.7× |
+| `Bow_Ultimate` | 2 | 20 | 278 | 13.9× |
+| `Bow_Ability`(Skill.4) | 3 | 30 | 465 | 15.5× |
+| `Bow_Ability`(Skill.5) | 4 | 40 | 840 | 21× |
+
+**핵심 판단은 배율이 아니라 다발 사격의 해석이다.** `Skill.5`의 저작값 210이 "스킬 전체 총합"이면 4발로 나눠 52.5씩이어야 하고, "화살 1발 기준"이면 그대로 840이 맞다. 몬스터 쪽 `Skill_5`에서 31을 4발 7.75로 나눈 것과 같은 질문이며, 그때의 판단도 아직 미검증이다(§11.2). 원 저작 의도를 확인하기 전에는 결선하지 않는다.
+
+**공유 모션 주의.** `Humanoid_Player_BowAnimationSet`은 Bow 장착 상태의 조회 표라 `Katana.Light.00`·`GreatSword.Light.00` 등 **다른 무기의 키까지 전부 이 활 모션으로 매핑**한다. 즉 이 22개 이벤트는 8개 무기 AbilitySet이 공유한다. `hitPhaseIndex`는 발동한 Ability의 `hitPhases`를 참조하므로 무기별로 다른 값이 나오는 것 자체는 설계대로다. 다만 무기마다 phase 개수가 달라, 다발 사격에 shot별로 다른 인덱스를 주려 하면 한 인덱스가 모든 무기에 맞지 않는다.
 
 몬스터 4건(Skeleton/Lich/MainPlant/SpiderQueen)은 `Step_WireMonsterProjectileHitPhases`로 결선 완료했다 — `hitPhaseIndex: -1 → 0`. 투사체 데미지가 `legacyDamage` 고정값에서 저작 `hitPhases[0]`으로 바뀐다.
 

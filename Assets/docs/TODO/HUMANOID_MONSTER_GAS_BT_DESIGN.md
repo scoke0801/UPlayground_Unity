@@ -525,49 +525,43 @@ Unity 6000.3.21f1이 `C:\Program Files\Unity\Hub\Editor\6000.3.21f1`에 설치�
 
 **`hitPhaseIndex`는 발사 시간 순으로 매긴다.** MotionSet 저장 순서는 시간 순이 아니다(레이어를 가로질러 수집되므로). `startTime` 정렬 후 0..N-1을 부여한다.
 
-### 11.3 교전 거리와 실제 도달 거리는 다르다 (중요)
+### 11.3 사거리 정책 — 베이크된 activation이 권위값이다 (2026-08-08 개정)
 
-`optimalCombatDistance`(BehaviorData·blackboard)와 Ability가 **실제로 닿는 거리**는 별개다. 근접 Ability의 유효 최대 거리는 저작된 `activation.maxDistance`가 아니라 `EnemyAttackRangePolicy.ResolveEffectiveMaxDistance`가 정한다:
+> 이 절의 이전 판본은 `min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))` 클램프를 전제로 했다. 그 클램프는 제거됐고 아래가 현행이다.
+
+근접 Ability의 유효 최대 거리는 `EnemyAttackRangePolicy.ResolveEffectiveMaxDistance`가 정한다. 현행:
 
 ```
-min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))
+근접 + authoredMax > 0  →  max(authoredMin, authoredMax)      // 베이크값을 그대로 신뢰
+근접 + authoredMax == 0 →  max(threatRange-0.15, personalSpace+0.5)  // 레거시 보조 추정
 ```
 
-베이크 후 실측값 (`Step_ReportReach`):
+**기존 클램프가 왜 틀렸나.** `targetingRange`는 "직접 수정 금지 — HitBox impact 포즈에서 베이크된다"고 선언돼 있지만 그 베이크가 돌지 않아 **전체 hitPhase 858개 중 850개가 클래스 기본값 1.5**다. 즉 `threatRange - 0.15`는 프로젝트 대부분에서 상수 `1.35`였고, 모션마다 실측한 사거리를 이 방치된 상수로 일괄해 깎고 있었다. 대검이든 단검이든 똑같이.
 
-| 아키타입 | 역할별 유효 도달 | 설정한 교전 거리 |
-|---|---|---|
-| GreatSword | Opener 0.85 / Punish 1.2 / Counter 1.1 / Finisher·Signature·GapCloser 1.5 | 2.8 |
-| DoubleAxe | 전 역할 1.35 (Counter 1.4) | 2.3 |
-| DualBlade | 전 역할 1.35 | 2.0 |
-| SwordShield | Counter 0.85 / 나머지 1.35 | 2.4 |
-| Bow | Counter 2.5 / 나머지 20 | 8.0 |
+이 클램프는 실측 데이터를 무효화할 수도 있었다. 베이크된 `min`이 1.35를 넘으면 `[min, 1.35]`가 빈 구간이 되고, 옛 코드의 마지막 `Mathf.Max(minDistance, effectiveMax)`가 그것을 **폭 0짜리 구간** `[1.4, 1.4]`로 만들어 사실상 선택 불가였다. `DoubleAxe_18/19_Counter_Attack`이 이 상태로 죽어 있었다. 현행 식은 결과가 항상 `authoredMin` 이상이라 구조적으로 이 상태가 나오지 않는다.
 
-**교전 거리가 도달 거리보다 멀지만 몬스터는 굳지 않는다.** `EnemyChaseState.ResolveStopDistance`가
-`Min(Max(chaseStopDistance, minCombatDistance), GetPreferredMeleeApproachDistance)`를 쓰고,
-`GetPreferredMeleeApproachDistance`는 **요청된 카테고리·역할의 실제 최대 사거리 − 0.1**이다.
-즉 추격이 Ability가 닿는 지점까지 파고들어 차이를 메운다.
+**히트가 실제로 닿는가 — 베이크 리포트 대조 결과.** 역할 배정 근접 Ability 40건 전수 확인:
 
-**이 불일치는 이번 작업 이전부터 있었다.** 베이크 전 `maxDistance`가 2.5 고정일 때도 GreatSword의 유효 도달은 `min(2.5, max(1.35, 1.3)) = 1.35`인데 `optimalCombatDistance`는 2.4였다. 베이크가 이를 드러냈을 뿐 만들어낸 것이 아니다.
+| 판정 | 건수 | 내용 |
+| --- | --- | --- |
+| 정상 | 36 | `authoredMax`가 실측 도달보다 **정확히 0.15m 작다** (도구가 안전 마진을 뺀다) |
+| 헛스윙 | 2 | 실측 1.35·1.00인데 권장값이 2.5 — **베이크 도구 결함** |
+| 측정 실패 | 2 | `Blocked` — 2.5는 방치된 기본값 |
 
-교전 거리를 실측값에 맞춰 좁힐지는 **체감 문제**라 임의로 정하지 않았다. 좁히면 근접 몬스터가 훨씬 밀착해 싸우게 된다. `Step_ReportReach`로 언제든 현재 수치를 다시 뽑을 수 있다.
+즉 36건은 `authoredMax`에서 공격을 시작하면 히트가 반드시 닿는다. `DoubleAxe_Skill_1/2`(실측 3.6·4.8)나 `DualBlade_Skill_1`(4.75)은 2.5에서 잘려 오히려 보수적이다.
+
+헛스윙 2건은 `Step_FixWhiffRanges`로 실측 기준으로 되돌렸다. 여러 액터가 공유하므로 가장 짧은 실측에서 다시 마진을 뺐다.
+
+| Ability | 이전 | 실측 도달 | 조치 |
+| --- | --- | --- | --- |
+| `DualBlade_08_Attack_8` | 2.5 | 1.35 (DualSword_002) | max → 1.20 |
+| `SwordShield_09_Attack_9` | 2.5 | 1.00 (GreatSword_002) | max → 0.85 |
+
+**미해결 2건.** `DualBlade_22_Skill_2`·`SwordShield_20_Skill_1`은 `Blocked`이고 사유가 "공유 소비자/Variant의 안전 거리 교집합이 없습니다"다. 전진 돌진 모션이라 실측 히트 구간이 `[2.6, 6.35]`·`[4.45, 6.00]`처럼 **현재 activation `[0, 2.5]`보다 위**에 있다. 가까이서 쓰면 지나쳐 버린다. 액터마다 구간이 어긋나 단일 값으로 못 맞추므로 액터별 Variant 분리나 역할 재지명이 필요하다. 이 결함은 정책 개정 이전부터 있었다.
+
+**교전 거리와의 관계.** `optimalCombatDistance`(2.0~2.8)와 도달 거리의 간극은 정책 개정으로 크게 줄었다(도달이 1.35 상한에서 최대 2.5로 늘었다). 남는 차이는 `EnemyChaseState.ResolveStopDistance`가 메운다 — `Min(Max(chaseStopDistance, minCombatDistance), GetPreferredMeleeApproachDistance)`이고 후자는 **요청된 카테고리·역할의 실제 최대 사거리 − 0.1**이다.
 
 > 테스트 작성 시 함정 — "교전 거리에서 공격 가능한가"는 런타임 불변식이 **아니다**(추격이 메운다). 진짜 불변식은 "역할마다 0보다 큰 도달 거리가 있다"이다. 또 베이크된 Ability는 `minDistance`가 0이 아닌 밴드(예: 0.65~1.55)라, 저거리 몇 점만 찔러 보는 이분 탐색은 밴드를 통째로 놓친다. `MaxReach`는 스캔으로 구현했다.
-
-### 11.4 베이크된 min이 유효 최대를 넘으면 Ability가 죽는다
-
-`Step_BakeMeleeRangeHumanoidOnly`가 `minDistance`를 모션의 실제 접촉 지점에서 뽑기 때문에, 스윙이 몸에서 먼 곳부터 닿는 모션은 `min`이 §11.3의 유효 최대 상한을 넘어설 수 있다. 그러면 `[min, 유효최대]`가 빈 구간이 되어 **어떤 거리에서도 후보에 오르지 못한다.** 예외도 로그도 없다.
-
-역할이 배정된 근접 Ability 50개 중 실제 위반은 2건이었다.
-
-| Ability | min | 유효 최대 | 조치 |
-| --- | --- | --- | --- |
-| `DoubleAxe_18_Counter_Attack_1` | 1.4 | 1.4 | min → 0 |
-| `DoubleAxe_19_Counter_Attack_2` | 1.4 | 1.4 | min → 0 |
-
-`min → 0`은 클램프된 창 전체를 쓰게 하는 조치다. 모션 기준 스위트스팟보다 가까이서 발동해 스쳐 지나갈 여지는 남지만, 영영 발동하지 않는 것보다 낫다. 다른 세 근접 아키타입의 Counter도 전부 `min` 0~0.5에서 시작하므로 규약에서 벗어나지도 않는다. **근본 해소는 이 모션의 `targetingRange`를 실제 도달(2.1m)에 맞춰 올리는 콘텐츠 작업이다.**
-
-`Step_ClampUnreachableMinDistance`가 이 위반을 전수 검출한다. 멱등이므로 베이크를 다시 돌린 뒤 항상 이어서 실행한다.
 
 ### 11.2 미해결·미검증
 

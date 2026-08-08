@@ -753,51 +753,53 @@ namespace UPlayGround.Editor
         }
 
         /// <summary>
-        /// Step 5b — 베이크된 minDistance가 유효 최대 사거리를 넘어선 Ability를 되살린다.
+        /// Step 5b — 실측 도달 거리를 넘어서는 activation을 실측 기준으로 되돌린다.
         ///
-        /// 근접 Ability의 유효 최대는 저작값이 아니라
-        /// min(authoredMax, max(targetingRange - 0.15, personalSpace + 0.5))다.
-        /// 베이크는 모션의 실제 접촉 지점에서 min을 뽑기 때문에, 스윙이 몸에서 먼 곳부터
-        /// 닿는 모션은 min이 이 상한을 넘어설 수 있다. 그러면 구간이 비어
-        /// 어떤 거리에서도 후보에 오르지 못한다 — 예외도 로그도 없이 그냥 안 나온다.
+        /// <see cref="EnemyAttackRangePolicy.ResolveEffectiveMaxDistance"/>는 근접에서
+        /// 베이크된 activation 최대 거리를 권위값으로 그대로 쓴다. 따라서 activation이
+        /// 실제 히트박스 도달보다 크면 그 차이만큼 헛스윙 구간이 된다.
         ///
-        /// 이 경우 min을 0으로 내려 클램프된 창 전체를 쓰게 한다. 모션 기준 스위트스팟보다
-        /// 가까이서 발동해 스쳐 지나갈 여지는 남지만, 영영 발동하지 않는 것보다 낫다.
-        /// 근본 해소는 해당 모션의 targetingRange를 실제 도달에 맞춰 올리는 콘텐츠 작업이다.
+        /// 베이크 리포트 대조 결과 역할 배정 근접 40건 중 36건은 activation이 실측보다
+        /// 정확히 0.15m 작다(도구가 안전 마진을 뺀다). 아래 2건만 실측이 1.35·1.00인데도
+        /// 권장값이 2.5로 나왔다 — 베이크 도구 쪽 결함이다. 여러 액터가 공유하므로
+        /// 가장 짧은 실측에서 다시 마진을 빼 보수적으로 잡는다.
+        ///
+        /// 근본 해소는 MonsterMeleeRangeBakeTool의 권장값 산출을 고치는 것이다.
+        /// 그 전까지 이 스텝이 회귀를 막는다(멱등).
         /// </summary>
-        public static void Step_ClampUnreachableMinDistance()
+        private static readonly (string Path, float Max, string Reason)[] WhiffRangeFixes =
         {
-            Run(nameof(Step_ClampUnreachableMinDistance), ctx =>
+            ("Assets/10.Datas/Ability/Actor/Humanoid_DualBladeAttackData/"
+             + "GA_Humanoid_DualBladeAttackData_08_Attack_8.asset",
+             1.20f, "실측 1.35(DualSword_002) - 마진 0.15"),
+            ("Assets/10.Datas/Ability/Actor/Humanoid_SwordShieldAttackData/"
+             + "GA_Humanoid_SwordShieldAttackData_09_Attack_9.asset",
+             0.85f, "실측 1.00(GreatSword_002) - 마진 0.15"),
+        };
+
+        public static void Step_FixWhiffRanges()
+        {
+            Run(nameof(Step_FixWhiffRanges), ctx =>
             {
-                foreach (string archetype in Archetypes)
+                foreach ((string path, float max, string reason) in WhiffRangeFixes)
                 {
-                    float personalSpace = Profiles[archetype].PersonalSpace;
-
-                    foreach (GameplayAbilitySO ability in LoadAbilities(archetype).OrderBy(a => a.name))
+                    var ability = AssetDatabase.LoadAssetAtPath<GameplayAbilitySO>(path);
+                    if (ability?.activation == null)
                     {
-                        AbilityAttackInfo info = PayloadOf(ability)?.attackInfo;
-                        if (info == null || !EnemyAbilitySelectionPolicy.IsAISelectableAttack(info))
-                            continue;
-                        if (info.aiRoles == AbilityAIRole.None)
-                            continue;
-                        if (info.baseInfo == null || info.baseInfo.attackType != AttackType.Melee)
-                            continue;
+                        ctx.Line($"  [건너뜀] 에셋 없음 {path}");
+                        continue;
+                    }
+                    if (Mathf.Approximately(ability.activation.maxDistance, max))
+                        continue;
 
-                        float effectiveMax = EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
-                            ability, info, personalSpace);
-                        if (ability.activation.minDistance < effectiveMax)
-                            continue;
-
-                        ctx.Line($"[{archetype}] {ability.name}: "
-                                 + $"min {ability.activation.minDistance:0.##} >= 유효최대 {effectiveMax:0.##} — 선택 불가 구간");
-                        ctx.Change(ability, "activation.minDistance",
-                            $"{ability.activation.minDistance:0.##}", "0");
-                        if (ctx.Apply)
-                        {
-                            ctx.Record(ability);
-                            ability.activation.minDistance = 0f;
-                            ctx.Dirty(ability);
-                        }
+                    ctx.Line($"  {ability.name}: {reason}");
+                    ctx.Change(ability, "activation.maxDistance",
+                        $"{ability.activation.maxDistance:0.##}", $"{max:0.##}");
+                    if (ctx.Apply)
+                    {
+                        ctx.Record(ability);
+                        ability.activation.maxDistance = max;
+                        ctx.Dirty(ability);
                     }
                 }
             });

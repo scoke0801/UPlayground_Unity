@@ -19,10 +19,6 @@ namespace UPlayGround.Data.Cycle
         Layout,
         BossPool,
         Reward,
-        Encounter,
-        Loot,
-        Interaction,
-        Quest,
     }
 
     /// <summary>

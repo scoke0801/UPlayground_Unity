@@ -23,7 +23,7 @@ namespace UPlayGround.Data.Quest
         [Tooltip("ItemDeliver 목표에서 아이템을 전달받는 NPC ID")]
         public int npcId;
 
-        [Tooltip("위치/Actor/조우/spawn/상호작용처럼 문자열로 식별하는 목표 ID")]
+        [Tooltip("위치 또는 Actor처럼 문자열로 식별하는 목표 ID")]
         public string targetStringId;
 
         [Tooltip("달성에 필요한 수량 (0이면 1회 달성)")]

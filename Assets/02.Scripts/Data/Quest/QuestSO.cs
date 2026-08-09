@@ -19,10 +19,6 @@ namespace UPlayGround.Data.Quest
     ///   ItemCraft    → QuestManager.Instance.NotifyItemCrafted(recipeId, quantity)
     ///   ItemEnhance  → QuestManager.Instance.NotifyItemEnhanced(itemId)
     ///   ReachLocation→ QuestManager.Instance.NotifyLocationReached(locationId)
-    ///   EncounterClear → CycleRunManager.OnEncounterCleared
-    ///   CycleBossDefeat → CycleRunManager.OnBossDefeated
-    ///   CycleLootCollect → CycleRunManager.OnCycleLootCollected
-    ///   InteractionComplete → CycleRunManager.OnInteractionCompleted
     /// </summary>
     [CreateAssetMenu(fileName = "QuestSO", menuName = "UPlayGround/퀘스트/Quest")]
     public class QuestSO : ScriptableObject

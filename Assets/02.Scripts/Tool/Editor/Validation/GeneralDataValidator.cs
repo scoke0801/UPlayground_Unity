@@ -281,10 +281,6 @@ namespace UPlayGround.Tool.Editor.Validation
                     if (!recipeIds.Contains(objective.targetId))
                         Add(issues, EditorValidationSeverity.Warning, "Quest", path, quest, $"objectives[{index}].targetId", $"목표 레시피 ID를 찾을 수 없습니다: {objective.targetId}", "RecipeDatabase 등록 상태를 확인하세요.");
                     break;
-                case QuestObjectiveType.CycleLootCollect:
-                    if (objective.targetId != 0 && !itemIds.Contains(objective.targetId))
-                        Add(issues, EditorValidationSeverity.Warning, "Quest", path, quest, $"objectives[{index}].targetId", $"사이클 루팅 목표 아이템 ID를 찾을 수 없습니다: {objective.targetId}", "0(모든 아이템)을 사용하거나 ItemSO/ItemDatabase 등록 상태를 확인하세요.");
-                    break;
                 case QuestObjectiveType.MonsterKill:
                     if (string.IsNullOrWhiteSpace(objective.targetStringId) && objective.targetId <= 0)
                         Add(issues, EditorValidationSeverity.Warning, "Quest", path, quest, $"objectives[{index}].targetStringId", "MonsterKill 목표의 Actor ID가 비어 있습니다.", "MonsterActor.ActorId를 targetStringId에 지정하세요. 기존 숫자 ID 데이터는 targetId로도 동작합니다.");

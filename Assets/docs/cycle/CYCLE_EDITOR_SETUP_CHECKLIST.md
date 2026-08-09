@@ -23,7 +23,6 @@
 - [ ] 씬 루트에 `CycleWorldContext`를 하나 배치한다.
 - [ ] `Run Config`에 `CycleConfigSO`, `Config`에 해당 맵의 `CycleWorldConfigSO`를 연결한다.
 - [ ] 플레이어 시작/외곽 보스 후보마다 `CycleSpawnPoint`를 배치한다.
-- [ ] `CycleSpawnPoint`의 XZ는 경로 앵커로 사용된다. Y는 액터 스폰 피벗으로 유지할 수 있지만, 해당 XZ의 Terrain이 `Ground Probe Up/Down Distance` 범위 안에 있어야 한다.
 - [ ] `CycleWorldConfigSO.Fixed Player Spawn Id`에 사용할 플레이어 시작점 `spawnId`를 지정한다. **2026-08-02 개정: 시작 위치는 추첨하지 않는다.** 씬에 `Player` 역할 후보가 여러 개 있어도 여기 지정한 하나만 집행된다.
 - [ ] 모든 `Spawn Id`를 맵 안에서 유일하고 영구적인 문자열로 지정한다. 이후 이름을 변경하지 않는다.
 - [ ] 역할 플래그를 `Player`, `OuterBoss`, `Respawn` 중 필요한 조합으로 지정한다.

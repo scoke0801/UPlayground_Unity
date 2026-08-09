@@ -28,7 +28,6 @@ Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.3
 - `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
 - `UPlayGround.Ability.Core` — 프로젝트 타입을 참조하지 않는 Ability 실행 상태·정책·Port·쿨다운·Effect 스택 코어
 - `UPlayGround.Ability.UPlayGround` — MotionSet과 플레이어 전투 Payload를 Core에 연결하는 프로젝트 어댑터
-- `UPlayGround.World.Generation` — `UPlayGround.Data`만 참조하는 시드 기반 사이클 콘텐츠 계획·퀘스트 초안 순수 모듈
 - `UPlayGround.Camera` — 카메라 런타임
 - `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
 - `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)

@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
-using UPlayGround.Data.Cycle;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Sound;
 using UPlayGround.Data.UI;
@@ -32,10 +31,6 @@ namespace UPlayGround.Manager
     ///   ItemCraft     → NotifyItemCrafted(recipeId, quantity)
     ///   ItemEnhance   → NotifyItemEnhanced(itemId)
     ///   ReachLocation → NotifyLocationReached(locationId)
-    ///   EncounterClear → NotifyEncounterCleared(encounterId)
-    ///   CycleBossDefeat → NotifyCycleBossDefeated(spawnId)
-    ///   CycleLootCollect → NotifyCycleLootCollected(itemId, count)
-    ///   InteractionComplete → NotifyInteractionCompleted(interactionId)
     ///
     /// ── 이벤트 구독 ─────────────────────────────────────────────────
     ///   EventManager.Subscribe&lt;QuestEvent, QuestStateEventData&gt;(QuestEvent.QuestAccepted, ...)
@@ -86,14 +81,10 @@ namespace UPlayGround.Manager
         public UniTask InitializeAsync(CancellationToken cancellationToken) =>
             LoadDatabaseAsync(cancellationToken);
 
-        public void AfterInit()
-        {
-            SubscribeCycleProgress();
-        }
+        public void AfterInit() { }
 
         public void Dispose()
         {
-            UnsubscribeCycleProgress();
             _activeQuests.Clear();
             _completedQuestIds.Clear();
             _failedQuestIds.Clear();
@@ -206,7 +197,7 @@ namespace UPlayGround.Manager
 
         /// <summary>
         /// 현재 실행에만 존재하는 퀘스트 정의를 등록한다. 저장 파일에는 기록하지 않으며,
-        /// 월드 생성 계획을 복원할 때 같은 ID로 다시 생성한다.
+        /// 호출자가 필요할 때 같은 ID로 다시 생성한다.
         /// </summary>
         public bool RegisterRuntimeQuest(QuestSO quest, bool acceptImmediately = true)
         {
@@ -729,39 +720,6 @@ namespace UPlayGround.Manager
             }
         }
 
-        public void NotifyEncounterCleared(string encounterId)
-        {
-            UpdateStringObjectives(QuestObjectiveType.EncounterClear, encounterId, 1);
-        }
-
-        public void NotifyCycleBossDefeated(string spawnId)
-        {
-            UpdateStringObjectives(QuestObjectiveType.CycleBossDefeat, spawnId, 1);
-        }
-
-        public void NotifyCycleLootCollected(int itemId, int count)
-        {
-            if (itemId <= 0 || count <= 0) return;
-            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
-            foreach (QuestRuntimeData runtime in runtimes)
-            {
-                foreach (QuestObjectiveData obj in runtime.QuestSO.objectives)
-                {
-                    if (obj.type != QuestObjectiveType.CycleLootCollect) continue;
-                    if (obj.targetId != 0 && obj.targetId != itemId) continue;
-                    if (runtime.IsObjectiveComplete(obj)) continue;
-                    runtime.AddProgress(obj.objectiveId, count);
-                    SendObjectiveEvent(runtime, obj);
-                    TryAutoComplete(runtime);
-                }
-            }
-        }
-
-        public void NotifyInteractionCompleted(string interactionId)
-        {
-            UpdateStringObjectives(QuestObjectiveType.InteractionComplete, interactionId, 1);
-        }
-
         #endregion
 
         // ──────────────────────────────────────────────────────────
@@ -801,56 +759,12 @@ namespace UPlayGround.Manager
             }
         }
 
-        private void UpdateStringObjectives(QuestObjectiveType type, string targetStringId, int count)
-        {
-            if (string.IsNullOrWhiteSpace(targetStringId) || count <= 0) return;
-            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
-            foreach (QuestRuntimeData runtime in runtimes)
-            {
-                foreach (QuestObjectiveData obj in runtime.QuestSO.objectives)
-                {
-                    if (obj.type != type) continue;
-                    if (!string.IsNullOrEmpty(obj.targetStringId) &&
-                        !string.Equals(obj.targetStringId, targetStringId, StringComparison.Ordinal)) continue;
-                    if (runtime.IsObjectiveComplete(obj)) continue;
-                    runtime.AddProgress(obj.objectiveId, count);
-                    SendObjectiveEvent(runtime, obj);
-                    TryAutoComplete(runtime);
-                }
-            }
-        }
-
         private QuestSO ResolveQuestDefinition(string questId)
         {
             if (string.IsNullOrEmpty(questId)) return null;
             if (_runtimeQuestDefinitions.TryGetValue(questId, out QuestSO runtimeQuest))
                 return runtimeQuest;
             return IsDBLoaded && _db != null ? _db.GetQuest(questId) : null;
-        }
-
-        private void SubscribeCycleProgress()
-        {
-            CycleRunManager cycle = CycleRunManager.Instance;
-            if (cycle == null) return;
-            cycle.OnEncounterCleared += NotifyEncounterCleared;
-            cycle.OnCycleLootCollected += NotifyCycleLootCollected;
-            cycle.OnInteractionCompleted += NotifyInteractionCompleted;
-            cycle.OnBossDefeated += OnCycleBossDefeated;
-        }
-
-        private void UnsubscribeCycleProgress()
-        {
-            CycleRunManager cycle = CycleRunManager.Instance;
-            if (cycle == null) return;
-            cycle.OnEncounterCleared -= NotifyEncounterCleared;
-            cycle.OnCycleLootCollected -= NotifyCycleLootCollected;
-            cycle.OnInteractionCompleted -= NotifyInteractionCompleted;
-            cycle.OnBossDefeated -= OnCycleBossDefeated;
-        }
-
-        private void OnCycleBossDefeated(CycleBossPlacement placement)
-        {
-            if (placement != null) NotifyCycleBossDefeated(placement.spawnId);
         }
 
         private void RemoveRuntimeQuestState(string questId)

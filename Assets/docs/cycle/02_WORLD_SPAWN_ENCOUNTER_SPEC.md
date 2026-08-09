@@ -238,41 +238,6 @@ Discover(spawnId)
   -> 텔레메트리 기록
 ```
 
-### 자동 생성 검증 퀘스트
-
-`CycleWorldConfigSO.autoGeneration.enabled`와 `generateValidationQuest`가 모두 켜져 있으면 저장되는 `CycleLayoutState.generatedContent`를 단일 소스로 런타임 퀘스트를 저작한다. QuestDatabase 에셋이나 `QuestIdType`은 변경하지 않는다.
-
-- ID: `cycle:auto:{mapId}:{cycleIndex}:{seed}`
-- 목표: 일반 조우 완료, 외곽·중앙 보스 처치, 자동 루팅 획득, 자동 상호작용 완료
-- 목표 수량: 설정값을 다시 읽지 않고 실제 저장 레이아웃의 유효 항목 수와 루팅 수량 합계에서 계산
-- 진행 상태: 조우/보스/루팅/상호작용의 저장 플래그에서 복원
-- 저장 규칙: 런타임 QuestSO와 퀘스트 진행 카운트는 일반 퀘스트 세이브에서 제외하고, 같은 레이아웃으로 재저작한 뒤 완료 플래그를 재적용
-- 완료 저장 복원: 모든 목표가 끝난 레이아웃이면 퀘스트를 다시 수락하지 않아 완료 이벤트·효과음의 중복 재생을 막음
-
-P0 `LakeOfLife`는 `autoGeneration.enabled = true`로 일반 조우 12개, 루팅 6개, 상호작용 3개와 검증 퀘스트를 생성한다. 외곽 3개와 중앙 1개의 지역 경로마다 쉬움·보통·어려움 조우를 하나씩 배치한다. 기존 외부 데모용 Animal NavMesh는 사용하지 않는다. 퀘스트 자체에는 별도 보상을 넣지 않아 사이클 정산 보상과 중복되지 않는다.
-
-### 일반 조우·루팅·상호작용 자동 생성
-
-`CycleWorldAutoGenerationSettings.enabled`가 켜져 있으면 `UPlayGround.World.Generation`의 순수 계획기가 `CycleLayoutState.generatedContent`를 만든다. 계획기는 씬과 Manager를 참조하지 않으며 입력 후보를 안정 ID로 정렬한다.
-
-- `Encounter`, `Loot`, `Interaction`은 서로 독립된 `CycleRandomStream`을 사용한다. 한 종류의 개수를 바꿔도 다른 종류의 결과를 흔들지 않는다.
-- `requireEveryRoutePerDifficultyZone`가 켜진 맵은 활성 난이도 구역의 조우 수가 지역 경로 수 이상이어야 한다. 각 구역은 경로를 순환 배정하고, 구역 진행률 범위를 조우 수만큼 겹치지 않는 층으로 나눈 뒤 각 층 안에서 시드 난수를 사용한다. 따라서 모든 지역 경로가 난이도별로 최소 한 번씩 사용되고 같은 구역의 조우가 한 지점에 몰리지 않는다.
-- 경로 진행률 범위는 `easyRouteMin/MaxProgress` → `normalRouteMin/MaxProgress` → `hardRouteMin/MaxProgress` 순서로 겹치지 않아야 한다. 플레이어에서 멀어질수록 위협 예산과 몬스터 후보 티어가 함께 상승한다. 루팅·상호작용도 `auxiliaryRouteMin/MaxProgress` 전체를 층화해 지역 경로에 균등 순환 배정한다.
-- 조우의 `threatBudget`은 정상 선택에서 남은 예산 이하 후보만 뽑는다. 후보가 하나도 들어가지 않는 경우에는 빈 조우를 막기 위해 해당 구역에서 허용되는 최저 비용 후보를 한 번 배치하며, 허용 구역 후보도 없으면 전체 최저 비용 후보를 사용한다. 따라서 현재 값은 절대 상한이 아니라 목표 예산이다.
-- 순수 계획기는 임시 좌표만 저장하지 않고 `routeId`, 누적 길이 기준 `routeProgress`, 횡방향 오프셋과 멤버 로컬 오프셋도 함께 저장한다. 런타임은 플레이어 스폰에서 선택된 각 보스 스폰까지 먼저 직선 지면 경로를 검사한다. 직선이 막히면 `routeDetourStep` 간격과 `routeDetourMaxOffset` 범위의 측면 격자 DAG에서 최소 비용 경로를 결정론적으로 찾고, 저장된 진행률을 최종 경로의 누적 길이에 투영해 검증된 `anchorPosition`/`position`을 저장한다.
-- `CycleSpawnPoint`/중앙 보스 마커는 액터 스폰 피벗이면서 경로의 XZ 목표다. 경로 시작·도착 앵커는 `groundProbeUpDistance`/`groundProbeDownDistance` 범위에서 허용 Terrain 지면으로 변환하며, 자동 생성 콘텐츠 배치 후보용 `maxGroundProjectionDistance`를 적용하지 않는다. 경로 중간 표본은 두 마커의 Y를 선형 보간하지 않고 직전 Terrain 표본의 실제 Y를 다음 수직 탐색 기준으로 사용한다. 우회 격자도 도달한 노드의 Terrain 표본을 캐시해 후속 간선이 같은 지면 높이에서 이어지도록 한다.
-- 지면 표본은 설정된 표면 레이어를 위에서 아래로 모두 검사한다. 가장 위의 비트리거 충돌체가 명시된 Ground 레이어의 `TerrainCollider`일 때만 승인한다. 급경사, 설정된 단차보다 큰 높이 불연속, 낮은 천장·바위 같은 캡슐 장애물은 실패로 처리한다.
-- Collider가 없는 물 메시도 허용 지면으로 오인하지 않도록 `excludedSurfaceMaterials`에 물 Material 에셋을 명시한다. 런타임은 해당 Material을 쓰는 현재 활성 `MeshRenderer`에 숨김 `MeshCollider` 프록시를 검증 중에만 만든다. 목록의 에셋 참조가 유실되면 실패하지만 현재 씬에서 비활성·미사용인 Material은 복원을 막지 않는다. 오브젝트 이름이나 Material 이름 추론은 사용하지 않는다.
-- 각 몬스터의 `KinematicCharacterMotor` 프리팹에서 반지름·높이·Y 오프셋·최대 안정 경사·최대 단차를 읽어 실제 캡슐로 지면과 이동 구간을 검사한다. Terrain 나무는 Ground `TerrainCollider`와 같은 레이어로 보고되므로 tree instance와 prototype Collider의 보수적 월드 bounds를 별도 공간 캐시에 넣어 정지 캡슐과 이동 구간 모두 검사한다. 멤버끼리의 가상 캡슐 중첩과 캡슐 반지름을 포함한 모든 보스의 `bossExclusionRadius` 침범도 거부한다.
-- 자동 조우는 조우별 `MonsterGroupController` 루트 아래에 몬스터를 생성한다. 생성이 끝나면 부모 계층, 그룹 레지스트리, `IEnemyAIController.Group` 참조와 생존 멤버 수를 교차 검증한 뒤 그룹을 활성화한다. 하나라도 연결되지 않으면 개별 AI로 조용히 폴백하지 않고 사이클 월드 생성을 실패시킨다.
-- 최초 생성에서 기준점이나 개별 멤버 위치가 부적합하면 generation ID와 placement ID의 안정 해시로 정렬된 고정 ring 후보만 제한 반경 안에서 탐색한다. 멤버별 최종 위치와 갱신된 로컬 오프셋을 저장하며, Unity 전역 난수와 `string.GetHashCode`는 사용하지 않는다.
-- 우회 격자의 모든 간선은 직선 경로와 동일한 Ground Terrain, 물 제외, 경사·단차, KCC 캡슐 장애물 검사를 통과해야 한다. 레이어나 장식물 Collider를 무시하는 폴백은 허용하지 않는다. 탐색은 전진 또는 한 단계 측면 전진만 허용하는 제한된 배치 경로이며 AI 길찾기는 아니다. 제한 반경 안에 경로가 없으면 월드 생성은 실패하고, 복잡한 우회가 필요한 맵은 수작업 route/area 또는 일반 지면 그래프를 별도 저작한다.
-
-### 복원 실패와 정리 계약
-
-`TryRestore`는 보스, 일반 조우, 루팅, 상호작용, 런타임 퀘스트를 순서대로 복원한다. 중간 단계가 실패하면 해당 복원 시도에서 생성한 `_spawnedObjects`와 `cycle:auto:` 런타임 퀘스트를 모두 정리한 뒤 실패를 반환한다. 부분 성공 오브젝트를 다음 재시도에 남겨서는 안 된다. 다시 스폰할 미완료 자동 생성 위치와 그 항목이 참조하는 지면 경로만 현재 Ground/KCC/물 제외/보스 반경 계약을 저장 좌표 그대로 통과해야 한다. 복원에서는 ring 재탐색이나 좌표 보정을 하지 않으며, 검증은 복제본에 원자적으로 수행한다. 이미 완료되어 스폰하지 않는 항목의 과거 좌표나 그 전용 경로 변화는 복원을 막지 않는다. 결정론적 우회 경로가 도입된 현재 `placementValidationVersion`은 2이며, 버전이 다른 구형 자동 배치 레이아웃은 현재 규칙으로 암묵 재해석하지 않는다.
-
-씬에는 활성 `CycleWorldContext`를 하나만 둔다. 같은 Context의 중복 등록은 no-op이고, 다른 Context가 같은 씬에서 추가 등록되면 기존 런타임 오브젝트의 소유권을 잃지 않도록 오류로 거부한다.
 
 ---
 

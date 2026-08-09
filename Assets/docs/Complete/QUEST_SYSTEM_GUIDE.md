@@ -6,7 +6,7 @@ UPlayground의 퀘스트 시스템은 **ScriptableObject 기반의 목표 추적
 
 ### 핵심 특징
 
-- **12가지 목표 타입**: 기본 8종 + 자동 조우 완료·사이클 보스 처치·사이클 루팅·자동 상호작용
+- **8가지 목표 타입**: 아이템 수집·전달·사용, 몬스터 처치, 스토리 진행, 아이템 제작·강화, 위치 도달
 - **타입 안전 API**: 자동 생성 `QuestIdType` enum으로 문자열 오타 없이 퀘스트 참조
 - **세이브/로드 연동**: `ISaveable` 구현으로 완료 목록 및 진행 중 목표 카운트 영속 저장
 - **EventManager 연동**: 수락·완료·목표 갱신 시 `QuestEvent`로 UI에 브로드캐스트
@@ -58,7 +58,7 @@ QuestDatabase  InventoryManager  EventManager
 
 ```
 데이터 계층 (Assets/02.Scripts/Data/Quest/)
-├── QuestObjectiveType  (enum) — 12가지 목표 타입
+├── QuestObjectiveType  (enum) — 8가지 목표 타입
 ├── QuestObjectiveData  — 단일 목표 정의 (타입, 대상ID, 수량 등)
 ├── QuestRewardData     — 보상 (골드, 아이템 목록)
 ├── QuestStatus         (enum) — Locked / Available / Active / Completed / Failed
@@ -157,10 +157,6 @@ public enum QuestObjectiveType
     ItemCraft     = 5,  // 아이템 제작 (레시피 기준)
     ItemEnhance   = 6,  // 아이템 강화
     ReachLocation = 7,  // 목표 지점 도달
-    EncounterClear = 8, // 자동 생성 조우 완료
-    CycleBossDefeat = 9, // 사이클 보스 처치
-    CycleLootCollect = 10, // 사이클 자동 배치 루팅 획득
-    InteractionComplete = 11, // 자동 생성 상호작용 완료
 }
 ```
 
@@ -194,10 +190,6 @@ public class QuestObjectiveData
 | ItemCraft | 레시피 ID | — | — | 제작 횟수 |
 | ItemEnhance | 아이템 ID | — | — | 강화 횟수 |
 | ReachLocation | — | — | 위치 ID | (미사용) |
-| EncounterClear | — | — | 조우 ID, 빈 값은 전체 | 완료 수 |
-| CycleBossDefeat | — | — | spawnId, 빈 값은 전체 | 처치 수 |
-| CycleLootCollect | 아이템 ID, 0은 전체 | — | — | 획득 수량 |
-| InteractionComplete | — | — | 상호작용 ID, 빈 값은 전체 | 완료 수 |
 
 ### QuestSO
 
@@ -754,7 +746,7 @@ public class ActiveQuestSaveEntry
 
 ### 런타임 퀘스트 수명주기
 
-`QuestManager.RegisterRuntimeQuest`로 등록한 `QuestSO`는 현재 실행에만 존재하며 QuestDatabase 에셋과 일반 퀘스트 세이브에 포함하지 않는다. 완료/실패 목록, 진행 카운트, 추적 ID에서도 런타임 퀘스트 ID를 제외한다. 사이클 자동 검증 퀘스트는 저장된 `CycleLayoutState.generatedContent`에서 다시 저작하고 조우·보스·루팅·상호작용 완료 플래그로 진행 상태를 복원한다.
+`QuestManager.RegisterRuntimeQuest`로 등록한 `QuestSO`는 현재 실행에만 존재하며 QuestDatabase 에셋과 일반 퀘스트 세이브에 포함하지 않는다. 완료/실패 목록, 진행 카운트, 추적 ID에서도 런타임 퀘스트 ID를 제외한다.
 
 `UnregisterRuntimeQuests`가 현재 추적 퀘스트를 제거하면 모든 대상 삭제를 끝낸 뒤 최종 추적 대상을 한 번 계산한다. 다른 활성 퀘스트가 있으면 `QuestTracked`, 없으면 `QuestUntracked`를 정확히 한 번 발행해 HUD와 월드 마커가 오래된 런타임 퀘스트를 표시하지 않게 한다.
 

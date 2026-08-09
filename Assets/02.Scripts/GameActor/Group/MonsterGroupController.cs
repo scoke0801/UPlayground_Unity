@@ -360,69 +360,6 @@ namespace UPlayGround.Group
 
         #region 멤버 등록/해제
 
-        public int RegisteredMemberCount => _priorities.Count;
-
-        public bool IsMemberRegistered(MonsterActor actor)
-        {
-            return actor != null && _priorities.ContainsKey(actor);
-        }
-
-        /// <summary>
-        /// 런타임에서 한 번에 생성한 조우 멤버의 계층·레지스트리·AI 그룹 참조를 확정한다.
-        /// 개별 Spawn API의 등록 호출에만 의존하지 않고 조우 생성 경계에서 완성 상태를 검증한다.
-        /// </summary>
-        public bool TryBindRuntimeMembers(
-            IReadOnlyList<MonsterActor> actors,
-            out string error)
-        {
-            error = null;
-            if (actors == null || actors.Count == 0)
-            {
-                error = "런타임 그룹에 등록할 몬스터가 없습니다.";
-                return false;
-            }
-
-            HashSet<MonsterActor> uniqueActors = new();
-            for (int i = 0; i < actors.Count; i++)
-            {
-                MonsterActor actor = actors[i];
-                if (actor == null)
-                {
-                    error = $"런타임 그룹 멤버 {i}가 null입니다.";
-                    return false;
-                }
-
-                if (!uniqueActors.Add(actor))
-                {
-                    error = $"런타임 그룹 멤버 '{actor.name}'가 중복되었습니다.";
-                    return false;
-                }
-
-                if (!actor.transform.IsChildOf(transform))
-                {
-                    error = $"런타임 그룹 멤버 '{actor.name}'가 그룹 계층의 자식이 아닙니다.";
-                    return false;
-                }
-
-                RegisterMember(actor, MemberPriority.Normal);
-                if (!IsMemberRegistered(actor))
-                {
-                    error = $"런타임 그룹 멤버 '{actor.name}'를 레지스트리에 등록하지 못했습니다.";
-                    return false;
-                }
-
-                if (!TryBindMemberController(actor, MemberPriority.Normal) ||
-                    !ReferenceEquals(actor.AIController.Group, this))
-                {
-                    error = $"런타임 그룹 멤버 '{actor.name}'의 AI에 그룹을 바인딩하지 못했습니다.";
-                    return false;
-                }
-            }
-
-            _peakAliveCount = Mathf.Max(_peakAliveCount, AliveCount);
-            return true;
-        }
-
         public void RegisterMember(MonsterActor actor, MemberPriority priority)
         {
             if (actor == null)

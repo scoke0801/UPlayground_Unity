@@ -15,6 +15,25 @@ namespace UPlayGround.Tool.Editor.Balance
     {
         public sealed class ActorTelemetry
         {
+            public sealed class AbilityTelemetry
+            {
+                public string SourceKey;
+                public string Side;
+                public string AbilityId;
+                public string VariantId;
+                public string MotionKey;
+                public string MotionId;
+                public string AttackKind;
+                public int AttemptCount;
+                public int ResolvedCount;
+                public int DamageHitCount;
+                public int CounterHitCount;
+                public int GuardedCount;
+                public int ParriedCount;
+                public int DodgedCount;
+                public float TotalDamage;
+            }
+
             public string ActorId;
             public int EncounterCount;
             public int KillCount;
@@ -29,6 +48,12 @@ namespace UPlayGround.Tool.Editor.Balance
             public float GuardRate;
             public float ParryRate;
             public float DodgeRate;
+            public int CounterHitCount;
+            public float AvgMonsterAbilityStarts;
+            public float AvgLongestMonsterActionGap;
+            public readonly Dictionary<string, AbilityTelemetry> Abilities = new();
+            public readonly Dictionary<string, int> IntentEvaluations = new();
+            public readonly Dictionary<string, int> IntentSelections = new();
         }
 
         private static readonly Dictionary<string, ActorTelemetry> _byActor = new();
@@ -55,6 +80,8 @@ namespace UPlayGround.Tool.Editor.Balance
             // 집계 중간값: actorId별 합산용 임시 버킷
             var damageSums = new Dictionary<string, float>();
             var hitSums = new Dictionary<string, float>();
+            var abilityStartSums = new Dictionary<string, float>();
+            var longestGapSums = new Dictionary<string, float>();
             var hitEvents = new Dictionary<string, (float hit, float guard, float parry, float dodge)>();
 
             foreach (string file in Directory.GetFiles(DirectoryPath, "session_*.json"))
@@ -93,6 +120,11 @@ namespace UPlayGround.Tool.Editor.Balance
 
                     Accumulate(damageSums, record.actorId, record.damageToPlayer);
                     Accumulate(hitSums, record.actorId, record.hitsOnPlayer);
+                    Accumulate(abilityStartSums, record.actorId, record.monsterAbilityStarts);
+                    Accumulate(longestGapSums, record.actorId, record.longestMonsterActionGap);
+                    telemetry.CounterHitCount += record.counterHitsOnMonster;
+                    AccumulateAbilities(telemetry, record.abilities);
+                    AccumulateIntents(telemetry, record.intents);
 
                     (float hit, float guard, float parry, float dodge) events = hitEvents.TryGetValue(record.actorId, out var existing) ? existing : default;
                     events.hit += record.hitsOnPlayer;
@@ -119,6 +151,12 @@ namespace UPlayGround.Tool.Editor.Balance
                 {
                     telemetry.AvgDamageToPlayer = damageSums.TryGetValue(telemetry.ActorId, out float damage) ? damage / telemetry.EncounterCount : 0f;
                     telemetry.AvgHitsOnPlayer = hitSums.TryGetValue(telemetry.ActorId, out float hits) ? hits / telemetry.EncounterCount : 0f;
+                    telemetry.AvgMonsterAbilityStarts = abilityStartSums.TryGetValue(telemetry.ActorId, out float starts)
+                        ? starts / telemetry.EncounterCount
+                        : 0f;
+                    telemetry.AvgLongestMonsterActionGap = longestGapSums.TryGetValue(telemetry.ActorId, out float gap)
+                        ? gap / telemetry.EncounterCount
+                        : 0f;
                 }
 
                 if (hitEvents.TryGetValue(telemetry.ActorId, out var ev))
@@ -148,6 +186,69 @@ namespace UPlayGround.Tool.Editor.Balance
         private static void Accumulate(Dictionary<string, float> map, string key, float value)
         {
             map.TryGetValue(key, out float current);
+            map[key] = current + value;
+        }
+
+        private static void AccumulateAbilities(
+            ActorTelemetry telemetry,
+            List<CombatTelemetrySession.AbilityUsageRecord> records)
+        {
+            if (records == null)
+                return;
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                CombatTelemetrySession.AbilityUsageRecord source = records[i];
+                if (source == null || string.IsNullOrEmpty(source.sourceKey))
+                    continue;
+
+                if (!telemetry.Abilities.TryGetValue(source.sourceKey, out ActorTelemetry.AbilityTelemetry target))
+                {
+                    target = new ActorTelemetry.AbilityTelemetry
+                    {
+                        SourceKey = source.sourceKey,
+                        Side = source.side,
+                        AbilityId = source.abilityId,
+                        VariantId = source.variantId,
+                        MotionKey = source.motionKey,
+                        MotionId = source.motionId,
+                        AttackKind = source.attackKind,
+                    };
+                    telemetry.Abilities.Add(source.sourceKey, target);
+                }
+
+                target.AttemptCount += source.attemptCount;
+                target.ResolvedCount += source.resolvedCount;
+                target.DamageHitCount += source.damageHitCount;
+                target.CounterHitCount += source.counterHitCount;
+                target.GuardedCount += source.guardedCount;
+                target.ParriedCount += source.parriedCount;
+                target.DodgedCount += source.dodgedCount;
+                target.TotalDamage += source.totalDamage;
+            }
+        }
+
+        private static void AccumulateIntents(
+            ActorTelemetry telemetry,
+            List<CombatTelemetrySession.IntentUsageRecord> records)
+        {
+            if (records == null)
+                return;
+
+            for (int i = 0; i < records.Count; i++)
+            {
+                CombatTelemetrySession.IntentUsageRecord source = records[i];
+                if (source == null || string.IsNullOrEmpty(source.intent))
+                    continue;
+
+                Accumulate(telemetry.IntentEvaluations, source.intent, source.evaluationCount);
+                Accumulate(telemetry.IntentSelections, source.intent, source.selectionCount);
+            }
+        }
+
+        private static void Accumulate(Dictionary<string, int> map, string key, int value)
+        {
+            map.TryGetValue(key, out int current);
             map[key] = current + value;
         }
     }

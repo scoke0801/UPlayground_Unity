@@ -73,6 +73,19 @@ namespace UPlayGround.Gameplay.Ability
                   && prepared.State == AbilityExecutionState.Prepared
                     ? prepared.Definition?.abilityId
                     : null;
+        public string CurrentVariantId =>
+            _primaryExecution != 0
+            && _executions.TryGetValue(
+                _primaryExecution,
+                out AbilityExecution execution)
+                ? execution.Variant?.variantId
+                : _latestPreparedExecution != 0
+                  && _executions.TryGetValue(
+                      _latestPreparedExecution,
+                      out AbilityExecution prepared)
+                  && prepared.State == AbilityExecutionState.Prepared
+                    ? prepared.Variant?.variantId
+                    : null;
 
         internal ActorAbilitySystem(
             GameActor owner,

@@ -22,6 +22,9 @@ namespace UPlayGround.Combat
     {
         public readonly GameActor Attacker;
         public readonly MotionSetAsset MotionAsset;
+        public readonly string AbilityId;
+        public readonly string AbilityVariantId;
+        public readonly string MotionKey;
         public readonly int HitPhaseIndex;
         public readonly AttackKind AttackKind;
         public readonly AttackReactionType ReactionType;
@@ -89,10 +92,16 @@ namespace UPlayGround.Combat
             float specialDamageByMaxHpRate = 0f,
             float specialFixedDamage = 0f,
             float specialMinReferenceHealth = 0f,
-            bool isReflectableProjectile = false)
+            bool isReflectableProjectile = false,
+            string abilityId = null,
+            string abilityVariantId = null,
+            string motionKey = null)
         {
             Attacker = attacker;
             MotionAsset = motionAsset;
+            AbilityId = abilityId;
+            AbilityVariantId = abilityVariantId;
+            MotionKey = motionKey;
             HitPhaseIndex = hitPhaseIndex;
             AttackKind = attackKind;
             ReactionType = reactionType;
@@ -162,7 +171,10 @@ namespace UPlayGround.Combat
                 data.victimForcedMotionSlot,
                 data.guaranteedReaction,
                 data.reactionData,
-                isReflectableProjectile: data.isReflectableProjectile);
+                isReflectableProjectile: data.isReflectableProjectile,
+                abilityId: data.abilityId,
+                abilityVariantId: data.abilityVariantId,
+                motionKey: data.motionKey);
         }
 
         private static float ResolveCriticalMultiplier(AttackData data)
@@ -255,6 +267,9 @@ namespace UPlayGround.Combat
             {
                 attacker = Attacker,
                 motionAsset = MotionAsset,
+                abilityId = AbilityId,
+                abilityVariantId = AbilityVariantId,
+                motionKey = MotionKey,
                 hitPhaseIndex = HitPhaseIndex,
                 attackKind = AttackKind,
                 reactionType = ReactionType,

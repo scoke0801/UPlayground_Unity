@@ -349,6 +349,7 @@ namespace UPlayGround.Components
             ResetComboPreserveChains();
             _currentAttackData = ConvertToAttackData(attackInfo, AttackKind.SkillAttack);
             _currentAttackData.motionAsset = motionAsset;
+            _currentAttackData.abilityVariantId = variant?.variantId;
             LastAttackTime = Time.time;
             RefreshCombatState();
             OnAttackStarted?.Invoke(_currentAttackData);
@@ -549,6 +550,8 @@ namespace UPlayGround.Components
                     _playerActor,
                     attackInfo,
                     out data.motionAsset);
+                data.abilityId = _playerActor?.Abilities?.CurrentAbilityId;
+                data.abilityVariantId = _playerActor?.Abilities?.CurrentVariantId;
             }
             if (data != null && _playerActor != null)
             {

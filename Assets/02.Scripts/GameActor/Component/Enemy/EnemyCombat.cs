@@ -280,6 +280,7 @@ namespace UPlayGround.Components
         }
 
         private GameplayAbilitySO _currentAbility;
+        private string _currentAbilityVariantId;
         private AbilityAttackInfo _currentSkill;
         private MotionSetAsset _currentAbilityMotionAsset;
         private readonly HashSet<IDamageable> _hitTargets = new HashSet<IDamageable>();
@@ -890,6 +891,7 @@ namespace UPlayGround.Components
         {
             attackInfo = null;
             _currentAbilityMotionAsset = null;
+            _currentAbilityVariantId = null;
             if (ability == null || _abilitySystem == null)
                 return false;
 
@@ -926,6 +928,7 @@ namespace UPlayGround.Components
             }
 
             _currentAbilityMotionAsset = resolvedMotionAsset;
+            _currentAbilityVariantId = variant?.variantId;
             return true;
         }
 
@@ -1214,12 +1217,19 @@ namespace UPlayGround.Components
             {
                 var attackData = new AttackData
                 {
+                    motionAsset        = CurrentMotionAsset,
                     damage             = UPlayGround.Util.ApplyRandomValue(phase.damage, -0.2f, 0.2f),
+                    abilityId          = _currentAbility?.abilityId,
+                    abilityVariantId   = _currentAbilityVariantId,
+                    motionKey          = _currentSkill?.motionKey.IsValid == true
+                        ? _currentSkill.motionKey.value
+                        : null,
                     poiseDamage        = phase.poiseDamage,
                     breakDamage        = phase.breakDamage,
                     reactionDuration   = phase.reactionDuration,
                     forceReaction      = phase.forceReaction,
                     forceBreakExpose   = phase.forceBreakExpose,
+                    attackKind         = AttackKind.SkillAttack,
                     criticalMultiplier = 1.0f,
                     hitPoint           = hit.HitPoint,
                     // 명시적 범위 판정은 Shape 중심 기준 방사/흡입 방향이 의미를 가지므로 검출 결과를 존중한다.
@@ -1296,6 +1306,12 @@ namespace UPlayGround.Components
             ClearTelegraphHitPositions();
 
             StartRunnerActionForSkill(attackInfo);
+            CombatTelemetrySession.NotifyMonsterAbilityStarted(
+                _ownerActor,
+                ability?.abilityId,
+                _currentAbilityVariantId,
+                attackInfo.motionKey.IsValid ? attackInfo.motionKey.value : null,
+                CurrentMotionAsset != null ? CurrentMotionAsset.name : null);
             return true;
         }
 
@@ -1678,6 +1694,8 @@ namespace UPlayGround.Components
                 return null;
 
             data.motionAsset = _currentAbilityMotionAsset;
+            data.abilityId = _currentAbility?.abilityId;
+            data.abilityVariantId = _currentAbilityVariantId;
             data.criticalMultiplier = 1f;
             data.attacker = _ownerActor;
             data.isProjectile = true;

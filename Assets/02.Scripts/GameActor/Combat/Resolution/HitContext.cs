@@ -15,6 +15,9 @@ namespace UPlayGround.Combat
         public readonly GameActor Attacker;
         public readonly GameActor Victim;
         public readonly MotionSetAsset MotionAsset;
+        public readonly string AbilityId;
+        public readonly string AbilityVariantId;
+        public readonly string MotionKey;
         public readonly int HitPhaseIndex;
         public readonly AttackKind AttackKind;
         public readonly AttackReactionType ReactionType;
@@ -54,6 +57,9 @@ namespace UPlayGround.Combat
             Attacker = request.Attacker;
             Victim = victim;
             MotionAsset = request.MotionAsset;
+            AbilityId = request.AbilityId;
+            AbilityVariantId = request.AbilityVariantId;
+            MotionKey = request.MotionKey;
             HitPhaseIndex = request.HitPhaseIndex;
             AttackKind = request.AttackKind;
             ReactionType = request.ReactionType;

@@ -12,6 +12,13 @@ namespace UPlayGround.Data
     {
         public MotionSetAsset motionAsset;
         public string MotionId => motionAsset != null ? motionAsset.name : "-";
+
+        // 밸런스 텔레메트리용 실행 출처 스냅샷. 런타임 Ability가 종료된 뒤에도
+        // HitRequest/CombatResult가 원래 데이터 행을 식별할 수 있게 문자열만 보존한다.
+        public string abilityId;
+        public string abilityVariantId;
+        public string motionKey;
+
         public float damage;
         public float poiseDamage = 30f;
         public float breakDamage = 10f;

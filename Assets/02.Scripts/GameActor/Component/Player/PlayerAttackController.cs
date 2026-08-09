@@ -20,6 +20,7 @@ namespace UPlayGround.Components
 
             var data = new AttackData
             {
+                motionKey = attackInfo.motionKey.IsValid ? attackInfo.motionKey.value : null,
                 interruptActions = attackInfo.interruptActions,
                 moveCancelDelayAfterLastHit = Mathf.Max(0f, attackInfo.moveCancelDelayAfterLastHit),
                 attackKind = attackKind,
@@ -69,6 +70,9 @@ namespace UPlayGround.Components
             return new AttackData
             {
                 motionAsset = source.motionAsset,
+                abilityId = source.abilityId,
+                abilityVariantId = source.abilityVariantId,
+                motionKey = source.motionKey,
                 damage = source.damage,
                 poiseDamage = source.poiseDamage,
                 breakDamage = source.breakDamage,

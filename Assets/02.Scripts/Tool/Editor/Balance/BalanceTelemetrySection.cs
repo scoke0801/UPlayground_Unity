@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -81,6 +82,39 @@ namespace UPlayGround.Tool.Editor.Balance
                     $"회피 가정 {assumedDodge * 100f:F0}% vs 실측 {telemetry.DodgeRate * 100f:F0}%  |  " +
                     $"패리 가정 {assumedParry * 100f:F0}% vs 실측 {telemetry.ParryRate * 100f:F0}%  |  " +
                     $"가드 실측 {telemetry.GuardRate * 100f:F0}%",
+                    EditorStyles.miniLabel);
+
+                EditorGUILayout.LabelField(
+                    $"몬스터 행동 시작 {telemetry.AvgMonsterAbilityStarts:F1}회/인카운터  |  " +
+                    $"행동 시작 간 최장 공백 평균 {telemetry.AvgLongestMonsterActionGap:F2}s  |  " +
+                    $"플레이어 카운터 적중 {telemetry.CounterHitCount}회",
+                    EditorStyles.miniLabel);
+
+                DrawMonsterAbilitySummary(telemetry);
+            }
+        }
+
+        private static void DrawMonsterAbilitySummary(CombatTelemetryImporter.ActorTelemetry telemetry)
+        {
+            var abilities = new List<CombatTelemetryImporter.ActorTelemetry.AbilityTelemetry>();
+            foreach (CombatTelemetryImporter.ActorTelemetry.AbilityTelemetry ability in telemetry.Abilities.Values)
+            {
+                if (ability.Side == "monster" && ability.AttemptCount > 0)
+                    abilities.Add(ability);
+            }
+
+            abilities.Sort((left, right) => right.AttemptCount.CompareTo(left.AttemptCount));
+            int count = Mathf.Min(3, abilities.Count);
+            for (int i = 0; i < count; i++)
+            {
+                CombatTelemetryImporter.ActorTelemetry.AbilityTelemetry ability = abilities[i];
+                string label = !string.IsNullOrEmpty(ability.AbilityId)
+                    ? ability.AbilityId
+                    : (!string.IsNullOrEmpty(ability.MotionKey) ? ability.MotionKey : ability.MotionId);
+                int defended = ability.GuardedCount + ability.ParriedCount + ability.DodgedCount;
+                EditorGUILayout.LabelField(
+                    $"  {label}: 시도 {ability.AttemptCount}, 판정 {ability.ResolvedCount}, " +
+                    $"피해 적중 {ability.DamageHitCount}, 방어됨 {defended}, 누적 피해 {ability.TotalDamage:F0}",
                     EditorStyles.miniLabel);
             }
         }

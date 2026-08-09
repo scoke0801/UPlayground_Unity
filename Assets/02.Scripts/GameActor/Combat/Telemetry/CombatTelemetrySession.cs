@@ -24,6 +24,34 @@ namespace UPlayGround.Combat
             => Path.Combine(Application.persistentDataPath, "CombatTelemetry");
 
         [Serializable]
+        public sealed class AbilityUsageRecord
+        {
+            public string sourceKey;
+            public string side; // player / monster / ally
+            public string abilityId;
+            public string variantId;
+            public string motionKey;
+            public string motionId;
+            public string attackKind;
+            public int attemptCount;
+            public int resolvedCount;
+            public int damageHitCount;
+            public int counterHitCount;
+            public int guardedCount;
+            public int parriedCount;
+            public int dodgedCount;
+            public float totalDamage;
+        }
+
+        [Serializable]
+        public sealed class IntentUsageRecord
+        {
+            public string intent;
+            public int evaluationCount;
+            public int selectionCount;
+        }
+
+        [Serializable]
         public sealed class EncounterRecord
         {
             public string actorId;
@@ -42,6 +70,11 @@ namespace UPlayGround.Combat
             public int parriedCount;
             public int dodgedCount;
             public float maxSingleHitOnPlayer;
+            public int counterHitsOnMonster;
+            public int monsterAbilityStarts;
+            public float longestMonsterActionGap;
+            public List<AbilityUsageRecord> abilities = new();
+            public List<IntentUsageRecord> intents = new();
         }
 
         [Serializable]
@@ -55,6 +88,10 @@ namespace UPlayGround.Combat
         {
             public EncounterRecord Record;
             public float LastEventTime;
+            public float LastMonsterAbilityStartTime = -1f;
+            public string LastIntent;
+            public readonly Dictionary<string, AbilityUsageRecord> Abilities = new();
+            public readonly Dictionary<string, IntentUsageRecord> Intents = new();
         }
 
         private static readonly Dictionary<int, ActiveEncounter> _active = new();
@@ -94,6 +131,12 @@ namespace UPlayGround.Combat
                 ActiveEncounter encounter = GetOrCreate(victimMonster, now);
                 encounter.Record.damageToMonster += result.FinalDamage;
                 encounter.Record.hitsOnMonster++;
+                if (result.Hit.IsCounterAttack)
+                    encounter.Record.counterHitsOnMonster++;
+                RecordAbilityResult(
+                    encounter,
+                    result,
+                    result.Attacker is PlayerActor ? "player" : "ally");
                 encounter.LastEventTime = now;
                 return;
             }
@@ -102,6 +145,7 @@ namespace UPlayGround.Combat
             {
                 ActiveEncounter encounter = GetOrCreate(attackerMonster, now);
                 encounter.LastEventTime = now;
+                RecordAbilityResult(encounter, result, "monster");
 
                 if (result.DamageApplied && result.FinalDamage > 0f)
                 {
@@ -126,6 +170,73 @@ namespace UPlayGround.Combat
                         encounter.Record.dodgedCount++;
                         break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// 몬스터가 Ability를 실제 커밋해 행동을 시작한 시점. 적중하지 않은 시도와 행동 사이 공백도
+        /// 결과 기반 로그에서 유실되지 않도록 EnemyCombat에서 호출한다.
+        /// </summary>
+        public static void NotifyMonsterAbilityStarted(
+            MonsterActor monster,
+            string abilityId,
+            string variantId,
+            string motionKey,
+            string motionId)
+        {
+            if (!Enabled || monster == null)
+                return;
+
+            float now = Time.time;
+            SweepTimeouts(now);
+            ActiveEncounter encounter = GetOrCreate(monster, now);
+            encounter.Record.monsterAbilityStarts++;
+
+            if (encounter.LastMonsterAbilityStartTime >= 0f)
+            {
+                float gap = Mathf.Max(0f, now - encounter.LastMonsterAbilityStartTime);
+                encounter.Record.longestMonsterActionGap = Mathf.Max(
+                    encounter.Record.longestMonsterActionGap,
+                    gap);
+            }
+
+            encounter.LastMonsterAbilityStartTime = now;
+            encounter.LastEventTime = now;
+            AbilityUsageRecord usage = GetOrCreateAbility(
+                encounter,
+                "monster",
+                abilityId,
+                variantId,
+                motionKey,
+                motionId,
+                "SkillAttack");
+            usage.attemptCount++;
+        }
+
+        /// <summary>
+        /// 이미 열린 인카운터의 Intent 평가 분포를 집계한다. 서비스 틱 자체는 인카운터 수명 연장
+        /// 이벤트로 보지 않아, 전투가 끝난 AI가 텔레메트리 세션을 계속 붙잡지 않게 한다.
+        /// </summary>
+        public static void NotifyIntentEvaluated(MonsterActor monster, string intent)
+        {
+            if (!Enabled || monster == null || string.IsNullOrWhiteSpace(intent))
+                return;
+
+            if (!_active.TryGetValue(monster.GetInstanceID(), out ActiveEncounter encounter))
+                return;
+
+            string normalized = intent.Trim();
+            if (!encounter.Intents.TryGetValue(normalized, out IntentUsageRecord usage))
+            {
+                usage = new IntentUsageRecord { intent = normalized };
+                encounter.Intents.Add(normalized, usage);
+            }
+
+            usage.evaluationCount++;
+            if (!string.Equals(encounter.LastIntent, normalized, StringComparison.Ordinal))
+            {
+                usage.selectionCount++;
+                encounter.LastIntent = normalized;
             }
         }
 
@@ -231,6 +342,15 @@ namespace UPlayGround.Combat
             if (string.IsNullOrEmpty(encounter.Record.endReason))
                 encounter.Record.endReason = "timeout";
 
+            encounter.Record.abilities.Clear();
+            encounter.Record.abilities.AddRange(encounter.Abilities.Values);
+            encounter.Record.abilities.Sort((left, right) =>
+                string.CompareOrdinal(left.sourceKey, right.sourceKey));
+            encounter.Record.intents.Clear();
+            encounter.Record.intents.AddRange(encounter.Intents.Values);
+            encounter.Record.intents.Sort((left, right) =>
+                string.CompareOrdinal(left.intent, right.intent));
+
             _session?.encounters.Add(encounter.Record);
             _active.Remove(key);
         }
@@ -259,6 +379,102 @@ namespace UPlayGround.Combat
                 encounter.Record.endReason = "timeout";
                 CloseEncounter(stale[i], encounter.LastEventTime);
             }
+        }
+
+        private static void RecordAbilityResult(
+            ActiveEncounter encounter,
+            CombatResult result,
+            string side)
+        {
+            string motionId = result.Hit.MotionAsset != null
+                ? result.Hit.MotionAsset.name
+                : null;
+            AbilityUsageRecord usage = GetOrCreateAbility(
+                encounter,
+                side,
+                result.Hit.AbilityId,
+                result.Hit.AbilityVariantId,
+                result.Hit.MotionKey,
+                motionId,
+                result.Hit.AttackKind.ToString());
+
+            usage.resolvedCount++;
+            if (result.DamageApplied && result.FinalDamage > 0f)
+            {
+                usage.damageHitCount++;
+                usage.totalDamage += result.FinalDamage;
+            }
+            if (result.Hit.IsCounterAttack)
+                usage.counterHitCount++;
+
+            switch (result.DefenseOutcome)
+            {
+                case DefenseOutcome.Guarded:
+                case DefenseOutcome.GuardBreak:
+                    usage.guardedCount++;
+                    break;
+                case DefenseOutcome.Parried:
+                    usage.parriedCount++;
+                    break;
+                case DefenseOutcome.PerfectDodged:
+                case DefenseOutcome.Invincible:
+                    usage.dodgedCount++;
+                    break;
+            }
+        }
+
+        private static AbilityUsageRecord GetOrCreateAbility(
+            ActiveEncounter encounter,
+            string side,
+            string abilityId,
+            string variantId,
+            string motionKey,
+            string motionId,
+            string attackKind)
+        {
+            string sourceKey = BuildAbilitySourceKey(
+                side,
+                abilityId,
+                variantId,
+                motionKey,
+                motionId,
+                attackKind);
+            if (encounter.Abilities.TryGetValue(sourceKey, out AbilityUsageRecord existing))
+                return existing;
+
+            var usage = new AbilityUsageRecord
+            {
+                sourceKey = sourceKey,
+                side = side,
+                abilityId = abilityId,
+                variantId = variantId,
+                motionKey = motionKey,
+                motionId = motionId,
+                attackKind = attackKind,
+            };
+            encounter.Abilities.Add(sourceKey, usage);
+            return usage;
+        }
+
+        private static string BuildAbilitySourceKey(
+            string side,
+            string abilityId,
+            string variantId,
+            string motionKey,
+            string motionId,
+            string attackKind)
+        {
+            static string Normalize(string value) =>
+                string.IsNullOrWhiteSpace(value) ? "-" : value.Trim();
+
+            return string.Join(
+                "|",
+                Normalize(side),
+                Normalize(abilityId),
+                Normalize(variantId),
+                Normalize(motionKey),
+                Normalize(motionId),
+                Normalize(attackKind));
         }
     }
 }

@@ -114,6 +114,46 @@ namespace UPlayGround.MotionSet.Tests
             }
         }
 
+        [Test]
+        public void Executor_적대상에서_무시정책_Event를_활성화하지않는다()
+        {
+            GameObject target = new("EnemyMotionEventTarget");
+            try
+            {
+                GameObject eventTarget = new("ExplicitChildTarget");
+                eventTarget.transform.SetParent(target.transform);
+                TargetProvider provider = target.AddComponent<TargetProvider>();
+                provider.Target = eventTarget;
+                provider.IsEnemy = true;
+                MotionEventExecutor executor = eventTarget.AddComponent<MotionEventExecutor>();
+                RecordingEvent motionEvent = new()
+                {
+                    startTime = 0f,
+                    endTime = 1f,
+                    Policy = MotionEventEnemyExecutionPolicy.Ignored,
+                    Signal = "Ignored",
+                };
+                Motion motion = CreateMotion("enemy", 2f);
+                motion.events.Add(motionEvent);
+                MotionSetData set = new() { motions = new List<Motion> { motion } };
+                var signals = new List<bool>();
+                executor.SignalChanged += (_, active) => signals.Add(active);
+
+                executor.PlayMotionSet(set);
+                executor.UpdateTime(0f);
+                executor.UpdateTime(1.5f);
+
+                Assert.That(motionEvent.EnterCount, Is.Zero);
+                Assert.That(motionEvent.TickCount, Is.Zero);
+                Assert.That(motionEvent.ExitCount, Is.Zero);
+                Assert.That(signals, Is.Empty);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(target);
+            }
+        }
+
         private static Motion CreateMotion(string id, float duration)
         {
             AnimationClip clip = new();
@@ -130,10 +170,13 @@ namespace UPlayGround.MotionSet.Tests
             };
         }
 
-        private sealed class TargetProvider : MonoBehaviour, IMotionEventTargetProvider
+        private sealed class TargetProvider : MonoBehaviour, IMotionEventTargetProvider,
+            IMotionEventExecutionScope
         {
             public GameObject Target;
+            public bool IsEnemy;
             public GameObject MotionEventTarget => Target;
+            public bool IsEnemyMotionEventTarget => IsEnemy;
         }
 
         [Serializable]
@@ -143,8 +186,10 @@ namespace UPlayGround.MotionSet.Tests
             public int TickCount;
             public int ExitCount;
             public string Signal;
+            public MotionEventEnemyExecutionPolicy Policy;
 
             public string SignalId => Signal;
+            public override MotionEventEnemyExecutionPolicy EnemyExecutionPolicy => Policy;
             public override string GetDisplayName() => "Recording";
             public override void Execute(GameObject target) => EnterCount++;
             public void Tick(GameObject target, float normalizedTime, float deltaTime) => TickCount++;

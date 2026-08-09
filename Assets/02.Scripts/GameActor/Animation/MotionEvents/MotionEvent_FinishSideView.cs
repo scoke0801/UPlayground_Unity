@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.Manager;
@@ -49,9 +50,36 @@ namespace UPlayGround.Data.Event
         public Transform editorTestTarget;
 #endif
 
-        // 복원용 저장값
-        private float _savedYaw;
-        private float _savedPitch;
+        [NonSerialized] private Dictionary<int, ActiveCameraState> _activeStates;
+
+        private readonly struct ActiveCameraState
+        {
+            public ActiveCameraState(
+                float yaw,
+                float pitch,
+                bool canRestore,
+                bool restore,
+                bool inputLocked,
+                float duration)
+            {
+                Yaw = yaw;
+                Pitch = pitch;
+                CanRestore = canRestore;
+                Restore = restore;
+                InputLocked = inputLocked;
+                Duration = duration;
+            }
+
+            public float Yaw { get; }
+            public float Pitch { get; }
+            public bool CanRestore { get; }
+            public bool Restore { get; }
+            public bool InputLocked { get; }
+            public float Duration { get; }
+        }
+
+        public override MotionEventEnemyExecutionPolicy EnemyExecutionPolicy =>
+            MotionEventEnemyExecutionPolicy.Ignored;
 
         public override string GetDisplayName() => "Finish Side View";
 
@@ -61,7 +89,7 @@ namespace UPlayGround.Data.Event
         // ─────────────────────────────────────────────
         public override void Execute(GameObject target)
         {
-            if (CameraManager.Instance == null) return;
+            if (target == null || CameraManager.Instance == null) return;
 
             // 1. 처형 타겟 결정
             Transform finishTarget = ResolveFinishTarget(target);
@@ -72,19 +100,16 @@ namespace UPlayGround.Data.Event
                 return;
             }
 
-            // 2. 현재 카메라 Yaw/Pitch 저장 (복원용)
-            var accessor = CameraManager.Instance as ICameraStateAccessor;
-            if (accessor != null)
-            {
-                _savedYaw   = accessor.CurrentYaw;
-                _savedPitch = accessor.CurrentPitch;
-            }
-
-            // 3. 플레이어 → 처형타겟 방향의 Yaw 계산
+            // 2. 플레이어 → 처형타겟 방향의 Yaw 계산
             Vector3 toTarget = finishTarget.position - target.transform.position;
             toTarget.y = 0f;
 
             if (toTarget.sqrMagnitude < 0.001f) return;
+
+            // 실제 카메라 전환이 시작되는 경우에만 완료 시 정리할 상태를 남긴다.
+            var accessor = CameraManager.Instance as ICameraStateAccessor;
+            float savedYaw = accessor?.CurrentYaw ?? 0f;
+            float savedPitch = accessor?.CurrentPitch ?? 0f;
 
             float attackAxisYaw = Mathf.Atan2(toTarget.x, toTarget.z) * Mathf.Rad2Deg;
 
@@ -96,25 +121,39 @@ namespace UPlayGround.Data.Event
 
             if (lockCameraInput)
                 CameraManager.Instance.SetInputLock(true);
+
+            _activeStates ??= new Dictionary<int, ActiveCameraState>();
+            _activeStates[target.GetInstanceID()] = new ActiveCameraState(
+                savedYaw,
+                savedPitch,
+                accessor != null,
+                restoreOnComplete,
+                lockCameraInput,
+                transitionDuration);
         }
 
         public override void OnCompleteEvent(GameObject target)
         {
+            if (target == null || _activeStates == null
+                || !_activeStates.Remove(target.GetInstanceID(), out ActiveCameraState state))
+            {
+                return;
+            }
             if (CameraManager.Instance == null) return;
 
-            if (restoreOnComplete)
+            if (state.Restore && state.CanRestore)
             {
                 // 이전 Yaw/Pitch로 스무스 복원
                 // lockCameraInput == true이면 복원 전환 완료 후 입력 잠금 자동 해제
                 // lockCameraInput == false이면 즉시 해제하지 않아도 되므로 unlockOnComplete: false
                 CameraManager.Instance.SetRotationSmooth(
-                    _savedYaw, _savedPitch, transitionDuration,
-                    unlockOnComplete: lockCameraInput);
+                    state.Yaw, state.Pitch, state.Duration,
+                    unlockOnComplete: state.InputLocked);
             }
             else
             {
-                // 복원 없음 → 즉시 입력 잠금 해제
-                if (lockCameraInput)
+                // 복원하지 못하거나 복원하지 않는 경우 입력 잠금만 즉시 해제한다.
+                if (state.InputLocked)
                     CameraManager.Instance.SetInputLock(false);
             }
         }

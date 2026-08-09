@@ -15,6 +15,7 @@ MotionEvent는 `MotionSet` 타임라인에 배치되어 애니메이션 재생 �
 - `startTime`에 `Execute(GameObject target)`가 호출된다.
 - `endTime` 이후 활성 구간에서 빠질 때 `OnCompleteEvent(GameObject target)`가 호출된다.
 - `MotionEventExecutor`는 `GameActor`가 붙은 루트 오브젝트를 타겟으로 해석한다.
+- 적 대상에서는 `IMotionEventExecutionScope`와 각 이벤트의 `EnemyExecutionPolicy`를 확인해 `Ignored`/`Forbidden` 이벤트를 활성 목록에 넣지 않는다.
 - 모션별 이벤트는 이전 모션들의 길이를 누적한 `globalStartTimeOffset`을 받아 글로벌 타임라인에서 실행된다.
 
 ---
@@ -49,6 +50,8 @@ ActorAnimator
 | 활성 유지 | `_activeEvents` | 구간형 이벤트의 종료 여부 추적 |
 | 종료 | `MotionEventBase.OnCompleteEvent(target)` | 판정 OFF, 카메라 복원, 무적 해제 등 구간 종료 처리 |
 | 중단 | `MotionEventExecutor.Stop()` | 활성 이벤트의 `OnCompleteEvent`를 호출하고 상태 초기화 |
+
+`Execute`는 성공 여부를 반환하지 않으므로, 이벤트 구현이 조건 부족으로 조기 종료할 수 있다면 실제로 시작한 상태를 대상별로 기록해야 한다. `OnCompleteEvent`는 그 기록이 있을 때만 잠금 해제·복원·Unfreeze 같은 정리를 수행한다. 플레이어 전용 이벤트는 `EnemyExecutionPolicy.Ignored`를 명시해 적 모션에서 시작과 완료가 모두 생략되게 한다.
 
 ---
 
@@ -120,7 +123,7 @@ ActorAnimator
 |--------|-----------|------|-----------|-----------|-----------|
 | `CameraEffectEvent` | `Camera Effect` | `CameraEffectData` 목록을 재생한다. 흔들림, 줌, FOV, 회전, TimeScale 계열 효과에 사용한다. | `CameraManager.PlayEffect()` 호출, 필요 시 카메라 입력 잠금 | 활성 핸들을 `StopEffect()`로 중지하고 입력 잠금 해제 | `effectDataList`, `lockCameraInput` |
 | `CameraLookAtSocketEvent` | `Camera LookAt Socket` | 특정 액터 소켓을 카메라 LookAt 대상으로 지정한다. | `GameActor.TryGetSocket()`으로 소켓을 찾고 `CameraManager.SetLookAtOverride()` 호출. 필요 시 방향도 스무스 전환 | LookAt override 해제, 입력 잠금 해제, 필요 시 저장한 Yaw/Pitch로 복원 | `socketType`, `offset`, `overrideDirection`, `angleOffset`, `pitchOffset`, `lookDuration`, `lookCurve`, `restoreOnComplete`, `restoreDuration`, `lockCameraInput` |
-| `FinishSideViewEvent` | `Finish Side View` | 피니시 공격 연출용 측면 카메라로 전환한다. | `PlayerFinishAttackState.FinishTarget` 기준으로 측면 Yaw를 계산해 `SetRotationSmooth()` 호출 | 이전 카메라 각도로 복원하거나 입력 잠금 해제 | `sideAngleOffset`, `pitchOverride`, `restoreOnComplete`, `lockCameraInput`, `transitionDuration`, `editorTestTarget` |
+| `FinishSideViewEvent` | `Finish Side View` | 피니시 공격 연출용 측면 카메라로 전환한다. 적 대상에서는 무시한다. | 유효한 `PlayerFinishAttackState.FinishTarget` 기준으로 측면 Yaw를 계산하고, 실제 전환을 시작한 대상의 복원 상태를 기록한다. | 시작 상태가 있는 대상만 이전 카메라 각도로 복원하거나 입력 잠금 해제 | `sideAngleOffset`, `pitchOverride`, `restoreOnComplete`, `lockCameraInput`, `transitionDuration`, `editorTestTarget` |
 | `CameraSnapshotSequenceEvent` | `Camera Snapshot Sequence` | `CameraSnapshotProfile` 기반 카메라 샷 시퀀스를 재생한다. | `CameraManager.PushCameraSnapshotSequence()` 호출 | `restorePreviousOnComplete`가 true면 `StopCameraSnapshotSequence()` 호출 | `profile`, `overrideActorAnchor`, `actorAnchor`, `overrideLookAtTarget`, `lookAtTarget`, `restorePreviousOnComplete` |
 
 ---

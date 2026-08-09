@@ -221,6 +221,8 @@ namespace UPlayGround.Animation
         {
             if (motionEvent == null || _activeEvents.Contains(motionEvent))
                 return false;
+            if (IsBlockedForEnemyTarget(motionEvent))
+                return false;
             return motionEvent.reentryPolicy switch
             {
                 MotionEventReentryPolicy.EveryCrossing => true,
@@ -284,7 +286,7 @@ namespace UPlayGround.Animation
         /// </summary>
         void ExecuteEvent(MotionEventBase evt, float subFrameFraction = 1f)
         {
-            if (evt == null) return;
+            if (evt == null || IsBlockedForEnemyTarget(evt)) return;
 
             evt.Execute(TargetObject, subFrameFraction);
             if (evt is IMotionEventSignal signal && !string.IsNullOrEmpty(signal.SignalId))
@@ -292,6 +294,28 @@ namespace UPlayGround.Animation
             EventExecuted?.Invoke(evt);
             MotionSetEventDebugOverlay.RecordEvent(
                 $"Start {evt.GetShortLabel()} @{_currentTime:F2}s");
+        }
+
+        private bool IsBlockedForEnemyTarget(MotionEventBase motionEvent)
+        {
+            if (motionEvent == null
+                || motionEvent.EnemyExecutionPolicy
+                    == MotionEventEnemyExecutionPolicy.Allowed)
+            {
+                return false;
+            }
+
+            GameObject target = TargetObject;
+            if (target == null)
+                return false;
+
+            // 명시적 event target이 액터의 자식 오브젝트여도 부모 호스트의
+            // 실행 범위 정책을 찾아야 한다.
+            MonoBehaviour[] components = target.GetComponentsInParent<MonoBehaviour>(true);
+            for (int i = 0; i < components.Length; i++)
+                if (components[i] is IMotionEventExecutionScope scope)
+                    return scope.IsEnemyMotionEventTarget;
+            return false;
         }
 
         /// <summary>

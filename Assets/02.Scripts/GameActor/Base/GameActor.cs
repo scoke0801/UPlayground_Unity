@@ -16,7 +16,8 @@ using UPlayGround.Gameplay.Effect;
 
 namespace UPlayGround
 {
-    public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider, IMotionEventTargetProvider
+    public abstract class GameActor : MonoBehaviour, IWorldActor, IHealthRatioProvider,
+        IMotionEventTargetProvider, IMotionEventExecutionScope
     {
         private const string PlayerDefaultTargetLayerName = "Enemy";
         private const string MonsterDefaultTargetLayerName = "Player";
@@ -83,6 +84,8 @@ namespace UPlayGround
         public event Action ElementOverrideChanged;
 
         GameObject IMotionEventTargetProvider.MotionEventTarget => gameObject;
+        bool IMotionEventExecutionScope.IsEnemyMotionEventTarget =>
+            (_actorType & ActorType.Monster) != 0;
 
         /// <summary>
         /// 액터 개별 타임 스케일 (기본 1.0)

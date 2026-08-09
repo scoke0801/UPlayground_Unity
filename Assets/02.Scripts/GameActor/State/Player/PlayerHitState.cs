@@ -4,6 +4,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.InputDefine;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -35,6 +36,7 @@ namespace UPlayGround.State
         private float _elapsedTime;
         private bool _canCancel;
         private bool _heavyHit;   // Heavy일 때는 회피 캔슬만 허용
+        private MotionSet _hitMotionSet;
 
         public PlayerHitState(ActorMovementController controller, AttackData attackData)
             : base(controller)
@@ -65,7 +67,23 @@ namespace UPlayGround.State
 
             var animState = gameActor.Animator.PlayMotion(GetHitAnimKey(), 0.15f);
             if (animState != null)
-                animState.OwnedEvents.OnEnd = OnHitEnd;
+            {
+                // MotionSet은 마지막 포즈에서 재생 상태를 정지한 뒤 자체 타임라인으로 완료한다.
+                // AnimancerState.OnEnd는 이 경로에서 발화하지 않을 수 있으므로 디렉터 종료 이벤트를 사용한다.
+                _hitMotionSet = gameActor.Animator.CurrentMotionSet;
+                gameActor.Animator.OnMotionSetEndedWithReason += OnHitMotionSetEnded;
+            }
+            else
+            {
+                OnHitEnd();
+            }
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnHitMotionSetEnded;
+            _hitMotionSet = null;
+            base.OnExit(toState);
         }
 
         private void SetupReaction(AttackReactionType reaction)
@@ -199,6 +217,12 @@ namespace UPlayGround.State
             // 회복 직후 경직 내성 부여 — Hit→Idle(찰나)→Hit 재스턴 루프를 차단한다(데미지는 유지).
             playerActor.GrantStaggerImmunity(PlayerActor.StaggerImmunityDuration);
             controller.TransitionToState(ActorStateId.Idle);
+        }
+
+        private void OnHitMotionSetEnded(MotionSet motionSet, MotionSetEndReason _)
+        {
+            if (ReferenceEquals(motionSet, _hitMotionSet))
+                OnHitEnd();
         }
 
         private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()

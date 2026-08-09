@@ -34,6 +34,8 @@ namespace UPlayGround.State
         private Vector3    _deathPosition;
         private Quaternion _deathRotation;
         private Coroutine  _autoSwitchDelayRoutine;
+        private bool       _completionSubscribed;
+        private bool       _respawnFlowStarted;
 
         private const float AutoSwitchDelayAfterDeathMotion = 0.45f;
 
@@ -47,20 +49,41 @@ namespace UPlayGround.State
 
             _deathPosition = gameActor.transform.position;
             _deathRotation = gameActor.transform.rotation;
+            _respawnFlowStarted = false;
 
             var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Die, 0.25f);
             if (state != null)
             {
-                state.OwnedEvents.OnEnd = () => OnDeathMotionEnd(state);
+                // MotionSet 타임라인은 Animancer OnEnd를 쓰지 않는다(ActorAnimator가 매 클립 전환마다 null로 지운다).
+                // 종료 신호는 다른 상태와 동일하게 OnMotionSetCompleted로 받는다.
+                gameActor.Animator.OnMotionSetCompleted += OnDeathMotionEnd;
+                _completionSubscribed = true;
+            }
+            else
+            {
+                // Die 모션 미등록 → 사망 플로우가 영구 정지하지 않도록 즉시 진행한다.
+                OnDeathMotionEnd();
             }
         }
 
-        private void OnDeathMotionEnd(Animancer.AnimancerState deathState)
+        private void OnDeathMotionEnd()
         {
-            if (deathState != null)
-                deathState.Speed = 0f;
+            UnsubscribeMotionCompletion();
 
+            if (_respawnFlowStarted) return;
+            _respawnFlowStarted = true;
+
+            // 완료된 MotionSet은 마지막 Base 포즈를 유지하므로 별도 정지 처리가 필요 없다.
             _autoSwitchDelayRoutine = controller.StartCoroutine(SwitchOrShowRespawnAfterDelay());
+        }
+
+        private void UnsubscribeMotionCompletion()
+        {
+            if (!_completionSubscribed) return;
+            _completionSubscribed = false;
+
+            if (gameActor != null && gameActor.Animator != null)
+                gameActor.Animator.OnMotionSetCompleted -= OnDeathMotionEnd;
         }
 
         private IEnumerator SwitchOrShowRespawnAfterDelay()
@@ -90,6 +113,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            UnsubscribeMotionCompletion();
+
             if (_autoSwitchDelayRoutine != null)
             {
                 controller.StopCoroutine(_autoSwitchDelayRoutine);

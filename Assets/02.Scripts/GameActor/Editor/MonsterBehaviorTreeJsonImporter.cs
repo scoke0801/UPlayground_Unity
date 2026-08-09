@@ -182,6 +182,42 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             return ImportJsonFiles(absoluteJsonPaths, "JSON 목록");
         }
 
+        /// <summary>
+        /// 모든 JSON의 schema, 노드 키, sourceBehaviorSo와 출력 경로 충돌을
+        /// 쓰기 전에 검사한다. 하나라도 실패하면 예외를 던진다.
+        /// </summary>
+        public static IReadOnlyList<string> PreflightJsonInputs(
+            IEnumerable<string> absoluteJsonPaths)
+        {
+            List<string> jsonPaths = NormalizeJsonPaths(absoluteJsonPaths);
+            if (jsonPaths.Count == 0)
+                throw new InvalidDataException("Monster Behavior Json Import 대상이 없습니다.");
+
+            var outputPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string jsonPath in jsonPaths)
+            {
+                string outputPath = ResolveGeneratedAssetPath(jsonPath);
+                if (!outputPaths.Add(outputPath))
+                    throw new InvalidDataException(
+                        $"여러 JSON이 같은 Generated BT 경로를 사용합니다: {outputPath}");
+            }
+            return jsonPaths;
+        }
+
+        public static string ResolveGeneratedAssetPath(string absoluteJsonPath)
+        {
+            string jsonPath = Path.GetFullPath(absoluteJsonPath);
+            MonsterBehaviorTreeJson data = LoadJson(jsonPath);
+            Validate(data, jsonPath);
+            if (!string.IsNullOrWhiteSpace(data.sourceBehaviorSo)
+                && AssetDatabase.LoadAssetAtPath<EnemyBehaviorSO>(data.sourceBehaviorSo) == null)
+            {
+                throw new InvalidDataException(
+                    $"sourceBehaviorSo를 찾을 수 없습니다: {data.sourceBehaviorSo}");
+            }
+            return GetGeneratedAssetPath(data);
+        }
+
         private static IReadOnlyList<BehaviorTreeAsset> ImportJsonFolder(string absoluteFolder, string label)
         {
             if (string.IsNullOrWhiteSpace(absoluteFolder) || !Directory.Exists(absoluteFolder))
@@ -199,17 +235,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
         private static IReadOnlyList<BehaviorTreeAsset> ImportJsonFiles(IEnumerable<string> absoluteJsonPaths, string label)
         {
-            var jsonPaths = absoluteJsonPaths
-                .Where(path => !string.IsNullOrWhiteSpace(path))
-                .Select(Path.GetFullPath)
-                .Where(path => string.Equals(Path.GetExtension(path), ".json", StringComparison.OrdinalIgnoreCase))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            if (jsonPaths.Count == 0)
+            List<string> jsonPaths;
+            try
             {
-                Debug.LogWarning($"[BT] Monster Behavior Json {label} Import 대상이 없습니다.");
+                jsonPaths = PreflightJsonInputs(absoluteJsonPaths).ToList();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError(
+                    $"[BT] Monster Behavior Json {label} 사전 검증 실패: {exception.Message}");
                 return Array.Empty<BehaviorTreeAsset>();
             }
 
@@ -249,6 +283,21 @@ namespace UPlayGround.AI.BehaviorTree.Editor
                 Debug.Log($"[BT] Monster Behavior Json {label} Import 완료: {importedTrees.Count}개");
 
             return importedTrees;
+        }
+
+        private static List<string> NormalizeJsonPaths(
+            IEnumerable<string> absoluteJsonPaths)
+        {
+            return (absoluteJsonPaths ?? Enumerable.Empty<string>())
+                .Where(path => !string.IsNullOrWhiteSpace(path))
+                .Select(Path.GetFullPath)
+                .Where(path => string.Equals(
+                    Path.GetExtension(path),
+                    ".json",
+                    StringComparison.OrdinalIgnoreCase))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         public static BehaviorTreeAsset ImportFromMonsterBehaviorJson(string absoluteJsonPath, string outputAssetPath)

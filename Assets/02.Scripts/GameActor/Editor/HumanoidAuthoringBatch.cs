@@ -26,8 +26,9 @@ namespace UPlayGround.Editor
     /// 설계 근거는 Assets/docs/TODO/HUMANOID_MONSTER_GAS_BT_DESIGN.md.
     ///
     /// 안전 규칙 (CLAUDE.md "Editor 데이터 도구 안전 규칙"):
-    ///  - 모든 변경은 단일 Undo 그룹으로 묶고, 예외 시 RevertAllDownToGroup으로 전체 롤백한다.
-    ///  - 에셋을 생성·삭제하지 않는다. 기존 에셋의 필드만 수정한다.
+    ///  - 변경은 단일 Undo 그룹으로 묶고, 예외 시 신규 에셋/폴더까지 전체 롤백한다.
+    ///  - Step_WireBehaviorData만 누락된 Strategy 에셋을 생성할 수 있다.
+    ///  - BT import는 전체 입력을 사전 검증하고 기존 Generated 파일을 백업해 실패 시 복원한다.
     ///  - DRY_RUN(Preview) 모드에서 변경 예정 내역만 출력하고 아무것도 쓰지 않는다.
     ///
     /// batchmode 사용:
@@ -59,6 +60,8 @@ namespace UPlayGround.Editor
             private readonly StringBuilder _log = new();
             private int _changeCount;
             private bool _failed;
+            private readonly List<string> _createdAssetPaths = new();
+            private readonly List<string> _createdFolderPaths = new();
 
             public bool Apply { get; }
 
@@ -66,9 +69,16 @@ namespace UPlayGround.Editor
             {
                 _name = name;
                 Apply = Environment.GetCommandLineArgs().Contains(ApplyArgument);
-                Undo.IncrementCurrentGroup();
-                Undo.SetCurrentGroupName($"HumanoidAuthoringBatch.{name}");
-                _undoGroup = Undo.GetCurrentGroup();
+                if (Apply)
+                {
+                    Undo.IncrementCurrentGroup();
+                    Undo.SetCurrentGroupName($"HumanoidAuthoringBatch.{name}");
+                    _undoGroup = Undo.GetCurrentGroup();
+                }
+                else
+                {
+                    _undoGroup = -1;
+                }
                 Line($"===== {name} ({(Apply ? "APPLY" : "PREVIEW")}) =====");
             }
 
@@ -96,12 +106,46 @@ namespace UPlayGround.Editor
                     EditorUtility.SetDirty(target);
             }
 
+            public void EnsureFolder(string parentFolder, string folderName)
+            {
+                string path = $"{parentFolder}/{folderName}";
+                if (!Apply || AssetDatabase.IsValidFolder(path)) return;
+                string guid = AssetDatabase.CreateFolder(parentFolder, folderName);
+                if (string.IsNullOrEmpty(guid))
+                    throw new InvalidOperationException($"폴더 생성 실패: {path}");
+                _createdFolderPaths.Add(path);
+            }
+
+            public void RegisterCreatedAsset(UnityEngine.Object target, string path)
+            {
+                if (!Apply || target == null) return;
+                Undo.RegisterCreatedObjectUndo(target, _name);
+                _createdAssetPaths.Add(path);
+            }
+
             public void Dispose()
             {
-                if (_failed)
+                if (_failed && Apply)
                 {
                     Undo.RevertAllDownToGroup(_undoGroup);
+                    for (int i = _createdAssetPaths.Count - 1; i >= 0; i--)
+                        if (AssetDatabase.LoadMainAssetAtPath(_createdAssetPaths[i]) != null)
+                            AssetDatabase.DeleteAsset(_createdAssetPaths[i]);
+                    for (int i = _createdFolderPaths.Count - 1; i >= 0; i--)
+                        if (AssetDatabase.IsValidFolder(_createdFolderPaths[i])
+                            && AssetDatabase.FindAssets(
+                                string.Empty,
+                                new[] { _createdFolderPaths[i] }).Length == 0)
+                        {
+                            AssetDatabase.DeleteAsset(_createdFolderPaths[i]);
+                        }
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
                     Line($"!! 실패 — Undo 그룹 전체 롤백함. 변경 없음.");
+                }
+                else if (_failed)
+                {
+                    Line("!! Preview 검증 실패 — 프로젝트 변경 없음.");
                 }
                 else if (Apply)
                 {
@@ -110,7 +154,10 @@ namespace UPlayGround.Editor
                     AssetDatabase.Refresh();
                 }
 
-                Line($"----- {_name}: {_changeCount}건 {(_failed ? "롤백" : Apply ? "적용" : "미적용(Preview)")} -----");
+                string result = _failed
+                    ? Apply ? "롤백" : "검증 실패(Preview)"
+                    : Apply ? "적용" : "미적용(Preview)";
+                Line($"----- {_name}: {_changeCount}건 {result} -----");
                 Debug.Log(_log.ToString());
             }
 
@@ -125,18 +172,26 @@ namespace UPlayGround.Editor
 
         private static void Run(string name, Action<BatchContext> body)
         {
-            using var ctx = new BatchContext(name);
-            try
+            Exception failure = null;
+            using (var ctx = new BatchContext(name))
             {
-                body(ctx);
+                try
+                {
+                    body(ctx);
+                }
+                catch (Exception ex)
+                {
+                    ctx.MarkFailed();
+                    ctx.Line($"예외: {ex}");
+                    failure = ex;
+                }
             }
-            catch (Exception ex)
-            {
-                ctx.MarkFailed();
-                ctx.Line($"예외: {ex}");
-                // 롤백은 Dispose에서 수행한다. batchmode 종료 코드를 실패로 만든다.
+
+            if (failure == null) return;
+            if (Application.isBatchMode)
                 EditorApplication.Exit(1);
-            }
+            else
+                throw new InvalidOperationException($"{name} 실행 실패", failure);
         }
 
         // ────────────────────────────────────────────────────────────────
@@ -909,8 +964,26 @@ namespace UPlayGround.Editor
         {
             Run(nameof(Step_WireBehaviorData), ctx =>
             {
-                if (ctx.Apply && !AssetDatabase.IsValidFolder(StrategyFolder))
-                    AssetDatabase.CreateFolder(BehaviorDataFolder, "Strategy");
+                // 쓰기 전에 모든 외부 의존성을 확인해 중간 실패 가능성을 제거한다.
+                var weightsByArchetype = new Dictionary<string, Data.Enemy.EnemyIntentWeightsSO>();
+                var treesByArchetype = new Dictionary<string, ScriptableObject>();
+                foreach ((string archetype, ArchetypeProfile p) in Profiles)
+                {
+                    var weights = AssetDatabase.LoadAssetAtPath<Data.Enemy.EnemyIntentWeightsSO>(
+                        $"{IntentWeightsFolder}/{p.IntentWeights}.asset");
+                    if (weights == null)
+                        throw new InvalidOperationException($"IntentWeights를 찾지 못했습니다: {p.IntentWeights}");
+                    weightsByArchetype[archetype] = weights;
+
+                    var tree = AssetDatabase.LoadAssetAtPath<ScriptableObject>(
+                        $"{GeneratedBtFolder}/BT_EnemyBehavior_Humanoid_{archetype}.asset");
+                    if (tree == null)
+                        throw new InvalidOperationException(
+                            $"{archetype} BT 에셋이 없습니다. Step_ImportHumanoidBt를 먼저 실행하세요.");
+                    treesByArchetype[archetype] = tree;
+                }
+
+                ctx.EnsureFolder(BehaviorDataFolder, "Strategy");
 
                 // (1) 아키타입별 전략 SO — 없으면 만들고 있으면 값만 갱신한다.
                 var strategies = new Dictionary<string, Data.Enemy.EnemyCombatStrategySO>();
@@ -926,16 +999,14 @@ namespace UPlayGround.Editor
                         {
                             strategy = ScriptableObject.CreateInstance<Data.Enemy.EnemyCombatStrategySO>();
                             AssetDatabase.CreateAsset(strategy, path);
+                            ctx.RegisterCreatedAsset(strategy, path);
                             created = true;
                         }
                     }
                     if (strategy == null)
                         continue;
 
-                    var weights = AssetDatabase.LoadAssetAtPath<Data.Enemy.EnemyIntentWeightsSO>(
-                        $"{IntentWeightsFolder}/{p.IntentWeights}.asset");
-                    if (weights == null)
-                        throw new InvalidOperationException($"IntentWeights를 찾지 못했습니다: {p.IntentWeights}");
+                    Data.Enemy.EnemyIntentWeightsSO weights = weightsByArchetype[archetype];
 
                     if (!created)
                         ctx.Record(strategy);
@@ -968,11 +1039,7 @@ namespace UPlayGround.Editor
                         throw new InvalidOperationException($"아키타입을 판별하지 못했습니다: {behavior.name}");
                     ArchetypeProfile p = Profiles[archetype];
 
-                    var tree = AssetDatabase.LoadAssetAtPath<ScriptableObject>(
-                        $"{GeneratedBtFolder}/BT_EnemyBehavior_Humanoid_{archetype}.asset");
-                    if (tree == null)
-                        throw new InvalidOperationException(
-                            $"{archetype} BT 에셋이 없습니다. Step_ImportHumanoidBt를 먼저 실행하세요.");
+                    ScriptableObject tree = treesByArchetype[archetype];
 
                     ctx.Change(behavior, "behaviorTree",
                         behavior.behaviorTree != null ? behavior.behaviorTree.name : "null", tree.name);
@@ -1003,17 +1070,75 @@ namespace UPlayGround.Editor
 
         public static void Step_ImportHumanoidBt()
         {
-            const string folder = "Assets/10.Datas/AI/BehaviorTree/SourceJson/Humanoid";
-            string absolute = Path.GetFullPath(folder);
-            Debug.Log($"===== Step_ImportHumanoidBt — {absolute} =====");
-            IReadOnlyList<AI.BehaviorTree.BehaviorTreeAsset> imported =
-                AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter.ImportJsonFolder(absolute);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-            Debug.Log($"import 결과: {imported.Count}개 — "
-                      + string.Join(", ", imported.Select(a => a != null ? a.name : "null")));
-            if (imported.Count != 5)
-                throw new InvalidOperationException($"BT 5개를 기대했으나 {imported.Count}개가 생성되었습니다.");
+            Run(nameof(Step_ImportHumanoidBt), ctx =>
+            {
+                const string folder = "Assets/10.Datas/AI/BehaviorTree/SourceJson/Humanoid";
+                string absolute = Path.GetFullPath(folder);
+                if (!Directory.Exists(absolute))
+                    throw new DirectoryNotFoundException(absolute);
+                string[] jsonPaths = Directory.GetFiles(
+                    absolute,
+                    "*.json",
+                    SearchOption.AllDirectories);
+                if (jsonPaths.Length != Archetypes.Length)
+                    throw new InvalidOperationException(
+                        $"BT JSON {Archetypes.Length}개를 기대했으나 {jsonPaths.Length}개입니다.");
+
+                IReadOnlyList<string> validatedPaths =
+                    AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter
+                        .PreflightJsonInputs(jsonPaths);
+                List<string> generatedPaths = validatedPaths
+                    .Select(AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter
+                        .ResolveGeneratedAssetPath)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                ctx.Line($"  입력 폴더: {absolute}");
+                foreach (string jsonPath in validatedPaths)
+                    ctx.Line($"  {(ctx.Apply ? "가져오기" : "가져오기 예정")}: {Path.GetFileName(jsonPath)}");
+                if (!ctx.Apply) return;
+
+                var backups = new Dictionary<string, byte[]>(StringComparer.OrdinalIgnoreCase);
+                foreach (string path in generatedPaths)
+                {
+                    UnityEngine.Object[] existingAssets = AssetDatabase.LoadAllAssetsAtPath(path);
+                    if (existingAssets.Any(asset => asset != null && EditorUtility.IsDirty(asset)))
+                        throw new InvalidOperationException(
+                            $"저장되지 않은 Generated BT 변경이 있어 import를 중단합니다: {path}");
+                    if (File.Exists(path)) backups[path] = File.ReadAllBytes(path);
+                }
+
+                try
+                {
+                    IReadOnlyList<AI.BehaviorTree.BehaviorTreeAsset> imported =
+                        AI.BehaviorTree.Editor.MonsterBehaviorTreeJsonImporter.ImportJsonFolder(absolute);
+                    ctx.Line($"  import 결과: {imported.Count}개 — "
+                             + string.Join(", ", imported.Select(a => a != null ? a.name : "null")));
+                    if (imported.Count != validatedPaths.Count)
+                        throw new InvalidOperationException(
+                            $"BT {validatedPaths.Count}개를 기대했으나 {imported.Count}개가 생성되었습니다.");
+                }
+                catch
+                {
+                    foreach (string path in generatedPaths)
+                    {
+                        if (backups.TryGetValue(path, out byte[] bytes))
+                        {
+                            File.WriteAllBytes(path, bytes);
+                            AssetDatabase.ImportAsset(
+                                path,
+                                ImportAssetOptions.ForceSynchronousImport
+                                | ImportAssetOptions.ForceUpdate);
+                        }
+                        else if (AssetDatabase.LoadMainAssetAtPath(path) != null)
+                        {
+                            AssetDatabase.DeleteAsset(path);
+                        }
+                    }
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+                    throw;
+                }
+            });
         }
 
         // ────────────────────────────────────────────────────────────────
@@ -1034,6 +1159,8 @@ namespace UPlayGround.Editor
                 _ => AbilityAttackCategory.Skill,
             };
 
+        [UPlayGround.EditorTools.UPlaygroundTool(
+            "UPlayGround/캐릭터/AI/Humanoid 저작 검증")]
         public static void Step_Validate()
         {
             Run(nameof(Step_Validate), ctx =>
@@ -1230,11 +1357,24 @@ namespace UPlayGround.Editor
                     }
 
                     List<HitPhaseData> phases = payload.attackInfo.baseInfo.hitPhases;
-                    float total = phases.Sum(p => p.damage);
+                    if (phases.Count == 0)
+                    {
+                        ctx.Line($"  [건너뜀] HitPhase 없음 {key}");
+                        continue;
+                    }
+
+                    float totalDamage = phases.Sum(p => p.damage);
+                    float totalPoiseDamage = phases.Sum(p => p.poiseDamage);
+                    float totalBreakDamage = phases.Sum(p => p.breakDamage);
                     if (phases.Count != shotCount)
                     {
-                        float each = total / shotCount;
-                        ctx.Line($"  [{key}] 총합 {total:0.##}을 {shotCount}발로 분할 → 발당 {each:0.##} "
+                        float eachDamage = totalDamage / shotCount;
+                        float eachPoiseDamage = totalPoiseDamage / shotCount;
+                        float eachBreakDamage = totalBreakDamage / shotCount;
+                        ctx.Line($"  [{key}] Damage/Poise/Break 총합 "
+                                 + $"{totalDamage:0.##}/{totalPoiseDamage:0.##}/{totalBreakDamage:0.##}을 "
+                                 + $"{shotCount}발로 분할 → 발당 "
+                                 + $"{eachDamage:0.##}/{eachPoiseDamage:0.##}/{eachBreakDamage:0.##} "
                                  + $"(phase {phases.Count} -> {shotCount})");
                         ctx.Change(payload, "hitPhases.Count", phases.Count, shotCount);
                         if (ctx.Apply)
@@ -1245,7 +1385,9 @@ namespace UPlayGround.Editor
                             for (var i = 0; i < shotCount; i++)
                             {
                                 HitPhaseData p = i < phases.Count ? phases[i] : ClonePhase(template);
-                                p.damage = each;
+                                p.damage = eachDamage;
+                                p.poiseDamage = eachPoiseDamage;
+                                p.breakDamage = eachBreakDamage;
                                 rebuilt.Add(p);
                             }
                             payload.attackInfo.baseInfo.hitPhases = rebuilt;

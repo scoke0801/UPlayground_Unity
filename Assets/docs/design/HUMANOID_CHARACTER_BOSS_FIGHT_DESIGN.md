@@ -191,7 +191,7 @@ Bokusei는 가장 정석적인 1대1 검사다. 공격 수보다 “언제 칼�
 | 2 | `...Skill.3.28` | `Katana_Skill_3` | 6히트 검무 |
 | 2 | `...Skill.4.29` | `Katana_Skill_4` | 투사체 견제 |
 
-Skill 5/6은 현재 카메라 잠금, 타임스케일, 적 정지 이벤트를 포함한다. `ignoreWhenEnemy`와 정리 경로 전체를 Play Mode에서 입증하기 전까지 Boss AbilitySet에서 Remove한다.
+Skill 5/6은 현재 카메라 잠금, 타임스케일, 적 정지 이벤트를 포함한다. 각 이벤트의 `EnemyExecutionPolicy`와 실제 시작 상태 기반 정리 경로 전체를 Play Mode에서 입증하기 전까지 Boss AbilitySet에서 Remove한다.
 
 ### 4.4 BT 특징 규칙
 

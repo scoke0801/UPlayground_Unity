@@ -74,6 +74,7 @@ namespace UPlayGround.Editor
                 Tool("몬스터 Rules 폴더 가져오기",     "UPlayGround/비헤이비어 트리/JSON/폴더 가져오기", "폴더 단위 Monster Rules JSON을 가져옵니다.", "선택한 폴더 안의 몬스터 행동 규칙 JSON들을 일괄 변환해 Generated BehaviorTreeAsset으로 생성합니다."),
                 Tool("Project 선택 Rules 가져오기", "UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", "Project 선택 JSON들을 가져옵니다.", "Project 창에서 선택한 Monster Rules JSON들을 한 번에 BT 에셋으로 변환합니다."),
                 Tool("SourceJson 전체 가져오기", "UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", "SourceJson 전체를 가져옵니다.", "BehaviorTree SourceJson 폴더의 모든 몬스터 행동 규칙 JSON을 일괄 재생성합니다."),
+                Tool("Humanoid 저작 검증", "UPlayGround/캐릭터/AI/Humanoid 저작 검증", "Humanoid GAS·Motion·BT 연결을 읽기 전용으로 검증합니다.", "5개 Humanoid 아키타입의 MotionKey, HitPhase, AI 역할 후보와 Bow 원거리 정책을 검사합니다. 실제 변경 단계는 batchmode에서 -uplayground-apply를 명시해야 합니다."),
             }),
             ("캐릭터 / 궁극기", new[]
             {

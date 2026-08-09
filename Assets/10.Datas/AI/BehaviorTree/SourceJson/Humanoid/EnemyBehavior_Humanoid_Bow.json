@@ -81,10 +81,6 @@
               "value": "preferredRange"
             },
             {
-              "condition": "DistanceLessOrEqual",
-              "value": "preferredRange"
-            },
-            {
               "condition": "CanActivateAbility",
               "attackCategory": "Skill",
               "abilityRole": "Signature"

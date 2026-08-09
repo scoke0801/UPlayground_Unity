@@ -4,9 +4,7 @@ using System.Numerics;
 using UnityEngine;
 using UnityEngine.Scripting.APIUpdating;
 using UPlayGround.Components;
-using UPlayGround.Data.EnumType;
 using UPlayGround.Group;
-using Quaternion = UnityEngine.Quaternion;
 using Vector2 = UnityEngine.Vector2;
 using Vector3 = UnityEngine.Vector3;
 
@@ -63,18 +61,22 @@ namespace UPlayGround.Data.Event
                     Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * data.spawnRadius;
                     Vector3 spawnPos = target.transform.position + new Vector3(randomCircle.x, 0, randomCircle.y);
                     
-                    GameObject spawned = GameObject.Instantiate(data.targetPrefab, spawnPos, Quaternion.identity);
+                    // 소환 직후 자체 시야 탐색에만 의존하지 않도록 소환사의 방향을 상속한다.
+                    GameObject spawned = GameObject.Instantiate(
+                        data.targetPrefab,
+                        spawnPos,
+                        actor.transform.rotation);
                     if (spawned.TryGetComponent<Collider>(out var col))
                     {
                         _spawnedColliders.Add(col);
-
-                        if (actor.HasActorType(ActorType.Monster))
-                        {
-                            var spawnedMonster = spawned.GetComponent<MonsterActor>();
-                            if (spawnedMonster != null)
-                                HandleMonsterActor(actor as MonsterActor, spawnedMonster);
-                        }
                     }
+
+                    // 겹침 보정용 Collider 유무와 몬스터 초기화는 별개다.
+                    // ChildPlant 프리팹은 루트 Collider가 없으므로 기존 Collider 분기 안에서는
+                    // 그룹 등록과 타겟 전달이 전혀 실행되지 않았다.
+                    if (actor is MonsterActor summoner &&
+                        spawned.TryGetComponent<MonsterActor>(out var spawnedMonster))
+                        HandleMonsterActor(summoner, spawnedMonster);
                 }
             }
             
@@ -90,14 +92,21 @@ namespace UPlayGround.Data.Event
 
         private void HandleMonsterActor(MonsterActor summoner, MonsterActor spawned)
         {
-            if (summoner == null || summoner.Combat == null) return;
+            if (summoner == null || spawned == null) return;
 
-            summoner.Combat.RegisterSpawnedUnit(spawned.transform);
+            summoner.Combat?.RegisterSpawnedUnit(spawned.transform);
 
             // 소환된 유닛을 소환사의 그룹에 편입 (Summon 우선순위 — 슬롯 후순위)
             var group = summoner.AIController?.Group;
             if (group != null)
                 group.RegisterMember(spawned, MemberPriority.Summon);
+
+            // 이미 전투 중인 소환사가 만든 유닛은 같은 타겟을 즉시 추적한다.
+            // AcquireTarget의 외부 획득 경로가 AI를 Chase로 전환하므로 생성 방향이나
+            // 첫 탐지 Tick에 따라 소환수가 Patrol/Idle에 머무르는 문제를 막는다.
+            Transform currentTarget = summoner.Detection?.CurrentTarget;
+            if (currentTarget != null && spawned.Detection != null)
+                spawned.Detection.AcquireTarget(currentTarget);
         }
 
         private void ResolveOverlap(Collider targetCol)

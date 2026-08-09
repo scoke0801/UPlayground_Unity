@@ -1,7 +1,7 @@
 # 런타임 로그 및 성능 검증 시스템 가이드
 
 > 작성일: 2026-06-25  
-> 대상 버전: Unity 6 (6000.0.60f1)  
+> 대상 버전: Unity 6 (6000.3.21f1)
 > 적용 범위: Editor, Development Build, Release Build
 
 ---
@@ -51,17 +51,17 @@ RuntimePerformanceMonitor
 
 ```text
 Assets/02.Scripts/
-├── Util/
+├── GameActor/Diagnostics/
 │   └── Util.cs
 │       ├── RuntimeLogCategory
 │       └── RuntimeLog
-├── Tool/
-│   └── PlayerControlFeelDebugHUD.cs
+├── Tool/PlayerControlFeelDebugHUD.cs
 │       └── RuntimePerformanceMonitor
-├── GameActor/
-│   ├── Object/Monster/MonsterActor.cs
-│   └── State/Player/ComboRouteRunner.cs
-└── AI/BehaviorTree/Nodes/Action/LogNode.cs
+├── GameActor/Editor/RuntimeLogFilterWindow.cs
+├── GameActor/AI/BehaviorTree/
+│   ├── Runtime/BehaviorTreeRunner.cs
+│   └── Nodes/Action/LogNode.cs
+└── Manager/Input/InputManager.Event.cs
 ```
 
 ---
@@ -94,13 +94,13 @@ Debug.unityLogger.filterLogType =
 | `Boot` | 게임 및 매니저 초기화 |
 | `Combat` | 공격, 피해, 리액션, 몬스터 전투 상태 |
 | `Input` | 입력 버퍼, 콤보 입력, 입력 라우팅 |
-| `AI` | Behavior Tree, 탐지, 의사결정 |
+| `AI` | BT 이외의 AI 탐지·의사결정 확장용 카테고리 |
 | `Camera` | 카메라 모드, 락온, 연출 |
 | `UI` | UI 표시 및 입력 레이어 |
 | `Asset` | Addressables와 데이터 로딩 |
 | `Performance` | 성능 측정 및 기준선 저장 |
 | `Player` | 플레이어 상태 및 플레이어 전용 진단 |
-| `Monster` | 몬스터 Behavior Tree 및 몬스터 전용 진단 |
+| `Monster` | 몬스터 Behavior Tree 및 몬스터 전용 진단. 현재 BT 로그는 `Combat | Monster`로 분류 |
 | `Default` | 별도 기능 분류가 없는 일반 진단 |
 | `System` | 매니저와 시스템 생명주기 진단 |
 | `All` | 모든 카테고리 |

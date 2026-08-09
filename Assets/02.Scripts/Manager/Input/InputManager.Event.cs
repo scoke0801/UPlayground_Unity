@@ -466,12 +466,16 @@ namespace UPlayGround.Manager
             }
         }
 
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        [System.Diagnostics.Conditional("DEVELOPMENT_BUILD")]
         private static void TraceInputDispatch(
             InputAction.CallbackContext context,
             string mapName,
             string actionName,
             InputArbiterPhase phase)
         {
+            if (!RuntimeLog.IsEnabled(RuntimeLogCategory.Input)) return;
+
             InputAction action = context.action;
 
             // Move/Look 같은 연속 값은 performed가 매 입력 업데이트마다 발생한다.

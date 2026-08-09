@@ -20,4 +20,6 @@ MonoBehaviour:
   unsafeRetryInterval: 0.25
   teleportRefreshDistance: 20
   maximumSuspendSpeed: 0.1
-  includeEliteMonsters: 0
+  includeEliteMonsters: 1
+  includeBossMonsters: 1
+  hideSuspendedMonsterRenderers: 1

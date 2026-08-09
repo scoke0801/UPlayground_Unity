@@ -41,6 +41,9 @@ namespace UPlayGround.Simulation
         private EnemyDetection _detection;
         private EnemyAIController _groundAI;
         private EnemyFlyingAIController _flyingAI;
+        private ActorPresentation _presentation;
+        private ActorSimulationSettingsSO _settings;
+        private bool _presentationHiddenBySimulation;
         private int _nextLeaseId;
 
         public static event Action<GameActor, ActorSimulationState> AnyStateChanged;
@@ -66,11 +69,28 @@ namespace UPlayGround.Simulation
             LastActivatedTime = LastTransitionTime;
         }
 
+        private void OnEnable()
+        {
+            if (State == ActorSimulationState.Suspended)
+                RefreshPresentationVisibility();
+        }
+
+        private void OnDisable()
+        {
+            ReleasePresentationHideRequest();
+        }
+
         public void Initialize(GameActor actor)
         {
             _actor = actor != null ? actor : GetComponent<GameActor>();
             ResolveReferences();
             _movement?.SetSimulationParticipant(this);
+        }
+
+        public void ApplySettings(ActorSimulationSettingsSO settings)
+        {
+            _settings = settings;
+            RefreshPresentationVisibility();
         }
 
         public bool CanSuspendSimulation(ActorSimulationSettingsSO settings)
@@ -121,6 +141,7 @@ namespace UPlayGround.Simulation
                     _movement.Motor.BaseVelocity = Vector3.zero;
                 _movement?.ClearImpulse();
                 _animator?.SetSimulationPaused(true);
+                RefreshPresentationVisibility();
             }
             else
             {
@@ -131,6 +152,7 @@ namespace UPlayGround.Simulation
                 }
                 _animator?.SetSimulationPaused(false);
                 NotifyResumedHandlers();
+                RefreshPresentationVisibility();
                 LastActivatedTime = Time.unscaledTime;
             }
 
@@ -157,6 +179,40 @@ namespace UPlayGround.Simulation
             _detection ??= GetComponent<EnemyDetection>();
             _groundAI ??= GetComponent<EnemyAIController>();
             _flyingAI ??= GetComponent<EnemyFlyingAIController>();
+            if (_actor is MonsterActor)
+            {
+                _presentation ??= GetComponent<ActorPresentation>();
+                if (_presentation == null)
+                    _presentation = gameObject.AddComponent<ActorPresentation>();
+            }
+        }
+
+        private void RefreshPresentationVisibility()
+        {
+            bool shouldHide = State == ActorSimulationState.Suspended &&
+                              _actor is MonsterActor &&
+                              _settings?.hideSuspendedMonsterRenderers == true;
+            if (_presentationHiddenBySimulation == shouldHide)
+                return;
+
+            ResolveReferences();
+            if (_presentation == null)
+                return;
+
+            _presentationHiddenBySimulation = shouldHide;
+            if (shouldHide)
+                _presentation.Hide();
+            else
+                _presentation.Show();
+        }
+
+        private void ReleasePresentationHideRequest()
+        {
+            if (!_presentationHiddenBySimulation)
+                return;
+
+            _presentation?.Show();
+            _presentationHiddenBySimulation = false;
         }
 
         private void NotifyResumedHandlers()
@@ -183,6 +239,7 @@ namespace UPlayGround.Simulation
         {
             _activeLeases.Clear();
             _resumeBehaviours.Clear();
+            ReleasePresentationHideRequest();
             if (State == ActorSimulationState.Suspended)
                 _animator?.SetSimulationPaused(false);
         }

@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Config;
-using UPlayGround.Data.EnumType;
 using UPlayGround.Simulation;
 
 namespace UPlayGround.Manager
 {
     /// <summary>
-    /// 현재 조작 플레이어를 기준으로 일반 몬스터와 NPC의 시뮬레이션 상태를 일괄 결정한다.
+    /// 현재 조작 플레이어를 기준으로 설정에 포함된 몬스터와 NPC의 시뮬레이션 상태를 일괄 결정한다.
     /// </summary>
     public sealed class ActorSimulationManager : BaseManager<ActorSimulationManager>,
         IManager, IUpdatableManager, IActorSimulationService
@@ -157,6 +156,7 @@ namespace UPlayGround.Manager
                 actor.GetComponent<ActorSimulationParticipant>() ??
                 actor.gameObject.AddComponent<ActorSimulationParticipant>();
             participant.Initialize(actor);
+            participant.ApplySettings(_settings);
             _lookup.Add(actor, participant);
             _participants.Add(participant);
             if (_isReady && _objects?.Player != null)
@@ -204,8 +204,7 @@ namespace UPlayGround.Manager
                 return true;
             if (actor is not MonsterActor monster)
                 return false;
-            return monster.Grade == MonsterActorGrade.Normal ||
-                   (_settings.includeEliteMonsters && monster.Grade == MonsterActorGrade.Elite);
+            return _settings.IncludesMonsterGrade(monster.Grade);
         }
 
         private void EvaluateAll()

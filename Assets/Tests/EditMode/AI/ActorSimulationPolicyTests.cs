@@ -1,10 +1,54 @@
 using NUnit.Framework;
+using UnityEngine;
+using UPlayGround.Data.Config;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Simulation;
 
 namespace UPlayGround.AI.Tests
 {
     public sealed class ActorSimulationPolicyTests
     {
+        [Test]
+        public void 기본_설정은_Normal_Elite_Boss를_포함하고_Weak를_제외한다()
+        {
+            ActorSimulationSettingsSO settings =
+                ScriptableObject.CreateInstance<ActorSimulationSettingsSO>();
+
+            try
+            {
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Normal), Is.True);
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Elite), Is.True);
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Boss), Is.True);
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Weak), Is.False);
+                Assert.That(settings.hideSuspendedMonsterRenderers, Is.True);
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+            }
+        }
+
+        [Test]
+        public void Elite와_Boss는_설정으로_개별_제외할_수_있다()
+        {
+            ActorSimulationSettingsSO settings =
+                ScriptableObject.CreateInstance<ActorSimulationSettingsSO>();
+
+            try
+            {
+                settings.includeEliteMonsters = false;
+                settings.includeBossMonsters = false;
+
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Normal), Is.True);
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Elite), Is.False);
+                Assert.That(settings.IncludesMonsterGrade(MonsterActorGrade.Boss), Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(settings);
+            }
+        }
+
         [Test]
         public void 플레이어가_없으면_항상_활성이다()
         {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data.EnumType;
 
 namespace UPlayGround.Data.Config
 {
@@ -15,7 +16,9 @@ namespace UPlayGround.Data.Config
         [Min(0.01f)] public float unsafeRetryInterval = 0.25f;
         [Min(0f)] public float teleportRefreshDistance = 20f;
         [Min(0f)] public float maximumSuspendSpeed = 0.1f;
-        public bool includeEliteMonsters;
+        public bool includeEliteMonsters = true;
+        public bool includeBossMonsters = true;
+        public bool hideSuspendedMonsterRenderers = true;
 
         public float WakeDistanceSquared => wakeDistance * wakeDistance;
         public float SleepDistanceSquared => sleepDistance * sleepDistance;
@@ -23,6 +26,14 @@ namespace UPlayGround.Data.Config
             teleportRefreshDistance * teleportRefreshDistance;
         public float MaximumSuspendSpeedSquared =>
             maximumSuspendSpeed * maximumSuspendSpeed;
+
+        public bool IncludesMonsterGrade(MonsterActorGrade grade) => grade switch
+        {
+            MonsterActorGrade.Normal => true,
+            MonsterActorGrade.Elite => includeEliteMonsters,
+            MonsterActorGrade.Boss => includeBossMonsters,
+            _ => false,
+        };
 
         private void OnValidate()
         {

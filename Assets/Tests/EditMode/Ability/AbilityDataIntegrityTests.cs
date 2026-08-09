@@ -5,8 +5,10 @@ using NUnit.Framework;
 using UnityEditor;
 using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
+using UPlayGround.Data;
 using UPlayGround.Data.Stat;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Gameplay.Ability;
 
@@ -166,6 +168,34 @@ namespace UPlayGround.Ability.Tests
                     out UPlayGroundUltimateAbilityPayloadSO resolved),
                 Is.True);
             Assert.That(resolved, Is.SameAs(payload));
+        }
+
+        [TestCase("Bow.Ability.Skill.4", 3, 155f, 465f, 166f)]
+        [TestCase("Bow.Ability.Skill.5", 4, 210f, 630f, 225f)]
+        public void Bow_다중투사체는_Damage_Poise_Break_총량을_보존한다(
+            string motionKey,
+            int expectedPhaseCount,
+            float expectedDamage,
+            float expectedPoiseDamage,
+            float expectedBreakDamage)
+        {
+            const string path =
+                "Assets/10.Datas/Ability/Migrated/PlayerBowAttackData/GA_PlayerBowAttackData_Ability.asset";
+            UPlayGroundMotionAbilityPayloadSO payload =
+                AssetDatabase.LoadAllAssetsAtPath(path)
+                    .OfType<UPlayGroundMotionAbilityPayloadSO>()
+                    .SingleOrDefault(value =>
+                        value.attackInfo?.motionKey.value == motionKey);
+
+            Assert.That(payload, Is.Not.Null, $"{motionKey}: Payload 누락");
+            List<HitPhaseData> phases = payload.attackInfo.baseInfo.hitPhases;
+            Assert.That(phases, Has.Count.EqualTo(expectedPhaseCount));
+            Assert.That(phases.Sum(value => value.damage),
+                Is.EqualTo(expectedDamage).Within(0.001f));
+            Assert.That(phases.Sum(value => value.poiseDamage),
+                Is.EqualTo(expectedPoiseDamage).Within(0.001f));
+            Assert.That(phases.Sum(value => value.breakDamage),
+                Is.EqualTo(expectedBreakDamage).Within(0.001f));
         }
 
         private static bool IsRequestDrivenAbility(GameplayAbilitySO ability) =>

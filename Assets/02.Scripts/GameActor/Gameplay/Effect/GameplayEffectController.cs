@@ -82,6 +82,7 @@ namespace UPlayGround.Gameplay.Effect
             if (enforceApplicationRules && !CanApply(definition))
                 return default;
             DispelMatchingEffects(definition.dispelTags);
+            float specLevel = options.EffectiveSpecLevel;
 
             if (definition.durationType == GameplayEffectDurationType.Instant)
             {
@@ -90,6 +91,7 @@ namespace UPlayGround.Gameplay.Effect
                     source,
                     0f,
                     executePeriodicOnApplication,
+                    specLevel,
                     options.SetByCallerMagnitudes);
                 if (!instantOutcome.Succeeded)
                     ReportApplyFailure(definition, instantOutcome);
@@ -116,6 +118,7 @@ namespace UPlayGround.Gameplay.Effect
                         GameplayEffectApplyOutcome refreshed =
                             ApplyGasSpec(definition, source, effectiveDuration,
                                 executePeriodicOnApplication,
+                                specLevel,
                                 options.SetByCallerMagnitudes);
                         if (!refreshed.Succeeded)
                         {
@@ -128,6 +131,8 @@ namespace UPlayGround.Gameplay.Effect
                         existing.DurationSeconds = effectiveDuration;
                         existing.RemainingSeconds = effectiveDuration;
                         existing.HudVisibility = options.HudVisibility;
+                        // Core의 RefreshExisting은 기존 Spec/Source로 스택 수치만 다시 계산한다.
+                        // 저장 메타도 실제 적용된 기존 Spec과 일치시킨다.
                         StateChanged?.Invoke();
                         succeeded = true;
                         return existing.Handle;
@@ -148,10 +153,12 @@ namespace UPlayGround.Gameplay.Effect
                 RemainingSeconds = effectiveDuration,
                 NextPeriodSeconds = definition.periodSeconds,
                 HudVisibility = options.HudVisibility,
+                SpecLevel = specLevel,
             };
             GameplayEffectApplyOutcome gasOutcome =
                 ApplyGasSpec(definition, source, effectiveDuration,
                     executePeriodicOnApplication,
+                    specLevel,
                     options.SetByCallerMagnitudes);
             if (!gasOutcome.Succeeded)
             {
@@ -243,6 +250,7 @@ namespace UPlayGround.Gameplay.Effect
                     stackCount = Mathf.Clamp(
                         instance.StackCount, 1, Mathf.Max(1, definition.maxStackCount)),
                     hudVisibility = (int)instance.HudVisibility,
+                    specLevel = instance.SpecLevel,
                 };
                 for (int i = 0; i < gasEffects.Count; i++)
                 {
@@ -290,7 +298,8 @@ namespace UPlayGround.Gameplay.Effect
                         entry.hudVisibility)
                             ? (GameplayEffectHudVisibility)entry.hudVisibility
                             : GameplayEffectHudVisibility.UseDefinition,
-                    setByCaller);
+                    setByCaller,
+                    entry.specLevel > 0f ? entry.specLevel : 1f);
                 GameplayEffectHandle handle = ApplyEffectInternal(
                     definition,
                     null,
@@ -311,6 +320,7 @@ namespace UPlayGround.Gameplay.Effect
                         null,
                         ResolveEffectiveDuration(definition),
                         false,
+                        options.EffectiveSpecLevel,
                         setByCaller);
                     if (restoredStack.ActiveHandle.IsValid)
                         instance.GasHandle = restoredStack.ActiveHandle;
@@ -544,6 +554,7 @@ namespace UPlayGround.Gameplay.Effect
             GameActor source,
             float effectiveDuration,
             bool executePeriodicOnApplication,
+            float specLevel,
             IReadOnlyDictionary<string, float> setByCallerMagnitudes = null)
         {
             if (_abilitySystem?.Runtime == null)
@@ -643,7 +654,7 @@ namespace UPlayGround.Gameplay.Effect
                 _abilitySystem.Runtime.Handle,
                 sourceObjectId: sourceDefinition.effectId);
             GameplayEffectSpec spec = sourceRuntime.EffectSpecs.Create(
-                definition, 1f, context, sourceRuntime);
+                definition, specLevel, context, sourceRuntime);
             if (setByCallerMagnitudes != null)
             {
                 foreach (KeyValuePair<string, float> pair in setByCallerMagnitudes)

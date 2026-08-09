@@ -835,6 +835,8 @@ Effect 인스턴스는 `StatModifier.source`에 임의 문자열이나 SO를 직
 - 계산식은 `(캡처값 + preAdd) × coefficient + postAdd`다.
 - 기본값이 `Fixed`이므로 기존 Effect 에셋의 직렬화와 동작은 바뀌지 않는다. 재저작·마이그레이션 대상이 아니다.
 - `AttributeBased`에 캡처 Attribute ID가 없거나 `SetByCaller`에 키가 없으면 Effect 적용을 `InvalidDefinition`으로 실패시킨다. 조용한 0 적용으로 넘어가지 않는다.
+- `ScalableByLevel`의 Level은 액터 레벨을 암묵 추정하지 않는다. 호출자가 `GameplayEffectApplicationOptions.SpecLevel`로 명시하며, 0·NaN·Infinity와 구 세이브의 누락값은 1로 정규화한다. 지속 Effect는 `ActiveEffectSaveEntry.specLevel`에 저장해 스택과 함께 같은 크기로 복원한다.
+- `RefreshDuration`/`AddStackAndRefresh`는 최초 활성 Effect의 Core Spec과 Source를 유지한다. 뒤의 적용이 다른 `SpecLevel`을 보내도 기존 레벨로 스택을 다시 계산하고, 저장에도 실제 Core 레벨을 기록한다. 새 레벨로 교체하려면 `ReplaceExisting`을 사용한다.
 - Instant Effect의 Modifier는 적용되지 않는다. 즉시 수치 변경은 Execution 경로를 사용하며, `AbilityDataValidator`가 이 조합을 Warning으로 보고한다.
 - 인스펙터는 `GameplayEffectModifierDrawer`가 선택한 방식의 필드만 표시한다.
 

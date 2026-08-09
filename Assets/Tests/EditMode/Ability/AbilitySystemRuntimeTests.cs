@@ -66,19 +66,20 @@ namespace UPlayGround.Ability.Tests
             GameplayEffectDefinition definition = CreateSavedDurationEffect();
             GameplayEffectSpec sourceSpec = source.EffectSpecs.Create(
                 definition,
-                1f,
+                4f,
                 new GameplayEffectContext(source.Handle, source.Handle, source.Handle),
                 source);
             source.Effects.Apply(sourceSpec, source);
             GameplayEffectSpec stackedSpec = source.EffectSpecs.Create(
                 definition,
-                1f,
+                4f,
                 new GameplayEffectContext(source.Handle, source.Handle, source.Handle),
                 source);
             source.Effects.Apply(stackedSpec, source);
             sourceClock.Time = 4f;
             source.Effects.Tick();
             AbilitySystemSaveData saveData = source.CaptureSaveData();
+            Assert.That(saveData.activeEffects[0].specLevel, Is.EqualTo(4f));
 
             var targetClock = new FakeClock();
             using var target = new AbilitySystemRuntime(
@@ -100,6 +101,7 @@ namespace UPlayGround.Ability.Tests
             Assert.That(active, Has.Count.EqualTo(1));
             Assert.That(active[0].RemainingSeconds, Is.EqualTo(6f));
             Assert.That(active[0].StackCount, Is.EqualTo(2));
+            Assert.That(active[0].Spec.Level, Is.EqualTo(4f));
             Assert.That(target.Attributes.GetCurrent(global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower), Is.EqualTo(20f));
         }
 

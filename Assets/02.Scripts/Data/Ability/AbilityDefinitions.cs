@@ -332,13 +332,21 @@ namespace UPlayGround.Data.Ability
     {
         public readonly GameplayEffectHudVisibility HudVisibility;
         public readonly IReadOnlyDictionary<string, float> SetByCallerMagnitudes;
+        public readonly float SpecLevel;
+
+        public float EffectiveSpecLevel =>
+            float.IsNaN(SpecLevel) || float.IsInfinity(SpecLevel) || SpecLevel <= 0f
+                ? 1f
+                : SpecLevel;
 
         public GameplayEffectApplicationOptions(
             GameplayEffectHudVisibility hudVisibility,
-            IReadOnlyDictionary<string, float> setByCallerMagnitudes = null)
+            IReadOnlyDictionary<string, float> setByCallerMagnitudes = null,
+            float specLevel = 1f)
         {
             HudVisibility = hudVisibility;
             SetByCallerMagnitudes = setByCallerMagnitudes;
+            SpecLevel = specLevel;
         }
     }
 

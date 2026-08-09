@@ -135,6 +135,7 @@ namespace UPlayGround.Ability.Core
                     effectId = effect.Spec.Definition.EffectId,
                     remainingSeconds = effect.RemainingSeconds,
                     stackCount = effect.StackCount,
+                    specLevel = effect.Spec.Level,
                 };
                 foreach (KeyValuePair<AbilityTagId, float> pair in effect.Spec.SetByCaller)
                     entry.setByCaller.Add(new SetByCallerSaveEntry { key = pair.Key.Value, value = pair.Value });
@@ -215,8 +216,14 @@ namespace UPlayGround.Ability.Core
                 GameplayEffectDefinition restoredDefinition =
                     CreateRestoredEffectDefinition(definition);
                 var context = new GameplayEffectContext(Handle, Handle, Handle);
+                float specLevel = sourceVersion >= 5
+                                  && !float.IsNaN(entry.specLevel)
+                                  && !float.IsInfinity(entry.specLevel)
+                                  && entry.specLevel > 0f
+                    ? entry.specLevel
+                    : 1f;
                 GameplayEffectSpec spec = EffectSpecs.Create(
-                    restoredDefinition, 1f, context, this);
+                    restoredDefinition, specLevel, context, this);
                 for (int j = 0; j < entry.setByCaller.Count; j++)
                 {
                     SetByCallerSaveEntry value = entry.setByCaller[j];

@@ -149,10 +149,13 @@ namespace UPlayGround.Ability.Tests
             };
             var options = new GameplayEffectApplicationOptions(
                 GameplayEffectHudVisibility.UseDefinition,
-                values);
+                values,
+                3f);
 
             Assert.That(options.SetByCallerMagnitudes, Is.SameAs(values));
             Assert.That(options.SetByCallerMagnitudes["Data.Damage"], Is.EqualTo(23f));
+            Assert.That(options.EffectiveSpecLevel, Is.EqualTo(3f));
+            Assert.That(default(GameplayEffectApplicationOptions).EffectiveSpecLevel, Is.EqualTo(1f));
         }
 
         [Test]

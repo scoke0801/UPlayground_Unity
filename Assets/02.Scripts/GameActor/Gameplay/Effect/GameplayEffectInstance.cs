@@ -20,6 +20,7 @@ namespace UPlayGround.Gameplay.Effect
         public float RemainingSeconds;
         public float NextPeriodSeconds;
         public GameplayEffectHudVisibility HudVisibility;
+        public float SpecLevel;
         public ActiveGameplayEffectHandle GasHandle;
         public bool GrantsElement;
     }

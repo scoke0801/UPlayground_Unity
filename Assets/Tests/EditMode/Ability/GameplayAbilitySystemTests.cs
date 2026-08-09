@@ -1182,6 +1182,107 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
+        public void ScalableByLevel_Effect는_적용레벨을_저장하고_같은크기로_복원한다()
+        {
+            AttributeId attackPower =
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower;
+            _actor.AbilitySystem.Attributes.SetBase(attackPower, 10f);
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.ScalableSave";
+            effect.durationType = GameplayEffectDurationType.Duration;
+            effect.durationSeconds = 10f;
+            effect.savePolicy = GameplayEffectSavePolicy.SaveRemainingDuration;
+            effect.modifiers.Add(new GameplayEffectModifierDefinition
+            {
+                attributeId = attackPower.Value,
+                modifierType = ModifierType.Flat,
+                magnitudeSource = GameplayEffectMagnitudeSource.ScalableByLevel,
+                value = 2f,
+                perLevel = 3f,
+            });
+
+            _actor.Effects.ApplyEffect(
+                effect,
+                _actor,
+                new GameplayEffectApplicationOptions(
+                    GameplayEffectHudVisibility.UseDefinition,
+                    specLevel: 4f));
+            Assert.That(
+                _actor.AbilitySystem.Attributes.GetCurrent(attackPower),
+                Is.EqualTo(21f));
+
+            var entries = new List<ActiveEffectSaveEntry>();
+            _actor.Effects.CaptureRuntimeState(entries, forCharacterSwap: false);
+            Assert.That(entries, Has.Count.EqualTo(1));
+            Assert.That(entries[0].specLevel, Is.EqualTo(4f));
+
+            _actor.Effects.RemoveAll();
+            _actor.Effects.RestoreRuntimeState(
+                entries,
+                effectId => effectId == effect.effectId ? effect : null);
+            Assert.That(
+                _actor.AbilitySystem.Attributes.GetCurrent(attackPower),
+                Is.EqualTo(21f));
+
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
+        public void ScalableByLevel_스택Refresh는_실제Core레벨을_저장한다()
+        {
+            AttributeId attackPower =
+                global::UPlayGround.Data.Stat.Attributes.Combat.AttackPower;
+            _actor.AbilitySystem.Attributes.SetBase(attackPower, 10f);
+            GameplayEffectSO effect = ScriptableObject.CreateInstance<GameplayEffectSO>();
+            effect.effectId = "Effect.Test.ScalableStackSave";
+            effect.durationType = GameplayEffectDurationType.Duration;
+            effect.durationSeconds = 10f;
+            effect.savePolicy = GameplayEffectSavePolicy.SaveRemainingDuration;
+            effect.stackPolicy = GameplayEffectStackPolicy.AddStackAndRefresh;
+            effect.maxStackCount = 2;
+            effect.modifiers.Add(new GameplayEffectModifierDefinition
+            {
+                attributeId = attackPower.Value,
+                modifierType = ModifierType.Flat,
+                magnitudeSource = GameplayEffectMagnitudeSource.ScalableByLevel,
+                value = 2f,
+                perLevel = 3f,
+            });
+
+            _actor.Effects.ApplyEffect(
+                effect,
+                _actor,
+                new GameplayEffectApplicationOptions(
+                    GameplayEffectHudVisibility.UseDefinition,
+                    specLevel: 1f));
+            _actor.Effects.ApplyEffect(
+                effect,
+                _actor,
+                new GameplayEffectApplicationOptions(
+                    GameplayEffectHudVisibility.UseDefinition,
+                    specLevel: 4f));
+
+            // Core RefreshExisting은 첫 Spec(Level 1)로 두 스택을 재계산한다.
+            Assert.That(
+                _actor.AbilitySystem.Attributes.GetCurrent(attackPower),
+                Is.EqualTo(14f));
+            var entries = new List<ActiveEffectSaveEntry>();
+            _actor.Effects.CaptureRuntimeState(entries, forCharacterSwap: false);
+            Assert.That(entries, Has.Count.EqualTo(1));
+            Assert.That(entries[0].specLevel, Is.EqualTo(1f));
+
+            _actor.Effects.RemoveAll();
+            _actor.Effects.RestoreRuntimeState(
+                entries,
+                effectId => effectId == effect.effectId ? effect : null);
+            Assert.That(
+                _actor.AbilitySystem.Attributes.GetCurrent(attackPower),
+                Is.EqualTo(14f));
+
+            Object.DestroyImmediate(effect);
+        }
+
+        [Test]
         public void 패시브_TriggerEffect는_정의의_HUD노출을_따르는_것이_기본이다()
         {
             PassiveAbilitySO passive =

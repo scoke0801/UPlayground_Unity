@@ -38,6 +38,7 @@ asmdef 모듈화 작업은 Phase 5 UI 모듈화와 Phase 6 자동 검증을 완�
 - `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
 - `UPlayGround.Ability.Core` — 프로젝트 타입을 참조하지 않는 Ability 실행 상태·정책·Port·쿨다운·Effect 스택 코어
 - `UPlayGround.Ability.UPlayGround` — MotionSet과 플레이어 전투 Payload를 Core에 연결하는 프로젝트 어댑터
+- `UPlayGround.World.Generation` — `UPlayGround.Data`만 참조하는 시드 기반 사이클 콘텐츠 계획·퀘스트 초안 순수 모듈
 - `UPlayGround.Camera` — 카메라 런타임
 - `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
 - `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
@@ -128,14 +129,14 @@ CharacterModelData.abilitySet
 → ActorAbilitySystem / PlayerCombatAbilityDataView
 → GameplayAbilitySO.Variant
 → UPlayGroundMotionAbilityPayloadSO
-→ AbilityAttackInfo.baseInfo.motionKey
+→ AbilityAttackInfo.motionKey
 → ActorAnimator.TryResolveAbilityMotion
 → PlayerActorAnimationMotionSet(WeaponType) / ActorAnimationMotionSet.abilityMotions
 → MotionSetAsset
 ```
 
 - `GameplayAbilitySO`는 활성화 조건, 비용, 쿨다운, Variant 선택 정책을 소유한다.
-- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.baseInfo.motionKey`다. 키는 `(abilityId, variantId)`로 구성하며 GAS는 `MotionSetAsset` 참조를 소유하지 않는다.
+- `UPlayGroundMotionAbilityPayloadSO`는 공용 `AbilityAttackInfo`를 소유하고, 실행 Motion의 단일 소스는 `AbilityAttackInfo.motionKey`다. `MotionKey`는 Ability/Variant 식별자를 포함하지 않는 독립 문자열 키이며, 신규 생성은 `abilityId`의 최상위 분류 접두사(`Actor.`/`Player.`/`Monster.`/`Boss.`)를 제거한 규약을 사용한다. GAS는 이 키만 전달하고 `MotionSetAsset` 참조를 소유하지 않는다.
 - 실제 Motion 매핑은 `ActorAnimationMotionSet.abilityMotions`가 소유한다. 플레이어는 현재 `WeaponType`의 `PlayerActorAnimationMotionSet`에서 먼저 해석하고 `NoWeapon` 세트로 폴백한다.
 - Payload 바깥에 중복 Motion 참조나 `AnimKey`/레거시 Ref 폴백을 다시 두지 않는다.
 - `PlayerCombat`과 밸런스·검증 도구는 `PlayerCombatAbilityDataView`를 통해 같은 `AbilitySetSO`를 읽는다.
@@ -145,7 +146,7 @@ CharacterModelData.abilitySet
 - 생성된 플레이어 데이터는 `Assets/10.Datas/Ability/Migrated/` 아래에 있다. 편집·전체 검증은 UI Toolkit 기반 Ability Editor를 사용한다.
 - `UPlayGround.Ability.Core` 자체는 프로젝트 비의존 경계를 갖지만, `GameplayAbilitySO`/`GameplayEffectSO`/`AbilitySetSO` 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템을 외부 재사용 가능한 독립 패키지로 간주하지 않는다.
 
-2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 구조와 후속 독립 모듈 조건은 `Assets/docs/TODO/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
+2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개였다. 2026-08-08 현재 스냅샷은 AbilitySet 39개, GameplayAbility 559개, Motion Payload 547개다. 구조와 후속 독립 모듈 조건은 `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 기준으로 한다.
 
 2026-07-31 Motion Key 이관 기준: Motion Payload 498개의 Key를 생성하고 Actor MotionSet 34개에 기존 기본/무기별 Motion 해석 결과를 이관했다. 레거시 `MotionReferenceSO` 타입과 490개 Ref 에셋은 제거했으며 직렬화 잔존 참조는 0건이다. Elemental Imbue 5종은 플레이어 무기 세트에 공통 Motion으로 연결했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·Motion Key 매핑·HitPhase 누락을 모아서 보고해야 한다.
 

@@ -28,6 +28,7 @@ Unity 프로젝트이므로 최종 빌드와 Play Mode 검증은 Unity 6 (6000.3
 - `UPlayGround.Contracts` — `IGameService`, `Services`, `Svc`, 공용 서비스 계약
 - `UPlayGround.Ability.Core` — 프로젝트 타입을 참조하지 않는 Ability 실행 상태·정책·Port·쿨다운·Effect 스택 코어
 - `UPlayGround.Ability.UPlayGround` — MotionSet과 플레이어 전투 Payload를 Core에 연결하는 프로젝트 어댑터
+- `UPlayGround.World.Generation` — `UPlayGround.Data`만 참조하는 시드 기반 사이클 콘텐츠 계획·퀘스트 초안 순수 모듈
 - `UPlayGround.Camera` — 카메라 런타임
 - `UPlayGround.Actor` — GameActor, 상태, 전투, AI, MotionEvent 런타임
 - `UPlayGround.UI` — UI 런타임과 UI 소비자 계약(`UISvc`)
@@ -138,7 +139,7 @@ CharacterModelData.abilitySet
 - 플레이어 Ability 에셋은 `Assets/10.Datas/Ability/Migrated/`에 있고, UI Toolkit 기반 Ability Editor에서 편집·검증한다.
 - Core asmdef는 프로젝트 비의존이지만 Ability/Effect/Set 정의와 Effect 수명주기 일부가 아직 Data/Actor에 있으므로 전체 시스템은 아직 외부 재사용 가능한 독립 패키지가 아니다.
 
-2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개다. 상세 기준은 `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
+2026-07-18 기준 플레이어/몬스터 통합 데이터는 AbilitySet 34개, GameplayAbility 에셋 482개, Variant/Payload 493개였다. 2026-08-08 현재 스냅샷은 AbilitySet 39개, GameplayAbility 559개, Motion Payload 547개다. 상세 기준은 `Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md`를 따른다.
 
 2026-07-31 Motion Key 이관 기준: Motion Payload 498개의 Key를 생성하고 Actor MotionSet 34개에 기존 기본/무기별 Motion 해석 결과를 이관했다. 레거시 `MotionReferenceSO` 타입과 490개 Ref 에셋은 제거했으며 직렬화 잔존 참조는 0건이다. Elemental Imbue 5종은 플레이어 무기 세트에 공통 Motion으로 연결했다. Dryad 공격 3개와 Training Dummy 공격 1개는 대응 Motion의 근거가 없어 미해결이다. 이 네 건은 임의 매핑하지 말고 콘텐츠 Motion을 확정한 뒤 연결한다. `AbilityDataValidator`의 전수 검증은 이 네 건을 "어떤 MotionSet에서도 해석되지 않는 Key" Warning으로 보고한다. 콘텐츠 확정 전까지 예상된 Warning이므로 Error로 승격하지 않는다. `MonsterAbilitySetIntegrationTests`는 `aiSelectable` Ability의 Motion 해석 실패를 건너뛰지 않고 Payload·Motion Key 매핑·HitPhase 누락을 모아서 보고해야 한다.
 

@@ -302,6 +302,7 @@
 │   ├── Core/           공통 기반 (UPlayGround.Core)
 │   ├── Data/           SO·DTO·enum 순수 데이터 (UPlayGround.Data)
 │   ├── Contracts/      서비스 계약·레지스트리 (UPlayGround.Contracts)
+│   ├── WorldGeneration/시드 기반 사이클 계획 (UPlayGround.World.Generation, Data-only)
 │   ├── Camera/         카메라 런타임 (UPlayGround.Camera)
 │   ├── GameActor/      액터·상태·전투·AI (UPlayGround.Actor)
 │   ├── UI/             UI 런타임 (UPlayGround.UI)
@@ -334,6 +335,7 @@
     <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.UI</code></div><div class="d">UI 런타임 + UI 소비자 계약(UISvc)</div></div><div class="stack-side"></div></div>
     <div class="stack-arrow">▼</div>
     <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Actor</code></div><div class="d">GameActor, 상태머신, 전투, AI, MotionEvent</div></div><div class="stack-side"></div></div>
+    <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.World.Generation</code></div><div class="d">Data만 참조하는 결정적 사이클 콘텐츠 계획·퀘스트 초안</div></div><div class="stack-side">Actor/Manager/씬 API 참조 금지</div></div>
     <div class="stack-arrow">▼</div>
     <div class="stack-row"><div class="stack-node"><div class="t"><code>UPlayGround.Camera</code></div><div class="d">카메라 Director/Behavior/Modifier 런타임</div></div><div class="stack-side"></div></div>
     <div class="stack-arrow">▼</div>

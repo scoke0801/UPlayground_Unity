@@ -243,7 +243,7 @@ Editor asmdef
 
 - `GameActor`, `PlayerActor`, `MonsterActor`
 - `PlayerSkillGauge`, `ActorStatContainer`
-- `AbilityAttackInfo`, `AbilityAttackInfo`, `AnimKey`
+- `MotionSet`, `AbilityAttackInfo`, `MotionKey`
 - `PlayerSkillSlot`, `GrowthSkillType`
 - UPlayground 전용 `GameplayTagId`, `StatType`
 - Manager 구현, `Svc`, `ActorSvc`, `UISvc`
@@ -317,7 +317,7 @@ Core는 상태 전환이나 MotionSet 실행 성공 여부를 `IAbilityExecution
 
 ### 7.6 실행 Payload 분리
 
-공용 `GameplayAbilitySO`는 `AbilityAttackInfo` 또는 `AnimKey`를 직접 보관하지 않는다. 프로젝트별 실행 데이터는 Core가 정의한 추상 Payload 참조 또는 안정 실행 키로 연결한다.
+공용 `GameplayAbilitySO`는 `AbilityAttackInfo` 또는 `MotionKey`를 직접 보관하지 않는다. 프로젝트별 실행 데이터는 Core가 정의한 추상 Payload 참조로 연결한다.
 
 ```csharp
 public abstract class AbilityExecutionPayloadSO : ScriptableObject
@@ -336,8 +336,8 @@ GameplayAbilitySO
             │
             ▼
 UPlayGroundMotionAbilityPayloadSO
-├── AnimKey
 └── AbilityAttackInfo
+    └── motionKey
 ```
 
 `UPlayGroundMotionAbilityPayloadSO`는 `UPlayGround.Ability.UPlayGround`에 둔다. 이를 통해 Core 데이터와 런타임은 Uplayground의 MotionSet 및 전투 데이터 구조를 알지 않는다.
@@ -346,7 +346,7 @@ UPlayGroundMotionAbilityPayloadSO
 
 V1 수직 슬라이스 초기에는 회귀 위험을 낮추기 위해 다음 임시 결합을 허용했다.
 
-- `AbilityVariantDefinition`의 `AnimKey`, `AbilityAttackInfo` 직접 참조
+- `AbilityVariantDefinition`의 레거시 `AnimKey`, `AbilityAttackInfo` 직접 참조
 - `ActorAbilitySystem`의 `GameActor`, `PlayerActor`, `PlayerSkillGauge` 직접 연결
 - Effect 런타임의 `ActorStatContainer`, `GameplayTagContainer` 직접 연결
 - `PlayerSkillSlot` 기반 플레이어 2슬롯 바인딩
@@ -360,7 +360,7 @@ V1 수직 슬라이스 초기에는 회귀 위험을 낮추기 위해 다음 임
 분리는 다음 순서로 진행했으며 4~5번은 후속 작업이다.
 
 1. 공용 ID, 정책, 저장 DTO, 실행 상태를 `UPlayGround.Ability.Core`로 이동했다.
-2. `AnimKey`와 공격 데이터를 `UPlayGroundMotionAbilityPayloadSO`로 이동했다.
+2. 레거시 `AnimKey`를 제거하고 공격 데이터와 `MotionKey`를 `UPlayGroundMotionAbilityPayloadSO`의 `AbilityAttackInfo`로 이동했다.
 3. 자원·태그·스탯·시간 접근을 Port 인터페이스로 교체했다.
 4. 기존 `ActorAbilitySystem`을 UPlayground Adapter 또는 Adapter 조립 컴포넌트로 축소한다.
 5. 공용 에디터와 UPlayground 전용 MotionSet 검증 확장을 분리한다.
@@ -520,8 +520,7 @@ public sealed class AbilityVariantDefinition
     public string variantId;
     public int priority;
     public AbilityVariantCondition condition;
-    public AnimKey animKey;
-    public AbilityAttackInfo attackInfo;
+    public AbilityExecutionPayloadSO executionPayload;
     public List<GameplayEffectSO> targetEffects;
     public List<GameplayEffectSO> ownerEffects;
 }
@@ -887,7 +886,7 @@ Ability Effect가 같은 HitPhase 피해를 다시 적용하면 안 된다.
 
 ### 15.2 Ability가 수행할 일
 
-- 실행할 Variant와 `AnimKey` 선택
+- 실행할 Variant와 Payload의 `AbilityAttackInfo.motionKey` 선택
 - 상태 전환 요청
 - 비용·쿨다운 커밋
 - 실행 중 태그 부여
@@ -1200,7 +1199,7 @@ Player 재빌드 필요:
 3. 활성화 조건
 4. 비용과 쿨다운
 5. Variant와 우선순위
-6. MotionSet/AnimKey 연결
+6. Payload `AbilityAttackInfo.motionKey`와 Actor MotionSet 연결
 7. owner/target Effect
 8. 저장·교체 정책
 9. 정적 예상 피해와 지속시간
@@ -1209,7 +1208,7 @@ Player 재빌드 필요:
 
 MotionSet 기반 생성기는 다음을 자동 채울 수 있다.
 
-- AnimKey
+- MotionKey
 - Collision 이벤트 기반 HitPhase 수
 - 스킬 카테고리
 - 예상 startup/active/recovery
@@ -1228,8 +1227,8 @@ MotionSet 기반 생성기는 다음을 자동 채울 수 있다.
 
 - `abilityId`, `effectId` 비어 있음 또는 중복
 - Ability의 실행 가능한 Variant가 없음
-- Variant의 `AnimKey.None`
-- 참조 MotionSet에 AnimKey 없음
+- Variant의 실행 Payload 또는 `AbilityAttackInfo.motionKey` 누락
+- 어떤 Actor MotionSet에서도 `motionKey`를 해석하지 못함
 - 필수 Effect 정의 누락
 - `durationSeconds`, `periodSeconds`, 비용, 쿨다운 음수
 - `periodSeconds <= 0`인 주기 Effect

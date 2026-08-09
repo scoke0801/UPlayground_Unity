@@ -28,7 +28,7 @@ Wizard에 자동으로 전달된다.
 Wizard의 `작업 흐름`을 `Create Ability From Recipe`로 바꾼다.
 
 1. 레시피를 선택한다.
-2. 대상 `AbilitySetSO`, `MotionReferenceSO`, 공용 TaskGraph를 지정한다.
+2. `대상 AbilitySet`, `Actor MotionSet`, 실행할 `Motion Asset`, 공용 `Task Graph`를 지정한다. 제거된 `MotionReferenceSO`는 사용하지 않는다.
 3. AbilitySet 연결 방식을 고른다.
    - `AdditionalAbilities`: 몬스터·보스 AI 풀과 공용 추가 Ability
    - `PlayerSkillSlot`: Ability/Ultimate/ElementalImbue 입력 슬롯

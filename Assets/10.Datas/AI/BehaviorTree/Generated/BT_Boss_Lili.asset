@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8682690951758811862
+--- !u!114 &-9164953967879657196
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,48 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: MidHeavySignature
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: dd6f37b4d0674e39843e84105f23b0a2
-  _displayName: MidHeavySignature
+  m_Script: {fileID: 11500000, guid: 4b7f598efa7346618a88e2472be7a3bc, type: 3}
+  m_Name: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uC774\uC0C1"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ConsecutiveAttackCountNode
+  _guid: c0794e043e24404ebb1b44afca3f279b
+  _displayName: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uC774\uC0C1"
   _comment: 
-  _editorPosition: {x: 1475, y: 1875}
-  _children:
-  - {fileID: -4915559156210263119}
-  - {fileID: -6846261283216772010}
-  - {fileID: 3316992679114817829}
-  - {fileID: -1802982242004938746}
-  - {fileID: 7979424673840288133}
+  _editorPosition: {x: 4625, y: 1875}
+  _children: []
   _disabled: 0
   _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-8547714358659722216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: 10 Phase Signature
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 3d5b911fa9e04dae93478779e1d77d74
-  _displayName: 10 Phase Signature
-  _comment: 
-  _editorPosition: {x: 1332.5, y: 795}
-  _children:
-  - {fileID: 6329438531196812166}
-  - {fileID: -5277313589094192647}
-  - {fileID: -8241952840465170611}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-8312171420804865854
+  _comparison: 1
+  _threshold: 2
+--- !u!114 &-8765339015541373673
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -62,17 +33,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
   m_Name: LessOrEqual
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
-  _guid: 683703b724fa457e818dcad579f91f59
+  _guid: e5298b48283a4aeca3c089eae9097a1f
   _displayName: LessOrEqual
   _comment: 
-  _editorPosition: {x: 2240, y: 2685}
+  _editorPosition: {x: 1190, y: 2415}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _comparison: 0
   _minDistance: 0
   _maxDistance: 2.8
---- !u!114 &-8241952840465170611
+--- !u!114 &-8419901544228950867
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -81,43 +52,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: 10 Phase Signature Rules
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: aae9432a1837458fb5228dacc3509e50
-  _displayName: 10 Phase Signature Rules
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: dbe58aa435d64b8d8495ab95b0e11a62
+  _displayName: Has Target
   _comment: 
-  _editorPosition: {x: 1332.5, y: 1605}
-  _children:
-  - {fileID: 5443427981908537356}
-  - {fileID: -8682690951758811862}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-7824988198083827937
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
-  m_Name: 'Can Activate Skill [Finisher]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
-  _guid: 9ed0abe8008c4688a78812bb009d527a
-  _displayName: 'Can Activate Skill [Finisher]'
-  _comment: 
-  _editorPosition: {x: 1190, y: 2685}
+  _editorPosition: {x: 2382.5, y: 1065}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _ability: {fileID: 0}
-  _category: 3
-  _abilityRole: 32
---- !u!114 &-7448375922674838172
+  _expectedValue: 1
+--- !u!114 &-8146622382423678263
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -127,20 +73,88 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: NoTargetIdle
+  m_Name: 30 Punish Windows
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 9e67561c07b8465b9f6cf00175d3c7b6
-  _displayName: NoTargetIdle
+  _guid: 0bd7c23ef9504e90a80b33e260c1ead0
+  _displayName: 30 Punish Windows
   _comment: 
-  _editorPosition: {x: 425, y: 1065}
+  _editorPosition: {x: 3432.5, y: 795}
   _children:
-  - {fileID: -5637599449545635407}
-  - {fileID: -1573594207320409902}
+  - {fileID: 7199528763406395803}
+  - {fileID: -2999981805021706814}
+  - {fileID: 5950318877004766402}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &-7277694450545268515
+--- !u!114 &-8122692197548180952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
+  m_Name: 'Request Attack Basic [Opener]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
+  _guid: e90b9ba7097f4a419e9ca3e4885abee7
+  _displayName: 'Request Attack Basic [Opener]'
+  _comment: 
+  _editorPosition: {x: 5480, y: 2955}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _intent: 1
+  _style: 0
+  _attackCategory: 1
+  _abilityRole: 1
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &-7922510454825598007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: 2193a06b14454e2483b65d4b5edfe2a4
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 3290, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.8
+--- !u!114 &-7904405844852741554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98f8be497e5a4517be872021746c8fb1, type: 3}
+  m_Name: "\uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyAttackInRangeNode
+  _guid: 09778664a36549a6a4e3d8e82455ed3f
+  _displayName: "\uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
+  _comment: 
+  _editorPosition: {x: 4340, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-7846746772537477084
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -152,15 +166,172 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
   m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
-  _guid: ae239d6b5da948d6888d9a71742ebc77
+  _guid: 6a86b9bfbe2340c6a05b650179ab2824
   _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
   _comment: 
-  _editorPosition: {x: 2240, y: 3225}
+  _editorPosition: {x: 4625, y: 2145}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _cooldownId: LiliRevenge
---- !u!114 &-7149822702453605408
+  _cooldownId: LiliReset
+--- !u!114 &-7662637098627126492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: 20 Immediate Reactions
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: f1896056a1df426698e9e1238a86df9d
+  _displayName: 20 Immediate Reactions
+  _comment: 
+  _editorPosition: {x: 2382.5, y: 795}
+  _children:
+  - {fileID: -8419901544228950867}
+  - {fileID: 8435308237130327628}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-7547100685824430677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56005f5a9cb54df886689cd85da20772, type: 3}
+  m_Name: Sync Enemy Phase
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyPhaseService
+  _guid: 29b86da3f30a4970b4b2e980faa5d9b9
+  _displayName: Sync Enemy Phase
+  _comment: 
+  _editorPosition: {x: 2612.5, y: 380}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &-7442941737003427673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Self.IsPoiseBroken Equal true
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: 3305689d25774821b2f6f3578b75097d
+  _displayName: Self.IsPoiseBroken Equal true
+  _comment: 
+  _editorPosition: {x: 2525, y: 1875}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Self.IsPoiseBroken
+  _comparison: 0
+  _value: true
+  _valueKey: 
+  _ignoreCase: 1
+--- !u!114 &-7007752478999092383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2aa96e7241c54b34bb28a75be459a3cc, type: 3}
+  m_Name: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.KeepCurrentStateNode
+  _guid: 130850fc65cc4ae39692e42450e668d8
+  _displayName: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
+  _comment: 
+  _editorPosition: {x: 5765, y: 1875}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-6959043569395161905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Self.PhaseIndex Equal 0
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: abdc812dc3004c1087c0709eeec358e6
+  _displayName: Self.PhaseIndex Equal 0
+  _comment: 
+  _editorPosition: {x: 1475, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Self.PhaseIndex
+  _comparison: 0
+  _value: 0
+  _valueKey: 
+  _ignoreCase: 1
+--- !u!114 &-6808687140279225818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
+  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
+  _guid: 243dfc60c94045faa42a20fb5f1006ae
+  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  _comment: 
+  _editorPosition: {x: 2525, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _cooldownId: LiliPoise
+--- !u!114 &-6444032938142594847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
+  m_Name: Request Recover Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
+  _guid: e5c5512abe38443fa73e7610ba07ee43
+  _displayName: Request Recover Idle
+  _comment: 
+  _editorPosition: {x: 4643, y: 3225}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _intent: 10
+  _style: 11
+  _attackCategory: 0
+  _abilityRole: 0
+  _skipIfAlreadyInState: 1
+  _cooldownId: LiliReset
+  _cooldownDuration: 2.8
+--- !u!114 &-6284073916597152527
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,14 +343,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5b541d85ae1c27d41a595bb8e94279b5, type: 3}
   m_Name: Is Patrol Enabled
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsEnemyPatrolEnabledNode
-  _guid: 216c693eaa2a4ab9bc7d4b5b1849b73d
+  _guid: 4846e14fd40743acb7e20a83202c25f5
   _displayName: Is Patrol Enabled
   _comment: 
   _editorPosition: {x: 416, y: 2145}
   _children: []
   _disabled: 0
   _breakpoint: 0
---- !u!114 &-6846261283216772010
+--- !u!114 &-5919534764047031935
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -188,44 +359,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Memory.Player.IsRecovering Equal true
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: ef77f1d9923641e39751f961a2bf6cd3
-  _displayName: Memory.Player.IsRecovering Equal true
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: 7d5b1ae575e844688bc17721d017b913
+  _displayName: LessOrEqual
   _comment: 
-  _editorPosition: {x: 1475, y: 2415}
+  _editorPosition: {x: 2240, y: 2685}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _key: Memory.Player.IsRecovering
   _comparison: 0
-  _value: true
-  _valueKey: 
-  _ignoreCase: 1
---- !u!114 &-6599375453340667097
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
-  m_Name: 'Can Activate Heavy [Punish]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
-  _guid: ccba285b58e64bd99e2dfebae4aff30c
-  _displayName: 'Can Activate Heavy [Punish]'
-  _comment: 
-  _editorPosition: {x: 3290, y: 2685}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _ability: {fileID: 0}
-  _category: 2
-  _abilityRole: 2
---- !u!114 &-6296028530759381389
+  _minDistance: 0
+  _maxDistance: 2.8
+--- !u!114 &-5537796666484655519
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -237,7 +384,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
   m_Name: Request KeepDistance Circle
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 8731bf019f19448ea43e7d16a87d3b64
+  _guid: e1dc94f7384c4d6ebacb842b76b1f0bf
   _displayName: Request KeepDistance Circle
   _comment: 
   _editorPosition: {x: 2525, y: 2415}
@@ -251,7 +398,7 @@ MonoBehaviour:
   _skipIfAlreadyInState: 1
   _cooldownId: LiliPoise
   _cooldownDuration: 3.8
---- !u!114 &-6100781063839782723
+--- !u!114 &-5266853987229307123
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -260,18 +407,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57ad53b425f99c849b314609c0290468, type: 3}
-  m_Name: "\uB300\uAE30"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.WaitNode
-  _guid: 93e00fe7a8d443e9b3a219398f1d623a
-  _displayName: "\uB300\uAE30"
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: FinalDelayedStrike
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 95f8f90df99b411f9a05c2404c29d000
+  _displayName: FinalDelayedStrike
   _comment: 
-  _editorPosition: {x: 1190, y: 3225}
-  _children: []
+  _editorPosition: {x: 1190, y: 1875}
+  _children:
+  - {fileID: -4413062487522767285}
+  - {fileID: -8765339015541373673}
+  - {fileID: -4604694868452930500}
+  - {fileID: -4115802538428750749}
+  - {fileID: 9106888451545203513}
+  - {fileID: -4891310870321453017}
   _disabled: 0
   _breakpoint: 0
-  _duration: 0.28
---- !u!114 &-5663435935679873077
+  _services: []
+  _abortType: 0
+--- !u!114 &-5162940290616068530
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -280,21 +434,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
-  m_Name: Transition Idle
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
-  _guid: 695d6d1eb97b42a2822bc493b33e0fe4
-  _displayName: Transition Idle
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 10 Phase Signature Rules
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: aeb092adfa2e41948047a653f62eb4fb
+  _displayName: 10 Phase Signature Rules
   _comment: 
-  _editorPosition: {x: 434, y: 2685}
-  _children: []
+  _editorPosition: {x: 1332.5, y: 1605}
+  _children:
+  - {fileID: -5266853987229307123}
+  - {fileID: 2568524218837571148}
   _disabled: 0
   _breakpoint: 0
-  _targetState: 0
-  _skipIfAlreadyInState: 1
-  _cooldownId: 
-  _cooldownDuration: 0
---- !u!114 &-5637599449545635407
+  _services: []
+  _abortType: 0
+--- !u!114 &-5082298543739815283
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -303,61 +457,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
-  m_Name: Has No Target
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
-  _guid: 407b231685d441feaf65218c4ea92845
-  _displayName: Has No Target
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: AbsorbLightHit
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: a3e1afb64f174017818d206070e2780c
+  _displayName: AbsorbLightHit
   _comment: 
-  _editorPosition: {x: 425, y: 1335}
-  _children: []
+  _editorPosition: {x: 2240, y: 1605}
+  _children:
+  - {fileID: 632231750160193166}
+  - {fileID: 4672628315913822145}
+  - {fileID: 2370499727384561244}
+  - {fileID: -5919534764047031935}
+  - {fileID: 5032263915094136854}
+  - {fileID: 7451497506243515450}
+  - {fileID: 8765224066151959851}
   _disabled: 0
   _breakpoint: 0
-  _expectedValue: 0
---- !u!114 &-5636870498428606672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
-  m_Name: Has Target
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
-  _guid: e6b2d1fa56094a18a343e7a8d0056324
-  _displayName: Has Target
-  _comment: 
-  _editorPosition: {x: 3432.5, y: 1065}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _expectedValue: 1
---- !u!114 &-5277313589094192647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
-  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
-  _guid: 6c0c37ecb1f3485187bb6101a02f2c1e
-  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
-  _comment: 
-  _editorPosition: {x: 1332.5, y: 1335}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _nextActionAllowedTime:
-    _stableId: 04b0c32959e04147e135598dcecaaa10
-    _key: NextActionAllowedTime
-    _expectedType: 2
---- !u!114 &-5109052437602313467
+  _services: []
+  _abortType: 0
+--- !u!114 &-4891310870321453017
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -367,67 +486,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
-  m_Name: Request Chase
+  m_Name: 'Request Punish Skill [Signature]'
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 67952e70ed60479494ce1db19ea27368
-  _displayName: Request Chase
+  _guid: f4d675f414814b668594ffe702f208cf
+  _displayName: 'Request Punish Skill [Signature]'
   _comment: 
-  _editorPosition: {x: 4340, y: 2415}
+  _editorPosition: {x: 1190, y: 3495}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _intent: 5
+  _intent: 2
   _style: 0
-  _attackCategory: 0
-  _abilityRole: 0
+  _attackCategory: 3
+  _abilityRole: 16
   _skipIfAlreadyInState: 1
-  _cooldownId: 
-  _cooldownDuration: 0
---- !u!114 &-4915559156210263119
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Self.PhaseIndex Equal 0
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: 6fadc7e0a87944458475e014dd49322b
-  _displayName: Self.PhaseIndex Equal 0
-  _comment: 
-  _editorPosition: {x: 1475, y: 2145}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _key: Self.PhaseIndex
-  _comparison: 0
-  _value: 0
-  _valueKey: 
-  _ignoreCase: 1
---- !u!114 &-4532724276314611568
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
-  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
-  _guid: 4ef4efd584d5421580fd361dae1ee982
-  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  _comment: 
-  _editorPosition: {x: 4625, y: 2145}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _cooldownId: LiliReset
---- !u!114 &-3728206075009485065
+  _cooldownId: LiliFinal
+  _cooldownDuration: 8.5
+--- !u!114 &-4833407001181994570
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -439,10 +514,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
   m_Name: 'Request Punish Heavy [Punish]'
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 8597b580254b4d48ad12219e6d5e32a5
+  _guid: 218581163f74469a8e394f8aa4b54651
   _displayName: 'Request Punish Heavy [Punish]'
   _comment: 
-  _editorPosition: {x: 2240, y: 3495}
+  _editorPosition: {x: 3575, y: 3225}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -451,9 +526,9 @@ MonoBehaviour:
   _attackCategory: 2
   _abilityRole: 2
   _skipIfAlreadyInState: 1
-  _cooldownId: LiliRevenge
-  _cooldownDuration: 4.5
---- !u!114 &-3598325959514251447
+  _cooldownId: LiliDodgeCatch
+  _cooldownDuration: 3.6
+--- !u!114 &-4604694868452930500
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -463,41 +538,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
-  m_Name: 'Can Activate Basic [Opener]'
+  m_Name: 'Can Activate Skill [Signature]'
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
-  _guid: b01acc27f06a43938794a1534bb2f94f
-  _displayName: 'Can Activate Basic [Opener]'
+  _guid: 0d3643a4cbba4f019bb697e98469a8be
+  _displayName: 'Can Activate Skill [Signature]'
   _comment: 
-  _editorPosition: {x: 4910, y: 2685}
+  _editorPosition: {x: 1190, y: 2685}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _ability: {fileID: 0}
-  _category: 1
-  _abilityRole: 1
---- !u!114 &-3455563769129466696
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
-  m_Name: LessOrEqual
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
-  _guid: 6c5ed56038914c129d6d9a3aeeaf9d77
-  _displayName: LessOrEqual
-  _comment: 
-  _editorPosition: {x: 1190, y: 2415}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _comparison: 0
-  _minDistance: 0
-  _maxDistance: 2.8
---- !u!114 &-3297299937429411274
+  _category: 3
+  _abilityRole: 16
+--- !u!114 &-4517979810406571093
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -507,21 +560,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Self.IsPoiseBroken Equal true
+  m_Name: Self.PhaseIndex Equal 0
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: feea2f8f22cd4329999d391e93581c23
-  _displayName: Self.IsPoiseBroken Equal true
+  _guid: 951dc6e0f2b345f1966c47c9644f1022
+  _displayName: Self.PhaseIndex Equal 0
   _comment: 
-  _editorPosition: {x: 2525, y: 1875}
+  _editorPosition: {x: 4910, y: 1875}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _key: Self.IsPoiseBroken
+  _key: Self.PhaseIndex
   _comparison: 0
-  _value: true
+  _value: 0
   _valueKey: 
   _ignoreCase: 1
---- !u!114 &-3210235493814745339
+--- !u!114 &-4413062487522767285
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -531,245 +584,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Memory.Player.IsDodgingFrequently Equal true
+  m_Name: Self.PhaseIndex Equal 1
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: 8b6673b33baa48a8b15a5690524eab44
-  _displayName: Memory.Player.IsDodgingFrequently Equal true
+  _guid: 202758c387a5498ba17d815c3c6cc62f
+  _displayName: Self.PhaseIndex Equal 1
   _comment: 
-  _editorPosition: {x: 3575, y: 2145}
+  _editorPosition: {x: 1190, y: 2145}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _key: Memory.Player.IsDodgingFrequently
+  _key: Self.PhaseIndex
   _comparison: 0
-  _value: true
+  _value: 1
   _valueKey: 
   _ignoreCase: 1
---- !u!114 &-3113612241779508900
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
-  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
-  _guid: e35a82287dca485eb8b18ca986b103c7
-  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  _comment: 
-  _editorPosition: {x: 1190, y: 2955}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _cooldownId: LiliFinal
---- !u!114 &-2355672893955540100
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
-  m_Name: Has Target
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
-  _guid: 8e99e012a6c0442cb0ace5d8c4688755
-  _displayName: Has Target
-  _comment: 
-  _editorPosition: {x: 2382.5, y: 1065}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _expectedValue: 1
---- !u!114 &-2132762681517288686
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
-  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
-  _guid: 0c0afe344d724226a6a23a07a78ae6cf
-  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  _comment: 
-  _editorPosition: {x: 2525, y: 2145}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _cooldownId: LiliPoise
---- !u!114 &-2048486439467262444
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
-  m_Name: ComboReset Weighted
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.WeightedRandomSelectorNode
-  _guid: d753ff0d14184ef48aea892c0bbdb729
-  _displayName: ComboReset Weighted
-  _comment: 
-  _editorPosition: {x: 4625, y: 2415}
-  _children:
-  - {fileID: 4471477842508397626}
-  - {fileID: -804231997483310332}
-  - {fileID: 7557342622334240008}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _weights:
-  - 0.45
-  - 0.3
-  - 0.25
---- !u!114 &-2011595458084016647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: 50 Combat Rhythm Rules
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: b3a0dee83f604a45ae3f72fc8c59b8bd
-  _displayName: 50 Combat Rhythm Rules
-  _comment: 
-  _editorPosition: {x: 4767.5, y: 1335}
-  _children:
-  - {fileID: -870941794298516088}
-  - {fileID: -1067045710924861553}
-  - {fileID: -1921486467184371282}
-  - {fileID: -824432061732050764}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-1921486467184371282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: BasicWeight
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: c453dc2a593d4722aa9dae0ab857c476
-  _displayName: BasicWeight
-  _comment: 
-  _editorPosition: {x: 4910, y: 1605}
-  _children:
-  - {fileID: 5400367132921001199}
-  - {fileID: 2668161510973428893}
-  - {fileID: 9173770909025318128}
-  - {fileID: -3598325959514251447}
-  - {fileID: 8097731025329056374}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-1802982242004938746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
-  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
-  _guid: 083b3ef602b042ff89045072274192e9
-  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  _comment: 
-  _editorPosition: {x: 1475, y: 2955}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _cooldownId: LiliMid
---- !u!114 &-1643209616898330820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
-  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
-  _guid: c3c713e51c46463bbfdb01c15d84d330
-  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
-  _comment: 
-  _editorPosition: {x: 3575, y: 2685}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _cooldownId: LiliDodgeCatch
---- !u!114 &-1573594207320409902
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: Patrol Or Idle
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: 655b6284e5ff4f1790a59e6f3a6d80ef
-  _displayName: Patrol Or Idle
-  _comment: 
-  _editorPosition: {x: 425, y: 1605}
-  _children:
-  - {fileID: -216962733181885318}
-  - {fileID: -5663435935679873077}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-1540957694036372434
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
-  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
-  _guid: 229d44df7cd74954abefe254c41782af
-  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
-  _comment: 
-  _editorPosition: {x: 3432.5, y: 1335}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _nextActionAllowedTime:
-    _stableId: 04b0c32959e04147e135598dcecaaa10
-    _key: NextActionAllowedTime
-    _expectedType: 2
---- !u!114 &-1383753650929921956
+--- !u!114 &-4270279227728705331
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -781,113 +610,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
   m_Name: PunishRecovery
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: c2e50f2faf254121b2b1f92832adbdb9
+  _guid: 3e6c3e1d112a4e14841f2e1e0a8a6bf1
   _displayName: PunishRecovery
   _comment: 
   _editorPosition: {x: 3290, y: 1875}
   _children:
-  - {fileID: 7253562133942154764}
-  - {fileID: 8600427996039439046}
-  - {fileID: -6599375453340667097}
-  - {fileID: 3188660072774458136}
+  - {fileID: 6025302754172595453}
+  - {fileID: -7922510454825598007}
+  - {fileID: 3172629266479460038}
+  - {fileID: 4306405833391550087}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &-1067045710924861553
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: ComboReset
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: dee845e7b4594bf486b5d24285fe2c93
-  _displayName: ComboReset
-  _comment: 
-  _editorPosition: {x: 4625, y: 1605}
-  _children:
-  - {fileID: 4300291828771445458}
-  - {fileID: -4532724276314611568}
-  - {fileID: -2048486439467262444}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-876361939651947047
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: 30 Punish Windows
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 6d91afd8c4f7420099b52fdc8448d230
-  _displayName: 30 Punish Windows
-  _comment: 
-  _editorPosition: {x: 3432.5, y: 795}
-  _children:
-  - {fileID: -5636870498428606672}
-  - {fileID: -1540957694036372434}
-  - {fileID: 2567882827199033072}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-870941794298516088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: GapClose
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: ef065b9a8fd546a9b88b06969596fe0a
-  _displayName: GapClose
-  _comment: 
-  _editorPosition: {x: 4340, y: 1605}
-  _children:
-  - {fileID: 8387263896153040317}
-  - {fileID: -5109052437602313467}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-824432061732050764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: IdleFallback
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: c6c4e681f3e842f1bbafffcd2fab1e41
-  _displayName: IdleFallback
-  _comment: 
-  _editorPosition: {x: 5195, y: 1605}
-  _children:
-  - {fileID: -773462684177502502}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-804231997483310332
+--- !u!114 &-4123433934967449973
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -899,7 +635,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
   m_Name: Request Defend Guard
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 094f58b956ce4216972d0d5f83a551ee
+  _guid: 3b8f327bd83c47df98363eeaffbe1f26
   _displayName: Request Defend Guard
   _comment: 
   _editorPosition: {x: 4625, y: 2955}
@@ -913,7 +649,7 @@ MonoBehaviour:
   _skipIfAlreadyInState: 1
   _cooldownId: LiliReset
   _cooldownDuration: 3
---- !u!114 &-773462684177502502
+--- !u!114 &-4115802538428750749
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -922,17 +658,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2aa96e7241c54b34bb28a75be459a3cc, type: 3}
-  m_Name: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.KeepCurrentStateNode
-  _guid: 9ea7dd293f5041f082212a594994b49f
-  _displayName: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
+  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
+  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
+  _guid: 93235f11f38540f599723e8e7979193f
+  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
   _comment: 
-  _editorPosition: {x: 5195, y: 1875}
+  _editorPosition: {x: 1190, y: 2955}
   _children: []
   _disabled: 0
   _breakpoint: 0
---- !u!114 &-717035330420690992
+  _cooldownId: LiliFinal
+--- !u!114 &-4111924445217355944
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -941,51 +678,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: Root
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: edf1b65f7bca41d6a8d0abd3f2dac044
-  _displayName: Root
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: 97fe7387484247e0bd465e94546aa4c9
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
   _comment: 
-  _editorPosition: {x: 2667.5, y: 315}
-  _children:
-  - {fileID: 7152633469195947958}
-  - {fileID: -8547714358659722216}
-  - {fileID: 4646540929379807688}
-  - {fileID: -876361939651947047}
-  - {fileID: -340499072494951217}
+  _editorPosition: {x: 1332.5, y: 1335}
+  _children: []
   _disabled: 0
   _breakpoint: 0
-  _services:
-  - {fileID: 819807424363031155}
-  - {fileID: 2922443627437206341}
-  - {fileID: 729685018977650695}
-  - {fileID: 125052764881396704}
-  _abortType: 0
---- !u!114 &-340499072494951217
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: 50 Combat Rhythm
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: ab757ec280bc40ae8a2c7ab12d3cdecc
-  _displayName: 50 Combat Rhythm
-  _comment: 
-  _editorPosition: {x: 4767.5, y: 795}
-  _children:
-  - {fileID: 4619930332529979072}
-  - {fileID: -2011595458084016647}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &-216962733181885318
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &-4035082617486823226
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -997,18 +704,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
   m_Name: Patrol If Enabled
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 46e02c17690d41d0ab355f77cb3e1e4a
+  _guid: fe15e68981ef4b35887d6d3964cc0f1b
   _displayName: Patrol If Enabled
   _comment: 
   _editorPosition: {x: 416, y: 1875}
   _children:
-  - {fileID: -7149822702453605408}
-  - {fileID: 4103540344333852569}
+  - {fileID: -6284073916597152527}
+  - {fileID: 4076798217909736798}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &-72144174739527876
+--- !u!114 &-3888960378880900287
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1017,16 +724,448 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 98f8be497e5a4517be872021746c8fb1, type: 3}
-  m_Name: "\uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyAttackInRangeNode
-  _guid: 5a5649c125384893968122e5218baf33
-  _displayName: "\uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: ad538eb609c444a69cb100072b1919a1
+  _displayName: Has Target
   _comment: 
-  _editorPosition: {x: 4340, y: 2145}
+  _editorPosition: {x: 5052.5, y: 1065}
   _children: []
   _disabled: 0
   _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &-3618627220950611009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
+  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
+  _guid: 90940ad8ab0a471480b2e75929efd1bd
+  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  _comment: 
+  _editorPosition: {x: 3575, y: 2685}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _cooldownId: LiliDodgeCatch
+--- !u!114 &-3419801112347612085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: BlockedKeep
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 455c85f72bfe4105b48210bd22e0e25a
+  _displayName: BlockedKeep
+  _comment: 
+  _editorPosition: {x: 140, y: 1065}
+  _children:
+  - {fileID: 469381521233246625}
+  - {fileID: 172402585603674326}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-3088198259188709755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: 7edf7364b40c4f13a77373c05f46930e
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 4910, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.6
+--- !u!114 &-2999981805021706814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: d27d6618287544b6bd37a3536a538361
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 3432.5, y: 1335}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &-2658224876451372416
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: CatchEarlyDodge
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: e2d9e983e34f49c5b9b5d635c63057ab
+  _displayName: CatchEarlyDodge
+  _comment: 
+  _editorPosition: {x: 3575, y: 1875}
+  _children:
+  - {fileID: 2347363407745325573}
+  - {fileID: 7637895691920128269}
+  - {fileID: -3618627220950611009}
+  - {fileID: 2484124510447950289}
+  - {fileID: -4833407001181994570}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-2384639394130838691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3786404f1d8f4d3e8af1a5bb22d83b8c, type: 3}
+  m_Name: Evaluate Enemy Combat Intent
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.EvaluateEnemyCombatIntentService
+  _guid: 6f06a2be06fc41a784e9ccf3d0c05cef
+  _displayName: Evaluate Enemy Combat Intent
+  _comment: 
+  _editorPosition: {x: 2612.5, y: 510}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &-2377659852048879406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Memory.Player.IsRecovering Equal true
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: 1727883dbbeb44bc8ba761f5cab5f297
+  _displayName: Memory.Player.IsRecovering Equal true
+  _comment: 
+  _editorPosition: {x: 1475, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Memory.Player.IsRecovering
+  _comparison: 0
+  _value: true
+  _valueKey: 
+  _ignoreCase: 1
+--- !u!114 &-2371543267105366171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef24a58d6b5e8874f87f52f568d1d01d, type: 3}
+  m_Name: "Invert \uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.InverterNode
+  _guid: 9594287fd16446b99b351bf208fb97c7
+  _displayName: "Invert \uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
+  _comment: 
+  _editorPosition: {x: 4340, y: 1875}
+  _children:
+  - {fileID: -7904405844852741554}
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &-2316542242987963048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: PoiseBreakWindow
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: bd21b19e8f374434ba2f40383b247fd3
+  _displayName: PoiseBreakWindow
+  _comment: 
+  _editorPosition: {x: 2525, y: 1605}
+  _children:
+  - {fileID: -7442941737003427673}
+  - {fileID: -6808687140279225818}
+  - {fileID: -5537796666484655519}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-1934586859573740912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b7f598efa7346618a88e2472be7a3bc, type: 3}
+  m_Name: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uBBF8\uB9CC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ConsecutiveAttackCountNode
+  _guid: c8d203b969c84b72a9f724e0ed6f1979
+  _displayName: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uBBF8\uB9CC"
+  _comment: 
+  _editorPosition: {x: 4910, y: 2685}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _threshold: 2
+--- !u!114 &-1521313110450569711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Skill [Signature]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: e90ddbc87eed4214b230aa36eb7378f1
+  _displayName: 'Can Activate Skill [Signature]'
+  _comment: 
+  _editorPosition: {x: 1475, y: 2685}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _ability: {fileID: 0}
+  _category: 3
+  _abilityRole: 16
+--- !u!114 &-1404385984182038081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Root
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: ea3328d54759473d9d6d3ae39d6cf28d
+  _displayName: Root
+  _comment: 
+  _editorPosition: {x: 2952.5, y: 315}
+  _children:
+  - {fileID: -1265283123156961699}
+  - {fileID: 8124666637147768677}
+  - {fileID: -7662637098627126492}
+  - {fileID: -8146622382423678263}
+  - {fileID: 5648131539317555085}
+  _disabled: 0
+  _breakpoint: 0
+  _services:
+  - {fileID: -751999544656017332}
+  - {fileID: 724688926328259543}
+  - {fileID: -7547100685824430677}
+  - {fileID: -2384639394130838691}
+  _abortType: 0
+--- !u!114 &-1265283123156961699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 00 Survival And Acquire
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: 5ba8f7045d8a4e9b8dd7cb494ab5e151
+  _displayName: 00 Survival And Acquire
+  _comment: 
+  _editorPosition: {x: 282.5, y: 795}
+  _children:
+  - {fileID: -3419801112347612085}
+  - {fileID: 863262487422007456}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-1257026326401121344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: 169c34e35fd1411fa2036b67cfb35ac2
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 5195, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.6
+--- !u!114 &-841704185547176050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: Patrol Or Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: 98044ffefde04b10b7527b721c9bdc78
+  _displayName: Patrol Or Idle
+  _comment: 
+  _editorPosition: {x: 425, y: 1605}
+  _children:
+  - {fileID: -4035082617486823226}
+  - {fileID: 1843457065393676504}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &-807583188109657665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
+  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
+  _guid: 36032cfd5c474d4c8676104ca1b43bd2
+  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  _comment: 
+  _editorPosition: {x: 1475, y: 2955}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _cooldownId: LiliMid
+--- !u!114 &-751999544656017332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e6be670b4b2cdb4ebe1999b2f551b6b, type: 3}
+  m_Name: Sync Enemy Blackboard
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyBlackboardService
+  _guid: 754720f85a3a42d7835bc72736d2f345
+  _displayName: Sync Enemy Blackboard
+  _comment: 
+  _editorPosition: {x: 2612.5, y: 120}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _interval: 0.5
+  _tickOnEnter: 1
+--- !u!114 &-69015608813917888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Skill [Finisher]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: 6d34cf5dff6a47aca2649b93395aef10
+  _displayName: 'Can Activate Skill [Finisher]'
+  _comment: 
+  _editorPosition: {x: 5195, y: 2955}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _ability: {fileID: 0}
+  _category: 3
+  _abilityRole: 32
+--- !u!114 &-43856150720339221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Self.PhaseIndex Equal 1
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: 9aed498a6598474a8767fbd4c95339aa
+  _displayName: Self.PhaseIndex Equal 1
+  _comment: 
+  _editorPosition: {x: 5195, y: 1875}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Self.PhaseIndex
+  _comparison: 0
+  _value: 1
+  _valueKey: 
+  _ignoreCase: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1039,93 +1178,108 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6858ddb2b90e09d40b76d3b2abb6809d, type: 3}
   m_Name: BT_Boss_Lili
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BehaviorTreeAsset
-  _rootNode: {fileID: -717035330420690992}
+  _rootNode: {fileID: -1404385984182038081}
   _nodes:
-  - {fileID: -717035330420690992}
-  - {fileID: 819807424363031155}
-  - {fileID: 2922443627437206341}
-  - {fileID: 729685018977650695}
-  - {fileID: 125052764881396704}
-  - {fileID: 7152633469195947958}
-  - {fileID: 1174685934880509358}
-  - {fileID: 8631440301065683445}
-  - {fileID: 2546953240065724989}
-  - {fileID: -7448375922674838172}
-  - {fileID: -5637599449545635407}
-  - {fileID: -1573594207320409902}
-  - {fileID: -216962733181885318}
-  - {fileID: -7149822702453605408}
-  - {fileID: 4103540344333852569}
-  - {fileID: -5663435935679873077}
-  - {fileID: -8547714358659722216}
-  - {fileID: 6329438531196812166}
-  - {fileID: -5277313589094192647}
-  - {fileID: -8241952840465170611}
-  - {fileID: 5443427981908537356}
-  - {fileID: 5466574177674330429}
-  - {fileID: -3455563769129466696}
-  - {fileID: -7824988198083827937}
-  - {fileID: -3113612241779508900}
-  - {fileID: -6100781063839782723}
-  - {fileID: 2766354733884027338}
-  - {fileID: -8682690951758811862}
-  - {fileID: -4915559156210263119}
-  - {fileID: -6846261283216772010}
-  - {fileID: 3316992679114817829}
-  - {fileID: -1802982242004938746}
-  - {fileID: 7979424673840288133}
-  - {fileID: 4646540929379807688}
-  - {fileID: -2355672893955540100}
-  - {fileID: 6767146277781195964}
-  - {fileID: 8322972094395700887}
-  - {fileID: 586395300682798633}
-  - {fileID: 2179894388800239453}
-  - {fileID: 6295082851048501475}
-  - {fileID: -8312171420804865854}
-  - {fileID: 1913886498934450957}
-  - {fileID: -7277694450545268515}
-  - {fileID: -3728206075009485065}
-  - {fileID: 3586549210877608594}
-  - {fileID: -3297299937429411274}
-  - {fileID: -2132762681517288686}
-  - {fileID: -6296028530759381389}
-  - {fileID: -876361939651947047}
-  - {fileID: -5636870498428606672}
-  - {fileID: -1540957694036372434}
-  - {fileID: 2567882827199033072}
-  - {fileID: -1383753650929921956}
-  - {fileID: 7253562133942154764}
-  - {fileID: 8600427996039439046}
-  - {fileID: -6599375453340667097}
-  - {fileID: 3188660072774458136}
-  - {fileID: 1886009389358459352}
-  - {fileID: -3210235493814745339}
-  - {fileID: 607125055818188816}
-  - {fileID: -1643209616898330820}
-  - {fileID: 8622046762207699054}
-  - {fileID: 5877848186215780077}
-  - {fileID: -340499072494951217}
-  - {fileID: 4619930332529979072}
-  - {fileID: -2011595458084016647}
-  - {fileID: -870941794298516088}
-  - {fileID: -72144174739527876}
-  - {fileID: 8387263896153040317}
-  - {fileID: -5109052437602313467}
-  - {fileID: -1067045710924861553}
-  - {fileID: 4300291828771445458}
-  - {fileID: -4532724276314611568}
-  - {fileID: -2048486439467262444}
-  - {fileID: 4471477842508397626}
-  - {fileID: -804231997483310332}
-  - {fileID: 7557342622334240008}
-  - {fileID: -1921486467184371282}
-  - {fileID: 5400367132921001199}
-  - {fileID: 2668161510973428893}
-  - {fileID: 9173770909025318128}
-  - {fileID: -3598325959514251447}
-  - {fileID: 8097731025329056374}
-  - {fileID: -824432061732050764}
-  - {fileID: -773462684177502502}
+  - {fileID: -1404385984182038081}
+  - {fileID: -751999544656017332}
+  - {fileID: 724688926328259543}
+  - {fileID: -7547100685824430677}
+  - {fileID: -2384639394130838691}
+  - {fileID: -1265283123156961699}
+  - {fileID: -3419801112347612085}
+  - {fileID: 469381521233246625}
+  - {fileID: 172402585603674326}
+  - {fileID: 863262487422007456}
+  - {fileID: 964216687737277694}
+  - {fileID: -841704185547176050}
+  - {fileID: -4035082617486823226}
+  - {fileID: -6284073916597152527}
+  - {fileID: 4076798217909736798}
+  - {fileID: 1843457065393676504}
+  - {fileID: 8124666637147768677}
+  - {fileID: 1230439415432298596}
+  - {fileID: -4111924445217355944}
+  - {fileID: -5162940290616068530}
+  - {fileID: -5266853987229307123}
+  - {fileID: -4413062487522767285}
+  - {fileID: -8765339015541373673}
+  - {fileID: -4604694868452930500}
+  - {fileID: -4115802538428750749}
+  - {fileID: 9106888451545203513}
+  - {fileID: -4891310870321453017}
+  - {fileID: 2568524218837571148}
+  - {fileID: -6959043569395161905}
+  - {fileID: -2377659852048879406}
+  - {fileID: -1521313110450569711}
+  - {fileID: -807583188109657665}
+  - {fileID: 1437837676773811268}
+  - {fileID: -7662637098627126492}
+  - {fileID: -8419901544228950867}
+  - {fileID: 8435308237130327628}
+  - {fileID: -5082298543739815283}
+  - {fileID: 632231750160193166}
+  - {fileID: 4672628315913822145}
+  - {fileID: 2370499727384561244}
+  - {fileID: -5919534764047031935}
+  - {fileID: 5032263915094136854}
+  - {fileID: 7451497506243515450}
+  - {fileID: 8765224066151959851}
+  - {fileID: -2316542242987963048}
+  - {fileID: -7442941737003427673}
+  - {fileID: -6808687140279225818}
+  - {fileID: -5537796666484655519}
+  - {fileID: -8146622382423678263}
+  - {fileID: 7199528763406395803}
+  - {fileID: -2999981805021706814}
+  - {fileID: 5950318877004766402}
+  - {fileID: -4270279227728705331}
+  - {fileID: 6025302754172595453}
+  - {fileID: -7922510454825598007}
+  - {fileID: 3172629266479460038}
+  - {fileID: 4306405833391550087}
+  - {fileID: -2658224876451372416}
+  - {fileID: 2347363407745325573}
+  - {fileID: 7637895691920128269}
+  - {fileID: -3618627220950611009}
+  - {fileID: 2484124510447950289}
+  - {fileID: -4833407001181994570}
+  - {fileID: 5648131539317555085}
+  - {fileID: -3888960378880900287}
+  - {fileID: 6671206159398079749}
+  - {fileID: 2629723747379164968}
+  - {fileID: -7904405844852741554}
+  - {fileID: -2371543267105366171}
+  - {fileID: 4644559812937728316}
+  - {fileID: 7045477739634383408}
+  - {fileID: -9164953967879657196}
+  - {fileID: -7846746772537477084}
+  - {fileID: 6944607299636655501}
+  - {fileID: 1000468670602900106}
+  - {fileID: -4123433934967449973}
+  - {fileID: -6444032938142594847}
+  - {fileID: 1355062252517536747}
+  - {fileID: -4517979810406571093}
+  - {fileID: -3088198259188709755}
+  - {fileID: 3308339391971842259}
+  - {fileID: -1934586859573740912}
+  - {fileID: 2363334286521654092}
+  - {fileID: 6635055825986600870}
+  - {fileID: 4678506502613517006}
+  - {fileID: -43856150720339221}
+  - {fileID: -1257026326401121344}
+  - {fileID: 6325718855338208296}
+  - {fileID: 7054127953635144912}
+  - {fileID: -69015608813917888}
+  - {fileID: 5027303316419372460}
+  - {fileID: 1336669103940075499}
+  - {fileID: 836037591699353993}
+  - {fileID: 3275674607386042505}
+  - {fileID: 3297216536428915661}
+  - {fileID: 4296077130014433127}
+  - {fileID: 387973390766666630}
+  - {fileID: -8122692197548180952}
+  - {fileID: 3441210554826541311}
+  - {fileID: -7007752478999092383}
   _blackboard:
     _entries:
     - _stableId: 5781b5627bde4bc41af9760a43197545
@@ -1232,7 +1386,7 @@ MonoBehaviour:
       _valueType: 2
       _boolValue: 0
       _intValue: 0
-      _floatValue: 0.22
+      _floatValue: 0.26
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
@@ -1286,7 +1440,7 @@ MonoBehaviour:
       _valueType: 2
       _boolValue: 0
       _intValue: 0
-      _floatValue: 0.48
+      _floatValue: 0.53
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
@@ -1295,7 +1449,7 @@ MonoBehaviour:
       _valueType: 2
       _boolValue: 0
       _intValue: 0
-      _floatValue: 0.48
+      _floatValue: 0.5
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
@@ -1322,7 +1476,7 @@ MonoBehaviour:
       _valueType: 2
       _boolValue: 0
       _intValue: 0
-      _floatValue: 0.78
+      _floatValue: 0.8
       _stringValue: 
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
@@ -1912,210 +2066,7 @@ MonoBehaviour:
       _vector3Value: {x: 0, y: 0, z: 0}
       _objectValue: {fileID: 0}
   _editorGroups: []
---- !u!114 &125052764881396704
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3786404f1d8f4d3e8af1a5bb22d83b8c, type: 3}
-  m_Name: Evaluate Enemy Combat Intent
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.EvaluateEnemyCombatIntentService
-  _guid: f981317da6d8470289ff61b0b219f285
-  _displayName: Evaluate Enemy Combat Intent
-  _comment: 
-  _editorPosition: {x: 2327.5, y: 510}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _interval: 0.5
-  _tickOnEnter: 1
---- !u!114 &586395300682798633
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
-  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
-  _guid: 6ca788e738334826b833d0c4941afd0e
-  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
-  _comment: 
-  _editorPosition: {x: 2240, y: 1875}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _nextActionAllowedTime:
-    _stableId: 04b0c32959e04147e135598dcecaaa10
-    _key: NextActionAllowedTime
-    _expectedType: 2
---- !u!114 &607125055818188816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
-  m_Name: 'Can Activate Heavy [Punish]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
-  _guid: 65e6d27d169b4fcdab47dccdde2f5f8f
-  _displayName: 'Can Activate Heavy [Punish]'
-  _comment: 
-  _editorPosition: {x: 3575, y: 2415}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _ability: {fileID: 0}
-  _category: 2
-  _abilityRole: 2
---- !u!114 &729685018977650695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56005f5a9cb54df886689cd85da20772, type: 3}
-  m_Name: Sync Enemy Phase
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyPhaseService
-  _guid: 7f9e7f392ab348bf935dd4d1c271def4
-  _displayName: Sync Enemy Phase
-  _comment: 
-  _editorPosition: {x: 2327.5, y: 380}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _interval: 0.5
-  _tickOnEnter: 1
---- !u!114 &819807424363031155
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e6be670b4b2cdb4ebe1999b2f551b6b, type: 3}
-  m_Name: Sync Enemy Blackboard
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyBlackboardService
-  _guid: 74236902cb914ff4b08265c141a64a3c
-  _displayName: Sync Enemy Blackboard
-  _comment: 
-  _editorPosition: {x: 2327.5, y: 120}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _interval: 0.5
-  _tickOnEnter: 1
---- !u!114 &1174685934880509358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: BlockedKeep
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: ea84b5e4d43440f9ae04d373ebebe888
-  _displayName: BlockedKeep
-  _comment: 
-  _editorPosition: {x: 140, y: 1065}
-  _children:
-  - {fileID: 8631440301065683445}
-  - {fileID: 2546953240065724989}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &1886009389358459352
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: CatchEarlyDodge
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 082ac5ee47e54aff8d5abc01bb525ba8
-  _displayName: CatchEarlyDodge
-  _comment: 
-  _editorPosition: {x: 3575, y: 1875}
-  _children:
-  - {fileID: -3210235493814745339}
-  - {fileID: 607125055818188816}
-  - {fileID: -1643209616898330820}
-  - {fileID: 8622046762207699054}
-  - {fileID: 5877848186215780077}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &1913886498934450957
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
-  m_Name: 'Can Activate Heavy [Punish]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
-  _guid: de07390f690a41f0aca67d5e129038ab
-  _displayName: 'Can Activate Heavy [Punish]'
-  _comment: 
-  _editorPosition: {x: 2240, y: 2955}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _ability: {fileID: 0}
-  _category: 2
-  _abilityRole: 2
---- !u!114 &2179894388800239453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Memory.Hit.RecentlyByPlayer Equal true
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: 904b73e10ec244d7ad59d42aec21505e
-  _displayName: Memory.Hit.RecentlyByPlayer Equal true
-  _comment: 
-  _editorPosition: {x: 2240, y: 2145}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _key: Memory.Hit.RecentlyByPlayer
-  _comparison: 0
-  _value: true
-  _valueKey: 
-  _ignoreCase: 1
---- !u!114 &2546953240065724989
+--- !u!114 &172402585603674326
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2127,14 +2078,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2aa96e7241c54b34bb28a75be459a3cc, type: 3}
   m_Name: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.KeepCurrentStateNode
-  _guid: a7df5e767f92426694a735da514897b2
+  _guid: ab58f54806a9469589bec11a5cf6d356
   _displayName: "\uD604\uC7AC \uC0C1\uD0DC \uC720\uC9C0"
   _comment: 
   _editorPosition: {x: 140, y: 1605}
   _children: []
   _disabled: 0
   _breakpoint: 0
---- !u!114 &2567882827199033072
+--- !u!114 &387973390766666630
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2143,21 +2094,39 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: 30 Punish Windows Rules
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: ada5fd73b0734124b24e7fba6af1204e
-  _displayName: 30 Punish Windows Rules
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Basic [Opener]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: 5db5a8430cec4f94a250c387aeee4931
+  _displayName: 'Can Activate Basic [Opener]'
   _comment: 
-  _editorPosition: {x: 3432.5, y: 1605}
-  _children:
-  - {fileID: -1383753650929921956}
-  - {fileID: 1886009389358459352}
+  _editorPosition: {x: 5480, y: 2685}
+  _children: []
   _disabled: 0
   _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &2668161510973428893
+  _ability: {fileID: 0}
+  _category: 1
+  _abilityRole: 1
+--- !u!114 &469381521233246625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bf87ffdd65b267419ffbdedab18533e, type: 3}
+  m_Name: "\uCC28\uB2E8 \uC0C1\uD0DC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsBlockedEnemyStateNode
+  _guid: 3ad1fddd2911452d8ea10385e4110d06
+  _displayName: "\uCC28\uB2E8 \uC0C1\uD0DC"
+  _comment: 
+  _editorPosition: {x: 140, y: 1335}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+--- !u!114 &632231750160193166
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2169,10 +2138,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
   m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
-  _guid: 5df9e023ac334fd0be8bde0bc4b3a4f1
+  _guid: ea2c1c6b802b4cb7abf0d6b9bb2d627d
   _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
   _comment: 
-  _editorPosition: {x: 4910, y: 2145}
+  _editorPosition: {x: 2240, y: 1875}
   _children: []
   _disabled: 0
   _breakpoint: 0
@@ -2180,33 +2149,7 @@ MonoBehaviour:
     _stableId: 04b0c32959e04147e135598dcecaaa10
     _key: NextActionAllowedTime
     _expectedType: 2
---- !u!114 &2766354733884027338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
-  m_Name: 'Request Punish Skill [Finisher]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 279cd7a91dbb4235a233a00f8db27022
-  _displayName: 'Request Punish Skill [Finisher]'
-  _comment: 
-  _editorPosition: {x: 1190, y: 3495}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _intent: 2
-  _style: 0
-  _attackCategory: 3
-  _abilityRole: 32
-  _skipIfAlreadyInState: 1
-  _cooldownId: LiliFinal
-  _cooldownDuration: 9.5
---- !u!114 &2922443627437206341
+--- !u!114 &724688926328259543
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2218,64 +2161,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f90c10d704244a84aa8307cd72c98e7f, type: 3}
   m_Name: Sync Enemy Memory
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SyncEnemyMemoryService
-  _guid: 71f53369f7a147d3869842c5739d8ef1
+  _guid: 8591ef159f23475a806a0322c0ff0f9b
   _displayName: Sync Enemy Memory
   _comment: 
-  _editorPosition: {x: 2327.5, y: 250}
+  _editorPosition: {x: 2612.5, y: 250}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _interval: 0.5
   _tickOnEnter: 1
---- !u!114 &3188660072774458136
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
-  m_Name: 'Request Punish Heavy [Punish]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 5f098c867dba4c93b6ffba35510bf69d
-  _displayName: 'Request Punish Heavy [Punish]'
-  _comment: 
-  _editorPosition: {x: 3290, y: 2955}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _intent: 2
-  _style: 0
-  _attackCategory: 2
-  _abilityRole: 2
-  _skipIfAlreadyInState: 1
-  _cooldownId: 
-  _cooldownDuration: 0
---- !u!114 &3316992679114817829
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
-  m_Name: 'Can Activate Skill [Signature]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
-  _guid: 01d0e8c334c6425fad916d7b13ccd8fb
-  _displayName: 'Can Activate Skill [Signature]'
-  _comment: 
-  _editorPosition: {x: 1475, y: 2685}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _ability: {fileID: 0}
-  _category: 3
-  _abilityRole: 16
---- !u!114 &3586549210877608594
+--- !u!114 &836037591699353993
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2285,21 +2180,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: PoiseBreakWindow
+  m_Name: BasicWeight
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: c3efff13c2f747c69c2abc23bbafb3dc
-  _displayName: PoiseBreakWindow
+  _guid: eee6d3c3a6e340068c48d3421dc6c406
+  _displayName: BasicWeight
   _comment: 
-  _editorPosition: {x: 2525, y: 1605}
+  _editorPosition: {x: 5480, y: 1605}
   _children:
-  - {fileID: -3297299937429411274}
-  - {fileID: -2132762681517288686}
-  - {fileID: -6296028530759381389}
+  - {fileID: 3275674607386042505}
+  - {fileID: 3297216536428915661}
+  - {fileID: 4296077130014433127}
+  - {fileID: 387973390766666630}
+  - {fileID: -8122692197548180952}
   _disabled: 0
   _breakpoint: 0
   _services: []
   _abortType: 0
---- !u!114 &4103540344333852569
+--- !u!114 &863262487422007456
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2308,21 +2205,21 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
-  m_Name: Transition Patrol
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
-  _guid: 0905f39b96f64efe8c0ef9891961bf6b
-  _displayName: Transition Patrol
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: NoTargetIdle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: e50c2f507f01410583e454a2fe0805e2
+  _displayName: NoTargetIdle
   _comment: 
-  _editorPosition: {x: 416, y: 2415}
-  _children: []
+  _editorPosition: {x: 425, y: 1065}
+  _children:
+  - {fileID: 964216687737277694}
+  - {fileID: -841704185547176050}
   _disabled: 0
   _breakpoint: 0
-  _targetState: 1
-  _skipIfAlreadyInState: 1
-  _cooldownId: 
-  _cooldownDuration: 0
---- !u!114 &4300291828771445458
+  _services: []
+  _abortType: 0
+--- !u!114 &964216687737277694
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2331,19 +2228,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b7f598efa7346618a88e2472be7a3bc, type: 3}
-  m_Name: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uC774\uC0C1"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ConsecutiveAttackCountNode
-  _guid: e15c71b39a5f4e4a98bc29094c755a04
-  _displayName: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uC774\uC0C1"
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has No Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: a431062208bd439cabc6174638d6b474
+  _displayName: Has No Target
   _comment: 
-  _editorPosition: {x: 4625, y: 1875}
+  _editorPosition: {x: 425, y: 1335}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _comparison: 1
-  _threshold: 2
---- !u!114 &4471477842508397626
+  _expectedValue: 0
+--- !u!114 &1000468670602900106
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2355,7 +2251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
   m_Name: Request KeepDistance Circle
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 11b7be4f2f94493891fb905940408ced
+  _guid: 7d53d7c05dc44c529c9a6f1137a3590b
   _displayName: Request KeepDistance Circle
   _comment: 
   _editorPosition: {x: 4607, y: 2685}
@@ -2369,7 +2265,7 @@ MonoBehaviour:
   _skipIfAlreadyInState: 1
   _cooldownId: LiliReset
   _cooldownDuration: 2.8
---- !u!114 &4619930332529979072
+--- !u!114 &1230439415432298596
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2381,168 +2277,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
   m_Name: Has Target
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
-  _guid: b2b83ff278e94fe2b88cbfab18bd2238
-  _displayName: Has Target
-  _comment: 
-  _editorPosition: {x: 4767.5, y: 1065}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _expectedValue: 1
---- !u!114 &4646540929379807688
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: 20 Immediate Reactions
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 88254ac863fd472499c4257fb2e061a4
-  _displayName: 20 Immediate Reactions
-  _comment: 
-  _editorPosition: {x: 2382.5, y: 795}
-  _children:
-  - {fileID: -2355672893955540100}
-  - {fileID: 6767146277781195964}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &5400367132921001199
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
-  m_Name: LessOrEqual
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
-  _guid: 12a86539104e4b1aa6f5bdd428675ef9
-  _displayName: LessOrEqual
-  _comment: 
-  _editorPosition: {x: 4910, y: 1875}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _comparison: 0
-  _minDistance: 0
-  _maxDistance: 2.6
---- !u!114 &5443427981908537356
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: FinalDelayedStrike
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: cb1eca43da604a4798600d7af97b14c5
-  _displayName: FinalDelayedStrike
-  _comment: 
-  _editorPosition: {x: 1190, y: 1875}
-  _children:
-  - {fileID: 5466574177674330429}
-  - {fileID: -3455563769129466696}
-  - {fileID: -7824988198083827937}
-  - {fileID: -3113612241779508900}
-  - {fileID: -6100781063839782723}
-  - {fileID: 2766354733884027338}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &5466574177674330429
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Self.PhaseIndex Equal 1
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: c393da3a4bf7412b896279633fbf8fa1
-  _displayName: Self.PhaseIndex Equal 1
-  _comment: 
-  _editorPosition: {x: 1190, y: 2145}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _key: Self.PhaseIndex
-  _comparison: 0
-  _value: 1
-  _valueKey: 
-  _ignoreCase: 1
---- !u!114 &5877848186215780077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
-  m_Name: 'Request Punish Heavy [Punish]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 79f070778a114cb692ee48331835e9b9
-  _displayName: 'Request Punish Heavy [Punish]'
-  _comment: 
-  _editorPosition: {x: 3575, y: 3225}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _intent: 2
-  _style: 0
-  _attackCategory: 2
-  _abilityRole: 2
-  _skipIfAlreadyInState: 1
-  _cooldownId: LiliDodgeCatch
-  _cooldownDuration: 4
---- !u!114 &6295082851048501475
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7586a2d68af648f88c0858d71aa44519, type: 3}
-  m_Name: "\uC57D\uACBD\uC9C1 \uBB34\uC2DC \uAC00\uB2A5"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanIgnoreLightHitNode
-  _guid: 8e3e4e05086842d49955f1090c836e92
-  _displayName: "\uC57D\uACBD\uC9C1 \uBB34\uC2DC \uAC00\uB2A5"
-  _comment: 
-  _editorPosition: {x: 2240, y: 2415}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
---- !u!114 &6329438531196812166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
-  m_Name: Has Target
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
-  _guid: f3282599e44142afa2674528369a00cf
+  _guid: f7db713c67784bd08a67e44fbf8eb3fb
   _displayName: Has Target
   _comment: 
   _editorPosition: {x: 1332.5, y: 1065}
@@ -2550,77 +2285,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _expectedValue: 1
---- !u!114 &6767146277781195964
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: 20 Immediate Reactions Rules
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: 0b0e70e131ca43bebefd27c530c91817
-  _displayName: 20 Immediate Reactions Rules
-  _comment: 
-  _editorPosition: {x: 2382.5, y: 1335}
-  _children:
-  - {fileID: 8322972094395700887}
-  - {fileID: 3586549210877608594}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &7152633469195947958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
-  m_Name: 00 Survival And Acquire
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
-  _guid: bb54d6239574468186a6af43d424bf12
-  _displayName: 00 Survival And Acquire
-  _comment: 
-  _editorPosition: {x: 282.5, y: 795}
-  _children:
-  - {fileID: 1174685934880509358}
-  - {fileID: -7448375922674838172}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &7253562133942154764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
-  m_Name: Memory.Player.IsRecovering Equal true
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
-  _guid: 16d257b719b24d439e7d85aa56156a4b
-  _displayName: Memory.Player.IsRecovering Equal true
-  _comment: 
-  _editorPosition: {x: 3290, y: 2145}
-  _children: []
-  _disabled: 0
-  _breakpoint: 0
-  _key: Memory.Player.IsRecovering
-  _comparison: 0
-  _value: true
-  _valueKey: 
-  _ignoreCase: 1
---- !u!114 &7557342622334240008
+--- !u!114 &1336669103940075499
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2630,23 +2295,50 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
-  m_Name: Request Recover Idle
+  m_Name: 'Request Attack Skill [Finisher]'
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 82c13c0b22b1478ea927be2c88c30967
-  _displayName: Request Recover Idle
+  _guid: 5a47d9576d374506a448dda677fb3017
+  _displayName: 'Request Attack Skill [Finisher]'
   _comment: 
-  _editorPosition: {x: 4643, y: 3225}
+  _editorPosition: {x: 5195, y: 3495}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _intent: 10
-  _style: 11
-  _attackCategory: 0
-  _abilityRole: 0
+  _intent: 1
+  _style: 0
+  _attackCategory: 3
+  _abilityRole: 32
   _skipIfAlreadyInState: 1
-  _cooldownId: LiliReset
-  _cooldownDuration: 2.8
---- !u!114 &7979424673840288133
+  _cooldownId: LiliFinalRhythm
+  _cooldownDuration: 4.5
+--- !u!114 &1355062252517536747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: MidHeavyRhythm
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 0958c264929c4bfb87c4f7b2b50f51bd
+  _displayName: MidHeavyRhythm
+  _comment: 
+  _editorPosition: {x: 4910, y: 1605}
+  _children:
+  - {fileID: -4517979810406571093}
+  - {fileID: -3088198259188709755}
+  - {fileID: 3308339391971842259}
+  - {fileID: -1934586859573740912}
+  - {fileID: 2363334286521654092}
+  - {fileID: 6635055825986600870}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &1437837676773811268
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2658,7 +2350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
   m_Name: 'Request Punish Skill [Signature]'
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: 3a2a9145884f4dbb8e245c2a06ca8aba
+  _guid: 0b49d9e6a43249028e8ea4d617af5d0a
   _displayName: 'Request Punish Skill [Signature]'
   _comment: 
   _editorPosition: {x: 1475, y: 3225}
@@ -2671,8 +2363,8 @@ MonoBehaviour:
   _abilityRole: 16
   _skipIfAlreadyInState: 1
   _cooldownId: LiliMid
-  _cooldownDuration: 8
---- !u!114 &8097731025329056374
+  _cooldownDuration: 7.5
+--- !u!114 &1843457065393676504
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2681,24 +2373,67 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
-  m_Name: 'Request Attack Basic [Opener]'
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
-  _guid: e9119ed3167c43c4a91289411537c937
-  _displayName: 'Request Attack Basic [Opener]'
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Idle
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: 1cf54228a6954ad9b66c9fefce73ac8b
+  _displayName: Transition Idle
+  _comment: 
+  _editorPosition: {x: 434, y: 2685}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 0
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &2347363407745325573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Memory.Player.IsDodgingFrequently Equal true
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: 7839cd8123764db5a5792ec0ab3aca65
+  _displayName: Memory.Player.IsDodgingFrequently Equal true
+  _comment: 
+  _editorPosition: {x: 3575, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Memory.Player.IsDodgingFrequently
+  _comparison: 0
+  _value: true
+  _valueKey: 
+  _ignoreCase: 1
+--- !u!114 &2363334286521654092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: 030ffc094a3b4199842816380fc4bb78
+  _displayName: 'Can Activate Heavy [Punish]'
   _comment: 
   _editorPosition: {x: 4910, y: 2955}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _intent: 1
-  _style: 0
-  _attackCategory: 1
-  _abilityRole: 1
-  _skipIfAlreadyInState: 1
-  _cooldownId: 
-  _cooldownDuration: 0
---- !u!114 &8322972094395700887
+  _ability: {fileID: 0}
+  _category: 2
+  _abilityRole: 2
+--- !u!114 &2370499727384561244
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2707,68 +2442,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
-  m_Name: AbsorbLightHit
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
-  _guid: 85d4abf251f14177aa4717c696485d9c
-  _displayName: AbsorbLightHit
+  m_Script: {fileID: 11500000, guid: 7586a2d68af648f88c0858d71aa44519, type: 3}
+  m_Name: "\uC57D\uACBD\uC9C1 \uBB34\uC2DC \uAC00\uB2A5"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanIgnoreLightHitNode
+  _guid: 6f86fe69635041c6a729be425b5389e0
+  _displayName: "\uC57D\uACBD\uC9C1 \uBB34\uC2DC \uAC00\uB2A5"
   _comment: 
-  _editorPosition: {x: 2240, y: 1605}
-  _children:
-  - {fileID: 586395300682798633}
-  - {fileID: 2179894388800239453}
-  - {fileID: 6295082851048501475}
-  - {fileID: -8312171420804865854}
-  - {fileID: 1913886498934450957}
-  - {fileID: -7277694450545268515}
-  - {fileID: -3728206075009485065}
-  _disabled: 0
-  _breakpoint: 0
-  _services: []
-  _abortType: 0
---- !u!114 &8387263896153040317
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef24a58d6b5e8874f87f52f568d1d01d, type: 3}
-  m_Name: "Invert \uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.InverterNode
-  _guid: 310a8f9580c848c888bb7006232891c9
-  _displayName: "Invert \uACF5\uACA9 \uC0AC\uAC70\uB9AC \uCEE4\uBC84"
-  _comment: 
-  _editorPosition: {x: 4340, y: 1875}
-  _children:
-  - {fileID: -72144174739527876}
-  _disabled: 0
-  _breakpoint: 0
---- !u!114 &8600427996039439046
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
-  m_Name: LessOrEqual
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
-  _guid: b897265797b14e059e8591a183f5f84c
-  _displayName: LessOrEqual
-  _comment: 
-  _editorPosition: {x: 3290, y: 2415}
+  _editorPosition: {x: 2240, y: 2415}
   _children: []
   _disabled: 0
   _breakpoint: 0
-  _comparison: 0
-  _minDistance: 0
-  _maxDistance: 2.8
---- !u!114 &8622046762207699054
+--- !u!114 &2484124510447950289
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2780,7 +2464,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57ad53b425f99c849b314609c0290468, type: 3}
   m_Name: "\uB300\uAE30"
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.WaitNode
-  _guid: d2cdcb3f8646494db1817ca5436e868d
+  _guid: 6a88aa1591b94c2caaffb2d6f4409892
   _displayName: "\uB300\uAE30"
   _comment: 
   _editorPosition: {x: 3575, y: 2955}
@@ -2788,7 +2472,7 @@ MonoBehaviour:
   _disabled: 0
   _breakpoint: 0
   _duration: 0.28
---- !u!114 &8631440301065683445
+--- !u!114 &2568524218837571148
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2797,17 +2481,182 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bf87ffdd65b267419ffbdedab18533e, type: 3}
-  m_Name: "\uCC28\uB2E8 \uC0C1\uD0DC"
-  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsBlockedEnemyStateNode
-  _guid: c2975b6303414cd48fe131452c791776
-  _displayName: "\uCC28\uB2E8 \uC0C1\uD0DC"
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: MidHeavySignature
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 91d983550b7d4a5d877546c8a9adf138
+  _displayName: MidHeavySignature
   _comment: 
-  _editorPosition: {x: 140, y: 1335}
+  _editorPosition: {x: 1475, y: 1875}
+  _children:
+  - {fileID: -6959043569395161905}
+  - {fileID: -2377659852048879406}
+  - {fileID: -1521313110450569711}
+  - {fileID: -807583188109657665}
+  - {fileID: 1437837676773811268}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &2629723747379164968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: GapClose
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: c19f040164294aa9ba09d74e65371d6c
+  _displayName: GapClose
+  _comment: 
+  _editorPosition: {x: 4340, y: 1605}
+  _children:
+  - {fileID: -2371543267105366171}
+  - {fileID: 4644559812937728316}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &3172629266479460038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: f21ef521b317463393ae2464cce8e205
+  _displayName: 'Can Activate Heavy [Punish]'
+  _comment: 
+  _editorPosition: {x: 3290, y: 2685}
   _children: []
   _disabled: 0
   _breakpoint: 0
---- !u!114 &9173770909025318128
+  _ability: {fileID: 0}
+  _category: 2
+  _abilityRole: 2
+--- !u!114 &3275674607386042505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cfdd5388006e2c4f8992b7f08709d5e, type: 3}
+  m_Name: LessOrEqual
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.IsTargetInRangeNode
+  _guid: 16f79248f15641b1a82eb9e4bae990cb
+  _displayName: LessOrEqual
+  _comment: 
+  _editorPosition: {x: 5480, y: 1875}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _minDistance: 0
+  _maxDistance: 2.6
+--- !u!114 &3297216536428915661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: 5427bba792f244eca713f690c0a8d7d9
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 5480, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &3308339391971842259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: ded081f959ba47288c63b5e9fc079848
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 4910, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &3441210554826541311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: IdleFallback
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: d9bda2a30a2443d98a92f2097b754754
+  _displayName: IdleFallback
+  _comment: 
+  _editorPosition: {x: 5765, y: 1605}
+  _children:
+  - {fileID: -7007752478999092383}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &4076798217909736798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b50774fc3e6c5d545a40e4b9203a5335, type: 3}
+  m_Name: Transition Patrol
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.TransitionEnemyStateNode
+  _guid: d2627125575b4278b09306909f076980
+  _displayName: Transition Patrol
+  _comment: 
+  _editorPosition: {x: 416, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _targetState: 1
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &4296077130014433127
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2819,12 +2668,531 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b7f598efa7346618a88e2472be7a3bc, type: 3}
   m_Name: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uBBF8\uB9CC"
   m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ConsecutiveAttackCountNode
-  _guid: b9b8b7b64c0340f7854429a74e395195
+  _guid: 01b40e9f989742eb8d923cb8659d0df2
   _displayName: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uBBF8\uB9CC"
   _comment: 
-  _editorPosition: {x: 4910, y: 2415}
+  _editorPosition: {x: 5480, y: 2415}
   _children: []
   _disabled: 0
   _breakpoint: 0
   _comparison: 0
   _threshold: 2
+--- !u!114 &4306405833391550087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
+  m_Name: 'Request Punish Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
+  _guid: 6b8358791788477c81039846e2edbfdd
+  _displayName: 'Request Punish Heavy [Punish]'
+  _comment: 
+  _editorPosition: {x: 3290, y: 2955}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _intent: 2
+  _style: 0
+  _attackCategory: 2
+  _abilityRole: 2
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &4644559812937728316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
+  m_Name: Request Chase
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
+  _guid: bed811fa64584aeebc1eefe3b302beef
+  _displayName: Request Chase
+  _comment: 
+  _editorPosition: {x: 4340, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _intent: 5
+  _style: 0
+  _attackCategory: 0
+  _abilityRole: 0
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &4672628315913822145
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Memory.Hit.RecentlyByPlayer Equal true
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: 32bd8dda5a214c459bdbfdc393d76d8c
+  _displayName: Memory.Hit.RecentlyByPlayer Equal true
+  _comment: 
+  _editorPosition: {x: 2240, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Memory.Hit.RecentlyByPlayer
+  _comparison: 0
+  _value: true
+  _valueKey: 
+  _ignoreCase: 1
+--- !u!114 &4678506502613517006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: FinalFinisherRhythm
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: eae17670d0cc4ebc99c03674727f010f
+  _displayName: FinalFinisherRhythm
+  _comment: 
+  _editorPosition: {x: 5195, y: 1605}
+  _children:
+  - {fileID: -43856150720339221}
+  - {fileID: -1257026326401121344}
+  - {fileID: 6325718855338208296}
+  - {fileID: 7054127953635144912}
+  - {fileID: -69015608813917888}
+  - {fileID: 5027303316419372460}
+  - {fileID: 1336669103940075499}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &5027303316419372460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
+  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
+  _guid: 2b5f3229b3704048a4bd7ab0eec24749
+  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  _comment: 
+  _editorPosition: {x: 5195, y: 3225}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _cooldownId: LiliFinalRhythm
+--- !u!114 &5032263915094136854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: 650a1e5c31a140a2a52d06800f67abbb
+  _displayName: 'Can Activate Heavy [Punish]'
+  _comment: 
+  _editorPosition: {x: 2240, y: 2955}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _ability: {fileID: 0}
+  _category: 2
+  _abilityRole: 2
+--- !u!114 &5648131539317555085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: 50 Combat Rhythm
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 63b95994370a40a49855d7d1d27bc767
+  _displayName: 50 Combat Rhythm
+  _comment: 
+  _editorPosition: {x: 5052.5, y: 795}
+  _children:
+  - {fileID: -3888960378880900287}
+  - {fileID: 6671206159398079749}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &5950318877004766402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 30 Punish Windows Rules
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: 00f0016b676b4703b4c10b6d31312c4f
+  _displayName: 30 Punish Windows Rules
+  _comment: 
+  _editorPosition: {x: 3432.5, y: 1605}
+  _children:
+  - {fileID: -4270279227728705331}
+  - {fileID: -2658224876451372416}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &6025302754172595453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8519ec742514e2598b1cf6a519746cc, type: 3}
+  m_Name: Memory.Player.IsRecovering Equal true
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.BlackboardCompareNode
+  _guid: 552ab5cb0d17461b8d3fa56411e22332
+  _displayName: Memory.Player.IsRecovering Equal true
+  _comment: 
+  _editorPosition: {x: 3290, y: 2145}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _key: Memory.Player.IsRecovering
+  _comparison: 0
+  _value: true
+  _valueKey: 
+  _ignoreCase: 1
+--- !u!114 &6325718855338208296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42ee0acee88f0db478f52a15046d27d8, type: 3}
+  m_Name: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasEnemyActionDelayElapsedNode
+  _guid: 5be96181a2d04e259ff8fb72a15e441c
+  _displayName: "\uD589\uB3D9 \uB51C\uB808\uC774 \uACBD\uACFC"
+  _comment: 
+  _editorPosition: {x: 5195, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _nextActionAllowedTime:
+    _stableId: 04b0c32959e04147e135598dcecaaa10
+    _key: NextActionAllowedTime
+    _expectedType: 2
+--- !u!114 &6635055825986600870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
+  m_Name: 'Request Attack Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
+  _guid: 3ddebe45849544a4af9204b4cf07829c
+  _displayName: 'Request Attack Heavy [Punish]'
+  _comment: 
+  _editorPosition: {x: 4910, y: 3225}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _intent: 1
+  _style: 0
+  _attackCategory: 2
+  _abilityRole: 2
+  _skipIfAlreadyInState: 1
+  _cooldownId: 
+  _cooldownDuration: 0
+--- !u!114 &6671206159398079749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 50 Combat Rhythm Rules
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: 5119dbf07969435cb983fb1076ea5b3d
+  _displayName: 50 Combat Rhythm Rules
+  _comment: 
+  _editorPosition: {x: 5052.5, y: 1335}
+  _children:
+  - {fileID: 2629723747379164968}
+  - {fileID: 7045477739634383408}
+  - {fileID: 1355062252517536747}
+  - {fileID: 4678506502613517006}
+  - {fileID: 836037591699353993}
+  - {fileID: 3441210554826541311}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &6944607299636655501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c0ceb930b9cf6ff4dbf2417707be1e18, type: 3}
+  m_Name: ComboReset Weighted
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.WeightedRandomSelectorNode
+  _guid: 16c06de1ff044264bcc810497ae8e40b
+  _displayName: ComboReset Weighted
+  _comment: 
+  _editorPosition: {x: 4625, y: 2415}
+  _children:
+  - {fileID: 1000468670602900106}
+  - {fileID: -4123433934967449973}
+  - {fileID: -6444032938142594847}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _weights:
+  - 0.5
+  - 0.32
+  - 0.18
+--- !u!114 &7045477739634383408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: ComboReset
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 5ea86bd3236048439944d1c843945bd4
+  _displayName: ComboReset
+  _comment: 
+  _editorPosition: {x: 4625, y: 1605}
+  _children:
+  - {fileID: -9164953967879657196}
+  - {fileID: -7846746772537477084}
+  - {fileID: 6944607299636655501}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &7054127953635144912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b7f598efa7346618a88e2472be7a3bc, type: 3}
+  m_Name: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uBBF8\uB9CC"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.ConsecutiveAttackCountNode
+  _guid: 636450a926da42c69b6edf63b72781c2
+  _displayName: "\uC5F0\uC18D \uACF5\uACA9 \uD69F\uC218 \uBBF8\uB9CC"
+  _comment: 
+  _editorPosition: {x: 5195, y: 2685}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _comparison: 0
+  _threshold: 2
+--- !u!114 &7199528763406395803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68fabbf6cb04ee04a8b56ffda71340ee, type: 3}
+  m_Name: Has Target
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.HasTargetNode
+  _guid: 67e87abafc9749d194b0a0e42219925d
+  _displayName: Has Target
+  _comment: 
+  _editorPosition: {x: 3432.5, y: 1065}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _expectedValue: 1
+--- !u!114 &7451497506243515450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9dae183c02149e9b73ebdb3397ebe12, type: 3}
+  m_Name: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CooldownReadyNode
+  _guid: f32b363e8c9445078b6288172ff4c445
+  _displayName: "\uCFE8\uB2E4\uC6B4 \uC900\uBE44\uB428"
+  _comment: 
+  _editorPosition: {x: 2240, y: 3225}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _cooldownId: LiliRevenge
+--- !u!114 &7637895691920128269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f8e95a514d14d0bb89d14b6765cecdf, type: 3}
+  m_Name: 'Can Activate Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.CanActivateAbilityNode
+  _guid: e35df69432944851b5311cda28c8d85a
+  _displayName: 'Can Activate Heavy [Punish]'
+  _comment: 
+  _editorPosition: {x: 3575, y: 2415}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _ability: {fileID: 0}
+  _category: 2
+  _abilityRole: 2
+--- !u!114 &8124666637147768677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6f361b357699994498f6efc000132f1, type: 3}
+  m_Name: 10 Phase Signature
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SequenceNode
+  _guid: 8a40d64936c14b1888ee7fa3f84c195e
+  _displayName: 10 Phase Signature
+  _comment: 
+  _editorPosition: {x: 1332.5, y: 795}
+  _children:
+  - {fileID: 1230439415432298596}
+  - {fileID: -4111924445217355944}
+  - {fileID: -5162940290616068530}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &8435308237130327628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57d6b0f13235e944e81f53da7f8bdd9f, type: 3}
+  m_Name: 20 Immediate Reactions Rules
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.SelectorNode
+  _guid: 1caae1dd833b4295a20632bebeb28e88
+  _displayName: 20 Immediate Reactions Rules
+  _comment: 
+  _editorPosition: {x: 2382.5, y: 1335}
+  _children:
+  - {fileID: -5082298543739815283}
+  - {fileID: -2316542242987963048}
+  _disabled: 0
+  _breakpoint: 0
+  _services: []
+  _abortType: 0
+--- !u!114 &8765224066151959851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d39ee7a06d1944da9ca8279ebf0bf62d, type: 3}
+  m_Name: 'Request Punish Heavy [Punish]'
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.RequestEnemyActionNode
+  _guid: 8e368b2f3fb4441f822924e014cb085f
+  _displayName: 'Request Punish Heavy [Punish]'
+  _comment: 
+  _editorPosition: {x: 2240, y: 3495}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _intent: 2
+  _style: 0
+  _attackCategory: 2
+  _abilityRole: 2
+  _skipIfAlreadyInState: 1
+  _cooldownId: LiliRevenge
+  _cooldownDuration: 4.2
+--- !u!114 &9106888451545203513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57ad53b425f99c849b314609c0290468, type: 3}
+  m_Name: "\uB300\uAE30"
+  m_EditorClassIdentifier: UPlayGround.Actor::UPlayGround.AI.BehaviorTree.WaitNode
+  _guid: 398e36b0c6ca4efe9b5410fc8cae70e5
+  _displayName: "\uB300\uAE30"
+  _comment: 
+  _editorPosition: {x: 1190, y: 3225}
+  _children: []
+  _disabled: 0
+  _breakpoint: 0
+  _duration: 0.28

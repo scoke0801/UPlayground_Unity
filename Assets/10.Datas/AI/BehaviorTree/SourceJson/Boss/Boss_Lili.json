@@ -8,9 +8,9 @@
     "tickInterval": 0.065, "enablePatrol": false,
     "optimalCombatDistance": 2.6, "minCombatDistance": 1.3,
     "personalSpaceDistance": 0.94, "preferredRange": 2.8,
-    "aggression": 0.48, "reactionChance": 0.48,
+    "aggression": 0.53, "reactionChance": 0.5,
     "counterChance": 0.18, "guardChance": 0.2, "dodgeChance": 0.12,
-    "retreatChance": 0.24, "punishRecoveryChance": 0.78,
+    "retreatChance": 0.24, "punishRecoveryChance": 0.8,
     "antiGuardChance": 0.62, "revengeChance": 0.32,
     "circleWeight": 0.3, "maxComboPressureCount": 2,
     "minRetreatCooldown": 3.2
@@ -21,24 +21,26 @@
       { "name": "NoTargetIdle", "priority": 990, "when": [{ "condition": "HasTarget", "invert": true }], "do": [{ "action": "PatrolOrIdle" }] }
     ] },
     { "name": "10 Phase Signature", "priority": 960, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
-      { "name": "FinalDelayedStrike", "priority": 960, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Finisher" }, { "condition": "CooldownReady", "value": "LiliFinal" }], "do": [{ "action": "Wait", "duration": 0.28 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Finisher", "cooldownId": "LiliFinal", "cooldownDuration": 9.5 }] },
-      { "name": "MidHeavySignature", "priority": 950, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "IsPlayerRecovering" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "LiliMid" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "LiliMid", "cooldownDuration": 8.0 }] }
+      { "name": "FinalDelayedStrike", "priority": 960, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "LiliFinal" }], "do": [{ "action": "Wait", "duration": 0.28 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "LiliFinal", "cooldownDuration": 8.5 }] },
+      { "name": "MidHeavySignature", "priority": 950, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "IsPlayerRecovering" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "LiliMid" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "LiliMid", "cooldownDuration": 7.5 }] }
     ] },
     { "name": "20 Immediate Reactions", "priority": 930, "when": [{ "condition": "HasTarget" }], "rules": [
-      { "name": "AbsorbLightHit", "priority": 930, "when": [{ "condition": "ActionDelayElapsed" }, { "condition": "RecentlyHitByPlayer" }, { "condition": "CanIgnoreLightHit" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LiliRevenge" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LiliRevenge", "cooldownDuration": 4.5 }] },
+      { "name": "AbsorbLightHit", "priority": 930, "when": [{ "condition": "ActionDelayElapsed" }, { "condition": "RecentlyHitByPlayer" }, { "condition": "CanIgnoreLightHit" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LiliRevenge" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LiliRevenge", "cooldownDuration": 4.2 }] },
       { "name": "PoiseBreakWindow", "priority": 925, "when": [{ "condition": "IsPoiseBroken" }, { "condition": "CooldownReady", "value": "LiliPoise" }], "do": [{ "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "LiliPoise", "cooldownDuration": 3.8 }] }
     ] },
     { "name": "30 Punish Windows", "priority": 910, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
       { "name": "PunishRecovery", "priority": 910, "when": [{ "condition": "IsPlayerRecovering" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish" }] },
-      { "name": "CatchEarlyDodge", "priority": 900, "when": [{ "condition": "IsPlayerDodgingFrequently" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LiliDodgeCatch" }], "do": [{ "action": "Wait", "duration": 0.28 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LiliDodgeCatch", "cooldownDuration": 4.0 }] }
+      { "name": "CatchEarlyDodge", "priority": 900, "when": [{ "condition": "IsPlayerDodgingFrequently" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LiliDodgeCatch" }], "do": [{ "action": "Wait", "duration": 0.28 }, { "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LiliDodgeCatch", "cooldownDuration": 3.6 }] }
     ] },
     { "name": "50 Combat Rhythm", "priority": 820, "when": [{ "condition": "HasTarget" }], "rules": [
       { "name": "GapClose", "priority": 825, "when": [{ "condition": "HasAttackInRange", "invert": true }], "do": [{ "action": "RequestAction", "intent": "Chase" }] },
       { "name": "ComboReset", "priority": 820, "when": [{ "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "2" }, { "condition": "CooldownReady", "value": "LiliReset" }], "select": "WeightedRandom", "choices": [
-        { "weight": 0.45, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "LiliReset", "cooldownDuration": 2.8 },
-        { "weight": 0.30, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "LiliReset", "cooldownDuration": 3.0 },
-        { "weight": 0.25, "action": "RequestAction", "intent": "Recover", "style": "Idle", "cooldownId": "LiliReset", "cooldownDuration": 2.8 }
+        { "weight": 0.50, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "LiliReset", "cooldownDuration": 2.8 },
+        { "weight": 0.32, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "LiliReset", "cooldownDuration": 3.0 },
+        { "weight": 0.18, "action": "RequestAction", "intent": "Recover", "style": "Idle", "cooldownId": "LiliReset", "cooldownDuration": 2.8 }
       ] },
+      { "name": "MidHeavyRhythm", "priority": 815, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Heavy", "abilityRole": "Punish" }] },
+      { "name": "FinalFinisherRhythm", "priority": 814, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Finisher" }, { "condition": "CooldownReady", "value": "LiliFinalRhythm" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Skill", "abilityRole": "Finisher", "cooldownId": "LiliFinalRhythm", "cooldownDuration": 4.5 }] },
       { "name": "BasicWeight", "priority": 810, "when": [{ "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener" }] },
       { "name": "IdleFallback", "priority": 800, "do": [{ "action": "KeepCurrentState" }] }
     ] }

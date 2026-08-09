@@ -74,6 +74,7 @@
           { "weight": 0.55, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "BokuseiReset", "cooldownDuration": 1.8 },
           { "weight": 0.45, "action": "RequestAction", "intent": "Evade", "style": "Step", "cooldownId": "BokuseiReset", "cooldownDuration": 1.8 }
         ] },
+        { "name": "FinalFinisherRhythm", "priority": 815, "when": [{ "condition": "IsEnemyPhase", "value": "1" }, { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "3" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Finisher" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Heavy", "abilityRole": "Finisher" }] },
         { "name": "BasicRhythm", "priority": 810, "when": [{ "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "3" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener" }] },
         { "name": "IdleFallback", "priority": 800, "do": [{ "action": "KeepCurrentState" }] }
       ]

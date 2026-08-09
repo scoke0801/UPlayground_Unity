@@ -25,7 +25,7 @@
       { "name": "MidHeavySignature", "priority": 950, "when": [{ "condition": "IsEnemyPhase", "value": "0" }, { "condition": "IsPlayerRecovering" }, { "condition": "CanActivateAbility", "attackCategory": "Skill", "abilityRole": "Signature" }, { "condition": "CooldownReady", "value": "LiliMid" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Skill", "abilityRole": "Signature", "cooldownId": "LiliMid", "cooldownDuration": 8.0 }] }
     ] },
     { "name": "20 Immediate Reactions", "priority": 930, "when": [{ "condition": "HasTarget" }], "rules": [
-      { "name": "AbsorbLightHit", "priority": 930, "when": [{ "condition": "RecentlyHitByPlayer" }, { "condition": "CanIgnoreLightHit" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LiliRevenge" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LiliRevenge", "cooldownDuration": 4.5 }] },
+      { "name": "AbsorbLightHit", "priority": 930, "when": [{ "condition": "ActionDelayElapsed" }, { "condition": "RecentlyHitByPlayer" }, { "condition": "CanIgnoreLightHit" }, { "condition": "DistanceLessOrEqual", "value": "preferredRange" }, { "condition": "CanActivateAbility", "attackCategory": "Heavy", "abilityRole": "Punish" }, { "condition": "CooldownReady", "value": "LiliRevenge" }], "do": [{ "action": "RequestAction", "intent": "Punish", "attackCategory": "Heavy", "abilityRole": "Punish", "cooldownId": "LiliRevenge", "cooldownDuration": 4.5 }] },
       { "name": "PoiseBreakWindow", "priority": 925, "when": [{ "condition": "IsPoiseBroken" }, { "condition": "CooldownReady", "value": "LiliPoise" }], "do": [{ "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "LiliPoise", "cooldownDuration": 3.8 }] }
     ] },
     { "name": "30 Punish Windows", "priority": 910, "when": [{ "condition": "HasTarget" }, { "condition": "ActionDelayElapsed" }], "rules": [
@@ -37,7 +37,7 @@
       { "name": "ComboReset", "priority": 820, "when": [{ "condition": "ConsecutiveAttackCountGreaterOrEqual", "value": "2" }, { "condition": "CooldownReady", "value": "LiliReset" }], "select": "WeightedRandom", "choices": [
         { "weight": 0.45, "action": "RequestAction", "intent": "KeepDistance", "style": "Circle", "cooldownId": "LiliReset", "cooldownDuration": 2.8 },
         { "weight": 0.30, "action": "RequestAction", "intent": "Defend", "style": "Guard", "cooldownId": "LiliReset", "cooldownDuration": 3.0 },
-        { "weight": 0.25, "action": "KeepCurrentState" }
+        { "weight": 0.25, "action": "RequestAction", "intent": "Recover", "style": "Idle", "cooldownId": "LiliReset", "cooldownDuration": 2.8 }
       ] },
       { "name": "BasicWeight", "priority": 810, "when": [{ "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" }, { "condition": "ActionDelayElapsed" }, { "condition": "ConsecutiveAttackCountLessThan", "value": "2" }, { "condition": "CanActivateAbility", "attackCategory": "Basic", "abilityRole": "Opener" }], "do": [{ "action": "RequestAction", "intent": "Attack", "attackCategory": "Basic", "abilityRole": "Opener" }] },
       { "name": "IdleFallback", "priority": 800, "do": [{ "action": "KeepCurrentState" }] }

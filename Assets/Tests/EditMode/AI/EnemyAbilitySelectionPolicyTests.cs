@@ -13,6 +13,57 @@ namespace UPlayGround.AI.Tests
 {
     public sealed class EnemyAbilitySelectionPolicyTests
     {
+        [TestCase(EnemyActionIntent.Retreat)]
+        [TestCase(EnemyActionIntent.KeepDistance)]
+        [TestCase(EnemyActionIntent.Defend)]
+        [TestCase(EnemyActionIntent.Evade)]
+        [TestCase(EnemyActionIntent.Recover)]
+        public void 호흡_행동은_연속_공격열을_끝낸다(
+            EnemyActionIntent intent)
+        {
+            Assert.That(
+                EnemyActionResolver.BreaksConsecutiveAttackSequence(intent),
+                Is.True);
+        }
+
+        [TestCase(EnemyActionIntent.None)]
+        [TestCase(EnemyActionIntent.Attack)]
+        [TestCase(EnemyActionIntent.Punish)]
+        [TestCase(EnemyActionIntent.Counter)]
+        [TestCase(EnemyActionIntent.Pressure)]
+        [TestCase(EnemyActionIntent.Chase)]
+        public void 공격과_접근_행동은_연속_공격열을_유지한다(
+            EnemyActionIntent intent)
+        {
+            Assert.That(
+                EnemyActionResolver.BreaksConsecutiveAttackSequence(intent),
+                Is.False);
+        }
+
+        [Test]
+        public void Flank_압박은_측면_재배치_뒤_새_공격열을_시작한다()
+        {
+            var request = new EnemyActionRequest(
+                EnemyActionIntent.Pressure,
+                EnemyActionStyle.Flank);
+
+            Assert.That(
+                EnemyActionResolver.BreaksConsecutiveAttackSequence(request),
+                Is.True);
+        }
+
+        [Test]
+        public void Charge_압박은_현재_공격열을_유지한다()
+        {
+            var request = new EnemyActionRequest(
+                EnemyActionIntent.Pressure,
+                EnemyActionStyle.Charge);
+
+            Assert.That(
+                EnemyActionResolver.BreaksConsecutiveAttackSequence(request),
+                Is.False);
+        }
+
         [Test]
         public void AiSelectable이_꺼진_공격은_후보에서_제외한다()
         {

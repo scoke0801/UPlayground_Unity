@@ -41,7 +41,7 @@ namespace UPlayGround.AI.BehaviorTree
 
             if (skipIfAlreadyInState && controller.CurrentState?.StateId == nextState.StateId)
             {
-                RecordCooldown(context, request.CooldownId, request.CooldownDuration);
+                RecordAcceptedAction(context, request);
                 return true;
             }
 
@@ -51,8 +51,34 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
-            RecordCooldown(context, request.CooldownId, request.CooldownDuration);
+            RecordAcceptedAction(context, request);
             return true;
+        }
+
+        /// <summary>
+        /// 공격 상한 뒤 선택하는 호흡 행동은 기존 공격열을 끝낸다.
+        /// Chase는 단순 사거리 복구이므로 연속 공격 수를 유지한다.
+        /// </summary>
+        public static bool BreaksConsecutiveAttackSequence(
+            EnemyActionIntent intent)
+        {
+            return intent is
+                EnemyActionIntent.Retreat or
+                EnemyActionIntent.KeepDistance or
+                EnemyActionIntent.Defend or
+                EnemyActionIntent.Evade or
+                EnemyActionIntent.Recover;
+        }
+
+        /// <summary>
+        /// Flank는 Pressure 의도를 사용하지만 측면 재배치 뒤 새 공격열로 재진입하므로
+        /// 일반 압박 행동과 달리 기존 연속 공격 수를 초기화한다.
+        /// </summary>
+        public static bool BreaksConsecutiveAttackSequence(
+            EnemyActionRequest request)
+        {
+            return BreaksConsecutiveAttackSequence(request.Intent)
+                || request.Style == EnemyActionStyle.Flank;
         }
 
         public static bool IsTransitionBlockedByActionLock(
@@ -128,6 +154,22 @@ namespace UPlayGround.AI.BehaviorTree
             context.Blackboard.SetRuntimeFloat(
                 EnemyBlackboardKeys.CooldownReadyTime(cooldownId),
                 Time.time + cooldownDuration);
+        }
+
+        private static void RecordAcceptedAction(
+            BehaviorTreeContext context,
+            EnemyActionRequest request)
+        {
+            if (BreaksConsecutiveAttackSequence(request))
+            {
+                context?.GetComponentCached<EnemyTacticalMemory>()
+                    ?.ResetAttackCount();
+            }
+
+            RecordCooldown(
+                context,
+                request.CooldownId,
+                request.CooldownDuration);
         }
 
         private static GameActorState CreateState(BehaviorTreeContext context, ActorMovementController controller, EnemyActionRequest request, out string failureReason)

@@ -1,0 +1,311 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_MainPlant_Stationary",
+    "displayName": "MainPlant 정지형 원거리",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_MainPlant.asset",
+    "blackboard": {
+        "tickInterval": 0.1,
+        "enablePatrol": false,
+        "optimalCombatDistance": 10.0,
+        "minCombatDistance": 0.0,
+        "personalSpaceDistance": 0.8,
+        "preferredRange": 10.0,
+        "aggression": 0.6,
+        "reactionChance": 0.35,
+        "counterChance": 0.0,
+        "guardChance": 0.0,
+        "dodgeChance": 0.0,
+        "retreatChance": 0.0,
+        "punishRecoveryChance": 0.6,
+        "antiGuardChance": 0.3,
+        "revengeChance": 0.35,
+        "circleWeight": 0.0,
+        "maxComboPressureCount": 2,
+        "minRetreatCooldown": 999.0
+    },
+    "groups": [
+        {
+            "name": "00 Survival And Interrupt",
+            "priority": 1000,
+            "rules": [
+                {
+                    "name": "BlockedStateKeep",
+                    "priority": 1000,
+                    "when": [
+                        { "condition": "IsBlockedEnemyState" }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "NoTargetIdle",
+                    "priority": 990,
+                    "when": [
+                        { "condition": "HasTarget", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "PatrolOrIdle" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "10 Signature Skills",
+            "priority": 950,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "SkillWhenPressured",
+                    "priority": 950,
+                    "when": [
+                        { "condition": "IsSelfLowHealth", "value": "0.5" },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Skill" },
+                        { "condition": "CooldownReady", "value": "MainPlantSkillDesperate" }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Skill",
+                            "cooldownId": "MainPlantSkillDesperate",
+                            "cooldownDuration": 8.0
+                        }
+                    ]
+                },
+                {
+                    "name": "SkillRotation",
+                    "priority": 945,
+                    "when": [
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "DistanceLessOrEqual", "value": "preferredRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Skill" },
+                        { "condition": "CooldownReady", "value": "MainPlantSkillRotation" }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Skill",
+                            "cooldownId": "MainPlantSkillRotation",
+                            "cooldownDuration": 6.5
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "20 Punish Windows",
+            "priority": 935,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PunishStagger",
+                    "priority": 935,
+                    "when": [
+                        { "condition": "IsPlayerStaggered" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "PunishRecovery",
+                    "priority": 930,
+                    "when": [
+                        { "condition": "IsPlayerRecovering" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "40 Execute Selected Intent",
+            "priority": 880,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "IntentPunish",
+                    "priority": 880,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Punish" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentAttack",
+                    "priority": 875,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentPressureSkill",
+                    "priority": 870,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Pressure" },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Skill" },
+                        { "condition": "CooldownReady", "value": "MainPlantSkillPressure" }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Skill",
+                            "cooldownId": "MainPlantSkillPressure",
+                            "cooldownDuration": 5.0
+                        }
+                    ]
+                },
+                {
+                    "name": "IntentCounter",
+                    "priority": 866,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Counter" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentChaseHoldGround",
+                    "priority": 860,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Chase" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentKeepDistanceHoldGround",
+                    "priority": 856,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "KeepDistance" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentRetreatHoldGround",
+                    "priority": 852,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Retreat" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentDefendHoldGround",
+                    "priority": 848,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Defend" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentRecoverHoldGround",
+                    "priority": 844,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Recover" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "50 Default Combat Rhythm",
+            "priority": 820,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "RhythmBasicInRange",
+                    "priority": 820,
+                    "when": [
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountLessThan", "value": "3" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "RhythmSkillWhenOutOfMeleeRange",
+                    "priority": 815,
+                    "when": [
+                        { "condition": "HasAttackInRange", "invert": true },
+                        { "condition": "HasLineOfSight" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Skill" },
+                        { "condition": "CooldownReady", "value": "MainPlantSkillFiller" }
+                    ],
+                    "do": [
+                        {
+                            "action": "RequestAction",
+                            "intent": "Attack",
+                            "attackCategory": "Skill",
+                            "cooldownId": "MainPlantSkillFiller",
+                            "cooldownDuration": 4.0
+                        }
+                    ]
+                },
+                {
+                    "name": "RhythmHoldGround",
+                    "priority": 800,
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                }
+            ]
+        }
+    ]
+}

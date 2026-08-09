@@ -27,6 +27,8 @@ MonoBehaviour:
   circleDuration: 0
   guardDuration: 0
   retreatDistance: 0
+  faceTargetWhileIdle: 1
+  idleFaceTargetSharpness: 6
   enablePatrol: 0
   patrolRadius: 5
   patrolWaitTime: 2
@@ -35,7 +37,7 @@ MonoBehaviour:
     hpThreshold: 0.4
     continueAttackChance: 0.5
     guardChance: 0
-    retreatChance: 0.3
+    retreatChance: 0
     chargeChance: 0
     flankChance: 0
     chaseSpeedMultiplier: 1.2

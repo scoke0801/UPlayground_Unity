@@ -68,6 +68,8 @@ namespace UPlayGround.Components
         public override float PatrolWaitTime  => data?.patrolWaitTime  ?? 2f;
         public override Vector3 SpawnPosition => _spawnPosition;
         public override bool EnablePatrol     => data?.enablePatrol    ?? true;
+        public override bool FaceTargetWhileIdle       => data?.faceTargetWhileIdle       ?? false;
+        public override float IdleFaceTargetSharpness  => data?.idleFaceTargetSharpness   ?? 6f;
         public override float GuardDuration   => data?.guardDuration   ?? 1.5f;
         public override float RetreatDistance => data?.retreatDistance  ?? 3f;
         public override float CircleDuration  => data?.circleDuration  ?? 2.5f;

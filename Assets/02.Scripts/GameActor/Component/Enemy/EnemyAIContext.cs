@@ -40,6 +40,12 @@ namespace UPlayGround.Components
         public abstract float CircleDuration { get; }
         public abstract float GuardDuration { get; }
         public abstract GroupIntentBias CurrentGroupIntentBias { get; }
+
+        /// <summary> 정지형 액터가 대기 중에도 타겟을 바라보도록 회전할지 여부. </summary>
+        public virtual bool FaceTargetWhileIdle => false;
+        /// <summary> 대기 중 타겟 조준 회전 속도. </summary>
+        public virtual float IdleFaceTargetSharpness => 6f;
+
         public abstract MonsterGroupMemory CurrentGroupMemory { get; }
 
         public abstract bool CanUseSkill();

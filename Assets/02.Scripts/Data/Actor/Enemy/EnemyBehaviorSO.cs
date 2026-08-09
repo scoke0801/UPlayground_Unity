@@ -84,6 +84,12 @@ namespace UPlayGround.Data.Enemy
         [Tooltip("이 몬스터가 공격을 끝낸 뒤 적용할 그룹 breather 시간. 음수면 그룹 기본값을 사용")]
         public float breatherDurationOverride = -1f;
 
+        [Header("정지형(고정) 액터")]
+        [Tooltip("이동 없이 제자리에서만 싸우는 액터가 대기 중에도 타겟 방향으로 몸을 돌리게 한다. 식물류처럼 이동 인텐트가 없는 BT와 함께 사용한다.")]
+        public bool faceTargetWhileIdle;
+        [Tooltip("대기 중 타겟 조준 회전 속도. 값이 클수록 빠르게 돌아본다.")]
+        [Min(0f)] public float idleFaceTargetSharpness = 6f;
+
         [Header("순찰")]
         public bool  enablePatrol  = true;
         public float patrolRadius  = 5f;

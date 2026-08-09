@@ -1,0 +1,235 @@
+{
+    "schemaVersion": 1,
+    "id": "EnemyBehavior_PlantRoot_Stationary",
+    "displayName": "PlantRoot 정지형 근접",
+    "actorKind": "Ground",
+    "sourceBehaviorSo": "Assets/10.Datas/Actor/Enemy/BehaviorData/BehaviorData_PlantRoot.asset",
+    "blackboard": {
+        "tickInterval": 0.1,
+        "enablePatrol": false,
+        "optimalCombatDistance": 2.5,
+        "minCombatDistance": 1.25,
+        "personalSpaceDistance": 1.05,
+        "preferredRange": 2.5,
+        "aggression": 0.7,
+        "reactionChance": 0.35,
+        "counterChance": 0.0,
+        "guardChance": 0.0,
+        "dodgeChance": 0.0,
+        "retreatChance": 0.0,
+        "punishRecoveryChance": 0.6,
+        "antiGuardChance": 0.3,
+        "revengeChance": 0.4,
+        "circleWeight": 0.0,
+        "maxComboPressureCount": 2,
+        "minRetreatCooldown": 999.0
+    },
+    "groups": [
+        {
+            "name": "00 Survival And Interrupt",
+            "priority": 1000,
+            "rules": [
+                {
+                    "name": "BlockedStateKeep",
+                    "priority": 1000,
+                    "when": [
+                        { "condition": "IsBlockedEnemyState" }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "NoTargetIdle",
+                    "priority": 990,
+                    "when": [
+                        { "condition": "HasTarget", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "PatrolOrIdle" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "20 Punish Windows",
+            "priority": 935,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "PunishStagger",
+                    "priority": 935,
+                    "when": [
+                        { "condition": "IsPlayerStaggered" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "PunishRecovery",
+                    "priority": 930,
+                    "when": [
+                        { "condition": "IsPlayerRecovering" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "40 Execute Selected Intent",
+            "priority": 880,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "IntentPunish",
+                    "priority": 880,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Punish" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentAttack",
+                    "priority": 875,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Attack" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentCounter",
+                    "priority": 870,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Counter" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentPressure",
+                    "priority": 865,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Pressure" },
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "IntentChaseHoldGround",
+                    "priority": 860,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Chase" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentKeepDistanceHoldGround",
+                    "priority": 856,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "KeepDistance" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentRetreatHoldGround",
+                    "priority": 852,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Retreat" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentDefendHoldGround",
+                    "priority": 848,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Defend" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                },
+                {
+                    "name": "IntentRecoverHoldGround",
+                    "priority": 844,
+                    "when": [
+                        { "condition": "SelectedIntent", "value": "Recover" },
+                        { "condition": "HasAttackInRange", "invert": true }
+                    ],
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "50 Default Combat Rhythm",
+            "priority": 820,
+            "when": [
+                { "condition": "HasTarget" }
+            ],
+            "rules": [
+                {
+                    "name": "RhythmAttackInRange",
+                    "priority": 820,
+                    "when": [
+                        { "condition": "HasAttackInRange" },
+                        { "condition": "ActionDelayElapsed" },
+                        { "condition": "ConsecutiveAttackCountLessThan", "value": "3" },
+                        { "condition": "CanActivateAbility", "attackCategory": "Basic" }
+                    ],
+                    "do": [
+                        { "action": "ExecuteAttack", "attackCategory": "Basic" }
+                    ]
+                },
+                {
+                    "name": "RhythmHoldGround",
+                    "priority": 800,
+                    "do": [
+                        { "action": "KeepCurrentState" }
+                    ]
+                }
+            ]
+        }
+    ]
+}

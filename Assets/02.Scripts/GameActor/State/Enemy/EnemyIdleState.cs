@@ -15,6 +15,11 @@ namespace UPlayGround.State
         public override ActorStateId StateId => ActorStateId.Idle;
         
         private PlayerEquipment _equipment;
+
+        // 정지형(이동 불가) 액터의 대기 중 조준 회전용. OnEnter에서 1회 캐싱.
+        private EnemyAIContext _context;
+        private EnemyDetection _detection;
+
         internal EnemyIdleState(ActorMovementController controller) : base(controller)
         {
         }
@@ -28,6 +33,9 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
+
+            _context ??= gameActor.GetComponent<EnemyAIContext>();
+            _detection ??= gameActor.GetComponent<EnemyDetection>();
         }
 
         public override void UpdateState(float deltaTime)
@@ -42,6 +50,23 @@ namespace UPlayGround.State
         
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
+            // 정지형 액터는 이동하지 않는 대신 대기 중에도 타겟을 향해 몸을 돌린다.
+            if (_context != null && _context.FaceTargetWhileIdle
+                && _detection != null && _detection.HasTarget)
+            {
+                Vector3 dir = _detection.CurrentTarget.position - motor.TransientPosition;
+                dir.y = 0f;
+
+                if (dir.sqrMagnitude > 0.01f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(dir.normalized);
+                    currentRotation = Quaternion.Slerp(
+                        currentRotation, targetRot,
+                        1f - Mathf.Exp(-_context.IdleFaceTargetSharpness * deltaTime));
+                    return;
+                }
+            }
+
             // Idle 상태에서는 회전 유지 (또는 부드럽게 정면으로)
             currentRotation = currentRotation.normalized;
         }

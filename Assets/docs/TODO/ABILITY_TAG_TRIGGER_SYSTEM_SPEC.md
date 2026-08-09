@@ -1174,6 +1174,11 @@ Rules JSON의 `"action": "RequestAction"`이 여기로 매핑되고, SourceJson 
 
 `MonsterTagTriggerMigrationWindow` (Editor 전용).
 
+> 2026-08-09 기준 이 마이그레이션 창(`MonsterTagTriggerMigrationWindow`,
+> `PlayerTagTriggerMigrationWindow`)은 일회성 도구로서 코드에서 제거되었다.
+> 아래 표는 실행된 작업의 기록이며, 결과는 에셋의
+> `tagTriggerMigrationVersion`과 `AbilityDataIntegrityTests`가 보증한다.
+
 | 작업 | 내용 |
 | --- | --- |
 | M1 | `Trigger.*` 태그를 레지스트리에 일괄 등록 |

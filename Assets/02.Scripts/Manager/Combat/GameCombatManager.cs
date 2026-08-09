@@ -99,8 +99,8 @@ namespace UPlayGround.Manager.Combat
             float healScale) =>
             _gameVitalOrbHandler?.TrySpawnByPolicy(trigger, position, probability, count, healScale);
 
-        public float GetCounterWindowDuration(DefenseSuccessType type) =>
-            _defenseSuccessFeedbackHandler?.GetCounterWindowDuration(type) ?? -1f;
+        public float GetCounterWindowDuration(DefenseSuccessType type, PlayerActor player = null) =>
+            _defenseSuccessFeedbackHandler?.GetCounterWindowDuration(type, player) ?? -1f;
 
         public void PlayDefenseSuccess(
             DefenseSuccessType type,

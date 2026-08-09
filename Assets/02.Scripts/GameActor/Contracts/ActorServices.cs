@@ -113,7 +113,7 @@ namespace UPlayGround.Manager
             float probability,
             int count,
             float healScale);
-        float GetCounterWindowDuration(DefenseSuccessType type);
+        float GetCounterWindowDuration(DefenseSuccessType type, PlayerActor player = null);
         void PlayDefenseSuccess(
             DefenseSuccessType type,
             PlayerActor player,

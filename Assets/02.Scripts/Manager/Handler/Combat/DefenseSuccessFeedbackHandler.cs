@@ -53,17 +53,17 @@ namespace UPlayGround.Manager.Combat
         private float _originalAttackerScale = 1f;
 
         public void Play(DefenseSuccessType type, in DefenseSuccessFeedbackContext context)
-            => Play(GetProfile(type), context);
+            => Play(GetProfile(type, context.Player), context);
 
         /// <summary>
         /// 대시 회피 전용 피드백. 포스트프로세스(볼륨) 플래시는 적용하지 않고
         /// 타임스케일 슬로우/카메라/FX 연출만 발동한다.
         /// </summary>
         public void PlayDashEvade(in DefenseSuccessFeedbackContext context)
-            => Play(_dashEvadeProfile, context, applyPostProcess: false);
+            => Play(GetDashEvadeProfile(context.Player), context, applyPostProcess: false);
 
-        public float GetCounterWindowDuration(DefenseSuccessType type)
-            => GetProfile(type).counterWindowDuration;
+        public float GetCounterWindowDuration(DefenseSuccessType type, PlayerActor player = null)
+            => GetProfile(type, player).counterWindowDuration;
 
         public void Play(DefenseSuccessFeedbackProfile profile, in DefenseSuccessFeedbackContext context)
             => Play(profile, context, applyPostProcess: true);
@@ -101,7 +101,22 @@ namespace UPlayGround.Manager.Combat
             GameObjectManager.Instance?.ResetAllActorsTimeScaleIncludingPlayer();
         }
 
-        private DefenseSuccessFeedbackProfile GetProfile(DefenseSuccessType type)
+        private DefenseSuccessFeedbackProfile GetProfile(DefenseSuccessType type, PlayerActor player)
+        {
+            DefenseSuccessFeedbackProfile configured = player?
+                .Definition?
+                .EffectiveCombatDefensePolicy?
+                .GetFeedbackProfile(type);
+            if (configured != null)
+                return configured;
+
+            return GetDefaultProfile(type);
+        }
+
+        private DefenseSuccessFeedbackProfile GetDashEvadeProfile(PlayerActor player)
+            => player?.Definition?.EffectiveCombatDefensePolicy?.dashEvadeFeedback ?? _dashEvadeProfile;
+
+        private DefenseSuccessFeedbackProfile GetDefaultProfile(DefenseSuccessType type)
         {
             return type switch
             {

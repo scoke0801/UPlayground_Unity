@@ -305,6 +305,8 @@ namespace UPlayGround.Components
         [Header("Guard Settings")]
         [SerializeField] private int   _maxGuardCount   = 3;
         [SerializeField] private float _guardResetDelay = 3f;
+        [Tooltip("가드 시작 후 퍼펙트 가드로 인정하는 판정 창 (초)")]
+        [SerializeField] private float _perfectGuardWindow = 0.3f;
         [Tooltip("퍼펙트 가드 후 반격 입력을 받는 창 길이 (초)")]
         [SerializeField] private float _perfectGuardCounterWindow = 1.5f;
         [Tooltip("패리 후 반격 입력을 받는 창 길이 (초)")]
@@ -323,6 +325,8 @@ namespace UPlayGround.Components
         public bool IsGuardBroken => _defenseController != null && _defenseController.IsGuardBroken;
         public int GuardHitCount => _defenseController?.GuardHitCount ?? 0;
         public int MaxGuardCount => _defenseController?.MaxGuardCount ?? Mathf.Max(1, _maxGuardCount);
+        public float PerfectGuardWindowDuration =>
+            _defenseController?.PerfectGuardWindowDuration ?? Mathf.Max(0f, _perfectGuardWindow);
 
         /// <summary> 퍼펙트 가드 반격 창이 열려 있는지 여부 </summary>
         public bool IsPerfectGuardCounterAvailable => _defenseController != null && _defenseController.IsPerfectGuardCounterAvailable;
@@ -525,6 +529,7 @@ namespace UPlayGround.Components
                 _parryCounterWindow,
                 _dodgeCounterWindow,
                 _assistParryWindow,
+                _perfectGuardWindow,
                 _perfectDodgeWindow);
             _attackController = new PlayerAttackController();
             _comboController = new PlayerComboController();

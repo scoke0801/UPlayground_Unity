@@ -25,7 +25,6 @@ namespace UPlayGround.State
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;
         private float _guardStartTime;
-        private const float PERFECT_GUARD_WINDOW = 0.3f;
         private const float GuardBlockRecoilSpeed = 1.8f;
         private const float GuardBlockRecoilDuration = 0.16f;
         private const float HeavyGuardPushMultiplier = 1.2f;
@@ -205,7 +204,7 @@ namespace UPlayGround.State
             
             // Just Guard (Perfect Guard) 타이밍 체크
             float timeSinceGuardStart = Time.time - _guardStartTime;
-            bool isPerfectGuard = timeSinceGuardStart <= PERFECT_GUARD_WINDOW;
+            bool isPerfectGuard = timeSinceGuardStart <= _combat.PerfectGuardWindowDuration;
             
             // Block 모션이 없는 무기(예: Whip)면 재생 결과가 null이므로 그대로 가드 루프를 유지한다.
             // Block 종료 후 Guard 복귀는 UpdateState의 EnsureGuardMotionPlaying이 담당한다.
@@ -230,7 +229,9 @@ namespace UPlayGround.State
                     }
 
                     _combat.OpenPerfectGuardCounterWindow(
-                        ActorSvc.Combat?.GetCounterWindowDuration(DefenseSuccessType.PerfectGuard) ?? -1f);
+                        ActorSvc.Combat?.GetCounterWindowDuration(
+                            DefenseSuccessType.PerfectGuard,
+                            playerActor) ?? -1f);
                 }
 
                 Vector3 spawnPos = gameActor.transform.position + gameActor.transform.forward;

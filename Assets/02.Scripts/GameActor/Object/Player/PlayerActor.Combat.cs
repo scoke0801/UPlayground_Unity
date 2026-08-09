@@ -185,7 +185,7 @@ namespace UPlayGround
 
             // 패리 반격 창을 먼저 열어둬야 상태 전환 후 반격 입력을 받을 수 있다
             _combat.OpenParryCounterWindow(
-                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.Parry) ?? -1f);
+                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.Parry, this) ?? -1f);
 
             // 히트 감지를 즉시 비활성화해 이후 PerformHitDetection이 HitStop을 덮어쓰지 않도록 한다
             _combat.SetEnableCollision(false);
@@ -224,7 +224,7 @@ namespace UPlayGround
 
             _combat.OpenDodgeCounterWindow(
                 attackData,
-                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.PerfectDodge) ?? -1f);
+                GameCombatMgr?.GetCounterWindowDuration(DefenseSuccessType.PerfectDodge, this) ?? -1f);
 
             Vector3 feedbackPos = TryGetSocket(ActorSocketType.Center, out var center)
                 ? center.position

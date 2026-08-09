@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Components
 {
@@ -12,6 +13,7 @@ namespace UPlayGround.Components
         private readonly float _parryCounterWindow;
         private readonly float _dodgeCounterWindow;
         private readonly float _assistParryWindow;
+        private readonly float _perfectGuardWindow;
         private readonly float _perfectDodgeWindow;
 
         private int _guardHitCount;
@@ -31,6 +33,7 @@ namespace UPlayGround.Components
             float parryCounterWindow,
             float dodgeCounterWindow,
             float assistParryWindow,
+            float perfectGuardWindow,
             float perfectDodgeWindow)
         {
             _owner = owner;
@@ -40,23 +43,33 @@ namespace UPlayGround.Components
             _parryCounterWindow = Mathf.Max(0f, parryCounterWindow);
             _dodgeCounterWindow = Mathf.Max(0f, dodgeCounterWindow);
             _assistParryWindow = Mathf.Max(0f, assistParryWindow);
+            _perfectGuardWindow = Mathf.Max(0f, perfectGuardWindow);
             _perfectDodgeWindow = Mathf.Max(0f, perfectDodgeWindow);
         }
 
         public bool IsGuardBroken { get; private set; }
         public int GuardHitCount => _guardHitCount;
-        public int MaxGuardCount => _maxGuardCount;
+        public int MaxGuardCount => DefensePolicy?.ResolveMaxGuardCount(_maxGuardCount) ?? _maxGuardCount;
         private float Now => _owner != null ? _owner.ActorTime : Time.time;
+        private CombatDefensePolicySO DefensePolicy => _owner?.Definition?.EffectiveCombatDefensePolicy;
 
         public bool IsPerfectGuardCounterAvailable => Now <= _perfectGuardCounterEndTime;
         public bool IsParryCounterAvailable => Now <= _parryCounterEndTime;
         public bool IsDodgeCounterAvailable => Now <= _dodgeCounterEndTime;
         public GameActor DodgeCounterTarget => IsDodgeCounterAvailable ? _dodgeCounterTarget : null;
         public bool IsAssistParryWindow => Now <= _assistParryWindowEnd;
-        public float AssistParryWindowDuration => _assistParryWindow;
+        public float AssistParryWindowDuration =>
+            DefensePolicy?.ResolveAssistParryWindow(_assistParryWindow) ?? _assistParryWindow;
+        public float PerfectGuardWindowDuration =>
+            DefensePolicy?.ResolvePerfectGuardWindow(_perfectGuardWindow) ?? _perfectGuardWindow;
         public bool IsPerfectDodgeWindow => Now <= _perfectDodgeWindowEnd;
 
-        public void OpenPerfectDodge() => _perfectDodgeWindowEnd = Now + _perfectDodgeWindow;
+        public void OpenPerfectDodge()
+        {
+            float duration = DefensePolicy?.ResolvePerfectDodgeWindow(_perfectDodgeWindow)
+                             ?? _perfectDodgeWindow;
+            _perfectDodgeWindowEnd = Now + duration;
+        }
         public void ClosePerfectDodge() => _perfectDodgeWindowEnd = -999f;
 
         public void OpenPerfectGuardCounter(float duration = -1f)
@@ -96,7 +109,7 @@ namespace UPlayGround.Components
         }
 
         public void OpenAssistParry(float duration = -1f)
-            => _assistParryWindowEnd = Now + ResolveDuration(duration, _assistParryWindow);
+            => _assistParryWindowEnd = Now + ResolveDuration(duration, AssistParryWindowDuration);
 
         public void CloseAssistParry() => _assistParryWindowEnd = -999f;
 
@@ -104,11 +117,16 @@ namespace UPlayGround.Components
         {
             if (IsGuardBroken) return true;
             _guardHitCount++;
-            IsGuardBroken = _guardHitCount >= _maxGuardCount;
+            IsGuardBroken = _guardHitCount >= MaxGuardCount;
             return IsGuardBroken;
         }
 
-        public bool CanGuard() => Now - _guardEndTime >= _guardResetDelay;
+        public bool CanGuard()
+        {
+            float resetDelay = DefensePolicy?.ResolveGuardResetDelay(_guardResetDelay)
+                               ?? _guardResetDelay;
+            return Now - _guardEndTime >= resetDelay;
+        }
 
         public void BeginGuard()
         {

@@ -303,9 +303,9 @@ namespace UPlayGround.Components
         }
 
         /// <summary>
-        /// 근접 AI가 공격을 시작해도 되는 보수적인 피벗 간 거리.
-        /// activation은 선택 게이트, HitPhase targetingRange는 공격 데이터가 아는 위협 반경,
-        /// personalSpace는 대형 액터의 몸집 여유로 사용한다.
+        /// 근접 AI가 공격을 시작해도 되는 피벗 간 거리.
+        /// 베이크된 activation 최대 거리가 있으면 실제 Motion 도달 거리를 반영한 권위값으로 사용한다.
+        /// activation 최대 거리가 없는 레거시 데이터만 HitPhase와 personalSpace로 보조 추정한다.
         /// </summary>
         public static float ResolveEffectiveMaxDistance(
             GameplayAbilitySO ability,
@@ -315,9 +315,12 @@ namespace UPlayGround.Components
             if (ability?.activation == null || attackInfo?.baseInfo == null)
                 return 0f;
 
-            float authoredMax = ability.activation.maxDistance;
+            float authoredMax = Mathf.Max(0f, ability.activation.maxDistance);
+            float authoredMin = Mathf.Max(0f, ability.activation.minDistance);
             if (attackInfo.baseInfo.attackType != AttackType.Melee)
                 return authoredMax;
+            if (authoredMax > 0f)
+                return Mathf.Max(authoredMin, authoredMax);
 
             float threatRange = 0f;
             if (attackInfo.baseInfo.hitPhases != null)
@@ -336,12 +339,7 @@ namespace UPlayGround.Components
             if (dataDrivenApproach <= 0f)
                 return authoredMax;
 
-            // personalSpace 하한은 피벗이 물리적으로 더 접근하지 못하는 대형 액터를 위한 값이다.
-            // 실제 포즈에서 베이크된 activation 최대 거리가 있으면 이를 절대 넘지 않는다.
-            float effectiveMax = authoredMax > 0f
-                ? Mathf.Min(authoredMax, dataDrivenApproach)
-                : dataDrivenApproach;
-            return Mathf.Max(Mathf.Max(0f, ability.activation.minDistance), effectiveMax);
+            return Mathf.Max(authoredMin, dataDrivenApproach);
         }
 
         private static bool MatchesStaticRangeConditions(

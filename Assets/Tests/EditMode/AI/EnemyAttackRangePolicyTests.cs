@@ -252,7 +252,7 @@ namespace UPlayGround.AI.Tests
         }
 
         [Test]
-        public void 근접_안전접근은_HitPhase와_PersonalSpace로_공격_시작거리를_좁힌다()
+        public void 베이크된_Activation_최대거리는_HitPhase_보조거리로_축소하지_않는다()
         {
             AbilityAttackInfo attackInfo = CreateAttackInfo();
             attackInfo.baseInfo.hitPhases[0].targetingRange = 1.5f;
@@ -261,7 +261,7 @@ namespace UPlayGround.AI.Tests
                 EnemyAttackRangePolicy.CoversDistance(
                     _ability,
                     attackInfo,
-                    1.3f,
+                    5f,
                     currentLevel: 1,
                     useMeleeApproachRange: true,
                     personalSpaceDistance: 0.8f),
@@ -270,7 +270,7 @@ namespace UPlayGround.AI.Tests
                 EnemyAttackRangePolicy.CoversDistance(
                     _ability,
                     attackInfo,
-                    1.5f,
+                    5.1f,
                     currentLevel: 1,
                     useMeleeApproachRange: true,
                     personalSpaceDistance: 0.8f),
@@ -278,10 +278,12 @@ namespace UPlayGround.AI.Tests
         }
 
         [Test]
-        public void 대형_근접_몬스터는_PersonalSpace만큼_접근거리를_확보한다()
+        public void Activation_최대거리가_없으면_PersonalSpace로_접근거리를_보완한다()
         {
             AbilityAttackInfo attackInfo = CreateAttackInfo();
             attackInfo.baseInfo.hitPhases[0].targetingRange = 1.5f;
+            _ability.activation.minDistance = 0f;
+            _ability.activation.maxDistance = 0f;
 
             float effectiveMax = EnemyAttackRangePolicy.ResolveEffectiveMaxDistance(
                 _ability,
@@ -305,6 +307,49 @@ namespace UPlayGround.AI.Tests
                 personalSpaceDistance: 0.8f);
 
             Assert.That(effectiveMax, Is.EqualTo(0.8f).Within(0.001f));
+        }
+
+        [TestCase(
+            "Assets/10.Datas/Ability/Actor/ChildPlant/AbilitySet_ChildPlant.asset",
+            1.6f,
+            1.05f)]
+        [TestCase(
+            "Assets/10.Datas/Ability/Actor/Skeleton_Common/AbilitySet_Skeleton_Common.asset",
+            1.2f,
+            1.05f)]
+        [TestCase(
+            "Assets/10.Datas/Ability/Actor/Skeleton_Sword/AbilitySet_Skeleton_Sword.asset",
+            1.85f,
+            1.05f)]
+        public void 대상_근접_몬스터는_Behavior_교전거리에서_모든_BT_공격카테고리_후보를_가진다(
+            string abilitySetPath,
+            float combatDistance,
+            float personalSpaceDistance)
+        {
+            AbilitySetSO abilitySet = AssetDatabase.LoadAssetAtPath<AbilitySetSO>(abilitySetPath);
+
+            Assert.That(abilitySet, Is.Not.Null, $"AbilitySet을 찾지 못했습니다: {abilitySetPath}");
+
+            AbilityAttackCategory[] requestedCategories =
+            {
+                AbilityAttackCategory.Basic,
+                AbilityAttackCategory.Heavy,
+                AbilityAttackCategory.Skill,
+            };
+
+            foreach (AbilityAttackCategory category in requestedCategories)
+            {
+                Assert.That(
+                    EnemyAttackRangePolicy.HasAttackInRange(
+                        abilitySet,
+                        combatDistance,
+                        currentLevel: 1,
+                        attackCategory: category,
+                        useMeleeApproachRange: true,
+                        personalSpaceDistance: personalSpaceDistance),
+                    Is.True,
+                    $"{abilitySet.name}이 {category} 요청/교전 거리 {combatDistance:0.00}m에서 공격 후보를 찾지 못했습니다.");
+            }
         }
 
         [Test]

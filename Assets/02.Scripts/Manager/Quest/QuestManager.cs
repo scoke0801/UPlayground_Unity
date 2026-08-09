@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
+using UPlayGround.Data.Cycle;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Sound;
 using UPlayGround.Data.UI;
@@ -31,6 +32,10 @@ namespace UPlayGround.Manager
     ///   ItemCraft     → NotifyItemCrafted(recipeId, quantity)
     ///   ItemEnhance   → NotifyItemEnhanced(itemId)
     ///   ReachLocation → NotifyLocationReached(locationId)
+    ///   EncounterClear → NotifyEncounterCleared(encounterId)
+    ///   CycleBossDefeat → NotifyCycleBossDefeated(spawnId)
+    ///   CycleLootCollect → NotifyCycleLootCollected(itemId, count)
+    ///   InteractionComplete → NotifyInteractionCompleted(interactionId)
     ///
     /// ── 이벤트 구독 ─────────────────────────────────────────────────
     ///   EventManager.Subscribe&lt;QuestEvent, QuestStateEventData&gt;(QuestEvent.QuestAccepted, ...)
@@ -51,6 +56,7 @@ namespace UPlayGround.Manager
 
         // ──── 데이터 ────
         private QuestDatabase _db;
+        private readonly Dictionary<string, QuestSO> _runtimeQuestDefinitions = new(StringComparer.Ordinal);
 
         // ──── 런타임 상태 (내부는 string 키로 관리) ────
         private readonly Dictionary<string, QuestRuntimeData> _activeQuests     = new();
@@ -80,10 +86,14 @@ namespace UPlayGround.Manager
         public UniTask InitializeAsync(CancellationToken cancellationToken) =>
             LoadDatabaseAsync(cancellationToken);
 
-        public void AfterInit() { }
+        public void AfterInit()
+        {
+            SubscribeCycleProgress();
+        }
 
         public void Dispose()
         {
+            UnsubscribeCycleProgress();
             _activeQuests.Clear();
             _completedQuestIds.Clear();
             _failedQuestIds.Clear();
@@ -91,6 +101,7 @@ namespace UPlayGround.Manager
             _pendingReachedLocationIds.Clear();
             _trackedQuestId = null;
             _isQuestTrackingSuppressed = false;
+            DestroyRuntimeQuestDefinitions();
             _db = null;
             IsDBLoaded = false;
         }
@@ -169,8 +180,7 @@ namespace UPlayGround.Manager
         public bool AbandonQuest(string questId) => AbandonQuestById(questId);
 
         /// <summary>ID로 QuestSO 정의를 조회한다. DB 미로드/없음이면 null. (UI 상세 표시용)</summary>
-        public QuestSO GetQuestData(string questId) =>
-            IsDBLoaded && !string.IsNullOrEmpty(questId) ? _db.GetQuest(questId) : null;
+        public QuestSO GetQuestData(string questId) => ResolveQuestDefinition(questId);
 
         /// <summary>진행 중인 퀘스트를 실패 처리한다.</summary>
         public bool FailQuest(QuestIdType questId) => FailQuestById(questId.ToQuestId());
@@ -185,8 +195,68 @@ namespace UPlayGround.Manager
         public QuestStatus GetQuestStatus(string questId) => GetQuestStatusById(questId);
 
         /// <summary>DB에 정의된 모든 퀘스트를 열거한다. (치트/디버그 도구용)</summary>
-        public IEnumerable<QuestSO> GetAllQuestDefinitions() =>
-            IsDBLoaded && _db != null ? _db.GetAllQuests() : System.Linq.Enumerable.Empty<QuestSO>();
+        public IEnumerable<QuestSO> GetAllQuestDefinitions()
+        {
+            if (IsDBLoaded && _db != null)
+                foreach (QuestSO quest in _db.GetAllQuests())
+                    if (quest != null) yield return quest;
+            foreach (QuestSO quest in _runtimeQuestDefinitions.Values)
+                if (quest != null) yield return quest;
+        }
+
+        /// <summary>
+        /// 현재 실행에만 존재하는 퀘스트 정의를 등록한다. 저장 파일에는 기록하지 않으며,
+        /// 월드 생성 계획을 복원할 때 같은 ID로 다시 생성한다.
+        /// </summary>
+        public bool RegisterRuntimeQuest(QuestSO quest, bool acceptImmediately = true)
+        {
+            if (quest == null || string.IsNullOrWhiteSpace(quest.questId))
+            {
+                Debug.LogWarning("[QuestManager] 런타임 퀘스트 ID가 비어 있습니다.");
+                return false;
+            }
+
+            if (_db?.GetQuest(quest.questId) != null)
+            {
+                Debug.LogError($"[QuestManager] DB 퀘스트와 런타임 퀘스트 ID가 중복됩니다: {quest.questId}");
+                return false;
+            }
+
+            if (_runtimeQuestDefinitions.TryGetValue(quest.questId, out QuestSO previous) && previous != quest)
+            {
+                string previousTrackedQuestId = _trackedQuestId;
+                bool refreshTrackedQuest = string.Equals(
+                    previousTrackedQuestId, quest.questId, StringComparison.Ordinal);
+                RemoveRuntimeQuestState(quest.questId);
+                DestroyRuntimeQuestDefinition(previous);
+                _runtimeQuestDefinitions[quest.questId] = quest;
+                bool registered = !acceptImmediately
+                                  || _activeQuests.ContainsKey(quest.questId)
+                                  || AcceptQuestById(quest.questId);
+                PublishRuntimeTrackingChange(previousTrackedQuestId, refreshTrackedQuest);
+                return registered;
+            }
+
+            _runtimeQuestDefinitions[quest.questId] = quest;
+            return !acceptImmediately || _activeQuests.ContainsKey(quest.questId) || AcceptQuestById(quest.questId);
+        }
+
+        public void UnregisterRuntimeQuests(string idPrefix)
+        {
+            if (string.IsNullOrEmpty(idPrefix)) return;
+            string previousTrackedQuestId = _trackedQuestId;
+            List<string> ids = new();
+            foreach (string id in _runtimeQuestDefinitions.Keys)
+                if (id.StartsWith(idPrefix, StringComparison.Ordinal)) ids.Add(id);
+            foreach (string id in ids)
+            {
+                QuestSO definition = _runtimeQuestDefinitions[id];
+                _runtimeQuestDefinitions.Remove(id);
+                RemoveRuntimeQuestState(id);
+                DestroyRuntimeQuestDefinition(definition);
+            }
+            PublishRuntimeTrackingChange(previousTrackedQuestId);
+        }
 
         /// <summary>퀘스트 완료 여부를 반환한다.</summary>
         public bool IsQuestCompleted(QuestIdType questId) => _completedQuestIds.Contains(questId.ToQuestId());
@@ -311,11 +381,9 @@ namespace UPlayGround.Manager
         private List<QuestSO> ResolveQuests(IEnumerable<string> questIds)
         {
             var result = new List<QuestSO>();
-            if (!IsDBLoaded) return result;
-
             foreach (var id in questIds)
             {
-                var q = _db.GetQuest(id);
+                var q = ResolveQuestDefinition(id);
                 if (q != null) result.Add(q);
             }
             return result;
@@ -334,14 +402,14 @@ namespace UPlayGround.Manager
                 return false;
             }
 
-            if (!IsDBLoaded)
+            QuestSO questSO = ResolveQuestDefinition(questId);
+            if (questSO == null && !IsDBLoaded)
             {
                 _pendingAcceptQuestIds.Add(questId);
                 Debug.Log($"[QuestManager] DB 로드 전 퀘스트 수락 요청 보류: {questId}");
                 return true;
             }
 
-            var questSO = _db.GetQuest(questId);
             if (questSO == null)
             {
                 Debug.LogWarning($"[QuestManager] 존재하지 않는 퀘스트: {questId}");
@@ -464,7 +532,7 @@ namespace UPlayGround.Manager
                 return QuestStatus.Failed;
             if (IsDBLoaded)
             {
-                var questSO = _db.GetQuest(questId);
+                var questSO = ResolveQuestDefinition(questId);
                 if (questSO != null && !CheckPrerequisites(questSO))
                     return QuestStatus.Locked;
             }
@@ -661,6 +729,39 @@ namespace UPlayGround.Manager
             }
         }
 
+        public void NotifyEncounterCleared(string encounterId)
+        {
+            UpdateStringObjectives(QuestObjectiveType.EncounterClear, encounterId, 1);
+        }
+
+        public void NotifyCycleBossDefeated(string spawnId)
+        {
+            UpdateStringObjectives(QuestObjectiveType.CycleBossDefeat, spawnId, 1);
+        }
+
+        public void NotifyCycleLootCollected(int itemId, int count)
+        {
+            if (itemId <= 0 || count <= 0) return;
+            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
+            foreach (QuestRuntimeData runtime in runtimes)
+            {
+                foreach (QuestObjectiveData obj in runtime.QuestSO.objectives)
+                {
+                    if (obj.type != QuestObjectiveType.CycleLootCollect) continue;
+                    if (obj.targetId != 0 && obj.targetId != itemId) continue;
+                    if (runtime.IsObjectiveComplete(obj)) continue;
+                    runtime.AddProgress(obj.objectiveId, count);
+                    SendObjectiveEvent(runtime, obj);
+                    TryAutoComplete(runtime);
+                }
+            }
+        }
+
+        public void NotifyInteractionCompleted(string interactionId)
+        {
+            UpdateStringObjectives(QuestObjectiveType.InteractionComplete, interactionId, 1);
+        }
+
         #endregion
 
         // ──────────────────────────────────────────────────────────
@@ -698,6 +799,122 @@ namespace UPlayGround.Manager
                     TryAutoComplete(runtime);
                 }
             }
+        }
+
+        private void UpdateStringObjectives(QuestObjectiveType type, string targetStringId, int count)
+        {
+            if (string.IsNullOrWhiteSpace(targetStringId) || count <= 0) return;
+            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
+            foreach (QuestRuntimeData runtime in runtimes)
+            {
+                foreach (QuestObjectiveData obj in runtime.QuestSO.objectives)
+                {
+                    if (obj.type != type) continue;
+                    if (!string.IsNullOrEmpty(obj.targetStringId) &&
+                        !string.Equals(obj.targetStringId, targetStringId, StringComparison.Ordinal)) continue;
+                    if (runtime.IsObjectiveComplete(obj)) continue;
+                    runtime.AddProgress(obj.objectiveId, count);
+                    SendObjectiveEvent(runtime, obj);
+                    TryAutoComplete(runtime);
+                }
+            }
+        }
+
+        private QuestSO ResolveQuestDefinition(string questId)
+        {
+            if (string.IsNullOrEmpty(questId)) return null;
+            if (_runtimeQuestDefinitions.TryGetValue(questId, out QuestSO runtimeQuest))
+                return runtimeQuest;
+            return IsDBLoaded && _db != null ? _db.GetQuest(questId) : null;
+        }
+
+        private void SubscribeCycleProgress()
+        {
+            CycleRunManager cycle = CycleRunManager.Instance;
+            if (cycle == null) return;
+            cycle.OnEncounterCleared += NotifyEncounterCleared;
+            cycle.OnCycleLootCollected += NotifyCycleLootCollected;
+            cycle.OnInteractionCompleted += NotifyInteractionCompleted;
+            cycle.OnBossDefeated += OnCycleBossDefeated;
+        }
+
+        private void UnsubscribeCycleProgress()
+        {
+            CycleRunManager cycle = CycleRunManager.Instance;
+            if (cycle == null) return;
+            cycle.OnEncounterCleared -= NotifyEncounterCleared;
+            cycle.OnCycleLootCollected -= NotifyCycleLootCollected;
+            cycle.OnInteractionCompleted -= NotifyInteractionCompleted;
+            cycle.OnBossDefeated -= OnCycleBossDefeated;
+        }
+
+        private void OnCycleBossDefeated(CycleBossPlacement placement)
+        {
+            if (placement != null) NotifyCycleBossDefeated(placement.spawnId);
+        }
+
+        private void RemoveRuntimeQuestState(string questId)
+        {
+            _activeQuests.Remove(questId);
+            _completedQuestIds.Remove(questId);
+            _failedQuestIds.Remove(questId);
+            _pendingAcceptQuestIds.Remove(questId);
+            if (!string.Equals(_trackedQuestId, questId, StringComparison.Ordinal)) return;
+            _trackedQuestId = null;
+        }
+
+        private void PublishRuntimeTrackingChange(
+            string previousTrackedQuestId,
+            bool forceRefresh = false)
+        {
+            // 사용자가 명시적으로 추적을 끈 상태라면 런타임 정의 정리가
+            // 임의로 다른 퀘스트 추적을 다시 켜서는 안 된다.
+            if (string.IsNullOrEmpty(previousTrackedQuestId)
+                && _isQuestTrackingSuppressed)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(_trackedQuestId))
+                TrackFirstActiveQuest(false);
+            if (!forceRefresh
+                && string.Equals(
+                    previousTrackedQuestId,
+                    _trackedQuestId,
+                    StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(_trackedQuestId)
+                && _activeQuests.TryGetValue(
+                    _trackedQuestId,
+                    out QuestRuntimeData runtime)
+                && runtime?.QuestSO != null)
+            {
+                SendQuestEvent(
+                    QuestEvent.QuestTracked,
+                    _trackedQuestId,
+                    runtime.QuestSO.questName);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(previousTrackedQuestId))
+                SendQuestEvent(QuestEvent.QuestUntracked, previousTrackedQuestId);
+        }
+
+        private void DestroyRuntimeQuestDefinitions()
+        {
+            foreach (QuestSO definition in _runtimeQuestDefinitions.Values)
+                DestroyRuntimeQuestDefinition(definition);
+            _runtimeQuestDefinitions.Clear();
+        }
+
+        private static void DestroyRuntimeQuestDefinition(QuestSO definition)
+        {
+            if (definition == null) return;
+            if (Application.isPlaying) Destroy(definition);
+            else DestroyImmediate(definition);
         }
 
         private void RefreshItemCollectObjectives(QuestRuntimeData runtime)
@@ -884,14 +1101,21 @@ namespace UPlayGround.Manager
 
         public void ExportSaveData(GameSaveData saveData)
         {
-            saveData.quest.completedQuestIds = new List<string>(_completedQuestIds);
-            saveData.quest.failedQuestIds = new List<string>(_failedQuestIds);
-            saveData.quest.trackedQuestId = _trackedQuestId;
+            saveData.quest.completedQuestIds = new List<string>();
+            foreach (string id in _completedQuestIds)
+                if (!_runtimeQuestDefinitions.ContainsKey(id)) saveData.quest.completedQuestIds.Add(id);
+            saveData.quest.failedQuestIds = new List<string>();
+            foreach (string id in _failedQuestIds)
+                if (!_runtimeQuestDefinitions.ContainsKey(id)) saveData.quest.failedQuestIds.Add(id);
+            saveData.quest.trackedQuestId = !_runtimeQuestDefinitions.ContainsKey(_trackedQuestId ?? string.Empty)
+                ? _trackedQuestId
+                : null;
             saveData.quest.questTrackingSuppressed = _isQuestTrackingSuppressed;
 
             saveData.quest.activeQuests.Clear();
             foreach (var kv in _activeQuests)
             {
+                if (_runtimeQuestDefinitions.ContainsKey(kv.Key)) continue;
                 saveData.quest.activeQuests.Add(new ActiveQuestSaveEntry
                 {
                     questId           = kv.Key,
@@ -920,6 +1144,7 @@ namespace UPlayGround.Manager
             _isQuestTrackingSuppressed = false;
             _autoAcceptChainDepth = 0;
             _pendingNewGameAutoAccept = true;
+            DestroyRuntimeQuestDefinitions();
         }
 
         private void ApplyPendingLoad()

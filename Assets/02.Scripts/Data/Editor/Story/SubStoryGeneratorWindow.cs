@@ -38,7 +38,7 @@ namespace UPlayGround.Editor
                 IsRepeatable = true,
                 Objectives = new[]
                 {
-                    ObjectiveSeed.Kill("obj_kill_skeleton_patrol", "길목의 Skeleton을 처치한다.", ActorIdType._100005, 5)
+                    ObjectiveSeed.Kill("obj_kill_skeleton_patrol", "길목의 Skeleton을 처치한다.", ActorIdType.Skeleton_Sword, 5)
                 },
                 Dialogues = new[]
                 {
@@ -463,7 +463,7 @@ namespace UPlayGround.Editor
             }
 
             public static ObjectiveSeed Kill(string objectiveId, string description, ActorIdType actorId, int count)
-                => new(objectiveId, description, QuestObjectiveType.MonsterKill, (int)actorId, string.Empty, count);
+                => new(objectiveId, description, QuestObjectiveType.MonsterKill, 0, actorId.ToActorId(), count);
 
             public static ObjectiveSeed Reach(string objectiveId, string description, string locationId)
                 => new(objectiveId, description, QuestObjectiveType.ReachLocation, 0, locationId, 1);

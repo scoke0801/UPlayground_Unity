@@ -22,9 +22,9 @@ MonoBehaviour:
   - objectiveId: obj_kill_highland_golem
     description: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD55C\uB2E4."
     type: 3
-    targetId: 4
+    targetId: 0
     npcId: 0
-    targetStringId: 
+    targetStringId: Golem_Normal
     requiredCount: 1
   reward:
     gold: 160

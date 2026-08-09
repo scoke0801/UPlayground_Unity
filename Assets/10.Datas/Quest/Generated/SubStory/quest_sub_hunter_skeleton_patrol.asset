@@ -22,9 +22,9 @@ MonoBehaviour:
   - objectiveId: obj_kill_skeleton_patrol
     description: "\uAE38\uBAA9\uC758 Skeleton\uC744 \uCC98\uCE58\uD55C\uB2E4."
     type: 3
-    targetId: 1
+    targetId: 0
     npcId: 0
-    targetStringId: 
+    targetStringId: Skeleton_Sword
     requiredCount: 5
   reward:
     gold: 80

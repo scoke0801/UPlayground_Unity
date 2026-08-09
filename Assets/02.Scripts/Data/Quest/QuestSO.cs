@@ -14,11 +14,15 @@ namespace UPlayGround.Data.Quest
     ///   ItemCollect  → QuestManager.Instance.NotifyItemCollected(itemId, count)
     ///   ItemDeliver  → QuestManager.Instance.NotifyItemDelivered(npcId, itemId, count)
     ///   ItemUse      → QuestManager.Instance.NotifyItemUsed(itemId, count)
-    ///   MonsterKill  → QuestManager.Instance.NotifyMonsterKill(monsterId)
+    ///   MonsterKill  → QuestManager.Instance.NotifyMonsterKill(actorId)
     ///   StoryProgress→ QuestManager.Instance.NotifyStoryProgress(progress)
     ///   ItemCraft    → QuestManager.Instance.NotifyItemCrafted(recipeId, quantity)
     ///   ItemEnhance  → QuestManager.Instance.NotifyItemEnhanced(itemId)
     ///   ReachLocation→ QuestManager.Instance.NotifyLocationReached(locationId)
+    ///   EncounterClear → CycleRunManager.OnEncounterCleared
+    ///   CycleBossDefeat → CycleRunManager.OnBossDefeated
+    ///   CycleLootCollect → CycleRunManager.OnCycleLootCollected
+    ///   InteractionComplete → CycleRunManager.OnInteractionCompleted
     /// </summary>
     [CreateAssetMenu(fileName = "QuestSO", menuName = "UPlayGround/퀘스트/Quest")]
     public class QuestSO : ScriptableObject

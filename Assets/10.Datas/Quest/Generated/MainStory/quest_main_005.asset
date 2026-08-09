@@ -26,9 +26,9 @@ MonoBehaviour:
   - objectiveId: obj_kill_lich
     description: "\uB358\uC804 \uC785\uAD6C\uC758 Lich\uB97C \uCC98\uCE58\uD55C\uB2E4."
     type: 3
-    targetId: 7
+    targetId: 0
     npcId: 0
-    targetStringId: 
+    targetStringId: Lich_Normal
     requiredCount: 1
   reward:
     gold: 300

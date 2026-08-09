@@ -23,9 +23,9 @@ MonoBehaviour:
   - objectiveId: obj_kill_spider_web
     description: "\uAC70\uBBF8 \uC232 \uBC14\uAE65\uCABD\uC758 Spider\uB97C \uCC98\uCE58\uD55C\uB2E4."
     type: 3
-    targetId: 19
+    targetId: 0
     npcId: 0
-    targetStringId: 
+    targetStringId: SpiderMinion_1
     requiredCount: 6
   reward:
     gold: 120

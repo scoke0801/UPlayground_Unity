@@ -100,7 +100,10 @@ namespace UPlayGround.Editor
             data.type = objectiveType;
 
             if (objectiveType == QuestObjectiveType.MonsterKill)
-                data.targetId = ResolveActorId(objective.actorId);
+            {
+                data.targetId = 0;
+                data.targetStringId = ResolveActorId(objective.actorId);
+            }
             else
                 data.targetId = objective.targetId;
 
@@ -110,10 +113,12 @@ namespace UPlayGround.Editor
         public static DialogueChannel ResolveChannel(string channel)
             => System.Enum.TryParse(channel, out DialogueChannel result) ? result : DialogueChannel.Main;
 
-        private static int ResolveActorId(string actorId)
+        private static string ResolveActorId(string actorId)
         {
-            if (string.IsNullOrWhiteSpace(actorId)) return 0;
-            return System.Enum.TryParse(actorId, out ActorIdType result) ? (int)result : 0;
+            if (string.IsNullOrWhiteSpace(actorId)) return string.Empty;
+            return System.Enum.TryParse(actorId, out ActorIdType result)
+                ? result.ToActorId()
+                : actorId.Trim();
         }
 
         public static string Summary(StoryGeneratorDocument document)

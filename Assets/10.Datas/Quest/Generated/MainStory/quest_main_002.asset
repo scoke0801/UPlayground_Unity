@@ -26,9 +26,9 @@ MonoBehaviour:
     description: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744
       \uCC98\uCE58\uD55C\uB2E4."
     type: 3
-    targetId: 16
+    targetId: 0
     npcId: 0
-    targetStringId: 
+    targetStringId: SpiderQueen_1
     requiredCount: 1
   reward:
     gold: 180

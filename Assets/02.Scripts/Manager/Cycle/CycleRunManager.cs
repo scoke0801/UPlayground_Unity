@@ -25,6 +25,7 @@ namespace UPlayGround.Manager
 
         private CycleRunState _current = CycleRunState.CreateInactive();
         private ICycleWorldSpawnService _worldSpawnService;
+        private CycleWorldContext _configuredWorldContext;
         private ICycleSettlementService _settlementService;
         private CycleLayoutState _layout;
         private bool _ownsRuntimeConfig;
@@ -51,6 +52,9 @@ namespace UPlayGround.Manager
         public event Action<int> OnCycleCompleted;
         public event Action<CycleBossPlacement> OnBossDiscovered;
         public event Action<CycleBossPlacement> OnBossDefeated;
+        public event Action<string> OnEncounterCleared;
+        public event Action<int, int> OnCycleLootCollected;
+        public event Action<string> OnInteractionCompleted;
 
         public void Init()
         {
@@ -73,6 +77,7 @@ namespace UPlayGround.Manager
         {
             _worldSpawnService?.CleanupRunObjects();
             _worldSpawnService = null;
+            _configuredWorldContext = null;
             _settlementService = null;
 
             if (_ownsRuntimeConfig && _config != null)
@@ -88,6 +93,9 @@ namespace UPlayGround.Manager
             OnCycleCompleted = null;
             OnBossDiscovered = null;
             OnBossDefeated = null;
+            OnEncounterCleared = null;
+            OnCycleLootCollected = null;
+            OnInteractionCompleted = null;
             OnSettlementCommitted = null;
         }
 
@@ -120,12 +128,24 @@ namespace UPlayGround.Manager
         public void ConfigureWorldContext(CycleWorldContext context)
         {
             if (context == null) return;
+            if (_configuredWorldContext != null)
+            {
+                if (_configuredWorldContext == context) return;
+                Debug.LogError(
+                    $"[CycleRunManager] 같은 씬에 CycleWorldContext가 둘 이상 등록되었습니다. "
+                    + $"기존='{_configuredWorldContext.name}', 중복='{context.name}'");
+                return;
+            }
+
+            _configuredWorldContext = context;
             _worldSpawnService = new CycleWorldSpawnService(context, this);
             _configuredWorldMapId = context.Config?.mapId;
             if (IsActive && _layout != null &&
                 string.Equals(_current.mapId, SceneManager.Instance?.CurrentMapID, StringComparison.Ordinal))
             {
-                if (!_worldSpawnService.TryRestore(_current.Clone(), _layout.Clone(), out string error))
+                // 복원 서비스는 누락된 구버전 자동 생성 계획을 현재 레이아웃에 이관할 수 있어야 한다.
+                // 외부 공개 API(CurrentLayout)는 계속 Clone을 반환하므로 내부 소유권은 노출되지 않는다.
+                if (!_worldSpawnService.TryRestore(_current.Clone(), _layout, out string error))
                     Debug.LogError($"[CycleRunManager] 사이클 레이아웃 복원 실패: {error}");
                 else
                     ApplyExitPortalState();
@@ -354,6 +374,39 @@ namespace UPlayGround.Manager
             if (placement.isCentral)
                 return NotifyCentralBossDefeated(spawnId);
 
+            RequestImmediateSave();
+            return true;
+        }
+
+        public bool ReportEncounterCleared(string encounterId)
+        {
+            if (!IsActive || string.IsNullOrWhiteSpace(encounterId)) return false;
+            CycleGeneratedEncounterPlacement placement = _layout?.generatedContent?.FindEncounter(encounterId);
+            if (placement == null || placement.cleared) return false;
+            placement.cleared = true;
+            OnEncounterCleared?.Invoke(encounterId);
+            RequestImmediateSave();
+            return true;
+        }
+
+        public bool ReportCycleLootCollected(string lootId)
+        {
+            if (!IsActive || string.IsNullOrWhiteSpace(lootId)) return false;
+            CycleGeneratedLootPlacement placement = _layout?.generatedContent?.FindLoot(lootId);
+            if (placement == null || placement.collected) return false;
+            placement.collected = true;
+            OnCycleLootCollected?.Invoke(placement.itemId, Mathf.Max(1, placement.count));
+            RequestImmediateSave();
+            return true;
+        }
+
+        public bool ReportInteractionCompleted(string interactionId)
+        {
+            if (!IsActive || string.IsNullOrWhiteSpace(interactionId)) return false;
+            CycleGeneratedInteractionPlacement placement = _layout?.generatedContent?.FindInteraction(interactionId);
+            if (placement == null || placement.completed) return false;
+            placement.completed = true;
+            OnInteractionCompleted?.Invoke(interactionId);
             RequestImmediateSave();
             return true;
         }

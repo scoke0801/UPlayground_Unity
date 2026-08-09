@@ -22,13 +22,18 @@ namespace UPlayGround.Editor.Authoring
             new Color(0.75f, 0.45f, 0.90f),
             new Color(0.95f, 0.60f, 0.20f),
             new Color(0.30f, 0.80f, 0.80f),
-            new Color(0.80f, 0.80f, 0.80f)
+            new Color(0.80f, 0.80f, 0.80f),
+            new Color(0.95f, 0.45f, 0.25f),
+            new Color(0.85f, 0.25f, 0.25f),
+            new Color(0.95f, 0.85f, 0.25f),
+            new Color(0.35f, 0.85f, 0.65f)
         };
 
         private static readonly string[] ObjectiveLabels =
         {
             "아이템 수집", "아이템 전달", "아이템 사용", "몬스터 처치",
-            "스토리 진행", "아이템 제작", "아이템 강화", "위치 도달"
+            "스토리 진행", "아이템 제작", "아이템 강화", "위치 도달",
+            "조우 완료", "사이클 보스 처치", "사이클 전리품", "상호작용 완료"
         };
 
         private static readonly string[] ObjectiveHints =
@@ -40,7 +45,11 @@ namespace UPlayGround.Editor.Authoring
             "NotifyStoryProgress(progress)",
             "NotifyItemCrafted(recipeId, quantity)",
             "NotifyItemEnhanced(itemId)",
-            "NotifyLocationReached(locationId)"
+            "NotifyLocationReached(locationId)",
+            "NotifyEncounterCleared(encounterId)",
+            "NotifyCycleBossDefeated(spawnId)",
+            "NotifyCycleLootCollected(itemId, count)",
+            "NotifyInteractionCompleted(interactionId)"
         };
 
         protected override VisualElement BuildDetail(QuestSO quest)
@@ -322,6 +331,22 @@ namespace UPlayGround.Editor.Authoring
                     break;
                 case QuestObjectiveType.ReachLocation:
                     AddProperty(container, $"{path}.targetStringId", "위치 ID");
+                    break;
+                case QuestObjectiveType.EncounterClear:
+                    AddProperty(container, $"{path}.targetStringId", "조우 ID (빈 값=전체)");
+                    AddProperty(container, $"{path}.requiredCount", "완료 수");
+                    break;
+                case QuestObjectiveType.CycleBossDefeat:
+                    AddProperty(container, $"{path}.targetStringId", "Spawn ID (빈 값=전체)");
+                    AddProperty(container, $"{path}.requiredCount", "처치 수");
+                    break;
+                case QuestObjectiveType.CycleLootCollect:
+                    AddItemTargetField(container, serializedObject, quest, path, "아이템 ID (0=전체)");
+                    AddProperty(container, $"{path}.requiredCount", "획득 수량");
+                    break;
+                case QuestObjectiveType.InteractionComplete:
+                    AddProperty(container, $"{path}.targetStringId", "상호작용 ID (빈 값=전체)");
+                    AddProperty(container, $"{path}.requiredCount", "완료 수");
                     break;
             }
         }

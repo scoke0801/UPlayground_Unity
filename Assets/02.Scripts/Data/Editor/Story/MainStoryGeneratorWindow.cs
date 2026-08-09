@@ -439,7 +439,7 @@ namespace UPlayGround.Editor
             }
 
             public static ObjectiveSeed Kill(string objectiveId, string description, ActorIdType actorId)
-                => new(objectiveId, description, QuestObjectiveType.MonsterKill, (int)actorId, string.Empty, 1);
+                => new(objectiveId, description, QuestObjectiveType.MonsterKill, 0, actorId.ToActorId(), 1);
 
             public static ObjectiveSeed Reach(string objectiveId, string description, string locationId)
                 => new(objectiveId, description, QuestObjectiveType.ReachLocation, 0, locationId, 1);

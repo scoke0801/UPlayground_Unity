@@ -60,12 +60,17 @@ namespace UPlayGround.Editor
             new Color(0.95f, 0.60f, 0.20f),  // ItemCraft
             new Color(0.30f, 0.80f, 0.80f),  // ItemEnhance
             new Color(0.80f, 0.80f, 0.80f),  // ReachLocation
+            new Color(0.95f, 0.45f, 0.25f),  // EncounterClear
+            new Color(0.85f, 0.25f, 0.25f),  // CycleBossDefeat
+            new Color(0.95f, 0.85f, 0.25f),  // CycleLootCollect
+            new Color(0.35f, 0.85f, 0.65f),  // InteractionComplete
         };
 
         private static readonly string[] ObjectiveLabels =
         {
             "아이템 수집", "아이템 전달", "아이템 사용", "몬스터 처치",
             "스토리 진행", "아이템 제작", "아이템 강화", "위치 도달",
+            "조우 완료", "사이클 보스 처치", "사이클 전리품", "상호작용 완료",
         };
 
         private static readonly string[] ObjectiveHints =
@@ -78,6 +83,10 @@ namespace UPlayGround.Editor
             "QuestManager.NotifyItemCrafted(recipeId, quantity)",
             "QuestManager.NotifyItemEnhanced(itemId)",
             "QuestManager.NotifyLocationReached(locationId)",
+            "QuestManager.NotifyEncounterCleared(encounterId)",
+            "QuestManager.NotifyCycleBossDefeated(spawnId)",
+            "QuestManager.NotifyCycleLootCollected(itemId, count)",
+            "QuestManager.NotifyInteractionCompleted(interactionId)",
         };
 
         private void OnEnable()
@@ -339,6 +348,29 @@ namespace UPlayGround.Editor
                     EditorGUILayout.PropertyField(
                         elem.FindPropertyRelative("targetStringId"), new GUIContent("위치 ID"));
                     // 도달은 1회 달성
+                    break;
+
+                case QuestObjectiveType.EncounterClear:
+                    EditorGUILayout.PropertyField(
+                        elem.FindPropertyRelative("targetStringId"), new GUIContent("조우 ID (빈 값=전체)"));
+                    DrawIntField(elem, "requiredCount", "완료 수");
+                    break;
+
+                case QuestObjectiveType.CycleBossDefeat:
+                    EditorGUILayout.PropertyField(
+                        elem.FindPropertyRelative("targetStringId"), new GUIContent("Spawn ID (빈 값=전체)"));
+                    DrawIntField(elem, "requiredCount", "처치 수");
+                    break;
+
+                case QuestObjectiveType.CycleLootCollect:
+                    DrawIntField(elem, "targetId", "아이템 ID (0=전체)");
+                    DrawIntField(elem, "requiredCount", "획득 수량");
+                    break;
+
+                case QuestObjectiveType.InteractionComplete:
+                    EditorGUILayout.PropertyField(
+                        elem.FindPropertyRelative("targetStringId"), new GUIContent("상호작용 ID (빈 값=전체)"));
+                    DrawIntField(elem, "requiredCount", "완료 수");
                     break;
             }
 

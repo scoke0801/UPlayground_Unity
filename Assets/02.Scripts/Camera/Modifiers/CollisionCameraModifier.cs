@@ -5,17 +5,29 @@ namespace UPlayGround.CameraSystem
 {
     /// <summary>
     /// (800) 카메라 위치 충돌 보정 체인:
-    /// CameraCollision.Evaluate → SafeBackPosition → GroundPenetration → FloorRescue → 캐릭터 캡슐 내부 진입 방지.
+    /// CameraCollision.Evaluate → SafeBackPosition → 캐릭터 캡슐 내부 진입 방지 → FloorRescue.
     /// 피벗(스무딩)은 frame.Pose.PivotPosition, SafeBack 원점(비스무딩)은 frame.PivotBase에서 읽는다.
     /// camDir/거리는 State+Effects에서 재계산하여 다른 Modifier에 직접 의존하지 않는다.
     /// 원본: InGameCameraMode.EvaluateCameraPosition(충돌부) + Resolve* 헬퍼들 + ComputeCapsuleClearance
     /// </summary>
-    public sealed class CollisionCameraModifier : ICameraModifier
+    public sealed class CollisionCameraModifier : ICameraModifier, ICameraModifierLifecycle
     {
         private float _safeBackDistance = -1f;
         private float _safeBackDistanceVel;
 
         public int Priority => 800;
+
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
+        {
+            ResetSafeBackState();
+            context?.Collision?.ResetFloorRescue();
+        }
+
+        public void OnExit(CameraContext context)
+        {
+            ResetSafeBackState();
+            context?.Collision?.ResetFloorRescue();
+        }
 
         public void Apply(ref CameraFrame frame)
         {
@@ -44,9 +56,8 @@ namespace UPlayGround.CameraSystem
 
             Vector3 backPos = pivotPosition + camDir * finalDist;
             backPos = ResolveSafeBackPosition(context, settings, pivotBase, backPos, deltaTime);
-            backPos = ResolveGroundPenetration(context, settings, pivotPosition, camDir, backPos);
-            context.Collision?.ApplyFloorRescue(pivotPosition, ref backPos, deltaTime);
             backPos = ResolveCharacterCapsuleExclusion(context, settings, pivotPosition, camDir, backPos);
+            context.Collision?.ApplyFloorRescue(pivotPosition, ref backPos, deltaTime);
 
             frame.Pose.CameraPosition = backPos;
         }
@@ -67,13 +78,23 @@ namespace UPlayGround.CameraSystem
                 _safeBackDistance = toCamDist;
 
             float targetDistance = toCamDist;
+            bool hasSafeBackHit = false;
             if (Physics.SphereCast(pivotBase, settings.cameraRadius, toCamDir,
                     out RaycastHit safeHit, toCamDist, context.CollisionLayers, QueryTriggerInteraction.Ignore))
             {
                 if (safeHit.transform != context.Target && !safeHit.transform.IsChildOf(context.Target))
                 {
+                    // SphereCast의 측면 접촉도 카메라 볼륨을 막는 유효 충돌이다.
+                    // 법선 정렬로 걸러내면 벽과 평행하게 이동할 때 측면 접촉을 놓쳐 클리핑된다.
                     targetDistance = Mathf.Max(safeHit.distance - settings.collisionOffset, 0f);
+                    hasSafeBackHit = true;
                 }
+            }
+
+            if (hasSafeBackHit
+                && Mathf.Abs(targetDistance - _safeBackDistance) <= Mathf.Max(settings.collisionDistanceDeadZone, 0f))
+            {
+                targetDistance = _safeBackDistance;
             }
 
             // Pass 2는 클리핑 방지용 백스톱이다(아래 Min 클램프로 절대 더 밀어내지 않음).
@@ -107,35 +128,10 @@ namespace UPlayGround.CameraSystem
             return pivotBase + toCamDir * _safeBackDistance;
         }
 
-        private static Vector3 ResolveGroundPenetration(
-            CameraContext context,
-            CameraSettings settings,
-            Vector3 pivotPosition,
-            Vector3 camDir,
-            Vector3 backPos)
+        private void ResetSafeBackState()
         {
-            const float CHECK_HEIGHT = 20f;
-            const float CHECK_DIST = 40f;
-            Vector3 checkOrigin = new Vector3(backPos.x, backPos.y + CHECK_HEIGHT, backPos.z);
-            if (!Physics.Raycast(checkOrigin, Vector3.down, out RaycastHit groundHit, CHECK_DIST, context.CollisionLayers, QueryTriggerInteraction.Ignore))
-                return backPos;
-
-            float minY = groundHit.point.y + settings.collisionOffset;
-            if (backPos.y >= minY) return backPos;
-
-            if (Mathf.Abs(camDir.y) > 0.001f)
-            {
-                float groundDist = (minY - pivotPosition.y) / camDir.y;
-                float curDist = Vector3.Distance(pivotPosition, backPos);
-                if (groundDist >= settings.minDistance && groundDist <= curDist)
-                    backPos = pivotPosition + camDir * groundDist;
-            }
-            else
-            {
-                backPos.y = minY;
-            }
-
-            return backPos;
+            _safeBackDistance = -1f;
+            _safeBackDistanceVel = 0f;
         }
 
         private static Vector3 ResolveCharacterCapsuleExclusion(

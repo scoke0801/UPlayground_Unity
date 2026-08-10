@@ -38,6 +38,7 @@ MonoBehaviour:
   collisionMinimumOcclusionTime: 0.025
   collisionSmoothingHoldTime: 0.08
   collisionReleaseHysteresis: 0.22
+  collisionDistanceDeadZone: 0.04
   collisionMaxDistanceChangeSpeed: 18
   frontCameraBlendInSmoothTime: 0.08
   frontCameraBlendOutSmoothTime: 0.25
@@ -61,6 +62,8 @@ MonoBehaviour:
   enableFloorRescue: 1
   floorRescueDropThreshold: 1
   groundClearance: 0.3
+  groundCollisionMinNormalY: 0.45
+  floorRescueReturnSmoothTime: 0.14
   floorRescueLayerMask:
     serializedVersion: 2
     m_Bits: 0

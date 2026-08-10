@@ -15,16 +15,16 @@ namespace UPlayGround.CameraSystem
         private float _collisionDistance;
         private float _collisionDistanceVel;
         private LayerMask _collisionLayers;
-        private bool _hasFloorRescueY;
-        private float _floorRescueY;
-        private float _floorRescueYVelocity;
+        private float _floorRescueLift;
+        private float _floorRescueLiftVelocity;
         private bool _isCollisionActive;
         private float _occlusionTimer;
-        private float _clearTimer;
+        private float _releaseTimer;
         private float _heldBlockedDistance;
+        private readonly RaycastHit[] _floorHitBuffer = new RaycastHit[8];
+        private readonly RaycastHit[] _floorLiftHitBuffer = new RaycastHit[8];
 
-        private const float FLOOR_RESCUE_SMOOTH_TIME = 0.06f;
-        private const float FLOOR_RESCUE_IMMEDIATE_THRESHOLD = 0.35f;
+        private const float FLOOR_RESCUE_OCCLUDED_SMOOTH_TIME = 0.045f;
 
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
@@ -39,9 +39,9 @@ namespace UPlayGround.CameraSystem
         /// </summary>
         public float Evaluate(Vector3 pivot, Vector3 camDir, float desiredDistance)
         {
-            float blockedDistance = GetRaycastDistance(pivot, camDir, desiredDistance);
-            float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance);
             float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
+            float blockedDistance = GetRaycastDistance(pivot, camDir, desiredDistance);
+            float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance, deltaTime);
 
             if (targetDistance < _collisionDistance)
             {
@@ -74,75 +74,89 @@ namespace UPlayGround.CameraSystem
         {
             _collisionDistance = distance;
             _collisionDistanceVel = 0f;
-            _hasFloorRescueY = false;
-            _floorRescueYVelocity = 0f;
+            ResetFloorRescue();
             _isCollisionActive = false;
             _occlusionTimer = 0f;
-            _clearTimer = 0f;
+            _releaseTimer = 0f;
             _heldBlockedDistance = distance;
         }
 
-        private float ResolveTargetDistance(float blockedDistance, float desiredDistance)
+        public void ResetFloorRescue()
         {
-            float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
-            float enterEpsilon = 0.01f;
+            _floorRescueLift = 0f;
+            _floorRescueLiftVelocity = 0f;
+        }
+
+        private float ResolveTargetDistance(float blockedDistance, float desiredDistance, float deltaTime)
+        {
+            const float STATE_HYSTERESIS = 0.01f;
+
+            deltaTime = Mathf.Max(deltaTime, 0.0001f);
+            float distanceDeadZone = Mathf.Max(_settings.collisionDistanceDeadZone, 0f);
             float releaseMargin = Mathf.Max(_settings.collisionReleaseHysteresis, 0f);
-            bool hasBlockingHit = blockedDistance < desiredDistance - enterEpsilon;
-            bool canRelease = blockedDistance >= desiredDistance - releaseMargin;
+            float releaseThreshold = desiredDistance - releaseMargin;
 
-            if (hasBlockingHit)
+            if (!_isCollisionActive)
             {
-                _occlusionTimer += deltaTime;
+                // 해제 여유 구간의 얕은 접촉은 진입 후보로 취급하지 않는다.
+                // 기존에는 같은 접촉이 hasBlockingHit와 canRelease를 동시에 만족해
+                // 충돌 상태가 주기적으로 해제/재진입하며 거리 펄스를 만들 수 있었다.
+                bool canEnter = blockedDistance < releaseThreshold - STATE_HYSTERESIS;
+                if (!canEnter)
+                {
+                    _occlusionTimer = 0f;
+                    _releaseTimer = 0f;
+                    return desiredDistance;
+                }
 
-                if (!_isCollisionActive && _occlusionTimer < _settings.collisionMinimumOcclusionTime)
+                _occlusionTimer += deltaTime;
+                if (_occlusionTimer < Mathf.Max(_settings.collisionMinimumOcclusionTime, 0f))
                     return desiredDistance;
 
-                if (!_isCollisionActive)
-                {
-                    _isCollisionActive = true;
-                    _heldBlockedDistance = blockedDistance;
-                }
-                else if (Mathf.Abs(blockedDistance - _heldBlockedDistance) > enterEpsilon)
-                {
-                    // 충돌 상태가 완전히 해제되기 전이라도 장애물이 멀어지면 확보된 거리만큼
-                    // 복귀 타깃을 갱신한다. Evaluate의 비대칭 감쇠가 안쪽은 즉시,
-                    // 바깥쪽은 collisionReturnSpeed로 부드럽게 처리한다.
-                    _heldBlockedDistance = blockedDistance;
-                }
-
-                if (canRelease)
-                {
-                    _clearTimer += deltaTime;
-                    if (_clearTimer >= Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
-                    {
-                        _isCollisionActive = false;
-                        _clearTimer = 0f;
-                        _collisionDistanceVel = 0f;
-                        return desiredDistance;
-                    }
-                }
-                else
-                {
-                    _clearTimer = 0f;
-                }
-
+                _isCollisionActive = true;
+                _occlusionTimer = 0f;
+                _releaseTimer = 0f;
+                _heldBlockedDistance = blockedDistance;
                 return _heldBlockedDistance;
             }
 
             _occlusionTimer = 0f;
 
-            if (_isCollisionActive)
+            if (blockedDistance < releaseThreshold)
             {
-                _clearTimer += deltaTime;
+                float distanceDelta = blockedDistance - _heldBlockedDistance;
+                if (distanceDelta < -distanceDeadZone)
+                {
+                    // 안전 공간이 줄어드는 방향은 즉시 반영하되, 충돌 여유 거리 안의
+                    // 미세한 메시/프로브 편차는 무시한다.
+                    _heldBlockedDistance = blockedDistance;
+                    _releaseTimer = 0f;
+                }
+                else if (distanceDelta > distanceDeadZone)
+                {
+                    // 더 가까운 지점이 한 번 검출된 직후 다시 바깥으로 움직이지 않도록
+                    // 잠시 유지한다. 유지 시간이 지난 뒤에는 경사면을 따라 연속 복귀한다.
+                    _releaseTimer += deltaTime;
+                    if (_releaseTimer >= Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
+                        _heldBlockedDistance = blockedDistance;
+                }
+                else if (_releaseTimer >= Mathf.Max(_settings.collisionSmoothingHoldTime, 0f)
+                         && distanceDelta > 0f)
+                {
+                    _heldBlockedDistance = blockedDistance;
+                }
 
-                if (_clearTimer < Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
-                    return _heldBlockedDistance;
-
-                _isCollisionActive = false;
-                _clearTimer = 0f;
-                _collisionDistanceVel = 0f;
+                return _heldBlockedDistance;
             }
 
+            // 완전 미검출뿐 아니라 releaseMargin 안의 얕은 접촉도 같은 해제 후보로 다룬다.
+            // 비활성 상태의 진입 임계치와 분리되어 같은 접촉에서 재진입하지 않는다.
+            _releaseTimer += deltaTime;
+            if (_releaseTimer < Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
+                return _heldBlockedDistance;
+
+            _isCollisionActive = false;
+            _releaseTimer = 0f;
             return desiredDistance;
         }
 
@@ -157,7 +171,10 @@ namespace UPlayGround.CameraSystem
         public void ApplyFloorRescue(Vector3 pivot, ref Vector3 cameraPosition, float deltaTime)
         {
             if (!_settings.enableFloorRescue)
+            {
+                ResetFloorRescue();
                 return;
+            }
 
             LayerMask layers = _settings.floorRescueLayerMask.value != 0
                 ? _settings.floorRescueLayerMask
@@ -165,51 +182,128 @@ namespace UPlayGround.CameraSystem
 
             float clearance = Mathf.Max(_settings.groundClearance, _settings.cameraRadius);
             float pivotDrop = pivot.y - cameraPosition.y;
-            float requiredMinY = float.NegativeInfinity;
+            float probeRadius = Mathf.Max(Mathf.Min(_settings.cameraRadius * 0.5f, clearance * 0.5f), 0.02f);
+            float probeExtraHeight = pivotDrop > _settings.floorRescueDropThreshold
+                ? Mathf.Max(_settings.collisionOffset, 0.05f)
+                : 0.05f;
+            float probeHeight = clearance + probeRadius + probeExtraHeight;
 
-            if (pivotDrop > _settings.floorRescueDropThreshold)
+            // 월드 상공에서 내리는 레이는 낮은 천장/계단 윗면을 바닥으로 오인할 수 있다.
+            // 카메라 바로 위에서 시작하는 짧은 국소 SphereCast만 사용하고, 위쪽을 향한 지면 법선을 검증한다.
+            // 작은 반경은 계단/메시 삼각형 경계에서 단일 Ray 표본이 교대로 바뀌는 현상을 줄인다.
+            Vector3 probeOrigin = cameraPosition + Vector3.up * probeHeight;
+            float probeDistance = probeHeight + clearance + 0.5f;
+            float requiredLift = 0f;
+            float nearestGroundDistance = float.PositiveInfinity;
+            int groundHitCount = Physics.SphereCastNonAlloc(
+                probeOrigin,
+                probeRadius,
+                Vector3.down,
+                _floorHitBuffer,
+                probeDistance,
+                layers,
+                QueryTriggerInteraction.Ignore);
+
+            for (int i = 0; i < groundHitCount; i++)
             {
-                Vector3 pivotRayOrigin = pivot + Vector3.up * 0.25f;
-                float rayDistance = pivotDrop + clearance + 0.5f;
-                if (Physics.Raycast(pivotRayOrigin, Vector3.down, out RaycastHit pivotGroundHit, rayDistance, layers, QueryTriggerInteraction.Ignore))
-                {
-                    float minY = pivotGroundHit.point.y + clearance;
-                    requiredMinY = Mathf.Max(requiredMinY, minY);
-                }
+                RaycastHit groundHit = _floorHitBuffer[i];
+                if (groundHit.transform == _target || groundHit.transform.IsChildOf(_target))
+                    continue;
+                if (groundHit.normal.y < _settings.groundCollisionMinNormalY)
+                    continue;
+                // FloorRescue는 카메라 아래의 지면 여유만 복구한다. 카메라보다 위에 있는
+                // 얇은 천장/발판의 윗면을 지면으로 채택하면 천장을 관통해 위로 올라간다.
+                if (groundHit.point.y > cameraPosition.y + Mathf.Max(_settings.collisionSkinWidth, 0.01f))
+                    continue;
+                if (groundHit.distance >= nearestGroundDistance)
+                    continue;
+
+                nearestGroundDistance = groundHit.distance;
+                float requiredMinY = groundHit.point.y + clearance;
+                requiredLift = Mathf.Max(requiredMinY - cameraPosition.y, 0f);
             }
 
-            Vector3 cameraRayOrigin = cameraPosition + Vector3.up * (clearance + 0.25f);
-            float cameraRayDistance = clearance + 0.5f;
-            if (Physics.Raycast(cameraRayOrigin, Vector3.down, out RaycastHit cameraGroundHit, cameraRayDistance, layers, QueryTriggerInteraction.Ignore))
+            float safeDeltaTime = Mathf.Max(deltaTime, 0.0001f);
+            float liftDelta = requiredLift - _floorRescueLift;
+            float immediateThreshold = Mathf.Max(clearance - _settings.cameraRadius, 0.02f);
+            if (liftDelta > immediateThreshold)
             {
-                float groundClearanceY = cameraGroundHit.point.y + clearance;
-                requiredMinY = Mathf.Max(requiredMinY, groundClearanceY);
-            }
-
-            if (float.IsNegativeInfinity(requiredMinY))
-            {
-                return;
-            }
-
-            if (!_hasFloorRescueY || requiredMinY - _floorRescueY > FLOOR_RESCUE_IMMEDIATE_THRESHOLD)
-            {
-                _floorRescueY = requiredMinY;
-                _floorRescueYVelocity = 0f;
-                _hasFloorRescueY = true;
+                // 큰 관통은 한 프레임 안에 해소한다. 일반적인 경사 추종은 앞선 충돌 거리 단계가 담당한다.
+                _floorRescueLift = requiredLift;
+                _floorRescueLiftVelocity = 0f;
             }
             else
             {
-                _floorRescueY = Mathf.SmoothDamp(
-                    _floorRescueY,
-                    requiredMinY,
-                    ref _floorRescueYVelocity,
-                    FLOOR_RESCUE_SMOOTH_TIME,
-                    Mathf.Infinity,
-                    deltaTime);
+                float smoothTime = requiredLift > _floorRescueLift
+                    ? FLOOR_RESCUE_OCCLUDED_SMOOTH_TIME
+                    : Mathf.Max(_settings.floorRescueReturnSmoothTime, 0f);
+
+                if (smoothTime > 0f)
+                {
+                    _floorRescueLift = Mathf.SmoothDamp(
+                        _floorRescueLift,
+                        requiredLift,
+                        ref _floorRescueLiftVelocity,
+                        smoothTime,
+                        Mathf.Infinity,
+                        safeDeltaTime);
+                }
+                else
+                {
+                    _floorRescueLift = requiredLift;
+                    _floorRescueLiftVelocity = 0f;
+                }
             }
 
-            if (cameraPosition.y < _floorRescueY)
-                cameraPosition.y = _floorRescueY;
+            if (requiredLift <= 0f && _floorRescueLift <= 0.001f)
+            {
+                _floorRescueLift = 0f;
+                _floorRescueLiftVelocity = 0f;
+            }
+
+            float constrainedLift = ConstrainFloorRescueLift(
+                cameraPosition,
+                Mathf.Max(_floorRescueLift, 0f),
+                layers);
+            if (constrainedLift < _floorRescueLift)
+            {
+                _floorRescueLift = constrainedLift;
+                _floorRescueLiftVelocity = 0f;
+            }
+
+            cameraPosition.y += constrainedLift;
+        }
+
+        private float ConstrainFloorRescueLift(Vector3 cameraPosition, float requestedLift, LayerMask layers)
+        {
+            if (requestedLift <= 0f)
+                return 0f;
+
+            int hitCount = Physics.SphereCastNonAlloc(
+                cameraPosition,
+                Mathf.Max(_settings.cameraRadius, 0.01f),
+                Vector3.up,
+                _floorLiftHitBuffer,
+                requestedLift,
+                layers,
+                QueryTriggerInteraction.Ignore);
+
+            float allowedLift = requestedLift;
+            for (int i = 0; i < hitCount; i++)
+            {
+                RaycastHit hit = _floorLiftHitBuffer[i];
+                if (hit.transform == _target || hit.transform.IsChildOf(_target))
+                    continue;
+
+                // 시작 지점에서 맞는 지면 윗면은 위쪽 이동을 막지 않는다.
+                if (hit.normal.y >= _settings.groundCollisionMinNormalY)
+                    continue;
+
+                float safeDistance = Mathf.Max(hit.distance - _settings.collisionOffset, 0f);
+                allowedLift = Mathf.Min(allowedLift, safeDistance);
+            }
+
+            return allowedLift;
         }
 
         private float GetRaycastDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)
@@ -270,10 +364,6 @@ namespace UPlayGround.CameraSystem
                 return;
 
             if (hit.transform == _target || hit.transform.IsChildOf(_target))
-                return;
-
-            float normalAlignment = Vector3.Dot(hit.normal, -axisDir);
-            if (normalAlignment < _settings.minNormalAlignment)
                 return;
 
             float projectedReach = Vector3.Dot(hit.point - pivot, axisDir);

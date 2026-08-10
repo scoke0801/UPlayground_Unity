@@ -74,6 +74,9 @@ namespace UPlayGround.Data
         public float collisionSmoothingHoldTime = 0.08f;
         [Tooltip("충돌 해제 판정에 사용하는 거리 여유값.")]
         public float collisionReleaseHysteresis = 0.22f;
+        [Tooltip("충돌 중 프로브 거리가 이 값보다 작게 흔들리면 같은 거리로 간주한다(m). 메시 모서리의 미세 당겨짐을 줄인다.")]
+        [Min(0f)]
+        public float collisionDistanceDeadZone = 0.04f;
         [Tooltip("충돌 보정 거리가 한 프레임에 변할 수 있는 최대 속도. 0 이하면 제한하지 않는다.")]
         public float collisionMaxDistanceChangeSpeed = 18f;
         [Tooltip("플레이어 캡슐 때문에 전방 카메라로 전환될 때의 블렌드 스무딩 시간.")]
@@ -112,6 +115,12 @@ namespace UPlayGround.Data
         public bool enableFloorRescue = true;
         public float floorRescueDropThreshold = 1f;
         public float groundClearance = 0.3f;
+        [Tooltip("이 값 이상의 위쪽 법선을 가진 표면을 지면으로 취급한다. 낮추면 급경사도 지면 충돌에 포함한다.")]
+        [Range(0f, 1f)]
+        public float groundCollisionMinNormalY = 0.45f;
+        [Tooltip("지면 보조 리프트가 해제될 때 원래 궤도로 복귀하는 스무딩 시간.")]
+        [Min(0f)]
+        public float floorRescueReturnSmoothTime = 0.14f;
         public LayerMask floorRescueLayerMask;
 
         [Header("=== 카메라 정렬 ===")]

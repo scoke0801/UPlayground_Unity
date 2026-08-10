@@ -19,7 +19,7 @@ MonoBehaviour:
   dropItems:
   - itemData: {fileID: 11400000, guid: f50d1b71fd51f0f42897f98f6289d48d, type: 2}
     rate: 100
-    maximumDropCount: 5
+    maximumDropCount: 4
   showInfoUI: 1
   showShakeEffect: 1
   fishingDepleteCatchCount: 0

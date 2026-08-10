@@ -84,9 +84,10 @@ Assets/02.Scripts/Data/Actor/Enemy/Editor/
 |------|------|------|
 | `itemData` | `ItemSO` | 드랍할 아이템 |
 | `rate` | `float` (0~100) | 드랍 확률 (%) |
-| `maximumDropCount` | `int` (0~100) | 최대 드랍 수량 |
+| `minimumDropCount` | `int` | 최소 드랍 수량(포함) |
+| `maximumDropCount` | `int` | 최대 드랍 수량(포함) |
 
-> **주의:** `maximumDropCount`는 `Random.Range(1, maximumDropCount)` 에 사용됩니다. Unity의 `int` 버전 `Random.Range`는 상한이 **exclusive**이므로 실제 최대치는 `maximumDropCount - 1`개입니다. 수량 1개 고정을 원하면 값을 **2**로 설정하세요.
+> 수량은 `[minimumDropCount, maximumDropCount]` 포함 범위에서 추첨됩니다. 1개 고정은 두 값을 모두 **1**, 최대 3개는 각각 **1**, **3**으로 설정하세요.
 
 ---
 
@@ -292,10 +293,10 @@ void SpawnPickup(ItemSO itemData, int count, Vector3 position)
 **1. `_itemActorPrefab`은 `ActorDefinitionSO`로 주입되지 않음**  
 `dropTable`과 달리 `_itemActorPrefab`은 `SetDefinition()`에서 처리하지 않습니다. 런타임 스폰 환경에서도 **반드시 프리팹 자체에 직접 할당**해야 드랍이 동작합니다.
 
-**2. `maximumDropCount`의 exclusive 상한**  
-`Random.Range(1, maximumDropCount)`는 결과가 `[1, maximumDropCount)` 범위입니다.  
-- 정확히 1개만 드랍하려면 → `maximumDropCount = 2`  
-- 최대 3개 드랍하려면 → `maximumDropCount = 4`
+**2. 드랍 수량의 inclusive 범위**
+`ItemDropResolver`는 최소·최대 수량을 모두 포함해 추첨합니다.
+- 정확히 1개만 드랍하려면 → `minimumDropCount = 1`, `maximumDropCount = 1`
+- 1~3개를 드랍하려면 → `minimumDropCount = 1`, `maximumDropCount = 3`
 
 **3. `_isDead` 가드 — 하위 클래스 오버라이드 시**  
 `OnDeath()`를 오버라이드할 때는 반드시 `base.OnDeath(attackData)` 를 먼저 호출하세요. 가드 체크가 베이스에 있기 때문에 건너뛰면 중복 사망 처리가 발생할 수 있습니다.

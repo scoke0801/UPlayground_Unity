@@ -9,7 +9,9 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Config;
 using UPlayGround.Data.Codex;
+using UPlayGround.Data.Cycle;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Enemy;
 using UPlayGround.Data.Item;
 using UPlayGround.Data.Party;
 using UPlayGround.Data.Path;
@@ -285,6 +287,15 @@ namespace UPlayGround.Manager
         ItemSO GetItemData(int itemKey);
         ItemSO GetItemData(ItemIdType itemKey);
         List<ItemInstance> GetDropItemList(List<ItemDropList> itemDropList);
+        List<ItemInstance> GetDropItemList(EnemyDropTableSO dropTable);
+    }
+
+    public interface ICycleRunReaderService : IGameService
+    {
+        bool IsActive { get; }
+        int CycleIndex { get; }
+        int Seed { get; }
+        System.Random CreateRandom(CycleRandomStream stream);
     }
 
     public interface IDialogueService : IGameService

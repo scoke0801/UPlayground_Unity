@@ -15,7 +15,7 @@ MonoBehaviour:
   dropItems:
   - itemData: {fileID: 11400000, guid: 7043a2ecdd009f04db188d879642693b, type: 2}
     rate: 100
-    maximumDropCount: 3
+    maximumDropCount: 2
   - itemData: {fileID: 11400000, guid: 688b744346e1af2439e69d3722e6a504, type: 2}
     rate: 50
     maximumDropCount: 1

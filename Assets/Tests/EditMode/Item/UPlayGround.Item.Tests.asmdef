@@ -1,0 +1,21 @@
+{
+  "name": "UPlayGround.Item.Tests",
+  "rootNamespace": "UPlayGround.Item.Tests",
+  "references": [
+    "UPlayGround.Data"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -1040,12 +1040,12 @@ namespace UPlayGround.Manager
                 case EquipPosition.RightHand:
                     // 주 무기: 캐릭터 고유 주무기 타입이 받아들이는 장비만 장착 가능
                     return equipData.weaponType != WeaponType.NoWeapon &&
-                           equipData.equipmentPrefab != null &&
+                           equipData.HasUsableWeaponVisual &&
                            IsMainWeaponCompatible(c, equipData.weaponType);
                 case EquipPosition.LeftHand:
                     // 보조 무기: 기본 유효성 + 캐릭터 모델 기본 타입이 받아들이는 보조 무기일 때만
                     return equipData.weaponType != WeaponType.NoWeapon &&
-                           equipData.equipmentPrefab != null &&
+                           equipData.HasUsableWeaponVisual &&
                            IsSubWeaponCompatible(c, equipData.weaponType);
                 case EquipPosition.Head:
                 case EquipPosition.Chest:

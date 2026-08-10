@@ -67,6 +67,7 @@ namespace UPlayGround.Data.Item.Editor
         private float _weight;
         private Sprite _icon;
         private GameObject _equipmentPrefab;
+        private EquipmentVisualMode _equipmentVisualMode = EquipmentVisualMode.Prefab;
         private ConsumableEffectType _consumableEffect = ConsumableEffectType.HealFlat;
         private float _consumableAmount;
         private bool _requireEffectiveUse = true;
@@ -271,6 +272,11 @@ namespace UPlayGround.Data.Item.Editor
             _equipPrefabField = new ObjectField("장비 프리팹") { objectType = typeof(GameObject), allowSceneObjects = false, value = _equipmentPrefab };
             _equipPrefabField.RegisterValueChangedCallback(evt => _equipmentPrefab = evt.newValue as GameObject);
             section.Add(_equipPrefabField);
+
+            var visualModeField = new EnumField("무기 외형 방식", _equipmentVisualMode);
+            visualModeField.RegisterValueChangedCallback(evt =>
+                _equipmentVisualMode = (EquipmentVisualMode)evt.newValue);
+            section.Add(visualModeField);
 
             _consumableGroup = new VisualElement();
             var effectField = new EnumField("효과 타입", _consumableEffect);
@@ -540,6 +546,7 @@ namespace UPlayGround.Data.Item.Editor
             {
                 equipment.equipSlot = _equipPosition;
                 equipment.weaponType = _weaponType;
+                equipment.visualMode = _equipmentVisualMode;
                 equipment.equipmentPrefab = _equipmentPrefab;
             }
 

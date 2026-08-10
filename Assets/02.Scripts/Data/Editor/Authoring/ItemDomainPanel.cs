@@ -165,6 +165,16 @@ namespace UPlayGround.Data.Editor.Authoring
                     $"아이템 ID {asset.itemId}가 중복됩니다.",
                     asset);
             }
+
+            if (asset is EquipmentSO equipment &&
+                equipment.equipSlot is EquipPosition.LeftHand or EquipPosition.RightHand &&
+                !equipment.HasUsableWeaponVisual)
+            {
+                yield return new DataAuthoringIssue(
+                    DataAuthoringIssueSeverity.Error,
+                    $"'{equipment.itemName}' 무기에 장비 프리팹이 없고 캐릭터 내장 외형도 지정되지 않았습니다.",
+                    asset);
+            }
         }
 
         protected override VisualElement BuildDetail(ItemSO item)
@@ -235,6 +245,7 @@ namespace UPlayGround.Data.Editor.Authoring
             var equipmentSection = MakeSection("장비 데이터");
             AddProperty(equipmentSection, "equipSlot", "장비 슬롯");
             AddProperty(equipmentSection, "weaponType", "무기 타입");
+            AddProperty(equipmentSection, "visualMode", "외형 방식");
             AddProperty(equipmentSection, "equipmentPrefab", "장비 프리팹");
             detail.Add(equipmentSection);
 

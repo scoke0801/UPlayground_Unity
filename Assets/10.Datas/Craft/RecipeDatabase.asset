@@ -11,117 +11,514 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc88df32e878e694d90377c59b11c399, type: 3}
   m_Name: RecipeDatabase
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   recipes:
   - recipeID: 1
-    recipeName: "\uD558\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
-    description: 
+    recipeName: "저급 회복물약"
+    description: "필드 재료로 만드는 기본 회복약. 사이클 진입 전 보급에 적합하다."
     resultItemID: 200001
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 1.2
     category: 0
     isDebugUnlocked: 0
   - recipeID: 2
-    recipeName: "\uC911\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
-    description: 
+    recipeName: "중급 회복물약"
+    description: "저급 회복물약을 정제해 만드는 중급 회복약. 다음 원정을 위한 기본 비축품이다."
     resultItemID: 200002
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 1.8
     category: 0
     isDebugUnlocked: 0
   - recipeID: 3
-    recipeName: "\uACE0\uAE09 \uC0DD\uBA85 \uBB3C\uC57D"
-    description: 
+    recipeName: "고급 회복물약"
+    description: "정산된 시련의 파편을 안정화해 만드는 고급 회복약. 최대 체력의 절반을 회복한다."
     resultItemID: 200003
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 2.5
     category: 0
     isDebugUnlocked: 0
   - recipeID: 4
-    recipeName: "\uBC29\uD328"
-    description: 
-    resultItemID: 2001
+    recipeName: "특수 회복물약"
+    description: "고급 회복물약에 시련의 힘을 더해 만드는 특수 회복약. 최대 체력의 75%를 회복한다."
+    resultItemID: 200004
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
-    category: 1
+    castTimeSeconds: 3.5
+    category: 0
     isDebugUnlocked: 0
   - recipeID: 5
-    recipeName: "\uC18C\uAC80"
-    description: 
-    resultItemID: 1001
+    recipeName: "완전 회복물약"
+    description: "여러 사이클의 전리품을 응축한 최상급 회복약. 체력을 완전히 회복한다."
+    resultItemID: 200005
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 5
+    category: 0
+    isDebugUnlocked: 0
+  - recipeID: 10
+    recipeName: "시련 강화 모자 I"
+    description: "보스 전리품 모자_5를 시련의 파편으로 한 단계 강화한다."
+    resultItemID: 106
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 4
     category: 1
     isDebugUnlocked: 0
-  - recipeID: 6
-    recipeName: "\uB300\uAC80"
-    description: 
-    resultItemID: 4001
+  - recipeID: 11
+    recipeName: "시련 강화 상의 I"
+    description: "보스 전리품 상의_5를 시련의 파편으로 한 단계 강화한다."
+    resultItemID: 206
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 4
     category: 1
     isDebugUnlocked: 0
-  - recipeID: 7
-    recipeName: "\uC9C0\uD321\uC774"
-    description: 
-    resultItemID: 3001
+  - recipeID: 12
+    recipeName: "시련 강화 하의 I"
+    description: "보스 전리품 하의_5를 시련의 파편으로 한 단계 강화한다."
+    resultItemID: 306
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 4
     category: 1
     isDebugUnlocked: 0
-  - recipeID: 8
-    recipeName: "\uD65C"
-    description: 
-    resultItemID: 5001
+  - recipeID: 13
+    recipeName: "시련 강화 장갑 I"
+    description: "보스 전리품 장갑_5를 시련의 파편으로 한 단계 강화한다."
+    resultItemID: 406
     resultQuantity: 1
     costType: 0
     costAmount: 0
-    castTimeSeconds: 2
+    castTimeSeconds: 4
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 14
+    recipeName: "시련 강화 신발 I"
+    description: "보스 전리품 신발_5를 시련의 파편으로 한 단계 강화한다."
+    resultItemID: 506
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 4
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 20
+    recipeName: "시련 강화 모자 II"
+    description: "한 차례 강화한 모자를 다시 단련해 두 번째 강화 단계로 올린다."
+    resultItemID: 107
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 5
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 21
+    recipeName: "시련 강화 상의 II"
+    description: "한 차례 강화한 상의를 다시 단련해 두 번째 강화 단계로 올린다."
+    resultItemID: 207
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 5
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 22
+    recipeName: "시련 강화 하의 II"
+    description: "한 차례 강화한 하의를 다시 단련해 두 번째 강화 단계로 올린다."
+    resultItemID: 307
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 5
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 23
+    recipeName: "시련 강화 장갑 II"
+    description: "한 차례 강화한 장갑을 다시 단련해 두 번째 강화 단계로 올린다."
+    resultItemID: 407
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 5
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 24
+    recipeName: "시련 강화 신발 II"
+    description: "한 차례 강화한 신발을 다시 단련해 두 번째 강화 단계로 올린다."
+    resultItemID: 507
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 5
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 30
+    recipeName: "시련 강화 모자 III"
+    description: "세 번의 사이클을 견딜 수 있도록 모자를 최종 강화 단계로 완성한다."
+    resultItemID: 108
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 6
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 31
+    recipeName: "시련 강화 상의 III"
+    description: "세 번의 사이클을 견딜 수 있도록 상의를 최종 강화 단계로 완성한다."
+    resultItemID: 208
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 6
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 32
+    recipeName: "시련 강화 하의 III"
+    description: "세 번의 사이클을 견딜 수 있도록 하의를 최종 강화 단계로 완성한다."
+    resultItemID: 308
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 6
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 33
+    recipeName: "시련 강화 장갑 III"
+    description: "세 번의 사이클을 견딜 수 있도록 장갑을 최종 강화 단계로 완성한다."
+    resultItemID: 408
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 6
+    category: 1
+    isDebugUnlocked: 0
+  - recipeID: 34
+    recipeName: "시련 강화 신발 III"
+    description: "세 번의 사이클을 견딜 수 있도록 신발을 최종 강화 단계로 완성한다."
+    resultItemID: 508
+    resultQuantity: 1
+    costType: 0
+    costAmount: 0
+    castTimeSeconds: 6
     category: 1
     isDebugUnlocked: 0
   ingredients:
   - recipeID: 1
     ingredientItemID: 100005
     requiredQuantity: 3
+  - recipeID: 1
+    ingredientItemID: 100007
+    requiredQuantity: 1
+  - recipeID: 2
+    ingredientItemID: 200001
+    requiredQuantity: 1
   - recipeID: 2
     ingredientItemID: 100005
     requiredQuantity: 3
-  - recipeID: 3
-    ingredientItemID: 200001
-    requiredQuantity: 5
   - recipeID: 2
-    ingredientItemID: 200001
-    requiredQuantity: 3
+    ingredientItemID: 100007
+    requiredQuantity: 2
+  - recipeID: 3
+    ingredientItemID: 200002
+    requiredQuantity: 1
+  - recipeID: 3
+    ingredientItemID: 100011
+    requiredQuantity: 1
   - recipeID: 3
     ingredientItemID: 100006
     requiredQuantity: 1
   - recipeID: 4
-    ingredientItemID: 100003
+    ingredientItemID: 200003
+    requiredQuantity: 1
+  - recipeID: 4
+    ingredientItemID: 100011
     requiredQuantity: 3
+  - recipeID: 4
+    ingredientItemID: 100001
+    requiredQuantity: 1
   - recipeID: 5
-    ingredientItemID: 100003
+    ingredientItemID: 200004
+    requiredQuantity: 1
+  - recipeID: 5
+    ingredientItemID: 100011
+    requiredQuantity: 6
+  - recipeID: 5
+    ingredientItemID: 100009
+    requiredQuantity: 1
+  - recipeID: 10
+    ingredientItemID: 105
+    requiredQuantity: 1
+  - recipeID: 10
+    ingredientItemID: 100011
     requiredQuantity: 3
-  - recipeID: 6
-    ingredientItemID: 100003
+  - recipeID: 10
+    ingredientItemID: 100001
+    requiredQuantity: 1
+  - recipeID: 11
+    ingredientItemID: 205
+    requiredQuantity: 1
+  - recipeID: 11
+    ingredientItemID: 100011
     requiredQuantity: 3
-  - recipeID: 7
-    ingredientItemID: 100003
+  - recipeID: 11
+    ingredientItemID: 100004
+    requiredQuantity: 2
+  - recipeID: 12
+    ingredientItemID: 305
+    requiredQuantity: 1
+  - recipeID: 12
+    ingredientItemID: 100011
     requiredQuantity: 3
-  - recipeID: 8
-    ingredientItemID: 100003
+  - recipeID: 12
+    ingredientItemID: 100004
+    requiredQuantity: 2
+  - recipeID: 13
+    ingredientItemID: 405
+    requiredQuantity: 1
+  - recipeID: 13
+    ingredientItemID: 100011
     requiredQuantity: 3
-  unlockConditions: []
+  - recipeID: 13
+    ingredientItemID: 100009
+    requiredQuantity: 1
+  - recipeID: 14
+    ingredientItemID: 505
+    requiredQuantity: 1
+  - recipeID: 14
+    ingredientItemID: 100011
+    requiredQuantity: 3
+  - recipeID: 14
+    ingredientItemID: 100002
+    requiredQuantity: 4
+  - recipeID: 20
+    ingredientItemID: 106
+    requiredQuantity: 1
+  - recipeID: 20
+    ingredientItemID: 100011
+    requiredQuantity: 6
+  - recipeID: 20
+    ingredientItemID: 100001
+    requiredQuantity: 2
+  - recipeID: 20
+    ingredientItemID: 100006
+    requiredQuantity: 1
+  - recipeID: 21
+    ingredientItemID: 206
+    requiredQuantity: 1
+  - recipeID: 21
+    ingredientItemID: 100011
+    requiredQuantity: 6
+  - recipeID: 21
+    ingredientItemID: 100004
+    requiredQuantity: 4
+  - recipeID: 21
+    ingredientItemID: 100009
+    requiredQuantity: 1
+  - recipeID: 22
+    ingredientItemID: 306
+    requiredQuantity: 1
+  - recipeID: 22
+    ingredientItemID: 100011
+    requiredQuantity: 6
+  - recipeID: 22
+    ingredientItemID: 100004
+    requiredQuantity: 4
+  - recipeID: 22
+    ingredientItemID: 100007
+    requiredQuantity: 2
+  - recipeID: 23
+    ingredientItemID: 406
+    requiredQuantity: 1
+  - recipeID: 23
+    ingredientItemID: 100011
+    requiredQuantity: 6
+  - recipeID: 23
+    ingredientItemID: 100009
+    requiredQuantity: 2
+  - recipeID: 23
+    ingredientItemID: 100006
+    requiredQuantity: 1
+  - recipeID: 24
+    ingredientItemID: 506
+    requiredQuantity: 1
+  - recipeID: 24
+    ingredientItemID: 100011
+    requiredQuantity: 6
+  - recipeID: 24
+    ingredientItemID: 100002
+    requiredQuantity: 8
+  - recipeID: 24
+    ingredientItemID: 100001
+    requiredQuantity: 1
+  - recipeID: 30
+    ingredientItemID: 107
+    requiredQuantity: 1
+  - recipeID: 30
+    ingredientItemID: 100011
+    requiredQuantity: 9
+  - recipeID: 30
+    ingredientItemID: 100001
+    requiredQuantity: 3
+  - recipeID: 30
+    ingredientItemID: 100006
+    requiredQuantity: 2
+  - recipeID: 31
+    ingredientItemID: 207
+    requiredQuantity: 1
+  - recipeID: 31
+    ingredientItemID: 100011
+    requiredQuantity: 9
+  - recipeID: 31
+    ingredientItemID: 100004
+    requiredQuantity: 6
+  - recipeID: 31
+    ingredientItemID: 100009
+    requiredQuantity: 2
+  - recipeID: 32
+    ingredientItemID: 307
+    requiredQuantity: 1
+  - recipeID: 32
+    ingredientItemID: 100011
+    requiredQuantity: 9
+  - recipeID: 32
+    ingredientItemID: 100004
+    requiredQuantity: 6
+  - recipeID: 32
+    ingredientItemID: 100007
+    requiredQuantity: 4
+  - recipeID: 33
+    ingredientItemID: 407
+    requiredQuantity: 1
+  - recipeID: 33
+    ingredientItemID: 100011
+    requiredQuantity: 9
+  - recipeID: 33
+    ingredientItemID: 100009
+    requiredQuantity: 3
+  - recipeID: 33
+    ingredientItemID: 100006
+    requiredQuantity: 2
+  - recipeID: 34
+    ingredientItemID: 507
+    requiredQuantity: 1
+  - recipeID: 34
+    ingredientItemID: 100011
+    requiredQuantity: 9
+  - recipeID: 34
+    ingredientItemID: 100002
+    requiredQuantity: 12
+  - recipeID: 34
+    ingredientItemID: 100001
+    requiredQuantity: 2
+  unlockConditions:
+  - recipeID: 1
+    conditionType: 0
+    conditionValue: 0
+    conditionValue2: 0
+    conditionStringValue:
+  - recipeID: 2
+    conditionType: 3
+    conditionValue: 200001
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 3
+    conditionType: 3
+    conditionValue: 100011
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 4
+    conditionType: 3
+    conditionValue: 200003
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 5
+    conditionType: 3
+    conditionValue: 200004
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 10
+    conditionType: 3
+    conditionValue: 105
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 11
+    conditionType: 3
+    conditionValue: 205
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 12
+    conditionType: 3
+    conditionValue: 305
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 13
+    conditionType: 3
+    conditionValue: 405
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 14
+    conditionType: 3
+    conditionValue: 505
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 20
+    conditionType: 3
+    conditionValue: 106
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 21
+    conditionType: 3
+    conditionValue: 206
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 22
+    conditionType: 3
+    conditionValue: 306
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 23
+    conditionType: 3
+    conditionValue: 406
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 24
+    conditionType: 3
+    conditionValue: 506
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 30
+    conditionType: 3
+    conditionValue: 107
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 31
+    conditionType: 3
+    conditionValue: 207
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 32
+    conditionType: 3
+    conditionValue: 307
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 33
+    conditionType: 3
+    conditionValue: 407
+    conditionValue2: 1
+    conditionStringValue:
+  - recipeID: 34
+    conditionType: 3
+    conditionValue: 507
+    conditionValue2: 1
+    conditionStringValue:

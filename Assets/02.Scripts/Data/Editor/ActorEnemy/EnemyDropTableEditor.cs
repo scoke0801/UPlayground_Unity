@@ -16,6 +16,7 @@ namespace UPlayGround.Editor
     public class EnemyDropTableEditor : UnityEditor.Editor
     {
         private SerializedProperty _dropItemsProp;
+        private SerializedProperty _weightedGroupsProp;
 
         // 아이템 피커 상태
         private bool _showItemPicker = false;
@@ -32,6 +33,7 @@ namespace UPlayGround.Editor
         private void OnEnable()
         {
             _dropItemsProp = serializedObject.FindProperty("dropItems");
+            _weightedGroupsProp = serializedObject.FindProperty("weightedGroups");
             LoadAllItems();
         }
 
@@ -76,6 +78,8 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(6);
             DrawAddButton();
             EditorGUILayout.Space(4);
+            EditorGUILayout.PropertyField(_weightedGroupsProp, new GUIContent("가중 선택 그룹"), true);
+            EditorGUILayout.Space(4);
             DrawOpenEditorButton();
 
             serializedObject.ApplyModifiedProperties();
@@ -95,13 +99,14 @@ namespace UPlayGround.Editor
             {
                 var el    = _dropItemsProp.GetArrayElementAtIndex(i);
                 float rate = el.FindPropertyRelative("rate").floatValue;
+                int minCnt = el.FindPropertyRelative("minimumDropCount").intValue;
                 int maxCnt = el.FindPropertyRelative("maximumDropCount").intValue;
-                avgExpected += (rate / 100f) * Mathf.Max(1, maxCnt);
+                avgExpected += (rate / 100f) * (Mathf.Max(1, minCnt) + Mathf.Max(1, maxCnt)) * 0.5f;
             }
 
             EditorGUILayout.BeginVertical("helpbox");
             EditorGUILayout.LabelField("드랍 테이블", _headerStyle);
-            EditorGUILayout.LabelField($"항목 수: {count}개  |  기대 드랍량: {avgExpected:F2}개/처치",
+            EditorGUILayout.LabelField($"독립 항목: {count}개  |  가중 그룹: {_weightedGroupsProp.arraySize}개  |  독립 기대량: {avgExpected:F2}개/처치",
                 EditorStyles.miniLabel);
             EditorGUILayout.EndVertical();
         }
@@ -117,7 +122,9 @@ namespace UPlayGround.Editor
                 SerializedProperty entry    = _dropItemsProp.GetArrayElementAtIndex(i);
                 SerializedProperty itemProp = entry.FindPropertyRelative("itemData");
                 SerializedProperty rateProp = entry.FindPropertyRelative("rate");
+                SerializedProperty minProp  = entry.FindPropertyRelative("minimumDropCount");
                 SerializedProperty maxProp  = entry.FindPropertyRelative("maximumDropCount");
+                SerializedProperty scopeProp = entry.FindPropertyRelative("scope");
 
                 ItemSO item = itemProp.objectReferenceValue as ItemSO;
 
@@ -162,13 +169,21 @@ namespace UPlayGround.Editor
                 GUILayout.Label($"{rateProp.floatValue:F1}%", GUILayout.Width(44));
                 EditorGUILayout.EndHorizontal();
 
-                // 세 번째 줄: 최대 수량
+                // 세 번째 줄: 수량 범위
                 EditorGUILayout.BeginHorizontal();
-                GUILayout.Label("최대 수량", GUILayout.Width(60));
-                int newMax = EditorGUILayout.IntSlider(maxProp.intValue, 1, 99);
+                GUILayout.Label("수량", GUILayout.Width(36));
+                int newMin = EditorGUILayout.IntField(minProp.intValue, GUILayout.Width(42));
+                GUILayout.Label("~", GUILayout.Width(12));
+                int newMax = EditorGUILayout.IntField(maxProp.intValue, GUILayout.Width(42));
+                newMin = Mathf.Max(1, newMin);
+                newMax = Mathf.Max(newMin, newMax);
+                if (newMin != minProp.intValue)
+                    minProp.intValue = newMin;
                 if (newMax != maxProp.intValue)
                     maxProp.intValue = newMax;
                 EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.PropertyField(scopeProp, new GUIContent("적용 범위"));
 
                 EditorGUILayout.EndVertical();
             }
@@ -192,7 +207,9 @@ namespace UPlayGround.Editor
                 var newEl = _dropItemsProp.GetArrayElementAtIndex(_dropItemsProp.arraySize - 1);
                 newEl.FindPropertyRelative("itemData").objectReferenceValue = null;
                 newEl.FindPropertyRelative("rate").floatValue = 50f;
+                newEl.FindPropertyRelative("minimumDropCount").intValue = 1;
                 newEl.FindPropertyRelative("maximumDropCount").intValue = 1;
+                newEl.FindPropertyRelative("scope").enumValueIndex = (int)ItemDropScope.Any;
             }
             GUI.color = Color.white;
         }

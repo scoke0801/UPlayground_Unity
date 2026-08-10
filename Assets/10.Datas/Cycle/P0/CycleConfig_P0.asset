@@ -30,4 +30,5 @@ MonoBehaviour:
   expLossRate: 0.3
   dropUnsettledMaterials: 1
   enableEquipmentFragmentLoss: 0
-  unsettledMaterialItemIds: 
+  unsettledMaterialItemIds:
+  - 100011

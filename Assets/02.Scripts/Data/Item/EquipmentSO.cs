@@ -6,6 +6,15 @@ using UPlayGround.Data.Stat;
 
 namespace UPlayGround.Data.Item
 {
+    public enum EquipmentVisualMode
+    {
+        [Tooltip("EquipmentSO의 equipmentPrefab을 생성해 장착한다.")]
+        Prefab = 0,
+
+        [Tooltip("캐릭터 모델에 포함된 고유 무기 외형을 그대로 사용한다.")]
+        CharacterBuiltIn = 1,
+    }
+
     [System.Serializable]
     public struct EquipmentStatEntry
     {
@@ -29,6 +38,9 @@ namespace UPlayGround.Data.Item
 
         public WeaponType weaponType = WeaponType.NoWeapon;
 
+        [Tooltip("고유 무기처럼 캐릭터 모델에 외형과 보조 애니메이터가 포함된 경우 CharacterBuiltIn을 사용한다.")]
+        public EquipmentVisualMode visualMode = EquipmentVisualMode.Prefab;
+
         [Header("Equipment Stats")]
         [SerializeField] private System.Collections.Generic.List<EquipmentStatEntry> _statModifiers = new();
 
@@ -43,6 +55,9 @@ namespace UPlayGround.Data.Item
         public System.Collections.Generic.List<AttributeReference> randomAttributePool = new();
 
         public System.Collections.Generic.IReadOnlyList<EquipmentStatEntry> StatModifiers => _statModifiers;
+
+        public bool HasUsableWeaponVisual =>
+            visualMode == EquipmentVisualMode.CharacterBuiltIn || equipmentPrefab != null;
 
         public bool HasAnyStatModifier() => _statModifiers is { Count: > 0 };
 

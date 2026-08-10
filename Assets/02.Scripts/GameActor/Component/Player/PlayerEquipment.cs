@@ -215,6 +215,13 @@ namespace UPlayGround.Components
         /// </summary>
         public bool EquipWeapon(int itemKey, EquipPosition equipPosition, WeaponType weaponType)
         {
+            if (Svc.Item.GetItemData(itemKey) is not EquipmentSO itemData ||
+                itemData.weaponType != weaponType ||
+                !itemData.HasUsableWeaponVisual)
+            {
+                return false;
+            }
+
             ParentConstraint constraint = null;
             switch (equipPosition)
             {
@@ -232,21 +239,32 @@ namespace UPlayGround.Components
 
             DestroyEquippedWeapon(equipPosition);
 
-            GameObject newWeapon = ActorSvc.Objects.CreateWeapon(itemKey);
-            if (newWeapon == null)
+            if (constraint == null)
             {
-                // 슬롯은 DestroyEquippedWeapon으로 이미 비었으므로(key=-1) 타입도 NoWeapon으로 맞춘다.
-                // 그러지 않으면 stale 타입이 모션셋/Idle 분기/발도 시 빌트인 무기 복원을 오작동시킨다.
+                Debug.LogWarning($"[PlayerEquipment] {equipPosition}/{weaponType}에 매핑된 ParentConstraint가 없습니다.");
                 ResetWeaponType(equipPosition);
                 return false;
             }
 
-            if (constraint == null)
+            GameObject newWeapon = null;
+            if (itemData.visualMode == EquipmentVisualMode.Prefab)
             {
-                Debug.LogWarning($"[PlayerEquipment] {equipPosition}/{weaponType}에 매핑된 ParentConstraint가 없습니다.");
-                Destroy(newWeapon);
-                ResetWeaponType(equipPosition);
-                return false;
+                newWeapon = ActorSvc.Objects.CreateWeapon(itemKey);
+                if (newWeapon == null)
+                {
+                    // 슬롯은 DestroyEquippedWeapon으로 이미 비었으므로(key=-1) 타입도 NoWeapon으로 맞춘다.
+                    // 그러지 않으면 stale 타입이 모션셋/Idle 분기/발도 시 빌트인 무기 복원을 오작동시킨다.
+                    ResetWeaponType(equipPosition);
+                    return false;
+                }
+
+                // constraint가 붙은 오브젝트의 자식으로 두고 로컬 원점에 정렬한다.
+                newWeapon.transform.SetParent(constraint.transform, false);
+                newWeapon.transform.localPosition = Vector3.zero;
+            }
+            else
+            {
+                RestoreBuiltInWeapon(constraint.gameObject);
             }
 
             if (equipPosition == EquipPosition.LeftHand)
@@ -259,12 +277,6 @@ namespace UPlayGround.Components
                 _currentMainWeaponObj = newWeapon;
                 MainWeaponKey = itemKey;
             }
-
-            // 1. 부모 설정: constraint가 붙은 오브젝트의 자식으로 설정
-            newWeapon.transform.SetParent(constraint.transform, false);
-
-            // 2. 위치 및 회전 초기화: 부모 오브젝트의 위치에 맞게 정렬
-            newWeapon.transform.localPosition = Vector3.zero;
 
             // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.
             // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
@@ -871,9 +883,10 @@ namespace UPlayGround.Components
                 {
                     Destroy(_currentSubWeaponObj);
                     _currentSubWeaponObj = null;
-                    SubWeaponKey = -1;
-                    IsSubWeaponEquipped = false;
                 }
+
+                SubWeaponKey = -1;
+                IsSubWeaponEquipped = false;
             }
             else if (equipPosition == EquipPosition.RightHand)
             {
@@ -881,9 +894,10 @@ namespace UPlayGround.Components
                 {
                     Destroy(_currentMainWeaponObj);
                     _currentMainWeaponObj = null;
-                    MainWeaponKey = -1;
-                    IsMainWeaponEquipped = false;
                 }
+
+                MainWeaponKey = -1;
+                IsMainWeaponEquipped = false;
             }
         }
 
@@ -1074,8 +1088,14 @@ namespace UPlayGround.Components
 
             if (MainWeaponKey != -1)
             {
-                var newMain = ActorSvc.Objects.CreateWeapon(MainWeaponKey);
-                if (newMain != null && _mainWeaponConstraint != null)
+                bool usesBuiltInVisual = Svc.Item.GetItemData(MainWeaponKey) is EquipmentSO mainData &&
+                                         mainData.visualMode == EquipmentVisualMode.CharacterBuiltIn;
+                var newMain = usesBuiltInVisual ? null : ActorSvc.Objects.CreateWeapon(MainWeaponKey);
+                if (usesBuiltInVisual && _mainWeaponConstraint != null)
+                {
+                    RestoreBuiltInWeapon(_mainWeaponConstraint.gameObject);
+                }
+                else if (newMain != null && _mainWeaponConstraint != null)
                 {
                     newMain.transform.SetParent(_mainWeaponConstraint.transform, false);
                     newMain.transform.localPosition = Vector3.zero;
@@ -1092,8 +1112,14 @@ namespace UPlayGround.Components
 
             if (SubWeaponKey != -1)
             {
-                var newSub = ActorSvc.Objects.CreateWeapon(SubWeaponKey);
-                if (newSub != null && _subWeaponConstraint != null)
+                bool usesBuiltInVisual = Svc.Item.GetItemData(SubWeaponKey) is EquipmentSO subData &&
+                                         subData.visualMode == EquipmentVisualMode.CharacterBuiltIn;
+                var newSub = usesBuiltInVisual ? null : ActorSvc.Objects.CreateWeapon(SubWeaponKey);
+                if (usesBuiltInVisual && _subWeaponConstraint != null)
+                {
+                    RestoreBuiltInWeapon(_subWeaponConstraint.gameObject);
+                }
+                else if (newSub != null && _subWeaponConstraint != null)
                 {
                     newSub.transform.SetParent(_subWeaponConstraint.transform, false);
                     newSub.transform.localPosition = Vector3.zero;

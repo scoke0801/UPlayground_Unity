@@ -20,16 +20,24 @@ namespace UPlayGround.Story
     /// </summary>
     public class StoryManager : BaseManager<StoryManager>, IManager, ISaveable, IStoryFlowService
     {
+        private const string MainStorySequenceResourceKey = "MainStorySequence";
+
         [SerializeField] private int _currentProgress;
+        [SerializeField] private StorySequenceSO _mainStorySequence;
 
         // 완료된 storyId 집합. 세이브/로드 시 이 데이터를 직렬화.
         private readonly HashSet<string> _completedStories = new();
+        private readonly Queue<StoryEntrySO> _pendingMainStories = new();
+        private readonly HashSet<string> _pendingMainStoryIds = new();
+        private System.IDisposable _activeMainStoryDialogue;
 
         public int CurrentProgress => _currentProgress;
 
         #region IManager
         public void Init()
         {
+            if (_mainStorySequence == null)
+                _mainStorySequence = Resources.Load<StorySequenceSO>(MainStorySequenceResourceKey);
             SaveManager.Instance.RegisterSaveable(this);
         }
 
@@ -39,10 +47,13 @@ namespace UPlayGround.Story
 
         public void Dispose()
         {
+            ClearPendingMainStories();
+            _mainStorySequence = null;
         }
 
         public void OnUpdate()
         {
+            TryPlayNextMainStory();
         }
 
         public void OnFixedUpdate()
@@ -55,6 +66,7 @@ namespace UPlayGround.Story
 
         public void OnSceneChanged(string sceneType)
         {
+            QueueEligibleMainStories();
         }
         #endregion
         
@@ -66,6 +78,7 @@ namespace UPlayGround.Story
             if (progress <= _currentProgress) return;
             _currentProgress = progress;
             QuestManager.Instance?.NotifyStoryProgress(_currentProgress);
+            QueueEligibleMainStories();
             Debug.Log($"[Story] 진행도 변경: {_currentProgress}");
         }
 
@@ -86,10 +99,12 @@ namespace UPlayGround.Story
                 return false;
             }
 
-            // 완료로 등록 먼저 — 대화 중 재트리거 방지
-            _completedStories.Add(entry.storyId);
+            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(graph, null);
+            if (subscription == null)
+                return false;
 
-            DialogueManager.Instance.StartDialogue(graph);
+            // 실제 Runner가 요청을 수락한 뒤 완료로 등록해 바쁜 Main 채널에서 유실되지 않게 한다.
+            _completedStories.Add(entry.storyId);
             return true;
         }
 
@@ -109,6 +124,8 @@ namespace UPlayGround.Story
             _completedStories.Clear();
             foreach (var id in state.completedStories)
                 _completedStories.Add(id);
+            ClearPendingMainStories();
+            QueueEligibleMainStories();
         }
 
         #region ISaveable
@@ -125,12 +142,15 @@ namespace UPlayGround.Story
             _completedStories.Clear();
             foreach (var id in saveData.story.completedStories ?? new List<string>())
                 _completedStories.Add(id);
+            ClearPendingMainStories();
+            QueueEligibleMainStories();
         }
 
         public void ResetForNewGame()
         {
             _currentProgress = 0;
             _completedStories.Clear();
+            ClearPendingMainStories();
         }
 
         #endregion
@@ -144,7 +164,7 @@ namespace UPlayGround.Story
             DialogueGraphSO best = null;
             int bestReq = -1;
 
-            foreach (var v in entry.variants)
+            foreach (var v in entry.variants ?? System.Array.Empty<StoryVariant>())
             {
                 if (_currentProgress >= v.requiredProgress && v.requiredProgress > bestReq)
                 {
@@ -154,6 +174,72 @@ namespace UPlayGround.Story
             }
 
             return best != null ? best : entry.dialogueGraph;
+        }
+
+        private void QueueEligibleMainStories()
+        {
+            if (_mainStorySequence?.entries == null)
+                return;
+
+            foreach (StoryEntrySO entry in _mainStorySequence.entries)
+            {
+                if (entry == null
+                    || string.IsNullOrWhiteSpace(entry.storyId)
+                    || entry.requiredProgress > _currentProgress
+                    || _completedStories.Contains(entry.storyId)
+                    || !_pendingMainStoryIds.Add(entry.storyId))
+                    continue;
+
+                _pendingMainStories.Enqueue(entry);
+            }
+
+            TryPlayNextMainStory();
+        }
+
+        private void TryPlayNextMainStory()
+        {
+            if (_activeMainStoryDialogue != null || _pendingMainStories.Count == 0)
+                return;
+
+            StoryEntrySO entry = _pendingMainStories.Peek();
+            DialogueGraphSO graph = ResolveGraph(entry);
+            if (graph == null)
+            {
+                Debug.LogWarning($"[Story] 자동 진행 '{entry.storyId}'에 유효한 대화 그래프 없음");
+                RemovePendingMainStory(entry);
+                return;
+            }
+
+            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
+                graph,
+                OnMainStoryDialogueCompleted);
+            if (subscription == null)
+                return;
+
+            _activeMainStoryDialogue = subscription;
+            _completedStories.Add(entry.storyId);
+            RemovePendingMainStory(entry);
+        }
+
+        private void OnMainStoryDialogueCompleted()
+        {
+            _activeMainStoryDialogue = null;
+            TryPlayNextMainStory();
+        }
+
+        private void RemovePendingMainStory(StoryEntrySO entry)
+        {
+            _pendingMainStories.Dequeue();
+            if (entry != null)
+                _pendingMainStoryIds.Remove(entry.storyId);
+        }
+
+        private void ClearPendingMainStories()
+        {
+            _activeMainStoryDialogue?.Dispose();
+            _activeMainStoryDialogue = null;
+            _pendingMainStories.Clear();
+            _pendingMainStoryIds.Clear();
         }
 
     }

@@ -1,6 +1,48 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9049561476049627007
+--- !u!114 &11400001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstSettlementCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.story.first_settlement_completed
+  expectedValue: 1
+--- !u!114 &11400002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FinalEvaluationCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.story.final_evaluation_completed
+  expectedValue: 1
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_SecondSettlementCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.story.second_settlement_completed
+  expectedValue: 1
+--- !u!114 &11400100
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,147 +52,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
+  m_Name: Node_Condition_Final
   m_EditorClassIdentifier: 
-  nodeId: ffba7a1c-900e-498b-972e-4c0104628179
-  nodeType: 0
+  nodeId: guide_cond_final
+  nodeType: 2
   channel: 0
-  speakerId: "\uACBD\uBE44\uBCD1"
-  dialogueText: "\uADF8\uB798.\n\n\uD558\uC9C0\uB9CC \uACC4\uC18D \uBC29\uCE58\uD560
-    \uC218\uB3C4 \uC5C6\uB2E4.\n\n\uC800 \uC55E \uACF5\uD130\uC5D0 \uB098\uD0C0\uB09C
-    \uAD34\uBB3C\uB4E4\uC744 \uC815\uB9AC\uD574 \uC900\uB2E4\uBA74,\n\uC6B0\uB9AC\uB294
-    \uB124\uAC00 \uCDA9\uBD84\uD55C \uC2E4\uB825\uC744 \uAC16\uCDC4\uB2E4\uACE0 \uD310\uB2E8\uD558\uACA0\uB2E4.\n\n\uC2DD\uBB3C\uC774\uB4E0,\n\uD574\uACE8\uC774\uB4E0,\n\uB3C4\uC801\uC774\uB4E0,\n\n\uC9C0\uAE08\uBD80\uD130
-    \uB9C8\uC8FC\uD558\uAC8C \uB420 \uC801\uB4E4\uC740 \uBAA8\uB450 \uC704\uD5D8\uD558\uB2E4."
-  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: fbf553d2-6334-44bd-9cd0-9f6576f4b9fd
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 620, y: 780}
---- !u!114 &-7539864593923620332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
-  nodeType: 0
-  channel: 0
-  speakerId: "\uACBD\uBE44\uBCD1"
-  dialogueText: "\uAC70\uAE30, \uC7A0\uC2DC \uBA48\uCDB0\uB77C.\n\n\uC55E\uCABD \uAE38\uC740
-    \uD604\uC7AC \uD1B5\uC81C \uC911\uC774\uB2E4.\n\n\uC6D0\uB798\uB77C\uBA74 \uC21C\uCC30\uB300\uAC00
-    \uC0AC\uC6A9\uD558\uB294 \uC548\uC804\uD55C \uD1B5\uD589\uB85C\uC600\uC9C0\uB9CC,\n\uCD5C\uADFC
-    \uB4E4\uC5B4 \uC774\uC0C1\uD55C \uC0AC\uAC74\uC774 \uC5F0\uB2EC\uC544 \uBC1C\uC0DD\uD558\uACE0
-    \uC788\uB2E4."
-  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: guide_player_reply
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 640, y: 20}
---- !u!114 &-5312760206182642218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: 0f940394-92ab-4417-b24c-c769ace4cec3
-  nodeType: 0
-  channel: 0
-  speakerId: "\uACBD\uBE44\uBCD1"
-  dialogueText: "\uADF8\uAC78\uB85C \uB05D\uC774\uBA74 \uCC28\uB77C\uB9AC \uB098\uC558\uC744
-    \uAC70\uB2E4.\n\n\uC8FC\uBCC0\uC5D0 \uC228\uC5B4 \uC9C0\uB0B4\uB358 \uB3C4\uC801\uB4E4\uAE4C\uC9C0
-    \uB09C\uD3ED\uD574\uC9C0\uAE30 \uC2DC\uC791\uD588\uC5B4.\n\n\uADF8\uB9AC\uACE0
-    \uCD5C\uADFC\uC5D0\uB294...\n\n\uC815\uC2E0\uC744 \uC783\uC740 \uC8FC\uBBFC\uB4E4\uC774
-    \uC11C\uB85C\uB97C \uACF5\uACA9\uD558\uB294 \uC77C\uAE4C\uC9C0 \uBC8C\uC5B4\uC9C0\uACE0
-    \uC788\uB2E4."
-  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 9185dbd4-a3e2-4aca-85fe-e828dc339057
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 620, y: 420}
---- !u!114 &-2433847709633769925
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: d528e107-d1cf-448e-825a-b65ab6fd264e
-  nodeType: 0
-  channel: 0
-  speakerId: "\uACBD\uBE44\uBCD1"
-  dialogueText: "\uD589\uC6B4\uC744 \uBE48\uB2E4, \uC5EC\uD589\uC790.\n\n\uADF8\uB9AC\uACE0
-    \uAE30\uC5B5\uD574 \uB46C\uB77C.\n\n\uAC80\uBCF4\uB2E4 \uBB34\uC11C\uC6B4 \uAC74,\n\uC815\uC2E0\uC744
-    \uC783\uC740 \uC778\uAC04\uC774\uB2E4."
-  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 620, y: 1040}
---- !u!114 &-2367969659428763717
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: 1717d702-f972-43f6-9d8e-0ce563816ad8
-  nodeType: 0
-  channel: 0
-  speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uADF8\uB798\uC11C \uAE38\uC744 \uB9C9\uACE0 \uC788\uB294 \uAC70\uAD70."
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: ffba7a1c-900e-498b-972e-4c0104628179
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId: guide_final_1
+  falseNextNodeId: guide_cond_second
   choices: []
-  condition: {fileID: 0}
+  condition: {fileID: 11400002}
   eventActions: []
-  editorPosition: {x: 100, y: 700}
---- !u!114 &-602101001
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 40, y: 180}
+--- !u!114 &11400102
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -160,52 +80,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_PlayerReply
-  m_EditorClassIdentifier: 
-  nodeId: guide_player_reply
-  nodeType: 0
+  m_Name: Node_Condition_Second
+  m_EditorClassIdentifier:
+  nodeId: guide_cond_second
+  nodeType: 2
   channel: 0
-  speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uC774\uC0C1\uD55C \uC0AC\uAC74?"
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 446b8371-7864-40ef-83bd-fa78c24fb02e
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId: guide_second_1
+  falseNextNodeId: guide_cond_returned
   choices: []
-  condition: {fileID: 0}
+  condition: {fileID: 11400003}
   eventActions: []
-  editorPosition: {x: 100, y: 220}
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: DLG_Npc_Guide
-  m_EditorClassIdentifier: 
-  graphId: 
-  graphName: 
-  startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
-  nodes:
-  - {fileID: -7539864593923620332}
-  - {fileID: -602101001}
-  - {fileID: 8090487291098517983}
-  - {fileID: 3809514268018348536}
-  - {fileID: 6812631618488580052}
-  - {fileID: -5312760206182642218}
-  - {fileID: 5326740819525041081}
-  - {fileID: 1572650392113273199}
-  - {fileID: -2367969659428763717}
-  - {fileID: -9049561476049627007}
-  - {fileID: 6373077137206374737}
-  - {fileID: -2433847709633769925}
---- !u!114 &371244871180258028
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 300, y: 180}
+--- !u!114 &11400101
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -215,24 +108,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_copy
+  m_Name: Node_Condition_Returned
   m_EditorClassIdentifier: 
-  nodeId: 14c6b213-b107-4e69-8b21-e132094d0c84
-  nodeType: 0
+  nodeId: guide_cond_returned
+  nodeType: 2
   channel: 0
-  speakerId: "\uAE38\uC7A1\uC774"
-  dialogueText: "\uC55E\uCABD \uAE38\uC740 \uD604\uC7AC \uD1B5\uC81C \uC911\uC774\uB2E4."
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId: guide_secret_1
+  falseNextNodeId: guide_welcome_1
   choices: []
-  condition: {fileID: 0}
+  condition: {fileID: 11400001}
   eventActions: []
-  editorPosition: {x: 490, y: 290}
---- !u!114 &1572650392113273199
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 320, y: 300}
+--- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -242,85 +136,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: 16be136b-9cb7-42ad-bbfa-4e7fea9c26aa
+  m_Name: Node_Welcome_1
+  m_EditorClassIdentifier:
+  nodeId: guide_welcome_1
   nodeType: 0
   channel: 0
-  speakerId: "\uACBD\uBE44\uBCD1"
-  dialogueText: "\uC544\uC9C1\uC740 \uBAA8\uB978\uB2E4.\n\n\uD558\uC9C0\uB9CC \uC0AC\uAC74\uC774
-    \uBC1C\uC0DD\uD55C \uC7A5\uC18C\uB4E4\uC744 \uC870\uC0AC\uD55C \uC0AC\uB78C\uB4E4\uC740
-    \uD558\uB098\uAC19\uC774 \uAC19\uC740 \uB9D0\uC744 \uB0A8\uACBC\uC9C0.\n\n\"\uBB34\uC5B8\uAC00\uAC00
-    \uC0AC\uB78C\uB4E4\uC758 \uC815\uC2E0\uC744 \uCE68\uC2DD\uD558\uACE0 \uC788\uB2E4.\""
-  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 1717d702-f972-43f6-9d8e-0ce563816ad8
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 620, y: 620}
---- !u!114 &3809514268018348536
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: 446b8371-7864-40ef-83bd-fa78c24fb02e
-  nodeType: 0
-  channel: 0
-  speakerId: "\uACBD\uBE44\uBCD1"
-  dialogueText: "\uCC98\uC74C\uC5D4 \uD3C9\uBC94\uD55C \uC2DD\uBB3C\uB4E4\uC774\uC5C8\uB2E4.\n\n\uC232\uC5D0
-    \uC790\uB77C\uB294 \uB369\uAD74\uACFC \uAF43\uB4E4\uC774 \uAC11\uC790\uAE30 \uC0AC\uB78C\uC744
-    \uACF5\uACA9\uD558\uAE30 \uC2DC\uC791\uD588\uC9C0.\n\n\uADF8\uB2E4\uC74C\uC5D4
-    \uC624\uB798\uC804\uC5D0 \uBB3B\uD600 \uC788\uB358 \uD574\uACE8\uB4E4\uC774 \uB545\uC744
-    \uB6AB\uACE0 \uB098\uD0C0\uB0AC\uACE0."
-  portrait: {fileID: 21300000, guid: 2e7bb733976c597408dce7c345447399, type: 3}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: 299d74e7-b372-4b88-95cb-9cf0638950d0
-  trueNextNodeId: 
-  falseNextNodeId: 
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 620, y: 220}
---- !u!114 &5326740819525041081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
-  m_EditorClassIdentifier: 
-  nodeId: 9185dbd4-a3e2-4aca-85fe-e828dc339057
-  nodeType: 0
-  channel: 0
-  speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uC804\uBD80 \uAC19\uC740 \uC6D0\uC778\uC774\uB77C\uB294 \uAC74\uAC00?"
+  speakerId: "안내인"
+  dialogueText: "어서 와! 여기는 시작의 마을이야! 순환 시련장을 조사하러 온 탐험가가 맞지?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 16be136b-9cb7-42ad-bbfa-4e7fea9c26aa
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId: guide_welcome_2
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 100, y: 540}
---- !u!114 &6373077137206374737
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 620, y: 520}
+--- !u!114 &11400111
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -330,24 +164,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
+  m_Name: Node_Welcome_2
   m_EditorClassIdentifier: 
-  nodeId: fbf553d2-6334-44bd-9cd0-9f6576f4b9fd
+  nodeId: guide_welcome_2
   nodeType: 0
   channel: 0
-  speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uC54C\uACA0\uC5B4.\n\n\uC9C1\uC811 \uD655\uC778\uD574 \uBCF4\uC9C0."
+  speakerId: "Bokusei"
+  dialogueText: "맞아. 어디부터 확인하면 되지?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: d528e107-d1cf-448e-825a-b65ab6fd264e
+  nextNodeId: guide_welcome_3
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 80, y: 960}
---- !u!114 &6812631618488580052
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 900, y: 520}
+--- !u!114 &11400112
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -357,24 +192,277 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk
+  m_Name: Node_Welcome_3
   m_EditorClassIdentifier: 
-  nodeId: 299d74e7-b372-4b88-95cb-9cf0638950d0
+  nodeId: guide_welcome_3
   nodeType: 0
   channel: 0
-  speakerId: "\uB2F9\uC2E0"
-  dialogueText: "\uC5B8\uB370\uB4DC\uAE4C\uC9C0?"
+  speakerId: "안내인"
+  dialogueText: "외곽의 시련 세 곳을 먼저 통과해. 중앙 평가는 그다음이야. 그리고 안에서 세운 작전은 큰 소리로 복습하지 않는 게 좋아!"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 0f940394-92ab-4417-b24c-c769ace4cec3
+  nextNodeId: guide_end
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 100, y: 380}
---- !u!114 &8090487291098517983
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1180, y: 520}
+--- !u!114 &11400120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Secret_1
+  m_EditorClassIdentifier: 
+  nodeId: guide_secret_1
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "쉿. 밖에서는 지난 원정 이야기를 하면 안 돼. 시련장이 다음 배치에 바로 써먹거든."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_secret_2
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 620, y: 260}
+--- !u!114 &11400121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Secret_2
+  m_EditorClassIdentifier: 
+  nodeId: guide_secret_2
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "그러면 아까 그 인사도 처음이 아니었던 거군."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_secret_3
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 900, y: 260}
+--- !u!114 &11400122
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Secret_3
+  m_EditorClassIdentifier: 
+  nodeId: guide_secret_3
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "응. 그래서 이번이 몇 번째 귀환이야? 시련장이 듣기 전에 다음 작전부터 정하자."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1180, y: 260}
+--- !u!114 &11400130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Final_1
+  m_EditorClassIdentifier: 
+  nodeId: guide_final_1
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "어서 와! 여기는 시작의 마을——"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_final_2
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 320, y: 40}
+--- !u!114 &11400131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Final_2
+  m_EditorClassIdentifier: 
+  nodeId: guide_final_2
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "아니네. 이제 여기는 출발의 마을이야. 바깥길이 열렸어, 보쿠세이."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_final_3
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 620, y: 40}
+--- !u!114 &11400132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Final_3
+  m_EditorClassIdentifier: 
+  nodeId: guide_final_3
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "그럼 다음에는 처음 가는 길을 안내해 줘."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_end
+  trueNextNodeId: 
+  falseNextNodeId: 
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 900, y: 40}
+--- !u!114 &11400140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Second_1
+  m_EditorClassIdentifier:
+  nodeId: guide_second_1
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "이번에는 시련장이 길 순서까지 바꿨어. 그런데 네가 수호자에게 먼저 손을 내밀 줄은 계산하지 못했나 봐."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_second_2
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 620, y: 140}
+--- !u!114 &11400141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Second_2
+  m_EditorClassIdentifier:
+  nodeId: guide_second_2
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "시험을 잘 치르는 것보다 시험의 기준을 바꾸는 편이 빠르겠네."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_second_3
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 900, y: 140}
+--- !u!114 &11400142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Second_3
+  m_EditorClassIdentifier:
+  nodeId: guide_second_3
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "좋아. 세 번째에는 정답 대신 우리가 만든 답을 보여 주자."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1180, y: 140}
+--- !u!114 &11400999
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -386,7 +474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
   m_EditorClassIdentifier: 
-  nodeId: 94e4312f-de85-4b75-9d4f-26660c408f6e
+  nodeId: guide_end
   nodeType: 4
   channel: 0
   speakerId: 
@@ -400,4 +488,37 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 600, y: 1220}
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1480, y: 260}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_Npc_Guide
+  m_EditorClassIdentifier:
+  graphId: dlg_npc_start_village_guide
+  graphName: "시작의 마을 안내인"
+  startNodeId: guide_cond_final
+  nodes:
+  - {fileID: 11400100}
+  - {fileID: 11400102}
+  - {fileID: 11400101}
+  - {fileID: 11400110}
+  - {fileID: 11400111}
+  - {fileID: 11400112}
+  - {fileID: 11400120}
+  - {fileID: 11400121}
+  - {fileID: 11400122}
+  - {fileID: 11400130}
+  - {fileID: 11400131}
+  - {fileID: 11400132}
+  - {fileID: 11400140}
+  - {fileID: 11400141}
+  - {fileID: 11400142}
+  - {fileID: 11400999}

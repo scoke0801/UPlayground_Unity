@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bacaedb63a836f34abc1e97a7ae9b8dd, type: 3}
   m_Name: NPC_Story_Guide
   m_EditorClassIdentifier: 
-  actorName: StoryGuide
-  description: 
+  actorName: "시작의 마을 안내인"
+  description: "순환 시련장의 관측을 피해 회차 기록과 탐험 작전을 관리하는 길잡이. 지상에서는 모든 도전자에게 같은 공식 안내를 반복한다."
   interactionObjectType: 5
   hp: 0
   dropItems: []

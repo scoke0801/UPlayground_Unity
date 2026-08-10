@@ -11,23 +11,27 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
   m_Name: quest_sub_highland_golem_trace
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   questId: quest_sub_highland_golem_trace
-  questName: "\uACE0\uC9C0\uB300\uC758 \uBC1C\uC790\uAD6D"
-  questDescription: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD558\uACE0
-    \uACE0\uC9C0\uB300 \uAE38\uC758 \uC704\uD5D8\uB3C4\uB97C \uB0AE\uCD98\uB2E4."
-  requiredQuestIds: []
+  questName: "마지막 서명"
+  questType: 1
+  shortSummary: "최종 정산 기록에 남은 수호자들의 서명을 확인한다."
+  questDescription: "세 번째 정산 기록에는 도전자 한 명의 이름만 적히지 않았다. 원정에서 만난 수호자와 해방된 탐험가의 흔적이 같은 통과자 명단에 남았다. 시련장이 끝내 인정한 것은 혼자 살아남는 힘이 아니라 함께 다음 길을 여는 능력이었다."
+  requiredQuestIds:
+  - quest_sub_hunter_spider_web
   requiredStoryProgress: 20
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds: []
   objectives:
-  - objectiveId: obj_kill_highland_golem
-    description: "\uBC14\uC704 \uACE0\uC9C0\uB300\uC758 Golem\uC744 \uCC98\uCE58\uD55C\uB2E4."
-    type: 3
-    targetId: 0
+  - objectiveId: obj_confirm_final_signatures
+    description: "세 번째 사이클을 정산하고 최종 통과자 명단을 확인한다."
+    type: 4
+    targetId: 50
     npcId: 0
-    targetStringId: Golem_Normal
+    targetStringId:
     requiredCount: 1
   reward:
-    gold: 160
+    gold: 120
     exp: 120
     items: []
   isRepeatable: 0

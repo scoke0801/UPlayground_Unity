@@ -13,26 +13,26 @@ MonoBehaviour:
   m_Name: quest_main_005
   m_EditorClassIdentifier: 
   questId: quest_main_005
-  questName: "\uB358\uC804 \uC785\uAD6C\uC758 Lich"
+  questName: "출발의 마을"
   questType: 0
-  shortSummary: 
-  questDescription: "\uB358\uC804 \uC785\uAD6C\uB97C \uB9C9\uACE0 \uC788\uB294 Lich\uB97C
-    \uCC98\uCE58\uD558\uACE0 \uB0B4\uBD80\uB85C \uC9C4\uC785\uD560 \uAE38\uC744 \uC5F0\uB2E4."
+  shortSummary: "세 번째 최종 평가를 마치고 바깥길을 연다."
+  questDescription: "보쿠세이는 반복 속에서 혼자 강해지는 대신 안내인, 탐험가, 수호자와 협력하는 법을 증명했다. 세 번째 사이클의 최종 평가를 마치고 시련장이 감춰 둔 다음 길을 연다."
   requiredQuestIds:
-  - quest_main_001
-  requiredStoryProgress: 30
+  - quest_main_004
+  requiredStoryProgress: 40
+  autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
-  - objectiveId: obj_kill_lich
-    description: "\uB358\uC804 \uC785\uAD6C\uC758 Lich\uB97C \uCC98\uCE58\uD55C\uB2E4."
-    type: 3
-    targetId: 0
+  - objectiveId: obj_cycle_final_evaluation
+    description: "세 번째 사이클을 완료하고 최종 평가를 통과한다."
+    type: 4
+    targetId: 50
     npcId: 0
-    targetStringId: Lich_Normal
+    targetStringId:
     requiredCount: 1
   reward:
-    gold: 300
-    exp: 300
+    gold: 500
+    exp: 500
     items: []
   isRepeatable: 0
   autoComplete: 1

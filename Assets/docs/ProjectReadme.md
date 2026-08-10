@@ -10,14 +10,14 @@ Unity 6 (6000.0.60f1) 기반 싱글플레이 TPS 액션 게임. 1인 개발. URP
 
 Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지 캐릭터는 `CharacterActorType`을 기준으로 플레이어블 대상으로 확장 가능한 구조를 지향한다.
 
-`MonsterActor._recruitableAs`가 지정된 적은 처치 시 `PartyManager.UnlockCharacter`를 통해 플레이어블 파티에 합류한다. 사이클 보스의 BossAssist 영입은 이 계약과 별도로 동작하며, `BossAssistDatabaseSO.sourceBossActorId` 매핑과 `BossRecruitmentService` 확률 롤을 사용한다. 실제 조작 캐릭터는 단일 `PlayerActor`를 유지하고, `PlayerSwapBehaviour`가 하위 모델(`CharacterModelData`)을 교체한 뒤 `PlayerActor.RefreshForCharacter()`로 캐릭터별 상태를 갱신한다.
+`MonsterActor._recruitableAs`가 지정된 적은 처치 시 `Svc.Party?.UnlockCharacter`를 통해 플레이어블 파티에 합류한다. 사이클 보스의 BossAssist 영입은 이 계약과 별도로 동작하며, `BossAssistDatabaseSO.sourceBossActorId` 매핑과 `BossRecruitmentService`의 브레이크 마무리·노히트·누적 처치 조건 판정을 사용한다. 실제 조작 캐릭터는 단일 `PlayerActor`를 유지하고, `PlayerSwapBehaviour`가 하위 모델(`CharacterModelData`)을 교체한 뒤 `PlayerActor.RefreshForCharacter()`로 캐릭터별 상태를 갱신한다.
 
 | 구분 | 설명 |
 |------|------|
 | 기본 캐릭터 | `Bokusei` — 게임 시작 기준 고정 플레이어블 |
 | 확장 대상 | `CharacterActorType`에 정의된 타입 중 `CharacterModelData`와 데이터가 준비된 캐릭터 |
 | 캐릭터 합류 | 처치한 `MonsterActor._recruitableAs`가 `None`이 아닐 때 플레이어블 파티에 합류 |
-| 보스 어시스트 영입 | 사이클 BossAssist 확률 롤 — 어시스트 로스터에 추가(파티 슬롯 아님) |
+| 보스 어시스트 영입 | 사이클 BossAssist 조건부 확정 영입 — 어시스트 로스터에 추가(파티 슬롯 아님) |
 | 교체 방식 | 단일 `PlayerActor` + 모델 서브루트 활성/비활성 전환 |
 | 현재 타입 | `Bokusei`, `Honoka`, `Reine`, `LianLian`, `Nenmir`, `Sera`, `Inori`, `H09` |
 
@@ -324,6 +324,7 @@ Assets/
 | [GAME_MATH_LEARNING_GUIDE.html](guide/GAME_MATH_LEARNING_GUIDE.html) | 프로젝트 실제 코드로 배우는 게임 수학 — 초중등 눈높이의 좌표·벡터·내적·외적·회전·보간부터 포물선, 모션 워프, 카메라, 미니맵 변환, 피해 배율, 가중치·시드 난수까지 그림·식·코드·연습 문제로 설명 |
 | [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
+| [cycle/CYCLE_STORY_PLOT.md](cycle/CYCLE_STORY_PLOT.md) | 현행 사이클 메인 스토리 플롯 — 시작의 마을과 순환 시련장, 회차를 기억하는 NPC, 신규 고유 모델 없이 전개하는 밝은 코믹 미스터리 |
 | [GAMEPLAY_GUIDE.md](Complete/GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
 | [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](Complete/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
 | [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |

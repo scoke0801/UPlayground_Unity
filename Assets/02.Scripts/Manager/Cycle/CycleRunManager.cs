@@ -16,10 +16,19 @@ namespace UPlayGround.Manager
         IManager,
         IUpdatableManager,
         ISaveable,
+        ICycleRunReaderService,
         ICycleExitService
     {
         private const int MinCycleIndex = 1;
         private const int MaxCycleIndex = 3;
+        private const int StoryProgressOuterTrialsCleared = 10;
+        private const int StoryProgressCentralEvaluationCleared = 20;
+        private const int StoryProgressFirstSettlementCompleted = 30;
+        private const int StoryProgressSecondSettlementCompleted = 40;
+        private const int StoryProgressFinalEvaluationCompleted = 50;
+        private const string FirstSettlementStoryFlag = "cycle.story.first_settlement_completed";
+        private const string SecondSettlementStoryFlag = "cycle.story.second_settlement_completed";
+        private const string FinalEvaluationStoryFlag = "cycle.story.final_evaluation_completed";
 
         [SerializeField] private CycleConfigSO _config;
 
@@ -45,6 +54,8 @@ namespace UPlayGround.Manager
             CycleRunPhase.Active or
             CycleRunPhase.BossDefeated or
             CycleRunPhase.Settling;
+        public int CycleIndex => _current.cycleIndex;
+        public int Seed => _current.seed;
 
         public event Action<CycleRunState> OnPhaseChanged;
         public event Action<int> OnCycleStarted;
@@ -171,11 +182,14 @@ namespace UPlayGround.Manager
             return true;
         }
 
-        /// <summary>첫 사이클 또는 직전 완료 사이클의 다음 번호로 시작한다.</summary>
+        /// <summary>
+        /// 첫 사이클 또는 직전 완료 사이클의 다음 번호로 시작한다.
+        /// 결말 이후에는 최고 난이도(3회차)를 유지한 채 새 시드로 반복한다.
+        /// </summary>
         public bool StartNewCycle(int? requestedSeed = null)
         {
             int cycleIndex = _current.phase == CycleRunPhase.Completed
-                ? _current.cycleIndex + 1
+                ? Mathf.Min(_current.cycleIndex + 1, MaxCycleIndex)
                 : MinCycleIndex;
             return StartCycle(cycleIndex, requestedSeed);
         }
@@ -295,6 +309,8 @@ namespace UPlayGround.Manager
             _current.centralBossDefeated = true;
             _current.exitPortalActivated = true;
             SetPhase(CycleRunPhase.BossDefeated);
+            AdvanceCycleStoryProgress(StoryProgressOuterTrialsCleared);
+            AdvanceCycleStoryProgress(StoryProgressCentralEvaluationCleared);
             ApplyExitPortalState();
             RequestImmediateSave();
             return true;
@@ -354,6 +370,7 @@ namespace UPlayGround.Manager
             if (placement.isCentral)
                 return NotifyCentralBossDefeated(spawnId);
 
+            TryAdvanceOuterTrialStoryProgress();
             RequestImmediateSave();
             return true;
         }
@@ -393,6 +410,7 @@ namespace UPlayGround.Manager
             _current.exitPortalActivated = false;
             SetPhase(CycleRunPhase.Completed);
             ApplyExitPortalState();
+            AdvanceCycleStoryProgressForSettlement(_history.completedCycleCount);
             OnCycleCompleted?.Invoke(completedCycleIndex);
             RequestImmediateSave();
             return true;
@@ -548,6 +566,46 @@ namespace UPlayGround.Manager
                 if (portals[i] != null && portals[i].IsCycleExitPortal)
                     portals[i].SetPortalActive(active);
             }
+        }
+
+        private void TryAdvanceOuterTrialStoryProgress()
+        {
+            if (_layout?.outerBosses == null || _layout.outerBosses.Count == 0)
+                return;
+
+            for (int i = 0; i < _layout.outerBosses.Count; i++)
+            {
+                CycleBossPlacement outerBoss = _layout.outerBosses[i];
+                if (outerBoss == null || !outerBoss.defeated)
+                    return;
+            }
+
+            AdvanceCycleStoryProgress(StoryProgressOuterTrialsCleared);
+        }
+
+        private static void AdvanceCycleStoryProgressForSettlement(int completedCycleCount)
+        {
+            AdvanceCycleStoryProgress(StoryProgressOuterTrialsCleared);
+            AdvanceCycleStoryProgress(StoryProgressCentralEvaluationCleared);
+            AdvanceCycleStoryProgress(StoryProgressFirstSettlementCompleted);
+            Svc.Flags?.SetFlag(FirstSettlementStoryFlag, true);
+
+            if (completedCycleCount >= 2)
+            {
+                AdvanceCycleStoryProgress(StoryProgressSecondSettlementCompleted);
+                Svc.Flags?.SetFlag(SecondSettlementStoryFlag, true);
+            }
+
+            if (completedCycleCount < 3)
+                return;
+
+            AdvanceCycleStoryProgress(StoryProgressFinalEvaluationCompleted);
+            Svc.Flags?.SetFlag(FinalEvaluationStoryFlag, true);
+        }
+
+        private static void AdvanceCycleStoryProgress(int progress)
+        {
+            Svc.StoryFlow?.SetProgress(progress);
         }
 
         private void RequestImmediateSave()

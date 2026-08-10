@@ -11,14 +11,15 @@ using UPlayGround.Story;
 namespace UPlayGround.Editor
 {
     /// <summary>
-    /// Assets/docs/story의 메인 스토리 초안을 기준으로 기본 Quest/Dialogue/StoryEntry 에셋을 생성한다.
-    /// 생성 결과는 초안 데이터이므로 배치, Addressables, 트리거 연결은 씬에서 별도로 처리한다.
+    /// 권위 문서의 메인 스토리 정의를 기준으로 Quest/Dialogue/StoryEntry와
+    /// 진행도 자동 재생 시퀀스를 생성한다.
     /// </summary>
     public class MainStoryGeneratorWindow : EditorWindow
     {
         private const string QUEST_ROOT = "Assets/10.Datas/Quest/Generated/MainStory";
         private const string DIALOGUE_ROOT = "Assets/10.Datas/Dialogue/Generated/MainStory";
         private const string STORY_ROOT = "Assets/10.Datas/Story/Generated/MainStory";
+        private const string MAIN_STORY_SEQUENCE_PATH = "Assets/Resources/MainStorySequence.asset";
         private const string QUEST_DB_SCAN_ROOT = "Assets/10.Datas/Quest";
 
         private Vector2 _scroll;
@@ -164,19 +165,24 @@ namespace UPlayGround.Editor
             EditorGUILayout.Space(6);
             EditorGUILayout.LabelField("메인 스토리 자동 생성", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "Assets/docs/story/MAIN_STORY.md의 STORY_GENERATOR_MAIN 블록을 기준으로 QuestSO, DialogueGraphSO, StoryEntrySO 초안을 생성합니다.",
+                $"{StoryGeneratorMarkdownLoader.MainStoryDocPath}의 STORY_GENERATOR_MAIN 블록을 기준으로 QuestSO, DialogueGraphSO, StoryEntrySO 초안을 생성합니다.",
                 MessageType.Info);
 
-            var seeds = GetSeeds(out var sourceMessage);
-            EditorGUILayout.HelpBox(sourceMessage, MessageType.None);
+            bool hasDocument = TryGetSeeds(out var seeds, out var sourceMessage);
+            EditorGUILayout.HelpBox(
+                sourceMessage,
+                hasDocument ? MessageType.None : MessageType.Error);
 
             _overwriteExisting = EditorGUILayout.ToggleLeft("기존 생성 에셋 갱신", _overwriteExisting);
             _refreshQuestDatabase = EditorGUILayout.ToggleLeft("생성 후 QuestDatabase 갱신", _refreshQuestDatabase);
 
             EditorGUILayout.Space(4);
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("생성/갱신", GUILayout.Height(32)))
-                GenerateAll();
+            using (new EditorGUI.DisabledScope(!hasDocument))
+            {
+                if (GUILayout.Button("생성/갱신", GUILayout.Height(32)))
+                    GenerateAll();
+            }
             if (GUILayout.Button("생성 폴더 선택", GUILayout.Height(32)))
                 PingGeneratedFolder();
             EditorGUILayout.EndHorizontal();
@@ -197,10 +203,31 @@ namespace UPlayGround.Editor
             EditorGUILayout.EndVertical();
         }
 
-        private void GenerateAll()
+        public static void GenerateFromDocumentBatch()
         {
+            var window = CreateInstance<MainStoryGeneratorWindow>();
+            try
+            {
+                if (!window.GenerateAll(showDialog: false))
+                    throw new System.InvalidOperationException("메인 스토리 문서 생성에 실패했습니다.");
+            }
+            finally
+            {
+                DestroyImmediate(window);
+            }
+        }
+
+        private bool GenerateAll(bool showDialog = true)
+        {
+            if (!TryGetSeeds(out var seeds, out var sourceMessage))
+            {
+                Debug.LogError($"[MainStoryGenerator] 생성 중단: {sourceMessage}");
+                if (showDialog)
+                    EditorUtility.DisplayDialog("생성 중단", sourceMessage, "확인");
+                return false;
+            }
+
             EnsureFolders();
-            var seeds = GetSeeds(out var sourceMessage);
             Debug.Log($"[MainStoryGenerator] {sourceMessage}");
 
             var dialogueMap = new Dictionary<string, DialogueGraphSO>();
@@ -224,24 +251,56 @@ namespace UPlayGround.Editor
                 }
             }
 
+            RefreshMainStorySequence(seeds);
+
             if (_refreshQuestDatabase)
                 RefreshQuestDatabase();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorUtility.DisplayDialog("생성 완료", "메인 스토리 기본 에셋 생성/갱신이 완료되었습니다.", "확인");
+            if (showDialog)
+                EditorUtility.DisplayDialog("생성 완료", "메인 스토리 기본 에셋 생성/갱신이 완료되었습니다.", "확인");
+            return true;
         }
 
-        private static StorySeed[] GetSeeds(out string sourceMessage)
+        private static bool TryGetSeeds(out StorySeed[] seeds, out string sourceMessage)
         {
             if (StoryGeneratorMarkdownLoader.TryLoadMain(out var document, out var error))
             {
-                sourceMessage = $"문서 데이터 사용: {StoryGeneratorMarkdownLoader.StoryDocPath} ({StoryGeneratorMarkdownLoader.Summary(document)})";
-                return document.quests.Select(StorySeed.FromDocument).ToArray();
+                try
+                {
+                    seeds = document.quests.Select(StorySeed.FromDocument).ToArray();
+                    sourceMessage = $"문서 데이터 사용: {StoryGeneratorMarkdownLoader.MainStoryDocPath} ({StoryGeneratorMarkdownLoader.Summary(document)})";
+                    return true;
+                }
+                catch (System.Exception exception)
+                {
+                    error = exception.Message;
+                }
             }
 
-            sourceMessage = $"내장 기본값 사용: {error}";
-            return Seeds;
+            seeds = System.Array.Empty<StorySeed>();
+            sourceMessage = $"권위 문서를 읽지 못해 생성을 중단합니다: {error}";
+            return false;
+        }
+
+        private static void RefreshMainStorySequence(IEnumerable<StorySeed> seeds)
+        {
+            EnsureFolder("Assets/Resources");
+            var sequence = AssetDatabase.LoadAssetAtPath<StorySequenceSO>(MAIN_STORY_SEQUENCE_PATH);
+            if (sequence == null)
+            {
+                sequence = CreateInstance<StorySequenceSO>();
+                AssetDatabase.CreateAsset(sequence, MAIN_STORY_SEQUENCE_PATH);
+            }
+
+            sequence.entries = seeds
+                .SelectMany(seed => seed.Stories)
+                .Select(story => AssetDatabase.LoadAssetAtPath<StoryEntrySO>(
+                    $"{STORY_ROOT}/{story.StoryId}.asset"))
+                .Where(entry => entry != null)
+                .ToList();
+            EditorUtility.SetDirty(sequence);
         }
 
         private static void EnsureFolders()
@@ -327,14 +386,18 @@ namespace UPlayGround.Editor
 
             quest.questId = seed.QuestId;
             quest.questName = seed.QuestName;
+            quest.questType = QuestType.Main;
+            quest.shortSummary = seed.ShortSummary;
             quest.questDescription = seed.Description;
             quest.requiredStoryProgress = seed.RequiredProgress;
             quest.requiredQuestIds = seed.RequiredQuestIds?.ToList() ?? new List<string>();
+            quest.autoAcceptOnNewGame = seed.AutoAcceptOnNewGame;
+            quest.autoAcceptNextQuestIds = seed.AutoAcceptNextQuestIds?.ToList() ?? new List<string>();
             quest.objectives = seed.Objectives.Select(x => x.ToData()).ToList();
             quest.reward.gold = seed.RewardGold;
             quest.reward.exp = seed.RewardExp;
-            quest.reward.items.Clear();
-            quest.isRepeatable = false;
+            quest.reward.items = seed.RewardItems?.ToList() ?? new List<QuestItemReward>();
+            quest.isRepeatable = seed.IsRepeatable;
             quest.autoComplete = true;
 
             EditorUtility.SetDirty(quest);
@@ -389,11 +452,16 @@ namespace UPlayGround.Editor
         {
             public string QuestId;
             public string QuestName;
+            public string ShortSummary;
             public string Description;
             public int RequiredProgress;
             public int RewardGold;
             public int RewardExp;
+            public QuestItemReward[] RewardItems = System.Array.Empty<QuestItemReward>();
+            public bool IsRepeatable;
+            public bool AutoAcceptOnNewGame;
             public string[] RequiredQuestIds = System.Array.Empty<string>();
+            public string[] AutoAcceptNextQuestIds = System.Array.Empty<string>();
             public ObjectiveSeed[] Objectives;
             public DialogueSeed[] Dialogues;
             public StoryEntrySeed[] Stories;
@@ -402,11 +470,18 @@ namespace UPlayGround.Editor
             {
                 QuestId = quest.questId,
                 QuestName = quest.questName,
+                ShortSummary = quest.shortSummary,
                 Description = quest.description,
                 RequiredProgress = quest.requiredProgress,
                 RewardGold = quest.rewardGold,
                 RewardExp = quest.rewardExp,
+                RewardItems = (quest.rewardItems ?? System.Array.Empty<StoryGeneratorItemReward>())
+                    .Select(x => x.ToQuestItemReward())
+                    .ToArray(),
+                IsRepeatable = quest.isRepeatable,
+                AutoAcceptOnNewGame = quest.autoAcceptOnNewGame,
                 RequiredQuestIds = quest.requiredQuestIds ?? System.Array.Empty<string>(),
+                AutoAcceptNextQuestIds = quest.autoAcceptNextQuestIds ?? System.Array.Empty<string>(),
                 Objectives = (quest.objectives ?? System.Array.Empty<StoryGeneratorObjective>())
                     .Select(ObjectiveSeed.FromDocument)
                     .ToArray(),

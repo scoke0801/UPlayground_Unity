@@ -13,25 +13,26 @@ MonoBehaviour:
   m_Name: quest_main_002
   m_EditorClassIdentifier: 
   questId: quest_main_002
-  questName: "\uAC70\uBBF8\uC904\uC5D0 \uB9C9\uD78C \uC232"
+  questName: "중앙의 평가자"
   questType: 0
-  shortSummary: 
-  questDescription: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744
-    \uCC98\uCE58\uD574 \uB9C9\uD78C \uC232\uAE38\uC744 \uC5F0\uB2E4."
-  requiredQuestIds: []
+  shortSummary: "열린 중앙 구역의 최종 평가를 끝낸다."
+  questDescription: "외곽의 세 시련을 마치자 중앙 보스에게 향하는 길이 열렸다. 이번 사이클의 최종 평가 대상을 쓰러뜨리고 포털의 반응을 확인한다."
+  requiredQuestIds:
+  - quest_main_001
   requiredStoryProgress: 10
-  autoAcceptNextQuestIds: []
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_main_003
   objectives:
-  - objectiveId: obj_kill_spider_queen
-    description: "\uAC70\uBBF8 \uC232 \uAE4A\uC740 \uACF3\uC758 Spider Queen\uC744
-      \uCC98\uCE58\uD55C\uB2E4."
-    type: 3
-    targetId: 0
+  - objectiveId: obj_cycle_central_evaluation
+    description: "중앙 보스를 처치한다."
+    type: 4
+    targetId: 20
     npcId: 0
-    targetStringId: SpiderQueen_1
+    targetStringId:
     requiredCount: 1
   reward:
-    gold: 180
+    gold: 150
     exp: 150
     items: []
   isRepeatable: 0

@@ -13,26 +13,27 @@ MonoBehaviour:
   m_Name: quest_main_004
   m_EditorClassIdentifier: 
   questId: quest_main_004
-  questName: "\uB4F1\uB871\uC774 \uAC00\uB9AC\uD0A4\uB294 \uACF3"
+  questName: "두 번째 각본"
   questType: 0
-  shortSummary: 
-  questDescription: "\uC11D\uB4F1\uACFC \uBAA9\uC870 \uB4F1\uB871\uC774 \uC774\uC5B4\uC9C0\uB294
-    \uAE38 \uB05D\uC744 \uC870\uC0AC\uD574 \uB358\uC804 \uC785\uAD6C\uC758 \uC704\uCE58\uB97C
-    \uD655\uC778\uD55C\uB2E4."
-  requiredQuestIds: []
-  requiredStoryProgress: 10
-  autoAcceptNextQuestIds: []
+  shortSummary: "시련장의 새 배치를 공략하고 다시 귀환한다."
+  questDescription: "안내인은 지상에서 처음 만난 사람처럼 행동했지만, 관측이 닿지 않는 곳에서는 이전 원정을 기억하고 있었다. 시련장의 새 배치에 맞춰 두 번째 사이클을 완료한다."
+  requiredQuestIds:
+  - quest_main_003
+  requiredStoryProgress: 30
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_main_005
   objectives:
-  - objectiveId: obj_reach_lantern_path_end
-    description: "\uC11D\uB4F1 \uAE38 \uB05D\uC744 \uC870\uC0AC\uD55C\uB2E4."
-    type: 7
-    targetId: 0
+  - objectiveId: obj_cycle_second_settlement
+    description: "두 번째 사이클을 완료하고 정산한다."
+    type: 4
+    targetId: 40
     npcId: 0
-    targetStringId: loc_lantern_path_end
+    targetStringId:
     requiredCount: 1
   reward:
-    gold: 150
-    exp: 90
+    gold: 250
+    exp: 250
     items: []
   isRepeatable: 0
   autoComplete: 1

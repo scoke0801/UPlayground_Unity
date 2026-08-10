@@ -11,25 +11,29 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
   m_Name: quest_sub_hunter_spider_web
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   questId: quest_sub_hunter_spider_web
-  questName: "\uC232\uAC00\uC758 \uAC70\uBBF8\uC904"
-  questDescription: "\uAC70\uBBF8 \uC232 \uBC14\uAE65\uCABD\uC758 Spider\uB97C \uCC98\uCE58\uD574
-    \uC8FC\uBBFC\uB4E4\uC774 \uC6B0\uD68C\uB85C\uB97C \uC4F8 \uC218 \uC788\uAC8C
-    \uD55C\uB2E4."
-  requiredQuestIds: []
+  questName: "평가자의 호칭"
+  questType: 1
+  shortSummary: "중앙 평가자가 보쿠세이를 부른 호칭의 의미를 추적한다."
+  questDescription: "중앙 평가자는 보쿠세이를 침입자나 용사가 아니라 '이번 회차의 대표자'라고 불렀다. 시련장이 한 사람의 무력을 재는 것이 아니라, 도전자와 수호자가 어떤 관계를 만드는지 평가하고 있다는 단서다."
+  requiredQuestIds:
+  - quest_sub_hunter_skeleton_patrol
   requiredStoryProgress: 10
+  autoAcceptOnNewGame: 0
+  autoAcceptNextQuestIds:
+  - quest_sub_highland_golem_trace
   objectives:
-  - objectiveId: obj_kill_spider_web
-    description: "\uAC70\uBBF8 \uC232 \uBC14\uAE65\uCABD\uC758 Spider\uB97C \uCC98\uCE58\uD55C\uB2E4."
-    type: 3
-    targetId: 0
+  - objectiveId: obj_hear_central_evaluator
+    description: "중앙 평가를 마치고 평가자가 남긴 호칭을 기록한다."
+    type: 4
+    targetId: 20
     npcId: 0
-    targetStringId: SpiderMinion_1
-    requiredCount: 6
+    targetStringId:
+    requiredCount: 1
   reward:
-    gold: 120
+    gold: 80
     exp: 80
     items: []
-  isRepeatable: 1
+  isRepeatable: 0
   autoComplete: 1

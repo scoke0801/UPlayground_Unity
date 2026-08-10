@@ -11,24 +11,28 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e67a7ef1ac4f54d4d9137e78a7ba6554, type: 3}
   m_Name: quest_sub_hunter_skeleton_patrol
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   questId: quest_sub_hunter_skeleton_patrol
-  questName: "\uAE38\uBAA9\uC758 \uBF08 \uBB34\uB9AC"
-  questDescription: "\uB9C8\uC744\uACFC \uD638\uC218 \uC0AC\uC774 \uAE38\uBAA9\uC5D0
-    \uBAA8\uC778 Skeleton \uBB34\uB9AC\uB97C \uC815\uB9AC\uD55C\uB2E4."
+  questName: "먼저 고개 숙인 수호자"
+  questType: 1
+  shortSummary: "외곽 수호자들이 보인 이상한 예의를 관찰한다."
+  questDescription: "외곽의 수호자들은 쓰러지기 직전 잠시 공격을 멈추고 도전자에게 고개를 숙였다. 단순한 괴물의 행동이라기보다, 정해진 역할을 끝까지 수행하는 시험관의 인사처럼 보였다."
   requiredQuestIds: []
   requiredStoryProgress: 0
+  autoAcceptOnNewGame: 1
+  autoAcceptNextQuestIds:
+  - quest_sub_hunter_spider_web
   objectives:
-  - objectiveId: obj_kill_skeleton_patrol
-    description: "\uAE38\uBAA9\uC758 Skeleton\uC744 \uCC98\uCE58\uD55C\uB2E4."
-    type: 3
-    targetId: 0
+  - objectiveId: obj_observe_outer_guardians
+    description: "외곽의 세 시련을 통과하며 수호자들의 반응을 관찰한다."
+    type: 4
+    targetId: 10
     npcId: 0
-    targetStringId: Skeleton_Sword
-    requiredCount: 5
+    targetStringId:
+    requiredCount: 1
   reward:
-    gold: 80
-    exp: 50
+    gold: 60
+    exp: 60
     items: []
-  isRepeatable: 1
+  isRepeatable: 0
   autoComplete: 1

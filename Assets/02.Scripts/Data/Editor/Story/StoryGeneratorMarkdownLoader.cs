@@ -16,27 +16,33 @@ namespace UPlayGround.Editor
     /// </summary>
     internal static class StoryGeneratorMarkdownLoader
     {
-        public const string StoryDocPath = "Assets/docs/story/MAIN_STORY.md";
+        public const string MainStoryDocPath = "Assets/docs/cycle/CYCLE_STORY_PLOT.md";
+        public const string SubStoryDocPath = "Assets/docs/cycle/CYCLE_STORY_PLOT.md";
         public const string MainBegin = "<!-- STORY_GENERATOR_MAIN_BEGIN -->";
         public const string MainEnd = "<!-- STORY_GENERATOR_MAIN_END -->";
         public const string SubBegin = "<!-- STORY_GENERATOR_SUB_BEGIN -->";
         public const string SubEnd = "<!-- STORY_GENERATOR_SUB_END -->";
 
         public static bool TryLoadMain(out StoryGeneratorDocument document, out string error)
-            => TryLoadBlock(MainBegin, MainEnd, out document, out error);
+            => TryLoadBlock(MainStoryDocPath, MainBegin, MainEnd, out document, out error);
 
         public static bool TryLoadSub(out StoryGeneratorDocument document, out string error)
-            => TryLoadBlock(SubBegin, SubEnd, out document, out error);
+            => TryLoadBlock(SubStoryDocPath, SubBegin, SubEnd, out document, out error);
 
-        private static bool TryLoadBlock(string beginMarker, string endMarker, out StoryGeneratorDocument document, out string error)
+        private static bool TryLoadBlock(
+            string storyDocPath,
+            string beginMarker,
+            string endMarker,
+            out StoryGeneratorDocument document,
+            out string error)
         {
             document = null;
             error = string.Empty;
 
-            var fullPath = Path.GetFullPath(StoryDocPath);
+            var fullPath = Path.GetFullPath(storyDocPath);
             if (!File.Exists(fullPath))
             {
-                error = $"스토리 문서를 찾을 수 없습니다: {StoryDocPath}";
+                error = $"스토리 문서를 찾을 수 없습니다: {storyDocPath}";
                 return false;
             }
 
@@ -110,6 +116,15 @@ namespace UPlayGround.Editor
             return data;
         }
 
+        public static QuestItemReward ToQuestItemReward(this StoryGeneratorItemReward reward)
+        {
+            return new QuestItemReward
+            {
+                itemId = reward.itemId,
+                count = Mathf.Max(1, reward.count)
+            };
+        }
+
         public static DialogueChannel ResolveChannel(string channel)
             => System.Enum.TryParse(channel, out DialogueChannel result) ? result : DialogueChannel.Main;
 
@@ -136,15 +151,26 @@ namespace UPlayGround.Editor
     {
         public string questId;
         public string questName;
+        public string shortSummary;
         public string description;
         public int requiredProgress;
         public int rewardGold;
         public int rewardExp;
+        public StoryGeneratorItemReward[] rewardItems;
         public bool isRepeatable;
+        public bool autoAcceptOnNewGame;
         public string[] requiredQuestIds;
+        public string[] autoAcceptNextQuestIds;
         public StoryGeneratorObjective[] objectives;
         public StoryGeneratorDialogue[] dialogues;
         public StoryGeneratorEntry[] stories;
+    }
+
+    [Serializable]
+    internal class StoryGeneratorItemReward
+    {
+        public int itemId;
+        public int count = 1;
     }
 
     [Serializable]

@@ -12,6 +12,8 @@ namespace UPlayGround.State
     {
         public override ActorStateId StateId => ActorStateId.JumpAttack;
         protected override ActorStateTag StateTagsCore => ActorStateTag.Combat;
+        public override bool AllowsUpwardMotionVelocityChange =>
+            _attackData?.isDiveAttack != true;
 
         private PlayerCombat _combat;
         private PlayerEquipment _equipment;

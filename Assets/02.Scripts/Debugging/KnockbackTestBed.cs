@@ -76,7 +76,7 @@ namespace UPlayGround
             _measuring = true;
 
             // 캐릭터 뒤 방향으로 밀기
-            _mc.AddImpulse(-transform.forward * force, drag);
+            _mc.AddPlanarKnockback(-transform.forward * force, drag);
             UnityEngine.Debug.Log($"[Knockback] force={force} 발사!");
         }
 

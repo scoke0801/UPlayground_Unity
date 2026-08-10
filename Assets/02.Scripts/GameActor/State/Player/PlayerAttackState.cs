@@ -1032,7 +1032,18 @@ namespace UPlayGround.State
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
         {
             base.UpdateVelocity(ref currentVelocity, deltaTime);
-            Vector3 authoritativeVelocity = currentVelocity;
+            bool isStableOnGround = motor.GroundingStatus.IsStableOnGround;
+            Vector3 carryGroundNormal = isStableOnGround
+                ? motor.GroundingStatus.GroundNormal
+                : motor.LastGroundingStatus.GroundNormal;
+            Vector3 authoritativeVelocity =
+                ActorVelocityUtility.SuppressGroundedSlopeUpwardCarry(
+                    currentVelocity,
+                    motor.CharacterUp,
+                    carryGroundNormal,
+                    isStableOnGround,
+                    motor.LastGroundingStatus.IsStableOnGround,
+                    motor.MustUnground());
 
             // 워프 구간에서 클립 재생 속도를 타겟 거리 비율로 보정해 풋슬라이딩 감소.
             float playbackScale = _combat.IsMotionWarping
@@ -1059,7 +1070,8 @@ namespace UPlayGround.State
                 deltaTime);
 
             // 지상 공격의 애니메이션/워프 Y는 KCC 탄도를 소유하지 않는다.
-            // 착지 직후 클립의 Root Y가 상승 속도로 변환되는 현상을 차단한다.
+            // 클립 Root Y뿐 아니라 경사면 접선 투영에서 생긴 상향 속도도
+            // 접지 이탈 뒤 Launch로 이어지지 않도록 보정한 권위값을 사용한다.
             currentVelocity = ActorVelocityUtility.ReplacePlanarPreserveVertical(
                 currentVelocity,
                 authoritativeVelocity,

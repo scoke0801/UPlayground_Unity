@@ -119,7 +119,7 @@ namespace UPlayGround.State
                 incomingAttack.attacker != null ? incomingAttack.attacker.transform : null,
                 gameActor.transform,
                 motor != null ? motor.CharacterUp : Vector3.up);
-            controller.AddVelocity(pushDir * 2.0f);
+            controller.QueueVelocityChange(pushDir * 2.0f);
         }
     }
 }

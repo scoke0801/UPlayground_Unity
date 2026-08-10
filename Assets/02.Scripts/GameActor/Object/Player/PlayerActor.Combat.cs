@@ -341,7 +341,7 @@ namespace UPlayGround
                 switch (attackData.reactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(
+                        MovementController.AddPlanarKnockback(
                             ResolveKnockbackDirection(attackData) * attackData.knockbackForce,
                             attackData.knockbackDrag);
                         break;
@@ -351,7 +351,7 @@ namespace UPlayGround
                         {
                             Vector3 pullDir = (attackData.attacker.transform.position - transform.position).normalized;
                             pullDir.y = 0f;
-                            MovementController.AddVelocity(pullDir * attackData.pullForce);
+                            MovementController.QueueVelocityChange(pullDir * attackData.pullForce);
                         }
 
                         break;
@@ -359,12 +359,22 @@ namespace UPlayGround
                     case AttackReactionType.Airborne:
                     {
                         Vector3 launchDir = ResolveKnockbackDirection(attackData);
-                        Vector3 airborneVelocity = ShouldEnterAirborneState(attackData)
-                            ? Vector3.up * attackData.airborneForce
-                            : Vector3.zero;
-                        MovementController.AddImpulse(
-                            launchDir * attackData.knockbackForce + airborneVelocity,
-                            attackData.knockbackDrag);
+                        Vector3 planarVelocity =
+                            launchDir * attackData.knockbackForce;
+                        if (ShouldEnterAirborneState(attackData))
+                        {
+                            MovementController.AddLaunch(
+                                attackData.airborneForce,
+                                planarVelocity,
+                                attackData.knockbackDrag,
+                                VerticalLaunchVelocityPolicy.Replace);
+                        }
+                        else
+                        {
+                            MovementController.AddPlanarKnockback(
+                                planarVelocity,
+                                attackData.knockbackDrag);
+                        }
                         break;
                     }
 

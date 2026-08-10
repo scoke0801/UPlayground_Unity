@@ -318,9 +318,9 @@ public interface IDamageable
 
 | 반응 | 처리 |
 |------|------|
-| `KnockBack` | 공격 방향으로 `AddImpulse` |
-| `Pull` | 공격자 방향으로 `AddVelocity` |
-| `Airborne` | `airborneForce`가 기준 이상이면 `PlayerAirborneState`, 아니면 일반 경직성 충격 |
+| `KnockBack` | 공격 방향의 수평 성분으로 `AddPlanarKnockback` |
+| `Pull` | 공격자 방향으로 `QueueVelocityChange` |
+| `Airborne` | `airborneForce`가 기준 이상이면 수평 넉백과 `AddLaunch(Replace)`를 분리 적용하고 `PlayerAirborneState`로 전환. 아니면 수평 충격만 적용 |
 | `Grab` | `PlayerGrabbedState` |
 | `Stun` | `PlayerStunState` |
 | `Knockdown` | `PlayerKnockdownState` |

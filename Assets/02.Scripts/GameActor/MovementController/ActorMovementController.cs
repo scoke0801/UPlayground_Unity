@@ -36,6 +36,11 @@ namespace UPlayGround.MovementController
         [Header("Jump Feel")]
         public float FallGravityMultiplier = 2.5f;   // 하강 시 중력 배율
         public float RiseGravityMultiplier = 1.5f;   // 상승 시 중력 배율 (감속 강화)
+
+        [Header("External Velocity")]
+        [Min(0f)]
+        [Tooltip("AddForce MotionEvent가 요청할 수 있는 최대 상향 속도. 수평/하향 속도에는 적용하지 않습니다.")]
+        public float MotionEventUpwardSpeedLimit = 12f;
         
         [Header("Dash")]
         public float DashSpeed = 12f;
@@ -45,45 +50,147 @@ namespace UPlayGround.MovementController
 
         protected List<Collider> IgnoredColliders = new List<Collider>();
         protected Vector3 _internalVelocityAdd = Vector3.zero;
-        private Vector3 _pendingImpulseVelocity;
+        private Vector3 _pendingPlanarKnockbackVelocity;
+        private PendingVerticalLaunch _pendingVerticalLaunch;
         private readonly List<DirectionalVelocityDamper> _impulseDampers = new();
 
         /// <summary>
-        /// 물리 충격량 부여. 넉백/Launch 등 감속이 필요한 외부 힘에 사용.
-        /// drag: 높을수록 빨리 감속 (권장: 넉백 6~10, Launch 3~5)
+        /// 다음 KCC 합성 마지막 단계에 1회성 속도 변화를 더한다.
+        /// 상태 이동이나 명시적인 이동 이벤트처럼 감쇠가 필요 없는 변화에 사용한다.
         /// </summary>
-        public void AddImpulse(Vector3 velocity, float drag = 8f)
+        public void QueueVelocityChange(Vector3 deltaVelocity)
         {
-            _pendingImpulseVelocity += velocity;
+            _internalVelocityAdd += deltaVelocity;
+        }
 
+        /// <summary>
+        /// 캐릭터 Up 축을 제외한 수평 넉백을 등록한다.
+        /// 잘못된 입력에 수직 성분이 있어도 접지 해제나 Launch로 승격하지 않는다.
+        /// </summary>
+        public void AddPlanarKnockback(Vector3 deltaVelocity, float directionalDrag = 8f)
+        {
             Vector3 up = Motor != null ? Motor.CharacterUp : Vector3.up;
-            float upwardSpeed = Vector3.Dot(velocity, up);
-            Vector3 planarVelocity = velocity - up * upwardSpeed;
-            if (planarVelocity.sqrMagnitude > 0.0001f && drag > 0f)
+            Vector3 planarVelocity = Vector3.ProjectOnPlane(deltaVelocity, up);
+            if (planarVelocity.sqrMagnitude <= 0.0001f)
+                return;
+
+            _pendingPlanarKnockbackVelocity += planarVelocity;
+            if (directionalDrag > 0f)
             {
-                _impulseDampers.Add(new DirectionalVelocityDamper(planarVelocity, drag));
+                _impulseDampers.Add(
+                    new DirectionalVelocityDamper(planarVelocity, directionalDrag));
                 _impulseDampers.Sort(CompareImpulseDampers);
             }
+        }
 
-            if (upwardSpeed > 0f && Motor != null)
+        /// <summary>
+        /// 수직 Launch와 선택적 수평 넉백을 별도 채널로 등록한다.
+        /// Replace 정책은 기존 점프 속도와 같은 스텝의 여러 피격 Launch를 합산하지 않는다.
+        /// </summary>
+        public void AddLaunch(
+            float upwardSpeed,
+            Vector3 planarVelocity,
+            float planarDrag = 0f,
+            VerticalLaunchVelocityPolicy verticalPolicy =
+                VerticalLaunchVelocityPolicy.Replace)
+        {
+            AddPlanarKnockback(planarVelocity, planarDrag);
+            _pendingVerticalLaunch.Enqueue(upwardSpeed, verticalPolicy);
+            if (_pendingVerticalLaunch.HasValue && Motor != null)
                 Motor.ForceUnground();
         }
 
-        public void ClearImpulse()
+        /// <summary>
+        /// MotionEvent의 로컬 이동 요청을 적용한다. 수평/하향 성분은 일반 속도 변화로,
+        /// 상향 성분은 상태 허용 여부와 설정된 한계를 통과한 Launch로 처리한다.
+        /// </summary>
+        public void QueueMotionVelocityChange(Vector3 deltaVelocity)
         {
-            _pendingImpulseVelocity = Vector3.zero;
+            Vector3 up = Motor != null ? Motor.CharacterUp : Vector3.up;
+            float verticalSpeed = Vector3.Dot(deltaVelocity, up);
+            Vector3 planarVelocity = deltaVelocity - up * verticalSpeed;
+            if (planarVelocity.sqrMagnitude > 0.0001f)
+                QueueVelocityChange(planarVelocity);
+
+            if (verticalSpeed <= 0f)
+            {
+                if (verticalSpeed < 0f)
+                    QueueVelocityChange(up * verticalSpeed);
+                return;
+            }
+
+            float authoredUpwardSpeed =
+                ExternalVelocityPolicy.ClampAuthoredUpwardSpeed(
+                    verticalSpeed,
+                    MotionEventUpwardSpeedLimit,
+                    _currentState?.AllowsUpwardMotionVelocityChange != false);
+            AddLaunch(
+                authoredUpwardSpeed,
+                Vector3.zero,
+                verticalPolicy: VerticalLaunchVelocityPolicy.AtLeast);
+        }
+
+        /// <summary>아직 소비되지 않은 외부 속도 요청과 감쇠 modifier를 모두 제거한다.</summary>
+        public void ClearExternalVelocityChanges()
+        {
+            _internalVelocityAdd = Vector3.zero;
+            _pendingPlanarKnockbackVelocity = Vector3.zero;
+            _pendingVerticalLaunch.Clear();
             _impulseDampers.Clear();
+        }
+
+        /// <summary>레거시 호출 호환. 신규 코드는 ClearExternalVelocityChanges를 사용한다.</summary>
+        [Obsolete("ClearExternalVelocityChanges를 사용하세요.")]
+        public void ClearImpulse() => ClearExternalVelocityChanges();
+
+        /// <summary>레거시 호출 호환. 신규 코드는 분리된 외력 API를 사용한다.</summary>
+        [Obsolete("QueueVelocityChange, AddPlanarKnockback 또는 AddLaunch를 사용하세요.")]
+        public void AddImpulse(Vector3 velocity, float drag = 8f)
+        {
+            Vector3 up = Motor != null ? Motor.CharacterUp : Vector3.up;
+            float upwardSpeed = Vector3.Dot(velocity, up);
+            Vector3 planarVelocity = velocity - up * upwardSpeed;
+            if (upwardSpeed > 0f)
+            {
+                AddLaunch(upwardSpeed, planarVelocity, drag);
+                return;
+            }
+
+            AddPlanarKnockback(planarVelocity, drag);
+            if (upwardSpeed < 0f)
+                QueueVelocityChange(up * upwardSpeed);
         }
 
         /// <summary> 현재 Impulse가 활성화 중인지 (EnemyAirborneState tumble 판정용) </summary>
         public bool HasImpulse =>
-            _pendingImpulseVelocity.sqrMagnitude > 0.0001f || _impulseDampers.Count > 0;
+            _pendingPlanarKnockbackVelocity.sqrMagnitude > 0.0001f
+            || _pendingVerticalLaunch.HasValue
+            || _impulseDampers.Count > 0;
 
         /// <summary>현재 KCC 권위 속도에 아직 소비되지 않은 1회성 delta-v를 합친 예측값.</summary>
-        public Vector3 PredictedVelocity =>
-            (Motor != null ? Motor.Velocity : Vector3.zero)
-            + _internalVelocityAdd
-            + _pendingImpulseVelocity;
+        public Vector3 PredictedVelocity
+        {
+            get
+            {
+                Vector3 velocity =
+                    (Motor != null ? Motor.Velocity : Vector3.zero)
+                    + _internalVelocityAdd
+                    + _pendingPlanarKnockbackVelocity;
+                return ResolvePendingVerticalLaunch(velocity);
+            }
+        }
+
+        private Vector3 ResolvePendingVerticalLaunch(Vector3 velocity)
+        {
+            if (!_pendingVerticalLaunch.HasValue)
+                return velocity;
+
+            Vector3 up = Motor != null ? Motor.CharacterUp : Vector3.up;
+            float currentUpwardSpeed = Vector3.Dot(velocity, up);
+            float resolvedUpwardSpeed =
+                _pendingVerticalLaunch.Resolve(currentUpwardSpeed);
+            return velocity + up * (resolvedUpwardSpeed - currentUpwardSpeed);
+        }
 
         private static int CompareImpulseDampers(
             DirectionalVelocityDamper left,
@@ -133,6 +240,7 @@ namespace UPlayGround.MovementController
             // 여기서 시맨틱 상태 태그를 회수한다. 남겨 두면 재사용된 액터가
             // State.Hit/Death를 계속 보유해 피격 리액션이 영구히 차단된다.
             ClearSemanticStateTag();
+            ClearExternalVelocityChanges();
         }
 
         private void EnsureStateMachine()
@@ -185,10 +293,9 @@ namespace UPlayGround.MovementController
             }
         }
 
-        public void AddVelocity(Vector3 velocity)
-        {
-            _internalVelocityAdd += velocity;
-        }
+        /// <summary>레거시 호출 호환. 신규 코드는 QueueVelocityChange를 사용한다.</summary>
+        [Obsolete("QueueVelocityChange를 사용하세요.")]
+        public void AddVelocity(Vector3 velocity) => QueueVelocityChange(velocity);
 
         public void AddIgnoreCollider(Collider inCollider)
         {
@@ -367,10 +474,16 @@ namespace UPlayGround.MovementController
                 _internalVelocityAdd  = Vector3.zero;
             }
 
-            if (_pendingImpulseVelocity.sqrMagnitude > 0f)
+            if (_pendingPlanarKnockbackVelocity.sqrMagnitude > 0f)
             {
-                currentVelocity += _pendingImpulseVelocity;
-                _pendingImpulseVelocity = Vector3.zero;
+                currentVelocity += _pendingPlanarKnockbackVelocity;
+                _pendingPlanarKnockbackVelocity = Vector3.zero;
+            }
+
+            if (_pendingVerticalLaunch.HasValue)
+            {
+                currentVelocity = ResolvePendingVerticalLaunch(currentVelocity);
+                _pendingVerticalLaunch.Clear();
             }
         }
 

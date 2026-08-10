@@ -38,6 +38,12 @@ namespace UPlayGround.State
 
         public virtual GravityOwnership GravityOwner => GravityOwnership.Controller;
 
+        /// <summary>
+        /// AddForce MotionEvent가 상향 속도를 요청할 수 있는지 여부.
+        /// Dive처럼 상태가 수직 방향을 명시적으로 소유하는 경우 false로 재정의한다.
+        /// </summary>
+        public virtual bool AllowsUpwardMotionVelocityChange => true;
+
         public virtual float GetGravityMultiplier(float verticalSpeed)
             => verticalSpeed < 0f
                 ? controller.FallGravityMultiplier

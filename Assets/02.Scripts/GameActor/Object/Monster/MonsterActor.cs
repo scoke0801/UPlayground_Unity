@@ -12,6 +12,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Diagnostics;
 using UPlayGround.Group;
 using UPlayGround.Manager;
+using UPlayGround.MovementController;
 using UPlayGround.State;
 using UPlayGround.UI;
 using UnityEngine.Serialization;
@@ -273,7 +274,7 @@ namespace UPlayGround
                     MovementController.Motor != null
                         ? MovementController.Motor.CharacterUp
                         : Vector3.up);
-                MovementController.AddVelocity(finishDir * 30.0f);
+                MovementController.QueueVelocityChange(finishDir * 30.0f);
             }
             ActorSvc.Combat?.TrySpawnVitalOrb(VitalOrbTrigger.FinishAttackHit, transform.position);
             OnDeath();
@@ -465,7 +466,7 @@ namespace UPlayGround
                 switch (hit.ReactionType)
                 {
                     case AttackReactionType.KnockBack:
-                        MovementController.AddImpulse(
+                        MovementController.AddPlanarKnockback(
                             ResolveKnockbackDirection(hit) * hit.KnockbackForce,
                             hit.KnockbackDrag);
                         appliedReactionForce = true;
@@ -476,7 +477,7 @@ namespace UPlayGround
                         {
                             Vector3 pullDir = (hit.Attacker.transform.position - transform.position).normalized;
                             pullDir.y = 0f;
-                            MovementController.AddVelocity(pullDir * hit.PullForce);
+                            MovementController.QueueVelocityChange(pullDir * hit.PullForce);
                         }
                         appliedReactionForce = true;
 
@@ -485,12 +486,21 @@ namespace UPlayGround
                     case AttackReactionType.Airborne:
                     {
                         Vector3 launchDir = ResolveKnockbackDirection(hit);
-                        Vector3 airborneVelocity = ShouldEnterAirborneState(hit)
-                            ? Vector3.up * hit.AirborneForce
-                            : Vector3.zero;
-                        MovementController.AddImpulse(
-                            launchDir * hit.KnockbackForce + airborneVelocity,
-                            hit.KnockbackDrag);
+                        Vector3 planarVelocity = launchDir * hit.KnockbackForce;
+                        if (ShouldEnterAirborneState(hit))
+                        {
+                            MovementController.AddLaunch(
+                                hit.AirborneForce,
+                                planarVelocity,
+                                hit.KnockbackDrag,
+                                VerticalLaunchVelocityPolicy.Replace);
+                        }
+                        else
+                        {
+                            MovementController.AddPlanarKnockback(
+                                planarVelocity,
+                                hit.KnockbackDrag);
+                        }
                         appliedReactionForce = true;
                         break;
                     }
@@ -850,7 +860,7 @@ namespace UPlayGround
         {
             if (_dropTable == null) return;
 
-            var items = Svc.Item.GetDropItemList(_dropTable.dropItems);
+            var items = Svc.Item.GetDropItemList(_dropTable);
             foreach (var item in items)
             {
                 ActorSvc.Objects.SpawnItem(item, transform.position);
@@ -1105,7 +1115,9 @@ namespace UPlayGround
             if (dir.sqrMagnitude <= 0.0001f) dir = -transform.forward;
             dir = dir.normalized;
 
-            MovementController?.AddImpulse(dir * BreakShoveForce, BreakShoveDrag);
+            MovementController?.AddPlanarKnockback(
+                dir * BreakShoveForce,
+                BreakShoveDrag);
             return dir;
         }
 

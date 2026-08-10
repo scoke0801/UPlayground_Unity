@@ -54,5 +54,66 @@ namespace UPlayGround.Movement.Tests
             Assert.That(velocity.z, Is.GreaterThanOrEqualTo(0f));
             Assert.That(velocity.z, Is.LessThan(0.1f));
         }
+
+        [Test]
+        public void Launch_Replace는_기존점프속도에_더하지않는다()
+        {
+            var launch = new PendingVerticalLaunch();
+            launch.Enqueue(12f, VerticalLaunchVelocityPolicy.Replace);
+
+            float resolved = launch.Resolve(10f);
+
+            Assert.That(resolved, Is.EqualTo(12f).Within(0.0001f));
+        }
+
+        [Test]
+        public void Launch_같은스텝의Replace요청은_가장강한값하나만사용한다()
+        {
+            var launch = new PendingVerticalLaunch();
+            launch.Enqueue(12f, VerticalLaunchVelocityPolicy.Replace);
+            launch.Enqueue(8f, VerticalLaunchVelocityPolicy.Replace);
+            launch.Enqueue(12f, VerticalLaunchVelocityPolicy.Replace);
+
+            float resolved = launch.Resolve(0f);
+
+            Assert.That(resolved, Is.EqualTo(12f).Within(0.0001f));
+        }
+
+        [TestCase(15f, 12f, 15f)]
+        [TestCase(5f, 12f, 12f)]
+        public void Launch_AtLeast는_더강한기존상승속도를보존한다(
+            float currentSpeed,
+            float requestedSpeed,
+            float expectedSpeed)
+        {
+            var launch = new PendingVerticalLaunch();
+            launch.Enqueue(requestedSpeed, VerticalLaunchVelocityPolicy.AtLeast);
+
+            Assert.That(
+                launch.Resolve(currentSpeed),
+                Is.EqualTo(expectedSpeed).Within(0.0001f));
+        }
+
+        [Test]
+        public void MotionEvent_상향속도는_설정한한계로제한한다()
+        {
+            float resolved = ExternalVelocityPolicy.ClampAuthoredUpwardSpeed(
+                32f,
+                12f,
+                allowsUpwardVelocity: true);
+
+            Assert.That(resolved, Is.EqualTo(12f).Within(0.0001f));
+        }
+
+        [Test]
+        public void MotionEvent_Dive상태에서는_상향속도를차단한다()
+        {
+            float resolved = ExternalVelocityPolicy.ClampAuthoredUpwardSpeed(
+                32f,
+                12f,
+                allowsUpwardVelocity: false);
+
+            Assert.That(resolved, Is.EqualTo(0f).Within(0.0001f));
+        }
     }
 }

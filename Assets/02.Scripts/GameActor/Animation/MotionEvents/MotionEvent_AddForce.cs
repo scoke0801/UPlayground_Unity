@@ -52,8 +52,9 @@ namespace UPlayGround.Data.Event
             // 캐릭터의 현재 회전값을 기준으로 로컬 공간의 벡터를 월드 공간의 벡터로 변환
             Vector3 worldDirection = actor.transform.TransformDirection(normalizedDir);
             
-            // 변환된 월드 방향에 힘(force)을 곱하여 적용
-            actor.ActorController.AddVelocity(worldDirection * force);
+            // 이름은 AddForce지만 실제 단위는 delta-v다. 컨트롤러의 모션 전용 정책을 통해
+            // 상향 속도 제한과 Dive 상태 차단을 적용한다.
+            actor.ActorController.QueueMotionVelocityChange(worldDirection * force);
         }
 
         private void HandlePlayerActor(PlayerActor actor)
@@ -66,7 +67,7 @@ namespace UPlayGround.Data.Event
             Vector3 normalizedDir = direction.normalized;
             Vector3 worldDirection = actor.transform.TransformDirection(normalizedDir);
             
-            actor.PlayerController.AddVelocity(worldDirection * force);
+            actor.PlayerController.QueueMotionVelocityChange(worldDirection * force);
         }
 
         public override void OnCompleteEvent(GameObject target)

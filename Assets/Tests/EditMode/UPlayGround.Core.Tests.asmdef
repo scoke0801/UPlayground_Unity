@@ -2,7 +2,8 @@
   "name": "UPlayGround.Core.Tests",
   "rootNamespace": "UPlayGround.Core.Tests",
   "references": [
-    "UPlayGround.Core"
+    "UPlayGround.Core",
+    "UPlayGround.Data"
   ],
   "includePlatforms": [
     "Editor"

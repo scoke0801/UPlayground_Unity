@@ -139,7 +139,7 @@ namespace UPlayGround.Simulation
             {
                 if (_movement?.Motor != null)
                     _movement.Motor.BaseVelocity = Vector3.zero;
-                _movement?.ClearImpulse();
+                _movement?.ClearExternalVelocityChanges();
                 _animator?.SetSimulationPaused(true);
                 RefreshPresentationVisibility();
             }

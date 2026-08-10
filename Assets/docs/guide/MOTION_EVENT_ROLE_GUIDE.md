@@ -132,7 +132,7 @@ ActorAnimator
 
 | 이벤트 | 표시 이름 | 역할 | 시작 처리 | 종료 처리 | 주요 필드 |
 |--------|-----------|------|-----------|-----------|-----------|
-| `AddForceEvent` | `AddForce` | Player/Monster 이동 컨트롤러에 로컬 방향 기반 속도를 더한다. | `direction.normalized`를 액터 로컬 기준 월드 방향으로 변환하고 `AddVelocity()` 호출 | 없음 | `direction`, `force` |
+| `AddForceEvent` | `AddForce` | Player/Monster 이동 컨트롤러에 로컬 방향 기반 속도 변화를 요청한다. | 로컬 방향을 월드로 변환하고 `QueueMotionVelocityChange()` 호출. 수평/하향은 1회성 변화로 처리하며, 상향은 컨트롤러 제한값 이하의 `AtLeast` Launch로 처리한다. Dive 상태는 상향 요청을 차단한다. | 없음 | `direction`, `force` |
 | `MotionEvent_MotionWarp` | `Motion Warp` | 활성 구간 동안 모션 워핑 윈도우를 연다. | `ActorMovementController.MotionWarp.BeginWarpWindow()` 설정 후 Player/Enemy Combat에 워프 구간 길이를 전달한다. | `EndWarpWindow()` 및 Combat의 `EndMotionWarp()` 호출 | `preset`, `modifierType`, `targetPolicy`, `resolverPolicy`, `targetKey`, `predictionFactor`, `translationWeight`, `rotationWeight`, `ignoreY`, `yPolicy`, `rotationCurve`, `overrideDistance`, `minDistance`, `maxDistance`, `maxSpeed`, `targetOffset` |
 | `AnimationSpeedEvent` | `Anim Speed` | 애니메이션 속도 변경 이벤트 자리다. | 현재는 `Debug.Log`만 수행한다. | 없음 | `speedMultiplier`, `speedCurve` |
 | `TimeScaleEvent` | `TimeScale` | 이벤트 구간 동안 전역 타임스케일 요청을 등록한다. | `GameCombatManager.GameHitStop.Execute(duration, targetTimeScale)` 호출 | 별도 처리 없음. HitStop 요청은 duration 기반으로 자체 해제된다. | `targetTimeScale`, `blendDuration` |

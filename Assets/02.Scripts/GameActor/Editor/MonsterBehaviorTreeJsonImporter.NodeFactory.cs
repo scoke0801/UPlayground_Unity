@@ -87,6 +87,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             [MonsterBehaviorJsonNodeKeys.Conditions.IsFlyingAirState] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsFlyingAirStateNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsFlyingGroundCombatState] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsFlyingGroundCombatStateNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.IsAirAttackLimitReached] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsAirAttackLimitReachedNode>(tree, row)),
+            [MonsterBehaviorJsonNodeKeys.Conditions.IsFlyingDescendRequested] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<IsFlyingDescendRequestedNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.ShouldFlyingTakeOff] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<ShouldFlyingTakeOffNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.FlyingCanUseSkill] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<FlyingCanUseSkillNode>(tree, row)),
             [MonsterBehaviorJsonNodeKeys.Conditions.HasDiveSkillAvailable] = new(JsonNodeActorScope.FlyingOnly, false, (tree, _, _, _, row) => CreateConditionLeaf<HasDiveSkillAvailableNode>(tree, row)),

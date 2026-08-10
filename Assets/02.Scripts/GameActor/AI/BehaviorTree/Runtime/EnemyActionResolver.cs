@@ -380,6 +380,7 @@ namespace UPlayGround.AI.BehaviorTree
                 EnemyActionStyle.Dive => FlyingEnemyTransitionStateType.Dive,
                 EnemyActionStyle.Land => FlyingEnemyTransitionStateType.Land,
                 EnemyActionStyle.TakeOff => FlyingEnemyTransitionStateType.TakeOff,
+                EnemyActionStyle.AirCircle => FlyingEnemyTransitionStateType.AirCircle,
                 EnemyActionStyle.Circle => FlyingEnemyTransitionStateType.Circle,
                 _ => ResolveFlyingStateFromIntent(request.Intent)
             };

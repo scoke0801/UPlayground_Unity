@@ -18,15 +18,4 @@ namespace UPlayGround.AI.BehaviorTree
         Dive,
     }
 
-    /// <summary>
-    /// 비행 BT 노드/JSON에서 공유하는 Blackboard 키.
-    /// 지상 <see cref="EnemyBlackboardKeys"/>의 일부 키(HasTarget 등)는 그대로 재사용한다.
-    /// </summary>
-    public static class FlyingEnemyBlackboardKeys
-    {
-        public const string AirAttackCount = "AirAttackCount";
-        public const string AirAttackLimit = "AirAttackLimit";
-        public const string GroundTimer = "GroundTimer";
-        public const string GroundAttackCount = "GroundAttackCount";
-    }
 }

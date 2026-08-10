@@ -49,6 +49,16 @@ namespace UPlayGround.Components
         public abstract float GroundTimer { get; }
         public abstract int GroundAttackCount { get; }
 
+        /// <summary>
+        /// AirCircle이 하강을 요청했는지. State는 스스로 전이하지 않고 이 플래그만 세우므로
+        /// BT가 이걸 보고 Dive/Land를 결정한다.
+        ///
+        /// 공중 공격 횟수 소진과 체류 시간 초과가 모두 이 플래그로 합류한다.
+        /// 시간 초과 경로는 AirAttackCount를 올리지 않아 IsAirAttackLimitReached로는
+        /// 잡히지 않기 때문에, 그 조건만 쓰면 BT가 공중에 갇힌다.
+        /// </summary>
+        public abstract bool IsDescendRequested { get; }
+
         // ── 판정 ──
         public abstract bool CanUseSkill();
         public abstract bool ShouldTakeOff();

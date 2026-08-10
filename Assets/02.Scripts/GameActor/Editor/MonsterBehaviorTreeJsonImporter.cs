@@ -329,7 +329,15 @@ namespace UPlayGround.AI.BehaviorTree.Editor
 
                 // 비행형은 EnemyTacticalMemory / EnemyAIContext 페이즈 모델을 쓰지 않으므로 Memory / Phase 서비스 미부착.
                 var isFlying = string.Equals(data.actorKind, MonsterBehaviorJsonNodeKeys.ActorKinds.Flying, StringComparison.OrdinalIgnoreCase);
-                if (!isFlying)
+                if (isFlying)
+                {
+                    // 비행 루프 카운터(공중 공격 횟수·지상 체류 시간 등)를 Blackboard에 올린다.
+                    // 없으면 등록된 비행 Blackboard 키가 갱신되지 않아
+                    // BT에서 비행 루프를 수치로 분기할 수 없다.
+                    root.Services.Add(CreateNode<SyncFlyingEnemyBlackboardService>(
+                        tree, "Sync Flying Enemy Blackboard", new Vector2(-260f, -100f)));
+                }
+                else
                 {
                     root.Services.Add(CreateNode<SyncEnemyMemoryService>(tree, "Sync Enemy Memory", new Vector2(-260f, -100f)));
                     root.Services.Add(CreateNode<SyncEnemyPhaseService>(tree, "Sync Enemy Phase", new Vector2(-260f, -40f)));

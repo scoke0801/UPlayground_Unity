@@ -76,6 +76,7 @@ namespace UPlayGround.Components
         protected int _currentAirAttackLimit;     // 매 공중 루프마다 랜덤 결정
         protected int _groundAttackCount;
         protected int _airAttackCount;
+        protected bool _descendRequested;
         protected Vector3 _spawnPosition;
 
         protected MonsterActor _monster;
@@ -98,6 +99,7 @@ namespace UPlayGround.Components
         public override float GroundTimer => _groundTimer;
         public override int GroundAttackCount => _groundAttackCount;
         public override int AirAttackCount => _airAttackCount;
+        public override bool IsDescendRequested => _descendRequested;
 
         // Patrol/Circle/Retreat용 (EnemyAIController 호환)
         public override float PatrolRadius => _patrolRadius;
@@ -223,6 +225,8 @@ namespace UPlayGround.Components
         /// </summary>
         public override void OnAirCircleForceDescend()
         {
+            // State는 스스로 전이하지 않는다. 플래그만 세우고 실제 Dive/Land 선택은 BT가 한다.
+            _descendRequested = true;
             ReleaseGroupSlot();
         }
 
@@ -352,6 +356,7 @@ namespace UPlayGround.Components
             _groundTimer = 0f;
             _groundAttackCount = 0;
             _airAttackCount = 0;
+            _descendRequested = false;
             _currentGroundStayLimit = Random.Range(_groundStayLimitMin, _groundStayLimitMax);
             _currentAirAttackLimit = Random.Range(_airAttackLimitMin, _airAttackLimitMax + 1); // +1: 상한 포함
         }
@@ -359,6 +364,7 @@ namespace UPlayGround.Components
         public override void ResetAirCounters()
         {
             _airAttackCount = 0;
+            _descendRequested = false;
             _currentAirAttackLimit = Random.Range(_airAttackLimitMin, _airAttackLimitMax + 1);
         }
 

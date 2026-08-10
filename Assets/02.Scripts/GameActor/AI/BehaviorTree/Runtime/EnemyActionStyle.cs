@@ -18,6 +18,12 @@ namespace UPlayGround.AI.BehaviorTree
         TakeOff = 9,
         Patrol = 10,
         Idle = 11,
-        Step = 12
+        Step = 12,
+
+        /// <summary>
+        /// 비행형 전용 공중 선회. Circle(지상 견제)과 다른 State이며 대응 Intent가 없어
+        /// 스코어러 경로로는 진입할 수 없었다.
+        /// </summary>
+        AirCircle = 13
     }
 }

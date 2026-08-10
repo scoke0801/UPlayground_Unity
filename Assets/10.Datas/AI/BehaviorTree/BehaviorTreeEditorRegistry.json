@@ -185,6 +185,10 @@
             "label": "이륙 필요"
         },
         {
+            "key": "IsFlyingDescendRequestedNode",
+            "label": "하강 요청됨"
+        },
+        {
             "key": "FlyingCanUseSkillNode",
             "label": "비행: 스킬 사용 가능"
         },
@@ -2068,6 +2072,90 @@
             "type": 2,
             "label": "그룹 어그로 적합도",
             "description": "",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "097e3e2ff7abc39975aae5899ce3af2f",
+            "key": "AirAttackCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "공중 공격 횟수",
+            "description": "현재 공중 체류 중 완료한 공격 횟수",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "48b37cd1e9718751b506cf5b66dd7308",
+            "key": "AirAttackLimit",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "공중 공격 한계",
+            "description": "하강 전 허용되는 공중 공격 횟수",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "83918434ae881e8d481fe2350e301a3c",
+            "key": "GroundTimer",
+            "identifier": "",
+            "aliases": [],
+            "type": 2,
+            "label": "지상 체류 시간",
+            "description": "현재 지상 전투 구간의 누적 체류 시간",
+            "scope": 3,
+            "writePolicy": 0,
+            "required": false,
+            "boolValue": false,
+            "intValue": 0,
+            "floatValue": 0.0,
+            "stringValue": "",
+            "vector3Value": {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 0.0
+            }
+        },
+        {
+            "stableId": "0a53fa35cc012f10bc4dc9177832080a",
+            "key": "GroundAttackCount",
+            "identifier": "",
+            "aliases": [],
+            "type": 1,
+            "label": "지상 공격 횟수",
+            "description": "현재 지상 전투 구간에서 완료한 공격 횟수",
             "scope": 3,
             "writePolicy": 0,
             "required": false,

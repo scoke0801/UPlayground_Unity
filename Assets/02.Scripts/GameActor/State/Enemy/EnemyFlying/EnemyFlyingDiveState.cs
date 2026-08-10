@@ -163,6 +163,11 @@ namespace UPlayGround.State
                     {
                         _brain.Combat.CompleteCurrentAbility();
                         _brain.OnDiveLanded();
+                        // 콜백은 카운터만 리셋한다. 이 상태는 BlocksBehaviorTree라서 BT가
+                        // 스스로 빼낼 수 없으므로 여기서 Chase로 복귀시킨다.
+                        // Circle/Retreat과 같은 규약 — 다음 판단은 BT가 Chase에서 내린다.
+                        controller.TransitionToState(
+                            new EnemyFlyingChaseState(controller, _brain));
                     }
                     break;
             }
@@ -364,7 +369,13 @@ namespace UPlayGround.State
             Vector3 impactPos = motor.TransientPosition;
             impactPos.y = GetGroundY(impactPos);
 
-            ActorSvc.Objects.ShowFX(FXKeyType.GriffinDiveImpact, impactPos);
+            // 착지 FX는 몬스터별 데이터다. 비행 State는 모든 비행 몬스터가 공유하므로
+            // 특정 몬스터의 FX 키를 여기에 두지 않는다. 미지정이면 FX 없이 판정만 한다.
+            FXKeyType impactFX = _brain.FlyingSettings != null
+                ? _brain.FlyingSettings.diveImpactFX
+                : FXKeyType.None;
+            if (impactFX != FXKeyType.None)
+                ActorSvc.Objects.ShowFX(impactFX, impactPos);
 
             LayerMask targetLayer = LayerMask.GetMask("Player");
             Collider[] hits = Physics.OverlapSphere(impactPos, radius, targetLayer);

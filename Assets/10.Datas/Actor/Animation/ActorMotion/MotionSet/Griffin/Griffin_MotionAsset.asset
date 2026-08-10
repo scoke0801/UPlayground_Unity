@@ -29,6 +29,9 @@ MonoBehaviour:
     - Key:
         value: griffin.Fly.Move.04
       Value: {fileID: 11400000, guid: 060a342ffec86fd4ba99226d0591e310, type: 2}
+    - Key:
+        value: griffin.Fly.Bolt.05
+      Value: {fileID: 11400000, guid: 7b69c947152ad464abfd5f94c9cca0f4, type: 2}
   motionSlots:
     _serializedList:
     - Key:

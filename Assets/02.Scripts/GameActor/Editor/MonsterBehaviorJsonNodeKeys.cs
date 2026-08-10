@@ -47,6 +47,7 @@ namespace UPlayGround.AI.BehaviorTree.Editor
             public const string IsFlyingAirState = "IsFlyingAirState";
             public const string IsFlyingGroundCombatState = "IsFlyingGroundCombatState";
             public const string IsAirAttackLimitReached = "IsAirAttackLimitReached";
+            public const string IsFlyingDescendRequested = "IsFlyingDescendRequested";
             public const string ShouldFlyingTakeOff = "ShouldFlyingTakeOff";
             public const string FlyingCanUseSkill = "FlyingCanUseSkill";
             public const string HasDiveSkillAvailable = "HasDiveSkillAvailable";

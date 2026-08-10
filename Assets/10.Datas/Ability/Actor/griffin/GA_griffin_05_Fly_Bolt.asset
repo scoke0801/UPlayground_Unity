@@ -10,29 +10,44 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d64342321cb2f954fa7cc1b04c2e0c22, type: 3}
-  m_Name: GA_griffin_04_Fly_Move
-  m_EditorClassIdentifier: 
-  abilityId: Actor.griffin.Fly.Move.04
-  editorMemo: 
+  m_Name: GA_griffin_05_Fly_Bolt
+  m_EditorClassIdentifier:
+  abilityId: Actor.griffin.Fly.Bolt.05
+  editorMemo: 'AirCircle 선회 중 원거리 견제. diveOnly=false 선택 대상이므로 isDiveAttack은 반드시 꺼 둔다.'
   presentation:
-    displayName: Fly_Move
-    description: "griffin\uC758 BT \uC120\uD0DD\uD615 \uC804\uD22C Ability"
-    nameLocalizationKey: 
-    descriptionLocalizationKey: 
+    displayName: Fly_Bolt
+    description: "griffin의 공중 투사체 견제 Ability"
+    nameLocalizationKey:
+    descriptionLocalizationKey:
     icon: {fileID: 0}
     hudColor: {r: 0.29, g: 0.62, b: 1, a: 1}
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAllTagIds: []
+      requireAnyTagIds: []
+      ignoreTagIds: []
+    sourceTagRequirement:
+      requireAllTagIds: []
+      requireAnyTagIds: []
+      ignoreTagIds: []
+    targetTagRequirement:
+      requireAllTagIds: []
+      requireAnyTagIds: []
+      ignoreTagIds: []
     groundCondition: 2
     targetPolicy: 2
     targetRelation: 2
-    minDistance: 4
-    maxDistance: 15
+    minDistance: 3
+    maxDistance: 18
   targeting:
     mode: 0
     indicatorRadius: 0
@@ -43,8 +58,8 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 8
-    cooldownGroupId: 
+    durationSeconds: 1
+    cooldownGroupId:
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -58,7 +73,7 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
-    executionPayload: {fileID: 2261587515757364601}
+    executionPayload: {fileID: 4471820395612330501}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
@@ -68,14 +83,14 @@ MonoBehaviour:
     saveCooldown: 1
     backgroundMaxDurationSeconds: 0
   balance:
-    expectedDamage: 50
+    expectedDamage: 28
     expectedDuration: 0
     roleTags:
     - AI.Selected
-    designerNotes: 
---- !u!114 &2261587515757364601
+    designerNotes:
+--- !u!114 &4471820395612330501
 MonoBehaviour:
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -83,33 +98,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
-  m_Name: Payload_Fly_Move
-  m_EditorClassIdentifier: 
+  m_Name: Payload_Fly_Bolt
+  m_EditorClassIdentifier:
   attackInfo:
     motionKey:
-      value: griffin.Fly.Move.04
+      value: griffin.Fly.Bolt.05
     baseInfo:
-      attackType: 0
+      attackType: 1
       hitPhases:
-      - damage: 50
-        poiseDamage: 100
-        breakDamage: 10
-        projectileDefinition: {fileID: 0}
-        reactionType: 7
+      - damage: 28
+        poiseDamage: 15
+        breakDamage: 5
+        projectileDefinition: {fileID: 11400000, guid: 5a1e83c7f26b4d9ab8e0417d2c95f6b4, type: 2}
+        reactionType: 2
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
         hitboxGroupId: Default
-        impactOffset: {x: 0, y: 0, z: 1.5}
+        impactOffset: {x: 0, y: 1, z: 1.5}
         targetingRange: 1.5
-        hitParticleName: HeavyHit
+        hitParticleName: LiteHit
         pullForce: 3
-        airborneForce: 12
-        knockBackForce: 8
+        airborneForce: 8
+        knockBackForce: 2
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedMotionSlot:
-          _tagName: 
+          _tagName:
         guaranteedReaction: 0
         reactionProfile:
           useAutoReaction: 1
@@ -159,23 +174,23 @@ MonoBehaviour:
     moveCancelDelayAfterLastHit: 0
     aiSelectable: 1
     skillType: 1
-    attackCategory: 1
+    attackCategory: 3
+    aiRoles: 1
     requiredLevel: 1
-    aiRoles: 16
     selectionWeight: 100
-    useTelegraph: 1
+    useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1
-    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
+    telegraphFXKey:
     useMotionEventTelegraph: 0
-    telegraphAnchorType: 1
+    telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 1
-    dangerRingDuration: 0.7
-    dangerRingPrefabKey: 
+    useDangerRing: 0
+    dangerRingDuration: 0
+    dangerRingPrefabKey:
     defenseType: 0
     isAerialSkill: 1
-    isDiveAttack: 1
+    isDiveAttack: 0
     diveDescentSpeed: 15
     aerialSkillWeight: 100
     aerialMovement:

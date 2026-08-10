@@ -16,7 +16,15 @@ namespace UPlayGround.State
     public class EnemyFlyingAirCircleState : EnemyActorState
     {
         public override ActorStateId StateId => ActorStateId.Flying_AirCircle;
-        public override bool BlocksBehaviorTree => true;
+
+        /// <summary>
+        /// 커밋된 공격 모션이 아니라 홀딩 패턴이다. 이 상태를 벗어나는 결정(급강하 / 착지)은
+        /// BT가 내려야 하므로 BT를 막지 않는다. 막으면 TransitionFlyingEnemyStateNode가
+        /// 차단 상태에서 Failure를 반환해 영구히 선회만 하게 된다.
+        /// 지상 짝인 EnemyCircleState가 EnemyActionResolver에서 locomotion으로 취급되는 것과
+        /// 같은 규약이다. 발사 모션 자체의 보호는 State 내부 _isAttacking이 담당한다.
+        /// </summary>
+        public override bool BlocksBehaviorTree => false;
         public override GravityOwnership GravityOwner => GravityOwnership.None;
 
         private readonly EnemyFlyingAIContext _brain;
@@ -95,10 +103,7 @@ namespace UPlayGround.State
         public override void OnExit(GameActorState toState)
         {
             base.OnExit(toState);
-            gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
-            if (_isAttacking)
-                _brain.Combat.CancelCurrentAbility();
-            _isAttacking = false;
+            CancelActiveAttack();
             _brain.ReleaseGroupSlot();
         }
 
@@ -269,10 +274,18 @@ namespace UPlayGround.State
         /// </summary>
         private void ForceDescend()
         {
-            gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
-            _isAttacking = false;
-
+            // 강제 하강은 모션 완료 콜백을 버리는 경로이므로 활성 Ability도 함께 취소해야 한다.
+            // _isAttacking만 먼저 내리면 OnExit의 정리도 건너뛰어 RejectNew 실행이 영구 잔류한다.
+            CancelActiveAttack();
             _brain.OnAirCircleForceDescend();
+        }
+
+        private void CancelActiveAttack()
+        {
+            gameActor.Animator.OnMotionSetCompleted -= OnAttackMotionEnd;
+            if (_isAttacking)
+                _brain.Combat.CancelCurrentAbility();
+            _isAttacking = false;
         }
 
         #endregion

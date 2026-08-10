@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "id": "EnemyBehavior_Flying_DiveHarasser",
+  "displayName": "비행 — 선회 견제 · 급강하",
+  "actorKind": "Flying",
+
+  "blackboard": {
+    "tickInterval": 0.1,
+    "enablePatrol": true,
+    "optimalCombatDistance": 2.4,
+    "minCombatDistance": 1.2,
+    "personalSpaceDistance": 0.9,
+    "preferredRange": 3.0,
+    "aggression": 0.6
+  },
+
+  "groups": [
+    {
+      "name": "00 Survival And Interrupt",
+      "priority": 1000,
+      "rules": [
+        {
+          "name": "BlockedStateKeep",
+          "priority": 1000,
+          "when": [ { "condition": "IsBlockedEnemyState" } ],
+          "do": [ { "action": "KeepCurrentState" } ]
+        },
+        {
+          "name": "NoTargetPatrol",
+          "priority": 900,
+          "when": [ { "condition": "HasTarget", "invert": true } ],
+          "do": [ { "action": "FlyingPatrolOrIdle" } ]
+        }
+      ]
+    },
+
+    {
+      "name": "10 Air Loop (Flying_AirCircle 한정 — IsFlyingAirState는 Dive 포함이라 쓰지 않음)",
+      "priority": 800,
+      "when": [ { "condition": "IsCurrentState", "value": "Flying_AirCircle" } ],
+      "rules": [
+        {
+          "name": "AirDescendDive",
+          "priority": 1000,
+          "when": [
+            { "condition": "IsFlyingDescendRequested" },
+            { "condition": "HasDiveSkillAvailable" },
+            { "condition": "RollDiveChance" }
+          ],
+          "do": [
+            { "action": "SelectFlyingDiveSkill" },
+            { "action": "FlyingTransition", "state": "Dive" }
+          ]
+        },
+        {
+          "name": "AirDescendLand",
+          "priority": 950,
+          "when": [ { "condition": "IsFlyingDescendRequested" } ],
+          "do": [ { "action": "FlyingTransition", "state": "Land" } ]
+        },
+        {
+          "name": "AirNoSkillDescend",
+          "priority": 850,
+          "when": [ { "condition": "FlyingCanUseSkill", "invert": true } ],
+          "do": [ { "action": "FlyingTransition", "state": "Land" } ]
+        },
+        {
+          "name": "AirCircleHold",
+          "priority": 100,
+          "do": [ { "action": "KeepCurrentState" } ]
+        }
+      ]
+    },
+
+    {
+      "name": "20 Take Off",
+      "priority": 700,
+      "when": [
+        { "condition": "IsFlyingGroundCombatState" },
+        { "condition": "ShouldFlyingTakeOff" }
+      ],
+      "rules": [
+        {
+          "name": "TakeOffToAirLoop",
+          "priority": 1000,
+          "do": [
+            { "action": "ResetFlyingAirCounters" },
+            { "action": "FlyingTransition", "state": "TakeOff" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "name": "30 Ground Combat",
+      "priority": 600,
+      "when": [ { "condition": "HasTarget" } ],
+      "rules": [
+        {
+          "name": "BackOffTooClose",
+          "priority": 1000,
+          "when": [ { "condition": "DistanceLessOrEqual", "value": "personalSpaceDistance" } ],
+          "do": [ { "action": "FlyingTransition", "state": "Retreat" } ]
+        },
+        {
+          "name": "GroundAttackInRange",
+          "priority": 900,
+          "when": [
+            { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+            { "condition": "ActionDelayElapsed" }
+          ],
+          "do": [
+            { "action": "RequestFlyingAttackSlot" },
+            { "action": "FlyingTransition", "state": "GroundAttack" }
+          ]
+        },
+        {
+          "name": "CircleAfterAttack",
+          "priority": 800,
+          "when": [
+            { "condition": "DistanceLessOrEqual", "value": "optimalCombatDistance" },
+            { "condition": "ActionDelayElapsed", "invert": true }
+          ],
+          "do": [ { "action": "FlyingTransition", "state": "Circle" } ]
+        },
+        {
+          "name": "ChaseTarget",
+          "priority": 700,
+          "when": [ { "condition": "DistanceGreater", "value": "optimalCombatDistance" } ],
+          "do": [ { "action": "FlyingTransition", "state": "Chase" } ]
+        }
+      ]
+    },
+
+    {
+      "name": "40 Fallback",
+      "priority": 100,
+      "rules": [
+        {
+          "name": "KeepWhatever",
+          "priority": 100,
+          "do": [ { "action": "KeepCurrentState" } ]
+        }
+      ]
+    }
+  ]
+}

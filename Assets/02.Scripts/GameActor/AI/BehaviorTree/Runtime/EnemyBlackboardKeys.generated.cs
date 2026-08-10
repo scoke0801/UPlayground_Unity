@@ -90,5 +90,9 @@ namespace UPlayGround.AI.BehaviorTree
         public const string GroupBreatherRemainingTime = "Group.BreatherRemainingTime";
         public const string GroupFormationSlotIndex = "Group.FormationSlotIndex";
         public const string GroupAggroFitness = "Group.AggroFitness";
+        public const string AirAttackCount = "AirAttackCount";
+        public const string AirAttackLimit = "AirAttackLimit";
+        public const string GroundTimer = "GroundTimer";
+        public const string GroundAttackCount = "GroundAttackCount";
     }
 }

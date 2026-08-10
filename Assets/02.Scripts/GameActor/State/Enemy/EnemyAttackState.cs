@@ -32,8 +32,15 @@ namespace UPlayGround.State
 
         private AbilityAttackInfo _currentSkill;
         private float           _attackTimer;
+        private float           _attackTimeout;
         private bool            _isAttackActive;
         private readonly bool _useTriggeredAbility;
+
+        // Motion Warp는 재생 속도를 최저 0.5배까지 낮출 수 있다. 저작 길이의 2배와
+        // 약간의 여유를 허용한 뒤에도 완료 콜백이 오지 않으면 공격 상태를 회수한다.
+        private const float FALLBACK_ATTACK_TIMEOUT = 4f;
+        private const float MINIMUM_WARP_PLAY_RATE = 0.5f;
+        private const float MOTION_COMPLETION_GRACE = 0.25f;
 
         // 호밍 타겟 (Motion Warp + 회전 보정 공통)
         private Transform _homingTarget;
@@ -71,6 +78,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _attackTimer    = 0f;
+            _attackTimeout  = FALLBACK_ATTACK_TIMEOUT;
             _isAttackActive = true;
             _motionWarp     = controller.MotionWarp;
 
@@ -89,14 +97,25 @@ namespace UPlayGround.State
 
             if (_currentSkill != null)
             {
-                var animState = _combat.CurrentMotionAsset != null
-                    ? gameActor.Animator.PlayMotion(_combat.CurrentMotionAsset, 0.1f)
+                var motionAsset = _combat.CurrentMotionAsset;
+                var animState = motionAsset != null
+                    ? gameActor.Animator.PlayMotion(motionAsset, 0.1f)
                     : null;
                 if (!_currentSkill.useMotionEventTelegraph)
                     _combat.BeginCurrentSkillTelegraph();
 
                 if (animState != null)
+                {
+                    float motionDuration = motionAsset.motionSet?.TotalDuration ?? 0f;
+                    if (motionDuration > 0f)
+                    {
+                        _attackTimeout =
+                            motionDuration / MINIMUM_WARP_PLAY_RATE
+                            + MOTION_COMPLETION_GRACE;
+                    }
+
                     gameActor.Animator.OnMotionSetCompleted += OnAttackAnimationEnd;
+                }
                 else
                 {
                     Debug.LogWarning("[EnemyAttackState] 공격 Motion Key를 해석할 수 없습니다.");
@@ -143,6 +162,19 @@ namespace UPlayGround.State
             _attackTimer += deltaTime;
             _combat.UpdateTelegraphs();
 
+            if (_attackTimer >= _attackTimeout)
+            {
+                Debug.LogWarning(
+                    $"[EnemyAttackState] 공격 Motion 완료 신호가 없어 강제 종료합니다. " +
+                    $"actor={gameActor.name}, " +
+                    $"ability={_combat.CurrentAbility?.abilityId ?? "-"}, " +
+                    $"motion={_combat.CurrentMotionAsset?.name ?? "-"}, " +
+                    $"timeout={_attackTimeout:0.00}s",
+                    gameActor);
+                ForceCompleteAttack();
+                return;
+            }
+
             // 검출 요청만 표시하고 실제 Overlap은 EnemyCombat.LateUpdate에서 수행한다(갓 적용된 포즈).
             if ((_currentSkill.baseInfo.attackType == AttackType.Melee
                  || _combat.HasActiveExplicitCollision)
@@ -160,6 +192,12 @@ namespace UPlayGround.State
             _combat.CompleteCurrentAbility();
             _combat.ClearHitTargets();
             TransitionToNextState();
+        }
+
+        private void ForceCompleteAttack()
+        {
+            gameActor.Animator.OnMotionSetCompleted -= OnAttackAnimationEnd;
+            OnAttackAnimationEnd();
         }
 
         private bool TryTransitionToAirborne(float deltaTime)

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UPlayGround.Data.Path;
 
 namespace UPlayGround.Data.Enemy
 {
@@ -38,6 +39,9 @@ namespace UPlayGround.Data.Enemy
         public float hoverHeightVariance = 1.5f;
 
         [Header("── Dive ──")]
+        [Tooltip("급강하 착지 충격 FX. None이면 FX를 재생하지 않는다.\n"
+                 + "비행 State는 모든 비행 몬스터가 공유하므로 특정 몬스터의 FX를 코드에 두지 않는다.")]
+        public FXKeyType diveImpactFX = FXKeyType.None;
         [Tooltip("텔레그래핑(날개 접기) 시간 — 플레이어 회피 기회")]
         public float diveTelegraphDuration = 1.0f;
         [Tooltip("착지 후딜 — 플레이어 반격 창")]

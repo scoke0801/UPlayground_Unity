@@ -104,7 +104,8 @@
 | `IsCurrentState` | Common | 상태 이름 | 현재 상태 일치 |
 | `IsFlyingAirState` | Flying | — | 공중 상태 |
 | `IsFlyingGroundCombatState` | Flying | — | 지상 교전 상태 |
-| `IsAirAttackLimitReached` | Flying | — | 공중 공격 한도 도달 |
+| `IsAirAttackLimitReached` | Flying | — | 공중 공격 한도 도달 (횟수 소진만. 체류 시간 초과는 잡지 못함) |
+| `IsFlyingDescendRequested` | Flying | — | AirCircle이 하강을 요청함. **횟수 소진과 체류 시간 초과가 모두 합류하는 권위 조건** — 공중 이탈 분기는 이걸 쓴다 |
 | `ShouldFlyingTakeOff` | Flying | — | 이륙 필요 |
 | `FlyingCanUseSkill` | Flying | — | 비행 스킬 사용 가능 |
 | `HasDiveSkillAvailable` | Flying | — | 다이브 스킬 가능 |
@@ -134,7 +135,8 @@ choice는 위 action 필드에 `weight`(float, 기본 1.0) 또는 `weightKey`(bl
 ## Enum 값
 
 - **EnemyActionIntent** (`RequestAction.intent`): `None`, `Attack`, `Punish`, `Counter`, `Pressure`, `Chase`, `Retreat`, `KeepDistance`, `Defend`, `Evade`, `Recover`
-- **EnemyActionStyle** (`RequestAction.style`): `None`, `Dodge`, `JumpBack`, `Guard`, `Circle`, `Flank`, `Charge`, `Dive`, `Land`, `TakeOff`, `Patrol`, `Idle`, `Step`
+- **EnemyActionStyle** (`RequestAction.style`): `None`, `Dodge`, `JumpBack`, `Guard`, `Circle`, `Flank`, `Charge`, `Dive`, `Land`, `TakeOff`, `Patrol`, `Idle`, `Step`, `AirCircle`
+  - `AirCircle`은 비행 전용 공중 선회. `Circle`(지상 견제)과 다른 State다.
 - **AbilityAttackCategory** (`attackCategory`): `None`, `Basic`, `Heavy`, `Skill`, `Any`
   - 요청 측 `None` = 카테고리 필터 없음. `CanActivateAbility`/`IssueAbilityTrigger`는 `None` 불가.
 - **AbilityAIRole** (`abilityRole`): `Opener`, `Punish`, `GapCloser`, `Counter`, `Signature`, `Finisher`

@@ -43,7 +43,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
+    durationSeconds: 1.2
     cooldownGroupId: 
     maxCharges: 1
     globalLockSeconds: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
     saveCooldown: 1
     backgroundMaxDurationSeconds: 0
   balance:
-    expectedDamage: 45
+    expectedDamage: 32
     expectedDuration: 0
     roleTags:
     - AI.Selected
@@ -91,11 +91,11 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 45
-        poiseDamage: 30
-        breakDamage: 10
+      - damage: 32
+        poiseDamage: 18
+        breakDamage: 6
         projectileDefinition: {fileID: 0}
-        reactionType: 4
+        reactionType: 1
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
@@ -105,7 +105,7 @@ MonoBehaviour:
         hitParticleName: LiteHit
         pullForce: 3
         airborneForce: 8
-        knockBackForce: 3
+        knockBackForce: 1.5
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedMotionSlot:
@@ -161,7 +161,8 @@ MonoBehaviour:
     skillType: 1
     attackCategory: 1
     requiredLevel: 1
-    selectionWeight: 100
+    aiRoles: 1
+    selectionWeight: 120
     useTelegraph: 0
     telegraphShape: 0
     telegraphRadiusScale: 1

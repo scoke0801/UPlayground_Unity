@@ -75,6 +75,7 @@ namespace UPlayGround.Editor
                 Tool("Project 선택 Rules 가져오기", "UPlayGround/비헤이비어 트리/JSON/Project 선택 JSON 가져오기", "Project 선택 JSON들을 가져옵니다.", "Project 창에서 선택한 Monster Rules JSON들을 한 번에 BT 에셋으로 변환합니다."),
                 Tool("SourceJson 전체 가져오기", "UPlayGround/비헤이비어 트리/JSON/SourceJson 전체 가져오기", "SourceJson 전체를 가져옵니다.", "BehaviorTree SourceJson 폴더의 모든 몬스터 행동 규칙 JSON을 일괄 재생성합니다."),
                 Tool("Humanoid 저작 검증", "UPlayGround/캐릭터/AI/Humanoid 저작 검증", "Humanoid GAS·Motion·BT 연결을 읽기 전용으로 검증합니다.", "5개 Humanoid 아키타입의 MotionKey, HitPhase, AI 역할 후보와 Bow 원거리 정책을 검사합니다. 실제 변경 단계는 batchmode에서 -uplayground-apply를 명시해야 합니다."),
+                Tool("비행 BT 프리팹 연결", "UPlayGround/툴 런처/캐릭터 · AI/비행 BT 프리팹 연결", "비행 몬스터 프리팹에 Behavior Tree를 연결합니다.", "EnemyFlyingAIController가 붙은 프리팹을 골라 Generated BehaviorTreeAsset을 일괄 연결하고 누락·기존 연결 상태를 보고합니다."),
             }),
             ("캐릭터 / 궁극기", new[]
             {
@@ -100,6 +101,8 @@ namespace UPlayGround.Editor
                 Tool("전체 부착형 HitBox 생성", "UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/전체 부착형 HitBox 생성", "프로젝트 전투 프리팹에 부착형 HitBox를 일괄 생성합니다.", "전체 대상 프리팹을 변경하는 마이그레이션 도구입니다. 실행 전 버전 관리 상태와 적용 범위를 확인해야 합니다."),
                 Tool("HitBox 마이그레이션 검증", "UPlayGround/게임플레이/전투/도구/HitBox 마이그레이션/마이그레이션 결과 검증", "부착형 HitBox 마이그레이션 결과를 검증합니다.", "프로젝트의 HitBox 구성과 공격 데이터 연결 상태를 검사하고 누락을 보고합니다."),
                 Tool("기본 정책 에셋 생성",  "UPlayGround/게임플레이/전투/정책/기본 정책 에셋 생성", "기본 전투 정책 에셋을 생성합니다.", "CombatPolicy 계열 기본 에셋이 누락됐을 때 표준 설정으로 생성합니다."),
+                Tool("투사체 공격 콘텐츠 셋업", "UPlayGround/툴 런처/게임플레이 · 전투/투사체 공격 콘텐츠 셋업", "투사체 Ability의 데이터와 MotionEvent를 함께 연결합니다.", "선택한 Ability Variant·Motion 인덱스의 HitPhase, ProjectileDefinitionSO, SpawnProjectileEvent를 안전하게 구성합니다."),
+                Tool("비행 공중 사거리 감사", "UPlayGround/툴 런처/게임플레이 · 전투/비행 공중 사거리 감사", "비행 Ability가 실제 선회 거리에서 활성화되는지 검사합니다.", "비행 반경과 고도로 필요한 3D 사거리를 계산해 공중 공격·급강하 Ability의 maxDistance 누락을 찾고 선택적으로 보정합니다."),
             }),
             ("게임플레이 / 흐름", new[]
             {

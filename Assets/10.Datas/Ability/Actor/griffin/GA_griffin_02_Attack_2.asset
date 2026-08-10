@@ -43,7 +43,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
+    durationSeconds: 2.2
     cooldownGroupId: 
     maxCharges: 1
     globalLockSeconds: 0
@@ -95,7 +95,7 @@ MonoBehaviour:
         poiseDamage: 30
         breakDamage: 10
         projectileDefinition: {fileID: 0}
-        reactionType: 4
+        reactionType: 2
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
@@ -161,6 +161,7 @@ MonoBehaviour:
     skillType: 1
     attackCategory: 1
     requiredLevel: 1
+    aiRoles: 2
     selectionWeight: 100
     useTelegraph: 0
     telegraphShape: 0

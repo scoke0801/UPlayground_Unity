@@ -24,6 +24,7 @@ MonoBehaviour:
   dirChangeTimeMin: 1.5
   dirChangeTimeMax: 3.5
   hoverHeightVariance: 1.5
+  diveImpactFX: 12
   diveTelegraphDuration: 0.7
   diveRecoveryDuration: 1
   diveApproachOffset: 5

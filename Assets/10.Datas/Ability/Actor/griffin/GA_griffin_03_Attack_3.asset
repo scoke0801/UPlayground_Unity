@@ -43,7 +43,7 @@ MonoBehaviour:
     policy: 0
     value: 0
   cooldown:
-    durationSeconds: 2
+    durationSeconds: 4.5
     cooldownGroupId: 
     maxCharges: 1
     globalLockSeconds: 0
@@ -68,7 +68,7 @@ MonoBehaviour:
     saveCooldown: 1
     backgroundMaxDurationSeconds: 0
   balance:
-    expectedDamage: 45
+    expectedDamage: 62
     expectedDuration: 0
     roleTags:
     - AI.Selected
@@ -91,9 +91,9 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - damage: 45
-        poiseDamage: 30
-        breakDamage: 10
+      - damage: 62
+        poiseDamage: 50
+        breakDamage: 18
         projectileDefinition: {fileID: 0}
         reactionType: 4
         reactionDuration: 0
@@ -102,10 +102,10 @@ MonoBehaviour:
         hitboxGroupId: Default
         impactOffset: {x: 0, y: 0, z: 1.5}
         targetingRange: 1.5
-        hitParticleName: LiteHit
+        hitParticleName: HeavyHit
         pullForce: 3
         airborneForce: 8
-        knockBackForce: 3
+        knockBackForce: 7
         knockBackDrag: 20
         grabDuration: 1.5
         victimForcedMotionSlot:
@@ -159,18 +159,19 @@ MonoBehaviour:
     moveCancelDelayAfterLastHit: 0
     aiSelectable: 1
     skillType: 1
-    attackCategory: 1
+    attackCategory: 2
     requiredLevel: 1
-    selectionWeight: 100
-    useTelegraph: 0
+    aiRoles: 16
+    selectionWeight: 60
+    useTelegraph: 1
     telegraphShape: 0
     telegraphRadiusScale: 1
-    telegraphFXKey: 
+    telegraphFXKey: EnemyHeavyAttackTelegraph_Circle
     useMotionEventTelegraph: 0
     telegraphAnchorType: 0
     useTelegraphPositionForHit: 0
-    useDangerRing: 0
-    dangerRingDuration: 0
+    useDangerRing: 1
+    dangerRingDuration: 0.6
     dangerRingPrefabKey: 
     defenseType: 0
     isAerialSkill: 0

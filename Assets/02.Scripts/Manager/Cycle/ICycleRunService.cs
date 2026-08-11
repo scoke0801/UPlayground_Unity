@@ -16,6 +16,7 @@ namespace UPlayGround.Manager
             out string error);
 
         bool TryRestore(CycleRunState run, CycleLayoutState layout, out string error);
+        bool TryActivateBoss(string spawnId);
         void CleanupRunObjects();
         void OnSceneChanged(string sceneType);
     }

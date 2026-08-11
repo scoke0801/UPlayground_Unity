@@ -43,7 +43,19 @@ namespace UPlayGround.UI
             foreach ((string id, Image icon) in _icons) if (icon != null && CycleBossMarkerRegistry.TryGet(id, out CycleBossMarkerData marker)) Position(icon.rectTransform, player.transform, marker.worldPosition);
             if (_remains != null && CycleRemainsMarkerRegistry.HasMarker) Position(_remains.rectTransform, player.transform, CycleRemainsMarkerRegistry.Position);
         }
-        private void Apply(Image icon, CycleBossMarkerData marker) { if (_iconConfig == null) return; icon.sprite = (marker.discovered ? (marker.isCentral ? _iconConfig.discoveredCentralBoss : _iconConfig.discoveredOuterBoss) : _iconConfig.unknownBoss).sprite; }
+        private void Apply(Image icon, CycleBossMarkerData marker)
+        {
+            if (_iconConfig == null) return;
+            MinimapIconConfigSO.IconEntry entry = marker.isCentral
+                ? _iconConfig.discoveredCentralBoss
+                : marker.discovered
+                    ? _iconConfig.discoveredOuterBoss
+                    : _iconConfig.unknownBoss;
+            icon.sprite = entry.sprite;
+            icon.color = entry.color;
+            icon.rectTransform.sizeDelta = Vector2.one * entry.size;
+            icon.enabled = entry.sprite != null && entry.color.a > 0f && entry.size > 0f;
+        }
         private void Position(RectTransform icon, Transform player, Vector3 world) { Vector3 direction = world - player.position; direction.y = 0f; float angle = Vector3.SignedAngle(player.forward, direction, Vector3.up); icon.anchoredPosition = new Vector2(Mathf.Clamp(angle / 90f, -1f, 1f) * _horizontalRange, 0f); }
     }
 }

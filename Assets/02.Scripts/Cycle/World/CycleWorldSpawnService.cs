@@ -206,13 +206,21 @@ namespace UPlayGround.Cycle
                     error = $"외곽 spawnId 누락: {boss.spawnId}";
                     return false;
                 }
-                if (!SpawnBoss(run, boss, point.Position, point.Rotation, out error))
+                if (!SpawnBoss(run, boss, point.Position, point.Rotation, true, out error))
                     return false;
             }
 
+            bool outerTrialsCleared = layout.outerBosses.Count > 0
+                                      && layout.outerBosses.All(boss => boss != null && boss.defeated);
             if (layout.centralBoss != null &&
                 !layout.centralBoss.defeated &&
-                !SpawnBoss(run, layout.centralBoss, centralPoint.Position, centralPoint.Rotation, out error))
+                !SpawnBoss(
+                    run,
+                    layout.centralBoss,
+                    centralPoint.Position,
+                    centralPoint.Rotation,
+                    outerTrialsCleared,
+                    out error))
             {
                 return false;
             }
@@ -225,11 +233,14 @@ namespace UPlayGround.Cycle
             CycleBossPlacement placement,
             Vector3 position,
             Quaternion rotation,
+            bool activeOnSpawn,
             out string error)
         {
             error = null;
             CycleBossRuntimeHandle[] existing =
-                UnityEngine.Object.FindObjectsByType<CycleBossRuntimeHandle>(FindObjectsSortMode.None);
+                UnityEngine.Object.FindObjectsByType<CycleBossRuntimeHandle>(
+                    FindObjectsInactive.Include,
+                    FindObjectsSortMode.None);
             if (Array.Exists(existing, handle => handle != null && handle.SpawnId == placement.spawnId))
                 return true;
 
@@ -266,13 +277,51 @@ namespace UPlayGround.Cycle
 
             CycleBossRuntimeHandle handle = monster.gameObject.AddComponent<CycleBossRuntimeHandle>();
             handle.Initialize(monster, placement);
-            CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
-                placement.spawnId,
-                position,
-                placement.discovered,
-                placement.isCentral));
+            // 외곽 수호자는 탐색 선택지를 주기 위해 처음부터 표시한다.
+            // 중앙 평가는 아직 갈 수 없는 목적지를 먼저 찍지 않고, 외곽 3체 완료 시 활성화와 함께 공개한다.
+            if (activeOnSpawn || !placement.isCentral)
+            {
+                CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
+                    placement.spawnId,
+                    position,
+                    placement.discovered,
+                    placement.isCentral));
+            }
             _spawnedObjects.Add(monster.gameObject);
+            if (!activeOnSpawn)
+                monster.gameObject.SetActive(false);
             return true;
+        }
+
+        public bool TryActivateBoss(string spawnId)
+        {
+            if (string.IsNullOrWhiteSpace(spawnId))
+                return false;
+
+            for (int i = 0; i < _spawnedObjects.Count; i++)
+            {
+                GameObject spawned = _spawnedObjects[i];
+                if (spawned == null)
+                    continue;
+
+                CycleBossRuntimeHandle handle = spawned.GetComponent<CycleBossRuntimeHandle>();
+                if (handle == null || !string.Equals(handle.SpawnId, spawnId, StringComparison.Ordinal))
+                    continue;
+
+                if (!CycleBossMarkerRegistry.TryGet(spawnId, out _))
+                {
+                    CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
+                        handle.SpawnId,
+                        spawned.transform.position,
+                        handle.IsDiscovered,
+                        handle.IsCentral));
+                }
+
+                spawned.SetActive(true);
+                return true;
+            }
+
+            return false;
         }
 
         private static List<CycleSpawnPoint> SelectOuterPoints(

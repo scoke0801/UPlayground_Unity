@@ -17,6 +17,7 @@ namespace UPlayGround.Cycle
 
         public string SpawnId => _spawnId;
         public bool IsCentral => _isCentral;
+        public bool IsDiscovered => _discovered;
 
         public void Initialize(MonsterActor monster, CycleBossPlacement placement, float encounterRadius = 12f)
         {

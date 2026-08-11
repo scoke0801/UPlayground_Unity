@@ -354,6 +354,13 @@ namespace UPlayGround.UI
             foreach (var (monster, icon) in _enemyIconMap)
             {
                 if (monster == null || icon == null) { _enemyRemovalBuffer.Add(monster); continue; }
+                // 런타임 스폰 직후 CycleBossRuntimeHandle이 붙기 전 일반 적으로 등록될 수 있다.
+                // 전용 사이클 표식과 중복되지 않도록 다음 갱신에서 일반 적 아이콘을 제거한다.
+                if (monster.GetComponent<CycleBossRuntimeHandle>() != null)
+                {
+                    _enemyRemovalBuffer.Add(monster);
+                    continue;
+                }
 
                 bool isDetected = monster.Detection != null && monster.Detection.HasTarget;
 
@@ -637,9 +644,7 @@ namespace UPlayGround.UI
         private void AddCycleBossMarker(CycleBossMarkerData marker)
         {
             if (_config == null || !_config.showCycleBossMarkers || _iconContainer == null || _cycleBossIconMap.ContainsKey(marker.spawnId)) return;
-            MinimapIconConfigSO.IconEntry entry = marker.discovered
-                ? (marker.isCentral ? _config.discoveredCentralBoss : _config.discoveredOuterBoss)
-                : _config.unknownBoss;
+            MinimapIconConfigSO.IconEntry entry = ResolveCycleBossIcon(marker);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (entry.sprite == null) Debug.LogWarning($"[UI_Minimap] 사이클 보스 아이콘 스프라이트 누락: {marker.spawnId}");
 #endif
@@ -649,7 +654,15 @@ namespace UPlayGround.UI
         private void ChangeCycleBossMarker(CycleBossMarkerData marker)
         {
             if (!_cycleBossIconMap.TryGetValue(marker.spawnId, out MinimapEntityIcon icon)) { AddCycleBossMarker(marker); return; }
-            icon.SetEntry(marker.discovered ? (marker.isCentral ? _config.discoveredCentralBoss : _config.discoveredOuterBoss) : _config.unknownBoss);
+            icon.SetEntry(ResolveCycleBossIcon(marker));
+        }
+
+        private MinimapIconConfigSO.IconEntry ResolveCycleBossIcon(CycleBossMarkerData marker)
+        {
+            // 중앙 평가는 외곽 기록 완료 시 레지스트리에 추가되며, 공개된 뒤에는 큰 붉은 신호로 구분한다.
+            if (marker.isCentral)
+                return _config.discoveredCentralBoss;
+            return marker.discovered ? _config.discoveredOuterBoss : _config.unknownBoss;
         }
 
         private void RemoveCycleBossMarker(string spawnId)

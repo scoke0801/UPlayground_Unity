@@ -26,6 +26,12 @@ namespace UPlayGround.Manager
         private const int StoryProgressFirstSettlementCompleted = 30;
         private const int StoryProgressSecondSettlementCompleted = 40;
         private const int StoryProgressFinalEvaluationCompleted = 50;
+        private const string CycleQuestLineGraphId = "FLOW_CycleQuestLine";
+        private const string OuterTrialsClearedEntryId = "outer_trials_cleared";
+        private const string CentralEvaluationClearedEntryId = "central_evaluation_cleared";
+        private const string FirstSettlementCompletedEntryId = "first_settlement_completed";
+        private const string SecondSettlementCompletedEntryId = "second_settlement_completed";
+        private const string FinalEvaluationCompletedEntryId = "final_evaluation_completed";
         private const string FirstSettlementStoryFlag = "cycle.story.first_settlement_completed";
         private const string SecondSettlementStoryFlag = "cycle.story.second_settlement_completed";
         private const string FinalEvaluationStoryFlag = "cycle.story.final_evaluation_completed";
@@ -573,11 +579,24 @@ namespace UPlayGround.Manager
             if (_layout?.outerBosses == null || _layout.outerBosses.Count == 0)
                 return;
 
+            int defeatedCount = 0;
             for (int i = 0; i < _layout.outerBosses.Count; i++)
             {
                 CycleBossPlacement outerBoss = _layout.outerBosses[i];
-                if (outerBoss == null || !outerBoss.defeated)
-                    return;
+                if (outerBoss != null && outerBoss.defeated)
+                    defeatedCount++;
+            }
+
+            ActorSvc.QuestProgress?.NotifyCycleOuterBossProgress(defeatedCount);
+            if (defeatedCount < _layout.outerBosses.Count)
+                return;
+
+            if (_layout.centralBoss != null
+                && !_layout.centralBoss.defeated
+                && !_worldSpawnService.TryActivateBoss(_layout.centralBoss.spawnId))
+            {
+                Debug.LogError($"[CycleRunManager] 중앙 평가자 활성화 실패: {_layout.centralBoss.spawnId}");
+                return;
             }
 
             AdvanceCycleStoryProgress(StoryProgressOuterTrialsCleared);
@@ -605,6 +624,26 @@ namespace UPlayGround.Manager
 
         private static void AdvanceCycleStoryProgress(int progress)
         {
+            string entryId = progress switch
+            {
+                StoryProgressOuterTrialsCleared => OuterTrialsClearedEntryId,
+                StoryProgressCentralEvaluationCleared => CentralEvaluationClearedEntryId,
+                StoryProgressFirstSettlementCompleted => FirstSettlementCompletedEntryId,
+                StoryProgressSecondSettlementCompleted => SecondSettlementCompletedEntryId,
+                StoryProgressFinalEvaluationCompleted => FinalEvaluationCompletedEntryId,
+                _ => null,
+            };
+
+            IFlowGraphService flow = Svc.FlowGraph;
+            if (!string.IsNullOrEmpty(entryId)
+                && flow != null
+                && flow.IsGraphRegistered(CycleQuestLineGraphId)
+                && flow.StartGraph(CycleQuestLineGraphId, entryId))
+            {
+                return;
+            }
+
+            // 테스트·비사이클 맵처럼 그래프가 적용되지 않은 환경에서도 기존 진행 경로를 보존한다.
             Svc.StoryFlow?.SetProgress(progress);
         }
 

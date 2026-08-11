@@ -1,7 +1,7 @@
 # UPlayground 사이클 메인 스토리 플롯
 
 > 작성일: 2026-08-09  
-> 상태: 스토리 방향 확정, 세부 배역·대사·퀘스트 데이터 미확정  
+> 상태: 스토리 방향 및 P0 배역·대사·퀘스트·FlowGraph 데이터 저작 완료, Unity 수직 슬라이스 검증 대기
 > 작업명: **오늘도 시작의 마을**  
 > 서사 기준: 밝은 판타지 모험, 코믹한 회차 미스터리, 보유 모델 우선
 
@@ -202,13 +202,7 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
 
 보쿠세이는 닫힌 바깥길을 다시 열 탐험가를 구한다는 의뢰를 받고 시작의 마을에 도착한다. 안내인은 밝게 마을과 시련장의 기본 규칙을 설명한다.
 
-보쿠세이는 외곽 보스 셋을 쓰러뜨리고 중앙 보스까지 처치한다. 중앙 보스가 쓰러지면 탈출 포털이 열린다. 보쿠세이가 포털에 들어가 정산을 마치자 다시 시작의 마을 입구가 나타난다.
-
-안내인은 처음과 같은 표정과 목소리로 말한다.
-
-> “어서 와! 여기는 시작의 마을이야!”
-
-그날 밤 안내인은 보쿠세이에게 지하실 열쇠를 건넨다.
+보쿠세이는 외곽 보스 셋을 쓰러뜨리고 중앙 보스까지 처치한다. 중앙 보스가 쓰러지면 탈출 포털이 열린다. 보쿠세이가 포털에 들어가 정산을 마치자 다시 시작의 마을 입구가 나타난다. 정산 보상에는 안내인이 미리 끼워 둔 지하실 열쇠가 함께 들어 있다. 보쿠세이는 반복의 이유와 열쇠의 용도를 묻기 위해 안내인을 찾아간다.
 
 ### 1막 — 몇 번째 귀환이야?
 
@@ -383,13 +377,53 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
 
 | ID | 이름 | 완료 조건 | StoryProgress |
 |---|---|---|---:|
-| `quest_main_001` | 첫 번째 시련 | 한 사이클의 외곽 보스 3체 처치 | 10 |
-| `quest_main_002` | 중앙의 평가자 | 중앙 보스 처치 | 20 |
+| `quest_main_001` | 외곽의 세 수호자 | 한 사이클의 외곽 보스 3체 처치 | 10 |
+| `quest_main_002` | 붉은 표식의 평가자 | 중앙 보스 처치 | 20 |
 | `quest_main_003` | 돌아오는 문 | 첫 사이클 포털 정산 | 30 |
-| `quest_main_004` | 두 번째 각본 | 두 번째 사이클 포털 정산 | 40 |
-| `quest_main_005` | 출발의 마을 | 세 번째 사이클 포털 정산 | 50 |
+| `quest_main_004` | 바뀐 지도 | 두 번째 사이클 포털 정산 | 40 |
+| `quest_main_005` | 마지막 원정 | 세 번째 사이클 포털 정산 | 50 |
 
-각 퀘스트는 완료 즉시 다음 퀘스트를 자동 수락한다. `quest_main_001`만 새 게임에서 자동 수락하며, 사이클 런타임 이벤트가 `StoryManager.SetProgress`를 통해 목표를 갱신한다.
+각 퀘스트는 완료 즉시 다음 퀘스트를 자동 수락한다. `quest_main_001`만 새 게임에서 자동 수락한다. 첫·두 번째·세 번째 원정의 외곽 구간은 `CycleOuterBoss` 목표를 사용해 HUD에 `0/3` 진행도를 표시한다. 외곽 수호자를 처치하면 작은 표식이 사라지고 숫자가 증가하며, 세 표식을 모두 지운 뒤 중앙 평가자가 활성화된다.
+
+LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자를 작은 회색 표식, 발견한 외곽 수호자를 주황 표식, 중앙 평가 위치를 큰 붉은 표식으로 표시한다. 대사·퀘스트·HUD가 모두 이 표현을 사용한다. 사이클 런타임 이정표는 `FLOW_CycleQuestLine`의 Manual Entry를 발화해 `StoryManager.SetProgress`를 갱신한다. 그래프가 등록되지 않은 테스트·비사이클 맵에서는 `CycleRunManager`가 기존 직접 호출로 폴백한다.
+
+### 사이클 퀘스트 FlowGraph
+
+`Assets/10.Datas/Flow/FLOW_CycleQuestLine.asset`을 `MapRegionInfo_LakeOfLife.flowGraphs`에 등록한다. FlowGraph는 진행도 이정표만 오케스트레이션하고, 퀘스트 완료·다음 퀘스트 수락·보상 지급은 `QuestManager`와 `QuestSO`가 계속 소유한다.
+
+| Entry ID | StoryProgress | 결과 |
+|---|---:|---|
+| `outer_trials_cleared` | 10 | 메인 1, 두 기록 연작의 첫 퀘스트 완료 |
+| `central_evaluation_cleared` | 20 | 메인 2, 수호자의 기록 2화 완료 |
+| `first_settlement_completed` | 30 | 메인 3, 안내인의 기록 2화 완료 |
+| `second_settlement_completed` | 40 | 메인 4, 안내인의 기록 3화 완료 |
+| `final_evaluation_completed` | 50 | 메인 5, 수호자의 기록 최종화 완료 |
+
+스토리 재생 경로는 화자와 연출 성격에 따라 분리한다.
+
+| StoryEntry | 모드 | 재생 책임 |
+|---|---|---|
+| `cycle_story_first_trial_start` | `NpcTalk` | 안내인 첫 상호작용 |
+| `cycle_story_central_evaluation_start` | `Auto` | 외곽 시련 직후 보쿠세이 독백 |
+| `cycle_story_return_portal_opened` | `Auto` | 중앙 평가 직후 귀환 포털 안내 |
+| `cycle_story_first_settlement_completed` | `Auto` | 포털 정산 시스템 메시지 |
+| `cycle_story_second_script_start` | `NpcTalk` | 첫 정산 뒤 안내인 상호작용 |
+| `cycle_story_final_trial_start` | `NpcTalk` | 두 번째 정산 뒤 안내인 상호작용 |
+| `cycle_story_final_evaluation_completed` | `NpcTalk` | 세 번째 정산 뒤 안내인 상호작용 |
+
+`NpcTalk`와 전환용 `Auto` 엔트리는 `maxProgressExclusive`로 유효 구간을 제한한다. 안내인을 건너뛰거나 진행도가 연속으로 오르더라도 이전 회차의 안내·독백이 뒤늦게 재생되지 않는다.
+
+각 핵심 대화는 한 문장으로 설정을 통보하지 않고 `상황 확인 → 인물 반응 → 다음 행동`의 세 단계를 갖는다.
+
+| 시점 | 대화가 담당하는 정보 | 마지막 행동 유도 |
+|---|---|---|
+| 첫 안내 | 외곽 시련 3곳과 중앙 평가 규칙 | 외곽 시련으로 출발 |
+| 외곽 시련 완료 | 중앙 구역 개방 확인 | 중앙 평가자 처치 |
+| 중앙 평가 완료 | 귀환 포털 개방과 정산 규칙 | 포털로 이동 |
+| 첫 정산 | 반복 귀환과 지하실 열쇠 발견 | 안내인에게 설명 요청 |
+| 첫 정산 뒤 안내인 | 시련장이 조언까지 학습한다는 비밀 | 새 배치에 맞춘 두 번째 원정 |
+| 두 번째 정산 뒤 안내인 | 속도가 아닌 선택과 귀환을 평가한다는 해석 | 세 번째 최종 원정 |
+| 최종 정산 뒤 안내인 | 공동 통과와 외부 항로 개방 확인 | 엔딩 이후 새 원정 |
 
 ### 병행 서브 퀘스트
 
@@ -410,7 +444,7 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
 
 | ID | 아이템 | 용도 | 데이터 |
 |---:|---|---|---|
-| `250001` | 시작의 마을 지하실 열쇠 | 첫 정산 뒤 안내인이 전달하는 영구 중요 아이템 | `Assets/10.Datas/Item/Story/StartingVillageBasementKey.asset` |
+| `250001` | 시작의 마을 지하실 열쇠 | 안내인이 첫 정산 보상에 끼워 둔 영구 중요 아이템 | `Assets/10.Datas/Item/Story/StartingVillageBasementKey.asset` |
 | `100011` | 시련의 파편 | 사이클 보스가 드랍하며 포털 정산 전까지 미정산 원장에 보관되는 재료 | `Assets/10.Datas/Item/Material/TrialFragment.asset` |
 
 `시련의 파편`은 `CycleConfig_P0.unsettledMaterialItemIds`에 등록한다. `quest_main_003` 첫 정산 보상으로 지하실 열쇠 1개를 지급하며, 인벤토리에서는 `IMPORTANT` 분류로 보존한다.
@@ -422,6 +456,7 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
 ## 14. Main Story Generator 데이터
 
 아래 marker 사이 JSON은 `MainStoryGeneratorWindow`가 직접 읽는 권위 데이터다. 본문의 퀘스트 ID, 목표, 보상, 자동 연계가 바뀌면 이 블록도 함께 수정한다.
+대화는 `dialogues[].lines[]` 순서대로 Talk 노드를 생성하며, 각 줄이 자신의 `channel`, `speakerId`, `text`를 소유한다.
 
 <!-- STORY_GENERATOR_MAIN_BEGIN -->
 ```json
@@ -429,9 +464,9 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
   "quests": [
     {
       "questId": "quest_main_001",
-      "questName": "첫 번째 시련",
-      "shortSummary": "외곽 시련 세 곳을 모두 통과한다.",
-      "description": "시작의 마을 안내인이 알려 준 순환 시련장에 들어가 외곽 보스 세 체를 쓰러뜨린다. 시련장이 다음 공략까지 배우지 못하도록 작전 이야기는 안에서 꺼내지 않는다.",
+      "questName": "외곽의 세 수호자",
+      "shortSummary": "나침반의 작은 표식 세 곳을 찾아 외곽 수호자를 쓰러뜨린다.",
+      "description": "첫 평가는 외곽 시련이다. 나침반의 작은 회색 표식 세 개는 외곽 수호자의 위치고, 큰 붉은 표식은 그다음 중앙 평가의 위치다. 먼저 작은 표식 세 곳을 찾아 수호자를 처치하고 기록을 모은다.",
       "requiredProgress": 0,
       "rewardGold": 100,
       "rewardExp": 100,
@@ -441,37 +476,63 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "autoAcceptNextQuestIds": ["quest_main_002"],
       "objectives": [
         {
-          "objectiveId": "obj_cycle_outer_trials",
-          "description": "한 사이클의 외곽 보스 3체를 모두 처치한다.",
-          "type": "StoryProgress",
-          "targetId": 10,
+          "objectiveId": "obj_cycle_outer_guardians",
+          "description": "작은 표식의 외곽 수호자를 처치한다.",
+          "type": "CycleOuterBoss",
+          "targetId": 0,
           "targetStringId": "",
-          "requiredCount": 1
+          "requiredCount": 3
         }
       ],
       "dialogues": [
         {
           "graphId": "dlg_cycle_story_first_trial",
-          "graphName": "첫 번째 시련 - 시작",
-          "channel": "Main",
-          "speakerId": "안내인",
-          "text": "어서 와! 여기는 시작의 마을이야! 외곽의 시련 세 곳을 먼저 통과하면 중앙 평가로 가는 길이 열릴 거야."
+          "graphName": "외곽의 세 수호자 - 시작",
+          "lines": [
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "어서 와! 여기는 시작의 마을이야. 순환 시련장에 도전하러 온 보쿠세이 맞지? 첫 평가는 외곽 시련부터야."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "맞아. 닫힌 바깥길을 다시 열려면 이곳을 통과해야 한다고 들었어."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "나침반에 작은 회색 표식 세 개와 큰 붉은 표식 하나가 잡힐 거야."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "작은 표식의 외곽 수호자 셋을 먼저 쓰러뜨리면, 큰 붉은 표식의 중앙 평가가 시작되는 거지?"
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "정확해. 작은 표식 셋을 지우면 중앙 평가자가 모습을 드러내. 그리고 안에서 세운 작전은 밖에서 큰 소리로 복습하지 마. 무사히 돌아오면 이유를 알려 줄게."
+            }
+          ]
         }
       ],
       "stories": [
         {
           "storyId": "cycle_story_first_trial_start",
           "requiredProgress": 0,
+          "maxProgressExclusive": 10,
+          "triggerMode": "NpcTalk",
           "dialogueGraphId": "dlg_cycle_story_first_trial"
         }
       ]
     },
     {
       "questId": "quest_main_002",
-      "questName": "중앙의 평가자",
-      "shortSummary": "열린 중앙 구역의 최종 평가를 끝낸다.",
-      "description": "외곽의 세 시련을 마치자 중앙 보스에게 향하는 길이 열렸다. 이번 사이클의 최종 평가 대상을 쓰러뜨리고 포털의 반응을 확인한다.",
-      "requiredProgress": 10,
+      "questName": "붉은 표식의 평가자",
+      "shortSummary": "큰 붉은 표식에서 중앙 평가자를 쓰러뜨린다.",
+      "description": "외곽 수호자 세 체의 기록이 모이자 큰 붉은 표식의 중앙 평가자가 모습을 드러냈다. 중앙으로 이동해 평가자를 쓰러뜨리고 시련장의 다음 반응을 확인한다.",
+      "requiredProgress": 0,
       "rewardGold": 150,
       "rewardExp": 150,
       "isRepeatable": false,
@@ -481,7 +542,7 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "objectives": [
         {
           "objectiveId": "obj_cycle_central_evaluation",
-          "description": "중앙 보스를 처치한다.",
+          "description": "큰 붉은 표식의 중앙 평가자를 처치한다.",
           "type": "StoryProgress",
           "targetId": 20,
           "targetStringId": "",
@@ -491,16 +552,32 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "dialogues": [
         {
           "graphId": "dlg_cycle_story_central_evaluation",
-          "graphName": "중앙의 평가자 - 시작",
-          "channel": "Monologue",
-          "speakerId": "Bokusei",
-          "text": "외곽 시련은 모두 끝났다. 이제 중앙의 평가 대상을 확인하자."
+          "graphName": "붉은 표식의 평가자 - 시작",
+          "lines": [
+            {
+              "channel": "System",
+              "speakerId": "",
+              "text": "외곽 수호자 기록 3/3. 중앙 평가 조건을 충족했습니다."
+            },
+            {
+              "channel": "Monologue",
+              "speakerId": "Bokusei",
+              "text": "이제 큰 붉은 표식이 차례야."
+            },
+            {
+              "channel": "Monologue",
+              "speakerId": "Bokusei",
+              "text": "중앙 평가자를 쓰러뜨리고, 시련장이 무엇을 내놓는지 확인하자."
+            }
+          ]
         }
       ],
       "stories": [
         {
           "storyId": "cycle_story_central_evaluation_start",
           "requiredProgress": 10,
+          "maxProgressExclusive": 20,
+          "triggerMode": "Auto",
           "dialogueGraphId": "dlg_cycle_story_central_evaluation"
         }
       ]
@@ -508,8 +585,8 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
     {
       "questId": "quest_main_003",
       "questName": "돌아오는 문",
-      "shortSummary": "탈출 포털에서 첫 원정을 정산한다.",
-      "description": "중앙 보스가 쓰러진 뒤 열린 포털은 바깥길이 아니라 정산을 위한 귀환문이었다. 미정산 전리품을 확정하고 시작의 마을로 돌아간다.",
+      "shortSummary": "새로 열린 귀환 포털에 들어가 첫 원정을 정산한다.",
+      "description": "중앙 평가가 끝나자 귀환 포털이 열렸다. 포털에 들어가면 이번 원정의 전리품과 기록이 확정되고 시작 지점으로 돌아간다.",
       "requiredProgress": 20,
       "rewardGold": 200,
       "rewardExp": 200,
@@ -526,7 +603,7 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "objectives": [
         {
           "objectiveId": "obj_cycle_first_settlement",
-          "description": "탈출 포털에 들어가 첫 사이클을 정산한다.",
+          "description": "새로 열린 귀환 포털에 들어가 원정을 정산한다.",
           "type": "StoryProgress",
           "targetId": 30,
           "targetStringId": "",
@@ -535,26 +612,75 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       ],
       "dialogues": [
         {
+          "graphId": "dlg_cycle_story_return_portal_opened",
+          "graphName": "돌아오는 문 - 개방",
+          "lines": [
+            {
+              "channel": "System",
+              "speakerId": "",
+              "text": "중앙 평가 기록을 확인했습니다. 귀환 포털을 개방합니다."
+            },
+            {
+              "channel": "Monologue",
+              "speakerId": "Bokusei",
+              "text": "문은 열렸지만 바깥으로 향하는 길은 아니야."
+            },
+            {
+              "channel": "Monologue",
+              "speakerId": "Bokusei",
+              "text": "전리품을 확정하려면 저 포털로 돌아가야겠네."
+            }
+          ]
+        },
+        {
           "graphId": "dlg_cycle_story_first_settlement",
           "graphName": "돌아오는 문 - 정산",
-          "channel": "System",
-          "speakerId": "",
-          "text": "탐험 기록 완료. 통과 조건 불충족. 다음 시련을 준비합니다."
+          "lines": [
+            {
+              "channel": "System",
+              "speakerId": "",
+              "text": "탐험 기록을 접수했습니다. 통과 조건 불충족."
+            },
+            {
+              "channel": "System",
+              "speakerId": "",
+              "text": "정산 보상과 중요 물품을 지급합니다: 시작의 마을 지하실 열쇠."
+            },
+            {
+              "channel": "Monologue",
+              "speakerId": "Bokusei",
+              "text": "출구가 아니라 시작점으로 돌아왔어. 안내인이 왜 지하실 열쇠를 정산품에 넣은 거지?"
+            },
+            {
+              "channel": "Monologue",
+              "speakerId": "Bokusei",
+              "text": "원정 기록이 다음 시련에 반영된다면, 먼저 안내인에게 설명을 들어야겠어."
+            }
+          ]
         }
       ],
       "stories": [
         {
+          "storyId": "cycle_story_return_portal_opened",
+          "requiredProgress": 20,
+          "maxProgressExclusive": 30,
+          "triggerMode": "Auto",
+          "dialogueGraphId": "dlg_cycle_story_return_portal_opened"
+        },
+        {
           "storyId": "cycle_story_first_settlement_completed",
           "requiredProgress": 30,
+          "maxProgressExclusive": 40,
+          "triggerMode": "Auto",
           "dialogueGraphId": "dlg_cycle_story_first_settlement"
         }
       ]
     },
     {
       "questId": "quest_main_004",
-      "questName": "두 번째 각본",
-      "shortSummary": "시련장의 새 배치를 공략하고 다시 귀환한다.",
-      "description": "안내인은 지상에서 처음 만난 사람처럼 행동했지만, 관측이 닿지 않는 곳에서는 이전 원정을 기억하고 있었다. 시련장의 새 배치에 맞춰 두 번째 사이클을 완료한다.",
+      "questName": "바뀐 지도",
+      "shortSummary": "달라진 수호자 배치에 맞춰 두 번째 원정을 완수한다.",
+      "description": "시련장은 첫 원정의 이동 순서와 조언을 반영해 수호자의 위치와 조합을 바꿨다. 나침반의 작은 표식 세 곳을 다시 확인하고, 현장에서 경로를 조정해 중앙 평가와 정산까지 마친다.",
       "requiredProgress": 30,
       "rewardGold": 250,
       "rewardExp": 250,
@@ -564,8 +690,16 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "autoAcceptNextQuestIds": ["quest_main_005"],
       "objectives": [
         {
+          "objectiveId": "obj_cycle_second_outer_guardians",
+          "description": "새 배치의 외곽 수호자를 처치한다.",
+          "type": "CycleOuterBoss",
+          "targetId": 0,
+          "targetStringId": "",
+          "requiredCount": 3
+        },
+        {
           "objectiveId": "obj_cycle_second_settlement",
-          "description": "두 번째 사이클을 완료하고 정산한다.",
+          "description": "중앙 평가를 마치고 귀환 포털로 정산한다.",
           "type": "StoryProgress",
           "targetId": 40,
           "targetStringId": "",
@@ -575,25 +709,56 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "dialogues": [
         {
           "graphId": "dlg_cycle_story_second_script",
-          "graphName": "두 번째 각본 - 시작",
-          "channel": "Main",
-          "speakerId": "안내인",
-          "text": "밖에서는 처음 온 사람처럼 행동해. 안에서는 지난번과 다른 순서로 움직이고. 시련장이 얼마나 눈치가 빠른지 보자."
+          "graphName": "바뀐 지도 - 시작",
+          "lines": [
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "열쇠는 받았지? 목소리를 낮춰. 그 열쇠가 여는 지하실은 시련장의 관측이 닿지 않아."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "그러면 지상에서 처음 만난 것처럼 굴었던 것도 일부러였던 거네."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "응. 시련장은 도전자의 전술뿐 아니라 우리가 해 준 조언도 다음 배치에 반영해."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "그래서 이번 나침반의 작은 표식들이 지난 원정과 다른 곳에 있겠네."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "맞아. 표식 위치와 수호자 조합을 보고 길을 다시 짜. 정해 둔 순서를 따라가지 마."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "두 번째 지도는 내가 현장에서 완성해서 돌아올게."
+            }
+          ]
         }
       ],
       "stories": [
         {
           "storyId": "cycle_story_second_script_start",
           "requiredProgress": 30,
+          "maxProgressExclusive": 40,
+          "triggerMode": "NpcTalk",
           "dialogueGraphId": "dlg_cycle_story_second_script"
         }
       ]
     },
     {
       "questId": "quest_main_005",
-      "questName": "출발의 마을",
-      "shortSummary": "세 번째 최종 평가를 마치고 바깥길을 연다.",
-      "description": "보쿠세이는 반복 속에서 혼자 강해지는 대신 안내인, 탐험가, 수호자와 협력하는 법을 증명했다. 세 번째 사이클의 최종 평가를 마치고 시련장이 감춰 둔 다음 길을 연다.",
+      "questName": "마지막 원정",
+      "shortSummary": "세 번째 원정을 완수하고 닫힌 바깥길을 연다.",
+      "description": "마지막 원정도 규칙은 같다. 작은 표식의 외곽 수호자 세 체를 상대하고 중앙 평가를 마친 뒤 안전하게 귀환한다. 지금까지 익힌 배치 판단과 관계를 활용해 시련장이 요구한 탐험대의 답을 증명한다.",
       "requiredProgress": 40,
       "rewardGold": 500,
       "rewardExp": 500,
@@ -603,8 +768,16 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       "autoAcceptNextQuestIds": [],
       "objectives": [
         {
+          "objectiveId": "obj_cycle_final_outer_guardians",
+          "description": "마지막 배치의 외곽 수호자를 처치한다.",
+          "type": "CycleOuterBoss",
+          "targetId": 0,
+          "targetStringId": "",
+          "requiredCount": 3
+        },
+        {
           "objectiveId": "obj_cycle_final_evaluation",
-          "description": "세 번째 사이클을 완료하고 최종 평가를 통과한다.",
+          "description": "중앙 평가를 마치고 귀환 포털로 최종 정산한다.",
           "type": "StoryProgress",
           "targetId": 50,
           "targetStringId": "",
@@ -613,17 +786,81 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
       ],
       "dialogues": [
         {
+          "graphId": "dlg_cycle_story_final_trial",
+          "graphName": "마지막 원정 - 시작",
+          "lines": [
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "두 번째 정산표를 봤어. 시련장은 네가 얼마나 빨리 이겼는지가 아니라, 낯선 배치에서 선택을 바꾼 순간들을 기록했어."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "혼자 강해지는 것보다, 함께 돌아오는 방법을 본 거네."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "맞아. 마지막 원정도 외곽 수호자 셋부터야. 지금까지 만든 관계와 판단을 그대로 보여 줘."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "그게 바깥길을 여는 마지막 답이라면, 모두와 함께 돌아와서 증명할게."
+            }
+          ]
+        },
+        {
           "graphId": "dlg_cycle_story_departure_village",
           "graphName": "출발의 마을 - 완료",
-          "channel": "Main",
-          "speakerId": "안내인",
-          "text": "어서 와! 여기는 시작의 마을—— 아니네. 이제 여기는 출발의 마을이야."
+          "lines": [
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "어서 와! 여기는 시작의 마을——"
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "아니네. 이제 여기는 출발의 마을이야. 바깥길이 열렸어, 보쿠세이."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "이번에는 시작점으로 돌려보낸 게 아니라, 다음 길을 고르라고 보내 준 거구나."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "응. 최종 정산표의 통과자 명단을 봐. 네 이름 하나가 아니라, 함께 길을 만든 모두가 기록돼 있어."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "Bokusei",
+              "text": "그럼 다음 원정은 시험을 통과하러 가는 게 아니겠네."
+            },
+            {
+              "channel": "Main",
+              "speakerId": "안내인",
+              "text": "새 길을 찾으러 가는 거지. 준비되면 말해. 이번에는 내가 처음 가는 길을 안내할 차례니까."
+            }
+          ]
         }
       ],
       "stories": [
         {
+          "storyId": "cycle_story_final_trial_start",
+          "requiredProgress": 40,
+          "maxProgressExclusive": 50,
+          "triggerMode": "NpcTalk",
+          "dialogueGraphId": "dlg_cycle_story_final_trial"
+        },
+        {
           "storyId": "cycle_story_final_evaluation_completed",
           "requiredProgress": 50,
+          "maxProgressExclusive": 0,
+          "triggerMode": "NpcTalk",
           "dialogueGraphId": "dlg_cycle_story_departure_village"
         }
       ]

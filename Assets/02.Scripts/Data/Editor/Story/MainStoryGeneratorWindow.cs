@@ -343,34 +343,45 @@ namespace UPlayGround.Editor
                 graph.nodes.Clear();
             }
 
-            var talkNode = CreateInstance<DialogueNodeSO>();
-            talkNode.name = "Node_Talk_Start";
-            talkNode.nodeId = $"{seed.GraphId}_talk";
-            talkNode.nodeType = NodeType.Talk;
-            talkNode.channel = seed.Channel;
-            talkNode.speakerId = seed.SpeakerId;
-            talkNode.dialogueText = seed.Text;
-            talkNode.nextNodeId = $"{seed.GraphId}_end";
-            talkNode.editorPosition = new Vector2(120, 120);
-
             var endNode = CreateInstance<DialogueNodeSO>();
             endNode.name = "Node_End";
             endNode.nodeId = $"{seed.GraphId}_end";
             endNode.nodeType = NodeType.End;
-            endNode.editorPosition = new Vector2(420, 120);
+            endNode.editorPosition = new Vector2(120 + seed.Lines.Length * 300, 120);
 
             graph.graphId = seed.GraphId;
             graph.graphName = seed.GraphName;
-            graph.startNodeId = talkNode.nodeId;
-            graph.nodes.Add(talkNode);
+            graph.startNodeId = GetTalkNodeId(seed.GraphId, 0, seed.Lines.Length);
+
+            for (int i = 0; i < seed.Lines.Length; i++)
+            {
+                DialogueLineSeed line = seed.Lines[i];
+                var talkNode = CreateInstance<DialogueNodeSO>();
+                talkNode.name = seed.Lines.Length == 1 ? "Node_Talk_Start" : $"Node_Talk_{i + 1:00}";
+                talkNode.nodeId = GetTalkNodeId(seed.GraphId, i, seed.Lines.Length);
+                talkNode.nodeType = NodeType.Talk;
+                talkNode.channel = line.Channel;
+                talkNode.speakerId = line.SpeakerId;
+                talkNode.dialogueText = line.Text;
+                talkNode.nextNodeId = i + 1 < seed.Lines.Length
+                    ? GetTalkNodeId(seed.GraphId, i + 1, seed.Lines.Length)
+                    : endNode.nodeId;
+                talkNode.editorPosition = new Vector2(120 + i * 300, 120);
+
+                graph.nodes.Add(talkNode);
+                AssetDatabase.AddObjectToAsset(talkNode, graph);
+            }
+
             graph.nodes.Add(endNode);
             graph.InvalidateCache();
 
-            AssetDatabase.AddObjectToAsset(talkNode, graph);
             AssetDatabase.AddObjectToAsset(endNode, graph);
             EditorUtility.SetDirty(graph);
             return graph;
         }
+
+        private static string GetTalkNodeId(string graphId, int index, int lineCount)
+            => lineCount == 1 ? $"{graphId}_talk" : $"{graphId}_talk_{index + 1:00}";
 
         private QuestSO CreateOrUpdateQuest(StorySeed seed)
         {
@@ -418,6 +429,8 @@ namespace UPlayGround.Editor
 
             entry.storyId = seed.StoryId;
             entry.requiredProgress = seed.RequiredProgress;
+            entry.maxProgressExclusive = seed.MaxProgressExclusive;
+            entry.triggerMode = seed.TriggerMode;
             entry.dialogueGraph = graph;
             entry.variants = System.Array.Empty<StoryVariant>();
 
@@ -546,52 +559,102 @@ namespace UPlayGround.Editor
         {
             public readonly string GraphId;
             public readonly string GraphName;
+            public readonly DialogueLineSeed[] Lines;
+
+            private DialogueSeed(string graphId, string graphName, DialogueLineSeed[] lines)
+            {
+                GraphId = graphId;
+                GraphName = graphName;
+                Lines = lines;
+            }
+
+            public static DialogueSeed Main(string graphId, string graphName, string speakerId, string text)
+                => new(graphId, graphName, new[]
+                {
+                    new DialogueLineSeed(DialogueChannel.Main, speakerId, text)
+                });
+
+            public static DialogueSeed Monologue(string graphId, string graphName, string text)
+                => new(graphId, graphName, new[]
+                {
+                    new DialogueLineSeed(DialogueChannel.Monologue, "Bokusei", text)
+                });
+
+            public static DialogueSeed FromDocument(StoryGeneratorDialogue dialogue)
+            {
+                StoryGeneratorDialogueLine[] sourceLines = dialogue.lines?
+                    .Where(line => line != null)
+                    .ToArray();
+
+                DialogueLineSeed[] lines = sourceLines != null && sourceLines.Length > 0
+                    ? sourceLines.Select(line => new DialogueLineSeed(
+                            StoryGeneratorMarkdownLoader.ResolveChannel(
+                                string.IsNullOrWhiteSpace(line.channel) ? dialogue.channel : line.channel),
+                            string.IsNullOrWhiteSpace(line.speakerId) ? dialogue.speakerId : line.speakerId,
+                            line.text))
+                        .ToArray()
+                    : new[]
+                    {
+                        new DialogueLineSeed(
+                            StoryGeneratorMarkdownLoader.ResolveChannel(dialogue.channel),
+                            dialogue.speakerId,
+                            dialogue.text)
+                    };
+
+                return new DialogueSeed(dialogue.graphId, dialogue.graphName, lines);
+            }
+        }
+
+        private readonly struct DialogueLineSeed
+        {
             public readonly DialogueChannel Channel;
             public readonly string SpeakerId;
             public readonly string Text;
 
-            private DialogueSeed(string graphId, string graphName, DialogueChannel channel, string speakerId, string text)
+            public DialogueLineSeed(DialogueChannel channel, string speakerId, string text)
             {
-                GraphId = graphId;
-                GraphName = graphName;
                 Channel = channel;
                 SpeakerId = speakerId;
                 Text = text;
             }
-
-            public static DialogueSeed Main(string graphId, string graphName, string speakerId, string text)
-                => new(graphId, graphName, DialogueChannel.Main, speakerId, text);
-
-            public static DialogueSeed Monologue(string graphId, string graphName, string text)
-                => new(graphId, graphName, DialogueChannel.Monologue, "Bokusei", text);
-
-            public static DialogueSeed FromDocument(StoryGeneratorDialogue dialogue)
-                => new(
-                    dialogue.graphId,
-                    dialogue.graphName,
-                    StoryGeneratorMarkdownLoader.ResolveChannel(dialogue.channel),
-                    dialogue.speakerId,
-                    dialogue.text);
         }
 
         private readonly struct StoryEntrySeed
         {
             public readonly string StoryId;
             public readonly int RequiredProgress;
+            public readonly int MaxProgressExclusive;
+            public readonly StoryTriggerMode TriggerMode;
             public readonly string DialogueGraphId;
 
-            private StoryEntrySeed(string storyId, int requiredProgress, string dialogueGraphId)
+            private StoryEntrySeed(
+                string storyId,
+                int requiredProgress,
+                int maxProgressExclusive,
+                string dialogueGraphId,
+                StoryTriggerMode triggerMode)
             {
                 StoryId = storyId;
                 RequiredProgress = requiredProgress;
+                MaxProgressExclusive = maxProgressExclusive;
+                TriggerMode = triggerMode;
                 DialogueGraphId = dialogueGraphId;
             }
 
-            public static StoryEntrySeed Basic(string storyId, int requiredProgress, string dialogueGraphId)
-                => new(storyId, requiredProgress, dialogueGraphId);
+            public static StoryEntrySeed Basic(
+                string storyId,
+                int requiredProgress,
+                string dialogueGraphId,
+                StoryTriggerMode triggerMode = StoryTriggerMode.Auto)
+                => new(storyId, requiredProgress, 0, dialogueGraphId, triggerMode);
 
             public static StoryEntrySeed FromDocument(StoryGeneratorEntry entry)
-                => new(entry.storyId, entry.requiredProgress, entry.dialogueGraphId);
+                => new(
+                    entry.storyId,
+                    entry.requiredProgress,
+                    entry.maxProgressExclusive,
+                    entry.dialogueGraphId,
+                    StoryGeneratorMarkdownLoader.ResolveTriggerMode(entry.triggerMode));
         }
     }
 }

@@ -7,6 +7,7 @@ using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Quest;
 using UPlayGround.Dialogue;
+using UPlayGround.Story;
 
 namespace UPlayGround.Editor
 {
@@ -128,6 +129,17 @@ namespace UPlayGround.Editor
         public static DialogueChannel ResolveChannel(string channel)
             => System.Enum.TryParse(channel, out DialogueChannel result) ? result : DialogueChannel.Main;
 
+        public static StoryTriggerMode ResolveTriggerMode(
+            string value,
+            StoryTriggerMode fallback = StoryTriggerMode.NpcTalk)
+        {
+            return !string.IsNullOrWhiteSpace(value)
+                   && Enum.TryParse(value, true, out StoryTriggerMode mode)
+                   && Enum.IsDefined(typeof(StoryTriggerMode), mode)
+                ? mode
+                : fallback;
+        }
+
         private static string ResolveActorId(string actorId)
         {
             if (string.IsNullOrWhiteSpace(actorId)) return string.Empty;
@@ -193,6 +205,15 @@ namespace UPlayGround.Editor
         public string channel = "Main";
         public string speakerId;
         public string text;
+        public StoryGeneratorDialogueLine[] lines;
+    }
+
+    [Serializable]
+    internal class StoryGeneratorDialogueLine
+    {
+        public string channel;
+        public string speakerId;
+        public string text;
     }
 
     [Serializable]
@@ -200,6 +221,8 @@ namespace UPlayGround.Editor
     {
         public string storyId;
         public int requiredProgress;
+        public int maxProgressExclusive;
+        public string triggerMode = "NpcTalk";
         public string dialogueGraphId;
     }
 }

@@ -6,6 +6,7 @@ using UPlayGround.Data.Event;
 using UPlayGround.Dialogue;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Story;
 
 namespace UPlayGround
 {
@@ -25,7 +26,8 @@ namespace UPlayGround
 
         // ── IInteractable ────────────────────────────────────────────
 
-        public bool CanInteract() => !_isInteracting && _data?.dialogueGraph != null;
+        public bool CanInteract()
+            => !_isInteracting && (_data?.dialogueGraph != null || FindEligibleStory() != null);
 
         public bool IsInteracting() => _isInteracting;
 
@@ -39,11 +41,27 @@ namespace UPlayGround
         {
             if (!CanInteract()) return;
 
+            // 대화가 실제로 시작된 뒤에만 상호작용 상태로 들어간다.
+            // 먼저 상태를 잡으면 스토리 트리거가 거절됐을 때 NPC가 잠긴 채로 남는다.
+            StoryEntrySO story = FindEligibleStory();
+
             _isInteracting = true;
             _simulationLease = ActorSvc.Simulation?.AcquireActiveLease(this, this, "Dialogue");
-
             Svc.Dialogue.OnDialogueEnd += OnDialogueEnd;
-            Svc.Dialogue.StartDialogue(_data.dialogueGraph);
+
+            bool started = story != null && (Svc.StoryFlow?.TryTriggerStory(story) ?? false);
+            if (!started && _data?.dialogueGraph != null)
+            {
+                Svc.Dialogue.StartDialogue(_data.dialogueGraph);
+                started = true;
+            }
+
+            if (!started)
+            {
+                Svc.Dialogue.OnDialogueEnd -= OnDialogueEnd;
+                _isInteracting = false;
+                ReleaseSimulationLease();
+            }
         }
 
         public void StopInteract()
@@ -61,6 +79,26 @@ namespace UPlayGround
             where TData : IEventData { }
 
         // ── 내부 ────────────────────────────────────────────────────
+
+        /// <summary>
+        /// 담당 스토리 중 조건이 맞는 첫 항목. 없으면 null (기본 대화로 폴백).
+        /// </summary>
+        private StoryEntrySO FindEligibleStory()
+        {
+            StoryEntrySO[] entries = _data?.storyEntries;
+            if (entries == null) return null;
+
+            IStoryFlowService storyFlow = Svc.StoryFlow;
+            if (storyFlow == null) return null;
+
+            for (int i = 0; i < entries.Length; i++)
+            {
+                if (storyFlow.IsStoryEligible(entries[i]))
+                    return entries[i];
+            }
+
+            return null;
+        }
 
         private void OnDialogueEnd()
         {

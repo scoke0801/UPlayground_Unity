@@ -1,5 +1,6 @@
 using System;
 using UPlayGround.Data.Quest;
+using UPlayGround.Story;
 
 namespace UPlayGround.Manager
 {
@@ -75,6 +76,12 @@ namespace UPlayGround.Manager
     {
         int CurrentProgress { get; }
         void SetProgress(int progress);
+
+        /// <summary>완료되지 않았고 진행도 조건을 만족하는지. 재생 없이 판정만 한다.</summary>
+        bool IsStoryEligible(StoryEntrySO entry);
+
+        /// <summary>조건이 맞으면 대화를 시작한다. 실제로 시작되면 true.</summary>
+        bool TryTriggerStory(StoryEntrySO entry);
     }
 
     /// <summary>

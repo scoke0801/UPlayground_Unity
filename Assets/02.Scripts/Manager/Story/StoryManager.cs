@@ -2,6 +2,7 @@
 using UnityEngine;
 using UPlayGround.Dialogue;
 using UPlayGround.Manager;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Save;
 
 namespace UPlayGround.Story
@@ -31,6 +32,10 @@ namespace UPlayGround.Story
         private readonly HashSet<string> _pendingMainStoryIds = new();
         private System.IDisposable _activeMainStoryDialogue;
 
+        // 자동 재생은 게임플레이 씬에서만 허용한다. Title/Boot/Loading에서 재생되면
+        // 화자도 배경도 없이 대사가 뜨고, 시작과 동시에 완료로 소진돼 버린다.
+        private string _currentSceneType;
+
         public int CurrentProgress => _currentProgress;
 
         #region IManager
@@ -53,6 +58,7 @@ namespace UPlayGround.Story
 
         public void OnUpdate()
         {
+            if (!IsAutoPlayAllowed) return;
             TryPlayNextMainStory();
         }
 
@@ -66,9 +72,21 @@ namespace UPlayGround.Story
 
         public void OnSceneChanged(string sceneType)
         {
+            _currentSceneType = sceneType;
+
+            if (!IsAutoPlayAllowed)
+            {
+                // 게임플레이 밖으로 나갔으면 큐를 비운다. 남겨두면 다음 씬 진입 첫 프레임에
+                // 조건 재평가 없이 그대로 재생된다.
+                ClearPendingMainStories();
+                return;
+            }
+
             QueueEligibleMainStories();
         }
         #endregion
+
+        private bool IsAutoPlayAllowed => _currentSceneType == SceneType.GamePlay;
         
         /// <summary>
         /// 진행도를 올립니다. 이전보다 낮은 값은 무시됩니다.
@@ -86,11 +104,19 @@ namespace UPlayGround.Story
         /// 트리거 존 등 외부에서 호출. 조건이 맞을 때만 대화를 시작합니다.
         /// </summary>
         /// <returns>대화가 실제로 시작되면 true</returns>
+        public bool IsStoryEligible(StoryEntrySO entry)
+        {
+            if (entry == null) return false;
+            if (_completedStories.Contains(entry.storyId)) return false;
+            if (!IsWithinProgressWindow(entry)) return false;
+            return ResolveGraph(entry) != null;
+        }
+
         public bool TryTriggerStory(StoryEntrySO entry)
         {
             if (entry == null) return false;
             if (_completedStories.Contains(entry.storyId)) return false;
-            if (_currentProgress < entry.requiredProgress) return false;
+            if (!IsWithinProgressWindow(entry)) return false;
 
             var graph = ResolveGraph(entry);
             if (graph == null)
@@ -178,14 +204,18 @@ namespace UPlayGround.Story
 
         private void QueueEligibleMainStories()
         {
-            if (_mainStorySequence?.entries == null)
+            // SetProgress / 세이브 로드처럼 씬 전환 밖에서도 불린다. 여기서 한 번 더 막는다.
+            if (!IsAutoPlayAllowed || _mainStorySequence?.entries == null)
                 return;
 
             foreach (StoryEntrySO entry in _mainStorySequence.entries)
             {
+                // NpcTalk/Zone 엔트리는 각자의 트리거가 소유한다. 자동 큐가 가로채면
+                // 화자 없이 재생되고 완료로 소진돼 정작 해당 트리거에서 나오지 않는다.
                 if (entry == null
+                    || entry.triggerMode != StoryTriggerMode.Auto
                     || string.IsNullOrWhiteSpace(entry.storyId)
-                    || entry.requiredProgress > _currentProgress
+                    || !IsWithinProgressWindow(entry)
                     || _completedStories.Contains(entry.storyId)
                     || !_pendingMainStoryIds.Add(entry.storyId))
                     continue;
@@ -196,12 +226,26 @@ namespace UPlayGround.Story
             TryPlayNextMainStory();
         }
 
+        private bool IsWithinProgressWindow(StoryEntrySO entry)
+        {
+            return entry != null
+                   && _currentProgress >= entry.requiredProgress
+                   && (entry.maxProgressExclusive <= 0 || _currentProgress < entry.maxProgressExclusive);
+        }
+
         private void TryPlayNextMainStory()
         {
             if (_activeMainStoryDialogue != null || _pendingMainStories.Count == 0)
                 return;
 
             StoryEntrySO entry = _pendingMainStories.Peek();
+            if (!IsWithinProgressWindow(entry))
+            {
+                RemovePendingMainStory(entry);
+                TryPlayNextMainStory();
+                return;
+            }
+
             DialogueGraphSO graph = ResolveGraph(entry);
             if (graph == null)
             {

@@ -404,6 +404,8 @@ namespace UPlayGround.Editor
 
             entry.storyId = seed.StoryId;
             entry.requiredProgress = seed.RequiredProgress;
+            entry.maxProgressExclusive = 0;
+            entry.triggerMode = seed.TriggerMode;
             entry.dialogueGraph = graph;
             entry.variants = System.Array.Empty<StoryVariant>();
 
@@ -564,20 +566,36 @@ namespace UPlayGround.Editor
         {
             public readonly string StoryId;
             public readonly int RequiredProgress;
+            public readonly StoryTriggerMode TriggerMode;
             public readonly string DialogueGraphId;
 
-            private StoryEntrySeed(string storyId, int requiredProgress, string dialogueGraphId)
+            private StoryEntrySeed(
+                string storyId,
+                int requiredProgress,
+                string dialogueGraphId,
+                StoryTriggerMode triggerMode)
             {
                 StoryId = storyId;
                 RequiredProgress = requiredProgress;
+                TriggerMode = triggerMode;
                 DialogueGraphId = dialogueGraphId;
             }
 
-            public static StoryEntrySeed Basic(string storyId, int requiredProgress, string dialogueGraphId)
-                => new(storyId, requiredProgress, dialogueGraphId);
+            public static StoryEntrySeed Basic(
+                string storyId,
+                int requiredProgress,
+                string dialogueGraphId,
+                StoryTriggerMode triggerMode = StoryTriggerMode.Zone)
+                => new(storyId, requiredProgress, dialogueGraphId, triggerMode);
 
             public static StoryEntrySeed FromDocument(StoryGeneratorEntry entry)
-                => new(entry.storyId, entry.requiredProgress, entry.dialogueGraphId);
+                => new(
+                    entry.storyId,
+                    entry.requiredProgress,
+                    entry.dialogueGraphId,
+                    StoryGeneratorMarkdownLoader.ResolveTriggerMode(
+                        entry.triggerMode,
+                        StoryTriggerMode.Zone));
         }
     }
 }

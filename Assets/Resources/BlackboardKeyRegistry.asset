@@ -824,8 +824,8 @@ MonoBehaviour:
     _keyName: AirAttackLimit
     _aliases: []
     _displayName: "\uACF5\uC911 \uACF5\uACA9 \uD55C\uACC4"
-    _description: "\uD558\uAC15 \uC804 \uD5C8\uC6A9\uB418\uB294 \uACF5\uC911
-      \uACF5\uACA9 \uD69F\uC218"
+    _description: "\uD558\uAC15 \uC804 \uD5C8\uC6A9\uB418\uB294 \uACF5\uC911 \uACF5\uACA9
+      \uD69F\uC218"
     _valueType: 1
     _scope: 3
     _writePolicy: 0
@@ -834,8 +834,8 @@ MonoBehaviour:
     _keyName: GroundTimer
     _aliases: []
     _displayName: "\uC9C0\uC0C1 \uCCB4\uB958 \uC2DC\uAC04"
-    _description: "\uD604\uC7AC \uC9C0\uC0C1 \uC804\uD22C \uAD6C\uAC04\uC758
-      \uB204\uC801 \uCCB4\uB958 \uC2DC\uAC04"
+    _description: "\uD604\uC7AC \uC9C0\uC0C1 \uC804\uD22C \uAD6C\uAC04\uC758 \uB204\uC801
+      \uCCB4\uB958 \uC2DC\uAC04"
     _valueType: 2
     _scope: 3
     _writePolicy: 0

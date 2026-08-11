@@ -377,15 +377,15 @@ P0에서는 추가 모델이 필요 없는 첫 번째 방식을 우선한다.
 
 | ID | 이름 | 완료 조건 | StoryProgress |
 |---|---|---|---:|
-| `quest_main_001` | 외곽의 세 수호자 | 한 사이클의 외곽 보스 3체 처치 | 10 |
-| `quest_main_002` | 붉은 표식의 평가자 | 중앙 보스 처치 | 20 |
+| `quest_main_001` | 외곽 시련 | 한 사이클의 외곽 보스 3체 처치 | 10 |
+| `quest_main_002` | 중앙의 평가자 | 중앙 보스 처치 | 20 |
 | `quest_main_003` | 돌아오는 문 | 첫 사이클 포털 정산 | 30 |
 | `quest_main_004` | 바뀐 지도 | 두 번째 사이클 포털 정산 | 40 |
 | `quest_main_005` | 마지막 원정 | 세 번째 사이클 포털 정산 | 50 |
 
-각 퀘스트는 완료 즉시 다음 퀘스트를 자동 수락한다. `quest_main_001`만 새 게임에서 자동 수락한다. 첫·두 번째·세 번째 원정의 외곽 구간은 `CycleOuterBoss` 목표를 사용해 HUD에 `0/3` 진행도를 표시한다. 외곽 수호자를 처치하면 작은 표식이 사라지고 숫자가 증가하며, 세 표식을 모두 지운 뒤 중앙 평가자가 활성화된다.
+각 퀘스트는 완료 즉시 다음 퀘스트를 자동 수락한다. `quest_main_001`만 새 게임에서 자동 수락한다. 첫·두 번째·세 번째 원정의 외곽 구간은 `CycleOuterBoss` 목표를 사용해 HUD에 `0/3` 진행도를 표시한다. 외곽 수호자를 처치하면 해당 신호가 사라지고 숫자가 증가하며, 세 수호자를 모두 쓰러뜨린 뒤 중앙 평가자와 중앙 신호가 함께 활성화된다.
 
-LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자를 작은 회색 표식, 발견한 외곽 수호자를 주황 표식, 중앙 평가 위치를 큰 붉은 표식으로 표시한다. 대사·퀘스트·HUD가 모두 이 표현을 사용한다. 사이클 런타임 이정표는 `FLOW_CycleQuestLine`의 Manual Entry를 발화해 `StoryManager.SetProgress`를 갱신한다. 그래프가 등록되지 않은 테스트·비사이클 맵에서는 `CycleRunManager`가 기존 직접 호출로 폴백한다.
+LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자를 작은 회색 신호, 발견한 외곽 수호자를 주황 신호로 표시한다. 중앙 위치는 시작 시 숨기고 외곽 3체 완료 순간 큰 붉은 신호로 새로 공개한다. 대사와 퀘스트는 색 이름을 지시어로 쓰지 않고 `외곽 신호`, `중앙 신호`라는 세계 내부 표현을 사용한다. 사이클 런타임 이정표는 `FLOW_CycleQuestLine`의 Manual Entry를 발화해 `StoryManager.SetProgress`를 갱신한다. 그래프가 등록되지 않은 테스트·비사이클 맵에서는 `CycleRunManager`가 기존 직접 호출로 폴백한다.
 
 ### 사이클 퀘스트 FlowGraph
 
@@ -464,9 +464,9 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
   "quests": [
     {
       "questId": "quest_main_001",
-      "questName": "외곽의 세 수호자",
-      "shortSummary": "나침반의 작은 표식 세 곳을 찾아 외곽 수호자를 쓰러뜨린다.",
-      "description": "첫 평가는 외곽 시련이다. 나침반의 작은 회색 표식 세 개는 외곽 수호자의 위치고, 큰 붉은 표식은 그다음 중앙 평가의 위치다. 먼저 작은 표식 세 곳을 찾아 수호자를 처치하고 기록을 모은다.",
+      "questName": "외곽 시련",
+      "shortSummary": "외곽에 흩어진 수호자 셋을 원하는 순서로 처치한다.",
+      "description": "중앙 평가 구역은 외곽 수호자 셋이 봉인하고 있다. 나침반에 잡히는 외곽 신호 세 곳을 원하는 순서로 찾아 수호자를 처치하고 중앙의 봉인을 해제한다.",
       "requiredProgress": 0,
       "rewardGold": 100,
       "rewardExp": 100,
@@ -477,7 +477,7 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
       "objectives": [
         {
           "objectiveId": "obj_cycle_outer_guardians",
-          "description": "작은 표식의 외곽 수호자를 처치한다.",
+          "description": "외곽 수호자를 처치해 중앙 봉인을 해제한다.",
           "type": "CycleOuterBoss",
           "targetId": 0,
           "targetStringId": "",
@@ -487,32 +487,32 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
       "dialogues": [
         {
           "graphId": "dlg_cycle_story_first_trial",
-          "graphName": "외곽의 세 수호자 - 시작",
+          "graphName": "외곽 시련 - 시작",
           "lines": [
             {
               "channel": "Main",
               "speakerId": "안내인",
-              "text": "어서 와! 여기는 시작의 마을이야. 순환 시련장에 도전하러 온 보쿠세이 맞지? 첫 평가는 외곽 시련부터야."
+              "text": "어서 와, 보쿠세이. 첫 관문은 중앙이 아니라 외곽 시련이야."
             },
             {
               "channel": "Main",
               "speakerId": "Bokusei",
-              "text": "맞아. 닫힌 바깥길을 다시 열려면 이곳을 통과해야 한다고 들었어."
+              "text": "닫힌 바깥길을 다시 열려면 이곳을 통과해야 한다고 들었어."
             },
             {
               "channel": "Main",
               "speakerId": "안내인",
-              "text": "나침반에 작은 회색 표식 세 개와 큰 붉은 표식 하나가 잡힐 거야."
+              "text": "시련장 외곽에 수호자 셋이 흩어져 있어. 나침반에 잡히는 세 신호를 원하는 순서로 따라가."
             },
             {
               "channel": "Main",
               "speakerId": "Bokusei",
-              "text": "작은 표식의 외곽 수호자 셋을 먼저 쓰러뜨리면, 큰 붉은 표식의 중앙 평가가 시작되는 거지?"
+              "text": "수호자 셋을 쓰러뜨려 중앙의 봉인을 푼다. 순서는 내가 정하고."
             },
             {
               "channel": "Main",
               "speakerId": "안내인",
-              "text": "정확해. 작은 표식 셋을 지우면 중앙 평가자가 모습을 드러내. 그리고 안에서 세운 작전은 밖에서 큰 소리로 복습하지 마. 무사히 돌아오면 이유를 알려 줄게."
+              "text": "정확해. 중앙 신호는 봉인이 풀리면 나타날 거야. 그리고 안에서 세운 작전은 밖에서 큰 소리로 복습하지 마. 무사히 돌아오면 이유를 알려 줄게."
             }
           ]
         }
@@ -529,9 +529,9 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
     },
     {
       "questId": "quest_main_002",
-      "questName": "붉은 표식의 평가자",
-      "shortSummary": "큰 붉은 표식에서 중앙 평가자를 쓰러뜨린다.",
-      "description": "외곽 수호자 세 체의 기록이 모이자 큰 붉은 표식의 중앙 평가자가 모습을 드러냈다. 중앙으로 이동해 평가자를 쓰러뜨리고 시련장의 다음 반응을 확인한다.",
+      "questName": "중앙의 평가자",
+      "shortSummary": "새로 나타난 중앙 신호를 따라 평가자를 쓰러뜨린다.",
+      "description": "외곽 수호자 셋이 쓰러지자 중앙의 봉인이 풀리고 새로운 신호가 나타났다. 중앙 평가 구역으로 이동해 평가자를 쓰러뜨리고 시련장의 다음 반응을 확인한다.",
       "requiredProgress": 0,
       "rewardGold": 150,
       "rewardExp": 150,
@@ -542,7 +542,7 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
       "objectives": [
         {
           "objectiveId": "obj_cycle_central_evaluation",
-          "description": "큰 붉은 표식의 중앙 평가자를 처치한다.",
+          "description": "새로 나타난 중앙 신호에서 평가자를 처치한다.",
           "type": "StoryProgress",
           "targetId": 20,
           "targetStringId": "",
@@ -552,17 +552,17 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
       "dialogues": [
         {
           "graphId": "dlg_cycle_story_central_evaluation",
-          "graphName": "붉은 표식의 평가자 - 시작",
+          "graphName": "중앙의 평가자 - 시작",
           "lines": [
             {
               "channel": "System",
               "speakerId": "",
-              "text": "외곽 수호자 기록 3/3. 중앙 평가 조건을 충족했습니다."
+              "text": "외곽 봉인 해제 3/3. 중앙 평가 신호를 활성화합니다."
             },
             {
               "channel": "Monologue",
               "speakerId": "Bokusei",
-              "text": "이제 큰 붉은 표식이 차례야."
+              "text": "나침반에 새 신호가 나타났어. 저곳이 중앙 평가 구역이군."
             },
             {
               "channel": "Monologue",
@@ -680,7 +680,7 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
       "questId": "quest_main_004",
       "questName": "바뀐 지도",
       "shortSummary": "달라진 수호자 배치에 맞춰 두 번째 원정을 완수한다.",
-      "description": "시련장은 첫 원정의 이동 순서와 조언을 반영해 수호자의 위치와 조합을 바꿨다. 나침반의 작은 표식 세 곳을 다시 확인하고, 현장에서 경로를 조정해 중앙 평가와 정산까지 마친다.",
+      "description": "시련장은 첫 원정의 이동 순서와 조언을 반영해 수호자의 위치와 조합을 바꿨다. 나침반에 새로 잡힌 외곽 신호 세 곳을 확인하고, 현장에서 경로를 조정해 중앙 평가와 정산까지 마친다.",
       "requiredProgress": 30,
       "rewardGold": 250,
       "rewardExp": 250,
@@ -729,12 +729,12 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
             {
               "channel": "Main",
               "speakerId": "Bokusei",
-              "text": "그래서 이번 나침반의 작은 표식들이 지난 원정과 다른 곳에 있겠네."
+              "text": "그래서 이번 나침반의 외곽 신호들이 지난 원정과 다른 곳에 있겠네."
             },
             {
               "channel": "Main",
               "speakerId": "안내인",
-              "text": "맞아. 표식 위치와 수호자 조합을 보고 길을 다시 짜. 정해 둔 순서를 따라가지 마."
+              "text": "맞아. 신호 위치와 수호자 조합을 보고 길을 다시 짜. 정해 둔 순서를 따라가지 마."
             },
             {
               "channel": "Main",
@@ -758,7 +758,7 @@ LakeOfLife 미니맵과 나침반은 아직 발견하지 않은 외곽 수호자
       "questId": "quest_main_005",
       "questName": "마지막 원정",
       "shortSummary": "세 번째 원정을 완수하고 닫힌 바깥길을 연다.",
-      "description": "마지막 원정도 규칙은 같다. 작은 표식의 외곽 수호자 세 체를 상대하고 중앙 평가를 마친 뒤 안전하게 귀환한다. 지금까지 익힌 배치 판단과 관계를 활용해 시련장이 요구한 탐험대의 답을 증명한다.",
+      "description": "마지막 원정도 규칙은 같다. 나침반의 외곽 신호를 따라 수호자 세 체를 상대하고 중앙 평가를 마친 뒤 안전하게 귀환한다. 지금까지 익힌 배치 판단과 관계를 활용해 시련장이 요구한 탐험대의 답을 증명한다.",
       "requiredProgress": 40,
       "rewardGold": 500,
       "rewardExp": 500,

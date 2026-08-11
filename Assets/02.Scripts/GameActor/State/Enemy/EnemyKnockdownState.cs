@@ -3,6 +3,7 @@ using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -18,11 +19,22 @@ namespace UPlayGround.State
         private readonly float _maxKnockbackSpeed;
         private readonly Transform _knockbackSource;
 
+        private const float FALLBACK_MOTION_TIMEOUT = 2f;
+        private const float MINIMUM_PLAY_RATE = 0.5f;
+        private const float MOTION_COMPLETION_GRACE = 0.25f;
+
+        private bool _isActive;
         private bool _getupStarted;
         private bool _knockdownMotionEnded;
         private float _downTimer;
         private float _knockbackElapsed;
+        private float _knockdownMotionTimer;
+        private float _knockdownMotionTimeout;
+        private float _getupMotionTimer;
+        private float _getupMotionTimeout;
         private Vector3 _knockbackDirection;
+        private MotionSet _knockdownMotionSet;
+        private MotionSet _getupMotionSet;
 
         /// <param name="overrideDownDuration">0보다 크면 누워있는 시간을 강제로 지정(브레이크 마무리용). 0이면 기존 규칙 사용.</param>
         /// <param name="knockbackDistance">0보다 크면 진입 시 공격자 반대 방향으로 날아가는 거리. 0이면 런치 없음.</param>
@@ -50,9 +62,16 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
             controller.MotionWarp?.ClearTarget();
+            _isActive = true;
             _getupStarted = false;
             _knockdownMotionEnded = false;
             _knockbackElapsed = 0f;
+            _knockdownMotionTimer = 0f;
+            _knockdownMotionTimeout = FALLBACK_MOTION_TIMEOUT;
+            _getupMotionTimer = 0f;
+            _getupMotionTimeout = FALLBACK_MOTION_TIMEOUT;
+            _knockdownMotionSet = null;
+            _getupMotionSet = null;
             _knockbackDirection = ResolveKnockbackDirection();
             _downTimer = _overrideDownDuration > 0f
                 ? _overrideDownDuration
@@ -63,16 +82,60 @@ namespace UPlayGround.State
                 : UPlayGround.Data.Actor.Animation.MotionTags.Knockback;
             var state = gameActor.Animator.PlayMotion(animKey, 0.1f);
             if (state != null)
-                state.OwnedEvents.OnEnd = OnKnockdownMotionEnd;
+            {
+                _knockdownMotionSet = gameActor.Animator.CurrentMotionSet;
+                gameActor.Animator.OnMotionSetEndedWithReason += OnMotionSetEnded;
+                _knockdownMotionTimeout = ResolveMotionTimeout(_knockdownMotionSet);
+            }
             else
                 _knockdownMotionEnded = true;
         }
 
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
+            _isActive = false;
+            _knockdownMotionSet = null;
+            _getupMotionSet = null;
+            base.OnExit(toState);
+        }
+
         public override void UpdateState(float deltaTime)
         {
-            if (_getupStarted) return;
+            if (!_isActive || controller.CurrentState != this)
+                return;
+
+            if (_getupStarted)
+            {
+                _getupMotionTimer += deltaTime;
+                if (_getupMotionSet != null && _getupMotionTimer >= _getupMotionTimeout)
+                {
+                    Debug.LogWarning(
+                        $"[EnemyKnockdownState] 기상 Motion 종료 신호가 없어 강제 복귀합니다. " +
+                        $"actor={gameActor.name}, timeout={_getupMotionTimeout:0.00}s",
+                        gameActor);
+                    TransitionOut();
+                }
+
+                return;
+            }
 
             _downTimer -= deltaTime;
+
+            if (!_knockdownMotionEnded)
+            {
+                _knockdownMotionTimer += deltaTime;
+                if (_knockdownMotionTimer >= _knockdownMotionTimeout)
+                {
+                    Debug.LogWarning(
+                        $"[EnemyKnockdownState] 쓰러짐 Motion 종료 신호가 없어 대기 단계를 계속합니다. " +
+                        $"actor={gameActor.name}, timeout={_knockdownMotionTimeout:0.00}s",
+                        gameActor);
+                    _knockdownMotionEnded = true;
+                    _knockdownMotionSet = null;
+                }
+            }
+
             if (_downTimer <= 0f && _knockdownMotionEnded)
                 BeginGetup();
         }
@@ -130,9 +193,20 @@ namespace UPlayGround.State
                 : Vector3.back;
         }
 
-        private void OnKnockdownMotionEnd()
+        private void OnMotionSetEnded(MotionSet motionSet, MotionSetEndReason _)
         {
-            _knockdownMotionEnded = true;
+            if (_knockdownMotionSet != null && ReferenceEquals(motionSet, _knockdownMotionSet))
+            {
+                _knockdownMotionEnded = true;
+                _knockdownMotionSet = null;
+                return;
+            }
+
+            if (_getupMotionSet != null && ReferenceEquals(motionSet, _getupMotionSet))
+            {
+                _getupMotionSet = null;
+                TransitionOut();
+            }
         }
 
         private void BeginGetup()
@@ -145,7 +219,9 @@ namespace UPlayGround.State
                 var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Knockdown_Getup, 0.1f);
                 if (state != null)
                 {
-                    state.OwnedEvents.OnEnd = TransitionOut;
+                    _getupMotionSet = gameActor.Animator.CurrentMotionSet;
+                    _getupMotionTimer = 0f;
+                    _getupMotionTimeout = ResolveMotionTimeout(_getupMotionSet);
                     return;
                 }
             }
@@ -155,7 +231,22 @@ namespace UPlayGround.State
 
         private void TransitionOut()
         {
+            if (!_isActive || controller.CurrentState != this)
+                return;
+
+            _isActive = false;
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnMotionSetEnded;
             controller.TransitionToState(ActorStateId.Idle);
+        }
+
+        private static float ResolveMotionTimeout(MotionSet motionSet)
+        {
+            float motionDuration = motionSet?.TotalDuration ?? 0f;
+            return motionDuration > 0f
+                ? Mathf.Max(
+                    FALLBACK_MOTION_TIMEOUT,
+                    motionDuration / MINIMUM_PLAY_RATE + MOTION_COMPLETION_GRACE)
+                : FALLBACK_MOTION_TIMEOUT;
         }
     }
 }

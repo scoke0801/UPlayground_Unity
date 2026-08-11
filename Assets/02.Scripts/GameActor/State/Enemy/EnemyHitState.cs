@@ -4,6 +4,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -18,6 +19,16 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
 
         private readonly HitContext _hit;
+
+        private const float FALLBACK_HIT_TIMEOUT = 2f;
+        private const float MINIMUM_PLAY_RATE = 0.5f;
+        private const float MOTION_COMPLETION_GRACE = 0.25f;
+
+        private bool _isActive;
+        private float _hitTimer;
+        private float _hitTimeout;
+        private MotionSet _hitMotionSet;
+
         public EnemyHitState(ActorMovementController controller, in HitContext hit = default) : base(controller)
         {
             _hit = hit;
@@ -28,6 +39,11 @@ namespace UPlayGround.State
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
+
+            _isActive = true;
+            _hitTimer = 0f;
+            _hitTimeout = FALLBACK_HIT_TIMEOUT;
+            _hitMotionSet = null;
 
             // 워프 진행 중이면 즉시 clear (Hit 모션이 우선).
             controller.MotionWarp?.ClearTarget();
@@ -42,9 +58,44 @@ namespace UPlayGround.State
 
             var state = gameActor.Animator.PlayMotion(hitAnim, fadeDuration);
             if (state != null)
-                state.OwnedEvents.OnEnd = OnHitEnd;
+            {
+                _hitMotionSet = gameActor.Animator.CurrentMotionSet;
+                gameActor.Animator.OnMotionSetEndedWithReason += OnHitMotionEnded;
+
+                float motionDuration = _hitMotionSet?.TotalDuration ?? 0f;
+                if (motionDuration > 0f)
+                {
+                    _hitTimeout = Mathf.Max(
+                        FALLBACK_HIT_TIMEOUT,
+                        motionDuration / MINIMUM_PLAY_RATE + MOTION_COMPLETION_GRACE);
+                }
+            }
             else
-                OnHitEnd();
+                CompleteHit();
+        }
+
+        public override void OnExit(GameActorState toState)
+        {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnHitMotionEnded;
+            _isActive = false;
+            _hitMotionSet = null;
+            base.OnExit(toState);
+        }
+
+        public override void UpdateState(float deltaTime)
+        {
+            if (!_isActive || controller.CurrentState != this)
+                return;
+
+            _hitTimer += deltaTime;
+            if (_hitTimer < _hitTimeout)
+                return;
+
+            Debug.LogWarning(
+                $"[EnemyHitState] 피격 Motion 종료 신호가 없어 강제 복귀합니다. " +
+                $"actor={gameActor.name}, timeout={_hitTimeout:0.00}s",
+                gameActor);
+            CompleteHit();
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)
@@ -67,8 +118,19 @@ namespace UPlayGround.State
             currentRotation = currentRotation.normalized;
         }
 
-        private void OnHitEnd()
+        private void OnHitMotionEnded(MotionSet motionSet, MotionSetEndReason _)
         {
+            if (_hitMotionSet != null && ReferenceEquals(motionSet, _hitMotionSet))
+                CompleteHit();
+        }
+
+        private void CompleteHit()
+        {
+            if (!_isActive || controller.CurrentState != this)
+                return;
+
+            _isActive = false;
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnHitMotionEnded;
             controller.TransitionToState(ActorStateId.Idle);
         }
 

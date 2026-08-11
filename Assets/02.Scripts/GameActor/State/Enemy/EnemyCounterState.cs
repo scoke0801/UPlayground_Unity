@@ -4,6 +4,7 @@ using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -25,10 +26,18 @@ namespace UPlayGround.State
 
         private AbilityAttackInfo _skill;
         private bool _isActive;
+        private float _counterTimer;
+        private float _counterTimeout;
+        private MotionSet _counterMotionSet;
 
         // 카운터 전진 - Guard 블록 후 순간적으로 파고드는 느낌
         private const float DASH_IN_SPEED   = 10f;
         private const float DASH_IN_DURATION = 0.15f;
+        // MotionSet 디렉터가 마지막 포즈를 샘플링한 뒤 개별 AnimancerState의 OnEnd를
+        // 발생시키지 않는 경우에도 BT 차단 상태를 반드시 회수한다.
+        private const float FALLBACK_COUNTER_TIMEOUT = 4f;
+        private const float MINIMUM_PLAY_RATE = 0.5f;
+        private const float MOTION_COMPLETION_GRACE = 0.25f;
         private float _dashTimer;
 
         public EnemyCounterState(
@@ -59,6 +68,9 @@ namespace UPlayGround.State
 
             _isActive  = true;
             _dashTimer = 0f;
+            _counterTimer = 0f;
+            _counterTimeout = FALLBACK_COUNTER_TIMEOUT;
+            _counterMotionSet = null;
 
             float distance = _detection.DistanceToTarget;
             bool hasCounterAbility = _combat.HasAvailableSkillAtDistance(
@@ -90,21 +102,48 @@ namespace UPlayGround.State
             var motion = _combat.CurrentMotionAsset;
             var animState = motion != null ? gameActor.Animator.PlayMotion(motion, 0.05f) : null;
             if (animState != null)
-                animState.OwnedEvents.OnEnd = OnCounterEnd;
+            {
+                float motionDuration = motion.motionSet?.TotalDuration ?? 0f;
+                if (motionDuration > 0f)
+                {
+                    _counterTimeout =
+                        motionDuration / MINIMUM_PLAY_RATE
+                        + MOTION_COMPLETION_GRACE;
+                }
+
+                _counterMotionSet = gameActor.Animator.CurrentMotionSet;
+                gameActor.Animator.OnMotionSetEndedWithReason += OnCounterMotionEnded;
+            }
             else
                 OnCounterEnd();
         }
 
         public override void OnExit(GameActorState toState)
         {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnCounterMotionEnded;
+            _counterMotionSet = null;
             base.OnExit(toState);
             _isActive = false;
-            _combat.ClearHitTargets();
+            _combat.CancelCurrentAction();
         }
 
         public override void UpdateState(float deltaTime)
         {
             if (!_isActive) return;
+
+            _counterTimer += deltaTime;
+            if (_counterTimer >= _counterTimeout)
+            {
+                Debug.LogWarning(
+                    $"[EnemyCounterState] 카운터 Motion 완료 신호가 없어 강제 종료합니다. " +
+                    $"actor={gameActor.name}, " +
+                    $"ability={_combat.CurrentAbility?.abilityId ?? "-"}, " +
+                    $"motion={_combat.CurrentMotionAsset?.name ?? "-"}, " +
+                    $"timeout={_counterTimeout:0.00}s",
+                    gameActor);
+                ForceCompleteCounter();
+                return;
+            }
 
             // 검출 요청만 표시하고 실제 Overlap은 EnemyCombat.LateUpdate에서 수행한다(갓 적용된 포즈).
             if ((_skill?.baseInfo.attackType == AttackType.Melee
@@ -164,6 +203,9 @@ namespace UPlayGround.State
         {
             if (!_isActive) return;
 
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnCounterMotionEnded;
+            _counterMotionSet = null;
+            _combat.CompleteCurrentAbility();
             _memory?.NotifyAttackLanded();
             _combat.ClearHitTargets();
 
@@ -177,6 +219,18 @@ namespace UPlayGround.State
             {
                 controller.TransitionToState(ActorStateId.Idle);
             }
+        }
+
+        private void ForceCompleteCounter()
+        {
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnCounterMotionEnded;
+            OnCounterEnd();
+        }
+
+        private void OnCounterMotionEnded(MotionSet motionSet, MotionSetEndReason _)
+        {
+            if (_counterMotionSet != null && ReferenceEquals(motionSet, _counterMotionSet))
+                OnCounterEnd();
         }
     }
 }

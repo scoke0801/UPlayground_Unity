@@ -16,8 +16,10 @@ namespace UPlayGround.State
 
         private bool _groundSnapRestored;
         private bool _landAnimDone;
+        private float _stateTimer;
 
         private const float GroundProximity = 0.9f;
+        private const float MaximumGroundSearchDuration = 3f;
 
         public EnemyLandState(ActorMovementController controller)
             : base(controller)
@@ -32,6 +34,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
             _groundSnapRestored = false;
             _landAnimDone       = false;
+            _stateTimer         = 0f;
 
             motor.SetGroundSolvingActivation(false);
         }
@@ -44,12 +47,24 @@ namespace UPlayGround.State
 
         public override void UpdateState(float deltaTime)
         {
+            _stateTimer += deltaTime;
+
             if (_landAnimDone)
             {
                 controller.TransitionToState(new EnemyChaseState(
                     controller,
                     gameActor.GetComponent<EnemyAIContext>(),
                     gameActor.GetComponent<EnemyDetection>()));
+                return;
+            }
+
+            if (_stateTimer >= MaximumGroundSearchDuration)
+            {
+                Debug.LogWarning(
+                    $"[EnemyLandState] 제한 시간 안에 지면을 찾지 못해 Airborne으로 복귀합니다. " +
+                    $"actor={gameActor.name}, timeout={MaximumGroundSearchDuration:0.00}s",
+                    gameActor);
+                controller.TransitionToState(new EnemyAirborneState(controller));
                 return;
             }
 

@@ -3,6 +3,7 @@ using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -18,7 +19,17 @@ namespace UPlayGround.State
         public override bool BlocksBehaviorTree => true;
 
         private readonly HitContext _hit;
+
+        private const float FALLBACK_RELEASE_TIMEOUT = 2f;
+        private const float MINIMUM_PLAY_RATE = 0.5f;
+        private const float MOTION_COMPLETION_GRACE = 0.25f;
+
+        private bool _isActive;
+        private bool _releaseStarted;
         private float _remainingDuration;
+        private float _releaseTimer;
+        private float _releaseTimeout;
+        private MotionSet _releaseMotionSet;
 
         public EnemyGrabbedState(ActorMovementController controller, in HitContext hit)
             : base(controller)
@@ -35,7 +46,12 @@ namespace UPlayGround.State
         {
             base.OnEnter(fromState);
 
+            _isActive = true;
+            _releaseStarted = false;
             _remainingDuration = _hit.GrabDuration;
+            _releaseTimer = 0f;
+            _releaseTimeout = FALLBACK_RELEASE_TIMEOUT;
+            _releaseMotionSet = null;
 
             if (_hit.Attacker != null)
                 _hit.Attacker.OnForcedMotionReleased += Escape;
@@ -54,14 +70,35 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
-            base.OnExit(toState);
-
             if (_hit.Attacker != null)
                 _hit.Attacker.OnForcedMotionReleased -= Escape;
+
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnReleaseMotionEnded;
+            _isActive = false;
+            _releaseMotionSet = null;
+            base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
         {
+            if (!_isActive || controller.CurrentState != this)
+                return;
+
+            if (_releaseStarted)
+            {
+                _releaseTimer += deltaTime;
+                if (_releaseTimer >= _releaseTimeout)
+                {
+                    Debug.LogWarning(
+                        $"[EnemyGrabbedState] 잡기 해제 Motion 종료 신호가 없어 강제 복귀합니다. " +
+                        $"actor={gameActor.name}, timeout={_releaseTimeout:0.00}s",
+                        gameActor);
+                    TransitionOut();
+                }
+
+                return;
+            }
+
             _remainingDuration -= deltaTime;
 
             if (_remainingDuration <= 0f)
@@ -85,14 +122,31 @@ namespace UPlayGround.State
 
         private void Escape()
         {
-            if (_remainingDuration < -99f) return;
-            _remainingDuration = float.MinValue;
+            if (!_isActive || _releaseStarted || controller.CurrentState != this)
+                return;
+
+            _releaseStarted = true;
+            _releaseTimer = 0f;
+
+            if (_hit.Attacker != null)
+                _hit.Attacker.OnForcedMotionReleased -= Escape;
 
             if (gameActor.Animator.HasMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End))
             {
                 var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Grabbed_End, 0.1f);
                 if (state != null)
-                    state.OwnedEvents.OnEnd = TransitionOut;
+                {
+                    _releaseMotionSet = gameActor.Animator.CurrentMotionSet;
+                    float motionDuration = _releaseMotionSet?.TotalDuration ?? 0f;
+                    if (motionDuration > 0f)
+                    {
+                        _releaseTimeout = Mathf.Max(
+                            FALLBACK_RELEASE_TIMEOUT,
+                            motionDuration / MINIMUM_PLAY_RATE + MOTION_COMPLETION_GRACE);
+                    }
+
+                    gameActor.Animator.OnMotionSetEndedWithReason += OnReleaseMotionEnded;
+                }
                 else
                     TransitionOut();
             }
@@ -102,8 +156,19 @@ namespace UPlayGround.State
             }
         }
 
+        private void OnReleaseMotionEnded(MotionSet motionSet, MotionSetEndReason _)
+        {
+            if (_releaseMotionSet != null && ReferenceEquals(motionSet, _releaseMotionSet))
+                TransitionOut();
+        }
+
         private void TransitionOut()
         {
+            if (!_isActive || controller.CurrentState != this)
+                return;
+
+            _isActive = false;
+            gameActor.Animator.OnMotionSetEndedWithReason -= OnReleaseMotionEnded;
             controller.TransitionToState(ActorStateId.Idle);
         }
     }

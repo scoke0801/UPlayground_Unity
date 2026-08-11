@@ -7,6 +7,7 @@ using UPlayGround.Data.EnumType;
 using UPlayGround.Components;
 using UPlayGround.Manager;
 using UPlayGround.MovementController;
+using UPlayGround.Animation;
 
 namespace UPlayGround.State
 {
@@ -18,9 +19,16 @@ namespace UPlayGround.State
         public override ActorStateId StateId => ActorStateId.Death;
         public override bool BlocksBehaviorTree => true;
         public override GravityOwnership GravityOwner => GravityOwnership.State;
-        
+
+        private const float FALLBACK_DEATH_TIMEOUT = 4f;
+        private const float MINIMUM_PLAY_RATE = 0.5f;
+        private const float MOTION_COMPLETION_GRACE = 0.25f;
+
         private bool _isDestoryCalled = false;
         private bool _completionSubscribed = false;
+        private float _deathTimer;
+        private float _deathTimeout;
+        private MotionSet _deathMotionSet;
         private MonsterActor _owner;
         private PlayerEquipment _equipment;
         public EnemyDeathState(ActorMovementController controller) : base(controller)
@@ -39,6 +47,11 @@ namespace UPlayGround.State
             // 워프 진행 중이면 즉시 clear (사망 모션이 우선).
             controller.MotionWarp?.ClearTarget();
 
+            _isDestoryCalled = false;
+            _completionSubscribed = false;
+            _deathTimer = 0f;
+            _deathTimeout = FALLBACK_DEATH_TIMEOUT;
+            _deathMotionSet = null;
             _owner = gameActor as MonsterActor;
 
             if (_owner == null)
@@ -48,9 +61,16 @@ namespace UPlayGround.State
             var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Die, 0.25f);
             if (state != null)
             {
-                // MotionSet 타임라인은 Animancer OnEnd를 쓰지 않는다(ActorAnimator가 매 클립 전환마다 null로 지운다).
-                // 종료 신호는 다른 상태와 동일하게 OnMotionSetCompleted로 받는다.
-                gameActor.Animator.OnMotionSetCompleted += OnDeathMotionEnd;
+                _deathMotionSet = gameActor.Animator.CurrentMotionSet;
+                float motionDuration = _deathMotionSet?.TotalDuration ?? 0f;
+                if (motionDuration > 0f)
+                {
+                    _deathTimeout = Mathf.Max(
+                        FALLBACK_DEATH_TIMEOUT,
+                        motionDuration / MINIMUM_PLAY_RATE + MOTION_COMPLETION_GRACE);
+                }
+
+                gameActor.Animator.OnMotionSetEndedWithReason += OnDeathMotionEnded;
                 _completionSubscribed = true;
             }
             else
@@ -60,14 +80,22 @@ namespace UPlayGround.State
             }
         }
 
+        private void OnDeathMotionEnded(MotionSet motionSet, MotionSetEndReason _)
+        {
+            if (_deathMotionSet != null && ReferenceEquals(motionSet, _deathMotionSet))
+                OnDeathMotionEnd();
+        }
+
         private void OnDeathMotionEnd()
         {
             if (_completionSubscribed)
             {
                 _completionSubscribed = false;
                 if (gameActor != null && gameActor.Animator != null)
-                    gameActor.Animator.OnMotionSetCompleted -= OnDeathMotionEnd;
+                    gameActor.Animator.OnMotionSetEndedWithReason -= OnDeathMotionEnded;
             }
+
+            _deathMotionSet = null;
 
             if (_isDestoryCalled || _owner == null) return;
             _isDestoryCalled = true;
@@ -80,14 +108,28 @@ namespace UPlayGround.State
             {
                 _completionSubscribed = false;
                 if (gameActor != null && gameActor.Animator != null)
-                    gameActor.Animator.OnMotionSetCompleted -= OnDeathMotionEnd;
+                    gameActor.Animator.OnMotionSetEndedWithReason -= OnDeathMotionEnded;
             }
+
+            _deathMotionSet = null;
 
             base.OnExit(toState);
         }
 
         public override void UpdateState(float deltaTime)
         {
+            if (_isDestoryCalled || !_completionSubscribed)
+                return;
+
+            _deathTimer += deltaTime;
+            if (_deathTimer < _deathTimeout)
+                return;
+
+            Debug.LogWarning(
+                $"[EnemyDeathState] 사망 Motion 종료 신호가 없어 디졸브를 강제 시작합니다. " +
+                $"actor={gameActor.name}, timeout={_deathTimeout:0.00}s",
+                gameActor);
+            OnDeathMotionEnd();
         }
 
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)

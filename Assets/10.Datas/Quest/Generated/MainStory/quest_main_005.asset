@@ -13,18 +13,25 @@ MonoBehaviour:
   m_Name: quest_main_005
   m_EditorClassIdentifier: 
   questId: quest_main_005
-  questName: "출발의 마을"
+  questName: "마지막 원정"
   questType: 0
-  shortSummary: "세 번째 최종 평가를 마치고 바깥길을 연다."
-  questDescription: "보쿠세이는 반복 속에서 혼자 강해지는 대신 안내인, 탐험가, 수호자와 협력하는 법을 증명했다. 세 번째 사이클의 최종 평가를 마치고 시련장이 감춰 둔 다음 길을 연다."
+  shortSummary: "세 번째 원정을 완수하고 닫힌 바깥길을 연다."
+  questDescription: "마지막 원정도 규칙은 같다. 나침반의 외곽 신호를 따라 수호자 세 체를 상대하고 중앙 평가를 마친 뒤 안전하게 귀환한다. 지금까지 익힌 배치 판단과 관계를 활용해 시련장이 요구한 탐험대의 답을 증명한다."
   requiredQuestIds:
   - quest_main_004
   requiredStoryProgress: 40
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
+  - objectiveId: obj_cycle_final_outer_guardians
+    description: "마지막 배치의 외곽 수호자를 처치한다."
+    type: 8
+    targetId: 0
+    npcId: 0
+    targetStringId:
+    requiredCount: 3
   - objectiveId: obj_cycle_final_evaluation
-    description: "세 번째 사이클을 완료하고 최종 평가를 통과한다."
+    description: "중앙 평가를 마치고 귀환 포털로 최종 정산한다."
     type: 4
     targetId: 50
     npcId: 0

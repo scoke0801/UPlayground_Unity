@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: sub_survivor_lost_pack_found
   requiredProgress: 30
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: 03143796f0c66134099b6e097706975d, type: 2}
   variants: []

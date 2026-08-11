@@ -11,18 +11,18 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_01
-  m_EditorClassIdentifier: 
-  nodeId: dlg_cycle_story_second_script_talk_01
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_final_trial_talk_01
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "열쇠는 받았지? 목소리를 낮춰. 그 열쇠가 여는 지하실은 시련장의 관측이 닿지 않아."
+  dialogueText: "두 번째 정산표를 봤어. 시련장은 네가 얼마나 빨리 이겼는지가 아니라, 낯선 배치에서 선택을 바꾼 순간들을 기록했어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_second_script_talk_02
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId: dlg_cycle_story_final_trial_talk_02
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
@@ -37,18 +37,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
-  m_Name: dlg_cycle_story_second_script
-  m_EditorClassIdentifier: 
-  graphId: dlg_cycle_story_second_script
-  graphName: "바뀐 지도 - 시작"
-  startNodeId: dlg_cycle_story_second_script_talk_01
+  m_Name: dlg_cycle_story_final_trial
+  m_EditorClassIdentifier:
+  graphId: dlg_cycle_story_final_trial
+  graphName: "마지막 원정 - 시작"
+  startNodeId: dlg_cycle_story_final_trial_talk_01
   nodes:
   - {fileID: 11400001}
   - {fileID: 11400003}
   - {fileID: 11400004}
   - {fileID: 11400005}
-  - {fileID: 11400006}
-  - {fileID: 11400007}
   - {fileID: 11400002}
 --- !u!114 &11400003
 MonoBehaviour:
@@ -62,15 +60,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_02
   m_EditorClassIdentifier:
-  nodeId: dlg_cycle_story_second_script_talk_02
+  nodeId: dlg_cycle_story_final_trial_talk_02
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "그러면 지상에서 처음 만난 것처럼 굴었던 것도 일부러였던 거네."
+  dialogueText: "혼자 강해지는 것보다, 함께 돌아오는 방법을 본 거네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_second_script_talk_03
+  nextNodeId: dlg_cycle_story_final_trial_talk_03
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -89,15 +87,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_03
   m_EditorClassIdentifier:
-  nodeId: dlg_cycle_story_second_script_talk_03
+  nodeId: dlg_cycle_story_final_trial_talk_03
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "응. 시련장은 도전자의 전술뿐 아니라 우리가 해 준 조언도 다음 배치에 반영해."
+  dialogueText: "맞아. 마지막 원정도 외곽 수호자 셋부터야. 지금까지 만든 관계와 판단을 그대로 보여 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_second_script_talk_04
+  nextNodeId: dlg_cycle_story_final_trial_talk_04
   trueNextNodeId:
   falseNextNodeId:
   choices: []
@@ -116,75 +114,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_Talk_04
   m_EditorClassIdentifier:
-  nodeId: dlg_cycle_story_second_script_talk_04
+  nodeId: dlg_cycle_story_final_trial_talk_04
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "그래서 이번 나침반의 외곽 신호들이 지난 원정과 다른 곳에 있겠네."
+  dialogueText: "그게 바깥길을 여는 마지막 답이라면, 모두와 함께 돌아와서 증명할게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_second_script_talk_05
+  nextNodeId: dlg_cycle_story_final_trial_end
   trueNextNodeId:
   falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
   editorPosition: {x: 1020, y: 120}
---- !u!114 &11400006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_05
-  m_EditorClassIdentifier:
-  nodeId: dlg_cycle_story_second_script_talk_05
-  nodeType: 0
-  channel: 0
-  speakerId: "안내인"
-  dialogueText: "맞아. 신호 위치와 수호자 조합을 보고 길을 다시 짜. 정해 둔 순서를 따라가지 마."
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_second_script_talk_06
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 1320, y: 120}
---- !u!114 &11400007
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_06
-  m_EditorClassIdentifier:
-  nodeId: dlg_cycle_story_second_script_talk_06
-  nodeType: 0
-  channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "두 번째 지도는 내가 현장에서 완성해서 돌아올게."
-  portrait: {fileID: 0}
-  typingSpeed: 0.04
-  autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_second_script_end
-  trueNextNodeId:
-  falseNextNodeId:
-  choices: []
-  condition: {fileID: 0}
-  eventActions: []
-  editorPosition: {x: 1620, y: 120}
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,19 +140,19 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
   m_Name: Node_End
-  m_EditorClassIdentifier: 
-  nodeId: dlg_cycle_story_second_script_end
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_final_trial_end
   nodeType: 4
   channel: 0
-  speakerId: 
-  dialogueText: 
+  speakerId:
+  dialogueText:
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: 
-  trueNextNodeId: 
-  falseNextNodeId: 
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 1920, y: 120}
+  editorPosition: {x: 1320, y: 120}

@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: cycle_story_central_evaluation_start
   requiredProgress: 10
+  maxProgressExclusive: 20
+  triggerMode: 2
   dialogueGraph: {fileID: 11400000, guid: 840ed3ecb84d4c89b423c2bfae04b06f, type: 2}
   variants: []

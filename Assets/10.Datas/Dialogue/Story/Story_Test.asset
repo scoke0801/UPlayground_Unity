@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: 0
   requiredProgress: 0
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: 1efa700babcdef345b4b0f02fbb12563, type: 2}
   variants: []

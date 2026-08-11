@@ -15,8 +15,8 @@ MonoBehaviour:
   questId: quest_main_003
   questName: "돌아오는 문"
   questType: 0
-  shortSummary: "탈출 포털에서 첫 원정을 정산한다."
-  questDescription: "중앙 보스가 쓰러진 뒤 열린 포털은 바깥길이 아니라 정산을 위한 귀환문이었다. 미정산 전리품을 확정하고 시작의 마을로 돌아간다."
+  shortSummary: "새로 열린 귀환 포털에 들어가 첫 원정을 정산한다."
+  questDescription: "중앙 평가가 끝나자 귀환 포털이 열렸다. 포털에 들어가면 이번 원정의 전리품과 기록이 확정되고 시작 지점으로 돌아간다."
   requiredQuestIds:
   - quest_main_002
   requiredStoryProgress: 20
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_main_004
   objectives:
   - objectiveId: obj_cycle_first_settlement
-    description: "탈출 포털에 들어가 첫 사이클을 정산한다."
+    description: "새로 열린 귀환 포털에 들어가 원정을 정산한다."
     type: 4
     targetId: 30
     npcId: 0

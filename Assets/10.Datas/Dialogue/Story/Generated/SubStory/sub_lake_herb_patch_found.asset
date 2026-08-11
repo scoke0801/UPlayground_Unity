@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: sub_lake_herb_patch_found
   requiredProgress: 10
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: bedba2cbad00a2d4cb423068ae3c59c5, type: 2}
   variants: []

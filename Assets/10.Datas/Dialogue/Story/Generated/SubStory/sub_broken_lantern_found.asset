@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: sub_broken_lantern_found
   requiredProgress: 10
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: 78498768d47bf3a419e270cc21e1845d, type: 2}
   variants: []

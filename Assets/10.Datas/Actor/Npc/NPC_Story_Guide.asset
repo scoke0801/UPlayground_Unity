@@ -19,4 +19,9 @@ MonoBehaviour:
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0
+  storyEntries:
+  - {fileID: 11400000, guid: 9be3e32b6f2b4c8d9670f7cc988d1391, type: 2}
+  - {fileID: 11400000, guid: d19b789cff1a4d5c9c8c1617d2d70fb9, type: 2}
+  - {fileID: 11400000, guid: e2b6f4a19c7d43e5a8b031f672d9c540, type: 2}
+  - {fileID: 11400000, guid: 279051aee6c9495996226a541289df24, type: 2}
   dialogueGraph: {fileID: 11400000, guid: 5b6e1c99d0a74a8e9d2d6b7c8312e4a5, type: 2}

@@ -142,7 +142,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어서 와! 여기는 시작의 마을이야! 순환 시련장을 조사하러 온 탐험가가 맞지?"
+  dialogueText: "지금 할 일은 나침반이 알려 줘. 외곽 신호가 남아 있으면 수호자부터."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -170,7 +170,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "맞아. 어디부터 확인하면 되지?"
+  dialogueText: "수호자 셋을 쓰러뜨리면 중앙 신호가 나타나고, 평가를 끝내면 귀환 포털이 열려."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -198,7 +198,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "외곽의 시련 세 곳을 먼저 통과해. 중앙 평가는 그다음이야. 그리고 안에서 세운 작전은 큰 소리로 복습하지 않는 게 좋아!"
+  dialogueText: "맞아. 그리고 작전 이야기는 돌아올 때까지 아껴 둬. 그게 이 마을의 오래된 규칙이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -226,7 +226,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "쉿. 밖에서는 지난 원정 이야기를 하면 안 돼. 시련장이 다음 배치에 바로 써먹거든."
+  dialogueText: "쉿. 이번 나침반에서 달라진 표식은 지도에만 표시해. 밖에서 말하면 다음 원정에 바로 써먹을 테니까."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -254,7 +254,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "그러면 아까 그 인사도 처음이 아니었던 거군."
+  dialogueText: "밖에서는 공식 안내만, 작전은 여기서만. 이제 알겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -282,7 +282,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "응. 그래서 이번이 몇 번째 귀환이야? 시련장이 듣기 전에 다음 작전부터 정하자."
+  dialogueText: "정답. 정해 둔 순서보다 눈앞의 표식을 믿어. 무사히 돌아오면 기록은 내가 맞춰 볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -310,7 +310,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어서 와! 여기는 시작의 마을——"
+  dialogueText: "바깥길은 계속 열려 있어. 시련장도 이제 통과자를 막는 대신 다음 탐험대를 훈련하고 있고."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -338,7 +338,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "아니네. 이제 여기는 출발의 마을이야. 바깥길이 열렸어, 보쿠세이."
+  dialogueText: "그럼 돌아올 이유도, 다시 나갈 이유도 충분하네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -366,7 +366,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "그럼 다음에는 처음 가는 길을 안내해 줘."
+  dialogueText: "응. 출발의 마을 안내는 이제부터가 진짜니까."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -394,7 +394,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "이번에는 시련장이 길 순서까지 바꿨어. 그런데 네가 수호자에게 먼저 손을 내밀 줄은 계산하지 못했나 봐."
+  dialogueText: "마지막 원정도 외곽 신호 셋부터야. 이번 배치는 네 판단대로 풀어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -422,7 +422,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "시험을 잘 치르는 것보다 시험의 기준을 바꾸는 편이 빠르겠네."
+  dialogueText: "중앙 평가까지 끝내고 모두와 돌아올게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -450,7 +450,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "좋아. 세 번째에는 정답 대신 우리가 만든 답을 보여 주자."
+  dialogueText: "그게 바깥길을 여는 마지막 답이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

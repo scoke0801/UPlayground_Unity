@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_Start
+  m_Name: Node_Talk_01
   m_EditorClassIdentifier: 
-  nodeId: dlg_cycle_story_first_trial_talk
+  nodeId: dlg_cycle_story_first_trial_talk_01
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어서 와! 여기는 시작의 마을이야! 외곽의 시련 세 곳을 먼저 통과하면 중앙 평가로 가는 길이 열릴 거야."
+  dialogueText: "어서 와, 보쿠세이. 첫 관문은 중앙이 아니라 외곽 시련이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_first_trial_end
+  nextNodeId: dlg_cycle_story_first_trial_talk_02
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -40,11 +40,123 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_first_trial
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_first_trial
-  graphName: "첫 번째 시련 - 시작"
-  startNodeId: dlg_cycle_story_first_trial_talk
+  graphName: "외곽 시련 - 시작"
+  startNodeId: dlg_cycle_story_first_trial_talk_01
   nodes:
   - {fileID: 11400001}
+  - {fileID: 11400003}
+  - {fileID: 11400004}
+  - {fileID: 11400005}
+  - {fileID: 11400006}
   - {fileID: 11400002}
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_02
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_first_trial_talk_02
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "닫힌 바깥길을 다시 열려면 이곳을 통과해야 한다고 들었어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_first_trial_talk_03
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 420, y: 120}
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_first_trial_talk_03
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "시련장 외곽에 수호자 셋이 흩어져 있어. 나침반에 잡히는 세 신호를 원하는 순서로 따라가."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_first_trial_talk_04
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 720, y: 120}
+--- !u!114 &11400005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_first_trial_talk_04
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "수호자 셋을 쓰러뜨려 중앙의 봉인을 푼다. 순서는 내가 정하고."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_first_trial_talk_05
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 1020, y: 120}
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_first_trial_talk_05
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "정확해. 중앙 신호는 봉인이 풀리면 나타날 거야. 그리고 안에서 세운 작전은 밖에서 큰 소리로 복습하지 마. 무사히 돌아오면 이유를 알려 줄게."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_first_trial_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 1320, y: 120}
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,4 +183,4 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 420, y: 120}
+  editorPosition: {x: 1620, y: 120}

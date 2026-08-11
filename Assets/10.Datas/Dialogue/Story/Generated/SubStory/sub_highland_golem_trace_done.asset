@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: sub_highland_golem_trace_done
   requiredProgress: 20
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: 0b5665f16f5ccbe4ab70f7fb76d3fc1d, type: 2}
   variants: []

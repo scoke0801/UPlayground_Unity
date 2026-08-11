@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
-  m_Name: Node_Talk_Start
+  m_Name: Node_Talk_01
   m_EditorClassIdentifier: 
-  nodeId: dlg_cycle_story_departure_village_talk
+  nodeId: dlg_cycle_story_departure_village_talk_01
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어서 와! 여기는 시작의 마을—— 아니네. 이제 여기는 출발의 마을이야."
+  dialogueText: "어서 와! 여기는 시작의 마을——"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: dlg_cycle_story_departure_village_end
+  nextNodeId: dlg_cycle_story_departure_village_talk_02
   trueNextNodeId: 
   falseNextNodeId: 
   choices: []
@@ -41,10 +41,150 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_departure_village
   graphName: "출발의 마을 - 완료"
-  startNodeId: dlg_cycle_story_departure_village_talk
+  startNodeId: dlg_cycle_story_departure_village_talk_01
   nodes:
   - {fileID: 11400001}
+  - {fileID: 11400003}
+  - {fileID: 11400004}
+  - {fileID: 11400005}
+  - {fileID: 11400006}
+  - {fileID: 11400007}
   - {fileID: 11400002}
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_02
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_departure_village_talk_02
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "아니네. 이제 여기는 출발의 마을이야. 바깥길이 열렸어, 보쿠세이."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_departure_village_talk_03
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 420, y: 120}
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_03
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_departure_village_talk_03
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "이번에는 시작점으로 돌려보낸 게 아니라, 다음 길을 고르라고 보내 준 거구나."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_departure_village_talk_04
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 720, y: 120}
+--- !u!114 &11400005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_04
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_departure_village_talk_04
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "응. 최종 정산표의 통과자 명단을 봐. 네 이름 하나가 아니라, 함께 길을 만든 모두가 기록돼 있어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_departure_village_talk_05
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 1020, y: 120}
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_05
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_departure_village_talk_05
+  nodeType: 0
+  channel: 0
+  speakerId: "Bokusei"
+  dialogueText: "그럼 다음 원정은 시험을 통과하러 가는 게 아니겠네."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_departure_village_talk_06
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 1320, y: 120}
+--- !u!114 &11400007
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Talk_06
+  m_EditorClassIdentifier:
+  nodeId: dlg_cycle_story_departure_village_talk_06
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "새 길을 찾으러 가는 거지. 준비되면 말해. 이번에는 내가 처음 가는 길을 안내할 차례니까."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: dlg_cycle_story_departure_village_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  editorPosition: {x: 1620, y: 120}
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,4 +211,4 @@ MonoBehaviour:
   choices: []
   condition: {fileID: 0}
   eventActions: []
-  editorPosition: {x: 420, y: 120}
+  editorPosition: {x: 1920, y: 120}

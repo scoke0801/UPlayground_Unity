@@ -14,5 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   storyId: sub_spider_web_clear
   requiredProgress: 10
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: 9986987fa34fe8f48bb842b1d2ad598b, type: 2}
   variants: []

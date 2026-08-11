@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_main_004
   m_EditorClassIdentifier: 
   questId: quest_main_004
-  questName: "두 번째 각본"
+  questName: "바뀐 지도"
   questType: 0
-  shortSummary: "시련장의 새 배치를 공략하고 다시 귀환한다."
-  questDescription: "안내인은 지상에서 처음 만난 사람처럼 행동했지만, 관측이 닿지 않는 곳에서는 이전 원정을 기억하고 있었다. 시련장의 새 배치에 맞춰 두 번째 사이클을 완료한다."
+  shortSummary: "달라진 수호자 배치에 맞춰 두 번째 원정을 완수한다."
+  questDescription: "시련장은 첫 원정의 이동 순서와 조언을 반영해 수호자의 위치와 조합을 바꿨다. 나침반에 새로 잡힌 외곽 신호 세 곳을 확인하고, 현장에서 경로를 조정해 중앙 평가와 정산까지 마친다."
   requiredQuestIds:
   - quest_main_003
   requiredStoryProgress: 30
@@ -24,8 +24,15 @@ MonoBehaviour:
   autoAcceptNextQuestIds:
   - quest_main_005
   objectives:
+  - objectiveId: obj_cycle_second_outer_guardians
+    description: "새 배치의 외곽 수호자를 처치한다."
+    type: 8
+    targetId: 0
+    npcId: 0
+    targetStringId:
+    requiredCount: 3
   - objectiveId: obj_cycle_second_settlement
-    description: "두 번째 사이클을 완료하고 정산한다."
+    description: "중앙 평가를 마치고 귀환 포털로 정산한다."
     type: 4
     targetId: 40
     npcId: 0

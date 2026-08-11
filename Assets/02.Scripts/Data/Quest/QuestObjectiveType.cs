@@ -13,5 +13,6 @@ namespace UPlayGround.Data.Quest
         ItemCraft    = 5,  // 아이템 제작 (targetId 레시피 ID로 requiredCount회 제작)
         ItemEnhance  = 6,  // 아이템 강화 (targetId 아이템 ID requiredCount회 강화)
         ReachLocation = 7, // 목표 지점 도달 (targetStringId 위치 ID 도달)
+        CycleOuterBoss = 8, // 현재 사이클의 외곽 수호자 처치 수
     }
 }

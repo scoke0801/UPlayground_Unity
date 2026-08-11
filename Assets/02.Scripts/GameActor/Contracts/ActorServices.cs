@@ -164,6 +164,7 @@ namespace UPlayGround.Manager
     public interface IQuestProgressService : IGameService
     {
         void NotifyMonsterKill(string actorId);
+        void NotifyCycleOuterBossProgress(int defeatedCount);
     }
 
     public interface IRecipeProgressService : IGameService

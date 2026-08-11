@@ -28,6 +28,10 @@ namespace UPlayGround.UI
 
         [SerializeField] private float _displayTime = 5f;
 
+        // Hide 트리거 후 이 시간이 지나면 CanvasGroup으로 전체를 완전히 가린다.
+        // Hide 애니메이션이 다루지 않는 자식(레벨 텍스트, breakEffect 등)이 남는 것을 방지한다.
+        [SerializeField] private float _hideAnimationDuration = 0.35f;
+
         private EnemyDetection _detection;
         private Transform _target;
         private Transform _headSocket;         // 소켓 우선, 없으면 _worldOffset 사용
@@ -42,6 +46,7 @@ namespace UPlayGround.UI
 
         private bool _isInitialized;
         private bool _isShowing = false;
+        private float _hideCompleteTime = -1f;
         private UI_WorldSpaceHudLayer _owner;
 
         // SetActive 토글 대신 사용 — Animator 트리거 소실 방지
@@ -93,6 +98,8 @@ namespace UPlayGround.UI
 
             _levelText.text = $"Lv. {level}";
 
+            _isShowing = false;
+            _hideCompleteTime = -1f;
             _isInitialized = true;
         }
 
@@ -104,35 +111,31 @@ namespace UPlayGround.UI
                 return false;
             }
 
-            // 적이 타겟을 상실하면 비전투 상태로 간주해 HP UI를 즉시 숨긴다.
+            // 적이 타겟을 상실하면 비전투 상태로 간주해 HP UI를 숨긴다.
             // 풀에는 반환하지 않아 같은 적이 다시 전투에 진입할 때 기존 연결을 그대로 재사용한다.
-            if (_detection != null && !_detection.HasTarget)
+            bool lostTarget = _detection != null && !_detection.HasTarget;
+
+            // 트레이닝 더미처럼 탐지 컴포넌트가 없는 액터는 전투 타겟 상태로
+            // 표시 종료를 판단할 수 없으므로 마지막 갱신 시각을 기준으로 숨긴다.
+            bool displayExpired = _detection == null
+                                  && _isShowing
+                                  && Time.time > _lastDisplayedTime + _displayTime;
+
+            if (lostTarget || displayExpired)
             {
                 Hide();
-                SetCanvasVisible(false);
-                return true;
             }
 
             UpdatePosition();
             UpdateDelayFill(deltaTime);
-
-            if (_isShowing && (Time.time > _lastDisplayedTime + _displayTime))
-            {
-                if (_detection == null)
-                    return true;
-
-                bool hasTarget = (_target != null) && _detection.HasTarget;
-                if (hasTarget == false)
-                {
-                    Hide();
-                }
-            }
 
             return true;
         }
 
         private void Show()
         {
+            _hideCompleteTime = -1f;
+
             if (_isShowing)
             {
                 return;
@@ -147,8 +150,14 @@ namespace UPlayGround.UI
                 return;
             }
             _isShowing = false;
+            _hideCompleteTime = Time.time + Mathf.Max(0f, _hideAnimationDuration);
             _animator.SetTrigger("Hide");
         }
+
+        // Hide 애니메이션이 끝난 상태. 이 동안에는 CanvasGroup으로 전체를 가려
+        // 애니메이션이 다루지 않는 자식이 화면에 남지 않도록 한다.
+        private bool IsHiddenSettled =>
+            _isShowing == false && _hideCompleteTime >= 0f && Time.time >= _hideCompleteTime;
 
         private void UpdatePosition()
         {
@@ -161,7 +170,7 @@ namespace UPlayGround.UI
 
             bool behindCamera = screenPos.z < 0f;
             // SetActive 대신 alpha 처리 — SetActive(false)시 Animator 트리거가 소실되는 버그 방지
-            SetCanvasVisible(!behindCamera);
+            SetCanvasVisible(!behindCamera && !IsHiddenSettled);
             if (behindCamera) return;
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -252,6 +261,7 @@ namespace UPlayGround.UI
             _headSocket = null;
             _detection = null;
             _isShowing = false;
+            _hideCompleteTime = -1f;
             _owner?.ReturnHpBarToPool(this);
             _owner = null;
         }

@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_first_settlement
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_first_settlement
-  graphName: "돌아오는 문 - 정산"
+  graphName: "귀환 포털 - 정산"
   startNodeId: dlg_cycle_story_first_settlement_talk_01
   nodes:
   - {fileID: 11400001}

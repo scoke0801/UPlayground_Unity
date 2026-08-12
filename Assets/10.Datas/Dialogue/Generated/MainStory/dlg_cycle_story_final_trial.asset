@@ -91,7 +91,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "맞아. 마지막 원정도 외곽 수호자 셋부터야. 지금까지 만든 관계와 판단을 그대로 보여 줘."
+  dialogueText: "맞아. 마지막 원정도 수호자 세 명부터야. 지금까지 만든 관계와 판단을 그대로 보여 줘."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "외곽 봉인 해제 3/3. 중앙 평가 신호를 활성화합니다."
+  dialogueText: "수호자 세 명 처치 완료. 최후의 수호자가 출현했습니다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_central_evaluation
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_central_evaluation
-  graphName: "중앙의 평가자 - 시작"
+  graphName: "최후의 수호자 - 출현"
   startNodeId: dlg_cycle_story_central_evaluation_talk_01
   nodes:
   - {fileID: 11400001}
@@ -63,7 +63,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Bokusei"
-  dialogueText: "나침반에 새 신호가 나타났어. 저곳이 중앙 평가 구역이군."
+  dialogueText: "지도에 새 목표가 떴어. 최후의 수호자다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -90,7 +90,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Bokusei"
-  dialogueText: "중앙 평가자를 쓰러뜨리고, 시련장이 무엇을 내놓는지 확인하자."
+  dialogueText: "저 수호자를 쓰러뜨리고 귀환 포털을 열자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

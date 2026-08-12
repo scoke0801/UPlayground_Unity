@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_second_script
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_second_script
-  graphName: "바뀐 지도 - 시작"
+  graphName: "두 번째 원정 - 시작"
   startNodeId: dlg_cycle_story_second_script_talk_01
   nodes:
   - {fileID: 11400001}
@@ -120,7 +120,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "그래서 이번 나침반의 외곽 신호들이 지난 원정과 다른 곳에 있겠네."
+  dialogueText: "그래서 이번 지도에 표시된 수호자 위치가 지난 원정과 다르겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -147,7 +147,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "맞아. 신호 위치와 수호자 조합을 보고 길을 다시 짜. 정해 둔 순서를 따라가지 마."
+  dialogueText: "맞아. 수호자 위치와 조합을 보고 경로를 다시 짜. 정해 둔 순서를 따라가지 마."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

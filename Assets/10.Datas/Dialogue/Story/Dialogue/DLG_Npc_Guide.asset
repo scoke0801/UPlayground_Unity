@@ -142,7 +142,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "지금 할 일은 나침반이 알려 줘. 외곽 신호가 남아 있으면 수호자부터."
+  dialogueText: "지금 할 일은 지도에 표시돼. 수호자부터 찾아가."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -170,7 +170,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "수호자 셋을 쓰러뜨리면 중앙 신호가 나타나고, 평가를 끝내면 귀환 포털이 열려."
+  dialogueText: "수호자 세 명을 쓰러뜨리면 최후의 수호자가 나타나고, 그 수호자까지 쓰러뜨리면 귀환 포털이 열려."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -226,7 +226,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "쉿. 이번 나침반에서 달라진 표식은 지도에만 표시해. 밖에서 말하면 다음 원정에 바로 써먹을 테니까."
+  dialogueText: "쉿. 이번 지도에서 달라진 수호자 위치는 우리끼리만 확인해. 밖에서 말하면 다음 원정에 바로 써먹을 테니까."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -282,7 +282,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "정답. 정해 둔 순서보다 눈앞의 표식을 믿어. 무사히 돌아오면 기록은 내가 맞춰 볼게."
+  dialogueText: "정답. 정해 둔 순서보다 지도에 표시된 수호자 위치를 믿어. 무사히 돌아오면 기록은 내가 맞춰 볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -394,7 +394,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "마지막 원정도 외곽 신호 셋부터야. 이번 배치는 네 판단대로 풀어."
+  dialogueText: "마지막 원정도 수호자 세 명부터야. 이번 배치는 네 판단대로 풀어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -422,7 +422,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "중앙 평가까지 끝내고 모두와 돌아올게."
+  dialogueText: "최후의 수호자까지 쓰러뜨리고 모두와 돌아올게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

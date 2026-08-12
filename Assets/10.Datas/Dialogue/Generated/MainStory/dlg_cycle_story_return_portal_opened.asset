@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "중앙 평가 기록을 확인했습니다. 귀환 포털을 개방합니다."
+  dialogueText: "최후의 수호자 처치 확인. 귀환 포털이 열렸습니다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_return_portal_opened
   m_EditorClassIdentifier:
   graphId: dlg_cycle_story_return_portal_opened
-  graphName: "돌아오는 문 - 개방"
+  graphName: "귀환 포털 - 개방"
   startNodeId: dlg_cycle_story_return_portal_opened_talk_01
   nodes:
   - {fileID: 11400001}
@@ -63,7 +63,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Bokusei"
-  dialogueText: "문은 열렸지만 바깥으로 향하는 길은 아니야."
+  dialogueText: "바깥길이 아니라 시작 지점으로 돌아가는 포털이군."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -90,7 +90,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 2
   speakerId: "Bokusei"
-  dialogueText: "전리품을 확정하려면 저 포털로 돌아가야겠네."
+  dialogueText: "들어가면 전리품과 기록이 확정돼. 먼저 정산하자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

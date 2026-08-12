@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "어서 와, 보쿠세이. 첫 관문은 중앙이 아니라 외곽 시련이야."
+  dialogueText: "바깥길을 열고 싶다면, 먼저 수호자 세 명을 쓰러뜨려야 해."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_first_trial
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_first_trial
-  graphName: "외곽 시련 - 시작"
+  graphName: "세 명의 수호자 - 시작"
   startNodeId: dlg_cycle_story_first_trial_talk_01
   nodes:
   - {fileID: 11400001}
@@ -65,7 +65,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "닫힌 바깥길을 다시 열려면 이곳을 통과해야 한다고 들었어."
+  dialogueText: "지도에 표시된 세 곳 말이지?"
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -92,7 +92,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "시련장 외곽에 수호자 셋이 흩어져 있어. 나침반에 잡히는 세 신호를 원하는 순서로 따라가."
+  dialogueText: "맞아. 순서는 상관없어. 세 명을 모두 쓰러뜨리면 시련장이 최후의 수호자를 내보낼 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -119,7 +119,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "Bokusei"
-  dialogueText: "수호자 셋을 쓰러뜨려 중앙의 봉인을 푼다. 순서는 내가 정하고."
+  dialogueText: "수호자 세 명, 그다음 최후의 수호자. 알겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -146,7 +146,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "정확해. 중앙 신호는 봉인이 풀리면 나타날 거야. 그리고 안에서 세운 작전은 밖에서 큰 소리로 복습하지 마. 무사히 돌아오면 이유를 알려 줄게."
+  dialogueText: "최후의 수호자까지 쓰러뜨리면 귀환 포털이 열려. 그리고 안에서 세운 작전은 밖에서 큰 소리로 복습하지 마. 무사히 돌아오면 이유를 알려 줄게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

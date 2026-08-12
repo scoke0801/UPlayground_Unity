@@ -129,13 +129,13 @@ StartCycle(request)
   -> Preparing
   -> CycleWorldSpawnService.BuildLayout()
   -> 플레이어 위치 적용
-  -> 외곽 보스 3체 활성 생성
+  -> 외곽 보스 세 명 활성 생성
   -> 중앙 보스는 비활성 생성하고 마커도 숨김
   -> Active
   -> 즉시 저장 요청
 ```
 
-외곽 보스를 처치할 때마다 `CycleOuterBoss` 퀘스트 목표를 `1/3 → 2/3 → 3/3`으로 갱신한다. 세 외곽 보스가 모두 처치되면 중앙 보스와 붉은 중앙 신호를 함께 활성화하고 StoryProgress 10을 발화한다.
+외곽 보스를 처치할 때마다 `CycleOuterBoss` 퀘스트 목표를 `1/3 → 2/3 → 3/3`으로 갱신한다. 세 외곽 보스가 모두 처치되면 중앙 보스와 붉은 중앙 보스 마커를 함께 활성화하고 StoryProgress 10을 발화한다.
 
 ### 중앙 보스 처치
 

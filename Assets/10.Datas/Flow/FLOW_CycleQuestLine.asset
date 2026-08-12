@@ -66,8 +66,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "외곽의 세 수호자 완료"
-        editorComment: "외곽 수호자 3체 처치 시 StoryProgress 10을 반영하고 중앙 평가자를 활성화한다."
+        editorLabel: "수호자 세 명 처치"
+        editorComment: "수호자 세 명 처치 시 StoryProgress 10을 반영하고 최후의 수호자를 활성화한다."
         entryId: outer_trials_cleared
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -87,7 +87,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "진행도 10"
-        editorComment: "중앙 평가 시작 대사와 진행도 10 조건 콘텐츠를 연다."
+        editorComment: "최후의 수호자 출현 대사와 진행도 10 조건 콘텐츠를 연다."
         progress: 10
     - rid: 7800000000000000003
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -104,8 +104,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "중앙 평가 완료"
-        editorComment: "중앙 보스 처치 시 StoryProgress 20을 반영한다."
+        editorLabel: "최후의 수호자 처치"
+        editorComment: "최후의 수호자 처치 시 StoryProgress 20을 반영한다."
         entryId: central_evaluation_cleared
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -218,7 +218,7 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "최종 평가 완료"
+        editorLabel: "세 번째 정산 완료"
         editorComment: "세 번째 포털 정산 시 StoryProgress 50을 반영한다."
         entryId: final_evaluation_completed
         repeatPolicy: 3

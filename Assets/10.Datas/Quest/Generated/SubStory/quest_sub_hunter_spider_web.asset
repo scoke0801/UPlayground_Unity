@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_sub_hunter_spider_web
   m_EditorClassIdentifier:
   questId: quest_sub_hunter_spider_web
-  questName: "평가자의 호칭"
+  questName: "수호자가 남긴 호칭"
   questType: 1
-  shortSummary: "중앙 평가자가 보쿠세이를 부른 호칭의 의미를 추적한다."
-  questDescription: "중앙 평가자는 보쿠세이를 침입자나 용사가 아니라 '이번 회차의 대표자'라고 불렀다. 시련장이 한 사람의 무력을 재는 것이 아니라, 도전자와 수호자가 어떤 관계를 만드는지 평가하고 있다는 단서다."
+  shortSummary: "최후의 수호자가 보쿠세이를 부른 호칭의 의미를 추적한다."
+  questDescription: "최후의 수호자는 보쿠세이를 침입자나 용사가 아니라 '이번 회차의 대표자'라고 불렀다. 시련장 기록은 이 수호자를 '평가자'로 분류한다. 한 사람의 무력이 아니라 도전자와 수호자가 어떤 관계를 만드는지 보고 있다는 단서다."
   requiredQuestIds:
   - quest_sub_hunter_skeleton_patrol
   requiredStoryProgress: 10
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_sub_highland_golem_trace
   objectives:
   - objectiveId: obj_hear_central_evaluator
-    description: "중앙 평가를 마치고 평가자가 남긴 호칭을 기록한다."
+    description: "최후의 수호자를 처치하고 그가 남긴 호칭을 기록한다."
     type: 4
     targetId: 20
     npcId: 0

@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_main_001
   m_EditorClassIdentifier: 
   questId: quest_main_001
-  questName: "외곽 시련"
+  questName: "세 명의 수호자"
   questType: 0
-  shortSummary: "외곽에 흩어진 수호자 셋을 원하는 순서로 처치한다."
-  questDescription: "중앙 평가 구역은 외곽 수호자 셋이 봉인하고 있다. 나침반에 잡히는 외곽 신호 세 곳을 원하는 순서로 찾아 수호자를 처치하고 중앙의 봉인을 해제한다."
+  shortSummary: "지도에 표시된 수호자 세 명을 원하는 순서로 처치한다."
+  questDescription: "수호자 세 명을 모두 처치하면 시련장이 최후의 수호자를 내보낸다. 지도에 표시된 세 목표 중 원하는 곳부터 공략한다."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 1
@@ -24,7 +24,7 @@ MonoBehaviour:
   - quest_main_002
   objectives:
   - objectiveId: obj_cycle_outer_guardians
-    description: "외곽 수호자를 처치해 중앙 봉인을 해제한다."
+    description: "수호자를 처치한다."
     type: 8
     targetId: 0
     npcId: 0

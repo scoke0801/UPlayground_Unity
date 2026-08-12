@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_main_003
   m_EditorClassIdentifier: 
   questId: quest_main_003
-  questName: "돌아오는 문"
+  questName: "귀환 포털"
   questType: 0
   shortSummary: "새로 열린 귀환 포털에 들어가 첫 원정을 정산한다."
-  questDescription: "중앙 평가가 끝나자 귀환 포털이 열렸다. 포털에 들어가면 이번 원정의 전리품과 기록이 확정되고 시작 지점으로 돌아간다."
+  questDescription: "최후의 수호자를 처치하자 귀환 포털이 열렸다. 포털에 들어가면 이번 원정의 전리품과 기록이 확정되고 시작 지점으로 돌아간다."
   requiredQuestIds:
   - quest_main_002
   requiredStoryProgress: 20

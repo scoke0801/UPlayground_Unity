@@ -324,7 +324,7 @@ Assets/
 | [GAME_MATH_LEARNING_GUIDE.html](guide/GAME_MATH_LEARNING_GUIDE.html) | 프로젝트 실제 코드로 배우는 게임 수학 — 초중등 눈높이의 좌표·벡터·내적·외적·회전·보간부터 포물선, 모션 워프, 카메라, 미니맵 변환, 피해 배율, 가중치·시드 난수까지 그림·식·코드·연습 문제로 설명 |
 | [ASMDEF_MODULARIZATION_ONBOARDING.html](onboarding/ASMDEF_MODULARIZATION_ONBOARDING.html) | asmdef 모듈화 온보딩 — Data/Contracts/Camera/Actor/UI 경계, Svc·UISvc 서비스 접근, Editor 격리, SerializeReference·MovedFrom 안전 규칙과 검증 체크리스트 |
 | [cycle/README.md](cycle/README.md) | 사이클형 보스 헌팅 시스템 구현 스펙 — 런타임, 스폰·조우, 무게, 어시스트·영입, 유해·부활, 저장·정산, HUD·텔레메트리 단위별 계약과 완료 조건 |
-| [cycle/CYCLE_STORY_PLOT.md](cycle/CYCLE_STORY_PLOT.md) | 현행 사이클 메인 스토리 플롯 — 시작의 마을과 순환 시련장, 회차를 기억하는 NPC, 신규 고유 모델 없이 전개하는 밝은 코믹 미스터리 |
+| [cycle/CYCLE_STORY_PLOT.md](cycle/CYCLE_STORY_PLOT.md) | 현행 사이클 메인 스토리 플롯 — 세계 전체의 되감김, 선택 캐릭터 고정 주인공, 생활 앵커와 관계 누적을 다루는 밝은 반복 세계 이야기 |
 | [GAMEPLAY_GUIDE.md](Complete/GAMEPLAY_GUIDE.md) | 게임 플레이 가이드 — 플레이어 조작키, 전투 흐름, 회피·가드·대시, 캐릭터 교체, 회복 오브 등 "어떻게 플레이하는가" |
 | [PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md](Complete/PROJECT_SYSTEM_IMPROVEMENT_EXECUTION_PLAN.md) | 프로젝트 기반 시스템 개선 실행 계획 — 비동기 초기화, 씬 전환, Addressables, 이벤트, 세이브, asmdef·테스트 단계별 정비 |
 | [CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md](Complete/CODE_STRUCTURE_IMPROVEMENT_ROADMAP.md) | 코드 구조 개선 로드맵 — 폴더 표류 정리, CLAUDE.md 재동기화, 네임스페이스 일관성, 싱글톤 핫스팟 캐싱, 대형 파일 분할 우선순위 |

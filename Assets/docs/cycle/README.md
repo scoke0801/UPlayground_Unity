@@ -6,7 +6,7 @@
 
 > **2026-08-02 개정 — 랜덤성 축소:** 플레이어 시작 위치(02), 보스 어시스트 영입 판정(04)에서 RNG를 제거하고, 레벨업 보상을 플레이어 선택형 스킬 노드(08)로 전환했다. 시드가 실제로 결정하는 범위는 `01_CYCLE_RUNTIME_SPEC.md` 4절 "시드가 결정하지 않는 것" 표를 기준으로 한다.
 
-> **현행 서사 기준:** [CYCLE_STORY_PLOT.md](CYCLE_STORY_PLOT.md) — 시작의 마을, 순환 시련장, 회차를 기억하는 NPC, 보유 모델 중심의 밝은 메인 플롯.
+> **현행 서사 기준:** [CYCLE_STORY_PLOT.md](CYCLE_STORY_PLOT.md) — 세계 전체가 되감기는 흐름, 선택 캐릭터 고정 주인공, 생활 앵커와 관계 누적을 중심으로 한 밝은 메인 플롯. 세계는 플레이어를 심사하거나 평가하지 않는다.
 
 ---
 
@@ -34,6 +34,9 @@
 | 7 | [07_CYCLE_UI_TELEMETRY_VALIDATION_SPEC.md](07_CYCLE_UI_TELEMETRY_VALIDATION_SPEC.md) | HUD, 조우 연출, 텔레메트리, P0 판정 기준 |
 | 8 | [08_CHARACTER_SKILL_GROWTH_SPEC.md](08_CHARACTER_SKILL_GROWTH_SPEC.md) | 레벨업 포인트, 캐릭터별 고정 스킬 노드 트리, 영속 육성 |
 | - | [09_DETERMINISTIC_REPLAY_ADDITIONS.md](09_DETERMINISTIC_REPLAY_ADDITIONS.md) | (제안) 랜덤 제거 후 반복 플레이 동기를 채울 추가 요소 |
+| 10 | [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md) | 반복/누적 상태 소유권, 저장·로드·새 게임 경계, P0 관계 증명 |
+| 11 | [11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md](11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md) | 최초 선택 주인공 저장, Player/Protagonist 화자·초상화·토큰 계약 |
+| 12 | [12_LOOP_ANCHOR_QUEST_SPEC.md](12_LOOP_ANCHOR_QUEST_SPEC.md) | 첫 원정 생활 앵커, 첫 귀환 3분기, quest_main_003·SP30 재구조 |
 
 ### 2026-08-02 구현 대조 결과
 
@@ -65,6 +68,19 @@
 
 05 Remains & Respawn
  └─ 06 Save & Settlement (유해 상태 영속)
+
+10 Cycle Story State Boundary
+ ├─ 06 Save & Settlement (주인공·플래그·BossAssist 영속)
+ ├─ 11 Protagonist Dialogue Contract
+ └─ 12 Loop Anchor Quest
+
+11 Protagonist Dialogue Contract
+ └─ 12 Loop Anchor Quest (주인공 화자와 본문 토큰)
+
+12 Loop Anchor Quest
+ ├─ 01 Cycle Runtime (첫 사이클 게이트·첫 정산)
+ ├─ 06 Save & Settlement (앵커 중간 상태 복원)
+ └─ 07 UI & Telemetry (다단계 HUD·플레이어용 명칭)
 ```
 
 `01`의 상태 모델을 먼저 확정한다. 이후 `02`와 `03`은 병렬 구현할 수 있으며, `04`와 `05`는 각각 전투와 사망 흐름에 붙인다. `06`은 각 서비스의 저장 DTO가 확정된 뒤 연결하고 `07`에서 전체 플레이 흐름을 검증한다.
@@ -75,7 +91,7 @@
 
 - 출전 플레이어블 파티는 최대 4명이며 기존 1~4번 스왑을 유지한다.
 - P0 데이터는 현재 `CycleWorld_lakeoflife` 외곽 보스 풀과 성장 데이터가 함께 존재하는 Honoka, Bokusei, Hichi 3명을 우선 저작한다. `H09`는 현재 성장 데이터가 없고 enum에서도 미사용 상태이므로 P0 대상이 아니다.
-- 보스 위치는 외곽·중앙 모두 `?`로 공개하고 정체는 조우 전까지 숨긴다.
+- 기술상 외곽·중앙 배치 모두 조우 전에는 `?` 아이콘과 `미확인 상대` 라벨을 쓰고, 조우 후 실제 이름·아이콘으로 바꾼다.
 - 보스 어시스트는 별도 입력, 장착 1마리, 지정 스킬 1회, 비이동·비어그로다.
 - 유해는 출전 파티 전멸 시에만 생성한다.
 - P0 유해 손실물은 현재 레벨 경험치 진행분 30%와 미정산 재료 전량이다.

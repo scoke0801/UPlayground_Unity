@@ -48,6 +48,7 @@
 ## 4. 보스 어시스트 데이터와 프리팹
 
 - [ ] 보스별 `BossAssistDefinitionSO`를 생성한다. — 2026-07-15 `BossAssistDatabase_P0.asset` 스크립트 참조 복구 완료(`BossAssistDatabaseSO.cs` 분리). ⚠️ 정의 에셋은 여전히 0개, `definitions: []` 비어 있음 — 보스 4종(MonsterHonoka/Bokusei/Hichi/Lili) 정의 저작 필요
+- [ ] 메인 스토리 P0 대표 Assist 최소 1개는 첫 회차 획득이 보장되도록 `requiredDefeatCount=1` 또는 명시적 스토리 지급을 설정한다.
 - [ ] 저장용 `Assist Id`를 유일하고 변경되지 않는 문자열로 지정한다.
 - [ ] `Source Boss Actor Id`를 `ActorDatabase` ID와 일치시킨다.
 - [ ] 역할, 아이콘, 쿨다운, 최대 실행 시간, 배치 정책, 대상 필요 여부를 설정한다.
@@ -87,6 +88,7 @@
   - `Active Rest Point`
 - [x] `Show Cycle Boss Markers`, `Show Remains Marker`를 활성화한다. — LakeOfLife 등 맵 config에서 활성 확인
 - [ ] `Unknown Boss`가 등급·속성을 색으로 암시하지 않는지 확인한다.
+- [ ] 미발견 마커의 플레이어 라벨이 `미확인 상대`, 발견 후 라벨이 실제 캐릭터 이름인지 확인한다.
 - [ ] 나침반 Canvas에 `UI_CycleCompass`를 추가하고 Container, Image 프리팹, Icon Config를 연결한다.
 - [ ] 나침반 아이콘 프리팹의 앵커·크기·레이캐스트 옵션을 HUD 규칙에 맞춘다.
 - [ ] 미니맵에서 `?` 목적지를 직접 선택하는 UI가 있다면 `CycleTelemetrySession.RecordMarkerSelected(spawnId, worldPosition)`를 호출한다.
@@ -95,6 +97,7 @@
 
 - [ ] 게임플레이 HUD 아래에 `UI_CycleHud`를 추가하고 사이클 번호, 시드, 경과 시간 TMP 텍스트를 연결한다.
 - [ ] `UI_CycleEncounterBanner`를 추가하고 제목 TMP와 CanvasGroup을 연결한다.
+- [ ] 조우 배너가 `외곽/중앙 보스`를 표시하지 않고 실제 캐릭터 이름만 표시하는지 확인한다.
 - [ ] `UI_BossAssistHud`를 추가하고 아이콘, 쿨다운 fill, 남은 초, CanvasGroup을 연결한다.
 - [ ] 조우 배너 이벤트에 BGM 전환과 보스 HP바 표시를 프로젝트 연출 시스템에서 연결한다.
 - [ ] 전멸/회수/재사망 알림은 `CycleRemainsManager`의 `OnRemainsCreated`, `OnRemainsRecovered`, `OnRemainsDiscarded` 이벤트에 연결한다. ⚠️ 알림 UI 클래스 자체가 미구현 — 현재 구독자는 텔레메트리뿐
@@ -142,3 +145,18 @@
 - 처치-즉시-합류(`MonsterActor.TryRecruitToParty` → `PartyManager.UnlockCharacter`)는 플레이어블 캐릭터 합류 계약으로 유지한다. 사이클 BossAssist 영입은 별도 로스터 계약이며 두 경로를 서로 대체하지 않는다.
 - 필드 몬스터 영구처치/재스폰 상태(WorldStateManager·MonsterRespawnManager)가 사이클 회차를 넘어 유지되는 것은 **의도된 현행 유지**로 결정(회차 간 필드 소모 허용).
 - P0 스코프 외 레거시(제작/퀘스트/스토리·대화)는 유지 — 사이클과 충돌 없음.
+
+## 11. 메인 스토리 P0 데이터 (2026-08-12 추가)
+
+기준 문서: `CYCLE_STORY_PLOT.md`, `10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md`, `11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md`, `12_LOOP_ANCHOR_QUEST_SPEC.md`.
+
+- [ ] 새 게임에서 실제 적용된 캐릭터를 `storyProtagonistType`으로 저장하고 파티 교체·로드 뒤 유지한다.
+- [ ] 시작 마을 안내인과 다른 분실물 주인 NPC 모델·이름·Actor ID를 배정한다.
+- [ ] 판매·버리기·제작 사용이 불가능한 분실물 Story Item의 표시명·아이콘·숫자 ID를 배정한다.
+- [ ] 초회차에는 주민 요청 전 분실물 오브젝트가 없고, 첫 귀환에는 요청 전에 같은 자리에서 회수 가능한지 확인한다.
+- [ ] `quest_story_lost_item_anchor`와 `quest_main_003`의 StoryEvent 목표·저장·로드를 확인한다.
+- [ ] 첫 포털 귀환 직후 SP30이 오르지 않고, 주민 반응과 안내인 대화 뒤에만 SP30이 오르는지 확인한다.
+- [ ] `quest_main_003` 보상에서 작업실 열쇠 `250001`을 제거한다.
+- [ ] 첫 회차에 얻은 대표 Assist가 다음 회차에도 유지·사용되고, 같은 source 인물이 미승리 상대로 남아 있으면 해당 Assist만 차단되는지 확인한다.
+- [ ] 호노카·보쿠세이·히치·릴리 중 선택 캐릭터와 같은 상대를 만날 때 Protagonist 화자의 최소 반응이 표시되는지 확인한다.
+- [ ] 엔딩은 기존 마을로 귀환한 뒤 새 경로를 표시하며, 세계의 승인·심사 문구를 사용하지 않는다.

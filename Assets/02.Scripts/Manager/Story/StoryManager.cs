@@ -22,15 +22,20 @@ namespace UPlayGround.Story
     public class StoryManager : BaseManager<StoryManager>, IManager, ISaveable, IStoryFlowService
     {
         private const string MainStorySequenceResourceKey = "MainStorySequence";
+        private const string SelfEncounterGraphResourceKey = "Dialogue/DLG_CycleSelfEncounter";
+        private const string SelfEncounterStoryPrefix = "cycle_self_encounter_";
 
         [SerializeField] private int _currentProgress;
         [SerializeField] private StorySequenceSO _mainStorySequence;
+        private DialogueGraphSO _selfEncounterGraph;
 
         // 완료된 storyId 집합. 세이브/로드 시 이 데이터를 직렬화.
         private readonly HashSet<string> _completedStories = new();
         private readonly Queue<StoryEntrySO> _pendingMainStories = new();
         private readonly HashSet<string> _pendingMainStoryIds = new();
         private System.IDisposable _activeMainStoryDialogue;
+        private string _pendingSelfEncounterStoryId;
+        private string _pendingSelfEncounterActorId;
 
         // 자동 재생은 게임플레이 씬에서만 허용한다. Title/Boot/Loading에서 재생되면
         // 화자도 배경도 없이 대사가 뜨고, 시작과 동시에 완료로 소진돼 버린다.
@@ -43,22 +48,31 @@ namespace UPlayGround.Story
         {
             if (_mainStorySequence == null)
                 _mainStorySequence = Resources.Load<StorySequenceSO>(MainStorySequenceResourceKey);
+            _selfEncounterGraph = Resources.Load<DialogueGraphSO>(SelfEncounterGraphResourceKey);
             SaveManager.Instance.RegisterSaveable(this);
         }
 
         public void AfterInit()
         {
+            if (CycleRunManager.Instance != null)
+                CycleRunManager.Instance.OnBossDiscovered += OnCycleBossDiscovered;
         }
 
         public void Dispose()
         {
             ClearPendingMainStories();
+            if (CycleRunManager.Instance != null)
+                CycleRunManager.Instance.OnBossDiscovered -= OnCycleBossDiscovered;
             _mainStorySequence = null;
+            _selfEncounterGraph = null;
+            _pendingSelfEncounterStoryId = null;
+            _pendingSelfEncounterActorId = null;
         }
 
         public void OnUpdate()
         {
             if (!IsAutoPlayAllowed) return;
+            if (TryPlayPendingSelfEncounter()) return;
             TryPlayNextMainStory();
         }
 
@@ -150,6 +164,8 @@ namespace UPlayGround.Story
             _completedStories.Clear();
             foreach (var id in state.completedStories)
                 _completedStories.Add(id);
+            _pendingSelfEncounterStoryId = null;
+            _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
             QueueEligibleMainStories();
         }
@@ -168,6 +184,8 @@ namespace UPlayGround.Story
             _completedStories.Clear();
             foreach (var id in saveData.story.completedStories ?? new List<string>())
                 _completedStories.Add(id);
+            _pendingSelfEncounterStoryId = null;
+            _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
             QueueEligibleMainStories();
         }
@@ -177,6 +195,8 @@ namespace UPlayGround.Story
             _currentProgress = 0;
             _completedStories.Clear();
             ClearPendingMainStories();
+            _pendingSelfEncounterStoryId = null;
+            _pendingSelfEncounterActorId = null;
         }
 
         #endregion
@@ -185,6 +205,48 @@ namespace UPlayGround.Story
 
         // variants 중 현재 진행도에 맞는 가장 높은 그래프를 반환.
         // 없으면 기본 dialogueGraph 사용.
+        private void OnCycleBossDiscovered(UPlayGround.Data.Cycle.CycleBossPlacement placement)
+        {
+            if (placement == null || _selfEncounterGraph == null || Svc.Party == null)
+                return;
+
+            CharacterActorType opponent = placement.actorId switch
+            {
+                "MonsterBokusei" => CharacterActorType.Bokusei,
+                "MonsterHonoka" => CharacterActorType.Honoka,
+                "MonsterHichi" => CharacterActorType.Hichi,
+                "MonsterLili" => CharacterActorType.Lili,
+                _ => CharacterActorType.None,
+            };
+            if (opponent == CharacterActorType.None || opponent != Svc.Party.StoryProtagonistType)
+                return;
+
+            string storyId = SelfEncounterStoryPrefix + opponent;
+            if (!_completedStories.Contains(storyId))
+            {
+                _pendingSelfEncounterStoryId = storyId;
+                _pendingSelfEncounterActorId = placement.actorId;
+            }
+        }
+
+        private bool TryPlayPendingSelfEncounter()
+        {
+            if (string.IsNullOrEmpty(_pendingSelfEncounterStoryId) || _selfEncounterGraph == null)
+                return false;
+
+            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
+                _selfEncounterGraph,
+                null,
+                _pendingSelfEncounterActorId);
+            if (subscription == null)
+                return false;
+
+            _completedStories.Add(_pendingSelfEncounterStoryId);
+            _pendingSelfEncounterStoryId = null;
+            _pendingSelfEncounterActorId = null;
+            return true;
+        }
+
         private DialogueGraphSO ResolveGraph(StoryEntrySO entry)
         {
             DialogueGraphSO best = null;

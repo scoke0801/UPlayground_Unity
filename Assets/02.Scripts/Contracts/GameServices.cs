@@ -194,6 +194,7 @@ namespace UPlayGround.Manager
     public interface IPartyService : IGameService
     {
         CharacterActorType ActiveCharacterType { get; }
+        CharacterActorType StoryProtagonistType { get; }
         bool SwapEvadeEnableHitStop { get; }
         float SwapEvadeHitStopDuration { get; }
         float SwapEvadeHitStopTimeScale { get; }
@@ -302,7 +303,10 @@ namespace UPlayGround.Manager
     {
         event Action OnDialogueEnd;
         void StartDialogue(DialogueGraphSO graph);
-        IDisposable TryStartDialogueTracked(DialogueGraphSO graph, Action onCompleted);
+        IDisposable TryStartDialogueTracked(
+            DialogueGraphSO graph,
+            Action onCompleted,
+            string partnerActorIdOverride = null);
     }
 
     public interface ISoundService : IGameService

@@ -1019,6 +1019,25 @@ namespace UPlayGround.Dialogue.Editor
             GUILayout.Space(4);
             InspectorDivider();
 
+            // ── Camera ───────────────────────────────────────────────────
+            if (node.nodeType == NodeType.Talk || node.nodeType == NodeType.Choice)
+            {
+                InspectorSectionLabel("CAMERA", new Color(0.45f, 0.8f, 0.95f));
+                EditorGUILayout.PropertyField(so.FindProperty("shotType"),
+                    new GUIContent("Shot", "Auto = 자동 디렉터(화자 OTS / 화자 전환 시 리버스 샷)"));
+                EditorGUILayout.PropertyField(so.FindProperty("shotTransition"),
+                    new GUIContent("Transition", "Auto = 대상 변경 Cut / 동일 대상 Blend / 진입 Establish"));
+                EditorGUILayout.PropertyField(so.FindProperty("reactionSpeakerId"),
+                    new GUIContent("Reaction Speaker", "비우지 않으면 이 인물의 반응을 잡는 리액션 샷"));
+                EditorGUILayout.PropertyField(so.FindProperty("shotDistanceOverride"),
+                    new GUIContent("Distance Override", "0 = 프리셋 거리 사용"));
+                EditorGUILayout.PropertyField(so.FindProperty("cameraRecording"),
+                    new GUIContent("Recording", "지정 시 자동 구도 대신 사전 녹화 카메라를 화자 기준으로 재생"));
+
+                GUILayout.Space(4);
+                InspectorDivider();
+            }
+
             // ── Events ───────────────────────────────────────────────────
             InspectorSectionLabel("EVENTS", new Color(0.65f, 0.55f, 0.98f));
             EditorGUILayout.PropertyField(so.FindProperty("eventActions"), true);

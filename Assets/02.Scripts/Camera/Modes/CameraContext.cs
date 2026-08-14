@@ -15,6 +15,9 @@ namespace UPlayGround.CameraSystem
         public Transform CameraPivot { get; set; }
         public CameraSettings Settings { get; set; }
         public DialogueCameraSettingsSO DialogueSettings { get; set; }
+
+        /// <summary>진행 중인 대화 세션의 연출 상태(가상선·인트로 소진·직전 샷). 대화 중이 아니면 null.</summary>
+        public DialogueShotSession DialogueSession { get; set; }
         public CameraState State { get; }
         public CameraLockOn LockOn { get; set; }
         public CameraCollision Collision { get; set; }

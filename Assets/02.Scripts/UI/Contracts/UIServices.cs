@@ -40,6 +40,7 @@ namespace UPlayGround.UI
 
         PlayerActor ActiveCharacter { get; }
         CharacterActorType ActiveCharacterType { get; }
+        CharacterActorType StoryProtagonistType { get; }
         int ActiveIndex { get; }
         int MaxBattleSize { get; }
         IReadOnlyList<CharacterActorType> Roster { get; }

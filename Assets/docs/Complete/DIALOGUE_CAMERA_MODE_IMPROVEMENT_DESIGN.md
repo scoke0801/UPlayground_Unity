@@ -369,6 +369,31 @@ Pixel Crushers처럼 `Camera(Closeup, target=Listener, t=2.0, blend=Cut)` 같은
 
 ---
 
+## 구현 현황 (2026-08-14)
+
+Phase 1~4와 Phase 5의 일부(선택지 투샷·짧은 라인 컷 억제)를 구현했다. Unity Play Mode 체감 검증은 미완료.
+
+| 항목 | 상태 | 산출 |
+|------|------|------|
+| 상대편(counterpart) 해석 | 완료 | 플레이어가 화자일 때 `listener`에 플레이어를 넘겨 구도가 퇴화하던 문제 해결. `DialogueManager._dialoguePartner` |
+| 대화 세션 상태 분리 | 완료 | `DialogueShotSession` — 가상선·인트로 소진·직전 샷. Dialogue↔Replay 왕복에도 유지 |
+| 가상선 / Shot-Reverse-Shot | 완료 | `DialogueShotComposer` — 측면 벡터를 세션 고정값으로만 사용 |
+| Cut / Blend / Establish 분리 | 완료 | `DialogueShotDirector.ResolveBlendTime` — 기존에 선언만 되어 있던 `cutInstantTime`/`establishBlendTime` 연결 |
+| 노드 디렉션 메타 | 완료 | `DialogueNodeSO.shotType / shotTransition / reactionSpeakerId / shotDistanceOverride` |
+| 리액션 샷 / 선택지 투샷 / 짧은 라인 컷 억제 | 완료 | `DialogueShotDirector.DecideShot` |
+| Headroom / Leadroom 보정 | 미착수 | Phase 3 잔여 |
+| emotion push-in, 접근성 강도 옵션 | 미착수 | Phase 5 잔여 |
+| 작가 도구(프리뷰 창, 시퀀서 DSL) | 미착수 | Phase 6 |
+
+설계 이탈점 2건:
+
+- **`DialogueShotPresetSO`를 신설하지 않았다.** 샷 프리셋은 `DialogueCameraSettingsSO.shotPresets` 리스트(`DialogueShotPreset`)가 소유한다. 설정 에셋 하나만 Addressables에 등록되어 있어 자산·주소 추가 없이 저작할 수 있고, 리스트가 비면 기존 구도 필드에서 기본 프리셋을 파생하므로 현행 에셋이 그대로 동작한다. 프리셋을 그래프별로 교체해야 할 요구가 생기면 그때 SO로 승격한다.
+- **노드 식별자를 `shotPresetKey`(문자열)가 아니라 `DialogueShotType`(열거형)으로 두었다.** 프리셋이 샷 종류당 1개이므로 문자열 키가 줄 유연성이 없고, 오타 위험만 생긴다.
+
+또한 진입 첫 샷은 기존 동작(즉시 컷)을 기본값으로 유지했다. `establishBlendOnEnter`를 켜면 `establishBlendTime`으로 붙는다.
+
+---
+
 ## Phase 로드맵
 
 각 Phase는 독립 PR 단위로 작업하고, 직전 Phase가 동작 회귀 없이 머지된 뒤 진입한다.

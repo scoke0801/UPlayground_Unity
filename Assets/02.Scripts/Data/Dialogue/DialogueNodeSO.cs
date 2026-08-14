@@ -57,6 +57,18 @@ namespace UPlayGround.Dialogue
                  "완료 후 마지막 프레임을 유지하다가 다음 노드가 카메라를 교체한다. Main 채널에서만 동작.")]
         public UPlayGround.Data.DialogueCameraRecordingSO cameraRecording;
 
+        [Tooltip("이 라인의 구도. Auto면 자동 디렉터가 결정한다(기본: 화자 OTS, 화자가 바뀌면 리버스 샷).")]
+        public UPlayGround.Data.DialogueShotType shotType = UPlayGround.Data.DialogueShotType.Auto;
+
+        [Tooltip("이전 샷에서 넘어오는 방식. Auto면 대상 변경=Cut, 동일 대상=Blend, 대화 진입=Establish.")]
+        public UPlayGround.Data.DialogueShotTransition shotTransition = UPlayGround.Data.DialogueShotTransition.Auto;
+
+        [Tooltip("비우지 않으면 화자가 말하는 동안 이 speakerId의 인물을 잡는 리액션 샷이 된다.")]
+        public string reactionSpeakerId;
+
+        [Tooltip("0보다 크면 이 라인의 카메라 거리(m)를 프리셋 대신 사용한다.")]
+        [Min(0f)] public float shotDistanceOverride = 0f;
+
         // 에디터 전용 — 런타임에서 참조하지 않음
         [HideInInspector] public Vector2 editorPosition;
 

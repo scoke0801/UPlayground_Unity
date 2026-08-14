@@ -141,6 +141,9 @@ namespace UPlayGround.Data.Save
         public List<string> battleOrder = new List<string>();
         public int activeIndex;
 
+        /// <summary>새 게임에서 실제 적용된 서사 주인공. CharacterActorType 이름 문자열.</summary>
+        public string storyProtagonistType;
+
         /// <summary>구버전 랜덤 해금 세이브 호환 필드. 신규 스킬 트리는 이 값을 사용하지 않는다.</summary>
         public int contentUnlockSeed;
 

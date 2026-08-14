@@ -1,5 +1,7 @@
 using NUnit.Framework;
 using UnityEngine;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Party;
 using UPlayGround.Dialogue;
 
 namespace UPlayGround.Dialogue.Tests
@@ -138,6 +140,82 @@ namespace UPlayGround.Dialogue.Tests
             }
 
             return count;
+        }
+    }
+
+    public class DialogueSpeakerResolverTests
+    {
+        private PartyMemberDataSO _memberData;
+        private DialogueNodeSO _node;
+        private Texture2D _texture;
+        private Sprite _activePortrait;
+        private Sprite _protagonistPortrait;
+
+        [SetUp]
+        public void SetUp()
+        {
+            _memberData = ScriptableObject.CreateInstance<PartyMemberDataSO>();
+            _node = ScriptableObject.CreateInstance<DialogueNodeSO>();
+            _texture = new Texture2D(4, 4);
+            _activePortrait = Sprite.Create(_texture, new Rect(0, 0, 2, 2), Vector2.zero);
+            _protagonistPortrait = Sprite.Create(_texture, new Rect(2, 2, 2, 2), Vector2.zero);
+            _memberData.sprites.Add(new PartyMemberDataSO.PartyMemberSpriteData
+            {
+                type = CharacterActorType.Honoka,
+                name = "호노카",
+                fullBodySprite = _activePortrait,
+            });
+            _memberData.sprites.Add(new PartyMemberDataSO.PartyMemberSpriteData
+            {
+                type = CharacterActorType.Bokusei,
+                name = "보쿠세이",
+                fullBodySprite = _protagonistPortrait,
+            });
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            Object.DestroyImmediate(_node);
+            Object.DestroyImmediate(_memberData);
+            Object.DestroyImmediate(_activePortrait);
+            Object.DestroyImmediate(_protagonistPortrait);
+            Object.DestroyImmediate(_texture);
+        }
+
+        [Test]
+        public void Player와_Protagonist는_서로_다른_캐릭터를_해석한다()
+        {
+            _node.speakerId = DialogueSpeakerResolver.PlayerActorId;
+            Assert.AreEqual("호노카", DialogueSpeakerResolver.ResolveSpeakerName(
+                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+            Assert.AreSame(_activePortrait, DialogueSpeakerResolver.ResolvePortrait(
+                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+
+            _node.speakerId = DialogueSpeakerResolver.ProtagonistSpeakerId;
+            Assert.AreEqual("보쿠세이", DialogueSpeakerResolver.ResolveSpeakerName(
+                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+            Assert.AreSame(_protagonistPortrait, DialogueSpeakerResolver.ResolvePortrait(
+                _node, _memberData, CharacterActorType.Honoka, CharacterActorType.Bokusei));
+        }
+
+        [Test]
+        public void 이름_토큰은_본문과_선택지에서_독립적으로_치환된다()
+        {
+            string result = DialogueTextResolver.Resolve(
+                "{PlayerName}은 지금 움직이고, {ProtagonistName}은 이 일을 기억한다.",
+                "호노카",
+                "보쿠세이");
+
+            Assert.AreEqual("호노카은 지금 움직이고, 보쿠세이은 이 일을 기억한다.", result);
+        }
+
+        [Test]
+        public void 치환값이_없으면_예약_토큰을_삭제하지_않는다()
+        {
+            Assert.AreEqual(
+                "어서 와, {ProtagonistName}.",
+                DialogueTextResolver.Resolve("어서 와, {ProtagonistName}.", "호노카", string.Empty));
         }
     }
 }

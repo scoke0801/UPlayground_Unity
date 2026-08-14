@@ -1,8 +1,8 @@
 # Protagonist 저장·화자 계약 구현 스펙
 
-> 문서 버전: **v1.0-implementation-draft**<br>
-> 작성일: **2026-08-12**<br>
-> 상태: **구현 승인 대기 / 코드·에셋 미착수**<br>
+> 문서 버전: **v1.1-implemented**<br>
+> 작성일: **2026-08-12** / 구현일: **2026-08-14**<br>
+> 상태: **P0 구현 완료**<br>
 > 선행 문서: [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md)
 
 ## 1. 목적
@@ -19,7 +19,7 @@
 
 `Player`와 `Protagonist`는 같은 캐릭터일 수 있지만 같은 개념이 아니다.
 
-## 3. 현재 문제
+## 3. 구현 전 문제 (해결됨)
 
 - `PartyManager._newGameStartingCharacter`는 실제 파티 적용 뒤 `None`으로 지워진다.
 - `PartySaveData`는 roster·battleOrder·activeIndex만 저장한다.

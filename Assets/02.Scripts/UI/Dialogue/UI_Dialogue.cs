@@ -96,7 +96,10 @@ namespace UPlayGround.UI
             ApplyPortrait(ResolvePortrait(node));
 
             advanceButton.gameObject.SetActive(false);
-            EnsureTypewriter()?.Play(node.dialogueText, UISvc.Dialogue?.Palette, node.typingSpeed);
+            EnsureTypewriter()?.Play(
+                ResolveDialogueText(node.dialogueText),
+                UISvc.Dialogue?.Palette,
+                node.typingSpeed);
         }
 
         private void HandleChoicePresented(List<ChoiceData> choices)
@@ -117,7 +120,7 @@ namespace UPlayGround.UI
                 var choice = choices[i];
                 bool isAvailable = choice.displayCondition == null || choice.displayCondition.Evaluate();
 
-                btn.Setup(choice.choiceText, isAvailable, capturedIndex: i);
+                btn.Setup(ResolveDialogueText(choice.choiceText), isAvailable, capturedIndex: i);
                 _choiceButtons.Add(btn);
             }
         }
@@ -149,7 +152,8 @@ namespace UPlayGround.UI
             return DialogueSpeakerResolver.ResolveSpeakerName(
                 node,
                 party != null ? party.PartyMemberDataSO : null,
-                party != null ? party.ActiveCharacterType : CharacterActorType.None);
+                party != null ? party.ActiveCharacterType : CharacterActorType.None,
+                party != null ? party.StoryProtagonistType : CharacterActorType.None);
         }
 
         private static Sprite ResolvePortrait(DialogueNodeSO node)
@@ -158,7 +162,22 @@ namespace UPlayGround.UI
             return DialogueSpeakerResolver.ResolvePortrait(
                 node,
                 party != null ? party.PartyMemberDataSO : null,
-                party != null ? party.ActiveCharacterType : CharacterActorType.None);
+                party != null ? party.ActiveCharacterType : CharacterActorType.None,
+                party != null ? party.StoryProtagonistType : CharacterActorType.None);
+        }
+
+        private static string ResolveDialogueText(string source)
+        {
+            var party = UISvc.Party;
+            var memberData = party != null ? party.PartyMemberDataSO : null;
+            string activeName = memberData != null && party != null
+                ? memberData.GetName(party.ActiveCharacterType)
+                : string.Empty;
+            string protagonistName = memberData != null && party != null
+                ? memberData.GetName(party.StoryProtagonistType)
+                : string.Empty;
+
+            return DialogueTextResolver.Resolve(source, activeName, protagonistName);
         }
 
         private void ApplyPortrait(Sprite portrait)

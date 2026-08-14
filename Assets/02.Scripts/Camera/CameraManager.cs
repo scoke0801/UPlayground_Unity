@@ -101,6 +101,10 @@ namespace UPlayGround.Manager
 
         private CameraShakeDatabase _cameraShakeDatabase;
         private DialogueCameraSettingsSO _dialogueCameraSettings;
+
+        // 진행 중인 대화 세션의 연출 상태. 대화 계층 모드 전환(Dialogue↔Replay)에 영향받지 않도록
+        // 모드가 아니라 매니저가 소유한다.
+        private DialogueShotSession _dialogueShotSession;
         private CancellationToken _lifetimeCancellationToken;
         private bool _optionalAssetLoadStarted;
         private LayerMask           _lockOnLayerMask;
@@ -229,6 +233,7 @@ namespace UPlayGround.Manager
             settings = null;
             _cameraShakeDatabase = null;
             _dialogueCameraSettings = null;
+            _dialogueShotSession = null;
             _killCamController = null;
             _optionalAssetLoadStarted = false;
 
@@ -251,6 +256,7 @@ namespace UPlayGround.Manager
             _effectManager?.StopAll(immediate: true);
             _killCamController?.ForceStop();
             _isInputLocked = false;
+            _dialogueShotSession = null;
             _modeController?.ForceMode(CameraModeType.InGame);
 
             StartCoroutine(CoInitializeCameraOnSceneChanged(initializationVersion));
@@ -657,6 +663,7 @@ namespace UPlayGround.Manager
             _cameraContext.CameraPivot = _cameraPivot;
             _cameraContext.Settings = settings;
             _cameraContext.DialogueSettings = _dialogueCameraSettings;
+            _cameraContext.DialogueSession = _dialogueShotSession;
             _cameraContext.LockOn = _lockOn;
             _cameraContext.Collision = _collision;
             _cameraContext.DistanceController = _distanceCtrl;
@@ -971,21 +978,70 @@ namespace UPlayGround.Manager
             return _modeController != null && _modeController.ForceMode(modeType, enterParams);
         }
 
+        /// <summary>
+        /// 대화 세션을 연다. 가상선(180° 룰)과 인트로 소진 여부를 이 세션이 소유하므로,
+        /// 대화 시작 시 반드시 호출하고 종료 시 EndDialogueSession으로 닫아야 한다.
+        /// </summary>
+        public void BeginDialogueSession(Transform player, Transform partner)
+        {
+            _dialogueShotSession ??= new DialogueShotSession();
+            _dialogueShotSession.Reset(player, partner);
+
+            // 진입 시점에 카메라가 서 있는 쪽을 가상선의 카메라 쪽으로 채택한다
+            // → 대화 첫 컷이 화면 좌우를 뒤집지 않는다.
+            _dialogueShotSession.CaptureAxis(
+                _mainCamera != null ? _mainCamera.transform.position : Vector3.zero,
+                preserveSide: false);
+
+            SyncCameraContext();
+        }
+
+        /// <summary>
+        /// 3인 이상 대화에서 현재 대화 상대가 바뀌었을 때 축을 다시 잡는다.
+        /// 카메라 쪽은 유지되므로 시선 매칭은 깨지지 않는다.
+        /// </summary>
+        public void UpdateDialogueSessionPartner(Transform partner)
+        {
+            if (_dialogueShotSession == null || partner == null)
+                return;
+
+            _dialogueShotSession.SetPartner(
+                partner,
+                _mainCamera != null ? _mainCamera.transform.position : Vector3.zero);
+        }
+
+        public void EndDialogueSession()
+        {
+            _dialogueShotSession = null;
+            SyncCameraContext();
+        }
+
         public bool PushDialogueCamera(Transform speaker, Transform listener = null, Vector3 offset = default)
         {
-            // 동일 화자 재진입은 OnEnter 재호출로 보간 상태가 끊기지 않도록 no-op 처리
+            return PushDialogueCamera(DialogueShotRequest.FromTargets(speaker, listener, offset));
+        }
+
+        public bool PushDialogueCamera(DialogueShotRequest request)
+        {
+            // 세션 없이 호출된 경로(트리거·치트 등)도 가상선을 갖도록 암묵 세션을 연다.
+            if (_dialogueShotSession == null)
+                BeginDialogueSession(request.Listener != null ? request.Listener : _target, request.Speaker);
+
+            // 동일 요청 재진입은 OnEnter 재호출로 보간 상태가 끊기지 않도록 no-op 처리
             if (_modeController != null
                 && _modeController.CurrentMode is DialogueCameraBehavior currentDialogue
-                && currentDialogue.IsSameSpeaker(speaker, listener))
+                && currentDialogue.IsSameShot(request))
             {
                 return true;
             }
 
             return EnterDialogueLayerMode(CameraModeType.Dialogue, new CameraModeEnterParams
             {
-                PrimaryTarget = speaker,
-                SecondaryTarget = listener,
-                Offset = offset
+                PrimaryTarget = request.Speaker,
+                SecondaryTarget = request.Listener,
+                Offset = request.ShoulderOffsetOverride,
+                DialogueShot = request,
+                HasDialogueShot = true
             });
         }
 

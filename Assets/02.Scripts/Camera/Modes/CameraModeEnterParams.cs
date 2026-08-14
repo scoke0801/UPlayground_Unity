@@ -18,6 +18,10 @@ namespace UPlayGround.CameraSystem
         public bool RestorePreviousOnExit = true;
         public CameraSnapshotProfile SnapshotProfile;
         public DialogueCameraRecordingSO DialogueRecording;
+
+        /// <summary>대화 샷 요청. HasDialogueShot이 true일 때만 유효하다.</summary>
+        public DialogueShotRequest DialogueShot;
+        public bool HasDialogueShot;
         public bool HasSnapshotActorAnchorOverride;
         public CameraSnapshotActorReference SnapshotActorAnchor;
         public bool HasSnapshotLookAtTargetOverride;

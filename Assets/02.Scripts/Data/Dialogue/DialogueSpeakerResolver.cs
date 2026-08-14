@@ -13,11 +13,26 @@ namespace UPlayGround.Dialogue
     {
         public const string PlayerSpeakerId = "당신";
         public const string PlayerActorId = "Player";
+        public const string ProtagonistSpeakerId = "Protagonist";
+
+        private static bool s_warnedMissingProtagonist;
 
         public static bool IsPlayerSpeaker(DialogueNodeSO node)
         {
-            return node != null && (node.speakerId == PlayerSpeakerId || node.speakerId == PlayerActorId);
+            return node != null && IsActivePlayerSpeaker(node.speakerId);
         }
+
+        public static bool IsActivePlayerSpeaker(DialogueNodeSO node) =>
+            node != null && IsActivePlayerSpeaker(node.speakerId);
+
+        public static bool IsActivePlayerSpeaker(string speakerId) =>
+            speakerId == PlayerSpeakerId || speakerId == PlayerActorId;
+
+        public static bool IsProtagonistSpeaker(DialogueNodeSO node) =>
+            node != null && IsProtagonistSpeaker(node.speakerId);
+
+        public static bool IsProtagonistSpeaker(string speakerId) =>
+            speakerId == ProtagonistSpeakerId;
 
         /// <summary>
         /// 플레이어 화자면 현재 활성 캐릭터 이름으로, 아니면 노드의 speakerId를 그대로 반환합니다.
@@ -25,16 +40,23 @@ namespace UPlayGround.Dialogue
         public static string ResolveSpeakerName(
             DialogueNodeSO node,
             PartyMemberDataSO memberData,
-            CharacterActorType activeType)
+            CharacterActorType activeType,
+            CharacterActorType protagonistType)
         {
             if (node == null)
                 return string.Empty;
 
-            if (!IsPlayerSpeaker(node))
+            CharacterActorType resolvedType;
+            if (IsActivePlayerSpeaker(node))
+                resolvedType = activeType;
+            else if (IsProtagonistSpeaker(node))
+                resolvedType = protagonistType;
+            else
                 return node.speakerId;
 
-            string activeName = memberData != null ? memberData.GetName(activeType) : string.Empty;
-            return string.IsNullOrEmpty(activeName) ? node.speakerId : activeName;
+            WarnIfMissingProtagonist(node, protagonistType);
+            string resolvedName = memberData != null ? memberData.GetName(resolvedType) : string.Empty;
+            return string.IsNullOrEmpty(resolvedName) ? node.speakerId : resolvedName;
         }
 
         /// <summary>
@@ -43,16 +65,90 @@ namespace UPlayGround.Dialogue
         public static Sprite ResolvePortrait(
             DialogueNodeSO node,
             PartyMemberDataSO memberData,
-            CharacterActorType activeType)
+            CharacterActorType activeType,
+            CharacterActorType protagonistType)
         {
             if (node == null)
                 return null;
 
-            if (!IsPlayerSpeaker(node))
+            CharacterActorType resolvedType;
+            if (IsActivePlayerSpeaker(node))
+                resolvedType = activeType;
+            else if (IsProtagonistSpeaker(node))
+                resolvedType = protagonistType;
+            else
                 return node.portrait;
 
-            Sprite activePortrait = memberData != null ? memberData.GetFullBodySprite(activeType) : null;
-            return activePortrait != null ? activePortrait : node.portrait;
+            WarnIfMissingProtagonist(node, protagonistType);
+            Sprite resolvedPortrait = memberData != null ? memberData.GetFullBodySprite(resolvedType) : null;
+            return resolvedPortrait != null ? resolvedPortrait : node.portrait;
+        }
+
+        private static void WarnIfMissingProtagonist(
+            DialogueNodeSO node,
+            CharacterActorType protagonistType)
+        {
+            if (!IsProtagonistSpeaker(node)
+                || protagonistType != CharacterActorType.None
+                || s_warnedMissingProtagonist)
+                return;
+
+            s_warnedMissingProtagonist = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            Debug.LogWarning("[DialogueSpeakerResolver] Protagonist 화자를 해석할 서사 주인공이 없습니다.");
+#endif
+        }
+    }
+
+    /// <summary>대화 본문과 선택지에서 예약된 플레이어 이름 토큰만 치환한다.</summary>
+    public static class DialogueTextResolver
+    {
+        public const string PlayerNameToken = "{PlayerName}";
+        public const string ProtagonistNameToken = "{ProtagonistName}";
+
+        private static bool s_warnedMissingPlayerName;
+        private static bool s_warnedMissingProtagonistName;
+
+        public static string Resolve(
+            string source,
+            string activePlayerName,
+            string protagonistName)
+        {
+            if (string.IsNullOrEmpty(source))
+                return source;
+
+            string resolved = ReplaceKnownToken(
+                source,
+                PlayerNameToken,
+                activePlayerName,
+                ref s_warnedMissingPlayerName);
+            return ReplaceKnownToken(
+                resolved,
+                ProtagonistNameToken,
+                protagonistName,
+                ref s_warnedMissingProtagonistName);
+        }
+
+        private static string ReplaceKnownToken(
+            string source,
+            string token,
+            string value,
+            ref bool warned)
+        {
+            if (!source.Contains(token))
+                return source;
+
+            if (!string.IsNullOrEmpty(value))
+                return source.Replace(token, value);
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!warned)
+            {
+                warned = true;
+                Debug.LogWarning($"[DialogueTextResolver] {token} 토큰의 치환 값을 찾지 못했습니다.");
+            }
+#endif
+            return source;
         }
     }
 }

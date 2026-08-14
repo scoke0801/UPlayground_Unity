@@ -44,13 +44,25 @@ namespace UPlayGround.UI
             messageText.color = table != null ? table.GetColor(node.speakerId) : Color.white;
 
             // System 채널은 타이핑이 없지만 인라인 색상 마크업은 동일하게 해석한다.
-            messageText.text = DialogueMarkup.ToRichText(node.dialogueText, UISvc.Dialogue.Palette);
+            messageText.text = DialogueMarkup.ToRichText(
+                ResolveDialogueText(node.dialogueText),
+                UISvc.Dialogue.Palette);
 
             if (autoHideDuration > 0f)
             {
                 if (_autoHideCoroutine != null) StopCoroutine(_autoHideCoroutine);
                 _autoHideCoroutine = StartCoroutine(AutoHide(autoHideDuration));
             }
+        }
+
+        private static string ResolveDialogueText(string source)
+        {
+            var party = UISvc.Party;
+            var memberData = party != null ? party.PartyMemberDataSO : null;
+            return DialogueTextResolver.Resolve(
+                source,
+                memberData != null && party != null ? memberData.GetName(party.ActiveCharacterType) : string.Empty,
+                memberData != null && party != null ? memberData.GetName(party.StoryProtagonistType) : string.Empty);
         }
 
         private void HandleDialogueEnd()

@@ -64,6 +64,8 @@ namespace UPlayGround.Manager
         private readonly Dictionary<CharacterActorType, float> _swapCooldownEndTimes = new();
         // 타이틀 캐릭터 선택 결과. Loading 씬을 지나 실제 PlayerActor가 준비될 때까지 유지한다.
         private CharacterActorType _newGameStartingCharacter = CharacterActorType.None;
+        // 새 게임에서 실제 적용된 캐릭터. 활성 캐릭터 교체와 무관한 서사 시점 식별자다.
+        private CharacterActorType _storyProtagonistType = CharacterActorType.None;
         // 최초 새 게임 선택 또는 세이브 복원 이후에는 씬 전환 시 PartyConfig로 재시딩하지 않는다.
         private bool _hasRuntimePartyComposition;
         private int                    _activeIndex  = 0;
@@ -103,6 +105,7 @@ namespace UPlayGround.Manager
         public PlayerActor               ActiveCharacter     => _player;
         public bool                      HasPendingSceneRestore => _pendingPartyLoad != null;
         public CharacterActorType        ActiveCharacterType => _player?.GetComponent<PlayerSwapBehaviour>()?.ActiveCharacterType ?? CharacterActorType.None;
+        public CharacterActorType        StoryProtagonistType => _storyProtagonistType;
         public int                       ActiveIndex         => _activeIndex;
         public int                       MaxBattleSize       => _maxBattleSize;
         public IReadOnlyList<CharacterActorType> Roster      => _roster;
@@ -1135,6 +1138,9 @@ namespace UPlayGround.Manager
                 party.battleOrder.Add(_battleOrder[i].ToString());
 
             party.activeIndex = _activeIndex;
+            party.storyProtagonistType = _storyProtagonistType != CharacterActorType.None
+                ? _storyProtagonistType.ToString()
+                : string.Empty;
             party.contentUnlockSeed = _contentUnlockSeed;
             party.skillProgress = _skillProgression.ExportStates();
 
@@ -1213,6 +1219,7 @@ namespace UPlayGround.Manager
             // (캐릭터별 HP/스킬게이지는 PlayerActor에 있어 새 씬의 신규 플레이어에서 초기화됨)
             _pendingPartyLoad = null;
             _newGameStartingCharacter = CharacterActorType.None;
+            _storyProtagonistType = CharacterActorType.None;
             _hasRuntimePartyComposition = false;
             _roster.Clear();
             _battleOrder.Clear();
@@ -1315,6 +1322,7 @@ namespace UPlayGround.Manager
                 ? Mathf.Clamp(party.activeIndex, 0, _battleOrder.Count - 1)
                 : 0;
             _hasRuntimePartyComposition = _roster.Count > 0 && _battleOrder.Count > 0;
+            _storyProtagonistType = ResolveLoadedStoryProtagonist(party);
 
             OnRosterChanged?.Invoke();
             OnBattleOrderChanged?.Invoke();
@@ -1362,6 +1370,33 @@ namespace UPlayGround.Manager
                 return true;
             type = CharacterActorType.None;
             return false;
+        }
+
+        private CharacterActorType ResolveLoadedStoryProtagonist(PartySaveData party)
+        {
+            PlayerSwapBehaviour swap = _player?.GetComponent<PlayerSwapBehaviour>();
+
+            bool HasModel(CharacterActorType type) =>
+                type != CharacterActorType.None && swap?.GetModelData(type) != null;
+
+            if (TryParseCharacter(party.storyProtagonistType, out CharacterActorType saved)
+                && HasModel(saved))
+                return saved;
+
+            CharacterActorType fallback = _battleOrder.FirstOrDefault(HasModel);
+            if (fallback == CharacterActorType.None)
+                fallback = _roster.FirstOrDefault(HasModel);
+            if (fallback == CharacterActorType.None && HasModel(CharacterActorType.Bokusei))
+                fallback = CharacterActorType.Bokusei;
+
+            if (fallback == CharacterActorType.None)
+            {
+                Debug.LogError("[PartyManager] 세이브에서 유효한 서사 주인공을 복원하지 못했습니다.");
+                return CharacterActorType.None;
+            }
+
+            Debug.LogWarning($"[PartyManager] 누락되거나 잘못된 서사 주인공 값을 {fallback}(으)로 보정했습니다.");
+            return fallback;
         }
 
         public PartyCombatPowerResult GetCombatPower(CharacterActorType type)
@@ -1624,6 +1659,7 @@ namespace UPlayGround.Manager
                 _roster.Add(fallback);
                 _battleOrder.Clear();
                 _battleOrder.Add(fallback);
+                _storyProtagonistType = fallback;
                 Debug.LogError($"[PartyManager] 선택한 시작 캐릭터 {selected}의 모델이 없어 {fallback}(으)로 대체합니다.");
                 return;
             }
@@ -1634,6 +1670,7 @@ namespace UPlayGround.Manager
             _battleOrder.Clear();
             _battleOrder.Add(selected);
 
+            _storyProtagonistType = selected;
             _newGameStartingCharacter = CharacterActorType.None;
             Debug.Log($"[PartyManager] 선택 캐릭터를 새 게임 파티 리더로 적용: {selected}");
         }

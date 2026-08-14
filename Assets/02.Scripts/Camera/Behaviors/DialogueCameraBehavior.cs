@@ -5,31 +5,31 @@ namespace UPlayGround.CameraSystem
 {
     /// <summary>
     /// 대화 전용 카메라 모드.
-    /// PrimaryTarget은 화자, SecondaryTarget은 청자/플레이어로 사용한다.
+    ///
+    /// 라인마다 DialogueShotDirector가 샷/전환을 결정하고 DialogueShotComposer가 포즈를 만든다.
+    /// 이 모드는 결정된 목표 포즈로의 보간과 인트로 시퀀스 재생만 담당한다.
+    /// 가상선·인트로 소진 같은 대화 전체 상태는 CameraContext.DialogueSession이 소유한다
+    /// (모드는 Replay 왕복 때마다 OnEnter/OnExit가 반복되므로 상태를 들고 있으면 안 된다).
     /// </summary>
     public class DialogueCameraBehavior : ICameraBehavior
     {
-        private Transform _speaker;
-        private Transform _listener;
-        private Vector3 _offset;
-        private float _distance;
-        private float _fieldOfView;
+        private DialogueShotRequest _request;
+        private DialogueShotType _shotType = DialogueShotType.OverTheShoulderSpeaker;
         private DialogueCameraSettingsSO _fallbackSettings;
 
-        private Quaternion _currentRotation;
-        private bool _isFirstFrame;
-        private bool _wasInDialogue;
+        // 현재 출력 중인 포즈 — 실제 카메라 transform을 되읽지 않는다.
+        // 되읽으면 쉐이크 등 이펙트 델타가 다음 프레임 보간 입력으로 섞여 흔들림이 끌려다닌다.
+        private Vector3 _currentPosition;
+        private Vector3 _currentLookAt;
+        private Quaternion _currentRotation = Quaternion.identity;
+        private float _currentFieldOfView = 45f;
+        private bool _hasCurrentPose;
 
-        // 인트로 시퀀스: 대화 진입 1회만 플레이어(청자)→화자로 부드럽게 패닝
+        private float _blendTime;
+
+        // 인트로 시퀀스: 대화 세션당 1회, 플레이어(청자) → 화자로 부드럽게 패닝
         private bool _introActive;
         private float _introElapsed;
-
-        private struct FramedPose
-        {
-            public Vector3 LookAt;
-            public Vector3 Position;
-            public Quaternion Rotation;
-        }
 
         public CameraModeType ModeType => CameraModeType.Dialogue;
         public int Priority => 50;
@@ -40,41 +40,72 @@ namespace UPlayGround.CameraSystem
 
         public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
-            _speaker = enterParams.PrimaryTarget;
-            _listener = enterParams.SecondaryTarget != null ? enterParams.SecondaryTarget : context.Target;
+            _request = enterParams.HasDialogueShot
+                ? enterParams.DialogueShot
+                : DialogueShotRequest.FromTargets(
+                    enterParams.PrimaryTarget,
+                    enterParams.SecondaryTarget != null ? enterParams.SecondaryTarget : context.Target,
+                    enterParams.Offset);
+
+            if (_request.Listener == null)
+                _request.Listener = context.Target;
 
             DialogueCameraSettingsSO settings = GetSettings(context);
-            _offset = enterParams.Offset == default ? settings.listenerShoulderOffset : enterParams.Offset;
-            _distance = settings.ClampDistance(enterParams.Duration > 0f ? enterParams.Duration : settings.twoShotDistance);
-            _fieldOfView = settings.fieldOfView;
+            DialogueShotSession session = context.DialogueSession;
+
+            // 인물이 대화 중 이동해 가상선이 크게 틀어졌으면 축만 다시 잡는다(카메라 쪽은 유지).
+            session?.RefreshAxisIfDeviated(settings.axisRecaptureAngle);
+
+            bool isSessionStart = session == null || session.LineIndex == 0;
+
+            DialogueShotDirector.Decision decision = DialogueShotDirector.Decide(settings, session, _request);
+            _shotType = decision.Shot;
+            _blendTime = DialogueShotDirector.ResolveBlendTime(settings, decision.Transition);
+
+            // 인트로는 진행 중에 다음 라인이 들어오면 그대로 취소된다(OnEnter가 다시 결정하므로).
+            _introActive = decision.PlayIntro;
+            _introElapsed = 0f;
+
+            if (isSessionStart && (decision.PlayIntro || !settings.establishBlendOnEnter))
+            {
+                // 대화 진입은 즉시 컷 — InGame 카메라에서 날아오거나 빙글 도는 현상 방지.
+                _hasCurrentPose = false;
+            }
+            else
+            {
+                // 라인 전환은 카메라가 실제로 있는 위치에서 블렌드를 시작한다.
+                // Replay(녹화) 노드를 거쳐 돌아온 경우에도 마지막 프레임에서 자연스럽게 이어진다.
+                // 매 프레임이 아니라 진입 시 1회만 읽으므로 이펙트 델타가 보간에 되먹임되지 않는다.
+                SeedFromCamera(context, settings);
+            }
+
+            if (session != null)
+            {
+                if (decision.PlayIntro)
+                    session.IntroConsumed = true;
+
+                session.ConsecutiveShortLines = decision.ConsecutiveShortLines;
+                session.LastSubject = decision.Subject;
+                session.LastSpeaker = _request.Speaker;
+                session.LastShotType = decision.Shot;
+                session.LineIndex++;
+            }
 
             context.IsInputLocked = true;
             context.LockOn?.Release();
-            // 대화 중 화자 전환은 부드럽게 블렌딩, 초진입(InGame→Dialogue)만 즉시 스냅
-            _isFirstFrame = !_wasInDialogue;
-
-            // 인트로(플레이어→화자 1회 팬)는 진짜 첫 진입 + 청자/화자가 모두 있을 때만 발동
-            _introActive = _isFirstFrame
-                && settings.enableIntroSequence
-                && _speaker != null
-                && _listener != null;
-            _introElapsed = 0f;
-
-            _wasInDialogue = true;
         }
 
         public void OnExit(CameraContext context)
         {
             context.IsInputLocked = false;
-            _wasInDialogue = false;
+            _introActive = false;
+
+            // 세션 상태는 건드리지 않는다. Dialogue ↔ Replay 전환에서도 OnExit가 불리므로
+            // 여기서 초기화하면 대화 도중 인트로가 다시 재생되고 가상선이 풀린다.
         }
 
-        public bool IsSameSpeaker(Transform speaker, Transform listener)
-        {
-            if (_speaker != speaker)
-                return false;
-            return listener == null || _listener == listener;
-        }
+        /// <summary>같은 라인의 중복 진입인지. CameraManager의 재진입 no-op 가드가 사용한다.</summary>
+        public bool IsSameShot(in DialogueShotRequest request) => _request.Matches(request);
 
         public void HandleInput(CameraContext context, float deltaTime)
         {
@@ -82,111 +113,138 @@ namespace UPlayGround.CameraSystem
 
         public CameraPose EvaluatePose(CameraContext context, float deltaTime, CameraEffectState effectState)
         {
-            Transform target = _speaker != null ? _speaker : context.Target;
-            if (target == null || context.MainCamera == null)
+            if (context.MainCamera == null)
+                return default;
+
+            if (_request.Speaker == null && _request.Listener == null && context.Target == null)
                 return default;
 
             DialogueCameraSettingsSO settings = GetSettings(context);
+            DialogueShotSession session = context.DialogueSession;
 
-            // 화자(대상) 클로즈업 — 인트로의 최종 구도이자 평상시 추종 포즈
-            FramedPose finalPose = ComputeFramedPose(context, settings, target, _listener);
+            DialogueShotComposer.FramedPose targetPose = DialogueShotComposer.Compose(
+                context, settings, session, _request, _shotType, UseCollision);
 
-            Vector3 lookAt = finalPose.LookAt;
-            Vector3 cameraPosition;
-            Quaternion cameraRotation;
+            if (!_hasCurrentPose)
+            {
+                // 첫 프레임은 즉시 목표 포즈로 컷한다.
+                // InGame 카메라 위치에서 날아오거나 빙글 도는 현상 방지.
+                ApplyPoseImmediate(targetPose);
+            }
 
             if (_introActive)
             {
-                // 인트로: 플레이어(청자) 바라봄 → 멈춤 → 화자로 부드럽게 팬 → 화자 고정
-                _introElapsed += deltaTime;
-                FramedPose playerPose = ComputeFramedPose(context, settings, _listener, target);
-
-                float hold = Mathf.Max(0f, settings.introPlayerHoldTime);
-                float pan = Mathf.Max(0.01f, settings.introPanDuration);
-
-                if (_introElapsed <= hold)
-                {
-                    // 플레이어를 한 번 바라보고 멈춤
-                    lookAt = playerPose.LookAt;
-                    cameraPosition = playerPose.Position;
-                    cameraRotation = playerPose.Rotation;
-                }
-                else if (_introElapsed <= hold + pan)
-                {
-                    // 플레이어 → 화자 부드러운 팬
-                    float t = Mathf.SmoothStep(0f, 1f, (_introElapsed - hold) / pan);
-                    lookAt = Vector3.Lerp(playerPose.LookAt, finalPose.LookAt, t);
-                    cameraPosition = Vector3.Lerp(playerPose.Position, finalPose.Position, t);
-                    cameraRotation = Quaternion.Slerp(playerPose.Rotation, finalPose.Rotation, t);
-                }
-                else
-                {
-                    // 인트로 종료 — 화자 클로즈업으로 고정하고 평상 추종으로 전환
-                    _introActive = false;
-                    _isFirstFrame = false;
-                    cameraPosition = finalPose.Position;
-                    cameraRotation = finalPose.Rotation;
-                }
-                _currentRotation = cameraRotation;
-            }
-            else if (_isFirstFrame)
-            {
-                // 인트로 미사용 시: 첫 프레임에 목표 위치·회전으로 즉시 컷
-                // → InGame 카메라에서 날아오거나 빙글 도는 현상 방지
-                _isFirstFrame = false;
-                _currentRotation = finalPose.Rotation;
-                cameraPosition = finalPose.Position;
-                cameraRotation = finalPose.Rotation;
+                EvaluateIntro(context, settings, session, targetPose, deltaTime);
             }
             else
             {
-                // 평상시: softBlendTime 기반 미세 보정만 수행
-                float blendTime = Mathf.Max(0.01f, settings.softBlendTime);
-                float blendFactor = 1f - Mathf.Exp(-(1f / blendTime) * deltaTime);
-                _currentRotation = Quaternion.Slerp(_currentRotation, finalPose.Rotation, blendFactor);
-                cameraPosition = Vector3.Lerp(context.MainCamera.transform.position, finalPose.Position, blendFactor);
-                cameraRotation = _currentRotation;
+                BlendTowards(targetPose, deltaTime);
             }
 
-            cameraPosition += effectState.positionDelta;
-
-            Vector3 euler = cameraRotation.eulerAngles;
-            float fov = _fieldOfView + effectState.fovDelta;
-
-            return new CameraPose
-            {
-                PivotPosition = lookAt,
-                CameraPosition = cameraPosition,
-                CameraRotation = cameraRotation,
-                Yaw = euler.y + effectState.yawDelta,
-                Pitch = euler.x + effectState.pitchDelta,
-                Distance = Vector3.Distance(lookAt, cameraPosition) + effectState.distanceDelta,
-                FieldOfView = fov
-            };
+            return BuildPose(effectState);
         }
 
         /// <summary>
-        /// subject(주시 대상)를 reference(반대편 인물) 기준으로 어깨 너머 구도로 잡는 포즈를 산출한다.
-        /// 화자 클로즈업은 (speaker, listener), 인트로의 플레이어 컷은 (listener, speaker)로 호출한다.
+        /// 인트로: 플레이어(청자)를 한 번 바라보고 멈춤 → 화자로 부드럽게 팬 → 화자 고정.
+        /// 두 포즈 모두 Composer가 같은 가상선 위에서 만들기 때문에 팬 도중 선을 넘지 않는다.
         /// </summary>
-        private FramedPose ComputeFramedPose(CameraContext context, DialogueCameraSettingsSO settings, Transform subject, Transform reference)
+        private void EvaluateIntro(
+            CameraContext context,
+            DialogueCameraSettingsSO settings,
+            DialogueShotSession session,
+            in DialogueShotComposer.FramedPose targetPose,
+            float deltaTime)
         {
-            Vector3 lookAt = subject.position + settings.speakerLookAtOffset;
-            Vector3 baseForward = ResolveDialogueForward(subject, reference);
-            Quaternion baseRotation = Quaternion.LookRotation(baseForward, Vector3.up);
-            Vector3 desiredOffset = _offset.sqrMagnitude > 0.001f ? _offset.normalized : settings.listenerShoulderOffset.normalized;
-            float desiredDistance = settings.ClampDistance(_distance);
+            _introElapsed += deltaTime;
 
-            if (UseCollision && context.Collision != null)
+            DialogueShotComposer.FramedPose listenerPose = DialogueShotComposer.Compose(
+                context, settings, session, _request, DialogueShotType.OverTheShoulderListener, UseCollision);
+
+            float hold = Mathf.Max(0f, settings.introPlayerHoldTime);
+            float pan = Mathf.Max(0.01f, settings.introPanDuration);
+
+            if (_introElapsed <= hold)
             {
-                Vector3 camDir = baseRotation * desiredOffset;
-                desiredDistance = Mathf.Max(0.1f, context.Collision.Evaluate(lookAt, camDir, desiredDistance));
+                ApplyPoseImmediate(listenerPose);
+                return;
             }
 
-            Vector3 position = lookAt + baseRotation * desiredOffset * desiredDistance;
-            Quaternion rotation = Quaternion.LookRotation(lookAt - position, Vector3.up);
+            if (_introElapsed <= hold + pan)
+            {
+                float t = Mathf.SmoothStep(0f, 1f, (_introElapsed - hold) / pan);
+                _currentLookAt = Vector3.Lerp(listenerPose.LookAt, targetPose.LookAt, t);
+                _currentPosition = Vector3.Lerp(listenerPose.Position, targetPose.Position, t);
+                _currentRotation = Quaternion.Slerp(listenerPose.Rotation, targetPose.Rotation, t);
+                _currentFieldOfView = Mathf.Lerp(listenerPose.FieldOfView, targetPose.FieldOfView, t);
+                return;
+            }
 
-            return new FramedPose { LookAt = lookAt, Position = position, Rotation = rotation };
+            // 인트로 종료 — 화자 구도로 고정하고 평상 추종으로 전환
+            _introActive = false;
+            ApplyPoseImmediate(targetPose);
+        }
+
+        /// <summary>
+        /// 결정된 전환 시간으로 현재 포즈를 목표 포즈에 붙인다.
+        /// blendTime이 0이면(Cut) 즉시 스냅한다.
+        /// </summary>
+        private void BlendTowards(in DialogueShotComposer.FramedPose targetPose, float deltaTime)
+        {
+            if (_blendTime <= 0.0001f)
+            {
+                ApplyPoseImmediate(targetPose);
+                return;
+            }
+
+            float factor = 1f - Mathf.Exp(-(1f / _blendTime) * deltaTime);
+            _currentPosition = Vector3.Lerp(_currentPosition, targetPose.Position, factor);
+            _currentLookAt = Vector3.Lerp(_currentLookAt, targetPose.LookAt, factor);
+            _currentRotation = Quaternion.Slerp(_currentRotation, targetPose.Rotation, factor);
+            _currentFieldOfView = Mathf.Lerp(_currentFieldOfView, targetPose.FieldOfView, factor);
+        }
+
+        /// <summary>현재 카메라 위치/회전을 보간 시작점으로 채택한다.</summary>
+        private void SeedFromCamera(CameraContext context, DialogueCameraSettingsSO settings)
+        {
+            Transform cameraTransform = context.MainCamera != null ? context.MainCamera.transform : null;
+            if (cameraTransform == null)
+            {
+                _hasCurrentPose = false;
+                return;
+            }
+
+            _currentPosition = cameraTransform.position;
+            _currentRotation = cameraTransform.rotation;
+            _currentLookAt = cameraTransform.position + cameraTransform.forward * settings.twoShotDistance;
+            _currentFieldOfView = context.MainCamera.fieldOfView;
+            _hasCurrentPose = true;
+        }
+
+        private void ApplyPoseImmediate(in DialogueShotComposer.FramedPose pose)
+        {
+            _currentPosition = pose.Position;
+            _currentLookAt = pose.LookAt;
+            _currentRotation = pose.Rotation;
+            _currentFieldOfView = pose.FieldOfView;
+            _hasCurrentPose = true;
+        }
+
+        /// <summary>이펙트 델타는 보간이 끝난 뒤 출력 직전에만 더한다(다음 프레임 보간에 되먹임되지 않도록).</summary>
+        private CameraPose BuildPose(CameraEffectState effectState)
+        {
+            Vector3 cameraPosition = _currentPosition + effectState.positionDelta;
+            Vector3 euler = _currentRotation.eulerAngles;
+
+            return new CameraPose
+            {
+                PivotPosition = _currentLookAt,
+                CameraPosition = cameraPosition,
+                CameraRotation = _currentRotation,
+                Yaw = euler.y + effectState.yawDelta,
+                Pitch = euler.x + effectState.pitchDelta,
+                Distance = Vector3.Distance(_currentLookAt, cameraPosition) + effectState.distanceDelta,
+                FieldOfView = _currentFieldOfView + effectState.fovDelta
+            };
         }
 
         private DialogueCameraSettingsSO GetSettings(CameraContext context)
@@ -198,21 +256,6 @@ namespace UPlayGround.CameraSystem
                 _fallbackSettings = DialogueCameraSettingsSO.CreateRuntimeDefault();
 
             return _fallbackSettings;
-        }
-
-        private static Vector3 ResolveDialogueForward(Transform speaker, Transform listener)
-        {
-            if (speaker != null && listener != null)
-            {
-                Vector3 dir = speaker.position - listener.position;
-                dir.y = 0f;
-                if (dir.sqrMagnitude > 0.001f)
-                    return dir.normalized;
-            }
-
-            Vector3 fallback = speaker != null ? speaker.forward : Vector3.forward;
-            fallback.y = 0f;
-            return fallback.sqrMagnitude > 0.001f ? fallback.normalized : Vector3.forward;
         }
     }
 }

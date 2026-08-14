@@ -73,7 +73,13 @@ namespace UPlayGround.UI
             var table = UISvc.Dialogue.ColorTable;
             monologueText.color = table != null ? table.GetColor(node.speakerId) : Color.white;
 
-            EnsureTypewriter()?.Play(node.dialogueText, UISvc.Dialogue?.Palette, node.typingSpeed);
+            var party = UISvc.Party;
+            var memberData = party != null ? party.PartyMemberDataSO : null;
+            string resolvedText = DialogueTextResolver.Resolve(
+                node.dialogueText,
+                memberData != null && party != null ? memberData.GetName(party.ActiveCharacterType) : string.Empty,
+                memberData != null && party != null ? memberData.GetName(party.StoryProtagonistType) : string.Empty);
+            EnsureTypewriter()?.Play(resolvedText, UISvc.Dialogue?.Palette, node.typingSpeed);
         }
 
         private void HandleDialogueEnd()

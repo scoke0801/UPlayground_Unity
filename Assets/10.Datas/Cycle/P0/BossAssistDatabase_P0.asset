@@ -12,4 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b1efe0be1be4fdbb1f05fc984aeca8a, type: 3}
   m_Name: BossAssistDatabase_P0
   m_EditorClassIdentifier:
-  definitions: []
+  definitions:
+  - {fileID: 11400000, guid: 4d1c6b7320ae4d4b8fdf1c40b3a90b11, type: 2}
+  - {fileID: 11400000, guid: 8e7a2d41c9f8432cba6179d54f10a622, type: 2}
+  - {fileID: 11400000, guid: a93f60248d0d47a394f0a633e071b733, type: 2}
+  - {fileID: 11400000, guid: c15be374f6724c718d93b4a7ce80c844, type: 2}

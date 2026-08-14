@@ -14,7 +14,13 @@ namespace UPlayGround.UI
         private float _remaining;
         private void OnEnable() { if (UISvc.Cycle != null) UISvc.Cycle.OnBossDiscovered += Show; if (_group != null) _group.alpha = 0f; }
         private void OnDisable() { if (UISvc.Cycle != null) UISvc.Cycle.OnBossDiscovered -= Show; }
-        private void Show(CycleBossPlacement boss) { if (_title != null) _title.text = $"{(boss.isCentral ? "중앙" : "외곽")} 보스\n{boss.actorId}"; _remaining = _duration; if (_group != null) _group.alpha = 1f; }
+        private void Show(CycleBossPlacement boss)
+        {
+            string name = !string.IsNullOrWhiteSpace(boss?.displayName) ? boss.displayName : "미확인 상대";
+            if (_title != null) _title.text = $"{name}\n대결 상대를 찾았습니다";
+            _remaining = _duration;
+            if (_group != null) _group.alpha = 1f;
+        }
         private void Update() { if (_remaining <= 0f) return; _remaining -= Time.unscaledDeltaTime; if (_remaining <= 0f && _group != null) _group.alpha = 0f; }
     }
 }

@@ -648,18 +648,21 @@ namespace UPlayGround.UI
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (entry.sprite == null) Debug.LogWarning($"[UI_Minimap] 사이클 보스 아이콘 스프라이트 누락: {marker.spawnId}");
 #endif
-            _cycleBossIconMap[marker.spawnId] = MinimapEntityIcon.CreateStatic(_iconContainer, $"cycle_{marker.spawnId}", entry);
+            MinimapEntityIcon icon = MinimapEntityIcon.CreateStatic(_iconContainer, $"cycle_{marker.spawnId}", entry);
+            icon.SetDisplayLabel(marker.label);
+            _cycleBossIconMap[marker.spawnId] = icon;
         }
 
         private void ChangeCycleBossMarker(CycleBossMarkerData marker)
         {
             if (!_cycleBossIconMap.TryGetValue(marker.spawnId, out MinimapEntityIcon icon)) { AddCycleBossMarker(marker); return; }
             icon.SetEntry(ResolveCycleBossIcon(marker));
+            icon.SetDisplayLabel(marker.label);
         }
 
         private MinimapIconConfigSO.IconEntry ResolveCycleBossIcon(CycleBossMarkerData marker)
         {
-            // 중앙 평가는 외곽 기록 완료 시 레지스트리에 추가되며, 공개된 뒤에는 큰 붉은 신호로 구분한다.
+            // 마지막 상대는 앞선 세 번의 대결 뒤 레지스트리에 추가되며 큰 신호로 구분한다.
             if (marker.isCentral)
                 return _config.discoveredCentralBoss;
             return marker.discovered ? _config.discoveredOuterBoss : _config.unknownBoss;

@@ -36,6 +36,6 @@ MonoBehaviour:
   behaviorData: {fileID: 11400000, guid: 0830cd5fc52bfcc46ba5ad09a987291a, type: 2}
   npcData: {fileID: 0}
   dropTable: {fileID: 11400000, guid: 60f71f069ddca284aa89ea18f021c39a, type: 2}
-  recruitableAs: 8
+  recruitableAs: 0
   expReward: 374
   goldReward: 0

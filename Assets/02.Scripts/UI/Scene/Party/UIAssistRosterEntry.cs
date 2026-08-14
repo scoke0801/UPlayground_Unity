@@ -41,7 +41,10 @@ namespace UPlayGround.UI
                 _icon.sprite  = definition != null ? definition.icon : null;
                 _icon.enabled = _icon.sprite != null;
             }
-            if (_nameText != null) _nameText.text = definition != null ? definition.assistId : assistId;
+            if (_nameText != null)
+                _nameText.text = definition != null && !string.IsNullOrWhiteSpace(definition.displayName)
+                    ? definition.displayName
+                    : "미확인 지원";
             if (_roleText != null) _roleText.text = definition != null ? RoleLabel(definition.role) : string.Empty;
             if (_cooldownText != null)
                 _cooldownText.text = cooldownRemaining > 0f ? $"{Mathf.CeilToInt(cooldownRemaining)}s" : string.Empty;

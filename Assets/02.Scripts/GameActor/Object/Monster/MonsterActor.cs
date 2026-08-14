@@ -935,6 +935,15 @@ namespace UPlayGround
             _runtimeGoldReward = Mathf.Max(0, goldReward);
         }
 
+        /// <summary>
+        /// 이번 스폰 인스턴스의 파티 영입만 비활성화한다.
+        /// 공유 ActorDefinition/Profile의 일반 몬스터 영입 설정은 유지해야 하는 사이클 보스가 사용한다.
+        /// </summary>
+        public void SuppressRuntimePartyRecruitment()
+        {
+            _recruitableAs = CharacterActorType.None;
+        }
+
         private void ApplyDefinitionData(ActorDefinitionSO definition)
         {
             if (definition == null) return;

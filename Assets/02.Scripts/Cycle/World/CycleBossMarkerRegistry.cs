@@ -10,13 +10,17 @@ namespace UPlayGround.Cycle
         public readonly Vector3 worldPosition;
         public readonly bool discovered;
         public readonly bool isCentral;
+        public readonly string label;
 
-        public CycleBossMarkerData(string spawnId, Vector3 worldPosition, bool discovered, bool isCentral)
+        public CycleBossMarkerData(string spawnId, Vector3 worldPosition, bool discovered, bool isCentral, string displayName)
         {
             this.spawnId = spawnId;
             this.worldPosition = worldPosition;
             this.discovered = discovered;
             this.isCentral = isCentral;
+            label = discovered && !string.IsNullOrWhiteSpace(displayName)
+                ? displayName
+                : "미확인 상대";
         }
     }
 

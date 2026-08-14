@@ -111,6 +111,7 @@ namespace UPlayGround.Manager
             if (player == null || !player.IsAlive()) return false;
             MonsterActor target = FindNearestTarget(player.transform.position, 30f);
             if (definition.requiresTarget && target == null) return false;
+            if (IsSourceBossPresent(definition.sourceBossActorId)) return false;
             if (!TryResolvePosition(definition, player, target, out Vector3 position, out Quaternion rotation)) return false;
 
             _activeModel = definition.assistPrefab != null
@@ -212,6 +213,28 @@ namespace UPlayGround.Manager
                 if (sqr < bestSqr) { bestSqr = sqr; best = monster; }
             }
             return best;
+        }
+
+        /// <summary>
+        /// 현재 대결 상대로 등장한 인물과 동일한 어시스트를 동시에 불러내지 않는다.
+        /// P1의 '빌려준 힘의 흔적' 연출 전까지 적용하는 P0 논리 안전 규칙이다.
+        /// </summary>
+        private static bool IsSourceBossPresent(string sourceBossActorId)
+        {
+            if (string.IsNullOrWhiteSpace(sourceBossActorId)) return false;
+            MonsterActor[] monsters = FindObjectsByType<MonsterActor>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+            foreach (MonsterActor monster in monsters)
+            {
+                if (monster != null
+                    && monster.CanTakeDamage()
+                    && (monster.gameObject.activeInHierarchy
+                        || monster.GetComponent<UPlayGround.Cycle.CycleBossRuntimeHandle>() != null)
+                    && string.Equals(monster.ActorId, sourceBossActorId, StringComparison.Ordinal))
+                    return true;
+            }
+            return false;
         }
 
         private static bool TryResolvePosition(BossAssistDefinitionSO definition, PlayerActor player, MonsterActor target, out Vector3 position, out Quaternion rotation)

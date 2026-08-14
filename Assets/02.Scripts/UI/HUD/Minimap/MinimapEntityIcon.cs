@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using TMPro;
 using UPlayGround.Data.UI;
 
 namespace UPlayGround.UI
@@ -14,6 +15,7 @@ namespace UPlayGround.UI
         private Image         _image;
         private RectTransform _rectTransform;
         private GameActor     _trackedActor;  // 정적 마커는 null
+        private TextMeshProUGUI _displayLabel;
 
         public GameActor TrackedActor  => _trackedActor;
         public bool      IsStaticMarker => _trackedActor == null;
@@ -113,6 +115,41 @@ namespace UPlayGround.UI
             _image.sprite = entry.sprite;
             _image.color  = entry.color;
             _rectTransform.sizeDelta = new Vector2(entry.size, entry.size);
+            PositionDisplayLabel(entry.size);
+        }
+
+        /// <summary>사이클 상대처럼 이름 확인이 필요한 정적 마커에만 표시 문구를 붙인다.</summary>
+        public void SetDisplayLabel(string label)
+        {
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                if (_displayLabel != null)
+                    _displayLabel.gameObject.SetActive(false);
+                return;
+            }
+
+            if (_displayLabel == null)
+            {
+                var labelObject = new GameObject("DisplayLabel");
+                labelObject.transform.SetParent(transform, false);
+                _displayLabel = labelObject.AddComponent<TextMeshProUGUI>();
+                _displayLabel.alignment = TextAlignmentOptions.Center;
+                _displayLabel.fontSize = 14f;
+                _displayLabel.color = Color.white;
+                _displayLabel.raycastTarget = false;
+                _displayLabel.textWrappingMode = TextWrappingModes.NoWrap;
+                _displayLabel.rectTransform.sizeDelta = new Vector2(160f, 24f);
+            }
+
+            _displayLabel.text = label;
+            _displayLabel.gameObject.SetActive(true);
+            PositionDisplayLabel(_rectTransform != null ? _rectTransform.sizeDelta.y : 0f);
+        }
+
+        private void PositionDisplayLabel(float iconSize)
+        {
+            if (_displayLabel != null)
+                _displayLabel.rectTransform.anchoredPosition = new Vector2(0f, iconSize * 0.5f + 12f);
         }
     }
 }

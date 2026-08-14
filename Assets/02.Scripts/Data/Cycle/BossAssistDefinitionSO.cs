@@ -10,6 +10,8 @@ namespace UPlayGround.Data.Cycle
     public sealed class BossAssistDefinitionSO : ScriptableObject
     {
         public string assistId;
+        [Tooltip("플레이어 UI에 표시할 이름. 비어 있으면 assistId를 사용한다.")]
+        public string displayName;
         public string sourceBossActorId;
         public BossAssistRole role;
         public Sprite icon;

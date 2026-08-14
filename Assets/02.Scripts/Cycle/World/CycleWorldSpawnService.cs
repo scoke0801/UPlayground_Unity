@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UPlayGround.Ability.Core;
+using UPlayGround.Data.Actor;
 using UPlayGround.Data.Cycle;
 using UPlayGround.Data.Stat;
 using UPlayGround.Manager;
@@ -237,6 +238,10 @@ namespace UPlayGround.Cycle
             out string error)
         {
             error = null;
+            ActorDefinitionSO definition = ActorSpawnManager.Instance?.Database?.GetDefinition(placement.actorId);
+            placement.displayName = !string.IsNullOrWhiteSpace(definition?.displayName)
+                ? definition.displayName
+                : placement.actorId;
             CycleBossRuntimeHandle[] existing =
                 UnityEngine.Object.FindObjectsByType<CycleBossRuntimeHandle>(
                     FindObjectsInactive.Include,
@@ -268,6 +273,10 @@ namespace UPlayGround.Cycle
                     currentAttack * attackDifficulty / hpDifficulty);
             }
 
+            // 사이클 보스의 관계 보상은 BossAssist 전용이다. 공유 MonsterProfile에 남은
+            // 일반 필드 영입 설정이 이 스폰 인스턴스로 전파되어도 파티 해금은 발생시키지 않는다.
+            monster.SuppressRuntimePartyRecruitment();
+
             float rewardMultiplier = difficulty != null
                 ? Mathf.Max(0f, difficulty.rewardMultiplier)
                 : 1f;
@@ -277,15 +286,16 @@ namespace UPlayGround.Cycle
 
             CycleBossRuntimeHandle handle = monster.gameObject.AddComponent<CycleBossRuntimeHandle>();
             handle.Initialize(monster, placement);
-            // 외곽 수호자는 탐색 선택지를 주기 위해 처음부터 표시한다.
-            // 중앙 평가는 아직 갈 수 없는 목적지를 먼저 찍지 않고, 외곽 3체 완료 시 활성화와 함께 공개한다.
+            // 세 상대는 탐색 선택지를 주기 위해 처음부터 표시한다.
+            // 마지막 상대는 앞선 세 번의 대결이 끝나 장소가 드러날 때 함께 표시한다.
             if (activeOnSpawn || !placement.isCentral)
             {
                 CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
                     placement.spawnId,
                     position,
                     placement.discovered,
-                    placement.isCentral));
+                    placement.isCentral,
+                    placement.displayName));
             }
             _spawnedObjects.Add(monster.gameObject);
             if (!activeOnSpawn)
@@ -314,7 +324,8 @@ namespace UPlayGround.Cycle
                         handle.SpawnId,
                         spawned.transform.position,
                         handle.IsDiscovered,
-                        handle.IsCentral));
+                        handle.IsCentral,
+                        handle.DisplayName));
                 }
 
                 spawned.SetActive(true);

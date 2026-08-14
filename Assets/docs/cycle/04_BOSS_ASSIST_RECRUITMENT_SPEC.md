@@ -2,7 +2,7 @@
 
 > 2026-08-02 현재: 조건부 확정 판정과 누적 처치 저장을 런타임에 반영했다. 기존 `pity` 세이브는 `defeatCounts`로 호환 이관하며 신규 확률 롤은 수행하지 않는다.
 
-> **2026-08-12 메인 스토리 수직 슬라이스 보정:** [CYCLE_STORY_PLOT.md](CYCLE_STORY_PLOT.md)와 [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md)는 첫 회차에 최소 한 명의 Assist 획득을 보장하고, 다음 회차에도 실제 사용 가능하게 할 것을 P0로 요구한다. 현재 빈 `BossAssistDatabase_P0`에는 대표 정의를 최소 하나 등록해야 한다.
+> **2026-08-14 메인 스토리 수직 슬라이스 반영:** [CYCLE_STORY_PLOT.md](CYCLE_STORY_PLOT.md)와 [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md)에 따라 호노카·보쿠세이·히치·릴리 Assist를 `BossAssistDatabase_P0`에 등록했다. 모두 첫 승리 뒤 획득되며 다음 회차와 저장 로드 뒤에도 유지된다. 같은 source actor가 현재 월드에 살아 있으면 해당 Assist 사용을 차단한다.
 
 ## 1. 목표
 

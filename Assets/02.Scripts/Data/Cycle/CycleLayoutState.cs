@@ -43,6 +43,7 @@ namespace UPlayGround.Data.Cycle
     {
         public string spawnId;
         public string actorId;
+        public string displayName;
         public bool isCentral;
         public bool discovered;
         public bool defeated;

@@ -124,7 +124,9 @@ namespace UPlayGround.UI
             }
             if (_pendingText != null)
             {
-                string name = pending != null ? pending.assistId : roster.PendingRecruitAssistId;
+                string name = pending != null && !string.IsNullOrWhiteSpace(pending.displayName)
+                    ? pending.displayName
+                    : "미확인 지원";
                 string role = pending != null ? UIAssistRosterEntry.RoleLabel(pending.role) : "?";
                 _pendingText.text = $"신규 영입 대기: {name} ({role})\n방출할 어시스트를 선택하거나 영입을 포기하세요.";
             }

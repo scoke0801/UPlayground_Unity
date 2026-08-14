@@ -9,6 +9,7 @@ namespace UPlayGround.Cycle
     {
         private MonsterActor _monster;
         private string _spawnId;
+        private string _displayName;
         private bool _isCentral;
         private bool _discovered;
         private PlayerActor _player;
@@ -18,11 +19,13 @@ namespace UPlayGround.Cycle
         public string SpawnId => _spawnId;
         public bool IsCentral => _isCentral;
         public bool IsDiscovered => _discovered;
+        public string DisplayName => _displayName;
 
         public void Initialize(MonsterActor monster, CycleBossPlacement placement, float encounterRadius = 12f)
         {
             _monster = monster;
             _spawnId = placement.spawnId;
+            _displayName = placement.displayName;
             _isCentral = placement.isCentral;
             _discovered = placement.discovered;
             _playerTookDamage = placement.playerTookDamageAfterDiscovery;

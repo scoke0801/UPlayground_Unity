@@ -1,0 +1,227 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ccde3315391dbd47897c34a4aaef462, type: 3}
+  m_Name: FLOW_CycleStoryAnchor
+  m_EditorClassIdentifier:
+  graphId: FLOW_CycleStoryAnchor
+  nodes:
+  - rid: 7900000000000000001
+  - rid: 7900000000000000002
+  - rid: 7900000000000000003
+  - rid: 7900000000000000004
+  - rid: 7900000000000000005
+  - rid: 7900000000000000006
+  - rid: 7900000000000000007
+  - rid: 7900000000000000008
+  - rid: 7900000000000000009
+  - rid: 7900000000000000010
+  - rid: 7900000000000000011
+  - rid: 7900000000000000012
+  - rid: 7900000000000000013
+  - rid: 7900000000000000014
+  - rid: 7900000000000000015
+  - rid: 7900000000000000016
+  connections:
+  - fromNodeId: anchor_entry_new_game
+    fromPort: Out
+    toNodeId: anchor_sync_new_game
+    toPort: In
+  - fromNodeId: anchor_entry_first_request
+    fromPort: Out
+    toNodeId: anchor_sync_first_request
+    toPort: In
+  - fromNodeId: anchor_entry_first_resolved
+    fromPort: Out
+    toNodeId: anchor_sync_first_resolved
+    toPort: In
+  - fromNodeId: anchor_entry_first_return
+    fromPort: Out
+    toNodeId: anchor_sync_first_return
+    toPort: In
+  - fromNodeId: anchor_entry_return_request
+    fromPort: Out
+    toNodeId: anchor_sync_return_request
+    toPort: In
+  - fromNodeId: anchor_entry_return_resolved
+    fromPort: Out
+    toNodeId: anchor_sync_return_resolved
+    toPort: In
+  - fromNodeId: anchor_entry_guide_completed
+    fromPort: Out
+    toNodeId: anchor_sync_guide_completed
+    toPort: In
+  - fromNodeId: anchor_entry_resume
+    fromPort: Out
+    toNodeId: anchor_sync_resume
+    toPort: In
+  editorGroups: []
+  variables: []
+  parameters: []
+  references:
+    version: 2
+    RefIds:
+    - rid: 7900000000000000001
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_new_game
+        editorPosition: {x: 60, y: 40}
+        editorLabel: "첫 생활 퀘스트 준비"
+        editorComment: "첫 원정 전에 반복 앵커 퀘스트를 활성화한다."
+        entryId: new_game_anchor_ready
+        repeatPolicy: 3
+        cooldownSeconds: 1
+    - rid: 7900000000000000002
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_new_game
+        editorPosition: {x: 420, y: 40}
+        editorLabel: "앵커 퀘스트 활성화"
+        editorComment: "미아의 파란 리본 퀘스트를 수락·추적한다."
+        mode: 0
+    - rid: 7900000000000000003
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_first_request
+        editorPosition: {x: 60, y: 180}
+        editorLabel: "첫 부탁 수락"
+        editorComment: "미아의 첫 부탁을 들은 순간 퀘스트 목표를 갱신한다."
+        entryId: first_request_started
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: cycle.anchor.first_request_started
+        requiredValue: 1
+    - rid: 7900000000000000004
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_first_request
+        editorPosition: {x: 420, y: 180}
+        editorLabel: "첫 부탁 목표 반영"
+        editorComment: "부탁을 들었다는 StoryEvent를 퀘스트에 반영한다."
+        mode: 1
+    - rid: 7900000000000000005
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_first_resolved
+        editorPosition: {x: 60, y: 320}
+        editorLabel: "첫 분실물 해결"
+        editorComment: "영구 기억 플래그가 켜지면 첫 원정 시작 제한을 해제한다."
+        entryId: first_anchor_resolved
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: cycle.anchor.lostitem_resolved_once
+        requiredValue: 1
+    - rid: 7900000000000000006
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_first_resolved
+        editorPosition: {x: 420, y: 320}
+        editorLabel: "첫 원정 시작"
+        editorComment: "앵커 퀘스트 완료 후 메인 001을 수락하고 보류된 원정을 시작한다."
+        mode: 2
+    - rid: 7900000000000000007
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_first_return
+        editorPosition: {x: 60, y: 460}
+        editorLabel: "첫 귀환 시작"
+        editorComment: "첫 귀환 도착을 003에 반영하고 반복 앵커를 다시 활성화한다."
+        entryId: first_return_started
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: cycle.story.first_return_started
+        requiredValue: 1
+    - rid: 7900000000000000008
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_first_return
+        editorPosition: {x: 420, y: 460}
+        editorLabel: "반복 앵커 재개"
+        editorComment: "귀환 목표를 완료하고 미아의 부탁을 다시 받을 수 있게 한다."
+        mode: 3
+    - rid: 7900000000000000009
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_return_request
+        editorPosition: {x: 60, y: 600}
+        editorLabel: "반복 부탁 확인"
+        editorComment: "기억 선택 또는 일반 질문으로 부탁을 확인한 상태를 반영한다."
+        entryId: first_return_request_heard
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: cycle.anchor.first_return_request_heard
+        requiredValue: 1
+    - rid: 7900000000000000010
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_return_request
+        editorPosition: {x: 420, y: 600}
+        editorLabel: "반복 부탁 목표 반영"
+        editorComment: "반복 퀘스트의 부탁 목표를 갱신한다."
+        mode: 4
+    - rid: 7900000000000000011
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_return_resolved
+        editorPosition: {x: 60, y: 740}
+        editorLabel: "반복 분실물 해결"
+        editorComment: "선회수·기억 선택·일반 해결 분기를 하나의 003 목표로 합친다."
+        entryId: first_return_anchor_resolved
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: cycle.anchor.first_return_anchor_completed
+        requiredValue: 1
+    - rid: 7900000000000000012
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_return_resolved
+        editorPosition: {x: 420, y: 740}
+        editorLabel: "003 앵커 목표 완료"
+        editorComment: "분실물 반환을 003에 반영하고 안내인 대화를 남긴다."
+        mode: 5
+    - rid: 7900000000000000013
+      type: {class: OnFlagChangedEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_guide_completed
+        editorPosition: {x: 60, y: 880}
+        editorLabel: "안내인 관찰 대화 완료"
+        editorComment: "Show 장면 뒤 안내인이 반복을 확인하면 SP30과 003을 완료한다."
+        entryId: first_return_guide_completed
+        repeatPolicy: 3
+        cooldownSeconds: 1
+        flagKey: cycle.anchor.first_return_guide_completed
+        requiredValue: 1
+    - rid: 7900000000000000014
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_guide_completed
+        editorPosition: {x: 420, y: 880}
+        editorLabel: "SP30·003 완료"
+        editorComment: "반복 인지 장면이 모두 끝난 뒤에만 SP30을 발화한다."
+        mode: 6
+    - rid: 7900000000000000015
+      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_entry_resume
+        editorPosition: {x: 60, y: 1020}
+        editorLabel: "저장 복구"
+        editorComment: "현재 영구 플래그를 기준으로 앵커와 메인 퀘스트 상태를 멱등 복구한다."
+        entryId: resume
+        repeatPolicy: 3
+        cooldownSeconds: 1
+    - rid: 7900000000000000016
+      type: {class: CycleStoryAnchorSyncNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
+      data:
+        id: anchor_sync_resume
+        editorPosition: {x: 420, y: 1020}
+        editorLabel: "진행 상태 동기화"
+        editorComment: "로드·씬 진입 때 현재 단계만 재적용한다."
+        mode: 7

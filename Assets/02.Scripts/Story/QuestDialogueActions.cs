@@ -72,4 +72,15 @@ namespace UPlayGround.Dialogue
             QuestManager.Instance?.NotifyLocationReached(_locationId);
         }
     }
+
+    [CreateAssetMenu(menuName = "UPlayGround/대화/액션/Notify Story Event", fileName = "Action_Quest_NotifyStoryEvent_")]
+    public sealed class NotifyQuestStoryEventDialogueActionSO : DialogueActionSO
+    {
+        [SerializeField] private string _eventId;
+
+        public override void Execute()
+        {
+            QuestManager.Instance?.NotifyStoryEvent(_eventId);
+        }
+    }
 }

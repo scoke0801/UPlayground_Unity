@@ -20,6 +20,7 @@ namespace UPlayGround.Data.Quest
     ///   ItemEnhance  → QuestManager.Instance.NotifyItemEnhanced(itemId)
     ///   ReachLocation→ QuestManager.Instance.NotifyLocationReached(locationId)
     ///   CycleOuterBoss → QuestManager.Instance.NotifyCycleOuterBossProgress(defeatedCount)
+    ///   StoryEvent   → QuestManager.Instance.NotifyStoryEvent(eventId)
     /// </summary>
     [CreateAssetMenu(fileName = "QuestSO", menuName = "UPlayGround/퀘스트/Quest")]
     public class QuestSO : ScriptableObject

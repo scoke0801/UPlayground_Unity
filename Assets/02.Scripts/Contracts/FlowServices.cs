@@ -66,6 +66,8 @@ namespace UPlayGround.Manager
         bool AcceptQuest(string questId);
         bool CompleteQuest(string questId);
         bool FailQuest(string questId);
+        bool TrackQuest(string questId);
+        void NotifyStoryEvent(string eventId);
         QuestStatus GetQuestStatus(string questId);
     }
 

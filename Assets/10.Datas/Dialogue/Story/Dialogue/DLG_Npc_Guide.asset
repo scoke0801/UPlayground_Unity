@@ -10,10 +10,52 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
-  m_Name: Cond_FirstSettlementCompleted
+  m_Name: Cond_FirstReturnAnchorCompleted
   m_EditorClassIdentifier:
-  flagKey: cycle.story.first_settlement_completed
+  flagKey: cycle.anchor.first_return_anchor_completed
   expectedValue: 1
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstReturnGuideCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_return_guide_completed
+  expectedValue: 1
+--- !u!114 &11400005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_FirstReturnGuideCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_return_guide_completed
+  value: 1
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_NextRouteUnlocked
+  m_EditorClassIdentifier:
+  flagKey: cycle.story.next_route_unlocked
+  value: 1
 --- !u!114 &11400002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -119,13 +161,41 @@ MonoBehaviour:
   typingSpeed: 0.04
   autoAdvanceDuration: 0
   nextNodeId:
-  trueNextNodeId: guide_secret_1
+  trueNextNodeId: guide_cond_return_observed
   falseNextNodeId: guide_welcome_1
   choices: []
   condition: {fileID: 11400001}
   eventActions: []
   cameraRecording: {fileID: 0}
   editorPosition: {x: 320, y: 300}
+--- !u!114 &11400103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Condition_ReturnObserved
+  m_EditorClassIdentifier:
+  nodeId: guide_cond_return_observed
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: guide_returned_1
+  falseNextNodeId: guide_secret_1
+  choices: []
+  condition: {fileID: 11400004}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 580, y: 300}
 --- !u!114 &11400110
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -142,7 +212,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "지금 할 일은 지도에 표시돼. 수호자부터 찾아가."
+  dialogueText: "지도에 낯선 이름 셋이 떠 있지? 찾아갈 순서는 네가 정해."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -169,8 +239,8 @@ MonoBehaviour:
   nodeId: guide_welcome_2
   nodeType: 0
   channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "수호자 세 명을 쓰러뜨리면 최후의 수호자가 나타나고, 그 수호자까지 쓰러뜨리면 귀환 포털이 열려."
+  speakerId: Protagonist
+  dialogueText: "세 사람과 만나 대결에서 이기면 되는 거지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -198,7 +268,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "맞아. 그리고 작전 이야기는 돌아올 때까지 아껴 둬. 그게 이 마을의 오래된 규칙이야."
+  dialogueText: "응. 세 번의 대결이 끝나면 지금은 보이지 않는 길이 드러날 거야. 그 끝에서 돌아오는 길도 찾을 수 있을 거고."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -226,7 +296,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "쉿. 이번 지도에서 달라진 수호자 위치는 우리끼리만 확인해. 밖에서 말하면 다음 원정에 바로 써먹을 테니까."
+  dialogueText: "너, 미아가 말을 꺼내기도 전에 물건이 있는 곳으로 갔지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -253,8 +323,8 @@ MonoBehaviour:
   nodeId: guide_secret_2
   nodeType: 0
   channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "밖에서는 공식 안내만, 작전은 여기서만. 이제 알겠어."
+  speakerId: Protagonist
+  dialogueText: "전에 한 번 찾아봤으니까. 그런데 미아는 처음 겪는 일처럼 말했어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -282,7 +352,35 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "정답. 정해 둔 순서보다 지도에 표시된 수호자 위치를 믿어. 무사히 돌아오면 기록은 내가 맞춰 볼게."
+  dialogueText: "역시 너도 기억하는구나. 이곳은 끝까지 가면 처음으로 되돌아와. 그래도 겁먹을 필요 없어. 네가 익힌 것과 맺은 인연은 남으니까."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_return_observed_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1180, y: 260}
+--- !u!114 &11400123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Returned_1
+  m_EditorClassIdentifier:
+  nodeId: guide_returned_1
+  nodeType: 0
+  channel: 0
+  speakerId: "안내인"
+  dialogueText: "되돌아와도 네가 아는 것까지 사라지진 않아. 이번 지도는 전과 조금 다를 테니 천천히 살펴봐."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -293,7 +391,36 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions: []
   cameraRecording: {fileID: 0}
-  editorPosition: {x: 1180, y: 260}
+  editorPosition: {x: 900, y: 360}
+--- !u!114 &11400124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnObservedEvent
+  m_EditorClassIdentifier:
+  nodeId: guide_return_observed_event
+  nodeType: 3
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: guide_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400005}
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1440, y: 260}
 --- !u!114 &11400130
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310,7 +437,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "바깥길은 계속 열려 있어. 시련장도 이제 통과자를 막는 대신 다음 탐험대를 훈련하고 있고."
+  dialogueText: "어서 와, 여기는 시작의 마을—— 아니네. 이제는 출발의 마을이라고 해야겠어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -338,7 +465,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "그럼 돌아올 이유도, 다시 나갈 이유도 충분하네."
+  dialogueText: "길이 그대로 남은 건 아니야. 네가 그 길을 다시 만드는 방법을 기억한 거지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -365,8 +492,8 @@ MonoBehaviour:
   nodeId: guide_final_3
   nodeType: 0
   channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "응. 출발의 마을 안내는 이제부터가 진짜니까."
+  speakerId: Protagonist
+  dialogueText: "그럼 다음에는 어디로 갈지 내가 고를 수 있겠네."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -375,7 +502,8 @@ MonoBehaviour:
   falseNextNodeId: 
   choices: []
   condition: {fileID: 0}
-  eventActions: []
+  eventActions:
+  - {fileID: 11400006}
   cameraRecording: {fileID: 0}
   editorPosition: {x: 900, y: 40}
 --- !u!114 &11400140
@@ -394,7 +522,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "마지막 원정도 수호자 세 명부터야. 이번 배치는 네 판단대로 풀어."
+  dialogueText: "이번에도 지도는 달라졌지만, 네가 이어 둔 관계는 남아 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -421,8 +549,8 @@ MonoBehaviour:
   nodeId: guide_second_2
   nodeType: 0
   channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "최후의 수호자까지 쓰러뜨리고 모두와 돌아올게."
+  speakerId: Protagonist
+  dialogueText: "이번에는 돌아오는 흐름을 다른 쪽으로 이끌어 볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -450,7 +578,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "그게 바깥길을 여는 마지막 답이야."
+  dialogueText: "좋아. 우연히 열리길 기다리지 말고, 우리가 아는 방법으로 다시 만들어 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -509,12 +637,15 @@ MonoBehaviour:
   - {fileID: 11400100}
   - {fileID: 11400102}
   - {fileID: 11400101}
+  - {fileID: 11400103}
   - {fileID: 11400110}
   - {fileID: 11400111}
   - {fileID: 11400112}
   - {fileID: 11400120}
   - {fileID: 11400121}
   - {fileID: 11400122}
+  - {fileID: 11400123}
+  - {fileID: 11400124}
   - {fileID: 11400130}
   - {fileID: 11400131}
   - {fileID: 11400132}

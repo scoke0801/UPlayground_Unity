@@ -2,6 +2,8 @@ using System;
 using System.Security.Cryptography;
 using UnityEngine;
 using UPlayGround.Data.Cycle;
+using UPlayGround.Data.Event;
+using UPlayGround.Data.Quest;
 using UPlayGround.Data.Save;
 using UPlayGround.Cycle;
 
@@ -23,16 +25,25 @@ namespace UPlayGround.Manager
         private const int MaxCycleIndex = 3;
         private const int StoryProgressOuterTrialsCleared = 10;
         private const int StoryProgressCentralEvaluationCleared = 20;
-        private const int StoryProgressFirstSettlementCompleted = 30;
         private const int StoryProgressSecondSettlementCompleted = 40;
         private const int StoryProgressFinalEvaluationCompleted = 50;
         private const string CycleQuestLineGraphId = "FLOW_CycleQuestLine";
+        private const string CycleStoryAnchorGraphId = "FLOW_CycleStoryAnchor";
+        private const string NewGameAnchorReadyEntryId = "new_game_anchor_ready";
+        private const string ResumeStoryAnchorEntryId = "resume";
+        private const string FirstReturnStartedEntryId = "first_return_started";
         private const string OuterTrialsClearedEntryId = "outer_trials_cleared";
         private const string CentralEvaluationClearedEntryId = "central_evaluation_cleared";
-        private const string FirstSettlementCompletedEntryId = "first_settlement_completed";
         private const string SecondSettlementCompletedEntryId = "second_settlement_completed";
         private const string FinalEvaluationCompletedEntryId = "final_evaluation_completed";
-        private const string FirstSettlementStoryFlag = "cycle.story.first_settlement_completed";
+        private const string LostItemResolvedOnceFlag = "cycle.anchor.lostitem_resolved_once";
+        private const string FirstReturnStartedFlag = "cycle.story.first_return_started";
+        private const string FirstReturnAnchorCompletedFlag = "cycle.anchor.first_return_anchor_completed";
+        private const string FirstReturnGuideCompletedFlag = "cycle.anchor.first_return_guide_completed";
+        private const string NextRouteUnlockedFlag = "cycle.story.next_route_unlocked";
+        private const string FirstReturnArrivedEventId = "cycle.story.first_return_arrived";
+        private const string MainQuestFirstCycleId = "quest_main_001";
+        private const string MainQuestFirstReturnId = "quest_main_003";
         private const string SecondSettlementStoryFlag = "cycle.story.second_settlement_completed";
         private const string FinalEvaluationStoryFlag = "cycle.story.final_evaluation_completed";
 
@@ -47,6 +58,10 @@ namespace UPlayGround.Manager
         private bool _startRequestedForNextWorld;
         private int? _requestedStartSeed;
         private string _configuredWorldMapId;
+        private IDisposable _firstAnchorGateSubscription;
+        private IGlobalFlagService _boundFlags;
+        private int _persistentStorySaveNotBeforeFrame = -1;
+        private bool _warnedMissingAnchorGraph;
 
         /// <summary>외부에서 수정할 수 없도록 복사본을 반환한다.</summary>
         public CycleRunState Current => _current.Clone();
@@ -79,10 +94,15 @@ namespace UPlayGround.Manager
 
             SaveManager.Instance.RegisterSaveable(this);
             _settlementService = new CycleSettlementService(this);
+            _firstAnchorGateSubscription = EventManager.Instance?.Subscribe(
+                CycleStoryEvent.FirstAnchorGateCompleted,
+                TryStartRequestedCycle,
+                EventSubscriptionScope.Global);
         }
 
         public void AfterInit()
         {
+            BindPersistentStoryFlags();
             ApplyExitPortalState();
         }
 
@@ -91,6 +111,12 @@ namespace UPlayGround.Manager
             _worldSpawnService?.CleanupRunObjects();
             _worldSpawnService = null;
             _settlementService = null;
+            _firstAnchorGateSubscription?.Dispose();
+            _firstAnchorGateSubscription = null;
+            if (_boundFlags != null)
+                _boundFlags.OnFlagChanged -= OnPersistentStoryFlagChanged;
+            _boundFlags = null;
+            _persistentStorySaveNotBeforeFrame = -1;
 
             if (_ownsRuntimeConfig && _config != null)
                 Destroy(_config);
@@ -100,6 +126,7 @@ namespace UPlayGround.Manager
             _startRequestedForNextWorld = false;
             _requestedStartSeed = null;
             _configuredWorldMapId = null;
+            _warnedMissingAnchorGraph = false;
             OnPhaseChanged = null;
             OnCycleStarted = null;
             OnCycleCompleted = null;
@@ -110,6 +137,15 @@ namespace UPlayGround.Manager
 
         public void OnUpdate()
         {
+            // 대화 액션에서 플래그가 바뀐 프레임의 FlowGraph/퀘스트 처리가 모두 끝난 뒤 저장한다.
+            // 즉시 저장하면 구독자 호출 순서에 따라 플래그만 저장되고 SP/퀘스트 완료가 빠질 수 있다.
+            if (_persistentStorySaveNotBeforeFrame >= 0
+                && Time.frameCount >= _persistentStorySaveNotBeforeFrame)
+            {
+                _persistentStorySaveNotBeforeFrame = -1;
+                RequestImmediateSave();
+            }
+
             // unscaled 기반이라 히트스톱/슬로모에는 영향받지 않되,
             // 메뉴 등 명시적 일시정지(GameTimeManager.SetPause) 중에는 런 타이머를 멈춘다.
             if (GameTimeManager.Instance != null && GameTimeManager.Instance.IsPaused) return;
@@ -151,6 +187,46 @@ namespace UPlayGround.Manager
             // CycleWorldContext.Start와 SceneContext 준비 통지의 실행 순서는 보장되지 않는다.
             // 여기와 OnSceneChanged 양쪽에서 시도해 두 조건이 모두 갖춰진 시점에 정확히 한 번 시작한다.
             TryStartRequestedCycle();
+        }
+
+        /// <summary>SceneContext가 지역 FlowGraph를 모두 무장한 뒤 호출한다.</summary>
+        public void NotifyStoryFlowReady()
+        {
+            MigrateLegacyFirstReturnState();
+
+            IFlowGraphService flow = Svc.FlowGraph;
+            if (flow != null && flow.IsGraphRegistered(CycleStoryAnchorGraphId))
+                flow.StartGraph(CycleStoryAnchorGraphId, ResumeStoryAnchorEntryId);
+
+            TryStartRequestedCycle();
+        }
+
+        /// <summary>
+        /// 구버전은 첫 정산에서 main003의 단일 목표만 진행했고 first_return_started 플래그가 없었다.
+        /// 완료 이력이 있는데 main003이 아직 활성이라면 새 첫 귀환 앵커의 도착 단계로 한 번만 옮긴다.
+        /// 플래그 자체가 마이그레이션 완료 마커이므로 이후 로드에서는 반복되지 않는다.
+        /// </summary>
+        private void MigrateLegacyFirstReturnState()
+        {
+            if (_history == null || _history.completedCycleCount < 1)
+                return;
+
+            IGlobalFlagService flags = Svc.Flags;
+            IQuestFlowService quest = Svc.QuestFlow;
+            if (flags == null
+                || quest == null
+                || flags.GetFlag(FirstReturnStartedFlag)
+                || quest.GetQuestStatus(MainQuestFirstReturnId) != QuestStatus.Active)
+            {
+                return;
+            }
+
+            flags.SetFlag(FirstReturnStartedFlag, true);
+            quest.NotifyStoryEvent(FirstReturnArrivedEventId);
+            _persistentStorySaveNotBeforeFrame = Mathf.Max(
+                _persistentStorySaveNotBeforeFrame,
+                Time.frameCount + 1);
+            Debug.Log("[CycleRunManager] 구버전 첫 정산 세이브를 첫 귀환 앵커 시작 상태로 보정했습니다.");
         }
 
         /// <summary>06 정산 구현이 준비된 뒤 등록한다.</summary>
@@ -335,7 +411,7 @@ namespace UPlayGround.Manager
             if (CycleBossMarkerRegistry.TryGet(spawnId, out CycleBossMarkerData marker))
             {
                 CycleBossMarkerRegistry.Register(new CycleBossMarkerData(
-                    marker.spawnId, marker.worldPosition, true, marker.isCentral));
+                    marker.spawnId, marker.worldPosition, true, marker.isCentral, placement.displayName));
             }
             OnBossDiscovered?.Invoke(placement.Clone());
             RequestImmediateSave();
@@ -519,6 +595,8 @@ namespace UPlayGround.Manager
             _current = CycleRunState.CreateInactive();
             _startRequestedForNextWorld = false;
             _requestedStartSeed = null;
+            _persistentStorySaveNotBeforeFrame = -1;
+            _warnedMissingAnchorGraph = false;
             ApplyExitPortalState();
             RaisePhaseChanged();
         }
@@ -536,13 +614,51 @@ namespace UPlayGround.Manager
                 return;
             }
 
+            if (_history.completedCycleCount == 0 && Svc.Flags?.GetFlag(LostItemResolvedOnceFlag) != true)
+            {
+                IFlowGraphService flow = Svc.FlowGraph;
+                if (flow != null && flow.IsGraphRegistered(CycleStoryAnchorGraphId))
+                {
+                    _warnedMissingAnchorGraph = false;
+                    flow.StartGraph(CycleStoryAnchorGraphId, NewGameAnchorReadyEntryId);
+                }
+                else if (!_warnedMissingAnchorGraph)
+                {
+                    _warnedMissingAnchorGraph = true;
+                    Debug.LogWarning("[CycleRunManager] 첫 생활 퀘스트 FlowGraph가 준비될 때까지 사이클 시작을 보류합니다.");
+                }
+                return;
+            }
+
+            if (_history.completedCycleCount == 0)
+            {
+                IQuestFlowService quest = Svc.QuestFlow;
+                if (quest == null)
+                    return;
+
+                QuestStatus status = quest.GetQuestStatus(MainQuestFirstCycleId);
+                if (status is not (QuestStatus.Active or QuestStatus.Completed))
+                {
+                    if (!quest.AcceptQuest(MainQuestFirstCycleId))
+                        return;
+                    status = quest.GetQuestStatus(MainQuestFirstCycleId);
+                }
+
+                if (status == QuestStatus.Active)
+                    quest.TrackQuest(MainQuestFirstCycleId);
+            }
+
             int? seed = _requestedStartSeed;
-            _startRequestedForNextWorld = false;
-            _requestedStartSeed = null;
             if (!StartNewCycle(seed))
+            {
                 Debug.LogError($"[CycleRunManager] 새 게임의 사이클 자동 시작에 실패했습니다: mapId={currentMapId}");
+            }
             else
+            {
+                _startRequestedForNextWorld = false;
+                _requestedStartSeed = null;
                 Debug.Log($"[CycleRunManager] 새 게임 사이클 자동 시작 완료: mapId={currentMapId}, cycle={_current.cycleIndex}, seed={_current.seed}");
+            }
         }
 
         private void SetPhase(CycleRunPhase phase)
@@ -606,8 +722,17 @@ namespace UPlayGround.Manager
         {
             AdvanceCycleStoryProgress(StoryProgressOuterTrialsCleared);
             AdvanceCycleStoryProgress(StoryProgressCentralEvaluationCleared);
-            AdvanceCycleStoryProgress(StoryProgressFirstSettlementCompleted);
-            Svc.Flags?.SetFlag(FirstSettlementStoryFlag, true);
+
+            if (completedCycleCount == 1)
+            {
+                Svc.Flags?.SetFlag(FirstReturnStartedFlag, true);
+                Svc.QuestFlow?.NotifyStoryEvent(FirstReturnArrivedEventId);
+
+                IFlowGraphService flow = Svc.FlowGraph;
+                if (flow != null && flow.IsGraphRegistered(CycleStoryAnchorGraphId))
+                    flow.StartGraph(CycleStoryAnchorGraphId, FirstReturnStartedEntryId);
+                return;
+            }
 
             if (completedCycleCount >= 2)
             {
@@ -628,7 +753,6 @@ namespace UPlayGround.Manager
             {
                 StoryProgressOuterTrialsCleared => OuterTrialsClearedEntryId,
                 StoryProgressCentralEvaluationCleared => CentralEvaluationClearedEntryId,
-                StoryProgressFirstSettlementCompleted => FirstSettlementCompletedEntryId,
                 StoryProgressSecondSettlementCompleted => SecondSettlementCompletedEntryId,
                 StoryProgressFinalEvaluationCompleted => FinalEvaluationCompletedEntryId,
                 _ => null,
@@ -645,6 +769,35 @@ namespace UPlayGround.Manager
 
             // 테스트·비사이클 맵처럼 그래프가 적용되지 않은 환경에서도 기존 진행 경로를 보존한다.
             Svc.StoryFlow?.SetProgress(progress);
+        }
+
+        private void BindPersistentStoryFlags()
+        {
+            IGlobalFlagService flags = Svc.Flags;
+            if (ReferenceEquals(_boundFlags, flags))
+                return;
+
+            if (_boundFlags != null)
+                _boundFlags.OnFlagChanged -= OnPersistentStoryFlagChanged;
+
+            _boundFlags = flags;
+            if (_boundFlags != null)
+                _boundFlags.OnFlagChanged += OnPersistentStoryFlagChanged;
+        }
+
+        private void OnPersistentStoryFlagChanged(string key, bool value)
+        {
+            if (!value)
+                return;
+
+            if (string.Equals(key, FirstReturnAnchorCompletedFlag, StringComparison.Ordinal)
+                || string.Equals(key, FirstReturnGuideCompletedFlag, StringComparison.Ordinal)
+                || string.Equals(key, NextRouteUnlockedFlag, StringComparison.Ordinal))
+            {
+                _persistentStorySaveNotBeforeFrame = Mathf.Max(
+                    _persistentStorySaveNotBeforeFrame,
+                    Time.frameCount + 1);
+            }
         }
 
         private void RequestImmediateSave()

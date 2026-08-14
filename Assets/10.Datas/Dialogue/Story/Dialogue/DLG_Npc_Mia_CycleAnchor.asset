@@ -1,0 +1,942 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstReturnStarted
+  m_EditorClassIdentifier:
+  flagKey: cycle.story.first_return_started
+  expectedValue: 1
+--- !u!114 &11400002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_ResolvedOnce
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.lostitem_resolved_once
+  expectedValue: 1
+--- !u!114 &11400003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstRequestStarted
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_request_started
+  expectedValue: 1
+--- !u!114 &11400004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstReturnAnchorCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_return_anchor_completed
+  expectedValue: 1
+--- !u!114 &11400005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d56ea1eacfce5564cba3b53c24a5b1e0, type: 3}
+  m_Name: Cond_FirstReturnRequestHeard
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_return_request_heard
+  expectedValue: 1
+--- !u!114 &11400006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7230d833de364c6bbcc2afdeac3ee613, type: 3}
+  m_Name: Cond_HasBlueRibbon
+  m_EditorClassIdentifier:
+  _itemId: 250101
+  _requiredCount: 1
+  _expectedHasEnough: 1
+--- !u!114 &11400011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_FirstRequestStarted
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_request_started
+  value: 1
+--- !u!114 &11400012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_ResolvedOnce
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.lostitem_resolved_once
+  value: 1
+--- !u!114 &11400013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_FirstReturnRequestHeard
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_return_request_heard
+  value: 1
+--- !u!114 &11400014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7007b9bba73ce4ea35e800c938bf67, type: 3}
+  m_Name: Action_FirstReturnAnchorCompleted
+  m_EditorClassIdentifier:
+  flagKey: cycle.anchor.first_return_anchor_completed
+  value: 1
+--- !u!114 &11400015
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94bcbed2dc994e9ab845d67751276eae, type: 3}
+  m_Name: Action_DeliverBlueRibbon
+  m_EditorClassIdentifier:
+  _npcId: 210101
+  _itemId: 250101
+--- !u!114 &11400100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_Start
+  m_EditorClassIdentifier:
+  nodeId: mia_start
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_return_anchor_done
+  falseNextNodeId: mia_initial_resolved
+  choices: []
+  condition: {fileID: 11400001}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 40, y: 260}
+--- !u!114 &11400101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialResolved
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_resolved
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_between_cycles
+  falseNextNodeId: mia_initial_requested
+  choices: []
+  condition: {fileID: 11400002}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 280, y: 500}
+--- !u!114 &11400102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialRequested
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_requested
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_initial_has_item
+  falseNextNodeId: mia_initial_request_1
+  choices: []
+  condition: {fileID: 11400003}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 520, y: 620}
+--- !u!114 &11400103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialHasItem
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_has_item
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_initial_return
+  falseNextNodeId: mia_initial_wait
+  choices: []
+  condition: {fileID: 11400006}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 780, y: 620}
+--- !u!114 &11400110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialRequest1
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_request_1
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "혹시 잠깐만 도와줄래? 파란 리본을 잃어버렸어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_initial_request_2
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 780, y: 820}
+--- !u!114 &11400111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialRequest2
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_request_2
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "마지막으로 본 곳부터 찾아볼게."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_initial_request_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1040, y: 820}
+--- !u!114 &11400112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialRequestEvent
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_request_event
+  nodeType: 3
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400011}
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1300, y: 820}
+--- !u!114 &11400113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialWait
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_wait
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "나무 울타리 근처를 지나왔어. 풀숲에 떨어졌을지도 몰라."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1040, y: 600}
+--- !u!114 &11400114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialReturn
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_return
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "내 리본 맞아! 이렇게 빨리 찾을 줄 몰랐어. 고마워."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_initial_resolve_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1040, y: 500}
+--- !u!114 &11400115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialResolveEvent
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_resolve_event
+  nodeType: 3
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400015}
+  - {fileID: 11400012}
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1300, y: 500}
+--- !u!114 &11400116
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_BetweenCycles
+  m_EditorClassIdentifier:
+  nodeId: mia_between_cycles
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "이번에는 리본을 단단히 묶어 뒀어. 네 덕분이야."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 520, y: 400}
+--- !u!114 &11400200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnAnchorDone
+  m_EditorClassIdentifier:
+  nodeId: mia_return_anchor_done
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_return_after
+  falseNextNodeId: mia_return_has_item
+  choices: []
+  condition: {fileID: 11400004}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 280, y: 80}
+--- !u!114 &11400201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnHasItem
+  m_EditorClassIdentifier:
+  nodeId: mia_return_has_item
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_return_has_item_heard
+  falseNextNodeId: mia_return_no_item_heard
+  choices: []
+  condition: {fileID: 11400006}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 520, y: 80}
+--- !u!114 &11400202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnHasItemHeard
+  m_EditorClassIdentifier:
+  nodeId: mia_return_has_item_heard
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_return_normal
+  falseNextNodeId: mia_return_ahead_1
+  choices: []
+  condition: {fileID: 11400005}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 760, y: 20}
+--- !u!114 &11400203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnNoItemHeard
+  m_EditorClassIdentifier:
+  nodeId: mia_return_no_item_heard
+  nodeType: 2
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId: mia_return_wait
+  falseNextNodeId: mia_return_choice
+  choices: []
+  condition: {fileID: 11400005}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 760, y: 200}
+--- !u!114 &11400210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnAhead1
+  m_EditorClassIdentifier:
+  nodeId: mia_return_ahead_1
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "잠깐, 내가 뭘 잃어버렸는지 아직 말도 안 했는데?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_return_ahead_2
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1020, y: -80}
+--- !u!114 &11400211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnAhead2
+  m_EditorClassIdentifier:
+  nodeId: mia_return_ahead_2
+  nodeType: 0
+  channel: 0
+  speakerId: Protagonist
+  dialogueText: "나무 울타리 옆에 있을 것 같았어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_return_complete_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1280, y: -80}
+--- !u!114 &11400212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnNormal
+  m_EditorClassIdentifier:
+  nodeId: mia_return_normal
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "정말 울타리 옆에 있었네. 어쩐지 이 장면, 전에도 있었던 것 같아."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_return_complete_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1020, y: 20}
+--- !u!114 &11400213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnChoice
+  m_EditorClassIdentifier:
+  nodeId: mia_return_choice
+  nodeType: 1
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "어라? 분명 여기 있었는데…"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
+  choices:
+  - choiceText: "[기억] 나무 울타리 옆을 먼저 볼게."
+    nextNodeId: mia_return_memory_reply
+    displayCondition: {fileID: 0}
+    isGreyedOut: 0
+  - choiceText: "무엇을 잃어버렸는데?"
+    nextNodeId: mia_return_plain_reply
+    displayCondition: {fileID: 0}
+    isGreyedOut: 0
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1020, y: 240}
+--- !u!114 &11400214
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnMemoryReply
+  m_EditorClassIdentifier:
+  nodeId: mia_return_memory_reply
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "거긴 아직 말하지도 않았는데… 그래도 부탁할게. 파란 리본이야."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_return_request_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1280, y: 180}
+--- !u!114 &11400215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnPlainReply
+  m_EditorClassIdentifier:
+  nodeId: mia_return_plain_reply
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "파란 리본이야. 나무 울타리 근처에서 떨어뜨린 것 같아."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_return_request_event
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1280, y: 300}
+--- !u!114 &11400216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnRequestEvent
+  m_EditorClassIdentifier:
+  nodeId: mia_return_request_event
+  nodeType: 3
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400013}
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1540, y: 240}
+--- !u!114 &11400217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnWait
+  m_EditorClassIdentifier:
+  nodeId: mia_return_wait
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "이상하지? 꼭 같은 데서 잃어버린 기분이 들어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1020, y: 120}
+--- !u!114 &11400218
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnCompleteEvent
+  m_EditorClassIdentifier:
+  nodeId: mia_return_complete_event
+  nodeType: 3
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions:
+  - {fileID: 11400013}
+  - {fileID: 11400015}
+  - {fileID: 11400014}
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1540, y: 20}
+--- !u!114 &11400219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_ReturnAfter
+  m_EditorClassIdentifier:
+  nodeId: mia_return_after
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "이번에는 정말 단단히 묶어 둘게. 그런데 왜 처음부터 알고 있었어?"
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_end
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 520, y: -120}
+--- !u!114 &11400999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_End
+  m_EditorClassIdentifier:
+  nodeId: mia_end
+  nodeType: 4
+  channel: 0
+  speakerId:
+  dialogueText:
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId:
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1800, y: 260}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e98552db7e39234db1344a982e27f02, type: 3}
+  m_Name: DLG_Npc_Mia_CycleAnchor
+  m_EditorClassIdentifier:
+  graphId: dlg_npc_mia_cycle_anchor
+  graphName: "미아의 파란 리본"
+  startNodeId: mia_start
+  nodes:
+  - {fileID: 11400100}
+  - {fileID: 11400101}
+  - {fileID: 11400102}
+  - {fileID: 11400103}
+  - {fileID: 11400110}
+  - {fileID: 11400111}
+  - {fileID: 11400112}
+  - {fileID: 11400113}
+  - {fileID: 11400114}
+  - {fileID: 11400115}
+  - {fileID: 11400116}
+  - {fileID: 11400200}
+  - {fileID: 11400201}
+  - {fileID: 11400202}
+  - {fileID: 11400203}
+  - {fileID: 11400210}
+  - {fileID: 11400211}
+  - {fileID: 11400212}
+  - {fileID: 11400213}
+  - {fileID: 11400214}
+  - {fileID: 11400215}
+  - {fileID: 11400216}
+  - {fileID: 11400217}
+  - {fileID: 11400218}
+  - {fileID: 11400219}
+  - {fileID: 11400999}

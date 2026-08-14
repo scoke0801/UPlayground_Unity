@@ -28,6 +28,13 @@ namespace UPlayGround.Components
             _spawnPosition = transform.position;
         }
 
+        /// <summary>지역 스토리에서 기존 NPC를 고정 배치로 재사용할 때 호출한다.</summary>
+        public void ConfigureStationary(Vector3 position)
+        {
+            _enableWander = false;
+            _spawnPosition = position;
+        }
+
         public Vector3 GetRandomWanderPoint()
         {
             Vector2 circle = Random.insideUnitCircle * _patrolRadius;

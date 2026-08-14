@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_main_003
   m_EditorClassIdentifier: 
   questId: quest_main_003
-  questName: "귀환 포털"
+  questName: "귀환"
   questType: 0
-  shortSummary: "새로 열린 귀환 포털에 들어가 첫 원정을 정산한다."
-  questDescription: "최후의 수호자를 처치하자 귀환 포털이 열렸다. 포털에 들어가면 이번 원정의 전리품과 기록이 확정되고 시작 지점으로 돌아간다."
+  shortSummary: "귀환 포털을 이용한 뒤, 시작 지점에서 달라진 일을 확인한다."
+  questDescription: "마지막 대결이 끝나자 귀환 포털이 나타났다. 포털을 이용해 돌아간 뒤 마을의 모습을 살펴보자."
   requiredQuestIds:
   - quest_main_002
   requiredStoryProgress: 20
@@ -24,18 +24,30 @@ MonoBehaviour:
   autoAcceptNextQuestIds:
   - quest_main_004
   objectives:
-  - objectiveId: obj_cycle_first_settlement
-    description: "새로 열린 귀환 포털에 들어가 원정을 정산한다."
-    type: 4
-    targetId: 30
+  - objectiveId: obj_first_return_arrived
+    description: "귀환 포털을 이용해 시작 지점으로 돌아간다."
+    type: 9
+    targetId: 0
     npcId: 0
-    targetStringId:
+    targetStringId: cycle.story.first_return_arrived
+    requiredCount: 1
+  - objectiveId: obj_first_return_anchor
+    description: "미아의 파란 리본을 다시 찾아 돌려준다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: cycle.story.first_return_anchor_returned
+    requiredCount: 1
+  - objectiveId: obj_first_return_guide
+    description: "안내인과 대화한다."
+    type: 9
+    targetId: 0
+    npcId: 0
+    targetStringId: cycle.story.first_return_guide_completed
     requiredCount: 1
   reward:
     gold: 200
     exp: 200
-    items:
-    - itemId: 250001
-      count: 1
+    items: []
   isRepeatable: 0
-  autoComplete: 1
+  autoComplete: 0

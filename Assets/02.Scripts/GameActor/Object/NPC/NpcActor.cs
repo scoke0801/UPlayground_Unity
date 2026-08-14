@@ -131,6 +131,16 @@ namespace UPlayGround
                 _data = definition.npcData;
         }
 
+        /// <summary>
+        /// 씬에 배치된 NPC를 지역 전용 대화 데이터로 재사용한다.
+        /// 씬 파일을 직접 수정하지 못하는 런타임 지역 부트스트랩에서만 사용한다.
+        /// </summary>
+        public void SetNpcData(NpcActorSO data)
+        {
+            if (data != null)
+                _data = data;
+        }
+
         private void OnValidate()
         {
             // 일반 NPC 기본값. 전투형이라면 인스펙터에서 Combat 플래그를 추가하세요.

@@ -60,6 +60,7 @@ namespace UPlayGround.Manager
         private readonly HashSet<string>                      _failedQuestIds = new();
         private readonly HashSet<string>                      _pendingAcceptQuestIds = new();
         private readonly HashSet<string>                      _pendingReachedLocationIds = new();
+        private readonly HashSet<string>                      _pendingStoryEventIds = new();
         private string _trackedQuestId;
         private bool _isQuestTrackingSuppressed;
 
@@ -91,6 +92,7 @@ namespace UPlayGround.Manager
             _failedQuestIds.Clear();
             _pendingAcceptQuestIds.Clear();
             _pendingReachedLocationIds.Clear();
+            _pendingStoryEventIds.Clear();
             _trackedQuestId = null;
             _isQuestTrackingSuppressed = false;
             DestroyRuntimeQuestDefinitions();
@@ -722,6 +724,40 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
+        /// 서사 흐름에서 발생한 문자열 이벤트를 활성 퀘스트 목표에 반영한다.
+        /// 동일 이벤트를 다시 알려도 목표 요구량을 넘겨 누적하지 않는다.
+        /// </summary>
+        public void NotifyStoryEvent(string eventId)
+        {
+            if (string.IsNullOrWhiteSpace(eventId))
+                return;
+
+            string normalizedId = eventId.Trim();
+            if (!IsDBLoaded)
+            {
+                _pendingStoryEventIds.Add(normalizedId);
+                Debug.Log($"[QuestManager] DB 로드 전 스토리 이벤트 알림 보류: {normalizedId}");
+                return;
+            }
+
+            var runtimes = new List<QuestRuntimeData>(_activeQuests.Values);
+            foreach (QuestRuntimeData runtime in runtimes)
+            {
+                foreach (QuestObjectiveData obj in runtime.QuestSO.objectives)
+                {
+                    if (obj.type != QuestObjectiveType.StoryEvent
+                        || obj.targetStringId != normalizedId
+                        || runtime.IsObjectiveComplete(obj))
+                        continue;
+
+                    runtime.SetProgress(obj.objectiveId, obj.requiredCount);
+                    SendObjectiveEvent(runtime, obj);
+                    TryAutoComplete(runtime);
+                }
+            }
+        }
+
+        /// <summary>
         /// 현재 사이클에서 처치한 외곽 수호자 수를 퀘스트 목표에 반영한다.
         /// 사이클마다 새 메인 퀘스트가 활성화되므로 절대 누적값이 아니라 현재 런의 수를 사용한다.
         /// </summary>
@@ -1077,6 +1113,7 @@ namespace UPlayGround.Manager
             _failedQuestIds.Clear();
             _pendingAcceptQuestIds.Clear();
             _pendingReachedLocationIds.Clear();
+            _pendingStoryEventIds.Clear();
             _trackedQuestId = null;
             _isQuestTrackingSuppressed = false;
             _autoAcceptChainDepth = 0;
@@ -1152,6 +1189,15 @@ namespace UPlayGround.Manager
 
                 foreach (var locationId in locationIds)
                     NotifyLocationReached(locationId);
+            }
+
+            if (_pendingStoryEventIds.Count > 0)
+            {
+                var eventIds = new List<string>(_pendingStoryEventIds);
+                _pendingStoryEventIds.Clear();
+
+                foreach (string eventId in eventIds)
+                    NotifyStoryEvent(eventId);
             }
         }
 

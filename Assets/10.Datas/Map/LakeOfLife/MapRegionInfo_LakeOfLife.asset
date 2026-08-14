@@ -20,6 +20,7 @@ MonoBehaviour:
   flowGraphs:
   - {fileID: 11400000, guid: 34a97b44b4a488648aa02e4564e311cd, type: 2}
   - {fileID: 11400000, guid: 7824148dcec74ef482a6edab25ee7268, type: 2}
+  - {fileID: 11400000, guid: f3b84c54aaf04eb395d45cb2e3b40fa6, type: 2}
   portals:
   - label: Portal_01
     worldPosition: {x: 1639.5197, y: 64.822205, z: 499.86496}

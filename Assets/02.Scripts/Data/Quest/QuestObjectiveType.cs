@@ -14,5 +14,6 @@ namespace UPlayGround.Data.Quest
         ItemEnhance  = 6,  // 아이템 강화 (targetId 아이템 ID requiredCount회 강화)
         ReachLocation = 7, // 목표 지점 도달 (targetStringId 위치 ID 도달)
         CycleOuterBoss = 8, // 현재 사이클의 외곽 수호자 처치 수
+        StoryEvent = 9, // 서사 이벤트 발생 (targetStringId 이벤트 ID)
     }
 }

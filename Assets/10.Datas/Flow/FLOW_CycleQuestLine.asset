@@ -18,8 +18,6 @@ MonoBehaviour:
   - rid: 7800000000000000002
   - rid: 7800000000000000003
   - rid: 7800000000000000004
-  - rid: 7800000000000000005
-  - rid: 7800000000000000006
   - rid: 7800000000000000007
   - rid: 7800000000000000008
   - rid: 7800000000000000009
@@ -32,10 +30,6 @@ MonoBehaviour:
   - fromNodeId: 41792459937c41df8d06b55e2434830a
     fromPort: Out
     toNodeId: 6384fb6284b44e25b2fb71d52ba65195
-    toPort: In
-  - fromNodeId: 2b3cd18b0c184672a5ba1be884e7a579
-    fromPort: Out
-    toNodeId: 2424f2c4462940c58d4bc67c6f574828
     toPort: In
   - fromNodeId: f88449e875b84ea49907601652f779c0
     fromPort: Out
@@ -66,8 +60,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "수호자 세 명 처치"
-        editorComment: "수호자 세 명 처치 시 StoryProgress 10을 반영하고 최후의 수호자를 활성화한다."
+        editorLabel: "세 번의 대결 완료"
+        editorComment: "세 번의 대결 완료 시 StoryProgress 10을 반영하고 마지막 장소를 드러낸다."
         entryId: outer_trials_cleared
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -87,7 +81,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "진행도 10"
-        editorComment: "최후의 수호자 출현 대사와 진행도 10 조건 콘텐츠를 연다."
+        editorComment: "마지막 장소가 드러나는 대사와 진행도 10 조건 콘텐츠를 연다."
         progress: 10
     - rid: 7800000000000000003
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -104,8 +98,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "최후의 수호자 처치"
-        editorComment: "최후의 수호자 처치 시 StoryProgress 20을 반영한다."
+        editorLabel: "마지막 대결 완료"
+        editorComment: "마지막 대결 완료 시 StoryProgress 20을 반영한다."
         entryId: central_evaluation_cleared
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -125,46 +119,8 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "진행도 20"
-        editorComment: "quest_main_002와 수호자의 기록 2화를 완료한다."
+        editorComment: "quest_main_002와 진행도 20 조건 콘텐츠를 완료한다."
         progress: 20
-    - rid: 7800000000000000005
-      type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: 2b3cd18b0c184672a5ba1be884e7a579
-        editorPosition: {x: 80, y: 440}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "첫 정산 완료"
-        editorComment: "첫 포털 정산 시 StoryProgress 30을 반영한다."
-        entryId: first_settlement_completed
-        repeatPolicy: 3
-        cooldownSeconds: 1
-    - rid: 7800000000000000006
-      type: {class: SetStoryProgressNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
-      data:
-        id: 2424f2c4462940c58d4bc67c6f574828
-        editorPosition: {x: 390, y: 440}
-        breakpoint: 0
-        breakpointDisabled: 0
-        breakpointAfterHits: 0
-        breakpointVariable:
-        breakpointExpected:
-          type: 0
-          boolValue: 0
-          intValue: 0
-          floatValue: 0
-          stringValue:
-        editorLabel: "진행도 30"
-        editorComment: "quest_main_003과 안내인의 기록 2화를 완료한다."
-        progress: 30
     - rid: 7800000000000000007
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
       data:
@@ -180,8 +136,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "두 번째 정산 완료"
-        editorComment: "두 번째 포털 정산 시 StoryProgress 40을 반영한다."
+        editorLabel: "두 번째 귀환 완료"
+        editorComment: "두 번째 귀환 시 StoryProgress 40을 반영한다."
         entryId: second_settlement_completed
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -201,7 +157,7 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "진행도 40"
-        editorComment: "quest_main_004와 안내인의 기록 3화를 완료한다."
+        editorComment: "quest_main_004와 진행도 40 조건 콘텐츠를 완료한다."
         progress: 40
     - rid: 7800000000000000009
       type: {class: ManualEntryNode, ns: UPlayGround.FlowGraph, asm: UPlayGround.FlowGraph}
@@ -218,8 +174,8 @@ MonoBehaviour:
           intValue: 0
           floatValue: 0
           stringValue:
-        editorLabel: "세 번째 정산 완료"
-        editorComment: "세 번째 포털 정산 시 StoryProgress 50을 반영한다."
+        editorLabel: "길을 여는 원정 완료"
+        editorComment: "세 번째 귀환 시 StoryProgress 50을 반영한다."
         entryId: final_evaluation_completed
         repeatPolicy: 3
         cooldownSeconds: 1
@@ -239,5 +195,5 @@ MonoBehaviour:
           floatValue: 0
           stringValue:
         editorLabel: "진행도 50"
-        editorComment: "quest_main_005와 수호자의 기록 최종화를 완료한다."
+        editorComment: "quest_main_005와 진행도 50 조건 콘텐츠를 완료한다."
         progress: 50

@@ -66,9 +66,16 @@ namespace UPlayGround.Editor.P09Builder
             {
                 definition = ScriptableObject.CreateInstance<BossAssistDefinitionSO>();
                 string folder = PathConfig.GetGeneratedDataFolder(typeof(BossAssistDefinitionSO));
-                string path = PathConfig.CreateOrReplaceAsset(definition, folder, $"{actorId}_BossAssist");
+                definition = PathConfig.CreateOrUpdateAsset(
+                    definition,
+                    folder,
+                    $"{actorId}_BossAssist",
+                    out string path,
+                    out bool created,
+                    ctx);
                 ctx.GeneratedDescs.Add(definition);
-                ctx.GeneratedAssetPaths.Add(path);
+                if (created)
+                    ctx.GeneratedAssetPaths.Add(path);
             }
             else
             {

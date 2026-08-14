@@ -33,11 +33,18 @@ namespace UPlayGround.Editor.P09Builder
                 }
 
                 var dataFolder = PathConfig.GetGeneratedDataFolder(def.DescType);
-                // 중앙 폴더에 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
-                var assetPath = PathConfig.CreateOrReplaceAsset(so, dataFolder, $"{ctx.PrefabName}{def.Suffix}");
+                // 중앙 고정 경로를 사용하되 기존 에셋은 제자리 갱신해 GUID와 외부 참조를 보존한다.
+                so = PathConfig.CreateOrUpdateAsset(
+                    so,
+                    dataFolder,
+                    $"{ctx.PrefabName}{def.Suffix}",
+                    out string assetPath,
+                    out bool created,
+                    ctx);
 
                 ctx.GeneratedDescs.Add(so);
-                ctx.GeneratedAssetPaths.Add(assetPath);
+                if (created)
+                    ctx.GeneratedAssetPaths.Add(assetPath);
             }
         }
     }

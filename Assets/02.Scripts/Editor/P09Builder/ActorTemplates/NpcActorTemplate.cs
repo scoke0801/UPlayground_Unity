@@ -9,14 +9,14 @@ using UPlayGround;
 using UPlayGround.Data.EnumType;
 using UPlayGround.MovementController;
 using UPlayGround.Data.Actor;
+using UPlayGround.Components;
 
 namespace UPlayGround.Editor.P09Builder
 {
     /// <summary>
     /// Npc(NpcActor) 프리팹 빌드 템플릿.
-    /// KCC + MotionWarp + NpcMovementController + NpcActor + Animator + Collider 부착.
-    /// NpcActorSO 가 지정되지 않은 경우 빈 NpcActorSO 를 생성해 _data 필드에 연결한다.
-    /// 주의: NpcActorSO는 글로벌 네임스페이스에 있어 using 불필요.
+    /// KCC + NpcMovementController + NpcActor + NpcBrain + Animator + Collider 부착.
+    /// 새 데이터 모드에서는 입력값으로 NpcActorSO를 생성하고, 기존 데이터 모드에서는 선택 자산을 연결한다.
     /// </summary>
     internal sealed class NpcActorTemplate : IActorTemplate
     {
@@ -37,6 +37,7 @@ namespace UPlayGround.Editor.P09Builder
             GetOrAdd<NpcMovementController>(root);
 
             var actor = GetOrAdd<NpcActor>(root);
+            var brain = GetOrAdd<NpcBrain>(root);
 
             if (root.GetComponent<Animator>() == null)
                 Undo.AddComponent<Animator>(root);
@@ -54,13 +55,19 @@ namespace UPlayGround.Editor.P09Builder
 
             // ActorType 설정 (NPC + Talkable Flags)
             ReflectionUtil.SetField(actor, "_actorType", (int)(ActorType.NPC | ActorType.Talkable));
+            ReflectionUtil.SetField(actor, "_actorId", root.name);
+
+            if (config?.Stats != null)
+            {
+                ReflectionUtil.SetField(brain, "_enableWander", config.Stats.npcEnableWander);
+                ReflectionUtil.SetField(brain, "_patrolRadius", Mathf.Max(0f, config.Stats.wanderRadius));
+                ReflectionUtil.SetField(brain, "_patrolWaitTime", Mathf.Max(0f, config.Stats.npcWanderWaitTime));
+            }
         }
 
         public IEnumerable<IDescDef> GetDescDefs(CharacterBuildConfig config)
         {
-            // dialogueSo가 NpcActorSO 타입이 아니거나 비어있으면 새로 생성
-            var existing = config?.Stats?.dialogueSo as NpcActorSO;
-            if (existing == null)
+            if (config?.Stats?.createNewNpcData != false)
                 yield return new NpcDataDescDef();
         }
 
@@ -72,7 +79,7 @@ namespace UPlayGround.Editor.P09Builder
             if (actor == null) return;
 
             var dataSo = (generatedDescs?.OfType<NpcActorSO>().FirstOrDefault())
-                         ?? (config?.Stats?.dialogueSo as NpcActorSO);
+                         ?? config?.Stats?.existingNpcData;
 
             if (dataSo != null)
                 ReflectionUtil.SetField(actor, "_data", dataSo);
@@ -94,7 +101,20 @@ namespace UPlayGround.Editor.P09Builder
 
             public void ApplyDefaults(ScriptableObject so, CharacterBuildConfig config)
             {
-                // 기본값을 그대로 사용한다.
+                if (so is not NpcActorSO npcData || config?.Stats == null)
+                    return;
+
+                var stats = config.Stats;
+                npcData.actorName = stats.npcDisplayName?.Trim() ?? string.Empty;
+                npcData.description = stats.npcDescription ?? string.Empty;
+                npcData.hp = Mathf.Max(0, stats.npcHp);
+                npcData.storyEntries = stats.npcStoryEntries ?? Array.Empty<UPlayGround.Story.StoryEntrySO>();
+                npcData.dialogueGraph = stats.npcDialogueGraph;
+                npcData.interactionObjectType = InteractionObjectType.NPC;
+                npcData.interactionCompleteDuration = Mathf.Max(0f, stats.npcInteractionCompleteDuration);
+                npcData.interactionMotionSlot = stats.npcInteractionMotionSlot;
+                npcData.showInfoUI = false;
+                npcData.showShakeEffect = false;
                 EditorUtility.SetDirty(so);
             }
         }

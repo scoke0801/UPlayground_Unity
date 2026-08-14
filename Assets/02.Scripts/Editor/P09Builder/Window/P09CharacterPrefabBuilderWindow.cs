@@ -44,6 +44,11 @@ namespace UPlayGround.Editor.P09Builder
         private ScrollView _validationList;
         private ScrollView _logList;
         private Button _buildButton;
+        private VisualElement _enemyStatsPanel;
+        private VisualElement _playerStatsPanel;
+        private VisualElement _npcStatsPanel;
+        private VisualElement _npcNewDataPanel;
+        private VisualElement _npcExistingDataPanel;
         private string _previewName = string.Empty;
         private string _statusMessage = "준비 완료";
         private bool _isBuilding;
@@ -164,7 +169,7 @@ namespace UPlayGround.Editor.P09Builder
             AddTab(tabs, content, "기본", BuildBasicPanel());
             AddTab(tabs, content, "외형", BuildAppearancePanel());
             AddTab(tabs, content, "무기", BuildWeaponPanel());
-            AddTab(tabs, content, "전투/스탯", BuildStatsPanel());
+            AddTab(tabs, content, "데이터/스탯", BuildStatsPanel());
             AddTab(tabs, content, "CYCLE", BuildCyclePanel());
 
             _previewPane = BuildPreviewPane();
@@ -268,13 +273,15 @@ namespace UPlayGround.Editor.P09Builder
         private VisualElement BuildStatsPanel()
         {
             var scroll = NewScroll();
-            scroll.Add(Info("ActorDefinitionSO와 MonsterActorProfileSO 최신 필드를 함께 동기화합니다. Profile 값이 있으면 런타임에서 Profile이 우선합니다."));
-            scroll.Add(Section("몬스터 메타", null,
+
+            _enemyStatsPanel = new VisualElement();
+            _enemyStatsPanel.Add(Info("ActorDefinitionSO와 MonsterActorProfileSO 최신 필드를 함께 동기화합니다. Profile 값이 있으면 런타임에서 Profile이 우선합니다."));
+            _enemyStatsPanel.Add(Section("몬스터 메타", null,
                 Field("_config.Stats.monsterProfile", "Monster Profile"),
                 Field("_config.Stats.grade", "등급"), Field("_config.Stats.level", "레벨"),
                 Field("_config.Stats.monsterScaling", "Monster Scaling"),
                 Field("_config.Stats.breakGaugeData", "Break Gauge")));
-            scroll.Add(Section("전투 정책", null,
+            _enemyStatsPanel.Add(Section("전투 정책", null,
                 Field("_config.Stats.abilitySet", "Ability Set"),
                 Field("_config.Stats.combatStyle", "AI 전투 스타일"),
                 Field("_config.Stats.combatDefensePolicy", "방어 정책"),
@@ -282,7 +289,7 @@ namespace UPlayGround.Editor.P09Builder
                 Field("_config.Stats.combatElement", "전투 속성"),
                 Field("_config.Stats.elementAssignmentMode", "속성 결정 방식"),
                 Field("_config.Stats.elementalAdvantageMultiplier", "속성 우위 배율")));
-            scroll.Add(Section("AI / Poise", null,
+            _enemyStatsPanel.Add(Section("AI / Poise", null,
                 Field("_config.Stats.createNewBehavior", "Behavior 새로 생성"),
                 Field("_config.Stats.existingBehaviorSo", "기존 Behavior"),
                 Field("_config.Stats.optimalCombatDistance", "최적 전투 거리"),
@@ -292,11 +299,11 @@ namespace UPlayGround.Editor.P09Builder
                 Field("_config.Stats.defaultPoiseRecoveryDelay", "회복 지연"),
                 Field("_config.Stats.defaultPoiseRecoveryRate", "초당 회복"),
                 Field("_config.Stats.defaultHasHyperArmor", "Hyper Armor")));
-            scroll.Add(Section("보상 / 드롭", null,
+            _enemyStatsPanel.Add(Section("보상 / 드롭", null,
                 Field("_config.Stats.dropTable", "드롭 테이블"),
                 Field("_config.Stats.expReward", "경험치 보상"),
                 Field("_config.Stats.goldReward", "골드 보상")));
-            scroll.Add(Section("공격 스탯 베이크", null,
+            _enemyStatsPanel.Add(Section("공격 스탯 베이크", null,
                 Field("_config.Stats.applyLevelScaling", "레벨 스케일링"),
                 Field("_config.Stats.attackPerLevel", "레벨당 공격 증가율"),
                 Field("_config.Stats.applyWeaponAttackBonus", "무기 티어 보너스"),
@@ -305,13 +312,42 @@ namespace UPlayGround.Editor.P09Builder
                 Field("_config.Stats.randomizeStatsOnBuild", "랜덤 배율 적용"),
                 Field("_config.Stats.randomStatMin", "랜덤 최소"),
                 Field("_config.Stats.randomStatMax", "랜덤 최대")));
-            scroll.Add(Section("파티 캐릭터 해금", "Cycle 보스의 BossAssist 영입과는 다른 기능입니다.",
+            _enemyStatsPanel.Add(Section("파티 캐릭터 해금", "Cycle 보스의 BossAssist 영입과는 다른 기능입니다.",
                 Field("_config.Stats.recruitableOnDefeat", "처치 시 플레이어블 해금"),
                 Field("_config.Stats.recruitableAs", "해금 캐릭터")));
-            scroll.Add(Section("Player / NPC", null,
-                Field("_config.Stats.playerAbilitySet", "Player Ability Set"),
-                Field("_config.Stats.dialogueSo", "NPC 대화 데이터"),
-                Field("_config.Stats.wanderRadius", "NPC 배회 반경")));
+            scroll.Add(_enemyStatsPanel);
+
+            _playerStatsPanel = new VisualElement();
+            _playerStatsPanel.Add(Info("Player 빌드에는 선택한 AbilitySet을 CharacterModelData에 연결합니다."));
+            _playerStatsPanel.Add(Section("Player 데이터", null,
+                Field("_config.Stats.playerAbilitySet", "Player Ability Set")));
+            scroll.Add(_playerStatsPanel);
+
+            _npcStatsPanel = new VisualElement();
+            _npcStatsPanel.Add(Info("NpcActorSO를 저작하고 NPC용 ActorDefinitionSO와 ActorDatabase 등록까지 한 번에 처리합니다."));
+            _npcStatsPanel.Add(Section("NPC 데이터 소스", "새 데이터는 NPC 데이터 폴더에 생성됩니다. 기존 데이터 모드에서는 선택한 NpcActorSO를 수정하지 않고 그대로 연결합니다.",
+                Field("_config.Stats.createNewNpcData", "새 NpcActorSO 생성")));
+
+            _npcNewDataPanel = new VisualElement();
+            _npcNewDataPanel.Add(Section("NPC 기본 데이터", null,
+                Field("_config.Stats.npcDisplayName", "표시 이름"),
+                Field("_config.Stats.npcDescription", "설명"),
+                Field("_config.Stats.npcHp", "HP"),
+                Field("_config.Stats.npcStoryEntries", "스토리 엔트리"),
+                Field("_config.Stats.npcDialogueGraph", "기본 대화")));
+            _npcNewDataPanel.Add(Section("상호작용", null,
+                Field("_config.Stats.npcInteractionCompleteDuration", "완료 유지 시간"),
+                Field("_config.Stats.npcInteractionMotionSlot", "플레이어 모션")));
+            _npcStatsPanel.Add(_npcNewDataPanel);
+
+            _npcExistingDataPanel = Section("기존 NPC 데이터", null,
+                Field("_config.Stats.existingNpcData", "NpcActorSO"));
+            _npcStatsPanel.Add(_npcExistingDataPanel);
+            _npcStatsPanel.Add(Section("NPC 행동", null,
+                Field("_config.Stats.npcEnableWander", "배회 사용"),
+                Field("_config.Stats.wanderRadius", "배회 반경"),
+                Field("_config.Stats.npcWanderWaitTime", "도착 후 대기 시간")));
+            scroll.Add(_npcStatsPanel);
             return scroll;
         }
 
@@ -473,6 +509,16 @@ namespace UPlayGround.Editor.P09Builder
         private void RefreshDerivedUi()
         {
             if (_config == null) return;
+            bool isEnemy = _config.ActorKind == BuilderActorKind.Enemy;
+            bool isPlayer = _config.ActorKind == BuilderActorKind.Player;
+            bool isNpc = _config.ActorKind == BuilderActorKind.Npc;
+            SetVisible(_enemyStatsPanel, isEnemy);
+            SetVisible(_playerStatsPanel, isPlayer);
+            SetVisible(_npcStatsPanel, isNpc);
+            bool createNpcData = _config.Stats?.createNewNpcData != false;
+            SetVisible(_npcNewDataPanel, isNpc && createNpcData);
+            SetVisible(_npcExistingDataPanel, isNpc && !createNpcData);
+
             if (_previewNameLabel != null) _previewNameLabel.text = $"생성 이름  {_previewName}";
             string kind = CharacterNameGenerator.GetKindFolderName(_config.ActorKind);
             string folder = PathConfig.GetPrefabFolder(_config.SaveBaseFolder, kind, _previewName);
@@ -491,6 +537,12 @@ namespace UPlayGround.Editor.P09Builder
                         _validationList.Add(new Label($"• {error}") { style = { whiteSpace = WhiteSpace.Normal, color = new Color(1f, 0.65f, 0.35f) } });
             }
             if (_statusLabel != null) _statusLabel.text = $"{_statusMessage}    |    {_previewName}    |    오류 {errors.Count}";
+        }
+
+        private static void SetVisible(VisualElement element, bool visible)
+        {
+            if (element != null)
+                element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         private List<string> CollectValidationErrors() => _config != null

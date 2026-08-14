@@ -315,11 +315,17 @@ namespace UPlayGround.Editor.P09Builder
             }
 
             var dataFolder = PathConfig.GetGeneratedDataFolder(typeof(PlayerActorAnimationMotionSet));
-            // 중앙 폴더에 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
-            string assetPath = PathConfig.CreateOrReplaceAsset(
-                playerMotionSet, dataFolder, $"{ctx.PrefabName}_PlayerWeaponAnimationSet");
+            // 기존 세트는 제자리 갱신해 프리팹과 외부 에셋이 가진 GUID 참조를 보존한다.
+            playerMotionSet = PathConfig.CreateOrUpdateAsset(
+                playerMotionSet,
+                dataFolder,
+                $"{ctx.PrefabName}_PlayerWeaponAnimationSet",
+                out string assetPath,
+                out bool created,
+                ctx);
             ctx.GeneratedDescs.Add(playerMotionSet);
-            ctx.GeneratedAssetPaths.Add(assetPath);
+            if (created)
+                ctx.GeneratedAssetPaths.Add(assetPath);
 
             ReflectionUtil.SetField(animator, "_playerActorAnimationMotionSet", playerMotionSet);
             EditorUtility.SetDirty(animator);

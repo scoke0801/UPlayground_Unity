@@ -1,10 +1,14 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Dialogue;
+using UPlayGround.Gameplay.Tag;
+using UPlayGround.Story;
 
 namespace UPlayGround.Editor.P09Builder
 {
@@ -58,8 +62,19 @@ namespace UPlayGround.Editor.P09Builder
         public AbilitySetSO playerAbilitySet;
 
         // ---------- NPC ----------
-        public ScriptableObject dialogueSo;
+        public bool createNewNpcData = true;
+        [FormerlySerializedAs("dialogueSo")]
+        public NpcActorSO existingNpcData;
+        public string npcDisplayName = "새 NPC";
+        [TextArea(2, 4)] public string npcDescription = string.Empty;
+        public int npcHp = 1;
+        public StoryEntrySO[] npcStoryEntries = System.Array.Empty<StoryEntrySO>();
+        public DialogueGraphSO npcDialogueGraph;
+        public float npcInteractionCompleteDuration = 0f;
+        public GameplayTag npcInteractionMotionSlot;
+        public bool npcEnableWander = true;
         public float wanderRadius = 5f;
+        public float npcWanderWaitTime = 3f;
     }
 
     /// <summary>

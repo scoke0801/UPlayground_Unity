@@ -18,7 +18,9 @@ namespace UPlayGround.Editor.P09Builder
 
         public void Execute(BuildContext ctx)
         {
-            if (ctx == null || ctx.Config == null || ctx.Config.ActorKind != BuilderActorKind.Enemy)
+            if (ctx == null || ctx.Config == null ||
+                (ctx.Config.ActorKind != BuilderActorKind.Enemy &&
+                 ctx.Config.ActorKind != BuilderActorKind.Npc))
                 return;
 
             var prefab = ctx.Bag.TryGetValue("finalPrefabAsset", out var prefabObj)
@@ -50,6 +52,8 @@ namespace UPlayGround.Editor.P09Builder
             if (definition == null)
                 definition = CreateDefinitionAsset(ctx, actorId);
 
+            Undo.RecordObject(definition, "P09 Builder: Update Actor Definition");
+            Undo.RecordObject(database, "P09 Builder: Register Actor Definition");
             ApplyDefinitionDefaults(definition, prefab, actorId, ctx);
             InjectPrefabDefinition(prefab, definition);
             database.AddDefinition(definition);
@@ -115,10 +119,17 @@ namespace UPlayGround.Editor.P09Builder
         {
             var definition = ScriptableObject.CreateInstance<ActorDefinitionSO>();
             var dataFolder = PathConfig.GetGeneratedDataFolder(typeof(ActorDefinitionSO));
-            // 중앙 폴더에 고정 경로로 생성 → 재빌드 시 _1,_2 중복 누적 없이 덮어쓴다.
-            var assetPath = PathConfig.CreateOrReplaceAsset(definition, dataFolder, $"{actorId}_ActorDef");
+            // 고정 경로의 기존 정의는 제자리 갱신해 외부 참조의 GUID를 보존한다.
+            definition = PathConfig.CreateOrUpdateAsset(
+                definition,
+                dataFolder,
+                $"{actorId}_ActorDef",
+                out string assetPath,
+                out bool created,
+                ctx);
             ctx.GeneratedDescs.Add(definition);
-            ctx.GeneratedAssetPaths.Add(assetPath);
+            if (created)
+                ctx.GeneratedAssetPaths.Add(assetPath);
             return definition;
         }
 
@@ -129,11 +140,18 @@ namespace UPlayGround.Editor.P09Builder
             BuildContext ctx)
         {
             definition.actorId = actorId;
+            definition.characterType = CharacterActorType.None;
+            definition.prefab = prefab;
+
+            if (ctx.Config.ActorKind == BuilderActorKind.Npc)
+            {
+                ApplyNpcDefinitionDefaults(definition, ctx);
+                return;
+            }
+
             definition.displayName = actorId;
             definition.actorType = ActorType.Monster | ActorType.Combat;
-            definition.characterType = CharacterActorType.None;
             definition.targetLayerMask = LayerMask.GetMask("Player");
-            definition.prefab = prefab;
             definition.poiseData = FindFirst<PoiseSO>(ctx.GeneratedDescs)
                                    ?? ctx.Config?.Stats?.existingPoiseSo as PoiseSO;
             definition.monsterProfile = ctx.Config?.Stats?.monsterProfile;
@@ -165,6 +183,22 @@ namespace UPlayGround.Editor.P09Builder
             }
 
             EnsureMonsterGrowthAndStat(definition, ctx);
+        }
+
+        private static void ApplyNpcDefinitionDefaults(ActorDefinitionSO definition, BuildContext ctx)
+        {
+            NpcActorSO npcData = FindFirst<NpcActorSO>(ctx.GeneratedDescs)
+                                 ?? ctx.Config?.Stats?.existingNpcData;
+            if (npcData == null)
+                throw new BuildException("NPC ActorDefinition에 연결할 NpcActorSO가 없습니다.");
+
+            definition.displayName = string.IsNullOrWhiteSpace(npcData.actorName)
+                ? definition.actorId
+                : npcData.actorName;
+            definition.description = npcData.description ?? string.Empty;
+            definition.actorType = ActorType.NPC | ActorType.Talkable;
+            definition.targetLayerMask = 0;
+            definition.npcData = npcData;
         }
 
         private static void EnsureMonsterGrowthAndStat(ActorDefinitionSO definition, BuildContext ctx)

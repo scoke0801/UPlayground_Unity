@@ -81,20 +81,50 @@ namespace UPlayGround.Editor.P09Builder
         }
 
         /// <summary>
-        /// 결정적(고정) 경로로 에셋을 생성한다. 동일 경로에 기존 에셋이 있으면 교체한다.
-        /// GenerateUniqueAssetPath와 달리 _1,_2 중복 누적이 생기지 않아, 빌드 재실행 시
-        /// 중앙 폴더에서 같은 파일을 덮어쓰는 용도로 사용한다. 생성된 경로를 반환한다.
+        /// 결정적(고정) 경로로 에셋을 생성하거나 같은 타입의 기존 에셋을 제자리 갱신한다.
+        /// 기존 객체를 삭제하지 않으므로 GUID와 외부 참조가 유지된다.
         /// </summary>
-        public static string CreateOrReplaceAsset(UnityEngine.Object asset, string folder, string fileName)
+        public static T CreateOrUpdateAsset<T>(
+            T asset,
+            string folder,
+            string fileName,
+            out string path,
+            out bool created,
+            BuildContext context = null)
+            where T : UnityEngine.Object
         {
+            if (asset == null)
+                throw new BuildException("생성 또는 갱신할 에셋이 null입니다.");
+
             EnsureFolderExists(folder);
 
-            string path = fileName.EndsWith(".asset") ? $"{folder}/{fileName}" : $"{folder}/{fileName}.asset";
-            if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) != null)
-                AssetDatabase.DeleteAsset(path);
+            path = fileName.EndsWith(".asset") ? $"{folder}/{fileName}" : $"{folder}/{fileName}.asset";
+            UnityEngine.Object existing = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+            if (existing != null)
+            {
+                if (existing.GetType() != asset.GetType())
+                {
+                    string requestedType = asset.GetType().Name;
+                    UnityEngine.Object.DestroyImmediate(asset);
+                    throw new BuildException(
+                        $"고정 경로에 다른 타입의 에셋이 있습니다: {path} " +
+                        $"({existing.GetType().Name} != {requestedType})");
+                }
+
+                string existingName = existing.name;
+                context?.StageAssetForUpdate(existing);
+                Undo.RecordObject(existing, $"P09 Builder: Update {existingName}");
+                EditorUtility.CopySerialized(asset, existing);
+                existing.name = existingName;
+                EditorUtility.SetDirty(existing);
+                UnityEngine.Object.DestroyImmediate(asset);
+                created = false;
+                return (T)existing;
+            }
 
             AssetDatabase.CreateAsset(asset, path);
-            return path;
+            created = true;
+            return asset;
         }
 
         public static void EnsureFolderExists(string folder)

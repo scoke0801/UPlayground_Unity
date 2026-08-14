@@ -138,6 +138,34 @@ namespace UPlayGround.Editor.P09Builder
                 }
             }
 
+            if (ActorKind == BuilderActorKind.Npc)
+            {
+                if (Stats == null)
+                {
+                    yield return "NPC 데이터 설정이 비어있습니다.";
+                    yield break;
+                }
+
+                if (Stats.createNewNpcData)
+                {
+                    if (string.IsNullOrWhiteSpace(Stats.npcDisplayName))
+                        yield return "NPC 표시 이름이 비어있습니다.";
+                    if (Stats.npcHp < 0)
+                        yield return "NPC HP는 0 이상이어야 합니다.";
+                    if (Stats.npcInteractionCompleteDuration < 0f)
+                        yield return "NPC 상호작용 유지 시간은 0 이상이어야 합니다.";
+                }
+                else if (Stats.existingNpcData == null)
+                {
+                    yield return "기존 NpcActorSO를 선택해야 합니다.";
+                }
+
+                if (Stats.wanderRadius < 0f)
+                    yield return "NPC 배회 반경은 0 이상이어야 합니다.";
+                if (Stats.npcWanderWaitTime < 0f)
+                    yield return "NPC 배회 대기 시간은 0 이상이어야 합니다.";
+            }
+
             if (ActorKind != BuilderActorKind.Enemy && Cycle != null && Cycle.isCycleBoss)
                 yield return "Cycle 보스는 Enemy Actor만 지원합니다.";
         }

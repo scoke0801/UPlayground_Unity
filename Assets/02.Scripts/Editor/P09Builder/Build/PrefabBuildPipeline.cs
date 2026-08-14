@@ -72,18 +72,21 @@ namespace UPlayGround.Editor.P09Builder
             catch (BuildException bex)
             {
                 ctx.Logs.Add($"실패: {bex.Message}");
+                undo.Revert();
                 Rollback(ctx);
                 result = BuildResult.Fail(bex.Message, new List<string>(ctx.Logs));
             }
             catch (Exception ex)
             {
                 ctx.Logs.Add($"예외: {ex.Message}");
+                undo.Revert();
                 Rollback(ctx);
                 Debug.LogException(ex);
                 result = BuildResult.Fail($"예외 발생: {ex.Message}", new List<string>(ctx.Logs));
             }
             finally
             {
+                ctx.DiscardStagedAssetBackups();
                 EditorUtility.ClearProgressBar();
                 AssetDatabase.StopAssetEditing();
                 AssetDatabase.SaveAssets();
@@ -97,6 +100,8 @@ namespace UPlayGround.Editor.P09Builder
 
         private static void Rollback(BuildContext ctx)
         {
+            ctx.RestoreStagedAssetBackups();
+
             try
             {
                 if (ctx.RootInstance != null)

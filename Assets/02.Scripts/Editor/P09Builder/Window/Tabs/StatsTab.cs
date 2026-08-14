@@ -5,6 +5,8 @@ using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Ability;
+using UPlayGround.Data.Actor;
+using UPlayGround.Dialogue;
 
 namespace UPlayGround.Editor.P09Builder
 {
@@ -154,12 +156,38 @@ namespace UPlayGround.Editor.P09Builder
         // ---------- NPC ----------
         private static void DrawNpcStats(CharacterBuildConfig config)
         {
-            EditorGUILayout.HelpBox("NPC Stats (Phase 2 예정)", MessageType.Info);
+            EditorGUILayout.HelpBox(
+                "NpcActorSO와 NPC용 ActorDefinitionSO를 생성하고 ActorDatabase에 등록합니다.",
+                MessageType.Info);
 
-            config.Stats.dialogueSo = EditorGUILayout.ObjectField(
-                "대화 SO", config.Stats.dialogueSo, typeof(ScriptableObject), false) as ScriptableObject;
+            config.Stats.createNewNpcData = EditorGUILayout.Toggle(
+                "새 NpcActorSO 생성", config.Stats.createNewNpcData);
+            if (config.Stats.createNewNpcData)
+            {
+                using (new EditorGUI.IndentLevelScope())
+                {
+                    config.Stats.npcDisplayName = EditorGUILayout.TextField(
+                        "표시 이름", config.Stats.npcDisplayName);
+                    config.Stats.npcDescription = EditorGUILayout.TextField(
+                        "설명", config.Stats.npcDescription);
+                    config.Stats.npcHp = EditorGUILayout.IntField("HP", config.Stats.npcHp);
+                    config.Stats.npcDialogueGraph = (DialogueGraphSO)EditorGUILayout.ObjectField(
+                        "기본 대화", config.Stats.npcDialogueGraph, typeof(DialogueGraphSO), false);
+                    config.Stats.npcInteractionCompleteDuration = EditorGUILayout.FloatField(
+                        "완료 유지 시간", config.Stats.npcInteractionCompleteDuration);
+                }
+            }
+            else
+            {
+                config.Stats.existingNpcData = (NpcActorSO)EditorGUILayout.ObjectField(
+                    "기존 NPC 데이터", config.Stats.existingNpcData, typeof(NpcActorSO), false);
+            }
 
+            config.Stats.npcEnableWander = EditorGUILayout.Toggle(
+                "배회 사용", config.Stats.npcEnableWander);
             config.Stats.wanderRadius = EditorGUILayout.FloatField("배회 반경", config.Stats.wanderRadius);
+            config.Stats.npcWanderWaitTime = EditorGUILayout.FloatField(
+                "도착 후 대기 시간", config.Stats.npcWanderWaitTime);
         }
     }
 }

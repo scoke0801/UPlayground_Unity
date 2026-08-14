@@ -54,7 +54,7 @@ namespace UPlayGround.Editor
             }),
             ("캐릭터 / 액터", new[]
             {
-                Tool("P09 캐릭터 프리팹 빌더",             "UPlayGround/캐릭터/P09/캐릭터 프리팹 빌더", "P09 모듈러 캐릭터 프리팹을 빌드합니다.", "성별, 외형 파츠, 무기, 스탯을 탭으로 구성하고 프리셋 저장/불러오기와 라이브 프리뷰를 통해 캐릭터 프리팹을 생성합니다."),
+                Tool("P09 캐릭터 프리팹 빌더",             "UPlayGround/캐릭터/P09/캐릭터 프리팹 빌더", "P09 모듈러 캐릭터 프리팹과 액터 데이터를 빌드합니다.", "성별, 외형 파츠, 무기, Enemy 스탯 또는 NPC 대화·상호작용 데이터를 탭에서 저작하고, 프리셋과 라이브 프리뷰를 이용해 프리팹·ActorDefinition·ActorDatabase 연결까지 생성합니다."),
                 Tool("P09 무기 EditPartData 생성·갱신",    "UPlayGround/캐릭터/P09/무기 EditPartData 생성·갱신", "P09 무기 EditPartData를 생성/갱신합니다.", "P09 기본 프리팹의 무기 메시를 스캔해 WeaponEditPartData 카탈로그 에셋을 생성하거나 갱신합니다."),
                 Tool("액터 데이터베이스 에디터",           "UPlayGround/캐릭터/액터/액터 데이터베이스 에디터", "ActorDefinitionSO 데이터베이스를 관리합니다.", "Actor ID, 표시 이름, 타입, 프리팹, 스탯/드랍/NPC 데이터 연결을 검색하고 편집합니다. 런타임 스폰 기준 데이터의 중심 편집기입니다."),
                 Tool("액터 런타임 모니터",           "UPlayGround/캐릭터/액터/액터 런타임 모니터", "현재 씬의 액터 등록 상태를 확인합니다.", "GameObjectManager/ActorSpawnManager에 등록된 액터, ActorType 필터, 런타임 상태를 점검하는 모니터입니다."),

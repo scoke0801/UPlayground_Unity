@@ -5,6 +5,8 @@ namespace UPlayGround.Editor.P09Builder
 {
     public sealed class UndoGroupScope : IDisposable
     {
+        private bool _reverted;
+
         public int GroupId { get; }
         public string GroupName { get; }
 
@@ -18,7 +20,18 @@ namespace UPlayGround.Editor.P09Builder
 
         public void Collapse()
         {
-            Undo.CollapseUndoOperations(GroupId);
+            if (!_reverted)
+                Undo.CollapseUndoOperations(GroupId);
+        }
+
+        public void Revert()
+        {
+            if (_reverted)
+                return;
+
+            Undo.FlushUndoRecordObjects();
+            Undo.RevertAllDownToGroup(GroupId);
+            _reverted = true;
         }
 
         public void Dispose()

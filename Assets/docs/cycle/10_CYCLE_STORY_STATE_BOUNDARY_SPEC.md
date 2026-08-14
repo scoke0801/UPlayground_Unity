@@ -1,8 +1,8 @@
 # 반복/누적 상태 경계 구현 스펙
 
-> 문서 버전: **v1.0-implementation-draft**<br>
-> 작성일: **2026-08-12**<br>
-> 상태: **구현 승인 대기 / 코드·에셋 미착수**<br>
+> 문서 버전: **v1.1-implemented**<br>
+> 작성일: **2026-08-12** / 구현일: **2026-08-14**<br>
+> 상태: **P0 구현 완료**<br>
 > 서사 기준: [CYCLE_STORY_PLOT.md](CYCLE_STORY_PLOT.md)
 
 ## 1. 목적
@@ -16,8 +16,8 @@ P0에서는 범용 월드 리셋 계층을 새로 만들지 않는다. 분실물
 | 영역 | 현재 상태 | 구현 영향 |
 |---|---|---|
 | `GameSaveData.saveVersion` | `3.0` | 필드 추가는 기본값 호환으로 처리 가능 |
-| `PartySaveData` | roster, battleOrder, activeIndex는 저장하지만 최초 선택 캐릭터는 저장하지 않음 | `storyProtagonistType` 신설 필요 |
-| `PartyManager` | `_newGameStartingCharacter`를 파티 적용 뒤 `None`으로 폐기 | 실제 적용된 캐릭터를 영구 필드에 별도 확정해야 함 |
+| `PartySaveData` | roster, battleOrder, activeIndex와 `storyProtagonistType` 저장 | 최초 선택 캐릭터를 세이브 단위로 보존 |
+| `PartyManager` | 실제 적용된 시작 캐릭터를 Protagonist로 확정한 뒤 `_newGameStartingCharacter`를 `None`으로 정리 | 파티 교체와 무관한 영구 서사 화자 제공 |
 | `WorldStateSaveData` | 처치·재스폰·소모 오브젝트는 새 게임에서만 전체 초기화 | 분실물 하나를 위해 범용 월드 리셋을 확장하지 않음 |
 | `QuestSaveData` | 활성 퀘스트와 objective 진행도를 저장 | 앵커의 중간 진행 복원에 사용 |
 | `InventorySaveData` | 아이템 보유 상태 저장 | 앵커 물건을 먼저 주운 상태 복원에 사용 |
@@ -36,8 +36,8 @@ P0에서는 범용 월드 리셋 계층을 새로 만들지 않는다. 분실물
 | `cycle.anchor.lostitem_resolved_once` | `FlagSaveData` | 초회차 분실물 퀘스트 완료 | 새 게임 | 앵커 분기, 기억 선택지, 첫 귀환 판정 |
 | `cycle.story.first_return_started` | `FlagSaveData` | 첫 귀환 포털 정산 완료 직후 | 새 게임 | 반복 앵커 재수락·스폰, 귀환 장면 복원 |
 | `cycle.anchor.first_return_request_heard` | `FlagSaveData` | 첫 귀환에 주민과 먼저 대화 | 새 게임 | 선회수/선대화 반환 반응 구분 |
-| `cycle.story.first_return_anchor_completed` | `FlagSaveData` | 첫 귀환 분실물 반환과 주민 반응 완료 | 새 게임 | 안내인 대화 게이트, 중복 반환 방지 |
-| `cycle.story.first_return_guide_completed` | `FlagSaveData` | 첫 귀환 안내인 대화 마지막 이벤트 | 새 게임 | SP30·quest_main_003 완료 게이트 |
+| `cycle.anchor.first_return_anchor_completed` | `FlagSaveData` | 첫 귀환 분실물 반환과 주민 반응 완료 | 새 게임 | 안내인 대화 게이트, 중복 반환 방지 |
+| `cycle.anchor.first_return_guide_completed` | `FlagSaveData` | 첫 귀환 안내인 대화 마지막 이벤트 | 새 게임 | SP30·quest_main_003 완료 게이트 |
 | Story Progress 20/30/40/50 | `StorySaveData.progress` | 각 확정 트리거 | 새 게임 | 메인 퀘스트와 StoryEntry |
 | BossAssist 로스터·장착·처치 횟수 | `CycleSaveData.assists` | 영입·장착·처치 판정 | 새 게임 | `BossAssistManager`, HUD |
 | 레벨·장비·스킬 | 기존 Party/Inventory 저장 | 기존 성장 흐름 | 새 게임 | 전투·성장 시스템 |
@@ -51,9 +51,9 @@ P0에서는 범용 월드 리셋 계층을 새로 만들지 않는다. 분실물
 |---|---|---|---|
 | 현재 사이클 보스 배치·발견·승리 | 기존 `CycleRunState`/`CycleLayoutState` | `CycleSaveData` | 정산·포기 규칙 유지 |
 | 분실물 퀘스트 활성 여부 | 반복 `QuestSO`의 활성 상태 | `QuestSaveData.activeQuests` | 반환 후 퀘스트 완료 |
-| 분실물 획득 여부 | 앵커 아이템 보유 + ItemCollect 진행도 | Inventory + Quest 저장 | 주민에게 전달할 때 전량 소비 |
+| 분실물 획득 여부 | 앵커 아이템 보유 여부 | Inventory 저장 + ItemDeliver 목표 | 주민에게 전달할 때 1개 소비 |
 | 분실물 월드 오브젝트 | 활성 퀘스트이며 아이템 미보유일 때 동적 생성 | 로드 시 조건으로 재생성 | 획득·반환·새 게임 시 제거 |
-| 주민에게 먼저 말했는지 | 앵커 FlowGraph의 저장 분기 또는 전용 bool | 첫 귀환 장면 중 저장 필요 시 저장 | 앵커 완료 시 제거 가능 |
+| 주민에게 먼저 말했는지 | `cycle.anchor.first_return_request_heard` 플래그 | FlagSaveData | 새 게임에서 초기화 |
 | 자기 조우 여부 | 현재 `CycleBossPlacement.actorId`와 Protagonist 대조 | 현재 배치에서 매번 계산 | 회차 종료 |
 | 동일 인물 Assist 차단 | 현재 배치에 같은 source actor가 남았는지 계산 | 저장 필드 추가 없음 | 해당 인물과의 대결 완료 즉시 해제 |
 
@@ -80,7 +80,7 @@ Returned
 | 파생 상태 | 판정 |
 |---|---|
 | `Dormant` | 앵커 퀘스트 비활성 |
-| `AvailableInWorld` | 퀘스트 활성, ItemCollect 미완료, 앵커 아이템 0개 |
+| `AvailableInWorld` | 퀘스트 활성, 앵커 아이템 0개, 해당 회차 앵커 미완료 |
 | `Carried` | 퀘스트 활성, 앵커 아이템 1개 이상 |
 | `Returned` | ItemDeliver 완료, 주민 반응 미완료 |
 | `AnchorCompleted` | 퀘스트 완료. 첫 귀환이면 `first_return_anchor_completed=true` |
@@ -123,22 +123,11 @@ Returned
 - BossAssist, Protagonist, 지식 플래그, 성장 상태는 유지한다.
 - 새로운 보스 배치만 생성한다.
 
-## 6. BossAssist P0 보정
+## 6. BossAssist P0 구현
 
-승인된 플롯은 첫 회차에 관계가 실제 능력으로 남는 것을 요구한다. 현재 데이터는 다음 두 조건을 충족하지 않는다.
+승인된 플롯은 첫 회차에 관계가 실제 능력으로 남는 것을 요구한다. 호노카·보쿠세이·히치·릴리 정의를 `BossAssistDatabase_P0.asset`에 등록하고 모두 `requiredDefeatCount=1`로 두어 첫 대결 뒤 획득을 보장했다. 기존 `CycleSaveData.assists`가 로스터·장착·쿨다운을 회차와 저장 로드 뒤에도 유지한다.
 
-- `BossAssistDatabase_P0.asset`의 `definitions`가 비어 있다.
-- 일반 누적 영입 기준은 `requiredDefeatCount=3`이다.
-
-구현 단계의 최소 계약:
-
-1. 현행 P0 세 상대 중 최소 한 명의 `BossAssistDefinitionSO`를 저작한다.
-2. `BossAssistDatabase_P0`에 등록한다.
-3. 첫 회차 영입을 보장한다.
-   - 권장: 대표 정의만 `requiredDefeatCount=1`로 둔다.
-   - 대안: 첫 회차 마지막 대결 뒤 명시적 스토리 영입을 지급한다.
-4. 다음 회차와 저장 후 로드에서 로스터·장착·쿨다운이 유지되는지 확인한다.
-5. 같은 `sourceBossActorId`가 현재 회차의 미승리 상대라면 그 Assist 사용을 차단한다.
+같은 `sourceBossActorId`의 살아 있는 상대가 현재 월드에 존재하면 `BossAssistManager.RequestAssist`가 해당 Assist만 차단한다. 네 사이클 보스의 `_recruitableAs`는 `None`으로 유지해 플레이어블 해금과 혼입하지 않는다.
 
 플롯이 특정 숙련 조건 달성을 강제하지 않으므로 브레이크 마무리나 노히트를 P0 관계 증명의 필수 조건으로 삼지 않는다.
 
@@ -156,7 +145,7 @@ Returned
 ## 8. 실패 복구 규칙
 
 - 분실물 퀘스트가 활성인데 오브젝트와 아이템이 모두 없으면 오브젝트를 재생성한다.
-- 아이템을 보유했는데 ItemCollect 진행도가 0이면 수락 시 인벤토리 새로고침 경로로 보정한다.
+- 아이템을 보유한 상태로 로드하면 월드 오브젝트를 중복 생성하지 않고 ItemDeliver 목표를 그대로 유지한다.
 - ItemDeliver 완료 뒤 아이템이 남으면 앵커 아이템만 제거한다. 일반 아이템은 건드리지 않는다.
 - SP30 이상인데 `quest_main_003`이 활성 상태면 목표를 다시 지급하지 않고 완료 조건을 재평가한다.
 - Protagonist가 유효하지 않으면 11번 문서의 폴백을 적용하고 한 번만 경고한다.
@@ -174,9 +163,7 @@ Returned
 8. 파티 교체와 로드 뒤에도 Protagonist가 변하지 않는다.
 9. 새 게임을 다시 시작하면 위 영구·회차 상태가 모두 초기화된다.
 
-## 10. 구현 승인 시 변경 대상
-
-이 목록은 구현 범위 예고이며 현재 문서 단계에서는 수정하지 않는다.
+## 10. 구현 반영 대상
 
 - `GameSaveData.cs`, `PartyManager.cs`, 파티 서비스 계약
 - `CycleRunManager`의 첫 사이클 시작 게이트와 첫 정산 스토리 진행 호출

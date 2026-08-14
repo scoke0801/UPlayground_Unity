@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: dlg_field_highland_guardian_defeat
   m_EditorClassIdentifier: 
   graphId: dlg_field_highland_guardian_defeat
-  graphName: "\uACE0\uC9C0\uB300 \uAC15\uC801 \uCC98\uCE58"
+  graphName: "\uACE0\uC9C0\uB300 \uAC15\uC801 \uB300\uACB0"
   startNodeId: dlg_field_highland_guardian_defeat_talk
   nodes:
   - {fileID: 2534802913398354186}
@@ -33,7 +33,7 @@ MonoBehaviour:
   nodeId: dlg_field_highland_guardian_defeat_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uACE0\uC9C0\uB300\uAC00 \uC870\uC6A9\uD574\uC84C\uB2E4.\n\uC800
     \uC544\uB798, \uC11D\uB4F1\uC774 \uC774\uC5B4\uC9C0\uB294 \uAE38 \uB05D\uC5D0
     \uC785\uAD6C \uAC19\uC740 \uAC8C \uBCF4\uC778\uB2E4."

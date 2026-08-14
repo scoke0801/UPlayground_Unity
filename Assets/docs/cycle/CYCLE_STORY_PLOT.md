@@ -1,8 +1,8 @@
 # 메인 스토리 플롯 확정본
 
-> 문서 버전: **v1.0**<br>
-> 확정일: **2026-08-12**<br>
-> 상태: **인과·구조 승인 완료 / 대사 샘플·JSON·에셋은 별도 승인 대상**<br>
+> 문서 버전: **v1.0-implementation**<br>
+> 확정일: **2026-08-12** / P0 구현일: **2026-08-14**<br>
+> 상태: **인과·구조 승인 및 P0 코드·데이터 구현 완료**<br>
 > 구현 계약: [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md), [11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md](11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md), [12_LOOP_ANCHOR_QUEST_SPEC.md](12_LOOP_ANCHOR_QUEST_SPEC.md)
 
 이 문서는 메인 스토리의 권위 소스다. 세계는 아무것도 심사하거나 평가하지 않는다. 구현 스펙의 기술 용어가 플레이어 문구나 대사에 노출되어서는 안 된다.
@@ -192,7 +192,7 @@ BossAssist는 파티 합류나 플레이어블 해금이 아니다. `_recruitabl
 
 > 매 회차의 고정은 되돌아오지만, 그들을 다시 움직이게 하는 방법과 서로의 신뢰는 남는다.
 
-P0에서는 첫 회차에 최소 한 명의 BossAssist를 반드시 획득하고, 다음 회차에도 유지되어 실제 사용할 수 있어야 한다. 현재 `BossAssistDatabase_P0`에 정의가 없으므로 구현 단계에서 대표 정의를 최소 하나 저작·등록하고, 첫 회차 획득을 보장해야 한다.
+P0에서는 첫 회차에 최소 한 명의 BossAssist를 반드시 획득하고, 다음 회차에도 유지되어 실제 사용할 수 있어야 한다. `BossAssistDatabase_P0`에는 호노카·보쿠세이·히치·릴리 정의를 등록했고, 모두 첫 승리 뒤 획득되도록 `requiredDefeatCount=1`로 설정했다.
 
 동일 인물이 현재 회차에서 아직 대결하지 않은 상대로 남아 있으면 그 인물의 Assist 사용을 P0에서 차단한다. 해당 대결이 끝난 뒤에는 사용할 수 있다. 정밀한 조우 중 차단이나 `빌려준 기술의 흔적` 연출은 P1에서 확장한다.
 
@@ -226,7 +226,7 @@ P1에서만 전용 그래프와 정체 단서를 저작한다. 임시 설정 문
 - `quest_main_003` 재구조와 SP30 이동
 - 메인 퀘스트/HUD/마커의 플레이어용 문구 교체
 - 안내인의 최소 관찰 대사
-- BossAssist 대표 데이터 최소 하나, 첫 회차 획득 보장, 다음 회차 유지·사용 검증
+- BossAssist 4종 데이터, 첫 승리 획득 보장, 다음 회차 유지·사용
 - 동일 인물 상대가 남아 있을 때 해당 Assist 사용 차단
 - 자기 조우 최소 안전 반응
 - 엔딩에서 기존 마을 복귀 후 새 경로 노출
@@ -241,12 +241,12 @@ P1에서만 전용 그래프와 정체 단서를 저작한다. 임시 설정 문
 - 새 지역과 자유 원정 콘텐츠
 - 안내인의 개인 작업실과 필요 시 직접 건네는 열쇠
 
-## 12. 승인 경계
+## 12. 구현 경계
 
-이 플롯의 인과와 구조는 v1.0으로 승인되었다. 다음 구현 명세는 이 문서를 변경하지 않고 기술 경계만 구체화한다.
+이 플롯의 인과와 구조는 v1.0으로 승인되었고, 아래 구현 명세에 따라 P0 코드·데이터가 반영되었다.
 
 - [10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md](10_CYCLE_STORY_STATE_BOUNDARY_SPEC.md): 무엇이 리셋되고 무엇이 저장되는가
 - [11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md](11_PROTAGONIST_DIALOGUE_CONTRACT_SPEC.md): 선택 캐릭터 저장, 화자와 초상화 해석
 - [12_LOOP_ANCHOR_QUEST_SPEC.md](12_LOOP_ANCHOR_QUEST_SPEC.md): 첫 원정 게이트, 분실물 3분기, `quest_main_003`, SP30
 
-대사 JSON, FlowGraph 에셋, QuestSO 수정, BossAssist 데이터와 런타임 코드는 각 구현 명세 승인 뒤에 착수한다.
+P1 상대별 전용 대사·자기 조우 정체 규명·새 지역 콘텐츠는 계속 이 문서의 범위 밖이다.

@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "수호자 세 명 처치 완료. 최후의 수호자가 출현했습니다."
+  dialogueText: "세 번째 대결이 끝나자, 멀리 있던 풍경이 흔들렸다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_central_evaluation
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_central_evaluation
-  graphName: "최후의 수호자 - 출현"
+  graphName: "마지막 상대 - 발견"
   startNodeId: dlg_cycle_story_central_evaluation_talk_01
   nodes:
   - {fileID: 11400001}
@@ -62,8 +62,8 @@ MonoBehaviour:
   nodeId: dlg_cycle_story_central_evaluation_talk_02
   nodeType: 0
   channel: 2
-  speakerId: "Bokusei"
-  dialogueText: "지도에 새 목표가 떴어. 최후의 수호자다."
+  speakerId: "Protagonist"
+  dialogueText: "전에는 보이지 않던 길이야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -89,8 +89,8 @@ MonoBehaviour:
   nodeId: dlg_cycle_story_central_evaluation_talk_03
   nodeType: 0
   channel: 2
-  speakerId: "Bokusei"
-  dialogueText: "저 수호자를 쓰러뜨리고 귀환 포털을 열자."
+  speakerId: "Protagonist"
+  dialogueText: "저 끝에 누군가 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

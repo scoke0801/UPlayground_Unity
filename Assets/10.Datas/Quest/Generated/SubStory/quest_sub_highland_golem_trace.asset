@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_sub_highland_golem_trace
   m_EditorClassIdentifier:
   questId: quest_sub_highland_golem_trace
-  questName: "마지막 서명"
+  questName: "함께 만든 길"
   questType: 1
-  shortSummary: "최종 정산 기록에 남은 수호자들의 서명을 확인한다."
-  questDescription: "세 번째 정산 기록에는 도전자 한 명의 이름만 적히지 않았다. 원정에서 만난 수호자와 해방된 탐험가의 흔적이 같은 통과자 명단에 남았다. 시련장이 끝내 인정한 것은 혼자 살아남는 힘이 아니라 함께 다음 길을 여는 능력이었다."
+  shortSummary: "여러 사람의 힘이 새 경로를 만든 순간을 확인한다."
+  questDescription: "주인공이 이어 온 사람들의 힘을 같은 순간에 모으자, 늘 원점으로 향하던 흐름이 다른 방향으로 움직였다. 새 길은 세계가 내어 준 보상이 아니라, 기억과 관계로 언제든 다시 만들 수 있게 된 경로다."
   requiredQuestIds:
   - quest_sub_hunter_spider_web
   requiredStoryProgress: 20
@@ -24,7 +24,7 @@ MonoBehaviour:
   autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_confirm_final_signatures
-    description: "세 번째 사이클을 정산하고 최종 통과자 명단을 확인한다."
+    description: "마지막 원정을 마치고 새 경로를 다시 만드는 방법을 확인한다."
     type: 4
     targetId: 50
     npcId: 0

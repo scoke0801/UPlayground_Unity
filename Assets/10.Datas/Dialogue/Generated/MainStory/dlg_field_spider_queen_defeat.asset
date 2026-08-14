@@ -15,7 +15,7 @@ MonoBehaviour:
   nodeId: dlg_field_spider_queen_defeat_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uC232 \uC548\uCABD \uAE38\uC774 \uBCF4\uC778\uB2E4.\n\uC774\uC81C
     \uC774\uCABD\uC73C\uB85C\uB3C4 \uD638\uC218 \uBC18\uB300\uD3B8\uC5D0 \uAC08 \uC218
     \uC788\uACA0\uC5B4."
@@ -42,7 +42,7 @@ MonoBehaviour:
   m_Name: dlg_field_spider_queen_defeat
   m_EditorClassIdentifier: 
   graphId: dlg_field_spider_queen_defeat
-  graphName: "Spider Queen \uCC98\uCE58"
+  graphName: "Spider Queen \uB300\uACB0"
   startNodeId: dlg_field_spider_queen_defeat_talk
   nodes:
   - {fileID: -8604707077994349873}

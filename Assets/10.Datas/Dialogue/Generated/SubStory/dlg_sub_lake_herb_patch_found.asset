@@ -33,7 +33,7 @@ MonoBehaviour:
   nodeId: dlg_sub_lake_herb_patch_found_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uC57D\uCD08\uAC00 \uC544\uC9C1 \uB0A8\uC544 \uC788\uB2E4.\n\uAE38\uB9CC
     \uC815\uB9AC\uB418\uBA74 \uB9C8\uC744\uC5D0\uC11C\uB3C4 \uB2E4\uC2DC \uCC44\uC9D1\uD558\uB7EC
     \uC62C \uC218 \uC788\uACA0\uC5B4."

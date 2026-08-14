@@ -42,7 +42,7 @@ MonoBehaviour:
   nodeId: dlg_dungeon_entrance_open_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uC785\uAD6C\uB97C \uB9C9\uB358 \uAE30\uC6B4\uC774 \uC0AC\uB77C\uC84C\uB2E4.\n\uC774\uC81C
     \uC548\uC73C\uB85C \uB4E4\uC5B4\uAC08 \uC218 \uC788\uB2E4."
   portrait: {fileID: 0}

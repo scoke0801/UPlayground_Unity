@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "탐험 기록을 접수했습니다. 통과 조건 불충족."
+  dialogueText: "익숙한 마을 풍경이 다시 눈앞에 펼쳐졌다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: dlg_cycle_story_first_settlement
   m_EditorClassIdentifier: 
   graphId: dlg_cycle_story_first_settlement
-  graphName: "귀환 포털 - 정산"
+  graphName: "첫 귀환 - 원점"
   startNodeId: dlg_cycle_story_first_settlement_talk_01
   nodes:
   - {fileID: 11400001}
@@ -64,7 +64,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 1
   speakerId: ""
-  dialogueText: "정산 보상과 중요 물품을 지급합니다: 시작의 마을 지하실 열쇠."
+  dialogueText: "거리와 우물, 사람들의 자리까지 출발하기 전과 같았다."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -90,8 +90,8 @@ MonoBehaviour:
   nodeId: dlg_cycle_story_first_settlement_talk_03
   nodeType: 0
   channel: 2
-  speakerId: "Bokusei"
-  dialogueText: "출구가 아니라 시작점으로 돌아왔어. 안내인이 왜 지하실 열쇠를 정산품에 넣은 거지?"
+  speakerId: "Protagonist"
+  dialogueText: "분명 돌아왔는데… 처음 출발했을 때와 똑같아."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -117,8 +117,8 @@ MonoBehaviour:
   nodeId: dlg_cycle_story_first_settlement_talk_04
   nodeType: 0
   channel: 2
-  speakerId: "Bokusei"
-  dialogueText: "원정 기록이 다음 시련에 반영된다면, 먼저 안내인에게 설명을 들어야겠어."
+  speakerId: "Protagonist"
+  dialogueText: "사람들도 그대로인지 직접 확인해 보자."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

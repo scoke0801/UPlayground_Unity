@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_sub_hunter_skeleton_patrol
   m_EditorClassIdentifier:
   questId: quest_sub_hunter_skeleton_patrol
-  questName: "먼저 고개 숙인 수호자"
+  questName: "대결 뒤의 인사"
   questType: 1
-  shortSummary: "외곽 수호자들이 보인 이상한 예의를 관찰한다."
-  questDescription: "외곽의 수호자들은 쓰러지기 직전 잠시 공격을 멈추고 도전자에게 고개를 숙였다. 단순한 괴물의 행동이라기보다, 정해진 역할을 끝까지 수행하는 시험관의 인사처럼 보였다."
+  shortSummary: "세 상대가 대결 뒤 보인 서로 다른 반응을 관찰한다."
+  questDescription: "같은 장소에 붙잡혀 있었어도 세 사람의 반응은 달랐다. 누군가는 웃고, 누군가는 경계를 거두고, 누군가는 먼저 길을 비켰다. 그들이 세계의 명령이 아니라 각자의 이유로 대결했다는 단서다."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 1
@@ -24,7 +24,7 @@ MonoBehaviour:
   - quest_sub_hunter_spider_web
   objectives:
   - objectiveId: obj_observe_outer_guardians
-    description: "외곽의 세 시련을 통과하며 수호자들의 반응을 관찰한다."
+    description: "세 번의 대결을 마치며 각 상대의 반응을 관찰한다."
     type: 4
     targetId: 10
     npcId: 0

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: dlg_sub_highland_golem_trace_done
   m_EditorClassIdentifier: 
   graphId: dlg_sub_highland_golem_trace_done
-  graphName: "\uACE0\uC9C0\uB300 Golem \uCC98\uCE58"
+  graphName: "\uACE0\uC9C0\uB300 Golem \uB300\uACB0"
   startNodeId: dlg_sub_highland_golem_trace_done_talk
   nodes:
   - {fileID: 8247222072479238511}
@@ -60,7 +60,7 @@ MonoBehaviour:
   nodeId: dlg_sub_highland_golem_trace_done_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uBC14\uC704\uAC00 \uBA48\uCDC4\uB2E4.\n\uC774 \uAE38\uC740 \uC544\uC9C1
     \uAC70\uCE60\uC9C0\uB9CC, \uC801\uC5B4\uB3C4 \uB4F1 \uB4A4\uC5D0\uC11C \uBB34\uB108\uC9C8
     \uAC71\uC815\uC740 \uC904\uC5C8\uC5B4."

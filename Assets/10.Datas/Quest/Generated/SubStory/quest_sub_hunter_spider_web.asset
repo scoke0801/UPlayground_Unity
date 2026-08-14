@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_sub_hunter_spider_web
   m_EditorClassIdentifier:
   questId: quest_sub_hunter_spider_web
-  questName: "수호자가 남긴 호칭"
+  questName: "마지막 자리의 흔적"
   questType: 1
-  shortSummary: "최후의 수호자가 보쿠세이를 부른 호칭의 의미를 추적한다."
-  questDescription: "최후의 수호자는 보쿠세이를 침입자나 용사가 아니라 '이번 회차의 대표자'라고 불렀다. 시련장 기록은 이 수호자를 '평가자'로 분류한다. 한 사람의 무력이 아니라 도전자와 수호자가 어떤 관계를 만드는지 보고 있다는 단서다."
+  shortSummary: "마지막 대결 뒤 빛이 모인 방향을 기록한다."
+  questDescription: "마지막 상대가 자리를 벗어나자 주변에 엉켜 있던 빛이 한 방향으로 흘러 귀환 포털의 모양을 만들었다. 누가 문을 열어 준 것이 아니라, 막혀 있던 흐름이 되돌아간 흔적처럼 보인다."
   requiredQuestIds:
   - quest_sub_hunter_skeleton_patrol
   requiredStoryProgress: 10
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_sub_highland_golem_trace
   objectives:
   - objectiveId: obj_hear_central_evaluator
-    description: "최후의 수호자를 처치하고 그가 남긴 호칭을 기록한다."
+    description: "마지막 대결을 마치고 빛이 모인 방향을 기록한다."
     type: 4
     targetId: 20
     npcId: 0

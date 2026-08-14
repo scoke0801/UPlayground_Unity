@@ -15,8 +15,8 @@ MonoBehaviour:
   questId: quest_sub_herbalist_lake_herb
   questName: "서로 다른 두 번째 지도"
   questType: 1
-  shortSummary: "두 번의 원정 지도를 겹쳐 시련장이 바꾼 부분을 찾는다."
-  questDescription: "두 번째 원정의 길과 보스 배치는 첫 번째 기록과 달랐지만, 안내인이 표시한 관측 사각지대만은 움직이지 않았다. 시련장은 길과 적을 바꿀 수 있어도 사람들이 서로 돕는 순간까지는 정확히 계산하지 못한다."
+  shortSummary: "두 번의 원정 지도를 겹쳐 흐름이 달라진 곳을 찾는다."
+  questDescription: "두 번째 원정의 길과 상대 위치는 첫 번째 기록과 조금 달랐다. 흐름은 매번 완전히 같은 모양으로 가라앉지 않지만, 주인공이 기억한 길과 사람 사이에 쌓인 연결은 그대로 남았다."
   requiredQuestIds:
   - quest_sub_survivor_lost_pack
   requiredStoryProgress: 30

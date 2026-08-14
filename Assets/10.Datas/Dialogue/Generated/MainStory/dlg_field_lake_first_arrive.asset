@@ -15,7 +15,7 @@ MonoBehaviour:
   nodeId: dlg_field_lake_first_arrive_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uD638\uC218 \uAC00\uC6B4\uB370 \uBD89\uC740 \uB098\uBB34\uAC00
     \uBCF4\uC778\uB2E4.\n\uC800\uAC78 \uAE30\uC900\uC73C\uB85C \uC0BC\uC73C\uBA74
     \uC5B4\uB290 \uAE38\uC5D0\uC11C\uB4E0 \uB3CC\uC544\uC62C \uC218 \uC788\uACA0\uC5B4."
@@ -42,7 +42,7 @@ MonoBehaviour:
   m_Name: dlg_field_lake_first_arrive
   m_EditorClassIdentifier: 
   graphId: dlg_field_lake_first_arrive
-  graphName: "\uC911\uC559 \uD638\uC218 \uBC1C\uACAC"
+  graphName: "\uD638\uC218 \uBC1C\uACAC"
   startNodeId: dlg_field_lake_first_arrive_talk
   nodes:
   - {fileID: -7736772272089582713}

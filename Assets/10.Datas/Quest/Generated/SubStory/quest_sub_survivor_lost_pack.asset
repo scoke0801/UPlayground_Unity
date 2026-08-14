@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_sub_survivor_lost_pack
   m_EditorClassIdentifier:
   questId: quest_sub_survivor_lost_pack
-  questName: "정산표 뒷면"
+  questName: "되돌아온 하루"
   questType: 1
-  shortSummary: "첫 귀환 기록에서 지워진 도전자들의 흔적을 찾는다."
-  questDescription: "첫 정산표의 뒷면에는 같은 출발점으로 돌아왔던 사람들의 이름과 실패 사유가 희미하게 남아 있었다. 안내인은 그 이름들이 패배해서 지워진 것이 아니라, 시련장의 규칙을 거부했기 때문에 숨겨졌을 가능성을 제시했다."
+  shortSummary: "첫 귀환 뒤 되풀이된 마을의 작은 사건을 기록한다."
+  questDescription: "미아가 같은 리본을 같은 곳에서 다시 잃어버렸다. 주민에게는 처음 일어난 일이지만 주인공은 위치를 기억했다. 장소만 닮은 것이 아니라 세계의 하루가 되돌아왔다는 가장 분명한 흔적이다."
   requiredQuestIds:
   - quest_sub_guide_broken_lantern
   requiredStoryProgress: 10
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_sub_herbalist_lake_herb
   objectives:
   - objectiveId: obj_read_first_settlement_record
-    description: "첫 사이클을 정산하고 귀환 기록의 뒷면을 확인한다."
+    description: "첫 귀환 뒤 같은 분실물 사건이 되풀이됐음을 확인한다."
     type: 4
     targetId: 30
     npcId: 0

@@ -15,7 +15,7 @@ MonoBehaviour:
   nodeId: dlg_dungeon_entrance_arrive_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uB358\uC804 \uC785\uAD6C\uAC00 \uB9DE\uB2E4.\n\uC5EC\uAE38 \uC9C0\uB098\uAC00\uB824\uBA74
     \uC800\uAC78 \uBA3C\uC800 \uC4F0\uB7EC\uB728\uB824\uC57C \uD574."
   portrait: {fileID: 0}

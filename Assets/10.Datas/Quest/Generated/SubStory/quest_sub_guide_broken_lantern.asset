@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_sub_guide_broken_lantern
   m_EditorClassIdentifier:
   questId: quest_sub_guide_broken_lantern
-  questName: "소리 내지 않는 복습"
+  questName: "새로 드러난 길"
   questType: 1
-  shortSummary: "안내인이 건넨 빈 지도에 첫 원정의 차이점을 기록한다."
-  questDescription: "안내인은 시련장이 공략 대화를 학습한다며, 원정 중 발견한 변화는 입 밖에 내지 말고 빈 지도에 표시해 달라고 부탁했다. 외곽의 세 시련을 마친 뒤 서로의 기록을 맞춰 보기로 했다."
+  shortSummary: "세 번의 대결 뒤 달라진 풍경을 지도에 기록한다."
+  questDescription: "세 사람이 자리를 옮기자 멀리 있던 풍경이 흔들리고, 전에는 보이지 않던 길이 나타났다. 안내인은 길이 드러난 순간과 주변의 변화를 빈 지도에 표시해 달라고 부탁했다."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 1
@@ -24,7 +24,7 @@ MonoBehaviour:
   - quest_sub_survivor_lost_pack
   objectives:
   - objectiveId: obj_record_first_outer_trials
-    description: "외곽의 세 시련을 마치고 첫 원정 기록을 완성한다."
+    description: "세 번의 대결을 마치고 새로 드러난 길을 기록한다."
     type: 4
     targetId: 10
     npcId: 0

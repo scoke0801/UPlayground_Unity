@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: quest_main_002
   m_EditorClassIdentifier: 
   questId: quest_main_002
-  questName: "최후의 수호자"
+  questName: "마지막 대결"
   questType: 0
-  shortSummary: "새로 표시된 최후의 수호자를 처치한다."
-  questDescription: "수호자 세 명을 모두 처치하자 시련장이 최후의 수호자를 내보냈다. 지도에 새로 표시된 목표로 이동해 처치한다."
+  shortSummary: "새로 드러난 마지막 상대와 대결한다."
+  questDescription: "세 번의 대결이 끝나자 전에는 보이지 않던 길과 마지막 상대의 위치가 드러났다. 그곳으로 가 대결에서 승리하자."
   requiredQuestIds:
   - quest_main_001
   requiredStoryProgress: 0
@@ -25,7 +25,7 @@ MonoBehaviour:
   - quest_main_003
   objectives:
   - objectiveId: obj_cycle_central_evaluation
-    description: "최후의 수호자를 처치한다."
+    description: "마지막 상대와의 대결에서 승리한다."
     type: 4
     targetId: 20
     npcId: 0

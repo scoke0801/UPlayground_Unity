@@ -15,7 +15,7 @@ MonoBehaviour:
   nodeId: dlg_sub_spider_web_clear_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uBC14\uAE65\uCABD \uAC70\uBBF8\uC904\uC774 \uC904\uC5C8\uB2E4.\n\uAE4A\uC740
     \uC232\uC740 \uC5EC\uC804\uD788 \uC704\uD5D8\uD558\uC9C0\uB9CC, \uC774 \uAE38\uC740
     \uB2E4\uC2DC \uC4F8 \uC218 \uC788\uACA0\uC5B4."

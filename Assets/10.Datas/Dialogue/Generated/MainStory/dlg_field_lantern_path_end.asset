@@ -42,7 +42,7 @@ MonoBehaviour:
   nodeId: dlg_field_lantern_path_end_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uB4F1\uB871\uACFC \uC11D\uB4F1\uC774 \uAC19\uC740 \uBC29\uD5A5\uC73C\uB85C
     \uC774\uC5B4\uC838 \uC788\uB2E4.\n\uAE38\uC744 \uC228\uAE30\uB824\uB358 \uAC8C
     \uC544\uB2C8\uB77C, \uC78A\uC9C0 \uC54A\uC73C\uB824\uACE0 \uC138\uC6CC \uB454

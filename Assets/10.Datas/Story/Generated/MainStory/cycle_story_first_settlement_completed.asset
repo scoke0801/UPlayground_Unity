@@ -15,6 +15,6 @@ MonoBehaviour:
   storyId: cycle_story_first_settlement_completed
   requiredProgress: 30
   maxProgressExclusive: 40
-  triggerMode: 2
+  triggerMode: 1
   dialogueGraph: {fileID: 11400000, guid: b10373cd263749a188e42b2ba36b3147, type: 2}
   variants: []

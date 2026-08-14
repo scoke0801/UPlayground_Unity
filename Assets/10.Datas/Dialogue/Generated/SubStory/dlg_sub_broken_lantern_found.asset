@@ -42,7 +42,7 @@ MonoBehaviour:
   nodeId: dlg_sub_broken_lantern_found_talk
   nodeType: 0
   channel: 2
-  speakerId: Bokusei
+  speakerId: Protagonist
   dialogueText: "\uB4F1\uB871\uC774 \uC4F0\uB7EC\uC838 \uC788\uB2E4.\n\uB204\uAD70\uAC00
     \uC9C0\uB098\uAC04 \uAE38\uC774\uB77C\uBA74, \uBAAC\uC2A4\uD130\uB3C4 \uADF8
     \uAE38\uC744 \uC54C\uACE0 \uC788\uACA0\uC9C0."

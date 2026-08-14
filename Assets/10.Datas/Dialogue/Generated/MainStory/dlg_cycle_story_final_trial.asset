@@ -16,7 +16,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "두 번째 정산표를 봤어. 시련장은 네가 얼마나 빨리 이겼는지가 아니라, 낯선 배치에서 선택을 바꾼 순간들을 기록했어."
+  dialogueText: "이제는 흐름이 어디서 흔들리는지 알겠지."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -63,8 +63,8 @@ MonoBehaviour:
   nodeId: dlg_cycle_story_final_trial_talk_02
   nodeType: 0
   channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "혼자 강해지는 것보다, 함께 돌아오는 방법을 본 거네."
+  speakerId: "Protagonist"
+  dialogueText: "응. 우리가 이어 온 힘을 같은 순간에 모으면 방향을 바꿀 수 있어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -91,7 +91,7 @@ MonoBehaviour:
   nodeType: 0
   channel: 0
   speakerId: "안내인"
-  dialogueText: "맞아. 마지막 원정도 수호자 세 명부터야. 지금까지 만든 관계와 판단을 그대로 보여 줘."
+  dialogueText: "세 번의 대결 뒤 마지막 장소에서 시도해 봐. 돌아올 곳은 네가 정하는 거야."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -117,8 +117,8 @@ MonoBehaviour:
   nodeId: dlg_cycle_story_final_trial_talk_04
   nodeType: 0
   channel: 0
-  speakerId: "Bokusei"
-  dialogueText: "그게 바깥길을 여는 마지막 답이라면, 모두와 함께 돌아와서 증명할게."
+  speakerId: "Protagonist"
+  dialogueText: "이번에는 끌려가지 않고, 우리가 다음 길을 만들게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0

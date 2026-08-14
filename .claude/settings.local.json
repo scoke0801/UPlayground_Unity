@@ -548,7 +548,9 @@
       "Bash(cp Assembly-CSharp.csproj /c/Users/scoke/AppData/Local/Temp/claude/C--UsingProject-UnityProject-UPlayground/905b56ff-2650-4c7a-af1b-e59a8ec4f007/scratchpad/Assembly-CSharp.csproj.bak)",
       "Bash(sed -i 's#<Compile Include=\"Assets\\\\\\\\02.Scripts\\\\\\\\Debugging\\\\\\\\DevCheat\\\\\\\\UI_DevCheatPanel.Codex.cs\" />#<Compile Include=\"Assets\\\\\\\\02.Scripts\\\\\\\\Debugging\\\\\\\\DevCheat\\\\\\\\UI_DevCheatPanel.Codex.cs\" />\\\\n    <Compile Include=\"Assets\\\\\\\\02.Scripts\\\\\\\\Debugging\\\\\\\\DevCheat\\\\\\\\UI_DevCheatPanel.Spawn.cs\" />\\\\n    <Compile Include=\"Assets\\\\\\\\02.Scripts\\\\\\\\Manager\\\\\\\\Cheat\\\\\\\\CheatManager.Spawn.cs\" />#' Assembly-CSharp.csproj)",
       "Bash(awk '/^diff --git|^index |^--- |^\\\\+\\\\+\\\\+ /{print > \"/tmp/hdr.txt\"} /^@@/{h=$0} {print}' /tmp/spec.patch)",
-      "PowerShell(python \".claude/skills/generate-bt-json/scripts/validate_bt_json.py\" \"Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_PlantRoot_Stationary.json\" \"Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_MainPlant_Stationary.json\")"
+      "PowerShell(python \".claude/skills/generate-bt-json/scripts/validate_bt_json.py\" \"Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_PlantRoot_Stationary.json\" \"Assets/10.Datas/AI/BehaviorTree/SourceJson/EnemyBehavior_MainPlant_Stationary.json\")",
+      "WebFetch(domain:combatrecall.blogspot.com)",
+      "WebFetch(domain:jahej.com)"
     ],
     "deny": [
       "Bash(rm -rf *)",

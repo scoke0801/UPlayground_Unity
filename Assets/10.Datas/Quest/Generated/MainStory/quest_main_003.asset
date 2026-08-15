@@ -15,6 +15,7 @@ MonoBehaviour:
   questId: quest_main_003
   questName: "귀환"
   questType: 0
+  isContentEnabled: 1
   shortSummary: "귀환 포털을 이용한 뒤, 시작 지점에서 달라진 일을 확인한다."
   questDescription: "마지막 대결이 끝나자 귀환 포털이 나타났다. 포털을 이용해 돌아간 뒤 마을의 모습을 살펴보자."
   requiredQuestIds:

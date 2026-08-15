@@ -35,6 +35,10 @@ namespace UPlayGround.Data.Quest
         public string shortSummary;
         [TextArea] public string questDescription;
 
+        [Header("콘텐츠 상태")]
+        [Tooltip("현재 플레이어 빌드의 QuestDatabase에 포함할지 여부. 미완성·레거시 초안은 에셋과 GUID를 보존한 채 끌 수 있다.")]
+        public bool isContentEnabled = true;
+
         [Header("선행 조건")]
         [Tooltip("이 퀘스트를 수락하기 위해 완료해야 하는 퀘스트 ID 목록")]
         public List<string> requiredQuestIds = new List<string>();

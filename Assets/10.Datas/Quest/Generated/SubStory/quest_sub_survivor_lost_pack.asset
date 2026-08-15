@@ -15,6 +15,7 @@ MonoBehaviour:
   questId: quest_sub_survivor_lost_pack
   questName: "되돌아온 하루"
   questType: 1
+  isContentEnabled: 0
   shortSummary: "첫 귀환 뒤 되풀이된 마을의 작은 사건을 기록한다."
   questDescription: "미아가 같은 리본을 같은 곳에서 다시 잃어버렸다. 주민에게는 처음 일어난 일이지만 주인공은 위치를 기억했다. 장소만 닮은 것이 아니라 세계의 하루가 되돌아왔다는 가장 분명한 흔적이다."
   requiredQuestIds:

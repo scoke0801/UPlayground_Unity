@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: quest_main_004
   m_EditorClassIdentifier: 
   questId: quest_main_004
-  questName: "달라진 회차"
+  questName: "달라진 길"
   questType: 0
-  shortSummary: "달라진 배치에서 다시 세 번의 대결을 마치고 귀환한다."
-  questDescription: "세계는 되돌아왔지만 지도와 상대의 위치는 전과 조금 다르다. 앞서 얻은 지식과 남아 있는 연결을 활용해 다시 길을 찾아가자."
+  isContentEnabled: 1
+  shortSummary: "달라진 지도에서 다시 세 번의 대결을 마치고 귀환한다."
+  questDescription: "마을은 같은 모습으로 돌아왔지만 지도와 사람들의 위치는 전과 다르다. 기억한 길과 다시 손을 내밀 사람들의 도움으로 귀환 포털을 찾아가자."
   requiredQuestIds:
   - quest_main_003
   requiredStoryProgress: 30

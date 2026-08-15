@@ -15,6 +15,7 @@ MonoBehaviour:
   questId: quest_sub_hunter_skeleton_patrol
   questName: "대결 뒤의 인사"
   questType: 1
+  isContentEnabled: 0
   shortSummary: "세 상대가 대결 뒤 보인 서로 다른 반응을 관찰한다."
   questDescription: "같은 장소에 붙잡혀 있었어도 세 사람의 반응은 달랐다. 누군가는 웃고, 누군가는 경계를 거두고, 누군가는 먼저 길을 비켰다. 그들이 세계의 명령이 아니라 각자의 이유로 대결했다는 단서다."
   requiredQuestIds: []

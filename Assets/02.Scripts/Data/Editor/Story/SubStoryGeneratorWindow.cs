@@ -375,6 +375,7 @@ namespace UPlayGround.Editor
             quest.questType = QuestType.Sub;
             quest.shortSummary = seed.ShortSummary;
             quest.questDescription = seed.Description;
+            quest.isContentEnabled = true;
             quest.requiredStoryProgress = seed.RequiredProgress;
             quest.requiredQuestIds = seed.RequiredQuestIds?.ToList() ?? new List<string>();
             quest.autoAcceptOnNewGame = seed.AutoAcceptOnNewGame;

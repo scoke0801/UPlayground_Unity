@@ -15,8 +15,9 @@ MonoBehaviour:
   questId: quest_main_001
   questName: "세 번의 대결"
   questType: 0
+  isContentEnabled: 1
   shortSummary: "지도에 표시된 세 사람과 원하는 순서로 대결한다."
-  questDescription: "지도에 세 사람의 위치가 표시됐다. 원하는 순서로 찾아가 대결에서 승리하면 지금은 보이지 않는 길이 드러난다."
+  questDescription: "마을 밖 세 갈래가 모두 막혀 있고, 길목마다 한 사람이 남아 있다. 원하는 순서로 찾아가 막힌 길의 까닭을 확인하자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0

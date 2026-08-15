@@ -21,7 +21,7 @@ namespace UPlayGround.Data.Quest
             _questMap = new Dictionary<string, QuestSO>();
             foreach (var q in _quests)
             {
-                if (q == null) continue;
+                if (q == null || !q.isContentEnabled) continue;
                 if (_questMap.ContainsKey(q.questId))
                 {
                     Debug.LogWarning($"[QuestDatabase] 중복 QuestID: {q.questId}");
@@ -39,7 +39,12 @@ namespace UPlayGround.Data.Quest
             return q;
         }
 
-        public IEnumerable<QuestSO> GetAllQuests() => _quests;
+        public IEnumerable<QuestSO> GetAllQuests()
+        {
+            foreach (var quest in _quests)
+                if (quest != null && quest.isContentEnabled)
+                    yield return quest;
+        }
         public List<QuestSO> QuestList => _quests;
         public FirstTimeGuideConfigSO FirstTimeGuideConfig => _firstTimeGuideConfig;
 
@@ -57,17 +62,24 @@ namespace UPlayGround.Data.Quest
         public void RefreshDatabase(string folderPath)
         {
             _quests.Clear();
+            int disabledCount = 0;
             string[] guids = UnityEditor.AssetDatabase.FindAssets("t:QuestSO", new[] { folderPath });
             foreach (var guid in guids)
             {
                 var q = UnityEditor.AssetDatabase.LoadAssetAtPath<QuestSO>(
                     UnityEditor.AssetDatabase.GUIDToAssetPath(guid));
-                if (q != null) _quests.Add(q);
+                if (q == null) continue;
+                if (!q.isContentEnabled)
+                {
+                    disabledCount++;
+                    continue;
+                }
+                _quests.Add(q);
             }
             _quests.Sort((a, b) => string.Compare(a.questId, b.questId, System.StringComparison.Ordinal));
             UnityEditor.EditorUtility.SetDirty(this);
             UnityEditor.AssetDatabase.SaveAssets();
-            Debug.Log($"[QuestDatabase] DB 갱신 완료 — {_quests.Count}개");
+            Debug.Log($"[QuestDatabase] DB 갱신 완료 — 활성 {_quests.Count}개, 비활성 제외 {disabledCount}개");
         }
 #endif
     }

@@ -15,6 +15,7 @@ MonoBehaviour:
   questId: quest_main_002
   questName: "마지막 대결"
   questType: 0
+  isContentEnabled: 1
   shortSummary: "새로 드러난 마지막 상대와 대결한다."
   questDescription: "세 번의 대결이 끝나자 전에는 보이지 않던 길과 마지막 상대의 위치가 드러났다. 그곳으로 가 대결에서 승리하자."
   requiredQuestIds:

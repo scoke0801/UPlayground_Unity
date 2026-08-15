@@ -15,6 +15,7 @@ MonoBehaviour:
   questId: quest_sub_guide_broken_lantern
   questName: "새로 드러난 길"
   questType: 1
+  isContentEnabled: 0
   shortSummary: "세 번의 대결 뒤 달라진 풍경을 지도에 기록한다."
   questDescription: "세 사람이 자리를 옮기자 멀리 있던 풍경이 흔들리고, 전에는 보이지 않던 길이 나타났다. 안내인은 길이 드러난 순간과 주변의 변화를 빈 지도에 표시해 달라고 부탁했다."
   requiredQuestIds: []

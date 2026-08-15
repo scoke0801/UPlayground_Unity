@@ -15,6 +15,7 @@ MonoBehaviour:
   questId: quest_sub_hunter_spider_web
   questName: "마지막 자리의 흔적"
   questType: 1
+  isContentEnabled: 0
   shortSummary: "마지막 대결 뒤 빛이 모인 방향을 기록한다."
   questDescription: "마지막 상대가 자리를 벗어나자 주변에 엉켜 있던 빛이 한 방향으로 흘러 귀환 포털의 모양을 만들었다. 누가 문을 열어 준 것이 아니라, 막혀 있던 흐름이 되돌아간 흔적처럼 보인다."
   requiredQuestIds:

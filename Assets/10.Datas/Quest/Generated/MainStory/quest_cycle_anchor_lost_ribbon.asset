@@ -15,15 +15,16 @@ MonoBehaviour:
   questId: quest_cycle_anchor_lost_ribbon
   questName: "미아의 파란 리본"
   questType: 0
-  shortSummary: "미아가 잃어버린 파란 리본을 찾아 돌려준다."
-  questDescription: "미아의 파란 리본이 나무 울타리 근처에서 사라졌다. 가까운 풀숲을 살펴보자."
+  isContentEnabled: 1
+  shortSummary: "미아가 아끼는 파란 리본을 찾아 돌려준다."
+  questDescription: "미아의 파란 리본이 마을 입구의 나무 울타리 근처에서 풀렸다. 가까운 풀숲을 살펴보자."
   requiredQuestIds: []
   requiredStoryProgress: 0
   autoAcceptOnNewGame: 0
   autoAcceptNextQuestIds: []
   objectives:
   - objectiveId: obj_anchor_request
-    description: "미아에게 잃어버린 물건에 관해 듣는다."
+    description: "미아에게 무슨 일이 있었는지 듣는다."
     type: 9
     targetId: 0
     npcId: 0

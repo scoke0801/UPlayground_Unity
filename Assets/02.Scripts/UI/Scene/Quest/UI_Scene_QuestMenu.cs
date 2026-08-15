@@ -337,6 +337,15 @@ namespace UPlayGround.UI
             ClearObjectives();
             foreach (var obj in so.objectives)
             {
+                if (!QuestObjectiveVisibility.IsVisible(
+                        so,
+                        runtime,
+                        obj,
+                        revealAll: status == QuestStatus.Completed))
+                {
+                    continue;
+                }
+
                 int current = ResolveObjectiveProgress(runtime, obj, status);
                 var slot = Instantiate(_objectiveSlotPrefab, _objectiveContent);
                 slot.Init(obj, current);

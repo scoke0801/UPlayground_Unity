@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -12,6 +13,7 @@ using UPlayGround.Data.Quest;
 using UPlayGround.Data.Stat;
 using UPlayGround.Dialogue;
 using UPlayGround.Data.Item;
+using UPlayGround.Story;
 
 namespace UPlayGround.Tool.Editor.Validation
 {
@@ -24,6 +26,7 @@ namespace UPlayGround.Tool.Editor.Validation
             var recipeIds = ValidateRecipes(issues, itemIds);
             ValidateQuests(issues, itemIds, recipeIds);
             ValidateDialogue(issues);
+            ValidateStory(issues);
             ValidateParty(issues);
             ValidateCamera(issues);
             return issues;
@@ -251,12 +254,219 @@ namespace UPlayGround.Tool.Editor.Validation
                     registered.Add(quest.questId);
                 }
 
-                foreach (string id in questIds.Keys)
+                foreach (KeyValuePair<string, QuestSO> pair in questIds)
                 {
-                    if (!registered.Contains(id))
-                        Add(issues, EditorValidationSeverity.Warning, "Quest", path, database, "QuestList", $"QuestSO가 QuestDatabase에 등록되어 있지 않습니다: {id}", "QuestDatabase를 갱신하세요.");
+                    if (pair.Value.isContentEnabled && !registered.Contains(pair.Key))
+                        Add(issues, EditorValidationSeverity.Error, "Quest", path, database, "QuestList", $"활성 QuestSO가 QuestDatabase에 등록되어 있지 않습니다: {pair.Key}", "QuestDatabase를 갱신하세요.");
                 }
             }
+
+            ValidateQuestReferences(issues, questIds);
+        }
+
+        private static void ValidateQuestReferences(
+            List<EditorValidationIssue> issues,
+            Dictionary<string, QuestSO> questIds)
+        {
+            foreach (KeyValuePair<string, QuestSO> pair in questIds)
+            {
+                QuestSO quest = pair.Value;
+                string path = AssetDatabase.GetAssetPath(quest);
+                ValidateQuestReferenceList(
+                    issues,
+                    questIds,
+                    quest,
+                    path,
+                    "requiredQuestIds",
+                    quest.requiredQuestIds);
+                ValidateQuestReferenceList(
+                    issues,
+                    questIds,
+                    quest,
+                    path,
+                    "autoAcceptNextQuestIds",
+                    quest.autoAcceptNextQuestIds);
+                ValidateObjectiveRevealDependencies(issues, quest, path);
+            }
+
+            ValidateQuestReferenceCycles(
+                issues,
+                questIds,
+                "requiredQuestIds",
+                quest => quest.requiredQuestIds);
+            ValidateQuestReferenceCycles(
+                issues,
+                questIds,
+                "autoAcceptNextQuestIds",
+                quest => quest.autoAcceptNextQuestIds);
+        }
+
+        private static void ValidateQuestReferenceList(
+            List<EditorValidationIssue> issues,
+            Dictionary<string, QuestSO> questIds,
+            QuestSO owner,
+            string path,
+            string field,
+            List<string> references)
+        {
+            if (references == null)
+                return;
+
+            EditorValidationSeverity brokenReferenceSeverity = owner.isContentEnabled
+                ? EditorValidationSeverity.Error
+                : EditorValidationSeverity.Warning;
+            var uniqueIds = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < references.Count; i++)
+            {
+                string targetId = references[i];
+                if (string.IsNullOrWhiteSpace(targetId))
+                {
+                    Add(issues, brokenReferenceSeverity, "Quest", path, owner, $"{field}[{i}]", "퀘스트 참조 ID가 비어 있습니다.", "빈 참조를 제거하거나 유효한 Quest ID를 지정하세요.");
+                    continue;
+                }
+
+                if (!uniqueIds.Add(targetId))
+                    Add(issues, EditorValidationSeverity.Warning, "Quest", path, owner, field, $"퀘스트 참조가 중복됩니다: {targetId}", "중복 참조를 하나만 남기세요.");
+                if (targetId == owner.questId)
+                    Add(issues, brokenReferenceSeverity, "Quest", path, owner, field, "퀘스트가 자기 자신을 참조합니다.", "자기 참조를 제거하세요.");
+
+                if (!questIds.TryGetValue(targetId, out QuestSO target))
+                {
+                    Add(issues, brokenReferenceSeverity, "Quest", path, owner, $"{field}[{i}]", $"참조한 Quest ID를 찾을 수 없습니다: {targetId}", "기존 ID를 확인하고 올바른 퀘스트를 지정하세요.");
+                    continue;
+                }
+
+                if (owner.isContentEnabled && !target.isContentEnabled)
+                    Add(issues, EditorValidationSeverity.Error, "Quest", path, owner, $"{field}[{i}]", $"활성 퀘스트가 비활성 퀘스트를 참조합니다: {targetId}", "대상 퀘스트를 완성해 활성화하거나 참조를 제거하세요.");
+            }
+        }
+
+        private static void ValidateObjectiveRevealDependencies(
+            List<EditorValidationIssue> issues,
+            QuestSO quest,
+            string path)
+        {
+            EditorValidationSeverity brokenReferenceSeverity = quest.isContentEnabled
+                ? EditorValidationSeverity.Error
+                : EditorValidationSeverity.Warning;
+            var objectivesById = new Dictionary<string, QuestObjectiveData>(StringComparer.Ordinal);
+            foreach (QuestObjectiveData objective in quest.objectives)
+            {
+                if (objective != null && !string.IsNullOrWhiteSpace(objective.objectiveId))
+                    objectivesById[objective.objectiveId] = objective;
+            }
+
+            foreach (QuestObjectiveData objective in quest.objectives)
+            {
+                if (objective?.revealAfterObjectiveIds == null)
+                    continue;
+
+                var uniqueIds = new HashSet<string>(StringComparer.Ordinal);
+                for (int i = 0; i < objective.revealAfterObjectiveIds.Count; i++)
+                {
+                    string prerequisiteId = objective.revealAfterObjectiveIds[i];
+                    string field = $"objectives[{objective.objectiveId}].revealAfterObjectiveIds[{i}]";
+                    if (string.IsNullOrWhiteSpace(prerequisiteId))
+                        Add(issues, brokenReferenceSeverity, "Quest", path, quest, field, "표시 선행 목표 ID가 비어 있습니다.", "빈 참조를 제거하세요.");
+                    else if (prerequisiteId == objective.objectiveId)
+                        Add(issues, brokenReferenceSeverity, "Quest", path, quest, field, "목표가 자기 자신을 표시 선행 조건으로 참조합니다.", "자기 참조를 제거하세요.");
+                    else if (!objectivesById.ContainsKey(prerequisiteId))
+                        Add(issues, brokenReferenceSeverity, "Quest", path, quest, field, $"표시 선행 목표를 찾을 수 없습니다: {prerequisiteId}", "같은 QuestSO의 objectiveId를 지정하세요.");
+                    else if (!uniqueIds.Add(prerequisiteId))
+                        Add(issues, EditorValidationSeverity.Warning, "Quest", path, quest, field, $"표시 선행 목표가 중복됩니다: {prerequisiteId}", "중복 참조를 하나만 남기세요.");
+                }
+            }
+
+            var visiting = new HashSet<string>(StringComparer.Ordinal);
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            foreach (string objectiveId in objectivesById.Keys)
+            {
+                if (HasObjectiveRevealCycle(objectiveId, objectivesById, visiting, visited))
+                {
+                    Add(issues, brokenReferenceSeverity, "Quest", path, quest, "objectives.revealAfterObjectiveIds", $"목표 표시 선행 조건에 순환이 있습니다: {objectiveId}", "순환 참조를 끊으세요.");
+                    break;
+                }
+            }
+        }
+
+        private static bool HasObjectiveRevealCycle(
+            string objectiveId,
+            Dictionary<string, QuestObjectiveData> objectivesById,
+            HashSet<string> visiting,
+            HashSet<string> visited)
+        {
+            if (visited.Contains(objectiveId))
+                return false;
+            if (!visiting.Add(objectiveId))
+                return true;
+
+            QuestObjectiveData objective = objectivesById[objectiveId];
+            foreach (string prerequisiteId in objective.revealAfterObjectiveIds ?? new List<string>())
+            {
+                if (objectivesById.ContainsKey(prerequisiteId)
+                    && HasObjectiveRevealCycle(prerequisiteId, objectivesById, visiting, visited))
+                {
+                    return true;
+                }
+            }
+
+            visiting.Remove(objectiveId);
+            visited.Add(objectiveId);
+            return false;
+        }
+
+        private static void ValidateQuestReferenceCycles(
+            List<EditorValidationIssue> issues,
+            Dictionary<string, QuestSO> questIds,
+            string field,
+            Func<QuestSO, List<string>> selector)
+        {
+            var visiting = new HashSet<string>(StringComparer.Ordinal);
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, QuestSO> pair in questIds)
+            {
+                if (!pair.Value.isContentEnabled)
+                    continue;
+                if (!HasQuestReferenceCycle(pair.Key, questIds, selector, visiting, visited))
+                    continue;
+
+                string path = AssetDatabase.GetAssetPath(pair.Value);
+                Add(issues, EditorValidationSeverity.Error, "Quest", path, pair.Value, field, $"활성 퀘스트 참조에 순환이 있습니다: {pair.Key}", "선행 또는 자동 연계 순환을 끊으세요.");
+                break;
+            }
+        }
+
+        private static bool HasQuestReferenceCycle(
+            string questId,
+            Dictionary<string, QuestSO> questIds,
+            Func<QuestSO, List<string>> selector,
+            HashSet<string> visiting,
+            HashSet<string> visited)
+        {
+            if (visited.Contains(questId))
+                return false;
+            if (!visiting.Add(questId))
+                return true;
+            if (!questIds.TryGetValue(questId, out QuestSO quest) || !quest.isContentEnabled)
+            {
+                visiting.Remove(questId);
+                visited.Add(questId);
+                return false;
+            }
+
+            foreach (string targetId in selector(quest) ?? new List<string>())
+            {
+                if (questIds.TryGetValue(targetId, out QuestSO target)
+                    && target.isContentEnabled
+                    && HasQuestReferenceCycle(targetId, questIds, selector, visiting, visited))
+                {
+                    return true;
+                }
+            }
+
+            visiting.Remove(questId);
+            visited.Add(questId);
+            return false;
         }
 
         private static void ValidateQuestObjectiveTarget(
@@ -294,6 +504,7 @@ namespace UPlayGround.Tool.Editor.Validation
 
         private static void ValidateDialogue(List<EditorValidationIssue> issues)
         {
+            var graphIds = new Dictionary<string, DialogueGraphSO>(StringComparer.Ordinal);
             foreach (string guid in AssetDatabase.FindAssets("t:DialogueGraphSO"))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);
@@ -303,6 +514,10 @@ namespace UPlayGround.Tool.Editor.Validation
 
                 if (string.IsNullOrWhiteSpace(graph.graphId))
                     Add(issues, EditorValidationSeverity.Warning, "Dialogue", path, graph, "graphId", "graphId가 비어 있습니다.", "대화 시작/저장/디버그 조회 키가 필요하면 채우세요.");
+                else if (graphIds.TryGetValue(graph.graphId, out DialogueGraphSO existingGraph))
+                    Add(issues, EditorValidationSeverity.Error, "Dialogue", path, graph, "graphId", $"graphId가 중복됩니다: {graph.graphId}", $"기존 에셋: {AssetDatabase.GetAssetPath(existingGraph)}");
+                else
+                    graphIds.Add(graph.graphId, graph);
 
                 var nodeIds = new HashSet<string>();
                 for (int i = 0; i < graph.nodes.Count; i++)
@@ -335,6 +550,80 @@ namespace UPlayGround.Tool.Editor.Validation
             }
 
             ValidateSpeakerBindings(issues);
+        }
+
+        private static void ValidateStory(List<EditorValidationIssue> issues)
+        {
+            var storyIds = new Dictionary<string, StoryEntrySO>(StringComparer.Ordinal);
+
+            foreach (string guid in AssetDatabase.FindAssets("t:StoryEntrySO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var entry = AssetDatabase.LoadAssetAtPath<StoryEntrySO>(path);
+                if (entry == null)
+                    continue;
+
+                if (string.IsNullOrWhiteSpace(entry.storyId))
+                    Add(issues, EditorValidationSeverity.Error, "Story", path, entry, "storyId", "storyId가 비어 있습니다.", "기존 명명 규칙에 맞는 안정 ID를 지정하세요.");
+                else if (storyIds.TryGetValue(entry.storyId, out StoryEntrySO existing))
+                    Add(issues, EditorValidationSeverity.Error, "Story", path, entry, "storyId", $"storyId가 중복됩니다: {entry.storyId}", $"기존 에셋: {AssetDatabase.GetAssetPath(existing)}");
+                else
+                    storyIds.Add(entry.storyId, entry);
+
+                if (entry.requiredProgress < 0)
+                    Add(issues, EditorValidationSeverity.Error, "Story", path, entry, "requiredProgress", "requiredProgress가 음수입니다.", "0 이상의 진행도를 사용하세요.");
+                if (entry.maxProgressExclusive > 0 && entry.maxProgressExclusive <= entry.requiredProgress)
+                    Add(issues, EditorValidationSeverity.Error, "Story", path, entry, "maxProgressExclusive", "진행도 상한이 시작 진행도보다 크지 않습니다.", "requiredProgress보다 큰 상한을 지정하거나 0으로 비우세요.");
+
+                bool hasGraph = entry.dialogueGraph != null;
+                var variantProgresses = new HashSet<int>();
+                StoryVariant[] variants = entry.variants ?? Array.Empty<StoryVariant>();
+                for (int i = 0; i < variants.Length; i++)
+                {
+                    StoryVariant variant = variants[i];
+                    if (variant == null)
+                    {
+                        Add(issues, EditorValidationSeverity.Error, "Story", path, entry, $"variants[{i}]", "스토리 변형이 null입니다.", "빈 변형을 제거하세요.");
+                        continue;
+                    }
+
+                    if (variant.requiredProgress < 0)
+                        Add(issues, EditorValidationSeverity.Error, "Story", path, entry, $"variants[{i}].requiredProgress", "변형 진행도가 음수입니다.", "0 이상의 진행도를 사용하세요.");
+                    if (!variantProgresses.Add(variant.requiredProgress))
+                        Add(issues, EditorValidationSeverity.Warning, "Story", path, entry, "variants", $"같은 진행도의 변형이 중복됩니다: {variant.requiredProgress}", "진행도별 변형을 하나만 남기세요.");
+                    if (variant.dialogueGraph == null)
+                        Add(issues, EditorValidationSeverity.Error, "Story", path, entry, $"variants[{i}].dialogueGraph", "변형의 대화 그래프가 비어 있습니다.", "실행할 DialogueGraphSO를 연결하세요.");
+                    else
+                        hasGraph = true;
+                }
+
+                if (!hasGraph)
+                    Add(issues, EditorValidationSeverity.Error, "Story", path, entry, "dialogueGraph", "실행 가능한 대화 그래프가 없습니다.", "기본 그래프 또는 변형 그래프를 연결하세요.");
+            }
+
+            foreach (string guid in AssetDatabase.FindAssets("t:StorySequenceSO"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                var sequence = AssetDatabase.LoadAssetAtPath<StorySequenceSO>(path);
+                if (sequence == null)
+                    continue;
+
+                var sequenceIds = new HashSet<string>(StringComparer.Ordinal);
+                for (int i = 0; i < sequence.entries.Count; i++)
+                {
+                    StoryEntrySO entry = sequence.entries[i];
+                    if (entry == null)
+                    {
+                        Add(issues, EditorValidationSeverity.Error, "Story", path, sequence, $"entries[{i}]", "StorySequence에 Missing 항목이 있습니다.", "빈 항목을 제거하거나 StoryEntrySO를 연결하세요.");
+                        continue;
+                    }
+
+                    if (!sequenceIds.Add(entry.storyId))
+                        Add(issues, EditorValidationSeverity.Error, "Story", path, sequence, "entries", $"StorySequence에 storyId가 중복됩니다: {entry.storyId}", "중복 엔트리를 제거하세요.");
+                    if (entry.triggerMode != StoryTriggerMode.Auto)
+                        Add(issues, EditorValidationSeverity.Warning, "Story", path, sequence, $"entries[{i}]", $"자동 시퀀스에 {entry.triggerMode} 엔트리가 포함되어 있습니다: {entry.storyId}", "자동 재생 대상이면 Auto로 바꾸고, NPC/영역 소유라면 시퀀스에서 제거하세요.");
+                }
+            }
         }
 
         private static void ValidateDialogueNodeLinks(List<EditorValidationIssue> issues, HashSet<string> nodeIds, DialogueNodeSO node)

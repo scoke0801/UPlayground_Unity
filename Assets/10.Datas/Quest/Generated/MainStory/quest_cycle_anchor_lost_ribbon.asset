@@ -30,6 +30,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: cycle.anchor.request_started
     requiredCount: 1
+    revealAfterObjectiveIds: []
   - objectiveId: obj_anchor_return
     description: "파란 리본을 찾아 미아에게 돌려준다."
     type: 1
@@ -37,6 +38,8 @@ MonoBehaviour:
     npcId: 210101
     targetStringId:
     requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_anchor_request
   reward:
     gold: 0
     exp: 0

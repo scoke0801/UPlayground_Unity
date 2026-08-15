@@ -1,0 +1,14 @@
+{
+  "name": "UPlayGround.Content.Tests",
+  "rootNamespace": "UPlayGround.Content.Tests",
+  "references": [
+    "UPlayGround.Data"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

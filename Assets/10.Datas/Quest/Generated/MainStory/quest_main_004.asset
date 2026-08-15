@@ -32,6 +32,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId:
     requiredCount: 3
+    revealAfterObjectiveIds: []
   - objectiveId: obj_cycle_second_settlement
     description: "마지막 상대와의 대결에서 승리하고 귀환한다."
     type: 4
@@ -39,6 +40,8 @@ MonoBehaviour:
     npcId: 0
     targetStringId:
     requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_cycle_second_outer_guardians
   reward:
     gold: 250
     exp: 250

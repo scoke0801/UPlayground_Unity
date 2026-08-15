@@ -32,6 +32,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId: cycle.story.first_return_arrived
     requiredCount: 1
+    revealAfterObjectiveIds: []
   - objectiveId: obj_first_return_anchor
     description: "미아의 파란 리본을 다시 찾아 돌려준다."
     type: 9
@@ -39,6 +40,8 @@ MonoBehaviour:
     npcId: 0
     targetStringId: cycle.story.first_return_anchor_returned
     requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_first_return_arrived
   - objectiveId: obj_first_return_guide
     description: "안내인과 대화한다."
     type: 9
@@ -46,6 +49,8 @@ MonoBehaviour:
     npcId: 0
     targetStringId: cycle.story.first_return_guide_completed
     requiredCount: 1
+    revealAfterObjectiveIds:
+    - obj_first_return_anchor
   reward:
     gold: 200
     exp: 200

@@ -106,10 +106,8 @@ namespace UPlayGround.UI
                 QuestRuntimeData quest = qm.GetTrackedQuestRuntime();
                 if (quest?.QuestSO != null)
                 {
-                    var objectives = quest.QuestSO.objectives;
-                    for (int i = 0; i < objectives.Count; i++)
+                    foreach (QuestObjectiveData obj in quest.GetVisibleObjectives())
                     {
-                        QuestObjectiveData obj = objectives[i];
                         if (obj == null || quest.IsObjectiveComplete(obj)) continue;
 
                         string locationId = ResolveQuestLocationId(obj);

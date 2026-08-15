@@ -593,7 +593,7 @@ namespace UPlayGround.UI
             if (questManager == null || !questManager.IsDBLoaded) return;
 
             foreach (var runtime in questManager.GetActiveQuests())
-                foreach (var obj in runtime.QuestSO.objectives)
+                foreach (var obj in runtime.GetVisibleObjectives())
                     if (!runtime.IsObjectiveComplete(obj)) TryAddQuestMarker(obj);
         }
 
@@ -782,7 +782,7 @@ namespace UPlayGround.UI
                 var questManager = UISvc.Quest;
                 if (questManager == null) return;
                 foreach (var runtime in questManager.GetActiveQuests())
-                    foreach (var obj in runtime.QuestSO.objectives)
+                    foreach (var obj in runtime.GetVisibleObjectives())
                         if (!runtime.IsObjectiveComplete(obj) && ResolveQuestLocationId(obj) == registrar.LocationId)
                             TryAddQuestMarker(obj);
             }

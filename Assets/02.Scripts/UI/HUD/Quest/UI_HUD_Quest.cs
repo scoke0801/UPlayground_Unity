@@ -234,7 +234,7 @@ namespace UPlayGround.UI
         {
             _descriptionBuilder.Clear();
 
-            foreach (var objective in quest.QuestSO.objectives)
+            foreach (var objective in quest.GetVisibleObjectives())
             {
                 if (objective == null)
                 {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace UPlayGround.Data.Quest
@@ -28,5 +29,8 @@ namespace UPlayGround.Data.Quest
 
         [Tooltip("달성에 필요한 수량 (0이면 1회 달성)")]
         [Min(1)] public int requiredCount = 1;
+
+        [Tooltip("이 목표를 표시하기 전에 완료되어야 하는 같은 퀘스트의 목표 ID. 진행 판정은 표시 여부와 무관하게 계속 누적됩니다.")]
+        public List<string> revealAfterObjectiveIds = new List<string>();
     }
 }

@@ -12,6 +12,7 @@ UPlayground의 퀘스트 시스템은 **ScriptableObject 기반의 목표 추적
 - **EventManager 연동**: 수락·완료·목표 갱신 시 `QuestEvent`로 UI에 브로드캐스트
 - **HUD / 미니맵 연동**: `UI_HUD_Quest`는 퀘스트 추적 HUD, `UI_HUD_Minimap`은 활성 퀘스트의 위치/NPC 목표 마커 표시 담당
 - **선행 조건 지원**: 완료 필요 퀘스트 목록 + 스토리 진행도 이중 게이팅
+- **단계별 목표 공개**: 선행 목표 완료 전 후속 목표·월드 마커를 숨기되, 예상 밖 순서의 진행 카운트는 보존
 - **비주얼 에디터**: 좌우 2패널 `QuestEditorWindow`로 QuestSO 생성·편집·DB 갱신·Enum 재생성
 
 ---
@@ -175,6 +176,7 @@ public class QuestObjectiveData
     public string targetStringId;  // 위치/Actor/조우/spawn/상호작용 ID
 
     [Min(1)] public int requiredCount = 1;  // 달성에 필요한 수량
+    public List<string> revealAfterObjectiveIds; // 표시 전에 완료할 같은 퀘스트의 목표 ID
 }
 ```
 
@@ -190,6 +192,15 @@ public class QuestObjectiveData
 | ItemCraft | 레시피 ID | — | — | 제작 횟수 |
 | ItemEnhance | 아이템 ID | — | — | 강화 횟수 |
 | ReachLocation | — | — | 위치 ID | (미사용) |
+
+#### 단계별 목표 공개
+
+`revealAfterObjectiveIds`는 HUD·퀘스트 메뉴·월드/맵 마커의 **표시만** 제어한다. 실제 목표 판정은 숨김 여부와 무관하게 계속 누적되므로, 플레이어가 후속 지역을 먼저 방문해도 진행을 잃지 않는다. 모든 선행 목표가 완료되면 다음 `QuestObjectiveUpdated` 갱신에서 현재 누적값과 함께 공개된다.
+
+- 첫 목표는 목록을 비운다.
+- 후속 목표에는 같은 `QuestSO` 안의 안정 `objectiveId`만 넣는다.
+- 자기 참조·없는 ID·순환 참조는 데이터 검증 허브에서 오류로 보고한다.
+- 완료 이력 화면은 전체 목표를 공개하지만, 진행 중 HUD와 마커는 공개된 목표만 사용한다.
 
 ### QuestSO
 
@@ -247,6 +258,8 @@ public class QuestRuntimeData
     public Dictionary<string, int> ObjectiveProgress { get; }
 
     public bool IsObjectiveComplete(QuestObjectiveData obj);
+    public bool IsObjectiveVisible(QuestObjectiveData obj);
+    public IEnumerable<QuestObjectiveData> GetVisibleObjectives();
     public bool AreAllObjectivesComplete();
     public int  AddProgress(string objectiveId, int value = 1);
     public void SetProgress(string objectiveId, int value);
@@ -347,7 +360,7 @@ EventManager.Instance.Subscribe<QuestEvent, QuestObjectiveEventData>(
 
 ### UI_HUD_Quest
 
-`UI_HUD_Quest`는 HUD 레이어에 표시되는 퀘스트 추적 UI입니다. 현재 스크립트는 `UI_Base` 생명주기 골격만 있으며, 실제 표시 로직은 아래 이벤트를 구독해 구현합니다.
+`UI_HUD_Quest`는 HUD 레이어에 표시되는 퀘스트 추적 UI입니다. `GetVisibleObjectives()`를 사용하므로 아직 공개되지 않은 후속 목표는 설명에 포함하지 않습니다.
 
 | 이벤트 | 사용 목적 |
 |--------|-----------|
@@ -359,7 +372,7 @@ EventManager.Instance.Subscribe<QuestEvent, QuestObjectiveEventData>(
 권장 동작:
 - `OnShow()`에서 `QuestManager.Instance.GetActiveQuests()`로 현재 활성 퀘스트를 한 번 그린다.
 - `OnShow()`에서 `EventManager` 구독, `OnHide()` 또는 `OnDispose()`에서 반드시 해제한다.
-- `QuestObjectiveData.description`을 표시 텍스트로 사용하고, 목표가 완료되면 체크/흐림 상태로 갱신한다.
+- 공개된 `QuestObjectiveData.description`만 표시하고, 목표가 완료되면 체크/흐림 상태로 갱신한다.
 - `autoComplete=false` 퀘스트는 모든 목표 완료 후 `CompleteQuest()`를 호출할 버튼 또는 상호작용 안내를 별도로 제공한다.
 
 ```csharp
@@ -390,7 +403,7 @@ private void OnShowQuestHud()
 
 동작 흐름:
 1. `UI_HUD_Minimap.OnShow()`에서 `QuestManager.Instance.GetActiveQuests()`를 조회한다.
-2. 아직 완료되지 않은 `ReachLocation` / `ItemDeliver` 목표만 마커 후보가 된다.
+2. 공개됐고 아직 완료되지 않은 `ReachLocation` / `ItemDeliver` 목표만 마커 후보가 된다.
 3. 후보의 LocationId가 `MinimapMarkerRegistry`에 등록되어 있으면 `_questContainer`에 아이콘을 생성한다.
 4. `QuestAccepted`, `QuestCompleted`, `QuestFailed` 이벤트를 받으면 전체 퀘스트 마커를 다시 만든다.
 5. 씬 오브젝트가 늦게 생성되어 `MinimapMarkerRegistrar`가 추가되면, 활성 퀘스트와 LocationId가 맞는 경우 즉시 마커를 추가한다.

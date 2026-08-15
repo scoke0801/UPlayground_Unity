@@ -39,6 +39,23 @@ namespace UPlayGround.Data.Quest
             return true;
         }
 
+        /// <summary>
+        /// 목표의 표시 선행 조건만 평가한다. 숨겨진 목표도 Notify 계열 진행 판정은 계속 받는다.
+        /// </summary>
+        public bool IsObjectiveVisible(QuestObjectiveData objective)
+        {
+            return QuestObjectiveVisibility.IsVisible(QuestSO, this, objective);
+        }
+
+        public IEnumerable<QuestObjectiveData> GetVisibleObjectives()
+        {
+            foreach (QuestObjectiveData objective in QuestSO.objectives)
+            {
+                if (QuestObjectiveVisibility.IsVisible(QuestSO, this, objective))
+                    yield return objective;
+            }
+        }
+
         /// <summary> 진행 카운트를 value만큼 증가시키고 현재 값을 반환 </summary>
         public int AddProgress(string objectiveId, int value = 1)
         {
@@ -59,6 +76,45 @@ namespace UPlayGround.Data.Quest
             ObjectiveProgress[objectiveId] = objective != null
                 ? Mathf.Clamp(value, 0, objective.requiredCount)
                 : Mathf.Max(0, value);
+        }
+    }
+
+    /// <summary>
+    /// HUD·퀘스트 메뉴·월드 마커가 공유하는 목표 표시 규칙.
+    /// 표시 선행 조건은 안내 순서만 제어하며 실제 진행 순서를 강제하지 않는다.
+    /// </summary>
+    public static class QuestObjectiveVisibility
+    {
+        public static bool IsVisible(
+            QuestSO quest,
+            QuestRuntimeData runtime,
+            QuestObjectiveData objective,
+            bool revealAll = false)
+        {
+            if (quest == null || objective == null)
+                return false;
+            if (revealAll)
+                return true;
+
+            List<string> prerequisites = objective.revealAfterObjectiveIds;
+            if (prerequisites == null || prerequisites.Count == 0)
+                return true;
+            if (runtime == null)
+                return false;
+
+            for (int i = 0; i < prerequisites.Count; i++)
+            {
+                string prerequisiteId = prerequisites[i];
+                if (string.IsNullOrWhiteSpace(prerequisiteId))
+                    return false;
+
+                QuestObjectiveData prerequisite = quest.objectives.Find(
+                    candidate => candidate != null && candidate.objectiveId == prerequisiteId);
+                if (prerequisite == null || !runtime.IsObjectiveComplete(prerequisite))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

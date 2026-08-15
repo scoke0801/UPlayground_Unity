@@ -272,6 +272,7 @@ namespace UPlayGround.Editor.Authoring
             AddProperty(card, $"{path}.objectiveId", "목표 ID");
             AddProperty(card, $"{path}.description", "설명");
             AddProperty(card, $"{path}.type", "타입");
+            AddProperty(card, $"{path}.revealAfterObjectiveIds", "표시 선행 목표 ID");
 
             var conditionalFields = new VisualElement();
             card.Add(conditionalFields);
@@ -373,6 +374,9 @@ namespace UPlayGround.Editor.Authoring
             element.FindPropertyRelative("npcId").intValue = 0;
             element.FindPropertyRelative("targetStringId").stringValue = string.Empty;
             element.FindPropertyRelative("requiredCount").intValue = 1;
+            SerializedProperty revealConditions = element.FindPropertyRelative("revealAfterObjectiveIds");
+            if (revealConditions != null && revealConditions.isArray)
+                revealConditions.ClearArray();
         }
 
         private void BuildRewardSection(

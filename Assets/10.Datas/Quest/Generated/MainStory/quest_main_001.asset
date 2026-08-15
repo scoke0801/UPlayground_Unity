@@ -31,6 +31,7 @@ MonoBehaviour:
     npcId: 0
     targetStringId:
     requiredCount: 3
+    revealAfterObjectiveIds: []
   reward:
     gold: 100
     exp: 100

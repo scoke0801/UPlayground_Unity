@@ -81,6 +81,7 @@ namespace UPlayGround.Manager
             // 보류 중인 합성 입력은 그냥 비우면 hold 플래그(차지·스킬 홀드)가 소비자에 남는다.
             // 프레임 조건을 무시하고 cancel을 먼저 발화한 뒤 정리한다.
             ReleaseSyntheticPlayerActions(force: true);
+            StopHaptics();
 
             DisposeDeviceDetection();
             OnBindingsChanged = null;
@@ -106,6 +107,7 @@ namespace UPlayGround.Manager
         {
             // grace가 만료된 보류 입력을 확정한다.
             TickChordArbiter();
+            TickHaptics();
         }
 
         public void OnFixedUpdate()

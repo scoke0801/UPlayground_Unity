@@ -14,6 +14,11 @@ namespace UPlayGround.Data.Config
         [Header("게임플레이 - 전투")]
         public bool screenShake = true;
         public bool aimAssist = true;
+        [Tooltip("게임패드 전투 진동을 사용합니다.")]
+        public bool combatVibration = true;
+        [Range(0f, 1f)]
+        [Tooltip("전투 진동의 전체 세기 배율입니다.")]
+        public float combatVibrationIntensity = 1f;
         [Range(0f, 2f)] public float cameraShakeScale = 1f;
         [Range(0f, 1f)] public float combatCameraAutoCorrection = 1f;
         [Range(0f, 1f)] public float combatCameraSequenceIntensity = 1f;
@@ -103,7 +108,9 @@ namespace UPlayGround.Data.Config
         public void ResetToDefault()
         {
             sensitivityX = 5; sensitivityY = 5; invertY = false;
-            screenShake = true; aimAssist = true; languageIndex = 0;
+            screenShake = true; aimAssist = true;
+            combatVibration = true; combatVibrationIntensity = 1f;
+            languageIndex = 0;
             dialogueTypingSpeedIndex = 1; dialogueAutoDelayIndex = 1;
             cameraShakeScale = 1f; combatCameraAutoCorrection = 1f; combatCameraSequenceIntensity = 1f;
             resolutionIndex = 0; resolutionWidth = 1920; resolutionHeight = 1080;
@@ -122,7 +129,8 @@ namespace UPlayGround.Data.Config
     public class SettingsSnapshot
     {
         public int sensitivityX, sensitivityY;
-        public bool invertY, screenShake, aimAssist;
+        public bool invertY, screenShake, aimAssist, combatVibration;
+        public float combatVibrationIntensity;
         public float cameraShakeScale, combatCameraAutoCorrection, combatCameraSequenceIntensity;
         public int languageIndex, resolutionIndex, resolutionWidth, resolutionHeight;
         public int dialogueTypingSpeedIndex, dialogueAutoDelayIndex;
@@ -134,6 +142,8 @@ namespace UPlayGround.Data.Config
         {
             sensitivityX = data.sensitivityX, sensitivityY = data.sensitivityY,
             invertY = data.invertY, screenShake = data.screenShake, aimAssist = data.aimAssist,
+            combatVibration = data.combatVibration,
+            combatVibrationIntensity = data.combatVibrationIntensity,
             cameraShakeScale = data.cameraShakeScale,
             combatCameraAutoCorrection = data.combatCameraAutoCorrection,
             combatCameraSequenceIntensity = data.combatCameraSequenceIntensity,
@@ -153,6 +163,8 @@ namespace UPlayGround.Data.Config
         {
             data.sensitivityX = sensitivityX; data.sensitivityY = sensitivityY;
             data.invertY = invertY; data.screenShake = screenShake; data.aimAssist = aimAssist;
+            data.combatVibration = combatVibration;
+            data.combatVibrationIntensity = combatVibrationIntensity;
             data.cameraShakeScale = cameraShakeScale;
             data.combatCameraAutoCorrection = combatCameraAutoCorrection;
             data.combatCameraSequenceIntensity = combatCameraSequenceIntensity;

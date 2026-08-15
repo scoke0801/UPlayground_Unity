@@ -87,6 +87,7 @@ namespace UPlayGround.Manager.Combat
                 PlayPostProcess(profile);
             PlayCamera(profile, context);
             PlayFxAndReward(profile, context);
+            PlayHaptic(profile.successType);
         }
 
         public override void Dispose()
@@ -226,6 +227,22 @@ namespace UPlayGround.Manager.Combat
 
             if (profile.spawnVitalOrb)
                 GameCombatManager.Instance?.GameVitalOrb?.TrySpawn(profile.vitalOrbTrigger, context.Position);
+        }
+
+        private static void PlayHaptic(DefenseSuccessType type)
+        {
+            switch (type)
+            {
+                case DefenseSuccessType.Parry:
+                    Svc.Input?.PlayCombatHaptic(0.5f, 0.92f, 0.11f);
+                    break;
+                case DefenseSuccessType.PerfectGuard:
+                    Svc.Input?.PlayCombatHaptic(0.62f, 0.72f, 0.1f);
+                    break;
+                case DefenseSuccessType.PerfectDodge:
+                    Svc.Input?.PlayCombatHaptic(0.18f, 0.7f, 0.075f);
+                    break;
+            }
         }
 
         private void StopImmediate()

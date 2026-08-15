@@ -60,6 +60,13 @@ namespace UPlayGround.Manager
             // 표시 문자열 캐시는 여기서만 비운다(바인딩 변경은 경로만 바꾸므로 무효화 불필요).
             ClearBindingDisplayCache();
 
+            if (device is Gamepad changedGamepad
+                && changedGamepad == _hapticGamepad
+                && change is InputDeviceChange.Disconnected or InputDeviceChange.Removed)
+            {
+                StopHaptics();
+            }
+
             if (device is not Gamepad disconnected
                 || _activeDevice != ActiveInputDevice.Gamepad
                 || change is not (InputDeviceChange.Disconnected or InputDeviceChange.Removed))

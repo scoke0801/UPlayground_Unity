@@ -17,6 +17,8 @@ MonoBehaviour:
   invertY: 0
   screenShake: 1
   aimAssist: 1
+  combatVibration: 1
+  combatVibrationIntensity: 1
   languageIndex: 0
   resolutionIndex: 0
   windowModeIndex: 1

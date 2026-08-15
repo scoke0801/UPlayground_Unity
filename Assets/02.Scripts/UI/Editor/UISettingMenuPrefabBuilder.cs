@@ -17,7 +17,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
     ///
     /// 연동 규약(중요):
     ///  - 게임플레이/오디오 페이지는 자식 컨트롤을 GetComponentsInChildren '순서'로 매핑한다.
-    ///      게임플레이 슬라이더[0]=수평, [1]=수직 / 스위치[0]=Y반전, [1]=화면흔들림, [2]=타겟보정
+    ///      게임플레이 슬라이더[0]=수평, [1]=수직 / 스위치[0]=Y반전, [1]=화면흔들림, [2]=타겟보정, [3]=전투진동
     ///      게임플레이 드롭다운[0]=언어, [1]=대화 타이핑 속도, [2]=대화 자동 재생 간격
     ///      오디오   슬라이더[0]=마스터, [1]=배경음악, [2]=효과음, [3]=음성
     ///  - 그래픽 페이지는 명시적 [SerializeField] 참조(_resolutionDropdown/_windowModeDropdown/_qualityDropdown/_frameRateSlider/_brightnessSlider) + 스위치[0]=백그라운드실행.
@@ -205,6 +205,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             AddSectionHeader(root, "전투 설정");
             MakeSwitchRow(root, "화면 흔들림");           // switches[1]
             MakeSwitchRow(root, "타겟 보정");             // switches[2]
+            MakeSwitchRow(root, "전투 진동");             // switches[3]
 
             AddSectionHeader(root, "언어 설정");
             MakeDropdownRow(root, "언어", new[] { "한국어", "English", "日本語" }, 0); // dropdowns[0]

@@ -124,6 +124,43 @@ namespace UPlayGround.Combat
                 position = hit.Victim.transform.position;
 
             Svc.Sound?.PlaySfx(ResolveImpactSoundKey(hit, isCritical), position);
+            PlayImpactHaptic(hit, isCritical);
+        }
+
+        /// <summary>
+        /// 충돌 결과를 저주파(무게)와 고주파(날카로움) 두 축으로 번역한다.
+        /// 진동의 수명과 연타 합성은 IInputService가 담당하므로 여기서는 의미만 결정한다.
+        /// </summary>
+        private static void PlayImpactHaptic(in HitContext hit, bool isCritical)
+        {
+            if (hit.Victim is PlayerActor)
+            {
+                if (IsHeavyImpact(hit))
+                    Svc.Input?.PlayCombatHaptic(0.58f, 0.76f, 0.11f);
+                else
+                    Svc.Input?.PlayCombatHaptic(0.34f, 0.5f, 0.075f);
+                return;
+            }
+
+            if (hit.Attacker is not PlayerActor)
+                return;
+
+            if (isCritical || IsBreakImpact(hit))
+            {
+                Svc.Input?.PlayCombatHaptic(0.68f, 1f, 0.12f);
+                return;
+            }
+
+            if (hit.IsCounterAttack || hit.UseCounterHitFeedback)
+            {
+                Svc.Input?.PlayCombatHaptic(0.55f, 0.86f, 0.095f);
+                return;
+            }
+
+            if (IsHeavyImpact(hit))
+                Svc.Input?.PlayCombatHaptic(0.38f, 0.68f, 0.08f);
+            else
+                Svc.Input?.PlayCombatHaptic(0.14f, 0.3f, 0.05f);
         }
 
         /// <summary>

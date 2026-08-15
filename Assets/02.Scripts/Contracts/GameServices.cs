@@ -78,6 +78,9 @@ namespace UPlayGround.Manager
         bool TryPerformPlayerAction(string actionName);
         void SuppressPlayerActionInputBriefly(float seconds = 0.05f, int frameCount = 1);
         void SetPlayerActionInputSuppressed(bool suppressed);
+        /// <summary>실시간 전투 진동을 재생한다. 연속 요청의 합성·종료는 입력 서비스가 소유한다.</summary>
+        void PlayCombatHaptic(float lowFrequency, float highFrequency, float duration);
+        void StopHaptics();
         void RegisterInputEvent(
             string mapName,
             string actionName,

@@ -46,7 +46,42 @@ namespace UPlayGround.UI
         protected override void Awake()
         {
             base.Awake();
+            ResolveSceneContent();
             CacheContentHome();
+        }
+
+        /// <summary>
+        /// 구형 프리팹도 베이스 전환 직후 표준 트윈을 사용할 수 있게 대표 콘텐츠를 찾는다.
+        /// 새 프리팹은 인스펙터에서 명시적으로 연결하는 것이 원칙이다.
+        /// </summary>
+        private void ResolveSceneContent()
+        {
+            if (_sceneContent != null)
+                return;
+
+            string[] preferredNames =
+            {
+                "Content",
+                "Window",
+                "Panel",
+                "SkillTreeRuntimeRoot",
+                "ButtonPanel"
+            };
+            RectTransform[] children = GetComponentsInChildren<RectTransform>(true);
+            foreach (string preferredName in preferredNames)
+            {
+                foreach (RectTransform child in children)
+                {
+                    if (child == _rectTransform
+                        || !child.name.StartsWith(preferredName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    _sceneContent = child;
+                    return;
+                }
+            }
         }
 
         // 콘텐츠의 "홈" anchoredPosition을 트윈이 개입하기 전 1회 캐싱한다.

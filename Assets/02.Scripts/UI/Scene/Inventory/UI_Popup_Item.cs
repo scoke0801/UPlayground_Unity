@@ -9,7 +9,7 @@ using UPlayGround.Data.Item;
 
 namespace UPlayGround.UI
 {
-    public class UI_Popup_Item : UI_Base
+    public class UI_Popup_Item : UI_PopupBase
     {
         private enum BottomButtonType
         {
@@ -62,6 +62,21 @@ namespace UPlayGround.UI
             _itemWeightText.text = $"{UISvc.Inventory.GetItemWeight(itemData.itemId):0.0}";
 
             InitButton(itemData);
+            RebuildNavigation();
+        }
+
+        private void RebuildNavigation()
+        {
+            Button actionButton = _bottomButton != null ? _bottomButton.Button : null;
+            UIFocusNavigation.ConfigureHorizontal(new Selectable[]
+            {
+                actionButton,
+                _closeButton
+            });
+
+            SetDefaultFocus(
+                UIFocusNavigation.FirstNavigable(actionButton, _closeButton),
+                ensureSelection: IsVisible);
         }
 
         private void InitButton(ItemSO itemData)

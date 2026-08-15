@@ -12,7 +12,7 @@ namespace UPlayGround.UI
     /// 플레이어 사망 후 부활 방식을 선택하는 팝업.
     /// UIManager.ShowUI(UIKeyType.RespawnPopup) 로 표시한 뒤 Setup()을 호출한다.
     /// </summary>
-    public class UI_Popup_Respawn : UI_Base
+    public class UI_Popup_Respawn : UI_PopupBase
     {
         [Header("제자리 부활")]
         [SerializeField] private Button           _spotReviveButton;
@@ -58,7 +58,6 @@ namespace UPlayGround.UI
         {
             base.OnShow();
             Svc.GameTime?.SetPause(true);
-            FadeIn(0.3f);
             RefreshItemCount();
             RefreshHealTexts();
             RebuildNavigation();

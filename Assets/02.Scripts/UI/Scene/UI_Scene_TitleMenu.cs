@@ -11,7 +11,7 @@ namespace UPlayGround.UI
     /// <summary>
     /// 타이틀 UI
     /// </summary>
-    public class UI_Scene_TitleMenu : UI_Base
+    public class UI_Scene_TitleMenu : UI_SceneBase
     {
         [Header("UI 버튼")]
         [SerializeField] private Button continueButton;

@@ -41,6 +41,56 @@ namespace UPlayGround.UI
         private bool _closeTweening;      // 클로즈 트윈 진행 중(재진입 방지)
         private bool _forceImmediateHide; // Close/OnDestroy 등 즉시 숨겨야 하는 경로
 
+        protected override void Awake()
+        {
+            base.Awake();
+            ResolvePopupStructure();
+        }
+
+        /// <summary>
+        /// 기존 팝업을 표준 베이스로 옮길 때 직렬화 참조가 비어 있어도 Dim/Panel을
+        /// 관례 이름으로 복구한다. 새 프리팹은 인스펙터에서 명시 연결한다.
+        /// </summary>
+        private void ResolvePopupStructure()
+        {
+            RectTransform[] children = GetComponentsInChildren<RectTransform>(true);
+            if (_panel == null)
+            {
+                string[] panelNames = { "Panel", "Window", "Content" };
+                foreach (string panelName in panelNames)
+                {
+                    foreach (RectTransform child in children)
+                    {
+                        if (child == _rectTransform
+                            || !child.name.Equals(panelName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        _panel = child;
+                        break;
+                    }
+
+                    if (_panel != null)
+                        break;
+                }
+            }
+
+            if (_dim != null)
+                return;
+
+            foreach (RectTransform child in children)
+            {
+                if (!child.name.Equals("Dim", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                _dim = child.GetComponent<CanvasGroup>();
+                if (_dim == null)
+                    _dim = child.gameObject.AddComponent<CanvasGroup>();
+                return;
+            }
+        }
+
         protected override void OnShow()
         {
             base.OnShow();

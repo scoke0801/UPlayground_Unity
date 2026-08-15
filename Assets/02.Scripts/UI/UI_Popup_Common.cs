@@ -7,7 +7,7 @@ namespace UPlayGround.UI
     /// <summary>
     /// 간단한 팝업 UI 예시
     /// </summary>
-    public class UI_Popup_Common : UI_Base
+    public class UI_Popup_Common : UI_PopupBase
     {
         [Header("UI 컴포넌트")]
         [SerializeField] private TextMeshProUGUI _titleText;
@@ -46,8 +46,6 @@ namespace UPlayGround.UI
         {
             base.OnShow();
 
-            // 페이드 인 효과
-            FadeIn(0.2f);
             RebuildNavigation();
         }
 

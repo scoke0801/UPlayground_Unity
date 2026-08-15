@@ -9,7 +9,7 @@ namespace UPlayGround.UI
     /// 이전 대화내역(Backlog) 스크롤 패널. 최신 항목이 아래에 쌓입니다.
     /// 열려 있는 동안 대화 재생을 정지하고, 닫을 때 이전 정지 상태를 복원합니다.
     /// </summary>
-    public class UI_Popup_DialogueBacklog : UI_Base
+    public class UI_Popup_DialogueBacklog : UI_PopupBase
     {
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private Transform entryContainer;
@@ -33,6 +33,7 @@ namespace UPlayGround.UI
 
         protected override void OnShow()
         {
+            base.OnShow();
             var dialogue = UISvc.Dialogue;
             if (dialogue != null)
             {
@@ -43,6 +44,7 @@ namespace UPlayGround.UI
 
             // Rebuild가 IsVisible 상태에서 스크롤을 하단으로 맞춘다.
             Rebuild();
+            SetDefaultFocus(closeButton, ensureSelection: true);
         }
 
         protected override void OnHide()
@@ -53,6 +55,8 @@ namespace UPlayGround.UI
                 dialogue.OnHistoryChanged -= Rebuild;
                 dialogue.SetPaused(_pauseStateBeforeOpen);
             }
+
+            base.OnHide();
         }
 
         // ── 목록 구성 ────────────────────────────────────────────────────

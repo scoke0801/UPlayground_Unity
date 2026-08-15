@@ -10,7 +10,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI
 {
     /// <summary>캐릭터별 고정 스킬 트리를 표시하는 전용 팝업.</summary>
-    public sealed class UI_Scene_SkillTree : UI_Base
+    public sealed class UI_Scene_SkillTree : UI_PopupBase
     {
         public const string UIKey = "SkillTree";
 
@@ -51,12 +51,14 @@ namespace UPlayGround.UI
         private bool _allowChanges;
         private bool _pausedByThisPopup;
         private bool _respecArmed;
+        private bool _missingTreeReported;
 
         protected override bool BlocksLowerInput => true;
 
         protected override void Awake()
         {
             BuildRuntimeView();
+            _layer = CanvasLayer.Popup;
             base.Awake();
         }
 
@@ -368,9 +370,22 @@ namespace UPlayGround.UI
             SkillNodeDefinition node = tree?.FindNode(_selectedNodeId);
             if (node == null)
             {
-                _detailName.text = "노드를 선택하세요";
+                _detailName.text = tree == null ? "성장 경로 없음" : "노드를 선택하세요";
                 _detailState.text = string.Empty;
-                _detailEffects.text = tree == null ? "캐릭터 스킬 트리 에셋이 연결되지 않았습니다." : string.Empty;
+                _detailEffects.text = tree == null
+                    ? "아직 펼쳐진 성장 경로가 없습니다."
+                    : string.Empty;
+                if (tree == null && !_missingTreeReported)
+                {
+                    _missingTreeReported = true;
+                    Debug.LogWarning(
+                        $"[SkillTree] {_targetType} 성장 데이터가 연결되지 않았습니다.",
+                        this);
+                }
+                else if (tree != null)
+                {
+                    _missingTreeReported = false;
+                }
                 _preview.text = string.Empty;
                 if (_rankGauge != null) _rankGauge.text = string.Empty;
                 _acquireButton.interactable = false;

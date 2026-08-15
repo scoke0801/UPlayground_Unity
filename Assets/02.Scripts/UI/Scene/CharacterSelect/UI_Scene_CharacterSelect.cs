@@ -19,7 +19,7 @@ namespace UPlayGround.UI
     /// - 취소 → 이전(중립) 상태로 복귀. 선택이 없으면 화면을 닫는다.
     /// - 시작 → CharacterConfirmed 이벤트 발생. (PartyConfig 반영은 추후 이 이벤트에 연동.)
     /// </summary>
-    public class UI_Scene_CharacterSelect : UI_Base
+    public class UI_Scene_CharacterSelect : UI_SceneBase
     {
         /// <summary>
         /// UIManager 등록 키. UIKeyType은 자동 생성 파일이라 항목이 없을 수 있으므로,

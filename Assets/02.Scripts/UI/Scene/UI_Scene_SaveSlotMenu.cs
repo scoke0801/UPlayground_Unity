@@ -16,7 +16,7 @@ namespace UPlayGround.UI
     ///
     /// 프리팹: 슬롯 행 템플릿(버튼 + 정보 텍스트 + 삭제 버튼)을 인스펙터에 연결한다.
     /// </summary>
-    public class UI_Scene_SaveSlotMenu : UI_Base
+    public class UI_Scene_SaveSlotMenu : UI_SceneBase
     {
         public enum SaveSlotMode { Save, Load }
 
@@ -175,7 +175,7 @@ namespace UPlayGround.UI
                 if (row.dateText != null)
                     row.dateText.text = hasSave ? info.saveDateTime : "-";
                 if (row.mapText != null)
-                    row.mapText.text = hasSave ? $"맵: {ResolveRegionName(info.mapId)}" : "맵: -";
+                row.mapText.text = hasSave ? $"지역: {ResolveRegionName(info.mapId)}" : "지역: -";
                 if (row.gameDayText != null)
                     row.gameDayText.text = hasSave ? $"경과일: {info.elapsedGameDays}일" : "경과일: -";
                 if (row.progressText != null)

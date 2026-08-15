@@ -11,7 +11,7 @@ using UPlayGround.Manager;
 
 namespace UPlayGround.UI
 {
-    public sealed class UI_Scene_RestGrowth : UI_Base
+    public sealed class UI_Scene_RestGrowth : UI_PopupBase
     {
         [Serializable]
         private sealed class GrowthCard
@@ -56,6 +56,7 @@ namespace UPlayGround.UI
 
         protected override void Awake()
         {
+            _layer = CanvasLayer.Popup;
             base.Awake();
 
             // 초기 UI Toolkit 프리팹에서 전환된 에셋은 루트 scale/size가 0으로 남을 수 있다.
@@ -116,6 +117,8 @@ namespace UPlayGround.UI
                 Svc.GameTime?.SetPause(false);
                 _pausedByThisPopup = false;
             }
+
+            base.OnHide();
         }
 
         protected override void OnDispose()

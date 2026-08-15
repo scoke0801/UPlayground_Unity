@@ -12,7 +12,7 @@ namespace UPlayGround
     /// 카메라 쉐이크 + 방향성 펀치.
     ///
     /// 쉐이크는 가산형 보이스(voice) 모델 — 각 히트가 독립 보이스로 추가되어
-    /// 여러 보이스의 회전/위치 기여가 합산된다. 빠른 콤보일수록 보이스가 겹쳐
+    /// 여러 보이스의 회전 기여가 합산된다. 빠른 콤보일수록 보이스가 겹쳐
     /// 진동이 누적되고(명조식 빌드업), 막타의 큰 SO가 그 위에 얹혀 버스트가 된다.
     /// 합산 결과는 멀미 방지를 위해 세이프밸브로 클램프한다.
     ///
@@ -21,15 +21,12 @@ namespace UPlayGround
     /// </summary>
     public class CameraShaker : MonoBehaviour
     {
-        public enum ShakeSpace { Screen, World }
-
         private const float GLOBAL_SHAKE_MULTIPLIER = 1.0f;
 
         // 세이프밸브(Tier 3-I): 다중 히트 누적 시 멀미 방지용 합산 상한.
         private const float MAX_PITCH = 6f;   // 도
         private const float MAX_YAW   = 5f;   // 도
         private const float MAX_ROLL  = 3f;   // 도
-        private const float MAX_POS   = 0.6f; // 미터 (레거시 Position 모드)
         private const int   MAX_ACTIVE_VOICES = 32;
 
         public static bool EditorPreview = true;
@@ -43,21 +40,18 @@ namespace UPlayGround
         {
             public CameraShakeData Data;
             public float           Elapsed;
-            public float           DelaysTimer;
             public Vector3         NoiseSeed;
             public float           DirPitchWeight = 1f;
             public float           DirYawWeight   = 1f;
             public float           Strength       = 1f; // 외부 스케일 (설정 × 카덴스 × 거리감쇠)
             public Vector3         CurrentEuler;        // 이번 프레임 회전 기여 (도)
-            public Vector3         CurrentPos;          // 이번 프레임 위치 기여 (미터, 레거시)
         }
 
         private readonly List<ShakeVoice>  _active  = new List<ShakeVoice>();
         private readonly Stack<ShakeVoice> _pool    = new Stack<ShakeVoice>();
         private ShakeVoice                 _previewVoice; // 에디터 프리뷰 전용 (Animate가 구동)
 
-        // 회전 합산은 카메라 독립 → 프레임당 1회만 계산(클램프 포함)해 캐시.
-        // 위치 합산은 스크린공간 의존이라 onPreRenderCamera에서 카메라별 계산한다.
+        // 회전 합산은 카메라 독립 → 프레임당 1회만 계산(클램프 포함)해 캐시한다.
         private Vector3 _frameEulerSum;
 
         // ── Punch ─────────────────────────────────────────────────────
@@ -174,12 +168,10 @@ namespace UPlayGround
             ShakeVoice v = _pool.Count > 0 ? _pool.Pop() : new ShakeVoice();
             v.Data           = data;
             v.Elapsed        = 0f;
-            v.DelaysTimer    = 0f;
             v.Strength       = strength;
             v.DirPitchWeight = 1f;
             v.DirYawWeight   = 1f;
             v.CurrentEuler   = Vector3.zero;
-            v.CurrentPos     = Vector3.zero;
 
             // 단일 base + 고정 오프셋으로 축 간 분리를 보장(독립 난수는 드물게 근접해 상관됨).
             float baseSeed = Random.value * 1000f;
@@ -202,7 +194,7 @@ namespace UPlayGround
             v.DirYawWeight   = 1f;
 
             CameraShakeData d = v.Data;
-            if (d == null || !d.DrivesRotation) return;
+            if (d == null) return;
 
             float bias = d.DirectionalBias;
             if (bias <= 0f || worldDirection.sqrMagnitude < 0.0001f) return;
@@ -274,11 +266,10 @@ namespace UPlayGround
             if (v.Elapsed < d.Delay)
             {
                 v.CurrentEuler = Vector3.zero;
-                v.CurrentPos   = Vector3.zero;
                 return true;
             }
 
-            ComputeVoice(v, Mathf.Clamp01(v.Elapsed / total), deltaTime, v.Elapsed);
+            ComputeVoice(v, Mathf.Clamp01(v.Elapsed / total), v.Elapsed);
             return true;
         }
 
@@ -311,7 +302,7 @@ namespace UPlayGround
             RegisterEditorCameras();
             s_Shakers.AddUnique(this);
             EnsureCallbacks();
-            ComputeVoice(_previewVoice, Mathf.Clamp01(time / total), 1f / 60f, time);
+            ComputeVoice(_previewVoice, Mathf.Clamp01(time / total), time);
             AggregateRotation();
 #endif
         }
@@ -320,7 +311,7 @@ namespace UPlayGround
 
         #region Shake Vector
 
-        private void ComputeVoice(ShakeVoice v, float t, float deltaTime, float absoluteTime)
+        private void ComputeVoice(ShakeVoice v, float t, float absoluteTime)
         {
             CameraShakeData d = v.Data;
             if (d == null) return;
@@ -337,7 +328,7 @@ namespace UPlayGround
                     WaveSample(coord, v.NoiseSeed.y),
                     WaveSample(coord, v.NoiseSeed.z));
             }
-            else if (d.Noise == CameraShakeData.NoiseType.Perlin)
+            else
             {
                 // 정합 노이즈: 축별 시드를 크게 벌려 0.5 군집을 피하고 [-1,1]로 재매핑.
                 float coord = absoluteTime * Mathf.Max(0.01f, d.Frequency);
@@ -346,40 +337,13 @@ namespace UPlayGround
                     Mathf.PerlinNoise(coord, v.NoiseSeed.y) * 2f - 1f,
                     Mathf.PerlinNoise(coord, v.NoiseSeed.z) * 2f - 1f);
             }
-            else
-            {
-                // 레거시 Random: ShakesDelay 간격마다 새 난수 (계단식, 갱신 전까지 직전 값 유지)
-                if (d.ShakesDelay > 0f)
-                {
-                    v.DelaysTimer += deltaTime;
-                    if (v.DelaysTimer < d.ShakesDelay) return;
-                    while (v.DelaysTimer >= d.ShakesDelay)
-                        v.DelaysTimer -= d.ShakesDelay;
-                }
-                var rand = new Vector3(Random.value, Random.value, Random.value);
-                noise = rand * (Random.value > 0.5f ? -1f : 1f);
-            }
-
-            // 위치/회전이 같은 base 노이즈를 공유 → 한 번의 충격이 일관된 결로 밀고 비튼다.
+            // 연속 노이즈에 감쇠 커브와 외부 강도를 적용한다.
             float env = GLOBAL_SHAKE_MULTIPLIER * d.ShakeCurve.Evaluate(t) * v.Strength;
 
-            // 회전 채널: 방향 매칭 가중(Pitch=x, Yaw=y) 적용. Position 전용 모드는 가중이 항상 1.
-            if (d.DrivesRotation)
-            {
-                Vector3 rn = noise;
-                rn.x *= v.DirPitchWeight;
-                rn.y *= v.DirYawWeight;
-                v.CurrentEuler = env * Vector3.Scale(rn, d.RotationStrength);
-            }
-            else
-            {
-                v.CurrentEuler = Vector3.zero;
-            }
-
-            // 위치 채널: 레거시 호환을 위해 방향 가중 없이 원본 노이즈 사용(방향성 킥은 Punch가 담당).
-            v.CurrentPos = d.DrivesPosition
-                ? env * Vector3.Scale(noise, d.ShakeStrength)
-                : Vector3.zero;
+            Vector3 rotationNoise = noise;
+            rotationNoise.x *= v.DirPitchWeight;
+            rotationNoise.y *= v.DirYawWeight;
+            v.CurrentEuler = env * Vector3.Scale(rotationNoise, d.RotationStrength);
         }
 
         private const float TAU = 2f * Mathf.PI;
@@ -415,16 +379,9 @@ namespace UPlayGround
 
             if (Application.isPlaying && Time.timeScale <= 0f) return;
 
-            // 위치 기여는 스크린공간 의존이라 카메라별 합산(레거시 Position 모드).
-            Vector3 posSum = Vector3.zero;
-            AccumulatePosition(_previewVoice, cam, ref posSum);
-            for (int i = 0; i < _active.Count; i++)
-                AccumulatePosition(_active[i], cam, ref posSum);
-            posSum = Vector3.ClampMagnitude(posSum, MAX_POS);
-
             Vector3 punch = _isPunching ? GetPunchOffset() : Vector3.zero;
 
-            cam.transform.localPosition += posSum + punch;
+            cam.transform.localPosition += punch;
 
             // 회전은 카메라 독립 — Tick/Animate에서 캐시·클램프한 합산을 그대로 적용.
             if (_frameEulerSum != Vector3.zero)
@@ -449,18 +406,8 @@ namespace UPlayGround
 
         private static void AddRotation(ShakeVoice v, ref Vector3 sum)
         {
-            if (v?.Data != null && v.Data.DrivesRotation)
+            if (v?.Data != null)
                 sum += v.CurrentEuler;
-        }
-
-        private void AccumulatePosition(ShakeVoice v, Camera cam, ref Vector3 posSum)
-        {
-            if (v?.Data == null || !v.Data.DrivesPosition) return;
-
-            Vector3 p = v.CurrentPos;
-            if (v.Data.ShakeSpace == ShakeSpace.Screen)
-                p = cam.transform.rotation * p;
-            posSum += p;
         }
 
         private void onPostRenderCamera(Camera cam)

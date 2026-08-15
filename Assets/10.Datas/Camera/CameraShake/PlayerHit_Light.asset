@@ -15,12 +15,9 @@ MonoBehaviour:
   key: PlayerHit_Light
   UseMainCamera: 1
   Cameras: []
-  Mode: 2
-  Noise: 1
+  Noise: 0
   Duration: 0.15
   Delay: 0
-  AmplitudeX: 0.08
-  AmplitudeY: 0.12
   PitchAmplitude: 0.9
   YawAmplitude: 0.7
   RollAmplitude: 0
@@ -29,4 +26,3 @@ MonoBehaviour:
   AttenuationRange: 25
   Frequency: 20
   Dampening: 1
-  ShakeSpace: 0

@@ -13,22 +13,22 @@ namespace UPlayGround.Editor
         private struct PresetDef
         {
             public string key;
-            public float ampX, ampY, freqHz, duration;
+            public float pitch, yaw, freqHz, duration;
             public CameraShakeData.DampeningType dampening;
         }
 
-        // 기획서 §4.1 수치 그대로
+        // 현재 회전 전용 프리셋 기준값
         private static readonly PresetDef[] Presets =
         {
-            new() { key = "LiteHit",         ampX = 0.05f, ampY = 0.03f, freqHz = 25f, duration = 0.08f, dampening = CameraShakeData.DampeningType.EaseOut   },
-            new() { key = "MediumHit",       ampX = 0.10f, ampY = 0.06f, freqHz = 22f, duration = 0.12f, dampening = CameraShakeData.DampeningType.EaseOut   },
-            new() { key = "HeavyHit",        ampX = 0.18f, ampY = 0.10f, freqHz = 18f, duration = 0.18f, dampening = CameraShakeData.DampeningType.EaseOut   },
-            new() { key = "CriticalHit",     ampX = 0.28f, ampY = 0.15f, freqHz = 15f, duration = 0.22f, dampening = CameraShakeData.DampeningType.EaseOut   },
-            new() { key = "PlayerHit_Light", ampX = 0.08f, ampY = 0.12f, freqHz = 20f, duration = 0.15f, dampening = CameraShakeData.DampeningType.Linear    },
-            new() { key = "PlayerHit_Heavy", ampX = 0.18f, ampY = 0.25f, freqHz = 16f, duration = 0.25f, dampening = CameraShakeData.DampeningType.Linear    },
-            new() { key = "PoiseBreak",      ampX = 0.22f, ampY = 0.10f, freqHz = 20f, duration = 0.18f, dampening = CameraShakeData.DampeningType.EaseOut   },
-            new() { key = "KillCam",         ampX = 0.05f, ampY = 0.03f, freqHz = 10f, duration = 0f,    dampening = CameraShakeData.DampeningType.Constant  },
-            new() { key = "Explosion",       ampX = 0.35f, ampY = 0.20f, freqHz = 12f, duration = 0.40f, dampening = CameraShakeData.DampeningType.EaseOut   },
+            new() { key = "LiteHit",         pitch = 0.5f, yaw = 0.4f, freqHz = 25f, duration = 0.08f, dampening = CameraShakeData.DampeningType.EaseOut   },
+            new() { key = "MediumHit",       pitch = 1.0f, yaw = 0.7f, freqHz = 22f, duration = 0.12f, dampening = CameraShakeData.DampeningType.EaseOut   },
+            new() { key = "HeavyHit",        pitch = 1.8f, yaw = 1.2f, freqHz = 18f, duration = 0.18f, dampening = CameraShakeData.DampeningType.EaseOut   },
+            new() { key = "CriticalHit",     pitch = 1.2f, yaw = 0.8f, freqHz = 15f, duration = 0.22f, dampening = CameraShakeData.DampeningType.EaseOut   },
+            new() { key = "PlayerHit_Light", pitch = 0.9f, yaw = 0.7f, freqHz = 20f, duration = 0.15f, dampening = CameraShakeData.DampeningType.Linear    },
+            new() { key = "PlayerHit_Heavy", pitch = 2.0f, yaw = 1.4f, freqHz = 16f, duration = 0.25f, dampening = CameraShakeData.DampeningType.Linear    },
+            new() { key = "PoiseBreak",      pitch = 2.0f, yaw = 1.0f, freqHz = 20f, duration = 0.18f, dampening = CameraShakeData.DampeningType.EaseOut   },
+            new() { key = "KillCam",         pitch = 1.4f, yaw = 0.9f, freqHz = 10f, duration = 0f,    dampening = CameraShakeData.DampeningType.Constant  },
+            new() { key = "Explosion",       pitch = 3.0f, yaw = 2.4f, freqHz = 12f, duration = 0.40f, dampening = CameraShakeData.DampeningType.EaseOut   },
         };
 
         public static void Generate()
@@ -60,8 +60,8 @@ namespace UPlayGround.Editor
 
                 var so = ScriptableObject.CreateInstance<CameraShakeData>();
                 so.key        = def.key;
-                so.AmplitudeX = def.ampX;
-                so.AmplitudeY = def.ampY;
+                so.PitchAmplitude = def.pitch;
+                so.YawAmplitude = def.yaw;
                 so.Frequency  = def.freqHz;
                 so.Duration   = def.duration;
                 so.Dampening  = def.dampening;

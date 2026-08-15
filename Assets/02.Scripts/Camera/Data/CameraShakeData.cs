@@ -13,21 +13,9 @@ namespace UPlayGround.Data
             Constant,  // 감쇠 없음 — 지속 진동
         }
 
-        /// <summary>
-        /// 쉐이크 적용 방식. 기존 에셋 호환을 위해 Position이 0번(기본값).
-        /// 3D 액션은 Rotation 권장(카메라가 벽을 뚫지 않고 멀미가 적음).
-        /// </summary>
-        public enum ShakeMode
-        {
-            Position,  // 카메라 로컬 위치 이동 (레거시)
-            Rotation,  // 카메라 로컬 회전 (Pitch/Yaw/Roll) — 권장
-            Both,      // 위치 + 회전 동시 — 회전이 임팩트, 위치가 질감을 보조 (각 진폭 별도 설정)
-        }
-
-        /// <summary>노이즈 종류. 기존 호환을 위해 Random이 0번(기본값).</summary>
+        /// <summary>연속성을 보장하는 회전 쉐이크 노이즈.</summary>
         public enum NoiseType
         {
-            Random,  // 매 ShakesDelay마다 난수 (레거시, 계단식)
             Perlin,  // 연속 정합 노이즈 — 부드럽지만 불규칙하게 떠다님
             Wave,    // 감쇠 사인 웨이브(2차 하모닉 합) — 가장 부드럽게 진동 후 수렴 (권장)
         }
@@ -37,13 +25,8 @@ namespace UPlayGround.Data
         public bool UseMainCamera = true;
         public List<Camera> Cameras = new List<Camera>();
 
-        [Space]
-        [Header("Mode")]
-        [Tooltip("Position=위치 이동(레거시), Rotation=회전(권장), Both=위치+회전 동시")]
-        public ShakeMode Mode = ShakeMode.Position;
-
-        [Tooltip("Random=난수(레거시), Perlin=정합 노이즈, Wave=사인 웨이브(가장 부드러움, 권장)")]
-        public NoiseType Noise = NoiseType.Random;
+        [Tooltip("Perlin=연속 정합 노이즈, Wave=감쇠 사인 웨이브")]
+        public NoiseType Noise = NoiseType.Perlin;
 
         [Space]
         [Tooltip("지속 시간 (초)")]
@@ -53,15 +36,7 @@ namespace UPlayGround.Data
         public float Delay = 0f;
 
         [Space]
-        [Header("Position Amplitude (Mode=Position)")]
-        [Tooltip("X축 진폭 (좌우, 미터)")]
-        public float AmplitudeX = 0.1f;
-
-        [Tooltip("Y축 진폭 (상하, 미터)")]
-        public float AmplitudeY = 0.06f;
-
-        [Space]
-        [Header("Rotation Amplitude (Mode=Rotation, 도 단위)")]
+        [Header("Rotation Amplitude (도 단위)")]
         [Tooltip("Pitch 진폭 (상하 끄덕임). 내려치기 계열에 강조")]
         public float PitchAmplitude = 1.2f;
 
@@ -91,10 +66,6 @@ namespace UPlayGround.Data
         [Tooltip("감쇠 방식")]
         public DampeningType Dampening = DampeningType.EaseOut;
 
-        [Space]
-        [Tooltip("Position 모드 전용: Screen=화면기준, World=월드기준")]
-        public CameraShaker.ShakeSpace ShakeSpace = CameraShaker.ShakeSpace.Screen;
-
         // ── 런타임 캐시 ───────────────────────────────────────────────
         // ShakeCurve는 프로퍼티 getter 호출마다 new 했던 것을 OnEnable에서 1회만 생성한다.
         // SO가 로드/재로드될 때마다 OnEnable이 호출되므로 항상 최신 Dampening을 반영한다.
@@ -110,22 +81,11 @@ namespace UPlayGround.Data
             _                      => AnimationCurve.EaseInOut(0f, 1f, 1f, 0f), // EaseOut
         };
 
-        /// <summary>CameraShaker가 사용하는 월드 강도 벡터 (Z 고정 0)</summary>
-        public Vector3 ShakeStrength => new Vector3(AmplitudeX, AmplitudeY, 0f);
-
         /// <summary>회전 강도 벡터 (도): X=Pitch, Y=Yaw, Z=Roll</summary>
         public Vector3 RotationStrength => new Vector3(PitchAmplitude, YawAmplitude, RollAmplitude);
-
-        /// <summary>이 쉐이크가 회전 채널을 구동하는가 (Rotation 또는 Both)</summary>
-        public bool DrivesRotation => Mode != ShakeMode.Position;
-
-        /// <summary>이 쉐이크가 위치 채널을 구동하는가 (Position 또는 Both)</summary>
-        public bool DrivesPosition => Mode != ShakeMode.Rotation;
 
         /// <summary>캐싱된 감쇠 커브. 매 프레임 new 하지 않는다.</summary>
         public AnimationCurve ShakeCurve => _cachedCurve ??= BuildCurve();
 
-        /// <summary>주파수 기반 진동 간격 (초)</summary>
-        public float ShakesDelay => Frequency > 0f ? 1f / Frequency : 0f;
     }
 }

@@ -175,6 +175,53 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.MainTabNext, "다음 메뉴"),
                 Prompt(UIAction.Submit, "선택"),
                 Prompt(UIAction.Cancel, "닫기")),
+            new(
+                "Assets/03.Prefabs/UI/Scene/Growth/UI_Scene_SkillTree.prefab",
+                string.Empty,
+                "SkillTreePromptBar",
+                Placement.BottomOverlay,
+                720f,
+                Prompt(UIAction.Submit, "습득"),
+                Prompt(UIAction.Cancel, "닫기")),
+            new(
+                "Assets/03.Prefabs/UI/Scene/Inventory/UI_Popup_Item.prefab",
+                string.Empty,
+                "ItemPromptBar",
+                Placement.BottomOverlay,
+                520f,
+                Prompt(UIAction.Submit, "사용/장착"),
+                Prompt(UIAction.Cancel, "뒤로")),
+            new(
+                "Assets/03.Prefabs/UI/Popup/UI_Popup_Guide.prefab",
+                string.Empty,
+                "GuidePromptBar",
+                Placement.BottomOverlay,
+                520f,
+                Prompt(UIAction.Submit, "다음"),
+                Prompt(UIAction.Cancel, "닫기")),
+            new(
+                "Assets/03.Prefabs/UI/Dialogue/UI_Popup_DialogueBacklog.prefab",
+                string.Empty,
+                "BacklogPromptBar",
+                Placement.BottomOverlay,
+                420f,
+                Prompt(UIAction.Submit, "확인"),
+                Prompt(UIAction.Cancel, "닫기")),
+            new(
+                "Assets/03.Prefabs/UI/Popup/UI_Popup_Respawn.prefab",
+                string.Empty,
+                "RespawnPromptBar",
+                Placement.BottomOverlay,
+                420f,
+                // 사망 상태에서 취소해 게임으로 돌아갈 수 없으므로 거짓 Cancel 안내는 표시하지 않는다.
+                Prompt(UIAction.Submit, "부활 선택")),
+            new(
+                "Assets/03.Prefabs/UI/Scene/UI_Scene_TitleMenu.prefab",
+                string.Empty,
+                "TitlePromptBar",
+                Placement.BottomOverlay,
+                360f,
+                Prompt(UIAction.Submit, "선택")),
         };
 
         private static readonly string[] LegacyObjectNames =

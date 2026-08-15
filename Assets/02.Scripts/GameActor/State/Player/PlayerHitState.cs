@@ -35,6 +35,7 @@ namespace UPlayGround.State
         private float _cancelWindow;
         private float _elapsedTime;
         private bool _canCancel;
+        private bool _wallImpactConsumed;
         private bool _heavyHit;   // Heavy일 때는 회피 캔슬만 허용
         private MotionSet _hitMotionSet;
 
@@ -52,6 +53,7 @@ namespace UPlayGround.State
 
             _elapsedTime = 0f;
             _canCancel   = false;
+            _wallImpactConsumed = false;
 
             // 워프 진행 중이면 즉시 clear (Hit 모션이 우선, 헛스윙도 적용 안 함).
             controller.MotionWarp?.ClearTarget();
@@ -223,6 +225,32 @@ namespace UPlayGround.State
         {
             if (ReferenceEquals(motionSet, _hitMotionSet))
                 OnHitEnd();
+        }
+
+        /// <summary>
+        /// 넉백으로 밀려나던 중 벽에 부딪힌 경우(환경 넉백 T0).
+        /// 플레이어는 T0(잔여 넉백 소멸 + 임팩트)까지만 적용한다 — 추가 경직이나 추가 피해를 주면
+        /// 벽 근처에서 조작 불가 누수가 되살아난다.
+        /// </summary>
+        public override void OnMovementHit(
+            UnityEngine.Collider hitCollider,
+            Vector3 hitNormal,
+            Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (_wallImpactConsumed)
+                return;
+
+            if (UPlayGround.Combat.WallImpactResolver.TryApplyWallImpact(
+                    controller,
+                    _attackData?.reactionType ?? AttackReactionType.None,
+                    hitCollider,
+                    hitNormal,
+                    hitPoint,
+                    hitStabilityReport))
+            {
+                _wallImpactConsumed = true;
+            }
         }
 
         private UPlayGround.Gameplay.Tag.GameplayTag GetHitAnimKey()

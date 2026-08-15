@@ -25,6 +25,7 @@ namespace UPlayGround.State
         private const float MOTION_COMPLETION_GRACE = 0.25f;
 
         private bool _isActive;
+        private bool _wallImpactConsumed;
         private float _hitTimer;
         private float _hitTimeout;
         private MotionSet _hitMotionSet;
@@ -41,6 +42,7 @@ namespace UPlayGround.State
             base.OnEnter(fromState);
 
             _isActive = true;
+            _wallImpactConsumed = false;
             _hitTimer = 0f;
             _hitTimeout = FALLBACK_HIT_TIMEOUT;
             _hitMotionSet = null;
@@ -116,6 +118,31 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             currentRotation = currentRotation.normalized;
+        }
+
+        /// <summary>
+        /// 넉백으로 밀려나던 중 벽에 부딪힌 경우(환경 넉백 T0).
+        /// KCC는 한 넉백 동안 이 콜백을 여러 스텝에서 부를 수 있으므로 1회만 소비한다.
+        /// </summary>
+        public override void OnMovementHit(
+            Collider hitCollider,
+            Vector3 hitNormal,
+            Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (_wallImpactConsumed)
+                return;
+
+            if (WallImpactResolver.TryApplyWallImpact(
+                    controller,
+                    _hit.ReactionType,
+                    hitCollider,
+                    hitNormal,
+                    hitPoint,
+                    hitStabilityReport))
+            {
+                _wallImpactConsumed = true;
+            }
         }
 
         private void OnHitMotionEnded(MotionSet motionSet, MotionSetEndReason _)

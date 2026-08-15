@@ -24,6 +24,7 @@ namespace UPlayGround.State
         private const float MOTION_COMPLETION_GRACE = 0.25f;
 
         private bool _isActive;
+        private bool _wallImpactConsumed;
         private bool _getupStarted;
         private bool _knockdownMotionEnded;
         private float _downTimer;
@@ -56,13 +57,17 @@ namespace UPlayGround.State
             _knockbackSource = knockbackSource;
         }
 
-        public override bool CanTransitionState(ActorStateId fromState) => fromState is ActorStateId.Death or ActorStateId.Grabbed;
+        public override bool CanTransitionState(ActorStateId fromState)
+            => fromState is not (ActorStateId.Death
+                or ActorStateId.Grabbed
+                or ActorStateId.SpecialBreakVictim);
 
         public override void OnEnter(GameActorState fromState)
         {
             base.OnEnter(fromState);
             controller.MotionWarp?.ClearTarget();
             _isActive = true;
+            _wallImpactConsumed = false;
             _getupStarted = false;
             _knockdownMotionEnded = false;
             _knockbackElapsed = 0f;
@@ -143,6 +148,39 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             currentRotation = currentRotation.normalized;
+        }
+
+        /// <summary>넉백으로 밀려나던 중 벽에 부딪힌 경우(환경 넉백 T0). 한 넉백당 1회만 소비한다.</summary>
+        public override void OnMovementHit(
+            Collider hitCollider,
+            Vector3 hitNormal,
+            Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (_wallImpactConsumed)
+                return;
+
+            if (WallImpactResolver.TryApplyWallImpact(
+                    controller,
+                    _hit.ReactionType,
+                    hitCollider,
+                    hitNormal,
+                    hitPoint,
+                    hitStabilityReport))
+            {
+                _wallImpactConsumed = true;
+
+                // 이 상태의 넉백은 damper가 아니라 UpdateVelocity가 매 프레임 직접 덮어쓴다.
+                // 구동 자체를 끝내지 않으면 리졸버가 속도를 눌러도 다음 프레임에 되살아나
+                // 벽에 박힌 채 남은 시간 동안 계속 밀린다.
+                CancelKnockbackDrive();
+            }
+        }
+
+        /// <summary>상태가 구동하던 넉백을 즉시 종료한다(벽 충돌 등 외부 중단).</summary>
+        private void CancelKnockbackDrive()
+        {
+            _knockbackElapsed = _knockbackDuration;
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

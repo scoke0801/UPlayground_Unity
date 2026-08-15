@@ -53,6 +53,7 @@ namespace UPlayGround.MovementController
         private Vector3 _pendingPlanarKnockbackVelocity;
         private PendingVerticalLaunch _pendingVerticalLaunch;
         private readonly List<DirectionalVelocityDamper> _impulseDampers = new();
+        private bool _pendingPlanarVelocityStop;
 
         /// <summary>
         /// 다음 KCC 합성 마지막 단계에 1회성 속도 변화를 더한다.
@@ -128,6 +129,23 @@ namespace UPlayGround.MovementController
                 authoredUpwardSpeed,
                 Vector3.zero,
                 verticalPolicy: VerticalLaunchVelocityPolicy.AtLeast);
+        }
+
+        /// <summary>
+        /// 다음 KCC 합성에서 수평 속도를 0으로 만든다(벽 충돌 등 즉시 정지 요청).
+        ///
+        /// <see cref="ClearExternalVelocityChanges"/>만으로는 이미 <c>Motor.Velocity</c>에 흡수된 넉백이 남는다.
+        /// pending은 등록 다음 스텝에 권위 속도로 합산되고, 그 뒤 감쇠는 <c>_impulseDampers</c>가
+        /// "현재 속도에서 차감"하는 방식이라 damper만 지우면 오히려 감쇠가 사라진다.
+        /// 그래서 잔여 요청 제거와 별개로 합성 결과 자체를 한 번 눌러야 한다.
+        ///
+        /// KCC는 OnMovementHit 이후에도 transient velocity를 계속 투영·갱신하므로
+        /// 콜백 안에서 Motor 속도를 직접 써도 덮인다. 다음 UpdateVelocity 말미에 1회 소비한다.
+        /// </summary>
+        public void RequestPlanarVelocityStop()
+        {
+            ClearExternalVelocityChanges();
+            _pendingPlanarVelocityStop = true;
         }
 
         /// <summary>아직 소비되지 않은 외부 속도 요청과 감쇠 modifier를 모두 제거한다.</summary>
@@ -505,6 +523,14 @@ namespace UPlayGround.MovementController
             {
                 currentVelocity = ResolvePendingVerticalLaunch(currentVelocity);
                 _pendingVerticalLaunch.Clear();
+            }
+
+            // 모든 합성 이후에 눌러야 상태가 직접 덮어쓴 속도까지 정지시킬 수 있다.
+            // 수직 성분은 남겨 낙하/착지가 그대로 이어지게 한다.
+            if (_pendingPlanarVelocityStop)
+            {
+                _pendingPlanarVelocityStop = false;
+                currentVelocity = Motor.CharacterUp * Vector3.Dot(currentVelocity, Motor.CharacterUp);
             }
         }
 

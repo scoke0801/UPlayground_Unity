@@ -21,7 +21,10 @@ namespace UPlayGround.State
         private const float MINIMUM_PLAY_RATE = 0.5f;
         private const float MOTION_COMPLETION_GRACE = 0.25f;
 
+        private readonly UPlayGround.Combat.HitContext _hit;
+
         private bool _isActive;
+        private bool _wallImpactConsumed;
         private bool _landStarted;
         private bool _hasLeftGround;
         private float _dragSpeed = 0.1f;
@@ -30,8 +33,15 @@ namespace UPlayGround.State
         private float _landTimeout;
         private MotionSet _landMotionSet;
 
-        public EnemyAirborneState(ActorMovementController controller) : base(controller)
+        /// <param name="hit">
+        /// 피격으로 띄워진 경우의 히트 컨텍스트. 낙하/점프로 진입할 때는 지정하지 않는다
+        /// (벽 충돌 판정이 넉백성 리액션인지 구분하는 데만 쓴다).
+        /// </param>
+        public EnemyAirborneState(
+            ActorMovementController controller,
+            in UPlayGround.Combat.HitContext hit = default) : base(controller)
         {
+            _hit = hit;
         }
 
         public override bool CanTransitionState(ActorStateId fromState)
@@ -45,6 +55,7 @@ namespace UPlayGround.State
             gameActor.Tags?.AddTag(GameplayTags.State_Airborne);
 
             _isActive = true;
+            _wallImpactConsumed = false;
             _landStarted = false;
             _hasLeftGround = false;
             _dragSpeed = controller.Drag;
@@ -120,6 +131,28 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             currentRotation = currentRotation.normalized;
+        }
+
+        /// <summary>공중으로 날아가던 중 벽에 부딪힌 경우(환경 넉백 T0). 한 넉백당 1회만 소비한다.</summary>
+        public override void OnMovementHit(
+            Collider hitCollider,
+            Vector3 hitNormal,
+            Vector3 hitPoint,
+            ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
+        {
+            if (_wallImpactConsumed)
+                return;
+
+            if (UPlayGround.Combat.WallImpactResolver.TryApplyWallImpact(
+                    controller,
+                    _hit.ReactionType,
+                    hitCollider,
+                    hitNormal,
+                    hitPoint,
+                    hitStabilityReport))
+            {
+                _wallImpactConsumed = true;
+            }
         }
 
         public override void UpdateVelocity(ref Vector3 currentVelocity, float deltaTime)

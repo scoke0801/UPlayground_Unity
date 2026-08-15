@@ -23,6 +23,12 @@ Bokusei는 기본 고정 플레이어블 캐릭터이며, 나머지는 `Characte
 
 **스토리 플롯 작성 시:** 플롯·인물·대사 문서를 새로 쓰거나 고칠 때는 반드시 `Assets/docs/guide/STORY_PLOT_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(언어 경계, 이해·공감·몰입 3원칙, 최종 체크리스트)을 적용한다. 플레이어 노출 텍스트에는 개발·시스템·기획 용어를 쓰지 않는다.
 
+**UI 제작 시:** 화면(HUD·Scene·Popup·WorldSpace)을 새로 만들거나 고칠 때는 반드시 `Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md`를 먼저 읽고 그 지침(통일성 우선, 트윈 연출, 리소스 조달, 최종 체크리스트)을 적용한다. 단순한 처리라도 트윈 연출을 검토하고, 모든 UI 트윈은 `SetUpdate(true)`를 붙인다. 필요한 이미지는 새로 만들지 말고 `Assets/04.Images/`와 `Assets/ExternalAssets/UI/`에서 직접 찾아 쓴다. 게임패드가 1급 입력이므로 포커스 기반 조작(초기 포커스 지정, `Cancel` 탈출, 탭은 숄더/트리거)을 반드시 만족시킨다.
+
+**전투 시스템 작업 시:** 적 AI(BT)·Ability 데이터(GAS)·모션과 히트 타이밍(MotionSet)을 만들거나 고칠 때는 반드시 `Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 3계층 책임 경계(판단=BT / 수치=GAS / 타이밍=MotionSet)를 넘지 않고, 텔레그래프·히트스톱·캔슬 창까지를 작업 범위로 본다.
+
+**컨텐츠 시스템 작업 시:** 퀘스트·대화·아이템·제작·상호작용·트리거·FlowGraph 데이터를 만들거나 고칠 때는 반드시 `Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md`를 먼저 읽는다. 도구 선택 기준(FlowGraph/Trigger/Quest), 기존 ID·GUID 보존, 사이클 리셋·누적 경계 명시, 예상 밖 진행 순서와 저장/로드에서의 진행 불능 방지를 지킨다.
+
 **핵심 플러그인:** Animancer Pro V8, Kinematic Character Controller (KCC), MagicaCloth2, Addressables, lilToon.
 
 ## 언어
@@ -197,6 +203,6 @@ CharacterModelData.abilitySet
 - PlayerActor는 partial class 사용 — 플레이어 동작 수정 시 `GameActor/Object/Player/`의 7개 파일을 함께 확인
 - 적 비행 상태는 별도 하위 폴더: `State/Enemy/EnemyFlying/`
 - 네임스페이스는 `UPlayGround` 루트 아래에서 폴더 경로를 따른다. 신규 파일은 네임스페이스 필수
-- UI 네이밍: `UI_Base` 상속 클래스만 `UI_` 접두사, 그 외 UI 보조 클래스는 `UIXxx`
+- UI 네이밍: `UI_Base` 계열 화면 클래스만 `UI_` 접두사를 쓰고 소속 `CanvasLayer`를 접두사에 명시한다 (`UI_HUD_{}` / `UI_Scene_{}` / `UI_Popup_{}` / `UI_System_{}`). 이름 본문에 레이어 단어를 중복하지 않는다. 공통 베이스(`UI_Base`, `UI_SceneBase`, `UI_PopupBase`)와 그 외 UI 보조 클래스는 언더스코어 없이 `UIXxx`. 프리팹 이름은 컴포넌트 클래스 이름과 동일하게 맞춘다
 - 대형 클래스(GameManager, InputManager, GameObjectManager, CheatManager 등)는 `클래스명.기능.cs` partial 분리 패턴 사용
 - 신규 에디터 도구를 만들거나 기존 도구의 진입점을 변경할 때는 창/메뉴 구현만으로 완료하지 않는다. 실행 메서드에 `UPlaygroundTool`을 등록하고, `Assets/02.Scripts/Tool/Editor/UPlaygroundToolsLauncher.cs`의 `s_categories`에 동일한 도구 ID와 적절한 카테고리·요약·상세 설명을 추가하여 통합 툴 런처에서 검색·실행 가능하게 해야 한다. `UPlayGround` 최상위 개별 메뉴는 툴 런처와 허용된 예외 외에는 새로 추가하지 않는다.

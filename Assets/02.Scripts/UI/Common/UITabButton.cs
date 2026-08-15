@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,6 +26,8 @@ namespace UPlayGround.UI
         [SerializeField] private Image            _background;         // 선택 시 색이 바뀌는 배경(보통 Button.targetGraphic)
         [SerializeField] private TextMeshProUGUI  _label;             // 선택 시 색이 바뀌는 라벨
         [SerializeField] private GameObject       _selectedIndicator; // 선택 시에만 켜지는 밑줄/오버레이(선택)
+        [SerializeField] private UIVisualThemeSO  _theme;
+        [SerializeField] private RectTransform    _visualTarget;
 
         [Header("배경 색")]
         [SerializeField] private bool  _tintBackground = true;
@@ -44,6 +47,9 @@ namespace UPlayGround.UI
         /// <summary> 버튼이 클릭됐을 때 발생. </summary>
         public event Action Clicked;
 
+        private Vector3 _baseScale;
+        private Tween _scaleTween;
+
         // 에디터에서 컴포넌트 추가 시 참조 자동 채움
         private void Reset()
         {
@@ -55,13 +61,23 @@ namespace UPlayGround.UI
         private void Awake()
         {
             if (_button == null) _button = GetComponent<Button>();
+            if (_visualTarget == null) _visualTarget = transform as RectTransform;
+            if (_visualTarget != null) _baseScale = _visualTarget.localScale;
             _button?.onClick.AddListener(OnButtonClicked);
-            ApplyVisual();
+            ApplyVisual(animate: false);
         }
 
         private void OnDestroy()
         {
             _button?.onClick.RemoveListener(OnButtonClicked);
+            _scaleTween?.Kill();
+        }
+
+        private void OnDisable()
+        {
+            _scaleTween?.Kill();
+            _scaleTween = null;
+            ApplyVisual(animate: false);
         }
 
         private void OnButtonClicked() => Clicked?.Invoke();
@@ -80,19 +96,54 @@ namespace UPlayGround.UI
         public void SetSelected(bool selected)
         {
             IsSelected = selected;
-            ApplyVisual();
+            ApplyVisual(animate: isActiveAndEnabled);
         }
 
-        private void ApplyVisual()
+        private void ApplyVisual(bool animate)
         {
+            UIVisualThemeSO theme = _theme != null
+                ? _theme
+                : UIVisualThemeProvider.Current;
+            Color normalBg = theme != null ? theme.Surface : _normalBg;
+            Color selectedBg = theme != null
+                ? Color.Lerp(theme.SurfaceRaised, theme.Focus, 0.18f)
+                : _selectedBg;
+            Color normalText = theme != null ? theme.TextSub : _normalText;
+            Color selectedText = theme != null ? theme.TextMain : _selectedText;
+
             if (_tintBackground && _background != null)
-                _background.color = IsSelected ? _selectedBg : _normalBg;
+                _background.color = IsSelected ? selectedBg : normalBg;
 
             if (_tintLabel && _label != null)
-                _label.color = IsSelected ? _selectedText : _normalText;
+                _label.color = IsSelected ? selectedText : normalText;
 
             if (_selectedIndicator != null)
                 _selectedIndicator.SetActive(IsSelected);
+
+            if (_visualTarget == null)
+                return;
+
+            _scaleTween?.Kill();
+            Vector3 target = _baseScale * (IsSelected
+                ? theme != null ? theme.FocusScale : 1.035f
+                : 1f);
+            float duration = animate
+                ? theme != null ? theme.FocusDuration : 0.10f
+                : 0f;
+
+            if (duration <= 0f)
+            {
+                _visualTarget.localScale = target;
+                return;
+            }
+
+            _scaleTween = DOTween.To(
+                    () => _visualTarget.localScale,
+                    value => _visualTarget.localScale = value,
+                    target,
+                    duration)
+                .SetEase(Ease.OutQuad)
+                .SetUpdate(true);
         }
 
         /// <summary> 에디터/빌더에서 참조와 색을 일괄 주입할 때 사용. </summary>

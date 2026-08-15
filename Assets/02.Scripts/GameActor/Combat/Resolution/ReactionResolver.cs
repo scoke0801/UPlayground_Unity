@@ -69,7 +69,12 @@ namespace UPlayGround.Combat
             if (query.IsStaggerImmune && IsMinorPlayerReaction(hit.ReactionType))
                 shouldEnterReactionBlock = false;
 
-            bool shouldEnterState = shouldEnterReactionBlock && query.CanTransitionToHit;
+            // ReactionType.None은 리액션 상태로 보내지 않는다(몬스터 판정과 동일 규약).
+            // 리액션 상태 전환은 태그 트리거 Ability가 단독 수행하는데 None에는 대응 트리거 태그가
+            // 없으므로, 여기서 true를 돌려주면 "전환하기로 했는데 아무도 수행하지 않는" 상태가 된다.
+            bool shouldEnterState = shouldEnterReactionBlock
+                                    && query.CanTransitionToHit
+                                    && hit.ReactionType != AttackReactionType.None;
 
             return new ReactionDecision(
                 shouldApplyForce: true,

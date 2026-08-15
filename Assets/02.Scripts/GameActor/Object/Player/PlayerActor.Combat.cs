@@ -84,7 +84,7 @@ namespace UPlayGround
 
             CombatFeedbackDispatcher.ShowDamageFloater(
                 CombatFeedbackContext.FromCombatResult(combatResult, transform.position));
-            CombatFeedbackDispatcher.PlayDamageImpact(combatResult.Hit);
+            CombatFeedbackDispatcher.PlayDamageImpact(combatResult);
 
             if (_currentHealth <= 0)
             {
@@ -94,9 +94,11 @@ namespace UPlayGround
 
             ReactionDecision reactionDecision = OnDamaged(attackData, combatResult.Hit);
             GameplayTag triggerTag = ResolvePlayerHitTrigger(
-                combatResult.Hit.ReactionType);
+                combatResult.Hit.ReactionType,
+                reactionDecision);
             if (triggerTag.IsValid())
             {
+                WarnIfReactionAbilityMissing(triggerTag, reactionDecision);
                 Abilities?.IssueTriggerEvent(
                     triggerTag,
                     combatResult.Hit.Attacker,
@@ -312,10 +314,11 @@ namespace UPlayGround
 
             CameraMgr.StartShake(_shakeKeyHeavyHit);
 
-            Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
-                ? center.position
-                : attackData.hitPoint;
-            CombatFeedbackDispatcher.ShowHitFx(attackData.hitParticleName, fxPos);
+            CombatFeedbackDispatcher.ShowHitFx(
+                attackData.hitParticleName,
+                ResolveHitFxPosition(attackData.hitPoint),
+                attackData.attackDirection);
+            CombatFeedbackDispatcher.PlayDamageImpact(combatResult);
 
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
 
@@ -409,10 +412,7 @@ namespace UPlayGround
 
             if (reactionDecision.ShouldEnterState)
             {
-                if (!useTagTriggeredPlayerHitReaction)
-                    ApplyPlayerReactionState(
-                        reactionDecision.TargetState,
-                        attackData);
+                // 리액션 상태 전환은 태그 트리거 Ability 경로가 단독으로 수행한다(저작 축 단일화).
 
                 if (reactionDecision.TargetState is CombatReactionState.Hit
                     or CombatReactionState.Stun
@@ -448,41 +448,87 @@ namespace UPlayGround
             if (!absorbedByStaggerImmunity)
                 CombatFeedbackDispatcher.ApplyPlayerDamagedHitStop(attackData, this);
 
-            Vector3 fxPos = TryGetSocket(ActorSocketType.Center, out var center)
-                ? center.position
-                : (attackData?.hitPoint ?? transform.position);
-            CombatFeedbackDispatcher.ShowHitFx(attackData?.hitParticleName, fxPos);
+            CombatFeedbackDispatcher.ShowHitFx(
+                attackData?.hitParticleName,
+                ResolveHitFxPosition(attackData?.hitPoint),
+                attackData?.attackDirection ?? Vector3.zero);
 
+            // 충돌음은 이 메서드의 호출자(ReceiveHit)가 이미 재생했다. 여기서 다시 부르면 이중 재생이다.
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
             return reactionDecision;
         }
 
-        private void ApplyPlayerReactionState(
-            CombatReactionState reactionState,
-            AttackData attackData)
+        /// <summary>
+        /// 히트 FX 위치. 타격 지점을 우선하고, 지정되지 않은 경우에만 몸통 중심으로 폴백한다.
+        /// (Center 소켓을 항상 쓰면 FX가 실제 맞은 지점과 어긋난다.)
+        /// </summary>
+        private Vector3 ResolveHitFxPosition(Vector3? hitPoint)
         {
-            switch (reactionState)
+            if (hitPoint.HasValue && hitPoint.Value != Vector3.zero)
+                return hitPoint.Value;
+
+            return TryGetSocket(ActorSocketType.Center, out var center)
+                ? center.position
+                : transform.position;
+        }
+
+        /// <summary>
+        /// 리액션이 필요한데 해당 트리거를 받을 Ability가 AbilitySet에 없으면 알린다.
+        /// 직접 전환 폴백이 사라졌으므로 이 경우 플레이어는 피해만 받고 아무 반응도 하지 않는다 —
+        /// 증상이 "안 맞은 것처럼 보임"이라 조용히 넘어가면 추적이 매우 어렵다.
+        /// </summary>
+        private void WarnIfReactionAbilityMissing(
+            GameplayTag triggerTag,
+            in ReactionDecision reactionDecision)
+        {
+            if (!reactionDecision.ShouldEnterState)
+                return;
+
+            if (Abilities != null
+                && Abilities.TryGetRequestTriggerAbility(triggerTag, out _))
             {
-                case CombatReactionState.Airborne:
-                    MovementController.TransitionToState(ActorStateId.Airborne);
-                    break;
-                case CombatReactionState.Grabbed:
-                    MovementController.TransitionToState(
-                        new PlayerGrabbedState(MovementController, attackData));
-                    break;
-                case CombatReactionState.Stun:
-                    MovementController.TransitionToState(
-                        new PlayerStunState(MovementController, attackData));
-                    break;
-                case CombatReactionState.Knockdown:
-                    MovementController.TransitionToState(
-                        new PlayerKnockdownState(MovementController, attackData));
-                    break;
-                case CombatReactionState.Hit:
-                    MovementController.TransitionToState(
-                        new PlayerHitState(MovementController, attackData));
-                    break;
+                return;
             }
+
+            // 스왑으로 AbilitySet이 통째로 바뀌므로 캐릭터별로 따로 센다.
+            // 인스턴스당 1회로 두면 두 번째 캐릭터의 누락이 첫 경고에 묻힌다.
+            if (!_warnedReactionTriggers.Add($"{_characterActorType}:{triggerTag.TagName}"))
+                return;
+
+            Debug.LogError(
+                $"[PlayerActor] '{gameObject.name}'의 AbilitySet에 피격 리액션 Ability가 없어 "
+                + $"리액션이 재생되지 않습니다. trigger={triggerTag.TagName}. "
+                + "GA_Player_Hit_* Ability를 AbilitySet에 추가하세요.",
+                this);
+        }
+
+        /// <summary>
+        /// 실행될 리액션 Ability와 실제 진입 상태의 범주를 맞춘다.
+        /// 태그를 공격의 리액션 타입에서만 뽑으면 승격 조건 미달로 상태가 강등된 경우
+        /// (예: Airborne 요청이지만 Hit 상태) 엉뚱한 Ability가 실행된다.
+        /// </summary>
+        private static GameplayTag ResolvePlayerHitTrigger(
+            AttackReactionType reactionType,
+            in ReactionDecision reactionDecision)
+        {
+            if (!reactionDecision.ShouldEnterState)
+                return ResolvePlayerHitTrigger(reactionType);
+
+            return reactionDecision.TargetState switch
+            {
+                CombatReactionState.Airborne => GameplayTags.Trigger_Player_Hit_Airborne,
+                CombatReactionState.Grabbed => GameplayTags.Trigger_Player_Hit_Grab,
+                CombatReactionState.Knockdown => GameplayTags.Trigger_Player_Hit_Knockdown,
+                CombatReactionState.Stun => GameplayTags.Trigger_Player_Hit_Stun,
+                _ => reactionType switch
+                {
+                    AttackReactionType.Light => GameplayTags.Trigger_Player_Hit_Light,
+                    AttackReactionType.Heavy => GameplayTags.Trigger_Player_Hit_Heavy,
+                    AttackReactionType.KnockBack => GameplayTags.Trigger_Player_Hit_KnockBack,
+                    AttackReactionType.Pull => GameplayTags.Trigger_Player_Hit_Pull,
+                    _ => GameplayTags.Trigger_Player_Hit_Hit,
+                },
+            };
         }
 
         private static GameplayTag ResolvePlayerHitTrigger(
@@ -524,8 +570,6 @@ namespace UPlayGround
         private void OnReactionAbilityTriggerRequested(AbilityTriggerRequest request)
         {
             if (!request.TriggerTag.IsChildOf(GameplayTags.Trigger_Player_Hit))
-                return;
-            if (!useTagTriggeredPlayerHitReaction)
                 return;
 
             if (!request.TriggerEvent.HasValue

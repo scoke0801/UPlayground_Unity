@@ -53,12 +53,38 @@ namespace UPlayGround.Movement.Tests
             Assert.That(state.CanTransitionState(fromState), Is.EqualTo(expected));
         }
 
-        [TestCase(ActorStateId.Death, true)]
-        [TestCase(ActorStateId.Grabbed, true)]
-        [TestCase(ActorStateId.Idle, false)]
+        [TestCase(ActorStateId.Death, false)]
+        [TestCase(ActorStateId.Grabbed, false)]
+        [TestCase(ActorStateId.SpecialBreakVictim, false)]
+        [TestCase(ActorStateId.Idle, true)]
+        [TestCase(ActorStateId.Attack, true)]
+        [TestCase(ActorStateId.Hit, true)]
         public void 몬스터_스턴_전이가드_행렬(ActorStateId fromState, bool expected)
         {
             EnemyStunState state = CreateWithoutConstructor<EnemyStunState>();
+            Assert.That(state.CanTransitionState(fromState), Is.EqualTo(expected));
+        }
+
+        [TestCase(ActorStateId.Death, false)]
+        [TestCase(ActorStateId.Grabbed, false)]
+        [TestCase(ActorStateId.SpecialBreakVictim, false)]
+        [TestCase(ActorStateId.Idle, true)]
+        [TestCase(ActorStateId.Attack, true)]
+        [TestCase(ActorStateId.Hit, true)]
+        public void 몬스터_넉다운_전이가드_행렬(ActorStateId fromState, bool expected)
+        {
+            EnemyKnockdownState state = CreateWithoutConstructor<EnemyKnockdownState>();
+            Assert.That(state.CanTransitionState(fromState), Is.EqualTo(expected));
+        }
+
+        [TestCase(ActorStateId.Death, false)]
+        [TestCase(ActorStateId.Grabbed, false)]
+        [TestCase(ActorStateId.SpecialBreakVictim, false)]
+        [TestCase(ActorStateId.Idle, true)]
+        [TestCase(ActorStateId.Attack, true)]
+        public void 몬스터_잡힘_전이가드_행렬(ActorStateId fromState, bool expected)
+        {
+            EnemyGrabbedState state = CreateWithoutConstructor<EnemyGrabbedState>();
             Assert.That(state.CanTransitionState(fromState), Is.EqualTo(expected));
         }
 

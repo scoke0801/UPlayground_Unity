@@ -1,190 +1,299 @@
-# 플레이어-몬스터 Hit 리액션 고도화 설계 문서
+# 전투 피격 리액션 고도화 설계 (개정판)
 
-> 작성일: 2026-05-24
-> 대상 버전: Unity 6 (6000.0.60f1), URP
+> 최초 작성: 2026-05-24 / **개정: 2026-08-14 (현재 코드 기준 전면 재판정)**
+> 대상: Unity 6, URP
 > 분류: 설계서(미구현 계획). 구현 PR 시 본 문서에서 가이드 문서를 별도 추출한다.
-> 레퍼런스: God of War / Sekiro / Elden Ring / Devil May Cry 5 / Monster Hunter / Nioh 2 등 AAA 액션게임 히트 리액션 기법 웹 조사 결과
+
+## 0-A. 구현 현황 (2026-08-14)
+
+| 항목 | 상태 |
+|------|------|
+| 충돌음 소유권을 피격자로 통일 (`PlayDamageImpact`) | **적용** — 몬스터 피격이 자체 재생, 공격자측(`PlayerCombatPresenter`) 호출 제거 |
+| 임팩트 사운드 티어 (Critical / Break / Heavy / Light) | **적용** — 미등록 키는 Heavy/Light로 폴백(`ISoundService.HasSound`) |
+| 히트 FX 위치·회전 | **적용** — hitPoint 우선 + `attackDirection` 정렬 |
+| 환경 넉백 T0 (벽 충돌) | **적용** — `WallImpactResolver` + `EnemyHitState.OnMovementHit` |
+| 리액션 저작 축 GAS 단일화 | **적용** — State 직접 전환 폴백과 `useTagTriggered*` 플래그 제거 |
+| 행동별 리액션 변형(§9-3) | 미구현 — 저작 축이 GAS로 확정됐으므로 Ability/Variant로 저작 |
+
+**미해결 선결 조건:** 보스 AbilitySet 5종(Bokusei/Hichi/LianLian/Lili/Siuha)에 `GA_Monster_Hit_*` 리액션 Ability가 없다. 폴백이 제거됐으므로 이 보스들은 리액션이 재생되지 않는다. 런타임에서 `MonsterActor`가 Error 로그로 알린다.
+
+**사운드 데이터 미저작:** `Combat_Hit_Critical`, `Combat_Hit_Break`, `Combat_WallImpact` 엔트리는 아직 없다. 등록 전까지는 각각 Heavy로 폴백되므로 무음이 되지는 않는다.
 
 ---
 
-## 1. 개요 / 현재 시스템 요약
+## 0. 이 개정판이 필요한 이유
 
-플레이어와 몬스터 간 Hit 리액션을 "게임스럽게"(타격의 무게감·만족감) 고도화하기 위한 설계 문서. AAA 액션게임의 히트 피드백 기법을 조사하고 현재 구현과의 갭을 도출해 단계별 계획으로 정리한다.
+초판(2026-05-24)은 `PlayerCombat.ApplyHitFeedback()`이 히트스톱을 직접 결정하고 `OnDamaged()`가 피드백을 직접 호출하던 구조를 전제로 썼다. 이후 다음이 바뀌어 초판의 지목 지점 상당수가 더 이상 존재하지 않는다.
 
-현재 프로젝트의 Hit 리액션은 이미 다음 기반을 갖추고 있다.
+- 전투 판정이 `CombatResolutionPipeline` → `HitContext`/`ReactionResolver`/`DamageResolver` → `CombatFeedbackDispatcher`로 분리됨.
+- `PlayerAttackDataSO`가 제거되고 공격 데이터의 단일 소스가 `AbilitySetSO`(GAS)로 이관됨.
+- 히트스톱이 모션 후딜 기반 자동 산출(`AttackReactionData.hitStopDuration/Scale`) + 비대칭 프리즈로 바뀜.
+- 몬스터 피격 리액션에 **GAS 태그 트리거 경로**(`UseTagTriggeredHitReaction`)가 추가되어 리액션 저작 축이 2개가 됨.
 
-| 영역 | 현재 구현 | 핵심 파일 |
-|------|----------|----------|
-| 리액션 분류 | `AttackReactionType` 10종 (None/Light/Hit/Heavy/KnockBack/Stun/Pull/Airborne/Knockdown/Grab) | `Data/Enum/AttackInfo.cs:56` |
-| 공격 데이터 | `HitPhaseData` — damage, poiseDamage, breakDamage, reactionType, reactionDuration, forceReaction, 물리력(pull/airborne/knockBack/drag), hitParticleName | `Data/Combat/CombatData.cs:28` |
-| 경직 판정 | `PoiseStat` — 강인도 소진 시 Break, 하이퍼아머, 회복 (몬스터만 사용) | `Component/Common/PoiseStat.cs` |
-| 피격자 처리 | `OnDamaged()` — 물리 임펄스 + 상태 전환 + 카메라 셰이크 + FX + 컬러 플래시 | `Object/Player/PlayerActor.cs:888`, `Object/Monster/MonsterActor.cs:249` |
-| 공격자 피드백 | `ApplyHitFeedback()` — HitStop + 카메라 Punch/Shake + VitalOrb | `Component/Player/PlayerCombat.cs:760` |
-| 히트스톱 | `GameHitStopHandler` — 전역 timeScale 요청 큐 + Actor-only animator speed + SlowMo 포스트프로세스 Volume | `Manager/Handler/Combat/GameHitStopHandler.cs` |
-| 피격 플래시 | `ActorColorChanger` — MaterialPropertyBlock 빨강 플래시(0.15s) | `Component/Common/ActorColorChanger.cs:103` |
-| 방향성 애니 | `GetHitAnimKey()` — 4방향 Hit_F/B/L/R + Knockback/Knockdown | `State/Player/PlayerHitState.cs:198`, `State/Enemy/EnemyHitState.cs:74` |
-| 사운드 메커니즘 | `PlaySoundEvent` — MotionSet 타임라인 기반 사운드 이벤트 | `Data/Event/Animation/MotionEvent_PlaySound.cs` |
-
-본 문서는 완전 신규 체계가 아니라 위 기존 구조를 확장한다.
+따라서 본 개정판은 초판의 갭 G1~G11을 현재 코드로 다시 판정하고, **지금 손대야 할 순서**를 다시 정한다.
 
 ---
 
-## 2. 기존 Break / Parry 시스템과의 관계
+## 1. 현재 피격 파이프라인 (검증된 사실)
 
-본 설계는 다음 기존 시스템 위에 얹는다. 재발명하지 않는다.
+| 단계 | 담당 | 위치 |
+|------|------|------|
+| 진입 | `CombatResolutionPipeline.Execute` → `ICombatResolvable` 위임 | `Combat/Resolution/CombatResolutionPipeline.cs:12` |
+| 히트 입력 값 객체 | `HitContext` (공격자/피격자/reaction/poise/break/치명배율/hitPoint/방향/`ReactionData` 전부 보유) | `Combat/Resolution/HitContext.cs:13` |
+| 리액션 판정 | `ReactionResolver.ResolvePlayerReaction` / `ResolveMonsterReaction` (등급 정책·`guaranteedReaction`·경직 내성 반영) | `Combat/Resolution/ReactionResolver.cs:57,81` |
+| 피드백 실행 | `CombatFeedbackDispatcher` (플로터/히트FX/충돌음/히트스톱/카메라) | `Combat/Feedback/CombatFeedbackDispatcher.cs` |
+| 플레이어 공격측 표현 | `PlayerCombatPresenter.PresentHitResult` | `Component/Player/PlayerCombatPresenter.cs:22~31` |
+| 플레이어 피격측 표현 | `PlayerActor.Combat.cs` (`ShowHitFx` + `ApplyColorHit` + 카메라) | `Object/Player/PlayerActor.Combat.cs:294,430` |
+| 몬스터 피격측 표현 | `MonsterActor.ApplyResolvedHit` (`ApplyColorHit`만) | `Object/Monster/MonsterActor.cs:532` |
+| 리액션 모션 | State 경로(`PlayerHitState`/`EnemyHitState`) **또는** GAS 태그 트리거 경로 | `State/Player/PlayerHitState.cs:228`, `MonsterActor.cs:528,630` |
 
-### 이미 구현된(또는 부분 구현) 시스템 — `MONSTER_BREAK_SPECIAL_ATTACK_SYSTEM_DESIGN.md` 참조
-- `HitPhaseData`/`AttackData`에 `breakDamage`, `reactionDuration`, `forceReaction`, `forceBreakExpose` 존재.
-- `MonsterBreakGauge` 런타임 컴포넌트 — 누적/노출/만료/소비 처리. `EnemyBreakExposedState`로 노출 시 AI 정지.
-- `PlayerStunState`, `PlayerKnockdownState`, `EnemyStunState`, `EnemyKnockdownState` 행동 불능 상태 라우팅 완료.
-- `PlayerSpecialBreakAttackState`, `EnemySpecialBreakVictimState` 특수공격 1차 실행.
-
-### 본 문서가 더하는 것
-- **Poise/Break는 "리액션 진입 판정 축"으로 유지**하고, 본 문서는 그 판정 이후의 **연출 품질(히트스톱·VFX·SFX·플린치·물리)**을 고도화한다.
-- 즉 "언제 경직되는가"(Break 문서)와 "경직될 때 얼마나 게임스럽게 보이고 들리는가"(본 문서)를 분리한다.
-
-### 통합 시 보존해야 할 제약
-- **Break 노출 중 피격**: `MonsterActor.OnDamaged()`는 `_breakGauge.IsExposed`일 때 일반 리액션(물리/상태전환)을 건너뛰고 플래시만 유지(`MonsterActor.cs:264`). 본 문서의 VFX/SFX 강화는 이 분기에서도 동작하되 상태 전환은 건드리지 않는다.
-- **패리 경직**: `EnemyCombat`는 패리 시 `AttackReactionType.Light` staggerData로 `EnemyHitState` 진입(`MonsterActor.cs:457`). Light 연출 변경 시 패리 경직 체감도 함께 바뀜에 유의.
-- **VitalOrb / KillCam**: `ApplyHitFeedback()`는 킬 히트 시 `TryKillCam`으로 조기 분기하고, 일반 히트는 `GameVitalOrb.TrySpawn` 호출(`PlayerCombat.cs:768`). 히트스톱 컨텍스트화 시 이 분기 순서를 깨지 않는다.
-- **PlayerGuard 히트스톱**: 가드/패리는 `HitStopIntensity.PlayerGuard`(Actor-only 슬로우)를 쓰며 `IsParryCounterAvailable` 동안 보호된다(`PlayerCombat.cs:764`). 신규 히트스톱 로직은 이 보호를 우회하면 안 된다.
-- **MotionWarp**: Hit 상태 진입 시 `controller.MotionWarp?.ClearTarget()`으로 워프를 즉시 취소(Hit 모션 우선). 가산 플린치 도입 시 이 규칙 재검토 필요.
+**핵심 소득:** `HitContext`가 피격 컨텍스트를 이미 전부 들고 피드백 레이어까지 도달한다. 초판이 "정보가 없어서 못 한다"고 본 항목 대부분은 이제 **분기만 쓰면 되는 상태**다.
 
 ---
 
-## 3. 식별된 갭 (현재 구현 → 고도화 포인트)
+## 2. 초판 갭 재판정 (G1~G11)
 
-| # | AAA 기법 | 현재 구현 상태 | 갭 / 고도화 포인트 | 관련 파일 |
-|---|----------|--------------|-------------------|----------|
-| G1 | 히트스톱 강도 = 타격 무게·치명 연동 (Sakurai: 데미지↑→히트스톱↑) | `ApplyHitFeedback()`이 공격자 `attackKind`(Light/Heavy/Critical)로만 강도 결정. 피격자 reactionType/poiseBreak/치명 미반영 | 피격 컨텍스트로 강도 결정. 경량 히트는 전역 timeScale 대신 `ExecuteActorOnly`(관련 두 액터만 정지)로 "현실적 히트스톱" | `PlayerCombat.cs:785`, `GameHitStopHandler.cs:165` |
-| G2 | 적 공격에도 타격감 피드백 | `EnemyCombat`에는 공격자측 히트스톱이 **전혀 없음**. 적 타격 체감은 플레이어 `OnDamaged`의 셰이크/플래시뿐 | 적 강공격/특수공격 적중 시 경량 히트스톱/카메라 임펄스 추가 | `Component/Enemy/EnemyCombat.cs` |
-| G3 | 상체 가산 플린치(로코모션 유지) | Light/Hit도 **전신 클립으로 교체**해 이동 중단. `PlayerHitState` 주석이 "경직 중 아무것도 못 한다"는 답답함을 직접 지적(`PlayerHitState.cs:19`) | AvatarMask 상체 가산 레이어 플린치. 프로젝트는 이미 상/하체 마스크 분리 지원 | `PlayerHitState.cs`, `EnemyHitState.cs` |
-| G4 | 타격 강도/재질/방향별 임팩트 VFX + 데칼 | 단일 `hitParticleName`("LiteHit" 등 1개), 방향 무관 표시 | reactionType별 FX 티어 매핑 + hitPoint 노멀/attackDirection으로 FX 회전 + 재질(살/금속/방어구) 변형 | `CombatData.cs:51`, `OnDamaged()` |
-| G5 | 레이어드 임팩트 SFX (transient+body+tail, 피치 변주, 치명 큐) | 사운드 메커니즘(`PlaySoundEvent`)은 있으나 **공격자 애니 타임라인 기반**이라 헛스윙에도 발화, 단일 클립, 피치 고정, 2D 경로는 `Debug.Log` 스텁, `PlayClipAtPoint`로 매번 임시 AudioSource 생성. **피격 연결 기반 임팩트 사운드는 부재** | 런타임 hit 기반 임팩트 사운드(reaction/재질별 + 랜덤 피치 + 레이어) + AudioSource 풀링 | `MotionEvent_PlaySound.cs`, `OnDamaged()` |
-| G6 | 8방향 + 부위/높이별 리액션 | 4방향(F/B/L/R)만, 높이/부위 무관 | 8방향 + hitPoint.y로 상/중/하 구분 | `GetHitAnimKey()` (both) |
-| G7 | 히트스톱 중 미세 진동·스쿼시, 게임패드 진동 | 컬러 플래시만 | 히트스톱 중 jitter/scale punch, 게임패드 rumble, 피격 방향 카메라 너지 | `ActorColorChanger.cs`, 신규 |
-| G8 | 넉백 환경 상호작용 | `AddImpulse`로 밀려나기만, 벽 충돌 무반응 | 넉백 중 벽 충돌 → 바운스/추가 경직/추가 데미지 (KCC 충돌 판정 활용) | `OnDamaged()`, MovementController |
-| G9 | 파워드/부분 라그돌 | 전부 클립 기반, 사망은 디졸브 | 사망 및 Heavy/Knockdown 시 물리 전환(라그돌) 후 디졸브 연계 | `DissolveController`, Death 상태 |
-| G10 | 에어 저글 / 중력 스케일 | Airborne 단발 띄우기 | 공중 추가타로 부유 연장, 중력 스케일 동적 조정, 콤보 상한 | Airborne 상태, MovementController |
-| G11 | 부위/약점 크리티컬 | 부위 구분 없음 | 히트박스 per-bone 태깅 → 약점 타격 시 데미지·poise·VFX·SFX 가중 + 전용 리액션 | `EnemyCombat`, 히트박스 |
+| # | 초판 갭 | 2026-08-14 판정 | 근거 |
+|---|---------|----------------|------|
+| G1 | 히트스톱이 공격자 attackKind로만 결정 | **부분 해결**. 이제 `AttackReactionData`(모션 후딜 자동 산출)가 1순위, attackKind는 폴백. 다만 **피격자 컨텍스트(poise break·Break 노출·치명)는 여전히 미반영** | `CombatFeedbackDispatcher.cs:295,341` |
+| G2 | 적 공격에 공격자측 피드백 없음 | **미해결**. `EnemyCombat.cs`에 히트스톱/셰이크/피드백 호출이 단 한 건도 없음 | grep 0건 |
+| G3 | 상체 가산 플린치 부재 | **미해결이나 비용 급감**. `ActorAnimator.PlayUpperBodyOverlay`/`_upperBodyMask` 인프라 완비, 현재 `PlayerDrinkState`만 사용 | `Animation/ActorAnimator.cs:18,696` |
+| G4 | 임팩트 VFX 단일·방향 무관 | **미해결**. `ShowFX`는 rotation/parent 오버로드를 이미 갖고 있으나 전투 호출부가 position만 전달. 피격측은 hitPoint 대신 Center 소켓 사용 | `PlayerActor.Combat.cs:291~294`, `CombatFeedbackDispatcher.cs:55~69` |
+| G5 | 피격 연결 기반 임팩트 SFX 부재 | **절반 해결**. `PlayDamageImpact`가 신설되어 "실제 피해 적용 시점"에 울림(헛스윙 분리 완료). 그러나 ① 키가 `CombatHitLight/Heavy` **2종뿐** ② **플레이어 공격 경로에만 연결**됨 | `CombatFeedbackDispatcher.cs:80`, `PlayerCombatPresenter.cs:30` |
+| G5-인프라 | 풀링/피치 유틸 신규 필요 | **불필요해짐**. `SoundManager`가 2D/3D AudioSource 풀 + 엔트리별 랜덤 피치를 이미 제공 | `Manager/Sound/SoundManager.cs:672,699` |
+| G6 | 4방향 리액션만 | **미해결 + 선행 결정 필요**(§4 참조) | `PlayerHitState.cs:258~263`, `EnemyHitState.cs:137` |
+| G7 | 진동/스쿼시 없음 | **미해결**. 게임패드 햅틱은 `GamepadCoreApi`에 네이티브 계층만 존재, 전투 미연결 | `Input/GamepadCore/GamepadCoreApi.cs:506~546` |
+| G8~G11 | 환경 넉백 / 라그돌 / 저글 / 부위 크리티컬 | 미해결. 본 개정판에서도 **보류**(§6) | — |
 
----
-
-## 4. Phase 1 — 데이터 주도 즉효 (저위험·고효과)
-
-기존 데이터 구조(`HitPhaseData`)와 매니저(`GameHitStopHandler`)를 활용해 코드 분기·데이터만 추가하는 단계. 신규 에셋·시스템 최소화.
-
-### 4-1. 히트스톱 컨텍스트화 (G1, G2)
-- `ApplyHitFeedback()`의 강도 결정을 공격자 `attackKind` 단독 → **피격자 `reactionType` + poiseBroken + 치명 여부** 조합으로 변경.
-  - 예: Light/Hit 반응 → Actor-only 히트스톱(두 액터만 정지, 월드는 유지). Heavy/KnockBack/Airborne → 전역 Heavy. 치명/처형 → Critical.
-- `EnemyCombat`에 공격자측 경량 히트스톱/카메라 임펄스 훅 추가(적 강공격·특수공격 한정).
-- 제약: `PlayerGuard` 보호(`IsParryCounterAvailable`)와 KillCam 조기 분기 순서를 유지한다.
-
-### 4-2. 임팩트 VFX 티어링 + 방향 정렬 (G4)
-- `HitPhaseData.hitParticleName` 단일 지정을 **reactionType별 기본 FX 매핑**으로 보강(데이터 미지정 시 reaction 티어의 기본 FX 사용).
-- `OnDamaged()`의 `ShowFX` 호출 시 FX를 `attackDirection`/hit 노멀로 **회전**시켜 타격 방향성을 시각화.
-- 재질 태그(살/금속/방어구)별 FX 변형 키 추가(데이터 주도).
-
-### 4-3. 컨텍스트 임팩트 SFX (G5)
-- `OnDamaged()`(피격 연결 시점)에서 **reaction/재질별 임팩트 사운드**를 재생하는 런타임 경로 추가.
-- 레이어드(transient + body) + **랜덤 피치 변주** + 치명 시 전용 큐.
-- 기존 `PlaySoundEvent`의 한계(타임라인 기반·헛스윙 발화·피치 고정·2D 스텁·`PlayClipAtPoint` 할당)를 보완하는 **AudioSource 풀링** 기반 재생 유틸 도입.
-
-### 4-4. 상체 가산 플린치 (G3) — 트레이드오프 명시
-- Light/Hit 반응을 **전신 상태 전환 대신 AvatarMask 상체 가산 레이어 플린치**로 처리해 로코모션을 유지.
-- **트레이드오프(중요)**: `PlayerHitState`의 cancel-window(0 / 0.2s / 0.5s) 설계는 "전신 경직 중 캔슬 허용"으로 답답함을 풀고 있다(`PlayerHitState.cs:30`). Light/Hit을 가산 플린치로 바꾸면 — 이들은 **Hit 상태에 진입하지 않으므로** cancel-window 개념은 Heavy 이상 전신 경직에만 유효해진다. 두 설계가 동시에 살아있지 않도록, "Light/Hit = 가산 플린치(이동/공격 흐름 유지), Heavy+ = 전신 경직 + cancel-window"로 역할을 명확히 분리한다.
-- Poise/Break 판정과 충돌하지 않도록: 가산 플린치는 연출 레이어일 뿐 행동 불능 여부는 기존 판정을 따른다.
+### 초판 이후 별도로 해결된 항목 (재제안 금지)
+- 비대칭 히트스톱(피격자 풀프리즈 / 공격자 약하게) — `ExecuteLocalImpact(victimTimeScale)`
+- 다인 전투 히트스톱 재시작 억제 + 경직 내성창(`IsStaggerImmune`)
+- 등급별 리액션 정책(`CombatReactionPolicySO`) 및 `guaranteedReaction` 우회
+- 피격 모션 강제(`victimForcedMotionSlot`), Break 게이지/노출 배율
 
 ---
 
-## 5. Phase 2 — 방향 / 진동 / 환경
+## 3. 지금 손대야 할 순서
 
-### 5-1. 8방향 + 높이별 리액션 (G6)
-- `GetHitAnimKey()`를 4방향 → 8방향으로 확장하고, hitPoint.y(피격 높이)로 상/중/하 변형 선택.
+### Step 1 — 청각·시각 임팩트 연결 (저위험·즉효, 코드량 최소)
 
-### 5-2. 피격 임팩트 강화 (G7)
-- 히트스톱 동안 피격자 미세 jitter / scale punch(스쿼시) 추가 — `ActorColorChanger` 확장 또는 신규 컴포넌트.
-- 게임패드 진동(rumble) — reaction 강도별 패턴.
-- 피격 방향 기반 카메라 너지(공격자측 Punch와 별개로 피격자/플레이어 카메라에 약한 방향 임펄스).
+가장 큰 체감 손실이면서 가장 싼 항목이 여기 모여 있다. 판정·밸런스 코드는 건드리지 않는다.
 
-### 5-3. 환경 상호작용 넉백 (G8)
-- KnockBack/Airborne 이동 중 벽/장애물 충돌 판정 → 바운스 또는 추가 경직/데미지. KCC 충돌 정보 활용.
+**1-1. 피격측 임팩트 사운드 연결 (신규 발견, 최우선)**
+- 현재 `PlayDamageImpact`는 `PlayerCombatPresenter`(= 플레이어가 때릴 때)에서만 호출된다. **적이 플레이어를 때릴 때는 충돌음이 없다.**
+- `PlayerActor.Combat.cs`의 피격 경로(일반 피격 / 가드 브레이크)에서 동일 함수를 호출한다.
+- 주의: 공격자 경로와 이중 호출되지 않도록, "누가 부르는가"를 **피격자 소유**로 통일할지 **공격자 소유**로 통일할지 먼저 확정한다. 권장은 피격자 소유(투사체·잔류 판정·환경 피해까지 한 곳에서 커버됨).
 
----
+**1-2. 임팩트 사운드 티어 확장**
+- `IsHeavyImpact` 2분기(`CombatFeedbackDispatcher.cs:357`)를 reactionType 축으로 확장: Light / Hit / Heavy / Break(poise 브레이크) / Critical.
+- 피치 변주·풀링은 `SoundManager` 엔트리 설정으로 해결 — **코드 추가 없이 사운드 데이터만 늘리면 된다.**
+- 재질(살/금속/방어구)은 이 단계에서 하지 않는다. 피격자 재질 태그가 아직 없어 신규 데이터 축이 필요하므로 Step 3로 미룬다.
 
-## 6. Phase 3 — 라그돌 / 저글 / 부위 크리티컬
+**1-3. 히트 FX 위치·회전 정상화**
+- 피격측 FX가 Center 소켓에서 나와 타격 지점과 어긋난다 → `hitPoint`가 유효하면 우선 사용하고 zero일 때만 소켓 폴백.
+- `ShowHitFx`에 rotation 오버로드를 추가해 `HitContext.AttackDirection`으로 FX를 정렬한다(`GameObjectManager.ShowFX`가 이미 rotation/parent를 받는다).
+- reactionType별 기본 FX 키 폴백(데이터 미지정 시)을 `DefaultCombatHit` 단일 폴백 대신 티어 폴백으로 교체.
 
-### 6-1. 파워드/부분 라그돌 (G9)
-- 사망 및 Heavy/Knockdown 강반응 시 짧은 클립 후 물리(라그돌) 전환 → 기존 `DissolveController` 사망 디졸브와 연계.
-- 부분 라그돌(상체만 물리, 하체 클립) 옵션 검토.
+### Step 2 — 히트스톱 컨텍스트화 + 적 공격 피드백
 
-### 6-2. 에어 저글 / 중력 스케일 (G10)
-- Airborne 상태 중 공중 추가타로 부유 시간 연장, 중력 스케일 동적 조정, 누적 공중 시간 상한으로 무한 콤보 방지.
+**2-1. 피격 컨텍스트 히트스톱 (G1 잔여)**
+- 현재 강도의 단일 소스는 `AttackReactionData`(모션 후딜 기반 자동 산출)다. **이 값을 덮어쓰지 않는다** — 자동 산출 파이프라인이 무력화된다.
+- 대신 **후처리 배율**로 얹는다: `duration *= f(poiseBrokenNow, isBreakExposed, isCritical)`, 상한은 기존 cap(0.20s) 유지.
+- 배율 입력은 `CombatResult`/`ReactionDecision`에 이미 있다(poise 브레이크 여부, Break 노출, `CriticalMultiplier`).
+- 제약: KillCam 조기 분기와 `PlayerGuard` 보호 경로를 우회하지 않는다.
 
-### 6-3. 부위 / 약점 크리티컬 (G11)
-- 히트박스 per-bone 태깅 → 약점 타격 시 데미지·poiseDamage·breakDamage·VFX·SFX 가중 + 전용 리액션 모션.
+**2-2. 적 공격 피드백 (G2)**
+- `EnemyCombat` 적중 시 경량 로컬 히트스톱 + 방향성 카메라 임펄스를 추가한다.
+- **강공격/특수공격 한정**으로 시작한다. 잡몹 평타까지 넣으면 다인 전투에서 §다인 설계의 누수①이 되살아난다.
+- 플레이어가 이미 피격 히트스톱 중이면 재시작하지 않는 기존 가드(`IsActorHitStopping`)를 반드시 경유한다.
 
----
+**2-3. 게임패드 진동 (G7 일부)**
+- reaction 강도별 짧은 rumble. 히트스톱과 같은 지점에서 발화하되 별도 채널로 분리해 옵션 off가 가능하게 한다.
 
-## 7. 영향받는 파일 목록
+### Step 3 — 리액션 저작 축 결정 후 확장
 
-| 파일 | 관련 Phase | 변경 성격 |
-|------|-----------|----------|
-| `Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs` (`ApplyHitFeedback` 760) | P1 (G1) | 히트스톱 강도 결정 로직 변경 |
-| `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` | P1 (G2) | 공격자측 히트스톱/임펄스 훅 추가 |
-| `Assets/02.Scripts/Manager/Handler/Combat/GameHitStopHandler.cs` (`ExecuteActorOnly` 165) | P1 (G1) | Actor-only 경로 활용 확대 |
-| `Assets/02.Scripts/GameActor/Object/Player/PlayerActor.cs` (`OnDamaged` 888) | P1 (G4,G5) | VFX 회전/티어, 임팩트 SFX 호출 |
-| `Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs` (`OnDamaged` 249) | P1 (G4,G5) | VFX 회전/티어, 임팩트 SFX 호출 (Break 노출 분기 보존) |
-| `Assets/02.Scripts/Data/Combat/CombatData.cs` (`HitPhaseData` 28) | P1 (G4) | reaction별 FX/재질 키 데이터 추가 |
-| `Assets/02.Scripts/GameActor/State/Player/PlayerHitState.cs` | P1 (G3), P2 (G6) | 가산 플린치 분리, 8방향 확장 |
-| `Assets/02.Scripts/GameActor/State/Enemy/EnemyHitState.cs` | P1 (G3), P2 (G6) | 가산 플린치 분리, 8방향 확장 |
-| `Assets/02.Scripts/GameActor/Component/Common/ActorColorChanger.cs` (`OnHit` 103) | P2 (G7) | jitter/scale punch 확장 |
-| `Assets/02.Scripts/Data/Event/Animation/MotionEvent_PlaySound.cs` | P1 (G5) | 풀링/피치 변주 보완(또는 신규 임팩트 사운드 유틸) |
-| `DissolveController` / Death 상태 | P3 (G9) | 라그돌 전환 연계 |
+**3-0. 선행 결정 (이게 없으면 아래를 시작하면 안 된다)**
+몬스터 피격 리액션은 현재 **State 경로**(`ApplyMonsterReactionState` → `EnemyHitState.GetHitAnimKey`)와 **GAS 태그 트리거 경로**(`Trigger_Monster_Hit_*` → 리액션 Ability)가 공존한다(`MonsterActor.cs:528`). 8방향·부위별 리액션을 어디에 넣을지 먼저 정해야 한다.
+- State에 넣으면: 전 몬스터 일괄 적용, 저작 비용 0, 대신 몬스터별 특수 리액션 표현 불가.
+- GAS에 넣으면: 몬스터별 저작 가능, 대신 방향 변형만큼 Ability/Variant가 늘어난다(현재 GameplayAbility 559개).
+- **권장:** 방향·높이 같은 *기계적 변형*은 State/모션 해석 축에, *연출적 특수 리액션*은 GAS 축에 둔다. 두 축이 같은 것을 두 번 표현하지 않게 경계를 문서화한다.
 
-> file:line은 2026-05-24 기준. 구현 전 현재 코드와 대조할 것.
+**3-1. 상체 가산 플린치 (G3)**
+- Light/Hit을 전신 상태 전환 대신 `PlayUpperBodyOverlay` 플린치로 처리해 로코모션을 유지.
+- **역할 분리 규칙(초판에서 이어짐):** Light/Hit = 가산 플린치(상태 진입 없음), Heavy 이상 = 전신 경직 + cancel-window. 두 설계가 동시에 살아있으면 안 된다.
+- 상호작용 점검 필수: 경직 내성창(`IsStaggerImmune`)이 Light/Hit을 이미 억제하므로, 플린치까지 억제할지 여부를 별도로 정한다(권장: 플린치는 통과 — 피격 사실 자체는 보여야 한다).
+- `MotionWarp.ClearTarget()`은 전신 경직에만 적용하고 가산 플린치에서는 유지한다.
 
----
+**3-2. 8방향 + 높이 리액션 (G6)**
+- 3-0의 결정에 따라 `GetHitAnimKey`를 4→8방향으로 확장, `hitPoint.y`로 상/중/하 변형 선택. 모션 미보유 시 4방향으로 폴백.
 
-## 8. 출처 (웹 조사)
-
-### 히트 리액션 / 애니메이션 기술
-- Witcher Combat - Hit reaction by body part (UE4): https://www.youtube.com/watch?v=zanLmcNbsrs
-- Reactive Melee Combat — IK-based animation solution (PDF): https://assets.ctfassets.net/y4twieuxp19i/2wqlZuwkIgg86cCckQcQYY/25e752b714b77289fa2262400a3c99db/Paper.pdf
-- Animancer - Layers: https://kybernetik.com.au/animancer/docs/manual/blending/layers/
-- Ragdoll physics - Wikipedia: https://en.wikipedia.org/wiki/Ragdoll_physics
-- Posture - Sekiro Wiki: https://sekiroshadowsdietwice.wiki.fextralife.com/Posture
-- Stance - Elden Ring Wiki: https://eldenring.wiki.fextralife.com/Stance
-- Toughness - Nioh 2 Wiki: https://nioh2.wiki.fextralife.com/Toughness
-- DMC3 Launchers: https://intothebluesky.com/2021/03/20/devil-may-cry-files-04-dmc3-launchers/
-- God of War Ragnarok Stagger: https://www.newsweek.com/god-war-ragnarok-stagger-guide-1757672
-
-### 히트스톱 / 게임 필
-- Ahmad — A More Realistic HitStop: https://www.ahmadmohammadnejad.com/sandbox/a-more-realistic-hitstop
-- Sakurai — Thinking About Hitstop: https://sourcegaming.info/2015/11/11/thoughts-on-hitstop-sakurais-famitsu-column-vol-490-1/
-- Hitstop/Hitfreeze/Hitlag — CritPoints: https://critpoints.net/2017/05/17/hitstophitfreezehitlaghitpausehitshit/
-- Jan Willem Nijman (Vlambeer) — The Art of Screenshake: https://www.youtube.com/watch?v=AJdEqssNZ-U
-- The art of screenshake (notes): http://notebook.maryrosecook.com/Theartofscreenshake,JanWillemNijman.html
-
-### VFX / 오디오 / 카메라 / 포스트프로세스
-- DMC5 Director on combat feel (Kotaku): https://kotaku.com/devil-may-cry-5s-director-tells-us-how-they-made-combat-1833642299
-- How 3rd person melee games communicate hit feel — Jason de Heras: https://www.jasondeheras.com/gamedesign/2021/4/23/how-do-3rd-person-melee-games-communicate-game-and-hit-feel
-- Cinemachine Impulse: https://docs.unity3d.com/Packages/com.unity.cinemachine@2.3/manual/CinemachineImpulse.html
-- GDC Vault — Oh My! That Sound Made the Game Feel Better!: https://gdcvault.com/play/1022808/Oh-My-That-Sound-Made
-- Effects in Hades (80.lv): https://80.lv/articles/a-behind-the-scenes-look-at-the-effects-in-hades
-- Juicy damage UI feedback — Lennart Nacke: https://acagamic.medium.com/juicy-damage-feedback-in-games-7c1758d69a42
-- Custom Post Processing in URP — Febucci: https://blog.febucci.com/2022/05/custom-post-processing-in-urp/
-- Designing Game Feel: A Survey (arXiv): https://arxiv.org/pdf/2011.09201
+**3-3. 재질별 임팩트 (G4/G5 잔여)**
+- 피격자에 재질 태그 축을 추가하고 FX/SFX 키를 `{reaction}_{material}` 조합으로 해석.
 
 ---
 
-## 9. 구현 우선순위 요약
+## 4. 보존해야 할 제약
 
-| 우선순위 | 항목 | 근거 |
-|---------|------|------|
-| 1 | P1 히트스톱 컨텍스트화 (G1, G2) | 기존 매니저 활용, 코드 분기만으로 타격감 즉시 개선 |
-| 2 | P1 임팩트 SFX (G5) | 피격 연결 사운드 부재 — 체감 격차가 가장 큼 |
-| 3 | P1 VFX 티어링/방향 (G4) | 데이터 주도, 저위험 |
-| 4 | P1 상체 가산 플린치 (G3) | 답답함 해소 효과 크나 cancel-window 설계 조정 동반 |
-| 5 | P2 8방향/진동/환경 (G6~G8) | 추가 애니/입력 작업 필요 |
-| 6 | P3 라그돌/저글/부위 (G9~G11) | 신규 시스템·큰 작업량 |
+- **Break 노출 중 피격**: 몬스터는 노출 중 일반 리액션 전환을 건너뛴다. Step 1/2의 FX·SFX 강화는 이 분기에서도 울리되 **상태 전환을 되살리지 않는다.**
+- **패리 경직**: 패리는 `AttackReactionType.Light` 경로를 재사용한다. Light 연출을 바꾸면 패리 체감도 같이 바뀐다 — 튜닝 시 함께 확인.
+- **모션 후딜 기반 히트스톱**: 생성기가 산출한 `hitStopDuration/Scale`은 단일 소스다. 런타임에서 대입하지 말고 배율만 곱한다.
+- **다인 전투 가드**: `IsActorHitStopping` early-return과 `IsStaggerImmune` 억제 로직을 신규 경로가 우회하면 조작 불가 누수가 재발한다.
+- **데미지 면역 ≠ 리액션 면역**: 경직만 억제하고 피해는 유지하는 기존 원칙을 지킨다.
+
+---
+
+## 5. 검증 방법
+
+- Step 1: 적 평타/강공격을 맞아보며 충돌음 유무, FX가 타격 지점에서 방향 맞게 나오는지 육안 확인.
+- Step 2: 단일 적 → 3인 이상 포위 순으로 비교. **다인에서 조작 응답성이 Step 1 대비 나빠지면 즉시 2-2를 강공격 한정으로 되돌린다.**
+- Step 3: 이동 중 Light 피격 시 이동이 끊기지 않는지, Heavy 피격은 여전히 전신 경직인지 확인.
+- 각 Step은 **단독으로 넣고 체감을 재평가**한다. 한 번에 넣으면 원인 분리가 불가능하다.
+
+---
+
+## 6. 이번 개정에서 보류한 항목
+
+| 항목 | 보류 사유 |
+|------|----------|
+| ~~G8 환경 상호작용 넉백~~ | **보류 해제 — §8에서 별도 설계** |
+| G9 라그돌 | 사망 연출은 디졸브로 이미 성립. 물리 전환은 의상/MagicaCloth2와 충돌 검토 선행 필요 |
+| G10 에어 저글 | 공중 콤보 추격 자체가 미도입 상태(전투 로드맵에서도 보류) |
+| G11 부위 크리티컬 | 히트박스 per-bone 태깅 = 전 몬스터 데이터 재작업. 3-3 재질 축과 함께 재검토 |
+
+---
+
+## 7. 영향 파일
+
+| 파일 | Step | 변경 성격 |
+|------|------|----------|
+| `GameActor/Combat/Feedback/CombatFeedbackDispatcher.cs` | 1,2 | SFX 티어 분기, FX 회전 오버로드, 히트스톱 배율 후처리 |
+| `GameActor/Object/Player/PlayerActor.Combat.cs` | 1 | 피격 임팩트 사운드 호출, FX 위치 폴백 순서 |
+| `GameActor/Object/Monster/MonsterActor.cs` | 1,3 | 피격측 FX/SFX(노출 분기 보존), 리액션 축 경계 |
+| `GameActor/Component/Enemy/EnemyCombat.cs` | 2 | 공격자측 히트스톱/카메라 훅 신설 |
+| `Manager/Handler/Combat/GameHitStopHandler.cs` | 2 | (가급적 무변경) 기존 API 재사용 |
+| `GameActor/Animation/ActorAnimator.cs` | 3 | 가산 플린치 오버레이 재사용 |
+| `GameActor/State/Player/PlayerHitState.cs`, `State/Enemy/EnemyHitState.cs` | 3 | 가산 플린치 분리, 8방향 확장 |
+| 사운드 데이터(`GameSoundKey` + 엔트리) | 1 | 임팩트 키 티어 추가 (코드 변경 최소) |
+| `GameActor/State/Enemy/EnemyHitState.cs` · 신규 `EnemyWallSplatState.cs` | 8 | 벽 충돌 승격 |
+| `GameActor/Combat/Resolution/ReactionResolver.cs` | 9 | 리액션 선택 축 확장 |
+
+---
+
+## 8. 환경 넉백 (Wall Splat) — G8 상세 설계
+
+### 8-1. 조사 요약
+
+| 출처 | 시사점 |
+|------|--------|
+| Tekken(Wall Splat / Wall Bounce / T8 Wall Blast) | 넉백이 벽에 막히면 **별도 상태로 승격**하고 추가타 창을 준 뒤 slump→기상으로 빠져나온다. 즉 "벽에 부딪힘"은 물리 반응이 아니라 **리액션 상태 하나**다. Wall Bounce(벽 반사)는 저글 시동기 성격의 별도 티어 |
+| Combat Recall 리액션 프레임워크 | 리액션 선택 축에 impact direction·body location과 함께 **현재 상태(grounded / airborne / wall-pinned)**가 명시됨. wall-pinned는 표준 축의 하나 |
+| 액션 RPG 전투 설계 통론 | 적 넉백은 남용하면 "쫓아다니기"가 되어 오히려 흐름을 끊는다 → **선택적 적용**이 원칙 |
+
+결론: 벽 반응을 물리 시뮬레이션(반사·바운스)으로 접근하지 않는다. **"넉백 소멸 + 상태 승격"**으로 접근한다.
+
+### 8-2. 이 프로젝트에서 유리한 점
+
+신규 물리 시스템이 필요 없다. KCC 콜백이 이미 상태로 위임되고 있고, **같은 패턴을 쓰는 선례가 이미 있다.**
+
+- `ActorMovementController.OnMovementHit`(:529) → `_currentState.OnMovementHit` 위임
+- `EnemyChargeState.OnMovementHit`(:184)이 이미 "벽에 충돌하면 돌진 실패 → 추격으로" 처리 중
+- `EnemyHitState`는 생성자에서 `HitContext` 전체를 보관(:21,32) → 넉백 세기·방향·reactionType을 그대로 알고 있다
+- 넉백 채널이 분리되어 있어 잔여 속도 판정이 가능(`AddPlanarKnockback`, `_impulseDampers`, `IsImpulseActive`)
+
+`EnemyHitState`/`EnemyAirborneState`는 현재 `OnMovementHit`을 **오버라이드하지 않는다** → 여기가 정확한 삽입 지점이다.
+
+### 8-3. 발동 게이트 (오발동 방지가 이 기능의 8할)
+
+아래를 **모두** 만족할 때만 벽 반응을 발동한다.
+
+1. **리액션 중**: 현재 상태가 Hit/Airborne/Knockdown 계열이고 넉백 임펄스가 살아 있을 것(`IsImpulseActive`). 평상시 이동 충돌은 대상 아님.
+2. **넉백 종류**: `HitContext.ReactionType`이 KnockBack / Airborne / Knockdown일 것. 평타 Light/Hit는 제외 — 모든 타격이 벽 연출을 유발하면 값이 없어진다.
+3. **잔여 속도 임계**: 충돌 시점 수평 속도가 임계 이상. 다 죽어가는 넉백이 벽에 닿는 건 무시.
+4. **진짜 벽인가**: `hitNormal`과 캐릭터 Up의 내적이 0에 가깝고(수직면), `HitStabilityReport.IsStable == false`. 경사면·계단·작은 턱을 벽으로 오판하지 않게 한다.
+5. **대상 필터**: 충돌 상대가 다른 액터면 제외. 적끼리 밀치다 벽 연출이 터지면 안 된다.
+6. **1회 소비**: `OnMovementHit`은 한 넉백 동안 여러 스텝에서 반복 호출될 수 있다. **소비 플래그 필수** — 이걸 빠뜨리면 벽에 비비는 동안 연출이 연타된다.
+
+### 8-4. 3티어 결과 (데이터로 선택)
+
+| 티어 | 결과 | 신규 모션 | 적용 대상 |
+|------|------|----------|----------|
+| **T0 — 임팩트만** (기본) | 잔여 넉백 즉시 소멸 + 벽면 FX/SFX + 리액션 시간 소폭 연장 | 0개 | 전 액터 기본값 |
+| **T1 — 월 스플랫** | `EnemyWallSplatState`로 승격. 벽에 눌린 짧은 crumple + **플레이어 추가타 창**, 만료 시 slump → Knockdown 또는 Idle | 1~2개 | 일반/정예 몬스터 |
+| **T2 — 월 바운스** | 벽 법선으로 감쇠 반사 임펄스 → 플레이어 쪽으로 되튐 | 1개 + 저글 연계 | **보류 권장** |
+
+- **T0만으로도 목적의 대부분이 달성된다.** "벽에 처박혔다"는 정보 전달 + 넉백이 벽을 긁으며 미끄러지는 현재의 어색함 제거. 먼저 T0만 넣고 체감을 본다.
+- **T2는 보류를 권장한다.** 되튐은 저글 시동기이고 이 프로젝트에 공중 콤보 추격이 없다(G10 보류). 저글 없이 되튐만 넣으면 적이 고무공처럼 보인다. 도입한다면 보스 특정 스킬 한정.
+- 티어 선택은 `CombatReactionPolicySO`(등급별 리액션 허용)를 확장해 담는다. 보스는 T0 고정 — 보스가 벽에 눌려 늘어지면 위압이 무너진다.
+
+### 8-5. 잔여 속도 처리 (놓치기 쉬운 지점)
+
+벽 반응 시 `_pendingPlanarKnockbackVelocity`만 지우면 부족하다. `_impulseDampers`에 남은 감쇠 modifier도 함께 제거해야 한다(`ClearExternalVelocityChanges` 또는 해당 채널만 선택 제거). 안 그러면 속도는 0인데 damper가 살아 있어 이후 이동이 눌린다.
+
+### 8-6. 플레이어 피격 시
+
+플레이어에게는 **T0만** 적용한다. 추가 경직·추가 피해를 넣지 않는다 — 다인 전투 조작 불가 누수(경직 내성창으로 막아둔 문제)가 벽 근처에서 되살아난다. 플레이어 쪽은 "벽에 부딪히면 넉백이 멈추고 임팩트가 난다"까지가 상한.
+
+### 8-7. 비도입
+
+낭떠러지 낙하·환경 오브젝트 파괴·벽 파괴(Wall Blast 류)는 레벨 저작 규약이 선행돼야 하므로 이번 범위 밖이다.
+
+---
+
+## 9. 행동 기반 리액션 매칭 — "자연스러운 반응"의 실체
+
+### 9-1. 조사 요약
+
+- 리액션 선택 축은 **공격 속성만이 아니다.** 표준 축은 ① 타격 방향 ② 타격 부위 ③ **피격자의 현재 상태**(지상/공중/가드/벽에 눌림) ④ 적 타입·성격이다.
+- 리액션 어휘의 업계 표준: Normal(10~25프레임) / Stagger·Stumble(2~3배 길이) / Flyback / Launch / Crumple(스턴 루프) / Knockdown. **여기에 수정자**로 Tank(피해만 받고 리액션 없음) / Armor / Invulnerable / GuardBreak / Frozen.
+- 균형점: "리액션이 적으면 무감각, 많으면 적이 인형처럼 조종당해 보인다. 강한 시스템은 리액션을 **선택적으로** 적용한다."
+- 애니 품질 규칙: 블렌드 시간을 짧게, 리액션 첫 프레임 포즈를 직전 공격 포즈와 극단적으로 다르게, baked translation을 어느 정도 쓰되 프로그램 임펄스에만 의존하지 말 것.
+- AI 연동: 스태거 플래그를 AI가 읽어 행동을 막고, 상태 마킹을 애니메이션 타임라인에 심어 보이는 것과 로직을 일치시킨다.
+
+### 9-2. 현재 프로젝트 판정
+
+**리액션 어휘는 이미 완비되어 있다.** 표준 어휘 대부분이 1:1로 존재한다.
+
+| 업계 표준 | 이 프로젝트 |
+|-----------|------------|
+| Normal | `Light` / `Hit` |
+| Stagger·Stumble | `Heavy` |
+| Flyback | `KnockBack` |
+| Launch | `Airborne` |
+| Crumple(스턴 루프) | `Stun` + Break 노출 |
+| Knockdown | `Knockdown` |
+| Tank / Armor 수정자 | `CombatReactionPolicySO` 등급 정책 + `PoiseStat` 하이퍼아머 |
+| AI 스태거 연동 | `BlocksBehaviorTree`, `EnemyTacticalMemory.NotifyTookDamage` |
+
+**진짜 갭은 어휘가 아니라 선택 축이다.** `MonsterReactionQuery`(`ReactionResolver.cs:29`)가 보는 것은 poiseBroken / CanPlayHitReaction / Airborne / Knockdown / Grade / Policy뿐이다. **피격자가 그때 무엇을 하고 있었는지는 보지 않는다.** 그래서 이동 중에 맞든, 공격을 휘두르다 맞든, 가드 중에 맞든 같은 `Hit_F`가 나온다 — 이것이 "부자연스럽다"의 정체다.
+
+### 9-3. 제안 — 선택 축에 "피격자 행동"을 추가
+
+`MonsterReactionQuery`/`PlayerReactionQuery`에 피격 당시 행동 컨텍스트를 넣고, 모션 해석에서 **접미사 폴백**으로 소화한다.
+
+| 피격 당시 행동 | 자연스러운 반응 | 해석 키 예 |
+|---------------|----------------|-----------|
+| 공격 모션 중 | 휘두르던 팔이 무너지는 중단형 리액션 | `Hit_F.Attacking` |
+| 이동 중 | 발이 꼬이거나 스텝 백 | `Hit_F.Moving` |
+| 가드 중 | 가드 자세가 흔들림(무너지진 않음) | `Hit_F.Guarding` |
+| 공중 | 공중 전용 리액션 | `Hit_F.Air` |
+| 벽에 눌림 | §8 T1 월 스플랫 | — |
+| 그 외 | 기본 | `Hit_F` |
+
+**핵심은 폴백이다.** `HasMotion(키) ? 키 : 기본키` — 기존 `GetHitAnimKey`가 이미 쓰는 패턴 그대로다(`PlayerHitState.cs:241~247`, `EnemyStunState.cs:57`). 따라서 **모션을 만든 액터만 자연스러워지고, 안 만든 액터는 지금과 완전히 동일하게 동작한다.** 전면 재작업 없이 점진 도입이 가능하다.
+
+### 9-4. 저작 축 결정에 종속
+
+이 확장은 §3-0(State 경로 vs GAS 태그 트리거 경로)의 결정 이후에 착수한다. 방향·행동 같은 *기계적 변형*은 모션 해석 축(State)에, *연출적 특수 리액션*은 GAS 축에 두는 것이 권장안이다. 결정 전에 손대면 같은 변형을 두 축에 중복 저작하게 된다.
+
+### 9-5. 절제 규칙
+
+조사에서 반복 강조된 지점이자, 이 항목에서 가장 실패하기 쉬운 부분이다.
+
+- 모든 조합에 모션을 만들지 않는다. **가장 자주 보이는 조합부터** — 이동 중 피격 > 공격 중 피격 > 가드 중 피격 순.
+- 리액션이 길어지면 적이 인형이 된다. 행동별 변형은 **길이를 바꾸는 게 아니라 포즈를 바꾸는 것**이다. 경직 시간의 소유권은 기존 `reactionDuration`/Poise 판정에 그대로 둔다.
+- 블렌드 시간은 짧게 유지한다(현재 0.15~0.2s). 변형이 늘어난다고 블렌드를 늘리면 전체가 물러진다.
+
+### 9-6. 범위 밖
+
+물리 블렌드(부분 라그돌) 기반 리액션은 자연스러움에 크게 기여하지만 MagicaCloth2 의상 시뮬레이션과의 충돌 검토가 선행돼야 한다 → G9와 함께 보류를 유지한다. 사기·목격 반응 같은 AI 층위의 "반응"은 리액션 시스템이 아니라 BT 설계 영역이므로 본 문서 범위 밖이다.
+

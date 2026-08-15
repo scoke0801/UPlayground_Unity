@@ -39,7 +39,9 @@ namespace UPlayGround.State
 
         public override bool CanTransitionState(ActorStateId fromState)
         {
-            return fromState is ActorStateId.Death;
+            return fromState is not (ActorStateId.Death
+                or ActorStateId.Grabbed
+                or ActorStateId.SpecialBreakVictim);
         }
 
         public override void OnEnter(GameActorState fromState)

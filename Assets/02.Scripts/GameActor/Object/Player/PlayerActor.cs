@@ -54,10 +54,6 @@ namespace UPlayGround
         }
         [SerializeField] private bool  _isInvincible  = false;
 
-        [Header("Ability Tag Trigger")]
-        [Tooltip("피격 상태 전환을 태그 트리거 Ability에 맡깁니다. 검증 전에는 false로 유지합니다.")]
-        public bool useTagTriggeredPlayerHitReaction;
-
         // 캐릭터별 Health/Gauge/Cooldown/Effect를 하나의 ASC 저장 스냅샷으로 보관한다.
         private readonly Dictionary<CharacterActorType, AbilitySystemSaveData>
             _characterAbilitySystemMap = new();
@@ -66,6 +62,9 @@ namespace UPlayGround
         private readonly List<AttributeModifierValue> _skillTreeStatBuffer = new();
         private ActiveGameplayEffectHandle _skillTreeStatEffectHandle;
         private bool _hasInitializedCharacterRuntime;
+
+        // 피격 리액션 Ability 누락을 캐릭터+트리거 단위로 1회만 보고하기 위한 기록.
+        private readonly HashSet<string> _warnedReactionTriggers = new();
 
         [SerializeField] private PlayerEquipment  _equipment;
         [SerializeField] private PlayerCombat     _combat;

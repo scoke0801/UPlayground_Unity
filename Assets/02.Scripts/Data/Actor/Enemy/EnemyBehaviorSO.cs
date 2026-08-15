@@ -54,10 +54,6 @@ namespace UPlayGround.Data.Enemy
         [Tooltip("Intent 성향과 Ability 전술 태그·반복 정책. null이면 기존 설정으로 동작합니다.")]
         public EnemyCombatStrategySO combatStrategy;
 
-        [Header("Ability Tag Trigger")]
-        [Tooltip("피격 상태 전환을 태그 트리거 Ability에 맡깁니다. 검증 전에는 false로 유지합니다.")]
-        public bool useTagTriggeredHitReaction;
-
         [Header("전투 거리")]
         public float optimalCombatDistance  = 2.5f;
         public float minCombatDistance      = 1.5f;

@@ -74,6 +74,7 @@ namespace UPlayGround
         private int _externalHitReactionSuppressionCount;
         private AbilityExecutionHandle _triggeredReactionHandle;
         private ActorStateId? _triggeredReactionState;
+        private bool _reactionAbilityCoverageWarned;
         
         protected IActorHpBarView _uiHpBar;
         private IActorBreakInteractionView _breakInteraction;   // 노출(브레이크 가능) 동안만 존재하는 F키 상호작용 UI
@@ -216,6 +217,10 @@ namespace UPlayGround
 
             AbilitySystem.ApplyResolvedDamage(finalDamage, request.Attacker?.AbilitySystem);
 
+            // 충돌음은 피격자 소유. 이 지점이 몬스터가 받는 모든 피해(근접·투사체·잔류 판정)의 단일 깔때기다.
+            if (finalDamage > 0f)
+                CombatFeedbackDispatcher.PlayDamageImpact(combatResult);
+
             if (_uiHpBar == null) AttachHpUI();
 
             OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
@@ -239,9 +244,11 @@ namespace UPlayGround
             if (IsAlive() && canIssueHitTrigger)
             {
                 GameplayTag triggerTag = ResolveMonsterHitTrigger(
-                    combatResult.Hit.ReactionType);
+                    combatResult.Hit,
+                    reactionDecision);
                 if (triggerTag.IsValid())
                 {
+                    WarnIfReactionAbilityMissing(triggerTag, reactionDecision);
                     Abilities?.IssueTriggerEvent(
                         triggerTag,
                         combatResult.Hit.Attacker,
@@ -520,14 +527,12 @@ namespace UPlayGround
                     or AttackReactionType.Hit
                     or AttackReactionType.Heavy;
 
-            if (reactionDecision.ShouldEnterState)
-            {
-                if (isPlainPoiseBreak)
-                    ApplyShoveImpulse(hit.Attacker);
+            if (reactionDecision.ShouldEnterState && isPlainPoiseBreak)
+                ApplyShoveImpulse(hit.Attacker);
 
-                if (!UseTagTriggeredHitReaction)
-                    ApplyMonsterReactionState(reactionDecision.TargetState, hit);
-            }
+            // 리액션 상태 전환은 태그 트리거 Ability 경로가 단독으로 수행한다(저작 축 단일화).
+            // 여기서 직접 TransitionToState 하던 폴백은 제거됐다 — 두 축이 같은 리액션을
+            // 각자 표현하면 저작이 중복되고 어느 쪽이 이겼는지 추적할 수 없다.
 
             CombatFeedbackDispatcher.ApplyColorHit(_colorChanger);
             appliedResources = new ResourceChangeSet(0f, -poiseDamageApplied, -breakDamageApplied);
@@ -549,6 +554,66 @@ namespace UPlayGround
                    && state.CanPlayHitReaction(hit);
         }
 
+        /// <summary>
+        /// 발급할 피격 트리거 태그를 고른다.
+        ///
+        /// 강인도 브레이크는 공격 자체의 리액션 태그로 보내면 안 된다.
+        /// 리액션 Ability는 ownerTagRequirement.blockAny로 State.Hit 등을 막고 있어서,
+        /// 콤보 도중(이미 Hit 상태)에 강인도가 깨진 경우 활성화가 거부되고 스턴이 유실된다.
+        /// 전용 PoiseBreak 트리거를 받을 Ability가 있으면 그쪽으로 보낸다.
+        /// </summary>
+        private GameplayTag ResolveMonsterHitTrigger(
+            in HitContext hit,
+            in ReactionDecision reactionDecision)
+        {
+            // 리액션 상태로 들어가지 않는 피격도 사건 자체는 발급한다(피격 트리거 Ability용).
+            // 이 경우 보정할 상태가 없으므로 공격의 리액션 타입을 그대로 쓴다.
+            if (!reactionDecision.ShouldEnterState)
+                return ResolveMonsterHitTrigger(hit.ReactionType);
+
+            // 공격이 요구하지 않은 행동 불능 상태로 귀결됐다면 그 원인은 강인도 브레이크다.
+            bool poiseBreakReaction =
+                reactionDecision.TargetState is CombatReactionState.Stun
+                    or CombatReactionState.Knockdown
+                && hit.ReactionType is not (AttackReactionType.Stun
+                    or AttackReactionType.Knockdown);
+
+            if (poiseBreakReaction
+                && Abilities != null
+                && Abilities.TryGetRequestTriggerAbility(
+                    GameplayTags.Trigger_Monster_Hit_PoiseBreak,
+                    out _))
+            {
+                return GameplayTags.Trigger_Monster_Hit_PoiseBreak;
+            }
+
+            // 실행될 Ability와 실제 진입 상태의 범주를 맞춘다.
+            // 태그를 공격의 리액션 타입에서만 뽑으면, 승격 조건 미달로 상태가 강등된 경우
+            // (예: airborneForce 부족 → Airborne 요청이지만 Hit 상태) 엉뚱한 Ability가 실행된다.
+            return reactionDecision.TargetState switch
+            {
+                CombatReactionState.Airborne => GameplayTags.Trigger_Monster_Hit_Airborne,
+                CombatReactionState.Grabbed => GameplayTags.Trigger_Monster_Hit_Grab,
+                CombatReactionState.Knockdown => GameplayTags.Trigger_Monster_Hit_Knockdown,
+                CombatReactionState.Stun => GameplayTags.Trigger_Monster_Hit_Stun,
+                _ => ResolveHitCategoryTrigger(hit.ReactionType),
+            };
+        }
+
+        /// <summary>
+        /// 일반 Hit 상태로 들어갈 때의 강도 구분. Light/Heavy/KnockBack/Pull은 보존하고,
+        /// 승격에 실패해 강등된 Airborne/Knockdown/Stun/Grab은 기본 Hit으로 접는다.
+        /// </summary>
+        private static GameplayTag ResolveHitCategoryTrigger(
+            AttackReactionType reactionType) => reactionType switch
+        {
+            AttackReactionType.Light => GameplayTags.Trigger_Monster_Hit_Light,
+            AttackReactionType.Heavy => GameplayTags.Trigger_Monster_Hit_Heavy,
+            AttackReactionType.KnockBack => GameplayTags.Trigger_Monster_Hit_KnockBack,
+            AttackReactionType.Pull => GameplayTags.Trigger_Monster_Hit_Pull,
+            _ => GameplayTags.Trigger_Monster_Hit_Hit,
+        };
+
         private static GameplayTag ResolveMonsterHitTrigger(
             AttackReactionType reactionType) => reactionType switch
         {
@@ -564,46 +629,29 @@ namespace UPlayGround
             _ => default,
         };
 
-        private bool UseTagTriggeredHitReaction
+        /// <summary>
+        /// 리액션이 필요한데 해당 트리거를 받을 Ability가 AbilitySet에 없으면 알린다.
+        /// 폴백이 사라졌으므로 이 경우 몬스터는 아무 반응도 하지 않는다 — 조용히 넘어가면 안 된다.
+        /// </summary>
+        private void WarnIfReactionAbilityMissing(
+            GameplayTag triggerTag,
+            in ReactionDecision reactionDecision)
         {
-            get
-            {
-                EnemyBehaviorSO behavior = Definition?.EffectiveBehaviorData
-                                           ?? _groundAIController?.BehaviorData;
-                return behavior != null && behavior.useTagTriggeredHitReaction;
-            }
-        }
-
-        private void ApplyMonsterReactionState(
-            CombatReactionState reactionState,
-            in HitContext hit)
-        {
-            if (MovementController == null)
+            if (_reactionAbilityCoverageWarned || !reactionDecision.ShouldEnterState)
                 return;
 
-            switch (reactionState)
+            if (Abilities != null
+                && Abilities.TryGetRequestTriggerAbility(triggerTag, out _))
             {
-                case CombatReactionState.Airborne:
-                    MovementController.TransitionToState(
-                        new EnemyAirborneState(MovementController));
-                    break;
-                case CombatReactionState.Grabbed:
-                    MovementController.TransitionToState(
-                        new EnemyGrabbedState(MovementController, hit));
-                    break;
-                case CombatReactionState.Stun:
-                    MovementController.TransitionToState(
-                        new EnemyStunState(MovementController, hit));
-                    break;
-                case CombatReactionState.Knockdown:
-                    MovementController.TransitionToState(
-                        new EnemyKnockdownState(MovementController, hit));
-                    break;
-                case CombatReactionState.Hit:
-                    MovementController.TransitionToState(
-                        new EnemyHitState(MovementController, hit));
-                    break;
+                return;
             }
+
+            _reactionAbilityCoverageWarned = true;
+            Debug.LogError(
+                $"[MonsterActor] '{gameObject.name}'의 AbilitySet에 피격 리액션 Ability가 없어 "
+                + $"리액션이 재생되지 않습니다. trigger={triggerTag.TagName}. "
+                + "GA_Monster_Hit_* Ability를 AbilitySet에 추가하세요.",
+                this);
         }
 
         private void SubscribeReactionAbilityTriggers()
@@ -630,8 +678,6 @@ namespace UPlayGround
         private void OnReactionAbilityTriggerRequested(AbilityTriggerRequest request)
         {
             if (!request.TriggerTag.IsChildOf(GameplayTags.Trigger_Monster_Hit))
-                return;
-            if (!UseTagTriggeredHitReaction)
                 return;
 
             if (!request.TriggerEvent.HasValue
@@ -720,7 +766,7 @@ namespace UPlayGround
             in HitReactionTriggerPayload payload) => payload.ReactionState switch
         {
             CombatReactionState.Airborne =>
-                new EnemyAirborneState(MovementController),
+                new EnemyAirborneState(MovementController, payload.Hit),
             CombatReactionState.Grabbed =>
                 new EnemyGrabbedState(MovementController, payload.Hit),
             CombatReactionState.Stun =>

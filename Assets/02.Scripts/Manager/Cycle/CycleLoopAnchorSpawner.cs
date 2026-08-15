@@ -21,12 +21,32 @@ namespace UPlayGround.Manager
         private const string FirstReturnStartedFlag = "cycle.story.first_return_started";
         private const string FirstReturnCompletedFlag = "cycle.anchor.first_return_anchor_completed";
 
+        private static readonly Vector3 AnchorNpcWorldPosition =
+            new(1079.48f, 58.519f, 421.11f);
+
+        // 스토리 플롯 검토용 마을 주민 배치다. 보스 인물인 보쿠세이·리안리안·호노카는 제외한다.
+        // 미아의 분실물 위치(-3.68, +4.39 방향)로 향하는 동선은 비워 둔다.
+        private static readonly StoryReviewNpcPlacement[] StoryReviewNpcPlacements =
+        {
+            new("NPC_Guide",  new Vector3(6.4f, -0.55f, 3.8f)),
+            new("Npc_Hazel",  new Vector3(-7f, 0f, 0.5f)),
+            new("NPC_Joan",   new Vector3(-5f, 0f, -4f)),
+            new("NPC_Joy",    new Vector3(-1.5f, 0f, -6f)),
+            new("NPC_Morgan", new Vector3(3f, 0f, -6f)),
+            new("Npc_Lucia",  new Vector3(6f, -0.3f, -3.5f)),
+            new("NPC_Shop",   new Vector3(7.5f, -0.4f, 0.5f)),
+            new("Npc_Penny",  new Vector3(-0.5f, 0f, 7f)),
+        };
+
         [SerializeField] private ItemSO _lostItem;
         [SerializeField] private NpcActorSO _anchorNpcData;
         [SerializeField] private InteractableActorSO _interactionData;
         [SerializeField] private Vector3 _worldPosition = new(1075.8f, 58.2f, 425.5f);
         [SerializeField] private Color _ribbonColor = new(0.18f, 0.55f, 1f, 1f);
         [SerializeField, Min(0.1f)] private float _refreshInterval = 0.25f;
+        [Header("스토리 검토")]
+        [SerializeField, Tooltip("에디터와 Development 빌드에서 일반 주민을 미아 주변에 모아 대화 흐름을 검토한다.")]
+        private bool _enableStoryReviewNpcCluster;
 
         private DropItemActor _spawnedPickup;
         private Material _runtimeMaterial;
@@ -59,12 +79,14 @@ namespace UPlayGround.Manager
 
             spawner.ResolveRuntimeData();
             spawner.EnsureAnchorNpcActive();
+            spawner.EnsureStoryReviewNpcCluster();
         }
 
         private void Start()
         {
             ResolveRuntimeData();
             EnsureAnchorNpcActive();
+            EnsureStoryReviewNpcCluster();
             RefreshSpawnState();
         }
 
@@ -145,7 +167,7 @@ namespace UPlayGround.Manager
                     continue;
                 }
 
-                actor.transform.position = new Vector3(1079.48f, 58.519f, 421.11f);
+                actor.transform.position = AnchorNpcWorldPosition;
                 actor.SetNpcData(_anchorNpcData);
                 actor.GetComponent<NpcBrain>()?.ConfigureStationary(actor.transform.position);
                 if (!actor.gameObject.activeSelf)
@@ -157,6 +179,67 @@ namespace UPlayGround.Manager
                 $"[CycleLoopAnchorSpawner] '{AnchorNpcObjectName}' NPC를 찾지 못했습니다. " +
                 "반복 앵커 진행을 시작할 수 없습니다.",
                 this);
+        }
+
+        private void EnsureStoryReviewNpcCluster()
+        {
+            if (!_enableStoryReviewNpcCluster || (!Application.isEditor && !Debug.isDebugBuild))
+                return;
+
+            NpcActor[] actors = Object.FindObjectsByType<NpcActor>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            for (int placementIndex = 0;
+                 placementIndex < StoryReviewNpcPlacements.Length;
+                 placementIndex++)
+            {
+                StoryReviewNpcPlacement placement = StoryReviewNpcPlacements[placementIndex];
+                NpcActor target = null;
+                for (int actorIndex = 0; actorIndex < actors.Length; actorIndex++)
+                {
+                    NpcActor actor = actors[actorIndex];
+                    if (actor != null
+                        && actor.gameObject.scene == gameObject.scene
+                        && actor.gameObject.name == placement.ObjectName)
+                    {
+                        target = actor;
+                        break;
+                    }
+                }
+
+                if (target == null)
+                {
+                    Debug.LogWarning(
+                        $"[CycleLoopAnchorSpawner] 스토리 검토용 NPC를 찾지 못했습니다: {placement.ObjectName}",
+                        this);
+                    continue;
+                }
+
+                Vector3 position = AnchorNpcWorldPosition + placement.Offset;
+                target.transform.position = position;
+
+                Vector3 lookDirection = AnchorNpcWorldPosition - position;
+                lookDirection.y = 0f;
+                if (lookDirection.sqrMagnitude > 0.01f)
+                    target.transform.rotation = Quaternion.LookRotation(lookDirection.normalized, Vector3.up);
+
+                target.GetComponent<NpcBrain>()?.ConfigureStationary(position);
+                if (!target.gameObject.activeSelf)
+                    target.gameObject.SetActive(true);
+            }
+        }
+
+        private readonly struct StoryReviewNpcPlacement
+        {
+            public readonly string ObjectName;
+            public readonly Vector3 Offset;
+
+            public StoryReviewNpcPlacement(string objectName, Vector3 offset)
+            {
+                ObjectName = objectName;
+                Offset = offset;
+            }
         }
 
         private DropItemActor CreatePickup()

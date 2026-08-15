@@ -57,7 +57,14 @@ MonoBehaviour:
   uiSettings:
     hideHud: 1
   timelineUseUnscaledTime: 0
-  events: []
+  events:
+  - rid: 6689042841449791628
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 6689042841449791628
+      type: {class: UltimateTimeScaleEvent, ns: UPlayGround.Data, asm: UPlayGround.Actor}
+      data:
+        startTime: 2.0833335
+        duration: 2.1374998
+        timeScale: 0.2

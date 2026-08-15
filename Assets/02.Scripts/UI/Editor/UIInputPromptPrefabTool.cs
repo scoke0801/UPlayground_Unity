@@ -129,7 +129,7 @@ namespace UPlayGround.UI.EditorTools
                 900f,
                 Prompt(UIAction.MainTabPrevious, "이전 메뉴"),
                 Prompt(UIAction.MainTabNext, "다음 메뉴"),
-                Prompt(UIAction.Submit, "마커 선택"),
+                Prompt(UIAction.Submit, "마커 배치/제거"),
                 Prompt(UIAction.Cancel, "닫기")),
             new(
                 "Assets/03.Prefabs/UI/Scene/Codex/UI_Scene_MonsterCodex.prefab",

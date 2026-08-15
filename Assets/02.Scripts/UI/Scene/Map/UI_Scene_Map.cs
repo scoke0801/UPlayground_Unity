@@ -175,6 +175,7 @@ namespace UPlayGround.UI
                     _inputReceiver.OnBeginDragEvent  += OnBeginDrag;
                     _inputReceiver.OnDragEvent       += OnDrag;
                     _inputReceiver.OnScrollEvent     += OnScroll;
+                    _inputReceiver.OnPrimaryClickEvent += OnMapPrimaryClick;
                     _inputReceiver.OnRightClickEvent += OnMapRightClick;
                 }
             }
@@ -694,8 +695,13 @@ namespace UPlayGround.UI
             if (_iconContainer == null) return;
 
             var entry = _config.userMarker;
-            _userMarkerIconMap[marker.Id] =
-                MinimapEntityIcon.CreateStatic(_iconContainer, $"user_{marker.Id}", entry);
+            var icon = MinimapEntityIcon.CreateStatic(
+                _iconContainer,
+                $"user_{marker.Id}",
+                entry);
+            int markerId = marker.Id;
+            icon.OnClickEvent += _ => MinimapUserMarkerSystem.RemoveMarker(markerId);
+            _userMarkerIconMap[marker.Id] = icon;
         }
 
         private void RemoveUserMarker(UserMapMarker marker)
@@ -724,15 +730,23 @@ namespace UPlayGround.UI
         }
 
         /// <summary>
-        /// 맵 위에서 우클릭하면 해당 위치에 사용자 마커를 추가하거나, 근처 마커를 제거합니다.
+        /// 맵 위에서 주 입력(좌클릭/패드 Submit)하면 해당 위치에 사용자 마커를 추가합니다.
+        /// 사용자 마커 자체를 주 입력하면 제거됩니다.
+        /// 마우스 우클릭은 기존의 근접 배치/제거 단축 동작을 유지합니다.
         /// </summary>
+        private void OnMapPrimaryClick(PointerEventData e)
+        {
+            if (!TryResolveUserMarkerPoint(e, out Vector2 localPoint))
+                return;
+
+            Vector3 worldPos = MapLocalPosToWorld(localPoint);
+            MinimapUserMarkerSystem.AddMarker(worldPos);
+        }
+
         private void OnMapRightClick(PointerEventData e)
         {
-            if (IsBrowsing) return;   // 브라우즈 모드에서는 사용자 마커 배치 비활성
-            if (_config == null || !_config.showUserMarkers) return;
-
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                    _iconContainer, e.position, _canvas.worldCamera, out Vector2 localPoint)) return;
+            if (!TryResolveUserMarkerPoint(e, out Vector2 localPoint))
+                return;
 
             // 근처 사용자 마커가 있으면 제거
             float threshold = UserMarkerRemoveThresholdPx * _currentZoom;
@@ -746,6 +760,23 @@ namespace UPlayGround.UI
             // 없으면 해당 위치에 새 마커 추가
             Vector3 worldPos = MapLocalPosToWorld(localPoint);
             MinimapUserMarkerSystem.AddMarker(worldPos);
+        }
+
+        private bool TryResolveUserMarkerPoint(PointerEventData e, out Vector2 localPoint)
+        {
+            localPoint = default;
+
+            if (IsBrowsing || _config == null || !_config.showUserMarkers)
+                return false;
+            if (_iconContainer == null || e == null)
+                return false;
+
+            Camera eventCamera = _canvas != null ? _canvas.worldCamera : null;
+            return RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _iconContainer,
+                e.position,
+                eventCamera,
+                out localPoint);
         }
 
         private int FindNearestUserMarker(Vector2 localPoint, float threshold)

@@ -4,11 +4,8 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (400) 카메라 피벗 오프셋을 전투/탐색 타깃으로 SmoothDamp 보간한다.
-    /// 락온 중에는 속도 기반 LookAhead 오프셋을 타깃에 합산한다(LookAhead는 오프셋 타깃에 직접
-    /// 합산되는 구조라 별도 Modifier로 분리하지 않고 여기서 함께 처리 — 단일 책임에서 의도적 이탈).
-    /// 원본: InGameCameraMode.UpdateOffsetAndDistance(오프셋부) + ComputeLookAheadOffset
-    /// LookAhead 보간 상태(_lookAheadOffset/_lookAheadVelocity)를 인스턴스로 보유한다.
+    /// (400) 카메라 피벗 오프셋과 이동/지형/공중 LookAhead를 보간한다.
+    /// 전투와 락온에서는 수평 선행량을 줄여 대상 프레이밍이 우선되게 한다.
     /// </summary>
     public sealed class OffsetCameraModifier : ICameraModifier
     {
@@ -29,10 +26,7 @@ namespace UPlayGround.CameraSystem
             bool isLockOn = context.LockOn?.IsActive ?? false;
 
             Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
-            if (isLockOn)
-                targetOffset += ComputeLookAheadOffset(context, settings);
-            else
-                ResetLookAheadOffset();
+            targetOffset += ComputeLookAheadOffset(context, settings, isCombat, isLockOn);
 
             state.CameraOffset = Vector3.SmoothDamp(
                 state.CameraOffset,
@@ -41,21 +35,35 @@ namespace UPlayGround.CameraSystem
                 settings.offsetSmoothTime);
         }
 
-        private Vector3 ComputeLookAheadOffset(CameraContext context, CameraSettings settings)
+        private Vector3 ComputeLookAheadOffset(
+            CameraContext context,
+            CameraSettings settings,
+            bool isCombat,
+            bool isLockOn)
         {
             Vector3 targetLookAhead = Vector3.zero;
-            if (settings.enableLookAhead && context.PlayerVelocityProvider != null)
+            if (settings.enableLookAhead)
             {
-                Vector3 velocity = Vector3.ProjectOnPlane(context.PlayerVelocityProvider.Invoke(), Vector3.up);
+                CameraMotionContext motion = context.Motion;
+                Vector3 up = motion.IsAvailable ? motion.Up : Vector3.up;
+                Vector3 velocity = motion.IsAvailable
+                    ? motion.PlanarVelocity
+                    : Vector3.zero;
                 float speed = velocity.magnitude;
                 if (speed > 0.01f)
                 {
                     float factor = Mathf.Clamp01(speed / Mathf.Max(settings.lookAheadSpeedRef, 0.01f));
                     targetLookAhead = velocity.normalized * (factor * settings.lookAheadDistance);
-
-                    if (context.LockOn?.IsActive ?? false)
-                        targetLookAhead *= settings.lockOnLookAheadMultiplier;
+                    float contextMultiplier = isLockOn
+                        ? settings.lockOnLookAheadMultiplier
+                        : isCombat
+                            ? settings.combatLookAheadMultiplier
+                            : 1f;
+                    targetLookAhead *= Mathf.Clamp01(contextMultiplier);
                 }
+
+                if (settings.enableTraversalComposition && motion.IsAvailable && !isLockOn)
+                    targetLookAhead += ComputeVerticalLookAhead(context, settings, motion, velocity);
             }
 
             _lookAheadOffset = Vector3.SmoothDamp(
@@ -64,14 +72,97 @@ namespace UPlayGround.CameraSystem
                 ref _lookAheadVelocity,
                 settings.lookAheadSmoothTime);
 
-            _lookAheadOffset.y = 0f;
             return _lookAheadOffset;
         }
 
-        private void ResetLookAheadOffset()
+        private static Vector3 ComputeVerticalLookAhead(
+            CameraContext context,
+            CameraSettings settings,
+            CameraMotionContext motion,
+            Vector3 planarVelocity)
         {
-            _lookAheadOffset = Vector3.zero;
-            _lookAheadVelocity = Vector3.zero;
+            Vector3 up = motion.Up;
+            if (!motion.IsGrounded)
+            {
+                float verticalSpeed = motion.VerticalSpeed;
+                float magnitude = Mathf.Abs(verticalSpeed);
+                float maxSpeed = Mathf.Max(
+                    settings.airborneEffectStartSpeed + 0.01f,
+                    settings.airborneSpeedForMax);
+                float factor = Mathf.InverseLerp(settings.airborneEffectStartSpeed, maxSpeed, magnitude);
+                float distance = verticalSpeed >= 0f
+                    ? settings.airborneRiseLookAhead
+                    : -settings.airborneFallLookAhead;
+                return up * (distance * factor);
+            }
+
+            float planarSpeed = planarVelocity.magnitude;
+            if (context.Target == null
+                || planarSpeed <= 0.01f
+                || settings.groundLookAheadDistance <= 0f)
+            {
+                return Vector3.zero;
+            }
+
+            Vector3 direction = planarVelocity / planarSpeed;
+            float speedFactor = Mathf.Clamp01(planarSpeed / Mathf.Max(settings.lookAheadSpeedRef, 0.01f));
+            float probeDistance = settings.groundLookAheadDistance * speedFactor;
+            float sampledHeight = 0f;
+            int sampleCount = 0;
+
+            SampleGroundHeight(context, settings, up, direction, probeDistance * 0.5f, ref sampledHeight, ref sampleCount);
+            SampleGroundHeight(context, settings, up, direction, probeDistance, ref sampledHeight, ref sampleCount);
+
+            float heightDelta;
+            if (sampleCount > 0)
+            {
+                heightDelta = sampledHeight / sampleCount;
+            }
+            else
+            {
+                float normalUp = Vector3.Dot(motion.GroundNormal, up);
+                heightDelta = normalUp > 0.01f
+                    ? -Vector3.Dot(motion.GroundNormal, direction * probeDistance) / normalUp
+                    : 0f;
+            }
+
+            float maxHeight = Mathf.Max(0f, settings.groundLookAheadMaxHeight);
+            heightDelta = Mathf.Clamp(
+                heightDelta * settings.groundLookAheadStrength,
+                -maxHeight,
+                maxHeight);
+            return up * heightDelta;
+        }
+
+        private static void SampleGroundHeight(
+            CameraContext context,
+            CameraSettings settings,
+            Vector3 up,
+            Vector3 direction,
+            float distance,
+            ref float heightSum,
+            ref int sampleCount)
+        {
+            if (distance <= 0.01f)
+                return;
+
+            Vector3 targetPosition = context.Target.position;
+            Vector3 origin = targetPosition + direction * distance + up * settings.groundProbeHeight;
+            float castDistance = settings.groundProbeHeight + settings.groundProbeDepth;
+            if (!Physics.Raycast(
+                    origin,
+                    -up,
+                    out RaycastHit hit,
+                    castDistance,
+                    context.CollisionLayers,
+                    QueryTriggerInteraction.Ignore)
+                || Vector3.Dot(hit.normal, up) <= 0.1f)
+            {
+                return;
+            }
+
+            heightSum += Vector3.Dot(hit.point - targetPosition, up);
+            sampleCount++;
         }
     }
 }

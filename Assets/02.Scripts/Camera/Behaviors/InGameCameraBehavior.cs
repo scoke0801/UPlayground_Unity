@@ -28,7 +28,6 @@ namespace UPlayGround.CameraSystem
             AddModifier(new OffsetCameraModifier());                    // 400 (LookAhead 포함)
             AddModifier(new DistanceFovCameraModifier());               // 500
             AddModifier(new EffectRotationInjectCameraModifier());      // 600
-            AddModifier(new PitchClampCameraModifier());                // 650
             AddModifier(new LockOnReleaseSmoothingCameraModifier());    // 660
             AddModifier(new LockOnFitDistanceCameraModifier());         // 670 (상단·공중 대상 거리 피팅)
             AddModifier(new FollowCameraModifier());                    // 700
@@ -80,12 +79,12 @@ namespace UPlayGround.CameraSystem
 
                     state.CurrentYaw += yawDelta;
                     state.CurrentPitch -= pitchDelta * (invertY ? -1f : 1f);
+                    state.CurrentPitch = Mathf.Clamp(
+                        state.CurrentPitch,
+                        context.Settings.minVerticalAngle,
+                        context.Settings.maxVerticalAngle);
                     if (look.sqrMagnitude > 0.0001f)
                         context.NotifyManualCameraInput?.Invoke();
-
-                    float slopeOffset = context.ComputeSlopePitchOffset?.Invoke() ?? 0f;
-                    float dynamicMin = context.Settings.minVerticalAngle + slopeOffset;
-                    state.CurrentPitch = Mathf.Clamp(state.CurrentPitch, dynamicMin, context.Settings.maxVerticalAngle);
                 }
             }
 

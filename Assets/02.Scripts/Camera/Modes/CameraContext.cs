@@ -24,20 +24,18 @@ namespace UPlayGround.CameraSystem
         public CameraDistanceController DistanceController { get; set; }
         public CameraRotationTransition RotationTransition { get; set; }
         public Func<bool> CombatStateProvider { get; set; }
-        public Func<Vector3> PlayerVelocityProvider { get; set; }
-        public Func<float> ComputeSlopePitchOffset { get; set; }
+        public CameraMotionContext Motion { get; set; }
+        public float LastManualInputTime { get; set; }
         public Action StartCameraAlign { get; set; }
         public Action NotifyManualCameraInput { get; set; }
         public Func<CameraModeEnterParams, bool> PopCameraMode { get; set; }
         public Transform LookAtOverride { get; set; }
         public Vector3 LookAtOverrideOffset { get; set; }
         public LayerMask CollisionLayers { get; set; }
-        public CapsuleCollider CharacterCapsule { get; set; }
         public bool IsInputLocked { get; set; }
         public bool IsAligning { get; set; }
         public float AlignTimer { get; set; }
         public bool HasActiveEffects { get; set; }
-        public int SuppressCapsuleClearanceUntilFrame { get; set; }
         public CameraModeEnterParams ActiveEnterParams { get; set; }
 
         public CameraContext(CameraState state)

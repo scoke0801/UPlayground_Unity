@@ -13,7 +13,7 @@ using UPlayGround.Diagnostics;
 
 namespace UPlayGround.MovementController
 {
-    public partial class ActorMovementController : MonoBehaviour, ICharacterController, ICameraVelocityProvider
+    public partial class ActorMovementController : MonoBehaviour, ICharacterController, ICameraMotionProvider
     {
         [Header("Stable Movement")]
         public float MaxWalkMoveSpeed = 3f;
@@ -211,7 +211,28 @@ namespace UPlayGround.MovementController
         }
 
         public KinematicCharacterMotor Motor { get; private set; }
-        public Vector3 CameraVelocity => Motor != null ? Motor.Velocity : Vector3.zero;
+        public bool TryGetCameraMotionContext(out CameraMotionContext context)
+        {
+            if (Motor == null)
+            {
+                context = CameraMotionContext.Unavailable;
+                return false;
+            }
+
+            bool isGrounded = Motor.GroundingStatus.IsStableOnGround;
+            Vector3 up = Motor.CharacterUp;
+            Vector3 groundNormal = isGrounded
+                ? Motor.GroundingStatus.GroundNormal
+                : up;
+            context = new CameraMotionContext(
+                true,
+                isGrounded,
+                Motor.Velocity,
+                groundNormal,
+                up);
+            return true;
+        }
+
         public GameActor Actor { get; private set; }
         public MotionWarpController MotionWarp { get; private set; }
         public ActorStateMachine StateMachine { get; private set; }

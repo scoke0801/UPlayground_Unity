@@ -38,6 +38,7 @@ UPlayground 연결 구현은
 | 파일 | 역할 |
 |---|---|
 | `Camera/Integration/CameraRuntimeServices.cs` | 포트, 안전 기본 구현, 정적 연결점 |
+| `Camera/ICameraMotionProvider.cs` | 이동 속도·접지·지면 법선을 받는 Camera 소유 계약 |
 | `Manager/Camera/UPlayGroundCameraRuntimeAdapter.cs` | UPlayground 서비스와 포트 연결 |
 | `Manager/GameManager.cs` | CameraManager 등록 전에 어댑터 구성, 종료 시 리셋 |
 
@@ -74,8 +75,10 @@ CameraRuntimeServices.Configure(new MyProjectCameraRuntimeAdapter());
 CameraRuntimeServices.Reset();
 ```
 
-6. CameraSettings와 카메라 프로필 에셋을 복사하고 호스트 에셋 로더의 키를 연결한다.
-7. 락온, 전투 카메라, 킬캠, 대화 카메라, 스냅샷, 프리카메라를 각각 확인한다.
+6. 플레이어 이동 컴포넌트가 `ICameraMotionProvider`를 구현해 속도·접지·지면 법선을 제공하게 한다.
+   구현하지 않아도 카메라는 동작하지만 지형/공중 구도와 이동 자동 리센터링은 비활성화된다.
+7. CameraSettings와 카메라 프로필 에셋을 복사하고 호스트 에셋 로더의 키를 연결한다.
+8. 락온, 전투 카메라, 지형/공중 탐색 구도, 킬캠, 대화 카메라, 스냅샷, 프리카메라를 각각 확인한다.
 
 ## 확장 규칙
 
@@ -93,6 +96,7 @@ CameraRuntimeServices.Reset();
 - Play Mode 서비스 미등록 경고와 예외 0
 - 락온 대상 선택/전환/해제
 - 마우스·게임패드 Look/Zoom
+- 수동 Look 이후 자동 리센터링 유예, 오르막·내리막·상승·낙하 구도
 - 프리카메라 진입/복귀 시 플레이어 입력 상태 복원
 - 전투 흔들림·펀치·타임스케일
 - 킬캠과 Vital Orb 훅

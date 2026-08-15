@@ -110,7 +110,7 @@ namespace UPlayGround.Data.Editor
         {
             if (raw.Contains("락온")) return 3;
             if (raw.Contains("충돌") || raw.Contains("FOV")) return 1;
-            if (raw.Contains("Look-ahead") || raw.Contains("Floor") || raw.Contains("정렬")) return 2;
+            if (raw.Contains("Look-ahead") || raw.Contains("탐색") || raw.Contains("정렬") || raw.Contains("리센터링")) return 2;
             if (raw.Contains("다수 적") || raw.Contains("몬스터") || raw.Contains("전투")) return 4;
             return 0;
         }
@@ -178,8 +178,8 @@ namespace UPlayGround.Data.Editor
             rect = new Rect(rect.x + 4, rect.y + 4, rect.width - 8, rect.height - 8);
             EditorGUI.DrawRect(rect, new Color(0.15f, 0.15f, 0.15f, 0.6f));
 
-            float lo = Mathf.Min(c.minDistance, c.maxDistance, c.defaultDistance, c.combatDistance);
-            float hi = Mathf.Max(c.minDistance, c.maxDistance, c.defaultDistance, c.combatDistance);
+            float lo = Mathf.Min(c.minDistance, c.maxDistance, c.defaultDistance, c.lockOnDistance);
+            float hi = Mathf.Max(c.minDistance, c.maxDistance, c.defaultDistance, c.lockOnDistance);
             float span = Mathf.Max(0.0001f, hi - lo);
 
             float X(float v) => rect.x + (v - lo) / span * rect.width;
@@ -189,7 +189,7 @@ namespace UPlayGround.Data.Editor
             EditorGUI.DrawRect(range, new Color(0.30f, 0.55f, 0.90f, 0.35f));
 
             DrawMarker(rect, X(c.defaultDistance), new Color(0.4f, 0.9f, 0.5f), "기본");
-            DrawMarker(rect, X(c.combatDistance), new Color(0.95f, 0.7f, 0.2f), "전투");
+            DrawMarker(rect, X(c.lockOnDistance), new Color(0.95f, 0.7f, 0.2f), "락온");
         }
 
         private void DrawMarker(Rect bar, float x, Color color, string label)
@@ -212,14 +212,10 @@ namespace UPlayGround.Data.Editor
                 warns.Add($"minDistance({c.minDistance:0.##}) ≥ maxDistance({c.maxDistance:0.##}) — 거리 구간이 뒤집혔습니다.");
             if (c.defaultDistance < c.minDistance || c.defaultDistance > c.maxDistance)
                 warns.Add($"defaultDistance({c.defaultDistance:0.##})가 [min,max] 범위를 벗어났습니다.");
-            if (c.combatDistance < c.minDistance || c.combatDistance > c.maxDistance)
-                warns.Add($"combatDistance({c.combatDistance:0.##})가 [min,max] 범위를 벗어났습니다.");
-            if (c.lockOnReleaseRange < c.lockOnRange)
-                warns.Add($"lockOnReleaseRange({c.lockOnReleaseRange:0.##}) < lockOnRange({c.lockOnRange:0.##}) — 코드가 lockOnRange로 폴백합니다.");
             if (c.minVerticalAngle >= c.maxVerticalAngle)
                 warns.Add($"minVerticalAngle({c.minVerticalAngle:0.#}) ≥ maxVerticalAngle({c.maxVerticalAngle:0.#}) — 피치 범위가 뒤집혔습니다.");
-            if (c.lockOnPitchMin >= c.lockOnPitchMax)
-                warns.Add($"lockOnPitchMin({c.lockOnPitchMin:0.#}) ≥ lockOnPitchMax({c.lockOnPitchMax:0.#})");
+            if (c.lockOnReleaseRange < c.lockOnRange)
+                warns.Add($"lockOnReleaseRange({c.lockOnReleaseRange:0.##}) < lockOnRange({c.lockOnRange:0.##}) — 코드가 lockOnRange로 폴백합니다.");
             if (c.lockOnMinOffsetAngle >= c.lockOnMaxOffsetAngle)
                 warns.Add($"lockOnMinOffsetAngle({c.lockOnMinOffsetAngle:0.#}) ≥ lockOnMaxOffsetAngle({c.lockOnMaxOffsetAngle:0.#})");
             if (c.freeOrbitStartDistance >= c.freeOrbitFullDistance)

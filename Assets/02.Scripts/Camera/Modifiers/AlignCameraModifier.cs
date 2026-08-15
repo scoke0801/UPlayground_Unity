@@ -4,8 +4,8 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (300) 카메라 자동 정렬. 타깃 전방을 향해 yaw를, 전투/탐색에 따라 pitch를 타이머 기반으로 보간한다.
-    /// 원본: InGameCameraMode.UpdateCameraAlign + ResolveTargetForwardXZ
+    /// (300) 명시적 정렬과 이동 기반 자동 리센터링을 처리한다.
+    /// 수동 입력 직후에는 개입하지 않고, 접지 이동이 계속될 때만 진행 방향으로 느리게 수렴한다.
     /// </summary>
     public sealed class AlignCameraModifier : ICameraModifier, ICameraModifierLifecycle
     {
@@ -32,12 +32,15 @@ namespace UPlayGround.CameraSystem
         {
             CameraContext context = frame.Context;
             if (context?.Settings == null || frame.State == null) return;
-            if (!context.IsAligning || context.Target == null)
+            if (context.Target == null) return;
+            if (context.IsInputLocked) return;
+
+            if (!context.IsAligning)
             {
                 ResetAlignment();
+                ApplyAutoRecentering(frame);
                 return;
             }
-            if (context.IsInputLocked) return;
 
             CameraSettings settings = context.Settings;
             CameraState state = frame.State;
@@ -76,9 +79,49 @@ namespace UPlayGround.CameraSystem
                 context.AlignTimer = duration - _elapsed;
             }
 
-            float slopeOffset = context.ComputeSlopePitchOffset?.Invoke() ?? 0f;
-            float dynamicMin = settings.minVerticalAngle + slopeOffset;
-            state.CurrentPitch = Mathf.Clamp(state.CurrentPitch, dynamicMin, settings.maxVerticalAngle);
+        }
+
+        private static void ApplyAutoRecentering(CameraFrame frame)
+        {
+            CameraContext context = frame.Context;
+            CameraSettings settings = context.Settings;
+            CameraState state = frame.State;
+            CameraMotionContext motion = context.Motion;
+
+            if (!settings.enableAutoRecentering
+                || !motion.IsAvailable
+                || !motion.IsGrounded
+                || context.LookAtOverride != null
+                || (context.LockOn?.IsActive ?? false)
+                || Time.unscaledTime - context.LastManualInputTime < settings.recenterInputDelay)
+            {
+                return;
+            }
+
+            Vector3 planarVelocity = motion.PlanarVelocity;
+            if (planarVelocity.magnitude < settings.recenterMinPlanarSpeed)
+                return;
+
+            CameraUserPreferences preferences = CameraRuntimeServices.Adapter.UserPreferences;
+            float preferenceScale = !preferences.IsAvailable || preferences.AimAssistEnabled
+                ? Mathf.Max(0f, preferences.AutoCorrectionScale)
+                : 0f;
+            bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
+            float contextScale = isCombat ? settings.combatRecenterMultiplier : 1f;
+            float strength = preferenceScale * Mathf.Clamp01(contextScale);
+            if (strength <= 0f)
+                return;
+
+            float deltaTime = Mathf.Max(frame.DeltaTime, 0f);
+            float yawBlend = 1f - Mathf.Exp(
+                -deltaTime * strength / Mathf.Max(settings.recenterYawSmoothTime, 0.01f));
+            float pitchBlend = 1f - Mathf.Exp(
+                -deltaTime * strength / Mathf.Max(settings.recenterPitchSmoothTime, 0.01f));
+            float targetYaw = Mathf.Atan2(planarVelocity.x, planarVelocity.z) * Mathf.Rad2Deg;
+            float targetPitch = isCombat ? settings.combatPitch : settings.explorePitch;
+
+            state.CurrentYaw = Mathf.LerpAngle(state.CurrentYaw, targetYaw, yawBlend);
+            state.CurrentPitch = Mathf.LerpAngle(state.CurrentPitch, targetPitch, pitchBlend);
         }
 
         private void ResetAlignment()

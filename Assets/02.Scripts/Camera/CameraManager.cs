@@ -53,7 +53,8 @@ namespace UPlayGround.Manager
         private Camera    _mainCamera;
         private Transform _target;
         private Transform _cameraPivot;
-        private ICameraVelocityProvider _targetMovement;
+        private ICameraMotionProvider _targetMotion;
+        private bool _movementProvidersCached;
 
         private float _currentYaw;
         private float _currentPitch;
@@ -68,12 +69,6 @@ namespace UPlayGround.Manager
         private bool  _isAligning;
         private float _alignTimer;
 
-        private CapsuleCollider  _characterCapsule;
-
-        // 경사 지형 피치 보정
-        private float _slopePitchOffset;
-        private float _slopePitchVelocity;
-
         private Transform _lookAtOverride;
         private Vector3   _lookAtOverrideOffset;
 
@@ -82,7 +77,6 @@ namespace UPlayGround.Manager
         private bool _isCameraInputRegistered;
         private int _lastLockOnToggleFrame = -1;
         private float _lastLockOnToggleTime = -999f;
-        private int _suppressCapsuleClearanceUntilFrame = -1;
         private bool _heldCombatStateForSwap;
         private float _holdCombatStateUntilTime = -999f;
         private bool _isSceneCameraInitialized;
@@ -97,8 +91,6 @@ namespace UPlayGround.Manager
         private const float LOCK_ON_TOGGLE_DEBOUNCE_TIME = 0.08f;
 
         private System.Func<bool> _combatStateProvider;
-        private System.Func<Vector3> _playerVelocityProvider;
-
         private CameraShakeDatabase _cameraShakeDatabase;
         private DialogueCameraSettingsSO _dialogueCameraSettings;
 
@@ -397,60 +389,15 @@ namespace UPlayGround.Manager
 
         #endregion
 
-        #region 전방 카메라 (충돌 회피)
-
-        private void CacheCapsule()
-        {
-            _characterCapsule = _target != null
-                ? _target.GetComponentInChildren<CapsuleCollider>()
-                : null;
-        }
-
         private void CacheMovementController()
         {
-            _targetMovement = _target != null
-                ? _target.GetComponent<ICameraVelocityProvider>()
-                  ?? _target.GetComponentInParent<ICameraVelocityProvider>()
-                  ?? _target.GetComponentInChildren<ICameraVelocityProvider>()
+            _movementProvidersCached = true;
+            _targetMotion = _target != null
+                ? _target.GetComponent<ICameraMotionProvider>()
+                  ?? _target.GetComponentInParent<ICameraMotionProvider>()
+                  ?? _target.GetComponentInChildren<ICameraMotionProvider>()
                 : null;
         }
-
-        #endregion
-
-        #region 경사 보정
-
-        /// <summary>
-        /// 캐릭터 발밑 레이캐스트로 경사각을 구하고, 피치 하한 오프셋을 반환.
-        /// 오르막에서는 카메라가 땅 아래로 잘리지 않도록 하한을 올려주고,
-        /// 내리막에서는 자연스럽게 아래를 보도록 풀어준다.
-        /// </summary>
-        private float ComputeSlopePitchOffset()
-        {
-            if (_target == null || settings.slopePitchCorrectionStrength <= 0f)
-                return 0f;
-
-            // 발밑 레이캐스트 (캐릭터 콜라이더를 제외하려면 Player 레이어는 _collisionLayers에 포함되지 않아야 함)
-            var ray = new Ray(_target.position + Vector3.up * 0.1f, Vector3.down);
-            if (!Physics.Raycast(ray, out RaycastHit hit, settings.slopeCheckDistance, _collisionLayers, QueryTriggerInteraction.Ignore))
-                return 0f;
-
-            // 법선과 Up 벡터의 각도 = 경사각
-            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
-            if (slopeAngle < 1f) return 0f; // 평지는 무시
-
-            // 경사 방향이 카메라 진행방향 기준 오르막/내리막인지 판단
-            // 내리막: 카메라가 앞을 보면 발밑이 내려가는 방향 → 피치 하한을 낮춰야 위를 볼 수 있음
-            // 여기서는 단순히 경사각 비례로 offset을 스무딩해서 반환
-            float targetOffset = -slopeAngle * settings.slopePitchCorrectionStrength;
-
-            _slopePitchOffset = Mathf.SmoothDamp(
-                _slopePitchOffset, targetOffset,
-                ref _slopePitchVelocity, settings.slopeCorrectionSmoothTime);
-
-            return _slopePitchOffset;
-        }
-
-        #endregion
 
         #region 카메라 정렬
 
@@ -458,49 +405,6 @@ namespace UPlayGround.Manager
         {
             _isAligning = true;
             _alignTimer = settings.alignDuration;
-        }
-
-        private void UpdateCameraAlign(bool isCombat)
-        {
-            if (_isInputLocked || !_isAligning || _target == null) return;
-
-            Vector3 fwd        = ResolveTargetForwardXZ();
-            float   targetYaw   = Mathf.Atan2(fwd.x, fwd.z) * Mathf.Rad2Deg;
-            float   targetPitch = isCombat ? settings.combatPitch : settings.explorePitch;
-
-            if (_alignTimer <= Time.deltaTime)
-            {
-                _currentYaw = targetYaw;
-                _currentPitch = targetPitch;
-                _alignTimer = 0f;
-                _isAligning = false;
-            }
-            else
-            {
-                float remainingTime = Mathf.Max(_alignTimer, 0.001f);
-                float yawStep = Mathf.Abs(Mathf.DeltaAngle(_currentYaw, targetYaw)) / remainingTime * Time.deltaTime;
-                float pitchStep = Mathf.Abs(targetPitch - _currentPitch) / remainingTime * Time.deltaTime;
-
-                _currentYaw = Mathf.MoveTowardsAngle(_currentYaw, targetYaw, yawStep);
-                _currentPitch = Mathf.MoveTowards(_currentPitch, targetPitch, pitchStep);
-                _alignTimer -= Time.deltaTime;
-            }
-
-            float alignDynamicMin = settings.minVerticalAngle + ComputeSlopePitchOffset();
-            _currentPitch = Mathf.Clamp(_currentPitch, alignDynamicMin, settings.maxVerticalAngle);
-        }
-
-        private Vector3 ResolveTargetForwardXZ()
-        {
-            if (_target != null)
-            {
-                Vector3 targetForward = _target.forward;
-                targetForward.y = 0f;
-                if (targetForward.sqrMagnitude > 0.001f)
-                    return targetForward.normalized;
-            }
-
-            return Vector3.forward;
         }
 
         #endregion
@@ -513,7 +417,6 @@ namespace UPlayGround.Manager
             if (player != null)
             {
                 _target = player.transform;
-                CacheCapsule();
                 CacheMovementController();
             }
 
@@ -645,10 +548,10 @@ namespace UPlayGround.Manager
             float initialFOV = previousDistanceCtrl?.BaseFOV ?? settings.fovExplore;
 
             _lockOn = new CameraLockOn(settings, _target, _mainCamera, _lockOnLayerMask, _collisionLayers);
-            _lockOn.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
+            _lockOn.SetPlayerVelocityProvider(GetPlayerVelocity);
             _collision = new CameraCollision(settings, _target, _collisionLayers, initialDistance);
             _distanceCtrl = new CameraDistanceController(settings, _target, _lockOnLayerMask, initialFOV);
-            _distanceCtrl.SetPlayerVelocityProvider(_playerVelocityProvider ?? GetPlayerVelocity);
+            _distanceCtrl.SetPlayerVelocityProvider(GetPlayerVelocity);
 
             if (preserveLockOnTarget && previousLockOnTarget != null && !_lockOn.TryRestoreTarget(previousLockOnTarget))
                 previousLockOn?.Release();
@@ -669,20 +572,18 @@ namespace UPlayGround.Manager
             _cameraContext.DistanceController = _distanceCtrl;
             _cameraContext.RotationTransition = _rotTransition;
             _cameraContext.CombatStateProvider = ResolveCombatState;
-            _cameraContext.PlayerVelocityProvider = _playerVelocityProvider ?? GetPlayerVelocity;
-            _cameraContext.ComputeSlopePitchOffset = ComputeSlopePitchOffset;
+            _cameraContext.Motion = GetCameraMotionContext();
+            _cameraContext.LastManualInputTime = _lastManualCameraInputTime;
             _cameraContext.StartCameraAlign = StartCameraAlign;
             _cameraContext.NotifyManualCameraInput = NotifyManualCameraInput;
             _cameraContext.PopCameraMode = PopCameraMode;
             _cameraContext.LookAtOverride = _lookAtOverride;
             _cameraContext.LookAtOverrideOffset = _lookAtOverrideOffset;
             _cameraContext.CollisionLayers = _collisionLayers;
-            _cameraContext.CharacterCapsule = _characterCapsule;
             _cameraContext.IsInputLocked = _isInputLocked;
             _cameraContext.IsAligning = _isAligning;
             _cameraContext.AlignTimer = _alignTimer;
             _cameraContext.HasActiveEffects = _effectManager?.HasActiveEffects ?? false;
-            _cameraContext.SuppressCapsuleClearanceUntilFrame = _suppressCapsuleClearanceUntilFrame;
         }
 
         private void SyncRigStateFromFields()
@@ -720,12 +621,19 @@ namespace UPlayGround.Manager
 
         private Vector3 GetPlayerVelocity()
         {
-            if (_target == null) return Vector3.zero;
+            CameraMotionContext motion = GetCameraMotionContext();
+            return motion.IsAvailable ? motion.Velocity : Vector3.zero;
+        }
 
-            if (_targetMovement == null)
+        private CameraMotionContext GetCameraMotionContext()
+        {
+            if (!_movementProvidersCached)
                 CacheMovementController();
 
-            return _targetMovement?.CameraVelocity ?? Vector3.zero;
+            return _targetMotion != null &&
+                   _targetMotion.TryGetCameraMotionContext(out CameraMotionContext motion)
+                ? motion
+                : CameraMotionContext.Unavailable;
         }
 
         private bool ResolveCombatState()
@@ -847,12 +755,11 @@ namespace UPlayGround.Manager
         {
             if (_target == newTarget && newTarget != null)
             {
-                RefreshTargetCollisionReference();
+                RefreshTargetReferences();
                 return;
             }
 
             _target = newTarget;
-            CacheCapsule();
             CacheMovementController();
             RebuildTargetSubsystems(preserveLockOnTarget: true);
             SyncCameraContext();
@@ -872,16 +779,11 @@ namespace UPlayGround.Manager
         }
 
         /// <summary>
-        /// 플레이어 루트는 유지한 채 활성 모델/콜라이더만 바뀐 경우 카메라 충돌 참조를 갱신한다.
-        /// 캐릭터 스왑 순간의 캡슐 클리어런스 재계산이 카메라를 전방/근거리로 당기는 것을 짧게 억제한다.
+        /// 플레이어 루트는 유지한 채 활성 모델이 바뀐 경우 이동 정보 제공자를 다시 찾는다.
         /// </summary>
-        public void RefreshTargetCollisionReference(int suppressCapsuleClearanceFrames = 2)
+        public void RefreshTargetReferences()
         {
-            CacheCapsule();
             CacheMovementController();
-            _suppressCapsuleClearanceUntilFrame = Mathf.Max(
-                _suppressCapsuleClearanceUntilFrame,
-                Time.frameCount + Mathf.Max(0, suppressCapsuleClearanceFrames));
             SyncCameraContext();
         }
 
@@ -1227,7 +1129,7 @@ namespace UPlayGround.Manager
         {
             _rotTransition.Cancel();
             _currentYaw   = yaw;
-            _currentPitch = Mathf.Clamp(pitch, settings.minVerticalAngle, settings.maxVerticalAngle);
+            _currentPitch = pitch;
         }
 
         public void SetRotationSmooth(float yaw, float pitch, float duration, bool unlockOnComplete = false) =>
@@ -1242,7 +1144,7 @@ namespace UPlayGround.Manager
                 return;
             }
             _rotTransition.Start(_currentYaw, _currentPitch, yaw, pitch, duration,
-                settings.minVerticalAngle, settings.maxVerticalAngle, curve, unlockOnComplete);
+                curve, unlockOnComplete);
         }
 
         public void SetCameraOffset(Vector3 offset)            => _cameraOffset  = offset;
@@ -1252,14 +1154,6 @@ namespace UPlayGround.Manager
         public void SetCombatStateProvider(System.Func<bool> p)
         {
             _combatStateProvider = p;
-            SyncCameraContext();
-        }
-
-        public void SetPlayerVelocityProvider(System.Func<Vector3> provider)
-        {
-            _playerVelocityProvider = provider;
-            _distanceCtrl?.SetPlayerVelocityProvider(provider ?? GetPlayerVelocity);
-            _lockOn?.SetPlayerVelocityProvider(provider ?? GetPlayerVelocity);
             SyncCameraContext();
         }
 
@@ -1371,11 +1265,9 @@ namespace UPlayGround.Manager
             settings.crowdDetectRadius    = detectRadius;
             settings.crowdEnemyThreshold  = threshold;
         }
-        public void SetLockOnHeightDampSettings(float dampFactor, float pitchMin, float pitchMax, float pitchSpeed)
+        public void SetLockOnHeightDampSettings(float dampFactor, float pitchSpeed)
         {
             settings.lockOnHeightDampFactor = Mathf.Clamp01(dampFactor);
-            settings.lockOnPitchMin         = pitchMin;
-            settings.lockOnPitchMax         = pitchMax;
             settings.lockOnPitchSpeed       = pitchSpeed;
         }
 

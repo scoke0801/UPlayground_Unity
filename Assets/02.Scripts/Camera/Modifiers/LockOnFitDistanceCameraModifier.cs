@@ -4,11 +4,12 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (670) 락온 대상이 상단·공중에 있어 피치 클램프(lockOnPitchMin)만으로는 화면에 담기지 않을 때,
-    /// 카메라 거리를 늘려 플레이어 피벗과 대상이 모두 프러스텀 안에 들어오게 한다.
+    /// (670) 플레이어 기준 피벗은 유지하고, 락온 대상이 현재 거리로 화면에 담기지 않을 때만
+    /// 카메라 거리를 늘려 플레이어와 대상을 모두 프러스텀 안에 넣는다.
     ///
     /// - 거리만 조정한다(FOV/피치/회전 불변). 필요 시 일반 maxDistance를 넘어 lockOnFitMaxDistance까지.
-    /// - "필요할 때만 키우는" max(기본거리, 요구거리) 방식이라 수평/하단 대상에는 무영향.
+    /// - "필요할 때만 키우는" max(기본거리, 요구거리) 방식이라 카메라를 앞으로 당기지 않는다.
+    /// - 대상 포커스는 항상 검사하고, 실제 상단은 의미 있는 고저차가 있을 때만 검사해 미세 진동을 줄인다.
     /// - 거리 상한은 frame.DistanceCeiling으로 Follow(700)/Collision(800)의 클램프에 전달한다.
     ///
     /// 요구 거리는 현재 yaw/pitch가 고정된 한 프레임에서 닫힌 식으로 계산한다.
@@ -22,6 +23,7 @@ namespace UPlayGround.CameraSystem
         private bool _active;
         private float _fitDistance;
         private float _fitVelocity;
+        private float _baseDistance;
 
         public int Priority => 670;
 
@@ -45,30 +47,50 @@ namespace UPlayGround.CameraSystem
 
             if (!canFit)
             {
-                // 비활성 전환: 인플레이트된 거리를 maxDistance까지 부드럽게 되돌린 뒤 소유권을 놓는다.
-                // (락온 해제 시 비-락온 거리 로직은 유저 줌을 존중해 -1을 반환하므로 여기서 정리하지 않으면 멀어진 채 남는다.)
+                // 비활성 전환: 프레이밍 적용 전 기준 거리로 복귀한다.
+                // 락온 해제 시 일반 거리 로직은 유저 줌을 존중해 -1을 반환할 수 있으므로,
+                // 여기서 마지막 인플레이트 거리를 남기지 않도록 정리한다.
                 if (!_active)
                     return;
 
-                _fitDistance = Mathf.SmoothDamp(_fitDistance, settings.maxDistance, ref _fitVelocity, smoothTime, Mathf.Infinity, dt);
-                if (_fitDistance <= settings.maxDistance + 0.01f)
-                {
-                    _active = false;
-                    return;
-                }
-
+                float restoreDistance = Mathf.Clamp(_baseDistance, settings.minDistance, settings.maxDistance);
+                _fitDistance = Mathf.SmoothDamp(
+                    _fitDistance,
+                    restoreDistance,
+                    ref _fitVelocity,
+                    smoothTime,
+                    Mathf.Infinity,
+                    dt);
                 state.TargetDistance = _fitDistance;
                 frame.DistanceCeiling = Mathf.Max(frame.DistanceCeiling, _fitDistance);
+
+                if (Mathf.Abs(_fitDistance - restoreDistance) <= 0.01f)
+                {
+                    state.TargetDistance = restoreDistance;
+                    _active = false;
+                    _fitVelocity = 0f;
+                }
                 return;
             }
 
-            Vector3 pivot = context.Target.position + state.CameraOffset;
+            // Follow(700)에서 적용될 쌍 프레이밍 피벗을 같은 기준으로 사용한다.
+            Vector3 playerFocus = context.Target.position + state.CameraOffset;
+            Vector3 pivot = playerFocus + context.LockOn.CurrentPivotOffset;
             float baseDistance = state.TargetDistance;
+            _baseDistance = baseDistance;
 
-            // 대상 상단이 피벗보다 충분히 높을 때만 피팅을 시작한다(미세 진동 방지).
-            float requiredDistance = 0f;
-            if (top.y - pivot.y >= settings.lockOnFitMinHeightDiff)
-                requiredDistance = ComputeRequiredDistance(context.MainCamera, settings, state, pivot, focus, top);
+            // 피벗 이동 사용 여부와 무관하게 플레이어/대상 포커스는 항상 검사한다.
+            // 대상 상단은 충분한 고저차가 있을 때만 포함해 일반 지상 대상의 콜라이더 흔들림을 피한다.
+            bool includeTop = top.y - pivot.y >= settings.lockOnFitMinHeightDiff;
+            float requiredDistance = ComputeRequiredDistance(
+                context.MainCamera,
+                settings,
+                state,
+                pivot,
+                playerFocus,
+                focus,
+                top,
+                includeTop);
 
             float cap = Mathf.Max(baseDistance, settings.lockOnFitMaxDistance);
             float target = Mathf.Clamp(Mathf.Max(baseDistance, requiredDistance), settings.minDistance, cap);
@@ -93,8 +115,10 @@ namespace UPlayGround.CameraSystem
             CameraSettings settings,
             CameraState state,
             Vector3 pivot,
+            Vector3 playerFocus,
             Vector3 focus,
-            Vector3 top)
+            Vector3 top,
+            bool includeTop)
         {
             Quaternion rot = Quaternion.Euler(state.CurrentPitch, state.CurrentYaw, 0f);
             Vector3 fwd = rot * Vector3.forward;
@@ -107,8 +131,10 @@ namespace UPlayGround.CameraSystem
             float hHalf = Mathf.Atan(Mathf.Tan(vHalf) * Mathf.Max(0.0001f, cam.aspect));
             float tanH = Mathf.Max(0.0001f, Mathf.Tan(hHalf * safe));
 
-            float required = RequiredFor(focus - pivot, fwd, up, right, tanV, tanH);
-            required = Mathf.Max(required, RequiredFor(top - pivot, fwd, up, right, tanV, tanH));
+            float required = RequiredFor(playerFocus - pivot, fwd, up, right, tanV, tanH);
+            required = Mathf.Max(required, RequiredFor(focus - pivot, fwd, up, right, tanV, tanH));
+            if (includeTop)
+                required = Mathf.Max(required, RequiredFor(top - pivot, fwd, up, right, tanV, tanH));
             return required;
         }
 

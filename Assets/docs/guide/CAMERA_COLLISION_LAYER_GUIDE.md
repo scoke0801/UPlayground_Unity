@@ -52,9 +52,8 @@ public static readonly string[] CollisionIncludeLayer = new string[]
 
 | 파일 | 쿼리 |
 |------|------|
-| `Camera/CameraCollision.cs` | 충돌 SphereCast, 멀티프로브 Linecast, FloorRescue Raycast x2 |
-| `Camera/Modifiers/CollisionCameraModifier.cs` | SafeBack SphereCast, 지면 관통 방지 Raycast |
-| `Manager/CameraManager.cs` | 경사 피치 보정 Raycast |
+| `Camera/CameraCollision.cs` | 스프링암 SphereCast, 최종 겹침 OverlapSphere |
+| `Camera/Modifiers/OffsetCameraModifier.cs` | 진행방향 지형 LookAhead Raycast x2 |
 | `Camera/CameraLockOn.cs` | 시야(LoS) SphereCast/Raycast (기존부터 적용됨) |
 
 카메라 관련 코드에 물리 쿼리를 새로 추가할 때도 반드시 `QueryTriggerInteraction.Ignore`를 붙인다.
@@ -95,11 +94,10 @@ CameraManager.Init()                          ← _collisionLayers 캐싱
 CameraContext.CollisionLayers                 ← Modifier 파이프라인에 전달
         ↓
 CollisionCameraModifier (Priority 800)
-    ├── CameraCollision.Evaluate()            ← 멀티프로브 차폐 감지 + 거리 스무딩
-    ├── ResolveSafeBackPosition()             ← 클리핑 방지 백스톱 SphereCast
-    ├── ResolveGroundPenetration()            ← 지면 관통 방지
-    ├── CameraCollision.ApplyFloorRescue()    ← 낭떠러지 바닥 구조
-    └── ResolveCharacterCapsuleExclusion()    ← 플레이어 캡슐 내부 진입 방지
+    └── CameraCollision.Evaluate()
+        ├── SphereCastNonAlloc                 ← 피벗→희망 위치의 가장 가까운 차폐 거리
+        ├── OverlapSphereNonAlloc              ← 시작 겹침/최종 위치 겹침 백스톱
+        └── 스프링암 길이 축소·복귀 스무딩
 ```
 
 ---
@@ -108,5 +106,6 @@ CollisionCameraModifier (Priority 800)
 
 - **NPC는 루트 캡슐만 Npc 레이어면 충분하지 않다** — 자식에 콜라이더를 추가할 경우 그 자식의 레이어도 확인할 것. 씬 NPC들의 `HitBox` 자식은 Npc 레이어(12)를 사용한다 (`NPC_Default.prefab` 포함).
 - **Water 레이어는 현재 카메라를 막지 않는다** — 수면에서 카메라가 물속으로 들어가는 것이 문제가 되면 `CollisionIncludeLayer`에 `"Water"`를 추가해 대응한다.
-- **FloorRescue 전용 마스크** — `CameraSettings.floorRescueLayerMask`가 0이면 충돌 마스크를 그대로 쓴다. 지면 판정을 별도 레이어로 제한하고 싶을 때만 설정한다.
+- 바닥도 벽과 같은 스프링암 충돌로 처리한다. 별도 FloorRescue나 월드 Y 리프트는 사용하지 않는다.
+- 플레이어가 카메라에 가까워질 때의 표현은 충돌이 아니라 `ActorCameraProximityDither`가 담당한다.
 - 화이트리스트 전환으로 TransparentFX·UI·HitBox·CharacterPreview 등 기타 레이어도 더 이상 카메라를 막지 않는다. 의도된 동작이다.

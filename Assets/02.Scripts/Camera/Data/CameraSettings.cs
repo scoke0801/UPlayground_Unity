@@ -29,15 +29,16 @@ namespace UPlayGround.Data
 
         [Header("거리")]
         public float defaultDistance = 5.1f;
-        public float combatDistance = 5.7f;
         public float minDistance = 3f;
         public float maxDistance = 8.5f;
 
         [Header("회전")]
         [Tooltip("마우스 delta(프레임당 픽셀 누적값) 기준 회전 스칼라. 게임패드에는 적용되지 않는다.")]
         public float rotationSpeed = 20f;
-        public float minVerticalAngle = -30f;   // 음수 = 위쪽, 양수 = 아래쪽
-        public float maxVerticalAngle = 70f;
+        [Tooltip("비락온 수동 카메라의 위쪽 극점 제한입니다. -90도에 닿지 않게 두어 극점 통과와 피치 순환을 막습니다.")]
+        public float minVerticalAngle = -89f;
+        [Tooltip("비락온 수동 카메라의 아래쪽 극점 제한입니다. 90도에 닿지 않게 두어 극점 통과와 피치 순환을 막습니다.")]
+        public float maxVerticalAngle = 89f;
 
         [Header("게임패드 룩 (각속도 °/s)")]
         [Tooltip("게임패드 우측 스틱 풀 입력 시 좌우 회전 속도(초당 도). 스틱은 정규화 축이라 마우스(rotationSpeed)와 별개의 각속도로 적분한다.")]
@@ -45,51 +46,27 @@ namespace UPlayGround.Data
         [Tooltip("게임패드 우측 스틱 풀 입력 시 상하 회전 속도(초당 도). 보통 yaw보다 약간 낮게 둔다.")]
         public float gamepadPitchSpeed = 140f;
 
-        [Header("경사 보정")]
-        [Tooltip("경사면 감지 레이캐스트 거리")]
-        public float slopeCheckDistance = 1.5f;
-        [Tooltip("경사에 따라 피치 하한을 얼마나 끌어올릴지 (0 = 보정 없음, 1 = 완전 추종)")]
-        [Range(0f, 1f)]
-        public float slopePitchCorrectionStrength = 0.5f;
-        [Tooltip("경사 보정 스무딩 속도")]
-        public float slopeCorrectionSmoothTime = 0.3f;
-
         [Header("줌")]
         public float zoomSpeed = 0.5f;
 
         [Header("스무딩")]
         public float positionSmoothTime = 0.1f;
+        [Tooltip("락온·명시적 정렬·연출 회전의 추가 스무딩 시간입니다. 비락온 자유 궤도 입력에는 적용하지 않습니다.")]
         public float rotationSmoothTime = 0.1f;
 
         [Header("=== 충돌 ===")]
         public float collisionOffset = 0.15f;
         public float cameraRadius = 0.25f;
-        [Tooltip("장애물이 새로 들어왔을 때 카메라 거리가 줄어드는 스무딩 시간. 0이면 즉시 당긴다.")]
-        public float collisionOccludedSmoothTime = 0.035f;
         [Tooltip("장애물이 사라졌을 때 원래 거리로 복귀하는 스무딩 시간.")]
         public float collisionReturnSpeed = 0.38f;
-        [Tooltip("이 시간보다 짧게 스친 충돌은 무시해 얇은 모서리에서 카메라가 튀는 것을 줄인다.")]
-        public float collisionMinimumOcclusionTime = 0.025f;
         [Tooltip("충돌 중 더 가까운 거리로 당겨진 뒤, 바로 다시 멀어지지 않고 유지하는 시간.")]
         public float collisionSmoothingHoldTime = 0.08f;
-        [Tooltip("충돌 해제 판정에 사용하는 거리 여유값.")]
-        public float collisionReleaseHysteresis = 0.22f;
         [Tooltip("충돌 중 프로브 거리가 이 값보다 작게 흔들리면 같은 거리로 간주한다(m). 메시 모서리의 미세 당겨짐을 줄인다.")]
         [Min(0f)]
         public float collisionDistanceDeadZone = 0.04f;
         [Tooltip("충돌 보정 거리가 한 프레임에 변할 수 있는 최대 속도. 0 이하면 제한하지 않는다.")]
         public float collisionMaxDistanceChangeSpeed = 18f;
-        [Tooltip("플레이어 캡슐 때문에 전방 카메라로 전환될 때의 블렌드 스무딩 시간.")]
-        public float frontCameraBlendInSmoothTime = 0.08f;
-        [Tooltip("전방 카메라에서 후방 카메라로 복귀할 때의 블렌드 스무딩 시간.")]
-        public float frontCameraBlendOutSmoothTime = 0.25f;
-
-        [Header("=== 충돌 검사 (MultiProbe) ===")]
-        public bool useMultiProbe = true;
-        public int collisionProbeCount = 6;
         public float collisionSkinWidth = 0.08f;
-        [Range(0f, 1f)]
-        public float minNormalAlignment = 0.5f;
 
         [Header("=== FOV ===")]
         public float fovExplore = 52f;
@@ -111,23 +88,76 @@ namespace UPlayGround.Data
         [Range(0f, 1f)]
         public float lockOnLookAheadMultiplier = 0.05f;
 
-        [Header("=== Floor Rescue (바닥 보정) ===")]
-        public bool enableFloorRescue = true;
-        public float floorRescueDropThreshold = 1f;
-        public float groundClearance = 0.3f;
-        [Tooltip("이 값 이상의 위쪽 법선을 가진 표면을 지면으로 취급한다. 낮추면 급경사도 지면 충돌에 포함한다.")]
+        [Header("=== 탐색 구도 ===")]
+        public bool enableTraversalComposition = true;
+        [Tooltip("전투 중 진행방향 LookAhead의 배율. 락온 중에는 lockOnLookAheadMultiplier가 우선한다.")]
         [Range(0f, 1f)]
-        public float groundCollisionMinNormalY = 0.45f;
-        [Tooltip("지면 보조 리프트가 해제될 때 원래 궤도로 복귀하는 스무딩 시간.")]
+        public float combatLookAheadMultiplier = 0.35f;
+        [Tooltip("접지 이동 중 전방 지형을 읽는 최대 거리(m).")]
         [Min(0f)]
-        public float floorRescueReturnSmoothTime = 0.14f;
-        public LayerMask floorRescueLayerMask;
+        public float groundLookAheadDistance = 2.5f;
+        [Tooltip("전방 지형 높이차를 피벗 Y에 반영하는 비율.")]
+        [Range(0f, 1f)]
+        public float groundLookAheadStrength = 0.55f;
+        [Tooltip("전방 지형으로 인한 피벗 높이 보정의 절댓값 상한(m).")]
+        [Min(0f)]
+        public float groundLookAheadMaxHeight = 1.1f;
+        [Tooltip("전방 지형 탐색 레이의 시작 높이(m).")]
+        [Min(0f)]
+        public float groundProbeHeight = 2f;
+        [Tooltip("전방 지형 탐색 레이가 시작점 아래로 검사하는 추가 깊이(m).")]
+        [Min(0f)]
+        public float groundProbeDepth = 4f;
+        [Tooltip("상승 중 피벗이 위쪽을 미리 보는 최대 거리(m).")]
+        [Min(0f)]
+        public float airborneRiseLookAhead = 0.45f;
+        [Tooltip("낙하 중 피벗이 착지 방향을 미리 보는 최대 거리(m).")]
+        [Min(0f)]
+        public float airborneFallLookAhead = 1.1f;
+        [Tooltip("공중 구도 보정이 시작되는 수직 속도(m/s).")]
+        [Min(0f)]
+        public float airborneEffectStartSpeed = 2f;
+        [Tooltip("공중 구도 보정이 최대가 되는 수직 속도(m/s).")]
+        [Min(0.01f)]
+        public float airborneSpeedForMax = 12f;
+        [Tooltip("캐릭터 높이 변화가 이 범위 안이면 피벗 Y를 유지한다(m).")]
+        [Min(0f)]
+        public float verticalTrackingDeadZone = 0.18f;
+        [Min(0.01f)] public float groundedVerticalSmoothTime = 0.10f;
+        [Min(0.01f)] public float airborneRiseVerticalSmoothTime = 0.18f;
+        [Min(0.01f)] public float airborneFallVerticalSmoothTime = 0.28f;
+        [Tooltip("공중/낙하 중 추가되는 최대 카메라 거리(m).")]
+        [Min(0f)]
+        public float airborneDistanceMaxAdd = 1.2f;
+        [Tooltip("공중/낙하 중 추가되는 최대 FOV.")]
+        [Min(0f)]
+        public float airborneFOVMaxAdd = 4f;
+        [Min(0.01f)] public float airborneDistanceSmoothTime = 0.28f;
+        [Min(0.01f)] public float airborneFOVSmoothTime = 0.25f;
 
         [Header("=== 카메라 정렬 ===")]
-        public float alignSpeed = 2.2f;
         public float alignDuration = 0.35f;
         public float explorePitch = 25f;
         public float combatPitch = 25f;
+
+        [Header("=== 이동 자동 리센터링 ===")]
+        [Tooltip("수동 Look 입력이 끝난 뒤 이동 방향으로 카메라를 자동 정렬합니다. 수동 궤도 조작을 우선하려면 끕니다.")]
+        public bool enableAutoRecentering = false;
+        [Tooltip("마지막 수동 카메라 입력 후 자동 리센터링을 시작하기까지의 시간(초).")]
+        [Min(0f)]
+        public float recenterInputDelay = 1.1f;
+        [Tooltip("자동 리센터링을 허용하는 최소 평면 이동 속도(m/s).")]
+        [Min(0f)]
+        public float recenterMinPlanarSpeed = 1f;
+        [Tooltip("이동 방향으로 yaw가 수렴하는 시간. 클수록 플레이어 조작을 덜 방해한다.")]
+        [Min(0.01f)]
+        public float recenterYawSmoothTime = 0.75f;
+        [Tooltip("탐색/전투 기본 pitch로 수렴하는 시간.")]
+        [Min(0.01f)]
+        public float recenterPitchSmoothTime = 1.35f;
+        [Tooltip("전투 중 자동 리센터링 강도 배율.")]
+        [Range(0f, 1f)]
+        public float combatRecenterMultiplier = 0.45f;
 
         [Header("=== 락온 ===")]
         public float lockOnRange = 16f;
@@ -167,17 +197,16 @@ namespace UPlayGround.Data
         [Tooltip("락온 가시성 SphereCast 반지름. 0이면 Raycast로 검사한다.")]
         public float lockOnLineOfSightRadius = 0.12f;
 
-        [Header("=== 락온 쌍 프레이밍 ===")]
+        [Header("=== 락온 피벗 구도 ===")]
+        [Tooltip("플레이어와 대상을 함께 담기 위해 카메라 피벗을 대상 쪽으로 이동합니다. 락온 시 카메라 전진을 피하려면 비활성화합니다.")]
         public bool enableLockOnPairFraming = false;
         [Range(0f, 1f)]
-        public float lockOnPairFocusRatio = 0.05f;
-        public float lockOnMaxFocusOffsetFromPlayer = 0.5f;
-        public float lockOnPairFocusSmoothTime = 0.3f;
+        public float lockOnPairFocusRatio = 0.35f;
+        public float lockOnMaxFocusOffsetFromPlayer = 1.5f;
+        public float lockOnPairFocusSmoothTime = 0.25f;
 
         [Header("락온 고저차 감쇠")]
         public float lockOnHeightDampFactor = 0.42f;
-        public float lockOnPitchMin = 15f;
-        public float lockOnPitchMax = 80f;
         public float lockOnPitchSpeed = 8f;
 
         [Header("락온 오비탈 각도 오프셋")]
@@ -198,8 +227,8 @@ namespace UPlayGround.Data
         [Tooltip("오비탈 오프셋 수렴 스무딩 시간")]
         public float lockOnOrbitSmoothTime = 0.15f;
 
-        [Header("=== 락온 거리 피팅(상단·공중 대상) ===")]
-        [Tooltip("상단/공중 대상이 피치 클램프만으로 화면에 안 담길 때, 카메라 거리를 늘려 플레이어와 대상을 모두 프레임에 담는다.")]
+        [Header("=== 락온 거리 피팅(플레이어·대상) ===")]
+        [Tooltip("플레이어 기준 피벗은 유지하고, 두 대상이 안전 영역에 다 담기지 않을 때만 카메라 거리를 늘립니다. 카메라를 앞으로 당기지는 않습니다.")]
         public bool enableLockOnFitDistance = true;
         [Tooltip("프레이밍 안전 영역 비율(0.3~1). 1=프러스텀 가장자리, 0.8=80% 안쪽에 대상을 가둔다.")]
         [Range(0.3f, 1f)]
@@ -208,7 +237,7 @@ namespace UPlayGround.Data
         public float lockOnFitMaxDistance = 13f;
         [Tooltip("대상 콜라이더 월드 상단에 더할 머리 위 여백(m).")]
         public float lockOnFitTopPadding = 0.4f;
-        [Tooltip("이 높이차(대상 상단 - 피벗) 이상일 때만 거리 피팅을 시작한다(m). 미세 진동 방지용.")]
+        [Tooltip("대상 포커스는 항상 거리 피팅에 사용합니다. 대상 상단은 이 높이차(대상 상단 - 피벗) 이상일 때만 추가로 검사합니다(m).")]
         public float lockOnFitMinHeightDiff = 1.0f;
         [Tooltip("거리 피팅 수렴 스무딩 시간.")]
         public float lockOnFitSmoothTime = 0.35f;

@@ -17,8 +17,6 @@ namespace UPlayGround.CameraSystem
 
             context.RotationTransition.Update(
                 frame.DeltaTime,
-                context.Settings.minVerticalAngle,
-                context.Settings.maxVerticalAngle,
                 ref frame.State.CurrentYaw,
                 ref frame.State.CurrentPitch);
 

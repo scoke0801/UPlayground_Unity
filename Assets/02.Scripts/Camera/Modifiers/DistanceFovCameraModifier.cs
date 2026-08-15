@@ -19,8 +19,12 @@ namespace UPlayGround.CameraSystem
             bool isLockOn = context.LockOn?.IsActive ?? false;
             bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
 
-            context.DistanceController.UpdateFOV(isLockOn, isCombat);
-            float dist = context.DistanceController.EvaluateDistance(isLockOn, isCombat, state.TargetDistance);
+            context.DistanceController.UpdateFOV(isLockOn, isCombat, context.Motion);
+            float dist = context.DistanceController.EvaluateDistance(
+                isLockOn,
+                isCombat,
+                state.TargetDistance,
+                context.Motion);
             if (dist >= 0f)
                 state.TargetDistance = dist;
         }

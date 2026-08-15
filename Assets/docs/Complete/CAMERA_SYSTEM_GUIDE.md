@@ -165,7 +165,7 @@ Assets/02.Scripts/Data/Path/
 | `SetFOVSettings(explore, combat, lockOn)` | 모드별 FOV |
 | `SetLockOnDistance(float)` | 락온 거리 |
 | `SetCrowdZoomSettings(zoomOutDist, detectRadius, threshold)` | 다수 적 줌아웃 |
-| `SetLockOnHeightDampSettings(damp, pitchMin, pitchMax, pitchSpeed)` | 락온 Y 댐핑 |
+| `SetLockOnHeightDampSettings(damp, pitchSpeed)` | 락온 고저차 감쇠와 추종 속도 |
 
 ### CameraSettings (SO)
 

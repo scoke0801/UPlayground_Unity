@@ -17,35 +17,23 @@ MonoBehaviour:
   combatOffset: {x: 0.15, y: 1.1, z: 0}
   offsetSmoothTime: 0.3
   defaultDistance: 5.1
-  combatDistance: 5.7
   minDistance: 3
   maxDistance: 8.5
   rotationSpeed: 20
-  minVerticalAngle: 0
-  maxVerticalAngle: 50
+  minVerticalAngle: -89
+  maxVerticalAngle: 89
   gamepadYawSpeed: 220
   gamepadPitchSpeed: 140
-  slopeCheckDistance: 1.5
-  slopePitchCorrectionStrength: 0.5
-  slopeCorrectionSmoothTime: 0.3
   zoomSpeed: 0.5
   positionSmoothTime: 0.1
   rotationSmoothTime: 0.1
   collisionOffset: 0.15
   cameraRadius: 0.25
-  collisionOccludedSmoothTime: 0.035
   collisionReturnSpeed: 0.38
-  collisionMinimumOcclusionTime: 0.025
   collisionSmoothingHoldTime: 0.08
-  collisionReleaseHysteresis: 0.22
   collisionDistanceDeadZone: 0.04
   collisionMaxDistanceChangeSpeed: 18
-  frontCameraBlendInSmoothTime: 0.08
-  frontCameraBlendOutSmoothTime: 0.25
-  useMultiProbe: 1
-  collisionProbeCount: 6
   collisionSkinWidth: 0.08
-  minNormalAlignment: 0.5
   fovExplore: 52
   fovCombat: 58
   fovLockOn: 58
@@ -59,18 +47,34 @@ MonoBehaviour:
   lookAheadSpeedRef: 5
   lookAheadSmoothTime: 0.25
   lockOnLookAheadMultiplier: 0.05
-  enableFloorRescue: 1
-  floorRescueDropThreshold: 1
-  groundClearance: 0.3
-  groundCollisionMinNormalY: 0.45
-  floorRescueReturnSmoothTime: 0.14
-  floorRescueLayerMask:
-    serializedVersion: 2
-    m_Bits: 0
-  alignSpeed: 2.2
+  enableTraversalComposition: 1
+  combatLookAheadMultiplier: 0.35
+  groundLookAheadDistance: 2.5
+  groundLookAheadStrength: 0.55
+  groundLookAheadMaxHeight: 1.1
+  groundProbeHeight: 2
+  groundProbeDepth: 4
+  airborneRiseLookAhead: 0.45
+  airborneFallLookAhead: 1.1
+  airborneEffectStartSpeed: 2
+  airborneSpeedForMax: 12
+  verticalTrackingDeadZone: 0.18
+  groundedVerticalSmoothTime: 0.1
+  airborneRiseVerticalSmoothTime: 0.18
+  airborneFallVerticalSmoothTime: 0.28
+  airborneDistanceMaxAdd: 1.2
+  airborneFOVMaxAdd: 4
+  airborneDistanceSmoothTime: 0.28
+  airborneFOVSmoothTime: 0.25
   alignDuration: 0.35
   explorePitch: 25
   combatPitch: 25
+  enableAutoRecentering: 0
+  recenterInputDelay: 1.1
+  recenterMinPlanarSpeed: 1
+  recenterYawSmoothTime: 0.75
+  recenterPitchSmoothTime: 1.35
+  combatRecenterMultiplier: 0.45
   lockOnRange: 16
   lockOnReleaseRange: 20
   lockOnLostGraceTime: 0.35
@@ -87,12 +91,10 @@ MonoBehaviour:
   lockOnRequireLineOfSight: 1
   lockOnLineOfSightRadius: 0.12
   enableLockOnPairFraming: 0
-  lockOnPairFocusRatio: 0.05
-  lockOnMaxFocusOffsetFromPlayer: 0.5
-  lockOnPairFocusSmoothTime: 0.3
+  lockOnPairFocusRatio: 0.35
+  lockOnMaxFocusOffsetFromPlayer: 1.5
+  lockOnPairFocusSmoothTime: 0.25
   lockOnHeightDampFactor: 0.42
-  lockOnPitchMin: 15
-  lockOnPitchMax: 80
   lockOnPitchSpeed: 8
   lockOnOffsetAngleByDistance:
     serializedVersion: 2

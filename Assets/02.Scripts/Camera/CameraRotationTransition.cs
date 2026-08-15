@@ -17,7 +17,7 @@ namespace UPlayGround.CameraSystem
         private AnimationCurve _curve;
 
         public void Start(float fromYaw, float fromPitch, float toYaw, float toPitch,
-                          float duration, float minPitch, float maxPitch,
+                          float duration,
                           AnimationCurve curve = null, bool unlockOnComplete = false)
         {
             if (duration <= 0f)
@@ -29,7 +29,7 @@ namespace UPlayGround.CameraSystem
             _startYaw = fromYaw;
             _startPitch = fromPitch;
             _targetYaw = toYaw;
-            _targetPitch = Mathf.Clamp(toPitch, minPitch, maxPitch);
+            _targetPitch = toPitch;
             _elapsed = 0f;
             _duration = duration;
             _curve = curve;
@@ -47,8 +47,7 @@ namespace UPlayGround.CameraSystem
         /// 매 프레임 호출. 보간된 Yaw/Pitch를 out으로 반환.
         /// 전환 완료 시 IsActive = false가 된다.
         /// </summary>
-        public void Update(float deltaTime, float minPitch, float maxPitch,
-                           ref float yaw, ref float pitch)
+        public void Update(float deltaTime, ref float yaw, ref float pitch)
         {
             if (!IsActive) return;
 
@@ -60,7 +59,7 @@ namespace UPlayGround.CameraSystem
                 : Mathf.SmoothStep(0f, 1f, t);
 
             yaw = Mathf.LerpAngle(_startYaw, _targetYaw, smoothT);
-            pitch = Mathf.Clamp(Mathf.Lerp(_startPitch, _targetPitch, smoothT), minPitch, maxPitch);
+            pitch = Mathf.Lerp(_startPitch, _targetPitch, smoothT);
 
             if (t >= 1f)
             {

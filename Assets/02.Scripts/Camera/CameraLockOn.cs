@@ -350,21 +350,12 @@ namespace UPlayGround.CameraSystem
 
             // Pitch (고저차 감쇠, target 직접 기준)
             float heightDiff = _smoothY - _player.position.y;
-            float rawPitch = 0f;
-            if (flatDist > 0.5f)
-            {
-                rawPitch = Mathf.Atan2(-heightDiff * _settings.lockOnHeightDampFactor, flatDist) * Mathf.Rad2Deg;
-            }
+            float rawPitch = Mathf.Atan2(
+                -heightDiff * _settings.lockOnHeightDampFactor,
+                Mathf.Max(flatDist, 0.001f)) * Mathf.Rad2Deg;
 
-            float targetPitch = Mathf.Clamp(rawPitch, _settings.lockOnPitchMin, _settings.lockOnPitchMax);
-
-            // 거리별 Pitch 제한
-            float pitchLimit = Mathf.Lerp(_settings.lockOnPitchMax * 0.5f, _settings.lockOnPitchMax,
-                Mathf.Clamp01((dist - 3f) / 7f));
-            targetPitch = Mathf.Clamp(targetPitch, _settings.lockOnPitchMin, pitchLimit);
-
-            pitch = Mathf.Lerp(pitch, targetPitch, Time.deltaTime * _settings.lockOnPitchSpeed);
-            pitch = Mathf.Clamp(pitch, _settings.minVerticalAngle, _settings.maxVerticalAngle);
+            // 고저차가 만드는 실제 시선각을 그대로 사용한다. 상·하단 대상에 별도 pitch 제한을 두지 않는다.
+            pitch = Mathf.LerpAngle(pitch, rawPitch, Time.deltaTime * _settings.lockOnPitchSpeed);
 
             return false;
         }
@@ -400,6 +391,7 @@ namespace UPlayGround.CameraSystem
         public bool IsTransitioning => _isTransitioning;
         public bool HasResidualPivotOffset =>
             _pivotOffset.sqrMagnitude > 0.0004f || _pivotOffsetVelocity.sqrMagnitude > 0.0004f;
+        public Vector3 CurrentPivotOffset => _pivotOffset;
 
         public Vector3 EvaluatePivotOffset(float deltaTime)
         {

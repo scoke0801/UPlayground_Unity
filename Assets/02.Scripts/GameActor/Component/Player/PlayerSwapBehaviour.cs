@@ -106,7 +106,7 @@ namespace UPlayGround.Components
             _activeModel.gameObject.SetActive(true);
             ResetModelInteractionEquipment(_activeModel);
             _playerActor.RefreshForCharacter(_activeModel, animationSnapshot);
-            CameraManager.Instance?.RefreshTargetCollisionReference();
+            CameraManager.Instance?.RefreshTargetReferences();
             PlaySwapFx();
             return true;
         }

@@ -36,6 +36,12 @@ namespace UPlayGround.CameraSystem
         private float _lockOnDistance;
         private float _lockOnVelocity;
 
+        // 공중 구도: 이륙 시 유저 거리를 기준으로 잡고 낙하 속도에 따라 확장한다.
+        private bool _airborneActive;
+        private float _airborneBaselineDistance;
+        private float _airborneDistance;
+        private float _airborneDistanceVelocity;
+
         // UpdateFOV/EvaluateDistance가 같은 프레임에 중복 물리 쿼리하지 않게 한다.
         private int _nearbyMetricsFrame = -1;
         private int _nearbyEnemyCount;
@@ -64,7 +70,7 @@ namespace UPlayGround.CameraSystem
             _playerVelocityProvider = provider;
         }
 
-        public void UpdateFOV(bool isLockOn, bool isCombat)
+        public void UpdateFOV(bool isLockOn, bool isCombat, CameraMotionContext motion)
         {
             UpdateNearbyEnemyMetrics(isCombat);
 
@@ -87,8 +93,17 @@ namespace UPlayGround.CameraSystem
             if (_s.enableMonsterSizeFOV && isCombat)
                 addFov += EvaluateMonsterSizeFactor() * _s.monsterSizeFOVMax;
 
+            float airborneFactor = !isLockOn && _s.enableTraversalComposition
+                ? EvaluateAirborneFactor(motion)
+                : 0f;
+            addFov += airborneFactor * _s.airborneFOVMaxAdd;
+
             _targetFOV = baseTarget + addFov;
-            float smoothTime = _s.enableSpeedFOV ? _s.speedFOVSmoothTime : _s.fovSmoothTime;
+            float smoothTime = airborneFactor > 0f
+                ? _s.airborneFOVSmoothTime
+                : _s.enableSpeedFOV
+                    ? _s.speedFOVSmoothTime
+                    : _s.fovSmoothTime;
             _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime);
         }
 
@@ -96,11 +111,16 @@ namespace UPlayGround.CameraSystem
         /// 다수 적 줌아웃 + 대형 몬스터 시야 확장 + 전투/락온 거리 보정.
         /// 반환: 보정된 targetDistance. -1이면 유저 줌 유지.
         /// </summary>
-        public float EvaluateDistance(bool isLockOn, bool isCombat, float currentTargetDist)
+        public float EvaluateDistance(
+            bool isLockOn,
+            bool isCombat,
+            float currentTargetDist,
+            CameraMotionContext motion)
         {
             UpdateNearbyEnemyMetrics(isCombat);
             UpdateCrowdZoom(isCombat);
             UpdateMonsterSizeDistance(isCombat);
+            float airborneDistance = UpdateAirborneDistance(isLockOn, currentTargetDist, motion);
 
             if (isLockOn)
             {
@@ -129,15 +149,87 @@ namespace UPlayGround.CameraSystem
                 _lockOnVelocity = 0f;
             }
 
-            if (_crowdActive || _sizeDistanceActive)
+            if (_crowdActive || _sizeDistanceActive || airborneDistance >= 0f)
             {
-                float target = _crowdActive ? _crowdDistance : _s.defaultDistance;
+                float target = _crowdActive
+                    ? _crowdDistance
+                    : airborneDistance >= 0f
+                        ? airborneDistance
+                        : _s.defaultDistance;
                 if (_sizeDistanceActive)
                     target = Mathf.Max(target, _sizeDistance);
+                if (airborneDistance >= 0f)
+                    target = Mathf.Max(target, airborneDistance);
                 return Mathf.Clamp(target, _s.minDistance, _s.maxDistance);
             }
 
             return -1f; // 유저 줌 존중
+        }
+
+        private float UpdateAirborneDistance(
+            bool isLockOn,
+            float currentTargetDistance,
+            CameraMotionContext motion)
+        {
+            if (isLockOn || !_s.enableTraversalComposition || !motion.IsAvailable)
+            {
+                ResetAirborneDistance();
+                return -1f;
+            }
+
+            float smoothTime = Mathf.Max(0.01f, _s.airborneDistanceSmoothTime);
+            if (!motion.IsGrounded)
+            {
+                if (!_airborneActive)
+                {
+                    _airborneActive = true;
+                    _airborneBaselineDistance = currentTargetDistance;
+                    _airborneDistance = currentTargetDistance;
+                    _airborneDistanceVelocity = 0f;
+                }
+
+                float target = _airborneBaselineDistance
+                               + EvaluateAirborneFactor(motion) * _s.airborneDistanceMaxAdd;
+                _airborneDistance = Mathf.SmoothDamp(
+                    _airborneDistance,
+                    target,
+                    ref _airborneDistanceVelocity,
+                    smoothTime);
+                return _airborneDistance;
+            }
+
+            if (!_airborneActive)
+                return -1f;
+
+            _airborneDistance = Mathf.SmoothDamp(
+                _airborneDistance,
+                _airborneBaselineDistance,
+                ref _airborneDistanceVelocity,
+                smoothTime);
+            if (Mathf.Abs(_airborneDistance - _airborneBaselineDistance) <= 0.01f)
+            {
+                ResetAirborneDistance();
+                return -1f;
+            }
+
+            return _airborneDistance;
+        }
+
+        private float EvaluateAirborneFactor(CameraMotionContext motion)
+        {
+            if (!motion.IsAvailable || motion.IsGrounded)
+                return 0f;
+
+            float startSpeed = Mathf.Max(0f, _s.airborneEffectStartSpeed);
+            float maxSpeed = Mathf.Max(startSpeed + 0.01f, _s.airborneSpeedForMax);
+            float factor = Mathf.InverseLerp(startSpeed, maxSpeed, Mathf.Abs(motion.VerticalSpeed));
+            return motion.VerticalSpeed >= 0f ? factor * 0.5f : factor;
+        }
+
+        private void ResetAirborneDistance()
+        {
+            _airborneActive = false;
+            _airborneDistanceVelocity = 0f;
         }
 
         private void UpdateCrowdZoom(bool isCombat)

@@ -14,17 +14,12 @@ namespace UPlayGround.CameraSystem
 
         private float _collisionDistance;
         private float _collisionDistanceVel;
-        private LayerMask _collisionLayers;
-        private float _floorRescueLift;
-        private float _floorRescueLiftVelocity;
+        private readonly LayerMask _collisionLayers;
         private bool _isCollisionActive;
-        private float _occlusionTimer;
         private float _releaseTimer;
         private float _heldBlockedDistance;
-        private readonly RaycastHit[] _floorHitBuffer = new RaycastHit[8];
-        private readonly RaycastHit[] _floorLiftHitBuffer = new RaycastHit[8];
-
-        private const float FLOOR_RESCUE_OCCLUDED_SMOOTH_TIME = 0.045f;
+        private readonly RaycastHit[] _sphereCastHitBuffer = new RaycastHit[16];
+        private readonly Collider[] _overlapBuffer = new Collider[16];
 
         public CameraCollision(CameraSettings settings, Transform target, LayerMask collisionLayers, float initialDistance)
         {
@@ -41,13 +36,14 @@ namespace UPlayGround.CameraSystem
         {
             float deltaTime = Mathf.Max(Time.deltaTime, 0.0001f);
             float blockedDistance = GetRaycastDistance(pivot, camDir, desiredDistance);
+            blockedDistance = ResolveOverlapDistance(pivot, camDir, blockedDistance);
             float targetDistance = ResolveTargetDistance(blockedDistance, desiredDistance, deltaTime);
 
             if (targetDistance < _collisionDistance)
             {
                 // 정설(asymmetric damping): 당김은 즉시. 스무딩하면 그 몇 프레임 동안 카메라가
                 // 벽 뒤에 남아 지오메트리 내부가 비친다(클리핑). 안전 우선이라 속도 제한도 두지 않는다.
-                // 당김 타깃은 MultiProbe+법선 필터로 안정화한다.
+                // 당김 타깃은 카메라 반경 SphereCast와 최종 겹침 백스톱으로 산출한다.
                 // 더 가까워질 때만 즉시 스냅하고, 확보 공간이 늘어날 때는 아래 복귀 감쇠를 사용한다.
                 _collisionDistance = targetDistance;
                 _collisionDistanceVel = 0f;
@@ -74,55 +70,36 @@ namespace UPlayGround.CameraSystem
         {
             _collisionDistance = distance;
             _collisionDistanceVel = 0f;
-            ResetFloorRescue();
             _isCollisionActive = false;
-            _occlusionTimer = 0f;
             _releaseTimer = 0f;
             _heldBlockedDistance = distance;
         }
 
-        public void ResetFloorRescue()
-        {
-            _floorRescueLift = 0f;
-            _floorRescueLiftVelocity = 0f;
-        }
-
         private float ResolveTargetDistance(float blockedDistance, float desiredDistance, float deltaTime)
         {
-            const float STATE_HYSTERESIS = 0.01f;
+            const float BLOCKING_EPSILON = 0.001f;
 
             deltaTime = Mathf.Max(deltaTime, 0.0001f);
             float distanceDeadZone = Mathf.Max(_settings.collisionDistanceDeadZone, 0f);
-            float releaseMargin = Mathf.Max(_settings.collisionReleaseHysteresis, 0f);
-            float releaseThreshold = desiredDistance - releaseMargin;
+            bool hasBlockingHit = blockedDistance < desiredDistance - BLOCKING_EPSILON;
 
             if (!_isCollisionActive)
             {
-                // 해제 여유 구간의 얕은 접촉은 진입 후보로 취급하지 않는다.
-                // 기존에는 같은 접촉이 hasBlockingHit와 canRelease를 동시에 만족해
-                // 충돌 상태가 주기적으로 해제/재진입하며 거리 펄스를 만들 수 있었다.
-                bool canEnter = blockedDistance < releaseThreshold - STATE_HYSTERESIS;
-                if (!canEnter)
+                if (!hasBlockingHit)
                 {
-                    _occlusionTimer = 0f;
                     _releaseTimer = 0f;
                     return desiredDistance;
                 }
 
-                _occlusionTimer += deltaTime;
-                if (_occlusionTimer < Mathf.Max(_settings.collisionMinimumOcclusionTime, 0f))
-                    return desiredDistance;
-
+                // 월드와 접촉한 프레임에 바로 암을 줄인다. 진입 지연은 그동안 카메라를
+                // 지오메트리 안에 남겨 두므로 스프링암 충돌에는 적용하지 않는다.
                 _isCollisionActive = true;
-                _occlusionTimer = 0f;
                 _releaseTimer = 0f;
                 _heldBlockedDistance = blockedDistance;
                 return _heldBlockedDistance;
             }
 
-            _occlusionTimer = 0f;
-
-            if (blockedDistance < releaseThreshold)
+            if (hasBlockingHit)
             {
                 float distanceDelta = blockedDistance - _heldBlockedDistance;
                 if (distanceDelta < -distanceDeadZone)
@@ -149,8 +126,7 @@ namespace UPlayGround.CameraSystem
                 return _heldBlockedDistance;
             }
 
-            // 완전 미검출뿐 아니라 releaseMargin 안의 얕은 접촉도 같은 해제 후보로 다룬다.
-            // 비활성 상태의 진입 임계치와 분리되어 같은 접촉에서 재진입하지 않는다.
+            // 완전 미검출이 일정 시간 유지된 뒤에만 충돌 상태를 해제한다.
             _releaseTimer += deltaTime;
             if (_releaseTimer < Mathf.Max(_settings.collisionSmoothingHoldTime, 0f))
                 return _heldBlockedDistance;
@@ -168,208 +144,95 @@ namespace UPlayGround.CameraSystem
             return Mathf.MoveTowards(current, target, maxSpeed * deltaTime);
         }
 
-        public void ApplyFloorRescue(Vector3 pivot, ref Vector3 cameraPosition, float deltaTime)
-        {
-            if (!_settings.enableFloorRescue)
-            {
-                ResetFloorRescue();
-                return;
-            }
-
-            LayerMask layers = _settings.floorRescueLayerMask.value != 0
-                ? _settings.floorRescueLayerMask
-                : _collisionLayers;
-
-            float clearance = Mathf.Max(_settings.groundClearance, _settings.cameraRadius);
-            float pivotDrop = pivot.y - cameraPosition.y;
-            float probeRadius = Mathf.Max(Mathf.Min(_settings.cameraRadius * 0.5f, clearance * 0.5f), 0.02f);
-            float probeExtraHeight = pivotDrop > _settings.floorRescueDropThreshold
-                ? Mathf.Max(_settings.collisionOffset, 0.05f)
-                : 0.05f;
-            float probeHeight = clearance + probeRadius + probeExtraHeight;
-
-            // 월드 상공에서 내리는 레이는 낮은 천장/계단 윗면을 바닥으로 오인할 수 있다.
-            // 카메라 바로 위에서 시작하는 짧은 국소 SphereCast만 사용하고, 위쪽을 향한 지면 법선을 검증한다.
-            // 작은 반경은 계단/메시 삼각형 경계에서 단일 Ray 표본이 교대로 바뀌는 현상을 줄인다.
-            Vector3 probeOrigin = cameraPosition + Vector3.up * probeHeight;
-            float probeDistance = probeHeight + clearance + 0.5f;
-            float requiredLift = 0f;
-            float nearestGroundDistance = float.PositiveInfinity;
-            int groundHitCount = Physics.SphereCastNonAlloc(
-                probeOrigin,
-                probeRadius,
-                Vector3.down,
-                _floorHitBuffer,
-                probeDistance,
-                layers,
-                QueryTriggerInteraction.Ignore);
-
-            for (int i = 0; i < groundHitCount; i++)
-            {
-                RaycastHit groundHit = _floorHitBuffer[i];
-                if (groundHit.transform == _target || groundHit.transform.IsChildOf(_target))
-                    continue;
-                if (groundHit.normal.y < _settings.groundCollisionMinNormalY)
-                    continue;
-                // FloorRescue는 카메라 아래의 지면 여유만 복구한다. 카메라보다 위에 있는
-                // 얇은 천장/발판의 윗면을 지면으로 채택하면 천장을 관통해 위로 올라간다.
-                if (groundHit.point.y > cameraPosition.y + Mathf.Max(_settings.collisionSkinWidth, 0.01f))
-                    continue;
-                if (groundHit.distance >= nearestGroundDistance)
-                    continue;
-
-                nearestGroundDistance = groundHit.distance;
-                float requiredMinY = groundHit.point.y + clearance;
-                requiredLift = Mathf.Max(requiredMinY - cameraPosition.y, 0f);
-            }
-
-            float safeDeltaTime = Mathf.Max(deltaTime, 0.0001f);
-            float liftDelta = requiredLift - _floorRescueLift;
-            float immediateThreshold = Mathf.Max(clearance - _settings.cameraRadius, 0.02f);
-            if (liftDelta > immediateThreshold)
-            {
-                // 큰 관통은 한 프레임 안에 해소한다. 일반적인 경사 추종은 앞선 충돌 거리 단계가 담당한다.
-                _floorRescueLift = requiredLift;
-                _floorRescueLiftVelocity = 0f;
-            }
-            else
-            {
-                float smoothTime = requiredLift > _floorRescueLift
-                    ? FLOOR_RESCUE_OCCLUDED_SMOOTH_TIME
-                    : Mathf.Max(_settings.floorRescueReturnSmoothTime, 0f);
-
-                if (smoothTime > 0f)
-                {
-                    _floorRescueLift = Mathf.SmoothDamp(
-                        _floorRescueLift,
-                        requiredLift,
-                        ref _floorRescueLiftVelocity,
-                        smoothTime,
-                        Mathf.Infinity,
-                        safeDeltaTime);
-                }
-                else
-                {
-                    _floorRescueLift = requiredLift;
-                    _floorRescueLiftVelocity = 0f;
-                }
-            }
-
-            if (requiredLift <= 0f && _floorRescueLift <= 0.001f)
-            {
-                _floorRescueLift = 0f;
-                _floorRescueLiftVelocity = 0f;
-            }
-
-            float constrainedLift = ConstrainFloorRescueLift(
-                cameraPosition,
-                Mathf.Max(_floorRescueLift, 0f),
-                layers);
-            if (constrainedLift < _floorRescueLift)
-            {
-                _floorRescueLift = constrainedLift;
-                _floorRescueLiftVelocity = 0f;
-            }
-
-            cameraPosition.y += constrainedLift;
-        }
-
-        private float ConstrainFloorRescueLift(Vector3 cameraPosition, float requestedLift, LayerMask layers)
-        {
-            if (requestedLift <= 0f)
-                return 0f;
-
-            int hitCount = Physics.SphereCastNonAlloc(
-                cameraPosition,
-                Mathf.Max(_settings.cameraRadius, 0.01f),
-                Vector3.up,
-                _floorLiftHitBuffer,
-                requestedLift,
-                layers,
-                QueryTriggerInteraction.Ignore);
-
-            float allowedLift = requestedLift;
-            for (int i = 0; i < hitCount; i++)
-            {
-                RaycastHit hit = _floorLiftHitBuffer[i];
-                if (hit.transform == _target || hit.transform.IsChildOf(_target))
-                    continue;
-
-                // 시작 지점에서 맞는 지면 윗면은 위쪽 이동을 막지 않는다.
-                if (hit.normal.y >= _settings.groundCollisionMinNormalY)
-                    continue;
-
-                float safeDistance = Mathf.Max(hit.distance - _settings.collisionOffset, 0f);
-                allowedLift = Mathf.Min(allowedLift, safeDistance);
-            }
-
-            return allowedLift;
-        }
-
         private float GetRaycastDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)
         {
-            if (_settings.useMultiProbe && _settings.collisionProbeCount > 0)
-                return GetMultiProbeDistance(pivot, camDir, desiredDistance);
+            if (desiredDistance <= 0f || camDir.sqrMagnitude <= 0.0001f)
+                return 0f;
 
-            float r = _settings.cameraRadius;
+            float r = Mathf.Max(_settings.cameraRadius, 0.01f);
 
-            if (Physics.SphereCast(pivot, r, camDir, out RaycastHit hit, desiredDistance, _collisionLayers, QueryTriggerInteraction.Ignore))
+            int hitCount = Physics.SphereCastNonAlloc(
+                pivot,
+                r,
+                camDir.normalized,
+                _sphereCastHitBuffer,
+                desiredDistance,
+                _collisionLayers,
+                QueryTriggerInteraction.Ignore);
+
+            float nearestDistance = desiredDistance;
+            for (int i = 0; i < hitCount; i++)
             {
-                if (hit.transform == _target || hit.transform.IsChildOf(_target))
-                    return desiredDistance;
+                RaycastHit hit = _sphereCastHitBuffer[i];
+                if (_target != null &&
+                    (hit.transform == _target || hit.transform.IsChildOf(_target)))
+                    continue;
 
-                return Mathf.Max(hit.distance - _settings.collisionOffset, 0f);
+                nearestDistance = Mathf.Min(
+                    nearestDistance,
+                    Mathf.Max(hit.distance - _settings.collisionOffset, 0f));
             }
 
-            return desiredDistance;
+            return nearestDistance;
         }
 
-        private float GetMultiProbeDistance(Vector3 pivot, Vector3 camDir, float desiredDistance)
+        /// <summary>
+        /// SphereCast가 시작 겹침을 보고하지 않는 경우를 위한 최종 안전망.
+        /// 겹침을 임의 방향으로 밀어내지 않고 궤도 위의 안전 거리까지 암만 줄인다.
+        /// </summary>
+        private float ResolveOverlapDistance(Vector3 pivot, Vector3 camDir, float candidateDistance)
         {
-            Vector3 desiredPosition = pivot + camDir * desiredDistance;
-            Vector3 axisDir = (desiredPosition - pivot).normalized;
-            if (axisDir.sqrMagnitude < 0.0001f)
-                return desiredDistance;
+            if (candidateDistance <= 0f || camDir.sqrMagnitude <= 0.0001f)
+                return 0f;
 
-            Vector3 right = Vector3.Cross(axisDir, Vector3.up);
-            if (right.sqrMagnitude < 0.0001f)
-                right = Vector3.Cross(axisDir, Vector3.forward);
-            right.Normalize();
-            Vector3 upDir = Vector3.Cross(right, axisDir).normalized;
+            float radius = Mathf.Max(_settings.cameraRadius, 0.01f);
+            Vector3 direction = camDir.normalized;
 
-            float minReach = desiredDistance;
-            TryLineProbe(pivot, desiredPosition, pivot, axisDir, desiredDistance, ref minReach);
+            // 피벗부터 겹친 예외 상황에서는 유효한 연속 안전 구간이 없으므로 암을 완전히 접는다.
+            if (HasBlockingOverlap(pivot, radius))
+                return 0f;
 
-            int probeCount = Mathf.Max(1, _settings.collisionProbeCount);
-            float angleStep = 360f / probeCount;
-            for (int i = 0; i < probeCount; i++)
+            Vector3 candidatePosition = pivot + direction * candidateDistance;
+            if (!HasBlockingOverlap(candidatePosition, radius))
+                return candidateDistance;
+
+            float safeDistance = 0f;
+            float blockedDistance = candidateDistance;
+            for (int i = 0; i < 8; i++)
             {
-                float rad = Mathf.Deg2Rad * (i * angleStep);
-                Vector3 offset = (Mathf.Cos(rad) * right + Mathf.Sin(rad) * upDir) * _settings.cameraRadius;
-                TryLineProbe(pivot + offset, desiredPosition + offset, pivot, axisDir, desiredDistance, ref minReach);
+                float probeDistance = (safeDistance + blockedDistance) * 0.5f;
+                Vector3 probePosition = pivot + direction * probeDistance;
+                if (HasBlockingOverlap(probePosition, radius))
+                    blockedDistance = probeDistance;
+                else
+                    safeDistance = probeDistance;
             }
 
-            return Mathf.Clamp(minReach, 0f, desiredDistance);
+            return Mathf.Max(safeDistance - Mathf.Max(_settings.collisionSkinWidth, 0f), 0f);
         }
 
-        private void TryLineProbe(
-            Vector3 probeStart,
-            Vector3 probeEnd,
-            Vector3 pivot,
-            Vector3 axisDir,
-            float desiredDistance,
-            ref float minReach)
+        private bool HasBlockingOverlap(Vector3 position, float radius)
         {
-            if (!Physics.Linecast(probeStart, probeEnd, out RaycastHit hit, _collisionLayers, QueryTriggerInteraction.Ignore))
-                return;
+            int count = Physics.OverlapSphereNonAlloc(
+                position,
+                radius,
+                _overlapBuffer,
+                _collisionLayers,
+                QueryTriggerInteraction.Ignore);
 
-            if (hit.transform == _target || hit.transform.IsChildOf(_target))
-                return;
+            for (int i = 0; i < count; i++)
+            {
+                Collider overlap = _overlapBuffer[i];
+                if (overlap == null)
+                    continue;
+                if (_target != null &&
+                    (overlap.transform == _target || overlap.transform.IsChildOf(_target)))
+                    continue;
 
-            float projectedReach = Vector3.Dot(hit.point - pivot, axisDir);
-            projectedReach -= _settings.collisionSkinWidth;
-            minReach = Mathf.Min(minReach, Mathf.Clamp(projectedReach, 0f, desiredDistance));
+                return true;
+            }
+
+            return false;
         }
-
     }
 }

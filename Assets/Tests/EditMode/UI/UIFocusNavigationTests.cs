@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UPlayGround.UI.Tests
@@ -100,6 +101,45 @@ namespace UPlayGround.UI.Tests
 
             Assert.That(group.SelectRelative(1), Is.True);
             Assert.That(group.SelectedIndex, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void MapInputReceiver_좌클릭과우클릭을서로다른지도동작으로전달한다()
+        {
+            var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
+            _objects.Add(eventSystemObject);
+
+            var receiverObject = new GameObject(
+                "MapInputReceiver",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(MapInputReceiver));
+            _objects.Add(receiverObject);
+
+            MapInputReceiver receiver = receiverObject.GetComponent<MapInputReceiver>();
+            int primaryCount = 0;
+            int secondaryCount = 0;
+            receiver.OnPrimaryClickEvent += _ => primaryCount++;
+            receiver.OnRightClickEvent += _ => secondaryCount++;
+
+            var pointer = new PointerEventData(eventSystemObject.GetComponent<EventSystem>())
+            {
+                button = PointerEventData.InputButton.Left
+            };
+            ExecuteEvents.Execute(
+                receiverObject,
+                pointer,
+                ExecuteEvents.pointerClickHandler);
+
+            pointer.button = PointerEventData.InputButton.Right;
+            ExecuteEvents.Execute(
+                receiverObject,
+                pointer,
+                ExecuteEvents.pointerClickHandler);
+
+            Assert.That(primaryCount, Is.EqualTo(1));
+            Assert.That(secondaryCount, Is.EqualTo(1));
         }
 
         private Button CreateButton(string name)

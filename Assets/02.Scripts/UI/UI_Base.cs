@@ -33,6 +33,7 @@ namespace UPlayGround.UI
         private UIFocusScope _focusScope;
         private UITabGroup _mainTabGroup;
         private UITabGroup _subTabGroup;
+        private Coroutine _fadeCoroutine;
         private UIKeyType _mainPageKey;
         private bool _navigationShortcutsRegistered;
         private bool _mainPageSwitching;
@@ -294,6 +295,7 @@ namespace UPlayGround.UI
             UnRegisterInputEvents();
 
             _focusScope?.DeactivateScope();
+            StopFadeCoroutine();
             OnHide();
 
             RuntimeLog.Trace(
@@ -543,6 +545,7 @@ namespace UPlayGround.UI
             }
 
             _soundBoundButtons.Clear();
+            StopFadeCoroutine();
         }
 
         #endregion
@@ -565,8 +568,8 @@ namespace UPlayGround.UI
             if (_canvasGroup == null)
                 return;
 
-            StopAllCoroutines();
-            StartCoroutine(FadeCoroutine(0f, 1f, duration, onComplete));
+            StopFadeCoroutine();
+            _fadeCoroutine = StartCoroutine(FadeCoroutine(0f, 1f, duration, onComplete));
         }
 
         /// <summary>
@@ -577,8 +580,25 @@ namespace UPlayGround.UI
             if (_canvasGroup == null)
                 return;
 
-            StopAllCoroutines();
-            StartCoroutine(FadeCoroutine(1f, 0f, duration, onComplete));
+            StopFadeCoroutine();
+            _fadeCoroutine = StartCoroutine(FadeCoroutine(1f, 0f, duration, onComplete));
+        }
+
+        /// <summary>
+        /// 현재 알파에서 목표 알파까지 이어서 페이드한다.
+        /// 반대 방향 페이드가 진행 중인 UI를 끊김 없이 되돌릴 때 사용한다.
+        /// </summary>
+        public void FadeTo(float targetAlpha, float duration = 0.3f, Action onComplete = null)
+        {
+            if (_canvasGroup == null)
+                return;
+
+            StopFadeCoroutine();
+            _fadeCoroutine = StartCoroutine(FadeCoroutine(
+                _canvasGroup.alpha,
+                Mathf.Clamp01(targetAlpha),
+                duration,
+                onComplete));
         }
 
         /// <summary>
@@ -598,7 +618,17 @@ namespace UPlayGround.UI
             }
 
             _canvasGroup.alpha = to;
+            _fadeCoroutine = null;
             onComplete?.Invoke();
+        }
+
+        private void StopFadeCoroutine()
+        {
+            if (_fadeCoroutine == null)
+                return;
+
+            StopCoroutine(_fadeCoroutine);
+            _fadeCoroutine = null;
         }
 
         /// <summary>

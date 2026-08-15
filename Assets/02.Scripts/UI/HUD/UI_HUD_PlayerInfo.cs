@@ -170,7 +170,7 @@ namespace UPlayGround.UI
                 _skillGaugeFill.fillAmount = Mathf.Lerp(
                     _skillGaugeFill.fillAmount,
                     targetRatio,
-                    Time.deltaTime * _skillGaugeFillSpeed);
+                    Time.unscaledDeltaTime * _skillGaugeFillSpeed);
                 yield return null;
             }
 
@@ -185,14 +185,14 @@ namespace UPlayGround.UI
 
         private IEnumerator HpDelayFillCoroutine()
         {
-            yield return new WaitForSeconds(_hpDecreaseDelayTime);
+            yield return new WaitForSecondsRealtime(_hpDecreaseDelayTime);
 
             while (_boardHpWhiteFill.fillAmount > _boardHpFill.fillAmount + 0.001f)
             {
                 _boardHpWhiteFill.fillAmount = Mathf.Lerp(
                     _boardHpWhiteFill.fillAmount,
                     _boardHpFill.fillAmount,
-                    Time.deltaTime * _hpFillSpeed);
+                    Time.unscaledDeltaTime * _hpFillSpeed);
                 yield return null;
             }
 
@@ -291,7 +291,7 @@ namespace UPlayGround.UI
             while (Mathf.Abs(_expFill.fillAmount - targetRatio) > 0.001f)
             {
                 _expFill.fillAmount = Mathf.Lerp(
-                    _expFill.fillAmount, targetRatio, Time.deltaTime * _expFillSpeed);
+                    _expFill.fillAmount, targetRatio, Time.unscaledDeltaTime * _expFillSpeed);
                 yield return null;
             }
 
@@ -323,14 +323,14 @@ namespace UPlayGround.UI
             float e = 0f;
             while (e < half)
             {
-                e += Time.deltaTime;
+                e += Time.unscaledDeltaTime;
                 t.localScale = Vector3.Lerp(baseScale, baseScale * _levelPunchScale, e / half);
                 yield return null;
             }
             e = 0f;
             while (e < half)
             {
-                e += Time.deltaTime;
+                e += Time.unscaledDeltaTime;
                 t.localScale = Vector3.Lerp(baseScale * _levelPunchScale, baseScale, e / half);
                 yield return null;
             }

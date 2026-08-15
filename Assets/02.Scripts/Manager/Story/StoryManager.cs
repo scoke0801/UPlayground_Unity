@@ -29,13 +29,15 @@ namespace UPlayGround.Story
         [SerializeField] private StorySequenceSO _mainStorySequence;
         private DialogueGraphSO _selfEncounterGraph;
 
-        // 완료된 storyId 집합. 세이브/로드 시 이 데이터를 직렬화.
-        private readonly HashSet<string> _completedStories = new();
+        // 시작과 완료를 분리한다. 재생 중 저장/중단된 스토리는 완료로 소진하지 않는다.
+        private readonly StoryPlaybackTracker _playbackTracker = new();
         private readonly Queue<StoryEntrySO> _pendingMainStories = new();
         private readonly HashSet<string> _pendingMainStoryIds = new();
         private System.IDisposable _activeMainStoryDialogue;
+        private string _activeMainStoryId;
         private string _pendingSelfEncounterStoryId;
         private string _pendingSelfEncounterActorId;
+        private int _playbackGeneration;
 
         // 자동 재생은 게임플레이 씬에서만 허용한다. Title/Boot/Loading에서 재생되면
         // 화자도 배경도 없이 대사가 뜨고, 시작과 동시에 완료로 소진돼 버린다.
@@ -60,6 +62,7 @@ namespace UPlayGround.Story
 
         public void Dispose()
         {
+            _playbackGeneration++;
             ClearPendingMainStories();
             if (CycleRunManager.Instance != null)
                 CycleRunManager.Instance.OnBossDiscovered -= OnCycleBossDiscovered;
@@ -121,7 +124,7 @@ namespace UPlayGround.Story
         public bool IsStoryEligible(StoryEntrySO entry)
         {
             if (entry == null) return false;
-            if (_completedStories.Contains(entry.storyId)) return false;
+            if (!_playbackTracker.CanBegin(entry.storyId)) return false;
             if (!IsWithinProgressWindow(entry)) return false;
             return ResolveGraph(entry) != null;
         }
@@ -129,7 +132,7 @@ namespace UPlayGround.Story
         public bool TryTriggerStory(StoryEntrySO entry)
         {
             if (entry == null) return false;
-            if (_completedStories.Contains(entry.storyId)) return false;
+            if (!_playbackTracker.CanBegin(entry.storyId)) return false;
             if (!IsWithinProgressWindow(entry)) return false;
 
             var graph = ResolveGraph(entry);
@@ -139,31 +142,38 @@ namespace UPlayGround.Story
                 return false;
             }
 
-            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(graph, null);
-            if (subscription == null)
+            string storyId = entry.storyId;
+            if (!_playbackTracker.TryBegin(storyId))
                 return false;
 
-            // 실제 Runner가 요청을 수락한 뒤 완료로 등록해 바쁜 Main 채널에서 유실되지 않게 한다.
-            _completedStories.Add(entry.storyId);
+            int generation = _playbackGeneration;
+            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
+                graph,
+                () => CompleteStoryPlayback(storyId, generation));
+            if (subscription == null)
+            {
+                _playbackTracker.Cancel(storyId);
+                return false;
+            }
+
             return true;
         }
 
-        public bool IsCompleted(string storyId) => _completedStories.Contains(storyId);
+        public bool IsCompleted(string storyId) => _playbackTracker.IsCompleted(storyId);
 
         // ── 세이브 / 로드 ────────────────────────────────────────────
 
         public StoryState ExportState() => new()
         {
             progress = _currentProgress,
-            completedStories = new List<string>(_completedStories)
+            completedStories = new List<string>(_playbackTracker.CompletedStoryIds)
         };
 
         public void ImportState(StoryState state)
         {
+            _playbackGeneration++;
             _currentProgress = state.progress;
-            _completedStories.Clear();
-            foreach (var id in state.completedStories)
-                _completedStories.Add(id);
+            _playbackTracker.RestoreCompleted(state.completedStories);
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
@@ -175,15 +185,14 @@ namespace UPlayGround.Story
         public void ExportSaveData(GameSaveData saveData)
         {
             saveData.story.progress = _currentProgress;
-            saveData.story.completedStories = new List<string>(_completedStories);
+            saveData.story.completedStories = new List<string>(_playbackTracker.CompletedStoryIds);
         }
 
         public void ImportSaveData(GameSaveData saveData)
         {
+            _playbackGeneration++;
             _currentProgress = saveData.story.progress;
-            _completedStories.Clear();
-            foreach (var id in saveData.story.completedStories ?? new List<string>())
-                _completedStories.Add(id);
+            _playbackTracker.RestoreCompleted(saveData.story.completedStories);
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;
             ClearPendingMainStories();
@@ -192,8 +201,9 @@ namespace UPlayGround.Story
 
         public void ResetForNewGame()
         {
+            _playbackGeneration++;
             _currentProgress = 0;
-            _completedStories.Clear();
+            _playbackTracker.Clear();
             ClearPendingMainStories();
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;
@@ -222,7 +232,7 @@ namespace UPlayGround.Story
                 return;
 
             string storyId = SelfEncounterStoryPrefix + opponent;
-            if (!_completedStories.Contains(storyId))
+            if (_playbackTracker.CanBegin(storyId))
             {
                 _pendingSelfEncounterStoryId = storyId;
                 _pendingSelfEncounterActorId = placement.actorId;
@@ -234,14 +244,21 @@ namespace UPlayGround.Story
             if (string.IsNullOrEmpty(_pendingSelfEncounterStoryId) || _selfEncounterGraph == null)
                 return false;
 
-            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
-                _selfEncounterGraph,
-                null,
-                _pendingSelfEncounterActorId);
-            if (subscription == null)
+            string storyId = _pendingSelfEncounterStoryId;
+            if (!_playbackTracker.TryBegin(storyId))
                 return false;
 
-            _completedStories.Add(_pendingSelfEncounterStoryId);
+            int generation = _playbackGeneration;
+            System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
+                _selfEncounterGraph,
+                () => CompleteStoryPlayback(storyId, generation),
+                _pendingSelfEncounterActorId);
+            if (subscription == null)
+            {
+                _playbackTracker.Cancel(storyId);
+                return false;
+            }
+
             _pendingSelfEncounterStoryId = null;
             _pendingSelfEncounterActorId = null;
             return true;
@@ -278,7 +295,7 @@ namespace UPlayGround.Story
                     || entry.triggerMode != StoryTriggerMode.Auto
                     || string.IsNullOrWhiteSpace(entry.storyId)
                     || !IsWithinProgressWindow(entry)
-                    || _completedStories.Contains(entry.storyId)
+                    || !_playbackTracker.CanBegin(entry.storyId)
                     || !_pendingMainStoryIds.Add(entry.storyId))
                     continue;
 
@@ -316,21 +333,63 @@ namespace UPlayGround.Story
                 return;
             }
 
+            string storyId = entry.storyId;
+            if (!_playbackTracker.TryBegin(storyId))
+            {
+                RemovePendingMainStory(entry);
+                TryPlayNextMainStory();
+                return;
+            }
+
+            int generation = _playbackGeneration;
+            bool isStarting = true;
+            bool completedSynchronously = false;
             System.IDisposable subscription = Svc.Dialogue?.TryStartDialogueTracked(
                 graph,
-                OnMainStoryDialogueCompleted);
+                () =>
+                {
+                    CompleteStoryPlayback(storyId, generation);
+                    if (isStarting)
+                    {
+                        completedSynchronously = true;
+                        return;
+                    }
+
+                    OnMainStoryDialogueCompleted();
+                });
+            isStarting = false;
             if (subscription == null)
+            {
+                _playbackTracker.Cancel(storyId);
                 return;
+            }
+
+            RemovePendingMainStory(entry);
+
+            if (completedSynchronously)
+            {
+                subscription.Dispose();
+                return;
+            }
 
             _activeMainStoryDialogue = subscription;
-            _completedStories.Add(entry.storyId);
-            RemovePendingMainStory(entry);
+            _activeMainStoryId = storyId;
         }
 
         private void OnMainStoryDialogueCompleted()
         {
             _activeMainStoryDialogue = null;
-            TryPlayNextMainStory();
+            _activeMainStoryId = null;
+            // DialogueRunner.End 콜백 안에서 다음 대화를 즉시 시작하면 이전 End의
+            // 종료 통지가 새 대화 세션을 닫을 수 있다. 다음 OnUpdate에서 재생한다.
+        }
+
+        private void CompleteStoryPlayback(string storyId, int generation)
+        {
+            if (generation != _playbackGeneration)
+                return;
+
+            _playbackTracker.Complete(storyId);
         }
 
         private void RemovePendingMainStory(StoryEntrySO entry)
@@ -344,6 +403,9 @@ namespace UPlayGround.Story
         {
             _activeMainStoryDialogue?.Dispose();
             _activeMainStoryDialogue = null;
+            if (!string.IsNullOrEmpty(_activeMainStoryId))
+                _playbackTracker.Cancel(_activeMainStoryId);
+            _activeMainStoryId = null;
             _pendingMainStories.Clear();
             _pendingMainStoryIds.Clear();
         }

@@ -7,7 +7,7 @@
 핵심 특징:
 
 - **진행도 단조 증가** — `SetProgress`는 더 낮은 값을 무시. 한 번 올린 진행도는 내려가지 않음.
-- **storyId 1회 트리거** — 한 번 시작된 스토리는 `_completedStories`에 즉시 등록되어 동일 storyId 중복 트리거 차단
+- **재생/완료 상태 분리** — 시작 시 `Playing`, 대화 정상 종료 시에만 `Completed`가 되어 중복 재생과 중단 시 콘텐츠 유실을 함께 방지
 - **진행도별 대화 분기** — `StoryEntrySO.variants[]` 로 진행도에 따라 같은 위치에서 다른 대화를 표시
 - **세이브 자동 직렬화** — `ISaveable` 구현. 진행도 + 완료 스토리 ID 리스트를 직렬화
 - **트리거 존 컴포넌트 제공** — `StoryTriggerZone` (Collider Trigger 기반)으로 씬에 배치만 하면 즉시 동작
@@ -29,9 +29,9 @@ StoryEntrySO (SO)
 
 StoryManager (BaseManager<T>, IManager, ISaveable)
 ├── _currentProgress : int
-├── _completedStories : HashSet<string>
+├── _playbackTracker : StoryPlaybackTracker (Playing / Completed)
 ├── SetProgress(int)
-├── TryTriggerStory(entry) ──► ResolveGraph ──► DialogueManager.StartDialogue
+├── TryTriggerStory(entry) ──► ResolveGraph ──► DialogueManager.TryStartDialogueTracked
 ├── IsCompleted(storyId)
 └── ImportSaveData / ExportSaveData
 
@@ -55,6 +55,7 @@ Assets/02.Scripts/
 │   └── StoryManager.cs                매니저 + ISaveable + ResolveGraph
 ├── Data/Story/
 │   ├── StoryEntrySO.cs                스토리 항목 + Variant
+│   ├── StorySequenceSO.cs             자동 시퀀스 + 재생 상태 추적기
 │   └── Editor/
 │       ├── MainStoryGeneratorWindow.cs    메뉴: UPlayGround/Story/Main Story Generator
 │       ├── SubStoryGeneratorWindow.cs     메뉴: UPlayGround/Story/Sub Story Generator
@@ -128,19 +129,25 @@ ISaveable:
 public bool TryTriggerStory(StoryEntrySO entry)
 {
     if (entry == null) return false;
-    if (_completedStories.Contains(entry.storyId)) return false;     // 1) 이미 완료
-    if (_currentProgress < entry.requiredProgress) return false;     // 2) 진행도 부족
+    if (!_playbackTracker.CanBegin(entry.storyId)) return false;     // 1) 재생 중/완료 차단
+    if (!IsWithinProgressWindow(entry)) return false;                // 2) 진행도 범위 검사
 
-    var graph = ResolveGraph(entry);                                  // 3) 변형 선택
+    var graph = ResolveGraph(entry);                                 // 3) 변형 선택
     if (graph == null) { /* 경고 */ return false; }
 
-    _completedStories.Add(entry.storyId);                             // 4) 즉시 완료 등록
-    DialogueManager.Instance.StartDialogue(graph);                    // 5) 대화 시작
-    return true;
+    string storyId = entry.storyId;
+    _playbackTracker.TryBegin(storyId);                              // 4) Playing 등록
+    var subscription = Svc.Dialogue?.TryStartDialogueTracked(
+        graph,
+        () => _playbackTracker.Complete(storyId));                   // 5) 정상 종료 시 Completed
+    if (subscription != null) return true;
+
+    _playbackTracker.Cancel(storyId);                                // 6) 시작 실패는 재시도 허용
+    return false;
 }
 ```
 
-> **중요:** 4단계에서 **대화 시작 전**에 `_completedStories`에 등록한다. 대화 도중 같은 트리거 존을 재진입해도 중복 트리거되지 않게 만드는 안전장치다. 대화가 도중에 취소되어도 storyId는 완료로 간주됨.
+> **중요:** 대화 시작 수락 시에는 `Playing`만 등록한다. 세이브에는 `Completed`만 기록하며, 시작 실패·로드·리셋으로 중단된 재생은 다시 시도할 수 있다. 자동 시퀀스의 다음 대화는 종료 콜백 안에서 재진입하지 않고 다음 업데이트에 시작한다.
 
 ### ResolveGraph
 
@@ -217,7 +224,7 @@ StoryEntrySO  Story_TownGate
 - progress 200 → `DLG_TownGate_AfterBoss`
 - progress 500 → `DLG_TownGate_FinalAct`
 
-> 단, **진행도 첫 번째 트리거 후 storyId가 완료**되므로, 같은 storyId의 variant를 다시 보려면 **별도의 storyId**로 분리하거나 (가장 일반적) `_completedStories`에서 명시적으로 제거하는 메커니즘이 별도로 필요.
+> 단, **대화 정상 종료 후 storyId가 완료**되므로, 같은 위치에서 진행도별 대화를 각각 1회 보여주려면 variant 하나에 의존하지 말고 **별도의 storyId**로 분리한다.
 
 ### 5. 외부에서 직접 트리거 (스크립트)
 
@@ -286,7 +293,7 @@ if (StoryManager.Instance.IsCompleted("intro_meet_npc1"))
 ## 주의 사항
 
 - **storyId는 영구 고정.** 한 번 발급된 storyId를 변경하면 기존 세이브의 `completedStories` 와 매칭이 깨져 같은 스토리가 재생됨. 변경 대신 **새 storyId 발급**이 안전.
-- **TryTriggerStory는 즉시 완료 등록.** 대화가 시작되기 전에 storyId가 등록되므로, 대화 도중 게임 종료 시에도 재트리거되지 않는다. 의도적으로 다회 트리거가 필요하면 별도 로직(완료 등록 지연)이 필요.
+- **TryTriggerStory는 종료 시 완료 등록.** 재생 중에는 같은 storyId를 차단하지만, 대화가 정상 종료되기 전 중단되면 다음 로드/진입에서 재시도할 수 있다.
 - **진행도는 단조 증가.** `SetProgress(낮은값)`은 무시. 디버그/치트로 진행도를 되돌리려면 직접 `_currentProgress` 필드를 수정하는 별도 API가 필요.
 - **variants는 `requiredProgress > bestReq` 비교로 동률 미지원.** 같은 `requiredProgress` 의 variant 두 개를 두면 **나중 등록된 쪽**이 무시된다. 동률이 필요하면 1 차이를 두거나 ResolveGraph 룰을 변경.
 - **DialogueManager 의존.** `TryTriggerStory`는 `DialogueManager.Instance` 가 초기화되어 있다고 가정한다. 매니저 초기화 순서가 `[14] Dialogue → [15] Story` 인지 확인.
@@ -311,7 +318,7 @@ if (StoryManager.Instance.IsCompleted("intro_meet_npc1"))
 
 ### 1회성 → N회성 스토리
 
-기본 `_completedStories.Contains` 체크는 1회성 트리거. N회 또는 무한 트리거를 지원하려면 `StoryEntrySO`에 `repeatable` 플래그를 추가하고 TryTriggerStory에서 분기.
+기본 `StoryPlaybackTracker.CanBegin` 체크는 정상 종료 기준 1회성 트리거다. N회 또는 무한 트리거를 지원하려면 `StoryEntrySO`에 `repeatable` 정책을 추가하고 완료 상태의 저장 규칙까지 함께 정의한다.
 
 ### 트리거 조건 확장
 

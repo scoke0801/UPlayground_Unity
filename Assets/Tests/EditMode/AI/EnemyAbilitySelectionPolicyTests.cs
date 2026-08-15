@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
+using UPlayGround.Ability.Core;
 using UPlayGround.AI.BehaviorTree;
 using UPlayGround.Components;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Combat;
 using UPlayGround.Data.EnumType;
+using UPlayGround.Gameplay.Ability;
 using UPlayGround.Gameplay.Tag;
 using UnityEngine;
 
@@ -334,6 +337,51 @@ namespace UPlayGround.AI.Tests
             }
         }
 
+        [Test]
+        public void Init은_활성_EnemyCombat의_공격트리거_구독을_복구한다()
+        {
+            var gameObject = new GameObject("EnemyCombatTriggerSubscriptionTest");
+            AbilitySetSO set = ScriptableObject.CreateInstance<AbilitySetSO>();
+            GameplayAbilitySO router = CreateRequestRouter(
+                GameplayTags.Trigger_Monster_Attack_Basic);
+            set.additionalAbilities.Add(router);
+            set.RebuildRuntimeIndex();
+
+            try
+            {
+                MonsterActor actor = gameObject.AddComponent<MonsterActor>();
+                EnemyCombat combat = gameObject.AddComponent<EnemyCombat>();
+                combat.Init(set);
+
+                // 씬 로드 순서 문제로 OnEnable 구독을 놓친 상태를 재현한다.
+                MethodInfo unsubscribe = typeof(EnemyCombat).GetMethod(
+                    "UnsubscribeAbilityTriggers",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(unsubscribe, Is.Not.Null);
+                unsubscribe.Invoke(combat, null);
+
+                AbilityActivationResult? rejected = null;
+                actor.Abilities.AbilityTriggerRejected += (_, reason) => rejected = reason;
+
+                // Definition/AbilitySet 재주입은 활성 컴포넌트의 구독도 복구해야 한다.
+                combat.Init(set);
+                actor.Abilities.IssueTriggerEvent(
+                    GameplayTags.Trigger_Monster_Attack_Basic);
+
+                // MovementController 없는 테스트 액터이므로 EnemyCombat이 요청을 받았다면
+                // 상태 전환 거부를 동기적으로 보고한다. null이면 구독 자체를 놓친 것이다.
+                Assert.That(
+                    rejected,
+                    Is.EqualTo(AbilityActivationResult.StateTransitionRejected));
+            }
+            finally
+            {
+                Object.DestroyImmediate(gameObject);
+                Object.DestroyImmediate(router);
+                Object.DestroyImmediate(set);
+            }
+        }
+
         private static AbilityAttackInfo CreateAttackInfo(bool aiSelectable)
         {
             return new AbilityAttackInfo
@@ -352,6 +400,12 @@ namespace UPlayGround.AI.Tests
         {
             GameplayAbilitySO ability =
                 ScriptableObject.CreateInstance<GameplayAbilitySO>();
+            ability.abilityId = $"Test.Router.{triggerTag.TagName}";
+            ability.variants.Add(new AbilityVariantDefinition
+            {
+                variantId = "Default",
+                priority = 1,
+            });
             ability.triggers.Add(new AbilityTriggerDefinition
             {
                 triggerTag = triggerTag,

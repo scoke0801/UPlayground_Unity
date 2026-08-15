@@ -14,6 +14,9 @@ using UPlayGround.Data.Item;
 using UPlayGround.Data.Path;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.Manager;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace UPlayGround.Ability.PlayModeTests
 {
@@ -269,6 +272,124 @@ namespace UPlayGround.Ability.PlayModeTests
             Object.Destroy(effect);
             yield return null;
         }
+
+#if UNITY_EDITOR
+        [UnityTest]
+        public IEnumerator Boss_LianLian_간격압박_공격트리거는_상태와_Ability를_시작한다()
+        {
+            const string prefabPath =
+                "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_LianLian_Whip.prefab";
+            const string definitionPath =
+                "Assets/10.Datas/Actor/DataBase/Boss/MonsterBossLianLian.asset";
+
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            var definition = AssetDatabase.LoadAssetAtPath<
+                global::UPlayGround.Data.Actor.ActorDefinitionSO>(definitionPath);
+            Assert.That(prefab, Is.Not.Null);
+            Assert.That(definition, Is.Not.Null);
+
+            GameObject targetObject = new("LianLianAttackTarget");
+            var target = targetObject.AddComponent<AbilityPlayModeTestActor>();
+            target.SetActorType(ActorType.Player);
+            GameObject monsterObject = null;
+            bool previousIgnoreFailingMessages = LogAssert.ignoreFailingMessages;
+            LogAssert.ignoreFailingMessages = true;
+
+            try
+            {
+                monsterObject = Object.Instantiate(prefab);
+                monsterObject.name = "Boss_LianLian_AttackRegression";
+                var monster = monsterObject.GetComponent<MonsterActor>();
+                var combat = monsterObject.GetComponent<
+                    global::UPlayGround.Components.EnemyCombat>();
+                var detection = monsterObject.GetComponent<
+                    global::UPlayGround.Components.EnemyDetection>();
+                var movement = monsterObject.GetComponent<
+                    global::UPlayGround.MovementController.ActorMovementController>();
+                var ai = monsterObject.GetComponent<
+                    global::UPlayGround.Components.EnemyAIController>();
+
+                Assert.That(monster, Is.Not.Null);
+                Assert.That(combat, Is.Not.Null);
+                Assert.That(detection, Is.Not.Null);
+                Assert.That(movement, Is.Not.Null);
+
+                if (ai != null)
+                    ai.enabled = false;
+                monster.SetDefinition(definition);
+                monsterObject.transform.SetPositionAndRotation(
+                    Vector3.zero,
+                    Quaternion.identity);
+                targetObject.transform.position = Vector3.forward * 2f;
+                detection.AcquireTarget(targetObject.transform);
+
+                float maxHealth = monster.AbilitySystem.Attributes.GetCurrent(
+                    global::UPlayGround.Data.Stat.Attributes.Vital.MaxHealth);
+                monster.AbilitySystem.Attributes.SetBase(
+                    global::UPlayGround.Data.Stat.Attributes.Vital.Health,
+                    maxHealth * 0.5f);
+
+                yield return null;
+
+                Assert.That(
+                    combat.HasAvailableSkillAtDistance(
+                        2f,
+                        AbilityAttackCategory.Heavy,
+                        AbilityAIRole.Punish),
+                    Is.True,
+                    combat.BuildAbilitySelectionDiagnosticSummary());
+                Assert.That(
+                    global::UPlayGround.AI.BehaviorTree.EnemyAbilityTriggerTags
+                        .TryResolveAttackTrigger(
+                            combat.AbilitySet,
+                            AbilityAttackCategory.Heavy,
+                            out _,
+                            out GameplayAbilitySO router,
+                            out global::UPlayGround.Gameplay.Tag.GameplayTag triggerTag),
+                    Is.True);
+
+                AbilityExecutionHandle acceptedHandle = default;
+                AbilityActivationResult? rejected = null;
+                monster.Abilities.AbilityTriggerAccepted += (_, handle) =>
+                    acceptedHandle = handle;
+                monster.Abilities.AbilityTriggerRejected += (_, reason) =>
+                    rejected = reason;
+
+                combat.ReserveAttackSelection(
+                    AbilityAttackCategory.Heavy,
+                    AbilityAIRole.Punish);
+                monster.Abilities.IssueTriggerEvent(
+                    triggerTag,
+                    monster,
+                    target);
+
+                Assert.That(rejected, Is.Null);
+                Assert.That(router, Is.Not.Null);
+                Assert.That(acceptedHandle.IsValid, Is.True);
+                Assert.That(
+                    movement.CurrentState?.StateId,
+                    Is.EqualTo(global::UPlayGround.State.ActorStateId.Attack));
+                Assert.That(combat.CurrentAbility, Is.Not.Null);
+                Assert.That(combat.CurrentSkill, Is.Not.Null);
+                Assert.That(combat.CurrentMotionAsset, Is.Not.Null);
+
+                yield return null;
+
+                Assert.That(
+                    monster.Abilities.IsExecutionActive(acceptedHandle),
+                    Is.True);
+            }
+            finally
+            {
+                LogAssert.ignoreFailingMessages = previousIgnoreFailingMessages;
+                if (monsterObject != null)
+                    Object.Destroy(monsterObject);
+                Object.Destroy(targetObject);
+            }
+
+            yield return null;
+        }
+#endif
     }
 
     public sealed class AbilityPlayModeTestActor : GameActor

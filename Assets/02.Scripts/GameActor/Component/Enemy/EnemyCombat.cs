@@ -419,7 +419,7 @@ namespace UPlayGround.Components
 
         private void SubscribeAbilityTriggers()
         {
-            _abilitySystem ??= _ownerActor?.Abilities;
+            RefreshAbilitySystemReference();
             if (_abilitySystem == null)
                 return;
             _abilitySystem.AbilityTriggerRequested -= OnAbilityTriggerRequested;
@@ -434,6 +434,22 @@ namespace UPlayGround.Components
                 return;
             _abilitySystem.AbilityTriggerRequested -= OnAbilityTriggerRequested;
             _abilitySystem.AbilityTriggerCancelRequested -= OnAbilityTriggerCancelRequested;
+        }
+
+        /// <summary>
+        /// 씬 로드 시 MonsterActor.Awake보다 먼저 호출돼 AbilitySystem을 얻지 못한 경우를 복구한다.
+        /// MonoBehaviour 간 Awake/OnEnable 순서에 의존하면 씬 배치 몬스터만 공격 트리거 구독을
+        /// 놓칠 수 있으므로, Definition/AbilitySet 재주입 시점에도 현재 소유자를 다시 해석한다.
+        /// </summary>
+        private void RefreshAbilitySystemReference()
+        {
+            _ownerActor ??= GetComponent<MonsterActor>();
+            ActorAbilitySystem resolved = _ownerActor?.Abilities;
+            if (resolved == null || ReferenceEquals(_abilitySystem, resolved))
+                return;
+
+            UnsubscribeAbilityTriggers();
+            _abilitySystem = resolved;
         }
 
         private void OnAbilityTriggerRequested(AbilityTriggerRequest request)
@@ -547,12 +563,19 @@ namespace UPlayGround.Components
         /// <summary>액터가 사용할 공용 AbilitySet을 주입한다.</summary>
         public void Init(AbilitySetSO abilitySet)
         {
-            if (abilitySet == null) return;
+            RefreshAbilitySystemReference();
 
-            _abilitySet = abilitySet;
-            _abilitySystem ??= _ownerActor?.Abilities;
-            if (_abilitySystem != null && _abilitySystem.AbilitySet != _abilitySet)
-                _abilitySystem.SetAbilitySet(_abilitySet);
+            if (abilitySet != null)
+            {
+                _abilitySet = abilitySet;
+                if (_abilitySystem != null && _abilitySystem.AbilitySet != _abilitySet)
+                    _abilitySystem.SetAbilitySet(_abilitySet);
+            }
+
+            // MonsterActor.Awake가 뒤늦게 AbilitySystem을 만든 경우 OnEnable은 이미 지나갔을 수 있다.
+            // remove/add 방식이므로 같은 초기화 경로가 여러 번 호출돼도 구독은 한 번만 유지된다.
+            if (isActiveAndEnabled)
+                SubscribeAbilityTriggers();
         }
 
         public void Init(ActorDefinitionSO definition)

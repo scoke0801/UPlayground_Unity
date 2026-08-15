@@ -125,14 +125,18 @@ namespace UPlayGround.UI
             bool consumed = UISvc.Inventory?.RemoveItem(_revivalItemId, 1) ?? false;
             if (!consumed) return;
 
+            // HideUI -> OnHide에서 필드 콜백을 정리하므로 먼저 지역 변수에 보존한다.
+            Action onSpotRevive = _onSpotRevive;
             UISvc.UI.HideUI(UIKeyType.RespawnPopup);
-            _onSpotRevive?.Invoke();
+            onSpotRevive?.Invoke();
         }
 
         private void OnPortalReviveClicked()
         {
+            // HideUI -> OnHide에서 필드 콜백을 정리하므로 먼저 지역 변수에 보존한다.
+            Action onPortalRevive = _onPortalRevive;
             UISvc.UI.HideUI(UIKeyType.RespawnPopup);
-            _onPortalRevive?.Invoke();
+            onPortalRevive?.Invoke();
         }
     }
 }

@@ -591,7 +591,8 @@ namespace UPlayGround.UI
 
             while (elapsed < duration)
             {
-                elapsed += Time.deltaTime;
+                // 일시정지 팝업도 페이드가 끝나야 하므로 게임 시간 배율의 영향을 받지 않는다.
+                elapsed += Time.unscaledDeltaTime;
                 _canvasGroup.alpha = Mathf.Lerp(from, to, elapsed / duration);
                 yield return null;
             }

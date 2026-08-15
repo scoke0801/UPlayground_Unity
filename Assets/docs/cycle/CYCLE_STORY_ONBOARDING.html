@@ -1,0 +1,533 @@
+<title>사이클 스토리 온보딩</title>
+<style>
+  :root{
+    --paper:#F0F3F4;
+    --surface:#FFFFFF;
+    --sunken:#E7EBEC;
+    --ink:#13191C;
+    --ink-soft:#4A575C;
+    --ink-faint:#7B888D;
+    --line:#D2DADC;
+    --line-strong:#B6C1C4;
+    --accent:#0F6F63;
+    --accent-soft:#DFEDEA;
+    --danger:#A93A26;
+    --danger-soft:#F6E5E1;
+    --warn:#7E5B10;
+    --warn-soft:#F5EDD9;
+    --shadow:rgba(19,25,28,.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E1315;
+      --surface:#161D20;
+      --sunken:#121819;
+      --ink:#E3EAEA;
+      --ink-soft:#A2B0B3;
+      --ink-faint:#75837F;
+      --line:#273033;
+      --line-strong:#3A4649;
+      --accent:#54B5A4;
+      --accent-soft:#122A28;
+      --danger:#E08A75;
+      --danger-soft:#2C1B17;
+      --warn:#D3A64F;
+      --warn-soft:#2A2312;
+      --shadow:rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E1315;
+    --surface:#161D20;
+    --sunken:#121819;
+    --ink:#E3EAEA;
+    --ink-soft:#A2B0B3;
+    --ink-faint:#75837F;
+    --line:#273033;
+    --line-strong:#3A4649;
+    --accent:#54B5A4;
+    --accent-soft:#122A28;
+    --danger:#E08A75;
+    --danger-soft:#2C1B17;
+    --warn:#D3A64F;
+    --warn-soft:#2A2312;
+    --shadow:rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{animation:none !important;transition:none !important;} }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+    font-size:15.5px;
+    line-height:1.8;
+    letter-spacing:-.01em;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .mono,code,kbd,.eyebrow,th,.sidebar a,.pill{
+    font-family:ui-monospace,SFMono-Regular,"Cascadia Mono",Menlo,Consolas,monospace;
+  }
+
+  /* ── 레이아웃 ── */
+  .shell{
+    max-width:78rem;
+    margin:0 auto;
+    padding:0 clamp(1rem,3vw,2rem);
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:0;
+  }
+  @media (min-width:60rem){
+    .shell{grid-template-columns:14.5rem minmax(0,1fr);gap:3.5rem;}
+  }
+
+  .sidebar{display:none;}
+  @media (min-width:60rem){
+    .sidebar{
+      display:block;
+      position:sticky;top:0;align-self:start;
+      max-height:100vh;overflow-y:auto;
+      padding:3.5rem 0 3rem;
+      border-right:1px solid var(--line);
+      margin-right:-1.75rem;
+    }
+  }
+  .sidebar .brand{
+    font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:1.2rem;display:block;font-weight:700;
+  }
+  .sidebar ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.15rem;counter-reset:nav;}
+  .sidebar li{counter-increment:nav;}
+  .sidebar a{
+    display:grid;grid-template-columns:1.9rem 1fr;
+    font-size:.78rem;line-height:1.5;
+    color:var(--ink-soft);text-decoration:none;
+    padding:.4rem .5rem .4rem 0;border-radius:3px;
+  }
+  .sidebar a::before{content:counter(nav,decimal-leading-zero);color:var(--ink-faint);}
+  .sidebar a:hover,.sidebar a:focus-visible{color:var(--accent);background:var(--accent-soft);}
+  .sidebar a:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+
+  main{padding:clamp(2.5rem,5vw,3.5rem) 0 6rem;display:flex;flex-direction:column;gap:clamp(2.5rem,5vw,3.5rem);min-width:0;}
+
+  /* ── 타이포 ── */
+  h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:-.02em;line-height:1.35;font-weight:700;}
+  h1{font-size:clamp(1.7rem,4vw,2.35rem);}
+  h2{font-size:1.28rem;}
+  h3{font-size:1rem;}
+  p{margin:0;max-width:70ch;}
+  .lead{color:var(--ink-soft);}
+  .eyebrow{
+    font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;
+  }
+
+  header.page{
+    display:flex;flex-direction:column;gap:1rem;
+    padding-bottom:1.6rem;border-bottom:2px solid var(--line-strong);
+  }
+  header.page .meta{display:flex;flex-wrap:wrap;gap:.4rem;}
+  .pill{
+    font-size:.7rem;padding:.2rem .6rem;border:1px solid var(--line-strong);
+    color:var(--ink-soft);border-radius:2px;background:var(--surface);
+  }
+  .pill.ok{color:var(--accent);border-color:var(--accent);background:var(--accent-soft);}
+  .pill.hold{color:var(--warn);border-color:var(--warn);background:var(--warn-soft);}
+
+  section{display:flex;flex-direction:column;gap:1rem;scroll-margin-top:1.5rem;}
+  section > h2{
+    display:flex;align-items:baseline;gap:.7rem;
+    padding-bottom:.5rem;border-bottom:1px solid var(--line);
+  }
+  section > h2 .num{
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:.8rem;color:var(--accent);font-weight:700;
+  }
+
+  code{
+    font-size:.84em;background:var(--sunken);color:var(--ink);
+    padding:.08rem .32rem;border-radius:3px;border:1px solid var(--line);
+  }
+  a{color:var(--accent);}
+
+  /* ── 표 ── */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);background:var(--surface);box-shadow:0 1px 2px var(--shadow);}
+  table{border-collapse:collapse;width:100%;min-width:36rem;font-size:.87rem;line-height:1.6;}
+  th,td{text-align:left;padding:.6rem .85rem;border-bottom:1px solid var(--line);vertical-align:top;}
+  thead th{
+    font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-faint);font-weight:700;background:var(--sunken);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  td.k{white-space:nowrap;}
+  .num-col{font-variant-numeric:tabular-nums;}
+
+  /* ── 카드 ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(17rem,1fr));gap:1rem;}
+  .card{
+    background:var(--surface);border:1px solid var(--line);
+    padding:1.1rem 1.2rem;display:flex;flex-direction:column;gap:.5rem;
+    box-shadow:0 1px 2px var(--shadow);
+  }
+  .card h3{font-size:.98rem;}
+  .card p{font-size:.88rem;color:var(--ink-soft);}
+  .card .tag{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);font-family:ui-monospace,Menlo,Consolas,monospace;}
+
+  /* ── 대조 (맞다/틀리다) ── */
+  .versus{display:grid;gap:0;border:1px solid var(--line);background:var(--surface);}
+  @media (min-width:44rem){ .versus{grid-template-columns:1fr 1fr;} }
+  .versus > div{padding:1rem 1.15rem;display:flex;flex-direction:column;gap:.4rem;}
+  .versus .no{border-bottom:1px solid var(--line);}
+  @media (min-width:44rem){ .versus .no{border-bottom:none;border-right:1px solid var(--line);} }
+  .versus h3{font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;font-family:ui-monospace,Menlo,Consolas,monospace;}
+  .versus .no h3{color:var(--danger);}
+  .versus .yes h3{color:var(--accent);}
+  .versus p{font-size:.88rem;color:var(--ink-soft);}
+  .versus .no{background:var(--danger-soft);}
+  .versus .yes{background:var(--accent-soft);}
+
+  /* ── 순서 흐름 ── */
+  pre.flow{
+    margin:0;overflow-x:auto;
+    background:var(--sunken);border:1px solid var(--line);
+    padding:1rem 1.15rem;
+    font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:.82rem;line-height:1.75;color:var(--ink);
+  }
+  pre.flow b{color:var(--accent);font-weight:700;}
+  pre.flow i{color:var(--ink-faint);font-style:normal;}
+
+  /* ── 경고 ── */
+  .callout{
+    border-left:3px solid var(--warn);background:var(--warn-soft);
+    padding:.9rem 1.15rem;font-size:.9rem;
+  }
+  .callout.stop{border-left-color:var(--danger);background:var(--danger-soft);}
+  .callout .label{
+    display:block;font-family:ui-monospace,Menlo,Consolas,monospace;
+    font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--warn);font-weight:700;margin-bottom:.3rem;
+  }
+  .callout.stop .label{color:var(--danger);}
+
+  /* ── 체크리스트 ── */
+  ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.1rem;}
+  ul.check li{
+    display:grid;grid-template-columns:1.4rem 1fr;gap:.5rem;
+    padding:.45rem 0;border-bottom:1px dashed var(--line);font-size:.9rem;
+  }
+  ul.check li:last-child{border-bottom:none;}
+  ul.check li::before{
+    content:"☐";color:var(--ink-faint);font-size:.95rem;line-height:1.6;
+  }
+
+  ul.plain{margin:0;padding-left:1.15rem;display:flex;flex-direction:column;gap:.35rem;font-size:.9rem;color:var(--ink-soft);max-width:70ch;}
+  ul.plain b{color:var(--ink);}
+
+  footer{
+    border-top:1px solid var(--line);padding-top:1.2rem;
+    font-size:.78rem;color:var(--ink-faint);
+    display:flex;flex-wrap:wrap;gap:.3rem 1.4rem;
+  }
+</style>
+
+<div class="shell">
+
+<nav class="sidebar" aria-label="목차">
+  <span class="brand">Cycle Story</span>
+  <ol>
+    <li><a href="#s1">먼저 알아야 할 것</a></li>
+    <li><a href="#s2">5분 요약</a></li>
+    <li><a href="#s3">문서 지도</a></li>
+    <li><a href="#s4">헷갈리는 4쌍</a></li>
+    <li><a href="#s5">상태 소유권</a></li>
+    <li><a href="#s6">첫 귀환 오케스트레이션</a></li>
+    <li><a href="#s7">저작 규칙</a></li>
+    <li><a href="#s8">자주 나는 사고</a></li>
+    <li><a href="#s9">검증 체크리스트</a></li>
+    <li><a href="#s10">P0 경계와 남은 일</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<header class="page">
+  <span class="eyebrow">내부 온보딩 · 메인 스토리</span>
+  <h1>사이클 스토리 구현 온보딩</h1>
+  <p class="lead">이 프로젝트의 메인 스토리를 처음 만지는 사람이 첫날에 읽는 문서. 무엇을 만들었는지가 아니라, <b>왜 이 경계를 그었고 어디서 사고가 나는지</b>를 다룬다. 시놉시스(이야기 자체)는 <code>CYCLE_STORY_SYNOPSIS.html</code>에 따로 있다.</p>
+  <div class="meta">
+    <span class="pill ok">P0 코드·데이터 구현 완료</span>
+    <span class="pill hold">Play Mode 연출 검증 대기</span>
+    <span class="pill">플롯 v1.2-quest-review</span>
+    <span class="pill">스펙 10 · 11 · 12</span>
+  </div>
+</header>
+
+<section id="s1">
+  <h2><span class="num">01</span>먼저 알아야 할 것</h2>
+  <p>스토리 작업에서 가장 많이 깨지는 것은 문장이 아니라 <b>권위 순서</b>다. 세 가지를 먼저 합의하고 시작한다.</p>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">권위 순서</span>
+      <h3>구현 스펙 &gt; 플롯 표현</h3>
+      <p><code>CYCLE_STORY_PLOT.md</code>는 서사의 권위 문서지만 런타임 계약을 덮어쓰지 않는다. 스토리 표현과 시스템 동작이 충돌하면 <b>구현 스펙을 우선하고 플롯 문장을 조정한다.</b></p>
+    </div>
+    <div class="card">
+      <span class="tag">세계관 대전제</span>
+      <h3>세계에는 의지가 없다</h3>
+      <p>심사관·시험·벌·감시자가 없다. 세계는 되감기는 닫힌 흐름일 뿐이고, 인물이 그 자리에 남는 이유는 언제나 개인 사정이다. “세계가 시켜서”로 설명되는 대사·연출은 전부 반려 대상이다.</p>
+    </div>
+    <div class="card">
+      <span class="tag">톤</span>
+      <h3>밝은 코믹 미스터리</h3>
+      <p>신규 여신·마왕·최종 보스 모델을 요구하지 않는다. 밝기는 “사라지는 것보다 남는 것을 더 또렷하게 보여준다”는 규칙에서 나온다. 상실을 늘리는 방향의 제안은 톤을 깨뜨린다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="num">02</span>5분 요약</h2>
+  <p>플레이 한 바퀴와 그것을 떠받치는 시스템의 대응 관계다. 왼쪽은 플레이어가 보는 것, 오른쪽은 그것을 만드는 것.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>플레이어가 겪는 일</th><th>실제로 도는 시스템</th><th>주 소유자</th></tr></thead>
+      <tbody>
+        <tr><td>미아의 리본을 찾아 준다</td><td>앵커 반복 퀘스트 + 동적 오브젝트 생성 조건</td><td class="k"><code>CycleLoopAnchorSpawner</code></td></tr>
+        <tr><td>마을 밖 세 갈래가 열린다</td><td>첫 사이클 시작 게이트 해제, 보스 배치 생성</td><td class="k"><code>CycleRunManager</code></td></tr>
+        <tr><td>세 명과 대결해 이긴다</td><td>시드 기반 배치, 조우 공개, 승리 집계</td><td class="k"><code>CycleWorldSpawnService</code></td></tr>
+        <tr><td>마지막 상대가 드러난다</td><td>중앙 배치 공개 조건</td><td class="k"><code>CycleRunManager</code></td></tr>
+        <tr><td>포털로 돌아온다</td><td>정산 → <code>first_return_started</code> 기록 (SP30 아님)</td><td class="k"><code>CycleRunManager</code></td></tr>
+        <tr><td>같은 리본을 또 잃어버린다</td><td>앵커 재수락 + 3분기 대화 조건</td><td class="k"><code>FLOW_CycleStoryAnchor</code></td></tr>
+        <tr><td>안내인이 반복을 확인한다</td><td>SP30 → <code>quest_main_003</code> 완료 → 004 자동 수락</td><td class="k">FlowGraph</td></tr>
+        <tr><td>지난 상대의 힘을 한 번 빌린다</td><td>보스 어시스트 로스터·장착·1회 소환</td><td class="k"><code>BossAssistManager</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s3">
+  <h2><span class="num">03</span>문서 지도</h2>
+  <p>스토리 작업에서 실제로 여는 문서는 셋뿐이다. 나머지 사이클 스펙은 필요할 때만 본다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>문서</th><th>언제 연다</th><th>답을 주는 질문</th></tr></thead>
+      <tbody>
+        <tr><td class="k"><code>CYCLE_STORY_PLOT.md</code></td><td>대사·플롯·인물을 쓸 때</td><td>이 장면이 주제와 톤에 맞는가</td></tr>
+        <tr><td class="k"><code>10_..._STATE_BOUNDARY</code></td><td>저장·리셋·플래그를 건드릴 때</td><td>이 값은 회차 한정인가 영구인가</td></tr>
+        <tr><td class="k"><code>11_PROTAGONIST_DIALOGUE</code></td><td>화자·초상화·토큰을 다룰 때</td><td>이 대사는 누가 말하는가</td></tr>
+        <tr><td class="k"><code>12_LOOP_ANCHOR_QUEST</code></td><td>앵커·퀘스트·FlowGraph를 고칠 때</td><td>이 단계는 무엇으로 진행되는가</td></tr>
+        <tr><td class="k"><code>STORY_PLOT_AUTHORING_GUIDE</code></td><td>문서·대사를 새로 쓰기 직전</td><td>이 문장을 플레이어가 이해·공감하는가</td></tr>
+        <tr><td class="k"><code>CONTENT_SYSTEM_AUTHORING_GUIDE</code></td><td>퀘스트·대화·트리거 데이터 작업</td><td>FlowGraph인가 Trigger인가 Quest인가</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s4">
+  <h2><span class="num">04</span>헷갈리는 4쌍</h2>
+  <p>이 넷을 섞으면 버그가 아니라 <b>설계 붕괴</b>가 난다. 리뷰에서 가장 먼저 확인하는 항목이다.</p>
+
+  <div class="versus">
+    <div class="no">
+      <h3>Player</h3>
+      <p>현재 조작 중인 활성 캐릭터. 파티 스왑마다 바뀐다. 대화 화자 <code>Player</code> / <code>당신</code>과 토큰 <code>{PlayerName}</code>이 여기 붙는다.</p>
+    </div>
+    <div class="yes">
+      <h3>Protagonist</h3>
+      <p>새 게임에서 <b>실제로 적용된</b> 최초 선택 캐릭터. 스왑·해금·씬 이동·로드에도 불변이며, 새 게임만 <code>None</code>으로 되돌린다. 저장 위치는 <code>PartySaveData.storyProtagonistType</code>.</p>
+    </div>
+  </div>
+  <p class="lead">선택 UI 값을 그대로 저장하지 않는다. 모델 유효성 검사 후 실제 적용된 타입(폴백이면 폴백 캐릭터)을 주인공으로 확정한다. 존재하지 않는 선택값이 이름·초상화만 유령처럼 남는 상황을 막기 위해서다. <code>Protagonist</code>는 ActorId가 아니므로 <code>SpeakerActorBindingTableSO</code>에 등록하지 않는다.</p>
+
+  <div class="versus">
+    <div class="no">
+      <h3>UnlockCharacter</h3>
+      <p><code>MonsterActor._recruitableAs</code> 경로. 사망 시 플레이어블 캐릭터를 해금한다. 사이클 보스 넷은 이 값을 <b><code>None</code>으로 유지</b>한다.</p>
+    </div>
+    <div class="yes">
+      <h3>BossAssist</h3>
+      <p>파티 합류가 아니다. 장착 1마리, 지정 스킬 1회, 비이동·비어그로 서포트 소환. 매핑은 <code>BossAssistDatabaseSO.sourceBossActorId</code>, 판정은 <code>BossRecruitmentService</code>.</p>
+    </div>
+  </div>
+
+  <div class="versus">
+    <div class="no">
+      <h3>포털 복귀 = SP30</h3>
+      <p>아니다. 첫 정산은 <code>cycle.story.first_return_started</code>만 기록한다. <code>AdvanceCycleStoryProgressForSettlement</code>는 첫 정산에서 SP30을 올리지 않는다.</p>
+    </div>
+    <div class="yes">
+      <h3>SP30 = 귀환 + 앵커 + 안내인</h3>
+      <p>세 단계가 모두 끝난 뒤 FlowGraph가 SP30을 올리고, 그 다음 명시적으로 <code>CompleteQuest(quest_main_003)</code>를 호출한다. 자동 완료에 맡기지 않는다.</p>
+    </div>
+  </div>
+
+  <div class="versus">
+    <div class="no">
+      <h3>범용 월드 리셋</h3>
+      <p>P0에서 만들지 않는다. <code>WorldStateSaveData.consumedInteractables</code>를 지웠다 복원하는 방식은 금지. 월드 영구 상태와 회차 상태의 경계가 섞인다.</p>
+    </div>
+    <div class="yes">
+      <h3>앵커 하나만 파생 상태로</h3>
+      <p>분실물의 회차 상태는 전용 DTO 없이 <b>퀘스트 활성 + 인벤토리 보유 + 플래그</b>에서 파생한다. 오브젝트는 저장·복원이 아니라 조건 재평가로 다시 생성한다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="s5">
+  <h2><span class="num">05</span>상태 소유권</h2>
+  <p>새 필드를 추가하기 전에 이 표에서 자리를 먼저 찾는다. <b>모든 스토리 플래그는 새 게임 단위 영구</b>이며, 회차 한정으로 보이는 것도 실제로는 파생 계산이다.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>플래그 / 상태</th><th>쓰는 시점</th><th>소비자</th></tr></thead>
+      <tbody>
+        <tr><td class="k"><code>storyProtagonistType</code></td><td>새 게임에서 시작 모델 적용 성공 직후</td><td>대화 UI·백로그·자기 조우·스토리 조건</td></tr>
+        <tr><td class="k"><code>cycle.anchor.first_request_started</code></td><td>초회차 부탁 대화 완료</td><td>오브젝트 생성, 요청 반복 방지</td></tr>
+        <tr><td class="k"><code>cycle.anchor.lostitem_resolved_once</code></td><td>초회차 반환 완료</td><td>첫 사이클 게이트 해제, <code>[기억]</code> 선택지</td></tr>
+        <tr><td class="k"><code>cycle.story.first_return_started</code></td><td>첫 귀환 정산 직후</td><td>앵커 재수락·재스폰, 귀환 장면 복원</td></tr>
+        <tr><td class="k"><code>cycle.anchor.first_return_request_heard</code></td><td>첫 귀환에 주민과 먼저 대화</td><td>선회수 / 선대화 반환 반응 구분</td></tr>
+        <tr><td class="k"><code>cycle.anchor.first_return_anchor_completed</code></td><td>반환 + 주민 반응 완료</td><td>안내인 대화 게이트, 중복 반환 방지</td></tr>
+        <tr><td class="k"><code>cycle.anchor.first_return_guide_completed</code></td><td>안내인 대화 마지막 이벤트</td><td>SP30 · <code>quest_main_003</code> 완료 게이트</td></tr>
+        <tr><td class="k"><code>cycle.story.next_route_unlocked</code></td><td>SP50 엔딩 연출 완료</td><td>지도·이동 UI</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <span class="label">자주 오해</span>
+    <code>first_return_anchor_completed</code>는 SP30과 같은 뜻이 아니다. 주민 반응까지는 끝났지만 안내인 대화 전에 저장한 상태를 복원하기 위한 <b>장면 게이트</b>다. 둘을 하나로 합치면 중간 저장 지점에서 진행 불능이 생긴다.
+  </div>
+  <p class="lead">분실물의 파생 상태는 <code>Dormant → AvailableInWorld → Carried → Returned → AnchorCompleted</code> 다섯이며, 각 판정은 퀘스트 활성 여부·아이템 보유 수·완료 플래그만으로 계산한다. <code>Carried</code> 상태로 로드하면 오브젝트를 생성하지 않는다.</p>
+</section>
+
+<section id="s6">
+  <h2><span class="num">06</span>첫 귀환 오케스트레이션</h2>
+  <p>이 게임의 장르 인식이 성립하는 지점이자, 순서 하나만 어긋나도 무너지는 구간이다. 확정 순서는 다음과 같다.</p>
+  <pre class="flow">귀환 포털 이용
+  → <b>first_return_started = true</b>   <i>// SP30 아님</i>
+  → 앵커 퀘스트 재수락 · 오브젝트 재생성
+  → 같은 분실물 사건 재발
+      ├ 선회수        <i>(부탁 전에 물건부터)</i>
+      ├ 선대화 + [기억] 선택지
+      └ 평범한 재해결  <i>(한 줄 환기 필수)</i>
+  → 분실물 반환 · 주민 반응
+  → <b>first_return_anchor_completed = true</b>
+  → 안내인 대화 (조용한 곳으로 이동)
+  → <b>first_return_guide_completed = true</b>
+  → <b>SetStoryProgress(30)</b>
+  → CompleteQuest(quest_main_003)
+  → quest_main_004 자동 수락</pre>
+  <p>세 분기는 <b>모두 같은 안내인 완료 이벤트로 합류</b>해야 한다. 문안을 바꿀 때도 이 합류가 깨지지 않는지가 승인 조건이다.</p>
+  <div class="callout stop">
+    <span class="label">진행 불능 주의</span>
+    FlowGraph의 <code>OnFlagChanged</code>는 <b>저장 복원 때 발화하지 않는다.</b> 그래서 <code>resume</code> 진입점이 필수이고, 각 진입은 멱등이어야 한다. 앵커 복구에 실패하면 사이클 시작으로 우회하지 말고 오류를 남기고 진행을 정지시킨다 — 장르 전환의 핵심 장면을 조용히 건너뛰는 것이 더 큰 손해다.
+  </div>
+  <p class="lead">첫 사이클 시작 게이트도 같은 원리다. 타이틀의 <code>RequestStartNewCycleOnNextWorld()</code>는 유지하되 pending 상태로 두고, 초회차 앵커 완료 Flow가 <code>CycleStoryEvent.FirstAnchorGateCompleted</code>를 발행하면 <code>CycleRunManager</code>가 pending을 재평가해 <code>StartNewCycle</code>한다. 게이트가 닫혀 있는 동안 pending 요청을 지우지 않는다. GlobalFlag 구독 순서에 기대면 전투가 퀘스트 수락보다 먼저 시작된다.</p>
+</section>
+
+<section id="s7">
+  <h2><span class="num">07</span>저작 규칙</h2>
+
+  <h3>언어 경계</h3>
+  <p>플레이어 노출 텍스트(HUD·퀘스트·대사·마커)에 다음을 쓰지 않는다.</p>
+  <div class="callout stop">
+    <span class="label">금지어</span>
+    외곽 · 중앙 · 관문지기 · 수호자 · 처치 · 버팀목 · 고정점 · 평가 · 심사 · 통과 · 회차 · <code>OuterBoss</code> · <code>CentralBoss</code> · <code>CycleOuterBoss</code>
+  </div>
+  <p class="lead">대신 인물의 이름과 행동을 직접 쓴다 — <code>대결에서 승리한다 (0/3)</code>, <code>미확인 상대</code>, <code>마지막 상대의 위치가 드러났습니다</code>. 기획 임시어(<code>고정점</code>)도 플레이어에게 가르치지 않는다.</p>
+
+  <h3>퀘스트 문구</h3>
+  <ul class="plain">
+    <li><b>시작 문구는 질문을, 완료 장면은 답을.</b> 앞으로 일어날 정답을 퀘스트 설명이 미리 요약하면 사건이 죽는다.</li>
+    <li><b>인과는 대사보다 환경이 먼저 보여준다.</b> 세 대결 뒤 길이 드러나고, 마지막 대결 뒤 그 자리에 포털이 생긴다. 안내인은 관찰만 덧붙인다.</li>
+    <li><b>기존 ID와 GUID는 보존한다.</b> <code>quest_main_001~005</code>의 내부 objective 타입은 유지하고 표시 문자열만 일상어로 바꾼다.</li>
+  </ul>
+
+  <h3>진행 목표 타입</h3>
+  <p class="lead">대사·연출로만 진행되는 단계는 <code>QuestObjectiveType.StoryEvent</code>(값 9, enum 끝에 추가)와 <code>NotifyStoryEvent(eventId)</code>로 표현한다. <code>ReachLocation</code>을 가짜 위치 목표로 전용하면 지도와 월드 마커가 존재하지 않는 지점을 가리킨다. <code>StoryEvent</code>는 마커를 만들지 않으며 동일 eventId 중복 알림이 누적되지 않는다.</p>
+
+  <h3>화자와 토큰</h3>
+  <ul class="plain">
+    <li><code>Player</code>/<code>당신</code> → 활성 캐릭터, <code>Protagonist</code> → <code>StoryProtagonistType</code>. 둘을 <code>IsPlayerSpeaker</code> 하나로 묶지 않는다.</li>
+    <li>화면(<code>UI_Scene_Dialogue</code>)과 백로그(<code>RecordNodeHistory</code>)에 <b>같은 인자</b>를 전달한다. 서로 다른 화자를 기록하면 완료로 보지 않는다.</li>
+    <li>토큰 치환은 <code>DialogueTextResolver</code>에서 <b>마크업 변환 전에</b>. 알려진 토큰만 정확 일치로 치환하고, 미해결 토큰은 원문을 남기고 경고한다.</li>
+    <li>활성 캐릭터 ≠ 주인공이면 주인공 대사에 화자 transform을 만들지 않는다. 엉뚱한 <code>PlayerActor</code>를 클로즈업하게 된다.</li>
+  </ul>
+
+  <h3>인물 저작 4문항</h3>
+  <p class="lead">상대 대사를 쓰기 전 네 질문에 먼저 답한다 — 왜 그 자리에 남아 있는가 / 왜 주인공과 대결하는가 / 승리 뒤 왜 자리를 벗어나는가 / 다음 회차에 무엇을 기억하는가. 어떤 답도 <b>“세계가 시켜서”나 “맡은 역할이라서”가 될 수 없다.</b></p>
+</section>
+
+<section id="s8">
+  <h2><span class="num">08</span>자주 나는 사고</h2>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>증상</th><th>실제 원인</th><th>처방</th></tr></thead>
+      <tbody>
+        <tr><td>주인공 이름·초상화가 스왑 때마다 바뀐다</td><td>화자를 <code>Player</code>로 저작함</td><td>서사 대사는 <code>Protagonist</code> 화자로</td></tr>
+        <tr><td>로드 후 리본이 두 개 존재</td><td><code>Carried</code> 상태에서 오브젝트 재생성</td><td>생성 조건에 인벤토리 보유 0개 포함</td></tr>
+        <tr><td>로드 후 진행이 멈춤</td><td><code>OnFlagChanged</code>가 복원 시 발화하지 않음</td><td><code>resume</code> 진입에서 미완료 단계 재실행</td></tr>
+        <tr><td>포털만 지났는데 SP30이 오름</td><td>정산에서 진행도를 직접 올림</td><td>정산은 <code>first_return_started</code>만 기록</td></tr>
+        <tr><td>튜토리얼 중 보스 마커가 뜸</td><td>게이트 전에 <code>StartNewCycle</code> 실행</td><td>pending 유지 + 앵커 완료 이벤트로 재평가</td></tr>
+        <tr><td>주인공 얼굴의 상대와 싸우는데 아무 반응 없음</td><td>자기 조우 판정을 이름 문자열로 함</td><td>타입 → 전투 ActorId 매핑으로 배치와 대조</td></tr>
+        <tr><td>이미 이긴 상대의 어시스트가 막힘</td><td>정상. 같은 인물이 미승리 상대로 남아 있을 때만 차단</td><td>대결 완료 즉시 해제되는지 확인</td></tr>
+        <tr><td>반복 퀘스트로 파밍이 됨</td><td>앵커 퀘스트에 보상을 넣음</td><td>보상 없음 유지, 앵커 아이템 판매·폐기 금지</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s9">
+  <h2><span class="num">09</span>검증 체크리스트</h2>
+  <p>Play Mode에서 직접 밟아 본 항목만 체크한다. 정적 검토는 대화 그래프 연결과 문안까지만 보장한다.</p>
+  <ul class="check">
+    <li>새 게임 후 60초 안에 요청 → 회수 → 반환이 끝난다.</li>
+    <li>반환 전에는 보스 마커와 <code>quest_main_001</code> HUD가 뜨지 않는다.</li>
+    <li>초회차에는 부탁을 듣기 전 분실물을 주울 수 없고, 첫 귀환에는 주울 수 있다.</li>
+    <li>첫 귀환 직후 SP30이 오르지 않고 <code>quest_main_003</code>이 활성이다.</li>
+    <li>선회수 · <code>[기억]</code> 선택 · 평범한 재해결 세 경로가 모두 안내인 대화로 합류한다.</li>
+    <li>SP30은 안내인 마지막 이벤트 뒤 정확히 한 번 오른다.</li>
+    <li><code>AvailableInWorld</code> / <code>Carried</code> / <code>Returned</code> 각 상태에서 저장·로드해도 중복이 없다.</li>
+    <li>첫 회차에 얻은 어시스트가 다음 회차와 로드 뒤에도 실제 사용된다.</li>
+    <li>파티 교체와 로드 뒤에도 주인공이 바뀌지 않는다.</li>
+    <li>새 게임을 다시 시작하면 앵커 플래그와 아이템이 남지 않는다.</li>
+    <li>HUD와 대사에 금지어가 노출되지 않는다.</li>
+    <li>인과가 설명 대사보다 환경 변화로 먼저 보인다. <span style="color:var(--warn)">← 카메라·동선 포함, 현재 미검증</span></li>
+  </ul>
+</section>
+
+<section id="s10">
+  <h2><span class="num">10</span>P0 경계와 남은 일</h2>
+  <div class="grid">
+    <div class="card">
+      <span class="tag">P0 확정 데이터</span>
+      <h3>손대기 전에 확인</h3>
+      <p>주민 <code>Npc_Mia</code>(npcId <code>210101</code>), 분실물 <code>MiasBlueRibbon</code>(itemId <code>250101</code>, 표시명 “파란 리본”), 동적 오브젝트 <code>CycleAnchor_BlueRibbon</code>, 문안 <code>DLG_Npc_Mia_CycleAnchor</code> · <code>DLG_Npc_Guide</code>. 어시스트는 호노카·보쿠세이·히치·릴리 4종, 모두 <code>requiredDefeatCount=1</code>.</p>
+    </div>
+    <div class="card">
+      <span class="tag">비활성 유지</span>
+      <h3>켜지 말 것</h3>
+      <p>레거시 <code>main_001</code>·<code>main_002</code>와 <code>quest_sub_*</code> 6개는 <code>isContentEnabled=false</code>다. 본문이 메인 진행도 요약으로 덮여 있어 켜면 결말을 미리 설명하고 같은 행동에 보상이 두 번 나간다. 재활성화는 5개 조건을 모두 만족한 뒤에만.</p>
+    </div>
+    <div class="card">
+      <span class="tag">P1</span>
+      <h3>아직 정하지 않은 것</h3>
+      <p>네 상대의 개인 사정·재조우 기억과 전용 대사, 자기 조우 정체 규명, “길의 방향을 바꾸는 행동”의 실제 조작 정의, 일반 주민 전체 리셋, 추가 반복 앵커. <b>행동이 정해지기 전에 대사로 방법을 설명해 봉합하지 않는다.</b></p>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="label">미확정</span>
+    자기 조우의 정체는 <b>미래·과거·평행세계·실패한 시간선 어느 것으로도 확정하지 않았다.</b> 임시 설정 문구는 “세계가 아직 흘려보내지 못한 주인공의 모습”이며, P0 대사는 서로의 차이를 의심하는 데서 멈춘다. 여기에 설정을 덧붙이는 제안은 P1 전용 그래프 작업으로 넘긴다.
+  </div>
+</section>
+
+<footer>
+  <span>기준 문서 · <code>Assets/docs/cycle/</code> CYCLE_STORY_PLOT v1.2 + 스펙 10·11·12</span>
+  <span>이야기 자체는 <code>CYCLE_STORY_SYNOPSIS.html</code></span>
+</footer>
+
+</main>
+</div>

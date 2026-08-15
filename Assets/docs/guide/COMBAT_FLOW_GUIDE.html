@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>전투 런타임 플로우 가이드</title>
+  <style>
+    :root {
+      --bg: #08111d;
+      --panel: #101c2b;
+      --panel-2: #142438;
+      --line: #29415d;
+      --text: #e8f0f8;
+      --muted: #9eb0c3;
+      --cyan: #59d8ff;
+      --mint: #6ee7b7;
+      --amber: #fbbf6a;
+      --red: #fb7185;
+      --violet: #b79cff;
+      --sidebar: 280px;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 85% 8%, rgba(89, 216, 255, .10), transparent 28rem),
+        radial-gradient(circle at 15% 55%, rgba(183, 156, 255, .08), transparent 30rem),
+        var(--bg);
+      font-family: "Pretendard", "Noto Sans KR", "Segoe UI", sans-serif;
+      line-height: 1.72;
+      word-break: keep-all;
+    }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+    code {
+      padding: .12rem .38rem;
+      border: 1px solid rgba(89, 216, 255, .16);
+      border-radius: 6px;
+      color: #bceeff;
+      background: rgba(89, 216, 255, .07);
+      font-size: .92em;
+      word-break: break-all;
+    }
+    pre {
+      margin: 14px 0;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #0b1624;
+      font-size: .85rem;
+      line-height: 1.6;
+    }
+    pre code { padding: 0; border: 0; background: none; color: #d7e6f4; word-break: normal; }
+
+    .layout { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+    aside {
+      position: sticky; top: 0; height: 100vh;
+      padding: 28px 20px;
+      border-right: 1px solid var(--line);
+      background: rgba(8, 17, 29, .92);
+      overflow-y: auto;
+    }
+    .brand { font-size: 1.05rem; font-weight: 800; }
+    .brand small { display: block; color: var(--muted); font-size: .78rem; font-weight: 500; margin-top: 4px; }
+    nav { margin-top: 20px; display: flex; flex-direction: column; gap: 2px; }
+    nav a { padding: 7px 10px; border-radius: 8px; color: var(--text); font-size: .88rem; }
+    nav a:hover { background: var(--panel-2); text-decoration: none; }
+    nav .grp { margin-top: 14px; padding: 0 10px; color: var(--muted); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+
+    main { padding: 40px 48px 80px; max-width: 1040px; }
+    h1 { margin: 0 0 6px; font-size: 1.9rem; letter-spacing: -.02em; }
+    .subtitle { color: var(--muted); margin-bottom: 34px; }
+    h2 {
+      margin: 52px 0 14px; padding-top: 18px; font-size: 1.32rem;
+      border-top: 1px solid var(--line);
+    }
+    h3 { margin: 30px 0 10px; font-size: 1.05rem; color: var(--cyan); }
+    h4 { margin: 20px 0 8px; font-size: .95rem; color: var(--mint); }
+    p, li { font-size: .94rem; }
+    ul, ol { padding-left: 1.25rem; }
+    li { margin: 4px 0; }
+
+    .card {
+      margin: 16px 0; padding: 18px 20px;
+      border: 1px solid var(--line); border-radius: var(--radius);
+      background: var(--panel);
+    }
+    .note, .warn, .rule {
+      margin: 16px 0; padding: 14px 18px;
+      border-radius: 12px; border-left: 3px solid;
+      font-size: .9rem;
+    }
+    .note { border-color: var(--cyan); background: rgba(89, 216, 255, .07); }
+    .warn { border-color: var(--red);  background: rgba(251, 113, 133, .08); }
+    .rule { border-color: var(--amber); background: rgba(251, 191, 106, .08); }
+    .note b, .warn b, .rule b { display: block; margin-bottom: 4px; }
+
+    .tw { overflow-x: auto; margin: 16px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; min-width: 560px; }
+    th, td { padding: 9px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--panel-2); font-weight: 700; color: var(--cyan); }
+    td code { font-size: .86em; }
+
+    .flow { display: flex; flex-direction: column; gap: 0; margin: 20px 0; }
+    .step {
+      display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px;
+      padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px;
+      background: var(--panel);
+    }
+    .step .n {
+      display: grid; place-items: center; width: 34px; height: 34px;
+      border-radius: 10px; background: var(--panel-2); border: 1px solid var(--line);
+      font-weight: 800; color: var(--cyan); font-size: .9rem;
+    }
+    .step h4 { margin: 4px 0 6px; color: var(--text); font-size: .98rem; }
+    .step p { margin: 0; color: var(--muted); font-size: .87rem; }
+    .step .who { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; font-size: .7rem; vertical-align: middle; }
+    .who.pl { background: rgba(89,216,255,.14); color: var(--cyan); }
+    .who.mo { background: rgba(251,113,133,.14); color: var(--red); }
+    .who.both { background: rgba(110,231,183,.14); color: var(--mint); }
+    .arrow { align-self: center; margin: 2px 0 2px 21px; color: var(--line); font-size: 1.1rem; line-height: 1; }
+
+    .files { font-size: .84rem; color: var(--muted); margin-top: 8px; }
+    .files code { color: var(--violet); border-color: rgba(183,156,255,.2); background: rgba(183,156,255,.07); }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      main { padding: 28px 20px 60px; }
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside>
+    <div class="brand">전투 런타임 플로우
+      <small>UPlayGround · 입력에서 피드백까지</small>
+    </div>
+    <nav>
+      <span class="grp">개요</span>
+      <a href="#overview">0. 이 문서의 범위</a>
+      <a href="#bigpicture">1. 전체 흐름 한 장</a>
+      <span class="grp">공격 성립까지</span>
+      <a href="#s1">2. 입력과 상태 진입</a>
+      <a href="#s2">3. 행동 결정 (GAS / BT)</a>
+      <a href="#s3">4. 모션과 판정 개폐</a>
+      <a href="#s4">5. 히트 검출</a>
+      <span class="grp">피격 해석</span>
+      <a href="#s5">6. 해석 파이프라인</a>
+      <a href="#defense">6-1. 방어 판정</a>
+      <a href="#damage">6-2. 피해 계산</a>
+      <a href="#reaction">6-3. 리액션 결정</a>
+      <span class="grp">결과</span>
+      <a href="#s6">7. 피드백과 소유권</a>
+      <a href="#resource">8. 자원 루프</a>
+      <span class="grp">참조</span>
+      <a href="#traps">9. 자주 틀리는 지점</a>
+      <a href="#index">10. 파일 인덱스</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>전투 런타임 플로우 가이드</h1>
+    <p class="subtitle">
+      버튼을 누른 순간부터 데미지 숫자가 뜨고 카메라가 흔들릴 때까지, 코드가 실제로 지나가는 경로를 순서대로 기술한다.
+    </p>
+
+    <h2 id="overview">0. 이 문서의 범위</h2>
+    <p>
+      <a href="COMBAT_SYSTEM_AUTHORING_GUIDE.md">전투 시스템 작업 지침</a>이 <b>무엇을 어디에 저작하는가</b>(BT·GAS·MotionSet의 3계층 경계)를 정한다면,
+      이 문서는 그 데이터가 <b>런타임에 어떤 순서로 실행되는가</b>를 정리한다. 새 공격을 붙이다 막혔을 때
+      "지금 어느 단계에서 끊겼는지" 찾는 용도로 쓴다.
+    </p>
+    <div class="note">
+      <b>읽는 순서</b>
+      1장의 흐름도에서 문제 구간을 특정하고 → 해당 장으로 내려가 그 구간의 진입점 함수와 소유 파일을 확인한다.
+      각 장 끝의 <span style="color:var(--violet)">보라색 경로</span>가 그 구간을 소유한 파일이다.
+    </div>
+
+    <h2 id="bigpicture">1. 전체 흐름 한 장</h2>
+    <p>
+      플레이어와 몬스터는 <b>행동을 고르는 방식만 다르고</b>(2~3장), 판정·피해·리액션·피드백(4~7장)은 같은 코드를 지난다.
+      아래에서 <span style="color:var(--cyan)">파란색</span>은 공격자측, <span style="color:var(--red)">붉은색</span>은 피격자측 소유 구간이다.
+    </p>
+
+    <div class="flow">
+      <div class="step">
+        <div class="n">1</div>
+        <div>
+          <h4>입력 / 판단 <span class="who both">공통</span></h4>
+          <p>플레이어는 <code>InputBuffer</code>의 선입력을, 몬스터는 BT가 고른 <code>EnemyActionRequest</code>를 상태 전환 요청으로 만든다.</p>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="n">2</div>
+        <div>
+          <h4>행동 확정 <span class="who pl">플레이어=GAS</span><span class="who mo">몬스터=BT</span></h4>
+          <p>플레이어는 <code>TryPrepare… → Commit</code> 2단계로 Ability를 확정하고, 몬스터는 <code>EnemyActionResolver.TryTransition</code>이 쿨다운·상태 락을 검사한 뒤 전환한다. 결과물은 양쪽 모두 <code>AttackData</code> 하나다.</p>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="n">3</div>
+        <div>
+          <h4>모션 재생 · 판정 개폐 <span class="who both">MotionSet</span></h4>
+          <p><code>MotionSetAsset</code> 타임라인이 흐르면서 <code>BeginCollisionEvent</code>가 <code>CombatActionRunner</code>에 판정 시작/종료를 알린다. <b>언제 때리는가는 전부 여기가 소유한다.</b></p>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="n">4</div>
+        <div>
+          <h4>히트 검출 <span class="who pl">공격자</span></h4>
+          <p><code>PerformHitDetection()</code>이 활성 히트박스 그룹 또는 명시적 판정 형상으로 대상을 모은다. 프레임당 1회, 대상당 1회로 제한된다.</p>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="n">5</div>
+        <div>
+          <h4>피격 해석 <span class="who mo">피격자</span></h4>
+          <p><code>IDamageable.ReceiveHit()</code> → <code>CombatResolutionPipeline.Execute()</code>. 방어 → 피해 → 리액션 순으로 계산해 <code>CombatResult</code> 하나로 봉한다. <b>모든 피해의 단일 진입점이다.</b></p>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="n">6</div>
+        <div>
+          <h4>피드백 <span class="who both">소유권 분리</span></h4>
+          <p>데미지 숫자·히트 FX는 <b>공격자</b>가, 충돌음·햅틱·컬러 플래시는 <b>피격자</b>가 낸다. 히트스톱·카메라는 공격 1회당 1번만 실행된다.</p>
+        </div>
+      </div>
+      <div class="arrow">↓</div>
+      <div class="step">
+        <div class="n">7</div>
+        <div>
+          <h4>자원 갱신 · 기록 <span class="who both">공통</span></h4>
+          <p>Poise/Break 게이지, 스킬 게이지, VitalOrb 드롭, 페이즈 전환이 갱신되고 <code>CombatLogRecorder</code>가 결과를 기록한다.</p>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="s1">2. 입력과 상태 진입</h2>
+
+    <h3>2.1 선입력과 캔슬</h3>
+    <p>
+      입력은 즉시 상태를 바꾸지 않는다. <code>Svc.Input.InputBuffer</code>에 쌓인 뒤, 현재 상태가 <b>그 입력을 받아줄 수 있을 때</b> 소비된다.
+      받아줄 수 있는지를 정하는 것이 <code>PlayerInterruptAction</code> 마스크다.
+    </p>
+    <ul>
+      <li><b>공격 중 캔슬</b> — <code>AttackData.interruptActions</code>에 허용된 액션만 현재 공격을 끊는다.</li>
+      <li><b>차지 중 캔슬</b> — <code>PlayerCombat.GetChargeInterruptActions()</code>가 홀드 중 탈출 가능한 액션을 돌려준다.</li>
+      <li><b>콤보 윈도우</b> — <code>OpenComboWindow()</code>/<code>CloseComboWindow()</code>가 다음 타로 이어질 수 있는 구간을 연다. 윈도우 밖 입력은 캔슬 경로로 처리된다.</li>
+    </ul>
+    <div class="rule">
+      <b>공격 상태는 전역 버퍼를 오래 붙들지 않는다</b>
+      <code>PlayerAttackState.CapturePendingAttackIntent()</code>가 약/강 입력을 전역 버퍼에서 <b>즉시 회수</b>해 자기 소유의 단일 "다음 공격" 슬롯에 보관한다.
+      콤보 윈도우를 기다리며 전역 버퍼 만료를 멈추면 회피·가드 같은 다른 액션의 수명까지 함께 늘어나기 때문이다.
+    </div>
+
+    <h3>2.2 진입 시 결정되는 것</h3>
+    <p><code>PlayerAttackState.OnEnter</code>는 이 시점에 다음을 확정한다.</p>
+    <ul>
+      <li><code>GameplayTags.State_Combat_Attack</code> 부착</li>
+      <li>강제 공격(<code>_forcedAttackAction</code>) 여부 — 직전 공격이 완료 경계에서 인계한 값. <b>버퍼 재해석으로 뒤집지 않는다</b>(강공격이 약공격으로 변질됨)</li>
+      <li>입장 공격(<code>ConsumeEntryAttackPending</code>), 카운터 공격, 콤보 리셋 여부</li>
+    </ul>
+    <p class="files">소유: <code>GameActor/State/Player/PlayerAttackState.cs</code>, <code>GameActor/State/Player/PlayerInterruptResolver.cs</code>, <code>GameActor/Component/Player/PlayerCombat.Combo.cs</code></p>
+
+    <h2 id="s2">3. 행동 결정 — 플레이어(GAS)와 몬스터(BT)</h2>
+
+    <h3>3.1 플레이어 — Prepare / Commit 2단계</h3>
+    <p>
+      스킬은 곧바로 실행되지 않는다. <b>준비 → 검증 → 확정</b> 순서를 거치며, 중간에 실패하면 <code>Abort</code>로 되돌린다.
+      비용·쿨다운을 먼저 깎고 나중에 모션이 없어 실패하는 사태를 막기 위한 구조다.
+    </p>
+<pre><code>AbilityActivationResult prepare = playerActor.Abilities.TryPrepareAbility(ability, grounded, …, out handle);
+if (prepare != Success)            → 후보 탈락, 다음 우선순위로
+if (모션 해석 실패)                 → Abilities.Abort(handle)
+AbilityActivationResult commit = playerActor.Abilities.Commit(handle);
+if (commit != Success)             → Abilities.Abort(handle)</code></pre>
+    <p>공격 후보의 <b>우선순위</b>는 <code>PlayerAttackState</code>가 아래 순서로 평가한다.</p>
+    <ol>
+      <li>강제 공격(<code>forcedAttackAction</code>) — 이전 상태가 확정해 넘긴 값</li>
+      <li>숫자 키 스킬 슬롯(<code>PlayerSkillSlot</code>) — GAS Prepare/Commit 경유</li>
+      <li>기본 약/강 콤보 — <code>PlayerCombat.ExecuteAttack()</code> / <code>ExecuteHeavyAttack()</code></li>
+    </ol>
+
+    <h4>약·강 이중 콤보 체인</h4>
+    <p>
+      약 체인과 강 체인은 <b>인덱스를 각각 보존</b>한다(<code>_normalComboIndex</code>, <code>_heavyComboIndex</code>).
+      전환 시 <code>ResetCombo()</code>를 부르면 반대편 체인이 날아가므로, 대신 <code>_comboController.CloseWindow()</code>로
+      stale 윈도우만 닫고 인덱스를 복원한다. 태그도 <code>Combo_Light</code>/<code>Combo_Heavy</code>가 상호 배타적으로
+      직접 교체된다.
+    </p>
+
+    <h4>차지 공격</h4>
+    <p>
+      <code>ExecuteChargeAttack(stageIndex, chargeRatio)</code>. 단계별 임계값은 <code>chargeStageThresholds</code>가 있으면 그 값을,
+      없으면 단계 수로 균등 분할한 값을 쓴다. 최종 피해는 단계 데이터에 <code>Lerp(1.0, 1.5, chargeRatio)</code>를 곱한다.
+      차지 릴리즈는 별도 상태이므로 연계 라우트용 <code>ComboInputToken.Charge</code>를 여기서 직접 push한다.
+    </p>
+
+    <h3>3.2 몬스터 — BT가 고르고 Resolver가 검증한다</h3>
+    <p>
+      BT의 <code>RequestEnemyActionNode</code>가 <code>EnemyActionRequest</code>(Intent · Style · CooldownId)를 만들고,
+      <code>EnemyActionResolver.TryTransition()</code>이 아래를 <b>순서대로</b> 검사한 뒤에야 상태를 바꾼다.
+    </p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>검사</th><th>실패 시</th></tr></thead>
+        <tbody>
+          <tr><td><code>ActorMovementController</code> 존재</td><td>"ActorMovementController가 없습니다."</td></tr>
+          <tr><td><code>IsCooldownReady(cooldownId)</code></td><td>쿨다운 미준비 — 해당 Intent 탈락</td></tr>
+          <tr><td><code>CreateState()</code> 해석</td><td>Intent·Style을 상태로 옮길 수 없음</td></tr>
+          <tr><td><code>IsTransitionBlockedByActionLock()</code></td><td>현재 상태가 액션 락 중</td></tr>
+          <tr><td><code>controller.TryTransitionToState()</code></td><td>상태 자신의 전환 조건 불통과</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn">
+      <b>BT가 골랐다고 실행된 것이 아니다</b>
+      위 5단계 중 하나만 막혀도 조용히 실패한다. "BT는 공격을 고르는데 몬스터가 안 움직인다"의 원인은 대부분
+      <code>cooldownId</code> 불일치 또는 상태측 <code>CanTransitionState</code> 거부다. <code>failureReason</code> 문자열을 먼저 확인한다.
+    </div>
+    <p class="files">소유: <code>GameActor/Gameplay/Ability/ActorAbilitySystem.cs</code>, <code>GameActor/AI/BehaviorTree/Runtime/EnemyActionResolver.cs</code>, <code>…/RequestEnemyActionNode.cs</code></p>
+
+    <h2 id="s3">4. 모션 재생과 판정 개폐</h2>
+    <p>
+      공격이 확정되면 <code>AttackData.motionAsset</code>의 타임라인이 재생되고, 그 위에 얹힌 MotionEvent가 판정을 켠다.
+      <b>이 구간에는 수치가 없다.</b> 모션은 "언제"만 소유한다.
+    </p>
+
+    <h3>4.1 판정 소스는 두 종류다 — 그리고 배타적이다</h3>
+    <div class="tw">
+      <table>
+        <thead><tr><th><code>CollisionSourceType</code></th><th>의미</th><th>용도</th></tr></thead>
+        <tbody>
+          <tr><td><code>AttachedHitboxGroup</code></td><td>무기·신체에 부착된 <code>CombatHitbox</code>를 <code>groupId</code>로 켠다</td><td>일반 근접 타격(기본값)</td></tr>
+          <tr><td><code>ExplicitShape</code></td><td>이벤트가 직접 소유한 판정 형상을 그 자리에서 만든다</td><td>폭발·충격파·광역 지면 타격</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rule">
+      <b>명시적 세션이 열려 있으면 부착형 그룹은 질의하지 않는다</b>
+      <code>PerformHitDetection()</code>은 <code>_collisionSession.ShouldDetect()</code>가 참이면 부착형 히트박스를 아예 보지 않는다.
+      두 소스를 섞어 쓰면 같은 타격이 두 번 커밋된다.
+    </div>
+
+    <h3>4.2 평가 방식</h3>
+    <ul>
+      <li><b>Window</b> — 판정 구간 동안 매 프레임 검출(스윕). 종료 이벤트까지 유지된다.</li>
+      <li><b>OnceOnBegin</b> — 시작 시점 1회로 끝. <code>MarkConsumed()</code> 후 다시 질의하지 않는다.
+        이 경우 <code>RequiresPostEvaluation</code>이 켜져 <b>그 프레임의 최종 본 포즈</b>로 형상을 샘플링한다.</li>
+    </ul>
+
+    <h3>4.3 HitPhase 인덱스 동기화</h3>
+    <p>
+      멀티 히트 공격은 구간마다 다른 수치를 쓴다. <code>BeginCollisionEvent.hitPhaseIndex</code>가
+      <code>CombatActionRunner.CurrentPhaseIndex</code>를 갱신하고, 검출 직전에
+      <code>_currentAttackData.hitPhaseIndex</code>가 여기에 맞춰 <code>SetHitPhaseIndex()</code>로 재동기화된다.
+    </p>
+    <p class="files">소유: <code>GameActor/Animation/MotionEvents/MotionEvent_Collision.cs</code>, <code>GameActor/Combat/Action/CombatActionRunner.cs</code>, <code>GameActor/Combat/Detection/CombatCollisionSession.cs</code>, <code>…/CombatHitboxSet.cs</code></p>
+
+    <h2 id="s4">5. 히트 검출</h2>
+    <p><code>PlayerCombat.PerformHitDetection()</code>이 공격자측 마지막 단계다. 두 겹의 중복 방지가 걸려 있다.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>가드</th><th>막는 것</th><th>이유</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>_lastHitDetectionFrame == Time.frameCount</code></td>
+            <td>같은 프레임 2회 검출</td>
+            <td>LateUpdate 폴링과 애니메이션 이벤트가 같은 프레임에 겹치면 스윕 기준 형상이 이중 커밋되어 <b>스윕 구간을 잃는다</b></td>
+          </tr>
+          <tr>
+            <td><code>_hitTargets</code> 집합</td>
+            <td>한 공격에서 같은 대상 재타격</td>
+            <td>판정 구간이 길어도 대상당 1회. 다음 공격 시작 시 <code>ClearHitTargets()</code>로 비운다</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>검출된 <code>CombatHit</code>마다 다음이 일어난다.</p>
+<pre><code>foreach (CombatHit hit in _detectedHits)
+{
+    _currentAttackData.hitTarget / hitPoint / attackDirection = 퍼-타겟 값 기록
+    CombatResult result = hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_currentAttackData));
+    ShowAttackHitFeedback(result);   // 대상마다 — 데미지 숫자 + 히트 FX
+    OnAttackHit?.Invoke(_currentAttackData);
+}
+if (hitOccurred) ApplyHitFeedback();  // 공격당 1회 — 히트스톱 / 카메라 / 킬캠</code></pre>
+    <div class="note">
+      <b>대상마다 vs 공격마다</b>
+      데미지 숫자와 히트 FX는 <b>맞은 수만큼</b>, 히트스톱·카메라·바이탈오브는 <b>첫 히트 기준 1회만</b>.
+      광역기가 5마리를 맞혔다고 히트스톱을 5번 걸면 프레임이 멈춘다. 투사체·AOE도
+      <code>ShowExternalHitFeedback()</code>(대상마다) / <code>ApplyExternalAttackImpact()</code>(1회)로 같은 정책을 재사용한다.
+    </div>
+    <p class="files">소유: <code>GameActor/Component/Player/PlayerCombat.HitDetection.cs</code>, <code>GameActor/Combat/Detection/CombatHitDetector.cs</code></p>
+
+    <h2 id="s5">6. 피격 해석 파이프라인</h2>
+    <p>
+      여기부터는 <b>피격자 소유</b>다. 근접·투사체·잔류 판정·환경 피해가 전부 이 한 지점으로 모인다.
+    </p>
+<pre><code>CombatResolutionPipeline.Execute(victim, request)
+  ├─ victim이 ICombatResolvable인가            → 아니면 에러 로그 후 default
+  ├─ resolvable.CanResolveHit(request)         → 무적·가드 블록·사망이면 여기서 종료
+  ├─ CombatResult resolved = ResolveHit(...)      // 계산만 — 방어 → 피해
+  ├─ CombatResult result  = ApplyResolvedHit(...) // 적용 — HP, 리액션, 자원, 피드백
+  └─ RecordIfObservable(result)                   // CombatLogRecorder 기록</code></pre>
+    <div class="rule">
+      <b>계산과 적용이 분리되어 있다</b>
+      <code>ResolveHit</code>는 부수효과가 없다(밸런스 툴이 같은 함수를 그대로 호출한다).
+      HP 차감·상태 전환·연출은 전부 <code>ApplyResolvedHit</code>에서만 일어난다. 이 경계를 넘기면 시뮬레이션 도구가 실제 액터를 건드리게 된다.
+    </div>
+
+    <h3>6.0 CanResolveHit — 시작도 못 하는 경우</h3>
+    <ul>
+      <li><b>플레이어</b>: 항상 <code>true</code>. 방어 처리는 뒤의 <code>DefenseResolver</code>가 전담한다.</li>
+      <li><b>몬스터</b>: 특수 브레이크는 <code>BreakGauge.IsExposed</code>일 때만 통과. 가드 중이면
+        <code>EnemyGuardState.OnAttackBlocked()</code>를 호출하고 <code>false</code>. <code>CanTakeDamage()</code>가
+        거짓이면(사망·무적·상태 무적) 스로틀 로그 후 <code>false</code>.</li>
+    </ul>
+
+    <h3 id="defense">6-1. 방어 판정 (플레이어 전용)</h3>
+    <p><code>DefenseResolver.ResolvePlayerDefense()</code>는 아래 순서로 <b>먼저 성립하는 것</b>을 채택한다.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>#</th><th>결과</th><th>성립 조건</th><th>피해</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>Guarded</code></td><td>가드 중 + 가드 상태 + 정책이 해당 <code>AttackDefenseType</code> 가드 허용</td><td>없음</td></tr>
+          <tr><td>2</td><td><code>Parried</code></td><td>아래 패리 조건 참조</td><td>없음</td></tr>
+          <tr><td>3</td><td><code>PerfectDodged</code></td><td>피해 불가 상태 + 퍼펙트 회피 상태·윈도우 + 정책 허용</td><td>없음</td></tr>
+          <tr><td>4</td><td><code>Invincible</code></td><td>피해 불가지만 위 조건에 해당 없음</td><td>없음</td></tr>
+          <tr><td>5</td><td><code>UnblockableHit</code></td><td><code>AttackDefenseType.Unblockable</code></td><td><b>적용</b></td></tr>
+          <tr><td>6</td><td><code>None</code></td><td>그 외 전부</td><td><b>적용</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>패리가 성립하는 세 경로</h4>
+    <ol>
+      <li><b>디버그</b> — <code>AlwaysParry</code></li>
+      <li><b>어시스트 스왑 패리</b> — <code>IsAssistParryWindow</code>. 단 <code>Unblockable</code>은 <b>명시적으로 제외</b>해 빨강 Danger Ring은 회피만 통한다(정책 미설정 환경 포함)</li>
+      <li><b>공격 패리</b> — 공격 상태 + 판정 활성 + 해당 공격이 <code>parryCapable</code> + 정책 허용</li>
+    </ol>
+    <div class="warn">
+      <b>투사체는 패리 대상이 아니다</b>
+      <code>isProjectile &amp;&amp; !isReflectableProjectile</code>이면 <b>디버그 <code>AlwaysParry</code>보다 먼저</b> 차단된다.
+      전달 방식 자체가 패리·카운터의 대상이 아니라는 규칙이라, 디버그 플래그로도 뚫리지 않는다.
+    </div>
+
+    <h3 id="damage">6-2. 피해 계산</h3>
+    <p>플레이어·몬스터 모두 최종적으로 <code>DamageExecution.Calculate()</code> 하나를 지난다.</p>
+<pre><code>finalDamage = base
+            × max(0, attackPower)
+            × (1 - clamp01(defenseRate))
+            × max(0, damageTakenMultiplier)
+            × max(0, elementMultiplier)
+            × max(1, criticalMultiplier)
+
+return base > 0 ? max(1, finalDamage) : 0;   // 피해가 있었다면 최소 1은 보장</code></pre>
+    <div class="tw">
+      <table>
+        <thead><tr><th>항</th><th>출처</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td><code>base</code></td><td><code>HitPhaseData.damage</code></td><td>일반 공격은 <code>±20%</code> 난수(<code>ApplyRandomValue</code>), 차지는 <code>Lerp(1.0,1.5,ratio)</code></td></tr>
+          <tr><td><code>attackPower</code></td><td>공격자 <code>Attributes.Combat.AttackPower</code></td><td>없으면 1</td></tr>
+          <tr><td><code>defenseRate</code></td><td>피격자 <code>Attributes.Combat.Defense</code></td><td><code>clamp01</code> — 비율 감쇠</td></tr>
+          <tr><td><code>damageTakenMultiplier</code></td><td>취약 배율 통합 채널</td><td>아래 참조</td></tr>
+          <tr><td><code>elementMultiplier</code></td><td><code>CombatElementRules</code></td><td>속성 상성 + <code>ElementalAdvantageMultiplier</code></td></tr>
+          <tr><td><code>criticalMultiplier</code></td><td><code>HitContext.CriticalMultiplier</code></td><td>1 초과일 때만 크리티컬로 표기</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rule">
+      <b>취약 배율은 max-wins 단일 채널이다</b>
+      리액션 상태 취약(Stun/Knockdown/Airborne/Grabbed)과 Break 노출 취약이 동시에 성립해도
+      <code>CombatPolicyResolver.GetVulnerabilityMultiplier()</code>가 <b>더 큰 하나만</b> 적용한다.
+      곱해 쌓으면 스턴 중 브레이크에서 피해가 폭주한다.
+    </div>
+    <p>여기에 몬스터 도감 보정이 별도로 곱해진다 — 플레이어가 받는 피해는 <code>GetDamageTakenMultiplier(공격 몬스터)</code>,
+      몬스터가 받는 피해는 <code>GetDamageDealtMultiplier(피격 몬스터)</code>.</p>
+    <p><b>특수 브레이크 피해</b>는 이 식을 타지 않는다. <code>max(최대HP, 최소기준HP) × 비율 + 고정값</code>으로
+      방어·크리티컬 없이 계산되며, 최대 HP가 낮은 대상에서도 비율 피해의 하한이 보장된다.</p>
+
+    <h3 id="reaction">6-3. 리액션 결정</h3>
+    <p><code>ReactionResolver</code>가 <b>넉백을 줄지</b>, <b>상태를 바꿀지</b>, <b>카메라를 흔들지</b>를 각각 따로 결정한다.</p>
+
+    <h4>플레이어</h4>
+    <ul>
+      <li><code>IgnoreHitReaction</code>(슈퍼아머·상태 자체 억제) → 아무것도 안 함</li>
+      <li><b>경직 내성(Stagger Protection)</b> — 리액션 회복 직후 창 동안 약한 리액션(<code>None/Light/Hit</code>)은 상태 전환과 카메라만 억제한다.
+        <b>피해는 그대로 들어간다.</b> 강한 리액션(Heavy/넉백/에어본/다운/스턴/잡기)은 통과시켜 한 방은 여전히 흔들리게 한다.</li>
+      <li><code>ReactionType.None</code>은 상태로 보내지 않는다 — 대응 트리거 태그가 없어 "전환하기로 했는데 아무도 수행하지 않는" 상태가 되기 때문</li>
+    </ul>
+
+    <h4>몬스터</h4>
+    <div class="tw">
+      <table>
+        <thead><tr><th>상황</th><th>목표 상태</th><th>정책 우회</th></tr></thead>
+        <tbody>
+          <tr><td>Poise 브레이크 발생</td><td>Knockdown 가능하면 Knockdown, 아니면 Stun</td><td>등급 정책은 적용</td></tr>
+          <tr><td><code>GuaranteedReaction</code></td><td>리액션 보장</td><td>등급 정책·Poise 요구 <b>모두 우회</b>(상태 기반 제외는 유지)</td></tr>
+          <tr><td><code>ForceReaction</code></td><td>정책이 등급별로 허용할 때만</td><td>없음</td></tr>
+          <tr><td>특수 브레이크 생존</td><td>Knockdown 모션 있으면 Knockdown, 없으면 Stun</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="warn">
+      <b><code>ForceReaction</code>과 <code>GuaranteedReaction</code>은 다른 것이다</b>
+      <code>ForceReaction</code>은 등급 정책의 <b>허가를 구한다</b>(보스는 여전히 안 흔들릴 수 있다).
+      <code>GuaranteedReaction</code>은 <b>정책을 넘어선다</b>(보스도 흔들린다). 보스가 안 흔들린다고 <code>ForceReaction</code>만 켜면 아무것도 달라지지 않는다.
+    </div>
+    <p class="files">소유: <code>GameActor/Combat/Resolution/</code> — <code>CombatResolutionPipeline.cs</code>, <code>DefenseResolver.cs</code>, <code>DamageResolver.cs</code>, <code>ReactionResolver.cs</code>, <code>CombatPolicyResolver.cs</code>, <code>Ability/Core/StandardGameplayExecutions.cs</code></p>
+
+    <h2 id="s6">7. 피드백과 소유권</h2>
+    <p>같은 타격의 연출이 공격자와 피격자로 나뉜다. <b>어느 쪽이 부르는지가 규칙으로 고정</b>되어 있고, 어기면 이중 재생이 된다.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>연출</th><th>소유</th><th>진입점</th><th>빈도</th></tr></thead>
+        <tbody>
+          <tr><td>데미지 숫자</td><td>공격자</td><td><code>PlayerCombatPresenter.ShowHit()</code></td><td>대상마다</td></tr>
+          <tr><td>히트 FX</td><td>공격자</td><td>동상 — <code>hitParticleName</code> 없으면 <code>DefaultCombatHit</code></td><td>대상마다</td></tr>
+          <tr><td>히트스톱 · 카메라 · 킬캠</td><td>공격자</td><td><code>PlayerCombatPresenter.ApplyImpact()</code></td><td>공격당 1회</td></tr>
+          <tr><td><b>충돌음</b></td><td><b>피격자</b></td><td><code>CombatFeedbackDispatcher.PlayDamageImpact(result)</code></td><td>피해 &gt; 0일 때</td></tr>
+          <tr><td><b>게임패드 진동</b></td><td><b>피격자</b></td><td>동상 (<code>PlayImpactHaptic</code>)</td><td>피해 &gt; 0일 때</td></tr>
+          <tr><td>컬러 플래시</td><td>피격자</td><td><code>ApplyColorHit(colorChanger)</code></td><td>피격마다</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="rule">
+      <b>충돌음이 피격자 소유인 이유</b>
+      투사체·잔류 판정·환경 피해까지 <b>한 지점에서 덮이도록</b> 하기 위해서다.
+      공격자측에서 부르면 근접만 소리가 나고 나머지는 조용해지거나, 둘 다 부르면 이중 재생된다.
+      <code>MonsterActor.ApplyResolvedHit</code>의 <code>if (finalDamage &gt; 0f) PlayDamageImpact(...)</code>가 몬스터가 받는 모든 피해의 단일 깔때기다.
+    </div>
+
+    <h3>7.1 히트스톱 — 비대칭 프리즈</h3>
+    <p>
+      플레이어 공격이 적중하면 <b>피격자는 완전 정지</b>(<code>VictimFreezeScale = 0f</code>), <b>공격자는 약한 스케일로만</b> 느려진다.
+      사람 눈은 0%와 10%의 차이를 잘 못 느끼지만, 공격자 쪽 루트모션과 카메라가 미세하게 진행되면 조작감이 끊기지 않는다.
+    </p>
+    <h4>다인 전투 누수 차단</h4>
+    <p>
+      플레이어가 <b>이미 피격 히트스톱 중</b>이면(<code>IsActorHitStopping(victim)</code>) 피해자 freeze를 재시작하지 않는다.
+      매 히트마다 재시작하면 다수의 적에게 둘러싸였을 때 플레이어가 영구히 멈춘다.
+      단 공격자 히트스톱과 global pulse는 타격 피드백이므로 그대로 유지한다.
+    </p>
+    <h4>경직 내성과의 연동</h4>
+    <p>
+      경직 내성 창에서 흡수된 약한 피격은 <b>히트스톱도 함께 생략</b>한다
+      (<code>PlayerActor.OnDamaged</code>가 <code>ReactionResolver.IsMinorPlayerReaction()</code>을 직접 참조).
+      컬러 플래시와 히트 FX는 유지해 "맞았다"는 사실은 여전히 보인다.
+    </p>
+    <h4>패리 윈도우 보호</h4>
+    <p>
+      <code>ApplyImpact(attackData, protectParryWindow: true)</code>일 때, 카운터 공격이나
+      <code>useCounterHitFeedback</code>이 아닌 일반 타격의 임팩트 연출은 <b>생략</b>한다.
+      패리 가능 구간에서 자기 히트스톱에 갇혀 패리 입력을 놓치는 것을 막는다.
+    </p>
+    <p class="files">소유: <code>GameActor/Combat/Feedback/CombatFeedbackDispatcher.cs</code>, <code>GameActor/Component/Player/PlayerCombatPresenter.cs</code>, <code>Manager/Handler/Combat/GameHitStopHandler.cs</code>, <code>…/DefenseSuccessFeedbackHandler.cs</code></p>
+
+    <h2 id="resource">8. 자원 루프</h2>
+    <p>피격 해석 직후 갱신되는 것들이다. 대부분 <code>ApplyResolvedHit</code> 안에서 이어진다.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>자원</th><th>갱신 시점</th><th>결과</th></tr></thead>
+        <tbody>
+          <tr><td><b>HP</b></td><td><code>AbilitySystem.ApplyResolvedDamage()</code></td><td><code>OnHealthChanged</code> → HP바 갱신</td></tr>
+          <tr><td><b>페이즈</b></td><td><code>AIController.UpdatePhase(healthPercent)</code></td><td><code>EnemyBehaviorSO</code>의 HP 임계값에 따라 행동 레퍼토리 전환</td></tr>
+          <tr><td><b>Poise</b></td><td><code>ResourceChangeSet</code>에 적용량 기록</td><td>브레이크 시 Stun/Knockdown</td></tr>
+          <tr><td><b>Break 게이지</b></td><td>동상</td><td><code>IsExposed</code> → 취약 배율 + 특수 브레이크 공격 허용</td></tr>
+          <tr><td><b>스킬 게이지</b></td><td>VitalOrb 획득 시 <code>SkillGauge.AddGauge()</code></td><td>캐릭터별로 보관(<code>…ForCharacter</code>)</td></tr>
+          <tr><td><b>VitalOrb</b></td><td><code>TrySpawnWeightRecovery()</code> / <code>ActorSvc.Combat.TrySpawnVitalOrb()</code></td><td>트리거별 드롭 — 약/강 공격 적중, 가드, 마무리 공격</td></tr>
+          <tr><td><b>어그로</b></td><td><code>_detection.AcquireTarget(attacker)</code></td><td>피격 즉시 공격자를 타깃으로</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>8.1 태그 트리거 — 리액션 상태 전환의 실제 수행자</h3>
+    <p>
+      <code>ReactionDecision</code>은 <b>결정만</b> 한다. 실제 상태 전환은 <code>Abilities.IssueTriggerEvent(triggerTag, …)</code>가
+      발급한 GameplayEvent를 받아 <b>태그 트리거 Ability</b>가 수행한다.
+    </p>
+    <div class="warn">
+      <b>순간 GameplayEvent는 현재 상태와 무관하게 매 피격마다 발급한다</b>
+      Hit 상태 중이라고 발급을 막으면 <b>같은 프레임의 두 번째 피격 사건 자체가 유실</b>된다.
+      중복 리액션 차단은 발급측이 아니라 Ability의 <code>blockAny</code>가 해야 한다.
+      단 외부 리액션 억제 스코프(<code>_externalHitReactionSuppressionCount</code>)는 기존 계약대로 발급도 억제한다.
+    </div>
+
+    <h3>8.2 기록</h3>
+    <p>
+      <code>RecordIfObservable()</code>은 <b>피해가 들어갔거나</b>(<code>FinalDamage &gt; 0</code>)
+      <b>방어 결과가 있었으면</b>(<code>DefenseOutcome != None</code>) <code>CombatLogRecorder</code>에 남긴다.
+      가드·패리·회피도 관측 대상이라 밸런스 툴이 "얼마나 맞았나"뿐 아니라 "얼마나 막았나"까지 볼 수 있다.
+    </p>
+
+    <h2 id="traps">9. 자주 틀리는 지점</h2>
+    <div class="card">
+      <ol>
+        <li><b>모션이 안 나온다</b> → <code>motionKey</code>가 해당 액터의 <code>ActorAnimationMotionSet.abilityMotions</code>에서 해석되는지 확인. 플레이어는 현재 <code>WeaponType</code> 세트 → <code>NoWeapon</code> 순으로 폴백한다.</li>
+        <li><b>피해가 0이다</b> → <code>HitPhaseData</code>는 있는데 <code>BeginCollisionEvent.hitPhaseIndex</code>가 어긋났을 가능성이 가장 높다.</li>
+        <li><b>같은 타격이 두 번 들어간다</b> → 부착형 그룹과 <code>ExplicitShape</code>를 같은 이벤트에서 섞었거나, 애니메이션 이벤트와 폴링이 겹쳤는데 프레임 가드가 우회됐다.</li>
+        <li><b>보스가 안 흔들린다</b> → <code>ForceReaction</code>이 아니라 <code>GuaranteedReaction</code>이 필요하다(6-3장).</li>
+        <li><b>광역기에서 프레임이 멈춘다</b> → 히트스톱을 대상마다 걸고 있다. <code>ApplyImpact</code>는 공격당 1회다.</li>
+        <li><b>충돌음이 두 번 난다</b> → 공격자측에서 <code>PlayDamageImpact</code>를 부르고 있다. 소유는 피격자다.</li>
+        <li><b>몬스터가 BT 대로 안 움직인다</b> → <code>EnemyActionResolver</code>의 <code>failureReason</code>을 본다. 대부분 <code>cooldownId</code> 아니면 상태 락이다.</li>
+        <li><b>강공격이 약공격으로 바뀐다</b> → <code>forcedAttackAction</code>을 받은 뒤 입력 버퍼를 재해석했다. 인계값은 뒤집지 않는다.</li>
+        <li><b>회피가 씹힌다</b> → 공격 상태가 전역 <code>InputBuffer</code>를 붙들고 있어 다른 액션의 수명이 늘어났을 수 있다(2.1).</li>
+        <li><b>다수전에서 플레이어가 영구히 멈춘다</b> → 피격 히트스톱을 매 히트마다 재시작하고 있다(7.1).</li>
+      </ol>
+    </div>
+
+    <h2 id="index">10. 파일 인덱스</h2>
+    <div class="tw">
+      <table>
+        <thead><tr><th>구간</th><th>파일</th></tr></thead>
+        <tbody>
+          <tr><td>입력 · 상태</td><td><code>GameActor/State/Player/PlayerAttackState.cs</code><br><code>GameActor/State/Player/PlayerInterruptResolver.cs</code></td></tr>
+          <tr><td>공격 확정</td><td><code>GameActor/Component/Player/PlayerCombat.Attack.cs</code> · <code>.Combo.cs</code> · <code>.Finish.cs</code><br><code>GameActor/Gameplay/Ability/ActorAbilitySystem.cs</code></td></tr>
+          <tr><td>몬스터 판단</td><td><code>GameActor/AI/BehaviorTree/Runtime/EnemyActionResolver.cs</code><br><code>…/Nodes/Action/RequestEnemyActionNode.cs</code></td></tr>
+          <tr><td>모션 · 판정 개폐</td><td><code>GameActor/Animation/MotionEvents/MotionEvent_Collision.cs</code><br><code>GameActor/Combat/Action/CombatActionRunner.cs</code></td></tr>
+          <tr><td>검출</td><td><code>GameActor/Component/Player/PlayerCombat.HitDetection.cs</code><br><code>GameActor/Combat/Detection/</code></td></tr>
+          <tr><td>해석</td><td><code>GameActor/Combat/Resolution/CombatResolutionPipeline.cs</code> 및 같은 폴더</td></tr>
+          <tr><td>적용</td><td><code>GameActor/Object/Player/PlayerActor.Combat.cs</code><br><code>GameActor/Object/Monster/MonsterActor.cs</code></td></tr>
+          <tr><td>피드백</td><td><code>GameActor/Combat/Feedback/CombatFeedbackDispatcher.cs</code><br><code>Manager/Handler/Combat/</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note" style="margin-top:32px">
+      <b>함께 보기</b>
+      저작 규칙은 <code>Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md</code>,
+      GAS 데이터 구조는 <code>Assets/docs/guide/GAS_SYSTEM_GUIDE.html</code>,
+      Ability 사양은 <code>Assets/docs/Complete/GAMEPLAY_ABILITY_SYSTEM_SPEC.md</code>.
+    </div>
+  </main>
+</div>
+</body>
+</html>

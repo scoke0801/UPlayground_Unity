@@ -35,6 +35,26 @@ namespace UPlayGround.CameraSystem
             AddModifier(new EffectPositionFovCameraModifier());         // 850
         }
 
+        public override void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
+        {
+            base.OnEnter(context, enterParams);
+
+            if (context?.Settings == null || context.State == null)
+                return;
+
+            bool isLockOn = context.LockOn?.IsActive ?? false;
+            bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
+
+            // 대화/연출 모드가 공유 서브시스에 남긴 FOV·충돌 암 보간 상태를
+            // 플레이 카메라로 가져오지 않는다. 재진입 첫 프레임을 현재 플레이 상태로 스냅한다.
+            context.DistanceController?.SnapFOV(isLockOn, isCombat, context.Motion);
+            float desiredDistance = Mathf.Clamp(
+                context.State.TargetDistance,
+                context.Settings.minDistance,
+                context.Settings.maxDistance);
+            context.Collision?.ResetDistance(desiredDistance);
+        }
+
         public override void HandleInput(CameraContext context, float deltaTime)
         {
             if (context?.Settings == null || context.State == null) return;

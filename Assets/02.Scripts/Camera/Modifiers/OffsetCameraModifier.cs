@@ -4,15 +4,34 @@ using UPlayGround.Data;
 namespace UPlayGround.CameraSystem
 {
     /// <summary>
-    /// (400) 카메라 피벗 오프셋과 이동/지형/공중 LookAhead를 보간한다.
-    /// 전투와 락온에서는 수평 선행량을 줄여 대상 프레이밍이 우선되게 한다.
+    /// (400) 카메라 피벗 오프셋과 락온/지형/공중 LookAhead를 보간한다.
+    /// 비락온 평면 이동은 플레이어 피벗을 즉시 추적하고, 수평 LookAhead는 락온에서만 사용한다.
     /// </summary>
-    public sealed class OffsetCameraModifier : ICameraModifier
+    public sealed class OffsetCameraModifier : ICameraModifier, ICameraModifierLifecycle
     {
         private Vector3 _lookAheadOffset;
         private Vector3 _lookAheadVelocity;
 
         public int Priority => 400;
+
+        public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
+        {
+            ResetLookAheadOffset();
+
+            if (context?.Settings == null || context.State == null)
+                return;
+
+            bool isCombat = context.CombatStateProvider?.Invoke() ?? false;
+            context.State.CameraOffset = isCombat
+                ? context.Settings.combatOffset
+                : context.Settings.defaultOffset;
+            context.State.OffsetVelocity = Vector3.zero;
+        }
+
+        public void OnExit(CameraContext context)
+        {
+            ResetLookAheadOffset();
+        }
 
         public void Apply(ref CameraFrame frame)
         {
@@ -26,7 +45,7 @@ namespace UPlayGround.CameraSystem
             bool isLockOn = context.LockOn?.IsActive ?? false;
 
             Vector3 targetOffset = isCombat ? settings.combatOffset : settings.defaultOffset;
-            targetOffset += ComputeLookAheadOffset(context, settings, isCombat, isLockOn);
+            targetOffset += ComputeLookAheadOffset(context, settings, isLockOn);
 
             state.CameraOffset = Vector3.SmoothDamp(
                 state.CameraOffset,
@@ -38,28 +57,28 @@ namespace UPlayGround.CameraSystem
         private Vector3 ComputeLookAheadOffset(
             CameraContext context,
             CameraSettings settings,
-            bool isCombat,
             bool isLockOn)
         {
             Vector3 targetLookAhead = Vector3.zero;
             if (settings.enableLookAhead)
             {
                 CameraMotionContext motion = context.Motion;
-                Vector3 up = motion.IsAvailable ? motion.Up : Vector3.up;
                 Vector3 velocity = motion.IsAvailable
                     ? motion.PlanarVelocity
                     : Vector3.zero;
-                float speed = velocity.magnitude;
-                if (speed > 0.01f)
+
+                // 수평 선행은 락온 구도에서만 사용한다.
+                // 비락온에 적용하면 이동 시작·정지마다 카메라가 뒤늦게 잡아당겨진다.
+                if (isLockOn)
                 {
-                    float factor = Mathf.Clamp01(speed / Mathf.Max(settings.lookAheadSpeedRef, 0.01f));
-                    targetLookAhead = velocity.normalized * (factor * settings.lookAheadDistance);
-                    float contextMultiplier = isLockOn
-                        ? settings.lockOnLookAheadMultiplier
-                        : isCombat
-                            ? settings.combatLookAheadMultiplier
-                            : 1f;
-                    targetLookAhead *= Mathf.Clamp01(contextMultiplier);
+                    float speed = velocity.magnitude;
+                    if (speed > 0.01f)
+                    {
+                        float factor = Mathf.Clamp01(speed / Mathf.Max(settings.lookAheadSpeedRef, 0.01f));
+                        targetLookAhead = velocity.normalized
+                                          * (factor * settings.lookAheadDistance)
+                                          * Mathf.Clamp01(settings.lockOnLookAheadMultiplier);
+                    }
                 }
 
                 if (settings.enableTraversalComposition && motion.IsAvailable && !isLockOn)
@@ -73,6 +92,12 @@ namespace UPlayGround.CameraSystem
                 settings.lookAheadSmoothTime);
 
             return _lookAheadOffset;
+        }
+
+        private void ResetLookAheadOffset()
+        {
+            _lookAheadOffset = Vector3.zero;
+            _lookAheadVelocity = Vector3.zero;
         }
 
         private static Vector3 ComputeVerticalLookAhead(

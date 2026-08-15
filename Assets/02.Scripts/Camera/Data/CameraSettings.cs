@@ -80,7 +80,8 @@ namespace UPlayGround.Data
         public float speedForMaxFOV = 8f;
         public float speedFOVSmoothTime = 0.3f;
 
-        [Header("=== Look-ahead (진행방향 선행) ===")]
+        [Header("=== Look-ahead (락온·지형 선행) ===")]
+        [Tooltip("락온 수평 선행과 지형/공중 구도 보정을 활성화합니다. 비락온 평면 이동에는 수평 선행을 적용하지 않습니다.")]
         public bool enableLookAhead = true;
         public float lookAheadDistance = 1.2f;
         public float lookAheadSpeedRef = 5f;
@@ -90,9 +91,6 @@ namespace UPlayGround.Data
 
         [Header("=== 탐색 구도 ===")]
         public bool enableTraversalComposition = true;
-        [Tooltip("전투 중 진행방향 LookAhead의 배율. 락온 중에는 lockOnLookAheadMultiplier가 우선한다.")]
-        [Range(0f, 1f)]
-        public float combatLookAheadMultiplier = 0.35f;
         [Tooltip("접지 이동 중 전방 지형을 읽는 최대 거리(m).")]
         [Min(0f)]
         public float groundLookAheadDistance = 2.5f;

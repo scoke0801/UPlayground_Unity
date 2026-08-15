@@ -48,7 +48,6 @@ MonoBehaviour:
   lookAheadSmoothTime: 0.25
   lockOnLookAheadMultiplier: 0.05
   enableTraversalComposition: 1
-  combatLookAheadMultiplier: 0.35
   groundLookAheadDistance: 2.5
   groundLookAheadStrength: 0.55
   groundLookAheadMaxHeight: 1.1

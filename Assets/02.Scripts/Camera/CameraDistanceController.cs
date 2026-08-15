@@ -72,6 +72,32 @@ namespace UPlayGround.CameraSystem
 
         public void UpdateFOV(bool isLockOn, bool isCombat, CameraMotionContext motion)
         {
+            _targetFOV = ResolveTargetFOV(isLockOn, isCombat, motion, out float airborneFactor);
+            float smoothTime = airborneFactor > 0f
+                ? _s.airborneFOVSmoothTime
+                : _s.enableSpeedFOV
+                    ? _s.speedFOVSmoothTime
+                    : _s.fovSmoothTime;
+            _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime);
+        }
+
+        /// <summary>
+        /// 모드 복귀 시 현재 플레이 상태의 FOV로 즉시 동기화한다.
+        /// 대화 진입 직전의 속도 FOV가 남아 종료 후 느리게 줌인되는 현상을 막는다.
+        /// </summary>
+        public void SnapFOV(bool isLockOn, bool isCombat, CameraMotionContext motion)
+        {
+            _targetFOV = ResolveTargetFOV(isLockOn, isCombat, motion, out _);
+            _baseFOV = _targetFOV;
+            _fovVelocity = 0f;
+        }
+
+        private float ResolveTargetFOV(
+            bool isLockOn,
+            bool isCombat,
+            CameraMotionContext motion,
+            out float airborneFactor)
+        {
             UpdateNearbyEnemyMetrics(isCombat);
 
             float baseTarget;
@@ -93,18 +119,12 @@ namespace UPlayGround.CameraSystem
             if (_s.enableMonsterSizeFOV && isCombat)
                 addFov += EvaluateMonsterSizeFactor() * _s.monsterSizeFOVMax;
 
-            float airborneFactor = !isLockOn && _s.enableTraversalComposition
+            airborneFactor = !isLockOn && _s.enableTraversalComposition
                 ? EvaluateAirborneFactor(motion)
                 : 0f;
             addFov += airborneFactor * _s.airborneFOVMaxAdd;
 
-            _targetFOV = baseTarget + addFov;
-            float smoothTime = airborneFactor > 0f
-                ? _s.airborneFOVSmoothTime
-                : _s.enableSpeedFOV
-                    ? _s.speedFOVSmoothTime
-                    : _s.fovSmoothTime;
-            _baseFOV = Mathf.SmoothDamp(_baseFOV, _targetFOV, ref _fovVelocity, smoothTime);
+            return baseTarget + addFov;
         }
 
         /// <summary>

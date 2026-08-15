@@ -100,7 +100,9 @@ namespace UPlayGround.State
             }
 
             var motion = _combat.CurrentMotionAsset;
-            var animState = motion != null ? gameActor.Animator.PlayMotion(motion, 0.05f) : null;
+            var animState = motion != null
+                ? gameActor.Animator.PlayAbilityMotion(_skill.motionKey, 0.05f)
+                : null;
             if (animState != null)
             {
                 float motionDuration = motion.motionSet?.TotalDuration ?? 0f;

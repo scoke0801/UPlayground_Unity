@@ -19,79 +19,121 @@ MonoBehaviour:
     _serializedList:
     - Key:
         value: Humanoid.WhipAttackData.Attack.1.01
-      Value: {fileID: 11400000, guid: 9e46bc235c4e6544683952f6d1d9556a, type: 2}
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Attack.2.02
-      Value: {fileID: 11400000, guid: 1564ab7e2d8095a48ad3c1b52ebf7995, type: 2}
+      Value: {fileID: 11400000, guid: 6c22ff96d16d5a441a07df59da762956, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Attack.3.03
-      Value: {fileID: 11400000, guid: eae3e2160fff52942837ac88ed4e749d, type: 2}
+      Value: {fileID: 11400000, guid: b004f65d1b4be1a47b6af17564bda8b4, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Attack.4.04
-      Value: {fileID: 11400000, guid: 98a6df4f885835b4d81009a9898e6954, type: 2}
+      Value: {fileID: 11400000, guid: d6867e78afde0c6459582f980cfc64df, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Attack.5.05
-      Value: {fileID: 11400000, guid: b1af1083c52fd744ea93b19ed562f045, type: 2}
+      Value: {fileID: 11400000, guid: 683760097dd98a745b7417565811cc9b, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Attack.6.06
-      Value: {fileID: 11400000, guid: 4f7257f931a8ee740907e2e56db097dc, type: 2}
+      Value: {fileID: 11400000, guid: 0e9b256950b507b41a2475149e9f8feb, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.HeavyAttack.1.07
-      Value: {fileID: 11400000, guid: 77118ca6c06ad994aad69bf2d334461a, type: 2}
+      Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.HeavyAttack.2.08
-      Value: {fileID: 11400000, guid: cc669d04ce6991e4f953dbeac0e9498b, type: 2}
+      Value: {fileID: 11400000, guid: b92d86a29152e7b4192913e831d0a04b, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.HeavyAttack.3.09
-      Value: {fileID: 11400000, guid: 276927dbf757fbd4aa900c41810f74b6, type: 2}
+      Value: {fileID: 11400000, guid: 893f96508b5ddaa49b1ffcec45989746, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.HeavyAttack.4.10
-      Value: {fileID: 11400000, guid: 4b332a976ab21134c8e4b6bbaf636801, type: 2}
+      Value: {fileID: 11400000, guid: a45f580d6a8f784408268b07c4769f93, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.HeavyAttack.5.11
-      Value: {fileID: 11400000, guid: 2752cead1d0423c46bdc22475829e067, type: 2}
+      Value: {fileID: 11400000, guid: dd7ddfc4c0684dd48930bb34dfb75372, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Skill.1.12
-      Value: {fileID: 11400000, guid: 23248f5a32dbd6247bf2fc14b293336d, type: 2}
+      Value: {fileID: 11400000, guid: b6e80f498950b5449a28228d25e96271, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Skill.2.13
-      Value: {fileID: 11400000, guid: f183504f7c66a3349826a54100cb4ab8, type: 2}
+      Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Skill.3.14
-      Value: {fileID: 11400000, guid: eac98eb482d696a449895e6e14988789, type: 2}
+      Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Counter.Attack.1.15
-      Value: {fileID: 11400000, guid: 9e46bc235c4e6544683952f6d1d9556a, type: 2}
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
     - Key:
         value: Humanoid.WhipAttackData.Counter.Attack.2.16
-      Value: {fileID: 11400000, guid: 77118ca6c06ad994aad69bf2d334461a, type: 2}
+      Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}
+    - Key:
+        value: Monster.LianLian.Attack.1.01
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
+    - Key:
+        value: Monster.LianLian.Attack.2.02
+      Value: {fileID: 11400000, guid: 6c22ff96d16d5a441a07df59da762956, type: 2}
+    - Key:
+        value: Monster.LianLian.Attack.3.03
+      Value: {fileID: 11400000, guid: b004f65d1b4be1a47b6af17564bda8b4, type: 2}
+    - Key:
+        value: Monster.LianLian.Attack.4.04
+      Value: {fileID: 11400000, guid: d6867e78afde0c6459582f980cfc64df, type: 2}
+    - Key:
+        value: Monster.LianLian.Attack.5.05
+      Value: {fileID: 11400000, guid: 683760097dd98a745b7417565811cc9b, type: 2}
+    - Key:
+        value: Monster.LianLian.Attack.6.06
+      Value: {fileID: 11400000, guid: 0e9b256950b507b41a2475149e9f8feb, type: 2}
+    - Key:
+        value: Monster.LianLian.HeavyAttack.1.07
+      Value: {fileID: 11400000, guid: f4c0169cc27fac14a8303bdb680ed91f, type: 2}
+    - Key:
+        value: Monster.LianLian.HeavyAttack.2.08
+      Value: {fileID: 11400000, guid: b92d86a29152e7b4192913e831d0a04b, type: 2}
+    - Key:
+        value: Monster.LianLian.HeavyAttack.3.09
+      Value: {fileID: 11400000, guid: 893f96508b5ddaa49b1ffcec45989746, type: 2}
+    - Key:
+        value: Monster.LianLian.HeavyAttack.4.10
+      Value: {fileID: 11400000, guid: a45f580d6a8f784408268b07c4769f93, type: 2}
+    - Key:
+        value: Monster.LianLian.HeavyAttack.5.11
+      Value: {fileID: 11400000, guid: dd7ddfc4c0684dd48930bb34dfb75372, type: 2}
+    - Key:
+        value: Monster.LianLian.Skill.1.12
+      Value: {fileID: 11400000, guid: b6e80f498950b5449a28228d25e96271, type: 2}
+    - Key:
+        value: Monster.LianLian.Skill.2.13
+      Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
+    - Key:
+        value: Monster.LianLian.Skill.3.14
+      Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
     - Key:
         value: humanoid.Attack.1.01
-      Value: {fileID: 11400000, guid: 9e46bc235c4e6544683952f6d1d9556a, type: 2}
+      Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
     - Key:
         value: humanoid.Attack.2.02
-      Value: {fileID: 11400000, guid: 1564ab7e2d8095a48ad3c1b52ebf7995, type: 2}
+      Value: {fileID: 11400000, guid: 6c22ff96d16d5a441a07df59da762956, type: 2}
     - Key:
         value: humanoid.Attack.3.03
-      Value: {fileID: 11400000, guid: eae3e2160fff52942837ac88ed4e749d, type: 2}
+      Value: {fileID: 11400000, guid: b004f65d1b4be1a47b6af17564bda8b4, type: 2}
     - Key:
         value: humanoid.Attack.4.04
-      Value: {fileID: 11400000, guid: 98a6df4f885835b4d81009a9898e6954, type: 2}
+      Value: {fileID: 11400000, guid: d6867e78afde0c6459582f980cfc64df, type: 2}
     - Key:
         value: humanoid.Attack.5.05
-      Value: {fileID: 11400000, guid: b1af1083c52fd744ea93b19ed562f045, type: 2}
+      Value: {fileID: 11400000, guid: 683760097dd98a745b7417565811cc9b, type: 2}
     - Key:
         value: humanoid.Attack.6.06
-      Value: {fileID: 11400000, guid: 4f7257f931a8ee740907e2e56db097dc, type: 2}
+      Value: {fileID: 11400000, guid: 0e9b256950b507b41a2475149e9f8feb, type: 2}
     - Key:
         value: humanoid.Skill.1.10
-      Value: {fileID: 11400000, guid: 23248f5a32dbd6247bf2fc14b293336d, type: 2}
+      Value: {fileID: 11400000, guid: b6e80f498950b5449a28228d25e96271, type: 2}
     - Key:
         value: humanoid.Skill.2.11
-      Value: {fileID: 11400000, guid: f183504f7c66a3349826a54100cb4ab8, type: 2}
+      Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
     - Key:
         value: humanoid.Skill.3.12
-      Value: {fileID: 11400000, guid: eac98eb482d696a449895e6e14988789, type: 2}
+      Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
   motionSlots:
     _serializedList:
     - Key:

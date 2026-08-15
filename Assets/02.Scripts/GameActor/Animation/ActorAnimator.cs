@@ -497,6 +497,33 @@ namespace UPlayGround.Animation
         }
 
         /// <summary>
+        /// Ability의 Motion Key를 현재 Animator의 MotionSet에서 해석해 재생한다.
+        /// 서브 Animator에는 해석된 캐릭터 에셋이 아니라 같은 키를 전달하여,
+        /// 무기 Animator가 자신의 전용 MotionSetAsset을 선택하게 한다.
+        /// </summary>
+        public AnimancerState PlayAbilityMotion(
+            MotionKey key,
+            float fadeDuration = 0f,
+            int layerIndex = 0)
+        {
+            MotionSetAsset asset = ResolveAbilityMotionAsset(key);
+            AnimancerState state = PlayResolvedMotion(
+                asset,
+                asset != null ? asset.motionSet : null,
+                default,
+                key.IsValid ? key.value : "-",
+                fadeDuration,
+                layerIndex,
+                out bool started);
+            if (started)
+                _subAnimator?.PlayAbilityMotion(
+                    key,
+                    fadeDuration,
+                    _currentMotionLayerIndex);
+            return state;
+        }
+
+        /// <summary>
         /// 의미 슬롯 등록을 거치지 않고 외부 MotionSet 에셋을 직접 재생한다.
         /// Payload·궁극기·시네마틱처럼 일반 상태 모션 테이블과 생명주기가 다른 재생 단위에서 사용한다.
         /// </summary>

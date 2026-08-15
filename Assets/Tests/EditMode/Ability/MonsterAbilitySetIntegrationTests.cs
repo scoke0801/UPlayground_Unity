@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Animation;
 using UPlayGround.Components;
@@ -195,6 +196,76 @@ namespace UPlayGround.Ability.Tests
 
             Assert.That(validated, Is.GreaterThan(0));
             Assert.That(issues, Is.Empty, string.Join("\n", issues));
+        }
+
+        [Test]
+        public void LianLian_몬스터_공격_MotionKey는_채찍_전용_Motion으로_해석된다()
+        {
+            const string prefabPath =
+                "Assets/03.Prefabs/Actor/Monster/Humanoid/MonsterActor_LianLian_Whip.prefab";
+            string[] abilitySetPaths =
+            {
+                "Assets/10.Datas/Ability/Actor/Humanoid_WhipAttackData/AbilitySet_Humanoid_WhipAttackData.asset",
+                "Assets/10.Datas/Ability/Actor/Monster_LianLian/AbilitySet_Monster_LianLian.asset",
+            };
+
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+            Assert.That(prefab, Is.Not.Null, $"LianLian 몬스터 프리팹 누락: {prefabPath}");
+
+            ActorAnimator actorAnimator = prefab.GetComponent<ActorAnimator>();
+            Assert.That(actorAnimator, Is.Not.Null, "LianLian 몬스터의 ActorAnimator 누락");
+            Assert.That(actorAnimator.SubAnimator, Is.Not.Null, "LianLian 채찍 SubAnimator 연결 누락");
+            Assert.That(actorAnimator.MotionSet, Is.Not.Null, "LianLian 캐릭터 MotionSet 연결 누락");
+            Assert.That(actorAnimator.SubAnimator.MotionSet, Is.Not.Null, "LianLian 채찍 MotionSet 연결 누락");
+            Assert.That(actorAnimator.SubAnimator.MotionSet.name, Is.EqualTo("WhipMotionSet"));
+
+            int validated = 0;
+            foreach (string abilitySetPath in abilitySetPaths)
+            {
+                AbilitySetSO abilitySet =
+                    AssetDatabase.LoadAssetAtPath<AbilitySetSO>(abilitySetPath);
+                Assert.That(abilitySet, Is.Not.Null, $"AbilitySet 누락: {abilitySetPath}");
+
+                foreach (GameplayAbilitySO ability in abilitySet.EnumerateAll().Distinct())
+                {
+                    foreach (AbilityVariantDefinition variant in
+                             ability?.variants
+                             ?? Enumerable.Empty<AbilityVariantDefinition>())
+                    {
+                        if (!UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                                variant,
+                                out var attackInfo)
+                            || !attackInfo.aiSelectable)
+                            continue;
+
+                        MotionKey motionKey = attackInfo.motionKey;
+                        MotionSetAsset actorMotion =
+                            actorAnimator.MotionSet.GetAbilityMotionAsset(motionKey);
+                        MotionSetAsset weaponMotion =
+                            actorAnimator.SubAnimator.MotionSet.GetAbilityMotionAsset(motionKey);
+
+                        Assert.That(
+                            actorMotion,
+                            Is.Not.Null,
+                            $"{ability.name}: 캐릭터 Motion Key '{motionKey}' 해석 실패");
+                        Assert.That(
+                            weaponMotion,
+                            Is.Not.Null,
+                            $"{ability.name}: 채찍 Motion Key '{motionKey}' 해석 실패");
+                        Assert.That(
+                            weaponMotion,
+                            Is.Not.SameAs(actorMotion),
+                            $"{ability.name}: 캐릭터용 MotionSetAsset이 채찍에 연결되어 있습니다.");
+                        Assert.That(
+                            weaponMotion.name,
+                            Does.StartWith("Whip_"),
+                            $"{ability.name}: 채찍 전용 MotionSetAsset이 아닙니다.");
+                        validated++;
+                    }
+                }
+            }
+
+            Assert.That(validated, Is.GreaterThan(0));
         }
 
         [Test]

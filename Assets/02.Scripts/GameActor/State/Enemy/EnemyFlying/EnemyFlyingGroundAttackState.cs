@@ -60,10 +60,10 @@ namespace UPlayGround.State
 
             if (_currentSkill != null)
             {
-            Debug.Log($"[FlyingGroundAttack] 스킬 모션: {_combat.CurrentMotionAsset?.name ?? "-"}");
+                Debug.Log($"[FlyingGroundAttack] 스킬 모션: {_combat.CurrentMotionAsset?.name ?? "-"}");
                 var animState = _combat.CurrentMotionAsset != null
-                    ? gameActor.Animator.PlayMotion(_combat.CurrentMotionAsset, 0.1f)
-                : null;
+                    ? gameActor.Animator.PlayAbilityMotion(_currentSkill.motionKey, 0.1f)
+                    : null;
                 if (animState != null)
                     gameActor.Animator.OnMotionSetCompleted += OnAttackEnd;
                 else

@@ -99,7 +99,7 @@ namespace UPlayGround.State
             {
                 var motionAsset = _combat.CurrentMotionAsset;
                 var animState = motionAsset != null
-                    ? gameActor.Animator.PlayMotion(motionAsset, 0.1f)
+                    ? gameActor.Animator.PlayAbilityMotion(_currentSkill.motionKey, 0.1f)
                     : null;
                 if (!_currentSkill.useMotionEventTelegraph)
                     _combat.BeginCurrentSkillTelegraph();

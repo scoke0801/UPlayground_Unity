@@ -233,9 +233,10 @@ namespace UPlayGround.State
                 return;
             _isAttacking = true;
 
-            var animState = _brain.Combat.CurrentMotionAsset != null
-                ? gameActor.Animator.PlayMotion(_brain.Combat.CurrentMotionAsset, 0.1f)
-                    : null;
+            AbilityAttackInfo currentSkill = _brain.Combat.CurrentSkill;
+            var animState = currentSkill != null
+                ? gameActor.Animator.PlayAbilityMotion(currentSkill.motionKey, 0.1f)
+                : null;
             if (animState != null)
             {
                 gameActor.Animator.OnMotionSetCompleted += OnAttackMotionEnd;

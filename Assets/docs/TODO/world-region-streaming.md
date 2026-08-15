@@ -22,7 +22,7 @@
 - **N개의 거대 씬**(Region)을 인접 영역으로 묶고 자연스럽게 오갈 수 있어야 한다. 초기 시안은 2개지만, 추후 3개 일렬, 허브-스포크, 4-인접 격자 같은 토폴로지로 확장될 수 있다.
 - 인접 리전 간 전환은 **로딩 화면 없이 심리스**여야 한다.
 - 비인접 리전(맵 워프, 던전 등)으로의 전환은 **기존 LoadScene 흐름**(Loading 씬 경유)을 그대로 사용한다.
-- 1인 개발이므로 **DOTS Subscene이나 SECTR 같은 외부 솔루션은 도입하지 않는다.** 빌트인 `SceneManager` + Addressables 만으로 구성한다.
+- **DOTS Subscene이나 SECTR 같은 외부 솔루션은 도입하지 않는다.** 현재 요구 규모에 비해 도입·유지 비용이 크고 기존 씬/로딩 흐름과 이중 구조가 된다. 빌트인 `SceneManager` + Addressables 만으로 구성한다.
 - **메모리 예산**을 명시적으로 둔다. 무한정 인접 리전을 동시 보유하지 않는다.
 
 ### 1.3 비목표 (Non-goals)
@@ -459,7 +459,7 @@ public static class SceneName
 | `Validate Region Graph` | `WorldRegionGraphSO.ValidateGraph` 호출. 비대칭/누락/미등록 씬 콘솔 보고 |
 | `Visualize Graph` | EditorWindow에서 노드/에지 그래프 표시 (GraphView 또는 GUI 단순 렌더) |
 
-1인 개발이므로 우선 `Open Region (and Neighbors)` 만 구현, 나머지는 그래프가 5개 이상으로 늘어나면 추가.
+우선 `Open Region (and Neighbors)` 만 구현하고, 나머지는 그래프가 5개 이상으로 늘어나 실제 필요가 확인되면 추가한다.
 
 ### 8.2 라이팅 / 스카이박스
 

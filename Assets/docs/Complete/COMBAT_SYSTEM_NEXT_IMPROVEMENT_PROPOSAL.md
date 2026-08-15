@@ -243,7 +243,7 @@ DefenseResolver
 - 상태 전환은 `StateTransitionApplier` 또는 Actor별 적용 메서드가 담당한다.
 - 피드백은 `CombatFeedbackDispatcher`가 `CombatResult`를 받아 실행한다.
 
-> 과도한 클래스 분할을 피한다. `ResourceApplier`와 `StateTransitionApplier`는 P2 시점에 **별도 클래스로 쪼개지 말고 `CombatResolutionPipeline` 내부 메서드로 먼저 구현**한다. 투사체/AOE/특수 진입점 등 두 번째 호출처가 생겨 실제 재사용 압력이 확인될 때(P4 시점 예상) 클래스로 추출한다. 1인 개발에서 호출처가 하나뿐인 단계부터 인터페이스/클래스로 나누면 간접 호출만 늘고 이득이 없다.
+> 과도한 클래스 분할을 피한다. `ResourceApplier`와 `StateTransitionApplier`는 P2 시점에 **별도 클래스로 쪼개지 말고 `CombatResolutionPipeline` 내부 메서드로 먼저 구현**한다. 투사체/AOE/특수 진입점 등 두 번째 호출처가 생겨 실제 재사용 압력이 확인될 때(P4 시점 예상) 클래스로 추출한다. 호출처가 하나뿐인 단계부터 인터페이스/클래스로 나누면 간접 호출만 늘고 이득이 없다.
 
 > 주의: 방어 결과는 단순 피해 배율이 아니라 흐름을 단락시킬 수 있다. 현재 `MonsterActor.TakeDamage`는 가드 시 `EnemyGuardState.OnAttackBlocked` 호출 후 즉시 return한다. 따라서 `DefenseResult`는 "차단됨 → 가드 상태로 리다이렉트" 같은 **제어 결과**를 표현할 수 있어야 하고, pipeline은 선형 4단계가 아니라 단계별 조기 종료(early-out)를 허용해야 한다.
 

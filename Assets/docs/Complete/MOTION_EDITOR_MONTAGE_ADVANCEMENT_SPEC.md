@@ -185,7 +185,7 @@ Unreal Slot은 단순 정수 레이어가 아니라 “UpperBody”, “FullBody
 - **AnimGraph Slot 노드**: Animancer 레이어 + `AvatarMask`로 이미 해결하므로 복제하지 않는다.
 - **동일 Slot Segment 오버랩**: Unreal 공식 문서도 같은 Slot의 동시 오버랩을 권장하지 않는다. UPlayground도 동일 채널은 순차 시퀀스를 유지하고, 병렬 표현은 별도 `MotionLayer`를 사용한다.
 - **네트워크 Root Motion 복제**: 싱글플레이 비목표다.
-- **Skeleton 전역 Slot Manager**: 1인 개발 규모에서는 관리 비용이 크다. 프로젝트 공용 `MotionChannelDefinitionSO` 또는 제한된 태그 목록으로 축소한다.
+- **Skeleton 전역 Slot Manager**: 현재 채널 수 대비 관리 비용이 크다. 프로젝트 공용 `MotionChannelDefinitionSO` 또는 제한된 태그 목록으로 축소한다.
 - **Child Montage 상속 트리**: 현재 `MotionReferenceSO` 무기 override와 `ActorAnimationMotionSet` fallback의 책임과 겹친다. 먼저 “클립 교체 시 타이밍 유지” 도구만 제공한다.
 - **Asset 내부 조건 분기**: 조건은 Ability/상태/BT가 계속 소유한다. Section은 목적지와 기본 연결만 표현한다.
 
@@ -951,7 +951,7 @@ Camera 모듈 내부에 `Svc.*`, `IWorldActor`, 구체 전투 서비스를 추�
 | 프리뷰가 런타임 부수효과 실행 | 에디터 씬·서비스 오염 | Preview Adapter와 Dry Run 기본값 |
 | Child Montage식 상속 추가 | MotionReference/fallback과 책임 중복 | 본 계획에서 보류 |
 | 대량 재직렬화 | managed reference/VFX 유실 | 컴파일·타입 매핑·Dry Run 검증 전 저장 금지 |
-| UI 기능 급증 | 1인 개발 유지보수 부담 | Phase별 수직 슬라이스, 범용 그래프·NLE 비목표 유지 |
+| UI 기능 급증 | 에디터 유지보수 부담 | Phase별 수직 슬라이스, 범용 그래프·NLE 비목표 유지 |
 
 ---
 

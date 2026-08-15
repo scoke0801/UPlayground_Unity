@@ -706,7 +706,7 @@ PlayerAttackState / EnemyAttackState
 | 리스크 | 대응 |
 |--------|------|
 | 한 번에 바꾸면 전투가 깨짐 | Phase 1~3은 legacy `AttackData`와 공존하는 어댑터 방식으로 진행 |
-| 추상화가 과해져 1인 개발 속도가 떨어짐 | 새 계층은 실제 중복/복잡도가 있는 피해/피드백/방어/리액션부터만 도입 |
+| 추상화가 과해져 개발 속도가 떨어짐 | 새 계층은 실제 중복/복잡도가 있는 피해/피드백/방어/리액션부터만 도입 |
 | Unity 상태 전환은 결국 구체 State 생성이 필요 | `ReactionResolver`는 결정만 하고 `StateTransitionApplier`가 Unity/상태머신 의존 처리 |
 | MotionEvent 변경이 기존 데이터와 충돌 | 기존 이벤트 직접 호출 경로 유지 후 runner 경로를 옵션으로 병행 |
 | 검증 툴 작성 비용 | Phase 8로 미루되, hitPhaseIndex 범위 검증만 우선 구현 가능 |

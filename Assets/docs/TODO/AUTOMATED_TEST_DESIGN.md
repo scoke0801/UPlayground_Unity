@@ -11,7 +11,7 @@
 | **회귀 방지** | 매니저 / 핸들러 리팩터링 시 기존 동작이 깨지지 않았음을 자동 검증 |
 | **데이터 무결성** | ItemDatabase, ActorDatabase 등 ScriptableObject 자산의 ID 중복·누락 자동 검증 |
 | **핵심 로직 보호** | 데미지 계산, timeScale 큐, 인벤토리 같은 **눈에 잘 띄지 않는 버그가 치명적인 영역** 우선 보호 |
-| **빠른 피드백** | 1인 개발이므로 수동 QA 부담을 줄이고 변경 직후 즉시 피드백 |
+| **빠른 피드백** | 수동 QA 부담을 줄이고 변경 직후 즉시 피드백 |
 
 **비목표 (당분간 하지 않음):**
 
@@ -29,7 +29,7 @@
 | **NUnit** | 테스트 어노테이션 / 어서션 | Unity Test Framework가 NUnit 기반 |
 | **NSubstitute** | 모킹(Mocking) — 의존성 가짜 객체 생성 | Unity Asset Store / NuGet 도입 검토 |
 
-> 1인 개발 + 한정 리소스 고려 — **NSubstitute는 필요해질 때 도입**. 초기에는 NUnit 기본 어서션과 직접 작성한 Stub 클래스로 충분.
+> 의존성은 실제 필요가 확인될 때 늘린다 — **NSubstitute는 필요해질 때 도입**. 초기에는 NUnit 기본 어서션과 직접 작성한 Stub 클래스로 충분.
 
 ---
 
@@ -256,7 +256,7 @@ namespace UPlayGround.Tests.PlayMode
 | **Addressables 의존** | `Init()` 내부에서 비동기 자산 로드 | 자산 로드 부분을 분리 (`LoadAsync()`)하여 테스트에선 미리 주입 |
 | **Time / 코루틴 의존** | `Time.timeScale`, `StartCoroutine` 직접 사용 | EditMode에서 검증 가능한 순수 함수 분리 (`ApplyLowest(scales)` 같은 형태) |
 
-> **주의:** 테스트를 위한 과도한 추상화는 1인 개발에서 부담이 되므로, 실제 회귀 비용이 큰 영역에만 적용한다.
+> **주의:** 테스트만을 위한 추상화는 런타임 구조를 왜곡하고 유지보수 비용을 키우므로, 실제 회귀 비용이 큰 영역에만 적용한다.
 
 ---
 
@@ -266,7 +266,7 @@ namespace UPlayGround.Tests.PlayMode
 |------|------|
 | **로컬 (Test Runner)** | Phase 1: `Window > General > Test Runner`로 수동 실행 |
 | **Pre-commit Hook** | Git hook으로 EditMode 테스트만 자동 실행 (PlayMode는 느려 제외) |
-| **GitHub Actions + GameCI** | 1인 개발에서는 과한 비용, Phase 3 이후 검토 |
+| **GitHub Actions + GameCI** | 현 테스트 규모 대비 구축·유지 비용이 커 Phase 3 이후 검토 |
 
 권장: **Phase 1~2는 로컬 수동 실행**, 테스트가 50개 이상 누적되고 회귀가 자주 잡히는 시점에 CI 도입.
 
@@ -291,7 +291,7 @@ namespace UPlayGround.Tests.PlayMode
 | 테스트 작성에 시간이 너무 들어 본 작업이 늦어짐 | Phase 1만으로도 충분한 가치. 무리한 커버리지 목표 금지 |
 | 싱글톤 / 비동기 코드의 테스트 격리 어려움 | Reset 헬퍼 도입은 **테스트 작성 중 필요해진 시점에만** 추가 |
 | 테스트 자체가 깨져서 유지보수 부담 | 의도가 명확한 테스트만 작성. "왜 이걸 테스트하는가"가 한 줄로 설명되지 않으면 작성하지 않음 |
-| 1인 개발이라 테스트 리뷰 동료가 없음 | 테스트 이름을 한국어로 풀어 적어 6개월 후 본인이 봐도 의도가 보이게 작성 |
+| 테스트 의도가 시간이 지나면 잊힘 | 테스트 이름을 한국어로 풀어 적어 6개월 후 누가 봐도 의도가 보이게 작성 |
 
 ---
 

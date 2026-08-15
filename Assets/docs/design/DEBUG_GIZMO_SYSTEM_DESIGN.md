@@ -68,7 +68,7 @@ https://docs.unity3d.com/ScriptReference/Gizmos.html
 
 - 기즈모 시스템은 단순 도형 그리기가 아니라 재현, 검사, 데이터 스크럽을 줄이는 개발 워크플로여야 한다.
 - 치트 콘솔, 디버그 카메라, 인게임 메뉴와 연결해야 효과가 커진다.
-- 1인 개발 환경에서는 거대한 툴보다 자주 보는 전투/AI/카메라 정보를 빠르게 켜는 것이 우선이다.
+- 거대한 범용 툴보다 자주 보는 전투/AI/카메라 정보를 빠르게 켜고 끄는 것이 우선이다. 사용 빈도가 낮은 기능은 나중에 붙인다.
 
 출처: Identifying Video Game Debugging Bottlenecks: An Industry Perspective  
 https://arxiv.org/abs/2510.08834

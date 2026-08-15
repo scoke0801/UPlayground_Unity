@@ -40,12 +40,13 @@ namespace UPlayGround.CameraSystem
 
         public void OnEnter(CameraContext context, CameraModeEnterParams enterParams)
         {
-            _request = enterParams.HasDialogueShot
-                ? enterParams.DialogueShot
-                : DialogueShotRequest.FromTargets(
-                    enterParams.PrimaryTarget,
-                    enterParams.SecondaryTarget != null ? enterParams.SecondaryTarget : context.Target,
-                    enterParams.Offset);
+            if (enterParams == null || !enterParams.HasDialogueShot)
+            {
+                Debug.LogError("[DialogueCameraBehavior] DialogueShotRequest 없이 대화 카메라에 진입했습니다.");
+                return;
+            }
+
+            _request = enterParams.DialogueShot;
 
             if (_request.Listener == null)
                 _request.Listener = context.Target;
@@ -53,10 +54,16 @@ namespace UPlayGround.CameraSystem
             DialogueCameraSettingsSO settings = GetSettings(context);
             DialogueShotSession session = context.DialogueSession;
 
-            // 인물이 대화 중 이동해 가상선이 크게 틀어졌으면 축만 다시 잡는다(카메라 쪽은 유지).
-            session?.RefreshAxisIfDeviated(settings.axisRecaptureAngle);
+            if (session == null)
+            {
+                Debug.LogError("[DialogueCameraBehavior] 활성 대화 세션이 없습니다.");
+                return;
+            }
 
-            bool isSessionStart = session == null || session.LineIndex == 0;
+            // 인물이 대화 중 이동해 가상선이 크게 틀어졌으면 축만 다시 잡는다(카메라 쪽은 유지).
+            session.RefreshAxisIfDeviated(settings.axisRecaptureAngle);
+
+            bool isSessionStart = session.LineIndex == 0;
 
             DialogueShotDirector.Decision decision = DialogueShotDirector.Decide(settings, session, _request);
             _shotType = decision.Shot;
@@ -79,17 +86,14 @@ namespace UPlayGround.CameraSystem
                 SeedFromCamera(context, settings);
             }
 
-            if (session != null)
-            {
-                if (decision.PlayIntro)
-                    session.IntroConsumed = true;
+            if (decision.PlayIntro)
+                session.IntroConsumed = true;
 
-                session.ConsecutiveShortLines = decision.ConsecutiveShortLines;
-                session.LastSubject = decision.Subject;
-                session.LastSpeaker = _request.Speaker;
-                session.LastShotType = decision.Shot;
-                session.LineIndex++;
-            }
+            session.ConsecutiveShortLines = decision.ConsecutiveShortLines;
+            session.LastSubject = decision.Subject;
+            session.LastSpeaker = _request.Speaker;
+            session.LastShotType = decision.Shot;
+            session.LineIndex++;
 
             context.IsInputLocked = true;
             context.LockOn?.Release();

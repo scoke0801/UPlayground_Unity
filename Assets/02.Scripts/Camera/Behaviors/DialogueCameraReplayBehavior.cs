@@ -119,14 +119,6 @@ namespace UPlayGround.CameraSystem
 
         private void ResolveSampleInterval(float time, out int index, out float t)
         {
-            if (!_recording.HasSampleTime)
-            {
-                float frame = time * _recording.sampleRate;
-                index = Mathf.Clamp(Mathf.FloorToInt(frame), 0, _recording.SampleCount - 2);
-                t = Mathf.Clamp01(frame - index);
-                return;
-            }
-
             int low = 0;
             int high = _recording.SampleCount - 1;
             while (low + 1 < high)

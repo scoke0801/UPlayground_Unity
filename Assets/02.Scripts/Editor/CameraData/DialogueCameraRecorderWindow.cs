@@ -1288,16 +1288,11 @@ namespace UPlayGround.Data.Editor
 
             int start = Mathf.Clamp(take.TrimIn, 0, take.Samples.Count - 1);
             int end = Mathf.Clamp(take.EffectiveTrimOut, start, take.Samples.Count - 1);
-            float startTime = take.Samples[start].sampleTime > 0f
-                ? take.Samples[start].sampleTime
-                : start / Mathf.Max(1f, take.SampleRate);
+            float startTime = take.Samples[start].sampleTime;
             for (int i = start; i <= end; i++)
             {
                 DialogueCameraRecordingSO.Sample sample = take.Samples[i];
-                float sourceTime = sample.sampleTime > 0f
-                    ? sample.sampleTime
-                    : i / Mathf.Max(1f, take.SampleRate);
-                sample.sampleTime = sourceTime - startTime;
+                sample.sampleTime -= startTime;
                 result.Add(sample);
             }
             return result;

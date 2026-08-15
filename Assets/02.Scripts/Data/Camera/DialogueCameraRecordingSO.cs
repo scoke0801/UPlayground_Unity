@@ -24,7 +24,7 @@ namespace UPlayGround.Data
         [Serializable]
         public struct Sample
         {
-            [Tooltip("비균일 키 리덕션용 원본 시간. 0만 저장된 구버전 트랙은 sampleRate 균일 시간축을 사용한다.")]
+            [Tooltip("비균일 키 리덕션과 재생에 사용하는 원본 시간.")]
             public float sampleTime;
             public Vector3 localPosition;
             public Vector3 localEuler;
@@ -51,7 +51,7 @@ namespace UPlayGround.Data
         public CameraSnapshotActorReference anchor = CameraSnapshotActorReference.ActivePlayer();
 
         [Header("샘플")]
-        [Tooltip("초당 샘플 수(Hz). 재생 시간축은 (샘플수-1)/sampleRate로 복원된다.")]
+        [Tooltip("캡처 당시 초당 샘플 수(Hz).")]
         [Min(1f)] public float sampleRate = 30f;
 
         [Tooltip("재생에 사용되는 트랙. smoothingStrength>0이면 rawSamples를 스무딩한 결과다.")]
@@ -91,20 +91,15 @@ namespace UPlayGround.Data
         public int SampleCount => samples?.Count ?? 0;
 
         /// <summary>녹화 전체 길이(초). 샘플이 2개 미만이면 0.</summary>
-        public bool HasSampleTime => SampleCount > 1 && samples[SampleCount - 1].sampleTime > 0f;
         public float Duration => SampleCount > 1
-            ? HasSampleTime ? samples[SampleCount - 1].sampleTime : (SampleCount - 1) / sampleRate
+            ? samples[SampleCount - 1].sampleTime
             : 0f;
 
         /// <summary>
         /// rawSamples에서 현재 smoothingStrength로 samples를 재생성한다(비파괴, 항상 raw 기준).
-        /// 구버전 에셋(rawSamples 비어 있음) 호환: 기존 samples를 raw로 승격한다.
         /// </summary>
         public void RebuildSmoothedSamples()
         {
-            if ((rawSamples == null || rawSamples.Count == 0) && samples != null && samples.Count > 0)
-                rawSamples = new List<Sample>(samples); // legacy 승격
-
             List<Sample> smoothed = usePerChannelSmoothing
                 ? DialogueCameraTrackSmoother.Smooth(
                     rawSamples,
@@ -115,7 +110,6 @@ namespace UPlayGround.Data
             samples = useKeyReduction
                 ? DialogueCameraTrackReducer.Reduce(
                     smoothed,
-                    sampleRate,
                     positionReductionTolerance,
                     rotationReductionTolerance,
                     fovReductionTolerance)

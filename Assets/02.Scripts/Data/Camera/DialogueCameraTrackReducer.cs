@@ -7,7 +7,6 @@ namespace UPlayGround.Data
     {
         public static List<DialogueCameraRecordingSO.Sample> Reduce(
             IReadOnlyList<DialogueCameraRecordingSO.Sample> source,
-            float sampleRate,
             float positionTolerance,
             float rotationTolerance,
             float fovTolerance)
@@ -18,19 +17,15 @@ namespace UPlayGround.Data
             if (source.Count <= 2)
             {
                 for (int i = 0; i < source.Count; i++)
-                    result.Add(WithTime(source[i], i / Mathf.Max(1f, sampleRate)));
+                    result.Add(source[i]);
                 return result;
             }
-
-            var normalized = new List<DialogueCameraRecordingSO.Sample>(source.Count);
-            for (int i = 0; i < source.Count; i++)
-                normalized.Add(WithTime(source[i], i / Mathf.Max(1f, sampleRate)));
 
             var keep = new bool[source.Count];
             keep[0] = true;
             keep[source.Count - 1] = true;
             ReduceRange(
-                normalized,
+                source,
                 0,
                 source.Count - 1,
                 Mathf.Max(0.0001f, positionTolerance),
@@ -38,10 +33,10 @@ namespace UPlayGround.Data
                 Mathf.Max(0.01f, fovTolerance),
                 keep);
 
-            for (int i = 0; i < normalized.Count; i++)
+            for (int i = 0; i < source.Count; i++)
             {
                 if (keep[i])
-                    result.Add(normalized[i]);
+                    result.Add(source[i]);
             }
             return result;
         }
@@ -91,15 +86,6 @@ namespace UPlayGround.Data
             keep[maxIndex] = true;
             ReduceRange(source, start, maxIndex, positionTolerance, rotationTolerance, fovTolerance, keep);
             ReduceRange(source, maxIndex, end, positionTolerance, rotationTolerance, fovTolerance, keep);
-        }
-
-        private static DialogueCameraRecordingSO.Sample WithTime(
-            DialogueCameraRecordingSO.Sample sample,
-            float fallbackTime)
-        {
-            if (sample.sampleTime <= 0f && fallbackTime > 0f)
-                sample.sampleTime = fallbackTime;
-            return sample;
         }
     }
 }

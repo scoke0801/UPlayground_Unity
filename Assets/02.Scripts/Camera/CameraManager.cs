@@ -858,12 +858,24 @@ namespace UPlayGround.Manager
 
         public bool SetCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
         {
+            if (modeType == CameraModeType.Dialogue)
+            {
+                Debug.LogError("[CameraManager] Dialogue 모드는 BeginDialogueSession/PushDialogueCamera 경로로만 진입할 수 있습니다.");
+                return false;
+            }
+
             SyncCameraContext();
             return _modeController != null && _modeController.SetMode(modeType, enterParams);
         }
 
         public bool PushCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
         {
+            if (modeType == CameraModeType.Dialogue)
+            {
+                Debug.LogError("[CameraManager] Dialogue 모드는 BeginDialogueSession/PushDialogueCamera 경로로만 진입할 수 있습니다.");
+                return false;
+            }
+
             SyncCameraContext();
             return _modeController != null && _modeController.PushMode(modeType, enterParams);
         }
@@ -876,6 +888,12 @@ namespace UPlayGround.Manager
 
         public bool ForceCameraMode(CameraModeType modeType, CameraModeEnterParams enterParams = null)
         {
+            if (modeType == CameraModeType.Dialogue)
+            {
+                Debug.LogError("[CameraManager] Dialogue 모드는 BeginDialogueSession/PushDialogueCamera 경로로만 진입할 수 있습니다.");
+                return false;
+            }
+
             SyncCameraContext();
             return _modeController != null && _modeController.ForceMode(modeType, enterParams);
         }
@@ -918,16 +936,19 @@ namespace UPlayGround.Manager
             SyncCameraContext();
         }
 
-        public bool PushDialogueCamera(Transform speaker, Transform listener = null, Vector3 offset = default)
-        {
-            return PushDialogueCamera(DialogueShotRequest.FromTargets(speaker, listener, offset));
-        }
-
         public bool PushDialogueCamera(DialogueShotRequest request)
         {
-            // 세션 없이 호출된 경로(트리거·치트 등)도 가상선을 갖도록 암묵 세션을 연다.
             if (_dialogueShotSession == null)
-                BeginDialogueSession(request.Listener != null ? request.Listener : _target, request.Speaker);
+            {
+                Debug.LogError("[CameraManager] 대화 세션이 없습니다. BeginDialogueSession을 먼저 호출해야 합니다.");
+                return false;
+            }
+
+            if (request.Speaker == null || request.SequenceId <= 0)
+            {
+                Debug.LogError("[CameraManager] DialogueShotRequest에는 화자와 1 이상의 SequenceId가 필요합니다.");
+                return false;
+            }
 
             // 동일 요청 재진입은 OnEnter 재호출로 보간 상태가 끊기지 않도록 no-op 처리
             if (_modeController != null

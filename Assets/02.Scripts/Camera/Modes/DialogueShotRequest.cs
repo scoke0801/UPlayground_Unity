@@ -38,23 +38,11 @@ namespace UPlayGround.CameraSystem
 
         /// <summary>
         /// 대화 세션 안에서의 노드 진입 순번. 같은 구도의 연속 라인도 별도 요청으로 구분한다.
-        /// 0은 트리거·치트 등 세션 밖의 레거시 직접 호출에 예약한다.
+        /// 1부터 시작하며 세션 밖 요청에는 사용할 수 없다.
         /// </summary>
         public int SequenceId;
 
         public bool HasShoulderOffsetOverride => ShoulderOffsetOverride.sqrMagnitude > 0.0001f;
-
-        public static DialogueShotRequest FromTargets(Transform speaker, Transform listener, Vector3 offset)
-        {
-            return new DialogueShotRequest
-            {
-                Speaker = speaker,
-                Listener = listener,
-                ShotType = DialogueShotType.Auto,
-                Transition = DialogueShotTransition.Auto,
-                ShoulderOffsetOverride = offset
-            };
-        }
 
         /// <summary>같은 라인의 중복 진입인지 판정한다(모드 재진입 no-op 가드용).</summary>
         public bool Matches(in DialogueShotRequest other)

@@ -51,6 +51,12 @@ namespace UPlayGround.UI
         [Tooltip("0이면 즉시 이동. 값이 클수록 빠르게 따라간다.")]
         [SerializeField] private float _followSpeed = 22f;
 
+        [Tooltip("이 거리(px) 이내의 포커스 이동은 짧게 따라가고, 그보다 멀면 새 위치에서 페이드한다.")]
+        [SerializeField] private float _snapDistance = 720f;
+
+        [Tooltip("새 선택을 인지시키는 전환 시간(초).")]
+        [SerializeField] private float _transitionDuration = 0.10f;
+
         [Tooltip("테두리 밝기 맥동 주기(초). 0이면 맥동 없음.")]
         [SerializeField] private float _pulsePeriod = 1.4f;
 
@@ -63,6 +69,7 @@ namespace UPlayGround.UI
         private GameObject _presentationSelection;
         private bool _suppressForPresentation;
         private RectTransform _presentationTarget;
+        private float _transitionStartedAt;
 
         private void Awake()
         {
@@ -96,7 +103,7 @@ namespace UPlayGround.UI
                 var edgeObject = new GameObject($"Edge_{i}", typeof(RectTransform), typeof(Image));
                 edgeObject.transform.SetParent(_frame, false);
                 var image = edgeObject.GetComponent<Image>();
-                image.color = _color;
+                image.color = ResolveColor();
                 image.raycastTarget = false;
                 _edges[i] = image;
             }
@@ -141,8 +148,10 @@ namespace UPlayGround.UI
                 return;
             }
 
-            // 대상이 바뀌면 보간하지 않고 바로 스냅한다. 화면을 가로질러 날아가면 산만하다.
-            bool snap = _followSpeed <= 0f || !_hasPose || target.gameObject != _tracked;
+            bool targetChanged = target.gameObject != _tracked;
+            bool snap = _followSpeed <= 0f || !_hasPose;
+            if (targetChanged)
+                _transitionStartedAt = Time.unscaledTime;
             _tracked = target.gameObject;
 
             if (!TryGetLocalRect(target, out Vector2 center, out Vector2 size))
@@ -153,6 +162,14 @@ namespace UPlayGround.UI
             }
 
             size += Vector2.one * (_outset * 2f);
+
+            if (targetChanged
+                && _hasPose
+                && Vector2.Distance(_frame.anchoredPosition, center) > _snapDistance)
+            {
+                // 화면을 가로지르는 긴 이동은 시선을 빼앗으므로 새 위치에서 짧게 페이드한다.
+                snap = true;
+            }
 
             if (snap)
             {
@@ -167,9 +184,13 @@ namespace UPlayGround.UI
                 _frame.sizeDelta = Vector2.Lerp(_frame.sizeDelta, size, t);
             }
 
-            _group.alpha = _pulsePeriod > 0f
+            float pulseAlpha = _pulsePeriod > 0f
                 ? Mathf.Lerp(0.55f, 1f, Mathf.Sin(Time.unscaledTime * Mathf.PI * 2f / _pulsePeriod) * 0.5f + 0.5f)
                 : 1f;
+            float transitionAlpha = _transitionDuration > 0f
+                ? Mathf.Clamp01((Time.unscaledTime - _transitionStartedAt) / _transitionDuration)
+                : 1f;
+            _group.alpha = pulseAlpha * transitionAlpha;
         }
 
         private RectTransform ResolveTarget()
@@ -255,10 +276,16 @@ namespace UPlayGround.UI
             for (int i = 0; i < _edges.Length; i++)
             {
                 if (_edges[i] != null)
-                    _edges[i].color = _color;
+                    _edges[i].color = ResolveColor();
             }
 
             LayoutEdges();
+        }
+
+        private Color ResolveColor()
+        {
+            UIVisualThemeSO theme = UIVisualThemeProvider.Current;
+            return theme != null ? theme.Focus : _color;
         }
     }
 }

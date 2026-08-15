@@ -81,6 +81,31 @@ namespace UPlayGround.Data.Event
         [Header("Offset")]
         public Vector3 targetOffset = Vector3.zero;
 
+        [Header("Arrival")]
+        [Tooltip("TargetCenter는 기존 에셋 호환, ContactShell은 양쪽 캡슐 표면과 무기 간격을 반영합니다.")]
+        public WarpArrivalMode arrivalMode = WarpArrivalMode.TargetCenter;
+        [Min(0f)] public float desiredStandOff = 0.18f;
+        [Tooltip("타겟 로컬 축 기준 도착점 미세 조정입니다.")]
+        public Vector3 localArrivalOffset = Vector3.zero;
+
+        [Header("Translation Constraints")]
+        [Min(0f)] public float noTranslationWithinReach = 0.12f;
+        [Min(0f)] public float maxCorrectionDistance = 0.5f;
+        [Range(0f, 1f)] public float maxCorrectionRatio = 0.3f;
+        [Range(0f, 180f)] public float maxWarpAngle = 45f;
+        [Tooltip("정규화 시간별 위치 보정 Weight. 비어 있으면 1입니다.")]
+        public AnimationCurve translationCurve;
+        [Min(0f)]
+        [Tooltip("윈도우 종료 전 위치 보정을 먼저 끝내는 시간입니다. 회전 보정은 유지됩니다.")]
+        public float translationEndLeadTime = 0.06f;
+
+        [Header("Playback Rate Warp")]
+        [Tooltip("LegacyTargetCenter는 기존 TargetCenter 에셋의 속도 워프를 보존합니다. 일반 공격은 Disabled, 돌진·잡기는 Enabled를 명시합니다.")]
+        public PlaybackRateWarpPolicy playbackRateWarpPolicy = PlaybackRateWarpPolicy.LegacyTargetCenter;
+        [HideInInspector]
+        public bool usePlaybackRateWarp;
+        public Vector2 playbackRateRange = new(0.95f, 1.05f);
+
         [Header("Root Motion Amplify")]
         [Tooltip("루트모션 고유 속도 곡선을 게인으로 증폭한다 (타겟 워프와 직교).\n" +
                  "타겟 없이도 동작하며, 타겟이 있으면 증폭된 속도 위에서 워프가 합성됨.\n" +
@@ -249,6 +274,17 @@ namespace UPlayGround.Data.Event
                 maxDistance = maxDistance,
                 maxSpeed = maxSpeed,
                 targetOffset = targetOffset,
+                arrivalMode = arrivalMode,
+                desiredStandOff = desiredStandOff,
+                localArrivalOffset = localArrivalOffset,
+                noTranslationWithinReach = noTranslationWithinReach,
+                maxCorrectionDistance = maxCorrectionDistance,
+                maxCorrectionRatio = maxCorrectionRatio,
+                maxWarpAngle = maxWarpAngle,
+                translationCurve = translationCurve,
+                translationEndLeadTime = translationEndLeadTime,
+                usePlaybackRateWarp = ResolvePlaybackRateWarp(),
+                playbackRateRange = playbackRateRange,
                 rotationCurve = rotationCurve,
                 predictionFactor = predictionFactor,
                 amplifyEnabled = amplifyEnabled,
@@ -260,6 +296,18 @@ namespace UPlayGround.Data.Event
                 bakedLocalTotal = bakedLocalTotal,
                 bakedPathLen = bakedPathLen,
             };
+        }
+
+        /// <summary>
+        /// 기존 TargetCenter 에셋은 종전 동작을 보존하되, 신규 저작 데이터는
+        /// 정책으로 재생 속도 워프를 명시적으로 켜고 끌 수 있다.
+        /// </summary>
+        public bool ResolvePlaybackRateWarp()
+        {
+            return MotionWarpMath.ResolvePlaybackRateWarp(
+                playbackRateWarpPolicy,
+                arrivalMode,
+                usePlaybackRateWarp);
         }
 
         private static ActorMovementController ResolveController(GameObject target)
@@ -284,6 +332,17 @@ namespace UPlayGround.Data.Event
                     settings.minDistance = 0.25f;
                     settings.maxDistance = 7f;
                     settings.maxSpeed = 22f;
+                    if (settings.arrivalMode == WarpArrivalMode.ContactShell)
+                    {
+                        settings.desiredStandOff = 0.18f;
+                        settings.noTranslationWithinReach = 0.12f;
+                        settings.maxCorrectionDistance = 0.5f;
+                        settings.maxCorrectionRatio = 0.3f;
+                        settings.maxWarpAngle = 45f;
+                        settings.translationEndLeadTime = 0.06f;
+                        settings.maxDistance = 2.5f;
+                        settings.maxSpeed = 18f;
+                    }
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildLightCurve();
                     break;
@@ -300,6 +359,17 @@ namespace UPlayGround.Data.Event
                     settings.minDistance = 0.35f;
                     settings.maxDistance = 8f;
                     settings.maxSpeed = 20f;
+                    if (settings.arrivalMode == WarpArrivalMode.ContactShell)
+                    {
+                        settings.desiredStandOff = 0.24f;
+                        settings.noTranslationWithinReach = 0.15f;
+                        settings.maxCorrectionDistance = 0.8f;
+                        settings.maxCorrectionRatio = 0.4f;
+                        settings.maxWarpAngle = 35f;
+                        settings.translationEndLeadTime = 0.1f;
+                        settings.maxDistance = 3f;
+                        settings.maxSpeed = 16f;
+                    }
                     if (HasCurve(settings.rotationCurve) == false)
                         settings.rotationCurve = BuildHeavyCurve();
                     break;

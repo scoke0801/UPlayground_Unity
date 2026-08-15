@@ -28,6 +28,24 @@ namespace UPlayGround.MovementController
         Predictive,
     }
 
+    public enum WarpArrivalMode
+    {
+        TargetCenter = 0,
+        ContactShell,
+        AuthoredWarpPoint,
+    }
+
+    /// <summary>
+    /// 거리 기반 재생 속도 워프 정책.
+    /// LegacyTargetCenter는 기존 데이터의 TargetCenter 동작만 보존한다.
+    /// </summary>
+    public enum PlaybackRateWarpPolicy
+    {
+        LegacyTargetCenter = 0,
+        Disabled,
+        Enabled,
+    }
+
     /// <summary>
     /// 워프 Y축 처리 정책. 기본은 IgnoreY 로 1차 동작 호환.
     /// </summary>
@@ -63,6 +81,17 @@ namespace UPlayGround.MovementController
         public float maxDistance;
         public float maxSpeed;
         public Vector3 targetOffset;
+        public WarpArrivalMode arrivalMode;
+        public float desiredStandOff;
+        public Vector3 localArrivalOffset;
+        public float noTranslationWithinReach;
+        public float maxCorrectionDistance;
+        public float maxCorrectionRatio;
+        public float maxWarpAngle;
+        public AnimationCurve translationCurve;
+        public float translationEndLeadTime;
+        public bool usePlaybackRateWarp;
+        public Vector2 playbackRateRange;
         // 정규화 시간 t 를 회전 보간 알파로 매핑하는 곡선. null 이면 EaseOut(1-(1-t)^2) 폴백.
         public AnimationCurve rotationCurve;
         // Predictive 정책에서 타겟 속도를 어느 정도 가산할지 (0~1). 0 = Live 와 동일.
@@ -109,6 +138,17 @@ namespace UPlayGround.MovementController
                 maxDistance = 4f,
                 maxSpeed = 18f,
                 targetOffset = Vector3.zero,
+                arrivalMode = WarpArrivalMode.TargetCenter,
+                desiredStandOff = 0f,
+                localArrivalOffset = Vector3.zero,
+                noTranslationWithinReach = 0f,
+                maxCorrectionDistance = 0f,
+                maxCorrectionRatio = 0f,
+                maxWarpAngle = 180f,
+                translationCurve = null,
+                translationEndLeadTime = 0f,
+                usePlaybackRateWarp = true,
+                playbackRateRange = new Vector2(0.5f, 1.2f),
                 rotationCurve = null,
                 predictionFactor = 0.5f,
                 amplifyEnabled = false,

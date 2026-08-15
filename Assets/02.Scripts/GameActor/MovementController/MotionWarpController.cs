@@ -27,6 +27,7 @@ namespace UPlayGround.MovementController
         private string _activeKey = DefaultTargetKey;
         private MotionWarpTarget _activeTarget = MotionWarpTarget.None;
         private Vector3 _snapshotPosition;
+        private Vector3 _snapshotContactCenter;
 
         public string ActiveKey => _activeKey;
         public MotionWarpTarget GetTarget(string key)
@@ -45,6 +46,7 @@ namespace UPlayGround.MovementController
 
         private bool _feasibilityChecked;
         private bool _isApplicable;
+        private bool _translationSuppressed;
         private float _blendWeight;
         private MotionWarpWindowSettings _windowSettings = MotionWarpWindowSettings.Default(0f);
         private bool _hasWindowSettings;
@@ -270,6 +272,7 @@ namespace UPlayGround.MovementController
             _warpTotalDuration = warpDuration;
             _outOfRangeAccumulator = 0f;
             _warpStartCaptured = false;
+            _translationSuppressed = false;
             // 새 워프 윈도우 시작 — 속도 히스토리는 다음 프레임부터 다시 누적.
             _hasTargetVelocityHistory = false;
         }
@@ -327,10 +330,16 @@ namespace UPlayGround.MovementController
             _targets[_activeKey] = _activeTarget; // dict 와 캐시 동기화
 
             if (_activeTarget.IsValid && useSnapshot)
+            {
                 _snapshotPosition = _activeTarget.ResolveWorldPosition();
+                _snapshotContactCenter = ResolveTargetCenterWorld(
+                    _snapshotPosition,
+                    _activeTarget.anchor);
+            }
 
             _feasibilityChecked = false;
             _isApplicable = false;
+            _translationSuppressed = false;
             _lastFailureReason = string.Empty;
 
             // ── delta-warp 윈도우 초기화: 캐시 키 조립 + 히트 조회 + 누적기 리셋 ──
@@ -463,8 +472,12 @@ namespace UPlayGround.MovementController
             {
                 _activeTarget = t;
                 _snapshotPosition = target != null ? t.ResolveWorldPosition() : Vector3.zero;
+                _snapshotContactCenter = target != null
+                    ? ResolveTargetCenterWorld(_snapshotPosition, target)
+                    : Vector3.zero;
                 _feasibilityChecked = false;
                 _isApplicable = false;
+                _translationSuppressed = false;
                 _blendWeight = 0f;
                 _lastFailureReason = string.Empty;
                 _hasTargetVelocityHistory = false;
@@ -491,8 +504,14 @@ namespace UPlayGround.MovementController
                 _snapshotPosition = target.IsValid && !target.follow
                     ? target.ResolveWorldPosition()
                     : Vector3.zero;
+                _snapshotContactCenter = target.IsValid && !target.follow
+                    ? ResolveTargetCenterWorld(
+                        _snapshotPosition,
+                        target.anchor)
+                    : Vector3.zero;
                 _feasibilityChecked = false;
                 _isApplicable = false;
+                _translationSuppressed = false;
                 _blendWeight = 0f;
                 _lastFailureReason = string.Empty;
                 _hasTargetVelocityHistory = false;
@@ -512,6 +531,7 @@ namespace UPlayGround.MovementController
             _snapshotPosition = Vector3.zero;
             _feasibilityChecked = false;
             _isApplicable = false;
+            _translationSuppressed = false;
             _blendWeight = 0f;
             _outOfRangeAccumulator = 0f;
             _warpStartCaptured = false;
@@ -539,6 +559,7 @@ namespace UPlayGround.MovementController
                 _snapshotPosition = Vector3.zero;
                 _feasibilityChecked = false;
                 _isApplicable = false;
+                _translationSuppressed = false;
                 _blendWeight = 0f;
                 _hasTargetVelocityHistory = false;
                 _warpStoreCommittable = false; // 활성 키 타겟 제거(중단) — 부분 측정 저장 차단
@@ -596,6 +617,7 @@ namespace UPlayGround.MovementController
             {
                 _feasibilityChecked = false;
                 _isApplicable = false;
+                _translationSuppressed = false;
                 _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
                 _outOfRangeAccumulator = 0f;
                 _lastFailureReason = !_activeTarget.IsValid ? "Target 없음" : "워프 비활성";
@@ -606,6 +628,7 @@ namespace UPlayGround.MovementController
             if (IsTargetUnreachableLifecycle())
             {
                 _isApplicable = false;
+                _translationSuppressed = false;
                 _lastFailureReason = "타겟 사망/파괴";
                 Cancel(WarpCancelReason.TargetLost);
                 cancelWarp?.Invoke();
@@ -634,21 +657,45 @@ namespace UPlayGround.MovementController
                 targetWorld += _targetVelocity * factor * remainingTime;
             }
 
-            Vector3 toTarget = targetWorld - currentPosition;
-            toTarget.y = 0f;
+            Vector3 targetCenter = settings.arrivalMode
+                == WarpArrivalMode.ContactShell
+                    ? (_activeTarget.follow
+                        ? ResolveTargetCenterWorld(
+                            targetWorld,
+                            _activeTarget.anchor)
+                        : _snapshotContactCenter
+                          + (targetWorld - _snapshotPosition))
+                    : targetWorld;
+            Vector3 selfCenter = GetSelfCapsuleCenterPosition(currentPosition);
+            Vector3 toCenter = targetCenter - selfCenter;
+            toCenter.y = 0f;
+            float targetDistance = toCenter.magnitude;
 
+            Vector3 desiredRoot = ResolveArrivalWorld(
+                settings,
+                currentPosition,
+                selfCenter,
+                targetWorld,
+                targetCenter);
+            Vector3 toTarget = desiredRoot - currentPosition;
+            toTarget.y = 0f;
             float remainingDist = toTarget.magnitude;
             if (!_feasibilityChecked)
             {
                 // 사거리(min/max) 밖이면 캔슬. "maxSpeed×duration 내 도달 불가"는 더 이상 캔슬 사유가 아니다:
                 // maxDistance 로 이미 상한이 걸려 있고, 도달 못 하는 거리라도 ClampHorizontal 의 maxSpeed 클램프로
                 // "붙을 수 있는 데까지 최대속도 접근" 하는 편이 워프를 통째로 죽이고 허공을 치는 것보다 낫다.
-                bool outOfRange = remainingDist < minDistance || remainingDist > maxDistance;
+                bool outOfRange = settings.arrivalMode
+                    == WarpArrivalMode.ContactShell
+                        ? targetDistance > maxDistance
+                        : remainingDist < minDistance
+                          || remainingDist > maxDistance;
 
                 if (outOfRange)
                 {
                     cancelWarp?.Invoke();
                     _isApplicable = false;
+                    _translationSuppressed = false;
                     _lastFailureReason = "거리 범위 이탈";
                     _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
                     return rootVelocity;
@@ -657,9 +704,15 @@ namespace UPlayGround.MovementController
                 _feasibilityChecked = true;
             }
 
-            if (remainingDist < minDistance || remainingDist > maxDistance || toTarget.sqrMagnitude <= 0.0001f)
+            bool contactShell = settings.arrivalMode
+                                == WarpArrivalMode.ContactShell;
+            bool outsideRange = contactShell
+                ? targetDistance > maxDistance
+                : remainingDist < minDistance || remainingDist > maxDistance;
+            if (outsideRange || (!contactShell && toTarget.sqrMagnitude <= 0.0001f))
             {
                 _isApplicable = false;
+                _translationSuppressed = false;
                 _lastFailureReason = toTarget.sqrMagnitude <= 0.0001f ? "타겟 거리 0" : "이동 중 거리 범위 이탈";
                 _blendWeight = Mathf.MoveTowards(_blendWeight, 0f, deltaTime * 12f);
 
@@ -677,24 +730,51 @@ namespace UPlayGround.MovementController
             _outOfRangeAccumulator = 0f;
 
             _isApplicable = true;
-            _lastFailureReason = string.Empty;
+            _translationSuppressed = contactShell
+                && ShouldSuppressContactTranslation(
+                    settings,
+                    targetDistance,
+                    toCenter,
+                    remainingTime);
+            _lastFailureReason = _translationSuppressed
+                ? ResolveTranslationSuppressionReason(
+                    settings,
+                    targetDistance,
+                    toCenter,
+                    remainingTime)
+                : string.Empty;
             _lastArrivalError = remainingDist;
-            _blendWeight = Mathf.MoveTowards(_blendWeight, 1f, deltaTime * 15f);
+            _blendWeight = Mathf.MoveTowards(
+                _blendWeight,
+                _translationSuppressed ? 0f : 1f,
+                deltaTime * 15f);
 
             float t = totalDuration > 0f ? 1f - (remainingTime / totalDuration) : 1f;
             t = Mathf.Clamp01(t);
             float eased = 1f - (1f - t) * (1f - t);
 
+            if (_translationSuppressed)
+            {
+                WarpPlayRateScale = 1f;
+                _prevWarpK = 1f;
+                return rootVelocity;
+            }
+
             Vector3 targetVelocity = settings.modifierType switch
             {
                 MotionWarpModifierType.DeltaWarp => EvaluateDeltaWarpVelocity(
-                    rootVelocity, toTarget, remainingDist, rawFrameDist, deltaTime, eased, maxSpeed),
+                    rootVelocity, toTarget, remainingDist, rawFrameDist, deltaTime, eased, maxSpeed, settings),
                 MotionWarpModifierType.Scale => EvaluateScaleVelocity(rootVelocity, toTarget, remainingDist, remainingTime, maxSpeed),
                 MotionWarpModifierType.Skew => EvaluateSkewVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased),
                 _ => EvaluateAdditiveVelocity(rootVelocity, toTarget, remainingDist, remainingTime, deltaTime, maxSpeed, eased)
             };
 
-            float translationWeight = settings.translationWeight;
+            float translationWeight = settings.translationWeight
+                                      * MotionWarpMath.EvaluateTranslationWeight(
+                                          settings.translationCurve,
+                                          t,
+                                          remainingTime,
+                                          settings.translationEndLeadTime);
             Vector3 blended = Vector3.Lerp(rootVelocity, targetVelocity, _blendWeight * translationWeight);
 
             // Y축 정책: ignoreY bool 과 yPolicy enum 호환 매핑 후 분기.
@@ -723,13 +803,31 @@ namespace UPlayGround.MovementController
             // _prevWarpK 로 역산해 Speed=1 기준 기저 속도를 구한 뒤 desiredSpeed / baseSpeed 로 K 계산.
             // 1-프레임 래그(이전 K 역산)는 안정적이며 플레이어에게 보이지 않는다.
             float rawHorizSpeed = rawHoriz.magnitude;
-            if (rawHorizSpeed > 0.001f && remainingTime > 0.01f)
+            if (settings.usePlaybackRateWarp
+                && rawHorizSpeed > 0.001f
+                && remainingTime > 0.01f)
             {
                 float baseHorizSpeed = rawHorizSpeed / _prevWarpK;
                 float desiredHorizSpeed = remainingDist / remainingTime;
-                float newK = Mathf.Clamp(desiredHorizSpeed / baseHorizSpeed, WarpPlayRateMin, WarpPlayRateMax);
+                float authoredMin = settings.playbackRateRange.x > 0f
+                    ? settings.playbackRateRange.x
+                    : WarpPlayRateMin;
+                float authoredMax = settings.playbackRateRange.y > 0f
+                    ? settings.playbackRateRange.y
+                    : WarpPlayRateMax;
+                float minRate = Mathf.Min(authoredMin, authoredMax);
+                float maxRate = Mathf.Max(authoredMin, authoredMax);
+                float newK = Mathf.Clamp(
+                    desiredHorizSpeed / baseHorizSpeed,
+                    minRate,
+                    maxRate);
                 WarpPlayRateScale = newK;
                 _prevWarpK = newK;
+            }
+            else
+            {
+                WarpPlayRateScale = 1f;
+                _prevWarpK = 1f;
             }
             // ──────────────────────────────────────────────────────────────────────────────
 
@@ -785,14 +883,118 @@ namespace UPlayGround.MovementController
             return currentPosition + centerOffset;
         }
 
+        private Vector3 ResolveArrivalWorld(
+            in MotionWarpWindowSettings settings,
+            Vector3 currentPosition,
+            Vector3 selfCenter,
+            Vector3 targetWorld,
+            Vector3 targetCenter)
+        {
+            if (settings.arrivalMode == WarpArrivalMode.TargetCenter)
+                return targetWorld;
+
+            Quaternion targetRotation = _activeTarget.anchor != null
+                ? _activeTarget.anchor.rotation
+                : Quaternion.identity;
+            if (settings.arrivalMode == WarpArrivalMode.AuthoredWarpPoint)
+                return targetWorld
+                       + targetRotation * settings.localArrivalOffset;
+
+            CapsuleCollider selfCapsule = GetComponent<CapsuleCollider>();
+            CapsuleCollider targetCapsule = GetTargetCapsule(
+                _activeTarget.anchor);
+            return MotionWarpMath.ResolveContactShellDestination(
+                currentPosition,
+                selfCenter,
+                GetHorizontalRadius(selfCapsule),
+                targetCenter,
+                targetRotation,
+                GetHorizontalRadius(targetCapsule),
+                settings.desiredStandOff,
+                settings.localArrivalOffset);
+        }
+
+        private bool ShouldSuppressContactTranslation(
+            in MotionWarpWindowSettings settings,
+            float targetDistance,
+            Vector3 toCenter,
+            float remainingTime)
+        {
+            float selfRadius = GetHorizontalRadius(
+                GetComponent<CapsuleCollider>());
+            float targetRadius = GetHorizontalRadius(
+                GetTargetCapsule(_activeTarget.anchor));
+            return MotionWarpMath.IsInsideContactDeadZone(
+                       targetDistance,
+                       selfRadius,
+                       targetRadius,
+                       settings.desiredStandOff,
+                       settings.noTranslationWithinReach)
+                   || !MotionWarpMath.IsInsideWarpAngle(
+                       transform.forward,
+                       toCenter,
+                       settings.maxWarpAngle)
+                   || settings.translationEndLeadTime > 0f
+                   && remainingTime <= settings.translationEndLeadTime;
+        }
+
+        private string ResolveTranslationSuppressionReason(
+            in MotionWarpWindowSettings settings,
+            float targetDistance,
+            Vector3 toCenter,
+            float remainingTime)
+        {
+            float selfRadius = GetHorizontalRadius(
+                GetComponent<CapsuleCollider>());
+            float targetRadius = GetHorizontalRadius(
+                GetTargetCapsule(_activeTarget.anchor));
+            if (MotionWarpMath.IsInsideContactDeadZone(
+                    targetDistance,
+                    selfRadius,
+                    targetRadius,
+                    settings.desiredStandOff,
+                    settings.noTranslationWithinReach))
+                return "공격 리치 내 위치 보정 생략";
+            if (!MotionWarpMath.IsInsideWarpAngle(
+                    transform.forward,
+                    toCenter,
+                    settings.maxWarpAngle))
+                return "워프 허용 각도 이탈";
+            if (settings.translationEndLeadTime > 0f
+                && remainingTime <= settings.translationEndLeadTime)
+                return "타격 전 위치 보정 종료";
+            return string.Empty;
+        }
+
+        private Vector3 ResolveTargetCenterWorld(
+            Vector3 resolvedTargetWorld,
+            Transform target)
+        {
+            if (target == null)
+                return resolvedTargetWorld;
+            CapsuleCollider targetCapsule = GetTargetCapsule(target);
+            if (targetCapsule == null)
+                return resolvedTargetWorld;
+            Vector3 authoredOffset = resolvedTargetWorld - target.position;
+            return targetCapsule.transform.TransformPoint(targetCapsule.center)
+                   + authoredOffset;
+        }
+
+        private static CapsuleCollider GetTargetCapsule(Transform target)
+        {
+            if (target == null)
+                return null;
+            return target.GetComponent<CapsuleCollider>()
+                   ?? target.GetComponentInParent<CapsuleCollider>();
+        }
+
         private Vector3 GetHorizontalTargetOffset(Vector3 currentPosition, Transform target)
         {
             Vector3 targetPosition = _activeTarget.follow
                 ? _activeTarget.ResolveWorldPosition()
                 : _snapshotPosition;
 
-            CapsuleCollider targetCapsule = target.GetComponent<CapsuleCollider>()
-                                            ?? target.GetComponentInParent<CapsuleCollider>();
+            CapsuleCollider targetCapsule = GetTargetCapsule(target);
             if (targetCapsule != null)
                 targetPosition = targetCapsule.transform.TransformPoint(targetCapsule.center);
 
@@ -805,7 +1007,7 @@ namespace UPlayGround.MovementController
         {
             float selfRadius = GetHorizontalRadius(GetComponent<CapsuleCollider>());
             float targetRadius = GetHorizontalRadius(
-                target.GetComponent<CapsuleCollider>() ?? target.GetComponentInParent<CapsuleCollider>());
+                GetTargetCapsule(target));
 
             return selfRadius + targetRadius;
         }
@@ -844,7 +1046,8 @@ namespace UPlayGround.MovementController
             float rawFrameDist,
             float deltaTime,
             float eased,
-            float maxSpeed)
+            float maxSpeed,
+            in MotionWarpWindowSettings settings)
         {
             Vector3 gainHoriz = new Vector3(rootVelocity.x, 0f, rootVelocity.z);
             Vector3 targetDir = remainingDist > 0.0001f ? toTarget / remainingDist : Vector3.zero;
@@ -860,6 +1063,14 @@ namespace UPlayGround.MovementController
                 Vector3 remainingRawWorld = transform.rotation * (localDir * remainingPath);
                 remainingRawWorld.y = 0f;
                 Vector3 correctionTotal = toTarget - remainingRawWorld; // 남은 구간서 메울 총 보정
+                if (settings.arrivalMode == WarpArrivalMode.ContactShell)
+                {
+                    correctionTotal = MotionWarpMath.LimitCorrection(
+                        correctionTotal,
+                        remainingPath,
+                        settings.maxCorrectionDistance,
+                        settings.maxCorrectionRatio);
+                }
                 // remainingPath==0 (rawFrameDist==0 && accum>=PathLen, 예: settle 꼬리 + Live 타겟)이면
                 // 0/0 → NaN 이 KCC 로 전파된다. 이 경우 share=1 로 디그레이드 —
                 // remainingRawWorld≈0 → correctionTotal≈toTarget → 마지막 간격을 즉시 메운다(maxSpeed 클램프).
@@ -1017,13 +1228,25 @@ namespace UPlayGround.MovementController
             Vector3 targetWorld = _activeTarget.follow
                 ? _activeTarget.ResolveWorldPosition()
                 : _snapshotPosition;
-            Vector3 toTarget = targetWorld - currentPosition;
+            Vector3 targetCenter = settings.arrivalMode
+                == WarpArrivalMode.ContactShell
+                    ? (_activeTarget.follow
+                        ? ResolveTargetCenterWorld(
+                            targetWorld,
+                            _activeTarget.anchor)
+                        : _snapshotContactCenter)
+                    : targetWorld;
+            Vector3 toTarget = targetCenter - currentPosition;
             toTarget.y = 0f;
             float dist = toTarget.magnitude;
 
             // 도달 가능성(maxSpeed×remainingTime)은 회전 게이트에서 제외 — 이동 경로(EvaluateVelocity)와 일관되게,
             // 사거리(min/max) 안이면 도달 못 하는 거리라도 타겟 방향으로 회전 호밍한다(허공 스윙 방지).
-            if (dist < minDistance || dist > maxDistance || toTarget.sqrMagnitude <= 0.01f)
+            bool contactShell = settings.arrivalMode
+                                == WarpArrivalMode.ContactShell;
+            if ((!contactShell && dist < minDistance)
+                || dist > maxDistance
+                || toTarget.sqrMagnitude <= 0.01f)
                 return false;
 
             direction = toTarget.normalized;
@@ -1083,6 +1306,7 @@ namespace UPlayGround.MovementController
         public float OutOfRangeAccumulator => _outOfRangeAccumulator;
         public Vector3 TargetVelocity => _targetVelocity;
         public bool HasActiveWindow => _hasWindowSettings;
+        public bool IsTranslationSuppressed => _translationSuppressed;
         public MotionWarpWindowSettings ActiveWindowSettings => _windowSettings;
         public MotionWarpTarget ActiveTarget => _activeTarget;
         public Vector3 SnapshotPosition => _snapshotPosition;

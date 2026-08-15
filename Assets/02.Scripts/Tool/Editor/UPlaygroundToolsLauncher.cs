@@ -94,6 +94,8 @@ namespace UPlayGround.Editor
                 Tool("Ability 제작 검증 대시보드",       "UPlayGround/게임플레이/Ability Production Dashboard", "Motion·복제·검증·밸런스 피드백을 한 창에서 확인합니다.", "MotionEvent와 HitPhase 비교, 안전 Fork, 공유 영향 분석, TaskGraph 검증, 정적·실측·Replay·Snapshot 비교를 제공합니다."),
                 Tool("Ability Runtime Sandbox",           "UPlayGround/게임플레이/Ability Runtime Sandbox", "선택 Ability의 ASC 수직 슬라이스를 Play Mode에서 실행합니다.", "실제 Actor 프리팹을 임시 생성해 ActorAbilitySystem Prepare, Commit, End 경로와 종료 후 Task/Effect 잔류 상태를 확인합니다."),
                 Tool("전투 데이터 검증기",           "UPlayGround/게임플레이/전투/도구/데이터 검증기", "전투 데이터 정합성을 검사합니다.", "공격 데이터, 충돌 이벤트, 전투 정책 등 전투 관련 에셋 연결 누락과 위험값을 검증합니다."),
+                Tool("Motion Warp 대표 12개 Dry Run", "UPlayGround/게임플레이/전투/Motion Warp/대표 12개 Dry Run", "대표 근접 모션의 ContactShell 변환 범위를 미리 봅니다.", "플레이어 8개와 몬스터 공용 4개 MotionSet의 변경 전후 값과 스킵 사유를 저장 없이 보고합니다."),
+                Tool("Motion Warp 대표 12개 적용", "UPlayGround/게임플레이/전투/Motion Warp/대표 12개 ContactShell 적용", "검증된 대표 근접 모션만 ContactShell로 변환합니다.", "Light/Heavy 이벤트만 Undo 가능한 단일 그룹으로 변경하며 오류가 나면 전체를 롤백합니다."),
                 Tool("전투 로그 기록기",             "UPlayGround/게임플레이/전투/도구/전투 로그 기록기", "전투 로그를 기록/확인합니다.", "플레이 중 전투 판정과 의사결정 로그를 수집해 밸런스와 버그 재현에 사용합니다."),
                 Tool("프레임 데이터 테이블",          "UPlayGround/게임플레이/전투/도구/프레임 데이터 테이블", "전 공격의 선딜/액티브/후딜·데미지를 한 테이블로 봅니다.", "MotionSet의 Collision/ComboWindow 이벤트와 Ability Payload를 합산해 격투게임식 프레임 데이터를 만듭니다. 정렬/CSV 내보내기와 페이즈 불일치 하이라이트를 지원합니다."),
                 Tool("HitBox 셋업",                  "UPlayGround/게임플레이/전투/도구/HitBox 셋업", "부착형 Combat HitBox를 자동 생성하고 검증합니다.", "무기/캐릭터 계층을 분석해 HitBox를 생성하고, 통합 검증으로 HitBox 그룹과 AttackData/MotionSet 이벤트 연결 상태를 확인합니다."),

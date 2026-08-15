@@ -313,6 +313,12 @@ namespace UPlayGround.Manager
     {
         void Play(string key, Vector3? position = null, float volumeScale = 1f);
         void PlaySfx(string key, Vector3 position, float volumeScale = 1f);
+
+        /// <summary>
+        /// 해당 key의 사운드 엔트리가 등록되어 있는지 조회한다(경고 로그 없음).
+        /// 티어별 키가 아직 저작되지 않았을 때 상위 키로 폴백하려는 호출자를 위한 질의다.
+        /// </summary>
+        bool HasSound(string key);
         void PlayUi(string key, float volumeScale = 1f);
         void PlayClip(
             AudioClip clip,

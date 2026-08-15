@@ -12,6 +12,12 @@ namespace UPlayGround.Data.Sound
 
         public const string CombatHitLight = "Combat_Hit_Light";
         public const string CombatHitHeavy = "Combat_Hit_Heavy";
+
+        // 임팩트 티어 확장 키. 미등록이면 CombatFeedbackDispatcher가 Light/Heavy로 폴백하므로
+        // 사운드 엔트리를 저작하기 전에도 안전하다.
+        public const string CombatHitCritical = "Combat_Hit_Critical";
+        public const string CombatHitBreak = "Combat_Hit_Break";
+        public const string CombatWallImpact = "Combat_WallImpact";
         public const string CombatGuard = "Combat_Guard";
         public const string CombatPerfectGuard = "Combat_PerfectGuard";
         public const string CombatParry = "Combat_Parry";

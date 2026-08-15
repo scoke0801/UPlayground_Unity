@@ -164,6 +164,17 @@ namespace UPlayGround.Manager
             Play(key, position, volumeScale);
         }
 
+        /// <summary>
+        /// key 등록 여부만 조회한다. TryGetEntry와 달리 미등록 경고를 남기지 않는다
+        /// (폴백 판정용 질의이므로 미등록이 정상 흐름이다).
+        /// </summary>
+        public bool HasSound(string key)
+        {
+            return !string.IsNullOrWhiteSpace(key)
+                   && _soundDatabase != null
+                   && _soundDatabase.TryGet(key, out _);
+        }
+
         public void PlayUi(string key, float volumeScale = 1f)
         {
             Play(key, null, volumeScale);

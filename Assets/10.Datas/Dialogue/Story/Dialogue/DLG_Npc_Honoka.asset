@@ -40,7 +40,7 @@ MonoBehaviour:
   m_Name: DLG_Npc_Honoka
   m_EditorClassIdentifier: 
   graphId: 
-  graphName: 
+  graphName: "[비활성] 호노카 레거시 NPC 대화"
   startNodeId: 07a49056-f5aa-4080-92f6-f4cb9cdcbfc7
   nodes:
   - {fileID: -7539864593923620332}

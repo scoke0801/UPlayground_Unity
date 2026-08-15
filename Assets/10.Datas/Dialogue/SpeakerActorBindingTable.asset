@@ -22,7 +22,7 @@ MonoBehaviour:
   - speakerId: "\uB8E8\uC2DC\uC544"
     actorId: NPC_Lucia
   - speakerId: "리안리안"
-    actorId: NPC_LianLian
+    actorId: MonsterLianLian
   - speakerId: "\uBAA8\uAC74"
     actorId: NPC_Morgan
   - speakerId: "\uBBF8\uC544"
@@ -34,7 +34,7 @@ MonoBehaviour:
   - speakerId: "\uC870\uC774"
     actorId: NPC_Joy
   - speakerId: "보쿠세이"
-    actorId: NPC_Bokusei
+    actorId: MonsterBokusei
   - speakerId: "\uD398\uB2C8"
     actorId: NPC_Penny
   - speakerId: "\uD5E4\uC774\uC990"

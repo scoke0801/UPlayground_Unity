@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: NPC_Bokusei
   m_EditorClassIdentifier: 
   actorName: "보쿠세이"
-  description: 
+  description: "레거시 대화 프록시. 보쿠세이는 일반 주민이 아니라 보스 인물이며, 마을 NPC로 배치하지 않는다."
   interactionObjectType: 5
   hp: 0
   dropItems: []
   showInfoUI: 0
   showShakeEffect: 0
-  dialogueGraph: {fileID: 11400000, guid: 6f79f647b3c64c24d9c9a150a9451ea5, type: 2}
+  dialogueGraph: {fileID: 0}

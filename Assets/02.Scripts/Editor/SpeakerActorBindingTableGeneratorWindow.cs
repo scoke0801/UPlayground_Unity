@@ -19,6 +19,16 @@ namespace UPlayGround.Dialogue.Editor
         private const string DefaultAssetPath = "Assets/10.Datas/Dialogue/SpeakerActorBindingTable.asset";
         private const string DefaultDialogueRoot = "Assets/10.Datas/Dialogue";
 
+        // 보스 인물은 레거시 DLG_Npc_* 파일명/소유 프록시보다 실제 조우 Actor를 우선한다.
+        // 구체 조우가 Boss* 변형을 사용하면 DialogueManager의 partnerActorIdOverride로 덮어쓴다.
+        private static readonly IReadOnlyDictionary<string, string> StoryRoleBindings =
+            new Dictionary<string, string>
+            {
+                ["보쿠세이"] = "MonsterBokusei",
+                ["리안리안"] = "MonsterLianLian",
+                ["호노카"] = "MonsterHonoka",
+            };
+
         private SpeakerActorBindingTableSO _targetTable;
         private bool _mainChannelOnly = true;
         private bool _scanYamlFiles = true;
@@ -114,6 +124,9 @@ namespace UPlayGround.Dialogue.Editor
             string speakerId = source.SpeakerId;
             if (!_overwriteExisting && existing.TryGetValue(speakerId, out string existingActorId) && !string.IsNullOrEmpty(existingActorId))
                 return new BindingPreview(speakerId, existingActorId, "기존 매핑 유지", source.GetSummary());
+
+            if (StoryRoleBindings.TryGetValue(speakerId, out string roleActorId))
+                return new BindingPreview(speakerId, roleActorId, "스토리 역할 고정 매핑", source.GetSummary());
 
             ActorCandidate actor = FindByAlias(actors, speakerId, exactOnly: true);
             if (actor != null)

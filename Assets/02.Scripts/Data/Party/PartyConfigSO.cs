@@ -35,6 +35,23 @@ namespace UPlayGround.Data.Party
         [Min(0f)]
         public float swapCooldown = 3f;
 
+        [Header("Concerto / Swap Special")]
+        [Tooltip("일반 공격이 적중할 때 대기 중인 출전 캐릭터가 얻는 협주 게이지.")]
+        [Min(0f)]
+        public float concertoChargePerAttackHit = 6f;
+
+        [Tooltip("퍼펙트 가드 성공 시 대기 중인 출전 캐릭터가 얻는 협주 게이지.")]
+        [Min(0f)]
+        public float concertoChargeOnPerfectGuard = 20f;
+
+        [Tooltip("패리 성공 시 대기 중인 출전 캐릭터가 얻는 협주 게이지.")]
+        [Min(0f)]
+        public float concertoChargeOnParry = 25f;
+
+        [Tooltip("퍼펙트 회피 성공 시 대기 중인 출전 캐릭터가 얻는 협주 게이지.")]
+        [Min(0f)]
+        public float concertoChargeOnPerfectDodge = 25f;
+
         [Header("Swap Evade")]
         [Tooltip("몬스터 공격 타이밍에 맞춘 캐릭터 교체를 회피/카운터로 인정한다.")]
         public bool enableSwapEvade = true;

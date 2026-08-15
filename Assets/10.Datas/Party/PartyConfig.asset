@@ -15,6 +15,10 @@ MonoBehaviour:
   playerActorId: Player_Main
   maxBattleSize: 4
   swapCooldown: 1
+  concertoChargePerAttackHit: 6
+  concertoChargeOnPerfectGuard: 20
+  concertoChargeOnParry: 25
+  concertoChargeOnPerfectDodge: 25
   enableSwapEvade: 1
   swapEvadeWindowBeforeHit: 0.25
   swapEvadeGraceAfterHitStart: 0.08

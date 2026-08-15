@@ -100,6 +100,7 @@ namespace UPlayGround.Manager
         public event Action<CharacterActorType, AttributeId, int> OnGrowthInvestmentChanged;
         public event Action<CharacterActorType, GrowthUnlockMilestone> OnGrowthUnlock;
         public event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
+        public event Action<CharacterActorType, float, float> OnConcertoChanged;
         public event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
         public event Action                           OnPartyHealthRefreshed;   // HUD 벤치 엔트리 일괄 갱신 신호
 
@@ -342,17 +343,25 @@ namespace UPlayGround.Manager
             bool isSwapEvade = TryEvaluateSwapEvade(out EnemyAttackThreat swapEvadeThreat);
             bool isAssist = !isSwapEvade && _player.GetCombat()?.IsPerfectDodgeWindow == true;
 
+            var swap = _player.GetComponent<PlayerSwapBehaviour>();
+            if (swap == null) return false;
+            CharacterModelData targetModel = swap.GetModelData(targetType);
+            bool hasSwapSpecialAbility = _player.HasSwapSpecialAbilityForCharacter(targetType);
+            bool isSwapSpecialReady = PartyConcertoPolicy.CanTriggerSwapSpecial(
+                _player.GetConcertoForCharacter(targetType),
+                _player.GetMaxConcertoForCharacter(targetType),
+                hasSwapSpecialAbility,
+                isSwapEvade || isAssist);
+
             _isSwapping = true;
             OnSwapStarted?.Invoke(_player, _player);
 
-            var swap = _player.GetComponent<PlayerSwapBehaviour>();
-            if (swap == null || !swap.SwapTo(targetType))
+            if (!swap.SwapTo(targetType))
             {
                 _isSwapping = false;
                 return false;
             }
 
-            // 풀 게이지 스왑 특수공격은 임시 비활성화. 우선 일반 스왑 공격만 사용한다.
             bool isSwapSpecial = false;
             bool isEntryAttack = false;
             if (isSwapEvade)
@@ -368,10 +377,31 @@ namespace UPlayGround.Manager
                 // 비소비 만료 시 기존 어시스트 즉시공격으로 폴백한다.
                 _player.OpenAssistParryAndQueueFallback();
             }
-            else if (TryFindEntryAttackTarget(swap.GetModelData(targetType), out var entryTarget))
+            else
             {
-                _player.QueueEntryAttack(entryTarget);
-                isEntryAttack = true;
+                if (isSwapSpecialReady)
+                {
+                    isSwapSpecial = _player.TryStartSwapSpecialAttack();
+                    if (isSwapSpecial)
+                    {
+                        if (!_player.ConsumeFullConcertoForCharacter(targetType))
+                        {
+                            Debug.LogError(
+                                $"[PartyManager] {targetType} 교체 특수 공격은 시작됐지만 협주 게이지 소모에 실패했습니다.");
+                        }
+                        OnConcertoChanged?.Invoke(
+                            targetType,
+                            _player.GetConcertoForCharacter(targetType),
+                            _player.GetMaxConcertoForCharacter(targetType));
+                    }
+                }
+
+                if (!isSwapSpecial
+                    && TryFindEntryAttackTarget(targetModel, out var entryTarget))
+                {
+                    _player.QueueEntryAttack(entryTarget);
+                    isEntryAttack = true;
+                }
             }
 
             _activeIndex  = targetIndex;
@@ -1731,19 +1761,25 @@ namespace UPlayGround.Manager
             UnsubscribeCombatEvents();
             _subscribedCombat = _player?.GetCombat();
             if (_subscribedCombat != null)
+            {
                 _subscribedCombat.OnAttackHit += OnPlayerAttackHit;
+                _subscribedCombat.OnDefenseSucceeded += OnPlayerDefenseSucceeded;
+            }
         }
 
         private void UnsubscribeCombatEvents()
         {
             if (_subscribedCombat != null)
+            {
                 _subscribedCombat.OnAttackHit -= OnPlayerAttackHit;
+                _subscribedCombat.OnDefenseSucceeded -= OnPlayerDefenseSucceeded;
+            }
             _subscribedCombat = null;
         }
 
         private void OnPlayerAttackHit(AttackData attackData)
         {
-            if (_player == null || _partySkillGaugeChargePerPlayerHit <= 0f) return;
+            if (_player == null) return;
 
             CharacterActorType activeType = ActiveCharacterType;
             for (int i = 0; i < _battleOrder.Count; i++)
@@ -1751,11 +1787,60 @@ namespace UPlayGround.Manager
                 CharacterActorType type = _battleOrder[i];
                 if (type == CharacterActorType.None || type == activeType) continue;
 
-                float before = _player.GetSkillGaugeForCharacter(type);
-                _player.AddSkillGaugeForCharacter(type, _partySkillGaugeChargePerPlayerHit);
-                float current = _player.GetSkillGaugeForCharacter(type);
+                if (_partySkillGaugeChargePerPlayerHit > 0f)
+                {
+                    float before = _player.GetSkillGaugeForCharacter(type);
+                    _player.AddSkillGaugeForCharacter(type, _partySkillGaugeChargePerPlayerHit);
+                    float current = _player.GetSkillGaugeForCharacter(type);
+                    if (!Mathf.Approximately(before, current))
+                        OnPartySkillGaugeChanged?.Invoke(type, current, _player.GetMaxSkillGaugeForCharacter(type));
+                }
+            }
+
+            ChargeBenchConcerto(
+                _config != null
+                    ? Mathf.Max(0f, _config.concertoChargePerAttackHit)
+                    : 6f);
+        }
+
+        private void OnPlayerDefenseSucceeded(DefenseSuccessType successType)
+        {
+            float amount = successType switch
+            {
+                DefenseSuccessType.PerfectGuard => _config != null
+                    ? _config.concertoChargeOnPerfectGuard
+                    : 20f,
+                DefenseSuccessType.Parry => _config != null
+                    ? _config.concertoChargeOnParry
+                    : 25f,
+                DefenseSuccessType.PerfectDodge => _config != null
+                    ? _config.concertoChargeOnPerfectDodge
+                    : 25f,
+                _ => 0f,
+            };
+            ChargeBenchConcerto(Mathf.Max(0f, amount));
+        }
+
+        private void ChargeBenchConcerto(float amount)
+        {
+            if (_player == null || amount <= 0f) return;
+
+            CharacterActorType activeType = ActiveCharacterType;
+            for (int i = 0; i < _battleOrder.Count; i++)
+            {
+                CharacterActorType type = _battleOrder[i];
+                if (type == CharacterActorType.None || type == activeType) continue;
+
+                float before = _player.GetConcertoForCharacter(type);
+                _player.AddConcertoForCharacter(type, amount);
+                float current = _player.GetConcertoForCharacter(type);
                 if (!Mathf.Approximately(before, current))
-                    OnPartySkillGaugeChanged?.Invoke(type, current, _player.GetMaxSkillGaugeForCharacter(type));
+                {
+                    OnConcertoChanged?.Invoke(
+                        type,
+                        current,
+                        _player.GetMaxConcertoForCharacter(type));
+                }
             }
         }
 

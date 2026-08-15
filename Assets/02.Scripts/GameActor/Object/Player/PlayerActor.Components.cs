@@ -620,6 +620,100 @@ namespace UPlayGround
             return true;
         }
 
+        public float GetConcertoForCharacter(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None) return 0f;
+            if (type == _characterActorType)
+            {
+                return AbilitySystem?.Attributes.GetCurrent(
+                           global::UPlayGround.Data.Stat.Attributes.Resource.Concerto)
+                       ?? 0f;
+            }
+
+            return TryGetStoredAttribute(
+                type,
+                global::UPlayGround.Data.Stat.Attributes.Resource.Concerto,
+                out float concerto)
+                    ? concerto
+                    : 0f;
+        }
+
+        public float GetMaxConcertoForCharacter(CharacterActorType type)
+        {
+            if (type == CharacterActorType.None) return 0f;
+            if (type == _characterActorType)
+            {
+                float activeMaximum = AbilitySystem?.Attributes.GetCurrent(
+                    global::UPlayGround.Data.Stat.Attributes.Resource.MaxConcerto) ?? 0f;
+                if (activeMaximum > 0f) return activeMaximum;
+            }
+            else if (TryGetStoredAttribute(
+                         type,
+                         global::UPlayGround.Data.Stat.Attributes.Resource.MaxConcerto,
+                         out float storedMaximum)
+                     && storedMaximum > 0f)
+            {
+                return storedMaximum;
+            }
+
+            return Mathf.Max(
+                0f,
+                UPlayGroundAttributeDefaults.Get(
+                    global::UPlayGround.Data.Stat.Attributes.Resource.MaxConcerto));
+        }
+
+        public bool IsConcertoFullForCharacter(CharacterActorType type)
+            => UPlayGround.Data.Party.PartyConcertoPolicy.IsReady(
+                GetConcertoForCharacter(type),
+                GetMaxConcertoForCharacter(type));
+
+        public bool HasSwapSpecialAbilityForCharacter(CharacterActorType type)
+        {
+            CharacterModelData model = _swapBehaviour?.GetModelData(type);
+            return model?.abilitySet?.GetCombatAbility(
+                       PlayerCombatAbilitySlot.SwapSpecialAttack) != null;
+        }
+
+        public void AddConcertoForCharacter(CharacterActorType type, float amount)
+        {
+            if (type == CharacterActorType.None || amount <= 0f) return;
+
+            if (type == _characterActorType)
+            {
+                AbilitySystem?.ApplyResourceDelta(
+                    AbilityResourceType.Concerto,
+                    amount,
+                    "GE_Party.ConcertoGain");
+                return;
+            }
+
+            float maximum = GetMaxConcertoForCharacter(type);
+            float current = GetConcertoForCharacter(type);
+            SetStoredAttribute(
+                type,
+                global::UPlayGround.Data.Stat.Attributes.Resource.Concerto,
+                Mathf.Clamp(current + amount, 0f, maximum));
+        }
+
+        public bool ConsumeFullConcertoForCharacter(CharacterActorType type)
+        {
+            if (!IsConcertoFullForCharacter(type)) return false;
+
+            if (type == _characterActorType)
+            {
+                return AbilitySystem != null
+                       && AbilitySystem.TryApplyResourceCost(
+                           AbilityResourceType.Concerto,
+                           GetMaxConcertoForCharacter(type));
+            }
+
+            SetStoredAttribute(
+                type,
+                global::UPlayGround.Data.Stat.Attributes.Resource.Concerto,
+                0f);
+            return true;
+        }
+
         private AbilitySystemSaveData GetOrCreateStoredState(CharacterActorType type)
         {
             if (!_characterAbilitySystemMap.TryGetValue(

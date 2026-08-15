@@ -277,9 +277,7 @@ namespace UPlayGround.Components
             ClearResidualAttackContext();
             var source = _attackData.swapSpecialAttack?.baseInfo != null
                 ? _attackData.swapSpecialAttack
-                : (_attackData.skillAttackList.Count > 0 && _attackData.skillAttackList[0]?.baseInfo != null
-                    ? _attackData.skillAttackList[0]
-                    : (_attackData.entryAttack?.baseInfo != null ? _attackData.entryAttack : null));
+                : null;
 
             if (source == null) return null;
 

@@ -35,6 +35,7 @@ namespace UPlayGround.UI
         event Action<CharacterActorType, GrowthUnlockMilestone> OnGrowthUnlock;
         event Action<CharacterActorType> OnSkillProgressChanged;
         event Action<CharacterActorType, float, float> OnPartySkillGaugeChanged;
+        event Action<CharacterActorType, float, float> OnConcertoChanged;
         event Action<CharacterActorType, float, float> OnSwapCooldownChanged;
         event Action OnPartyHealthRefreshed;
 

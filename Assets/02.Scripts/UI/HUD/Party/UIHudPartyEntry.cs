@@ -1,4 +1,5 @@
 using TMPro;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
@@ -20,6 +21,12 @@ namespace UPlayGround.UI
         [Tooltip("대상 파티원이 Ultimate를 사용할 수 있을 때 켜는 UI")]
         [SerializeField] private GameObject _glowObject;
 
+        [Header("협주 / 교체 특수")]
+        [Tooltip("교체 특수 공격 자원의 진행도를 표시하는 Fill 이미지")]
+        [SerializeField] private Image _concertoFill;
+        [Tooltip("교체 특수 공격이 준비됐을 때 켜는 강조 오브젝트")]
+        [SerializeField] private GameObject _concertoReadyObject;
+
         [SerializeField] private Animator _animator;
 
         [Tooltip("쿨타임 텍스트 표시 형식. 예: 0.0 = 소수 1자리, 0.00 = 소수 2자리")]
@@ -32,6 +39,9 @@ namespace UPlayGround.UI
 
         private CanvasGroup _canvasGroup;
         private bool _isDead;
+        private bool _isConcertoReady;
+        private Tween _concertoFillTween;
+        private Tween _concertoReadyTween;
 
         public CharacterActorType BoundType => _boundType;
 
@@ -57,6 +67,7 @@ namespace UPlayGround.UI
             if (_hpFill != null) _hpFill.fillAmount = 1f;
             SetSpawned(false);
             SetUltimateReady(false);
+            SetConcerto(0f, 1f, false, false);
             SetSwapCooldown(0f, 0f);
             SetDead(false);
 
@@ -69,6 +80,7 @@ namespace UPlayGround.UI
 
             SetSpawned(false);
             SetUltimateReady(false);
+            SetConcerto(0f, 1f, false, false);
             SetSwapCooldown(0f, 0f);
             SetDead(false);
             gameObject.SetActive(false);
@@ -99,6 +111,7 @@ namespace UPlayGround.UI
             if (isDead)
             {
                 SetUltimateReady(false);
+                SetConcertoReady(false);
             }
         }
 
@@ -122,6 +135,81 @@ namespace UPlayGround.UI
         {
             if (_glowObject != null)
                 _glowObject.SetActive(!_isDead && ready);
+        }
+
+        public void SetConcerto(
+            float current,
+            float maximum,
+            bool swapSpecialReady,
+            bool animate = true)
+        {
+            float ratio = maximum > 0f
+                ? Mathf.Clamp01(current / maximum)
+                : 0f;
+
+            _concertoFillTween?.Kill();
+            _concertoFillTween = null;
+            if (_concertoFill != null)
+            {
+                if (animate && isActiveAndEnabled)
+                {
+                    _concertoFillTween = DOTween.To(
+                            () => _concertoFill.fillAmount,
+                            value => _concertoFill.fillAmount = value,
+                            ratio,
+                            0.24f)
+                        .SetEase(Ease.OutCubic)
+                        .SetUpdate(true);
+                }
+                else
+                {
+                    _concertoFill.fillAmount = ratio;
+                }
+            }
+
+            SetConcertoReady(swapSpecialReady);
+        }
+
+        private void SetConcertoReady(bool ready)
+        {
+            ready = !_isDead && ready;
+            bool changed = ready != _isConcertoReady;
+            _isConcertoReady = ready;
+
+            _concertoReadyTween?.Kill();
+            _concertoReadyTween = null;
+            if (_concertoReadyObject == null) return;
+
+            _concertoReadyObject.SetActive(ready);
+            if (!ready || !changed) return;
+
+            Transform visual = _concertoReadyObject.transform;
+            visual.localScale = Vector3.one * 0.86f;
+            _concertoReadyTween = DOTween.To(
+                    () => visual.localScale,
+                    value => visual.localScale = value,
+                    Vector3.one,
+                    0.14f)
+                .SetEase(Ease.OutBack)
+                .SetUpdate(true);
+        }
+
+        private void OnDisable()
+        {
+            KillConcertoTweens();
+        }
+
+        private void OnDestroy()
+        {
+            KillConcertoTweens();
+        }
+
+        private void KillConcertoTweens()
+        {
+            _concertoFillTween?.Kill();
+            _concertoReadyTween?.Kill();
+            _concertoFillTween = null;
+            _concertoReadyTween = null;
         }
 
         public void SetSwapCooldown(float remaining, float duration)

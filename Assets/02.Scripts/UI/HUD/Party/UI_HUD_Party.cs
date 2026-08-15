@@ -48,6 +48,7 @@ namespace UPlayGround.UI
             UISvc.Party.OnBattleOrderChanged += Refresh;
             UISvc.Party.OnSwapCompleted += OnSwapCompleted;
             UISvc.Party.OnPartySkillGaugeChanged += OnPartySkillGaugeChanged;
+            UISvc.Party.OnConcertoChanged += OnConcertoChanged;
             UISvc.Party.OnSwapCooldownChanged += OnSwapCooldownChanged;
             UISvc.Party.OnPartyHealthRefreshed += RefreshEntryValues;
             _isSubscribedToPartyEvents = true;
@@ -64,6 +65,7 @@ namespace UPlayGround.UI
             UISvc.Party.OnBattleOrderChanged -= Refresh;
             UISvc.Party.OnSwapCompleted -= OnSwapCompleted;
             UISvc.Party.OnPartySkillGaugeChanged -= OnPartySkillGaugeChanged;
+            UISvc.Party.OnConcertoChanged -= OnConcertoChanged;
             UISvc.Party.OnSwapCooldownChanged -= OnSwapCooldownChanged;
             UISvc.Party.OnPartyHealthRefreshed -= RefreshEntryValues;
             _isSubscribedToPartyEvents = false;
@@ -181,6 +183,21 @@ namespace UPlayGround.UI
             }
         }
 
+        private void OnConcertoChanged(CharacterActorType type, float current, float max)
+        {
+            var player = UISvc.Party?.ActiveCharacter;
+            foreach (var entry in _entries)
+            {
+                if (entry == null || entry.BoundType != type) continue;
+
+                bool ready = player != null
+                             && player.HasSwapSpecialAbilityForCharacter(type)
+                             && player.IsConcertoFullForCharacter(type);
+                entry.SetConcerto(current, max, ready);
+                break;
+            }
+        }
+
         private void OnSwapCooldownChanged(CharacterActorType type, float remaining, float duration)
         {
             _hasSwapCooldownVisible = remaining > 0f || _hasSwapCooldownVisible;
@@ -212,6 +229,12 @@ namespace UPlayGround.UI
                     player.GetHealthForCharacter(type),
                     player.GetMaxHealthForCharacter(type));
                 entry.SetUltimateReady(player.IsUltimateReadyForCharacter(type));
+                entry.SetConcerto(
+                    player.GetConcertoForCharacter(type),
+                    player.GetMaxConcertoForCharacter(type),
+                    player.HasSwapSpecialAbilityForCharacter(type)
+                    && player.IsConcertoFullForCharacter(type),
+                    false);
             }
 
             RefreshSpawnedState();

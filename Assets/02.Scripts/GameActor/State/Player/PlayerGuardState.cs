@@ -218,6 +218,8 @@ namespace UPlayGround.State
 
             if (isPerfectGuard)
             {
+                _combat.NotifyDefenseSucceeded(DefenseSuccessType.PerfectGuard);
+
                 // 공격자 경직 + 반격 창 열기 — Parryable 공격만 카운터 성립.
                 // (GuardableOnly/Unblockable은 퍼펙트 가드 피드백은 받되 카운터는 열리지 않는다.)
                 if (incomingAttack.defenseType == AttackDefenseType.Parryable)

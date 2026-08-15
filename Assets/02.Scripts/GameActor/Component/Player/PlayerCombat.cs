@@ -333,7 +333,10 @@ namespace UPlayGround.Components
 
         /// <summary> 퍼펙트 가드 성공 시 호출. 반격 입력 창을 연다. </summary>
         public void OpenPerfectGuardCounterWindow(float durationOverride = -1f)
-            => _defenseController?.OpenPerfectGuardCounter(durationOverride);
+        {
+            if (_defenseController == null) return;
+            _defenseController.OpenPerfectGuardCounter(durationOverride);
+        }
 
         /// <summary> 반격 창을 즉시 닫는다 (반격 실행 후 중복 방지) </summary>
         public void ClosePerfectGuardCounterWindow() => _defenseController?.ClosePerfectGuardCounter();
@@ -348,7 +351,10 @@ namespace UPlayGround.Components
 
         /// <summary> 패리 성공 시 호출. 반격 입력 창을 연다. </summary>
         public void OpenParryCounterWindow(float durationOverride = -1f)
-            => _defenseController?.OpenParryCounter(durationOverride);
+        {
+            if (_defenseController == null) return;
+            _defenseController.OpenParryCounter(durationOverride);
+        }
 
         /// <summary> 패리 반격 창을 즉시 닫는다 </summary>
         public void CloseParryCounterWindow() => _defenseController?.CloseParryCounter();
@@ -358,8 +364,16 @@ namespace UPlayGround.Components
 
         public void OpenDodgeCounterWindow(AttackData incomingAttack, float durationOverride = -1f)
         {
-            _defenseController?.OpenDodgeCounter(incomingAttack?.attacker, durationOverride);
+            if (_defenseController == null) return;
+            _defenseController.OpenDodgeCounter(incomingAttack?.attacker, durationOverride);
         }
+
+        /// <summary>
+        /// 방어 성공 자체를 알린다. 반격 창 개방 여부와 분리해 협주·패시브 같은
+        /// 성공 보상이 방어 타입에 따라 누락되지 않게 한다.
+        /// </summary>
+        public void NotifyDefenseSucceeded(DefenseSuccessType successType)
+            => OnDefenseSucceeded?.Invoke(successType);
 
         public bool ConsumeDodgeCounterWindow()
         {
@@ -445,6 +459,7 @@ namespace UPlayGround.Components
 
         public event Action<AttackData>                        OnAttackStarted;
         public event Action<AttackData>                        OnAttackHit;
+        public event Action<DefenseSuccessType>                OnDefenseSucceeded;
         public event Action                                    OnComboReset;
 
         public bool TryCreateResidualAttackSnapshot(

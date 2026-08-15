@@ -5,6 +5,7 @@ using UPlayGround.Ability.Core;
 using UPlayGround.Ability.UPlayGround;
 using UPlayGround.Animation;
 using UPlayGround.Components;
+using UPlayGround.Combat;
 using UPlayGround.Contracts.Ability;
 using UPlayGround.Data;
 using UPlayGround.Data.Ability;
@@ -284,7 +285,13 @@ namespace UPlayGround.Gameplay.Ability
             handle = default;
             variant = null;
             if (!IsGrantedAbility(definition))
+            {
+                RecordPlayerTelemetryFailure(
+                    definition,
+                    target,
+                    AbilityActivationResult.NotGranted);
                 return AbilityActivationResult.NotGranted;
+            }
 
             GameActor resolvedTarget = ResolveTarget(definition, target);
             AbilityActivationResult result =
@@ -297,6 +304,7 @@ namespace UPlayGround.Gameplay.Ability
             if (result != AbilityActivationResult.Success)
             {
                 RecordActivationResult(result);
+                RecordPlayerTelemetryFailure(definition, resolvedTarget, result);
                 return result;
             }
 
@@ -304,6 +312,7 @@ namespace UPlayGround.Gameplay.Ability
             {
                 result = AbilityActivationResult.MissingExecutionData;
                 RecordActivationResult(result);
+                RecordPlayerTelemetryFailure(definition, resolvedTarget, result);
                 return result;
             }
 
@@ -311,7 +320,13 @@ namespace UPlayGround.Gameplay.Ability
                 && definition.concurrency != AbilityConcurrencyPolicy.Background)
             {
                 if (definition.concurrency == AbilityConcurrencyPolicy.RejectNew)
+                {
+                    RecordPlayerTelemetryFailure(
+                        definition,
+                        resolvedTarget,
+                        AbilityActivationResult.ConflictingAbility);
                     return AbilityActivationResult.ConflictingAbility;
+                }
                 if (definition.concurrency == AbilityConcurrencyPolicy.CancelExisting)
                     CancelActiveAbility();
             }
@@ -341,6 +356,10 @@ namespace UPlayGround.Gameplay.Ability
                 return AbilityActivationResult.InvalidDefinition;
             if (Time.frameCount > execution.PreparedFrame + 1)
             {
+                RecordPlayerTelemetryFailure(
+                    execution.Definition,
+                    execution.Target,
+                    AbilityActivationResult.PreparedExecutionExpired);
                 Abort(handle);
                 return AbilityActivationResult.PreparedExecutionExpired;
             }
@@ -350,6 +369,10 @@ namespace UPlayGround.Gameplay.Ability
                 Abort(handle);
                 RecordActivationResult(
                     AbilityActivationResult.BlockedByActiveAbility);
+                RecordPlayerTelemetryFailure(
+                    execution.Definition,
+                    execution.Target,
+                    AbilityActivationResult.BlockedByActiveAbility);
                 return AbilityActivationResult.BlockedByActiveAbility;
             }
 
@@ -358,6 +381,10 @@ namespace UPlayGround.Gameplay.Ability
                     execution.Handle,
                     execution.Definition.abilityId))
             {
+                RecordPlayerTelemetryFailure(
+                    execution.Definition,
+                    execution.Target,
+                    AbilityActivationResult.InsufficientResource);
                 Abort(handle);
                 return AbilityActivationResult.InsufficientResource;
             }
@@ -388,6 +415,7 @@ namespace UPlayGround.Gameplay.Ability
             AddExecutionTags(execution);
             if (execution.Definition.taskGraph?.Root != null)
                 _abilitySystem.Runtime.Tasks.Start(handle, execution.Definition.taskGraph.Root);
+            NotifyPlayerAbilityStarted(execution);
             StateChanged?.Invoke();
             return AbilityActivationResult.Success;
         }
@@ -1518,6 +1546,14 @@ namespace UPlayGround.Gameplay.Ability
             execution.State = completed
                 ? AbilityExecutionState.Ended
                 : AbilityExecutionState.Cancelled;
+            if (_owner is PlayerActor player)
+            {
+                CombatTelemetrySession.NotifyPlayerAbilityEnded(
+                    player,
+                    handle.Value,
+                    completed,
+                    reason);
+            }
             if (completed)
                 ApplyEffects(execution.Definition.endEffects, _owner);
             _backgroundExecutions.Remove(handle.Value);
@@ -1531,6 +1567,45 @@ namespace UPlayGround.Gameplay.Ability
                 return;
             _activationFailureCounts.TryGetValue(result, out int count);
             _activationFailureCounts[result] = count + 1;
+        }
+
+        private void NotifyPlayerAbilityStarted(AbilityExecution execution)
+        {
+            if (_owner is not PlayerActor player
+                || execution?.Target is not MonsterActor target)
+                return;
+
+            string motionKey = null;
+            if (UPlayGroundAbilityPayloadResolver.TryResolveAttackInfo(
+                    execution.Variant,
+                    out AbilityAttackInfo attackInfo)
+                && attackInfo.motionKey.IsValid)
+            {
+                motionKey = attackInfo.motionKey.value;
+            }
+
+            CombatTelemetrySession.NotifyPlayerAbilityStarted(
+                player,
+                target,
+                execution.Handle.Value,
+                execution.Definition?.abilityId,
+                execution.Variant?.variantId,
+                motionKey);
+        }
+
+        private void RecordPlayerTelemetryFailure(
+            GameplayAbilitySO definition,
+            GameActor target,
+            AbilityActivationResult result)
+        {
+            if (_owner is not PlayerActor player || target is not MonsterActor monster)
+                return;
+
+            CombatTelemetrySession.NotifyPlayerAbilityActivationFailed(
+                player,
+                monster,
+                definition?.abilityId,
+                result.ToString());
         }
 
         private sealed class PlayerAbilityInputPort : IAbilityInputPort

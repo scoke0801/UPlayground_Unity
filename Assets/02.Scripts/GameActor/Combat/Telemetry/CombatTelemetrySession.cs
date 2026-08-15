@@ -24,6 +24,13 @@ namespace UPlayGround.Combat
             => Path.Combine(Application.persistentDataPath, "CombatTelemetry");
 
         [Serializable]
+        public sealed class AbilityFailureRecord
+        {
+            public string reason;
+            public int count;
+        }
+
+        [Serializable]
         public sealed class AbilityUsageRecord
         {
             public string sourceKey;
@@ -34,6 +41,10 @@ namespace UPlayGround.Combat
             public string motionId;
             public string attackKind;
             public int attemptCount;
+            public int completedCount;
+            public int cancelledCount;
+            public int missedAttemptCount;
+            public int activationFailureCount;
             public int resolvedCount;
             public int damageHitCount;
             public int counterHitCount;
@@ -41,6 +52,7 @@ namespace UPlayGround.Combat
             public int parriedCount;
             public int dodgedCount;
             public float totalDamage;
+            public List<AbilityFailureRecord> activationFailures = new();
         }
 
         [Serializable]
@@ -94,7 +106,19 @@ namespace UPlayGround.Combat
             public readonly Dictionary<string, IntentUsageRecord> Intents = new();
         }
 
+        private sealed class PendingPlayerAbility
+        {
+            public int EncounterKey;
+            public int PlayerInstanceId;
+            public string AbilityId;
+            public string VariantId;
+            public string MotionKey;
+            public bool Resolved;
+            public AbilityUsageRecord Usage;
+        }
+
         private static readonly Dictionary<int, ActiveEncounter> _active = new();
+        private static readonly Dictionary<string, PendingPlayerAbility> _pendingPlayerAbilities = new();
         private static SessionData _session;
         private static bool _initialized;
 
@@ -111,6 +135,7 @@ namespace UPlayGround.Combat
             }
 
             _active.Clear();
+            _pendingPlayerAbilities.Clear();
             _session = null;
             Enabled = Application.isEditor || Debug.isDebugBuild;
         }
@@ -125,19 +150,20 @@ namespace UPlayGround.Combat
 
             if (result.Victim is MonsterActor victimMonster)
             {
+                ActiveEncounter encounter = GetOrCreate(victimMonster, now);
+                string side = result.Attacker is PlayerActor ? "player" : "ally";
+                RecordAbilityResult(encounter, result, side);
+                if (result.Attacker is PlayerActor playerAttacker)
+                    MarkPlayerAbilityResolved(playerAttacker, victimMonster, result.Hit);
+                encounter.LastEventTime = now;
+
                 if (!result.DamageApplied || result.FinalDamage <= 0f)
                     return;
 
-                ActiveEncounter encounter = GetOrCreate(victimMonster, now);
                 encounter.Record.damageToMonster += result.FinalDamage;
                 encounter.Record.hitsOnMonster++;
                 if (result.Hit.IsCounterAttack)
                     encounter.Record.counterHitsOnMonster++;
-                RecordAbilityResult(
-                    encounter,
-                    result,
-                    result.Attacker is PlayerActor ? "player" : "ally");
-                encounter.LastEventTime = now;
                 return;
             }
 
@@ -211,6 +237,99 @@ namespace UPlayGround.Combat
                 motionId,
                 "SkillAttack");
             usage.attemptCount++;
+        }
+
+        /// <summary>플레이어 Ability가 비용·쿨다운 커밋까지 성공해 실제 행동을 시작한 시점.</summary>
+        public static void NotifyPlayerAbilityStarted(
+            PlayerActor player,
+            MonsterActor target,
+            ulong executionHandle,
+            string abilityId,
+            string variantId,
+            string motionKey)
+        {
+            if (!Enabled || player == null || target == null || executionHandle == 0)
+                return;
+
+            float now = Time.time;
+            SweepTimeouts(now);
+            ActiveEncounter encounter = GetOrCreate(target, now);
+            AbilityUsageRecord usage = GetOrCreateAbility(
+                encounter,
+                "player",
+                abilityId,
+                variantId,
+                motionKey,
+                null,
+                "Ability");
+            usage.attemptCount++;
+            encounter.LastEventTime = now;
+            _pendingPlayerAbilities[BuildPlayerExecutionKey(player, executionHandle)] =
+                new PendingPlayerAbility
+                {
+                    EncounterKey = target.GetInstanceID(),
+                    PlayerInstanceId = player.GetInstanceID(),
+                    AbilityId = abilityId,
+                    VariantId = variantId,
+                    MotionKey = motionKey,
+                    Usage = usage,
+                };
+        }
+
+        /// <summary>실제 활성화 요청이 Prepare/Commit 조건에서 거절된 원인을 인카운터에 누적한다.</summary>
+        public static void NotifyPlayerAbilityActivationFailed(
+            PlayerActor player,
+            MonsterActor target,
+            string abilityId,
+            string reason)
+        {
+            if (!Enabled || player == null || target == null)
+                return;
+
+            float now = Time.time;
+            SweepTimeouts(now);
+            ActiveEncounter encounter = GetOrCreate(target, now);
+            AbilityUsageRecord usage = GetOrCreateAbility(
+                encounter,
+                "player",
+                abilityId,
+                null,
+                null,
+                null,
+                "Ability");
+            usage.activationFailureCount++;
+            AddFailureReason(usage, reason);
+            encounter.LastEventTime = now;
+        }
+
+        /// <summary>플레이어 Ability 종료 시 완료/취소와 한 번도 판정되지 않은 미적중 시도를 확정한다.</summary>
+        public static void NotifyPlayerAbilityEnded(
+            PlayerActor player,
+            ulong executionHandle,
+            bool completed,
+            string reason)
+        {
+            if (player == null || executionHandle == 0)
+                return;
+
+            string key = BuildPlayerExecutionKey(player, executionHandle);
+            if (!_pendingPlayerAbilities.Remove(key, out PendingPlayerAbility pending))
+                return;
+
+            if (!_active.TryGetValue(pending.EncounterKey, out ActiveEncounter encounter))
+                return;
+
+            if (completed)
+                pending.Usage.completedCount++;
+            else
+                pending.Usage.cancelledCount++;
+
+            if (!pending.Resolved)
+                pending.Usage.missedAttemptCount++;
+
+            if (!completed)
+                AddFailureReason(pending.Usage, reason);
+            encounter.LastEventTime = Time.time;
         }
 
         /// <summary>
@@ -342,6 +461,8 @@ namespace UPlayGround.Combat
             if (string.IsNullOrEmpty(encounter.Record.endReason))
                 encounter.Record.endReason = "timeout";
 
+            FinalizePendingForEncounter(key, encounter.Record.endReason);
+
             encounter.Record.abilities.Clear();
             encounter.Record.abilities.AddRange(encounter.Abilities.Values);
             encounter.Record.abilities.Sort((left, right) =>
@@ -440,7 +561,17 @@ namespace UPlayGround.Combat
                 motionId,
                 attackKind);
             if (encounter.Abilities.TryGetValue(sourceKey, out AbilityUsageRecord existing))
+            {
+                if (string.IsNullOrWhiteSpace(existing.motionId)
+                    && !string.IsNullOrWhiteSpace(motionId))
+                    existing.motionId = motionId;
+                if ((string.IsNullOrWhiteSpace(existing.attackKind)
+                     || string.Equals(existing.attackKind, "Ability", StringComparison.Ordinal))
+                    && !string.IsNullOrWhiteSpace(attackKind)
+                    && !string.Equals(attackKind, "Ability", StringComparison.Ordinal))
+                    existing.attackKind = attackKind;
                 return existing;
+            }
 
             var usage = new AbilityUsageRecord
             {
@@ -467,6 +598,19 @@ namespace UPlayGround.Combat
             static string Normalize(string value) =>
                 string.IsNullOrWhiteSpace(value) ? "-" : value.Trim();
 
+            // GAS 실행은 시작 시 MotionAsset/AttackKind를 아직 모를 수 있다. Ability 식별자가
+            // 존재하면 그 계층만으로 키를 고정해 시작·적중·방어 결과를 같은 레코드에 합친다.
+            if (!string.IsNullOrWhiteSpace(abilityId)
+                || !string.IsNullOrWhiteSpace(motionKey))
+            {
+                return string.Join(
+                    "|",
+                    Normalize(side),
+                    Normalize(abilityId),
+                    Normalize(variantId),
+                    Normalize(motionKey));
+            }
+
             return string.Join(
                 "|",
                 Normalize(side),
@@ -475,6 +619,120 @@ namespace UPlayGround.Combat
                 Normalize(motionKey),
                 Normalize(motionId),
                 Normalize(attackKind));
+        }
+
+        private static void FinalizePendingForEncounter(int encounterKey, string endReason)
+        {
+            List<string> staleExecutions = null;
+            foreach (KeyValuePair<string, PendingPlayerAbility> pair in _pendingPlayerAbilities)
+            {
+                PendingPlayerAbility pending = pair.Value;
+                if (pending.EncounterKey != encounterKey)
+                    continue;
+
+                bool completedByKill = pending.Resolved
+                                       && string.Equals(
+                                           endReason,
+                                           "kill",
+                                           StringComparison.Ordinal);
+                if (completedByKill)
+                {
+                    pending.Usage.completedCount++;
+                }
+                else
+                {
+                    pending.Usage.cancelledCount++;
+                    if (!pending.Resolved)
+                        pending.Usage.missedAttemptCount++;
+                    AddFailureReason(
+                        pending.Usage,
+                        $"EncounterClosed:{(string.IsNullOrWhiteSpace(endReason) ? "Unknown" : endReason)}");
+                }
+
+                staleExecutions ??= new List<string>();
+                staleExecutions.Add(pair.Key);
+            }
+
+            if (staleExecutions == null)
+                return;
+            for (int i = 0; i < staleExecutions.Count; i++)
+                _pendingPlayerAbilities.Remove(staleExecutions[i]);
+        }
+
+        private static string BuildPlayerExecutionKey(PlayerActor player, ulong executionHandle)
+            => $"{player.GetInstanceID()}:{executionHandle}";
+
+        private static void MarkPlayerAbilityResolved(
+            PlayerActor player,
+            MonsterActor target,
+            in HitContext hit)
+        {
+            int playerId = player.GetInstanceID();
+            int encounterKey = target.GetInstanceID();
+            PendingPlayerAbility fallback = null;
+            int candidateCount = 0;
+
+            foreach (PendingPlayerAbility pending in _pendingPlayerAbilities.Values)
+            {
+                if (pending.PlayerInstanceId != playerId
+                    || pending.EncounterKey != encounterKey
+                    || pending.Resolved)
+                    continue;
+
+                candidateCount++;
+                fallback = pending;
+                if (MatchesAbilityIdentity(pending, hit))
+                {
+                    pending.Resolved = true;
+                    return;
+                }
+            }
+
+            // 레거시 HitRequest에 Ability/Motion 식별자가 모두 없을 때만 단일 실행을 안전하게 귀속한다.
+            if (candidateCount == 1
+                && string.IsNullOrWhiteSpace(hit.AbilityId)
+                && string.IsNullOrWhiteSpace(hit.MotionKey))
+                fallback.Resolved = true;
+        }
+
+        private static bool MatchesAbilityIdentity(
+            PendingPlayerAbility pending,
+            in HitContext hit)
+        {
+            if (!string.IsNullOrWhiteSpace(pending.AbilityId)
+                && !string.IsNullOrWhiteSpace(hit.AbilityId)
+                && string.Equals(pending.AbilityId, hit.AbilityId, StringComparison.Ordinal))
+            {
+                return string.IsNullOrWhiteSpace(pending.VariantId)
+                       || string.IsNullOrWhiteSpace(hit.AbilityVariantId)
+                       || string.Equals(
+                           pending.VariantId,
+                           hit.AbilityVariantId,
+                           StringComparison.Ordinal);
+            }
+
+            return !string.IsNullOrWhiteSpace(pending.MotionKey)
+                   && !string.IsNullOrWhiteSpace(hit.MotionKey)
+                   && string.Equals(pending.MotionKey, hit.MotionKey, StringComparison.Ordinal);
+        }
+
+        private static void AddFailureReason(AbilityUsageRecord usage, string reason)
+        {
+            string normalized = string.IsNullOrWhiteSpace(reason) ? "Unknown" : reason.Trim();
+            for (int i = 0; i < usage.activationFailures.Count; i++)
+            {
+                AbilityFailureRecord existing = usage.activationFailures[i];
+                if (!string.Equals(existing.reason, normalized, StringComparison.Ordinal))
+                    continue;
+                existing.count++;
+                return;
+            }
+
+            usage.activationFailures.Add(new AbilityFailureRecord
+            {
+                reason = normalized,
+                count = 1,
+            });
         }
     }
 }

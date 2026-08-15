@@ -54,18 +54,44 @@ namespace UPlayGround.Combat
 
         public static void ShowHitFx(in CombatFeedbackContext context)
         {
-            if (string.IsNullOrWhiteSpace(context.HitFxKey))
-                return;
-
-            ActorSvc.Objects.ShowFX(context.HitFxKey, context.HitPoint);
+            ShowHitFx(context.HitFxKey, context.HitPoint, context.AttackDirection);
         }
 
         public static void ShowHitFx(string hitFxKey, Vector3 hitPoint)
         {
+            ShowHitFx(hitFxKey, hitPoint, Vector3.zero);
+        }
+
+        /// <summary>
+        /// 타격 방향으로 정렬한 히트 FX를 표시한다.
+        /// attackDirection이 유효하지 않으면 회전을 지정하지 않아 프리팹 자체 회전이 유지된다.
+        /// </summary>
+        public static void ShowHitFx(string hitFxKey, Vector3 hitPoint, Vector3 attackDirection)
+        {
             if (string.IsNullOrWhiteSpace(hitFxKey))
                 return;
 
-            ActorSvc.Objects.ShowFX(hitFxKey, hitPoint);
+            ActorSvc.Objects.ShowFX(hitFxKey, hitPoint, ResolveHitFxRotation(attackDirection));
+        }
+
+        /// <summary>
+        /// GameObjectManager.ShowFX는 default(zero quaternion)를 "프리팹 회전 유지"로 해석하고,
+        /// 유효한 회전이 오면 "지정 회전 * 프리팹 회전"으로 합성한다. 그 계약에 맞춰 값을 만든다.
+        /// </summary>
+        private static Quaternion ResolveHitFxRotation(Vector3 attackDirection)
+        {
+            if (attackDirection.sqrMagnitude <= 0.000001f)
+                return default;
+
+            Vector3 forward = attackDirection.normalized;
+
+            // 거의 수직인 타격(내려찍기 등)에서 up 힌트가 forward와 평행해지면
+            // LookRotation이 퇴화한다. 그 경우에만 힌트 축을 바꾼다.
+            Vector3 upHint = Mathf.Abs(Vector3.Dot(forward, Vector3.up)) > 0.999f
+                ? Vector3.forward
+                : Vector3.up;
+
+            return Quaternion.LookRotation(forward, upHint);
         }
 
         public static void ApplyColorHit(ActorColorChanger colorChanger)
@@ -79,16 +105,51 @@ namespace UPlayGround.Combat
         /// </summary>
         public static void PlayDamageImpact(in HitContext hit)
         {
-            string soundKey = IsHeavyImpact(hit)
-                ? GameSoundKey.CombatHitHeavy
-                : GameSoundKey.CombatHitLight;
+            PlayDamageImpact(hit, false);
+        }
 
+        /// <summary>
+        /// 피해가 적용된 순간의 충돌음. 소유권은 <b>피격자</b>에 있다
+        /// (투사체·잔류 판정·환경 피해까지 한 지점에서 덮이도록 공격자측에서 부르지 않는다).
+        /// </summary>
+        public static void PlayDamageImpact(in CombatResult result)
+        {
+            PlayDamageImpact(result.Hit, result.Damage.IsCritical);
+        }
+
+        public static void PlayDamageImpact(in HitContext hit, bool isCritical)
+        {
             Vector3 position = hit.HitPoint;
             if (position == Vector3.zero && hit.Victim != null)
                 position = hit.Victim.transform.position;
 
-            Svc.Sound?.PlaySfx(soundKey, position);
+            Svc.Sound?.PlaySfx(ResolveImpactSoundKey(hit, isCritical), position);
         }
+
+        /// <summary>
+        /// 임팩트 티어를 해석한다. 상위 티어 키가 아직 저작되지 않았으면 Heavy/Light로 폴백해
+        /// 사운드 데이터가 없는 동안에도 충돌음이 사라지지 않게 한다.
+        /// </summary>
+        private static string ResolveImpactSoundKey(in HitContext hit, bool isCritical)
+        {
+            if (isCritical && HasSound(GameSoundKey.CombatHitCritical))
+                return GameSoundKey.CombatHitCritical;
+
+            if (IsBreakImpact(hit) && HasSound(GameSoundKey.CombatHitBreak))
+                return GameSoundKey.CombatHitBreak;
+
+            return IsHeavyImpact(hit)
+                ? GameSoundKey.CombatHitHeavy
+                : GameSoundKey.CombatHitLight;
+        }
+
+        private static bool HasSound(string key) => Svc.Sound?.HasSound(key) == true;
+
+        // 행동 불능으로 몰아넣는 리액션은 일반 강타와 다른 큐를 준다.
+        private static bool IsBreakImpact(in HitContext hit)
+            => hit.ReactionType is AttackReactionType.Stun
+                or AttackReactionType.Knockdown
+                or AttackReactionType.Grab;
 
         public static void ApplyPlayerDamagedCamera(
             bool isHeavyReaction,

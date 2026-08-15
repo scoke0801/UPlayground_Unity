@@ -27,7 +27,7 @@ namespace UPlayGround.Components
                 ResolveHitFxKey(result.Hit));
             CombatFeedbackDispatcher.ShowDamageFloater(context);
             CombatFeedbackDispatcher.ShowHitFx(context);
-            CombatFeedbackDispatcher.PlayDamageImpact(result.Hit);
+            // 충돌음은 피격자(MonsterActor/PlayerActor)가 소유한다. 여기서 부르면 이중 재생이 된다.
         }
 
         public void ApplyImpact(AttackData attackData, bool protectParryWindow)

@@ -35,10 +35,10 @@ namespace UPlayGround.Data
         [Header("회전")]
         [Tooltip("마우스 delta(프레임당 픽셀 누적값) 기준 회전 스칼라. 게임패드에는 적용되지 않는다.")]
         public float rotationSpeed = 20f;
-        [Tooltip("비락온 수동 카메라의 위쪽 극점 제한입니다. -90도에 닿지 않게 두어 극점 통과와 피치 순환을 막습니다.")]
-        public float minVerticalAngle = -89f;
-        [Tooltip("비락온 수동 카메라의 아래쪽 극점 제한입니다. 90도에 닿지 않게 두어 극점 통과와 피치 순환을 막습니다.")]
-        public float maxVerticalAngle = 89f;
+        [Tooltip("비락온 수동 카메라가 캐릭터 아래쪽으로 내려가는 피치 하한입니다.")]
+        public float minVerticalAngle = -30f;
+        [Tooltip("비락온 수동 카메라가 캐릭터 위쪽으로 올라가는 피치 상한입니다.")]
+        public float maxVerticalAngle = 70f;
 
         [Header("게임패드 룩 (각속도 °/s)")]
         [Tooltip("게임패드 우측 스틱 풀 입력 시 좌우 회전 속도(초당 도). 스틱은 정규화 축이라 마우스(rotationSpeed)와 별개의 각속도로 적분한다.")]

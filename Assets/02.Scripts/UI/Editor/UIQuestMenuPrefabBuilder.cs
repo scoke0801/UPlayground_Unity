@@ -6,18 +6,18 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.Quest.EditorTools
 {
     /// <summary>
-    /// 퀘스트 UI(UI_QuestMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 퀘스트 UI(UI_Scene_QuestMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_QuestMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성.
+    /// - 기존 UI_Scene_QuestMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성.
     /// - 퀘스트/목표/보상 슬롯 서브 프리팹도 함께 생성해 참조를 연결.
     /// - 재실행 가능(idempotent). "동작하는 회색 초안"이 목표이며 색/폰트/스프라이트는 Unity에서 다듬는다.
     /// </summary>
     public static class UIQuestMenuPrefabBuilder
     {
-        private const string MainPrefabPath   = "Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab";
-        private const string QuestSlotPath    = "Assets/03.Prefabs/UI/Scene/Quest/UI_QuestSlot.prefab";
-        private const string ObjectiveSlotPath = "Assets/03.Prefabs/UI/Scene/Quest/UI_QuestObjectiveSlot.prefab";
-        private const string RewardSlotPath   = "Assets/03.Prefabs/UI/Scene/Quest/UI_QuestRewardSlot.prefab";
+        private const string MainPrefabPath   = "Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab";
+        private const string QuestSlotPath    = "Assets/03.Prefabs/UI/Scene/Quest/UIQuestSlot.prefab";
+        private const string ObjectiveSlotPath = "Assets/03.Prefabs/UI/Scene/Quest/UIQuestObjectiveSlot.prefab";
+        private const string RewardSlotPath   = "Assets/03.Prefabs/UI/Scene/Quest/UIQuestRewardSlot.prefab";
 
         private static readonly Color Dim       = new Color(0f, 0f, 0f, 0.6f);
         private static readonly Color WindowBg  = new Color(0.07f, 0.09f, 0.12f, 0.98f);
@@ -49,10 +49,10 @@ namespace UPlayGround.UI.Quest.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var menu = root.GetComponent<UI_QuestMenu>();
+                var menu = root.GetComponent<UI_Scene_QuestMenu>();
                 if (menu == null)
                 {
-                    Debug.LogError("[QuestBuilder] 루트에 UI_QuestMenu 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[QuestBuilder] 루트에 UI_Scene_QuestMenu 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -99,7 +99,7 @@ namespace UPlayGround.UI.Quest.EditorTools
                 var tabDone  = MakeTab("TabCompleted", tabs.transform, "완료",     out var cntDone);
                 var tabFail  = MakeTab("TabFailed",    tabs.transform, "실패",     out var cntFail);
 
-                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_QuestMenu.TabOrder와 반드시 일치
+                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_Scene_QuestMenu.TabOrder와 반드시 일치
                 var tabGroup = tabs.AddComponent<UITabGroup>();
                 tabGroup.SetTabs(new[] { tabAvail, tabActive, tabDone, tabFail });
 
@@ -198,7 +198,7 @@ namespace UPlayGround.UI.Quest.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[QuestBuilder] UI_QuestMenu 프리팹 초안 생성 완료.");
+                Debug.Log("[QuestBuilder] UI_Scene_QuestMenu 프리팹 초안 생성 완료.");
             }
             finally
             {
@@ -213,12 +213,12 @@ namespace UPlayGround.UI.Quest.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 슬롯 서브 프리팹
 
-        private static UI_QuestSlot BuildQuestSlotPrefab()
+        private static UIQuestSlot BuildQuestSlotPrefab()
         {
-            var go = NewUI("UI_QuestSlot", null);
+            var go = NewUI("UIQuestSlot", null);
             SetHeight(go, 72);
             AddImage(go, SlotBg, UISprite, sliced: true);
-            var slot = go.AddComponent<UI_QuestSlot>();
+            var slot = go.AddComponent<UIQuestSlot>();
             AddHLG(go, spacing: 10, pad: 8);
 
             var iconGo = NewUI("Icon", go.transform);
@@ -256,14 +256,14 @@ namespace UPlayGround.UI.Quest.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, QuestSlotPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_QuestSlot>();
+            return asset.GetComponent<UIQuestSlot>();
         }
 
-        private static UI_QuestObjectiveSlot BuildObjectiveSlotPrefab()
+        private static UIQuestObjectiveSlot BuildObjectiveSlotPrefab()
         {
-            var go = NewUI("UI_QuestObjectiveSlot", null);
+            var go = NewUI("UIQuestObjectiveSlot", null);
             SetHeight(go, 40);
-            var slot = go.AddComponent<UI_QuestObjectiveSlot>();
+            var slot = go.AddComponent<UIQuestObjectiveSlot>();
             AddHLG(go, spacing: 8, pad: 4);
 
             var checkGo = NewUI("Check", go.transform);
@@ -284,16 +284,16 @@ namespace UPlayGround.UI.Quest.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, ObjectiveSlotPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_QuestObjectiveSlot>();
+            return asset.GetComponent<UIQuestObjectiveSlot>();
         }
 
-        private static UI_QuestRewardSlot BuildRewardSlotPrefab()
+        private static UIQuestRewardSlot BuildRewardSlotPrefab()
         {
-            var go = NewUI("UI_QuestRewardSlot", null);
+            var go = NewUI("UIQuestRewardSlot", null);
             SetWidth(go, 64);
             SetHeight(go, 64);
             AddImage(go, SlotBg, UISprite, sliced: true);
-            var slot = go.AddComponent<UI_QuestRewardSlot>();
+            var slot = go.AddComponent<UIQuestRewardSlot>();
 
             var iconGo = NewUI("Icon", go.transform);
             Stretch(iconGo);
@@ -311,7 +311,7 @@ namespace UPlayGround.UI.Quest.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, RewardSlotPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_QuestRewardSlot>();
+            return asset.GetComponent<UIQuestRewardSlot>();
         }
 
         #endregion

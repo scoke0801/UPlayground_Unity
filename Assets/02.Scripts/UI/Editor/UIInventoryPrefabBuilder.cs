@@ -9,18 +9,18 @@ using UPlayGround.UI.InputPrompt;
 namespace UPlayGround.UI.Inventory.EditorTools
 {
     /// <summary>
-    /// 인벤토리 UI(UI_Inventory) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 인벤토리 UI(UI_Scene_Inventory) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_Inventory.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
-    /// - 슬롯 서브 프리팹(UI_InventorySlot)도 생성해 참조 연결.
+    /// - 기존 UI_Scene_Inventory.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
+    /// - 슬롯 서브 프리팹(UIInventorySlot)도 생성해 참조 연결.
     /// - 재실행 가능(idempotent). "동작하는 회색 초안"이 목표.
     /// - 정렬은 하단 "정렬" 버튼(클릭 시 순환)으로 처리하며 헤더 TMP_Dropdown은 생성하지 않는다
-    ///   (UI_Inventory는 둘 중 하나만 있어도 동작. 드롭다운이 필요하면 Unity에서 수동 추가·연결).
+    ///   (UI_Scene_Inventory는 둘 중 하나만 있어도 동작. 드롭다운이 필요하면 Unity에서 수동 추가·연결).
     /// </summary>
     public static class UIInventoryPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UI_Inventory.prefab";
-        private const string SlotPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UI_InventorySlot.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UI_Scene_Inventory.prefab";
+        private const string SlotPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UIInventorySlot.prefab";
         private const string PartyEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Inventory/UIPartyEquipSelectorEntry.prefab";
         private const string GlyphDataPath = "Assets/10.Datas/UI/Input/InputGlyphData.asset";
 
@@ -58,10 +58,10 @@ namespace UPlayGround.UI.Inventory.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var inv = root.GetComponent<UI_Inventory>();
+                var inv = root.GetComponent<UI_Scene_Inventory>();
                 if (inv == null)
                 {
-                    Debug.LogError("[InvBuilder] 루트에 UI_Inventory 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[InvBuilder] 루트에 UI_Scene_Inventory 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -203,7 +203,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 filterText.fontSize = 15;
                 SetHeight(filterButton.gameObject, 46);
 
-                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_Inventory.TabOrder와 반드시 일치
+                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_Scene_Inventory.TabOrder와 반드시 일치
                 var tabGroup = left.AddComponent<UITabGroup>();
                 tabGroup.SetTabs(new[] { tabAll, tabCons, tabEquip, tabMat, tabQuest, tabImp });
 
@@ -458,7 +458,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[InvBuilder] UI_Inventory 프리팹 초안 생성 완료.");
+                Debug.Log("[InvBuilder] UI_Scene_Inventory 프리팹 초안 생성 완료.");
             }
             finally
             {
@@ -473,11 +473,11 @@ namespace UPlayGround.UI.Inventory.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 슬롯 서브 프리팹
 
-        private static UI_InventorySlot BuildSlotPrefab()
+        private static UIInventorySlot BuildSlotPrefab()
         {
-            var go = NewUI("UI_InventorySlot", null);
+            var go = NewUI("UIInventorySlot", null);
             Center(Rt(go), 64, 64);
-            var slot = go.AddComponent<UI_InventorySlot>();
+            var slot = go.AddComponent<UIInventorySlot>();
 
             // 포커스(선택) 하이라이트 — 슬롯보다 약간 크게, 첫 자식(뒤쪽)으로 두어 불투명한 슬롯 배경 밖 테두리 림만 보이게 함.
             // 이렇게 하면 아이콘 위를 덮지 않고 골드 테두리로 포커스를 표현한다.
@@ -490,7 +490,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
             focus.SetActive(false);
 
             // 키보드/게임패드 네비게이션으로 포커스를 받도록 Selectable 부착.
-            // 시각 전환은 UI_InventorySlot의 ISelectHandler에서 직접 처리하므로 transition은 None.
+            // 시각 전환은 UIInventorySlot의 ISelectHandler에서 직접 처리하므로 transition은 None.
             var selectable = go.AddComponent<Selectable>();
             selectable.transition = Selectable.Transition.None;
 
@@ -592,7 +592,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, SlotPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_InventorySlot>();
+            return asset.GetComponent<UIInventorySlot>();
         }
 
         // 파티원 선택 버튼 프리팹 (초상 + 이름 + 선택 하이라이트).
@@ -886,7 +886,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
 
         /// <summary>
         /// 버튼에 실제 InputAction 바인딩을 표시한다.
-        /// 활성 입력 장치와 리바인딩이 바뀌면 UI_InputPromptIcon이 글리프/폴백 문자를 갱신한다.
+        /// 활성 입력 장치와 리바인딩이 바뀌면 UIInputPromptIcon이 글리프/폴백 문자를 갱신한다.
         /// </summary>
         private static void ConfigureInputPrompt(
             GameObject button,
@@ -905,7 +905,7 @@ namespace UPlayGround.UI.Inventory.EditorTools
             glyph.preserveAspect = true;
             glyph.raycastTarget = false;
 
-            var prompt = button.AddComponent<UI_InputPromptIcon>();
+            var prompt = button.AddComponent<UIInputPromptIcon>();
             var so = new SerializedObject(prompt);
             SetString(so, "_mapName", InputMapNames.PlayerAction);
             SetString(so, "_actionName", actionName);

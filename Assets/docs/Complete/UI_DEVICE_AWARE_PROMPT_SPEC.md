@@ -7,9 +7,9 @@
 ## 구현 진행 상태 (2026-07-26)
 
 - [x] `InputPromptAvailability`와 `InputGlyphResolver.HasBindingForAction` 경량 판정 경로
-- [x] `UI_InputPromptIcon`의 미바인딩 숨김 및 `Any`/`GamepadOnly`/`KeyboardMouseOnly` 게이트
+- [x] `UIInputPromptIcon`의 미바인딩 숨김 및 `Any`/`GamepadOnly`/`KeyboardMouseOnly` 게이트
 - [x] 장치 전환 후 다시 나타날 수 있도록 컴포넌트 자기 오브젝트가 아닌 표시 루트만 숨기는 처리
-- [x] `(map, action, label)` 목록을 렌더링하는 `UI_InputPromptBar`
+- [x] `(map, action, label)` 목록을 렌더링하는 `UIInputPromptBar`
 - [x] `OnActiveDeviceChanged` / `OnBindingsChanged` 즉시 반영
 - [x] `UI_Base`가 실제 탭 그룹이 있을 때만 `SubTab*`을 등록하도록 F7 정리
 - [x] 프리팹 빌더 공용 `UIInputPromptBarBuilderUtility`
@@ -17,12 +17,12 @@
 - [x] Map, MonsterCodex, CharacterSelect, Pause, RestGrowth 빌더에 공용 프롬프트 추가
 - [x] 장치군·복합·빈 override 판정 EditMode 테스트 추가
 - [x] 11개 실제 프리팹 마이그레이션 및 직렬화 계약 검증
-- [x] 별도 빌더가 없는 `UI_PartyMenu` 프리팹 연결
+- [x] 별도 빌더가 없는 `UI_Scene_PartyMenu` 프리팹 연결
 - [x] Xbox / PlayStation / Switch 브랜드별 얼굴 버튼 글리프 데이터 검증
 - [x] Unity Test Runner EditMode 9개 통과
 - [ ] Xbox / DualSense / Switch Pro 실기 장치 전환 확인
 
-`UI_PartySelect`는 현재 독립 프리팹이 없으며 `UI_PartyMenu`가 실제 등록 데이터다.
+`UI_Scene_PartySelect`는 현재 독립 프리팹이 없으며 `UI_Scene_PartyMenu`가 실제 등록 데이터다.
 프리팹 폴더는 저장소 `.gitignore` 대상이지만 로컬 Unity 프로젝트의 11개 실제 프리팹에는
 마이그레이션이 반영됐다. `Tools/UI/Input Prompt/전체 계약 검증`에서 액션·글리프·프리팹
 직렬화·Missing Script를 함께 검사한다.
@@ -53,7 +53,7 @@
 | 장치 감지 | `InputManager.Device.cs` — `ActiveDevice`, `GamepadBrand`, `OnActiveDeviceChanged` | 동작. 입력 이벤트 단위로 즉시 전환 |
 | 글리프 해석 | `InputGlyphResolver.Resolve(map, action, device, brand, glyphData)` | 동작. 장치에 맞는 바인딩을 골라 스프라이트/텍스트 파트를 돌려줌 |
 | 글리프 데이터 | `Assets/10.Datas/UI/Input/InputGlyphData.asset` | 86개 항목. `leftTrigger` / `rightTrigger` / `leftShoulder` / `rightShoulder` / `escape` 모두 등록돼 있음 |
-| 프롬프트 위젯 | `UI_InputPromptIcon` | 동작. 단일·조합 바인딩 모두 렌더 |
+| 프롬프트 위젯 | `UIInputPromptIcon` | 동작. 단일·조합 바인딩 모두 렌더 |
 | 장치 게이트 선례 | `UIFocusIndicator.cs:173` — `_gamepadOnly` 플래그 | 있음. 다만 이 컴포넌트 전용 |
 | 리바인딩 반영 | `IInputService.OnBindingsChanged` | 동작 |
 
@@ -98,14 +98,14 @@
 
 ### 2.4 안내가 아예 없는 화면
 
-`UI_CharacterSelect`, `UI_Map`, `UI_MonsterCodex`, `UI_PartyMenu`, `UI_PartySelect`,
-`UI_PauseMenu`, 성장(`UIRestGrowthPrefabBuilder`) — 대응 빌더에 힌트 텍스트가 없다.
+`UI_Scene_CharacterSelect`, `UI_Scene_Map`, `UI_Scene_MonsterCodex`, `UI_Scene_PartyMenu`, `UI_Scene_PartySelect`,
+`UI_Scene_PauseMenu`, 성장(`UIRestGrowthPrefabBuilder`) — 대응 빌더에 힌트 텍스트가 없다.
 이 중 지도·파티·도감은 `MainPageOrder`에 포함돼 있어 **게임패드로 LT/RT 페이지 순환이
 실제로 되는데 알 방법이 없다.**
 
 ### 2.5 장치 전환에 반응하는 화면
 
-`UI_Inventory`가 유일하다(`UI_Inventory.cs:229-272`). 퀵슬롯 라벨만
+`UI_Scene_Inventory`가 유일하다(`UI_Scene_Inventory.cs:229-272`). 퀵슬롯 라벨만
 `OnActiveDeviceChanged`를 구독해 글리프 텍스트를 교체한다. 화면별 일회성 구현이라
 다른 화면으로 복사되지 않았다. **이 패턴을 공용화하는 것이 이번 작업의 핵심이다.**
 
@@ -120,7 +120,7 @@
 | F3 | 안내가 하드코딩 문자열이라 리바인딩이 반영되지 않는다 | 높음 | 2.3 |
 | F4 | 지도·파티·도감·캐릭터 선택·성장·일시정지에 안내가 전무 | 중간 | 2.4 |
 | F5 | 안내가 헤더 구석의 텍스트 한 줄이라 조작 대상 UI와 시각적으로 연결되지 않는다 | 중간 | 2.3 |
-| F6 | `UI_InputPromptIcon`에 장치 게이트가 없다. 게임패드 전용 액션을 키보드 상태로 조회하면 `FindBindingIndexForDevice`가 -1을 돌려주고 `InputGlyphResult.Missing`이 **액션 이름 원문**을 폴백 텍스트로 넣는다 → 화면에 `MainTabNext`가 그대로 노출될 수 있다 | 높음 | `InputGlyphResolver.cs:117-129, 251` |
+| F6 | `UIInputPromptIcon`에 장치 게이트가 없다. 게임패드 전용 액션을 키보드 상태로 조회하면 `FindBindingIndexForDevice`가 -1을 돌려주고 `InputGlyphResult.Missing`이 **액션 이름 원문**을 폴백 텍스트로 넣는다 → 화면에 `MainTabNext`가 그대로 노출될 수 있다 | 높음 | `InputGlyphResolver.cs:117-129, 251` |
 | F7 | 탭 그룹이 없는 화면(지도·파티·도감)에서도 `SubTab*` 액션이 등록된다. 눌러도 아무 일이 없다 | 낮음 | `UI_Base.cs:405-415` |
 | F8 | `SubTabPrevious`와 `DialogueBacklog`가 둘 다 `<Gamepad>/leftShoulder`. 컨텍스트가 달라 실사용 충돌은 없어 보이나, 프롬프트를 액션 기준으로 그리면 같은 글리프가 두 의미로 보인다 | 낮음 | `.inputactions` UI 맵 |
 
@@ -157,7 +157,7 @@ bool HasBindingFor(string map, string action, ActiveInputDevice device)
 있으므로 `Resolve(...).IsValid`로 대체 가능하지만, 그러면 글리프 해석 비용을 판정에만
 쓰게 되므로 경량 경로를 따로 둔다.**
 
-#### (b) `UI_InputPromptIcon` 확장 — 장치 게이트
+#### (b) `UIInputPromptIcon` 확장 — 장치 게이트
 
 ```csharp
 [Header("표시 조건")]
@@ -173,15 +173,15 @@ bool HasBindingFor(string map, string action, ActiveInputDevice device)
 바뀌므로, 이미 배치된 HUD 프롬프트에 영향이 없는지 확인해야 한다**(HUD 액션은 양쪽
 장치에 모두 바인딩돼 있어 실질 영향은 없을 것으로 보이나 검증 필요).
 
-#### (c) `UI_InputPromptBar` — 라벨 달린 프롬프트 묶음
+#### (c) `UIInputPromptBar` — 라벨 달린 프롬프트 묶음
 
-`Assets/02.Scripts/UI/InputPrompt/UI_InputPromptBar.cs` (신규)
+`Assets/02.Scripts/UI/InputPrompt/UIInputPromptBar.cs` (신규)
 
 인스펙터에 `(map, action, 라벨)` 목록을 받아 `[글리프] 라벨` 항목을 가로로 배치한다.
 활성 장치에 바인딩이 없는 항목은 자동으로 빠지고, 남은 항목이 0개면 바 자체를 숨긴다.
 `OnActiveDeviceChanged` / `OnBindingsChanged` 구독은 이 컴포넌트가 담당한다.
 
-기존 `UI_ComboRouteHint` / `UI_ComboRouteHintRow`가 유사한 목록 렌더링을 하고 있으므로
+기존 `UIComboRouteHint` / `UIComboRouteHintRow`가 유사한 목록 렌더링을 하고 있으므로
 레이아웃 구성 방식을 참고한다.
 
 ### 4.3 배치 규칙
@@ -203,17 +203,17 @@ bool HasBindingFor(string map, string action, ActiveInputDevice device)
 
 | 화면 | 현재 | 작업 |
 | --- | --- | --- |
-| `UI_Inventory` | 하드코딩 힌트 + 퀵슬롯 라벨만 장치 반응 | 힌트 텍스트 제거. 탭 프롬프트(LB/RB) + 메인 페이지 프롬프트(LT/RT) + 하단 바. 퀵슬롯 라벨 갱신 로직은 `UI_InputPromptIcon`으로 대체 검토 |
-| `UI_CraftMenu` | 하드코딩 힌트 | 힌트 제거 + 탭/페이지/하단 바 |
-| `UI_QuestMenu` | 하드코딩 힌트 | 동일 |
-| `UI_SettingMenu` | 하드코딩 힌트 2종 + `ESC` 2곳 | 힌트 제거. `ESC 닫기`/`ESC 취소` 버튼 라벨을 액션 프롬프트로 교체. 적용/취소/초기화 버튼에 `Submit`/`Cancel` 프롬프트 |
-| `UI_Map` | 안내 없음 | 페이지 프롬프트 + 하단 바. 가상 커서 조작(스틱 이동·줌)이 게임패드 전용이므로 지도 뷰 근처에 전용 프롬프트 추가 (선행 스펙 6차 항목과 연계) |
-| `UI_MonsterCodex` | 안내 없음 | 페이지 프롬프트 + 하단 바 |
-| `UI_PartyMenu` | 안내 없음 | 페이지 프롬프트 + 하단 바 |
-| `UI_PartySelect` | 안내 없음 | 하단 바(확인·취소). 페이지 순환 대상 아님 |
-| `UI_CharacterSelect` | 안내 없음. `시작`/`취소` 버튼만 존재 | 하단 바(`Submit` 확인 / `Cancel` 취소). 페이지 순환 대상 아님 |
-| `UI_SaveSlotMenu` | `Esc` 하드코딩 | 액션 프롬프트로 교체 |
-| `UI_PauseMenu` | 안내 없음 | 하단 바 |
+| `UI_Scene_Inventory` | 하드코딩 힌트 + 퀵슬롯 라벨만 장치 반응 | 힌트 텍스트 제거. 탭 프롬프트(LB/RB) + 메인 페이지 프롬프트(LT/RT) + 하단 바. 퀵슬롯 라벨 갱신 로직은 `UIInputPromptIcon`으로 대체 검토 |
+| `UI_Scene_CraftMenu` | 하드코딩 힌트 | 힌트 제거 + 탭/페이지/하단 바 |
+| `UI_Scene_QuestMenu` | 하드코딩 힌트 | 동일 |
+| `UI_Scene_SettingMenu` | 하드코딩 힌트 2종 + `ESC` 2곳 | 힌트 제거. `ESC 닫기`/`ESC 취소` 버튼 라벨을 액션 프롬프트로 교체. 적용/취소/초기화 버튼에 `Submit`/`Cancel` 프롬프트 |
+| `UI_Scene_Map` | 안내 없음 | 페이지 프롬프트 + 하단 바. 가상 커서 조작(스틱 이동·줌)이 게임패드 전용이므로 지도 뷰 근처에 전용 프롬프트 추가 (선행 스펙 6차 항목과 연계) |
+| `UI_Scene_MonsterCodex` | 안내 없음 | 페이지 프롬프트 + 하단 바 |
+| `UI_Scene_PartyMenu` | 안내 없음 | 페이지 프롬프트 + 하단 바 |
+| `UI_Scene_PartySelect` | 안내 없음 | 하단 바(확인·취소). 페이지 순환 대상 아님 |
+| `UI_Scene_CharacterSelect` | 안내 없음. `시작`/`취소` 버튼만 존재 | 하단 바(`Submit` 확인 / `Cancel` 취소). 페이지 순환 대상 아님 |
+| `UI_Scene_SaveSlotMenu` | `Esc` 하드코딩 | 액션 프롬프트로 교체 |
+| `UI_Scene_PauseMenu` | 안내 없음 | 하단 바 |
 | 성장 화면 | 안내 없음 | 하단 바 |
 
 ### 4.5 F7 정리
@@ -229,8 +229,8 @@ bool HasBindingFor(string map, string action, ActiveInputDevice device)
 
 | 단계 | 내용 | 산출물 |
 | --- | --- | --- |
-| 1 | `UI_InputPromptIcon` 장치 게이트 + `InputPromptAvailability` | 완료. F6 해소 |
-| 2 | `UI_InputPromptBar` 구현 | 완료 |
+| 1 | `UIInputPromptIcon` 장치 게이트 + `InputPromptAvailability` | 완료. F6 해소 |
+| 2 | `UIInputPromptBar` 구현 | 완료 |
 | 3 | `UI_Base` F7 정리 | 완료. 탭 프롬프트 저작은 공용 빌더 유틸리티가 담당 |
 | 4 | 프리팹 빌더 수정 — 하드코딩 힌트 제거, 공용 바 삽입 | 10개 빌더 + Party 프리팹 마이그레이션 완료 |
 | 5 | 실제 프리팹 반영 및 자동 검증 | 11개 완료. 실기 패드 전환만 남음 |

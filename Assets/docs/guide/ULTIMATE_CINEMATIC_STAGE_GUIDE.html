@@ -570,7 +570,7 @@ _stageContext.Exit();                                                           
 
 <pre><code>// UI_Base.FadeIn/FadeOut은 scaled time 기반이라 궁극기에서 쓰면 안 된다.
 // UltimateTimeScaleEvent가 timeScale을 0.2까지 낮추면 페이드가 5배 느려진다.
-// UI_WorldRespawnNotice.cs:97 이 같은 이유로 unscaled 직접 보간을 쓴다. 그 방식을 따른다.
+// UI_HUD_WorldRespawnNotice.cs:97 이 같은 이유로 unscaled 직접 보간을 쓴다. 그 방식을 따른다.
 
 float elapsed = 0f;
 while (elapsed &lt; duration)
@@ -640,7 +640,7 @@ _canvasGroup.alpha = to;</code></pre>
       <li><code>Assets/02.Scripts/GameActor/Component/Player/UltimateSequencePlayer.cs</code> — 실행 흐름의 중심</li>
       <li><code>Assets/02.Scripts/GameActor/Component/Player/UltimateGameplayLockContext.cs</code> — 소유권 추적 복구 패턴의 모범</li>
       <li><code>Assets/02.Scripts/UI/UICharacterPreviewRenderer.cs</code> — 레이어 격리 렌더 선례</li>
-      <li><code>Assets/02.Scripts/UI/Scene/UI_WorldRespawnNotice.cs</code> — unscaled 페이드 선례</li>
+      <li><code>Assets/02.Scripts/UI/Scene/UI_HUD_WorldRespawnNotice.cs</code> — unscaled 페이드 선례</li>
       <li><code>Assets/docs/guide/GAS_SYSTEM_GUIDE.html</code> — Ability 자원 소비 흐름</li>
     </ul>
 

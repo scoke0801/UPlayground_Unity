@@ -8,7 +8,7 @@ namespace UPlayGround.UI
 {
     /// <summary>
     /// 추적 중(tracked) 퀘스트의 목표 지점을 자동으로 <see cref="WorldMarkerRegistry"/>에 등록/해제하는 브리지.
-    /// 인게임 HUD 월드 마커(<see cref="UI_HudWorldMarker"/>)가 이를 화면에 투영해 원신식 웨이포인트로 노출한다.
+    /// 인게임 HUD 월드 마커(<see cref="UI_HUD_WorldMarker"/>)가 이를 화면에 투영해 원신식 웨이포인트로 노출한다.
     ///
     /// 타겟 월드 위치는 미니맵과 동일하게 씬 배치 <see cref="MinimapMarkerRegistrar"/>(LocationId == 목표 targetStringId)에서 가져온다.
     /// 목표에 대응하는 Registrar가 아직 없으면 그 목표는 마커를 만들지 않고, Registrar가 스폰되면 자동 반영한다.
@@ -21,7 +21,7 @@ namespace UPlayGround.UI
     {
         private const string MarkerIdPrefix = "quest:";
 
-        [Tooltip("퀘스트 목표 마커 아이콘. 비워두면 UI_HudWorldMarker가 아이콘 없이 거리만 표시한다.")]
+        [Tooltip("퀘스트 목표 마커 아이콘. 비워두면 UI_HUD_WorldMarker가 아이콘 없이 거리만 표시한다.")]
         [SerializeField] private Sprite _questIcon;
 
         [Tooltip("퀘스트 목표 마커 색상")]

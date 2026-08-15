@@ -14,7 +14,7 @@
 - 실제 스탯 런타임은 구 `ActorStatContainer`가 아니라 GAS의 `AttributeSetRuntime`이다. 노드 스탯은 `SkillTree.{CharacterActorType}` 소유 ID의 Infinite GameplayEffect로 적용·교체한다.
 - 기존 `PartyMemberGrowthSO`에는 휴식지점 스탯 투자와 고정 `milestones`가 이미 있었지만, 런타임이 이를 `contentUnlockSeed`로 재배치하고 있었다. 신규 Ability 해금은 `CharacterSkillTreeSO`가 권위를 가지며, 남은 레거시 콤보 게이트는 저작된 `milestones`를 그대로 읽어 결정적으로 판정한다.
 - 영구 진행도는 별도 최상위 매니저가 아니라 `PartySaveData.skillProgress`에 저장한다. 사이클 DTO는 이를 참조하거나 복제하지 않는다.
-- 전용 `UI_SkillTree` 팝업을 `SkillTree` 키로 추가했다. 좌측 캐릭터 탭/포인트 배지, `layoutPosition` 기반 노드·연결선, 4단계 상태, 우측 상세·다음 랭크 효과, 공간 기반 게임패드 내비게이션, 전체 리스펙 2차 확인을 제공한다. 휴식 지점에서는 편집 가능, 파티 상세에서는 읽기 전용으로 열린다.
+- 전용 `UI_Scene_SkillTree` 팝업을 `SkillTree` 키로 추가했다. 좌측 캐릭터 탭/포인트 배지, `layoutPosition` 기반 노드·연결선, 4단계 상태, 우측 상세·다음 랭크 효과, 공간 기반 게임패드 내비게이션, 전체 리스펙 2차 확인을 제공한다. 휴식 지점에서는 편집 가능, 파티 상세에서는 읽기 전용으로 열린다.
 - `UPlayGround/데이터/성장/누락 Character Skill Tree 초안 생성`은 기존 고정 스탯 투자로부터 누락 트리만 생성한다. 기존 에셋을 덮어쓰지 않으며, Ability/Passive/선행 그래프는 자동 추정하지 않는다.
 - 현재 `PartyConfigSO.characterSkillTrees`에는 플레이어블 11종의 자동 생성 초안이 연결되어 있고, 기존 `PartyMemberGrowthSO.useAutomaticLevelGrowth`는 비활성이다. 이 초안은 레거시 고정 스탯 5종을 옮긴 호환 성장 보드일 뿐이며 선행 관계·Ability·Passive 노드가 없는 상태다. UI는 이를 완성된 트리로 오인하지 않도록 `성장 보드 · 초안`으로 표시한다. 실제 스킬 트리로 전환하려면 캐릭터별 선행 그래프와 Ability/Passive 노드를 별도로 저작해야 한다. 스킬 트리가 연결된 캐릭터에는 레거시 성장 포인트를 중복 지급하지 않는다. 자동 base 성장 곡선은 밸런스 값 확정 후 별도로 활성화해야 한다.
 
@@ -74,7 +74,7 @@
 | `PassiveAbilitySO` / `IPassiveModifierReader` | 노드의 Ability 문맥 보정을 **기존 계약으로** 노출 |
 | `CharacterPassiveDatabaseSO` | 캐릭터 고유 패시브(고정)와 노드 부여 패시브(선택)를 구분해 합산 |
 | `SaveManager` / `ISaveable` | 스킬 진행도 영속 저장 |
-| `UI_PartyMenu`, `UI_CharacterSelect` | 스킬 UI 진입점과 표시 데이터 재사용 |
+| `UI_Scene_PartyMenu`, `UI_Scene_CharacterSelect` | 스킬 UI 진입점과 표시 데이터 재사용 |
 
 `ActorStatSO`에 새 `StatType`을 늘려 노드를 표현하지 않는다. 문맥형 보정은 `PASSIVE_ABILITY_SYSTEM_SPEC` P-06 결정을 그대로 따른다.
 
@@ -274,9 +274,9 @@ PlayerActor.ApplyCharacterStats(model)
 
 ## 8. UI
 
-### `UI_SkillTree`
+### `UI_Scene_SkillTree`
 
-- 진입점: `UI_PartyMenu`의 캐릭터 상세, 안전 지역 한정.
+- 진입점: `UI_Scene_PartyMenu`의 캐릭터 상세, 안전 지역 한정.
 - 좌측 캐릭터 탭, 중앙 노드 그래프, 우측 노드 상세 + 잔여 포인트.
 - 노드 상태는 4종: `취득`, `취득 가능`, `선행 미충족`, `레벨 미달`.
 - 취득 가능 노드만 색으로 강조한다. 잠긴 노드도 **효과를 미리 보여준다**. 랜덤이 없으므로 정보를 숨길 이유가 없고, 오히려 목표 설정이 반복 플레이 동기다.

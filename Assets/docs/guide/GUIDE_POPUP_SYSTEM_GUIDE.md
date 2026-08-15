@@ -7,11 +7,11 @@
 - `Assets/02.Scripts/Data/UI/GuidePopupDataSO.cs`
   - 가이드 팝업 데이터 ScriptableObject.
   - 여러 개의 `GuidePopupPage`를 리스트로 보관한다.
-- `Assets/02.Scripts/UI/Scene/UI_GuidePopup.cs`
+- `Assets/02.Scripts/UI/Scene/UI_Popup_Guide.cs`
   - 런타임 팝업 UI.
   - 이전/다음/닫기, 페이지 번호, 이미지/동영상 표시를 처리한다.
 - `Assets/02.Scripts/UI/Scene/Editor/UIGuidePopupPrefabBuilder.cs`
-  - `UI_GuidePopup.prefab` 생성 및 `UIPrefabDatabase` 등록용 에디터 빌더.
+  - `UI_Popup_Guide.prefab` 생성 및 `UIPrefabDatabase` 등록용 에디터 빌더.
 
 ## 프리팹 생성
 
@@ -23,7 +23,7 @@ UPlayGround/UI/가이드 팝업 프리팹 빌드
 
 실행 결과:
 
-- `Assets/03.Prefabs/UI/Popup/UI_GuidePopup.prefab` 생성 또는 갱신
+- `Assets/03.Prefabs/UI/Popup/UI_Popup_Guide.prefab` 생성 또는 갱신
 - `Assets/10.Datas/Path/UIPrefabDatabase.asset`에 `GuidePopup` 키 등록
 
 프리팹 구조나 SerializeField가 변경되면 이 메뉴를 다시 실행한다.
@@ -81,7 +81,7 @@ public class GuidePopupExample : MonoBehaviour
     public void OpenGuide()
     {
         var go = UIManager.Instance.ShowUI(UIKeyType.GuidePopup);
-        go?.GetComponent<UI_GuidePopup>()?.Setup(_guideData);
+        go?.GetComponent<UI_Popup_Guide>()?.Setup(_guideData);
     }
 }
 ```
@@ -89,7 +89,7 @@ public class GuidePopupExample : MonoBehaviour
 특정 페이지부터 시작하려면 `startPageIndex`를 지정한다.
 
 ```csharp
-go?.GetComponent<UI_GuidePopup>()?.Setup(_guideData, startPageIndex: 1);
+go?.GetComponent<UI_Popup_Guide>()?.Setup(_guideData, startPageIndex: 1);
 ```
 
 `startPageIndex`는 0부터 시작한다. `1`은 두 번째 페이지다.
@@ -140,4 +140,4 @@ Unity UI에서 GIF 직접 재생은 기본 지원이 안정적이지 않다.
 
 - `GuidePopupDataSO`만 만들고 프리팹 빌더를 실행하지 않으면 `UIManager.ShowUI(UIKeyType.GuidePopup)`가 프리팹을 찾지 못한다.
 - 동영상은 팝업용 안내 클립 기준으로 짧고 가벼운 해상도를 권장한다.
-- `UI_GuidePopup`은 표시 중 `GameTimeManager.SetPause(true)`를 호출한다. 팝업을 닫으면 다시 `false`로 복원한다.
+- `UI_Popup_Guide`은 표시 중 `GameTimeManager.SetPause(true)`를 호출한다. 팝업을 닫으면 다시 `false`로 복원한다.

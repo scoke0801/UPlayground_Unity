@@ -5,7 +5,7 @@ using UPlayGround.Data.EnumType;
 namespace UPlayGround.Data.Party
 {
     /// <summary>
-    /// 신규 게임 캐릭터 선택 화면(UI_CharacterSelect)에 노출할 캐릭터 목록.
+    /// 신규 게임 캐릭터 선택 화면(UI_Scene_CharacterSelect)에 노출할 캐릭터 목록.
     /// PartyConfig 와는 분리된 표시용 데이터 — 선택 화면 구성만 담당한다.
     /// (실제 신규 게임 시작 시 PartyConfig 반영은 추후 별도 연동.)
     /// </summary>

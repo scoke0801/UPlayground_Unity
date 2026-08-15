@@ -104,7 +104,7 @@ Unity의 `ScriptableObject`는 여러 런타임 인스턴스가 공유하는 불
 | 실행 | `PlayerCombat`, `PlayerAttackState` | 공격 데이터 변환과 MotionSet 실행 |
 | 태그 | `GameplayTagContainer` | `HashSet` 기반 상태·콤보 태그 |
 | 스탯 | `ActorStatContainer`, `StatModifier` | 기본값과 시간제 수정자 |
-| UI | `UI_HudSkill`, `UISkillSlot` | 스킬 슬롯, 게이지, 쿨다운, 콤보 힌트 |
+| UI | `UI_HUD_Skill`, `UISkillSlot` | 스킬 슬롯, 게이지, 쿨다운, 콤보 힌트 |
 | 분석 | Balance Designer, Cycle Telemetry | 정적 전투 분석과 런 이벤트 기록 기반 |
 
 ### 5.2 해결할 간극
@@ -208,7 +208,7 @@ UPlayGround.Actor
 
 UPlayGround.UI
 └── UI/InputPrompt/
-    ├── UI_HudSkill.cs
+    ├── UI_HUD_Skill.cs
     └── UISkillSlot.cs
 
 Editor asmdef
@@ -1069,7 +1069,7 @@ UI 규칙:
 - 런타임 이벤트 발생 시 슬롯 상태를 갱신한다.
 - 쿨다운 숫자와 fill 진행만 표시 중 폴링을 허용한다.
 - 캐릭터 교체 시 Ability ID, 아이콘, 이름, 자원 소스를 모두 다시 바인딩한다.
-- `UI_HudSkill`은 Ability/Ultimate 두 슬롯만 표시하고 Variant마다 슬롯을 추가하지 않는다.
+- `UI_HUD_Skill`은 Ability/Ultimate 두 슬롯만 표시하고 Variant마다 슬롯을 추가하지 않는다.
 
 ---
 

@@ -7,7 +7,7 @@ namespace UPlayGround.Data.UI
 {
     /// <summary>
     /// 맵 화면 좌하단 "지역 정보" 패널에 표시할 지역 메타데이터.
-    /// 맵(씬)별로 하나씩 만들어 UI_Map의 _regionInfo(또는 MapConfigDatabaseSO)에 연결한다.
+    /// 맵(씬)별로 하나씩 만들어 UI_Scene_Map의 _regionInfo(또는 MapConfigDatabaseSO)에 연결한다.
     /// </summary>
     [CreateAssetMenu(fileName = "MapRegionInfo", menuName = "UPlayGround/맵/Region Info")]
     public class MapRegionInfoSO : ScriptableObject 

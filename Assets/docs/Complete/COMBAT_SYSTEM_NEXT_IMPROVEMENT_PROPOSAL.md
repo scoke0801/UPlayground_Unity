@@ -496,7 +496,7 @@ QTE에 해당하는 기능은 이미 부분적으로 존재한다. 다만 "QTE"�
 ```text
 MonsterBreakGauge 가득 참
     └── OnBreakExposed
-            └── MonsterActor가 UI_BreakInteraction 생성 (Center 소켓 위 F키 아이콘, 펄스)
+            └── MonsterActor가 UIBreakInteraction 생성 (Center 소켓 위 F키 아이콘, 펄스)
                     │
 PlayerCombat.UpdateBreakInteractionTarget (0.1s 틱)
     └── 범위 내 IsExposed 몬스터 탐색 → SetBreakInteractionTarget
@@ -509,7 +509,7 @@ PlayerCombat.UpdateBreakInteractionTarget (0.1s 틱)
 관련 파일:
 
 ```text
-Assets/02.Scripts/UI/WorldSpace/UI_BreakInteraction.cs
+Assets/02.Scripts/UI/WorldSpace/UIBreakInteraction.cs
 Assets/02.Scripts/GameActor/Component/Enemy/MonsterBreakGauge.cs
 Assets/02.Scripts/GameActor/Component/Player/PlayerCombat.cs (UpdateBreakInteractionTarget)
 Assets/02.Scripts/GameActor/State/Player/PlayerSpecialBreakAttackState.cs
@@ -527,7 +527,7 @@ Assets/02.Scripts/GameActor/Object/Monster/MonsterActor.cs (OnTakeSpecialBreakAt
 기존 단일 입력 프롬프트를 **데이터 기반 컨텍스트 입력(QTE) 시스템**으로 일반화하고, 결과를 공통 pipeline에 태운다. 구조 자체보다 P1~P6에 올라타는 것이 핵심이다.
 
 - `QtePromptSO` (신규 후보): 입력 타입(단일/연타/시퀀스/타이밍 바), 타이밍 창, 성공/실패/퍼펙트 임계값, 보상 프로필을 데이터화한다.
-- `UI_BreakInteraction`을 `UI_QtePrompt`로 확장하거나 상위 타입을 두어, 단일 아이콘뿐 아니라 타이밍 게이지/시퀀스 표시를 지원한다(위치 추적·카메라 뒤 처리·펄스 로직은 기존대로 재사용).
+- `UIBreakInteraction`을 `UI_QtePrompt`로 확장하거나 상위 타입을 두어, 단일 아이콘뿐 아니라 타이밍 게이지/시퀀스 표시를 지원한다(위치 추적·카메라 뒤 처리·펄스 로직은 기존대로 재사용).
 - QTE 트리거 컨텍스트를 enum/태그로 분리: `BreakFinish`, `Groggy`, `ParryCounter`, `Cinematic` 등. `PlayerCombat`의 브레이크 전용 틱 로직을 컨텍스트 일반 탐색으로 일반화한다.
 - **성공/실패/퍼펙트 결과를 `HitContext`/`CombatResult`로 표현**한다(P1 연계). `OnTakeSpecialBreakAttack`의 우회 경로를 `CombatResolutionPipeline`(P2)으로 편입해 피해/리액션/피드백/로그를 일반 공격과 같은 형식으로 남긴다.
 - QTE 성공 시 리액션(처형/넘김 등)은 P5 정책 데이터(`CombatReactionPolicySO`)와 연계해 보스/엘리트별 면역·전용 연출을 데이터로 분기한다.

@@ -36,7 +36,7 @@ ItemManager
         ├── ItemActor
         │     - 픽업 연출 후 InventoryManager.AddItem(...)
         │
-        └── UI_Inventory / UI_ItemPopup
+        └── UI_Scene_Inventory / UI_Popup_Item
               - 아이콘, 이름, 무게, 장착/사용 버튼 표시
 ```
 

@@ -137,7 +137,7 @@ Assets/02.Scripts/
 │       ├── PlayerAttackState.cs
 │       └── PlayerInterruptResolver.cs
 └── UI/InputPrompt/
-    ├── UI_HudSkill.cs
+    ├── UI_HUD_Skill.cs
     └── UISkillSlot.cs
 ```
 
@@ -193,13 +193,13 @@ PlayerAttackState
 
 ### 2.5 현재 UI 구조
 
-`UI_HudSkill`과 `UISkillSlot`은 이미 2슬롯 방향에 가깝다.
+`UI_HUD_Skill`과 `UISkillSlot`은 이미 2슬롯 방향에 가깝다.
 
 | UI 구조 | 현재 상태 |
 |---------|-----------|
 | `ComboInputToken.Skill1` | Ability 슬롯. 자동으로 `GaugeSlot = 0` |
 | `ComboInputToken.Skill2` | Ultimate 슬롯. 자동으로 `GaugeSlot = 1` |
-| `UI_HudSkill` | Ability / Ultimate 고정 스킬바와 게이지/쿨타임 갱신 구조 보유 |
+| `UI_HUD_Skill` | Ability / Ultimate 고정 스킬바와 게이지/쿨타임 갱신 구조 보유 |
 
 즉 UI는 이미 2슬롯에 가까운데, 런타임 자원/실행 로직은 N슬롯 구조로 남아 있다.
 
@@ -499,7 +499,7 @@ PeekSkillAnimKey(PlayerSkillSlot slot, PlayerSkillContext context)
 - `skillDefinitions[1]` = Ultimate 정의
 - `variants`에서 다중 AnimKey 관리
 
-### 7.5 `UISkillSlot`, `UI_HudSkill`, `UI_HudParty`
+### 7.5 `UISkillSlot`, `UI_HUD_Skill`, `UI_HUD_Party`
 
 현재 구조는 유지 가능하다.
 
@@ -507,10 +507,10 @@ PeekSkillAnimKey(PlayerSkillSlot slot, PlayerSkillContext context)
 
 | UI | 표시 대상 | 기준 |
 |----|-----------|------|
-| `UI_HudSkill` | Ability / Ultimate 버튼 2개 | 슬롯별 사용 가능 여부, 쿨타임, 콤보 힌트 |
+| `UI_HUD_Skill` | Ability / Ultimate 버튼 2개 | 슬롯별 사용 가능 여부, 쿨타임, 콤보 힌트 |
 | `UISkillSlot` | 개별 슬롯 내부 표시 | Ability는 쿨타임만, Ultimate는 게이지와 쿨타임 표시 |
-| `UI_HudParty` | 파티원 초상화의 Ultimate ready 글로우 | `PlayerSkillSlot.Ultimate` 사용 가능 여부 |
-| `UI_HudPlayerInfo` | 현재 활성 캐릭터의 Ultimate 게이지 바 | 현 Phase의 `PlayerSkillGauge.CurrentGauge` |
+| `UI_HUD_Party` | 파티원 초상화의 Ultimate ready 글로우 | `PlayerSkillSlot.Ultimate` 사용 가능 여부 |
+| `UI_HUD_PlayerInfo` | 현재 활성 캐릭터의 Ultimate 게이지 바 | 현 Phase의 `PlayerSkillGauge.CurrentGauge` |
 
 추가로 필요한 것:
 
@@ -711,7 +711,7 @@ PlayerCombat
 PlayerAttackDataSO
 └── 캐릭터별 기본 공격, 스킬 정의, Variant, 연계 라우트 보관
 
-UI_HudSkill
+UI_HUD_Skill
 └── Ability / Ultimate 두 슬롯의 사용 가능 상태 표시
 ```
 

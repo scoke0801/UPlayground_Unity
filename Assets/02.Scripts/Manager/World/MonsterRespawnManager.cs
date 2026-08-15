@@ -34,7 +34,7 @@ namespace UPlayGround.Manager
 
 
         private const string SettingsKey = "MonsterRespawnSettings";
-        private const string NoticeUIKey = UI_WorldRespawnNotice.UIKey;
+        private const string NoticeUIKey = UI_HUD_WorldRespawnNotice.UIKey;
 
         /// <summary> 씬 배치 몬스터 1개의 원본 배치 정보(런타임 전용, 저장 안 함). </summary>
         private class PlacementInfo
@@ -534,7 +534,7 @@ namespace UPlayGround.Manager
             }
 
             var uiObject = uiManager.ShowUI(NoticeUIKey);
-            var notice = uiObject != null ? uiObject.GetComponentInChildren<UI_WorldRespawnNotice>() : null;
+            var notice = uiObject != null ? uiObject.GetComponentInChildren<UI_HUD_WorldRespawnNotice>() : null;
             if (notice == null) return;
 
             string message = "쓰러졌던 마물들이 다시 움직이기 시작했습니다.";

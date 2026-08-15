@@ -6,15 +6,15 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.Respawn.EditorTools
 {
     /// <summary>
-    /// 부활 팝업(UI_RespawnPopup) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 부활 팝업(UI_Popup_Respawn) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_RespawnPopup.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
+    /// - 기존 UI_Popup_Respawn.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
     /// - 제자리 부활(붉은색) / 포탈 부활(청록색) 2카드 + 제목/부제 + 하단 경고.
     /// - 아이콘은 회색/색조 플레이스홀더. 재실행 가능(idempotent).
     /// </summary>
     public static class UIRespawnPopupPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Popup/UI_RespawnPopup.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Popup/UI_Popup_Respawn.prefab";
 
         private static readonly Color Dim      = new Color(0f, 0f, 0f, 0.7f);
         private static readonly Color WindowBg = new Color(0.06f, 0.06f, 0.08f, 0.98f);
@@ -44,10 +44,10 @@ namespace UPlayGround.UI.Respawn.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var popup = root.GetComponent<UI_RespawnPopup>();
+                var popup = root.GetComponent<UI_Popup_Respawn>();
                 if (popup == null)
                 {
-                    Debug.LogError("[RespawnBuilder] 루트에 UI_RespawnPopup 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[RespawnBuilder] 루트에 UI_Popup_Respawn 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -113,7 +113,7 @@ namespace UPlayGround.UI.Respawn.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[RespawnBuilder] UI_RespawnPopup 프리팹 초안 생성 완료.");
+                Debug.Log("[RespawnBuilder] UI_Popup_Respawn 프리팹 초안 생성 완료.");
             }
             finally
             {

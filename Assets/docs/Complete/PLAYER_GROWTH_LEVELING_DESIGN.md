@@ -55,7 +55,7 @@
 | `PartyPowerCalculator` | `CalculateGrowthStats(growth, level)` → 레벨별 스탯 dict 산출 | `Data/Party/PartyPowerCalculator.cs` |
 | `PartyManager._levels` / `GetLevel` / `GetGrowthStats` | 캐릭터별 레벨 보관·조회 | `Manager/Party/PartyManager.cs` |
 | `PlayerActor.ApplyCharacterStats` | 스왑 시 성장 스탯을 액터에 주입 | `GameActor/Object/Player/PlayerActor.cs:703` |
-| `OnPartyProgressionChanged` | 레벨 변경 → UI 갱신(파티메뉴/HUD) | `UI_PartyMenu`, `UI_HudPlayerInfo` |
+| `OnPartyProgressionChanged` | 레벨 변경 → UI 갱신(파티메뉴/HUD) | `UI_Scene_PartyMenu`, `UI_HUD_PlayerInfo` |
 
 ## 4. 빠진 부분 (신규 — 이번 작업)
 
@@ -236,7 +236,7 @@ MonsterActor.OnDeath()
 
 ## 10. UI / 연출 (Phase 3)
 
-- **EXP 바:** `UI_HudPlayerInfo`(활성 캐릭터)·`UI_PartyMenu`(전원) 에서 `OnExpChanged` 구독 → `current/required` 게이지. 기존 `OnPartyProgressionChanged` 구독부 옆에 추가.
+- **EXP 바:** `UI_HUD_PlayerInfo`(활성 캐릭터)·`UI_Scene_PartyMenu`(전원) 에서 `OnExpChanged` 구독 → `current/required` 게이지. 기존 `OnPartyProgressionChanged` 구독부 옆에 추가.
 - **레벨업 연출:** `OnLevelUp` 구독 → VFX/SFX/토스트. 활성 캐릭터면 풀 회복 힐 이펙트 동반.
 - 전투력 표기는 기존 `GetCombatPower`/`PartyPowerCalculator` 재사용.
 
@@ -318,7 +318,7 @@ public sealed class LevelUpFeedbackHandler : GameHandlerBase
 
 EXP 획득 자체 피드백(레벨업 아닐 때도): 처치 시 `UIManager.ShowDamageFloaterLabel(monsterPos, $"+{exp} EXP", FloatStyle.Exp)` (선택, 잦으면 생략/누적).
 
-### 13.4 HUD (`UI_HudPlayerInfo` 확장)
+### 13.4 HUD (`UI_HUD_PlayerInfo` 확장)
 
 이미 `_levelText`(`SetLevel`)·HP바가 있다. 추가:
 - **EXP 바(신규):** `OnExpChanged(type, cur, req)` 구독 → 활성 캐릭터면 fill 보간(기존 `SkillGaugeFillCoroutine` 패턴 복제). 레벨업 시 fill 100%→0% 리셋 후 잔여 채움.
@@ -341,7 +341,7 @@ EXP 획득 자체 피드백(레벨업 아닐 때도): 처치 시 `UIManager.Show
 |---|---|
 | `LevelUpFeedbackHandler` 신규 + 등록 | `Manager/Handler/.../LevelUpFeedbackHandler.cs`, `GameCombatManager._handlers` |
 | `FXKeyType.LevelUp` / `FloatStyle.LevelUp·Exp` | `Data/Path/FXKeyType.cs`, FloatStyle enum |
-| EXP 바 + 레벨 펀치 | `UI/HUD/UI_HudPlayerInfo.cs` (OnExpChanged·OnLevelUp 구독) |
+| EXP 바 + 레벨 펀치 | `UI/HUD/UI_HUD_PlayerInfo.cs` (OnExpChanged·OnLevelUp 구독) |
 | LevelUp VFX 프리팹 | FX 등록(`ShowFX` 키 매핑) |
 | SFX 훅 | TODO 주석 (AudioManager 대기) |
 
@@ -353,7 +353,7 @@ EXP 획득 자체 피드백(레벨업 아닐 때도): 처치 시 `UIManager.Show
 
 작성/수정된 파일:
 - 신규: `Data/Party/LevelCurveSO.cs`, `Manager/Handler/Combat/LevelUpFeedbackHandler.cs`
-- 수정: `Data/Party/PartyMemberGrowthSO.cs`(levelCurve), `Data/Actor/ActorDefinitionSO.cs`(expReward), `GameActor/Object/Monster/MonsterActor.cs`(_expReward·GrantPartyExp), `Manager/Party/PartyManager.cs`(EXP루프·ISaveable), `GameActor/Object/Player/PlayerActor.cs`(RefreshGrowthStatsLive·UpdateBenchedGrowth), `GameActor/Component/Common/PoiseStat.cs`(RecoverFull), `Data/Save/GameSaveData.cs`(PartySaveData), `Manager/Combat/GameCombatManager.cs`(핸들러 등록), `UI/HUD/UI_HudPlayerInfo.cs`(EXP바·레벨펀치)
+- 수정: `Data/Party/PartyMemberGrowthSO.cs`(levelCurve), `Data/Actor/ActorDefinitionSO.cs`(expReward), `GameActor/Object/Monster/MonsterActor.cs`(_expReward·GrantPartyExp), `Manager/Party/PartyManager.cs`(EXP루프·ISaveable), `GameActor/Object/Player/PlayerActor.cs`(RefreshGrowthStatsLive·UpdateBenchedGrowth), `GameActor/Component/Common/PoiseStat.cs`(RecoverFull), `Data/Save/GameSaveData.cs`(PartySaveData), `Manager/Combat/GameCombatManager.cs`(핸들러 등록), `UI/HUD/UI_HUD_PlayerInfo.cs`(EXP바·레벨펀치)
 
 설계와 다르게 구현한 점(스코프 축소):
 - 포스트프로세스/카메라 연출 **제외**(사용자 결정).
@@ -367,7 +367,7 @@ EXP 획득 자체 피드백(레벨업 아닐 때도): 처치 시 `UIManager.Show
 
 ### 15.1 필수 (안 하면 기능 미동작)
 
-- [ ] **HUD 프리팹 연결** — `UI_HudPlayerInfo` 프리팹의 인스펙터에서 `_expFill`(Image, Filled 타입), `_expText`(TextMeshProUGUI) 슬롯 연결. *안 하면 EXP 바가 항상 비어 보임.*
+- [ ] **HUD 프리팹 연결** — `UI_HUD_PlayerInfo` 프리팹의 인스펙터에서 `_expFill`(Image, Filled 타입), `_expText`(TextMeshProUGUI) 슬롯 연결. *안 하면 EXP 바가 항상 비어 보임.*
 - [ ] **몬스터 경험치 입력/자동 발급** — `UPlayGround/게임플레이/밸런스/몬스터 경험치 발급기`에서 기준 플레이어 레벨·등급 배율·레벨차 보정을 확인하고 `ActorDefinitionSO.expReward`를 일괄 적용. *유일한 경험치 소스 — 0이면 레벨이 절대 안 오름. 정의 없이 씬 배치된 몬스터는 0.*
 - [ ] **성장 곡선 지정** — 각 `PartyMemberGrowthSO`의 `levelCurve`에 `LevelCurveSO` 에셋 연결.
   - [ ] `몬스터 경험치 발급기`의 **LevelCurve 생성/찾기** 및 **Growth 곡선 연결** 버튼으로 기본 곡선 생성과 `PartyMemberGrowthSO.levelCurve` 자동 연결 가능.

@@ -47,7 +47,7 @@ namespace UPlayGround.UI.InputPrompt
 
         [Header("렌더 타깃")]
         [SerializeField] private Image              _iconImage;
-        [SerializeField] private UI_InputPromptIcon _keyIcon;   // 키캡 글리프(디바이스 자동 전환)
+        [SerializeField] private UIInputPromptIcon _keyIcon;   // 키캡 글리프(디바이스 자동 전환)
         [SerializeField] private TextMeshProUGUI    _labelText;
         [SerializeField] private string             _defaultLabel;
         [SerializeField] private GameObject         _readyGlow;  // 콤보 다음 키 발광

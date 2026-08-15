@@ -30,16 +30,16 @@ P0에서 전체 지도, 보스 도감, 유물 UI, 접사 UI, 메타 상점은 �
 
 | 기존 타입 | 활용 |
 |---|---|
-| `UI_GamePlay` | HUD 하위 UI 표시·숨김 진입점 |
-| `UI_Minimap` | 사이클 마커 렌더링 확장 |
+| `UI_HUD_GamePlay` | HUD 하위 UI 표시·숨김 진입점 |
+| `UI_HUD_Minimap` | 사이클 마커 렌더링 확장 |
 | `MinimapEntityIcon.CreateStatic` | 런타임 보스·유해 아이콘 생성 |
 | `MinimapEntityIcon.SetEntry` | `? → 발견 보스` 외관 변경 |
 | `MinimapIconConfigSO` | 신규 아이콘·표시 옵션 데이터 |
 | `MinimapMarkerRegistry` | 기존 씬 정적 마커 유지. 사이클 상태 소유에 사용하지 않음 |
 | `UISkillSlot.Configure` | 어시스트 아이콘과 입력 액션 설정 |
 | `UISkillSlot.SetCooldownSource` | `BossAssistManager` 남은 쿨다운 샘플링 |
-| `UI_HudSkill` | 어시스트 슬롯 배선 또는 별도 HUD 생성 참고 |
-| `UI_RespawnPopup` | 기존 팝업은 사이클 자동 부활에 사용하지 않음. 손실 요약 표현만 재사용 가능 |
+| `UI_HUD_Skill` | 어시스트 슬롯 배선 또는 별도 HUD 생성 참고 |
+| `UI_Popup_Respawn` | 기존 팝업은 사이클 자동 부활에 사용하지 않음. 손실 요약 표현만 재사용 가능 |
 
 ---
 
@@ -78,7 +78,7 @@ public bool showRemainsMarker = true;
 ```text
 CycleLayoutState 생성/복원
   -> marker registry에 spawnId/position/discovered 등록
-  -> UI_Minimap과 Compass가 각각 렌더링
+  -> UI_HUD_Minimap과 Compass가 각각 렌더링
 
 Discover(spawnId)
   -> registry 상태 변경 이벤트
@@ -144,7 +144,7 @@ BossDiscovered
 
 어시스트 쿨다운 샘플링은 HUD 표시 중에만 수행한다. 어시스트 이벤트가 시작·종료·장착 변경 시 슬롯의 트윈과 아이콘을 갱신한다.
 
-기존 `UI_HudSkill`의 고정 슬롯 구조가 어시스트 추가로 복잡해지면 `UI_HudBossAssist`를 별도 HUD로 만든다. 기존 콤보 힌트 계산에 어시스트를 섞지 않는 쪽을 우선한다.
+기존 `UI_HUD_Skill`의 고정 슬롯 구조가 어시스트 추가로 복잡해지면 `UI_HudBossAssist`를 별도 HUD로 만든다. 기존 콤보 힌트 계산에 어시스트를 섞지 않는 쪽을 우선한다.
 
 ---
 

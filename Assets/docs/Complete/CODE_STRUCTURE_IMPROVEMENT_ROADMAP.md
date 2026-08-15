@@ -114,13 +114,13 @@ CLAUDE.md가 현재 코드와 어긋나 있다. Claude Code 협업 구조에서�
 | 파일 | `.Instance` 접근 |
 |------|------|
 | `Manager/GameManager.cs` | 44회 (자기 서브매니저 관리 — 정상 범주) |
-| `UI/Scene/Crafting/UI_CraftMenu.cs` | 38회 |
+| `UI/Scene/Crafting/UI_Scene_CraftMenu.cs` | 38회 |
 | `GameActor/Object/Player/PlayerActor.cs` | 34회 |
 | `GameActor/Combat/Feedback/CombatFeedbackDispatcher.cs` | 29회 |
-| `UI/HUD/UI_GamePlay.cs` | 28회 |
+| `UI/HUD/UI_HUD_GamePlay.cs` | 28회 |
 | `Manager/World/MonsterRespawnManager.cs` | 27회 |
-| `UI/Scene/Inventory/UI_Inventory.cs` | 25회 |
-| `UI/Scene/Party/UI_PartyMenu.cs` | 24회 |
+| `UI/Scene/Inventory/UI_Scene_Inventory.cs` | 25회 |
+| `UI/Scene/Party/UI_Scene_PartyMenu.cs` | 24회 |
 
 ### 4.2 접근 방식
 

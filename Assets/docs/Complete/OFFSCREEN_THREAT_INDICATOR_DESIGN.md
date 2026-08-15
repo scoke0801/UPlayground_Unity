@@ -143,7 +143,7 @@
 
 ### 파티 스왑
 
-`PartyManager.OnSwapCompleted`를 구독해 활성 캐릭터(플레이어)가 바뀌면 비교 대상 player 참조를 갱신한다. (`UI_HudPlayerInfo`가 같은 이벤트를 구독하는 패턴 참조).
+`PartyManager.OnSwapCompleted`를 구독해 활성 캐릭터(플레이어)가 바뀌면 비교 대상 player 참조를 갱신한다. (`UI_HUD_PlayerInfo`가 같은 이벤트를 구독하는 패턴 참조).
 
 ### UI 생명주기
 
@@ -155,7 +155,7 @@
 
 | 파일/식별자 | 역할 | 신규/기존 |
 |------|------|------|
-| `Assets/02.Scripts/UI/HUD/UI_HudOffscreenThreatIndicator.cs` | HUD 인디케이터 메인. `UI_Base` 상속, HUD 캔버스 레이어 | 신규 |
+| `Assets/02.Scripts/UI/HUD/UI_HUD_OffscreenThreatIndicator.cs` | HUD 인디케이터 메인. `UI_Base` 상속, HUD 캔버스 레이어 | 신규 |
 | `Assets/02.Scripts/UI/HUD/UIOffscreenThreatMarker.cs` | 개별 화살표 마커 컴포넌트(풀링) | 신규 |
 | `Assets/02.Scripts/Data/UI/OffscreenThreatConfigSO.cs` | 색 팔레트·거리 임계값·링 반경·펄스 등 수치 외부화 SO | 신규 |
 | `Assets/03.Prefabs/UI/` | 인디케이터 프리팹 배치 위치 | 신규 |
@@ -172,11 +172,11 @@
 
 ## 신규 HUD 등록 절차
 
-1. `UI_HudOffscreenThreatIndicator`를 `UI_Base` 상속으로 작성하고 `_layer`를 HUD 레이어로 설정한다.
+1. `UI_HUD_OffscreenThreatIndicator`를 `UI_Base` 상속으로 작성하고 `_layer`를 HUD 레이어로 설정한다.
 2. 프리팹을 `Assets/03.Prefabs/UI/`에 만들고 루트에 Canvas + 컴포넌트를 부착한다.
 3. `UIKeyType`은 자동 생성 파일이므로 직접 수정하지 말고 "UPlayGround/ID Enum Generator" 창에서 키를 추가·재생성한다.
 4. `UIPrefabDatabase.asset`에 key·prefab·defaultLayer(HUD)를 등록한다.
-5. HUD 부팅 흐름(예: `UI_GamePlay`)에서 표시한다.
+5. HUD 부팅 흐름(예: `UI_HUD_GamePlay`)에서 표시한다.
 
 ---
 
@@ -187,7 +187,7 @@
 **코드 작성 완료 (2026-05-24)** — 아래 3개 스크립트:
 - `Assets/02.Scripts/Data/UI/OffscreenThreatConfigSO.cs`
 - `Assets/02.Scripts/UI/HUD/UIOffscreenThreatMarker.cs`
-- `Assets/02.Scripts/UI/HUD/UI_HudOffscreenThreatIndicator.cs`
+- `Assets/02.Scripts/UI/HUD/UI_HUD_OffscreenThreatIndicator.cs`
 
 구현 항목:
 - [x] 프러스텀 밖 판정(viewport/z, 카메라 뒤 가드)
@@ -197,9 +197,9 @@
 - [x] Config 외부화(`OffscreenThreatConfigSO`)
 - [x] 카메라 모드 게이트(`CurrentCameraMode != InGame` 시 숨김)
 - [x] 파티 스왑 반영(`PartyManager.OnSwapCompleted`)
-- [x] `UIKeyType.OffscreenThreatIndicator` 키 생성(ID Enum Generator) + `UI_GamePlay`에 `ShowUI`/`HideUI` 배선
+- [x] `UIKeyType.OffscreenThreatIndicator` 키 생성(ID Enum Generator) + `UI_HUD_GamePlay`에 `ShowUI`/`HideUI` 배선
 
-> 마커는 색맹 대비 "!" 심볼 없이 화살표 단독으로 변경됨(색+형태+방향으로 구분). 클래스명: `UIOffscreenThreatMarker`, `UI_HudOffscreenThreatIndicator`.
+> 마커는 색맹 대비 "!" 심볼 없이 화살표 단독으로 변경됨(색+형태+방향으로 구분). 클래스명: `UIOffscreenThreatMarker`, `UI_HUD_OffscreenThreatIndicator`.
 
 **남은 에디터 와이어링 (Unity 내 수동 작업):**
 - [ ] `OffscreenThreatConfig` 에셋 생성(메뉴: `UPlayGround/UI/OffscreenThreatConfig`) → `10.Datas/UI/`

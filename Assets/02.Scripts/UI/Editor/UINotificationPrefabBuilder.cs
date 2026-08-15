@@ -10,8 +10,8 @@ namespace UPlayGround.UI.HUD.Notification.EditorTools
 {
     public static class UINotificationPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/HUD/Notification/UI_Notification.prefab";
-        private const string EntryPrefabPath = "Assets/03.Prefabs/UI/HUD/Notification/UI_NotificationEntry.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/HUD/Notification/UI_Scene_Notification.prefab";
+        private const string EntryPrefabPath = "Assets/03.Prefabs/UI/HUD/Notification/UINotificationEntry.prefab";
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
         private const string NotificationKey = "Notification";
 
@@ -34,13 +34,13 @@ namespace UPlayGround.UI.HUD.Notification.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = root.gameObject;
-            Debug.Log("[NotificationBuilder] UI_Notification 프리팹 생성 및 DB 등록 완료.");
+            Debug.Log("[NotificationBuilder] UI_Scene_Notification 프리팹 생성 및 DB 등록 완료.");
         }
 
-        private static UI_NotificationEntry BuildEntryPrefab()
+        private static UINotificationEntry BuildEntryPrefab()
         {
-            var go = NewUI("UI_NotificationEntry", null);
-            var entry = go.AddComponent<UI_NotificationEntry>();
+            var go = NewUI("UINotificationEntry", null);
+            var entry = go.AddComponent<UINotificationEntry>();
             var group = go.AddComponent<CanvasGroup>();
             AddImage(go, EntryBg, UISprite, true);
             SetHeight(go, 92);
@@ -80,17 +80,17 @@ namespace UPlayGround.UI.HUD.Notification.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, EntryPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_NotificationEntry>();
+            return asset.GetComponent<UINotificationEntry>();
         }
 
-        private static UI_Notification BuildMainPrefab(UI_NotificationEntry entryPrefab)
+        private static UI_Scene_Notification BuildMainPrefab(UINotificationEntry entryPrefab)
         {
-            var go = NewUI("UI_Notification", null);
+            var go = NewUI("UI_Scene_Notification", null);
             var canvas = go.AddComponent<Canvas>();
             canvas.overrideSorting = false;
             go.AddComponent<CanvasGroup>();
             go.AddComponent<GraphicRaycaster>();
-            var notification = go.AddComponent<UI_Notification>();
+            var notification = go.AddComponent<UI_Scene_Notification>();
             Stretch(go);
 
             var content = NewUI("Content", go.transform);
@@ -113,10 +113,10 @@ namespace UPlayGround.UI.HUD.Notification.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, MainPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_Notification>();
+            return asset.GetComponent<UI_Scene_Notification>();
         }
 
-        private static void RegisterDatabase(UI_Notification notification)
+        private static void RegisterDatabase(UI_Scene_Notification notification)
         {
             var db = AssetDatabase.LoadAssetAtPath<UIPrefabDatabase>(DatabasePath);
             if (db == null || notification == null)

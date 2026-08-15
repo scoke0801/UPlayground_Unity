@@ -9,9 +9,9 @@ namespace UPlayGround.UI
     ///
     /// 데이터 개수에 따라 구조가 달라지는 화면(키 설정 목록처럼 액션 수 × 장치 수만큼
     /// 행·칩이 생기는 UI)은 프리팹으로 고정 저작하기 어렵다. 프로젝트에는 이미
-    /// <c>UI_DevCheatPanel</c>이 같은 방식으로 계층을 코드에서 만들고 있는데, 그 헬퍼가
+    /// <c>UI_System_DevCheatPanel</c>이 같은 방식으로 계층을 코드에서 만들고 있는데, 그 헬퍼가
     /// 해당 클래스 내부에 protected로 갇혀 있어 재사용이 안 됐다. 여기로 꺼내 공용화한다.
-    /// (UI_DevCheatPanel 자체의 이관은 별개 작업이다.)
+    /// (UI_System_DevCheatPanel 자체의 이관은 별개 작업이다.)
     /// </summary>
     public static class UGuiFactory
     {

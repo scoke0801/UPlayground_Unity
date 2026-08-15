@@ -28,7 +28,7 @@ PlayerCombat
 ├── ForceExitCombat()
 └── OnChangeCombatState(bool)
         │
-        ├── UI_GamePlay: HUD 표시/숨김에 사용 중
+        ├── UI_HUD_GamePlay: HUD 표시/숨김에 사용 중
         └── PlayerCombatWeaponStateController: 무기 장착/해제 모션 제어
 
 PlayerCombatWeaponStateController

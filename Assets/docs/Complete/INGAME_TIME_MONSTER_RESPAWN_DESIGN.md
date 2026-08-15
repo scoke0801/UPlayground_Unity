@@ -370,12 +370,12 @@ InventoryManager.Instance.Gold += _runtimeGoldReward;
 
 ### 9. 재스폰 UI 연출
 
-기존 `UI_RespawnPopup`은 플레이어 사망 부활용이며 게임을 pause한다. 몬스터 재스폰 안내에는 사용하지 않는다.
+기존 `UI_Popup_Respawn`은 플레이어 사망 부활용이며 게임을 pause한다. 몬스터 재스폰 안내에는 사용하지 않는다.
 
 새 UI:
 
 ```text
-UI_WorldRespawnNotice
+UI_HUD_WorldRespawnNotice
 ```
 
 구성:
@@ -420,7 +420,7 @@ fade out 0.45s
 
 ```text
 Assets/02.Scripts/UI/Scene/Editor/UIWorldRespawnNoticePrefabBuilder.cs
-Assets/03.Prefabs/UI/Scene/World/UI_WorldRespawnNotice.prefab
+Assets/03.Prefabs/UI/Scene/World/UI_HUD_WorldRespawnNotice.prefab
 ```
 
 Builder 메뉴:
@@ -431,7 +431,7 @@ UPlayGround/UI/Build World Respawn Notice
 
 Builder 책임:
 
-- `UI_WorldRespawnNotice` 루트 생성
+- `UI_HUD_WorldRespawnNotice` 루트 생성
 - `CanvasGroup` 자동 추가 및 `_canvasGroup` 직렬화 필드 연결
 - 전체 화면 암전 `Image` 생성
 - 안내 문구 `TextMeshProUGUI` 생성 및 `_messageText` 연결
@@ -463,7 +463,7 @@ MonsterActor.OnDeath
 → ActorSpawnManager.SpawnActor(actorId, position, rotation, group)
 → MonsterActor.ApplyRuntimeLevel(targetLevel)
 → MonsterActor.SetRuntimeRewards(exp, gold)
-→ UI_WorldRespawnNotice.Show(...)
+→ UI_HUD_WorldRespawnNotice.Show(...)
 ```
 
 ### 11. 기존 영구 처치와의 충돌 해결
@@ -500,8 +500,8 @@ private void NotifyWorldStateKill()
 7. `MonsterRespawnManager` 추가 및 `GameManager` 등록
 8. `MonsterActor.ApplyRuntimeLevel`, `SetRuntimeRewards` 추가
 9. `ActorDefinitionSO.goldReward` 추가 및 보상 지급 처리
-10. `UI_WorldRespawnNotice` 스크립트와 `UIWorldRespawnNoticePrefabBuilder` 추가
-11. Builder로 `UI_WorldRespawnNotice.prefab` 생성
+10. `UI_HUD_WorldRespawnNotice` 스크립트와 `UIWorldRespawnNoticePrefabBuilder` 추가
+11. Builder로 `UI_HUD_WorldRespawnNotice.prefab` 생성
 12. 에디터 검증기 추가
     - 보스가 respawn point에 들어가면 warning
     - respawn 대상 ActorDefinitionSO에 `monsterScaling` 누락 시 error
@@ -518,16 +518,16 @@ private void NotifyWorldStateKill()
 
 1. **재스폰 안내 UI 프리팹 빌드 + DB 등록**
    - 메뉴 `UPlayGround/UI/월드 재스폰 안내 프리팹 빌드` 실행
-     → `Assets/03.Prefabs/UI/Scene/World/UI_WorldRespawnNotice.prefab` 생성
+     → `Assets/03.Prefabs/UI/Scene/World/UI_HUD_WorldRespawnNotice.prefab` 생성
    - `Assets/10.Datas/Path/UIPrefabDatabase.asset`에 수동 등록:
      Key `WorldRespawnNotice`, Default Layer `HUD`
    - 미등록 시: 재스폰은 정상 동작하되 안내 UI만 표시되지 않는다.
 
 2. **인게임 시계 HUD 프리팹 빌드 + DB 등록**
    - 메뉴 `UPlayGround/UI/인게임 시계 HUD 프리팹 빌드` 실행
-     → `Assets/03.Prefabs/UI/HUD/UI_HudWorldClock.prefab` 생성
+     → `Assets/03.Prefabs/UI/HUD/UI_HUD_WorldClock.prefab` 생성
    - `UIPrefabDatabase.asset`에 수동 등록: Key `HudWorldClock`, Default Layer `HUD`
-   - `UI_GamePlay`가 `GetUIPrefabEntry`로 등록 여부를 확인하므로, 미등록 시 시계 HUD만 스킵된다.
+   - `UI_HUD_GamePlay`가 `GetUIPrefabEntry`로 등록 여부를 확인하므로, 미등록 시 시계 HUD만 스킵된다.
 
 3. **개발 치트 패널 프리팹 재빌드** (시간 치트 탭)
    - 메뉴 `UPlayGround/UI/개발 치트 패널 프리팹 빌드 (초안)` 재실행

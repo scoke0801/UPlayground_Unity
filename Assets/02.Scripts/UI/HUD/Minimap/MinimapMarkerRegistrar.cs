@@ -11,7 +11,7 @@ namespace UPlayGround.UI
     ///   3. 씬이 로드되면 자동으로 "MinimapMarkerRegistry"에 등록된다.
     ///
     /// ■ ItemDeliver 목표의 NPC 마커
-    ///   LocationId 를 "npc_{npcId}" 형식으로 설정하면 UI_Minimap이 자동으로 연결합니다.
+    ///   LocationId 를 "npc_{npcId}" 형식으로 설정하면 UI_HUD_Minimap이 자동으로 연결합니다.
     ///   예) npcId = 101 → LocationId = "npc_101"
     /// </summary>
     public class MinimapMarkerRegistrar : MonoBehaviour

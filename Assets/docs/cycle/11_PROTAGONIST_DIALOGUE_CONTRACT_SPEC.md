@@ -24,7 +24,7 @@
 - `PartyManager._newGameStartingCharacter`는 실제 파티 적용 뒤 `None`으로 지워진다.
 - `PartySaveData`는 roster·battleOrder·activeIndex만 저장한다.
 - `DialogueSpeakerResolver`는 `당신`/`Player`를 현재 활성 캐릭터로만 해석한다.
-- `UI_Dialogue`와 `DialogueManager` 이력도 활성 캐릭터만 전달한다.
+- `UI_Scene_Dialogue`와 `DialogueManager` 이력도 활성 캐릭터만 전달한다.
 - `{ProtagonistName}` 같은 본문 토큰 치환은 구현되어 있지 않다.
 - `DialogueManager` 카메라는 speakerId를 월드 ActorId로 해석하므로, `Protagonist`를 일반 NPC ActorId처럼 처리하면 잘못된 액터를 찾거나 현재 활성 모델을 주인공처럼 촬영할 수 있다.
 
@@ -150,7 +150,7 @@ public static Sprite ResolvePortrait(
 
 다음 두 소비자는 반드시 같은 인자를 전달한다.
 
-- `UI_Dialogue`: 화면 표시
+- `UI_Scene_Dialogue`: 화면 표시
 - `DialogueManager.RecordNodeHistory`: 백로그 이름·초상화
 
 화면과 백로그가 서로 다른 화자를 기록하면 완료로 보지 않는다.
@@ -278,7 +278,7 @@ PartySaveData 역직렬화
 - `Assets/02.Scripts/UI/Contracts/UIServices.cs`
 - `Assets/02.Scripts/Data/Dialogue/DialogueSpeakerResolver.cs`
 - 신규 `DialogueTextResolver.cs`
-- `Assets/02.Scripts/UI/Dialogue/UI_Dialogue.cs`
+- `Assets/02.Scripts/UI/Dialogue/UI_Scene_Dialogue.cs`
 - `Assets/02.Scripts/Manager/Dialogue/DialogueManager.cs`
 - 화자 resolver·파티 저장 테스트
 

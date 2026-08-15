@@ -8,7 +8,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI.EditorTools
 {
     /// <summary>
-    /// 대화 재생 컨트롤 바(UI_DialogueControlBar) 프리팹 초안을 코드로 생성/재구성하는 에디터 툴.
+    /// 대화 재생 컨트롤 바(UI_Scene_DialogueControlBar) 프리팹 초안을 코드로 생성/재구성하는 에디터 툴.
     ///
     /// - 프리팹이 없으면 새로 만들고, 있으면 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성한다.
     /// - 좌상단 가로 배치의 정지/자동/스킵/이력 버튼 4종. 재실행 가능(idempotent).
@@ -18,7 +18,7 @@ namespace UPlayGround.UI.EditorTools
     public static class UIDialogueControlBarPrefabBuilder
     {
         private const string PrefabDir = "Assets/03.Prefabs/UI/Dialogue";
-        private const string PrefabPath = PrefabDir + "/UI_DialogueControlBar.prefab";
+        private const string PrefabPath = PrefabDir + "/UI_Scene_DialogueControlBar.prefab";
 
         private static readonly Color BarBackground = new(0f, 0f, 0f, 0.45f);
         private static readonly Color ButtonBackground = new(0.10f, 0.10f, 0.12f, 0.75f);
@@ -36,9 +36,9 @@ namespace UPlayGround.UI.EditorTools
 
             if (isNew)
             {
-                root = new GameObject("UI_DialogueControlBar",
+                root = new GameObject("UI_Scene_DialogueControlBar",
                     typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
-                root.AddComponent<UI_DialogueControlBar>();
+                root.AddComponent<UI_Scene_DialogueControlBar>();
             }
             else
             {
@@ -47,10 +47,10 @@ namespace UPlayGround.UI.EditorTools
 
             try
             {
-                var controlBar = root.GetComponent<UI_DialogueControlBar>();
+                var controlBar = root.GetComponent<UI_Scene_DialogueControlBar>();
                 if (controlBar == null)
                 {
-                    Debug.LogError("[DialogueControlBarBuilder] 루트에 UI_DialogueControlBar 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[DialogueControlBarBuilder] 루트에 UI_Scene_DialogueControlBar 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -112,7 +112,7 @@ namespace UPlayGround.UI.EditorTools
 
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
 
-                Debug.Log($"[DialogueControlBarBuilder] UI_DialogueControlBar 프리팹 생성 완료: {PrefabPath}\n" +
+                Debug.Log($"[DialogueControlBarBuilder] UI_Scene_DialogueControlBar 프리팹 생성 완료: {PrefabPath}\n" +
                           "UIPrefabDatabase에 Key 'DialogueControlBar' / Default Layer 'Scene'으로 등록하세요.");
             }
             finally
@@ -146,7 +146,7 @@ namespace UPlayGround.UI.EditorTools
 
             /// <summary>
             /// 대화 패널 바로 위, 패널 우측 끝에 맞춘 기본 위치(우측 하단 앵커 기준).
-            /// UI_Dialogue 프리팹의 Panel은 2560x1440 기준으로 우측 끝 x≈2078, 위쪽 끝 y≈599이므로
+            /// UI_Scene_Dialogue 프리팹의 Panel은 2560x1440 기준으로 우측 끝 x≈2078, 위쪽 끝 y≈599이므로
             /// 그보다 살짝 위에 얹어 대화창과 HUD 어느 쪽과도 겹치지 않게 한다.
             /// </summary>
             public static BarPlacement Default => new(

@@ -6,9 +6,9 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.Party.EditorTools
 {
     /// <summary>
-    /// 동료(파티) UI(UI_PartyMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 동료(파티) UI(UI_Scene_PartyMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_PartyMenu.prefab / UIPartyMenuEntry.prefab / UIPartyBattleEntry.prefab을 덮어쓴다(자식 재구성).
+    /// - 기존 UI_Scene_PartyMenu.prefab / UIPartyMenuEntry.prefab / UIPartyBattleEntry.prefab을 덮어쓴다(자식 재구성).
     /// - 3열(보유 동료 / 출전 파티 / 상세) + 하단 바 구성.
     /// - 배틀 슬롯 4개는 인라인 인스턴스.
     /// - 상세 패널에 캐릭터 속성·패시브 4종을 생성하고 런타임 필드에 연결한다.
@@ -16,7 +16,7 @@ namespace UPlayGround.UI.Party.EditorTools
     /// </summary>
     public static class UIPartyMenuPrefabBuilder
     {
-        private const string MainPrefabPath  = "Assets/03.Prefabs/UI/Scene/Party/UI_PartyMenu.prefab";
+        private const string MainPrefabPath  = "Assets/03.Prefabs/UI/Scene/Party/UI_Scene_PartyMenu.prefab";
         private const string EntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIPartyMenuEntry.prefab";
         private const string BattleEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIPartyBattleEntry.prefab";
         private const string AssistEntryPrefabPath = "Assets/03.Prefabs/UI/Scene/Party/UIAssistRosterEntry.prefab";
@@ -53,10 +53,10 @@ namespace UPlayGround.UI.Party.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var menu = root.GetComponent<UI_PartyMenu>();
+                var menu = root.GetComponent<UI_Scene_PartyMenu>();
                 if (menu == null)
                 {
-                    Debug.LogError("[PartyBuilder] 루트에 UI_PartyMenu 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[PartyBuilder] 루트에 UI_Scene_PartyMenu 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -180,7 +180,7 @@ namespace UPlayGround.UI.Party.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[PartyBuilder] UI_PartyMenu 프리팹 초안 생성 완료.");
+                Debug.Log("[PartyBuilder] UI_Scene_PartyMenu 프리팹 초안 생성 완료.");
             }
             finally
             {
@@ -489,12 +489,12 @@ namespace UPlayGround.UI.Party.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 상세 패널
 
-        private static GameObject BuildDetailPanel(Transform parent, out UI_PartyDetailPanel comp)
+        private static GameObject BuildDetailPanel(Transform parent, out UIPartyDetailPanel comp)
         {
             var detail = NewUI("DetailPanel", parent);
             AddImage(detail, PanelBg, UISprite, sliced: true);
             SetWidth(detail, 530);
-            comp = detail.AddComponent<UI_PartyDetailPanel>();
+            comp = detail.AddComponent<UIPartyDetailPanel>();
             var detailLayout = AddVLG(detail, spacing: 10, pad: 12);
             detailLayout.childAlignment = TextAnchor.UpperLeft;
 

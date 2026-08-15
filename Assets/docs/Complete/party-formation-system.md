@@ -28,7 +28,7 @@
 - 보유 캐릭터와 출전 캐릭터를 분리한다.
 - 출전 멤버 상한은 `PartyConfigSO`로 제어 (기본 4).
 - 신규 합류 시 출전 슬롯이 비어있으면 자동 편입, 가득이면 보유만.
-- `UI_PartySelect`에서 유저가 출전 멤버를 편성한다.
+- `UI_Scene_PartySelect`에서 유저가 출전 멤버를 편성한다.
 - 기존 캐릭터 교체(Swap) 메커니즘과 입력은 변경 없음 — 출전 멤버 안에서만 동작.
 
 ---
@@ -106,7 +106,7 @@ public CharacterActorType                ActiveCharacterType { get; }
 public PlayerActor                       ActiveCharacter      { get; }
 ```
 
-기존 `PartyOrder` 프로퍼티는 `BattleOrder` 로 이름 변경. 외부 호출처는 `UI_PartySelect` 단일이므로 영향 작다.
+기존 `PartyOrder` 프로퍼티는 `BattleOrder` 로 이름 변경. 외부 호출처는 `UI_Scene_PartySelect` 단일이므로 영향 작다.
 
 ### 5.2 메서드
 
@@ -186,7 +186,7 @@ UnlockCharacter(type):
 
 ### 6.3 유저가 편성 변경
 
-UI_PartySelect 에서 유저 액션이 다음 메서드로 이어진다.
+UI_Scene_PartySelect 에서 유저 액션이 다음 메서드로 이어진다.
 
 | UI 액션 | 호출 |
 |---------|------|
@@ -222,7 +222,7 @@ UI_PartySelect 에서 유저 액션이 다음 메서드로 이어진다.
 
 ---
 
-## 7. UI 설계 (UI_PartySelect)
+## 7. UI 설계 (UI_Scene_PartySelect)
 
 ### 7.1 모드 전환
 
@@ -260,13 +260,13 @@ UI_PartySelect 에서 유저 액션이 다음 메서드로 이어진다.
 
 | 클래스 | 변경 내용 |
 |--------|-----------|
-| `UI_PartySelect` | 편성 모드 토글, 후보 영역 추가, BattleOrder/Roster 별도 바인딩 |
-| `UI_PartyMemberSlot` | 빈 슬롯 표시 옵션 추가 (캐릭터 타입 = None), 편성 모드 콜백 분기 |
-| (신규) `UI_PartyCandidateSlot` | 후보 영역 슬롯. 클릭 시 부모로 `OnCandidatePicked(type)` 콜백 | 선택 사항 — `UI_PartyMemberSlot` 재사용 가능 |
+| `UI_Scene_PartySelect` | 편성 모드 토글, 후보 영역 추가, BattleOrder/Roster 별도 바인딩 |
+| `UIPartyMemberSlot` | 빈 슬롯 표시 옵션 추가 (캐릭터 타입 = None), 편성 모드 콜백 분기 |
+| (신규) `UI_PartyCandidateSlot` | 후보 영역 슬롯. 클릭 시 부모로 `OnCandidatePicked(type)` 콜백 | 선택 사항 — `UIPartyMemberSlot` 재사용 가능 |
 
 ### 7.4 이벤트 구독
 
-`UI_PartySelect.OnShow()` 에서 추가 구독.
+`UI_Scene_PartySelect.OnShow()` 에서 추가 구독.
 
 ```csharp
 PartyManager.Instance.OnRosterChanged       += Refresh;
@@ -282,8 +282,8 @@ PartyManager.Instance.OnCharacterUnlocked   += OnCharacterUnlocked; // 기존
 |--------|------|
 | `PartyManager` | 내부 상태 분리, 신규 API/이벤트 추가. `PartyOrder` → `BattleOrder` 리네임 |
 | `PartyConfigSO` | `maxBattleSize`, `defaultBattleOrder` 필드 추가. 기존 `partyOrder` 의미 유지 (= 초기 Roster) |
-| `UI_PartySelect` | 편성 모드 추가, 후보 영역 추가, 신규 이벤트 구독 |
-| `UI_PartyMemberSlot` | 빈 슬롯 표시, 편성 모드 분기 |
+| `UI_Scene_PartySelect` | 편성 모드 추가, 후보 영역 추가, 신규 이벤트 구독 |
+| `UIPartyMemberSlot` | 빈 슬롯 표시, 편성 모드 분기 |
 | `MonsterActor.TryRecruitToParty` | 변경 없음 — `UnlockCharacter` 시그니처 동일 |
 | `PlayerSwapBehaviour` | 변경 없음 — `SwapTo(type)` 그대로 사용 |
 | 입력 시스템 | 변경 없음 — Q 스왑은 BattleOrder 안에서 동작 |
@@ -301,8 +301,8 @@ PartyManager.Instance.OnCharacterUnlocked   += OnCharacterUnlocked; // 기존
 5. `OnRosterChanged` / `OnBattleOrderChanged` 이벤트 추가.
 
 ### Phase B — UI 편성 모드
-1. `UI_PartySelect` 편성 모드 토글 + 후보 영역.
-2. `UI_PartyMemberSlot` 빈 슬롯 표시 + 편성 콜백.
+1. `UI_Scene_PartySelect` 편성 모드 토글 + 후보 영역.
+2. `UIPartyMemberSlot` 빈 슬롯 표시 + 편성 콜백.
 3. 신규 이벤트 구독.
 
 ### Phase C — 폴리싱 (추후)

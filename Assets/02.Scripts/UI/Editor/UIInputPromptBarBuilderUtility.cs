@@ -34,7 +34,7 @@ namespace UPlayGround.UI.EditorTools
             }
         }
 
-        public static UI_InputPromptBar AddBar(
+        public static UIInputPromptBar AddBar(
             Transform parent,
             string name,
             float preferredHeight,
@@ -47,7 +47,7 @@ namespace UPlayGround.UI.EditorTools
                 name,
                 typeof(RectTransform),
                 typeof(LayoutElement),
-                typeof(UI_InputPromptBar));
+                typeof(UIInputPromptBar));
             go.transform.SetParent(parent, false);
 
             RectTransform rect = (RectTransform)go.transform;
@@ -60,12 +60,12 @@ namespace UPlayGround.UI.EditorTools
             layout.preferredHeight = preferredHeight;
             layout.flexibleWidth = 1f;
 
-            UI_InputPromptBar bar = go.GetComponent<UI_InputPromptBar>();
+            UIInputPromptBar bar = go.GetComponent<UIInputPromptBar>();
             ConfigureBar(bar, preferredHeight, prompts);
             return bar;
         }
 
-        public static UI_InputPromptBar FindOrAddBar(
+        public static UIInputPromptBar FindOrAddBar(
             Transform parent,
             string name,
             float preferredHeight,
@@ -75,8 +75,8 @@ namespace UPlayGround.UI.EditorTools
                 throw new ArgumentNullException(nameof(parent));
 
             Transform existing = parent.Find(name);
-            UI_InputPromptBar bar = existing != null
-                ? existing.GetComponent<UI_InputPromptBar>()
+            UIInputPromptBar bar = existing != null
+                ? existing.GetComponent<UIInputPromptBar>()
                 : null;
             if (bar == null)
                 return AddBar(parent, name, preferredHeight, prompts);
@@ -86,7 +86,7 @@ namespace UPlayGround.UI.EditorTools
         }
 
         public static void ConfigureBar(
-            UI_InputPromptBar bar,
+            UIInputPromptBar bar,
             float preferredHeight,
             params PromptSpec[] prompts)
         {
@@ -119,7 +119,7 @@ namespace UPlayGround.UI.EditorTools
             EditorUtility.SetDirty(bar);
         }
 
-        public static UI_InputPromptBar AddMainAndSubNavigationBar(
+        public static UIInputPromptBar AddMainAndSubNavigationBar(
             Transform parent,
             string subPreviousLabel,
             string subNextLabel)
@@ -136,7 +136,7 @@ namespace UPlayGround.UI.EditorTools
                 new PromptSpec(UIAction.Cancel, "뒤로"));
         }
 
-        public static UI_InputPromptBar AddMainNavigationBar(Transform parent)
+        public static UIInputPromptBar AddMainNavigationBar(Transform parent)
         {
             return AddBar(
                 parent,
@@ -148,7 +148,7 @@ namespace UPlayGround.UI.EditorTools
                 new PromptSpec(UIAction.Cancel, "뒤로"));
         }
 
-        public static UI_InputPromptBar AddSubmitCancelBar(
+        public static UIInputPromptBar AddSubmitCancelBar(
             Transform parent,
             string submitLabel = "확인",
             string cancelLabel = "뒤로")

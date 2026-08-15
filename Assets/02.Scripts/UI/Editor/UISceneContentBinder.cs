@@ -13,20 +13,20 @@ namespace UPlayGround.UI.EditorTools
     ///   Unity에서 다듬은 색/폰트/스프라이트를 보존하려면 재실행 대신 이 툴로 필드만 연결한다.
     /// - "현재 구조가 빌더와 다른" 경우에도 동작하도록, 후보 이름 검색 → 폴백 휴리스틱 순으로
     ///   슬라이드시킬 메인 패널 RectTransform을 찾는다.
-    /// - UI_Map처럼 슬라이드시킬 단일 창이 없는 전체 화면 UI는 대상에서 제외(루트 페이드 전용).
+    /// - UI_Scene_Map처럼 슬라이드시킬 단일 창이 없는 전체 화면 UI는 대상에서 제외(루트 페이드 전용).
     /// - 기본은 이미 연결된 프리팹을 건너뛴다(idempotent). 강제 재연결 메뉴는 별도 제공.
     /// </summary>
     public static class UISceneContentBinder
     {
         // 대상 프리팹 경로와, 슬라이드시킬 메인 패널로 우선 선택할 자식 이름 후보.
-        // (UI_Map은 전체 화면 맵이라 페이드 전용 → 목록에서 제외한다.)
+        // (UI_Scene_Map은 전체 화면 맵이라 페이드 전용 → 목록에서 제외한다.)
         private static readonly (string path, string[] panelNames)[] Targets =
         {
-            ("Assets/03.Prefabs/UI/Scene/Inventory/UI_Inventory.prefab", new[] { "Window" }),
-            ("Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab",     new[] { "Window" }),
-            ("Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab",         new[] { "Panel", "Window" }),
-            ("Assets/03.Prefabs/UI/Scene/Party/UI_PartyMenu.prefab",     new[] { "Window" }),
-            ("Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab",     new[] { "Window" }),
+            ("Assets/03.Prefabs/UI/Scene/Inventory/UI_Scene_Inventory.prefab", new[] { "Window" }),
+            ("Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab",     new[] { "Window" }),
+            ("Assets/03.Prefabs/UI/Scene/UI_Scene_SettingMenu.prefab",         new[] { "Panel", "Window" }),
+            ("Assets/03.Prefabs/UI/Scene/Party/UI_Scene_PartyMenu.prefab",     new[] { "Window" }),
+            ("Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab",     new[] { "Window" }),
         };
 
         // 폴백 시 메인 패널로 보기 어려운(배경/딤/입력차단) 자식 이름 조각.

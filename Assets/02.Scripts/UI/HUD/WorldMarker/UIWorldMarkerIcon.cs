@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// 인게임 월드 마커 1개의 화면 표시 요소. <see cref="UI_HudWorldMarker"/>가 풀링해서 사용한다.
+    /// 인게임 월드 마커 1개의 화면 표시 요소. <see cref="UI_HUD_WorldMarker"/>가 풀링해서 사용한다.
     ///
     /// 프리팹 구성 권장:
     ///   - 루트: RectTransform (anchor/pivot = 중앙 0.5,0.5)

@@ -1,0 +1,494 @@
+using System.Collections.Generic;
+using System.Globalization;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using UPlayGround;
+using UPlayGround.Data.Combat;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Data.Path;
+using UPlayGround.Data.Party;
+using UPlayGround.InputDefine;
+using UPlayGround.Manager;
+
+namespace UPlayGround.UI
+{
+    /// <summary>
+    /// 파티원 선택 / 편성 화면.
+    /// 클릭은 _pendingOrder(초안)만 수정하며, 저장 버튼으로 PartyManager에 반영한다.
+    /// </summary>
+    public class UI_Scene_PartyMenu : UI_SceneBase
+    {
+        // 매니저 참조 캐싱 — 반복 Instance 조회(락 경합) 방지, 파괴 시 fake-null로 재조회
+        private IUIPartyService _cachedPartyManager;
+        private IUIPartyService PartyMgr => _cachedPartyManager != null ? _cachedPartyManager : (_cachedPartyManager = UISvc.Party);
+        private IUIInventoryService _cachedInventoryManager;
+        private IUIInventoryService InventoryMgr => _cachedInventoryManager != null ? _cachedInventoryManager : (_cachedInventoryManager = UISvc.Inventory);
+
+
+        [Header("캐릭터 목록")]
+        [SerializeField] private Transform        _content;
+        [SerializeField] private UIPartyMenuEntry _partyMenuEntryPrefab;
+
+        [Header("전투원 구성")]
+        [SerializeField] private List<UIPartyBattleEntry> _partyBattleEntries;
+
+        [Header("버튼")]
+        [SerializeField] private Button _saveButton;
+        [SerializeField] private Button _autoOrganizationButton;
+        [SerializeField] private Button _disbandBattleButton;   // 출전 해제 (선택 캐릭터 제외)
+        [SerializeField] private Button _disbandPartyButton;     // 파티 해제 (리더만 남김)
+        [SerializeField] private Button _skillTreeButton;        // 선택 캐릭터 스킬 트리
+        [SerializeField] private Button _closeButton;            // 닫기 (저장 안 함)
+
+        [Header("텍스트")]
+        [SerializeField] private TextMeshProUGUI _partyCombatPowerText;
+        [SerializeField] private TextMeshProUGUI _rosterCountText;      // 보유 동료 수
+        [SerializeField] private TextMeshProUGUI _battlePartyCountText; // 출전 파티 N / 최대 (중앙 헤더)
+        [SerializeField] private TextMeshProUGUI _battleMemberCountText;// 출전 인원 N / 최대 (하단)
+        [SerializeField] private TextMeshProUGUI _partyWeightSummaryText; // 기존 프리팹 참조를 유지하며 파티 속성 구성 표시
+
+        [Header("상세")]
+        [SerializeField] private UIPartyDetailPanel _detailPanel;
+
+        [Header("어시스트 (사이클 보스 영입 동료)")]
+        [SerializeField] private MonoBehaviour _assistPanel;
+
+        [Header("옵션")]
+        [Tooltip("편성 화면을 여는 동안 게임을 일시정지한다. 사이클 런 타이머도 함께 멈춘다.")]
+        [SerializeField] private bool _pauseGameOnShow = true;
+
+        private readonly List<UIPartyMenuEntry> _menuEntries  = new();
+        private readonly List<CharacterActorType> _pendingOrder = new();
+
+        private CharacterActorType _selectedType = CharacterActorType.None;
+        private bool _didPauseGame;
+
+        // ─── 생명주기 ─────────────────────────────────────────────────────
+
+        protected override void OnInit()
+        {
+            base.OnInit();
+            ConfigureMainPageShortcut(UIKeyType.Party);
+            EnsureSkillTreeButton();
+
+            foreach (var battleEntry in _partyBattleEntries)
+                battleEntry.OnSelectRequested += OnBattleEntrySelected;
+
+            _saveButton?.onClick.AddListener(OnSaveClicked);
+            _autoOrganizationButton?.onClick.AddListener(OnAutoOrganizationClicked);
+            _disbandBattleButton?.onClick.AddListener(OnDisbandBattleClicked);
+            _disbandPartyButton?.onClick.AddListener(OnDisbandPartyClicked);
+            _skillTreeButton?.onClick.AddListener(OnSkillTreeClicked);
+            _closeButton?.onClick.AddListener(Hide);
+        }
+
+        // 입력 레이어 상승/복원은 UI_Base가 BlocksLowerInput 기준으로 일괄 처리한다.
+        protected override bool BlocksLowerInput => true;
+
+        protected override void OnShow()
+        {
+            base.OnShow();
+
+            // 이미 다른 UI가 일시정지한 상태면 우리가 재개 책임을 지지 않는다(단순 bool 모델이라 이중 해제 방지).
+            var timeMgr = Svc.GameTime;
+            if (_pauseGameOnShow && timeMgr != null && !timeMgr.IsPaused)
+            {
+                timeMgr.SetPause(true);
+                _didPauseGame = true;
+            }
+
+            if (PartyMgr != null)
+            {
+                PartyMgr.OnSwapCompleted += OnSwapCompleted;
+                PartyMgr.OnPartyProgressionChanged += OnPartyProgressionChanged;
+                PartyMgr.OnRosterChanged += OnRosterChanged;
+            }
+            if (InventoryMgr != null)
+                InventoryMgr.OnPartyEquipmentChanged += OnPartyEquipmentChanged;
+
+            // 현재 BattleOrder를 초안으로 복사
+            _pendingOrder.Clear();
+            if (PartyMgr != null)
+                _pendingOrder.AddRange(PartyMgr.BattleOrder);
+
+            // 기본 선택: 첫 출전 멤버
+            _selectedType = _pendingOrder.Count > 0 ? _pendingOrder[0] : CharacterActorType.None;
+
+            RebuildMenuEntries();
+            Refresh();
+        }
+
+        protected override void OnHide()
+        {
+            base.OnHide();
+
+            if (PartyMgr != null)
+            {
+                PartyMgr.OnSwapCompleted -= OnSwapCompleted;
+                PartyMgr.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+                PartyMgr.OnRosterChanged -= OnRosterChanged;
+            }
+            if (InventoryMgr != null)
+                InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
+
+            if (_didPauseGame)
+            {
+                Svc.GameTime?.SetPause(false);
+                _didPauseGame = false;
+            }
+        }
+
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+
+            if (PartyMgr != null)
+            {
+                PartyMgr.OnSwapCompleted -= OnSwapCompleted;
+                PartyMgr.OnPartyProgressionChanged -= OnPartyProgressionChanged;
+                PartyMgr.OnRosterChanged -= OnRosterChanged;
+            }
+            if (InventoryMgr != null)
+                InventoryMgr.OnPartyEquipmentChanged -= OnPartyEquipmentChanged;
+
+            foreach (var entry in _menuEntries)
+            {
+                entry.OnToggleRequested -= OnEntryToggleRequested;
+                entry.OnFocusRequested -= OnEntryFocused;
+            }
+
+            foreach (var battleEntry in _partyBattleEntries)
+                battleEntry.OnSelectRequested -= OnBattleEntrySelected;
+            _skillTreeButton?.onClick.RemoveListener(OnSkillTreeClicked);
+        }
+
+        public override bool PerformBackFunction()
+        {
+            Hide(); // 저장하지 않고 닫기
+            return false;
+        }
+
+        // ─── 버튼 핸들러 ─────────────────────────────────────────────────
+
+        private void OnSaveClicked()
+        {
+            PartyMgr?.SetBattleOrder(_pendingOrder);
+            Hide();
+        }
+
+        private void OnAutoOrganizationClicked()
+        {
+            var pm = PartyMgr;
+            if (pm == null) return;
+
+            _pendingOrder.Clear();
+            foreach (var type in pm.Roster)
+            {
+                if (_pendingOrder.Count >= pm.MaxBattleSize) break;
+                _pendingOrder.Add(type);
+            }
+
+            Refresh();
+        }
+
+        // ─── 엔트리 이벤트 ───────────────────────────────────────────────
+
+        // 목록 클릭: 상세 선택 + (미편성이고 자리 있으면) 출전 파티에 추가. 제거는 하단 버튼으로.
+        private void OnEntryToggleRequested(CharacterActorType type)
+        {
+            _selectedType = type;
+
+            if (!_pendingOrder.Contains(type) &&
+                _pendingOrder.Count < (PartyMgr?.MaxBattleSize ?? 4))
+            {
+                _pendingOrder.Add(type);
+            }
+
+            Refresh();
+        }
+
+        private void OnSkillTreeClicked()
+        {
+            if (_selectedType == CharacterActorType.None) return;
+            GameObject instance = UISvc.UI?.ShowUI(UI_Scene_SkillTree.UIKey, CanvasLayer.Popup);
+            instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(_selectedType, false);
+        }
+
+        private void EnsureSkillTreeButton()
+        {
+            if (_skillTreeButton != null || _saveButton == null) return;
+            GameObject clone = Instantiate(
+                _saveButton.gameObject,
+                _saveButton.transform.parent);
+            clone.name = "SkillTreeButton_Runtime";
+            _skillTreeButton = clone.GetComponent<Button>();
+            _skillTreeButton.onClick.RemoveAllListeners();
+            TextMeshProUGUI label = clone.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (label != null) label.text = "스킬 트리";
+            clone.transform.SetSiblingIndex(_saveButton.transform.GetSiblingIndex());
+        }
+
+        private void OnEntryFocused(CharacterActorType type)
+        {
+            if (_selectedType == type)
+                return;
+
+            _selectedType = type;
+            Refresh();
+        }
+
+        // 출전 슬롯 클릭: 상세 선택만.
+        private void OnBattleEntrySelected(CharacterActorType type)
+        {
+            _selectedType = type;
+            Refresh();
+        }
+
+        // 출전 해제: 선택 캐릭터를 편성에서 제외 (최소 1명 유지).
+        private void OnDisbandBattleClicked()
+        {
+            if (_selectedType == CharacterActorType.None) return;
+            if (!_pendingOrder.Contains(_selectedType)) return;
+            if (_pendingOrder.Count <= 1) return;
+
+            _pendingOrder.Remove(_selectedType);
+            Refresh();
+        }
+
+        // 파티 해제: 리더(첫 슬롯)만 남기고 전원 제외.
+        private void OnDisbandPartyClicked()
+        {
+            if (_pendingOrder.Count <= 1) return;
+
+            var leader = _pendingOrder[0];
+            _pendingOrder.Clear();
+            _pendingOrder.Add(leader);
+            Refresh();
+        }
+
+        private void OnSwapCompleted(PlayerActor _) => RefreshBattleEntries();
+        private void OnPartyProgressionChanged(CharacterActorType _) => Refresh();
+        private void OnPartyEquipmentChanged() => Refresh();
+
+        private void OnRosterChanged()
+        {
+            RebuildMenuEntries();
+            Refresh();
+        }
+
+        // ─── 갱신 ────────────────────────────────────────────────────────
+
+        private void Refresh()
+        {
+            RefreshBattleEntries();
+            RefreshMenuEntries();
+            RefreshPartyCombatPower();
+            RefreshCounts();
+            RefreshElementSummary();
+            RefreshDetail();
+            (_assistPanel as IUIRefreshable)?.Refresh();
+            RebuildNavigation();
+        }
+
+        /// <summary>
+        /// 보유(Roster) 캐릭터만으로 목록을 재구성한다.
+        /// 사이클 전환 후 영입은 BossAssist 전용이라 미보유 캐릭터는 게임 내 획득 수단이 없으므로 노출하지 않는다.
+        /// </summary>
+        private void RebuildMenuEntries()
+        {
+            var pm = PartyMgr;
+            if (pm == null || _partyMenuEntryPrefab == null || _content == null) return;
+
+            foreach (var entry in _menuEntries)
+            {
+                if (entry == null) continue;
+                entry.OnToggleRequested -= OnEntryToggleRequested;
+                entry.OnFocusRequested -= OnEntryFocused;
+                entry.gameObject.SetActive(false);
+                Destroy(entry.gameObject);
+            }
+            _menuEntries.Clear();
+
+            foreach (var type in pm.Roster)
+            {
+                var entry = Instantiate(_partyMenuEntryPrefab, _content);
+                if (entry == null) continue;
+
+                entry.Init(type);
+                entry.OnToggleRequested += OnEntryToggleRequested;
+                entry.OnFocusRequested += OnEntryFocused;
+                _menuEntries.Add(entry);
+            }
+        }
+
+        private void RebuildNavigation()
+        {
+            var menu = new List<Selectable>();
+            foreach (UIPartyMenuEntry entry in _menuEntries)
+            {
+                if (entry != null && entry.Selectable != null)
+                    menu.Add(entry.Selectable);
+            }
+            UIFocusNavigation.ConfigureVertical(menu);
+
+            var battle = new List<Selectable>();
+            foreach (UIPartyBattleEntry entry in _partyBattleEntries)
+            {
+                if (entry != null
+                    && entry.BoundType != CharacterActorType.None
+                    && entry.Selectable != null)
+                {
+                    battle.Add(entry.Selectable);
+                }
+            }
+            UIFocusNavigation.ConfigureHorizontal(battle);
+
+            var actions = new Selectable[]
+            {
+                _autoOrganizationButton,
+                _disbandBattleButton,
+                _disbandPartyButton,
+                _skillTreeButton,
+                _saveButton,
+                _closeButton
+            };
+            UIFocusNavigation.ConfigureHorizontal(actions);
+
+            Selectable firstBattle = battle.Count > 0 ? battle[0] : null;
+            Selectable firstAction = UIFocusNavigation.FirstNavigable(actions);
+            foreach (Selectable entry in menu)
+            {
+                Navigation navigation = entry.navigation;
+                navigation.selectOnRight = firstBattle ?? firstAction;
+                entry.navigation = navigation;
+            }
+
+            foreach (Selectable entry in battle)
+            {
+                Navigation navigation = entry.navigation;
+                navigation.selectOnLeft = menu.Count > 0 ? menu[0] : null;
+                navigation.selectOnDown = firstAction;
+                entry.navigation = navigation;
+            }
+
+            foreach (Selectable action in actions)
+            {
+                if (action == null)
+                    continue;
+                Navigation navigation = action.navigation;
+                navigation.selectOnUp = firstBattle ?? (menu.Count > 0 ? menu[0] : null);
+                action.navigation = navigation;
+            }
+
+            Selectable initial = null;
+            foreach (UIPartyMenuEntry entry in _menuEntries)
+            {
+                if (entry != null && entry.Type == _selectedType)
+                {
+                    initial = entry.Selectable;
+                    break;
+                }
+            }
+            initial ??= menu.Count > 0 ? menu[0] : firstBattle ?? firstAction;
+            SetDefaultFocus(initial, IsVisible);
+        }
+
+        private void RefreshCounts()
+        {
+            var pm = PartyMgr;
+            if (pm == null) return;
+
+            int max = pm.MaxBattleSize;
+            if (_rosterCountText != null)
+                _rosterCountText.text = pm.Roster.Count.ToString("N0", CultureInfo.InvariantCulture);
+            if (_battlePartyCountText != null)
+                _battlePartyCountText.text = $"{_pendingOrder.Count} / {max}";
+            if (_battleMemberCountText != null)
+                _battleMemberCountText.text = $"{_pendingOrder.Count} / {max}";
+        }
+
+        private void RefreshDetail()
+        {
+            if (_detailPanel == null) return;
+
+            if (_selectedType == CharacterActorType.None)
+                _detailPanel.Clear();
+            else
+                _detailPanel.Show(_selectedType);
+
+            if (_skillTreeButton != null)
+            {
+                CharacterSkillTreeSO tree = PartyMgr?.GetSkillTree(_selectedType);
+                int points = PartyMgr?.GetAvailableSkillPoints(_selectedType) ?? 0;
+                _skillTreeButton.interactable = tree?.nodes != null && tree.nodes.Count > 0;
+                TextMeshProUGUI label = _skillTreeButton.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (label != null)
+                    label.text = points > 0 ? $"스킬 트리  !{points}" : "스킬 트리";
+            }
+        }
+
+        private void RefreshBattleEntries()
+        {
+            var memberData = PartyMgr?.PartyMemberDataSO;
+            bool canRemove = _pendingOrder.Count > 1;
+
+            for (int i = 0; i < _partyBattleEntries.Count; i++)
+            {
+                if (i < _pendingOrder.Count)
+                    _partyBattleEntries[i].Bind(_pendingOrder[i], memberData, i, canRemove);
+                else
+                    _partyBattleEntries[i].Unbind();
+            }
+        }
+
+        private void RefreshMenuEntries()
+        {
+            foreach (var entry in _menuEntries)
+                entry.RefreshBattleStatus(_pendingOrder, _selectedType);
+        }
+
+        private void RefreshPartyCombatPower()
+        {
+            if (_partyCombatPowerText == null) return;
+
+            long combatPower = PartyMgr?.GetPartyCombatPower(_pendingOrder) ?? 0L;
+            _partyCombatPowerText.text = combatPower.ToString("#,0", CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>초안 출전 파티의 속성 구성 요약.</summary>
+        private void RefreshElementSummary()
+        {
+            if (_partyWeightSummaryText == null) return;
+
+            int fire = 0, water = 0, nature = 0, light = 0, dark = 0, none = 0;
+            foreach (var type in _pendingOrder)
+            {
+                switch (PartyMgr?.PartyMemberDataSO?.GetCombatElement(type) ?? CombatElement.None)
+                {
+                    case CombatElement.Fire:   fire++;   break;
+                    case CombatElement.Water:  water++;  break;
+                    case CombatElement.Nature: nature++; break;
+                    case CombatElement.Light:  light++;  break;
+                    case CombatElement.Dark:   dark++;   break;
+                    default:                   none++;   break;
+                }
+            }
+
+            var parts = new List<string>(6);
+            AddElementCount(parts, CombatElement.Fire, fire);
+            AddElementCount(parts, CombatElement.Water, water);
+            AddElementCount(parts, CombatElement.Nature, nature);
+            AddElementCount(parts, CombatElement.Light, light);
+            AddElementCount(parts, CombatElement.Dark, dark);
+            AddElementCount(parts, CombatElement.None, none);
+            _partyWeightSummaryText.text = parts.Count > 0 ? string.Join(" / ", parts) : "속성 없음";
+        }
+
+        private static void AddElementCount(List<string> parts, CombatElement element, int count)
+        {
+            if (count > 0)
+                parts.Add($"{UICombatElementDisplay.Label(element)} {count}");
+        }
+    }
+}

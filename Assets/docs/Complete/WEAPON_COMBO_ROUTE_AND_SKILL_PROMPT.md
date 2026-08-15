@@ -135,8 +135,8 @@
 
 ### 4.3 위젯 구성(신규 스크립트)
 - `ComboTokenInput`(static) — 토큰 → (`PlayerAction` 액션명, 홀드 여부). 글리프 해석용.
-- `UI_ComboRouteHintRow` — 한 분기 = 글리프 1개(`UI_InputPromptIcon` 재사용, 디바이스 자동 전환) + 스킬명 라벨.
-- `UI_ComboRouteHint` — 호스트. `PartyManager.ActiveCharacter` 구독(`OnSwapCompleted`), 매 프레임 윈도우 시그니처가 바뀔 때만 `CollectHints` 재계산 후 행 풀 갱신(SetAction 핫호출 방지).
+- `UIComboRouteHintRow` — 한 분기 = 글리프 1개(`UIInputPromptIcon` 재사용, 디바이스 자동 전환) + 스킬명 라벨.
+- `UIComboRouteHint` — 호스트. `PartyManager.ActiveCharacter` 구독(`OnSwapCompleted`), 매 프레임 윈도우 시그니처가 바뀔 때만 `CollectHints` 재계산 후 행 풀 갱신(SetAction 핫호출 방지).
 
 ### 4.5 채택 방향 — 고정 스킬바 + 슬롯 글로우 통합 (명조 사진 레퍼런스)
 
@@ -150,21 +150,21 @@
 - ※초기 설계는 ReadyGlow=게이지충족(사진 R발광)이었으나, 사용자 요청으로 글로우를 콤보 힌트 전용으로, 게이지 fill 제거 → dim만 유지.
 
 **신규 코드**:
-- `UI/InputPrompt/UISkillSlot.cs` — 슬롯 1개. `ComboInputToken`으로 정의(키캡/힌트매칭/게이지슬롯 일원화). 아이콘+키캡(`UI_InputPromptIcon` 재사용)+ReadyGlow/ComboGlow(콤보힌트)+dim(게이지).
-- `UI/InputPrompt/UI_HudSkill.cs` — 호스트(**`UI_Base` 상속**, UIManager 생명주기). `PartyManager` 활성캐릭터 추적, 게이지는 `OnGaugeChanged` 이벤트 구동, 콤보 힌트는 입력 윈도우 시그니처 변화 시에만 재계산.
+- `UI/InputPrompt/UISkillSlot.cs` — 슬롯 1개. `ComboInputToken`으로 정의(키캡/힌트매칭/게이지슬롯 일원화). 아이콘+키캡(`UIInputPromptIcon` 재사용)+ReadyGlow/ComboGlow(콤보힌트)+dim(게이지).
+- `UI/InputPrompt/UI_HUD_Skill.cs` — 호스트(**`UI_Base` 상속**, UIManager 생명주기). `PartyManager` 활성캐릭터 추적, 게이지는 `OnGaugeChanged` 이벤트 구동, 콤보 힌트는 입력 윈도우 시그니처 변화 시에만 재계산.
 
-**UI_Base 등록 절차(에디터)**: ① HudSkill 프리팹(Canvas + `UI_HudSkill` + `UISkillSlot` 슬롯들) ② `UIPrefabDatabase`에 key `"HudSkill"` 항목 추가 ③ ID Enum Generator로 `UIKeyType` 재생성(`UIKeyType.cs`는 자동생성 — 손편집 금지) ④ `UI_GamePlay.OnShow`에 `ShowUI(UIKeyType.HudSkill)`, `OnHide`에 `HideUI(UIKeyType.HudSkill)` 추가(`UI_HudParty` 패턴, 재생성 후 컴파일). UI_GamePlay는 global ns → `using UPlayGround.UI.InputPrompt;` 필요.
+**UI_Base 등록 절차(에디터)**: ① HudSkill 프리팹(Canvas + `UI_HUD_Skill` + `UISkillSlot` 슬롯들) ② `UIPrefabDatabase`에 key `"HudSkill"` 항목 추가 ③ ID Enum Generator로 `UIKeyType` 재생성(`UIKeyType.cs`는 자동생성 — 손편집 금지) ④ `UI_HUD_GamePlay.OnShow`에 `ShowUI(UIKeyType.HudSkill)`, `OnHide`에 `HideUI(UIKeyType.HudSkill)` 추가(`UI_HUD_Party` 패턴, 재생성 후 컴파일). UI_HUD_GamePlay는 global ns → `using UPlayGround.UI.InputPrompt;` 필요.
 
 **스킬 데이터 사실**(설계 근거):
 - 스킬은 **쿨다운 없음**. `PlayerSkillGauge`의 **게이지 비용**(`_skillCost[slot]`, `CanUseSkill`)으로만 게이팅 → Ready = 게이지 충족.
 - 토큰→게이지 슬롯: `Skill1→0`, `Skill2→1`(슬롯별 `_gaugeSlotOverride`로 교정 가능). `ExecuteSkillAttack`은 `skillAttackList[index]`(캐릭터별)을 쓰며, 게이지 슬롯과 1:1 가정.
 - **스킬 아이콘 파이프라인 부재**(`AbilityAttackInfo`에 icon 필드 없음) → v1은 **슬롯 프리팹에 아이콘 직렬화**. ⚠ 캐릭터 교체 시 아이콘은 안 바뀜(스왑 미추적). 추후 캐릭터별 스킬 아이콘 소스(예: `skillAttackList`에 icon 필드 추가) 도입 시 스왑 대응.
 
-**`UI_ComboRouteHint`(지난 턴 행 위젯)와의 관계**: 둘 다 `CollectHints`를 두뇌로 공유하는 **대체 출력**이다. 사진처럼 가려면 **스킬바 슬롯 글로우(`UI_HudSkill`)**를 쓰고, 행 위젯은 미사용. 한 HUD에 둘을 동시에 라이브로 두지 말 것.
+**`UIComboRouteHint`(지난 턴 행 위젯)와의 관계**: 둘 다 `CollectHints`를 두뇌로 공유하는 **대체 출력**이다. 사진처럼 가려면 **스킬바 슬롯 글로우(`UI_HUD_Skill`)**를 쓰고, 행 위젯은 미사용. 한 HUD에 둘을 동시에 라이브로 두지 말 것.
 
 ### 4.4 Unity 에디터 잔여 작업(코드만으로 안 됨)
-1. HUD 캔버스에 `UI_ComboRouteHint` 프리팹 배치, 행 컨테이너/템플릿/`InputGlyphDataSO` 연결.
-2. `UI_ComboRouteHintRow` 템플릿 프리팹(아이콘+라벨) 작성.
+1. HUD 캔버스에 `UIComboRouteHint` 프리팹 배치, 행 컨테이너/템플릿/`InputGlyphDataSO` 연결.
+2. `UIComboRouteHintRow` 템플릿 프리팹(아이콘+라벨) 작성.
 3. 글로우 연출(머티리얼/애니메이션)은 행 프리팹에서 처리(코드는 표시/숨김만).
 4. 런타임 검증: 콤보 중 다음 키가 올바르게 뜨고, 무기/캐릭터 교체·공중 전환 시 갱신되는지.
 

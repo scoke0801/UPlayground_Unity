@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,16 +6,16 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.SaveMenu.EditorTools
 {
     /// <summary>
-    /// 세이브 슬롯 선택(UI_SaveSlotMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 세이브 슬롯 선택(UI_Scene_SaveSlotMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_SaveMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
+    /// - 기존 UI_Scene_SaveSlotMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
     /// - 재실행 가능(idempotent). "동작하는 회색 초안"이 목표이며 아이콘/스프라이트/폰트는 Unity에서 다듬는다.
     /// - 스크롤 슬롯 목록(번호 + 썸네일 + 상태/일시/맵/진행도 + 버전 + 저장·삭제 버튼) + 상단 X·하단 닫기를 배선한다.
     /// - 썸네일은 런타임 저장 캡처가 있으면 교체되고, 없으면 회색 플레이스홀더로 표시된다.
     /// </summary>
     public static class UISaveSlotMenuPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/UI_SaveMenu.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/UI_Scene_SaveSlotMenu.prefab";
 
         private static readonly Color Dim        = new Color(0f, 0f, 0f, 0.65f);
         private static readonly Color PanelBg    = new Color(0.05f, 0.07f, 0.10f, 0.98f);
@@ -46,10 +46,10 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var menu = root.GetComponent<UI_SaveSlotMenu>();
+                var menu = root.GetComponent<UI_Scene_SaveSlotMenu>();
                 if (menu == null)
                 {
-                    Debug.LogError("[SaveMenuBuilder] 루트에 UI_SaveSlotMenu 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[SaveMenuBuilder] 루트에 UI_Scene_SaveSlotMenu 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -153,7 +153,7 @@ namespace UPlayGround.UI.SaveMenu.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[SaveMenuBuilder] UI_SaveMenu 프리팹 초안 생성 완료.");
+                Debug.Log("[SaveMenuBuilder] UI_Scene_SaveSlotMenu 프리팹 초안 생성 완료.");
             }
             finally
             {

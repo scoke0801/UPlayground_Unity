@@ -6,15 +6,15 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.PauseMenu.EditorTools
 {
     /// <summary>
-    /// 일시정지 메뉴(UI_PauseMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 일시정지 메뉴(UI_Scene_PauseMenu) 프리팹 초안을 코드로 생성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_PauseMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
+    /// - 기존 UI_Scene_PauseMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
     /// - 재실행 가능(idempotent). "동작하는 회색 초안"이 목표이며 아이콘/스프라이트/폰트는 Unity에서 다듬는다.
     /// - 버튼 4종(재개/저장/타이틀/종료) + 플레이 시간 + 상태 문구를 배선한다.
     /// </summary>
     public static class UIPauseMenuPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/UI_PauseMenu.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/UI_Scene_PauseMenu.prefab";
 
         private static readonly Color Dim      = new Color(0f, 0f, 0f, 0.55f);
         private static readonly Color PanelBg  = new Color(0.06f, 0.09f, 0.13f, 0.98f);
@@ -41,10 +41,10 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var menu = root.GetComponent<UI_PauseMenu>();
+                var menu = root.GetComponent<UI_Scene_PauseMenu>();
                 if (menu == null)
                 {
-                    Debug.LogError("[PauseBuilder] 루트에 UI_PauseMenu 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[PauseBuilder] 루트에 UI_Scene_PauseMenu 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -113,7 +113,7 @@ namespace UPlayGround.UI.PauseMenu.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[PauseBuilder] UI_PauseMenu 프리팹 초안 생성 완료.");
+                Debug.Log("[PauseBuilder] UI_Scene_PauseMenu 프리팹 초안 생성 완료.");
             }
             finally
             {

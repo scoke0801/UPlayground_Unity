@@ -3,15 +3,15 @@
 ## 개요
 
 UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘을 표시하는 **MapImage 전용** HUD입니다.  
-**HUD 미니맵(`UI_Minimap`)** 과 **전체 맵 뷰(`UI_Map`)** 두 UI가 한 쌍으로 동작하며, 씬별 `SceneContext.MapID`를 기반으로 `MapConfigDatabaseSO`에서 설정을 자동으로 조회합니다.
+**HUD 미니맵(`UI_HUD_Minimap`)** 과 **전체 맵 뷰(`UI_Scene_Map`)** 두 UI가 한 쌍으로 동작하며, 씬별 `SceneContext.MapID`를 기반으로 `MapConfigDatabaseSO`에서 설정을 자동으로 조회합니다.
 
 ### 핵심 특징
 
 - **MapImage 전용**: IconOnly 모드 없음. 모든 씬은 반드시 맵 이미지 Config를 가집니다.
 - **씬 자동 Config 조회**: `SceneContext.MapID` → `MapConfigDatabaseSO` → `MinimapIconConfigSO` 로 씬 전환마다 자동 로드됩니다.
-- **HUD 미니맵 + 전체 맵 분리**: `UI_Minimap`은 항상 표시되는 소형 HUD, `UI_Map`은 M키로 토글하는 전체 맵 뷰입니다.
+- **HUD 미니맵 + 전체 맵 분리**: `UI_HUD_Minimap`은 항상 표시되는 소형 HUD, `UI_Scene_Map`은 M키로 토글하는 전체 맵 뷰입니다.
 - **미니맵 오프셋 클램핑**: 플레이어가 맵 가장자리로 이동해도 마스크 영역이 항상 맵 이미지로 채워집니다.
-- **확대 맵 전환**: `UI_Minimap.ToggleExpandedMap()`으로 미니맵을 확대 뷰로 부드럽게 전환합니다.
+- **확대 맵 전환**: `UI_HUD_Minimap.ToggleExpandedMap()`으로 미니맵을 확대 뷰로 부드럽게 전환합니다.
 - **5-채널 아이콘 시스템**: 적 / 일반 액터 / 퀘스트 마커 / 정적 마커 / 사용자 마커를 독립 딕셔너리로 관리합니다.
 - **GameObjectManager 이벤트 연동**: `OnActorRegistered` / `OnActorUnregistered`로 액터 스폰·사망 자동 반영
 - **QuestManager 이벤트 연동**: `QuestAccepted` / `QuestCompleted` / `QuestFailed` 구독으로 퀘스트 마커 자동 갱신
@@ -31,7 +31,7 @@ UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘�
 └─────────────────────────────────────────────────────────────────────┘
           │                            │
           ▼                            ▼
-  UI_Minimap (HUD)               UI_Map (전체 맵, M키 토글)
+  UI_HUD_Minimap (HUD)               UI_Scene_Map (전체 맵, M키 토글)
   ┌──────────────────────┐       ┌──────────────────────────┐
   │ _mapBackground       │       │ _mapBackground (전체 이미지) │
   │ _iconContainer       │       │ _iconContainer            │
@@ -49,7 +49,7 @@ UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘�
              │                   (QuestTarget / Town / Portal / Npc / Custom)
       QuestManager (EventManager)
              │
-      MinimapUserMarkerSystem ◄── UI_Map.OnMapRightClick (우클릭 핀 마커)
+      MinimapUserMarkerSystem ◄── UI_Scene_Map.OnMapRightClick (우클릭 핀 마커)
 ```
 
 ### 클래스 의존 관계
@@ -66,9 +66,9 @@ UPlayground의 미니맵 시스템은 촬영된 맵 이미지 위에 아이콘�
 └── SceneManager               — CurrentMapID 프로퍼티 노출
 
 UI 계층 (Assets/02.Scripts/UI/HUD/)
-├── UI_Minimap                 — HUD 미니맵 (UI_Base 상속)
-├── UI_Map                     — 전체 맵 뷰 (UI_Base 상속, Popup 레이어)
-├── MapInputReceiver           — UI_Map 드래그·스크롤·우클릭 입력 중계
+├── UI_HUD_Minimap                 — HUD 미니맵 (UI_Base 상속)
+├── UI_Scene_Map                     — 전체 맵 뷰 (UI_Base 상속, Popup 레이어)
+├── MapInputReceiver           — UI_Scene_Map 드래그·스크롤·우클릭 입력 중계
 ├── MinimapEntityIcon          — 개별 아이콘 컴포넌트 (팩토리 패턴)
 ├── MinimapMarkerRegistrar     — 씬 배치 위치 등록 컴포넌트
 ├── MinimapMarkerRegistry      — 정적 레지스트리 (static class)
@@ -88,8 +88,8 @@ Assets/
 ├── 02.Scripts/
 │   ├── UI/
 │   │   └── HUD/
-│   │       ├── UI_Minimap.cs               — HUD 미니맵 메인 클래스
-│   │       ├── UI_Map.cs                   — 전체 맵 뷰 클래스
+│   │       ├── UI_HUD_Minimap.cs               — HUD 미니맵 메인 클래스
+│   │       ├── UI_Scene_Map.cs                   — 전체 맵 뷰 클래스
 │   │       ├── MapInputReceiver.cs         — 전체 맵 드래그·스크롤·우클릭 입력 중계
 │   │       ├── MinimapEntityIcon.cs        — 개별 아이콘 컴포넌트
 │   │       ├── MinimapMarkerRegistrar.cs   — 씬 마커 등록 컴포넌트
@@ -127,7 +127,7 @@ Assets/
 ### `MapConfigDatabaseSO`
 
 씬별 MapID와 `MinimapIconConfigSO`를 연결하는 매핑 테이블입니다.  
-프로젝트 전체에서 **하나만** 생성하고 `UI_Minimap`, `UI_Map` 인스펙터에 모두 할당합니다.
+프로젝트 전체에서 **하나만** 생성하고 `UI_HUD_Minimap`, `UI_Scene_Map` 인스펙터에 모두 할당합니다.
 
 | 인스펙터 | 설명 |
 |----------|------|
@@ -163,7 +163,7 @@ MinimapIconConfigSO GetConfig(string mapId)
 
 ---
 
-### `UI_Minimap`
+### `UI_HUD_Minimap`
 
 `UI_Base` 상속. `OnShow()`에서 `MapConfigDatabaseSO`로 Config를 조회하고, `LateUpdate`에서 매 프레임 갱신합니다.
 
@@ -208,7 +208,7 @@ offset.x, offset.y ∈ [−maxOffset, +maxOffset]
 
 ---
 
-### `UI_Map`
+### `UI_Scene_Map`
 
 `UI_Base` 상속. M키로 열리는 전체 맵 팝업입니다. ESC 또는 닫기 버튼으로 닫힙니다.
 
@@ -241,11 +241,11 @@ offset.x, offset.y ∈ [−maxOffset, +maxOffset]
 
 ### `MapInputReceiver`
 
-`UI_Map`의 `MapViewport`에 부착하는 경량 입력 중계 컴포넌트.  
-`IBeginDragHandler`, `IDragHandler`, `IScrollHandler`, `IPointerClickHandler`를 구현하여 이벤트를 `UI_Map`에 전달합니다.
+`UI_Scene_Map`의 `MapViewport`에 부착하는 경량 입력 중계 컴포넌트.  
+`IBeginDragHandler`, `IDragHandler`, `IScrollHandler`, `IPointerClickHandler`를 구현하여 이벤트를 `UI_Scene_Map`에 전달합니다.
 
 ```csharp
-// 이벤트 (UI_Map에서 구독)
+// 이벤트 (UI_Scene_Map에서 구독)
 event Action<PointerEventData> OnBeginDragEvent
 event Action<PointerEventData> OnDragEvent
 event Action<PointerEventData> OnScrollEvent
@@ -346,7 +346,7 @@ bool IsStaticMarkerVisible(MinimapMarkerType type)
 
 ### `MinimapEntityIcon`
 
-개별 아이콘 GameObject. `UI_Minimap` / `UI_Map`이 팩토리 메서드로 생성합니다.
+개별 아이콘 GameObject. `UI_HUD_Minimap` / `UI_Scene_Map`이 팩토리 메서드로 생성합니다.
 
 ```csharp
 // 액터 추적 아이콘 생성 (actor.transform을 매 프레임 추적)
@@ -437,15 +437,15 @@ static event Action               OnAllMarkersCleared
 **사용자 마커 입력 흐름**
 
 ```
-UI_Map 열림
+UI_Scene_Map 열림
     └── MapInputReceiver.OnRightClickEvent
-            └── UI_Map.OnMapRightClick(PointerEventData e)
+            └── UI_Scene_Map.OnMapRightClick(PointerEventData e)
                     ├── 근처(20px) 마커 있음 → MinimapUserMarkerSystem.RemoveMarker(id)
                     └── 없음 → MapLocalPosToWorld(localPoint) → MinimapUserMarkerSystem.AddMarker(worldPos)
                                                                           │
                                     OnMarkerAdded ──────────────────────►│
-                                    UI_Minimap.AddUserMarker ◄───────────┘
-                                    UI_Map.AddUserMarker    ◄────────────┘
+                                    UI_HUD_Minimap.AddUserMarker ◄───────────┘
+                                    UI_Scene_Map.AddUserMarker    ◄────────────┘
 ```
 
 ---
@@ -488,12 +488,12 @@ UI_Map 열림
 
 ### 5단계: UI 프리팹 제작
 
-#### UI_Minimap 프리팹 구조
+#### UI_HUD_Minimap 프리팹 구조
 
 ```
-UI_Minimap (GameObject)
+UI_HUD_Minimap (GameObject)
   ├─ Canvas 컴포넌트 (CanvasLayer = HUD)
-  ├─ UI_Minimap 컴포넌트
+  ├─ UI_HUD_Minimap 컴포넌트
   │    ├─ _mapConfigDB  ← MapConfigDatabase.asset 할당
   │    └─ _maskDisplaySize ← MinimapMask sizeDelta.x 와 동일한 값
   └─ MinimapMask (Image — 원형 스프라이트 + Mask 컴포넌트)  ← _minimapMask
@@ -505,12 +505,12 @@ UI_Minimap (GameObject)
 
 > **MinimapMask 설정**: `Image Type = Simple`, 원형 Sprite 할당, `Mask` 컴포넌트 추가.
 
-#### UI_Map 프리팹 구조
+#### UI_Scene_Map 프리팹 구조
 
 ```
-UI_Map (GameObject)
+UI_Scene_Map (GameObject)
   ├─ Canvas 컴포넌트 (CanvasLayer = Popup)
-  ├─ UI_Map 컴포넌트
+  ├─ UI_Scene_Map 컴포넌트
   │    └─ _mapConfigDB  ← MapConfigDatabase.asset 할당
   ├─ MapViewport (RectTransform + Image(alpha=0, raycastTarget=true) + MapInputReceiver) ← _mapViewport
   │    └─ MapContainer (RectTransform)    ← _mapContainer
@@ -554,7 +554,7 @@ UI_Map (GameObject)
 ### 인게임 미니맵 + 전체 맵 열기/닫기
 
 ```csharp
-// UI_GamePlay.cs — OnShow / OnHide
+// UI_HUD_GamePlay.cs — OnShow / OnHide
 protected override void OnShow()
 {
     UIManager.Instance.ShowUI(UIKeyType.Minimap);
@@ -567,10 +567,10 @@ protected override void OnHide()
     // ...
 }
 
-// M키 전체 맵 토글 (UI_GamePlay.Update에 구현됨)
+// M키 전체 맵 토글 (UI_HUD_GamePlay.Update에 구현됨)
 private void ToggleMap()
 {
-    var map = UIManager.Instance.GetActiveUI(UIKeyType.Map.ToKey())?.GetComponent<UI_Map>();
+    var map = UIManager.Instance.GetActiveUI(UIKeyType.Map.ToKey())?.GetComponent<UI_Scene_Map>();
     if (map != null && map.IsVisible)
         UIManager.Instance.HideUI(UIKeyType.Map);
     else
@@ -581,7 +581,7 @@ private void ToggleMap()
 ### 미니맵 확대 전환 외부 호출
 
 ```csharp
-var minimap = UIManager.Instance.GetActiveUI(UIKeyType.Minimap.ToKey())?.GetComponent<UI_Minimap>();
+var minimap = UIManager.Instance.GetActiveUI(UIKeyType.Minimap.ToKey())?.GetComponent<UI_HUD_Minimap>();
 minimap?.ToggleExpandedMap();
 ```
 
@@ -617,7 +617,7 @@ float nx = (worldPos.x - captureCenter.x) / captureWorldSize;  // -0.5 ~ 0.5
 float ny = (worldPos.z - captureCenter.y) / captureWorldSize;
 Vector2 pixelPos = new Vector2(nx * maskSize, ny * maskSize);
 
-// UI_Minimap: 컨테이너 내 아이콘 최종 위치 (줌 적용)
+// UI_HUD_Minimap: 컨테이너 내 아이콘 최종 위치 (줌 적용)
 Vector2 iconPos = pixelPos * currentMapZoom;
 
 // 컨테이너 offset (플레이어가 항상 중심)
@@ -632,7 +632,7 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 2. MapConfigDatabase.asset의 Entries에 mapId + config 추가
 3. 씬의 SceneContext.MapID = 추가한 mapId
 4. 정적 마커(Town/Portal/Npc) 지점에 MinimapMarkerRegistrar 배치
-5. 끝. UI_Minimap / UI_Map은 씬 전환 시 자동으로 Config를 조회
+5. 끝. UI_HUD_Minimap / UI_Scene_Map은 씬 전환 시 자동으로 Config를 조회
 ```
 
 ---
@@ -676,7 +676,7 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 불일치 시 `OnShow()`에서 오류 로그가 출력되고 미니맵이 표시되지 않습니다.
 
 ### _maskDisplaySize와 MinimapMask sizeDelta 동기화
-`UI_Minimap._maskDisplaySize`는 `MinimapMask RectTransform.sizeDelta.x`와 반드시 동일해야 합니다.  
+`UI_HUD_Minimap._maskDisplaySize`는 `MinimapMask RectTransform.sizeDelta.x`와 반드시 동일해야 합니다.  
 불일치 시 아이콘이 마스크 경계 밖으로 나갑니다.
 
 ### mapZoom ≤ 1일 때 오프셋 클램핑
@@ -699,7 +699,7 @@ Vector2 offset = -playerPixelPos * currentMapZoom;
 - 레벨 지형이 크게 변경된 경우 재촬영이 필요합니다.
 - `captureWorldSize`가 실제 맵보다 작으면 범위 밖 아이콘 좌표가 마스크를 벗어날 수 있습니다.
 
-### UI_Map MapInputReceiver
+### UI_Scene_Map MapInputReceiver
 `MapViewport`에 **반드시 Image 컴포넌트**(alpha=0, raycastTarget=true)와 `MapInputReceiver` 컴포넌트가 모두 있어야 드래그·스크롤·우클릭 입력이 동작합니다.
 
 ### 사용자 마커 씬 전환 초기화
@@ -739,7 +739,7 @@ public IconEntry GetActorIconEntry(ActorType actorType)
 
 ### 새로운 퀘스트 목표 타입 마커 지원
 
-`UI_Minimap.ResolveQuestLocationId()` (및 `UI_Map`의 동명 메서드)에 타입 분기를 추가합니다.
+`UI_HUD_Minimap.ResolveQuestLocationId()` (및 `UI_Scene_Map`의 동명 메서드)에 타입 분기를 추가합니다.
 
 ```csharp
 private static string ResolveQuestLocationId(QuestObjectiveData obj) => obj.type switch

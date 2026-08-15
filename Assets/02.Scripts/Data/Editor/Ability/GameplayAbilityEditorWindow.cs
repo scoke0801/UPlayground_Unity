@@ -2822,7 +2822,7 @@ namespace UPlayGround.Data.Editor.Ability
             "abilityId" or "passiveId" or "effectId" => "저장 파일명과 별개인 런타임 고유 식별자입니다.",
             "presentation" => "표시 이름, 설명, 아이콘과 HUD 노출 정보를 설정합니다.",
             "polarity" => "HUD에서 버프·디버프·중립 테두리 색상을 결정합니다.",
-            "characterSelectDescription" => "UI_CharacterSelect에 표시할 수치 없는 요약 설명입니다.",
+            "characterSelectDescription" => "UI_Scene_CharacterSelect에 표시할 수치 없는 요약 설명입니다.",
             "activationType" => "상시 적용 또는 퍼펙트 회피·가드 성공 시 발동하도록 설정합니다.",
             "scope" => "활성 캐릭터, 소유 캐릭터 또는 출전 파티 최고값 정책을 설정합니다.",
             "triggeredEffects" => "조건부 패시브가 성공했을 때 적용할 GameplayEffect입니다.",

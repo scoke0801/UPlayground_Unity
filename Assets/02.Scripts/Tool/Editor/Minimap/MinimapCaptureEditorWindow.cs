@@ -482,7 +482,7 @@ namespace UPlayGround.Tool.Editor
             DrawSectionLabel("좌표 매핑");
             EditorGUILayout.HelpBox(
                 "저장된 캡처 중심/범위를 MinimapIconConfigSO 가 보유하므로,\n" +
-                "UI_Minimap 은 WorldToMapImagePos() 를 사용해\n" +
+                "UI_HUD_Minimap 은 WorldToMapImagePos() 를 사용해\n" +
                 "월드 XZ → 미니맵 픽셀 좌표를 정확하게 변환합니다.",
                 MessageType.None);
         }

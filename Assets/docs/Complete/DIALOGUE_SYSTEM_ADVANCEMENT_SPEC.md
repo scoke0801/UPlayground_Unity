@@ -9,9 +9,9 @@
 > - `Assets/02.Scripts/Manager/Dialogue/DialogueManager.cs` (DialogueRunner 포함)
 > - `Assets/02.Scripts/Data/Dialogue/DialogueNodeSO.cs`
 > - `Assets/02.Scripts/Data/Dialogue/SpeakerColorTableSO.cs`
-> - `Assets/02.Scripts/UI/Dialogue/UI_Dialogue.cs`
-> - `Assets/02.Scripts/UI/Dialogue/UI_MonologueDialogue.cs`
-> - `Assets/02.Scripts/UI/Dialogue/UI_SystemDialogue.cs`
+> - `Assets/02.Scripts/UI/Dialogue/UI_Scene_Dialogue.cs`
+> - `Assets/02.Scripts/UI/Dialogue/UI_Scene_MonologueDialogue.cs`
+> - `Assets/02.Scripts/UI/Dialogue/UI_Scene_SystemDialogue.cs`
 > - `Assets/02.Scripts/Contracts/GameServices.cs` (`IDialogueService`)
 > - `Assets/02.Scripts/UI/Contracts/UIServices.cs` (`IUIDialogueService`)
 
@@ -37,17 +37,17 @@
 
 - `DialogueManager`가 채널별 `DialogueRunner`(내부 FSM)를 보유한다. Main/System은 단일 실행, Monologue는 큐 순차.
 - `DialogueRunner.Advance()` / `SelectChoice()`가 노드 전이를 담당하며, 노드 진입 시 `NotifyNodeEnter` 이벤트로 UI에 통지한다.
-- UI(`UI_Dialogue` 등)는 이벤트를 구독해 **뷰만** 그린다. 흐름 제어는 매니저에 위임한다. 이 경계는 유지한다.
+- UI(`UI_Scene_Dialogue` 등)는 이벤트를 구독해 **뷰만** 그린다. 흐름 제어는 매니저에 위임한다. 이 경계는 유지한다.
 
 ### 2.2 반드시 해결해야 할 결함
 
 | 항목 | 현재 상태 | 문제 |
 |------|-----------|------|
 | 타이핑 방식 | `dialogueBodyText.text += c` 한 글자씩 문자열 누적 | **리치 텍스트와 근본적으로 충돌.** `<color=...>` 태그가 본문 문자처럼 한 글자씩 노출됨. 인라인 색상 구현의 선결 과제 |
-| 자동 진행 | `autoAdvanceDuration`이 Monologue엔 배선, **Main(`UI_Dialogue`)엔 미배선** | Main 채널은 노드에 값을 넣어도 자동 진행 안 됨. 자동 재생 기능의 토대가 채널별로 불일치 |
+| 자동 진행 | `autoAdvanceDuration`이 Monologue엔 배선, **Main(`UI_Scene_Dialogue`)엔 미배선** | Main 채널은 노드에 값을 넣어도 자동 진행 안 됨. 자동 재생 기능의 토대가 채널별로 불일치 |
 | 재생 상태 | 전역 정지/자동/스킵 상태 없음 | 각 기능이 개별 코루틴 지역 변수에만 존재. 컨트롤 바가 참조할 공용 상태 부재 |
 | 대화 이력 | 저장소 없음 | 지나간 대사를 되짚을 데이터가 남지 않음 |
-| 타이핑 코드 중복 | `UI_Dialogue`, `UI_MonologueDialogue`가 거의 동일한 `TypeText` 코루틴을 각자 보유 | 고도화 시 두 곳을 동일하게 수정해야 함. 공용화 필요 |
+| 타이핑 코드 중복 | `UI_Scene_Dialogue`, `UI_Scene_MonologueDialogue`가 거의 동일한 `TypeText` 코루틴을 각자 보유 | 고도화 시 두 곳을 동일하게 수정해야 함. 공용화 필요 |
 
 ### 2.3 설계 원칙
 
@@ -155,9 +155,9 @@ public sealed class DialoguePaletteSO : ScriptableObject
       public Sprite Portrait;      // 선택: 로그에 소형 초상화
   }
   ```
-  - 화자명·초상화 해석 로직은 현재 `UI_Dialogue.ResolveSpeakerName/ResolvePortrait`에 있다. 로그가 뷰와 동일한 해석을 쓰도록, 해석 결과를 이벤트 페이로드에 포함하거나 해석 유틸을 공용화한다.
+  - 화자명·초상화 해석 로직은 현재 `UI_Scene_Dialogue.ResolveSpeakerName/ResolvePortrait`에 있다. 로그가 뷰와 동일한 해석을 쓰도록, 해석 결과를 이벤트 페이로드에 포함하거나 해석 유틸을 공용화한다.
 - **용량:** 런 단위 상한(예: 최근 100개). 대화 세션 시작 시 유지/초기화 정책은 프로젝트 관례에 맞춘다(권장: 사이클/씬 유지, 세이브엔 미포함).
-- **UI:** 컨트롤 바 💬 버튼 → 스크롤 로그 패널(`UI_Base` 상속, `UI_DialogueBacklog`). 최신이 아래. 열면 자동 재생·타이핑을 정지(§3.2 재사용)하고, 닫으면 이전 상태 복원.
+- **UI:** 컨트롤 바 💬 버튼 → 스크롤 로그 패널(`UI_Base` 상속, `UI_Popup_DialogueBacklog`). 최신이 아래. 열면 자동 재생·타이핑을 정지(§3.2 재사용)하고, 닫으면 이전 상태 복원.
 - 색상 태그가 그대로 로그에 살아 있어야 하므로(§3.1) 리치 문자열을 저장한다.
 
 ---
@@ -172,15 +172,15 @@ public sealed class DialoguePaletteSO : ScriptableObject
 | `DialogueMarkup` (static) | `Data/Dialogue/` | `[c:key]`↔TMP 태그 변환, 보이는 글자 수 계산 헬퍼 |
 | `DialoguePaletteSO` | `Data/Dialogue/` | 의미 키→색 팔레트 (§3.1.1) |
 | `DialogueTypewriter` | `UI/Dialogue/` | `maxVisibleCharacters` 기반 타이핑 공용 컴포넌트. Main/Monologue가 공유 |
-| `UI_DialogueBacklog` | `UI/Dialogue/` | 이력 스크롤 패널 |
-| `UI_DialogueControlBar` | `UI/Dialogue/` | ⏸/자동/스킵/💬 버튼. 컨트롤러 상태 구독·명령 |
+| `UI_Popup_DialogueBacklog` | `UI/Dialogue/` | 이력 스크롤 패널 |
+| `UI_Scene_DialogueControlBar` | `UI/Dialogue/` | ⏸/자동/스킵/💬 버튼. 컨트롤러 상태 구독·명령 |
 
-**프리팹 초안 생성(프로젝트 관례 준수).** 신규 UI(`UI_DialogueControlBar`, `UI_DialogueBacklog`)의 프리팹 초안은 다른 대형 UI(`UISettingMenuPrefabBuilder`, `UIPauseMenuPrefabBuilder` 등, `UI/Editor/*PrefabBuilder.cs`)와 동일하게 에디터 빌더 스크립트로 계층·앵커·컴포넌트 배선을 코드 생성한다. 이에 따라 아래 에디터 전용 컴포넌트를 추가한다.
+**프리팹 초안 생성(프로젝트 관례 준수).** 신규 UI(`UI_Scene_DialogueControlBar`, `UI_Popup_DialogueBacklog`)의 프리팹 초안은 다른 대형 UI(`UISettingMenuPrefabBuilder`, `UIPauseMenuPrefabBuilder` 등, `UI/Editor/*PrefabBuilder.cs`)와 동일하게 에디터 빌더 스크립트로 계층·앵커·컴포넌트 배선을 코드 생성한다. 이에 따라 아래 에디터 전용 컴포넌트를 추가한다.
 
 | 이름 | 위치(제안) | 책임 |
 |------|-----------|------|
-| `UIDialogueControlBarPrefabBuilder` | `UI/Editor/` | 컨트롤 바 프리팹 초안 생성(버튼 4종·레이아웃·`UI_DialogueControlBar` 배선) |
-| `UIDialogueBacklogPrefabBuilder` | `UI/Editor/` | 이력 패널 프리팹 초안 생성(ScrollRect·로그 엔트리 템플릿·`UI_DialogueBacklog` 배선) |
+| `UIDialogueControlBarPrefabBuilder` | `UI/Editor/` | 컨트롤 바 프리팹 초안 생성(버튼 4종·레이아웃·`UI_Scene_DialogueControlBar` 배선) |
+| `UIDialogueBacklogPrefabBuilder` | `UI/Editor/` | 이력 패널 프리팹 초안 생성(ScrollRect·로그 엔트리 템플릿·`UI_Popup_DialogueBacklog` 배선) |
 
 빌더는 초안 생성용이며, 최종 비주얼 튜닝은 생성된 프리팹에서 수작업으로 마감한다.
 
@@ -226,19 +226,19 @@ public interface IUIDialogueService : IGameService
 **Phase 1 — 타이핑 리팩터 + 인라인 색상 (선결)**
 1. `DialogueMarkup`, `DialoguePaletteSO` 신설, Addressables 등록.
 2. `DialogueTypewriter` 공용 컴포넌트 작성(`maxVisibleCharacters`).
-3. `UI_Dialogue`/`UI_MonologueDialogue`의 `TypeText`를 공용 컴포넌트로 교체. `text += c` 제거.
+3. `UI_Scene_Dialogue`/`UI_Scene_MonologueDialogue`의 `TypeText`를 공용 컴포넌트로 교체. `text += c` 제거.
 4. Main 채널 `autoAdvanceDuration` 배선 추가.
    - 검증: 색상 태그가 노출되지 않고, 타이핑 완료 시 색이 정상 표기.
 
 **Phase 2 — 재생 제어(정지·자동·스킵)**
 5. `DialoguePlaybackController` 신설, 매니저에 연결. `IUIDialogueService` 확장.
 6. `DialogueRunner.SkipToBreak()` + 순환/상한 가드.
-7. `UI_DialogueControlBar`와 입력 액션 작성·컴파일 → `UIDialogueControlBarPrefabBuilder` 작성·실행으로 프리팹 초안 생성 → 버튼 배선과 비주얼 마감.
+7. `UI_Scene_DialogueControlBar`와 입력 액션 작성·컴파일 → `UIDialogueControlBarPrefabBuilder` 작성·실행으로 프리팹 초안 생성 → 버튼 배선과 비주얼 마감.
    - 검증: 정지 중 진행 정지, 자동은 선택지에서 정지, 스킵은 이벤트 액션 보존하며 선택지/끝에서 정지.
 
 **Phase 3 — 대화 이력**
 8. 화자/초상화 해석 공용화 → `DialogueLogEntry` 기록.
-9. `UI_DialogueBacklog` 작성·컴파일 → `UIDialogueBacklogPrefabBuilder` 작성·실행으로 스크롤 패널 초안 생성 → 열림 시 정지 연동과 비주얼 마감.
+9. `UI_Popup_DialogueBacklog` 작성·컴파일 → `UIDialogueBacklogPrefabBuilder` 작성·실행으로 스크롤 패널 초안 생성 → 열림 시 정지 연동과 비주얼 마감.
    - 검증: 지나간 대사 색상 포함 재확인, 상한 초과 시 오래된 항목 폐기.
 
 **Phase 4 — 설정·게임패드 정합**

@@ -423,7 +423,7 @@ finalDamage = attackData.damage
 | `resetGaugeRatioOnSpecialAttack` | 특수 브레이크 공격으로 소비했을 때 재시작 게이지 비율 |
 | `gradePolicy` | Weak/Normal/Elite/Boss 등급별 게이지 배율 |
 
-브레이크 게이지가 0이 되면 `ForceExpose()`가 호출되고, `MonsterActor.ExposedMonsters` 레지스트리에 등록된다. `PlayerCombat.UpdateBreakInteractionTarget()`은 이 목록 중 실제로 플레이어가 브레이크 공격할 수 있는 단일 타겟에게만 `UI_BreakInteraction`을 표시한다.
+브레이크 게이지가 0이 되면 `ForceExpose()`가 호출되고, `MonsterActor.ExposedMonsters` 레지스트리에 등록된다. `PlayerCombat.UpdateBreakInteractionTarget()`은 이 목록 중 실제로 플레이어가 브레이크 공격할 수 있는 단일 타겟에게만 `UIBreakInteraction`을 표시한다.
 
 강공 입력 시 `PlayerAttackState.TryEnter()`가 `FindSpecialBreakAttackTarget()`을 확인하고, 대상이 있으면 `PlayerSpecialBreakAttackState`로 라우팅한다. 실제 피해는 `MonsterActor.OnTakeSpecialBreakAttack()`이 일반 무적/가드/피격 흐름을 우회해 적용한다.
 
@@ -591,5 +591,5 @@ playerCombat.NotifyAttackHit(attackData);
 - 새 플레이어 공격 타입은 `AbilitySetSO`의 명시적 라우트 또는 `playerSlots`에 `GameplayAbilitySO`를 연결하고, Variant 조건과 Payload를 추가한 뒤 `PlayerCombatAbilityDataView` 및 실행 상태가 해당 라우트를 해석하도록 확장한다.
 - 새 몬스터 공격 선택 규칙은 `AbilityAttackInfo.conditionGroup` 또는 `EnemyCombat.GetAvailableSkills()` 필터에 추가한다.
 - 새 피격 반응은 `AttackReactionType` 추가 후 `ReactionResolver`, `PlayerActor.OnDamaged()`, `MonsterActor.OnDamaged()`, 필요 시 `CombatReactionPolicySO`를 함께 확장한다.
-- 새 방어 분류는 `AttackDefenseType`, `DefenseResolver`, `CombatDefensePolicySO`, `PlayerGuardState`, `UI_DangerRing` 색/표현 규칙을 같이 갱신한다.
+- 새 방어 분류는 `AttackDefenseType`, `DefenseResolver`, `CombatDefensePolicySO`, `PlayerGuardState`, `UIDangerRing` 색/표현 규칙을 같이 갱신한다.
 - 새 전투 연출은 `MotionEventBase`를 상속한 이벤트를 만들고 `MotionEventAddPopup` 카테고리에 등록한다.

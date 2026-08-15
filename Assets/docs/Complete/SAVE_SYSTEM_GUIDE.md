@@ -64,7 +64,7 @@ Assets/
 │   ├── Tool/Editor/Save/
 │   │   └── SceneEntityIdAssigner.cs   ← 배치 몬스터 GUID 일괄 부여 메뉴
 │   └── UI/Scene/
-│       └── UI_SaveSlotMenu.cs         ← 3슬롯 선택 UI(저장/로드 모드)
+│       └── UI_Scene_SaveSlotMenu.cs         ← 3슬롯 선택 UI(저장/로드 모드)
 ```
 
 ### 저장 경로
@@ -199,15 +199,15 @@ GameSaveData
 
 ---
 
-## 슬롯 선택 UI (UI_SaveSlotMenu)
+## 슬롯 선택 UI (UI_Scene_SaveSlotMenu)
 
-`UI_SaveSlotMenu`는 저장/로드 모드를 공유하는 3슬롯 선택 패널이다.
+`UI_Scene_SaveSlotMenu`는 저장/로드 모드를 공유하는 3슬롯 선택 패널이다.
 
 - 포즈 메뉴 저장 버튼 → `SetMode(Save)`: 슬롯 클릭 시 `SaveGame(slot)`.
 - 타이틀 Load 버튼 → `SetMode(Load)`: 슬롯 클릭 시 `LoadGameToScene(slot)`.
 - 타이틀 Continue 버튼 → `GetMostRecentSlot()`을 `LoadGameToScene`(없으면 새 게임).
 
-> **에디터 수작업 필요**: `UIKeyType`은 프리팹 키에서 자동 생성되므로, ① `SaveSlotMenu` UI 프리팹 제작 ② Addressable 키를 정확히 `"SaveSlotMenu"`(= `UI_SaveSlotMenu.UIKey`)로 등록 ③ `ID Enum Generator`로 `UIKeyType` 재생성 ④ 포즈/타이틀 버튼 연결이 필요하다. 코드는 문자열 키만 사용해 enum 없이도 동작한다.
+> **에디터 수작업 필요**: `UIKeyType`은 프리팹 키에서 자동 생성되므로, ① `SaveSlotMenu` UI 프리팹 제작 ② Addressable 키를 정확히 `"SaveSlotMenu"`(= `UI_Scene_SaveSlotMenu.UIKey`)로 등록 ③ `ID Enum Generator`로 `UIKeyType` 재생성 ④ 포즈/타이틀 버튼 연결이 필요하다. 코드는 문자열 키만 사용해 enum 없이도 동작한다.
 
 ---
 

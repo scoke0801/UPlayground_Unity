@@ -22,7 +22,7 @@
 - 몬스터 고유 속성(`CombatElement`)을 도감에 표시한다.
 - 새 게임마다 속성이 재추첨되는 Humanoid형 몬스터(`CombatElementAssignmentMode.RandomPerNewGame`)는
   아직 조우/판별 전이면 속성 자리에 `?` 아이콘을 표시한다.
-- 진입점은 `UI_MenuPanel`에 추가하고, 도감은 별도 고유 UI 클래스와 UI 빌더 코드로 구현한다(Scene 타입).
+- 진입점은 `UI_Scene_MenuPanel`에 추가하고, 도감은 별도 고유 UI 클래스와 UI 빌더 코드로 구현한다(Scene 타입).
 - 전투 보정 계산은 기존 데미지 해석 파이프라인(`DamageResolver`)과 경험치 지급 경로(`AwardBattleExp`)에
   최소 침습으로 삽입한다.
 
@@ -42,7 +42,7 @@
 | C-13 | 보스 등급(`MonsterActorGrade.Boss`)도 도감에 포함한다. `includeInCodex` 기본값은 `true`이며, 예외적으로 특정 항목만 제외할 때 끈다. 사이클 보스 어시스트(`BossAssist`) 영입 경로와는 독립이다. |
 | C-14 | 진행도→보정 매핑은 **선형**이며, 최대 보정 수치에 상한(cap)을 두지 않는다. 단, 입는 피해 배율은 최종 계산에서 음수 방지 안전 하한만 적용한다. |
 | C-07 | 경험치 보정은 `GrantPartyExp` 지급 직전에 최종 배율로 적용한다. `expReward` 정의 값은 수정하지 않는다. |
-| C-08 | 도감 UI는 `UI_MonsterCodex`(`UI_Base` 상속, `CanvasLayer.Scene`)로 구현하고, 프리팹은 신규 빌더 `UIMonsterCodexPrefabBuilder`로 생성한다(기존 Scene UI 빌더 패턴 준용). |
+| C-08 | 도감 UI는 `UI_Scene_MonsterCodex`(`UI_Base` 상속, `CanvasLayer.Scene`)로 구현하고, 프리팹은 신규 빌더 `UIMonsterCodexPrefabBuilder`로 생성한다(기존 Scene UI 빌더 패턴 준용). |
 | C-09 | 속성 표시는 기존 `UICombatElementDisplay`를 재사용한다. `RandomPerNewGame`이고 미발견이면 속성 대신 `?` 상태를 표시한다. |
 | C-10 | 미발견 몬스터(처치 0회)는 실루엣/잠금 상태로 목록에 표기하고 상세 수치는 가린다. |
 
@@ -61,7 +61,7 @@
 | 데미지 해석 | `DamageResolver` / `CombatPolicyResolver` / `DamageResult.DamageTakenMultiplier` | 가하는·입는 피해 배율 합류 |
 | 세이브 | `GameSaveData` (`killedMonsters` 등 Dictionary 패턴), `SaveManager` | 도감 진행 상태 저장/복원 |
 | 매니저 계약 | `BaseManager<T>` + `IGameService`, `GameManager.RegisterManager`, `Svc`/`ActorSvc` | `MonsterCodexManager` 등록/조회 |
-| 진입 메뉴 | `UI_MenuPanel` (`_partyButton` 등 버튼 → `Toggle(UIKeyType)`) | 도감 진입 버튼 추가 |
+| 진입 메뉴 | `UI_Scene_MenuPanel` (`_partyButton` 등 버튼 → `Toggle(UIKeyType)`) | 도감 진입 버튼 추가 |
 | UI 키 | `UIKeyType` enum + `UIKeyTypeExtensions.ToKey`, `UIPrefabDatabase` | 도감 UI 키 등록 |
 | Scene UI 패턴 | `UI_Base`(`BlocksLowerInput`, `RegisterInputEvents`), `UISvc.UI.ShowUI/HideUI` | 도감 UI 생명주기 |
 | Scene UI 빌더 패턴 | `Assets/02.Scripts/UI/Editor/UIQuestMenuPrefabBuilder.cs` 등 `*PrefabBuilder` | 도감 프리팹 자동 생성 |
@@ -77,7 +77,7 @@
 | 저장 DTO | `MonsterCodexEntrySave` | 종별 처치 수, 발견 여부, 발견된 속성 |
 | 매니저 | `MonsterCodexManager : BaseManager<MonsterCodexManager>, IMonsterCodexService` | 기록 누적/저장/보정 조회 |
 | 계약 | `IMonsterCodexService`, `IMonsterCodexReader` | 소비자용 조회 계약(`Svc`/`ActorSvc`) |
-| UI | `UI_MonsterCodex` | 도감 화면(목록 + 상세) |
+| UI | `UI_Scene_MonsterCodex` | 도감 화면(목록 + 상세) |
 | UI 빌더 | `UIMonsterCodexPrefabBuilder` | 도감 프리팹 자동 생성 |
 
 ---
@@ -230,15 +230,15 @@ public interface IMonsterCodexReader   // 전투/성장 소비자용 (얇은 조
 
 ## 7. UI 설계
 
-### 7.1 진입점 — `UI_MenuPanel`
+### 7.1 진입점 — `UI_Scene_MenuPanel`
 
-- `UI_MenuPanel.cs`에 `_codexButton`(Button) 직렬화 필드와 `OnClickedCodexButton` → `Toggle(UIKeyType.MonsterCodex)`를 추가한다.
-- 프리팹 `Assets/03.Prefabs/UI/HUD/UI_MenuPanel.prefab`에 버튼 오브젝트를 추가하고 필드에 바인딩한다.
+- `UI_Scene_MenuPanel.cs`에 `_codexButton`(Button) 직렬화 필드와 `OnClickedCodexButton` → `Toggle(UIKeyType.MonsterCodex)`를 추가한다.
+- 프리팹 `Assets/03.Prefabs/UI/HUD/UI_Scene_MenuPanel.prefab`에 버튼 오브젝트를 추가하고 필드에 바인딩한다.
 - 등록/해제 리스너를 `Awake`/`OnDispose`에 기존 버튼과 동일하게 추가한다.
 
-### 7.2 도감 화면 — `UI_MonsterCodex` (Scene 타입, `UI_Base` 상속)
+### 7.2 도감 화면 — `UI_Scene_MonsterCodex` (Scene 타입, `UI_Base` 상속)
 
-- 위치: `Assets/02.Scripts/UI/Scene/Codex/UI_MonsterCodex.cs`, 네임스페이스 `UPlayGround.UI`.
+- 위치: `Assets/02.Scripts/UI/Scene/Codex/UI_Scene_MonsterCodex.cs`, 네임스페이스 `UPlayGround.UI`.
 - `CanvasLayer.Scene`, `BlocksLowerInput = true`, `PerformBackFunction`으로 닫기.
 - 구성:
   - **필터**: **등급(`MonsterActorGrade`) · 속성(`CombatElement`)** 필터만 제공한다(지역/이름 정렬 등은 후속). 보스도 목록에 포함된다(C-13).
@@ -246,7 +246,7 @@ public interface IMonsterCodexReader   // 전투/성장 소비자용 (얇은 조
   - **우측 상세**: 선택 항목의 초상화, 이름/설명, 속성(§6), 진행도 %, 진행도별 보정 요약(경험치/가하는 피해/입는 피해).
   - 미발견 항목은 이름/설명/속성/수치를 가리고 `???`로 표기(C-10).
 - 데이터 바인딩은 `ActorSvc.MonsterCodex.GetAllEntries()`(뷰 DTO) 1회 조회로 채운다. 런타임 갱신은 화면 열릴 때 재조회.
-- 항목 UI 요소는 `UI_ActorHpBar`류의 필 게이지 패턴과 `UICombatElementDisplay`를 재사용한다.
+- 항목 UI 요소는 `UIActorHpBar`류의 필 게이지 패턴과 `UICombatElementDisplay`를 재사용한다.
 
 ### 7.3 UI 키/프리팹 등록
 
@@ -258,8 +258,8 @@ public interface IMonsterCodexReader   // 전투/성장 소비자용 (얇은 조
 
 - 위치: `Assets/02.Scripts/UI/Editor/UIMonsterCodexPrefabBuilder.cs`.
 - 기존 `UIQuestMenuPrefabBuilder` / `UIInventoryPrefabBuilder` 패턴을 따라 메뉴 항목에서 실행 시
-  Canvas + `UI_MonsterCodex` + 목록/상세 레이아웃 + 항목 템플릿을 생성하고 프리팹으로 저장한다.
-- 생성 후 `UI_MonsterCodex`의 직렬화 참조(목록 컨테이너, 항목 템플릿, 상세 필드)를 자동 바인딩한다.
+  Canvas + `UI_Scene_MonsterCodex` + 목록/상세 레이아웃 + 항목 템플릿을 생성하고 프리팹으로 저장한다.
+- 생성 후 `UI_Scene_MonsterCodex`의 직렬화 참조(목록 컨테이너, 항목 템플릿, 상세 필드)를 자동 바인딩한다.
 
 ---
 
@@ -298,7 +298,7 @@ public interface IMonsterCodexReader   // 전투/성장 소비자용 (얇은 조
 2. 매니저: `MonsterCodexManager` + `IMonsterCodexService`/`IMonsterCodexReader`, `GameManager` 등록, 세이브 연동.
 3. 기록 훅: `MonsterActor.NotifyCodexKill` 삽입.
 4. 보정 훅: `DamageResolver`(가하는/입는 피해), `GrantPartyExp`(경험치).
-5. UI: `UIKeyType`/`UIPrefabDatabase` 등록 → `UI_MonsterCodex` → `UIMonsterCodexPrefabBuilder` → `UI_MenuPanel` 진입 버튼.
+5. UI: `UIKeyType`/`UIPrefabDatabase` 등록 → `UI_Scene_MonsterCodex` → `UIMonsterCodexPrefabBuilder` → `UI_Scene_MenuPanel` 진입 버튼.
 6. 검증기 + EditMode 테스트 + 초안 데이터 구성.
 
 ---
@@ -312,7 +312,7 @@ public interface IMonsterCodexReader   // 전투/성장 소비자용 (얇은 조
 - `MonsterCodexManager` 서비스 등록, 저장/복원/새 게임 리셋
 - `MonsterActor.OnDeath` 처치 기록과 경험치 배율 적용
 - `DamageResolver` 플레이어→몬스터/몬스터→플레이어 및 특수 브레이크 피해 배율 적용
-- `UIKeyType.MonsterCodex`, `UI_MenuPanel` 진입 코드, `UI_MonsterCodex`/목록 슬롯 코드
+- `UIKeyType.MonsterCodex`, `UI_Scene_MenuPanel` 진입 코드, `UI_Scene_MonsterCodex`/목록 슬롯 코드
 - `UIMonsterCodexPrefabBuilder`(도감/슬롯 프리팹, 메뉴 버튼, UIPrefabDatabase 등록)
 - UI Toolkit 기반 `MonsterCodexEditorWindow`(검색, Actor 연결 확인, 항목 편집, 생성/검증/저장)
 - 전체 화면 Scene UI 앵커, 고정 헤더/필터, 제한 폭 목록/유연 상세 패널과 슬롯 Button 클릭 경로

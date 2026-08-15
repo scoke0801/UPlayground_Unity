@@ -5,7 +5,7 @@ namespace UPlayGround.Data.UI
     /// <summary>
     /// 인게임 월드 마커(HUD 웨이포인트) 설정.
     /// 월드 위치에 붙어 화면에 투영되는 마커의 크기/거리 라벨/가장자리 클램프 등 튜닝 수치를 외부화한다.
-    /// 데이터 소스는 <c>WorldMarkerRegistry</c>, 표시는 <c>UI_HudWorldMarker</c>가 담당한다.
+    /// 데이터 소스는 <c>WorldMarkerRegistry</c>, 표시는 <c>UI_HUD_WorldMarker</c>가 담당한다.
     /// </summary>
     [CreateAssetMenu(fileName = "WorldMarkerConfig", menuName = "UPlayGround/UI/World Marker Config")]
     public class WorldMarkerConfigSO : ScriptableObject

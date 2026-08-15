@@ -19,8 +19,8 @@ Unity Input System(`InputActionAsset`) 위에 **레이어 우선순위** + **이
 - **게임패드 활성 시 커서 자동 잠금** — 마우스/패드 혼용 UX
 - **장치·브랜드 추적** — `ActiveDevice`, `GamepadBrand`, `OnActiveDeviceChanged`
 - **리바인딩 프로필** — Primary/Secondary 단일·2키 조합, 충돌 처리, GUID 기반 저장·이전
-- **장치별 UI 글리프** — 활성 장치와 바인딩 변경을 `UI_InputPromptIcon`과
-  `UI_InputPromptBar`가 즉시 반영
+- **장치별 UI 글리프** — 활성 장치와 바인딩 변경을 `UIInputPromptIcon`과
+  `UIInputPromptBar`가 즉시 반영
 
 ---
 
@@ -95,8 +95,8 @@ Assets/02.Scripts/
 └── UI/InputPrompt/
     ├── InputGlyphResolver.cs
     ├── InputPromptAvailability.cs
-    ├── UI_InputPromptIcon.cs
-    └── UI_InputPromptBar.cs
+    ├── UIInputPromptIcon.cs
+    └── UIInputPromptBar.cs
 
 Assets/Resources/Input/
 └── PlayerInputActions.inputactions  Unity Input System 설정

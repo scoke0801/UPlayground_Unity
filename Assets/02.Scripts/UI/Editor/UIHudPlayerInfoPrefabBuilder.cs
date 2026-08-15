@@ -7,13 +7,13 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.HUD.EditorTools
 {
     /// <summary>
-    /// 현재 UI_HudPlayerInfo 프리팹의 기존 계층은 보존하고,
+    /// 현재 UI_HUD_PlayerInfo 프리팹의 기존 계층은 보존하고,
     /// HP 바 위에 버프·디버프 아이콘 영역을 멱등적으로 구성한다.
     /// </summary>
     public static class UIHudPlayerInfoPrefabBuilder
     {
         private const string PrefabPath =
-            "Assets/03.Prefabs/UI/HUD/UI_HudPlayerInfo.prefab";
+            "Assets/03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab";
         private const string EffectAreaName = "EffectArea";
         private const float EffectAreaHeight = 310f;
         private const float EffectAreaBottom = 18f;
@@ -42,11 +42,11 @@ namespace UPlayGround.UI.HUD.EditorTools
             GameObject root = PrefabUtility.LoadPrefabContents(PrefabPath);
             try
             {
-                UI_HudPlayerInfo hud = root.GetComponent<UI_HudPlayerInfo>();
+                UI_HUD_PlayerInfo hud = root.GetComponent<UI_HUD_PlayerInfo>();
                 if (hud == null)
                 {
                     Debug.LogError(
-                        "[HudPlayerInfoBuilder] 루트에 UI_HudPlayerInfo가 없어 중단합니다.");
+                        "[HudPlayerInfoBuilder] 루트에 UI_HUD_PlayerInfo가 없어 중단합니다.");
                     return;
                 }
 

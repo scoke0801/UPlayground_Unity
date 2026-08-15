@@ -8,7 +8,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI.HUD.EditorTools
 {
     /// <summary>
-    /// 인게임 시계 HUD(UI_HudWorldClock) 프리팹을 코드로 생성/재구성하는 에디터 툴.
+    /// 인게임 시계 HUD(UI_HUD_WorldClock) 프리팹을 코드로 생성/재구성하는 에디터 툴.
     ///
     /// - 프리팹이 없으면 새로 만들고, 있으면 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성한다.
     /// - 좌상단 미니맵(240x240) 바로 아래에 배치: HH:MM + "N일차 · 시간대".
@@ -17,7 +17,7 @@ namespace UPlayGround.UI.HUD.EditorTools
     public static class UIHudWorldClockPrefabBuilder
     {
         private const string PrefabDir = "Assets/03.Prefabs/UI/HUD";
-        private const string PrefabPath = PrefabDir + "/UI_HudWorldClock.prefab";
+        private const string PrefabPath = PrefabDir + "/UI_HUD_WorldClock.prefab";
 
         private static readonly Color PanelBg  = new Color(0f, 0f, 0f, 0.35f);
         private static readonly Color TextMain = new Color(0.94f, 0.93f, 0.88f, 1f);
@@ -32,9 +32,9 @@ namespace UPlayGround.UI.HUD.EditorTools
 
             if (isNew)
             {
-                root = new GameObject("UI_HudWorldClock",
+                root = new GameObject("UI_HUD_WorldClock",
                     typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup));
-                root.AddComponent<UI_HudWorldClock>();
+                root.AddComponent<UI_HUD_WorldClock>();
             }
             else
             {
@@ -43,10 +43,10 @@ namespace UPlayGround.UI.HUD.EditorTools
 
             try
             {
-                var clock = root.GetComponent<UI_HudWorldClock>();
+                var clock = root.GetComponent<UI_HUD_WorldClock>();
                 if (clock == null)
                 {
-                    Debug.LogError("[HudWorldClockBuilder] 루트에 UI_HudWorldClock 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[HudWorldClockBuilder] 루트에 UI_HUD_WorldClock 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -105,7 +105,7 @@ namespace UPlayGround.UI.HUD.EditorTools
 
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
 
-                Debug.Log($"[HudWorldClockBuilder] UI_HudWorldClock 프리팹 생성 완료: {PrefabPath}\n" +
+                Debug.Log($"[HudWorldClockBuilder] UI_HUD_WorldClock 프리팹 생성 완료: {PrefabPath}\n" +
                           "UIPrefabDatabase에 Key 'HudWorldClock' / Default Layer 'HUD'로 등록하세요.");
             }
             finally

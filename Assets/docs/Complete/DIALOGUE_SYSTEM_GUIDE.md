@@ -88,10 +88,10 @@ Assets/02.Scripts/
 │       └── DialogueJsonIO.cs           그래프 JSON Import/Export
 │
 └── UI/Dialogue/
-    ├── UI_Dialogue.cs                  Main 채널 UI
-    ├── UI_SystemDialogue.cs            System 채널 UI
-    ├── UI_MonologueDialogue.cs         Monologue 채널 UI
-    └── UI_DialogueChoiceButton.cs      Choice 버튼
+    ├── UI_Scene_Dialogue.cs                  Main 채널 UI
+    ├── UI_Scene_SystemDialogue.cs            System 채널 UI
+    ├── UI_Scene_MonologueDialogue.cs         Monologue 채널 UI
+    └── UIDialogueChoiceButton.cs      Choice 버튼
 ```
 
 ---
@@ -256,7 +256,7 @@ Main 채널 대화 노드에 진입하면 `DialogueManager`가 다음 순서로 
 // 트리거 측 — 그래프 시작
 DialogueManager.Instance.StartDialogue(graphSO);
 
-// UI 측 — 노드 진입 구독 (UI_Dialogue.OnEnable 등)
+// UI 측 — 노드 진입 구독 (UI_Scene_Dialogue.OnEnable 등)
 DialogueManager.Instance.OnMainNodeEnter += OnNodeEnter;
 DialogueManager.Instance.OnChoicePresented += OnChoices;
 DialogueManager.Instance.OnDialogueEnd += OnEnd;

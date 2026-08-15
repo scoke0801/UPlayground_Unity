@@ -535,7 +535,7 @@
 
   <h3>UI 규약</h3>
   <ul>
-    <li><code>UI_Base</code>를 상속하는 클래스만 <code>UI_</code> 접두사 (예: <code>UI_Map</code>).
+    <li><code>UI_Base</code>를 상속하는 클래스만 <code>UI_</code> 접두사 (예: <code>UI_Scene_Map</code>).
         그 외 UI 보조 클래스는 <code>UIXxx</code> (예: <code>UIAssistRosterPanel</code>).</li>
     <li>캔버스 레이어는 <code>CanvasLayer</code> enum (HUD/Scene/Popup/System/WorldSpace)으로 지정.</li>
     <li>UI에서 게임 상태 조회는 <code>UISvc.*</code> 계약 사용 — 매니저 직접 참조 금지.</li>
@@ -573,7 +573,7 @@
     비이동·비어그로)로 영입됩니다. 확률 롤은 <code>BossRecruitmentService</code>, 보스↔어시스트 매핑은
     <code>BossAssistDatabaseSO.sourceBossActorId</code>, 장착 로스터는 <code>AssistRosterService</code>,
     런타임 소환·발동은 <code>BossAssistManager</code>가 담당합니다.
-    HUD는 <code>UI_BossAssistHud</code> / <code>UIAssistRosterPanel</code>.
+    HUD는 <code>UIBossAssistHud</code> / <code>UIAssistRosterPanel</code>.
   </p>
   <div class="pitfall warn">
     <span class="badge">주의</span>
@@ -589,7 +589,7 @@
     <li><strong>스왑 액션</strong> — 스왑 회피(무적 교대), 입장 공격(타깃 상태별 등장 변형), 잔상 공격, 어시스트 패리.
         구현 중심은 <code>PlayerSwapBehaviour</code>. 설계 문서: <code>CHARACTER_SWAP_*_DESIGN.md</code>.</li>
     <li><strong>성장</strong> — 캐릭터별 EXP → 레벨업 → 자동 성장. 휴식 지점(풀회복·부활·무제한 재사용)과
-        성장 UI는 <code>UI_RestGrowth</code> 계열.</li>
+        성장 UI는 <code>UI_Scene_RestGrowth</code> 계열.</li>
   </ul>
 
   <h3>전투 심화 시스템</h3>
@@ -621,7 +621,7 @@
   <ul>
     <li><strong>시간/조명</strong> — <code>GameTimeManager</code>(게임 내 시간·일시정지)와 <code>WorldLightingManager</code>(시간대별 조명).</li>
     <li><strong>리스폰</strong> — <code>MonsterRespawnManager</code> / <code>InteractionRespawnManager</code>. 네임드(<code>_recruitableAs</code>)는 재스폰 제외.</li>
-    <li><strong>맵</strong> — 전체 맵 <code>UI_Map</code> + 미니맵/나침반(<code>UI_Minimap</code>, <code>UI_CycleCompass</code>).
+    <li><strong>맵</strong> — 전체 맵 <code>UI_Scene_Map</code> + 미니맵/나침반(<code>UI_HUD_Minimap</code>, <code>UICycleCompass</code>).
         씬 포탈은 <code>RegionInfo</code>와 동기화(전용 툴 있음).</li>
     <li><strong>세이브</strong> — <code>SaveManager</code>: 암호화 3슬롯. 파티 HP/스킬 게이지/위치와 맵 몬스터 처치 상태
         (<code>WorldStateManager</code> + <code>SceneEntityId</code> GUID)를 저장·복원합니다.</li>
@@ -644,7 +644,7 @@
       <tr><td><strong>애니메이션 에디터</strong></td><td>캐릭터 → 액터 → 애니메이션 에디터</td><td>MotionSet 타임라인 저작의 중심. 클립 체이닝, MotionEvent 배치, 전투 트랙/히트박스 오버레이, 프레임 데이터 테이블, 루트모션 프리뷰까지 통합</td></tr>
       <tr><td><strong>Ability 에디터</strong></td><td>게임플레이 → Ability Editor</td><td>플레이어 <code>AbilitySetSO</code>·Ability·Effect·Variant Payload 편집과 전체 검증</td></tr>
       <tr><td><strong>공격 데이터 에디터</strong></td><td>게임플레이 → 전투 → 공격 데이터 에디터</td><td>몬스터 <code>AbilitySetSO</code>의 다단 HitPhase·리액션·캔슬 윈도우 편집</td></tr>
-      <tr><td><strong>치트 콘솔</strong></td><td>유틸 → 치트 콘솔 (<code>Ctrl+Alt+C</code>)</td><td>플레이 중 스탯/아이템/시간/플래그 치트. 런타임 치트 패널(<code>UI_DevCheatPanel</code>)과 짝</td></tr>
+      <tr><td><strong>치트 콘솔</strong></td><td>유틸 → 치트 콘솔 (<code>Ctrl+Alt+C</code>)</td><td>플레이 중 스탯/아이템/시간/플래그 치트. 런타임 치트 패널(<code>UI_System_DevCheatPanel</code>)과 짝</td></tr>
       <tr><td><strong>액터 런타임 모니터</strong></td><td>캐릭터 → 액터 → 액터 런타임 모니터</td><td>플레이 중 액터 상태머신·태그·스탯 실시간 관찰 (스탯 전용은 스탯 런타임 모니터)</td></tr>
       <tr><td><strong>씬 핫키</strong></td><td>Tools → 씬 핫키 (<code>Ctrl+H</code>)</td><td>지정 씬 바로 플레이 — 반복 테스트 필수품</td></tr>
       <tr><td><strong>데이터 검증 허브</strong></td><td>유틸 → 데이터 검증 허브</td><td>각 도메인 검증기를 한 곳에서 실행 (커밋 전 습관화 권장)</td></tr>
@@ -716,8 +716,8 @@
       <tr><td>네임스페이스</td><td><code>UPlayGround</code> 루트 아래 폴더 경로를 따름. 신규 파일 필수</td><td><code>Manager/</code> → <code>UPlayGround.Manager</code></td></tr>
       <tr><td>상태 이름</td><td><code>{액터타입}{액션}State</code></td><td><code>PlayerDashState</code>, <code>EnemyChaseState</code></td></tr>
       <tr><td>컴포넌트 이름</td><td><code>{액터타입}{기능}</code></td><td><code>PlayerCombat</code>, <code>EnemyDetection</code></td></tr>
-      <tr><td>대형 클래스</td><td><code>클래스명.기능.cs</code> partial 분리</td><td><code>PlayerActor.Combat.cs</code>, <code>UI_DevCheatPanel.Item.cs</code></td></tr>
-      <tr><td>UI 클래스</td><td><code>UI_Base</code> 상속만 <code>UI_</code>, 그 외 <code>UIXxx</code></td><td><code>UI_Map</code> / <code>UIServices</code></td></tr>
+      <tr><td>대형 클래스</td><td><code>클래스명.기능.cs</code> partial 분리</td><td><code>PlayerActor.Combat.cs</code>, <code>UI_System_DevCheatPanel.Item.cs</code></td></tr>
+      <tr><td>UI 클래스</td><td><code>UI_Base</code> 상속만 <code>UI_</code>, 그 외 <code>UIXxx</code></td><td><code>UI_Scene_Map</code> / <code>UIServices</code></td></tr>
       <tr><td>적 비행 상태</td><td>별도 하위 폴더</td><td><span class="kbd-path">State/Enemy/EnemyFlying/</span></td></tr>
       <tr><td>커밋 메시지</td><td>한국어, 프로젝트 컨벤션 준수</td><td>"액터 전투 구조와 월드 상호작용 정리"</td></tr>
     </table>
@@ -793,7 +793,7 @@
 
   <ul class="checklist">
     <li>프로젝트를 열고 Boot 씬부터 플레이 → 타이틀 → 게임플레이 진입 흐름 확인</li>
-    <li>플레이 중 치트 패널(<code>UI_DevCheatPanel</code>)을 열어 스탯/아이템/시간 치트 훑어보기</li>
+    <li>플레이 중 치트 패널(<code>UI_System_DevCheatPanel</code>)을 열어 스탯/아이템/시간 치트 훑어보기</li>
     <li><code>UPlayGround → 툴 런처</code>를 열어 커스텀 에디터 툴 전체 목록 훑어보기 (12장)</li>
     <li><code>GameManager.RegisterManager</code>에 브레이크포인트를 걸고 매니저 초기화 순서 관찰</li>
     <li><code>PlayerActor</code> partial 6파일과 <code>PlayerAttackState</code> 하나를 읽고 상태 전환·KCC 콜백 위임 구조 이해</li>

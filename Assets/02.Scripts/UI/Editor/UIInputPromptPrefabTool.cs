@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -24,7 +24,7 @@ namespace UPlayGround.UI.EditorTools
         private const string InputActionsPath =
             "Assets/Resources/Input/PlayerInputActions.inputactions";
         private const string InventoryPrefabPath =
-            "Assets/03.Prefabs/UI/Scene/Inventory/UI_Inventory.prefab";
+            "Assets/03.Prefabs/UI/Scene/Inventory/UI_Scene_Inventory.prefab";
 
         private enum Placement
         {
@@ -78,7 +78,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "확인"),
                 Prompt(UIAction.Cancel, "뒤로")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab",
+                "Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab",
                 "Window/Header",
                 "NavigationPromptBar",
                 Placement.Layout,
@@ -90,7 +90,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "확인"),
                 Prompt(UIAction.Cancel, "뒤로")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab",
+                "Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab",
                 "Window/Header",
                 "NavigationPromptBar",
                 Placement.Layout,
@@ -102,7 +102,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "확인"),
                 Prompt(UIAction.Cancel, "뒤로")),
             new(
-                "Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab",
+                "Assets/03.Prefabs/UI/Scene/UI_Scene_SettingMenu.prefab",
                 "Panel/Footer",
                 "NavigationPromptBar",
                 Placement.Layout,
@@ -114,7 +114,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "확인"),
                 Prompt(UIAction.Cancel, "뒤로")),
             new(
-                "Assets/03.Prefabs/UI/Scene/UI_SaveMenu.prefab",
+                "Assets/03.Prefabs/UI/Scene/UI_Scene_SaveSlotMenu.prefab",
                 "Panel/Footer",
                 "CommonPromptBar",
                 Placement.Layout,
@@ -122,7 +122,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "선택"),
                 Prompt(UIAction.Cancel, "닫기")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Map/UI_Map.prefab",
+                "Assets/03.Prefabs/UI/Scene/Map/UI_Scene_Map.prefab",
                 string.Empty,
                 "MapPromptBar",
                 Placement.BottomOverlay,
@@ -132,7 +132,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "마커 선택"),
                 Prompt(UIAction.Cancel, "닫기")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Codex/UI_MonsterCodex.prefab",
+                "Assets/03.Prefabs/UI/Scene/Codex/UI_Scene_MonsterCodex.prefab",
                 "Window/Header",
                 "MainNavigationPromptBar",
                 Placement.Layout,
@@ -142,7 +142,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "확인"),
                 Prompt(UIAction.Cancel, "뒤로")),
             new(
-                "Assets/03.Prefabs/UI/Scene/CharacterSelect/UI_CharacterSelect.prefab",
+                "Assets/03.Prefabs/UI/Scene/CharacterSelect/UI_Scene_CharacterSelect.prefab",
                 string.Empty,
                 "CommonPromptBar",
                 Placement.BottomOverlay,
@@ -150,7 +150,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "시작"),
                 Prompt(UIAction.Cancel, "취소")),
             new(
-                "Assets/03.Prefabs/UI/Scene/UI_PauseMenu.prefab",
+                "Assets/03.Prefabs/UI/Scene/UI_Scene_PauseMenu.prefab",
                 "Panel",
                 "CommonPromptBar",
                 Placement.Layout,
@@ -158,7 +158,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "선택"),
                 Prompt(UIAction.Cancel, "재개")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Growth/UI_RestGrowth.prefab",
+                "Assets/03.Prefabs/UI/Scene/Growth/UI_Scene_RestGrowth.prefab",
                 "Panel",
                 "CommonPromptBar",
                 Placement.Layout,
@@ -166,7 +166,7 @@ namespace UPlayGround.UI.EditorTools
                 Prompt(UIAction.Submit, "성장"),
                 Prompt(UIAction.Cancel, "닫기")),
             new(
-                "Assets/03.Prefabs/UI/Scene/Party/UI_PartyMenu.prefab",
+                "Assets/03.Prefabs/UI/Scene/Party/UI_Scene_PartyMenu.prefab",
                 string.Empty,
                 "PartyPromptBar",
                 Placement.BottomOverlay,
@@ -288,7 +288,7 @@ namespace UPlayGround.UI.EditorTools
                 ReplaceLegacyText(root);
                 ConfigureInventoryScrollReference(definition.PrefabPath, root);
 
-                UI_InputPromptBar bar =
+                UIInputPromptBar bar =
                     UIInputPromptBarBuilderUtility.FindOrAddBar(
                         parent,
                         definition.BarName,
@@ -341,7 +341,7 @@ namespace UPlayGround.UI.EditorTools
             if (!string.Equals(prefabPath, InventoryPrefabPath, StringComparison.Ordinal))
                 return;
 
-            UI_Inventory inventory = root.GetComponent<UI_Inventory>();
+            UI_Scene_Inventory inventory = root.GetComponent<UI_Scene_Inventory>();
             if (inventory == null)
                 return;
 
@@ -358,7 +358,7 @@ namespace UPlayGround.UI.EditorTools
         }
 
         private static void ConfigurePlacement(
-            UI_InputPromptBar bar,
+            UIInputPromptBar bar,
             PrefabPromptDefinition definition)
         {
             RectTransform rect = (RectTransform)bar.transform;
@@ -721,8 +721,8 @@ namespace UPlayGround.UI.EditorTools
                 }
 
                 Transform barTransform = parent.Find(definition.BarName);
-                UI_InputPromptBar bar = barTransform != null
-                    ? barTransform.GetComponent<UI_InputPromptBar>()
+                UIInputPromptBar bar = barTransform != null
+                    ? barTransform.GetComponent<UIInputPromptBar>()
                     : null;
                 if (bar == null)
                 {
@@ -740,7 +740,7 @@ namespace UPlayGround.UI.EditorTools
                         InventoryPrefabPath,
                         StringComparison.Ordinal))
                 {
-                    UI_Inventory inventory = root.GetComponent<UI_Inventory>();
+                    UI_Scene_Inventory inventory = root.GetComponent<UI_Scene_Inventory>();
                     var inventorySerialized = inventory != null
                         ? new SerializedObject(inventory)
                         : null;

@@ -22,7 +22,7 @@ namespace UPlayGround.Dialogue.EditorTools
     ///  2. 컨트롤 바 / 이력 패널 프리팹 초안 생성(각 빌더 위임)
     ///  3. UIPrefabDatabase에 DialogueControlBar / DialogueBacklog 키 등록
     ///  4. UIKeyType enum 재생성
-    ///  5. 기존 UI_Dialogue / UI_MonologueDialogue 프리팹에 DialogueTypewriter 부착·배선
+    ///  5. 기존 UI_Scene_Dialogue / UI_Scene_MonologueDialogue 프리팹에 DialogueTypewriter 부착·배선
     ///  6. 설정 메뉴 프리팹 재생성(대화 설정 드롭다운 2종 반영)
     ///
     /// 전 단계가 재실행 가능(idempotent)하며, 이미 처리된 항목은 건너뛴다.
@@ -32,11 +32,11 @@ namespace UPlayGround.Dialogue.EditorTools
     {
         private const string PaletteAssetPath = "Assets/10.Datas/Dialogue/DialoguePalette.asset";
 
-        private const string ControlBarPrefabPath = "Assets/03.Prefabs/UI/Dialogue/UI_DialogueControlBar.prefab";
-        private const string BacklogPrefabPath = "Assets/03.Prefabs/UI/Dialogue/UI_DialogueBacklog.prefab";
+        private const string ControlBarPrefabPath = "Assets/03.Prefabs/UI/Dialogue/UI_Scene_DialogueControlBar.prefab";
+        private const string BacklogPrefabPath = "Assets/03.Prefabs/UI/Dialogue/UI_Popup_DialogueBacklog.prefab";
 
-        private const string MainDialoguePrefabPath = "Assets/03.Prefabs/UI/Scene/UI_Dialogue.prefab";
-        private const string MonologuePrefabPath = "Assets/03.Prefabs/UI/Common/UI_MonologueDialogue.prefab";
+        private const string MainDialoguePrefabPath = "Assets/03.Prefabs/UI/Scene/UI_Scene_Dialogue.prefab";
+        private const string MonologuePrefabPath = "Assets/03.Prefabs/UI/Common/UI_Scene_MonologueDialogue.prefab";
 
         private const string UiKeyTypeOutputPath = "Assets/02.Scripts/Data/Path/UIKeyType.cs";
 
@@ -232,8 +232,8 @@ namespace UPlayGround.Dialogue.EditorTools
             {
                 // Main 본문만 스크롤로 감싼다. 대사가 길면 상자를 넘치기 때문이다.
                 // 독백은 화면 중앙 단문 레이아웃이라 감싸면 정렬이 깨진다.
-                WireTypewriter<UI_Dialogue>(MainDialoguePrefabPath, "dialogueBodyText", wrapInScrollView: true),
-                WireTypewriter<UI_MonologueDialogue>(MonologuePrefabPath, "monologueText", wrapInScrollView: false)
+                WireTypewriter<UI_Scene_Dialogue>(MainDialoguePrefabPath, "dialogueBodyText", wrapInScrollView: true),
+                WireTypewriter<UI_Scene_MonologueDialogue>(MonologuePrefabPath, "monologueText", wrapInScrollView: false)
             };
 
             return string.Join(" / ", results);

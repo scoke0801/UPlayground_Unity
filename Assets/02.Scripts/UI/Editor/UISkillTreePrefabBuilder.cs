@@ -9,7 +9,7 @@ namespace UPlayGround.UI.Growth.EditorTools
 {
     public static class UISkillTreePrefabBuilder
     {
-        public const string PrefabPath = "Assets/03.Prefabs/UI/Scene/Growth/UI_SkillTree.prefab";
+        public const string PrefabPath = "Assets/03.Prefabs/UI/Scene/Growth/UI_Scene_SkillTree.prefab";
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
         private const string NodeFramePath =
             "Assets/ExternalAssets/UI/Artsystack - Fantasy RPG GUI/ResourcesData/Sprites/components/circle_slot_01.png";
@@ -55,12 +55,12 @@ namespace UPlayGround.UI.Growth.EditorTools
             GameObject root = exists
                 ? PrefabUtility.LoadPrefabContents(PrefabPath)
                 : new GameObject(
-                    "UI_SkillTree",
+                    "UI_Scene_SkillTree",
                     typeof(RectTransform),
                     typeof(Canvas),
                     typeof(CanvasScaler),
                     typeof(GraphicRaycaster),
-                    typeof(UI_SkillTree));
+                    typeof(UI_Scene_SkillTree));
             try
             {
                 RectTransform rootRect = root.GetComponent<RectTransform>();
@@ -81,7 +81,7 @@ namespace UPlayGround.UI.Growth.EditorTools
                 scaler.matchWidthOrHeight = 0.5f;
                 if (root.GetComponent<GraphicRaycaster>() == null)
                     root.AddComponent<GraphicRaycaster>();
-                UI_SkillTree tree = root.GetComponent<UI_SkillTree>() ?? root.AddComponent<UI_SkillTree>();
+                UI_Scene_SkillTree tree = root.GetComponent<UI_Scene_SkillTree>() ?? root.AddComponent<UI_Scene_SkillTree>();
                 AssignStyleSprites(tree);
                 tree.RebuildEditorPreview();
                 if (PrefabUtility.SaveAsPrefabAsset(root, PrefabPath) == null)
@@ -162,7 +162,7 @@ namespace UPlayGround.UI.Growth.EditorTools
             }
         }
 
-        private static void AssignStyleSprites(UI_SkillTree tree)
+        private static void AssignStyleSprites(UI_Scene_SkillTree tree)
         {
             var serialized = new SerializedObject(tree);
             serialized.FindProperty("_nodeFrameSprite").objectReferenceValue =
@@ -185,7 +185,7 @@ namespace UPlayGround.UI.Growth.EditorTools
             for (int i = 0; i < entries.arraySize; i++)
             {
                 SerializedProperty entry = entries.GetArrayElementAtIndex(i);
-                if (entry.FindPropertyRelative("key").stringValue == UI_SkillTree.UIKey)
+                if (entry.FindPropertyRelative("key").stringValue == UI_Scene_SkillTree.UIKey)
                 {
                     target = entry;
                     break;
@@ -196,7 +196,7 @@ namespace UPlayGround.UI.Growth.EditorTools
                 entries.InsertArrayElementAtIndex(entries.arraySize);
                 target = entries.GetArrayElementAtIndex(entries.arraySize - 1);
             }
-            target.FindPropertyRelative("key").stringValue = UI_SkillTree.UIKey;
+            target.FindPropertyRelative("key").stringValue = UI_Scene_SkillTree.UIKey;
             target.FindPropertyRelative("prefab").objectReferenceValue = prefab;
             target.FindPropertyRelative("defaultLayer").enumValueIndex =
                 System.Array.IndexOf(System.Enum.GetValues(typeof(CanvasLayer)), CanvasLayer.Popup);

@@ -2,24 +2,24 @@
 
 ## 목적
 
-퀘스트 메뉴에서 퀘스트를 추적하면 `UI_HudQuest`에 해당 퀘스트가 표시되고, 퀘스트 완료 시 HUD에 짧은 달성 UI가 뜨도록 프리팹과 버튼 이벤트를 연결한다.
+퀘스트 메뉴에서 퀘스트를 추적하면 `UI_HUD_Quest`에 해당 퀘스트가 표시되고, 퀘스트 완료 시 HUD에 짧은 달성 UI가 뜨도록 프리팹과 버튼 이벤트를 연결한다.
 
 코드 구현은 완료되어 있으며, 이 문서는 Unity 에디터에서 남은 연결 작업만 다룬다.
 
 ## 대상 프리팹
 
-- `Assets/03.Prefabs/UI/HUD/Quest/UI_HudQuest.prefab`
-- `Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab`
+- `Assets/03.Prefabs/UI/HUD/Quest/UI_HUD_Quest.prefab`
+- `Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab`
 - 퀘스트 목록/슬롯 프리팹이 별도로 분리되어 있다면 해당 슬롯 프리팹
 
-## 1. UI_HudQuest 완료 알림 패널 추가
+## 1. UI_HUD_Quest 완료 알림 패널 추가
 
-`UI_HudQuest.prefab`을 연다.
+`UI_HUD_Quest.prefab`을 연다.
 
 루트 또는 기존 퀘스트 표시 패널과 같은 계층에 다음 오브젝트를 추가한다.
 
 ```text
-UI_HudQuest
+UI_HUD_Quest
 └── QuestCompletePanel
     ├── QuestCompleteTitleText
     └── QuestCompleteNameText
@@ -38,7 +38,7 @@ UI_HudQuest
   - TextMeshProUGUI
   - 완료된 퀘스트 이름이 런타임에 설정됨
 
-`UI_HudQuest` 컴포넌트 인스펙터 연결:
+`UI_HUD_Quest` 컴포넌트 인스펙터 연결:
 
 - `Quest Complete Panel` → `QuestCompletePanel`
 - `Quest Complete Canvas Group` → `QuestCompletePanel`의 `CanvasGroup`
@@ -50,7 +50,7 @@ UI_HudQuest
 
 ## 2. 기존 퀘스트 HUD 텍스트 연결 확인
 
-`UI_HudQuest` 컴포넌트에서 아래 필드가 연결되어 있는지 확인한다.
+`UI_HUD_Quest` 컴포넌트에서 아래 필드가 연결되어 있는지 확인한다.
 
 - `Quest Title Text`
 - `Quest Desc Text`
@@ -59,13 +59,13 @@ UI_HudQuest
 
 ## 3. 퀘스트 메뉴 추적 버튼 연결
 
-`UI_QuestMenu.prefab` 또는 퀘스트 슬롯 프리팹에서 추적 버튼을 찾는다.
+`UI_Scene_QuestMenu.prefab` 또는 퀘스트 슬롯 프리팹에서 추적 버튼을 찾는다.
 
 버튼 `OnClick`에 다음 중 하나를 연결한다.
 
-- 일반 추적 버튼: `UI_QuestMenu.TrackQuest(string questId)`
-- 토글 버튼: `UI_QuestMenu.ToggleTrackQuest(string questId)`
-- 추적 해제 버튼: `UI_QuestMenu.UntrackQuest()`
+- 일반 추적 버튼: `UI_Scene_QuestMenu.TrackQuest(string questId)`
+- 토글 버튼: `UI_Scene_QuestMenu.ToggleTrackQuest(string questId)`
+- 추적 해제 버튼: `UI_Scene_QuestMenu.UntrackQuest()`
 
 권장 방식은 `ToggleTrackQuest(string questId)`이다. 같은 퀘스트를 다시 누르면 추적 해제되고, 다른 퀘스트를 누르면 추적 대상이 바뀐다.
 

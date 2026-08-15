@@ -12,10 +12,10 @@
 **코드 완료:**
 - `AttackInfo.cs` — `AttackDefenseType { Parryable, GuardableOnly, Unblockable }` enum 추가.
 - `CombatData.cs` — `AbilityAttackInfo`에 `useDangerRing`/`dangerRingDuration`/`dangerRingPrefabKey`/`defenseType`, `AttackData`에 `defenseType`(기본 `Parryable`).
-- `ActorType.cs` — `ActorSocketType.UI_DangerRing`(**enum 끝에 추가** — 직렬화 값 시프트 방지).
+- `ActorType.cs` — `ActorSocketType.UIDangerRing`(**enum 끝에 추가** — 직렬화 값 시프트 방지).
 - `EnemyCombat.cs` — `BeginTelegraph` 디스패처 재구조화(early-return 제거, 바닥FX/링 독립 분기), `BeginDangerRing`/`ResolveDangerRingDuration`, `ClearTelegraphs`에서 링 정리, `CheckMeleeAttackHit`에서 `defenseType` 복사.
 - `PlayerGuardState.cs` — 퍼펙트 가드 시 `defenseType == Parryable`만 `OnParried()`+카운터 창.
-- `UI_DangerRing.cs` (신규), `UI_WorldSpaceHudLayer.CreateDangerRing`, `UIManager.CreateDangerRing` + 기본 프리팹 등록(키 `"DangerRing"`).
+- `UIDangerRing.cs` (신규), `UIWorldSpaceHudLayer.CreateDangerRing`, `UIManager.CreateDangerRing` + 기본 프리팹 등록(키 `"DangerRing"`).
 
 **설계 대비 단순화(Phase 1):**
 - 풀링 대신 **Instantiate/Destroy**(HP바·바닥FX와 동일). 풀링은 추후 최적화.
@@ -32,13 +32,13 @@
 
 몬스터가 공격을 시작할 때, 공격하는 적의 머리 위에 **화면을 따라다니는 원형 라디얼 필 링**을 표시해 "언제 타격이 들어오는지"를 시각적으로 알려주는 HUD 시스템 설계서. 윈드업(예비 동작) 동안 `Image.fillAmount`가 `0 → 1`로 차오르고, 가득 차는 순간이 실제 타격 순간과 일치하도록 한다. 플레이어는 링의 채워지는 속도를 보고 회피·가드·패링 타이밍을 잡는다.
 
-**주 레퍼런스는 명조(Wuthering Waves, Kuro Games)** 의 패리 신호 "Weakness Halo"(적 위에 뜨는 원형 타이밍 고리)이며, 세키로(perilous attack)의 위험 심볼을 보조 참조로 둔다. 이 "원형 1점 타이밍" 패턴을, 이 프로젝트의 기존 **월드 공간 HUD 인프라**(`UI_WorldSpaceHudLayer` + `UI_ActorHpBar`)와 **텔레그래프 생명주기**(`EnemyCombat.BeginTelegraph` → `UpdateTelegraphs` → `ClearTelegraphs`)에 얹어 구현한다.
+**주 레퍼런스는 명조(Wuthering Waves, Kuro Games)** 의 패리 신호 "Weakness Halo"(적 위에 뜨는 원형 타이밍 고리)이며, 세키로(perilous attack)의 위험 심볼을 보조 참조로 둔다. 이 "원형 1점 타이밍" 패턴을, 이 프로젝트의 기존 **월드 공간 HUD 인프라**(`UIWorldSpaceHudLayer` + `UIActorHpBar`)와 **텔레그래프 생명주기**(`EnemyCombat.BeginTelegraph` → `UpdateTelegraphs` → `ClearTelegraphs`)에 얹어 구현한다.
 
 핵심 방향은 다음과 같다.
 
 - **기존 바닥 원형 FX 텔레그래프를 대체하지 않고 보완한다.** 바닥 데칼은 "어디"(공간 범위), Danger Ring은 "언제"(타이밍)를 담당한다.
 - **Danger Ring은 바닥 텔레그래프와 독립이다.** 같은 생명주기 훅(`OnEnter`/`UpdateState`/`OnExit`, `TelegraphEvent`)에 얹지만, `useTelegraph`와 `useDangerRing`은 **서로 다른 플래그**로 각자 켜고 끈다. 바닥 텔레그래프가 꺼져 있어도(`useTelegraph=false`) Danger Ring은 단독 출력될 수 있어야 한다. (요구사항: 텔레그래프 미출력 시에도 링 출력)
-- 위치 추적·화면 변환·`fillAmount` 구동은 이미 검증된 `UI_ActorHpBar` 패턴을 그대로 재사용한다.
+- 위치 추적·화면 변환·`fillAmount` 구동은 이미 검증된 `UIActorHpBar` 패턴을 그대로 재사용한다.
 - 채우는 시간(윈드업 길이)은 공격 데이터(`AbilityAttackInfo`)가 명시한 단일 값을 진실 소스로 사용한다.
 - **공격마다 패링 가능/불가를 구분한다.** 명조 Weakness Halo처럼, 링의 비주얼(색)이 "이 공격이 패링 가능한가"를 표현한다. 이를 위해 공격 데이터에 방어 타입 축(`AttackDefenseType`)을 추가하고, 플레이어 가드/카운터 로직이 이를 검사하도록 함께 수정한다. (현재는 모든 공격이 무조건 패링/카운터 가능)
 - 1차 구현은 **공격당 단일 링**으로 한정한다. 다단 히트·동시 다수 적·오프스크린 핸드오프는 아래 "미해결 과제"에서 범위를 분리한다.
@@ -116,13 +116,13 @@ EnemyAttackState.OnExit
 
 | 기존 자산 | Danger Ring에서의 역할 |
 |------|------|
-| `UI_WorldSpaceHudLayer` | Screen Space Overlay 캔버스에서 월드 위치 추적 UI를 생성·관리. `CreateDangerRing()` 추가 |
-| `UI_ActorHpBar` | `WorldToScreenPoint` 위치 추적, `Image.fillAmount`, 카메라 뒤 alpha 처리, 소켓 기반 위치 — 그대로 복제할 패턴 |
+| `UIWorldSpaceHudLayer` | Screen Space Overlay 캔버스에서 월드 위치 추적 UI를 생성·관리. `CreateDangerRing()` 추가 |
+| `UIActorHpBar` | `WorldToScreenPoint` 위치 추적, `Image.fillAmount`, 카메라 뒤 alpha 처리, 소켓 기반 위치 — 그대로 복제할 패턴 |
 | `EnemyCombat` 텔레그래프 메서드 | `BeginTelegraph`/`UpdateTelegraphs`/`ClearTelegraphs` 생명주기에 링 처리 분기 추가 |
-| `ActorSocketType` (`ActorType.cs`) | `UI_HpBar`처럼 `UI_DangerRing` 소켓 항목 추가 |
+| `ActorSocketType` (`ActorType.cs`) | `UI_HpBar`처럼 `UIDangerRing` 소켓 항목 추가 |
 | `UIKeyType` / `GetUIPrefabEntry` | `ActorHpBar`처럼 `DangerRing` 프리팹 키 등록 |
 
-> HP Bar는 몬스터당 1개를 스폰 시 영속 생성하지만, Danger Ring은 **공격 윈드업마다 생성·소멸하는 트랜지언트** 객체다. 따라서 데미지 플로터(`UI_DamageFloater`)와 같은 **풀링** 방식이 더 적합하다(아래 "UI 구현" 참조).
+> HP Bar는 몬스터당 1개를 스폰 시 영속 생성하지만, Danger Ring은 **공격 윈드업마다 생성·소멸하는 트랜지언트** 객체다. 따라서 데미지 플로터(`UIDamageFloater`)와 같은 **풀링** 방식이 더 적합하다(아래 "UI 구현" 참조).
 
 ---
 
@@ -170,7 +170,7 @@ public float dangerRingDuration = 0.6f;
 public string dangerRingPrefabKey;
 ```
 
-> **링 색은 자유 필드가 아니다.** 아래 `defenseType`(`AttackDefenseType`)에서 파생한다 — 패링 가능=노랑, 패링 불가=빨강. 색 상수는 프로젝트 공용 팔레트나 `UI_DangerRing` 프리팹에 둔다.
+> **링 색은 자유 필드가 아니다.** 아래 `defenseType`(`AttackDefenseType`)에서 파생한다 — 패링 가능=노랑, 패링 불가=빨강. 색 상수는 프로젝트 공용 팔레트나 `UIDangerRing` 프리팹에 둔다.
 >
 > `telegraphRadiusScale`·`telegraphAnchorType` 등 기존 텔레그래프 필드와 **완전히 독립**이다. 바닥 데칼 없이 링만 쓰거나(`useTelegraph=false, useDangerRing=true`), 반대도, 둘 다도 가능하다.
 
@@ -236,7 +236,7 @@ public enum AttackDefenseType
 
 ### Danger Ring 색 매핑
 
-`UI_DangerRing`은 생성 시 `AbilityAttackInfo.defenseType`(또는 `AttackData.defenseType`)을 받아 색을 정한다.
+`UIDangerRing`은 생성 시 `AbilityAttackInfo.defenseType`(또는 `AttackData.defenseType`)을 받아 색을 정한다.
 
 | `AttackDefenseType` | 링 색 | 의미 | 레퍼런스 |
 |------|------|------|------|
@@ -260,13 +260,13 @@ public enum ActorSocketType
     Center,
     Head,
     UI_HpBar,
-    UI_DangerRing,   // 신규 — Danger Ring 앵커
+    UIDangerRing,   // 신규 — Danger Ring 앵커
     Weapon,
     GuardPosition,
 }
 ```
 
-- 링은 `actor.GetSocket(ActorSocketType.UI_DangerRing)`를 우선 사용하고, 소켓이 없으면 `머리 위 오프셋`으로 폴백한다(`UI_ActorHpBar._worldOffset`와 동일 패턴).
+- 링은 `actor.GetSocket(ActorSocketType.UIDangerRing)`를 우선 사용하고, 소켓이 없으면 `머리 위 오프셋`으로 폴백한다(`UIActorHpBar._worldOffset`와 동일 패턴).
 - HP Bar(`UI_HpBar`)와 겹치지 않도록 약간 더 높은 위치를 기본 오프셋으로 둔다.
 
 ---
@@ -278,7 +278,7 @@ public enum ActorSocketType
 핵심 변경: 기존 `BeginTelegraph`의 `!useTelegraph` early-return을 제거하고, **바닥 FX와 링을 각자 플래그로 독립 분기**한다. 기존 `_telegraphInstances` 옆에 단일 링 참조(공격당 1개)를 둔다.
 
 ```csharp
-private UI_DangerRing _dangerRing;
+private UIDangerRing _dangerRing;
 
 public void BeginTelegraph(int hitPhaseIndex, bool lockPositionOnStart)
 {
@@ -314,25 +314,25 @@ if (_dangerRing != null) { _dangerRing.Release(); _dangerRing = null; }
 
 `Execute`/`OnCompleteEvent`는 이미 `BeginTelegraph`/`ClearTelegraphs`를 호출하므로 **추가 배선이 거의 없다.** 이벤트 구간을 폴백 duration으로 넘기려면 `Execute`에서 `endTime − startTime`을 함께 전달하도록 시그니처를 확장한다(선택).
 
-### `UIManager` / `UI_WorldSpaceHudLayer`
+### `UIManager` / `UIWorldSpaceHudLayer`
 
 `CreateHpBar` 미러로 `CreateDangerRing` 추가. HP Bar와 달리 풀에서 꺼내고 `Release()`로 반납한다(데미지 플로터 풀 패턴 재사용).
 
 ```csharp
 // UIManager
-public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration)
+public UIDangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration)
     => _worldSpaceHudLayer?.CreateDangerRing(actor, skill, duration);
 ```
 
 ---
 
-## UI 구현 (`UI_DangerRing`)
+## UI 구현 (`UIDangerRing`)
 
-`UI_ActorHpBar`를 복제·축소한 신규 컴포넌트. `Assets/02.Scripts/UI/WorldSpace/UI_DangerRing.cs`.
+`UIActorHpBar`를 복제·축소한 신규 컴포넌트. `Assets/02.Scripts/UI/WorldSpace/UIDangerRing.cs`.
 
 | 책임 | 구현 |
 |------|------|
-| 위치 추적 | `LateUpdate`에서 소켓/오프셋 월드 위치 → `WorldToScreenPoint` → `anchoredPosition`. `UI_ActorHpBar.UpdatePosition` 그대로 |
+| 위치 추적 | `LateUpdate`에서 소켓/오프셋 월드 위치 → `WorldToScreenPoint` → `anchoredPosition`. `UIActorHpBar.UpdatePosition` 그대로 |
 | 카메라 뒤 처리 | `screenPos.z < 0` → `CanvasGroup.alpha = 0` (SetActive 토글 금지, HP Bar와 동일) |
 | 채움 | `Tick(deltaTime)`로 `_elapsed` 누적 → `fillImage.fillAmount = Mathf.Clamp01(_elapsed / _duration)` |
 | 색 (방어 타입) | `Init` 시 `defenseType`을 받아 베이스 색 결정 — `Parryable`=노랑, `Unblockable`=빨강 |
@@ -373,11 +373,11 @@ public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, 
 4. `PlayerGuardState.OnAttackBlocked`에서 `defenseType == Parryable`일 때만 `OnParried()` + 카운터 창. → 회귀 테스트: 기본값 `Parryable`이라 기존 동작 유지되는지 확인.
 
 **B. Danger Ring (독립 출력 구조)**
-5. `ActorSocketType.UI_DangerRing` enum 추가 + 적 프리팹에 머리 위 소켓 Transform 배치.
+5. `ActorSocketType.UIDangerRing` enum 추가 + 적 프리팹에 머리 위 소켓 Transform 배치.
 6. `AbilityAttackInfo`에 `useDangerRing` / `dangerRingDuration` / `dangerRingPrefabKey` 필드 추가.
-7. `UI_DangerRing.cs` 작성(`UI_ActorHpBar` 복제 → `fillAmount` 채움 + `defenseType` 색 + 완성 강조).
+7. `UIDangerRing.cs` 작성(`UIActorHpBar` 복제 → `fillAmount` 채움 + `defenseType` 색 + 완성 강조).
 8. Danger Ring 프리팹 생성(`Image` Filled/Radial360 + `CanvasGroup`) 및 `UIKeyType.DangerRing` 키 등록. *(에디터 작업 — 직접 수행 필요)*
-9. `UI_WorldSpaceHudLayer.CreateDangerRing` + `UIManager.CreateDangerRing` 추가(풀링).
+9. `UIWorldSpaceHudLayer.CreateDangerRing` + `UIManager.CreateDangerRing` 추가(풀링).
 10. `EnemyCombat.BeginTelegraph`를 **디스패처로 재구조화**(early-return 제거 → 바닥 FX/링 독립 분기) + `Tick`/`Release` + `ResolveDangerRingDuration` 헬퍼.
 11. 테스트: `useTelegraph=false, useDangerRing=true` 공격으로 **텔레그래프 없이 링만** 출력되는지 + "가득 참 == 타격" 정렬 + 패링/회피 색 구분 확인.
 
@@ -393,9 +393,9 @@ public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, 
 
 | 항목 | 설정 |
 |------|------|
-| 루트 GameObject | `RectTransform` (pivot 0.5,0.5 / 크기 예: 96×96) + `CanvasGroup` + **`UI_DangerRing`** 컴포넌트 |
+| 루트 GameObject | `RectTransform` (pivot 0.5,0.5 / 크기 예: 96×96) + `CanvasGroup` + **`UIDangerRing`** 컴포넌트 |
 | 자식 `Image` (링 본체) | `Source Image` = 원형 링 스프라이트 / **`Image Type = Filled`** / **`Fill Method = Radial 360`** / `Fill Origin = Top` / `Clockwise = true` |
-| `UI_DangerRing._fillImage` | 위 자식 `Image`를 드래그 연결 (**필수 — 미연결 시 채움 안 보임**) |
+| `UIDangerRing._fillImage` | 위 자식 `Image`를 드래그 연결 (**필수 — 미연결 시 채움 안 보임**) |
 | (선택) `_worldOffset` | 기본 `(0, 2.2, 0)`. HP Bar와 안 겹치게 조정 |
 | (선택) `_parryableColor` / `_unblockableColor` | 기본 노랑/빨강. 팔레트에 맞춰 조정 가능 |
 
@@ -419,7 +419,7 @@ public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, 
 링을 띄울 적 프리팹을 연다.
 
 1. 머리/상단 위치에 빈 자식 GameObject 생성(예: 머리 본 밑 `Socket_DangerRing`). 머리 위로 적당히 올림.
-2. 루트의 **`GameActor`** 컴포넌트 → `Socket Dict`(`_socketDict`)에 항목 추가: **Key = `UI_DangerRing`**, **Value = 위 Transform**.
+2. 루트의 **`GameActor`** 컴포넌트 → `Socket Dict`(`_socketDict`)에 항목 추가: **Key = `UIDangerRing`**, **Value = 위 Transform**.
 
 > 소켓을 안 만들면 `_worldOffset`(머리 위 오프셋)으로 폴백하므로 **필수는 아니다.** 위치를 정밀 제어하고 싶을 때만 한다.
 
@@ -452,15 +452,15 @@ public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, 
 |------|------|
 | `Assets/02.Scripts/Data/Combat/CombatData.cs` | `AbilityAttackInfo`에 Danger Ring 필드 + `defenseType` 추가, `AttackData`에 `defenseType` 추가 |
 | `Assets/02.Scripts/Data/Enum/AttackInfo.cs` | `AttackDefenseType` enum 추가 |
-| `Assets/02.Scripts/Data/Enum/ActorType.cs` | `ActorSocketType.UI_DangerRing` 추가 |
+| `Assets/02.Scripts/Data/Enum/ActorType.cs` | `ActorSocketType.UIDangerRing` 추가 |
 | `Assets/02.Scripts/GameActor/Component/Enemy/EnemyCombat.cs` | `BeginTelegraph` 디스패처 재구조화(독립 분기), `CheckMeleeAttackHit`에 `defenseType` 복사 |
 | `Assets/02.Scripts/GameActor/State/Player/PlayerGuardState.cs` | `OnAttackBlocked`에서 `defenseType` 검사 — `Parryable`만 카운터 성립 |
 | `Assets/02.Scripts/GameActor/State/Enemy/EnemyAttackState.cs` | 변경 없음(기존 `BeginTelegraph`/`UpdateTelegraphs`/`ClearTelegraphs` 호출 재사용) |
 | `Assets/02.Scripts/Data/Event/Animation/MotionEvent_Telegraph.cs` | (선택) `Execute`에서 이벤트 구간 길이를 폴백 duration으로 전달 |
-| `Assets/02.Scripts/UI/WorldSpace/UI_DangerRing.cs` | **신규.** 월드 추적 라디얼 필 링 컴포넌트 |
-| `Assets/02.Scripts/UI/WorldSpace/UI_WorldSpaceHudLayer.cs` | `CreateDangerRing` + 풀 관리 추가 |
+| `Assets/02.Scripts/UI/WorldSpace/UIDangerRing.cs` | **신규.** 월드 추적 라디얼 필 링 컴포넌트 |
+| `Assets/02.Scripts/UI/WorldSpace/UIWorldSpaceHudLayer.cs` | `CreateDangerRing` + 풀 관리 추가 |
 | `Assets/02.Scripts/Manager/UIManager.cs` | `CreateDangerRing` 진입점, `UIKeyType.DangerRing` 프리팹 등록 |
-| `Assets/02.Scripts/UI/WorldSpace/UI_ActorHpBar.cs` | 복제 기준 패턴(위치 추적·fillAmount·카메라 뒤 처리) |
+| `Assets/02.Scripts/UI/WorldSpace/UIActorHpBar.cs` | 복제 기준 패턴(위치 추적·fillAmount·카메라 뒤 처리) |
 | `Assets/02.Scripts/UI/HUD/UIOffscreenThreatMarker.cs` | 오프스크린 핸드오프 대상(Phase 2) |
 
 ---

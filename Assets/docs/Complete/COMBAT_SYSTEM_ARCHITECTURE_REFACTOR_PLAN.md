@@ -547,7 +547,7 @@ Assets/02.Scripts/GameActor/Component/Player/PlayerCombatStateTracker.cs
 | `PlayerCombat.cs` | 전투 상태 관련 필드/Update 제거 |
 | `PlayerActor.cs` | `IsInCombat` provider 참조 갱신 |
 | `PlayerCombatWeaponStateController.cs` | `PlayerCombat.OnChangeCombatState` 대신 tracker 이벤트 구독 |
-| `UI_GamePlay` 계열 | 전투 상태 참조 갱신 가능 |
+| `UI_HUD_GamePlay` 계열 | 전투 상태 참조 갱신 가능 |
 
 ### 완료 기준
 

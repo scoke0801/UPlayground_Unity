@@ -107,7 +107,7 @@ Returned
 - 아직 `CycleRunManager.StartNewCycle`을 실행하지 않는다.
 - 초회차 앵커 완료 후에만 보스 배치와 전투 지도를 활성화한다.
 
-현재 `UI_TitleMenu.StartNewGame`은 `RequestStartNewCycleOnNextWorld()`를 즉시 호출한다. 구현 시 이를 `RequestStartFirstCycleAfterStoryGate()`와 같은 명시적 게이트로 교체하거나, 기존 요청에 `Func<bool>`를 주입하지 말고 CycleRunManager가 영구 플래그/퀘스트 완료 상태를 확인한 뒤 시작하도록 한다. P0 권장안은 [12_LOOP_ANCHOR_QUEST_SPEC.md](12_LOOP_ANCHOR_QUEST_SPEC.md)의 오케스트레이션 계약을 따른다.
+현재 `UI_Scene_TitleMenu.StartNewGame`은 `RequestStartNewCycleOnNextWorld()`를 즉시 호출한다. 구현 시 이를 `RequestStartFirstCycleAfterStoryGate()`와 같은 명시적 게이트로 교체하거나, 기존 요청에 `Func<bool>`를 주입하지 말고 CycleRunManager가 영구 플래그/퀘스트 완료 상태를 확인한 뒤 시작하도록 한다. P0 권장안은 [12_LOOP_ANCHOR_QUEST_SPEC.md](12_LOOP_ANCHOR_QUEST_SPEC.md)의 오케스트레이션 계약을 따른다.
 
 ### 5.3 사이클 정산
 

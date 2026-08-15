@@ -43,13 +43,13 @@ namespace UPlayGround.Manager
         private readonly List<InputActionReference> _uiInputActionReferences = new();
         private bool _bindingStructureSubscribed;
 
-        private UI_WorldSpaceHudLayer _worldSpaceHudLayer;
+        private UIWorldSpaceHudLayer _worldSpaceHudLayer;
 
         private UIPrefabDatabase      _uiPrefabDatabase;
         private DamageFloaterConfigSO _floaterConfig;
 
         public bool IsInitialized { get; set; } = false;
-        public UI_WorldSpaceHudLayer WorldSpaceHudLayer => _worldSpaceHudLayer;
+        public UIWorldSpaceHudLayer WorldSpaceHudLayer => _worldSpaceHudLayer;
 
         #region IManager
 
@@ -221,7 +221,7 @@ namespace UPlayGround.Manager
 
                 if (layer == CanvasLayer.HUD)
                 {
-                    _worldSpaceHudLayer = canvas.GetComponentInChildren<UI_WorldSpaceHudLayer>(true);
+                    _worldSpaceHudLayer = canvas.GetComponentInChildren<UIWorldSpaceHudLayer>(true);
                     if (_worldSpaceHudLayer == null)
                         _worldSpaceHudLayer = CreateWorldSpaceHudLayer(canvas);
                 }
@@ -342,7 +342,7 @@ namespace UPlayGround.Manager
             return false;
         }
 
-        private UI_WorldSpaceHudLayer CreateWorldSpaceHudLayer(Canvas hudCanvas)
+        private UIWorldSpaceHudLayer CreateWorldSpaceHudLayer(Canvas hudCanvas)
         {
             GameObject layerObj = new GameObject("WorldSpaceHudLayer");
             layerObj.transform.SetParent(hudCanvas.transform, false);
@@ -353,7 +353,7 @@ namespace UPlayGround.Manager
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = Vector2.zero;
 
-            return layerObj.AddComponent<UI_WorldSpaceHudLayer>();
+            return layerObj.AddComponent<UIWorldSpaceHudLayer>();
         }
 
         private Canvas CreateCanvas(CanvasLayer layer)
@@ -628,7 +628,7 @@ namespace UPlayGround.Manager
 
         #region WorldSpace HUD
 
-        public UI_ActorHpBar CreateHpBar(GameActor actor)
+        public UIActorHpBar CreateHpBar(GameActor actor)
         {
             return _worldSpaceHudLayer?.CreateHpBar(actor);
         }
@@ -636,7 +636,7 @@ namespace UPlayGround.Manager
         /// <summary>
         /// 브레이크 공격 가능(노출) 표시 상호작용 UI 생성. 프리팹 미등록 시 null 반환(조용히 스킵).
         /// </summary>
-        public UI_BreakInteraction CreateBreakInteraction(GameActor actor)
+        public UIBreakInteraction CreateBreakInteraction(GameActor actor)
         {
             return _worldSpaceHudLayer?.CreateBreakInteraction(actor);
         }
@@ -645,7 +645,7 @@ namespace UPlayGround.Manager
         /// 몬스터 공격 윈드업 Danger Ring 생성. skill.dangerRingPrefabKey가 있으면 해당 프리팹,
         /// 없으면 기본 프리팹을 사용한다. 프리팹 미등록 시 null 반환(조용히 스킵).
         /// </summary>
-        public UI_DangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration)
+        public UIDangerRing CreateDangerRing(GameActor actor, AbilityAttackInfo skill, float duration)
         {
             if (_worldSpaceHudLayer == null || skill == null) return null;
 
@@ -728,20 +728,20 @@ namespace UPlayGround.Manager
                 return;
 
             GameObject ui = ShowUI(UIKeyType.ItemAcquisitionList);
-            ui?.GetComponent<UI_ItemAcquisitionList>()?.SetItem(item);
+            ui?.GetComponent<UI_HUD_ItemAcquisitionList>()?.SetItem(item);
         }
 
         public void RefreshInventoryIfVisible()
         {
-            UI_Inventory inventory = GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Inventory>();
+            UI_Scene_Inventory inventory = GetActiveUI(UIKeyType.Inventory)?.GetComponent<UI_Scene_Inventory>();
             if (inventory != null && inventory.IsVisible)
                 inventory.Show();
         }
 
         public void ShowInteractionBoard(InteractableActorSO data, float current, float max)
         {
-            UI_InteractionHPBoard board =
-                ShowUI(UIKeyType.InteractionHPBoard)?.GetComponent<UI_InteractionHPBoard>();
+            UI_Scene_InteractionHPBoard board =
+                ShowUI(UIKeyType.InteractionHPBoard)?.GetComponent<UI_Scene_InteractionHPBoard>();
             if (board == null)
                 return;
 
@@ -751,7 +751,7 @@ namespace UPlayGround.Manager
 
         public void UpdateInteractionBoard(float current, float max)
         {
-            GetUI<UI_InteractionHPBoard>(UIKeyType.InteractionHPBoard)?.BoardFill(current, max);
+            GetUI<UI_Scene_InteractionHPBoard>(UIKeyType.InteractionHPBoard)?.BoardFill(current, max);
         }
 
         public void ShowRestGrowth()
@@ -764,8 +764,8 @@ namespace UPlayGround.Manager
                 ShowUI("RestGrowth", CanvasLayer.Popup);
                 return;
             }
-            GameObject instance = ShowUI(UI_SkillTree.UIKey, CanvasLayer.Popup);
-            UI_SkillTree tree = instance != null ? instance.GetComponent<UI_SkillTree>() : null;
+            GameObject instance = ShowUI(UI_Scene_SkillTree.UIKey, CanvasLayer.Popup);
+            UI_Scene_SkillTree tree = instance != null ? instance.GetComponent<UI_Scene_SkillTree>() : null;
             if (tree != null)
             {
                 tree.Configure(activeType, true);
@@ -776,14 +776,14 @@ namespace UPlayGround.Manager
 
         public void ShowSkillTree(CharacterActorType type, bool allowChanges = false)
         {
-            GameObject instance = ShowUI(UI_SkillTree.UIKey, CanvasLayer.Popup);
-            instance?.GetComponent<UI_SkillTree>()?.Configure(type, allowChanges);
+            GameObject instance = ShowUI(UI_Scene_SkillTree.UIKey, CanvasLayer.Popup);
+            instance?.GetComponent<UI_Scene_SkillTree>()?.Configure(type, allowChanges);
         }
 
         public void ShowRespawn(System.Action<float> onSpotRevive, System.Action onPortalRevive)
         {
             GameObject ui = ShowUI(UIKeyType.RespawnPopup);
-            UI_RespawnPopup popup = ui?.GetComponentInChildren<UI_RespawnPopup>();
+            UI_Popup_Respawn popup = ui?.GetComponentInChildren<UI_Popup_Respawn>();
             if (popup == null)
             {
                 onPortalRevive?.Invoke();

@@ -8,7 +8,7 @@
 
 ## 1. 목적
 
-기존 `GameplayEffectSO`와 `GameplayEffectController`를 버프·디버프의 단일 런타임 기반으로 확장하고, 현재 플레이어에게 활성화된 표시 대상 Effect를 `UI_HudPlayerInfo`에 아이콘으로 노출한다.
+기존 `GameplayEffectSO`와 `GameplayEffectController`를 버프·디버프의 단일 런타임 기반으로 확장하고, 현재 플레이어에게 활성화된 표시 대상 Effect를 `UI_HUD_PlayerInfo`에 아이콘으로 노출한다.
 
 핵심 목표는 다음과 같다.
 
@@ -18,7 +18,7 @@
 - 일반 Effect와 패시브 조건으로 새로 발생한 시간제 Effect는 HUD 노출이 기본이다.
 - 상시 패시브 자체를 버프로 표현한 Effect만 HUD 미노출이 기본이다.
 - UI는 Effect를 적용하거나 제거하지 않고 읽기 전용 런타임 상태만 표시한다.
-- `UI_HudPlayerInfo.prefab`의 현재 외형과 배치를 재현하는 코드형 프리팹 빌더를 만들고, 같은 빌더에서 아이콘 영역까지 생성·배선한다.
+- `UI_HUD_PlayerInfo.prefab`의 현재 외형과 배치를 재현하는 코드형 프리팹 빌더를 만들고, 같은 빌더에서 아이콘 영역까지 생성·배선한다.
 
 ---
 
@@ -32,7 +32,7 @@
 - 적용 문맥에 따른 HUD 노출 재정의
 - 버프·디버프 적용, 중첩, 갱신, 교체, 만료, 캐릭터 교체 처리
 - 스택 수, 남은 시간, 지속시간의 읽기 전용 View State
-- `UI_HudPlayerInfo` 아이콘 생성·재사용·정렬·오버플로 표시
+- `UI_HUD_PlayerInfo` 아이콘 생성·재사용·정렬·오버플로 표시
 - 버프/디버프 색상뿐 아니라 형태 표식을 함께 사용하는 시각 구분
 - 현재 프리팹을 재현하는 `UIHudPlayerInfoPrefabBuilder`
 - Ability 데이터 검증과 런타임/UI 자동 테스트
@@ -63,15 +63,15 @@
 | 스택 판정 | `AbilityEffectStackRuntime` | Core 모듈에서 스택 정책 판정 |
 | 플레이어 접근 | `GameActor.Effects` | 모든 GameActor에 `GameplayEffectController` 자동 구성 |
 | 패시브 연계 | `PassiveAbilitySO.triggeredEffects` | 퍼펙트 회피·가드 등에서 Effect 적용 |
-| UI 대상 | `UI_HudPlayerInfo` | HP, Ultimate 게이지, 레벨, EXP 런타임 표시 코드 보유 |
+| UI 대상 | `UI_HUD_PlayerInfo` | HP, Ultimate 게이지, 레벨, EXP 런타임 표시 코드 보유 |
 
 ### 3.2 현재 구조의 간극
 
 - `GameplayEffectSO`에는 아이콘, 표시 이름, 설명, HUD 노출 정책이 없다.
 - `GameplayEffectController.StateChanged`는 존재하지만 UI가 읽을 안전한 Effect View State가 없다.
 - `GameplayEffectInstance`의 런타임 필드는 내부 구현이므로 UI가 직접 참조하면 안 된다.
-- `UI_HudPlayerInfo`에는 Effect 아이콘 영역과 아이콘 풀링 코드가 없다.
-- `UI_HudPlayerInfo.prefab`을 재현하는 전용 빌더가 없다.
+- `UI_HUD_PlayerInfo`에는 Effect 아이콘 영역과 아이콘 풀링 코드가 없다.
+- `UI_HUD_PlayerInfo.prefab`을 재현하는 전용 빌더가 없다.
 - 패시브 발동 Effect와 일반 Ability Effect가 같은 SO를 사용할 때 표시 정책을 적용 문맥별로 바꿀 수 없다.
 
 ---
@@ -90,7 +90,7 @@
 | BD-08 | 구조 변경은 이벤트로 갱신하고, 남은 시간 표시만 현재 View State를 읽어 폴링한다. UI가 별도 타이머를 권위 값으로 사용하지 않는다. |
 | BD-09 | 색각 구분을 위해 테두리 색상만 사용하지 않는다. 버프는 `+` 표식, 디버프는 `−` 표식을 함께 표시한다. |
 | BD-10 | 한 줄 최대 10개를 표시하고 초과분은 `+N` 배지로 표시한다. 숨겨진 Effect는 초과 개수에 포함하지 않는다. |
-| BD-11 | 현재 `UI_HudPlayerInfo.prefab`의 HP/Skill/Level 계층과 수치는 빌더 기준값으로 고정한다. 요청과 무관한 EXP 패널이나 애니메이터 배선 변경은 함께 수행하지 않는다. |
+| BD-11 | 현재 `UI_HUD_PlayerInfo.prefab`의 HP/Skill/Level 계층과 수치는 빌더 기준값으로 고정한다. 요청과 무관한 EXP 패널이나 애니메이터 배선 변경은 함께 수행하지 않는다. |
 | BD-12 | UI Editor 코드는 `UI/Editor/`와 `UPlayGround.UI.Editor` asmdef에 둔다. |
 
 ---
@@ -111,7 +111,7 @@ GameplayAbilitySO Variant / PassiveAbilityController / 기타 게임 규칙
                          │
                          │ IGameplayEffectRuntimeReader
                          ▼
-                  UI_HudPlayerInfo
+                  UI_HUD_PlayerInfo
                   ├─ StateChanged 구독
                   ├─ 표시 대상 정렬·최대 개수 제한
                   ├─ UIGameplayEffectIcon 풀
@@ -131,7 +131,7 @@ UPlayGround.Actor
 └─ GameplayEffectController, GameplayEffectInstance
 
 UPlayGround.UI
-└─ UI_HudPlayerInfo, UIGameplayEffectIcon
+└─ UI_HUD_PlayerInfo, UIGameplayEffectIcon
 
 UPlayGround.UI.Editor
 └─ UIHudPlayerInfoPrefabBuilder
@@ -366,22 +366,22 @@ HUD는 SO의 원본 `durationSeconds`가 아니라 인스턴스에 캡처된 `Du
 
 ---
 
-## 9. `UI_HudPlayerInfo` 표시
+## 9. `UI_HUD_PlayerInfo` 표시
 
 ### 9.1 현재 프리팹 기준
 
-실제 대상 에셋은 `Assets/03.Prefabs/UI/HUD/UI_HudPlayerInfo.prefab`이다. 요청에서 언급한 `UI_PlayerInfo`는 이 에셋을 뜻하는 것으로 해석한다.
+실제 대상 에셋은 `Assets/03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab`이다. 요청에서 언급한 `UI_PlayerInfo`는 이 에셋을 뜻하는 것으로 해석한다.
 
 현재 확인된 핵심 RectTransform은 다음과 같다.
 
 | 오브젝트 | 부모 | 위치 | 크기 |
 |----------|------|------|------|
-| `UI_HudPlayerInfo` | Root | `(0, 147)` | `(480.32153, 227.99341)` |
+| `UI_HUD_PlayerInfo` | Root | `(0, 147)` | `(480.32153, 227.99341)` |
 | `HpPanel` | Root | `(0, 0)` | `(600, 40)` |
 | `SkillPanel` | Root | `(0, -37)` | `(600, 40)` |
 | `LevelPanel` | Root | `(-349, -21)` | `(80, 45.8643)` |
 
-현재 프리팹에는 HP, Skill, Level 계층만 있다. `UI_HudPlayerInfo.cs`의 `_expFill`, `_expText` 필드는 현재 프리팹에 연결돼 있지 않으므로 버프/디버프 빌더 작업에서 임의의 EXP 패널을 추가하지 않는다.
+현재 프리팹에는 HP, Skill, Level 계층만 있다. `UI_HUD_PlayerInfo.cs`의 `_expFill`, `_expText` 필드는 현재 프리팹에 연결돼 있지 않으므로 버프/디버프 빌더 작업에서 임의의 EXP 패널을 추가하지 않는다.
 
 또한 Root에는 기존 Animator와 Controller가 있으나 `UI_Base._animator` 직렬화 필드는 현재 null이다. 버프/디버프 빌더 구현에서 이 기존 동작을 묵시적으로 바꾸지 않고, 애니메이터 배선 수정이 필요하면 별도 회귀 검증을 거친다.
 
@@ -390,7 +390,7 @@ HUD는 SO의 원본 `durationSeconds`가 아니라 인스턴스에 캡처된 `Du
 첨부 시안의 빨간 표시 영역을 기준으로 HP 바 위쪽 빈 공간에 다음 영역을 추가한다.
 
 ```text
-UI_HudPlayerInfo
+UI_HUD_PlayerInfo
 ├─ EffectArea                    Rect (0, 65), Size (560, 64)
 │  ├─ EffectIconRow              중앙 정렬, 한 줄
 │  │  └─ UIGameplayEffectIcon    런타임 풀 템플릿
@@ -458,7 +458,7 @@ UIGameplayEffectIcon
 
 ### 9.5 생명주기
 
-`UI_HudPlayerInfo`의 처리 순서:
+`UI_HUD_PlayerInfo`의 처리 순서:
 
 ```text
 OnShow
@@ -503,11 +503,11 @@ OnHide / OnDestroy
 
 대상:
 
-`Assets/03.Prefabs/UI/HUD/UI_HudPlayerInfo.prefab`
+`Assets/03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab`
 
 ### 10.2 빌더 책임
 
-- 현재 프리팹의 Root, Canvas, Animator, `UI_HudPlayerInfo` 구성 재현
+- 현재 프리팹의 Root, Canvas, Animator, `UI_HUD_PlayerInfo` 구성 재현
 - 현재 HP/Skill/Level 계층, RectTransform, 색상, Sprite, TMP 설정 재현
 - 현재 Animator Controller 참조 유지
 - `EffectArea`, 아이콘 템플릿, overflow 배지 생성
@@ -624,7 +624,7 @@ presentation.showInHud: false
 ### Phase 2: HUD와 아이콘
 
 1. `UIGameplayEffectIcon` 구현.
-2. `UI_HudPlayerInfo`에 Reader 구독과 아이콘 풀 추가.
+2. `UI_HUD_PlayerInfo`에 Reader 구독과 아이콘 풀 추가.
 3. 정렬, 최대 10개, `+N` 처리.
 4. 남은 시간, 스택, 극성 시각화.
 5. OnShow/OnHide/교체 생명주기 처리.
@@ -700,10 +700,10 @@ presentation.showInHud: false
 | `GameActor/Gameplay/Effect/GameplayEffectController.cs` | 적용 옵션, View 투영, 이벤트 |
 | `GameActor/Gameplay/Passive/PassiveAbilityController.cs` | 패시브 가시성 옵션 전달 |
 | `Data/Editor/Ability/AbilityDataValidator.cs` | 표시 데이터 검증 |
-| `UI/HUD/UI_HudPlayerInfo.cs` | Effect Reader와 아이콘 풀 |
+| `UI/HUD/UI_HUD_PlayerInfo.cs` | Effect Reader와 아이콘 풀 |
 | `UI/HUD/UIGameplayEffectIcon.cs` | 아이콘 표시 보조 컴포넌트 |
 | `UI/Editor/UIHudPlayerInfoPrefabBuilder.cs` | 현재 프리팹 재현과 Effect 영역 생성 |
-| `03.Prefabs/UI/HUD/UI_HudPlayerInfo.prefab` | Effect 영역과 직렬화 참조 |
+| `03.Prefabs/UI/HUD/UI_HUD_PlayerInfo.prefab` | Effect 영역과 직렬화 참조 |
 | `Tests/EditMode/Ability/` | 표시 정책·정렬·View 테스트 |
 | `Tests/PlayMode/Ability/` | Effect-HUD 수직 슬라이스 |
 
@@ -717,13 +717,13 @@ presentation.showInHud: false
 - `GameplayEffectController`의 표시 대상 읽기 계약, 상태 이벤트, 저장·복원 정책 구현
 - 상시 `Always` 패시브의 문맥형 Modifier는 Effect 목록에 넣지 않아 기본 미노출 유지
 - 퍼펙트 회피·가드 등 패시브 Trigger Effect는 `UseDefinition`을 기본값으로 적용해 기본 노출
-- `UI_HudPlayerInfo`의 아이콘 풀, 정렬, 최대 10개, `+N`, 스택·남은 시간 표시 구현
+- `UI_HUD_PlayerInfo`의 아이콘 풀, 정렬, 최대 10개, `+N`, 스택·남은 시간 표시 구현
 - 버프 청록 테두리와 `+`, 디버프 빨간 테두리와 `−`, 중립 금색 표식 구현
 - 기존 프리팹 계층을 보존하는 멱등 빌더와 `EffectArea` 직렬화 배선 구현
-- `UI_HudPlayerInfo.prefab`에 빌더 결과 적용
+- `UI_HUD_PlayerInfo.prefab`에 빌더 결과 적용
 - 표시 정의 및 패시브 적용 문맥 검증 규칙 추가
 - 기본 표시, 강제 숨김, 강제 표시, 저장·복원 표시 정책 EditMode 테스트 추가
-- `UI_DevCheatPanel`에서 Duration/Infinite Effect 검색·발급, 활성 목록 조회,
+- `UI_System_DevCheatPanel`에서 Duration/Infinite Effect 검색·발급, 활성 목록 조회,
   개별 제거 및 전체 제거 기능 구현
 - Contracts, Actor, UI, UI Editor, Ability Tests 어셈블리 컴파일 오류 0 확인
 
@@ -745,7 +745,7 @@ presentation.showInHud: false
 - 데이터 설정으로 각 Effect의 표시/숨김 전환 가능.
 - 버프·디버프의 색상과 비색상 표식 구분.
 - 중첩, 갱신, 만료, 교체, 저장·복원 시 HUD 상태 일치.
-- `UI_HudPlayerInfo` Builder 재생성 후 기존 HP/Skill/Level 외형 회귀 없음.
+- `UI_HUD_PlayerInfo` Builder 재생성 후 기존 HP/Skill/Level 외형 회귀 없음.
 - Missing Script와 필수 직렬화 null 0.
 - Ability Editor 전체 데이터 검증 오류 0.
 - 관련 EditMode/PlayMode 테스트 통과.

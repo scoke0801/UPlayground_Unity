@@ -6,7 +6,7 @@ namespace UPlayGround.Dialogue
 {
     /// <summary>
     /// 화자 표시명·초상화 해석을 한곳에 모은 유틸.
-    /// 뷰(UI_Dialogue)와 대화 이력 기록(DialogueManager)이 동일한 해석 결과를 쓰도록 공용화했습니다.
+    /// 뷰(UI_Scene_Dialogue)와 대화 이력 기록(DialogueManager)이 동일한 해석 결과를 쓰도록 공용화했습니다.
     /// 파티 서비스 계약이 모듈마다 다르므로(UISvc.Party / PartyManager) 필요한 데이터만 인자로 받습니다.
     /// </summary>
     public static class DialogueSpeakerResolver

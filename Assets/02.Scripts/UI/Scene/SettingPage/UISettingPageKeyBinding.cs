@@ -18,7 +18,7 @@ namespace UPlayGround.UI
     ///
     /// 계층을 코드로 조립한다. 행 수가 액션 수에 따라 달라지고 키캡 칩 개수도 바인딩 형태
     /// (단일 / 조합)에 따라 변하므로 프리팹으로 고정 저작할 수 없는 구조다. 프로젝트에는
-    /// <c>UI_DevCheatPanel</c>이 같은 방식을 쓰고 있고, 공용 헬퍼는 <see cref="UGuiFactory"/>다.
+    /// <c>UI_System_DevCheatPanel</c>이 같은 방식을 쓰고 있고, 공용 헬퍼는 <see cref="UGuiFactory"/>다.
     ///
     /// 데이터·정책은 기존 것을 그대로 쓴다: <c>GetBindingDescriptors</c>(장치별로 2번 호출해
     /// 액션 기준으로 머지), <c>CaptureBindingAsync</c>, 충돌 정책, 프로필 스냅샷.

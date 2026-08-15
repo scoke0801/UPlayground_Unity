@@ -16,7 +16,7 @@ namespace UPlayGround.UI.Growth.EditorTools
     /// </summary>
     public static class UIRestGrowthPrefabBuilder
     {
-        private const string PrefabPath = "Assets/03.Prefabs/UI/Scene/Growth/UI_RestGrowth.prefab";
+        private const string PrefabPath = "Assets/03.Prefabs/UI/Scene/Growth/UI_Scene_RestGrowth.prefab";
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
 
         private static readonly Color Dim = new(0.01f, 0.02f, 0.04f, 0.84f);
@@ -39,7 +39,7 @@ namespace UPlayGround.UI.Growth.EditorTools
 
             try
             {
-                UI_RestGrowth ui = root.GetComponent<UI_RestGrowth>() ?? root.AddComponent<UI_RestGrowth>();
+                UI_Scene_RestGrowth ui = root.GetComponent<UI_Scene_RestGrowth>() ?? root.AddComponent<UI_Scene_RestGrowth>();
                 NormalizeRoot(root);
                 ClearChildren(root.transform);
                 BuildHierarchy(root, ui);
@@ -62,8 +62,8 @@ namespace UPlayGround.UI.Growth.EditorTools
 
         private static GameObject CreateRoot()
         {
-            var root = new GameObject("UI_RestGrowth", typeof(RectTransform), typeof(Canvas),
-                typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(UI_RestGrowth));
+            var root = new GameObject("UI_Scene_RestGrowth", typeof(RectTransform), typeof(Canvas),
+                typeof(CanvasScaler), typeof(GraphicRaycaster), typeof(UI_Scene_RestGrowth));
             Canvas canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.overrideSorting = true;
@@ -100,7 +100,7 @@ namespace UPlayGround.UI.Growth.EditorTools
             if (root.GetComponent<GraphicRaycaster>() == null) root.AddComponent<GraphicRaycaster>();
         }
 
-        private static void BuildHierarchy(GameObject root, UI_RestGrowth ui)
+        private static void BuildHierarchy(GameObject root, UI_Scene_RestGrowth ui)
         {
             GameObject dim = NewUI("Dim", root.transform);
             Stretch(dim);

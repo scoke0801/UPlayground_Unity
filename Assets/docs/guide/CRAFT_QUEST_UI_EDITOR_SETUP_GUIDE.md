@@ -12,14 +12,14 @@
 |------|-------------|
 | 제작 데이터 | `Assets/10.Datas/Craft/RecipeDatabase.asset` 존재 |
 | 제작 DB 로드 | `RecipeManager`가 Addressable 키 `RecipeDatabase`로 로드 |
-| 제작 UI 기능 코드 | `UI_Crafting`, `UI_CraftingRecipeSlot`, `UI_CraftingIngredientSlot` 구현됨 |
-| 제작 메뉴 프리팹 | `UIPrefabDatabase`의 `Craft` 키가 `Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab`을 가리킴 |
-| 제작 메뉴 주의 | 현재 프리팹은 `UI_CraftMenu` 기반이며, 실제 제작 기능은 `UI_Crafting` 쪽에 있음 |
+| 제작 UI 기능 코드 | `UI_Crafting`, `UICraftingRecipeSlot`, `UICraftingIngredientSlot` 구현됨 |
+| 제작 메뉴 프리팹 | `UIPrefabDatabase`의 `Craft` 키가 `Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab`을 가리킴 |
+| 제작 메뉴 주의 | 현재 프리팹은 `UI_Scene_CraftMenu` 기반이며, 실제 제작 기능은 `UI_Crafting` 쪽에 있음 |
 | 퀘스트 데이터 | `Assets/10.Datas/Quest/QuestDatabase.asset`과 여러 `QuestSO` 존재 |
 | 퀘스트 DB 로드 | `QuestManager`가 Addressable 키 `QuestDatabase`로 로드 |
-| 퀘스트 HUD | `UI_HudQuest`가 추적 중인 퀘스트 표시를 처리 |
-| 퀘스트 메뉴 프리팹 | `UIPrefabDatabase`의 `Quest` 키가 `Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab`을 가리킴 |
-| 퀘스트 메뉴 주의 | `UI_QuestMenu`는 현재 추적/해제/토글 API만 있고 목록/상세 바인딩 로직은 없음 |
+| 퀘스트 HUD | `UI_HUD_Quest`가 추적 중인 퀘스트 표시를 처리 |
+| 퀘스트 메뉴 프리팹 | `UIPrefabDatabase`의 `Quest` 키가 `Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab`을 가리킴 |
+| 퀘스트 메뉴 주의 | `UI_Scene_QuestMenu`는 현재 추적/해제/토글 API만 있고 목록/상세 바인딩 로직은 없음 |
 
 ---
 
@@ -55,21 +55,21 @@ Assets/02.Scripts/
 │   └── UIManager.cs
 └── UI/
     ├── HUD/
-    │   ├── Menu/UI_MenuPanel.cs
-    │   └── Quest/UI_HudQuest.cs
+    │   ├── Menu/UI_Scene_MenuPanel.cs
+    │   └── Quest/UI_HUD_Quest.cs
     └── Scene/
         ├── Crafting/
         │   ├── UI_Crafting.cs
-        │   ├── UI_CraftingIngredientSlot.cs
-        │   ├── UI_CraftingRecipeSlot.cs
-        │   └── UI_CraftMenu.cs
-        └── Quest/UI_QuestMenu.cs
+        │   ├── UICraftingIngredientSlot.cs
+        │   ├── UICraftingRecipeSlot.cs
+        │   └── UI_Scene_CraftMenu.cs
+        └── Quest/UI_Scene_QuestMenu.cs
 
 Assets/03.Prefabs/UI/
-├── HUD/Quest/UI_HudQuest.prefab
+├── HUD/Quest/UI_HUD_Quest.prefab
 └── Scene/
-    ├── Craft/UI_CraftMenu.prefab
-    └── Quest/UI_QuestMenu.prefab
+    ├── Craft/UI_Scene_CraftMenu.prefab
+    └── Quest/UI_Scene_QuestMenu.prefab
 
 Assets/10.Datas/
 ├── Craft/RecipeDatabase.asset
@@ -81,7 +81,7 @@ Assets/10.Datas/
 
 ## UI 열림 흐름
 
-제작/퀘스트 메뉴는 `UI_MenuPanel`에서 열린다.
+제작/퀘스트 메뉴는 `UI_Scene_MenuPanel`에서 열린다.
 
 ```csharp
 private void OnClickedCraftButton()
@@ -101,11 +101,11 @@ private void OnClickedQuestButton()
 
 | 키 | 프리팹 | 기본 레이어 |
 |----|--------|-------------|
-| `Craft` | `Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab` | `Scene` |
-| `Quest` | `Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab` | `Scene` |
-| `HudQuest` | `Assets/03.Prefabs/UI/HUD/Quest/UI_HudQuest.prefab` | `HUD` |
+| `Craft` | `Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab` | `Scene` |
+| `Quest` | `Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab` | `Scene` |
+| `HudQuest` | `Assets/03.Prefabs/UI/HUD/Quest/UI_HUD_Quest.prefab` | `HUD` |
 
-`UI_Base`는 `Canvas`, `CanvasGroup`, ESC 닫기, 커서 표시, 기본 버튼 클릭 사운드, 입력 레이어 상승/복원을 공통 처리한다. `UI_Crafting`, `UI_CraftMenu`, `UI_QuestMenu`는 `BlocksLowerInput`을 `true`로 오버라이드하므로 열려 있는 동안 하위 게임플레이 입력을 막는다.
+`UI_Base`는 `Canvas`, `CanvasGroup`, ESC 닫기, 커서 표시, 기본 버튼 클릭 사운드, 입력 레이어 상승/복원을 공통 처리한다. `UI_Crafting`, `UI_Scene_CraftMenu`, `UI_Scene_QuestMenu`는 `BlocksLowerInput`을 `true`로 오버라이드하므로 열려 있는 동안 하위 게임플레이 입력을 막는다.
 
 ---
 
@@ -114,7 +114,7 @@ private void OnClickedQuestButton()
 ### 코드 의존 관계
 
 ```text
-UI_MenuPanel
+UI_Scene_MenuPanel
     │ Craft 버튼
     ▼
 UIManager.ShowUI(UIKeyType.Craft)
@@ -123,7 +123,7 @@ UIManager.ShowUI(UIKeyType.Craft)
 UIPrefabDatabase["Craft"]
     │
     ▼
-UI_CraftMenu.prefab
+UI_Scene_CraftMenu.prefab
 
 실제 제작 기능:
 UI_Crafting
@@ -144,13 +144,13 @@ UI_Crafting
 
 ### 중요한 현재 상태
 
-`UI_CraftMenu`는 실제 제작 목록/상세/제작 실행 UI가 아니다. 현재 `UI_CraftMenu.cs`는 `UI_Base` 생명주기, 입력 차단, 뒤로가기 닫기만 가진 얇은 메뉴 클래스다.
+`UI_Scene_CraftMenu`는 실제 제작 목록/상세/제작 실행 UI가 아니다. 현재 `UI_Scene_CraftMenu.cs`는 `UI_Base` 생명주기, 입력 차단, 뒤로가기 닫기만 가진 얇은 메뉴 클래스다.
 
 실제 제작 UI 기능은 `UI_Crafting.cs`에 있다. 따라서 에디터에서 제작 UI를 동작시키려면 다음 둘 중 하나를 선택해야 한다.
 
 | 선택 | 작업 |
 |------|------|
-| 권장 | `UI_CraftMenu.prefab` 루트의 스크립트를 `UI_Crafting`으로 교체하고 필드를 모두 연결 |
+| 권장 | `UI_Scene_CraftMenu.prefab` 루트의 스크립트를 `UI_Crafting`으로 교체하고 필드를 모두 연결 |
 | 대안 | 새 프리팹을 만들고 `UIPrefabDatabase`의 `Craft` 키 프리팹을 새 프리팹으로 교체 |
 
 기존 메뉴 버튼, `UIKeyType.Craft`, `UIPrefabDatabase` 흐름을 유지하려면 첫 번째가 가장 단순하다.
@@ -198,7 +198,7 @@ private bool HasValidResult(RecipeData recipe)
 | Header | 필드 | 연결 대상 |
 |--------|------|-----------|
 | 레시피 리스트 | `_recipeListContent` | 레시피 슬롯 생성용 ScrollView Content |
-| 레시피 리스트 | `_recipeSlotPrefab` | `UI_CraftingRecipeSlot` 프리팹 |
+| 레시피 리스트 | `_recipeSlotPrefab` | `UICraftingRecipeSlot` 프리팹 |
 | 카테고리 탭 | `_tabAll` | 전체 탭 Button |
 | 카테고리 탭 | `_tabConsumable` | 소비 탭 Button |
 | 카테고리 탭 | `_tabEquipment` | 장비 탭 Button |
@@ -209,7 +209,7 @@ private bool HasValidResult(RecipeData recipe)
 | 레시피 상세 | `_txtResultName` | 결과 이름 TextMeshProUGUI |
 | 레시피 상세 | `_txtDescription` | 설명 TextMeshProUGUI |
 | 레시피 상세 | `_ingredientContent` | 재료 슬롯 생성용 Content |
-| 레시피 상세 | `_ingredientSlotPrefab` | `UI_CraftingIngredientSlot` 프리팹 |
+| 레시피 상세 | `_ingredientSlotPrefab` | `UICraftingIngredientSlot` 프리팹 |
 | 레시피 상세 | `_txtCost` | 비용 텍스트 |
 | 레시피 상세 | `_txtCastTime` | 제작 시간 텍스트 |
 | 제작 조작 | `_btnCraft` | 제작/취소 Button |
@@ -224,7 +224,7 @@ private bool HasValidResult(RecipeData recipe)
 ### 권장 프리팹 계층
 
 ```text
-UI_CraftMenu
+UI_Scene_CraftMenu
 ├── Header
 │   ├── TitleText
 │   └── CloseButton
@@ -282,13 +282,13 @@ _imgProgressBar.fillAmount = RecipeManager.Instance.GetCraftingProgress();
 권장 위치:
 
 ```text
-Assets/03.Prefabs/UI/Scene/Craft/UI_CraftingRecipeSlot.prefab
+Assets/03.Prefabs/UI/Scene/Craft/UICraftingRecipeSlot.prefab
 ```
 
 권장 구조:
 
 ```text
-UI_CraftingRecipeSlot
+UICraftingRecipeSlot
 ├── BackgroundImage
 ├── ResultIcon
 ├── RecipeNameText
@@ -312,13 +312,13 @@ UI_CraftingRecipeSlot
 권장 위치:
 
 ```text
-Assets/03.Prefabs/UI/Scene/Craft/UI_CraftingIngredientSlot.prefab
+Assets/03.Prefabs/UI/Scene/Craft/UICraftingIngredientSlot.prefab
 ```
 
 권장 구조:
 
 ```text
-UI_CraftingIngredientSlot
+UICraftingIngredientSlot
 ├── CountBackground
 ├── ItemIcon
 ├── ItemNameText
@@ -341,7 +341,7 @@ UI_CraftingIngredientSlot
 1. `Assets/10.Datas/Craft/RecipeDatabase.asset`을 연다.
 2. 테스트할 레시피의 `resultItemID`가 실제 `ItemDatabase`에 있는지 확인한다.
 3. 테스트할 레시피는 `isDebugUnlocked`를 켜거나 조건 없이 언락되게 둔다.
-4. `Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab`을 연다.
+4. `Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab`을 연다.
 5. 루트 UI 스크립트를 `UI_Crafting` 기준으로 정리한다.
 6. 레시피 슬롯 프리팹을 만든다.
 7. 재료 슬롯 프리팹을 만든다.
@@ -357,7 +357,7 @@ UI_CraftingIngredientSlot
 ### 코드 의존 관계
 
 ```text
-UI_MenuPanel
+UI_Scene_MenuPanel
     │ Quest 버튼
     ▼
 UIManager.ShowUI(UIKeyType.Quest)
@@ -366,9 +366,9 @@ UIManager.ShowUI(UIKeyType.Quest)
 UIPrefabDatabase["Quest"]
     │
     ▼
-UI_QuestMenu.prefab
+UI_Scene_QuestMenu.prefab
     │
-    └── UI_QuestMenu
+    └── UI_Scene_QuestMenu
         ├── TrackQuest(string questId)
         ├── UntrackQuest()
         └── ToggleTrackQuest(string questId)
@@ -382,7 +382,7 @@ QuestManager
     ├── UntrackQuest()
     └── QuestEvent 발송
 
-UI_HudQuest
+UI_HUD_Quest
     ├── QuestAccepted
     ├── QuestCompleted
     ├── QuestFailed
@@ -393,9 +393,9 @@ UI_HudQuest
 
 ### 중요한 현재 상태
 
-`UI_QuestMenu`는 현재 퀘스트 목록과 상세를 표시하지 않는다. Inspector 필드도 없고, `QuestManager.GetActiveQuests()` 또는 `QuestManager.GetAvailableQuests()`를 읽어 슬롯을 생성하는 코드도 없다.
+`UI_Scene_QuestMenu`는 현재 퀘스트 목록과 상세를 표시하지 않는다. Inspector 필드도 없고, `QuestManager.GetActiveQuests()` 또는 `QuestManager.GetAvailableQuests()`를 읽어 슬롯을 생성하는 코드도 없다.
 
-현재 `UI_QuestMenu`에서 가능한 것은 추적 대상 지정/해제뿐이다.
+현재 `UI_Scene_QuestMenu`에서 가능한 것은 추적 대상 지정/해제뿐이다.
 
 ```csharp
 public void TrackQuest(string questId)
@@ -403,7 +403,7 @@ public void UntrackQuest()
 public void ToggleTrackQuest(string questId)
 ```
 
-따라서 에디터에서 `UI_QuestMenu.prefab`을 꾸미는 것만으로는 실제 퀘스트 목록 UI가 완성되지 않는다. 에디터에서는 먼저 구조를 잡고, 이후 `UI_QuestMenu` 확장 스크립트에서 해당 구조를 연결해야 한다.
+따라서 에디터에서 `UI_Scene_QuestMenu.prefab`을 꾸미는 것만으로는 실제 퀘스트 목록 UI가 완성되지 않는다. 에디터에서는 먼저 구조를 잡고, 이후 `UI_Scene_QuestMenu` 확장 스크립트에서 해당 구조를 연결해야 한다.
 
 ---
 
@@ -463,7 +463,7 @@ Assets/10.Datas/Quest/QuestDatabase.asset
 ### 권장 계층
 
 ```text
-UI_QuestMenu
+UI_Scene_QuestMenu
 ├── Header
 │   ├── TitleText
 │   └── CloseButton
@@ -490,7 +490,7 @@ UI_QuestMenu
         └── AbandonButtonText
 ```
 
-이 이름들은 현재 코드가 자동 검색하지 않는다. 하지만 이후 `UI_QuestMenu`에 `[SerializeField]` 필드를 추가할 때 바로 연결하기 쉬운 기준 이름이다.
+이 이름들은 현재 코드가 자동 검색하지 않는다. 하지만 이후 `UI_Scene_QuestMenu`에 `[SerializeField]` 필드를 추가할 때 바로 연결하기 쉬운 기준 이름이다.
 
 ### 퀘스트 목록 슬롯 프리팹
 
@@ -528,13 +528,13 @@ UI_QuestListSlot
 권장 위치:
 
 ```text
-Assets/03.Prefabs/UI/Scene/Quest/UI_QuestObjectiveSlot.prefab
+Assets/03.Prefabs/UI/Scene/Quest/UIQuestObjectiveSlot.prefab
 ```
 
 권장 구조:
 
 ```text
-UI_QuestObjectiveSlot
+UIQuestObjectiveSlot
 ├── CompleteCheckImage
 ├── ObjectiveText
 └── ProgressText
@@ -553,13 +553,13 @@ UI_QuestObjectiveSlot
 권장 위치:
 
 ```text
-Assets/03.Prefabs/UI/Scene/Quest/UI_QuestRewardSlot.prefab
+Assets/03.Prefabs/UI/Scene/Quest/UIQuestRewardSlot.prefab
 ```
 
 권장 구조:
 
 ```text
-UI_QuestRewardSlot
+UIQuestRewardSlot
 ├── RewardIcon
 ├── RewardNameText
 └── RewardCountText
@@ -584,7 +584,7 @@ UI_QuestRewardSlot
 프리팹:
 
 ```text
-Assets/03.Prefabs/UI/HUD/Quest/UI_HudQuest.prefab
+Assets/03.Prefabs/UI/HUD/Quest/UI_HUD_Quest.prefab
 ```
 
 필요 참조:
@@ -598,7 +598,7 @@ Assets/03.Prefabs/UI/HUD/Quest/UI_HudQuest.prefab
 | `_questCompleteTitleText` | 완료 알림 제목 |
 | `_questCompleteNameText` | 완료된 퀘스트 이름 |
 
-`UI_HudQuest`는 일부 텍스트 참조가 비어 있으면 자식 중 이름이 `QuestTitleText`, `QuestDescText`, `QuestCompleteTitleText`, `QuestCompleteNameText`인 TextMeshProUGUI를 자동 검색한다. 그래도 프리팹에서는 명시 연결하는 편이 안전하다.
+`UI_HUD_Quest`는 일부 텍스트 참조가 비어 있으면 자식 중 이름이 `QuestTitleText`, `QuestDescText`, `QuestCompleteTitleText`, `QuestCompleteNameText`인 TextMeshProUGUI를 자동 검색한다. 그래도 프리팹에서는 명시 연결하는 편이 안전하다.
 
 HUD 표시 규칙:
 
@@ -615,14 +615,14 @@ HUD 표시 규칙:
 1. `Assets/10.Datas/Quest/QuestDatabase.asset`을 연다.
 2. 표시할 퀘스트가 DB 리스트에 들어 있는지 확인한다.
 3. 테스트할 퀘스트의 `questId`, `questName`, `objectives`, `reward`를 확인한다.
-4. `Assets/03.Prefabs/UI/Scene/Quest/UI_QuestMenu.prefab`을 연다.
+4. `Assets/03.Prefabs/UI/Scene/Quest/UI_Scene_QuestMenu.prefab`을 연다.
 5. `QuestListContent`, `DetailPanel`, `ObjectiveListContent`, `RewardListContent` 기준으로 계층을 정리한다.
 6. `UI_QuestListSlot.prefab` 껍데기를 만든다.
-7. `UI_QuestObjectiveSlot.prefab` 껍데기를 만든다.
-8. `UI_QuestRewardSlot.prefab` 껍데기를 만든다.
+7. `UIQuestObjectiveSlot.prefab` 껍데기를 만든다.
+8. `UIQuestRewardSlot.prefab` 껍데기를 만든다.
 9. `TrackButton`, `CompleteButton`, `AbandonButton` 위치를 확정한다.
 10. `UIPrefabDatabase.asset`에서 `Quest` 키가 작업한 프리팹을 가리키는지 확인한다.
-11. 이후 `UI_QuestMenu`에 목록/상세 바인딩 코드를 추가한다.
+11. 이후 `UI_Scene_QuestMenu`에 목록/상세 바인딩 코드를 추가한다.
 
 ---
 
@@ -650,7 +650,7 @@ HUD 표시 규칙:
 | 메뉴 패널에서 퀘스트 버튼 클릭 | `Quest` UI가 열린다 |
 | `QuestDatabase` 로드 | 콘솔에 로드 완료 로그가 나온다 |
 | 퀘스트 수락 | `QuestAccepted` 이벤트가 발송된다 |
-| HUD 추적 | `UI_HudQuest`에 추적 중 퀘스트가 표시된다 |
+| HUD 추적 | `UI_HUD_Quest`에 추적 중 퀘스트가 표시된다 |
 | 목표 진행 | `QuestObjectiveUpdated` 이벤트 후 HUD 텍스트가 갱신된다 |
 | 목표 완료 | `autoComplete`가 true면 자동 완료된다 |
 | 퀘스트 완료 | 보상이 지급되고 완료 알림이 표시된다 |
@@ -692,14 +692,14 @@ HUD 표시 규칙:
 
 ### 퀘스트 메뉴에 데이터가 안 뜸
 
-현재 구현 기준으로는 정상이다. `UI_QuestMenu`에는 목록/상세 바인딩 코드가 아직 없다.
+현재 구현 기준으로는 정상이다. `UI_Scene_QuestMenu`에는 목록/상세 바인딩 코드가 아직 없다.
 
 ### HUD 퀘스트가 안 뜸
 
 확인할 것:
 
 - `HudQuest` 키가 `UIPrefabDatabase`에 등록되어 있는지
-- `UI_HudQuest`가 실제로 Show 되었는지
+- `UI_HUD_Quest`가 실제로 Show 되었는지
 - 진행 중인 퀘스트가 있는지
 - `QuestManager.IsQuestTrackingSuppressed`가 true인지
 - 활성 퀘스트 ID가 `quest_main_` 또는 `main_`으로 시작하는지
@@ -711,4 +711,4 @@ HUD 표시 규칙:
 
 지금 에디터에서 먼저 할 일은 제작 UI를 `UI_Crafting` 기준으로 실제 연결하는 것이다. 제작 시스템은 데이터, 매니저, UI 스크립트가 이미 갖춰져 있으므로 프리팹 참조와 테스트 데이터만 맞추면 Play Mode 검증이 가능하다.
 
-퀘스트 UI는 데이터와 런타임 매니저, HUD 표시가 준비되어 있지만 전체 퀘스트 메뉴는 아직 목록/상세 바인딩 코드가 없다. 따라서 에디터에서는 `UI_QuestMenu.prefab`의 구조와 슬롯 프리팹을 먼저 정리하고, 실제 데이터 표시는 이후 `UI_QuestMenu` 확장 작업으로 처리해야 한다.
+퀘스트 UI는 데이터와 런타임 매니저, HUD 표시가 준비되어 있지만 전체 퀘스트 메뉴는 아직 목록/상세 바인딩 코드가 없다. 따라서 에디터에서는 `UI_Scene_QuestMenu.prefab`의 구조와 슬롯 프리팹을 먼저 정리하고, 실제 데이터 표시는 이후 `UI_Scene_QuestMenu` 확장 작업으로 처리해야 한다.

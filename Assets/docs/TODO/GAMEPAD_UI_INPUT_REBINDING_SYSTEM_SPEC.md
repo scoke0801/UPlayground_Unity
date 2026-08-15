@@ -12,7 +12,7 @@
 > - `Assets/02.Scripts/Contracts/GameServices.cs`
 > - `Assets/02.Scripts/UI/UIManager.cs`
 > - `Assets/02.Scripts/UI/UI_Base.cs`
-> - `Assets/02.Scripts/UI/Scene/UI_SettingMenu.cs`
+> - `Assets/02.Scripts/UI/Scene/UI_Scene_SettingMenu.cs`
 > - `Assets/02.Scripts/UI/Scene/SettingPage/UISettingPageKeyBinding.cs`
 > - `Assets/02.Scripts/UI/InputPrompt/`
 > - `Assets/Resources/Input/PlayerInputActions.inputactions`
@@ -136,7 +136,7 @@
 - 커서가 `MapViewport` 가장자리에서 바깥 방향으로 입력되면 해당 방향으로 뷰를
   자동 패닝한다. 확인 팝업이 열릴 때는 UINavigation 모드로 먼저 복귀한다.
 - `UIMapPanelsBuilder`가 `MapViewport/VirtualCursor`와 공용 컨트롤러 참조를 생성하도록
-  수정했으며, Builder를 실행해 `UI_Map.prefab`에도 반영했다.
+  수정했으며, Builder를 실행해 `UI_Scene_Map.prefab`에도 반영했다.
 - 검증 완료: `UPlayGround.UI`와 `UPlayGround.UI.Editor` 보조 컴파일 오류 0,
   Builder 완료 로그와 프리팹 직렬화 참조 확인. 전체 Editor 컴파일은 동시 작업 중인
   `UPlayGround.FlowGraph.Editor`의 `FlowPortDef.Name` 오류로 별도 차단돼 있다.
@@ -144,8 +144,8 @@
 ### 남은 작업
 
 - 장치별 UI 프롬프트 표시 계층은 `UI_DEVICE_AWARE_PROMPT_SPEC.md`에 따라 코드,
-  10개 프리팹 빌더, 실제 프리팹 11개까지 반영했다. `UI_PartySelect`는 독립 프리팹이
-  없고 현재 등록 데이터는 `UI_PartyMenu`다.
+  10개 프리팹 빌더, 실제 프리팹 11개까지 반영했다. `UI_Scene_PartySelect`는 독립 프리팹이
+  없고 현재 등록 데이터는 `UI_Scene_PartyMenu`다.
 - 토큰 기반 Input Context Stack은 아직 미구현이다. 현재 런타임은 `InputLayer`와
   리바인딩 캡처 게이트를 병행한다. 기존 UI 전환 경로를 한 번에 교체하지 않고 별도
   수직 슬라이스와 누수 검증을 마련한 뒤 도입한다.
@@ -196,7 +196,7 @@
 | 패드 브랜드 | Xbox / PlayStation / Switch / Generic | 유지 |
 | 입력 글리프 | `InputGlyphDataSO`, `InputGlyphResolver` | 바인딩 변경 이벤트 연동 |
 | UI 입력 모듈 | `InputSystemUIInputModule` | 프로젝트 UI 액션 에셋으로 일원화 |
-| 설정 메뉴 | `UI_SettingMenu` + `UISettingPageKeyBinding` | 빈 키 설정 페이지 구현 |
+| 설정 메뉴 | `UI_Scene_SettingMenu` + `UISettingPageKeyBinding` | 빈 키 설정 페이지 구현 |
 | 카메라 패드 룩 | 별도 yaw/pitch 각속도 | 감도·데드존 옵션 확장 |
 
 ### 2.2 현재 액션 에셋의 충돌
@@ -663,7 +663,7 @@ UI가 열리거나 입력 컨텍스트가 바뀌면:
 키 설정은 별도 최상위 화면이 아니라 설정 메뉴의 기존 키 설정 탭 안에 하위 패널로 구현한다.
 
 ```text
-UI_SettingMenu
+UI_Scene_SettingMenu
 └─ UISettingPageKeyBinding
    ├─ DeviceTabs
    │  ├─ Keyboard & Mouse
@@ -689,7 +689,7 @@ UI_SettingMenu
       └─ UIKeyConflictPopup
 ```
 
-`ChildOverlay`는 `UI_SettingMenu` 내부 하위 패널이다. 별도 `UIManager.ShowUI`로 생성하지 않는다. 표시 중 `Rebinding` 입력 컨텍스트 토큰을 소유해 배경 설정 UI와 EventSystem 입력을 차단한다.
+`ChildOverlay`는 `UI_Scene_SettingMenu` 내부 하위 패널이다. 별도 `UIManager.ShowUI`로 생성하지 않는다. 표시 중 `Rebinding` 입력 컨텍스트 토큰을 소유해 배경 설정 UI와 EventSystem 입력을 차단한다.
 
 ### 10.2 바인딩 행
 
@@ -958,7 +958,7 @@ event Action<ActiveInputDevice> OnActiveDeviceChanged;
 event Action OnBindingsChanged;
 ```
 
-`UI_InputPromptIcon`과 HUD 스킬·퀵슬롯 UI는 두 이벤트를 모두 구독한다.
+`UIInputPromptIcon`과 HUD 스킬·퀵슬롯 UI는 두 이벤트를 모두 구독한다.
 
 ### 14.2 표시 규칙
 
@@ -1009,13 +1009,13 @@ AutoFocusWhenGamepadActivated
 
 P0:
 
-- `UI_TitleMenu`
-- `UI_MenuPanel`
-- `UI_PauseMenu`
-- `UI_SettingMenu`
-- `UI_SaveSlotMenu`
-- `UI_CommonPopup`
-- `UI_RespawnPopup`
+- `UI_Scene_TitleMenu`
+- `UI_Scene_MenuPanel`
+- `UI_Scene_PauseMenu`
+- `UI_Scene_SettingMenu`
+- `UI_Scene_SaveSlotMenu`
+- `UI_Popup_Common`
+- `UI_Popup_Respawn`
 
 P1:
 

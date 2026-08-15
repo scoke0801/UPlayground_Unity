@@ -4,7 +4,7 @@
 
 설정 메뉴는 `SettingsData` ScriptableObject를 중심으로 동작한다. 런타임에서는 `SettingsManager`가 Addressable 키 `SettingsData`로 데이터를 로드하고, `PlayerPrefs`에 저장된 값을 덮어쓴 뒤 `SettingsApplier`를 통해 Unity 시스템에 반영한다.
 
-UI는 `UI_SettingMenu`가 `SettingsManager.Data`를 각 설정 페이지에 전달하고, 페이지 스크립트가 자식 컨트롤을 자동 수집해 `SettingsData`에 값을 기록한다.
+UI는 `UI_Scene_SettingMenu`가 `SettingsManager.Data`를 각 설정 페이지에 전달하고, 페이지 스크립트가 자식 컨트롤을 자동 수집해 `SettingsData`에 값을 기록한다.
 
 ## 주요 파일
 
@@ -17,7 +17,7 @@ UI는 `UI_SettingMenu`가 `SettingsManager.Data`를 각 설정 페이지에 전�
   - 시작 시 저장값 로드 후 전체 적용.
 - `Assets/02.Scripts/Manager/SettingsApplier.cs`
   - 그래픽/오디오 설정을 실제 Unity 시스템에 반영.
-- `Assets/02.Scripts/UI/Scene/UI_SettingMenu.cs`
+- `Assets/02.Scripts/UI/Scene/UI_Scene_SettingMenu.cs`
   - 설정 메뉴 루트 UI.
   - Apply/Cancel/Reset 처리.
   - 각 설정 페이지 바인딩 호출.
@@ -96,9 +96,9 @@ UI는 `UI_SettingMenu`가 `SettingsManager.Data`를 각 설정 페이지에 전�
 - `Target Frame Rate`: 60
 - `Brightness`: 5
 
-### UI_SettingMenu 프리팹 확인
+### UI_Scene_SettingMenu 프리팹 확인
 
-`Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab`에서 `UI_SettingMenu` 컴포넌트의 참조가 유지되어 있는지 확인한다.
+`Assets/03.Prefabs/UI/Scene/UI_Scene_SettingMenu.prefab`에서 `UI_Scene_SettingMenu` 컴포넌트의 참조가 유지되어 있는지 확인한다.
 
 - `_panelGameplay`
 - `_panelGraphics`

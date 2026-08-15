@@ -17,7 +17,7 @@ namespace UPlayGround.Data.Ability
             category = AbilityCategory.Passive,
         };
         [TextArea]
-        [Tooltip("UI_CharacterSelect에 표시할 수치 없는 요약 설명.")]
+        [Tooltip("UI_Scene_CharacterSelect에 표시할 수치 없는 요약 설명.")]
         public string characterSelectDescription;
         public PassiveActivationType activationType;
         public PassiveScope scope = PassiveScope.ActiveCharacter;

@@ -57,11 +57,11 @@
 | 브레이크 런타임 | `MonsterBreakGauge` 추가. 누적, 노출, 시간 만료, 소비 리셋, 노출 중 피해 배율 처리 | `MonsterBreakGauge.cs` |
 | ActorDefinition 연결 | `ActorDefinitionSO.breakGaugeData` 추가. 데이터가 있으면 런타임에 `MonsterBreakGauge`를 자동 부착 | `ActorDefinitionSO.cs`, `MonsterActor.cs` |
 | 노출 동작(개정) | 무방비 경직 폐기. 노출은 `MonsterBreakGauge.IsExposed` 윈도우로만 표현하고 몬스터는 정상 행동 유지 | `MonsterActor.cs`, `MonsterBreakGauge.cs` |
-| F키 프롬프트 | `UI_BreakPrompt` 월드 UI 구현. 노출 적 레지스트리 기반으로 `PlayerCombat`가 실제 브레이크 타겟 1개에만 표시 | `UI_BreakPrompt.cs`, `UI_WorldSpaceHudLayer.cs`, `UIManager.cs`, `PlayerCombat.cs`, `MonsterActor.cs` |
+| F키 프롬프트 | `UI_BreakPrompt` 월드 UI 구현. 노출 적 레지스트리 기반으로 `PlayerCombat`가 실제 브레이크 타겟 1개에만 표시 | `UI_BreakPrompt.cs`, `UIWorldSpaceHudLayer.cs`, `UIManager.cs`, `PlayerCombat.cs`, `MonsterActor.cs` |
 | 브레이크 후 다운 | 특수공격 적중 후 생존 시 `EnemyKnockdownState`(모션 없으면 `EnemyStunState`) 전환 | `MonsterActor.OnTakeSpecialBreakAttack` |
 | 특수공격 1차 실행 | `PlayerSpecialBreakAttackState`, `EnemySpecialBreakVictimState` 추가. 강공격 입력으로 노출 타겟에게 최대 HP 비례 피해 적용 | `PlayerSpecialBreakAttackState.cs`, `EnemySpecialBreakVictimState.cs` |
 | 입력 우선순위 | 강공격 입력 기준 `FinishAttack > SpecialBreakAttack > 일반 강공격` 순으로 라우팅 | `PlayerAttackState.cs` |
-| HP바 확장 | `UI_ActorHpBar`에 선택형 브레이크 게이지 이미지 필드와 업데이트 API 추가 | `UI_ActorHpBar.cs` |
+| HP바 확장 | `UIActorHpBar`에 선택형 브레이크 게이지 이미지 필드와 업데이트 API 추가 | `UIActorHpBar.cs` |
 | 에디터 표시 | HitPhase 카드에 브레이크 데미지, 반응 지속시간, 반응 강제, 브레이크 노출 강제 필드 표시 | `PlayerAttackDataSODrawer.cs` |
 
 ### 부분 완료
@@ -91,7 +91,7 @@
 >    - `prefabs` 리스트에 항목 추가:
 >      - `key` = **`BreakPrompt`** (대소문자까지 정확히 — `UIManager.BREAK_PROMPT_KEY`와 일치해야 함)
 >      - `prefab` = 위에서 만든 프리팹
->      - `defaultLayer` — 실제 부모는 코드(`UI_WorldSpaceHudLayer`)가 지정하므로 표시에는 영향 없음. 관례상 월드 HUD 계열로 둔다.
+>      - `defaultLayer` — 실제 부모는 코드(`UIWorldSpaceHudLayer`)가 지정하므로 표시에는 영향 없음. 관례상 월드 HUD 계열로 둔다.
 >    - 미등록이어도 컴파일·플레이는 정상이지만 **F키 아이콘이 표시되지 않는다**(`CreateBreakPrompt`가 조용히 `null` 반환).
 >    - 참고: 기존 `DangerRing` 프리팹 등록 절차와 동일하다.
 >
@@ -119,7 +119,7 @@
    - 특정 테스트 공격의 `forceBreakExpose = true`를 켜면 게이지 잔량과 무관하게 즉시 노출(브레이크 공격 가능) 상태를 확인할 수 있다.
 
 5. HP바 프리팹 브레이크 게이지 연결
-   - `UI_ActorHpBar`의 `_fillBreakImage`, `_fillBreakDelayImage`에 별도 Image를 연결한다.
+   - `UIActorHpBar`의 `_fillBreakImage`, `_fillBreakDelayImage`에 별도 Image를 연결한다.
    - 연결하지 않아도 런타임 오류는 나지 않지만 브레이크 게이지는 보이지 않는다.
 
 6. 몬스터 MotionSet 확인
@@ -758,7 +758,7 @@ Any Player Combat State
 
 ### 몬스터 HP바
 
-기존 `UI_ActorHpBar`에 브레이크 게이지 표시를 추가한다.
+기존 `UIActorHpBar`에 브레이크 게이지 표시를 추가한다.
 
 권장 표시:
 
@@ -907,7 +907,7 @@ namespace UPlayGround.Data.Combat
 - `breakGaugeData`가 있으면 런타임에 `MonsterBreakGauge`를 자동 부착한다.
 - `HitPhaseData` / `AttackData`에 `breakDamage`를 추가했다.
 - `MonsterActor.TakeDamage()`에서 브레이크 누적을 호출한다.
-- `UI_ActorHpBar`에 브레이크 게이지 표시용 선택 필드를 추가했다.
+- `UIActorHpBar`에 브레이크 게이지 표시용 선택 필드를 추가했다.
 
 완료 기준:
 
@@ -929,7 +929,7 @@ namespace UPlayGround.Data.Combat
 - `MonsterActor`에 노출 적 정적 레지스트리(`ExposedMonsters`)와 `SetBreakPromptActive(bool)` API를 추가했다.
 - `PlayerCombat.FindSpecialBreakAttackTarget()`로 노출 타겟 탐색을 추가했다(락온 우선 → 범위·각도 내 최근접 단일 타겟).
 - `PlayerAttackState`에서 강공격 입력으로 브레이크 특수공격 진입을 연결했다.
-- `UI_BreakPrompt`(월드, `Center` 소켓) + `UI_WorldSpaceHudLayer.CreateBreakPrompt` + `UIManager.CreateBreakPrompt`(키 `"BreakPrompt"`)로 프롬프트를 구현했다.
+- `UI_BreakPrompt`(월드, `Center` 소켓) + `UIWorldSpaceHudLayer.CreateBreakPrompt` + `UIManager.CreateBreakPrompt`(키 `"BreakPrompt"`)로 프롬프트를 구현했다.
 - `PlayerCombat.Update`의 드라이버가 매 프레임 현재 브레이크 타겟을 평가해 그 적 1개에만 프롬프트를 토글한다(노출된 적이 0이면 물리 탐색 생략, 플레이어가 행동 불능이면 숨김).
 
 완료 기준:

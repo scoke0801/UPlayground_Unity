@@ -51,8 +51,8 @@ RecipeDB   Inventory   Events
 
 UI 계층 (Assets/02.Scripts/UI/Crafting/)
 ├── UI_Crafting             : 메인 UI (패널, 탭, 리스트, 상세, 진행 바)
-├── UI_CraftingRecipeSlot   : 레시피 슬롯 (아이콘, 이름, 제작 가능 인디케이터)
-└── UI_CraftingIngredientSlot: 재료 슬롯 (아이콘, 이름, 보유/필요 수량)
+├── UICraftingRecipeSlot   : 레시피 슬롯 (아이콘, 이름, 제작 가능 인디케이터)
+└── UICraftingIngredientSlot: 재료 슬롯 (아이콘, 이름, 보유/필요 수량)
 
 데이터 임포트 (Assets/02.Scripts/Data/Crafting/Editor/)
 └── RecipeDataImporter     : CSV → RecipeDatabase 변환 (에디터 윈도우)
@@ -406,7 +406,7 @@ protected override void Update()
 }
 ```
 
-### UI_CraftingRecipeSlot (레시피 슬롯)
+### UICraftingRecipeSlot (레시피 슬롯)
 
 **용도**: 왼쪽 패널의 레시피 리스트에 인스턴스화
 
@@ -441,7 +441,7 @@ public void OnPointerClick(PointerEventData eventData)
 }
 ```
 
-### UI_CraftingIngredientSlot (재료 슬롯)
+### UICraftingIngredientSlot (재료 슬롯)
 
 **용도**: 오른쪽 패널의 재료 목록에 인스턴스화
 
@@ -597,7 +597,7 @@ RecipeManager.Instance.OnCraftingCompleted += (recipeID, quantity) =>
    ```
 
 2. **레시피 선택**
-   - UI_CraftingRecipeSlot 클릭
+   - UICraftingRecipeSlot 클릭
    - `UI_Crafting.OnRecipeSlotClicked(recipeID)` 호출
    - `ShowRecipeDetail()`: 재료, 비용, 시간 표시
 

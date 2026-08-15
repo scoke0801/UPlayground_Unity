@@ -143,7 +143,7 @@ private void ShowPopup()
 ### 타입으로 가져오기
 
 ```csharp
-var inventory = UIManager.Instance.GetUI<UI_Inventory>(UIKeyType.Inventory);
+var inventory = UIManager.Instance.GetUI<UI_Scene_Inventory>(UIKeyType.Inventory);
 if (inventory != null)
 {
     inventory.SetInteractable(true);
@@ -223,7 +223,7 @@ public override bool PerformBackFunction()
 
 ## WorldSpace HUD
 
-`UIManager`는 HUD Canvas 아래에 `UI_WorldSpaceHudLayer`를 준비한다.
+`UIManager`는 HUD Canvas 아래에 `UIWorldSpaceHudLayer`를 준비한다.
 
 | API | 역할 |
 |-----|------|

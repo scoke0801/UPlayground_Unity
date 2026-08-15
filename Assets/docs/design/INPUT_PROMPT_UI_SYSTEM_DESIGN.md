@@ -18,14 +18,14 @@ Phase 1을 구현하고 `dotnet build Assembly-CSharp.csproj` 컴파일을 검�
 | 생명주기 연동 | 완료 | `InputManager.Init()` → `InitDeviceDetection()`, `Dispose()` → `DisposeDeviceDetection()` |
 | 글리프 매핑 데이터 | 완료 | `InputGlyphDataSO` (controlPath→Sprite, 키보드/마우스·게임패드 2세트) |
 | 액션→글리프 해석기 | 완료 | `InputGlyphResolver` (바인딩 순회 + 디바이스 레이아웃 매칭, 표준 `GetBindingDisplayString`) |
-| 표시 위젯 | 완료 | `UI_InputPromptIcon` (Image + 폴백 라벨, `OnActiveDeviceChanged` 구독) |
-| 상호작용 키 통합 | 완료 | `UI_InteractionKey`가 `UI_InputPromptIcon` 호스팅 |
+| 표시 위젯 | 완료 | `UIInputPromptIcon` (Image + 폴백 라벨, `OnActiveDeviceChanged` 구독) |
+| 상호작용 키 통합 | 완료 | `UI_HUD_InteractionKey`가 `UIInputPromptIcon` 호스팅 |
 | controlPath 자동 생성 툴 | 완료 | `InputGlyphDataGenerator` (에셋 파싱 → SO 생성·동기화 메뉴 + 인스펙터 버튼), `InputGlyphDataSO.EditorSyncControlPaths` |
 | 아날로그/포인터 자동 제외 | 완료 | `InputGlyphDataGenerator.ExcludedSegments` (`delta`·`position`·`scroll`·`leftStick`·`rightStick`) |
-| **복합 바인딩 다중 글리프** (Dodge=L1+R1) | 완료 | `InputGlyphResolver`가 컴포지트 파트를 `GlyphPart` 리스트로 반환, `UI_InputPromptGlyphItem`+`UI_InputPromptIcon` 콤보 렌더 |
+| **복합 바인딩 다중 글리프** (Dodge=L1+R1) | 완료 | `InputGlyphResolver`가 컴포지트 파트를 `GlyphPart` 리스트로 반환, `UIInputPromptGlyphItem`+`UIInputPromptIcon` 콤보 렌더 |
 | **Phase 3 — 게임패드 브랜드 분기** | 완료 | `GamepadBrand` enum, `InputManager.DetectBrand`(DualShock/XInput/Switch 타입), SO 브랜드별 오버라이드+제네릭 폴백, 생성툴 브랜드 채우기 버튼 |
 | **스프라이트 자동 연결** (Kenney InputIcon) | 완료 | `InputGlyphDataGenerator.AutoLinkSprites` — controlPath→Kenney 파일명 매핑, 텍스처 Sprite 변환, 카테고리별 할당. 전수 검증: KM 24 + Xbox 16 + PS 16 = 미매칭 0 |
-| **에디터 인스펙터 미리보기** | 완료 | `UI_InputPromptIconEditor` — 디바이스/브랜드 선택 팝업으로 글리프를 인스펙터 GUI에만 그림(컴포넌트 무수정 → 프리팹 저장 0). 매니저 무관 `InputGlyphResolver.ResolveAction(InputAction,...)` + 에셋 직접 로드(`AssetDatabase`). 설정은 `EditorPrefs`에 기억 |
+| **에디터 인스펙터 미리보기** | 완료 | `UIInputPromptIconEditor` — 디바이스/브랜드 선택 팝업으로 글리프를 인스펙터 GUI에만 그림(컴포넌트 무수정 → 프리팹 저장 0). 매니저 무관 `InputGlyphResolver.ResolveAction(InputAction,...)` + 에셋 직접 로드(`AssetDatabase`). 설정은 `EditorPrefs`에 기억 |
 
 **확정된 결정 (§11 해소):**
 - **글리프 스타일: 키캡형** (테두리+글자). 명조/원신 관례. 사용자 확정.
@@ -37,8 +37,8 @@ Phase 1을 구현하고 `dotnet build Assembly-CSharp.csproj` 컴파일을 검�
 1. Unity로 프로젝트를 열어 새 스크립트가 임포트되게 한다(`.meta` 자동 생성).
 2. 메뉴 **`UPlayGround/입력/글리프 데이터 생성·동기화`** 실행 → `InputGlyphDataSO` 에셋이 `Assets/10.Datas/Input/`에 자동 생성되고, PlayerInputActions 에셋의 버튼/이산 입력 controlPath(키보드/마우스 24개, 게임패드 16개)가 스프라이트 빈 슬롯으로 자동 채워진다(부록 B). 순수 아날로그/포인터(`delta`·`position`·`scroll`·`leftStick`·`rightStick`)는 자동 제외된다. 바인딩을 바꾼 뒤 다시 실행하면 기존 스프라이트는 보존한 채 재동기화된다.
 3. **스프라이트 자동 연결:** SO 인스펙터의 "전체 자동 연결" 버튼(또는 카테고리별 버튼)을 누르면 `Assets/ExternalAssets/UI/InputIcon`의 Kenney 스프라이트가 controlPath에 맞춰 자동 할당된다. 매칭된 텍스처는 자동으로 Sprite 타입으로 변환된다. (수작업 드래그 불필요. 부록 C 매핑 참고)
-4. HUD/상호작용 프리팹에 `UI_InputPromptIcon`을 붙이고 `Image`·`InputGlyphDataSO`·(선택)폴백 라벨을 연결. 콤보 표시가 필요하면 `_comboContainer`+`_comboItemTemplate`도 연결.
-5. `UI_InteractionKey` 프리팹의 `_promptIcon` 필드에 위 위젯을 연결.
+4. HUD/상호작용 프리팹에 `UIInputPromptIcon`을 붙이고 `Image`·`InputGlyphDataSO`·(선택)폴백 라벨을 연결. 콤보 표시가 필요하면 `_comboContainer`+`_comboItemTemplate`도 연결.
+5. `UI_HUD_InteractionKey` 프리팹의 `_promptIcon` 필드에 위 위젯을 연결.
 6. 플레이 모드에서 키보드/마우스↔게임패드를 번갈아 입력해 글리프 전환과 키별 정확도를 런타임 검증.
 
 > 참고: `Assembly-CSharp.csproj`에 새 파일 4개의 `<Compile>` 항목을 컴파일 검증용으로 추가해 두었다. 이 파일은 Unity가 재생성하므로 다음 에디터 진입 시 자동 정리된다.
@@ -67,7 +67,7 @@ Phase 1을 구현하고 `dotnet build Assembly-CSharp.csproj` 컴파일을 검�
 
 - **키 아이콘 에셋: 없음.** 키보드/마우스/게임패드 글리프 스프라이트가 프로젝트에 전무. → 에셋 소싱이 구현 범위에 포함된다.
 - **바인딩 표시 헬퍼 코드: 없음.** `GetBindingDisplayString`, 스프라이트 매핑 등 관련 코드 전무.
-- **`UI_InteractionKey.cs`: 빈 껍데기.** `OnShow/OnHide`만 있고 실제 키 표시 로직 없음. → 이 시스템으로 대체/흡수 대상.
+- **`UI_HUD_InteractionKey.cs`: 빈 껍데기.** `OnShow/OnHide`만 있고 실제 키 표시 로직 없음. → 이 시스템으로 대체/흡수 대상.
 - **`InputManager._isGamepadActive`: 이미 존재.** 현재는 커서 잠금(`RefreshCursorState`)에만 쓰임. → 디바이스 감지 상태의 자연스러운 승격 지점.
 - **액션 식별 규약:** 모든 액션은 `(맵 이름, 액션 이름)` 문자열 쌍으로 식별. 상수는 `InputDefine.cs`의 `InputMapNames` / `PlayerAction` / `UIAction` 등에 정의.
 
@@ -136,7 +136,7 @@ Phase 1을 구현하고 `dotnet build Assembly-CSharp.csproj` 컴파일을 검�
                           │
           ┌───────────────┴───────────────┐
           ▼                               ▼
-   UI_InputPromptIcon              TMP 인라인 <sprite>
+   UIInputPromptIcon              TMP 인라인 <sprite>
    (독립 Image, HUD 슬롯)          ("[E] 상호작용" 본문)
 ```
 
@@ -315,10 +315,10 @@ public static InputGlyphResult Resolve(string mapName, string actionName,
 
 ## 7. 표시 위젯
 
-### 7.1 `UI_InputPromptIcon` (독립 Image, HUD 슬롯용)
+### 7.1 `UIInputPromptIcon` (독립 Image, HUD 슬롯용)
 
 ```csharp
-public class UI_InputPromptIcon : MonoBehaviour
+public class UIInputPromptIcon : MonoBehaviour
 {
     [SerializeField] private string _mapName = InputMapNames.PlayerAction;
     [SerializeField] private string _actionName;          // 인스펙터 드롭다운(에디터 확장 권장)
@@ -357,9 +357,9 @@ public class UI_InputPromptIcon : MonoBehaviour
 - 디바이스 전환 시 해당 텍스트를 다시 포맷(구독한 위젯이 재호출).
 - **범위 판단:** Phase 2. Phase 1은 독립 Image 위젯만으로 요구사항을 충족하고, 인라인은 다이얼로그/튜토리얼 도입 시 확장.
 
-### 7.3 기존 `UI_InteractionKey` 통합
+### 7.3 기존 `UI_HUD_InteractionKey` 통합
 
-빈 껍데기인 `UI_InteractionKey`는 **`UI_InputPromptIcon`을 내부에 품도록 리팩터**한다. 상호작용 가능 오브젝트 접근 시 노출되는 키 프롬프트가 디바이스에 따라 `F`(키보드) / `버튼 동그라미 East`(패드)로 자동 전환된다. 기존 `OnShow/OnHide` 생명주기는 유지하되 `SubscribeEvents`에서 글리프 갱신을 트리거.
+빈 껍데기인 `UI_HUD_InteractionKey`는 **`UIInputPromptIcon`을 내부에 품도록 리팩터**한다. 상호작용 가능 오브젝트 접근 시 노출되는 키 프롬프트가 디바이스에 따라 `F`(키보드) / `버튼 동그라미 East`(패드)로 자동 전환된다. 기존 `OnShow/OnHide` 생명주기는 유지하되 `SubscribeEvents`에서 글리프 갱신을 트리거.
 
 ---
 
@@ -389,7 +389,7 @@ public class UI_InputPromptIcon : MonoBehaviour
 | Phase | 범위 | 산출물 |
 |-------|------|--------|
 | **Phase 0 — 에셋/스킴 준비** | Kenney 팩 임포트, `.inputactions`에 `Gamepad` 스킴 추가 및 전 바인딩 그룹 태깅, Unity에서 검증 | 글리프 스프라이트 세트, 보강된 `PlayerInputActions.inputactions` |
-| **Phase 1 — 감지 + 독립 위젯** | `ActiveInputDevice` enum, `InputManager.Device.cs`(onEvent 감지+디바운스+이벤트), `InputGlyphDataSO`, `InputGlyphResolver`, `UI_InputPromptIcon`, `UI_InteractionKey` 통합 | 요구사항 1·2 충족(HUD 슬롯 기준) |
+| **Phase 1 — 감지 + 독립 위젯** | `ActiveInputDevice` enum, `InputManager.Device.cs`(onEvent 감지+디바운스+이벤트), `InputGlyphDataSO`, `InputGlyphResolver`, `UIInputPromptIcon`, `UI_HUD_InteractionKey` 통합 | 요구사항 1·2 충족(HUD 슬롯 기준) |
 | **Phase 2 — 인라인 텍스트** | TMP Sprite Asset(디바이스별), `InputPromptText.Format`, 다이얼로그/튜토리얼 적용 | 본문 내 키 표시 |
 | **Phase 3 — 브랜드 분기(선택)** | Gamepad description 기반 Xbox/PS/Switch 글리프 자동 전환 | 패드 브랜드별 정확한 버튼 표시 |
 

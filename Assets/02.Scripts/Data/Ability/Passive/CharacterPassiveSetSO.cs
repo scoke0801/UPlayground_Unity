@@ -16,7 +16,7 @@ namespace UPlayGround.Data.Ability
         [Tooltip("캐릭터가 실제로 보유하는 전체 패시브. 개수 제한 없음.")]
         public List<PassiveAbilitySO> passives = new();
 
-        [Tooltip("UI_CharacterSelect에 표시할 대표 패시브. 전체 목록에 포함된 항목만 최대 2개.")]
+        [Tooltip("UI_Scene_CharacterSelect에 표시할 대표 패시브. 전체 목록에 포함된 항목만 최대 2개.")]
         public List<PassiveAbilitySO> characterSelectRepresentatives = new();
 
         public IEnumerable<PassiveAbilitySO> EnumerateCharacterSelectRepresentatives()

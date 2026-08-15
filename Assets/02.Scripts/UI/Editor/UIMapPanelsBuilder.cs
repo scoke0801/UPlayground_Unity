@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.Map.EditorTools
 {
     /// <summary>
-    /// 맵 UI(UI_Map)에 시안 패널(헤더/범례·필터/지역정보/줌 슬라이더·%)을 "추가"하는 에디터 툴.
+    /// 맵 UI(UI_Scene_Map)에 시안 패널(헤더/범례·필터/지역정보/줌 슬라이더·%)을 "추가"하는 에디터 툴.
     ///
     /// ⚠ 다른 빌더와 달리 자식 전체를 지우지 않는다.
     ///   맵 코어 스캐폴드(MapViewport/MapContainer/MapBackground/컨테이너/기존 버튼)는 절대 건드리지 않고,
@@ -17,7 +17,7 @@ namespace UPlayGround.UI.Map.EditorTools
     /// </summary>
     public static class UIMapPanelsBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/Map/UI_Map.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/Scene/Map/UI_Scene_Map.prefab";
 
         private static readonly Color PanelBg  = new Color(0.06f, 0.09f, 0.13f, 0.92f);
         private static readonly Color SlotBg   = new Color(0.14f, 0.17f, 0.22f, 1f);
@@ -42,10 +42,10 @@ namespace UPlayGround.UI.Map.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var map = root.GetComponent<UI_Map>();
+                var map = root.GetComponent<UI_Scene_Map>();
                 if (map == null)
                 {
-                    Debug.LogError("[MapBuilder] 루트에 UI_Map 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[MapBuilder] 루트에 UI_Scene_Map 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -88,7 +88,7 @@ namespace UPlayGround.UI.Map.EditorTools
                     Debug.LogWarning("[MapBuilder] MapViewport를 찾지 못해 가상 커서를 생성하지 않았습니다.");
                 }
 
-                // UI_Map은 전체 화면 맵 스캐폴드 위에 코너 패널을 얹는 구조라 슬라이드시킬 단일 창이 없다.
+                // UI_Scene_Map은 전체 화면 맵 스캐폴드 위에 코너 패널을 얹는 구조라 슬라이드시킬 단일 창이 없다.
                 // 따라서 UI_SceneBase._sceneContent는 의도적으로 비워 두고 루트 CanvasGroup 페이드만 사용한다.
 
                 // ── 좌상단 타이틀 칩 (시안: 좌상단 "지도" 장식 라벨) ──
@@ -279,7 +279,7 @@ namespace UPlayGround.UI.Map.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[MapBuilder] UI_Map 패널 추가 완료 (코어 스캐폴드 보존).");
+                Debug.Log("[MapBuilder] UI_Scene_Map 패널 추가 완료 (코어 스캐폴드 보존).");
             }
             finally
             {

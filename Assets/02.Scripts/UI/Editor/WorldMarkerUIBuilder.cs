@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -10,12 +10,12 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI.EditorTools
 {
     /// <summary>
-    /// 인게임 월드 마커 UI(<see cref="UI_HudWorldMarker"/> + <see cref="UIWorldMarkerIcon"/>) 프리팹 초안을
+    /// 인게임 월드 마커 UI(<see cref="UI_HUD_WorldMarker"/> + <see cref="UIWorldMarkerIcon"/>) 프리팹 초안을
     /// 자동 생성하는 에디터 툴. 기존 UIMapPanelsBuilder의 헬퍼 스타일을 따른다.
     ///
     /// 생성물:
     ///   1) 마커 아이콘 프리팹  : Assets/03.Prefabs/UI/HUD/WorldMarker/UIWorldMarkerIcon.prefab
-    ///   2) HUD 패널 프리팹     : Assets/03.Prefabs/UI/HUD/WorldMarker/UI_Hud_WorldMarker.prefab
+    ///   2) HUD 패널 프리팹     : Assets/03.Prefabs/UI/HUD/WorldMarker/UI_HUD_WorldMarker.prefab
     ///   3) Config 에셋(없으면) : Assets/10.Datas/UI/WorldMarkerConfig.asset
     ///
     /// 이 툴은 "초안"만 만든다. 스프라이트/폰트/레이아웃 미세조정은 생성 후 인스펙터에서 한다.
@@ -25,7 +25,7 @@ namespace UPlayGround.UI.EditorTools
     {
         private const string PrefabDir  = "Assets/03.Prefabs/UI/HUD/WorldMarker";
         private const string IconPath   = PrefabDir + "/UIWorldMarkerIcon.prefab";
-        private const string PanelPath  = PrefabDir + "/UI_Hud_WorldMarker.prefab";
+        private const string PanelPath  = PrefabDir + "/UI_HUD_WorldMarker.prefab";
         private const string ConfigDir  = "Assets/10.Datas/UI";
         private const string ConfigPath = ConfigDir + "/WorldMarkerConfig.asset";
         private const string DatabaseKey = "HudWorldMarker";
@@ -163,11 +163,11 @@ namespace UPlayGround.UI.EditorTools
         // ── HUD 패널 프리팹 ────────────────────────────────────────────────
         private static GameObject BuildPanelPrefab(WorldMarkerConfigSO config, UIWorldMarkerIcon iconPrefab)
         {
-            // 루트: RectTransform + Canvas + UI_HudWorldMarker (UI_Base는 Canvas를 RequireComponent)
-            var root = NewUI("UI_Hud_WorldMarker", null);
+            // 루트: RectTransform + Canvas + UI_HUD_WorldMarker (UI_Base는 Canvas를 RequireComponent)
+            var root = NewUI("UI_HUD_WorldMarker", null);
             Stretch(root);
             root.AddComponent<Canvas>();
-            var panel = root.AddComponent<UI_HudWorldMarker>();
+            var panel = root.AddComponent<UI_HUD_WorldMarker>();
 
             // 마커 컨테이너 (전체 화면 스트레치, pivot 중앙)
             var container = NewUI("MarkerContainer", root.transform);

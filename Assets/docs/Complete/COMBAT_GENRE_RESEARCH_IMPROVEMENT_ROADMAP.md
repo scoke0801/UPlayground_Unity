@@ -71,7 +71,7 @@
 | 콤보 라우트 | 입력 시퀀스 토큰 매칭 → `forcedAttackAction`, GameplayTag/grounded 조건 | `ComboRouteRunner.cs` |
 | 스왑 잔상 공격(Residual) | 교대 시 잔상 타격 | `PlayerSwapBehaviour.cs` |
 | 스킬 게이지 | Ability(쿨다운) + Ultimate(게이지 풀충전), 공격 종류별 충전 테이블 | `PlayerSkillGauge.cs` |
-| 기타 인프라 | Poise/Break + SpecialBreakAttack, Danger Ring(`UI_DangerRing.cs`, 빨강=Unblockable/노랑), 락온(`CameraLockOn`), 모션 워프, `EnemyAirborneState` 런치, 히트스톱, 회전식 카메라 쉐이크 | — |
+| 기타 인프라 | Poise/Break + SpecialBreakAttack, Danger Ring(`UIDangerRing.cs`, 빨강=Unblockable/노랑), 락온(`CameraLockOn`), 모션 워프, `EnemyAirborneState` 런치, 히트스톱, 회전식 카메라 쉐이크 | — |
 
 즉, ①층(저스트 보상)은 사실상 완비 상태다.
 
@@ -184,7 +184,7 @@ else if (TryFindEntryAttackTarget(...)) { _player.QueueEntryAttack(...); }
 ZZZ 어시스트 패리: 적의 공격 타이밍에 교대하면 **입장 캐릭터가 그 공격을 패리**하고, 적을 경직시키며 후속 강공으로 잇는다. 교대가 곧 방어+반격 이벤트가 된다.
 
 **현재 프로젝트 상태**
-`QueueSwapAssist`(`PartyManager.cs:270,272`)로 어시스트 스왑 큐는 존재하지만, 입장 캐릭터가 들어오면서 적 공격을 **패리 판정으로 처리하고 보상으로 연결하는 경로가 미완**이다. Danger Ring(`UI_DangerRing.cs`) 타이밍 인프라와 `DefenseResolver`의 패리 판정은 별도로 존재하나 어시스트 스왑과 묶이지 않았다.
+`QueueSwapAssist`(`PartyManager.cs:270,272`)로 어시스트 스왑 큐는 존재하지만, 입장 캐릭터가 들어오면서 적 공격을 **패리 판정으로 처리하고 보상으로 연결하는 경로가 미완**이다. Danger Ring(`UIDangerRing.cs`) 타이밍 인프라와 `DefenseResolver`의 패리 판정은 별도로 존재하나 어시스트 스왑과 묶이지 않았다.
 
 **제안**
 1. 어시스트 스왑 발동 시 입장 캐릭터에 짧은 **패리 윈도우**를 부여(클래시 패리/퍼펙트 가드 창 패턴 재사용).

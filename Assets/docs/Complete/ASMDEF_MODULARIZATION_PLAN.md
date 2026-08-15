@@ -12,7 +12,7 @@
 - 커스텀 asmdef는 Assembly-CSharp을 **참조할 수 없음** → 모듈 내부에서 잔류 매니저를 부르는 코드는 전부 인터페이스 역전 필요.
 - 커플링 실측 (2026-07 전수 조사):
   - Actor→Manager: 59파일, 16개 매니저 ~40멤버 (UIManager 8, CameraManager 6, GameObjectManager 5가 상위)
-  - Actor→UI: 28파일, 10개 UI 타입 (UI_ActorHpBar 등은 **인스턴스 보유**)
+  - Actor→UI: 28파일, 10개 UI 타입 (UIActorHpBar 등은 **인스턴스 보유**)
   - UI→Manager: 18종 매니저 (PartyManager 79건, CheatManager 46건=치트 패널 전용, GameObjectManager 31건…)
   - Camera→Manager: 7종 / Camera→GameActor: 4파일(좁은 표면) / **Camera→UI: 0건**
   - AI 폴더↔GameActor **양방향 결합** (AI→Components 41파일, GameActor→AI 12 using) → AI 런타임은 Actor 모듈에 통합 외 대안 없음
@@ -127,8 +127,8 @@ Assembly-CSharp-Editor → Manager 참조 에디터 툴 전부 (02.Scripts/Edito
 
 ## Phase 5 — UI 모듈
 
-- [x] `UI/Debug/UI_DevCheatPanel.*` 9파일(+Editor 빌더) → `02.Scripts/Debugging/DevCheat/` 이동 — CheatManager 46건 인터페이스 추출 회피.
-      `UI_GamePlay.cs:206`의 `GetUI<UI_DevCheatPanel>()`은 문자열 키/UI_Base 수준 토글로 치환
+- [x] `UI/Debug/UI_System_DevCheatPanel.*` 9파일(+Editor 빌더) → `02.Scripts/Debugging/DevCheat/` 이동 — CheatManager 46건 인터페이스 추출 회피.
+      `UI_HUD_GamePlay.cs:206`의 `GetUI<UI_System_DevCheatPanel>()`은 문자열 키/UI_Base 수준 토글로 치환
 - [x] `Manager/UIManager.cs` → `02.Scripts/UI/` 이동 (네임스페이스 유지). `AssetManager.Instance.LoadGlobalAsync` → `Svc.Asset`. `IActorUIService` 구현 유지.
       `CreateHpBar(GameActor)` 등 Actor 파라미터는 UI→Actor 직접 참조라 무변경
 - [x] Contracts 서비스 확장(UI 실측 표면): `IPartyService`(79건 — 최대, PlayerActor 노출분은 Actor 모듈 정의), `IQuestService`(26), `IGameTimeService`(25), `IDialogueService`(22), `IInputService`(22), `IActorRegistryService`(31), `IInventoryService`(14), `ICycleRunService`(13), `ISaveService`(10), `ISceneFlowService`(7), `IItemService`(7), `IBossAssistService`(6), `IRecipeService`(3).

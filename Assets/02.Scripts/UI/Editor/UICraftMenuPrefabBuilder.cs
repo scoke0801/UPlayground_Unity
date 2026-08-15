@@ -6,18 +6,18 @@ using UnityEngine.UI;
 namespace UPlayGround.UI.Crafting.EditorTools
 {
     /// <summary>
-    /// 제작 UI(UI_CraftMenu) 프리팹 초안을 코드로 생성하고 모든 SerializeField를 자동 연결하는 에디터 툴.
+    /// 제작 UI(UI_Scene_CraftMenu) 프리팹 초안을 코드로 생성하고 모든 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_CraftMenu.prefab의 루트/스크립트(guid)는 유지한 채, 자식 계층만 재구성한다.
+    /// - 기존 UI_Scene_CraftMenu.prefab의 루트/스크립트(guid)는 유지한 채, 자식 계층만 재구성한다.
     /// - 레시피 슬롯 / 재료 슬롯 서브 프리팹도 함께 생성해 참조를 연결한다.
     /// - 재실행 가능(idempotent): 실행할 때마다 자식을 지우고 동일한 초안으로 다시 만든다.
     /// - 시안 재현이 아니라 "동작하는 회색 초안"이 목표. 색/스프라이트/폰트는 Unity에서 다듬는다.
     /// </summary>
     public static class UICraftMenuPrefabBuilder
     {
-        private const string MainPrefabPath       = "Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab";
-        private const string RecipeSlotPrefabPath = "Assets/03.Prefabs/UI/Scene/Craft/UI_CraftingRecipeSlot.prefab";
-        private const string IngrSlotPrefabPath   = "Assets/03.Prefabs/UI/Scene/Craft/UI_CraftingIngredientSlot.prefab";
+        private const string MainPrefabPath       = "Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab";
+        private const string RecipeSlotPrefabPath = "Assets/03.Prefabs/UI/Scene/Craft/UICraftingRecipeSlot.prefab";
+        private const string IngrSlotPrefabPath   = "Assets/03.Prefabs/UI/Scene/Craft/UICraftingIngredientSlot.prefab";
 
         // ──── 색상 팔레트(초안용) ────
         private static readonly Color Dim        = new Color(0f, 0f, 0f, 0.6f);
@@ -49,10 +49,10 @@ namespace UPlayGround.UI.Crafting.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var menu = root.GetComponent<UI_CraftMenu>();
+                var menu = root.GetComponent<UI_Scene_CraftMenu>();
                 if (menu == null)
                 {
-                    Debug.LogError("[CraftBuilder] 루트에 UI_CraftMenu 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[CraftBuilder] 루트에 UI_Scene_CraftMenu 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -104,7 +104,7 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 var tabMaterial   = MakeTab("TabMaterial",   tabs.transform, "재료");
                 var tabSpecial    = MakeTab("TabSpecial",    tabs.transform, "특수");
 
-                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_CraftMenu.TabCategories와 반드시 일치
+                // 탭 그룹(단일 선택 관리) — 배치 순서는 UI_Scene_CraftMenu.TabCategories와 반드시 일치
                 var tabGroup = tabs.AddComponent<UITabGroup>();
                 tabGroup.SetTabs(new[] { tabAll, tabConsumable, tabEquipment, tabMaterial, tabSpecial });
 
@@ -244,7 +244,7 @@ namespace UPlayGround.UI.Crafting.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[CraftBuilder] UI_CraftMenu 프리팹 초안 생성 완료.");
+                Debug.Log("[CraftBuilder] UI_Scene_CraftMenu 프리팹 초안 생성 완료.");
             }
             finally
             {
@@ -259,12 +259,12 @@ namespace UPlayGround.UI.Crafting.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 슬롯 서브 프리팹
 
-        private static UI_CraftingRecipeSlot BuildRecipeSlotPrefab()
+        private static UICraftingRecipeSlot BuildRecipeSlotPrefab()
         {
-            var go = NewUI("UI_CraftingRecipeSlot", null);
+            var go = NewUI("UICraftingRecipeSlot", null);
             SetHeight(go, 64);
             AddImage(go, SlotBg, UISprite, sliced: true);
-            var slot = go.AddComponent<UI_CraftingRecipeSlot>();
+            var slot = go.AddComponent<UICraftingRecipeSlot>();
             AddHLG(go, spacing: 8, pad: 8);
 
             var iconGo = NewUI("Icon", go.transform);
@@ -299,14 +299,14 @@ namespace UPlayGround.UI.Crafting.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, RecipeSlotPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_CraftingRecipeSlot>();
+            return asset.GetComponent<UICraftingRecipeSlot>();
         }
 
-        private static UI_CraftingIngredientSlot BuildIngredientSlotPrefab()
+        private static UICraftingIngredientSlot BuildIngredientSlotPrefab()
         {
-            var go = NewUI("UI_CraftingIngredientSlot", null);
+            var go = NewUI("UICraftingIngredientSlot", null);
             SetHeight(go, 48);
-            var slot = go.AddComponent<UI_CraftingIngredientSlot>();
+            var slot = go.AddComponent<UICraftingIngredientSlot>();
             AddHLG(go, spacing: 8, pad: 6);
 
             var iconGo = NewUI("Icon", go.transform);
@@ -334,7 +334,7 @@ namespace UPlayGround.UI.Crafting.EditorTools
 
             var asset = PrefabUtility.SaveAsPrefabAsset(go, IngrSlotPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);
-            return asset.GetComponent<UI_CraftingIngredientSlot>();
+            return asset.GetComponent<UICraftingIngredientSlot>();
         }
 
         #endregion

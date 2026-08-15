@@ -33,7 +33,7 @@
 - [ ] `CycleSpawnPoint`의 Respawn `Spawn Id`와 같은 오브젝트의 `CycleRespawnPoint.Respawn Id`를 동일하게 맞춘다.
 - [ ] 탈출용 `PortalActor`의 `Is Cycle Exit Portal`을 활성화하고 목표 씬/도착 지점을 설정한다.
 - [ ] 중앙 보스 처치 전 포털이 비활성이고 처치 후에만 활성화되는지 확인한다.
-- [x] 사이클 시작 버튼·트리거·개발 치트에서 `CycleRunManager.Instance.StartNewCycle()`을 호출하도록 연결한다. 고정 시드 검증은 `StartCycle(cycleIndex, seed)`를 사용한다. — `UI_TitleMenu` 새 게임에서 `RequestStartNewCycleOnNextWorld()` 호출 연결됨
+- [x] 사이클 시작 버튼·트리거·개발 치트에서 `CycleRunManager.Instance.StartNewCycle()`을 호출하도록 연결한다. 고정 시드 검증은 `StartCycle(cycleIndex, seed)`를 사용한다. — `UI_Scene_TitleMenu` 새 게임에서 `RequestStartNewCycleOnNextWorld()` 호출 연결됨
 
 ## 3. 캐릭터 무게 프로필
 
@@ -89,16 +89,16 @@
 - [x] `Show Cycle Boss Markers`, `Show Remains Marker`를 활성화한다. — LakeOfLife 등 맵 config에서 활성 확인
 - [ ] `Unknown Boss`가 등급·속성을 색으로 암시하지 않는지 확인한다.
 - [ ] 미발견 마커의 플레이어 라벨이 `미확인 상대`, 발견 후 라벨이 실제 캐릭터 이름인지 확인한다.
-- [ ] 나침반 Canvas에 `UI_CycleCompass`를 추가하고 Container, Image 프리팹, Icon Config를 연결한다.
+- [ ] 나침반 Canvas에 `UICycleCompass`를 추가하고 Container, Image 프리팹, Icon Config를 연결한다.
 - [ ] 나침반 아이콘 프리팹의 앵커·크기·레이캐스트 옵션을 HUD 규칙에 맞춘다.
 - [ ] 미니맵에서 `?` 목적지를 직접 선택하는 UI가 있다면 `CycleTelemetrySession.RecordMarkerSelected(spawnId, worldPosition)`를 호출한다.
 
 ## 8. 사이클 HUD와 피드백 UI
 
-- [ ] 게임플레이 HUD 아래에 `UI_CycleHud`를 추가하고 사이클 번호, 시드, 경과 시간 TMP 텍스트를 연결한다.
-- [ ] `UI_CycleEncounterBanner`를 추가하고 제목 TMP와 CanvasGroup을 연결한다.
+- [ ] 게임플레이 HUD 아래에 `UICycleHud`를 추가하고 사이클 번호, 시드, 경과 시간 TMP 텍스트를 연결한다.
+- [ ] `UICycleEncounterBanner`를 추가하고 제목 TMP와 CanvasGroup을 연결한다.
 - [ ] 조우 배너가 `외곽/중앙 보스`를 표시하지 않고 실제 캐릭터 이름만 표시하는지 확인한다.
-- [ ] `UI_BossAssistHud`를 추가하고 아이콘, 쿨다운 fill, 남은 초, CanvasGroup을 연결한다.
+- [ ] `UIBossAssistHud`를 추가하고 아이콘, 쿨다운 fill, 남은 초, CanvasGroup을 연결한다.
 - [ ] 조우 배너 이벤트에 BGM 전환과 보스 HP바 표시를 프로젝트 연출 시스템에서 연결한다.
 - [ ] 전멸/회수/재사망 알림은 `CycleRemainsManager`의 `OnRemainsCreated`, `OnRemainsRecovered`, `OnRemainsDiscarded` 이벤트에 연결한다. ⚠️ 알림 UI 클래스 자체가 미구현 — 현재 구독자는 텔레메트리뿐
 - [ ] 정산 화면은 `CycleRunManager.OnSettlementCommitted` 이벤트에서 `CycleSettlementPlan`을 받아 표시한다. ⚠️ 정산 화면 UI 클래스 자체가 미구현
@@ -120,7 +120,7 @@
 
 ### 10.1 코드 수정 완료 — Unity 재임포트 후 확인만 필요
 
-- [x] **멀티클래스 파일 분리** — 파일명과 클래스명이 달라 MonoScript가 연결되지 않던 클래스 6종을 각자 파일로 분리. `VitalRecoveryPolicySO.cs`, `BossAssistDatabaseSO.cs`, `CentralBossSpawnPoint.cs`, `CycleRespawnPoint.cs`, `UI_CycleEncounterBanner.cs`, `UI_BossAssistHud.cs` (고정 GUID `.meta` 동반 생성).
+- [x] **멀티클래스 파일 분리** — 파일명과 클래스명이 달라 MonoScript가 연결되지 않던 클래스 6종을 각자 파일로 분리. `VitalRecoveryPolicySO.cs`, `BossAssistDatabaseSO.cs`, `CentralBossSpawnPoint.cs`, `CycleRespawnPoint.cs`, `UICycleEncounterBanner.cs`, `UIBossAssistHud.cs` (고정 GUID `.meta` 동반 생성).
 - [x] **깨진 에셋 4종 `m_Script` 복구** — `VitalRecovery_{Light,Standard,Heavy}.asset`, `BossAssistDatabase_P0.asset`.
 - [x] **LakeOfLife 씬 임베디드 MonoScript 제거** — `CentralBossSpawnPoint`/`CycleRespawnPoint` 컴포넌트가 씬 내부에 직렬화된 가짜 MonoScript(`!u!115`)를 참조하던 것을 정식 스크립트 GUID 참조로 교체하고 임베디드 블록 2건 삭제. 직렬화 필드(`_spawnId: central_boss`, `_respawnId: player_spawn_pos` 등)는 보존됨.
 - [ ] 위 수정 후 Unity에서 LakeOfLife를 열어 CentralBossSpawnPoint/CycleRespawnPoint 컴포넌트가 Missing Script 없이 표시되는지, 에셋 4종 인스펙터가 정상 노출되는지 확인한다.

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// 화면 가장자리에 표시되는 적 방향 마커 1개. UI_HudOffscreenThreatIndicator가 풀링해서 사용한다.
+    /// 화면 가장자리에 표시되는 적 방향 마커 1개. UI_HUD_OffscreenThreatIndicator가 풀링해서 사용한다.
     ///
     /// 프리팹 구성 권장:
     ///   - 루트: RectTransform (anchor/pivot = 중앙 0.5,0.5)

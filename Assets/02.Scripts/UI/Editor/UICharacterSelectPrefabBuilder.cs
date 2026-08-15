@@ -11,18 +11,18 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI.CharacterSelect.EditorTools
 {
     /// <summary>
-    /// 신규 게임 캐릭터 선택 UI(UI_CharacterSelect) 프리팹 초안을 코드로 생성하고
+    /// 신규 게임 캐릭터 선택 UI(UI_Scene_CharacterSelect) 프리팹 초안을 코드로 생성하고
     /// SerializeField 를 자동 배선하는 에디터 툴.
     ///
-    /// - 카드 프리팹(UI_CharacterSelectCard) + 메인 프리팹(UI_CharacterSelect)을 처음부터 생성한다.
+    /// - 카드 프리팹(UICharacterSelectCard) + 메인 프리팹(UI_Scene_CharacterSelect)을 처음부터 생성한다.
     /// - 기존 파일이 있으면 덮어쓴다(idempotent).
     /// - 스프라이트/3D 프리뷰 렌더러/데이터(SO)는 배선 대상이 아니며 Unity 에디터에서 수동 연결한다.
     /// </summary>
     public static class UICharacterSelectPrefabBuilder
     {
         private const string Dir            = "Assets/03.Prefabs/UI/Scene/CharacterSelect";
-        private const string MainPrefabPath = Dir + "/UI_CharacterSelect.prefab";
-        private const string CardPrefabPath = Dir + "/UI_CharacterSelectCard.prefab";
+        private const string MainPrefabPath = Dir + "/UI_Scene_CharacterSelect.prefab";
+        private const string CardPrefabPath = Dir + "/UICharacterSelectCard.prefab";
 
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
         private const string UiKey        = "CharacterSelect";
@@ -101,9 +101,9 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 카드 프리팹
 
-        private static UI_CharacterSelectCard BuildCardPrefab()
+        private static UICharacterSelectCard BuildCardPrefab()
         {
-            var root = NewUI("UI_CharacterSelectCard", null);
+            var root = NewUI("UICharacterSelectCard", null);
             Rt(root).sizeDelta = new Vector2(CardWidth, CardHeight);
 
             var cg = root.AddComponent<CanvasGroup>();
@@ -116,7 +116,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             le.minHeight = le.preferredHeight = CardHeight;
             le.flexibleWidth = le.flexibleHeight = 0;
 
-            var card = root.AddComponent<UI_CharacterSelectCard>();
+            var card = root.AddComponent<UICharacterSelectCard>();
 
             var content = NewUI("Content", root.transform);
             Stretch(content);
@@ -167,7 +167,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
 
             var saved = PrefabUtility.SaveAsPrefabAsset(root, CardPrefabPath);
             UnityEngine.Object.DestroyImmediate(root);
-            return saved.GetComponent<UI_CharacterSelectCard>();
+            return saved.GetComponent<UICharacterSelectCard>();
         }
 
         #endregion
@@ -175,14 +175,14 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
         // ──────────────────────────────────────────────────────────
         #region 메인 프리팹
 
-        private static GameObject BuildMainPrefab(UI_CharacterSelectCard cardPrefab)
+        private static GameObject BuildMainPrefab(UICharacterSelectCard cardPrefab)
         {
-            var root = NewUI("UI_CharacterSelect", null);
+            var root = NewUI("UI_Scene_CharacterSelect", null);
 
             // UI_Base 는 Canvas 를 요구한다. 이 프리팹은 UIManager 가 Canvas_Scene 자식으로 인스턴스화된다.
             // 중첩 Canvas 는 독립된 레이캐스트 경계를 만들기 때문에, 부모(Canvas_Scene) GraphicRaycaster 는
             // 이 캔버스 하위 그래픽을 히트하지 못한다. → 자체 GraphicRaycaster 가 반드시 필요하다.
-            // (동일 패턴: UI_TitleMenu / UI_PartyMenu 도 각자 GraphicRaycaster 를 가진다.)
+            // (동일 패턴: UI_Scene_TitleMenu / UI_Scene_PartyMenu 도 각자 GraphicRaycaster 를 가진다.)
             //
             // 렌더모드: 프리팹을 root 로 저장할 때 ScreenSpaceOverlay/Camera 캔버스는 root RectTransform 을
             // driven 하여 스케일/anchor 가 0 으로 붕괴한다. WorldSpace 는 driven 하지 않아 stretch 가 보존되고,
@@ -191,7 +191,7 @@ namespace UPlayGround.UI.CharacterSelect.EditorTools
             canvas.renderMode = RenderMode.WorldSpace;
             root.AddComponent<GraphicRaycaster>();
 
-            var ui = root.AddComponent<UI_CharacterSelect>();
+            var ui = root.AddComponent<UI_Scene_CharacterSelect>();
 
             // Canvas 부착 후 root 를 명시적으로 전체 화면 stretch + 스케일 1 로 고정한다.
             Stretch(root);

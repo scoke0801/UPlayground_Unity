@@ -13,7 +13,7 @@ namespace UPlayGround.UI.Guide.EditorTools
     /// </summary>
     public static class UIGuidePopupPrefabBuilder
     {
-        private const string PrefabPath = "Assets/03.Prefabs/UI/Popup/UI_GuidePopup.prefab";
+        private const string PrefabPath = "Assets/03.Prefabs/UI/Popup/UI_Popup_Guide.prefab";
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
 
         private static readonly Color Dim = new(0f, 0f, 0f, 0.42f);
@@ -37,7 +37,7 @@ namespace UPlayGround.UI.Guide.EditorTools
             // 에디터용 임시 오브젝트의 0 스케일/0 크기가 프리팹에 직렬화될 수 있다.
             // 실제 런타임과 동일하게 부모 Canvas 아래에서 팝업을 구성한다.
             GameObject stagingCanvas = new("GuidePopupBuildCanvas", typeof(RectTransform), typeof(Canvas));
-            GameObject root = new("UI_GuidePopup", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
+            GameObject root = new("UI_Popup_Guide", typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
             root.transform.SetParent(stagingCanvas.transform, false);
             try
             {
@@ -52,7 +52,7 @@ namespace UPlayGround.UI.Guide.EditorTools
                 scaler.referenceResolution = new Vector2(2560f, 1440f);
                 scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 
-                var popup = root.AddComponent<UI_GuidePopup>();
+                var popup = root.AddComponent<UI_Popup_Guide>();
                 Stretch(root);
 
                 // Dim은 화면 전체를 덮고, 오픈/클로즈 트윈에서 알파를 조절할 수 있도록 CanvasGroup을 둔다.
@@ -147,7 +147,7 @@ namespace UPlayGround.UI.Guide.EditorTools
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 Selection.activeObject = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
-                Debug.Log("[GuidePopupBuilder] UI_GuidePopup 프리팹 생성 및 DB 등록 완료.");
+                Debug.Log("[GuidePopupBuilder] UI_Popup_Guide 프리팹 생성 및 DB 등록 완료.");
             }
             finally
             {
@@ -180,8 +180,8 @@ namespace UPlayGround.UI.Guide.EditorTools
                 return;
             }
 
-            database.RemovePrefab(UI_GuidePopup.UIKey);
-            database.AddPrefab(UI_GuidePopup.UIKey, prefab, CanvasLayer.Popup, "이미지와 설명을 표시하는 가이드 팝업");
+            database.RemovePrefab(UI_Popup_Guide.UIKey);
+            database.AddPrefab(UI_Popup_Guide.UIKey, prefab, CanvasLayer.Popup, "이미지와 설명을 표시하는 가이드 팝업");
             EditorUtility.SetDirty(database);
         }
 

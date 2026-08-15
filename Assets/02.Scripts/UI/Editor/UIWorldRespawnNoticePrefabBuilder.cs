@@ -8,7 +8,7 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI.World.EditorTools
 {
     /// <summary>
-    /// 몬스터 재스폰 안내 UI(UI_WorldRespawnNotice) 프리팹을 코드로 생성/재구성하는 에디터 툴.
+    /// 몬스터 재스폰 안내 UI(UI_HUD_WorldRespawnNotice) 프리팹을 코드로 생성/재구성하는 에디터 툴.
     ///
     /// - 프리팹이 없으면 새로 만들고, 있으면 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성한다.
     /// - 얕은 전체 화면 암전 + 상단 안내 문구 구성. 재실행 가능(idempotent).
@@ -18,7 +18,7 @@ namespace UPlayGround.UI.World.EditorTools
     public static class UIWorldRespawnNoticePrefabBuilder
     {
         private const string PrefabDir = "Assets/03.Prefabs/UI/Scene/World";
-        private const string PrefabPath = PrefabDir + "/UI_WorldRespawnNotice.prefab";
+        private const string PrefabPath = PrefabDir + "/UI_HUD_WorldRespawnNotice.prefab";
 
         private static readonly Color Dim      = new Color(0f, 0f, 0f, 0.28f);
         private static readonly Color TextMain = new Color(0.92f, 0.90f, 0.82f, 1f);
@@ -32,9 +32,9 @@ namespace UPlayGround.UI.World.EditorTools
 
             if (isNew)
             {
-                root = new GameObject("UI_WorldRespawnNotice",
+                root = new GameObject("UI_HUD_WorldRespawnNotice",
                     typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup));
-                root.AddComponent<UI_WorldRespawnNotice>();
+                root.AddComponent<UI_HUD_WorldRespawnNotice>();
             }
             else
             {
@@ -43,10 +43,10 @@ namespace UPlayGround.UI.World.EditorTools
 
             try
             {
-                var notice = root.GetComponent<UI_WorldRespawnNotice>();
+                var notice = root.GetComponent<UI_HUD_WorldRespawnNotice>();
                 if (notice == null)
                 {
-                    Debug.LogError("[WorldRespawnNoticeBuilder] 루트에 UI_WorldRespawnNotice 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[WorldRespawnNoticeBuilder] 루트에 UI_HUD_WorldRespawnNotice 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -103,7 +103,7 @@ namespace UPlayGround.UI.World.EditorTools
 
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
 
-                Debug.Log($"[WorldRespawnNoticeBuilder] UI_WorldRespawnNotice 프리팹 생성 완료: {PrefabPath}\n" +
+                Debug.Log($"[WorldRespawnNoticeBuilder] UI_HUD_WorldRespawnNotice 프리팹 생성 완료: {PrefabPath}\n" +
                           "UIPrefabDatabase에 Key 'WorldRespawnNotice' / Default Layer 'HUD'로 등록하세요.");
             }
             finally

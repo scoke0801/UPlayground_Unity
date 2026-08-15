@@ -9,7 +9,7 @@ namespace UPlayGround.UI.EditorTools
     /// <summary>인게임 메뉴 패널의 확장 타일과 레이아웃을 일괄 갱신한다.</summary>
     public static class UIMenuPanelPrefabBuilder
     {
-        public const string PrefabPath = "Assets/03.Prefabs/UI/HUD/UI_MenuPanel.prefab";
+        public const string PrefabPath = "Assets/03.Prefabs/UI/HUD/UI_Scene_MenuPanel.prefab";
 
         private const string CodexIconPath =
             "Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Component/IconMisc/MenuIcon_Monster.png";
@@ -25,9 +25,9 @@ namespace UPlayGround.UI.EditorTools
             GameObject root = PrefabUtility.LoadPrefabContents(PrefabPath);
             try
             {
-                UI_MenuPanel panel = root.GetComponent<UI_MenuPanel>();
+                UI_Scene_MenuPanel panel = root.GetComponent<UI_Scene_MenuPanel>();
                 if (panel == null)
-                    throw new System.InvalidOperationException("UI_MenuPanel 컴포넌트가 없습니다.");
+                    throw new System.InvalidOperationException("UI_Scene_MenuPanel 컴포넌트가 없습니다.");
 
                 var serialized = new SerializedObject(panel);
                 Button partyButton = serialized.FindProperty("_partyButton")?.objectReferenceValue as Button;
@@ -68,7 +68,7 @@ namespace UPlayGround.UI.EditorTools
         {
             SerializedProperty property = serialized.FindProperty(fieldName);
             if (property == null)
-                throw new System.InvalidOperationException($"UI_MenuPanel 직렬화 필드 없음: {fieldName}");
+                throw new System.InvalidOperationException($"UI_Scene_MenuPanel 직렬화 필드 없음: {fieldName}");
 
             Button current = property.objectReferenceValue as Button;
             if (current != null && current.transform.parent?.parent != gridRoot)

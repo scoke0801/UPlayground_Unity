@@ -460,20 +460,20 @@ namespace UPlayGround.Cycle.Editor
 
         private void CreateHudScaffold()
         {
-            GameObject hud = CreateUiRoot("UI_CycleHud", _hudParent);
-            UI_CycleHud cycleHud = Undo.AddComponent<UI_CycleHud>(hud);
+            GameObject hud = CreateUiRoot("UICycleHud", _hudParent);
+            UICycleHud cycleHud = Undo.AddComponent<UICycleHud>(hud);
             SetObjectReference(cycleHud, "_cycleText", CreateText("CycleText", hud.transform));
             SetObjectReference(cycleHud, "_seedText", CreateText("SeedText", hud.transform));
             SetObjectReference(cycleHud, "_elapsedText", CreateText("ElapsedText", hud.transform));
 
-            GameObject bannerObject = CreateUiRoot("UI_CycleEncounterBanner", _hudParent);
-            UI_CycleEncounterBanner banner = Undo.AddComponent<UI_CycleEncounterBanner>(bannerObject);
+            GameObject bannerObject = CreateUiRoot("UICycleEncounterBanner", _hudParent);
+            UICycleEncounterBanner banner = Undo.AddComponent<UICycleEncounterBanner>(bannerObject);
             CanvasGroup bannerGroup = Undo.AddComponent<CanvasGroup>(bannerObject);
             SetObjectReference(banner, "_title", CreateText("Title", bannerObject.transform));
             SetObjectReference(banner, "_group", bannerGroup);
 
-            GameObject assistObject = CreateUiRoot("UI_BossAssistHud", _hudParent);
-            UI_BossAssistHud assist = Undo.AddComponent<UI_BossAssistHud>(assistObject);
+            GameObject assistObject = CreateUiRoot("UIBossAssistHud", _hudParent);
+            UIBossAssistHud assist = Undo.AddComponent<UIBossAssistHud>(assistObject);
             CanvasGroup assistGroup = Undo.AddComponent<CanvasGroup>(assistObject);
             Image icon = CreateImage("Icon", assistObject.transform);
             Image cooldown = CreateImage("CooldownFill", assistObject.transform);

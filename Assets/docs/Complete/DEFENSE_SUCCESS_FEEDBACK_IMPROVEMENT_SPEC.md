@@ -327,7 +327,7 @@ fade:  0.18~0.30초 동안 0으로 감소
 ### P3 - 적 텔레그래프 / Weakness Halo 연동
 
 - `AttackDefenseType.Parryable` 공격에 Weakness Halo 또는 Danger Ring 정책을 연결한다.
-- `UI_DangerRing`과 방어 성공 피드백 색/타이밍을 맞춘다.
+- `UIDangerRing`과 방어 성공 피드백 색/타이밍을 맞춘다.
 - 강한 공격 전 warning prompt를 데이터화한다.
 
 ---

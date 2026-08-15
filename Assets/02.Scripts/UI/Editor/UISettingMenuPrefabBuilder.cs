@@ -8,9 +8,9 @@ using UPlayGround.UI.InputPrompt;
 namespace UPlayGround.UI.SettingMenu.EditorTools
 {
     /// <summary>
-    /// 설정 메뉴(UI_SettingMenu) 프리팹 초안을 코드로 재구성하고 SerializeField를 자동 연결하는 에디터 툴.
+    /// 설정 메뉴(UI_Scene_SettingMenu) 프리팹 초안을 코드로 재구성하고 SerializeField를 자동 연결하는 에디터 툴.
     ///
-    /// - 기존 UI_SettingMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
+    /// - 기존 UI_Scene_SettingMenu.prefab의 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성(덮어쓰기).
     /// - 재실행 가능(idempotent). "동작하는 회색 초안"이 목표이며 아이콘/스프라이트/폰트는 Unity에서 다듬는다.
     /// - 기존 공용 컨트롤 프리팹(UICommonSlider/UISwitcherButton/UICommonDropDown)을 인스턴스화해
     ///   기존 페이지 스크립트(UISettingPageGamePlay 등)의 연동 규약을 그대로 만족시킨다.
@@ -26,7 +26,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
     /// </summary>
     public static class UISettingMenuPrefabBuilder
     {
-        private const string MainPrefabPath   = "Assets/03.Prefabs/UI/Scene/UI_SettingMenu.prefab";
+        private const string MainPrefabPath   = "Assets/03.Prefabs/UI/Scene/UI_Scene_SettingMenu.prefab";
         private const string SliderPrefabPath   = "Assets/03.Prefabs/UI/Common/UICommonSlider.prefab";
         private const string SwitchPrefabPath   = "Assets/03.Prefabs/UI/Common/UISwitcherButton.prefab";
         private const string DropdownPrefabPath = "Assets/03.Prefabs/UI/Common/UICommonDropDown.prefab";
@@ -62,10 +62,10 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var menu = root.GetComponent<UI_SettingMenu>();
+                var menu = root.GetComponent<UI_Scene_SettingMenu>();
                 if (menu == null)
                 {
-                    Debug.LogError("[SettingBuilder] 루트에 UI_SettingMenu 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[SettingBuilder] 루트에 UI_Scene_SettingMenu 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -98,7 +98,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 var tabAudio    = MakeTopTabButton(header.transform, "사운드");
                 var tabKeys     = MakeTopTabButton(header.transform, "키 설정");
 
-                // 탭 그룹의 순서는 UI_SettingMenu의 페이지 인덱스와 일치해야 한다.
+                // 탭 그룹의 순서는 UI_Scene_SettingMenu의 페이지 인덱스와 일치해야 한다.
                 var tabGroup = header.AddComponent<UITabGroup>();
                 tabGroup.SetTabs(new[] { tabGameplay, tabGraphic, tabAudio, tabKeys });
 
@@ -164,7 +164,7 @@ namespace UPlayGround.UI.SettingMenu.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[SettingBuilder] UI_SettingMenu 프리팹 초안 재구성 완료.");
+                Debug.Log("[SettingBuilder] UI_Scene_SettingMenu 프리팹 초안 재구성 완료.");
             }
             finally
             {

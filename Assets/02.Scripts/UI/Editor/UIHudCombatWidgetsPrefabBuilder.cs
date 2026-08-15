@@ -18,8 +18,8 @@ namespace UPlayGround.UI.HUD.EditorTools
     /// </summary>
     public static class UIHudCombatWidgetsPrefabBuilder
     {
-        private const string SkillPrefabPath = "Assets/03.Prefabs/UI/HUD/Skill/UI_HudSkill.prefab";
-        private const string QuickSlotPrefabPath = "Assets/03.Prefabs/UI/HUD/QuickSlot/UI_HudQuickSlot.prefab";
+        private const string SkillPrefabPath = "Assets/03.Prefabs/UI/HUD/Skill/UI_HUD_Skill.prefab";
+        private const string QuickSlotPrefabPath = "Assets/03.Prefabs/UI/HUD/QuickSlot/UI_HUD_QuickSlot.prefab";
         private const string DatabasePath = "Assets/10.Datas/Path/UIPrefabDatabase.asset";
         private const string QuickSlotKey = "HudQuickSlot";
         private const string GlyphDataPath = "Assets/10.Datas/UI/Input/InputGlyphData.asset";
@@ -47,14 +47,14 @@ namespace UPlayGround.UI.HUD.EditorTools
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Selection.activeObject = skill;
-            Debug.Log("[HudCombatBuilder] UI_HudSkill / UI_HudQuickSlot 생성 및 DB 등록 완료.");
+            Debug.Log("[HudCombatBuilder] UI_HUD_Skill / UI_HUD_QuickSlot 생성 및 DB 등록 완료.");
         }
 
         private static GameObject BuildSkillPrefab()
         {
-            var root = NewUI("UI_HudSkill", null);
+            var root = NewUI("UI_HUD_Skill", null);
             ConfigureHudRoot(root, new Vector2(600f, 255f), new Vector2(-24f, 48f), rightAligned: true);
-            var hud = root.AddComponent<UI_HudSkill>();
+            var hud = root.AddComponent<UI_HUD_Skill>();
             var glyphData = AssetDatabase.LoadAssetAtPath<InputGlyphDataSO>(GlyphDataPath);
 
             var slots = new[]
@@ -230,7 +230,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             fallback.fontSizeMax = 15f;
             fallback.raycastTarget = false;
 
-            var prompt = keyCap.AddComponent<UI_InputPromptIcon>();
+            var prompt = keyCap.AddComponent<UIInputPromptIcon>();
             var promptSo = new SerializedObject(prompt);
             SetString(promptSo, "_mapName", InputMapNames.PlayerAction);
             SetString(promptSo, "_actionName", action);
@@ -267,9 +267,9 @@ namespace UPlayGround.UI.HUD.EditorTools
 
         private static GameObject BuildQuickSlotPrefab()
         {
-            var root = NewUI("UI_HudQuickSlot", null);
+            var root = NewUI("UI_HUD_QuickSlot", null);
             ConfigureHudRoot(root, new Vector2(320f, 320f), new Vector2(40f, 42f), rightAligned: false);
-            var hud = root.AddComponent<UI_HudQuickSlot>();
+            var hud = root.AddComponent<UI_HUD_QuickSlot>();
             var glyphData = AssetDatabase.LoadAssetAtPath<InputGlyphDataSO>(GlyphDataPath);
 
             var positions = new[]
@@ -394,7 +394,7 @@ namespace UPlayGround.UI.HUD.EditorTools
             keyText.fontSizeMax = 13f;
             keyText.raycastTarget = false;
 
-            var prompt = keyCap.AddComponent<UI_InputPromptIcon>();
+            var prompt = keyCap.AddComponent<UIInputPromptIcon>();
             var promptSo = new SerializedObject(prompt);
             SetString(promptSo, "_mapName", InputMapNames.PlayerAction);
             SetString(promptSo, "_actionName", actionName);

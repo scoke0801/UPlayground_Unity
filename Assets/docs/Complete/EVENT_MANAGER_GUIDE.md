@@ -142,7 +142,7 @@ public class QuestObjectiveEventData : IEventData
 ### 1. 데이터 있는 이벤트 (구독 / 발송)
 
 ```csharp
-// 발송 (UI_ItemPopup.cs)
+// 발송 (UI_Popup_Item.cs)
 var eventData = new PlayerEquipChangeEvent
 {
     itemKey       = item.itemKey,

@@ -12,7 +12,7 @@ namespace UPlayGround.UI
 {
     /// <summary>
     /// 파티 편성 화면의 보유 캐릭터 목록 엔트리.
-    /// 클릭 시 OnToggleRequested 이벤트를 발행하고, UI_PartyMenu가 초안 상태를 관리한다.
+    /// 클릭 시 OnToggleRequested 이벤트를 발행하고, UI_Scene_PartyMenu가 초안 상태를 관리한다.
     /// </summary>
     public class UIPartyMenuEntry : MonoBehaviour, ISelectHandler, IUIFocusPresentation
     {

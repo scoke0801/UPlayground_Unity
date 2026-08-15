@@ -11,18 +11,18 @@ using UPlayGround.UI.DevCheat;
 namespace UPlayGround.UI.DevCheat.EditorTools
 {
     /// <summary>
-    /// 개발 치트 패널(UI_DevCheatPanel) 프리팹 초안을 코드로 생성/재구성하고 SerializeField를 연결하는
+    /// 개발 치트 패널(UI_System_DevCheatPanel) 프리팹 초안을 코드로 생성/재구성하고 SerializeField를 연결하는
     /// 에디터 툴("UI Builder").
     ///
-    /// - 대상 프리팹이 없으면 새로 생성(Canvas/CanvasGroup/GraphicRaycaster/UI_DevCheatPanel 부착).
+    /// - 대상 프리팹이 없으면 새로 생성(Canvas/CanvasGroup/GraphicRaycaster/UI_System_DevCheatPanel 부착).
     ///   있으면 자식 계층만 재구성(멱등).
     /// - 골격(헤더/좌측 탭 레일/탭 콘텐츠 컨테이너 N개/하단 로그 바)만 구성한다. 개수는 TabLabels 길이(현재 10개)를 따른다.
-    ///   각 탭의 실제 콘텐츠는 UI_DevCheatPanel이 런타임에 코드로 채운다.
+    ///   각 탭의 실제 콘텐츠는 UI_System_DevCheatPanel이 런타임에 코드로 채운다.
     /// - 완료 후 UIPrefabDatabase에 "DevCheatPanel" 키로 자동 등록한다.
     /// </summary>
     public static class UIDevCheatPanelPrefabBuilder
     {
-        private const string MainPrefabPath = "Assets/03.Prefabs/UI/UI_DevCheatPanel.prefab";
+        private const string MainPrefabPath = "Assets/03.Prefabs/UI/UI_System_DevCheatPanel.prefab";
         private const string DbKey = "DevCheatPanel";
 
         private static readonly string[] TabLabels =
@@ -47,10 +47,10 @@ namespace UPlayGround.UI.DevCheat.EditorTools
             var root = PrefabUtility.LoadPrefabContents(MainPrefabPath);
             try
             {
-                var panel = root.GetComponent<UI_DevCheatPanel>();
+                var panel = root.GetComponent<UI_System_DevCheatPanel>();
                 if (panel == null)
                 {
-                    Debug.LogError("[DevCheatBuilder] 루트에 UI_DevCheatPanel 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[DevCheatBuilder] 루트에 UI_System_DevCheatPanel 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -62,7 +62,7 @@ namespace UPlayGround.UI.DevCheat.EditorTools
                 // ScreenSpaceOverlay + overrideSorting(최상위)로 어떤 부모/중첩 상황에서도
                 // 화면 최상단 오버레이로 확실히 렌더되게 한다. (WorldSpace로 두면 월드 공간에
                 // 초소형으로 렌더되어 화면에 보이지 않는다.)
-                // 다른 팝업(UI_RespawnPopup 등)과 동일하게 부모 레이어 Canvas(Canvas_System, order 3000)의
+                // 다른 팝업(UI_Popup_Respawn 등)과 동일하게 부모 레이어 Canvas(Canvas_System, order 3000)의
                 // 렌더링/정렬을 그대로 상속시킨다. overrideSorting을 쓰면 오히려 정렬이 어긋날 수 있으므로 끈다.
                 var rootCanvas = root.GetComponent<Canvas>();
                 if (rootCanvas != null)
@@ -162,7 +162,7 @@ namespace UPlayGround.UI.DevCheat.EditorTools
                 so.ApplyModifiedPropertiesWithoutUndo();
 
                 PrefabUtility.SaveAsPrefabAsset(root, MainPrefabPath);
-                Debug.Log("[DevCheatBuilder] UI_DevCheatPanel 프리팹 초안 생성 완료.");
+                Debug.Log("[DevCheatBuilder] UI_System_DevCheatPanel 프리팹 초안 생성 완료.");
             }
             finally
             {
@@ -184,12 +184,12 @@ namespace UPlayGround.UI.DevCheat.EditorTools
 
             Directory.CreateDirectory(Path.GetDirectoryName(MainPrefabPath));
 
-            var go = new GameObject("UI_DevCheatPanel", typeof(RectTransform));
+            var go = new GameObject("UI_System_DevCheatPanel", typeof(RectTransform));
             var canvas = go.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;   // 부모 레이어 Canvas 상속(다른 팝업과 동일)
             go.AddComponent<GraphicRaycaster>();
             go.AddComponent<CanvasGroup>();
-            go.AddComponent<UI_DevCheatPanel>();
+            go.AddComponent<UI_System_DevCheatPanel>();
 
             PrefabUtility.SaveAsPrefabAsset(go, MainPrefabPath);
             UnityEngine.Object.DestroyImmediate(go);

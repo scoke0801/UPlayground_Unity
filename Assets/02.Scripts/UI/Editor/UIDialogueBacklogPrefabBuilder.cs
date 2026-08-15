@@ -8,9 +8,9 @@ using UPlayGround.Manager;
 namespace UPlayGround.UI.EditorTools
 {
     /// <summary>
-    /// 이전 대화내역 패널(UI_DialogueBacklog) 프리팹 초안을 코드로 생성/재구성하는 에디터 툴.
+    /// 이전 대화내역 패널(UI_Popup_DialogueBacklog) 프리팹 초안을 코드로 생성/재구성하는 에디터 툴.
     ///
-    /// - 로그 엔트리 템플릿(UI_DialogueBacklogEntry) 프리팹과 본체 프리팹 2개를 함께 만든다.
+    /// - 로그 엔트리 템플릿(UIDialogueBacklogEntry) 프리팹과 본체 프리팹 2개를 함께 만든다.
     /// - 프리팹이 없으면 새로 만들고, 있으면 루트/스크립트(guid)는 유지한 채 자식 계층만 재구성한다.
     /// - 초안 생성용이며 최종 비주얼 튜닝은 생성된 프리팹에서 수작업으로 마감한다.
     /// - 빌드 후 UIPrefabDatabase에 Key "DialogueBacklog"로 수동 등록해야 한다.
@@ -18,8 +18,8 @@ namespace UPlayGround.UI.EditorTools
     public static class UIDialogueBacklogPrefabBuilder
     {
         private const string PrefabDir = "Assets/03.Prefabs/UI/Dialogue";
-        private const string PrefabPath = PrefabDir + "/UI_DialogueBacklog.prefab";
-        private const string EntryPrefabPath = PrefabDir + "/UI_DialogueBacklogEntry.prefab";
+        private const string PrefabPath = PrefabDir + "/UI_Popup_DialogueBacklog.prefab";
+        private const string EntryPrefabPath = PrefabDir + "/UIDialogueBacklogEntry.prefab";
 
         private static readonly Color Dim = new(0f, 0f, 0f, 0.72f);
         private static readonly Color PanelBackground = new(0.07f, 0.07f, 0.09f, 0.94f);
@@ -48,8 +48,8 @@ namespace UPlayGround.UI.EditorTools
 
             if (isNew)
             {
-                root = new GameObject("UI_DialogueBacklogEntry", typeof(RectTransform));
-                root.AddComponent<UI_DialogueBacklogEntry>();
+                root = new GameObject("UIDialogueBacklogEntry", typeof(RectTransform));
+                root.AddComponent<UIDialogueBacklogEntry>();
             }
             else
             {
@@ -58,10 +58,10 @@ namespace UPlayGround.UI.EditorTools
 
             try
             {
-                var entry = root.GetComponent<UI_DialogueBacklogEntry>();
+                var entry = root.GetComponent<UIDialogueBacklogEntry>();
                 if (entry == null)
                 {
-                    Debug.LogError("[DialogueBacklogBuilder] 엔트리 루트에 UI_DialogueBacklogEntry가 없습니다. 중단.");
+                    Debug.LogError("[DialogueBacklogBuilder] 엔트리 루트에 UIDialogueBacklogEntry가 없습니다. 중단.");
                     return null;
                 }
 
@@ -166,9 +166,9 @@ namespace UPlayGround.UI.EditorTools
 
             if (isNew)
             {
-                root = new GameObject("UI_DialogueBacklog",
+                root = new GameObject("UI_Popup_DialogueBacklog",
                     typeof(RectTransform), typeof(Canvas), typeof(CanvasGroup), typeof(GraphicRaycaster));
-                root.AddComponent<UI_DialogueBacklog>();
+                root.AddComponent<UI_Popup_DialogueBacklog>();
             }
             else
             {
@@ -177,10 +177,10 @@ namespace UPlayGround.UI.EditorTools
 
             try
             {
-                var backlog = root.GetComponent<UI_DialogueBacklog>();
+                var backlog = root.GetComponent<UI_Popup_DialogueBacklog>();
                 if (backlog == null)
                 {
-                    Debug.LogError("[DialogueBacklogBuilder] 루트에 UI_DialogueBacklog 컴포넌트가 없습니다. 중단.");
+                    Debug.LogError("[DialogueBacklogBuilder] 루트에 UI_Popup_DialogueBacklog 컴포넌트가 없습니다. 중단.");
                     return;
                 }
 
@@ -312,7 +312,7 @@ namespace UPlayGround.UI.EditorTools
                 SetRef(so, "scrollRect", scrollRect);
                 SetRef(so, "entryContainer", contentRt);
                 SetRef(so, "entryPrefab",
-                    entryPrefabAsset != null ? entryPrefabAsset.GetComponent<UI_DialogueBacklogEntry>() : null);
+                    entryPrefabAsset != null ? entryPrefabAsset.GetComponent<UIDialogueBacklogEntry>() : null);
                 SetRef(so, "emptyMessage", empty);
                 SetRef(so, "closeButton", closeButton);
                 SetEnum(so, "_layer", (int)CanvasLayer.Popup);
@@ -321,7 +321,7 @@ namespace UPlayGround.UI.EditorTools
 
                 PrefabUtility.SaveAsPrefabAsset(root, PrefabPath);
 
-                Debug.Log($"[DialogueBacklogBuilder] UI_DialogueBacklog 프리팹 생성 완료: {PrefabPath}\n" +
+                Debug.Log($"[DialogueBacklogBuilder] UI_Popup_DialogueBacklog 프리팹 생성 완료: {PrefabPath}\n" +
                           $"엔트리 템플릿: {EntryPrefabPath}\n" +
                           "UIPrefabDatabase에 Key 'DialogueBacklog' / Default Layer 'Popup'으로 등록하세요.");
             }

@@ -57,7 +57,7 @@ namespace UPlayGround.UI
     /// <summary>
     /// 인게임 월드 마커를 런타임에 추적하는 범용 정적 레지스트리.
     /// 어떤 시스템(퀘스트/사이클/상호작용/디버그 등)이든 여기에 마커를 등록하면
-    /// <see cref="UI_HudWorldMarker"/>가 이를 화면에 투영해 노출한다.
+    /// <see cref="UI_HUD_WorldMarker"/>가 이를 화면에 투영해 노출한다.
     ///
     /// 씬 전환 시 남은 마커는 <see cref="Clear"/>로 정리한다. Transform 추종 마커는
     /// 대상이 파괴되면 표시 측에서 자동으로 정리된다(<see cref="WorldMarkerData.IsFollowLost"/>).

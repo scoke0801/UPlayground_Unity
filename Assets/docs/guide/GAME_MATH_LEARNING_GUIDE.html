@@ -677,7 +677,7 @@ float localAngle = Mathf.Atan2(localVelocity.x, localVelocity.z) * Mathf.Rad2Deg
           모션 워프는 <code>1-(1-t)²</code>인 EaseOut을 사용해 빠르게 출발하고 부드럽게 도착합니다.
         </p>
         <div class="code-wrap">
-          <div class="code-title">UI_Minimap.TransitionZoom / MotionWarpController.EvaluateVelocity</div><button class="copy">복사</button>
+          <div class="code-title">UI_HUD_Minimap.TransitionZoom / MotionWarpController.EvaluateVelocity</div><button class="copy">복사</button>
           <pre><code>float t = Mathf.Clamp01(elapsed / duration);
 t = Mathf.SmoothStep(0f, 1f, t);
 _currentMapZoom = Mathf.Lerp(startMapZoom, targetMapZoom, t);
@@ -933,7 +933,7 @@ return new Vector2(
         </div>
         <h3>플레이어를 항상 중앙에 놓기</h3>
         <p>
-          <code>UI_Minimap.CalcMinimapPos</code>는 대상의 맵 좌표에서 플레이어의 맵 좌표를 뺍니다.
+          <code>UI_HUD_Minimap.CalcMinimapPos</code>는 대상의 맵 좌표에서 플레이어의 맵 좌표를 뺍니다.
           그래서 플레이어는 항상 <code>(0,0)</code>, 즉 중앙이고 다른 아이콘은 상대 위치로 표시됩니다.
         </p>
         <div class="formula">아이콘 위치 = (대상의 맵 위치 - 플레이어의 맵 위치) × 현재 줌</div>
@@ -944,7 +944,7 @@ return new Vector2(
           함수와 역함수의 실제 게임 예입니다.
         </p>
         <div class="callout easy"><strong>한 줄 기억:</strong> 큰 세계를 작은 지도로 바꾸려면 “중심 맞추기 → 크기 나누기 → 회전 → 픽셀 크기 곱하기”.</div>
-        <div class="source">근거: <code>Data/UI/MinimapIconConfigSO.cs:143, 158, 178</code>, <code>Cycle/Assist/UI/UI_Minimap.cs:613</code></div>
+        <div class="source">근거: <code>Data/UI/MinimapIconConfigSO.cs:143, 158, 178</code>, <code>Cycle/Assist/UI/UI_HUD_Minimap.cs:613</code></div>
       </section>
 
       <section id="combat">

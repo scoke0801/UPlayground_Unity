@@ -5,23 +5,23 @@
 - `RecipeManager`, `UI_Crafting`, 레시피/재료 슬롯 스크립트와 제작 데이터 에디터 도구는 구현되어 있다.
 - `Assets/10.Datas/Craft/RecipeDatabase.asset`은 존재하며 Addressables 주소도 `RecipeDatabase`로 등록되어 있다.
 - 현재 UI 키는 `UIKeyType.Craft`이며 주소 문자열은 `Craft`다.
-- 현재 `UI_CraftMenu.prefab`은 기능이 없는 `UI_CraftMenu` 스크립트에 연결되어 있다.
-- `UI_CraftingRecipeSlot`, `UI_CraftingIngredientSlot` 프리팹은 존재하지 않는다.
+- 현재 `UI_Scene_CraftMenu.prefab`은 기능이 없는 `UI_Scene_CraftMenu` 스크립트에 연결되어 있다.
+- `UICraftingRecipeSlot`, `UICraftingIngredientSlot` 프리팹은 존재하지 않는다.
 - DB의 레시피 2·3 결과 아이템 ID가 `0`이고 설명이 비어 있다. 재료 ID `100005`와 결과 ID `206`도 실제 ItemDatabase 존재 여부를 확인해야 한다.
 
 즉, 제작 런타임 로직보다 프리팹 구성과 데이터 정리가 우선이다.
 
 ## 대상
 
-- `Assets/03.Prefabs/UI/Scene/Craft/UI_CraftMenu.prefab`
+- `Assets/03.Prefabs/UI/Scene/Craft/UI_Scene_CraftMenu.prefab`
 - `Assets/10.Datas/Craft/RecipeDatabase.asset`
 - 신규 레시피 슬롯/재료 슬롯 프리팹
 
 ## 1. 제작 UI 컴포넌트 교체
 
-`UI_CraftMenu.prefab`을 Prefab Mode로 연다.
+`UI_Scene_CraftMenu.prefab`을 Prefab Mode로 연다.
 
-- [ ] 루트의 기존 `UI_CraftMenu` 컴포넌트를 제거
+- [ ] 루트의 기존 `UI_Scene_CraftMenu` 컴포넌트를 제거
 - [ ] 루트에 `UI_Crafting` 컴포넌트 추가
 - [ ] 기존 `UI_Base` 공통 필드와 레이어 값이 유지되는지 확인
 - [ ] 현재 Addressables/UI DB 주소 `Craft`는 유지
@@ -33,7 +33,7 @@
 권장 계층:
 
 ```text
-UI_CraftMenu
+UI_Scene_CraftMenu
 ├── CategoryTabs
 │   ├── TabAll
 │   ├── TabConsumable
@@ -70,11 +70,11 @@ UI_CraftMenu
 
 신규 권장 경로:
 
-`Assets/03.Prefabs/UI/Scene/Craft/UI_CraftingRecipeSlot.prefab`
+`Assets/03.Prefabs/UI/Scene/Craft/UICraftingRecipeSlot.prefab`
 
 필수 구성:
 
-- [ ] 루트에 `UI_CraftingRecipeSlot` 추가
+- [ ] 루트에 `UICraftingRecipeSlot` 추가
 - [ ] 클릭을 받을 `Image`의 Raycast Target 활성화
 - [ ] 결과 아이콘 Image 생성 및 `_imgResultIcon` 연결
 - [ ] 레시피 이름 TMP 생성 및 `_txtRecipeName` 연결
@@ -87,11 +87,11 @@ UI_CraftMenu
 
 신규 권장 경로:
 
-`Assets/03.Prefabs/UI/Scene/Craft/UI_CraftingIngredientSlot.prefab`
+`Assets/03.Prefabs/UI/Scene/Craft/UICraftingIngredientSlot.prefab`
 
 필수 구성:
 
-- [ ] 루트에 `UI_CraftingIngredientSlot` 추가
+- [ ] 루트에 `UICraftingIngredientSlot` 추가
 - [ ] 재료 아이콘 Image 생성 및 `_imgIcon` 연결
 - [ ] 재료 이름 TMP 생성 및 `_txtName` 연결
 - [ ] 보유/필요 수량 TMP 생성 및 `_txtCount` 연결
@@ -156,4 +156,4 @@ CSV를 다시 가져올 경우 현재 에셋을 덮어쓸 수 있으므로 먼�
 
 ## 완료 판정
 
-기능이 없는 `UI_CraftMenu`가 아닌 `UI_Crafting`이 실제 `Craft` 프리팹에서 동작하고, 두 슬롯 프리팹과 유효한 테스트 레시피가 준비되어야 한다.
+기능이 없는 `UI_Scene_CraftMenu`가 아닌 `UI_Crafting`이 실제 `Craft` 프리팹에서 동작하고, 두 슬롯 프리팹과 유효한 테스트 레시피가 준비되어야 한다.

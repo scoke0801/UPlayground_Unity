@@ -29,7 +29,7 @@ EquipmentSO
 └── weaponType
         │
         ▼
-UI_ItemPopup / Inventory UI
+UI_Popup_Item / Inventory UI
 └── PlayerEquipChangeEvent
         │
         ▼

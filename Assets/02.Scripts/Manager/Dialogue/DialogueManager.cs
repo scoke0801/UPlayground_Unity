@@ -229,7 +229,7 @@ namespace UPlayGround.Dialogue
 
         /// <summary>
         /// Talk/Choice 노드 진입을 대화 이력에 기록합니다.
-        /// 화자명·초상화는 뷰(UI_Dialogue)와 같은 해석 규칙을 쓰도록 DialogueSpeakerResolver로 공용화했습니다.
+        /// 화자명·초상화는 뷰(UI_Scene_Dialogue)와 같은 해석 규칙을 쓰도록 DialogueSpeakerResolver로 공용화했습니다.
         /// </summary>
         internal void RecordNodeHistory(DialogueChannel channel, DialogueNodeSO node)
         {

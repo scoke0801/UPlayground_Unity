@@ -174,11 +174,11 @@ public class RestPointActor : GameActor, IInteractable
 > 채집(`OnHit` 모션이벤트)처럼 프레임 동기 연출을 원하면 `InteractionAnimEvent.OnHeal`을 추가하고
 > `OnAnimationEvent`에서 호출하는 방식으로 확장 가능(⑦).
 
-### ⑥ HUD 벤치 엔트리 갱신 — `UI_HudParty`
-`Assets/02.Scripts/UI/HUD/Party/UI_HudParty.cs`
+### ⑥ HUD 벤치 엔트리 갱신 — `UI_HUD_Party`
+`Assets/02.Scripts/UI/HUD/Party/UI_HUD_Party.cs`
 
 액티브는 `Heal()` → `OnHpChanged`로 자동 갱신되지만, **벤치 엔트리는 스왑 시점에만 갱신**된다
-(`RefreshEntryValues`, `UI_HudParty.cs:194`). 직접 `_characterHealthMap`을 써도 이벤트가
+(`RefreshEntryValues`, `UI_HUD_Party.cs:194`). 직접 `_characterHealthMap`을 써도 이벤트가
 나가지 않으므로 신규 이벤트 구독을 추가한다.
 
 ```csharp
@@ -247,7 +247,7 @@ PartyManager.Instance.OnPartyHealthRefreshed += RefreshEntryValues;
 2. ✅ `PlayerActor.HealCharacterToFull` (③) — 핵심
 3. ✅ `PartyManager.HealAllParty` + 이벤트 (④)
 4. ✅ `RestPointActor` (⑤)
-5. ✅ `UI_HudParty` 구독 (⑥)
+5. ✅ `UI_HUD_Party` 구독 (⑥)
 6. ⏭️ (선택) 애니 분기 (⑦) — 즉시 회복 방식 채택으로 미적용
 7. ⬜ 프리팹/씬 배치 → 인게임 검증 (**에디터 수동, §4 참조**)
 

@@ -12,9 +12,9 @@ namespace UPlayGround.UI.EditorTools
     public static class UIMonsterCodexPrefabBuilder
     {
         private const string RootFolder = "Assets/03.Prefabs/UI/Scene/Codex";
-        private const string MainPath = RootFolder + "/UI_MonsterCodex.prefab";
+        private const string MainPath = RootFolder + "/UI_Scene_MonsterCodex.prefab";
         private const string SlotPath = RootFolder + "/UIMonsterCodexSlot.prefab";
-        private const string MenuPanelPath = "Assets/03.Prefabs/UI/HUD/UI_MenuPanel.prefab";
+        private const string MenuPanelPath = "Assets/03.Prefabs/UI/HUD/UI_Scene_MenuPanel.prefab";
         private const string CodexMenuIconPath =
             "Assets/ExternalAssets/UI/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Sprites/Component/IconMisc/MenuIcon_Monster.png";
 
@@ -137,9 +137,9 @@ namespace UPlayGround.UI.EditorTools
 
         private static GameObject BuildMain(UIMonsterCodexSlot slotPrefab)
         {
-            GameObject root = NewUI("UI_MonsterCodex", null);
+            GameObject root = NewUI("UI_Scene_MonsterCodex", null);
             Stretch(root.GetComponent<RectTransform>());
-            UI_MonsterCodex menu = root.AddComponent<UI_MonsterCodex>();
+            UI_Scene_MonsterCodex menu = root.AddComponent<UI_Scene_MonsterCodex>();
             root.AddComponent<CanvasGroup>();
             root.AddComponent<GraphicRaycaster>();
 
@@ -289,10 +289,10 @@ namespace UPlayGround.UI.EditorTools
             GameObject root = PrefabUtility.LoadPrefabContents(MenuPanelPath);
             try
             {
-                UI_MenuPanel panel = root.GetComponent<UI_MenuPanel>();
+                UI_Scene_MenuPanel panel = root.GetComponent<UI_Scene_MenuPanel>();
                 if (panel == null)
                 {
-                    Debug.LogWarning("[MonsterCodexUIBuilder] UI_MenuPanel 컴포넌트를 찾지 못했습니다.");
+                    Debug.LogWarning("[MonsterCodexUIBuilder] UI_Scene_MenuPanel 컴포넌트를 찾지 못했습니다.");
                     return;
                 }
 
@@ -374,7 +374,7 @@ namespace UPlayGround.UI.EditorTools
             GameObject root = PrefabUtility.LoadPrefabContents(MenuPanelPath);
             try
             {
-                UI_MenuPanel panel = root.GetComponent<UI_MenuPanel>();
+                UI_Scene_MenuPanel panel = root.GetComponent<UI_Scene_MenuPanel>();
                 if (panel == null)
                     return false;
 
@@ -413,7 +413,7 @@ namespace UPlayGround.UI.EditorTools
             GameObject root = PrefabUtility.LoadPrefabContents(MainPath);
             try
             {
-                UI_MonsterCodex codex = root.GetComponent<UI_MonsterCodex>();
+                UI_Scene_MonsterCodex codex = root.GetComponent<UI_Scene_MonsterCodex>();
                 if (codex == null)
                     return true;
 

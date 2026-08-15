@@ -12,11 +12,11 @@
 | 1 | `Manager/Object/GameObjectManager.cs` | 필드 `_player` ← `FindWithTag("Player")` | `Init()`, `OnSceneChanged()`, `SetActivePartyPlayer()` 호출 시 | ⚠️ 수동 갱신 의존 |
 | 2 | `Manager/Party/PartyManager.cs` | 리스트 `_partyMembers` ← `FindObjectsByType<PlayerActor>()` | `BuildPartyFromScene()` (`AfterInit`, `OnSceneChanged`) | ✅ |
 | 3 | `Component/Player/PlayerSwapBehaviour.cs` | 필드 `_playerActor` ← `GetComponent<>()` (동일 GO) | `Awake()` | ✅ |
-| 4 | `UI/HUD/UI_GamePlay.cs` | 필드 `_playerActor` ← `GameObjectManager.Instance.Player` | `OnShow()` | ⚠️ |
-| 5 | `UI/HUD/UI_Minimap.cs` | 필드 `_player` ← `GameObjectManager.Instance?.Player` | `OnShow()` | ⚠️ |
-| 6 | `UI/HUD/UI_Map.cs` | 필드 `_player` ← `GameObjectManager.Instance?.Player` | `OnShow()` | ⚠️ |
-| 7 | `UI/HUD/UI_HudPlayerInfo.cs` | 필드 `_playerActor` ← `GameObjectManager.Instance.Player` | `OnShow()` | ⚠️ |
-| 8 | `UI/Inventory/UI_Inventory.cs` | 로컬 변수 ← `GameObjectManager.Instance?.Player` | 각 메서드 호출 시 (매번 획득) | ✅ |
+| 4 | `UI/HUD/UI_HUD_GamePlay.cs` | 필드 `_playerActor` ← `GameObjectManager.Instance.Player` | `OnShow()` | ⚠️ |
+| 5 | `UI/HUD/UI_HUD_Minimap.cs` | 필드 `_player` ← `GameObjectManager.Instance?.Player` | `OnShow()` | ⚠️ |
+| 6 | `UI/HUD/UI_Scene_Map.cs` | 필드 `_player` ← `GameObjectManager.Instance?.Player` | `OnShow()` | ⚠️ |
+| 7 | `UI/HUD/UI_HUD_PlayerInfo.cs` | 필드 `_playerActor` ← `GameObjectManager.Instance.Player` | `OnShow()` | ⚠️ |
+| 8 | `UI/Inventory/UI_Scene_Inventory.cs` | 로컬 변수 ← `GameObjectManager.Instance?.Player` | 각 메서드 호출 시 (매번 획득) | ✅ |
 | 9 | `Object/Player/PlayerPreviewActor.cs` | 필드 `_cachedPlayerEquipment` ← `GameObjectManager.Instance.Player?.GetPlayerEquipment()` | `Awake()` (단 1회) | 🔴 |
 | 10 | `Manager/Handler/GameInteractionHandler.cs` | 필드 `_player` ← lazy-init (`GameObjectManager.Instance.Player`) | `Update()` 중 null일 때만 재획득 | ⚠️ |
 | 11 | `Object/Prop/GatheringActor.cs` | 로컬 변수 ← `GameObjectManager.Instance.Player` | `OnHitEvent()` 마다 (매번 획득) | ✅ |
@@ -46,7 +46,7 @@
 
 ### ⚠️ 파티 전환 시 주의 (5개)
 
-#### `UI_GamePlay.cs` / `UI_Minimap.cs` / `UI_Map.cs` / `UI_HudPlayerInfo.cs`
+#### `UI_HUD_GamePlay.cs` / `UI_HUD_Minimap.cs` / `UI_Scene_Map.cs` / `UI_HUD_PlayerInfo.cs`
 - **문제**: 모두 `OnShow()`에서만 `GameObjectManager.Instance.Player`를 가져옴
 - **증상**: UI가 열린 상태로 파티 전환 시 HP·스킬 게이지가 구캐릭터 이벤트에 계속 반응
 - **해결 패턴** (공통):
@@ -84,7 +84,7 @@
 |------|-----------|
 | `PartyManager.cs` | `OnSwapCompleted` 이벤트 발신 측이므로 항상 최신 |
 | `PlayerSwapBehaviour.cs` | 동일 GameObject의 컴포넌트, 교체 불가 |
-| `UI_Inventory.cs` | 각 메서드에서 매번 `GameObjectManager.Instance.Player` 획득 |
+| `UI_Scene_Inventory.cs` | 각 메서드에서 매번 `GameObjectManager.Instance.Player` 획득 |
 | `GatheringActor.cs` | 이벤트 시점마다 매번 획득 |
 | `NpcTalkState.cs` | `UpdateRotation()` 매 프레임 획득 |
 | `MotionEvent_*.cs` (6종) | 메서드 파라미터로 수신, 저장 없음 |
@@ -100,8 +100,8 @@ PartyManager.RequestSwapTo()
            ├─ GameObjectManager.SetActivePartyPlayer(newPlayer)  ← _player 갱신
            └─ CameraManager.SetTarget(newPlayer.transform)       ← 카메라 추적 대상 갱신
     └─ OnSwapCompleted?.Invoke(newPlayer)                        ← 구독자에게 전파
-           └─ [현재 미구독] UI_GamePlay, UI_Minimap, UI_Map,
-                            UI_HudPlayerInfo, GameInteractionHandler,
+           └─ [현재 미구독] UI_HUD_GamePlay, UI_HUD_Minimap, UI_Scene_Map,
+                            UI_HUD_PlayerInfo, GameInteractionHandler,
                             PlayerPreviewActor
 ```
 
@@ -113,9 +113,9 @@ PartyManager.RequestSwapTo()
 
 | 우선순위 | 대상 | 예상 증상 |
 |---------|------|---------|
-| P1 | `UI_HudPlayerInfo.cs` | HP·스킬 게이지 오동작 (플레이어 직접 체감) |
+| P1 | `UI_HUD_PlayerInfo.cs` | HP·스킬 게이지 오동작 (플레이어 직접 체감) |
 | P1 | `ItemActor.cs` | 아이템이 구캐릭터 위치로 이동 |
 | P2 | `GameInteractionHandler.cs` | 상호작용 감지 오동작 |
-| P2 | `UI_GamePlay.cs`, `UI_Minimap.cs`, `UI_Map.cs` | HUD 표시 오류 |
+| P2 | `UI_HUD_GamePlay.cs`, `UI_HUD_Minimap.cs`, `UI_Scene_Map.cs` | HUD 표시 오류 |
 | P3 | `PlayerPreviewActor.cs` | 인벤토리 프리뷰 오표시 |
 | P3 | `VitalOrbActor.cs` | 회복 구슬 흡입 위치 오류 (전환 직전 생성분만) |

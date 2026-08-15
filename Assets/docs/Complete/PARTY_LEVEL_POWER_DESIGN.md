@@ -68,7 +68,7 @@ PartyPowerCalculator
 ├── CalculateGrowthStats(type, level)
 └── CalculateCombatPower(growthStats)
 
-UI_PartySelect / HUD / 디버그 도구
+UI_Scene_PartySelect / HUD / 디버그 도구
 └── PartyManager.GetCombatPower(type)
 ```
 
@@ -375,7 +375,7 @@ UPlayGround/Party/Validate Party Growth Data
 
 ### Phase C — 표시/검증
 
-1. `UI_PartySelect` 또는 파티 메뉴에 레벨/전투력 표시.
+1. `UI_Scene_PartySelect` 또는 파티 메뉴에 레벨/전투력 표시.
 2. `Party Power Preview` 에디터 창 추가.
 3. `Validate Party Growth Data` 메뉴 추가.
 

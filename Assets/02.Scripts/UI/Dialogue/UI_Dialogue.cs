@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using UPlayGround.Data.EnumType;
@@ -26,10 +27,11 @@ namespace UPlayGround.UI
         [SerializeField] private Image portraitImage;
         [SerializeField] private Vector2 portraitMaxSize = new(160f, 160f);
         [SerializeField] private Button advanceButton;
+        [SerializeField] private GameObject advancePrompt;
 
         [Header("선택지 패널")]
         [SerializeField] private GameObject choicePanel;
-        [SerializeField] private UI_DialogueChoiceButton choiceButtonPrefab;
+        [SerializeField] private GameObject choiceButtonPrefab;
         [SerializeField] private Transform choiceContainer;
 
         private readonly List<UI_DialogueChoiceButton> _choiceButtons = new();
@@ -90,12 +92,14 @@ namespace UPlayGround.UI
                 choicePanel.SetActive(false);
             }
 
+            ClearChoiceButtons();
+
             dialoguePanel?.SetActive(true);
 
             speakerNameText.text = ResolveSpeakerName(node);
             ApplyPortrait(ResolvePortrait(node));
 
-            advanceButton.gameObject.SetActive(false);
+            SetAdvanceVisible(false);
             EnsureTypewriter()?.Play(
                 ResolveDialogueText(node.dialogueText),
                 UISvc.Dialogue?.Palette,
@@ -107,22 +111,40 @@ namespace UPlayGround.UI
             // 선택은 플레이어 몫이므로 자동 재생은 여기서 멈춘다.
             StopAutoAdvance();
 
-            choicePanel.SetActive(true);
-            advanceButton.gameObject.SetActive(false);
+            if (choicePanel == null || choiceButtonPrefab == null || choiceContainer == null)
+            {
+                Debug.LogError("[Dialogue] 선택지 UI 프리팹 참조가 누락되었습니다.", this);
+                return;
+            }
 
-            // 기존 버튼 반환 (풀링이 아닌 단순 재사용)
-            foreach (var btn in _choiceButtons) Destroy(btn.gameObject);
-            _choiceButtons.Clear();
+            choicePanel.SetActive(true);
+            SetAdvanceVisible(false);
+
+            ClearChoiceButtons();
+
+            UI_DialogueChoiceButton firstAvailable = null;
 
             for (int i = 0; i < choices.Count; i++)
             {
-                var btn = Instantiate(choiceButtonPrefab, choiceContainer);
+                var buttonObject = Instantiate(choiceButtonPrefab, choiceContainer);
+                var btn = buttonObject.GetComponent<UI_DialogueChoiceButton>()
+                          ?? buttonObject.AddComponent<UI_DialogueChoiceButton>();
                 var choice = choices[i];
                 bool isAvailable = choice.displayCondition == null || choice.displayCondition.Evaluate();
 
-                btn.Setup(ResolveDialogueText(choice.choiceText), isAvailable, capturedIndex: i);
+                if (!btn.Setup(ResolveDialogueText(choice.choiceText), isAvailable, capturedIndex: i))
+                {
+                    Destroy(buttonObject);
+                    continue;
+                }
+
                 _choiceButtons.Add(btn);
+                if (isAvailable && firstAvailable == null)
+                    firstAvailable = btn;
             }
+
+            if (firstAvailable != null && EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(firstAvailable.gameObject);
         }
 
         private void HandleDialogueEnd()
@@ -138,6 +160,22 @@ namespace UPlayGround.UI
             {
                 choicePanel.SetActive(false);
             }
+
+            ClearChoiceButtons();
+        }
+
+        private void ClearChoiceButtons()
+        {
+            foreach (var btn in _choiceButtons)
+            {
+                if (btn == null)
+                    continue;
+
+                btn.gameObject.SetActive(false);
+                Destroy(btn.gameObject);
+            }
+
+            _choiceButtons.Clear();
         }
 
         // 컨트롤 바/전용 입력이 요청한 타이핑 스킵(약).
@@ -235,7 +273,7 @@ namespace UPlayGround.UI
 
             // 선택지 노드는 선택 UI가 진행을 담당하므로 진행 버튼을 띄우지 않는다.
             bool isChoice = _currentNode != null && _currentNode.nodeType == NodeType.Choice;
-            advanceButton.gameObject.SetActive(!isChoice);
+            SetAdvanceVisible(!isChoice);
 
             StartAutoAdvanceIfNeeded();
         }
@@ -336,6 +374,15 @@ namespace UPlayGround.UI
 
             StopAutoAdvance();
             dialogue.Advance();
+        }
+
+        private void SetAdvanceVisible(bool visible)
+        {
+            if (advanceButton != null)
+                advanceButton.gameObject.SetActive(visible);
+
+            if (advancePrompt != null)
+                advancePrompt.SetActive(visible);
         }
     }
 }

@@ -280,17 +280,25 @@ MonoBehaviour:
   m_Name: Node_InitialRequest1
   m_EditorClassIdentifier:
   nodeId: mia_initial_request_1
-  nodeType: 0
+  nodeType: 1
   channel: 0
   speakerId: "미아"
   dialogueText: "혹시 잠깐만 도와줄래? 파란 리본을 잃어버렸어."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
-  nextNodeId: mia_initial_request_2
+  nextNodeId:
   trueNextNodeId:
   falseNextNodeId:
-  choices: []
+  choices:
+  - choiceText: "마지막으로 본 곳이 어디야?"
+    nextNodeId: mia_initial_request_2
+    displayCondition: {fileID: 0}
+    isGreyedOut: 0
+  - choiceText: "지나온 길부터 같이 짚어 보자."
+    nextNodeId: mia_initial_location_route
+    displayCondition: {fileID: 0}
+    isGreyedOut: 0
   condition: {fileID: 0}
   eventActions: []
   cameraRecording: {fileID: 0}
@@ -310,8 +318,64 @@ MonoBehaviour:
   nodeId: mia_initial_request_2
   nodeType: 0
   channel: 0
+  speakerId: "미아"
+  dialogueText: "나무 울타리 근처야. 풀숲을 지나고 나서 없어진 걸 알았어."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_initial_search_reply
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1040, y: 820}
+--- !u!114 &11400117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialLocationRoute
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_location_route
+  nodeType: 0
+  channel: 0
+  speakerId: "미아"
+  dialogueText: "마을 입구 쪽 나무 울타리를 지나왔어. 풀숲에 떨어졌을지도 몰라."
+  portrait: {fileID: 0}
+  typingSpeed: 0.04
+  autoAdvanceDuration: 0
+  nextNodeId: mia_initial_search_reply
+  trueNextNodeId:
+  falseNextNodeId:
+  choices: []
+  condition: {fileID: 0}
+  eventActions: []
+  cameraRecording: {fileID: 0}
+  editorPosition: {x: 1040, y: 940}
+--- !u!114 &11400118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33dbbdb6f707d9846a5e61bf67613e4e, type: 3}
+  m_Name: Node_InitialSearchReply
+  m_EditorClassIdentifier:
+  nodeId: mia_initial_search_reply
+  nodeType: 0
+  channel: 0
   speakerId: Protagonist
-  dialogueText: "마지막으로 본 곳부터 찾아볼게."
+  dialogueText: "알겠어. 울타리 근처부터 찾아볼게."
   portrait: {fileID: 0}
   typingSpeed: 0.04
   autoAdvanceDuration: 0
@@ -322,7 +386,7 @@ MonoBehaviour:
   condition: {fileID: 0}
   eventActions: []
   cameraRecording: {fileID: 0}
-  editorPosition: {x: 1040, y: 820}
+  editorPosition: {x: 1300, y: 880}
 --- !u!114 &11400112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -920,6 +984,8 @@ MonoBehaviour:
   - {fileID: 11400103}
   - {fileID: 11400110}
   - {fileID: 11400111}
+  - {fileID: 11400117}
+  - {fileID: 11400118}
   - {fileID: 11400112}
   - {fileID: 11400113}
   - {fileID: 11400114}

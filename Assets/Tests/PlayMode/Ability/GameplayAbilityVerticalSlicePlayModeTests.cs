@@ -331,6 +331,14 @@ namespace UPlayGround.Ability.PlayModeTests
 
                 yield return null;
 
+                // 프리팹 초기화 첫 프레임의 KCC 중력/겹침 해소가 테스트 배치 거리를 바꿀 수 있다.
+                // Ability 사거리 계약을 검증하기 직전에 배치 위치를 다시 고정한다.
+                monsterObject.transform.SetPositionAndRotation(
+                    Vector3.zero,
+                    Quaternion.identity);
+                targetObject.transform.position = Vector3.forward * 2f;
+                Physics.SyncTransforms();
+
                 Assert.That(
                     combat.HasAvailableSkillAtDistance(
                         2f,

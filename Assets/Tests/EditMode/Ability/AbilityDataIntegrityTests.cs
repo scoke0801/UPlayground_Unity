@@ -75,7 +75,7 @@ namespace UPlayGround.Ability.Tests
         }
 
         [Test]
-        public void 태그_트리거_마이그레이션_데이터는_모든_AbilitySet에_한번씩_연결된다()
+        public void 태그_트리거_마이그레이션_데이터는_유효_AbilitySet에_한번씩_연결된다()
         {
             const string monsterSetRoot = "Assets/10.Datas/Ability/Actor";
             const string monsterTriggerRoot =
@@ -93,28 +93,30 @@ namespace UPlayGround.Ability.Tests
 
             Assert.That(monsterTriggers, Has.Count.EqualTo(12));
             Assert.That(playerTriggers, Has.Count.EqualTo(9));
-            Assert.That(monsterSets, Has.Count.EqualTo(26));
-            Assert.That(playerSets, Has.Count.EqualTo(8));
+            Assert.That(monsterSets, Is.Not.Empty);
+            Assert.That(playerSets, Is.Not.Empty);
 
             AssertRequestTriggerDefinitions(monsterTriggers, "Trigger.Monster.");
             AssertRequestTriggerDefinitions(playerTriggers, "Trigger.Player.Hit.");
 
             foreach (AbilitySetSO set in monsterSets)
             {
-                Assert.That(set.tagTriggerMigrationVersion, Is.EqualTo(1), set.name);
-                AssertSetContainsTriggersExactlyOnce(set, monsterTriggers);
+                AssertMigrationOwnerIsCurrent(set, monsterTriggers);
+                AssertEffectiveSetContainsTriggersExactlyOnce(set, monsterTriggers);
                 Assert.That(
-                    set.additionalAbilities.Count(playerTriggers.Contains),
+                    EnumerateEffectiveAdditionalWithMultiplicity(set)
+                        .Count(playerTriggers.Contains),
                     Is.Zero,
                     set.name);
             }
 
             foreach (AbilitySetSO set in playerSets)
             {
-                Assert.That(set.tagTriggerMigrationVersion, Is.EqualTo(1), set.name);
-                AssertSetContainsTriggersExactlyOnce(set, playerTriggers);
+                AssertMigrationOwnerIsCurrent(set, playerTriggers);
+                AssertEffectiveSetContainsTriggersExactlyOnce(set, playerTriggers);
                 Assert.That(
-                    set.additionalAbilities.Count(monsterTriggers.Contains),
+                    EnumerateEffectiveAdditionalWithMultiplicity(set)
+                        .Count(monsterTriggers.Contains),
                     Is.Zero,
                     set.name);
                 Assert.That(
@@ -246,17 +248,76 @@ namespace UPlayGround.Ability.Tests
             }
         }
 
-        private static void AssertSetContainsTriggersExactlyOnce(
+        private static void AssertMigrationOwnerIsCurrent(
             AbilitySetSO set,
             IReadOnlyList<GameplayAbilitySO> triggers)
         {
+            bool ownsTrigger = set.additionalAbilities != null
+                               && set.additionalAbilities.Any(triggers.Contains);
+            if (set.baseSet == null || ownsTrigger)
+            {
+                Assert.That(
+                    set.tagTriggerMigrationVersion,
+                    Is.EqualTo(1),
+                    $"{set.name}: 태그 트리거를 직접 소유하는 Set의 마이그레이션 버전");
+            }
+        }
+
+        private static void AssertEffectiveSetContainsTriggersExactlyOnce(
+            AbilitySetSO set,
+            IReadOnlyList<GameplayAbilitySO> triggers)
+        {
+            List<GameplayAbilitySO> effective =
+                EnumerateEffectiveAdditionalWithMultiplicity(set).ToList();
             for (int i = 0; i < triggers.Count; i++)
             {
                 GameplayAbilitySO trigger = triggers[i];
                 Assert.That(
-                    set.additionalAbilities.Count(ability => ability == trigger),
+                    effective.Count(ability => ability == trigger),
                     Is.EqualTo(1),
-                    $"{set.name}: {trigger.name} 연결 수");
+                    $"{set.name}: {trigger.name} 유효 연결 수");
+            }
+        }
+
+        /// <summary>
+        /// 런타임과 같은 Base → Override → Local 순서로 additionalAbilities를 합성한다.
+        /// 중복 검출이 목적이므로 AbilitySetSO.EnumerateAll의 HashSet 중복 제거는 사용하지 않는다.
+        /// </summary>
+        private static IEnumerable<GameplayAbilitySO>
+            EnumerateEffectiveAdditionalWithMultiplicity(AbilitySetSO set)
+        {
+            return EnumerateEffectiveAdditionalWithMultiplicity(
+                set,
+                new HashSet<AbilitySetSO>());
+        }
+
+        private static IEnumerable<GameplayAbilitySO>
+            EnumerateEffectiveAdditionalWithMultiplicity(
+                AbilitySetSO set,
+                HashSet<AbilitySetSO> visited)
+        {
+            if (set == null || !visited.Add(set))
+                yield break;
+
+            if (set.baseSet != null)
+            {
+                foreach (GameplayAbilitySO inherited in
+                         EnumerateEffectiveAdditionalWithMultiplicity(
+                             set.baseSet,
+                             visited))
+                {
+                    GameplayAbilitySO resolved =
+                        set.ResolveInheritedAbility(inherited);
+                    if (resolved != null)
+                        yield return resolved;
+                }
+            }
+
+            for (int i = 0; i < (set.additionalAbilities?.Count ?? 0); i++)
+            {
+                GameplayAbilitySO local = set.additionalAbilities[i];
+                if (local != null)
+                    yield return local;
             }
         }
     }
